@@ -115,6 +115,10 @@ const QString TWUtils::getLibraryPath(const QString& subdir, const bool updateOn
 		  subdir += std::to_string(VER_MINOR);
 		  dir /= subdir;
 		  libRootPath = dir.GetData();
+                  if (!pSession->UnloadFilenameDatabase())
+                  {
+                    //TODO: log
+                  }
 		}
 #else
 		libRootPath = QDir::homePath() + "/" + TEXWORKS_NAME + "/";
@@ -312,6 +316,10 @@ void TWUtils::insertHelpMenuItems(QMenu* helpMenu)
 	    helpDir = QCoreApplication::applicationDirPath() + "/texworks-help";
 	  }
 	}
+        if (!pSession->UnloadFilenameDatabase())
+        {
+          //TODO: log
+        }
 #else
 	QDir helpDir(QCoreApplication::applicationDirPath() + "/texworks-help");
 #endif
@@ -472,6 +480,10 @@ QHash<QString, QString>* TWUtils::getDictionaryList(const bool forceReload /* = 
 	    }
 	  }
 	}
+        if (!pSession->UnloadFilenameDatabase())
+        {
+          //TODO: log
+        }
 #endif
 	
 	TWApp::instance()->notifyDictionaryListChanged();
@@ -521,6 +533,10 @@ Hunhandle* TWUtils::getDictionary(const QString& language)
             (*dictionaries)[language] = h;
             break;
           }
+        }
+        if (!session->UnloadFilenameDatabase())
+        {
+          //TODO: log
         }
 #endif
 	return h;

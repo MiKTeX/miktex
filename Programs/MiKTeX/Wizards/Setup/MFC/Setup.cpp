@@ -26,7 +26,7 @@
 // this runs the wizard
 SetupApp setupWizardApplication;
 
-SetupApp * SetupApp::Instance = &setupWizardApplication;
+SetupApp* SetupApp::Instance = &setupWizardApplication;
 
 class SetupCommandLineInfo
   : public CCommandLineInfo
@@ -73,6 +73,9 @@ public:
   bool optUnattended = false;
 
 public:
+  bool optRestarted = false;
+
+public:
   PackageLevel packageLevel = PackageLevel::None;
 
 #if FEATURE_1874934
@@ -89,7 +92,7 @@ public:
   PathName optPortableRoot;
 };
 
-void AddArgument (const string & argument, int & argc, char ** & argv, int & argMax)
+void AddArgument(const string& argument, int& argc, char**& argv, int& argMax)
 {
   if (argc == argMax)
   {
@@ -99,21 +102,21 @@ void AddArgument (const string & argument, int & argc, char ** & argv, int & arg
   argv[argc++] = strdup(argument.c_str());
 }
 
-void GetArguments (const char * lpszCommandLine, const char * lpszExeName, int & argc, char ** & argv)
+void GetArguments(const char* commandLine, const char* exeName, int& argc, char**& argv)
 {
   argc = 0;
   argv = nullptr;
 
   int argMax = 0;
 
-  AddArgument(string(lpszExeName), argc, argv, argMax);
+  AddArgument(string(exeName), argc, argv, argMax);
 
   string arg;
 
   bool copying = false;
   bool inQuotedArg = false;
 
-  const char * lpsz = lpszCommandLine;
+  const char* lpsz = commandLine;
 
   while (*lpsz != 0)
   {
@@ -145,7 +148,7 @@ void GetArguments (const char * lpszCommandLine, const char * lpszExeName, int &
   }
 }
 
-void FreeArguments(int argc, char ** & argv)
+void FreeArguments(int argc, char**& argv)
 {
   for (int i = 0; i < argc; ++i)
   {
@@ -166,6 +169,7 @@ enum {
   OPT_COMMON_DATA,
   OPT_COMMON_INSTALL,
   OPT_COMMON_ROOTS,
+  OPT_CONTINUE,
   OPT_DOWNLOAD_ONLY,
   OPT_DRY_RUN,
   OPT_HELP,
@@ -199,6 +203,7 @@ const struct option long_options[] =
   { "common-data", required_argument, 0, OPT_COMMON_DATA },
   { "common-install", required_argument, 0, OPT_COMMON_INSTALL },
   { "common-roots", required_argument, 0, OPT_COMMON_ROOTS },
+  { "continue", no_argument, 0, OPT_CONTINUE },
   { "download-only", no_argument, 0, OPT_DOWNLOAD_ONLY },
   { "dry-run", no_argument, 0, OPT_DRY_RUN },
   { "help", no_argument, 0, OPT_HELP },
@@ -270,7 +275,7 @@ void ShowHelpAndExit(int retCode = 0)
   exit(retCode);
 }
 
-void CheckStartupConfig(StartupConfig & startupConfig)
+void CheckStartupConfig(StartupConfig& startupConfig)
 {
 #if 1
   string commonRoots;
@@ -359,7 +364,7 @@ void CheckStartupConfig(StartupConfig & startupConfig)
 #endif
 }
 
-void ParseSetupCommandLine(int argc, char ** argv, SetupCommandLineInfo & cmdinfo)
+void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -430,6 +435,10 @@ void ParseSetupCommandLine(int argc, char ** argv, SetupCommandLineInfo & cmdinf
         MIKTEX_FATAL_ERROR(T_("You must have administrator privileges to set up common root directories."));
       }
       cmdinfo.startupConfig.commonRoots = optarg;
+      break;
+
+    case OPT_CONTINUE:
+      cmdinfo.optRestarted = true;
       break;
 
     case OPT_DOWNLOAD_ONLY:
@@ -556,7 +565,7 @@ void ParseSetupCommandLine(int argc, char ** argv, SetupCommandLineInfo & cmdinf
   }
 }
 
-bool FindFile(const PathName & fileName, PathName & result)
+bool FindFile(const PathName& fileName, PathName& result)
 {
   std::shared_ptr<Session> session = Session::Get();
 
@@ -579,7 +588,7 @@ bool FindFile(const PathName & fileName, PathName & result)
   return false;
 }
 
-bool ReadSetupWizIni(SetupCommandLineInfo & cmdinfo)
+bool ReadSetupWizIni(SetupCommandLineInfo& cmdinfo)
 {
   PathName fileName;
   if (!FindFile("setupwiz.opt", fileName))
@@ -596,7 +605,7 @@ bool ReadSetupWizIni(SetupCommandLineInfo & cmdinfo)
   }
   reader.Close();
   int argc;
-  char ** argv;
+  char** argv;
   GetArguments(commandLine.c_str(), TU_(AfxGetAppName()), argc, argv);
   ParseSetupCommandLine(argc, argv, cmdinfo);
   FreeArguments(argc, argv);
@@ -615,7 +624,7 @@ SetupApp::SetupApp()
 }
 
 #if ENABLE_ADDTEXMF
-void CheckAddTEXMFDirs(vector<PathName> & vec)
+void CheckAddTEXMFDirs(vector<PathName>& vec)
 {
   CsvList path(directories, ';');
   vec.clear();
@@ -641,7 +650,7 @@ void CheckAddTEXMFDirs(vector<PathName> & vec)
 }
 #endif
 
-void SetupGlobalVars(const SetupCommandLineInfo & cmdinfo)
+void SetupGlobalVars(const SetupCommandLineInfo& cmdinfo)
 {
   std::shared_ptr<Session> session = Session::Get();
 
@@ -657,6 +666,7 @@ void SetupGlobalVars(const SetupCommandLineInfo & cmdinfo)
 
   SetupApp::Instance->AllowUnattendedReboot = cmdinfo.optAllowUnattendedReboot;
   SetupApp::Instance->IsUnattended = cmdinfo.optUnattended;
+  SetupApp::Instance->IsRestarted = cmdinfo.optRestarted;
 
   // check to see whether setup is started from a MiKTeXDirect location
   SetupApp::Instance->IsMiKTeXDirect = SetupService::IsMiKTeXDirect(options.MiKTeXDirectRoot);
@@ -885,7 +895,7 @@ BOOL SetupApp::InitInstance()
 
     // get command-line arguments
     int argc;
-    char ** argv;
+    char** argv;
     GetArguments(TU_(m_lpCmdLine), TU_(AfxGetAppName()), argc, argv);
     SetupCommandLineInfo cmdinfo;
     ReadSetupWizIni(cmdinfo);
@@ -939,7 +949,7 @@ BOOL SetupApp::InitInstance()
     }
 
     // clean up
-    PathName pathLogFile = Service->CloseLog(dlgRet == IDCANCEL);
+    PathName pathLogFile = Service->CloseLog(dlgRet == IDCANCEL || dlgRet == IDRETRY);
     if (SetupApp::Instance->ShowLogFileOnExit && !pathLogFile.Empty())
     {
       INT_PTR r = reinterpret_cast<INT_PTR>(ShellExecuteW(nullptr, L"open", pathLogFile.ToWideCharString().c_str(), nullptr, nullptr, SW_SHOWNORMAL));
@@ -951,18 +961,90 @@ BOOL SetupApp::InitInstance()
     traceStream.reset();
     packageManager->UnloadDatabase();
     packageManager = nullptr;
+    if (dlgRet == IDRETRY)
+    {
+      options = Service->GetOptions();
+    }
     Service = nullptr;
     session->UnloadFilenameDatabase();
     scratchRoot = nullptr;
+    if (dlgRet == IDRETRY && sfxDir != nullptr)
+    {
+      string packageLevel;
+      switch (options.PackageLevel)
+      {
+      case PackageLevel::Advanced:
+        packageLevel = "advanced";
+        break;
+      case PackageLevel::Basic:
+        packageLevel = "basic";
+        break;
+      case PackageLevel::Complete:
+        packageLevel = "complete";
+        break;
+      case PackageLevel::Essential:
+        packageLevel = "essential";
+        break;
+      }
+      string autoInstall;
+      switch (options.IsInstallOnTheFlyEnabled)
+      {
+      case TriState::True:
+        autoInstall = "yes";
+        break;
+      case TriState::False:
+        autoInstall = "no";
+        break;
+      default:
+        autoInstall = "ask";
+        break;
+      }
+      vector<string> args = {
+        "--auto-install", autoInstall,
+        "--common-install", options.Config.commonInstallRoot.ToString(),
+        "--continue",
+        "--install-from-local-repository",
+        "--local-package-repository", sfxDir->GetPathName().ToString(),
+        "--package-set", packageLevel,
+        "--paper-size", options.PaperSize,
+        "--program-folder", options.FolderName.ToString(),
+        "--shared"
+      };
+      SHELLEXECUTEINFOW sei = SHELLEXECUTEINFOW();
+      sei.cbSize = sizeof(sei);
+      sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
+      CharBuffer<wchar_t> file((sfxDir->GetPathName() / "miktex-setup-wizard" MIKTEX_EXE_FILE_SUFFIX).GetData());
+      sei.lpFile = file.GetData();
+      CharBuffer<wchar_t> parameters(CommandLineBuilder(args).ToString());
+      sei.lpParameters = parameters.GetData();
+      sei.nShow = SW_NORMAL;
+      if (!ShellExecuteExW(&sei))
+      {
+        MIKTEX_FATAL_WINDOWS_ERROR("ShellExecuteExW");
+      }
+      if (sei.hProcess == nullptr)
+      {
+        MIKTEX_FATAL_ERROR(T_("Process handle is null."));
+      }
+      DWORD wait = WaitForSingleObject(sei.hProcess, INFINITE);
+      if (wait != WAIT_OBJECT_0)
+      {
+        MIKTEX_FATAL_ERROR_2(T_("Process wait failure."), "wait", std::to_string(wait));
+      }
+      if (!CloseHandle(sei.hProcess))
+      {
+        MIKTEX_FATAL_WINDOWS_ERROR("CloseHandle");
+      }
+    }
     sfxDir = nullptr;
     session = nullptr;
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -997,7 +1079,7 @@ bool Reboot()
 }
 #endif
 
-void DDV_Path(CDataExchange * pDX, const CString & str)
+void DDV_Path(CDataExchange* pDX, const CString& str)
 {
   if (!pDX->m_bSaveAndValidate)
   {
@@ -1049,7 +1131,7 @@ void DDV_Path(CDataExchange * pDX, const CString & str)
   }
 }
 
-void ReportError(const MiKTeXException & e)
+void ReportError(const MiKTeXException& e)
 {
   try
   {
@@ -1072,12 +1154,12 @@ void ReportError(const MiKTeXException & e)
       SetupApp::Instance->Service->Log(T_("  info: %s\n"), e.GetInfo().c_str());
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void ReportError(const exception & e)
+void ReportError(const exception& e)
 {
   try
   {
@@ -1087,7 +1169,7 @@ void ReportError(const exception & e)
     SetupApp::Instance->Service->Log("\n%s\n", str.c_str());
     AfxMessageBox(UT_(str), MB_OK | MB_ICONSTOP);
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }

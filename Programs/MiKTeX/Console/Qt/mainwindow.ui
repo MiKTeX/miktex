@@ -116,7 +116,7 @@
           <string>Check and modify MiKTeX configuration settings</string>
          </property>
          <property name="text">
-          <string>Setttings</string>
+          <string>Settings</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -197,7 +197,7 @@
           <enum>Qt::NoFocus</enum>
          </property>
          <property name="statusTip">
-          <string>MiKTeX package management</string>
+          <string>Diagnose</string>
          </property>
          <property name="text">
           <string>Diagnose</string>
@@ -492,7 +492,7 @@
            <item>
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You can start with an online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;If you want, you can start with an online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -521,7 +521,7 @@
            <item>
             <widget class="QGroupBox" name="privateMode">
              <property name="title">
-              <string>Private installation</string>
+              <string>Operation mode</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
@@ -539,17 +539,14 @@
            </item>
            <item>
             <widget class="QGroupBox" name="userMode">
-             <property name="styleSheet">
-              <string notr="true">QGroupBox::title { color: orange; }</string>
-             </property>
              <property name="title">
-              <string>Opeation mode</string>
+              <string>Operation mode</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_2">
               <item>
                <widget class="QLabel" name="label_4">
                 <property name="text">
-                 <string>Decide now how you would like to proceed:</string>
+                 <string>Please decide how you wish to continue:</string>
                 </property>
                 <property name="wordWrap">
                  <bool>true</bool>
@@ -565,17 +562,19 @@
                  <string>Restart as administrator</string>
                 </property>
                 <property name="description">
-                 <string>Use this option, if you want to operate on the shared (system-wide) configuration.</string>
+                 <string>Restart MiKTeX Console with elevated privileges and switch to admin mode.
+Use this option, if you want to operate on the shared (system-wide) configuration.</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QCommandLinkButton" name="buttonOkayUserMode">
                 <property name="text">
-                 <string>I want to stay in private mode</string>
+                 <string>Stay in user mode</string>
                 </property>
                 <property name="description">
-                 <string>Use this option, if you want to operate on the private configuration.</string>
+                 <string>Continue to work with MiKTeX Console in user mode.
+Use this option, if you want to operate on the private configuration.</string>
                 </property>
                </widget>
               </item>
@@ -585,7 +584,7 @@
            <item>
             <widget class="QGroupBox" name="adminMode">
              <property name="title">
-              <string>Admin mode</string>
+              <string>Operation mode</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -721,6 +720,9 @@
             <spacer name="verticalSpacer_11">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Preferred</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -1679,7 +1681,7 @@
      <x>0</x>
      <y>0</y>
      <width>841</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1749,9 +1751,12 @@
     <string>Shows the version number and copying conditions.</string>
    </property>
   </action>
-  <action name="actionMinimize">
+  <action name="actionHide">
    <property name="text">
-    <string>Mi&amp;nimize</string>
+    <string>&amp;Hide</string>
+   </property>
+   <property name="toolTip">
+    <string>Hide</string>
    </property>
   </action>
   <action name="actionRestore">
@@ -1993,7 +1998,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionMinimize</sender>
+   <sender>actionHide</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>hide()</slot>

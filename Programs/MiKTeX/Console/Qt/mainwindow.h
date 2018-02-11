@@ -97,6 +97,20 @@ private slots:
 
 private slots:
   void TrayMessageClicked();
+
+private:
+  enum class TrayMessageContext
+  {
+    None,
+    Error,
+    Updates
+  };
+
+private:
+  TrayMessageContext trayMessageContext = TrayMessageContext::None;
+
+private:
+  void ShowTrayMessage(TrayMessageContext context, const QString& message);
 #endif
 
 private:
@@ -410,6 +424,12 @@ private slots:
 
 private:
   bool IsFactoryResetPossible();
+
+private:
+  void ReadSettings();
+
+private:
+  void WriteSettings();
 
 private:
   std::atomic_int backgroundWorkers{ 0 };

@@ -23,13 +23,27 @@
 #include <QtWidgets>
 #include <QSystemTrayIcon>
 
+#include <log4cxx/logger.h>
+#include <log4cxx/rollingfileappender.h>
+#include <log4cxx/xml/domconfigurator.h>
+
+#include "console-version.h"
+
 #include <miktex/Core/Exceptions>
+#include <miktex/Core/Paths>
 #include <miktex/Core/Session>
+#include <miktex/UI/Qt/ErrorDialog>
+#include <miktex/Util/StringUtil>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceCallback>
 #include <miktex/Wrappers/PoptWrapper>
 
 #include "mainwindow.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
+using namespace MiKTeX::UI::Qt;
+using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
 
@@ -60,6 +74,67 @@ namespace {
   };
 }
 
+static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("Console"));
+static bool isLog4cxxConfigured = false;
+
+class TraceSink :
+  public MiKTeX::Trace::TraceCallback
+{
+public:
+  void Trace(const TraceCallback::TraceMessage& traceMessage) override
+  {
+    if (!isLog4cxxConfigured)
+    {
+      if (pendingTraceMessages.size() > 100)
+      {
+        pendingTraceMessages.clear();
+      }
+      pendingTraceMessages.push_back(traceMessage);
+      return;
+    }
+    FlushPendingTraceMessages();
+    TraceInternal(traceMessage);
+  }
+
+private:
+  vector<TraceCallback::TraceMessage> pendingTraceMessages;
+
+public:
+  void FlushPendingTraceMessages()
+  {
+    for (const TraceCallback::TraceMessage& msg : pendingTraceMessages)
+    {
+      TraceInternal(msg);
+    }
+    pendingTraceMessages.clear();
+  }
+
+private:
+  void TraceInternal(const TraceCallback::TraceMessage& traceMessage)
+  {
+    if (isLog4cxxConfigured)
+    {
+      log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.") + Utils::GetExeName() + "." + traceMessage.facility);
+      if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
+      {
+        LOG4CXX_ERROR(logger, traceMessage.message);
+      }
+      else
+      {
+        LOG4CXX_TRACE(logger, traceMessage.message);
+      }
+    }
+    else
+    {
+#if defined(MIKTEX_WINDOWS)
+      OutputDebugStringW(StringUtil::UTF8ToWideChar(traceMessage.message).c_str());
+#else
+      fprintf(stderr, "%s\n", traceMessage.message.c_str());
+#endif
+    }
+  }
+};
+
 int main(int argc, char* argv[])
 {
 #if QT_VERSION >= 0x050600
@@ -70,9 +145,11 @@ int main(int argc, char* argv[])
   bool optAdmin = false;
   bool optFinishSetup = false;
   bool optHide = false;
+  TraceSink traceSink;
   try
   {
     Session::InitInfo initInfo;
+    initInfo.SetTraceCallback(&traceSink);
 #if 0
     initInfo.SetOptions({ Session::InitOption::NoFixPath });
 #endif
@@ -114,6 +191,22 @@ int main(int argc, char* argv[])
 #if QT_VERSION >= 0x050000
     application.setApplicationDisplayName(displayName);
 #endif
+    PathName xmlFileName;
+    if (session->FindFile("console." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
+      || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
+    {
+      string logName = "miktex-console";
+      if (session->IsAdminMode())
+      {
+        logName += MIKTEX_ADMIN_SUFFIX;
+      }
+      Utils::SetEnvironmentString("MIKTEX_LOG_DIR", session->GetSpecialPath(SpecialPath::DataRoot).AppendComponent(MIKTEX_PATH_MIKTEX_LOG_DIR).ToString());
+      Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
+      log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
+      isLog4cxxConfigured = true;
+      traceSink.FlushPendingTraceMessages();
+      LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR));
+    }
     MainWindow mainWindow;
     if (optHide)
     {
@@ -128,14 +221,48 @@ int main(int argc, char* argv[])
       QTimer::singleShot(100, &mainWindow, SLOT(FinishSetup()));
     }
     ret = application.exec();
+    if (isLog4cxxConfigured)
+    {
+      LOG4CXX_INFO(logger, "finishing with exit code " << ret);
+    }
   }
   catch (const MiKTeXException& e)
   {
     ret = 1;
+    if (isLog4cxxConfigured)
+    {
+      LOG4CXX_FATAL(logger, e.what());
+      LOG4CXX_FATAL(logger, "finishing with exit code " << ret);
+    }
+    else
+    {
+      traceSink.FlushPendingTraceMessages();
+    }
+    if (QMessageBox::critical(nullptr, "MiKTeX Console", "Sorry, but something went wrong.\n\nDo you want to see the error details?",
+      QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
+      == QMessageBox::StandardButton::Yes)
+    {
+      ErrorDialog::DoModal(nullptr, e);
+    }
   }
   catch (const exception& e)
   {
     ret = 1;
+    if (isLog4cxxConfigured)
+    {
+      LOG4CXX_FATAL(logger, e.what());
+      LOG4CXX_FATAL(logger, "finishing with exit code " << ret);
+    }
+    else
+    {
+      traceSink.FlushPendingTraceMessages();
+    }
+    if (QMessageBox::critical(nullptr, "MiKTeX Console", "Sorry, but something went wrong.\n\nDo you want to see the error details?",
+      QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
+      == QMessageBox::StandardButton::Yes)
+    {
+      ErrorDialog::DoModal(nullptr, e);
+    }
   }
   return ret;
 }

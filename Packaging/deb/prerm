@@ -1,2 +1,16 @@
 #!/bin/sh -e
-miktexsetup factoryreset
+
+case "$1" in
+    remove)
+	miktexsetup factoryreset
+	;;
+    upgrade)
+	initexmf --admin --clean
+	;;
+    failed-upgrade)
+	;;
+    deconfigure)
+	;;
+    *)
+	;;
+esac

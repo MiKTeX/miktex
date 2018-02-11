@@ -49,15 +49,23 @@ void DVIToSVGActions::reset() {
 }
 
 
-void DVIToSVGActions::moveToX (double x) {
+/** Change current horizontal position.
+ *  @param[in] x new horizontal position
+ *  @param[in] forceSVGMove if true, creates an explicit position change in the SVG tree */
+void DVIToSVGActions::moveToX (double x, bool forceSVGMove) {
 	SpecialManager::instance().notifyPositionChange(getX(), getY(), *this);
-	_svg.setX(x);
+	if (forceSVGMove)
+		_svg.setX(x);
 }
 
 
-void DVIToSVGActions::moveToY (double y) {
+/** Change current vertical position.
+ *  @param[in] y new vertical position
+ *  @param[in] forceSVGMove if true, creates an explicit position change in the SVG tree */
+void DVIToSVGActions::moveToY (double y, bool forceSVGMove) {
 	SpecialManager::instance().notifyPositionChange(getX(), getY(), *this);
-	_svg.setY(y);
+	if (forceSVGMove)
+		_svg.setY(y);
 }
 
 

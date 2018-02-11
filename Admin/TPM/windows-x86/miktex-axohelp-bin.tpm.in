@@ -4,10 +4,10 @@
   <rdf:Description about="http://www.miktex.org/packages/axohelp/">
     <TPM:Name>axohelp win32</TPM:Name>
     <TPM:Title>axohelp, Windows x86</TPM:Title>
-    <TPM:Copyright owner="John Collins" year="2016"/>
-    <TPM:Copyright owner="Jos Vermaseren" year="2016"/>
+    <TPM:Copyright owner="John Collins" year="2018"/>
+    <TPM:Copyright owner="Jos Vermaseren" year="2018"/>
     <TPM:License type="gpl3"/>
-    <TPM:Version>1.0</TPM:Version>
+    <TPM:Version>1.1</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

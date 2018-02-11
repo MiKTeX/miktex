@@ -60,8 +60,8 @@ class DVIToSVGActions : public DVIActions, public SpecialActions {
 		void pushContextElement (std::unique_ptr<XMLElementNode> &&node) override {_svg.pushContextElement(std::move(node));}
 		void popContextElement () override                      {_svg.popContextElement();}
 		void setTextOrientation(bool vertical) override         {_svg.setVertical(vertical);}
-		void moveToX (double x) override;
-		void moveToY (double y) override;
+		void moveToX (double x, bool forceSVGMove) override;
+		void moveToY (double y, bool forceSVGMove) override;
 		void setFont (int num, const Font &font) override;
 		void special (const std::string &spc, double dvi2bp, bool preprocessing=false) override;
 		void beginPage (unsigned pageno, const std::vector<int32_t> &c) override;

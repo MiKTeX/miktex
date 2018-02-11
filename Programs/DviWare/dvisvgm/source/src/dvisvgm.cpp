@@ -124,7 +124,8 @@ static bool set_cache_dir (const CommandLine &args) {
 	if (args.cacheOpt.given() && args.cacheOpt.value().empty()) {
 		cout << "cache directory: " << (PhysicalFont::CACHE_PATH ? PhysicalFont::CACHE_PATH : "(none)") << '\n';
 		try {
-			FontCache::fontinfo(PhysicalFont::CACHE_PATH, cout, true);
+			if (PhysicalFont::CACHE_PATH)
+				FontCache::fontinfo(PhysicalFont::CACHE_PATH, cout, true);
 		}
 		catch (StreamReaderException &e) {
 			Message::wstream(true) << "failed reading cache data\n";

@@ -132,7 +132,6 @@ set(libbrotli_sources
 set(libwoff2_sources
   source/libs/woff2/include/woff2/decode.h
   source/libs/woff2/include/woff2/encode.h
-  source/libs/woff2/include/woff2/file.h
   source/libs/woff2/include/woff2/output.h
   source/libs/woff2/include/woff2/version.h
   source/libs/woff2/src/buffer.h

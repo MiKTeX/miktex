@@ -52,7 +52,7 @@ static int verbose = 0;
 #define JFMV_ID  9
 #define IS_JFM(i) ((i) == JFM_ID || (i) == JFMV_ID)
 
-#define CHARACTER_INDEX(i)  ((i > 0xFFFFUL ? 0x10000UL : i))
+#define CHARACTER_INDEX(i)  ((i > 0x10FFFFUL ? 0x110000UL : i))
 #else
 #define CHARACTER_INDEX(i)  ((i))
 #endif
@@ -83,7 +83,7 @@ struct tfm_font
 #endif /* !WITHOUT_OMEGA */
   fixword       *header;
 #ifndef WITHOUT_ASCII_PTEX
-  unsigned short *chartypes;
+  unsigned int *chartypes;
 #endif /* !WITHOUT_ASCII_PTEX */
   uint32_t      *char_info;
   unsigned short *width_index;
@@ -181,7 +181,11 @@ struct range_map {
 struct char_map
 {
   struct coverage coverage;
+#ifndef WITHOUT_ASCII_PTEX
+  unsigned int *indices;
+#else
   unsigned short *indices;
+#endif
 };
 
 static void
@@ -454,17 +458,18 @@ tfm_get_sizes (FILE *tfm_file, off_t tfm_file_size, struct tfm_font *tfm)
 static void
 jfm_do_char_type_array (FILE *tfm_file, struct tfm_font *tfm)
 {
-  unsigned short charcode;
+  unsigned int charcode;
   unsigned short chartype;
-  int i;
+  unsigned int i;
 
-  tfm->chartypes = NEW(65536, unsigned short);
-  for (i = 0; i < 65536; i++) {
+  tfm->chartypes = NEW(1114112, unsigned int);
+  for (i = 0; i < 1114112; i++) {
     tfm->chartypes[i] = 0;
   }
   for (i = 0; i < tfm->nt; i++) {
-    charcode = get_unsigned_pair(tfm_file);
-    chartype = get_unsigned_pair(tfm_file);
+    /* support new JFM spec by texjporg */
+    charcode = get_unsigned_triple_kanji(tfm_file);
+    chartype = get_unsigned_byte(tfm_file);
     tfm->chartypes[charcode] = chartype;
   }
 }
@@ -481,14 +486,14 @@ jfm_make_charmap (struct font_metric *fm, struct tfm_font *tfm)
     map->coverage.first_char = 0;
 #ifndef WITHOUT_ASCII_PTEX
     map->coverage.num_chars  = 0x10FFFFL;
-    map->indices    = NEW(0x10001L, unsigned short);
-    map->indices[0x10000L] = tfm->chartypes[0];
+    map->indices    = NEW(0x110001L, unsigned int);
+    map->indices[0x110000L] = tfm->chartypes[0];
+    for (code = 0; code <= 0x10FFFFU; code++) {
 #else
     map->coverage.num_chars  = 0xFFFFL;
     map->indices    = NEW(0x10000L, unsigned short);
-#endif
-
     for (code = 0; code <= 0xFFFFU; code++) {
+#endif
       map->indices[code] = tfm->chartypes[code];
     }
   } else {

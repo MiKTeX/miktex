@@ -1,6 +1,6 @@
 /* Setup.h:                                             -*- C++ -*-
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -46,10 +46,10 @@ public:
   SetupApp();
 
 public:
-  static SetupApp * Instance;
+  static SetupApp* Instance;
 
 public:
-  virtual BOOL InitInstance();
+  BOOL InitInstance() override;
 
 public:
   DECLARE_MESSAGE_MAP();
@@ -83,7 +83,7 @@ public:
   }
 
 public:
-  void SetInstallationDirectory(const PathName & path)
+  void SetInstallationDirectory(const PathName& path)
   {
     SetupOptions options = Service->GetOptions();
     if (options.IsPortable)
@@ -196,16 +196,19 @@ public:
 
 public:
   bool IsUnattended = false;
+
+public:
+  bool IsRestarted = false;
 };
 
 #if ENABLE_ADDTEXMF
-void CheckAddTEXMFDirs(string & directories, vector<PathName> & vec);
+void CheckAddTEXMFDirs(string& directories, vector<PathName>& vec);
 #endif
 
-void DDV_Path(CDataExchange * DX, const CString & str);
+void DDV_Path(CDataExchange* dx, const CString& str);
 
-bool FindFile(const PathName & fileName, PathName & result);
+bool FindFile(const PathName& fileName, PathName& result);
 
-void ReportError(const MiKTeXException & e);
+void ReportError(const MiKTeXException& e);
 
-void ReportError(const exception & e);
+void ReportError(const exception& e);

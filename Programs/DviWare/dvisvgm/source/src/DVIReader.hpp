@@ -38,6 +38,7 @@ class DVIReader : public BasicDVIReader, public VFActions {
 	protected:
 		enum class WritingMode {LR=0, TB=1, BT=3};
 		enum class SetFontMode {SF_SHORT, SF_LONG, VF_ENTER, VF_LEAVE};
+		enum class MoveMode {SETCHAR, CHANGEPOS};
 
 		struct DVIState {
 			double h, v;        ///< horizontal and vertical cursor position
@@ -67,8 +68,8 @@ class DVIReader : public BasicDVIReader, public VFActions {
 		void collectBopOffsets ();
 		size_t numberOfPageBytes (int n) const {return _bopOffsets.size() > 1 ? _bopOffsets[n+1]-_bopOffsets[n] : 0;}
 		void goToPostamble ();
-		virtual void moveRight (double dx);
-		virtual void moveDown (double dy);
+		virtual void moveRight (double dx, MoveMode mode);
+		virtual void moveDown (double dy, MoveMode mode);
 		void putVFChar (Font *font, uint32_t c);
 		double putGlyphArray (bool xonly, std::vector<double> &dx, std::vector<double> &dy, std::vector<uint16_t> &glyphs);
 		const Font* defineFont (uint32_t fontnum, const std::string &name, uint32_t cs, double ds, double ss);

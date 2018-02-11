@@ -289,21 +289,6 @@ setinputfileencoding(UFILE* f, integer mode, integer encodingData)
     }
 }
 
-void
-uclose(UFILE* f)
-{
-    if (f != 0) {
-#if defined(MIKTEX)
-      MiKTeX::Core::Session::Get()->CloseFile(f->f);
-#else
-        fclose(f->f);
-#endif
-        if ((f->encodingMode == ICUMAPPING) && (f->conversionData != NULL))
-            ucnv_close((UConverter*)(f->conversionData));
-        free((void*)f);
-    }
-}
-
 static void
 buffer_overflow(void)
 {
@@ -2680,6 +2665,25 @@ u_open_in(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode
         setinputfileencoding(*f, mode, encodingData);
     }
     return rval;
+}
+
+void
+u_close_inout(unicodefile* f)
+{
+    if (f != 0) {
+#if defined(MIKTEX)
+        MiKTeX::Core::Session::Get()->CloseFile((*f)->f);
+#else
+        fclose((*f)->f);
+#endif
+        if (((*f)->encodingMode == ICUMAPPING) && ((*f)->conversionData != NULL))
+#if defined(MIKTEX)
+            ucnv_close((UConverter*)(*f)->conversionData);
+#else
+            ucnv_close((*f)->conversionData);
+#endif
+        free(*f);
+    }
 }
 
 #if defined(WIN32)

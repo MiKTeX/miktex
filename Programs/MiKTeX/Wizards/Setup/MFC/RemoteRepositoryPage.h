@@ -1,6 +1,6 @@
 /* RemoteRepositoryPag.h:                               -*- C++ -*-
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -42,7 +42,7 @@ protected:
   virtual BOOL OnSetActive();
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  virtual void DoDataExchange(CDataExchange* dx);
 
 protected:
   virtual LRESULT OnWizardNext();
@@ -57,22 +57,22 @@ protected:
   virtual BOOL OnQueryCancel();
 
 protected:
-  afx_msg void OnItemChanged(NMHDR * pNMHDR, LRESULT * pResult);
+  afx_msg void OnItemChanged(NMHDR* pNMHDR, LRESULT* pResult);
 
 protected:
   afx_msg LRESULT OnFillList(WPARAM wParam, LPARAM lParam);
 
 private:
-  static UINT WorkerThread(void * pv);
+  static UINT WorkerThread(void* remoteRepositoryPage);
 
 private:
-  void InsertColumn(int colIdx, const char * lpszLabel, const char * lpszLongest);
+  void InsertColumn(int column, const char* label, const char* longest);
 
 private:
-  void SetItemText(int itemIdx, int colIdx, const char * lpszText);
+  void SetItemText(int index, int column, const char* text);
 
 private:
-  void SetProgressText(const char * lpszText);
+  void SetProgressText(const char* text);
 
 private:
   CListCtrl listControl;
@@ -90,5 +90,5 @@ private:
   bool noDdv;
 
 private:
-  class SetupWizard * pSheet = nullptr;
+  class SetupWizard* pSheet = nullptr;
 };

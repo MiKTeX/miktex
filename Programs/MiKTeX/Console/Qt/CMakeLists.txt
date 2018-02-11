@@ -104,6 +104,12 @@ set(libs
   miktex-popt-wrapper
 )
 
+if (USE_SYSTEM_LOG4CXX)
+  list(APPEND libs MiKTeX::Imported::LOG4CXX)
+else()
+  list(APPEND libs ${log4cxx_dll_name})
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND libs
     Comctl32.lib
@@ -189,5 +195,11 @@ if(MIKTEX_MACOS_BUNDLE)
       mac/miktex-console${MIKTEX_ADMIN_SUFFIX}
       mac/Terminal
     DESTINATION "${MIKTEX_MACOS_BUNDLE_DIR}/Resources"
+  )
+endif()
+
+if(MIKTEX_MACOS_BUNDLE AND WITH_CODE_SIGNING)
+  install(CODE
+    "execute_process(COMMAND \"${CMAKE_SOURCE_DIR}/BuildUtilities/sign/mac/codesign_miktex\" \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_NAME}.app\")"
   )
 endif()

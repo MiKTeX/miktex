@@ -1,6 +1,6 @@
 /* SharedInstallationPage.cpp:
 
-   Copyright (C) 1999-2017 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -27,7 +27,6 @@
 #include "SharedInstallationPage.h"
 
 BEGIN_MESSAGE_MAP(SharedInstallationPage, CPropertyPage)
-  ON_BN_CLICKED(IDC_SHARED, &SharedInstallationPage::OnShared)
 END_MESSAGE_MAP();
 
 SharedInstallationPage::SharedInstallationPage() :
@@ -45,52 +44,52 @@ BOOL SharedInstallationPage::OnInitDialog()
 
   try
   {
-    if (!(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+    if (!(session->IsUserAnAdministrator() || session->IsUserAPowerUser()))
     {
-      CWnd * pWnd = GetDlgItem(IDC_SHARED);
-      if (pWnd == nullptr)
+      CWnd* wnd = GetDlgItem(IDC_SHARED);
+      if (wnd == nullptr)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
-      pWnd->EnableWindow(FALSE);
+      wnd->EnableWindow(FALSE);
     }
-    CWnd * pWnd = GetDlgItem(IDC_JUST_FOR_ME);
-    if (pWnd == nullptr)
+    CWnd* wnd = GetDlgItem(IDC_JUST_FOR_ME);
+    if (wnd == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
-    wchar_t szLogonName[30];
-    DWORD sizeLogonName = sizeof(szLogonName) / sizeof(szLogonName[0]);
-    if (!GetUserNameW(szLogonName, &sizeLogonName))
+    wchar_t logonName[30];
+    DWORD sizeLogonName = sizeof(logonName) / sizeof(logonName[0]);
+    if (!GetUserNameW(logonName, &sizeLogonName))
     {
       if (GetLastError() == ERROR_NOT_LOGGED_ON)
       {
-	StringUtil::CopyString(szLogonName, 30, L"unknown user");
+        StringUtil::CopyString(logonName, 30, L"unknown user");
       }
       else
       {
-	MIKTEX_FATAL_WINDOWS_ERROR("GetUserNameW");
+        MIKTEX_FATAL_WINDOWS_ERROR("GetUserNameW");
       }
     }
     CString str;
-    pWnd->GetWindowText(str);
-    str += _T(" ");
-    str += szLogonName;
-    wchar_t szDisplayName[30];
-    ULONG sizeDisplayName = sizeof(szDisplayName) / sizeof(szDisplayName[0]);
-    if (GetUserNameExW(NameDisplay, szDisplayName, &sizeDisplayName))
+    wnd->GetWindowText(str);
+    str += _T(" (");
+    str += logonName;
+    wchar_t displayName[30];
+    ULONG sizeDisplayName = sizeof(displayName) / sizeof(displayName[0]);
+    if (GetUserNameExW(NameDisplay, displayName, &sizeDisplayName))
     {
-      str += _T(" (");
-      str += szDisplayName;
-      str += _T(')');
+      str += _T(", ");
+      str += displayName;
     }
-    pWnd->SetWindowText(str);
+    str += _T(')');
+    wnd->SetWindowText(str);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -104,7 +103,7 @@ BOOL SharedInstallationPage::OnSetActive()
   return CPropertyPage::OnSetActive();
 }
 
-void SharedInstallationPage::DoDataExchange(CDataExchange * pDX)
+void SharedInstallationPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Radio(pDX, IDC_SHARED, commonUserSetup);
@@ -140,7 +139,7 @@ LRESULT SharedInstallationPage::OnWizardNext()
       break;
     default:
       ASSERT(false);
-      __assume (false);
+      __assume(false);
       break;
     }
   }
@@ -162,25 +161,4 @@ BOOL SharedInstallationPage::OnKillActive()
     SetupApp::Instance->Service->SetOptions(options);
   }
   return ret;
-}
-
-void SharedInstallationPage::OnShared()
-{
-  try
-  {
-    if (!(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
-    {
-      AfxMessageBox(T_(_T("You must have administrator privileges to set up a shared MiKTeX system.")), MB_OK | MB_ICONSTOP);
-      commonUserSetup = 1;
-      UpdateData(FALSE);
-    }
-  }
-  catch (const MiKTeXException & e)
-  {
-    ReportError(e);
-  }
-  catch (const exception & e)
-  {
-    ReportError(e);
-  }
 }

@@ -229,7 +229,6 @@ extern "C" {
     void initversionstring(char **versions);
 
     void setinputfileencoding(unicodefile f, integer mode, integer encodingData);
-    void uclose(unicodefile f);
     void linebreakstart(int f, integer localeStrNum, uint16_t* text, integer textLength);
     int linebreaknext(void);
     int getencodingmodeandinfo(integer* info);
@@ -281,13 +280,14 @@ extern "C" {
     int countpdffilepages(void);
     int find_pic_file(char** path, realrect* bounds, int pdfBoxType, int page);
 #if defined(MIKTEX)
-    int u_open_in(unicodefile * f, integer mode, integer encodingData);
+    int u_open_in(unicodefile* f, integer mode, integer encodingData);
 #else
     int u_open_in(unicodefile* f, integer filefmt, const char* fopen_mode, integer mode, integer encodingData);
 #endif
+    void u_close_inout(unicodefile* f);
 #if defined(MIKTEX)
-    int open_dvi_output(/*out*/ C4P::FileRoot & dviFile);
-    int dviclose (/*[in,out]*/ C4P::FileRoot & dviFile);
+    int open_dvi_output(C4P::FileRoot& dviFile);
+    int dviclose (C4P::FileRoot& dviFile);
 #else
     int open_dvi_output(FILE** fptr);
     int dviclose(FILE* fptr);
@@ -304,10 +304,9 @@ extern "C" {
     int applytfmfontmapping(void* mapping, int c);
 
 #if defined(MIKTEX)
-    Fixed get_native_glyph_italic_correction(void* pNode);
-    integer get_native_word_cp(void* pNode, int side);
+    Fixed get_native_glyph_italic_correction(void* node);
+    integer get_native_word_cp(void* node, int side);
 #endif
-
 #ifndef XETEX_MAC
 typedef void* CFDictionaryRef; /* dummy declaration just so the stubs can compile */
 #endif

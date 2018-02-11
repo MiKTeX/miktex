@@ -390,6 +390,12 @@ option(
 )
 
 option(
+  WITH_CODE_SIGNING
+  "Sign MiKTeX executables."
+  FALSE
+)
+
+option(
   WITH_LIBRESSL_CRYPTO
   "Use the LibreSSL crypto library supplied with MiKTeX."
   ${WIN32}
@@ -410,7 +416,7 @@ option(
 option(
   WITH_UI_QT
   "Build Qt components."
-  ${WIN32}
+  TRUE
 )
 
 option(
@@ -2215,9 +2221,9 @@ set(CPACK_DEBIAN_PACKAGE_SECTION
 #  "${CMAKE_SOURCE_DIR}/Packaging/deb/config"
 #)
 
-list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
-)
+#list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
+#)
 
 list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
   "${CMAKE_SOURCE_DIR}/Packaging/deb/prerm"
@@ -2240,6 +2246,15 @@ set(CPACK_RPM_PACKAGE_RELEASE ${MIKTEX_PACKAGE_REVISION})
 set(CPACK_STRIP_SYMBOLS TRUE)
 
 include(CPack)
+
+if(MIKTEX_MACOS_BUNDLE AND WITH_CODE_SIGNING)
+  add_custom_target(signed-package
+    COMMAND
+      "${CMAKE_CPACK_COMMAND}" --config "${CMAKE_BINARY_DIR}/CPackConfig.cmake"
+    COMMAND
+      codesign -s "Developer ID" *.dmg
+  )
+endif()
 
 ###############################################################################
 ## uninstall (see CMAKE FAQ)

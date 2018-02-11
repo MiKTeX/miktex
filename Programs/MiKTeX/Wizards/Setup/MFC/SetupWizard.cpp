@@ -1,6 +1,6 @@
 /* SetupWizard.cpp:
 
-   Copyright (C) 1999-2017 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -65,7 +65,7 @@ SetupWizard::SetupWizard(shared_ptr<PackageManager> packageManager) :
 
   Construct(IDS_SETUPWIZ, nullptr, 0, watermarkBitmap, nullptr, headerBitmap);
 
-  if (!SetupApp::Instance->IsUnattended)
+  if (!(SetupApp::Instance->IsUnattended || SetupApp::Instance->IsRestarted))
   {
     AddPage(&welcomePage);
     AddPage(&licensePage);
@@ -122,36 +122,40 @@ BOOL SetupWizard::OnInitDialog()
       switch (SetupApp::Instance->GetPackageLevel())
       {
       case PackageLevel::Essential:
-	prefix = T_(_T("Essential "));
-	break;
+        prefix = T_(_T("Essential "));
+        break;
       case PackageLevel::Basic:
-	prefix = T_(_T("Basic "));
-	break;
+        prefix = T_(_T("Basic "));
+        break;
       case PackageLevel::Complete:
-	prefix = _T("");
-	break;
+        prefix = _T("");
+        break;
       default:
-	MIKTEX_ASSERT(false);
-	__assume (false);
-	break;
+        MIKTEX_ASSERT(false);
+        __assume (false);
+        break;
       }
       title.Format(T_(_T("%sMiKTeX %s Installer (%d-bit)")),
-	static_cast<LPCTSTR>(prefix),
-	static_cast<LPCTSTR>(version),
-	static_cast<int>(sizeof(void*)) * 8);
+        static_cast<LPCTSTR>(prefix),
+        static_cast<LPCTSTR>(version),
+        static_cast<int>(sizeof(void*)) * 8);
     }
     else
     {
       title.Format(T_(_T("MiKTeX %s Net Installer (%d-bit)")), UT_(MIKTEX_VERSION_STR), static_cast<int>(sizeof(void*)) * 8);
     }
     SetTitle(title);
-    SetActivePage(&licensePage);
+    if (!SetupApp::Instance->IsRestarted)
+    {
+      PushPage(IDD_WELCOME);
+      SetActivePage(&licensePage);
+    }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -160,34 +164,34 @@ BOOL SetupWizard::OnInitDialog()
 
 void SetupWizard::EnableCancelButton(bool enable)
 {
-  CWnd * pWnd = GetDlgItem(IDCANCEL);
-  if (pWnd == nullptr)
+  CWnd* wnd = GetDlgItem(IDCANCEL);
+  if (wnd == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
-  pWnd->EnableWindow(enable ? TRUE : FALSE);
+  wnd->EnableWindow(enable ? TRUE : FALSE);
 }
 
 CString SetupWizard::SetNextText(LPCTSTR lpszText)
 {
-  CWnd * pWnd = GetDlgItem(ID_WIZNEXT);
-  if (pWnd == nullptr)
+  CWnd* wnd = GetDlgItem(ID_WIZNEXT);
+  if (wnd == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
   CString ret;
-  pWnd->GetWindowText(ret);
-  pWnd->SetWindowText(lpszText);
+  wnd->GetWindowText(ret);
+  wnd->SetWindowText(lpszText);
   return ret;
 }
 
-void SetupWizard::ReportError(const MiKTeXException & e)
+void SetupWizard::ReportError(const MiKTeXException& e)
 {
   SetErrorFlag();
   ::ReportError(e);
 }
 
-void SetupWizard::ReportError(const exception & e)
+void SetupWizard::ReportError(const exception& e)
 {
   SetErrorFlag();
   ::ReportError(e);

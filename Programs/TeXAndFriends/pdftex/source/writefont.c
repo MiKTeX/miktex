@@ -660,11 +660,40 @@ static void create_fontdictionary(fm_entry * fm, integer font_objnum,
         write_fontdictionary(fo);
 }
 
-/**********************************************************************/
 
-void dopdffont(integer font_objnum, internalfontnumber f)
+
+/* This is called font_has_subset in luatex, but it returns 1 if any
+   characters from the font are used, and 0 if not (using fontbc and
+   fontec as the endpoints to check), i.e., whether any characters are
+   actually used from the font. */
+
+static int
+font_is_used(internalfontnumber f)
+{
+    int i, s;
+    /* search for |first_char| and |last_char| */
+    for (i = fontbc[f]; i <= fontec[f]; i++)
+        if (pdfcharmarked(f, i))
+            break;
+    s = i;
+    for (i = fontec[f]; i >= fontbc[f]; i--)
+        if (pdfcharmarked(f, i))
+            break;
+    if (s > i)
+        return 0;
+    else
+        return 1;
+}
+
+void
+dopdffont(integer font_objnum, internalfontnumber f)
 {
     fm_entry *fm;
+    if (!font_is_used(f))
+        return; /* avoid failed assertion in create_fontdictionary,
+                mailman.ntg.nl/pipermail/ntg-pdftex/2018-January/004209.html */
+       
+
     fm = hasfmentry(f) ? (fm_entry *) pdffontmap[f] : NULL;
     if (fm == NULL || is_pk(fm))
         writet3(fm, font_objnum, f);
@@ -672,5 +701,4 @@ void dopdffont(integer font_objnum, internalfontnumber f)
         create_fontdictionary(fm, font_objnum, f);
 }
 
-/**********************************************************************/
 // vim: ts=4

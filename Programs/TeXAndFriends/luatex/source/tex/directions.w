@@ -33,13 +33,13 @@ void scan_direction(void)
     } else {
         back_input();
     }
-    if (scan_keyword("TLT")) {
+    if (scan_keyword("tlt")) {
         cur_val = dir_TLT;
-    } else if (scan_keyword("TRT")) {
+    } else if (scan_keyword("trt")) {
         cur_val = dir_TRT;
-    } else if (scan_keyword("LTL")) {
+    } else if (scan_keyword("ltl")) {
         cur_val = dir_LTL;
-    } else if (scan_keyword("RTT")) {
+    } else if (scan_keyword("rtt")) {
         cur_val = dir_RTT;
     } else {
         tex_error("Bad direction", NULL);

@@ -315,8 +315,8 @@ known as `\eTeX'.
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
 @d XeTeX_version=0 { \.{\\XeTeXversion} }
-@d XeTeX_revision==".99998" { \.{\\XeTeXrevision} }
-@d XeTeX_version_string=='-0.99998' {current \XeTeX\ version}
+@d XeTeX_revision==".99999" { \.{\\XeTeXrevision} }
+@d XeTeX_version_string=='-0.99999' {current \XeTeX\ version}
 @#
 @d XeTeX_banner=='This is XeTeX, Version 3.14159265',eTeX_version_string,XeTeX_version_string
   {printed when \XeTeX\ starts}
@@ -1697,6 +1697,9 @@ if @<Character |s| is the current new-line character@> then
   begin print_visible_char("^"); print_visible_char("^");
   print_lc_hex((s mod @"100) div @"10); print_lc_hex(s mod @"10);
   end
+ else if selector=pseudo then
+  print_visible_char(s) { Don't UTF8-encode text in |trick_buf|,
+                          we'll handle that when printing error context. }
  else begin
   { |char >= 128|: encode as UTF8 }
   if s<@"800 then begin
@@ -3328,7 +3331,14 @@ than size and length fields, and there's no subsidiary C pointer.
 
 @d native_word_node=40 {|subtype| of whatsits that hold |native_font| words}
 @d native_word_node_AT=41 {a |native_word_node| that should output ActualText}
-@d glyph_node=42 {|subtype| in whatsits that hold glyph numbers}
+@d native_word_node_disc_flag=2 {flag added to the |subtype| when the node is the trailing node
+                                 of the no-break text of a discretionary, so we can avoid
+                                 merging it with following chars}
+@d native_word_node_MIN=native_word_node
+@d native_word_node_MAX=native_word_node_AT+native_word_node_disc_flag
+@d is_native_word_subtype(#)==((subtype(#)>=native_word_node_MIN) and (subtype(#)<=native_word_node_MAX))
+
+@d glyph_node=44 {|subtype| in whatsits that hold glyph numbers}
 
 @d native_node_size=6 {size of a |native_word| node (plus the actual chars) -- see also \.{xetex.h}}
 @d glyph_node_size=5
@@ -3370,8 +3380,8 @@ So |pic_node_size|, which does not include any space for the picture file pathna
 
 A |pdf_node| is just like |pic_node|, but generate a different \.{XDV} file code.
 
-@d pic_node=43 {|subtype| in whatsits that hold picture file references}
-@d pdf_node=44 {|subtype| in whatsits that hold PDF page references}
+@d pic_node=45 {|subtype| in whatsits that hold picture file references}
+@d pdf_node=46 {|subtype| in whatsits that hold PDF page references}
 @#
 @d pic_node_size=9 {must sync with \.{xetex.h}}
 @d pic_path_length(#)==mem[#+4].hh.b0
@@ -3964,7 +3974,10 @@ hlist_node,vlist_node,ins_node,mark_node,adjust_node,
   unset_node: print("[]");
 whatsit_node:
   case subtype(p) of
-    native_word_node, native_word_node_AT: begin
+    native_word_node, native_word_node_AT,
+    native_word_node+native_word_node_disc_flag,
+    native_word_node_AT+native_word_node_disc_flag:
+    begin
       if native_font(p)<>font_in_short_display then begin
         print_esc(font_id_text(native_font(p)));
         print_char(" ");
@@ -5017,8 +5030,12 @@ locations for control sequences that are perpetually defined
 @d end_write=frozen_control_sequence+8 {permanent `\.{\\endwrite}'}
 @d frozen_dont_expand=frozen_control_sequence+9
   {permanent `\.{\\notexpanded:}'}
+@d prim_size=500 {maximum number of primitives }
 @d frozen_null_font=frozen_control_sequence+10
   {permanent `\.{\\nullfont}'}
+@d frozen_primitive=frozen_control_sequence+11
+  {permanent `\.{\\pdfprimitive}'}
+@d prim_eqtb_base=frozen_primitive+1
 @d font_id_base=frozen_null_font-font_base
   {begins table of 257 permanent font identifiers}
 @d undefined_control_sequence=frozen_null_font+257 {dummy location}
@@ -6070,7 +6087,6 @@ A global boolean variable called |no_new_control_sequence| is set to
 
 @ Primitive support needs a few extra variables and definitions
 
-@d prim_size=500 {maximum number of primitives }
 @d prim_prime=431 {about 85\pct! of |primitive_size|}
 @d prim_base=1
 @d prim_next(#) == prim[#].lh {link for coalesced lists}
@@ -6079,24 +6095,19 @@ A global boolean variable called |no_new_control_sequence| is set to
 @d prim_eq_level_field(#)==#.hh.b1
 @d prim_eq_type_field(#)==#.hh.b0
 @d prim_equiv_field(#)==#.hh.rh
-@d prim_eq_level(#)==prim_eq_level_field(prim_eqtb[#]) {level of definition}
-@d prim_eq_type(#)==prim_eq_type_field(prim_eqtb[#]) {command code for equivalent}
-@d prim_equiv(#)==prim_equiv_field(prim_eqtb[#]) {equivalent value}
+@d prim_eq_level(#)==prim_eq_level_field(eqtb[prim_eqtb_base+#]) {level of definition}
+@d prim_eq_type(#)==prim_eq_type_field(eqtb[prim_eqtb_base+#]) {command code for equivalent}
+@d prim_equiv(#)==prim_equiv_field(eqtb[prim_eqtb_base+#]) {equivalent value}
 @d undefined_primitive=0
 
 @<Glob...@>=
 @!prim: array [0..prim_size] of two_halves;  {the primitives table}
 @!prim_used:pointer; {allocation pointer for |prim|}
-@!prim_eqtb:array[0..prim_size] of memory_word;
 
 @ @<Set init...@>=
 no_new_control_sequence:=true; {new identifiers are usually forbidden}
 prim_next(0):=0; prim_text(0):=0;
 for k:=1 to prim_size do prim[k]:=prim[0];
-prim_eq_level(0):=level_zero;
-prim_eq_type(0):=undefined_cs;
-prim_equiv(0):=null;
-for k:=1 to prim_size do prim_eqtb[k]:=prim_eqtb[0];
 next(hash_base):=0; text(hash_base):=0;
 for k:=hash_base+1 to undefined_control_sequence-1 do hash[k]:=hash[hash_base];
 
@@ -6264,7 +6275,9 @@ begin if p<hash_base then {single character}
 else if p>=undefined_control_sequence then print_esc("IMPOSSIBLE.")
 else if (text(p)<0)or(text(p)>=str_ptr) then print_esc("NONEXISTENT.")
 @.NONEXISTENT@>
-else  begin print_esc(text(p));
+else  begin
+  if (p>=prim_eqtb_base)and(p<frozen_null_font) then
+    print_esc(prim_text(p-prim_eqtb_base)-1) else print_esc(text(p));
   print_char(" ");
   end;
 end;
@@ -6279,6 +6292,8 @@ begin if p<hash_base then
   else  if p<null_cs then print_esc(p-single_base)
     else  begin print_esc("csname"); print_esc("endcsname");
       end
+else if (p>=prim_eqtb_base)and(p<frozen_null_font) then
+    print_esc(prim_text(p-prim_eqtb_base)-1)
 else print_esc(text(p));
 end;
 
@@ -7698,11 +7713,11 @@ if l+first_count<=half_error_line then
 else  begin print("..."); p:=l+first_count-half_error_line+3;
   n:=half_error_line;
   end;
-for q:=p to first_count-1 do print_visible_char(trick_buf[q mod error_line]);
+for q:=p to first_count-1 do print_char(trick_buf[q mod error_line]);
 print_ln;
 for q:=1 to n do print_visible_char(" "); {print |n| spaces to begin line~2}
 if m+n<=error_line then p:=first_count+m else p:=first_count+(error_line-n-3);
-for q:=first_count to p-1 do print_visible_char(trick_buf[q mod error_line]);
+for q:=first_count to p-1 do print_char(trick_buf[q mod error_line]);
 if m+n>error_line then print("...")
 
 @ But the trick is distracting us from our current goal, which is to
@@ -8656,6 +8671,36 @@ if cur_cs<>undefined_primitive then begin
   end;
 end
 
+@ This block deals with unexpandable \.{\\primitive} appearing at a spot where
+an integer or an internal values should have been found. It fetches the
+next token then resets |cur_cmd|, |cur_cs|, and |cur_tok|, based on the
+primitive value of that token. No expansion takes place, because the
+next token may be all sorts of things. This could trigger further
+expansion creating new errors.
+
+@<Reset |cur_tok| for unexpandable primitives, goto restart @>=
+begin
+get_token;
+if cur_cs < hash_base then
+  cur_cs := prim_lookup(cur_cs-single_base)
+else
+  cur_cs  := prim_lookup(text(cur_cs));
+if cur_cs<>undefined_primitive then begin
+  cur_cmd := prim_eq_type(cur_cs);
+  cur_chr := prim_equiv(cur_cs);
+  cur_cs  := prim_eqtb_base+cur_cs;
+  cur_tok := cs_token_flag+cur_cs;
+  end
+else begin
+  cur_cmd := relax;
+  cur_chr := 0;
+  cur_tok := cs_token_flag+frozen_relax;
+  cur_cs  := frozen_relax;
+  end;
+goto restart;
+end
+@z
+
 @ @<Complain about an undefined macro@>=
 begin print_err("Undefined control sequence");
 @.Undefined control sequence@>
@@ -9191,6 +9236,7 @@ label exit;
 var p:pointer; {tail of the backup list}
 @!q:pointer; {new node being added to the token list via |store_new_token|}
 @!k:pool_pointer; {index into |str_pool|}
+@!save_cur_cs:pointer; {to save |cur_cs|}
 begin p:=backup_head; link(p):=null;
 if s<too_big_char then begin
   while true do
@@ -9209,6 +9255,7 @@ if s<too_big_char then begin
     end;
   end;
 k:=str_start_macro(s);
+save_cur_cs:=cur_cs;
 while k<str_start_macro(s+1) do
   begin get_x_token; {recursion is possible here}
 @^recursion@>
@@ -9219,6 +9266,7 @@ while k<str_start_macro(s+1) do
   else if (cur_cmd<>spacer)or(p<>backup_head) then
     begin back_input;
     if p<>backup_head then back_list(link(backup_head));
+    cur_cs:=save_cur_cs;
     scan_keyword:=false; return;
     end;
   end;
@@ -9325,14 +9373,14 @@ the internal quantity to be scanned; an error will be signalled if
 
 @p procedure scan_something_internal(@!level:small_number;@!negative:boolean);
   {fetch an internal parameter}
-label exit;
+label exit, restart;
 var m:halfword; {|chr_code| part of the operand token}
     n, k, kk: integer; {accumulators}
 @!q,@!r:pointer; {general purpose indices}
 @!tx:pointer; {effective tail node}
 @!i:four_quarters; {character info}
 @!p:0..nest_size; {index into |nest|}
-begin m:=cur_chr;
+begin restart: m:=cur_chr;
 case cur_cmd of
 def_code: @<Fetch a character code from some table@>;
 XeTeX_def_code:
@@ -9376,6 +9424,8 @@ assign_font_dimen: @<Fetch a font dimension@>;
 assign_font_int: @<Fetch a font integer@>;
 register: @<Fetch a register@>;
 last_item: @<Fetch an item in the current node, if appropriate@>;
+ignore_spaces: {trap unexpandable primitives}
+  if cur_chr=1 then @<Reset |cur_tok| for unexpandable primitives, goto restart@>;
 othercases @<Complain that \.{\\the} can't do this; give zero result@>
 endcases;@/
 while cur_val_level>level do @<Convert \(c)|cur_val| to a lower level@>;
@@ -9964,7 +10014,7 @@ after the integer part of such a fraction has been scanned by |scan_int|,
 and that the decimal point has been backed up to be scanned again.
 
 @p procedure scan_int; {sets |cur_val| to an integer}
-label done;
+label done, restart;
 var negative:boolean; {should the answer be negated?}
 @!m:integer; {|@t$2^{31}$@> div radix|, the threshold of danger}
 @!d:small_number; {the digit just scanned}
@@ -9972,7 +10022,10 @@ var negative:boolean; {should the answer be negated?}
 @!OK_so_far:boolean; {has an error message been issued?}
 begin radix:=0; OK_so_far:=true;@/
 @<Get the next non-blank non-sign token; set |negative| appropriately@>;
+restart:
 if cur_tok=alpha_token then @<Scan an alphabetic character code into |cur_val|@>
+else if cur_tok=cs_token_flag+frozen_primitive then
+  @<Reset |cur_tok| for unexpandable primitives, goto restart@>
 else if (cur_cmd>=min_internal)and(cur_cmd<=max_internal) then
   scan_something_internal(int_val,false)
 else @<Scan a numeric constant@>;
@@ -13952,7 +14005,10 @@ end;
 
 @ Extra stuff for justifiable AAT text; need to merge runs of words and normal spaces.
 
-@d is_native_word_node(#) == (((#)<>null and (not is_char_node(#)) and (type(#) = whatsit_node) and ((subtype(#) = native_word_node) or (subtype(#) = native_word_node_AT))))
+@d is_native_word_node(#) == (((#)<>null)
+                              and (not is_char_node(#))
+                              and (type(#) = whatsit_node)
+                              and (is_native_word_subtype(#)))
 @d is_glyph_node(#) == (((#)<>null and (not is_char_node(#)) and (type(#) = whatsit_node) and (subtype(#) = glyph_node)))
 
 @d node_is_invisible_to_interword_space(#)==
@@ -14018,7 +14074,7 @@ end_node_run: {now |r| points to first |native_word_node| of the run, and |p| to
         q:=r;
         loop begin
           if type(q) = whatsit_node then begin
-            if (subtype(q) = native_word_node) or (subtype(q) = native_word_node_AT) then begin
+            if (is_native_word_subtype(q)) then begin
               for j:=0 to native_length(q)-1 do
                 append_char(get_native_char(q, j));
               k:=k + width(q);
@@ -19565,8 +19621,7 @@ else  case type(v) of
   hlist_node,vlist_node,rule_node,kern_node:
     break_width[1]:=break_width[1]-width(v);
   whatsit_node:
-    if (subtype(v)=native_word_node)
-    or (subtype(v)=native_word_node_AT)
+    if (is_native_word_subtype(v))
     or (subtype(v)=glyph_node)
     or (subtype(v)=pic_node)
     or (subtype(v)=pdf_node)
@@ -19590,8 +19645,7 @@ else  case type(s) of
   hlist_node,vlist_node,rule_node,kern_node:
     break_width[1]:=break_width[1]+width(s);
   whatsit_node:
-    if (subtype(s)=native_word_node)
-    or (subtype(s)=native_word_node_AT)
+    if (is_native_word_subtype(s))
     or (subtype(s)=glyph_node)
     or (subtype(s)=pic_node)
     or (subtype(s)=pdf_node)
@@ -20177,8 +20231,7 @@ else  case type(s) of
   hlist_node,vlist_node,rule_node,kern_node:
     disc_width:=disc_width+width(s);
   whatsit_node:
-    if (subtype(s)=native_word_node)
-    or (subtype(s)=native_word_node_AT)
+    if (is_native_word_subtype(s))
     or (subtype(s)=glyph_node)
     or (subtype(s)=pic_node)
     or (subtype(s)=pdf_node)
@@ -20202,8 +20255,7 @@ else  case type(s) of
   hlist_node,vlist_node,rule_node,kern_node:
     act_width:=act_width+width(s);
   whatsit_node:
-    if (subtype(s)=native_word_node)
-    or (subtype(s)=native_word_node_AT)
+    if (is_native_word_subtype(s))
     or (subtype(s)=glyph_node)
     or (subtype(s)=pic_node)
     or (subtype(s)=pdf_node)
@@ -20792,14 +20844,15 @@ loop@+  begin if is_char_node(s) then
   else if (type(s)=math_node)and(subtype(s)>=L_code) then goto continue
   else if type(s)=whatsit_node then
     begin
-      if (subtype(s) = native_word_node) or (subtype(s) = native_word_node_AT) then begin
+      if (is_native_word_subtype(s)) then begin
         { we only consider the node if it contains at least one letter, otherwise we'll skip it }
         for l:=0 to native_length(s) - 1 do begin
           c:=get_native_usv(s, l);
           if lc_code(c) <> 0 then begin
             hf:=native_font(s);
             prev_s:=s;
-            goto done2;
+            if (lc_code(c)=c)or(uc_hyph>0) then goto done2
+            else goto done1;
           end;
           if c>=@"10000 then incr(l);
         end
@@ -23625,7 +23678,12 @@ collected:
     repeat
       if main_h = 0 then main_h:=main_k;
 
-      if is_native_word_node(main_pp)
+      {If |main_pp| is the [last node of the] no-break text of a discretionary,
+       we do not want to merge following text into it, as that would swallow
+       the following text in the case where the discretionary break is used
+       and its no-break list is discarded. Hence, we do this only when the
+       |native_word_node_disc_flag| was NOT set on the |main_pp| node.}
+      if (is_native_word_node(main_pp) and (subtype(main_pp)<=native_word_node_AT))
         and (native_font(main_pp)=main_f)
         and (main_ppp<>main_pp)
         and (not is_char_node(main_ppp))
@@ -24078,6 +24136,7 @@ any_mode(ignore_spaces): begin
     if cur_cs<>undefined_primitive then begin
       cur_cmd:=prim_eq_type(cur_cs);
       cur_chr:=prim_equiv(cur_cs);
+      cur_tok := cs_token_flag+prim_eqtb_base+cur_cs;
       goto reswitch;
       end;
     end;
@@ -25126,7 +25185,7 @@ begin if tail<>head then
   begin if is_char_node(tail) then p:=tail
   else if type(tail)=ligature_node then p:=lig_char(tail)
   else if (type(tail)=whatsit_node) then begin
-    if (subtype(tail)=native_word_node) or (subtype(tail)=native_word_node_AT) then begin
+    if is_native_word_subtype(tail) then begin
       tail_append(new_kern(get_native_italic_correction(tail))); subtype(tail):=explicit;
     end
     else if (subtype(tail)=glyph_node) then begin
@@ -25217,7 +25276,11 @@ else  begin print_err("Discretionary list is too long");
   ("You can't seriously need such a huge discretionary list?");
   error;
   end;
-if n>0 then tail:=q;
+if n>0 then begin
+  tail:=q;
+  if (is_native_word_node(tail)) then
+    subtype(tail):=subtype(tail)+native_word_node_disc_flag;
+  end;
 decr(save_ptr); return;
 end
 
@@ -25228,8 +25291,8 @@ q:=head; p:=link(q); n:=0;
 while p<>null do
   begin if not is_char_node(p) then if type(p)>rule_node then
     if type(p)<>kern_node then if type(p)<>ligature_node then
-    if (type(p)<>whatsit_node) or ((subtype(p)<>native_word_node) and (subtype(p)<>native_word_node_AT)
-                                     and (subtype(p)<>glyph_node)) then
+    if (type(p)<>whatsit_node)
+        or (not is_native_word_subtype(p) and (subtype(p)<>glyph_node)) then
       begin print_err("Improper discretionary list");
 @.Improper discretionary list@>
       help1("Discretionary lists must contain only boxes and kerns.");@/
@@ -28201,7 +28264,6 @@ for |p>=hash_used|, so the remaining entries are output in a~block.
 
 @<Dump the hash table@>=
 for p:=0 to prim_size do dump_hh(prim[p]);
-for p:=0 to prim_size do dump_wd(prim_eqtb[p]);
 dump_int(hash_used); cs_count:=frozen_control_sequence-1-hash_used;
 for p:=hash_base to hash_used do if text(p)<>0 then
   begin dump_int(p); dump_hh(hash[p]); incr(cs_count);
@@ -28212,7 +28274,6 @@ print_ln; print_int(cs_count); print(" multiletter control sequences")
 
 @ @<Undump the hash table@>=
 for p:=0 to prim_size do undump_hh(prim[p]);
-for p:=0 to prim_size do undump_wd(prim_eqtb[p]);
 undump(hash_base)(frozen_control_sequence)(hash_used); p:=hash_base-1;
 repeat undump(p+1)(hash_used)(p); undump_hh(hash[p]);
 until p=hash_used;
@@ -28961,11 +29022,12 @@ procedure compare_strings; {to implement \.{\\strcmp}}
 label done;
 var s1, s2: str_number;
   i1, i2, j1, j2: pool_pointer;
+  save_cur_cs: pointer;
 begin
-  call_func(scan_toks(false, true));
+  save_cur_cs:=cur_cs; call_func(scan_toks(false, true));
   s1:=tokens_to_string(def_ref);
   delete_token_ref(def_ref);
-  call_func(scan_toks(false, true));
+  cur_cs:=save_cur_cs; call_func(scan_toks(false, true));
   s2:=tokens_to_string(def_ref);
   delete_token_ref(def_ref);
   i1:=str_start_macro(s1);
@@ -29048,7 +29110,10 @@ language_node:begin print_esc("setlanguage");
   print_int(what_lhm(p)); print_char(",");
   print_int(what_rhm(p)); print_char(")");
   end;
-native_word_node, native_word_node_AT:begin print_esc(font_id_text(native_font(p)));
+native_word_node, native_word_node_AT,
+native_word_node+native_word_node_disc_flag,
+native_word_node_AT+native_word_node_disc_flag:
+begin print_esc(font_id_text(native_font(p)));
   print_char(" ");
   print_native_word(p);
   end;
@@ -29081,7 +29146,10 @@ write_node,special_node: begin r:=get_node(write_node_size);
 close_node,language_node: begin r:=get_node(small_node_size);
   words:=small_node_size;
   end;
-native_word_node, native_word_node_AT: begin words:=native_size(p);
+native_word_node, native_word_node_AT,
+native_word_node+native_word_node_disc_flag,
+native_word_node_AT+native_word_node_disc_flag:
+begin words:=native_size(p);
   r:=get_node(words);
   while words > 0 do
     begin decr(words); mem[r+words]:=mem[p+words]; end;
@@ -29107,7 +29175,10 @@ write_node,special_node: begin delete_token_ref(write_tokens(p));
   free_node(p,write_node_size); goto done;
   end;
 close_node,language_node: free_node(p,small_node_size);
-native_word_node, native_word_node_AT: begin free_native_glyph_info(p); free_node(p,native_size(p)); end;
+native_word_node, native_word_node_AT,
+native_word_node+native_word_node_disc_flag,
+native_word_node_AT+native_word_node_disc_flag:
+begin free_native_glyph_info(p); free_node(p,native_size(p)); end;
 glyph_node: free_node(p,glyph_node_size);
 pic_node,pdf_node: free_node(p,total_pic_node_size(p));
 pdf_save_pos_node:
@@ -29132,7 +29203,10 @@ end
 @ @<Incorporate a whatsit node into an hbox@>=
 begin
   case subtype(p) of
-  native_word_node, native_word_node_AT: begin
+  native_word_node, native_word_node_AT,
+  native_word_node+native_word_node_disc_flag,
+  native_word_node_AT+native_word_node_disc_flag:
+  begin
     { merge with any following word fragments in same font, discarding discretionary breaks }
     if (q <> r+list_offset) and (type(q) = disc_node) then k:=replace_count(q) else k:=0;
     while (link(q) <> p) do begin
@@ -29144,7 +29218,7 @@ begin
     restart:
     if (k <= 0) and (pp <> null) and (not is_char_node(pp)) then begin
       if (type(pp) = whatsit_node)
-        and ((subtype(pp) = native_word_node) or (subtype(pp) = native_word_node_AT))
+        and (is_native_word_subtype(pp))
         and (native_font(pp) = native_font(p)) then begin
         pp:=link(pp);
         goto restart;
@@ -29217,8 +29291,7 @@ begin
 end
 
 @ @<Let |d| be the width of the whatsit |p|, and |goto found| if ``visible''@>=
-if (subtype(p)=native_word_node)
-or (subtype(p)=native_word_node_AT)
+if (is_native_word_subtype(p))
 or (subtype(p)=glyph_node)
 or (subtype(p)=pic_node)
 or (subtype(p)=pdf_node)
@@ -29232,8 +29305,7 @@ end else
     begin cur_lang:=what_lang(#); l_hyf:=what_lhm(#); r_hyf:=what_rhm(#);
     set_hyph_index;
     end
-  else if (subtype(#)=native_word_node)
-  or (subtype(#)=native_word_node_AT)
+  else if (is_native_word_subtype(#))
   or (subtype(#)=glyph_node)
   or (subtype(#)=pic_node)
   or (subtype(#)=pdf_node)
@@ -29329,7 +29401,10 @@ else
 @ @<Output the whatsit node |p| in an hlist@>=
 begin
   case subtype(p) of
-  native_word_node, native_word_node_AT, glyph_node: begin
+  native_word_node, native_word_node_AT,
+  native_word_node+native_word_node_disc_flag,
+  native_word_node_AT+native_word_node_disc_flag,
+  glyph_node: begin
     synch_h; synch_v; {Sync DVI state to TeX state}
     f:=native_font(p);
     if f<>dvi_f then @<Change font |dvi_f| to |f|@>;
@@ -29342,7 +29417,7 @@ begin
       dvi_two(native_glyph(p));
       cur_h:=cur_h + width(p);
     end else begin
-      if subtype(p) = native_word_node_AT then begin
+      if (subtype(p)=native_word_node_AT) or (subtype(p)=native_word_node_AT+native_word_node_disc_flag) then begin
         if (native_length(p) > 0) or (native_glyph_info_ptr(p) <> null_ptr) then begin
           dvi_out(set_text_and_glyphs);
           len:=native_length(p);
@@ -31408,8 +31483,7 @@ end
 @ Need to measure |native_word| and picture nodes when reversing!
 @<Cases of |reverse|...@>=
 whatsit_node:
-  if (subtype(p)=native_word_node)
-  or (subtype(p)=native_word_node_AT)
+  if (is_native_word_subtype(p))
   or (subtype(p)=glyph_node)
   or (subtype(p)=pic_node)
   or (subtype(p)=pdf_node)

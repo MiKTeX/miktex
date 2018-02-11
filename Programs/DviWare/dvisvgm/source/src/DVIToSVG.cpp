@@ -359,24 +359,24 @@ string DVIToSVG::getSVGFilename (unsigned pageno) const {
 }
 
 
-void DVIToSVG::moveRight (double dx) {
-	DVIReader::moveRight(dx);
+void DVIToSVG::moveRight (double dx, MoveMode mode) {
+	DVIReader::moveRight(dx, mode);
 	if (_actions) {
 		if (dviState().d == WritingMode::LR)
-			_actions->moveToX(dviState().h+_tx);
+			_actions->moveToX(dviState().h+_tx, mode == MoveMode::CHANGEPOS);
 		else
-			_actions->moveToY(dviState().v+_ty);
+			_actions->moveToY(dviState().v+_ty, mode == MoveMode::CHANGEPOS);
 	}
 }
 
 
-void DVIToSVG::moveDown (double dy) {
-	DVIReader::moveDown(dy);
+void DVIToSVG::moveDown (double dy, MoveMode mode) {
+	DVIReader::moveDown(dy, mode);
 	if (_actions) {
 		if (dviState().d == WritingMode::LR)
-			_actions->moveToY(dviState().v+_ty);
+			_actions->moveToY(dviState().v+_ty, mode == MoveMode::CHANGEPOS);
 		else
-			_actions->moveToX(dviState().h+_tx);
+			_actions->moveToX(dviState().h+_tx, mode == MoveMode::CHANGEPOS);
 	}
 }
 
@@ -437,9 +437,9 @@ void DVIToSVG::dviPutRule (double height, double width) {
 void DVIToSVG::dviPop () {
 	if (_actions) {
 		if (_prevXPos != dviState().h+_tx)
-			_actions->moveToX(dviState().h + _tx);
+			_actions->moveToX(dviState().h + _tx, true);  // force setting the SVG position
 		if (_prevYPos != dviState().v+_ty)
-			_actions->moveToY(dviState().v + _ty);
+			_actions->moveToY(dviState().v + _ty, true);  // force setting the SVG position
 		if (_prevWritingMode != dviState().d)
 			_actions->setTextOrientation(dviState().d != WritingMode::LR);
 	}

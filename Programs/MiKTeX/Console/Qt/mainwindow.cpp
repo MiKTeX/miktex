@@ -34,6 +34,7 @@
 
 #include "console-version.h"
 
+#include <miktex/Core/Cfg>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
@@ -92,6 +93,7 @@ MainWindow::MainWindow(QWidget* parent) :
   ui->setupUi(this);
 
   resize(800, 600);
+  ReadSettings();
 
   SetupUiDirectories();
   SetupUiUpdates();
@@ -152,23 +154,31 @@ void MainWindow::closeEvent(QCloseEvent* event)
       return;
     }
   }
+  WriteSettings();
   event->accept();
 }
 
 void MainWindow::setVisible(bool visible)
 {
-  ui->actionMinimize->setEnabled(visible);
+  ui->actionHide->setEnabled(visible);
   ui->actionRestore->setEnabled(!visible);
   QMainWindow::setVisible(visible);
 }
 
 void MainWindow::CriticalError(const QString& text, const MiKTeXException& e)
 {
-  if (QMessageBox::critical(this, tr("MiKTeX Console"), text + "\n\n" + tr("Do you want to see the error details?"),
-    QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
-    == QMessageBox::StandardButton::Yes)
+  if (this->isHidden())
   {
-    ErrorDialog::DoModal(this, e);
+    ShowTrayMessage(TrayMessageContext::Error, text);
+  }
+  else
+  {
+    if (QMessageBox::critical(this, tr("MiKTeX Console"), text + "\n\n" + tr("Do you want to see the error details?"),
+      QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
+      == QMessageBox::StandardButton::Yes)
+    {
+      ErrorDialog::DoModal(this, e);
+    }
   }
 }
 
@@ -298,10 +308,12 @@ void MainWindow::CreateTrayIcon()
     return;
   }
   trayIconMenu = new QMenu(this);
+  trayIconMenu->addAction(ui->actionCheckUpdates);
+  trayIconMenu->addSeparator();
   trayIconMenu->addAction(ui->actionTeXworks);
   trayIconMenu->addAction(ui->actionTerminal);
   trayIconMenu->addSeparator();
-  trayIconMenu->addAction(ui->actionMinimize);
+  trayIconMenu->addAction(ui->actionHide);
   trayIconMenu->addAction(ui->actionRestore);
   trayIconMenu->addSeparator();
   trayIconMenu->addAction(ui->actionExit);
@@ -325,6 +337,40 @@ void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void MainWindow::TrayMessageClicked()
 {
+  if (this->isHidden())
+  {
+    this->showNormal();
+  }
+  switch (trayMessageContext)
+  {
+  case TrayMessageContext::Updates:
+    SetCurrentPage(Pages::Updates);
+    break;
+  }
+}
+
+void MainWindow::ShowTrayMessage(TrayMessageContext context, const QString& message)
+{
+  if (trayIcon != nullptr && QSystemTrayIcon::supportsMessages())
+  {
+    this->trayMessageContext = context;
+    QString title;
+    QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon::Information;
+    switch (context)
+    {
+    default:
+      title = tr("MiKTeX Console");
+      break;
+    case TrayMessageContext::Error:
+      title = tr("MiKTeX Problem");
+      icon = QSystemTrayIcon::MessageIcon::Critical;
+      break;
+    case TrayMessageContext::Updates:
+      title = tr("MiKTeX Update");
+      break;
+    }
+    trayIcon->showMessage(title, message, icon);
+  }
 }
 #endif
 
@@ -466,13 +512,23 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 {
   PathName me = session->GetMyProgramFile(true);
 #if defined(MIKTEX_WINDOWS)
-  PathName adminFileName = me.GetFileNameWithoutExtension();
-  adminFileName += MIKTEX_ADMIN_SUFFIX;
   PathName meAdmin(me);
   meAdmin.RemoveFileSpec();
-  meAdmin /= adminFileName;
+  meAdmin /= me.GetFileNameWithoutExtension();
+  meAdmin += MIKTEX_ADMIN_SUFFIX;
   meAdmin.SetExtension(me.GetExtension());
-  ShellExecuteW(nullptr, L"open", meAdmin.ToWideCharString().c_str(), StringUtil::UTF8ToWideChar(StringUtil::Flatten(args, ' ')).c_str(), nullptr, SW_NORMAL);
+  CharBuffer<wchar_t> file(meAdmin.GetData());
+  CharBuffer<wchar_t> parameters(StringUtil::Flatten(args, ' '));
+  SHELLEXECUTEINFOW sei = SHELLEXECUTEINFOW();
+  sei.cbSize = sizeof(sei);
+  sei.lpFile = file.GetData();
+  sei.lpParameters = parameters.GetData();
+  sei.nShow = SW_NORMAL;
+  session->UnloadFilenameDatabase();
+  if (!ShellExecuteExW(&sei))
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("ShellExecuteExW");
+  }
 #elif defined(MIKTEX_MACOS_BUNDLE)
   PathName console = session->GetMyLocation(true) / ".." / "Resources" / MIKTEX_CONSOLE_ADMIN_EXE;
   vector<string> consoleArgs{ MIKTEX_CONSOLE_ADMIN_EXE };
@@ -602,6 +658,7 @@ void MainWindow::FinishSetup()
         CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), worker->GetMiKTeXException());
       }
       backgroundWorkers--;
+      session->UnloadFilenameDatabase();
       UpdateUi();
       UpdateActions();
       worker->deleteLater();
@@ -678,6 +735,7 @@ void MainWindow::on_buttonUpgrade_clicked()
     ui->labelUpgradePercent->setText("");
     ui->labelUpgradeDetails->setText("");
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -751,6 +809,7 @@ void MainWindow::RefreshFndb()
       CriticalError(tr("Something went wrong while refreshing the file name database."), ((RefreshFndbWorker*)sender())->GetMiKTeXException());
     }
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -833,6 +892,7 @@ void MainWindow::RefreshFontMaps()
       CriticalError(tr("Something went wrong while refreshing the font map files."), worker->GetMiKTeXException());
     }
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -972,6 +1032,28 @@ void MainWindow::CheckUpdates()
       updateModel->SetData(updates);
       ui->labelUpdateStatus->setText("");
       ui->labelCheckUpdatesStatus->setText("");
+#if !defined(QT_NO_SYSTEMTRAYICON)
+      if (this->isHidden())
+      {
+        QString msg;
+        if (updates.empty())
+        {
+          msg = tr("There are currently no updates available.");
+        }
+        else
+        {
+          if (updates.size() == 1)
+          {
+            msg = tr("There is an update available!");
+          }
+          else
+          {
+            msg = tr("There is are %1 updates available!").arg(updates.size());
+          }
+        }
+        ShowTrayMessage(TrayMessageContext::Updates, msg);
+      }
+#endif
     }
     else
     {
@@ -982,6 +1064,7 @@ void MainWindow::CheckUpdates()
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -1065,6 +1148,7 @@ void MainWindow::Update()
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     updateModel->SetData({});
     UpdateUi();
     UpdateActions();
@@ -1719,6 +1803,7 @@ void MainWindow::UpdatePackageDatabase()
     packageModel->Reload();
     ui->treeViewPackages->update();
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -1843,6 +1928,7 @@ void MainWindow::FactoryReset()
         QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().what()) + tr("\n\nThe application window will now be closed."));
       }
       backgroundWorkers--;
+      session->UnloadFilenameDatabase();
       worker->deleteLater();
       this->close();
     });
@@ -1860,4 +1946,28 @@ void MainWindow::FactoryReset()
   {
     CriticalError(e);
   }
+}
+
+void MainWindow::ReadSettings()
+{
+  PathName consoleIni = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini";
+  if (!File::Exists(consoleIni))
+  {
+    return;
+  }
+  unique_ptr<Cfg> settings = Cfg::Create();
+  settings->Read(consoleIni);
+  string s;
+  if (!settings->TryGetValue("MainWindow", "geometry", s))
+  {
+    return;
+  }
+  restoreGeometry(QByteArray::fromHex(s.c_str()));
+}
+
+void MainWindow::WriteSettings()
+{
+  unique_ptr<Cfg> settings = Cfg::Create();
+  settings->PutValue("MainWindow", "geometry", saveGeometry().toHex().constData());
+  settings->Write(session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini");
 }

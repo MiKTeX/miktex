@@ -20,10 +20,8 @@
 // Neutral resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
-#ifdef _WIN32
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -31,19 +29,19 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 //
 
 IDA_FILECOPY            AVI                     "@MIKTEX_FILECOPY_ANIMATION@"
+
 IDA_DOWNLOAD            AVI                     "@MIKTEX_DOWNLOAD_ANIMATION@"
+
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -96,20 +94,16 @@ END
 // remains consistent on all systems.
 IDR_MAINFAME            ICON                    "@MIKTEX_ICON@"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap
 //
 
 IDB_HEADER              BITMAP                  "@MIKTEX_WIZARD_HEADER_BITMAP@"
+
 IDB_WATERMARK           BITMAP                  "@MIKTEX_WIZARD_WATERMARK_BITMAP@"
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// RT_MANIFEST
-//
-
-//IDR_MANIFEST            RT_MANIFEST             "@CMAKE_CURRENT_BINARY_DIR@/res/Setup.manifest"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -182,7 +176,7 @@ BEGIN
     LTEXT           "Overall progress",IDC_PROGRESS2_TITLE,7,63,52,8
     CONTROL         "Progress1",IDC_PROGRESS2,"msctls_progress32",PBS_SMOOTH,7,73,303,10
     CONTROL         "Animate1",IDC_ANI,"SysAnimate32",ACS_CENTER | ACS_TRANSPARENT | WS_TABSTOP,7,1,303,29
-    CONTROL         "",IDC_REPORT,"RichEdit20A",ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_VSCROLL,7,90,303,52
+    CONTROL         "",IDC_REPORT,"RichEdit20W",WS_BORDER | WS_VSCROLL | 0x884,7,90,303,52
     LTEXT           "",IDC_ETA,105,63,112,8
     LTEXT           "ETA:",IDC_ETA_TITLE,85,63,17,8,NOT WS_VISIBLE
 END
@@ -191,10 +185,11 @@ IDD_SHARED DIALOGEX 0, 0, 317, 143
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Install MiKTeX for:",IDC_STATIC,21,1,58,8
-    CONTROL         "&Anyone who uses this computer (all users)",IDC_SHARED,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,46,13,250,10
-    CONTROL         "&Only for:",IDC_JUST_FOR_ME,"Button",BS_AUTORADIOBUTTON,46,27,250,10
+    LTEXT           "",IDC_STATIC,21,1,8,8
+    CONTROL         "Install MiKTeX for &anyone who uses this computer (all users)",IDC_SHARED,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,15,275,10
+    CONTROL         "Install MiKTeX only for &me",IDC_JUST_FOR_ME,"Button",BS_AUTORADIOBUTTON,21,1,275,10
+    LTEXT           "",IDC_STATIC,46,55,250,8
 END
 
 IDD_EDIT_TEXMFROOTS DIALOGEX 0, 0, 317, 143
@@ -270,7 +265,7 @@ IDD_LICENSE DIALOGEX 0, 0, 317, 143
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    CONTROL         "",IDC_LICENSE,"RichEdit20A",ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_HSCROLL,7,1,303,129
+    CONTROL         "",IDC_LICENSE,"RichEdit20W",WS_BORDER | WS_VSCROLL | WS_HSCROLL | 0x884,7,1,303,129
     CONTROL         "I &accept the MiKTeX copying conditions.",IDC_ACCEPT_LICENSE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,134,303,10
 END
@@ -333,7 +328,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_WELCOME, DIALOG
     BEGIN
@@ -530,20 +525,31 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_SHARED AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_APP_TITLE       "MiKTeX Setup Wizard"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_SUPPORT             "Support"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_SUBHEADER_EDITTREES "You select additional TEXMF trees to be integrated into MiKTeX."
     IDS_HEADER_INFOLIST     "Information"
@@ -565,7 +571,7 @@ BEGIN
     IDS_DOWNLOAD_COMPLETE   "MiKTeX has been downloaded successfully.  You can install MiKTeX by running the wizard again."
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_PROJECT_PAGE        "MiKTeX Project Page"
     IDS_MIKTEX_ON_THE_WEB   "MiKTeX on the Web"
@@ -582,7 +588,7 @@ BEGIN
     IDS_UPDATEWIZ_ADMIN     "Update (Admin)"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_REMEDY              "A problem report has been written to a log file."
     IDS_RELEASE_NOTES       "Release Notes"
@@ -590,8 +596,8 @@ BEGIN
     IDS_UPDATEWIZ           "Update"
     IDS_TIPS                "MiKTeX Tips"
     IDS_FAQ                 "FAQ"
-    IDS_HEADER_SHARED       "Shared Installation"
-    IDS_SUBHEADER_SHARED    "You have the option to share the MiKTeX installation with other users."
+    IDS_HEADER_SHARED       "Installation Scope"
+    IDS_SUBHEADER_SHARED    "If you are administrator, you have the option to set up MiKTeX for all users."
     IDS_SETUPWIZ            "MiKTeX Setup"
     IDS_HEADER_INSTALLDIR   "Installation Directory"
     IDS_SUBHEADER_INSTALLDIR 
@@ -603,7 +609,7 @@ BEGIN
     IDS_HEADER_EDITTREES    "Integrate TEXMF Trees"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_HEADER_SETTINGS     "Settings"
     IDS_SUBHEADER_SETTINGS  "Set your preferences."
@@ -620,7 +626,7 @@ BEGIN
     IDS_FINISH_ERROR        "MiKTeX Setup Wizard did not complete."
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

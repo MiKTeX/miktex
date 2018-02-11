@@ -1,6 +1,6 @@
 /* InstallDirPage.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -51,7 +51,7 @@ BOOL InstallDirPage::OnSetActive()
   return ret;
 }
 
-void InstallDirPage::DoDataExchange(CDataExchange * pDX)
+void InstallDirPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
 
@@ -69,7 +69,7 @@ void InstallDirPage::DoDataExchange(CDataExchange * pDX)
       DDV_Path(pDX, installDir);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
     if (pDX->m_bSaveAndValidate)
@@ -77,7 +77,7 @@ void InstallDirPage::DoDataExchange(CDataExchange * pDX)
       pDX->Fail();
     }
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
     if (pDX->m_bSaveAndValidate)
@@ -126,12 +126,12 @@ BOOL InstallDirPage::OnKillActive()
         SetupApp::Instance->SetInstallationDirectory(installDir.GetString());
       }
   }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
@@ -144,7 +144,7 @@ void InstallDirPage::OnChangePathName()
 {
   try
   {
-    CWnd * pWnd = GetDlgItem(IDC_PATHNAME);
+    CWnd* pWnd = GetDlgItem(IDC_PATHNAME);
     if (pWnd == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -155,11 +155,11 @@ void InstallDirPage::OnChangePathName()
     str.TrimRight();
     pSheet->SetWizardButtons(PSWIZB_BACK | (str.IsEmpty() ? 0 : PSWIZB_NEXT));
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -173,7 +173,7 @@ INT CALLBACK InstallDirPage::BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lPa
   try
   {
 #if 0
-    InstallDirPage * This = reinterpret_cast<InstallDirPage*>(pData);
+    InstallDirPage* This = reinterpret_cast<InstallDirPage*>(pData);
 #endif
     switch (uMsg)
     {
@@ -216,7 +216,7 @@ void InstallDirPage::OnBrowse()
     {
       MIKTEX_FATAL_WINDOWS_ERROR("SHGetPathFromIDListW");
     }
-    CWnd * pWnd = GetDlgItem(IDC_PATHNAME);
+    CWnd* pWnd = GetDlgItem(IDC_PATHNAME);
     if (pWnd == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -224,11 +224,11 @@ void InstallDirPage::OnBrowse()
     pWnd->SetWindowText(szDir);
     OnChangePathName();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }

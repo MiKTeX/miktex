@@ -1,6 +1,6 @@
 /* SharedInstallationPage.h:                            -*- C++ -*-
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -40,7 +40,7 @@ protected:
   virtual BOOL OnSetActive();
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  virtual void DoDataExchange(CDataExchange* dx);
 
 protected:
   virtual LRESULT OnWizardNext();
@@ -51,14 +51,11 @@ protected:
 protected:
   virtual BOOL OnKillActive();
 
-protected:
-  afx_msg void OnShared();
-
 private:
   int commonUserSetup = -1;
 
 private:
-  class SetupWizard * pSheet = nullptr;
+  class SetupWizard* pSheet = nullptr;
 
 private:
   shared_ptr<Session> session = Session::Get();

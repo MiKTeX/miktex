@@ -1,6 +1,6 @@
 /* TaskPage.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -58,11 +58,11 @@ BOOL TaskPage::OnInitDialog()
     ret = CPropertyPage::OnInitDialog();
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -79,7 +79,7 @@ BOOL TaskPage::OnSetActive()
   return ret;
 }
 
-void TaskPage::DoDataExchange(CDataExchange * pDX)
+void TaskPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Radio(pDX, IDC_DOWNLOAD_ONLY, task);
@@ -103,18 +103,18 @@ LRESULT TaskPage::OnWizardNext()
     {
       ProxySettings proxySettings;
       if (PackageManager::TryGetProxy(proxySettings)
-	&& proxySettings.useProxy
-	&& proxySettings.authenticationRequired
-	&& proxySettings.user.empty())
+        && proxySettings.useProxy
+        && proxySettings.authenticationRequired
+        && proxySettings.user.empty())
       {
-	ProxyAuthenticationDialog dlg(this);
-	if (dlg.DoModal() != IDOK)
-	{
-	  return -1;
-	}
-	proxySettings.user = dlg.GetName();
-	proxySettings.password = dlg.GetPassword();
-	PackageManager::SetProxy(proxySettings);
+        ProxyAuthenticationDialog dlg(this);
+        if (dlg.DoModal() != IDOK)
+        {
+          return -1;
+        }
+        proxySettings.user = dlg.GetName();
+        proxySettings.password = dlg.GetPassword();
+        PackageManager::SetProxy(proxySettings);
       }
       next = IDD_PACKAGE_SET_DOWNLOAD;
     }
@@ -126,12 +126,12 @@ LRESULT TaskPage::OnWizardNext()
       MIKTEX_UNEXPECTED();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
     return -1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
     return -1;
@@ -164,11 +164,11 @@ void TaskPage::OnDownloadOnly()
     EnableButtons();
     pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -182,11 +182,11 @@ void TaskPage::OnInstallFromLocalRepository()
     EnableButtons();
     pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -204,11 +204,11 @@ void TaskPage::OnConnectionSettings()
     ConnectionSettingsDialog dlg(this);
     dlg.DoModal();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -216,7 +216,7 @@ void TaskPage::OnConnectionSettings()
 
 void TaskPage::EnableButtons()
 {
-  CWnd * pWnd = GetDlgItem(IDC_CONNECTION_SETTINGS);
+  CWnd* pWnd = GetDlgItem(IDC_CONNECTION_SETTINGS);
   if (pWnd == 0)
   {
     MIKTEX_UNEXPECTED();

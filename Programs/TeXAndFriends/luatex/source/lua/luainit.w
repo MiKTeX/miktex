@@ -422,7 +422,7 @@ static void parse_options(int ac, char **av)
             lua_offset = optind;
             luainit = 1;
         } else if (ARGUMENT_IS("lua")) {
-            startup_filename = optarg;
+            startup_filename = xstrdup(optarg);
             lua_offset = (optind - 1);
             luainit = 1;
 #ifdef LuajitTeX

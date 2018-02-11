@@ -1,4 +1,4 @@
-/*   $Id: dvips.h 43542 2017-03-18 22:47:27Z karl $
+/*   $Id: dvips.h 46455 2018-01-27 02:25:40Z hironobu $
  *   Copyright 1986-2016 Tomas Rokicki.
  *   This is dvips, a freely redistributable PostScript driver
  *   for dvi files. You may freely use, modify and/or distribute this
@@ -111,8 +111,10 @@ extern char *sprintf();
  */
 #if (defined(MSDOS) && !defined(DJGPP)) || (defined(OS2) && defined(_MSC_VER)) || defined(ATARIST)
 typedef long integer;
+typedef unsigned long uinteger;
 #else
 typedef int integer;
+typedef unsigned int uinteger;
 #endif
 #ifndef KPATHSEA
 typedef char boolean;
