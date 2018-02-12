@@ -1005,6 +1005,16 @@ void MainWindow::CheckUpdates()
 {
   QThread* thread = new QThread;
   CkeckUpdatesWorker* worker = new CkeckUpdatesWorker(packageManager);
+#if 1
+  string url;
+  RepositoryType repositoryType(RepositoryType::Unknown);
+  if (PackageManager::TryGetDefaultPackageRepository(repositoryType, url)
+    && repositoryType == RepositoryType::Remote
+    && !ProxyAuthenticationDialog(this))
+  {
+    return;
+  }
+#endif
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Checking for updates..."));
   worker->moveToThread(thread);
