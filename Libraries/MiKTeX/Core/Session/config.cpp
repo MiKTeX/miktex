@@ -632,25 +632,35 @@ bool SessionImpl::IsMiKTeXPortable()
   return startupConfig.config == MiKTeXConfiguration::Portable;
 }
 
-PathName SessionImpl::GetBinDirectory(bool canonicalized)
+pair<bool, PathName> SessionImpl::TryGetBinDirectory(bool canonicalized)
 {
 #if defined(MIKTEX_WINDOWS)
   auto distRoot = TryGetDistRootDirectory();
   if (distRoot.first)
   {
-    return distRoot.second / MIKTEX_PATH_BIN_DIR;
+    return make_pair<bool, PathName>(true, distRoot.second / MIKTEX_PATH_BIN_DIR);
   }
   string env;
   if (!Utils::GetEnvironmentString(MIKTEX_ENV_BIN_DIR, env))
   {
+    return make_pair<bool, PathName>(true, PathName());
+  }
+  return make_pair<bool, PathName>(true, env);
+#elif defined(MIKTEX_MACOS_BUNDLE)
+  return make_pair<bool, PathName>(true, GetMyPrefix(canonicalized) / MIKTEX_BINARY_DESTINATION_DIR);
+#else
+  return make_pair<bool, PathName>(true, GetMyLocation(canonicalized));
+#endif
+}
+
+PathName SessionImpl::GetBinDirectory(bool canonicalized)
+{
+  auto p = TryGetBinDirectory(canonicalized);
+  if (!p.first)
+  {
     MIKTEX_UNEXPECTED();
   }
-  return env;
-#elif defined(MIKTEX_MACOS_BUNDLE)
-  return GetMyPrefix(canonicalized) / MIKTEX_BINARY_DESTINATION_DIR;
-#else
-  return GetMyLocation(canonicalized);
-#endif
+  return p.second;
 }
 
 void SessionImpl::ReadAllConfigFiles(const string& baseName, Cfg& cfg)

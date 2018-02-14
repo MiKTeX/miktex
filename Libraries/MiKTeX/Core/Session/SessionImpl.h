@@ -836,6 +836,9 @@ private:
   std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r);
 
 private:
+  std::pair<bool, MiKTeX::Core::PathName> TryGetBinDirectory(bool canonicalized);
+
+private:
   MiKTeX::Core::PathName GetBinDirectory(bool canonicalized);
 
 private:

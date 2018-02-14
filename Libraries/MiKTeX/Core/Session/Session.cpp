@@ -317,13 +317,15 @@ void SessionImpl::SetEnvironmentVariables()
     }
     string newEnvPath;
     bool competition;
-    if (FixProgramSearchPath(envPath, GetBinDirectory(true), false, newEnvPath, competition))
+    auto p = TryGetBinDirectory(true);
+    if (p.first && FixProgramSearchPath(envPath, p.second, false, newEnvPath, competition))
     {
       Utils::SetEnvironmentString("PATH", newEnvPath);
       envPath = newEnvPath;
     }
 #if !defined(MIKTEX_MACOS_BUNDLE)
-    if (FixProgramSearchPath(envPath, GetBinDirectory(false), false, newEnvPath, competition))
+    p = TryGetBinDirectory(false);
+    if (p.first && FixProgramSearchPath(envPath, p.second, false, newEnvPath, competition))
     {
       Utils::SetEnvironmentString("PATH", newEnvPath);
       envPath = newEnvPath;
