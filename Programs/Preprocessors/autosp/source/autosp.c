@@ -1,6 +1,6 @@
-char version[12] = "2017-12-22";
+char version[12] = "2018-01-17";
 
-/*  Copyright (C) 2014-17 R. D. Tennent School of Computing,
+/*  Copyright (C) 2014-18 R. D. Tennent School of Computing,
  *  Queen's University, rdt@cs.queensu.ca
  *
  *  This program is free software; you can redistribute it
@@ -24,7 +24,7 @@ char version[12] = "2017-12-22";
 /*  autosp - preprocessor to generate note-spacing commands for MusiXTeX scores */
 
 /*  Usage: autosp [-v | --version | -h | --help]
- *         autosp [-d | --dotted] [-l | --log] infile[.aspc | .tex] [outfile[.tex]]
+ *         autosp [-d | --dotted] [-l | --log] infile[.aspc] [outfile[.tex]]
  *
  *  Options 
  *    --dotted (-d) suppresses extra spacing for dotted beam notes.
@@ -178,7 +178,6 @@ PRIVATE bool first_collectivei;
 PRIVATE int xtuplet[MAX_STAFFS];        /* x for xtuplet in staff i          */
 
 PRIVATE bool appoggiatura;
-PRIVATE bool fixnotes = false;          /* process \Notes etc. like \anotes? */
 PRIVATE bool dottedbeamnotes = false;   /* dotted beam notes ignored?        */
 
 PRIVATE bool bar_rest[MAX_STAFFS];
@@ -1718,15 +1717,7 @@ void process_command (char **ln)
     }
   }
 
-  else if ( prefix("\\anotes", *ln) 
-            || (fixnotes &&
-              ( prefix("\\nnnotes", *ln) ||
-                prefix("\\nnotes", *ln) ||
-                prefix("\\notes", *ln) || 
-                prefix("\\Notes", *ln) ||
-                prefix("\\NOtes", *ln) ||
-                prefix("\\NOTes", *ln) ||
-                prefix("\\NOTEs", *ln) ) ) )
+  else if ( prefix("\\anotes", *ln) )
   { if (debug)
     { fprintf (logfile, "\nProcessing %s", *ln);
       fprintf (logfile, "lineno=%d\n",  lineno);
@@ -1916,6 +1907,7 @@ void process_command (char **ln)
          || prefix ("\\alapage", *ln)
          || prefix ("\\changecontext", *ln)
          || prefix ("\\Changecontext", *ln)
+         || prefix ("\\zchangecontext", *ln)
          || prefix ("\\zalaligne", *ln)
          || prefix ("\\zalapage", *ln) )
   { int i;
@@ -2011,7 +2003,8 @@ void process_command (char **ln)
     *ln = *ln + strlen(*ln);
   }
 
-  else if ( prefix ("\\end", *ln))
+  else if ( prefix ("\\end", *ln)
+        && !prefix ("\\end{", *ln) )
   {
     fprintf (outfile, "\\end\n");
     exit(0);
@@ -2120,7 +2113,7 @@ int main (int argc, char *argv[])
   infilename_n = infilename;
   if (optind < argc)
   { append (infilename, &infilename_n, argv[optind], sizeof (infilename));
-    if (!suffix (".tex", infilename) && !suffix (".aspc", infilename)) 
+    if (!suffix (".aspc", infilename)) 
       append (infilename, &infilename_n, ".aspc", sizeof (infilename));
   }
   else 
@@ -2128,24 +2121,12 @@ int main (int argc, char *argv[])
      exit (EXIT_FAILURE);
   }
   infile = fopen (infilename, "r");
-  if (infile == NULL && suffix (".tex", infilename) )
+  if (infile == NULL )
   { printf ("Can't open %s\n", infilename);
     exit (EXIT_FAILURE);
   }
-  else if (infile == NULL && suffix (".aspc", infilename) )
-  { /* try infile.tex */
-    infilename_n -= 4;
-    *infilename_n = '\0';
-    append (infilename, &infilename_n, "tex", sizeof (infilename));
-    infile = fopen (infilename, "r");
-    if (infile == NULL && suffix (".tex", infilename) )
-    { printf ("Can't open %s\n", infilename);
-      exit (EXIT_FAILURE);
-    }
-  }
+
   printf ("Reading from %s.", infilename);
-  if (suffix (".tex", infilename) ) 
-    fixnotes = true;
 
   optind++;
   outfilename[0] = '\0';
@@ -2171,11 +2152,6 @@ int main (int argc, char *argv[])
   }
   else
   {
-    if (strcmp (outfilename, infilename) == 0)
-    {
-      printf ("\n");
-      error ("outfile same as infile.");
-    }
     outfile = fopen (outfilename, "w");
     if (outfile == NULL)
     { printf ("Can't open %s\n", outfilename);
