@@ -236,7 +236,7 @@ private slots:
 private slots:
   void RefreshFndb();
 
-private slots:
+public slots:
   void RefreshFontMaps();
 
 private:
