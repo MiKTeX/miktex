@@ -198,7 +198,7 @@ void init_start_time(void) {
             just use its abstract interface.
         */
         char *source_date_epoch = kpse_var_value("SOURCE_DATE_EPOCH");
-        if (source_date_epoch && source_date_epoch != '\0' ) {
+        if (source_date_epoch) {
             errno = 0;
             epoch = strtoull(source_date_epoch, &endptr, 10);
             if (*endptr != '\0' || errno != 0) {

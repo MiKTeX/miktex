@@ -3,6 +3,18 @@
 #include "lua.h"
 #include "lauxlib.h"
 
+int luatex_mbox_lua_open(lua_State*);
+int luatex_headers_lua_open(lua_State*);
+int luatex_socket_lua_open(lua_State*);
+int luatex_ltn12_lua_open(lua_State*);
+int luatex_mime_lua_open(lua_State*);
+int luatex_url_lua_open(lua_State*);
+int luatex_tp_lua_open(lua_State*);
+int luatex_smtp_lua_open(lua_State*);
+int luatex_http_lua_open(lua_State*);
+int luatex_ftp_lua_open(lua_State*);
+
+
 #include "ftp_lua.c"
 #include "headers_lua.c" 
 #include "http_lua.c"

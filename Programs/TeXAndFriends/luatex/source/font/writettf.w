@@ -539,10 +539,10 @@ static void ttf_copy_encoding(void)
     int i, *q;
     void **aa;
     char **glyph_names;
-    long *charcodes;
-    static char buf[SMALL_BUF_SIZE];
+    /*long *charcodes;*/
+    /*static char buf[SMALL_BUF_SIZE];*/
     struct avl_traverser t;
-    ttfenc_entry *e = ttfenc_tab;
+    /*ttfenc_entry *e = ttfenc_tab;*/
 
     assert(fd_cur->tx_tree != NULL);    /* this must be set in |create_fontdictionary| */
 

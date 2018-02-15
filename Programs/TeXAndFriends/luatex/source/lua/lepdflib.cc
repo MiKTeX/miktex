@@ -1665,7 +1665,7 @@ static int m_Object_initCmd(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     s = luaL_checkstring(L, 2);
-    *((Object *) uin->d) = Object(objCmd, CHARP_CAST s);
+    *((Object *) uin->d) = Object(objCmd, s);
     return 0;
 }
 
