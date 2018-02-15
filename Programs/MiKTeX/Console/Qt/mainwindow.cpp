@@ -104,7 +104,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
-  isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0;
+  isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !session->IsMiKTeXPortable();
 
 #if defined(MIKTEX_WINDOWS)
   bool withTrayIcon = true; // session->IsMiKTeXPortable();
