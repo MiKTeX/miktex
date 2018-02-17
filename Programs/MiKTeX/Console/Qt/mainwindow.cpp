@@ -232,15 +232,18 @@ void MainWindow::UpdateUi()
     {
       return;
     }
-    if (!Utils::CheckPath())
+    if (!pathChecked)
     {
-      ui->groupPathIssue->show();
+      if (!Utils::CheckPath())
+      {
+        ui->groupPathIssue->show();
+      }
+      else
+      {
+        ui->groupPathIssue->hide();
+      }
+      ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
     }
-    else
-    {
-      ui->groupPathIssue->hide();
-    }
-    ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
     if (!IsBackgroundWorkerActive())
     {
       if (ui->labelUpgradeStatus->text().isEmpty())
@@ -781,6 +784,7 @@ bool RefreshFndbWorker::Run()
   try
   {
     Fndb::Refresh(nullptr);
+    packageManager->CreateMpmFndb();
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -797,7 +801,7 @@ bool RefreshFndbWorker::Run()
 void MainWindow::RefreshFndb()
 {
   QThread* thread = new QThread;
-  RefreshFndbWorker* worker = new RefreshFndbWorker;
+  RefreshFndbWorker* worker = new RefreshFndbWorker(packageManager);
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Refreshing file name database..."));
   worker->moveToThread(thread);

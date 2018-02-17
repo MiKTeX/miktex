@@ -79,6 +79,9 @@ private:
 private:
   void UpdateUi();
 
+private:
+  bool pathChecked = false;
+
 private slots:
   void UpdateActions();
 
@@ -584,6 +587,15 @@ class RefreshFndbWorker :
 {
 private:
   Q_OBJECT;
+
+public:
+  RefreshFndbWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager) :
+    packageManager(packageManager)
+  {
+  }
+
+private:
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
 protected:
   bool Run() override;
