@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2008-2018 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
+    Copyright (C) 2008-2016 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -470,7 +470,7 @@ void pdf_encoding_complete (void)
        * we do use a base encodings for PDF versions >= 1.3.
        */
       int with_base = !(encoding->flags & FLAG_USED_BY_TYPE3)
-	              || pdf_check_version(1, 4) >= 0;
+	              || pdf_get_version() >= 4;
       ASSERT(!encoding->resource);
       encoding->resource = create_encoding_resource(encoding,
 						    with_base ? encoding->baseenc : NULL);
@@ -676,7 +676,7 @@ pdf_create_ToUnicode_CMap (const char *enc_name,
       /* Adobe glyph naming conventions are not used by viewers,
        * hence even ligatures (e.g, "f_i") must be explicitly defined
        */
-      if (pdf_check_version(1, 5) < 0 || !agln || !agln->is_predef) {
+      if (pdf_get_version() < 5 || !agln || !agln->is_predef) {
         wbuf[0] = (code & 0xff);
         p      = wbuf + 1;
         endptr = wbuf + WBUF_SIZE;

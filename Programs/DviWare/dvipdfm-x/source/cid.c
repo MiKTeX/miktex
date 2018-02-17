@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -62,22 +62,15 @@ static struct {
   /* Heighest Supplement values supported by PDF-1.0, 1.1, ...; see
    * also http://partners.adobe.com/public/developer/font/index.html#ckf
    */
-  int   supplement[21];
+  int   supplement[16];
 } CIDFont_stdcc_def[] = {
-  {"Adobe", "UCS",      {-1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0}},
-  {"Adobe", "GB1",      {-1, -1, 0, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-    4, 4, 4, 4, 4}},
-  {"Adobe", "CNS1",     {-1, -1, 0, 0, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-    4, 4, 4, 4, 4}},
-  {"Adobe", "Japan1",   {-1, -1, 2, 2, 4, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    6, 6, 6, 6, 6}},
-  {"Adobe", "Korea1",   {-1, -1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 2}},
-  {"Adobe", "Identity", {-1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0}},
-  {NULL,    NULL,       { 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0}}
+  {"Adobe", "UCS",      {-1, -1, 0, 0, 0, 0, 0, 0}}, 
+  {"Adobe", "GB1",      {-1, -1, 0, 2, 4, 4, 4, 4}}, 
+  {"Adobe", "CNS1",     {-1, -1, 0, 0, 3, 4, 4, 4}},
+  {"Adobe", "Japan1",   {-1, -1, 2, 2, 4, 5, 6, 6}},
+  {"Adobe", "Korea1",   {-1, -1, 1, 1, 2, 2, 2, 2}},
+  {"Adobe", "Identity", {-1, -1, 0, 0, 0, 0, 0, 0}},
+  {NULL,    NULL,       { 0,  0, 0, 0, 0, 0, 0, 0}}
 };
 #define UCS_CC    0
 #define ACC_START 1
@@ -718,10 +711,10 @@ static CIDSysInfo *
 get_cidsysinfo (const char *map_name, fontmap_opt *fmap_opt)
 {
   CIDSysInfo *csi = NULL;
-  int sup_idx;
+  int pdf_ver;
   int i, csi_idx = -1, n, m;
 
-  sup_idx = pdf_get_version() - 10;
+  pdf_ver = pdf_get_version();
 
   if (!fmap_opt || !fmap_opt->charcoll)
     return NULL;
@@ -740,7 +733,7 @@ get_cidsysinfo (const char *map_name, fontmap_opt *fmap_opt)
       if (strlen(fmap_opt->charcoll) > n) {
         csi->supplement = (int) strtoul(&(fmap_opt->charcoll[n]), NULL, 10);
       } else { /* Use heighest supported value for current output PDF version. */
-        csi->supplement = CIDFont_stdcc_def[csi_idx].supplement[sup_idx];
+        csi->supplement = CIDFont_stdcc_def[csi_idx].supplement[pdf_ver];
       }
       break;
     }
@@ -792,12 +785,11 @@ get_cidsysinfo (const char *map_name, fontmap_opt *fmap_opt)
   }
 
   if (csi && csi_idx >= 0) {
-    if (csi->supplement > CIDFont_stdcc_def[csi_idx].supplement[sup_idx]
+    if (csi->supplement > CIDFont_stdcc_def[csi_idx].supplement[pdf_ver]
         && (fmap_opt->flags & FONTMAP_OPT_NOEMBED)) {
-      WARN("%s: Heighest supplement number supported in PDF-%d.%d for %s-%s is %d.",
-           CIDFONT_DEBUG_STR, pdf_get_version_major(), pdf_get_version_minor(),
-           csi->registry, csi->ordering,
-           CIDFont_stdcc_def[csi_idx].supplement[sup_idx]);
+      WARN("%s: Heighest supplement number supported in PDF-1.%d for %s-%s is %d.",
+           CIDFONT_DEBUG_STR, pdf_ver, csi->registry, csi->ordering,
+           CIDFont_stdcc_def[csi_idx].supplement[pdf_ver]);
       WARN("%s: Some character may not shown without embedded font (--> %s).",
            CIDFONT_DEBUG_STR, map_name);
     }

@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2017 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -1971,7 +1971,6 @@ static struct spc_handler pdfm_handlers[] = {
   {"code",       spc_handler_pdfm_code},
 
   {"minorversion", spc_handler_pdfm_do_nothing},
-  {"majorversion", spc_handler_pdfm_do_nothing},
   {"encrypt",      spc_handler_pdfm_do_nothing},
 };
 

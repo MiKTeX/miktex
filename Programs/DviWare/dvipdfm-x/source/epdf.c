@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2017 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -402,10 +402,9 @@ pdf_include_page (pdf_ximage        *ximage,
   if (!pf)
     return -1;
 
-  if (pdf_file_check_version(pf, pdf_get_version()) < 0) {
+  if (pdf_file_get_version(pf) > pdf_get_version()) {
     WARN("Trying to include PDF file which has newer version number " \
-         "than output PDF: %d.%d.",
-         pdf_get_version_major(), pdf_get_version_minor());
+         "than output PDF: 1.%d.", pdf_get_version());
   }
 
   pdf_ximage_init_form_info(&info);

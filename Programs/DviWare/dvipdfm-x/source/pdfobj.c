@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2016 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -277,10 +277,10 @@ pdf_set_use_predictor (int bval)
   compression_use_predictor = bval ? 1 : 0;
 }
 
-static int pdf_version = PDF_VERSION_DEFAULT;
+static unsigned pdf_version = PDF_VERSION_DEFAULT;
 
 void
-pdf_set_version (int version)
+pdf_set_version (unsigned version)
 {
   /* Don't forget to update CIDFont_stdcc_def[] in cid.c too! */
   if (version >= PDF_VERSION_MIN && version <= PDF_VERSION_MAX) {
@@ -288,28 +288,10 @@ pdf_set_version (int version)
   }
 }
 
-int
+unsigned
 pdf_get_version (void)
 {
   return pdf_version;
-}
-
-int
-pdf_get_version_major (void)
-{
-  return pdf_version/10;
-}
-
-int
-pdf_get_version_minor (void)
-{
-  return pdf_version%10;
-}
-
-int
-pdf_check_version (int major, int minor)
-{
-  return (pdf_version >= major*10+minor) ? 0 : -1;
 }
 
 int
@@ -353,7 +335,7 @@ pdf_out_init (const char *filename, int do_encryption, int enable_objstm)
   add_xref_entry(0, 0, 0, 0xffff);
   next_label = 1;
 
-  if (pdf_version >= 15) {
+  if (pdf_version >= 5) {
     if (enable_objstm) {
       xref_stream = pdf_new_stream(STREAM_COMPRESS);
       xref_stream->flags |= OBJ_NO_ENCRYPT;
@@ -386,11 +368,8 @@ pdf_out_init (const char *filename, int do_encryption, int enable_objstm)
         ERROR("Unable to open file.");
     }
   }
-  pdf_out(pdf_output_file, "%PDF-", strlen("%PDF-"));
-  v = '0' + (pdf_version / 10);
-  pdf_out(pdf_output_file, &v, 1);
-  pdf_out(pdf_output_file, ".", 1);
-  v = '0' + (pdf_version % 10);
+  pdf_out(pdf_output_file, "%PDF-1.", strlen("%PDF-1."));
+  v = '0' + pdf_version;
   pdf_out(pdf_output_file, &v, 1);
   pdf_out(pdf_output_file, "\n", 1);
   pdf_out(pdf_output_file, BINARY_MARKER, strlen(BINARY_MARKER));
@@ -537,7 +516,7 @@ pdf_out_flush (void)
     if (verbose) {
       if (compression_level > 0) {
 	MESG("Compression saved %ld bytes%s\n", compression_saved,
-	     pdf_version < 15 ? ". Try \"-V 1.5\" for better compression" : "");
+	     pdf_version < 5 ? ". Try \"-V 5\" for better compression" : "");
       }
     }
 #if !defined(LIBDPX)
@@ -3751,13 +3730,6 @@ pdf_file_get_version (pdf_file *pf)
   return pf->version;
 }
 
-int
-pdf_file_check_version (pdf_file *pf, int version)
-{
-  ASSERT(pf);
-  return (pf->version >= version ? 0 : -1);
-}
-
 pdf_obj *
 pdf_file_get_trailer (pdf_file *pf)
 {
@@ -3788,12 +3760,13 @@ pdf_open (const char *ident, FILE *file)
     pdf_obj *new_version;
     int version = check_for_pdf_version(file);
 
-    if (version < 10)
-      WARN("Unrecognized PDF version specified for input PDF file: %d.%d",
-        pdf_version/10, pdf_version%10);
-    else if (version > pdf_version) {
-      WARN("Trying to inlucde PDF file with version newer than current " \
-        "output PDF setting: %d.%d", version/10, version%10);
+    if (version < 1 || version > pdf_version) {
+      WARN("pdf_open: Not a PDF 1.[1-%u] file.", pdf_version);
+/*
+  Try to embed the PDF image, even if the PDF version is newer than
+  the setting.
+      return NULL;
+*/
     }
 
     pf = pdf_file_new(file);
@@ -3815,17 +3788,17 @@ pdf_open (const char *ident, FILE *file)
 
     new_version = pdf_deref_obj(pdf_lookup_dict(pf->catalog, "Version"));
     if (new_version) {
-      unsigned int major, minor;
+      unsigned int minor;
 
       if (!PDF_OBJ_NAMETYPE(new_version) ||
-          sscanf(pdf_name_value(new_version), "%u.%u", &major, &minor) != 2) {
+	  sscanf(pdf_name_value(new_version), "1.%u", &minor) != 1) {
 	pdf_release_obj(new_version);
 	WARN("Illegal Version entry in document catalog. Broken PDF file?");
 	goto error;
       }
 
-      if (pf->version < major*10+minor)
-        pf->version = major*10+minor;
+      if (pf->version < minor)
+	pf->version = minor;
 
       pdf_release_obj(new_version);
     }
@@ -3859,12 +3832,12 @@ pdf_files_close (void)
 static int
 check_for_pdf_version (FILE *file) 
 {
-  unsigned int major, minor;
+  unsigned int minor;
 
   rewind(file);
 
   return (ungetc(fgetc(file), file) == '%' &&
-	  fscanf(file, "%%PDF-%u.%u", &major, &minor) == 2) ? (major*10+minor) : -1;
+	  fscanf(file, "%%PDF-1.%u", &minor) == 1) ? minor : -1;
 }
 
 int
@@ -3878,8 +3851,8 @@ check_for_pdf (FILE *file)
   if (version <= pdf_version)
     return 1;
 
-  WARN("Version of PDF file (%d.%d) is newer than version limit specification.",
-       version/10, version%10);
+  WARN("Version of PDF file (1.%d) is newer than version limit specification.",
+       version);
   return 1;
 }
 

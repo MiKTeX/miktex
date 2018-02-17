@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -455,14 +455,6 @@ tfm_get_sizes (FILE *tfm_file, off_t tfm_file_size, struct tfm_font *tfm)
 }
 
 #ifndef WITHOUT_ASCII_PTEX
-unsigned int get_unsigned_triple_kanji(FILE *file)
-{
-  unsigned int triple = get_unsigned_byte(file);
-  triple = (triple << 8) | get_unsigned_byte(file);
-  triple = triple | (get_unsigned_byte(file)<<16);
-  return triple;
-}
-
 static void
 jfm_do_char_type_array (FILE *tfm_file, struct tfm_font *tfm)
 {

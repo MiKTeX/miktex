@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2017 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -273,7 +273,7 @@ jpeg_include_image (pdf_ximage *ximage, FILE *fp)
   pdf_add_dict(stream_dict, pdf_new_name("Filter"), pdf_new_name("DCTDecode"));
 
   /* XMP Metadata */
-  if (pdf_check_version(1, 4) >= 0) {
+  if (pdf_get_version() >= 4) {
     if (j_info.flags & HAVE_APPn_XMP) {
       pdf_obj *XMP_stream;
 
