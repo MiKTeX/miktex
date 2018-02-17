@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * autosp 2018-02-14
+* dvipdfmx 20180217
 * pmxab 2.8.4
 
 ## 2.9.6600 - 2018-02-11

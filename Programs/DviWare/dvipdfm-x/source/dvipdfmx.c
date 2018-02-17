@@ -2,7 +2,7 @@
 
     DVIPDFMx, an eXtended version of DVIPDFM by Mark A. Wicks.
 
-    Copyright (C) 2002-2017 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
     the DVIPDFMx project team.
     
     Copyright (c) 2006 SIL. (xdvipdfmx extensions for XeTeX support)
@@ -177,8 +177,8 @@ show_version (void)
   if (*my_name == 'x')
     printf ("an extended version of DVIPDFMx, which in turn was\n");
   printf ("an extended version of dvipdfm-0.13.2c developed by Mark A. Wicks.\n");
-  printf ("\nCopyright (C) 2002-2017 the DVIPDFMx project team\n");
-  printf ("Copyright (C) 2006-2017 SIL International.\n");
+  printf ("\nCopyright (C) 2002-2018 the DVIPDFMx project team\n");
+  printf ("Copyright (C) 2006-2018 SIL International.\n");
   printf ("\nThis is free software; you can redistribute it and/or modify\n");
   printf ("it under the terms of the GNU General Public License as published by\n");
   printf ("the Free Software Foundation; either version 2 of the License, or\n");
@@ -240,7 +240,8 @@ show_usage (void)
   printf ("  -O number\tSet maximum depth of open bookmark items [0]\n");
   printf ("  -P number\tSet permission flags for PDF encryption [0x003C]\n");
   printf ("  -S \t\tEnable PDF encryption\n");
-  printf ("  -V number\tSet PDF minor version [%d]\n", PDF_VERSION_DEFAULT);
+  printf ("  -V number\tSet PDF version [%d.%d]\n",
+    PDF_VERSION_DEFAULT/10,PDF_VERSION_DEFAULT%10);
   printf ("\nAll dimensions entered on the command line are \"true\" TeX dimensions.\n");
   printf ("Argument of \"-s\" lists physical page ranges separated by commas,\n");
   printf ("\te.g., \"-s 1-3,5-6\".\n");
@@ -597,17 +598,29 @@ do_args (int argc, char *argv[], const char *source, int unsafe)
 
     case 'V':
     {
-      int ver_minor = atoi(optarg);
-      if (ver_minor < PDF_VERSION_MIN) {
-        WARN("PDF version 1.%d not supported. Using PDF 1.%d instead.",
-             ver_minor, PDF_VERSION_MIN);
-        ver_minor = PDF_VERSION_MIN;
-      } else if (ver_minor > PDF_VERSION_MAX) {
-        WARN("PDF version 1.%d not supported. Using PDF 1.%d instead.",
-             ver_minor, PDF_VERSION_MAX);
-        ver_minor = PDF_VERSION_MAX;
+      int    version, ver_major, ver_minor;
+
+      if (strchr(optarg, '.')) { /* new format X.X */
+        double tmp = atof(optarg);
+        ver_major = (int) tmp;
+        ver_minor = (int) (10 * (tmp - ver_major) + 0.5);
+      } else {
+        ver_major = 1;
+        ver_minor = atoi(optarg);
       }
-      pdf_set_version((unsigned) ver_minor);
+      version = ver_major * 10 + ver_minor;
+      if (version < PDF_VERSION_MIN) {
+        WARN("PDF version %d.%d not supported. Using PDF %d.%d instead.",
+             ver_major, ver_minor, PDF_VERSION_MIN/10, PDF_VERSION_MIN%10);
+        ver_minor = PDF_VERSION_MIN;
+        version = ver_major * 10 + ver_minor;
+      } else if (version > PDF_VERSION_MAX) {
+        WARN("PDF version %d.%d not supported. Using PDF %d.%d instead.",
+             ver_major, ver_minor, PDF_VERSION_MAX/10, PDF_VERSION_MAX%10);
+        ver_minor = PDF_VERSION_MAX;
+        version = ver_major * 10 + ver_minor;
+      }
+      pdf_set_version(version);
       break;
     }
 
@@ -1090,7 +1103,7 @@ main (int argc, char *argv[])
 
   pdf_enc_compute_id_string(dvi_filename, pdf_filename);
   if (do_encryption) {
-    if (key_bits > 40 && pdf_get_version() < 4)
+    if (key_bits > 40 && pdf_check_version(1, 4) < 0)
       ERROR("Chosen key length requires at least PDF 1.4. "
             "Use \"-V 4\" to change.");
     pdf_enc_set_passwd(key_bits, permission, NULL, NULL);
@@ -1101,7 +1114,7 @@ main (int argc, char *argv[])
     y_offset = 0.0;
     dvi2pts  = 0.01; /* dvi2pts controls accuracy. */
   } else {
-    int ver_major = 0,  ver_minor = 0;
+    int  version, ver_major = 1, ver_minor = 0;
     char owner_pw[MAX_PWD_LEN], user_pw[MAX_PWD_LEN];
     /* Dependency between DVI and PDF side is rather complicated... */
     dvi2pts = dvi_init(dvi_filename, mag);
@@ -1120,8 +1133,9 @@ main (int argc, char *argv[])
       /* FIXME: pdf_set_version() should come before ecrcyption setting.
        *        It's too late to set here...
        */
-      if (ver_minor >= PDF_VERSION_MIN && ver_minor <= PDF_VERSION_MAX) {
-        pdf_set_version(ver_minor);
+      version = ver_major * 10 + ver_minor;
+      if (version >= PDF_VERSION_MIN && version <= PDF_VERSION_MAX) {
+        pdf_set_version(version);
       }
     } else {
       dvi_scan_specials(0,
@@ -1129,14 +1143,15 @@ main (int argc, char *argv[])
                         &x_offset, &y_offset, &landscape_mode,
                         &ver_major, &ver_minor,
                         &do_encryption, &key_bits, &permission, owner_pw, user_pw);
-      if (ver_minor >= PDF_VERSION_MIN && ver_minor <= PDF_VERSION_MAX) {
-        pdf_set_version(ver_minor);
+      version = ver_major * 10 + ver_minor;
+      if (version >= PDF_VERSION_MIN && version <= PDF_VERSION_MAX) {
+        pdf_set_version(version);
       }
       if (do_encryption) {
         if (!(key_bits >= 40 && key_bits <= 128 && (key_bits % 8 == 0)) &&
               key_bits != 256)
           ERROR("Invalid encryption key length specified: %u", key_bits);
-        else if (key_bits > 40 && pdf_get_version() < 4)
+        else if (key_bits > 40 && pdf_check_version(1, 4) < 0)
           ERROR("Chosen key length requires at least PDF 1.4. " \
                 "Use \"-V 4\" to change.");
         do_encryption = 1;
