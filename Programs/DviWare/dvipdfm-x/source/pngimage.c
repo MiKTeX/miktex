@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -190,7 +190,7 @@ png_include_image (pdf_ximage *ximage, FILE *png_file)
 
   /* Ask libpng to convert down to 8-bpc. */
   if (bpc > 8) {
-    if (pdf_get_version() < 5) {
+    if (pdf_check_version(1, 5) < 0) {
       WARN("%s: 16-bpc PNG requires PDF version 1.5.", PNG_DEBUG_STR);
     png_set_strip_16(png_ptr);
     bpc = 8;
@@ -354,7 +354,7 @@ png_include_image (pdf_ximage *ximage, FILE *png_file)
    * flag of iTxt chunks.
    */
 #if PNG_LIBPNG_VER >= 10614
-  if (pdf_get_version() >= 4) {
+  if (pdf_check_version(1, 4) >= 0) {
     png_textp text_ptr;
     pdf_obj  *XMP_stream, *XMP_stream_dict;
     int       i, num_text;
@@ -438,13 +438,11 @@ static int
 check_transparency (png_structp png_ptr, png_infop info_ptr)
 {
   int           trans_type;
-  unsigned      pdf_version;
   png_byte      color_type;
   png_color_16p trans_values;
   png_bytep     trans;
   int           num_trans;
 
-  pdf_version = pdf_get_version();
   color_type  = png_get_color_type(png_ptr, info_ptr);
 
   /*
@@ -486,8 +484,8 @@ check_transparency (png_structp png_ptr, png_infop info_ptr)
    * We can convert alpha cahnnels to explicit mask via user supplied alpha-
    * threshold value. But I will not do that.
    */
-  if (( pdf_version < 3 && trans_type != PDF_TRANS_TYPE_NONE   ) ||
-      ( pdf_version < 4 && trans_type == PDF_TRANS_TYPE_ALPHA )) {
+  if (( pdf_check_version(1, 3) < 0 && trans_type != PDF_TRANS_TYPE_NONE   ) ||
+      ( pdf_check_version(1, 4) < 0 && trans_type == PDF_TRANS_TYPE_ALPHA )) {
     /*
      *   No transparency supported but PNG uses transparency, or Soft-Mask
      * required but no support for it is available in this version of PDF.
@@ -504,9 +502,9 @@ check_transparency (png_structp png_ptr, png_infop info_ptr)
     bg.red = 255; bg.green = 255; bg.blue  = 255; bg.gray = 255; bg.index = 0;
     png_set_background(png_ptr, &bg, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
     WARN("%s: Transparency will be ignored. (no support in PDF ver. < 1.3)", PNG_DEBUG_STR);
-    if (pdf_version < 3)
+    if (pdf_check_version(1, 3) < 0)
       WARN("%s: Please use -V 3 option to enable binary transparency support.", PNG_DEBUG_STR);
-    if (pdf_version < 4)
+    if (pdf_check_version(1, 4) < 0)
       WARN("%s: Please use -V 4 option to enable full alpha channel support.", PNG_DEBUG_STR);
     trans_type = PDF_TRANS_TYPE_NONE;
   }

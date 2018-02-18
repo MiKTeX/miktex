@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -463,14 +463,14 @@ getpass (const char *prompt)
 static void
 check_version (struct pdf_sec *p, int version)
 {
-  if (p->V > 2 && version < 4) {
+  if (p->V > 2 && version < 14) {
     WARN("Current encryption setting requires PDF version >= 1.4.");
     p->V = 1;
     p->key_size = 5;
-  } else if (p->V == 4 && version < 5) {
+  } else if (p->V == 4 && version < 15) {
     WARN("Current encryption setting requires PDF version >= 1.5.");
     p->V = 2;
-  } else if (p->V ==5 && version < 7) {
+  } else if (p->V ==5 && version < 17) {
     WARN("Current encryption setting requires PDF version >= 1.7" \
          " (plus Adobe Extension Level 3).");
     p->V = 4;
