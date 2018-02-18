@@ -51,7 +51,8 @@ enum {
   OPT_AAA = 1,
   OPT_ADMIN,
   OPT_FINISH_SETUP,
-  OPT_HIDE
+  OPT_HIDE,
+  OPT_MKMAPS
 };
 
 namespace {
@@ -70,6 +71,10 @@ namespace {
       "Hide the main window.", nullptr
     },
 #endif
+    {
+      "mkmaps", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_MKMAPS,
+      nullptr, nullptr
+    },
     POPT_TABLEEND
   };
 }
@@ -145,6 +150,7 @@ int main(int argc, char* argv[])
   bool optAdmin = false;
   bool optFinishSetup = false;
   bool optHide = false;
+  bool optMkmaps = false;
   TraceSink traceSink;
   try
   {
@@ -168,6 +174,9 @@ int main(int argc, char* argv[])
         break;
       case OPT_FINISH_SETUP:
         optFinishSetup = true;
+        break;
+      case OPT_MKMAPS:
+        optMkmaps = true;
         break;
       }
     }
@@ -219,6 +228,10 @@ int main(int argc, char* argv[])
     if (optFinishSetup)
     {
       QTimer::singleShot(100, &mainWindow, SLOT(FinishSetup()));
+    }
+    if (optMkmaps)
+    {
+      QTimer::singleShot(100, &mainWindow, SLOT(RefreshFontMaps()));
     }
     ret = application.exec();
     if (isLog4cxxConfigured)

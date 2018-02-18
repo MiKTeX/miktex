@@ -1,5 +1,12 @@
 # MiKTeX Change Log
 
+## NEXT
+
+### Upgraded programs
+
+* autosp 2018-02-14
+* pmxab 2.8.4
+
 ## 2.9.6600 - 2018-02-11
 
 ### MiKTeX Console

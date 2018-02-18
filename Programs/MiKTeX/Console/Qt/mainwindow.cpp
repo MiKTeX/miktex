@@ -104,7 +104,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
-  isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0;
+  isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !session->IsMiKTeXPortable();
 
 #if defined(MIKTEX_WINDOWS)
   bool withTrayIcon = true; // session->IsMiKTeXPortable();
@@ -232,15 +232,18 @@ void MainWindow::UpdateUi()
     {
       return;
     }
-    if (!Utils::CheckPath())
+    if (!pathChecked)
     {
-      ui->groupPathIssue->show();
+      if (!Utils::CheckPath())
+      {
+        ui->groupPathIssue->show();
+      }
+      else
+      {
+        ui->groupPathIssue->hide();
+      }
+      ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
     }
-    else
-    {
-      ui->groupPathIssue->hide();
-    }
-    ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
     if (!IsBackgroundWorkerActive())
     {
       if (ui->labelUpgradeStatus->text().isEmpty())
@@ -781,6 +784,7 @@ bool RefreshFndbWorker::Run()
   try
   {
     Fndb::Refresh(nullptr);
+    packageManager->CreateMpmFndb();
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -797,7 +801,7 @@ bool RefreshFndbWorker::Run()
 void MainWindow::RefreshFndb()
 {
   QThread* thread = new QThread;
-  RefreshFndbWorker* worker = new RefreshFndbWorker;
+  RefreshFndbWorker* worker = new RefreshFndbWorker(packageManager);
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Refreshing file name database..."));
   worker->moveToThread(thread);
@@ -1005,6 +1009,16 @@ void MainWindow::CheckUpdates()
 {
   QThread* thread = new QThread;
   CkeckUpdatesWorker* worker = new CkeckUpdatesWorker(packageManager);
+#if 1
+  string url;
+  RepositoryType repositoryType(RepositoryType::Unknown);
+  if (PackageManager::TryGetDefaultPackageRepository(repositoryType, url)
+    && repositoryType == RepositoryType::Remote
+    && !ProxyAuthenticationDialog(this))
+  {
+    return;
+  }
+#endif
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Checking for updates..."));
   worker->moveToThread(thread);

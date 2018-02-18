@@ -971,15 +971,14 @@ void SetupServiceImpl::DoTheInstallation()
 
   if (options.IsPortable)
   {
-    PathName console(options.PortableRoot);
-    console /= MIKTEX_PORTABLE_REL_INSTALL_DIR;
+    PathName console (MIKTEX_PORTABLE_REL_INSTALL_DIR);
     console /= MIKTEX_PATH_BIN_DIR;
     console /= MIKTEX_CONSOLE_EXE;
     PathName cmdScriptFileName(options.PortableRoot);
     cmdScriptFileName /= "miktex-portable.cmd";
     StreamWriter cmdScript(cmdScriptFileName);
     cmdScript.WriteLine("@echo off");
-    cmdScript.WriteFormattedLine("start \"\" \"%s\"  --hide", console.ToDos().GetData());
+    cmdScript.WriteFormattedLine("start \"\" \"%%~d0%%~p0%s\" --hide --mkmaps", console.ToDos().GetData());
     cmdScript.Close();
   }
 }

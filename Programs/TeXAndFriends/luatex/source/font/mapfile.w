@@ -613,13 +613,13 @@ void pdfmapline(int t)
     free(s);
 }
 
-void pdf_init_map_file(char *map_name)
+void pdf_init_map_file(const char *map_name)
 {
     assert(mitem == NULL);
     mitem = xtalloc(1, mapitem);
     mitem->mode = FM_DUPIGNORE;
     mitem->type = MAPFILE;
-    mitem->line = map_name;
+    mitem->line = xstrdup(map_name);
 }
 
 /**********************************************************************/

@@ -537,16 +537,22 @@ bool Fndb::Refresh(const PathName& path, ICreateFndbCallback* callback)
 
 bool Fndb::Refresh(ICreateFndbCallback* callback)
 {
-  unsigned n = SessionImpl::GetSession()->GetNumberOfTEXMFRoots();
+  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  unsigned n = session->GetNumberOfTEXMFRoots();
   for (unsigned ord = 0; ord < n; ++ord)
   {
-    if ((SessionImpl::GetSession()->IsAdminMode() && !SessionImpl::GetSession()->IsCommonRootDirectory(ord))
-      || (!SessionImpl::GetSession()->IsAdminMode() && SessionImpl::GetSession()->IsCommonRootDirectory(ord)))
+    if (session->IsAdminMode() && !session->IsCommonRootDirectory(ord))
     {
+      // skipping user root directory
       continue;
     }
-    PathName rootDirectory = SessionImpl::GetSession()->GetRootDirectoryPath(ord);
-    PathName pathFndbPath = SessionImpl::GetSession()->GetFilenameDatabasePathName(ord);
+    if (!session->IsAdminMode() && session->IsCommonRootDirectory(ord) && !session->IsMiKTeXPortable())
+    {
+      // skipping common root directory
+      continue;
+    }
+    PathName rootDirectory = session->GetRootDirectoryPath(ord);
+    PathName pathFndbPath = session->GetFilenameDatabasePathName(ord);
     if (!Fndb::Create(pathFndbPath, rootDirectory, callback))
     {
       return false;
