@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -392,10 +392,8 @@ Type0Font_cache_find (const char *map_name, int cmap_id, fontmap_opt *fmap_opt)
   CIDSysInfo *csi;
   char       *fontname = NULL;
   int         cid_id = -1, parent_id = -1, wmode = 0;
-  int         pdf_ver;
 
-  pdf_ver = pdf_get_version();
-  if (!map_name || cmap_id < 0 || pdf_ver < 2)
+  if (!map_name || cmap_id < 0 || pdf_check_version(1, 2) < 0)
     return -1;
 
   /*

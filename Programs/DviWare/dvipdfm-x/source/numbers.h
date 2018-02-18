@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -59,9 +59,6 @@ extern unsigned short get_unsigned_pair (FILE *);
 extern unsigned short sget_unsigned_pair (unsigned char *);
 extern signed short get_signed_pair (FILE *);
 extern unsigned int get_unsigned_triple (FILE *);
-#ifndef WITHOUT_ASCII_PTEX
-extern unsigned int get_unsigned_triple_kanji (FILE *);
-#endif
 extern signed int get_signed_triple (FILE *);
 extern int32_t get_signed_quad (FILE *);
 extern uint32_t get_unsigned_quad (FILE *);

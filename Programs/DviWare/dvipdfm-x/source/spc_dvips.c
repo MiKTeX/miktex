@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -606,7 +606,7 @@ spc_handler_ps_tricks_parse_path (struct spc_env *spe, struct spc_arg *args)
   fclose(fp);
 
   error = dpx_file_apply_filter(distiller_template, gs_in, gs_out,
-                               (unsigned char) pdf_get_version());
+    pdf_get_version());
   if (error) {
     WARN("Image format conversion for PSTricks failed.");
     RELEASE(gs_in);
@@ -701,7 +701,7 @@ spc_handler_ps_tricks_render (struct spc_env *spe, struct spc_arg *args)
     fclose(fp);
 
     error = dpx_file_apply_filter(distiller_template, gs_in, gs_out,
-                                 (unsigned char) pdf_get_version());
+      pdf_get_version());
     if (error) {
       WARN("Image format conversion for PSTricks failed.");
       RELEASE(gs_in);

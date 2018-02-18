@@ -1,5 +1,5 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
-    Copyright (C) 2007-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -1018,8 +1018,7 @@ dpx_delete_temp_file (char *tmp, int force)
  */
 int
 dpx_file_apply_filter (const char *cmdtmpl,
-                      const char *input, const char *output,
-                      unsigned char version)
+                      const char *input, const char *output, int version)
 {
   char   *cmd = NULL;
   const char   *p, *q;
@@ -1063,7 +1062,7 @@ if ((l) + (n) >= (m)) { \
         break;
       case  'v': /* Version number, e.g. 1.4 */ {
        char buf[6];
-       sprintf(buf, "1.%hu", (unsigned short) version);
+       sprintf(buf, "%d.%d", version/10, version%10);
        need(cmd, n, size, strlen(buf));
        strcpy(cmd + n, buf);  n += strlen(buf);
        break;

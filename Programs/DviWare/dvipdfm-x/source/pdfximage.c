@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2017 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -961,7 +961,7 @@ ps_include_page (pdf_ximage *ximage, const char *filename, load_options options)
       MESG("pdf_image>> ...");
     }
     error = dpx_file_apply_filter(distiller_template, filename, temp,
-                               (unsigned char) pdf_get_version());
+      pdf_get_version());
     if (error) {
       WARN("Image format conversion for \"%s\" failed...", filename);
       dpx_delete_temp_file(temp, true);

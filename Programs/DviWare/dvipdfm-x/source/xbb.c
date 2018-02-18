@@ -1,5 +1,5 @@
 /* This is extractbb, a bounding box extraction program.
-    Copyright (C) 2008-2017 by Jin-Hwan Cho and Matthias Franz
+    Copyright (C) 2008-2018 by Jin-Hwan Cho and Matthias Franz
     and the dvipdfmx project team.
 
     This program is free software; you can redistribute it and/or modify
@@ -63,7 +63,7 @@ static int Include_Page = 1;
 static void show_version(void)
 {
   fprintf (stdout, "\nThis is %s Version " VERSION "\n", my_name);
-  fprintf (stdout, "\nCopyright (C) 2008-2017 by Jin-Hwan Cho and Matthias Franz\n");
+  fprintf (stdout, "\nCopyright (C) 2008-2018 by Jin-Hwan Cho and Matthias Franz\n");
   fprintf (stdout, "\nThis is free software; you can redistribute it and/or modify\n");
   fprintf (stdout, "it under the terms of the GNU General Public License as published by\n");
   fprintf (stdout, "the Free Software Foundation; either version 2 of the License, or\n");
@@ -184,7 +184,7 @@ static void write_xbb(char *fname,
     fprintf(fp, "%%%%HiResBoundingBox: %f %f %f %f\n",
             bbllx_f, bblly_f, bburx_f, bbury_f);
     if (pdf_version >= 0) {
-      fprintf(fp, "%%%%PDFVersion: 1.%d\n", pdf_version);
+      fprintf(fp, "%%%%PDFVersion: %d.%d\n", pdf_version/10, pdf_version%10);
       fprintf(fp, "%%%%Pages: %d\n", pagecount);
     }
   }
