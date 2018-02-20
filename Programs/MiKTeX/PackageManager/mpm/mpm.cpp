@@ -1,6 +1,6 @@
 /* mpm.cpp: MiKTeX Package Manager (cli version)
 
-   Copyright (C) 2003-2017 Christian Schenk
+   Copyright (C) 2003-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -991,7 +991,7 @@ void Application::FindUpdates()
   installer->FindUpdates();
   vector<PackageInstaller::UpdateInfo> updates = installer->GetUpdates();
   installer->Dispose();
-  if (updates.size() == 0)
+  if (updates.empty())
   {
     Message(T_("There are currently no updates available."));
   }
@@ -1819,7 +1819,7 @@ void Application::Main(int argc, const char** argv)
     }
   }
 
-  if (toBeInstalled.size() > 0 || toBeRemoved.size() > 0)
+  if (!toBeInstalled.empty() || !toBeRemoved.empty())
   {
     Install(toBeInstalled, toBeRemoved);
     restartWindowed = false;
