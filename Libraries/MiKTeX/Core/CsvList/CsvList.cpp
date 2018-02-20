@@ -1,6 +1,6 @@
 /* CsvList.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -34,14 +34,14 @@ class CsvList::impl
 public:
   CharBuffer<char> buf;
 public:
-  const char * current = nullptr;
+  const char* current = nullptr;
 public:
-  char * next = nullptr;
+  char* next = nullptr;
 public:
   char separator;
 };
 
-CsvList::CsvList(const string & s, char separator) :
+CsvList::CsvList(const string& s, char separator) :
   pimpl(new impl{})
 {
   pimpl->buf = s;
@@ -76,7 +76,7 @@ string CsvList::operator*() const
   return pimpl->current;
 }
 
-CsvList & CsvList::operator++ ()
+CsvList& CsvList::operator++()
 {
   if (pimpl->next != nullptr && *pimpl->next != 0)
   {
