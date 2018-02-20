@@ -712,6 +712,8 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   // iterate over application tags, e.g.: latex;tex;miktex
   for (CsvList app(applicationNames, PathName::PathNameDelimiter); !haveValue && app; ++app)
   {
+    MIKTEX_ASSERT(!(*app).empty());
+
     string lookupKeyName = Utils::MakeLower(*app);
 
     Cfg* cfg = nullptr;
@@ -824,7 +826,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PROGNAME))
   {
     CsvList progname(applicationNames, PathName::PathNameDelimiter);
-    MIKTEX_ASSERT(progname);
+    MIKTEX_ASSERT(progname && !(*progname).empty());
     value = *progname;
     haveValue = true;
   }

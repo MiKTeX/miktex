@@ -64,7 +64,7 @@ CsvList::CsvList(const string& s, char separator) :
 
 CsvList::operator bool() const
 {
-  return pimpl->current != nullptr && pimpl->current[0] != 0;
+  return pimpl->current != nullptr;
 }
 
 string CsvList::operator*() const
@@ -78,18 +78,14 @@ string CsvList::operator*() const
 
 CsvList& CsvList::operator++()
 {
-  if (pimpl->next != nullptr && *pimpl->next != 0)
+  pimpl->current = pimpl->next;
+  if (pimpl->next != nullptr)
   {
-    pimpl->current = pimpl->next;
     pimpl->next = strchr(pimpl->next, pimpl->separator);
     if (pimpl->next != nullptr)
     {
       *pimpl->next++ = 0;
     }
-  }
-  else
-  {
-    pimpl->current = nullptr;
   }
   return *this;
 }

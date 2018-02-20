@@ -271,7 +271,7 @@ bool Utils::IsSafeFileName(const PathName& path, bool forInput)
   {
     for (CsvList ext(forbiddenExtensions, PathName::PathNameDelimiter); ext; ++ext)
     {
-      if (PathName::Compare(*ext, extension) == 0)
+      if (!(*ext).empty() && PathName::Compare(*ext, extension) == 0)
       {
         return false;
       }
@@ -874,6 +874,10 @@ bool Utils::FindProgram(const std::string& programName, PathName& path)
   }
   for (CsvList entry(envPath, PathName::PathNameDelimiter); entry; ++entry)
   {
+    if ((*entry).empty())
+    {
+      continue;
+    }
     PathName cand = *entry;
     cand /= programName;
 #if defined(MIKTEX_WINDOWS)
@@ -912,6 +916,10 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
 #endif
   for (CsvList entry(oldPath, PathName::PathNameDelimiter); entry; ++entry)
   {
+    if ((*entry).empty())
+    {
+      continue;
+    }
     string str2;
     for (const char& ch : *entry)
     {
