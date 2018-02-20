@@ -157,16 +157,16 @@ public:
   void Main(int argc, const char** argv);
 
 private:
-  void Verbose(const char* lpszFormat, ...);
+  void Verbose(const char* format, ...);
 
 private:
-  void Warn(const char* lpszFormat, ...);
+  void Warn(const char* format, ...);
 
 private:
-  void Message(const char* lpszFormat, ...);
+  void Message(const char* format, ...);
 
 private:
-  MIKTEXNORETURN void Error(const char* lpszFormat, ...);
+  MIKTEXNORETURN void Error(const char* format, ...);
 
 private:
   void UpdateDb();
@@ -231,10 +231,10 @@ private:
   static void SignalHandler(int sig);
 
 private:
-  shared_ptr<PackageManager> pPackageManager;
+  shared_ptr<PackageManager> packageManager;
 
 private:
-  shared_ptr<Session> pSession;
+  shared_ptr<Session> session;
 
 private:
   static const struct poptOption aoption[];
@@ -618,12 +618,12 @@ const struct poptOption Application::aoption[] = {
 
 volatile sig_atomic_t Application::interrupted = false;
 
-void Application::Message(const char* lpszFormat, ...)
+void Application::Message(const char* format, ...)
 {
   va_list arglist;
   string s;
-  VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatStringVA(lpszFormat, arglist);
+  VA_START(arglist, format);
+  s = StringUtil::FormatStringVA(format, arglist);
   VA_END(arglist);
   LOG4CXX_INFO(logger, s);
   if (!quiet)
@@ -632,12 +632,12 @@ void Application::Message(const char* lpszFormat, ...)
   }
 }
 
-void Application::Verbose(const char* lpszFormat, ...)
+void Application::Verbose(const char* format, ...)
 {
   va_list arglist;
   string s;
-  VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatStringVA(lpszFormat, arglist);
+  VA_START(arglist, format);
+  s = StringUtil::FormatStringVA(format, arglist);
   VA_END(arglist);
   LOG4CXX_INFO(logger, s);
   if (verbose)
@@ -646,12 +646,12 @@ void Application::Verbose(const char* lpszFormat, ...)
   }
 }
 
-void Application::Warn(const char* lpszFormat, ...)
+void Application::Warn(const char* format, ...)
 {
   va_list arglist;
   string s;
-  VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatStringVA(lpszFormat, arglist);
+  VA_START(arglist, format);
+  s = StringUtil::FormatStringVA(format, arglist);
   VA_END(arglist);
   LOG4CXX_WARN(logger, s);
   cout << T_("Warning:") << " " << s << endl;
@@ -694,12 +694,12 @@ static void Sorry()
   Sorry("");
 }
 
-MIKTEXNORETURN void Application::Error(const char* lpszFormat, ...)
+MIKTEXNORETURN void Application::Error(const char* format, ...)
 {
   va_list arglist;
   string s;
-  VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatStringVA(lpszFormat, arglist);
+  VA_START(arglist, format);
+  s = StringUtil::FormatStringVA(format, arglist);
   VA_END(arglist);
   LOG4CXX_FATAL(logger, s);
   Sorry(s);
@@ -727,7 +727,7 @@ bool Application::OnProgress(Notification nf)
 
 void Application::UpdateDb()
 {
-  shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
   if (!repository.empty())
   {
     installer->SetRepository(repository);
@@ -741,7 +741,7 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
 {
   for (const string& deploymentName : toBeInstalled)
   {
-    PackageInfo packageInfo = pPackageManager->GetPackageInfo(deploymentName);
+    PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
     if (packageInfo.IsInstalled())
     {
       Error(T_("Package \"%s\" is already installed."), deploymentName.c_str());
@@ -750,14 +750,14 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
 
   for (const string& deploymentName : toBeRemoved)
   {
-    PackageInfo packageInfo = pPackageManager->GetPackageInfo(deploymentName);
+    PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
     if (!packageInfo.IsInstalled())
     {
       Error(T_("Package \"%s\" is not installed."), deploymentName.c_str());
     }
   }
 
-  shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
 
   if (!repository.empty())
   {
@@ -790,7 +790,7 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
 
 void Application::RegisterComponents(bool doRegister)
 {
-  shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
   installer->SetCallback(this);
   installer->RegisterComponents(doRegister);
   installer->Dispose();
@@ -801,7 +801,7 @@ void Application::RegisterComponents(bool doRegister)
 void Application::FindConflicts()
 {
   map<string, vector<string> > filesAndPackages;
-  unique_ptr<PackageIterator> packageIterator(pPackageManager->CreateIterator());
+  unique_ptr<PackageIterator> packageIterator(packageManager->CreateIterator());
   PackageInfo packageInfo;
   while (packageIterator->GetNext(packageInfo))
   {
@@ -840,7 +840,7 @@ void Application::FindConflicts()
 void Application::VerifyMiKTeX()
 {
   vector<string> toBeVerified;
-  unique_ptr<PackageIterator> packageIterator(pPackageManager->CreateIterator());
+  unique_ptr<PackageIterator> packageIterator(packageManager->CreateIterator());
   PackageInfo packageInfo;
   while (packageIterator->GetNext(packageInfo))
   {
@@ -860,7 +860,7 @@ void Application::Verify(const vector<string>& toBeVerifiedArg)
   bool verifyAll = toBeVerified.empty();
   if (verifyAll)
   {
-    unique_ptr<PackageIterator> packageIterator(pPackageManager->CreateIterator());
+    unique_ptr<PackageIterator> packageIterator(packageManager->CreateIterator());
     PackageInfo packageInfo;
     while (packageIterator->GetNext(packageInfo))
     {
@@ -873,7 +873,7 @@ void Application::Verify(const vector<string>& toBeVerifiedArg)
   bool ok = true;
   for (const string& deploymentName : toBeVerified)
   {
-    if (!pPackageManager->TryVerifyInstalledPackage(deploymentName))
+    if (!packageManager->TryVerifyInstalledPackage(deploymentName))
     {
       Message(T_("%s: this package needs to be reinstalled."), deploymentName.c_str());
       ok = false;
@@ -931,7 +931,7 @@ void Application::ImportPackage(const string& deploymentName, vector<string>& to
     Error(T_("Package %s is obsolete."), deploymentName.c_str());
   }
   PackageInfo packageInfo;
-  if (!pPackageManager->TryGetPackageInfo(deploymentName.c_str(), packageInfo))
+  if (!packageManager->TryGetPackageInfo(deploymentName.c_str(), packageInfo))
   {
     Error(T_("Unknown package: %s."), deploymentName.c_str());
   }
@@ -972,7 +972,7 @@ void Application::ImportPackages(vector<string>& toBeinstalled)
       continue;
     }
     PackageInfo packageInfo;
-    if (!pPackageManager->TryGetPackageInfo(key->GetName(), packageInfo) || packageInfo.IsInstalled())
+    if (!packageManager->TryGetPackageInfo(key->GetName(), packageInfo) || packageInfo.IsInstalled())
     {
       continue;
     }
@@ -982,7 +982,7 @@ void Application::ImportPackages(vector<string>& toBeinstalled)
 
 void Application::FindUpdates()
 {
-  shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
   if (!repository.empty())
   {
     installer->SetRepository(repository);
@@ -1007,7 +1007,7 @@ void Application::FindUpdates()
 
 void Application::Update(const vector<string>& updates)
 {
-  shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
   if (!repository.empty())
   {
     installer->SetRepository(repository);
@@ -1034,7 +1034,7 @@ void Application::Update(const vector<string>& updates)
   {
     for (const string& deploymentName : updates)
     {
-      PackageInfo packageInfo = pPackageManager->GetPackageInfo(deploymentName);
+      PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
       if (!packageInfo.IsInstalled())
       {
         Error(T_("Package \"%s\" is not installed."), deploymentName.c_str());
@@ -1071,7 +1071,7 @@ void Application::FindUpgrades(PackageLevel packageLevel)
   {
     Error("No package level (--package-level) was specified.");
   }
-  shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
   if (!repository.empty())
   {
     installer->SetRepository(repository);
@@ -1098,7 +1098,7 @@ void Application::Upgrade(PackageLevel packageLevel)
   {
     Error(T_("No package level (--package-level) was specified."));
   }
-  shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
   if (!repository.empty())
   {
     installer->SetRepository(repository);
@@ -1132,7 +1132,7 @@ void Application::Upgrade(PackageLevel packageLevel)
 string Application::GetDirectories(const string& deploymentName)
 {
   set<string> directories;
-  PackageInfo pi = pPackageManager->GetPackageInfo(deploymentName);
+  PackageInfo pi = packageManager->GetPackageInfo(deploymentName);
   for (const string& fileName : pi.runFiles)
   {
     PathName path(fileName);
@@ -1155,7 +1155,7 @@ string Application::GetDirectories(const string& deploymentName)
 
 void Application::List(OutputFormat outputFormat, int maxCount)
 {
-  unique_ptr<PackageIterator> packageIterator(pPackageManager->CreateIterator());
+  unique_ptr<PackageIterator> packageIterator(packageManager->CreateIterator());
   PackageInfo packageInfo;
   set<PackageInfo, PackageInfoComparer> setPi;
   while (packageIterator->GetNext(packageInfo))
@@ -1181,7 +1181,7 @@ void Application::List(OutputFormat outputFormat, int maxCount)
     }
     else if (outputFormat == OutputFormat::CSV)
     {
-      string path = pPackageManager->GetContainerPath(it->deploymentName, false);
+      string path = packageManager->GetContainerPath(it->deploymentName, false);
       string directories = GetDirectories(it->deploymentName);
       cout << StringUtil::FormatString("%s\\%s,%s", path.c_str(), it->deploymentName.c_str(), directories.c_str()) << endl;
     }
@@ -1210,8 +1210,8 @@ public:
 
 void Application::ListRepositories(OutputFormat outputFormat)
 {
-  pPackageManager->DownloadRepositoryList();
-  vector<RepositoryInfo> repositories = pPackageManager->GetRepositories();
+  packageManager->DownloadRepositoryList();
+  vector<RepositoryInfo> repositories = packageManager->GetRepositories();
   if (repositories.empty())
   {
     Message(T_("No package repositories are currently available."));
@@ -1225,14 +1225,14 @@ void Application::ListRepositories(OutputFormat outputFormat)
 
 void Application::PickRepositoryUrl()
 {
-  cout << pPackageManager->PickRepositoryUrl() << endl;
+  cout << packageManager->PickRepositoryUrl() << endl;
 }
 
 void Application::PrintFiles(const vector<string>& files)
 {
   for (const string& fileName : files)
   {
-    PathName path = pSession->GetSpecialPath(SpecialPath::InstallRoot);
+    PathName path = session->GetSpecialPath(SpecialPath::InstallRoot);
     string disp;
     if (!PackageManager::StripTeXMFPrefix(fileName, disp))
     {
@@ -1245,7 +1245,7 @@ void Application::PrintFiles(const vector<string>& files)
 
 void Application::PrintPackageInfo(const string& deploymentName)
 {
-  PackageInfo packageInfo = pPackageManager->GetPackageInfo(deploymentName);
+  PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
   cout << T_("name:") << " " << packageInfo.deploymentName << endl;
   cout << T_("title:") << " " << packageInfo.title << endl;
   if (!packageInfo.runFiles.empty())
@@ -1272,11 +1272,11 @@ void Application::RestartWindowed()
   vector<string> options{ "" };
 
 #if defined(MIKTEX_WINDOWS)
-  string mpmGuiName = pSession->IsAdminMode() ? MIKTEX_MPM_QT_ADMIN_EXE : MIKTEX_MPM_QT_EXE;
+  string mpmGuiName = session->IsAdminMode() ? MIKTEX_MPM_QT_ADMIN_EXE : MIKTEX_MPM_QT_EXE;
 #else
   string mpmGuiName = MIKTEX_MPM_QT_EXE;
 #endif
-  if (pSession->IsAdminMode())
+  if (session->IsAdminMode())
   {
     options.push_back("--admin");
   }
@@ -1286,7 +1286,7 @@ void Application::RestartWindowed()
   PathName mpmgui;
 
   // locate mpm_qt
-  if (!pSession->FindFile(mpmGuiName, FileType::EXE, mpmgui))
+  if (!session->FindFile(mpmGuiName, FileType::EXE, mpmgui))
   {
     Error(T_("Could not restart in windowed mode."));
   }
@@ -1400,7 +1400,7 @@ void Application::Main(int argc, const char** argv)
       }
     }
   }
-  pSession = Session::Create(initInfo);
+  session = Session::Create(initInfo);
 
   // process command-line options
   popt.Reset();
@@ -1427,8 +1427,8 @@ void Application::Main(int argc, const char** argv)
 #if defined (MIKTEX_WINDOWS)
     case OPT_HHELP:
     {
-      pSession->ShowManualPageAndWait(0, MIKTEXHELP_MPMCON);
-      pSession = nullptr;
+      session->ShowManualPageAndWait(0, MIKTEXHELP_MPMCON);
+      session = nullptr;
       return;
     }
 #endif
@@ -1689,29 +1689,29 @@ void Application::Main(int argc, const char** argv)
 
   if (optAdmin)
   {
-    if (!pSession->IsSharedSetup())
+    if (!session->IsSharedSetup())
     {
       Error(T_("Option --admin only makes sense for a shared MiKTeX setup."));
     }
-    if (!pSession->RunningAsAdministrator())
+    if (!session->RunningAsAdministrator())
     {
       Warn(T_("Option --admin may require administrative privileges"));
     }
-    pSession->SetAdminMode(true);
+    session->SetAdminMode(true);
   }
 
-  if (pSession->RunningAsAdministrator() && !pSession->IsAdminMode())
+  if (session->RunningAsAdministrator() && !session->IsAdminMode())
   {
     Warn(T_("Option --admin should be specified when running this program with administrative privileges"));
   }
 
   PathName xmlFileName;
-  if (pSession->FindFile("mpmcli." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
-    || pSession->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
+  if (session->FindFile("mpmcli." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
+    || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    PathName logDir = pSession->GetSpecialPath(SpecialPath::LogDirectory);
+    PathName logDir = session->GetSpecialPath(SpecialPath::LogDirectory);
     string logName = "mpmcli";
-    if (optAdmin && pSession->RunningAsAdministrator())
+    if (optAdmin && session->RunningAsAdministrator())
     {
       logName += MIKTEX_ADMIN_SUFFIX;
     }
@@ -1722,7 +1722,7 @@ void Application::Main(int argc, const char** argv)
     LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("mpmcli", MIKTEX_COMPONENT_VERSION_STR));
   }
 
-  if (pSession->IsAdminMode())
+  if (session->IsAdminMode())
   {
     Verbose(T_("Operating on the shared (system-wide) MiKTeX setup"));
   }
@@ -1731,7 +1731,7 @@ void Application::Main(int argc, const char** argv)
     Verbose(T_("Operating on the private (per-user) MiKTeX setup"));
   }
 
-  pPackageManager = PackageManager::Create();
+  packageManager = PackageManager::Create();
 
   if (changeProxy)
   {
@@ -1759,25 +1759,25 @@ void Application::Main(int argc, const char** argv)
     {
       proxySettings.password = optProxyPassword;
     }
-    pPackageManager->SetProxy(proxySettings);
+    packageManager->SetProxy(proxySettings);
   }
 
   bool restartWindowed = true;
 
   if (optSetRepository)
   {
-    pPackageManager->SetDefaultPackageRepository(RepositoryType::Unknown, repository);
+    packageManager->SetDefaultPackageRepository(RepositoryType::Unknown, repository);
     restartWindowed = false;
   }
 
   if (optRepositoryReleaseState != RepositoryReleaseState::Unknown)
   {
-    pPackageManager->SetRepositoryReleaseState(optRepositoryReleaseState);
+    packageManager->SetRepositoryReleaseState(optRepositoryReleaseState);
   }
 
   if (optUpdateFndb && !optUpdateDb)
   {
-    pPackageManager->CreateMpmFndb();
+    packageManager->CreateMpmFndb();
     restartWindowed = false;
   }
 
@@ -1813,7 +1813,7 @@ void Application::Main(int argc, const char** argv)
 
   for (const string& package : required)
   {
-    if (!pPackageManager->GetPackageInfo(package).IsInstalled())
+    if (!packageManager->GetPackageInfo(package).IsInstalled())
     {
       toBeInstalled.push_back(package);
     }
@@ -1896,8 +1896,8 @@ void Application::Main(int argc, const char** argv)
     RestartWindowed();
   }
 
-  pPackageManager = nullptr;
-  pSession = nullptr;
+  packageManager = nullptr;
+  session = nullptr;
 }
 
 extern "C" void Application::SignalHandler(int signalToBeHandled)
