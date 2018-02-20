@@ -1811,6 +1811,11 @@ void Application::Main(int argc, const char** argv)
     restartWindowed = false;
   }
 
+  if (!required.empty())
+  {
+    restartWindowed = false;
+  }
+
   for (const string& package : required)
   {
     if (!packageManager->GetPackageInfo(package).IsInstalled())
