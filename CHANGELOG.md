@@ -7,6 +7,7 @@
 * axohelp 1.2
 * autosp 2018-02-14
 * dvipdfmx 20180217
+* Dvisvgm 2.3.3
 * pmxab 2.8.4
 
 ## 2.9.6600 - 2018-02-11

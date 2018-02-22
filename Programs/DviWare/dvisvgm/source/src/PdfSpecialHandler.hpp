@@ -27,7 +27,6 @@ class StreamInputReader;
 
 class PdfSpecialHandler : public SpecialHandler, public DVIPositionListener, public DVIEndPageListener {
 	public:
-		PdfSpecialHandler ();
 		const char* info () const override {return "PDF hyperlink, font map, and pagesize specials";}
 		const char* name () const override {return "pdf";}
 		const std::vector<const char*> prefixes () const override;
@@ -49,8 +48,7 @@ class PdfSpecialHandler : public SpecialHandler, public DVIPositionListener, pub
 		void dviEndPage (unsigned pageno, SpecialActions &actions) override;
 
 	private:
-		bool _active;
-		bool _maplineProcessed;  ///< true if a mapline or mapfile special has already been processed
+		bool _active=false;
 };
 
 #endif

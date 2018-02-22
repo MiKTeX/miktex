@@ -103,12 +103,17 @@ bool FontEngine::setFont (const string &fname, int fontindex, const CharMapID &c
 
 
 bool FontEngine::setFont (const Font &font) {
-	if (!_currentFont || _currentFont->name() != font.name()) {
+	if (_currentFont && _currentFont->name() == font.name())
+		return true;
+
+	if (const char *path=font.path()) {
 		const PhysicalFont *pf = dynamic_cast<const PhysicalFont*>(&font);
-		_currentFont = &font;
-		return setFont(font.path(), font.fontIndex(), pf ? pf->getCharMapID() : CharMapID());
+		if (setFont(path, font.fontIndex(), pf ? pf->getCharMapID() : CharMapID())) {
+			_currentFont = &font;
+			return true;
+		}
 	}
-	return true;
+	return false;
 }
 
 

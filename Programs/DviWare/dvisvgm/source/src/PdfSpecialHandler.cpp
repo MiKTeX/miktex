@@ -36,13 +36,7 @@
 
 using namespace std;
 
-
 using CmdHandler = void (PdfSpecialHandler::*)(StreamInputReader&, SpecialActions&);
-
-
-PdfSpecialHandler::PdfSpecialHandler () : _active(false), _maplineProcessed(false)
-{
-}
 
 
 void PdfSpecialHandler::preprocess (const char*, istream &is, SpecialActions &actions) {
@@ -87,15 +81,11 @@ bool PdfSpecialHandler::process (const char*, istream &is, SpecialActions &actio
 }
 
 
-static char prepare_mode (InputReader &ir, bool maplineProcessed) {
+static char prepare_mode (InputReader &ir) {
 	// read mode selector ('+', '-', or '=')
 	char modechar = '+';           // default mode (append if new, do not replace existing mapping)
 	if (strchr("=+-", ir.peek()))  // leading modifier given?
 		modechar = static_cast<char>(ir.get());
-	else if (!maplineProcessed) { // no modifier given?
-		// remove default map entries if this is the first mapline/mapfile special called
-		FontMap::instance().clear();
-	}
 	return modechar;
 }
 
@@ -127,7 +117,7 @@ void PdfSpecialHandler::preprocessPagesize (StreamInputReader &ir, SpecialAction
 
 
 void PdfSpecialHandler::processMapfile (StreamInputReader &ir, SpecialActions&) {
-	char modechar = prepare_mode(ir, _maplineProcessed);
+	char modechar = prepare_mode(ir);
 	string fname = ir.getString();
 	if (!FontMap::instance().read(fname, modechar))
 		Message::wstream(true) << "can't open map file " << fname << '\n';
@@ -135,7 +125,7 @@ void PdfSpecialHandler::processMapfile (StreamInputReader &ir, SpecialActions&) 
 
 
 void PdfSpecialHandler::processMapline (StreamInputReader &ir, SpecialActions&) {
-	char modechar = prepare_mode(ir, _maplineProcessed);
+	char modechar = prepare_mode(ir);
 	try {
 		MapLine mapline(ir.getStream());
 		FontMap::instance().apply(mapline, modechar);
