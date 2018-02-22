@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* axohelp 1.2
 * autosp 2018-02-14
 * dvipdfmx 20180217
 * pmxab 2.8.4

@@ -74,9 +74,9 @@
 */
 
 #define NAME "axohelp"
-#define VERSIONDATE "2018 Jan 23"
+#define VERSIONDATE "2018 Feb 20"
 #define VERSION 1
-#define SUBVERSION 1
+#define SUBVERSION 2
 
 #define COMMENTCHAR '%'
 #define TERMCHAR ';'
@@ -140,6 +140,8 @@ typedef struct {
     int numargs;
     int colortype;
 } KEYWORD;
+
+double mod(double,int);
 
 void GluonHelp(double *,double);
 void DoubleGluonHelp(double *,double,double,double,double);
@@ -316,6 +318,21 @@ void SetDefaults()
 
 /*
   	#] SetDefaults : 
+  	#[ mod :
+*/
+
+double mod( double x, int n ) {
+  /* Return x mod n, with positive returned value in range 0<=result<n.
+     (up to rounding error).
+  */
+  x = fmod(x, n);
+  if (x >= n) { x -= n; }
+  if (x < 0) { x += n; }
+  return x;
+}
+
+/*
+  	#] mod : 
   	#[ PDF utilities :
 
     These routines are included to make the program more readable and easier
@@ -1259,7 +1276,6 @@ int main(int argc,char **argv)
     length = strlen(s);
     inname  = strcpy(malloc((length+5)*sizeof(char)),s);
     outname = strcpy(malloc((length+5)*sizeof(char)),s);
-    s = inname + length;
     if ( (length > 4) && (strcmp(s+length-4, ".ax1") == 0) ) {
         outname[length-1] = '2';
     }
@@ -3189,14 +3205,17 @@ void LogAxis(double *args)
 */
     size = dr/nlogs;
     if ( offset <= 0 ) { offset = 0; }
-    else { offset = log10(offset); }
+    else { offset = mod( log10(offset), 1 ); }
 /*
     Big hash marks
 */
-    for ( i = 1; i <= nlogs; i++ ) {
-        MoveTo((i-offset)*size,0);
-        LineTo((i-offset)*size,hashsize*1.2);
+    for ( i = 0; i <= nlogs+1; i++ ) {
+      x = (i-offset)*size;
+      if ( x >= -0.001 && x <= dr+0.001 ) {
+        MoveTo(x,0);
+        LineTo(x,hashsize*1.2);
         Stroke;
+      }
     }
 /*
     Little hash marks
@@ -3205,7 +3224,7 @@ void LogAxis(double *args)
     for ( i = 0; i <= nlogs; i++ ) {
         for ( j = 2; j < 10; j++ ) {
             x = (i-offset+log10(j))*size;
-            if ( x >= 0 && x <= dr ) {
+            if ( x >= -0.001 && x <= dr+0.001 ) {
                 MoveTo(x,0); LineTo(x,hashsize*0.8); Stroke;
             }
         }
@@ -3231,36 +3250,41 @@ void LinAxis(double *args)
     double width = args[8], hashsize = args[6], x;
     double dx = args[2]-args[0], dy = args[3]-args[1], dr = sqrt(dx*dx+dy*dy);
     double num_decs = args[4], per_dec = args[5], size, size2;
-    int i, j, numperdec = per_dec+0.5, offset = args[7];
+    double offset = args[7];
+    int i, j, numperdec = per_dec+0.5;
     SetTransferMatrix(1,0,0,1,args[0],args[1]);
     SetTransferMatrix(dx/dr,dy/dr,-dy/dr,dx/dr,0,0);
     MoveTo(0,0); LineTo(dr,0); Stroke;
     size = dr/num_decs;
-    if ( numperdec > 1 ) size2 = size / numperdec;
+    if ( numperdec > 1 ) { size2 = size / numperdec; }
     else { size2 = size; numperdec = 1; }
-    if ( offset > numperdec ) offset = numperdec;
-    else if ( offset <= 0 ) offset = 0;
+    offset = mod( offset, numperdec );
 /*
-    Big hashes
+    In geometric calculations of positions of hash marks, note that offset can
+    be between 0 and numperdec, and that within rounding error, numperdec is
+    allowed. Also allow for positions of hash marks that if calculated exactly
+    are in range, but because of rounding error are slightly outside.
 */
-    for ( i = 0; i <= num_decs; i++ ) {
-        x = i*size-offset*size2;
-        if ( x >= 0 && x <= dr ) {
-            MoveTo(x,0); LineTo(x,hashsize*1.2); Stroke;
-        }
+/*
+    Big hash marks:
+*/
+    for ( i = 0; i <= num_decs+1; i++ ) {
+       x = i*size - offset*size2;
+        if ( ( x > -0.001) && ( x < dr+0.001 ) ) {
+          MoveTo(x,0); LineTo(x,hashsize*1.2); Stroke;
+	}
     }
 /*
     Little hash marks.
 */
-    j = num_decs*numperdec+0.5;
     SetLineWidth(0.6*width);
-    for ( i = 0; i <= j; i++ ) {
-        if ( (i+offset)%numperdec != 0 ) {
-            x = i*size2;
-            if ( x >= 0 && x <= dr ) {
-                MoveTo(x,0); LineTo(x,hashsize*0.8); Stroke;
-            }
-        }
+    for ( i = 0; i <= num_decs; i++ ) {
+      for ( j = 1; j < numperdec; j++ ) {
+	x = i*size + (j - offset)*size2;
+        if ( ( x > -0.001) && ( x < dr+0.001 ) ) {
+          MoveTo(x,0); LineTo(x,hashsize*0.8); Stroke;
+	}
+      }
     }
 }
 
