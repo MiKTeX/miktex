@@ -31,34 +31,8 @@ of a list of known file names.  This list is called the
 you manually install &TeX;/&LaTeX;-related files in a user-managed
 &TEXMF; directory.</para>
 
-<para>You update the file name database with the help of
-&MiKTeXOptions;.</para>
-
-<para>Click
-<menuchoice>
-<guimenu>Start</guimenu>
-<guisubmenu>Programs</guisubmenu>
-<guisubmenu>&progfldr;</guisubmenu>
-<guisubmenu>Maintenance</guisubmenu>
-<guimenuitem>Settings</guimenuitem>
-</menuchoice> to open the &MiKTeXOptions; window (see <xref linkend="mo-general"/>).</para>
-
-<figure id="mo-general">
-<title>&MiKTeXOptions;: General Settings</title>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/mo-general.png" scale="75" />
-</imageobject>
-<imageobject role="fo">
-<imagedata format="PNG" fileref="Images/mo-general.png" scalefit="1" width="100%" contentdepth="100%" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</figure>
-
-<para>Click <guibutton>Refresh FNDB</guibutton> to refresh the
-file name database.</para>
+<para>You update the file name database with the help of <ulink
+url="&hqbaseurl;howto/miktex-console">&MiKTeXConsole;</ulink>.</para>
 
 </section>
 
