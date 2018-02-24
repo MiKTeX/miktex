@@ -42,6 +42,7 @@
 <!ENTITY MakeIndex "<application>MakeIndex</application>">
 <!ENTITY MetaPost "<application>MetaPost</application>">
 <!ENTITY MiKTeX "<application>MiKTeX</application>">
+<!ENTITY MiKTeXConsole "<application>&MiKTeX; Console</application>">
 <!ENTITY MiKTeXCurrentSeries "&MiKTeX;&nbsp;${MIKTEX_MAJOR_MINOR_STR}">
 <!ENTITY MiKTeXHelpUtility "<application>&MiKTeX; Help Utility</application>">
 <!ENTITY MiKTeXNetInstaller "<application>MiKTeX Net Installer</application>">

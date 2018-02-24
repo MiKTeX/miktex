@@ -140,11 +140,11 @@ patterns are to be loaded by the &TeX; engines.</para>
 
 <title>Installing Updates</title>
 
-<para>You can use the &MiKTeX; update wizard to install
-the latest &MiKTeX; updates.
+<para>You can use &MiKTeXConsole; to install the latest &MiKTeX;
+updates.
 <indexterm>
-<primary>MiKTeX update wizard</primary>
-<see>update wizard</see>
+<primary>MiKTeX Console</primary>
+<secondary>update wizard</secondary>
 </indexterm>
 <indexterm>
 <primary>MiKTeX</primary>
@@ -161,94 +161,13 @@ the latest &MiKTeX; updates.
 </para>
 
 <indexterm>
-<primary>update wizard</primary>
+<primary>MiKTeX Console</primary>
 <secondary>running</secondary>
 </indexterm>
 
-<para>To start the wizard, click
-<menuchoice>
-<guimenu>Start</guimenu> <guisubmenu>Programs</guisubmenu>
-<guisubmenu>&progfldr;</guisubmenu> <guimenuitem>Update</guimenuitem>
-</menuchoice>.  The wizard asks you to choose an update source:</para>
-
-<informalfigure>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/updatewiz-download-type.png" scale="75" />
-</imageobject>
-<imageobject role="fo">
-<imagedata format="PNG" fileref="Images/updatewiz-download-type.png" scalefit="1" width="100%" contentdepth="100%" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</informalfigure>
-
-<para>Choose <guilabel></guilabel> to install updates
-from a remote package repository.
- Choose <guilabel>Local folder</guilabel>,
-if you are mirroring a remote package repository on your computer.
-Chosse <guilabel>MiKTeX CD</guilabel>, if you have a new
-<indexterm>
-<primary>CD-R</primary> <secondary>installing updates</secondary>
-</indexterm>
-edition of the &MiKTeX; CD.
-Click <guibutton>Next &gt;</guibutton> to continue.</para>
-
-<para>If you have chosen to install packages from a remote package
-repository, &MiKTeXUpdateWizard; lists the available package
-repositories. Choose the nearest repository:</para>
-
-<informalfigure>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/updatewiz-remote-repository.png" scale="75" />
-</imageobject>
-<imageobject role="fo">
-<imagedata format="PNG" fileref="Images/updatewiz-remote-repository.png" scalefit="1" width="100%" contentdepth="100%" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</informalfigure>
-
-<para>Click <guibutton>Next &gt;</guibutton> to continue.</para>
-
-<para>A list of updateable packages is displayed. Choose the packages
-you wish to update:</para>
-
-<informalfigure>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/updatewiz-packagelist.png" scale="75" />
-</imageobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/updatewiz-packagelist.png" scalefit="1" width="100%" contentdepth="100%" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</informalfigure>
-
-<para>Click <guibutton>Next &gt;</guibutton> to start the update
-process.</para>
-
-<para>&MiKTeXUpdateWizard; now updates the selected packages:</para>
-
-<informalfigure>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/updatewiz-progress.png" scale="75" />
-</imageobject>
-<imageobject role="fo">
-<imagedata format="PNG" fileref="Images/updatewiz-progress.png" scalefit="1" width="100%" contentdepth="100%" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</informalfigure>
-<para>When the update operation is complete, click
-<guibutton>Next &gt;</guibutton> and then <guibutton>Finish</guibutton>.</para>
+<para>To start &MiKTeXConsole;, search and click the &MiKTeXConsole; icon in the application launcher.
+Please read <ulink url="&hqbaseurl;howto/miktex-console">the &MiKTeXConsole;
+tutorial</ulink>, for a step-by-step guide.</para>
 
 </section>
 
