@@ -45,68 +45,8 @@ url="&hqbaseurl;howto/miktex-console">&MiKTeXConsole;</ulink>.</para>
 <secondary>setting</secondary>
 </indexterm>
 
-<para>You can set the preferred paper format with the help of
-&MiKTeXOptions;.</para>
-
-<para>Click
-<menuchoice>
-<guimenu>Start</guimenu>
-<guisubmenu>Programs</guisubmenu>
-<guisubmenu>&progfldr;</guisubmenu>
-<guisubmenu>Maintenance</guisubmenu>
-<guimenuitem>Settings</guimenuitem>
-</menuchoice> to open the &MiKTeXOptions; window
-(see <xref linkend="mo-general"/>).
-Select your preferred paper format from the drop-down list
-and click <guibutton>OK</guibutton>.</para>
-
-</section>
-
-<section id="hyphenation">
-
-<title>Selecting Languages</title>
-
-<indexterm>
-<primary>hyphenation patterns</primary>
-<secondary>selecting</secondary>
-</indexterm>
-
-<indexterm>
-<primary>languages</primary>
-<secondary>selecting</secondary>
-</indexterm>
-
-<para>You can control the loading of hyphenation patterns with the
-help of &MiKTeXOptions;.</para>
-
-<para>Click
-<menuchoice>
-<guimenu>Start</guimenu>
-<guisubmenu>Programs</guisubmenu>
-<guisubmenu>&progfldr;</guisubmenu>
-<guisubmenu>Maintenance</guisubmenu>
-<guimenuitem>Settings</guimenuitem>
-</menuchoice> to open the &MiKTeXOptions; window
-(see <xref linkend="mo-general"/>).</para>
-
-<para>Click on the <guilabel>Languages</guilabel> tab.  You will
-presented with the list of available languages (<xref
-linkend="mo-languages"/>).  Mark the languages, whose hyphenation
-patterns are to be loaded by the &TeX; engines.</para>
-
-<figure id="mo-languages">
-<title>&MiKTeXOptions;: Languages</title>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/mo-languages.png" scale="75" />
-</imageobject>
-<imageobject role="fo">
-<imagedata format="PNG" fileref="Images/mo-languages.png" scale="75" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</figure>
+<para>You can set the preferred paper format with the help of <ulink
+url="&hqbaseurl;howto/miktex-console">&MiKTeXConsole;</ulink>.</para>
 
 </section>
 
@@ -213,169 +153,16 @@ latex thesis.tex</programlisting>
 <para>See <xref linkend="envvars"/>, to learn more about
 &MiKTeX; environment variables.</para>
 
-<bridgehead>Register a user-managed &TEXMF; directory</bridgehead>
+<bridgehead>Register a user-managed &TEXMF; root directory</bridgehead>
 
 <para>Register the root of the directory tree which contains your
 files. The directory tree must conform to the &TDS; standard, i.e.,
 you must imitate the directory tree in the &MiKTeX; installation
 directory (usually &commoninstalldir;).</para>
 
-<tip><para>This is the recommended method. The rest of this section
-explains how you can register your own root directory.</para></tip>
-
-<section>
-
-<title>A Short Excursion: The &TeX; Directory Structure (&TDS;)</title>
-
-<para>Here is a brief summary of the &TDS; standard:</para>
-
-<para><filename>*.afm</filename> go in <filename><replaceable>root</replaceable>\fonts\afm\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
-<para><filename>*.dvi</filename>, <filename>*.ps</filename> or <filename>*.pdf</filename> go in <filename><replaceable>root</replaceable>\doc\latex\<replaceable>package</replaceable></filename></para>
-<para><filename>*.enc</filename> go in <filename><replaceable>root</replaceable>\fonts\enc\<replaceable>syntax</replaceable>\<replaceable>bundle</replaceable></filename></para>
-<para><filename>*.map</filename> go in <filename><replaceable>root</replaceable>\fonts\map\<replaceable>syntax</replaceable>\<replaceable>bundle</replaceable></filename></para>
-<para><filename>*.mf</filename> go in <filename><replaceable>root</replaceable>\fonts\source\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
-<para><filename>*.pfb</filename> go in <filename><replaceable>root</replaceable>\fonts\type1\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
-<para><filename>*.sty</filename>, <filename>*.cls</filename> or <filename>*.fd</filename> go in <filename><replaceable>root</replaceable>\tex\latex\<replaceable>package</replaceable></filename></para>
-<para><filename>*.tfm</filename> go in <filename><replaceable>root</replaceable>\fonts\tfm\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
-<para><filename>*.ttf</filename> go in <filename><replaceable>root</replaceable>\fonts\truetype\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
-<para><filename>*.vf</filename> go in <filename><replaceable>root</replaceable>\fonts\vf\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
-
-<para>Please run <userinput>mthelp tds</userinput> to learn more about the &TDS;.</para>
-
-</section>
-
-<section>
-
-<title>Walkthrough: Registering a User-Managed &TEXMF; Directory</title>
-
-<para>In this walkthrough, we assume that your own additions are
-located in the directory tree rooted at <filename>C:\Local TeX
-Files</filename>. This tree might look as follows:</para>
-
-<figure id="localtexmf">
-<title>Sample &TeX; Directory Structure</title>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/localtexmf.png" scale="75" />
-</imageobject>
-<imageobject role="fo">
-<imagedata format="PNG" fileref="Images/localtexmf.png" scalefit="1" width="100%" contentdepth="100%" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</figure>
-
-<para>In our example, the input files are distributed over three directories:</para>
-
-<variablelist>
-<varlistentry>
-<term><filename>C:\Local TeX Files\bibtex\bib\misc</filename></term>
-<listitem><para>Contains <filename>.bib</filename> files.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><filename>C:\Local TeX Files\bibtex\bst\misc</filename></term>
-<listitem><para>Contains <filename>.bst</filename> files.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><filename>C:\Local TeX Files\tex\latex\misc</filename></term>
-<listitem><para>Contains &LaTeX; input files
-(<filename>*.sty</filename>, <filename>*.cls</filename>,
-&hellip;).</para></listitem>
-</varlistentry>
-</variablelist>
-
-<para>You use &MiKTeXOptions; to register <filename>C:\Local TeX Files</filename>.
-Click
-<menuchoice>
-<guimenu>Start</guimenu>
-<guisubmenu>Programs</guisubmenu>
-<guisubmenu>&progfldr;</guisubmenu>
-<guisubmenu>Maintenance</guisubmenu>
-<guimenuitem>Settings</guimenuitem>
-</menuchoice> 
-to open the &MiKTeXOptions; window
-(see <xref linkend="mo-general"/>).</para>
-
-<para>Click on the <guilabel>Roots</guilabel> tab.
-The <guilabel>Roots</guilabel> page
-(see <xref linkend="mo-roots"/>)
-shows the list of currently registered root directories.</para>
-
-<figure id="mo-roots">
-<title>&MiKTeXOptions;: Roots</title>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/mo-roots.png" scale="75" />
-</imageobject>
-<imageobject role="fo">
-<imagedata format="PNG" fileref="Images/mo-roots.png" scalefit="1" width="100%" contentdepth="100%" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</figure>
-
-<para>Click <guibutton>Add</guibutton>.  In the following dialog box
-(<xref linkend="browselocaltexmf"/>), browse to <filename>C:\Local
-TeX Files</filename> and click <guibutton>OK</guibutton>.</para>
-
-<figure id="browselocaltexmf">
-<title>Browsing to a Root Directory</title>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/browselocaltexmf.png" scale="75" />
-</imageobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/browselocaltexmf.png" scalefit="1" width="100%" contentdepth="100%" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</figure>
-
-<para>The root directory will be appended to the list (<xref
-linkend="mo-roots2"/>).</para>
-
-<figure id="mo-roots2">
-<title>&MiKTeXOptions;: Root Directory Added</title>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/mo-roots2.png" scale="75" />
-</imageobject>
-<imageobject role="fo">
-<imagedata format="PNG" fileref="Images/mo-roots2.png" scalefit="1" width="100%" contentdepth="100%" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</figure>
-
-<para>You can move <filename>C:\Local TeX Files</filename> before the
-installation directory, if you want to prioritize your own files.
-Click <guilabel>C:\Local TeX Files</guilabel> to select the list
-entry. Then click <guibutton>Up</guibutton> to move it before the
-installation directory (<xref linkend="mo-roots3"/>).</para>
-
-<figure id="mo-roots3">
-<title>&MiKTeXOptions;: Root Directory Moved</title>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="Images/mo-roots3.png" scale="75" />
-</imageobject>
-<imageobject role="fo">
-<imagedata format="PNG" fileref="Images/mo-roots3.png" scalefit="1" width="100%" contentdepth="100%" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</figure>
-
-<para>Click <guibutton>OK</guibutton> to close &MiKTeXOptions; The
-file name database will be refreshed. Your files in <filename>C:\Local
-TeX Files</filename> are now available to &MiKTeX;.</para>
-
-</section>
+<tip><para>This is the recommended method.  You can register &TEXMF;
+root directories with the help of <ulink
+url="&hqbaseurl;howto/miktex-console">&MiKTeXConsole;</ulink>.</para></tip>
 
 </section>
 
