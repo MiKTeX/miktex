@@ -327,42 +327,37 @@ endif()
 if(WITH_MIKTEX_DOC)
   add_custom_command(
     OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
+      ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        remove_directory ${CMAKE_CURRENT_BINARY_DIR}/fo/manual
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/fo/manual/images
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/fo/manual/Manual/images
     COMMAND
       ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
         ${XSLTPROC_EXECUTABLE}
           --xinclude
           --path "${xslt_path}"
-          --output ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
+          --output ${CMAKE_CURRENT_BINARY_DIR}/fo/manual/miktex.fo
           --stringparam fop1.extensions 1
-          --stringparam img.src.path scratch/
           fo.xsl
           miktex.xml
-    WORKING_DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-      ${manual_listings}
-      ${manual_xml_files}
-      ${MIKTEX_DOCBOOK_FO}
-    VERBATIM
-  )
-  add_custom_command(
-    OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
     COMMAND
-      ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/scratch
-    COMMAND
-      ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/scratch/images
-    COMMAND
-      ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/scratch
+      ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/fo/manual
         ${FOP_EXECUTABLE}
-          -fo ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
+          -fo miktex.fo
           -pdf ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
+      ${MIKTEX_DOCBOOK_FO}
+      ${manual_listings}
+      ${manual_xml_files}
       ${screenshots_png}
     VERBATIM
   )
