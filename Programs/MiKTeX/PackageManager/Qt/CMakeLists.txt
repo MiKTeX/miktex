@@ -40,8 +40,12 @@ set(mpm_qt_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
+  configure_file(
+    mpm.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/mpm.rc
+  )
   list(APPEND mpm_qt_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/mpm.rc
+    ${CMAKE_CURRENT_BINARY_DIR}/mpm.rc
     ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
 endif()
