@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1024"
+   height="1024"
+   viewBox="0 0 270.93334 270.93334"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   sodipodi:docname="miktex-package-manager-32.svg"
+   inkscape:export-filename="C:\Users\cs\Desktop\miktex-package-manager-32.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient822"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop820" />
+    </linearGradient>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter886"
+       x="-0.012"
+       width="1.024"
+       y="-0.012"
+       height="1.024">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.62177082"
+         id="feGaussianBlur888" />
+    </filter>
+    <meshgradient
+       inkscape:collect="always"
+       id="meshgradient881"
+       gradientUnits="userSpaceOnUse"
+       x="23.880889"
+       y="24.410049">
+      <meshrow
+         id="meshrow883">
+        <meshpatch
+           id="meshpatch885">
+          <stop
+             path="c 24.2817,-24.2817  63.65,-24.2817  87.9317,0"
+             style="stop-color:#ffffff;stop-opacity:1"
+             id="stop887" />
+          <stop
+             path="c 24.2817,24.2817  24.2817,63.65  0,87.9317"
+             style="stop-color:#455e9c;stop-opacity:1"
+             id="stop889" />
+          <stop
+             path="c -24.2817,24.2817  -63.65,24.2817  -87.9317,0"
+             style="stop-color:#ffffff;stop-opacity:1"
+             id="stop891" />
+          <stop
+             path="c -24.2817,-24.2817  -24.2817,-63.65  -1.42109e-014,-87.9317"
+             style="stop-color:#455e9c;stop-opacity:1"
+             id="stop893" />
+        </meshpatch>
+      </meshrow>
+    </meshgradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="117.32143"
+     inkscape:cy="487.44122"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer4"
+     showgrid="false"
+     units="px"
+     width="512px"
+     inkscape:window-width="1517"
+     inkscape:window-height="917"
+     inkscape:window-x="206"
+     inkscape:window-y="65"
+     inkscape:window-maximized="0"
+     inkscape:pagecheckerboard="true" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Background"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-26.066663)" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Circle">
+    <circle
+       id="path13"
+       cx="67.846725"
+       cy="68.375885"
+       r="62.177082"
+       style="fill:#455e9c;fill-opacity:1;stroke:url(#meshgradient881);stroke-width:5.06035433;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal;filter:url(#filter886)"
+       transform="matrix(2.0914214,0,0,2.0914214,-6.4294332,-7.5361288)" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="MiKTeX"
+     transform="translate(0,135.46667)">
+    <g
+       aria-label="TEX"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:50.79999924px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       id="text4603"
+       transform="matrix(1.4573615,0,0,1.4573615,65.036707,-73.235736)">
+      <path
+         d="M 55.899141,70.799658 H 46.349337 V 100.46606 H 37.965352 V 70.799658 H 28.589181 V 64.35044 h 27.30996 z"
+         style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+         id="path4605"
+         inkscape:connector-curvature="0" />
+      <path
+         d="M 73.274233,98.619887 H 60.549428 v 9.004103 h 15.254883 v 6.44922 H 52.165444 V 77.957583 h 23.663671 v 6.449218 H 60.549428 v 7.763868 h 12.724805 z"
+         style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+         id="path4607"
+         inkscape:connector-curvature="0" />
+      <path
+         d="M 91.092267,76.529541 97.045393,64.35044 h 9.673867 L 96.375665,82.259424 107.51301,100.46606 H 97.343043 L 91.191485,88.038916 85.039923,100.46606 H 75.366095 L 85.982501,82.259424 75.638946,64.35044 h 9.599414 z"
+         style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+         id="path4609"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Globe"
+     transform="translate(0,135.46667)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:111.31228638px;line-height:1.25;font-family:'Font Awesome 5 Pro';-inkscape-font-specification:'Font Awesome 5 Pro, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#fffffc;fill-opacity:1;stroke:none;stroke-width:1.15950084"
+       x="55.76368"
+       y="-5.9284849"
+       id="text845"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         sodipodi:role="line"
+         id="tspan32"
+         x="55.76368"
+         y="-5.9284849"
+         style="stroke-width:1.15950084">globe</tspan></text>
+  </g>
+</svg>

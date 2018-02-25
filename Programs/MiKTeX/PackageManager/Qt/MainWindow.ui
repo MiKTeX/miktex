@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="mpm.qrc">
-    <normaloff>:/Icons/miktex-32x32.png</normaloff>:/Icons/miktex-32x32.png</iconset>
+    <normaloff>:/Icons/miktex-package-manager-32x32.png</normaloff>:/Icons/miktex-package-manager-32x32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -55,7 +55,7 @@
      <x>0</x>
      <y>0</y>
      <width>582</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -133,6 +133,10 @@
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="mpm.qrc">
+     <normaloff>:/Icons/miktex-package-manager-16x16.png</normaloff>:/Icons/miktex-package-manager-16x16.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;About MiKTeX Package Manager</string>
    </property>
