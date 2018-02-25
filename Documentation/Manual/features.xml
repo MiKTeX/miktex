@@ -45,9 +45,6 @@ redistributable.</para>
 <listitem><para>enhanced &TeX; compiler
 capabilities</para>
 </listitem>
-<listitem><para>enhanced previewer capabilities: forward/inverse
-&DVI; search, graphics, color, magnifying glass,&nbsp;&hellip;</para>
-</listitem>
 <listitem><para>open source: &MiKTeX; source
 code is get-at-able for everyone</para></listitem>
 </itemizedlist>
@@ -70,8 +67,7 @@ components:</para>
 <varlistentry>
 <term>&pdfTeX;</term>
 <term>&XeTeX;</term>
-<term>&luaTeX;</term>
-<term>&Omega;</term>
+<term>&LuaTeX;</term>
 <listitem><para>various &TeX; derivatives</para>
 </listitem>
 </varlistentry>
@@ -102,9 +98,8 @@ components:</para>
 </varlistentry>
 
 <varlistentry>
-<term>&Yap;</term>
-<listitem><para>a sophisticated viewer for &TeX;
-output</para>
+<term>&TeXworks;</term>
+<listitem><para>a sophisticated editor for &TeX; and a previewer</para>
 </listitem>
 </varlistentry>
 
@@ -116,15 +111,9 @@ output</para>
 </varlistentry>
 
 <varlistentry>
-<term>&MiKTeXOptions;</term>
-<listitem><para>assists in configuring &MiKTeX;</para>
-</listitem>
-</varlistentry>
-
-<varlistentry>
-<term>&MiKTeXUpdateWizard;</term>
-<listitem><para>assists in keeping the &MiKTeX;
-system up-to-date</para>
+<term>&MiKTeXConsole;</term>
+<listitem><para>assists in configuring &MiKTeX; and keeping everything
+up-to-date</para>
 </listitem>
 </varlistentry>
 

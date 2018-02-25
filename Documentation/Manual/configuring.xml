@@ -104,10 +104,10 @@ missing packages.</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="Images/autoinstall.png" scale="75" />
+<imagedata format="PNG" fileref="images/autoinstall.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="Images/autoinstall.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="images/autoinstall.png" />
 </imageobject>
 </mediaobject>
 </screenshot>

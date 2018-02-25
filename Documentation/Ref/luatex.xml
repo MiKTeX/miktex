@@ -39,13 +39,13 @@
 
 <title>Description</title>
 
-<para>Run the &luaTeX; typesetter on <replaceable>file</replaceable>,
+<para>Run the &LuaTeX; typesetter on <replaceable>file</replaceable>,
 usually creating <filename>file.pdf</filename>.  Any remaining
-commands are processed as &luaTeX; input, after
+commands are processed as &LuaTeX; input, after
 <replaceable>file</replaceable> is read.</para>
 
 <para>Alternatively, if the first non-option argument begins with a
-backslash, interpret all non-option arguments as a line of &luaTeX;
+backslash, interpret all non-option arguments as a line of &LuaTeX;
 input.</para>
 
 <para>Alternatively, if the first non-option argument begins with a
@@ -60,22 +60,22 @@ input.</para>
 interpreter.  If called as <command>miktex-texluac</command> it acts
 as &Lua; bytecode compiler.</para>
 
-<para>&luaTeX; is an extended version of &pdfTeX; with Unicode and
+<para>&LuaTeX; is an extended version of &pdfTeX; with Unicode and
 OpenType font support, embeded &Lua; scripting language, the &eTeX;
 and &Omega; extensions, as well as integrated &MetaPost; engine, that
 can create &PDF; files as well as &DVI; files.</para>
 
-<para>You can read the &luaTeX; manual using the &MiKTeXHelpUtility;
+<para>You can read the &LuaTeX; manual using the &MiKTeXHelpUtility;
 (run <userinput>&mthelp; luatex</userinput>).</para>
 
-<para>All &luaTeX; text input and output is considered to be Unicode
+<para>All &LuaTeX; text input and output is considered to be Unicode
 text.</para>
 
-<para>In &DVI; mode, &luaTeX; can be used as a complete replacement
+<para>In &DVI; mode, &LuaTeX; can be used as a complete replacement
 for the &TeX; engine.</para>
 
-<para>In &PDF; mode, &luaTeX; can natively handle the &PDF;, &JPG;,
-&JBIG2;, and &PNG; graphics formats.  &luaTeX; cannot include
+<para>In &PDF; mode, &LuaTeX; can natively handle the &PDF;, &JPG;,
+&JBIG2;, and &PNG; graphics formats.  &LuaTeX; cannot include
 &PostScript; or Encapsulated &PostScript; (&EPS;) graphics files;
 first convert them to &PDF; using &miktexepstopdf; (consult the
 <citerefentry><refentrytitle>miktex-epstopdf</refentrytitle><manvolnum>1</manvolnum></citerefentry>
@@ -87,11 +87,11 @@ manual page).</para>
 
 <title>Options</title>
 
-<para>When the &luaTeX; executable starts, it looks for the
+<para>When the &LuaTeX; executable starts, it looks for the
 <option>--lua</option> commandline option.  If there is no
 <option>--lua</option> option, the commandline is interpreted in a
 similar fashion as in traditional &pdfTeX;. But if the option is
-present, &luaTeX; will enter an alternative mode of commandline
+present, &LuaTeX; will enter an alternative mode of commandline
 parsing in comparison to the standard &MiKTeX; programs.  The presence
 of <option>--lua</option> makes most of other options unreliable,
 because the &Lua; initialization file can disable path searching

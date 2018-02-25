@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -44,27 +44,7 @@ configure_file(
 
 set(screenshots_png
   ${CMAKE_CURRENT_SOURCE_DIR}/Images/autoinstall.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/browselocaltexmf.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/localtexmf.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/mo-general.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/mo-languages.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/mo-mark-package.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/mo-packages.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/mo-roots.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/mo-roots2.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/mo-roots3.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/mo-search-package.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/mpm-context.png
   ${CMAKE_CURRENT_SOURCE_DIR}/Images/mpm.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/updatewiz-download-type.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/updatewiz-packagelist.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/updatewiz-progress.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/updatewiz-remote-repository.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/updatewiz-source.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/yap-inversesearchoptions.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/yap-rotating.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/yap-ruler.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/yap-texeditor.png
 )
 
 set(envvar_xml_files
@@ -373,7 +353,7 @@ if(WITH_MIKTEX_DOC)
     COMMAND
       ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/scratch
     COMMAND
-      ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/scratch/Manual/Images
+      ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/scratch/images
     COMMAND
       ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/scratch
         ${FOP_EXECUTABLE}

@@ -25,8 +25,8 @@ url="http://www.tex.ac.uk/faq/">http://www.tex.ac.uk/faq/</ulink>.</para>
 any other &TeX; system you might have used before.
 Typesetting with &MiKTeX; involves these steps:</para>
 <procedure>
-<step><para>Start &TeXworks; (a simple &TeX; frontend) and edit your
-&LaTeX; document.</para></step>
+<step><para>Start &TeXworks; (a sophisticated &TeX; frontend) and edit
+your &LaTeX; document.</para></step>
 <step><para>Press <keycombo>
 <keycap>Ctrl</keycap>
 <keycap>T</keycap>

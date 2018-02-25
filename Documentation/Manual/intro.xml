@@ -33,11 +33,12 @@ Internet.</para>
 <secondary>getting</secondary>
 </indexterm>
 
-<para>The &MiKTeX; installer for &Windows; can be downloaded from the <ulink
-url="&hqbaseurl;download">&MiKTeX; download page</ulink>.</para>
+<para>The &MiKTeX; installer for &Windows; and &macOS; can be
+downloaded from the <ulink url="&hqbaseurl;download">&MiKTeX; download
+page</ulink>.</para>
 
-<para>For other platforms (&macOS;, &Ubuntu;) you can get &MiKTeX; via
-the system package manager frontend (&brew;, &aptget;).  The <ulink
+<para>For selected &Linux; distributions, you can get &MiKTeX; via the
+system package manager frontend (&aptget;).  The <ulink
 url="&hqbaseurl;download">&MiKTeX; download page</ulink> has relevant
 information available.</para>
 

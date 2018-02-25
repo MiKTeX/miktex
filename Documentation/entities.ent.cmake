@@ -2,10 +2,10 @@
 <!ENTITY BasicMiKTeXInstaller "<application>Basic MiKTeX Installer</application>">
 <!ENTITY BibTeX "<application>BibTeX</application>">
 <!ENTITY CD "<acronym>CD</acronym>">
+<!ENTITY CTAN "<acronym>CTAN</acronym>">
 <!ENTITY CommonConfig "<varname>CommonConfig</varname>">
 <!ENTITY CommonData "<varname>CommonData</varname>">
 <!ENTITY CommonInstall "<varname>CommonInstall</varname>">
-<!ENTITY CTAN "<acronym>CTAN</acronym>">
 <!ENTITY Cygwin "<application>Cygwin</application>">
 <!ENTITY DVD "<acronym>DVD</acronym>">
 <!ENTITY DVDdashR "<acronym>DVD-R</acronym>">
@@ -19,13 +19,13 @@
 <!ENTITY FNDB "<acronym>FNDB</acronym>">
 <!ENTITY FSF "<acronym>FSF</acronym>">
 <!ENTITY FTP "<acronym>FTP</acronym>">
-<!ENTITY Homebrew "<application>Homebrew</application>">
 <!ENTITY GF "<acronym>GF</acronym>">
 <!ENTITY GNU "<acronym>GNU</acronym>">
-<!ENTITY Ghostscript "<application>Ghostscript</application>">
 <!ENTITY GPL "<acronym>GPL</acronym>">
+<!ENTITY Ghostscript "<application>Ghostscript</application>">
 <!ENTITY HTML "<acronym>HTML</acronym>">
 <!ENTITY HTTP "<acronym>HTTP</acronym>">
+<!ENTITY Homebrew "<application>Homebrew</application>">
 <!ENTITY JBIG2 "<acronym>JBIG2</acronym>">
 <!ENTITY JPG "<acronym>JPG</acronym>">
 <!ENTITY LPPL "<acronym>LPPL</acronym>">
@@ -33,6 +33,7 @@
 <!ENTITY LaTeX "<application>LaTeX</application>">
 <!ENTITY Linux "<application>Linux</application>">
 <!ENTITY Lua "<application>Lua</application>">
+<!ENTITY LuaTeX "<application>LuaTeX</application>">
 <!ENTITY MD5Walk "<application>MD5Walk</application>">
 <!ENTITY METAFONT "<application>METAFONT</application>">
 <!ENTITY MIKTEX_PREFIX "${MIKTEX_PREFIX}">
@@ -68,7 +69,6 @@
 <!ENTITY SyncTeX "<application>SyncTeX</application>">
 <!ENTITY TCX "<acronym>TCX</acronym>">
 <!ENTITY TDS "<acronym>TDS</acronym>">
-<!ENTITY Terminal "<application>Terminal</application>">
 <!ENTITY TEXMF "<acronym>TEXMF</acronym>">
 <!ENTITY TeX "<application>TeX</application>">
 <!ENTITY TeXAndFriends "<application>TeX</application>&nbsp;&amp;&nbsp;Friends">
@@ -76,25 +76,26 @@
 <!ENTITY TeXify "<application>TeXify</application>">
 <!ENTITY TeXnFriends "&TeX;&nbsp;&amp;&nbsp;Friends">
 <!ENTITY TeXworks "<application>TeXworks</application>">
+<!ENTITY Terminal "<application>Terminal</application>">
 <!ENTITY Texinfo "<application>Texinfo</application>">
-<!ENTITY Ubuntu "<application>Ubuntu</application>">
 <!ENTITY URL "<acronym>URL</acronym>">
+<!ENTITY URW "<acronym>URW</acronym>">
+<!ENTITY UTC "<acronym>UTC</acronym>">
+<!ENTITY Ubuntu "<application>Ubuntu</application>">
 <!ENTITY UserConfig "<varname>UserConfig</varname>">
 <!ENTITY UserData "<varname>UserData</varname>">
 <!ENTITY UserInstall "<varname>UserInstall</varname>">
-<!ENTITY UTC "<acronym>UTC</acronym>">
-<!ENTITY URW "<acronym>URW</acronym>">
 <!ENTITY Windows "<application>Windows</application>">
 <!ENTITY Windows10 "<application>Windows&nbsp;10</application>">
 <!ENTITY Windows7 "<application>Windows&nbsp;7</application>">
 <!ENTITY Windows8 "<application>Windows&nbsp;8</application>">
 <!ENTITY Windows81 "<application>Windows&nbsp;8.1</application>">
 <!ENTITY WindowsRegistry "<application>Windows Registry</application>">
-<!ENTITY WindowsServer2012R2 "<application>Windows Server&nbsp;2012&nbsp;R2</application>">
 <!ENTITY WindowsServer2003R2 "<application>Windows Server&nbsp;2003&nbsp;R2</application>">
 <!ENTITY WindowsServer2003ServicePack2 "<application>Windows Server&nbsp;2003 with Service Pack&nbsp;2</application>">
 <!ENTITY WindowsServer2008R2 "<application>Windows Server&nbsp;2008&nbsp;R2</application>">
 <!ENTITY WindowsServer2008ServicePack2 "<application>Windows Server&nbsp;2008 with Service Pack&nbsp;2</application>">
+<!ENTITY WindowsServer2012R2 "<application>Windows Server&nbsp;2012&nbsp;R2</application>">
 <!ENTITY WindowsSysinternals "<application>Windows Sysinternals</application>">
 <!ENTITY WindowsVistaServicePack2 "<application>Windows&nbsp;Vista with Service Pack&nbsp;2</application>">
 <!ENTITY WindowsXPServicePack3 "<application>Windows&nbsp;XP with Service Pack&nbsp;3</application>">
@@ -118,7 +119,6 @@
 <!ENTITY initex "<command>initex</command>">
 <!ENTITY initexmf "<command>initexmf</command>">
 <!ENTITY latex "<command>latex</command>">
-<!ENTITY luaTeX "<application>luaTeX</application>">
 <!ENTITY lzma "<command>lzma</command>">
 <!ENTITY macOS "<application>macOS</application>">
 <!ENTITY macOSSierra "<application>macOS&nbsp;Sierra</application>">
