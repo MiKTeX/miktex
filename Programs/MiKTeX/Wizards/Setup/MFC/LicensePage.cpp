@@ -60,14 +60,6 @@ BOOL LicensePage::OnInitDialog()
   BOOL ret = CPropertyPage::OnInitDialog();
   try
   {
-    CHARFORMATW cf;
-    cf.cbSize = sizeof(cf);
-    cf.dwMask = CFM_FACE | CFM_SIZE;
-    cf.dwEffects = 0;
-    cf.bPitchAndFamily = FIXED_PITCH | FF_MODERN;
-    StringUtil::CopyString(cf.szFaceName, LF_FACESIZE, _T("Courier New"));
-    cf.yHeight = 160;
-    licenseControl.SetDefaultCharFormat(cf);
     HRSRC hrsrc = FindResourceW(nullptr, MAKEINTRESOURCE(IDR_LICENSE), _T("LICENSE"));
     if (hrsrc == nullptr)
     {
@@ -92,7 +84,9 @@ BOOL LicensePage::OnInitDialog()
     EDITSTREAM editStream;
     editStream.dwCookie = 0;
     editStream.pfnCallback = StreamInCallback;
-    licenseControl.StreamIn(SF_TEXT, editStream);
+    licenseControl.SetTargetDevice(nullptr, 0);
+    licenseControl.StreamIn(SF_RTF, editStream);
+
   }
   catch (const MiKTeXException& e)
   {

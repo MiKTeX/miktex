@@ -466,48 +466,6 @@ if(WITH_MIKTEX_DOC)
 endif()
 
 ###############################################################################
-## license
-
-if(WITH_MIKTEX_DOC)
-  add_custom_command(
-    OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/license.html
-    COMMAND
-      ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
-        ${XSLTPROC_EXECUTABLE}
-          --xinclude
-          --path "${xslt_path}"
-          --output ${CMAKE_CURRENT_BINARY_DIR}/license.html
-          html.xsl
-          license.xml
-    DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-      ${CMAKE_CURRENT_SOURCE_DIR}/license.xml
-      ${MIKTEX_DOCBOOK_HTML}
-    VERBATIM
-  )
-  add_custom_command(
-    OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
-    COMMAND
-      ${PANDOC_EXECUTABLE}
-        -f html
-        -t plain
-        -o ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
-        ${CMAKE_CURRENT_BINARY_DIR}/license.html
-    DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/license.html
-    VERBATIM
-  )
-  install(
-    FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/license.html
-    DESTINATION
-      ${MIKTEX_DOC_DESTINATION_DIR}
-  )
-endif()
-
-###############################################################################
 ## faq
 
 ## help file
@@ -719,15 +677,6 @@ if(WITH_MIKTEX_DOC)
 endif()
 
 ###############################################################################
-
-if(WITH_MIKTEX_DOC)
-  add_custom_target(gen-LICENSE-txt
-    DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
-  )
-endif()
-
-###############################################################################
 ## ALL targets
 
 if(WITH_MIKTEX_DOC)
@@ -738,7 +687,6 @@ if(WITH_MIKTEX_DOC)
       ${CMAKE_CURRENT_BINARY_DIR}/html/manual/index.html
       ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/index.html
       ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/index.html
-      ${CMAKE_CURRENT_BINARY_DIR}/license.html
   )
   set_property(TARGET gen-html PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   add_custom_target(gen-pdf ALL
