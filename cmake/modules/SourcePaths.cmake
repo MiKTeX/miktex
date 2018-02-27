@@ -186,6 +186,8 @@ set(MIKTEX_XML_CATALOG_FILE     "${CMAKE_BINARY_DIR}/BuildUtilities/docbook/cata
 set(MIKTEX_COMPATIBILITY_MANIFEST       "${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest")
 set(MIKTEX_CONSOLE_ICNS                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.icns")
 set(MIKTEX_CONSOLE_ICON                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.ico")
+set(MIKTEX_COPYING_CONDITIONS_MD        "${CMAKE_SOURCE_DIR}/COPYING.md")
+set(MIKTEX_COPYING_CONDITIONS_RTF       "${CMAKE_BINARY_DIR}/${MIKTEX_REL_DOC_DIR}/COPYING.rtf")
 set(MIKTEX_DOWNLOAD_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/download.avi")
 set(MIKTEX_DPIAWARE_MANIFEST            "${CMAKE_SOURCE_DIR}/Resources/Manifests/dpiAware.manifest")
 set(MIKTEX_FILECOPY_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/filecopy.avi")

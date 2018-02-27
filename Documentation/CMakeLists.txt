@@ -466,6 +466,33 @@ if(WITH_MIKTEX_DOC)
 endif()
 
 ###############################################################################
+## license
+
+if(WITH_MIKTEX_DOC)
+  add_custom_command(
+    OUTPUT
+      ${MIKTEX_COPYING_CONDITIONS_RTF}
+    COMMAND
+      ${PANDOC_EXECUTABLE}
+        -s
+	-f markdown
+	-t rtf
+	-o ${MIKTEX_COPYING_CONDITIONS_RTF}
+	${MIKTEX_COPYING_CONDITIONS_MD}
+    DEPENDS
+      ${MIKTEX_COPYING_CONDITIONS_MD}
+    VERBATIM
+  )
+endif()
+
+if(WITH_MIKTEX_DOC)
+  add_custom_target(gen-COPYING-rtf
+    DEPENDS
+      ${MIKTEX_COPYING_CONDITIONS_RTF}
+  )
+endif()
+
+###############################################################################
 ## faq
 
 ## help file
