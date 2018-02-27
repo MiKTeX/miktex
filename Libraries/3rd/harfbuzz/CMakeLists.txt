@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2017 Christian Schenk
+## Copyright (C) 2013-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -26,7 +26,10 @@ include_directories(BEFORE
   ${CMAKE_SOURCE_DIR}/source/src
 )
 
-set(public_include_directories ${CMAKE_CURRENT_SOURCE_DIR}/source/src)
+set(public_include_directories
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src
+)
 
 add_definitions(
   -DHAVE_CONFIG_H
