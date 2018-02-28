@@ -1272,7 +1272,7 @@ void Application::RestartWindowed()
   vector<string> options{ "", "--start-page", "packages" };
 
   string miktexConsoleName;
-#if defined(MIKTEX_WINDOWSx)
+#if defined(MIKTEX_WINDOWS)
   miktexConsoleName = session->IsAdminMode() ? MIKTEX_COPYSTART_ADMIN_EXE : MIKTEX_CONSOLE_EXE;
 #elif defined(MIKTEX_MACOS_BUNDLE)
   miktexConsoleName = MIKTEX_MACOS_BUNDLE_NAME;
