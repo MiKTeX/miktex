@@ -1269,29 +1269,36 @@ void Application::RestartWindowed()
 {
   Verbose(T_("Restarting in windowed mode..."));
 
-  vector<string> options{ "" };
+  vector<string> options{ "", "--start-page", "packages" };
 
-#if defined(MIKTEX_WINDOWS)
-  string mpmGuiName = session->IsAdminMode() ? MIKTEX_MPM_QT_ADMIN_EXE : MIKTEX_MPM_QT_EXE;
+  string miktexConsoleName;
+#if defined(MIKTEX_WINDOWSx)
+  miktexConsoleName = session->IsAdminMode() ? MIKTEX_COPYSTART_ADMIN_EXE : MIKTEX_CONSOLE_EXE;
+#elif defined(MIKTEX_MACOS_BUNDLE)
+  miktexConsoleName = MIKTEX_MACOS_BUNDLE_NAME;
 #else
-  string mpmGuiName = MIKTEX_MPM_QT_EXE;
+  miktexConsoleName = MIKTEX_CONSOLE_EXE;
 #endif
+
+  options[0] = miktexConsoleName;
+
   if (session->IsAdminMode())
   {
     options.push_back("--admin");
-  }
+  }  
 
-  options[0] = mpmGuiName;
-
-  PathName mpmgui;
-
-  // locate mpm_qt
-  if (!session->FindFile(mpmGuiName, FileType::EXE, mpmgui))
+  // locate miktex-console
+  PathName miktexConsole;
+#if defined(MIKTEX_MACOS_BUNDLE)
+  miktexConsole = session->GetSpecialPath(SpecialPath::MacOsDirectory) / MIKTEX_MACOS_BUNDLE_NAME;
+#else
+  if (!session->FindFile(miktexConsoleName, FileType::EXE, miktexConsole))
   {
     Error(T_("Could not restart in windowed mode."));
   }
+#endif
 
-  Process::Start(mpmgui, options);
+  Process::Start(miktexConsole, options);
 }
 
 vector<string> ReadNames(const PathName& path, vector<string>& list)

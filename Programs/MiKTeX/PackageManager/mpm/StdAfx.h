@@ -1,6 +1,6 @@
 /* StdAfx.h:                                            -*- C++ -*-
 
-   Copyright (C) 2003-2016 Christian Schenk
+   Copyright (C) 2003-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -18,6 +18,10 @@
    along with MiKTeX Package Manager; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
+
+#if defined(HAVE_CONFIG_H)
+#  include <config.h>
+#endif
 
 #include <climits>
 #include <cstdio>

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -21,11 +21,26 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PACKAGE_MANAGER_FOLDER}")
 
 use_static_crt()
 
+include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+configure_file(
+  config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
 set(mpm_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   StdAfx.h
   internal.h
   mpm-version.h
   mpm.cpp
+)
+
+add_definitions(
+  -DHAVE_CONFIG_H=1
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
