@@ -1731,11 +1731,11 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       PathName targetPath;
       if (Utils::IsAbsolutePath(fileLink.target))
       {
-	targetPath = fileLink.target;
+        targetPath = fileLink.target;
       }
       else
       {
-	targetPath = pathBinDir / fileLink.target;
+        targetPath = pathBinDir / fileLink.target;
       }
       string extension = targetPath.GetExtension();
       if (File::Exists(targetPath))
