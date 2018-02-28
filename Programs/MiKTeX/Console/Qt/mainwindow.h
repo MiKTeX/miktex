@@ -50,7 +50,19 @@ private:
   Ui::MainWindow* ui = nullptr;
 
 public:
-  explicit MainWindow(QWidget* parent = nullptr);
+  enum class Pages
+  {
+    Setup = 0,
+    Overview = 1,
+    Settings = 2,
+    Updates = 3,
+    Packages = 4,
+    Diagnose = 5,
+    Cleanup = 6
+  };
+
+public:
+  explicit MainWindow(QWidget* parent = nullptr, Pages startPage = Pages::Overview);
 
 public:
   ~MainWindow();
@@ -115,18 +127,6 @@ private:
 private:
   void ShowTrayMessage(TrayMessageContext context, const QString& message);
 #endif
-
-private:
-  enum class Pages
-  {
-    Setup = 0,
-    Overview = 1,
-    Settings = 2,
-    Updates = 3,
-    Packages = 4,
-    Diagnose = 5,
-    Cleanup = 6
-  };
 
 private:
   void SetCurrentPage(Pages p);

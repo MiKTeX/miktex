@@ -52,7 +52,8 @@ enum {
   OPT_ADMIN,
   OPT_FINISH_SETUP,
   OPT_HIDE,
-  OPT_MKMAPS
+  OPT_MKMAPS,
+  OPT_START_PAGE
 };
 
 namespace {
@@ -74,6 +75,10 @@ namespace {
     {
       "mkmaps", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_MKMAPS,
       nullptr, nullptr
+    },
+    {
+      "start-page", 0, POPT_ARG_STRING, nullptr, OPT_START_PAGE,
+      "Start with the page (one of: settings, updates, packages, diagnose, cleanup).", "PAGE"
     },
     POPT_TABLEEND
   };
@@ -151,6 +156,8 @@ int main(int argc, char* argv[])
   bool optFinishSetup = false;
   bool optHide = false;
   bool optMkmaps = false;
+  QString displayName = "MiKTeX Console";
+  MainWindow::Pages startPage = MainWindow::Pages::Overview;
   TraceSink traceSink;
   try
   {
@@ -178,11 +185,41 @@ int main(int argc, char* argv[])
       case OPT_MKMAPS:
         optMkmaps = true;
         break;
+      case OPT_START_PAGE:
+        if (optArg == "overview")
+        {
+          startPage = MainWindow::Pages::Overview;
+        }
+        else if (optArg == "settings")
+        {
+          startPage = MainWindow::Pages::Settings;
+        }
+        else if (optArg == "updates")
+        {
+          startPage = MainWindow::Pages::Updates;
+        }
+        else if (optArg == "packages")
+        {
+          startPage = MainWindow::Pages::Packages;
+        }
+        else if (optArg == "diagnose")
+        {
+          startPage = MainWindow::Pages::Diagnose;
+        }
+        else if (optArg == "cleanup")
+        {
+          startPage = MainWindow::Pages::Cleanup;
+        }
+        else
+        {
+          QMessageBox::critical(nullptr, displayName, QString("Unknown page: %1").arg(optArg.c_str()));
+          return 1;
+        }
+        break;
       }
     }
     initInfo.SetProgramInvocationName(argv[0]);
     shared_ptr<Session> session = Session::Create(initInfo);
-    QString displayName = "MiKTeX Console";
     if (optAdmin)
     {
       if (!session->RunningAsAdministrator())
@@ -216,7 +253,7 @@ int main(int argc, char* argv[])
       traceSink.FlushPendingTraceMessages();
       LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR));
     }
-    MainWindow mainWindow;
+    MainWindow mainWindow(nullptr, startPage);
     if (optHide)
     {
       mainWindow.hide();

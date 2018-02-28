@@ -86,7 +86,7 @@ void OpenDirectoryInFileBrowser(const PathName& dir_)
   OpenDirectoryInFileBrowser(QString::fromUtf8(dir.GetData()));
 }
 
-MainWindow::MainWindow(QWidget* parent) :
+MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
@@ -119,7 +119,7 @@ MainWindow::MainWindow(QWidget* parent) :
   }
 #endif
 
-  SetCurrentPage(isSetupMode ? Pages::Setup : Pages::Overview);
+  SetCurrentPage(isSetupMode ? Pages::Setup : startPage);
   ui->tabWidgetSettings->setCurrentIndex(0);
 
   if (session->IsAdminMode())
