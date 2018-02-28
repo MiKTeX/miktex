@@ -212,6 +212,11 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     MIKTEX_UNEXPECTED();
 #endif
     break;
+#if defined(MIKTEX_MACOS_BUNDLE)
+  case SpecialPath::MacOsDirectory:
+    path = (GetMyLocation(true) / ".." / "MacOS").MakeAbsolute();
+    break;
+#endif
   default:
     MIKTEX_UNEXPECTED();
     break;

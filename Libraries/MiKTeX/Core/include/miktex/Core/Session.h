@@ -148,6 +148,12 @@ enum class SpecialPath
 
   /// The root directory of the MiKTeX installation.
   DistRoot,
+
+#if defined(MIKTEX_MACOS_BUNDLE)
+  /// The directory which contains the main application file.
+  /// Example: /Applications/MiKTeX\ Console.app/Contents/Macos
+  MacOsDirectory
+#endif
 };
 
 /// Paper size info.
