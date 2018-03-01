@@ -7,7 +7,9 @@
 * axohelp 1.2
 * autosp 2018-02-14
 * dvipdfmx 20180217
+* dvips 5.998
 * Dvisvgm 2.3.3
+* pdfTeX 1.40.19
 * pmxab 2.8.4
 
 ## 2.9.6600 - 2018-02-11

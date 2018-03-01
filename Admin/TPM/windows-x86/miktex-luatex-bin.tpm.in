@@ -4,7 +4,7 @@
   <rdf:Description about="http://www.miktex.org/packages/luatex/">
     <TPM:Name>LuaTeX win32</TPM:Name>
     <TPM:Title>LuaTeX, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Taco Hoekwater, the LuaTeX Team" year="2006-2016"/>
+    <TPM:Copyright owner="Taco Hoekwater and the LuaTeX Team" year="2018"/>
     <TPM:License type="gpl2"/>
     <TPM:Version>1.07.0</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>

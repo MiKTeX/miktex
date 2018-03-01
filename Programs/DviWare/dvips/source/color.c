@@ -37,7 +37,7 @@ static struct colorpage {
    struct colorpage *next;
    integer boploc; /* we use the bop loc as a page indicator */
    char *bg;
-   char colordat[2];
+   char *colordat;
 } *colorhash[COLORHASH];
 static char *cstack, *csp, *cend, *bg;
 /*
@@ -84,6 +84,7 @@ void initcolor(void) {
    for (i=0; i<COLORHASH; i++) {
       for (p=colorhash[i]; p; p = q) {
          q = p->next;
+         free(p->colordat);
          free(p);
       }
       colorhash[i] = 0;
@@ -216,7 +217,8 @@ bopcolor(int outtops)
       }
    } else {
       p = (struct colorpage *)mymalloc((integer)
-                  (strlen(cstack) + sizeof(struct colorpage) + MAXCOLORLEN));
+                  (sizeof(struct colorpage)));
+      p->colordat = mymalloc(strlen(cstack) + MAXCOLORLEN + 2);
       p->next = colorhash[h];
       p->boploc = pageloc;
       strcpy(p->colordat, cstack);

@@ -1,5 +1,5 @@
-/*   $Id: dvips.h 46455 2018-01-27 02:25:40Z hironobu $
- *   Copyright 1986-2016 Tomas Rokicki.
+/*   $Id: dvips.h 46759 2018-02-27 23:14:55Z karl $
+ *   Copyright 1986-2018 Tomas Rokicki.
  *   This is dvips, a freely redistributable PostScript driver
  *   for dvi files. You may freely use, modify and/or distribute this
  *   program or any portion thereof.
@@ -15,7 +15,7 @@
 #define CD_IDX(i)  ((i>=MAX_2BYTES_CODE ? MAX_2BYTES_CODE : i))
 
 #define BANNER \
-"This is dvips(k) 5.997 Copyright 2017 Radical Eye Software"
+"This is dvips(k) 5.998 Copyright 2018 Radical Eye Software"
 #define BANNER2 "(www.radicaleye.com)"
 #if defined(MIKTEX)
 #if defined(MIKTEX_WINDOWS)
@@ -271,7 +271,7 @@ struct header_list {
    const char *Hname;
    char *precode;
    char *postcode;
-   char name[1];
+   char *name;
 };
 /*
  *   Some machines define putlong in their library.

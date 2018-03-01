@@ -3331,14 +3331,9 @@ than size and length fields, and there's no subsidiary C pointer.
 
 @d native_word_node=40 {|subtype| of whatsits that hold |native_font| words}
 @d native_word_node_AT=41 {a |native_word_node| that should output ActualText}
-@d native_word_node_disc_flag=2 {flag added to the |subtype| when the node is the trailing node
-                                 of the no-break text of a discretionary, so we can avoid
-                                 merging it with following chars}
-@d native_word_node_MIN=native_word_node
-@d native_word_node_MAX=native_word_node_AT+native_word_node_disc_flag
-@d is_native_word_subtype(#)==((subtype(#)>=native_word_node_MIN) and (subtype(#)<=native_word_node_MAX))
+@d is_native_word_subtype(#)==((subtype(#)>=native_word_node) and (subtype(#)<=native_word_node_AT))
 
-@d glyph_node=44 {|subtype| in whatsits that hold glyph numbers}
+@d glyph_node=42 {|subtype| in whatsits that hold glyph numbers}
 
 @d native_node_size=6 {size of a |native_word| node (plus the actual chars) -- see also \.{xetex.h}}
 @d glyph_node_size=5
@@ -3380,8 +3375,8 @@ So |pic_node_size|, which does not include any space for the picture file pathna
 
 A |pdf_node| is just like |pic_node|, but generate a different \.{XDV} file code.
 
-@d pic_node=45 {|subtype| in whatsits that hold picture file references}
-@d pdf_node=46 {|subtype| in whatsits that hold PDF page references}
+@d pic_node=43 {|subtype| in whatsits that hold picture file references}
+@d pdf_node=44 {|subtype| in whatsits that hold PDF page references}
 @#
 @d pic_node_size=9 {must sync with \.{xetex.h}}
 @d pic_path_length(#)==mem[#+4].hh.b0
@@ -3974,10 +3969,7 @@ hlist_node,vlist_node,ins_node,mark_node,adjust_node,
   unset_node: print("[]");
 whatsit_node:
   case subtype(p) of
-    native_word_node, native_word_node_AT,
-    native_word_node+native_word_node_disc_flag,
-    native_word_node_AT+native_word_node_disc_flag:
-    begin
+    native_word_node, native_word_node_AT: begin
       if native_font(p)<>font_in_short_display then begin
         print_esc(font_id_text(native_font(p)));
         print_char(" ");
@@ -23665,25 +23657,21 @@ collected:
 
   if mode=hmode then begin
     main_ppp:=head;
-    if main_ppp<>main_pp then   { find node preceding tail, skipping discretionaries }
-      while (link(main_ppp)<>main_pp) do begin
-        if (not is_char_node(main_ppp)) and (type(main_ppp=disc_node)) then begin
-          temp_ptr:=main_ppp;
-          for main_p:=1 to replace_count(temp_ptr) do main_ppp:=link(main_ppp);
-        end;
-        if main_ppp<>main_pp then main_ppp:=link(main_ppp);
+
+    { find node preceding tail, skipping discretionaries }
+    while (main_ppp<>main_pp) and (link(main_ppp)<>main_pp) do begin
+      if (not is_char_node(main_ppp)) and (type(main_ppp)=disc_node) then begin
+        temp_ptr:=main_ppp;
+        for main_p:=1 to replace_count(temp_ptr) do main_ppp:=link(main_ppp);
       end;
+      if main_ppp<>main_pp then main_ppp:=link(main_ppp);
+    end;
 
     temp_ptr:=0;
     repeat
       if main_h = 0 then main_h:=main_k;
 
-      {If |main_pp| is the [last node of the] no-break text of a discretionary,
-       we do not want to merge following text into it, as that would swallow
-       the following text in the case where the discretionary break is used
-       and its no-break list is discarded. Hence, we do this only when the
-       |native_word_node_disc_flag| was NOT set on the |main_pp| node.}
-      if (is_native_word_node(main_pp) and (subtype(main_pp)<=native_word_node_AT))
+      if is_native_word_node(main_pp)
         and (native_font(main_pp)=main_f)
         and (main_ppp<>main_pp)
         and (not is_char_node(main_ppp))
@@ -23743,14 +23731,16 @@ collected:
     { must be restricted hmode, so no need for line-breaking or discretionaries }
     { but there might already be explicit |disc_node|s in the list }
     main_ppp:=head;
-    if main_ppp<>main_pp then   { find node preceding tail, skipping discretionaries }
-      while (link(main_ppp)<>main_pp) do begin
-        if (not is_char_node(main_ppp)) and (type(main_ppp=disc_node)) then begin
-          temp_ptr:=main_ppp;
-          for main_p:=1 to replace_count(temp_ptr) do main_ppp:=link(main_ppp);
-        end;
-        if main_ppp<>main_pp then main_ppp:=link(main_ppp);
+
+    { find node preceding tail, skipping discretionaries }
+    while (main_ppp<>main_pp) and (link(main_ppp)<>main_pp) do begin
+      if (not is_char_node(main_ppp)) and (type(main_ppp)=disc_node) then begin
+        temp_ptr:=main_ppp;
+        for main_p:=1 to replace_count(temp_ptr) do main_ppp:=link(main_ppp);
       end;
+      if main_ppp<>main_pp then main_ppp:=link(main_ppp);
+    end;
+
     if is_native_word_node(main_pp)
       and (native_font(main_pp)=main_f)
       and (main_ppp<>main_pp)
@@ -25276,11 +25266,7 @@ else  begin print_err("Discretionary list is too long");
   ("You can't seriously need such a huge discretionary list?");
   error;
   end;
-if n>0 then begin
-  tail:=q;
-  if (is_native_word_node(tail)) then
-    subtype(tail):=subtype(tail)+native_word_node_disc_flag;
-  end;
+if n>0 then tail:=q;
 decr(save_ptr); return;
 end
 
@@ -29110,10 +29096,7 @@ language_node:begin print_esc("setlanguage");
   print_int(what_lhm(p)); print_char(",");
   print_int(what_rhm(p)); print_char(")");
   end;
-native_word_node, native_word_node_AT,
-native_word_node+native_word_node_disc_flag,
-native_word_node_AT+native_word_node_disc_flag:
-begin print_esc(font_id_text(native_font(p)));
+native_word_node, native_word_node_AT:begin print_esc(font_id_text(native_font(p)));
   print_char(" ");
   print_native_word(p);
   end;
@@ -29146,10 +29129,7 @@ write_node,special_node: begin r:=get_node(write_node_size);
 close_node,language_node: begin r:=get_node(small_node_size);
   words:=small_node_size;
   end;
-native_word_node, native_word_node_AT,
-native_word_node+native_word_node_disc_flag,
-native_word_node_AT+native_word_node_disc_flag:
-begin words:=native_size(p);
+native_word_node, native_word_node_AT: begin words:=native_size(p);
   r:=get_node(words);
   while words > 0 do
     begin decr(words); mem[r+words]:=mem[p+words]; end;
@@ -29175,10 +29155,7 @@ write_node,special_node: begin delete_token_ref(write_tokens(p));
   free_node(p,write_node_size); goto done;
   end;
 close_node,language_node: free_node(p,small_node_size);
-native_word_node, native_word_node_AT,
-native_word_node+native_word_node_disc_flag,
-native_word_node_AT+native_word_node_disc_flag:
-begin free_native_glyph_info(p); free_node(p,native_size(p)); end;
+native_word_node, native_word_node_AT: begin free_native_glyph_info(p); free_node(p,native_size(p)); end;
 glyph_node: free_node(p,glyph_node_size);
 pic_node,pdf_node: free_node(p,total_pic_node_size(p));
 pdf_save_pos_node:
@@ -29203,10 +29180,7 @@ end
 @ @<Incorporate a whatsit node into an hbox@>=
 begin
   case subtype(p) of
-  native_word_node, native_word_node_AT,
-  native_word_node+native_word_node_disc_flag,
-  native_word_node_AT+native_word_node_disc_flag:
-  begin
+  native_word_node, native_word_node_AT: begin
     { merge with any following word fragments in same font, discarding discretionary breaks }
     if (q <> r+list_offset) and (type(q) = disc_node) then k:=replace_count(q) else k:=0;
     while (link(q) <> p) do begin
@@ -29401,10 +29375,7 @@ else
 @ @<Output the whatsit node |p| in an hlist@>=
 begin
   case subtype(p) of
-  native_word_node, native_word_node_AT,
-  native_word_node+native_word_node_disc_flag,
-  native_word_node_AT+native_word_node_disc_flag,
-  glyph_node: begin
+  native_word_node, native_word_node_AT, glyph_node: begin
     synch_h; synch_v; {Sync DVI state to TeX state}
     f:=native_font(p);
     if f<>dvi_f then @<Change font |dvi_f| to |f|@>;
@@ -29417,7 +29388,7 @@ begin
       dvi_two(native_glyph(p));
       cur_h:=cur_h + width(p);
     end else begin
-      if (subtype(p)=native_word_node_AT) or (subtype(p)=native_word_node_AT+native_word_node_disc_flag) then begin
+      if subtype(p)=native_word_node_AT then begin
         if (native_length(p) > 0) or (native_glyph_info_ptr(p) <> null_ptr) then begin
           dvi_out(set_text_and_glyphs);
           len:=native_length(p);

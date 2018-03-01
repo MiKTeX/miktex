@@ -39,8 +39,8 @@ add_name_general(const char *s, struct header_list **what, char *pre, char *post
    for (p = *what; p != NULL; p = p->next)
       if (strcmp(p->name, s)==0)
          return 0;
-   q = (struct header_list *)mymalloc((integer)(sizeof(struct header_list)
-                                          + strlen(s)));
+   q = (struct header_list *)mymalloc((integer)(sizeof(struct header_list)));
+   q->name = mymalloc(strlen(s) + 1);
    q->Hname = infont;
    q->next = NULL;
    q->precode = pre;

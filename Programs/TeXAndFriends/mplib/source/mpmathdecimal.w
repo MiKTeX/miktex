@@ -1,4 +1,4 @@
-% $Id: mpmathdecimal.w 1915 2013-06-13 10:17:31Z taco $
+% $Id$
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -589,7 +589,6 @@ void mp_decimal_set_precision (MP mp) {
 }
 
 void mp_free_decimal_math (MP mp) {
-  int i;
   free_number (((math_data *)mp->math)->three_sixty_deg_t);
   free_number (((math_data *)mp->math)->one_eighty_deg_t);
   free_number (((math_data *)mp->math)->fraction_one_t);

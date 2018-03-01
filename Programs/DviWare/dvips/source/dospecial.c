@@ -24,7 +24,7 @@ static int specialerrors = 20;
 
 struct bangspecial {
    struct bangspecial *next;
-   char actualstuff[1]; /* more space will actually be allocated */
+   char *actualstuff;
 } *bangspecials = NULL;
 
 void
@@ -562,8 +562,8 @@ case '!':
    {
       register struct bangspecial *q;
       p++;
-      q = (struct bangspecial *)mymalloc((integer)
-                         (sizeof(struct bangspecial) + strlen(p)));
+      q = (struct bangspecial *)mymalloc((integer)(sizeof(struct bangspecial)));
+      q->actualstuff = mymalloc(strlen(p) + 1);
       strcpy(q->actualstuff, p);
       q->next = bangspecials;
       bangspecials = q;

@@ -1,5 +1,3 @@
-% $Id: mp.w 2137 2017-09-19 19:01:58Z luigi.scarso@@gmail.com $
-%
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -78,7 +76,7 @@ undergoes any modifications, so that it will be clear which version of
 @d false 0
 
 @<Metapost version header@>=
-#define metapost_version "2.000"
+#define metapost_version "2.00"
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used

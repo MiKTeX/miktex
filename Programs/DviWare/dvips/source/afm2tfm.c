@@ -1,4 +1,4 @@
-/*   $Id: afm2tfm.c 43542 2017-03-18 22:47:27Z karl $  */
+/*   $Id: afm2tfm.c 46759 2018-02-27 23:14:55Z karl $  */
 
 /*   Public domain, originally written by Tom Rokicki.
  *   This program converts AFM files to TeX TFM files, and optionally
@@ -1561,9 +1561,9 @@ writevpl(void)
 static void
 version(FILE *f)
 {
-  fputs ("afm2tfm(k) (dvips(k) 5.997) 8.4\n", f);
+  fputs ("afm2tfm(k) (dvips(k) 5.998) 8.4\n", f);
   fprintf (f, "%s\n", kpathsea_version_string);
-  fputs ("Copyright 2017 Radical Eye Software.\n\
+  fputs ("Copyright 2018 Radical Eye Software.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the Dvips copyright.\n\
