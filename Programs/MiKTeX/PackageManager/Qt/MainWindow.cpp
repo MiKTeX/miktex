@@ -372,9 +372,15 @@ void MainWindow::UpdateWizard()
     {
       MIKTEX_UNEXPECTED();
     }
+    string console = session->IsAdminMode() ? MIKTEX_CONSOLE_ADMIN_EXE : MIKTEX_CONSOLE_EXE;
     PathName exePath = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
-    exePath /= session->IsAdminMode() ? MIKTEX_UPDATE_ADMIN_EXE : MIKTEX_UPDATE_EXE;
-    Process::Start(exePath);
+    exePath /= console;
+    vector<string> args = { console, "--start-page", "updates" };
+    if (session->IsAdminMode())
+    {
+      args.push_back("--admin");
+    }
+    Process::Start(exePath, args);
   }
   catch (const MiKTeXException& e)
   {

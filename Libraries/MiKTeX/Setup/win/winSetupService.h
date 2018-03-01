@@ -1,6 +1,6 @@
 /* winSetupService.h: internal definitions              -*- C++ -*-
 
-   Copyright (C) 2014-2017 Christian Schenk
+   Copyright (C) 2014-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -22,6 +22,7 @@ BEGIN_INTERNAL_NAMESPACE;
 struct ShellLinkData
 {
   bool isUrl;
+  bool isObsolete;
   const char* lpszFolder;
   const char* lpszName;
   const char* lpszPathName;

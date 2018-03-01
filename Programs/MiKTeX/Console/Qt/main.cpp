@@ -147,10 +147,6 @@ private:
 
 int main(int argc, char* argv[])
 {
-#if QT_VERSION >= 0x050600
-  QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
-  QApplication application(argc, argv);
   int ret = 0;
   bool optAdmin = false;
   bool optFinishSetup = false;
@@ -158,6 +154,22 @@ int main(int argc, char* argv[])
   bool optMkmaps = false;
   QString displayName = "MiKTeX Console";
   MainWindow::Pages startPage = MainWindow::Pages::Overview;
+  if (argc > 0)
+  {
+    PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
+    name += MIKTEX_EXE_FILE_SUFFIX;
+#if defined(MIKTEX_WINDOWS)
+    if (name == MIKTEX_TASKBAR_ICON_EXE)
+    {
+      optHide = true;
+      optMkmaps = true;
+    }
+    else if (name == MIKTEX_UPDATE_EXE || name == MIKTEX_UPDATE_ADMIN_EXE)
+    {
+      startPage = MainWindow::Pages::Updates;
+    }
+#endif
+  }
   TraceSink traceSink;
   try
   {
@@ -234,6 +246,15 @@ int main(int argc, char* argv[])
       session->SetAdminMode(true);
       displayName += " (Admin)";
     }
+#if defined(MIKTEX_MACOS_BUNDLE)
+    PathName plugIns = session->GetSpecialPath(SpecialPath::MacOsDirectory) / ".." / "PlugIns";
+    plugIns.MakeAbsolute();
+    QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
+#endif
+#if QT_VERSION >= 0x050600
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+    QApplication application(argc, argv);
 #if QT_VERSION >= 0x050000
     application.setApplicationDisplayName(displayName);
 #endif

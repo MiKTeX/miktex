@@ -47,7 +47,6 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-axohelp-bin.tpm.in
     windows-x86/miktex-bibtex-bin.tpm.in
     windows-x86/miktex-bibtex8bit-bin.tpm.in
-    windows-x86/miktex-bin.tpm.in
     windows-x86/miktex-bzip2-bin.tpm.in
     windows-x86/miktex-cairo-bin.tpm.in
     windows-x86/miktex-chktex-bin.tpm.in
@@ -94,7 +93,6 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-mktex-bin.tpm.in
     windows-x86/miktex-mo-bin.tpm.in
     windows-x86/miktex-mpfr-bin.tpm.in
-    windows-x86/miktex-mpm-bin.tpm.in
     windows-x86/miktex-mpmcli-bin.tpm.in
     windows-x86/miktex-mspack-bin.tpm.in
     windows-x86/miktex-mthelp-bin.tpm.in
@@ -127,6 +125,16 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-zlib-bin.tpm.in
     windows-x86/miktex-zzip-bin.tpm.in
   )
+  if(WITH_MPM_GUI)
+    list(APPEND target_system_tpms
+      windows-x86/miktex-mpm-bin.tpm.in
+    )
+  endif()
+  if(WITH_UPDATE_WIZARD)
+    list(APPEND target_system_tpms
+      windows-x86/miktex-bin.tpm.in
+    )
+  endif()
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms
       windows-x86/miktex-context-bin.tpm.in
@@ -141,7 +149,6 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-axohelp-bin-x64.tpm.in
     windows-x64/miktex-bibtex-bin-x64.tpm.in
     windows-x64/miktex-bibtex8bit-bin-x64.tpm.in
-    windows-x64/miktex-bin-x64.tpm.in
     windows-x64/miktex-bzip2-bin-x64.tpm.in
     windows-x64/miktex-cairo-bin-x64.tpm.in
     windows-x64/miktex-chktex-bin-x64.tpm.in
@@ -188,7 +195,6 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-mktex-bin-x64.tpm.in
     windows-x64/miktex-mo-bin-x64.tpm.in
     windows-x64/miktex-mpfr-bin-x64.tpm.in
-    windows-x64/miktex-mpm-bin-x64.tpm.in
     windows-x64/miktex-mpmcli-bin-x64.tpm.in
     windows-x64/miktex-mspack-bin-x64.tpm.in
     windows-x64/miktex-mthelp-bin-x64.tpm.in
@@ -221,6 +227,16 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-zlib-bin-x64.tpm.in
     windows-x64/miktex-zzip-bin-x64.tpm.in
   )
+  if(WITH_MPM_GUI)
+    list(APPEND target_system_tpms
+      windows-x64/miktex-mpm-bin-x64.tpm.in
+    )
+  endif()
+  if(WITH_UPDATE_WIZARD)
+    list(APPEND target_system_tpms
+      windows-x64/miktex-bin-x64.tpm.in
+    )
+  endif()
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms
       windows-x64/miktex-context-bin-x64.tpm.in

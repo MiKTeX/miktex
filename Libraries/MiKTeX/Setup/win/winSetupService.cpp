@@ -115,9 +115,6 @@ PathName winSetupServiceImpl::CreateProgramFolder()
 #define EXEPATH(name) \
  "%MIKTEX_INSTALL%\\" MIKTEX_PATH_BIN_DIR "\\" name
 
-#define INTEXEPATH(name) \
- "%MIKTEX_INSTALL%\\" MIKTEX_PATH_INTERNAL_BIN_DIR "\\" name
-
 #define DOCPATH(name) \
  "%MIKTEX_INSTALL%\\" MIKTEX_PATH_MIKTEX_DOC_DIR "\\" name
 
@@ -127,6 +124,7 @@ const ShellLinkData shellLinks[] = {
 
   // "MiKTeX Console"
   {
+    false,
     false,
     nullptr,
     "MiKTeX Console",
@@ -144,6 +142,7 @@ const ShellLinkData shellLinks[] = {
   // "TeXworks"
   {
     false,
+    false,
     nullptr,
     "TeXworks",
     EXEPATH(MIKTEX_TEXWORKS_EXE),
@@ -157,10 +156,10 @@ const ShellLinkData shellLinks[] = {
     0,
   },
 
-#if 0
   // "Previewer"
   {
     false,
+    true,
     nullptr,
     "DVI Previewer (Yap)",
     EXEPATH(MIKTEX_YAP_EXE),
@@ -173,12 +172,114 @@ const ShellLinkData shellLinks[] = {
     SW_SHOWNORMAL,
     0,
   },
-#endif
+
+  // "Maintenance->Settings"
+  {
+    false,
+    true,
+    "Maintenance",
+    "MiKTeX Settings",
+    EXEPATH(MIKTEX_CONSOLE_EXE),
+    LD_USESHOWCMD | LD_USEARGS,
+    nullptr,
+    "--start-page settings",
+    nullptr,
+    0,
+    nullptr,
+    SW_SHOWNORMAL,
+    0,
+  },
+
+  // "Maintenance->Update"
+  {
+    false,
+    true,
+    "Maintenance",
+    "MiKTeX Update",
+    EXEPATH(MIKTEX_CONSOLE_EXE),
+    LD_USESHOWCMD | LD_USEARGS,
+    nullptr,
+    "--start-page updates",
+    nullptr,
+    0,
+    nullptr,
+    SW_SHOWNORMAL,
+    0,
+  },
+
+  // "Maintenance->Package Manager"
+  {
+    false,
+    true,
+    "Maintenance",
+    "MiKTeX Package Manager",
+    EXEPATH(MIKTEX_CONSOLE_EXE),
+    LD_USESHOWCMD | LD_USEARGS,
+    nullptr,
+    "--start-page packages",
+    nullptr,
+    0,
+    nullptr,
+    SW_SHOWNORMAL,
+    0,
+  },
+
+  // "Maintenance (Admin)->Settings (Admin)"
+  {
+    false,
+    true,
+    "Maintenance (Admin)",
+    "MiKTeX Settings (Admin)",
+    EXEPATH(MIKTEX_CONSOLE_ADMIN_EXE),
+    LD_IFCOMMON | LD_USESHOWCMD | LD_USEARGS,
+    nullptr,
+    "--admin --start-page settings",
+    nullptr,
+    0,
+    nullptr,
+    SW_SHOWNORMAL,
+    0,
+  },
+
+  // "Maintenance (Admin)->Update (Admin)"
+  {
+    false,
+    true,
+    "Maintenance (Admin)",
+    "MiKTeX Update (Admin)",
+    EXEPATH(MIKTEX_CONSOLE_ADMIN_EXE),
+    LD_IFCOMMON | LD_USESHOWCMD | LD_USEARGS,
+    nullptr,
+    "--admin --start-page updates",
+    nullptr,
+    0,
+    nullptr,
+    SW_SHOWNORMAL,
+    0,
+  },
+
+  // "Maintenance (Admin)->Package Manager (Admin)"
+  {
+    false,
+    true,
+    "Maintenance (Admin)",
+    "MiKTeX Package Manager (Admin)",
+    EXEPATH(MIKTEX_CONSOLE_ADMIN_EXE),
+    LD_IFCOMMON | LD_USESHOWCMD | LD_USEARGS,
+    nullptr,
+    "--admin --start-page packages",
+    nullptr,
+    0,
+    nullptr,
+    SW_SHOWNORMAL,
+    0,
+  },
 
 #if 0
   // "Help->Manual"
   {
     false,
+    true,
     "Help",
     "MiKTeX Manual",
     DOCPATH(MIKTEX_MAIN_HELP_FILE),
@@ -197,6 +298,7 @@ const ShellLinkData shellLinks[] = {
   // "Help->FAQ"
   {
     false,
+    true,
     "Help",
     "MiKTeX FAQ",
     DOCPATH(MIKTEX_FAQ_HELP_FILE),
@@ -214,6 +316,7 @@ const ShellLinkData shellLinks[] = {
 #if 0
   // "MiKTeX on the Web->MiKTeX Project Page"
   {
+    true,
     true,
     "MiKTeX on the Web",
     "MiKTeX Project Page",
@@ -233,6 +336,7 @@ const ShellLinkData shellLinks[] = {
   // "MiKTeX on the Web->Support"
   {
     true,
+    true,
     "MiKTeX on the Web",
     "MiKTeX Support",
     MIKTEX_URL_WWW_SUPPORT,
@@ -251,6 +355,7 @@ const ShellLinkData shellLinks[] = {
   // "MiKTeX on the Web->Give back"
   {
     true,
+    true,
     "MiKTeX on the Web",
     "Give back",
     MIKTEX_URL_WWW_GIVE_BACK,
@@ -268,6 +373,7 @@ const ShellLinkData shellLinks[] = {
 #if 0
   // "MiKTeX on the Web->Known Issues"
   {
+    true,
     true,
     "MiKTeX on the Web",
     "Known Issues",
@@ -297,6 +403,8 @@ void winSetupServiceImpl::CreateProgramIcons()
 
 void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const ShellLinkData& ld)
 {
+  bool dontCreate = ld.lpszPathName == nullptr;
+
   if ((ld.flags & LD_IFCOMMON) != 0 && !options.IsCommonSetup)
   {
     // ignore system-wide command if this is a per-user setup
@@ -327,8 +435,12 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       File::Delete(pathLink);
     }
   }
+  else
+  {
+    dontCreate = ld.isObsolete;
+  }
 
-  if (ld.lpszPathName == nullptr)
+  if (dontCreate)
   {
     return;
   }

@@ -1,6 +1,6 @@
 /* MpmView.cpp:
 
-   Copyright (C) 2002-2017 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -909,9 +909,15 @@ void MpmView::OnUpdateWizard()
     {
       MIKTEX_UNEXPECTED();
     }
+    string console = pSession->IsAdminMode() ? MIKTEX_CONSOLE_ADMIN_EXE : MIKTEX_CONSOLE_EXE;
     PathName exePath = pSession->GetSpecialPath(SpecialPath::InternalBinDirectory);
-    exePath /= pSession->IsAdminMode() ? MIKTEX_UPDATE_ADMIN_EXE : MIKTEX_UPDATE_EXE;
-    Process::Start(exePath);
+    exePath /= console;
+    vector<string> args = { console, "--start-page", "updates" };
+    if (pSession->IsAdminMode())
+    {
+      args.push_back("--admin");
+    }
+    Process::Start(exePath, args);
     // TODO: close app
   }
   catch (const MiKTeXException& e)

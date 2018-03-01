@@ -1673,6 +1673,10 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PDFTOTEXT_EXE, { "pdftotext" } },
   { MIKTEX_PDFUNITE_EXE, { "pdfunite" } },
 #endif
+#if defined(MIKTEX_WINDOWS)
+  { MIKTEX_CONSOLE_EXE, { MIKTEX_TASKBAR_ICON_EXE, MIKTEX_UPDATE_EXE } },
+  { MIKTEX_CONSOLE_ADMIN_EXE,{ MIKTEX_UPDATE_ADMIN_EXE } },
+#endif
 };
 
 vector<FileLink> lua52texLinks =
@@ -1833,40 +1837,6 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       }
     }
   }
-
-#if defined(MIKTEX_WINDOWS)
-  if (linkCategories[LinkCategory::MiKTeX])
-  {
-    static PathName const copystarters[] = {
-      MIKTEX_PATH_INTERNAL_TASKBAR_ICON_EXE,
-      MIKTEX_PATH_INTERNAL_UPDATE_EXE,
-    };
-    PathName copystart;
-    if (session->FindFile(MIKTEX_PATH_INTERNAL_COPYSTART_EXE, MIKTEX_PATH_TEXMF_PLACEHOLDER, copystart))
-    {
-      for (const PathName& starter : copystarters)
-      {
-        PathName pathExe(pathLocalBinDir);
-        pathExe /= starter.GetFileName();
-        result.push_back(FileLink(copystart.ToString(), { pathExe.ToString() }));
-      }
-    }
-
-    static PathName const copystarters_admin[] = {
-      MIKTEX_PATH_INTERNAL_UPDATE_ADMIN_EXE,
-    };
-    PathName copystart_admin;
-    if (session->FindFile(MIKTEX_PATH_INTERNAL_COPYSTART_ADMIN_EXE, MIKTEX_PATH_TEXMF_PLACEHOLDER, copystart_admin))
-    {
-      for (const PathName& starter : copystarters_admin)
-      {
-        PathName pathExe(pathLocalBinDir);
-        pathExe /= starter.GetFileName();
-        result.push_back(FileLink(copystart_admin.ToString(), { pathExe.ToString() }));
-      }
-    }
-  }
-#endif
 
   return result;
 }

@@ -1273,7 +1273,7 @@ void Application::RestartWindowed()
 
   string miktexConsoleName;
 #if defined(MIKTEX_WINDOWS)
-  miktexConsoleName = session->IsAdminMode() ? MIKTEX_COPYSTART_ADMIN_EXE : MIKTEX_CONSOLE_EXE;
+  miktexConsoleName = session->IsAdminMode() ? MIKTEX_CONSOLE_ADMIN_EXE : MIKTEX_CONSOLE_EXE;
 #elif defined(MIKTEX_MACOS_BUNDLE)
   miktexConsoleName = MIKTEX_MACOS_BUNDLE_NAME;
 #else

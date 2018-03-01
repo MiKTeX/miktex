@@ -402,6 +402,29 @@ option(
 )
 
 option(
+  WITH_MPM_GUI
+  "Build MPM GUI application (obsolete)."
+  FALSE
+)
+
+option(
+  WITH_MO
+  "Build MiKTeX Options application (obsolete)."
+  ${MSVC}
+)
+option(
+  WITH_UPATE_WIZARD
+  "Build update wizard (obsolete)."
+  ${MSVC}
+)
+
+option(
+  WITH_TASKBAR_ICON
+  "Build the taskbar icon (obsolete)."
+  FALSE
+)
+
+option(
   WITH_TRAPMF
   "Build trapmf."
   FALSE
@@ -2019,18 +2042,26 @@ if(WITH_OMEGA)
 endif()
 
 if(WITH_UI_QT)
-  add_subdirectory(${MIKTEX_REL_MPM_QT_DIR})
+  if(WITH_MPM_GUI)
+    add_subdirectory(${MIKTEX_REL_MPM_QT_DIR})
+  endif()
   add_subdirectory(${MIKTEX_REL_TEXWORKS_DIR})
   add_subdirectory(${MIKTEX_REL_UI_QT_DIR})
 endif()
 
 if(WITH_UI_MFC)
-  add_subdirectory(${MIKTEX_REL_MO_MFC_DIR})
-  add_subdirectory(${MIKTEX_REL_MPM_MFC_DIR})
+  if(WITH_MO)
+    add_subdirectory(${MIKTEX_REL_MO_MFC_DIR})
+  endif()
+  if(WITH_MPM_GUI)
+    add_subdirectory(${MIKTEX_REL_MPM_MFC_DIR})
+  endif()
   add_subdirectory(${MIKTEX_REL_REMOVE_MFC_DIR})
   add_subdirectory(${MIKTEX_REL_SETUP_MFC_DIR})
   add_subdirectory(${MIKTEX_REL_UI_MFC_DIR})
-  add_subdirectory(${MIKTEX_REL_UPDATE_MFC_DIR})
+  if(WITH_UPDATE_WIZARD)
+    add_subdirectory(${MIKTEX_REL_UPDATE_MFC_DIR})
+  endif()
   add_subdirectory(${MIKTEX_REL_YAP_MFC_DIR})
 endif()
 
@@ -2049,7 +2080,9 @@ if(MIKTEX_NATIVE_WINDOWS)
   add_subdirectory(${MIKTEX_REL_DIB_DIR})
   add_subdirectory(${MIKTEX_REL_DVI_DIR})
   add_subdirectory(${MIKTEX_REL_MTPRINT_DIR})
-  add_subdirectory(${MIKTEX_REL_TASKBAR_ICON_WIN_DIR})
+  if(WITH_TASKBAR_ICON)
+    add_subdirectory(${MIKTEX_REL_TASKBAR_ICON_WIN_DIR})
+  endif()
   add_subdirectory(${MIKTEX_REL_UNXEMU_DIR})
   add_subdirectory(${MIKTEX_REL_UTF8WRAP_DIR})
 endif()

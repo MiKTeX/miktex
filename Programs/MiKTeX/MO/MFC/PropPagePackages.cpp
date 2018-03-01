@@ -1,6 +1,6 @@
 /* PropPagePackages.cpp:
 
-   Copyright (C) 2000-2017 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of MiKTeX Options.
 
@@ -353,11 +353,17 @@ void PropPagePackages::OnBnClickedPackageManager()
   try
   {
     PathName path;
-    if (!session->FindFile(session->IsAdminMode() ? MIKTEX_MPM_MFC_ADMIN_EXE : MIKTEX_MPM_MFC_EXE, FileType::EXE, path))
+    string console = session->IsAdminMode() ? MIKTEX_CONSOLE_ADMIN_EXE : MIKTEX_CONSOLE_EXE;
+    if (!session->FindFile(console, FileType::EXE, path))
     {
       MIKTEX_UNEXPECTED();
     }
-    Process::Start(path);
+    vector<string> args = { console, "--start-page", "packages" };
+    if (session->IsAdminMode())
+    {
+      args.push_back("--admin");
+    }
+    Process::Start(path, args);
   }
   catch (const MiKTeXException & e)
   {

@@ -19,8 +19,6 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PACKAGE_MANAGER_FOLDER}")
 
-use_static_crt()
-
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -64,13 +62,13 @@ set_property(TARGET mpm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 if(USE_SYSTEM_LOG4CXX)
   target_link_libraries(mpm MiKTeX::Imported::LOG4CXX)
 else()
-  target_link_libraries(mpm ${log4cxx_lib_name})
+  target_link_libraries(mpm ${log4cxx_dll_name})
 endif()
 
 target_link_libraries(mpm
-  ${core_lib_name}
-  ${mpm_lib_name}
-  miktex-popt-wrapper-static
+  ${core_dll_name}
+  ${mpm_dll_name}
+  miktex-popt-wrapper
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
