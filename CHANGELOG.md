@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## NEXT
+## 2.9.6630 - not yet released
 
 ### Upgraded programs
 
@@ -11,6 +11,15 @@
 * Dvisvgm 2.3.3
 * pdfTeX 1.40.19
 * pmxab 2.8.4
+
+### Bug fixes
+
+* [70](https://github.com/MiKTeX/miktex/issues/70): MPM search filter doesn't show all packages
+* [71](https://github.com/MiKTeX/miktex/issues/71): mpm --require=@listfile issue
+* [73](https://github.com/MiKTeX/miktex/issues/73): pdflatex incorrectly modifies path if double semicolon is present in $env:PATH
+* [74](https://github.com/MiKTeX/miktex/issues/74): texdoc and mthelp command not found
+* [77](https://github.com/MiKTeX/miktex/issues/77): xelatex segfault (Linux Mint)
+* [81](https://github.com/MiKTeX/miktex/issues/81): libfreetype.6.dylib cannot be called rightly using command-line on Mac
 
 ## 2.9.6600 - 2018-02-11
 
