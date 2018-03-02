@@ -153,16 +153,17 @@ FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Completing the MiKTeX Setup Wizard",IDC_WELCOME,115,8,195,24
     LTEXT           "You have sucessfully completed the MiKTeX Setup Wizard.",IDC_STATUS,115,40,195,8
-    CONTROL         "&Show the release notes",IDC_VIEW_RELNOTES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,115,133,195,10
     LTEXT           "To exit the wizard, click Close.",IDC_STATIC,115,178,195,8
-    LTEXT           "",IDC_MESSAGE,115,55,195,64
+    LTEXT           "",IDC_MESSAGE,115,55,195,54
+    LTEXT           "Please help keep the machinery going. Donate to the MiKTeX project!",IDC_PETITION,115,116,195,16
+    CONTROL         "&Tell me more",IDC_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,115,137,195,10
 END
 
 IDD_FOLDER DIALOGEX 0, 0, 317, 143
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "&Program folder:",IDC_STATIC,21,4,48,8
+    LTEXT           "&Start menu:",IDC_STATIC,21,4,37,8
     EDITTEXT        IDC_FOLDER,71,1,114,14,ES_AUTOHSCROLL
 END
 
@@ -533,6 +534,16 @@ BEGIN
     0
 END
 
+IDD_FINISH AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_FOLDER AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -546,13 +557,8 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_SUPPORT             "Support"
-END
-
-STRINGTABLE
-BEGIN
     IDS_SUBHEADER_EDITTREES "You select additional TEXMF trees to be integrated into MiKTeX."
-    IDS_HEADER_INFOLIST     "Information"
+    IDS_HEADER_INFOLIST     "Review"
     IDS_SUBHEADER_INFOLIST  "Review the settings."
     IDS_HEADER_FILECOPY     "Executing"
     IDS_SUBHEADER_FILECOPY  "The main task is being executed."
@@ -560,12 +566,11 @@ BEGIN
     IDS_SUBHEADER_TASK      "Choose the task you want carried out."
     IDS_HEADER_LOCAL_REPOSITORY "MiKTeX Distribution Directory"
     IDS_SUBHEADER_LOCAL_REPOSITORY 
-                            "Specify the localtion of the directory which contains the MiKTeX distribution files."
+                            "Specify the location of the directory which contains the MiKTeX distribution files."
     IDS_HEADER_PACKAGE_SET  "Package Set"
     IDS_SUBHEADER_PACKAGE_SET "Select the packages you want installed."
     IDS_HEADER_REMOTE_REPOSITORY "Download Source"
     IDS_SUBHEADER_REMOTE_REPOSITORY "Choose a download source."
-    IDS_MPM                 "Package Manager"
     IDP_NOT_LOCAL_REPOSITORY 
                             "The directory\n\n%1\n\nis not a valid installation source."
     IDS_DOWNLOAD_COMPLETE   "MiKTeX has been downloaded successfully.  You can install MiKTeX by running the wizard again."
@@ -573,37 +578,23 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_PROJECT_PAGE        "MiKTeX Project Page"
-    IDS_MIKTEX_ON_THE_WEB   "MiKTeX on the Web"
-    IDS_KNOWN_ISSUES        "Known Issues"
-    IDS_GIVE_BACK           "Give back"
     IDS_BROWSE_LOCAL        "Local package repository:"
     IDS_HEADER_LICENSE      "Copying Conditions"
     IDS_SUBHEADER_LICENSE   "MiKTeX is freely redistributable under certain conditions."
-    IDS_MAINTENANCE         "Maintenance"
-    IDS_MAINTENANCE_ADMIN   "Maintenance (Admin)"
-    IDS_TEXWORKS            "TeXworks"
-    IDS_MPM_ADMIN           "Package Manager (Admin)"
-    IDS_OPTIONS_ADMIN       "Settings (Admin)"
-    IDS_UPDATEWIZ_ADMIN     "Update (Admin)"
 END
 
 STRINGTABLE
 BEGIN
     IDS_REMEDY              "A problem report has been written to a log file."
-    IDS_RELEASE_NOTES       "Release Notes"
-    IDS_VIEW_LOG_FILE       "&Show me the log file"
-    IDS_UPDATEWIZ           "Update"
-    IDS_TIPS                "MiKTeX Tips"
-    IDS_FAQ                 "FAQ"
+    IDS_VIEW_LOG_FILE       "&Open the log file"
     IDS_HEADER_SHARED       "Installation Scope"
     IDS_SUBHEADER_SHARED    "If you are administrator, you have the option to set up MiKTeX for all users."
     IDS_SETUPWIZ            "MiKTeX Setup"
     IDS_HEADER_INSTALLDIR   "Installation Directory"
     IDS_SUBHEADER_INSTALLDIR 
                             "Choose a location for the installation directory."
-    IDS_HEADER_FOLDER       "Program Folder"
-    IDS_SUBHEADER_FOLDER    "Specify the name of the MiKTeX program folder."
+    IDS_HEADER_FOLDER       "Start Menu"
+    IDS_SUBHEADER_FOLDER    "Specify the name of the MiKTeX start menu."
     IDS_HEADER_ADDTREES     "Integrate TEXMF Trees"
     IDS_SUBHEADER_ADDTREES  "You can integrate existing TEXMF trees."
     IDS_HEADER_EDITTREES    "Integrate TEXMF Trees"
@@ -613,16 +604,10 @@ STRINGTABLE
 BEGIN
     IDS_HEADER_SETTINGS     "Settings"
     IDS_SUBHEADER_SETTINGS  "Set your preferences."
-    IDS_INITEXMF            "File name databases and format files"
     IDS_INSTALL_DIR_NOT_EMPTY 
                             "The specified installation directory is not empty."
-    IDS_CANCEL_DOWNLOAD     "MiKTeX Setup Wizard will now stop the download. You can resume the download at a later date by running the wizard again."
+    IDS_CANCEL_DOWNLOAD     "MiKTeX Setup Wizard will now stop the download. You can resume the download by running the wizard again."
     IDS_CANCEL_SETUP        "MiKTeX Setup Wizard will now cancel the installation."
-    IDS_OPTIONS             "Settings"
-    IDS_LOCAL_GUIDE         "Manual"
-    IDS_LATEX2E_REFERENCE   "LaTeX2e Reference"
-    IDS_HELP                "Help"
-    IDS_DVI_VIEWER          "Previewer"
     IDS_FINISH_ERROR        "MiKTeX Setup Wizard did not complete."
 END
 

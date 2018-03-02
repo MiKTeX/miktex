@@ -36,17 +36,17 @@ FinishPage::FinishPage() :
 
 BOOL FinishPage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard*>(GetParent());
+  sheet = reinterpret_cast<SetupWizard*>(GetParent());
   BOOL ret = CPropertyPage::OnInitDialog();
   try
   {
     extern CFont fntWelcome;
-    CWnd* pWnd = GetDlgItem(IDC_WELCOME);
-    if (pWnd == nullptr)
+    CWnd* wnd = GetDlgItem(IDC_WELCOME);
+    if (wnd == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
-    pWnd->SetFont(&fntWelcome);
+    wnd->SetFont(&fntWelcome);
   }
   catch (const MiKTeXException& e)
   {
@@ -63,86 +63,68 @@ BOOL FinishPage::OnSetActive()
 {
   try
   {
-    pSheet->SetFinishText(T_(_T("Close")));
-
-    if (pSheet->GetErrorFlag())
+    sheet->SetFinishText(T_(_T("Close")));
+    if (sheet->GetErrorFlag())
     {
       CString str;
-
       if (!str.LoadString(IDS_FINISH_ERROR))
       {
         MIKTEX_UNEXPECTED();
       }
-
       status.SetWindowText(str);
-
       if (!str.LoadString(IDS_REMEDY))
       {
         MIKTEX_UNEXPECTED();
       }
-
       message.SetWindowText(str);
-
-      viewReleaseNotes = BST_CHECKED;
-
+      petition.ShowWindow(SW_HIDE);
+      checkBoxValue = BST_CHECKED;
       UpdateData(FALSE);
-
       if (!str.LoadString(IDS_VIEW_LOG_FILE))
       {
         MIKTEX_UNEXPECTED();
       }
-
       checkBox.SetWindowText(str);
     }
     else if (SetupApp::Instance->GetTask() == SetupTask::Download)
     {
       CString str;
-
       if (!str.LoadString(IDS_DOWNLOAD_COMPLETE))
       {
         MIKTEX_UNEXPECTED();
       }
-
       message.SetWindowText(str);
-
-      viewReleaseNotes = BST_UNCHECKED;
-
+      checkBoxValue = BST_UNCHECKED;
       UpdateData(FALSE);
-
-      checkBox.ShowWindow(SW_HIDE);
     }
     else
     {
-      viewReleaseNotes = BST_UNCHECKED;
+      checkBoxValue = BST_CHECKED;
       UpdateData(FALSE);
-#if 1
-      checkBox.ShowWindow(SW_HIDE);
-#endif
     }
-
     CancelToClose();
-
     return CPropertyPage::OnSetActive();
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
     return FALSE;
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
     return FALSE;
   }
 }
 
-void FinishPage::DoDataExchange(CDataExchange* pDX)
+void FinishPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
-  DDX_Check(pDX, IDC_VIEW_RELNOTES, viewReleaseNotes);
-  DDX_Control(pDX, IDC_STATUS, status);
-  DDX_Control(pDX, IDC_MESSAGE, message);
-  DDX_Control(pDX, IDC_VIEW_RELNOTES, checkBox);
+  CPropertyPage::DoDataExchange(dx);
+  DDX_Check(dx, IDC_CHECK, checkBoxValue);
+  DDX_Control(dx, IDC_STATUS, status);
+  DDX_Control(dx, IDC_MESSAGE, message);
+  DDX_Control(dx, IDC_PETITION, petition);
+  DDX_Control(dx, IDC_CHECK, checkBox);
 }
 
 BOOL FinishPage::OnWizardFinish()
@@ -152,35 +134,26 @@ BOOL FinishPage::OnWizardFinish()
   {
     try
     {
-      CWnd* pWnd = GetDlgItem(IDC_VIEW_RELNOTES);
-      if (pWnd == nullptr)
+      if (checkBoxValue == BST_CHECKED)
       {
-        MIKTEX_UNEXPECTED();
-      }
-      if (viewReleaseNotes == BST_CHECKED)
-      {
-        if (pSheet->GetErrorFlag())
+        if (sheet->GetErrorFlag())
         {
           SetupApp::Instance->ShowLogFileOnExit = true;
         }
         else
         {
-          PathName pathRelNotes(SetupApp::Instance->GetInstallRoot(), MIKTEX_PATH_RELNOTES_HTML);
-          if (ShellExecuteW(nullptr, L"open", UW_(pathRelNotes.GetData()), nullptr, nullptr, SW_SHOWNORMAL) <= reinterpret_cast<HINSTANCE>(32))
-          {
-            MIKTEX_FATAL_ERROR_2(T_("The file could not be opened."), "path", pathRelNotes.ToString());
-          }
+          Utils::ShowWebPage(MIKTEX_URL_WWW_GIVE_BACK);
         }
       }
     }
     catch (const MiKTeXException& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
     catch (const exception& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
   }

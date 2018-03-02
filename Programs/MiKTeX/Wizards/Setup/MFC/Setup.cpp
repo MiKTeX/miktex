@@ -884,13 +884,11 @@ BOOL SetupApp::InitInstance()
     unique_ptr<TemporaryDirectory> sfxDir = SetupService::ExtractFiles();
     if (sfxDir == nullptr)
     {
-      Service->Log("this is a network installer\n");
+      Service->Log("this is a stand-alone installer\n");
     }
     else
     {
       Service->Log("this is a self-extracting installer; sfxDir=%s\n", Q_(sfxDir->GetPathName()));
-      options.LocalPackageRepository = sfxDir->GetPathName();
-      options = Service->SetOptions(options);
     }
 
     // get command-line arguments
@@ -1004,7 +1002,7 @@ BOOL SetupApp::InitInstance()
         "--common-install", options.Config.commonInstallRoot.ToString(),
         "--continue",
         "--install-from-local-repository",
-        "--local-package-repository", sfxDir->GetPathName().ToString(),
+        "--local-package-repository", options.LocalPackageRepository.ToString(),
         "--package-set", packageLevel,
         "--paper-size", options.PaperSize,
         "--program-folder", options.FolderName.ToString(),

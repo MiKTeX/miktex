@@ -52,11 +52,14 @@ private:
   CStatic message;
 
 private:
+  CStatic petition;
+
+private:
   CButton checkBox;
 
 private:
-  int viewReleaseNotes = BST_UNCHECKED;
+  int checkBoxValue = BST_CHECKED;
 
 private:
-  class SetupWizard* pSheet = nullptr;
+  class SetupWizard* sheet = nullptr;
 };

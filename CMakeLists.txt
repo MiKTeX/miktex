@@ -413,7 +413,7 @@ option(
   ${MSVC}
 )
 option(
-  WITH_UPATE_WIZARD
+  WITH_UPDATE_WIZARD
   "Build update wizard (obsolete)."
   ${MSVC}
 )
