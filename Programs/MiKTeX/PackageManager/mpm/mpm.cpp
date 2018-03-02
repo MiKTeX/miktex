@@ -151,7 +151,7 @@ public:
   bool MIKTEXTHISCALL OnRetryableError(const string& message) override;
 
 public:
-  bool MIKTEXTHISCALL OnProgress(Notification nf) override;
+  bool MIKTEXTHISCALL OnProgress(MiKTeX::Packages::Notification nf) override;
 
 public:
   void Main(int argc, const char** argv);
@@ -716,7 +716,7 @@ bool Application::OnRetryableError(const string& message)
   return false;
 }
 
-bool Application::OnProgress(Notification nf)
+bool Application::OnProgress(MiKTeX::Packages::Notification nf)
 {
   if (interrupted != 0)
   {
@@ -1005,7 +1005,7 @@ void Application::FindUpdates()
   }
 }
 
-void Application::Update(const vector<string>& updates)
+void Application::Update(const vector<string>& requestedUpdates)
 {
   shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
   if (!repository.empty())
@@ -1014,32 +1014,47 @@ void Application::Update(const vector<string>& updates)
   }
   installer->SetCallback(this);
   installer->FindUpdates();
-  vector<PackageInstaller::UpdateInfo> serverUpdates = installer->GetUpdates();
-  vector<string> updates2;
-  for (const PackageInstaller::UpdateInfo& upd : serverUpdates)
+  vector<string> serverUpdates;
+  vector<string> toBeRemoved;
+  for (const PackageInstaller::UpdateInfo& upd : installer->GetUpdates())
   {
-    updates2.push_back(upd.deploymentName);
+    switch (upd.action)
+    {
+    case PackageInstaller::UpdateInfo::Repair:
+    case PackageInstaller::UpdateInfo::ReleaseStateChange:
+    case PackageInstaller::UpdateInfo::Update:
+    case PackageInstaller::UpdateInfo::ForceUpdate:
+      serverUpdates.push_back(upd.deploymentName);
+      break;
+    case PackageInstaller::UpdateInfo::ForceRemove:
+      toBeRemoved.push_back(upd.deploymentName);
+      break;
+    }
   }
-  sort(updates2.begin(), updates2.end());
   vector<string> toBeInstalled;
-  if (updates.empty())
+  if (requestedUpdates.empty())
   {
-    if (updates2.empty())
+    if (serverUpdates.empty())
     {
       Message(T_("There are currently no updates available."));
     }
-    toBeInstalled = updates2;
+    else
+    {
+      toBeInstalled = serverUpdates;
+    }
   }
   else
   {
-    for (const string& deploymentName : updates)
+    toBeRemoved.clear();
+    sort(serverUpdates.begin(), serverUpdates.end());
+    for (const string& deploymentName : requestedUpdates)
     {
       PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
       if (!packageInfo.IsInstalled())
       {
         Error(T_("Package \"%s\" is not installed."), deploymentName.c_str());
       }
-      if (binary_search(updates2.begin(), updates2.end(), deploymentName))
+      if (binary_search(serverUpdates.begin(), serverUpdates.end(), deploymentName))
       {
         toBeInstalled.push_back(deploymentName);
       }
@@ -1049,12 +1064,19 @@ void Application::Update(const vector<string>& updates)
       }
     }
   }
-  if (toBeInstalled.empty())
+  if (toBeInstalled.empty() && toBeRemoved.empty())
   {
     return;
   }
-  installer->SetFileLists(toBeInstalled, vector<string>());
+  installer->SetFileLists(toBeInstalled, toBeRemoved);
   installer->InstallRemove();
+  installer = nullptr;
+  unique_ptr<SetupService> service = SetupService::Create();
+  SetupOptions options = service->GetOptions();
+  options.Task = SetupTask::FinishUpdate;
+  service->SetOptions(options);
+  service->Run();
+  service = nullptr;
   if (toBeInstalled.size() == 1)
   {
     Message(T_("Package \"%s\" has been successfully updated."), toBeInstalled[0].c_str());

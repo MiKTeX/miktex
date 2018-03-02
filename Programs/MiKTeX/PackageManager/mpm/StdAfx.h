@@ -71,6 +71,7 @@
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamReader>
 #include <miktex/PackageManager/PackageManager>
+#include <miktex/Setup/SetupService>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceCallback>
 #include <miktex/Util/StringUtil>
@@ -83,6 +84,7 @@
 
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
