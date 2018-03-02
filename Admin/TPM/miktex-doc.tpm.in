@@ -13,13 +13,9 @@
     </TPM:Description>
     <TPM:DocFiles>
 texmf/${MIKTEX_REL_DOC_DIR}/latex/00LocalGuide/local.txt
-texmf/${MIKTEX_REL_MIKTEX_DOC_DIR}/faq.chm
-texmf/${MIKTEX_REL_MIKTEX_DOC_DIR}/license.html
 texmf/${MIKTEX_REL_MIKTEX_DOC_DIR}/miktex.chm
 texmf/${MIKTEX_REL_MIKTEX_DOC_DIR}/miktexman.css
 texmf/${MIKTEX_REL_MIKTEX_DOC_DIR}/miktex.pdf
-texmf/${MIKTEX_REL_MIKTEX_DOC_DIR}/relnotes/*.*
-texmf/${MIKTEX_REL_MIKTEX_DOC_DIR}/relnotes/images/*.*
 texmf/${MIKTEX_REL_MIKTEX_DOC_DIR}/manual/*.*
 texmf/${MIKTEX_REL_MIKTEX_DOC_DIR}/manual/images/*.*
     </TPM:DocFiles>
