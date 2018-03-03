@@ -350,6 +350,10 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   {
     pimpl->enableMaintenance = TriState::True;
   }
+  if (pimpl->session->RunningAsAdministrator() && !pimpl->session->IsAdminMode())
+  {
+    Warning(T_("running with administrator privileges"));
+  }
   if (pimpl->enableMaintenance == TriState::True)
   {
     AutoMaintenance();
