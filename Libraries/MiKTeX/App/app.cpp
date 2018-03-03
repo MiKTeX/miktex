@@ -771,6 +771,28 @@ MIKTEXNORETURN void Application::FatalError(const char* lpszFormat, ...)
   throw 1;
 }
 
+void Application::Warning(const char* lpszFormat, ...)
+{
+  va_list arglist;
+  va_start(arglist, lpszFormat);
+  string s;
+  try
+  {
+    s = StringUtil::FormatStringVA(lpszFormat, arglist);
+  }
+  catch (...)
+  {
+    va_end(arglist);
+    throw;
+  }
+  va_end(arglist);
+  LogWarn(s);
+  if (!pimpl->beQuiet)
+  {
+    cerr << Utils::GetExeName() << ": " << T_("warning") << ": " << s << endl;
+  }
+}
+
 void Application::InvokeEditor(const PathName& editFileName, int editLineNumber, FileType editFileType, const PathName& transcriptFileName) const
 {
   string defaultEditor;
