@@ -3751,13 +3751,6 @@ pdf_file_get_version (pdf_file *pf)
   return pf->version;
 }
 
-int
-pdf_file_check_version (pdf_file *pf, int version)
-{
-  ASSERT(pf);
-  return (pf->version >= version ? 0 : -1);
-}
-
 pdf_obj *
 pdf_file_get_trailer (pdf_file *pf)
 {
@@ -3792,8 +3785,9 @@ pdf_open (const char *ident, FILE *file)
       WARN("Unrecognized PDF version specified for input PDF file: %d.%d",
         pdf_version/10, pdf_version%10);
     else if (version > pdf_version) {
-      WARN("Trying to inlucde PDF file with version newer than current " \
-        "output PDF setting: %d.%d", version/10, version%10);
+      WARN("Trying to include PDF file with version (%d.%d), which is " \
+           "newer than current output PDF setting (%d.%d).",
+        version/10, version%10, pdf_version/10, pdf_version%10);
     }
 
     pf = pdf_file_new(file);
@@ -3878,8 +3872,6 @@ check_for_pdf (FILE *file)
   if (version <= pdf_version)
     return 1;
 
-  WARN("Version of PDF file (%d.%d) is newer than version limit specification.",
-       version/10, version%10);
   return 1;
 }
 

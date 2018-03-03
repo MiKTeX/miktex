@@ -192,7 +192,6 @@ extern void      pdf_close         (pdf_file *pf);
 extern pdf_obj  *pdf_file_get_trailer (pdf_file *pf);
 extern pdf_obj  *pdf_file_get_catalog (pdf_file *pf);
 extern int       pdf_file_get_version (pdf_file *pf);
-extern int       pdf_file_check_version (pdf_file *pf, int version);
 
 extern pdf_obj *pdf_deref_obj     (pdf_obj *object);
 extern pdf_obj *pdf_import_object (pdf_obj *object);

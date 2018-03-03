@@ -402,12 +402,6 @@ pdf_include_page (pdf_ximage        *ximage,
   if (!pf)
     return -1;
 
-  if (pdf_file_check_version(pf, pdf_get_version()) < 0) {
-    WARN("Trying to include PDF file which has newer version number " \
-         "than output PDF: %d.%d.",
-         pdf_get_version_major(), pdf_get_version_minor());
-  }
-
   pdf_ximage_init_form_info(&info);
 
   if (options.page_no == 0)
