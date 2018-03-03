@@ -46,7 +46,7 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
         MIKTEX_UNEXPECTED();
       }
     }
-    myProgramFile = buf;
+    myProgramFile = buf.GetData();
 #else
     string invocationName = initInfo.GetProgramInvocationName();
     if (invocationName.empty())
