@@ -19,6 +19,12 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
+#if defined(MIKTEX_MACOS_BUNDLE)
+#include <mach-o/dyld.h>
+#endif
+
+#include <cstdlib>
+
 #include <QApplication>
 #include <QtWidgets>
 #include <QSystemTrayIcon>
@@ -145,6 +151,33 @@ private:
   }
 };
 
+#if defined(MIKTEX_MACOS_BUNDLE)
+PathName GetExecutablePath()
+{
+  CharBuffer<char> buf;
+  uint32_t bufsize = buf.GetCapacity();
+  if (_NSGetExecutablePath(buf.GetData(), &bufsize) < 0)
+  {
+    buf.Reserve(bufsize);
+    if (_NSGetExecutablePath(buf.GetData(), &bufsize) != 0)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+  }
+  char resolved[PATH_MAX + 1];
+  if (realpath(buf.GetData(), resolved) == nullptr)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  return resolved;
+}
+
+PathName GetExecutableDir()
+{
+  return GetExecutablePath().RemoveFileSpec();
+}
+#endif
+
 int main(int argc, char* argv[])
 {
   int ret = 0;
@@ -153,6 +186,18 @@ int main(int argc, char* argv[])
   bool optHide = false;
   bool optMkmaps = false;
   QString displayName = "MiKTeX Console";
+#if defined(MIKTEX_MACOS_BUNDLE)
+  PathName plugIns = GetExecutableDir() / ".." / "PlugIns";
+  plugIns.MakeAbsolute();
+  QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
+#endif
+#if QT_VERSION >= 0x050600
+  QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+  QApplication application(argc, argv);
+#if QT_VERSION >= 0x050000
+  application.setApplicationDisplayName(displayName);
+#endif
   MainWindow::Pages startPage = MainWindow::Pages::Overview;
   if (argc > 0)
   {
@@ -246,18 +291,6 @@ int main(int argc, char* argv[])
       session->SetAdminMode(true);
       displayName += " (Admin)";
     }
-#if defined(MIKTEX_MACOS_BUNDLE)
-    PathName plugIns = session->GetSpecialPath(SpecialPath::MacOsDirectory) / ".." / "PlugIns";
-    plugIns.MakeAbsolute();
-    QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
-#endif
-#if QT_VERSION >= 0x050600
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
-    QApplication application(argc, argv);
-#if QT_VERSION >= 0x050000
-    application.setApplicationDisplayName(displayName);
-#endif
     PathName xmlFileName;
     if (session->FindFile("console." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
       || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
