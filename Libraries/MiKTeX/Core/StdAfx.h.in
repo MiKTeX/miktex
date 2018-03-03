@@ -1,6 +1,6 @@
 /* StdAfx.h:                                            -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -74,6 +74,7 @@
 
 #if defined(__APPLE__)
 #  include <libproc.h>
+#  include <mach-o/dyld.h>
 #endif
 
 #include <fcntl.h>

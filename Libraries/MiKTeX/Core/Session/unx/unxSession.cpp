@@ -1,6 +1,6 @@
 /* unxSession.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,6 +35,19 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
   // we do this once
   if (myProgramFile.Empty())
   {
+#if defined(__APPLE__)
+    CharBuffer<char> buf;
+    uint32_t bufsize = buf.GetCapacity();
+    if (_NSGetExecutablePath(buf.GetData(), &bufsize) < 0)
+    {
+      buf.Reserve(bufsize);
+      if (_NSGetExecutablePath(buf.GetData(), &bufsize) != 0)
+      {
+        MIKTEX_UNEXPECTED();
+      }
+    }
+    myProgramFile = buf;
+#else
     string invocationName = initInfo.GetProgramInvocationName();
     if (invocationName.empty())
     {
@@ -52,6 +65,7 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
     {
       MIKTEX_FATAL_ERROR_2(T_("The invoked program could not be found in the PATH."), "invocationName", invocationName);
     }
+#endif
     myProgramFileCanon = myProgramFile;
     myProgramFileCanon.Canonicalize();
   }
