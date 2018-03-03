@@ -28,6 +28,7 @@
 #include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
 PathName SessionImpl::GetMyProgramFile(bool canonicalized)
