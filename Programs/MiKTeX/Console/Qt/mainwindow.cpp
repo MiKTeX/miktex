@@ -90,6 +90,11 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
+  if (IsUserModeBlocked())
+  {
+    startPage = Pages::Overview;
+  }
+
   ui->setupUi(this);
 
   resize(800, 600);
