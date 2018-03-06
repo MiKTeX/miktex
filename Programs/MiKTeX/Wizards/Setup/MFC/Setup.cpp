@@ -889,6 +889,11 @@ BOOL SetupApp::InitInstance()
     else
     {
       Service->Log("this is a self-extracting installer; sfxDir=%s\n", Q_(sfxDir->GetPathName()));
+      if (SetupService::TestLocalRepository(sfxDir->GetPathName(), PackageLevel::None) > PackageLevel::None)
+      {
+        options.LocalPackageRepository = sfxDir->GetPathName();
+        options = Service->SetOptions(options);
+      }
     }
 
     // get command-line arguments
