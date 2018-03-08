@@ -1000,7 +1000,17 @@ void Application::FindUpdates()
     sort(updates.begin(), updates.end(), UpdateInfoComparer());
     for (const PackageInstaller::UpdateInfo& upd : updates)
     {
-      cout << upd.deploymentName << endl;
+      switch (upd.action)
+      {
+      case PackageInstaller::UpdateInfo::Repair:
+      case PackageInstaller::UpdateInfo::ReleaseStateChange:
+      case PackageInstaller::UpdateInfo::Update:
+      case PackageInstaller::UpdateInfo::ForceUpdate:
+        cout << upd.deploymentName << endl;
+        break;
+      case PackageInstaller::UpdateInfo::ForceRemove:        
+        break;
+      }      
     }
   }
 }
