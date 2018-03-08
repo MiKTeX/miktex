@@ -1966,7 +1966,7 @@ extern "C" void Application::SignalHandler(int signalToBeHandled)
 int MAIN(int argc, MAINCHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
-  HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+  HRESULT hr = CoInitialize(nullptr);
   if (FAILED(hr))
   {
     cerr << T_("mpm: The COM library could not be initialized.") << endl;
