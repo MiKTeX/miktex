@@ -285,7 +285,7 @@ static void PrintString(const TString* ts)
   n=ts->tsv.len;
 #endif
 #if (LUA_VERSION_NUM == 503) 
-  n=ts->u.lnglen;
+  n=(ts->tt == LUA_TSHRSTR ? ts->shrlen : ts->u.lnglen);
 #endif
  printf("%c",'"');
  for (i=0; i<n; i++)
