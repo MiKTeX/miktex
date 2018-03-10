@@ -53,13 +53,6 @@ MESG (const char *fmt, ...)
 {
   va_list argp;
 
-#if defined(MIKTEX)
-  {
-    va_start(argp, fmt);
-    miktex_log_info_va(fmt, argp);
-    va_end(argp);
-  }
-#endif
   if (really_quiet < 1) {
     va_start(argp, fmt);
     vfprintf(stderr, fmt, argp);
