@@ -31,7 +31,7 @@ using namespace std;
 extern "C"
 {
   // in dvipdfmx.c
-  void read_config_file(const char *config);
+  void read_config_file(const char* config);
 }
 
 extern "C" void miktex_read_config_files()
