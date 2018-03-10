@@ -29,6 +29,9 @@
 
 #include "dvipdfmx.h"
 #include "error.h"
+#if defined(MIKTEX)
+#include <miktex/dvipdfm-x.h>
+#endif
 
 #define DPX_MESG        0
 #define DPX_MESG_WARN   1
@@ -50,6 +53,13 @@ MESG (const char *fmt, ...)
 {
   va_list argp;
 
+#if defined(MIKTEX)
+  {
+    va_start(argp, fmt);
+    miktex_log_info_va(fmt, argp);
+    va_end(argp);
+  }
+#endif
   if (really_quiet < 1) {
     va_start(argp, fmt);
     vfprintf(stderr, fmt, argp);
@@ -63,6 +73,13 @@ WARN (const char *fmt, ...)
 {
   va_list argp;
 
+#if defined(MIKTEX)
+  {
+    va_start(argp, fmt);
+    miktex_log_warn_va(fmt, argp);
+    va_end(argp);
+  }
+#endif
   if (really_quiet < 2) {
     if (WANT_NEWLINE())
       fprintf(stderr, "\n");
@@ -81,6 +98,13 @@ ERROR (const char *fmt, ...)
 {
   va_list argp;
 
+#if defined(MIKTEX)
+  {
+    va_start(argp, fmt);
+    miktex_log_error_va(fmt, argp);
+    va_end(argp);
+  }
+#endif
   if (really_quiet < 3) {
     if (WANT_NEWLINE())
       fprintf(stderr, "\n");

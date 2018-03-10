@@ -1,6 +1,6 @@
 /* dvipdfmx-/miktex/miktex.cpp:
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,11 +19,15 @@
 
 #include "dvipdfm-x.h"
 
+#include <miktex/App/Application>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
+#include <miktex/Util/StringUtil>
 
+using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
 #include <memory>
@@ -32,6 +36,21 @@ extern "C"
 {
   // in dvipdfmx.c
   void read_config_file(const char* config);
+}
+
+extern "C" void miktex_log_error_va(const char* format, va_list args)
+{
+  Application::GetApplication()->LogError(StringUtil::FormatStringVA(format, args));
+}
+
+extern "C" void miktex_log_info_va(const char* format, va_list args)
+{
+  Application::GetApplication()->LogInfo(StringUtil::FormatStringVA(format, args));
+}
+
+extern "C" void miktex_log_warn_va(const char* format, va_list args)
+{
+  Application::GetApplication()->LogWarn(StringUtil::FormatStringVA(format, args));
 }
 
 extern "C" void miktex_read_config_files()

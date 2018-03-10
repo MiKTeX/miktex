@@ -1,6 +1,6 @@
 /* dvipdfm-x/miktex/dvipdfm-x.h:
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,9 +20,18 @@
 #pragma once
 
 #if defined(__cplusplus)
+#include <cstdarg>
+#else
+#include <stdarg.h>
+#endif
+
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
+void miktex_log_error_va(const char* format, va_list args);
+void miktex_log_info_va(const char* format, va_list args);
+void miktex_log_warn_va(const char* format, va_list args);
 void miktex_read_config_files();
 
 #if defined(__cplusplus)
