@@ -1006,7 +1006,9 @@ void SetupServiceImpl::DoFinishUpdate()
 {
   ReportLine("finishing update...");
   RemoveFormatFiles();
+#if defined(MIKTEX_WINDOWS)
   RunMpm({ "--register-components" });
+#endif
   RunIniTeXMF({ "--update-fndb" });
   RunIniTeXMF({ "--force", "--mklinks" });
   RunIniTeXMF({ "--mkmaps", "--mklangs" });
