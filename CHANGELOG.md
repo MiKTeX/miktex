@@ -1,6 +1,8 @@
 # MiKTeX Change Log
 
-## 2.9.6650 - not yet released
+## 2.9.6650 - 2018-03-25
+
+Fixed a MiKTeX Console regression bug on macOS/Linux.
 
 ## 2.9.6630 - 2018-03-17
 
