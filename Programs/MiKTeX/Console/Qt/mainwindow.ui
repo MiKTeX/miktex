@@ -337,7 +337,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -915,7 +915,7 @@ Use this option, if you want to operate on the private configuration.</string>
            <item>
             <widget class="QTabWidget" name="tabWidgetSettings">
              <property name="currentIndex">
-              <number>1</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="settingsGeneral">
               <attribute name="title">
@@ -1216,6 +1216,54 @@ Use this option, if you want to operate on the private configuration.</string>
                   </size>
                  </property>
                 </spacer>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="settingsFormats">
+              <attribute name="title">
+               <string>Formats</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="asasas">
+               <item>
+                <layout class="QVBoxLayout" name="vboxTreeViewFormats">
+                 <item>
+                  <widget class="QTreeView" name="treeViewFormats">
+                   <property name="selectionMode">
+                    <enum>QAbstractItemView::ExtendedSelection</enum>
+                   </property>
+                   <property name="rootIsDecorated">
+                    <bool>false</bool>
+                   </property>
+                   <property name="allColumnsShowFocus">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="settingsLanguages">
+              <attribute name="title">
+               <string>Languages</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="asasas2">
+               <item>
+                <layout class="QVBoxLayout" name="vboxTreeViewLanguages">
+                 <item>
+                  <widget class="QTreeView" name="treeViewLanguages">
+                   <property name="selectionMode">
+                    <enum>QAbstractItemView::ContiguousSelection</enum>
+                   </property>
+                   <property name="rootIsDecorated">
+                    <bool>false</bool>
+                   </property>
+                   <property name="allColumnsShowFocus">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </item>
               </layout>
              </widget>
@@ -1974,6 +2022,62 @@ Use this option, if you want to operate on the private configuration.</string>
    </property>
    <property name="statusTip">
     <string>Resets the TeX installation to the factory defaults.</string>
+   </property>
+  </action>
+  <action name="actionAddFormat">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/list-add-16x16.png</normaloff>:/Icons/list-add-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add format</string>
+   </property>
+   <property name="toolTip">
+    <string>Add</string>
+   </property>
+   <property name="statusTip">
+    <string>Adds a new format to the list</string>
+   </property>
+  </action>
+  <action name="actionRemoveFormat">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/list-remove-16x16.png</normaloff>:/Icons/list-remove-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove format</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove</string>
+   </property>
+   <property name="statusTip">
+    <string>Removes the selected  format from the list</string>
+   </property>
+  </action>
+  <action name="actionFormatProperties">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/properties-16x16.png</normaloff>:/Icons/properties-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Format properties</string>
+   </property>
+   <property name="toolTip">
+    <string>Properties</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows format properties.</string>
+   </property>
+  </action>
+  <action name="actionBuildFormat">
+   <property name="text">
+    <string>Build format</string>
+   </property>
+   <property name="toolTip">
+    <string>Build</string>
+   </property>
+   <property name="statusTip">
+    <string>Builds the selected format.</string>
    </property>
   </action>
  </widget>

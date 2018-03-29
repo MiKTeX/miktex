@@ -58,6 +58,9 @@ public:
   void Reload();
 
 public:
+  MiKTeX::Core::FormatInfo GetFormatInfo(const QModelIndex& index);
+
+public:
   bool CanRemove(const QModelIndex& index);
 
 public:

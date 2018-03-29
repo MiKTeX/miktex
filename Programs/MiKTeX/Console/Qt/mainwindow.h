@@ -33,6 +33,8 @@
 
 class QLineEdit;
 
+class FormatTableModel;
+class LanguageTableModel;
 class PackageProxyModel;
 class PackageTableModel;
 class RootTableModel;
@@ -350,6 +352,77 @@ private:
 private slots:
   void OnContextMenuRootDirectories(const QPoint& pos);
 
+
+
+
+
+private:
+  QToolBar* toolBarFormats = nullptr;
+
+private:
+  void SetupUiFormats();
+
+private:
+  void UpdateUiFormats();
+
+private slots:
+  void UpdateActionsFormats();
+
+private:
+  FormatTableModel* formatModel = nullptr;
+
+private slots:
+  void AddFormat();
+
+private slots:
+  void RemoveFormat();
+
+private slots:
+  void FormatPropertyDialog();
+
+private slots:
+  void BuildFormat();
+
+private:
+  QMenu* contextMenuFormat = nullptr;
+
+private:
+  QMenu* contextMenuFormatsBackground = nullptr;
+
+private slots:
+  void OnContextMenuFormats(const QPoint& pos);
+
+
+private:
+  void SetupUiLanguages();
+
+private:
+  void UpdateUiLanguages();
+
+private slots:
+  void UpdateActionsLanguages();
+
+private:
+  LanguageTableModel* languageModel = nullptr;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 private:
   PackageTableModel* packageModel;
 
@@ -474,6 +547,9 @@ public slots:
 
 protected:
   virtual bool Run() = 0;
+
+protected:
+  void RunIniTeXMF(const std::vector<std::string>& args);
 
 public:
   MiKTeX::Core::MiKTeXException GetMiKTeXException() const
@@ -771,5 +847,25 @@ private:
 protected:
   bool Run() override;
 };
+
+class BuildFormatsWorker :
+  public BackgroundWorker
+{
+private:
+  Q_OBJECT;
+
+public:
+  BuildFormatsWorker(const std::vector<std::string>& formats) :
+    formats(formats)
+  {
+  }
+
+private:
+  std::vector<std::string> formats;
+
+protected:
+  bool Run() override;
+};
+
 
 #endif

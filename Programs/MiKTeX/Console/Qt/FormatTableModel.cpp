@@ -60,7 +60,6 @@ QVariant FormatTableModel::data(const QModelIndex& index, int role) const
   {
     return QVariant();
   }
-
   if (role == Qt::DisplayRole)
   {
     const FormatInfo& format = formats[index.row()];
@@ -74,7 +73,6 @@ QVariant FormatTableModel::data(const QModelIndex& index, int role) const
       return QString::fromUtf8(StringUtil::Flatten(GetAttributeStrings(format), ',').c_str());
     }
   }
-
   return QVariant();
 }
 
@@ -100,6 +98,11 @@ void FormatTableModel::Reload()
   beginResetModel();
   formats = session->GetFormats();
   endResetModel();
+}
+
+FormatInfo FormatTableModel::GetFormatInfo(const QModelIndex& index)
+{
+  return formats[index.row()];
 }
 
 bool FormatTableModel::CanRemove(const QModelIndex& index)

@@ -50,10 +50,11 @@ QVariant LanguageTableModel::data(const QModelIndex& index, int role) const
   {
     return QVariant();
   }
-
-  if (role == Qt::DisplayRole)
+  const LanguageInfo& language = languages[index.row()];
+  switch (role)
   {
-    const LanguageInfo& language = languages[index.row()];
+  case Qt::DisplayRole:
+  {
     switch (index.column())
     {
     case 0:
@@ -61,9 +62,47 @@ QVariant LanguageTableModel::data(const QModelIndex& index, int role) const
     case 1:
       return QString::fromUtf8(language.synonyms.c_str());
     }
+    break;
   }
-
+  case Qt::CheckStateRole:
+    if (index.column() == 0)
+    {
+      return language.exclude ? Qt::Unchecked : Qt::Checked;
+    }
+  }
   return QVariant();
+}
+
+bool LanguageTableModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+  if (!(index.isValid() && index.row() >= 0 && index.row() < languages.size()))
+  {
+    return false;
+  }
+  LanguageInfo& language = languages[index.row()];
+  if (role == Qt::CheckStateRole && index.column() == 0 && index.row() != 0)
+  {
+    Qt::CheckState oldValue = language.exclude ? Qt::Unchecked : Qt::Checked;
+    Qt::CheckState newValue = static_cast<Qt::CheckState>(value.toInt());
+    if (oldValue != newValue)
+    {
+      language.exclude = newValue == Qt::Unchecked;
+      session->SetLanguageInfo(language);
+      emit dataChanged(index, index);
+      return true;
+    }
+  }
+  return false;
+}
+
+Qt::ItemFlags LanguageTableModel::flags(const QModelIndex& index) const
+{
+  Qt::ItemFlags flags = QAbstractTableModel::flags(index);
+  if (index.isValid() && index.column() == 0)
+  {
+    flags |= Qt::ItemIsUserCheckable;
+  }
+  return flags;
 }
 
 QVariant LanguageTableModel::headerData(int section, Qt::Orientation orientation, int role) const

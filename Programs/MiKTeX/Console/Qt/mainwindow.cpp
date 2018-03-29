@@ -25,6 +25,9 @@
 
 #include <iomanip>
 
+#include "FormatDefinitionDialog.h"
+#include "FormatTableModel.h"
+#include "LanguageTableModel.h"
 #include "PackageProxyModel.h"
 #include "PackageTableModel.h"
 #include "RootTableModel.h"
@@ -101,6 +104,8 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   ReadSettings();
 
   SetupUiDirectories();
+  SetupUiFormats();
+  SetupUiLanguages();
   SetupUiUpdates();
   SetupUiPackageInstallation();
   SetupUiPackages();
@@ -268,6 +273,8 @@ void MainWindow::UpdateUi()
     UpdateUiPaper();
     UpdateUiPackageInstallation();
     UpdateUiDirectories();
+    UpdateUiFormats();
+    UpdateUiLanguages();
     UpdateUiUpdates();
     UpdateUiPackages();
     UpdateUiDiagnose();
@@ -293,6 +300,8 @@ void MainWindow::UpdateActions()
     ui->actionTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
     ui->actionTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     UpdateActionsDirectories();
+    UpdateActionsFormats();
+    UpdateActionsLanguages();
     UpdateActionsUpdates();
     UpdateActionsPackages();
     UpdateActionsDiagnose();
@@ -838,41 +847,46 @@ string Timestamp()
   return s.str();
 }
 
+void BackgroundWorker::RunIniTeXMF(const std::vector<std::string>& args)
+{
+  shared_ptr<Session> session = Session::Get();
+  PathName initexmf;
+  if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
+  {
+    MIKTEX_FATAL_ERROR(tr("The MiKTeX configuration utility executable (initexmf) could not be found.").toStdString());
+  }
+  vector<string> allArgs{
+    initexmf.GetFileNameWithoutExtension().ToString(),
+  };
+  if (session->IsAdminMode())
+  {
+    allArgs.push_back("--admin");
+  }
+  allArgs.insert(allArgs.end(), args.begin(), args.end());
+  ProcessOutput<4096> output;
+  int exitCode;
+  Process::Run(initexmf, allArgs, &output, &exitCode, nullptr);
+  if (exitCode != 0)
+  {
+    auto outputBytes = output.GetStandardOutput();
+    PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / initexmf.GetFileNameWithoutExtension();
+    outfile += "_";
+    outfile += Timestamp().c_str();
+    outfile.SetExtension(".out");
+    FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
+    outstream.Write(&outputBytes[0], outputBytes.size());
+    outstream.Close();
+    MIKTEX_FATAL_ERROR_2(tr("The MiKTeX configuration utility failed for some reason. The process output has been saved to a file.").toStdString(),
+      "fileName", initexmf.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
+  }
+}
+
 bool RefreshFontMapsWorker::Run()
 {
   bool result = false;
   try
   {
-    shared_ptr<Session> session = Session::Get();
-    PathName initexmf;
-    if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
-    {
-      MIKTEX_FATAL_ERROR(tr("The MiKTeX configuration utility executable (initexmf) could not be found.").toStdString());
-    }
-    vector<string> args{
-      initexmf.GetFileNameWithoutExtension().ToString(),
-      "--mkmaps"
-    };
-    if (session->IsAdminMode())
-    {
-      args.push_back("--admin");
-    }
-    ProcessOutput<4096> output;
-    int exitCode;
-    Process::Run(initexmf, args, &output, &exitCode, nullptr);
-    if (exitCode != 0)
-    {
-      auto outputBytes = output.GetStandardOutput();
-      PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / initexmf.GetFileNameWithoutExtension();
-      outfile += "_";
-      outfile += Timestamp().c_str();
-      outfile.SetExtension(".out");
-      FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
-      outstream.Write(&outputBytes[0], outputBytes.size());
-      outstream.Close();
-      MIKTEX_FATAL_ERROR_2(tr("The MiKTeX configuration utility failed for some reason. The process output has been saved to a file.").toStdString(),
-        "fileName", initexmf.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
-    }
+    RunIniTeXMF({ "--mkmaps" });
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -1572,6 +1586,262 @@ void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
     contextMenuRootDirectoriesBackground->exec(ui->treeViewRootDirectories->mapToGlobal(pos));
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void MainWindow::SetupUiFormats()
+{
+  formatModel = new FormatTableModel(this);
+  toolBarFormats = new QToolBar(this);
+  toolBarFormats->setIconSize(QSize(16, 16));
+  toolBarFormats->addAction(ui->actionAddFormat);
+  toolBarFormats->addAction(ui->actionRemoveFormat);
+  toolBarFormats->addSeparator();
+  toolBarFormats->addAction(ui->actionFormatProperties);
+  toolBarFormats->addSeparator();
+  toolBarFormats->addAction(ui->actionBuildFormat);
+  ui->vboxTreeViewFormats->insertWidget(0, toolBarFormats);
+  ui->treeViewFormats->setModel(formatModel);
+  contextMenuFormatsBackground = new QMenu(ui->treeViewFormats);
+  contextMenuFormatsBackground->addAction(ui->actionAddFormat);
+  contextMenuFormat = new QMenu(ui->treeViewFormats);
+  contextMenuFormat->addAction(ui->actionAddFormat);
+  contextMenuFormat->addAction(ui->actionRemoveFormat);
+  contextMenuFormat->addSeparator();
+  contextMenuFormat->addAction(ui->actionFormatProperties);
+  contextMenuFormat->addSeparator();
+  contextMenuFormat->addAction(ui->actionBuildFormat);
+  ui->treeViewFormats->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->treeViewFormats, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuFormats(const QPoint&)));
+  connect(ui->actionAddFormat, SIGNAL(triggered()), this, SLOT(AddFormat()));
+  connect(ui->actionRemoveFormat, SIGNAL(triggered()), this, SLOT(RemoveFormat()));
+  connect(ui->actionFormatProperties, SIGNAL(triggered()), this, SLOT(FormatPropertyDialog()));
+  connect(ui->actionBuildFormat, SIGNAL(triggered()), this, SLOT(BuildFormat()));
+  connect(ui->treeViewFormats->selectionModel(),
+    SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+    this,
+    SLOT(UpdateActionsFormats()));
+}
+
+void MainWindow::UpdateUiFormats()
+{
+  if (!IsBackgroundWorkerActive())
+  {
+    formatModel->Reload();
+    ui->treeViewFormats->resizeColumnToContents(0);
+  }
+}
+
+void MainWindow::UpdateActionsFormats()
+{
+  int selectedCount = ui->treeViewFormats->selectionModel()->selectedRows().count();
+  bool enableRemove = selectedCount > 0;
+  for (const QModelIndex& index : ui->treeViewFormats->selectionModel()->selectedRows())
+  {
+    enableRemove = enableRemove && formatModel->CanRemove(index);
+  }
+  ui->actionAddFormat->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+  ui->actionRemoveFormat->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableRemove);
+  ui->actionFormatProperties->setEnabled(!IsBackgroundWorkerActive() && selectedCount == 1);
+  ui->actionBuildFormat->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && selectedCount > 0);
+}
+
+void MainWindow::AddFormat()
+{
+  try
+  {
+    FormatDefinitionDialog dlg(this);
+    if (dlg.exec() == QDialog::Accepted)
+    {
+      session->SetFormatInfo(dlg.GetFormatInfo());
+      UpdateUi();
+      UpdateActions();
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::RemoveFormat()
+{
+  try
+  {
+    for (const QModelIndex& ind : ui->treeViewFormats->selectionModel()->selectedRows())
+    {
+      session->DeleteFormatInfo(formatModel->GetFormatInfo(ind).key);
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::FormatPropertyDialog()
+{
+  try
+  {
+    for (const QModelIndex& ind : ui->treeViewFormats->selectionModel()->selectedRows())
+    {
+      FormatDefinitionDialog dlg(this, formatModel->GetFormatInfo(ind));
+      if (dlg.exec() == QDialog::Accepted)
+      {
+        session->SetFormatInfo(dlg.GetFormatInfo());
+        UpdateUi();
+        UpdateActions();
+      }
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+bool BuildFormatsWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    shared_ptr<Session> session = Session::Get();
+    for (const string& key : formats)
+    {
+      FormatInfo formatInfo = session->GetFormatInfo(key);
+      RunIniTeXMF({ "--dump="s + formatInfo.key });
+    }
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::BuildFormat()
+{
+  try
+  {
+    vector<string> formats;
+    for (const QModelIndex& ind : ui->treeViewFormats->selectionModel()->selectedRows())
+    {
+      formats.push_back(formatModel->GetFormatInfo(ind).key);
+    }
+    QThread* thread = new QThread;
+    BuildFormatsWorker* worker = new BuildFormatsWorker(formats);
+    backgroundWorkers++;
+    ui->labelBackgroundTask->setText(formats.size() == 1 ? tr("Building format...") : tr("Building formats..."));
+    worker->moveToThread(thread);
+    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    connect(worker, &BuildFormatsWorker::OnFinish, this, [this]() {
+      BuildFormatsWorker* worker = (BuildFormatsWorker*)sender();
+      if (!worker->GetResult())
+      {
+        CriticalError(tr("Something went wrong while building formats."), ((BuildFormatsWorker*)sender())->GetMiKTeXException());
+      }
+      backgroundWorkers--;
+      session->UnloadFilenameDatabase();
+      UpdateUi();
+      UpdateActions();
+      worker->deleteLater();
+    });
+    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    thread->start();
+    UpdateUi();
+    UpdateActions();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::OnContextMenuFormats(const QPoint& pos)
+{
+  QModelIndex index = ui->treeViewFormats->indexAt(pos);
+  if (index.isValid())
+  {
+    contextMenuFormat->exec(ui->treeViewFormats->mapToGlobal(pos));
+  }
+  else
+  {
+    contextMenuFormatsBackground->exec(ui->treeViewFormats->mapToGlobal(pos));
+  }
+}
+
+
+void MainWindow::SetupUiLanguages()
+{
+  languageModel = new LanguageTableModel(this);
+  ui->treeViewLanguages->setModel(languageModel);
+  connect(ui->treeViewLanguages->selectionModel(),
+    SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+    this,
+    SLOT(UpdateActionsLanguages()));
+}
+
+void MainWindow::UpdateUiLanguages()
+{
+  if (!IsBackgroundWorkerActive())
+  {
+    languageModel->Reload();
+    ui->treeViewLanguages->resizeColumnToContents(0);
+  }
+}
+
+void MainWindow::UpdateActionsLanguages()
+{
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void MainWindow::SetupUiPackages()
 {

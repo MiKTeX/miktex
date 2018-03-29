@@ -34,23 +34,35 @@ namespace Ui
   class FormatDefinitionDialog;
 }
 
-class FormatDefinitionDialogImpl :
+class FormatDefinitionDialog :
   public QDialog
 {
 private:
   Q_OBJECT;
 
 public:
-  explicit FormatDefinitionDialogImpl(QWidget* parent, const MiKTeX::Core::FormatInfo& format);
+  explicit FormatDefinitionDialog(QWidget* parent);
 
 public:
-  ~FormatDefinitionDialogImpl();
+  explicit FormatDefinitionDialog(QWidget* parent, const MiKTeX::Core::FormatInfo& format);
+
+public:
+  ~FormatDefinitionDialog();
+
+public:
+  void done(int r) override;
+
+public:
+  MiKTeX::Core::FormatInfo GetFormatInfo() const;
 
 private:
   Ui::FormatDefinitionDialog* ui;
 
 private:
   const MiKTeX::Core::FormatInfo format;
+
+private:
+  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 };
 
 #endif
