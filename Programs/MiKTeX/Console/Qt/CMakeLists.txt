@@ -27,6 +27,12 @@ include_directories(BEFORE
 )
 
 set(console_sources
+  FormatDefinitionDialog.cpp
+  FormatDefinitionDialog.h
+  FormatTableModel.cpp
+  FormatTableModel.h
+  LanguageTableModel.cpp
+  LanguageTableModel.h
   PackageProxyModel.cpp
   PackageProxyModel.h
   PackageTableModel.cpp
@@ -65,6 +71,9 @@ if(MIKTEX_MACOS_BUNDLE)
 endif()
 
 set(console_moc_sources
+  FormatDefinitionDialog.h
+  FormatTableModel.h
+  LanguageTableModel.h
   PackageProxyModel.h
   PackageTableModel.h
   RootTableModel.h
@@ -73,6 +82,7 @@ set(console_moc_sources
 )
 
 set(console_ui_files
+  formatdefinitiondialog.ui
   mainwindow.ui
 )
 
