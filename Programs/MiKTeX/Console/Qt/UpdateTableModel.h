@@ -64,6 +64,12 @@ public:
     return updates;
   }
 
+public:
+  bool CanRemove(const QModelIndex& index);
+
+public:
+  bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 

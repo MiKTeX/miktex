@@ -245,6 +245,9 @@ public slots:
   void RefreshFontMaps();
 
 private:
+  QToolBar* toolBarUpdates = nullptr;
+
+private:
   void SetupUiUpdates();
 
 private:
@@ -288,6 +291,15 @@ private slots:
       SetCurrentPage(Pages::Updates);
     }
   }
+
+private slots:
+  void RemoveUpdate();
+
+private:
+  QMenu* contextMenuUpdate = nullptr;
+
+private slots:
+  void OnContextMenuUpdates(const QPoint& pos);
 
 private:
   void SetupUiPackageInstallation();

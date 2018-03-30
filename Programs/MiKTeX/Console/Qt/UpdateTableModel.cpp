@@ -131,3 +131,28 @@ void UpdateTableModel::SetData(const vector<PackageInstaller::UpdateInfo>& updat
   this->updates = updates;
   endResetModel();
 }
+
+bool UpdateTableModel::CanRemove(const QModelIndex& index)
+{
+  const PackageInstaller::UpdateInfo& upd = updates[index.row()];
+  switch (upd.action)
+  {
+  case PackageInstaller::UpdateInfo::KeepAdmin:
+  case PackageInstaller::UpdateInfo::KeepObsolete:
+  case PackageInstaller::UpdateInfo::Repair:
+  case PackageInstaller::UpdateInfo::ReleaseStateChange:
+  case PackageInstaller::UpdateInfo::ForceRemove:
+  case PackageInstaller::UpdateInfo::ForceUpdate:
+    return false;
+  default:
+    return true;
+  }
+}
+
+bool UpdateTableModel::removeRows(int row, int count, const QModelIndex& parent)
+{
+  beginRemoveRows(parent, row, row + count - 1);
+  updates.erase(updates.begin() + row, updates.begin() + row + count);
+  endRemoveRows();
+  return true;
+}
