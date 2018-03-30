@@ -22,7 +22,7 @@
 #include <set>
 
 #include "FormatDefinitionDialog.h"
-#include "ui_FormatDefinitionDialog.h"
+#include "ui_formatdefinitiondialog.h"
 
 using namespace MiKTeX::Core;
 using namespace std;
