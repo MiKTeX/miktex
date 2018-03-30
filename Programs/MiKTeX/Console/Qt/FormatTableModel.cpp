@@ -112,11 +112,11 @@ bool FormatTableModel::CanRemove(const QModelIndex& index)
 
 bool FormatTableModel::removeRows(int row, int count, const QModelIndex& parent)
 {
-  beginRemoveRows(parent, row, row + count - 1);
   for (int idx = row; idx < row + count; ++idx)
   {
     session->DeleteFormatInfo(formats[idx].key);
   }
+  beginRemoveRows(parent, row, row + count - 1);
   formats.erase(formats.begin() + row, formats.begin() + row + count);
   endRemoveRows();
   return true;
