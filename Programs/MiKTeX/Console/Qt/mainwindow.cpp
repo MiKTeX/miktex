@@ -865,6 +865,7 @@ void BackgroundWorker::RunIniTeXMF(const std::vector<std::string>& args)
   allArgs.insert(allArgs.end(), args.begin(), args.end());
   ProcessOutput<4096> output;
   int exitCode;
+  session->UnloadFilenameDatabase();
   Process::Run(initexmf, allArgs, &output, &exitCode, nullptr);
   if (exitCode != 0)
   {
@@ -1587,20 +1588,6 @@ void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void MainWindow::SetupUiFormats()
 {
   formatModel = new FormatTableModel(this);
@@ -1609,9 +1596,9 @@ void MainWindow::SetupUiFormats()
   toolBarFormats->addAction(ui->actionAddFormat);
   toolBarFormats->addAction(ui->actionRemoveFormat);
   toolBarFormats->addSeparator();
-  toolBarFormats->addAction(ui->actionFormatProperties);
-  toolBarFormats->addSeparator();
   toolBarFormats->addAction(ui->actionBuildFormat);
+  toolBarFormats->addSeparator();
+  toolBarFormats->addAction(ui->actionFormatProperties);
   ui->vboxTreeViewFormats->insertWidget(0, toolBarFormats);
   ui->treeViewFormats->setModel(formatModel);
   contextMenuFormatsBackground = new QMenu(ui->treeViewFormats);
@@ -1620,9 +1607,9 @@ void MainWindow::SetupUiFormats()
   contextMenuFormat->addAction(ui->actionAddFormat);
   contextMenuFormat->addAction(ui->actionRemoveFormat);
   contextMenuFormat->addSeparator();
-  contextMenuFormat->addAction(ui->actionFormatProperties);
-  contextMenuFormat->addSeparator();
   contextMenuFormat->addAction(ui->actionBuildFormat);
+  contextMenuFormat->addSeparator();
+  contextMenuFormat->addAction(ui->actionFormatProperties);
   ui->treeViewFormats->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(ui->treeViewFormats, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuFormats(const QPoint&)));
   connect(ui->actionAddFormat, SIGNAL(triggered()), this, SLOT(AddFormat()));
@@ -1684,10 +1671,16 @@ void MainWindow::RemoveFormat()
 {
   try
   {
+    if (QMessageBox::question(this, tr("MiKTeX Console"), tr("Are you sure you want to remove the selected format definition?")) != QMessageBox::Yes)
+    {
+      return;
+    }
     for (const QModelIndex& ind : ui->treeViewFormats->selectionModel()->selectedRows())
     {
       session->DeleteFormatInfo(formatModel->GetFormatInfo(ind).key);
     }
+    UpdateUi();
+    UpdateActions();
   }
   catch (const MiKTeXException& e)
   {
@@ -1760,7 +1753,7 @@ void MainWindow::BuildFormat()
     QThread* thread = new QThread;
     BuildFormatsWorker* worker = new BuildFormatsWorker(formats);
     backgroundWorkers++;
-    ui->labelBackgroundTask->setText(formats.size() == 1 ? tr("Building format...") : tr("Building formats..."));
+    ui->labelBackgroundTask->setText(formats.size() == 1 ? tr("Building format %1...").arg(QString::fromUtf8(formats[0].c_str())) : tr("Building formats..."));
     worker->moveToThread(thread);
     connect(thread, SIGNAL(started()), worker, SLOT(Process()));
     connect(worker, &BuildFormatsWorker::OnFinish, this, [this]() {
@@ -1804,7 +1797,6 @@ void MainWindow::OnContextMenuFormats(const QPoint& pos)
   }
 }
 
-
 void MainWindow::SetupUiLanguages()
 {
   languageModel = new LanguageTableModel(this);
@@ -1827,21 +1819,6 @@ void MainWindow::UpdateUiLanguages()
 void MainWindow::UpdateActionsLanguages()
 {
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void MainWindow::SetupUiPackages()
 {

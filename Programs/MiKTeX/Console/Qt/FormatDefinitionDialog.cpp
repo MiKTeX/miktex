@@ -44,15 +44,11 @@ FormatDefinitionDialog::FormatDefinitionDialog(QWidget* parent, const FormatInfo
 {
   QRegularExpression azPlus("[a-z]+");
   QRegularExpression azStar("[a-z]*");
-  QRegularExpression fnamePlus("[-.A-Za-z_]+");
-  QRegularExpression fnameStar("[-.A-Za-z_]+");
+  QRegularExpression fnamePlus("[-_.A-Za-z0-9]+");
+  QRegularExpression fnameStar("[-_.A-Za-z0-9]*");
   ui->setupUi(this);
   ui->leKey->setText(QString::fromUtf8(format.key.c_str()));
   ui->leKey->setValidator(new QRegularExpressionValidator(azPlus, this));
-  if (ui->leKey->hasAcceptableInput())
-  {
-    ui->leKey->setReadOnly(true);
-  }
   ui->leName->setText(QString::fromUtf8(format.name.c_str()));
   ui->leName->setValidator(new QRegularExpressionValidator(azStar, this));
   set<string> compilers;
@@ -77,6 +73,11 @@ FormatDefinitionDialog::FormatDefinitionDialog(QWidget* parent, const FormatInfo
   ui->leOutputFileName->setValidator(new QRegularExpressionValidator(fnameStar, this));
   ui->leDescription->setText(QString::fromUtf8(format.description.c_str()));
   ui->checkExclude->setChecked(format.exclude);
+  if (ui->leKey->hasAcceptableInput())
+  {
+    ui->leKey->setReadOnly(true);
+    ui->leName->setFocus();
+  }
 }
 
 FormatDefinitionDialog::~FormatDefinitionDialog()
