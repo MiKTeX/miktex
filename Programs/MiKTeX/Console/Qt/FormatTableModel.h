@@ -64,7 +64,7 @@ public:
   bool CanRemove(const QModelIndex& index);
 
 public:
-  void Remove(const QModelIndex& index);
+  bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
