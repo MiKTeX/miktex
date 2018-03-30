@@ -60,6 +60,12 @@ public:
 public:
   Qt::ItemFlags flags(const QModelIndex& index) const override;
 
+private:
+  std::vector<std::string> WhichPackage(const std::string& texInputfile);
+
+private:
+  void ReadLanguageDat();
+
 public:
   void Reload();
 
@@ -67,7 +73,20 @@ private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:
-  std::vector<MiKTeX::Core::LanguageInfo> languages;
+  struct InternalLanguageInfo :
+    public MiKTeX::Core::LanguageInfo
+  {
+    InternalLanguageInfo(const MiKTeX::Core::LanguageInfo& languageInfo) :
+      LanguageInfo(languageInfo)
+    {
+    }
+    bool loaderExists = false;
+    MiKTeX::Core::PathName loaderPath;
+    std::vector<std::string> packageNames;
+  };
+
+private:
+  std::vector<InternalLanguageInfo> languages;
 };
 
 #endif

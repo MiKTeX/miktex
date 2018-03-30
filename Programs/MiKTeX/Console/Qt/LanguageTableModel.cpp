@@ -21,6 +21,7 @@
 
 #include <memory>
 
+#include <miktex/Core/Fndb>
 #include <miktex/Util/StringUtil>
 
 #include "LanguageTableModel.h"
@@ -41,7 +42,28 @@ int LanguageTableModel::rowCount(const QModelIndex& parent) const
 
 int LanguageTableModel::columnCount(const QModelIndex& parent) const
 {
-  return parent.isValid() ? 0 : 2;
+  return parent.isValid() ? 0 : 5;
+}
+
+QVariant LanguageTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+  if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
+  {
+    switch (section)
+    {
+    case 0:
+      return tr("Language");
+    case 1:
+      return tr("Synonyms");
+    case 2:
+      return tr("Loader");
+    case 3:
+      return tr("Package");
+    case 4:
+      return tr("Installed");
+    }
+  }
+  return QAbstractTableModel::headerData(section, orientation, role);
 }
 
 QVariant LanguageTableModel::data(const QModelIndex& index, int role) const
@@ -50,7 +72,7 @@ QVariant LanguageTableModel::data(const QModelIndex& index, int role) const
   {
     return QVariant();
   }
-  const LanguageInfo& language = languages[index.row()];
+  const InternalLanguageInfo& language = languages[index.row()];
   switch (role)
   {
   case Qt::DisplayRole:
@@ -61,6 +83,12 @@ QVariant LanguageTableModel::data(const QModelIndex& index, int role) const
       return QString::fromUtf8(language.key.c_str());
     case 1:
       return QString::fromUtf8(language.synonyms.c_str());
+    case 2:
+      return QString::fromUtf8(language.loader.c_str());
+    case 3:
+      return QString::fromUtf8(StringUtil::Flatten(language.packageNames, ',').c_str());
+    case 4:
+      return language.loaderExists ? QString::fromUtf8(u8"\u2713") : "";
     }
     break;
   }
@@ -105,24 +133,34 @@ Qt::ItemFlags LanguageTableModel::flags(const QModelIndex& index) const
   return flags;
 }
 
-QVariant LanguageTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+vector<string> LanguageTableModel::WhichPackage(const string& texInputfile)
 {
-  if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
+  PathName directoryPattern(session->GetMpmRootPath());
+  directoryPattern /= "tex//";
+  vector<PathName> paths;
+  vector<string> result;
+  if (!Fndb::Search(texInputfile, directoryPattern.ToString(), false, paths, result))
   {
-    switch (section)
-    {
-    case 0:
-      return tr("Language");
-    case 1:
-      return tr("Synonyms");
-    }
+    result.clear();
   }
-  return QAbstractTableModel::headerData(section, orientation, role);
+  return result;
+}
+
+void LanguageTableModel::ReadLanguageDat()
+{
+  languages.clear();
+  for (const LanguageInfo& l : session->GetLanguages())
+  {
+    InternalLanguageInfo languageInfo(l);
+    languageInfo.loaderExists = session->FindFile(languageInfo.loader, ".;%r/tex//", languageInfo.loaderPath);
+    languageInfo.packageNames = WhichPackage(languageInfo.loader);
+    languages.push_back(languageInfo);
+  }
 }
 
 void LanguageTableModel::Reload()
 {
   beginResetModel();
-  languages = session->GetLanguages();
+  ReadLanguageDat();
   endResetModel();
 }
