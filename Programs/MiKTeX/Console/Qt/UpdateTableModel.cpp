@@ -45,7 +45,7 @@ int UpdateTableModel::rowCount(const QModelIndex& parent) const
 
 int UpdateTableModel::columnCount(const QModelIndex& parent) const
 {
-  return parent.isValid() ? 0 : 3;
+  return parent.isValid() ? 0 : 4;
 }
 
 template<typename T> QString FormatPackageVersion(const T& packageInfo)
@@ -75,33 +75,39 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
     case 1:
     {
       PackageInfo oldPackageInfo;
-      if (!packageManager->TryGetPackageInfo(update.deploymentName, oldPackageInfo))
-      {
-        return QVariant();
-      }
-      if (oldPackageInfo.timeInstalled > 0)
+      if (packageManager->TryGetPackageInfo(update.deploymentName, oldPackageInfo) && oldPackageInfo.timeInstalled > 0)
       {
         return FormatPackageVersion(oldPackageInfo);
       }
-      return QVariant();
+      break;
     }
     case 2:
-      if (update.action == PackageInstaller::UpdateInfo::Repair)
-      {
-        return tr("to be repaired");
-      }
-      else if (update.action == PackageInstaller::UpdateInfo::ReleaseStateChange)
-      {
-        return tr("release state change");
-      }
-      else if (update.action == PackageInstaller::UpdateInfo::ForceRemove || update.action == PackageInstaller::UpdateInfo::KeepObsolete)
-      {
-        return tr("obsolete (to be removed)");
-      }
-      else
+      if (update.timePackaged > 0)
       {
         return FormatPackageVersion(update);
       }
+      break;
+    case 3:
+      switch (update.action)
+      {
+      case PackageInstaller::UpdateInfo::Keep:
+        return tr("update not possible");
+      case PackageInstaller::UpdateInfo::KeepAdmin:
+        return tr("update not possible in user mode");
+      case PackageInstaller::UpdateInfo::KeepObsolete:
+        return tr("removal not possible in user mode");
+      case PackageInstaller::UpdateInfo::Update:
+        return tr("optional");
+      case PackageInstaller::UpdateInfo::ForceUpdate:
+        return tr("update required");
+      case PackageInstaller::UpdateInfo::ForceRemove:
+        return tr("removal required");
+      case PackageInstaller::UpdateInfo::Repair:
+        return tr("to be repaired");
+      case PackageInstaller::UpdateInfo::ReleaseStateChange:
+        return tr("release state change");
+      }
+      break;
     }
   }
 
@@ -119,7 +125,9 @@ QVariant UpdateTableModel::headerData(int section, Qt::Orientation orientation, 
     case 1:
       return tr("Installed");
     case 2:
-      return tr("New");
+      return tr("Repository");
+    case 3:
+      return tr("Action");
     }
   }
   return QAbstractTableModel::headerData(section, orientation, role);
