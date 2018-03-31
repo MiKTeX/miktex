@@ -2,9 +2,9 @@
 #define gabc_score_determination_HEADER_H 1
 #define gabc_score_determination_IN_HEADER 1
 
-#line 6 "gabc/gabc-score-determination-l.h"
+#line 5 "gabc/gabc-score-determination-l.h"
 
-#line 8 "gabc/gabc-score-determination-l.h"
+#line 7 "gabc/gabc-score-determination-l.h"
 
 #define  YY_INT_ALIGNED long int
 
@@ -13,9 +13,243 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 6
-#define YY_FLEX_SUBMINOR_VERSION 0
+#define YY_FLEX_SUBMINOR_VERSION 4
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
+#endif
+
+#ifdef yy_create_buffer
+#define gabc_score_determination__create_buffer_ALREADY_DEFINED
+#else
+#define yy_create_buffer gabc_score_determination__create_buffer
+#endif
+
+#ifdef yy_delete_buffer
+#define gabc_score_determination__delete_buffer_ALREADY_DEFINED
+#else
+#define yy_delete_buffer gabc_score_determination__delete_buffer
+#endif
+
+#ifdef yy_scan_buffer
+#define gabc_score_determination__scan_buffer_ALREADY_DEFINED
+#else
+#define yy_scan_buffer gabc_score_determination__scan_buffer
+#endif
+
+#ifdef yy_scan_string
+#define gabc_score_determination__scan_string_ALREADY_DEFINED
+#else
+#define yy_scan_string gabc_score_determination__scan_string
+#endif
+
+#ifdef yy_scan_bytes
+#define gabc_score_determination__scan_bytes_ALREADY_DEFINED
+#else
+#define yy_scan_bytes gabc_score_determination__scan_bytes
+#endif
+
+#ifdef yy_init_buffer
+#define gabc_score_determination__init_buffer_ALREADY_DEFINED
+#else
+#define yy_init_buffer gabc_score_determination__init_buffer
+#endif
+
+#ifdef yy_flush_buffer
+#define gabc_score_determination__flush_buffer_ALREADY_DEFINED
+#else
+#define yy_flush_buffer gabc_score_determination__flush_buffer
+#endif
+
+#ifdef yy_load_buffer_state
+#define gabc_score_determination__load_buffer_state_ALREADY_DEFINED
+#else
+#define yy_load_buffer_state gabc_score_determination__load_buffer_state
+#endif
+
+#ifdef yy_switch_to_buffer
+#define gabc_score_determination__switch_to_buffer_ALREADY_DEFINED
+#else
+#define yy_switch_to_buffer gabc_score_determination__switch_to_buffer
+#endif
+
+#ifdef yypush_buffer_state
+#define gabc_score_determination_push_buffer_state_ALREADY_DEFINED
+#else
+#define yypush_buffer_state gabc_score_determination_push_buffer_state
+#endif
+
+#ifdef yypop_buffer_state
+#define gabc_score_determination_pop_buffer_state_ALREADY_DEFINED
+#else
+#define yypop_buffer_state gabc_score_determination_pop_buffer_state
+#endif
+
+#ifdef yyensure_buffer_stack
+#define gabc_score_determination_ensure_buffer_stack_ALREADY_DEFINED
+#else
+#define yyensure_buffer_stack gabc_score_determination_ensure_buffer_stack
+#endif
+
+#ifdef yylex
+#define gabc_score_determination_lex_ALREADY_DEFINED
+#else
+#define yylex gabc_score_determination_lex
+#endif
+
+#ifdef yyrestart
+#define gabc_score_determination_restart_ALREADY_DEFINED
+#else
+#define yyrestart gabc_score_determination_restart
+#endif
+
+#ifdef yylex_init
+#define gabc_score_determination_lex_init_ALREADY_DEFINED
+#else
+#define yylex_init gabc_score_determination_lex_init
+#endif
+
+#ifdef yylex_init_extra
+#define gabc_score_determination_lex_init_extra_ALREADY_DEFINED
+#else
+#define yylex_init_extra gabc_score_determination_lex_init_extra
+#endif
+
+#ifdef yylex_destroy
+#define gabc_score_determination_lex_destroy_ALREADY_DEFINED
+#else
+#define yylex_destroy gabc_score_determination_lex_destroy
+#endif
+
+#ifdef yyget_debug
+#define gabc_score_determination_get_debug_ALREADY_DEFINED
+#else
+#define yyget_debug gabc_score_determination_get_debug
+#endif
+
+#ifdef yyset_debug
+#define gabc_score_determination_set_debug_ALREADY_DEFINED
+#else
+#define yyset_debug gabc_score_determination_set_debug
+#endif
+
+#ifdef yyget_extra
+#define gabc_score_determination_get_extra_ALREADY_DEFINED
+#else
+#define yyget_extra gabc_score_determination_get_extra
+#endif
+
+#ifdef yyset_extra
+#define gabc_score_determination_set_extra_ALREADY_DEFINED
+#else
+#define yyset_extra gabc_score_determination_set_extra
+#endif
+
+#ifdef yyget_in
+#define gabc_score_determination_get_in_ALREADY_DEFINED
+#else
+#define yyget_in gabc_score_determination_get_in
+#endif
+
+#ifdef yyset_in
+#define gabc_score_determination_set_in_ALREADY_DEFINED
+#else
+#define yyset_in gabc_score_determination_set_in
+#endif
+
+#ifdef yyget_out
+#define gabc_score_determination_get_out_ALREADY_DEFINED
+#else
+#define yyget_out gabc_score_determination_get_out
+#endif
+
+#ifdef yyset_out
+#define gabc_score_determination_set_out_ALREADY_DEFINED
+#else
+#define yyset_out gabc_score_determination_set_out
+#endif
+
+#ifdef yyget_leng
+#define gabc_score_determination_get_leng_ALREADY_DEFINED
+#else
+#define yyget_leng gabc_score_determination_get_leng
+#endif
+
+#ifdef yyget_text
+#define gabc_score_determination_get_text_ALREADY_DEFINED
+#else
+#define yyget_text gabc_score_determination_get_text
+#endif
+
+#ifdef yyget_lineno
+#define gabc_score_determination_get_lineno_ALREADY_DEFINED
+#else
+#define yyget_lineno gabc_score_determination_get_lineno
+#endif
+
+#ifdef yyset_lineno
+#define gabc_score_determination_set_lineno_ALREADY_DEFINED
+#else
+#define yyset_lineno gabc_score_determination_set_lineno
+#endif
+
+#ifdef yywrap
+#define gabc_score_determination_wrap_ALREADY_DEFINED
+#else
+#define yywrap gabc_score_determination_wrap
+#endif
+
+#ifdef yyalloc
+#define gabc_score_determination_alloc_ALREADY_DEFINED
+#else
+#define yyalloc gabc_score_determination_alloc
+#endif
+
+#ifdef yyrealloc
+#define gabc_score_determination_realloc_ALREADY_DEFINED
+#else
+#define yyrealloc gabc_score_determination_realloc
+#endif
+
+#ifdef yyfree
+#define gabc_score_determination_free_ALREADY_DEFINED
+#else
+#define yyfree gabc_score_determination_free
+#endif
+
+#ifdef yytext
+#define gabc_score_determination_text_ALREADY_DEFINED
+#else
+#define yytext gabc_score_determination_text
+#endif
+
+#ifdef yyleng
+#define gabc_score_determination_leng_ALREADY_DEFINED
+#else
+#define yyleng gabc_score_determination_leng
+#endif
+
+#ifdef yyin
+#define gabc_score_determination_in_ALREADY_DEFINED
+#else
+#define yyin gabc_score_determination_in
+#endif
+
+#ifdef yyout
+#define gabc_score_determination_out_ALREADY_DEFINED
+#else
+#define yyout gabc_score_determination_out
+#endif
+
+#ifdef yy_flex_debug
+#define gabc_score_determination__flex_debug_ALREADY_DEFINED
+#else
+#define yy_flex_debug gabc_score_determination__flex_debug
+#endif
+
+#ifdef yylineno
+#define gabc_score_determination_lineno_ALREADY_DEFINED
+#else
+#define yylineno gabc_score_determination_lineno
 #endif
 
 /* First, we deal with  platform-specific or compiler-specific issues. */
@@ -88,29 +322,23 @@ typedef unsigned int flex_uint32_t;
 #define UINT32_MAX             (4294967295U)
 #endif
 
+#ifndef SIZE_MAX
+#define SIZE_MAX               (~(size_t)0)
+#endif
+
 #endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
-#ifdef __cplusplus
+/* begin standard C++ headers. */
 
-/* The "const" storage-class-modifier is valid. */
-#define YY_USE_CONST
-
-#else	/* ! __cplusplus */
-
-/* C99 requires __STDC__ to be defined as 1. */
-#if defined (__STDC__)
-
-#define YY_USE_CONST
-
-#endif	/* defined (__STDC__) */
-#endif	/* ! __cplusplus */
-
-#ifdef YY_USE_CONST
+/* TODO: this is always defined, so inline it */
 #define yyconst const
+
+#if defined(__GNUC__) && __GNUC__ >= 3
+#define yynoreturn __attribute__((__noreturn__))
 #else
-#define yyconst
+#define yynoreturn
 #endif
 
 /* Size of default input buffer. */
@@ -136,9 +364,9 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 typedef size_t yy_size_t;
 #endif
 
-extern yy_size_t gabc_score_determination_leng;
+extern int yyleng;
 
-extern FILE *gabc_score_determination_in, *gabc_score_determination_out;
+extern FILE *yyin, *yyout;
 
 #ifndef YY_STRUCT_YY_BUFFER_STATE
 #define YY_STRUCT_YY_BUFFER_STATE
@@ -152,12 +380,12 @@ struct yy_buffer_state
 	/* Size of input buffer in bytes, not including room for EOB
 	 * characters.
 	 */
-	yy_size_t yy_buf_size;
+	int yy_buf_size;
 
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	yy_size_t yy_n_chars;
+	int yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -180,7 +408,7 @@ struct yy_buffer_state
 
     int yy_bs_lineno; /**< The line count. */
     int yy_bs_column; /**< The column count. */
-    
+
 	/* Whether to try to fill the input buffer when we reach the
 	 * end of it.
 	 */
@@ -191,34 +419,34 @@ struct yy_buffer_state
 	};
 #endif /* !YY_STRUCT_YY_BUFFER_STATE */
 
-void gabc_score_determination_restart (FILE *input_file  );
-void gabc_score_determination__switch_to_buffer (YY_BUFFER_STATE new_buffer  );
-YY_BUFFER_STATE gabc_score_determination__create_buffer (FILE *file,int size  );
-void gabc_score_determination__delete_buffer (YY_BUFFER_STATE b  );
-void gabc_score_determination__flush_buffer (YY_BUFFER_STATE b  );
-void gabc_score_determination_push_buffer_state (YY_BUFFER_STATE new_buffer  );
-void gabc_score_determination_pop_buffer_state (void );
+void yyrestart ( FILE *input_file  );
+void yy_switch_to_buffer ( YY_BUFFER_STATE new_buffer  );
+YY_BUFFER_STATE yy_create_buffer ( FILE *file, int size  );
+void yy_delete_buffer ( YY_BUFFER_STATE b  );
+void yy_flush_buffer ( YY_BUFFER_STATE b  );
+void yypush_buffer_state ( YY_BUFFER_STATE new_buffer  );
+void yypop_buffer_state ( void );
 
-YY_BUFFER_STATE gabc_score_determination__scan_buffer (char *base,yy_size_t size  );
-YY_BUFFER_STATE gabc_score_determination__scan_string (yyconst char *yy_str  );
-YY_BUFFER_STATE gabc_score_determination__scan_bytes (yyconst char *bytes,yy_size_t len  );
+YY_BUFFER_STATE yy_scan_buffer ( char *base, yy_size_t size  );
+YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
+YY_BUFFER_STATE yy_scan_bytes ( const char *bytes, int len  );
 
-void *gabc_score_determination_alloc (yy_size_t  );
-void *gabc_score_determination_realloc (void *,yy_size_t  );
-void gabc_score_determination_free (void *  );
+void *yyalloc ( yy_size_t  );
+void *yyrealloc ( void *, yy_size_t  );
+void yyfree ( void *  );
 
 /* Begin user sect3 */
 
 #define gabc_score_determination_wrap() (/*CONSTCOND*/1)
 #define YY_SKIP_YYWRAP
 
-extern int gabc_score_determination_lineno;
+extern int yylineno;
 
-extern char *gabc_score_determination_text;
+extern char *yytext;
 #ifdef yytext_ptr
 #undef yytext_ptr
 #endif
-#define yytext_ptr gabc_score_determination_text
+#define yytext_ptr yytext
 
 #ifdef YY_HEADER_EXPORT_START_CONDITIONS
 #define INITIAL 0
@@ -250,31 +478,31 @@ extern char *gabc_score_determination_text;
 /* Accessor methods to globals.
    These are made visible to non-reentrant scanners for convenience. */
 
-int gabc_score_determination_lex_destroy (void );
+int yylex_destroy ( void );
 
-int gabc_score_determination_get_debug (void );
+int yyget_debug ( void );
 
-void gabc_score_determination_set_debug (int debug_flag  );
+void yyset_debug ( int debug_flag  );
 
-YY_EXTRA_TYPE gabc_score_determination_get_extra (void );
+YY_EXTRA_TYPE yyget_extra ( void );
 
-void gabc_score_determination_set_extra (YY_EXTRA_TYPE user_defined  );
+void yyset_extra ( YY_EXTRA_TYPE user_defined  );
 
-FILE *gabc_score_determination_get_in (void );
+FILE *yyget_in ( void );
 
-void gabc_score_determination_set_in  (FILE * _in_str  );
+void yyset_in  ( FILE * _in_str  );
 
-FILE *gabc_score_determination_get_out (void );
+FILE *yyget_out ( void );
 
-void gabc_score_determination_set_out  (FILE * _out_str  );
+void yyset_out  ( FILE * _out_str  );
 
-yy_size_t gabc_score_determination_get_leng (void );
+			int yyget_leng ( void );
 
-char *gabc_score_determination_get_text (void );
+char *yyget_text ( void );
 
-int gabc_score_determination_get_lineno (void );
+int yyget_lineno ( void );
 
-void gabc_score_determination_set_lineno (int _line_number  );
+void yyset_lineno ( int _line_number  );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -282,18 +510,18 @@ void gabc_score_determination_set_lineno (int _line_number  );
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus
-extern "C" int gabc_score_determination_wrap (void );
+extern "C" int yywrap ( void );
 #else
-extern int gabc_score_determination_wrap (void );
+extern int yywrap ( void );
 #endif
 #endif
 
 #ifndef yytext_ptr
-static void yy_flex_strncpy (char *,yyconst char *,int );
+static void yy_flex_strncpy ( char *, const char *, int );
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen (yyconst char * );
+static int yy_flex_strlen ( const char * );
 #endif
 
 #ifndef YY_NO_INPUT
@@ -321,9 +549,9 @@ static int yy_flex_strlen (yyconst char * );
 #ifndef YY_DECL
 #define YY_DECL_IS_OURS 1
 
-extern int gabc_score_determination_lex (void);
+extern int yylex (void);
 
-#define YY_DECL int gabc_score_determination_lex (void)
+#define YY_DECL int yylex (void)
 #endif /* !YY_DECL */
 
 /* yy_get_previous_state - get the state just before the EOB char was reached */
@@ -340,9 +568,154 @@ extern int gabc_score_determination_lex (void);
 #undef YY_DECL
 #endif
 
+#ifndef gabc_score_determination__create_buffer_ALREADY_DEFINED
+#undef yy_create_buffer
+#endif
+#ifndef gabc_score_determination__delete_buffer_ALREADY_DEFINED
+#undef yy_delete_buffer
+#endif
+#ifndef gabc_score_determination__scan_buffer_ALREADY_DEFINED
+#undef yy_scan_buffer
+#endif
+#ifndef gabc_score_determination__scan_string_ALREADY_DEFINED
+#undef yy_scan_string
+#endif
+#ifndef gabc_score_determination__scan_bytes_ALREADY_DEFINED
+#undef yy_scan_bytes
+#endif
+#ifndef gabc_score_determination__init_buffer_ALREADY_DEFINED
+#undef yy_init_buffer
+#endif
+#ifndef gabc_score_determination__flush_buffer_ALREADY_DEFINED
+#undef yy_flush_buffer
+#endif
+#ifndef gabc_score_determination__load_buffer_state_ALREADY_DEFINED
+#undef yy_load_buffer_state
+#endif
+#ifndef gabc_score_determination__switch_to_buffer_ALREADY_DEFINED
+#undef yy_switch_to_buffer
+#endif
+#ifndef gabc_score_determination_push_buffer_state_ALREADY_DEFINED
+#undef yypush_buffer_state
+#endif
+#ifndef gabc_score_determination_pop_buffer_state_ALREADY_DEFINED
+#undef yypop_buffer_state
+#endif
+#ifndef gabc_score_determination_ensure_buffer_stack_ALREADY_DEFINED
+#undef yyensure_buffer_stack
+#endif
+#ifndef gabc_score_determination_lex_ALREADY_DEFINED
+#undef yylex
+#endif
+#ifndef gabc_score_determination_restart_ALREADY_DEFINED
+#undef yyrestart
+#endif
+#ifndef gabc_score_determination_lex_init_ALREADY_DEFINED
+#undef yylex_init
+#endif
+#ifndef gabc_score_determination_lex_init_extra_ALREADY_DEFINED
+#undef yylex_init_extra
+#endif
+#ifndef gabc_score_determination_lex_destroy_ALREADY_DEFINED
+#undef yylex_destroy
+#endif
+#ifndef gabc_score_determination_get_debug_ALREADY_DEFINED
+#undef yyget_debug
+#endif
+#ifndef gabc_score_determination_set_debug_ALREADY_DEFINED
+#undef yyset_debug
+#endif
+#ifndef gabc_score_determination_get_extra_ALREADY_DEFINED
+#undef yyget_extra
+#endif
+#ifndef gabc_score_determination_set_extra_ALREADY_DEFINED
+#undef yyset_extra
+#endif
+#ifndef gabc_score_determination_get_in_ALREADY_DEFINED
+#undef yyget_in
+#endif
+#ifndef gabc_score_determination_set_in_ALREADY_DEFINED
+#undef yyset_in
+#endif
+#ifndef gabc_score_determination_get_out_ALREADY_DEFINED
+#undef yyget_out
+#endif
+#ifndef gabc_score_determination_set_out_ALREADY_DEFINED
+#undef yyset_out
+#endif
+#ifndef gabc_score_determination_get_leng_ALREADY_DEFINED
+#undef yyget_leng
+#endif
+#ifndef gabc_score_determination_get_text_ALREADY_DEFINED
+#undef yyget_text
+#endif
+#ifndef gabc_score_determination_get_lineno_ALREADY_DEFINED
+#undef yyget_lineno
+#endif
+#ifndef gabc_score_determination_set_lineno_ALREADY_DEFINED
+#undef yyset_lineno
+#endif
+#ifndef gabc_score_determination_get_column_ALREADY_DEFINED
+#undef yyget_column
+#endif
+#ifndef gabc_score_determination_set_column_ALREADY_DEFINED
+#undef yyset_column
+#endif
+#ifndef gabc_score_determination_wrap_ALREADY_DEFINED
+#undef yywrap
+#endif
+#ifndef gabc_score_determination_get_lval_ALREADY_DEFINED
+#undef yyget_lval
+#endif
+#ifndef gabc_score_determination_set_lval_ALREADY_DEFINED
+#undef yyset_lval
+#endif
+#ifndef gabc_score_determination_get_lloc_ALREADY_DEFINED
+#undef yyget_lloc
+#endif
+#ifndef gabc_score_determination_set_lloc_ALREADY_DEFINED
+#undef yyset_lloc
+#endif
+#ifndef gabc_score_determination_alloc_ALREADY_DEFINED
+#undef yyalloc
+#endif
+#ifndef gabc_score_determination_realloc_ALREADY_DEFINED
+#undef yyrealloc
+#endif
+#ifndef gabc_score_determination_free_ALREADY_DEFINED
+#undef yyfree
+#endif
+#ifndef gabc_score_determination_text_ALREADY_DEFINED
+#undef yytext
+#endif
+#ifndef gabc_score_determination_leng_ALREADY_DEFINED
+#undef yyleng
+#endif
+#ifndef gabc_score_determination_in_ALREADY_DEFINED
+#undef yyin
+#endif
+#ifndef gabc_score_determination_out_ALREADY_DEFINED
+#undef yyout
+#endif
+#ifndef gabc_score_determination__flex_debug_ALREADY_DEFINED
+#undef yy_flex_debug
+#endif
+#ifndef gabc_score_determination_lineno_ALREADY_DEFINED
+#undef yylineno
+#endif
+#ifndef gabc_score_determination_tables_fload_ALREADY_DEFINED
+#undef yytables_fload
+#endif
+#ifndef gabc_score_determination_tables_destroy_ALREADY_DEFINED
+#undef yytables_destroy
+#endif
+#ifndef gabc_score_determination_TABLES_NAME_ALREADY_DEFINED
+#undef yyTABLES_NAME
+#endif
+
 #line 429 "gabc/gabc-score-determination.l"
 
 
-#line 347 "gabc/gabc-score-determination-l.h"
+#line 719 "gabc/gabc-score-determination-l.h"
 #undef gabc_score_determination_IN_HEADER
 #endif /* gabc_score_determination_HEADER_H */

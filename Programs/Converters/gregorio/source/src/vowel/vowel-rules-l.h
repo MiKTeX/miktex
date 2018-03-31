@@ -2,9 +2,9 @@
 #define gregorio_vowel_rulefile_HEADER_H 1
 #define gregorio_vowel_rulefile_IN_HEADER 1
 
-#line 6 "vowel/vowel-rules-l.h"
+#line 5 "vowel/vowel-rules-l.h"
 
-#line 8 "vowel/vowel-rules-l.h"
+#line 7 "vowel/vowel-rules-l.h"
 
 #define  YY_INT_ALIGNED long int
 
@@ -13,9 +13,243 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 6
-#define YY_FLEX_SUBMINOR_VERSION 0
+#define YY_FLEX_SUBMINOR_VERSION 4
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
+#endif
+
+#ifdef yy_create_buffer
+#define gregorio_vowel_rulefile__create_buffer_ALREADY_DEFINED
+#else
+#define yy_create_buffer gregorio_vowel_rulefile__create_buffer
+#endif
+
+#ifdef yy_delete_buffer
+#define gregorio_vowel_rulefile__delete_buffer_ALREADY_DEFINED
+#else
+#define yy_delete_buffer gregorio_vowel_rulefile__delete_buffer
+#endif
+
+#ifdef yy_scan_buffer
+#define gregorio_vowel_rulefile__scan_buffer_ALREADY_DEFINED
+#else
+#define yy_scan_buffer gregorio_vowel_rulefile__scan_buffer
+#endif
+
+#ifdef yy_scan_string
+#define gregorio_vowel_rulefile__scan_string_ALREADY_DEFINED
+#else
+#define yy_scan_string gregorio_vowel_rulefile__scan_string
+#endif
+
+#ifdef yy_scan_bytes
+#define gregorio_vowel_rulefile__scan_bytes_ALREADY_DEFINED
+#else
+#define yy_scan_bytes gregorio_vowel_rulefile__scan_bytes
+#endif
+
+#ifdef yy_init_buffer
+#define gregorio_vowel_rulefile__init_buffer_ALREADY_DEFINED
+#else
+#define yy_init_buffer gregorio_vowel_rulefile__init_buffer
+#endif
+
+#ifdef yy_flush_buffer
+#define gregorio_vowel_rulefile__flush_buffer_ALREADY_DEFINED
+#else
+#define yy_flush_buffer gregorio_vowel_rulefile__flush_buffer
+#endif
+
+#ifdef yy_load_buffer_state
+#define gregorio_vowel_rulefile__load_buffer_state_ALREADY_DEFINED
+#else
+#define yy_load_buffer_state gregorio_vowel_rulefile__load_buffer_state
+#endif
+
+#ifdef yy_switch_to_buffer
+#define gregorio_vowel_rulefile__switch_to_buffer_ALREADY_DEFINED
+#else
+#define yy_switch_to_buffer gregorio_vowel_rulefile__switch_to_buffer
+#endif
+
+#ifdef yypush_buffer_state
+#define gregorio_vowel_rulefile_push_buffer_state_ALREADY_DEFINED
+#else
+#define yypush_buffer_state gregorio_vowel_rulefile_push_buffer_state
+#endif
+
+#ifdef yypop_buffer_state
+#define gregorio_vowel_rulefile_pop_buffer_state_ALREADY_DEFINED
+#else
+#define yypop_buffer_state gregorio_vowel_rulefile_pop_buffer_state
+#endif
+
+#ifdef yyensure_buffer_stack
+#define gregorio_vowel_rulefile_ensure_buffer_stack_ALREADY_DEFINED
+#else
+#define yyensure_buffer_stack gregorio_vowel_rulefile_ensure_buffer_stack
+#endif
+
+#ifdef yylex
+#define gregorio_vowel_rulefile_lex_ALREADY_DEFINED
+#else
+#define yylex gregorio_vowel_rulefile_lex
+#endif
+
+#ifdef yyrestart
+#define gregorio_vowel_rulefile_restart_ALREADY_DEFINED
+#else
+#define yyrestart gregorio_vowel_rulefile_restart
+#endif
+
+#ifdef yylex_init
+#define gregorio_vowel_rulefile_lex_init_ALREADY_DEFINED
+#else
+#define yylex_init gregorio_vowel_rulefile_lex_init
+#endif
+
+#ifdef yylex_init_extra
+#define gregorio_vowel_rulefile_lex_init_extra_ALREADY_DEFINED
+#else
+#define yylex_init_extra gregorio_vowel_rulefile_lex_init_extra
+#endif
+
+#ifdef yylex_destroy
+#define gregorio_vowel_rulefile_lex_destroy_ALREADY_DEFINED
+#else
+#define yylex_destroy gregorio_vowel_rulefile_lex_destroy
+#endif
+
+#ifdef yyget_debug
+#define gregorio_vowel_rulefile_get_debug_ALREADY_DEFINED
+#else
+#define yyget_debug gregorio_vowel_rulefile_get_debug
+#endif
+
+#ifdef yyset_debug
+#define gregorio_vowel_rulefile_set_debug_ALREADY_DEFINED
+#else
+#define yyset_debug gregorio_vowel_rulefile_set_debug
+#endif
+
+#ifdef yyget_extra
+#define gregorio_vowel_rulefile_get_extra_ALREADY_DEFINED
+#else
+#define yyget_extra gregorio_vowel_rulefile_get_extra
+#endif
+
+#ifdef yyset_extra
+#define gregorio_vowel_rulefile_set_extra_ALREADY_DEFINED
+#else
+#define yyset_extra gregorio_vowel_rulefile_set_extra
+#endif
+
+#ifdef yyget_in
+#define gregorio_vowel_rulefile_get_in_ALREADY_DEFINED
+#else
+#define yyget_in gregorio_vowel_rulefile_get_in
+#endif
+
+#ifdef yyset_in
+#define gregorio_vowel_rulefile_set_in_ALREADY_DEFINED
+#else
+#define yyset_in gregorio_vowel_rulefile_set_in
+#endif
+
+#ifdef yyget_out
+#define gregorio_vowel_rulefile_get_out_ALREADY_DEFINED
+#else
+#define yyget_out gregorio_vowel_rulefile_get_out
+#endif
+
+#ifdef yyset_out
+#define gregorio_vowel_rulefile_set_out_ALREADY_DEFINED
+#else
+#define yyset_out gregorio_vowel_rulefile_set_out
+#endif
+
+#ifdef yyget_leng
+#define gregorio_vowel_rulefile_get_leng_ALREADY_DEFINED
+#else
+#define yyget_leng gregorio_vowel_rulefile_get_leng
+#endif
+
+#ifdef yyget_text
+#define gregorio_vowel_rulefile_get_text_ALREADY_DEFINED
+#else
+#define yyget_text gregorio_vowel_rulefile_get_text
+#endif
+
+#ifdef yyget_lineno
+#define gregorio_vowel_rulefile_get_lineno_ALREADY_DEFINED
+#else
+#define yyget_lineno gregorio_vowel_rulefile_get_lineno
+#endif
+
+#ifdef yyset_lineno
+#define gregorio_vowel_rulefile_set_lineno_ALREADY_DEFINED
+#else
+#define yyset_lineno gregorio_vowel_rulefile_set_lineno
+#endif
+
+#ifdef yywrap
+#define gregorio_vowel_rulefile_wrap_ALREADY_DEFINED
+#else
+#define yywrap gregorio_vowel_rulefile_wrap
+#endif
+
+#ifdef yyalloc
+#define gregorio_vowel_rulefile_alloc_ALREADY_DEFINED
+#else
+#define yyalloc gregorio_vowel_rulefile_alloc
+#endif
+
+#ifdef yyrealloc
+#define gregorio_vowel_rulefile_realloc_ALREADY_DEFINED
+#else
+#define yyrealloc gregorio_vowel_rulefile_realloc
+#endif
+
+#ifdef yyfree
+#define gregorio_vowel_rulefile_free_ALREADY_DEFINED
+#else
+#define yyfree gregorio_vowel_rulefile_free
+#endif
+
+#ifdef yytext
+#define gregorio_vowel_rulefile_text_ALREADY_DEFINED
+#else
+#define yytext gregorio_vowel_rulefile_text
+#endif
+
+#ifdef yyleng
+#define gregorio_vowel_rulefile_leng_ALREADY_DEFINED
+#else
+#define yyleng gregorio_vowel_rulefile_leng
+#endif
+
+#ifdef yyin
+#define gregorio_vowel_rulefile_in_ALREADY_DEFINED
+#else
+#define yyin gregorio_vowel_rulefile_in
+#endif
+
+#ifdef yyout
+#define gregorio_vowel_rulefile_out_ALREADY_DEFINED
+#else
+#define yyout gregorio_vowel_rulefile_out
+#endif
+
+#ifdef yy_flex_debug
+#define gregorio_vowel_rulefile__flex_debug_ALREADY_DEFINED
+#else
+#define yy_flex_debug gregorio_vowel_rulefile__flex_debug
+#endif
+
+#ifdef yylineno
+#define gregorio_vowel_rulefile_lineno_ALREADY_DEFINED
+#else
+#define yylineno gregorio_vowel_rulefile_lineno
 #endif
 
 /* First, we deal with  platform-specific or compiler-specific issues. */
@@ -88,29 +322,23 @@ typedef unsigned int flex_uint32_t;
 #define UINT32_MAX             (4294967295U)
 #endif
 
+#ifndef SIZE_MAX
+#define SIZE_MAX               (~(size_t)0)
+#endif
+
 #endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
-#ifdef __cplusplus
+/* begin standard C++ headers. */
 
-/* The "const" storage-class-modifier is valid. */
-#define YY_USE_CONST
-
-#else	/* ! __cplusplus */
-
-/* C99 requires __STDC__ to be defined as 1. */
-#if defined (__STDC__)
-
-#define YY_USE_CONST
-
-#endif	/* defined (__STDC__) */
-#endif	/* ! __cplusplus */
-
-#ifdef YY_USE_CONST
+/* TODO: this is always defined, so inline it */
 #define yyconst const
+
+#if defined(__GNUC__) && __GNUC__ >= 3
+#define yynoreturn __attribute__((__noreturn__))
 #else
-#define yyconst
+#define yynoreturn
 #endif
 
 /* Size of default input buffer. */
@@ -136,9 +364,9 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 typedef size_t yy_size_t;
 #endif
 
-extern yy_size_t gregorio_vowel_rulefile_leng;
+extern int yyleng;
 
-extern FILE *gregorio_vowel_rulefile_in, *gregorio_vowel_rulefile_out;
+extern FILE *yyin, *yyout;
 
 #ifndef YY_STRUCT_YY_BUFFER_STATE
 #define YY_STRUCT_YY_BUFFER_STATE
@@ -152,12 +380,12 @@ struct yy_buffer_state
 	/* Size of input buffer in bytes, not including room for EOB
 	 * characters.
 	 */
-	yy_size_t yy_buf_size;
+	int yy_buf_size;
 
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	yy_size_t yy_n_chars;
+	int yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -180,7 +408,7 @@ struct yy_buffer_state
 
     int yy_bs_lineno; /**< The line count. */
     int yy_bs_column; /**< The column count. */
-    
+
 	/* Whether to try to fill the input buffer when we reach the
 	 * end of it.
 	 */
@@ -191,34 +419,34 @@ struct yy_buffer_state
 	};
 #endif /* !YY_STRUCT_YY_BUFFER_STATE */
 
-void gregorio_vowel_rulefile_restart (FILE *input_file  );
-void gregorio_vowel_rulefile__switch_to_buffer (YY_BUFFER_STATE new_buffer  );
-YY_BUFFER_STATE gregorio_vowel_rulefile__create_buffer (FILE *file,int size  );
-void gregorio_vowel_rulefile__delete_buffer (YY_BUFFER_STATE b  );
-void gregorio_vowel_rulefile__flush_buffer (YY_BUFFER_STATE b  );
-void gregorio_vowel_rulefile_push_buffer_state (YY_BUFFER_STATE new_buffer  );
-void gregorio_vowel_rulefile_pop_buffer_state (void );
+void yyrestart ( FILE *input_file  );
+void yy_switch_to_buffer ( YY_BUFFER_STATE new_buffer  );
+YY_BUFFER_STATE yy_create_buffer ( FILE *file, int size  );
+void yy_delete_buffer ( YY_BUFFER_STATE b  );
+void yy_flush_buffer ( YY_BUFFER_STATE b  );
+void yypush_buffer_state ( YY_BUFFER_STATE new_buffer  );
+void yypop_buffer_state ( void );
 
-YY_BUFFER_STATE gregorio_vowel_rulefile__scan_buffer (char *base,yy_size_t size  );
-YY_BUFFER_STATE gregorio_vowel_rulefile__scan_string (yyconst char *yy_str  );
-YY_BUFFER_STATE gregorio_vowel_rulefile__scan_bytes (yyconst char *bytes,yy_size_t len  );
+YY_BUFFER_STATE yy_scan_buffer ( char *base, yy_size_t size  );
+YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
+YY_BUFFER_STATE yy_scan_bytes ( const char *bytes, int len  );
 
-void *gregorio_vowel_rulefile_alloc (yy_size_t  );
-void *gregorio_vowel_rulefile_realloc (void *,yy_size_t  );
-void gregorio_vowel_rulefile_free (void *  );
+void *yyalloc ( yy_size_t  );
+void *yyrealloc ( void *, yy_size_t  );
+void yyfree ( void *  );
 
 /* Begin user sect3 */
 
 #define gregorio_vowel_rulefile_wrap() (/*CONSTCOND*/1)
 #define YY_SKIP_YYWRAP
 
-extern int gregorio_vowel_rulefile_lineno;
+extern int yylineno;
 
-extern char *gregorio_vowel_rulefile_text;
+extern char *yytext;
 #ifdef yytext_ptr
 #undef yytext_ptr
 #endif
-#define yytext_ptr gregorio_vowel_rulefile_text
+#define yytext_ptr yytext
 
 #ifdef YY_HEADER_EXPORT_START_CONDITIONS
 #define INITIAL 0
@@ -243,31 +471,31 @@ extern char *gregorio_vowel_rulefile_text;
 /* Accessor methods to globals.
    These are made visible to non-reentrant scanners for convenience. */
 
-int gregorio_vowel_rulefile_lex_destroy (void );
+int yylex_destroy ( void );
 
-int gregorio_vowel_rulefile_get_debug (void );
+int yyget_debug ( void );
 
-void gregorio_vowel_rulefile_set_debug (int debug_flag  );
+void yyset_debug ( int debug_flag  );
 
-YY_EXTRA_TYPE gregorio_vowel_rulefile_get_extra (void );
+YY_EXTRA_TYPE yyget_extra ( void );
 
-void gregorio_vowel_rulefile_set_extra (YY_EXTRA_TYPE user_defined  );
+void yyset_extra ( YY_EXTRA_TYPE user_defined  );
 
-FILE *gregorio_vowel_rulefile_get_in (void );
+FILE *yyget_in ( void );
 
-void gregorio_vowel_rulefile_set_in  (FILE * _in_str  );
+void yyset_in  ( FILE * _in_str  );
 
-FILE *gregorio_vowel_rulefile_get_out (void );
+FILE *yyget_out ( void );
 
-void gregorio_vowel_rulefile_set_out  (FILE * _out_str  );
+void yyset_out  ( FILE * _out_str  );
 
-yy_size_t gregorio_vowel_rulefile_get_leng (void );
+			int yyget_leng ( void );
 
-char *gregorio_vowel_rulefile_get_text (void );
+char *yyget_text ( void );
 
-int gregorio_vowel_rulefile_get_lineno (void );
+int yyget_lineno ( void );
 
-void gregorio_vowel_rulefile_set_lineno (int _line_number  );
+void yyset_lineno ( int _line_number  );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -275,18 +503,18 @@ void gregorio_vowel_rulefile_set_lineno (int _line_number  );
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus
-extern "C" int gregorio_vowel_rulefile_wrap (void );
+extern "C" int yywrap ( void );
 #else
-extern int gregorio_vowel_rulefile_wrap (void );
+extern int yywrap ( void );
 #endif
 #endif
 
 #ifndef yytext_ptr
-static void yy_flex_strncpy (char *,yyconst char *,int );
+static void yy_flex_strncpy ( char *, const char *, int );
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen (yyconst char * );
+static int yy_flex_strlen ( const char * );
 #endif
 
 #ifndef YY_NO_INPUT
@@ -314,9 +542,9 @@ static int yy_flex_strlen (yyconst char * );
 #ifndef YY_DECL
 #define YY_DECL_IS_OURS 1
 
-extern int gregorio_vowel_rulefile_lex (void);
+extern int yylex (void);
 
-#define YY_DECL int gregorio_vowel_rulefile_lex (void)
+#define YY_DECL int yylex (void)
 #endif /* !YY_DECL */
 
 /* yy_get_previous_state - get the state just before the EOB char was reached */
@@ -333,9 +561,154 @@ extern int gregorio_vowel_rulefile_lex (void);
 #undef YY_DECL
 #endif
 
+#ifndef gregorio_vowel_rulefile__create_buffer_ALREADY_DEFINED
+#undef yy_create_buffer
+#endif
+#ifndef gregorio_vowel_rulefile__delete_buffer_ALREADY_DEFINED
+#undef yy_delete_buffer
+#endif
+#ifndef gregorio_vowel_rulefile__scan_buffer_ALREADY_DEFINED
+#undef yy_scan_buffer
+#endif
+#ifndef gregorio_vowel_rulefile__scan_string_ALREADY_DEFINED
+#undef yy_scan_string
+#endif
+#ifndef gregorio_vowel_rulefile__scan_bytes_ALREADY_DEFINED
+#undef yy_scan_bytes
+#endif
+#ifndef gregorio_vowel_rulefile__init_buffer_ALREADY_DEFINED
+#undef yy_init_buffer
+#endif
+#ifndef gregorio_vowel_rulefile__flush_buffer_ALREADY_DEFINED
+#undef yy_flush_buffer
+#endif
+#ifndef gregorio_vowel_rulefile__load_buffer_state_ALREADY_DEFINED
+#undef yy_load_buffer_state
+#endif
+#ifndef gregorio_vowel_rulefile__switch_to_buffer_ALREADY_DEFINED
+#undef yy_switch_to_buffer
+#endif
+#ifndef gregorio_vowel_rulefile_push_buffer_state_ALREADY_DEFINED
+#undef yypush_buffer_state
+#endif
+#ifndef gregorio_vowel_rulefile_pop_buffer_state_ALREADY_DEFINED
+#undef yypop_buffer_state
+#endif
+#ifndef gregorio_vowel_rulefile_ensure_buffer_stack_ALREADY_DEFINED
+#undef yyensure_buffer_stack
+#endif
+#ifndef gregorio_vowel_rulefile_lex_ALREADY_DEFINED
+#undef yylex
+#endif
+#ifndef gregorio_vowel_rulefile_restart_ALREADY_DEFINED
+#undef yyrestart
+#endif
+#ifndef gregorio_vowel_rulefile_lex_init_ALREADY_DEFINED
+#undef yylex_init
+#endif
+#ifndef gregorio_vowel_rulefile_lex_init_extra_ALREADY_DEFINED
+#undef yylex_init_extra
+#endif
+#ifndef gregorio_vowel_rulefile_lex_destroy_ALREADY_DEFINED
+#undef yylex_destroy
+#endif
+#ifndef gregorio_vowel_rulefile_get_debug_ALREADY_DEFINED
+#undef yyget_debug
+#endif
+#ifndef gregorio_vowel_rulefile_set_debug_ALREADY_DEFINED
+#undef yyset_debug
+#endif
+#ifndef gregorio_vowel_rulefile_get_extra_ALREADY_DEFINED
+#undef yyget_extra
+#endif
+#ifndef gregorio_vowel_rulefile_set_extra_ALREADY_DEFINED
+#undef yyset_extra
+#endif
+#ifndef gregorio_vowel_rulefile_get_in_ALREADY_DEFINED
+#undef yyget_in
+#endif
+#ifndef gregorio_vowel_rulefile_set_in_ALREADY_DEFINED
+#undef yyset_in
+#endif
+#ifndef gregorio_vowel_rulefile_get_out_ALREADY_DEFINED
+#undef yyget_out
+#endif
+#ifndef gregorio_vowel_rulefile_set_out_ALREADY_DEFINED
+#undef yyset_out
+#endif
+#ifndef gregorio_vowel_rulefile_get_leng_ALREADY_DEFINED
+#undef yyget_leng
+#endif
+#ifndef gregorio_vowel_rulefile_get_text_ALREADY_DEFINED
+#undef yyget_text
+#endif
+#ifndef gregorio_vowel_rulefile_get_lineno_ALREADY_DEFINED
+#undef yyget_lineno
+#endif
+#ifndef gregorio_vowel_rulefile_set_lineno_ALREADY_DEFINED
+#undef yyset_lineno
+#endif
+#ifndef gregorio_vowel_rulefile_get_column_ALREADY_DEFINED
+#undef yyget_column
+#endif
+#ifndef gregorio_vowel_rulefile_set_column_ALREADY_DEFINED
+#undef yyset_column
+#endif
+#ifndef gregorio_vowel_rulefile_wrap_ALREADY_DEFINED
+#undef yywrap
+#endif
+#ifndef gregorio_vowel_rulefile_get_lval_ALREADY_DEFINED
+#undef yyget_lval
+#endif
+#ifndef gregorio_vowel_rulefile_set_lval_ALREADY_DEFINED
+#undef yyset_lval
+#endif
+#ifndef gregorio_vowel_rulefile_get_lloc_ALREADY_DEFINED
+#undef yyget_lloc
+#endif
+#ifndef gregorio_vowel_rulefile_set_lloc_ALREADY_DEFINED
+#undef yyset_lloc
+#endif
+#ifndef gregorio_vowel_rulefile_alloc_ALREADY_DEFINED
+#undef yyalloc
+#endif
+#ifndef gregorio_vowel_rulefile_realloc_ALREADY_DEFINED
+#undef yyrealloc
+#endif
+#ifndef gregorio_vowel_rulefile_free_ALREADY_DEFINED
+#undef yyfree
+#endif
+#ifndef gregorio_vowel_rulefile_text_ALREADY_DEFINED
+#undef yytext
+#endif
+#ifndef gregorio_vowel_rulefile_leng_ALREADY_DEFINED
+#undef yyleng
+#endif
+#ifndef gregorio_vowel_rulefile_in_ALREADY_DEFINED
+#undef yyin
+#endif
+#ifndef gregorio_vowel_rulefile_out_ALREADY_DEFINED
+#undef yyout
+#endif
+#ifndef gregorio_vowel_rulefile__flex_debug_ALREADY_DEFINED
+#undef yy_flex_debug
+#endif
+#ifndef gregorio_vowel_rulefile_lineno_ALREADY_DEFINED
+#undef yylineno
+#endif
+#ifndef gregorio_vowel_rulefile_tables_fload_ALREADY_DEFINED
+#undef yytables_fload
+#endif
+#ifndef gregorio_vowel_rulefile_tables_destroy_ALREADY_DEFINED
+#undef yytables_destroy
+#endif
+#ifndef gregorio_vowel_rulefile_TABLES_NAME_ALREADY_DEFINED
+#undef yyTABLES_NAME
+#endif
+
 #line 94 "vowel/vowel-rules.l"
 
 
-#line 340 "vowel/vowel-rules-l.h"
+#line 712 "vowel/vowel-rules-l.h"
 #undef gregorio_vowel_rulefile_IN_HEADER
 #endif /* gregorio_vowel_rulefile_HEADER_H */

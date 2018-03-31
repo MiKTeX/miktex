@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the Gregorio data structures.
  *
- * Copyright (C) 2006-2017 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2018 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -1104,6 +1104,9 @@ static void gregorio_free_one_syllable(gregorio_syllable **syllable,
     }
     free((*syllable)->abovelinestext);
     next = (*syllable)->next_syllable;
+    if (next) {
+        next->previous_syllable = NULL;
+    }
     free((*syllable)->elements);
     free(*syllable);
     *syllable = next;

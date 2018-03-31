@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/gregorio/">
     <TPM:Name>gregorio win32</TPM:Name>
     <TPM:Title>gregorio, Windows x86</TPM:Title>
-    <TPM:Copyright owner="The Gregorio Project" year="2006-2017"/>
+    <TPM:Copyright owner="The Gregorio Project" year="2006-2018"/>
     <TPM:License type="gpl3"/>
-    <TPM:Version>5.0.1</TPM:Version>
+    <TPM:Version>5.1.1</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

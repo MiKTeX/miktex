@@ -3,7 +3,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the note parser.
  *
- * Copyright (C) 2006-2017 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2018 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -1205,8 +1205,14 @@ Z-  {
 `   {
         add_bar_as_note(B_VIRGULA);
     }
+`0  {
+        add_bar_as_note(B_VIRGULA_HIGH);
+    }
 ,   {
         add_bar_as_note(B_DIVISIO_MINIMA);
+    }
+,0  {
+        add_bar_as_note(B_DIVISIO_MINIMA_HIGH);
     }
 [,;][1-8] {
         add_bar_as_note(parse_dominican_bar(gabc_notes_determination_text[1]));
@@ -1219,6 +1225,9 @@ Z-  {
     }
 ::  {
         add_bar_as_note(B_DIVISIO_FINALIS);
+    }
+:\? {
+        add_bar_as_note(B_DIVISIO_MAIOR_DOTTED);
     }
 r   {
         gregorio_add_cavum(current_note);

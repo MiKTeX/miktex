@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file contains functions for writing GregorioTeX from Gregorio structures.
  *
- * Copyright (C) 2008-2017 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2008-2018 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -1624,6 +1624,7 @@ static void write_bar(FILE *f, const gregorio_score *const score,
     const bool has_text = !element->previous && syllable->text;
     /* the type number of function vepisemaorrare */
     const char *offset_case = BarStandard;
+    signed char far_pitch_adjustment = 0;
     /* don't use "In" version of bars in the first argument of a GreDiscretionary */
     if (is_inside_bar && first_of_disc != 1) {
         fprintf(f, "\\GreIn");
@@ -1672,6 +1673,16 @@ static void write_bar(FILE *f, const gregorio_score *const score,
     case B_DIVISIO_MINOR_D8:
         fprintf(f, "Dominica{8}");
         break;
+    case B_VIRGULA_HIGH:
+        fprintf(f, "VirgulaHigh");
+        offset_case = BarVirgula;
+        break;
+    case B_DIVISIO_MINIMA_HIGH:
+        fprintf(f, "DivisioMinimaHigh");
+        break;
+    case B_DIVISIO_MAIOR_DOTTED:
+        fprintf(f, "DivisioMaiorDotted");
+        break;
     default:
         /* not reachable unless there's a programming error */
         /* LCOV_EXCL_START */
@@ -1696,72 +1707,83 @@ static void write_bar(FILE *f, const gregorio_score *const score,
         fprintf(f, "{}");
         break;
     }
-    if (type == B_VIRGULA || type == B_DIVISIO_MINIMA) {
-        char result = '0';
-        const gregorio_element *e;
-        const gregorio_syllable *s;
-        const gregorio_glyph *g;
-        const gregorio_note *n;
-        signed char pitch;
-        /* find the prior element */
-        e = element->previous;
-        if (!e) {
-            for (s = syllable->previous_syllable; s; s = s->previous_syllable) {
-                /* loop to find the previous syllable with elements */
-                if (s->elements && *s->elements) {
-                    for (e = *s->elements; e->next; e = e->next) {
-                        /* just loop to find the last element */
+    switch (type) {
+    case B_VIRGULA_HIGH:
+    case B_DIVISIO_MINIMA_HIGH:
+        far_pitch_adjustment = 2;
+        /* fall through */
+
+    case B_VIRGULA:
+    case B_DIVISIO_MINIMA:
+        {
+            char is_far = '0';
+            const gregorio_element *e;
+            const gregorio_syllable *s;
+            const gregorio_glyph *g;
+            const gregorio_note *n;
+            signed char pitch;
+
+            /* find the prior element */
+            e = element->previous;
+            if (!e) {
+                for (s = syllable->previous_syllable; s; s = s->previous_syllable) {
+                    /* loop to find the previous syllable with elements */
+                    if (s->elements && *s->elements) {
+                        for (e = *s->elements; e->next; e = e->next) {
+                            /* just loop to find the last element */
+                        }
+                        break;
                     }
-                    break;
                 }
             }
-        }
-        if (e && e->type == GRE_ELEMENT) {
-            g = e->u.first_glyph;
-            if (g) {
-                while (g->next) {
-                    /* loop to find the last glyph in the prior element */
-                    g = g->next;
+            if (e && e->type == GRE_ELEMENT) {
+                g = e->u.first_glyph;
+                if (g) {
+                    while (g->next) {
+                        /* loop to find the last glyph in the prior element */
+                        g = g->next;
+                    }
                 }
-            }
-            if (g && g->type == GRE_GLYPH && (n = g->u.notes.first_note)) {
-                while (n->next) {
-                    /* loop to find the last note */
-                    n = n->next;
-                }
-                pitch = n->u.note.pitch;
-                if (g->u.notes.liquescentia & L_DEMINUTUS && n->previous
-                        && n->previous->u.note.pitch > pitch) {
-                    pitch = n->previous->u.note.pitch;
-                }
-                if (pitch < score->virgula_far_pitch) {
-                    /* find next element */
-                    e = element->next;
-                    if (!e) {
-                        for (s = syllable->next_syllable; s;
-                                s = s->next_syllable) {
-                            /* loop to find the next syllable with elements */
-                            if (s->elements && *s->elements) {
-                                e = *s->elements;
-                                break;
+                if (g && g->type == GRE_GLYPH && (n = g->u.notes.first_note)) {
+                    while (n->next) {
+                        /* loop to find the last note */
+                        n = n->next;
+                    }
+                    pitch = n->u.note.pitch;
+                    if (g->u.notes.liquescentia & L_DEMINUTUS && n->previous
+                            && n->previous->u.note.pitch > pitch) {
+                        pitch = n->previous->u.note.pitch;
+                    }
+                    if (pitch < score->virgula_far_pitch + far_pitch_adjustment) {
+                        /* find next element */
+                        e = element->next;
+                        if (!e) {
+                            for (s = syllable->next_syllable; s;
+                                    s = s->next_syllable) {
+                                /* loop to find the next syllable with elements */
+                                if (s->elements && *s->elements) {
+                                    e = *s->elements;
+                                    break;
+                                }
                             }
                         }
-                    }
-                    if (e) {
-                        if (e->type == GRE_END_OF_LINE) {
-                            result = '1';
-                        } else if (e->type == GRE_ELEMENT) {
-                            g = e->u.first_glyph;
-                            if (g && g->type == GRE_GLYPH) {
-                                n = g->u.notes.first_note;
-                                if (n) {
-                                    if (g->u.notes.glyph_type == G_PODATUS
-                                            && n->next) {
-                                        n = n->next;
-                                    }
-                                    if (n->u.note.pitch
-                                            < score->virgula_far_pitch) {
-                                        result = '1';
+                        if (e) {
+                            if (e->type == GRE_END_OF_LINE) {
+                                is_far = '1';
+                            } else if (e->type == GRE_ELEMENT) {
+                                g = e->u.first_glyph;
+                                if (g && g->type == GRE_GLYPH) {
+                                    n = g->u.notes.first_note;
+                                    if (n) {
+                                        if (g->u.notes.glyph_type == G_PODATUS
+                                                && n->next) {
+                                            n = n->next;
+                                        }
+                                        if (n->u.note.pitch
+                                                < score->virgula_far_pitch
+                                                + far_pitch_adjustment) {
+                                            is_far = '1';
+                                        }
                                     }
                                 }
                             }
@@ -1769,10 +1791,13 @@ static void write_bar(FILE *f, const gregorio_score *const score,
                     }
                 }
             }
+            fprintf(f, "{%c}%%\n", is_far);
         }
-        fprintf(f, "{%c}%%\n", result);
-    } else {
+        break;
+
+    default:
         fprintf(f, "%%\n");
+        break;
     }
 }
 
@@ -2560,15 +2585,18 @@ static int gregoriotex_syllable_first_type(gregorio_syllable *syllable)
             switch (element->u.misc.unpitched.info.bar) {
             case B_NO_BAR:
             case B_VIRGULA:
+            case B_VIRGULA_HIGH:
                 result = 10;
                 break;
             case B_DIVISIO_MINIMA:
+            case B_DIVISIO_MINIMA_HIGH:
                 result = 11;
                 break;
             case B_DIVISIO_MINOR:
                 result = 12;
                 break;
             case B_DIVISIO_MAIOR:
+            case B_DIVISIO_MAIOR_DOTTED:
                 result = 13;
                 break;
             case B_DIVISIO_MINOR_D1:

@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header defines the Gregorio data structures and functions.
  *
- * Copyright (C) 2006-2017 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2018 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -155,7 +155,10 @@ ENUM(gregorio_shape, GREGORIO_SHAPE);
     E(B_DIVISIO_MINOR_D5) \
     E(B_DIVISIO_MINOR_D6) \
     E(B_DIVISIO_MINOR_D7) \
-    L(B_DIVISIO_MINOR_D8)
+    E(B_DIVISIO_MINOR_D8) \
+    E(B_VIRGULA_HIGH) \
+    E(B_DIVISIO_MINIMA_HIGH) \
+    L(B_DIVISIO_MAIOR_DOTTED)
 ENUM(gregorio_bar, GREGORIO_BAR);
 
 /* definition of the signs. You can notice that the values are made so
@@ -395,7 +398,7 @@ ENUM(gregorio_ledger_specificity, GREGORIO_LEDGER_SPECIFICITY);
 
 typedef struct gregorio_extra_info {
     char *ad_hoc_space_factor;
-    ENUM_BITFIELD(gregorio_bar) bar:4;
+    ENUM_BITFIELD(gregorio_bar) bar:5;
     ENUM_BITFIELD(gregorio_space) space:4;
     ENUM_BITFIELD(gregorio_nlba) nlba:2;
     bool eol_ragged:1;

@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file provides functions for writing gabc from Gregorio structures.
  *
- * Copyright (C) 2006-2017 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2018 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -376,6 +376,15 @@ static void gabc_write_bar(FILE *f, gregorio_bar type)
         break;
     case B_DIVISIO_MINOR_D8:
         fprintf(f, ";8");
+        break;
+    case B_VIRGULA_HIGH:
+        fprintf(f, "`0");
+        break;
+    case B_DIVISIO_MINIMA_HIGH:
+        fprintf(f, ",0");
+        break;
+    case B_DIVISIO_MAIOR_DOTTED:
+        fprintf(f, ":?");
         break;
     default:
         /* not reachable unless there's a programming error */

@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * Dvisvgm 2.3.5
+* Gregorio 5.1.1
 
 ## 2.9.6650 - 2018-03-25
 
