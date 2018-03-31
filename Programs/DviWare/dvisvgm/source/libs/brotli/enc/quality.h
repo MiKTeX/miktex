@@ -10,8 +10,9 @@
 #ifndef BROTLI_ENC_QUALITY_H_
 #define BROTLI_ENC_QUALITY_H_
 
+#include "../common/platform.h"
 #include <brotli/encode.h>
-#include "./port.h"
+#include "./params.h"
 
 #define FAST_ONE_PASS_COMPRESSION_QUALITY 0
 #define FAST_TWO_PASS_COMPRESSION_QUALITY 1
@@ -30,26 +31,7 @@
 
 /* For quality below MIN_QUALITY_FOR_BLOCK_SPLIT there is no block splitting,
    so we buffer at most this much literals and commands. */
-#define MAX_NUM_DELAYED_SYMBOLS 0x2fff
-
-typedef struct BrotliHasherParams {
-  int type;
-  int bucket_bits;
-  int block_bits;
-  int hash_len;
-  int num_last_distances_to_check;
-} BrotliHasherParams;
-
-/* Encoding parameters */
-typedef struct BrotliEncoderParams {
-  BrotliEncoderMode mode;
-  int quality;
-  int lgwin;
-  int lgblock;
-  size_t size_hint;
-  BROTLI_BOOL disable_literal_context_modeling;
-  BrotliHasherParams hasher;
-} BrotliEncoderParams;
+#define MAX_NUM_DELAYED_SYMBOLS 0x2FFF
 
 /* Returns hash-table size for quality levels 0 and 1. */
 static BROTLI_INLINE size_t MaxHashTableSize(int quality) {
@@ -78,10 +60,15 @@ static BROTLI_INLINE size_t MaxZopfliCandidates(
 static BROTLI_INLINE void SanitizeParams(BrotliEncoderParams* params) {
   params->quality = BROTLI_MIN(int, BROTLI_MAX_QUALITY,
       BROTLI_MAX(int, BROTLI_MIN_QUALITY, params->quality));
+  if (params->quality <= MAX_QUALITY_FOR_STATIC_ENTROPY_CODES) {
+    params->large_window = BROTLI_FALSE;
+  }
   if (params->lgwin < BROTLI_MIN_WINDOW_BITS) {
     params->lgwin = BROTLI_MIN_WINDOW_BITS;
-  } else if (params->lgwin > BROTLI_MAX_WINDOW_BITS) {
-    params->lgwin = BROTLI_MAX_WINDOW_BITS;
+  } else {
+    int max_lgwin = params->large_window ? BROTLI_LARGE_MAX_WINDOW_BITS :
+                                           BROTLI_MAX_WINDOW_BITS;
+    if (params->lgwin > max_lgwin) params->lgwin = max_lgwin;
   }
 }
 

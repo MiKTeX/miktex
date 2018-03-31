@@ -18,6 +18,7 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#include <algorithm>
 #include <map>
 #include <list>
 #include <sstream>
@@ -148,9 +149,11 @@ bool XMLElementNode::insertAfter (unique_ptr<XMLNode> &&child, XMLNode *sibling)
 
 /** Removes a given child from the element. */
 void XMLElementNode::remove (const XMLNode *child) {
-	_children.remove_if([=](const unique_ptr<XMLNode> &ptr) {
+	auto it = find_if(_children.begin(), _children.end(), [=](const unique_ptr<XMLNode> &ptr) {
 		return ptr.get() == child;
 	});
+	if (it != _children.end())
+		_children.erase(it);
 }
 
 

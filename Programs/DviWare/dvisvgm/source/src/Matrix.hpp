@@ -21,6 +21,7 @@
 #ifndef MATRIX_HPP
 #define MATRIX_HPP
 
+#include <initializer_list>
 #include <istream>
 #include <string>
 #include <vector>
@@ -28,15 +29,13 @@
 #include "Pair.hpp"
 
 
-struct ParserException : public MessageException
-{
+struct ParserException : public MessageException {
 	ParserException (const std::string &msg) : MessageException(msg) {}
 };
 
 class Calculator;
 
-class Matrix
-{
+class Matrix {
 	friend double det (const Matrix &m);
 	friend double det (const Matrix &m, int row, int col);
 
@@ -45,6 +44,7 @@ class Matrix
 		Matrix (double d=0);
 		Matrix (double v[], unsigned size=9);
 		Matrix (const std::vector<double> &v, int start=0);
+		Matrix (std::initializer_list<double> initlist);
 		Matrix& set (double d);
 		Matrix& set (double v[], unsigned size);
 		Matrix& set (const std::vector<double> &v, int start=0);
@@ -80,20 +80,17 @@ class Matrix
 };
 
 
-struct TranslationMatrix : public Matrix
-{
+struct TranslationMatrix : public Matrix {
 	TranslationMatrix (double tx, double ty);
 };
 
 
-struct ScalingMatrix : public Matrix
-{
+struct ScalingMatrix : public Matrix {
 	ScalingMatrix (double sx, double sy);
 };
 
 
-struct RotationMatrix : public Matrix
-{
+struct RotationMatrix : public Matrix {
 	RotationMatrix (double deg);
 };
 

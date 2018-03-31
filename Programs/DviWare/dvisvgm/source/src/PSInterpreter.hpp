@@ -30,16 +30,14 @@
 #include "MessageException.hpp"
 
 
-struct PSException : public MessageException
-{
+struct PSException : public MessageException {
 	PSException (const std::string &msg) : MessageException(msg) {}
 };
 
 
 /** This interface provides the template methods called by PSInterpreter when executing a PS snippet.
  *  Each method corresponds to a PostScript operator of the same name. */
-struct PSActions
-{
+struct PSActions {
 	virtual ~PSActions () =default;
 	virtual void applyscalevals (std::vector<double> &p) =0;
 	virtual void clip (std::vector<double> &p) =0;
@@ -72,6 +70,7 @@ struct PSActions
 	virtual void setmatrix (std::vector<double> &p) =0;
 	virtual void setmiterlimit (std::vector<double> &p) =0;
 	virtual void setopacityalpha (std::vector<double> &p) =0;
+	virtual void setpagedevice (std::vector<double> &p) =0;
 	virtual void setpattern (std::vector<double> &p) =0;
 	virtual void setrgbcolor (std::vector<double> &rgb) =0;
 	virtual void shfill (std::vector<double> &rgb) =0;
@@ -84,8 +83,7 @@ class PSFilter;
 
 /** This class provides methods to execute chunks of PostScript code and calls
  *  several template methods on invocation of selected PS operators (see PSActions). */
-class PSInterpreter
-{
+class PSInterpreter {
 	enum Mode {PS_NONE, PS_RUNNING, PS_QUIT};
 
 	public:

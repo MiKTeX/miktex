@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 2.9.6655 - not yet released
+
+### Upgraded programs
+
+* Dvisvgm 2.3.5
+
 ## 2.9.6650 - 2018-03-25
 
 Fixed a MiKTeX Console regression bug on macOS/Linux.

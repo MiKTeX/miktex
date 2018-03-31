@@ -90,6 +90,17 @@ Matrix::Matrix (const string &cmds, Calculator &calc) {
 }
 
 
+Matrix::Matrix (initializer_list<double> initlist) {
+	int count=0;
+	for (auto it=initlist.begin(); it != initlist.end() && count < 9; ++it) {
+		_values[count/3][count%3] = *it;
+		count++;
+	}
+	for (; count < 9; count++)
+		_values[count/3][count%3] = (count%4 ? 0 : 1);
+}
+
+
 Matrix& Matrix::set (double d) {
 	for (int i=0; i < 3; i++)
 		for (int j=0; j < 3; j++)

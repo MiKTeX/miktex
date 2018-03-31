@@ -125,11 +125,11 @@ void RangeMap::addRange (uint32_t cmin, uint32_t cmax, uint32_t vmin) {
 void RangeMap::adaptNeighbors (Ranges::iterator it) {
 	if (it != _ranges.end()) {
 		// adapt left neighbor
-		Ranges::iterator lit = it-1;    // points to left neighbor
-		if (it != _ranges.begin() && it->min() <= lit->max()) {
+		if (it != _ranges.begin() && it->min() <= (it-1)->max()) {
+			Ranges::iterator lit = it-1;  // points to left neighbor
 			bool left_neighbor_valid = (it->min() > 0 && it->min()-1 >= lit->min());
-			if (left_neighbor_valid)     // is adapted left neighbor valid?
-				lit->max(it->min()-1);  // => assign new max value
+			if (left_neighbor_valid)      // is adapted left neighbor valid?
+				lit->max(it->min()-1);     // => assign new max value
 			if (!left_neighbor_valid || it->join(*lit))
 				it = _ranges.erase(lit);
 		}

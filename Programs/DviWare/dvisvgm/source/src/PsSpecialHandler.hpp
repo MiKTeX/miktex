@@ -142,6 +142,7 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 		void setmatrix (std::vector<double> &p) override;
 		void setmiterlimit (std::vector<double> &p) override   {_miterlimit = p[0];}
 		void setopacityalpha (std::vector<double> &p) override {_opacityalpha = p[0];}
+		void setpagedevice (std::vector<double> &p) override;
 		void setpattern (std::vector<double> &p) override;
 		void setrgbcolor (std::vector<double> &rgb) override;
 		void shfill (std::vector<double> &p) override;

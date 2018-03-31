@@ -21,7 +21,7 @@
 #ifndef XMLNODE_HPP
 #define XMLNODE_HPP
 
-#include <list>
+#include <deque>
 #include <map>
 #include <memory>
 #include <ostream>
@@ -42,7 +42,7 @@ class XMLNode {
 class XMLElementNode : public XMLNode {
 	public:
 		using AttribMap = std::map<std::string,std::string>;
-		using ChildList = std::list<std::unique_ptr<XMLNode>>;
+		using ChildList = std::deque<std::unique_ptr<XMLNode>>;
 
 	public:
 		XMLElementNode (const std::string &name);

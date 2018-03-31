@@ -76,7 +76,7 @@ void PsSpecialHandler::initialize () {
 	if (_psSection == PS_NONE) {
 		initgraphics();
 		// execute dvips prologue/header files
-		for (const char *fname : {"tex.pro", "texps.pro", "special.pro"})
+		for (const char *fname : {"tex.pro", "texps.pro", "special.pro", "color.pro"})
 			processHeaderFile(fname);
 		// disable bop/eop operators to prevent side-effects by
 		// unexpected bops/eops present in PS specials
@@ -345,7 +345,7 @@ void PsSpecialHandler::psfile (const string &fname, const unordered_map<string,s
 
 	auto groupNode = util::make_unique<XMLElementNode>("g");  // append following elements to this group
 	_xmlnode = groupNode.get();
-	_psi.execute("\n@beginspecial @setspecial "); // enter \special environment
+	_psi.execute("\n@beginspecial @setspecial /setpagedevice{@setpagedevice}def "); // enter \special environment
 	EPSFile epsfile(filepath);
 	_psi.limit(epsfile.pslength());  // limit the number of bytes going to be processed
 	_psi.execute(epsfile.istream()); // process EPS file
@@ -484,6 +484,20 @@ void PsSpecialHandler::dviEndPage (unsigned, SpecialActions &actions) {
 }
 
 ///////////////////////////////////////////////////////
+
+void PsSpecialHandler::setpagedevice (std::vector<double> &p) {
+	_linewidth = 1;
+	_linecap = _linejoin = 0;  // butt end caps and miter joins
+	_miterlimit = 4;
+	_opacityalpha = 1;  // fully opaque
+	_sx = _sy = _cos = 1.0;
+	_pattern = nullptr;
+	_currentcolor = Color::BLACK;
+	_dashoffset = 0;
+	_dashpattern.clear();
+	_path.clear();
+}
+
 
 void PsSpecialHandler::gsave (vector<double>&) {
 	_clipStack.dup();
@@ -660,7 +674,7 @@ void PsSpecialHandler::fill (vector<double> &p, bool evenodd) {
 }
 
 
-/** Creates a Matrix object out of a given sequence of 6 double values.
+/** Creates a Matrix object from a given sequence of 6 double values.
  *  The given values must be arranged in PostScript matrix order.
  *  @param[in] v vector containing the matrix values
  *  @param[in] startindex vector index of first component

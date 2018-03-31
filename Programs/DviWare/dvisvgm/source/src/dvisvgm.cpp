@@ -19,12 +19,13 @@
 *************************************************************************/
 
 #include <config.h>
+#include <algorithm>
 #include <clipper.hpp>
 #include <fstream>
 #include <iostream>
-#include <list>
 #include <potracelib.h>
 #include <sstream>
+#include <vector>
 #include <xxhash.h>
 #include <zlib.h>
 #include "CommandLine.hpp"
@@ -222,7 +223,7 @@ class VersionInfo {
 		/** Writes the version information to the given output stream. */
 		void write (ostream &os) {
 			using Entry = pair<string,string>;
-			_versionPairs.sort([](const Entry &e1, const Entry &e2) {
+			sort(_versionPairs.begin(), _versionPairs.end(), [](const Entry &e1, const Entry &e2) {
 				return util::tolower(e1.first) < util::tolower(e2.first);
 			});
 			size_t maxNameLength=0;
@@ -241,7 +242,7 @@ class VersionInfo {
 		}
 
 	private:
-		list<pair<string,string>> _versionPairs;
+		vector<pair<string,string>> _versionPairs;
 };
 
 

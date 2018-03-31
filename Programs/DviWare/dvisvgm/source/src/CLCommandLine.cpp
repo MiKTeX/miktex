@@ -94,6 +94,8 @@ static void type_error (const Option &option, bool shortname) {
 void CommandLine::parseShortOption (istringstream &iss, int argc, char **argv, int &argn) {
 	bool combined = false;
 	do {
+		if (iss.peek() < 0)
+			throw CommandLineException("missing character after '-'");
 		char shortname = static_cast<char>(iss.get());
 		if (!isalnum(shortname))
 			throw CommandLineException(string("syntax error: -")+shortname);

@@ -63,8 +63,11 @@ set(libxxhash_sources
 
 set(libbrotli_sources
   source/libs/brotli/common/constants.h
+  source/libs/brotli/common/context.h
   source/libs/brotli/common/dictionary.c
   source/libs/brotli/common/dictionary.h
+  source/libs/brotli/common/platform.h
+  source/libs/brotli/common/transform.h
   source/libs/brotli/common/version.h
   source/libs/brotli/enc/backward_references.c
   source/libs/brotli/enc/backward_references.h
@@ -92,13 +95,15 @@ set(libbrotli_sources
   source/libs/brotli/enc/dictionary_hash.c
   source/libs/brotli/enc/dictionary_hash.h
   source/libs/brotli/enc/encode.c
+  source/libs/brotli/enc/encoder_dict.c
+  source/libs/brotli/enc/encoder_dict.h
   source/libs/brotli/enc/entropy_encode.c
   source/libs/brotli/enc/entropy_encode.h
   source/libs/brotli/enc/entropy_encode_static.h
   source/libs/brotli/enc/fast_log.h
   source/libs/brotli/enc/find_match_length.h
-  source/libs/brotli/enc/hash_forgetful_chain_inc.h
   source/libs/brotli/enc/hash.h
+  source/libs/brotli/enc/hash_forgetful_chain_inc.h
   source/libs/brotli/enc/hash_longest_match64_inc.h
   source/libs/brotli/enc/hash_longest_match_inc.h
   source/libs/brotli/enc/hash_longest_match_quickly_inc.h
@@ -113,6 +118,7 @@ set(libbrotli_sources
   source/libs/brotli/enc/metablock.c
   source/libs/brotli/enc/metablock.h
   source/libs/brotli/enc/metablock_inc.h
+  source/libs/brotli/enc/params.h
   source/libs/brotli/enc/port.h
   source/libs/brotli/enc/prefix.h
   source/libs/brotli/enc/quality.h

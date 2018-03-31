@@ -24,7 +24,7 @@
 	<program>
 		<usage>[options] dvifile</usage>
 		<usage>-E [options] epsfile</usage>
-      <description>This program converts DVI files, as created by TeX/LaTeX, to\nthe XML-based scalable vector graphics format SVG.</description>
+		<description>This program converts DVI files, as created by TeX/LaTeX, to\nthe XML-based scalable vector graphics format SVG.</description>
 		<copyright>Copyright (C) 2005-2018 Martin Gieseking &lt;martin.gieseking@uos.de></copyright>
 	</program>
 	<options>
@@ -134,13 +134,13 @@
 				<arg type="string" name="dir" optional="yes"/>
 				<description>set/print path of cache directory</description>
 			</option>
-         <option long="exact" short="e">
-            <description>compute exact glyph boxes</description>
-         </option>
-		   <option long="keep">
-		      <description>keep temporary files</description>
-		   </option>
-		   <option long="libgs" if="!defined(HAVE_LIBGS) &amp;&amp; !defined(DISABLE_GS)">
+			<option long="exact" short="e">
+				<description>compute exact glyph boxes</description>
+			</option>
+			<option long="keep">
+				<description>keep temporary files</description>
+			</option>
+			<option long="libgs" if="!defined(HAVE_LIBGS) &amp;&amp; !defined(DISABLE_GS)">
 				<arg name="filename" type="string"/>
 				<description>set name of Ghostscript shared library</description>
 			</option>
@@ -156,7 +156,7 @@
 				<description>don't process [selected] specials</description>
 			</option>
 			<option long="trace-all" short="a">
-            <arg name="retrace" type="bool" optional="yes" default="false"/>
+				<arg name="retrace" type="bool" optional="yes" default="false"/>
 				<description>trace all glyphs of bitmap fonts</description>
 			</option>
 		</section>
@@ -172,7 +172,7 @@
 				<description>print supported special sets and exit</description>
 			</option>
 			<option long="progress" short="P">
-            <arg name="delay" type="double" optional="yes" default="0.5"/>
+				<arg name="delay" type="double" optional="yes" default="0.5"/>
 				<description>enable progress indicator</description>
 			</option>
 			<option long="verbosity" short="v">

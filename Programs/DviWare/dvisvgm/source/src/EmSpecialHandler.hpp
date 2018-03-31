@@ -21,16 +21,15 @@
 #ifndef EMSPECIALHANDLER_HPP
 #define EMSPECIALHANDLER_HPP
 
-#include <list>
 #include <unordered_map>
+#include <vector>
 #include "Pair.hpp"
 #include "SpecialHandler.hpp"
 
 class InputReader;
 class SpecialActions;
 
-class EmSpecialHandler : public SpecialHandler, public DVIEndPageListener
-{
+class EmSpecialHandler : public SpecialHandler, public DVIEndPageListener {
 	struct Line {
 		Line (int pp1, int pp2, char cc1, char cc2, double w) : p1(pp1), p2(pp2), c1(cc1), c2(cc2), width(w) {}
 		int p1, p2;   ///< point numbers of line ends
@@ -55,7 +54,7 @@ class EmSpecialHandler : public SpecialHandler, public DVIEndPageListener
 
 	private:
 		std::unordered_map<int, DPair> _points; ///< points defined by special em:point
-		std::list<Line> _lines;  ///< list of lines with undefined end points
+		std::vector<Line> _lines;  ///< list of lines with undefined end points
 		double _linewidth;       ///< global line width
 		DPair _pos;              ///< current position of "graphic cursor"
 };

@@ -22,6 +22,7 @@
 #define XMLDOCUMENT_HPP
 
 #include <memory>
+#include <vector>
 #include "XMLNode.hpp"
 
 class XMLDocument {
@@ -36,7 +37,7 @@ class XMLDocument {
 		std::ostream& write (std::ostream &os) const;
 
 	private:
-		std::list<std::unique_ptr<XMLNode>> _nodes;
+		std::vector<std::unique_ptr<XMLNode>> _nodes;
 		std::unique_ptr<XMLElementNode> _rootElement;
 };
 
