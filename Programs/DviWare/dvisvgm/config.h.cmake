@@ -135,7 +135,7 @@
 #cmakedefine PACKAGE_NAME
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "dvisvgm 2.3.1"
+#define PACKAGE_STRING "dvisvgm 2.3.5"
 
 /* Define to the one symbol short name of this package. */
 #cmakedefine PACKAGE_TARNAME
