@@ -19310,6 +19310,9 @@ if pdf_obj_list <> null then begin
     end;
 end
 
+@ @<Glob...@>=
+@!saved_pdf_cur_form: integer;
+
 @ When flushing pending forms we need to save and restore resource lists
   (|pdf_font_list|, |pdf_obj_list|, |pdf_xform_list| and |pdf_ximage_list|),
   which are also used by page shipping.
@@ -19319,10 +19322,12 @@ if pdf_xform_list <> null then begin
     k := pdf_xform_list;
     while k <> null do begin
         if not is_obj_written(info(k)) then begin
+            saved_pdf_cur_form := pdf_cur_form;
             pdf_cur_form := info(k);
             @<Save resource lists@>;
             @<Reset resource lists@>;
             pdf_ship_out(obj_xform_box(pdf_cur_form), false);
+            pdf_cur_form := saved_pdf_cur_form;
             @<Restore resource lists@>;
         end;
         k := link(k);
