@@ -108,10 +108,14 @@ bool LanguageTableModel::setData(const QModelIndex& index, const QVariant& value
     return false;
   }
   LanguageInfo& language = languages[index.row()];
-  if (role == Qt::CheckStateRole && index.column() == 0 && index.row() != 0)
+  if (role == Qt::CheckStateRole && index.column() == 0)
   {
     Qt::CheckState oldValue = language.exclude ? Qt::Unchecked : Qt::Checked;
     Qt::CheckState newValue = static_cast<Qt::CheckState>(value.toInt());
+    if (newValue == Qt::Unchecked && !IsExcludable(index))
+    {
+      return false;
+    }
     if (oldValue != newValue)
     {
       language.exclude = newValue == Qt::Unchecked;

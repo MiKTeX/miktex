@@ -85,6 +85,12 @@ private:
     std::vector<std::string> packageNames;
   };
 
+public:
+  bool IsExcludable(const QModelIndex& index) const
+  {
+    return index.row() != 0;
+  }
+
 private:
   std::vector<InternalLanguageInfo> languages;
 };
