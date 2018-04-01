@@ -59,9 +59,6 @@ private:
   Ui::FormatDefinitionDialog* ui;
 
 private:
-  const MiKTeX::Core::FormatInfo format;
-
-private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 };
 
