@@ -292,9 +292,6 @@ private slots:
     }
   }
 
-private slots:
-  void RemoveUpdate();
-
 private:
   QMenu* contextMenuUpdate = nullptr;
 

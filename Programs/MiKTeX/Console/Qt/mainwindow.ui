@@ -337,7 +337,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -915,7 +915,7 @@ Use this option, if you want to operate on the private configuration.</string>
            <item>
             <widget class="QTabWidget" name="tabWidgetSettings">
              <property name="currentIndex">
-              <number>2</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="settingsGeneral">
               <attribute name="title">
@@ -1253,7 +1253,7 @@ Use this option, if you want to operate on the private configuration.</string>
                  <item>
                   <widget class="QTreeView" name="treeViewLanguages">
                    <property name="selectionMode">
-                    <enum>QAbstractItemView::ContiguousSelection</enum>
+                    <enum>QAbstractItemView::ExtendedSelection</enum>
                    </property>
                    <property name="rootIsDecorated">
                     <bool>false</bool>
@@ -1427,10 +1427,13 @@ Use this option, if you want to operate on the private configuration.</string>
              <item>
               <widget class="QTreeView" name="treeViewUpdates">
                <property name="selectionMode">
-                <enum>QAbstractItemView::NoSelection</enum>
+                <enum>QAbstractItemView::ExtendedSelection</enum>
                </property>
                <property name="rootIsDecorated">
                 <bool>false</bool>
+               </property>
+               <property name="allColumnsShowFocus">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -2082,21 +2085,6 @@ Use this option, if you want to operate on the private configuration.</string>
    </property>
    <property name="statusTip">
     <string>Builds the selected format.</string>
-   </property>
-  </action>
-  <action name="actionRemoveUpdate">
-   <property name="icon">
-    <iconset resource="console.qrc">
-     <normaloff>:/Icons/list-remove-16x16.png</normaloff>:/Icons/list-remove-16x16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Remove update</string>
-   </property>
-   <property name="toolTip">
-    <string>Remove</string>
-   </property>
-   <property name="statusTip">
-    <string>Removes the selected update from the list</string>
    </property>
   </action>
  </widget>

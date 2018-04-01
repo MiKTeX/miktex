@@ -67,7 +67,7 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
 
   if (role == Qt::DisplayRole)
   {
-    const PackageInstaller::UpdateInfo& update = updates[index.row()];
+    const UpdateTableModel::InternalUpdateInfo& update = updates[index.row()];
     switch (index.column())
     {
     case 0:
@@ -108,10 +108,50 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
         return tr("release state change");
       }
       break;
+    case Qt::CheckStateRole:
+      if (index.column() == 0)
+      {
+        return update.exclude ? Qt::Unchecked : Qt::Checked;
+      }
     }
   }
 
   return QVariant();
+}
+
+bool UpdateTableModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+  if (!(index.isValid() && index.row() >= 0 && index.row() < updates.size()))
+  {
+    return false;
+  }
+  UpdateTableModel::InternalUpdateInfo& update = updates[index.row()];
+  if (role == Qt::CheckStateRole && index.column() == 0)
+  {
+    Qt::CheckState oldValue = update.exclude ? Qt::Unchecked : Qt::Checked;
+    Qt::CheckState newValue = static_cast<Qt::CheckState>(value.toInt());
+    if (newValue == Qt::Unchecked && !IsExcludable(index))
+    {
+      return false;
+    }
+    if (oldValue != newValue)
+    {
+      update.exclude = newValue == Qt::Unchecked;
+      emit dataChanged(index, index);
+      return true;
+    }
+  }
+  return false;
+}
+
+Qt::ItemFlags UpdateTableModel::flags(const QModelIndex& index) const
+{
+  Qt::ItemFlags flags = QAbstractTableModel::flags(index);
+  if (index.isValid() && index.column() == 0)
+  {
+    flags |= Qt::ItemIsUserCheckable;
+  }
+  return flags;
 }
 
 QVariant UpdateTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -136,11 +176,15 @@ QVariant UpdateTableModel::headerData(int section, Qt::Orientation orientation, 
 void UpdateTableModel::SetData(const vector<PackageInstaller::UpdateInfo>& updates)
 {
   beginResetModel();
-  this->updates = updates;
+  this->updates.clear();
+  for (const auto& u : updates)
+  {
+    this->updates.push_back(u);
+  }
   endResetModel();
 }
 
-bool UpdateTableModel::CanRemove(const QModelIndex& index)
+bool UpdateTableModel::IsExcludable(const QModelIndex& index) const
 {
   const PackageInstaller::UpdateInfo& upd = updates[index.row()];
   switch (upd.action)
@@ -155,12 +199,4 @@ bool UpdateTableModel::CanRemove(const QModelIndex& index)
   default:
     return true;
   }
-}
-
-bool UpdateTableModel::removeRows(int row, int count, const QModelIndex& parent)
-{
-  beginRemoveRows(parent, row, row + count - 1);
-  updates.erase(updates.begin() + row, updates.begin() + row + count);
-  endRemoveRows();
-  return true;
 }

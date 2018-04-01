@@ -976,13 +976,12 @@ void MainWindow::SetupUiUpdates()
   ui->labelNoUpdatesAvailable->hide();
   toolBarUpdates = new QToolBar(this);
   toolBarUpdates->setIconSize(QSize(16, 16));
-  toolBarUpdates->addAction(ui->actionRemoveUpdate);
+  // TODO
   ui->vboxTreeViewUpdates->insertWidget(0, toolBarUpdates);
   contextMenuUpdate = new QMenu(ui->treeViewUpdates);
-  contextMenuUpdate->addAction(ui->actionRemoveUpdate);
+  // TODO
   ui->treeViewUpdates->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(ui->treeViewUpdates, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuUpdates(const QPoint&)));
-  connect(ui->actionRemoveUpdate, SIGNAL(triggered()), this, SLOT(RemoveUpdate()));
   connect(ui->treeViewUpdates->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
@@ -1014,15 +1013,6 @@ void MainWindow::UpdateUiUpdates()
 void MainWindow::UpdateActionsUpdates()
 {
   ui->actionCheckUpdates->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
-  int selectedCount = ui->treeViewUpdates->selectionModel()->selectedRows().count();
-  bool enableRemove = selectedCount > 0;
-  for (const QModelIndex& index : ui->treeViewUpdates->selectionModel()->selectedRows())
-  {
-    
-    // TODO
-    enableRemove = enableRemove && updateModel->CanRemove(index);
-  }
-  ui->actionRemoveUpdate->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableRemove);
 }
 
 bool CkeckUpdatesWorker::Run()
@@ -1244,27 +1234,6 @@ void MainWindow::Update()
   thread->start();
   UpdateUi();
   UpdateActions();
-}
-
-void MainWindow::RemoveUpdate()
-{
-  try
-  {
-    for (const QModelIndex& ind : ui->treeViewFormats->selectionModel()->selectedRows())
-    {
-      updateModel->removeRow(ind.row());
-    }
-    UpdateUi();
-    UpdateActions();
-  }
-  catch (const MiKTeXException& e)
-  {
-    CriticalError(e);
-  }
-  catch (const exception& e)
-  {
-    CriticalError(e);
-  }
 }
 
 void MainWindow::OnContextMenuUpdates(const QPoint& pos)

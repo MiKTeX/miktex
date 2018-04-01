@@ -53,7 +53,13 @@ public:
   QVariant data(const QModelIndex& index, int role) const override;
 
 public:
+  bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
+
+public:
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
+public:
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 public:
   void SetData(const std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo>& updates);
@@ -61,14 +67,19 @@ public:
 public:
   std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> GetData() const
   {
-    return updates;
+    std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> result;
+    for(const auto& u : updates)
+    {
+      if (!u.exclude)
+      {
+        result.push_back(u);
+      }
+    }
+    return result;
   }
 
 public:
-  bool CanRemove(const QModelIndex& index);
-
-public:
-  bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+  bool IsExcludable(const QModelIndex& index) const;
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
@@ -77,7 +88,18 @@ private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:
-  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> updates;
+  struct InternalUpdateInfo :
+    public MiKTeX::Packages::PackageInstaller::UpdateInfo
+  {
+    InternalUpdateInfo(const MiKTeX::Packages::PackageInstaller::UpdateInfo& upd)
+      : UpdateInfo(upd)
+    {
+    }
+    bool exclude = false;
+  };
+
+private:
+  std::vector<InternalUpdateInfo> updates;
 };
 
 #endif
