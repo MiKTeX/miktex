@@ -1848,7 +1848,7 @@ void MainWindow::SetupUiPackages()
   toolBarPackages->addAction(ui->actionInstallPackage);
   toolBarPackages->addAction(ui->actionUninstallPackage);
   toolBarPackages->addSeparator();
-  toolBarPackages->addAction(ui->actionPackageProperties);
+  toolBarPackages->addAction(ui->actionPackageInfo);
   toolBarPackages->addSeparator();
   toolBarPackages->addAction(ui->actionUpdatePackageDatabase);
   toolBarPackages->addSeparator();
@@ -1873,7 +1873,7 @@ void MainWindow::SetupUiPackages()
   contextMenuPackage->addSeparator();
   contextMenuPackage->addAction(ui->actionUpdatePackageDatabase);
   contextMenuPackage->addSeparator();
-  contextMenuPackage->addAction(ui->actionPackageProperties);
+  contextMenuPackage->addAction(ui->actionPackageInfo);
   ui->treeViewPackages->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(ui->comboRepository, static_cast<void(QComboBox::*)(int)> (&QComboBox::activated), this, [this](int index)
   {
@@ -1887,10 +1887,10 @@ void MainWindow::SetupUiPackages()
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
     SLOT(UpdateActionsPackages()));
-  connect(ui->actionPackageProperties,
+  connect(ui->actionPackageInfo,
     SIGNAL(triggered()),
     this,
-    SLOT(PackagePropertyDialog()));
+    SLOT(PackageInfoDialog()));
   connect(ui->actionInstallPackage,
     SIGNAL(triggered()),
     this,
@@ -1934,7 +1934,7 @@ void MainWindow::UpdateActionsPackages()
     ui->actionUpdatePackageDatabase->setEnabled(!IsBackgroundWorkerActive() && !IsUserModeBlocked());
     ui->actionFilterPackages->setEnabled(!IsBackgroundWorkerActive());
     QModelIndexList selectedRows = ui->treeViewPackages->selectionModel()->selectedRows();
-    ui->actionPackageProperties->setEnabled(!IsBackgroundWorkerActive() && selectedRows.count() == 1);
+    ui->actionPackageInfo->setEnabled(!IsBackgroundWorkerActive() && selectedRows.count() == 1);
     bool enableInstall = (selectedRows.count() > 0);
     bool enableUninstall = (selectedRows.count() > 0);
     if (session->IsMiKTeXDirect())
@@ -1972,7 +1972,7 @@ void MainWindow::UpdateActionsPackages()
   }
 }
 
-void MainWindow::PackagePropertyDialog()
+void MainWindow::PackageInfoDialog()
 {
   try
   {

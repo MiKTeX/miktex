@@ -1960,19 +1960,19 @@ Use this option, if you want to operate on the private configuration.</string>
     <string>Uninstalls the selected packages.</string>
    </property>
   </action>
-  <action name="actionPackageProperties">
+  <action name="actionPackageInfo">
    <property name="icon">
     <iconset resource="console.qrc">
-     <normaloff>:/Icons/properties-16x16.png</normaloff>:/Icons/properties-16x16.png</iconset>
+     <normaloff>:/Icons/package-info-16x16.png</normaloff>:/Icons/package-info-16x16.png</iconset>
    </property>
    <property name="text">
-    <string>Package properties</string>
+    <string>Package information</string>
    </property>
    <property name="toolTip">
-    <string>Properties</string>
+    <string>Info</string>
    </property>
    <property name="statusTip">
-    <string>Shows package properties.</string>
+    <string>Shows package information.</string>
    </property>
   </action>
   <action name="actionFilterPackages">

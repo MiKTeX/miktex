@@ -454,7 +454,7 @@ private slots:
   void UpdateActionsPackages();
 
 private slots:
-  void PackagePropertyDialog();
+  void PackageInfoDialog();
 
 private slots:
   void InstallPackage();

@@ -8,6 +8,7 @@
     <file alias="list-remove-16x16.png">../../../../Resources/Icons/tango/16x16/actions/list-remove.png</file>
     <file alias="miktex-console-16x16.png">../../../../Resources/Icons/MiKTeX/16x16/apps/miktex-console.png</file>
     <file alias="miktex-console-32x32.png">../../../../Resources/Icons/MiKTeX/32x32/apps/miktex-console.png</file>
+    <file alias="package-info-16x16.png">../../../../Resources/Icons/oxygen-icons5/16x16/actions/documentinfo.png</file>
     <file alias="properties-16x16.png">../../../../Resources/Icons/tango/16x16/actions/document-properties.png</file>
     <file alias="terminal-16x16.png">../../../../Resources/Icons/oxygen-icons5/16x16/apps/utilities-terminal.png</file>
     <file alias="terminal-32x32.png">../../../../Resources/Icons/oxygen-icons5/32x32/apps/utilities-terminal.png</file>
