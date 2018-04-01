@@ -301,7 +301,7 @@ void read_img(image_dict * idict)
             formatted_error("pdf backend","cannot find image file '%s'", img_filename(idict));
         }
     }
-    recorder_record_input(img_filename(idict));
+    recorder_record_input(img_filepath(idict));
     /* type checks */
     check_type_by_header(idict);
     check_type_by_extension(idict);

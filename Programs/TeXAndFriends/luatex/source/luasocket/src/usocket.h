@@ -50,6 +50,10 @@
 #endif /* IPV6_LEAVE_GROUP */
 #endif /* !IPV6_DROP_MEMBERSHIP */
 
+#ifndef AI_NUMERICSERV
+#define AI_NUMERICSERV 0
+#endif
+
 typedef int t_socket;
 typedef t_socket *p_socket;
 typedef struct sockaddr_storage t_sockaddr_storage;
