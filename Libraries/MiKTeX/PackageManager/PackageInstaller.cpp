@@ -463,107 +463,107 @@ void PackageInstallerImpl::FindUpdates()
     updateInfo.timePackaged = dbLight.GetTimePackaged(deploymentName);
     updateInfo.version = dbLight.GetPackageVersion(deploymentName);
 
+#if IGNORE_OTHER_SYSTEMS
+    string targetSystem = dbLight.GetPackageTargetSystem(deploymentName);
+    bool isOthertargetSystem = !(targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG);
+    if (isOthertargetSystem)
+    {
+      continue;
+    }
+#endif
+
+    bool isEssential = dbLight.GetPackageLevel(deploymentName) <= PackageLevel::Essential;
+    if (isEssential)
+    {
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: new essential package"), deploymentName.c_str());
+      updateInfo.action = UpdateInfo::ForceUpdate;
+      updates.push_back(updateInfo);
+      continue;
+    }
+
     const PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
+
     if (package == nullptr || !packageManager->IsPackageInstalled(deploymentName))
     {
-#if defined(MIKTEX_WINDOWS)
-#if IGNORE_OTHER_SYSTEMS
-      string targetSystem = dbLight.GetPackageTargetSystem(deploymentName);
-#endif
-      if (dbLight.GetPackageLevel(deploymentName) <= PackageLevel::Essential
-        && IsMiKTeXPackage(deploymentName)
-#if IGNORE_OTHER_SYSTEMS
-        && (targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG)
-#endif
-        //&& session->IsAdminMode()
-        //&& CompareSerieses(dbLight.GetPackageVersion(deploymentName), MIKTEX_MAJOR_MINOR_STR) == 0
-        )
+      continue;
+    }
+
+    // clean the user-installation directory
+    if (!session->IsAdminMode()
+      && session->GetSpecialPath(SpecialPath::UserInstallRoot) != session->GetSpecialPath(SpecialPath::CommonInstallRoot)
+      && packageManager->GetUserTimeInstalled(deploymentName) != static_cast<time_t>(0)
+      && packageManager->GetCommonTimeInstalled(deploymentName) != static_cast<time_t>(0))
+    {
+      if (!package->isRemovable)
       {
-        trace_mpm->WriteFormattedLine("libmpm", T_("%s: new essential MiKTeX package"), deploymentName.c_str());
-        updateInfo.action = UpdateInfo::ForceUpdate;
-        updates.push_back(updateInfo);
+        MIKTEX_UNEXPECTED();
       }
-#endif
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: double installed"), deploymentName.c_str());
+      updateInfo.action = UpdateInfo::ForceRemove;
+      updates.push_back(updateInfo);
+      continue;
+    }
+
+    // check the integrity of installed MiKTeX packages
+    if (IsMiKTeXPackage(deploymentName)
+      && !packageManager->TryVerifyInstalledPackage(deploymentName)
+      && package->isRemovable)
+    {
+      // the package has been tampered with
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: package is broken"), deploymentName.c_str());
+      updateInfo.timePackaged = static_cast<time_t>(-1);
+      updateInfo.action = UpdateInfo::Repair;
+      updates.push_back(updateInfo);
+      continue;
+    }
+
+    // compare digests, version numbers and time stamps
+    MD5 md5 = dbLight.GetPackageDigest(deploymentName);
+    if (md5 == package->digest)
+    {
+      // digests do match => no update necessary
+      continue;
+    }
+
+    // check release state mismatch
+    bool isReleaseStateDiff = package->releaseState != RepositoryReleaseState::Unknown
+      && repositoryReleaseState != RepositoryReleaseState::Unknown
+      && package->releaseState != repositoryReleaseState;
+    if (isReleaseStateDiff)
+    {
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: package release state changed"), deploymentName.c_str());
     }
     else
     {
-      // clean the user-installation directory
-      if (!session->IsAdminMode()
-        && session->GetSpecialPath(SpecialPath::UserInstallRoot) != session->GetSpecialPath(SpecialPath::CommonInstallRoot)
-        && packageManager->GetUserTimeInstalled(deploymentName) != static_cast<time_t>(0)
-        && packageManager->GetCommonTimeInstalled(deploymentName) != static_cast<time_t>(0))
-      {
-        if (!package->isRemovable)
-        {
-          MIKTEX_UNEXPECTED();
-        }
-        trace_mpm->WriteFormattedLine("libmpm", T_("%s: double installed"), deploymentName.c_str());
-        updateInfo.action = UpdateInfo::ForceRemove;
-        updates.push_back(updateInfo);
-        continue;
-      }
-
-      // check the integrity of installed MiKTeX packages
-      if (IsMiKTeXPackage(deploymentName)
-        && !packageManager->TryVerifyInstalledPackage(deploymentName)
-        && package->isRemovable)
-      {
-        // the package has been tampered with
-        trace_mpm->WriteFormattedLine("libmpm", T_("%s: package is broken"), deploymentName.c_str());
-        updateInfo.timePackaged = static_cast<time_t>(-1);
-        updateInfo.action = UpdateInfo::Repair;
-        updates.push_back(updateInfo);
-        continue;
-      }
-
-      // compare digests, version numbers and time stamps
-      MD5 md5 = dbLight.GetPackageDigest(deploymentName);
-      if (md5 == package->digest)
-      {
-        // digests do match => no update necessary
-        continue;
-      }
-
-      // check release state mismatch
-      bool isReleaseStateDiff = package->releaseState != RepositoryReleaseState::Unknown
-        && repositoryReleaseState != RepositoryReleaseState::Unknown
-        && package->releaseState != repositoryReleaseState;
-      if (isReleaseStateDiff)
-      {
-        trace_mpm->WriteFormattedLine("libmpm", T_("%s: package release state changed"), deploymentName.c_str());
-      }
-      else
-      {
-        trace_mpm->WriteFormattedLine("libmpm", T_("%s: server has a different version"), deploymentName.c_str());
-      }
-      trace_mpm->WriteFormattedLine("libmpm", T_("server digest: %s"), md5.ToString().c_str());
-      trace_mpm->WriteFormattedLine("libmpm", T_("local digest: %s"), package->digest.ToString().c_str());
-      if (!isReleaseStateDiff)
-      {
-        // compare time stamps
-        time_t timePackaged = dbLight.GetTimePackaged(deploymentName);
-        if (timePackaged <= package->timePackaged)
-        {
-          // server has an older package => no update
-          // necessary
-          continue;
-        }
-        // server has a newer package
-        trace_mpm->WriteFormattedLine("libmpm", T_("%s: server has new version"), deploymentName.c_str());
-      }
-
-      if (!package->isRemovable)
-      {
-        trace_mpm->WriteFormattedLine("libmpm", T_("%s: no permission to update package"), deploymentName.c_str());
-        updateInfo.action = UpdateInfo::KeepAdmin;
-      }
-      else
-      {
-        updateInfo.action = isReleaseStateDiff ? UpdateInfo::ReleaseStateChange : UpdateInfo::Update;
-      }
-
-      updates.push_back(updateInfo);
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: server has a different version"), deploymentName.c_str());
     }
+    trace_mpm->WriteFormattedLine("libmpm", T_("server digest: %s"), md5.ToString().c_str());
+    trace_mpm->WriteFormattedLine("libmpm", T_("local digest: %s"), package->digest.ToString().c_str());
+    if (!isReleaseStateDiff)
+    {
+      // compare time stamps
+      time_t timePackaged = dbLight.GetTimePackaged(deploymentName);
+      if (timePackaged <= package->timePackaged)
+      {
+        // server has an older package => no update
+        // necessary
+        continue;
+      }
+      // server has a newer package
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: server has new version"), deploymentName.c_str());
+    }
+
+    if (!package->isRemovable)
+    {
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: no permission to update package"), deploymentName.c_str());
+      updateInfo.action = UpdateInfo::KeepAdmin;
+    }
+    else
+    {
+      updateInfo.action = isReleaseStateDiff ? UpdateInfo::ReleaseStateChange : UpdateInfo::Update;
+    }
+
+    updates.push_back(updateInfo);
   }
 
   shared_ptr<PackageIterator> pIter(packageManager->CreateIterator());
