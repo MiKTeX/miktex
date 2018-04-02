@@ -473,18 +473,17 @@ void PackageInstallerImpl::FindUpdates()
 #endif
 
     bool isEssential = dbLight.GetPackageLevel(deploymentName) <= PackageLevel::Essential;
-    if (isEssential)
-    {
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: new essential package"), deploymentName.c_str());
-      updateInfo.action = UpdateInfo::ForceUpdate;
-      updates.push_back(updateInfo);
-      continue;
-    }
 
     const PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
 
     if (package == nullptr || !packageManager->IsPackageInstalled(deploymentName))
     {
+      if (isEssential)
+      {
+        trace_mpm->WriteFormattedLine("libmpm", T_("%s: new essential package"), deploymentName.c_str());
+        updateInfo.action = UpdateInfo::ForceUpdate;
+        updates.push_back(updateInfo);
+      }
       continue;
     }
 
@@ -560,7 +559,18 @@ void PackageInstallerImpl::FindUpdates()
     }
     else
     {
-      updateInfo.action = isReleaseStateDiff ? UpdateInfo::ReleaseStateChange : UpdateInfo::Update;
+      if (isReleaseStateDiff)
+      {
+        updateInfo.action = UpdateInfo::ReleaseStateChange;
+      }
+      else if (isEssential)
+      {
+        updateInfo.action = UpdateInfo::ForceUpdate;
+      }
+      else
+      {
+        updateInfo.action = UpdateInfo::Update;
+      }
     }
 
     updates.push_back(updateInfo);
