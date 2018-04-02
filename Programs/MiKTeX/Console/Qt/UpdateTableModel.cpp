@@ -65,9 +65,10 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
     return QVariant();
   }
 
+  const UpdateTableModel::InternalUpdateInfo& update = updates[index.row()];
+
   if (role == Qt::DisplayRole)
   {
-    const UpdateTableModel::InternalUpdateInfo& update = updates[index.row()];
     switch (index.column())
     {
     case 0:
@@ -108,11 +109,13 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
         return tr("release state change");
       }
       break;
-    case Qt::CheckStateRole:
-      if (index.column() == 0)
-      {
-        return update.exclude ? Qt::Unchecked : Qt::Checked;
-      }
+    }
+  }
+  else if (role == Qt::CheckStateRole)
+  {
+    if (index.column() == 0)
+    {
+      return update.exclude ? Qt::Unchecked : Qt::Checked;
     }
   }
 
