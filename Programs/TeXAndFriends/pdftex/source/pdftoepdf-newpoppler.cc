@@ -995,8 +995,8 @@ The changes below seem to work fine.
 */
 // begin modification
             groupDict = pageDict->lookup("Group");
-            Dict dic1 = page->getGroup();
-            Dict dic2 = groupDict.getDict();
+            const Dict& dic1 = page->getGroup();
+            const Dict& dic2 = groupDict.getDict();
             // replace dic2 in groupDict with dic1
             l = dic2.getLength();
             for (i = 0; i < l; i++) {
