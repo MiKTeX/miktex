@@ -1,6 +1,6 @@
 /* mcd.cpp: MiKTeX compiler driver
 
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2018 Christian Schenk
 
    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001,
    2002, 2003, 2004, 2005 Free Software Foundation, Inc.
@@ -393,7 +393,7 @@ public:
   Engine engine = Engine::NotSet;
 
 public:
-  void SetEngine(const string& engineName)
+  bool SetEngine(const string& engineName)
   {
     if (Utils::EqualsIgnoreCase(engineName, "tex"))
     {
@@ -413,8 +413,9 @@ public:
     }
     else
     {
-      MIKTEX_UNEXPECTED();
+      return false;
     }
+    return true;
   }
 };
 
@@ -1989,7 +1990,10 @@ void McdApp::Run(int argc, const char** argv)
       options.traceStreams = DEFAULT_TRACE_STREAMS;
       break;
     case OPT_ENGINE:
-      options.SetEngine(optArg);
+      if (!options.SetEngine(optArg))
+      {
+        FatalError(T_("%s: unknown engine"), optArg.c_str());
+      }
       break;
     case OPT_EXPAND:
       options.expand = true;
