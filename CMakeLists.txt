@@ -1477,6 +1477,10 @@ else()
   add_subdirectory(${MIKTEX_REL_BZIP2_DIR})
 endif()
 
+if(MIKTEX_NATIVE_WINDOWS)
+  add_subdirectory(${MIKTEX_REL_FREEGLUT_DIR})
+endif()
+
 if(USE_SYSTEM_FREETYPE2)
   get_filename_component(suffix ${FREETYPE_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)

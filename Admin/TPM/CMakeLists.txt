@@ -65,6 +65,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-findtexmf-bin.tpm.in
     windows-x86/miktex-fontconfig-bin.tpm.in
     windows-x86/miktex-fonts-bin.tpm.in
+    windows-x86/miktex-freeglut-bin.tpm.in
     windows-x86/miktex-freetype2-bin.tpm.in
     windows-x86/miktex-fribidixetex-bin.tpm.in
     windows-x86/miktex-gd-bin.tpm.in
@@ -167,6 +168,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-findtexmf-bin-x64.tpm.in
     windows-x64/miktex-fontconfig-bin-x64.tpm.in
     windows-x64/miktex-fonts-bin-x64.tpm.in
+    windows-x64/miktex-freeglut-bin-x64.tpm.in
     windows-x64/miktex-freetype2-bin-x64.tpm.in
     windows-x64/miktex-fribidixetex-bin-x64.tpm.in
     windows-x64/miktex-gd-bin-x64.tpm.in
