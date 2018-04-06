@@ -4,8 +4,15 @@
 
 ### Upgraded programs
 
+* Asymptote 2.43
 * Dvisvgm 2.3.5
 * Gregorio 5.1.1
+
+### Bug fixes
+
+* [94](https://github.com/MiKTeX/miktex/issues/94): Silent uninstall in Windows
+* [99](https://github.com/MiKTeX/miktex/issues/99): reaching the format and language dialog
+* [106](https://github.com/MiKTeX/miktex/issues/106): Texify gives un-informative error message when wrong engine given
 
 ## 2.9.6650 - 2018-03-25
 
