@@ -401,7 +401,7 @@ void Application::PrintInfo()
     task = "finish setup";
     break;
   case SetupTask::CleanUp:
-    task = "factory reset";
+    task = "clean up";
     break;
   default:
     break;
@@ -516,7 +516,7 @@ void Application::Main(int argc, const char** argv)
   string optPortableRoot;
 
   PoptWrapper popt(argc, argv, aoption);
-  popt.SetOtherOptionHelp("download|install|finish|factoryreset");
+  popt.SetOtherOptionHelp("download|install|finish|factoryreset|uninstall");
 
   int option;
 
@@ -706,6 +706,11 @@ void Application::Main(int argc, const char** argv)
   {
     setupOptions.Task = SetupTask::CleanUp;
     setupOptions.CleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
+  }
+  else if (leftovers[0] == "uninstall")
+  {
+    setupOptions.Task = SetupTask::CleanUp;
+    setupOptions.CleanupOptions = { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
   }
   else
   {
