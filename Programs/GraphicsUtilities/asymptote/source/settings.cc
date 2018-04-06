@@ -99,7 +99,7 @@ string systemDir=ASYMPTOTE_SYSDIR;
 string defaultEPSdriver="eps2write";
 
 #ifndef __MSDOS__
-
+  
 #if defined(MIKTEX_WINDOWS)
 bool msdos = true;
 #else

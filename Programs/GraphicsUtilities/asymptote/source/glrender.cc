@@ -4,6 +4,8 @@
  * Render 3D Bezier paths and surfaces.
  *****/
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdlib.h>
 #include <fstream>
 #include <cstring>
@@ -1442,12 +1444,12 @@ void glrender(const string& prefix, const picture *pic, const string& format,
       osmesa_initialized=true;
       init_osmesa();
     }
-  } else {
-    if(glinitialize) {
-      glinitialize=false;
-      init();
-      Fitscreen=1;
-    }
+  }
+  
+  if(glinitialize) {
+    glinitialize=false;
+    init();
+    Fitscreen=1;
   }
 
   static bool initialized=false;

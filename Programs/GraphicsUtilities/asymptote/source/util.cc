@@ -9,6 +9,8 @@
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
+#define _POSIX_C_SOURCE 200809L
+
 #include <cassert>
 #include <iostream>
 #include <cstdio>
@@ -202,7 +204,7 @@ string auxname(string filename, string suffix)
 {
   return buildname(filename,suffix,"_");
 }
-  
+
 sighandler_t Signal(int signum, sighandler_t handler)
 {
 #if defined(MIKTEX_WINDOWS)

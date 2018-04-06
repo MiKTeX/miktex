@@ -16,6 +16,7 @@ ADDSYMBOL(digits);
 ADDSYMBOL(downcase);
 ADDSYMBOL(erase);
 ADDSYMBOL(find);
+ADDSYMBOL(forcemath);
 ADDSYMBOL(format);
 ADDSYMBOL(hex);
 ADDSYMBOL(insert);

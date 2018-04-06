@@ -18,6 +18,9 @@
 /* Define to 1 if you have the `dup2' function. */
 #cmakedefine HAVE_DUP2 1
 
+/* Define to 1 if you have the `feenableexcept' function. */
+#cmakedefine HAVE_FEENABLEEXCEPT 1
+
 /* Define to 1 if you have the <fenv.h> header file. */
 #cmakedefine HAVE_FENV_H 1
 

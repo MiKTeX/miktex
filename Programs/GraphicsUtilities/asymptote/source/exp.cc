@@ -39,8 +39,9 @@ void exp::prettyprint(ostream &out, Int indent)
 #endif
 
 void exp::transAsType(coenv &e, types::ty *target) {
-  types::ty *t=trans(e);
-  assert(t->kind==ty_error || equivalent(t,target));
+  trans(e);
+//  types::ty *t=trans(e);
+//  assert(t->kind==ty_error || equivalent(t,target));
 }
 
 void exp::transToType(coenv &e, types::ty *target)

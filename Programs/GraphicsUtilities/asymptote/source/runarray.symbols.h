@@ -29,6 +29,7 @@ ADDSYMBOL(fa);
 ADDSYMBOL(fb);
 ADDSYMBOL(fft);
 ADDSYMBOL(find);
+ADDSYMBOL(findall);
 ADDSYMBOL(fprime);
 ADDSYMBOL(identity);
 ADDSYMBOL(inverse);

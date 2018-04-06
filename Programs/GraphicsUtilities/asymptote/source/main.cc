@@ -19,6 +19,8 @@
 *
 *************/
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>

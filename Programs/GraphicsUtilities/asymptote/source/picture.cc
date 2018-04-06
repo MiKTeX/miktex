@@ -242,6 +242,16 @@ bool picture::have3D()
   return false;
 }
 
+bool picture::havepng()
+{
+  for(nodelist::iterator p=nodes.begin(); p != nodes.end(); ++p) {
+    assert(*p);
+    if((*p)->svgpng())
+      return true;
+  }
+  return false;
+}
+
 bbox picture::bounds()
 {
   size_t n=nodes.size();
@@ -416,7 +426,7 @@ int opentex(const string& texname, const string& prefix, bool dvi)
 
 bool picture::texprocess(const string& texname, const string& outname,
                          const string& prefix, const pair& bboxshift,
-                         bool svgformat)
+                         bool svg)
 {
   int status=1;
   ifstream outfile;
@@ -434,7 +444,7 @@ bool picture::texprocess(const string& texname, const string& outname,
       string dviname=auxname(prefix,"dvi");
       mem::vector<string> cmd;
     
-      if(svgformat) {
+      if(svg) {
         cmd.push_back(getSetting<string>("dvisvgm"));
         cmd.push_back("-n");
         cmd.push_back("--verbosity=3");
@@ -675,14 +685,15 @@ bool picture::reloadPDF(const string& Viewer, const string& outname) const
   
 bool picture::postprocess(const string& prename, const string& outname,
                           const string& outputformat, double magnification,
-                          bool wait, bool view, bool pdftex, bool svgformat)
+                          bool wait, bool view, bool pdftex, 
+                          bool epsformat, bool svg)
 {
   static mem::map<CONST string,int> pids;
   int status=0;
-  bool epsformat=outputformat == "eps";
   bool pdfformat=(settings::pdf(getSetting<string>("tex")) 
                   && outputformat == "") || outputformat == "pdf";
   
+  mem::vector<string> cmd;
   if(pdftex || !epsformat) {
     if(pdfformat) {
       if(pdftex) {
@@ -691,9 +702,26 @@ bool picture::postprocess(const string& prename, const string& outname,
           reportError("Cannot rename "+prename+" to "+outname);
       } else status=epstopdf(prename,outname);
     } else if(epsformat) {
-      status=pdftoeps(prename,outname);
+      if(svg) {
+        string epsname=stripExt(prename)+".eps";
+        status=pdftoeps(prename,epsname);
+        cmd.push_back(getSetting<string>("dvisvgm"));
+        cmd.push_back("-n");
+        cmd.push_back("-E");
+        cmd.push_back("--verbosity=3");
+        string libgs=getSetting<string>("libgs");
+        if(!libgs.empty())
+          cmd.push_back("--libgs="+libgs);
+        push_split(cmd,getSetting<string>("dvisvgmOptions"));
+        cmd.push_back("-o"+outname);
+        cmd.push_back(epsname);
+        status=System(cmd,0,true,"dvisvgm");
+        if(!getSetting<bool>("keep"))
+          unlink(epsname.c_str());
+        epsformat=false;
+      } else 
+        status=pdftoeps(prename,outname);
     } else {
-      mem::vector<string> cmd;
       double render=fabs(getSetting<double>("render"));
       if(render == 0) render=1.0;
       double res=render*72.0;
@@ -713,7 +741,7 @@ bool picture::postprocess(const string& prename, const string& outname,
         cmd.push_back("-sOutputFile="+outname);
         cmd.push_back(prename);
         status=System(cmd,0,true,"gs","Ghostscript");
-      } else if(!svgformat) {
+      } else if(!svg) {
         double expand=antialias;
         if(expand < 2.0) expand=1.0;
         res *= expand;
@@ -726,7 +754,7 @@ bool picture::postprocess(const string& prename, const string& outname,
         cmd.push_back("-resize");
         cmd.push_back(String(100.0/expand)+"%x");
         if(outputformat == "jpg") cmd.push_back("-flatten");
-        cmd.push_back(nativeformat()+":"+prename);
+        cmd.push_back(prename);
         cmd.push_back(outputformat+":"+outname);
         status=System(cmd,0,true,"convert");
       }
@@ -838,8 +866,14 @@ bool picture::shipout(picture *preamble, const string& Prefix,
   string outputformat=format.empty() ? defaultformat() : format;
   bool epsformat=outputformat == "eps";
   bool pdfformat=pdf || outputformat == "pdf";
-  bool svgformat=outputformat == "svg" && !pdf && usetex &&
+  bool svgformat=outputformat == "svg";
+  bool dvi=false;
+  bool svg=svgformat && usetex && !(pdf && havepng()) &&
     (!have3D() || getSetting<double>("render") == 0.0);
+  if(svg) {
+    if(pdf) epsformat=true;
+    else dvi=true;
+  }
   
   bool xobject=magnification > 0;
   string outname=Outname(prefix,outputformat,standardout);
@@ -856,10 +890,11 @@ bool picture::shipout(picture *preamble, const string& Prefix,
     out.prologue(b);
     out.epilogue();
     out.close();
-    return postprocess(epsname,outname,outputformat,1.0,wait,view,false,false);
+    return postprocess(epsname,outname,outputformat,1.0,wait,view,false,
+                       epsformat,false);
   }
   
-  Labels |= svgformat;
+  Labels |= svg;
     
   if(Labels)
     prefix=cleanpath(prefix);
@@ -908,7 +943,7 @@ bool picture::shipout(picture *preamble, const string& Prefix,
   
   if(Labels) {
     texname=TeXmode ? buildname(prefix,"tex") : auxname(prefix,"tex");
-    tex=svgformat ? new svgtexfile(texname,b) : new texfile(texname,b);
+    tex=dvi ? new svgtexfile(texname,b) : new texfile(texname,b);
     tex->prologue();
   }
   
@@ -963,7 +998,7 @@ bool picture::shipout(picture *preamble, const string& Prefix,
     bool postscript=false;
     drawLabel *L=NULL;
     
-    if(svgformat)
+    if(dvi)
       for(nodelist::const_iterator r=begin.begin(); r != begin.end(); ++r)
         (*r)->draw(&out);
     
@@ -971,7 +1006,7 @@ bool picture::shipout(picture *preamble, const string& Prefix,
       assert(*p);
       if(Labels && (*p)->islayer()) break;
       
-      if(svgformat && (*p)->svg()) {
+      if(dvi && (*p)->svg()) {
         picture *f=(*p)->svgpng() ? new picture : NULL;
         nodelist::const_iterator q=layerp;
         for(;;) {
@@ -1058,7 +1093,7 @@ bool picture::shipout(picture *preamble, const string& Prefix,
         for (p=layerp; p != nodes.end(); ++p) {
           assert(*p);
           bool islayer=(*p)->islayer();
-          if(svgformat && (*p)->svg()) {
+          if(dvi && (*p)->svg()) {
             islayer=true;
             if((*p)->svgpng())
               L->write(tex,b);
@@ -1086,8 +1121,8 @@ bool picture::shipout(picture *preamble, const string& Prefix,
       if(Labels) {
         tex->epilogue();
         if(context) prefix=stripDir(prefix);
-        status=texprocess(texname,svgformat ? outname : prename,prefix,
-                          bboxshift,svgformat);
+        status=texprocess(texname,dvi ? outname : prename,prefix,
+                          bboxshift,dvi);
         delete tex;
         if(!getSetting<bool>("keep")) {
           for(mem::list<string>::iterator p=files.begin(); p != files.end();
@@ -1102,7 +1137,7 @@ bool picture::shipout(picture *preamble, const string& Prefix,
         } else {
           if(context) prename=stripDir(prename);
           status=postprocess(prename,outname,outputformat,magnification,wait,
-                             view,pdf && Labels,svgformat);
+                             view,pdf && Labels,epsformat,svg);
           if(pdfformat && !getSetting<bool>("keep")) {
             unlink(auxname(prefix,"m9").c_str());
             unlink(auxname(prefix,"pbsdat").c_str());

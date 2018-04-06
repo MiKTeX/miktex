@@ -17,7 +17,9 @@ namespace camp {
 
 const triple drawElement::zero;
 
-double T[3]; // z-component of current transform
+//double Tx[3]; // x-component of current transform
+//double Ty[3]; // y-component of current transform
+double Tz[3]; // z-component of current transform
 
 using vm::array;
 
@@ -65,7 +67,7 @@ void setcolors(bool colors, bool lighton,
   if(!colors && (diffuse != lastdiffuse || ambient != lastambient || 
                  emissive != lastemissive || specular != lastspecular ||
                  shininess != lastshininess)) {
-    drawBezierPatch::S.draw();
+    drawBezierPatch::S.draw(); 
     lastdiffuse=diffuse;
     lastambient=ambient;
     lastemissive=emissive;
@@ -278,9 +280,20 @@ void drawBezierPatch::render(GLUnurbs *nurb, double size2,
   glGetDoublev(GL_MODELVIEW_MATRIX,t);
 // Like Fortran, OpenGL uses transposed (column-major) format!
   run::transpose(t,4);
-  T[0]=t[8];
-  T[1]=t[9];
-  T[2]=t[10];
+/*  
+  Tx[0]=t[0];
+  Tx[1]=t[1];
+  Tx[2]=t[2];
+  
+  Ty[0]=t[4];
+  Ty[1]=t[5];
+  Ty[2]=t[6];
+*/
+  
+  Tz[0]=t[8];
+  Tz[1]=t[9];
+  Tz[2]=t[10];
+  
   run::inverse(t,4);
   bbox3 box(m,M);
   box.transform(t);
@@ -505,9 +518,20 @@ void drawBezierTriangle::render(GLUnurbs *nurb, double size2,
   glGetDoublev(GL_MODELVIEW_MATRIX,t);
 // Like Fortran, OpenGL uses transposed (column-major) format!
   run::transpose(t,4);
-  T[0]=t[8];
-  T[1]=t[9];
-  T[2]=t[10];
+/*  
+  Tx[0]=t[0];
+  Tx[1]=t[1];
+  Tx[2]=t[2];
+  
+  Ty[0]=t[4];
+  Ty[1]=t[5];
+  Ty[2]=t[6];
+*/
+  
+  Tz[0]=t[8];
+  Tz[1]=t[9];
+  Tz[2]=t[10];
+
   run::inverse(t,4);
   bbox3 box(m,M);
   box.transform(t);

@@ -246,13 +246,15 @@ struct mod {
   }
 };
 
-template <typename T>
+template <typename>
 struct quotient {
-  T operator() (T x, T y,  size_t i=0) {
+  Int operator() (Int x, Int y,  size_t i=0) {
     if(y == 0) dividebyzero(i);
     if(y == -1) return Negate(x);
 // Implementation-independent definition of integer division: round down
-    return (x-portableMod(x,y))/y;
+    Int q=x/y;
+    if(q >= 0 || y*q == x) return q;
+    return q-1;
   }
 };
 

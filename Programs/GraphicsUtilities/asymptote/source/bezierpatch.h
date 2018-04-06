@@ -44,9 +44,8 @@ struct BezierPatch
   typedef GLuint VertexFunction(const triple &v, const triple& n, GLfloat *c);
   vertexFunction *pvertex;
   VertexFunction *pVertex;
-  bool empty;
   
-  BezierPatch() : empty(true) {}
+  BezierPatch() {}
   
   void init(double res, const triple& Min, const triple& Max,
             bool transparent, GLfloat *colors=NULL);
@@ -192,7 +191,6 @@ struct BezierPatch
   }
   
   void clear() {
-    empty=true;
     nvertices=ntvertices=Nvertices=Ntvertices=0;
     buffer.clear();
     indices.clear();
