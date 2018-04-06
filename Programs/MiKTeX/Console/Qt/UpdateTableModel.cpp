@@ -45,7 +45,7 @@ int UpdateTableModel::rowCount(const QModelIndex& parent) const
 
 int UpdateTableModel::columnCount(const QModelIndex& parent) const
 {
-  return parent.isValid() ? 0 : 4;
+  return parent.isValid() ? 0 : 5;
 }
 
 template<typename T> QString FormatPackageVersion(const T& packageInfo)
@@ -92,6 +92,22 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
       switch (update.action)
       {
       case PackageInstaller::UpdateInfo::Keep:
+      case PackageInstaller::UpdateInfo::KeepAdmin:
+      case PackageInstaller::UpdateInfo::KeepObsolete:
+        return tr("keep");
+      case PackageInstaller::UpdateInfo::Update:
+      case PackageInstaller::UpdateInfo::ForceUpdate:
+      case PackageInstaller::UpdateInfo::Repair:
+      case PackageInstaller::UpdateInfo::ReleaseStateChange:
+        return tr("install");
+      case PackageInstaller::UpdateInfo::ForceRemove:
+        return tr("remove");
+      }
+      break;
+    case 4:
+      switch (update.action)
+      {
+      case PackageInstaller::UpdateInfo::Keep:
         return tr("update not possible");
       case PackageInstaller::UpdateInfo::KeepAdmin:
         return tr("update not possible in user mode");
@@ -100,9 +116,8 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
       case PackageInstaller::UpdateInfo::Update:
         return tr("optional");
       case PackageInstaller::UpdateInfo::ForceUpdate:
-        return tr("update required");
       case PackageInstaller::UpdateInfo::ForceRemove:
-        return tr("removal required");
+        return tr("required");
       case PackageInstaller::UpdateInfo::Repair:
         return tr("to be repaired");
       case PackageInstaller::UpdateInfo::ReleaseStateChange:
@@ -168,9 +183,11 @@ QVariant UpdateTableModel::headerData(int section, Qt::Orientation orientation, 
     case 1:
       return tr("Installed");
     case 2:
-      return tr("Repository");
+      return tr("Source");
     case 3:
       return tr("Action");
+    case 4:
+      return tr("");
     }
   }
   return QAbstractTableModel::headerData(section, orientation, role);
