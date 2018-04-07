@@ -175,9 +175,21 @@ void wait(pthread_cond_t& signal, pthread_mutex_t& lock)
   pthread_mutex_unlock(&lock);
 }
 #elif defined(MIKTEX)
-std::thread mainthread;
 std::condition_variable initSignal;
 std::mutex initLock;
+std::condition_variable readySignal;
+std::mutex readyLock;
+void endwait(std::condition_variable& cond, std::mutex& mutex)
+{
+  std::unique_lock<std::mutex> lock(mutex);
+  cond.notify_one();
+}
+void wait(std::condition_variable& cond, std::mutex& mutex)
+{
+  std::unique_lock<std::mutex> lock(mutex);
+  cond.notify_one();
+  cond.wait(lock);
+}
 #endif
 
 template<class T>
@@ -295,18 +307,12 @@ void setProjection()
 
 void drawscene(double Width, double Height)
 {
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
   static bool first=true;
   if(glthread && first && !getSetting<bool>("offscreen")) {
     wait(initSignal,initLock);
     endwait(initSignal,initLock);
     first=false;
-  }
-#elif defined(MIKTEX)
-  static bool first = true;
-  if (glthread && first && !getSetting<bool>("offscreen")) {
-    // MIKTEX-TODO
-    first = false;
   }
 #endif
 
@@ -399,7 +405,7 @@ void Export()
     glutPostRedisplay();
 #endif
 
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
   if(glthread && readyAfterExport && !offscreen) {
     readyAfterExport=false;        
     endwait(readySignal,readyLock);
@@ -467,7 +473,7 @@ void quit()
       Setting("interrupt")=true;
     home();
     Animate=getSetting<bool>("autoplay");
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
     if(!interact::interactive || animating) {
       idle();
       glutDisplayFunc(nodisplay);
@@ -640,7 +646,7 @@ void screen()
 
 void nextframe(int) 
 {
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
   endwait(readySignal,readyLock);
 #endif    
   double framedelay=getSetting<double>("framedelay");
@@ -657,7 +663,7 @@ void display()
   }
   drawscene(Width,Height);
   glutSwapBuffers();
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
   if(glthread && Animate) {
     queueExport=false;
     double delay=1.0/getSetting<double>("framerate");
@@ -1402,10 +1408,8 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   bool offscreen=getSetting<bool>("offscreen");
   Iconify=getSetting<bool>("iconify");
   
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
   static bool initializedView=false;
-#elif defined(MIKTEX)
-  static bool initializedView = false;
 #endif  
 
   width=max(width,1.0);
@@ -1532,22 +1536,15 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   size_t nbuttons=sizeof(buttons)/sizeof(int);
 #endif  
   
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
   if(glthread && initializedView && !offscreen) {
     if(!View)
       readyAfterExport=queueExport=true;
-    pthread_kill(mainthread,SIGUSR1);
-    return;
-  }
-#elif defined(MIKTEX)
-  if (glthread && initializedView && !offscreen) {
-    if (!View)
-    {
-      readyAfterExport = true;
-      queueExport = true;
-    }
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
     // MIKTEX-TODO
-    mainthread.detach();
+#else
+    pthread_kill(mainthread,SIGUSR1);
+#endif
     return;
   }
 #endif    
@@ -1682,7 +1679,7 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   
   if(View && !offscreen) {
 #ifdef HAVE_LIBGLUT
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
     initializedView=true;
 #endif    
     glutReshapeFunc(reshape);
@@ -1721,7 +1718,6 @@ void glrender(const string& prefix, const picture *pic, const string& format,
         pthread_kill(mainthread,SIGUSR1);
 #elif defined(MIKTEX)
         // MIKTEX-TODO
-        mainthread.detach();
 #endif    
       } else {
         initialized=true;

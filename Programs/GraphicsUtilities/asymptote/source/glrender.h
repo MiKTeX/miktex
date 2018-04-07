@@ -9,7 +9,6 @@
 #if defined(MIKTEX_WINDOWS)
 #include <Windows.h>
 #endif
-
 #include "common.h"
 #include "triple.h"
 
@@ -44,7 +43,7 @@ typedef GLvoid (* _GLUfuncptr)();
 #endif
 #endif
 #if defined(MIKTEX_WINDOWS) && !defined(GLU_NURBS_MODE)
-typedef void(* APIENTRY _GLUfuncptr)();
+typedef void(__stdcall * _GLUfuncptr)();
 #define GLU_NURBS_MODE 100160
 #define GLU_NURBS_TESSELLATOR 100161
 #define GLU_NURBS_BEGIN 100164

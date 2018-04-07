@@ -41,9 +41,12 @@ extern pthread_mutex_t readyLock;
 void wait(pthread_cond_t& signal, pthread_mutex_t& lock);
 void endwait(pthread_cond_t& signal, pthread_mutex_t& lock);
 #elif defined(MIKTEX)
-extern std::thread mainthread;
 extern std::condition_variable initSignal;
 extern std::mutex initLock;
+extern std::condition_variable readySignal;
+extern std::mutex readyLock;
+void endwait(std::condition_variable& cond, std::mutex& mutex);
+void wait(std::condition_variable& cond, std::mutex& mutex);
 #endif
 }
 

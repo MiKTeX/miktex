@@ -1188,7 +1188,7 @@ Communicate com;
 void glrenderWrapper()
 {
 #ifdef HAVE_GL  
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
   wait(initSignal,initLock);
   endwait(initSignal,initLock);
 #endif  
@@ -1251,7 +1251,7 @@ bool picture::shipout3(const string& prefix, const string& format,
   bool View=settings::view() && view;
   static int oldpid=0;
   bool offscreen=getSetting<bool>("offscreen");
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
   bool animating=getSetting<bool>("animating");
   bool Wait=!interact::interactive || !View || animating;
 #endif  
@@ -1259,7 +1259,7 @@ bool picture::shipout3(const string& prefix, const string& format,
 
 #if defined(HAVE_LIBGLUT) && defined(HAVE_GL)
   if(glthread && !offscreen) {
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
     if(gl::initialize) {
       gl::initialize=false;
       com.prefix=prefix;
@@ -1282,7 +1282,11 @@ bool picture::shipout3(const string& prefix, const string& format,
       com.viewportlighting=viewportlighting;
       com.view=View;
       if(Wait)
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+        readyLock.lock();
+#else
         pthread_mutex_lock(&readyLock);
+#endif
       wait(initSignal,initLock);
       endwait(initSignal,initLock);
       static bool initialize=true;
@@ -1292,13 +1296,22 @@ bool picture::shipout3(const string& prefix, const string& format,
         initialize=false;
       }
       if(Wait) {
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+        std::unique_lock<std::mutex> lck(readyLock, std::adopt_lock);
+        readySignal.wait(lck);
+#else
         pthread_cond_wait(&readySignal,&readyLock);
         pthread_mutex_unlock(&readyLock);
+#endif
       }
       return true;
     }
     if(Wait)
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+      readyLock.lock();
+#else
       pthread_mutex_lock(&readyLock);
+#endif
 #endif
   } else {
 #if defined(MIKTEX_WINDOWS)
@@ -1324,10 +1337,15 @@ bool picture::shipout3(const string& prefix, const string& format,
   glrender(prefix,pic,outputformat,width,height,angle,zoom,m,M,shift,t,
            background,nlights,lights,diffuse,ambient,specular,viewportlighting,
            View,oldpid);
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
   if(glthread && !offscreen && Wait) {
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+    std::unique_lock<std::mutex> lck(readyLock, std::adopt_lock);
+    readySignal.wait(lck);
+#else
     pthread_cond_wait(&readySignal,&readyLock);
     pthread_mutex_unlock(&readyLock);
+#endif
   }
   return true;
 #endif

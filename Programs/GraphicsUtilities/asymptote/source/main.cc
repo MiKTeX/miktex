@@ -169,10 +169,14 @@ void *asymain(void *A)
 #endif
   }
 #ifdef HAVE_GL
-#ifdef HAVE_PTHREAD
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
   if(gl::glthread && !getSetting<bool>("offscreen")) {
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+    // MIKTEX-TODO
+#else
     pthread_kill(gl::mainthread,SIGUSR2);
     pthread_join(gl::mainthread,NULL);
+#endif
   }
 #endif
 #endif
@@ -187,7 +191,7 @@ void exitHandler(int)
 #if defined(MIKTEX)
 int main(int argc, char **argv)
 #else
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 #endif
 {
 #if defined(MIKTEX)
@@ -239,6 +243,17 @@ int main(int argc, char *argv[])
       } else gl::glthread=false;
     } catch(std::bad_alloc&) {
       outOfMemory();
+    }
+  }
+#elif defined(MIKTEX)
+  if (gl::glthread)
+  {
+    std::thread(asymain, &args).detach();
+    // MIKTEX-TODO
+    while (true)
+    {
+      camp::glrenderWrapper();
+      gl::initialize = true;
     }
   }
 #endif
