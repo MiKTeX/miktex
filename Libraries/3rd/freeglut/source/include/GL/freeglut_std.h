@@ -58,9 +58,7 @@
 #   endif
 
 #  ifndef WIN32_LEAN_AND_MEAN
-#if !defined(MIKTEX_WINDOWS)
 #    define WIN32_LEAN_AND_MEAN 1
-#endif
 #  endif
 #  ifndef NOMINMAX
 #    define NOMINMAX
