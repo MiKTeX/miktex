@@ -6,6 +6,10 @@
 #ifndef GLRENDER_H
 #define GLRENDER_H
 
+#if defined(MIKTEX_WINDOWS)
+#include <Windows.h>
+#endif
+
 #include "common.h"
 #include "triple.h"
 
@@ -38,6 +42,16 @@ typedef GLvoid (* _GLUfuncptr)();
 #ifdef HAVE_LIBOSMESA
 #include <GL/osmesa.h>
 #endif
+#endif
+#if defined(MIKTEX_WINDOWS) && !defined(GLU_NURBS_MODE)
+typedef void(*_GLUfuncptr)();
+#define GLU_NURBS_MODE 100160
+#define GLU_NURBS_TESSELLATOR 100161
+#define GLU_NURBS_BEGIN 100164
+#define GLU_NURBS_VERTEX 100165
+#define GLU_NURBS_NORMAL 100166
+#define GLU_NURBS_COLOR 100167
+#define GLU_NURBS_END 100169
 #endif
 
 namespace camp {

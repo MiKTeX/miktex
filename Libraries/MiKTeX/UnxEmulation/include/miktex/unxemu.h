@@ -1,6 +1,6 @@
 /* miktex/unxemu.h: Unx emulation                       -*- C++ -*-
 
-   Copyright (C) 2007-2017 Christian Schenk
+   Copyright (C) 2007-2018 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -42,6 +42,7 @@
 #include <process.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/utime.h>
@@ -295,6 +296,14 @@ static inline int rmdir(const char* path)
 static inline int unlink(const char* path)
 {
   return _unlink(path);
+}
+#endif
+
+#if !HAVE_USLEEP && !defined(usleep)
+static inline int usleep(unsigned long useconds)
+{
+  _sleep(useconds);
+  return 0;
 }
 #endif
 

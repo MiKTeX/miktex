@@ -1053,12 +1053,7 @@ void gen_runtime80(stack *Stack)
   Int microseconds=vm::pop<Int>(Stack);
 #line 706 "runtime.in"
   if(microseconds <= 0) return; 
-#if defined(MIKTEX_WINDOWS)
-  // MIKTEX-TODO
-  _sleep(microseconds);
-#else
   usleep((unsigned long) microseconds); 
-#endif
 }
 
 #line 711 "runtime.in"

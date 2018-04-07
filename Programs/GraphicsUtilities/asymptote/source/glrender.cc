@@ -174,6 +174,10 @@ void wait(pthread_cond_t& signal, pthread_mutex_t& lock)
   pthread_cond_wait(&signal,&lock);
   pthread_mutex_unlock(&lock);
 }
+#elif defined(MIKTEX)
+std::thread mainthread;
+std::condition_variable initSignal;
+std::mutex initLock;
 #endif
 
 template<class T>
@@ -297,6 +301,12 @@ void drawscene(double Width, double Height)
     wait(initSignal,initLock);
     endwait(initSignal,initLock);
     first=false;
+  }
+#elif defined(MIKTEX)
+  static bool first = true;
+  if (glthread && first && !getSetting<bool>("offscreen")) {
+    // MIKTEX-TODO
+    first = false;
   }
 #endif
 
@@ -669,10 +679,14 @@ void display()
     queueExport=false;
   } 
   if(!glthread) {
+#if defined(MIKTEX_WINDOWS)
+    // MIKTEX-TODO
+#else
     if(Oldpid != 0 && waitpid(Oldpid,NULL,WNOHANG) != Oldpid) {
       kill(Oldpid,SIGHUP);
       Oldpid=0;
     }
+#endif
   }
 }
 
@@ -718,7 +732,11 @@ void reshape(int width, int height)
     static bool initialize=true;
     if(initialize) {
       initialize=false;
+#if defined(MIKTEX_WINDOWS)
+      // MIKTEX-TODO
+#else
       Signal(SIGUSR1,updateHandler);
+#endif
     }
   }
   
@@ -1386,6 +1404,8 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   
 #ifdef HAVE_PTHREAD
   static bool initializedView=false;
+#elif defined(MIKTEX)
+  static bool initializedView = false;
 #endif  
 
   width=max(width,1.0);
@@ -1517,6 +1537,17 @@ void glrender(const string& prefix, const picture *pic, const string& format,
     if(!View)
       readyAfterExport=queueExport=true;
     pthread_kill(mainthread,SIGUSR1);
+    return;
+  }
+#elif defined(MIKTEX)
+  if (glthread && initializedView && !offscreen) {
+    if (!View)
+    {
+      readyAfterExport = true;
+      queueExport = true;
+    }
+    // MIKTEX-TODO
+    mainthread.detach();
     return;
   }
 #endif    
@@ -1688,11 +1719,18 @@ void glrender(const string& prefix, const picture *pic, const string& format,
         readyAfterExport=true;
 #ifdef HAVE_PTHREAD
         pthread_kill(mainthread,SIGUSR1);
+#elif defined(MIKTEX)
+        // MIKTEX-TODO
+        mainthread.detach();
 #endif    
       } else {
         initialized=true;
         readyAfterExport=true;
+#if defined(MIKTEX_WINDOWS)
+        // MIKTEX-TODO
+#else
         Signal(SIGUSR1,exportHandler);
+#endif
         exportHandler();
       }
     } else {

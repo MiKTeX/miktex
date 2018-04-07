@@ -814,12 +814,7 @@ bool picture::postprocess(const string& prename, const string& outname,
 
         if(pdfreload) {
           // Work around race conditions in acroread initialization script
-#if defined(MIKTEX_WINDOWS)
-          // MIKTEX-TODO
-          _sleep(getSetting<Int>("pdfreloaddelay"));
-#else
           usleep(getSetting<Int>("pdfreloaddelay"));
-#endif
           // Only reload if pdf viewer process is already running.
 #if defined(MIKTEX_WINDOWS)
           // MIKTEX-TODO
@@ -1306,14 +1301,23 @@ bool picture::shipout3(const string& prefix, const string& format,
       pthread_mutex_lock(&readyLock);
 #endif
   } else {
+#if defined(MIKTEX_WINDOWS)
+    // MIKTEX-TODO
+    int pid = -1;
+#else
     int pid=fork();
+#endif
     if(pid == -1)
       camp::reportError("Cannot fork process");
+#if defined(MIKTEX_WINDOWS)
+    // MIKTEX-TODO
+#else
     if(pid != 0)  {
       oldpid=pid;
       waitpid(pid,NULL,interact::interactive && View ? WNOHANG : 0);
       return true;
     }
+#endif
   }
 #endif
 #ifdef HAVE_GL  

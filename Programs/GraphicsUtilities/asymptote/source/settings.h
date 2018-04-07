@@ -10,6 +10,11 @@
 
 #include <fstream>
 #include <sys/stat.h>
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+#endif
 
 #include "common.h"
 #include "pair.h"
@@ -35,6 +40,10 @@ extern pthread_cond_t readySignal;
 extern pthread_mutex_t readyLock;
 void wait(pthread_cond_t& signal, pthread_mutex_t& lock);
 void endwait(pthread_cond_t& signal, pthread_mutex_t& lock);
+#elif defined(MIKTEX)
+extern std::thread mainthread;
+extern std::condition_variable initSignal;
+extern std::mutex initLock;
 #endif
 }
 
