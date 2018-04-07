@@ -44,7 +44,7 @@ typedef GLvoid (* _GLUfuncptr)();
 #endif
 #endif
 #if defined(MIKTEX_WINDOWS) && !defined(GLU_NURBS_MODE)
-typedef void(*_GLUfuncptr)();
+typedef void(* APIENTRY _GLUfuncptr)();
 #define GLU_NURBS_MODE 100160
 #define GLU_NURBS_TESSELLATOR 100161
 #define GLU_NURBS_BEGIN 100164
