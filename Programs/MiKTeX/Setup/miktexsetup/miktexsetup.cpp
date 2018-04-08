@@ -572,6 +572,10 @@ void Application::Main(int argc, const char** argv)
       }
       break;
     case OPT_PORTABLE:
+      if (optShared)
+      {
+        Error(T_("--portable conficts with --shared."));
+      }
       optPortable = true;
       optPortableRoot = optArg;
       break;
@@ -594,6 +598,10 @@ void Application::Main(int argc, const char** argv)
       quiet = true;
       break;
     case OPT_SHARED:
+      if (optPortable)
+      {
+        Error(T_("--portable conficts with --shared."));
+      }
       optShared = (optArg.empty() || Utils::EqualsIgnoreCase("yes", optArg));
       break;
     case OPT_TRACE:
@@ -726,6 +734,7 @@ void Application::Main(int argc, const char** argv)
   {
     setupOptions.IsPortable = true;
     setupOptions.PortableRoot = optPortableRoot;
+    setupOptions.IsCommonSetup = false;
   }    
 
 #if defined(MIKTEX_WINDOWS)
