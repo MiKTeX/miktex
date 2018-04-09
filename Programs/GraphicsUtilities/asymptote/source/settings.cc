@@ -5,6 +5,9 @@
  * Declares a list of global variables that act as settings in the system.
  *****/
 
+#if defined(MIKTEX)
+#include <miktex/ExitThrows>
+#endif
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>

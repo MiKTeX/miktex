@@ -19,6 +19,9 @@
 *
 *************/
 
+#if defined(MIKTEX)
+#include <miktex/ExitThrows>
+#endif
 #include "oPRCFile.h"
 #include <time.h>
 #include <sstream>

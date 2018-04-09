@@ -22,6 +22,9 @@
 
 #define __FFTWPP_H_VERSION__ 2.02
 
+#if defined(MIKTEX)
+#include <miktex/ExitThrows>
+#endif
 #include <cstdlib>
 #include <fstream>
 #include <iostream>

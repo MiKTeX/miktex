@@ -26,6 +26,9 @@
 #include <cassert>
 #include "PRCbitStream.h"
 #include "PRCdouble.h"
+#if defined(MIKTEX)
+#define exit(x) throw x
+#endif
 
 using std::string;
 using std::cerr;

@@ -8,6 +8,9 @@
 #define _POSIX_C_SOURCE 200809L
 #endif
 
+#if defined(MIKTEX)
+#include <miktex/ExitThrows>
+#endif
 #include <stdlib.h>
 #include <fstream>
 #include <cstring>

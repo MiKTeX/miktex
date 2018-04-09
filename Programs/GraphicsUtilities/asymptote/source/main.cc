@@ -23,6 +23,9 @@
 #define _POSIX_C_SOURCE 200809L
 #endif
 
+#if defined(MIKTEX)
+#include <miktex/ExitThrows>
+#endif
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
@@ -123,9 +126,6 @@ struct Args
   Args(int argc, char **argv) : argc(argc), argv(argv) {}
 };
 
-#if defined(MIKTEX)
-#define exit(x) throw x
-#endif
 void *asymain(void *A)
 {
   setsignal(signalHandler);

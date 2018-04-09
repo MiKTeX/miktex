@@ -7,7 +7,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#if !defined(MIKTEX)
 #undef NDEBUG
+#endif
 
 #include <iostream>
 #include <climits>

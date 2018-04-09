@@ -5,6 +5,9 @@
  * Used in all phases of the compiler to give error messages.
  *****/
 
+#if defined(MIKTEX)
+#include <miktex/ExitThrows>
+#endif
 #include <cstdio>
 #include <cstdlib>
 

@@ -1,3 +1,6 @@
+#if defined(MIKTEX)
+#include <miktex/ExitThrows>
+#endif
 #if defined(MIKTEX_WINDOWS)
 #  define eof eof_hidden
 #  include <io.h>
