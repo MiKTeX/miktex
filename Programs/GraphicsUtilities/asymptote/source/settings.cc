@@ -1179,8 +1179,12 @@ void initSettings() {
                             "Render thin 3D lines", true));
   addOption(new boolSetting("autobillboard", 0,
                             "3D labels always face viewer by default", true));
+#if defined(MIKTEX_WINDOWS)
+  addOption(new boolSetting("threads", 0, "Use threads for 3D rendering", true));
+#else
   addOption(new boolSetting("threads", 0,
                             "Use POSIX threads for 3D rendering", !msdos));
+#endif
   addOption(new boolSetting("fitscreen", 0,
                             "Fit rendered image to screen", true));
   addOption(new boolSetting("interactiveWrite", 0,

@@ -9,7 +9,9 @@
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
+#ifdef __CYGWIN__
 #define _POSIX_C_SOURCE 200809L
+#endif
 
 #include <cassert>
 #include <iostream>

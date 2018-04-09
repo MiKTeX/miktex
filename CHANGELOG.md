@@ -4,7 +4,7 @@
 
 ### Upgraded programs
 
-* Asymptote 2.43
+* Asymptote 2.44
 * Dvisvgm 2.3.5
 * Gregorio 5.1.1
 

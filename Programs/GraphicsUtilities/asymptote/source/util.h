@@ -107,7 +107,7 @@ extern "C" int isnan(double);
 
 
 #if defined(__DECCXX_LIBCXX_RH70) || defined(__CYGWIN__)
-extern "C" int usleep(int);
+extern "C" int usleep(useconds_t);
 extern "C" int kill(pid_t pid, int sig) throw();
 extern "C" int snprintf(char *str, size_t size, const char *format,...);
 #include <stdio.h>

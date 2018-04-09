@@ -19,7 +19,9 @@
 *
 *************/
 
+#ifdef __CYGWIN__
 #define _POSIX_C_SOURCE 200809L
+#endif
 
 #include <iostream>
 #include <cstdlib>
@@ -172,7 +174,7 @@ void *asymain(void *A)
 #if defined(MIKTEX) || defined(HAVE_PTHREAD)
   if(gl::glthread && !getSetting<bool>("offscreen")) {
 #if defined(MIKTEX) && !defined(HAVE_PTHREAD)
-    // MIKTEX-TODO
+    gl::miktex_exitRequested = true;
 #else
     pthread_kill(gl::mainthread,SIGUSR2);
     pthread_join(gl::mainthread,NULL);
@@ -182,6 +184,23 @@ void *asymain(void *A)
 #endif
   exit(em.processStatus() || interact::interactive ? 0 : 1);  
 }
+#if defined(MIKTEX)
+void BackgroundThread(void* ptr)
+{
+  try
+  {
+    asymain(ptr);
+  }
+  catch (const std::exception& /*ex*/)
+  {
+    // MIKTEX-TODO
+  }
+  catch (int /*code*/)
+  {
+    // MIKTEX-TODO
+  }
+}
+#endif
 
 void exitHandler(int)
 {
@@ -248,10 +267,10 @@ int main(int argc, char *argv[])
 #elif defined(MIKTEX)
   if (gl::glthread)
   {
-    std::thread(asymain, &args).detach();
-    // MIKTEX-TODO
+    std::thread(BackgroundThread, &args).detach();
     while (true)
     {
+      gl::miktex_RequestHandler();
       camp::glrenderWrapper();
       gl::initialize = true;
     }
@@ -261,6 +280,7 @@ int main(int argc, char *argv[])
 #endif  
   asymain(&args);
 #if defined(MIKTEX)
+  // MIKTEX-UNEXPECTED: unreachable code
   return 0;
 #endif
 }

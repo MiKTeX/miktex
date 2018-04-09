@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sys/stat.h>
 #if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -47,6 +48,11 @@ extern std::condition_variable readySignal;
 extern std::mutex readyLock;
 void endwait(std::condition_variable& cond, std::mutex& mutex);
 void wait(std::condition_variable& cond, std::mutex& mutex);
+extern std::atomic_bool miktex_exportRequested;
+extern std::atomic_bool miktex_updateRequested;
+extern std::atomic_bool* miktex_sigusr1;
+extern std::atomic_bool miktex_exitRequested;
+void miktex_RequestHandler();
 #endif
 }
 

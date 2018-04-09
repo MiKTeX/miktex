@@ -4,7 +4,9 @@
  * Render 3D Bezier paths and surfaces.
  *****/
 
+#ifdef __CYGWIN__
 #define _POSIX_C_SOURCE 200809L
+#endif
 
 #include <stdlib.h>
 #include <fstream>
@@ -189,6 +191,29 @@ void wait(std::condition_variable& cond, std::mutex& mutex)
   std::unique_lock<std::mutex> lock(mutex);
   cond.notify_one();
   cond.wait(lock);
+}
+std::atomic_bool miktex_exportRequested = false;
+std::atomic_bool miktex_updateRequested = false;
+std::atomic_bool* miktex_sigusr1 = nullptr;
+std::atomic_bool miktex_exitRequested = false;
+void updateHandler(int);
+void exportHandler(int);
+void miktex_RequestHandler()
+{
+  if (gl::miktex_exitRequested)
+  {
+    throw 0;
+  }
+  if (gl::miktex_updateRequested)
+  {
+    gl::updateHandler(0);
+    gl::miktex_updateRequested = false;
+  }
+  if (gl::miktex_exportRequested)
+  {
+    gl::exportHandler(0);
+    gl::miktex_exportRequested = false;
+  }
 }
 #endif
 
@@ -686,7 +711,7 @@ void display()
   } 
   if(!glthread) {
 #if defined(MIKTEX_WINDOWS)
-    // MIKTEX-TODO
+    // MIKTEX-UNEXPECTED
 #else
     if(Oldpid != 0 && waitpid(Oldpid,NULL,WNOHANG) != Oldpid) {
       kill(Oldpid,SIGHUP);
@@ -739,7 +764,7 @@ void reshape(int width, int height)
     if(initialize) {
       initialize=false;
 #if defined(MIKTEX_WINDOWS)
-      // MIKTEX-TODO
+      miktex_sigusr1 = &miktex_updateRequested;
 #else
       Signal(SIGUSR1,updateHandler);
 #endif
@@ -1541,7 +1566,7 @@ void glrender(const string& prefix, const picture *pic, const string& format,
     if(!View)
       readyAfterExport=queueExport=true;
 #if defined(MIKTEX) && !defined(HAVE_PTHREAD)
-    // MIKTEX-TODO
+    *miktex_sigusr1 = true;
 #else
     pthread_kill(mainthread,SIGUSR1);
 #endif
@@ -1717,13 +1742,13 @@ void glrender(const string& prefix, const picture *pic, const string& format,
 #ifdef HAVE_PTHREAD
         pthread_kill(mainthread,SIGUSR1);
 #elif defined(MIKTEX)
-        // MIKTEX-TODO
+        *miktex_sigusr1 = true;
 #endif    
       } else {
         initialized=true;
         readyAfterExport=true;
 #if defined(MIKTEX_WINDOWS)
-        // MIKTEX-TODO
+        miktex_sigusr1 = &miktex_exportRequested;
 #else
         Signal(SIGUSR1,exportHandler);
 #endif
