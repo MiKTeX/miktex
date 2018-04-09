@@ -119,6 +119,40 @@
           </widget>
          </item>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>15</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>&lt;p&gt;If you do not have a local package repository yet, it is easy to set one up: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;HOWTO: set up a local package repository&lt;/a&gt;&lt;/p&gt;
+</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
           <widget class="QRadioButton" name="rbCD">
            <property name="text">
             <string>MiKTeX DVD (mounted drive or ISO image)</string>
