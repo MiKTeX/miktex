@@ -92,9 +92,11 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
       switch (update.action)
       {
       case PackageInstaller::UpdateInfo::Keep:
+        return tr("");
       case PackageInstaller::UpdateInfo::KeepAdmin:
+        return tr("install");
       case PackageInstaller::UpdateInfo::KeepObsolete:
-        return tr("keep");
+        return tr("remove");
       case PackageInstaller::UpdateInfo::Update:
       case PackageInstaller::UpdateInfo::ForceUpdate:
       case PackageInstaller::UpdateInfo::Repair:
@@ -130,7 +132,7 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
   {
     if (index.column() == 0)
     {
-      return update.exclude ? Qt::Unchecked : Qt::Checked;
+      return update.checked ? Qt::Checked : Qt::Unchecked;
     }
   }
 
@@ -146,15 +148,15 @@ bool UpdateTableModel::setData(const QModelIndex& index, const QVariant& value, 
   UpdateTableModel::InternalUpdateInfo& update = updates[index.row()];
   if (role == Qt::CheckStateRole && index.column() == 0)
   {
-    Qt::CheckState oldValue = update.exclude ? Qt::Unchecked : Qt::Checked;
-    Qt::CheckState newValue = static_cast<Qt::CheckState>(value.toInt());
-    if (newValue == Qt::Unchecked && !IsExcludable(index))
+    if (!IsCheckable(index))
     {
       return false;
     }
+    Qt::CheckState oldValue = update.checked ? Qt::Checked : Qt::Unchecked;
+    Qt::CheckState newValue = static_cast<Qt::CheckState>(value.toInt());
     if (oldValue != newValue)
     {
-      update.exclude = newValue == Qt::Unchecked;
+      update.checked = newValue == Qt::Checked;
       emit dataChanged(index, index);
       return true;
     }
@@ -204,10 +206,9 @@ void UpdateTableModel::SetData(const vector<PackageInstaller::UpdateInfo>& updat
   endResetModel();
 }
 
-bool UpdateTableModel::IsExcludable(const QModelIndex& index) const
+bool UpdateTableModel::IsCheckable(const QModelIndex& index) const
 {
-  const PackageInstaller::UpdateInfo& upd = updates[index.row()];
-  switch (upd.action)
+  switch (updates[index.row()].action)
   {
   case PackageInstaller::UpdateInfo::KeepAdmin:
   case PackageInstaller::UpdateInfo::KeepObsolete:

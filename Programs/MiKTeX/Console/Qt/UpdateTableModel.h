@@ -65,12 +65,12 @@ public:
   void SetData(const std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo>& updates);
 
 public:
-  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> GetData() const
+  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> GetCheckedPackages() const
   {
     std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> result;
     for(const auto& u : updates)
     {
-      if (!u.exclude)
+      if (u.checked)
       {
         result.push_back(u);
       }
@@ -79,7 +79,7 @@ public:
   }
 
 public:
-  bool IsExcludable(const QModelIndex& index) const;
+  bool IsCheckable(const QModelIndex& index) const;
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
@@ -91,11 +91,12 @@ private:
   struct InternalUpdateInfo :
     public MiKTeX::Packages::PackageInstaller::UpdateInfo
   {
-    InternalUpdateInfo(const MiKTeX::Packages::PackageInstaller::UpdateInfo& upd)
-      : UpdateInfo(upd)
+    InternalUpdateInfo(const MiKTeX::Packages::PackageInstaller::UpdateInfo& upd) :
+      UpdateInfo(upd),
+      checked(upd.action != MiKTeX::Packages::PackageInstaller::UpdateInfo::KeepAdmin && upd.action != MiKTeX::Packages::PackageInstaller::UpdateInfo::KeepObsolete)
     {
     }
-    bool exclude = false;
+    bool checked;
   };
 
 private:

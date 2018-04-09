@@ -1175,7 +1175,7 @@ bool UpdateWorker::Run()
 void MainWindow::Update()
 {
   QThread* thread = new QThread;
-  UpdateWorker* worker = new UpdateWorker(packageManager, updateModel->GetData());
+  UpdateWorker* worker = new UpdateWorker(packageManager, updateModel->GetCheckedPackages());
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Installing package updates..."));
   worker->moveToThread(thread);
