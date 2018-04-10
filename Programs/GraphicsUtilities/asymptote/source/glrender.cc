@@ -9,7 +9,8 @@
 #endif
 
 #if defined(MIKTEX)
-#include <miktex/ExitThrows>
+#include <miktex/asy-first.h>
+#include <miktex/asy.h>
 #endif
 #include <stdlib.h>
 #include <fstream>
@@ -194,29 +195,6 @@ void wait(std::condition_variable& cond, std::mutex& mutex)
   std::unique_lock<std::mutex> lock(mutex);
   cond.notify_one();
   cond.wait(lock);
-}
-std::atomic_bool miktex_exportRequested = false;
-std::atomic_bool miktex_updateRequested = false;
-std::atomic_bool* miktex_sigusr1 = nullptr;
-std::atomic_bool miktex_exitRequested = false;
-void updateHandler(int);
-void exportHandler(int);
-void miktex_RequestHandler()
-{
-  if (gl::miktex_exitRequested)
-  {
-    throw 0;
-  }
-  if (gl::miktex_updateRequested)
-  {
-    gl::updateHandler(0);
-    gl::miktex_updateRequested = false;
-  }
-  if (gl::miktex_exportRequested)
-  {
-    gl::exportHandler(0);
-    gl::miktex_exportRequested = false;
-  }
 }
 #endif
 
@@ -766,8 +744,8 @@ void reshape(int width, int height)
     static bool initialize=true;
     if(initialize) {
       initialize=false;
-#if defined(MIKTEX_WINDOWS)
-      miktex_sigusr1 = &miktex_updateRequested;
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+      MiKTeX::Aymptote::sigusr1 = &MiKTeX::Aymptote::updateRequested;
 #else
       Signal(SIGUSR1,updateHandler);
 #endif
@@ -1569,7 +1547,7 @@ void glrender(const string& prefix, const picture *pic, const string& format,
     if(!View)
       readyAfterExport=queueExport=true;
 #if defined(MIKTEX) && !defined(HAVE_PTHREAD)
-    *miktex_sigusr1 = true;
+    *MiKTeX::Aymptote::sigusr1 = true;
 #else
     pthread_kill(mainthread,SIGUSR1);
 #endif
@@ -1598,6 +1576,9 @@ void glrender(const string& prefix, const picture *pic, const string& format,
 #ifdef FREEGLUT
 #ifdef GLUT_INIT_MAJOR_VERSION
       while(true) {
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+        MiKTeX::Aymptote::RequestHandler();
+#endif
         if(multisample > 0)
           glutSetOption(GLUT_MULTISAMPLE,multisample);
 #endif      
@@ -1745,13 +1726,13 @@ void glrender(const string& prefix, const picture *pic, const string& format,
 #ifdef HAVE_PTHREAD
         pthread_kill(mainthread,SIGUSR1);
 #elif defined(MIKTEX)
-        *miktex_sigusr1 = true;
+        *MiKTeX::Aymptote::sigusr1 = true;
 #endif    
       } else {
         initialized=true;
         readyAfterExport=true;
-#if defined(MIKTEX_WINDOWS)
-        miktex_sigusr1 = &miktex_exportRequested;
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+        MiKTeX::Aymptote::sigusr1 = &MiKTeX::Aymptote::exportRequested;
 #else
         Signal(SIGUSR1,exportHandler);
 #endif

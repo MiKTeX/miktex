@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2017 Christian Schenk
+## Copyright (C) 2017-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -23,7 +23,6 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_GRAPHICS_UTILITIES_FOLDER}/asymptote")
 
 add_definitions(
   -DCPLUSPLUSMAIN
-  -DUSE_MIKTEX_EXIT
   -Dmain=Main
 )
 
@@ -325,14 +324,21 @@ set(header_files
   source/xstream.h
 )
 
-set(asy_sources
+set(miktex_sources
   ${CMAKE_CURRENT_BINARY_DIR}/asy-version.h
   ${MIKTEX_LIBRARY_WRAPPER}
-  ${corefiles}
-  ${header_files}
   miktex/InProcPipe.h
   miktex/PipeStream.cpp
   miktex/PipeStream.h
+  miktex/asy-first.h
+  miktex/asy.cpp
+  miktex/asy.h
+)
+
+set(asy_sources
+  ${corefiles}
+  ${header_files}
+  ${miktex_sources}
   source/main.cc
   source/revision.cc
 )
@@ -399,9 +405,4 @@ endif()
 
 install(TARGETS ${MIKTEX_PREFIX}asy DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
-source_group(MiKTeX FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/asy-version.h
-  miktex/InProcPipe.h
-  miktex/PipeStream.cpp
-  miktex/PipeStream.h
-)
+source_group(MiKTeX FILES ${miktex_sources})

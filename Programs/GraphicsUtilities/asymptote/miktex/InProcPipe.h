@@ -1,6 +1,6 @@
 /* miktex/InProcPipe.h:
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,21 +21,14 @@
 #  pragma once
 #endif
 
+#include "asy-first.h"
+
 #include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <mutex>
 
 #include <miktex/Core/Exceptions>
-
-#if !defined(MIKTEX_BEGIN_NS)
-#define MIKTEX_BEGIN_NS                         \
-namespace MiKTeX {                              \
-  namespace Aymptote {
-#define MIKTEX_END_NS                           \
-  }                                             \
-}
-#endif
 
 MIKTEX_BEGIN_NS;
 

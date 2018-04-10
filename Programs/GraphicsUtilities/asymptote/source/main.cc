@@ -24,7 +24,8 @@
 #endif
 
 #if defined(MIKTEX)
-#include <miktex/ExitThrows>
+#include <miktex/asy-first.h>
+#include <miktex/asy.h>
 #endif
 #include <iostream>
 #include <cstdlib>
@@ -174,7 +175,7 @@ void *asymain(void *A)
 #if defined(MIKTEX) || defined(HAVE_PTHREAD)
   if(gl::glthread && !getSetting<bool>("offscreen")) {
 #if defined(MIKTEX) && !defined(HAVE_PTHREAD)
-    gl::miktex_exitRequested = true;
+    MiKTeX::Aymptote::exitRequested = true;
 #else
     pthread_kill(gl::mainthread,SIGUSR2);
     pthread_join(gl::mainthread,NULL);
@@ -208,7 +209,7 @@ void exitHandler(int)
 }
 
 #if defined(MIKTEX)
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 #else
 int main(int argc, char *argv[])
 #endif
@@ -270,7 +271,7 @@ int main(int argc, char *argv[])
     std::thread(BackgroundThread, &args).detach();
     while (true)
     {
-      gl::miktex_RequestHandler();
+      MiKTeX::Aymptote::RequestHandler();
       camp::glrenderWrapper();
       gl::initialize = true;
     }

@@ -35,6 +35,13 @@ add_definitions(
   -DHAVE_CONFIG_H
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+  add_definitions(
+    -DUNICODE
+    -D_UNICODE
+  )
+endif()
+
 configure_file(
   freeglut-version.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/freeglut-version.h
