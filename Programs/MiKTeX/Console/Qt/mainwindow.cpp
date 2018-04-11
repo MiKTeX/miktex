@@ -1059,22 +1059,7 @@ void MainWindow::CheckUpdates()
     CkeckUpdatesWorker* worker = (CkeckUpdatesWorker*)sender();
     if (worker->GetResult())
     {
-      vector<PackageInstaller::UpdateInfo> updates;
-      for (const PackageInstaller::UpdateInfo& u : worker->GetUpdates())
-      {
-        if (u.action == PackageInstaller::UpdateInfo::ForceUpdate
-          || u.action == PackageInstaller::UpdateInfo::ForceRemove
-          || u.action == PackageInstaller::UpdateInfo::Update
-          || u.action == PackageInstaller::UpdateInfo::Repair
-          || u.action == PackageInstaller::UpdateInfo::ReleaseStateChange)
-        {
-          updates.push_back(u);
-        }
-        else if (u.action == PackageInstaller::UpdateInfo::KeepAdmin || u.action == PackageInstaller::UpdateInfo::KeepObsolete)
-        {
-          // TODO: adminPackage.push_back(u);
-        }
-      }
+      vector<PackageInstaller::UpdateInfo> updates = worker->GetUpdates();
       updateModel->SetData(updates);
       ui->labelUpdateStatus->setText("");
       ui->labelCheckUpdatesStatus->setText("");
