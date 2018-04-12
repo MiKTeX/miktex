@@ -986,6 +986,10 @@ void MainWindow::SetupUiUpdates()
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
     SLOT(UpdateActionsUpdates()));
+  connect(updateModel,
+    SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&, const QVector<int>&)),
+    this,
+    SLOT(UpdateUiUpdates()));
 }
 
 void MainWindow::UpdateUiUpdates()
@@ -1006,7 +1010,7 @@ void MainWindow::UpdateUiUpdates()
   ui->comboRepository3->setEnabled(!IsBackgroundWorkerActive());
   ui->buttonCheckUpdates->setEnabled(!IsBackgroundWorkerActive());
   ui->buttonUpdateCheck->setEnabled(!IsBackgroundWorkerActive());
-  ui->buttonUpdateNow->setEnabled(!IsBackgroundWorkerActive() && updateModel->rowCount() > 0);
+  ui->buttonUpdateNow->setEnabled(!IsBackgroundWorkerActive() && !updateModel->GetCheckedPackages().empty());
   ui->treeViewUpdates->setEnabled(!IsBackgroundWorkerActive());
 }
 
