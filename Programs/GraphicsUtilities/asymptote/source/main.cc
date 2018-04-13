@@ -176,6 +176,7 @@ void *asymain(void *A)
   if(gl::glthread && !getSetting<bool>("offscreen")) {
 #if defined(MIKTEX) && !defined(HAVE_PTHREAD)
     MiKTeX::Aymptote::exitRequested = true;
+    gl::initSignal.notify_one();
 #else
     pthread_kill(gl::mainthread,SIGUSR2);
     pthread_join(gl::mainthread,NULL);

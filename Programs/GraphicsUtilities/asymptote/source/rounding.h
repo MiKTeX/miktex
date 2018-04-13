@@ -51,11 +51,16 @@
 #  else /* not __FreeBSD__ */
 #    ifdef WIN32
 #      ifdef _MSC_VER
+#       if defined(MIKTEX_WINDOWS) && defined(_WIN64)
+#        define FPU_ROUND_DOUBLE
+#        define FPU_RESTORE
+#       else
 #        include <float.h>
          static unsigned int fpu_init;
 #        define FPU_ROUND_DOUBLE (fpu_init = _controlfp (0, 0),\
                                  _controlfp (_PC_53, MCW_PC))
 #        define FPU_RESTORE      (_controlfp (fpu_init, 0xfffff))
+#       endif
 #      elif __MINGW32__
 #        include <float.h>
          static unsigned int fpu_init;

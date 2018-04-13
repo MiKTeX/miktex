@@ -11,6 +11,7 @@
 #if defined(MIKTEX)
 #include <miktex/asy-first.h>
 #include <miktex/asy.h>
+#include <chrono>
 #endif
 #include <stdlib.h>
 #include <fstream>
@@ -195,6 +196,10 @@ void wait(std::condition_variable& cond, std::mutex& mutex)
   std::unique_lock<std::mutex> lock(mutex);
   cond.notify_one();
   cond.wait(lock);
+  if (MiKTeX::Aymptote::exitRequested)
+  {
+    throw 0;
+  }
 }
 #endif
 
@@ -424,6 +429,9 @@ void idle()
 {
   glutIdleFunc(NULL);
   Xspin=Yspin=Zspin=Animate=Step=false;
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+  MiKTeX::Aymptote::RequestHandler();
+#endif
 }
 #endif
 
@@ -488,6 +496,9 @@ void quit()
 #endif    
     if(interact::interactive)
       glutHideWindow();
+#if defined(MIKTEX)
+    glutLeaveMainLoop();
+#endif
   } else {
     glutDestroyWindow(window);
     exit(0);
