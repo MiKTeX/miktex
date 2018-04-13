@@ -49,6 +49,12 @@ else()
   target_link_libraries(${freeglut_dll_name} PUBLIC MiKTeX::Imported::OPENGL)
 endif()
 
+target_link_libraries(${freeglut_dll_name}
+  PUBLIC
+    ${core_dll_name}
+    ${util_dll_name}
+)
+      
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${freeglut_dll_name}
     PUBLIC
@@ -64,3 +70,4 @@ install(TARGETS ${freeglut_dll_name}
   ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
 )
 
+source_group(MiKTeX FILES ${miktex_sources})

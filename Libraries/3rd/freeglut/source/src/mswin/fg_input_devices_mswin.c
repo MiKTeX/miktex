@@ -27,6 +27,9 @@
 
 #include <GL/freeglut.h>
 #include "../fg_internal.h"
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 
 #include <sys/types.h>
 #include <winbase.h>
@@ -69,7 +72,13 @@ SERIALPORT *serial_open(const char *device){
     COMMTIMEOUTS timeouts;
     SERIALPORT *port;
 
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    wchar_t miktex_widechar_device[1024];
+    miktex_utf8_to_wide_char(device, 1024, miktex_widechar_device);
+    fh = CreateFile(miktex_widechar_device, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+#else
     fh = CreateFile(device,GENERIC_READ|GENERIC_WRITE,0,NULL,
+#endif
       OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
     if (!fh) return NULL;
 
@@ -82,7 +91,11 @@ SERIALPORT *serial_open(const char *device){
     GetCommTimeouts(fh,&port->timeouts_save);
 
     dcb.DCBlength=sizeof(DCB);
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    BuildCommDCB(L"96,n,8,1", &dcb);
+#else
     BuildCommDCB("96,n,8,1",&dcb);
+#endif
     SetCommState(fh,&dcb);
 
     ZeroMemory(&timeouts,sizeof(timeouts));

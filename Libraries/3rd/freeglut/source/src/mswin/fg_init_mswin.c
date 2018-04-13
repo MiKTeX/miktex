@@ -28,7 +28,9 @@
 #define FREEGLUT_BUILDING_LIB
 #include <GL/freeglut.h>
 #include "../fg_internal.h"
-
+#if defined(MIKTEX)
+#include <miktex/freeglut.h>
+#endif
 
 
 extern LRESULT CALLBACK fgPlatformWindowProc( HWND hWnd, UINT uMsg,
@@ -47,7 +49,11 @@ void fgPlatformInitialize( const char* displayName )
 
     /* What we need to do is to initialize the fgDisplay global structure here. */
     fgDisplay.pDisplay.Instance = GetModuleHandle( NULL );
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    fgDisplay.pDisplay.DisplayName = displayName ? miktex_uw_strdup(displayName) : 0;
+#else
     fgDisplay.pDisplay.DisplayName= displayName ? strdup(displayName) : 0 ;
+#endif
     atom = GetClassInfo( fgDisplay.pDisplay.Instance, _T("FREEGLUT"), &wc );
 
     if( atom == 0 )

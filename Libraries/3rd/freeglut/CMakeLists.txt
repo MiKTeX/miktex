@@ -23,6 +23,7 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/freeglut")
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src
 )
@@ -41,15 +42,6 @@ if(MIKTEX_NATIVE_WINDOWS)
     -D_UNICODE
   )
 endif()
-
-configure_file(
-  freeglut-version.h.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/freeglut-version.h
-)
-
-list(APPEND freeglut_sources
-  ${CMAKE_CURRENT_BINARY_DIR}/freeglut-version.h
-)
 
 list(APPEND freeglut_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/GL/freeglut.h
@@ -130,6 +122,19 @@ configure_file(
 list(APPEND freeglut_sources
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
+
+configure_file(
+  freeglut-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/freeglut-version.h
+)
+
+set(miktex_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/freeglut-version.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/miktex/freeglut.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/miktex/freeglut.cpp
+)
+
+list(APPEND freeglut_sources ${miktex_sources})
 
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)

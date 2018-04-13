@@ -27,6 +27,9 @@
 
 #include <GL/freeglut.h>
 #include "../fg_internal.h"
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 
 
 #if !defined(_WIN32_WCE)
@@ -117,9 +120,15 @@ void fgPlatformJoystickRawRead( SFG_Joystick* joy, int* buttons, float* axes )
 
 static int fghJoystickGetOEMProductName ( SFG_Joystick* joy, char *buf, int buf_sz )
 {
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+  wchar_t buffer[256];
+  wchar_t OEMKey[256];
+  wchar_t miktex_widechar_buf[1024];
+#else
     char buffer [ 256 ];
 
     char OEMKey [ 256 ];
+#endif
 
     HKEY  hKey;
     DWORD dwcb;
@@ -129,7 +138,11 @@ static int fghJoystickGetOEMProductName ( SFG_Joystick* joy, char *buf, int buf_
         return 0;
 
     /* Open .. MediaResources\CurrentJoystickSettings */
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    _snwprintf(buffer, sizeof(buffer) / sizeof(buffer[0]), L"%s\\%s\\%s",
+#else
     _snprintf ( buffer, sizeof(buffer), "%s\\%s\\%s",
+#endif
                 REGSTR_PATH_JOYCONFIG, joy->pJoystick.jsCaps.szRegKey,
                 REGSTR_KEY_JOYCURR );
 
@@ -141,7 +154,11 @@ static int fghJoystickGetOEMProductName ( SFG_Joystick* joy, char *buf, int buf_
     dwcb = sizeof(OEMKey);
 
     /* JOYSTICKID1-16 is zero-based; registry entries for VJOYD are 1-based. */
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    _snwprintf(buffer, sizeof(buffer) / sizeof(buffer[0]), L"Joystick%d%s", joy->pJoystick.js_id + 1, REGSTR_VAL_JOYOEMNAME);
+#else
     _snprintf ( buffer, sizeof(buffer), "Joystick%d%s", joy->pJoystick.js_id + 1, REGSTR_VAL_JOYOEMNAME );
+#endif
 
     lr = RegQueryValueEx ( hKey, buffer, 0, 0, (LPBYTE) OEMKey, &dwcb);
     RegCloseKey ( hKey );
@@ -149,20 +166,32 @@ static int fghJoystickGetOEMProductName ( SFG_Joystick* joy, char *buf, int buf_
     if ( lr != ERROR_SUCCESS ) return 0;
 
     /* Open OEM Key from ...MediaProperties */
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    _snwprintf(buffer, sizeof(buffer) / sizeof(buffer[0]), L"%s\\%s", REGSTR_PATH_JOYOEM, OEMKey);
+#else
     _snprintf ( buffer, sizeof(buffer), "%s\\%s", REGSTR_PATH_JOYOEM, OEMKey );
+#endif
 
     lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, buffer, 0, KEY_QUERY_VALUE, &hKey );
 
     if ( lr != ERROR_SUCCESS ) return 0;
 
     /* Get OEM Name */
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    dwcb = sizeof(miktex_widechar_buf) / sizeof(miktex_widechar_buf[0]);
+    lr = RegQueryValueEx(hKey, REGSTR_VAL_JOYOEMNAME, 0, 0, (LPBYTE)miktex_widechar_buf, &dwcb);
+#else
     dwcb = buf_sz;
 
     lr = RegQueryValueEx ( hKey, REGSTR_VAL_JOYOEMNAME, 0, 0, (LPBYTE) buf,
                              &dwcb );
+#endif
     RegCloseKey ( hKey );
 
     if ( lr != ERROR_SUCCESS ) return 0;
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    miktex_wide_char_to_utf8(miktex_widechar_buf, dwcb, buf);
+#endif
 
     return 1;
 }
@@ -195,7 +224,11 @@ void fgPlatformJoystickOpen( SFG_Joystick* joy )
                                              sizeof( joy->name ) ) )
         {
             fgWarning( "JS: Failed to read joystick name from registry" );
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+            miktex_wide_char_to_utf8(joy->pJoystick.jsCaps.szPname, sizeof(joy->name), joy->name);
+#else
             strncpy( joy->name, joy->pJoystick.jsCaps.szPname, sizeof( joy->name ) );
+#endif
         }
 
         /* Windows joystick drivers may provide any combination of

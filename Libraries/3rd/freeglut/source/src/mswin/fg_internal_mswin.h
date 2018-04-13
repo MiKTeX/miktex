@@ -67,7 +67,11 @@ struct tagSFG_PlatformDisplay
 {
     HINSTANCE       Instance;           /* The application's instance */
     DEVMODE         DisplayMode;        /* Desktop's display settings */
+#if defined(MIKTEX_WINDOWS)
+    LPTSTR DisplayName;
+#else
     char           *DisplayName;        /* Display name for multi display support*/ 
+#endif
 };
 
 /*
@@ -99,8 +103,13 @@ struct tagSFG_PlatformWindowState
      * one title associated with a window and we need to swap
      * them out based on the window's iconic state
      */
+#if defined(MIKTEX_WINDOWS)
+    LPTSTR WindowTitle;
+    LPTSTR IconTitle;
+#else
     char*           WindowTitle;
     char*           IconTitle;
+#endif
 };
 
 

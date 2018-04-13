@@ -28,6 +28,10 @@
 #define FREEGLUT_BUILDING_LIB
 #include <GL/freeglut.h>
 #include "../fg_internal.h"
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#include <miktex/freeglut.h>
+#endif
 
 
 /* The following include file is available from SGI but is not standard:
@@ -493,7 +497,11 @@ typedef struct
 {
       int *x;
       int *y;
+#if defined(MIKTEX_WINDOWS)
+      LPCTSTR name;
+#else
       const char *name;
+#endif
 } m_proc_t;
 
 static BOOL CALLBACK m_proc(HMONITOR mon,
@@ -508,7 +516,11 @@ static BOOL CALLBACK m_proc(HMONITOR mon,
       res=GetMonitorInfo(mon,(LPMONITORINFO)&info);
       if( res )
       {
+#if defined(MIKTEX_WINDOWS)
+        if (_tcscmp(dp->name, info.szDevice) == 0)
+#else
           if( strcmp(dp->name,info.szDevice)==0 )
+#endif
           {
               *(dp->x)=info.rcMonitor.left;
               *(dp->y)=info.rcMonitor.top;
@@ -571,6 +583,10 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
     DWORD flags   = 0;
     DWORD exFlags = 0;
     BOOL atom;
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    wchar_t miktex_wchar_title[1024];
+    miktex_utf8_to_wide_char(title, 1024, miktex_wchar_title);
+#endif
 
     /* Grab the window class we have registered on glutInit(): */
     atom = GetClassInfo( fgDisplay.pDisplay.Instance, _T("FREEGLUT"), &wc );
@@ -692,7 +708,11 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
     window->Window.Handle = CreateWindowEx(
         exFlags,
         _T("FREEGLUT"),
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+      miktex_wchar_title,
+#else
         title,
+#endif
         flags,
         x, y, w, h,
         (HWND) window->Parent == NULL ? NULL : window->Parent->Window.Handle,
@@ -708,7 +728,11 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
         fgError( "Failed to create a window (%s)!", title );
 
     /* Store title */
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    window->State.pWState.WindowTitle = miktex_uw_strdup(title);
+#else
     window->State.pWState.WindowTitle = strdup(title);
+#endif
 
 #if !defined(_WIN32_WCE)
     /* Need to set requested style again, apparently Windows doesn't listen when requesting windows without title bar or borders */
@@ -802,6 +826,10 @@ void fgPlatformHideWindow( SFG_Window* window )
  */
 void fgPlatformGlutSetWindowTitle( const char* title )
 {
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+  wchar_t miktex_wchar_title[1024];
+  miktex_utf8_to_wide_char(title, 1024, miktex_wchar_title);
+#endif
 #ifdef _WIN32_WCE
     {
         wchar_t* wstr = fghWstrFromStr(title);
@@ -810,13 +838,21 @@ void fgPlatformGlutSetWindowTitle( const char* title )
     }
 #else
     if (!IsIconic(fgStructure.CurrentWindow->Window.Handle))
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+      SetWindowText(fgStructure.CurrentWindow->Window.Handle, miktex_wchar_title);
+#else
         SetWindowText( fgStructure.CurrentWindow->Window.Handle, title );
+#endif
 #endif
 
     /* Make copy of string to refer to later */
     if (fgStructure.CurrentWindow->State.pWState.WindowTitle)
         free(fgStructure.CurrentWindow->State.pWState.WindowTitle);
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    fgStructure.CurrentWindow->State.pWState.WindowTitle = miktex_uw_strdup(title);
+#else
     fgStructure.CurrentWindow->State.pWState.WindowTitle = strdup(title);
+#endif
 }
 
 /*
@@ -824,15 +860,27 @@ void fgPlatformGlutSetWindowTitle( const char* title )
  */
 void fgPlatformGlutSetIconTitle( const char* title )
 {
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+  wchar_t miktex_wchar_title[1024];
+  miktex_utf8_to_wide_char(title, 1024, miktex_wchar_title);
+#endif
 #ifndef _WIN32_WCE
     if (IsIconic(fgStructure.CurrentWindow->Window.Handle))
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+      SetWindowText(fgStructure.CurrentWindow->Window.Handle, miktex_wchar_title);
+#else
         SetWindowText( fgStructure.CurrentWindow->Window.Handle, title );
+#endif
 #endif
 
     /* Make copy of string to refer to later */
     if (fgStructure.CurrentWindow->State.pWState.IconTitle)
         free(fgStructure.CurrentWindow->State.pWState.IconTitle);
+#if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
+    fgStructure.CurrentWindow->State.pWState.IconTitle = miktex_uw_strdup(title);
+#else
     fgStructure.CurrentWindow->State.pWState.IconTitle = strdup(title);
+#endif
 }
 
 
