@@ -250,7 +250,7 @@ private:
 private:
   void SetupUiUpdates();
 
-private:
+private slots:
   void UpdateUiUpdates();
 
 private slots:

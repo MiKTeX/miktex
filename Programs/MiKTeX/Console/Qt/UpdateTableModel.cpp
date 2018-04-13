@@ -157,7 +157,7 @@ bool UpdateTableModel::setData(const QModelIndex& index, const QVariant& value, 
     if (oldValue != newValue)
     {
       update.checked = newValue == Qt::Checked;
-      emit dataChanged(index, index);
+      emit dataChanged(index, index, { role });
       return true;
     }
   }
