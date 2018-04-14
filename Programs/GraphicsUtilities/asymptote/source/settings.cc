@@ -1409,10 +1409,15 @@ bool view()
 
 bool trap()
 {
+#ifdef __CYGWIN__
+// Disable until broken strtod exception is fixed.
+  return false;
+#else
   if (interact::interactive)
     return !getSetting<bool>("interactiveMask");
   else
     return !getSetting<bool>("batchMask");
+#endif  
 }
 
 string outname() 
@@ -1428,11 +1433,7 @@ string lookup(const string& symbol)
 #if defined(MIKTEX)
   if (symbol == "TEXMFMAIN")
   {
-#if defined(_DEBUG)
-    return "C:/Program Files/MiKTeX 2.9";
-#else
     return MiKTeX::Core::Session::Get()->GetSpecialPath(MiKTeX::Core::SpecialPath::DistRoot).GetData();
-#endif
   }
   else
   {

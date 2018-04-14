@@ -212,7 +212,7 @@ void exitHandler(int)
 #if defined(MIKTEX)
 int main(int argc, char** argv)
 #else
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) 
 #endif
 {
 #if defined(MIKTEX)
