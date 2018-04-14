@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.6655 - not yet released
+## 2.9.6670 - not yet released
 
 ### Upgraded programs
 
@@ -8,11 +8,14 @@
 * Dvisvgm 2.3.5
 * Gregorio 5.1.1
 
-### Bug fixes
+### Fixed issues
 
+* [26](https://github.com/MiKTeX/miktex/issues/26): native Asymptote adaptive OpenGL-based 3D-renderer doesn't work
 * [94](https://github.com/MiKTeX/miktex/issues/94): Silent uninstall in Windows
 * [99](https://github.com/MiKTeX/miktex/issues/99): reaching the format and language dialog
+* [100](https://github.com/MiKTeX/miktex/issues/100): Running miktexsetup --portable with elevated permissions fails
 * [106](https://github.com/MiKTeX/miktex/issues/106): Texify gives un-informative error message when wrong engine given
+* [112](https://github.com/MiKTeX/miktex/issues/112): Faulty prepmx binary
 
 ## 2.9.6650 - 2018-03-25
 
