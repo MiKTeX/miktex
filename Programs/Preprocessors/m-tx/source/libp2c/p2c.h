@@ -12,6 +12,9 @@
 
 
 #include <stdio.h>
+#if defined(MIKTEX)
+#include <stdlib.h>
+#endif
 
 #define DOUBLE double
 
