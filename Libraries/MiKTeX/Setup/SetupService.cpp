@@ -1015,6 +1015,7 @@ void SetupServiceImpl::DoFinishUpdate()
   if (!options.IsPortable)
   {
 #if defined(MIKTEX_WINDOWS)
+    RunIniTeXMF({ "--register-shell-file-types" });
     CreateProgramIcons();
 #endif
   }
