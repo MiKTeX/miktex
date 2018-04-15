@@ -1,6 +1,6 @@
 /* asy.rc: version number                               -*- C++ -*-
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -16,6 +16,10 @@
    along with this file; if not, write to the Free Software
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
+
+#ifdef RC_INVOKED
+IDI_ICON1 ICON DISCARDABLE "source/asy.ico"
+#endif
 
 #include "asy-version.h"
 
