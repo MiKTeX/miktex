@@ -410,7 +410,7 @@ option(
 option(
   WITH_MO
   "Build MiKTeX Options application (obsolete)."
-  ${MSVC}
+  FALSE
 )
 option(
   WITH_UPDATE_WIZARD

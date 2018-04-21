@@ -15,8 +15,6 @@
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/initexmf.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/miktexsetup.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/mo.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/mo${MIKTEX_ADMIN_SUFFIX}.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>
