@@ -415,7 +415,7 @@ option(
 option(
   WITH_UPDATE_WIZARD
   "Build update wizard (obsolete)."
-  ${MSVC}
+  FALSE
 )
 
 option(
