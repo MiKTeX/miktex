@@ -1117,6 +1117,12 @@ private:
   MiKTeX::Core::PathName dllPathNameCanon;
 
 private:
+  std::vector<std::string> onFinishScript;
+
+private:
+  void StartFinishScript(int delay);
+
+private:
   bool initialized = false;
 
 #if defined(MIKTEX_WINDOWS)

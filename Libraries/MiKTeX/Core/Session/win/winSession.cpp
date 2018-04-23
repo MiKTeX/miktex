@@ -804,16 +804,9 @@ bool SessionImpl::IsFileAlreadyOpen(const PathName& fileName)
 
 void SessionImpl::ScheduleFileRemoval(const PathName& fileName)
 {
-  if (IsMiKTeXPortable())
-  {
-    // todo
-    return;
-  }
-  trace_files->WriteFormattedLine("core", T_("scheduling removal of %s"), Q_(fileName));
-  if (!MoveFileExW(fileName.ToWideCharString().c_str(), 0, MOVEFILE_DELAY_UNTIL_REBOOT))
-  {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("MoveFileExW", "filename", fileName.ToString());
-  }
+  string cmd = "del ";
+  cmd += Q_(fileName.ToDos());
+  onFinishScript.push_back(cmd);
 }
 
 bool SessionImpl::IsUserMemberOfGroup(DWORD localGroup)

@@ -28,6 +28,7 @@
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
+#include "miktex/Core/TemporaryDirectory.h"
 
 #include "Session/SessionImpl.h"
 
@@ -206,6 +207,7 @@ void SessionImpl::Uninitialize()
   {
     initialized = false;
     trace_core->WriteFormattedLine("core", T_("uninitializing core library"));
+    StartFinishScript(10);
     CheckOpenFiles();
     WritePackageHistory();
     inputDirectories.clear();
@@ -233,12 +235,60 @@ void SessionImpl::Uninitialize()
 #endif
 }
 
+void SessionImpl::StartFinishScript(int delay)
+{
+  if (onFinishScript.empty())
+  {
+    return;
+  }
+  unique_ptr<TemporaryDirectory> tmpdir = TemporaryDirectory::Create();
+  vector<string> pre = {
+#if defined(MIKTEX_WINDOWS)
+    "ping localhost -n " + std::to_string(delay) + " >nul",
+    "pushd "s + Q_(tmpdir->GetPathName().ToDos()),
+#else
+    "sleep " + std::to_string(delay),
+    "pushd "s + Q_(tmpdir->GetPathName()),
+#endif
+  };
+  vector<string> post = {
+#if defined(MIKTEX_WINDOWS)
+    "popd",
+    "start \"\" /B cmd /C rmdir /S /Q "s + Q_(tmpdir->GetPathName().ToDos()),
+#else
+    "popd",
+    "rm -fr "s + Q_(tmpdir->GetPathName()),
+#endif
+  };
+  PathName script = tmpdir->GetPathName() / GetMyProgramFile(false).GetFileNameWithoutExtension();
+  script += "-finish.cmd";
+  StreamWriter writer(script);
+  for (const auto& cmd : pre)
+  {
+    writer.WriteLine(cmd);
+  }
+  for (const auto& cmd : onFinishScript)
+  {
+    writer.WriteLine(cmd);
+  }
+  for (const auto& cmd : post)
+  {
+    writer.WriteLine(cmd);
+  }
+  writer.Close();
+  trace_core->WriteFormattedLine("core", T_("starting finish script"));
+  Process::StartSystemCommand(script.ToString());
+  tmpdir->Keep();
+}
+
 void SessionImpl::Reset()
 {
+  vector<string> onFinishScript = move(this->onFinishScript);
   InitInfo initInfo = this->initInfo;
   this->~SessionImpl();
   new (this) SessionImpl();
   Initialize(initInfo);
+  this->onFinishScript = move(onFinishScript);
 }
 
 void SessionImpl::SetEnvironmentVariables()

@@ -1,6 +1,6 @@
 /* TemporaryDirectory.cpp:
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -89,6 +89,12 @@ public:
   PathName MIKTEXTHISCALL GetPathName() override
   {
     return path;
+  }
+
+public:
+  void MIKTEXTHISCALL Keep() override
+  {
+    path = "";
   }
 
 private:

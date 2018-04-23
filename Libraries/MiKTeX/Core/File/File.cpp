@@ -1,6 +1,6 @@
 /* File.cpp: file operations
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -92,14 +92,7 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
       old.AppendExtension(string(".") + std::to_string(unique) + MIKTEX_TO_BE_DELETED_FILE_SUFFIX);
     }
     File::Move(path, old, { FileMoveOption::ReplaceExisting });
-    if (session->RunningAsAdministrator())
-    {
-      session->ScheduleFileRemoval(old);
-    }
-    else
-    {
-      // TODO
-    }
+    session->ScheduleFileRemoval(old);
   }
 #endif
 }
