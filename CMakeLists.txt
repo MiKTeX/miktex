@@ -412,6 +412,7 @@ option(
   "Build MiKTeX Options application (obsolete)."
   FALSE
 )
+
 option(
   WITH_UPDATE_WIZARD
   "Build update wizard (obsolete)."
