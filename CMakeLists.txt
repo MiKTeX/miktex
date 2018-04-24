@@ -390,6 +390,12 @@ option(
 )
 
 option(
+  WITH_COPY_START
+  "Build copy starter (obsolete)."
+  FALSE
+)
+
+option(
   WITH_CODE_SIGNING
   "Sign MiKTeX executables."
   FALSE
@@ -2082,7 +2088,9 @@ endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_subdirectory(${MIKTEX_REL_ARCTRL_WIN_DIR})
-  add_subdirectory(${MIKTEX_REL_COPYSTART_DIR})
+  if(WITH_COPY_START)
+    add_subdirectory(${MIKTEX_REL_COPYSTART_DIR})
+  endif()
   add_subdirectory(${MIKTEX_REL_DIB_DIR})
   add_subdirectory(${MIKTEX_REL_DVI_DIR})
   add_subdirectory(${MIKTEX_REL_MTPRINT_DIR})
