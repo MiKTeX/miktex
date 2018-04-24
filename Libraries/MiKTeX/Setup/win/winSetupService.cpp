@@ -643,20 +643,12 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const cha
 void winSetupServiceImpl::RegisterUninstaller()
 {
   // make uninstall command line
-  string commandLine;
-  if (options.Task != SetupTask::PrepareMiKTeXDirect)
-  {
-    PathName pathCopyStart(GetInstallRoot(), (options.IsCommonSetup ? MIKTEX_PATH_INTERNAL_COPYSTART_ADMIN_EXE : MIKTEX_PATH_INTERNAL_COPYSTART_EXE));
-    commandLine += Q_(pathCopyStart.GetData());
-    commandLine += " ";
-  }
   PathName pathUninstallDat(GetInstallRoot(), (options.IsCommonSetup ? MIKTEX_PATH_INTERNAL_UNINSTALL_ADMIN_EXE : MIKTEX_PATH_INTERNAL_UNINSTALL_EXE));
-  commandLine += Q_(pathUninstallDat.GetData());
+  string commandLine = Q_(pathUninstallDat);
 
   // make icon path
   PathName iconPath(GetInstallRoot());
-  iconPath /= MIKTEX_PATH_BIN_DIR;
-  iconPath /= MIKTEX_MO_EXE;
+  iconPath /= MIKTEX_PATH_INTERNAL_UNINSTALL_EXE;
   iconPath.Append(",0", false);
 
   // create registry key
