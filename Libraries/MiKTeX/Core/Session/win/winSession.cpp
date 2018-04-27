@@ -1,6 +1,6 @@
 /* winSession.cpp: Windows specials
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -752,6 +752,8 @@ void Session::FatalWindowsError(const string& functionName, unsigned long errorC
     throw FileNotFoundException(programInvocationName, errorMessage, info, sourceLocation);
   case ERROR_SHARING_VIOLATION:
     throw SharingViolationException(programInvocationName, errorMessage, info, sourceLocation);
+  case ERROR_DIR_NOT_EMPTY:
+    throw DirectoryNotEmptyException(programInvocationName, errorMessage, info, sourceLocation);
   default:
     throw MiKTeXException(programInvocationName, errorMessage, info, sourceLocation);
   }
@@ -804,7 +806,7 @@ bool SessionImpl::IsFileAlreadyOpen(const PathName& fileName)
 
 void SessionImpl::ScheduleFileRemoval(const PathName& fileName)
 {
-  string cmd = "del ";
+  string cmd = Directory::Exists(fileName) ? "rmdir /S /Q " : "del ";
   cmd += Q_(fileName.ToDos());
   onFinishScript.push_back(cmd);
 }

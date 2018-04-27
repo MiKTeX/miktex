@@ -69,6 +69,15 @@ FileNotFoundException::FileNotFoundException(const std::string & programInvocati
 {
 }
 
+DirectoryNotEmptyException::DirectoryNotEmptyException()
+{
+}
+
+DirectoryNotEmptyException::DirectoryNotEmptyException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation)
+  : IOException(programInvocationName, message, info, sourceLocation)
+{
+}
+
 BrokenPipeException::BrokenPipeException()
 {
 }

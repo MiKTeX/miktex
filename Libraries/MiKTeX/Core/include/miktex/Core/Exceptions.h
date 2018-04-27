@@ -1,6 +1,6 @@
 /* miktex/Core/Exceptions.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -326,6 +326,31 @@ public:
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL FileNotFoundException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation);
 };
+
+class DirectoryNotEmptyException : public IOException
+{
+public:
+  MIKTEXCOREEXPORT MIKTEXTHISCALL DirectoryNotEmptyException();
+
+public:
+  DirectoryNotEmptyException(const DirectoryNotEmptyException& other) = default;
+
+public:
+  DirectoryNotEmptyException& operator=(const DirectoryNotEmptyException& other) = default;
+
+public:
+  DirectoryNotEmptyException(DirectoryNotEmptyException&& other) = default;
+
+public:
+  DirectoryNotEmptyException& operator=(DirectoryNotEmptyException&& other) = default;
+
+public:
+  virtual ~DirectoryNotEmptyException() = default;
+
+public:
+  MIKTEXCOREEXPORT MIKTEXTHISCALL DirectoryNotEmptyException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
+};
+
 
 /// Unauthorized access exception class.
 /// An instance of this class is thrown when the operating system denies

@@ -1100,7 +1100,18 @@ void SetupServiceImpl::DoCleanUp()
       {
         if (Directory::Exists(root))
         {
-          Directory::Delete(root, true);
+          try
+          {
+            Directory::Delete(root, true);
+          }
+          catch (const DirectoryNotEmptyException&)
+          {
+#if defined(MIKTEX_WINDOWS)
+            session->ScheduleFileRemoval(root);
+#else
+            // FIXME
+#endif
+          }
         }
       }
       if (!session->IsMiKTeXDirect())
