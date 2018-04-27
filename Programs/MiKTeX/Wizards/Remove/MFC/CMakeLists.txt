@@ -28,6 +28,7 @@ include_directories(BEFORE
 
 add_definitions(
   -DUNICODE
+  -D_AFXDLL
   -D_UNICODE
 )
 
