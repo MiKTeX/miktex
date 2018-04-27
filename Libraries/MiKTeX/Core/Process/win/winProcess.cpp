@@ -236,11 +236,15 @@ void winProcess::Create()
 
     DWORD creationFlags = 0;
 
+#if 1
+    creationFlags |= CREATE_NO_WINDOW;
+#else
     // don't open a window if both stdout & stderr are redirected
     if (hChildStdout != INVALID_HANDLE_VALUE && hChildStderr != INVALID_HANDLE_VALUE)
     {
       creationFlags |= CREATE_NO_WINDOW;
     }
+#endif
 
     // set environment variables
     SessionImpl::GetSession()->SetEnvironmentVariables();
