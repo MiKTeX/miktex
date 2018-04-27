@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2014-2017 Christian Schenk
+## Copyright (C) 2014-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,28 +17,27 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_SETUP_FOLDER}")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_SETUP_FOLDER}/integrated")
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_definitions(
-    -DUNICODE
-    -D_UNICODE
-  )
-endif()
+add_executable(miktexsetup ${miktexsetup_sources})
 
-set(miktexsetup_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/miktexsetup-version.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/miktexsetup.cpp
+set_property(TARGET miktexsetup PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(miktexsetup
+  ${core_dll_name}
+  ${setup_dll_name}
+  miktex-popt-wrapper
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND miktexsetup_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
-    ${CMAKE_CURRENT_SOURCE_DIR}/miktexsetup.rc
+  target_link_libraries(miktexsetup
+    Wldap32
+    shlwapi
+    version
+    wininet
+    winmm
+    ws2_32
   )
 endif()
 
-add_subdirectory(integrated)
-add_subdirectory(standalone)
+install(TARGETS miktexsetup DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
