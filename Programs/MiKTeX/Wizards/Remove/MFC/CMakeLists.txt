@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -19,9 +19,7 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_UNINSTALL_FOLDER}/MFC")
 
-use_static_crt()
-
-set(CMAKE_MFC_FLAG 1)
+set(CMAKE_MFC_FLAG 2)
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -65,10 +63,10 @@ set(remove_mfc_sources
 )
 
 set(libs
-  ${core_lib_name}
-  ${getopt_lib_name}
-  ${mpm_lib_name}
-  ${setup_lib_name}
+  ${core_dll_name}
+  ${getopt_dll_name}
+  ${mpm_dll_name}
+  ${setup_dll_name}
   Wldap32
   version
   wininet
