@@ -38,12 +38,12 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 struct SourceLocation
 {
   SourceLocation() = default;
-  SourceLocation(const SourceLocation & other) = default;
-  SourceLocation & operator= (const SourceLocation & other) = default;
-  SourceLocation(SourceLocation && other) = default;
-  SourceLocation & operator= (SourceLocation && other) = default;
+  SourceLocation(const SourceLocation& other) = default;
+  SourceLocation& operator=(const SourceLocation& other) = default;
+  SourceLocation(SourceLocation&& other) = default;
+  SourceLocation& operator=(SourceLocation&& other) = default;
   ~SourceLocation() = default;
-  MIKTEXCOREEXPORT MIKTEXTHISCALL SourceLocation(const std::string & functionName, const std::string & fileName, int lineNo);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL SourceLocation(const std::string& functionName, const std::string& fileName, int lineNo);
   std::string functionName;
   std::string fileName;
   int lineNo = 0;
@@ -60,43 +60,45 @@ struct SourceLocation
 #endif
 
 /// The MiKTeX exception base class.
-class MiKTeXException : public std::exception
+class MiKTeXException :
+  public std::exception
 {
 public:
-  class KVMAP : public std::unordered_map<std::string, std::string>
+  class KVMAP :
+    public std::unordered_map<std::string, std::string>
   {
   public:
     KVMAP() = default;
   public:
-    KVMAP(const KVMAP & other) = default;
+    KVMAP(const KVMAP& other) = default;
   public:
-    KVMAP & operator= (const KVMAP & other) = default;
+    KVMAP& operator=(const KVMAP& other) = default;
   public:
-    KVMAP(KVMAP && other) = default;
+    KVMAP(KVMAP&& other) = default;
   public:
-    KVMAP & operator= (KVMAP && other) = default;
+    KVMAP& operator=(KVMAP&& other) = default;
   public:
     ~KVMAP() = default;
   public:
-    KVMAP(const std::string & key1, const std::string & value1)
+    KVMAP(const std::string& key1, const std::string& value1)
     {
       (*this)[key1] = value1;
     }    
   public:
-    KVMAP(const std::string & key1, const std::string & value1, const std::string & key2, const std::string & value2)
+    KVMAP(const std::string& key1, const std::string& value1, const std::string& key2, const std::string& value2)
     {
       (*this)[key1] = value1;
       (*this)[key2] = value2;
     }
   public:
-    KVMAP(const std::string & key1, const std::string & value1, const std::string & key2, const std::string & value2, const std::string & key3, const std::string & value3)
+    KVMAP(const std::string& key1, const std::string& value1, const std::string& key2, const std::string& value2, const std::string& key3, const std::string& value3)
     {
       (*this)[key1] = value1;
       (*this)[key2] = value2;
       (*this)[key3] = value3;
     }
   public:
-    KVMAP(const std::string & key1, const std::string & value1, const std::string & key2, const std::string & value2, const std::string & key3, const std::string & value3, const std::string & key4, const std::string & value4)
+    KVMAP(const std::string& key1, const std::string& value1, const std::string& key2, const std::string& value2, const std::string& key3, const std::string& value3, const std::string& key4, const std::string& value4)
     {
       (*this)[key1] = value1;
       (*this)[key2] = value2;
@@ -129,16 +131,16 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException();
 
 public:
-  MiKTeXException(const MiKTeXException & other) = default;
+  MiKTeXException(const MiKTeXException& other) = default;
 
 public:
-  MiKTeXException & operator= (const MiKTeXException & other) = default;
+  MiKTeXException& operator=(const MiKTeXException& other) = default;
 
 public:
-  MiKTeXException(MiKTeXException && other) = default;
+  MiKTeXException(MiKTeXException&& other) = default;
 
 public:
-  MiKTeXException & operator= (MiKTeXException && other) = default;
+  MiKTeXException& operator=(MiKTeXException&& other) = default;
 
 public:
   virtual ~MiKTeXException() = default;
@@ -150,17 +152,17 @@ public:
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
 
 public:
-  MiKTeXException(const std::string & message) :
+  MiKTeXException(const std::string& message) :
     MiKTeXException("", message, KVMAP(), SourceLocation())
   {
   }
 
 public:
   // DEPRECATED
-  MiKTeXException(const char * lpszProgramInvocationName, const char * lpszMessage, const char * lpszInfo, const char * lpszSourceFile, int sourceLine) :
+  MiKTeXException(const char* lpszProgramInvocationName, const char* lpszMessage, const char* lpszInfo, const char* lpszSourceFile, int sourceLine) :
     MiKTeXException(lpszProgramInvocationName, lpszMessage, KVMAP("", lpszInfo == nullptr ? "<nullptr>" : lpszInfo), SourceLocation("", lpszSourceFile, sourceLine))
   {
   }
@@ -168,7 +170,7 @@ public:
   /// Gets the exception description.
   /// @return A null-terminated string.
 public:
-  virtual const char * what() const throw()
+  virtual const char* what() const throw()
   {
     return message.c_str();
   }
@@ -223,32 +225,34 @@ private:
   SourceLocation sourceLocation;
 };
 
-class OperationCancelledException : public MiKTeXException
+class OperationCancelledException :
+  public MiKTeXException
 {
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL OperationCancelledException();
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL OperationCancelledException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL OperationCancelledException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
 /// Instances of this class represent I/O exceptions.
-class IOException : public MiKTeXException
+class IOException :
+  public MiKTeXException
 {
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL IOException();
 
 public:
-  IOException(const IOException & other) = default;
+  IOException(const IOException& other) = default;
 
 public:
-  IOException & operator= (const IOException & other) = default;
+  IOException& operator=(const IOException& other) = default;
 
 public:
-  IOException(IOException && other) = default;
+  IOException(IOException&& other) = default;
 
 public:
-  IOException & operator= (IOException && other) = default;
+  IOException& operator=(IOException&& other) = default;
 
 public:
   virtual ~IOException() = default;
@@ -260,27 +264,28 @@ public:
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL IOException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL IOException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
 /// File not found exception class.
 /// An instance of this class is thrown when a file could not be found.
-class BrokenPipeException : public IOException
+class BrokenPipeException :
+  public IOException
 {
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL BrokenPipeException();
 
 public:
-  BrokenPipeException(const BrokenPipeException & other) = default;
+  BrokenPipeException(const BrokenPipeException& other) = default;
 
 public:
-  BrokenPipeException & operator= (const BrokenPipeException & other) = default;
+  BrokenPipeException& operator=(const BrokenPipeException& other) = default;
 
 public:
-  BrokenPipeException(BrokenPipeException && other) = default;
+  BrokenPipeException(BrokenPipeException&& other) = default;
 
 public:
-  BrokenPipeException & operator= (BrokenPipeException && other) = default;
+  BrokenPipeException& operator=(BrokenPipeException&& other) = default;
 
 public:
   virtual ~BrokenPipeException() = default;
@@ -292,27 +297,28 @@ public:
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL BrokenPipeException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL BrokenPipeException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
 /// File not found exception class.
 /// An instance of this class is thrown when a file could not be found.
-class FileNotFoundException : public IOException
+class FileNotFoundException :
+  public IOException
 {
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL FileNotFoundException();
 
 public:
-  FileNotFoundException(const FileNotFoundException & other) = default;
+  FileNotFoundException(const FileNotFoundException& other) = default;
 
 public:
-  FileNotFoundException & operator= (const FileNotFoundException & other) = default;
+  FileNotFoundException& operator=(const FileNotFoundException& other) = default;
 
 public:
-  FileNotFoundException(FileNotFoundException && other) = default;
+  FileNotFoundException(FileNotFoundException&& other) = default;
 
 public:
-  FileNotFoundException & operator= (FileNotFoundException && other) = default;
+  FileNotFoundException& operator=(FileNotFoundException&& other) = default;
 
 public:
   virtual ~FileNotFoundException() = default;
@@ -324,10 +330,11 @@ public:
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL FileNotFoundException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL FileNotFoundException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
-class DirectoryNotEmptyException : public IOException
+class DirectoryNotEmptyException :
+  public IOException
 {
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL DirectoryNotEmptyException();
@@ -355,22 +362,23 @@ public:
 /// Unauthorized access exception class.
 /// An instance of this class is thrown when the operating system denies
 /// access.
-class UnauthorizedAccessException : public MiKTeXException
+class UnauthorizedAccessException :
+  public MiKTeXException
 {
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL UnauthorizedAccessException();
 
 public:
-  UnauthorizedAccessException(const UnauthorizedAccessException & other) = default;
+  UnauthorizedAccessException(const UnauthorizedAccessException& other) = default;
 
 public:
-  UnauthorizedAccessException & operator= (const UnauthorizedAccessException & other) = default;
+  UnauthorizedAccessException& operator=(const UnauthorizedAccessException& other) = default;
 
 public:
-  UnauthorizedAccessException(UnauthorizedAccessException && other) = default;
+  UnauthorizedAccessException(UnauthorizedAccessException&& other) = default;
 
 public:
-  UnauthorizedAccessException & operator= (UnauthorizedAccessException && other) = default;
+  UnauthorizedAccessException& operator=(UnauthorizedAccessException&& other) = default;
 
 public:
   virtual ~UnauthorizedAccessException() = default;
@@ -382,27 +390,28 @@ public:
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL UnauthorizedAccessException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL UnauthorizedAccessException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
 #if defined(MIKTEX_WINDOWS)
 /// Sharing violation exception class.
-class SharingViolationException : public IOException
+class SharingViolationException :
+  public IOException
 {
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL SharingViolationException();
 
 public:
-  SharingViolationException(const SharingViolationException & other) = default;
+  SharingViolationException(const SharingViolationException& other) = default;
 
 public:
-  SharingViolationException & operator= (const SharingViolationException & other) = default;
+  SharingViolationException& operator=(const SharingViolationException& other) = default;
 
 public:
-  SharingViolationException(SharingViolationException && other) = default;
+  SharingViolationException(SharingViolationException&& other) = default;
 
 public:
-  SharingViolationException & operator= (SharingViolationException && other) = default;
+  SharingViolationException& operator=(SharingViolationException&& other) = default;
 
 public:
   virtual ~SharingViolationException() = default;
@@ -414,7 +423,7 @@ public:
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL SharingViolationException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL SharingViolationException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 #endif
 

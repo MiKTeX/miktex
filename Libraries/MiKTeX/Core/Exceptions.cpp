@@ -1,6 +1,6 @@
 /* Exceptions.cpp: MiKTeX exceptions
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -28,12 +28,12 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-MiKTeXException::MiKTeXException()
-  : message(T_("Unknown MiKTeX exception."))
+MiKTeXException::MiKTeXException() :
+  message(T_("Unknown MiKTeX exception."))
 {
 }
 
-MiKTeXException::MiKTeXException(const string & programInvocationName, const string & message, const KVMAP & info, const SourceLocation & sourceLocation) :
+MiKTeXException::MiKTeXException(const string& programInvocationName, const string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
   info(info),
   message(message),
   programInvocationName(programInvocationName),
@@ -41,13 +41,13 @@ MiKTeXException::MiKTeXException(const string & programInvocationName, const str
 {
 }
 
-OperationCancelledException::OperationCancelledException()
-  : MiKTeXException(T_("Operation cancelled."))
+OperationCancelledException::OperationCancelledException() :
+  MiKTeXException(T_("Operation cancelled."))
 {
 }
 
-OperationCancelledException::OperationCancelledException(const string & programInvocationName, const string & message, const KVMAP & info, const SourceLocation & sourceLocation)
-  : MiKTeXException(programInvocationName, message, info, sourceLocation)
+OperationCancelledException::OperationCancelledException(const string& programInvocationName, const string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
+  MiKTeXException(programInvocationName, message, info, sourceLocation)
 {
 }
 
@@ -55,8 +55,8 @@ IOException::IOException()
 {
 }
 
-IOException::IOException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation)
-  : MiKTeXException(programInvocationName, message, info, sourceLocation)
+IOException::IOException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
+  MiKTeXException(programInvocationName, message, info, sourceLocation)
 {
 }
 
@@ -64,8 +64,8 @@ FileNotFoundException::FileNotFoundException()
 {
 }
 
-FileNotFoundException::FileNotFoundException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation)
-  : IOException(programInvocationName, message, info, sourceLocation)
+FileNotFoundException::FileNotFoundException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
+  IOException(programInvocationName, message, info, sourceLocation)
 {
 }
 
@@ -73,8 +73,8 @@ DirectoryNotEmptyException::DirectoryNotEmptyException()
 {
 }
 
-DirectoryNotEmptyException::DirectoryNotEmptyException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation)
-  : IOException(programInvocationName, message, info, sourceLocation)
+DirectoryNotEmptyException::DirectoryNotEmptyException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
+  IOException(programInvocationName, message, info, sourceLocation)
 {
 }
 
@@ -82,8 +82,8 @@ BrokenPipeException::BrokenPipeException()
 {
 }
 
-BrokenPipeException::BrokenPipeException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation)
-  : IOException(programInvocationName, message, info, sourceLocation)
+BrokenPipeException::BrokenPipeException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
+  IOException(programInvocationName, message, info, sourceLocation)
 {
 }
 
@@ -91,7 +91,7 @@ UnauthorizedAccessException::UnauthorizedAccessException()
 {
 }
 
-UnauthorizedAccessException::UnauthorizedAccessException(const std::string & programInvocationName, const std::string & message, const KVMAP & info, const SourceLocation & sourceLocation)
-  : MiKTeXException(programInvocationName, message, info, sourceLocation)
+UnauthorizedAccessException::UnauthorizedAccessException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
+  MiKTeXException(programInvocationName, message, info, sourceLocation)
 {
 }
