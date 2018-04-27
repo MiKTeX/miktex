@@ -65,7 +65,6 @@ set(remove_mfc_sources
 set(libs
   ${core_dll_name}
   ${getopt_dll_name}
-  ${mpm_dll_name}
   ${setup_dll_name}
   Wldap32
   version

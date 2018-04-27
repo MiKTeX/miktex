@@ -80,7 +80,6 @@
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/Urls>
 #include <miktex/Core/win/WindowsVersion>
-#include <miktex/Extractor/Extractor>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Setup/SetupService>
 #include <miktex/Trace/TraceStream>

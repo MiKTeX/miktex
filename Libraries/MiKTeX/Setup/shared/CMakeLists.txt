@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2017 Christian Schenk
+## Copyright (C) 2013-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -52,10 +52,14 @@ target_include_directories(${setup_dll_name}
 )
 
 target_link_libraries(${setup_dll_name}
-  PRIVATE
+  PUBLIC
     ${core_dll_name}
-    ${extractor_dll_name}
     ${mpm_dll_name}
+)
+
+target_link_libraries(${setup_dll_name}
+  PRIVATE
+    ${extractor_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

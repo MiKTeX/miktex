@@ -35,9 +35,13 @@ target_include_directories(${setup_lib_name}
 
 target_link_libraries(${setup_lib_name}
   PUBLIC 
-  ${core_lib_name}
-  ${extractor_lib_name}
-  ${mpm_lib_name}
+    ${core_lib_name}
+    ${mpm_lib_name}
+)
+
+target_link_libraries(${setup_lib_name}
+  PRIVATE 
+    ${extractor_lib_name}
 )
 
 source_group(Public FILES ${public_headers})
