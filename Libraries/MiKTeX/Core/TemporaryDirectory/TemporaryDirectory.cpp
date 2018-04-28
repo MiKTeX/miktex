@@ -35,7 +35,8 @@ TemporaryDirectory::~TemporaryDirectory() noexcept
 {
 }
 
-class TemporaryDirectoryImpl : public TemporaryDirectory
+class TemporaryDirectoryImpl :
+  public TemporaryDirectory
 {
 public:
   TemporaryDirectoryImpl()
@@ -58,7 +59,7 @@ public:
   }
 
 public:
-  TemporaryDirectoryImpl(const PathName & path)
+  TemporaryDirectoryImpl(const PathName& path)
   {
     this->path = path;
   }
@@ -73,7 +74,7 @@ public:
         Delete();
       }
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }
@@ -98,7 +99,7 @@ public:
   }
 
 private:
-  static bool NameExists(const PathName & name)
+  static bool NameExists(const PathName& name)
   {
 #if defined(MIKTEX_WINDOWS)
     unsigned long attributes = GetFileAttributesW(name.ToWideCharString().c_str());
@@ -118,7 +119,7 @@ unique_ptr<TemporaryDirectory> TemporaryDirectory::Create()
   return make_unique<TemporaryDirectoryImpl>();
 }
 
-unique_ptr<TemporaryDirectory> TemporaryDirectory::Create(const PathName & path)
+unique_ptr<TemporaryDirectory> TemporaryDirectory::Create(const PathName& path)
 {
   return make_unique<TemporaryDirectoryImpl>(path);
 }
