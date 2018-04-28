@@ -1,6 +1,6 @@
 /* winProcess.cpp: executing secondary processes
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -92,11 +92,16 @@ void winProcess::Create()
 
   try
   {
+    shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+
     // redirect stdout (and possibly stderr)
     if (startinfo.StandardOutput != nullptr)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stdout to a stream");
+      if (session != nullptr)
+      {
+        session->trace_process->WriteFormattedLine("core", "redirecting stdout to a stream");
+      }
 #endif
       int fd = _fileno(startinfo.StandardOutput);
       if (fd < 0)
@@ -116,7 +121,10 @@ void winProcess::Create()
     else if (startinfo.RedirectStandardOutput)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stdout to a pipe");
+      if (session != nullptr)
+      {
+        session->trace_process->WriteFormattedLine("core", "redirecting stdout to a pipe");
+      }
 #endif
       // create stdout pipe
       AutoHANDLE hStdoutRd;
@@ -135,7 +143,10 @@ void winProcess::Create()
     if (startinfo.StandardError != nullptr)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stderr to a stream");
+      if (session != nullptr)
+      {
+        session->trace_process->WriteFormattedLine("core", "redirecting stderr to a stream");
+      }
 #endif
       int fd = _fileno(startinfo.StandardError);
       if (fd < 0)
@@ -155,7 +166,10 @@ void winProcess::Create()
     else if (startinfo.RedirectStandardError)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stderr to a pipe");
+      if (session != nullptr)
+      {
+        session->trace_process->WriteFormattedLine("core", "redirecting stderr to a pipe");
+      }
 #endif
       // create child stderr pipe
       AutoHANDLE hStderrRd;
@@ -173,7 +187,10 @@ void winProcess::Create()
     else if (hChildStdout != INVALID_HANDLE_VALUE)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "make child stderr = child stdout");
+      if (session != nullptr)
+      {
+        session->trace_process->WriteFormattedLine("core", "make child stderr = child stdout");
+      }
 #endif
       // make child stderr = child stdout
       if (!DuplicateHandle(hCurrentProcess, hChildStdout, hCurrentProcess, &hChildStderr, 0, TRUE, DUPLICATE_SAME_ACCESS))
@@ -187,7 +204,10 @@ void winProcess::Create()
     if (startinfo.StandardInput != nullptr)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stdin to a stream");
+      if (session != nullptr)
+      {
+        session->trace_process->WriteFormattedLine("core", "redirecting stdin to a stream");
+      }
 #endif
       int fd = _fileno(startinfo.StandardInput);
       if (fd < 0)
@@ -207,7 +227,10 @@ void winProcess::Create()
     else if (startinfo.RedirectStandardInput)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stdin to a pipe");
+      if (session != nullptr)
+      {
+        session->trace_process->WriteFormattedLine("core", "redirecting stdin to a pipe");
+      }
 #endif
       // create child stdin pipe
       AutoHANDLE hStdinWr;
@@ -247,14 +270,27 @@ void winProcess::Create()
 #endif
 
     // set environment variables
-    SessionImpl::GetSession()->SetEnvironmentVariables();
+    if (session != nullptr)
+    {
+      // FIXME
+      session->SetEnvironmentVariables();
+    }
 
     // start child process
-    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "start process: %s", commandLine.ToString().c_str());
+    if (session != nullptr)
+    {
+      session->trace_process->WriteFormattedLine("core", "start process: %s", commandLine.ToString().c_str());
+    }
+
 #if 1
     // experimental
-    SessionImpl::GetSession()->UnloadFilenameDatabase();
+    if (session != nullptr)
+    {
+      // FIXME
+      session->UnloadFilenameDatabase();
+    }
 #endif
+
     if (!CreateProcessW(UW_(fileName.GetData()), UW_(commandLine.ToString()), nullptr, nullptr, TRUE, creationFlags, nullptr, startinfo.WorkingDirectory.empty() ? nullptr : UW_(startinfo.WorkingDirectory), &siStartInfo, &processInformation))
     {
       MIKTEX_FATAL_WINDOWS_ERROR_2("CreateProcess", "fileName", startinfo.FileName, "commandLine", commandLine.ToString());
@@ -582,7 +618,11 @@ PROCESSENTRY32W winProcess::GetProcessEntry(DWORD processId)
   PROCESSENTRY32W result;
   if (!TryGetProcessEntry(processId, result))
   {
-    SessionImpl::GetSession()->trace_error->WriteFormattedLine("core", "error context: ID=%u", processId);
+    shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+    if (session != nullptr)
+    {
+      session->trace_error->WriteFormattedLine("core", "error context: ID=%u", processId);
+    }
     MIKTEX_UNEXPECTED();
   }
   return result;
