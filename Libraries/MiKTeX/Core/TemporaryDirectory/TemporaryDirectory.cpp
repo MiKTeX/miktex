@@ -41,7 +41,16 @@ class TemporaryDirectoryImpl :
 public:
   TemporaryDirectoryImpl()
   {
-    PathName parent = SessionImpl::GetSession()->GetTempDirectory();
+    shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+    PathName parent;
+    if (session != nullptr)
+    {
+      parent = SessionImpl::GetSession()->GetTempDirectory();
+    }
+    else
+    {
+      parent.SetToTempDirectory();
+    }
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<> dist(1,99999);
