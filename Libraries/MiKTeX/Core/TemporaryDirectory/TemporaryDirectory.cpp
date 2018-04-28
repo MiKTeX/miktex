@@ -45,7 +45,7 @@ public:
     PathName parent;
     if (session != nullptr)
     {
-      parent = SessionImpl::GetSession()->GetTempDirectory();
+      parent = session->GetTempDirectory();
     }
     else
     {
