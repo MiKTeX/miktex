@@ -205,9 +205,9 @@ void SessionImpl::Uninitialize()
   }
   try
   {
+    StartFinishScript(10);
     initialized = false;
     trace_core->WriteFormattedLine("core", T_("uninitializing core library"));
-    StartFinishScript(10);
     CheckOpenFiles();
     WritePackageHistory();
     inputDirectories.clear();
