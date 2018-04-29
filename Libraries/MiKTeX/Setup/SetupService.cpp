@@ -1027,16 +1027,25 @@ void SetupServiceImpl::DoCleanUp()
 
   if (options.CleanupOptions[CleanupOption::Links])
   {
-    RunIniTeXMF({ "--force", "--remove-links" });
+    ReportLine("removing links...");
+    try
+    {
+      RunIniTeXMF({ "--force", "--remove-links" });
+    }
+    catch (const MiKTeXException& e)
+    {
+      ReportLine(e.what());
+    }
   }
 
   if (options.CleanupOptions[CleanupOption::FileTypes])
   {
+    ReportLine("unregistering file types...");
     try
     {
       UnregisterShellFileTypes();
     }
-    catch (const exception& e)
+    catch (const MiKTeXException& e)
     {
       ReportLine(e.what());
     }
@@ -1052,11 +1061,12 @@ void SetupServiceImpl::DoCleanUp()
 #endif
         )
       {
+        ReportLine("cleaning PATH...");
         UnregisterPath(true);
       }
       UnregisterPath(false);
     }
-    catch (const exception& e)
+    catch (const MiKTeXException& e)
     {
       ReportLine(e.what());
     }
@@ -1066,9 +1076,10 @@ void SetupServiceImpl::DoCleanUp()
   {
     try
     {
+      ReportLine("unregistering components...");
       UnregisterComponents();
     }
-    catch (const exception& e)
+    catch (const MiKTeXException& e)
     {
       ReportLine(e.what());
     }
@@ -1079,10 +1090,11 @@ void SetupServiceImpl::DoCleanUp()
     try
     {
 #if defined(MIKTEX_WINDOWS)
+      ReportLine("processing uninstall log file...");
       logFile.Process();
 #endif
     }
-    catch (const exception& e)
+    catch (const MiKTeXException& e)
     {
       ReportLine(e.what());
     }
@@ -1090,6 +1102,7 @@ void SetupServiceImpl::DoCleanUp()
 
   if (options.CleanupOptions[CleanupOption::RootDirectories])
   {
+    ReportLine("removing root directories...");
     try
     {
       PathName parent;
@@ -1151,7 +1164,7 @@ void SetupServiceImpl::DoCleanUp()
         }
       }
     }
-    catch (const exception& e)
+    catch (const MiKTeXException& e)
     {
       ReportLine(e.what());
     }
@@ -1159,6 +1172,7 @@ void SetupServiceImpl::DoCleanUp()
 
   if (options.CleanupOptions[CleanupOption::Registry])
   {
+    ReportLine("removing registry settings...");
     try
     {
 #if defined(MIKTEX_WINDOWS)
@@ -1173,7 +1187,7 @@ void SetupServiceImpl::DoCleanUp()
       }
 #endif
     }
-    catch (const exception& e)
+    catch (const MiKTeXException& e)
     {
       ReportLine(e.what());
     }
@@ -1181,6 +1195,7 @@ void SetupServiceImpl::DoCleanUp()
 
   if (options.CleanupOptions[CleanupOption::LogFiles])
   {
+    ReportLine("removing log files...");
     try
     {
       PathName logDir = session->GetSpecialPath(SpecialPath::LogDirectory);
@@ -1189,7 +1204,7 @@ void SetupServiceImpl::DoCleanUp()
 	Directory::Delete(logDir, true);
       }
     }
-    catch (const exception& e)
+    catch (const MiKTeXException& e)
     {
       ReportLine(e.what());
     }
