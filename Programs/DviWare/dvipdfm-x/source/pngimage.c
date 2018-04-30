@@ -964,12 +964,16 @@ create_soft_mask (png_structp png_ptr, png_infop info_ptr,
   png_bytep   trans;
   int         num_trans;
   png_uint_32 i;
+  png_byte    bpc, mask, shift;
 
   if (!png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ||
       !png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, NULL)) {
     WARN("%s: PNG does not have valid tRNS chunk but tRNS is requested.", PNG_DEBUG_STR);
     return NULL;
   }
+  bpc   = png_get_bit_depth(png_ptr, info_ptr);
+  mask  = 0xff >> (8 - bpc);
+  shift = 8 - bpc;
 
   smask = pdf_new_stream(STREAM_COMPRESS);
   dict  = pdf_stream_dict(smask);
@@ -981,7 +985,8 @@ create_soft_mask (png_structp png_ptr, png_infop info_ptr,
   pdf_add_dict(dict, pdf_new_name("ColorSpace"), pdf_new_name("DeviceGray"));
   pdf_add_dict(dict, pdf_new_name("BitsPerComponent"), pdf_new_number(8));
   for (i = 0; i < width*height; i++) {
-    png_byte idx = image_data_ptr[i];
+    /* data is packed for 1/2/4 bpc formats, msb first */
+    png_byte idx = (image_data_ptr[bpc * i / 8] >> (shift - bpc * i % 8)) & mask;
     smask_data_ptr[i] = (idx < num_trans) ? trans[idx] : 0xff;
   }
   pdf_add_stream(smask, (char *)smask_data_ptr, width*height);

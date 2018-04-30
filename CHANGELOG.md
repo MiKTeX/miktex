@@ -1,5 +1,15 @@
 # MiKTeX Change Log
 
+## NEXT - not yet released
+
+### Upgraded programs
+
+* dvipdfmx 20180428
+
+### Fixed issues
+
+* [94](https://github.com/MiKTeX/miktex/issues/94): Silent uninstall in Windows
+
 ## 2.9.6670 - 2018-04-21
 
 ### Upgraded programs
