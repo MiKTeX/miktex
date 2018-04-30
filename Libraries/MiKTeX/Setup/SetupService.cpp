@@ -1017,6 +1017,7 @@ void SetupServiceImpl::DoFinishUpdate()
 #if defined(MIKTEX_WINDOWS)
     RunIniTeXMF({ "--register-shell-file-types" });
     CreateProgramIcons();
+    RegisterUninstaller();
 #endif
   }
 }
