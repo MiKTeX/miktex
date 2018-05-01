@@ -915,7 +915,7 @@ Use this option, if you want to operate on the private configuration.</string>
            <item>
             <widget class="QTabWidget" name="tabWidgetSettings">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="settingsGeneral">
               <attribute name="title">
@@ -939,23 +939,23 @@ Use this option, if you want to operate on the private configuration.</string>
                     </item>
                     <item>
                      <widget class="QComboBox" name="comboRepository2">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
                       <property name="sizeAdjustPolicy">
                        <enum>QComboBox::AdjustToContents</enum>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <spacer name="horizontalSpacer_6">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                     <widget class="QPushButton" name="buttonChangeRepository2">
+                      <property name="text">
+                       <string>Change...</string>
                       </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
+                     </widget>
                     </item>
                    </layout>
                   </item>
@@ -1318,11 +1318,32 @@ Use this option, if you want to operate on the private configuration.</string>
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
              <item row="0" column="0">
-              <widget class="QLabel" name="labelInstallFrom2">
+              <widget class="QLabel" name="label_22">
                <property name="text">
                 <string>Install from:</string>
                </property>
               </widget>
+             </item>
+             <item row="0" column="1">
+              <layout class="QHBoxLayout" name="horizontalLayout_10">
+               <item>
+                <widget class="QComboBox" name="comboRepository3">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="buttonChangeRepository3">
+                 <property name="text">
+                  <string>Change...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="labelInstallTo2">
@@ -1337,9 +1358,6 @@ Use this option, if you want to operate on the private configuration.</string>
                 <bool>true</bool>
                </property>
               </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QComboBox" name="comboRepository3"/>
              </item>
             </layout>
            </item>
@@ -1512,7 +1530,25 @@ Use this option, if you want to operate on the private configuration.</string>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QComboBox" name="comboRepository"/>
+              <layout class="QHBoxLayout" name="horizontalLayout_11">
+               <item>
+                <widget class="QComboBox" name="comboRepository">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="buttonChangeRepository">
+                 <property name="text">
+                  <string>Change...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
             </layout>
            </item>
@@ -1736,7 +1772,7 @@ Use this option, if you want to operate on the private configuration.</string>
      <x>0</x>
      <y>0</y>
      <width>841</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

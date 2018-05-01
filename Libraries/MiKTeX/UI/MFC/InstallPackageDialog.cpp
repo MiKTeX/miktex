@@ -1,6 +1,6 @@
 /* InstallPackageDialog.cpp:
 
-   Copyright (C) 2000-2017 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -66,7 +66,7 @@ BOOL InstallPackageDialog::OnInitDialog()
     shared_ptr<Session> session = Session::Get();
     string repository;
     RepositoryType repositoryType(RepositoryType::Unknown);
-    if (pManager->TryGetDefaultPackageRepository(repositoryType, repository))
+    if (pManager->TryGetDefaultPackageRepository(repositoryType, repository) && !repository.empty())
     {
       FormatControlText(IDC_EDIT_REPOSITORY_LOCATION, "%s", repository.c_str());
     }
@@ -118,7 +118,7 @@ void InstallPackageDialog::OnChangeRepository()
     }
     string repository;
     RepositoryType repositoryType(RepositoryType::Unknown);
-    if (pManager->TryGetDefaultPackageRepository(repositoryType, repository))
+    if (pManager->TryGetDefaultPackageRepository(repositoryType, repository) && !repository.empty())
     {
       FormatControlText(IDC_EDIT_REPOSITORY_LOCATION, "%s", repository.c_str());
     }

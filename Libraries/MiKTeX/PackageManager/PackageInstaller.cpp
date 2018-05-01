@@ -103,7 +103,7 @@ void PackageInstallerImpl::NeedRepository()
   }
   string repository;
   RepositoryType repositoryType(RepositoryType::Unknown);
-  if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
+  if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository) && !repository.empty())
   {
     SetRepository(repository);
   }

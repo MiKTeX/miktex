@@ -52,7 +52,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
     PackageInfo packageInfo = pManager->GetPackageInfo(packageName);
     string repository;
     RepositoryType repositoryType(RepositoryType::Unknown);
-    if (pManager->TryGetDefaultPackageRepository(repositoryType, repository))
+    if (pManager->TryGetDefaultPackageRepository(repositoryType, repository) && !repository.empty())
     {
       leInstallationSource->setText(QString::fromUtf8(repository.c_str()));
     }
@@ -126,7 +126,7 @@ void InstallPackageDialog::on_btnChange_clicked()
     }
     string repository;
     RepositoryType repositoryType(RepositoryType::Unknown);
-    if (pManager->TryGetDefaultPackageRepository(repositoryType, repository))
+    if (pManager->TryGetDefaultPackageRepository(repositoryType, repository) && !repository.empty())
     {
       leInstallationSource->setText(QString::fromLocal8Bit(repository.c_str()));
     }

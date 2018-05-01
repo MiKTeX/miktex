@@ -37,6 +37,7 @@ class FormatTableModel;
 class LanguageTableModel;
 class PackageProxyModel;
 class PackageTableModel;
+class RepositoryListModel;
 class RootTableModel;
 class UpdateTableModel;
 
@@ -89,6 +90,9 @@ private:
   {
     CriticalError(MiKTeX::Core::MiKTeXException(e.what()));
   }
+
+private:
+  RepositoryListModel* repositoryModel = nullptr;
 
 private:
   void UpdateUi();
@@ -274,6 +278,12 @@ private slots:
     CheckUpdates();
   }
 
+private slots:
+  void on_buttonChangeRepository3_clicked()
+  {
+    ChangeRepository();
+  }
+
 private:
   void Update();
 
@@ -304,8 +314,11 @@ private:
 private:
   void UpdateUiPackageInstallation();
 
-private slots:
+private:
   void ChangeRepository();
+
+private slots:
+  void OnRepositorySelected(int index);
 
 private slots:
   void on_radioAutoInstallAsk_clicked();
@@ -321,6 +334,12 @@ private:
 
 private slots:
   void on_comboPaper_activated(int idx);
+
+private slots:
+  void on_buttonChangeRepository2_clicked()
+  {
+    ChangeRepository();
+  }
 
 private:
   QToolBar* toolBarRootDirectories = nullptr;
@@ -467,6 +486,12 @@ private slots:
 
 private slots:
   void UpdatePackageDatabase();
+
+private slots:
+  void on_buttonChangeRepository_clicked()
+  {
+    ChangeRepository();
+  }
 
 private:
   QMenu* contextMenuPackage = nullptr;

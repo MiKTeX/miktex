@@ -30,6 +30,7 @@
 #include "LanguageTableModel.h"
 #include "PackageProxyModel.h"
 #include "PackageTableModel.h"
+#include "RepositoryListModel.h"
 #include "RootTableModel.h"
 #include "UpdateTableModel.h"
 #include "mainwindow.h"
@@ -102,6 +103,8 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
 
   resize(800, 600);
   ReadSettings();
+
+  repositoryModel = new RepositoryListModel(packageManager, this);
 
   SetupUiDirectories();
   SetupUiFormats();
@@ -930,13 +933,8 @@ void MainWindow::RefreshFontMaps()
 
 void MainWindow::SetupUiUpdates()
 {
-  connect(ui->comboRepository3, static_cast<void(QComboBox::*)(int)> (&QComboBox::activated), this, [this](int index)
-  {
-    if (index == 1)
-    {
-      ChangeRepository();
-    }
-  });
+  ui->comboRepository3->setModel(repositoryModel);
+  connect(ui->comboRepository3, SIGNAL(currentIndexChanged(int)), this, SLOT(OnRepositorySelected(int)));
   connect(ui->actionCheckUpdates, SIGNAL(triggered()), this, SLOT(CheckUpdates()));
   updateModel = new UpdateTableModel(packageManager, this);
   string lastUpdateCheck;
@@ -994,20 +992,11 @@ void MainWindow::SetupUiUpdates()
 
 void MainWindow::UpdateUiUpdates()
 {
-  ui->comboRepository3->clear();
-  RepositoryType repositoryType(RepositoryType::Unknown);
-  string repository;
-  if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
-  {
-    ui->comboRepository3->addItem(QString::fromUtf8(repository.c_str()));
-  }
-  else
-  {
-    ui->comboRepository3->addItem(tr("a random package repository on the Internet"));
-  }
-  ui->comboRepository3->addItem(tr("Change..."));
   ui->lineEditInstallRoot2->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
   ui->comboRepository3->setEnabled(!IsBackgroundWorkerActive());
+  ui->comboRepository3->blockSignals(true);
+  ui->comboRepository3->setCurrentIndex(repositoryModel->GetCurrentIndex());
+  ui->comboRepository3->blockSignals(false);
   ui->buttonCheckUpdates->setEnabled(!IsBackgroundWorkerActive());
   ui->buttonUpdateCheck->setEnabled(!IsBackgroundWorkerActive());
   ui->buttonUpdateNow->setEnabled(!IsBackgroundWorkerActive() && !updateModel->GetCheckedPackages().empty());
@@ -1236,29 +1225,12 @@ void MainWindow::OnContextMenuUpdates(const QPoint& pos)
 
 void MainWindow::SetupUiPackageInstallation()
 {
-  connect(ui->comboRepository2, static_cast<void(QComboBox::*)(int)> (&QComboBox::activated), this, [this](int index)
-  {
-    if (index == 1)
-    {
-      ChangeRepository();
-    }
-  });
+  ui->comboRepository2->setModel(repositoryModel);
+  connect(ui->comboRepository2, SIGNAL(currentIndexChanged(int)), this, SLOT(OnRepositorySelected(int)));
 }
 
 void MainWindow::UpdateUiPackageInstallation()
 {
-  ui->comboRepository2->clear();
-  string repository;
-  RepositoryType repositoryType(RepositoryType::Unknown);
-  if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
-  {
-    ui->comboRepository2->addItem(QString::fromUtf8(repository.c_str()));
-  }
-  else
-  {
-    ui->comboRepository2->addItem(tr("a random package repository on the Internet"));
-  }
-  ui->comboRepository2->addItem(tr("Change..."));
   switch (session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState())
   {
   case TriState::True:
@@ -1272,6 +1244,9 @@ void MainWindow::UpdateUiPackageInstallation()
     break;
   }
   ui->comboRepository2->setEnabled(!IsBackgroundWorkerActive());
+  ui->comboRepository2->blockSignals(true);
+  ui->comboRepository2->setCurrentIndex(repositoryModel->GetCurrentIndex());
+  ui->comboRepository2->blockSignals(false);
   ui->radioAutoInstallAsk->setEnabled(!IsBackgroundWorkerActive());
   ui->radioAutoInstallYes->setEnabled(!IsBackgroundWorkerActive());
   ui->radioAutoInstallNo->setEnabled(!IsBackgroundWorkerActive());
@@ -1282,8 +1257,41 @@ void MainWindow::ChangeRepository()
   try
   {
     SiteWizSheet::DoModal(this);
+    repositoryModel->Reload();
     UpdateUi();
     UpdateActions();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::OnRepositorySelected(int index)
+{
+  try
+  {
+    string oldUrl;
+    RepositoryReleaseState oldRepositoryReleaseState;
+    if (!PackageManager::TryGetRemotePackageRepository(oldUrl, oldRepositoryReleaseState))
+    {
+      oldRepositoryReleaseState = RepositoryReleaseState::Stable;
+    }
+    int count = repositoryModel->rowCount();
+    if (index == count - 1)
+    {
+      packageManager->SetDefaultPackageRepository(RepositoryType::Remote, oldRepositoryReleaseState, "");
+    }
+    else if (index >= 0)
+    {
+      string newUrl = repositoryModel->data(repositoryModel->index(index)).toString().toUtf8().constData();
+      packageManager->SetDefaultPackageRepository(RepositoryType::Unknown, oldRepositoryReleaseState, newUrl);
+    }
+    UpdateUi();
   }
   catch (const MiKTeXException& e)
   {
@@ -1864,13 +1872,8 @@ void MainWindow::SetupUiPackages()
   contextMenuPackage->addSeparator();
   contextMenuPackage->addAction(ui->actionPackageInfo);
   ui->treeViewPackages->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(ui->comboRepository, static_cast<void(QComboBox::*)(int)> (&QComboBox::activated), this, [this](int index)
-  {
-    if (index == 1)
-    {
-      ChangeRepository();
-    }
-  });
+  ui->comboRepository->setModel(repositoryModel);
+  connect(ui->comboRepository, SIGNAL(currentIndexChanged(int)), this, SLOT(OnRepositorySelected(int)));
   connect(ui->treeViewPackages, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuPackages(const QPoint&)));
   connect(ui->treeViewPackages->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
@@ -1900,20 +1903,11 @@ void MainWindow::SetupUiPackages()
 
 void MainWindow::UpdateUiPackages()
 {
-  ui->comboRepository->clear();
-  RepositoryType repositoryType(RepositoryType::Unknown);
-  string repository;
-  if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
-  {
-    ui->comboRepository->addItem(QString::fromUtf8(repository.c_str()));
-  }
-  else
-  {
-    ui->comboRepository->addItem(tr("a random package repository on the Internet"));
-  }
-  ui->comboRepository->addItem(tr("Change..."));
   ui->lineEditInstallRoot->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
   ui->comboRepository->setEnabled(!IsBackgroundWorkerActive());
+  ui->comboRepository->blockSignals(true);
+  ui->comboRepository->setCurrentIndex(repositoryModel->GetCurrentIndex());
+  ui->comboRepository->blockSignals(false);
 }
 
 void MainWindow::UpdateActionsPackages()
