@@ -1,6 +1,6 @@
 /* PackageManager.cpp: MiKTeX Package Manager
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -674,8 +674,7 @@ void PackageManagerImpl::NeedInstalledFileInfoTable()
   ParseAllPackageDefinitionFiles();
 }
 
-bool PackageManager::TryGetRemotePackageRepository(
-  string& url, RepositoryReleaseState& repositoryReleaseState)
+bool PackageManager::TryGetRemotePackageRepository(string& url, RepositoryReleaseState& repositoryReleaseState)
 {
   shared_ptr<Session> session = Session::Get();
   repositoryReleaseState = RepositoryReleaseState::Unknown;
