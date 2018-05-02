@@ -875,16 +875,6 @@ bool PackageManager::TryGetDefaultPackageRepository(RepositoryType& repositoryTy
   }
 }
 
-RepositoryType PackageManager::GetDefaultPackageRepository(RepositoryReleaseState& repositoryReleaseState, string& urlOrPath)
-{
-  RepositoryType repositoryType(RepositoryType::Unknown);
-  if (!TryGetDefaultPackageRepository(repositoryType, repositoryReleaseState, urlOrPath))
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  return repositoryType;
-}
-
 void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const string& urlOrPath)
 {
   shared_ptr<Session> session = Session::Get();

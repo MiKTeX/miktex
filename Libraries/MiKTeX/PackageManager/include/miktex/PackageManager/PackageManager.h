@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageManager.h:              -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -187,16 +187,6 @@ public:
 
 public:
   static MIKTEXMPMCEEAPI(bool) TryGetMiKTeXDirectRoot(MiKTeX::Core::PathName& path);
-
-public:
-  static MIKTEXMPMCEEAPI(RepositoryType) GetDefaultPackageRepository(RepositoryReleaseState& repositoryReleaseState, std::string& urlOrPath);
-
-public:
-  static RepositoryType GetDefaultPackageRepository(std::string& urlOrPath)
-  {
-    RepositoryReleaseState unusedRepositoryReleaseState;
-    return GetDefaultPackageRepository(unusedRepositoryReleaseState, urlOrPath);
-  }
 
 public:
   static MIKTEXMPMCEEAPI(bool) TryGetDefaultPackageRepository(RepositoryType& repositoryType, RepositoryReleaseState& repositoryReleaseState, std::string& urlOrPath);
