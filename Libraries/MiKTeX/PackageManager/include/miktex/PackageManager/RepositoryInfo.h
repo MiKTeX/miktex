@@ -82,7 +82,9 @@ enum class RepositoryReleaseState
 /// Package repository info struct.
 struct RepositoryInfo
 {
-  /// URL of the repository.
+  /// Type of repository.
+  RepositoryType type;
+  /// URL of (or path to) the repository.
   std::string url;
   /// One-line description.
   std::string description;

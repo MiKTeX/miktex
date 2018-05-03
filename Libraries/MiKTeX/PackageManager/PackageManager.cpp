@@ -836,43 +836,52 @@ void PackageManager::SetMiKTeXDirectRoot(const PathName& path)
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_MIKTEXDIRECT_ROOT, path.ToString());
 }
 
-bool PackageManager::TryGetDefaultPackageRepository(RepositoryType& repositoryType, RepositoryReleaseState& repositoryReleaseState, string& urlOrPath)
+RepositoryInfo PackageManager::GetDefaultPackageRepository()
 {
+  RepositoryInfo result;
   shared_ptr<Session> session = Session::Get();
-  repositoryReleaseState = RepositoryReleaseState::Unknown;
   string str;
   if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_TYPE, str))
   {
     if (str == "remote")
     {
-      urlOrPath = GetRemotePackageRepository(repositoryReleaseState);
-      repositoryType = RepositoryType::Remote;
+      result.url = GetRemotePackageRepository(result.releaseState);
+      result.type = RepositoryType::Remote;
     }
     else if (str == "local")
     {
-      urlOrPath = GetLocalPackageRepository().GetData();
-      repositoryType = RepositoryType::Local;
+      result.url = GetLocalPackageRepository().ToString();
+      result.type = RepositoryType::Local;
     }
     else if (str == "direct")
     {
-      urlOrPath = GetMiKTeXDirectRoot().GetData();
-      repositoryType = RepositoryType::MiKTeXDirect;
+      result.url = GetMiKTeXDirectRoot().ToString();
+      result.type = RepositoryType::MiKTeXDirect;
     }
     else
     {
       MIKTEX_UNEXPECTED();
     }
-    return true;
   }
-  else if (Utils::GetEnvironmentString(MIKTEX_ENV_REPOSITORY, urlOrPath))
+  else if (Utils::GetEnvironmentString(MIKTEX_ENV_REPOSITORY, result.url))
   {
-    repositoryType = PackageManagerImpl::DetermineRepositoryType(urlOrPath);
-    return true;
+    result.type = PackageManagerImpl::DetermineRepositoryType(result.url);
   }
   else
   {
-    return false;
+    result.url = "";
+    result.type = RepositoryType::Remote;
   }
+  return result;
+}
+
+bool PackageManager::TryGetDefaultPackageRepository(RepositoryType& repositoryType, RepositoryReleaseState& repositoryReleaseState, string& urlOrPath)
+{
+  RepositoryInfo defaultRepository = GetDefaultPackageRepository();
+  repositoryType = defaultRepository.type;
+  repositoryReleaseState = defaultRepository.releaseState;
+  urlOrPath = defaultRepository.url;
+  return true;
 }
 
 void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const string& urlOrPath)

@@ -189,6 +189,9 @@ public:
   static MIKTEXMPMCEEAPI(bool) TryGetMiKTeXDirectRoot(MiKTeX::Core::PathName& path);
 
 public:
+  static MIKTEXMPMCEEAPI(RepositoryInfo) GetDefaultPackageRepository();
+
+public:
   static MIKTEXMPMCEEAPI(bool) TryGetDefaultPackageRepository(RepositoryType& repositoryType, RepositoryReleaseState& repositoryReleaseState, std::string& urlOrPath);
 
 public:
