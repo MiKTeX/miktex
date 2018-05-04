@@ -37,7 +37,7 @@ class FormatTableModel;
 class LanguageTableModel;
 class PackageProxyModel;
 class PackageTableModel;
-class RepositoryListModel;
+class RepositoryTableModel;
 class RootTableModel;
 class UpdateTableModel;
 
@@ -92,7 +92,7 @@ private:
   }
 
 private:
-  RepositoryListModel* repositoryModel = nullptr;
+  RepositoryTableModel* repositoryModel = nullptr;
 
 private:
   void UpdateUi();

@@ -30,7 +30,7 @@
 #include "LanguageTableModel.h"
 #include "PackageProxyModel.h"
 #include "PackageTableModel.h"
-#include "RepositoryListModel.h"
+#include "RepositoryTableModel.h"
 #include "RootTableModel.h"
 #include "UpdateTableModel.h"
 #include "mainwindow.h"
@@ -104,7 +104,7 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   resize(800, 600);
   ReadSettings();
 
-  repositoryModel = new RepositoryListModel(packageManager, this);
+  repositoryModel = new RepositoryTableModel(this);
 
   SetupUiDirectories();
   SetupUiFormats();
@@ -995,7 +995,7 @@ void MainWindow::UpdateUiUpdates()
   ui->lineEditInstallRoot2->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
   ui->comboRepository3->setEnabled(!IsBackgroundWorkerActive());
   ui->comboRepository3->blockSignals(true);
-  ui->comboRepository3->setCurrentIndex(repositoryModel->GetCurrentIndex());
+  ui->comboRepository3->setCurrentIndex(repositoryModel->GetDefaultIndex());
   ui->comboRepository3->blockSignals(false);
   ui->buttonCheckUpdates->setEnabled(!IsBackgroundWorkerActive());
   ui->buttonUpdateCheck->setEnabled(!IsBackgroundWorkerActive());
@@ -1245,7 +1245,7 @@ void MainWindow::UpdateUiPackageInstallation()
   }
   ui->comboRepository2->setEnabled(!IsBackgroundWorkerActive());
   ui->comboRepository2->blockSignals(true);
-  ui->comboRepository2->setCurrentIndex(repositoryModel->GetCurrentIndex());
+  ui->comboRepository2->setCurrentIndex(repositoryModel->GetDefaultIndex());
   ui->comboRepository2->blockSignals(false);
   ui->radioAutoInstallAsk->setEnabled(!IsBackgroundWorkerActive());
   ui->radioAutoInstallYes->setEnabled(!IsBackgroundWorkerActive());
@@ -1288,7 +1288,7 @@ void MainWindow::OnRepositorySelected(int index)
     }
     else if (index >= 0)
     {
-      string newUrl = repositoryModel->data(repositoryModel->index(index, 0)).toString().toUtf8().constData();
+      string newUrl = repositoryModel->data(repositoryModel->index(index, 0), 0).toString().toUtf8().constData();
       packageManager->SetDefaultPackageRepository(RepositoryType::Unknown, oldRepositoryReleaseState, newUrl);
     }
     UpdateUi();
@@ -1906,7 +1906,7 @@ void MainWindow::UpdateUiPackages()
   ui->lineEditInstallRoot->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
   ui->comboRepository->setEnabled(!IsBackgroundWorkerActive());
   ui->comboRepository->blockSignals(true);
-  ui->comboRepository->setCurrentIndex(repositoryModel->GetCurrentIndex());
+  ui->comboRepository->setCurrentIndex(repositoryModel->GetDefaultIndex());
   ui->comboRepository->blockSignals(false);
 }
 

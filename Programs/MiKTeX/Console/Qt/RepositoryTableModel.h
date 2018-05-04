@@ -1,4 +1,4 @@
-/* RepositoryListModel.h:                               -*- C++ -*-
+/* RepositoryTableModel.h:                              -*- C++ -*-
 
    Copyright (C) 2018 Christian Schenk
 
@@ -26,33 +26,42 @@
 #if !defined(F9AC5E01B65041919096F99520C4579E)
 #define F9AC5E01B65041919096F99520C4579E
 
-#include <QStringListModel>
-
-#include <memory>
+#include <QAbstractTableModel>
 
 #include <miktex/PackageManager/PackageManager>
-#include <miktex/Core/Session>
 
-class RepositoryListModel :
-  public QStringListModel
+class RepositoryTableModel :
+  public QAbstractTableModel
 {
 private:
   Q_OBJECT;
 
 public:
-  RepositoryListModel(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, QObject* parent = nullptr);
+  RepositoryTableModel(QObject* parent = nullptr);
+
+public:
+  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+
+public:
+  int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+
+public:
+  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+
+public:
+  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
 public:
   void Reload();
 
 public:
-  int GetCurrentIndex();
+  int GetDefaultIndex();
 
 private:
-  static QStringList BuildRepositoryStringList(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager);
+  void InternalReload();
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+  std::vector<MiKTeX::Packages::RepositoryInfo> repositories;
 };
 
 #endif

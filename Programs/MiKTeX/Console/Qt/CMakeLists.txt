@@ -37,8 +37,8 @@ set(console_sources
   PackageProxyModel.h
   PackageTableModel.cpp
   PackageTableModel.h
-  RepositoryListModel.cpp
-  RepositoryListModel.h
+  RepositoryTableModel.cpp
+  RepositoryTableModel.h
   RootTableModel.cpp
   RootTableModel.h
   UpdateTableModel.cpp
@@ -78,7 +78,7 @@ set(console_moc_sources
   LanguageTableModel.h
   PackageProxyModel.h
   PackageTableModel.h
-  RepositoryListModel.h
+  RepositoryTableModel.h
   RootTableModel.h
   UpdateTableModel.h
   mainwindow.h
