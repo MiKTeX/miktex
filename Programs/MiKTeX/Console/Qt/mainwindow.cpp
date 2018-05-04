@@ -1288,7 +1288,7 @@ void MainWindow::OnRepositorySelected(int index)
     }
     else if (index >= 0)
     {
-      string newUrl = repositoryModel->data(repositoryModel->index(index, 0)).toString().toUtf8().constData();
+      string newUrl = repositoryModel->data(repositoryModel->index(index, 0), 0).toString().toUtf8().constData();
       packageManager->SetDefaultPackageRepository(RepositoryType::Unknown, oldRepositoryReleaseState, newUrl);
     }
     UpdateUi();
