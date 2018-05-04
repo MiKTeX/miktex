@@ -30,7 +30,7 @@
 #include "LanguageTableModel.h"
 #include "PackageProxyModel.h"
 #include "PackageTableModel.h"
-#include "RepositoryListModel.h"
+#include "RepositoryTableModel.h"
 #include "RootTableModel.h"
 #include "UpdateTableModel.h"
 #include "mainwindow.h"
@@ -104,7 +104,7 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   resize(800, 600);
   ReadSettings();
 
-  repositoryModel = new RepositoryListModel(packageManager, this);
+  repositoryModel = new RepositoryTableModel(packageManager, this);
 
   SetupUiDirectories();
   SetupUiFormats();

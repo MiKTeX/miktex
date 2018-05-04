@@ -1,4 +1,4 @@
-/* RepositoryListModel.h:                               -*- C++ -*-
+/* RepositoryTableModel.h:                              -*- C++ -*-
 
    Copyright (C) 2018 Christian Schenk
 
@@ -33,14 +33,14 @@
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Core/Session>
 
-class RepositoryListModel :
+class RepositoryTableModel :
   public QStringListModel
 {
 private:
   Q_OBJECT;
 
 public:
-  RepositoryListModel(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, QObject* parent = nullptr);
+  RepositoryTableModel(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, QObject* parent = nullptr);
 
 public:
   void Reload();
