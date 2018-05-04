@@ -1,6 +1,6 @@
 /* miktex/PackageManager/RepositoryInfo.h:              -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -111,6 +111,16 @@ struct RepositoryInfo
   /// Ranking (low is better than high).
   unsigned ranking = 0;
 };
+
+inline bool operator==(const RepositoryInfo& lhs, const RepositoryInfo& rhs)
+{
+  return lhs.type == rhs.type && lhs.url == rhs.url;
+}
+
+inline bool operator!=(const RepositoryInfo& lhs, const RepositoryInfo& rhs)
+{
+  return !(lhs == rhs);
+}
 
 MPM_END_NAMESPACE;
 
