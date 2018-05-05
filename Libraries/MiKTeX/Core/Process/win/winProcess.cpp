@@ -259,7 +259,7 @@ void winProcess::Create()
 
     DWORD creationFlags = 0;
 
-#if 1
+#if 0
     creationFlags |= CREATE_NO_WINDOW;
 #else
     // don't open a window if both stdout & stderr are redirected
