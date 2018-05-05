@@ -2,6 +2,8 @@
 
 ## NEXT - not yet released
 
+### Ubuntu 18.04
+
 ### Upgraded programs
 
 * dvipdfmx 20180428
