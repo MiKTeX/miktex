@@ -138,7 +138,7 @@ static double read_length (InputReader &in) {
 }
 
 
-bool EmSpecialHandler::process (const char *prefix, istream &is, SpecialActions &actions) {
+bool EmSpecialHandler::process (const string &prefix, istream &is, SpecialActions &actions) {
 	// em:moveto => move graphic cursor to dvi position
 	// em:lineto => draw line from graphic cursor to dvi cursor, then move graphic cursor to dvi position
 	// em:linewidth <w> => set line width to <w>
@@ -167,7 +167,7 @@ bool EmSpecialHandler::process (const char *prefix, istream &is, SpecialActions 
 	};
 
 	StreamInputReader ir(is);
-	string cmdstr = ir.getWord();
+	const string cmdstr = ir.getWord();
 	for (Command *cmd=commands; cmd->name; cmd++) {
 		if (cmdstr == cmd->name) {
 			(this->*cmd->handler)(ir, actions);
@@ -258,7 +258,7 @@ void EmSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 }
 
 
-const vector<const char*> EmSpecialHandler::prefixes () const {
-	const vector<const char*> pfx {"em:"};
+vector<const char*> EmSpecialHandler::prefixes() const {
+	vector<const char*> pfx {"em:"};
 	return pfx;
 }

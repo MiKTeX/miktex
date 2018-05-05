@@ -26,7 +26,7 @@
 using namespace std;
 
 
-void HtmlSpecialHandler::preprocess (const char *, istream &is, SpecialActions &actions) {
+void HtmlSpecialHandler::preprocess (const string&, istream &is, SpecialActions &actions) {
 	StreamInputReader ir(is);
 	ir.skipSpace();
 	// collect page number and ID of named anchors
@@ -41,7 +41,7 @@ void HtmlSpecialHandler::preprocess (const char *, istream &is, SpecialActions &
 }
 
 
-bool HtmlSpecialHandler::process (const char *, istream &is, SpecialActions &actions) {
+bool HtmlSpecialHandler::process (const string&, istream &is, SpecialActions &actions) {
 	_active = true;
 	StreamInputReader ir(is);
 	ir.skipSpace();
@@ -80,7 +80,7 @@ void HtmlSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 }
 
 
-const vector<const char*> HtmlSpecialHandler::prefixes () const {
-	const vector<const char*> pfx {"html:"};
+vector<const char*> HtmlSpecialHandler::prefixes() const {
+	vector<const char*> pfx {"html:"};
 	return pfx;
 }

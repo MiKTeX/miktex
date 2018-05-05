@@ -55,11 +55,13 @@ struct PSActions {
 	virtual void makepattern (std::vector<double> &p) =0;
 	virtual void moveto (std::vector<double> &p) =0;
 	virtual void newpath (std::vector<double> &p) =0;
+	virtual void pdfpagebox (std::vector<double> &p) =0;
 	virtual void querypos (std::vector<double> &p) =0;
 	virtual void restore (std::vector<double> &p) =0;
 	virtual void rotate (std::vector<double> &p) =0;
 	virtual void save (std::vector<double> &p) =0;
 	virtual void scale (std::vector<double> &p) =0;
+	virtual void setblendmode (std::vector<double> &p) =0;
 	virtual void setcmykcolor (std::vector<double> &cmyk) =0;
 	virtual void setdash (std::vector<double> &p) =0;
 	virtual void setgray (std::vector<double> &p) =0;
@@ -70,10 +72,11 @@ struct PSActions {
 	virtual void setmatrix (std::vector<double> &p) =0;
 	virtual void setmiterlimit (std::vector<double> &p) =0;
 	virtual void setopacityalpha (std::vector<double> &p) =0;
+	virtual void setshapealpha (std::vector<double> &p) =0;
 	virtual void setpagedevice (std::vector<double> &p) =0;
 	virtual void setpattern (std::vector<double> &p) =0;
 	virtual void setrgbcolor (std::vector<double> &rgb) =0;
-	virtual void shfill (std::vector<double> &rgb) =0;
+	virtual void shfill (std::vector<double> &p) =0;
 	virtual void stroke (std::vector<double> &p) =0;
 	virtual void translate (std::vector<double> &p) =0;
 	virtual void executed () {}  // triggered if one of the above PS operators has been executed
@@ -113,15 +116,14 @@ class PSInterpreter {
 	private:
 		Ghostscript _gs;
 		Mode _mode;                        ///< current execution mode
-		PSActions *_actions;               ///< actions to be performed
-		PSFilter *_filter;                 ///< active filter used to process PS code
-		size_t _bytesToRead;               ///< if > 0, maximal number of bytes to be processed by following calls of execute()
+		PSActions *_actions=nullptr;       ///< actions to be performed
+		PSFilter *_filter=nullptr;         ///< active filter used to process PS code
+		size_t _bytesToRead=0;             ///< if > 0, maximal number of bytes to be processed by following calls of execute()
 		std::vector<char> _linebuf;
 		std::string _errorMessage;         ///< text of error message
-		bool _inError;                     ///< true if scanning error message
-		bool _initialized;                 ///< true if PSInterpreter has been completely initialized
+		bool _inError=false;               ///< true if scanning error message
+		bool _initialized=false;           ///< true if PSInterpreter has been completely initialized
 		std::vector<std::string> _rawData; ///< raw data received
-		static const char *GSARGS[];       ///< parameters passed to Ghostscript
 		static const char *PSDEFS;         ///< initial PostScript definitions
 };
 

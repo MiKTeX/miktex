@@ -40,9 +40,11 @@
 #include "HyperlinkManager.hpp"
 #include "Message.hpp"
 #include "PageSize.hpp"
+#include "PDFToSVG.hpp"
 #include "PSInterpreter.hpp"
 #include "PsSpecialHandler.hpp"
 #include "SignalHandler.hpp"
+#include "SourceInput.hpp"
 #include "SVGOutput.hpp"
 #include "System.hpp"
 #include "utility.hpp"
@@ -75,10 +77,12 @@ static string remove_path (string fname) {
 }
 
 
-static string ensure_suffix (string fname, bool eps) {
-	size_t dotpos = remove_path(fname).rfind('.');
-	if (dotpos == string::npos)
-		fname += (eps ? ".eps" : ".dvi");
+static string ensure_suffix (string fname, const string &suffix) {
+	if (!fname.empty()) {
+		size_t dotpos = remove_path(fname).rfind('.');
+		if (dotpos == string::npos)
+			fname += "." + suffix;
+	}
 	return fname;
 }
 
@@ -150,30 +154,21 @@ static bool set_temp_dir (const CommandLine &args) {
 }
 
 
-static bool check_bbox (const string &bboxstr) {
+static void check_bbox (const string &bboxstr) {
 	for (const char *fmt : {"none", "min", "preview", "papersize", "dvi"})
 		if (bboxstr == fmt)
-			return true;
+			return;
 	if (isalpha(bboxstr[0])) {
 		try {
 			PageSize size(bboxstr);
-			return true;
 		}
 		catch (const PageSizeException &e) {
-			Message::estream(true) << "invalid bounding box format '" << bboxstr << "'\n";
-			return false;
+			throw MessageException("invalid bounding box format '" + bboxstr + "'");
 		}
 	}
-	try {
-		// check if given bbox argument is valid, i.e. doesn't throw an exception
-		BoundingBox bbox;
-		bbox.set(bboxstr);
-		return true;
-	}
-	catch (const MessageException &e) {
-		Message::estream(true) << e.what() << '\n';
-		return false;
-	}
+	// check if given bbox argument is valid, i.e. doesn't throw an exception
+	BoundingBox bbox;
+	bbox.set(bboxstr);
 }
 
 
@@ -261,7 +256,7 @@ static void print_version (bool extended) {
 		versionInfo.add("potrace", strchr(potrace_version(), ' '));
 		versionInfo.add("xxhash", XXH_versionNumber(), 3, 100);
 		versionInfo.add("zlib", zlibVersion());
-		versionInfo.add("Ghostscript", Ghostscript().revision(true), true);
+		versionInfo.add("Ghostscript", Ghostscript().revisionstr(), true);
 #ifndef DISABLE_WOFF
 		versionInfo.add("brotli", BrotliEncoderVersion(), 3, 0x1000);
 		versionInfo.add("woff2", woff2::version, 3, 0x100);
@@ -337,8 +332,8 @@ int MIKTEXCEECALL Main(int argc, char **argv) {
 #else
 int main (int argc, char *argv[]) {
 #endif
-	CommandLine cmdline;
 	try {
+		CommandLine cmdline;
 		cmdline.parse(argc, argv);
 		if (argc == 1 || cmdline.helpOpt.given()) {
 			cmdline.help(cout, cmdline.helpOpt.value());
@@ -357,51 +352,47 @@ int main (int argc, char *argv[]) {
 		}
 		if (!set_cache_dir(cmdline) || !set_temp_dir(cmdline))
 			return 0;
-		if (cmdline.stdoutOpt.given() && cmdline.zipOpt.given()) {
-			Message::estream(true) << "writing SVGZ files to stdout is not supported\n";
-			return 1;
-		}
-		if (!check_bbox(cmdline.bboxOpt.value()))
-			return 1;
+		check_bbox(cmdline.bboxOpt.value());
 		if (!HyperlinkManager::setLinkMarker(cmdline.linkmarkOpt.value()))
 			Message::wstream(true) << "invalid argument '"+cmdline.linkmarkOpt.value()+"' supplied for option --linkmark\n";
-		if (argc > 1 && cmdline.filenames().size() < 1) {
-			Message::estream(true) << "no input file given\n";
-			return 1;
+		if (cmdline.stdinOpt.given() || cmdline.singleDashGiven()) {
+			if (!cmdline.filenames().empty())
+				throw MessageException("option - or --stdin can't be used together with a filename");
+			cmdline.addFilename("");  // empty filename => read from stdin
 		}
-	}
-	catch (MessageException &e) {
-		Message::estream() << e.what() << '\n';
-		return 1;
-	}
+		if (argc > 1 && cmdline.filenames().empty())
+			throw MessageException("no input file given");
 
-	bool eps_given = cmdline.epsOpt.given();
-	string inputfile = ensure_suffix(cmdline.filenames()[0], eps_given);
-#if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(inputfile.c_str()), ios::binary | ios::in);
-#else
-	ifstream ifs(inputfile.c_str(), ios::binary|ios::in);
-#endif
-	if (!ifs) {
-		Message::estream(true) << "can't open file '" << inputfile << "' for reading\n";
-		return 0;
-	}
-	try {
+		SignalHandler::instance().start();
+		string inputfile = ensure_suffix(cmdline.filenames()[0],
+			cmdline.epsOpt.given() ? "eps" : cmdline.pdfOpt.given() ? "pdf" : "dvi");
+		SourceInput srcin(inputfile);
+		if (!srcin.getInputStream(true))
+			throw MessageException("can't open file '" + srcin.getMessageFileName() + "' for reading");
+
 		double start_time = System::time();
 		set_variables(cmdline);
-		SVGOutput out(cmdline.stdoutOpt.given() ? nullptr : inputfile.c_str(),
+		SVGOutput out(cmdline.stdoutOpt.given() ? "" : srcin.getFileName(),
 			cmdline.outputOpt.value(),
 			cmdline.zipOpt.given() ? cmdline.zipOpt.value() : 0);
-		SignalHandler::instance().start();
-		if (cmdline.epsOpt.given()) {
-			EPSToSVG eps2svg(inputfile, out);
-			eps2svg.convert();
+		if (cmdline.epsOpt.given() || cmdline.pdfOpt.given()) {
+			auto img2svg = unique_ptr<ImageToSVG>(
+				cmdline.epsOpt.given()
+				? static_cast<ImageToSVG*>(new EPSToSVG(srcin.getFilePath(), out))
+				: static_cast<ImageToSVG*>(new PDFToSVG(srcin.getFilePath(), out)));
+			img2svg->convert();
+			Message::mstream().indent(0);
+			Message::mstream(false, Message::MC_PAGE_NUMBER) << "file converted in " << (System::time()-start_time) << " seconds\n";
+		}
+		else if (cmdline.pdfOpt.given()) {
+			PDFToSVG pdf2svg(srcin.getFilePath(), out);
+			pdf2svg.convert();
 			Message::mstream().indent(0);
 			Message::mstream(false, Message::MC_PAGE_NUMBER) << "file converted in " << (System::time()-start_time) << " seconds\n";
 		}
 		else {
 			init_fontmap(cmdline);
-			DVIToSVG dvi2svg(ifs, out);
+			DVIToSVG dvi2svg(srcin.getInputStream(), out);
 			const char *ignore_specials=nullptr;
 			if (cmdline.noSpecialsOpt.given())
 				ignore_specials = cmdline.noSpecialsOpt.value().empty() ? "*" : cmdline.noSpecialsOpt.value().c_str();

@@ -20,6 +20,7 @@
 
 #if defined(MIKTEX)
 #  include <config.h>
+#  include <array>
 #endif
 #include <cmath>
 #include <fstream>
@@ -27,6 +28,7 @@
 #include <sstream>
 #include "EPSFile.hpp"
 #include "FileFinder.hpp"
+#include "FileSystem.hpp"
 #include "Message.hpp"
 #include "PathClipper.hpp"
 #include "PSPattern.hpp"
@@ -36,21 +38,12 @@
 #include "SVGTree.hpp"
 #include "TensorProductPatch.hpp"
 #include "TriangularPatch.hpp"
-
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
 
 using namespace std;
-
-
-static inline double str2double (const string &str) {
-	double ret;
-	istringstream iss(str);
-	iss >> ret;
-	return ret;
-}
 
 
 bool PsSpecialHandler::COMPUTE_CLIPPATHS_INTERSECTIONS = false;
@@ -92,7 +85,8 @@ void PsSpecialHandler::initgraphics () {
 	_linecap = _linejoin = 0;  // butt end caps and miter joins
 	_miterlimit = 4;
 	_xmlnode = _savenode = nullptr;
-	_opacityalpha = 1;  // fully opaque
+	_opacityalpha = _shapealpha = 1;  // fully opaque
+	_blendmode = 0; // "normal" mode (no blending)
 	_sx = _sy = _cos = 1.0;
 	_pattern = nullptr;
 	_currentcolor = Color::BLACK;
@@ -181,17 +175,17 @@ void PsSpecialHandler::executeAndSync (istream &is, bool updatePos) {
 }
 
 
-void PsSpecialHandler::preprocess (const char *prefix, istream &is, SpecialActions &actions) {
+void PsSpecialHandler::preprocess (const string &prefix, istream &is, SpecialActions &actions) {
 	initialize();
 	if (_psSection != PS_HEADERS)
 		return;
 
 	_actions = &actions;
-	if (*prefix == '!') {
+	if (prefix == "!") {
 		_headerCode += "\n";
 		_headerCode += string(istreambuf_iterator<char>(is), istreambuf_iterator<char>());
 	}
-	else if (strcmp(prefix, "header=") == 0) {
+	else if (prefix == "header=") {
 		// read and execute PS header file
 		string fname;
 		is >> fname;
@@ -200,9 +194,9 @@ void PsSpecialHandler::preprocess (const char *prefix, istream &is, SpecialActio
 }
 
 
-bool PsSpecialHandler::process (const char *prefix, istream &is, SpecialActions &actions) {
+bool PsSpecialHandler::process (const string &prefix, istream &is, SpecialActions &actions) {
 	// process PS headers only once (in prescan)
-	if (*prefix == '!' || strcmp(prefix, "header=") == 0)
+	if (prefix == "!" || prefix == "header=")
 		return true;
 
 	_actions = &actions;
@@ -210,23 +204,23 @@ bool PsSpecialHandler::process (const char *prefix, istream &is, SpecialActions 
 	if (_psSection != PS_BODY)
 		enterBodySection();
 
-	if (*prefix == '"' || strcmp(prefix, "pst:") == 0) {
+	if (prefix == "\"" || prefix == "pst:") {
 		// read and execute literal PostScript code (isolated by a wrapping save/restore pair)
 		moveToDVIPos();
 		_psi.execute("\n@beginspecial @setspecial ");
 		executeAndSync(is, false);
 		_psi.execute("\n@endspecial ");
 	}
-	else if (strcmp(prefix, "psfile=") == 0 || strcmp(prefix, "PSfile=") == 0) {
+	else if (prefix == "psfile=" || prefix == "PSfile=" || prefix == "pdffile=") {
 		if (_actions) {
 			StreamInputReader in(is);
-			string fname = in.getQuotedString(in.peek() == '"' ? '"' : 0);
+			const string fname = in.getQuotedString(in.peek() == '"' ? '"' : 0);
 			unordered_map<string,string> attr;
 			in.parseAttributes(attr);
-			psfile(fname, attr);
+			imgfile(prefix == "pdffile=" ? FileType::PDF : FileType::EPS, fname, attr);
 		}
 	}
-	else if (strcmp(prefix, "ps::") == 0) {
+	else if (prefix == "ps::") {
 		if (_actions)
 			_actions->finishLine();  // reset DVI position on next DVI command
 		if (is.peek() == '[') {
@@ -281,46 +275,57 @@ bool PsSpecialHandler::process (const char *prefix, istream &is, SpecialActions 
 }
 
 
-/** Handles psfile special.
- *  @param[in] fname EPS file to be included
- *  @param[in] attr attributes given with \\special psfile */
-void PsSpecialHandler::psfile (const string &fname, const unordered_map<string,string> &attr) {
+/** Handles a psfile/pdffile special which places an external EPS/PDF graphic
+ *  at the current DVI position. The lower left corner (llx,lly) of the
+ *  given bounding box is placed at the DVI position.
+ *  @param[in] filetype type of file to process (EPS or PDF)
+ *  @param[in] fname EPS/PDF file to be included
+ *  @param[in] attr attributes given with psfile/pdffile special */
+void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const unordered_map<string,string> &attr) {
 	const char *filepath = FileFinder::instance().lookup(fname, false);
+	if (!filepath && FileSystem::exists(fname))
+		filepath = fname.c_str();
 	if (!filepath) {
-		Message::wstream(true) << "file '" << fname << "' not found in special 'psfile'\n";
+		Message::wstream(true) << "file '" << fname << "' not found\n";
 		return;
 	}
 	unordered_map<string,string>::const_iterator it;
 
-	// bounding box of EPS figure (lower left and upper right corner)
-	double llx = (it = attr.find("llx")) != attr.end() ? str2double(it->second) : 0;
-	double lly = (it = attr.find("lly")) != attr.end() ? str2double(it->second) : 0;
-	double urx = (it = attr.find("urx")) != attr.end() ? str2double(it->second) : 0;
-	double ury = (it = attr.find("ury")) != attr.end() ? str2double(it->second) : 0;
+	// bounding box of EPS figure in PS point units (lower left and upper right corner)
+	double llx = (it = attr.find("llx")) != attr.end() ? stod(it->second) : 0;
+	double lly = (it = attr.find("lly")) != attr.end() ? stod(it->second) : 0;
+	double urx = (it = attr.find("urx")) != attr.end() ? stod(it->second) : 0;
+	double ury = (it = attr.find("ury")) != attr.end() ? stod(it->second) : 0;
 
-	// desired width/height of resulting figure
-	double rwi = (it = attr.find("rwi")) != attr.end() ? str2double(it->second)/10.0 : -1;
-	double rhi = (it = attr.find("rhi")) != attr.end() ? str2double(it->second)/10.0 : -1;
+	if (filetype == FileType::PDF && llx == 0 && lly == 0 && urx == 0 && ury == 0) {
+		_psi.execute("\n("+fname+")@getpdfpagebox ");
+		if (_pdfpagebox.valid()) {
+			llx = _pdfpagebox.minX();
+			lly = _pdfpagebox.minY();
+			urx = _pdfpagebox.maxX();
+			ury = _pdfpagebox.maxY();
+		}
+	}
+
+	// desired width and height of the untransformed figure in PS point units
+	double rwi = (it = attr.find("rwi")) != attr.end() ? stod(it->second)/10.0 : -1;
+	double rhi = (it = attr.find("rhi")) != attr.end() ? stod(it->second)/10.0 : -1;
 	if (rwi == 0 || rhi == 0 || urx-llx == 0 || ury-lly == 0)
 		return;
 
 	// user transformations (default values chosen according to dvips manual)
-	double hoffset = (it = attr.find("hoffset")) != attr.end() ? str2double(it->second) : 0;
-	double voffset = (it = attr.find("voffset")) != attr.end() ? str2double(it->second) : 0;
-//	double hsize   = (it = attr.find("hsize")) != attr.end() ? str2double(it->second) : 612;
-//	double vsize   = (it = attr.find("vsize")) != attr.end() ? str2double(it->second) : 792;
-	double hscale  = (it = attr.find("hscale")) != attr.end() ? str2double(it->second) : 100;
-	double vscale  = (it = attr.find("vscale")) != attr.end() ? str2double(it->second) : 100;
-	double angle   = (it = attr.find("angle")) != attr.end() ? str2double(it->second) : 0;
-
-	Matrix m(1);
-	m.rotate(angle).scale(hscale/100, vscale/100).translate(hoffset, voffset);
-	BoundingBox bbox(llx, lly, urx, ury);
-	bbox.transform(m);
+	// order of transformations: rotate, scale, translate/offset
+	double hoffset = (it = attr.find("hoffset")) != attr.end() ? stod(it->second) : 0;
+	double voffset = (it = attr.find("voffset")) != attr.end() ? stod(it->second) : 0;
+//	double hsize   = (it = attr.find("hsize")) != attr.end() ? stod(it->second) : 612;
+//	double vsize   = (it = attr.find("vsize")) != attr.end() ? stod(it->second) : 792;
+	double hscale  = (it = attr.find("hscale")) != attr.end() ? stod(it->second) : 100;
+	double vscale  = (it = attr.find("vscale")) != attr.end() ? stod(it->second) : 100;
+	double angle   = (it = attr.find("angle")) != attr.end() ? stod(it->second) : 0;
 
 	// compute factors to scale the bounding box to width rwi and height rhi
-	double sx = rwi/bbox.width();
-	double sy = rhi/bbox.height();
+	double sx = rwi/abs(llx-urx);
+	double sy = rhi/abs(lly-ury);
 	if (sx == 0 || sy == 0)
 		return;
 
@@ -329,34 +334,32 @@ void PsSpecialHandler::psfile (const string &fname, const unordered_map<string,s
 	if (sx < 0) sx = sy = 1.0;   // neither rwi nor rhi set
 
 	// save current DVI position
-	const double x = _actions->getX();
-	const double y = _actions->getY();
+	double x = _actions->getX();
+	double y = _actions->getY();
 
 	// all following drawings are relative to (0,0)
 	_actions->setX(0);
 	_actions->setY(0);
 	moveToDVIPos();
 
-	// transform current DVI position and bounding box location
-	// according to current transformation matrix
-	DPair llTrans = _actions->getMatrix()*DPair(llx, -lly);
-	DPair urTrans = _actions->getMatrix()*DPair(urx, -ury);
-	DPair dviposTrans = _actions->getMatrix()*DPair(x, y);
-
 	auto groupNode = util::make_unique<XMLElementNode>("g");  // append following elements to this group
 	_xmlnode = groupNode.get();
-	_psi.execute("\n@beginspecial @setspecial /setpagedevice{@setpagedevice}def "); // enter \special environment
-	EPSFile epsfile(filepath);
-	_psi.limit(epsfile.pslength());  // limit the number of bytes going to be processed
-	_psi.execute(epsfile.istream()); // process EPS file
-	_psi.limit(0);                   // disable limitation
-	_psi.execute("\n@endspecial ");  // leave special environment
+	_psi.execute(
+		"\n@beginspecial @setspecial"        // enter special environment
+		"/setpagedevice{@setpagedevice}def"  // activate processing of operator "setpagedevice"
+		"[1 0 0 -1 0 0] setmatrix"           // don't apply outer PS transformations
+		"(" + string(filepath) + ")run "     // execute file content
+		"@endspecial "                       // leave special environment
+	);
 	if (!groupNode->empty()) {       // has anything been drawn?
 		Matrix matrix(1);
-		matrix.rotate(angle).scale(hscale/100, vscale/100).translate(hoffset, voffset);
-		matrix.translate(-llTrans);
-		matrix.scale(sx, sy);          // resize image to width "rwi" and height "rhi"
-		matrix.translate(dviposTrans); // move image to current DVI position
+		if (filetype == FileType::PDF)
+			matrix.translate(-llx, -lly).scale(1, -1); //.translate(0, lly);  // flip vertically
+		else
+			matrix.translate(-llx, lly);
+		matrix.scale(sx, sy).rotate(-angle).scale(hscale/100, vscale/100);
+		matrix.translate(x+hoffset, y-voffset); // move image to current DVI position
+		matrix.rmultiply(_actions->getMatrix());
 		if (!matrix.isIdentity())
 			groupNode->addAttribute("transform", matrix.getSVG());
 		_actions->appendToPage(std::move(groupNode));
@@ -369,10 +372,12 @@ void PsSpecialHandler::psfile (const string &fname, const unordered_map<string,s
 	moveToDVIPos();
 
 	// update bounding box
-	m.scale(sx, -sy);
-	m.translate(dviposTrans);
-	bbox = BoundingBox(DPair(0, 0), abs(urTrans-llTrans));
-	bbox.transform(m);
+	BoundingBox bbox(0, 0, urx-llx, ury-lly);
+	Matrix matrix(1);
+	matrix.scale(sx, -sy).rotate(-angle).scale(hscale/100, vscale/100);
+	matrix.translate(x+hoffset, y-voffset);
+	matrix.rmultiply(_actions->getMatrix());
+	bbox.transform(matrix);
 	_actions->embed(bbox);
 }
 
@@ -489,7 +494,8 @@ void PsSpecialHandler::setpagedevice (std::vector<double> &p) {
 	_linewidth = 1;
 	_linecap = _linejoin = 0;  // butt end caps and miter joins
 	_miterlimit = 4;
-	_opacityalpha = 1;  // fully opaque
+	_opacityalpha = _shapealpha = 1;  // fully opaque
+	_blendmode = 0; // "normal" mode (no blending)
 	_sx = _sy = _cos = 1.0;
 	_pattern = nullptr;
 	_currentcolor = Color::BLACK;
@@ -544,6 +550,17 @@ void PsSpecialHandler::closepath (vector<double>&) {
 }
 
 
+static string css_blendmode_name (int mode) {
+	static const array<const char*,16> modenames = {{
+	  "normal",  "multiply",  "screen", "overlay", "soft-light", "hard-light", "color-dodge", "color-burn",
+	  "darken", "lighten", "difference", "exclusion", "hue", "saturation", "color", "luminosity"
+	}};
+	if (mode < 0 || mode > 15)
+		return "";
+	return modenames[mode];
+}
+
+
 /** Draws the current path recorded by previously executed path commands (moveto, lineto,...).
  *  @param[in] p not used */
 void PsSpecialHandler::stroke (vector<double> &p) {
@@ -593,8 +610,10 @@ void PsSpecialHandler::stroke (vector<double> &p) {
 			path->addAttribute("stroke-linecap", _linecap == 1 ? "round" : "square");
 		if (_linejoin > 0)    // default value is "miter", no need to set it explicitly
 			path->addAttribute("stroke-linejoin", _linecap == 1 ? "round" : "bevel");
-		if (_opacityalpha < 1)
-			path->addAttribute("stroke-opacity", _opacityalpha);
+		if (_opacityalpha < 1 || _shapealpha < 1)
+			path->addAttribute("stroke-opacity", _opacityalpha*_shapealpha);
+		if (_blendmode > 0 && _blendmode < 16)
+			path->addAttribute("style", "mix-blend-mode:"+css_blendmode_name(_blendmode));
 		if (!_dashpattern.empty()) {
 			ostringstream oss;
 			for (size_t i=0; i < _dashpattern.size(); i++) {
@@ -662,8 +681,10 @@ void PsSpecialHandler::fill (vector<double> &p, bool evenodd) {
 	}
 	if (evenodd)  // SVG default fill rule is "nonzero" algorithm
 		path->addAttribute("fill-rule", "evenodd");
-	if (_opacityalpha < 1)
-		path->addAttribute("fill-opacity", _opacityalpha);
+	if (_opacityalpha < 1 || _shapealpha < 1)
+		path->addAttribute("fill-opacity", _opacityalpha*_shapealpha);
+	if (_blendmode > 0 && _blendmode < 16)
+		path->addAttribute("style", "mix-blend-mode:"+css_blendmode_name(_blendmode));
 	if (_xmlnode)
 		_xmlnode->append(std::move(path));
 	else {
@@ -1261,9 +1282,10 @@ void PsSpecialHandler::ClippingStack::dup (int saveID) {
 }
 
 
-const vector<const char*> PsSpecialHandler::prefixes () const {
-	const vector<const char*> pfx {
+vector<const char*> PsSpecialHandler::prefixes() const {
+	vector<const char*> pfx {
 		"header=",    // read and execute PS header file prior to the following PS statements
+		"pdffile=",   // process PDF file
 		"psfile=",    // read and execute PS file
 		"PSfile=",    // dito
 		"ps:",        // execute literal PS code wrapped by @beginspecial and @endspecial

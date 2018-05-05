@@ -15,12 +15,11 @@
 using CL::Option;
 using CL::TypedOption;
 
-class CommandLine : public CL::CommandLine
-{
+class CommandLine : public CL::CommandLine {
 	public:
 		CommandLine () : CL::CommandLine(
 			"This program converts DVI files, as created by TeX/LaTeX, to\nthe XML-based scalable vector graphics format SVG.",
-			"[options] dvifile\n-E [options] epsfile",
+			"[options] dvifile\n--eps [options] epsfile\n--pdf [options] pdffile",
 			"Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>"
 		) {}
 
@@ -35,7 +34,7 @@ class CommandLine : public CL::CommandLine
 		Option colorOpt {"color", '\0', "colorize messages"};
 		Option colornamesOpt {"colornames", '\0', "prefer color names to RGB values if possible"};
 		Option commentsOpt {"comments", '\0', "add comments with additional information"};
-		Option epsOpt {"eps", 'E', "convert an EPS file to SVG"};
+		Option epsOpt {"eps", 'E', "convert EPS file to SVG"};
 		Option exactOpt {"exact", 'e', "compute exact glyph boxes"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> fontFormatOpt {"font-format", 'f', "format", "svg", "select file format of embedded fonts"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> fontmapOpt {"fontmap", 'm', "filenames", "evaluate (additional) font map files"};
@@ -55,11 +54,13 @@ class CommandLine : public CL::CommandLine
 		Option noStylesOpt {"no-styles", '\0', "don't use CSS styles to reference fonts"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> outputOpt {"output", 'o', "pattern", "set name pattern of output files"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> pageOpt {"page", 'p', "ranges", "1", "choose page(s) to convert"};
+		Option pdfOpt {"pdf", 'P', "convert PDF file to SVG"};
 		TypedOption<int, Option::ArgMode::REQUIRED> precisionOpt {"precision", 'd', "number", 0, "set number of decimal points (0-6)"};
-		TypedOption<double, Option::ArgMode::OPTIONAL> progressOpt {"progress", 'P', "delay", 0.5, "enable progress indicator"};
+		TypedOption<double, Option::ArgMode::OPTIONAL> progressOpt {"progress", '\0', "delay", 0.5, "enable progress indicator"};
 		Option relativeOpt {"relative", 'R', "create relative path commands"};
 		TypedOption<double, Option::ArgMode::REQUIRED> rotateOpt {"rotate", 'r', "angle", "rotate page content clockwise"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> scaleOpt {"scale", 'c', "sx[,sy]", "scale page content"};
+		Option stdinOpt {"stdin", '\0', "read input file from stdin"};
 		Option stdoutOpt {"stdout", 's', "write SVG output to stdout"};
 		TypedOption<std::string, Option::ArgMode::OPTIONAL> tmpdirOpt {"tmpdir", '\0', "path", "set/print the directory for temporary files"};
 		TypedOption<bool, Option::ArgMode::OPTIONAL> traceAllOpt {"trace-all", 'a', "retrace", false, "trace all glyphs of bitmap fonts"};
@@ -89,6 +90,10 @@ class CommandLine : public CL::CommandLine
 #if !defined(DISABLE_GS)
 			{&epsOpt, 0},
 #endif
+#if !defined(DISABLE_GS)
+			{&pdfOpt, 0},
+#endif
+			{&stdinOpt, 0},
 			{&bboxOpt, 1},
 #if !defined(DISABLE_GS)
 			{&clipjoinOpt, 1},

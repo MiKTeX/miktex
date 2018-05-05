@@ -42,7 +42,9 @@ void CommandLine::parse (int argc, char **argv) {
 			_files.push_back(argv[i]);
 		else {
 			iss.get();  // skip dash
-			if (iss.peek() != '-')
+			if (iss.peek() < 0)
+				_singleDashParsed = true;
+			else if (iss.peek() != '-')
 				parseShortOption(iss, argc, argv, i);
 			else {
 				iss.get();             // skip dash
@@ -94,8 +96,6 @@ static void type_error (const Option &option, bool shortname) {
 void CommandLine::parseShortOption (istringstream &iss, int argc, char **argv, int &argn) {
 	bool combined = false;
 	do {
-		if (iss.peek() < 0)
-			throw CommandLineException("missing character after '-'");
 		char shortname = static_cast<char>(iss.get());
 		if (!isalnum(shortname))
 			throw CommandLineException(string("syntax error: -")+shortname);
@@ -184,11 +184,15 @@ void CommandLine::help (ostream &os, int mode) const {
 	os << PROGRAM_NAME << ' '<< PROGRAM_VERSION << "\n\n";
 	os << _summary << "\n\n";
 	// print usage info
-	size_t start=0, pos=0;
 	string usage = _usage;
-	while ((pos = usage.find('\n', start)) != string::npos || start < usage.length()) {
-		os << (start == 0 ? "Usage: " : "       ") << PROGRAM_NAME << ' ' << usage.substr(start, pos) << '\n';
-		start = (pos != string::npos ? pos+1 : string::npos);
+	int count=0;
+	while (!usage.empty()) {
+		size_t pos = usage.find('\n');
+		os << (count++ == 0 ? "Usage: " : "       ") << PROGRAM_NAME << ' ' << usage.substr(0, pos) << '\n';
+		if (pos != string::npos)
+			usage = usage.substr(pos+1);
+		else
+			usage.clear();
 	}
 	if (mode > 0)
 		os << '\n';
@@ -197,6 +201,7 @@ void CommandLine::help (ostream &os, int mode) const {
 	unordered_map<Option*, pair<string,string>> linecols;
 	size_t col1width=0;
 	for (const OptSectPair &ospair : options()) {
+		size_t pos;
 		string line = ospair.first->helpline();
 		if ((pos = line.find('\t')) != string::npos) {
 			linecols.emplace(ospair.first, pair<string,string>(line.substr(0, pos), line.substr(pos+1)));

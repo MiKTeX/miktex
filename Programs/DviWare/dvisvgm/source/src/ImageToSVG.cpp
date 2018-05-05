@@ -1,5 +1,5 @@
 /*************************************************************************
-** EPSToSVG.cpp                                                         **
+** ImageToSVG.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
 ** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
@@ -21,8 +21,7 @@
 #include <config.h>
 #include <fstream>
 #include <sstream>
-#include "EPSFile.hpp"
-#include "EPSToSVG.hpp"
+#include "ImageToSVG.hpp"
 #include "Message.hpp"
 #include "MessageException.hpp"
 #include "PsSpecialHandler.hpp"
@@ -34,20 +33,18 @@
 using namespace std;
 
 
-void EPSToSVG::convert () {
+void ImageToSVG::convert () {
 #ifndef HAVE_LIBGS
 	if (!Ghostscript().available())
-		throw MessageException("Ghostscript is required to process the EPS file");
+		throw MessageException("Ghostscript is required to process "+imageFormat()+" files");
 #endif
-	EPSFile epsfile(_fname);
-	if (!epsfile.hasValidHeader())
-		throw PSException("invalid EPS file");
+	if (!imageIsValid())
+		throw PSException("invalid "+imageFormat()+" file");
 
-	BoundingBox bbox;
-	epsfile.bbox(bbox);
-	if (bbox.width() == 0 || bbox.height() == 0)
-		Message::wstream(true) << "bounding box of file " << _fname << " is empty\n";
-	Message::mstream(false, Message::MC_PAGE_NUMBER) << "processing file " << _fname << '\n';
+	BoundingBox bbox = imageBBox();
+	if (bbox.valid() && (bbox.width() == 0 || bbox.height() == 0))
+		Message::wstream(true) << "bounding box of " << imageFormat() << " file is empty\n";
+	Message::mstream(false, Message::MC_PAGE_NUMBER) << "processing " << imageFormat() << " file\n";
 	Message::mstream().indent(1);
 	_svg.newPage(1);
 	// create a psfile special and forward it to the PsSpecialHandler
@@ -59,7 +56,7 @@ void EPSToSVG::convert () {
 			"ury=" << bbox.maxY();
 	try {
 		PsSpecialHandler pshandler;
-		pshandler.process("psfile=", ss, *this);
+		pshandler.process(psSpecialCmd(), ss, *this);
 	}
 	catch (...) {
 		progress(0);  // remove progress message
@@ -79,23 +76,23 @@ void EPSToSVG::convert () {
 	else {
 		const double bp2pt = 72.27/72;
 		const double bp2mm = 25.4/72;
-		Message::mstream(false, Message::MC_PAGE_SIZE) << "graphic size: " << XMLString(bbox.width()*bp2pt) << "pt"
-			" x " << XMLString(bbox.height()*bp2pt) << "pt"
-			" (" << XMLString(bbox.width()*bp2mm) << "mm"
-			" x " << XMLString(bbox.height()*bp2mm) << "mm)\n";
+		Message::mstream(false, Message::MC_PAGE_SIZE) << "graphic size: " << XMLString(_bbox.width()*bp2pt) << "pt"
+			" x " << XMLString(_bbox.height()*bp2pt) << "pt"
+			" (" << XMLString(_bbox.width()*bp2mm) << "mm"
+			" x " << XMLString(_bbox.height()*bp2mm) << "mm)\n";
 		Message::mstream(false, Message::MC_PAGE_WRITTEN) << "output written to " << svgfname << '\n';
 	}
 }
 
 
-string EPSToSVG::getSVGFilename (unsigned pageno) const {
+string ImageToSVG::getSVGFilename (unsigned pageno) const {
 	if (pageno == 1)
 		return _out.filename(1, 1);
 	return "";
 }
 
 
-void EPSToSVG::progress (const char *id) {
+void ImageToSVG::progress (const char *id) {
 	static double time=0;
 	static bool draw=false; // show progress indicator?
 	static size_t count=0;

@@ -36,7 +36,7 @@
 class PSPattern;
 class XMLElementNode;
 
-class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, protected PSActions {
+class PsSpecialHandler : public SpecialHandler, protected PSActions {
 	using Path = GraphicsPath<double>;
 	using ColorSpace = Color::ColorSpace;
 
@@ -76,15 +76,16 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 	};
 
 	enum PsSection {PS_NONE, PS_HEADERS, PS_BODY};
+	enum class FileType {EPS, PDF};
 
 	public:
 		PsSpecialHandler ();
 		~PsSpecialHandler ();
 		const char* name () const override {return "ps";}
 		const char* info () const override {return "dvips PostScript specials";}
-		const std::vector<const char*> prefixes () const override;
-		void preprocess (const char *prefix, std::istream &is, SpecialActions &actions) override;
-		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
+		std::vector<const char*> prefixes() const override;
+		void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
+		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		void setDviScaleFactor (double dvi2bp) override {_previewFilter.setDviScaleFactor(dvi2bp);}
 		void enterBodySection ();
 
@@ -100,7 +101,7 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 		void moveToDVIPos ();
 		void executeAndSync (std::istream &is, bool updatePos);
 		void processHeaderFile (const char *fname);
-		void psfile (const std::string &fname, const std::unordered_map<std::string,std::string> &attr);
+		void imgfile (FileType type, const std::string &fname, const std::unordered_map<std::string,std::string> &attr);
 		void dviEndPage (unsigned pageno, SpecialActions &actions) override;
 		void clip (Path &path, bool evenodd);
 		void processSequentialPatchMesh (int shadingTypeID, ColorSpace cspace, VectorIterator<double> &it);
@@ -127,11 +128,13 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 		void makepattern (std::vector<double> &p) override;
 		void moveto (std::vector<double> &p) override;
 		void newpath (std::vector<double> &p) override;
+		void pdfpagebox (std::vector<double> &p) override      {_pdfpagebox = BoundingBox(p[0], p[1], p[2], p[3]);}
 		void querypos (std::vector<double> &p) override        {_currentpoint = DPair(p[0], p[1]);}
 		void restore (std::vector<double> &p) override;
 		void rotate (std::vector<double> &p) override;
 		void save (std::vector<double> &p) override;
 		void scale (std::vector<double> &p) override;
+		void setblendmode (std::vector<double> &p) override    {_blendmode = int(p[0]);}
 		void setcmykcolor (std::vector<double> &cmyk) override;
 		void setdash (std::vector<double> &p) override;
 		void setgray (std::vector<double> &p) override;
@@ -142,6 +145,7 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 		void setmatrix (std::vector<double> &p) override;
 		void setmiterlimit (std::vector<double> &p) override   {_miterlimit = p[0];}
 		void setopacityalpha (std::vector<double> &p) override {_opacityalpha = p[0];}
+		void setshapealpha (std::vector<double> &p) override   {_shapealpha = p[0];}
 		void setpagedevice (std::vector<double> &p) override;
 		void setpattern (std::vector<double> &p) override;
 		void setrgbcolor (std::vector<double> &rgb) override;
@@ -166,6 +170,8 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 		double _linewidth;          ///< current line width in bp units
 		double _miterlimit;         ///< current miter limit in bp units
 		double _opacityalpha;       ///< opacity level (0=fully transparent, ..., 1=opaque)
+		double _shapealpha;         ///< shape opacity level (0=fully transparent, ..., 1=opaque)
+		int _blendmode;             ///< blend mode used when overlaying colored areas
 		uint8_t _linecap  : 2;      ///< current line cap (0=butt, 1=round, 2=projecting square)
 		uint8_t _linejoin : 2;      ///< current line join (0=miter, 1=round, 2=bevel)
 		double _dashoffset;         ///< current dash offset
@@ -173,6 +179,7 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 		ClippingStack _clipStack;
 		std::unordered_map<int, std::unique_ptr<PSPattern>> _patterns;
 		PSTilingPattern *_pattern;  ///< current pattern
+		BoundingBox _pdfpagebox;
 };
 
 #endif

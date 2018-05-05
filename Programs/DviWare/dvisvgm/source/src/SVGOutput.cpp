@@ -37,8 +37,9 @@
 
 using namespace std;
 
-SVGOutput::SVGOutput (const char *base, const string &pattern, int zipLevel)
-	: _path(base ? base : ""), _pattern(pattern), _stdout(base == 0), _zipLevel(zipLevel), _page(-1)
+
+SVGOutput::SVGOutput (const string &base, const string &pattern, int zipLevel)
+	: _path(base), _pattern(pattern), _stdout(base.empty()), _zipLevel(zipLevel), _page(-1)
 {
 }
 
@@ -50,20 +51,27 @@ SVGOutput::SVGOutput (const char *base, const string &pattern, int zipLevel)
 ostream& SVGOutput::getPageStream (int page, int numPages) const {
 	string fname = filename(page, numPages);
 	if (fname.empty()) {
-		_osptr.reset();
-		return cout;
+		if (_zipLevel == 0) {
+			_osptr.reset();
+			return cout;
+		}
+#ifdef _WIN32
+		if (_setmode(_fileno(stdout), _O_BINARY) == -1)
+			throw MessageException("can't open stdout in binary mode");
+#endif
+		return *(_osptr = util::make_unique<ZLibOutputStream>(cout, ZLIB_GZIP, _zipLevel));
 	}
 	if (page == _page)
 		return *_osptr;
 
 	_page = page;
 	if (_zipLevel > 0)
-		_osptr = util::make_unique<ZLibOutputStream>(fname, _zipLevel);
+		_osptr = util::make_unique<ZLibOutputFileStream>(fname, ZLIB_GZIP, _zipLevel);
 	else
 #if defined(MIKTEX_WINDOWS)
-                _osptr = util::make_unique<ofstream>(UW_(fname.c_str()));
+                _osptr = util::make_unique<ofstream>(UW_(fname));
 #else
-		_osptr = util::make_unique<ofstream>(fname.c_str());
+		_osptr = util::make_unique<ofstream>(fname);
 #endif
 	if (!_osptr)
 		throw MessageException("can't open file "+fname+" for writing");

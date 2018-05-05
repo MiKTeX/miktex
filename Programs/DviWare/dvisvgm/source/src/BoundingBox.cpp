@@ -234,8 +234,8 @@ void BoundingBox::scale (double sx, double sy) {
 
 void BoundingBox::transform (const Matrix &tm) {
 	if (!_locked) {
-		DPair ul = tm * DPair(_lrx, _lry);
-		DPair lr = tm * DPair(_ulx, _uly);
+		DPair ul = tm * DPair(_ulx, _uly);
+		DPair lr = tm * DPair(_lrx, _lry);
 		DPair ll = tm * DPair(_ulx, _lry);
 		DPair ur = tm * DPair(_lrx, _uly);
 		_ulx = min(min(ul.x(), lr.x()), min(ur.x(), ll.x()));

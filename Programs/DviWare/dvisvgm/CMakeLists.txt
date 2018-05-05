@@ -91,7 +91,6 @@ set(libbrotli_sources
   source/libs/brotli/enc/compress_fragment.h
   source/libs/brotli/enc/compress_fragment_two_pass.c
   source/libs/brotli/enc/compress_fragment_two_pass.h
-  source/libs/brotli/enc/context.h
   source/libs/brotli/enc/dictionary_hash.c
   source/libs/brotli/enc/dictionary_hash.h
   source/libs/brotli/enc/encode.c
@@ -119,7 +118,6 @@ set(libbrotli_sources
   source/libs/brotli/enc/metablock.h
   source/libs/brotli/enc/metablock_inc.h
   source/libs/brotli/enc/params.h
-  source/libs/brotli/enc/port.h
   source/libs/brotli/enc/prefix.h
   source/libs/brotli/enc/quality.h
   source/libs/brotli/enc/ringbuffer.h
@@ -292,7 +290,6 @@ set(libdvisvgm_sources
   source/src/DvisvgmSpecialHandler.hpp
   source/src/EPSFile.cpp
   source/src/EPSFile.hpp
-  source/src/EPSToSVG.cpp
   source/src/EPSToSVG.hpp
   source/src/EmSpecialHandler.cpp
   source/src/EmSpecialHandler.hpp
@@ -337,6 +334,8 @@ set(libdvisvgm_sources
   source/src/HtmlSpecialHandler.hpp
   source/src/HyperlinkManager.cpp
   source/src/HyperlinkManager.hpp
+  source/src/ImageToSVG.cpp
+  source/src/ImageToSVG.hpp
   source/src/InputBuffer.cpp
   source/src/InputBuffer.hpp
   source/src/InputReader.cpp
@@ -359,6 +358,7 @@ set(libdvisvgm_sources
   source/src/NumericRanges.hpp
   source/src/PDFParser.cpp
   source/src/PDFParser.hpp
+  source/src/PDFToSVG.hpp
   source/src/PSFilter.hpp
   source/src/PSInterpreter.cpp
   source/src/PSInterpreter.hpp
@@ -403,6 +403,8 @@ set(libdvisvgm_sources
   source/src/ShadingPatch.hpp
   source/src/SignalHandler.cpp
   source/src/SignalHandler.hpp
+  source/src/SourceInput.cpp
+  source/src/SourceInput.hpp
   source/src/SpecialActions.hpp
   source/src/SpecialHandler.hpp
   source/src/SpecialManager.cpp

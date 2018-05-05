@@ -57,10 +57,6 @@ class SpecialManager {
 	private:
 		HandlerPool _handlerPool;      ///< stores pointers to all handlers
 		HandlerMap _handlersByPrefix;  ///< pointers to handlers for corresponding prefixes
-		std::vector<DVIPreprocessingListener*> _preprocListeners;
-		std::vector<DVIBeginPageListener*> _beginPageListeners;
-		std::vector<DVIEndPageListener*> _endPageListeners;
-		std::vector<DVIPositionListener*> _positionListeners;
 };
 
 #endif

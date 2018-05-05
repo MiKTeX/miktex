@@ -31,20 +31,17 @@ struct SVGOutputBase {
 	virtual ~SVGOutputBase () =default;
 	virtual std::ostream& getPageStream (int page, int numPages) const =0;
 	virtual std::string filename (int page, int numPages) const =0;
-//	virtual std::string outpath (int page, int numPages) const =0;
 };
 
 
-class SVGOutput : public SVGOutputBase
-{
+class SVGOutput : public SVGOutputBase {
 	public:
-		SVGOutput () : SVGOutput(0, "", 0) {}
-		SVGOutput (const char *base) : SVGOutput(base, "", 0) {}
-		SVGOutput (const char *base, const std::string &pattern) : SVGOutput(base, pattern, 0) {}
-		SVGOutput (const char *base, const std::string &pattern, int zipLevel);
+		SVGOutput () : SVGOutput("", "", 0) {}
+		SVGOutput (const std::string &base) : SVGOutput(base, "", 0) {}
+		SVGOutput (const std::string &base, const std::string &pattern) : SVGOutput(base, pattern, 0) {}
+		SVGOutput (const std::string &base, const std::string &pattern, int zipLevel);
 		std::ostream& getPageStream (int page, int numPages) const override;
 		std::string filename (int page, int numPages) const override;
-//		std::string outpath (int page, int numPages) const override;
 
 	protected:
 		std::string expandFormatString (std::string str, int page, int numPages) const;

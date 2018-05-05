@@ -24,7 +24,7 @@
 using namespace std;
 
 
-bool NoPsSpecialHandler::process (const char *prefix, istream &is, SpecialActions &actions) {
+bool NoPsSpecialHandler::process (const string&, istream&, SpecialActions&) {
 	_count++;
 	return true;
 }
@@ -39,7 +39,7 @@ void NoPsSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 }
 
 
-const vector<const char*> NoPsSpecialHandler::prefixes () const {
-	const vector<const char*> pfx {"header=", "psfile=", "PSfile=", "ps:", "ps::", "!", "\""};
+vector<const char*> NoPsSpecialHandler::prefixes() const {
+	vector<const char*> pfx {"header=", "psfile=", "PSfile=", "ps:", "ps::", "!", "\""};
 	return pfx;
 }

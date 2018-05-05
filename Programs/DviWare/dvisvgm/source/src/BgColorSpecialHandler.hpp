@@ -26,14 +26,13 @@
 #include "SpecialHandler.hpp"
 
 
-class BgColorSpecialHandler : public SpecialHandler, public DVIBeginPageListener
-{
+class BgColorSpecialHandler : public SpecialHandler {
 	public:
-		void preprocess (const char *prefix, std::istream &is, SpecialActions &actions) override;
-		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
+		void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
+		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		const char* info () const override {return "background color special";}
 		const char* name () const override {return "bgcolor";}
-		const std::vector<const char*> prefixes () const override;
+		std::vector<const char*> prefixes() const override;
 
 	protected:
 		void dviBeginPage (unsigned pageno, SpecialActions &actions) override;

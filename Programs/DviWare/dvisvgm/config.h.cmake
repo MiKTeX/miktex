@@ -135,7 +135,7 @@
 #cmakedefine PACKAGE_NAME
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "dvisvgm 2.3.5"
+#define PACKAGE_STRING "dvisvgm 2.4"
 
 /* Define to the one symbol short name of this package. */
 #cmakedefine PACKAGE_TARNAME
@@ -156,7 +156,7 @@
 #cmakedefine TM_IN_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "2.3.1"
+#define VERSION "2.4"
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #cmakedefine size_t

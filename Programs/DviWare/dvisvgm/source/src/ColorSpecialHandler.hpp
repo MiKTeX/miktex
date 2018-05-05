@@ -28,15 +28,14 @@
 #include "SpecialHandler.hpp"
 
 
-class ColorSpecialHandler : public SpecialHandler
-{
+class ColorSpecialHandler : public SpecialHandler {
 	public:
-		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
+		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		static Color readColor (std::istream &is);
 		static Color readColor (const std::string &model, std::istream &is);
 		const char* name () const override {return "color";}
 		const char* info () const override {return "complete support of color specials";}
-		const std::vector<const char*> prefixes () const override;
+		std::vector<const char*> prefixes() const override;
 
 	private:
 		std::stack<Color> _colorStack;

@@ -61,11 +61,10 @@ static size_t getline (istream &is, char *line, size_t n) {
 
 
 #if defined(MIKTEX_WINDOWS)
-EPSFile::EPSFile(const std::string& fname) : _ifs(UW_(fname.c_str()), ios::binary), _headerValid(false), _offset(0), _pslength(0)
+EPSFile::EPSFile(const string& fname) : _ifs(UW_(fname), ios::binary) {
 #else
-EPSFile::EPSFile (const std::string& fname) : _ifs(fname.c_str(), ios::binary), _headerValid(false), _offset(0), _pslength(0)
+EPSFile::EPSFile (const string &fname) : _ifs(fname, ios::binary) {
 #endif
-{
 	if (_ifs) {
 		if (getUInt32(_ifs) != 0xC6D3D0C5)  // no binary header present?
 			_ifs.seekg(0);                   // go back to the first byte
@@ -92,10 +91,10 @@ istream& EPSFile::istream () const {
 }
 
 
-/** Extracts the bounding box information from the DSC header/footer (if present)
- *  @param[out] box the extracted bounding box
- *  @return true if %%BoundingBox data could be read successfully */
-bool EPSFile::bbox (BoundingBox &box) const {
+/** Extracts the bounding box information from the DSC header/footer (if present).
+ *  @return the extracted bounding box */
+BoundingBox EPSFile::bbox () const {
+	BoundingBox box;
 	std::istream &is = EPSFile::istream();
 	if (is) {
 		char buf[64];
@@ -113,10 +112,10 @@ bool EPSFile::bbox (BoundingBox &box) const {
 						ir.parseInt(val[i]);
 					}
 					box = BoundingBox(val[0], val[1], val[2], val[3]);
-					return true;
+					break;
 				}
 			}
 		}
 	}
-	return false;
+	return box;
 }

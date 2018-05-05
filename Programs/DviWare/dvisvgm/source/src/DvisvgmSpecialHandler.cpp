@@ -39,7 +39,7 @@ DvisvgmSpecialHandler::DvisvgmSpecialHandler ()
 }
 
 
-void DvisvgmSpecialHandler::preprocess (const char*, istream &is, SpecialActions&) {
+void DvisvgmSpecialHandler::preprocess (const string&, istream &is, SpecialActions&) {
 	struct Command {
 		const char *name;
 		void (DvisvgmSpecialHandler::*handler)(InputReader&);
@@ -53,7 +53,7 @@ void DvisvgmSpecialHandler::preprocess (const char*, istream &is, SpecialActions
 	}};
 
 	StreamInputReader ir(is);
-	string cmdstr = ir.getWord();
+	const string cmdstr = ir.getWord();
 	for (const Command &command : commands) {
 		if (command.name == cmdstr) {
 			ir.skipSpace();
@@ -117,7 +117,7 @@ void DvisvgmSpecialHandler::preprocessRawPut (InputReader &ir) {
  *  @param[in] prefix special prefix read by the SpecialManager
  *  @param[in] is the special statement is read from this stream
  *  @param[in] actions object providing the actions that can be performed by the SpecialHandler */
-bool DvisvgmSpecialHandler::process (const char *prefix, istream &is, SpecialActions &actions) {
+bool DvisvgmSpecialHandler::process (const string &prefix, istream &is, SpecialActions &actions) {
 	struct Command {
 		const char *name;
 		void (DvisvgmSpecialHandler::*handler)(InputReader&, SpecialActions&);
@@ -132,7 +132,7 @@ bool DvisvgmSpecialHandler::process (const char *prefix, istream &is, SpecialAct
 		{"img",       &DvisvgmSpecialHandler::processImg}
 	}};
 	StreamInputReader ir(is);
-	string cmdstr = ir.getWord();
+	const string cmdstr = ir.getWord();
 	for (const Command &command : commands) {
 		if (command.name == cmdstr) {
 			ir.skipSpace();
@@ -362,7 +362,7 @@ void DvisvgmSpecialHandler::dviEndPage (unsigned, SpecialActions&) {
 }
 
 
-const vector<const char*> DvisvgmSpecialHandler::prefixes () const {
-	const vector<const char*> pfx {"dvisvgm:"};
+vector<const char*> DvisvgmSpecialHandler::prefixes() const {
+	vector<const char*> pfx {"dvisvgm:"};
 	return pfx;
 }

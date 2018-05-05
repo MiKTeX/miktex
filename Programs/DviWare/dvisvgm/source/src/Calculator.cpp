@@ -154,7 +154,7 @@ char Calculator::lex (istream &is) {
 			try {
 				_numValue = stod(str);
 			}
-			catch (exception) {
+			catch (const exception&) {
 				throw CalculatorException("invalid number: "+str);
 			}
 			break;

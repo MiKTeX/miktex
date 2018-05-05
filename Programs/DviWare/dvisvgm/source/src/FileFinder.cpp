@@ -142,6 +142,7 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		// to work around this, we try to lookup the files by calling kpsewhich.
 		Process process("kpsewhich", "-format=cmap "+fname);
 		process.run(&buf);
+		buf = util::trim(buf);
 		return buf.empty() ? nullptr : buf.c_str();
 	}
 	try {

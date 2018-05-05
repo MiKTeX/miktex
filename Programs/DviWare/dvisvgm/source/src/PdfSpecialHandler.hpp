@@ -25,13 +25,13 @@
 
 class StreamInputReader;
 
-class PdfSpecialHandler : public SpecialHandler, public DVIPositionListener, public DVIEndPageListener {
+class PdfSpecialHandler : public SpecialHandler {
 	public:
 		const char* info () const override {return "PDF hyperlink, font map, and pagesize specials";}
 		const char* name () const override {return "pdf";}
-		const std::vector<const char*> prefixes () const override;
-		void preprocess (const char *prefix, std::istream &is, SpecialActions &actions) override;
-		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
+		std::vector<const char*> prefixes() const override;
+		void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
+		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 
 	protected:
 		// handlers for corresponding PDF specials

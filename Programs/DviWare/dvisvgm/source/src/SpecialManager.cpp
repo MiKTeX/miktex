@@ -40,10 +40,6 @@ SpecialManager& SpecialManager::instance() {
 void SpecialManager::unregisterHandlers () {
 	_handlerPool.clear();
 	_handlersByPrefix.clear();
-	_beginPageListeners.clear();
-	_endPageListeners.clear();
-	_preprocListeners.clear();
-	_positionListeners.clear();
 }
 
 
@@ -55,15 +51,6 @@ void SpecialManager::registerHandler (unique_ptr<SpecialHandler> &&handler) {
 		// get array of prefixes this handler is responsible for
 		for (const char *prefix : handler->prefixes())
 			_handlersByPrefix[prefix] = handler.get();
-		// initialize listener vectors
-		if (auto listener = dynamic_cast<DVIPreprocessingListener*>(handler.get()))
-			_preprocListeners.push_back(listener);
-		if (auto listener = dynamic_cast<DVIBeginPageListener*>(handler.get()))
-			_beginPageListeners.push_back(listener);
-		if (auto listener = dynamic_cast<DVIEndPageListener*>(handler.get()))
-			_endPageListeners.push_back(listener);
-		if (auto listener = dynamic_cast<DVIPositionListener*>(handler.get()))
-			_positionListeners.push_back(listener);
 		_handlerPool.emplace_back(std::move(handler));
 	}
 }
@@ -128,9 +115,9 @@ static string extract_prefix (istream &is) {
 
 void SpecialManager::preprocess (const string &special, SpecialActions &actions) const {
 	istringstream iss(special);
-	string prefix = extract_prefix(iss);
+	const string prefix = extract_prefix(iss);
 	if (SpecialHandler *handler = findHandlerByPrefix(prefix))
-		handler->preprocess(prefix.c_str(), iss, actions);
+		handler->preprocess(prefix, iss, actions);
 }
 
 
@@ -142,37 +129,37 @@ void SpecialManager::preprocess (const string &special, SpecialActions &actions)
  *  @throw SpecialException in case of errors during special processing */
 bool SpecialManager::process (const string &special, double dvi2bp, SpecialActions &actions) const {
 	istringstream iss(special);
-	string prefix = extract_prefix(iss);
+	const string prefix = extract_prefix(iss);
 	bool success=false;
 	if (SpecialHandler *handler = findHandlerByPrefix(prefix)) {
 		handler->setDviScaleFactor(dvi2bp);
-		success = handler->process(prefix.c_str(), iss, actions);
+		success = handler->process(prefix, iss, actions);
 	}
 	return success;
 }
 
 
 void SpecialManager::notifyPreprocessingFinished () const {
-	for (auto *listener : _preprocListeners)
-		listener->dviPreprocessingFinished();
+	for (auto &handler : _handlerPool)
+		handler->dviPreprocessingFinished();
 }
 
 
 void SpecialManager::notifyBeginPage (unsigned pageno, SpecialActions &actions) const {
-	for (auto *listener : _beginPageListeners)
-		listener->dviBeginPage(pageno, actions);
+	for (auto &handler : _handlerPool)
+		handler->dviBeginPage(pageno, actions);
 }
 
 
 void SpecialManager::notifyEndPage (unsigned pageno, SpecialActions &actions) const {
-	for (auto *listener : _endPageListeners)
-		listener->dviEndPage(pageno, actions);
+	for (auto &handler : _handlerPool)
+		handler->dviEndPage(pageno, actions);
 }
 
 
 void SpecialManager::notifyPositionChange (double x, double y, SpecialActions &actions) const {
-	for (auto *listener : _positionListeners)
-		listener->dviMovedTo(x, y, actions);
+	for (auto &handler : _handlerPool)
+		handler->dviMovedTo(x, y, actions);
 }
 
 

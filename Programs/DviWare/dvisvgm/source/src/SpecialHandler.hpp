@@ -36,41 +36,20 @@ struct SpecialException : public MessageException {
 };
 
 
-struct DVIPreprocessingListener {
-	virtual ~DVIPreprocessingListener () =default;
-	virtual void dviPreprocessingFinished () =0;
-};
-
-
-struct DVIBeginPageListener {
-	virtual ~DVIBeginPageListener () =default;
-	virtual void dviBeginPage (unsigned pageno, SpecialActions &actions) =0;
-};
-
-
-struct DVIEndPageListener {
-	virtual ~DVIEndPageListener () =default;
-	virtual void dviEndPage (unsigned pageno, SpecialActions &actions) =0;
-};
-
-
-struct DVIPositionListener {
-	virtual ~DVIPositionListener () =default;
-	virtual void dviMovedTo (double x, double y, SpecialActions &actions) =0;
-};
-
-
 class SpecialHandler {
 	friend class SpecialManager;
 	public:
 		virtual ~SpecialHandler () =default;
 		virtual const char* info () const=0;
 		virtual const char* name () const=0;
-		virtual const std::vector<const char*> prefixes () const=0;
+		virtual std::vector<const char*> prefixes() const =0;
 		virtual void setDviScaleFactor (double dvi2bp) {}
-		virtual void preprocess (const char *prefix, std::istream &is, SpecialActions &actions) {}
-		virtual bool process (const char *prefix, std::istream &is, SpecialActions &actions)=0;
+		virtual void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) {}
+		virtual bool process (const std::string &prefix, std::istream &is, SpecialActions &actions)=0;
+		virtual void dviPreprocessingFinished () {}
+		virtual void dviBeginPage (unsigned pageno, SpecialActions &actions) {}
+		virtual void dviEndPage (unsigned pageno, SpecialActions &actions) {}
+		virtual void dviMovedTo (double x, double y, SpecialActions &actions) {}
 };
-
 
 #endif

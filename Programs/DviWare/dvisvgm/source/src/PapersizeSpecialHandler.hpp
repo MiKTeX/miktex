@@ -26,16 +26,16 @@
 #include "Length.hpp"
 #include "SpecialHandler.hpp"
 
-class PapersizeSpecialHandler : public SpecialHandler, public DVIEndPageListener {
+class PapersizeSpecialHandler : public SpecialHandler {
 	using DoublePair = std::pair<double,double>;       // (width, height)
 	using PageSize = std::pair<unsigned,DoublePair>;   // page number -> (width, height)
 
 	public:
-		void preprocess (const char *prefix, std::istream &is, SpecialActions &actions) override;
-		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
+		void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
+		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		const char* info () const override {return "special to set the page size";}
 		const char* name () const override {return "papersize";}
-		const std::vector<const char*> prefixes () const override;
+		std::vector<const char*> prefixes() const override;
 		void storePaperSize (unsigned pageno, Length width, Length height);
 		void reset () {_pageSizes.clear();}
 

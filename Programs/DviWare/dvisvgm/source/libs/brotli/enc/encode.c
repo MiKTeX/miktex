@@ -167,6 +167,14 @@ BROTLI_BOOL BrotliEncoderSetParameter(
       state->params.large_window = TO_BROTLI_BOOL(!!value);
       return BROTLI_TRUE;
 
+    case BROTLI_PARAM_NPOSTFIX:
+      state->params.dist.distance_postfix_bits = value;
+      return BROTLI_TRUE;
+
+    case BROTLI_PARAM_NDIRECT:
+      state->params.dist.num_direct_distance_codes = value;
+      return BROTLI_TRUE;
+
     default: return BROTLI_FALSE;
   }
 }
@@ -545,6 +553,7 @@ static void WriteMetaBlockInternal(MemoryManager* m,
   uint16_t last_bytes;
   uint8_t last_bytes_bits;
   ContextLut literal_context_lut = BROTLI_CONTEXT_LUT(literal_context_mode);
+  BrotliEncoderParams block_params = *params;
 
   if (bytes == 0) {
     /* Write the ISLAST and ISEMPTY bits. */
@@ -596,7 +605,7 @@ static void WriteMetaBlockInternal(MemoryManager* m,
           literal_context_map, commands, num_commands, &mb);
       if (BROTLI_IS_OOM(m)) return;
     } else {
-      BrotliBuildMetaBlock(m, data, wrapped_last_flush_pos, mask, params,
+      BrotliBuildMetaBlock(m, data, wrapped_last_flush_pos, mask, &block_params,
                            prev_byte, prev_byte2,
                            commands, num_commands,
                            literal_context_mode,
@@ -604,9 +613,10 @@ static void WriteMetaBlockInternal(MemoryManager* m,
       if (BROTLI_IS_OOM(m)) return;
     }
     if (params->quality >= MIN_QUALITY_FOR_OPTIMIZE_HISTOGRAMS) {
-      /* The number of distance symbols effectively used by
-         "Large Window Brotli" (32-bit). */
-      uint32_t num_effective_dist_codes = params->dist.alphabet_size;
+      /* The number of distance symbols effectively used for distance
+         histograms. It might be less than distance alphabet size
+         for "Large Window Brotli" (32-bit). */
+      uint32_t num_effective_dist_codes = block_params.dist.alphabet_size;
       if (num_effective_dist_codes > BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS) {
         num_effective_dist_codes = BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS;
       }
@@ -615,7 +625,7 @@ static void WriteMetaBlockInternal(MemoryManager* m,
     BrotliStoreMetaBlock(m, data, wrapped_last_flush_pos, bytes, mask,
                          prev_byte, prev_byte2,
                          is_last,
-                         params,
+                         &block_params,
                          literal_context_mode,
                          commands, num_commands,
                          &mb,
@@ -636,37 +646,29 @@ static void WriteMetaBlockInternal(MemoryManager* m,
 }
 
 static void ChooseDistanceParams(BrotliEncoderParams* params) {
-  /* NDIRECT, NPOSTFIX must be both zero for qualities
-     up to MIN_QUALITY_FOR_BLOCK_SPLIT == 3. */
-  uint32_t num_direct_distance_codes = 0;
   uint32_t distance_postfix_bits = 0;
-  uint32_t alphabet_size;
-  size_t max_distance = BROTLI_MAX_DISTANCE;
+  uint32_t num_direct_distance_codes = 0;
 
-  if (params->quality >= MIN_QUALITY_FOR_RECOMPUTE_DISTANCE_PREFIXES &&
-      params->mode == BROTLI_MODE_FONT) {
-    num_direct_distance_codes = 12;
-    distance_postfix_bits = 1;
-    max_distance = (1U << 27) + 4;
-  }
-
-  alphabet_size = BROTLI_DISTANCE_ALPHABET_SIZE(
-      num_direct_distance_codes, distance_postfix_bits,
-      BROTLI_MAX_DISTANCE_BITS);
-  if (params->large_window) {
-    max_distance = BROTLI_MAX_ALLOWED_DISTANCE;
-    if (num_direct_distance_codes != 0 || distance_postfix_bits != 0) {
-      max_distance = (3U << 29) - 4;
+  if (params->quality >= MIN_QUALITY_FOR_NONZERO_DISTANCE_PARAMS) {
+    uint32_t ndirect_msb;
+    if (params->mode == BROTLI_MODE_FONT) {
+      distance_postfix_bits = 1;
+      num_direct_distance_codes = 12;
+    } else {
+      distance_postfix_bits = params->dist.distance_postfix_bits;
+      num_direct_distance_codes = params->dist.num_direct_distance_codes;
     }
-    alphabet_size = BROTLI_DISTANCE_ALPHABET_SIZE(
-        num_direct_distance_codes, distance_postfix_bits,
-        BROTLI_LARGE_MAX_DISTANCE_BITS);
+    ndirect_msb = (num_direct_distance_codes >> distance_postfix_bits) & 0x0F;
+    if (distance_postfix_bits > BROTLI_MAX_NPOSTFIX ||
+        num_direct_distance_codes > BROTLI_MAX_NDIRECT ||
+        (ndirect_msb << distance_postfix_bits) != num_direct_distance_codes) {
+      distance_postfix_bits = 0;
+      num_direct_distance_codes = 0;
+    }
   }
 
-  params->dist.num_direct_distance_codes = num_direct_distance_codes;
-  params->dist.distance_postfix_bits = distance_postfix_bits;
-  params->dist.alphabet_size = alphabet_size;
-  params->dist.max_distance = max_distance;
+  BrotliInitDistanceParams(
+      params, distance_postfix_bits, num_direct_distance_codes);
 }
 
 static BROTLI_BOOL EnsureInitialized(BrotliEncoderState* s) {
@@ -710,8 +712,8 @@ static void BrotliEncoderInitParams(BrotliEncoderParams* params) {
   params->size_hint = 0;
   params->disable_literal_context_modeling = BROTLI_FALSE;
   BrotliInitEncoderDictionary(&params->dictionary);
-  params->dist.num_direct_distance_codes = 0;
   params->dist.distance_postfix_bits = 0;
+  params->dist.num_direct_distance_codes = 0;
   params->dist.alphabet_size =
       BROTLI_DISTANCE_ALPHABET_SIZE(0, 0, BROTLI_MAX_DISTANCE_BITS);
   params->dist.max_distance = BROTLI_MAX_DISTANCE;
@@ -1307,20 +1309,25 @@ static BROTLI_BOOL BrotliCompressBufferQuality10(
                                        &storage_ix, storage);
     } else {
       MetaBlockSplit mb;
-      /* The number of distance symbols effectively used by
-         "Large Window Brotli" (32-bit). */
-      uint32_t num_effective_dist_codes = params.dist.alphabet_size;
-      if (num_effective_dist_codes > BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS) {
-        num_effective_dist_codes = BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS;
-      }
+      BrotliEncoderParams block_params = params;
       InitMetaBlockSplit(&mb);
-      BrotliBuildMetaBlock(m, input_buffer, metablock_start, mask, &params,
+      BrotliBuildMetaBlock(m, input_buffer, metablock_start, mask,
+                           &block_params,
                            prev_byte, prev_byte2,
                            commands, num_commands,
                            literal_context_mode,
                            &mb);
       if (BROTLI_IS_OOM(m)) goto oom;
-      BrotliOptimizeHistograms(num_effective_dist_codes, &mb);
+      {
+        /* The number of distance symbols effectively used for distance
+           histograms. It might be less than distance alphabet size
+           for "Large Window Brotli" (32-bit). */
+        uint32_t num_effective_dist_codes = block_params.dist.alphabet_size;
+        if (num_effective_dist_codes > BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS) {
+          num_effective_dist_codes = BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS;
+        }
+        BrotliOptimizeHistograms(num_effective_dist_codes, &mb);
+      }
       storage = BROTLI_ALLOC(m, uint8_t, 2 * metablock_size + 503);
       if (BROTLI_IS_OOM(m)) goto oom;
       storage[0] = (uint8_t)last_bytes;
@@ -1328,7 +1335,7 @@ static BROTLI_BOOL BrotliCompressBufferQuality10(
       BrotliStoreMetaBlock(m, input_buffer, metablock_start, metablock_size,
                            mask, prev_byte, prev_byte2,
                            is_last,
-                           &params,
+                           &block_params,
                            literal_context_mode,
                            commands, num_commands,
                            &mb,

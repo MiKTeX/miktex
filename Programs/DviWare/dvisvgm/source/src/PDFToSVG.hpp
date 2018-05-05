@@ -1,5 +1,5 @@
 /*************************************************************************
-** HtmlSpecialHandler.hpp                                               **
+** PDFToSVG.hpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
 ** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
@@ -18,31 +18,30 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#ifndef HTMLSPECIALHANDLER_HPP
-#define HTMLSPECIALHANDLER_HPP
+#ifndef PDFTOSVG_HPP
+#define PDFTOSVG_HPP
 
-#include <string>
-#include <unordered_map>
-#include "Color.hpp"
-#include "SpecialHandler.hpp"
+#include <fstream>
+#include "ImageToSVG.hpp"
 
-class SpecialActions;
-
-class HtmlSpecialHandler : public SpecialHandler {
+class PDFToSVG : public ImageToSVG {
 	public:
-		HtmlSpecialHandler () : _active(false) {}
-		void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
-		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
-		const char* name () const override {return "html";}
-		const char* info () const override {return "hyperref specials";}
-		std::vector<const char*> prefixes() const override;
+		PDFToSVG (const std::string &fname, SVGOutputBase &out) : ImageToSVG(fname, out) {}
 
 	protected:
-		void dviEndPage (unsigned pageno, SpecialActions &actions) override;
-		void dviMovedTo (double x, double y, SpecialActions &actions) override;
-
-	private:
-		bool _active;
+		bool imageIsValid () const override {
+			std::ifstream ifs(filename());
+			if (ifs) {
+				char buf[16];
+				ifs.getline(buf, 16);
+				return std::strncmp(buf, "%PDF-1.", 7) == 0;
+			}
+			return false;
+		}
+		std::string imageFormat () const override {return "PDF";}
+		BoundingBox imageBBox () const override {return BoundingBox();}
+		std::string psSpecialCmd () const override {return "pdffile=";}
 };
 
 #endif
+

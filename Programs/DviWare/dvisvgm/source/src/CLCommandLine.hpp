@@ -37,6 +37,8 @@ class CommandLine {
 		virtual ~CommandLine () =default;
 		void parse (int argc, char **argv);
 		void help (std::ostream &os, int mode=0) const;
+		void addFilename (std::string fname) {_files.emplace_back(fname);}
+		bool singleDashGiven () const {return _singleDashParsed;}
 		const std::vector<std::string>& filenames () const {return _files;}
 
 	protected:
@@ -52,12 +54,12 @@ class CommandLine {
 		const char *_summary;
 		const char *_usage;
 		const char *_copyright;
+		bool _singleDashParsed=false; ///< true if a single '-' w/o a following char was parsed
 		std::vector<std::string> _files;
 };
 
 
-struct CommandLineException : public MessageException
-{
+struct CommandLineException : public MessageException {
 	CommandLineException (const std::string &msg) : MessageException(msg) {}
 };
 

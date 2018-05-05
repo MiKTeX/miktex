@@ -23,7 +23,8 @@
 <cmdline class="CommandLine">
 	<program>
 		<usage>[options] dvifile</usage>
-		<usage>-E [options] epsfile</usage>
+		<usage>--eps [options] epsfile</usage>
+		<usage>--pdf [options] pdffile</usage>
 		<description>This program converts DVI files, as created by TeX/LaTeX, to\nthe XML-based scalable vector graphics format SVG.</description>
 		<copyright>Copyright (C) 2005-2018 Martin Gieseking &lt;martin.gieseking@uos.de></copyright>
 	</program>
@@ -38,7 +39,13 @@
 				<description>evaluate (additional) font map files</description>
 			</option>
 			<option long="eps" short="E" if="!defined(DISABLE_GS)">
-				<description>convert an EPS file to SVG</description>
+				<description>convert EPS file to SVG</description>
+			</option>
+			<option long="pdf" short="P" if="!defined(DISABLE_GS)">
+				<description>convert PDF file to SVG</description>
+			</option>
+			<option long="stdin">
+				<description>read input file from stdin</description>
 			</option>
 		</section>
 		<section title="SVG output options">
@@ -171,7 +178,7 @@
 			<option long="list-specials" short="l">
 				<description>print supported special sets and exit</description>
 			</option>
-			<option long="progress" short="P">
+			<option long="progress">
 				<arg name="delay" type="double" optional="yes" default="0.5"/>
 				<description>enable progress indicator</description>
 			</option>

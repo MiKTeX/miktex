@@ -91,7 +91,7 @@ Color ColorSpecialHandler::readColor (istream &is) {
 }
 
 
-bool ColorSpecialHandler::process (const char *, istream &is, SpecialActions &actions) {
+bool ColorSpecialHandler::process (const string&, istream &is, SpecialActions &actions) {
 	string cmd;
 	is >> cmd;
 	if (cmd == "push")               // color push <model> <params>
@@ -113,8 +113,8 @@ bool ColorSpecialHandler::process (const char *, istream &is, SpecialActions &ac
 }
 
 
-const vector<const char*> ColorSpecialHandler::prefixes () const {
-	const vector<const char*> pfx {"color"};
+vector<const char*> ColorSpecialHandler::prefixes() const {
+	vector<const char*> pfx {"color"};
 	return pfx;
 }
 

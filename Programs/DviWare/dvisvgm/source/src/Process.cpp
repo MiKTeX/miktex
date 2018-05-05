@@ -83,8 +83,10 @@ bool Process::run (string *out) {
 	if (!subprocess.run(_cmd, _paramstr))
 		return false;
 	for (;;) {
-		if (out)
+		if (out) {
+			out->clear();
 			subprocess.readFromPipe(*out);
+		}
 		Subprocess::State state = subprocess.state();
 		if (state != Subprocess::State::RUNNING)
 			return state == Subprocess::State::FINISHED;
@@ -140,12 +142,22 @@ bool Subprocess::readFromPipe (string &out) {
 		return false;
 
 	bool success=false;
-	DWORD len;
-	while (PeekNamedPipe(_pipeReadHandle, NULL, 0, NULL, &len, NULL) && len > 0) {  // prevent blocking
-		char buf[4096];
-		success = ReadFile(_pipeReadHandle, buf, sizeof(buf), &len, NULL);
-		if (success && len > 0)
+	bool processExited=false;
+	DWORD len=0;
+	while (PeekNamedPipe(_pipeReadHandle, NULL, 0, NULL, &len, NULL)) {  // prevent blocking
+		if (len == 0) {
+			if (processExited)
+				break;
+			// process still busy
+			processExited = (!_childProcHandle || WaitForSingleObject(_childProcHandle, 100) != WAIT_TIMEOUT);
+		}
+		else {
+			char buf[4096];
+			success = ReadFile(_pipeReadHandle, buf, sizeof(buf), &len, NULL);
+			if (!success || len == 0)
+				break;
 			out.append(buf, len);
+		}
 	}
 	return success;
 }

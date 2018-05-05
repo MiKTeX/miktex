@@ -38,8 +38,7 @@
 #endif
 
 #if defined(DISABLE_GS)
-struct Ghostscript
-{
+struct Ghostscript {
 	using Stdin  = int (GSDLLCALLPTR)(void *caller, char *buf, int len);
 	using Stdout = int (GSDLLCALLPTR)(void *caller, const char *str, int len);
 	using Stderr = int (GSDLLCALLPTR)(void *caller, const char *str, int len);
@@ -49,7 +48,8 @@ struct Ghostscript
 	bool init (int argc, const char **argv, void *caller=0) {return false;}
 	bool available () {return false;}
 	bool revision (gsapi_revision_t *r) {return false;}
-	std::string revision (bool revonly=false) {return "";}
+	int revision () {return 0;}
+	std::string revisionstr () {return "";}
 	int set_stdio (Stdin in, Stdout out, Stderr err) {return 0;}
 	int run_string_begin (int user_errors, int *pexit_code) {return 0;}
 	int run_string_continue (const char *str, unsigned int length, int user_errors, int *pexit_code) {return 0;}
@@ -79,7 +79,8 @@ class Ghostscript
 		bool init (int argc, const char **argv, void *caller=0);
 		bool available ();
 		bool revision (gsapi_revision_t *r);
-		std::string revision (bool revonly=false);
+		int revision ();
+		std::string revisionstr ();
 		int set_stdio (Stdin in, Stdout out, Stderr err);
 		int run_string_begin (int user_errors, int *pexit_code);
 		int run_string_continue (const char *str, unsigned int length, int user_errors, int *pexit_code);

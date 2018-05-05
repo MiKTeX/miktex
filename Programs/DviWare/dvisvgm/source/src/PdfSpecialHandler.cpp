@@ -39,10 +39,10 @@ using namespace std;
 using CmdHandler = void (PdfSpecialHandler::*)(StreamInputReader&, SpecialActions&);
 
 
-void PdfSpecialHandler::preprocess (const char*, istream &is, SpecialActions &actions) {
+void PdfSpecialHandler::preprocess (const string&, istream &is, SpecialActions &actions) {
 	StreamInputReader ir(is);
 	ir.skipSpace();
-	string cmdstr = ir.getWord();
+	const string cmdstr = ir.getWord();
 	static unordered_map<string, CmdHandler> commands = {
 		{"bann",     &PdfSpecialHandler::preprocessBeginAnn},
 		{"bannot",   &PdfSpecialHandler::preprocessBeginAnn},
@@ -56,11 +56,11 @@ void PdfSpecialHandler::preprocess (const char*, istream &is, SpecialActions &ac
 }
 
 
-bool PdfSpecialHandler::process (const char*, istream &is, SpecialActions &actions) {
+bool PdfSpecialHandler::process (const string&, istream &is, SpecialActions &actions) {
 	_active = true;
 	StreamInputReader ir(is);
 	ir.skipSpace();
-	string cmdstr = ir.getWord();
+	const string cmdstr = ir.getWord();
 	ir.skipSpace();
 	// dvipdfm(x) specials currently supported
 	static unordered_map<string, CmdHandler> commands = {
@@ -283,7 +283,7 @@ void PdfSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 }
 
 
-const vector<const char*> PdfSpecialHandler::prefixes () const {
-	const vector<const char*> pfx {"pdf:"};
+vector<const char*> PdfSpecialHandler::prefixes() const {
+	vector<const char*> pfx {"pdf:"};
 	return pfx;
 }

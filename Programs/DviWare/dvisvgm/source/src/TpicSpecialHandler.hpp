@@ -25,14 +25,13 @@
 #include "Pair.hpp"
 #include "SpecialHandler.hpp"
 
-class TpicSpecialHandler : public SpecialHandler, public DVIEndPageListener
-{
+class TpicSpecialHandler : public SpecialHandler {
 	public:
 		TpicSpecialHandler ();
 		const char* info () const override {return "TPIC specials";}
 		const char* name () const override {return "tpic";}
-		const std::vector<const char*> prefixes () const override;
-		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
+		std::vector<const char*> prefixes() const override;
+		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		double penwidth () const  {return _penwidth;}
 		double grayLevel () const {return _grayLevel;}
 		Color fillColor (bool grayOnly) const;

@@ -24,11 +24,11 @@
 
 using namespace std;
 
-void PapersizeSpecialHandler::preprocess (const char*, std::istream &is, SpecialActions &actions) {
+void PapersizeSpecialHandler::preprocess (const string&, std::istream &is, SpecialActions &actions) {
 	string params;
 	is >> params;
 	Length w, h;
-	size_t splitpos = params.find(',');
+	const size_t splitpos = params.find(',');
 	try {
 		if (splitpos == string::npos) {
 			w.set(params);
@@ -45,7 +45,7 @@ void PapersizeSpecialHandler::preprocess (const char*, std::istream &is, Special
 }
 
 
-bool PapersizeSpecialHandler::process (const char*, std::istream&, SpecialActions&) {
+bool PapersizeSpecialHandler::process (const string&, std::istream&, SpecialActions&) {
 	return true;
 }
 
@@ -92,7 +92,7 @@ void PapersizeSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actio
 }
 
 
-const vector<const char*> PapersizeSpecialHandler::prefixes () const {
-	const vector<const char*> pfx {"papersize="};
+vector<const char*> PapersizeSpecialHandler::prefixes() const {
+	vector<const char*> pfx {"papersize="};
 	return pfx;
 }

@@ -29,7 +29,7 @@ using namespace std;
 /** Collect all background color changes while preprocessing the DVI file.
  *  We need them in order to apply the correct background colors even if
  *  not all but only selected DVI pages are converted. */
-void BgColorSpecialHandler::preprocess (const char*, std::istream &is, SpecialActions &actions) {
+void BgColorSpecialHandler::preprocess (const string&, std::istream &is, SpecialActions &actions) {
 	Color color = ColorSpecialHandler::readColor(is);
 	unsigned pageno = actions.getCurrentPageNumber();
 	if (_pageColors.empty() || _pageColors.back().second != color) {
@@ -41,7 +41,7 @@ void BgColorSpecialHandler::preprocess (const char*, std::istream &is, SpecialAc
 }
 
 
-bool BgColorSpecialHandler::process (const char*, istream &, SpecialActions&) {
+bool BgColorSpecialHandler::process (const string&, istream&, SpecialActions&) {
 	return true;
 }
 
@@ -62,7 +62,7 @@ void BgColorSpecialHandler::dviBeginPage (unsigned pageno, SpecialActions &actio
 }
 
 
-const vector<const char*> BgColorSpecialHandler::prefixes () const {
-	const vector<const char*> pfx {"background"};
+vector<const char*> BgColorSpecialHandler::prefixes() const {
+	vector<const char*> pfx {"background"};
 	return pfx;
 }

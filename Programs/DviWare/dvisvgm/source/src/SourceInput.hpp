@@ -1,5 +1,5 @@
 /*************************************************************************
-** HtmlSpecialHandler.hpp                                               **
+** SourceInput.hpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
 ** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
@@ -18,31 +18,25 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#ifndef HTMLSPECIALHANDLER_HPP
-#define HTMLSPECIALHANDLER_HPP
+#ifndef DVIINPUT_HPP
+#define DVIINPUT_HPP
 
+#include <fstream>
 #include <string>
-#include <unordered_map>
-#include "Color.hpp"
-#include "SpecialHandler.hpp"
 
-class SpecialActions;
-
-class HtmlSpecialHandler : public SpecialHandler {
+class SourceInput {
 	public:
-		HtmlSpecialHandler () : _active(false) {}
-		void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
-		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
-		const char* name () const override {return "html";}
-		const char* info () const override {return "hyperref specials";}
-		std::vector<const char*> prefixes() const override;
-
-	protected:
-		void dviEndPage (unsigned pageno, SpecialActions &actions) override;
-		void dviMovedTo (double x, double y, SpecialActions &actions) override;
+		SourceInput (const std::string &fname) : _fname(fname) {}
+		~SourceInput ();
+		std::istream& getInputStream (bool showMessages=false);
+		std::string getFileName () const;
+		std::string getMessageFileName () const;
+		std::string getFilePath () const;
 
 	private:
-		bool _active;
+		const std::string &_fname; ///< name of file to read from
+		std::string _tmpfilepath;  ///< path of temporary file used when reading from stdin
+		std::ifstream _ifs;
 };
 
 #endif

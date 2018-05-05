@@ -29,8 +29,7 @@
 class InputReader;
 class SpecialActions;
 
-class DvisvgmSpecialHandler : public SpecialHandler, public DVIPreprocessingListener, public DVIEndPageListener
-{
+class DvisvgmSpecialHandler : public SpecialHandler {
 	using StringVector = std::vector<std::string>;
 	using MacroMap = std::unordered_map<std::string, StringVector>;
 
@@ -38,9 +37,9 @@ class DvisvgmSpecialHandler : public SpecialHandler, public DVIPreprocessingList
 		DvisvgmSpecialHandler ();
 		const char* name () const override {return "dvisvgm";}
 		const char* info () const override {return "special set for embedding raw SVG snippets";}
-		const std::vector<const char*> prefixes () const override;
-		void preprocess (const char *prefix, std::istream &is, SpecialActions &actions) override;
-		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
+		std::vector<const char*> prefixes() const override;
+		void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
+		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 
 	protected:
 		void preprocessRaw (InputReader &ir);

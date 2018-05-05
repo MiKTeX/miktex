@@ -36,29 +36,27 @@
 using namespace std;
 
 
-const char *PSInterpreter::GSARGS[] = {
-	"gs",                // dummy name
-	"-q",                // be quiet, suppress gs banner
-//	"-dSAFER",           // disallow writing of files
-	"-dNODISPLAY",       // we don't need a display device
-	"-dNOPAUSE",         // keep going
-	"-dWRITESYSTEMDICT", // leave systemdict writable as some operators must be replaced
-	"-dNOPROMPT",
-//	"-dNOBIND",
-};
-
-
 /** Constructs a new PSInterpreter object.
  *  @param[in] actions template methods to be executed after recognizing the corresponding PS operator. */
 PSInterpreter::PSInterpreter (PSActions *actions)
-	: _mode(PS_NONE), _actions(actions), _filter(0), _bytesToRead(0), _inError(false), _initialized(false)
+	: _mode(PS_NONE), _actions(actions)
 {
 }
 
 
 void PSInterpreter::init () {
 	if (!_initialized) {
-		_gs.init(sizeof(GSARGS)/sizeof(char*), GSARGS, this);
+		vector<const char*> gsargs {
+			"gs",                // dummy name
+			"-q",                // be quiet, suppress gs banner
+			"-dNODISPLAY",       // we don't need a display device
+			"-dNOPAUSE",         // keep going
+			"-dWRITESYSTEMDICT", // leave systemdict writable as some operators must be replaced
+			"-dNOPROMPT"
+		};
+		if (int gsrev = _gs.revision())
+			gsargs.emplace_back(gsrev == 922 ? "-dREALLYDELAYBIND" : "-dDELAYBIND");
+		_gs.init(gsargs.size(), gsargs.data(), this);
 		_gs.set_stdio(input, output, error);
 		_initialized = true;
 		// Before executing any random PS code redefine some operators and run
@@ -268,12 +266,14 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"makepattern",    {-1, &PSActions::makepattern}},
 		{"moveto",         { 2, &PSActions::moveto}},
 		{"newpath",        { 1, &PSActions::newpath}},
+		{"pdfpagebox",     { 4, &PSActions::pdfpagebox}},
 		{"querypos",       { 2, &PSActions::querypos}},
 		{"raw",            {-1, nullptr}},
 		{"restore",        { 1, &PSActions::restore}},
 		{"rotate",         { 1, &PSActions::rotate}},
 		{"save",           { 1, &PSActions::save}},
 		{"scale",          { 2, &PSActions::scale}},
+		{"setblendmode",   { 1, &PSActions::setblendmode}},
 		{"setcmykcolor",   { 4, &PSActions::setcmykcolor}},
 		{"setdash",        {-1, &PSActions::setdash}},
 		{"setgray",        { 1, &PSActions::setgray}},
@@ -284,6 +284,7 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"setmatrix",      { 6, &PSActions::setmatrix}},
 		{"setmiterlimit",  { 1, &PSActions::setmiterlimit}},
 		{"setopacityalpha",{ 1, &PSActions::setopacityalpha}},
+		{"setshapealpha",  { 1, &PSActions::setshapealpha}},
 		{"setpagedevice",  { 0, &PSActions::setpagedevice}},
 		{"setpattern",     {-1, &PSActions::setpattern}},
 		{"setrgbcolor",    { 3, &PSActions::setrgbcolor}},
