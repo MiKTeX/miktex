@@ -4,13 +4,19 @@
 
 ### Ubuntu 18.04
 
+MiKTeX is now available for Ubuntu 18.04.  See [this
+howto](https://miktex.org/howto/install-miktex-unx) for more info.
+
 ### Upgraded programs
 
 * dvipdfmx 20180428
+* Dvisvgm 2.4
 
 ### Fixed issues
 
 * [94](https://github.com/MiKTeX/miktex/issues/94): Silent uninstall in Windows
+* [120](https://github.com/MiKTeX/miktex/issues/120): Installation error in Ubuntu 18.04
+* [122](https://github.com/MiKTeX/miktex/issues/122): Get back "a random package repository on the Internet"
 
 ## 2.9.6670 - 2018-04-21
 
