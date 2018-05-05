@@ -72,7 +72,7 @@ QVariant RepositoryTableModel::data(const QModelIndex& index, int role) const
       }
       else if (repositoryInfo.type == RepositoryType::Remote)
       {
-        Uri uri = repositoryInfo.url;
+        Uri uri(repositoryInfo.url);
         return QString::fromUtf8((uri.GetScheme() + "://" + uri.GetHost()).c_str());
       }
       else
