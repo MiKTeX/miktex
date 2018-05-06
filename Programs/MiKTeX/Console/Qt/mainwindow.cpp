@@ -1275,22 +1275,7 @@ void MainWindow::OnRepositorySelected(int index)
 {
   try
   {
-    string oldUrl;
-    RepositoryReleaseState oldRepositoryReleaseState;
-    if (!PackageManager::TryGetRemotePackageRepository(oldUrl, oldRepositoryReleaseState))
-    {
-      oldRepositoryReleaseState = RepositoryReleaseState::Stable;
-    }
-    int count = repositoryModel->rowCount();
-    if (index == count - 1)
-    {
-      packageManager->SetDefaultPackageRepository(RepositoryType::Remote, oldRepositoryReleaseState, "");
-    }
-    else if (index >= 0)
-    {
-      string newUrl = repositoryModel->data(repositoryModel->index(index, 0), 0).toString().toUtf8().constData();
-      packageManager->SetDefaultPackageRepository(RepositoryType::Unknown, oldRepositoryReleaseState, newUrl);
-    }
+    PackageManager::SetDefaultPackageRepository(repositoryModel->GetData(index));
     UpdateUi();
   }
   catch (const MiKTeXException& e)

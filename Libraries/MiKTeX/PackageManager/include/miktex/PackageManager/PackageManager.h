@@ -202,6 +202,9 @@ public:
   }
 
 public:
+  static MIKTEXMPMCEEAPI(void) SetDefaultPackageRepository(const RepositoryInfo& repository);
+
+public:
   static MIKTEXMPMCEEAPI(void) SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const std::string& urlOrPath);
 
 public:

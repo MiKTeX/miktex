@@ -884,32 +884,38 @@ bool PackageManager::TryGetDefaultPackageRepository(RepositoryType& repositoryTy
   return true;
 }
 
-void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const string& urlOrPath)
+void PackageManager::SetDefaultPackageRepository(const RepositoryInfo& repository)
 {
   shared_ptr<Session> session = Session::Get();
-  if (repositoryType == RepositoryType::Unknown)
-  {
-    repositoryType = PackageManagerImpl::DetermineRepositoryType(urlOrPath);
-  }
   string repositoryTypeStr;
-  switch (repositoryType)
+  switch (repository.type)
   {
   case RepositoryType::MiKTeXDirect:
     repositoryTypeStr = "direct";
-    SetMiKTeXDirectRoot(urlOrPath);
+    SetMiKTeXDirectRoot(repository.url);
     break;
   case RepositoryType::Local:
     repositoryTypeStr = "local";
-    SetLocalPackageRepository(urlOrPath);
+    SetLocalPackageRepository(repository.url);
     break;
   case RepositoryType::Remote:
     repositoryTypeStr = "remote";
-    SetRemotePackageRepository(urlOrPath, repositoryReleaseState);
+    SetRemotePackageRepository(repository.url, repository.releaseState);
     break;
   default:
     MIKTEX_UNEXPECTED();
   }
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_TYPE, repositoryTypeStr);
+}
+
+void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const string& urlOrPath)
+{
+  shared_ptr<Session> session = Session::Get();
+  RepositoryInfo repository;
+  repository.type = repositoryType != RepositoryType::Unknown ? repositoryType : PackageManagerImpl::DetermineRepositoryType(urlOrPath);
+  repository.releaseState = repositoryReleaseState;
+  repository.url = urlOrPath;
+  SetDefaultPackageRepository(repository);
 }
 
 const char* DEFAULT_REMOTE_SERVICE = "https://api2.miktex.org/";

@@ -57,6 +57,12 @@ public:
 public:
   int GetDefaultIndex();
 
+public:
+  MiKTeX::Packages::RepositoryInfo GetData(int index) const
+  {
+    return repositories[index];
+  }
+
 private:
   void InternalReload();
 
