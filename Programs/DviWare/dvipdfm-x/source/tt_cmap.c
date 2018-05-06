@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2017 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -928,19 +928,12 @@ handle_subst_glyphs (CMap *cmap,
         }
 #undef MAX_UNICODES
         if (unicode_count == -1) {
-#if defined(LIBDPX)
           if(verbose > VERBOSE_LEVEL_MIN) {
             if (name)
               MESG("No Unicode mapping available: GID=%u, name=%s\n", gid, name);
             else
               MESG("No Unicode mapping available: GID=%u\n", gid);
           }
-#else
-          if (name)
-            MESG("No Unicode mapping available: GID=%u, name=%s\n", gid, name);
-          else
-            MESG("No Unicode mapping available: GID=%u\n", gid);
-#endif /* LIBDPX */
         } else {
           /* the Unicode characters go into wbuf[2] and following, in UTF16BE */
           /* we rely on WBUF_SIZE being more than adequate for MAX_UNICODES  */
@@ -1021,13 +1014,7 @@ add_to_cmap_if_used (CMap *cmap,
 {
   USHORT count = 0;
   USHORT cid = cffont ? cff_charsets_lookup_inverse(cffont, gid) : gid;
-
-  /* Skip PUA characters and alphabetic presentation forms, allowing
-   * handle_subst_glyphs() as it might find better mapping. Fixes the
-   * mapping of ligatures encoded in PUA in fonts like Linux Libertine
-   * and old Adobe fonts.
-   */
-  if (is_used_char2(used_chars, cid) && !is_PUA_or_presentation(ch)) {
+  if (is_used_char2(used_chars, cid)) {
     int len;
     unsigned char *p = wbuf + 2;
 
@@ -1038,11 +1025,18 @@ add_to_cmap_if_used (CMap *cmap,
     len = UC_UTF16BE_encode_char((int32_t) ch, &p, wbuf + WBUF_SIZE);
     CMap_add_bfchar(cmap, wbuf, 2, wbuf + 2, len);
 
-    /* Avoid duplicate entry
-     * There are problem when two Unicode code is mapped to
-     * single glyph...
+    /* Skip PUA characters and alphabetic presentation forms, allowing
+     * handle_subst_glyphs() as it might find better mapping. Fixes the
+     * mapping of ligatures encoded in PUA in fonts like Linux Libertine
+     * and old Adobe fonts.
      */
-    used_chars[cid / 8] &= ~(1 << (7 - (cid % 8)));
+    if (!is_PUA_or_presentation(ch)) {
+      /* Avoid duplicate entry
+       * There are problem when two Unicode code is mapped to
+       * single glyph...
+       */
+      used_chars[cid / 8] &= ~(1 << (7 - (cid % 8)));
+    }
   }
 
   return count;

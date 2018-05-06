@@ -9,7 +9,7 @@ howto](https://miktex.org/howto/install-miktex-unx) for more info.
 
 ### Upgraded programs
 
-* dvipdfmx 20180428
+* dvipdfmx 20180506
 * Dvisvgm 2.4
 
 ### Fixed issues
