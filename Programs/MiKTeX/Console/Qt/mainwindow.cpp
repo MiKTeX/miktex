@@ -1275,7 +1275,10 @@ void MainWindow::OnRepositorySelected(int index)
 {
   try
   {
-    PackageManager::SetDefaultPackageRepository(repositoryModel->GetData(index));
+    if (index >= 0)
+    {
+      PackageManager::SetDefaultPackageRepository(repositoryModel->GetData(index));
+    }
     UpdateUi();
   }
   catch (const MiKTeXException& e)
