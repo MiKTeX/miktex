@@ -1,30 +1,17 @@
 language: cpp
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-5
-      - gcc-5
-
 env:
   global:
     - MAKEFLAGS="-j 2"
 
 matrix:
   include:
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: MIKTEX_BUILD_POPPLER=yes MIKTEX_BUILD_HARFBUZZ=yes
     - os: osx
       osx_image: xcode9.3
-
-before_install: ./travis-ci/before_install.sh
-before_script: ./travis-ci/before_script.sh
-script: ./travis-ci/script.sh
-after_failure: ./travis-ci/after_failure.sh
+      before_install: ./travis-ci/before_install.sh
+      before_script: ./travis-ci/before_script.sh
+      script: ./travis-ci/script.sh
+      after_failure: ./travis-ci/after_failure.sh
 
 notifications:
   email: false
