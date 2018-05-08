@@ -1997,6 +1997,8 @@ int MAIN(int argc, MAINCHAR* argv[])
   }
   catch (const MiKTeXException& e)
   {
+    // TODO: remove following line
+    cerr << e.GetSourceFile() << ":" << e.GetSourceLine() << ": " << e.what() << "\n";
     LOG4CXX_FATAL(logger, e.what());
     LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
@@ -2006,6 +2008,8 @@ int MAIN(int argc, MAINCHAR* argv[])
   }
   catch (const exception& e)
   {
+    // TODO: remove following line
+    cerr << e.what() << "\n";
     LOG4CXX_FATAL(logger, e.what());
     Sorry();
     retCode = 1;
