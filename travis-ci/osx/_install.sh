@@ -1,12 +1,7 @@
 cd "${TRAVIS_BUILD_DIR}/build"
 
-if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-    miktex_bin="${TRAVIS_BUILD_DIR}/install/MiKTeX Console.app/Contents/bin"
-    miktex_home="$HOME/Library/Application Support/MiKTeX"
-else
-    miktex_bin="/usr/local/bin"
-    miktex_home="$HOME/.miktex"
-fi
+miktex_bin="${TRAVIS_BUILD_DIR}/install/MiKTeX Console.app/Contents/bin"
+miktex_home="$HOME/Library/Application Support/MiKTeX"
 
 sudomiktex() {
     set +e

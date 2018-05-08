@@ -2,11 +2,7 @@
 
 set -v
 
-if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-    miktex_home="$HOME/Library/Application Support/MiKTeX"
-else
-    miktex_home="$HOME/.miktex"
-fi
+miktex_home="$HOME/Library/Application Support/MiKTeX"
 
 if [ -d "$miktex_home/texmfs/data/miktex/log" ]; then
     (cd "$miktex_home/texmfs/data/miktex/log"; cat *)

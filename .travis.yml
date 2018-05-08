@@ -8,10 +8,10 @@ matrix:
   include:
     - os: osx
       osx_image: xcode9.3
-      before_install: ./travis-ci/before_install.sh
-      before_script: ./travis-ci/before_script.sh
-      script: ./travis-ci/script.sh
-      after_failure: ./travis-ci/after_failure.sh
+      before_install: ./travis-ci/osx/before_install.sh
+      before_script: ./travis-ci/osx/before_script.sh
+      script: ./travis-ci/osx/script.sh
+      after_failure: ./travis-ci/osx/after_failure.sh
 
 notifications:
   email: false
