@@ -12,6 +12,9 @@ matrix:
       before_script: ./travis-ci/osx/before_script.sh
       script: ./travis-ci/osx/script.sh
       after_failure: ./travis-ci/osx/after_failure.sh
+    - os: linux
+      services: docker
+      script: ./travis-ci/docker/script.sh
 
 notifications:
   email: false
