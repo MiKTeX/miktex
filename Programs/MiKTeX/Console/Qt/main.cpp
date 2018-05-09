@@ -277,6 +277,7 @@ int main(int argc, char* argv[])
     }
     initInfo.SetProgramInvocationName(argv[0]);
     shared_ptr<Session> session = Session::Create(initInfo);
+    bool switchToAdmin;
     if (optAdmin)
     {
       if (!session->RunningAsAdministrator())
@@ -288,6 +289,14 @@ int main(int argc, char* argv[])
 #endif
         return 1;
       }
+      switchToAdmin = true;
+    }
+    else
+    {
+      switchToAdmin = session->RunningAsAdministrator() && session->IsSharedSetup();
+    }
+    if (switchToAdmin)
+    {
       session->SetAdminMode(true);
       displayName += " (Admin)";
     }
