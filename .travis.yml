@@ -14,6 +14,9 @@ matrix:
       after_failure: ./travis-ci/osx/after_failure.sh
     - os: linux
       services: docker
+      script: ./travis-ci/docker/script.sh debian buster
+    - os: linux
+      services: docker
       script: ./travis-ci/docker/script.sh debian stretch
     - os: linux
       services: docker
