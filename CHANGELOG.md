@@ -17,6 +17,7 @@ howto](https://miktex.org/howto/install-miktex-unx) for more info.
 * [94](https://github.com/MiKTeX/miktex/issues/94): Silent uninstall in Windows
 * [120](https://github.com/MiKTeX/miktex/issues/120): Installation error in Ubuntu 18.04
 * [122](https://github.com/MiKTeX/miktex/issues/122): Get back "a random package repository on the Internet"
+* [128](https://github.com/MiKTeX/miktex/issues/128): Starting miktex console as administrator is not detected
 
 ## 2.9.6670 - 2018-04-21
 
