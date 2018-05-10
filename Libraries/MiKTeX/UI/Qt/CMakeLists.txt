@@ -23,6 +23,8 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/ui-qt")
 
 hide_symbols()
 
+set(CMAKE_AUTOMOC TRUE)
+
 include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -46,30 +48,43 @@ set(${ui_qt_dll_name}_sources
   ${public_headers}
   ConnectionSettingsDialog.cpp
   ConnectionSettingsDialog.h
+  ConnectionSettingsDialog.h
   ErrorDialog.cpp
+  ErrorDialog.h
   ErrorDialog.h
   FileTableModel.cpp
   FileTableModel.h
+  FileTableModel.h
   InstallPackageDialog.cpp
+  InstallPackageDialog.h
   InstallPackageDialog.h
   PackageInfoDialog.cpp
   PackageInfoDialog.h
+  PackageInfoDialog.h
   ProxyAuthenticationDialog.cpp
+  ProxyAuthenticationDialog.h
   ProxyAuthenticationDialog.h
   RepositoryTableModel.cpp
   RepositoryTableModel.h
+  RepositoryTableModel.h
   SiteWizDrive.cpp
+  SiteWizDrive.h
   SiteWizDrive.h
   SiteWizLocal.cpp
   SiteWizLocal.h
+  SiteWizLocal.h
   SiteWizRemote.cpp
+  SiteWizRemote.h
   SiteWizRemote.h
   SiteWizSheet.cpp
   SiteWizSheet.h
+  SiteWizSheet.h
   SiteWizType.cpp
+  SiteWizType.h
   SiteWizType.h
   StdAfx.h
   UpdateDialog.cpp
+  UpdateDialog.h
   UpdateDialog.h
   internal.h
   mikuiqt.cpp
@@ -84,22 +99,6 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_BINARY_DIR}/mikuiqt.rc
   )
 endif()
-
-set(${ui_qt_dll_name}_moc_sources
-  ConnectionSettingsDialog.h
-  ErrorDialog.h
-  FileTableModel.h
-  InstallPackageDialog.h
-  PackageInfoDialog.h
-  ProxyAuthenticationDialog.h
-  RepositoryTableModel.h
-  SiteWizDrive.h
-  SiteWizLocal.h
-  SiteWizRemote.h
-  SiteWizSheet.h
-  SiteWizType.h
-  UpdateDialog.h
-)
 
 set(${ui_qt_dll_name}_ui_files
   ConnectionSettingsDialog.ui
@@ -118,18 +117,13 @@ set(${ui_qt_dll_name}_rcs_files
   mikuiqt.qrc
 )
 
-qt5_wrap_cpp(${ui_qt_dll_name}_mocs ${${ui_qt_dll_name}_moc_sources})
-
 qt5_wrap_ui(${ui_qt_dll_name}_ui_headers ${${ui_qt_dll_name}_ui_files})
-
-qt5_wrap_cpp(${ui_qt_dll_name}_ui_mocs ${${ui_qt_dll_name}_ui_headers})
 
 qt5_add_resources(${ui_qt_dll_name}_rcc_sources ${${ui_qt_dll_name}_rcs_files})
 
 add_library(${ui_qt_dll_name} SHARED
   ${${ui_qt_dll_name}_sources}
-  ${${ui_qt_dll_name}_mocs}
-  ${${ui_qt_dll_name}_ui_mocs}
+  ${${ui_qt_dll_name}_ui_headers}
   ${${ui_qt_dll_name}_rcc_sources}
 )
 
