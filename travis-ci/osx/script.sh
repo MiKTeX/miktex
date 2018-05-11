@@ -10,7 +10,7 @@ if [ -z $runTests ]; then
     if [ ! -z $TRAVIS_TAG ]; then
 	runTests=true
     fi
-    if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
+    if [ "$TRAVIS_EVENT_TYPE" = "cron" ]; then
 	runTests=true
     fi
 fi
@@ -19,7 +19,7 @@ cd "${TRAVIS_BUILD_DIR}/build"
 make
 make test
 
-if [ "$runTests" == "true" ]; then
+if [ "$runTests" = "true" ]; then
     . "${TRAVIS_BUILD_DIR}/travis-ci/osx/_install.sh"
     . "${TRAVIS_BUILD_DIR}/travis-ci/osx/_test.sh"
 fi

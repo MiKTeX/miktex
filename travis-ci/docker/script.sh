@@ -12,7 +12,7 @@ if [ -z $runTests ]; then
     if [ ! -z $TRAVIS_TAG ]; then
 	runTests=true
     fi
-    if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
+    if [ "$TRAVIS_EVENT_TYPE" = "cron" ]; then
 	runTests=true
     fi
 fi
@@ -24,7 +24,7 @@ docker run -t \
       -e USER_ID=`id -u` \
       -e GROUP_ID=`id -g` \
       miktex/miktex-build-$dist:$tag
-if [ "$runTests" == "true" ]; then
+if [ "$runTests" = "true" ]; then
     mkdir -p ~/tests/$dist-$tag/test
     git clone https://github.com/MiKTeX/miktex-testing ~/tests/$dist-$tag/test-suite
     docker run -t \
