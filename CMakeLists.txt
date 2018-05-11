@@ -32,6 +32,20 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
 
 ###############################################################################
+## CMake policies
+
+# CMP0071: Let AUTOMOC and AUTOUIC process GENERATED files.
+list(APPEND cmake_policies_new
+  CMP0071
+)
+
+foreach(p ${cmake_policies_new})
+  if(POLICY ${p})
+    cmake_policy(SET ${p} NEW)
+  endif()
+endforeach()
+
+###############################################################################
 ## the name of the game
 
 project(miktex)
