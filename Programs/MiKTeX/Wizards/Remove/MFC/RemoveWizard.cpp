@@ -37,9 +37,9 @@ RemoveWizard::RemoveWizard()
   NONCLIENTMETRICS ncm;
   memset(&ncm, 0, sizeof(ncm));
   ncm.cbSize = sizeof(ncm);
-  if (!SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &ncm, 0))
+  if (!SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, 0, &ncm, 0))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR(T_("SystemParametersInfo"));
+    MIKTEX_FATAL_WINDOWS_ERROR(T_("SystemParametersInfoW"));
   }
   LOGFONT TitleLogFont = ncm.lfMessageFont;
   TitleLogFont.lfWeight = FW_BOLD;
@@ -84,11 +84,11 @@ BOOL RemoveWizard::OnInitDialog()
     }
     SetTitle(title);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -97,35 +97,35 @@ BOOL RemoveWizard::OnInitDialog()
 
 void RemoveWizard::EnableCancelButton(bool enable)
 {
-  CWnd * pWnd = GetDlgItem(IDCANCEL);
-  if (pWnd == nullptr)
+  CWnd* wnd = GetDlgItem(IDCANCEL);
+  if (wnd == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
-  pWnd->EnableWindow(enable ? TRUE : FALSE);
+  wnd->EnableWindow(enable ? TRUE : FALSE);
 }
 
-void RemoveWizard::ReportError(const MiKTeXException & e)
+void RemoveWizard::ReportError(const MiKTeXException& e)
 {
   SetErrorFlag();
   ::ReportError(e);
 }
 
-void RemoveWizard::ReportError(const exception & e)
+void RemoveWizard::ReportError(const exception& e)
 {
   SetErrorFlag();
   ::ReportError(e);
 }
 
-CString RemoveWizard::SetNextText(const char * lpszText)
+CString RemoveWizard::SetNextText(const char* lpszText)
 {
-  CWnd * pWnd = GetDlgItem(ID_WIZNEXT);
-  if (pWnd == nullptr)
+  CWnd* wnd = GetDlgItem(ID_WIZNEXT);
+  if (wnd == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
   CString ret;
-  pWnd->GetWindowText(ret);
-  pWnd->SetWindowText(UT_(lpszText));
+  wnd->GetWindowText(ret);
+  wnd->SetWindowText(UT_(lpszText));
   return ret;
 }

@@ -67,13 +67,13 @@ public:
   }
 
 public:
-  CString SetNextText(const char * lpszText);
+  CString SetNextText(const char* lpszText);
 
 public:
-  void ReportError(const exception & e);
+  void ReportError(const exception& e);
 
 public:
-  void ReportError(const MiKTeXException & e);
+  void ReportError(const MiKTeXException& e);
 
 private:
   void EnableCancelButton(bool enable);
