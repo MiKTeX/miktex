@@ -21,6 +21,10 @@
 
 #pragma once
 
+#include "FinishPage.h"
+#include "RemoveFilesPage.h"
+#include "WelcomePage.h"
+
 class RemoveWizard :
   public CPropertySheet
 {
@@ -83,6 +87,15 @@ private:
 
 private:
   bool cancelled = false;
+
+private:
+  FinishPage finishPage;
+
+private:
+  RemoveFilesPage removeFilesPage;
+
+private:
+  WelcomePage welcomePage;
 
 private:
   CBitmap watermarkBitmap;

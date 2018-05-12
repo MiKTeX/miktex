@@ -1,6 +1,6 @@
 /* RemoveWizard.cpp:
 
-   Copyright (C) 2000-2017 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the Remove MiKTeX! Wizard.
 
@@ -64,9 +64,9 @@ RemoveWizard::RemoveWizard()
 
   Construct(IDS_REMOVEWIZ, nullptr, 0, watermarkBitmap, 0, headerBitmap);
 
-  AddPage(new WelcomePage());
-  AddPage(new RemoveFilesPage());
-  AddPage(new FinishPage());
+  AddPage(&welcomePage);
+  AddPage(&removeFilesPage);
+  AddPage(&finishPage);
 
   m_psh.dwFlags |= PSH_WIZARD97;
 }
