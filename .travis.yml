@@ -24,6 +24,9 @@ matrix:
     - os: linux
       services: docker
       script: ./travis-ci/docker/script.sh ubuntu xenial
+    - os: linux
+      services: docker
+      script: ./travis-ci/docker/script.sh fedora 28 false
 
 notifications:
   email: false
