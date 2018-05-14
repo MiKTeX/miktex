@@ -821,6 +821,10 @@ void Application::Main(int argc, const char** argv)
   }
   else
   {
+    if (setupOptions.IsCommonSetup && !pSession->IsAdminMode())
+    {
+      pSession->SetAdminMode(true, true);
+    }
     pSetupService->Run();
   }
 
