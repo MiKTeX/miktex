@@ -112,8 +112,8 @@ SetupServiceImpl::SetupServiceImpl()
   packageManager = PackageManager::Create();
   shared_ptr<Session> session = Session::Get();
   logFile.SetCallback(this);
-  logFile.SetLogFileName(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
   options.IsCommonSetup = session->RunningAsAdministrator();
+  logFile.SetLogFileName(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
 }
 
 SetupServiceImpl::~SetupServiceImpl()
@@ -1092,6 +1092,7 @@ void SetupServiceImpl::DoCleanUp()
     {
 #if defined(MIKTEX_WINDOWS)
       ReportLine("processing uninstall log file...");
+      logFile.SetLogFileName(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
       logFile.Process();
 #endif
     }
