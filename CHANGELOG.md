@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.6670 - not yet released
+## 2.9.6700 - not yet released
 
 ### Ubuntu 18.04
 
