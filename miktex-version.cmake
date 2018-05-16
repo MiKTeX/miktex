@@ -26,7 +26,11 @@ set(MIKTEX_MINOR_VERSION        9)
 set(MIKTEX_J2000_VERSION        6700)
 
 ## the version of the binary package
-set(MIKTEX_PACKAGE_REVISION     1)
+set(MIKTEX_PACKAGE_REVISION
+  1
+  CACHE STRING
+  "The MiKTeX package revision."
+)
 
 ## cached date
 set(MIKTEX_YEAR_VERSION            ${MIKTEX_CACHED_YEAR})
