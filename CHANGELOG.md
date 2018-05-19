@@ -1,10 +1,10 @@
 # MiKTeX Change Log
 
-## 2.9.6700 - not yet released
+## 2.9.6700 - 2018-05-21
 
-### Ubuntu 18.04
+### Ubuntu 18.04 & Debian 9
 
-MiKTeX is now available for Ubuntu 18.04.  See [this
+MiKTeX is now available for Ubuntu 18.04 and Debian 9.  See [this
 howto](https://miktex.org/howto/install-miktex-unx) for more info.
 
 ### Upgraded programs
