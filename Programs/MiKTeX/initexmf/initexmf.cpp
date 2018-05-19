@@ -1080,7 +1080,11 @@ void IniTeXMFApp::Clean()
   Finalize(true);
   isLog4cxxConfigured = false;
   logger = nullptr;
-  Directory::Delete(session->GetSpecialPath(SpecialPath::DataRoot), true);
+  PathName dataRoot = session->GetSpecialPath(SpecialPath::DataRoot);
+  if (Directory::Exists(dataRoot))
+  {
+    Directory::Delete(dataRoot, true);
+  }
 }
 
 void IniTeXMFApp::RemoveFndb()
