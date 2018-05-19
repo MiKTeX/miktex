@@ -3286,8 +3286,11 @@ int MAIN(int argc, MAINCHAR* argv[])
     LOG4CXX_INFO(logger, "starting with command line: " << CommandLineBuilder(utf8args));
     app.Run(argc, &newargv[0]);
     app.Finalize(false);
-    LOG4CXX_INFO(logger, "finishing with exit code 0");
-    logger = nullptr;
+    if (logger != nullptr && isLog4cxxConfigured)
+    {
+      LOG4CXX_INFO(logger, "finishing with exit code 0");
+      logger = nullptr;
+    }
     return 0;
   }
   catch (const MiKTeXException& e)
