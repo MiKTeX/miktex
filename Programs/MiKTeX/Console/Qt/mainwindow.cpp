@@ -578,7 +578,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   }
   else
   {
-    MIKTEX_FATAL_ERROR(tr("No graphical sudo frontend is available. Please install 'kdesu' (KDE) or 'gksu' (Gnome).").toStdString());
+    MIKTEX_FATAL_ERROR(tr("No graphical sudo frontend is available. Please install 'kdesu' (KDE) or 'gksu' (Gnome). Alternatively, you can enter 'sudo miktex-console' in a terminal window.").toStdString());
   }
   Process::Start(frontend, frontendArgs);
 #endif
