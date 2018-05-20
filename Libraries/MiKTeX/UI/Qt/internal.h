@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of MiKTeX UI Library.
 
@@ -31,6 +31,19 @@
 
 #define F752091EC06B4B4E827B2AACABAEE953
 #include "miktex/UI/Qt/Prototypes.h"
+
+#define BEGIN_INTERNAL_NAMESPACE                \
+namespace MiKTeX {                              \
+  namespace ED413B31CB18472688D97F1DDDE396B9 {
+
+#define END_INTERNAL_NAMESPACE                  \
+  }                                             \
+}
+
+BEGIN_INTERNAL_NAMESPACE;
+END_INTERNAL_NAMESPACE;
+
+using namespace MiKTeX::ED413B31CB18472688D97F1DDDE396B9;
 
 #define WU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()

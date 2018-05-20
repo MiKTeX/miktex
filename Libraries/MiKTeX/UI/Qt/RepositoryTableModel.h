@@ -30,6 +30,10 @@
 #include <miktex/PackageManager/PackageManager>
 #include <vector>
 
+#include "internal.h"
+
+BEGIN_INTERNAL_NAMESPACE;
+
 class RepositoryTableModel :
   public QAbstractTableModel
 {
@@ -60,5 +64,7 @@ public:
 private:
   std::vector<MiKTeX::Packages::RepositoryInfo> repositories;
 };
+
+END_INTERNAL_NAMESPACE;
 
 #endif
