@@ -1,5 +1,7 @@
 # MiKTeX Change Log
 
+## 2.9.6715 - NEXT
+
 ## 2.9.6700 - 2018-05-21
 
 ### Ubuntu 18.04 & Debian 9
