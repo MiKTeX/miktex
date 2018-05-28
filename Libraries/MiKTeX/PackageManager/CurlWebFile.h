@@ -1,6 +1,6 @@
 /* CurlWebFile.h:                                       -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -31,26 +31,26 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-class
-  CurlWebFile : public WebFile
+class CurlWebFile :
+  public WebFile
 {
 public:
-  CurlWebFile(std::shared_ptr<CurlWebSession> webSession, const std::string & url, const std::unordered_map<std::string, std::string> & formData);
+  CurlWebFile(std::shared_ptr<CurlWebSession> webSession, const std::string& url, const std::unordered_map<std::string, std::string>& formData);
 
 public:
   ~CurlWebFile() override;
 
 public:
-  size_t Read(void * pBuffer, size_t n) override;
+  size_t Read(void* data, size_t n) override;
 
 public:
   void Close() override;
 
 private:
-  static size_t WriteCallback(char * pData, size_t elemSize, size_t numElements, void * pv);
+  static size_t WriteCallback(char* data, size_t elemSize, size_t numElements, void* pv);
 
 private:
-  void TakeData(const void * pData, size_t size);
+  void TakeData(const void* data, size_t size);
 
 private:
   void Initialize();

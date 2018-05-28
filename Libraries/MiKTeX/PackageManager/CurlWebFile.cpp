@@ -1,6 +1,6 @@
 /* CurlWebFile.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -32,14 +32,14 @@ using namespace std;
 
 const int READ_TIMEOUT_SECONDS = 40;
 
-CurlWebFile::CurlWebFile(shared_ptr<CurlWebSession> webSession, const std::string & url, const std::unordered_map<std::string, std::string> & formData) :
+CurlWebFile::CurlWebFile(shared_ptr<CurlWebSession> webSession, const std::string& url, const std::unordered_map<std::string, std::string>& formData) :
   webSession(webSession),
   url(url),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM))
 {
   try
   {
-    for (const auto & kv : formData)
+    for (const auto& kv : formData)
     {
       if (!urlEncodedpostFields.empty())
       {
@@ -50,7 +50,7 @@ CurlWebFile::CurlWebFile(shared_ptr<CurlWebSession> webSession, const std::strin
     Initialize();
     webSession->Connect();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     if (initialized)
     {
@@ -66,7 +66,7 @@ CurlWebFile::~CurlWebFile()
   {
     Close();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -93,27 +93,27 @@ void CurlWebFile::Initialize()
   initialized = true;
 }
 
-size_t CurlWebFile::WriteCallback(char * pData, size_t elemSize, size_t numElements, void * pv)
+size_t CurlWebFile::WriteCallback(char* data, size_t elemSize, size_t numElements, void* pv)
 {
   try
   {
-    CurlWebFile * This = reinterpret_cast<CurlWebFile*>(pv);
-    This->TakeData(pData, elemSize * numElements);
+    CurlWebFile* This = reinterpret_cast<CurlWebFile*>(pv);
+    This->TakeData(data, elemSize * numElements);
     return elemSize * numElements;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     return 0;
   }
 }
 
-void CurlWebFile::TakeData(const void * pData, size_t size)
+void CurlWebFile::TakeData(const void* data, size_t size)
 {
-  const char * beg = reinterpret_cast<const char*>(pData);
+  const char* beg = reinterpret_cast<const char*>(data);
   buffer.insert(buffer.end(), beg, beg + size);
 }
 
-size_t CurlWebFile::Read(void * pBuffer, size_t n)
+size_t CurlWebFile::Read(void* data, size_t n)
 {
   clock_t now = clock();
   clock_t due = now + READ_TIMEOUT_SECONDS * CLOCKS_PER_SEC;
@@ -128,7 +128,7 @@ size_t CurlWebFile::Read(void * pBuffer, size_t n)
   n = min(n, buffer.size());
   if (n > 0)
   {
-    memcpy(pBuffer, &this->buffer[0], n);
+    memcpy(data, &this->buffer[0], n);
     buffer.erase(buffer.begin(), buffer.begin() + n);
   }
   return n;
