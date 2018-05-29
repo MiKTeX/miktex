@@ -31,6 +31,94 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
+#if defined(_MSC_VER)
+#  pragma push_macro("min")
+#  undef min
+#endif
+
+class CircularBuffer
+{
+public:
+  CircularBuffer()
+  {
+    capacity = 2 * CURL_MAX_WRITE_SIZE;
+    buffer = new unsigned char[capacity];
+  }
+
+public:
+  ~CircularBuffer()
+  {
+    delete[] buffer;
+  }
+
+public:
+  void Clear()
+  {
+    size = 0;
+    head = 0;
+    tail = 0;
+  }
+
+public:
+  void Write(const void* data, size_t count)
+  {
+    if (!CanWrite(count))
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    size_t num1 = std::min(count, capacity - tail);
+    size_t num2 = count - num1;
+    memcpy(buffer + tail, (unsigned char*)data, num1);
+    memcpy(buffer, (unsigned char*)data + num1, num2);
+    tail = (tail + count) % capacity;
+    size += count;
+  }
+
+public:
+  void Read(void* data, size_t count)
+  {
+    if (!CanRead(count))
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    size_t num1 = std::min(count, capacity - head);
+    size_t num2 = count - num1;
+    memcpy((unsigned char*)data, buffer + head, num1);
+    memcpy((unsigned char*)data + num1, buffer, num2);
+    head = (head + count) % capacity;
+    size -= count;
+  }
+
+public:
+  bool CanWrite(size_t n) const
+  {
+    return size + n <= capacity;
+  }
+
+public:
+  size_t GetSize() const
+  {
+    return size;
+  }
+
+private:
+  bool CanRead(size_t n) const
+  {
+    return size >= n;
+  }
+
+private:
+  size_t capacity = 0;
+  size_t size = 0;
+  size_t head = 0;
+  size_t tail = 0;
+  unsigned char* buffer = nullptr;
+};
+
+#if defined(_MSC_VER)
+#  pragma pop_macro("min")
+#endif
+
 class CurlWebFile :
   public WebFile
 {
@@ -68,7 +156,7 @@ private:
   std::string urlEncodedpostFields;
 
 private:
-  std::vector<char> buffer;
+  CircularBuffer buffer;
 
 private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mpm;

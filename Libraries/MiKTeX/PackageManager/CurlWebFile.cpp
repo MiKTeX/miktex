@@ -109,8 +109,11 @@ size_t CurlWebFile::WriteCallback(char* data, size_t elemSize, size_t numElement
 
 void CurlWebFile::TakeData(const void* data, size_t size)
 {
-  const char* beg = reinterpret_cast<const char*>(data);
-  buffer.insert(buffer.end(), beg, beg + size);
+  if (!buffer.CanWrite(size))
+  {
+    MIKTEX_FATAL_ERROR(T_("The download buffer is full."));
+  }
+  buffer.Write(data, size);
 }
 
 size_t CurlWebFile::Read(void* data, size_t n)
@@ -120,16 +123,15 @@ size_t CurlWebFile::Read(void* data, size_t n)
   do
   {
     webSession->Perform();
-  } while (buffer.size() < n && !webSession->IsReady() && clock() < due);
-  if (buffer.size() == 0 && !webSession->IsReady())
+  } while (buffer.GetSize() < n && !webSession->IsReady() && clock() < due);
+  if (buffer.GetSize() == 0 && !webSession->IsReady())
   {
     MIKTEX_FATAL_ERROR(T_("A timeout was reached while receiving data from the server."));
   }
-  n = min(n, buffer.size());
+  n = min(n, buffer.GetSize());
   if (n > 0)
   {
-    memcpy(data, &this->buffer[0], n);
-    buffer.erase(buffer.begin(), buffer.begin() + n);
+    buffer.Read(data, n);
   }
   return n;
 }
@@ -146,7 +148,7 @@ void CurlWebFile::Close()
       MIKTEX_FATAL_ERROR(webSession->GetCurlErrorString(code));
     }
   }
-  buffer.clear();
+  buffer.Clear();
 }
 
 #endif // libCURL
