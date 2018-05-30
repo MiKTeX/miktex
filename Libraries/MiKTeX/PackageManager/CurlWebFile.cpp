@@ -101,7 +101,10 @@ size_t CurlWebFile::WriteCallback(char* data, size_t elemSize, size_t numElement
     size_t size = elemSize * numElements;
     if (!This->buffer.CanWrite(size))
     {
-      return CURL_WRITEFUNC_PAUSE;
+      size_t newCapacity = This->buffer.GetCapacity() + 2 * size;
+      This->trace_mpm->WriteFormattedLine("libmpm", T_("reserve buffer: %u"), (unsigned)newCapacity);
+      This->buffer.Reserve(newCapacity);
+      MIKTEX_ASSERT(This->buffer.CanWrite(size));
     }
     This->buffer.Write(data, size);
     return size;
@@ -118,7 +121,6 @@ size_t CurlWebFile::Read(void* data, size_t n)
   clock_t due = now + READ_TIMEOUT_SECONDS * CLOCKS_PER_SEC;
   while (buffer.GetSize() < n && !webSession->IsReady() && clock() < due)
   {
-    curl_easy_pause(webSession->GetEasyHandle(), CURLPAUSE_CONT);
     webSession->Perform();
   }
   if (buffer.GetSize() == 0 && !webSession->IsReady())

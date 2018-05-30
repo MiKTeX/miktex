@@ -176,7 +176,12 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
 
   // receive the data
   trace_mpm->WriteFormattedLine("libmpm", T_("start writing on %s"), Q_(dest));
-  char buf[16*1024];
+#if defined(CURL_MAX_WRITE_SIZE)
+  const size_t bufsize = 2 * CURL_MAX_WRITE_SIZE;
+#else
+  const size_t bufsize = 32 * 1024;
+#endif
+  char buf[bufsize];
   size_t n;
   size_t received = 0;
   clock_t start = clock();

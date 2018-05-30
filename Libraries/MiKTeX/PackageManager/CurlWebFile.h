@@ -101,6 +101,27 @@ public:
     return size;
   }
 
+public:
+  void Reserve(size_t newCapacity)
+  {
+    MIKTEX_ASSERT(newCapacity >= capacity);
+    unsigned char* newBuffer = new unsigned char[newCapacity];
+    size_t oldSize = size;
+    Read(newBuffer, size);
+    delete[] buffer;
+    buffer = newBuffer;
+    capacity = newCapacity;
+    size = oldSize;
+    head = 0;
+    tail = size;
+  }
+
+public:
+  size_t GetCapacity() const
+  {
+    return capacity;
+  }
+
 private:
   bool CanRead(size_t n) const
   {
@@ -136,9 +157,6 @@ public:
 
 private:
   static size_t WriteCallback(char* data, size_t elemSize, size_t numElements, void* pv);
-
-private:
-  void TakeData(const void* data, size_t size);
 
 private:
   void Initialize();
