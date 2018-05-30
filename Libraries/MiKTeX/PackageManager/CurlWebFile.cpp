@@ -98,8 +98,13 @@ size_t CurlWebFile::WriteCallback(char* data, size_t elemSize, size_t numElement
   try
   {
     CurlWebFile* This = reinterpret_cast<CurlWebFile*>(pv);
-    This->TakeData(data, elemSize * numElements);
-    return elemSize * numElements;
+    size_t size = elemSize * numElements;
+    if (!This->buffer.CanWrite(size))
+    {
+      return CURL_WRITEFUNC_PAUSE;
+    }
+    This->buffer.Write(data, size);
+    return size;
   }
   catch (const exception&)
   {
@@ -107,23 +112,15 @@ size_t CurlWebFile::WriteCallback(char* data, size_t elemSize, size_t numElement
   }
 }
 
-void CurlWebFile::TakeData(const void* data, size_t size)
-{
-  if (!buffer.CanWrite(size))
-  {
-    MIKTEX_FATAL_ERROR(T_("The download buffer is full."));
-  }
-  buffer.Write(data, size);
-}
-
 size_t CurlWebFile::Read(void* data, size_t n)
 {
   clock_t now = clock();
   clock_t due = now + READ_TIMEOUT_SECONDS * CLOCKS_PER_SEC;
-  do
+  while (buffer.GetSize() < n && !webSession->IsReady() && clock() < due)
   {
+    curl_easy_pause(webSession->GetEasyHandle(), CURLPAUSE_CONT);
     webSession->Perform();
-  } while (buffer.GetSize() < n && !webSession->IsReady() && clock() < due);
+  }
   if (buffer.GetSize() == 0 && !webSession->IsReady())
   {
     MIKTEX_FATAL_ERROR(T_("A timeout was reached while receiving data from the server."));

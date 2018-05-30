@@ -41,7 +41,7 @@ class CircularBuffer
 public:
   CircularBuffer()
   {
-    capacity = 2 * CURL_MAX_WRITE_SIZE;
+    capacity = 10 * CURL_MAX_WRITE_SIZE;
     buffer = new unsigned char[capacity];
   }
 
