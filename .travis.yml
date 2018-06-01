@@ -15,18 +15,23 @@ matrix:
     - os: linux
       services: docker
       script: ./travis-ci/docker/script.sh debian buster
+      after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
       services: docker
       script: ./travis-ci/docker/script.sh debian stretch
+      after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
       services: docker
       script: ./travis-ci/docker/script.sh ubuntu bionic
+      after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
       services: docker
       script: ./travis-ci/docker/script.sh ubuntu xenial
+      after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
       services: docker
       script: ./travis-ci/docker/script.sh fedora 28 false
+      after_failure: ./travis-ci/docker/after_failure.sh
 
 notifications:
   email: false
