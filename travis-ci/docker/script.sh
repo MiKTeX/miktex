@@ -3,17 +3,17 @@
 set -e
 set -v
 
-dist=$1
-tag=$2
-runTests=$3
+dist=$MIKTEX_LINUX_DIST
+tag=$MIKTEX_LINUX_DIST_CODE_NAME
+skip_tests=$MIKTEX_SKIP_TESTS
 
-if [ -z $runTests ]; then
-    runTests=false
+if [ -z $skip_tests ]; then
+    skip_tests=true
     if [ ! -z $TRAVIS_TAG ]; then
-	runTests=true
+	skip_tests=false
     fi
     if [ "$TRAVIS_EVENT_TYPE" = "cron" ]; then
-	runTests=true
+	skip_tests=false
     fi
 fi
    
@@ -24,7 +24,7 @@ docker run -t \
       -e USER_ID=`id -u` \
       -e GROUP_ID=`id -g` \
       miktex/miktex-build-$dist:$tag
-if [ "$runTests" = "true" ]; then
+if [ "$skip_tests" = "false" ]; then
     mkdir -p ~/tests/$dist-$tag/test
     git clone https://github.com/MiKTeX/miktex-testing ~/tests/$dist-$tag/test-suite
     docker run -t \

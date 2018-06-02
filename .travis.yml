@@ -14,23 +14,39 @@ matrix:
       after_failure: ./travis-ci/osx/after_failure.sh
     - os: linux
       services: docker
-      script: ./travis-ci/docker/script.sh debian buster
+      env:
+      - MIKTEX_LINUX_DIST=debian
+      - MIKTEX_LINUX_DIST_CODE_NAME=buster
+      script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
       services: docker
-      script: ./travis-ci/docker/script.sh debian stretch
+      env:
+      - MIKTEX_LINUX_DIST=debian
+      - MIKTEX_LINUX_DIST_CODE_NAME=stretch
+      script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
       services: docker
-      script: ./travis-ci/docker/script.sh ubuntu bionic
+      env:
+      - MIKTEX_LINUX_DIST=ubuntu
+      - MIKTEX_LINUX_DIST_CODE_NAME=bionic
+      script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
       services: docker
-      script: ./travis-ci/docker/script.sh ubuntu xenial
+      env:
+      - MIKTEX_LINUX_DIST=ubuntu
+      - MIKTEX_LINUX_DIST_CODE_NAME=xenial
+      script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
       services: docker
-      script: ./travis-ci/docker/script.sh fedora 28 false
+      env:
+      - MIKTEX_LINUX_DIST=fedora
+      - MIKTEX_LINUX_DIST_CODE_NAME=28
+      - MIKTEX_SKIP_TESTS=true
+      script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
 
 notifications:
