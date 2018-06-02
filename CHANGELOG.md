@@ -2,6 +2,8 @@
 
 ## 2.9.6715 - NEXT
 
+* [42](https://github.com/MiKTeX/miktex/issues/42): download of cm-super is speed-limited
+
 ## 2.9.6700 - 2018-05-21
 
 ### Ubuntu 18.04 & Debian 9
