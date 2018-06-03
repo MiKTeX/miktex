@@ -112,6 +112,10 @@ struct RepositoryInfo
   unsigned ranking = 0;
   /// Data transfer rate (bytes/sec).
   double dataTransferRate = 0.0;
+  /// Last check time.
+  std::time_t lastCheckTime = static_cast<std::time_t>(0);
+  /// Last visit time.
+  std::time_t lastVisitTime = static_cast<std::time_t>(0);
 };
 
 inline bool operator==(const RepositoryInfo& lhs, const RepositoryInfo& rhs)

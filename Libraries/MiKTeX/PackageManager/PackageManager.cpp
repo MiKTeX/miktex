@@ -1610,6 +1610,7 @@ RepositoryInfo PackageManagerImpl::CheckPackageRepository(const string& url)
   catch (const MiKTeXException&)
   {
   }
+  repositoryInfo.lastCheckTime = time(nullptr);
   SaveVariableRepositoryData(repositoryInfo);
   return repositoryInfo;
 }
@@ -1622,7 +1623,8 @@ void PackageManagerImpl::SaveVariableRepositoryData(const RepositoryInfo& reposi
   {
     cfg->Read(cfgFile);
   }
-  cfg->PutValue(repositoryInfo.url, "Timestamp", std::to_string(time(nullptr)));
+  cfg->PutValue(repositoryInfo.url, "LastCheckTime", std::to_string(repositoryInfo.lastCheckTime));
+  cfg->PutValue(repositoryInfo.url, "LastVisitTime", std::to_string(repositoryInfo.lastVisitTime));
   cfg->PutValue(repositoryInfo.url, "DataTransferRate", std::to_string(repositoryInfo.dataTransferRate));
   cfg->Write(cfgFile);
 }

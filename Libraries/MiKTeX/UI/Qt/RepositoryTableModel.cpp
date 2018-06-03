@@ -38,7 +38,7 @@ int RepositoryTableModel::rowCount(const QModelIndex& parent) const
 
 int RepositoryTableModel::columnCount(const QModelIndex& parent) const
 {
-  return parent.isValid() ? 0 : 5;
+  return parent.isValid() ? 0 : 6;
 }
 
 QVariant RepositoryTableModel::data(const QModelIndex& index, int role) const
@@ -69,6 +69,11 @@ QVariant RepositoryTableModel::data(const QModelIndex& index, int role) const
     }
     case 4:
       return QDateTime::fromTime_t(repositoryInfo.timeDate).date();
+    case 5:
+      if (repositoryInfo.dataTransferRate != 0.0)
+      {
+        return repositoryInfo.dataTransferRate / 125000.0;
+      }
     }
   }
 
@@ -91,6 +96,8 @@ QVariant RepositoryTableModel::headerData(int section, Qt::Orientation orientati
       return tr("Host");
     case 4:
       return tr("Date");
+    case 5:
+      return tr("Mbit/s");
     }
   }
   return QAbstractTableModel::headerData(section, orientation, role);
