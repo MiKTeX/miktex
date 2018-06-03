@@ -364,6 +364,9 @@ private:
   std::string GetRemoteServiceBaseUrl();
 
 private:
+  void SaveVariableRepositoryData(const MiKTeX::Packages::RepositoryInfo& repositoryInfo);
+
+private:
   std::string remoteServiceBaseUrl;
 
 private:

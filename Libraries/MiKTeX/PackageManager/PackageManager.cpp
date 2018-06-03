@@ -1610,7 +1610,21 @@ RepositoryInfo PackageManagerImpl::CheckPackageRepository(const string& url)
   catch (const MiKTeXException&)
   {
   }
+  SaveVariableRepositoryData(repositoryInfo);
   return repositoryInfo;
+}
+
+void PackageManagerImpl::SaveVariableRepositoryData(const RepositoryInfo& repositoryInfo)
+{
+  unique_ptr<Cfg> cfg = Cfg::Create();
+  PathName cfgFile(pSession->GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_REPOSITORIES_INI);
+  if (File::Exists(cfgFile))
+  {
+    cfg->Read(cfgFile);
+  }
+  cfg->PutValue(repositoryInfo.url, "Timestamp", std::to_string(time(nullptr)));
+  cfg->PutValue(repositoryInfo.url, "DataTransferRate", std::to_string(repositoryInfo.dataTransferRate));
+  cfg->Write(cfgFile);
 }
 
 RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string& url)
