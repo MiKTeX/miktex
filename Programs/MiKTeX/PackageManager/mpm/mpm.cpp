@@ -216,6 +216,9 @@ private:
   void ListRepositories(OutputFormat outputFormat);
 
 private:
+  void CheckRepositories();
+
+private:
   void PickRepositoryUrl();
 
 private:
@@ -304,6 +307,7 @@ enum Option
 {
   OPT_AAA = 1,
   OPT_ADMIN,
+  OPT_CHECK_REPOSITORIES,       // EXPERIMENTAL
   OPT_CSV,                      // deprecated
   OPT_FIND_CONFLICTS,           // internal
   OPT_FIND_UPDATES,
@@ -353,6 +357,13 @@ const struct poptOption Application::aoption[] = {
     "admin", 0, POPT_ARG_NONE, 0, OPT_ADMIN,
     T_("Run in administrative mode."),
     nullptr,
+  },
+
+  {
+    // EXPERIMENTAL
+    "check-repositories", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CHECK_REPOSITORIES,
+    nullptr,
+    nullptr
   },
 
   {                             // deprecated
@@ -1240,6 +1251,15 @@ public:
   }
 };
 
+class DataTransferRateComparer
+{
+public:
+  inline bool operator() (const RepositoryInfo& lhs, const RepositoryInfo& rhs)
+  {
+    return lhs.dataTransferRate > rhs.dataTransferRate;
+  }
+};
+
 void Application::ListRepositories(OutputFormat outputFormat)
 {
   packageManager->DownloadRepositoryList();
@@ -1253,6 +1273,29 @@ void Application::ListRepositories(OutputFormat outputFormat)
   {
     cout << ri.url << endl;
   }
+}
+
+void Application::CheckRepositories()
+{
+  packageManager->DownloadRepositoryList();
+  vector<RepositoryInfo> repositories = packageManager->GetRepositories();
+  if (repositories.empty())
+  {
+    Message(T_("No package repositories are currently available."));
+  }
+  sort(repositories.begin(), repositories.end(), CountryComparer());
+  for (RepositoryInfo& ri : repositories)
+  {
+    ri = packageManager->CheckPackageRepository(ri.url);
+    cout << std::fixed << std::setprecision(2) << ri.dataTransferRate / 125000.0 << " Mbit/s - " << ri.url << endl;
+  }
+#if 0
+  sort(repositories.begin(), repositories.end(), DataTransferRateComparer());
+  for (const RepositoryInfo& ri : repositories)
+  {
+    cout << std::fixed << std::setprecision(2) << ri.dataTransferRate / 125000.0 << " Mbit/s - " << ri.url << endl;
+  }
+#endif
 }
 
 void Application::PickRepositoryUrl()
@@ -1377,6 +1420,7 @@ vector<string> ParseList(const string& s, vector<string>& list)
 void Application::Main(int argc, const char** argv)
 {
   bool optAdmin = false;
+  bool optCheckRepositories = false;
   bool optFindConflicts = false;
   bool optFindUpdates = false;
   bool optFindUpgrades = false;
@@ -1450,6 +1494,9 @@ void Application::Main(int argc, const char** argv)
     {
     case OPT_ADMIN:
       optAdmin = true;
+      break;
+    case OPT_CHECK_REPOSITORIES:
+      optCheckRepositories = true;
       break;
     case OPT_CSV:
       outputFormat = OutputFormat::CSV;
@@ -1920,6 +1967,12 @@ void Application::Main(int argc, const char** argv)
   if (optListRepositories)
   {
     ListRepositories(outputFormat);
+    restartWindowed = false;
+  }
+
+  if (optCheckRepositories)
+  {
+    CheckRepositories();
     restartWindowed = false;
   }
 

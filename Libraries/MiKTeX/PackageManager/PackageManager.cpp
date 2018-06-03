@@ -1545,6 +1545,74 @@ bool PackageManagerImpl::TryGetRepositoryInfo(const string& url, RepositoryInfo&
   }
 }
 
+string MakeUrl(const string& base, const string& rel)
+{
+  string url(base);
+  size_t l = url.length();
+  if (l == 0)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  if (url[l - 1] != '/')
+  {
+    url += '/';
+  }
+  if (rel[0] == '/')
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  url += rel;
+  return url;
+}
+
+RepositoryInfo PackageManagerImpl::CheckPackageRepository(const string& url)
+{
+  RepositoryInfo repositoryInfo;
+  repositoryInfo.url = url;
+  if (!TryGetRepositoryInfo(url, repositoryInfo))
+  {
+    return repositoryInfo;
+  }
+  string urlLargeFile = MakeUrl(url, "cm-super.tar.lzma");
+  unique_ptr<WebFile> webFile;
+  try
+  {
+    webFile = webSession->OpenUrl(urlLargeFile);
+  }
+  catch (const MiKTeXException&)
+  {
+    MIKTEX_ASSERT(webFile == nullptr);
+  }
+  if (webFile == nullptr)
+  {
+    repositoryInfo.status = RepositoryStatus::Offline;
+    return repositoryInfo;
+  }
+  repositoryInfo.status = RepositoryStatus::Online;
+  try
+  {
+    unsigned char buf[32 * 1024];
+    size_t received = 0;
+    size_t n;
+    clock_t start = clock();
+    clock_t maxTime = start + 5 * CLOCKS_PER_SEC;
+    while ((n = webFile->Read(buf, sizeof(buf))) > 0 && clock() < maxTime)
+    {
+      received += n;
+    }
+    clock_t end = clock();
+    if (start == end)
+    {
+      end = start + 1;
+    }
+    repositoryInfo.dataTransferRate = static_cast<double>(received) / (end - start) * CLOCKS_PER_SEC;
+  }
+  catch (const MiKTeXException&)
+  {
+  }
+  return repositoryInfo;
+}
+
 RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string& url)
 {
 #if defined(_DEBUG)

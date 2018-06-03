@@ -123,6 +123,9 @@ public:
   virtual bool MIKTEXTHISCALL TryGetRepositoryInfo(const std::string& url, RepositoryInfo& repositoryInfo) = 0;
 
 public:
+  virtual RepositoryInfo MIKTEXTHISCALL CheckPackageRepository(const std::string& url) = 0;
+
+public:
   virtual RepositoryInfo MIKTEXTHISCALL VerifyPackageRepository(const std::string& url) = 0;
 
 public:

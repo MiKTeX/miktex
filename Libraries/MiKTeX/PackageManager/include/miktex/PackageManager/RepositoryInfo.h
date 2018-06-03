@@ -110,6 +110,8 @@ struct RepositoryInfo
   RepositoryReleaseState releaseState = RepositoryReleaseState::Unknown;
   /// Ranking (low is better than high).
   unsigned ranking = 0;
+  /// Data transfer rate (bytes/sec).
+  double dataTransferRate = 0.0;
 };
 
 inline bool operator==(const RepositoryInfo& lhs, const RepositoryInfo& rhs)

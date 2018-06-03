@@ -33,5 +33,6 @@ if [ "$skip_tests" = "false" ]; then
       -v ~/tests/$dist-$tag/test:/miktex/test:rw \
       -e USER_ID=`id -u` \
       -e GROUP_ID=`id -g` \
+      -e MIKTEX_CHECK_REPOSITORIES="$MIKTEX_CHECK_REPOSITORIES" \
       miktex/miktex-test-$dist:$tag
 fi

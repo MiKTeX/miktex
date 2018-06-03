@@ -2,6 +2,7 @@ language: cpp
 
 env:
   global:
+    - MIKTEX_CHECK_REPOSITORIES=false
     - MAKEFLAGS="-j 2"
 
 matrix:
