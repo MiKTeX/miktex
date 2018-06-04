@@ -19,16 +19,25 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
+
+#include <locale>
+
+#include <miktex/Core/FileStream>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
+#include <miktex/Util/Tokenizer>
 
 #include "internal.h"
-
 #include "TpmParser.h"
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
+
+using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 #if defined(XML_UNICODE)
 #  define X_(x) L##x
@@ -58,7 +67,7 @@ TpmParser::~TpmParser()
   }
 }
 
-void TpmParser::GetFiles(const XML_Char * lpszFiles, vector<string> & files)
+void TpmParser::GetFiles(const XML_Char* lpszFiles, vector<string> & files)
 {
   MIKTEX_ASSERT(Utils::IsPureAscii(lpszFiles));
   for (Tokenizer tok(lpszFiles, X_(";\n\r \t")); tok; ++tok)
@@ -74,7 +83,7 @@ void TpmParser::GetFiles(const XML_Char * lpszFiles, vector<string> & files)
   }
 }
 
-const XML_Char * GetAttributeValue(const XML_Char ** aAttr, const XML_Char * lpszKey)
+const XML_Char* GetAttributeValue(const XML_Char** aAttr, const XML_Char* lpszKey)
 {
   for (size_t i = 0; aAttr[i] != 0; i += 2)
   {
@@ -86,16 +95,16 @@ const XML_Char * GetAttributeValue(const XML_Char ** aAttr, const XML_Char * lps
   return nullptr;
 }
 
-void TpmParser::OnStartElement(void * pv, const XML_Char * lpszName, const XML_Char ** aAttr)
+void TpmParser::OnStartElement(void* pv, const XML_Char* lpszName, const XML_Char** aAttr)
 {
   MIKTEX_ASSERT(pv != nullptr);
-  TpmParser * This = reinterpret_cast<TpmParser*>(pv);
+  TpmParser* This = reinterpret_cast<TpmParser*>(pv);
   try
   {
     This->charBuffer.Clear();
     if (StrCmp(lpszName, X_("TPM:Package")) == 0 || StrCmp(lpszName, X_("TPM:Collection")) == 0)
     {
-      const XML_Char * lpszPackageName;
+      const XML_Char* lpszPackageName;
       if (!This->elementStack.empty()
 	&& This->elementStack.top() == X_("TPM:Requires")
 	&& aAttr != nullptr
@@ -114,7 +123,7 @@ void TpmParser::OnStartElement(void * pv, const XML_Char * lpszName, const XML_C
       || StrCmp(lpszName, X_("TPM:SourceFiles")) == 0)
     {
       int size = 0;
-      const XML_Char * lpszSize;
+      const XML_Char* lpszSize;
       if (aAttr != nullptr && (lpszSize = GetAttributeValue(aAttr, X_("size"))) != nullptr)
       {
 	MIKTEX_ASSERT(Utils::IsPureAscii(lpszSize));
@@ -140,7 +149,7 @@ void TpmParser::OnStartElement(void * pv, const XML_Char * lpszName, const XML_C
 #if MIKTEX_EXTENDED_PACKAGEINFO
     else if (StrCmp(lpszName, X_("TPM:CTAN")) == 0)
     {
-      const XML_Char * lpszPath;
+      const XML_Char* lpszPath;
       if (aAttr != nullptr && (lpszPath = GetAttributeValue(aAttr, X_("path"))) != nullptr)
       {
 	This->packageInfo.ctanPath = lpszPath;
@@ -148,12 +157,12 @@ void TpmParser::OnStartElement(void * pv, const XML_Char * lpszName, const XML_C
     }
     else if (StrCmp(lpszName, X_("TPM:Copyright")) == 0)
     {
-      const XML_Char * lpszOwner;
+      const XML_Char* lpszOwner;
       if (aAttr != nullptr && (lpszOwner = GetAttributeValue(aAttr, X_("owner"))) != nullptr)
       {
 	This->packageInfo.copyrightOwner = lpszOwner;
       }
-      const XML_Char * lpszYear;
+      const XML_Char* lpszYear;
       if (aAttr != nullptr && (lpszYear = GetAttributeValue(aAttr, X_("year"))) != nullptr)
       {
 	This->packageInfo.copyrightYear = lpszYear;
@@ -161,7 +170,7 @@ void TpmParser::OnStartElement(void * pv, const XML_Char * lpszName, const XML_C
     }
     else if (StrCmp(lpszName, X_("TPM:License")) == 0)
     {
-      const XML_Char * lpszType;
+      const XML_Char* lpszType;
       if (aAttr != nullptr && (lpszType = GetAttributeValue(aAttr, X_("type"))) != nullptr)
       {
 	This->packageInfo.licenseType = lpszType;
@@ -175,10 +184,10 @@ void TpmParser::OnStartElement(void * pv, const XML_Char * lpszName, const XML_C
   }
 }
 
-void TpmParser::OnEndElement(void * pv, const XML_Char * lpszName)
+void TpmParser::OnEndElement(void* pv, const XML_Char* lpszName)
 {
   MIKTEX_ASSERT(pv != nullptr);
-  TpmParser * This = reinterpret_cast<TpmParser*>(pv);
+  TpmParser* This = reinterpret_cast<TpmParser*>(pv);
   try
   {
     MIKTEX_ASSERT(!This->elementStack.empty());
@@ -269,10 +278,10 @@ void TpmParser::OnEndElement(void * pv, const XML_Char * lpszName)
   }
 }
 
-void TpmParser::OnCharacterData(void * pv, const XML_Char * lpsz, int len)
+void TpmParser::OnCharacterData(void* pv, const XML_Char* lpsz, int len)
 {
   MIKTEX_ASSERT(pv != nullptr);
-  TpmParser * This = reinterpret_cast<TpmParser*>(pv);
+  TpmParser* This = reinterpret_cast<TpmParser*>(pv);
   try
   {
     This->charBuffer.Append(lpsz, len);

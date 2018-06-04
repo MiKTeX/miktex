@@ -26,8 +26,8 @@
 #if defined(HAVE_LIBCURL) && !defined(DB88FC1DC9B0497C965F3CFB916FA93A)
 #define DB88FC1DC9B0497C965F3CFB916FA93A
 
-#include "WebFile.h"
 #include "CurlWebSession.h"
+#include "WebFile.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 

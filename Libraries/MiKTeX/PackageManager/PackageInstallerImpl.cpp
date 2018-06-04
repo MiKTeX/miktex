@@ -19,18 +19,37 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
+
+#include <unordered_set>
+
+#include <miktex/Core/Directory>
+#include <miktex/Core/DirectoryLister>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/Registry>
+#include <miktex/Core/TemporaryDirectory>
+#include <miktex/Core/TemporaryFile>
+#include <miktex/Core/win/winAutoResource>
+#include <miktex/Core/win/DllProc>
+#include <miktex/Core/win/HResult>
+
+#include <miktex/Extractor/Extractor>
+
+#include "miktex/PackageManager/PackageManager"
 
 #include "internal.h"
-
+#include "PackageInstallerImpl.h"
 #include "TpmParser.h"
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
+
+using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 #define LF "\n"
 

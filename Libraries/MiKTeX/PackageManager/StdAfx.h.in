@@ -43,15 +43,6 @@
 #  include <Sddl.h>
 #endif
 
-#if defined(HAVE_ATLBASE_H)
-#  define _ATL_FREE_THREADED
-#  define _ATL_NO_AUTOMATIC_NAMESPACE
-#  define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS
-#  include <atlbase.h>
-#  include <ATLComTime.h>
-#  include <atlcom.h>
-#endif
-
 #include <algorithm>
 #include <future>
 #include <initializer_list>
@@ -129,6 +120,3 @@
 
 #include <miktex/Extractor/Extractor>
 
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-#  import "@mpm_tlb_name@.tlb" raw_interfaces_only
-#endif

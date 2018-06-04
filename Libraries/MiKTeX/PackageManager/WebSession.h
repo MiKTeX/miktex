@@ -1,6 +1,6 @@
 /* WebSession.h:                                        -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -42,19 +42,19 @@ public:
   virtual ~WebSession() = 0;
 
 public:
-  virtual std::unique_ptr<WebFile> OpenUrl(const std::string & url) = 0;
+  virtual std::unique_ptr<WebFile> OpenUrl(const std::string& url) = 0;
 
 public:
-  virtual std::unique_ptr<WebFile> OpenUrl(const std::string & url, const std::unordered_map<std::string, std::string> & formData) = 0;
+  virtual std::unique_ptr<WebFile> OpenUrl(const std::string& url, const std::unordered_map<std::string, std::string>& formData) = 0;
 
 public:
-  virtual void SetCustomHeaders(const std::unordered_map<std::string, std::string> & headers) = 0;
+  virtual void SetCustomHeaders(const std::unordered_map<std::string, std::string>& headers) = 0;
 
 public:
   virtual void Dispose() = 0;
 
 public:
-  static std::shared_ptr<WebSession> Create(IProgressNotify_ * pIProgressNotify);
+  static std::shared_ptr<WebSession> Create(IProgressNotify_* pIProgressNotify);
 };
 
 END_INTERNAL_NAMESPACE;

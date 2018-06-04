@@ -19,17 +19,26 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
 
 #if defined(HAVE_LIBCURL)
 
-#include "internal.h"
+#include <thread>
+
+#include <miktex/Core/Registry>
+
+#include "miktex/PackageManager/PackageManager.h"
 
 #include "CurlWebSession.h"
 #include "CurlWebFile.h"
+#include "exceptions.h"
+#include "internal.h"
+
+using namespace std;
 
 using namespace MiKTeX::Trace;
-using namespace std;
+
+using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 const long DEFAULT_CONNECTION_TIMEOUT_SECONDS = 30;
 const long DEFAULT_FTP_RESPONSE_TIMEOUT_SECONDS = 30;
@@ -427,7 +436,7 @@ int CurlWebSession::ProgressCallback(void* pv, double dltotal, double dlnow, dou
     }
     return 0;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     return -1;
   }
@@ -447,7 +456,7 @@ int CurlWebSession::DebugCallback(CURL* pCurl, curl_infotype infoType, char* pDa
       This->trace_curl->Write("libmpm", text.c_str());
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
   return 0;

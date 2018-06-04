@@ -1,6 +1,6 @@
 /* comPackageManager.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -19,24 +19,36 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
 
-#include "internal.h"
+#include <Windows.h>
 
+#include <Sddl.h>
+
+#include <miktex/Core/Fndb>
+#include <miktex/Core/equal_icase>
+#include <miktex/Core/hash_icase>
+#include <miktex/Core/win/winAutoResource>
+
+#include "PackageManagerImpl.h"
+
+#include "COM/com-internal.h"
+#include "COM/comPackageIterator.h"
 #include "COM/comPackageInstaller.h"
 #include "COM/comPackageIterator.h"
 #include "COM/comPackageManager.h"
 #include "COM/mpm.h"
 
+using namespace std;
 using namespace ATL;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace MiKTeXPackageManagerLib;
-using namespace std;
 
 using namespace MiKTeXPackageManagerLib;
+
+using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 comPackageManager::~comPackageManager()
 {
@@ -44,7 +56,7 @@ comPackageManager::~comPackageManager()
   {
     session = nullptr;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -55,20 +67,20 @@ void comPackageManager::FinalRelease()
   {
     session = nullptr;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
 STDMETHODIMP comPackageManager::InterfaceSupportsErrorInfo(REFIID riid)
 {
-  static const IID * const interfaces[] =
+  static const IID* const interfaces[] =
   {
     &__uuidof(IPackageManager),
     &__uuidof(IPackageManager2),
     &__uuidof(IPackageManager3)
   };
-  for (const IID * iid : interfaces)
+  for (const IID* iid : interfaces)
   {
     if (InlineIsEqualGUID(*iid, riid))
     {
@@ -78,13 +90,13 @@ STDMETHODIMP comPackageManager::InterfaceSupportsErrorInfo(REFIID riid)
   return S_FALSE;
 }
 
-STDMETHODIMP comPackageManager::CreateInstaller(IPackageInstaller ** ppInstaller)
+STDMETHODIMP comPackageManager::CreateInstaller(IPackageInstaller** ppInstaller)
 {
   PackageManagerImpl::localServer = true;
   try
   {
     // create the IPackageInstaller object
-    CComObject<comPackageInstaller> * pInstaller = nullptr;
+    CComObject<comPackageInstaller>* pInstaller = nullptr;
     HRESULT hr = CComObject<comPackageInstaller>::CreateInstance(&pInstaller);
     if (FAILED(hr))
     {
@@ -110,7 +122,7 @@ STDMETHODIMP comPackageManager::CreateInstaller(IPackageInstaller ** ppInstaller
   }
 }
 
-STDMETHODIMP comPackageManager::GetPackageInfo(BSTR deploymentName, MiKTeXPackageManagerLib::PackageInfo * pPackageInfo)
+STDMETHODIMP comPackageManager::GetPackageInfo(BSTR deploymentName, MiKTeXPackageManagerLib::PackageInfo* pPackageInfo)
 {
   PackageManagerImpl::localServer = true;
   try
@@ -124,23 +136,23 @@ STDMETHODIMP comPackageManager::GetPackageInfo(BSTR deploymentName, MiKTeXPackag
     CopyPackageInfo(*pPackageInfo, packageInfo);
     return S_OK;
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     return e.Error();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     return E_FAIL;
   }
 }
 
-STDMETHODIMP comPackageManager::CreatePackageIterator(IPackageIterator ** ppIter)
+STDMETHODIMP comPackageManager::CreatePackageIterator(IPackageIterator** ppIter)
 {
   PackageManagerImpl::localServer = true;
   try
   {
     // create the IPackageIterator object
-    CComObject<comPackageIterator> * pIter = nullptr;
+    CComObject<comPackageIterator>* pIter = nullptr;
     HRESULT hr = CComObject<comPackageIterator>::CreateInstance(&pIter);
     if (FAILED(hr))
     {
@@ -159,14 +171,14 @@ STDMETHODIMP comPackageManager::CreatePackageIterator(IPackageIterator ** ppIter
     // return the IPackageIterator interface
     return pUnk->QueryInterface(ppIter);
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     *ppIter = nullptr;
     return E_FAIL;
   }
 }
 
-STDMETHODIMP comPackageManager::GetPackageInfo2(BSTR deploymentName, PackageInfo2 * pPackageInfo)
+STDMETHODIMP comPackageManager::GetPackageInfo2(BSTR deploymentName, PackageInfo2* pPackageInfo)
 {
   PackageManagerImpl::localServer = true;
   try
@@ -180,15 +192,17 @@ STDMETHODIMP comPackageManager::GetPackageInfo2(BSTR deploymentName, PackageInfo
     CopyPackageInfo(*pPackageInfo, packageInfo);
     return S_OK;
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     return e.Error();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     return E_FAIL;
   }
 }
+
+const char* const MPMSVC = "mpmsvc";
 
 void comPackageManager::CreateSession()
 {
@@ -208,12 +222,12 @@ void comPackageManager::CreateSession()
   }
 }
 
-static ULONG GetAccessPermissionsForLUAServer(SECURITY_DESCRIPTOR ** ppSD)
+static ULONG GetAccessPermissionsForLUAServer(SECURITY_DESCRIPTOR** ppSD)
 {
   LPWSTR lpszSDDL = L"O:BAG:BAD:(A;;0x3;;;IU)(A;;0x3;;;SY)";
-  SECURITY_DESCRIPTOR * pSD = nullptr;
+  SECURITY_DESCRIPTOR* pSD = nullptr;
   ULONG size = 0;
-  if (!ConvertStringSecurityDescriptorToSecurityDescriptorW(lpszSDDL, SDDL_REVISION_1, reinterpret_cast<PSECURITY_DESCRIPTOR *>(&pSD), &size))
+  if (!ConvertStringSecurityDescriptorToSecurityDescriptorW(lpszSDDL, SDDL_REVISION_1, reinterpret_cast<PSECURITY_DESCRIPTOR*>(&pSD), &size))
   {
     MIKTEX_FATAL_WINDOWS_ERROR("ConvertStringSecurityDescriptorToSecurityDescriptorW");
   }
@@ -228,7 +242,7 @@ HRESULT WINAPI comPackageManager::UpdateRegistry(BOOL doRegister)
   {
     vector<_ATL_REGMAP_ENTRY> regMapEntries;
     _ATL_REGMAP_ENTRY rme;
-    SECURITY_DESCRIPTOR * pSd;
+    SECURITY_DESCRIPTOR* pSd;
     ULONG sizeSd = GetAccessPermissionsForLUAServer(&pSd);
     AutoLocalMem toBeFreed(pSd);
     rme.szKey = L"ACCESS_SD";
@@ -248,7 +262,7 @@ HRESULT WINAPI comPackageManager::UpdateRegistry(BOOL doRegister)
       //
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     hr = E_FAIL;
   }

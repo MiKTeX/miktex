@@ -1,4 +1,4 @@
-/* exceptions.h:                                        -*- C++ -*-
+/* com-internal.h: internal COM definitions             -*- C++ -*-
 
    Copyright (C) 2001-2018 Christian Schenk
 
@@ -23,32 +23,15 @@
 #  pragma once
 #endif
 
-#if !defined(D32CB6D8FBC5418A94C5064391B8D7AC)
-#define D32CB6D8FBC5418A94C5064391B8D7AC
+#define _ATL_FREE_THREADED
+#define _ATL_NO_AUTOMATIC_NAMESPACE
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS
+#include <atlbase.h>
+#include <ATLComTime.h>
+#include <atlcom.h>
 
-#include <string>
+#include "COM/import.h"
 
-#include <miktex/Core/Exceptions>
-
-#include "text.h"
-
-BEGIN_INTERNAL_NAMESPACE;
-
-class NotFoundException : public MiKTeX::Core::MiKTeXException
-{
-public:
-  NotFoundException()
-    : MiKTeX::Core::MiKTeXException(T_("Requested resource not found."))
-  {
-  }
-
-public:
-  NotFoundException(const std::string& programInvocationName, const std::string& message, const MiKTeX::Core::MiKTeXException::KVMAP& info, const MiKTeX::Core::SourceLocation& sourceLocation)
-    : MiKTeX::Core::MiKTeXException(programInvocationName, message, info, sourceLocation)
-  {
-  }
-};
-
-END_INTERNAL_NAMESPACE;
-
+#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
+namespace MiKTeXPackageManagerLib = MAKE_CURVER_ID(MiKTeXPackageManager);
 #endif

@@ -1,6 +1,6 @@
 /* RestRemoteService.h:                                 -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -26,7 +26,10 @@
 #if !defined(A965AF9537944AFEA8EE4AB0D04F55B5)
 #define A965AF9537944AFEA8EE4AB0D04F55B5
 
+#include <chrono>
+
 #include "RemoteService.h"
+#include "WebSession.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 
@@ -34,7 +37,7 @@ class RestRemoteService :
   public RemoteService
 {
 public:
-  RestRemoteService(const std::string & endpoint, const MiKTeX::Packages::ProxySettings & proxySettings) :
+  RestRemoteService(const std::string& endpoint, const MiKTeX::Packages::ProxySettings& proxySettings) :
     endpointBaseUrl(endpoint),
     proxySettings(proxySettings),
     session(MiKTeX::Core::Session::Get()),
@@ -50,28 +53,28 @@ public:
   std::string PickRepositoryUrl(MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState) override;
 
 public:
-  std::pair<bool, MiKTeX::Packages::RepositoryInfo> TryGetRepositoryInfo(const std::string & repositoryUrl) override;
+  std::pair<bool, MiKTeX::Packages::RepositoryInfo> TryGetRepositoryInfo(const std::string& repositoryUrl) override;
 
 public:
-  MiKTeX::Packages::RepositoryInfo Verify(const std::string & url) override;
+  MiKTeX::Packages::RepositoryInfo Verify(const std::string& url) override;
 
 private:
   void Initialize();
 
 private:
-  void SetAuthHeader(const std::string & token)
+  void SetAuthHeader(const std::string& token)
   {
     webSession->SetCustomHeaders({ {"Authorization", "Bearer " + token} });
   }
 
 private:
-  std::string MakeUrl(const std::string & path, const std::initializer_list<std::string> & query)
+  std::string MakeUrl(const std::string& path, const std::initializer_list<std::string>& query)
   {
     std::string url = endpointBaseUrl + path;
     if (query.size() > 0)
     {
       url += "?";
-      for (const std::string & q : query)
+      for (const std::string& q : query)
       {
         url += "&" + q;
       }

@@ -1,6 +1,6 @@
 /* comPackageIterator.h:                                -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -18,11 +18,19 @@
    along with MiKTeX Package Manager; if not, write to the Free Software
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#pragma once
+#if defined(_MSC_VER)
+#  pragma once
+#endif
+
+#include <memory>
+
+#include "miktex/PackageManager/PackageManager.h"
 
 #include "Resource.h"
+#include "text.h"
+#include "COM/com-internal.h"
 
-inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo & left, const MiKTeX::Packages::PackageInfo & right)
+inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo& left, const MiKTeX::Packages::PackageInfo& right)
 {
   left.deploymentName = _bstr_t(UW_(right.deploymentName)).Detach();
   left.displayName = _bstr_t(UW_(right.displayName)).Detach();
@@ -58,7 +66,7 @@ inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo & left, const M
   memcpy(&left.digest, &right.digest, sizeof(left.digest));
 }
 
-inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo2 & left, const MiKTeX::Packages::PackageInfo & right)
+inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo2& left, const MiKTeX::Packages::PackageInfo& right)
 {
   left.deploymentName = _bstr_t(UW_(right.deploymentName)).Detach();
   left.displayName = _bstr_t(UW_(right.displayName)).Detach();
@@ -144,10 +152,10 @@ public:
   void Initialize();
 
 public:
-  STDMETHOD(GetNextPackageInfo) (MiKTeXPackageManagerLib::PackageInfo * pPackageInfo, VARIANT_BOOL * pDone);
+  STDMETHOD(GetNextPackageInfo) (MiKTeXPackageManagerLib::PackageInfo* pPackageInfo, VARIANT_BOOL* done);
 
 public:
-  STDMETHOD(GetNextPackageInfo2) (MiKTeXPackageManagerLib::PackageInfo2 * pPackageInfo, VARIANT_BOOL * pDone);
+  STDMETHOD(GetNextPackageInfo2) (MiKTeXPackageManagerLib::PackageInfo2* pPackageInfo, VARIANT_BOOL* done);
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;

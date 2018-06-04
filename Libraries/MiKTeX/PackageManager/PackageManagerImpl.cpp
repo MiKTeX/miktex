@@ -19,19 +19,39 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
+
+#include <future>
+#include <locale>
+#include <unordered_set>
+
+#include <miktex/Core/Directory>
+#include <miktex/Core/DirectoryLister>
+#include <miktex/Core/Environment>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/PathNameParser>
+#include <miktex/Core/Registry>
+#include <miktex/Core/TemporaryDirectory>
+#include <miktex/Core/Uri>
+
+#include <miktex/Trace/Trace>
 
 #include "internal.h"
-
+#include "PackageManagerImpl.h"
+#include "PackageInstallerImpl.h"
+#include "PackageIteratorImpl.h"
 #include "RemoteService.h"
 #include "TpmParser.h"
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
+
+using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 string PackageManagerImpl::proxyUser;
 string PackageManagerImpl::proxyPassword;

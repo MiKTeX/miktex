@@ -1,4 +1,4 @@
-/* WebSession.cpp:
+/* text.h:                                              -*- C++ -*-
 
    Copyright (C) 2001-2018 Christian Schenk
 
@@ -19,44 +19,23 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "config.h"
-
-#if defined(MIKTEX_WINDOWS) && defined(WITH_WININET)
-#  include "win/winWebSession.h"
-static bool USE_WININET = false;
+#if defined(_MSC_VER)
+#  pragma once
 #endif
 
-#if defined(HAVE_LIBCURL)
-#  include "CurlWebSession.h"
+#if !defined(FFF7DC1F73A048E59858E6E2935606FB)
+#define FFF7DC1F73A048E59858E6E2935606FB
+
+#include <miktex/Core/Quoter>
+#include <miktex/Core/Text>
+
+#define T_(x) MIKTEXTEXT(x)
+
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
+
+#if defined(MIKTEX_WINDOWS)
+#  define WU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
+#  define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
 
-using namespace std;
-
-using namespace MiKTeX::Core;
-using namespace MiKTeX::Packages;
-
-using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
-
-WebSession::~WebSession()
-{
-}
-
-WebFile::~WebFile()
-{
-}
-
-shared_ptr<WebSession> WebSession::Create(IProgressNotify_* pIProgressNotify)
-{
-#if defined (MIKTEX_WINDOWS) && defined(WITH_WININET)
-  if (USE_WININET)
-  {
-    return new winWebSession;
-  }
 #endif
-#if defined(HAVE_LIBCURL)
-  return make_shared<CurlWebSession>(pIProgressNotify);
-#else
-  #  warning Unimplemented : WebSession::Create()
-    MIKTEX_FATAL_ERROR(T_("libCURL does not seem to be available."));
-#endif
-}

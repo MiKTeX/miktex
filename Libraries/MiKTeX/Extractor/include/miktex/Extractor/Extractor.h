@@ -1,6 +1,6 @@
 /* miktex/Extractor/Extractor.h:                        -*- C++ -*-
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -37,6 +37,7 @@
 #include <string>
 
 #include <miktex/Core/PathName>
+#include <miktex/Core/Paths>
 #include <miktex/Core/Session>
 #include <miktex/Core/Stream>
 

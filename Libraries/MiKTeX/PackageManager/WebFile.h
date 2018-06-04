@@ -1,6 +1,6 @@
 /* WebFile.h:                                           -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -34,7 +34,7 @@ public:
   virtual ~WebFile() = 0;
 
 public:
-  virtual size_t Read(void * pBuffer, size_t n) = 0;
+  virtual size_t Read(void* pBuffer, size_t n) = 0;
 
 public:
   virtual void Close() = 0;

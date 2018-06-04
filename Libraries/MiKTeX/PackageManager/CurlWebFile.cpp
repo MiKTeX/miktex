@@ -19,16 +19,18 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
 
 #if defined(HAVE_LIBCURL)
 
-#include "internal.h"
-
 #include "CurlWebFile.h"
+#include "CurlWebSession.h"
+
+using namespace std;
 
 using namespace MiKTeX::Trace;
-using namespace std;
+
+using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 const int READ_TIMEOUT_SECONDS = 40;
 

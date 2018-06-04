@@ -1,6 +1,6 @@
 /* vi/Runtime.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -19,18 +19,23 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#include "StdAfx.h"
+#include "config.h"
 
-#include "internal.h"
+#if defined(HAVE_LIBCURL)
+#  include <curl/curl.h>
+#endif
+
+#include <expat.h>
 
 #include <miktex/Core/vi/Version>
 #include <miktex/Extractor/vi/Version>
 
 #include "miktex/PackageManager/vi/Version.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages::vi;
-using namespace std;
 
 string Runtime::GetName()
 {
@@ -55,7 +60,9 @@ VersionNumber Runtime::GetVersion()
 vector<LibraryVersion> Runtime::GetDependencies()
 {
   vector<LibraryVersion> result;
+#if defined(HAVE_LIBCURL)
   result.push_back(LibraryVersion("curl", LIBCURL_VERSION, curl_version()));
+#endif
   result.push_back(LibraryVersion("expat", VersionNumber(XML_MAJOR_VERSION, XML_MINOR_VERSION, XML_MICRO_VERSION, 0).ToString(), XML_ExpatVersion()));
   result.push_back(MiKTeX::Core::vi::Version::GetLibraryVersion());
   auto deps = MiKTeX::Core::vi::Runtime::GetDependencies();

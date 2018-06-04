@@ -1,6 +1,6 @@
 /* PackageManager.h:                                    -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -19,9 +19,19 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#pragma once
+#if defined(_MSC_VER)
+#  pragma once
+#endif
+
+#include <memory>
+
+#include <miktex/Core/Session>
+
+#include "miktex/PackageManager/PackageManager.h"
 
 #include "Resource.h"
+#include "text.h"
+#include "COM/com-internal.h"
 
 class ATL_NO_VTABLE comPackageManager :
   public ATL::CComObjectRootEx<ATL::CComMultiThreadModel>,
@@ -72,16 +82,16 @@ public:
   void FinalRelease();
 
 public:
-  STDMETHOD(CreateInstaller) (MiKTeXPackageManagerLib::IPackageInstaller ** ppInstaller);
+  STDMETHOD(CreateInstaller) (MiKTeXPackageManagerLib::IPackageInstaller** ppInstaller);
 
 public:
-  STDMETHOD(GetPackageInfo) (BSTR deploymentName, MiKTeXPackageManagerLib::PackageInfo * pPackageInfo);
+  STDMETHOD(GetPackageInfo) (BSTR deploymentName, MiKTeXPackageManagerLib::PackageInfo* pPackageInfo);
 
 public:
-  STDMETHOD(CreatePackageIterator) (MiKTeXPackageManagerLib::IPackageIterator ** ppIter);
+  STDMETHOD(CreatePackageIterator) (MiKTeXPackageManagerLib::IPackageIterator** ppIter);
 
 public:
-  STDMETHOD(GetPackageInfo2) (BSTR deploymentName, MiKTeXPackageManagerLib::PackageInfo2 * pPackageInfo);
+  STDMETHOD(GetPackageInfo2) (BSTR deploymentName, MiKTeXPackageManagerLib::PackageInfo2* pPackageInfo);
 
 private:
   void CreateSession();

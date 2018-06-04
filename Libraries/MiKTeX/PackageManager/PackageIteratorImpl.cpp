@@ -19,21 +19,24 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#include "StdAfx.h"
+#include "config.h"
 
-#include "internal.h"
+#include "PackageIteratorImpl.h"
 
-using namespace MiKTeX::Packages;
 using namespace std;
 
-PackageIteratorImpl::PackageIteratorImpl(shared_ptr<PackageManagerImpl> pManager) :
-  pManager(pManager)
+using namespace MiKTeX::Packages;
+
+using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
+
+PackageIteratorImpl::PackageIteratorImpl(shared_ptr<PackageManagerImpl> packageManager) :
+  packageManager(packageManager)
 {
-  pManager->GetAllPackageDefinitions(snapshot);
+  packageManager->GetAllPackageDefinitions(snapshot);
   iter = snapshot.begin();
 }
 
-bool PackageIteratorImpl::GetNext(PackageInfo & packageInfo)
+bool PackageIteratorImpl::GetNext(PackageInfo& packageInfo)
 {
   bool found = false;
   for (; !found && iter != snapshot.end(); ++iter)
@@ -42,7 +45,7 @@ bool PackageIteratorImpl::GetNext(PackageInfo & packageInfo)
     {
       continue;
     }
-    if (filter[PackageFilter::Obsolete] && !pManager->IsPackageObsolete(iter->deploymentName))
+    if (filter[PackageFilter::Obsolete] && !packageManager->IsPackageObsolete(iter->deploymentName))
     {
       continue;
     }
@@ -58,7 +61,7 @@ PackageIteratorImpl::~PackageIteratorImpl()
   {
     Dispose();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }

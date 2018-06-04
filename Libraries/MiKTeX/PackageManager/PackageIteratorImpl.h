@@ -26,7 +26,50 @@
 #if !defined(AE44FFDD26FB4B12B48A737FB0AFD61B)
 #define AE44FFDD26FB4B12B48A737FB0AFD61B
 
+#include <memory>
+
+#include "miktex/PackageManager/PackageIterator.h"
+
+#include "PackageManagerImpl.h"
+
 BEGIN_INTERNAL_NAMESPACE;
+
+class PackageIteratorImpl :
+  public MiKTeX::Packages::PackageIterator
+{
+public:
+  MIKTEXTHISCALL ~PackageIteratorImpl() override;
+
+public:
+  void MIKTEXTHISCALL Dispose() override;
+
+public:
+  void MIKTEXTHISCALL AddFilter(PackageFilterSet filter) override
+  {
+    this->filter += filter;
+  }
+
+public:
+  bool MIKTEXTHISCALL GetNext(MiKTeX::Packages::PackageInfo& packageInfo) override;
+
+public:
+  PackageIteratorImpl(std::shared_ptr<PackageManagerImpl> packageManager);
+
+private:
+  std::shared_ptr<PackageManagerImpl> packageManager;
+
+private:
+  std::vector<MiKTeX::Packages::PackageInfo> snapshot;
+
+private:
+  std::vector<MiKTeX::Packages::PackageInfo>::const_iterator iter;
+
+private:
+  std::string requiredBy;
+
+private:
+  PackageFilterSet filter;
+};
 
 END_INTERNAL_NAMESPACE;
 

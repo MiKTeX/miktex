@@ -1,6 +1,6 @@
 /* comPackageInstaller.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -19,18 +19,21 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
 
-#include "internal.h"
+#include <miktex/Trace/Trace>
 
+#include "COM/com-internal.h"
 #include "COM/comPackageInstaller.h"
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
+
 using namespace MiKTeXPackageManagerLib;
-using namespace std;
 
 comPackageInstaller::~comPackageInstaller()
 {
@@ -70,11 +73,11 @@ void comPackageInstaller::Initialize()
 
 STDMETHODIMP comPackageInstaller::InterfaceSupportsErrorInfo(REFIID riid)
 {
-  static const IID * const interfaces[] =
+  static const IID* const interfaces[] =
   {
     &__uuidof(IPackageInstaller)
   };
-  for (const IID * iid : interfaces)
+  for (const IID* iid : interfaces)
   {
     if (InlineIsEqualGUID(*iid, riid))
     {
@@ -84,7 +87,7 @@ STDMETHODIMP comPackageInstaller::InterfaceSupportsErrorInfo(REFIID riid)
   return S_FALSE;
 }
 
-void comPackageInstaller::ReportLine(const string & str)
+void comPackageInstaller::ReportLine(const string& str)
 {
   if (installerCallback == nullptr)
   {
@@ -97,7 +100,7 @@ void comPackageInstaller::ReportLine(const string & str)
   }
 }
 
-bool comPackageInstaller::OnRetryableError(const string & message)
+bool comPackageInstaller::OnRetryableError(const string& message)
 {
   if (installerCallback == nullptr)
   {
@@ -143,12 +146,12 @@ STDMETHODIMP comPackageInstaller::Add(BSTR packageName, VARIANT_BOOL toBeInstall
       trace_mpm->WriteFormattedLine("mpmsvc", T_("to be removed: %s"), packagesToBeRemoved.back().c_str());
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     lastMiKTeXException = e;
     hr = E_FAIL;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     lastMiKTeXException = MiKTeXException("mpmsvc", e.what(), MiKTeXException::KVMAP(), SourceLocation());
     hr = E_FAIL;
@@ -156,7 +159,7 @@ STDMETHODIMP comPackageInstaller::Add(BSTR packageName, VARIANT_BOOL toBeInstall
   return hr;
 }
 
-STDMETHODIMP comPackageInstaller::SetCallback(IUnknown * installerCallback)
+STDMETHODIMP comPackageInstaller::SetCallback(IUnknown* installerCallback)
 {
   this->installerCallback = installerCallback;
   return S_OK;
@@ -182,12 +185,12 @@ STDMETHODIMP comPackageInstaller::InstallRemove()
     packagesToBeInstalled.clear();
     packagesToBeRemoved.clear();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     lastMiKTeXException = e;
     hr = E_FAIL;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     lastMiKTeXException = MiKTeXException("mpmsvc", e.what(), MiKTeXException::KVMAP(), SourceLocation());
     hr = E_FAIL;
@@ -195,7 +198,7 @@ STDMETHODIMP comPackageInstaller::InstallRemove()
   return hr;
 }
 
-STDMETHODIMP comPackageInstaller::GetErrorInfo(ErrorInfo * pErrorInfo)
+STDMETHODIMP comPackageInstaller::GetErrorInfo(ErrorInfo* errorInfo)
 {
   if (lastMiKTeXException.what() == nullptr)
   {
@@ -206,17 +209,17 @@ STDMETHODIMP comPackageInstaller::GetErrorInfo(ErrorInfo * pErrorInfo)
     _bstr_t message = UW_(lastMiKTeXException.what());
     _bstr_t info = UW_(lastMiKTeXException.GetInfo());
     _bstr_t sourceFile = UW_(lastMiKTeXException.GetSourceFile());
-    pErrorInfo->message = message.Detach();
-    pErrorInfo->info = info.Detach();
-    pErrorInfo->sourceFile = sourceFile.Detach();
-    pErrorInfo->sourceLine = lastMiKTeXException.GetSourceLine();
+    errorInfo->message = message.Detach();
+    errorInfo->info = info.Detach();
+    errorInfo->sourceFile = sourceFile.Detach();
+    errorInfo->sourceLine = lastMiKTeXException.GetSourceLine();
     return S_OK;
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     return e.Error();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     return E_FAIL;
   }
@@ -238,12 +241,12 @@ STDMETHODIMP comPackageInstaller::UpdateDb()
     }
     packageInstaller->UpdateDb();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     lastMiKTeXException = e;
     hr = E_FAIL;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     lastMiKTeXException = MiKTeXException("mpmsvc", e.what(), MiKTeXException::KVMAP(), SourceLocation());
     hr = E_FAIL;
@@ -267,12 +270,12 @@ STDMETHODIMP comPackageInstaller::SetRepository(BSTR repository)
     }
     packageInstaller->SetRepository(WU_(repository));
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     lastMiKTeXException = e;
     hr = E_FAIL;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     lastMiKTeXException = MiKTeXException("mpmsvc", e.what(), MiKTeXException::KVMAP(), SourceLocation());
     hr = E_FAIL;

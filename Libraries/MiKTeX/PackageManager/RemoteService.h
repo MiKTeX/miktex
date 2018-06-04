@@ -1,6 +1,6 @@
 /* RemoteService.h:                                     -*- C++ -*-
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -23,7 +23,7 @@
 #  pragma once
 #endif
 
-#if ! defined(B24B3F8AAF90478B97B88D2695E620C2)
+#if !defined(B24B3F8AAF90478B97B88D2695E620C2)
 #define B24B3F8AAF90478B97B88D2695E620C2
 
 BEGIN_INTERNAL_NAMESPACE;
@@ -40,13 +40,13 @@ public:
   virtual std::string PickRepositoryUrl(MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState) = 0;
 
 public:
-  virtual std::pair<bool, MiKTeX::Packages::RepositoryInfo> TryGetRepositoryInfo(const std::string & url) = 0;
+  virtual std::pair<bool, MiKTeX::Packages::RepositoryInfo> TryGetRepositoryInfo(const std::string& url) = 0;
 
 public:
-  virtual MiKTeX::Packages::RepositoryInfo Verify(const std::string & url) = 0;
+  virtual MiKTeX::Packages::RepositoryInfo Verify(const std::string& url) = 0;
 
 public:
-  static std::unique_ptr<RemoteService> Create(const std::string & endpoint, const MiKTeX::Packages::ProxySettings & proxySettings);
+  static std::unique_ptr<RemoteService> Create(const std::string& endpoint, const MiKTeX::Packages::ProxySettings& proxySettings);
 };
 
 END_INTERNAL_NAMESPACE;

@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -37,6 +37,11 @@ configure_file(
 )
 
 configure_file(
+  ${mpm_source_dir}/COM/import.h.cmake
+  ${mpm_binary_dir}/COM/import.h
+)
+
+configure_file(
   ${mpm_source_dir}/COM/comPackageManager.rgs.in
   ${CMAKE_CURRENT_BINARY_DIR}/comPackageManager.rgs
 )
@@ -44,6 +49,12 @@ configure_file(
 set(generated_mpm_com_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mpm_i.c
   ${mpm_binary_dir}/include/${mpm_tlb_name}.tlb
+)
+
+set(mpm_com_sources
+  ${generated_mpm_com_sources}
+  ${mpm_binary_dir}/COM/import.h
+  ${mpm_source_dir}/COM/com-internal.h
   ${mpm_source_dir}/COM/comPackageInstaller.cpp
   ${mpm_source_dir}/COM/comPackageInstaller.h
   ${mpm_source_dir}/COM/comPackageIterator.cpp
@@ -51,10 +62,6 @@ set(generated_mpm_com_sources
   ${mpm_source_dir}/COM/comPackageManager.cpp
   ${mpm_source_dir}/COM/comPackageManager.h
   ${mpm_source_dir}/COM/mpm.cpp
-)
-
-set(mpm_com_sources
-  ${generated_mpm_com_sources}
   ${mpm_source_dir}/COM/mpm.def
 )
 
@@ -110,3 +117,5 @@ add_custom_target(gen-mpm-com
 )
 
 set_property(TARGET gen-mpm-com PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+source_group(COM FILES ${mpm_com_sources})

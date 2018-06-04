@@ -1,6 +1,6 @@
 /* CurlWebSession.h:                                    -*- C++ -*-
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -25,6 +25,19 @@
 
 #if defined(HAVE_LIBCURL) && !defined(A9010DA64FD34372A24071A29FA59EEC)
 #define A9010DA64FD34372A24071A29FA59EEC
+
+#include <memory>
+#include <string>
+#include <unordered_map>
+
+#include <curl/curl.h>
+
+#include <miktex/Core/Session>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
+
+#include "text.h"
+#include "WebSession.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 

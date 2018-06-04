@@ -1,6 +1,6 @@
 /* NoRemoteService.h:                                   -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -26,7 +26,10 @@
 #if !defined(A5D4990A62304F209D9688619234D364)
 #define A5D4990A62304F209D9688619234D364
 
+#include <miktex/Core/Session>
+
 #include "RemoteService.h"
+#include "text.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 

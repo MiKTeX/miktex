@@ -1,6 +1,6 @@
 /* mpm.cpp: MiKTeX Package Manager
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -19,13 +19,15 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
 
 #include "internal.h"
-
 #include "Resource.h"
 
+#include "COM/com-internal.h"
 #include "COM/mpm.h"
+
+using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 MiKTeXPackageManagerModule _AtlModule;
 
@@ -48,7 +50,7 @@ STDAPI DllCanUnloadNow()
   return _AtlModule.DllCanUnloadNow();
 }
 
-STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID * ppv)
+STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 {
   return _AtlModule.DllGetClassObject(rclsid, riid, ppv);
 }

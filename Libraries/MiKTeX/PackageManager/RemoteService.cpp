@@ -1,6 +1,6 @@
 /* RemoteService.cpp:
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -19,27 +19,33 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
 
-#include "internal.h"
+#include <memory>
+#include <string>
+
+#include "miktex/PackageManager/PackageManager.h"
 
 #include "NoRemoteService.h"
 #include "RemoteService.h"
 #include "RestRemoteService.h"
 
-using namespace MiKTeX::Packages;
 using namespace std;
+
+using namespace MiKTeX::Packages;
+
+using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 RemoteService::~RemoteService()
 {
 }
 
-bool endsWith(const string & s, const string & suffix)
+bool endsWith(const string& s, const string& suffix)
 {
   return s.length() >= suffix.length() && s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
-unique_ptr<RemoteService> RemoteService::Create(const string & endpoint, const ProxySettings & proxySettings)
+unique_ptr<RemoteService> RemoteService::Create(const string& endpoint, const ProxySettings& proxySettings)
 {
   if (endpoint.empty() || endpoint == "multiplexor")
   {

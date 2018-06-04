@@ -1,6 +1,6 @@
 /* PackageInstaller.h:                                  -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -19,9 +19,16 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#pragma once
+#if defined(_MSC_VER)
+#  pragma once
+#endif
+
+#include "miktex/PackageManager/PackageInstaller.h"
+#include "miktex/PackageManager/PackageManager.h"
 
 #include "Resource.h"
+#include "text.h"
+#include "COM/com-internal.h"
 
 class ATL_NO_VTABLE comPackageInstaller :
   public ATL::CComObjectRootEx<ATL::CComMultiThreadModel>,
@@ -63,31 +70,31 @@ public:
   void Initialize();
 
 public:
-  virtual void MIKTEXTHISCALL ReportLine(const std::string & str);
+  virtual void MIKTEXTHISCALL ReportLine(const std::string& str);
 
 public:
-  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string & message);
+  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string& message);
 
 public:
   virtual bool MIKTEXTHISCALL OnProgress(MiKTeX::Packages::Notification nf);
 
 public:
-  STDMETHOD(Add) (BSTR packageName, VARIANT_BOOL toBeInstalled);
+  STDMETHOD(Add)(BSTR packageName, VARIANT_BOOL toBeInstalled);
 
 public:
-  STDMETHOD(SetCallback) (IUnknown * pCallback);
+  STDMETHOD(SetCallback)(IUnknown* installerCallback);
 
 public:
-  STDMETHOD(InstallRemove) ();
+  STDMETHOD(InstallRemove)();
 
 public:
-  STDMETHOD(GetErrorInfo) (MiKTeXPackageManagerLib::ErrorInfo * pErrorInfo);
+  STDMETHOD(GetErrorInfo)(MiKTeXPackageManagerLib::ErrorInfo* errorInfo);
 
 public:
-  STDMETHOD(UpdateDb) ();
+  STDMETHOD(UpdateDb)();
 
 public:
-  STDMETHOD(SetRepository) (BSTR repository);
+  STDMETHOD(SetRepository)(BSTR repository);
 
 private:
   std::vector<std::string> packagesToBeInstalled;

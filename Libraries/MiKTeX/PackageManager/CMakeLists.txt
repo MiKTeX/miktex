@@ -44,11 +44,6 @@ configure_file(
 )
 
 configure_file(
-  StdAfx.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/StdAfx.h
-)
-
-configure_file(
   mpm-version.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/mpm-version.h
 )
@@ -97,6 +92,8 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/WebSession.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/WebSession.h
   ${CMAKE_CURRENT_SOURCE_DIR}/exceptions.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/text.h
   ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
 )
 

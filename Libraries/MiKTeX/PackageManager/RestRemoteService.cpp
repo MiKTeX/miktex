@@ -1,6 +1,6 @@
 /* RestRemoteService.cpp
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -19,19 +19,31 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
 
+#include <nlohmann/json.hpp>
+
+#include <miktex/Core/Registry>
+#include <miktex/Core/Session>
+
+#include "miktex/PackageManager/PackageManager.h"
+
+#include "exceptions.h"
 #include "internal.h"
-
 #include "RestRemoteService.h"
+#include "text.h"
+
+using namespace std;
+using namespace std::chrono;
+
+using namespace nlohmann;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace nlohmann;
-using namespace std;
-using namespace std::chrono;
+
+using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 inline string ToString(RepositoryReleaseState releaseState)
 {

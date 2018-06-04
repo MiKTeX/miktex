@@ -1,6 +1,6 @@
 /* comPackageIterator.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -18,13 +18,15 @@
    along with MiKTeX Package Manager; if not, write to the Free Software
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#include "StdAfx.h"
+#include "config.h"
 
-#include "internal.h"
+#include "miktex/PackageManager/PackageManager.h"
 
+#include "COM/com-internal.h"
 #include "COM/comPackageIterator.h"
 
 using namespace MiKTeX::Packages;
+
 using namespace MiKTeXPackageManagerLib;
 
 comPackageIterator::~comPackageIterator()
@@ -44,44 +46,44 @@ void comPackageIterator::Initialize()
   packageIterator = packageManager->CreateIterator();
 }
 
-STDMETHODIMP comPackageIterator::GetNextPackageInfo(MiKTeXPackageManagerLib::PackageInfo * pPackageInfo, VARIANT_BOOL * pDone)
+STDMETHODIMP comPackageIterator::GetNextPackageInfo(MiKTeXPackageManagerLib::PackageInfo* pPackageInfo, VARIANT_BOOL* done)
 {
-  *pDone = VARIANT_FALSE;
+  *done = VARIANT_FALSE;
   MiKTeX::Packages::PackageInfo packageInfo;
-  while (*pDone == VARIANT_FALSE && packageIterator->GetNext(packageInfo))
+  while (*done == VARIANT_FALSE && packageIterator->GetNext(packageInfo))
   {
     if (!packageInfo.IsPureContainer())
     {
       CopyPackageInfo(*pPackageInfo, packageInfo);
-      *pDone = VARIANT_TRUE;
+      *done = VARIANT_TRUE;
     }
   }
-  return *pDone == VARIANT_FALSE ? S_FALSE : S_OK;
+  return *done == VARIANT_FALSE ? S_FALSE : S_OK;
 }
 
-STDMETHODIMP comPackageIterator::GetNextPackageInfo2(MiKTeXPackageManagerLib::PackageInfo2 * pPackageInfo, VARIANT_BOOL * pDone)
+STDMETHODIMP comPackageIterator::GetNextPackageInfo2(MiKTeXPackageManagerLib::PackageInfo2* pPackageInfo, VARIANT_BOOL* done)
 {
-  *pDone = VARIANT_FALSE;
+  *done = VARIANT_FALSE;
   MiKTeX::Packages::PackageInfo packageInfo;
-  while (*pDone == VARIANT_FALSE && packageIterator->GetNext(packageInfo))
+  while (*done == VARIANT_FALSE && packageIterator->GetNext(packageInfo))
   {
     if (!packageInfo.IsPureContainer())
     {
       CopyPackageInfo(*pPackageInfo, packageInfo);
-      *pDone = VARIANT_TRUE;
+      *done = VARIANT_TRUE;
     }
   }
-  return *pDone == VARIANT_FALSE ? S_FALSE : S_OK;
+  return *done == VARIANT_FALSE ? S_FALSE : S_OK;
 }
 
 STDMETHODIMP comPackageIterator::InterfaceSupportsErrorInfo(REFIID riid)
 {
-  static const IID * const interfaces[] =
+  static const IID* const interfaces[] =
   {
     &__uuidof(IPackageIterator),
     &__uuidof(IPackageIterator2)
   };
-  for (const IID * iid : interfaces)
+  for (const IID* iid : interfaces)
   {
     if (InlineIsEqualGUID(*iid, riid))
     {
