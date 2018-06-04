@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include <cstdarg>
+
 #include <unordered_set>
 
 #include <miktex/Core/Directory>

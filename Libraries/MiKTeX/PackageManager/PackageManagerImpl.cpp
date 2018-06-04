@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include <cstdarg>
+
 #include <future>
 #include <locale>
 #include <unordered_set>

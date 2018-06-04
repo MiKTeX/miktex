@@ -19,12 +19,10 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
-
-#if defined(HAVE_LIBCURL) && !defined(DB88FC1DC9B0497C965F3CFB916FA93A)
+#if !defined(DB88FC1DC9B0497C965F3CFB916FA93A)
 #define DB88FC1DC9B0497C965F3CFB916FA93A
+
+#if defined(HAVE_LIBCURL)
 
 #include "CurlWebSession.h"
 #include "WebFile.h"
@@ -182,4 +180,6 @@ private:
 
 END_INTERNAL_NAMESPACE;
 
-#endif // libCURL
+#endif
+
+#endif

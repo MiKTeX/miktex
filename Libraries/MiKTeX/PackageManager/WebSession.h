@@ -19,10 +19,6 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
-
 #if !defined(F6B44E9392E34710903AB2F8D335A1FA)
 #define F6B44E9392E34710903AB2F8D335A1FA
 

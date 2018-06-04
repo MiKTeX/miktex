@@ -19,12 +19,10 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
-
-#if defined(HAVE_LIBCURL) && !defined(A9010DA64FD34372A24071A29FA59EEC)
+#if !defined(A9010DA64FD34372A24071A29FA59EEC)
 #define A9010DA64FD34372A24071A29FA59EEC
+
+#if defined(HAVE_LIBCURL)
 
 #include <memory>
 #include <string>
@@ -187,5 +185,7 @@ private:
 };
 
 END_INTERNAL_NAMESPACE;
+
+#endif
 
 #endif
