@@ -103,6 +103,11 @@ inline int FPutC(int ch, FILE* stream)
   return chWritten;
 }
 
+bool IsUrl(const std::string& url);
+
+std::string MakeUrl(const std::string& base, const std::string& rel);
+
+
 END_INTERNAL_NAMESPACE;
 
 #endif

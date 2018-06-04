@@ -1,4 +1,4 @@
-/* PackageManager.cpp: MiKTeX Package Manager
+/* PackageManagerImpl.cpp: MiKTeX Package Manager
 
    Copyright (C) 2001-2018 Christian Schenk
 
@@ -42,7 +42,6 @@
 #include "PackageManagerImpl.h"
 #include "PackageInstallerImpl.h"
 #include "PackageIteratorImpl.h"
-#include "RemoteService.h"
 #include "TpmParser.h"
 
 using namespace std;
@@ -69,8 +68,7 @@ PackageManager::~PackageManager() noexcept
 PackageManagerImpl::PackageManagerImpl(const PackageManager::InitInfo& initInfo) :
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR, initInfo.traceCallback)),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM, initInfo.traceCallback)),
-  pSession(Session::Get()),
-  webSession(WebSession::Create(this))
+  repositories(webSession)
 {
   trace_mpm->WriteFormattedLine("libmpm", T_("initializing MPM library version %s"), MIKTEX_COMPONENT_VERSION_STR);
 }
@@ -121,7 +119,7 @@ void PackageManagerImpl::LoadVariablePackageTable()
 
   commonVariablePackageTable = Cfg::Create();
 
-  PathName pathCommonPackagesIni(pSession->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
+  PathName pathCommonPackagesIni(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
 
   if (File::Exists(pathCommonPackagesIni))
   {
@@ -131,9 +129,9 @@ void PackageManagerImpl::LoadVariablePackageTable()
 
   commonVariablePackageTable->SetModified(false);
 
-  PathName pathUserPackagesIni(pSession->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
+  PathName pathUserPackagesIni(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
 
-  if (!pSession->IsAdminMode() && (pathCommonPackagesIni.Canonicalize() != pathUserPackagesIni.Canonicalize()))
+  if (!session->IsAdminMode() && (pathCommonPackagesIni.Canonicalize() != pathUserPackagesIni.Canonicalize()))
   {
     userVariablePackageTable = Cfg::Create();
     if (File::Exists(pathUserPackagesIni))
@@ -150,13 +148,13 @@ void PackageManagerImpl::FlushVariablePackageTable()
   if (commonVariablePackageTable != nullptr
     && commonVariablePackageTable->IsModified())
   {
-    PathName pathPackagesIni(pSession->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
+    PathName pathPackagesIni(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
     trace_mpm->WriteFormattedLine("libmpm", T_("flushing common variable package table (%s)"), Q_(pathPackagesIni));
     commonVariablePackageTable->Write(pathPackagesIni);
   }
   if (userVariablePackageTable != nullptr && userVariablePackageTable->IsModified())
   {
-    PathName pathPackagesIni(pSession->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
+    PathName pathPackagesIni(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
     trace_mpm->WriteFormattedLine("libmpm", T_("flushing user variable package table (%s)"), Q_(pathPackagesIni));
     userVariablePackageTable->Write(pathPackagesIni);
   }
@@ -167,7 +165,7 @@ bool PackageManagerImpl::IsRemovable(const string& deploymentName)
   bool ret;
   LoadVariablePackageTable();
   string str;
-  if (pSession->IsAdminMode())
+  if (session->IsAdminMode())
   {
     // administrator can remove system-wide packages
     ret = GetCommonTimeInstalled(deploymentName) != 0;
@@ -175,7 +173,7 @@ bool PackageManagerImpl::IsRemovable(const string& deploymentName)
   else
   {
     // user can remove private packages
-    if (pSession->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize() == pSession->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize())
+    if (session->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize() == session->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize())
     {
       ret = GetTimeInstalled(deploymentName) != 0;
     }
@@ -189,7 +187,7 @@ bool PackageManagerImpl::IsRemovable(const string& deploymentName)
 
 time_t PackageManagerImpl::GetUserTimeInstalled(const string& deploymentName)
 {
-  if (pSession->IsAdminMode())
+  if (session->IsAdminMode())
   {
     MIKTEX_UNEXPECTED();
   }
@@ -223,7 +221,7 @@ time_t PackageManagerImpl::GetTimeInstalled(const string& deploymentName)
 {
   LoadVariablePackageTable();
   string str;
-  if ((!pSession->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(deploymentName, "TimeInstalled", str))
+  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(deploymentName, "TimeInstalled", str))
     || commonVariablePackageTable->TryGetValue(deploymentName, "TimeInstalled", str))
   {
     return std::stoi(str);
@@ -243,7 +241,7 @@ bool PackageManagerImpl::IsPackageObsolete(const string& deploymentName)
 {
   LoadVariablePackageTable();
   string str;
-  if ((!pSession->IsAdminMode()
+  if ((!session->IsAdminMode()
     && userVariablePackageTable != nullptr
     && userVariablePackageTable->TryGetValue(deploymentName, "Obsolete", str))
     || commonVariablePackageTable->TryGetValue(deploymentName, "Obsolete", str))
@@ -259,7 +257,7 @@ bool PackageManagerImpl::IsPackageObsolete(const string& deploymentName)
 void PackageManagerImpl::DeclarePackageObsolete(const string& deploymentName, bool obsolete)
 {
   LoadVariablePackageTable();
-  if (pSession->IsAdminMode() || userVariablePackageTable == nullptr)
+  if (session->IsAdminMode() || userVariablePackageTable == nullptr)
   {
     commonVariablePackageTable->PutValue(deploymentName, "Obsolete", (obsolete ? "1" : "0"));
   }
@@ -272,7 +270,7 @@ void PackageManagerImpl::DeclarePackageObsolete(const string& deploymentName, bo
 void PackageManagerImpl::SetTimeInstalled(const string& deploymentName, time_t timeInstalled)
 {
   LoadVariablePackageTable();
-  if (pSession->IsAdminMode() || userVariablePackageTable == nullptr)
+  if (session->IsAdminMode() || userVariablePackageTable == nullptr)
   {
     if (timeInstalled == 0)
     {
@@ -299,7 +297,7 @@ void PackageManagerImpl::SetTimeInstalled(const string& deploymentName, time_t t
 void PackageManagerImpl::SetReleaseState(const string& deploymentName, RepositoryReleaseState releaseState)
 {
   LoadVariablePackageTable();
-  if (pSession->IsAdminMode() || userVariablePackageTable == nullptr)
+  if (session->IsAdminMode() || userVariablePackageTable == nullptr)
   {
     commonVariablePackageTable->PutValue(deploymentName, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
   }
@@ -313,7 +311,7 @@ RepositoryReleaseState PackageManagerImpl::GetReleaseState(const string& deploym
 {
   LoadVariablePackageTable();
   string str;
-  if ((!pSession->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(deploymentName, "ReleaseState", str))
+  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(deploymentName, "ReleaseState", str))
     || commonVariablePackageTable->TryGetValue(deploymentName, "ReleaseState", str))
   {
     if (str == "stable")
@@ -355,7 +353,7 @@ PackageInfo* PackageManagerImpl::DefinePackage(const string& deploymentName, con
 {
   pair<PackageDefinitionTable::iterator, bool> p = packageTable.insert(make_pair(deploymentName, packageInfo));
   p.first->second.deploymentName = deploymentName;
-  if (pSession->IsMiKTeXDirect())
+  if (session->IsMiKTeXDirect())
   {
     // installed from the start
     p.first->second.isRemovable = false;
@@ -541,9 +539,9 @@ void PackageManagerImpl::ParseAllPackageDefinitionFiles()
     // we do this once
     return;
   }
-  PathName userInstallRoot = pSession->GetSpecialPath(SpecialPath::UserInstallRoot);
-  PathName commonInstallRoot = pSession->GetSpecialPath(SpecialPath::CommonInstallRoot);
-  if (!pSession->IsAdminMode())
+  PathName userInstallRoot = session->GetSpecialPath(SpecialPath::UserInstallRoot);
+  PathName commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
+  if (!session->IsAdminMode())
   {
     ParseAllPackageDefinitionFilesInDirectory(PathName(userInstallRoot, MIKTEX_PATH_PACKAGE_DEFINITION_DIR));
     if (userInstallRoot.Canonicalize() == commonInstallRoot.Canonicalize())
@@ -624,9 +622,9 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
   }
   PathName pathPackageDefinitionFile;
   bool havePackageInfoFile = false;
-  if (!pSession->IsAdminMode())
+  if (!session->IsAdminMode())
   {
-    pathPackageDefinitionFile = pSession->GetSpecialPath(SpecialPath::UserInstallRoot);
+    pathPackageDefinitionFile = session->GetSpecialPath(SpecialPath::UserInstallRoot);
     pathPackageDefinitionFile /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
     pathPackageDefinitionFile /= deploymentName;
     pathPackageDefinitionFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
@@ -634,7 +632,7 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
   }
   if (!havePackageInfoFile)
   {
-    pathPackageDefinitionFile = pSession->GetSpecialPath(SpecialPath::CommonInstallRoot);
+    pathPackageDefinitionFile = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
     pathPackageDefinitionFile /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
     pathPackageDefinitionFile /= deploymentName;
     pathPackageDefinitionFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
@@ -717,7 +715,7 @@ bool PackageManager::TryGetRemotePackageRepository(string& url, RepositoryReleas
     return true;
   }
   return Utils::GetEnvironmentString(MIKTEX_ENV_REPOSITORY, url)
-    && (PackageManagerImpl::DetermineRepositoryType(url) == RepositoryType::Remote);
+    && (PackageRepositoryDataStore::DetermineRepositoryType(url) == RepositoryType::Remote);
 }
 
 string PackageManager::GetRemotePackageRepository(RepositoryReleaseState& repositoryReleaseState)
@@ -728,56 +726,6 @@ string PackageManager::GetRemotePackageRepository(RepositoryReleaseState& reposi
     MIKTEX_UNEXPECTED();
   }
   return url;
-}
-
-MPMSTATICFUNC(bool) IsUrl(const string& url)
-{
-  string::size_type pos = url.find("://");
-  if (pos == string::npos)
-  {
-    return false;
-  }
-  string scheme = url.substr(0, pos);
-  for (const char& ch : scheme)
-  {
-    if (!isalpha(ch, locale()))
-    {
-      return false;
-    }
-  }
-  return true;
-}
-
-RepositoryType PackageManagerImpl::DetermineRepositoryType(const string& repository)
-{
-  if (IsUrl(repository))
-  {
-    return RepositoryType::Remote;
-  }
-
-  if (!Utils::IsAbsolutePath(repository))
-  {
-    MIKTEX_UNEXPECTED();
-  }
-
-  if (PackageManager::IsLocalPackageRepository(repository))
-  {
-    return RepositoryType::Local;
-  }
-
-  if (Utils::IsMiKTeXDirectRoot(repository))
-  {
-    return RepositoryType::MiKTeXDirect;
-  }
-
-  PathName path(repository);
-  path /= MIKTEX_PATH_PACKAGES_INI;
-  if (File::Exists(path))
-  {
-    return RepositoryType::MiKTeXInstallation;
-  }
-
-  MIKTEX_FATAL_ERROR_2(T_("Not a package repository."), "repository", repository);
 }
 
 void PackageManager::SetRemotePackageRepository(const string& url, RepositoryReleaseState repositoryReleaseState)
@@ -796,7 +744,7 @@ bool PackageManager::TryGetLocalPackageRepository(PathName& path)
     path = str;
     return true;
   }
-  else if (Utils::GetEnvironmentString(MIKTEX_ENV_REPOSITORY, str) && (PackageManagerImpl::DetermineRepositoryType(str) == RepositoryType::Local))
+  else if (Utils::GetEnvironmentString(MIKTEX_ENV_REPOSITORY, str) && (PackageRepositoryDataStore::DetermineRepositoryType(str) == RepositoryType::Local))
   {
     path = str;
     return true;
@@ -831,7 +779,7 @@ bool PackageManager::TryGetMiKTeXDirectRoot(PathName& path)
     path = str;
     return true;
   }
-  else if (Utils::GetEnvironmentString(MIKTEX_ENV_REPOSITORY, str) && (PackageManagerImpl::DetermineRepositoryType(str) == RepositoryType::MiKTeXDirect))
+  else if (Utils::GetEnvironmentString(MIKTEX_ENV_REPOSITORY, str) && (PackageRepositoryDataStore::DetermineRepositoryType(str) == RepositoryType::MiKTeXDirect))
   {
     path = str;
     return true;
@@ -887,7 +835,7 @@ RepositoryInfo PackageManager::GetDefaultPackageRepository()
   }
   else if (Utils::GetEnvironmentString(MIKTEX_ENV_REPOSITORY, result.url))
   {
-    result.type = PackageManagerImpl::DetermineRepositoryType(result.url);
+    result.type = PackageRepositoryDataStore::DetermineRepositoryType(result.url);
   }
   else
   {
@@ -934,44 +882,10 @@ void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, 
 {
   shared_ptr<Session> session = Session::Get();
   RepositoryInfo repository;
-  repository.type = repositoryType != RepositoryType::Unknown ? repositoryType : PackageManagerImpl::DetermineRepositoryType(urlOrPath);
+  repository.type = repositoryType != RepositoryType::Unknown ? repositoryType : PackageRepositoryDataStore::DetermineRepositoryType(urlOrPath);
   repository.releaseState = repositoryReleaseState;
   repository.url = urlOrPath;
   SetDefaultPackageRepository(repository);
-}
-
-const char* DEFAULT_REMOTE_SERVICE = "https://api2.miktex.org/";
-
-string PackageManagerImpl::GetRemoteServiceBaseUrl()
-{
-  if (remoteServiceBaseUrl.empty())
-  {
-    shared_ptr<Session> session = Session::Get();
-    remoteServiceBaseUrl = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_SERVICE, DEFAULT_REMOTE_SERVICE).GetString();
-  }
-  return remoteServiceBaseUrl;
-}
-
-void PackageManagerImpl::DownloadRepositoryList()
-{
-  ProxySettings proxySettings;
-  if (!IsUrl(GetRemoteServiceBaseUrl()) || !TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
-  {
-    proxySettings.useProxy = false;
-  }
-  unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
-  repositories = remoteService->GetRepositories(repositoryReleaseState);
-}
-
-string PackageManagerImpl::PickRepositoryUrl()
-{
-  ProxySettings proxySettings;
-  if (!IsUrl(GetRemoteServiceBaseUrl()) || !TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
-  {
-    proxySettings.useProxy = false;
-  }
-  unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
-  return remoteService->PickRepositoryUrl(repositoryReleaseState);
 }
 
 void PackageManagerImpl::TraceError(const char* lpszFormat, ...)
@@ -1097,7 +1011,7 @@ void PackageManagerImpl::CreateMpmFndb()
   }
 
   // create the database
-  Fndb::Create(pSession->GetMpmDatabasePathName().GetData(), pSession->GetMpmRootPath().GetData(), this, true, true);
+  Fndb::Create(session->GetMpmDatabasePathName().GetData(), session->GetMpmRootPath().GetData(), this, true, true);
 
   // free memory
   directoryInfoTable.clear();
@@ -1533,152 +1447,6 @@ void PackageManagerImpl::OnProgress()
 {
 }
 
-bool PackageManagerImpl::TryGetRepositoryInfo(const string& url, RepositoryInfo& repositoryInfo)
-{
-  RepositoryType repositoryType = PackageManagerImpl::DetermineRepositoryType(url);
-  if (repositoryType == RepositoryType::Remote)
-  {
-    ProxySettings proxySettings;
-    if (!IsUrl(GetRemoteServiceBaseUrl()) || !TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
-      {
-        proxySettings.useProxy = false;
-      }
-    unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
-    pair<bool, RepositoryInfo> result = remoteService->TryGetRepositoryInfo(url);
-    if (result.first)
-    {
-      repositoryInfo = result.second;
-    }
-    return result.first;
-  }
-  else if (repositoryType == RepositoryType::Local)
-  {
-    PathName configFile(url);
-    configFile /= "pr.ini";
-    unique_ptr<Cfg> pConfig(Cfg::Create());
-    pConfig->Read(configFile);
-    string value = pConfig->GetValue("repository", "date")->GetValue();
-    repositoryInfo.timeDate = std::stoi(value);
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-string MakeUrl(const string& base, const string& rel)
-{
-  string url(base);
-  size_t l = url.length();
-  if (l == 0)
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  if (url[l - 1] != '/')
-  {
-    url += '/';
-  }
-  if (rel[0] == '/')
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  url += rel;
-  return url;
-}
-
-RepositoryInfo PackageManagerImpl::CheckPackageRepository(const string& url)
-{
-  RepositoryInfo repositoryInfo;
-  repositoryInfo.url = url;
-  if (!TryGetRepositoryInfo(url, repositoryInfo))
-  {
-    return repositoryInfo;
-  }
-  string urlLargeFile = MakeUrl(url, "cm-super.tar.lzma");
-  unique_ptr<WebFile> webFile;
-  try
-  {
-    webFile = webSession->OpenUrl(urlLargeFile);
-  }
-  catch (const MiKTeXException&)
-  {
-    MIKTEX_ASSERT(webFile == nullptr);
-  }
-  if (webFile == nullptr)
-  {
-    repositoryInfo.status = RepositoryStatus::Offline;
-    return repositoryInfo;
-  }
-  repositoryInfo.status = RepositoryStatus::Online;
-  try
-  {
-    unsigned char buf[32 * 1024];
-    size_t received = 0;
-    size_t n;
-    clock_t start = clock();
-    clock_t maxTime = start + 5 * CLOCKS_PER_SEC;
-    while ((n = webFile->Read(buf, sizeof(buf))) > 0 && clock() < maxTime)
-    {
-      received += n;
-    }
-    clock_t end = clock();
-    if (start == end)
-    {
-      end = start + 1;
-    }
-    repositoryInfo.dataTransferRate = static_cast<double>(received) / (end - start) * CLOCKS_PER_SEC;
-  }
-  catch (const MiKTeXException&)
-  {
-  }
-  repositoryInfo.lastCheckTime = time(nullptr);
-  SaveVariableRepositoryData(repositoryInfo);
-  return repositoryInfo;
-}
-
-void PackageManagerImpl::SaveVariableRepositoryData(const RepositoryInfo& repositoryInfo)
-{
-  unique_ptr<Cfg> cfg = Cfg::Create();
-  PathName cfgFile(pSession->GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_REPOSITORIES_INI);
-  if (File::Exists(cfgFile))
-  {
-    cfg->Read(cfgFile);
-  }
-  cfg->PutValue(repositoryInfo.url, "LastCheckTime", std::to_string(repositoryInfo.lastCheckTime));
-  cfg->PutValue(repositoryInfo.url, "LastVisitTime", std::to_string(repositoryInfo.lastVisitTime));
-  cfg->PutValue(repositoryInfo.url, "DataTransferRate", std::to_string(repositoryInfo.dataTransferRate));
-  cfg->Write(cfgFile);
-}
-
-RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string& url)
-{
-#if defined(_DEBUG)
-  if (url == "http://ctan.miktex.org/systems/win32/miktex/tm/packages/")
-  {
-    RepositoryInfo repositoryInfo;
-    repositoryInfo.delay = 0;
-    return repositoryInfo;
-  }
-#endif
-  for (const RepositoryInfo& repository : repositories)
-  {
-    if (repository.url == url)
-    {
-      return repository;
-    }
-  }
-  ProxySettings proxySettings;
-  if (!IsUrl(GetRemoteServiceBaseUrl()) || !TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
-  {
-    proxySettings.useProxy = false;
-  }
-  unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
-  RepositoryInfo repositoryInfo = remoteService->Verify(url);
-  repositories.push_back(repositoryInfo);
-  return repositoryInfo;
-}
-
 bool PackageManagerImpl::TryGetFileDigest(const PathName& prefix, const string& fileName, bool& haveDigest, MD5& digest)
 {
   string unprefixed;
@@ -1729,14 +1497,14 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& deploymentName)
 
   PathName prefix;
 
-  if (!pSession->IsAdminMode() && GetUserTimeInstalled(deploymentName) != static_cast<time_t>(0))
+  if (!session->IsAdminMode() && GetUserTimeInstalled(deploymentName) != static_cast<time_t>(0))
   {
-    prefix = pSession->GetSpecialPath(SpecialPath::UserInstallRoot);
+    prefix = session->GetSpecialPath(SpecialPath::UserInstallRoot);
   }
 
   if (prefix.Empty())
   {
-    prefix = pSession->GetSpecialPath(SpecialPath::CommonInstallRoot);
+    prefix = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
   }
 
   FileDigestTable fileDigests;
@@ -1796,3 +1564,45 @@ string PackageManagerImpl::GetContainerPath(const string& deploymentName, bool u
   }
   return path;
 }
+
+BEGIN_INTERNAL_NAMESPACE;
+
+bool IsUrl(const string& url)
+{
+  string::size_type pos = url.find("://");
+  if (pos == string::npos)
+  {
+    return false;
+  }
+  string scheme = url.substr(0, pos);
+  for (const char& ch : scheme)
+  {
+    if (!isalpha(ch, locale()))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+string MakeUrl(const string& base, const string& rel)
+{
+  string url(base);
+  size_t l = url.length();
+  if (l == 0)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  if (url[l - 1] != '/')
+  {
+    url += '/';
+  }
+  if (rel[0] == '/')
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  url += rel;
+  return url;
+}
+
+END_INTERNAL_NAMESPACE;

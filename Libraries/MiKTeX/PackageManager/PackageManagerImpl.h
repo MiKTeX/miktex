@@ -34,6 +34,7 @@
 #include "miktex/PackageManager/PackageManager.h"
 
 #include "internal.h"
+#include "PackageRepositoryDataStore.h"
 #include "WebSession.h"
 
 BEGIN_INTERNAL_NAMESPACE;
@@ -96,26 +97,32 @@ public:
 public:
   MiKTeX::Packages::RepositoryReleaseState MIKTEXTHISCALL GetRepositoryReleaseState() override
   {
-    return repositoryReleaseState;
+    return repositories.GetRepositoryReleaseState();
   }
 
 public:
   void MIKTEXTHISCALL SetRepositoryReleaseState(MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState) override
   {
-    this->repositoryReleaseState = repositoryReleaseState;
+    repositories.SetRepositoryReleaseState(repositoryReleaseState);
   }
 
 public:
-  void MIKTEXTHISCALL DownloadRepositoryList() override;
+  void MIKTEXTHISCALL DownloadRepositoryList() override
+  {
+    repositories.Download();
+  }
 
 public:
   std::vector<MiKTeX::Packages::RepositoryInfo> MIKTEXTHISCALL GetRepositories() override
   {
-    return repositories;
+    return repositories.GetRepositories();
   }
 
 public:
-  std::string MIKTEXTHISCALL PickRepositoryUrl() override;
+  std::string MIKTEXTHISCALL PickRepositoryUrl() override
+  {
+    return repositories.PickRepositoryUrl();
+  }
 
 public:
   bool MIKTEXTHISCALL TryGetPackageInfo(const std::string& deploymentName, MiKTeX::Packages::PackageInfo& packageInfo) override;
@@ -130,13 +137,23 @@ public:
   void OnProgress() override;
 
 public:
-  bool MIKTEXTHISCALL TryGetRepositoryInfo(const std::string& url, MiKTeX::Packages::RepositoryInfo& repositoryInfo) override;
+  bool MIKTEXTHISCALL TryGetRepositoryInfo(const std::string& url, MiKTeX::Packages::RepositoryInfo& repositoryInfo) override
+  {
+    return repositories.TryGetRepositoryInfo(url, repositoryInfo);
+  }
+
 
 public:
-  MiKTeX::Packages::RepositoryInfo MIKTEXTHISCALL CheckPackageRepository(const std::string& url) override;
+  MiKTeX::Packages::RepositoryInfo MIKTEXTHISCALL CheckPackageRepository(const std::string& url) override
+  {
+    return repositories.CheckPackageRepository(url);
+  }
 
 public:
-  MiKTeX::Packages::RepositoryInfo MIKTEXTHISCALL VerifyPackageRepository(const std::string& url) override;
+  MiKTeX::Packages::RepositoryInfo MIKTEXTHISCALL VerifyPackageRepository(const std::string& url) override
+  {
+    return repositories.VerifyPackageRepository(url);
+  }
 
 public:
   bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string& deploymentName) override;
@@ -225,15 +242,6 @@ private:
 private:
   void Dispose();
 
-public:
-  static MiKTeX::Packages::RepositoryType DetermineRepositoryType(const std::string& repository);
-
-private:
-  std::string GetRemoteServiceBaseUrl();
-
-private:
-  void SaveVariableRepositoryData(const MiKTeX::Packages::RepositoryInfo& repositoryInfo);
-
 private:
   std::string remoteServiceBaseUrl;
 
@@ -242,9 +250,6 @@ private:
 
 private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mpm;
-
-private:
-  MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState = MiKTeX::Packages::RepositoryReleaseState::Stable;
 
 private:
   typedef std::unordered_map<std::string, MiKTeX::Packages::PackageInfo, MiKTeX::Core::hash_icase, MiKTeX::Core::equal_icase> PackageDefinitionTable;
@@ -268,19 +273,19 @@ private:
   std::unique_ptr<MiKTeX::Core::Cfg> userVariablePackageTable;
 
 private:
-  std::shared_ptr<MiKTeX::Core::Session> pSession;
+  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:
-  std::shared_ptr<WebSession> webSession;
+  std::shared_ptr<WebSession> webSession = WebSession::Create(this);
 
 public:
-  WebSession * GetWebSession() const
+  WebSession* GetWebSession() const
   {
     return webSession.get();
   }
 
 private:
-  std::vector<MiKTeX::Packages::RepositoryInfo> repositories;
+  PackageRepositoryDataStore repositories;
 
 public:
   static std::string proxyUser;

@@ -250,7 +250,7 @@ public:
 public:
   void MIKTEXTHISCALL SetRepository(const std::string& repository) override
   {
-    repositoryType = PackageManagerImpl::DetermineRepositoryType(repository);
+    repositoryType = PackageRepositoryDataStore::DetermineRepositoryType(repository);
     this->repository = repository;
   }
 

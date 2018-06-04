@@ -23,18 +23,80 @@
 #define DBD8ED6A4EAB41A49E187B7912407D4D
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <miktex/Core/Session>
 
 #include "miktex/PackageManager/RepositoryInfo.h"
 
+#include "WebSession.h"
+
 BEGIN_INTERNAL_NAMESPACE;
 
 class PackageRepositoryDataStore
 {
+public:
+  PackageRepositoryDataStore(std::shared_ptr<WebSession> webSession) :
+    webSession(webSession)
+  {
+    MIKTEX_ASSERT(webSession != nullptr);
+  }
+
+public:
+  void Download();
+
+public:
+  std::vector<MiKTeX::Packages::RepositoryInfo> GetRepositories() const
+  {
+    return repositories;
+  }
+
+public:
+  std::string PackageRepositoryDataStore::PickRepositoryUrl();
+
+public:
+  MiKTeX::Packages::RepositoryInfo CheckPackageRepository(const std::string& url);
+
+public:
+  bool TryGetRepositoryInfo(const std::string& url, RepositoryInfo& repositoryInfo);
+
+public:
+  MiKTeX::Packages::RepositoryInfo VerifyPackageRepository(const std::string& url);
+
+public:
+  static MiKTeX::Packages::RepositoryType DetermineRepositoryType(const std::string& repository);
+
+public:
+  MiKTeX::Packages::RepositoryReleaseState GetRepositoryReleaseState()
+  {
+    return repositoryReleaseState;
+  }
+
+public:
+  void SetRepositoryReleaseState(MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState)
+  {
+    this->repositoryReleaseState = repositoryReleaseState;
+  }
+
+private:
+  void SaveVariableRepositoryData(const MiKTeX::Packages::RepositoryInfo& repositoryInfo);
+
+private:
+  std::string GetRemoteServiceBaseUrl();
+
 private:
   std::vector<MiKTeX::Packages::RepositoryInfo> repositories;
+
+private:
+  MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState = MiKTeX::Packages::RepositoryReleaseState::Stable;
+
+private:
+  std::string remoteServiceBaseUrl;
+
+private:
+  std::shared_ptr<WebSession> webSession;
+
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 };
