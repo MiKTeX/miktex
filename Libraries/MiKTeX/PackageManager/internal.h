@@ -23,6 +23,9 @@
 #  pragma once
 #endif
 
+#if !defined(D02AFD831E4F4B9E8394D2B294DF4582)
+#define D02AFD831E4F4B9E8394D2B294DF4582
+
 #include <string>
 
 #include <miktex/Core/Paths>
@@ -106,3 +109,4 @@ inline int FPutC(int ch, FILE* stream)
 
 END_INTERNAL_NAMESPACE;
 
+#endif
