@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -72,16 +72,21 @@ set(public_headers
 
 set(mpm_sources
   ${public_headers}
-  ${CMAKE_CURRENT_BINARY_DIR}/StdAfx.h
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${CMAKE_CURRENT_BINARY_DIR}/mpm-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebFile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebSession.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebSession.h
   ${CMAKE_CURRENT_SOURCE_DIR}/NoRemoteService.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/PackageInstaller.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/PackageIterator.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/PackageManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageInstallerImpl.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageInstallerImpl.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageIteratorImpl.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageIteratorImpl.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageManagerImpl.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageManagerImpl.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageRepositoryDataStore.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageRepositoryDataStore.h
   ${CMAKE_CURRENT_SOURCE_DIR}/RemoteService.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/RemoteService.h
   ${CMAKE_CURRENT_SOURCE_DIR}/RestRemoteService.cpp
@@ -91,7 +96,7 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/WebFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/WebSession.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/WebSession.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/exceptions.h
   ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
 )
 
