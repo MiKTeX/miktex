@@ -53,7 +53,7 @@ public:
   }
 
 public:
-  std::string PackageRepositoryDataStore::PickRepositoryUrl();
+  std::string PickRepositoryUrl();
 
 public:
   MiKTeX::Packages::RepositoryInfo CheckPackageRepository(const std::string& url);
