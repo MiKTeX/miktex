@@ -29,9 +29,12 @@
 #include <miktex/Core/Registry>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/TemporaryFile>
+
+#if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/winAutoResource>
 #include <miktex/Core/win/DllProc>
 #include <miktex/Core/win/HResult>
+#endif
 
 #include <miktex/Extractor/Extractor>
 
