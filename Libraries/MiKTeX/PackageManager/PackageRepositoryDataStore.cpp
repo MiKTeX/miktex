@@ -38,7 +38,69 @@ using namespace MiKTeX::Packages;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
-void PackageRepositoryDataStore::Download()
+ComboCfg::ComboCfg(const PathName& fileNameUser_, const PathName& fileNameCommon_) :
+  fileNameUser(fileNameUser_),
+  fileNameCommon(fileNameCommon_)
+{
+  fileNameUser.Canonicalize();
+  fileNameCommon.Canonicalize();
+  cfgCommon = Cfg::Create();
+  if (File::Exists(fileNameCommon))
+  {
+    cfgCommon->Read(fileNameCommon);
+  }
+  cfgCommon->SetModified(false);
+  if (!session->IsAdminMode() && fileNameCommon != fileNameUser)
+  {
+    cfgUser = Cfg::Create();
+    if (File::Exists(fileNameUser))
+    {
+      cfgUser->Read(fileNameUser);
+    }
+    cfgUser->SetModified(false);
+  }
+}
+
+void ComboCfg::Save()
+{
+  if (cfgCommon != nullptr && cfgCommon->IsModified())
+  {
+    cfgCommon->Write(fileNameCommon);
+  }
+  if (cfgUser != nullptr && cfgUser->IsModified())
+  {
+    cfgUser->Write(fileNameUser);
+  }
+}
+
+bool ComboCfg::TryGetValue(const std::string& keyName, const std::string& valueName, std::string& value)
+{
+  return !session->IsAdminMode() && cfgUser != nullptr && cfgUser->TryGetValue(keyName, valueName, value)
+    || cfgCommon->TryGetValue(keyName, valueName, value);
+}
+
+void ComboCfg::PutValue(const string& keyName, const string& valueName, const string& value)
+{
+  if (session->IsAdminMode() || cfgUser == nullptr)
+  {
+    cfgCommon->PutValue(keyName, valueName, value);
+  }
+  else
+  {
+    cfgUser->PutValue(keyName, valueName, value);
+  }
+}
+
+PackageRepositoryDataStore::PackageRepositoryDataStore(std::shared_ptr<WebSession> webSession) :
+  comboCfg(
+    session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI,
+    session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI),
+  webSession(webSession)
+{
+  MIKTEX_ASSERT(webSession != nullptr);
+}
+
+  void PackageRepositoryDataStore::Download()
 {
   ProxySettings proxySettings;
   if (!IsUrl(GetRemoteServiceBaseUrl()) || !PackageManager::TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
@@ -47,6 +109,10 @@ void PackageRepositoryDataStore::Download()
   }
   unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
   repositories = remoteService->GetRepositories(repositoryReleaseState);
+  for (RepositoryInfo& r : repositories)
+  {
+    LoadVarData(r);
+  }
 }
 
 const char* DEFAULT_REMOTE_SERVICE = "https://api2.miktex.org/";
@@ -211,21 +277,31 @@ RepositoryInfo PackageRepositoryDataStore::CheckPackageRepository(const string& 
   {
   }
   repositoryInfo.lastCheckTime = time(nullptr);
-  SaveVariableRepositoryData(repositoryInfo);
+  SaveVarData(repositoryInfo);
   return repositoryInfo;
 }
 
-void PackageRepositoryDataStore::SaveVariableRepositoryData(const RepositoryInfo& repositoryInfo)
+void PackageRepositoryDataStore::LoadVarData(RepositoryInfo& repositoryInfo)
 {
-  unique_ptr<Cfg> cfg = Cfg::Create();
-  PathName cfgFile(session->GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_REPOSITORIES_INI);
-  if (File::Exists(cfgFile))
+  string val;
+  if (comboCfg.TryGetValue(repositoryInfo.url, "LastCheckTime", val))
   {
-    cfg->Read(cfgFile);
+    repositoryInfo.lastCheckTime = std::stoi(val);
   }
-  cfg->PutValue(repositoryInfo.url, "LastCheckTime", std::to_string(repositoryInfo.lastCheckTime));
-  cfg->PutValue(repositoryInfo.url, "LastVisitTime", std::to_string(repositoryInfo.lastVisitTime));
-  cfg->PutValue(repositoryInfo.url, "DataTransferRate", std::to_string(repositoryInfo.dataTransferRate));
-  cfg->Write(cfgFile);
+  if (comboCfg.TryGetValue(repositoryInfo.url, "LastVisitTime", val))
+  {
+    repositoryInfo.lastVisitTime = std::stoi(val);
+  }
+  if (comboCfg.TryGetValue(repositoryInfo.url, "DataTransferRate", val))
+  {
+    repositoryInfo.dataTransferRate = std::stod(val);
+  }
 }
 
+void PackageRepositoryDataStore::SaveVarData(const RepositoryInfo& repositoryInfo)
+{
+  comboCfg.PutValue(repositoryInfo.url, "LastCheckTime", std::to_string(repositoryInfo.lastCheckTime));
+  comboCfg.PutValue(repositoryInfo.url, "LastVisitTime", std::to_string(repositoryInfo.lastVisitTime));
+  comboCfg.PutValue(repositoryInfo.url, "DataTransferRate", std::to_string(repositoryInfo.dataTransferRate));
+  comboCfg.Save();
+}

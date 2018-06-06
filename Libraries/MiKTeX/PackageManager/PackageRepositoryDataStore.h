@@ -34,14 +34,40 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
+class ComboCfg
+{
+public:
+  ComboCfg(const MiKTeX::Core::PathName& fileNameUser, const MiKTeX::Core::PathName& fileNameCommon);
+
+public:
+  void Save();
+
+public:
+  bool TryGetValue(const std::string& keyName, const std::string& valueName, std::string& value);
+
+public:
+  void PutValue(const std::string& keyName, const std::string& valueName, const std::string& value);
+
+private:
+  MiKTeX::Core::PathName fileNameUser;
+
+private:
+  MiKTeX::Core::PathName fileNameCommon;
+
+private:
+  std::shared_ptr<MiKTeX::Core::Cfg> cfgUser;
+
+private:
+  std::shared_ptr<MiKTeX::Core::Cfg> cfgCommon;
+
+private:
+  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+};
+
 class PackageRepositoryDataStore
 {
 public:
-  PackageRepositoryDataStore(std::shared_ptr<WebSession> webSession) :
-    webSession(webSession)
-  {
-    MIKTEX_ASSERT(webSession != nullptr);
-  }
+  PackageRepositoryDataStore(std::shared_ptr<WebSession> webSession);
 
 public:
   void Download();
@@ -80,7 +106,10 @@ public:
   }
 
 private:
-  void SaveVariableRepositoryData(const MiKTeX::Packages::RepositoryInfo& repositoryInfo);
+  void LoadVarData(MiKTeX::Packages::RepositoryInfo& repositoryInfo);
+
+private:
+  void SaveVarData(const MiKTeX::Packages::RepositoryInfo& repositoryInfo);
 
 private:
   std::string GetRemoteServiceBaseUrl();
@@ -96,6 +125,9 @@ private:
 
 private:
   std::shared_ptr<WebSession> webSession;
+
+private:
+  ComboCfg comboCfg;
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
