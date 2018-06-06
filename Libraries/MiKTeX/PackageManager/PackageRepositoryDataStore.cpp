@@ -38,10 +38,10 @@ using namespace MiKTeX::Packages;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
-ComboCfg::ComboCfg(const PathName& fileNameUser_, const PathName& fileNameCommon_) :
-  fileNameUser(fileNameUser_),
-  fileNameCommon(fileNameCommon_)
+void ComboCfg::Load(const PathName& fileNameUser_, const PathName& fileNameCommon_)
 {
+  fileNameUser = fileNameUser_;
+  fileNameCommon = fileNameCommon_;
   fileNameUser.Canonicalize();
   fileNameCommon.Canonicalize();
   cfgCommon = Cfg::Create();
@@ -79,6 +79,17 @@ bool ComboCfg::TryGetValue(const std::string& keyName, const std::string& valueN
     || cfgCommon->TryGetValue(keyName, valueName, value);
 }
 
+bool ComboCfg::TryGetValue(ComboCfg::Scope scope, const string& keyName, const string& valueName, string& value)
+{
+  switch (scope)
+  {
+  case Scope::User:
+    return cfgUser != nullptr && cfgUser->TryGetValue(keyName, valueName, value);
+  case Scope::Common:
+    return cfgCommon != nullptr && cfgCommon->TryGetValue(keyName, valueName, value);
+  }
+}
+
 void ComboCfg::PutValue(const string& keyName, const string& valueName, const string& value)
 {
   if (session->IsAdminMode() || cfgUser == nullptr)
@@ -91,13 +102,25 @@ void ComboCfg::PutValue(const string& keyName, const string& valueName, const st
   }
 }
 
+void ComboCfg::DeleteKey(const string& keyName)
+{
+  if (session->IsAdminMode() || cfgUser == nullptr)
+  {
+    cfgCommon->DeleteKey(keyName);
+  }
+  else
+  {
+    cfgUser->DeleteKey(keyName);
+  }
+}
+
 PackageRepositoryDataStore::PackageRepositoryDataStore(std::shared_ptr<WebSession> webSession) :
-  comboCfg(
-    session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI,
-    session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI),
   webSession(webSession)
 {
   MIKTEX_ASSERT(webSession != nullptr);
+  comboCfg.Load(
+    session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI,
+    session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI);
 }
 
   void PackageRepositoryDataStore::Download()

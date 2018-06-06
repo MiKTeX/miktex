@@ -37,7 +37,14 @@ BEGIN_INTERNAL_NAMESPACE;
 class ComboCfg
 {
 public:
-  ComboCfg(const MiKTeX::Core::PathName& fileNameUser, const MiKTeX::Core::PathName& fileNameCommon);
+  enum class Scope
+  {
+    User,
+    Common
+  };
+
+public:
+  void Load(const MiKTeX::Core::PathName& fileNameUser, const MiKTeX::Core::PathName& fileNameCommon);
 
 public:
   void Save();
@@ -46,7 +53,13 @@ public:
   bool TryGetValue(const std::string& keyName, const std::string& valueName, std::string& value);
 
 public:
+  bool TryGetValue(Scope scope, const std::string& keyName, const std::string& valueName, std::string& value);
+
+public:
   void PutValue(const std::string& keyName, const std::string& valueName, const std::string& value);
+
+public:
+  void DeleteKey(const std::string& keyName);
 
 private:
   MiKTeX::Core::PathName fileNameUser;
@@ -55,10 +68,10 @@ private:
   MiKTeX::Core::PathName fileNameCommon;
 
 private:
-  std::shared_ptr<MiKTeX::Core::Cfg> cfgUser;
+  std::unique_ptr<MiKTeX::Core::Cfg> cfgUser;
 
 private:
-  std::shared_ptr<MiKTeX::Core::Cfg> cfgCommon;
+  std::unique_ptr<MiKTeX::Core::Cfg> cfgCommon;
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
