@@ -31,6 +31,14 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
 
+if(APPLE)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET
+    "10.11"
+    CACHE STRING
+    "The earliest version of MacOS X that MiKTeX will run on."
+  )
+endif()
+
 ###############################################################################
 ## CMake policies
 
