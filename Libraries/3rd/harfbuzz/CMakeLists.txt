@@ -18,6 +18,7 @@
 ## USA.
 
 include(component.cmake)
+include(sources.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/harfbuzz")
 
@@ -66,110 +67,22 @@ list(APPEND harfbuzz_sources
   ${CMAKE_CURRENT_BINARY_DIR}/harfbuzz-version.h
 )
 
-## common
 list(APPEND harfbuzz_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-atomic-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-blob.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-json.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-text.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-serialize.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-common.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-fallback-shape.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-font-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-font.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-mutex-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-object-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-open-file-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-open-type-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cbdt-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-head-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-hhea-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-hmtx-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-maxp-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-name-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-os2-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-post-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-tag.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set-digest-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape-plan-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape-plan.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-impl-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-list.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-utf-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-warning.cc
-)
+  ${HB_BASE_sources}
+  ${HB_BASE_RAGEL_GENERATED_sources}
 
-## OpenType
-list(APPEND harfbuzz_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-font.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-font.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-common-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gdef-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gpos-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gsubgpos-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gsub-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-jstf-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-map.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-math.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-math-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-map-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-math.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-fallback.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-default.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-hangul.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-hebrew.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic-machine.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic-table.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-myanmar.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-myanmar-machine.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-thai.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-tibetan.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use-machine.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use-table.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-fallback.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-fallback-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-normalize.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-normalize-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-avar-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-fvar-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-hvar-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-mvar-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var.h
-)
+  ${HB_FALLBACK_sources}
+  ${HB_OT_sources}
+  ${HB_OT_RAGEL_GENERATED_sources}
 
-## ICU
-list(APPEND harfbuzz_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-icu.cc
-)
+  ${HB_BASE_headers}
+  ${HB_OT_headers}
 
-## Graphite2
-list(APPEND harfbuzz_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-graphite2.cc
+  ${HB_GRAPHITE2_sources}
+  ${HB_GRAPHITE2_headers}
+
+  ${HB_ICU_sources}
+  ${HB_ICU_headers}
 )
 
 if(NOT LINK_EVERYTHING_STATICALLY)

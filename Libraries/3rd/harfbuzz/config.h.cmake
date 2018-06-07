@@ -15,6 +15,10 @@
 /* Have Core Text backend */
 #cmakedefine HAVE_CORETEXT 1
 
+/* Define to 1 if you have the declaration of `round', and to 0 if you don't.
+   */
+#cmakedefine HAVE_DECL_ROUND 1
+
 /* Have DirectWrite library */
 #cmakedefine HAVE_DIRECTWRITE 1
 
@@ -33,8 +37,14 @@
 /* Have FreeType 2 library */
 #cmakedefine HAVE_FREETYPE 1
 
+/* Define to 1 if you have the `FT_Done_MM_Var' function. */
+#cmakedefine HAVE_FT_DONE_MM_VAR 1
+
 /* Define to 1 if you have the `FT_Get_Var_Blend_Coordinates' function. */
 #cmakedefine HAVE_FT_GET_VAR_BLEND_COORDINATES 1
+
+/* Define to 1 if you have the `FT_Set_Var_Blend_Coordinates' function. */
+#cmakedefine HAVE_FT_SET_VAR_BLEND_COORDINATES 1
 
 /* Define to 1 if you have the `getpagesize' function. */
 #cmakedefine HAVE_GETPAGESIZE 1
@@ -84,6 +94,9 @@
 /* Have PTHREAD_PRIO_INHERIT. */
 #cmakedefine HAVE_PTHREAD_PRIO_INHERIT 1
 
+/* Define to 1 if you have the `round' function. */
+#cmakedefine HAVE_ROUND 1
+
 /* Define to 1 if you have the <sched.h> header file. */
 #cmakedefine HAVE_SCHED_H 1
 
@@ -92,6 +105,9 @@
 
 /* Have Solaris __machine_*_barrier and atomic_* operations */
 #cmakedefine HAVE_SOLARIS_ATOMIC_OPS 1
+
+/* Define to 1 if you have the <stdbool.h> header file. */
+#cmakedefine HAVE_STDBOOL_H 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #cmakedefine HAVE_STDINT_H 1

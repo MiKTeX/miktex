@@ -40,6 +40,8 @@
 #include "hb-unicode-private.hh"
 #include "hb-set-private.hh"
 
+#include "hb-ot-layout-gsubgpos-private.hh"
+//#include "hb-aat-layout-private.hh"
 
 static hb_tag_t common_features[] = {
   HB_TAG('c','c','m','p'),
@@ -108,7 +110,7 @@ hb_ot_shape_collect_features (hb_ot_shape_planner_t          *planner,
     /* We really want to find a 'vert' feature if there's any in the font, no
      * matter which script/langsys it is listed (or not) under.
      * See various bugs referenced from:
-     * https://github.com/behdad/harfbuzz/issues/63 */
+     * https://github.com/harfbuzz/harfbuzz/issues/63 */
     map->add_feature (HB_TAG ('v','e','r','t'), 1, F_GLOBAL | F_GLOBAL_SEARCH);
   }
 
@@ -178,6 +180,8 @@ _hb_ot_shaper_shape_plan_data_create (hb_shape_plan_t    *shape_plan,
   if (unlikely (!plan))
     return nullptr;
 
+  plan->init ();
+
   hb_ot_shape_planner_t planner (shape_plan);
 
   planner.shaper = hb_ot_shape_complex_categorize (&planner);
@@ -202,7 +206,7 @@ _hb_ot_shaper_shape_plan_data_destroy (hb_ot_shaper_shape_plan_data_t *plan)
   if (plan->shaper->data_destroy)
     plan->shaper->data_destroy (const_cast<void *> (plan->data));
 
-  plan->finish ();
+  plan->fini ();
 
   free (plan);
 }
@@ -266,7 +270,7 @@ hb_insert_dotted_circle (hb_buffer_t *buffer, hb_font_t *font)
   info.cluster = buffer->cur().cluster;
   info.mask = buffer->cur().mask;
   buffer->output_info (info);
-  while (buffer->idx < buffer->len && !buffer->in_error)
+  while (buffer->idx < buffer->len && buffer->successful)
     buffer->next_glyph ();
 
   buffer->swap_buffers ();
@@ -304,13 +308,16 @@ static void
 hb_ensure_native_direction (hb_buffer_t *buffer)
 {
   hb_direction_t direction = buffer->props.direction;
+  hb_direction_t horiz_dir = hb_script_get_horizontal_direction (buffer->props.script);
 
   /* TODO vertical:
    * The only BTT vertical script is Ogham, but it's not clear to me whether OpenType
    * Ogham fonts are supposed to be implemented BTT or not.  Need to research that
    * first. */
-  if ((HB_DIRECTION_IS_HORIZONTAL (direction) && direction != hb_script_get_horizontal_direction (buffer->props.script)) ||
-      (HB_DIRECTION_IS_VERTICAL   (direction) && direction != HB_DIRECTION_TTB))
+  if ((HB_DIRECTION_IS_HORIZONTAL (direction) &&
+       direction != horiz_dir && horiz_dir != HB_DIRECTION_INVALID) ||
+      (HB_DIRECTION_IS_VERTICAL   (direction) &&
+       direction != HB_DIRECTION_TTB))
   {
     /* Same loop as hb_form_clusters().
      * Since form_clusters() merged clusters already, we don't merge. */
@@ -450,7 +457,8 @@ hb_ot_zero_width_default_ignorables (hb_ot_shape_context_t *c)
   hb_buffer_t *buffer = c->buffer;
 
   if (!(buffer->scratch_flags & HB_BUFFER_SCRATCH_FLAG_HAS_DEFAULT_IGNORABLES) ||
-      (buffer->flags & HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES))
+      (buffer->flags & HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES) ||
+      (buffer->flags & HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES))
     return;
 
   unsigned int count = buffer->len;
@@ -486,7 +494,8 @@ hb_ot_hide_default_ignorables (hb_ot_shape_context_t *c)
     return;
 
   hb_codepoint_t space;
-  if (c->font->get_nominal_glyph (' ', &space))
+  if (!(buffer->flags & HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES) &&
+      c->font->get_nominal_glyph (' ', &space))
   {
     /* Replace default-ignorables with a zero-advance space glyph. */
     for (/*continue*/; i < count; i++)
@@ -614,7 +623,8 @@ hb_ot_substitute_complex (hb_ot_shape_context_t *c)
 
   c->plan->substitute (c->font, buffer);
 
-  return;
+  /* XXX Call morx instead. */
+  //hb_aat_layout_substitute (c->font, c->buffer);
 }
 
 static inline void
@@ -782,6 +792,8 @@ hb_ot_position (hb_ot_shape_context_t *c)
     _hb_ot_shape_fallback_kern (c->plan, c->font, c->buffer);
 
   _hb_buffer_deallocate_gsubgpos_vars (c->buffer);
+
+  //hb_aat_layout_position (c->font, c->buffer);
 }
 
 static inline void
@@ -817,10 +829,15 @@ hb_ot_shape_internal (hb_ot_shape_context_t *c)
 {
   c->buffer->deallocate_var_all ();
   c->buffer->scratch_flags = HB_BUFFER_SCRATCH_FLAG_DEFAULT;
-  if (likely (!_hb_unsigned_int_mul_overflows (c->buffer->len, HB_BUFFER_MAX_EXPANSION_FACTOR)))
+  if (likely (!_hb_unsigned_int_mul_overflows (c->buffer->len, HB_BUFFER_MAX_LEN_FACTOR)))
   {
-    c->buffer->max_len = MAX (c->buffer->len * HB_BUFFER_MAX_EXPANSION_FACTOR,
+    c->buffer->max_len = MAX (c->buffer->len * HB_BUFFER_MAX_LEN_FACTOR,
 			      (unsigned) HB_BUFFER_MAX_LEN_MIN);
+  }
+  if (likely (!_hb_unsigned_int_mul_overflows (c->buffer->len, HB_BUFFER_MAX_OPS_FACTOR)))
+  {
+    c->buffer->max_ops = MAX (c->buffer->len * HB_BUFFER_MAX_OPS_FACTOR,
+			      (unsigned) HB_BUFFER_MAX_OPS_MIN);
   }
 
   bool disable_otl = c->plan->shaper->disable_otl && c->plan->shaper->disable_otl (c->plan);
@@ -861,6 +878,7 @@ hb_ot_shape_internal (hb_ot_shape_context_t *c)
   c->buffer->props.direction = c->target_direction;
 
   c->buffer->max_len = HB_BUFFER_MAX_LEN_DEFAULT;
+  c->buffer->max_ops = HB_BUFFER_MAX_OPS_DEFAULT;
   c->buffer->deallocate_var_all ();
 }
 
@@ -926,8 +944,6 @@ hb_ot_shape_glyphs_closure (hb_font_t          *font,
 			    unsigned int        num_features,
 			    hb_set_t           *glyphs)
 {
-  hb_ot_shape_plan_t plan;
-
   const char *shapers[] = {"ot", nullptr};
   hb_shape_plan_t *shape_plan = hb_shape_plan_create_cached (font->face, &buffer->props,
 							     features, num_features, shapers);
@@ -946,7 +962,7 @@ hb_ot_shape_glyphs_closure (hb_font_t          *font,
   hb_set_t *copy = hb_set_create ();
   do {
     copy->set (glyphs);
-    for (hb_codepoint_t lookup_index = -1; hb_set_next (lookups, &lookup_index);)
+    for (hb_codepoint_t lookup_index = HB_SET_VALUE_INVALID; hb_set_next (lookups, &lookup_index);)
       hb_ot_layout_lookup_substitute_closure (font->face, lookup_index, glyphs);
   } while (!copy->is_equal (glyphs));
   hb_set_destroy (copy);

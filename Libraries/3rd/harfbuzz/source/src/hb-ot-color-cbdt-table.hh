@@ -24,10 +24,22 @@
  * Google Author(s): Seigo Nonaka
  */
 
-#ifndef HB_OT_CBDT_TABLE_HH
-#define HB_OT_CBDT_TABLE_HH
+#ifndef HB_OT_COLOR_CBDT_TABLE_HH
+#define HB_OT_COLOR_CBDT_TABLE_HH
 
 #include "hb-open-type-private.hh"
+
+/*
+ * CBLC -- Color Bitmap Location
+ * https://docs.microsoft.com/en-us/typography/opentype/spec/cblc
+ * https://docs.microsoft.com/en-us/typography/opentype/spec/eblc
+ * CBDT -- Color Bitmap Data
+ * https://docs.microsoft.com/en-us/typography/opentype/spec/cbdt
+ * https://docs.microsoft.com/en-us/typography/opentype/spec/ebdt
+ */
+#define HB_OT_TAG_CBLC HB_TAG('C','B','L','C')
+#define HB_OT_TAG_CBDT HB_TAG('C','B','D','T')
+
 
 namespace OT {
 
@@ -47,21 +59,21 @@ struct SmallGlyphMetrics
     extents->height = -height;
   }
 
-  BYTE height;
-  BYTE width;
-  CHAR bearingX;
-  CHAR bearingY;
-  BYTE advance;
-
+  HBUINT8	height;
+  HBUINT8	width;
+  HBINT8	bearingX;
+  HBINT8	bearingY;
+  HBUINT8	advance;
+  public:
   DEFINE_SIZE_STATIC(5);
 };
 
 struct BigGlyphMetrics : SmallGlyphMetrics
 {
-  CHAR vertBearingX;
-  CHAR vertBearingY;
-  BYTE vertAdvance;
-
+  HBINT8	vertBearingX;
+  HBINT8	vertBearingY;
+  HBUINT8	vertAdvance;
+  public:
   DEFINE_SIZE_STATIC(8);
 };
 
@@ -73,19 +85,19 @@ struct SBitLineMetrics
     return_trace (c->check_struct (this));
   }
 
-  CHAR ascender;
-  CHAR decender;
-  BYTE widthMax;
-  CHAR caretSlopeNumerator;
-  CHAR caretSlopeDenominator;
-  CHAR caretOffset;
-  CHAR minOriginSB;
-  CHAR minAdvanceSB;
-  CHAR maxBeforeBL;
-  CHAR minAfterBL;
-  CHAR padding1;
-  CHAR padding2;
-
+  HBINT8	ascender;
+  HBINT8	decender;
+  HBUINT8	widthMax;
+  HBINT8	caretSlopeNumerator;
+  HBINT8	caretSlopeDenominator;
+  HBINT8	caretOffset;
+  HBINT8	minOriginSB;
+  HBINT8	minAdvanceSB;
+  HBINT8	maxBeforeBL;
+  HBINT8	minAfterBL;
+  HBINT8	padding1;
+  HBINT8	padding2;
+  public:
   DEFINE_SIZE_STATIC(12);
 };
 
@@ -102,10 +114,10 @@ struct IndexSubtableHeader
     return_trace (c->check_struct (this));
   }
 
-  USHORT indexFormat;
-  USHORT imageFormat;
-  ULONG imageDataOffset;
-
+  HBUINT16	indexFormat;
+  HBUINT16	imageFormat;
+  HBUINT32	imageDataOffset;
+  public:
   DEFINE_SIZE_STATIC(8);
 };
 
@@ -131,14 +143,14 @@ struct IndexSubtableFormat1Or3
     return true;
   }
 
-  IndexSubtableHeader header;
-  Offset<OffsetType> offsetArrayZ[VAR];
-
+  IndexSubtableHeader	header;
+  Offset<OffsetType>	offsetArrayZ[VAR];
+  public:
   DEFINE_SIZE_ARRAY(8, offsetArrayZ);
 };
 
-struct IndexSubtableFormat1 : IndexSubtableFormat1Or3<ULONG> {};
-struct IndexSubtableFormat3 : IndexSubtableFormat1Or3<USHORT> {};
+struct IndexSubtableFormat1 : IndexSubtableFormat1Or3<HBUINT32> {};
+struct IndexSubtableFormat3 : IndexSubtableFormat1Or3<HBUINT16> {};
 
 struct IndexSubtable
 {
@@ -214,15 +226,17 @@ struct IndexSubtableRecord
 						   offset, length, format);
   }
 
-  USHORT firstGlyphIndex;
-  USHORT lastGlyphIndex;
-  LOffsetTo<IndexSubtable> offsetToSubtable;
-
+  GlyphID			firstGlyphIndex;
+  GlyphID			lastGlyphIndex;
+  LOffsetTo<IndexSubtable>	offsetToSubtable;
+  public:
   DEFINE_SIZE_STATIC(8);
 };
 
 struct IndexSubtableArray
 {
+  friend struct CBDT;
+
   inline bool sanitize (hb_sanitize_context_t *c, unsigned int count) const
   {
     TRACE_SANITIZE (this);
@@ -249,8 +263,7 @@ struct IndexSubtableArray
   }
 
   protected:
-  IndexSubtableRecord indexSubtablesZ[VAR];
-
+  IndexSubtableRecord	indexSubtablesZ[VAR];
   public:
   DEFINE_SIZE_ARRAY(0, indexSubtablesZ);
 };
@@ -258,6 +271,7 @@ struct IndexSubtableArray
 struct BitmapSizeTable
 {
   friend struct CBLC;
+  friend struct CBDT;
 
   inline bool sanitize (hb_sanitize_context_t *c, const void *base) const
   {
@@ -275,20 +289,20 @@ struct BitmapSizeTable
   }
 
   protected:
-  LOffsetTo<IndexSubtableArray> indexSubtableArrayOffset;
-  ULONG indexTablesSize;
-  ULONG numberOfIndexSubtables;
-  ULONG colorRef;
-  SBitLineMetrics horizontal;
-  SBitLineMetrics vertical;
-  USHORT startGlyphIndex;
-  USHORT endGlyphIndex;
-  BYTE ppemX;
-  BYTE ppemY;
-  BYTE bitDepth;
-  CHAR flags;
-
-public:
+  LOffsetTo<IndexSubtableArray>
+			indexSubtableArrayOffset;
+  HBUINT32		indexTablesSize;
+  HBUINT32		numberOfIndexSubtables;
+  HBUINT32		colorRef;
+  SBitLineMetrics	horizontal;
+  SBitLineMetrics	vertical;
+  GlyphID		startGlyphIndex;
+  GlyphID		endGlyphIndex;
+  HBUINT8		ppemX;
+  HBUINT8		ppemY;
+  HBUINT8		bitDepth;
+  HBINT8		flags;
+  public:
   DEFINE_SIZE_STATIC(48);
 };
 
@@ -299,22 +313,31 @@ public:
 
 struct GlyphBitmapDataFormat17
 {
-  SmallGlyphMetrics glyphMetrics;
-  ULONG dataLen;
-  BYTE dataZ[VAR];
-
-  DEFINE_SIZE_ARRAY(9, dataZ);
+  SmallGlyphMetrics	glyphMetrics;
+  LArrayOf<HBUINT8>	data;
+  public:
+  DEFINE_SIZE_ARRAY(9, data);
 };
 
+struct GlyphBitmapDataFormat18
+{
+  BigGlyphMetrics	glyphMetrics;
+  LArrayOf<HBUINT8>	data;
+  public:
+  DEFINE_SIZE_ARRAY(12, data);
+};
 
-/*
- * CBLC -- Color Bitmap Location Table
- */
-
-#define HB_OT_TAG_CBLC HB_TAG('C','B','L','C')
+struct GlyphBitmapDataFormat19
+{
+  LArrayOf<HBUINT8>	data;
+  public:
+  DEFINE_SIZE_ARRAY(4, data);
+};
 
 struct CBLC
 {
+  friend struct CBDT;
+
   static const hb_tag_t tableTag = HB_OT_TAG_CBLC;
 
   inline bool sanitize (hb_sanitize_context_t *c) const
@@ -325,7 +348,7 @@ struct CBLC
 		  sizeTables.sanitize (c, this));
   }
 
-  public:
+  protected:
   const IndexSubtableRecord *find_table (hb_codepoint_t glyph,
 					 unsigned int *x_ppem, unsigned int *y_ppem) const
   {
@@ -334,8 +357,8 @@ struct CBLC
     unsigned int count = sizeTables.len;
     for (uint32_t i = 0; i < count; ++i)
     {
-      unsigned int startGlyphIndex = sizeTables.array[i].startGlyphIndex;
-      unsigned int endGlyphIndex = sizeTables.array[i].endGlyphIndex;
+      unsigned int startGlyphIndex = sizeTables.arrayZ[i].startGlyphIndex;
+      unsigned int endGlyphIndex = sizeTables.arrayZ[i].endGlyphIndex;
       if (startGlyphIndex <= glyph && glyph <= endGlyphIndex)
       {
 	*x_ppem = sizeTables[i].ppemX;
@@ -350,15 +373,9 @@ struct CBLC
   protected:
   FixedVersion<>		version;
   LArrayOf<BitmapSizeTable>	sizeTables;
-
   public:
   DEFINE_SIZE_ARRAY(8, sizeTables);
 };
-
-/*
- * CBDT -- Color Bitmap Data Table
- */
-#define HB_OT_TAG_CBDT HB_TAG('C','B','D','T')
 
 struct CBDT
 {
@@ -371,14 +388,151 @@ struct CBDT
 		  likely (version.major == 2 || version.major == 3));
   }
 
-  protected:
-  FixedVersion<>version;
-  BYTE dataZ[VAR];
+  struct accelerator_t
+  {
+    inline void init (hb_face_t *face)
+    {
+      upem = hb_face_get_upem (face);
 
+      cblc_blob = Sanitizer<CBLC>().sanitize (face->reference_table (HB_OT_TAG_CBLC));
+      cbdt_blob = Sanitizer<CBDT>().sanitize (face->reference_table (HB_OT_TAG_CBDT));
+      cbdt_len = hb_blob_get_length (cbdt_blob);
+
+      if (hb_blob_get_length (cblc_blob) == 0) {
+	cblc = nullptr;
+	cbdt = nullptr;
+	return;  /* Not a bitmap font. */
+      }
+      cblc = cblc_blob->as<CBLC> ();
+      cbdt = cbdt_blob->as<CBDT> ();
+
+    }
+
+    inline void fini (void)
+    {
+      hb_blob_destroy (this->cblc_blob);
+      hb_blob_destroy (this->cbdt_blob);
+    }
+
+    inline bool get_extents (hb_codepoint_t glyph, hb_glyph_extents_t *extents) const
+    {
+      unsigned int x_ppem = upem, y_ppem = upem; /* TODO Use font ppem if available. */
+
+      if (!cblc)
+	return false;  // Not a color bitmap font.
+
+      const IndexSubtableRecord *subtable_record = this->cblc->find_table(glyph, &x_ppem, &y_ppem);
+      if (!subtable_record || !x_ppem || !y_ppem)
+	return false;
+
+      if (subtable_record->get_extents (extents))
+	return true;
+
+      unsigned int image_offset = 0, image_length = 0, image_format = 0;
+      if (!subtable_record->get_image_data (glyph, &image_offset, &image_length, &image_format))
+	return false;
+
+      {
+	if (unlikely (image_offset > cbdt_len || cbdt_len - image_offset < image_length))
+	  return false;
+
+	switch (image_format)
+	{
+	  case 17: {
+	    if (unlikely (image_length < GlyphBitmapDataFormat17::min_size))
+	      return false;
+
+	    const GlyphBitmapDataFormat17& glyphFormat17 =
+		StructAtOffset<GlyphBitmapDataFormat17> (this->cbdt, image_offset);
+	    glyphFormat17.glyphMetrics.get_extents (extents);
+	  }
+	  break;
+	  default:
+	    // TODO: Support other image formats.
+	    return false;
+	}
+      }
+
+      /* Convert to the font units. */
+      extents->x_bearing *= upem / (float) x_ppem;
+      extents->y_bearing *= upem / (float) y_ppem;
+      extents->width *= upem / (float) x_ppem;
+      extents->height *= upem / (float) y_ppem;
+
+      return true;
+    }
+
+    inline void dump (void (*callback) (const uint8_t* data, unsigned int length,
+        unsigned int group, unsigned int gid)) const
+    {
+      if (!cblc)
+	return;  // Not a color bitmap font.
+
+      for (unsigned int i = 0; i < cblc->sizeTables.len; ++i)
+      {
+        const BitmapSizeTable &sizeTable = cblc->sizeTables[i];
+        const IndexSubtableArray &subtable_array = cblc+sizeTable.indexSubtableArrayOffset;
+        for (unsigned int j = 0; j < sizeTable.numberOfIndexSubtables; ++j)
+        {
+          const IndexSubtableRecord &subtable_record = subtable_array.indexSubtablesZ[j];
+          for (unsigned int gid = subtable_record.firstGlyphIndex;
+                gid <= subtable_record.lastGlyphIndex; ++gid)
+          {
+            unsigned int image_offset = 0, image_length = 0, image_format = 0;
+
+            if (!subtable_record.get_image_data (gid,
+                  &image_offset, &image_length, &image_format))
+              continue;
+
+            switch (image_format)
+            {
+            case 17: {
+              const GlyphBitmapDataFormat17& glyphFormat17 =
+                StructAtOffset<GlyphBitmapDataFormat17> (this->cbdt, image_offset);
+              callback ((const uint8_t *) &glyphFormat17.data.arrayZ,
+                glyphFormat17.data.len, i, gid);
+            }
+            break;
+            case 18: {
+              const GlyphBitmapDataFormat18& glyphFormat18 =
+                StructAtOffset<GlyphBitmapDataFormat18> (this->cbdt, image_offset);
+              callback ((const uint8_t *) &glyphFormat18.data.arrayZ,
+                glyphFormat18.data.len, i, gid);
+            }
+            break;
+            case 19: {
+              const GlyphBitmapDataFormat19& glyphFormat19 =
+                StructAtOffset<GlyphBitmapDataFormat19> (this->cbdt, image_offset);
+              callback ((const uint8_t *) &glyphFormat19.data.arrayZ,
+                glyphFormat19.data.len, i, gid);
+            }
+            break;
+            default:
+              continue;
+            }
+          }
+        }
+      }
+    }
+
+    private:
+    hb_blob_t *cblc_blob;
+    hb_blob_t *cbdt_blob;
+    const CBLC *cblc;
+    const CBDT *cbdt;
+
+    unsigned int cbdt_len;
+    unsigned int upem;
+  };
+
+
+  protected:
+  FixedVersion<>	version;
+  HBUINT8		dataZ[VAR];
   public:
   DEFINE_SIZE_ARRAY(4, dataZ);
 };
 
 } /* namespace OT */
 
-#endif /* HB_OT_CBDT_TABLE_HH */
+#endif /* HB_OT_COLOR_CBDT_TABLE_HH */
