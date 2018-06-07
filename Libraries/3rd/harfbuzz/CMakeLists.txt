@@ -41,6 +41,8 @@ add_definitions(
 
 ignore_warnings()
 
+set(HAVE_ROUND 1)
+
 set(HAVE_GRAPHITE2 1)
 set(HAVE_ICU 1)
 set(HAVE_OT 1)
