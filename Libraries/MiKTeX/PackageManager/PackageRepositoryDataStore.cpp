@@ -123,7 +123,7 @@ PackageRepositoryDataStore::PackageRepositoryDataStore(std::shared_ptr<WebSessio
     session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI);
 }
 
-  void PackageRepositoryDataStore::Download()
+void PackageRepositoryDataStore::Download()
 {
   ProxySettings proxySettings;
   if (!IsUrl(GetRemoteServiceBaseUrl()) || !PackageManager::TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
