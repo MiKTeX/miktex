@@ -23,6 +23,7 @@
 
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Registry>
+#include <miktex/Core/Uri>
 
 #include "miktex/PackageManager/PackageManager.h"
 
@@ -304,18 +305,25 @@ RepositoryInfo PackageRepositoryDataStore::CheckPackageRepository(const string& 
   return repositoryInfo;
 }
 
+string MakeKey(const string& url)
+{
+  Uri uri(url);
+  return uri.GetScheme() + "://" + uri.GetHost();
+}
+
 void PackageRepositoryDataStore::LoadVarData(RepositoryInfo& repositoryInfo)
 {
+  string key = MakeKey(repositoryInfo.url);
   string val;
-  if (comboCfg.TryGetValue(repositoryInfo.url, "LastCheckTime", val))
+  if (comboCfg.TryGetValue(key, "LastCheckTime", val))
   {
     repositoryInfo.lastCheckTime = std::stoi(val);
   }
-  if (comboCfg.TryGetValue(repositoryInfo.url, "LastVisitTime", val))
+  if (comboCfg.TryGetValue(key, "LastVisitTime", val))
   {
     repositoryInfo.lastVisitTime = std::stoi(val);
   }
-  if (comboCfg.TryGetValue(repositoryInfo.url, "DataTransferRate", val))
+  if (comboCfg.TryGetValue(key, "DataTransferRate", val))
   {
     repositoryInfo.dataTransferRate = std::stod(val);
   }
@@ -323,8 +331,9 @@ void PackageRepositoryDataStore::LoadVarData(RepositoryInfo& repositoryInfo)
 
 void PackageRepositoryDataStore::SaveVarData(const RepositoryInfo& repositoryInfo)
 {
-  comboCfg.PutValue(repositoryInfo.url, "LastCheckTime", std::to_string(repositoryInfo.lastCheckTime));
-  comboCfg.PutValue(repositoryInfo.url, "LastVisitTime", std::to_string(repositoryInfo.lastVisitTime));
-  comboCfg.PutValue(repositoryInfo.url, "DataTransferRate", std::to_string(repositoryInfo.dataTransferRate));
+  string key = MakeKey(repositoryInfo.url);
+  comboCfg.PutValue(key, "LastCheckTime", std::to_string(repositoryInfo.lastCheckTime));
+  comboCfg.PutValue(key, "LastVisitTime", std::to_string(repositoryInfo.lastVisitTime));
+  comboCfg.PutValue(key, "DataTransferRate", std::to_string(repositoryInfo.dataTransferRate));
   comboCfg.Save();
 }
