@@ -635,6 +635,7 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
   if (options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
   {
     options.IsCommonSetup = session->IsSharedSetup();
+    options.IsPortable = session->IsMiKTeXPortable();
   }
   if (options.Task == SetupTask::CleanUp)
   {

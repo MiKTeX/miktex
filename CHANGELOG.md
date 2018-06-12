@@ -9,6 +9,7 @@
 ### Fixed issues
 
 * [42](https://github.com/MiKTeX/miktex/issues/42): download of cm-super is speed-limited
+* [143](https://github.com/MiKTeX/miktex/issues/143): MiKTeX portable creates start menu entries
 
 ## 2.9.6700 - 2018-05-21
 
