@@ -56,6 +56,7 @@ using namespace std;
 enum {
   OPT_AAA = 1,
   OPT_ADMIN,
+  OPT_CHECK_UPDATES,
   OPT_FINISH_SETUP,
   OPT_HIDE,
   OPT_MKMAPS,
@@ -67,6 +68,10 @@ namespace {
     {
       "admin", 0, POPT_ARG_NONE, nullptr, OPT_ADMIN,
       "Run in administrator mode.", nullptr
+    },
+    {
+      "check-updates", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CHECK_UPDATES,
+      nullptr, nullptr
     },
     {
       "finish-setup", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_FINISH_SETUP,
@@ -182,6 +187,7 @@ int main(int argc, char* argv[])
 {
   int ret = 0;
   bool optAdmin = false;
+  bool optCheckUpdates = false;
   bool optFinishSetup = false;
   bool optHide = false;
   bool optMkmaps = false;
@@ -232,6 +238,9 @@ int main(int argc, char* argv[])
       {
       case OPT_ADMIN:
         optAdmin = true;
+        break;
+      case OPT_CHECK_UPDATES:
+        optCheckUpdates = true;
         break;
       case OPT_HIDE:
         optHide = true;
@@ -328,6 +337,10 @@ int main(int argc, char* argv[])
     if (optFinishSetup)
     {
       QTimer::singleShot(100, &mainWindow, SLOT(FinishSetup()));
+    }
+    if (optCheckUpdates)
+    {
+      QTimer::singleShot(100, &mainWindow, SLOT(CheckUpdates()));
     }
     if (optMkmaps)
     {
