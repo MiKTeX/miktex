@@ -89,6 +89,7 @@ SetupWizard::SetupWizard(shared_ptr<PackageManager> packageManager) :
   }
 
   AddPage(&fileCopyPage);
+  AddPage(&postInstallPage);
 
   if (!SetupApp::Instance->IsUnattended)
   {

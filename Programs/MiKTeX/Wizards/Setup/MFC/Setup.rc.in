@@ -322,6 +322,15 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,154,70,50,14
 END
 
+IDD_POST_INSTALL DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "MiKTeX has been successfullly installed.",IDC_STATIC,21,1,275,8
+    CONTROL         "Check for updates now",IDC_CHECK_UPDATES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,42,275,10
+    LTEXT           "In order to obtain an up-to-date installation, it is recommend that you allow MiKTeX to check for updates now. This will happen in the background. You will be notified, if updates are available.",IDC_STATIC,21,13,275,24
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -499,6 +508,15 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 84
     END
+
+    IDD_POST_INSTALL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -540,6 +558,11 @@ BEGIN
 END
 
 IDD_FOLDER AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_POST_INSTALL AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -604,10 +627,12 @@ STRINGTABLE
 BEGIN
     IDS_HEADER_SETTINGS     "Settings"
     IDS_SUBHEADER_SETTINGS  "Set your preferences."
+    IDS_HEADER_POST_INSTALL "Update Check"
     IDS_INSTALL_DIR_NOT_EMPTY 
                             "The specified installation directory is not empty."
     IDS_CANCEL_DOWNLOAD     "MiKTeX Setup Wizard will now stop the download. You can resume the download by running the wizard again."
     IDS_CANCEL_SETUP        "MiKTeX Setup Wizard will now cancel the installation."
+    IDS_SUBHEADER_POST_INSTALL "Check for updates now."
     IDS_FINISH_ERROR        "MiKTeX Setup Wizard did not complete."
 END
 

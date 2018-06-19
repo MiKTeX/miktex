@@ -81,6 +81,8 @@ set(setup_mfc_sources
   MDTaskPage.h
   PackageSetPage.cpp
   PackageSetPage.h
+  PostInstallPage.cpp
+  PostInstallPage.h
   RemoteRepositoryPage.cpp
   RemoteRepositoryPage.h
   SettingsPage.cpp

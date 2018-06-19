@@ -38,6 +38,7 @@
 #include "LocalRepositoryPage.h"
 #include "MDTaskPage.h"
 #include "PackageSetPage.h"
+#include "PostInstallPage.h"
 #include "RemoteRepositoryPage.h"
 #include "SharedInstallationPage.h"
 #include "SettingsPage.h"
@@ -113,6 +114,12 @@ public:
   }
 
 public:
+  int PreviousPage()
+  {
+    return pages.back();
+  }
+
+public:
   CString SetNextText(LPCTSTR text);
 
 private:
@@ -177,6 +184,9 @@ private:
 
 private:
   FileCopyPage fileCopyPage;
+
+private:
+  PostInstallPage postInstallPage;
 
 private:
   FinishPage finishPage;

@@ -41,6 +41,7 @@ Install From Local Repository:
 	[ if AddTeXMF EditTeXMF ]
 	Info
 	FileCopy
+	PostInstall
 	Finish
 
 Download Only:

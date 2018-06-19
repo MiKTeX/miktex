@@ -5,9 +5,11 @@
 #define IDR_MANIFEST                    1
 #define IDS_HEADER_SETTINGS             100
 #define IDS_SUBHEADER_SETTINGS          101
+#define IDS_HEADER_POST_INSTALL         102
 #define IDS_INSTALL_DIR_NOT_EMPTY       103
 #define IDS_CANCEL_DOWNLOAD             104
 #define IDS_CANCEL_SETUP                105
+#define IDS_SUBHEADER_POST_INSTALL      106
 #define IDS_FINISH_ERROR                111
 #define IDS_REMEDY                      112
 #define IDS_VIEW_LOG_FILE               114
@@ -64,6 +66,7 @@
 #define IDD_SETTINGS                    173
 #define IDD_PROXY_AUTHENTICATION        174
 #define IDD_CONNECTION_SETTINGS         175
+#define IDD_POST_INSTALL                176
 #define IDC_LIST                        1000
 #define IDC_WELCOME                     1001
 #define IDC_NOADDTEXMF                  1002
@@ -114,14 +117,15 @@
 #define IDC_FILENAME                    1048
 #define IDC_BROWSE                      1049
 #define IDC_PETITION                    1051
+#define IDC_CHECK_UPDATES               1055
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        131
+#define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1055
+#define _APS_NEXT_CONTROL_VALUE         1056
 #define _APS_NEXT_SYMED_VALUE           177
 #endif
 #endif

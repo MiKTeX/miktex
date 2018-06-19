@@ -970,6 +970,16 @@ BOOL SetupApp::InitInstance()
     }
     Service = nullptr;
     session->UnloadFilenameDatabase();
+    if (CheckUpdatesOnExit)
+    {
+      PathName miktexConsole(GetInstallationDirectory() / MIKTEX_PATH_BIN_DIR / MIKTEX_CONSOLE_EXE);
+      vector<string> args{ MIKTEX_CONSOLE_EXE, "--hide", "--check-updates" };
+      if (options.IsCommonSetup)
+      {
+        args.push_back("--admin");
+      }
+      Process::Start(miktexConsole, args);
+    }
     scratchRoot = nullptr;
     if (dlgRet == IDRETRY && sfxDir != nullptr)
     {

@@ -195,6 +195,9 @@ public:
   bool ShowLogFileOnExit = false;
 
 public:
+  bool CheckUpdatesOnExit = false;
+
+public:
   bool IsUnattended = false;
 
 public:

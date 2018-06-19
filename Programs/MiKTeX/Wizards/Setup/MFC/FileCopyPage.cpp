@@ -128,7 +128,8 @@ void FileCopyPage::DoDataExchange(CDataExchange* pDX)
 LRESULT FileCopyPage::OnWizardNext()
 {
   pSheet->PushPage(IDD);
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(IDD_FINISH));
+  int next = SetupApp::Instance->GetTask() == SetupTask::InstallFromLocalRepository && !pSheet->GetErrorFlag() ? IDD_POST_INSTALL : IDD_FINISH;
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(next));
 }
 
 BOOL FileCopyPage::OnKillActive()
