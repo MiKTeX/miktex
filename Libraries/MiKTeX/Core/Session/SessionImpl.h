@@ -239,7 +239,7 @@ public:
 #endif
 
 public:
-  void ScheduleFinishProcess(const MiKTeX::Core::PathName& fileName, std::vector<std::string> args) override;
+  void ScheduleSystemCommand(const std::string& commandLine) override;
 
 #if defined(MIKTEX_WINDOWS)
 public:

@@ -911,7 +911,7 @@ public:
 #endif
 
 public:
-  virtual void MIKTEXTHISCALL ScheduleFinishProcess(const PathName& fileName, std::vector<std::string> args) = 0;
+  virtual void MIKTEXTHISCALL ScheduleSystemCommand(const std::string& commandLine) = 0;
 
 #if defined(MIKTEX_WINDOWS)
 public:
