@@ -2110,6 +2110,7 @@ void MainWindow::on_pushButtonShowLogDirectory_clicked()
 void MainWindow::SetupUiCleanup()
 {
   connect(ui->actionFactoryReset, SIGNAL(triggered()), this, SLOT(FactoryReset()));
+  connect(ui->actionUninstall, SIGNAL(triggered()), this, SLOT(Uninstall()));
 }
 
 bool MainWindow::IsFactoryResetPossible()
@@ -2121,14 +2122,25 @@ bool MainWindow::IsFactoryResetPossible()
 #endif
 }
 
+bool MainWindow::IsUninstallPossible()
+{
+#if defined(MIKTEX_WINDOWS)
+  return !session->IsSharedSetup() || session->IsAdminMode();
+#else
+  return false;
+#endif
+}
+
 void MainWindow::UpdateUiCleanup()
 {
   ui->buttonFactoryReset->setEnabled(IsFactoryResetPossible() && !IsBackgroundWorkerActive());
+  ui->buttonUninstall->setEnabled(IsUninstallPossible() && !IsBackgroundWorkerActive());
 }
 
 void MainWindow::UpdateActionsCleanup()
 {
   ui->actionFactoryReset->setEnabled(IsFactoryResetPossible() && !IsBackgroundWorkerActive());
+  ui->actionUninstall->setEnabled(IsUninstallPossible() && !IsBackgroundWorkerActive());
 }
 
 bool FactoryResetWorker::Run()
@@ -2205,6 +2217,90 @@ void MainWindow::FactoryReset()
     CriticalError(e);
   }
 }
+
+bool UninstallWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    shared_ptr<Session> session = Session::Get();
+    unique_ptr<SetupService> service = SetupService::Create();
+    SetupOptions options = service->GetOptions();
+    options.Task = SetupTask::CleanUp;
+    options.IsCommonSetup = session->IsAdminMode();
+    options.CleanupOptions = { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
+    service->SetOptions(options);
+    service->Run();
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::Uninstall()
+{
+  QString message = tr("<h3>Uninstall MiKTeX</h3>");
+  message += tr("<p>You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.</p>");
+  message += tr("Are you sure?");
+  if (QMessageBox::warning(this, tr("MiKTeX Console"), message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+  {
+    return;
+  }
+  try
+  {
+    QThread* thread = new QThread;
+    UninstallWorker* worker = new UninstallWorker;
+    backgroundWorkers++;
+    ui->labelBackgroundTask->setText(tr("Uninstalling MiKTeX..."));
+    worker->moveToThread(thread);
+    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    connect(worker, &UninstallWorker::OnFinish, this, [this]() {
+      UninstallWorker* worker = (UninstallWorker*)sender();
+      if (worker->GetResult())
+      {
+        QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX has been removed from your computer.\n\nThe application window will now be closed."));
+      }
+      else
+      {
+        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().what()) + tr("\n\nThe application window will now be closed."));
+      }
+      backgroundWorkers--;
+      session->UnloadFilenameDatabase();
+      worker->deleteLater();
+      this->close();
+    });
+    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    UpdateUi();
+    UpdateActions();
+    thread->start();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+
+
+
+
+
+
+
+
+
 
 void MainWindow::ReadSettings()
 {

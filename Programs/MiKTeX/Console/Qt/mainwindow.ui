@@ -337,7 +337,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>6</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -1732,6 +1732,16 @@ Use this option, if you want to operate on the private configuration.</string>
             </widget>
            </item>
            <item>
+            <widget class="QCommandLinkButton" name="buttonUninstall">
+             <property name="text">
+              <string>Uninstall MiKTeX</string>
+             </property>
+             <property name="description">
+              <string>This removes MiKTeX from your computer.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="verticalSpacer_14">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -1772,7 +1782,7 @@ Use this option, if you want to operate on the private configuration.</string>
      <x>0</x>
      <y>0</y>
      <width>841</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2121,6 +2131,11 @@ Use this option, if you want to operate on the private configuration.</string>
    </property>
    <property name="statusTip">
     <string>Builds the selected format.</string>
+   </property>
+  </action>
+  <action name="actionUninstall">
+   <property name="text">
+    <string>Uninstall MiKTeX</string>
    </property>
   </action>
  </widget>

@@ -208,10 +208,7 @@ int main(int argc, char* argv[])
   QLockFile lockFile(QDir::temp().absoluteFilePath("miktex-console.lock"));
   if (!lockFile.tryLock(100))
   {
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Warning);
-    msgBox.setText(QCoreApplication::tr("MiKTeX Console is already running."));
-    msgBox.exec();
+    QMessageBox::warning(nullptr, displayName, "MiKTeX Console is already running.");
     return 1;
   }
   MainWindow::Pages startPage = MainWindow::Pages::Overview;

@@ -527,13 +527,25 @@ private slots:
   void FactoryReset();
 
 private slots:
+  void Uninstall();
+
+private slots:
   void on_buttonFactoryReset_clicked()
   {
     FactoryReset();
   }
 
+private slots:
+  void on_buttonUninstall_clicked()
+  {
+    Uninstall();
+  }
+
 private:
   bool IsFactoryResetPossible();
+
+private:
+  bool IsUninstallPossible();
 
 private:
   void ReadSettings();
@@ -873,6 +885,16 @@ protected:
 };
 
 class FactoryResetWorker :
+  public BackgroundWorker
+{
+private:
+  Q_OBJECT;
+
+protected:
+  bool Run() override;
+};
+
+class UninstallWorker :
   public BackgroundWorker
 {
 private:
