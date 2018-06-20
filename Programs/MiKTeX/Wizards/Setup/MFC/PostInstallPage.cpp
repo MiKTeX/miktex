@@ -42,6 +42,7 @@ BOOL PostInstallPage::OnInitDialog()
   {
     sheet->SetWizardButtons(PSWIZB_NEXT);
   }
+  checkUpdates.SetCheck(BST_CHECKED);
   return ret;
 }
 

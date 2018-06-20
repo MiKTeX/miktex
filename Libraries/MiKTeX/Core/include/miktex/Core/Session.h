@@ -910,6 +910,9 @@ public:
   virtual bool MIKTEXTHISCALL IsFileAlreadyOpen(const PathName& fileName) = 0;
 #endif
 
+public:
+  virtual void MIKTEXTHISCALL ScheduleFinishProcess(const PathName& fileName, std::vector<std::string> args) = 0;
+
 #if defined(MIKTEX_WINDOWS)
 public:
   virtual void MIKTEXTHISCALL ScheduleFileRemoval(const PathName& fileName) = 0;

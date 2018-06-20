@@ -235,6 +235,11 @@ void SessionImpl::Uninitialize()
 #endif
 }
 
+void SessionImpl::ScheduleSystemCommand(const std::string& commandLine)
+{
+  onFinishScript.push_back(commandLine);
+}
+
 void SessionImpl::StartFinishScript(int delay)
 {
   if (onFinishScript.empty())

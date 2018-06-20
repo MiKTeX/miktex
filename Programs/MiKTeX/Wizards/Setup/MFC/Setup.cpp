@@ -951,6 +951,21 @@ BOOL SetupApp::InitInstance()
       dlgRet = dlg.DoModal();
     }
 
+    if (SetupApp::Instance->CheckUpdatesOnExit)
+    {
+      PathName miktexConsole(GetInstallationDirectory() / MIKTEX_PATH_BIN_DIR / MIKTEX_CONSOLE_EXE);
+      vector<string> args{ "--hide", "--check-updates" };
+      if (options.IsCommonSetup)
+      {
+        args.push_back("--admin");
+      }
+      CommandLineBuilder cmd;
+      cmd.SetQuotingConvention(QuotingConvention::Bat);
+      cmd.AppendArgument(miktexConsole.ToDos());
+      cmd.AppendArguments(args);
+      session->ScheduleSystemCommand(cmd.ToString());
+    }
+
     // clean up
     PathName pathLogFile = Service->CloseLog(dlgRet == IDCANCEL || dlgRet == IDRETRY);
     if (SetupApp::Instance->ShowLogFileOnExit && !pathLogFile.Empty())
@@ -964,22 +979,9 @@ BOOL SetupApp::InitInstance()
     traceStream.reset();
     packageManager->UnloadDatabase();
     packageManager = nullptr;
-    if (dlgRet == IDRETRY)
-    {
-      options = Service->GetOptions();
-    }
+    options = Service->GetOptions();
     Service = nullptr;
     session->UnloadFilenameDatabase();
-    if (CheckUpdatesOnExit)
-    {
-      PathName miktexConsole(GetInstallationDirectory() / MIKTEX_PATH_BIN_DIR / MIKTEX_CONSOLE_EXE);
-      vector<string> args{ MIKTEX_CONSOLE_EXE, "--hide", "--check-updates" };
-      if (options.IsCommonSetup)
-      {
-        args.push_back("--admin");
-      }
-      Process::Start(miktexConsole, args);
-    }
     scratchRoot = nullptr;
     if (dlgRet == IDRETRY && sfxDir != nullptr)
     {

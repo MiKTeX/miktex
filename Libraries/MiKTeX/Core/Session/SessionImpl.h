@@ -238,6 +238,9 @@ public:
   bool IsFileAlreadyOpen(const MiKTeX::Core::PathName& fileName) override;
 #endif
 
+public:
+  void ScheduleFinishProcess(const MiKTeX::Core::PathName& fileName, std::vector<std::string> args) override;
+
 #if defined(MIKTEX_WINDOWS)
 public:
   void ScheduleFileRemoval(const MiKTeX::Core::PathName& fileName) override;
