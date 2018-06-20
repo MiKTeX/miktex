@@ -26,6 +26,7 @@
 #include <cstdlib>
 
 #include <QApplication>
+#include <QLockFile>
 #include <QtWidgets>
 #include <QSystemTrayIcon>
 
@@ -204,6 +205,15 @@ int main(int argc, char* argv[])
 #if QT_VERSION >= 0x050000
   application.setApplicationDisplayName(displayName);
 #endif
+  QLockFile lockFile(QDir::temp().absoluteFilePath("miktex-console.lock"));
+  if (!lockFile.tryLock(100))
+  {
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText(QCoreApplication::tr("MiKTeX Console is already running."));
+    msgBox.exec();
+    return 1;
+  }
   MainWindow::Pages startPage = MainWindow::Pages::Overview;
   if (argc > 0)
   {
