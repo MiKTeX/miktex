@@ -10,6 +10,7 @@
 
 * [42](https://github.com/MiKTeX/miktex/issues/42): download of cm-super is speed-limited
 * [143](https://github.com/MiKTeX/miktex/issues/143): MiKTeX portable creates start menu entries
+* [148](https://github.com/MiKTeX/miktex/issues/148): MiKTeX Console: uninstall MiKTeX
 
 ## 2.9.6700 - 2018-05-21
 
