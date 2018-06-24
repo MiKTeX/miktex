@@ -17,6 +17,7 @@ MiKTeX is now available for these older Macintosh platforms:
 
 * [42](https://github.com/MiKTeX/miktex/issues/42): download of cm-super is speed-limited
 * [116](https://github.com/MiKTeX/miktex/issues/116): Cannot run on El Capitan
+* [138](https://github.com/MiKTeX/miktex/issues/138): U+0361 COMBINING DOUBLE INVERTED BREVE is misaligned when using Linguistics Pro font
 * [143](https://github.com/MiKTeX/miktex/issues/143): MiKTeX portable creates start menu entries
 * [148](https://github.com/MiKTeX/miktex/issues/148): MiKTeX Console: uninstall MiKTeX
 
