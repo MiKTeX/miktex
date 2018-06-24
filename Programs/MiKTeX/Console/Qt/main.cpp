@@ -23,6 +23,8 @@
 #include <mach-o/dyld.h>
 #endif
 
+#include <iostream>
+
 #include <cstdlib>
 
 #include <QApplication>
@@ -61,7 +63,8 @@ enum {
   OPT_FINISH_SETUP,
   OPT_HIDE,
   OPT_MKMAPS,
-  OPT_START_PAGE
+  OPT_START_PAGE,
+  OPT_VERSION
 };
 
 namespace {
@@ -92,6 +95,11 @@ namespace {
       "start-page", 0, POPT_ARG_STRING, nullptr, OPT_START_PAGE,
       "Start with the page (one of: settings, updates, packages, diagnose, cleanup).", "PAGE"
     },
+    {
+      "version", 0, POPT_ARG_NONE, nullptr, OPT_VERSION,
+      "Show version information and exit.", nullptr
+    },
+    POPT_AUTOHELP
     POPT_TABLEEND
   };
 }
@@ -192,6 +200,7 @@ int main(int argc, char* argv[])
   bool optFinishSetup = false;
   bool optHide = false;
   bool optMkmaps = false;
+  bool optVersion = false;
   QString displayName = "MiKTeX Console";
 #if defined(MIKTEX_MACOS_BUNDLE)
   PathName plugIns = GetExecutableDir() / ".." / "PlugIns";
@@ -289,6 +298,9 @@ int main(int argc, char* argv[])
           return 1;
         }
         break;
+      case OPT_VERSION:
+        optVersion = true;
+        break;
       }
     }
     initInfo.SetProgramInvocationName(argv[0]);
@@ -331,6 +343,15 @@ int main(int argc, char* argv[])
       isLog4cxxConfigured = true;
       traceSink.FlushPendingTraceMessages();
       LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR));
+    }
+    if (optVersion)
+    {
+      cout
+        << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR) << endl
+        << "Copyright (C) 2018 Christian Schenk" << endl
+        << "This is free software; see the source for copying conditions.  There is NO" << endl
+        << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
+      return 0;
     }
     MainWindow mainWindow(nullptr, startPage);
     if (optHide)
