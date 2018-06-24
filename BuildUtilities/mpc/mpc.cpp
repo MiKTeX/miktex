@@ -1353,9 +1353,9 @@ void PackageCreator::Extract(const PathName& archiveFile, ArchiveFileType archiv
     break;
   case ArchiveFileType::TarLzma:
     command = Q_(lzmaExe);
-    command += " d ";
+    command += " -d ";
     command += Q_(archiveFile);
-    command += " -so | tar --force-local -xf -";
+    command += " -c | tar --force-local -xf -";
     break;
   default:
     FatalError(T_("Unsupported archive file type."));
@@ -1386,9 +1386,9 @@ void PackageCreator::ExtractFile(const PathName& archiveFile, ArchiveFileType ar
     break;
   case ArchiveFileType::TarLzma:
     command = Q_(lzmaExe);
-    command += " d ";
+    command += " -d ";
     command += Q_(archiveFile);
-    command += " -so | tar --force-local --to-stdout -xf - ";
+    command += " -c | tar --force-local --to-stdout -xf - ";
     command += Q_(toBeExtracted);
     command += " > ";
     command += Q_(outFile);
