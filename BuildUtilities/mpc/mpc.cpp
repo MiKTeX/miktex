@@ -1,6 +1,6 @@
 /* mpc.cpp: creating MiKTeX packages
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MPC.
 
@@ -1085,8 +1085,9 @@ void PackageCreator::RunArchiver(ArchiveFileType archiveFileType, const PathName
     command += lpszFilter;
     command += " | ";
     command += Q_(lzmaExe);
-    command += " e -si ";
+    command += " e ";
     command += Q_(archiveFile);
+    command += " -si ";
     break;
   default:
     FatalError(T_("Unsupported archive file type."));
@@ -1353,9 +1354,9 @@ void PackageCreator::Extract(const PathName& archiveFile, ArchiveFileType archiv
     break;
   case ArchiveFileType::TarLzma:
     command = Q_(lzmaExe);
-    command += " -d ";
+    command += " d ";
     command += Q_(archiveFile);
-    command += " -c | tar --force-local -xf -";
+    command += " -so | tar --force-local -xf -";
     break;
   default:
     FatalError(T_("Unsupported archive file type."));
@@ -1386,9 +1387,9 @@ void PackageCreator::ExtractFile(const PathName& archiveFile, ArchiveFileType ar
     break;
   case ArchiveFileType::TarLzma:
     command = Q_(lzmaExe);
-    command += " -d ";
+    command += " d ";
     command += Q_(archiveFile);
-    command += " -c | tar --force-local --to-stdout -xf - ";
+    command += " -so | tar --force-local --to-stdout -xf - ";
     command += Q_(toBeExtracted);
     command += " > ";
     command += Q_(outFile);
