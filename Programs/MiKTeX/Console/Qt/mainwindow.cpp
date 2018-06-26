@@ -338,6 +338,7 @@ void MainWindow::CreateTrayIcon()
   trayIconMenu->addSeparator();
   trayIconMenu->addAction(ui->actionExit);
   trayIcon = new QSystemTrayIcon(this);
+  trayIconMenu->setDefaultAction(ui->actionRestore);
   trayIcon->setContextMenu(trayIconMenu);
 #if defined(MIKTEX_WINDOWS)
   trayIcon->setIcon(QIcon((":/Icons/miktex-console-16x16.png")));
@@ -353,6 +354,12 @@ void MainWindow::CreateTrayIcon()
 
 void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
+  switch (reason)
+  {
+  case QSystemTrayIcon::ActivationReason::DoubleClick:
+    this->showNormal();
+    break;
+  }
 }
 
 void MainWindow::TrayMessageClicked()
