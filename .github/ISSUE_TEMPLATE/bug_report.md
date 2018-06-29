@@ -11,6 +11,6 @@ Checklist:
 - [ ] I have installed the latest MiKTeX updates
 - [ ] I have checked the MiKTeX log files
 
-Required information:
+Please replace this section with the required information:
 - step-by-step reproduction instructions
 - attach command output, screenshots and relevant log file snippets
