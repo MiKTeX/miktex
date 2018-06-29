@@ -12,5 +12,7 @@ Checklist:
 - [ ] I have checked the MiKTeX log files
 
 Please replace this section with the required information:
-- step-by-step reproduction instructions
-- attach command output, screenshots and relevant log file snippets
+1. step-by-step reproduction instructions
+2. input files which are necessary to reproduce the bug
+3. your observations (command output, screenshots, ...)
+4. relevant log file snippets
