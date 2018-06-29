@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.6730 - not yet released
+## 2.9.6730 - 2018-06-29
 
 ### OS X El Capitan & macOS Sierra
 
