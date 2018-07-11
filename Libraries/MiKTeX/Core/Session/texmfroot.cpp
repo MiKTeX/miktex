@@ -699,7 +699,7 @@ void SessionImpl::RegisterRootDirectories(const string& roots, bool other)
   RegisterRootDirectoriesOptionSet options;
 #if defined(MIKTEX_WINDOWS)
   // FIXME: should be: NO_REGISTRY ? false : true
-  if (GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
+  if (IsMiKTeXPortable() || GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
   {
     options += RegisterRootDirectoriesOption::NoRegistry;
   }
