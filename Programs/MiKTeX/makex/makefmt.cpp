@@ -414,17 +414,6 @@ void MakeFmt::Run(int argc, const char** argv)
   {
     arguments.push_back("--enable-etex");
   }
-  switch (GetEnableInstaller())
-  {
-  case TriState::False:
-    arguments.push_back("--disable-installer");
-    break;
-  case TriState::True:
-    arguments.push_back("--enable-installer");
-    break;
-  default:
-    break;
-  }
   if (IsPdf())
   {
     InstallPdftexConfigTeX();

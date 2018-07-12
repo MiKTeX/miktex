@@ -1,6 +1,6 @@
 /* MakeUtility.h:                                       -*- C++ -*-
 
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -237,6 +237,17 @@ protected:
     }
 
     std::vector<std::string> allArgs{ lpszExeName };
+    switch (GetEnableInstaller())
+    {
+    case TriState::False:
+      allArgs.push_back("--miktex-disable-installer");
+      break;
+    case TriState::True:
+      allArgs.push_back("--miktex-enable-installer");
+      break;
+    default:
+      break;
+    }
     allArgs.insert(allArgs.end(), arguments.begin(), arguments.end());
 
     Message(T_("Running %s..."), Q_(lpszExeName));
@@ -369,7 +380,7 @@ protected:
   {
     OUT__
       << MiKTeX::Core::Utils::MakeProgramVersionString(MiKTeX::Core::Utils::GetExeName(), MiKTeX::Core::VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 1998-2017 Christian Schenk" << endl
+      << "Copyright (C) 1998-2018 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
   }
