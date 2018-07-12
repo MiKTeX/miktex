@@ -594,7 +594,7 @@ void SessionImpl::SaveRootDirectories(
   {
     startupConfig.userConfigRoot = this->rootDirectories[userConfigRootIndex].get_UnexpandedPath();
   }
-  if (IsAdminMode())
+  if (IsAdminMode() || IsMiKTeXPortable())
   {
     PathName commonStartupConfigFile;
     bool haveCommonStartupConfigFile = FindStartupConfigFile(true, commonStartupConfigFile);
