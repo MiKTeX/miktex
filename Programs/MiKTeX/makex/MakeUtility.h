@@ -283,17 +283,6 @@ protected:
   {
     vector<string> arguments;
     arguments.push_back("--undump="s + "mf");
-    switch (GetEnableInstaller())
-    {
-    case TriState::False:
-      arguments.push_back("--disable-installer");
-      break;
-    case TriState::True:
-      arguments.push_back("--enable-installer");
-      break;
-    default:
-      break;
-    }
     arguments.push_back("\\mode:="s + (lpszMode == nullptr ? "ljfour" : lpszMode) + ";");
     if (lpszMag != nullptr)
     {
