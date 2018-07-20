@@ -45,7 +45,6 @@ matrix:
       env:
       - MIKTEX_LINUX_DIST=fedora
       - MIKTEX_LINUX_DIST_CODE_NAME=28
-      - MIKTEX_SKIP_TESTS=true
       script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
 
