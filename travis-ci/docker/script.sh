@@ -4,7 +4,7 @@ set -e
 set -v
 
 dist=$MIKTEX_LINUX_DIST
-tag=$MIKTEX_LINUX_DIST_CODE_NAME
+tag=${MIKTEX_LINUX_DIST_CODE_NAME-${MIKTEX_LINUX_DIST_VERSION}}
 skip_tests=$MIKTEX_SKIP_TESTS
 
 if [ -z $skip_tests ]; then

@@ -32,6 +32,24 @@ set(MIKTEX_PACKAGE_REVISION
   "The MiKTeX package revision."
 )
 
+if(UNIX AND NOT APPLE)
+  set(MIKTEX_LINUX_DIST
+    "ubuntu"
+    CACHE STRING
+    "The Linux distribution (ubuntu, debian, fedora, ...)."
+  )
+  set(MIKTEX_LINUX_DIST_VERSION
+    "16.04"
+    CACHE STRING
+    "The Linux distribution version (16.04, 9, 28, ...)."
+  )
+  set(MIKTEX_LINUX_DIST_CODE_NAME
+    "xenial"
+    CACHE STRING
+    "The Linux distribution code name (xenial, stretch, ...)."
+  )
+endif()
+
 ## cached date
 set(MIKTEX_YEAR_VERSION            ${MIKTEX_CACHED_YEAR})
 
