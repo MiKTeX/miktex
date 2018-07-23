@@ -1542,7 +1542,7 @@ std::string SessionImpl::ExpandValues(const string& toBeExpanded, HasNamedValues
       }
       else
       {
-        MIKTEX_UNEXPECTED();
+        expansion += '$';
       }
     }
     else
