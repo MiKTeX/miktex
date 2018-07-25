@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -51,10 +51,20 @@ target_include_directories(${log4cxx_dll_name}
 
 target_link_libraries(${log4cxx_dll_name}
   PRIVATE
-    ${apr_dll_name}
-    ${apr_util_dll_name}
     ${system_libraries}
 )
+
+if(USE_SYSTEM_APR)
+  target_link_libraries(${log4cxx_dll_name} PUBLIC MiKTeX::Imported::APR)
+else()
+  target_link_libraries(${log4cxx_dll_name} PUBLIC ${apr_dll_name})
+endif()
+
+if(USE_SYSTEM_APRUTIL)
+  target_link_libraries(${log4cxx_dll_name} PUBLIC MiKTeX::Imported::APRUTIL)
+else()
+  target_link_libraries(${log4cxx_dll_name} PUBLIC ${apr_util_dll_name})
+endif()
 
 rebase(${log4cxx_dll_name})
 
