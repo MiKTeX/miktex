@@ -1,6 +1,6 @@
 /* makebase.cpp:
 
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2018 Christian Schenk
 
    This file is part of MiKTeX MakeBase.
 
@@ -139,17 +139,6 @@ void MakeBase::Run(int argc, const char** argv)
   arguments.push_back("--initialize");
   arguments.push_back("--interaction="s + "nonstopmode");
   arguments.push_back("--halt-on-error");
-  switch (GetEnableInstaller())
-  {
-  case TriState::False:
-    arguments.push_back("--disable-installer");
-    break;
-  case TriState::True:
-    arguments.push_back("--enable-installer");
-    break;
-  default:
-    break;
-  }
   arguments.insert(arguments.end(), engineOptions.begin(), engineOptions.end());
   if (!noDumpPrimitive)
   {
