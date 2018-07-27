@@ -245,7 +245,7 @@ void SessionImpl::ExpandPathPattern(const PathName& rootDirectory, const PathNam
 {
   MIKTEX_ASSERT(!pathPattern.Empty());
   const char* lpszRecursionIndicator = strstr(pathPattern.GetData(), RECURSION_INDICATOR);
-  if (lpszRecursionIndicator == nullptr)
+  if (lpszRecursionIndicator == nullptr || rootDirectory.Empty() && lpszRecursionIndicator == pathPattern.GetData())
   {
     // no recursion; check to see whether the path pattern specifies an
     // existing sub directory
