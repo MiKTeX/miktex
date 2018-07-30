@@ -2322,13 +2322,13 @@ elseif(MIKTEX_LINUX_DIST STREQUAL "opensuse")
     math(
       EXPR
       MIKTEX_LINUX_DIST_VERSION_INT
-      "(100 * ${CMAKE_MATCH_1}) + ${CMAKE_MATCH_2}"
+      "(10 * ${CMAKE_MATCH_1}) + ${CMAKE_MATCH_2}"
     )
   else()
     math(
       EXPR
       MIKTEX_LINUX_DIST_VERSION_INT
-      "100 * ${MIKTEX_LINUX_DIST_VERSION}"
+      "10 * ${MIKTEX_LINUX_DIST_VERSION}"
     )
   endif()
   set(CPACK_RPM_PACKAGE_RELEASE_DIST ".lp${MIKTEX_LINUX_DIST_VERSION_INT}")
