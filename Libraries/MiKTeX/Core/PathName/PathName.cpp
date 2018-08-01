@@ -1,6 +1,6 @@
 /* PathName.cpp: path name utilities
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -395,4 +395,13 @@ size_t PathName::GetHash() const
     hash *= FNV_prime;
   }
   return hash;
+}
+
+string PathName::ToDisplayString(DisplayPathNameOptions options) const
+{
+#if defined(MIKTEX_WINDOWS)
+  return ToDos().ToString();
+#else
+  return ToString();
+#endif
 }

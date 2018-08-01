@@ -95,7 +95,7 @@ QVariant RootTableModel::data(const QModelIndex& index, int role) const
     switch (index.column())
     {
     case 0:
-      return QString::fromUtf8(root.path.GetData());
+      return QString::fromUtf8(root.path.ToDisplayString().c_str());
     case 1:
       return QString::fromUtf8(StringUtil::Flatten(GetPurposesString(root.purposes), ',').c_str());
     case 2:

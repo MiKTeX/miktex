@@ -1,6 +1,6 @@
 /* miktex/Core/PathName.h:                              -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -67,6 +67,13 @@ enum class ConvertPathNameOption
 
 /// Path name conversion options.
 typedef OptionSet<ConvertPathNameOption> ConvertPathNameOptions;
+
+enum class DisplayPathNameOption
+{
+
+};
+
+typedef OptionSet<DisplayPathNameOption> DisplayPathNameOptions;
 
 /// Instances of this class can be used to store path names.
 class PathName :
@@ -358,6 +365,9 @@ public:
   {
     return MiKTeX::Util::StringUtil::UTF8ToWideChar(GetData());
   }
+
+public:
+  MIKTEXCORETHISAPI(std::string) ToDisplayString(DisplayPathNameOptions options = {}) const;
 
   /// Transform this path for comparison purposes.
   /// @return Returns a reference to this object.

@@ -255,7 +255,7 @@ void MainWindow::UpdateUi()
       {
         ui->groupPathIssue->hide();
       }
-      ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
+      ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).ToDisplayString().c_str()));
     }
     if (!IsBackgroundWorkerActive())
     {
@@ -999,7 +999,7 @@ void MainWindow::SetupUiUpdates()
 
 void MainWindow::UpdateUiUpdates()
 {
-  ui->lineEditInstallRoot2->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
+  ui->lineEditInstallRoot2->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).ToDisplayString().c_str()));
   ui->comboRepository3->setEnabled(!IsBackgroundWorkerActive());
   ui->comboRepository3->blockSignals(true);
   ui->comboRepository3->setCurrentIndex(repositoryModel->GetDefaultIndex());
@@ -1418,8 +1418,8 @@ void MainWindow::UpdateUiDirectories()
   {
     rootDirectoryModel->Reload();
     ui->treeViewRootDirectories->resizeColumnToContents(0);
-    ui->lineEditBinDir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
-    ui->lineEditLogDir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LogDirectory).GetData()));
+    ui->lineEditBinDir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).ToDisplayString().c_str()));
+    ui->lineEditLogDir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LogDirectory).ToDisplayString().c_str()));
   }
 }
 
@@ -2106,7 +2106,7 @@ void MainWindow::UpdateUiDiagnose()
 void MainWindow::UpdateActionsDiagnose()
 {
   PathName logDir = session->GetSpecialPath(SpecialPath::LogDirectory);
-  ui->lineEditLogFiles->setText(QString::fromUtf8(logDir.GetData()));
+  ui->lineEditLogFiles->setText(QString::fromUtf8(logDir.ToDisplayString().c_str()));
 }
 
 void MainWindow::on_pushButtonShowLogDirectory_clicked()

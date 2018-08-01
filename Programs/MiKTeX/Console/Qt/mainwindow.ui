@@ -337,7 +337,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>6</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -747,7 +747,7 @@ Use this option, if you want to operate on the private configuration.</string>
               <item>
                <widget class="QLabel" name="label_2">
                 <property name="text">
-                 <string>MiKTeX exececutables have been installed in:</string>
+                 <string>MiKTeX executables have been installed in:</string>
                 </property>
                </widget>
               </item>
@@ -761,7 +761,7 @@ Use this option, if you want to operate on the private configuration.</string>
               <item>
                <widget class="QLabel" name="label_15">
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This directory is not in the search list for executables or it is at the wrong position in the list. You can fix this issue by adding the directory to the environment variable PATH. This makes is possible to invoke the MiKTeX executables everywhere.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This directory is not in the search path for executables or it is at the wrong position in the path. You can fix this issue by adding the directory to the environment variable PATH. This makes is possible to invoke the MiKTeX executables everywhere.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="wordWrap">
                  <bool>true</bool>
