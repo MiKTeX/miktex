@@ -84,12 +84,14 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
     // move the file out of the way
     PathName old = path;
     old.AppendExtension(MIKTEX_TO_BE_DELETED_FILE_SUFFIX);
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dist(1, 99999);
     size_t maxrounds = 10;
     while (--maxrounds > 0 && File::Exists(old))
     {
-      unsigned unique = static_cast<unsigned>((static_cast<double>(rand()) / RAND_MAX) * 0xffff);
       old = path;
-      old.AppendExtension(string(".") + std::to_string(unique) + MIKTEX_TO_BE_DELETED_FILE_SUFFIX);
+      old.AppendExtension(string(".") + std::to_string(dist(gen)) + MIKTEX_TO_BE_DELETED_FILE_SUFFIX);
     }
     File::Move(path, old, { FileMoveOption::ReplaceExisting });
     session->ScheduleFileRemoval(old);
