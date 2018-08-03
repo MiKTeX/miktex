@@ -673,7 +673,7 @@ PackageInfo PackageManagerImpl::GetPackageInfo(const string& deploymentName)
   const PackageInfo* pPackageInfo = TryGetPackageInfo(deploymentName);
   if (pPackageInfo == nullptr)
   {
-    MIKTEX_UNEXPECTED();
+    MIKTEX_FATAL_ERROR_2(T_("The requested package is unknown."), "name", deploymentName);
   }
   return *pPackageInfo;
 }

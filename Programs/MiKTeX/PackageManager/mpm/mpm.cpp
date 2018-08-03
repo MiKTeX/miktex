@@ -1904,7 +1904,12 @@ void Application::Main(int argc, const char** argv)
 
   for (const string& package : required)
   {
-    if (!packageManager->GetPackageInfo(package).IsInstalled())
+    PackageInfo packageInfo;
+    if (!packageManager->TryGetPackageInfo(package, packageInfo))
+    {
+      Error(T_("%s: unknown package"), package.c_str());
+    }
+    if (!packageInfo.IsInstalled())
     {
       toBeInstalled.push_back(package);
     }
