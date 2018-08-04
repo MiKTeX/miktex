@@ -31,9 +31,37 @@
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
+using namespace MiKTeX::Util;
 using namespace std;
 
 static QCoreApplication* pApplication = nullptr;
+
+#if defined(MIKTEX_MACOS_BUNDLE)
+PathName GetExecutablePath()
+{
+  CharBuffer<char> buf;
+  uint32_t bufsize = buf.GetCapacity();
+  if (_NSGetExecutablePath(buf.GetData(), &bufsize) < 0)
+  {
+    buf.Reserve(bufsize);
+    if (_NSGetExecutablePath(buf.GetData(), &bufsize) != 0)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+  }
+  char resolved[PATH_MAX + 1];
+  if (realpath(buf.GetData(), resolved) == nullptr)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  return resolved;
+}
+
+PathName GetExecutableDir()
+{
+  return GetExecutablePath().RemoveFileSpec();
+}
+#endif
 
 MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
 {
@@ -49,6 +77,11 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
   bool useGUI = (getenv("DISPLAY") != nullptr);
 #else
   bool useGUI = true;
+#endif
+#if defined(MIKTEX_MACOS_BUNDLE)
+  PathName plugIns = GetExecutableDir() / ".." / "PlugIns";
+  plugIns.MakeAbsolute();
+  QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
 #endif
   static int argc = 1;
   static PathName argv0;

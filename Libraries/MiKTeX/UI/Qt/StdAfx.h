@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -30,6 +30,10 @@
 #  include <shellapi.h>
 #  define SECURITY_WIN32
 #  include <Security.h>
+#endif
+
+#if defined(MIKTEX_MACOS_BUNDLE)
+#include <mach-o/dyld.h>
 #endif
 
 #include <algorithm>

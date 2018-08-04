@@ -2150,6 +2150,10 @@ if(MIKTEX_MACOS_BUNDLE)
     FILES "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
     DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   )
+  install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
+    DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}"
+  )
 endif()
 
 ###############################################################################
