@@ -1534,7 +1534,7 @@ void SetupServiceImpl::CreateInfoFile()
   setupExe.RemoveDirectorySpec();
   stream.WriteFormattedLine(T_("To install MiKTeX, run %s.\n\n"), setupExe.GetData());
 #endif
-  stream.WriteFormattedLine(T_("For more information, visit the MiKTeX project page at\n\https://miktex.org.\n"));
+  stream.WriteFormattedLine(T_("For more information, visit the MiKTeX project page at\n\nhttps://miktex.org.\n"));
   stream.Close();
   RepositoryInfo repositoryInfo;
   if (packageManager->TryGetRepositoryInfo(options.RemotePackageRepository, repositoryInfo))

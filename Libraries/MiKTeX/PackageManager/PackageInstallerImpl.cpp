@@ -447,7 +447,9 @@ void PackageInstallerImpl::LoadDbLight(bool download)
   dbLight.Read(pathMpmIni);
 
   // report digest
+#if 0
   MD5 md5 = MD5::FromFile(pathMpmIni.GetData());
+#endif
   ReportLine(T_("lightweight database digest: %s"), dbLight.GetDigest().ToString().c_str());
 }
 
