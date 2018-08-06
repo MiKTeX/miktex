@@ -57,6 +57,11 @@ using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 #define LF "\n"
 
+inline double Divide(double a, double b)
+{
+  return a / b;
+}
+
 string PackageInstallerImpl::MakeUrl(const string& relPath)
 {
   return ::MakeUrl(repository, relPath);
@@ -188,22 +193,27 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
   size_t n;
   size_t received = 0;
   clock_t start = clock();
-  for (clock_t start1 = start; (n = webFile->Read(buf, sizeof(buf))) > 0; start1 = clock())
+  clock_t start1 = start;
+  size_t received1 = 0;
+  while ((n = webFile->Read(buf, sizeof(buf))) > 0)
   {
     clock_t end1 = clock();
 
     destStream.Write(buf, n);
 
     received += n;
+    received1 += n;
 
     // update progress info
     {
       lock_guard<mutex> lockGuard(progressIndicatorMutex);
       progressInfo.cbPackageDownloadCompleted += n;
       progressInfo.cbDownloadCompleted += n;
-      if (end1 > start1)
+      if (end1 > start1 + 1 * CLOCKS_PER_SEC)
       {
-        progressInfo.bytesPerSecond = static_cast<unsigned long>((static_cast<double>(n) / (end1 - start1)) * CLOCKS_PER_SEC);
+        progressInfo.bytesPerSecond = static_cast<unsigned long>(Divide(received1, (end1 - start1) * CLOCKS_PER_SEC));
+        start1 = end1;
+        received1 = 0;
       }
       double timePassed = clock() - timeStarted;
       double timeTotal = ((timePassed / progressInfo.cbDownloadCompleted) * progressInfo.cbDownloadTotal);
@@ -225,8 +235,10 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
   }
 
   // report statistics
-  trace_mpm->WriteFormattedLine("libmpm", T_("downloaded %u bytes in %u milliseconds"), received, ((end - start) * CLOCKS_PER_SEC) / 1000);
-  ReportLine(T_("%u bytes, %.2f KB/Sec"), received, ((((static_cast<double>(received) / static_cast<double>(end - start))) * CLOCKS_PER_SEC) / 1024));
+  double mb = Divide(received, 1000000);
+  double seconds = Divide(end - start, CLOCKS_PER_SEC);
+  trace_mpm->WriteFormattedLine("libmpm", T_("downloaded %.2f MB in %.2f seconds"), mb, seconds);
+  ReportLine(T_("%.2f MB, %.2f Mbit/s"), mb, Divide(8 * mb, seconds));
 
   if (expectedSize > 0 && expectedSize != received)
   {
