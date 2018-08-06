@@ -26,8 +26,6 @@
 #if !defined(A3C9B533501744AF97F67F3F0E3161DA)
 #define A3C9B533501744AF97F67F3F0E3161DA
 
-#include <ctime>
-
 #include <memory>
 #include <mutex>
 
@@ -142,7 +140,6 @@ private:
     int progress1Pos = 0;
     int progress2Pos = 0;
     std::string packageName;
-    clock_t lastUpdateMbits = 0;
   };
 
 private:

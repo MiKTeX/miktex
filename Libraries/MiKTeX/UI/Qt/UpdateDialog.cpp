@@ -270,11 +270,7 @@ void UpdateDialogImpl::ShowProgress()
       labelMB->setText(QString::number(Divide(sharedData.progressInfo.cbDownloadCompleted, 1000000), 'f', 2));
 
       // update "Mbit/s"
-      if (clock() > sharedData.lastUpdateMbits + 1 * CLOCKS_PER_SEC)
-      {
-        labelMbits->setText(QString::number(Divide(sharedData.progressInfo.bytesPerSecond, 125000), 'f', 2));
-        sharedData.lastUpdateMbits = clock();
-      }
+      labelMbits->setText(QString::number(Divide(sharedData.progressInfo.bytesPerSecond, 125000), 'f', 2));
     }
   }
   catch (const MiKTeXException& e)
