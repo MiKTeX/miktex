@@ -234,6 +234,8 @@ void UpdateDialogImpl::ShowProgress()
       progressBar2->setValue(0);
       progressBar2->setEnabled(false);
 
+      labelMbits->setText("");
+
       pushButton->setText(tr("Close"));
       pushButton->setEnabled(true);
 
