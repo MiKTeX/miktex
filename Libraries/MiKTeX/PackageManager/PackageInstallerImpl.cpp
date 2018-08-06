@@ -31,14 +31,13 @@
 #include <miktex/Core/Registry>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/TemporaryFile>
+#include <miktex/Extractor/Extractor>
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/winAutoResource>
 #include <miktex/Core/win/DllProc>
 #include <miktex/Core/win/HResult>
 #endif
-
-#include <miktex/Extractor/Extractor>
 
 #include "miktex/PackageManager/PackageManager"
 
@@ -58,29 +57,9 @@ using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 #define LF "\n"
 
-string PackageInstallerImpl::MakeUrl(const char* lpszBase, const char* lpszRel)
+string PackageInstallerImpl::MakeUrl(const string& relPath)
 {
-  string url(lpszBase);
-  size_t l = url.length();
-  if (l == 0)
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  if (url[l - 1] != '/')
-  {
-    url += '/';
-  }
-  if (lpszRel[0] == '/')
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  url += lpszRel;
-  return url;
-}
-
-string PackageInstallerImpl::MakeUrl(const char* lpszRel)
-{
-  return MakeUrl(repository.c_str(), lpszRel);
+  return ::MakeUrl(repository, relPath);
 }
 
 PackageInstaller::~PackageInstaller() noexcept
@@ -1176,7 +1155,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
       // take hold of the package
       temporaryFile = TemporaryFile::Create();
       pathArchiveFile = temporaryFile->GetPathName();
-      Download(MakeUrl(packageFileName.GetData()), pathArchiveFile);
+      Download(MakeUrl(packageFileName.ToString()), pathArchiveFile);
     }
     else
     {
@@ -1994,7 +1973,7 @@ void PackageInstallerImpl::InstallRemoveThread()
 
 void PackageInstallerImpl::Download(const PathName& fileName, size_t expectedSize)
 {
-  Download(MakeUrl(fileName.GetData()).c_str(), downloadDirectory / fileName, expectedSize);
+  Download(MakeUrl(fileName.ToString()), downloadDirectory / fileName, expectedSize);
 }
 
 void PackageInstallerImpl::Download()

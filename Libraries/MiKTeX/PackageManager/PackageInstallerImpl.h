@@ -441,10 +441,7 @@ private:
   void ReportLine(const char* lpsz, ...);
 
 private:
-  std::string MakeUrl(const char* lpszBase, const char* lpszRel);
-
-private:
-  std::string MakeUrl(const char* lpszRel);
+  std::string MakeUrl(const std::string& relPath);
 
 private:
   bool AbortOrRetry(const std::string& message)
