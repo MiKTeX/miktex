@@ -211,7 +211,7 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
       progressInfo.cbDownloadCompleted += n;
       if (end1 > start1 + 1 * CLOCKS_PER_SEC)
       {
-        progressInfo.bytesPerSecond = static_cast<unsigned long>(Divide(received1, (end1 - start1) * CLOCKS_PER_SEC));
+        progressInfo.bytesPerSecond = static_cast<unsigned long>(Divide(received1, Divide(end1 - start1, CLOCKS_PER_SEC)));
         start1 = end1;
         received1 = 0;
       }
