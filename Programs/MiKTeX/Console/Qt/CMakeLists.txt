@@ -170,7 +170,7 @@ if(UNIX AND NOT APPLE)
     )
   endforeach()
   install(
-    FILES miktex-console.desktop
+    FILES unx/miktex-console.desktop
     DESTINATION "${MIKTEX_XDG_APPLICATIONS_DIR}"
   )
 endif()
