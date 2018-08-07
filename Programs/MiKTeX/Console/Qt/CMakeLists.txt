@@ -51,7 +51,7 @@ set(console_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   configure_file(
-    console.rc.in
+    win/console.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/console.rc
   )
   list(APPEND console_sources
