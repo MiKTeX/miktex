@@ -564,7 +564,15 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 #else
   PathName frontend;
   vector<string> frontendArgs;
-  if (session->FindFile("kdesu", FileType::EXE, frontend))
+  if (session->FindFile("pkexec", FileType::EXE, frontend))
+  {
+    frontendArgs = {
+      "pkexec",
+      // TODO: quote me
+      me.ToString() + " "s + StringUtil::Flatten(args, ' ')
+    };
+  }
+  else if (session->FindFile("kdesu", FileType::EXE, frontend))
   {
     frontendArgs = {
       "kdesu",
@@ -585,7 +593,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   }
   else
   {
-    MIKTEX_FATAL_ERROR(tr("No graphical sudo frontend is available. Please install 'kdesu' (KDE) or 'gksu' (Gnome). Alternatively, you can enter 'sudo miktex-console %1' in a terminal window.").arg(QString::fromUtf8(StringUtil::Flatten(args, ' ').c_str())).toStdString());
+    MIKTEX_FATAL_ERROR(tr("No graphical sudo frontend is available. Please install 'pkexec', 'kdesu' (KDE) or 'gksu' (Gnome). Alternatively, you can enter 'sudo miktex-console %1' in a terminal window.").arg(QString::fromUtf8(StringUtil::Flatten(args, ' ').c_str())).toStdString());
   }
   Process::Start(frontend, frontendArgs);
 #endif  

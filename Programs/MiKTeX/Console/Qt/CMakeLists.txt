@@ -173,6 +173,10 @@ if(UNIX AND NOT APPLE)
     FILES unx/miktex-console.desktop
     DESTINATION "${MIKTEX_XDG_APPLICATIONS_DIR}"
   )
+  install(
+    FILES unx/miktex-console.policy
+    DESTINATION "${MIKTEX_POLKIT_ACTIONS_DIR}"
+  )
 endif()
 install(TARGETS miktex-console
   RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}

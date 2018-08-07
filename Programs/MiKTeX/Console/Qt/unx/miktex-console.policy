@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD polkit Policy Configuration 1.0//EN"
+"http://www.freedesktop.org/software/polkit/policyconfig-1.dtd">
+<policyconfig>
+  <vendor>MiKTeX.org</vendor>
+  <vendor_url>https://miktex.org</vendor_url>
+  <icon_name>miktex-console</icon_name>
+  <action id="miktex-console.exec">
+    <description>Execute MiKTeX Console with root privileges.</description>
+    <message gettext-domain="miktex-console">Authentication is required to execute MiKTeX Console with root privileges.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/miktex-console</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+</policyconfig>
