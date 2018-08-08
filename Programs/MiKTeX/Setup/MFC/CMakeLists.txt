@@ -57,14 +57,12 @@ configure_file(
 )
 
 set(setup_mfc_sources
-  ${CMAKE_CURRENT_BINARY_DIR}/ConnectionSettingsDialog.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/ConnectionSettingsDialog.h
-  ${CMAKE_CURRENT_BINARY_DIR}/ProxyAuthenticationDialog.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/ProxyAuthenticationDialog.h
   ${CMAKE_CURRENT_BINARY_DIR}/Setup.rc
   ${CMAKE_CURRENT_BINARY_DIR}/res/Setup.manifest
   ${MIKTEX_COMPATIBILITY_MANIFEST}
   ${MIKTEX_DPIAWARE_MANIFEST}
+  ConnectionSettingsDialog.cpp
+  ConnectionSettingsDialog.h
   FileCopyPage.cpp
   FileCopyPage.h
   FinishPage.cpp
@@ -83,6 +81,8 @@ set(setup_mfc_sources
   PackageSetPage.h
   PostInstallPage.cpp
   PostInstallPage.h
+  ProxyAuthenticationDialog.cpp
+  ProxyAuthenticationDialog.h
   RemoteRepositoryPage.cpp
   RemoteRepositoryPage.h
   SettingsPage.cpp
@@ -111,25 +111,6 @@ if(ENABLE_ADDTEXMF)
     EditTEXMFPage.h
   )
 endif()
-
-foreach(f
-    ConnectionSettingsDialog.cpp
-    ConnectionSettingsDialog.h
-    ProxyAuthenticationDialog.cpp
-    ProxyAuthenticationDialog.h)
-  add_custom_command(
-    OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/${f}
-    COMMAND
-      ${CMAKE_COMMAND}
-      -E copy_if_different
-      ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_MFC_DIR}/${f}
-      ${CMAKE_CURRENT_BINARY_DIR}/${f}
-    DEPENDS
-      ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_MFC_DIR}/${f}
-    VERBATIM
-  )
-endforeach()
 
 set(libs
   ${core_lib_name}
