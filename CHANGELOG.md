@@ -1,5 +1,23 @@
 # MiKTeX Change Log
 
+## 2.9.6800 - not yet released
+
+### Fedora 28 & openSUSE Leap 15
+
+MiKTeX is now available for Fedora 28 and openSUSE Leap 15.
+
+### Fixed issues
+
+* [36](https://github.com/MiKTeX/miktex/issues/36): enhance support to install packages from a list file
+* [50](https://github.com/MiKTeX/miktex/issues/50): pdftex (started via the compiler driver) can't find input files if the main file is on a network drive
+* [66](https://github.com/MiKTeX/miktex/issues/66): [MikTeX Portable] Can't add local texmf directory
+* [149](https://github.com/MiKTeX/miktex/issues/149): Texify / macOS: "The TeX engine could not be found."
+* [156](https://github.com/MiKTeX/miktex/issues/156): latexmk does not work on a fresh mac install
+* [161](https://github.com/MiKTeX/miktex/issues/161): xelatex: -disable-installer is not propagated to miktex-makemf
+* [166](https://github.com/MiKTeX/miktex/issues/166): Alternative for sudo
+* [168](https://github.com/MiKTeX/miktex/issues/168): Installing MiKTex via Command Line
+* [174](https://github.com/MiKTeX/miktex/issues/174): initexmf --force --mklinks --admin fails if TeXworks is open
+
 ## 2.9.6730 - 2018-06-29
 
 ### OS X El Capitan & macOS Sierra
