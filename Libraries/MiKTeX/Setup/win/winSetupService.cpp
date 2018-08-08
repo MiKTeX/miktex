@@ -643,12 +643,17 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const cha
 void winSetupServiceImpl::RegisterUninstaller()
 {
   // make uninstall command line
-  PathName pathUninstallDat(GetInstallRoot(), (options.IsCommonSetup ? MIKTEX_PATH_INTERNAL_UNINSTALL_ADMIN_EXE : MIKTEX_PATH_INTERNAL_UNINSTALL_EXE));
-  string commandLine = Q_(pathUninstallDat);
+  PathName miktexConsole(GetInstallRoot(), (options.IsCommonSetup ? MIKTEX_CONSOLE_ADMIN_EXE : MIKTEX_CONSOLE_EXE));
+  string commandLine = Q_(miktexConsole);
+  if (options.IsCommonSetup)
+  {
+    commandLine += " --admin";
+  }
+  commandLine += " --start-page cleanup";
 
   // make icon path
   PathName iconPath(GetInstallRoot());
-  iconPath /= MIKTEX_PATH_INTERNAL_UNINSTALL_EXE;
+  iconPath /= MIKTEX_CONSOLE_ADMIN_EXE;
   iconPath.Append(",0", false);
 
   // create registry key
