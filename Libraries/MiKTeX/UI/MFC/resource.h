@@ -26,7 +26,6 @@
 #define IDD_INSTALL_PACKAGE             121
 #define IDD_SITEWIZ_DRIVE               122
 #define IDD_ERROR                       123
-#define IDD_GIVE_BACK                   130
 #define IDC_DATE                        1001
 #define IDC_USE_PROXY                   1002
 #define IDC_MAINTAINER                  1002
@@ -77,7 +76,6 @@
 #define IDC_LINE1                       1046
 #define IDC_PACKAGE_SIZE                1047
 #define IDC_LINE2                       1048
-#define IDC_SYSLINK_GIVE_BACK           1049
 #define IDC_MIKTEX_NEXT                 1050
 #define ID_PROPERTIES                   32771
 #define ID_SEARCH_PACKAGE               32772
