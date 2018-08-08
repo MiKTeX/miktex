@@ -126,7 +126,6 @@ set(MIKTEX_REL_SETUPLIB_DIR             "Libraries/MiKTeX/Setup")
 set(MIKTEX_REL_SETUP_MFC_DIR            "Programs/MiKTeX/Wizards/Setup/MFC")
 set(MIKTEX_REL_SYNCTEX_DIR              "Programs/TeXAndFriends/synctex/source")
 set(MIKTEX_REL_SYNCTEX_INCLUDE_DIR      "${MIKTEX_REL_SYNCTEX_DIR}")
-set(MIKTEX_REL_TASKBAR_ICON_WIN_DIR     "Programs/MiKTeX/Desktop/Taskbar/Status/Icon/win")
 set(MIKTEX_REL_TDSUTIL_DIR              "Programs/MiKTeX/tdsutil")
 set(MIKTEX_REL_TECKIT_DIR               "Libraries/3rd/teckit")
 set(MIKTEX_REL_TEX4HT_DIR               "Programs/Converters/tex4ht")
@@ -253,28 +252,6 @@ set(MIKTEX_IDE_MIKTEX_CONSOLE_FOLDER            "${MIKTEX_IDE_MIKTEX_PROGRAMS_FO
 set(MIKTEX_IDE_MIKTEX_PACKAGE_MANAGER_FOLDER    "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/Package Manager")
 set(MIKTEX_IDE_MIKTEX_SETTINGS_FOLDER           "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/Settings")
 set(MIKTEX_IDE_MIKTEX_SETUP_FOLDER              "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/Setup")
-set(MIKTEX_IDE_MIKTEX_TASKBAR_FOLDER            "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/Taskbar")
 set(MIKTEX_IDE_OMEGA_FOLDER                     "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/Omega")
 set(MIKTEX_IDE_PREPROCESSORS_FOLDER             "${MIKTEX_IDE_PROGRAMS_FOLDER}/Preprocessors")
 set(MIKTEX_IDE_VALIDATION_FOLDER                "${MIKTEX_IDE_PROGRAMS_FOLDER}/Validation")
-
-# obsolete
-if(WITH_COPY_START)
-  set(MIKTEX_REL_COPYSTART_DIR "Programs/MiKTeX/copystart")
-endif()
-
-# obsolete
-if(WITH_UPDATE_WIZARD)
-  set(MIKTEX_REL_UPDATE_MFC_DIR "Programs/MiKTeX/Wizards/Update/MFC")
-  set(MIKTEX_IDE_MIKTEX_UPDATE_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/Update")
-endif()
-
-# obsolete
-if(WITH_MPM_GUI)
-  set(MIKTEX_REL_MPM_MFC_DIR "Programs/MiKTeX/PackageManager/MFC")
-  set(MIKTEX_REL_MPM_QT_DIR "Programs/MiKTeX/PackageManager/Qt")
-endif()
-
-if(WITH_MO)
-  set(MIKTEX_REL_MO_MFC_DIR "Programs/MiKTeX/MO/MFC")
-endif()
