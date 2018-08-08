@@ -44,46 +44,18 @@ add_definitions(
 
 set(public_headers
   include/miktex/UI/MFC/ErrorDialog.h
-  include/miktex/UI/MFC/PackageTreeCtrl.h
   include/miktex/UI/MFC/ProgressDialog.h
-  include/miktex/UI/MFC/PropSheetPackage.h
   include/miktex/UI/MFC/Prototypes.h
-  include/miktex/UI/MFC/SiteWizSheet.h
   include/miktex/UI/MFC/TextViewerDialog.h
-  include/miktex/UI/MFC/UpdateDialog.h
 )
 
 set(${ui_mfc_dll_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mikui.rc
   ${public_headers}
-  ConnectionSettingsDialog.cpp
-  ConnectionSettingsDialog.h
   ErrorDialog.cpp
-  InstallPackageDialog.cpp
-  InstallPackageDialog.h
-  PackageTreeCtrl.cpp
   ProgressDialog.cpp
-  PropPageFiles.cpp
-  PropPageFiles.h
-  PropPagePackage.cpp
-  PropPagePackage.h
-  PropSheetPackage.cpp
-  ProxyAuthenticationDialog.cpp
-  ProxyAuthenticationDialog.h
-  SearchPackageDialog.cpp
-  SearchPackageDialog.h
-  SiteWizDrive.cpp
-  SiteWizDrive.h
-  SiteWizLocal.cpp
-  SiteWizLocal.h
-  SiteWizRemote.cpp
-  SiteWizRemote.h
-  SiteWizSheet.cpp
-  SiteWizType.cpp
-  SiteWizType.h
   StdAfx.h
   TextViewerDialog.cpp
-  UpdateDialog.cpp
   internal.h
   mikui-version.h
   mikui.cpp
@@ -130,20 +102,12 @@ if(INSTALL_MIKTEX_HEADERS)
     FILES
       include/miktex/UI/MFC/ErrorDialog
       include/miktex/UI/MFC/ErrorDialog.h
-      include/miktex/UI/MFC/PackageTreeCtrl
-      include/miktex/UI/MFC/PackageTreeCtrl.h
       include/miktex/UI/MFC/ProgressDialog
       include/miktex/UI/MFC/ProgressDialog.h
-      include/miktex/UI/MFC/PropSheetPackage
-      include/miktex/UI/MFC/PropSheetPackage.h
       include/miktex/UI/MFC/Prototypes
       include/miktex/UI/MFC/Prototypes.h
-      include/miktex/UI/MFC/SiteWizSheet
-      include/miktex/UI/MFC/SiteWizSheet.h
       include/miktex/UI/MFC/TextViewerDialog
       include/miktex/UI/MFC/TextViewerDialog.h
-      include/miktex/UI/MFC/UpdateDialog
-      include/miktex/UI/MFC/UpdateDialog.h
     DESTINATION
       ${MIKTEX_HEADER_DESTINATION_DIR}/miktex/UI/MFC
   )

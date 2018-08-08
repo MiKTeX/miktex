@@ -128,12 +128,6 @@ inline unsigned int InstallPackageMessageBox(std::shared_ptr<MiKTeX::Packages::P
     ret = Qt::InstallPackageMessageBox(packageManager, packageName, trigger);
   }
 #endif
-#if defined(MIKTEX_UI_MFC)
-  if (defaultFramework() == (int)Framework::MFC)
-  {
-    ret = MFC::InstallPackageMessageBox(packageManager, packageName, trigger);
-  }
-#endif
   return ret;
 }
 
@@ -145,12 +139,6 @@ inline bool ProxyAuthenticationDialog()
   {
     ret = Qt::ProxyAuthenticationDialog();
 }
-#endif
-#if defined(MIKTEX_UI_MFC)
-  if (defaultFramework() == (int)Framework::MFC)
-  {
-    ret = MFC::ProxyAuthenticationDialog();
-  }
 #endif
   return ret;
 }

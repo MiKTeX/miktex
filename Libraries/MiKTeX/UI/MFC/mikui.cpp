@@ -25,9 +25,6 @@
 
 #include "internal.h"
 
-#include "InstallPackageDialog.h"
-#include "ProxyAuthenticationDialog.h"
-
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace std;
@@ -59,62 +56,4 @@ MIKTEXUIEXPORT void MIKTEXCEECALL MiKTeX::UI::MFC::InitializeFramework()
   {
     MIKTEX_UNEXPECTED();
   }
-}
-
-MIKTEXUIEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::MFC::InstallPackageMessageBox(CWnd* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger)
-{
-  shared_ptr<Session> pSession = Session::Get();
-  TriState enableInstaller = pSession->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
-  unsigned int ret;
-  if (enableInstaller != TriState::Undetermined)
-  {
-    ret = DONTASKAGAIN;
-    ret |= (enableInstaller == TriState::True ? YES : NO);
-  }
-  else
-  {
-    InstallPackageDialog dlg(parent, packageManager, packageName, trigger);
-    dlg.alwaysAsk = (enableInstaller == TriState::True ? false : true);
-    INT_PTR dlgRet = dlg.DoModal();
-    if (dlgRet != IDOK && dlgRet != IDCANCEL)
-    {
-      ret = (NO | DONTASKAGAIN);
-    }
-    else
-    {
-      ret = (dlgRet == IDOK ? YES : NO);
-      if (dlgRet == IDOK && !dlg.alwaysAsk)
-      {
-	pSession->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, "1");
-      }
-    }
-  }
-  return ret;
-}
-
-MIKTEXUIEXPORT bool MIKTEXCEECALL MiKTeX::UI::MFC::ProxyAuthenticationDialog(CWnd * pParent)
-{
-  ProxySettings proxySettings;
-
-  bool done = true;
-
-  if (PackageManager::TryGetProxy(proxySettings)
-    && proxySettings.useProxy
-    && proxySettings.authenticationRequired
-    && proxySettings.user.empty())
-  {
-    ::ProxyAuthenticationDialog dlg(pParent);
-    if (dlg.DoModal() == IDOK)
-    {
-      proxySettings.user = dlg.GetName();
-      proxySettings.password = dlg.GetPassword();
-      PackageManager::SetProxy(proxySettings);
-    }
-    else
-    {
-      done = false;
-    }
-  }
-
-  return done;
 }

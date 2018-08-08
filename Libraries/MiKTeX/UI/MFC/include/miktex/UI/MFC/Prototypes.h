@@ -1,6 +1,6 @@
 /* miktex/UI/MFC/Prototypes.h:                          -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of MiKTeX UI Library.
 
@@ -44,40 +44,8 @@
     }                                           \
   }
 
-#include <memory>
-#include <string>
-
-#include <miktex/PackageManager/PackageManager>
-
-class CWnd;
-
 MIKUI_MFC_BEGIN_NAMESPACE;
 
 MIKTEXUIEXPORT void MIKTEXCEECALL InitializeFramework();
-
-const unsigned int YES = 1;
-const unsigned int NO = 2;
-const unsigned int DONTASKAGAIN = 4;
-
-MIKTEXUIEXPORT unsigned int MIKTEXCEECALL InstallPackageMessageBox(CWnd* parent, std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::string& packageName, const std::string& trigger);
-
-inline unsigned int InstallPackageMessageBox(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::string& packageName, const std::string& trigger)
-{
-  return InstallPackageMessageBox(nullptr, packageManager, packageName, trigger);
-}
-
-MIKTEXUIEXPORT bool MIKTEXCEECALL ProxyAuthenticationDialog(CWnd* parent);
-
-inline bool ProxyAuthenticationDialog()
-{
-  return ProxyAuthenticationDialog(nullptr);
-}
-
-MIKTEXUIEXPORT bool MIKTEXCEECALL GiveBackDialog(CWnd* parent, bool force);
-
-inline bool GiveBackDialog(CWnd* parent)
-{
-  return GiveBackDialog(parent, false);
-}
 
 MIKUI_MFC_END_NAMESPACE;
