@@ -58,4 +58,3 @@
 #include <miktex/Core/Urls>
 #include <miktex/Core/win/winAutoResource>
 #include <miktex/Core/win/WindowsVersion>
-#include <miktex/PackageManager/PackageManager>

@@ -59,48 +59,5 @@ private:
   HINSTANCE defaultResourceHandle;
 };
 
-class SiteWizSheetImpl :
-  public CPropertySheet
-{
-protected:
-  DECLARE_MESSAGE_MAP();
-
-public:
-  SiteWizSheetImpl(CWnd* pParent = nullptr);
-
-public:
-  ~SiteWizSheetImpl() override;
-
-private:
-  CPropertyPage* pType = nullptr;
-
-private:
-  CPropertyPage* pRemote = nullptr;
-
-private:
-  CPropertyPage* pLocal = nullptr;
-
-private:
-  CPropertyPage* pCD = nullptr;
-
-private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pManager;
-
-private:
-  MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState;
-
-public:
-  MiKTeX::Packages::RepositoryReleaseState GetRepositoryReleaseState() const
-  {
-    return repositoryReleaseState;
-  }
-
-public:
-  void SetRepositoryReleaseState(MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState)
-  {
-    this->repositoryReleaseState = repositoryReleaseState;
-  }
-};
-
 #define BEGIN_USE_MY_RESOURCES() { USE_MY_RESOURCES useMyResources;
 #define END_USE_MY_RESOURCES() }
