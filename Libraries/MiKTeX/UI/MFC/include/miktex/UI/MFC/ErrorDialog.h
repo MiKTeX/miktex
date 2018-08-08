@@ -1,6 +1,6 @@
 /* miktex/UI/MFC/ErrorDialog.h:                         -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of MiKTeX UI Library.
 

@@ -1,6 +1,6 @@
 /* ProgressDialog.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -30,7 +30,8 @@
 using namespace MiKTeX::UI::MFC;
 using namespace std;
 
-class ProgressUIDialog : public CDialog
+class ProgressUIDialog :
+  public CDialog
 {
 private:
   enum { IDD = IDD_PROGRESS };
@@ -39,7 +40,7 @@ protected:
   DECLARE_MESSAGE_MAP();
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  virtual void DoDataExchange(CDataExchange* pDX);
 
 protected:
   virtual void PostNcDestroy();
@@ -70,7 +71,7 @@ BEGIN_MESSAGE_MAP(ProgressUIDialog, CDialog)
   ON_MESSAGE(HASUSERCANCELLED, HasUserCancelled)
 END_MESSAGE_MAP();
 
-void ProgressUIDialog::DoDataExchange(CDataExchange * pDX)
+void ProgressUIDialog::DoDataExchange(CDataExchange* pDX)
 {
   CDialog::DoDataExchange(pDX);
 }
@@ -110,7 +111,7 @@ public:
   }
 
 public:
-  ProgressUIThread(HWND hwndParent, CEvent * pReady);
+  ProgressUIThread(HWND hwndParent, CEvent* pReady);
 
 public:
   HWND GetProgressWindow();
@@ -122,7 +123,7 @@ protected:
   HWND hParentWindow = nullptr;
 
 protected:
-  CEvent * pReadyEvent = nullptr;
+  CEvent* pReadyEvent = nullptr;
 
 protected:
   HWND hWindow = nullptr;
@@ -131,7 +132,7 @@ protected:
   CCriticalSection criticalSectionMonitor;
 };
 
-ProgressUIThread::ProgressUIThread(HWND hwndParent, CEvent * pReady) :
+ProgressUIThread::ProgressUIThread(HWND hwndParent, CEvent* pReady) :
   hParentWindow(hwndParent),
   pReadyEvent(pReady)
 {
@@ -141,10 +142,10 @@ BOOL ProgressUIThread::InitInstance()
 {
   try
   {
-    ProgressUIDialog * pDlg = new ProgressUIDialog;
+    ProgressUIDialog* pDlg = new ProgressUIDialog;
     m_pMainWnd = pDlg;
     MIKTEX_ASSERT(hParentWindow == nullptr || IsWindow(hParentWindow));
-    CWnd * pWnd = nullptr;
+    CWnd* pWnd = nullptr;
     if (hParentWindow != nullptr)
     {
       pWnd = CWnd::FromHandle(hParentWindow);
@@ -195,7 +196,7 @@ public:
   bool StopProgressDialog() override;
 
 private:
-  ProgressUIThread * pThread = nullptr;
+  ProgressUIThread* pThread = nullptr;
 
 private:
   HWND hWindow = nullptr;
@@ -289,7 +290,7 @@ bool ProgressDialogImpl::StartProgressDialog(HWND hwndParent)
     MIKTEX_UNEXPECTED();
   }
 
-  CWnd * pParent = nullptr;
+  CWnd* pParent = nullptr;
 
   if (hwndParent != nullptr)
   {
@@ -371,7 +372,7 @@ bool ProgressDialogImpl::StopProgressDialog()
   return res ? true : false;
 }
 
-ProgressDialog * ProgressDialog::Create()
+ProgressDialog* ProgressDialog::Create()
 {
   return new ProgressDialogImpl();
 }

@@ -1,6 +1,6 @@
-/* internal.h: internal definitions			-*- C++ -*-
+/* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of MiKTeX UI Library.
 
@@ -59,28 +59,29 @@ private:
   HINSTANCE defaultResourceHandle;
 };
 
-class SiteWizSheetImpl : public CPropertySheet
+class SiteWizSheetImpl :
+  public CPropertySheet
 {
 protected:
   DECLARE_MESSAGE_MAP();
 
 public:
-  SiteWizSheetImpl(CWnd * pParent = nullptr);
+  SiteWizSheetImpl(CWnd* pParent = nullptr);
 
 public:
   ~SiteWizSheetImpl() override;
 
 private:
-  CPropertyPage * pType = nullptr;
+  CPropertyPage* pType = nullptr;
 
 private:
-  CPropertyPage * pRemote = nullptr;
+  CPropertyPage* pRemote = nullptr;
 
 private:
-  CPropertyPage * pLocal = nullptr;
+  CPropertyPage* pLocal = nullptr;
 
 private:
-  CPropertyPage * pCD = nullptr;
+  CPropertyPage* pCD = nullptr;
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> pManager;

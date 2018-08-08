@@ -1,6 +1,6 @@
 /* TextViewerDialog.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -30,7 +30,8 @@
 using namespace MiKTeX::UI::MFC;
 using namespace std;
 
-class TextViewerDlgImpl : public CDialog
+class TextViewerDlgImpl :
+  public CDialog
 {
 public:
   TextViewerDlgImpl(CWnd* parent, const string& title, const string& text);
@@ -39,7 +40,7 @@ private:
   BOOL OnInitDialog() override;
 
 protected:
-  void DoDataExchange(CDataExchange * pDX) override;
+  void DoDataExchange(CDataExchange* pDX) override;
 
 protected:
   DECLARE_MESSAGE_MAP();
@@ -61,7 +62,7 @@ TextViewerDlgImpl::TextViewerDlgImpl(CWnd* parent, const string& title, const st
 {
 }
 
-void TextViewerDlgImpl::DoDataExchange(CDataExchange * pDX)
+void TextViewerDlgImpl::DoDataExchange(CDataExchange* pDX)
 {
   CDialog::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_EDIT, editControl);
