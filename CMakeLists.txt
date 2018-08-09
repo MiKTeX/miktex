@@ -888,7 +888,6 @@ if(WITH_UI_MFC)
   list(APPEND required_programs
     hhc
     makehm
-    pandoc
   )
 endif()
 
