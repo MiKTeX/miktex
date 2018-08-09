@@ -446,13 +446,13 @@ BOOL YapApplication::InitInstance()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
     return FALSE;
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
     return FALSE;
   }
 }
@@ -542,7 +542,7 @@ int YapApplication::ExitInstance()
         g_pYapConfig->Save();
         g_pYapConfig = nullptr;
       }
-      catch (const exception &)
+      catch (const exception&)
       {
       }
     }
@@ -570,7 +570,7 @@ int YapApplication::ExitInstance()
     session = nullptr;
   }
 
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 
@@ -778,12 +778,12 @@ BOOL YapApplication::OnDDECommand(LPTSTR lpszCommand)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 
   ddeServing = false;

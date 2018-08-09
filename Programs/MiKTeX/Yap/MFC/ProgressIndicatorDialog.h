@@ -36,5 +36,5 @@ public:
   CProgressCtrl progressBar;
 
 protected:
-  virtual void DoDataExchange(CDataExchange* pDX);
+  void DoDataExchange(CDataExchange* pDX) override;
 };

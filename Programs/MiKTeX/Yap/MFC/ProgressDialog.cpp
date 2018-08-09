@@ -36,13 +36,13 @@ protected:
   DECLARE_MESSAGE_MAP();
 
 protected:
-  virtual void DoDataExchange(CDataExchange* pDX);
+  void DoDataExchange(CDataExchange* pDX) override;
 
 protected:
-  virtual void PostNcDestroy();
+  void PostNcDestroy() override;
 
 protected:
-  virtual void OnCancel();
+  void OnCancel() override;
 
 protected:
   afx_msg LRESULT HasUserCancelled(WPARAM wParam, LPARAM lParam);
@@ -99,7 +99,8 @@ void ProgressUIDialog::PostNcDestroy()
   delete this;
 }
 
-class ProgressUIThread : public CWinThread
+class ProgressUIThread :
+  public CWinThread
 {
 public:
   ProgressUIThread()
@@ -155,7 +156,7 @@ BOOL ProgressUIThread::InitInstance()
     pReadyEvent->SetEvent();
     return TRUE;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     return FALSE;
   }
@@ -167,7 +168,8 @@ HWND ProgressUIThread::GetProgressWindow()
   return hWindow;
 }
 
-class ProgressDialogImpl : public ProgressDialog
+class ProgressDialogImpl :
+  public ProgressDialog
 {
 public:
   ~ProgressDialogImpl() noexcept;
@@ -209,7 +211,7 @@ ProgressDialogImpl::~ProgressDialogImpl()
   {
     StopProgressDialog();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }

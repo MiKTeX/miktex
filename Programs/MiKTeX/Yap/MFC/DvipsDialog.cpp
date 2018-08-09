@@ -92,7 +92,7 @@ BOOL DvipsDialog::OnInitDialog()
       }
     }
 
-    catch (const exception &)
+    catch (const exception&)
     {
       delete[] lpBuf;
       throw;

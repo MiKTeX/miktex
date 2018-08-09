@@ -51,37 +51,37 @@ protected:
   DviView();
 
 public:
-  virtual ~DviView();
+  virtual ~DviView() override;
 
 protected:
-  virtual void OnActivateView(BOOL activate, CView* pActivateView, CView* pDeactivateView);
+  void OnActivateView(BOOL activate, CView* pActivateView, CView* pDeactivateView) override;
 
 protected:
-  virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
+  void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) override;
 
 protected:
-  virtual void OnDraw(CDC* pDC);
+  void OnDraw(CDC* pDC) override;
 
 protected:
-  virtual BOOL OnScrollBy(CSize sizeScroll, BOOL doScroll);
+  BOOL OnScrollBy(CSize sizeScroll, BOOL doScroll) override;
 
 protected:
-  virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
+  void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) override;
 
 protected:
-  virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
+  BOOL OnPreparePrinting(CPrintInfo* pInfo) override;
 
 protected:
-  virtual void OnInitialUpdate();
+  void OnInitialUpdate() override;
 
 protected:
-  virtual void OnPrint(CDC* pDC, CPrintInfo* pInfo);
+  void OnPrint(CDC* pDC, CPrintInfo* pInfo) override;
 
 protected:
-  virtual BOOL OnScroll(UINT scrollCode, UINT pos, BOOL doScroll);
+  BOOL OnScroll(UINT scrollCode, UINT pos, BOOL doScroll) override;
 
 protected:
-  virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+  void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint) override;
 
 protected:
   afx_msg void OnLighterText();

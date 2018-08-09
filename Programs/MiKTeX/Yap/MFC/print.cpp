@@ -117,8 +117,7 @@ void DviView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
   }
 }
 
-void
-DviView::OnFileDvips()
+void DviView::OnFileDvips()
 {
   try
   {

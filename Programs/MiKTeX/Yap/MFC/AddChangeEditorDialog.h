@@ -39,7 +39,10 @@ public:
   EditorInfo GetEditorInfo();
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
+
+protected:
+  void DoDataExchange(CDataExchange* pDX) override;
 
 protected:
   afx_msg void OnChangeName();
@@ -49,9 +52,6 @@ protected:
 
 protected:
   afx_msg void OnChangePath();
-
-protected:
-  virtual void DoDataExchange(CDataExchange* pDX);
 
 public:
   afx_msg void OnBrowse();

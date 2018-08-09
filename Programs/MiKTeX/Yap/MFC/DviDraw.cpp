@@ -71,7 +71,7 @@ DviDraw::DviDraw() :
 
     InitializeDviBitmapPalettes();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     if (bitmapInfoTable[DVIVIEW_DISPLAY] != nullptr)
     {
@@ -104,7 +104,7 @@ DviDraw::~DviDraw()
       }
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -447,7 +447,7 @@ HPALETTE DviDraw::CreateDviBitmapPalette(COLORREF foreColor, COLORREF backColor,
     delete[] reinterpret_cast<BYTE*>(pLogPal);
     return ret;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     if (pLogPal != nullptr)
     {

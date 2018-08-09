@@ -179,7 +179,7 @@ void DviView::DrawPage(CDC* pDC, int pageIdx)
 
   bool pageLoaded = (pageStatus == PageStatus::Loaded);
 
-  CWaitCursor* pWaitCursor = 0;
+  CWaitCursor* pWaitCursor = nullptr;
 
   // display a wait cursor if the page is not loaded already
   if (!pageLoaded && !pDoc->IsPrintContext())

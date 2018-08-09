@@ -250,7 +250,7 @@ string ErrorDialogImpl::CreateReport()
 	<< pSession->GetSpecialPath(SpecialPath::CommonDataRoot).GetData()
 	<< endl;
     }
-    catch (const exception &)
+    catch (const exception&)
     {
       pSession = nullptr;
     }

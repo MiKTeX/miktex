@@ -69,7 +69,7 @@ DviDoc::~DviDoc()
       pLastDoc = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -115,7 +115,7 @@ void DviDoc::BeginDviPrinting(const CDC* pPrinterDC)
   {
     CreateDocument(TU_(GetPathName()));
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     this->pDvi = pDviSave;
     pDviSave = nullptr;
@@ -346,7 +346,7 @@ void DviDoc::OnIdle()
       pSession->UnloadFilenameDatabase(); // FIXME
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -405,7 +405,7 @@ void DviDoc::MakeFonts()
     makingFonts = true;
     done = pDvi->MakeFonts();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     if (pProgressDialog != nullptr)
     {

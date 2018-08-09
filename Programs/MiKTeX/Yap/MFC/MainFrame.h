@@ -39,7 +39,7 @@ public:
   }
 
 public:
-  virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+  BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 
 protected:
   afx_msg int OnCreate(LPCREATESTRUCT pCreateStruct);

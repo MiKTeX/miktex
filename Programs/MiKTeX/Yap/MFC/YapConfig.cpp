@@ -357,7 +357,7 @@ YapConfig::~YapConfig()
   {
     Save();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 #endif

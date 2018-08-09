@@ -417,13 +417,13 @@ public:
   YapApplication();
 
 public:
-  virtual BOOL InitInstance();
+  BOOL InitInstance() override;
 
 public:
-  virtual int ExitInstance();
+  int ExitInstance() override;
 
 public:
-  virtual BOOL OnDDECommand(LPTSTR lpszCommand);
+  BOOL OnDDECommand(LPTSTR lpszCommand) override;
 
 public:
   CDocument* OpenDocumentFile(LPCTSTR lpszFileName);

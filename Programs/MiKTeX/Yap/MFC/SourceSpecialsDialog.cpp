@@ -76,7 +76,7 @@ SourceSpecialsDialog::SourceSpecialsDialog(CWnd* pParent, DviDoc* pDoc) :
     }
   }
 
-  if (sourceSpecials.size() == 0)
+  if (sourceSpecials.empty())
   {
     MIKTEX_FATAL_ERROR(T_("The document contains no source links."));
   }
@@ -152,12 +152,12 @@ BOOL SourceSpecialsDialog::OnInitDialog()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 
   return ret;

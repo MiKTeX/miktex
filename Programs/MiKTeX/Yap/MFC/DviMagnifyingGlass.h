@@ -36,10 +36,10 @@ public:
   DviMagnifyingGlass(DviView* pDviView, DviDoc* pDviDoc, Size size = Small, int shrinkFactor = 1);
 
 protected:
-  virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+  BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 
 protected:
-  virtual void PostNcDestroy();
+  void PostNcDestroy() override;
 
 public:
   void Create(const CPoint& pt);

@@ -36,10 +36,10 @@ public:
   Ruler(CWnd* pParent, const CSize& size, Unit unit, double pixelsPerInch, Kind kind);
 
 protected:
-  virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+  BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 
 protected:
-  virtual void PostNcDestroy();
+  void PostNcDestroy() override;
 
 public:
   void Create(const CPoint& pt);

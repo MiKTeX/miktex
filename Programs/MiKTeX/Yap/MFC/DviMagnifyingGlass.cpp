@@ -135,7 +135,7 @@ void DviMagnifyingGlass::OnPaint()
       DrawDibChunks(&dcMem, pDviDoc, pPage);
       DrawRules(&dcMem, false, pDviDoc, pPage);
     }
-    catch (const exception &)
+    catch (const exception&)
     {
       dcMem.SetViewportOrg(CPoint(0, 0));
       throw;

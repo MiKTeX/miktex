@@ -60,10 +60,10 @@ public:
   int m_nPrinterName = -1;
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange* pDX);
+  void DoDataExchange(CDataExchange* pDX) override;
 
 protected:
   afx_msg void OnChangeFirstPage();

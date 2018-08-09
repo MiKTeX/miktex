@@ -30,5 +30,5 @@ protected:
   DECLARE_MESSAGE_MAP();
 
 protected:
-  virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+  BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 };

@@ -33,10 +33,10 @@ protected:
   DviDoc();
 
 public:
-  virtual ~DviDoc();
+  ~DviDoc() override;
 
 public:
-  virtual void MIKTEXTHISCALL OnProgress(DviNotification nf);
+  void MIKTEXTHISCALL OnProgress(DviNotification nf) override;
 
 public:
   int GetPageCount() const;

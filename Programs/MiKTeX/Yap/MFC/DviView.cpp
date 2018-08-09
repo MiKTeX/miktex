@@ -147,7 +147,7 @@ DviView::~DviView()
       mouseCaptured = false;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -217,12 +217,12 @@ void DviView::OnInitialUpdate()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 }
 
@@ -1893,7 +1893,7 @@ LRESULT DviView::OnMakeFonts(WPARAM wParam, LPARAM lParam)
 
 size_t DviView::GetGammaTableIndex()
 {
-  if (gammaTable.size() == 0)
+  if (gammaTable.empty())
   {
     InitializeGammaTable();
   }

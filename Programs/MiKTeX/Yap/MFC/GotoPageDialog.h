@@ -43,10 +43,10 @@ public:
   }
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange* pDX);
+  void DoDataExchange(CDataExchange* pDX) override;
 
 private:
   CComboBox pageComboBox;

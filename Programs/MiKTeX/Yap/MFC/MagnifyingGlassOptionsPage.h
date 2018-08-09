@@ -35,15 +35,13 @@ public:
   MagnifyingGlassOptionsPage();
 
 protected:
-  virtual
-    BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual
-    void DoDataExchange(CDataExchange* pDX);
+  void DoDataExchange(CDataExchange* pDX) override;
 
 protected:
-  virtual BOOL OnApply();
+  BOOL OnApply() override;
 
 protected:
   afx_msg void OnChangeSmallWidth();

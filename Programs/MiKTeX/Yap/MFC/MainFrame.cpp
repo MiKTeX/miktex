@@ -80,8 +80,7 @@ END_MESSAGE_MAP();
 
 namespace {
 
-  UINT
-    indicators[] =
+  UINT indicators[] =
   {
     ID_SEPARATOR,           // status line indicator
     ID_INDICATOR_COMMAND_PREFIX,

@@ -36,16 +36,16 @@ public:
   SourceSpecialsDialog(CWnd* pParent, DviDoc* pDoc);
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange* pDX);
+  void DoDataExchange(CDataExchange* pDX) override;
 
 protected:
-  virtual void OnCancel();
+  void OnCancel() override;
 
 protected:
-  virtual void PostNcDestroy();
+  void PostNcDestroy() override;
 
 protected:
   afx_msg void OnClose();
