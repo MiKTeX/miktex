@@ -1,6 +1,6 @@
 /* miktex/Util/StringUtil.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -33,6 +33,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 MIKTEX_UTIL_BEGIN_NAMESPACE;
 
@@ -100,6 +101,9 @@ public:
 
 public:
   static MIKTEXUTILCEEAPI(std::string) FormatString(const char* format, ...);
+
+public:
+  static MIKTEXUTILCEEAPI(std::string) FormatString2(const std::string& message, const std::unordered_map<std::string, std::string>& args);
 
 public:
   static MIKTEXUTILCEEAPI(std::u16string) UTF8ToUTF16(const char* utf8Chars);

@@ -716,7 +716,7 @@ bool SessionImpl::GetOTFDirs(string& otfDirs)
   return true;
 }
 
-void Session::FatalWindowsError(const string& functionName, unsigned long errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
+void Session::FatalWindowsError(const string& functionName, unsigned long errorCode, const std::string& description, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
   string programInvocationName;
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();

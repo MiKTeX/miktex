@@ -146,34 +146,45 @@ public:
   virtual ~MiKTeXException() = default;
 
   /// Initializes a new MiKTeXException object.
-  /// @param lpszProgramInvocationName Name of the program where the
+  /// @param programInvocationName Name of the program where the
   /// exception was thrown.
-  /// @param lpszMessage The message to be presented to the user.
+  /// @param message The message (one-liner) to be presented to the user.
+  /// @param description The detailed description to be presented to the user.
+  /// Can contain info placeholders.
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& message, const std::string& description, const KVMAP& info, const SourceLocation& sourceLocation);
+
+public:
+  MiKTeXException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
+    MiKTeXException(programInvocationName, message, "", info, sourceLocation)
+  {
+  }
 
 public:
   MiKTeXException(const std::string& message) :
-    MiKTeXException("", message, KVMAP(), SourceLocation())
+    MiKTeXException("", message, "", KVMAP(), SourceLocation())
   {
   }
 
 public:
   // DEPRECATED
   MiKTeXException(const char* lpszProgramInvocationName, const char* lpszMessage, const char* lpszInfo, const char* lpszSourceFile, int sourceLine) :
-    MiKTeXException(lpszProgramInvocationName, lpszMessage, KVMAP("", lpszInfo == nullptr ? "<nullptr>" : lpszInfo), SourceLocation("", lpszSourceFile, sourceLine))
+    MiKTeXException(lpszProgramInvocationName, lpszMessage, "", KVMAP("", lpszInfo == nullptr ? "<nullptr>" : lpszInfo), SourceLocation("", lpszSourceFile, sourceLine))
   {
   }
 
-  /// Gets the exception description.
+  /// Gets the exception message.
   /// @return A null-terminated string.
 public:
   virtual const char* what() const throw()
   {
     return message.c_str();
   }
+
+public:
+  MIKTEXCORETHISAPI(std::string) GetDescription() const;
 
 public:
   // DEPRECATED
@@ -217,6 +228,9 @@ private:
 
 private:
   std::string message;
+
+private:
+  std::string description;
 
 private:
   std::string programInvocationName;

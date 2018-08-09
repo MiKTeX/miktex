@@ -1,6 +1,6 @@
 /* winMemoryMappedFile.cpp: memory mapped files
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -80,7 +80,7 @@ void* winMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
     ptr = MapViewOfFile(hMapping, (readWrite ? FILE_MAP_WRITE : FILE_MAP_READ), 0, 0, 0);
     if (ptr == nullptr)
     {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "path", path.ToString());
+      MIKTEX_FATAL_WINDOWS_ERROR_3("MapViewOfFile", T_("MiKTeX can not access the the file '{path}'. It might be blocked by another program."), "path", path.ToString());
     }
 
     // get the size

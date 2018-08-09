@@ -26,6 +26,7 @@
 #include "miktex/Core/Exceptions.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
 MiKTeXException::MiKTeXException() :
@@ -33,12 +34,18 @@ MiKTeXException::MiKTeXException() :
 {
 }
 
-MiKTeXException::MiKTeXException(const string& programInvocationName, const string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
+MiKTeXException::MiKTeXException(const string& programInvocationName, const string& message, const string& desciption, const KVMAP& info, const SourceLocation& sourceLocation) :
   info(info),
+  description(description),
   message(message),
   programInvocationName(programInvocationName),
   sourceLocation(sourceLocation)
 {
+}
+
+string MiKTeXException::GetDescription() const
+{
+  return StringUtil::FormatString2(description, info);
 }
 
 OperationCancelledException::OperationCancelledException() :

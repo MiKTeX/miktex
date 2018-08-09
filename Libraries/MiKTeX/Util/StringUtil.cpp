@@ -226,6 +226,12 @@ string StringUtil::FormatString(const char* format, ...)
   return str;
 }
 
+string StringUtil::FormatString2(const string& message, const unordered_map<string, string>& args)
+{
+  // TODO
+  return "";
+}
+
 u16string StringUtil::UTF8ToUTF16(const char* utf8Chars)
 {
   try
