@@ -2,57 +2,44 @@
 
    Copyright (C) 2000-2016 Christian Schenk
 
-   This file is part of the MiKTeX UI Library.
+   This file is part of Yap.
 
-   The MiKTeX UI Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
+   Yap is free software; you can redistribute it and/or modify it
+   under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
 
-   The MiKTeX UI Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   Yap is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+   License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX UI Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+   along with Yap; if not, write to the Free Software Foundation, 59
+   Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
-
-#include "Prototypes.h"
-
-#include <Windows.h>
-
-#include <string>
-
-MIKUI_MFC_BEGIN_NAMESPACE;
+#pragma once
 
 class MIKTEXNOVTABLE ProgressDialog
 {
 public:
-  virtual MIKTEXTHISCALL ~ProgressDialog() noexcept = 0;
+  virtual ~ProgressDialog() noexcept = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL HasUserCancelled() = 0;
+  virtual bool HasUserCancelled() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL SetLine(unsigned lineNum, const std::string& text) = 0;
+  virtual bool SetLine(unsigned lineNum, const std::string& text) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL SetTitle(const std::string& text) = 0;
+  virtual bool SetTitle(const std::string& text) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL StartProgressDialog(HWND hwndParent) = 0;
+  virtual bool StartProgressDialog(HWND hwndParent) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL StopProgressDialog() = 0;
+  virtual bool StopProgressDialog() = 0;
 
 public:
-  AFX_EXT_CLASS static ProgressDialog* MIKTEXCEECALL Create();
+  static ProgressDialog* Create();
 };
-
-MIKUI_MFC_END_NAMESPACE;

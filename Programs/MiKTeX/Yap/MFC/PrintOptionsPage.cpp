@@ -22,6 +22,8 @@
 
 #include "yap.h"
 
+#include "ErrorDialog.h"
+
 #include "DviDoc.h"
 #include "PrintOptionsPage.h"
 

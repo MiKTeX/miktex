@@ -1,6 +1,6 @@
 /* miktex/UI/UI.h:                                      -*- C++ -*-
 
-   Copyright (C) 2000-2017 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of MiKTeX UI Library.
 
@@ -25,10 +25,6 @@
 
 #if !defined(DD977A74EEC1466EAF194BE92B20C9C4)
 #define DD977A74EEC1466EAF194BE92B20C9C4
-
-#if defined(MIKTEX_UI_MFC)
-#  include <miktex/UI/MFC/Prototypes>
-#endif
 
 #if defined(MIKTEX_UI_QT)
 #  include <miktex/UI/Qt/Prototypes>
@@ -55,7 +51,7 @@ MIKUI_BEGIN_NAMESPACE;
 
 enum class Framework
 {
-  None, MFC, Qt
+  None, Qt
 };
 
 inline int defaultFramework()
@@ -69,12 +65,6 @@ inline int defaultFramework()
     if (defaultGUIFramework == (int)Framework::None)
     {
       defaultGUIFramework = (int)Framework::Qt;
-    }
-#endif
-#if defined(MIKTEX_UI_MFC)
-    if (defaultGUIFramework == (int)Framework::None)
-    {
-      defaultGUIFramework = (int)Framework::MFC;
     }
 #endif
     cached = MiKTeX::Core::Session::Get()->GetConfigValue("", MIKTEX_REGVAL_GUI_FRAMEWORK, defaultGUIFramework).GetInt();
@@ -95,12 +85,6 @@ inline void InitializeFramework()
     Qt::InitializeFramework();
   }
 #endif
-#if defined(MIKTEX_UI_MFC)
-  if (defaultFramework() == (int)Framework::MFC)
-  {
-    MFC::InitializeFramework();
-  }
-#endif
 }
 
 inline void FinalizeFramework()
@@ -109,12 +93,6 @@ inline void FinalizeFramework()
   if (defaultFramework() == (int)Framework::Qt)
   {
     Qt::FinalizeFramework();
-  }
-#endif
-#if defined(MIKTEX_UI_MFC)
-  if (defaultFramework() == (int)Framework::MFC)
-  {
-    //
   }
 #endif
 }

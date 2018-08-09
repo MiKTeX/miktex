@@ -22,6 +22,8 @@
 
 #include "yap.h"
 
+#include "ErrorDialog.h"
+
 #include "DvipsDialog.h"
 
 BEGIN_MESSAGE_MAP(DvipsDialog, CDialog)

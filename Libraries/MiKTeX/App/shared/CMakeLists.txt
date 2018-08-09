@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -70,17 +70,9 @@ if(WITH_UI_QT)
   )
 endif()
 
-if(WITH_UI_MFC)
-  target_link_libraries(${app_dll_name}
-    PRIVATE
-      ${ui_mfc_dll_name}
-  )
-endif()
-
 delay_load(${app_dll_name}
   ${mpm_dll_name}
   ${ui_qt_dll_name}
-  ${ui_mfc_dll_name}
 )
 
 rebase(${app_dll_name})

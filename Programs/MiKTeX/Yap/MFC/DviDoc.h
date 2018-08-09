@@ -1,6 +1,6 @@
 /* DviDoc.h:                                            -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -19,6 +19,8 @@
    Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
 #pragma once
+
+class ProgressDialog;
 
 class DviDoc :
   public CDocument,

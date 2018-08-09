@@ -1,6 +1,6 @@
 /* StdAfx.h: includes precompiled header files          -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -96,9 +96,6 @@
 #include <miktex/Graphics/DibChunker>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
-#include <miktex/UI/MFC/ErrorDialog>
-#include <miktex/UI/MFC/ProgressDialog>
-#include <miktex/UI/MFC/TextViewerDialog>
 #include <miktex/Util/StringUtil>
 #include <miktex/Util/Tokenizer>
 #include <miktex/Wrappers/PoptWrapper>
@@ -110,7 +107,6 @@ using namespace MiKTeX::DVI;
 using namespace MiKTeX::Graphics;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Trace;
-using namespace MiKTeX::UI::MFC;
 using namespace MiKTeX::Wrappers;
 using namespace std;
 using namespace std::string_literals;

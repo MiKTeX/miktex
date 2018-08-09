@@ -1,6 +1,6 @@
 /* AddChangeEditorDialog.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -21,6 +21,8 @@
 #include "StdAfx.h"
 
 #include "yap.h"
+
+#include "ErrorDialog.h"
 
 #include "AddChangeEditorDialog.h"
 

@@ -1,6 +1,6 @@
 /* yap.cpp: Yet Another Previewer
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -25,6 +25,7 @@
 #include "ChildFrame.h"
 #include "DviDoc.h"
 #include "DviView.h"
+#include "ErrorDialog.h"
 #include "InverseSearchOptionsPage.h"
 #include "MainFrame.h"
 #include "winplace.h"

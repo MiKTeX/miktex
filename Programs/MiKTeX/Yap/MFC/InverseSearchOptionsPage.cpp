@@ -36,6 +36,8 @@
 
 #include "yap.h"
 
+#include "ErrorDialog.h"
+
 #include "InverseSearchOptionsPage.h"
 
 #include "AddChangeEditorDialog.h"

@@ -2056,7 +2056,6 @@ endif()
 
 if(WITH_UI_MFC)
   add_subdirectory(${MIKTEX_REL_SETUP_MFC_DIR})
-  add_subdirectory(${MIKTEX_REL_UI_MFC_DIR})
   add_subdirectory(${MIKTEX_REL_YAP_MFC_DIR})
 endif()
 
