@@ -78,18 +78,18 @@ BOOL MagnifyingGlassOptionsPage::OnInitDialog()
       MIKTEX_UNEXPECTED();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
   return ret;
 }
 
-void MagnifyingGlassOptionsPage::DoDataExchange(CDataExchange * pDX)
+void MagnifyingGlassOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Text(pDX, IDC_MAGGLASS_MEDIUM_HEIGHT, mediumHeight);
@@ -152,12 +152,12 @@ BOOL MagnifyingGlassOptionsPage::OnApply()
 
     return CPropertyPage::OnApply();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;

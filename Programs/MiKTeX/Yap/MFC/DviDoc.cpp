@@ -22,12 +22,12 @@
 
 #include "yap.h"
 
+#include "DviView.h"
 #include "ErrorDialog.h"
+#include "MainFrame.h"
 #include "ProgressDialog.h"
 
 #include "DviDoc.h"
-#include "DviView.h"
-#include "MainFrame.h"
 
 IMPLEMENT_DYNCREATE(DviDoc, CDocument);
 
@@ -35,7 +35,7 @@ BEGIN_MESSAGE_MAP(DviDoc, CDocument)
 END_MESSAGE_MAP();
 
 namespace {
-  DviDoc * pLastDoc = nullptr;
+  DviDoc* pLastDoc = nullptr;
 }
 
 DviDoc::DviDoc() :
@@ -84,25 +84,25 @@ BOOL DviDoc::OnOpenDocument(LPCTSTR lpszPathName)
     CreateDocument(TU_(lpszPathName));
     return TRUE;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(nullptr, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(nullptr, e);
     return FALSE;
   }
 }
 
-DviPage * DviDoc::GetLoadedPage(int pageIdx)
+DviPage* DviDoc::GetLoadedPage(int pageIdx)
 {
   MIKTEX_ASSERT(pDvi != nullptr);
   return pDvi->GetLoadedPage(pageIdx);
 }
 
-void DviDoc::BeginDviPrinting(const CDC * pPrinterDC)
+void DviDoc::BeginDviPrinting(const CDC* pPrinterDC)
 {
   UNUSED_ALWAYS(pPrinterDC);
   MIKTEX_ASSERT(!isPrintContext);
@@ -129,7 +129,7 @@ void DviDoc::EndDviPrinting()
   MIKTEX_ASSERT(isPrintContext);
   MIKTEX_ASSERT(this->pDvi != nullptr);
   isPrintContext = false;
-  Dvi * pDvi = this->pDvi;
+  Dvi* pDvi = this->pDvi;
   this->pDvi = pDviSave;
   pDviSave = nullptr;
   if (pDvi != nullptr)
@@ -138,7 +138,7 @@ void DviDoc::EndDviPrinting()
   }
 }
 
-void DviDoc::CreateDocument(const char * lpszPathName)
+void DviDoc::CreateDocument(const char* lpszPathName)
 {
   fileStatus = DVIFILE_NOT_LOADED;
   modificationTime = File::GetLastWriteTime(lpszPathName);
@@ -164,7 +164,7 @@ void DviDoc::CreateDocument(const char * lpszPathName)
 void DviDoc::Reread()
 {
   MIKTEX_ASSERT(!isPrintContext);
-  Dvi * pDvi = this->pDvi;
+  Dvi* pDvi = this->pDvi;
   this->pDvi = nullptr;
   fileStatus = DVIFILE_NOT_LOADED;
   if (pDvi != nullptr)
@@ -218,10 +218,10 @@ void DviDoc::Unshrink()
   }
 }
 
-const char * DviDoc::GetPageName(unsigned pageIdx)
+const char* DviDoc::GetPageName(unsigned pageIdx)
 {
   MIKTEX_ASSERT(pDvi != nullptr);
-  DviPage * pDviPage = pDvi->GetPage(pageIdx);
+  DviPage* pDviPage = pDvi->GetPage(pageIdx);
   if (pDviPage == nullptr)
   {
     MIKTEX_UNEXPECTED();
@@ -233,7 +233,7 @@ const char * DviDoc::GetPageName(unsigned pageIdx)
 int DviDoc::GetPageNum(int pageIdx) const
 {
   MIKTEX_ASSERT(pDvi != nullptr);
-  DviPage * pDviPage = pDvi->GetPage(pageIdx);
+  DviPage* pDviPage = pDvi->GetPage(pageIdx);
   if (pDviPage == nullptr)
   {
     MIKTEX_UNEXPECTED();
@@ -273,22 +273,22 @@ int DviDoc::SetDisplayShrinkFactor(int shrinkFactor)
   return oldDisplayShrinkFactor;
 }
 
-DviPageMode DviDoc::SetDviPageMode(const DviPageMode & dviPageMode)
+DviPageMode DviDoc::SetDviPageMode(const DviPageMode& dviPageMode)
 {
   DviPageMode old(this->dviPageMode);
   this->dviPageMode = dviPageMode;
   return old;
 }
 
-DviDoc * DviDoc::GetActiveDocument()
+DviDoc* DviDoc::GetActiveDocument()
 {
   ASSERT_VALID(AfxGetApp());
-  MainFrame * pMain = reinterpret_cast<MainFrame*>((AfxGetApp())->m_pMainWnd);
+  MainFrame* pMain = reinterpret_cast<MainFrame*>((AfxGetApp())->m_pMainWnd);
   ASSERT_VALID(pMain);
   MIKTEX_ASSERT(pMain->IsKindOf(RUNTIME_CLASS(MainFrame)));
-  CMDIChildWnd * pChild = pMain->MDIGetActive();
+  CMDIChildWnd* pChild = pMain->MDIGetActive();
   ASSERT_VALID(pChild);
-  DviDoc * pDviDoc = reinterpret_cast<DviDoc*>(pChild->GetActiveDocument());
+  DviDoc* pDviDoc = reinterpret_cast<DviDoc*>(pChild->GetActiveDocument());
   if (pDviDoc == nullptr)
   {
     pDviDoc = pLastDoc;
@@ -330,10 +330,10 @@ void DviDoc::OnIdle()
       POSITION posView = GetFirstViewPosition();
       while (posView != nullptr)
       {
-        CView * pView = GetNextView(posView);
+        CView* pView = GetNextView(posView);
         if (pView->IsKindOf(RUNTIME_CLASS(DviView)))
         {
-          DviView * pDviView = reinterpret_cast<DviView*>(pView);
+          DviView* pDviView = reinterpret_cast<DviView*>(pView);
           if (!pDviView->PostMessage(WM_COMMAND, ID_VIEW_REFRESH))
           {
             // unexpected

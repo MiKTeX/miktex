@@ -1,6 +1,6 @@
 /* DviDraw.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -23,6 +23,7 @@
 #include "yap.h"
 
 #include "DviDoc.h"
+
 #include "DviDraw.h"
 
 DviDraw::DviDraw() :
@@ -34,7 +35,7 @@ DviDraw::DviDraw() :
   try
   {
     // initialize display glyph BITMAPINFO
-    void * p = malloc(sizeof(BITMAPINFO) + 16 * (sizeof(WORD)));
+    void* p = malloc(sizeof(BITMAPINFO) + 16 * (sizeof(WORD)));
     if (p == nullptr)
     {
       OUT_OF_MEMORY("malloc");
@@ -111,7 +112,7 @@ DviDraw::~DviDraw()
 #define USE_BITBLT 1
 #define USE_STRETCHDIBITS 0
 
-void DviDraw::DrawDviBitmaps(CDC * pDC, DviDoc * pDoc, DviPage * pPage)
+void DviDraw::DrawDviBitmaps(CDC* pDC, DviDoc* pDoc, DviPage* pPage)
 {
   ASSERT_VALID(pDC);
   ASSERT_VALID(pDoc);
@@ -157,7 +158,7 @@ void DviDraw::DrawDviBitmaps(CDC * pDC, DviDoc * pDoc, DviPage * pPage)
   size_t nBitmaps = pPage->GetNumberOfDviBitmaps(pDoc->GetShrinkFactor());
   for (size_t idx = 0; idx < nBitmaps; ++idx)
   {
-    const DviBitmap & dvibm = pPage->GetDviBitmap(pDoc->GetShrinkFactor(), static_cast<int>(idx));
+    const DviBitmap& dvibm = pPage->GetDviBitmap(pDoc->GetShrinkFactor(), static_cast<int>(idx));
 
     CRect rectBitmap(dvibm.x, dvibm.y, dvibm.x + dvibm.width - 1, dvibm.y + dvibm.height - 1);
 
@@ -200,7 +201,7 @@ void DviDraw::DrawDviBitmaps(CDC * pDC, DviDoc * pDoc, DviPage * pPage)
     }
 #endif
 
-    BITMAPINFO * pBitmapInfo;
+    BITMAPINFO* pBitmapInfo;
 
     // make the bitmap info
     pBitmapInfo =
@@ -277,7 +278,7 @@ void DviDraw::DrawDviBitmaps(CDC * pDC, DviDoc * pDoc, DviPage * pPage)
 #endif
 }
 
-void DviDraw::DrawDibChunks(CDC * pDC, DviDoc * pDoc, DviPage * pPage)
+void DviDraw::DrawDibChunks(CDC* pDC, DviDoc* pDoc, DviPage* pPage)
 {
   ASSERT_VALID(pDC);
   ASSERT_VALID(pDoc);
@@ -304,9 +305,9 @@ void DviDraw::DrawDibChunks(CDC * pDC, DviDoc * pDoc, DviPage * pPage)
   size_t nChunks = pPage->GetNumberOfDibChunks(pDoc->GetShrinkFactor());
   for (size_t idx = 0; idx < nChunks; ++idx)
   {
-    const DibChunk & chunk = *pPage->GetDibChunk(pDoc->GetShrinkFactor(), static_cast<int>(idx));
+    const DibChunk& chunk = *pPage->GetDibChunk(pDoc->GetShrinkFactor(), static_cast<int>(idx));
 
-    const BITMAPINFO * pBitmapInfo = chunk.GetBitmapInfo();
+    const BITMAPINFO* pBitmapInfo = chunk.GetBitmapInfo();
 
     int x = chunk.GetX();
     int y = chunk.GetY();
@@ -373,7 +374,7 @@ void DviDraw::DrawDibChunks(CDC * pDC, DviDoc * pDoc, DviPage * pPage)
 #endif
 }
 
-LPBITMAPINFO DviDraw::MakeBitmapInfo(size_t width, size_t height, size_t dpi, size_t bytesPerLine, DviDoc * pDoc)
+LPBITMAPINFO DviDraw::MakeBitmapInfo(size_t width, size_t height, size_t dpi, size_t bytesPerLine, DviDoc* pDoc)
 {
   int mode = pDoc->GetShrinkFactor() == 1 ? DVIVIEW_PRINTER : DVIVIEW_DISPLAY;
   LPBITMAPINFO pBitmapInfo = reinterpret_cast<LPBITMAPINFO>(bitmapInfoTable[mode]);
@@ -459,13 +460,13 @@ HPALETTE DviDraw::CreateDviBitmapPalette(COLORREF foreColor, COLORREF backColor,
 #define USE_FILLSOLIDRECT 0     // doesn't seem to work under Windows 95
 #define USE_FILLRECT 1
 
-void DviDraw::DrawRules(CDC * pDC, bool blackBoards, DviDoc * pDoc, DviPage * pPage)
+void DviDraw::DrawRules(CDC* pDC, bool blackBoards, DviDoc* pDoc, DviPage* pPage)
 {
   UNUSED_ALWAYS(pDoc);
 
   MIKTEX_ASSERT(pPage != nullptr);
 
-  DviRule * pRule;
+  DviRule* pRule;
   int idx = 0;
   while ((pRule = pPage->GetRule(idx++)) != nullptr)
   {
@@ -487,7 +488,7 @@ void DviDraw::DrawRules(CDC * pDC, bool blackBoards, DviDoc * pDoc, DviPage * pP
     {
       MIKTEX_UNEXPECTED();
     }
-    CBrush * pOldBrush = reinterpret_cast<CBrush*>(pDC->SelectObject(&brush));
+    CBrush* pOldBrush = reinterpret_cast<CBrush*>(pDC->SelectObject(&brush));
     if (pOldBrush == nullptr)
     {
       MIKTEX_UNEXPECTED();

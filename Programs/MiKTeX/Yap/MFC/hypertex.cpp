@@ -22,14 +22,13 @@
 
 #include "yap.h"
 
+#include "DviDoc.h"
+#include "DviView.h"
 #include "ErrorDialog.h"
 
-#include "Dvidoc.h"
-#include "DviView.h"
-
-bool DviView::GetHyperTeXSpecialAtCursor(string & name)
+bool DviView::GetHyperTeXSpecialAtCursor(string& name)
 {
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
 
   ASSERT_VALID(pDoc);
 
@@ -50,7 +49,7 @@ bool DviView::GetHyperTeXSpecialAtCursor(string & name)
 
   CPoint ptDvi(PixelShrink(x), PixelShrink(y));
 
-  DviPage * pDviPage = pDoc->GetLoadedPage(pageIdx);
+  DviPage* pDviPage = pDoc->GetLoadedPage(pageIdx);
 
   if (pDviPage == nullptr)
   {
@@ -59,7 +58,7 @@ bool DviView::GetHyperTeXSpecialAtCursor(string & name)
 
   AutoUnlockPage autoUnlockPage(pDviPage);
 
-  HypertexSpecial * pHyperSpecial;
+  HypertexSpecial* pHyperSpecial;
 
   for (int idx = -1; (pHyperSpecial = pDviPage->GetNextHyperref(idx)) != nullptr; )
   {
@@ -68,7 +67,7 @@ bool DviView::GetHyperTeXSpecialAtCursor(string & name)
     CRect hrefRect(PixelShrink(llx), PixelShrink(ury), PixelShrink(urx) + 1, PixelShrink(lly) + 1);
     if (hrefRect.PtInRect(ptDvi))
     {
-      const char * lpsz = pHyperSpecial->GetName();
+      const char* lpsz = pHyperSpecial->GetName();
       name = lpsz != nullptr ? lpsz : "";
       return true;
     }
@@ -77,12 +76,12 @@ bool DviView::GetHyperTeXSpecialAtCursor(string & name)
   return false;
 }
 
-bool DviView::Navigate(const char * lpszUrl, bool remember)
+bool DviView::Navigate(const char* lpszUrl, bool remember)
 {
   CWaitCursor wait;
   if (*lpszUrl == '#')
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     DviPosition position;
     if (pDoc->FindHyperLabel(lpszUrl + 1, position))
@@ -127,7 +126,7 @@ bool DviView::Navigate(const char * lpszUrl, bool remember)
     // check to see whether it is DVI file reference
     if (_strnicmp("file:", lpszUrl, 5) == 0)
     {
-      const char * lpszFileLabel = lpszUrl + 5;
+      const char* lpszFileLabel = lpszUrl + 5;
       string dviFileName;
       string hashLabel;
       if (IsOtherDviFileLabel(lpszFileLabel, dviFileName, hashLabel))
@@ -138,7 +137,7 @@ bool DviView::Navigate(const char * lpszUrl, bool remember)
           return false;
         }
         MIKTEX_ASSERT(AfxGetApp() != 0);
-        CDocument * pDoc = AfxGetApp()->OpenDocumentFile(UT_(path.GetData()));
+        CDocument* pDoc = AfxGetApp()->OpenDocumentFile(UT_(path.GetData()));
         if (pDoc == nullptr)
         {
           return false;
@@ -151,14 +150,14 @@ bool DviView::Navigate(const char * lpszUrl, bool remember)
         {
           return false;
         }
-        DviDoc * pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
+        DviDoc* pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
         POSITION posView = pDviDoc->GetFirstViewPosition();
         while (posView != nullptr)
         {
-          CView * pView = pDviDoc->GetNextView(posView);
+          CView* pView = pDviDoc->GetNextView(posView);
           if (pView->IsKindOf(RUNTIME_CLASS(DviView)))
           {
-            DviView * pDviView = reinterpret_cast<DviView*>(pView);
+            DviView* pDviView = reinterpret_cast<DviView*>(pView);
             if (pDviView->Navigate(hashLabel.c_str(), false))
             {
               return true;
@@ -186,17 +185,17 @@ void DviView::OnBack()
     RememberCurrentLocation(true);
     GotoLocation(loc);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateBack(CCmdUI * pCmdUI)
+void DviView::OnUpdateBack(CCmdUI* pCmdUI)
 {
   pCmdUI->Enable(!backLocations.empty());
 }
@@ -211,22 +210,22 @@ void DviView::OnForward()
     RememberCurrentLocation();
     GotoLocation(loc);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateForward(CCmdUI * pCmdUI)
+void DviView::OnUpdateForward(CCmdUI* pCmdUI)
 {
   pCmdUI->Enable(!forwardLocations.empty());
 }
 
-bool DviView::IsOtherDviFileLabel(const char * lpszLabel, string & dviFileName, string & hashLabel)
+bool DviView::IsOtherDviFileLabel(const char* lpszLabel, string& dviFileName, string& hashLabel)
 {
   dviFileName = "";
   hashLabel = "";
@@ -247,7 +246,7 @@ bool DviView::IsOtherDviFileLabel(const char * lpszLabel, string & dviFileName, 
 
 void DviView::RememberCurrentLocation(bool goingBack)
 {
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   location loc;
   loc.pageidx = GetCurrentPageIdx();
@@ -265,9 +264,9 @@ void DviView::RememberCurrentLocation(bool goingBack)
   }
 }
 
-void DviView::GotoLocation(const DviView::location & loc)
+void DviView::GotoLocation(const DviView::location& loc)
 {
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   if (loc.pageidx < 0 || loc.pageidx >= pDoc->GetPageCount())
   {
@@ -280,7 +279,7 @@ void DviView::GotoLocation(const DviView::location & loc)
   ScrollToPosition(pt);
 }
 
-bool DviView::FindDviFile(const char * lpszFileName, PathName & result)
+bool DviView::FindDviFile(const char* lpszFileName, PathName& result)
 {
   if (Utils::IsAbsolutePath(lpszFileName))
   {
@@ -288,7 +287,7 @@ bool DviView::FindDviFile(const char * lpszFileName, PathName & result)
   }
   else
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     MIKTEX_ASSERT(pDoc->GetPathName().GetLength() != 0);
     result = pDoc->GetDocDir();
@@ -301,7 +300,7 @@ bool DviView::FindDviFile(const char * lpszFileName, PathName & result)
   return session->FindFile(lpszFileName, FileType::DVI, result);
 }
 
-bool DviDoc::FindHyperLabel(const char * lpszFileName, DviPosition & position)
+bool DviDoc::FindHyperLabel(const char* lpszFileName, DviPosition& position)
 {
   return pDvi->FindHyperLabel(lpszFileName, position);
 }

@@ -72,7 +72,7 @@ public:
   }
 
 public:
-  DviPageMode SetDviPageMode(const DviPageMode & dviPageMode);
+  DviPageMode SetDviPageMode(const DviPageMode& dviPageMode);
 
 public:
   PageStatus GetPageStatus(int pageIdx);
@@ -84,16 +84,16 @@ public:
   int FindPage(int iPageNum) const;
 
 public:
-  void BeginDviPrinting(const CDC * pPrinterDC);
+  void BeginDviPrinting(const CDC* pPrinterDC);
 
 public:
   void EndDviPrinting();
 
 public:
-  bool FindHyperLabel(const char * lpszFileName, DviPosition & position);
+  bool FindHyperLabel(const char* lpszFileName, DviPosition& position);
 
 public:
-  bool FindSrcSpecial(const char * lpszFileName, int line, DviPosition & position);
+  bool FindSrcSpecial(const char* lpszFileName, int line, DviPosition& position);
 
 public:
   int GetDisplayResolution() const;
@@ -102,7 +102,7 @@ public:
   PathName GetDocDir();
 
 public:
-  DviPage * GetLoadedPage(int pageIdx);
+  DviPage* GetLoadedPage(int pageIdx);
 
 public:
   int GetMaxPageNum() const;
@@ -114,7 +114,7 @@ public:
   int GetMinPageNum() const;
 
 public:
-  const char * GetPageName(unsigned pageIdx);
+  const char* GetPageName(unsigned pageIdx);
 
 public:
   int GetPageNum(int pageIdx) const;
@@ -133,7 +133,7 @@ public:
   int GetPrinterResolution() const;
 
 public:
-  bool GetSource(const DviPosition & position, PathName & fileName, int * pLineNum);
+  bool GetSource(const DviPosition& position, PathName& fileName, int* pLineNum);
 
 public:
   bool IsPortrait() const;
@@ -142,7 +142,7 @@ public:
   void Reread();
 
 private:
-  void CreateDocument(const char * lpszPathName);
+  void CreateDocument(const char* lpszPathName);
 
 public:
   void MakeFonts();
@@ -171,7 +171,7 @@ public:
   void Unshrink();
 
 public:
-  static DviDoc * GetActiveDocument();
+  static DviDoc* GetActiveDocument();
 
 public:
   virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
@@ -207,10 +207,10 @@ private:
   bool isPrintContext = false;
 
 private:
-  Dvi * pDvi = nullptr;
+  Dvi* pDvi = nullptr;
 
 private:
-  Dvi * pDviSave = nullptr;
+  Dvi* pDviSave = nullptr;
 
 private:
   int displayShrinkFactor;
@@ -234,7 +234,7 @@ private:
   bool makingFonts = false;
 
 private:
-  ProgressDialog * pProgressDialog = nullptr;
+  ProgressDialog* pProgressDialog = nullptr;
 
 private:
   shared_ptr<Session> pSession = Session::Get();
@@ -337,21 +337,21 @@ inline int DviDoc::GetMagnification() const
 class UnlockDviDoc_
 {
 public:
-  void operator() (DviDoc * p)
+  void operator()(DviDoc* p)
   {
     p->Unlock();
   }
 };
 
-typedef MiKTeX::Core::AutoResource<DviDoc *, UnlockDviDoc_> AutoUnlockDviDoc;
+typedef MiKTeX::Core::AutoResource<DviDoc*, UnlockDviDoc_> AutoUnlockDviDoc;
 
 class SetDisplayShrinkFactor_
 {
 public:
-  void operator() (DviDoc * pDviDoc, int shrinkFactor)
+  void operator()(DviDoc* pDviDoc, int shrinkFactor)
   {
     pDviDoc->SetDisplayShrinkFactor(shrinkFactor);
   }
 };
 
-typedef AutoResource2<DviDoc *, int, SetDisplayShrinkFactor_> AutoRestoreDisplayShrinkFactor;
+typedef AutoResource2<DviDoc*, int, SetDisplayShrinkFactor_> AutoRestoreDisplayShrinkFactor;

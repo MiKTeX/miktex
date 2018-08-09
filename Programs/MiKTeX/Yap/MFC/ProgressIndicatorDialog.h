@@ -1,6 +1,6 @@
 /* ProgressIndicatorDialog.h:                           -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -30,11 +30,11 @@ protected:
   DECLARE_MESSAGE_MAP();
 
 public:
-  ProgressIndicatorDialog(CWnd * pParent = nullptr);
+  ProgressIndicatorDialog(CWnd* pParent = nullptr);
 
 public:
   CProgressCtrl progressBar;
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  virtual void DoDataExchange(CDataExchange* pDX);
 };

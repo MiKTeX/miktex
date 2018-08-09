@@ -22,10 +22,10 @@
 
 #include "yap.h"
 
+#include "DviDoc.h"
 #include "ErrorDialog.h"
 
 #include "DisplayOptionsPage.h"
-#include "DviDoc.h"
 
 BEGIN_MESSAGE_MAP(DisplayOptionsPage, CPropertyPage)
   ON_CBN_SELCHANGE(IDC_COMBO_DISPLAY_MODE, OnChangeMode)
@@ -105,11 +105,11 @@ BOOL DisplayOptionsPage::OnInitDialog()
       MIKTEX_FATAL_WINDOWS_ERROR("CComboBox::SetCurSel");
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -117,7 +117,7 @@ BOOL DisplayOptionsPage::OnInitDialog()
   return ret;
 }
 
-void DisplayOptionsPage::DoDataExchange(CDataExchange * pDX)
+void DisplayOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
 
@@ -178,12 +178,12 @@ BOOL DisplayOptionsPage::OnApply()
     }
     return CPropertyPage::OnApply();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
@@ -208,11 +208,11 @@ void DisplayOptionsPage::OnChangeMode()
     }
     SetModified(TRUE);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }

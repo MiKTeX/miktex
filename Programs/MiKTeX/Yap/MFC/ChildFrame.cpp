@@ -1,6 +1,6 @@
 /* ChildFrame.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -29,7 +29,7 @@ IMPLEMENT_DYNCREATE(ChildFrame, CMDIChildWnd);
 BEGIN_MESSAGE_MAP(ChildFrame, CMDIChildWnd)
 END_MESSAGE_MAP();
 
-BOOL ChildFrame::PreCreateWindow(CREATESTRUCT & cs)
+BOOL ChildFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
   cs.style = (0
     | FWS_ADDTOTITLE

@@ -1,6 +1,6 @@
 /* DviDraw.h:                                           -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -29,7 +29,7 @@ struct foreback
   COLORREF back;
 };
 
-inline bool operator< (const foreback & fb1, const foreback & fb2)
+inline bool operator< (const foreback& fb1, const foreback& fb2)
 {
   return fb1.numcolors < fb2.numcolors
     ? true
@@ -51,13 +51,13 @@ protected:
   virtual ~DviDraw();
 
 protected:
-  void DrawDviBitmaps(CDC * pDC, DviDoc * pDoc, DviPage * pPage);
+  void DrawDviBitmaps(CDC* pDC, DviDoc* pDoc, DviPage* pPage);
 
 protected:
-  void DrawDibChunks(CDC * pDC, DviDoc * pDoc, DviPage * pPage);
+  void DrawDibChunks(CDC* pDC, DviDoc* pDoc, DviPage* pPage);
 
 protected:
-  void DrawRules(CDC * pDC, bool blackBoards, DviDoc * pDoc, DviPage * pPage);
+  void DrawRules(CDC* pDC, bool blackBoards, DviDoc* pDoc, DviPage* pPage);
 
 protected:
   void InitializeDviBitmapPalettes();
@@ -66,7 +66,7 @@ private:
   HPALETTE CreateDviBitmapPalette(COLORREF foreColor, COLORREF backColor, size_t nColors);
 
 private:
-  BITMAPINFO * MakeBitmapInfo(size_t width, size_t height, size_t dpi, size_t bytesPerLine, DviDoc * pDoc);
+  BITMAPINFO* MakeBitmapInfo(size_t width, size_t height, size_t dpi, size_t bytesPerLine, DviDoc* pDoc);
 
 protected:
   map<foreback, HPALETTE> foregroundPalettes;

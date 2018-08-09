@@ -22,18 +22,17 @@
 
 #include "yap.h"
 
-#include "ErrorDialog.h"
-
 #include "DviView.h"
+#include "ErrorDialog.h"
 #include "MainFrame.h"
 
-void DviView::OnDraw(CDC * pDC)
+void DviView::OnDraw(CDC* pDC)
 {
   try
   {
     ASSERT_VALID(pDC);
 
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
 
     // do nothing if the DVI file could not be loaded
@@ -154,20 +153,20 @@ void DviView::OnDraw(CDC * pDC)
     ;
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::DrawPage(CDC * pDC, int pageIdx)
+void DviView::DrawPage(CDC* pDC, int pageIdx)
 {
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
 
   // get the status of the DVI page
@@ -180,7 +179,7 @@ void DviView::DrawPage(CDC * pDC, int pageIdx)
 
   bool pageLoaded = (pageStatus == PageStatus::Loaded);
 
-  CWaitCursor * pWaitCursor = 0;
+  CWaitCursor* pWaitCursor = 0;
 
   // display a wait cursor if the page is not loaded already
   if (!pageLoaded && !pDoc->IsPrintContext())
@@ -198,7 +197,7 @@ void DviView::DrawPage(CDC * pDC, int pageIdx)
   }
 
   // lock the DVI page
-  DviPage * pPage = pDoc->GetLoadedPage(pageIdx);
+  DviPage* pPage = pDoc->GetLoadedPage(pageIdx);
   if (pPage == nullptr)
   {
     MIKTEX_UNEXPECTED();
@@ -239,14 +238,14 @@ void DviView::DrawPage(CDC * pDC, int pageIdx)
 }
 
 void
-DviView::DrawSpecials(CDC * pDC, int iteration, DviPage * pPage, int pageIdx)
+DviView::DrawSpecials(CDC* pDC, int iteration, DviPage* pPage, int pageIdx)
 {
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
 
   MIKTEX_ASSERT(pPage != nullptr);
 
-  DviSpecial * pSpecial;
+  DviSpecial* pSpecial;
 
   for (int idx = 0; (pSpecial = pPage->GetSpecial(idx)) != nullptr; ++idx)
   {
@@ -258,7 +257,7 @@ DviView::DrawSpecials(CDC * pDC, int iteration, DviPage * pPage, int pageIdx)
       case DviSpecialType::Hypertex:
         if (g_pYapConfig->dviPageMode != DviPageMode::Dvips)
         {
-          HypertexSpecial * pHypertexSpecial = reinterpret_cast<HypertexSpecial*>(pSpecial);
+          HypertexSpecial* pHypertexSpecial = reinterpret_cast<HypertexSpecial*>(pSpecial);
           if (!pDoc->IsPrintContext() && !pHypertexSpecial->IsName())
           {
             CPen pen;
@@ -267,7 +266,7 @@ DviView::DrawSpecials(CDC * pDC, int iteration, DviPage * pPage, int pageIdx)
               MIKTEX_FATAL_WINDOWS_ERROR("CreatePen");
             }
             AutoDeleteObject autoDeletePen(&pen);
-            CPen * pOldPen = pDC->SelectObject(&pen);
+            CPen* pOldPen = pDC->SelectObject(&pen);
             if (pOldPen == nullptr)
             {
               MIKTEX_UNEXPECTED();
@@ -292,7 +291,7 @@ DviView::DrawSpecials(CDC * pDC, int iteration, DviPage * pPage, int pageIdx)
             MIKTEX_FATAL_WINDOWS_ERROR("CreatePen");
           }
           AutoDeleteObject autoDeletePen(&pen);
-          CPen * pOldPen = pDC->SelectObject(&pen);
+          CPen* pOldPen = pDC->SelectObject(&pen);
           if (pOldPen == nullptr)
           {
             MIKTEX_UNEXPECTED();
@@ -309,7 +308,7 @@ DviView::DrawSpecials(CDC * pDC, int iteration, DviPage * pPage, int pageIdx)
         break;
       case DviSpecialType::SolidLine:
       {
-        SolidLineSpecial * pSolidLineSpecial = reinterpret_cast<SolidLineSpecial*>(pSpecial);
+        SolidLineSpecial* pSolidLineSpecial = reinterpret_cast<SolidLineSpecial*>(pSpecial);
         unsigned w = PixelShrink(pSolidLineSpecial->GetWidth());
         if (w == 0)
         {
@@ -321,7 +320,7 @@ DviView::DrawSpecials(CDC * pDC, int iteration, DviPage * pPage, int pageIdx)
           MIKTEX_FATAL_WINDOWS_ERROR("CreatePen");
         }
         AutoDeleteObject autoDeletePen(&pen);
-        CPen * pOldPen = pDC->SelectObject(&pen);
+        CPen* pOldPen = pDC->SelectObject(&pen);
         if (pOldPen == 0)
         {
           MIKTEX_UNEXPECTED();
@@ -339,11 +338,11 @@ DviView::DrawSpecials(CDC * pDC, int iteration, DviPage * pPage, int pageIdx)
   }
 }
 
-void DviView::DrawPaper(CDC * pDC)
+void DviView::DrawPaper(CDC* pDC)
 {
   ASSERT_VALID(pDC);
 
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
 
   int savedDC = pDC->SaveDC();
@@ -362,7 +361,7 @@ void DviView::DrawPaper(CDC * pDC)
   {
     CBrush brushWhite(0x00ffffff); // <fixme>use page background color<fixme/>
     AutoDeleteObject autoDeleteBrush(&brushWhite);
-    CBrush * pOldBrush = pDC->SelectObject(&brushWhite);
+    CBrush* pOldBrush = pDC->SelectObject(&brushWhite);
     if (pOldBrush == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -374,7 +373,7 @@ void DviView::DrawPaper(CDC * pDC)
     }
   }
 
-  MainFrame * pMain = reinterpret_cast<MainFrame*>((AfxGetApp())->m_pMainWnd);
+  MainFrame* pMain = reinterpret_cast<MainFrame*>((AfxGetApp())->m_pMainWnd);
   ASSERT_VALID(pMain);
   MIKTEX_ASSERT(pMain->IsKindOf(RUNTIME_CLASS(MainFrame)));
 
@@ -384,7 +383,7 @@ void DviView::DrawPaper(CDC * pDC)
     int lm = 0;
     int tm = 0;
 
-    CBrush * pOldBrush = pDC->SelectObject(CBrush::FromHandle(reinterpret_cast<HBRUSH>(::GetStockObject(BLACK_BRUSH))));
+    CBrush* pOldBrush = pDC->SelectObject(CBrush::FromHandle(reinterpret_cast<HBRUSH>(::GetStockObject(BLACK_BRUSH))));
 
     if (pOldBrush == nullptr)
     {
@@ -431,16 +430,16 @@ void DviView::DrawPaper(CDC * pDC)
   }
 }
 
-void DviView::DrawRulers(CDC * pDC)
+void DviView::DrawRulers(CDC* pDC)
 {
   // TODO
   UNUSED_ALWAYS(pDC);
 }
 
-void DviView::DrawSourcePosition(CDC * pDC)
+void DviView::DrawSourcePosition(CDC* pDC)
 {
   MIKTEX_ASSERT(searchPosition.x >= 0 && searchPosition.y >= 0);
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   int savedDC = pDC->SaveDC();
   if (savedDC == 0)
@@ -464,16 +463,16 @@ void DviView::DrawSourcePosition(CDC * pDC)
   }
 }
 
-BOOL DviView::OnEraseBkgnd(CDC * pDC)
+BOOL DviView::OnEraseBkgnd(CDC* pDC)
 {
   try
   {
     ASSERT_VALID(pDC);
-    MainFrame * pMain = reinterpret_cast<MainFrame*>((AfxGetApp())->m_pMainWnd);
+    MainFrame* pMain = reinterpret_cast<MainFrame*>((AfxGetApp())->m_pMainWnd);
     ASSERT_VALID(pMain);
     MIKTEX_ASSERT(pMain->IsKindOf(RUNTIME_CLASS(MainFrame)));
     CBrush brushBack(pMain->IsFullScreen() ? RGB(0, 0, 0) : GetSysColor(COLOR_APPWORKSPACE));
-    CBrush * pOldBrush = pDC->SelectObject(&brushBack);
+    CBrush* pOldBrush = pDC->SelectObject(&brushBack);
     if (pOldBrush == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -490,21 +489,21 @@ BOOL DviView::OnEraseBkgnd(CDC * pDC)
     }
     return TRUE;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
 }
 
-void DviView::RenderGraphicsInclusions(CDC * pDC, DviPage * pPage)
+void DviView::RenderGraphicsInclusions(CDC* pDC, DviPage* pPage)
 {
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   int shrinkFactor = pDoc->GetShrinkFactor();
   int nGraphicsInclusions = pPage->GetNumberOfGraphicsInclusions(shrinkFactor);

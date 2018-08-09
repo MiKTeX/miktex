@@ -1,6 +1,6 @@
 /* DviView.h:                                           -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -54,43 +54,43 @@ public:
   virtual ~DviView();
 
 protected:
-  virtual void OnActivateView(BOOL activate, CView * pActivateView, CView * pDeactivateView);
+  virtual void OnActivateView(BOOL activate, CView* pActivateView, CView* pDeactivateView);
 
 protected:
-  virtual void OnBeginPrinting(CDC * pDC, CPrintInfo * pInfo);
+  virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
 
 protected:
-  virtual void OnDraw(CDC * pDC);
+  virtual void OnDraw(CDC* pDC);
 
 protected:
   virtual BOOL OnScrollBy(CSize sizeScroll, BOOL doScroll);
 
 protected:
-  virtual void OnEndPrinting(CDC * pDC, CPrintInfo * pInfo);
+  virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
 
 protected:
-  virtual BOOL OnPreparePrinting(CPrintInfo * pInfo);
+  virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
 
 protected:
   virtual void OnInitialUpdate();
 
 protected:
-  virtual void OnPrint(CDC * pDC, CPrintInfo * pInfo);
+  virtual void OnPrint(CDC* pDC, CPrintInfo* pInfo);
 
 protected:
   virtual BOOL OnScroll(UINT scrollCode, UINT pos, BOOL doScroll);
 
 protected:
-  virtual void OnUpdate(CView * pSender, LPARAM lHint, CObject * pHint);
+  virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
 
 protected:
   afx_msg void OnLighterText();
 
 protected:
-  afx_msg void OnUpdateLighterText(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateLighterText(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateDarkerText(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateDarkerText(CCmdUI* pCmdUI);
 
 protected:
   afx_msg void OnDarkerText();
@@ -99,19 +99,19 @@ protected:
   afx_msg void OnDviPageModePk();
 
 protected:
-  afx_msg void OnUpdateDviPageModePk(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateDviPageModePk(CCmdUI* pCmdUI);
 
 protected:
   afx_msg void OnDviPageModeDvips();
 
 protected:
-  afx_msg void OnUpdateDviPageModeDvips(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateDviPageModeDvips(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg BOOL OnEraseBkgnd(CDC * pDC);
+  afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 
 protected:
-  afx_msg BOOL OnSetCursor(CWnd * pWnd, UINT hitTest, UINT message);
+  afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT hitTest, UINT message);
 
 protected:
   afx_msg LRESULT OnMakeFonts(WPARAM wParam, LPARAM lParam);
@@ -123,7 +123,7 @@ protected:
   afx_msg void OnChar(UINT chhar, UINT repeatCount, UINT flags);
 
 protected:
-  afx_msg void OnContextMenu(CWnd * pWnd, CPoint point);
+  afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 
 protected:
   afx_msg void OnDocumentDown();
@@ -138,7 +138,7 @@ protected:
   afx_msg void OnFileDocumentProperties();
 
 protected:
-  afx_msg void OnUpdateFileDocumentProperties(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateFileDocumentProperties(CCmdUI* pCmdUI);
 
 protected:
   afx_msg void OnFileDvips();
@@ -216,52 +216,52 @@ protected:
   afx_msg void OnToolsSourcespecials();
 
 protected:
-  afx_msg void OnUpdateBack(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateBack(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateFilePrint(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateFilePrint(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateFirstPage(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateFirstPage(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateForward(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateForward(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateLastPage(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateLastPage(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateNextPage(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateNextPage(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdatePrevPage(CCmdUI * pCmdUI);
+  afx_msg void OnUpdatePrevPage(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateToolsArrow(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateToolsArrow(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateToolsHand(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateToolsHand(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateToolsMagnifyingGlass(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateToolsMagnifyingGlass(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateZoomIn(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateZoomIn(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateFileDvips(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateFileDvips(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdatePageEditor(CCmdUI * pCmdUI);
+  afx_msg void OnUpdatePageEditor(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateZoomOut(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateZoomOut(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateToolsSourcespecials(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateToolsSourcespecials(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateGotoPage(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateGotoPage(CCmdUI* pCmdUI);
 
 protected:
   afx_msg void OnViewRefresh();
@@ -289,25 +289,25 @@ public:
   void CloseSourceSpecialsDialog();
 
 public:
-  DviDoc * GetDocument();
+  DviDoc* GetDocument();
 
 public:
-  const DviDoc * GetDocument() const;
+  const DviDoc* GetDocument() const;
 
 public:
-  bool GetPageUnderCursor(int & pageIdx, int & x, int & y);
+  bool GetPageUnderCursor(int& pageIdx, int& x, int& y);
 
 public:
-  bool GetPoint(int & x, int & y);
+  bool GetPoint(int& x, int& y);
 
 public:
-  bool GotoSrcSpecial(int line, const char * lpszFileName);
+  bool GotoSrcSpecial(int line, const char* lpszFileName);
 
 public:
-  bool GetSource(PathName & fileName, int & line);
+  bool GetSource(PathName& fileName, int& line);
 
 public:
-  bool Navigate(const char * lpszUrl, bool remember = true);
+  bool Navigate(const char* lpszUrl, bool remember = true);
 
 private:
   bool warnPostScript = true;
@@ -370,7 +370,7 @@ private:
 private:
   unsigned GetMode()
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT(pDoc != nullptr);
     return pDoc->IsPrintContext() ? DVIVIEW_PRINTER : DVIVIEW_DISPLAY;
   }
@@ -397,64 +397,64 @@ private:
   void ClearSearchPosition();
 
 private:
-  void DrawPage(CDC * pDC, int pageIdx);
+  void DrawPage(CDC* pDC, int pageIdx);
 
 private:
-  void DrawPaper(CDC * pDC);
+  void DrawPaper(CDC* pDC);
 
 private:
-  void DrawRulers(CDC * pDC);
+  void DrawRulers(CDC* pDC);
 
 private:
-  void DrawSourcePosition(CDC * pDC);
+  void DrawSourcePosition(CDC* pDC);
 
 private:
-  void DrawSpecials(CDC * pDC, int iteration, DviPage * pPage, int pageIdx);
+  void DrawSpecials(CDC* pDC, int iteration, DviPage* pPage, int pageIdx);
 
 private:
-  void DrawTpicArc(CDC * pDC, TpicArcSpecial * pArc);
+  void DrawTpicArc(CDC* pDC, TpicArcSpecial* pArc);
 
 private:
-  void DrawTpicEllipse(CDC * pDC, int x, int y, int xc, int yc, int xr, int yr);
+  void DrawTpicEllipse(CDC* pDC, int x, int y, int xc, int yc, int xr, int yr);
 
 private:
-  void DrawTpicLine(CDC * pDC, int x, int y, const TpicSpecial::point & ptFrom, const TpicSpecial::point & ptTo);
+  void DrawTpicLine(CDC* pDC, int x, int y, const TpicSpecial::point& ptFrom, const TpicSpecial::point& ptTo);
 
 private:
-  void DrawTpicPoly(CDC * pDC, TpicPolySpecial * pPoly);
+  void DrawTpicPoly(CDC* pDC, TpicPolySpecial* pPoly);
 
 private:
-  void DrawTpicSpecial(CDC * pDC, TpicSpecial * pTpicSpecial);
+  void DrawTpicSpecial(CDC* pDC, TpicSpecial* pTpicSpecial);
 
 private:
-  void DrawTpicSpline(CDC * pDC, TpicPolySpecial * pPoly);
+  void DrawTpicSpline(CDC* pDC, TpicPolySpecial* pPoly);
 
 private:
-  bool FindDviFile(const char * lpszFileName, PathName & result);
+  bool FindDviFile(const char* lpszFileName, PathName& result);
 
 private:
-  void FlushTpicPath(CDC * pDC, int x, int y, const TpicSpecial::path & path);
+  void FlushTpicPath(CDC* pDC, int x, int y, const TpicSpecial::path& path);
 
 private:
-  void FlushTpicPathD(CDC * pDC, int x, int y, const TpicSpecial::path & path, double inchesPerDash, bool dotted);
+  void FlushTpicPathD(CDC* pDC, int x, int y, const TpicSpecial::path& path, double inchesPerDash, bool dotted);
 
 private:
-  void FlushTpicSpline(CDC * pDC, int x, int y, const TpicSpecial::path & path);
+  void FlushTpicSpline(CDC* pDC, int x, int y, const TpicSpecial::path& path);
 
 private:
-  bool GetHyperTeXSpecialAtCursor(string & hyperTarget);
+  bool GetHyperTeXSpecialAtCursor(string& hyperTarget);
 
 private:
-  void GotoLocation(const location & loc);
+  void GotoLocation(const location& loc);
 
 private:
-  void RenderGraphicsInclusions(CDC * pDC, DviPage * pPage);
+  void RenderGraphicsInclusions(CDC* pDC, DviPage* pPage);
 
 private:
-  bool IsOtherDviFileLabel(const char * lpszLabel, string & dviFileName, string & hashLabel);
+  bool IsOtherDviFileLabel(const char* lpszLabel, string& dviFileName, string& hashLabel);
 
 private:
-  void PrintPostScript(const char * lpszDviFileName, const char * lpszPrinterName, const DviView::PrintRange & printRange);
+  void PrintPostScript(const char* lpszDviFileName, const char* lpszPrinterName, const DviView::PrintRange& printRange);
 
 private:
   void RememberCurrentLocation(bool goingBack = false);
@@ -466,7 +466,7 @@ private:
   CSize DeterminePageSize();
 
 private:
-  void GetVisiblePages(int & pageIdx1, int & pageIdx2) const;
+  void GetVisiblePages(int& pageIdx1, int& pageIdx2) const;
 
 public:
   int GetCurrentPageIdx() const;
@@ -499,13 +499,13 @@ private:
   int pageSearchPosition;
 
 private:
-  SourceSpecialsDialog * pSourceSpecialDialog = nullptr;
+  SourceSpecialsDialog* pSourceSpecialDialog = nullptr;
 
 private:
   MouseTool currentMouseTool;
 
 private:
-  CWnd * pToolWindow = nullptr;
+  CWnd* pToolWindow = nullptr;
 
 private:
   bool mouseCaptured = false;
@@ -517,7 +517,7 @@ private:
   bool leftButtonDown = false;
 
 private:
-  CPrintInfo * pPrintInfo = nullptr;
+  CPrintInfo* pPrintInfo = nullptr;
 
 private:
   double tpicConv;
@@ -529,17 +529,17 @@ private:
   shared_ptr<Session> session = Session::Get();
 };
 
-inline const DviDoc * DviView::GetDocument() const
+inline const DviDoc* DviView::GetDocument() const
 {
   return reinterpret_cast<const DviDoc*>(m_pDocument);
 }
 
-inline DviDoc * DviView::GetDocument()
+inline DviDoc* DviView::GetDocument()
 {
   return reinterpret_cast<DviDoc*>(m_pDocument);
 }
 
-inline int UnPixelShrink(DviDoc * pDoc, int pxl)
+inline int UnPixelShrink(DviDoc* pDoc, int pxl)
 {
-  return pxl * pDoc->GetShrinkFactor();
+  return pxl* pDoc->GetShrinkFactor();
 }

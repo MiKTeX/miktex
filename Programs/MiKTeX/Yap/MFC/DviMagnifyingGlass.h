@@ -1,6 +1,6 @@
 /* DviMagnifyingGlass.h:                                -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -33,34 +33,34 @@ public:
   typedef enum { Small, Medium, Large } Size;
 
 public:
-  DviMagnifyingGlass(DviView * pDviView, DviDoc * pDviDoc, Size size = Small, int shrinkFactor = 1);
+  DviMagnifyingGlass(DviView* pDviView, DviDoc* pDviDoc, Size size = Small, int shrinkFactor = 1);
 
 protected:
-  virtual BOOL PreCreateWindow(CREATESTRUCT & cs);
+  virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
 protected:
   virtual void PostNcDestroy();
 
 public:
-  void Create(const CPoint & pt);
+  void Create(const CPoint& pt);
 
 protected:
   afx_msg void OnPaint();
 
 protected:
-  afx_msg BOOL OnEraseBkgnd(CDC * pDC);
+  afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 
 protected:
   DECLARE_MESSAGE_MAP();
 
 public:
-  void MoveGlass(const CPoint & pt);
+  void MoveGlass(const CPoint& pt);
 
 private:
-  DviDoc * pDviDoc;
+  DviDoc* pDviDoc;
 
 private:
-  DviView * pDviView;
+  DviView* pDviView;
 
 private:
   CSize sizeWindow;

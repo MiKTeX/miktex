@@ -38,7 +38,7 @@ AdvancedOptionsPage::AdvancedOptionsPage() :
 {
 }
 
-void AdvancedOptionsPage::DoDataExchange(CDataExchange * pDX)
+void AdvancedOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Check(pDX, IDC_CHECK_ASSOCIATION, checkFileTypeAssociations);
@@ -53,12 +53,12 @@ BOOL AdvancedOptionsPage::OnApply()
     g_pYapConfig->showSplashWindow = showSplashWindow ? true : false;
     return CPropertyPage::OnApply();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;

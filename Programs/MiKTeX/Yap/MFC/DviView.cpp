@@ -22,16 +22,16 @@
 
 #include "yap.h"
 
-#include "ErrorDialog.h"
-
 #include "DocumentFontsPage.h"
 #include "DviMagnifyingGlass.h"
-#include "DviView.h"
 #include "Dvidoc.h"
+#include "ErrorDialog.h"
 #include "GotoPageDialog.h"
 #include "MainFrame.h"
 #include "Ruler.h"
 #include "SourceSpecialsDialog.h"
+
+#include "DviView.h"
 
 IMPLEMENT_DYNCREATE(DviView, CScrollView);
 
@@ -152,13 +152,13 @@ DviView::~DviView()
   }
 }
 
-void DviView::OnActivateView(BOOL activate, CView * pActivateView, CView * pDeactiveView)
+void DviView::OnActivateView(BOOL activate, CView* pActivateView, CView* pDeactiveView)
 {
   try
   {
     if (activate)
     {
-      DviDoc * pDoc = GetDocument();
+      DviDoc* pDoc = GetDocument();
       ASSERT_VALID(pDoc);
       DviDoc::DviFileStatus fileStatus = pDoc->GetDviFileStatus();
       switch (fileStatus)
@@ -193,11 +193,11 @@ void DviView::OnActivateView(BOOL activate, CView * pActivateView, CView * pDeac
       }
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -215,12 +215,12 @@ void DviView::OnInitialUpdate()
       PostMessage(WM_MAKEFONTS);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(0, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(0, e);
   }
@@ -234,11 +234,11 @@ CSize DviView::DeterminePageSize()
   return sizePage;
 }
 
-void DviView::OnUpdate(CView * pSender, LPARAM lHint, CObject * pHint)
+void DviView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
 
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
@@ -276,12 +276,12 @@ void DviView::OnUpdate(CView * pSender, LPARAM lHint, CObject * pHint)
 
     CScrollView::OnUpdate(pSender, lHint, pHint);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -315,11 +315,11 @@ BOOL DviView::OnScroll(UINT scrollCode, UINT pos, BOOL doScroll)
     }
 
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -364,7 +364,7 @@ int DviView::GetPagePositionX(int pageIdx)
     return x;
   }
   MIKTEX_ASSERT(pageIdx >= 0);
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   if (pDoc->IsOnRight(pageIdx))
   {
@@ -382,7 +382,7 @@ int DviView::GetPagePositionY(int pageIdx)
     return y;
   }
   MIKTEX_ASSERT(pageIdx >= 0);
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   int n = (g_pYapConfig->doublePage
     ? pDoc->GetRowIdx(pageIdx)
@@ -401,7 +401,7 @@ void DviView::ChangePage(int pageIdx)
   MIKTEX_ASSERT(pageIdx >= 0);
   curPageIdx = pageIdx;
 
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
 
   CPoint pt = GetScrollPosition();
@@ -514,7 +514,7 @@ void DviView::OnNextPage()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     int pageIdx = GetCurrentPageIdx();
     if (pageIdx < 0)
@@ -540,22 +540,22 @@ void DviView::OnNextPage()
     }
     ChangePage(pageIdx + d);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateNextPage(CCmdUI * pCmdUI)
+void DviView::OnUpdateNextPage(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
@@ -577,11 +577,11 @@ void DviView::OnUpdateNextPage(CCmdUI * pCmdUI)
       }
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -592,7 +592,7 @@ void DviView::OnPrevPage()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     int pageIdx = GetCurrentPageIdx();
     if (pageIdx < 0)
@@ -631,22 +631,22 @@ void DviView::OnPrevPage()
     }
     ChangePage(pageIdx);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdatePrevPage(CCmdUI * pCmdUI)
+void DviView::OnUpdatePrevPage(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
@@ -658,11 +658,11 @@ void DviView::OnUpdatePrevPage(CCmdUI * pCmdUI)
       enable = pageIdx > 0;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -676,11 +676,11 @@ void DviView::OnPageDown()
     OnScrollBy(CSize(0, DeterminePageSize().cy), TRUE);
     UpdateWindow();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -701,11 +701,11 @@ void DviView::OnDocumentDown()
       OnNextPage();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -720,11 +720,11 @@ void DviView::OnPageUp()
       UpdateWindow();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -745,11 +745,11 @@ void DviView::OnDocumentUp()
       OnPrevPage();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -808,11 +808,11 @@ void DviView::OnPageLeft()
       UpdateWindow();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -827,11 +827,11 @@ void DviView::OnPageRight()
       UpdateWindow();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -841,7 +841,7 @@ void DviView::OnLastPage()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     int p = pDoc->GetPageCount();
     if (p <= 0)
@@ -850,33 +850,33 @@ void DviView::OnLastPage()
     }
     ChangePage(p - 1);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateLastPage(CCmdUI * pCmdUI)
+void DviView::OnUpdateLastPage(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
       enable = (pDoc->GetPageCount() - 1 > GetCurrentPageIdx());
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -887,7 +887,7 @@ void DviView::OnFirstPage()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetPageCount() <= 0)
     {
@@ -895,33 +895,33 @@ void DviView::OnFirstPage()
     }
     ChangePage(0);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateFirstPage(CCmdUI * pCmdUI)
+void DviView::OnUpdateFirstPage(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
       enable = (GetCurrentPageIdx() > 0);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -932,7 +932,7 @@ void DviView::OnGotoPage()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     string commandPrefix = GetCommandPrefix(true);
     int pageIdx;
@@ -961,33 +961,33 @@ void DviView::OnGotoPage()
     }
     ChangePage(pageIdx);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateGotoPage(CCmdUI * pCmdUI)
+void DviView::OnUpdateGotoPage(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
       enable = TRUE;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1017,11 +1017,11 @@ void DviView::OnEnd()
     pt.y = GetTotalSize().cy;
     ScrollToPosition(pt);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1036,7 +1036,7 @@ void DviView::Zoom(bool zoomIn)
   {
     d = std::stoi(commandPrefix) * sign;
   }
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   int oldShrink = pDoc->GetDisplayShrinkFactor();
   int newShrink = pDoc->GetDisplayShrinkFactor() + d;
@@ -1071,33 +1071,33 @@ void DviView::OnZoomIn()
   {
     Zoom(true);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateZoomIn(CCmdUI * pCmdUI)
+void DviView::OnUpdateZoomIn(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
       enable = (pDoc->GetDisplayShrinkFactor() > 1);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1110,33 +1110,33 @@ void DviView::OnZoomOut()
   {
     Zoom(false);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateZoomOut(CCmdUI * pCmdUI)
+void DviView::OnUpdateZoomOut(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
       enable = TRUE;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1147,7 +1147,7 @@ void DviView::OnLButtonDown(UINT flags, CPoint point)
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
 
     cursorPosition = point;
@@ -1181,7 +1181,7 @@ void DviView::OnLButtonDown(UINT flags, CPoint point)
       mouseCaptured = true;
       CPoint screenPoint = point;
       ClientToScreen(&screenPoint);
-      Ruler * pRuler =
+      Ruler* pRuler =
         new Ruler(this, pDoc->GetPaperSize(),
           g_pYapConfig->unit,
           static_cast<double>(pDoc->GetDisplayResolution()) / pDoc->GetDisplayShrinkFactor(),
@@ -1227,16 +1227,16 @@ void DviView::OnLButtonDown(UINT flags, CPoint point)
       mouseCaptured = true;
       CPoint screenPoint = point;
       ClientToScreen(&screenPoint);
-      DviMagnifyingGlass * pGlass = new DviMagnifyingGlass(this, GetDocument(), size, magGlassShrinkFactor);
+      DviMagnifyingGlass* pGlass = new DviMagnifyingGlass(this, GetDocument(), size, magGlassShrinkFactor);
       pGlass->Create(screenPoint);
       pToolWindow = pGlass;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1282,11 +1282,11 @@ void DviView::OnLButtonUp(UINT flags, CPoint point)
       ::SetCursor(AfxGetApp()->LoadCursor(IDC_HAND_TOOL));
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1303,7 +1303,7 @@ void DviView::OnMouseMove(UINT flags, CPoint point)
     case RulerTool:
       if (pToolWindow != nullptr)
       {
-        Ruler * pRuler = dynamic_cast<Ruler *>(pToolWindow);
+        Ruler* pRuler = dynamic_cast<Ruler *>(pToolWindow);
         if (pRuler == nullptr)
         {
           MIKTEX_UNEXPECTED();
@@ -1324,7 +1324,7 @@ void DviView::OnMouseMove(UINT flags, CPoint point)
     case MagnifyingGlass:
       if (pToolWindow != nullptr)
       {
-        DviMagnifyingGlass * pGlass = dynamic_cast<DviMagnifyingGlass *>(pToolWindow);
+        DviMagnifyingGlass* pGlass = dynamic_cast<DviMagnifyingGlass *>(pToolWindow);
         if (pGlass == nullptr)
         {
           MIKTEX_UNEXPECTED();
@@ -1339,7 +1339,7 @@ void DviView::OnMouseMove(UINT flags, CPoint point)
     cursorPosition = point;
 
     ASSERT_VALID(AfxGetApp());
-    MainFrame * pMain = reinterpret_cast<MainFrame*>((AfxGetApp())->m_pMainWnd);
+    MainFrame* pMain = reinterpret_cast<MainFrame*>((AfxGetApp())->m_pMainWnd);
     ASSERT_VALID(pMain);
     MIKTEX_ASSERT(pMain->IsKindOf(RUNTIME_CLASS(MainFrame)));
 
@@ -1368,11 +1368,11 @@ void DviView::OnMouseMove(UINT flags, CPoint point)
     }
 #endif
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1380,7 +1380,7 @@ void DviView::OnMouseMove(UINT flags, CPoint point)
   CScrollView::OnMouseMove(flags, point);
 }
 
-BOOL DviView::OnSetCursor(CWnd * pWnd, UINT hitTest, UINT message)
+BOOL DviView::OnSetCursor(CWnd* pWnd, UINT hitTest, UINT message)
 {
   if (hitTest != HTCLIENT)
   {
@@ -1428,11 +1428,11 @@ BOOL DviView::OnSetCursor(CWnd * pWnd, UINT hitTest, UINT message)
       }
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1440,7 +1440,7 @@ BOOL DviView::OnSetCursor(CWnd * pWnd, UINT hitTest, UINT message)
   return FALSE;
 }
 
-void DviView::OnContextMenu(CWnd * pWnd, CPoint point)
+void DviView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
   UNUSED_ALWAYS(pWnd);
   try
@@ -1473,18 +1473,18 @@ void DviView::OnContextMenu(CWnd * pWnd, CPoint point)
       MIKTEX_FATAL_WINDOWS_ERROR("CMenu::LoadMenu");
     }
     AutoDetachMenu autoDetachMenu(&menu);
-    CMenu * pPopup = menu.GetSubMenu(0);
+    CMenu* pPopup = menu.GetSubMenu(0);
     MIKTEX_ASSERT(pPopup != nullptr);
     if (!pPopup->TrackPopupMenu(TPM_RIGHTBUTTON, point.x, point.y, AfxGetApp()->m_pMainWnd, nullptr))
     {
       MIKTEX_UNEXPECTED();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1496,7 +1496,7 @@ void DviView::OnToolsHand()
   g_pYapConfig->lastTool = Hand;
 }
 
-void DviView::OnUpdateToolsHand(CCmdUI * pCmdUI)
+void DviView::OnUpdateToolsHand(CCmdUI* pCmdUI)
 {
   pCmdUI->SetCheck(currentMouseTool == Hand ? 1 : 0);
 }
@@ -1507,7 +1507,7 @@ void DviView::OnToolsMagnifyingGlass()
   g_pYapConfig->lastTool = MagnifyingGlass;
 }
 
-void DviView::OnUpdateToolsMagnifyingGlass(CCmdUI * pCmdUI)
+void DviView::OnUpdateToolsMagnifyingGlass(CCmdUI* pCmdUI)
 {
   pCmdUI->SetCheck(currentMouseTool == MagnifyingGlass ? 1 : 0);
 }
@@ -1518,7 +1518,7 @@ void DviView::OnToolsArrow()
   g_pYapConfig->lastTool = RulerTool;
 }
 
-void DviView::OnUpdateToolsArrow(CCmdUI * pCmdUI)
+void DviView::OnUpdateToolsArrow(CCmdUI* pCmdUI)
 {
   pCmdUI->SetCheck(currentMouseTool == RulerTool ? 1 : 0);
 }
@@ -1530,7 +1530,7 @@ void DviView::OnLButtonDblClk(UINT flags, CPoint point)
   OnPageEditor();
 }
 
-bool DviView::GetPoint(int & x, int & y)
+bool DviView::GetPoint(int& x, int& y)
 {
   int pageIdx;
   if (!GetPageUnderCursor(pageIdx, x, y))
@@ -1559,19 +1559,19 @@ void DviView::OnChar(UINT ch, UINT repeatCount, UINT flags)
       CScrollView::OnChar(ch, repeatCount, flags);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-bool DviView::GetPageUnderCursor(int & pageIdx, int & x, int & y)
+bool DviView::GetPageUnderCursor(int& pageIdx, int& x, int& y)
 {
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
 
   if (pDoc->GetDviFileStatus() != DviDoc::DVIFILE_LOADED)
@@ -1660,7 +1660,7 @@ int DviView::GetLeftMargin() const
     RECT rect;
     GetClientRect(&rect);
     int widthWindow = rect.right - rect.left;
-    const DviDoc * pDoc = GetDocument();
+    const DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     CSize sizePage = pDoc->GetPaperSize();
     int widthDisplay;
@@ -1689,7 +1689,7 @@ int DviView::GetTopMargin() const
     RECT rect;
     GetClientRect(&rect);
     int heightWindow = rect.bottom - rect.top;
-    const DviDoc * pDoc = GetDocument();
+    const DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     CSize sizePage = pDoc->GetPaperSize();
     if (sizePage.cy < heightWindow)
@@ -1704,7 +1704,7 @@ void DviView::OnViewRefresh()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     int pageIdx = curPageIdx;
     pDoc->Reread();
@@ -1718,19 +1718,19 @@ void DviView::OnViewRefresh()
     }
     pDoc->UpdateAllViews(0);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::GetVisiblePages(int & pageIdx1, int & pageIdx2) const
+void DviView::GetVisiblePages(int& pageIdx1, int& pageIdx2) const
 {
-  const DviDoc * pDoc = GetDocument();
+  const DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   if (pPrintInfo != nullptr)
   {
@@ -1778,7 +1778,7 @@ int DviView::GetCurrentPageIdx() const
     int sheetIdx = DetermineRowIdx(GetScrollPosition().y);
     if (g_pYapConfig->doublePage)
     {
-      const DviDoc * pDoc = GetDocument();
+      const DviDoc* pDoc = GetDocument();
       ASSERT_VALID(pDoc);
       return pDoc->DeterminePageIdx(sheetIdx, false);
     }
@@ -1802,7 +1802,7 @@ int DviView::DetermineRowIdx(int y) const
     MIKTEX_UNEXPECTED();
   }
 #endif
-  const DviDoc * pDoc = GetDocument();
+  const DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   int n = (g_pYapConfig->doublePage
     ? pDoc->GetRowCount()
@@ -1824,7 +1824,7 @@ void DviView::OnFileDocumentProperties()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     CPropertySheet dlg(T_(_T("Document Properties")), 0, 0);
     DocumentFontsPage pageFonts;
@@ -1832,33 +1832,33 @@ void DviView::OnFileDocumentProperties()
     dlg.AddPage(&pageFonts);
     dlg.DoModal();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateFileDocumentProperties(CCmdUI * pCmdUI)
+void DviView::OnUpdateFileDocumentProperties(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
       enable = TRUE;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1871,7 +1871,7 @@ LRESULT DviView::OnMakeFonts(WPARAM wParam, LPARAM lParam)
   UNUSED_ALWAYS(wParam);
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetPageCount() > 0)
     {
@@ -1880,11 +1880,11 @@ LRESULT DviView::OnMakeFonts(WPARAM wParam, LPARAM lParam)
       pDoc->MakeFonts();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1921,18 +1921,18 @@ void DviView::OnLighterText()
     UpdateAllDviViews();
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateLighterText(CCmdUI * pCmdUI)
+void DviView::OnUpdateLighterText(CCmdUI* pCmdUI)
 {
   try
   {
@@ -1941,12 +1941,12 @@ void DviView::OnUpdateLighterText(CCmdUI * pCmdUI)
     pCmdUI->Enable(idx > 0 && g_pYapConfig->dviPageMode != DviPageMode::Dvips);
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -1962,18 +1962,18 @@ void DviView::OnDarkerText()
     UpdateAllDviViews();
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateDarkerText(CCmdUI * pCmdUI)
+void DviView::OnUpdateDarkerText(CCmdUI* pCmdUI)
 {
   try
   {
@@ -1983,12 +1983,12 @@ void DviView::OnUpdateDarkerText(CCmdUI * pCmdUI)
       && g_pYapConfig->dviPageMode != DviPageMode::Dvips);
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -2012,27 +2012,27 @@ void DviView::OnDviPageModePk()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     pDoc->SetDviPageMode(DviPageMode::Pk);
     pDoc->Reread();
     pDoc->UpdateAllViews(nullptr);
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateDviPageModePk(CCmdUI * pCmdUI)
+void DviView::OnUpdateDviPageModePk(CCmdUI* pCmdUI)
 {
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   pCmdUI->SetCheck(pDoc->GetDviPageMode() == DviPageMode::Pk);
 }
@@ -2041,27 +2041,27 @@ void DviView::OnDviPageModeDvips()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     pDoc->SetDviPageMode(DviPageMode::Dvips);
     pDoc->Reread();
     pDoc->UpdateAllViews(0);
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateDviPageModeDvips(CCmdUI * pCmdUI)
+void DviView::OnUpdateDviPageModeDvips(CCmdUI* pCmdUI)
 {
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   pCmdUI->SetCheck(pDoc->GetDviPageMode() == DviPageMode::Dvips);
 }

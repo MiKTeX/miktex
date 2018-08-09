@@ -40,7 +40,7 @@ UIOptionsPage::UIOptionsPage() :
 {
 }
 
-void UIOptionsPage::DoDataExchange(CDataExchange * pDX)
+void UIOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Check(pDX, IDC_MAINTAIN_HORZ_POS, maintainHorizontalPosition);
@@ -58,12 +58,12 @@ BOOL UIOptionsPage::OnApply()
 
     return CPropertyPage::OnApply();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;

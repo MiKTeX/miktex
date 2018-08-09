@@ -38,10 +38,10 @@ private:
   enum { IDD = IDD_ERROR };
 
 public:
-  ErrorDialogImpl(CWnd * pParent, const MiKTeXException & e);
+  ErrorDialogImpl(CWnd* pParent, const MiKTeXException& e);
 
 public:
-  ErrorDialogImpl(CWnd * pParent, const exception & e);
+  ErrorDialogImpl(CWnd* pParent, const exception& e);
 
 private:
   BOOL OnInitDialog() override;
@@ -50,7 +50,7 @@ protected:
   afx_msg void OnCopy();
 
 private:
-  void DoDataExchange(CDataExchange * pDX) override;
+  void DoDataExchange(CDataExchange* pDX) override;
 
 private:
   string CreateReport();
@@ -75,7 +75,7 @@ BEGIN_MESSAGE_MAP(ErrorDialogImpl, CDialog)
   ON_BN_CLICKED(IDC_COPY, &ErrorDialogImpl::OnCopy)
 END_MESSAGE_MAP();
 
-ErrorDialogImpl::ErrorDialogImpl(CWnd * pParent, const MiKTeXException & e) :
+ErrorDialogImpl::ErrorDialogImpl(CWnd* pParent, const MiKTeXException& e) :
   CDialog(IDD, pParent),
   isMiKTeXException(true),
   miktexException(e),
@@ -84,7 +84,7 @@ ErrorDialogImpl::ErrorDialogImpl(CWnd * pParent, const MiKTeXException & e) :
 {
 }
 
-ErrorDialogImpl::ErrorDialogImpl(CWnd * pParent, const exception & e) :
+ErrorDialogImpl::ErrorDialogImpl(CWnd* pParent, const exception& e) :
   CDialog(IDD, pParent),
   isMiKTeXException(false),
   stdException(e),
@@ -92,7 +92,7 @@ ErrorDialogImpl::ErrorDialogImpl(CWnd * pParent, const exception & e) :
 {
 }
 
-void ErrorDialogImpl::DoDataExchange(CDataExchange * pDX)
+void ErrorDialogImpl::DoDataExchange(CDataExchange* pDX)
 {
   CDialog::DoDataExchange(pDX);
   DDX_Text(pDX, IDC_MESSAGE, message);
@@ -105,28 +105,28 @@ BOOL ErrorDialogImpl::OnInitDialog()
   return ret;
 }
 
-INT_PTR ErrorDialog::DoModal(CWnd * pParent, const MiKTeXException & e)
+INT_PTR ErrorDialog::DoModal(CWnd* pParent, const MiKTeXException& e)
 {
   try
   {
     ErrorDialogImpl dlg(pParent, e);
     return dlg.DoModal();
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     AfxMessageBox(UT_(e.what()));
     return -1;
   }
 }
 
-INT_PTR ErrorDialog::DoModal(CWnd * pParent, const exception & e)
+INT_PTR ErrorDialog::DoModal(CWnd* pParent, const exception& e)
 {
   try
   {
     ErrorDialogImpl dlg(pParent, e);
     return dlg.DoModal();
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     AfxMessageBox(UT_(e.what()));
     return -1;
@@ -154,7 +154,7 @@ void ErrorDialogImpl::OnCopy()
     {
       MIKTEX_FATAL_WINDOWS_ERROR("GlobalAlloc");
     }
-    void * pGlobal = GlobalLock(hGlobal);
+    void* pGlobal = GlobalLock(hGlobal);
     if (pGlobal == nullptr)
     {
       MIKTEX_FATAL_WINDOWS_ERROR("GlobalLock");
@@ -162,7 +162,7 @@ void ErrorDialogImpl::OnCopy()
     else
     {
       AutoGlobal autoGlobal(pGlobal);
-      StringUtil::CopyString(reinterpret_cast<char *>(pGlobal), report.length() + 1, report.c_str());
+      StringUtil::CopyString(reinterpret_cast<char*>(pGlobal), report.length() + 1, report.c_str());
     }
     if (SetClipboardData(CF_TEXT, hGlobal) == nullptr)
     {
@@ -171,7 +171,7 @@ void ErrorDialogImpl::OnCopy()
     hGlobal = nullptr;
     AfxMessageBox(T_(_T("The error report has been copied to the Clipboard.")));
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     AfxMessageBox(UT_(e.what()));
   }

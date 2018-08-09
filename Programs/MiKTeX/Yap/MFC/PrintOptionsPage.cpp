@@ -1,6 +1,6 @@
 /* PrintOptionsPage.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -22,9 +22,9 @@
 
 #include "yap.h"
 
+#include "DviDoc.h"
 #include "ErrorDialog.h"
 
-#include "DviDoc.h"
 #include "PrintOptionsPage.h"
 
 BEGIN_MESSAGE_MAP(PrintOptionsPage, CPropertyPage)
@@ -70,12 +70,12 @@ BOOL PrintOptionsPage::OnInitDialog()
     }
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(0, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(0, e);
   }
@@ -83,7 +83,7 @@ BOOL PrintOptionsPage::OnInitDialog()
   return ret;
 }
 
-void PrintOptionsPage::DoDataExchange(CDataExchange * pDX)
+void PrintOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
 
@@ -104,12 +104,12 @@ BOOL PrintOptionsPage::OnApply()
     g_pYapConfig->pageYShift = yShift;
     return CPropertyPage::OnApply();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
@@ -134,11 +134,11 @@ void PrintOptionsPage::OnChangeMode()
       SetModified(TRUE);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }

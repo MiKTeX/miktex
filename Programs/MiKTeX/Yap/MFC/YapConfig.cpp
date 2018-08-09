@@ -1,6 +1,6 @@
 /* YapConfig.cpp: Yap configuration settings
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -35,7 +35,7 @@ unique_ptr<YapConfig> g_pYapConfig;
 template<class Enum> struct EnumAndString
 {
   Enum num;
-  const char * lpsz;
+  const char* lpsz;
 };
 
 namespace
@@ -59,12 +59,12 @@ namespace
   };
 
 
-  const char * const DEFAULT_SECURE_COMMANDS = "gunzip,zcat,bunzip2,bzcat";
+  const char* const DEFAULT_SECURE_COMMANDS = "gunzip,zcat,bunzip2,bzcat";
 
-  const char * const DEFAULT_GAMMA_VALUES = "0.01 0.05 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.25 1.5 1.75 2.0 3.0 4.0 5.0 7.5 10.0 100.0";
+  const char* const DEFAULT_GAMMA_VALUES = "0.01 0.05 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.25 1.5 1.75 2.0 3.0 4.0 5.0 7.5 10.0 100.0";
 };
 
-template<class Enum> const char * EnumToString(Enum num, const EnumAndString<Enum> * pMap)
+template<class Enum> const char* EnumToString(Enum num, const EnumAndString<Enum>* pMap)
 {
   for (size_t idx = 0; pMap[idx].lpsz != nullptr; ++idx)
   {
@@ -76,7 +76,7 @@ template<class Enum> const char * EnumToString(Enum num, const EnumAndString<Enu
   MIKTEX_UNEXPECTED();
 }
 
-template<class Enum> Enum StringToEnum(const char * lpsz, const EnumAndString<Enum> * pMap)
+template<class Enum> Enum StringToEnum(const char* lpsz, const EnumAndString<Enum>* pMap)
 {
   for (size_t idx = 0; pMap[idx].lpsz != nullptr; ++idx)
   {
@@ -88,7 +88,7 @@ template<class Enum> Enum StringToEnum(const char * lpsz, const EnumAndString<En
   MIKTEX_UNEXPECTED();
 }
 
-bool SetMetafontMode(const char * lpszMnemonic, unsigned long & metafontModeIdx)
+bool SetMetafontMode(const char* lpszMnemonic, unsigned long& metafontModeIdx)
 {
   shared_ptr<Session> session = Session::Get();
   MIKTEXMFMODE metafontMode;
@@ -103,12 +103,12 @@ bool SetMetafontMode(const char * lpszMnemonic, unsigned long & metafontModeIdx)
   return false;
 }
 
-bool YapConfig::SetDisplayMetafontMode(const char * lpszMnemonic)
+bool YapConfig::SetDisplayMetafontMode(const char* lpszMnemonic)
 {
   return SetMetafontMode(lpszMnemonic, displayMetafontMode);
 }
 
-bool YapConfig::SetPrinterMetafontMode(const char * lpszMnemonic)
+bool YapConfig::SetPrinterMetafontMode(const char* lpszMnemonic)
 {
   return SetMetafontMode(lpszMnemonic, printerMetafontMode);
 }

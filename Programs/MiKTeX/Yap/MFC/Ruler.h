@@ -1,6 +1,6 @@
 /* Ruler.h:                                             -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -33,28 +33,28 @@ public:
   enum Kind { Horizontal, Vertical };
 
 public:
-  Ruler(CWnd * pParent, const CSize & size, Unit unit, double pixelsPerInch, Kind kind);
+  Ruler(CWnd* pParent, const CSize& size, Unit unit, double pixelsPerInch, Kind kind);
 
 protected:
-  virtual BOOL PreCreateWindow(CREATESTRUCT & cs);
+  virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
 protected:
   virtual void PostNcDestroy();
 
 public:
-  void Create(const CPoint & pt);
+  void Create(const CPoint& pt);
 
 protected:
   afx_msg void OnPaint();
 
 protected:
-  afx_msg BOOL OnEraseBkgnd(CDC * pDC);
+  afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 
 public:
-  void MoveRuler(const CPoint & pt);
+  void MoveRuler(const CPoint& pt);
 
 private:
-  CWnd * pParent;
+  CWnd* pParent;
 
 private:
   CSize sizeWindow;

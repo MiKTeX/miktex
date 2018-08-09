@@ -95,7 +95,7 @@ namespace {
   bool unregistering = false;
 }
 
-void ParseYapCommandLine(const char * lpszArguments, YapCommandLineInfo & cmdInfo)
+void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -126,7 +126,7 @@ void ParseYapCommandLine(const char * lpszArguments, YapCommandLineInfo & cmdInf
 
     case OPT_FIND_SRC_SPECIAL:
     {
-      char * lpszFileName = nullptr;
+      char* lpszFileName = nullptr;
       cmdInfo.sourceLineNum = strtol(popt.GetOptArg().c_str(), &lpszFileName, 10);
       if (lpszFileName != nullptr)
       {
@@ -179,7 +179,7 @@ void ParseYapCommandLine(const char * lpszArguments, YapCommandLineInfo & cmdInf
   vector<string> leftovers = popt.GetLeftovers();
 
   // parse the rest
-  for (const string & arg : leftovers)
+  for (const string& arg : leftovers)
   {
     if (_stricmp(arg.c_str(), "/dde") == 0)
     {
@@ -259,7 +259,7 @@ void YapApplication::RegisterWindowClass()
 
 namespace {
   bool initialized = false;
-  const char * const COMMERCIAL_INVOKERS =
+  const char* const COMMERCIAL_INVOKERS =
     // yap invokers
     "winedt"              // http://www.winedt.com
     ";" "Inlage 4"        // http://www.inlage.com/
@@ -356,12 +356,12 @@ BOOL YapApplication::InitInstance()
     initialized = true;
 
     // register the application's document templates
-    CMultiDocTemplate * pDocTemplate;
+    CMultiDocTemplate* pDocTemplate;
     pDocTemplate = new CMultiDocTemplate(IDR_DVITYPE, RUNTIME_CLASS(DviDoc), RUNTIME_CLASS(ChildFrame), RUNTIME_CLASS(DviView));
     AddDocTemplate(pDocTemplate);
 
     // create main MDI Frame window
-    MainFrame * pMainFrame = new MainFrame;
+    MainFrame* pMainFrame = new MainFrame;
     if (!pMainFrame->LoadFrame(IDR_MAINFRAME))
     {
       MIKTEX_UNEXPECTED();
@@ -444,13 +444,13 @@ BOOL YapApplication::InitInstance()
     return TRUE;
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(0, e);
     return FALSE;
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(0, e);
     return FALSE;
@@ -473,7 +473,7 @@ public:
   }
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  virtual void DoDataExchange(CDataExchange* pDX);
 
 protected:
   afx_msg void OnClickRegisterMiKTeX();
@@ -482,7 +482,7 @@ private:
   shared_ptr<Session> session = Session::Get();
 };
 
-void AboutDialog::DoDataExchange(CDataExchange * pDX)
+void AboutDialog::DoDataExchange(CDataExchange* pDX)
 {
   CDialog::DoDataExchange(pDX);
   if (!pDX->m_bSaveAndValidate)
@@ -513,11 +513,11 @@ void AboutDialog::OnClickRegisterMiKTeX()
   catch (const OperationCancelledException &)
   {
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -579,18 +579,18 @@ int YapApplication::ExitInstance()
   return CWinApp::ExitInstance();
 }
 
-void DdeExecute(const char * server, const char * topic, const char * command);
+void DdeExecute(const char* server, const char* topic, const char* command);
 
-bool YapApplication::ActivateFirstInstance(const YapCommandLineInfo & cmdInfo)
+bool YapApplication::ActivateFirstInstance(const YapCommandLineInfo& cmdInfo)
 {
   // check to see whether there is another Yap instance running
-  CWnd * pwndPrev = CWnd::FindWindow(YAP_WND_CLASS, nullptr);
+  CWnd* pwndPrev = CWnd::FindWindow(YAP_WND_CLASS, nullptr);
   if (pwndPrev == nullptr)
   {
     return false;           // we are alone
   }
 
-  CWnd * wndChild = pwndPrev->GetLastActivePopup();
+  CWnd* wndChild = pwndPrev->GetLastActivePopup();
   MIKTEX_ASSERT(wndChild != nullptr);
 
   // restore the other app window
@@ -680,7 +680,7 @@ public:
 typedef AutoResource<HCONV, DdeDisconnect_> AutoDdeDisconnect;
 #endif
 
-void DdeExecute(const char * lpszServer, const char * lpszTopic, const char * lpszCommand)
+void DdeExecute(const char* lpszServer, const char* lpszTopic, const char* lpszCommand)
 {
   YapLog("DdeExecute(\"%s\", \"%s\", \"%s\")", lpszServer, lpszTopic, lpszCommand);
   unsigned long inst = 0;
@@ -776,12 +776,12 @@ BOOL YapApplication::OnDDECommand(LPTSTR lpszCommand)
     }
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(0, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(0, e);
   }
@@ -791,30 +791,30 @@ BOOL YapApplication::OnDDECommand(LPTSTR lpszCommand)
   return done;
 }
 
-bool YapApplication::FindSrcSpecial(int line, const char * lpszFileName)
+bool YapApplication::FindSrcSpecial(int line, const char* lpszFileName)
 {
   POSITION posTemplate = GetFirstDocTemplatePosition();
   while (posTemplate != nullptr)
   {
-    CDocTemplate * pTemplate = GetNextDocTemplate(posTemplate);
+    CDocTemplate* pTemplate = GetNextDocTemplate(posTemplate);
     POSITION posDoc = pTemplate->GetFirstDocPosition();
     while (posDoc != nullptr)
     {
-      CDocument * pDoc = pTemplate->GetNextDoc(posDoc);
+      CDocument* pDoc = pTemplate->GetNextDoc(posDoc);
       if (!pDoc->IsKindOf(RUNTIME_CLASS(DviDoc)))
       {
         continue;
       }
-      DviDoc * pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
+      DviDoc* pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
       POSITION posView = pDviDoc->GetFirstViewPosition();
       while (posView != nullptr)
       {
-        CView * pView = pDviDoc->GetNextView(posView);
+        CView* pView = pDviDoc->GetNextView(posView);
         if (!pView->IsKindOf(RUNTIME_CLASS(DviView)))
         {
           continue;
         }
-        DviView * pDviview = reinterpret_cast<DviView*>(pView);
+        DviView* pDviview = reinterpret_cast<DviView*>(pView);
         if (pDviview->GotoSrcSpecial(line, lpszFileName))
         {
           return true;
@@ -825,7 +825,7 @@ bool YapApplication::FindSrcSpecial(int line, const char * lpszFileName)
   return false;
 }
 
-bool YapApplication::GotoHyperLabel(const char * lpszLabel)
+bool YapApplication::GotoHyperLabel(const char* lpszLabel)
 {
   string hashLabel;
   hashLabel = '#';
@@ -833,25 +833,25 @@ bool YapApplication::GotoHyperLabel(const char * lpszLabel)
   POSITION posTemplate = GetFirstDocTemplatePosition();
   while (posTemplate != nullptr)
   {
-    CDocTemplate * pTemplate = GetNextDocTemplate(posTemplate);
+    CDocTemplate* pTemplate = GetNextDocTemplate(posTemplate);
     POSITION posDoc = pTemplate->GetFirstDocPosition();
     while (posDoc != nullptr)
     {
-      CDocument * pDoc = pTemplate->GetNextDoc(posDoc);
+      CDocument* pDoc = pTemplate->GetNextDoc(posDoc);
       if (!pDoc->IsKindOf(RUNTIME_CLASS(DviDoc)))
       {
         continue;
       }
-      DviDoc * pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
+      DviDoc* pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
       POSITION posView = pDviDoc->GetFirstViewPosition();
       while (posView != nullptr)
       {
-        CView * pView = pDviDoc->GetNextView(posView);
+        CView* pView = pDviDoc->GetNextView(posView);
         if (!pView->IsKindOf(RUNTIME_CLASS(DviView)))
         {
           continue;
         }
-        DviView * pDviView = reinterpret_cast<DviView *>(pView);
+        DviView* pDviView = reinterpret_cast<DviView *>(pView);
         if (pDviView->Navigate(hashLabel.c_str(), false))
         {
           return true;
@@ -862,7 +862,7 @@ bool YapApplication::GotoHyperLabel(const char * lpszLabel)
   return false;
 }
 
-void StartEditor(const char * lpszFileName, const char * lpszDocDir, int line)
+void StartEditor(const char* lpszFileName, const char* lpszDocDir, int line)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -885,7 +885,7 @@ void StartEditor(const char * lpszFileName, const char * lpszDocDir, int line)
 
   // make command line
   string commandLine;
-  const char * lpsz = g_pYapConfig->inverseSearchCommandLine.c_str();
+  const char* lpsz = g_pYapConfig->inverseSearchCommandLine.c_str();
   bool haveName = false;
   bool haveLine = false;
   while (*lpsz != 0)
@@ -948,7 +948,7 @@ void StartEditor(const char * lpszFileName, const char * lpszDocDir, int line)
   CloseHandle(processInfo.hProcess);
 }
 
-void VYapLog(const char * lpszFormat, va_list argptr)
+void VYapLog(const char* lpszFormat, va_list argptr)
 {
   if (theApp.trace_yap != nullptr)
   {
@@ -956,7 +956,7 @@ void VYapLog(const char * lpszFormat, va_list argptr)
   }
 }
 
-void YapLog(const char * lpszFormat, ...)
+void YapLog(const char* lpszFormat, ...)
 {
   if (theApp.trace_yap != nullptr && theApp.trace_yap->IsEnabled())
   {
@@ -967,7 +967,7 @@ void YapLog(const char * lpszFormat, ...)
   }
 }
 
-void TraceError(const char * lpszFormat, ...)
+void TraceError(const char* lpszFormat, ...)
 {
   if (theApp.trace_error != nullptr)
   {
@@ -978,7 +978,7 @@ void TraceError(const char * lpszFormat, ...)
   }
 }
 
-CDocument * YapApplication::OpenDocumentFile(LPCTSTR lpszFileName)
+CDocument* YapApplication::OpenDocumentFile(LPCTSTR lpszFileName)
 {
   try
   {
@@ -988,12 +988,12 @@ CDocument * YapApplication::OpenDocumentFile(LPCTSTR lpszFileName)
 #endif
     return CWinApp::OpenDocumentFile(UT_(pathShort.GetData()));
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(nullptr, e);
     return 0;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(nullptr, e);
     return 0;
@@ -1002,19 +1002,19 @@ CDocument * YapApplication::OpenDocumentFile(LPCTSTR lpszFileName)
 
 void UpdateAllDviViews(bool reread)
 {
-  YapApplication * pYapApp = reinterpret_cast<YapApplication*>(AfxGetApp());
+  YapApplication* pYapApp = reinterpret_cast<YapApplication*>(AfxGetApp());
   MIKTEX_ASSERT(pYapApp != nullptr);
   POSITION posTemplate = pYapApp->GetFirstDocTemplatePosition();
   while (posTemplate != nullptr)
   {
-    CDocTemplate * pTemplate = pYapApp->GetNextDocTemplate(posTemplate);
+    CDocTemplate* pTemplate = pYapApp->GetNextDocTemplate(posTemplate);
     POSITION posDoc = pTemplate->GetFirstDocPosition();
     while (posDoc != nullptr)
     {
-      CDocument * pDoc = pTemplate->GetNextDoc(posDoc);
+      CDocument* pDoc = pTemplate->GetNextDoc(posDoc);
       if (pDoc->IsKindOf(RUNTIME_CLASS(DviDoc)))
       {
-        DviDoc * pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
+        DviDoc* pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
         if (reread)
         {
           pDviDoc->Reread();
@@ -1029,7 +1029,7 @@ string GetCommandPrefix(bool clear)
 {
   ASSERT_VALID(AfxGetApp());
   ASSERT_VALID(AfxGetApp()->m_pMainWnd);
-  MainFrame * pMain = reinterpret_cast<MainFrame*>(AfxGetApp()->m_pMainWnd);
+  MainFrame* pMain = reinterpret_cast<MainFrame*>(AfxGetApp()->m_pMainWnd);
   return pMain->GetCommandPrefix(clear);
 }
 
@@ -1037,7 +1037,7 @@ bool AddCommandPrefixChar(char ch)
 {
   ASSERT_VALID(AfxGetApp());
   ASSERT_VALID(AfxGetApp()->m_pMainWnd);
-  MainFrame * pMain = reinterpret_cast<MainFrame*>(AfxGetApp()->m_pMainWnd);
+  MainFrame* pMain = reinterpret_cast<MainFrame*>(AfxGetApp()->m_pMainWnd);
   return pMain->AddCommandPrefixChar(ch);
 }
 
@@ -1055,17 +1055,17 @@ void YapApplication::OnViewTrace()
     }
     TraceStream::SetTraceFlags(tracing ? traceFlags : "");
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(nullptr, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(nullptr, e);
   }
 }
 
-void YapApplication::OnUpdateViewTrace(CCmdUI * pCmdUI)
+void YapApplication::OnUpdateViewTrace(CCmdUI* pCmdUI)
 {
   pCmdUI->SetCheck(tracing ? 1 : 0);
 }
@@ -1085,17 +1085,17 @@ void YapApplication::OnRegisterMiKTeX()
   catch (const OperationCancelledException &)
   {
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(nullptr, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(nullptr, e);
   }
 }
 
-string trim(const string & s)
+string trim(const string& s)
 {
   const size_t start = s.find_first_not_of(" \t");
   if (start == string::npos)
@@ -1106,7 +1106,7 @@ string trim(const string & s)
   return s.substr(start, end - start + 1);
 }
 
-bool AllowShellCommand(const char * lpszCommand)
+bool AllowShellCommand(const char* lpszCommand)
 {
   switch (g_pYapConfig->enableShellCommands)
   {

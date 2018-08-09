@@ -41,7 +41,7 @@ SecurityOptionsPage::SecurityOptionsPage() :
 {
 }
 
-void SecurityOptionsPage::DoDataExchange(CDataExchange * pDX)
+void SecurityOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Radio(pDX, IDC_SECURITY_DISABLE_COMMANDS, enableShellCommands);
@@ -56,12 +56,12 @@ BOOL SecurityOptionsPage::OnApply()
     g_pYapConfig->secureCommands = TU_(secureCommands);
     return CPropertyPage::OnApply();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;

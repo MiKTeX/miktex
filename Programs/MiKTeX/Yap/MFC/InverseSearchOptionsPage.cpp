@@ -36,13 +36,12 @@
 
 #include "yap.h"
 
+#include "AddChangeEditorDialog.h"
 #include "ErrorDialog.h"
 
 #include "InverseSearchOptionsPage.h"
 
-#include "AddChangeEditorDialog.h"
-
-bool ReadPath(HKEY hkeyRoot, const wchar_t * lpszSubKey, const wchar_t * lpszValueName, PathName & path)
+bool ReadPath(HKEY hkeyRoot, const wchar_t* lpszSubKey, const wchar_t* lpszValueName, PathName& path)
 {
   HKEY hkey;
   REGSAM samDesired = KEY_READ;
@@ -71,7 +70,7 @@ bool ReadPath(HKEY hkeyRoot, const wchar_t * lpszSubKey, const wchar_t * lpszVal
   return true;
 }
 
-bool LocateNTEmacs(PathName & ntEmacs, const char * lpszName)
+bool LocateNTEmacs(PathName& ntEmacs, const char* lpszName)
 {
   PathName path;
   if (!ReadPath(HKEY_LOCAL_MACHINE, L"SOFTWARE\\GNU\\Emacs", L"emacs_dir", path))
@@ -89,7 +88,7 @@ bool LocateNTEmacs(PathName & ntEmacs, const char * lpszName)
   return true;
 }
 
-bool MakeNTEmacsCommandLine(string & program, string & arguments)
+bool MakeNTEmacsCommandLine(string& program, string& arguments)
 {
   PathName pathEmacs;
   if (!LocateNTEmacs(pathEmacs, "runemacs.exe") && !LocateNTEmacs(pathEmacs, "emacs.exe"))
@@ -101,13 +100,13 @@ bool MakeNTEmacsCommandLine(string & program, string & arguments)
   return true;
 }
 
-bool MakeNTEmacsClientCommandLine(string & program, string & arguments)
+bool MakeNTEmacsClientCommandLine(string& program, string& arguments)
 {
   PathName pathEmacs;
   if (!LocateNTEmacs(pathEmacs, "gnuclientw.exe"))
   {
     wchar_t szEmacs[_MAX_PATH];
-    wchar_t * lpszFileName;
+    wchar_t* lpszFileName;
     if (!SearchPathW(0, L"gnuclientw.exe", 0, _MAX_PATH, szEmacs, &lpszFileName))
     {
       return false;
@@ -119,7 +118,7 @@ bool MakeNTEmacsClientCommandLine(string & program, string & arguments)
   return true;
 }
 
-bool MakeXEmacsCommandLine(string & program, string & arguments)
+bool MakeXEmacsCommandLine(string& program, string& arguments)
 {
   PathName emacsDir;
   if (!ReadPath(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\xemacs.exe", L"Path", emacsDir))
@@ -143,7 +142,7 @@ bool MakeXEmacsCommandLine(string & program, string & arguments)
   return true;
 }
 
-bool LocateTeXnicCenter(PathName & tc)
+bool LocateTeXnicCenter(PathName& tc)
 {
   PathName path;
   if (ReadPath(HKEY_LOCAL_MACHINE, L"SOFTWARE\\ToolsCenter\\TeXnicCenter", L"AppPath", path))
@@ -170,7 +169,7 @@ bool LocateTeXnicCenter(PathName & tc)
   return true;
 }
 
-bool MakeTeXnicCenterCommandLine(string & program, string & arguments)
+bool MakeTeXnicCenterCommandLine(string& program, string& arguments)
 {
   PathName tc;
   if (!LocateTeXnicCenter(tc))
@@ -182,7 +181,7 @@ bool MakeTeXnicCenterCommandLine(string & program, string & arguments)
   return true;
 }
 
-bool LocateProgram(const char * lpszSubDir, const char * lpszFileName, PathName & path)
+bool LocateProgram(const char* lpszSubDir, const char* lpszFileName, PathName& path)
 {
   path = Utils::GetFolderPath(CSIDL_PROGRAM_FILESX86, CSIDL_PROGRAM_FILES, true);
   path /= lpszSubDir;
@@ -190,7 +189,7 @@ bool LocateProgram(const char * lpszSubDir, const char * lpszFileName, PathName 
   return File::Exists(path);
 }
 
-bool MakeVisualTeXCommandLine(string & program, string & arguments)
+bool MakeVisualTeXCommandLine(string& program, string& arguments)
 {
   PathName path;
   if (!LocateProgram("Visual-TeX", "vtex.exe", path))
@@ -202,7 +201,7 @@ bool MakeVisualTeXCommandLine(string & program, string & arguments)
   return true;
 }
 
-bool LocateWinEdt(PathName & winEdt)
+bool LocateWinEdt(PathName& winEdt)
 {
   if (ReadPath(HKEY_CURRENT_USER, L"Software\\WinEdt", L"Install Root", winEdt))
   {
@@ -215,7 +214,7 @@ bool LocateWinEdt(PathName & winEdt)
   return ReadPath(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\WinEdt.exe", 0, winEdt);
 }
 
-bool MakeWinEdtCommandLine(string & program, string & arguments)
+bool MakeWinEdtCommandLine(string& program, string& arguments)
 {
   PathName pathWinEdt;
   if (!LocateWinEdt(pathWinEdt))
@@ -227,7 +226,7 @@ bool MakeWinEdtCommandLine(string & program, string & arguments)
   return true;
 }
 
-bool MakeLaTeXMngCommandLine(string & program, string & arguments)
+bool MakeLaTeXMngCommandLine(string& program, string& arguments)
 {
   PathName path;
   if (!LocateProgram("LaTeXMng", "LaTeXMng.exe", path))
@@ -240,7 +239,7 @@ bool MakeLaTeXMngCommandLine(string & program, string & arguments)
   return true;
 }
 
-bool MakeWinTeXXPCommandLine(string & program, string & arguments)
+bool MakeWinTeXXPCommandLine(string& program, string& arguments)
 {
   PathName path;
   if (!LocateProgram("WinTeX", "wintex.exe", path))
@@ -252,7 +251,7 @@ bool MakeWinTeXXPCommandLine(string & program, string & arguments)
   return true;
 }
 
-bool MakeWinShellCommandLine(string & program, string & arguments)
+bool MakeWinShellCommandLine(string& program, string& arguments)
 {
   PathName path;
   if (!LocateProgram("WinShell", "WinShell.exe", path))
@@ -264,7 +263,7 @@ bool MakeWinShellCommandLine(string & program, string & arguments)
   return true;
 }
 
-bool MakeLaTeXWIDECommandLine(string & program, string & arguments)
+bool MakeLaTeXWIDECommandLine(string& program, string& arguments)
 {
   PathName path;
   if (!LocateProgram("LaTeX WIDE", "LWide.exe", path))
@@ -327,12 +326,12 @@ BOOL InverseSearchOptionsPage::OnInitDialog()
     EnableButtons();
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(0, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(0, e);
   }
@@ -340,7 +339,7 @@ BOOL InverseSearchOptionsPage::OnInitDialog()
   return ret;
 }
 
-void InverseSearchOptionsPage::DoDataExchange(CDataExchange * pDX)
+void InverseSearchOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_LBIndex(pDX, IDC_LISTBOX_EDITOR, commandLineIdx);
@@ -371,11 +370,11 @@ void InverseSearchOptionsPage::OnSelChangeEditor()
     SetModified(TRUE);
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -397,11 +396,11 @@ void InverseSearchOptionsPage::OnAddEditor()
       mustWrite = true;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -419,11 +418,11 @@ void InverseSearchOptionsPage::OnChangeEditor()
       mustWrite = true;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -442,11 +441,11 @@ void InverseSearchOptionsPage::OnDeleteEditor()
     OnSelChangeEditor();
     mustWrite = true;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -484,12 +483,12 @@ BOOL InverseSearchOptionsPage::OnApply()
     }
     return CPropertyPage::OnApply();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
@@ -573,7 +572,7 @@ void InverseSearchOptionsPage::CollectEditors()
     {
       unique_ptr<Cfg> pCfg(Cfg::Create());
       pCfg->Read(editorsIni);
-      for (const shared_ptr<Cfg::Key> & key : pCfg->GetKeys())
+      for (const shared_ptr<Cfg::Key>& key : pCfg->GetKeys())
       {
         editors.push_back(EditorInfo(key->GetName(), pCfg->GetValue(key->GetName(), "program")->GetValue(), pCfg->GetValue(key->GetName(), "arguments")->GetValue()));
       }
