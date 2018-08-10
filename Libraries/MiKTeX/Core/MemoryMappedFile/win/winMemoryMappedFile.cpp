@@ -80,7 +80,10 @@ void* winMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
     ptr = MapViewOfFile(hMapping, (readWrite ? FILE_MAP_WRITE : FILE_MAP_READ), 0, 0, 0);
     if (ptr == nullptr)
     {
-      MIKTEX_FATAL_WINDOWS_ERROR_3("MapViewOfFile", T_("MiKTeX can not access the the file '{path}'. It might be blocked by another program."), "path", path.ToString());
+      MIKTEX_FATAL_WINDOWS_ERROR_4("MapViewOfFile",
+        T_("MiKTeX cannot access the file '{path}'. It might be in use (blocked by another program)."),
+        T_("Close other programs and try again.")
+        "path", path.ToDisplayString());
     }
 
     // get the size

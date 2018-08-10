@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -58,10 +58,17 @@ BEGIN_TEST_FUNCTION(2);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(3);
+{
+  TEST(StringUtil::FormatString2("hi{xy}}{yz}{abrakadabra", { { "xy", "ho"} }) == "hiho}{yz}{abrakadabra");
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
   CALL_TEST_FUNCTION(2);
+  CALL_TEST_FUNCTION(3);
 }
 END_TEST_PROGRAM();
 

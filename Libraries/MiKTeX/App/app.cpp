@@ -687,14 +687,14 @@ void Application::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
   }
 }
 
-void Application::Sorry(const string& name, const string& reason)
+void Application::Sorry(const string& name, const string& description, const string& remedy)
 {
   if (cerr.fail())
   {
     return;
   }
   cerr << endl;
-  if (reason.empty())
+  if (description.empty())
   {
     cerr << StringUtil::FormatString(T_("Sorry, but %s did not succeed."), Q_(name)) << endl;
   }
@@ -702,7 +702,13 @@ void Application::Sorry(const string& name, const string& reason)
   {
     cerr
       << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(name)) << endl << endl
-      << "  " << reason << endl;
+      << "  " << description << endl;
+    if (!remedy.empty())
+    {
+      cerr
+        << StringUtil::FormatString(T_("Remedy:"), Q_(name)) << endl << endl
+        << "  " << remedy << endl;
+    }
   }
   log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
   if (appender != nullptr)
@@ -735,7 +741,7 @@ void Application::Sorry(const string& name, const MiKTeXException& ex)
       << "ERROR: Source: " << ex.GetSourceFile() << "\n"
       << "ERROR: Line: " << ex.GetSourceLine() << "\n";
   }
-  Sorry(name);
+  Sorry(name, ex.GetDescription(), ex.GetRemedy());
 }
 
 void Application::Sorry(const string& name, const exception& ex)

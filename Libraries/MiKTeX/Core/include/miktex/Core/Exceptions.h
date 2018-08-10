@@ -154,26 +154,38 @@ public:
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& message, const std::string& description, const KVMAP& info, const SourceLocation& sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& message, const std::string& description, const std::string& remedy, const KVMAP& info, const SourceLocation& sourceLocation);
 
 public:
   MiKTeXException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
-    MiKTeXException(programInvocationName, message, "", info, sourceLocation)
+    MiKTeXException(programInvocationName, message, "", "", info, sourceLocation)
   {
   }
 
 public:
   MiKTeXException(const std::string& message) :
-    MiKTeXException("", message, "", KVMAP(), SourceLocation())
+    MiKTeXException("", message, "", "", KVMAP(), SourceLocation())
   {
   }
 
 public:
   // DEPRECATED
   MiKTeXException(const char* lpszProgramInvocationName, const char* lpszMessage, const char* lpszInfo, const char* lpszSourceFile, int sourceLine) :
-    MiKTeXException(lpszProgramInvocationName, lpszMessage, "", KVMAP("", lpszInfo == nullptr ? "<nullptr>" : lpszInfo), SourceLocation("", lpszSourceFile, sourceLine))
+    MiKTeXException(lpszProgramInvocationName, lpszMessage, "", "", KVMAP("", lpszInfo == nullptr ? "<nullptr>" : lpszInfo), SourceLocation("", lpszSourceFile, sourceLine))
   {
   }
+
+public:
+  MIKTEXCORETHISAPI(bool) Save(const std::string& path) const;
+
+public:
+  MIKTEXCORETHISAPI(bool) Save() const;
+
+public:
+  static MIKTEXCORECEEAPI(MiKTeXException) Load(const std::string& path);
+
+public:
+  static MIKTEXCORECEEAPI(bool) Load(MiKTeXException& ex);
 
   /// Gets the exception message.
   /// @return A null-terminated string.
@@ -185,6 +197,9 @@ public:
 
 public:
   MIKTEXCORETHISAPI(std::string) GetDescription() const;
+
+public:
+  MIKTEXCORETHISAPI(std::string) GetRemedy() const;
 
 public:
   // DEPRECATED
@@ -231,6 +246,9 @@ private:
 
 private:
   std::string description;
+
+private:
+  std::string remedy;
 
 private:
   std::string programInvocationName;

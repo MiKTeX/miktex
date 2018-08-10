@@ -1,6 +1,6 @@
 /* miktex/App/Application.h:                            -*- C++ -*-
 
-   Copyright (C) 2005-2017 Christian Schenk
+   Copyright (C) 2005-2018 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -144,12 +144,12 @@ public:
   static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const std::exception& ex);
 
 public:
-  static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const std::string& reason);
+  static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const std::string& description, const std::string& remedy);
 
 public:
   static void Sorry(const std::string& name)
   {
-    Sorry(name, "");
+    Sorry(name, "", "");
   }
 
 public:

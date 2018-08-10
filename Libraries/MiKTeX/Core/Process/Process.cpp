@@ -1,6 +1,6 @@
 /* process.cpp: executing secondary processes
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,7 +24,9 @@
 #include "internal.h"
 
 #include "miktex/Core/CommandLineBuilder.h"
+#include "miktex/Core/Environment.h"
 #include "miktex/Core/Process.h"
+#include "miktex/Core/TemporaryFile.h"
 
 #include "Session/SessionImpl.h"
 
@@ -34,6 +36,44 @@ using namespace std;
 Process::~Process() noexcept
 {
 }
+
+class AutoEnv
+{
+public:
+  void Set(const std::string& valueName, const std::string& value)
+  {
+    this->valueName = valueName;
+    this->haveOldValue = GetEnvironmentString(valueName, this->oldValue);
+    Utils::SetEnvironmentString(valueName, value);
+  }
+public:
+  void Restore()
+  {
+    // TODO: use unsetenv
+    Utils::SetEnvironmentString(valueName, haveOldValue ? oldValue : "");
+    valueName = "";
+  }
+public:
+  ~AutoEnv()
+  {
+    try
+    {
+      if (!valueName.empty())
+      {
+        Restore();
+      }
+    }
+    catch (const exception&)
+    {
+    }
+  }
+private:
+  std::string valueName;
+private:
+  bool haveOldValue = false;
+private:
+  std::string oldValue;
+};
 
 void Process::Start(const PathName& fileName, const vector<string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory)
 {
@@ -77,7 +117,7 @@ void Process::Start(const PathName& fileName, const vector<string>& arguments, F
   process->Close();
 }
 
-bool Process::Run(const PathName& fileName, const vector<string>& arguments, function<bool(const void*, size_t)> callback, int* exitCode, const char* workingDirectory)
+bool Process::Run(const PathName& fileName, const vector<string>& arguments, function<bool(const void*, size_t)> callback, int* exitCode, MiKTeXException* miktexException, const char* workingDirectory)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(workingDirectory);
 
@@ -98,6 +138,14 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
     startinfo.WorkingDirectory = workingDirectory;
   }
 
+  unique_ptr<TemporaryFile> tmpFile;
+  AutoEnv tmpEnv;
+  if (miktexException != nullptr)
+  {
+    tmpFile = TemporaryFile::Create();
+    tmpEnv.Set(MIKTEX_ENV_EXCEPTION_PATH, tmpFile->GetPathName().ToString());
+  }
+ 
   unique_ptr<Process> process(Process::Start(startinfo));
 
   if (callback)
@@ -135,6 +183,28 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
   // get the exit code & close process
   int processExitCode = process->get_ExitCode();
   process->Close();
+
+  // load last MiKTeX exception
+  if (miktexException != nullptr)
+  {
+    if (processExitCode != 0)
+    {
+      *miktexException = MiKTeXException::Load(tmpFile->GetPathName().ToString());
+      if (miktexException->GetProgramInvocationName().empty())
+      {
+        *miktexException = MiKTeXException(
+          fileName.GetFileName().ToDisplayString(),
+          T_("The executed process did not succeed."),
+          MiKTeXException::KVMAP(
+            "fileName", fileName.ToDisplayString(),
+            "exitCode", std::to_string(processExitCode)),
+          SourceLocation());
+      }
+    }
+    tmpFile->Delete();
+    tmpEnv.Restore();
+  }
+
   if (exitCode != nullptr)
   {
     *exitCode = processExitCode;
@@ -154,14 +224,14 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
   }
 }
 
-bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory)
+bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback, int* exitCode, MiKTeXException* miktexException, const char* workingDirectory)
 {
   function<bool(const void*, size_t)> fcallback;
   if (callback != nullptr)
   {
     fcallback = [callback](const void* output, size_t n) { return callback->OnProcessOutput(output, n); };
   }
-  return Run(fileName, arguments, fcallback, exitCode, workingDirectory);
+  return Run(fileName, arguments, fcallback, exitCode, miktexException, workingDirectory);
 }
 
 void Process::Run(const PathName& fileName, const vector<string>& arguments)
@@ -172,9 +242,10 @@ void Process::Run(const PathName& fileName, const vector<string>& arguments)
 void Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback)
 {
   int exitCode;
-  if (!Run(fileName, arguments, callback, &exitCode, nullptr) || exitCode != 0)
+  MiKTeXException miktexException;
+  if (Run(fileName, arguments, callback, &exitCode, &miktexException, nullptr) || exitCode != 0)
   {
-    MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed."), "fileName", fileName.ToString(), "exitCode", std::to_string(exitCode));
+    throw miktexException;
   }
 }
 

@@ -1,6 +1,6 @@
 /* miktex/Util/CharBuffer.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -340,6 +340,13 @@ public:
   CharBuffer& operator+=(const CharType* lpsz)
   {
     Append(lpsz);
+    return *this;
+  }
+
+public:
+  CharBuffer& operator+=(const std::basic_string<CharType>& s)
+  {
+    Append(s);
     return *this;
   }
 

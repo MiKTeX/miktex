@@ -228,8 +228,54 @@ string StringUtil::FormatString(const char* format, ...)
 
 string StringUtil::FormatString2(const string& message, const unordered_map<string, string>& args)
 {
-  // TODO
-  return "";
+  CharBuffer<char> result;
+  string tmp;
+  bool inPlaceholder = false;
+  for (const char& ch : message)
+  {
+    if (inPlaceholder)
+    {
+      if (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_')
+      {
+        tmp += ch;
+      }
+      else
+      {
+        inPlaceholder = false;
+        bool flushTmp = true;
+        if (ch == '}')
+        {
+          auto it = args.find(tmp);
+          if (it != args.end())
+          {
+            result += it->second;
+            flushTmp = false;
+          }
+        }
+        if (flushTmp)
+        {
+          result += '{';
+          result += tmp;
+          result += ch;
+        }
+      }
+    }
+    else if (ch == '{')
+    {
+      inPlaceholder = true;
+      tmp = "";
+    }
+    else
+    {
+      result += ch;
+    }
+  }
+  if (inPlaceholder)
+  {
+    result += '{';
+    result += tmp;
+  }
+  return result.ToString();
 }
 
 u16string StringUtil::UTF8ToUTF16(const char* utf8Chars)

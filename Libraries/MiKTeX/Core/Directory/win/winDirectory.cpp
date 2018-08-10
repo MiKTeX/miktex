@@ -1,6 +1,6 @@
 /* winDirectory.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -88,7 +88,9 @@ bool Directory::Exists(const PathName& path)
   }
   if (error != ERROR_SUCCESS)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("GetFileAttributesW", "path", path.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_3("GetFileAttributesW",
+      T_("MiKTeX cannot retrieve attributes for the directory '{path}'."),
+      "path", path.ToDisplayString());
   }
   if (session != nullptr)
   {

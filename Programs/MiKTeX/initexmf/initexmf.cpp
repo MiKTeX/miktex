@@ -290,7 +290,8 @@ private:
   {
     ProcessOutput<4096> output;
     int exitCode;
-    if (!Process::Run(fileName, arguments, &output, &exitCode, nullptr) || exitCode != 0)
+    MiKTeXException miktexException;
+    if (!Process::Run(fileName, arguments, &output, &exitCode, &miktexException, nullptr) || exitCode != 0)
     {
       auto outputBytes = output.GetStandardOutput();
       PathName outfile = GetLogDir() / fileName.GetFileNameWithoutExtension();
@@ -300,7 +301,9 @@ private:
       FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
       outstream.Write(&outputBytes[0], outputBytes.size());
       outstream.Close();
-      MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed. The process output has been saved to a file."), "fileName", fileName.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
+      MIKTEX_ASSERT(isLog4cxxConfigured);
+      LOG4CXX_ERROR(logger, "sub-process error output has been saved to '" << outfile.ToDisplayString() << "'");
+      throw miktexException;
     }
   }
 

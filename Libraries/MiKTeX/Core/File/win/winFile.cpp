@@ -1,6 +1,6 @@
 /* File.cpp: file operations
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -78,7 +78,9 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
   }
   if (error != ERROR_SUCCESS)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("GetFileAttributesW", "path", path.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_3("GetFileAttributesW",
+      T_("MiKTeX cannot retrieve attributes for the file '{path}'."),
+      "path", path.ToDisplayString());
   }
   if (session != nullptr)
   {
@@ -166,7 +168,11 @@ void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttribu
 
   if (!SetFileAttributesW(path.ToWideCharString().c_str(), static_cast<DWORD>(nativeAttributes)))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("SetFileAttributesW", "fileName", path.ToString(), "attributes", std::to_string(nativeAttributes));
+    MIKTEX_FATAL_WINDOWS_ERROR_4("SetFileAttributesW",
+      T_("MiKTeX cannot set attributes for file or directory '{path}'. It might be in use (blocked by another program)."),
+      T_("Close other programs and try again."),
+      "path", path.ToDisplayString(),
+      "attributes", std::to_string(nativeAttributes));
   }
 }
 
