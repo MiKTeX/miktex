@@ -884,6 +884,12 @@ set(required_programs
   xsltproc
 )
 
+if(WITH_MIKTEX_DOC)
+  list(APPEND required_programs
+    pandoc
+  )
+endif()
+
 if(WITH_UI_MFC)
   list(APPEND required_programs
     hhc
