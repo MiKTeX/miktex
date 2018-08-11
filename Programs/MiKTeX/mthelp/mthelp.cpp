@@ -1,6 +1,6 @@
 /* mthelp.cpp:
 
-   Copyright (C) 2004-2017 Christian Schenk
+   Copyright (C) 2004-2018 Christian Schenk
 
    This file is a part of MTHelp.
 
@@ -620,6 +620,7 @@ int MAIN(int argc, MAINCHAR** argv)
   catch (const MiKTeXException& ex)
   {
     Application::Sorry(TheNameOfTheGame, ex);
+    ex.Save();
     return 1;
   }
   catch (const exception& ex)

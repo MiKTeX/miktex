@@ -706,7 +706,7 @@ void Application::Sorry(const string& name, const string& description, const str
     if (!remedy.empty())
     {
       cerr
-        << StringUtil::FormatString(T_("Remedy:"), Q_(name)) << endl << endl
+        << T_("Remedy:") << endl << endl
         << "  " << remedy << endl;
     }
   }

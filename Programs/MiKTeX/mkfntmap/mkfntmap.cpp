@@ -1399,6 +1399,7 @@ int MAIN(int argc, MAINCHAR** argv)
   {
     Application::Sorry(THE_NAME_OF_THE_GAME, ex);
     logger = nullptr;
+    ex.Save();
     return 1;
   }
   catch (const exception& ex)

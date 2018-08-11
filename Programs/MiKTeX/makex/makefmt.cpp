@@ -474,6 +474,7 @@ int MAIN(int argc, MAINCHAR** argv)
   {
     Application::Sorry("makefmt", ex);
     logger = nullptr;
+    ex.Save();
     return 1;
   }
   catch (const exception& ex)

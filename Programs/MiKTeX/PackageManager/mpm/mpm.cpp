@@ -668,7 +668,7 @@ void Application::Warn(const char* format, ...)
   cout << T_("Warning:") << " " << s << endl;
 }
 
-static void Sorry(string reason)
+static void Sorry(const string& description, const string& remedy)
 {
   if (cerr.fail())
   {
@@ -676,7 +676,7 @@ static void Sorry(string reason)
   }
 
   cerr << endl;
-  if (reason.empty())
+  if (description.empty())
   {
     cerr << StringUtil::FormatString(T_("Sorry, but %s did not succeed."), Q_(THE_NAME_OF_THE_GAME)) << endl;
   }
@@ -684,7 +684,13 @@ static void Sorry(string reason)
   {
     cerr
       << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(THE_NAME_OF_THE_GAME)) << endl << endl
-      << "  " << reason << endl;
+      << "  " << description << endl;
+    if (!remedy.empty())
+    {
+      cerr
+        << T_("Remedy:") << endl << endl
+        << "  " << remedy << endl;
+    }
   }
   log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
   if (appender != nullptr)
@@ -702,7 +708,7 @@ static void Sorry(string reason)
 
 static void Sorry()
 {
-  Sorry("");
+  Sorry("", "");
 }
 
 MIKTEXNORETURN void Application::Error(const char* format, ...)
@@ -713,7 +719,7 @@ MIKTEXNORETURN void Application::Error(const char* format, ...)
   s = StringUtil::FormatStringVA(format, arglist);
   VA_END(arglist);
   LOG4CXX_FATAL(logger, s);
-  Sorry(s);
+  Sorry(s, "");
   throw 1;
 }
 
@@ -2059,7 +2065,8 @@ int MAIN(int argc, MAINCHAR* argv[])
     LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
-    Sorry();
+    Sorry(e.GetDescription(), e.GetRemedy());
+    e.Save();
     retCode = 1;
   }
   catch (const exception& e)

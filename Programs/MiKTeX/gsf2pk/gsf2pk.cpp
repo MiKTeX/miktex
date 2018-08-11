@@ -1,6 +1,6 @@
 /* gsf2pk.cpp: Gsf-to-Pk converter (based on gsftopk)
 
-   Copyright (C) 2004-2017 Christian Schenk
+   Copyright (C) 2004-2018 Christian Schenk
    Copyright (C) 1993-2000 Paul Vojta
 
    Permission is hereby granted, free of charge, to any person
@@ -1528,6 +1528,7 @@ int MAIN(int argc, MAINCHAR ** argv)
   catch (const MiKTeXException & e)
   {
     Application::Sorry("gsf2pk", e);
+    e.Save();
     return 1;
   }
 
