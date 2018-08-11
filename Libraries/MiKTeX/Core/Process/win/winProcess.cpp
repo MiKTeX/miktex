@@ -391,6 +391,7 @@ void winProcess::Close()
   {
     tmpEnv.Restore();
     tmpFile->Delete();
+    tmpFile = nullptr;
   }
 }
 

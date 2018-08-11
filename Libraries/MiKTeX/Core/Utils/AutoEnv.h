@@ -38,6 +38,7 @@ public:
 public:
   void Restore()
   {
+    MIKTEX_ASSERT(!valueName.empty());
     if (haveOldValue)
     {
       MiKTeX::Core::Utils::SetEnvironmentString(valueName, oldValue);

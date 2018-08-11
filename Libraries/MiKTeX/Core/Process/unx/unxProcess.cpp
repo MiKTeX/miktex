@@ -361,6 +361,7 @@ void unxProcess::Close()
   {
     tmpEnv.Restore();
     tmpFile->Delete();
+    tmpFile = nullptr;
   }
 }
 
