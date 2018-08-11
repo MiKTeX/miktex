@@ -1,6 +1,6 @@
 /* winUtil.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -830,6 +830,11 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
     FATAL_CRT_ERROR("putenv", str.c_str());
   }
 #endif
+}
+
+void Utils::RemoveEnvironmentString(const string& valueName)
+{
+  SetEnvironmentString(valueName, "");
 }
 
 /* See MSDN community content:

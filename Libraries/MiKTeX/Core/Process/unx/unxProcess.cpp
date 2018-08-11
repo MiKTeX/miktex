@@ -1,6 +1,6 @@
 /* unxProcess.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,7 @@
 #include "internal.h"
 
 #include "miktex/Core/Directory.h"
+#include "miktex/Core/Environment.h"
 #include "miktex/Core/CommandLineBuilder.h"
 #include "miktex/Core/StreamReader.h"
 
@@ -223,6 +224,9 @@ void unxProcess::Create()
 
   SessionImpl::GetSession()->UnloadFilenameDatabase();
 
+  tmpFile = TemporaryFile::Create();
+  tmpEnv.Set(MIKTEX_ENV_EXCEPTION_PATH, tmpFile->GetPathName().ToString());
+
   // fork
   SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "forking...");
   if (pipeStdout.GetReadEnd() >= 0
@@ -353,6 +357,11 @@ void unxProcess::Close()
     fdStandardInput = -1;
   }
   this->pid = -1;
+  if (tmpFile != nullptr)
+  {
+    tmpEnv.Restore();
+    tmpFile->Delete();
+  }
 }
 
 FILE* unxProcess::get_StandardInput()
@@ -471,6 +480,11 @@ int unxProcess::get_ExitCode() const
   {
     MIKTEX_UNEXPECTED();
   }
+}
+
+MiKTeXException unxProcess::get_Exception() const
+{
+  return MiKTeXException::Load(tmpFile->GetPathName().ToString());
 }
 
 string ConfStr(int name)

@@ -1,6 +1,6 @@
 /* unxProcess.h:                                        -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,7 +26,12 @@
 #if !defined(B6278A08DFEE4038A08449DD17C4E3D3)
 #define B6278A08DFEE4038A08449DD17C4E3D3
 
+#include <memory>
+
 #include "miktex/Core/Process.h"
+#include "miktex/Core/TemporaryFile.h"
+
+#include "Utils/AutoEnv.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 
@@ -50,6 +55,9 @@ public:
 
 public:
   int get_ExitCode() const override;
+
+public:
+  MiKTeX::Core::MiKTeXException get_Exception() const override;
 
 public:
   void Close() override;
@@ -95,6 +103,12 @@ private:
   FILE* pFileStandardInput = nullptr;
   FILE* pFileStandardOutput = nullptr;
   FILE* pFileStandardError = nullptr;
+
+private:
+  std::unique_ptr<MiKTeX::Core::TemporaryFile> tmpFile;
+
+private:
+  AutoEnv tmpEnv;
 
 private:
   friend class MiKTeX::Core::Process;

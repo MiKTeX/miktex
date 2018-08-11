@@ -430,6 +430,7 @@ set(uri_sources
 )
 
 set(utils_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/Utils/AutoEnv.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Utils/AutoTraceTime.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Utils/Pipe.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Utils/Utils.cpp

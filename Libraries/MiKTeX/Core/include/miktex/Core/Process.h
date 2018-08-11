@@ -1,6 +1,6 @@
 /* miktex/Core/Process.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -39,6 +39,7 @@
 #include <string>
 #include <vector>
 
+#include "Exceptions.h"
 #include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
@@ -184,6 +185,11 @@ public:
   /// The process must have exited.
 public:
   virtual int MIKTEXTHISCALL get_ExitCode() const = 0;
+
+  /// Gets the MiKTeX exception thrown by the process.
+  /// The process must have exited.
+public:
+  virtual MiKTeX::Core::MiKTeXException MIKTEXTHISCALL get_Exception() const = 0;
 
 public:
   virtual void MIKTEXTHISCALL Close() = 0;

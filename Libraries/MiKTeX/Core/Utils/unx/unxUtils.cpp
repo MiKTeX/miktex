@@ -1,6 +1,6 @@
 /* unxUtil.cpp: 
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -65,6 +65,15 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
   if (setenv(valueName.c_str(), value.c_str(), 1) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("setenv", "name", valueName);
+  }
+}
+
+void Utils::RemoveEnvironmentString(const string& valueName)
+{
+  SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", T_("unsetting env %s"), valueName.c_str());
+  if (unsetenv(valueName.c_str()) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("unsetenv", "name", valueName);
   }
 }
 

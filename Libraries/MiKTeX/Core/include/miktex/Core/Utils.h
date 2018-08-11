@@ -157,6 +157,9 @@ public:
 public:
   static MIKTEXCORECEEAPI(void) SetEnvironmentString(const std::string& valueName, const std::string& value);
 
+public:
+  static MIKTEXCORECEEAPI(void) RemoveEnvironmentString(const std::string& valueName);
+
 #if defined(MIKTEX_WINDOWS)
 public:
   static MIKTEXCORECEEAPI(void) RemoveBlanksFromPathName(PathName& path);

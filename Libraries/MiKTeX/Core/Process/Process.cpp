@@ -24,9 +24,7 @@
 #include "internal.h"
 
 #include "miktex/Core/CommandLineBuilder.h"
-#include "miktex/Core/Environment.h"
 #include "miktex/Core/Process.h"
-#include "miktex/Core/TemporaryFile.h"
 
 #include "Session/SessionImpl.h"
 
@@ -36,44 +34,6 @@ using namespace std;
 Process::~Process() noexcept
 {
 }
-
-class AutoEnv
-{
-public:
-  void Set(const std::string& valueName, const std::string& value)
-  {
-    this->valueName = valueName;
-    this->haveOldValue = GetEnvironmentString(valueName, this->oldValue);
-    Utils::SetEnvironmentString(valueName, value);
-  }
-public:
-  void Restore()
-  {
-    // TODO: use unsetenv
-    Utils::SetEnvironmentString(valueName, haveOldValue ? oldValue : "");
-    valueName = "";
-  }
-public:
-  ~AutoEnv()
-  {
-    try
-    {
-      if (!valueName.empty())
-      {
-        Restore();
-      }
-    }
-    catch (const exception&)
-    {
-    }
-  }
-private:
-  std::string valueName;
-private:
-  bool haveOldValue = false;
-private:
-  std::string oldValue;
-};
 
 void Process::Start(const PathName& fileName, const vector<string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory)
 {
@@ -138,14 +98,6 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
     startinfo.WorkingDirectory = workingDirectory;
   }
 
-  unique_ptr<TemporaryFile> tmpFile;
-  AutoEnv tmpEnv;
-  if (miktexException != nullptr)
-  {
-    tmpFile = TemporaryFile::Create();
-    tmpEnv.Set(MIKTEX_ENV_EXCEPTION_PATH, tmpFile->GetPathName().ToString());
-  }
- 
   unique_ptr<Process> process(Process::Start(startinfo));
 
   if (callback)
@@ -182,27 +134,25 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
 
   // get the exit code & close process
   int processExitCode = process->get_ExitCode();
+  MiKTeXException processException = process->get_Exception();
   process->Close();
 
-  // load last MiKTeX exception
   if (miktexException != nullptr)
   {
-    if (processExitCode != 0)
+    if (processExitCode != 0 && processException.GetProgramInvocationName().empty())
     {
-      *miktexException = MiKTeXException::Load(tmpFile->GetPathName().ToString());
-      if (miktexException->GetProgramInvocationName().empty())
-      {
-        *miktexException = MiKTeXException(
-          fileName.GetFileName().ToDisplayString(),
-          T_("The executed process did not succeed."),
-          MiKTeXException::KVMAP(
-            "fileName", fileName.ToDisplayString(),
-            "exitCode", std::to_string(processExitCode)),
-          SourceLocation());
-      }
+      *miktexException = MiKTeXException(
+        fileName.GetFileName().ToDisplayString(),
+        T_("The executed process did not succeed."),
+        MiKTeXException::KVMAP(
+          "fileName", fileName.ToDisplayString(),
+          "exitCode", std::to_string(processExitCode)),
+        SourceLocation());
     }
-    tmpFile->Delete();
-    tmpEnv.Restore();
+    else
+    {
+      *miktexException = processException;
+    }
   }
 
   if (exitCode != nullptr)

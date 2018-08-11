@@ -1,6 +1,6 @@
 /* winProcess.h: executing secondary process            -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,7 +23,12 @@
 #  pragma once
 #endif
 
+#include <memory>
+
 #include "miktex/Core/Process.h"
+#include "miktex/Core/TemporaryFile.h"
+
+#include "Utils/AutoEnv.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 
@@ -47,6 +52,9 @@ public:
 
 public:
   int MIKTEXTHISCALL get_ExitCode() const override;
+
+public:
+  MiKTeX::Core::MiKTeXException MIKTEXTHISCALL get_Exception() const override;
 
 public:
   void MIKTEXTHISCALL Close() override;
@@ -93,6 +101,12 @@ private:
 
 private:
   PROCESSENTRY32W processEntry;
+
+private:
+  std::unique_ptr<MiKTeX::Core::TemporaryFile> tmpFile;
+
+private:
+  AutoEnv tmpEnv;
 
 private:
   static PROCESSENTRY32W GetProcessEntry(DWORD processId);
