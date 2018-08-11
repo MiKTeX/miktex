@@ -193,7 +193,7 @@ void Process::Run(const PathName& fileName, const vector<string>& arguments, IRu
 {
   int exitCode;
   MiKTeXException miktexException;
-  if (Run(fileName, arguments, callback, &exitCode, &miktexException, nullptr) || exitCode != 0)
+  if (!Run(fileName, arguments, callback, &exitCode, &miktexException, nullptr) || exitCode != 0)
   {
     throw miktexException;
   }
