@@ -483,9 +483,9 @@ int unxProcess::get_ExitCode() const
   }
 }
 
-MiKTeXException unxProcess::get_Exception() const
+bool unxProcess::get_Exception(MiKTeXException& ex) const
 {
-  return MiKTeXException::Load(tmpFile->GetPathName().ToString());
+  return MiKTeXException::Load(tmpFile->GetPathName().ToString(), ex);
 }
 
 string ConfStr(int name)

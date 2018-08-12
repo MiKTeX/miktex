@@ -57,7 +57,7 @@ public:
   int get_ExitCode() const override;
 
 public:
-  MiKTeX::Core::MiKTeXException get_Exception() const override;
+  bool MIKTEXTHISCALL get_Exception(MiKTeX::Core::MiKTeXException& ex) const override;
 
 public:
   void Close() override;

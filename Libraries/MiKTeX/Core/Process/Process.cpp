@@ -134,12 +134,13 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
 
   // get the exit code & close process
   int processExitCode = process->get_ExitCode();
-  MiKTeXException processException = process->get_Exception();
+  MiKTeXException processException;
+  bool haveException = process->get_Exception(processException);
   process->Close();
 
   if (miktexException != nullptr)
   {
-    if (processExitCode != 0 && processException.GetProgramInvocationName().empty())
+    if (processExitCode != 0 && haveException)
     {
       *miktexException = MiKTeXException(
         fileName.GetFileName().ToDisplayString(),

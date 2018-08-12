@@ -483,9 +483,9 @@ int winProcess::get_ExitCode() const
   return static_cast<int>(exitCode);
 }
 
-MiKTeXException winProcess::get_Exception() const
+bool winProcess::get_Exception(MiKTeXException& ex) const
 {
-  return MiKTeXException::Load(tmpFile->GetPathName().ToString());
+  return MiKTeXException::Load(tmpFile->GetPathName().ToString(), ex);
 }
 
 MIKTEXSTATICFUNC(PathName) FindSystemShell()

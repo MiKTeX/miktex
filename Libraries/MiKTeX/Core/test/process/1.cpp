@@ -27,6 +27,7 @@
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
+#include <miktex/Core/TemporaryFile>
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
@@ -60,10 +61,30 @@ BEGIN_TEST_FUNCTION(2);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(3);
+{
+  unique_ptr<TemporaryFile> tmpFile = TemporaryFile::Create();
+  MiKTeXException ex(
+    "foo",
+    "abrakadabra",
+    "",
+    "",
+    MiKTeXException::KVMAP(
+      "fileName", "foo.txt",
+      "exitCode", "0"),
+    SourceLocation());
+  TEST(ex.Save(tmpFile->GetPathName().ToString()));
+  MiKTeXException ex2;
+  TEST(MiKTeXException::Load(tmpFile->GetPathName().ToString(), ex2));
+  TEST(ex2.GetProgramInvocationName() == "foo");
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
   CALL_TEST_FUNCTION(2);
+  CALL_TEST_FUNCTION(3);
 }
 END_TEST_PROGRAM();
 

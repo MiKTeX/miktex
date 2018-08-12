@@ -189,7 +189,7 @@ public:
   /// Gets the MiKTeX exception thrown by the process.
   /// The process must have exited.
 public:
-  virtual MiKTeX::Core::MiKTeXException MIKTEXTHISCALL get_Exception() const = 0;
+  virtual bool MIKTEXTHISCALL get_Exception(MiKTeX::Core::MiKTeXException& ex) const = 0;
 
 public:
   virtual void MIKTEXTHISCALL Close() = 0;

@@ -42,7 +42,7 @@ struct SourceLocation
   SourceLocation& operator=(const SourceLocation& other) = default;
   SourceLocation(SourceLocation&& other) = default;
   SourceLocation& operator=(SourceLocation&& other) = default;
-  ~SourceLocation() = default;
+  virtual ~SourceLocation() = default;
   MIKTEXCOREEXPORT MIKTEXTHISCALL SourceLocation(const std::string& functionName, const std::string& fileName, int lineNo);
   std::string functionName;
   std::string fileName;
@@ -176,13 +176,13 @@ public:
   }
 
 public:
-  MIKTEXCORETHISAPI(bool) Save(const std::string& path) const;
+  MIKTEXCORETHISAPI(bool) Save(const std::string& path) const noexcept;
 
 public:
-  MIKTEXCORETHISAPI(bool) Save() const;
+  MIKTEXCORETHISAPI(bool) Save() const noexcept;
 
 public:
-  static MIKTEXCORECEEAPI(MiKTeXException) Load(const std::string& path);
+  static MIKTEXCORECEEAPI(bool) Load(const std::string& path, MiKTeXException& ex);
 
 public:
   static MIKTEXCORECEEAPI(bool) Load(MiKTeXException& ex);
@@ -190,9 +190,15 @@ public:
   /// Gets the exception message.
   /// @return A null-terminated string.
 public:
-  virtual const char* what() const throw()
+  const char* what() const noexcept override
   {
     return message.c_str();
+  }
+
+public:
+  std::string GetMessage() const noexcept
+  {
+    return message;
   }
 
 public:

@@ -46,7 +46,7 @@ MiKTeXException::MiKTeXException(const string& programInvocationName, const stri
 {
 }
 
-bool MiKTeXException::Save(const string& path) const
+bool MiKTeXException::Save(const string& path) const noexcept
 {
   try
   {
@@ -79,16 +79,11 @@ bool MiKTeXException::Save(const string& path) const
   }
 }
 
-MiKTeXException MiKTeXException::Load(const string& path)
+bool MiKTeXException::Load(const string& path, MiKTeXException& ex)
 {
   unique_ptr<Cfg> cfg = Cfg::Create();
   cfg->Read(path);
-  string programInvocationName;
-  string message;
-  string description;
-  string remedy;
-  SourceLocation sourceLocation;
-  MiKTeXException::KVMAP info;
+  bool result = false;
   for (const auto& key : cfg->GetKeys())
   {
     string keyName = key->GetName();
@@ -100,47 +95,48 @@ MiKTeXException MiKTeXException::Load(const string& path)
       {
         if (valueName == "programInvocationName")
         {
-          programInvocationName = value;
+          result = true;
+          ex.programInvocationName = value;
         }
         else if (valueName == "message")
         {
-          message = value;
+          ex.message = value;
         }
         else if (valueName == "description")
         {
-          description = value;
+          ex.description = value;
         }
         else if (valueName == "remedy")
         {
-          remedy = value;
+          ex.remedy = value;
         }
       }
       else if (keyName == "sourceLocation")
       {
         if (valueName == "functionName")
         {
-          sourceLocation.functionName = value;
+          ex.sourceLocation.functionName = value;
         }
         else if (valueName == "fileName")
         {
-          sourceLocation.fileName = value;
+          ex.sourceLocation.fileName = value;
         }
         else if (valueName == "lineNo")
         {
-          sourceLocation.lineNo = std::stoi(value);
+          ex.sourceLocation.lineNo = std::stoi(value);
         }
         else if (valueName == "tag")
         {
-          sourceLocation.tag = value;
+          ex.sourceLocation.tag = value;
         }
       }
       else if (keyName == "info")
       {
-        info[valueName] = value;
+        ex.info[valueName] = value;
       }
     }
   }
-  return MiKTeXException(programInvocationName, message, description, remedy, info, sourceLocation);
+  return result;
 }
 
 bool GetLastMiKTeXExceptionPath(string& path)
@@ -173,14 +169,21 @@ bool GetLastMiKTeXExceptionPath(string& path)
   }
 }
 
-bool MiKTeXException::Save() const
+bool MiKTeXException::Save() const noexcept
 {
-  string path;
-  if (GetLastMiKTeXExceptionPath(path))
+  try
   {
-    return Save(path);
+    string path;
+    if (GetLastMiKTeXExceptionPath(path))
+    {
+      return Save(path);
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
+  catch (const exception&)
   {
     return false;
   }
@@ -191,8 +194,7 @@ bool MiKTeXException::Load(MiKTeXException& ex)
   string path;
   if (GetLastMiKTeXExceptionPath(path) && File::Exists(path))
   {
-    ex = Load(path);
-    return true;
+    return Load(path, ex);
   }
   else
   {
