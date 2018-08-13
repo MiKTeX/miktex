@@ -49,7 +49,22 @@ ErrorDialogImpl::ErrorDialogImpl(QWidget* parent, const MiKTeXException& e) :
   miktexException(e)
 {
   setupUi(this);
-  tbMessage->setText(QString::fromUtf8(e.GetErrorMessage().c_str()));
+  QString message;
+  string description = e.GetDescription();
+  if (!description.empty())
+  {
+    message = QString::fromUtf8(description.c_str());
+    string remedy = e.GetRemedy();
+    if (!remedy.empty())
+    {
+      message += "\n\nRemedy: " + QString::fromUtf8(remedy.c_str());
+    }
+  }
+  else
+  {
+    message = QString::fromUtf8(e.GetErrorMessage().c_str());
+  }
+  tbMessage->setText(message);
   tbInfo->setText(QString::fromUtf8(e.GetInfo().ToString().c_str()));
 }
 
