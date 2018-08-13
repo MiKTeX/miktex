@@ -38,8 +38,8 @@ BEGIN_MESSAGE_MAP(ConnectionSettingsDialog, CDialog)
   ON_EN_CHANGE(IDC_PROXY_PORT, OnChangePort)
 END_MESSAGE_MAP();
 
-ConnectionSettingsDialog::ConnectionSettingsDialog(CWnd * pParent) :
-  CDialog(ConnectionSettingsDialog::IDD, pParent)
+ConnectionSettingsDialog::ConnectionSettingsDialog(CWnd* parent) :
+  CDialog(ConnectionSettingsDialog::IDD, parent)
 {
   ProxySettings proxySettings;
   if (PackageManager::TryGetProxy(proxySettings))
@@ -64,27 +64,27 @@ BOOL ConnectionSettingsDialog::OnInitDialog()
   {
     OnUseProxy();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
   }
   return ret;
 }
 
-void ConnectionSettingsDialog::DoDataExchange(CDataExchange * pDX)
+void ConnectionSettingsDialog::DoDataExchange(CDataExchange* dx)
 {
-  CDialog::DoDataExchange(pDX);
-  DDX_Control(pDX, IDC_USE_PROXY, useProxyButton);
-  DDX_Control(pDX, IDC_AUTH_REQUIRED, proxyAuthenticationRequiredButton);
-  DDX_Text(pDX, IDC_PROXY_PORT, proxyPort);
-  //DDV_MinMaxInt(pDX, proxyPort, 1, 65535);
-  DDX_Check(pDX, IDC_USE_PROXY, useProxy);
-  DDX_Text(pDX, IDC_PROXY_HOST, proxyHost);
-  DDX_Check(pDX, IDC_AUTH_REQUIRED, proxyAuthenticationRequired);
+  CDialog::DoDataExchange(dx);
+  DDX_Control(dx, IDC_USE_PROXY, useProxyButton);
+  DDX_Control(dx, IDC_AUTH_REQUIRED, proxyAuthenticationRequiredButton);
+  DDX_Text(dx, IDC_PROXY_PORT, proxyPort);
+  //DDV_MinMaxInt(dx, proxyPort, 1, 65535);
+  DDX_Check(dx, IDC_USE_PROXY, useProxy);
+  DDX_Text(dx, IDC_PROXY_HOST, proxyHost);
+  DDX_Check(dx, IDC_AUTH_REQUIRED, proxyAuthenticationRequired);
 }
 
 void ConnectionSettingsDialog::OnUseProxy()
@@ -93,11 +93,11 @@ void ConnectionSettingsDialog::OnUseProxy()
   {
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
   }
@@ -109,11 +109,11 @@ void ConnectionSettingsDialog::OnChangeHost()
   {
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
   }
@@ -125,11 +125,11 @@ void ConnectionSettingsDialog::OnChangePort()
   {
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
   }
@@ -147,11 +147,11 @@ void ConnectionSettingsDialog::OnOK()
     proxySettings.port = proxyPort;
     PackageManager::SetProxy(proxySettings);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
   }
@@ -172,12 +172,12 @@ void ConnectionSettingsDialog::EnableButtons()
   GetControl(IDOK)->EnableWindow(!useProxy || !(host.IsEmpty() || port.IsEmpty()));
 }
 
-CWnd * ConnectionSettingsDialog::GetControl(int nID)
+CWnd* ConnectionSettingsDialog::GetControl(int nID)
 {
-  CWnd * pWnd = GetDlgItem(nID);
+  CWnd* wnd = GetDlgItem(nID);
   if (nID == 0)
   {
     return nullptr; // FIXME
   }
-  return pWnd;
+  return wnd;
 }

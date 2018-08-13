@@ -132,7 +132,7 @@ private:
   DWORD timeOfLastProgressRefresh;
 
 private:
-  class SetupWizard* pSheet = nullptr;
+  class SetupWizard* sheet = nullptr;
 
 private:
   shared_ptr<Session> session = Session::Get();

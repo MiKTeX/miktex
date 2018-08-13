@@ -16,7 +16,8 @@
 
    You should have received a copy of the GNU General Public License
    along with MiKTeX Setup Wizard; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
+   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA. */
 
 #include "StdAfx.h"
 #include "Setup.h"
@@ -51,14 +52,14 @@ FileCopyPage::~FileCopyPage()
       hWorkerThread = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
 BOOL FileCopyPage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard*>(GetParent());
+  sheet = reinterpret_cast<SetupWizard*>(GetParent());
   BOOL ret = CPropertyPage::OnInitDialog();
   reportControl.LimitText(100000);
   try
@@ -85,7 +86,7 @@ BOOL FileCopyPage::OnSetActive()
     try
     {
       // disable buttons
-      pSheet->SetWizardButtons(0);
+      sheet->SetWizardButtons(0);
 
 #if 0
       if (SetupApp::Instance->GetTask() != SetupTask::Download)
@@ -116,19 +117,19 @@ BOOL FileCopyPage::OnSetActive()
   return TRUE;
 }
 
-void FileCopyPage::DoDataExchange(CDataExchange* pDX)
+void FileCopyPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
-  DDX_Control(pDX, IDC_ANI, animationControl);
-  DDX_Control(pDX, IDC_PROGRESS1, progressControl1);
-  DDX_Control(pDX, IDC_PROGRESS2, progressControl2);
-  DDX_Control(pDX, IDC_REPORT, reportControl);
+  CPropertyPage::DoDataExchange(dx);
+  DDX_Control(dx, IDC_ANI, animationControl);
+  DDX_Control(dx, IDC_PROGRESS1, progressControl1);
+  DDX_Control(dx, IDC_PROGRESS2, progressControl2);
+  DDX_Control(dx, IDC_REPORT, reportControl);
 }
 
 LRESULT FileCopyPage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
-  int next = SetupApp::Instance->GetTask() == SetupTask::InstallFromLocalRepository && !pSheet->GetErrorFlag() ? IDD_POST_INSTALL : IDD_FINISH;
+  sheet->PushPage(IDD);
+  int next = SetupApp::Instance->GetTask() == SetupTask::InstallFromLocalRepository && !sheet->GetErrorFlag() ? IDD_POST_INSTALL : IDD_FINISH;
   return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(next));
 }
 
@@ -139,7 +140,7 @@ BOOL FileCopyPage::OnKillActive()
   {
     try
     {
-      SetupApp::Instance->Service->ULogClose(!pSheet->GetErrorFlag());
+      SetupApp::Instance->Service->ULogClose(!sheet->GetErrorFlag());
     }
     catch (const MiKTeXException& e)
     {
@@ -167,7 +168,7 @@ BOOL FileCopyPage::OnQueryCancel()
     if (AfxMessageBox((SetupApp::Instance->GetTask() == SetupTask::Download ? IDS_CANCEL_DOWNLOAD : IDS_CANCEL_SETUP), MB_OKCANCEL | MB_ICONEXCLAMATION) == IDOK)
     {
       SetupApp::Instance->Service->Log(T_("Yes!>>>\n"));
-      pSheet->SetCancelFlag();
+      sheet->SetCancelFlag();
       if (!PostMessage(WM_PROGRESS))
       {
         MIKTEX_FATAL_WINDOWS_ERROR("CWnd::PostMessage");
@@ -218,14 +219,14 @@ LRESULT FileCopyPage::OnStartFileCopy(WPARAM wParam, LPARAM lParam)
     }
 
     // create the worker thread
-    CWinThread* pThread = AfxBeginThread(WorkerThread, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-    MIKTEX_ASSERT(pThread != nullptr);
-    MIKTEX_ASSERT(pThread->m_hThread != nullptr);
-    if (!DuplicateHandle(GetCurrentProcess(), pThread->m_hThread, GetCurrentProcess(), &hWorkerThread, 0, FALSE, DUPLICATE_SAME_ACCESS))
+    CWinThread* thread = AfxBeginThread(WorkerThread, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+    MIKTEX_ASSERT(thread != nullptr);
+    MIKTEX_ASSERT(thread->m_hThread != nullptr);
+    if (!DuplicateHandle(GetCurrentProcess(), thread->m_hThread, GetCurrentProcess(), &hWorkerThread, 0, FALSE, DUPLICATE_SAME_ACCESS))
     {
       MIKTEX_FATAL_WINDOWS_ERROR("DuplicateHandle");
     }
-    pThread->ResumeThread();
+    thread->ResumeThread();
   }
   catch (const MiKTeXException& e)
   {
@@ -249,7 +250,7 @@ LRESULT FileCopyPage::OnProgress(WPARAM wParam, LPARAM lParam)
     CSingleLock singleLock(&criticalSectionMonitor, TRUE);
 
     // do we have to finish?
-    if (sharedData.ready || pSheet->GetCancelFlag() || pSheet->GetErrorFlag())
+    if (sharedData.ready || sheet->GetCancelFlag() || sheet->GetErrorFlag())
     {
       // check to see if we are already ready
       if (sharedData.waitingForClickOnNext)
@@ -262,7 +263,7 @@ LRESULT FileCopyPage::OnProgress(WPARAM wParam, LPARAM lParam)
       // close the wizard, if it is running unattended
       if (SetupApp::Instance->IsUnattended)
       {
-        SetupApp::Instance->Service->ULogClose(!pSheet->GetErrorFlag());
+        SetupApp::Instance->Service->ULogClose(!sheet->GetErrorFlag());
         EndDialog(IDOK);
       }
 
@@ -290,7 +291,7 @@ LRESULT FileCopyPage::OnProgress(WPARAM wParam, LPARAM lParam)
 #endif
 
       // enable Next button
-      pSheet->SetWizardButtons(PSWIZB_NEXT);
+      sheet->SetWizardButtons(PSWIZB_NEXT);
     }
     else
     {
@@ -332,13 +333,13 @@ LRESULT FileCopyPage::OnProgress(WPARAM wParam, LPARAM lParam)
   catch (const MiKTeXException& e)
   {
     ReportError(e);
-    pSheet->SetWizardButtons(PSWIZB_NEXT);
+    sheet->SetWizardButtons(PSWIZB_NEXT);
     sharedData.waitingForClickOnNext = true;
   }
   catch (const exception& e)
   {
     ReportError(e);
-    pSheet->SetWizardButtons(PSWIZB_NEXT);
+    sheet->SetWizardButtons(PSWIZB_NEXT);
     sharedData.waitingForClickOnNext = true;
   }
   return 0;
@@ -354,10 +355,10 @@ LRESULT FileCopyPage::OnReport(WPARAM wParam, LPARAM lParam)
   return 0;
 }
 
-bool FileCopyPage::OnProcessOutput(const void* pOutput, size_t n)
+bool FileCopyPage::OnProcessOutput(const void* output, size_t n)
 {
-  Report(true, "%.*s", n, reinterpret_cast<const char *>(pOutput));
-  return !(pSheet->GetErrorFlag() || pSheet->GetCancelFlag());
+  Report(true, "%.*s", n, reinterpret_cast<const char*>(output));
+  return !(sheet->GetErrorFlag() || sheet->GetCancelFlag());
 }
 
 void FileCopyPage::ReportLine(const string& str)
@@ -447,12 +448,12 @@ bool FileCopyPage::OnProgress(MiKTeX::Setup::Notification nf)
     }
   }
 
-  return !(pSheet->GetErrorFlag() || pSheet->GetCancelFlag());
+  return !(sheet->GetErrorFlag() || sheet->GetCancelFlag());
 }
 
-UINT FileCopyPage::WorkerThread(void* pParam)
+UINT FileCopyPage::WorkerThread(void* fileCopyPage)
 {
-  FileCopyPage* This = reinterpret_cast<FileCopyPage*>(pParam);
+  FileCopyPage* This = reinterpret_cast<FileCopyPage*>(fileCopyPage);
 
   This->timeOfLastProgressRefresh = 0;
 
@@ -541,12 +542,12 @@ void FileCopyPage::Report(bool writeLog, const char* lpszFmt, ...)
 
 CWnd* FileCopyPage::GetControl(UINT controlId)
 {
-  CWnd* pWnd = GetDlgItem(controlId);
-  if (pWnd == nullptr)
+  CWnd* wnd = GetDlgItem(controlId);
+  if (wnd == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
-  return pWnd;
+  return wnd;
 }
 
 void FileCopyPage::EnableControl(UINT controlId, bool enable)
@@ -557,11 +558,11 @@ void FileCopyPage::EnableControl(UINT controlId, bool enable)
 void FileCopyPage::ReportError(const MiKTeXException& e)
 {
   Report(false, T_("\nError: %s\n"), e.GetErrorMessage().c_str());
-  pSheet->ReportError(e);
+  sheet->ReportError(e);
 }
 
 void FileCopyPage::ReportError(const exception& e)
 {
   Report(false, T_("\nError: %s\n"), e.what());
-  pSheet->ReportError(e);
+  sheet->ReportError(e);
 }

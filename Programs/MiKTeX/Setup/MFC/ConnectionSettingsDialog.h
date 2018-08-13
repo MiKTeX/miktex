@@ -35,13 +35,13 @@ protected:
   DECLARE_MESSAGE_MAP();
 
 public:
-  ConnectionSettingsDialog(CWnd * pParent = nullptr);
+  ConnectionSettingsDialog(CWnd* parent = nullptr);
 
 protected:
   BOOL OnInitDialog() override;
 
 protected:
-  void DoDataExchange(CDataExchange * pDX) override;
+  void DoDataExchange(CDataExchange* dx) override;
 
 protected:
   void OnOK() override;
@@ -59,7 +59,7 @@ private:
   void EnableButtons();
 
 private:
-  CWnd * GetControl(int nID);
+  CWnd* GetControl(int nID);
 
 private:
   CButton useProxyButton;
