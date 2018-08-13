@@ -103,15 +103,6 @@ set(setup_mfc_sources
   targetver.h
 )
 
-if(ENABLE_ADDTEXMF)
-  list(APPEND setup_mfc_sources
-    AddTEXMFPage.cpp
-    AddTEXMFPage.h
-    EditTEXMFPage.cpp
-    EditTEXMFPage.h
-  )
-endif()
-
 set(libs
   ${core_lib_name}
   ${getopt_lib_name}

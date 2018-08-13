@@ -21,15 +21,6 @@
 
 #pragma once
 
-#if ENABLE_ADDTEXMF
-#include "AddTEXMFPage.h"
-#include "EditTEXMFPage.h"
-#endif
-
-#if SHOW_FOLDER_PAGE
-#  include "ProgramFolderPage.h"
-#endif
-
 #include "FileCopyPage.h"
 #include "FinishPage.h"
 #include "InfoListPage.h"
@@ -157,11 +148,6 @@ private:
 
 private:
   InstallDirPage installDirPage;
-
-#if SHOW_FOLDER_PAGE
-private:
-  ProgramFolderPage programFolderPage;
-#endif
 
 private:
   SettingsPage settingsPage;
