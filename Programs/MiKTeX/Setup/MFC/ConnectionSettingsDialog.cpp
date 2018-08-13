@@ -70,7 +70,7 @@ BOOL ConnectionSettingsDialog::OnInitDialog()
   }
   catch (const exception & e)
   {
-    AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
+    AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
   }
   return ret;
 }
