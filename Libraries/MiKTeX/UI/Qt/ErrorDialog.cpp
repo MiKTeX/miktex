@@ -31,20 +31,20 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-int MiKTeX::UI::Qt::ErrorDialog::DoModal(QWidget * pParent, const MiKTeXException & e)
+int MiKTeX::UI::Qt::ErrorDialog::DoModal(QWidget* parent, const MiKTeXException& e)
 {
-  ErrorDialogImpl dlg(pParent, e);
+  ErrorDialogImpl dlg(parent, e);
   return dlg.exec();
 }
 
-int MiKTeX::UI::Qt::ErrorDialog::DoModal(QWidget * pParent, const exception & e)
+int MiKTeX::UI::Qt::ErrorDialog::DoModal(QWidget* parent, const exception& e)
 {
-  ErrorDialogImpl dlg(pParent, e);
+  ErrorDialogImpl dlg(parent, e);
   return dlg.exec();
 }
 
-ErrorDialogImpl::ErrorDialogImpl(QWidget * pParent, const MiKTeXException & e) :
-  QDialog(pParent),
+ErrorDialogImpl::ErrorDialogImpl(QWidget* parent, const MiKTeXException& e) :
+  QDialog(parent),
   isMiKTeXException(true),
   miktexException(e)
 {
@@ -53,8 +53,8 @@ ErrorDialogImpl::ErrorDialogImpl(QWidget * pParent, const MiKTeXException & e) :
   tbInfo->setText(QString::fromUtf8(e.GetInfo().ToString().c_str()));
 }
 
-ErrorDialogImpl::ErrorDialogImpl(QWidget * pParent, const exception & e) :
-  QDialog(pParent),
+ErrorDialogImpl::ErrorDialogImpl(QWidget* parent, const exception& e) :
+  QDialog(parent),
   isMiKTeXException(false),
   stdException(e)
 {
@@ -71,7 +71,7 @@ void ErrorDialogImpl::on_btnCopy_clicked()
     QApplication::clipboard()->setText(QString::fromUtf8(report.c_str()));
     QMessageBox::information(this, T_("Report Copied"), T_("The error report has been copied to the Clipboard."));
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -122,7 +122,7 @@ string ErrorDialogImpl::CreateReport()
       s << "CommonConfig: " << (pSession->GetSpecialPath(SpecialPath::CommonConfigRoot).GetData()) << endl;
       s << "CommonData: " << pSession->GetSpecialPath(SpecialPath::CommonDataRoot).GetData() << endl;
     }
-    catch (const exception &)
+    catch (const exception&)
     {
       pSession = nullptr;
     }
