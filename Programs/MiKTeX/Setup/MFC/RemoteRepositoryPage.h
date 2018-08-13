@@ -36,25 +36,25 @@ public:
   RemoteRepositoryPage();
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual BOOL OnSetActive();
+  BOOL OnSetActive() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange* dx);
+  void DoDataExchange(CDataExchange* dx) override;
 
 protected:
-  virtual LRESULT OnWizardNext();
+  LRESULT OnWizardNext() override;
 
 protected:
-  virtual LRESULT OnWizardBack();
+  LRESULT OnWizardBack() override;
 
 protected:
-  virtual BOOL OnKillActive();
+  BOOL OnKillActive() override;
 
 protected:
-  virtual BOOL OnQueryCancel();
+  BOOL OnQueryCancel() override;
 
 protected:
   afx_msg void OnItemChanged(NMHDR* pNMHDR, LRESULT* pResult);
@@ -90,5 +90,5 @@ private:
   bool noDdv;
 
 private:
-  class SetupWizard* pSheet = nullptr;
+  class SetupWizard* sheet = nullptr;
 };

@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #include "StdAfx.h"
+
 #include "Setup.h"
 
 #include "PostInstallPage.h"

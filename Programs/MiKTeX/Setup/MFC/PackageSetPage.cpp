@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #include "StdAfx.h"
+
 #include "Setup.h"
 
 #include "PackageSetPage.h"
@@ -37,7 +38,7 @@ PackageSetPage::PackageSetPage(bool download) :
 
 BOOL PackageSetPage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard *>(GetParent());
+  sheet = reinterpret_cast<SetupWizard *>(GetParent());
   switch (SetupApp::Instance->GetPackageLevel())
   {
   case PackageLevel::Basic:
@@ -55,20 +56,20 @@ BOOL PackageSetPage::OnSetActive()
   BOOL ret = CPropertyPage::OnSetActive();
   if (ret)
   {
-    pSheet->SetWizardButtons(PSWIZB_BACK | (packageSet >= 0 ? PSWIZB_NEXT : 0));
+    sheet->SetWizardButtons(PSWIZB_BACK | (packageSet >= 0 ? PSWIZB_NEXT : 0));
   }
   return ret;
 }
 
-void PackageSetPage::DoDataExchange(CDataExchange* pDX)
+void PackageSetPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
-  DDX_Radio(pDX, IDC_SMALL, packageSet);
+  CPropertyPage::DoDataExchange(dx);
+  DDX_Radio(dx, IDC_SMALL, packageSet);
 }
 
 LRESULT PackageSetPage::OnWizardNext()
 {
-  pSheet->PushPage(SetupApp::Instance->GetTask() == SetupTask::Download ? IDD_DOWNLOAD : IDD_INSTALL);
+  sheet->PushPage(SetupApp::Instance->GetTask() == SetupTask::Download ? IDD_DOWNLOAD : IDD_INSTALL);
   UINT next;
   switch (SetupApp::Instance->GetTask())
   {
@@ -114,7 +115,7 @@ LRESULT PackageSetPage::OnWizardNext()
 
 LRESULT PackageSetPage::OnWizardBack()
 {
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(pSheet->PopPage()));
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 
 BOOL PackageSetPage::OnKillActive()
@@ -131,10 +132,10 @@ BOOL PackageSetPage::OnKillActive()
 
 void PackageSetPage::OnSmall()
 {
-  pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+  sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
 }
 
 void PackageSetPage::OnTotal()
 {
-  pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+  sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
 }

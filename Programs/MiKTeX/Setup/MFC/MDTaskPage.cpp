@@ -1,6 +1,6 @@
 /* MDTaskPage.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -20,10 +20,11 @@
    02111-1307, USA. */
 
 #include "StdAfx.h"
+
 #include "Setup.h"
 
-#include "SetupWizard.h"
 #include "MDTaskPage.h"
+#include "SetupWizard.h"
 
 BEGIN_MESSAGE_MAP(MDTaskPage, CPropertyPage)
   ON_BN_CLICKED(IDC_INSTALL, OnInstall)
@@ -38,7 +39,7 @@ MDTaskPage::MDTaskPage() :
 BOOL MDTaskPage::OnInitDialog()
 {
   root = SetupApp::Instance->Service->GetOptions().MiKTeXDirectRoot.GetData();
-  pSheet = reinterpret_cast<SetupWizard *>(GetParent());
+  sheet = reinterpret_cast<SetupWizard *>(GetParent());
   switch (SetupApp::Instance->GetTask())
   {
   case SetupTask::PrepareMiKTeXDirect:
@@ -60,21 +61,21 @@ BOOL MDTaskPage::OnSetActive()
   BOOL ret = CPropertyPage::OnSetActive();
   if (ret)
   {
-    pSheet->SetWizardButtons(PSWIZB_BACK | (task >= 0 ? PSWIZB_NEXT : 0));
+    sheet->SetWizardButtons(PSWIZB_BACK | (task >= 0 ? PSWIZB_NEXT : 0));
   }
   return ret;
 }
 
-void MDTaskPage::DoDataExchange(CDataExchange* pDX)
+void MDTaskPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
-  DDX_Radio(pDX, IDC_PREPARE_MIKTEXDIRECT, task);
-  DDX_Text(pDX, IDC_TEXMF_ROOT, root);
+  CPropertyPage::DoDataExchange(dx);
+  DDX_Radio(dx, IDC_PREPARE_MIKTEXDIRECT, task);
+  DDX_Text(dx, IDC_TEXMF_ROOT, root);
 }
 
 LRESULT MDTaskPage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
+  sheet->PushPage(IDD);
   UINT next;
   switch (GetCheckedRadioButton(IDC_PREPARE_MIKTEXDIRECT, IDC_INSTALL))
   {
@@ -93,7 +94,7 @@ LRESULT MDTaskPage::OnWizardNext()
 
 LRESULT MDTaskPage::OnWizardBack()
 {
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(pSheet->PopPage()));
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 
 BOOL MDTaskPage::OnKillActive()
@@ -108,10 +109,10 @@ BOOL MDTaskPage::OnKillActive()
 
 void MDTaskPage::OnPrepareMiKTeXDirect()
 {
-  pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+  sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
 }
 
 void MDTaskPage::OnInstall()
 {
-  pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+  sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
 }

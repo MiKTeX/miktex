@@ -23,7 +23,8 @@
 
 #include "resource.h"
 
-class ConnectionSettingsDialog : public CDialog
+class ConnectionSettingsDialog :
+  public CDialog
 {
 private:
   enum { IDD = IDD_CONNECTION_SETTINGS };

@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #include "StdAfx.h"
+
 #include "Setup.h"
 
 #include "LocalRepositoryPage.h"
@@ -37,7 +38,7 @@ LocalRepositoryPage::LocalRepositoryPage() :
 
 BOOL LocalRepositoryPage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard *>(GetParent());
+  sheet = reinterpret_cast<SetupWizard *>(GetParent());
   fileName = SetupApp::Instance->GetLocalPackageRepository().GetData();
   return CPropertyPage::OnInitDialog();
 }
@@ -50,57 +51,57 @@ BOOL LocalRepositoryPage::OnSetActive()
   {
     try
     {
-      CWnd* pWnd = GetDlgItem(IDC_FILENAME);
-      if (pWnd == nullptr)
+      CWnd* wnd = GetDlgItem(IDC_FILENAME);
+      if (wnd == nullptr)
       {
         MIKTEX_UNEXPECTED();
       }
-      pWnd->SetWindowText(fileName);
+      wnd->SetWindowText(fileName);
       if (fileName.GetLength() > 0)
       {
-        pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+        sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
       }
       else
       {
-        pSheet->SetWizardButtons(PSWIZB_BACK);
+        sheet->SetWizardButtons(PSWIZB_BACK);
       }
-      pWnd = GetDlgItem(IDC_MESSAGE);
-      if (pWnd == nullptr)
+      wnd = GetDlgItem(IDC_MESSAGE);
+      if (wnd == nullptr)
       {
         MIKTEX_UNEXPECTED();
       }
       if (SetupApp::Instance->GetTask() == SetupTask::Download)
       {
-        pWnd->SetWindowText(T_(_T("Download the MiKTeX distribution to:")));
+        wnd->SetWindowText(T_(_T("Download the MiKTeX distribution to:")));
       }
       else
       {
-        pWnd->SetWindowText(T_(_T("Install MiKTeX from:")));
+        wnd->SetWindowText(T_(_T("Install MiKTeX from:")));
       }
     }
     catch (const MiKTeXException& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
     catch (const exception& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
   }
   return ret;
 }
 
-void LocalRepositoryPage::DoDataExchange(CDataExchange* pDX)
+void LocalRepositoryPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
-  DDX_Text(pDX, IDC_FILENAME, fileName);
+  CPropertyPage::DoDataExchange(dx);
+  DDX_Text(dx, IDC_FILENAME, fileName);
 }
 
 LRESULT LocalRepositoryPage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
+  sheet->PushPage(IDD);
   UINT next;
   switch (SetupApp::Instance->GetTask())
   {
@@ -122,7 +123,7 @@ LRESULT LocalRepositoryPage::OnWizardNext()
 LRESULT LocalRepositoryPage::OnWizardBack()
 {
   noDdv = true;
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(pSheet->PopPage()));
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 
 BOOL LocalRepositoryPage::OnKillActive()
@@ -152,12 +153,12 @@ BOOL LocalRepositoryPage::OnKillActive()
     }
     catch (const MiKTeXException& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
     catch (const exception& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
   }
@@ -197,15 +198,15 @@ void LocalRepositoryPage::OnBrowse()
     }
     fileName = szFolderPath;
     UpdateData(FALSE);
-    pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+    sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
 }
 
@@ -213,26 +214,26 @@ void LocalRepositoryPage::OnChangePathName()
 {
   try
   {
-    CWnd* pWnd = GetDlgItem(IDC_FILENAME);
-    if (pWnd == nullptr)
+    CWnd* wnd = GetDlgItem(IDC_FILENAME);
+    if (wnd == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
-    if (pWnd->GetWindowTextLength() > 0)
+    if (wnd->GetWindowTextLength() > 0)
     {
-      pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+      sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
     }
     else
     {
-      pSheet->SetWizardButtons(PSWIZB_BACK);
+      sheet->SetWizardButtons(PSWIZB_BACK);
     }
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
 }

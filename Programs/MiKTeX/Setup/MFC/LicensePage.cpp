@@ -20,10 +20,11 @@
    02111-1307, USA. */
 
 #include "StdAfx.h"
+
 #include "Setup.h"
 
-#include "SetupWizard.h"
 #include "LicensePage.h"
+#include "SetupWizard.h"
 
 BEGIN_MESSAGE_MAP(LicensePage, CPropertyPage)
   ON_BN_CLICKED(IDC_ACCEPT_LICENSE, OnAcceptLicense)
@@ -34,7 +35,7 @@ LicensePage::LicensePage() :
 {
 }
 
-static void* pLicense = nullptr;
+static void* licenseText = nullptr;
 static long offset;
 static long sizeLicense;
 
@@ -49,14 +50,14 @@ static DWORD CALLBACK StreamInCallback(DWORD_PTR cookie, unsigned char* pBuf, lo
   {
     *pRead = sizeLicense - offset;
   }
-  memcpy(pBuf, static_cast<char *>(pLicense) + offset, *pRead);
+  memcpy(pBuf, static_cast<char*>(licenseText) + offset, *pRead);
   offset += *pRead;
   return 0;
 }
 
 BOOL LicensePage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard *>(GetParent());
+  sheet = reinterpret_cast<SetupWizard *>(GetParent());
   BOOL ret = CPropertyPage::OnInitDialog();
   try
   {
@@ -70,8 +71,8 @@ BOOL LicensePage::OnInitDialog()
     {
       MIKTEX_FATAL_WINDOWS_ERROR("LoadResource");
     }
-    pLicense = LockResource(hglobal);
-    if (pLicense == nullptr)
+    licenseText = LockResource(hglobal);
+    if (licenseText == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
@@ -90,11 +91,11 @@ BOOL LicensePage::OnInitDialog()
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   return ret;
 }
@@ -104,7 +105,7 @@ BOOL LicensePage::OnSetActive()
   BOOL ret = CPropertyPage::OnSetActive();
   if (ret)
   {
-    pSheet->SetWizardButtons(PSWIZB_BACK | (acceptLicenseButton.GetCheck() == BST_CHECKED ? PSWIZB_NEXT : 0));
+    sheet->SetWizardButtons(PSWIZB_BACK | (acceptLicenseButton.GetCheck() == BST_CHECKED ? PSWIZB_NEXT : 0));
   }
   return ret;
 }
@@ -118,7 +119,7 @@ void LicensePage::DoDataExchange(CDataExchange* pDX)
 
 LRESULT LicensePage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
+  sheet->PushPage(IDD);
   UINT next =
     (SetupApp::Instance->IsMiKTeXDirect
       ? IDD_MD_TASK
@@ -132,7 +133,7 @@ LRESULT LicensePage::OnWizardNext()
 
 LRESULT LicensePage::OnWizardBack()
 {
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(pSheet->PopPage()));
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 
 BOOL LicensePage::OnKillActive()
@@ -143,5 +144,5 @@ BOOL LicensePage::OnKillActive()
 
 void LicensePage::OnAcceptLicense()
 {
-  pSheet->SetWizardButtons(PSWIZB_BACK | (acceptLicenseButton.GetCheck() == BST_CHECKED ? PSWIZB_NEXT : 0));
+  sheet->SetWizardButtons(PSWIZB_BACK | (acceptLicenseButton.GetCheck() == BST_CHECKED ? PSWIZB_NEXT : 0));
 }

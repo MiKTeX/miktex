@@ -1,21 +1,21 @@
 /* ProxyAuthenticationDialog.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
-   This file is part of the MiKTeX UI Library.
+   This file is part of the MiKTeX Setup Wizard.
 
-   The MiKTeX UI Library is free software; you can redistribute it
+   The MiKTeX Setup Wizard is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
 
-   The MiKTeX UI Library is distributed in the hope that it will be
+   The MiKTeX Setup Wizard is distributed in the hope that it will be
    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX UI Library; if not, write to the Free
+   along with the MiKTeX Setup Wizard; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
@@ -29,8 +29,8 @@ BEGIN_MESSAGE_MAP(ProxyAuthenticationDialog, CDialog)
   ON_EN_CHANGE(IDC_PROXY_NAME, &ProxyAuthenticationDialog::OnChangeName)
 END_MESSAGE_MAP();
 
-ProxyAuthenticationDialog::ProxyAuthenticationDialog(CWnd * pParent) :
-  CDialog(ProxyAuthenticationDialog::IDD, pParent)
+ProxyAuthenticationDialog::ProxyAuthenticationDialog(CWnd* parent) :
+  CDialog(ProxyAuthenticationDialog::IDD, parent)
 {
 }
 
@@ -41,26 +41,26 @@ BOOL ProxyAuthenticationDialog::OnInitDialog()
   return ret;
 }
 
-void ProxyAuthenticationDialog::DoDataExchange(CDataExchange * pDX)
+void ProxyAuthenticationDialog::DoDataExchange(CDataExchange* dx)
 {
-  CDialog::DoDataExchange(pDX);
-  DDX_Text(pDX, IDC_PROXY_NAME, name);
-  DDX_Text(pDX, IDC_PROXY_PASSWORD, password);
+  CDialog::DoDataExchange(dx);
+  DDX_Text(dx, IDC_PROXY_NAME, name);
+  DDX_Text(dx, IDC_PROXY_PASSWORD, password);
 }
 
 void ProxyAuthenticationDialog::OnChangeName()
 {
-  CWnd * pWnd = GetDlgItem(IDC_PROXY_NAME);
-  if (pWnd == nullptr)
+  CWnd* wnd = GetDlgItem(IDC_PROXY_NAME);
+  if (wnd == nullptr)
   {
     return;
   }
-  CWnd * pOK = GetDlgItem(IDOK);
-  if (pOK == nullptr)
+  CWnd* okayButton = GetDlgItem(IDOK);
+  if (okayButton == nullptr)
   {
     return;
   }
   CString str;
-  pWnd->GetWindowText(str);
-  pOK->EnableWindow(!str.IsEmpty());
+  wnd->GetWindowText(str);
+  okayButton->EnableWindow(!str.IsEmpty());
 }

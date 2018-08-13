@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #include "StdAfx.h"
+
 #include "Setup.h"
 
 #include "RemoteRepositoryPage.h"
@@ -41,7 +42,7 @@ RemoteRepositoryPage::RemoteRepositoryPage() :
 
 BOOL RemoteRepositoryPage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard *>(GetParent());
+  sheet = reinterpret_cast<SetupWizard *>(GetParent());
 
   BOOL ret = CPropertyPage::OnInitDialog();
 
@@ -70,11 +71,11 @@ BOOL RemoteRepositoryPage::OnInitDialog()
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
 
   return ret;
@@ -92,7 +93,7 @@ BOOL RemoteRepositoryPage::OnSetActive()
       {
         firstSetActive = false;
         SetProgressText(T_("Connecting..."));
-        pSheet->SetWizardButtons(0);
+        sheet->SetWizardButtons(0);
         AfxBeginThread(WorkerThread, this);
       }
       else
@@ -102,25 +103,25 @@ BOOL RemoteRepositoryPage::OnSetActive()
     }
     catch (const MiKTeXException& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
     }
     catch (const exception& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
     }
   }
   return ret;
 }
 
-void RemoteRepositoryPage::DoDataExchange(CDataExchange* pDX)
+void RemoteRepositoryPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
-  DDX_Control(pDX, IDC_LIST, listControl);
+  CPropertyPage::DoDataExchange(dx);
+  DDX_Control(dx, IDC_LIST, listControl);
 }
 
 LRESULT RemoteRepositoryPage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
+  sheet->PushPage(IDD);
   UINT next;
   switch (SetupApp::Instance->GetTask())
   {
@@ -138,7 +139,7 @@ LRESULT RemoteRepositoryPage::OnWizardNext()
 
 LRESULT RemoteRepositoryPage::OnWizardBack()
 {
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(pSheet->PopPage()));
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 
 BOOL RemoteRepositoryPage::OnKillActive()
@@ -159,12 +160,12 @@ BOOL RemoteRepositoryPage::OnKillActive()
     }
     catch (const MiKTeXException& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
     catch (const exception& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
   }
@@ -179,16 +180,16 @@ BOOL RemoteRepositoryPage::OnQueryCancel()
   }
   try
   {
-    pSheet->SetCancelFlag();
+    sheet->SetCancelFlag();
     SetProgressText(T_("Cancelling..."));
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   return FALSE;
 }
@@ -218,10 +219,10 @@ LRESULT RemoteRepositoryPage::OnFillList(WPARAM wParam, LPARAM lParam)
 
   try
   {
-    if (pSheet->GetCancelFlag() || pSheet->GetErrorFlag())
+    if (sheet->GetCancelFlag() || sheet->GetErrorFlag())
     {
-      SetProgressText(pSheet->GetCancelFlag() ? T_("Cancelled") : T_("Unsuccessful"));
-      pSheet->EnableCloseButton();
+      SetProgressText(sheet->GetCancelFlag() ? T_("Cancelled") : T_("Unsuccessful"));
+      sheet->EnableCloseButton();
       return 0;
     }
 
@@ -280,15 +281,15 @@ LRESULT RemoteRepositoryPage::OnFillList(WPARAM wParam, LPARAM lParam)
       }
     }
 
-    pSheet->SetWizardButtons(PSWIZB_BACK | (selected ? PSWIZB_NEXT : 0));
+    sheet->SetWizardButtons(PSWIZB_BACK | (selected ? PSWIZB_NEXT : 0));
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
 
   return 0;
@@ -298,9 +299,9 @@ void RemoteRepositoryPage::OnItemChanged(NMHDR* pNMHDR, LRESULT* pResult)
 {
   UNUSED_ALWAYS(pNMHDR);
   *pResult = 0;
-  if (ready && !pSheet->GetCancelFlag() || pSheet->GetErrorFlag())
+  if (ready && !sheet->GetCancelFlag() || sheet->GetErrorFlag())
   {
-    pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+    sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
   }
 }
 
@@ -320,25 +321,25 @@ public:
   }
 };
 
-UINT RemoteRepositoryPage::WorkerThread(void* pv)
+UINT RemoteRepositoryPage::WorkerThread(void* remoteRepositoryPage)
 {
-  RemoteRepositoryPage* This = reinterpret_cast<RemoteRepositoryPage *>(pv);
+  RemoteRepositoryPage* This = reinterpret_cast<RemoteRepositoryPage *>(remoteRepositoryPage);
   try
   {
     SetupApp::Instance->packageManager->DownloadRepositoryList();
     This->repositories = SetupApp::Instance->packageManager->GetRepositories();
     sort(This->repositories.begin(), This->repositories.end(), CountryComparer());
   }
-  catch (const OperationCancelledException &)
+  catch (const OperationCancelledException&)
   {
   }
   catch (const MiKTeXException& e)
   {
-    This->pSheet->ReportError(e);
+    This->sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    This->pSheet->ReportError(e);
+    This->sheet->ReportError(e);
   }
 
   try
@@ -350,11 +351,11 @@ UINT RemoteRepositoryPage::WorkerThread(void* pv)
   }
   catch (const MiKTeXException& e)
   {
-    This->pSheet->ReportError(e);
+    This->sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    This->pSheet->ReportError(e);
+    This->sheet->ReportError(e);
   }
 
   This->ready = true;
