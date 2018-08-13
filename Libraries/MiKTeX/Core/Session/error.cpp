@@ -53,7 +53,7 @@ SourceLocation::SourceLocation(const string& functionName, const string& fileNam
   tag = stream.str();
 }
 
-void Session::FatalMiKTeXError(const string& message, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
+void Session::FatalMiKTeXError(const string& message, const string& description, const string& remedy, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
   string programInvocationName;
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
@@ -74,7 +74,7 @@ void Session::FatalMiKTeXError(const string& message, const MiKTeXException::KVM
     DEBUG_BREAK();
   }
 #endif
-  throw MiKTeXException(programInvocationName, message, info, sourceLocation);
+  throw MiKTeXException(programInvocationName, message, description, remedy, info, sourceLocation);
 }
 
 MIKTEXINTERNALFUNC(bool) GetCrtErrorMessage(int functionResult, string& errorMessage)

@@ -1,6 +1,6 @@
 /* runperl.cpp: running scripts
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -43,7 +43,11 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
 #endif
   if (!Utils::FindProgram(scriptEngineWithExeSuffix.ToString(), engine))
   {
-    MIKTEX_FATAL_ERROR_2(T_("The script engine could not be found."), "scriptEngine", scriptEngineWithExeSuffix.ToString());
+    MIKTEX_FATAL_ERROR_4(
+      T_("The script engine could not be found."),
+      T_("MiKTeX could not find the executable '{scriptEngine}'."),
+      T_("Make sure '{scriptEngine}' is installed on your system."),
+      "scriptEngine", scriptEngineWithExeSuffix.ToString());
   }
 
   // determine script name

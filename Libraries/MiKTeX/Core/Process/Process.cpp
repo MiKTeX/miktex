@@ -138,9 +138,13 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
   bool haveException = process->get_Exception(processException);
   process->Close();
 
-  if (miktexException != nullptr)
+  if (processExitCode != 0 && miktexException != nullptr)
   {
-    if (processExitCode != 0 && haveException)
+    if (haveException)
+    {
+      *miktexException = processException;
+    }
+    else
     {
       *miktexException = MiKTeXException(
         fileName.GetFileName().ToDisplayString(),
@@ -149,10 +153,6 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
           "fileName", fileName.ToDisplayString(),
           "exitCode", std::to_string(processExitCode)),
         SourceLocation());
-    }
-    else
-    {
-      *miktexException = processException;
     }
   }
 
