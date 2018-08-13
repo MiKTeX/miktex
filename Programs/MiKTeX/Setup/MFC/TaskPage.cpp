@@ -20,13 +20,13 @@
    02111-1307, USA. */
 
 #include "StdAfx.h"
-#include "Setup.h"
 
-#include "SetupWizard.h"
-#include "TaskPage.h"
+#include "Setup.h"
 
 #include "ConnectionSettingsDialog.h"
 #include "ProxyAuthenticationDialog.h"
+#include "SetupWizard.h"
+#include "TaskPage.h"
 
 BEGIN_MESSAGE_MAP(TaskPage, CPropertyPage)
   ON_BN_CLICKED(IDC_DOWNLOAD_ONLY, OnDownloadOnly)
@@ -43,7 +43,7 @@ TaskPage::TaskPage() :
 BOOL TaskPage::OnInitDialog()
 {
   BOOL ret = TRUE;
-  pSheet = reinterpret_cast<SetupWizard*>(GetParent());
+  sheet = reinterpret_cast<SetupWizard*>(GetParent());
   try
   {
     switch (SetupApp::Instance->GetTask())
@@ -74,20 +74,20 @@ BOOL TaskPage::OnSetActive()
   BOOL ret = CPropertyPage::OnSetActive();
   if (ret)
   {
-    pSheet->SetWizardButtons(PSWIZB_BACK | (task >= 0 ? PSWIZB_NEXT : 0));
+    sheet->SetWizardButtons(PSWIZB_BACK | (task >= 0 ? PSWIZB_NEXT : 0));
   }
   return ret;
 }
 
-void TaskPage::DoDataExchange(CDataExchange* pDX)
+void TaskPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
-  DDX_Radio(pDX, IDC_DOWNLOAD_ONLY, task);
+  CPropertyPage::DoDataExchange(dx);
+  DDX_Radio(dx, IDC_DOWNLOAD_ONLY, task);
 }
 
 LRESULT TaskPage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
+  sheet->PushPage(IDD);
   UINT next;
 #if 0
   // TODO
@@ -141,7 +141,7 @@ LRESULT TaskPage::OnWizardNext()
 
 LRESULT TaskPage::OnWizardBack()
 {
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(pSheet->PopPage()));
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 
 BOOL TaskPage::OnKillActive()
@@ -162,15 +162,15 @@ void TaskPage::OnDownloadOnly()
   {
     task = 0;
     EnableButtons();
-    pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+    sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
 }
 
@@ -180,21 +180,21 @@ void TaskPage::OnInstallFromLocalRepository()
   {
     task = 1;
     EnableButtons();
-    pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+    sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
 }
 
 void TaskPage::OnInstallFromRemoteRepository()
 {
-  pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+  sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
 }
 
 void TaskPage::OnConnectionSettings()
@@ -206,20 +206,20 @@ void TaskPage::OnConnectionSettings()
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
 }
 
 void TaskPage::EnableButtons()
 {
-  CWnd* pWnd = GetDlgItem(IDC_CONNECTION_SETTINGS);
-  if (pWnd == 0)
+  CWnd* wnd = GetDlgItem(IDC_CONNECTION_SETTINGS);
+  if (wnd == 0)
   {
     MIKTEX_UNEXPECTED();
   }
-  pWnd->EnableWindow(task == 0);
+  wnd->EnableWindow(task == 0);
 }

@@ -36,7 +36,7 @@ SharedInstallationPage::SharedInstallationPage() :
 
 BOOL SharedInstallationPage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard*>(GetParent());
+  sheet = reinterpret_cast<SetupWizard*>(GetParent());
 
   commonUserSetup = (SetupApp::Instance->IsCommonSetup() ? 0 : 1);
 
@@ -99,19 +99,19 @@ BOOL SharedInstallationPage::OnInitDialog()
 
 BOOL SharedInstallationPage::OnSetActive()
 {
-  pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+  sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
   return CPropertyPage::OnSetActive();
 }
 
-void SharedInstallationPage::DoDataExchange(CDataExchange* pDX)
+void SharedInstallationPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
-  DDX_Radio(pDX, IDC_SHARED, commonUserSetup);
+  CPropertyPage::DoDataExchange(dx);
+  DDX_Radio(dx, IDC_SHARED, commonUserSetup);
 }
 
 LRESULT SharedInstallationPage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
+  sheet->PushPage(IDD);
   UINT next;
   if (SetupApp::Instance->Service->GetOptions().IsPrefabricated)
   {
@@ -144,7 +144,7 @@ LRESULT SharedInstallationPage::OnWizardNext()
 
 LRESULT SharedInstallationPage::OnWizardBack()
 {
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(pSheet->PopPage()));
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 
 BOOL SharedInstallationPage::OnKillActive()

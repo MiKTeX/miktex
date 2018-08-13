@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #include "StdAfx.h"
+
 #include "Setup.h"
 
 #include "SetupWizard.h"
@@ -36,42 +37,42 @@ WelcomePage::WelcomePage() :
 
 BOOL WelcomePage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard *>(GetParent());
+  sheet = reinterpret_cast<SetupWizard *>(GetParent());
   BOOL ret = CPropertyPage::OnInitDialog();
   try
   {
-    CWnd* pWnd = GetDlgItem(IDC_WELCOME);
-    if (pWnd == nullptr)
+    CWnd* wnd = GetDlgItem(IDC_WELCOME);
+    if (wnd == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
     extern CFont fntWelcome;
-    pWnd->SetFont(&fntWelcome);
+    wnd->SetFont(&fntWelcome);
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   return ret;
 }
 
 BOOL WelcomePage::OnSetActive()
 {
-  pSheet->SetWizardButtons(PSWIZB_NEXT);
+  sheet->SetWizardButtons(PSWIZB_NEXT);
   return CPropertyPage::OnSetActive();
 }
 
-void WelcomePage::DoDataExchange(CDataExchange* pDX)
+void WelcomePage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
+  CPropertyPage::DoDataExchange(dx);
 }
 
 LRESULT WelcomePage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
+  sheet->PushPage(IDD);
   return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(IDD_LICENSE));
 }

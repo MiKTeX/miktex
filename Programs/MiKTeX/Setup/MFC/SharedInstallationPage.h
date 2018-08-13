@@ -34,28 +34,28 @@ public:
   SharedInstallationPage();
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual BOOL OnSetActive();
+  BOOL OnSetActive() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange* dx);
+  void DoDataExchange(CDataExchange* dx) override;
 
 protected:
-  virtual LRESULT OnWizardNext();
+  LRESULT OnWizardNext() override;
 
 protected:
-  virtual LRESULT OnWizardBack();
+  LRESULT OnWizardBack() override;
 
 protected:
-  virtual BOOL OnKillActive();
+  BOOL OnKillActive() override;
 
 private:
   int commonUserSetup = -1;
 
 private:
-  class SetupWizard* pSheet = nullptr;
+  class SetupWizard* sheet = nullptr;
 
 private:
   shared_ptr<Session> session = Session::Get();

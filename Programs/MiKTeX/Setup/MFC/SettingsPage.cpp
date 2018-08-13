@@ -36,7 +36,7 @@ SettingsPage::SettingsPage() :
 
 BOOL SettingsPage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard *>(GetParent());
+  sheet = reinterpret_cast<SetupWizard*>(GetParent());
   paperSize = SetupApp::Instance->Service->GetOptions().PaperSize.c_str();
   switch (SetupApp::Instance->Service->GetOptions().IsInstallOnTheFlyEnabled)
   {
@@ -58,16 +58,16 @@ BOOL SettingsPage::OnInitDialog()
   return ret;
 }
 
-void SettingsPage::DoDataExchange(CDataExchange* pDX)
+void SettingsPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
-  DDX_CBString(pDX, IDC_COMBO1, paperSize);
-  DDX_CBIndex(pDX, IDC_INSTALL_ON_THE_FLY, installOnTheFly);
+  CPropertyPage::DoDataExchange(dx);
+  DDX_CBString(dx, IDC_COMBO1, paperSize);
+  DDX_CBIndex(dx, IDC_INSTALL_ON_THE_FLY, installOnTheFly);
 }
 
 LRESULT SettingsPage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
+  sheet->PushPage(IDD);
   UINT next;
   switch (SetupApp::Instance->GetTask())
   {
@@ -89,7 +89,7 @@ LRESULT SettingsPage::OnWizardNext()
 
 LRESULT SettingsPage::OnWizardBack()
 {
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(pSheet->PopPage()));
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 
 BOOL SettingsPage::OnKillActive()

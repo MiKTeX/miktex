@@ -166,7 +166,7 @@ void SetupWizard::EnableCancelButton(bool enable)
   wnd->EnableWindow(enable ? TRUE : FALSE);
 }
 
-CString SetupWizard::SetNextText(LPCTSTR lpszText)
+CString SetupWizard::SetNextText(LPCTSTR text)
 {
   CWnd* wnd = GetDlgItem(ID_WIZNEXT);
   if (wnd == nullptr)
@@ -175,7 +175,7 @@ CString SetupWizard::SetNextText(LPCTSTR lpszText)
   }
   CString ret;
   wnd->GetWindowText(ret);
-  wnd->SetWindowText(lpszText);
+  wnd->SetWindowText(text);
   return ret;
 }
 

@@ -1,6 +1,6 @@
 /* WelcomePage.h:                                       -*- C++ -*-
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -34,17 +34,17 @@ public:
   WelcomePage();
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual BOOL OnSetActive();
+  BOOL OnSetActive() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  void DoDataExchange(CDataExchange* dx) override;
 
 protected:
-  virtual LRESULT OnWizardNext();
+  LRESULT OnWizardNext() override;
 
 private:
-  class SetupWizard * pSheet = nullptr;
+  class SetupWizard* sheet = nullptr;
 };
