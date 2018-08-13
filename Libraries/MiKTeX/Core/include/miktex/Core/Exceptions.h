@@ -141,13 +141,13 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& message, const std::string& description, const std::string& remedy, const KVMAP& info, const SourceLocation& sourceLocation);
 
 public:
-  MiKTeXException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
+  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
     MiKTeXException(programInvocationName, message, "", "", info, sourceLocation)
   {
   }
 
 public:
-  MiKTeXException(const std::string& message) :
+  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& message) :
     MiKTeXException("", message, "", "", KVMAP(), SourceLocation())
   {
   }

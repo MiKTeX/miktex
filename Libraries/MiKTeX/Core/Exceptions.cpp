@@ -36,7 +36,7 @@ MiKTeXException::MiKTeXException() :
 {
 }
 
-MiKTeXException::MiKTeXException(const string& programInvocationName, const string& message, const string& desciption, const string& remedy, const KVMAP& info, const SourceLocation& sourceLocation) :
+MiKTeXException::MiKTeXException(const string& programInvocationName, const string& message, const string& description, const string& remedy, const KVMAP& info, const SourceLocation& sourceLocation) :
   info(info),
   description(description),
   message(message),

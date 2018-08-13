@@ -67,8 +67,8 @@ BEGIN_TEST_FUNCTION(3);
   MiKTeXException ex(
     "foo",
     "abrakadabra",
-    "",
-    "",
+    "aaa{fileName}zzz",
+    "xxx{exitCode}yyy",
     MiKTeXException::KVMAP(
       "fileName", "foo.txt",
       "exitCode", "0"),
@@ -77,6 +77,8 @@ BEGIN_TEST_FUNCTION(3);
   MiKTeXException ex2;
   TEST(MiKTeXException::Load(tmpFile->GetPathName().ToString(), ex2));
   TEST(ex2.GetProgramInvocationName() == "foo");
+  TEST(ex2.GetDescription() == "aaafoo.txtzzz");
+  TEST(ex2.GetRemedy() == "xxx0yyy");
 }
 END_TEST_FUNCTION();
 
