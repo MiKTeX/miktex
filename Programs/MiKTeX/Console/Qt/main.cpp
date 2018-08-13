@@ -385,7 +385,7 @@ int main(int argc, char* argv[])
     ret = 1;
     if (isLog4cxxConfigured)
     {
-      LOG4CXX_FATAL(logger, e.what());
+      LOG4CXX_FATAL(logger, e.GetErrorMessage());
       LOG4CXX_FATAL(logger, "finishing with exit code " << ret);
     }
     else

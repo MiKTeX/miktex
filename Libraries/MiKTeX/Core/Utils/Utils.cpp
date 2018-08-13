@@ -527,22 +527,21 @@ void Utils::PrintException(const MiKTeXException& e)
       name = path.GetFileName().ToString();
     }
     int last = '\n';
-    for (const char* lpsz = e.what(); *lpsz != 0; ++lpsz)
+    for (const char& ch : e.GetErrorMessage())
     {
       if (haveName && last == '\n')
       {
         cerr << name << ": ";
       }
-      cerr << *lpsz;
-      last = *lpsz;
+      cerr << ch;
+      last = ch;
     }
     if (last != '\n')
     {
       cerr << endl;
       last = '\n';
     }
-    string info = e.GetInfo().ToString();
-    for (const char* lpsz = info.c_str(); *lpsz != 0; ++lpsz)
+    for (const char& ch : e.GetInfo().ToString())
     {
       if (haveName && last == '\n')
       {
@@ -552,8 +551,8 @@ void Utils::PrintException(const MiKTeXException& e)
       {
         cerr << "Data: ";
       }
-      cerr << *lpsz;
-      last = *lpsz;
+      cerr << ch;
+      last = ch;
     }
     if (last != '\n')
     {

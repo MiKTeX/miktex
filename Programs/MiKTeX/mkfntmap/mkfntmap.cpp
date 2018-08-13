@@ -983,7 +983,7 @@ void MakeFontMapApp::ParseDvipsMapFile(const PathName& mapFile, set<FontMapEntry
     }
     catch (const MiKTeXException& e)
     {
-      MapError("%s", e.what());
+      MapError("%s", e.GetErrorMessage().c_str());
     }
   }
 

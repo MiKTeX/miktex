@@ -548,7 +548,7 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
   {
     pimpl->enableInstaller = TriState::False;
     pimpl->ignoredPackages.insert(deploymentName);
-    LOG4CXX_FATAL(logger, ex.what());
+    LOG4CXX_FATAL(logger, ex.GetErrorMessage());
     LOG4CXX_FATAL(logger, "Info: " << ex.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << ex.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << ex.GetSourceLine());
@@ -728,7 +728,7 @@ void Application::Sorry(const string& name, const MiKTeXException& ex)
 {
   if (logger != nullptr)
   {
-    LOG4CXX_FATAL(logger, ex.what());
+    LOG4CXX_FATAL(logger, ex.GetErrorMessage());
     LOG4CXX_FATAL(logger, "Info: " << ex.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << ex.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << ex.GetSourceLine());
@@ -736,7 +736,7 @@ void Application::Sorry(const string& name, const MiKTeXException& ex)
   else
   {
     cerr
-      << "ERROR: " << ex.what() << "\n"
+      << "ERROR: " << ex.GetErrorMessage() << "\n"
       << "ERROR: Info: " << ex.GetInfo() << "\n"
       << "ERROR: Source: " << ex.GetSourceFile() << "\n"
       << "ERROR: Line: " << ex.GetSourceLine() << "\n";

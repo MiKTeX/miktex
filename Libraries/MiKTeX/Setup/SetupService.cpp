@@ -1036,7 +1036,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1049,7 +1049,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1070,7 +1070,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1083,7 +1083,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1099,7 +1099,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1169,7 +1169,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1192,7 +1192,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1209,7 +1209,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 }

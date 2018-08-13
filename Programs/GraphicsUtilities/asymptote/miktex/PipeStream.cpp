@@ -178,7 +178,7 @@ void PipeStream::ChildStdoutReaderThread()
     childStdoutReaderThreadException = e;
     Finish(false);
     childStdoutPipe.Done();
-    Application::GetApplication()->LogError("MiKTeX exception caught: "s + e.what());
+    Application::GetApplication()->LogError("MiKTeX exception caught: "s + e.GetErrorMessage());
   }
   catch (const std::exception& e)
   {

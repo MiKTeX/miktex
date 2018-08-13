@@ -1152,12 +1152,12 @@ void ReportError(const MiKTeXException& e)
   {
     string str = T_("The operation could not be completed for the following reason: ");
     str += "\n\n";
-    str += e.what();
+    str += e.GetErrorMessage();
     if (!e.GetInfo().empty())
     {
       str += "\n\n";
       str += T_("Details: ");
-      str += e.GetInfo();
+      str += e.GetInfo().ToString();
     }
     AfxMessageBox(UT_(str), MB_OK | MB_ICONSTOP);
     if (SetupApp::Instance->Service != nullptr)
@@ -1166,7 +1166,7 @@ void ReportError(const MiKTeXException& e)
       SetupApp::Instance->Service->Log(T_("  source file: %s\n"), e.GetSourceFile().c_str());
       SetupApp::Instance->Service->Log(T_("  source line: %d\n"), e.GetSourceLine());
       SetupApp::Instance->Service->Log(T_("  message: %s\n"), e.what());
-      SetupApp::Instance->Service->Log(T_("  info: %s\n"), e.GetInfo().c_str());
+      SetupApp::Instance->Service->Log(T_("  info: %s\n"), e.GetInfo().ToString().c_str());
     }
   }
   catch (const exception&)

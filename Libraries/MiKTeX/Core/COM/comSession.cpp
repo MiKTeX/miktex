@@ -144,7 +144,7 @@ STDMETHODIMP comSession::GetErrorInfo(ErrorInfo* pErrorInfo)
   }
   try
   {
-    _bstr_t message = UW_(lastMiKTeXException.what());
+    _bstr_t message = UW_(lastMiKTeXException.GetErrorMessage());
     _bstr_t info = UW_(lastMiKTeXException.GetInfo().ToString());
     _bstr_t sourceFile = UW_(lastMiKTeXException.GetSourceFile());
     pErrorInfo->message = message.Detach();

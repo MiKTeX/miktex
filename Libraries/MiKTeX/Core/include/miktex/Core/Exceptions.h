@@ -132,23 +132,25 @@ public:
   /// Initializes a new MiKTeXException object.
   /// @param programInvocationName Name of the program where the
   /// exception was thrown.
-  /// @param message The message (one-liner) to be presented to the user.
+  /// @param errorMessage The error message to be presented to the user.
   /// @param description The detailed description to be presented to the user.
+  /// Can contain info placeholders.
+  /// @param remedy The remedy to be presented to the user.
   /// Can contain info placeholders.
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& message, const std::string& description, const std::string& remedy, const KVMAP& info, const SourceLocation& sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& errorMessage, const std::string& description, const std::string& remedy, const KVMAP& info, const SourceLocation& sourceLocation);
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
-    MiKTeXException(programInvocationName, message, "", "", info, sourceLocation)
+  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation) :
+    MiKTeXException(programInvocationName, errorMessage, "", "", info, sourceLocation)
   {
   }
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& message) :
-    MiKTeXException("", message, "", "", KVMAP(), SourceLocation())
+  MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException(const std::string& errorMessage) :
+    MiKTeXException("", errorMessage, "", "", KVMAP(), SourceLocation())
   {
   }
 
@@ -164,19 +166,16 @@ public:
 public:
   static MIKTEXCORECEEAPI(bool) Load(MiKTeXException& ex);
 
-  /// Gets the exception message.
+  /// Gets the exception errorMessage.
   /// @return A null-terminated string.
 public:
   const char* what() const noexcept override
   {
-    return message.c_str();
+    return errorMessage.c_str();
   }
 
 public:
-  std::string GetMessage() const noexcept
-  {
-    return message;
-  }
+  MIKTEXCORETHISAPI(std::string) GetErrorMessage() const;
 
 public:
   MIKTEXCORETHISAPI(std::string) GetDescription() const;
@@ -224,7 +223,7 @@ private:
   KVMAP info;
 
 private:
-  std::string message;
+  std::string errorMessage;
 
 private:
   std::string description;
@@ -281,7 +280,7 @@ public:
   virtual ~OperationCancelledException() = default;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL OperationCancelledException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL OperationCancelledException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
 /// Instances of this class represent I/O exceptions.
@@ -309,11 +308,11 @@ public:
   /// Initializes a new IOException object.
   /// @param lpszProgramInvocationName Name of the program where the
   /// exception was thrown.
-  /// @param message The message to be presented to the user.
+  /// @param errorMessage The error message to be presented to the user.
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL IOException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL IOException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
 /// File not found exception class.
@@ -342,11 +341,11 @@ public:
   /// Initializes a new BrokenPipeException object.
   /// @param lpszProgramInvocationName Name of the program where the
   /// exception was thrown.
-  /// @param message The message to be presented to the user.
+  /// @param errorMessage The error message to be presented to the user.
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL BrokenPipeException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL BrokenPipeException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
 /// File not found exception class.
@@ -375,11 +374,11 @@ public:
   /// Initializes a new FileNotFoundException object.
   /// @param lpszProgramInvocationName Name of the program where the
   /// exception was thrown.
-  /// @param message The message to be presented to the user.
+  /// @param errorMessage The error message to be presented to the user.
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL FileNotFoundException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL FileNotFoundException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
 class DirectoryNotEmptyException :
@@ -404,7 +403,7 @@ public:
   virtual ~DirectoryNotEmptyException() = default;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL DirectoryNotEmptyException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL DirectoryNotEmptyException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
 
@@ -435,11 +434,11 @@ public:
   /// Initializes a new UnauthorizedAccessException object.
   /// @param lpszProgramInvocationName Name of the program where the
   /// exception was thrown.
-  /// @param message The message to be presented to the user.
+  /// @param errorMessage The error message to be presented to the user.
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL UnauthorizedAccessException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL UnauthorizedAccessException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
 #if defined(MIKTEX_WINDOWS)
@@ -468,11 +467,11 @@ public:
   /// Initializes a new SharingViolationException object.
   /// @param lpszProgramInvocationName Name of the program where the
   /// exception was thrown.
-  /// @param message The message to be presented to the user.
+  /// @param errorMessage The error message to be presented to the user.
   /// @param info Additional info (e.g., a file name).
   /// @param sourceLocation The source location where the exception was thrown.
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL SharingViolationException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL SharingViolationException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 #endif
 

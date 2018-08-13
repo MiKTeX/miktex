@@ -556,7 +556,7 @@ void FileCopyPage::EnableControl(UINT controlId, bool enable)
 
 void FileCopyPage::ReportError(const MiKTeXException& e)
 {
-  Report(false, T_("\nError: %s\n"), e.what());
+  Report(false, T_("\nError: %s\n"), e.GetErrorMessage().c_str());
   pSheet->ReportError(e);
 }
 

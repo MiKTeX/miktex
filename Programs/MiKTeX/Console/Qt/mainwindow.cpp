@@ -2210,7 +2210,7 @@ void MainWindow::FactoryReset()
       }
       else
       {
-        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().what()) + tr("\n\nThe application window will now be closed."));
+        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().GetErrorMessage().c_str()) + tr("\n\nThe application window will now be closed."));
       }
       backgroundWorkers--;
       session->UnloadFilenameDatabase();
@@ -2284,7 +2284,7 @@ void MainWindow::Uninstall()
       }
       else
       {
-        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().what()) + tr("\n\nThe application window will now be closed."));
+        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().GetErrorMessage().c_str()) + tr("\n\nThe application window will now be closed."));
       }
       backgroundWorkers--;
       session->UnloadFilenameDatabase();

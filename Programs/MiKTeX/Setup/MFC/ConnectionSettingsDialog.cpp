@@ -1,6 +1,6 @@
 /* ConnectionSettingsDialog.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -66,11 +66,11 @@ BOOL ConnectionSettingsDialog::OnInitDialog()
   }
   catch (const MiKTeXException & e)
   {
-    AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
+    AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
   catch (const exception & e)
   {
-    AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
+    AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
   return ret;
 }
@@ -95,7 +95,7 @@ void ConnectionSettingsDialog::OnUseProxy()
   }
   catch (const MiKTeXException & e)
   {
-    AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
+    AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
   catch (const exception & e)
   {
@@ -111,7 +111,7 @@ void ConnectionSettingsDialog::OnChangeHost()
   }
   catch (const MiKTeXException & e)
   {
-    AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
+    AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
   catch (const exception & e)
   {
@@ -127,7 +127,7 @@ void ConnectionSettingsDialog::OnChangePort()
   }
   catch (const MiKTeXException & e)
   {
-    AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
+    AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
   catch (const exception & e)
   {
@@ -149,7 +149,7 @@ void ConnectionSettingsDialog::OnOK()
   }
   catch (const MiKTeXException & e)
   {
-    AfxMessageBox(UT_(e.what()), MB_OK | MB_ICONSTOP);
+    AfxMessageBox(UT_(e.GetErrorMessage()), MB_OK | MB_ICONSTOP);
   }
   catch (const exception & e)
   {

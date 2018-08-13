@@ -3306,14 +3306,14 @@ int MAIN(int argc, MAINCHAR* argv[])
   {
     if (logger != nullptr && isLog4cxxConfigured)
     {
-      LOG4CXX_FATAL(logger, e.what());
+      LOG4CXX_FATAL(logger, e.GetErrorMessage());
       LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
       LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
       LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
     }
     else
     {
-      cerr << e.what() << endl
+      cerr << e.GetErrorMessage() << endl
            << "Info: " << e.GetInfo() << endl
            << "Source: " << e.GetSourceFile() << endl
            << "Line: " << e.GetSourceLine() << endl;

@@ -49,7 +49,7 @@ ErrorDialogImpl::ErrorDialogImpl(QWidget * pParent, const MiKTeXException & e) :
   miktexException(e)
 {
   setupUi(this);
-  tbMessage->setText(QString::fromUtf8(e.what()));
+  tbMessage->setText(QString::fromUtf8(e.GetErrorMessage().c_str()));
   tbInfo->setText(QString::fromUtf8(e.GetInfo().ToString().c_str()));
 }
 
@@ -80,7 +80,7 @@ string ErrorDialogImpl::CreateReport()
 {
   ostringstream s;
   s << T_("MiKTeX Problem Report") << endl
-    << T_("Message: ") << (isMiKTeXException ? miktexException.what() : stdException.what()) << endl;
+    << T_("Message: ") << (isMiKTeXException ? miktexException.GetErrorMessage() : stdException.what()) << endl;
   if (isMiKTeXException)
   {
     s << T_("Data: ") << miktexException.GetInfo() << endl

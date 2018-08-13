@@ -79,8 +79,8 @@ ErrorDialogImpl::ErrorDialogImpl(CWnd* pParent, const MiKTeXException& e) :
   CDialog(IDD, pParent),
   isMiKTeXException(true),
   miktexException(e),
-  message(e.what()),
-  info(e.GetInfo().c_str())
+  message(e.GetErrorMessage().c_str()),
+  info(e.GetInfo().ToString().c_str())
 {
 }
 
@@ -190,7 +190,7 @@ string ErrorDialogImpl::CreateReport()
   ostringstream s;
   s << T_("MiKTeX Problem Report") << endl
     << T_("Message: ")
-    << (isMiKTeXException ? miktexException.what() : stdException.what())
+    << (isMiKTeXException ? miktexException.GetErrorMessage() : stdException.what())
     << endl;
   if (isMiKTeXException)
   {

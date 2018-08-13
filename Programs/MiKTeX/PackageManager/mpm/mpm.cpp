@@ -2061,7 +2061,7 @@ int MAIN(int argc, MAINCHAR* argv[])
   }
   catch (const MiKTeXException& e)
   {
-    LOG4CXX_FATAL(logger, e.what());
+    LOG4CXX_FATAL(logger, e.GetErrorMessage());
     LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
