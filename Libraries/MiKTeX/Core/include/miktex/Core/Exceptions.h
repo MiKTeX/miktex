@@ -266,6 +266,21 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL OperationCancelledException();
 
 public:
+  OperationCancelledException(const OperationCancelledException& other) = default;
+
+public:
+  OperationCancelledException& operator=(const OperationCancelledException& other) = default;
+
+public:
+  OperationCancelledException(OperationCancelledException&& other) = default;
+
+public:
+  OperationCancelledException& operator=(OperationCancelledException&& other) = default;
+
+public:
+  virtual ~OperationCancelledException() = default;
+
+public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL OperationCancelledException(const std::string& programInvocationName, const std::string& message, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
