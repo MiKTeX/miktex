@@ -29,9 +29,6 @@ class ConnectionSettingsDialog :
 private:
   enum { IDD = IDD_CONNECTION_SETTINGS };
 
-private:
-  DECLARE_DYNCREATE(ConnectionSettingsDialog);
-
 protected:
   DECLARE_MESSAGE_MAP();
 

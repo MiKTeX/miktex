@@ -30,8 +30,6 @@ using namespace MiKTeX::Packages;
 #define TU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
 #define UT_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 
-IMPLEMENT_DYNCREATE(ConnectionSettingsDialog, CDialog);
-
 BEGIN_MESSAGE_MAP(ConnectionSettingsDialog, CDialog)
   ON_BN_CLICKED(IDC_USE_PROXY, &ConnectionSettingsDialog::OnUseProxy)
   ON_EN_CHANGE(IDC_PROXY_HOST, OnChangeHost)

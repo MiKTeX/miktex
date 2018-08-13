@@ -23,8 +23,6 @@
 
 #include "ProxyAuthenticationDialog.h"
 
-IMPLEMENT_DYNAMIC(ProxyAuthenticationDialog, CDialog);
-
 BEGIN_MESSAGE_MAP(ProxyAuthenticationDialog, CDialog)
   ON_EN_CHANGE(IDC_PROXY_NAME, &ProxyAuthenticationDialog::OnChangeName)
 END_MESSAGE_MAP();

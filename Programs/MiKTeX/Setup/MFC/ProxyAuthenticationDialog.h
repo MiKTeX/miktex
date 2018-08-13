@@ -27,9 +27,6 @@ class ProxyAuthenticationDialog :
 private:
   enum { IDD = IDD_PROXY_AUTHENTICATION };
 
-private:
-  DECLARE_DYNAMIC(ProxyAuthenticationDialog);
-
 protected:
   DECLARE_MESSAGE_MAP();
 
