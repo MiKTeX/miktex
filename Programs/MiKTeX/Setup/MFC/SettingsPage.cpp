@@ -74,11 +74,7 @@ LRESULT SettingsPage::OnWizardNext()
   case SetupTask::InstallFromCD:
   case SetupTask::InstallFromLocalRepository:
   case SetupTask::InstallFromRemoteRepository:
-#if ENABLE_ADDTEXMF
-    next = IDD_ADD_TEXMFROOTS;
-#else
     next = IDD_INFOLIST;
-#endif
     break;
   case SetupTask::PrepareMiKTeXDirect:
     next = IDD_INFOLIST;

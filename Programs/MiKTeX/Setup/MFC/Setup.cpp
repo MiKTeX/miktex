@@ -52,11 +52,6 @@ public:
 public:
   bool optDryRun = false;
 
-#if ENABLE_ADDTEXMF
-public:
-  bool optNoAddTEXMFDirs = false;
-#endif
-
 public:
   bool optNoRegistry = false;
 
@@ -463,9 +458,6 @@ void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
       break;
 
     case OPT_NO_ADDITIONAL_ROOTS:
-#if ENABLE_ADDTEXMF
-      cmdinfo.optNoAddTEXMFDirs = true;
-#endif
       break;
 
     case OPT_NO_REGISTRY:
@@ -622,33 +614,6 @@ SetupApp::SetupApp()
 {
   SetAppID(UT_("MiKTeXorg.MiKTeX.Setup." MIKTEX_COMPONENT_VERSION_STR));
 }
-
-#if ENABLE_ADDTEXMF
-void CheckAddTEXMFDirs(vector<PathName>& vec)
-{
-  CsvList path(directories, ';');
-  vec.clear();
-  directories = "";
-  for (; path.GetCurrent() != nullptr; ++path)
-  {
-    if (!(
-      SetupApp::Instance->GetStartupConfig().userDataRoot == path.GetCurrent() ||
-      SetupApp::Instance->GetStartupConfig().userConfigRoot == path.GetCurrent() ||
-      SetupApp::Instance->GetStartupConfig().userInstallRoot == path.GetCurrent() ||
-      SetupApp::Instance->GetStartupConfig().commonDataRoot == path.GetCurrent() ||
-      SetupApp::Instance->GetStartupConfig().commonConfigRoot == path.GetCurrent() ||
-      SetupApp::Instance->GetStartupConfig().commonInstallRoot == path.GetCurrent()))
-    {
-      if (vec.size() > 0)
-      {
-        directories += ';';
-      }
-      vec.push_back(path.GetCurrent());
-      directories += path.GetCurrent();
-    }
-  }
-}
-#endif
 
 void SetupGlobalVars(const SetupCommandLineInfo& cmdinfo)
 {

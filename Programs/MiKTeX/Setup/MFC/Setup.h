@@ -57,11 +57,6 @@ public:
 public:
   unique_ptr<TraceStream> traceStream;
 
-#if ENABLE_ADDTEXMF
-public:
-  vector<PathName> addTEXMFDirs;
-#endif
-
 public:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
@@ -177,11 +172,6 @@ public:
     return Service->GetOptions().Config;
   }
 
-#if ENABLE_ADDTEXMF
-public:
-  bool noAddTEXMFDirs;
-#endif
-
 public:
   bool AllowUnattendedReboot = false;
 
@@ -203,10 +193,6 @@ public:
 public:
   bool IsRestarted = false;
 };
-
-#if ENABLE_ADDTEXMF
-void CheckAddTEXMFDirs(string& directories, vector<PathName>& vec);
-#endif
 
 void DDV_Path(CDataExchange* dx, const CString& str);
 

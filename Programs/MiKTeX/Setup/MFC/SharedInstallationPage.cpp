@@ -131,11 +131,7 @@ LRESULT SharedInstallationPage::OnWizardNext()
       next = IDD_REMOTE_REPOSITORY;
       break;
     case SetupTask::PrepareMiKTeXDirect:
-#if SHOW_FOLDER_PAGE
-      next = IDD_FOLDER;
-#else
       next = IDD_SETTINGS;
-#endif
       break;
     default:
       ASSERT(false);

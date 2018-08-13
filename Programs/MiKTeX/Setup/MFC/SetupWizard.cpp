@@ -77,14 +77,7 @@ SetupWizard::SetupWizard(shared_ptr<PackageManager> packageManager) :
     AddPage(&installPackageSetPage);
     AddPage(&sharedInstallationPage);
     AddPage(&installDirPage);
-#if SHOW_FOLDER_PAGE
-    AddPage(&programFolderPage);
-#endif
     AddPage(&settingsPage);
-#if ENABLE_ADDTEXMF
-    AddPage(&addTEXMFPage);
-    AddPage(&editTEXMFPage);
-#endif
     AddPage(&infoListPage);
   }
 

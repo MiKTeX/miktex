@@ -91,11 +91,7 @@ void InstallDirPage::DoDataExchange(CDataExchange* dx)
 LRESULT InstallDirPage::OnWizardNext()
 {
   sheet->PushPage(IDD);
-#if SHOW_FOLDER_PAGE
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(IDD_FOLDER));
-#else
   return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(IDD_SETTINGS));
-#endif
 }
 
 LRESULT InstallDirPage::OnWizardBack()

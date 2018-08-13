@@ -33,9 +33,6 @@ add_definitions(
   -D_UNICODE
 )
 
-set(ENABLE_ADDTEXMF FALSE)
-set(SHOW_FOLDER_PAGE FALSE)
-
 configure_file(
   res/Setup.manifest.in
   ${CMAKE_CURRENT_BINARY_DIR}/res/Setup.manifest

@@ -1,6 +1,6 @@
 /* config.h:                                            -*- C++ -*-
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -18,8 +18,5 @@
    along with the MiKTeX Setup Wizard; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
-
-#cmakedefine ENABLE_ADDTEXMF
-#cmakedefine SHOW_FOLDER_PAGE
 
 #define FEATURE_1874934 1

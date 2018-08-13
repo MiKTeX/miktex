@@ -203,12 +203,6 @@ void InfoListPage::CreateReport()
       info += CRLF;
       info += CRLF;
     }
-#if SHOW_FOLDER_PAGE
-    info += T_("Add shortcuts to ");
-    info += SetupApp::Instance->folderName.c_str();
-    info += CRLF;
-    info += CRLF;
-#endif
     info += T_("Preferred paper size is ");
     info += SetupApp::Instance->Service->GetOptions().PaperSize.c_str();
     info += CRLF;

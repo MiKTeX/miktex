@@ -127,18 +127,6 @@ BEGIN
     PUSHBUTTON      "&Browse...",IDC_BROWSE,247,12,50,14
 END
 
-IDD_ADD_TEXMFROOTS DIALOGEX 0, 0, 317, 143
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-FONT 8, "MS Sans Serif", 0, 0, 0x0
-BEGIN
-    LTEXT           "It is possible to integrate existing TEXMF trees into your MiKTeX setup. For example, you can choose this option in order to make MiKTeX use the files of another TeX system.",IDC_STATIC,21,1,275,24
-    CONTROL         "&Don't integrate other TEXMF trees.",IDC_NOADDTEXMF,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,53,275,10
-    CONTROL         "&Let me specify other TEXMF trees to be integrated with MiKTeX.",IDC_ADDTEXMF,
-                    "Button",BS_AUTORADIOBUTTON | BS_TOP,21,67,275,10
-    LTEXT           "You can carry out this step at a later date. See the MiKTeX Manual, for more information.",IDC_STATIC,21,29,275,16
-END
-
 IDD_INFOLIST DIALOGEX 0, 0, 317, 143
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -191,20 +179,6 @@ BEGIN
                     "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,15,275,10
     CONTROL         "Install MiKTeX only for &me",IDC_JUST_FOR_ME,"Button",BS_AUTORADIOBUTTON,21,1,275,10
     LTEXT           "",IDC_STATIC,46,55,250,8
-END
-
-IDD_EDIT_TEXMFROOTS DIALOGEX 0, 0, 317, 143
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-FONT 8, "MS Sans Serif", 0, 0, 0x0
-BEGIN
-    LTEXT           "To add an existing TEXMF tree, click Add. To remove an entry from the list, Click Delete.",IDC_STATIC,21,1,275,16
-    LTEXT           "The order in the list determines the order, in which the TEXMF trees are searched for input files.",IDC_STATIC,21,24,275,16
-    LTEXT           "To move a TEXMF tree up in the list, click Up. To move a TEXMF tree down in the list, click Down.",IDC_STATIC,21,47,275,16
-    LISTBOX         IDC_LIST_TEXMFROOTS,21,70,275,56,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
-    PUSHBUTTON      "&Add...",IDC_ADD,84,129,50,14
-    PUSHBUTTON      "&Delete",IDC_DELETE,138,129,50,14
-    PUSHBUTTON      "&Up",IDC_MOVEUP,192,129,50,14
-    PUSHBUTTON      "Do&wn",IDC_MOVEDOWN,246,129,50,14
 END
 
 IDD_TASK DIALOGEX 0, 0, 317, 143
@@ -356,15 +330,6 @@ BEGIN
         TOPMARGIN, 1
     END
 
-    IDD_ADD_TEXMFROOTS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 310
-        VERTGUIDE, 21
-        VERTGUIDE, 296
-        TOPMARGIN, 1
-    END
-
     IDD_INFOLIST, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -405,15 +370,6 @@ BEGIN
         RIGHTMARGIN, 310
         VERTGUIDE, 21
         VERTGUIDE, 46
-        VERTGUIDE, 296
-        TOPMARGIN, 1
-    END
-
-    IDD_EDIT_TEXMFROOTS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 310
-        VERTGUIDE, 21
         VERTGUIDE, 296
         TOPMARGIN, 1
     END
@@ -580,7 +536,6 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_SUBHEADER_EDITTREES "You select additional TEXMF trees to be integrated into MiKTeX."
     IDS_HEADER_INFOLIST     "Review"
     IDS_SUBHEADER_INFOLIST  "Review the settings."
     IDS_HEADER_FILECOPY     "Executing"
@@ -618,9 +573,6 @@ BEGIN
                             "Choose a location for the installation directory."
     IDS_HEADER_FOLDER       "Start Menu"
     IDS_SUBHEADER_FOLDER    "Specify the name of the MiKTeX start menu."
-    IDS_HEADER_ADDTREES     "Integrate TEXMF Trees"
-    IDS_SUBHEADER_ADDTREES  "You can integrate existing TEXMF trees."
-    IDS_HEADER_EDITTREES    "Integrate TEXMF Trees"
 END
 
 STRINGTABLE

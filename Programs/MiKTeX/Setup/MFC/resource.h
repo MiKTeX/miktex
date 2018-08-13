@@ -45,13 +45,11 @@
 #define IDS_SUBHEADER_LICENSE           150
 #define IDD_WELCOME                     151
 #define IDD_INSTALLDIR                  152
-#define IDD_ADD_TEXMFROOTS              153
 #define IDD_INFOLIST                    154
 #define IDD_FINISH                      155
 #define IDD_FOLDER                      156
 #define IDD_FILECOPY                    157
 #define IDD_SHARED                      158
-#define IDD_EDIT_TEXMFROOTS             159
 #define IDD_TASK                        160
 #define IDB_HEADER                      161
 #define IDB_WATERMARK                   162
@@ -69,9 +67,7 @@
 #define IDD_POST_INSTALL                176
 #define IDC_LIST                        1000
 #define IDC_WELCOME                     1001
-#define IDC_NOADDTEXMF                  1002
 #define IDC_USE_PROXY                   1003
-#define IDC_ADDTEXMF                    1004
 #define IDC_PROGRESS1                   1005
 #define IDC_CONNECTION_SETTINGS         1006
 #define IDC_PATHNAME                    1007
@@ -90,11 +86,6 @@
 #define IDC_PROGRESS2_TITLE             1020
 #define IDC_SHARED                      1022
 #define IDC_JUST_FOR_ME                 1023
-#define IDC_LIST_TEXMFROOTS             1024
-#define IDC_ADD                         1025
-#define IDC_DELETE                      1026
-#define IDC_MOVEUP                      1027
-#define IDC_MOVEDOWN                    1028
 #define IDC_REPORT                      1029
 #define IDC_DOWNLOAD_ONLY               1030
 #define IDC_ANI                         1031

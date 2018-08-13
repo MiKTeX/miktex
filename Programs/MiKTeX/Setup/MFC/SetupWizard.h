@@ -155,16 +155,6 @@ private:
 private:
   LicensePage licensePage;
 
-#if ENABLE_ADDTEXMF
-private:
-  AddTEXMFPage addTEXMFPage;
-#endif
-
-#if ENABLE_ADDTEXMF
-private:
-  EditTEXMFPage editTEXMFPage;
-#endif
-
 private:
   InfoListPage infoListPage;
 
