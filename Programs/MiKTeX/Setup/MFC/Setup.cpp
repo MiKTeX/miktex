@@ -1119,12 +1119,28 @@ void ReportError(const MiKTeXException& e)
   {
     string str = T_("The operation could not be completed for the following reason: ");
     str += "\n\n";
-    str += e.GetErrorMessage();
-    if (!e.GetInfo().empty())
+    string description = e.GetDescription();
+    string remedy = e.GetRemedy();
+    if (!description.empty())
     {
-      str += "\n\n";
-      str += T_("Details: ");
-      str += e.GetInfo().ToString();
+      str += description;
+      if (!remedy.empty())
+      {
+        str += "\n\n";
+        str += T_("Remedy: ");
+        str += remedy;
+      }
+    }
+    else
+    {
+      str += e.GetErrorMessage();
+      MiKTeXException::KVMAP info = e.GetInfo();
+      if (!info.empty())
+      {
+        str += "\n\n";
+        str += T_("Details: ");
+        str += info.ToString();
+      }
     }
     AfxMessageBox(UT_(str), MB_OK | MB_ICONSTOP);
     if (SetupApp::Instance->Service != nullptr)
@@ -1132,7 +1148,7 @@ void ReportError(const MiKTeXException& e)
       SetupApp::Instance->Service->Log(T_("\nAn error occurred:\n"));
       SetupApp::Instance->Service->Log(T_("  source file: %s\n"), e.GetSourceFile().c_str());
       SetupApp::Instance->Service->Log(T_("  source line: %d\n"), e.GetSourceLine());
-      SetupApp::Instance->Service->Log(T_("  message: %s\n"), e.what());
+      SetupApp::Instance->Service->Log(T_("  message: %s\n"), e.GetErrorMessage().c_str());
       SetupApp::Instance->Service->Log(T_("  info: %s\n"), e.GetInfo().ToString().c_str());
     }
   }
