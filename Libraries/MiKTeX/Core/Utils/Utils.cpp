@@ -541,7 +541,7 @@ void Utils::PrintException(const MiKTeXException& e)
       cerr << endl;
       last = '\n';
     }
-    string info = e.GetInfo();
+    string info = e.GetInfo().ToString();
     for (const char* lpsz = info.c_str(); *lpsz != 0; ++lpsz)
     {
       if (haveName && last == '\n')

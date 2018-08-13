@@ -207,7 +207,7 @@ STDMETHODIMP comPackageInstaller::GetErrorInfo(ErrorInfo* errorInfo)
   try
   {
     _bstr_t message = UW_(lastMiKTeXException.what());
-    _bstr_t info = UW_(lastMiKTeXException.GetInfo());
+    _bstr_t info = UW_(lastMiKTeXException.GetInfo().ToString());
     _bstr_t sourceFile = UW_(lastMiKTeXException.GetSourceFile());
     errorInfo->message = message.Detach();
     errorInfo->info = info.Detach();

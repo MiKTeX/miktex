@@ -50,7 +50,7 @@ ErrorDialogImpl::ErrorDialogImpl(QWidget * pParent, const MiKTeXException & e) :
 {
   setupUi(this);
   tbMessage->setText(QString::fromUtf8(e.what()));
-  tbInfo->setText(QString::fromUtf8(e.GetInfo().c_str()));
+  tbInfo->setText(QString::fromUtf8(e.GetInfo().ToString().c_str()));
 }
 
 ErrorDialogImpl::ErrorDialogImpl(QWidget * pParent, const exception & e) :

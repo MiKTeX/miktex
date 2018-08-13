@@ -94,7 +94,7 @@ STDMETHODIMP comSession::RegisterRootDirectories(BSTR rootDirectories)
   }
   catch (const exception& e)
   {
-    lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), nullptr, __FILE__, __LINE__);
+    lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
     hr = E_FAIL;
   }
   return hr;
@@ -130,7 +130,7 @@ STDMETHODIMP comSession::FindPkFile(BSTR fontName, BSTR mode, LONG dpi, BSTR* pa
   }
   catch (const exception& e)
   {
-    lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), nullptr, __FILE__, __LINE__);
+    lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
     hr = E_FAIL;
   }
   return hr;
@@ -145,7 +145,7 @@ STDMETHODIMP comSession::GetErrorInfo(ErrorInfo* pErrorInfo)
   try
   {
     _bstr_t message = UW_(lastMiKTeXException.what());
-    _bstr_t info = UW_(lastMiKTeXException.GetInfo());
+    _bstr_t info = UW_(lastMiKTeXException.GetInfo().ToString());
     _bstr_t sourceFile = UW_(lastMiKTeXException.GetSourceFile());
     pErrorInfo->message = message.Detach();
     pErrorInfo->info = info.Detach();
@@ -203,7 +203,7 @@ STDMETHODIMP comSession::GetMiKTeXSetupInfo(MiKTeXSetupInfo* setupInfo)
   }
   catch (const exception& e)
   {
-    lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), nullptr, __FILE__, __LINE__);
+    lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
     hr = E_FAIL;
   }
   return hr;
@@ -230,7 +230,7 @@ STDMETHODIMP comSession::GetRootDirectory(LONG rootIdx, BSTR* rootDirectory)
   }
   catch (const exception& e)
   {
-    lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), nullptr, __FILE__, __LINE__);
+    lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
     hr = E_FAIL;
   }
   return hr;
@@ -271,7 +271,7 @@ STDMETHODIMP comSession::FindFile(BSTR fileName, BSTR* path, VARIANT_BOOL* found
   }
   catch (const exception& e)
   {
-    lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), nullptr, __FILE__, __LINE__);
+    lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
     hr = E_FAIL;
   }
   return hr;

@@ -30,6 +30,7 @@
 
 #include <exception>
 #include <unordered_map>
+#include <ostream>
 #include <sstream>
 #include <string>
 
@@ -105,25 +106,8 @@ public:
       (*this)[key3] = value3;
       (*this)[key4] = value4;
     }
-  public: // DEPRECATED
-    KVMAP(const std::string value1) :
-      KVMAP("", value1)
-    {
-    }
   public:
-    std::string ToString() const
-    {
-      std::ostringstream oss;
-      for (const_iterator it = begin(); it != end(); ++it)
-      {
-        if (it != begin())
-        {
-          oss << ", ";
-        }
-        oss << it->first << "=\"" << it->second << "\"";
-      }
-      return oss.str();
-    }
+    std::string ToString() const;
   };
 
   /// Initializes a new MiKTeX exception.
@@ -169,13 +153,6 @@ public:
   }
 
 public:
-  // DEPRECATED
-  MiKTeXException(const char* lpszProgramInvocationName, const char* lpszMessage, const char* lpszInfo, const char* lpszSourceFile, int sourceLine) :
-    MiKTeXException(lpszProgramInvocationName, lpszMessage, "", "", KVMAP("", lpszInfo == nullptr ? "<nullptr>" : lpszInfo), SourceLocation("", lpszSourceFile, sourceLine))
-  {
-  }
-
-public:
   MIKTEXCORETHISAPI(bool) Save(const std::string& path) const noexcept;
 
 public:
@@ -208,10 +185,9 @@ public:
   MIKTEXCORETHISAPI(std::string) GetRemedy() const;
 
 public:
-  // DEPRECATED
-  std::string GetInfo() const noexcept
+  KVMAP GetInfo() const noexcept
   {
-    return info.ToString();
+    return info;
   }
 
   /// Gets the name of the invoked program.
@@ -262,6 +238,26 @@ private:
 private:
   SourceLocation sourceLocation;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const MiKTeXException::KVMAP& kvmap)
+{
+  for (auto it = kvmap.begin(); it != kvmap.end(); ++it)
+  {
+    if (it != kvmap.begin())
+    {
+      os << ", ";
+    }
+    os << it->first << "=\"" << it->second << "\"";
+  }
+  return os;
+}
+
+inline std::string MiKTeXException::KVMAP::ToString() const
+{
+  std::ostringstream oss;
+  oss << *this;
+  return oss.str();
+}
 
 class OperationCancelledException :
   public MiKTeXException

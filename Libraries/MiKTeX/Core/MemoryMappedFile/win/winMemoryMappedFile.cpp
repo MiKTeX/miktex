@@ -82,7 +82,7 @@ void* winMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
     {
       MIKTEX_FATAL_WINDOWS_ERROR_4("MapViewOfFile",
         T_("MiKTeX cannot access the file '{path}'. It might be in use (blocked by another program)."),
-        T_("Close other programs and try again.")
+        T_("Close other programs and try again."),
         "path", path.ToDisplayString());
     }
 
