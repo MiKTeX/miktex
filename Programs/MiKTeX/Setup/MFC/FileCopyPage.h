@@ -35,25 +35,25 @@ public:
   FileCopyPage();
 
 public:
-  virtual ~FileCopyPage();
+  ~FileCopyPage() override;
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual BOOL OnSetActive();
+  BOOL OnSetActive() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange* dx);
+  void DoDataExchange(CDataExchange* dx) override;
 
 protected:
-  virtual LRESULT OnWizardNext();
+  LRESULT OnWizardNext() override;
 
 protected:
-  virtual BOOL OnKillActive();
+  BOOL OnKillActive() override;
 
 protected:
-  virtual BOOL OnQueryCancel();
+  BOOL OnQueryCancel() override;
 
 protected:
   afx_msg LRESULT OnStartFileCopy(WPARAM wParam, LPARAM lParam);
@@ -65,16 +65,16 @@ protected:
   afx_msg LRESULT OnProgress(WPARAM wParam, LPARAM lParam);
 
 private:
-  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n);
+  bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) override;
 
 public:
-  virtual void MIKTEXTHISCALL ReportLine(const std::string& str);
+  void MIKTEXTHISCALL ReportLine(const std::string& str) override;
 
 public:
-  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string& message);
+  bool MIKTEXTHISCALL OnRetryableError(const std::string& message) override;
 
 public:
-  virtual bool MIKTEXTHISCALL OnProgress(MiKTeX::Setup::Notification nf);
+  bool MIKTEXTHISCALL OnProgress(MiKTeX::Setup::Notification nf) override;
 
 private:
   static UINT WorkerThread(void* fileCopyPage);
