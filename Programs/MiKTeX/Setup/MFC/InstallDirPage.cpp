@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #include "StdAfx.h"
+
 #include "Setup.h"
 
 #include "InstallDirPage.h"
@@ -37,7 +38,7 @@ InstallDirPage::InstallDirPage() :
 
 BOOL InstallDirPage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard *>(GetParent());
+  sheet = reinterpret_cast<SetupWizard *>(GetParent());
   installDir = SetupApp::Instance->GetInstallationDirectory().ToWideCharString().c_str();
   return CPropertyPage::OnInitDialog();
 }
@@ -47,18 +48,18 @@ BOOL InstallDirPage::OnSetActive()
   noDdv = false;
   installDir = SetupApp::Instance->GetInstallationDirectory().ToWideCharString().c_str();
   BOOL ret = CPropertyPage::OnSetActive();
-  pSheet->SetWizardButtons(PSWIZB_BACK | (installDir.IsEmpty() ? 0 : PSWIZB_NEXT));
+  sheet->SetWizardButtons(PSWIZB_BACK | (installDir.IsEmpty() ? 0 : PSWIZB_NEXT));
   return ret;
 }
 
-void InstallDirPage::DoDataExchange(CDataExchange* pDX)
+void InstallDirPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
+  CPropertyPage::DoDataExchange(dx);
 
   try
   {
-    DDX_Text(pDX, IDC_PATHNAME, installDir);
-    if (pDX->m_bSaveAndValidate && !noDdv)
+    DDX_Text(dx, IDC_PATHNAME, installDir);
+    if (dx->m_bSaveAndValidate && !noDdv)
     {
       installDir.Trim();
       installDir.Replace(_T('/'), _T('\\'));
@@ -66,30 +67,30 @@ void InstallDirPage::DoDataExchange(CDataExchange* pDX)
       {
         installDir.TrimRight(_T('\\'));
       }
-      DDV_Path(pDX, installDir);
+      DDV_Path(dx, installDir);
     }
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
-    if (pDX->m_bSaveAndValidate)
+    sheet->ReportError(e);
+    if (dx->m_bSaveAndValidate)
     {
-      pDX->Fail();
+      dx->Fail();
     }
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
-    if (pDX->m_bSaveAndValidate)
+    sheet->ReportError(e);
+    if (dx->m_bSaveAndValidate)
     {
-      pDX->Fail();
+      dx->Fail();
     }
   }
 }
 
 LRESULT InstallDirPage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
+  sheet->PushPage(IDD);
 #if SHOW_FOLDER_PAGE
   return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(IDD_FOLDER));
 #else
@@ -100,7 +101,7 @@ LRESULT InstallDirPage::OnWizardNext()
 LRESULT InstallDirPage::OnWizardBack()
 {
   noDdv = true;
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(pSheet->PopPage()));
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 
 BOOL InstallDirPage::OnKillActive()
@@ -128,12 +129,12 @@ BOOL InstallDirPage::OnKillActive()
   }
     catch (const MiKTeXException& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
     catch (const exception& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
 }
@@ -144,24 +145,24 @@ void InstallDirPage::OnChangePathName()
 {
   try
   {
-    CWnd* pWnd = GetDlgItem(IDC_PATHNAME);
-    if (pWnd == nullptr)
+    CWnd* wnd = GetDlgItem(IDC_PATHNAME);
+    if (wnd == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
     CString str;
-    pWnd->GetWindowText(str);
+    wnd->GetWindowText(str);
     str.TrimLeft();
     str.TrimRight();
-    pSheet->SetWizardButtons(PSWIZB_BACK | (str.IsEmpty() ? 0 : PSWIZB_NEXT));
+    sheet->SetWizardButtons(PSWIZB_BACK | (str.IsEmpty() ? 0 : PSWIZB_NEXT));
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
 }
 
@@ -216,20 +217,20 @@ void InstallDirPage::OnBrowse()
     {
       MIKTEX_FATAL_WINDOWS_ERROR("SHGetPathFromIDListW");
     }
-    CWnd* pWnd = GetDlgItem(IDC_PATHNAME);
-    if (pWnd == nullptr)
+    CWnd* wnd = GetDlgItem(IDC_PATHNAME);
+    if (wnd == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
-    pWnd->SetWindowText(szDir);
+    wnd->SetWindowText(szDir);
     OnChangePathName();
   }
   catch (const MiKTeXException& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
   catch (const exception& e)
   {
-    pSheet->ReportError(e);
+    sheet->ReportError(e);
   }
 }

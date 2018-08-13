@@ -34,22 +34,22 @@ public:
   InfoListPage();
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual BOOL OnSetActive();
+  BOOL OnSetActive() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange* dx);
+  void DoDataExchange(CDataExchange* dx) override;
 
 protected:
-  virtual BOOL OnKillActive();
+  BOOL OnKillActive() override;
 
 protected:
-  virtual LRESULT OnWizardNext();
+  LRESULT OnWizardNext() override;
 
 protected:
-  virtual LRESULT OnWizardBack();
+  LRESULT OnWizardBack() override;
 
 private:
   void CreateReport();
@@ -61,7 +61,7 @@ private:
   CString oldNextText;
 
 private:
-  class SetupWizard* pSheet = nullptr;
+  class SetupWizard* sheet = nullptr;
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = Session::Get();

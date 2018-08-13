@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #include "StdAfx.h"
+
 #include "Setup.h"
 
 #include "InfoListPage.h"
@@ -35,7 +36,7 @@ InfoListPage::InfoListPage() :
 
 BOOL InfoListPage::OnInitDialog()
 {
-  pSheet = reinterpret_cast<SetupWizard *>(GetParent());
+  sheet = reinterpret_cast<SetupWizard *>(GetParent());
   return CPropertyPage::OnInitDialog();
 }
 
@@ -48,20 +49,20 @@ BOOL InfoListPage::OnSetActive()
     try
     {
       CreateReport();
-      oldNextText = pSheet->SetNextText(T_(_T("&Start")));
+      oldNextText = sheet->SetNextText(T_(_T("&Start")));
       if (SetupApp::Instance->IsCommonSetup() && !(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
       {
-        ((CButton*)pSheet->GetDlgItem(ID_WIZNEXT))->SetShield(TRUE);
+        ((CButton*)sheet->GetDlgItem(ID_WIZNEXT))->SetShield(TRUE);
       }
     }
     catch (const MiKTeXException& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
     catch (const exception& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
   }
@@ -69,10 +70,10 @@ BOOL InfoListPage::OnSetActive()
   return ret;
 }
 
-void InfoListPage::DoDataExchange(CDataExchange* pDX)
+void InfoListPage::DoDataExchange(CDataExchange* dx)
 {
-  CPropertyPage::DoDataExchange(pDX);
-  DDX_Text(pDX, IDC_INFO, info);
+  CPropertyPage::DoDataExchange(dx);
+  DDX_Text(dx, IDC_INFO, info);
 }
 
 BOOL InfoListPage::OnKillActive()
@@ -86,16 +87,16 @@ BOOL InfoListPage::OnKillActive()
       {
         EndDialog(IDRETRY);
       }
-      pSheet->SetNextText(oldNextText);
+      sheet->SetNextText(oldNextText);
     }
     catch (const MiKTeXException& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
     catch (const exception& e)
     {
-      pSheet->ReportError(e);
+      sheet->ReportError(e);
       ret = FALSE;
     }
   }
@@ -105,13 +106,13 @@ BOOL InfoListPage::OnKillActive()
 
 LRESULT InfoListPage::OnWizardNext()
 {
-  pSheet->PushPage(IDD);
+  sheet->PushPage(IDD);
   return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(IDD_FILECOPY));
 }
 
 LRESULT InfoListPage::OnWizardBack()
 {
-  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(pSheet->PopPage()));
+  return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 
 void InfoListPage::CreateReport()
