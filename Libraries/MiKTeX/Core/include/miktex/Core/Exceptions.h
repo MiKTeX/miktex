@@ -43,7 +43,7 @@ struct SourceLocation
   SourceLocation& operator=(const SourceLocation& other) = default;
   SourceLocation(SourceLocation&& other) = default;
   SourceLocation& operator=(SourceLocation&& other) = default;
-  virtual ~SourceLocation() = default;
+  ~SourceLocation() = default;
   MIKTEXCOREEXPORT MIKTEXTHISCALL SourceLocation(const std::string& functionName, const std::string& fileName, int lineNo);
   std::string functionName;
   std::string fileName;
