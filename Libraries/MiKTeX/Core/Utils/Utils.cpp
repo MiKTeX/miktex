@@ -505,7 +505,7 @@ void Utils::PrintException(const exception& e)
   {
     cerr << "*** " << e.what() << endl;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -560,7 +560,7 @@ void Utils::PrintException(const MiKTeXException& e)
       last = '\n';
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
