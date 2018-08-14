@@ -1,6 +1,6 @@
 /* InstallPackageDialog.h:                              -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -64,7 +64,7 @@ private slots:
   void on_cbInstallationDirectory_currentIndexChanged(int idx);
 
 public:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pManager;
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 };
 
 #endif

@@ -1,6 +1,6 @@
 /* ProxyAuthenticationDialog.h:                         -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -36,7 +36,7 @@ private:
   Q_OBJECT;
 
 public:
-  ProxyAuthenticationDialog(QWidget * pParent);
+  ProxyAuthenticationDialog(QWidget* parent);
 
 public:
   QString GetName() const
@@ -51,7 +51,7 @@ public:
   }
 
 private slots:
-  void on_leName_textChanged(const QString & newText);
+  void on_leName_textChanged(const QString& newText);
 };
 
 #endif

@@ -1,6 +1,6 @@
 /* SiteWizRemote.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -36,14 +36,14 @@ using namespace std;
 
 void SiteWizRemote::DownloadThread::run()
 {
-  SiteWizRemote * This = reinterpret_cast<SiteWizRemote *>(parent());
+  SiteWizRemote* This = reinterpret_cast<SiteWizRemote*>(parent());
   try
   {
-    This->pManager->SetRepositoryReleaseState(This->field("isMiKTeXNext").toBool() ? RepositoryReleaseState::Next : RepositoryReleaseState::Stable);
-    This->pManager->DownloadRepositoryList();
-    This->repositories = This->pManager->GetRepositories();
+    This->packageManager->SetRepositoryReleaseState(This->field("isMiKTeXNext").toBool() ? RepositoryReleaseState::Next : RepositoryReleaseState::Stable);
+    This->packageManager->DownloadRepositoryList();
+    This->repositories = This->packageManager->GetRepositories();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     threadMiKTeXException = e;
     error = true;
@@ -53,9 +53,9 @@ void SiteWizRemote::DownloadThread::run()
   }
 }
 
-SiteWizRemote::SiteWizRemote(std::shared_ptr<MiKTeX::Packages::PackageManager> pManager) :
+SiteWizRemote::SiteWizRemote(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager) :
   QWizardPage(nullptr),
-  pManager(pManager)
+  packageManager(packageManager)
 {
   setupUi(this);
   connect(treeView, SIGNAL(clicked(const QModelIndex &)), this, SIGNAL(completeChanged()));
@@ -66,9 +66,9 @@ void SiteWizRemote::initializePage()
   if (firstVisit)
   {
     firstVisit = false;
-    pDownloadThread = new DownloadThread(this);
-    connect(pDownloadThread, SIGNAL(finished()), this, SLOT(FillList()));
-    pDownloadThread->start();
+    downloadThread = new DownloadThread(this);
+    connect(downloadThread, SIGNAL(finished()), this, SLOT(FillList()));
+    downloadThread->start();
   }
 }
 
@@ -86,19 +86,19 @@ bool SiteWizRemote::validatePage()
     {
       return false;
     }
-    int idx = pProxyModel->mapToSource(selectedRows.first()).row();
-    pManager->SetDefaultPackageRepository(
+    int idx = proxyModel->mapToSource(selectedRows.first()).row();
+    packageManager->SetDefaultPackageRepository(
       RepositoryType::Remote,
       field("isMiKTeXNext").toBool() ? RepositoryReleaseState::Next : RepositoryReleaseState::Stable,
       repositories[idx].url);
     return true;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return false;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return false;
@@ -109,18 +109,18 @@ void SiteWizRemote::FillList()
 {
   try
   {
-    if (pDownloadThread != nullptr && pDownloadThread->isFinished() && pDownloadThread->error)
+    if (downloadThread != nullptr && downloadThread->isFinished() && downloadThread->error)
     {
-      throw pDownloadThread->threadMiKTeXException;
+      throw downloadThread->threadMiKTeXException;
     }
 
-    RepositoryTableModel * pModel = new RepositoryTableModel(this);
-    pModel->SetRepositories(repositories);
+    RepositoryTableModel* model = new RepositoryTableModel(this);
+    model->SetRepositories(repositories);
 
-    pProxyModel = new QSortFilterProxyModel(this);
-    pProxyModel->setSourceModel(pModel);
+    proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(model);
 
-    treeView->setModel(pProxyModel);
+    treeView->setModel(proxyModel);
     treeView->setColumnHidden(0, true);
     treeView->sortByColumn(0, Qt::AscendingOrder);
 
@@ -128,10 +128,10 @@ void SiteWizRemote::FillList()
 
     string selected;
 
-    if (!pManager->TryGetRemotePackageRepository(selected))
+    if (!packageManager->TryGetRemotePackageRepository(selected))
     {
 #if 0
-      selected = pManager->PickRepositoryUrl();
+      selected = packageManager->PickRepositoryUrl();
 #endif
     }
 
@@ -148,7 +148,7 @@ void SiteWizRemote::FillList()
 #endif
       if (it->url == selected)
       {
-	selectedItem = pProxyModel->mapFromSource(pModel->index(row, 0));
+	selectedItem = proxyModel->mapFromSource(model->index(row, 0));
 	treeView->selectionModel()->select(selectedItem, QItemSelectionModel::Select | QItemSelectionModel::Rows);
 	emit completeChanged();
       }
@@ -159,11 +159,11 @@ void SiteWizRemote::FillList()
       treeView->scrollTo(selectedItem);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }

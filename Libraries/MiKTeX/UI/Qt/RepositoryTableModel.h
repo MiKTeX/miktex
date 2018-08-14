@@ -26,9 +26,11 @@
 #if !defined(EED8F292DA8F4313B3BB1E684E900634)
 #define EED8F292DA8F4313B3BB1E684E900634
 
-#include <QAbstractTableModel>
-#include <miktex/PackageManager/PackageManager>
 #include <vector>
+
+#include <QAbstractTableModel>
+
+#include <miktex/PackageManager/PackageManager>
 
 #include "internal.h"
 

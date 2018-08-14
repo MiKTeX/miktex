@@ -1,6 +1,6 @@
 /* SiteWizLocal.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -33,9 +33,9 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-SiteWizLocal::SiteWizLocal(shared_ptr<PackageManager> pManager) :
+SiteWizLocal::SiteWizLocal(shared_ptr<PackageManager> packageManager) :
   QWizardPage(nullptr),
-  pManager(pManager)
+  packageManager(packageManager)
 {
   setupUi(this);
 }
@@ -45,16 +45,16 @@ void SiteWizLocal::initializePage()
   try
   {
     PathName path;
-    if (pManager->TryGetLocalPackageRepository(path))
+    if (packageManager->TryGetLocalPackageRepository(path))
     {
       leDirectory->setText(QString::fromUtf8(path.GetData()));
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -79,7 +79,7 @@ bool SiteWizLocal::validatePage()
       QMessageBox::critical(this, QString(), T_("The specified directory does not exist."));
       return false;
     }
-    if (!pManager->IsLocalPackageRepository(directory))
+    if (!packageManager->IsLocalPackageRepository(directory))
     {
       PathName mpmIni(directory);
       mpmIni /= "texmf";
@@ -90,15 +90,15 @@ bool SiteWizLocal::validatePage()
 	return false;
       }
     }
-    pManager->SetDefaultPackageRepository(RepositoryType::Local, directory.GetData());
+    packageManager->SetDefaultPackageRepository(RepositoryType::Local, directory.GetData());
     return true;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return false;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return false;

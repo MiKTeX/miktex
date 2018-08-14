@@ -1,6 +1,6 @@
 /* ConnectionSettingsDialog.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -32,8 +32,8 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-ConnectionSettingsDialog::ConnectionSettingsDialog(QWidget * pParent) :
-  QDialog(pParent)
+ConnectionSettingsDialog::ConnectionSettingsDialog(QWidget* parent) :
+  QDialog(parent)
 {
   setupUi(this);
   leAddress->setValidator(new QRegExpValidator(QRegExp(".+"), this));
@@ -51,13 +51,13 @@ ConnectionSettingsDialog::ConnectionSettingsDialog(QWidget * pParent) :
       chkAuthRequired->setChecked(proxySettings.authenticationRequired);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 }
 
@@ -73,11 +73,11 @@ void ConnectionSettingsDialog::accept()
     proxySettings.authenticationRequired = chkAuthRequired->isChecked();
     PackageManager::SetProxy(proxySettings);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }

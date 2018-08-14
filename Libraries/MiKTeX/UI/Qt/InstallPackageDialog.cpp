@@ -1,6 +1,6 @@
 /* InstallPackageDialog.cpp:
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -35,24 +35,24 @@ using namespace std;
 
 InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger) :
   QDialog(parent),
-  pManager(packageManager)
+  packageManager(packageManager)
 {
   setupUi(this);
   try
   {
     shared_ptr<Session> session = Session::Get();
-    QPushButton * pOKButton = buttonBox->button(QDialogButtonBox::Ok);
-    if (pOKButton == nullptr)
+    QPushButton* okayButton = buttonBox->button(QDialogButtonBox::Ok);
+    if (okayButton == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
-    pOKButton->setText(T_("Install"));
+    okayButton->setText(T_("Install"));
     lblPackageName->setText(QString::fromLocal8Bit(packageName.c_str()));
     lblMissingFile->setText(QString::fromLocal8Bit(trigger.c_str()));
-    PackageInfo packageInfo = pManager->GetPackageInfo(packageName);
+    PackageInfo packageInfo = packageManager->GetPackageInfo(packageName);
     string repository;
     RepositoryType repositoryType(RepositoryType::Unknown);
-    if (pManager->TryGetDefaultPackageRepository(repositoryType, repository) && !repository.empty())
+    if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository) && !repository.empty())
     {
       leInstallationSource->setText(QString::fromUtf8(repository.c_str()));
     }
@@ -106,11 +106,11 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
     }
     cbInstallationDirectory->setCurrentIndex(0);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(0, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(0, e);
   }
@@ -126,16 +126,16 @@ void InstallPackageDialog::on_btnChange_clicked()
     }
     string repository;
     RepositoryType repositoryType(RepositoryType::Unknown);
-    if (pManager->TryGetDefaultPackageRepository(repositoryType, repository) && !repository.empty())
+    if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository) && !repository.empty())
     {
       leInstallationSource->setText(QString::fromLocal8Bit(repository.c_str()));
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -148,7 +148,7 @@ void InstallPackageDialog::on_cbInstallationDirectory_currentIndexChanged(int id
     return;
   }
   bool elevationRequired = cbInstallationDirectory->itemData(idx).toBool();
-  QPushButton * pOKButton = buttonBox->button(QDialogButtonBox::Ok);
+  QPushButton* okayButton = buttonBox->button(QDialogButtonBox::Ok);
   if (elevationRequired)
   {
     bool iconSet = false;
@@ -164,7 +164,7 @@ void InstallPackageDialog::on_cbInstallationDirectory_currentIndexChanged(int id
 	QPixmap pixmapShield = QtWin::fromHBITMAP(iconInfo.hbmColor, QtWin::HBitmapAlpha);
 	DeleteObject(iconInfo.hbmColor);
 	DeleteObject(iconInfo.hbmMask);
-	pOKButton->setIcon(QIcon(pixmapShield));
+	okayButton->setIcon(QIcon(pixmapShield));
 	iconSet = true;
       }
       DestroyIcon(hiconShield);
@@ -172,11 +172,11 @@ void InstallPackageDialog::on_cbInstallationDirectory_currentIndexChanged(int id
 #endif
     if (!iconSet)
     {
-      pOKButton->setIcon(QIcon(":/Icons/elevationrequired16x16.png"));
+      okayButton->setIcon(QIcon(":/Icons/elevationrequired16x16.png"));
     }
   }
   else
   {
-    pOKButton->setIcon(QIcon());
+    okayButton->setIcon(QIcon());
   }
 }

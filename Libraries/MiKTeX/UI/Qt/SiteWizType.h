@@ -38,19 +38,19 @@ private:
   Q_OBJECT;
 
 public:
-  SiteWizType(std::shared_ptr<MiKTeX::Packages::PackageManager> pManager);
+  SiteWizType(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager);
 
 public:
-  virtual void initializePage();
+  void initializePage() override;
 
 public:
-  virtual bool isComplete() const;
+  bool isComplete() const override;
 
 public:
-  virtual bool validatePage();
+  bool validatePage() override;
 
 public:
-  virtual int nextId() const;
+  int nextId() const override;
 
 private slots:
   void on_btnConnectionSettings_clicked();
@@ -62,7 +62,7 @@ private:
   bool isMiKTeXNextWarningIssued = false;
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pManager;
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 };
 
 #endif
