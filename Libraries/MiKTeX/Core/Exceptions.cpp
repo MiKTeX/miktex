@@ -26,6 +26,7 @@
 #include "miktex/Core/Cfg.h"
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/Exceptions.h"
+#include "miktex/Core/Urls.h"
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
@@ -36,13 +37,14 @@ MiKTeXException::MiKTeXException() :
 {
 }
 
-MiKTeXException::MiKTeXException(const string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const KVMAP& info, const SourceLocation& sourceLocation) :
+MiKTeXException::MiKTeXException(const string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
   info(info),
   description(description),
   errorMessage(errorMessage),
   programInvocationName(programInvocationName),
   remedy(remedy),
-  sourceLocation(sourceLocation)
+  sourceLocation(sourceLocation),
+  tag(tag)
 {
 }
 
@@ -52,16 +54,17 @@ bool MiKTeXException::Save(const string& path) const noexcept
   {
     ofstream f;
     f.open(path);
-    f << "[general]\n";
-    f << "programInvocationName=" << programInvocationName << "\n";
-    f << "errorMessage=" << errorMessage << "\n";
-    f << "description=" << description << "\n";
-    f << "remedy=" << remedy << "\n";
-    f << "[sourceLocation]\n";
-    f << "functionName=" << sourceLocation.functionName << "\n";
-    f << "fileName=" << sourceLocation.fileName << "\n";
-    f << "lineNo=" << sourceLocation.lineNo << "\n";
-    f << "tag=" << sourceLocation.tag << "\n";
+    f << "[general]\n"
+      << "programInvocationName=" << programInvocationName << "\n"
+      << "errorMessage=" << errorMessage << "\n"
+      << "description=" << description << "\n"
+      << "remedy=" << remedy << "\n"
+      << "tag=" << tag << "\n"
+      << "[sourceLocation]\n"
+      << "functionName=" << sourceLocation.functionName << "\n"
+      << "fileName=" << sourceLocation.fileName << "\n"
+      << "lineNo=" << sourceLocation.lineNo << "\n"
+      << "tag=" << sourceLocation.tag << "\n";
     if (!info.empty())
     {
       f << "[info]\n";
@@ -109,6 +112,10 @@ bool MiKTeXException::Load(const string& path, MiKTeXException& ex)
         else if (valueName == "remedy")
         {
           ex.remedy = value;
+        }
+        else if (valueName == "tag")
+        {
+          ex.tag = value;
         }
       }
       else if (keyName == "sourceLocation")
@@ -217,6 +224,16 @@ string MiKTeXException::GetRemedy() const
   return StringUtil::FormatString2(remedy, info);
 }
 
+string MiKTeXException::GetUrl() const
+{
+  string url;
+  if (!tag.empty())
+  {
+    url = MIKTEX_URL_WWW_KNOWLEDGE_BASE + "/fix-"s + tag;
+  }
+  return url;
+}
+
 OperationCancelledException::OperationCancelledException() :
   MiKTeXException(T_("Operation cancelled."))
 {
@@ -231,8 +248,8 @@ IOException::IOException()
 {
 }
 
-IOException::IOException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation) :
-  MiKTeXException(programInvocationName, errorMessage, info, sourceLocation)
+IOException::IOException(const std::string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
+  MiKTeXException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation)
 {
 }
 
@@ -240,8 +257,8 @@ FileNotFoundException::FileNotFoundException()
 {
 }
 
-FileNotFoundException::FileNotFoundException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation) :
-  IOException(programInvocationName, errorMessage, info, sourceLocation)
+FileNotFoundException::FileNotFoundException(const string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
+  IOException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation)
 {
 }
 
@@ -249,8 +266,8 @@ DirectoryNotEmptyException::DirectoryNotEmptyException()
 {
 }
 
-DirectoryNotEmptyException::DirectoryNotEmptyException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation) :
-  IOException(programInvocationName, errorMessage, info, sourceLocation)
+DirectoryNotEmptyException::DirectoryNotEmptyException(const string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
+  IOException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation)
 {
 }
 
@@ -258,8 +275,8 @@ BrokenPipeException::BrokenPipeException()
 {
 }
 
-BrokenPipeException::BrokenPipeException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation) :
-  IOException(programInvocationName, errorMessage, info, sourceLocation)
+BrokenPipeException::BrokenPipeException(const string& programInvocationName, const string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation) :
+  IOException(programInvocationName, errorMessage, "", "", "", info, sourceLocation)
 {
 }
 
@@ -267,7 +284,7 @@ UnauthorizedAccessException::UnauthorizedAccessException()
 {
 }
 
-UnauthorizedAccessException::UnauthorizedAccessException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation) :
-  MiKTeXException(programInvocationName, errorMessage, info, sourceLocation)
+UnauthorizedAccessException::UnauthorizedAccessException(const string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
+  MiKTeXException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation)
 {
 }

@@ -69,6 +69,7 @@ BEGIN_TEST_FUNCTION(3);
     "abrakadabra",
     "aaa{fileName}zzz",
     "xxx{exitCode}yyy",
+    "a-b-c",
     MiKTeXException::KVMAP(
       "fileName", "foo.txt",
       "exitCode", "0"),
@@ -79,6 +80,7 @@ BEGIN_TEST_FUNCTION(3);
   TEST(ex2.GetProgramInvocationName() == "foo");
   TEST(ex2.GetDescription() == "aaafoo.txtzzz");
   TEST(ex2.GetRemedy() == "xxx0yyy");
+  TEST(ex2.GetTag() == "a-b-c");
 }
 END_TEST_FUNCTION();
 

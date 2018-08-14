@@ -716,7 +716,7 @@ bool SessionImpl::GetOTFDirs(string& otfDirs)
   return true;
 }
 
-void Session::FatalWindowsError(const string& functionName, unsigned long errorCode, const std::string& description, const string& remedy, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
+void Session::FatalWindowsError(const string& functionName, unsigned long errorCode, const std::string& description, const string& remedy, const string& tag, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
   string programInvocationName;
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
@@ -746,16 +746,16 @@ void Session::FatalWindowsError(const string& functionName, unsigned long errorC
   switch (errorCode)
   {
   case ERROR_ACCESS_DENIED:
-    throw UnauthorizedAccessException(programInvocationName, errorMessage, info, sourceLocation);
+    throw UnauthorizedAccessException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   case ERROR_FILE_NOT_FOUND:
   case ERROR_PATH_NOT_FOUND:
-    throw FileNotFoundException(programInvocationName, errorMessage, info, sourceLocation);
+    throw FileNotFoundException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   case ERROR_SHARING_VIOLATION:
-    throw SharingViolationException(programInvocationName, errorMessage, info, sourceLocation);
+    throw SharingViolationException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   case ERROR_DIR_NOT_EMPTY:
-    throw DirectoryNotEmptyException(programInvocationName, errorMessage, info, sourceLocation);
+    throw DirectoryNotEmptyException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   default:
-    throw MiKTeXException(programInvocationName, errorMessage, info, sourceLocation);
+    throw MiKTeXException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   }
 }
 

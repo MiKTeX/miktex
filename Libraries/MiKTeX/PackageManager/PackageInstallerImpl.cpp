@@ -1769,7 +1769,7 @@ void PackageInstallerImpl::InstallRemove()
       AutoSysString a(errorInfo.message);
       AutoSysString b(errorInfo.info);
       AutoSysString c(errorInfo.sourceFile);
-      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), "", "", MiKTeXException::KVMAP("", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
+      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), "", "", "", MiKTeXException::KVMAP("", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
     }
     return;
   }
@@ -2281,7 +2281,7 @@ void PackageInstallerImpl::UpdateDb()
       AutoSysString a(errorInfo.message);
       AutoSysString b(errorInfo.info);
       AutoSysString c(errorInfo.sourceFile);
-      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), "", "", MiKTeXException::KVMAP("", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
+      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), "", "", "", MiKTeXException::KVMAP("", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
     }
     return;
   }

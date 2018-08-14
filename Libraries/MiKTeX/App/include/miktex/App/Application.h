@@ -144,12 +144,12 @@ public:
   static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const std::exception& ex);
 
 public:
-  static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const std::string& description, const std::string& remedy);
+  static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const std::string& description, const std::string& remedy, const std::string& url);
 
 public:
   static void Sorry(const std::string& name)
   {
-    Sorry(name, "", "");
+    Sorry(name, "", "", "");
   }
 
 public:

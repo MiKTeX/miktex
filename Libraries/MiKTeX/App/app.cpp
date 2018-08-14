@@ -687,7 +687,7 @@ void Application::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
   }
 }
 
-void Application::Sorry(const string& name, const string& description, const string& remedy)
+void Application::Sorry(const string& name, const string& description, const string& remedy, const string& url)
 {
   if (cerr.fail())
   {
@@ -710,6 +710,12 @@ void Application::Sorry(const string& name, const string& description, const str
         << "  " << remedy << endl;
     }
   }
+  if (!url.empty())
+  {
+    cerr
+      << endl
+      << T_("For more information, visit: ") << url << endl;
+  }
   log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
   if (appender != nullptr)
   {
@@ -719,9 +725,6 @@ void Application::Sorry(const string& name, const string& description, const str
       << endl
       << "  " << PathName(appender->getFile()).ToUnix() << endl;
   }
-  cerr
-    << endl
-    << T_("You may want to visit the MiKTeX project page, if you need help.") << endl;
 }
 
 void Application::Sorry(const string& name, const MiKTeXException& ex)
@@ -741,7 +744,7 @@ void Application::Sorry(const string& name, const MiKTeXException& ex)
       << "ERROR: Source: " << ex.GetSourceFile() << "\n"
       << "ERROR: Line: " << ex.GetSourceLine() << "\n";
   }
-  Sorry(name, ex.GetDescription(), ex.GetRemedy());
+  Sorry(name, ex.GetDescription(), ex.GetRemedy(), ex.GetUrl());
 }
 
 void Application::Sorry(const string& name, const exception& ex)

@@ -53,7 +53,7 @@ SourceLocation::SourceLocation(const string& functionName, const string& fileNam
   tag = stream.str();
 }
 
-void Session::FatalMiKTeXError(const string& message, const string& description, const string& remedy, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
+void Session::FatalMiKTeXError(const string& message, const string& description, const string& remedy, const string& tag, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
   string programInvocationName;
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
@@ -74,7 +74,7 @@ void Session::FatalMiKTeXError(const string& message, const string& description,
     DEBUG_BREAK();
   }
 #endif
-  throw MiKTeXException(programInvocationName, message, description, remedy, info, sourceLocation);
+  throw MiKTeXException(programInvocationName, message, description, remedy, tag, info, sourceLocation);
 }
 
 MIKTEXINTERNALFUNC(bool) GetCrtErrorMessage(int functionResult, string& errorMessage)
@@ -129,9 +129,9 @@ void Session::FatalCrtError(const string& functionName, int errorCode, const MiK
   switch (errorCode)
   {
   case EACCES:
-    throw UnauthorizedAccessException(programInvocationName, errorMessage, info, sourceLocation);
+    throw UnauthorizedAccessException(programInvocationName, errorMessage, "", "", "", info, sourceLocation);
   case ENOENT:
-    throw FileNotFoundException(programInvocationName, errorMessage, info, sourceLocation);
+    throw FileNotFoundException(programInvocationName, errorMessage, "", "", "", info, sourceLocation);
   case EPIPE:
     throw BrokenPipeException(programInvocationName, errorMessage, info, sourceLocation);
   default:

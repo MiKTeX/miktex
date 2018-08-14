@@ -1,6 +1,6 @@
 /* miktex/Core/urls.h: hard-coded urls                  -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -47,5 +47,7 @@
 #define MIKTEX_URL_WWW_KNOWN_ISSUES MIKTEX_URL_WWW MIKTEX_MAJOR_MINOR_STR "/issues"
 
 #define MIKTEX_URL_WWW_SUPPORT MIKTEX_URL_WWW "support"
+
+#define MIKTEX_URL_WWW_KNOWLEDGE_BASE MIKTEX_URL_WWW "kb"
 
 #endif

@@ -129,5 +129,5 @@ void __declspec(dllexport) __cdecl MiKTeX::Debug::OnThrowStdException()
 
 MIKTEXNORETURN void MIKTEXCEECALL MiKTeX::Debug::FatalMiKTeXError(const std::string& message, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
-  Session::FatalMiKTeXError(message, "", "", info, sourceLocation);
+  Session::FatalMiKTeXError(message, "", "", "", info, sourceLocation);
 }

@@ -667,7 +667,7 @@ void SessionImpl::RegisterRootDirectories(const string& roots, bool other)
       AutoSysString a(errorInfo.message);
       AutoSysString b(errorInfo.info);
       AutoSysString c(errorInfo.sourceFile);
-      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), "", "", MiKTeXException::KVMAP("info", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
+      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), "", "", "", MiKTeXException::KVMAP("info", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
     }
     return;
   }

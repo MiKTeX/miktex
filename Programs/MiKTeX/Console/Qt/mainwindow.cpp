@@ -178,15 +178,29 @@ void MainWindow::setVisible(bool visible)
   QMainWindow::setVisible(visible);
 }
 
-void MainWindow::CriticalError(const QString& text, const MiKTeXException& e)
+void MainWindow::CriticalError(const QString& shortText, const MiKTeXException& e)
 {
+  string description = e.GetDescription();
+  QString text = shortText;
+  if (!description.empty())
+  {
+    text += "\n\n";
+    text += QString::fromUtf8(description.c_str());
+    string remedy = e.GetRemedy();
+    if (!remedy.empty())
+    {
+      text += "\n\n" + tr("Remedy:") + " ";
+      text += QString::fromUtf8(remedy.c_str());
+    }
+  }
   if (this->isHidden())
   {
     ShowTrayMessage(TrayMessageContext::Error, text);
   }
   else
   {
-    if (QMessageBox::critical(this, tr("MiKTeX Console"), text + "\n\n" + tr("Do you want to see the error details?"),
+    text += "\n\n" + tr("Do you want to see the error details?");
+    if (QMessageBox::critical(this, tr("MiKTeX Console"), text,
       QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
       == QMessageBox::StandardButton::Yes)
     {

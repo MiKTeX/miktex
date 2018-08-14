@@ -1121,6 +1121,7 @@ void ReportError(const MiKTeXException& e)
     str += "\n\n";
     string description = e.GetDescription();
     string remedy = e.GetRemedy();
+    string url = e.GetUrl();
     if (!description.empty())
     {
       str += description;
@@ -1141,6 +1142,11 @@ void ReportError(const MiKTeXException& e)
         str += T_("Details: ");
         str += info.ToString();
       }
+    }
+    if (!url.empty())
+    {
+      str += "\n\n";
+      str += T_("For help, visit: ") + url;
     }
     AfxMessageBox(UT_(str), MB_OK | MB_ICONSTOP);
     if (SetupApp::Instance->Service != nullptr)

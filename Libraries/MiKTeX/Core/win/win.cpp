@@ -1,6 +1,6 @@
 /* win.cpp: Windows specials
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -52,8 +52,8 @@ SharingViolationException::SharingViolationException()
 {
 }
 
-SharingViolationException::SharingViolationException(const string & programInvocationName, const string & message, const KVMAP & info, const SourceLocation & sourceLocation) :
-  IOException(programInvocationName, message, info, sourceLocation)
+SharingViolationException::SharingViolationException(const string & programInvocationName, const string & message, const string& description, const string& remedy, const string& tag, const KVMAP & info, const SourceLocation & sourceLocation) :
+  IOException(programInvocationName, message, description, remedy, tag, info, sourceLocation)
 {
 }
 

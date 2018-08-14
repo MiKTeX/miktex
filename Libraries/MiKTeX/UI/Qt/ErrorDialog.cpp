@@ -65,6 +65,11 @@ ErrorDialogImpl::ErrorDialogImpl(QWidget* parent, const MiKTeXException& e) :
   {
     message = QString::fromUtf8(e.GetErrorMessage().c_str());
   }
+  string url = e.GetUrl();
+  if (!url.empty())
+  {
+    message += "\n\nMore info: " + QString::fromUtf8(url.c_str());
+  }
   tbMessage->setText(message);
   tbInfo->setText(QString::fromUtf8(e.GetInfo().ToString().c_str()));
 }
