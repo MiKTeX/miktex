@@ -333,7 +333,10 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   }
   if (!MoveFileExW(source.ToWideCharString().c_str(), dest.ToWideCharString().c_str(), flags))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("MoveFileExW", "existing", source.ToString(), "new", dest.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_3("MoveFileExW",
+      T_("MiKTeX could not rename the file '{existing}'."),
+      "existing", source.ToDisplayString(),
+      "new", dest.ToDisplayString());
   }
   if (options[FileMoveOption::UpdateFndb])
   {
