@@ -35,6 +35,9 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
 {
   MIKTEX_ASSERT(argc > 0);
 
+  // determine script name
+  PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
+
   // find engine
   PathName engine;
   PathName scriptEngineWithExeSuffix = scriptEngine;
@@ -43,15 +46,14 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
 #endif
   if (!Utils::FindProgram(scriptEngineWithExeSuffix.ToString(), engine))
   {
-    MIKTEX_FATAL_ERROR_4(
+    MIKTEX_FATAL_ERROR_5(
       T_("The script engine could not be found."),
-      T_("MiKTeX could not find the executable '{scriptEngine}'."),
+      T_("MiKTeX could not find the script engine '{scriptEngine}' which is required to execute '{scriptName}'."),
       T_("Make sure '{scriptEngine}' is installed on your system."),
-      "scriptEngine", scriptEngineWithExeSuffix.ToString());
+      "script-engine-not-found",
+      "scriptEngine", scriptEngineWithExeSuffix.ToString(),
+      "scriptName", name.ToString());
   }
-
-  // determine script name
-  PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
 
   // get relative script path
   PathName scriptsIni;
@@ -64,14 +66,14 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
   string relScriptPath;
   if (!config->TryGetValue(scriptEngine, name.ToString(), relScriptPath))
   {
-    MIKTEX_FATAL_ERROR_2(T_("The script is not registered."), "scriptEngine", scriptEngine, "name", name.ToString());
+    MIKTEX_FATAL_ERROR_2(T_("The script is not registered."), "scriptEngine", scriptEngine, "scriptName", name.ToString());
   }
 
   // find script
   PathName scriptPath;
   if (!FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
   {
-    MIKTEX_FATAL_ERROR_2(T_("The script could not be found."), "scriptEngine", scriptEngine, "name", name.ToString(), "path", relScriptPath);
+    MIKTEX_FATAL_ERROR_2(T_("The script could not be found."), "scriptEngine", scriptEngine, "scriptName", name.ToString(), "path", relScriptPath);
   }
 
   vector<string> args{ scriptEngine };

@@ -168,9 +168,10 @@ void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttribu
 
   if (!SetFileAttributesW(path.ToWideCharString().c_str(), static_cast<DWORD>(nativeAttributes)))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_4("SetFileAttributesW",
+    MIKTEX_FATAL_WINDOWS_ERROR_5("SetFileAttributesW",
       T_("MiKTeX cannot set attributes for file or directory '{path}'. It might be in use (blocked by another program)."),
       T_("Close other programs and try again."),
+      "file-in-use",
       "path", path.ToDisplayString(),
       "attributes", std::to_string(nativeAttributes));
   }
