@@ -96,9 +96,9 @@ bool MiKTeXException::Load(const string& path, MiKTeXException& ex)
       string value = val->GetValue();
       if (keyName == "general")
       {
+        result = true;
         if (valueName == "programInvocationName")
         {
-          result = true;
           ex.programInvocationName = value;
         }
         else if (valueName == "errorMessage")
@@ -120,6 +120,7 @@ bool MiKTeXException::Load(const string& path, MiKTeXException& ex)
       }
       else if (keyName == "sourceLocation")
       {
+        result = true;
         if (valueName == "functionName")
         {
           ex.sourceLocation.functionName = value;
@@ -139,6 +140,7 @@ bool MiKTeXException::Load(const string& path, MiKTeXException& ex)
       }
       else if (keyName == "info")
       {
+        result = true;
         ex.info[valueName] = value;
       }
     }
