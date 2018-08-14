@@ -668,7 +668,7 @@ void Application::Warn(const char* format, ...)
   cout << T_("Warning:") << " " << s << endl;
 }
 
-static void Sorry(const string& description, const string& remedy)
+static void Sorry(const string& description, const string& remedy, const string& url)
 {
   if (cerr.fail())
   {
@@ -701,14 +701,17 @@ static void Sorry(const string& description, const string& remedy)
       << endl
       << "  " << PathName(appender->getFile()).ToUnix() << endl;
   }
-  cerr
-    << endl
-    << T_("You may want to visit the MiKTeX project page, if you need help.") << endl;
+  if (!url.empty())
+  {
+    cerr
+      << endl
+      << T_("For more information, visit: ") << url << endl;
+  }
 }
 
 static void Sorry()
 {
-  Sorry("", "");
+  Sorry("", "", "");
 }
 
 MIKTEXNORETURN void Application::Error(const char* format, ...)
@@ -719,7 +722,7 @@ MIKTEXNORETURN void Application::Error(const char* format, ...)
   s = StringUtil::FormatStringVA(format, arglist);
   VA_END(arglist);
   LOG4CXX_FATAL(logger, s);
-  Sorry(s, "");
+  Sorry(s, "", "");
   throw 1;
 }
 
@@ -2065,7 +2068,7 @@ int MAIN(int argc, MAINCHAR* argv[])
     LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
-    Sorry(e.GetDescription(), e.GetRemedy());
+    Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
     e.Save();
     retCode = 1;
   }

@@ -916,7 +916,7 @@ void IniTeXMFApp::Warning(const char* lpszFormat, ...)
   }
 }
 
-static void Sorry(const string& description, const string& remedy)
+static void Sorry(const string& description, const string& remedy, const string& url)
 {
   if (cerr.fail())
   {
@@ -948,14 +948,17 @@ static void Sorry(const string& description, const string& remedy)
       << endl
       << "  " << PathName(appender->getFile()).ToUnix() << endl;
   }
-  cerr
-    << endl
-    << T_("You may want to visit the MiKTeX project page, if you need help.") << endl;
+  if (!url.empty())
+  {
+    cerr
+      << endl
+      << T_("For more information, visit: ") << url << endl;
+  }
 }
 
 static void Sorry()
 {
-  Sorry("", "");
+  Sorry("", "", "");
 }
 
 MIKTEXNORETURN void IniTeXMFApp::FatalError(const char* lpszFormat, ...)
@@ -972,7 +975,7 @@ MIKTEXNORETURN void IniTeXMFApp::FatalError(const char* lpszFormat, ...)
   {
     cerr << s << endl;
   }
-  Sorry(s, "");
+  Sorry(s, "", "");
   throw 1;
 }
 
@@ -3318,7 +3321,7 @@ int MAIN(int argc, MAINCHAR* argv[])
            << "Source: " << e.GetSourceFile() << endl
            << "Line: " << e.GetSourceLine() << endl;
     }
-    Sorry(e.GetDescription(), e.GetRemedy());
+    Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
     logger = nullptr;
     e.Save();
     return 1;
