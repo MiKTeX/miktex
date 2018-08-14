@@ -313,7 +313,9 @@ void File::Delete(const PathName& path)
   }
   if (!DeleteFileW(path.ToWideCharString().c_str()))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("DeleteFileW", "path", path.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_3("DeleteFileW",
+      T_("MiKTeX could not remove the file '{path}'."),
+      "path", path.ToDisplayString());
   }
 }
 
