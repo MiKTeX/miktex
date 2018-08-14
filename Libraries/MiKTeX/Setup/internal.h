@@ -370,7 +370,7 @@ protected:
   void ConfigureMiKTeX();
 
 protected:
-  void RunIniTeXMF(const std::vector<std::string>& args);
+  void RunIniTeXMF(const std::vector<std::string>& args, bool mustSucceed);
 
 protected:
   void RunMpm(const std::vector<std::string>& args);
@@ -392,6 +392,9 @@ protected:
 
 protected:
   void UnregisterComponents();
+
+protected:
+  void Warning(const MiKTeX::Core::MiKTeXException& ex);
 
 protected:
   std::vector<MiKTeX::Core::PathName> GetRoots();

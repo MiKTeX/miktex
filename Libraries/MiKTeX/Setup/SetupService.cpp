@@ -1010,13 +1010,13 @@ void SetupServiceImpl::DoFinishUpdate()
 #if defined(MIKTEX_WINDOWS)
   RunMpm({ "--register-components" });
 #endif
-  RunIniTeXMF({ "--update-fndb" });
-  RunIniTeXMF({ "--force", "--mklinks" });
-  RunIniTeXMF({ "--mkmaps", "--mklangs" });
+  RunIniTeXMF({ "--update-fndb" }, false);
+  RunIniTeXMF({ "--force", "--mklinks" }, false);
+  RunIniTeXMF({ "--mkmaps", "--mklangs" }, false);
   if (!options.IsPortable)
   {
 #if defined(MIKTEX_WINDOWS)
-    RunIniTeXMF({ "--register-shell-file-types" });
+    RunIniTeXMF({ "--register-shell-file-types" }, false);
     CreateProgramIcons();
     RegisterUninstaller();
 #endif
@@ -1032,7 +1032,7 @@ void SetupServiceImpl::DoCleanUp()
     ReportLine("removing links...");
     try
     {
-      RunIniTeXMF({ "--force", "--remove-links" });
+      RunIniTeXMF({ "--force", "--remove-links" }, false);
     }
     catch (const MiKTeXException& e)
     {
@@ -1331,7 +1331,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
     }
     if (!args.empty())
     {
-      RunIniTeXMF(args);
+      RunIniTeXMF(args, true);
     }
     if (cancelled)
     {
@@ -1340,7 +1340,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
 
     if (options.Task != SetupTask::FinishSetup)
     {
-      RunIniTeXMF({ "--rmfndb" });
+      RunIniTeXMF({ "--rmfndb" }, false);
     }
 
     // register components, configure files
@@ -1352,21 +1352,21 @@ void SetupServiceImpl::ConfigureMiKTeX()
 #endif
 
     // create filename database files
-    RunIniTeXMF({ "--update-fndb" });
+    RunIniTeXMF({ "--update-fndb" }, false);
     if (cancelled)
     {
       return;
     }
 
     // create latex.exe, ...
-    RunIniTeXMF({ "--force", "--mklinks" });
+    RunIniTeXMF({ "--force", "--mklinks" }, false);
     if (cancelled)
     {
       return;
     }
 
     // create font map files and language.dat
-    RunIniTeXMF({ "--mkmaps", "--mklangs" });
+    RunIniTeXMF({ "--mkmaps", "--mklangs" }, false);
 
     if (cancelled)
     {
@@ -1377,7 +1377,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
   // set paper size
   if (!options.PaperSize.empty())
   {
-    RunIniTeXMF({ "--default-paper-size=" + options.PaperSize });
+    RunIniTeXMF({ "--default-paper-size=" + options.PaperSize }, false);
   }
   
   // set auto-install
@@ -1385,12 +1385,12 @@ void SetupServiceImpl::ConfigureMiKTeX()
   valueSpec += MIKTEX_CONFIG_VALUE_AUTOINSTALL;
   valueSpec += "=";
   valueSpec += std::to_string((int)options.IsInstallOnTheFlyEnabled);
-  RunIniTeXMF({ "--set-config-value=" + valueSpec });
+  RunIniTeXMF({ "--set-config-value=" + valueSpec }, false);
 
   if (options.Task != SetupTask::PrepareMiKTeXDirect)
   {
     // refresh file name database again
-    RunIniTeXMF({ "--update-fndb" });
+    RunIniTeXMF({ "--update-fndb" }, false);
     if (cancelled)
     {
       return;
@@ -1400,17 +1400,17 @@ void SetupServiceImpl::ConfigureMiKTeX()
   if (!options.IsPortable)
   {
 #if defined(MIKTEX_WINDOWS)
-    RunIniTeXMF({ "--register-shell-file-types" });
+    RunIniTeXMF({ "--register-shell-file-types" }, false);
 #endif
   }
 
   if (!options.IsPortable && options.IsRegisterPathEnabled)
   {
-    RunIniTeXMF({ "--modify-path" });
+    RunIniTeXMF({ "--modify-path" }, false);
   }
 
   // create report
-  RunIniTeXMF({ "--report" });
+  RunIniTeXMF({ "--report" }, false);
   if (cancelled)
   {
     return;
@@ -1447,7 +1447,7 @@ PathName SetupServiceImpl::GetBinDir() const
   }
 }
 
-void SetupServiceImpl::RunIniTeXMF(const vector<string>& args)
+void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -1474,7 +1474,19 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args)
     Log("%s:\n", CommandLineBuilder(allArgs).ToString().c_str());
     ULogClose(false);
     session->UnloadFilenameDatabase();
-    Process::Run(exePath, allArgs, this);
+    int exitCode;
+    MiKTeXException miktexException;
+    if (!Process::Run(exePath, allArgs, this, &exitCode, &miktexException, nullptr) || exitCode != 0)
+    {
+      if (mustSucceed)
+      {
+        throw miktexException;
+      }
+      else
+      {
+        Warning(miktexException);
+      }
+    }
     ULogOpen();
   }
 }
@@ -1733,3 +1745,18 @@ void SetupServiceImpl::CollectFiles(vector<PathName>& vec, const PathName& dir, 
   }
 }
 
+void SetupServiceImpl::Warning(const MiKTeX::Core::MiKTeXException& ex)
+{
+  string message = ex.GetErrorMessage();
+  string description = ex.GetDescription();
+  Log("Warning: %s\n", message.c_str());
+  if (!description.empty())
+  {
+    Log("Warning: %s\n", description.c_str());
+    ReportLine("Warning: " + description);
+  }
+  else
+  {
+    ReportLine("Warning: " + message);
+  }
+}
