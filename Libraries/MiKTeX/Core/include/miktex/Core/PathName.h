@@ -687,7 +687,7 @@ inline PathName operator/(const PathName& lhs, const PathName& rhs)
 
 inline std::ostream& operator<<(std::ostream& os, const PathName& path)
 {
-  return os << path.ToString();
+  return os << path.ToDisplayString();
 }
 
 inline bool IsDirectoryDelimiter(int ch)
