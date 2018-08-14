@@ -36,7 +36,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-MIKTEXINTERNALFUNC(bool) GetWindowsFontsDirectory(PathName & path)
+MIKTEXINTERNALFUNC(bool) GetWindowsFontsDirectory(PathName& path)
 {
   wchar_t szWinDir[BufferSizes::MaxPath];
   if (GetWindowsDirectoryW(szWinDir, BufferSizes::MaxPath) == 0)
@@ -52,48 +52,48 @@ SharingViolationException::SharingViolationException()
 {
 }
 
-SharingViolationException::SharingViolationException(const string & programInvocationName, const string & message, const string& description, const string& remedy, const string& tag, const KVMAP & info, const SourceLocation & sourceLocation) :
+SharingViolationException::SharingViolationException(const string& programInvocationName, const string& message, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
   IOException(programInvocationName, message, description, remedy, tag, info, sourceLocation)
 {
 }
 
-MIKTEXINTERNALFUNC(bool) GetUserProfileDirectory(PathName & path)
+MIKTEXINTERNALFUNC(bool) GetUserProfileDirectory(PathName& path)
 {
   return Utils::GetEnvironmentString("USERPROFILE", path);
 }
 
-extern "C" __declspec(dllexport) HRESULT CALLBACK DllGetVersion(DLLVERSIONINFO * pdvi)
+extern "C" __declspec(dllexport) HRESULT CALLBACK DllGetVersion(DLLVERSIONINFO* versionInfo)
 {
-  MIKTEX_ASSERT(pdvi != nullptr);
-  if (pdvi->cbSize != sizeof(*pdvi))
+  MIKTEX_ASSERT(versionInfo != nullptr);
+  if (versionInfo->cbSize != sizeof(*versionInfo))
   {
     return E_INVALIDARG;
   }
   unsigned a[4] = {
     MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0
   };
-  pdvi->dwMajorVersion = a[0];
-  pdvi->dwMinorVersion = a[1];
-  pdvi->dwBuildNumber = a[2];
-  pdvi->dwPlatformID = DLLVER_PLATFORM_WINDOWS;
+  versionInfo->dwMajorVersion = a[0];
+  versionInfo->dwMinorVersion = a[1];
+  versionInfo->dwBuildNumber = a[2];
+  versionInfo->dwPlatformID = DLLVER_PLATFORM_WINDOWS;
   return S_OK;
 }
 
-MIKTEXINTERNALFUNC(bool) GetWindowsErrorMessage(unsigned long functionResult, string & errorMessage)
+MIKTEXINTERNALFUNC(bool) GetWindowsErrorMessage(unsigned long functionResult, string& errorMessage)
 {
-  void * pMessageBuffer;
-  unsigned long len = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0, functionResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<wchar_t *>(&pMessageBuffer), 0, 0);
+  void* messageBuffer;
+  unsigned long len = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0, functionResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<wchar_t *>(&messageBuffer), 0, 0);
   if (len == 0)
   {
     TraceError(T_("FormatMessageW() failed for some reason"));
     return false;
   }
-  AutoLocalMemory autoFree(pMessageBuffer);
-  errorMessage = StringUtil::WideCharToUTF8(reinterpret_cast<wchar_t *>(pMessageBuffer));
+  AutoLocalMemory autoFree(messageBuffer);
+  errorMessage = StringUtil::WideCharToUTF8(reinterpret_cast<wchar_t *>(messageBuffer));
   return true;
 }
 
-MIKTEXINTERNALFUNC(void) TraceWindowsError(const char * lpszWindowsFunction, unsigned long functionResult, const char * lpszInfo, const char * lpszSourceFile, int sourceLine)
+MIKTEXINTERNALFUNC(void) TraceWindowsError(const char* windowsFunction, unsigned long functionResult, const char* info, const char* sourceFile, int sourceLine)
 {
   string errorMessage;
   if (!GetWindowsErrorMessage(functionResult, errorMessage))
@@ -106,40 +106,40 @@ MIKTEXINTERNALFUNC(void) TraceWindowsError(const char * lpszWindowsFunction, uns
     return;
   }
   pSession->trace_error->WriteLine("core", errorMessage.c_str());
-  pSession->trace_error->WriteFormattedLine("core", "Function: %s", lpszWindowsFunction);
+  pSession->trace_error->WriteFormattedLine("core", "Function: %s", windowsFunction);
   pSession->trace_error->WriteFormattedLine("core", "Result: %u", static_cast<unsigned>(functionResult));
-  if (lpszInfo != nullptr)
+  if (info != nullptr)
   {
-    pSession->trace_error->WriteFormattedLine("core", "Data: %s", lpszInfo);
+    pSession->trace_error->WriteFormattedLine("core", "Data: %s", info);
   }
-  pSession->trace_error->WriteFormattedLine("core", "Source: %s:%d", GetShortSourceFile(lpszSourceFile), sourceLine);
+  pSession->trace_error->WriteFormattedLine("core", "Source: %s:%d", GetShortSourceFile(sourceFile), sourceLine);
 }
 
-MIKTEXSTATICFUNC(unsigned int) GetMediaType(const char * lpszPath)
+MIKTEXSTATICFUNC(unsigned int) GetMediaType(const char* path)
 {
   PathName pathRootName;
-  if (IsAlpha(lpszPath[0])
-    && PathName::IsVolumeDelimiter(lpszPath[1])
-    && PathName::IsDirectoryDelimiter(lpszPath[2]))
+  if (IsAlpha(path[0])
+    && PathName::IsVolumeDelimiter(path[1])
+    && PathName::IsDirectoryDelimiter(path[2]))
   {
-    CopyString2(pathRootName.GetData(), pathRootName.GetCapacity(), lpszPath, 3);
+    CopyString2(pathRootName.GetData(), pathRootName.GetCapacity(), path, 3);
   }
-  else if (!Utils::GetUncRootFromPath(lpszPath, pathRootName))
+  else if (!Utils::GetUncRootFromPath(path, pathRootName))
   {
     return DRIVE_UNKNOWN;
   }
   return GetDriveTypeW(pathRootName.ToWideCharString().c_str());
 }
 
-MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char * lpszPath)
+MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char* path)
 {
-  return GetMediaType(lpszPath) == DRIVE_CDROM;
+  return GetMediaType(path) == DRIVE_CDROM;
 }
 
 #define SET_SECURITY 1
 
 #if SET_SECURITY
-MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char * lpszPath)
+MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char* path)
 {
   AutoSid pEveryoneSID;
   PACL pACL = nullptr;
@@ -183,14 +183,14 @@ MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char * lpszPath)
   sa.lpSecurityDescriptor = pSD;
   sa.bInheritHandle = FALSE;
 
-  if (!CreateDirectoryW(PathName(lpszPath).ToWideCharString().c_str(), &sa))
+  if (!CreateDirectoryW(PathName(path).ToWideCharString().c_str(), &sa))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", lpszPath);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path);
   }
 }
 #endif
 
-MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName & path)
+MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
 {
   if (!Utils::IsAbsolutePath(path))
   {
@@ -249,13 +249,13 @@ HResult::~HResult()
 {
   try
   {
-    if (lpszMessage != nullptr)
+    if (message != nullptr)
     {
-      LocalFree(reinterpret_cast<HLOCAL>(lpszMessage));
-      lpszMessage = nullptr;
+      LocalFree(reinterpret_cast<HLOCAL>(message));
+      message = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -271,22 +271,22 @@ string HResult::ToString() const
   return ret;
 }
 
-const char * HResult::GetText()
+const char* HResult::GetText()
 {
-  if (lpszMessage == nullptr)
+  if (message == nullptr)
   {
     // FIXME: use Unicode version
-    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<char*>(&lpszMessage), 0, nullptr);
-    if (lpszMessage == nullptr)
+    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<char*>(&message), 0, nullptr);
+    if (message == nullptr)
     {
       string str = ToString();
       size_t sizeChars = str.length() + 1;
-      lpszMessage = reinterpret_cast<char*>(LocalAlloc(0, sizeChars * sizeof(lpszMessage[0])));
-      if (lpszMessage != nullptr)
+      message = reinterpret_cast<char*>(LocalAlloc(0, sizeChars * sizeof(message[0])));
+      if (message != nullptr)
       {
-	StringUtil::CopyString(lpszMessage, sizeChars, str.c_str());
+	StringUtil::CopyString(message, sizeChars, str.c_str());
       }
     }
   }
-  return lpszMessage;
+  return message;
 }
