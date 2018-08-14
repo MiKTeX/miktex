@@ -134,14 +134,14 @@ string ErrorDialogImpl::CreateReport()
       {
 	PathName absFileName;
 	PathName root = session->GetRootDirectoryPath(idx);
-	s << "Root" << idx << ": " << root.GetData() << endl;
+	s << "Root" << idx << ": " << root << endl;
       }
-      s << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot).GetData() << endl;
-      s << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot).GetData() << endl;
-      s << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot).GetData() << endl;
-      s << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot).GetData() << endl;
-      s << "CommonConfig: " << (session->GetSpecialPath(SpecialPath::CommonConfigRoot).GetData()) << endl;
-      s << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot).GetData() << endl;
+      s << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << endl;
+      s << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << endl;
+      s << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << endl;
+      s << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << endl;
+      s << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << endl;
+      s << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << endl;
     }
     catch (const exception&)
     {
