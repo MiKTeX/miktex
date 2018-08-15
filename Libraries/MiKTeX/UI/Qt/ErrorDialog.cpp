@@ -29,7 +29,9 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
+using namespace MiKTeX::Setup;
 using namespace MiKTeX::UI::Qt;
+using namespace MiKTeX::Util;
 using namespace std;
 
 int MiKTeX::UI::Qt::ErrorDialog::DoModal(QWidget* parent, const MiKTeXException& e)
@@ -100,53 +102,12 @@ void ErrorDialogImpl::on_btnCopy_clicked()
 string ErrorDialogImpl::CreateReport()
 {
   ostringstream s;
-  s << T_("MiKTeX Problem Report") << endl
-    << T_("Message: ") << (isMiKTeXException ? miktexException.GetErrorMessage() : stdException.what()) << endl;
-  if (isMiKTeXException)
+  try
   {
-    s << T_("Data: ") << miktexException.GetInfo() << endl
-      << T_("Source: ") << miktexException.GetSourceFile() << endl
-      << T_("Line: ") << miktexException.GetSourceLine() << endl;
+    SetupService::WriteReport(s);
   }
-  shared_ptr<Session> session = Session::TryGet();
-  if (session != nullptr)
+  catch (const exception&)
   {
-    try
-    {
-      vector<string> invokerNames = Process::GetInvokerNames();
-      s << "MiKTeX: " << Utils::GetMiKTeXVersionString() << endl
-	<< "OS: " << Utils::GetOSVersionString() << endl;
-      s << "Invokers: ";
-      for (vector<string>::const_iterator it = invokerNames.begin(); it != invokerNames.end(); ++it)
-      {
-	if (it != invokerNames.begin())
-	{
-	  s << "/";
-	}
-	s << *it;
-      }
-      s << endl;
-      s << "SystemAdmin: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << endl;
-#if defined(MIKTEX_WINDOWS)
-      s << "PowerUser: " << (session->RunningAsPowerUser() ? T_("yes") : T_("no")) << endl;
-#endif
-      for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
-      {
-	PathName absFileName;
-	PathName root = session->GetRootDirectoryPath(idx);
-	s << "Root" << idx << ": " << root << endl;
-      }
-      s << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << endl;
-      s << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << endl;
-      s << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << endl;
-      s << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << endl;
-      s << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << endl;
-      s << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << endl;
-    }
-    catch (const exception&)
-    {
-      session = nullptr;
-    }
   }
   return s.str();
 }

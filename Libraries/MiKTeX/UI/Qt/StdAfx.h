@@ -50,6 +50,7 @@
 #include <miktex/Core/Session>
 
 #include <miktex/PackageManager/PackageManager>
+#include <miktex/Setup/SetupService>
 
 #if defined(MIKTEX_WINDOWS)
 #  include <miktex/Core/win/winAutoResource>

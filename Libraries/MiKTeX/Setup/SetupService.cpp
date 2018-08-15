@@ -1760,3 +1760,30 @@ void SetupServiceImpl::Warning(const MiKTeX::Core::MiKTeXException& ex)
     ReportLine("Warning: " + message);
   }
 }
+
+void SetupService::WriteReport(ostream& s)
+{
+  s << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
+    << "OS: " << Utils::GetOSVersionString() << "\n";
+  shared_ptr<Session> session = Session::TryGet();
+  if (session != nullptr)
+  {
+    s << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
+      << "Invokers: " << StringUtil::Flatten(Process::GetInvokerNames(), '/') << "\n"
+      << "SystemAdmin: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n"
+      << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n";
+#if defined(MIKTEX_WINDOWS)
+    s << "PowerUser: " << (session->RunningAsPowerUser() ? T_("yes") : T_("no")) << "\n";
+#endif
+    for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
+    {
+      s << "Root" << idx << ": " << session->GetRootDirectoryPath(idx) << "\n";
+    }
+    s << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << "\n"
+      << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << "\n"
+      << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << "\n"
+      << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << "\n"
+      << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << "\n"
+      << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << "\n";
+  }
+}

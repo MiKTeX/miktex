@@ -46,6 +46,7 @@
 
 #include <functional>
 #include <memory>
+#include <ostream>
 #include <string>
 
 #include <miktex/Core/PathName>
@@ -382,6 +383,9 @@ public:
 
 public:
   static MIKTEXSETUPCEEAPI(std::unique_ptr<MiKTeX::Core::TemporaryDirectory>) ExtractFiles();
+
+public:
+  static MIKTEXSETUPCEEAPI(void) WriteReport(std::ostream& s);
 };
 
 SETUP_END_NAMESPACE;
