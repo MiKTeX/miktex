@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of IniTeXMF.
 
@@ -52,6 +52,7 @@
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamWriter>
 #include <miktex/PackageManager/PackageManager>
+#include <miktex/Setup/SetupService>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
 #include <miktex/Util/StringUtil>

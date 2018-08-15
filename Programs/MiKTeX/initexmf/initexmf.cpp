@@ -22,6 +22,7 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
+using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
@@ -271,21 +272,6 @@ private:
   void ManageLink(const FileLink& fileLink, bool supportsHardLinks, bool remove, bool overwrite);
 
 private:
-  void ReportMiKTeXVersion();
-
-private:
-  void ReportOSVersion();
-
-private:
-  void ReportRoots();
-
-private:
-  void ReportFndbFiles();
-
-private:
-  void ReportBrokenPackages();
-
-private:
   void WriteReport();
 
 private:
@@ -336,7 +322,7 @@ public:
   bool OnRetryableError(const string& message) override;
   
 public:
-  bool OnProgress(Notification nf) override;
+  bool OnProgress(MiKTeX::Packages::Notification nf) override;
 
 private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
@@ -2062,104 +2048,6 @@ void IniTeXMFApp::ShowConfigValue(const string& valueSpec)
   }
 }
 
-void IniTeXMFApp::ReportMiKTeXVersion()
-{
-  vector<string> invokerNames = Process::GetInvokerNames();
-  cout << "MiKTeX: " << Utils::GetMiKTeXBannerString() << endl;
-  cout << T_("Invokers:") << " ";
-  bool first = true;
-  for (const string& name : invokerNames)
-  {
-    if (!first)
-    {
-      cout << "/";
-    }
-    first = false;
-    cout << name;
-  }
-  cout << endl;
-  cout << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << endl;
-  cout << "SystemAdmin: " << (session->IsUserAnAdministrator() ? T_("yes") : T_("no")) << endl;
-  cout << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << endl;
-#if defined(MIKTEX_WINDOWS)
-  cout << "PowerUser: " << (session->IsUserAPowerUser() ? T_("yes") : T_("no")) << endl;
-#endif
-}
-
-void IniTeXMFApp::ReportOSVersion()
-{
-  cout << "OS: " << Utils::GetOSVersionString() << endl;
-}
-
-void IniTeXMFApp::ReportRoots()
-{
-  for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
-  {
-    cout << StringUtil::FormatString(T_("Root #%u"), idx) << ": " << session->GetRootDirectoryPath(idx) << endl;
-  }
-  cout << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << endl;
-  cout << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << endl;
-  cout << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << endl;
-  cout << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << endl;
-  cout << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << endl;
-  cout << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << endl;
-}
-
-void IniTeXMFApp::ReportFndbFiles()
-{
-  for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
-  {
-    PathName absFileName;
-    cout << "fndb #" << idx << ": ";
-    if (session->FindFilenameDatabase(idx, absFileName))
-    {
-      cout << absFileName << endl;
-    }
-    else
-    {
-      cout << T_("<does not exist>") << endl;
-    }
-  }
-  unsigned r = session->DeriveTEXMFRoot(session->GetMpmRootPath());
-  PathName path;
-  cout << "fndbmpm: ";
-  if (session->FindFilenameDatabase(r, path))
-  {
-    cout << path << endl;
-  }
-  else
-  {
-    cout << T_("<does not exist>") << endl;
-  }
-}
-
-void IniTeXMFApp::ReportBrokenPackages()
-{
-  vector<string> broken;
-  unique_ptr<PackageIterator> pkgIter(packageManager->CreateIterator());
-  PackageInfo packageInfo;
-  for (int idx = 0; pkgIter->GetNext(packageInfo); ++idx)
-  {
-    if (!packageInfo.IsPureContainer()
-      && packageInfo.IsInstalled()
-      && packageInfo.deploymentName.compare(0, 7, "miktex-") == 0)
-    {
-      if (!(packageManager->TryVerifyInstalledPackage(packageInfo.deploymentName)))
-      {
-        broken.push_back(packageInfo.deploymentName);
-      }
-    }
-  }
-  pkgIter->Dispose();
-  if (!broken.empty())
-  {
-    for (const string& name : broken)
-    {
-      cout << name << ": " << T_("needs to be reinstalled") << endl;
-    }
-  }
-}
-
 void IniTeXMFApp::ReportLine(const string& str)
 {
   Verbose("%s", str.c_str());
@@ -2170,7 +2058,7 @@ bool IniTeXMFApp::OnRetryableError(const string& message)
   return false;
 }
 
-bool IniTeXMFApp::OnProgress(Notification nf)
+bool IniTeXMFApp::OnProgress(MiKTeX::Packages::Notification nf)
 {
   UNUSED_ALWAYS(nf);
   return true;
@@ -2310,13 +2198,7 @@ void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 
 void IniTeXMFApp::WriteReport()
 {
-  ReportMiKTeXVersion();
-  ReportOSVersion();
-  ReportRoots();
-#if 0
-  ReportFndbFiles();
-#endif
-  ReportBrokenPackages();
+  SetupService::WriteReport(cout);
 }
 
 bool IniTeXMFApp::OnFndbItem(const PathName& parent, const string& name, const string& info, bool isDirectory)

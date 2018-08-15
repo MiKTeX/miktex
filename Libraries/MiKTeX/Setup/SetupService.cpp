@@ -1786,4 +1786,29 @@ void SetupService::WriteReport(ostream& s)
       << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << "\n"
       << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << "\n";
   }
+
+  shared_ptr<PackageManager> packageManager = PackageManager::Create();
+  vector<string> broken;
+  unique_ptr<PackageIterator> pkgIter(packageManager->CreateIterator());
+  PackageInfo packageInfo;
+  for (int idx = 0; pkgIter->GetNext(packageInfo); ++idx)
+  {
+    if (!packageInfo.IsPureContainer()
+      && packageInfo.IsInstalled()
+      && packageInfo.deploymentName.compare(0, 7, "miktex-") == 0)
+    {
+      if (!(packageManager->TryVerifyInstalledPackage(packageInfo.deploymentName)))
+      {
+        broken.push_back(packageInfo.deploymentName);
+      }
+    }
+  }
+  pkgIter->Dispose();
+  if (!broken.empty())
+  {
+    for (const string& name : broken)
+    {
+      s << name << ": " << T_("needs to be reinstalled") << "\n";
+    }
+  }
 }
