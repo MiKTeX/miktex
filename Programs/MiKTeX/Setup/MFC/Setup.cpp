@@ -229,45 +229,45 @@ void ShowHelpAndExit(int retCode = 0)
 {
   ostringstream os;
   os
-    << T_("Usage: setupwiz [OPTIONS]") << endl
-    << endl
-    << T_("Options:") << endl
-    << endl
-    << "  --allow-unattended-reboot" << endl
+    << T_("Usage: setupwiz [OPTIONS]") << "\n"
+    << "\n"
+    << T_("Options:") << "\n"
+    << "\n"
+    << "  --allow-unattended-reboot\n"
 #if FEATURE_1874934
-    << "  --auto-install=yes" << endl
-    << "  --auto-install=no" << endl
-    << "  --auto-install=ask" << endl
+    << "  --auto-install=yes\n"
+    << "  --auto-install=no\n"
+    << "  --auto-install=ask\n"
 #endif
-    << "  --common-config=DIR" << endl
-    << "  --common-data=DIR" << endl
-    << "  --common-install=DIR" << endl
-    << "  --common-roots=DIRS" << endl
-    << "  --download-only" << endl
-    << "  --dry-run" << endl
-    << "  --help" << endl
-    << "  --install-from-local-repository" << endl
-    << "  --local-package-repository=DIR" << endl
-    << "  --no-additional-roots" << endl
-    << "  --no-registry" << endl
-    << "  --package-set=SET" << endl
+    << "  --common-config=DIR\n"
+    << "  --common-data=DIR\n"
+    << "  --common-install=DIR\n"
+    << "  --common-roots=DIRS\n"
+    << "  --download-only\n"
+    << "  --dry-run\n"
+    << "  --help\n"
+    << "  --install-from-local-repository\n"
+    << "  --local-package-repository=DIR\n"
+    << "  --no-additional-roots\n"
+    << "  --no-registry\n"
+    << "  --package-set=SET\n"
 #if FEATURE_1874934
-    << "  --paper-size=A4" << endl
-    << "  --paper-size=Letter" << endl
+    << "  --paper-size=A4\n"
+    << "  --paper-size=Letter\n"
 #endif
-    << "  --portable=DIR" << endl
-    << "  --private" << endl
-    << "  --program-folder=NAME" << endl
-    << "  --remote-package-repository=URL" << endl
-    << "  --shared" << endl
-    << "  --unattended" << endl
-    << "  --user-config=DIR" << endl
-    << "  --user-data=DIR" << endl
-    << "  --user-install=DIR" << endl
-    << "  --user-roots=DIRS" << endl
-    << endl
-    << T_("setupwiz reads its arguments from setupwiz.opt, if such a file exists.") << endl
-    << T_("See the MiKTeX Manual for more information.") << endl;
+    << "  --portable=DIR\n"
+    << "  --private\n"
+    << "  --program-folder=NAME\n"
+    << "  --remote-package-repository=URL\n"
+    << "  --shared\n"
+    << "  --unattended\n"
+    << "  --user-config=DIR\n"
+    << "  --user-data=DIR\n"
+    << "  --user-install=DIR\n"
+    << "  --user-roots=DIRS\n"
+    << "\n"
+    << T_("setupwiz reads its arguments from setupwiz.opt, if such a file exists.") << "\n"
+    << T_("See the MiKTeX Manual for more information.") << "\n";
   AfxMessageBox(UT_(os.str()));
   exit(retCode);
 }
@@ -309,9 +309,9 @@ void CheckStartupConfig(StartupConfig& startupConfig)
     }
     if (!commonRoots.empty())
     {
-      commonRoots += ';';
+      commonRoots += PathName::PathNameDelimiter;
     }
-    commonRoots += path.GetData();
+    commonRoots += path.ToString();
   }
   startupConfig.commonRoots = commonRoots;
 
@@ -323,7 +323,7 @@ void CheckStartupConfig(StartupConfig& startupConfig)
     {
       continue;
     }
-    if (StringUtil::Contains(startupConfig.commonRoots.c_str(), path.GetData(), ";", true))
+    if (StringUtil::Contains(startupConfig.commonRoots.c_str(), path.GetData(), string(1, PathName::PathNameDelimiter).c_str(), true))
     {
       MIKTEX_FATAL_ERROR_2(T_("Improper options: --user-roots value collides with --common-roots value."), "path", path.ToString());
     }
@@ -353,9 +353,9 @@ void CheckStartupConfig(StartupConfig& startupConfig)
     }
     if (!userRoots.empty())
     {
-      userRoots += ';';
+      userRoots += PathName::PathNameDelimiter;
     }
-    userRoots += path.GetData();
+    userRoots += path.ToString();
   }
   startupConfig.userRoots = userRoots;
 #endif
