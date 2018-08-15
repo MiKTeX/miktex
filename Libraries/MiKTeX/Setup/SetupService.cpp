@@ -1768,11 +1768,8 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   {
     s << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
       << "OS: " << Utils::GetOSVersionString() << "\n"
-      << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n";
-  }
-  if (options[ReportOption::Processes])
-  {
-    s << "Invokers: " << StringUtil::Flatten(Process::GetInvokerNames(), '/') << "\n";
+      << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
+      << "PathOkay: " << (Utils::CheckPath() ? T_("yes") : T_("no")) << "\n";
   }
   if (options[ReportOption::CurrentUser])
   {
@@ -1791,6 +1788,22 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << "\n"
       << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << "\n"
       << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << "\n";
+  }
+  if (options[ReportOption::Processes])
+  {
+    s << "Invokers: " << StringUtil::Flatten(Process::GetInvokerNames(), '/') << "\n";
+  }
+  if (options[ReportOption::Environment])
+  {
+    string env;
+    if (Utils::GetEnvironmentString("PATH", env))
+    {
+      int idx = 0;
+      for (const string& p : StringUtil::Split(env, PathName::PathNameDelimiter))
+      {
+        s << "PATH" << idx++ << p << "\n";
+      }
+    }
   }
   if (options[ReportOption::BrokenPackages])
   {

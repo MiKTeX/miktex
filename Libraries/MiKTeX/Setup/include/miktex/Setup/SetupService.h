@@ -90,6 +90,7 @@ enum class ReportOption
 {
   General,
   CurrentUser,
+  Environment,
   Processes,
   RootDirectories,
   BrokenPackages
