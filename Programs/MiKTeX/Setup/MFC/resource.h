@@ -18,13 +18,7 @@
 #define IDS_SETUPWIZ                    120
 #define IDS_HEADER_INSTALLDIR           121
 #define IDS_SUBHEADER_INSTALLDIR        122
-#define IDS_HEADER_FOLDER               123
-#define IDS_SUBHEADER_FOLDER            124
-#define IDS_HEADER_ADDTREES             125
-#define IDS_SUBHEADER_ADDTREES          126
-#define IDS_HEADER_EDITTREES            127
 #define IDR_MAINFRAME                   128
-#define IDS_SUBHEADER_EDITTREES         128
 #define IDR_LICENSE                     129
 #define IDS_HEADER_INFOLIST             129
 #define IDS_SUBHEADER_INFOLIST          130
@@ -47,7 +41,6 @@
 #define IDD_INSTALLDIR                  152
 #define IDD_INFOLIST                    154
 #define IDD_FINISH                      155
-#define IDD_FOLDER                      156
 #define IDD_FILECOPY                    157
 #define IDD_SHARED                      158
 #define IDD_TASK                        160
@@ -75,7 +68,6 @@
 #define IDC_PROXY_HOST                  1009
 #define IDC_PROXY_PORT                  1010
 #define IDC_AUTH_REQUIRED               1011
-#define IDC_FOLDER                      1012
 #define IDC_STATIC_ADDRESS              1013
 #define IDC_STATIC_PORT                 1014
 #define IDC_INFO                        1015
