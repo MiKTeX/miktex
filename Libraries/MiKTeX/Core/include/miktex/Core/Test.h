@@ -1,6 +1,6 @@
 /* miktex/Core/test.h: test framework                   -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -70,6 +70,17 @@ const char PATH_DELIMITER = ';';
 const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
+
+class TestException :
+  public MiKTeX::Core::MiKTeXException
+{
+public:
+  TestException(const std::string& programInvocationName, const std::string& errorMessage, const std::string& description, const std::string& remedy, const std::string& tag, const KVMAP& info, const MiKTeX::Core::SourceLocation& sourceLocation) :
+    MiKTeXException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation)
+  {
+
+  }
+};
 
 enum class Option
 {
@@ -252,6 +263,15 @@ public:
       {
         LOG4CXX_FATAL(logger, f.strFile << ":" << f.iLine << ": TEST FAILED");
       }
+      rc = 1;
+    }
+    catch (const TestException& e)
+    {
+      if (isLog4cxxConfigured)
+      {
+        LOG4CXX_INFO(logger, "caught TestException");
+      }
+      e.Save();
       rc = 1;
     }
     catch (const MiKTeX::Core::MiKTeXException& e)
