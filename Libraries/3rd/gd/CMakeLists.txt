@@ -182,8 +182,6 @@ delay_load(${gd_dll_name}
   ${zlib_dll_name}
 )
 
-rebase(${gd_dll_name})
-
 install(TARGETS ${gd_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

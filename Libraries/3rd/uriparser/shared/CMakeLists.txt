@@ -45,8 +45,6 @@ target_include_directories(${uriparser_dll_name}
     ${public_include_directories}
 )
 
-rebase(${uriparser_dll_name})
-
 install(TARGETS ${uriparser_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -75,8 +75,6 @@ delay_load(${app_dll_name}
   ${ui_qt_dll_name}
 )
 
-rebase(${app_dll_name})
-
 install(TARGETS ${app_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

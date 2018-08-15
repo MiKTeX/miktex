@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -32,13 +32,6 @@ endif()
 add_executable(j2000 j2000.cpp)
 
 set_property(TARGET j2000 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_executable(mkdllbases mkdllbases.cpp)
-  set_property(TARGET mkdllbases PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_link_libraries(mkdllbases imagehlp)
-  add_link_flags(mkdllbases "setargv.obj")
-endif()
 
 add_executable(web-n web-n.cpp)
 

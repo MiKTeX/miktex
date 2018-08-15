@@ -49,8 +49,6 @@ target_include_directories(${getopt_dll_name}
     ${public_include_directories}
 )
 
-rebase(${getopt_dll_name})
-
 install(TARGETS ${getopt_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

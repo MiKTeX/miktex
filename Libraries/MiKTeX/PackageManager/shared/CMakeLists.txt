@@ -98,8 +98,6 @@ delay_load(${mpm_dll_name}
   wininet
 )
 
-rebase(${mpm_dll_name})
-
 install(TARGETS ${mpm_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -199,8 +199,6 @@ target_include_directories(${graphite2_dll_name}
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include
 )
 
-rebase(${graphite2_dll_name})
-
 install(TARGETS ${graphite2_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

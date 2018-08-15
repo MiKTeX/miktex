@@ -98,8 +98,6 @@ if(NOT LINK_EVERYTHING_STATICALLY)
     )
   endif()
 
-  rebase(${w2cemu_dll_name})
-
   install(TARGETS ${w2cemu_dll_name}
     RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
     LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -43,8 +43,6 @@ set_shared_library_version(
 
 target_include_directories(${pixman_dll_name} PUBLIC ${public_include_directories})
 
-rebase(${pixman_dll_name})
-
 install(TARGETS ${pixman_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -93,8 +93,6 @@ target_link_libraries(${hunspell_dll_name}
     ${utf8wrap_dll_name}
 )
 
-rebase(${hunspell_dll_name})
-
 install(TARGETS ${hunspell_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

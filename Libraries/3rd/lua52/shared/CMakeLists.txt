@@ -66,8 +66,6 @@ set_shared_library_version(
   ${MIKTEX_COMP_J2000_VERSION}
 )
 
-rebase(${lua52_dll_name})
-
 install(TARGETS ${lua52_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -50,8 +50,6 @@ target_link_libraries(${bzip2_dll_name}
     ${utf8wrap_dll_name}
 )
 
-rebase(${bzip2_dll_name})
-
 install(TARGETS ${bzip2_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -109,8 +109,6 @@ else()
   target_link_libraries(${poppler_qt_dll_name} PRIVATE ${freetype2_dll_name})
 endif()
 
-rebase(${poppler_qt_dll_name})
-
 install(TARGETS ${poppler_qt_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
