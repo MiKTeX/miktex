@@ -514,6 +514,15 @@ private slots:
 private slots:
   void on_pushButtonShowLogDirectory_clicked();
 
+private slots:
+  void on_pushButtonOpenReport_clicked();
+
+private:
+  void CreateReport();
+
+private:
+  MiKTeX::Core::PathName GetReportFileName();
+
 private:
   void SetupUiCleanup();
 

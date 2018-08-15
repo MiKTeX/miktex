@@ -86,6 +86,17 @@ enum class CleanupOption
 
 typedef MiKTeX::Core::OptionSet<CleanupOption> CleanupOptionSet;
 
+enum class ReportOption
+{
+  General,
+  CurrentUser,
+  Processes,
+  RootDirectories,
+  BrokenPackages
+};
+
+typedef MiKTeX::Core::OptionSet<ReportOption> ReportOptionSet;
+
 struct SetupOptions
 {
 public:
@@ -383,6 +394,9 @@ public:
 
 public:
   static MIKTEXSETUPCEEAPI(std::unique_ptr<MiKTeX::Core::TemporaryDirectory>) ExtractFiles();
+
+public:
+  static MIKTEXSETUPCEEAPI(void) WriteReport(std::ostream& s, ReportOptionSet options);
 
 public:
   static MIKTEXSETUPCEEAPI(void) WriteReport(std::ostream& s);

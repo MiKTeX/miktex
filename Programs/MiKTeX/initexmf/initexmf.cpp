@@ -2198,7 +2198,7 @@ void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 
 void IniTeXMFApp::WriteReport()
 {
-  SetupService::WriteReport(cout);
+  SetupService::WriteReport(cout, { ReportOption::General, ReportOption::RootDirectories, ReportOption::BrokenPackages });
 }
 
 bool IniTeXMFApp::OnFndbItem(const PathName& parent, const string& name, const string& info, bool isDirectory)

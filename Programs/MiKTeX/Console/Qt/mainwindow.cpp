@@ -23,6 +23,7 @@
 #include <QTimer>
 #include <QtWidgets>
 
+#include <fstream>
 #include <iomanip>
 
 #include "FormatDefinitionDialog.h"
@@ -2134,6 +2135,47 @@ void MainWindow::UpdateActionsDiagnose()
 void MainWindow::on_pushButtonShowLogDirectory_clicked()
 {
   OpenDirectoryInFileBrowser(session->GetSpecialPath(SpecialPath::LogDirectory));
+}
+
+PathName MainWindow::GetReportFileName()
+{
+  return session->GetSpecialPath(SpecialPath::LogDirectory) / "miktex-report.txt";
+}
+
+void MainWindow::CreateReport()
+{
+  ofstream ofs;
+#if defined(MIKTEX_WINDOWS)
+  ofs.open(GetReportFileName().ToWideCharString());
+#else
+  ofs.open(GetReportFileName().ToString());
+#endif
+  if (!ofs.is_open())
+  {
+    MIKTEX_FATAL_ERROR("The report could not be written.");
+  }
+  SetupService::WriteReport(ofs);
+  ofs.close();
+}
+
+void MainWindow::on_pushButtonOpenReport_clicked()
+{
+  try
+  {
+    CreateReport();
+    if (!QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromUtf8(GetReportFileName().GetData()))))
+    {
+      MIKTEX_FATAL_ERROR("The report could not be opened.");
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
 }
 
 void MainWindow::SetupUiCleanup()

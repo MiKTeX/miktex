@@ -1761,20 +1761,26 @@ void SetupServiceImpl::Warning(const MiKTeX::Core::MiKTeXException& ex)
   }
 }
 
-void SetupService::WriteReport(ostream& s)
+void SetupService::WriteReport(ostream& s, ReportOptionSet options)
 {
-  s << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
-    << "OS: " << Utils::GetOSVersionString() << "\n";
-  shared_ptr<Session> session = Session::TryGet();
-  if (session != nullptr)
+  shared_ptr<Session> session = Session::Get();
+  if (options[ReportOption::General])
   {
-    s << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
-      << "Invokers: " << StringUtil::Flatten(Process::GetInvokerNames(), '/') << "\n"
-      << "SystemAdmin: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n"
+    s << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
+      << "OS: " << Utils::GetOSVersionString() << "\n"
+      << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n";
+  }
+  if (options[ReportOption::Processes])
+  {
+    s << "Invokers: " << StringUtil::Flatten(Process::GetInvokerNames(), '/') << "\n";
+  }
+  if (options[ReportOption::CurrentUser])
+  {
+    s << "SystemAdmin: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n"
       << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n";
-#if defined(MIKTEX_WINDOWS)
-    s << "PowerUser: " << (session->RunningAsPowerUser() ? T_("yes") : T_("no")) << "\n";
-#endif
+  }
+  if (options[ReportOption::RootDirectories])
+  {
     for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
     {
       s << "Root" << idx << ": " << session->GetRootDirectoryPath(idx) << "\n";
@@ -1786,29 +1792,36 @@ void SetupService::WriteReport(ostream& s)
       << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << "\n"
       << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << "\n";
   }
-
-  shared_ptr<PackageManager> packageManager = PackageManager::Create();
-  vector<string> broken;
-  unique_ptr<PackageIterator> pkgIter(packageManager->CreateIterator());
-  PackageInfo packageInfo;
-  for (int idx = 0; pkgIter->GetNext(packageInfo); ++idx)
+  if (options[ReportOption::BrokenPackages])
   {
-    if (!packageInfo.IsPureContainer()
-      && packageInfo.IsInstalled()
-      && packageInfo.deploymentName.compare(0, 7, "miktex-") == 0)
+    shared_ptr<PackageManager> packageManager = PackageManager::Create();
+    vector<string> broken;
+    unique_ptr<PackageIterator> pkgIter(packageManager->CreateIterator());
+    PackageInfo packageInfo;
+    for (int idx = 0; pkgIter->GetNext(packageInfo); ++idx)
     {
-      if (!(packageManager->TryVerifyInstalledPackage(packageInfo.deploymentName)))
+      if (!packageInfo.IsPureContainer()
+        && packageInfo.IsInstalled()
+        && packageInfo.deploymentName.compare(0, 7, "miktex-") == 0)
       {
-        broken.push_back(packageInfo.deploymentName);
+        if (!(packageManager->TryVerifyInstalledPackage(packageInfo.deploymentName)))
+        {
+          broken.push_back(packageInfo.deploymentName);
+        }
+      }
+    }
+    pkgIter->Dispose();
+    if (!broken.empty())
+    {
+      for (const string& name : broken)
+      {
+        s << name << ": " << T_("needs to be reinstalled") << "\n";
       }
     }
   }
-  pkgIter->Dispose();
-  if (!broken.empty())
-  {
-    for (const string& name : broken)
-    {
-      s << name << ": " << T_("needs to be reinstalled") << "\n";
-    }
-  }
+}
+
+void SetupService::WriteReport(ostream& s)
+{
+  WriteReport(s, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser });
 }

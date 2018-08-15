@@ -104,7 +104,7 @@ string ErrorDialogImpl::CreateReport()
   ostringstream s;
   try
   {
-    SetupService::WriteReport(s);
+    SetupService::WriteReport(s, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser, ReportOption::Processes });
   }
   catch (const exception&)
   {

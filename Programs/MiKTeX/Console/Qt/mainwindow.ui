@@ -337,7 +337,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>5</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -1606,6 +1606,53 @@ Use this option, if you want to operate on the private configuration.</string>
             </widget>
            </item>
            <item>
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="title">
+              <string>Report</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_15x">
+              <item>
+               <widget class="QLabel" name="label_17x">
+                <property name="text">
+                 <string>The report contains information about your MiKTeX setup.</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_12">
+                <item>
+                 <widget class="QPushButton" name="pushButtonOpenReport">
+                  <property name="text">
+                   <string>Open in text editor...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_17x_2">
+                <property name="text">
+                 <string>When you write an issue ticket, you should include the report as an attachement.</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QGroupBox" name="verticalGroupBox">
              <property name="title">
               <string>Log files</string>
@@ -1648,6 +1695,13 @@ Use this option, if you want to operate on the private configuration.</string>
                  </spacer>
                 </item>
                </layout>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_17x_3">
+                <property name="text">
+                 <string>When you write an issue ticket, you should include relevant log files as attachements.</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
