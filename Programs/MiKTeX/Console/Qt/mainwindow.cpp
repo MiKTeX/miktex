@@ -297,6 +297,7 @@ void MainWindow::UpdateUi()
     UpdateUiPackages();
     UpdateUiDiagnose();
     UpdateUiCleanup();
+    session->UnloadFilenameDatabase();
   }
   catch (const MiKTeXException& e)
   {
@@ -324,6 +325,7 @@ void MainWindow::UpdateActions()
     UpdateActionsPackages();
     UpdateActionsDiagnose();
     UpdateActionsCleanup();
+    session->UnloadFilenameDatabase();
   }
   catch (const MiKTeXException& e)
   {
@@ -708,16 +710,15 @@ void MainWindow::FinishSetup()
         CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), worker->GetMiKTeXException());
       }
       backgroundWorkers--;
-      session->UnloadFilenameDatabase();
       UpdateUi();
       UpdateActions();
       worker->deleteLater();
     });
     connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    thread->start();
     UpdateUi();
     UpdateActions();
+    thread->start();
   }
   catch (const MiKTeXException& e)
   {
@@ -785,7 +786,6 @@ void MainWindow::on_buttonUpgrade_clicked()
     ui->labelUpgradePercent->setText("");
     ui->labelUpgradeDetails->setText("");
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -820,9 +820,9 @@ void MainWindow::on_buttonUpgrade_clicked()
   ui->labelUpgradeStatus->setText(tr("Upgrade in progress..."));
   ui->labelUpgradePercent->setText("0%");
   ui->labelUpgradeDetails->setText(tr("(initializing)"));
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 bool RefreshFndbWorker::Run()
@@ -860,16 +860,15 @@ void MainWindow::RefreshFndb()
       CriticalError(tr("Something went wrong while refreshing the file name database."), ((RefreshFndbWorker*)sender())->GetMiKTeXException());
     }
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 string Timestamp()
@@ -949,16 +948,15 @@ void MainWindow::RefreshFontMaps()
       CriticalError(tr("Something went wrong while refreshing the font map files."), worker->GetMiKTeXException());
     }
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 void MainWindow::SetupUiUpdates()
@@ -1118,7 +1116,6 @@ void MainWindow::CheckUpdates()
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -1129,9 +1126,9 @@ void MainWindow::CheckUpdates()
   ui->labelCheckUpdatesStatus->setText(tr("Checking..."));
   ui->labelUpdatePercent->setText("");
   ui->labelUpdateDetails->setText("");
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 bool UpdateWorker::Run()
@@ -1202,7 +1199,6 @@ void MainWindow::Update()
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     updateModel->SetData({});
     UpdateUi();
     UpdateActions();
@@ -1239,9 +1235,9 @@ void MainWindow::Update()
   ui->labelUpdateStatus->setText(tr("Update in progress..."));
   ui->labelUpdatePercent->setText("0%");
   ui->labelUpdateDetails->setText(tr("(initializing)"));
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 void MainWindow::OnContextMenuUpdates(const QPoint& pos)
@@ -1799,16 +1795,15 @@ void MainWindow::BuildFormat()
         CriticalError(tr("Something went wrong while building formats."), ((BuildFormatsWorker*)sender())->GetMiKTeXException());
       }
       backgroundWorkers--;
-      session->UnloadFilenameDatabase();
       UpdateUi();
       UpdateActions();
       worker->deleteLater();
     });
     connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    thread->start();
     UpdateUi();
     UpdateActions();
+    thread->start();
   }
   catch (const MiKTeXException& e)
   {
@@ -2091,16 +2086,15 @@ void MainWindow::UpdatePackageDatabase()
     packageModel->Reload();
     ui->treeViewPackages->update();
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 void MainWindow::OnContextMenuPackages(const QPoint& pos)
