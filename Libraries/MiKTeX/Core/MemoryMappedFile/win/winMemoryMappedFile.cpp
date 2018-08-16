@@ -52,9 +52,9 @@ winMemoryMappedFile::~winMemoryMappedFile()
   }
 }
 
-void* winMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
+void* winMemoryMappedFile::Open(const PathName& path_, bool readWrite)
 {
-  path = pathArg;
+  path = path_;
   this->readWrite = readWrite;
 
   // create a unique object name
