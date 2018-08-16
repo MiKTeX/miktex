@@ -168,10 +168,8 @@ void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttribu
 
   if (!SetFileAttributesW(path.ToWideCharString().c_str(), static_cast<DWORD>(nativeAttributes)))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_5("SetFileAttributesW",
-      T_("MiKTeX cannot set attributes for file or directory '{path}'. It might be in use (blocked by another program)."),
-      T_("Close other programs and try again."),
-      "file-in-use",
+    MIKTEX_FATAL_WINDOWS_ERROR_3("SetFileAttributesW",
+      T_("MiKTeX cannot set attributes for file or directory '{path}'."),
       "path", path.ToDisplayString(),
       "attributes", std::to_string(nativeAttributes));
   }
@@ -336,7 +334,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
     MIKTEX_FATAL_WINDOWS_ERROR_3("MoveFileExW",
       T_("MiKTeX could not rename the file '{existing}'."),
       "existing", source.ToDisplayString(),
-      "new", dest.ToDisplayString());
+      "path", dest.ToDisplayString());
   }
   if (options[FileMoveOption::UpdateFndb])
   {
@@ -375,7 +373,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
   }
   if (!CopyFileW(source.ToWideCharString().c_str(), dest.ToWideCharString().c_str(), options[FileCopyOption::ReplaceExisting] ? FALSE : TRUE))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CopyFileW", "existing", source.ToString(), "new", dest.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CopyFileW", "existing", source.ToString(), "path", dest.ToString());
   }
   if (options[FileCopyOption::UpdateFndb])
   {
@@ -412,7 +410,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   }
   else if (CreateHardLinkW(newName.ToWideCharString().c_str(), oldName.ToWideCharString().c_str(), nullptr) == 0)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateHardLinkW", "newName", newName.ToString(), "oldName", oldName.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateHardLinkW", "path", newName.ToString(), "existing", oldName.ToString());
   }
   if (options[CreateLinkOption::UpdateFndb])
   {
