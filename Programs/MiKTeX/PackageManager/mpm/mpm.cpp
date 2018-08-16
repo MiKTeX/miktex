@@ -692,12 +692,15 @@ void Application::Sorry(const string& description, const string& remedy, const s
   else
   {
     cerr
-      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(THE_NAME_OF_THE_GAME)) << endl << endl
+      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(THE_NAME_OF_THE_GAME)) << "\n"
+      << "\n"
       << "  " << description << endl;
     if (!remedy.empty())
     {
       cerr
-        << T_("Remedy:") << endl << endl
+        << "\n"
+        << T_("Remedy:") << "\n"
+        << "\n"
         << "  " << remedy << endl;
     }
   }
@@ -707,17 +710,17 @@ void Application::Sorry(const string& description, const string& remedy, const s
     if (appender != nullptr)
     {
       cerr
-        << endl
-        << "The log file hopefully contains the information to get MiKTeX going again:" << endl
-        << endl
-        << "  " << PathName(appender->getFile()).ToUnix() << endl;
+        << "\n"
+        << "The log file hopefully contains the information to get MiKTeX going again:" << "\n"
+        << "\n"
+        << "  " << PathName(appender->getFile()) << endl;
     }
   }
   if (!url.empty())
   {
     cerr
-      << endl
-      << T_("For more information, visit: ") << url << endl;
+      << "\n"
+      << T_("For more information, visit:") << " " << url << endl;
   }
 }
 

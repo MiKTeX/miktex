@@ -530,7 +530,7 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
   LOG4CXX_INFO(logger, "installing package " << deploymentName << " triggered by " << trigger.ToString())
   if (!GetQuietFlag())
   {
-    cout << endl << SEP << endl;
+    cout << "\n" << SEP << endl;
   }
   bool done = false;
   bool switchToAdminMode = (pimpl->mpmAutoAdmin == TriState::True && !pimpl->session->IsAdminMode());
@@ -552,11 +552,15 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
     LOG4CXX_FATAL(logger, "Info: " << ex.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << ex.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << ex.GetSourceLine());
-    cerr << endl << "Unfortunately, the package " << deploymentName << " could not be installed.";
+    cerr
+      << "\n"
+      << "Unfortunately, the package " << deploymentName << " could not be installed." << endl;
     log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
     if (appender != nullptr)
     {
-      cerr << "Please check the log file:" << endl << PathName(appender->getFile()).ToUnix() << endl;
+      cerr
+        << "Please check the log file:" << "\n"
+        << PathName(appender->getFile()) << endl;
     }
   }
   if (switchToAdminMode)
@@ -701,20 +705,17 @@ void Application::Sorry(const string& name, const string& description, const str
   else
   {
     cerr
-      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(name)) << endl << endl
+      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(name)) << "\n"
+      << "\n"
       << "  " << description << endl;
     if (!remedy.empty())
     {
       cerr
-        << T_("Remedy:") << endl << endl
+        << "\n"
+        << T_("Remedy:") << "\n"
+        << "\n"
         << "  " << remedy << endl;
     }
-  }
-  if (!url.empty())
-  {
-    cerr
-      << endl
-      << T_("For more information, visit: ") << url << endl;
   }
   if (instance != nullptr && instance->pimpl->isLog4cxxConfigured)
   {
@@ -722,11 +723,17 @@ void Application::Sorry(const string& name, const string& description, const str
     if (appender != nullptr)
     {
       cerr
-        << endl
-        << "The log file hopefully contains the information to get MiKTeX going again:" << endl
-        << endl
-        << "  " << PathName(appender->getFile()).ToUnix() << endl;
+        << "\n"
+        << "The log file hopefully contains the information to get MiKTeX going again:" << "\n"
+        << "\n"
+        << "  " << PathName(appender->getFile()) << endl;
     }
+  }
+  if (!url.empty())
+  {
+    cerr
+      << "\n"
+      << T_("For more information, visit:") << " " << url << endl;
   }
 }
 

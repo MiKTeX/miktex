@@ -815,12 +815,15 @@ static void Sorry(const string& description, const string& remedy, const string&
   else
   {
     cerr
-      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(TheNameOfTheGame)) << endl << endl
+      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(TheNameOfTheGame)) << "\n"
+      << "\n"
       << "  " << description << endl;
     if (!remedy.empty())
     {
       cerr
-        << T_("Remedy:") << endl << endl
+        << "\n"
+        << T_("Remedy:") << "\n"
+        << "\n"
         << "  " << remedy << endl;
     }
   }
@@ -830,17 +833,17 @@ static void Sorry(const string& description, const string& remedy, const string&
     if (appender != nullptr)
     {
       cerr
-        << endl
-        << T_("The log file hopefully contains the information to get MiKTeX going again:") << endl
-        << endl
-        << "  " << PathName(appender->getFile()).ToUnix() << endl;
+        << "\n"
+        << T_("The log file hopefully contains the information to get MiKTeX going again:") << "\n"
+        << "\n"
+        << "  " << PathName(appender->getFile()) << endl;
     }
   }
   if (!url.empty())
   {
     cerr
-      << endl
-      << T_("For more information, visit: ") << url << endl;
+      << "\n"
+      << T_("For more information, visit:") << " " << url << endl;
   }
 }
 
