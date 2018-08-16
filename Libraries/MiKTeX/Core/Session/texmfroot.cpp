@@ -918,10 +918,20 @@ unsigned SessionImpl::GetUserConfigRoot()
 
 bool SessionImpl::IsTeXMFReadOnly(unsigned r)
 {
+  if (r == MPM_ROOT)
+  {
+    return true;
+  }
+  if (rootDirectories[r].IsOther())
+  {
+    return true;
+  }
+  if (IsMiKTeXPortable())
+  {
+    return false;
+  }
   return
-    !IsMiKTeXPortable()
-    && ((IsMiKTeXDirect() && r == GetInstallRoot())
-      || rootDirectories[r].IsOther()
+     ((IsMiKTeXDirect() && r == GetInstallRoot())
       || (rootDirectories[r].IsCommon() && !IsAdminMode()));
 }
 
