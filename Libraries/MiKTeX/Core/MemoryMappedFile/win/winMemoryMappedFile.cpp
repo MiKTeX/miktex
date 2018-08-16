@@ -178,14 +178,14 @@ void winMemoryMappedFile::CreateMapping(size_t maximumFileSize)
   hMapping = ::CreateFileMappingW(hFile, nullptr, (readWrite ? PAGE_READWRITE : PAGE_READONLY), 0, static_cast<DWORD>(maximumFileSize), UW_(name));
   if (hMapping == nullptr)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileMappingW", "name", name);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileMappingW", "path", name);
   }
 
   // map file view into memory
   ptr = MapViewOfFile(hMapping, (readWrite ? FILE_MAP_WRITE : FILE_MAP_READ), 0, 0, maximumFileSize);
   if (ptr == nullptr)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "name", name);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "path", name);
   }
 }
 
