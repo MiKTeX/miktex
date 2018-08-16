@@ -824,14 +824,17 @@ static void Sorry(const string& description, const string& remedy, const string&
         << "  " << remedy << endl;
     }
   }
-  log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-  if (appender != nullptr)
+  if (isLog4cxxConfigured)
   {
-    cerr
-      << endl
-      << T_("The log file hopefully contains the information to get MiKTeX going again:") << endl
-      << endl
-      << "  " << PathName(appender->getFile()).ToUnix() << endl;
+    log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+    if (appender != nullptr)
+    {
+      cerr
+        << endl
+        << T_("The log file hopefully contains the information to get MiKTeX going again:") << endl
+        << endl
+        << "  " << PathName(appender->getFile()).ToUnix() << endl;
+    }
   }
   if (!url.empty())
   {

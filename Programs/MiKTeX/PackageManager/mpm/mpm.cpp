@@ -255,7 +255,7 @@ private:
   string repository;
 
 private:
-  bool isLog4cxxConfigured = false;
+  static bool isLog4cxxConfigured;
 
 private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
@@ -301,6 +301,14 @@ private:
     }
   }
 
+public:
+  static void Sorry(const string& description, const string& remedy, const string& url);
+
+public:
+  static void Sorry()
+  {
+    Sorry("", "", "");
+  }
 };
 
 enum Option
@@ -628,6 +636,7 @@ const struct poptOption Application::aoption[] = {
 };
 
 volatile sig_atomic_t Application::interrupted = false;
+bool Application::isLog4cxxConfigured = false;
 
 void Application::Message(const char* format, ...)
 {
@@ -668,7 +677,7 @@ void Application::Warn(const char* format, ...)
   cout << T_("Warning:") << " " << s << endl;
 }
 
-static void Sorry(const string& description, const string& remedy, const string& url)
+void Application::Sorry(const string& description, const string& remedy, const string& url)
 {
   if (cerr.fail())
   {
@@ -692,14 +701,17 @@ static void Sorry(const string& description, const string& remedy, const string&
         << "  " << remedy << endl;
     }
   }
-  log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-  if (appender != nullptr)
+  if (isLog4cxxConfigured)
   {
-    cerr
-      << endl
-      << "The log file hopefully contains the information to get MiKTeX going again:" << endl
-      << endl
-      << "  " << PathName(appender->getFile()).ToUnix() << endl;
+    log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+    if (appender != nullptr)
+    {
+      cerr
+        << endl
+        << "The log file hopefully contains the information to get MiKTeX going again:" << endl
+        << endl
+        << "  " << PathName(appender->getFile()).ToUnix() << endl;
+    }
   }
   if (!url.empty())
   {
@@ -707,11 +719,6 @@ static void Sorry(const string& description, const string& remedy, const string&
       << endl
       << T_("For more information, visit: ") << url << endl;
   }
-}
-
-static void Sorry()
-{
-  Sorry("", "", "");
 }
 
 MIKTEXNORETURN void Application::Error(const char* format, ...)
@@ -2068,14 +2075,14 @@ int MAIN(int argc, MAINCHAR* argv[])
     LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
-    Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
+    Application::Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
     e.Save();
     retCode = 1;
   }
   catch (const exception& e)
   {
     LOG4CXX_FATAL(logger, e.what());
-    Sorry();
+    Application::Sorry();
     retCode = 1;
   }
   catch (int rc)

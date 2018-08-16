@@ -716,14 +716,17 @@ void Application::Sorry(const string& name, const string& description, const str
       << endl
       << T_("For more information, visit: ") << url << endl;
   }
-  log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-  if (appender != nullptr)
+  if (instance != nullptr && instance->pimpl->isLog4cxxConfigured)
   {
-    cerr
-      << endl
-      << "The log file hopefully contains the information to get MiKTeX going again:" << endl
-      << endl
-      << "  " << PathName(appender->getFile()).ToUnix() << endl;
+    log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+    if (appender != nullptr)
+    {
+      cerr
+        << endl
+        << "The log file hopefully contains the information to get MiKTeX going again:" << endl
+        << endl
+        << "  " << PathName(appender->getFile()).ToUnix() << endl;
+    }
   }
 }
 
