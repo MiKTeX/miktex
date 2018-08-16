@@ -102,6 +102,13 @@ void* winMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
   }
   else
   {
+    DWORD lastError = GetLastError();
+    MIKTEX_ASSERT(lastError != ERROR_SUCCESS);
+    if (lastError != ERROR_FILE_NOT_FOUND)
+    {
+      MIKTEX_FATAL_WINDOWS_RESULT_2("OpenFileMappingW", lastError, "path", name);
+    }
+
     traceStream->WriteFormattedLine("core", T_("creating new file mapping object %s"), Q_(name));
 
     // create a new file mapping
