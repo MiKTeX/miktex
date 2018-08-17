@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -87,7 +87,6 @@ else()
   target_link_libraries(${mpm_dll_name} PRIVATE
     ${curl_dll_name}
     Ws2_32
-    wininet
   )
 endif()
 
@@ -95,7 +94,6 @@ delay_load(${mpm_dll_name}
   ${curl_dll_name}
   ${extractor_dll_name}
   Ws2_32
-  wininet
 )
 
 install(TARGETS ${mpm_dll_name}

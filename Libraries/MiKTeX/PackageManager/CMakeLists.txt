@@ -97,15 +97,6 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
 )
 
-if(MIKTEX_NATIVE_WINDOWS AND WITH_WININET)
-  list(APPEND mpm_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/win/winWebFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win/winWebFile.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/win/winWebSession.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win/winWebSession.h
-  )
-endif()
-
 if(INSTALL_MIKTEX_HEADERS)
   install(
     FILES

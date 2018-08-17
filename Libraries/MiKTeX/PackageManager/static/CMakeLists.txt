@@ -54,7 +54,6 @@ else()
     PUBLIC
       ${curl_lib_name}
       Ws2_32
-      wininet
   )
 endif()
 
