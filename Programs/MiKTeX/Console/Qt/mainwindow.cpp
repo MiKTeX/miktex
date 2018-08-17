@@ -181,18 +181,21 @@ void MainWindow::setVisible(bool visible)
 
 void MainWindow::CriticalError(const QString& shortText, const MiKTeXException& e)
 {
-  string description = e.GetDescription();
+  QString description = QString::fromUtf8(e.GetDescription().c_str());
   QString text = shortText;
-  if (!description.empty())
+  if (!description.isEmpty())
   {
-    text += "\n\n";
-    text += QString::fromUtf8(description.c_str());
-    string remedy = e.GetRemedy();
-    if (!remedy.empty())
+    text += "<p>" + description + "</p>";
+    QString remedy = QString::fromUtf8(e.GetRemedy().c_str());
+    if (!remedy.isEmpty())
     {
-      text += "\n\n" + tr("Remedy:") + " ";
-      text += QString::fromUtf8(remedy.c_str());
+      text += "<p>" + tr("Remedy:") + " " + remedy + "</p>";
     }
+  }
+  QString url = QString::fromUtf8(e.GetUrl().c_str());
+  if (!url.isEmpty())
+  {
+    text += "<p>" + tr("For more information, visit <a href='%1'>%2</a>").arg(url).arg(url) + "</p>";
   }
   if (this->isHidden())
   {
@@ -200,7 +203,7 @@ void MainWindow::CriticalError(const QString& shortText, const MiKTeXException& 
   }
   else
   {
-    text += "\n\n" + tr("Do you want to see the error details?");
+    text += "<p>" + tr("Do you want to see the error details?") + "/p>";
     if (QMessageBox::critical(this, tr("MiKTeX Console"), text,
       QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
       == QMessageBox::StandardButton::Yes)
