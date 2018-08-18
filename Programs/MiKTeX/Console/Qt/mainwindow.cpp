@@ -71,23 +71,13 @@ inline double Divide(double a, double b)
   return a / b;
 }
 
-void OpenDirectoryInFileBrowser(const QString& path_)
+void OpenDirectoryInFileBrowser(const QString& path)
 {
-  QString path(path_);
-  if (!path.startsWith('/'))
-  {
-    path.insert(0, '/');
-  }
-  QDesktopServices::openUrl(QUrl(QString("file://%1").arg(path), QUrl::TolerantMode));
+  QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 
-void OpenDirectoryInFileBrowser(const PathName& dir_)
+void OpenDirectoryInFileBrowser(const PathName& dir)
 {
-  PathName dir(dir_);
-  dir.AppendDirectoryDelimiter();
-#if defined(MIKTEX_WINDOWS)
-  dir.ConvertToUnix();
-#endif
   OpenDirectoryInFileBrowser(QString::fromUtf8(dir.GetData()));
 }
 
