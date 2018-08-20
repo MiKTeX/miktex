@@ -167,7 +167,7 @@ set(manual_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texfeatures.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texifying.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/tracestreams.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/miktex.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/manual.xml
   ${envvar_xml_files}
   ${options_xml_files}
   ${ref_xml_files}
@@ -250,7 +250,7 @@ if(WITH_MIKTEX_DOC)
           --stringparam chunk.fast 1
           --stringparam manifest.in.base.dir 1
           htmlhelp.xsl
-          miktex.xml
+          manual.xml
     COMMAND
       ${CMAKE_COMMAND} -E
         copy ${MIKTEX_CORE_CONTEXT_HELP} ${CMAKE_CURRENT_BINARY_DIR}/scratch/context.h
@@ -306,7 +306,7 @@ if(WITH_MIKTEX_DOC)
           --stringparam base.dir html/manual/
           --stringparam chunk.fast 1
           htmlchunk.xsl
-          miktex.xml
+          manual.xml
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
@@ -349,7 +349,7 @@ if(WITH_MIKTEX_DOC)
           --output ${CMAKE_CURRENT_BINARY_DIR}/fo/manual/miktex.fo
           --stringparam fop1.extensions 1
           fo.xsl
-          miktex.xml
+          manual.xml
     COMMAND
       ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/fo/manual
         ${FOP_EXECUTABLE}
@@ -434,14 +434,14 @@ if(WITH_MAN_PAGES)
           --xinclude
           --path "${xslt_path}"
           manpages.xsl
-          miktex.xml
+          manual.xml
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
       ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
       ${CMAKE_CURRENT_BINARY_DIR}/filetypes
       ${CMAKE_CURRENT_SOURCE_DIR}/Styles/manpages.xsl
-      ${CMAKE_CURRENT_SOURCE_DIR}/miktex.xml
+      ${CMAKE_CURRENT_SOURCE_DIR}/manual.xml
       ${envvar_xml_files}
       ${options_xml_files}
       ${ref_xml_files}
