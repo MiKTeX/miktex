@@ -20,37 +20,6 @@ url="&hqbaseurl;download">&MiKTeX; download page</ulink>.</para>
 <para>Please read <ulink url="&hqbaseurl;howto/install-miktex">the
 installation tutorial</ulink>, for a step-by-step guide.</para>
 
-<section id="uninstalling">
-
-<title>Removing &MiKTeX;</title>
-
-<para>&MiKTeX; can be removed from your computer in the following way:
-<indexterm>
-<primary>uninstaller</primary>
-</indexterm>
-<indexterm>
-<primary>MiKTeX</primary>
-<secondary>uninstalling</secondary>
-</indexterm>
-<indexterm>
-<primary>Remove MiKTeX Wizard</primary>
-</indexterm></para>
-
-<procedure>
-
-<step><para>Open <application>Control Panel</application>.</para></step>
-
-<step><para>Double-click <guilabel>Add or Remove
-Programs</guilabel>.</para></step>
-
-<step><para>Click <guimenuitem>&progfldr;</guimenuitem>.</para></step>
-
-<step><para>Click <guimenuitem>Change/Remove</guimenuitem>.</para></step>
-
-</procedure>
-
-</section>
-
 </section>
 
 <section id="installmac">

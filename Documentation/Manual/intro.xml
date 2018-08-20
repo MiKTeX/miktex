@@ -37,8 +37,8 @@ Internet.</para>
 downloaded from the <ulink url="&hqbaseurl;download">&MiKTeX; download
 page</ulink>.</para>
 
-<para>For selected &Linux; distributions, you can get &MiKTeX; via the
-system package manager frontend (&aptget;).  The <ulink
+<para>For selected &Linux; distributions, you can install &MiKTeX; via
+the system package manager frontend.  The <ulink
 url="&hqbaseurl;download">&MiKTeX; download page</ulink> has relevant
 information available.</para>
 

@@ -26,14 +26,15 @@ systems.  Please consult these HOWTOs for platform-specific build
 instructions:
 
 * [https://miktex.org/howto/build-win](https://miktex.org/howto/build-win "Building MiKTeX (Windows)")
-* [https://miktex.org/howto/build-unx](https://miktex.org/howto/build-unx "Building MiKTeX (Unix-line)")
+* [https://miktex.org/howto/build-unx](https://miktex.org/howto/build-unx "Building MiKTeX (Unix-like)")
 * [https://miktex.org/howto/build-mac](https://miktex.org/howto/build-mac "Building MiKTeX (macOS)")
 
 In addition, you can try one of the Dockerized build environments to build MiKTeX:
 
-* [Ubuntu 16.04](https://github.com/MiKTeX/docker-miktex-build-xenial)
-* [Debian 9](https://github.com/MiKTeX/docker-miktex-build-stretch)
-* [Fedora 25](https://github.com/MiKTeX/docker-miktex-build-fedora-25)
+* [Ubuntu 16.04, 18.04](https://github.com/MiKTeX/docker-miktex-build-ubuntu)
+* [Debian 9](https://github.com/MiKTeX/docker-miktex-build-debian)
+* [Fedora 28](https://github.com/MiKTeX/docker-miktex-build-fedora)
+* [openSUSE Leap 15](https://github.com/MiKTeX/docker-miktex-build-opensuse)
 
 ## Prerequisites
 

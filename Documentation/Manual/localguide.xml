@@ -18,8 +18,8 @@
 <primary>local guide</primary>
 </indexterm>
 to work through one of the &TeX;/&LaTeX; tutorials. A good starting
-point is this entry in the <acronym>UK</acronym> &TeX; &FAQ;: <ulink
-url="http://www.tex.ac.uk/faq/">http://www.tex.ac.uk/faq/</ulink>.</para>
+point is the &TeX; &FAQ;: <ulink
+url="https://texfaq.org/">https://texfaq.org/</ulink>.</para>
 
 <para>&MiKTeX; doesn't differ very much from
 any other &TeX; system you might have used before.

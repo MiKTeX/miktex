@@ -164,7 +164,6 @@ set(manual_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/programs.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/psfonts.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/runtimeparams.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Manual/tcxtables.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texfeatures.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texifying.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/tracestreams.xml
