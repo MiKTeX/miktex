@@ -46,14 +46,7 @@ a translation approved by the Free Software Foundation.</para>
 
 </bookinfo>
 
-<preface id="preface">
-
-<title>About this Document</title>
-
-<para>This is version &rev; of the &MiKTeX; manual.  It corresponds to
-&MiKTeX;&nbsp;&miktexrev; as of &date;.</para>
-
-</preface>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/preface.xml" />
 
 <toc/>
 

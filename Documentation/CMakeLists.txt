@@ -159,6 +159,7 @@ set(manual_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/installing.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/intro.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/localguide.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Manual/preface.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/printing.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/programs.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/psfonts.xml
