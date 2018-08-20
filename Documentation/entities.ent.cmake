@@ -21,6 +21,7 @@
 <!ENTITY FTP "<acronym>FTP</acronym>">
 <!ENTITY GF "<acronym>GF</acronym>">
 <!ENTITY GNU "<acronym>GNU</acronym>">
+<!ENTITY GPG "<acronym>GPG</acronym>">
 <!ENTITY GPL "<acronym>GPL</acronym>">
 <!ENTITY Ghostscript "<application>Ghostscript</application>">
 <!ENTITY HTML "<acronym>HTML</acronym>">
@@ -44,6 +45,7 @@
 <!ENTITY MetaPost "<application>MetaPost</application>">
 <!ENTITY MiKTeX "<application>MiKTeX</application>">
 <!ENTITY MiKTeXConsole "<application>&MiKTeX; Console</application>">
+<!ENTITY MiKTeXConfigurationUtility "&MiKTeX; Configuration Utility">
 <!ENTITY MiKTeXCurrentSeries "&MiKTeX;&nbsp;${MIKTEX_MAJOR_MINOR_STR}">
 <!ENTITY MiKTeXHelpUtility "<application>&MiKTeX; Help Utility</application>">
 <!ENTITY MiKTeXNetInstaller "<application>MiKTeX Net Installer</application>">

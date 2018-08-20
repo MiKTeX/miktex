@@ -11,32 +11,55 @@
 
 <section id="installwin">
 
-<title>Installing for &Windows;</title>
+<title>&Windows;</title>
   
 <para>You use the &BasicMiKTeXInstaller; to install &MiKTeX; on your
-&Windows; computer. You can download the installer from the <ulink
-url="&hqbaseurl;download">&MiKTeX; download page</ulink>.</para>
+&Windows; computer Please read the <ulink
+url="&hqbaseurl;howto/install-miktex">installation
+tutorial</ulink>, for step-by-step guidance.</para>
 
-<para>Please read <ulink url="&hqbaseurl;howto/install-miktex">the
-installation tutorial</ulink>, for a step-by-step guide.</para>
+<para>The installer is available on the <ulink
+url="&hqbaseurl;download">download page</ulink>.</para>
 
 </section>
 
 <section id="installmac">
 
-<title>Installing for &macOS;</title>
+<title>&macOS;</title>
 
-<para>Please read <ulink url="&hqbaseurl;howto/install-miktex-mac">the
-installation tutorial</ulink>, for a step-by-step guide.</para>
+<para>&MiKTeX; for &macOS; is distributed as a disk image
+(<filename>.dmg</filename>) file.  To set up &MiKTeX;, download and
+open the disk image. Then drag the &MiKTeX; icon onto the Applications
+folder. Please read the <ulink
+url="&hqbaseurl;howto/install-miktex-mac">installation
+tutorial</ulink>, for step-by-step guidance.</para>
+
+<para>The disk image is available on the <ulink
+url="&hqbaseurl;download">download page</ulink>.</para>
 
 </section>
 
 <section id="installunx">
 
-<title>Installing for &Linux;</title>
+<title>&Linux;</title>
 
-<para>Please read <ulink url="&hqbaseurl;howto/install-miktex-unx">the
-installation tutorial</ulink>, for a step-by-step guide.</para>
+<para>&MiKTeX; is available for selected &Linux; distributions.</para>
+
+<para>Installing &MiKTeX; on &Linux; involves these steps:</para>
+
+<orderedlist>
+<listitem><para>Register the &GPG; key with which &MiKTeX;
+installation packages and metadata is signed.</para></listitem>
+<listitem><para>Register the installation source which contains the
+&MiKTeX; installation package. The installation source depends on the
+&Linux; distribution version.</para></listitem>
+<listitem><para>Use the package management system to install
+&MiKTeX;.</para></listitem>
+</orderedlist>
+
+<para>Please read the <ulink
+url="&hqbaseurl;howto/install-miktex-unx">installation
+tutorial</ulink>, for step-by-step guidance.</para>
 
 </section>
 

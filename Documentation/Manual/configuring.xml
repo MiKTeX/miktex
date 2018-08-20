@@ -31,8 +31,10 @@ of a list of known file names.  This list is called the
 you manually install &TeX;/&LaTeX;-related files in a user-managed
 &TEXMF; directory.</para>
 
-<para>You update the file name database with the help of <ulink
-url="&hqbaseurl;howto/miktex-console">&MiKTeXConsole;</ulink>.</para>
+<para>You can update the file name database with the help of <ulink
+url="&hqbaseurl;howto/miktex-console">&MiKTeXConsole;</ulink>. If you
+prefer the command-line, you can use the &MiKTeXConfigurationUtility;
+(see <xref linkend="initexmf"/>).</para>
 
 </section>
 
