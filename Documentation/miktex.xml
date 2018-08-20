@@ -65,15 +65,7 @@ a translation approved by the Free Software Foundation.</para>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/installing.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/localguide.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/configuring.xml" />
-
-<chapter id="advanced">
-
-<title>Advanced Topics</title>
-
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/psfonts.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/runtimeparams.xml" />
-
-</chapter>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/advanced.xml" />
 
 </part>
 

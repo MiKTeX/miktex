@@ -150,6 +150,7 @@ set(ref_xml_files
 )
 
 set(manual_xml_files
+  ${CMAKE_CURRENT_SOURCE_DIR}/Manual/advanced.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/configuring.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/defaults.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/envvars.xml
