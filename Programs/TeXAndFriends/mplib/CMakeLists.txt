@@ -299,8 +299,6 @@ target_link_libraries(${metapost_dll_name}
     ${w2cemu_dll_name}
 )
 
-rebase(${metapost_dll_name})
-
 install(TARGETS ${metapost_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

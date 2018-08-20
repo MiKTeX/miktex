@@ -1,6 +1,6 @@
 /* miktex/Core/Process.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -39,6 +39,7 @@
 #include <string>
 #include <vector>
 
+#include "Exceptions.h"
 #include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
@@ -185,6 +186,11 @@ public:
 public:
   virtual int MIKTEXTHISCALL get_ExitCode() const = 0;
 
+  /// Gets the MiKTeX exception thrown by the process.
+  /// The process must have exited.
+public:
+  virtual bool MIKTEXTHISCALL get_Exception(MiKTeX::Core::MiKTeXException& ex) const = 0;
+
 public:
   virtual void MIKTEXTHISCALL Close() = 0;
 
@@ -252,10 +258,16 @@ public:
   static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory);
+  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, MiKTeXException* miktexException, const char* workingDirectory);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, std::function<bool(const void*, std::size_t)> callback, int* exitCode, const char* workingDirectory);
+  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, std::function<bool(const void*, std::size_t)> callback, int* exitCode, MiKTeXException* miktexException, const char* workingDirectory);
+
+public:
+  static bool Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory)
+  {
+    return Run(fileName, arguments, callback, exitCode, nullptr, workingDirectory);
+  }
 
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Process>) Start(const ProcessStartInfo& startinfo);

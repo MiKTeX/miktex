@@ -1,6 +1,6 @@
 /* SourceSpecialsDialog.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -24,7 +24,9 @@
 
 #include "DviDoc.h"
 #include "Dviview.h"
+#include "ErrorDialog.h"
 #include "ProgressIndicatorDialog.h"
+
 #include "SourceSpecialsDialog.h"
 
 BEGIN_MESSAGE_MAP(SourceSpecialsDialog, CDialog)
@@ -35,7 +37,7 @@ BEGIN_MESSAGE_MAP(SourceSpecialsDialog, CDialog)
   ON_NOTIFY(NM_DBLCLK, IDC_SOURCE_SPECIALS, OnDblclkSourceSpecials)
 END_MESSAGE_MAP();
 
-SourceSpecialsDialog::SourceSpecialsDialog(CWnd * pParent, DviDoc * pDoc) :
+SourceSpecialsDialog::SourceSpecialsDialog(CWnd* pParent, DviDoc* pDoc) :
   CDialog(IDD, pParent),
   pDviDoc(pDoc),
   pView(reinterpret_cast<DviView*>(pParent))
@@ -48,7 +50,7 @@ SourceSpecialsDialog::SourceSpecialsDialog(CWnd * pParent, DviDoc * pDoc) :
   {
     pi.progressBar.SetPos(p);
 
-    DviPage * pDviPage = pDviDoc->GetLoadedPage(p);
+    DviPage* pDviPage = pDviDoc->GetLoadedPage(p);
 
     if (pDviPage == nullptr)
     {
@@ -57,11 +59,11 @@ SourceSpecialsDialog::SourceSpecialsDialog(CWnd * pParent, DviDoc * pDoc) :
 
     AutoUnlockPage autoUnlockPage(pDviPage);
 
-    DviSpecial * pDviSpecial;
+    DviSpecial* pDviSpecial;
     int j = 0;
     while ((pDviSpecial = pDviPage->GetSpecial(j++)) != nullptr)
     {
-      SourceSpecial * pSrcSpecial;
+      SourceSpecial* pSrcSpecial;
       pSrcSpecial = dynamic_cast<SourceSpecial *>(pDviSpecial);
       if (pSrcSpecial != nullptr)
       {
@@ -74,13 +76,13 @@ SourceSpecialsDialog::SourceSpecialsDialog(CWnd * pParent, DviDoc * pDoc) :
     }
   }
 
-  if (sourceSpecials.size() == 0)
+  if (sourceSpecials.empty())
   {
     MIKTEX_FATAL_ERROR(T_("The document contains no source links."));
   }
 }
 
-void SourceSpecialsDialog::DoDataExchange(CDataExchange * pDX)
+void SourceSpecialsDialog::DoDataExchange(CDataExchange* pDX)
 {
   CDialog::DoDataExchange(pDX);
 
@@ -148,14 +150,14 @@ BOOL SourceSpecialsDialog::OnInitDialog()
     editButton.EnableWindow(FALSE);
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 
   return ret;
@@ -195,18 +197,18 @@ void SourceSpecialsDialog::OnGoto()
     }
     pView->GotoSrcSpecial(_ttoi(szLineNum), TU_(szFileName));
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void SourceSpecialsDialog::OnItemchangedSourceSpecials(NMHDR * pNMHDR, LRESULT * pResult)
+void SourceSpecialsDialog::OnItemchangedSourceSpecials(NMHDR* pNMHDR, LRESULT* pResult)
 
 {
   UNUSED_ALWAYS(pNMHDR);
@@ -242,12 +244,12 @@ void SourceSpecialsDialog::OnEditSource()
     }
     StartEditor(TU_(szFileName), pDviDoc->GetDocDir().GetData(), _ttoi(szLineNum));
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -260,11 +262,11 @@ void SourceSpecialsDialog::OnClose()
     pView->CloseSourceSpecialsDialog();
     DestroyWindow();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -281,7 +283,7 @@ void SourceSpecialsDialog::OnCancel()
   OnClose();
 }
 
-void SourceSpecialsDialog::OnDblclkSourceSpecials(NMHDR * pNMHDR, LRESULT * pResult)
+void SourceSpecialsDialog::OnDblclkSourceSpecials(NMHDR* pNMHDR, LRESULT* pResult)
 {
   UNUSED_ALWAYS(pNMHDR);
   try
@@ -289,11 +291,11 @@ void SourceSpecialsDialog::OnDblclkSourceSpecials(NMHDR * pNMHDR, LRESULT * pRes
     OnGoto();
     *pResult = 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }

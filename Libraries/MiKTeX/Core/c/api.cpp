@@ -124,7 +124,7 @@ MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_exit(int status)
 MIKTEXCORECEEAPI(void) miktex_core_fatal_error(const char* lpszMiktexFunction, const char* lpszMessage, const char* lpszInfo, const char* lpszSourceFile, int sourceLine)
 {
   C_FUNC_BEGIN();
-  Session::FatalMiKTeXError(lpszMessage, MiKTeXException::KVMAP("", lpszInfo == nullptr ? "" : lpszInfo), SourceLocation(lpszMiktexFunction == nullptr ? "" : lpszMiktexFunction, lpszSourceFile == nullptr ? "" : lpszSourceFile, sourceLine));
+  Session::FatalMiKTeXError(lpszMessage, "", "", "", MiKTeXException::KVMAP("", lpszInfo == nullptr ? "" : lpszInfo), SourceLocation(lpszMiktexFunction == nullptr ? "" : lpszMiktexFunction, lpszSourceFile == nullptr ? "" : lpszSourceFile, sourceLine));
   C_FUNC_END();
 }
 

@@ -1,6 +1,6 @@
 /* yap.h: main header file for the Yap application      -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -59,7 +59,7 @@ const bool DEFAULT_bRenderGraphicsInBackground = true;
 struct EditorInfo
 {
 public:
-  EditorInfo(const string & name, const string & program, const string & arguments) :
+  EditorInfo(const string& name, const string& program, const string& arguments) :
     name(name),
     program(program),
     arguments(arguments)
@@ -67,7 +67,7 @@ public:
   }
 
 public:
-  EditorInfo(const char * lpszName, const char * lpszProgram, const char * lpszArguments) :
+  EditorInfo(const char* lpszName, const char* lpszProgram, const char* lpszArguments) :
     name(lpszName),
     program(lpszProgram),
     arguments(lpszArguments)
@@ -233,31 +233,31 @@ public:
   void Save();
 
 public:
-  bool SetDisplayMetafontMode(const char * lpszMetafontMode);
+  bool SetDisplayMetafontMode(const char* lpszMetafontMode);
 
 public:
-  bool SetPrinterMetafontMode(const char * lpszMetafontMode);
+  bool SetPrinterMetafontMode(const char* lpszMetafontMode);
 
 private:
-  template<typename ValueType> void PutValue(const char * lpszKeyName, const char * lpszValueName, const ValueType & value)
+  template<typename ValueType> void PutValue(const char* lpszKeyName, const char* lpszValueName, const ValueType& value)
   {
     pCfg->PutValue(lpszKeyName, lpszValueName, std::to_string(value));
   }
 
 private:
-  template<> void PutValue(const char * lpszKeyName, const char * lpszValueName, const bool & value)
+  template<> void PutValue(const char* lpszKeyName, const char* lpszValueName, const bool& value)
   {
     pCfg->PutValue(lpszKeyName, lpszValueName, value ? "1" : "0");
   }
 
 private:
-  template<> void PutValue(const char * lpszKeyName, const char * lpszValueName, const string & value)
+  template<> void PutValue(const char* lpszKeyName, const char* lpszValueName, const string& value)
   {
     pCfg->PutValue(lpszKeyName, lpszValueName, value.c_str());
   }
 
 private:
-  template<typename ValueType> void UpdateValue(const char * lpszKeyName, const char * lpszValueName, const ValueType & value, const ValueType & defaultValue)
+  template<typename ValueType> void UpdateValue(const char* lpszKeyName, const char* lpszValueName, const ValueType& value, const ValueType& defaultValue)
   {
     if (value == defaultValue)
     {
@@ -274,7 +274,7 @@ private:
   }
 
 private:
-  template<typename ValueType> ValueType GetValue(const char * lpszKeyName, const char * lpszValueName, const ValueType & defaultValue)
+  template<typename ValueType> ValueType GetValue(const char* lpszKeyName, const char* lpszValueName, const ValueType& defaultValue)
   {
     string value;
     if (pCfg->TryGetValue(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
@@ -288,7 +288,7 @@ private:
   }
 
 private:
-  template<> bool GetValue(const char * lpszKeyName, const char * lpszValueName, const bool & defaultValue)
+  template<> bool GetValue(const char* lpszKeyName, const char* lpszValueName, const bool& defaultValue)
   {
     string value;
     if (pCfg->TryGetValue(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
@@ -302,7 +302,7 @@ private:
   }
 
 private:
-  template<> double GetValue(const char * lpszKeyName, const char * lpszValueName, const double & defaultValue)
+  template<> double GetValue(const char* lpszKeyName, const char* lpszValueName, const double& defaultValue)
   {
     string value;
     if (pCfg->TryGetValue(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
@@ -316,7 +316,7 @@ private:
   }
 
 private:
-  template<> string GetValue(const char * lpszKeyName, const char * lpszValueName, const string & defaultValue)
+  template<> string GetValue(const char* lpszKeyName, const char* lpszValueName, const string& defaultValue)
   {
     string value;
     if (pCfg->TryGetValue(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
@@ -340,7 +340,7 @@ private:
 template<class OBJTYPE> class DeleteObject_
 {
 public:
-  void operator() (OBJTYPE * pObj)
+  void operator()(OBJTYPE* pObj)
   {
     pObj->DeleteObject();
   }
@@ -353,7 +353,7 @@ typedef AutoResource<CGdiObject*, DeleteObject_<CGdiObject> > AutoDeleteObject;
 template<class OBJTYPE> class Detach_
 {
 public:
-  void operator() (OBJTYPE * pObj)
+  void operator()(OBJTYPE* pObj)
   {
     pObj->Detach();
   }
@@ -366,7 +366,7 @@ typedef AutoResource<CMenu*, Detach_<CMenu> > AutoDetachMenu;
 class RestoreDC_
 {
 public:
-  void operator() (CDC * pDC, int savedDC)
+  void operator()(CDC* pDC, int savedDC)
   {
     pDC->RestoreDC(savedDC);
   }
@@ -379,7 +379,7 @@ typedef AutoResource2<CDC *, int, RestoreDC_> AutoRestoreDC;
 class SelectObject_
 {
 public:
-  void operator() (CDC * pDC, CGdiObject * pObj)
+  void operator() (CDC* pDC, CGdiObject* pObj)
   {
     pDC->SelectObject(pObj);
   }
@@ -417,16 +417,16 @@ public:
   YapApplication();
 
 public:
-  virtual BOOL InitInstance();
+  BOOL InitInstance() override;
 
 public:
-  virtual int ExitInstance();
+  int ExitInstance() override;
 
 public:
-  virtual BOOL OnDDECommand(LPTSTR lpszCommand);
+  BOOL OnDDECommand(LPTSTR lpszCommand) override;
 
 public:
-  CDocument * OpenDocumentFile(LPCTSTR lpszFileName);
+  CDocument* OpenDocumentFile(LPCTSTR lpszFileName);
 
 protected:
   afx_msg void OnAppAbout();
@@ -435,7 +435,7 @@ protected:
   afx_msg void OnViewTrace();
 
 protected:
-  afx_msg void OnUpdateViewTrace(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateViewTrace(CCmdUI* pCmdUI);
 
 protected:
   afx_msg void OnRegisterMiKTeX();
@@ -444,13 +444,13 @@ private:
   void RegisterWindowClass();
 
 private:
-  bool ActivateFirstInstance(const YapCommandLineInfo & cmdInfo);
+  bool ActivateFirstInstance(const YapCommandLineInfo& cmdInfo);
 
 private:
-  bool FindSrcSpecial(int lineNum, const char * lpszFileName);
+  bool FindSrcSpecial(int lineNum, const char* lpszFileName);
 
 private:
-  bool GotoHyperLabel(const char * lpszLabel);
+  bool GotoHyperLabel(const char* lpszLabel);
 
 protected:
   bool tracing = false;
@@ -474,7 +474,7 @@ public:
 template<class VALTYPE> class AutoRestore
 {
 public:
-  AutoRestore(VALTYPE & val) :
+  AutoRestore(VALTYPE& val) :
     oldVal(val),
     pVal(&val)
   {
@@ -490,12 +490,12 @@ private:
   VALTYPE oldVal;
 
 private:
-  VALTYPE * pVal;
+  VALTYPE* pVal;
 };
 
 bool AddCommandPrefixChar(char ch);
 
-bool AllowShellCommand(const char * lpszCommand);
+bool AllowShellCommand(const char* lpszCommand);
 
 void DrawTransparentBitmap(HDC, HBITMAP, short, short, COLORREF);
 
@@ -505,9 +505,9 @@ DWORD HLStoRGB(WORD, WORD, WORD);
 
 void MakeTransparent(HWND hwnd, COLORREF transparencyColor, unsigned char opacity);
 
-void RGBtoHLS(DWORD, WORD &, WORD &, WORD &);
+void RGBtoHLS(DWORD, WORD&, WORD&, WORD&);
 
-void StartEditor(const char * lpszFileName, const char * lpszDocDir, int line);
+void StartEditor(const char* lpszFileName, const char* lpszDocDir, int line);
 
 void VYapLog(const char *, va_list);
 
@@ -515,7 +515,7 @@ void UpdateAllDviViews(bool reread = false);
 
 void YapLog(const char *, ...);
 
-void TraceError(const char * lpszFormat, ...);
+void TraceError(const char* lpszFormat, ...);
 
 enum {
   WM_DVIPROGRESS = WM_APP + 1, WM_MAKEFONTS

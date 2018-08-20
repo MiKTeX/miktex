@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2017 Christian Schenk
+## Copyright (C) 2010-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,6 +27,7 @@ set(tests
 set(exes
   1-1
   1-2
+  1-3
   3-1
 )
 

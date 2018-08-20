@@ -1,6 +1,6 @@
 /* tpic.cpp: tpic specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -41,7 +41,7 @@ inline double CalcTpicConv(int dpi, int mag)
   return (dpi * mag) / 1000000.0;
 }
 
-void DviView::DrawTpicSpecial(CDC * pDC, TpicSpecial * pTpicSpecial)
+void DviView::DrawTpicSpecial(CDC* pDC, TpicSpecial* pTpicSpecial)
 {
   tpicConv = CalcTpicConv(GetDocument()->GetResolution(), GetDocument()->GetMagnification());
   CPen pen;
@@ -55,14 +55,14 @@ void DviView::DrawTpicSpecial(CDC * pDC, TpicSpecial * pTpicSpecial)
     MIKTEX_UNEXPECTED();
   }
   AutoDeleteObject autoDeletePen(&pen);
-  CPen * pOldPen = pDC->SelectObject(&pen);
+  CPen* pOldPen = pDC->SelectObject(&pen);
   if (pOldPen == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
   AutoSelectObject selectOldPen(pDC, pOldPen);
-  TpicPolySpecial * pPolySpecial;
-  TpicArcSpecial * pArcSpecial;
+  TpicPolySpecial* pPolySpecial;
+  TpicArcSpecial* pArcSpecial;
   if ((pPolySpecial = dynamic_cast<TpicPolySpecial *>(pTpicSpecial)) != nullptr)
   {
     if (pPolySpecial->IsSpline())
@@ -80,7 +80,7 @@ void DviView::DrawTpicSpecial(CDC * pDC, TpicSpecial * pTpicSpecial)
   }
 }
 
-void DviView::DrawTpicPoly(CDC * pDC, TpicPolySpecial * pPoly)
+void DviView::DrawTpicPoly(CDC* pDC, TpicPolySpecial* pPoly)
 {
   float length;
   switch (pPoly->GetOutlineStyle(length))
@@ -100,7 +100,7 @@ void DviView::DrawTpicPoly(CDC * pDC, TpicPolySpecial * pPoly)
   }
 }
 
-void DviView::DrawTpicSpline(CDC * pDC, TpicPolySpecial * pPoly)
+void DviView::DrawTpicSpline(CDC* pDC, TpicPolySpecial* pPoly)
 {
   float length;
   switch (pPoly->GetOutlineStyle(length))
@@ -116,7 +116,7 @@ void DviView::DrawTpicSpline(CDC * pDC, TpicPolySpecial * pPoly)
 
 const double TWOPI = 3.14159265359 * 2.0;
 
-void DviView::DrawTpicEllipse(CDC * pDC, int x, int y, int xc, int yc, int xr, int yr)
+void DviView::DrawTpicEllipse(CDC* pDC, int x, int y, int xc, int yc, int xr, int yr)
 {
   double angle = (xr + yr) / 2.0;
   double theta = sqrt(1.0 / angle);
@@ -148,7 +148,7 @@ void DviView::DrawTpicEllipse(CDC * pDC, int x, int y, int xc, int yc, int xr, i
   DrawTpicLine(pDC, x, y, p0, p1);
 }
 
-void DviView::DrawTpicArc(CDC * pDC, TpicArcSpecial * pArc)
+void DviView::DrawTpicArc(CDC* pDC, TpicArcSpecial* pArc)
 {
   if (pArc->GetS() <= 0.0 && pArc->GetE() >= 6.282)
   {
@@ -211,7 +211,7 @@ void DviView::DrawTpicArc(CDC * pDC, TpicArcSpecial * pArc)
   FlushTpicPath(pDC, pArc->GetX(), pArc->GetY(), path);
 }
 
-void DviView::FlushTpicPath(CDC * pDC, int x, int y, const TpicSpecial::path & path)
+void DviView::FlushTpicPath(CDC* pDC, int x, int y, const TpicSpecial::path& path)
 {
   vector<TpicSpecial::point>::const_iterator it = path.begin();
   if (it == path.end())
@@ -226,12 +226,12 @@ void DviView::FlushTpicPath(CDC * pDC, int x, int y, const TpicSpecial::path & p
   }
 }
 
-inline int dist(const TpicSpecial::point & pt0, const TpicSpecial::point & pt1)
+inline int dist(const TpicSpecial::point& pt0, const TpicSpecial::point& pt1)
 {
   return abs(pt0.x - pt1.x) + abs(pt0.y - pt1.y);
 }
 
-void DviView::FlushTpicSpline(CDC * pDC, int x, int y, const TpicSpecial::path & path)
+void DviView::FlushTpicSpline(CDC* pDC, int x, int y, const TpicSpecial::path& path)
 {
   TpicSpecial::path path2;
   path2.reserve(path.size() + 2);
@@ -264,7 +264,7 @@ void DviView::FlushTpicSpline(CDC * pDC, int x, int y, const TpicSpecial::path &
   }
 }
 
-void DviView::DrawTpicLine(CDC * pDC, int x, int y, const TpicSpecial::point & ptFrom, const TpicSpecial::point & ptTo)
+void DviView::DrawTpicLine(CDC* pDC, int x, int y, const TpicSpecial::point& ptFrom, const TpicSpecial::point& ptTo)
 {
   pDC->MoveTo(PixelShrink(static_cast<int>(x + ptFrom.x * tpicConv)), PixelShrink(static_cast<int>(y + ptFrom.y * tpicConv)));
   if (!pDC->LineTo(PixelShrink(static_cast<int>(x + ptTo.x * tpicConv)), PixelShrink(static_cast<int>(y + ptTo.y * tpicConv))))
@@ -273,7 +273,7 @@ void DviView::DrawTpicLine(CDC * pDC, int x, int y, const TpicSpecial::point & p
   }
 }
 
-void DviView::FlushTpicPathD(CDC * pDC, int x, int y, const TpicSpecial::path & path, double inchesPerDash, bool dotted)
+void DviView::FlushTpicPathD(CDC* pDC, int x, int y, const TpicSpecial::path& path, double inchesPerDash, bool dotted)
 {
   if (path.size() < 2 || inchesPerDash <= 0.0)
   {

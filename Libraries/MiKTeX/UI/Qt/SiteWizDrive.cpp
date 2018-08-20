@@ -1,6 +1,6 @@
 /* SiteWizDrive.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -33,9 +33,9 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-SiteWizDrive::SiteWizDrive(shared_ptr<PackageManager> pManager) :
+SiteWizDrive::SiteWizDrive(shared_ptr<PackageManager> packageManager) :
   QWizardPage(nullptr),
-  pManager(pManager)
+  packageManager(packageManager)
 {
   setupUi(this);
 }
@@ -62,11 +62,11 @@ void SiteWizDrive::initializePage()
       cbDrives->addItem(T_("No MiKTeX CD/DVD found"));
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -85,15 +85,15 @@ bool SiteWizDrive::validatePage()
     {
       return false;
     }
-    pManager->SetDefaultPackageRepository(RepositoryType::MiKTeXDirect, locations[cbDrives->currentIndex()].directory);
+    packageManager->SetDefaultPackageRepository(RepositoryType::MiKTeXDirect, locations[cbDrives->currentIndex()].directory);
     return true;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return false;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return false;
@@ -101,14 +101,14 @@ bool SiteWizDrive::validatePage()
 }
 
 #if defined(MIKTEX_WINDOWS)
-void SiteWizDrive::FindMiKTeXCDs(vector<SiteWizDrive::Location> & locations)
+void SiteWizDrive::FindMiKTeXCDs(vector<SiteWizDrive::Location>& locations)
 {
   AutoErrorMode autoMode(SetErrorMode(SEM_FAILCRITICALERRORS));
 
   DWORD logicalDrives = GetLogicalDrives();
   for (int drv = 0; logicalDrives != 0; logicalDrives >>= 1, ++drv)
   {
-    if ((logicalDrives & 1) == 0)
+    if ((logicalDrives& 1) == 0)
     {
       continue;
     }

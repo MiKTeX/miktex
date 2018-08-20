@@ -397,22 +397,19 @@ void CurlWebSession::ReadInformationals()
     }
     else if (responseCode >= 400)
     {
-      string msg;
+      string message = T_("Error response from server: {responseCode}");
+      string description;
+      string remedy;
       switch (responseCode)
       {
       case 404:
         throw NotFoundException();
       case 503:
-        msg = T_("The server is currently unavailable (because it is overloaded or down for maintenance). Generally, this is a temporary state.");
-        msg += " ";
-        msg += T_("The MiKTeX project page (https://miktex.org) might have more info.");
-        break;
-      default:
-        msg = T_("Error response from server: ");
-        msg += std::to_string(responseCode);
+        description = T_("The server is currently unavailable (because it is overloaded or down for maintenance). Generally, this is a temporary state.");
+        remedy = T_("For more information, visit the MiKTeX project page (https://miktex.org).");
         break;
       }
-      MIKTEX_FATAL_ERROR(msg);
+      MIKTEX_FATAL_ERROR_4(message, description, remedy, "responseCode", std::to_string(responseCode));
     }
   }
 }

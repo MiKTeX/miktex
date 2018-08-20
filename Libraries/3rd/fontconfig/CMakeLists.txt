@@ -593,8 +593,6 @@ else()
   target_link_libraries(${fontconfig_dll_name} PUBLIC ${freetype2_dll_name})
 endif()
 
-rebase(${fontconfig_dll_name})
-
 add_dependencies(${fontconfig_dll_name}
   gen-fccase-header
   gen-fcglyphname-header

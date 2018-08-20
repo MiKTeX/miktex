@@ -65,8 +65,6 @@ delay_load(${extractor_dll_name}
   ${mspack_dll_name}
 )
 
-rebase(${extractor_dll_name})
-
 install(TARGETS ${extractor_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -610,15 +610,15 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const cha
   }
 }
 
-#define UNINST_HELP_LINK "http://miktex.org/support"
+#define UNINST_HELP_LINK "https://miktex.org/support"
 #define UNINST_PUBLISHER MIKTEX_COMP_COMPANY_STR
 #define UNINST_DISPLAY_VERSION MIKTEX_VERSION_STR
 #define UNINST_DISPLAY_STRING \
   (options.Task == SetupTask::PrepareMiKTeXDirect \
    ? UNINST_DISPLAY_NAME_MIKTEXDIRECT \
    : UNINST_DISPLAY_NAME)
-#define UNINST_ABOUT_URL "http://miktex.org/about"
-#define UNINST_UPDATE_URL "http://miktex.org"
+#define UNINST_ABOUT_URL "https://miktex.org/about"
+#define UNINST_UPDATE_URL "https://miktex.org"
 #define UNINST_COMMENT T_("Uninstall MiKTeX")
 #define UNINST_README MIKTEX_URL_WWW_KNOWN_ISSUES
 
@@ -643,12 +643,16 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const cha
 void winSetupServiceImpl::RegisterUninstaller()
 {
   // make uninstall command line
-  PathName pathUninstallDat(GetInstallRoot(), (options.IsCommonSetup ? MIKTEX_PATH_INTERNAL_UNINSTALL_ADMIN_EXE : MIKTEX_PATH_INTERNAL_UNINSTALL_EXE));
-  string commandLine = Q_(pathUninstallDat);
+  PathName miktexConsole = GetInstallRoot() / MIKTEX_PATH_BIN_DIR / (options.IsCommonSetup ? MIKTEX_CONSOLE_ADMIN_EXE : MIKTEX_CONSOLE_EXE);
+  string commandLine = Q_(miktexConsole);
+  if (options.IsCommonSetup)
+  {
+    commandLine += " --admin";
+  }
+  commandLine += " --start-page cleanup";
 
   // make icon path
-  PathName iconPath(GetInstallRoot());
-  iconPath /= MIKTEX_PATH_INTERNAL_UNINSTALL_EXE;
+  PathName iconPath = miktexConsole;
   iconPath.Append(",0", false);
 
   // create registry key

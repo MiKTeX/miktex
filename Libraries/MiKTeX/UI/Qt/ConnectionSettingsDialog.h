@@ -1,6 +1,6 @@
 /* ConnectionSettingsDialog.h:                          -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -36,10 +36,10 @@ private:
   Q_OBJECT;
 
 public:
-  ConnectionSettingsDialog(QWidget * pParent);
+  ConnectionSettingsDialog(QWidget* parent);
 
 protected:
-  virtual void accept();
+  void accept() override;
 };
 
 #endif

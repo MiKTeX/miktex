@@ -255,7 +255,7 @@ private:
   string repository;
 
 private:
-  bool isLog4cxxConfigured = false;
+  static bool isLog4cxxConfigured;
 
 private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
@@ -301,6 +301,14 @@ private:
     }
   }
 
+public:
+  static void Sorry(const string& description, const string& remedy, const string& url);
+
+public:
+  static void Sorry()
+  {
+    Sorry("", "", "");
+  }
 };
 
 enum Option
@@ -628,6 +636,7 @@ const struct poptOption Application::aoption[] = {
 };
 
 volatile sig_atomic_t Application::interrupted = false;
+bool Application::isLog4cxxConfigured = false;
 
 void Application::Message(const char* format, ...)
 {
@@ -668,7 +677,7 @@ void Application::Warn(const char* format, ...)
   cout << T_("Warning:") << " " << s << endl;
 }
 
-static void Sorry(string reason)
+void Application::Sorry(const string& description, const string& remedy, const string& url)
 {
   if (cerr.fail())
   {
@@ -676,33 +685,43 @@ static void Sorry(string reason)
   }
 
   cerr << endl;
-  if (reason.empty())
+  if (description.empty())
   {
     cerr << StringUtil::FormatString(T_("Sorry, but %s did not succeed."), Q_(THE_NAME_OF_THE_GAME)) << endl;
   }
   else
   {
     cerr
-      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(THE_NAME_OF_THE_GAME)) << endl << endl
-      << "  " << reason << endl;
+      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(THE_NAME_OF_THE_GAME)) << "\n"
+      << "\n"
+      << "  " << description << endl;
+    if (!remedy.empty())
+    {
+      cerr
+        << "\n"
+        << T_("Remedy:") << "\n"
+        << "\n"
+        << "  " << remedy << endl;
+    }
   }
-  log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-  if (appender != nullptr)
+  if (isLog4cxxConfigured)
+  {
+    log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+    if (appender != nullptr)
+    {
+      cerr
+        << "\n"
+        << "The log file hopefully contains the information to get MiKTeX going again:" << "\n"
+        << "\n"
+        << "  " << PathName(appender->getFile()) << endl;
+    }
+  }
+  if (!url.empty())
   {
     cerr
-      << endl
-      << "The log file hopefully contains the information to get MiKTeX going again:" << endl
-      << endl
-      << "  " << PathName(appender->getFile()).ToUnix() << endl;
+      << "\n"
+      << T_("For more information, visit:") << " " << url << endl;
   }
-  cerr
-    << endl
-    << T_("You may want to visit the MiKTeX project page, if you need help.") << endl;
-}
-
-static void Sorry()
-{
-  Sorry("");
 }
 
 MIKTEXNORETURN void Application::Error(const char* format, ...)
@@ -713,7 +732,7 @@ MIKTEXNORETURN void Application::Error(const char* format, ...)
   s = StringUtil::FormatStringVA(format, arglist);
   VA_END(arglist);
   LOG4CXX_FATAL(logger, s);
-  Sorry(s);
+  Sorry(s, "", "");
   throw 1;
 }
 
@@ -2055,17 +2074,18 @@ int MAIN(int argc, MAINCHAR* argv[])
   }
   catch (const MiKTeXException& e)
   {
-    LOG4CXX_FATAL(logger, e.what());
+    LOG4CXX_FATAL(logger, e.GetErrorMessage());
     LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
-    Sorry();
+    Application::Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
+    e.Save();
     retCode = 1;
   }
   catch (const exception& e)
   {
     LOG4CXX_FATAL(logger, e.what());
-    Sorry();
+    Application::Sorry();
     retCode = 1;
   }
   catch (int rc)

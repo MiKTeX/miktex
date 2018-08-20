@@ -716,7 +716,7 @@ bool SessionImpl::GetOTFDirs(string& otfDirs)
   return true;
 }
 
-void Session::FatalWindowsError(const string& functionName, unsigned long errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
+void Session::FatalWindowsError(const string& functionName, unsigned long errorCode, const std::string& description_, const string& remedy_, const string& tag_, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
   string programInvocationName;
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
@@ -743,19 +743,34 @@ void Session::FatalWindowsError(const string& functionName, unsigned long errorC
     DEBUG_BREAK();
   }
 #endif
+  string description = description_;
+  string remedy = remedy_;
+  string tag = tag_;
   switch (errorCode)
   {
   case ERROR_ACCESS_DENIED:
-    throw UnauthorizedAccessException(programInvocationName, errorMessage, info, sourceLocation);
+    throw UnauthorizedAccessException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   case ERROR_FILE_NOT_FOUND:
   case ERROR_PATH_NOT_FOUND:
-    throw FileNotFoundException(programInvocationName, errorMessage, info, sourceLocation);
+    throw FileNotFoundException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   case ERROR_SHARING_VIOLATION:
-    throw SharingViolationException(programInvocationName, errorMessage, info, sourceLocation);
+    if (description.empty() && info.find("path") != info.end())
+    {
+      description = T_("MiKTeX cannot access file '{path}' because it is either blocked by another MiKTeX program or by the operating system.");
+    }
+    if (remedy.empty())
+    {
+      remedy = T_("Close running MiKTeX programs and try again.");
+    }
+    if (tag.empty())
+    {
+      tag = "file-in-use";
+    }
+    throw SharingViolationException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   case ERROR_DIR_NOT_EMPTY:
-    throw DirectoryNotEmptyException(programInvocationName, errorMessage, info, sourceLocation);
+    throw DirectoryNotEmptyException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   default:
-    throw MiKTeXException(programInvocationName, errorMessage, info, sourceLocation);
+    throw MiKTeXException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   }
 }
 

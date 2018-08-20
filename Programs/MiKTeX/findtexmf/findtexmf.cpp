@@ -1,6 +1,6 @@
 /* findtexmf.cpp: finding TeXMF related files
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of FindTeXMF.
 
@@ -411,6 +411,7 @@ int MAIN(int argc, MAINCHAR** argv)
   catch (const MiKTeXException& ex)
   {
     Application::Sorry(TheNameOfTheGame, ex);
+    ex.Save();
     return 1;
   }
   catch (const exception& ex)

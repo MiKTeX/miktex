@@ -24,6 +24,7 @@
 #include "internal.h"
 
 #include "miktex/Core/CommandLineBuilder.h"
+#include "miktex/Core/Environment.h"
 #include "miktex/Core/win/winAutoResource.h"
 
 #include "winProcess.h"
@@ -287,6 +288,9 @@ void winProcess::Create()
     }
 #endif
 
+    tmpFile = TemporaryFile::Create();
+    tmpEnv.Set(MIKTEX_ENV_EXCEPTION_PATH, tmpFile->GetPathName().ToString());
+
     if (!CreateProcessW(UW_(fileName.GetData()), UW_(commandLine.ToString()), nullptr, nullptr, TRUE, creationFlags, nullptr, startinfo.WorkingDirectory.empty() ? nullptr : UW_(startinfo.WorkingDirectory), &siStartInfo, &processInformation))
     {
       MIKTEX_FATAL_WINDOWS_ERROR_2("CreateProcess", "fileName", startinfo.FileName, "commandLine", commandLine.ToString());
@@ -383,6 +387,12 @@ void winProcess::Close()
       CloseHandle(processInformation.hThread);
     }
   }
+  if (tmpFile != nullptr)
+  {
+    tmpEnv.Restore();
+    tmpFile->Delete();
+    tmpFile = nullptr;
+  }
 }
 
 FILE* winProcess::get_StandardInput()
@@ -471,6 +481,11 @@ int winProcess::get_ExitCode() const
     MIKTEX_FATAL_ERROR_2(T_("The process terminated due to an access violation."), "fileName", startinfo.FileName);
   }
   return static_cast<int>(exitCode);
+}
+
+bool winProcess::get_Exception(MiKTeXException& ex) const
+{
+  return MiKTeXException::Load(tmpFile->GetPathName().ToString(), ex);
 }
 
 MIKTEXSTATICFUNC(PathName) FindSystemShell()

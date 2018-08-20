@@ -1,6 +1,6 @@
 /* SiteWizLocal.h:                                      -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -39,19 +39,19 @@ private:
   Q_OBJECT;
 
 public:
-  SiteWizLocal(std::shared_ptr<MiKTeX::Packages::PackageManager> pManager);
+  SiteWizLocal(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager);
 
 public:
-  virtual void initializePage();
+  void initializePage() override;
 
 public:
-  virtual bool isComplete() const;
+  bool isComplete() const override;
 
 public:
-  virtual bool validatePage();
+  bool validatePage() override;
 
 public:
-  virtual int nextId() const
+  int nextId() const override
   {
     return -1;
   }
@@ -60,7 +60,7 @@ private slots:
   void on_btnBrowse_clicked();
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pManager;
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 };
 
 #endif

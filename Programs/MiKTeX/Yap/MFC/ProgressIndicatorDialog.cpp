@@ -1,6 +1,6 @@
 /* ProgressIndicatorDialog.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -19,6 +19,7 @@
    Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
 #include "StdAfx.h"
+
 #include "yap.h"
 
 #include "ProgressIndicatorDialog.h"
@@ -26,12 +27,12 @@
 BEGIN_MESSAGE_MAP(ProgressIndicatorDialog, CDialog)
 END_MESSAGE_MAP();
 
-ProgressIndicatorDialog::ProgressIndicatorDialog(CWnd * pParent) :
+ProgressIndicatorDialog::ProgressIndicatorDialog(CWnd* pParent) :
   CDialog(IDD, pParent)
 {
 }
 
-void ProgressIndicatorDialog::DoDataExchange(CDataExchange * pDX)
+void ProgressIndicatorDialog::DoDataExchange(CDataExchange* pDX)
 {
   CDialog::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_PROGRESS1, progressBar);

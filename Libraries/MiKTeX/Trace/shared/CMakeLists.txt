@@ -65,8 +65,6 @@ target_link_libraries(${trace_dll_name}
     ${util_dll_name}
 )
 
-rebase(${trace_dll_name})
-
 install(TARGETS ${trace_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

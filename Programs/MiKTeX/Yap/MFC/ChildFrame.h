@@ -1,6 +1,6 @@
 /* ChildFrame.h:                                        -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -30,5 +30,5 @@ protected:
   DECLARE_MESSAGE_MAP();
 
 protected:
-  virtual BOOL PreCreateWindow(CREATESTRUCT & cs);
+  BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 };

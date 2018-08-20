@@ -1,6 +1,6 @@
 /* GotoPageDialog.h:                                    -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -34,7 +34,7 @@ protected:
   DECLARE_MESSAGE_MAP();
 
 public:
-  GotoPageDialog(CWnd * pParent, DviDoc * pDoc, int pageIdx);
+  GotoPageDialog(CWnd* pParent, DviDoc* pDoc, int pageIdx);
 
 public:
   int GetPageIdx() const
@@ -43,10 +43,10 @@ public:
   }
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  void DoDataExchange(CDataExchange* pDX) override;
 
 private:
   CComboBox pageComboBox;
@@ -55,5 +55,5 @@ private:
   int pageIdx;
 
 private:
-  DviDoc * pDviDoc;
+  DviDoc* pDviDoc;
 };

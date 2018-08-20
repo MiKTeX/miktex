@@ -1,6 +1,6 @@
 /* miktex/Core/HResult.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -40,16 +40,16 @@ public:
   HResult() = default;
 
 public:
-  HResult(const HResult & other) = default;
+  HResult(const HResult& other) = default;
 
 public:
-  HResult & operator= (const HResult & other) = default;
+  HResult& operator= (const HResult& other) = default;
 
 public:
-  HResult(HResult && other) = default;
+  HResult(HResult&& other) = default;
 
 public:
-  HResult & operator= (HResult && other) = default;
+  HResult& operator= (HResult&& other) = default;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~HResult() noexcept;
@@ -101,11 +101,11 @@ public:
 
 public:
   // FIXME: use wchar_t pointer
-  MIKTEXCORETHISAPI(const char *) GetText();
+  MIKTEXCORETHISAPI(const char*) GetText();
 
 private:
   // FIXME: use wchar_t pointer
-  char * lpszMessage = nullptr;
+  char* message = nullptr;
 
 private:
   HRESULT hr = S_FALSE;

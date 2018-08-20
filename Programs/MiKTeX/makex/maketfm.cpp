@@ -1,6 +1,6 @@
 /* maketfm.cpp:
 
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2018 Christian Schenk
 
    This file is part of MiKTeX MakeTFM.
 
@@ -265,6 +265,7 @@ int MAIN(int argc, MAINCHAR** argv)
   {
     Application::Sorry("maketfm", ex);
     logger = nullptr;
+    ex.Save();
     return 1;
   }
   catch (const exception& ex)

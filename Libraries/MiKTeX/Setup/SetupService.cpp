@@ -1010,13 +1010,13 @@ void SetupServiceImpl::DoFinishUpdate()
 #if defined(MIKTEX_WINDOWS)
   RunMpm({ "--register-components" });
 #endif
-  RunIniTeXMF({ "--update-fndb" });
-  RunIniTeXMF({ "--force", "--mklinks" });
-  RunIniTeXMF({ "--mkmaps", "--mklangs" });
+  RunIniTeXMF({ "--update-fndb" }, false);
+  RunIniTeXMF({ "--force", "--mklinks" }, false);
+  RunIniTeXMF({ "--mkmaps", "--mklangs" }, false);
   if (!options.IsPortable)
   {
 #if defined(MIKTEX_WINDOWS)
-    RunIniTeXMF({ "--register-shell-file-types" });
+    RunIniTeXMF({ "--register-shell-file-types" }, false);
     CreateProgramIcons();
     RegisterUninstaller();
 #endif
@@ -1032,11 +1032,11 @@ void SetupServiceImpl::DoCleanUp()
     ReportLine("removing links...");
     try
     {
-      RunIniTeXMF({ "--force", "--remove-links" });
+      RunIniTeXMF({ "--force", "--remove-links" }, false);
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1049,7 +1049,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1070,7 +1070,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1083,7 +1083,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1099,7 +1099,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1169,7 +1169,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1192,7 +1192,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 
@@ -1209,7 +1209,7 @@ void SetupServiceImpl::DoCleanUp()
     }
     catch (const MiKTeXException& e)
     {
-      ReportLine(e.what());
+      ReportLine(e.GetErrorMessage());
     }
   }
 }
@@ -1331,7 +1331,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
     }
     if (!args.empty())
     {
-      RunIniTeXMF(args);
+      RunIniTeXMF(args, true);
     }
     if (cancelled)
     {
@@ -1340,7 +1340,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
 
     if (options.Task != SetupTask::FinishSetup)
     {
-      RunIniTeXMF({ "--rmfndb" });
+      RunIniTeXMF({ "--rmfndb" }, false);
     }
 
     // register components, configure files
@@ -1352,21 +1352,21 @@ void SetupServiceImpl::ConfigureMiKTeX()
 #endif
 
     // create filename database files
-    RunIniTeXMF({ "--update-fndb" });
+    RunIniTeXMF({ "--update-fndb" }, false);
     if (cancelled)
     {
       return;
     }
 
     // create latex.exe, ...
-    RunIniTeXMF({ "--force", "--mklinks" });
+    RunIniTeXMF({ "--force", "--mklinks" }, false);
     if (cancelled)
     {
       return;
     }
 
     // create font map files and language.dat
-    RunIniTeXMF({ "--mkmaps", "--mklangs" });
+    RunIniTeXMF({ "--mkmaps", "--mklangs" }, false);
 
     if (cancelled)
     {
@@ -1377,7 +1377,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
   // set paper size
   if (!options.PaperSize.empty())
   {
-    RunIniTeXMF({ "--default-paper-size=" + options.PaperSize });
+    RunIniTeXMF({ "--default-paper-size=" + options.PaperSize }, false);
   }
   
   // set auto-install
@@ -1385,12 +1385,12 @@ void SetupServiceImpl::ConfigureMiKTeX()
   valueSpec += MIKTEX_CONFIG_VALUE_AUTOINSTALL;
   valueSpec += "=";
   valueSpec += std::to_string((int)options.IsInstallOnTheFlyEnabled);
-  RunIniTeXMF({ "--set-config-value=" + valueSpec });
+  RunIniTeXMF({ "--set-config-value=" + valueSpec }, false);
 
   if (options.Task != SetupTask::PrepareMiKTeXDirect)
   {
     // refresh file name database again
-    RunIniTeXMF({ "--update-fndb" });
+    RunIniTeXMF({ "--update-fndb" }, false);
     if (cancelled)
     {
       return;
@@ -1400,17 +1400,17 @@ void SetupServiceImpl::ConfigureMiKTeX()
   if (!options.IsPortable)
   {
 #if defined(MIKTEX_WINDOWS)
-    RunIniTeXMF({ "--register-shell-file-types" });
+    RunIniTeXMF({ "--register-shell-file-types" }, false);
 #endif
   }
 
   if (!options.IsPortable && options.IsRegisterPathEnabled)
   {
-    RunIniTeXMF({ "--modify-path" });
+    RunIniTeXMF({ "--modify-path" }, false);
   }
 
   // create report
-  RunIniTeXMF({ "--report" });
+  RunIniTeXMF({ "--report" }, false);
   if (cancelled)
   {
     return;
@@ -1447,7 +1447,7 @@ PathName SetupServiceImpl::GetBinDir() const
   }
 }
 
-void SetupServiceImpl::RunIniTeXMF(const vector<string>& args)
+void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -1474,7 +1474,19 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args)
     Log("%s:\n", CommandLineBuilder(allArgs).ToString().c_str());
     ULogClose(false);
     session->UnloadFilenameDatabase();
-    Process::Run(exePath, allArgs, this);
+    int exitCode;
+    MiKTeXException miktexException;
+    if (!Process::Run(exePath, allArgs, this, &exitCode, &miktexException, nullptr) || exitCode != 0)
+    {
+      if (mustSucceed)
+      {
+        throw miktexException;
+      }
+      else
+      {
+        Warning(miktexException);
+      }
+    }
     ULogOpen();
   }
 }
@@ -1733,3 +1745,96 @@ void SetupServiceImpl::CollectFiles(vector<PathName>& vec, const PathName& dir, 
   }
 }
 
+void SetupServiceImpl::Warning(const MiKTeX::Core::MiKTeXException& ex)
+{
+  string message = ex.GetErrorMessage();
+  string description = ex.GetDescription();
+  Log("Warning: %s\n", message.c_str());
+  if (!description.empty())
+  {
+    Log("Warning: %s\n", description.c_str());
+    ReportLine("Warning: " + description);
+  }
+  else
+  {
+    ReportLine("Warning: " + message);
+  }
+}
+
+void SetupService::WriteReport(ostream& s, ReportOptionSet options)
+{
+  shared_ptr<Session> session = Session::Get();
+  if (options[ReportOption::General])
+  {
+    s << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
+      << "OS: " << Utils::GetOSVersionString() << "\n"
+      << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
+      << "PathOkay: " << (Utils::CheckPath() ? T_("yes") : T_("no")) << "\n";
+  }
+  if (options[ReportOption::CurrentUser])
+  {
+    s << "SystemAdmin: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n"
+      << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n";
+  }
+  if (options[ReportOption::RootDirectories])
+  {
+    for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
+    {
+      s << "Root" << idx << ": " << session->GetRootDirectoryPath(idx) << "\n";
+    }
+    s << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << "\n"
+      << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << "\n"
+      << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << "\n"
+      << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << "\n"
+      << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << "\n"
+      << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << "\n";
+  }
+  if (options[ReportOption::Processes])
+  {
+    s << "Invokers: " << StringUtil::Flatten(Process::GetInvokerNames(), '/') << "\n";
+  }
+  if (options[ReportOption::Environment])
+  {
+    string env;
+    if (Utils::GetEnvironmentString("PATH", env))
+    {
+      int idx = 0;
+      for (const string& p : StringUtil::Split(env, PathName::PathNameDelimiter))
+      {
+        s << "PATH" << idx++ << p << "\n";
+      }
+    }
+  }
+  if (options[ReportOption::BrokenPackages])
+  {
+    shared_ptr<PackageManager> packageManager = PackageManager::Create();
+    vector<string> broken;
+    unique_ptr<PackageIterator> pkgIter(packageManager->CreateIterator());
+    PackageInfo packageInfo;
+    for (int idx = 0; pkgIter->GetNext(packageInfo); ++idx)
+    {
+      if (!packageInfo.IsPureContainer()
+        && packageInfo.IsInstalled()
+        && packageInfo.deploymentName.compare(0, 7, "miktex-") == 0)
+      {
+        if (!(packageManager->TryVerifyInstalledPackage(packageInfo.deploymentName)))
+        {
+          broken.push_back(packageInfo.deploymentName);
+        }
+      }
+    }
+    pkgIter->Dispose();
+    if (!broken.empty())
+    {
+      for (const string& name : broken)
+      {
+        s << name << ": " << T_("needs to be reinstalled") << "\n";
+      }
+    }
+  }
+}
+
+void SetupService::WriteReport(ostream& s)
+{
+  WriteReport(s, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser });
+}

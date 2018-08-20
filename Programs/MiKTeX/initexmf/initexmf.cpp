@@ -22,6 +22,7 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
+using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
@@ -102,95 +103,6 @@ enum class LinkCategory
 };
 
 typedef OptionSet<LinkCategory> LinkCategoryOptions;
-
-class XmlWriter
-{
-public:
-  void StartDocument()
-  {
-    cout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
-  }
-
-public:
-  void StartElement(const string& name)
-  {
-    if (freshElement)
-    {
-      cout << ">";
-    }
-    cout << "<" << name;
-    freshElement = true;
-    elements.push(name);
-  }
-
-public:
-  void AddAttribute(const string& attributeName, const string& attributeValue)
-  {
-    cout << " " << attributeName << "=\"" << attributeValue << "\"";
-  }
-
-public:
-  void EndElement()
-  {
-    if (elements.empty())
-    {
-      MIKTEX_FATAL_ERROR(T_("No elements on the stack."));
-    }
-    if (freshElement)
-    {
-      cout << "/>";
-      freshElement = false;
-    }
-    else
-    {
-      cout << "</" << elements.top() << ">";
-    }
-    elements.pop();
-  }
-
-public:
-  void EndAllElements()
-  {
-    while (!elements.empty())
-    {
-      EndElement();
-    }
-  }
-
-public:
-  void Text(const string& text)
-  {
-    if (freshElement)
-    {
-      cout << ">";
-      freshElement = false;
-    }
-    for (char ch : text)
-    {
-      switch (ch)
-      {
-      case '&':
-        cout <<"&amp;";
-        break;
-      case '<':
-        cout << "&lt;";
-        break;
-      case '>':
-        cout << "&gt;";
-        break;
-      default:
-        cout << ch;
-        break;
-      }
-    }
-  }
-
-private:
-  stack<string> elements;
-
-private:
-  bool freshElement = false;
-};
 
 static struct
 {
@@ -290,7 +202,8 @@ private:
   {
     ProcessOutput<4096> output;
     int exitCode;
-    if (!Process::Run(fileName, arguments, &output, &exitCode, nullptr) || exitCode != 0)
+    MiKTeXException miktexException;
+    if (!Process::Run(fileName, arguments, &output, &exitCode, &miktexException, nullptr) || exitCode != 0)
     {
       auto outputBytes = output.GetStandardOutput();
       PathName outfile = GetLogDir() / fileName.GetFileNameWithoutExtension();
@@ -300,7 +213,9 @@ private:
       FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
       outstream.Write(&outputBytes[0], outputBytes.size());
       outstream.Close();
-      MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed. The process output has been saved to a file."), "fileName", fileName.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
+      MIKTEX_ASSERT(isLog4cxxConfigured);
+      LOG4CXX_ERROR(logger, "sub-process error output has been saved to '" << outfile.ToDisplayString() << "'");
+      throw miktexException;
     }
   }
 
@@ -357,26 +272,6 @@ private:
   void ManageLink(const FileLink& fileLink, bool supportsHardLinks, bool remove, bool overwrite);
 
 private:
-  void ReportMiKTeXVersion();
-
-private:
-  void ReportOSVersion();
-
-private:
-  void ReportRoots();
-
-private:
-  void ReportFndbFiles();
-
-#if defined(MIKTEX_WINDOWS)
-private:
-  void ReportEnvironmentVariables();
-#endif
-
-private:
-  void ReportBrokenPackages();
-
-private:
   void WriteReport();
 
 private:
@@ -427,7 +322,7 @@ public:
   bool OnRetryableError(const string& message) override;
   
 public:
-  bool OnProgress(Notification nf) override;
+  bool OnProgress(MiKTeX::Packages::Notification nf) override;
 
 private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
@@ -513,9 +408,6 @@ private:
   bool csv = false;
 
 private:
-  bool xml = false;
-
-private:
   bool recursive = false;
 
 private:
@@ -562,9 +454,6 @@ private:
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session;
-
-private:
-  XmlWriter xmlWriter;
 
 private:
   static const struct poptOption aoption_user[];
@@ -623,7 +512,6 @@ enum Option
   OPT_SET_CONFIG_VALUE,         // <experimental/>
   OPT_SHOW_CONFIG_VALUE,                // <experimental/>
   OPT_UNREGISTER_SHELL_FILE_TYPES,      // <experimental/>
-  OPT_XML,                      // <experimental/>
 
   OPT_COMMON_CONFIG,            // <internal/>
   OPT_COMMON_DATA,              // <internal/>
@@ -913,40 +801,55 @@ void IniTeXMFApp::Warning(const char* lpszFormat, ...)
   }
 }
 
-static void Sorry(string reason)
+static void Sorry(const string& description, const string& remedy, const string& url)
 {
   if (cerr.fail())
   {
     return;
   }
   cerr << endl;
-  if (reason.empty())
+  if (description.empty())
   {
     cerr << StringUtil::FormatString(T_("Sorry, but %s did not succeed."), Q_(TheNameOfTheGame)) << endl;
   }
   else
   {
     cerr
-      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(TheNameOfTheGame)) << endl << endl
-      << "  " << reason << endl;
+      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(TheNameOfTheGame)) << "\n"
+      << "\n"
+      << "  " << description << endl;
+    if (!remedy.empty())
+    {
+      cerr
+        << "\n"
+        << T_("Remedy:") << "\n"
+        << "\n"
+        << "  " << remedy << endl;
+    }
   }
-  log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-  if (appender != nullptr)
+  if (isLog4cxxConfigured)
+  {
+    log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+    if (appender != nullptr)
+    {
+      cerr
+        << "\n"
+        << T_("The log file hopefully contains the information to get MiKTeX going again:") << "\n"
+        << "\n"
+        << "  " << PathName(appender->getFile()) << endl;
+    }
+  }
+  if (!url.empty())
   {
     cerr
-      << endl
-      << T_("The log file hopefully contains the information to get MiKTeX going again:") << endl
-      << endl
-      << "  " << PathName(appender->getFile()).ToUnix() << endl;
+      << "\n"
+      << T_("For more information, visit:") << " " << url << endl;
   }
-  cerr
-    << endl
-    << T_("You may want to visit the MiKTeX project page, if you need help.") << endl;
 }
 
 static void Sorry()
 {
-  Sorry("");
+  Sorry("", "", "");
 }
 
 MIKTEXNORETURN void IniTeXMFApp::FatalError(const char* lpszFormat, ...)
@@ -963,7 +866,7 @@ MIKTEXNORETURN void IniTeXMFApp::FatalError(const char* lpszFormat, ...)
   {
     cerr << s << endl;
   }
-  Sorry(s);
+  Sorry(s, "", "");
   throw 1;
 }
 
@@ -2151,249 +2054,6 @@ void IniTeXMFApp::ShowConfigValue(const string& valueSpec)
   }
 }
 
-void IniTeXMFApp::ReportMiKTeXVersion()
-{
-  vector<string> invokerNames = Process::GetInvokerNames();
-  if (xml)
-  {
-    xmlWriter.StartElement("setup");
-    xmlWriter.StartElement("version");
-    xmlWriter.Text(Utils::GetMiKTeXVersionString());
-    xmlWriter.EndElement();
-    xmlWriter.StartElement("sharedsetup");
-    xmlWriter.AddAttribute("value", (session->IsSharedSetup() ? "true" : "false"));
-    xmlWriter.EndElement();
-#if defined(MIKTEX_WINDOWS)
-    xmlWriter.StartElement("systemadmin");
-    xmlWriter.AddAttribute("value", (session->IsUserAnAdministrator() ? "true" : "false"));
-    xmlWriter.EndElement();
-    xmlWriter.StartElement("poweruser");
-    xmlWriter.AddAttribute("value", (session->IsUserAPowerUser() ? "true" : "false"));
-    xmlWriter.EndElement();
-    xmlWriter.EndElement();
-#endif
-  }
-  else
-  {
-    cout << "MiKTeX: " << Utils::GetMiKTeXBannerString() << endl;
-    cout << T_("Invokers:") << " ";
-    bool first = true;
-    for (const string& name : invokerNames)
-    {
-      if (!first)
-      {
-        cout << "/";
-      }
-      first = false;
-      cout << name;
-    }
-    cout << endl;
-    cout << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << endl;
-    cout << "SystemAdmin: " << (session->IsUserAnAdministrator() ? T_("yes") : T_("no")) << endl;
-    cout << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << endl;     
-#if defined(MIKTEX_WINDOWS)
-    cout << "PowerUser: " << (session->IsUserAPowerUser() ? T_("yes") : T_("no")) << endl;
-#endif
-  }
-}
-
-void IniTeXMFApp::ReportOSVersion()
-{
-  if (xml)
-  {
-    xmlWriter.StartElement("os");
-    xmlWriter.StartElement("version");
-    xmlWriter.Text(Utils::GetOSVersionString());
-    xmlWriter.EndElement();
-    xmlWriter.EndElement();
-  }
-  else
-  {
-    cout << "OS: " << Utils::GetOSVersionString() << endl;
-  }
-}
-
-void IniTeXMFApp::ReportRoots()
-{
-  if (xml)
-  {
-    xmlWriter.StartElement("roots");
-    for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
-    {
-      xmlWriter.StartElement("path");
-      PathName root = session->GetRootDirectoryPath(idx);
-      xmlWriter.AddAttribute("index", std::to_string(idx));
-      if (root == session->GetSpecialPath(SpecialPath::UserInstallRoot))
-      {
-        xmlWriter.AddAttribute("userinstall", "true");
-      }
-      if (root == session->GetSpecialPath(SpecialPath::UserDataRoot))
-      {
-        xmlWriter.AddAttribute("userdata", "true");
-      }
-      if (root == session->GetSpecialPath(SpecialPath::UserConfigRoot))
-      {
-        xmlWriter.AddAttribute("userconfig", "true");
-      }
-      if (root == session->GetSpecialPath(SpecialPath::CommonInstallRoot))
-      {
-        xmlWriter.AddAttribute("commoninstall", "true");
-      }
-      if (root == session->GetSpecialPath(SpecialPath::CommonDataRoot))
-      {
-        xmlWriter.AddAttribute("commondata", "true");
-      }
-      if (root == session->GetSpecialPath(SpecialPath::CommonConfigRoot))
-      {
-        xmlWriter.AddAttribute("commonconfig", "true");
-      }
-      xmlWriter.Text(root.GetData());
-      xmlWriter.EndElement();
-    }
-    xmlWriter.EndElement();
-  }
-  else
-  {
-    for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
-    {
-      cout << StringUtil::FormatString(T_("Root #%u"), idx) << ": " << session->GetRootDirectoryPath(idx) << endl;
-    }
-    cout << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << endl;
-    cout << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << endl;
-    cout << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << endl;
-    cout << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << endl;
-    cout << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << endl;
-    cout << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << endl;
-  }
-}
-
-void IniTeXMFApp::ReportFndbFiles()
-{
-  if (xml)
-  {
-    xmlWriter.StartElement("fndb");
-    for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
-    {
-      PathName absFileName;
-      if (session->FindFilenameDatabase(idx, absFileName))
-      {
-        xmlWriter.StartElement("path");
-        xmlWriter.AddAttribute("index", std::to_string(idx));
-        xmlWriter.Text(absFileName.GetData());
-        xmlWriter.EndElement();
-      }
-    }
-    unsigned r = session->DeriveTEXMFRoot(session->GetMpmRootPath());
-    PathName path;
-    if (session->FindFilenameDatabase(r, path))
-    {
-      xmlWriter.StartElement("mpmpath");
-      xmlWriter.Text(path.GetData());
-      xmlWriter.EndElement();
-    }
-    xmlWriter.EndElement();
-  }
-  else
-  {
-    for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
-    {
-      PathName absFileName;
-      cout << "fndb #" << idx << ": ";
-      if (session->FindFilenameDatabase(idx, absFileName))
-      {
-        cout << absFileName << endl;
-      }
-      else
-      {
-        cout << T_("<does not exist>") << endl;
-      }
-    }
-    unsigned r = session->DeriveTEXMFRoot(session->GetMpmRootPath());
-    PathName path;
-    cout << "fndbmpm: ";
-    if (session->FindFilenameDatabase(r, path))
-    {
-      cout << path << endl;
-    }
-    else
-    {
-      cout << T_("<does not exist>") << endl;
-    }
-  }
-}
-
-#if defined(MIKTEX_WINDOWS)
-void IniTeXMFApp::ReportEnvironmentVariables()
-{
-  wchar_t* lpszEnv = reinterpret_cast<wchar_t*>(GetEnvironmentStringsW());
-  if (lpszEnv == nullptr)
-  {
-    return;
-  }
-  xmlWriter.StartElement("environment");
-  for (wchar_t* p = lpszEnv; *p != 0; p += wcslen(p) + 1)
-  {
-    Tokenizer tok(StringUtil::WideCharToUTF8(p), "=");
-    if (!tok)
-    {
-      continue;
-    }
-    xmlWriter.StartElement("env");
-    xmlWriter.AddAttribute("name", *tok);
-    ++tok;
-    if (tok)
-    {
-      xmlWriter.Text(*tok);
-    }
-    xmlWriter.EndElement();
-  }
-  xmlWriter.EndElement();
-  FreeEnvironmentStringsW(lpszEnv);
-}
-#endif
-
-void IniTeXMFApp::ReportBrokenPackages()
-{
-  vector<string> broken;
-  unique_ptr<PackageIterator> pkgIter(packageManager->CreateIterator());
-  PackageInfo packageInfo;
-  for (int idx = 0; pkgIter->GetNext(packageInfo); ++idx)
-  {
-    if (!packageInfo.IsPureContainer()
-      && packageInfo.IsInstalled()
-      && packageInfo.deploymentName.compare(0, 7, "miktex-") == 0)
-    {
-      if (!(packageManager->TryVerifyInstalledPackage(packageInfo.deploymentName)))
-      {
-        broken.push_back(packageInfo.deploymentName);
-      }
-    }
-  }
-  pkgIter->Dispose();
-  if (!broken.empty())
-  {
-    if (xml)
-    {
-      xmlWriter.StartElement("packages");
-      for (const string& name : broken)
-      {
-        xmlWriter.StartElement("package");
-        xmlWriter.AddAttribute("name", name);
-        xmlWriter.AddAttribute("integrity", "damaged");
-        xmlWriter.EndElement();
-      }
-      xmlWriter.EndElement();
-    }
-    else
-    {
-      for (const string& name : broken)
-      {
-        cout << name << ": " << T_("needs to be reinstalled") << endl;
-      }
-    }
-  }
-}
-
 void IniTeXMFApp::ReportLine(const string& str)
 {
   Verbose("%s", str.c_str());
@@ -2404,7 +2064,7 @@ bool IniTeXMFApp::OnRetryableError(const string& message)
   return false;
 }
 
-bool IniTeXMFApp::OnProgress(Notification nf)
+bool IniTeXMFApp::OnProgress(MiKTeX::Packages::Notification nf)
 {
   UNUSED_ALWAYS(nf);
   return true;
@@ -2544,29 +2204,7 @@ void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 
 void IniTeXMFApp::WriteReport()
 {
-  if (xml)
-  {
-    xmlWriter.StartDocument();
-    xmlWriter.StartElement("miktexreport");
-  }
-  ReportMiKTeXVersion();
-  ReportOSVersion();
-  ReportRoots();
-  if (xml)
-  {
-    ReportFndbFiles();
-  }
-#if defined(MIKTEX_WINDOWS)
-  if (xml)
-  {
-    ReportEnvironmentVariables();
-  }
-#endif
-  ReportBrokenPackages();
-  if (xml)
-  {
-    xmlWriter.EndElement();
-  }
+  SetupService::WriteReport(cout, { ReportOption::General, ReportOption::RootDirectories, ReportOption::BrokenPackages });
 }
 
 bool IniTeXMFApp::OnFndbItem(const PathName& parent, const string& name, const string& info, bool isDirectory)
@@ -2963,10 +2601,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       optVersion = true;
       break;
 
-    case OPT_XML:
-      xml = true;
-      break;
-
     }
   }
 
@@ -3297,20 +2931,21 @@ int MAIN(int argc, MAINCHAR* argv[])
   {
     if (logger != nullptr && isLog4cxxConfigured)
     {
-      LOG4CXX_FATAL(logger, e.what());
+      LOG4CXX_FATAL(logger, e.GetErrorMessage());
       LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
       LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
       LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
     }
     else
     {
-      cerr << e.what() << endl
+      cerr << e.GetErrorMessage() << endl
            << "Info: " << e.GetInfo() << endl
            << "Source: " << e.GetSourceFile() << endl
            << "Line: " << e.GetSourceLine() << endl;
     }
-    Sorry();
+    Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
     logger = nullptr;
+    e.Save();
     return 1;
   }
   catch (const exception& e)

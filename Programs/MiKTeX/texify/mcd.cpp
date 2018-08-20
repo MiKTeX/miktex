@@ -2191,6 +2191,7 @@ int MAIN(int argc, MAINCHAR* argv[])
   catch (const MiKTeXException& ex)
   {
     Application::Sorry(THE_NAME_OF_THE_GAME, ex);
+    ex.Save();
     return 1;
   }
 

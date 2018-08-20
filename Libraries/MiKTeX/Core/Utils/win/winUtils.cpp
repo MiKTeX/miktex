@@ -1,6 +1,6 @@
 /* winUtil.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -819,7 +819,7 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
 #if defined(_MSC_VER) || defined(__MINGW32__)
   if (_wputenv_s(UW_(valueName), UW_(value)) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("_wputenv_s", "value", valueName);
+    MIKTEX_FATAL_CRT_ERROR_2("_wputenv_s", "valueName", valueName);
   }
 #else
   string str = valueName;
@@ -830,6 +830,11 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
     FATAL_CRT_ERROR("putenv", str.c_str());
   }
 #endif
+}
+
+void Utils::RemoveEnvironmentString(const string& valueName)
+{
+  SetEnvironmentString(valueName, "");
 }
 
 /* See MSDN community content:

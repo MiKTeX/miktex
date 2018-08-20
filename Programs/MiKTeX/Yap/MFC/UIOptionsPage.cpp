@@ -1,6 +1,6 @@
 /* UIOptionsPage.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -22,6 +22,8 @@
 
 #include "yap.h"
 
+#include "ErrorDialog.h"
+
 #include "UIOptionsPage.h"
 
 BEGIN_MESSAGE_MAP(UIOptionsPage, CPropertyPage)
@@ -38,7 +40,7 @@ UIOptionsPage::UIOptionsPage() :
 {
 }
 
-void UIOptionsPage::DoDataExchange(CDataExchange * pDX)
+void UIOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Check(pDX, IDC_MAINTAIN_HORZ_POS, maintainHorizontalPosition);
@@ -56,12 +58,12 @@ BOOL UIOptionsPage::OnApply()
 
     return CPropertyPage::OnApply();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;

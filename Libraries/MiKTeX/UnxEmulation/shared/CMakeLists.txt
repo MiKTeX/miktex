@@ -58,8 +58,6 @@ target_link_libraries(${unxemu_dll_name}
     ${core_dll_name}
 )
 
-rebase(${unxemu_dll_name})
-
 install(TARGETS ${unxemu_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

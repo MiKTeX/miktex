@@ -1,6 +1,6 @@
 /* error.cpp: error handling
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,7 +29,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-MIKTEXINTERNALFUNC(void) TraceError(const char * lpszFormat, ...)
+MIKTEXINTERNALFUNC(void) TraceError(const char* lpszFormat, ...)
 {
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session == nullptr)
@@ -42,7 +42,7 @@ MIKTEXINTERNALFUNC(void) TraceError(const char * lpszFormat, ...)
   va_end(marker);
 }
 
-SourceLocation::SourceLocation(const string & functionName, const string & fileName, int lineNo) :
+SourceLocation::SourceLocation(const string& functionName, const string& fileName, int lineNo) :
   functionName(functionName),
   fileName(GetShortSourceFile(fileName.c_str())),
   lineNo(lineNo)
@@ -53,7 +53,7 @@ SourceLocation::SourceLocation(const string & functionName, const string & fileN
   tag = stream.str();
 }
 
-void Session::FatalMiKTeXError(const string & message, const MiKTeXException::KVMAP & info, const SourceLocation & sourceLocation)
+void Session::FatalMiKTeXError(const string& message, const string& description, const string& remedy, const string& tag, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
   string programInvocationName;
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
@@ -74,10 +74,10 @@ void Session::FatalMiKTeXError(const string & message, const MiKTeXException::KV
     DEBUG_BREAK();
   }
 #endif
-  throw MiKTeXException(programInvocationName, message, info, sourceLocation);
+  throw MiKTeXException(programInvocationName, message, description, remedy, tag, info, sourceLocation);
 }
 
-MIKTEXINTERNALFUNC(bool) GetCrtErrorMessage(int functionResult, string & errorMessage)
+MIKTEXINTERNALFUNC(bool) GetCrtErrorMessage(int functionResult, string& errorMessage)
 {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
   const size_t BUFSIZE = 512;
@@ -93,7 +93,7 @@ MIKTEXINTERNALFUNC(bool) GetCrtErrorMessage(int functionResult, string & errorMe
   return (true);
 }
 
-void Session::FatalCrtError(const string & functionName, int errorCode, const MiKTeXException::KVMAP & info, const SourceLocation & sourceLocation)
+void Session::FatalCrtError(const string& functionName, int errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
   string errorMessage;
   if (!GetCrtErrorMessage(errorCode, errorMessage))
@@ -129,9 +129,9 @@ void Session::FatalCrtError(const string & functionName, int errorCode, const Mi
   switch (errorCode)
   {
   case EACCES:
-    throw UnauthorizedAccessException(programInvocationName, errorMessage, info, sourceLocation);
+    throw UnauthorizedAccessException(programInvocationName, errorMessage, "", "", "", info, sourceLocation);
   case ENOENT:
-    throw FileNotFoundException(programInvocationName, errorMessage, info, sourceLocation);
+    throw FileNotFoundException(programInvocationName, errorMessage, "", "", "", info, sourceLocation);
   case EPIPE:
     throw BrokenPipeException(programInvocationName, errorMessage, info, sourceLocation);
   default:

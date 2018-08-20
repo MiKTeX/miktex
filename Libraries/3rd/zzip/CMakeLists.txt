@@ -134,8 +134,6 @@ else()
   target_link_libraries(${zzip_dll_name} PRIVATE ${zlib_dll_name})
 endif()
 
-rebase(${zzip_dll_name})
-
 install(TARGETS ${zzip_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

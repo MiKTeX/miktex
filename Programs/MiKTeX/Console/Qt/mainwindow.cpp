@@ -23,6 +23,7 @@
 #include <QTimer>
 #include <QtWidgets>
 
+#include <fstream>
 #include <iomanip>
 
 #include "FormatDefinitionDialog.h"
@@ -70,23 +71,13 @@ inline double Divide(double a, double b)
   return a / b;
 }
 
-void OpenDirectoryInFileBrowser(const QString& path_)
+void OpenDirectoryInFileBrowser(const QString& path)
 {
-  QString path(path_);
-  if (!path.startsWith('/'))
-  {
-    path.insert(0, '/');
-  }
-  QDesktopServices::openUrl(QUrl(QString("file://%1").arg(path), QUrl::TolerantMode));
+  QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 
-void OpenDirectoryInFileBrowser(const PathName& dir_)
+void OpenDirectoryInFileBrowser(const PathName& dir)
 {
-  PathName dir(dir_);
-  dir.AppendDirectoryDelimiter();
-#if defined(MIKTEX_WINDOWS)
-  dir.ConvertToUnix();
-#endif
   OpenDirectoryInFileBrowser(QString::fromUtf8(dir.GetData()));
 }
 
@@ -178,15 +169,32 @@ void MainWindow::setVisible(bool visible)
   QMainWindow::setVisible(visible);
 }
 
-void MainWindow::CriticalError(const QString& text, const MiKTeXException& e)
+void MainWindow::CriticalError(const QString& shortText, const MiKTeXException& e)
 {
+  QString description = QString::fromUtf8(e.GetDescription().c_str());
+  QString text = shortText;
+  if (!description.isEmpty())
+  {
+    text += "<p>" + description + "</p>";
+    QString remedy = QString::fromUtf8(e.GetRemedy().c_str());
+    if (!remedy.isEmpty())
+    {
+      text += "<p>" + tr("Remedy:") + " " + remedy + "</p>";
+    }
+  }
+  QString url = QString::fromUtf8(e.GetUrl().c_str());
+  if (!url.isEmpty())
+  {
+    text += "<p>" + tr("For more information, visit <a href='%1'>%2</a>").arg(url).arg(url) + "</p>";
+  }
   if (this->isHidden())
   {
     ShowTrayMessage(TrayMessageContext::Error, text);
   }
   else
   {
-    if (QMessageBox::critical(this, tr("MiKTeX Console"), text + "\n\n" + tr("Do you want to see the error details?"),
+    text += "<p>" + tr("Do you want to see the error details?") + "/p>";
+    if (QMessageBox::critical(this, tr("MiKTeX Console"), text,
       QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
       == QMessageBox::StandardButton::Yes)
     {
@@ -282,6 +290,7 @@ void MainWindow::UpdateUi()
     UpdateUiPackages();
     UpdateUiDiagnose();
     UpdateUiCleanup();
+    session->UnloadFilenameDatabase();
   }
   catch (const MiKTeXException& e)
   {
@@ -309,6 +318,7 @@ void MainWindow::UpdateActions()
     UpdateActionsPackages();
     UpdateActionsDiagnose();
     UpdateActionsCleanup();
+    session->UnloadFilenameDatabase();
   }
   catch (const MiKTeXException& e)
   {
@@ -693,16 +703,15 @@ void MainWindow::FinishSetup()
         CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), worker->GetMiKTeXException());
       }
       backgroundWorkers--;
-      session->UnloadFilenameDatabase();
       UpdateUi();
       UpdateActions();
       worker->deleteLater();
     });
     connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    thread->start();
     UpdateUi();
     UpdateActions();
+    thread->start();
   }
   catch (const MiKTeXException& e)
   {
@@ -770,7 +779,6 @@ void MainWindow::on_buttonUpgrade_clicked()
     ui->labelUpgradePercent->setText("");
     ui->labelUpgradeDetails->setText("");
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -805,9 +813,9 @@ void MainWindow::on_buttonUpgrade_clicked()
   ui->labelUpgradeStatus->setText(tr("Upgrade in progress..."));
   ui->labelUpgradePercent->setText("0%");
   ui->labelUpgradeDetails->setText(tr("(initializing)"));
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 bool RefreshFndbWorker::Run()
@@ -845,16 +853,15 @@ void MainWindow::RefreshFndb()
       CriticalError(tr("Something went wrong while refreshing the file name database."), ((RefreshFndbWorker*)sender())->GetMiKTeXException());
     }
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 string Timestamp()
@@ -934,16 +941,15 @@ void MainWindow::RefreshFontMaps()
       CriticalError(tr("Something went wrong while refreshing the font map files."), worker->GetMiKTeXException());
     }
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 void MainWindow::SetupUiUpdates()
@@ -1103,7 +1109,6 @@ void MainWindow::CheckUpdates()
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -1114,9 +1119,9 @@ void MainWindow::CheckUpdates()
   ui->labelCheckUpdatesStatus->setText(tr("Checking..."));
   ui->labelUpdatePercent->setText("");
   ui->labelUpdateDetails->setText("");
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 bool UpdateWorker::Run()
@@ -1187,7 +1192,6 @@ void MainWindow::Update()
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     updateModel->SetData({});
     UpdateUi();
     UpdateActions();
@@ -1224,9 +1228,9 @@ void MainWindow::Update()
   ui->labelUpdateStatus->setText(tr("Update in progress..."));
   ui->labelUpdatePercent->setText("0%");
   ui->labelUpdateDetails->setText(tr("(initializing)"));
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 void MainWindow::OnContextMenuUpdates(const QPoint& pos)
@@ -1784,16 +1788,15 @@ void MainWindow::BuildFormat()
         CriticalError(tr("Something went wrong while building formats."), ((BuildFormatsWorker*)sender())->GetMiKTeXException());
       }
       backgroundWorkers--;
-      session->UnloadFilenameDatabase();
       UpdateUi();
       UpdateActions();
       worker->deleteLater();
     });
     connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    thread->start();
     UpdateUi();
     UpdateActions();
+    thread->start();
   }
   catch (const MiKTeXException& e)
   {
@@ -2076,16 +2079,15 @@ void MainWindow::UpdatePackageDatabase()
     packageModel->Reload();
     ui->treeViewPackages->update();
     backgroundWorkers--;
-    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  thread->start();
   UpdateUi();
   UpdateActions();
+  thread->start();
 }
 
 void MainWindow::OnContextMenuPackages(const QPoint& pos)
@@ -2120,6 +2122,47 @@ void MainWindow::UpdateActionsDiagnose()
 void MainWindow::on_pushButtonShowLogDirectory_clicked()
 {
   OpenDirectoryInFileBrowser(session->GetSpecialPath(SpecialPath::LogDirectory));
+}
+
+PathName MainWindow::GetReportFileName()
+{
+  return session->GetSpecialPath(SpecialPath::LogDirectory) / "miktex-report.txt";
+}
+
+void MainWindow::CreateReport()
+{
+  ofstream ofs;
+#if defined(MIKTEX_WINDOWS)
+  ofs.open(GetReportFileName().ToWideCharString());
+#else
+  ofs.open(GetReportFileName().ToString());
+#endif
+  if (!ofs.is_open())
+  {
+    MIKTEX_FATAL_ERROR("The report could not be written.");
+  }
+  SetupService::WriteReport(ofs);
+  ofs.close();
+}
+
+void MainWindow::on_pushButtonOpenReport_clicked()
+{
+  try
+  {
+    CreateReport();
+    if (!QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromUtf8(GetReportFileName().GetData()))))
+    {
+      MIKTEX_FATAL_ERROR("The report could not be opened.");
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
 }
 
 void MainWindow::SetupUiCleanup()
@@ -2210,7 +2253,7 @@ void MainWindow::FactoryReset()
       }
       else
       {
-        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().what()) + tr("\n\nThe application window will now be closed."));
+        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().GetErrorMessage().c_str()) + tr("\n\nThe application window will now be closed."));
       }
       backgroundWorkers--;
       session->UnloadFilenameDatabase();
@@ -2284,7 +2327,7 @@ void MainWindow::Uninstall()
       }
       else
       {
-        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().what()) + tr("\n\nThe application window will now be closed."));
+        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().GetErrorMessage().c_str()) + tr("\n\nThe application window will now be closed."));
       }
       backgroundWorkers--;
       session->UnloadFilenameDatabase();

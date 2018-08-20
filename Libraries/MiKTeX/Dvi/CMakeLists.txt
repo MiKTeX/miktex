@@ -136,8 +136,6 @@ target_link_libraries(${dvi_dll_name}
     ${dib_dll_name}
 )
 
-rebase(${dvi_dll_name})
-
 set(dviscan_sources dviscan.cpp)
 
 if(MIKTEX_NATIVE_WINDOWS)

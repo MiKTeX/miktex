@@ -1,6 +1,6 @@
 /* DvipsDialog.h:                                       -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -20,7 +20,8 @@
 
 #pragma once
 
-class DvipsDialog : public CDialog
+class DvipsDialog :
+  public CDialog
 {
 private:
   enum { IDD = IDD_DVIPS };
@@ -29,10 +30,10 @@ protected:
   DECLARE_MESSAGE_MAP();
 
 public:
-  DvipsDialog(CWnd * pParent = nullptr);
+  DvipsDialog(CWnd* pParent = nullptr);
 
 public:
-  const char * GetPrinterName() const
+  const char* GetPrinterName() const
   {
     return TU_(m_strPrinterName);
   }
@@ -59,10 +60,10 @@ public:
   int m_nPrinterName = -1;
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  void DoDataExchange(CDataExchange* pDX) override;
 
 protected:
   afx_msg void OnChangeFirstPage();

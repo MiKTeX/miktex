@@ -1,6 +1,6 @@
 /* source.cpp: source specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -22,8 +22,9 @@
 
 #include "yap.h"
 
-#include "Dvidoc.h"
 #include "DviView.h"
+#include "Dvidoc.h"
+#include "ErrorDialog.h"
 #include "SourceSpecialsDialog.h"
 
 void DviView::CloseSourceSpecialsDialog()
@@ -31,11 +32,11 @@ void DviView::CloseSourceSpecialsDialog()
   pSourceSpecialDialog = nullptr;
 }
 
-bool DviView::GotoSrcSpecial(int line, const char * lpszFileName)
+bool DviView::GotoSrcSpecial(int line, const char* lpszFileName)
 {
   ClearSearchPosition();
 
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
 
   DviPosition position;
@@ -75,7 +76,7 @@ void DviView::OnPageEditor()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     PathName fileName;
     int line;
@@ -88,33 +89,33 @@ void DviView::OnPageEditor()
       MIKTEX_FATAL_ERROR(T_("The source file could not be opened because the page contains no source links."));
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdatePageEditor(CCmdUI * pCmdUI)
+void DviView::OnUpdatePageEditor(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
       enable = TRUE;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -131,40 +132,40 @@ void DviView::OnToolsSourcespecials()
       pSourceSpecialDialog->Create(IDD_SOURCE_SPECIALS, this);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateToolsSourcespecials(CCmdUI * pCmdUI)
+void DviView::OnUpdateToolsSourcespecials(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
       enable = TRUE;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
   pCmdUI->Enable(enable);
 }
 
-bool DviView::GetSource(PathName & fileName, int & line)
+bool DviView::GetSource(PathName& fileName, int& line)
 {
   int x, y;
   int pageIdx;
@@ -173,7 +174,7 @@ bool DviView::GetSource(PathName & fileName, int & line)
     return false;
   }
   MIKTEX_ASSERT(pageIdx >= 0);
-  DviDoc * pDoc = GetDocument();
+  DviDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
   if (pDoc->GetPageStatus(pageIdx) != PageStatus::Loaded)
   {
@@ -182,12 +183,12 @@ bool DviView::GetSource(PathName & fileName, int & line)
   return pDoc->GetSource(DviPosition(pageIdx, x, y), fileName, &line);
 }
 
-bool DviDoc::GetSource(const DviPosition & position, PathName & fileName, int * pLine)
+bool DviDoc::GetSource(const DviPosition& position, PathName& fileName, int* pLine)
 {
   return pDvi->GetSource(position, fileName, pLine);
 }
 
-bool DviDoc::FindSrcSpecial(const char * lpszFileName, int line, DviPosition & position)
+bool DviDoc::FindSrcSpecial(const char* lpszFileName, int line, DviPosition& position)
 {
   return pDvi->FindSource(lpszFileName, line, position);
 }

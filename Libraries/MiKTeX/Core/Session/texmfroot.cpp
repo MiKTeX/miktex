@@ -667,7 +667,7 @@ void SessionImpl::RegisterRootDirectories(const string& roots, bool other)
       AutoSysString a(errorInfo.message);
       AutoSysString b(errorInfo.info);
       AutoSysString c(errorInfo.sourceFile);
-      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), MiKTeXException::KVMAP(string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
+      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), "", "", "", MiKTeXException::KVMAP("info", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
     }
     return;
   }
@@ -918,10 +918,20 @@ unsigned SessionImpl::GetUserConfigRoot()
 
 bool SessionImpl::IsTeXMFReadOnly(unsigned r)
 {
+  if (r == MPM_ROOT)
+  {
+    return true;
+  }
+  if (rootDirectories[r].IsOther())
+  {
+    return true;
+  }
+  if (IsMiKTeXPortable())
+  {
+    return false;
+  }
   return
-    !IsMiKTeXPortable()
-    && ((IsMiKTeXDirect() && r == GetInstallRoot())
-      || rootDirectories[r].IsOther()
+     ((IsMiKTeXDirect() && r == GetInstallRoot())
       || (rootDirectories[r].IsCommon() && !IsAdminMode()));
 }
 

@@ -1,6 +1,6 @@
 /* File.cpp: file operations
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -78,7 +78,9 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
   }
   if (error != ERROR_SUCCESS)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("GetFileAttributesW", "path", path.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_3("GetFileAttributesW",
+      T_("MiKTeX cannot retrieve attributes for the file '{path}'."),
+      "path", path.ToDisplayString());
   }
   if (session != nullptr)
   {
@@ -166,7 +168,10 @@ void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttribu
 
   if (!SetFileAttributesW(path.ToWideCharString().c_str(), static_cast<DWORD>(nativeAttributes)))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("SetFileAttributesW", "fileName", path.ToString(), "attributes", std::to_string(nativeAttributes));
+    MIKTEX_FATAL_WINDOWS_ERROR_3("SetFileAttributesW",
+      T_("MiKTeX cannot set attributes for file or directory '{path}'."),
+      "path", path.ToDisplayString(),
+      "attributes", std::to_string(nativeAttributes));
   }
 }
 
@@ -306,7 +311,9 @@ void File::Delete(const PathName& path)
   }
   if (!DeleteFileW(path.ToWideCharString().c_str()))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("DeleteFileW", "path", path.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_3("DeleteFileW",
+      T_("MiKTeX could not remove the file '{path}'."),
+      "path", path.ToDisplayString());
   }
 }
 
@@ -324,7 +331,10 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   }
   if (!MoveFileExW(source.ToWideCharString().c_str(), dest.ToWideCharString().c_str(), flags))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("MoveFileExW", "existing", source.ToString(), "new", dest.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_3("MoveFileExW",
+      T_("MiKTeX could not rename the file '{existing}'."),
+      "existing", source.ToDisplayString(),
+      "path", dest.ToDisplayString());
   }
   if (options[FileMoveOption::UpdateFndb])
   {
@@ -363,7 +373,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
   }
   if (!CopyFileW(source.ToWideCharString().c_str(), dest.ToWideCharString().c_str(), options[FileCopyOption::ReplaceExisting] ? FALSE : TRUE))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CopyFileW", "existing", source.ToString(), "new", dest.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CopyFileW", "existing", source.ToString(), "path", dest.ToString());
   }
   if (options[FileCopyOption::UpdateFndb])
   {
@@ -400,7 +410,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   }
   else if (CreateHardLinkW(newName.ToWideCharString().c_str(), oldName.ToWideCharString().c_str(), nullptr) == 0)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateHardLinkW", "newName", newName.ToString(), "oldName", oldName.ToString());
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateHardLinkW", "path", newName.ToString(), "existing", oldName.ToString());
   }
   if (options[CreateLinkOption::UpdateFndb])
   {

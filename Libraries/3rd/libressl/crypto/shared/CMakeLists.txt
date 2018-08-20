@@ -61,8 +61,6 @@ if (MIKTEX_NATIVE_WINDOWS)
       Ws2_32.lib)
 endif()
 
-rebase(${libressl_crypto_dll_name})
-
 install(TARGETS ${libressl_crypto_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

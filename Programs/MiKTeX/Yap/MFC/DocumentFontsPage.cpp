@@ -1,6 +1,6 @@
 /* DocumentFontsPage.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -22,6 +22,9 @@
 
 #include "yap.h"
 
+#include "ErrorDialog.h"
+#include "TextViewerDialog.h"
+
 #include "DocumentFontsPage.h"
 
 BEGIN_MESSAGE_MAP(DocumentFontsPage, CPropertyPage)
@@ -33,7 +36,7 @@ DocumentFontsPage::DocumentFontsPage() :
 {
 }
 
-void DocumentFontsPage::DoDataExchange(CDataExchange * pDX)
+void DocumentFontsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_LIST, listControl);
@@ -82,20 +85,20 @@ BOOL DocumentFontsPage::OnInitDialog()
     }
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 
   return ret;
 }
 
-void DocumentFontsPage::OnDoubleClick(NMHDR * pNMHDR, LRESULT * pResult)
+void DocumentFontsPage::OnDoubleClick(NMHDR* pNMHDR, LRESULT* pResult)
 {
   UNUSED_ALWAYS(pNMHDR);
 
@@ -107,7 +110,7 @@ void DocumentFontsPage::OnDoubleClick(NMHDR * pNMHDR, LRESULT * pResult)
       MIKTEX_UNEXPECTED();
     }
     MIKTEX_ASSERT(idx < static_cast<int>(fontTable.size()));
-    const DviFontInfo & info = fontTable[idx];
+    const DviFontInfo& info = fontTable[idx];
     if (!info.notLoadable)
     {
       return;
@@ -118,12 +121,12 @@ void DocumentFontsPage::OnDoubleClick(NMHDR * pNMHDR, LRESULT * pResult)
     *pResult = 0;
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }

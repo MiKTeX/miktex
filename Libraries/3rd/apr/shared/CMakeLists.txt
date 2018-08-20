@@ -61,8 +61,6 @@ target_link_libraries(${apr_dll_name}
     ${system_libraries}
 )
 
-rebase(${apr_dll_name})
-
 install(TARGETS ${apr_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -66,8 +66,6 @@ else()
   target_link_libraries(${log4cxx_dll_name} PUBLIC ${apr_util_dll_name})
 endif()
 
-rebase(${log4cxx_dll_name})
-
 install(TARGETS ${log4cxx_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

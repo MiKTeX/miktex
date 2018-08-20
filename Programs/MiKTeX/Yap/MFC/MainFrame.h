@@ -1,6 +1,6 @@
 /* MainFrame.h:                                         -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -39,7 +39,7 @@ public:
   }
 
 public:
-  virtual BOOL PreCreateWindow(CREATESTRUCT & cs);
+  BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 
 protected:
   afx_msg int OnCreate(LPCREATESTRUCT pCreateStruct);
@@ -60,7 +60,7 @@ protected:
   afx_msg void OnDoublePage();
 
 protected:
-  afx_msg void OnGetMinMaxInfo(MINMAXINFO * pMMI);
+  afx_msg void OnGetMinMaxInfo(MINMAXINFO* pMMI);
 
 protected:
   afx_msg void OnHelpKeyboard();
@@ -69,34 +69,34 @@ protected:
   afx_msg void OnSinglePage();
 
 protected:
-  afx_msg void OnUpdateCommandPrefix(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateCommandPrefix(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateContinuousDouble(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateContinuousDouble(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateContinuousSingle(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateContinuousSingle(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateDoublePage(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateDoublePage(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdatePageMofN(CCmdUI * pCmdUI);
+  afx_msg void OnUpdatePageMofN(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdatePoint(CCmdUI * pCmdUI);
+  afx_msg void OnUpdatePoint(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateEffectivePageMode(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateEffectivePageMode(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateSinglePage(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateSinglePage(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateSource(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateSource(CCmdUI* pCmdUI);
 
 protected:
-  afx_msg void OnUpdateViewFullScreen(CCmdUI * pCmdUI);
+  afx_msg void OnUpdateViewFullScreen(CCmdUI* pCmdUI);
 
 protected:
   afx_msg void OnViewFullScreen();
@@ -135,7 +135,7 @@ protected:
   afx_msg void OnUpdateViewPoints(CCmdUI *pCmdUI);
 
 public:
-  CStatusBar & GetStatusBar()
+  CStatusBar& GetStatusBar()
   {
     return statusBar;
   }
@@ -171,5 +171,5 @@ private:
   WINDOWPLACEMENT previousWindowPlacement;
 
 private:
-  CToolBar * pFullScreenBar = nullptr;
+  CToolBar* pFullScreenBar = nullptr;
 };

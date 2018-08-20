@@ -49,8 +49,6 @@ target_include_directories(${lzma_dll_name}
     ${public_include_directories}
 )
 
-rebase(${lzma_dll_name})
-
 install(TARGETS ${lzma_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

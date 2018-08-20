@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -28,11 +28,6 @@ add_library(miktex-ui INTERFACE)
 target_include_directories(miktex-ui
   INTERFACE
     ${public_include_directories}
-)
-
-target_link_libraries(miktex-ui
-  INTERFACE
-    ${ui_mfc_dll_name}
 )
 
 target_link_libraries(miktex-ui

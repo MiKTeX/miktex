@@ -1,6 +1,6 @@
 /* ProxyAuthenticationDialog.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -31,34 +31,34 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-ProxyAuthenticationDialog::ProxyAuthenticationDialog(QWidget * pParent) :
-  QDialog(pParent)
+ProxyAuthenticationDialog::ProxyAuthenticationDialog(QWidget* parent) :
+  QDialog(parent)
 {
   setupUi(this);
 #if 0
   QRegExp namePattern("\\w+");
-  QValidator * pValidator = new QRegExpValidator(namePattern, this);
-  leName->setValidator(pValidator);
+  QValidator* validator = new QRegExpValidator(namePattern, this);
+  leName->setValidator(validator);
 #endif
   leName->setText("");
 }
 
-void ProxyAuthenticationDialog::on_leName_textChanged(const QString & newText)
+void ProxyAuthenticationDialog::on_leName_textChanged(const QString& newText)
 {
   try
   {
-    QPushButton * pOKButton = buttonBox->button(QDialogButtonBox::Ok);
-    if (pOKButton == nullptr)
+    QPushButton* okayButton = buttonBox->button(QDialogButtonBox::Ok);
+    if (okayButton == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
-    pOKButton->setEnabled(newText.length() > 0);
+    okayButton->setEnabled(newText.length() > 0);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }

@@ -36,7 +36,7 @@ using namespace std;
 
 SiteWizType::SiteWizType(shared_ptr<PackageManager> packageManager) :
   QWizardPage(nullptr),
-  pManager(packageManager)
+  packageManager(packageManager)
 {
   setupUi(this);
   connect(rbRemote, SIGNAL(clicked()), this, SIGNAL(completeChanged()));

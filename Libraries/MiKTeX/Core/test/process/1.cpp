@@ -27,6 +27,7 @@
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
+#include <miktex/Core/TemporaryFile>
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
@@ -60,10 +61,51 @@ BEGIN_TEST_FUNCTION(2);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(3);
+{
+  PathName pathExe = pSession->GetMyLocation(false);
+  pathExe /= "core_process_test1-3" MIKTEX_EXE_FILE_SUFFIX;
+  int exitCode;
+  MiKTeXException ex;
+  TEST(Process::Run(pathExe, { pathExe.ToString() }, nullptr, &exitCode, &ex, nullptr));
+  TEST(exitCode == 1);
+  TEST(ex.GetProgramInvocationName() == "process-1-3");
+  TEST(ex.GetErrorMessage() == "xerrorMessagey");
+  TEST(ex.GetDescription() == "xdescriptiony");
+  TEST(ex.GetRemedy() == "xremedyy");
+  TEST(ex.GetTag() == "tag");
+}
+END_TEST_FUNCTION();
+
+BEGIN_TEST_FUNCTION(4);
+{
+  unique_ptr<TemporaryFile> tmpFile = TemporaryFile::Create();
+  MiKTeXException ex(
+    "foo",
+    "abrakadabra",
+    "aaa{fileName}zzz",
+    "xxx{exitCode}yyy",
+    "a-b-c",
+    MiKTeXException::KVMAP(
+      "fileName", "foo.txt",
+      "exitCode", "0"),
+    SourceLocation());
+  TEST(ex.Save(tmpFile->GetPathName().ToString()));
+  MiKTeXException ex2;
+  TEST(MiKTeXException::Load(tmpFile->GetPathName().ToString(), ex2));
+  TEST(ex2.GetProgramInvocationName() == "foo");
+  TEST(ex2.GetDescription() == "aaafoo.txtzzz");
+  TEST(ex2.GetRemedy() == "xxx0yyy");
+  TEST(ex2.GetTag() == "a-b-c");
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
   CALL_TEST_FUNCTION(2);
+  CALL_TEST_FUNCTION(3);
+  CALL_TEST_FUNCTION(4);
 }
 END_TEST_PROGRAM();
 

@@ -45,8 +45,6 @@ target_include_directories(${mspack_dll_name}
     ${public_include_directories}
 )
 
-rebase(${mspack_dll_name})
-
 install(TARGETS ${mspack_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

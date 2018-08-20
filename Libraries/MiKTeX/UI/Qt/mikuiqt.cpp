@@ -34,7 +34,7 @@ using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 using namespace std;
 
-static QCoreApplication* pApplication = nullptr;
+static QCoreApplication* application = nullptr;
 
 #if defined(MIKTEX_MACOS_BUNDLE)
 PathName GetExecutablePath()
@@ -91,18 +91,18 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
   argv[1] = nullptr;
   if (useGUI)
   {
-    pApplication = new QApplication(argc, argv);
+    application = new QApplication(argc, argv);
   }
   else
   {
-    pApplication = new QCoreApplication(argc, argv);
+    application = new QCoreApplication(argc, argv);
   }
 }
 
 MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::FinalizeFramework()
 {
-  delete pApplication;
-  pApplication = nullptr;
+  delete application;
+  application = nullptr;
 }
 
 MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessageBox(QWidget* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger)

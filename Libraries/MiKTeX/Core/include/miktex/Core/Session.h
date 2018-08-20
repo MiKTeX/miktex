@@ -1142,21 +1142,30 @@ public:
   static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalCrtError(const std::string& functionName, int errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);
 
 public:
-  static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalMiKTeXError(const std::string& message, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);
+  static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalMiKTeXError(const std::string& message, const std::string& description, const std::string& remedy, const std::string& tag, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalWindowsError(const std::string& functionName, unsigned long errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);
+  static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalWindowsError(const std::string& functionName, unsigned long errorCode, const std::string& description, const std::string& remedy, const std::string& tag, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);
 #endif
 };
 
 MIKTEX_CORE_END_NAMESPACE;
 
 #define MIKTEX_FATAL_ERROR(message) \
-  MiKTeX::Core::Session::FatalMiKTeXError(message, MiKTeX::Core::MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION())
+  MiKTeX::Core::Session::FatalMiKTeXError(message, "", "", "", MiKTeX::Core::MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION())
 
 #define MIKTEX_FATAL_ERROR_2(message, ...) \
-  MiKTeX::Core::Session::FatalMiKTeXError(message, MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
+  MiKTeX::Core::Session::FatalMiKTeXError(message, "", "", "", MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
+
+#define MIKTEX_FATAL_ERROR_3(message, description, ...) \
+  MiKTeX::Core::Session::FatalMiKTeXError(message, description, "", "", MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
+
+#define MIKTEX_FATAL_ERROR_4(message, description, remedy, ...) \
+  MiKTeX::Core::Session::FatalMiKTeXError(message, description, remedy, "", MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
+
+#define MIKTEX_FATAL_ERROR_5(message, description, remedy, tag, ...) \
+  MiKTeX::Core::Session::FatalMiKTeXError(message, description, remedy, tag, MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
 
 #define MIKTEX_INTERNAL_ERROR() MIKTEX_FATAL_ERROR(MIKTEXTEXT("MiKTeX encountered an internal error."))
 
@@ -1185,20 +1194,47 @@ MIKTEX_CORE_END_NAMESPACE;
 #define MIKTEX_FATAL_WINDOWS_ERROR(functionName)                        \
   {                                                                     \
     unsigned long errorCode = GetLastError();                           \
-    MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, MiKTeX::Core::MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION()); \
+    MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, "", "", "", MiKTeX::Core::MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION()); \
   }
 
 #define MIKTEX_FATAL_WINDOWS_ERROR_2(functionName, ...)                 \
   {                                                                     \
     unsigned long errorCode = GetLastError();                           \
-    MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION()); \
+    MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, "", "", "", MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION()); \
+  }
+
+#define MIKTEX_FATAL_WINDOWS_ERROR_3(functionName, description, ...)   \
+  {                                                                     \
+    unsigned long errorCode = GetLastError();                           \
+    MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, description, "", "", MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION()); \
+  }
+
+#define MIKTEX_FATAL_WINDOWS_ERROR_4(functionName, description, remedy, ...)   \
+  {                                                                     \
+    unsigned long errorCode = GetLastError();                           \
+    MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, description, remedy, "", MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION()); \
+  }
+
+#define MIKTEX_FATAL_WINDOWS_ERROR_5(functionName, description, remedy, tag, ...)   \
+  {                                                                     \
+    unsigned long errorCode = GetLastError();                           \
+    MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, description, remedy, tag, MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION()); \
   }
 
 #define MIKTEX_FATAL_WINDOWS_RESULT(functionName, errorCode) \
-  MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, MiKTeX::Core::MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION())
+  MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, "", "", "", MiKTeX::Core::MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION())
 
 #define MIKTEX_FATAL_WINDOWS_RESULT_2(functionName, errorCode, ...) \
-  MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
+  MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, "", "", "", MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
+
+#define MIKTEX_FATAL_WINDOWS_RESULT_3(functionName, errorCode, description, ...) \
+  MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, description, "", "", MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
+
+#define MIKTEX_FATAL_WINDOWS_RESULT_4(functionName, errorCode, description, remedy, ...) \
+  MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, description, remedy, "", MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
+
+#define MIKTEX_FATAL_WINDOWS_RESULT_5(functionName, errorCode, description, remedy, tag, ...) \
+  MiKTeX::Core::Session::FatalWindowsError(functionName, errorCode, description, remedy, tag, MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
 
 #endif
 

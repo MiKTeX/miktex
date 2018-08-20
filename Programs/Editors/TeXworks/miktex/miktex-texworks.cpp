@@ -103,7 +103,7 @@ int MiKTeX_TeXworks::Run(int(*Main)(int argc, char *argv[]), int argc, char *arg
   }
   catch (const MiKTeXException & e)
   {
-    LOG4CXX_FATAL(logger, "MiKTeX exception: " << e.what());
+    LOG4CXX_FATAL(logger, "MiKTeX exception: " << e.GetErrorMessage());
     LOG4CXX_FATAL(logger, "   Info: " << e.GetInfo());
     LOG4CXX_FATAL(logger, " Source: " << e.GetSourceFile());
     LOG4CXX_FATAL(logger, "   Line: " << e.GetSourceLine());

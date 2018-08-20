@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -70,6 +70,8 @@ set(yap_mfc_sources
   DviView.h
   DvipsDialog.cpp
   DvipsDialog.h
+  ErrorDialog.cpp
+  ErrorDialog.h
   GotoPageDialog.cpp
   GotoPageDialog.h
   InverseSearchOptionsPage.cpp
@@ -80,6 +82,8 @@ set(yap_mfc_sources
   MainFrame.h
   PrintOptionsPage.cpp
   PrintOptionsPage.h
+  ProgressDialog.cpp
+  ProgressDialog.h
   ProgressIndicatorDialog.cpp
   ProgressIndicatorDialog.h
   Ruler.cpp
@@ -91,6 +95,8 @@ set(yap_mfc_sources
   SplashWindow.cpp
   SplashWindow.h
   StdAfx.h
+  TextViewerDialog.cpp
+  TextViewerDialog.h
   UIOptionsPage.cpp
   UIOptionsPage.h
   YapConfig.cpp
@@ -161,7 +167,6 @@ add_link_flags(yap "/ENTRY:\"wWinMainCRTStartup\"")
 target_link_libraries(yap
   ${core_dll_name}
   ${dvi_dll_name}
-  ${ui_mfc_dll_name}
   miktex-popt-wrapper
 )
 

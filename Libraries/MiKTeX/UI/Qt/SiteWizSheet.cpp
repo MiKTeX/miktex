@@ -1,6 +1,6 @@
 /* SiteWizSheet.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -36,19 +36,19 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-SiteWizSheetImpl::SiteWizSheetImpl(QWidget * pParent) :
-  QWizard(pParent),
-  pManager(PackageManager::Create())
+SiteWizSheetImpl::SiteWizSheetImpl(QWidget* parent) :
+  QWizard(parent),
+  packageManager(PackageManager::Create())
 {
   setWindowTitle(T_("Change Package Repository"));
-  setPage(Page_Type, new SiteWizType(pManager));
-  setPage(Page_Remote, new SiteWizRemote(pManager));
-  setPage(Page_Local, new SiteWizLocal(pManager));
-  setPage(Page_CD, new SiteWizDrive(pManager));
+  setPage(Page_Type, new SiteWizType(packageManager));
+  setPage(Page_Remote, new SiteWizRemote(packageManager));
+  setPage(Page_Local, new SiteWizLocal(packageManager));
+  setPage(Page_CD, new SiteWizDrive(packageManager));
 }
 
-int SiteWizSheet::DoModal(QWidget * pParent)
+int SiteWizSheet::DoModal(QWidget* parent)
 {
-  SiteWizSheetImpl dlg(pParent);
+  SiteWizSheetImpl dlg(parent);
   return dlg.exec();
 }

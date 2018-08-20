@@ -28,6 +28,9 @@
 #define IDR_POINT_MENU                  132
 #define IDD_SPLASH                      133
 #define IDB_SPLASH                      134
+#define IDD_PROGRESS                    135
+#define IDD_TEXT_VIEWER                 136
+#define IDD_ERROR                       137
 #define IDC_CHECK_ASSOCIATION           1000
 #define IDC_CLOSE                       1001
 #define IDC_COMBO_DISPLAY_MODE          1002
@@ -93,6 +96,12 @@
 #define IDC_COMBO_UNIT                  1063
 #define IDC_COMBO_OPACITY               1064
 #define IDC_CHECK_SPLASH                1065
+#define IDC_MESSAGE                     1066
+#define IDC_INFO                        1067
+#define IDC_COPY                        1068
+#define IDC_EDIT                        1069
+#define IDC_LINE1                       1070
+#define IDC_LINE2                       1071
 #define ID_REGISTER_MIKTEX              32771
 #define ID_VIEW_TRACE                   32772
 #define ID_FILE_DOCUMENT_PROPERTIES     32773
@@ -154,9 +163,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        135
+#define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32828
-#define _APS_NEXT_CONTROL_VALUE         1065
+#define _APS_NEXT_CONTROL_VALUE         1072
 #define _APS_NEXT_SYMED_VALUE           118
 #endif
 #endif

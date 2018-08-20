@@ -1,6 +1,6 @@
 /* makepk.cpp:
 
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2018 Christian Schenk
 
    This file is part of MiKTeX MakePK.
 
@@ -659,6 +659,7 @@ int MAIN(int argc, MAINCHAR** argv)
   {
     Application::Sorry("makepk", ex);
     logger = nullptr;
+    ex.Save();
     return 1;
   }
   catch (const exception& ex)

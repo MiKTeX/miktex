@@ -121,8 +121,6 @@ target_include_directories(${jpeg_dll_name}
     ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
-rebase(${jpeg_dll_name})
-
 install(TARGETS ${jpeg_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

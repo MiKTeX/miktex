@@ -334,14 +334,6 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
     nullptr
   },
 
-  {
-    "xml", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
-    OPT_XML,
-    T_("Print XML."),
-    nullptr
-  },
-
   POPT_AUTOHELP
   POPT_TABLEEND
 };

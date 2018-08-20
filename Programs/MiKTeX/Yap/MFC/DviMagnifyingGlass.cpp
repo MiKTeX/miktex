@@ -1,6 +1,6 @@
 /* DviMagnifyingGlass.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -22,12 +22,15 @@
 
 #include "yap.h"
 
+#include "ErrorDialog.h"
+
 #include "DviDoc.h"
-#include "DviMagnifyingGlass.h"
 #include "DviView.h"
 
+#include "DviMagnifyingGlass.h"
+
 namespace {
-  const _TCHAR * const YAP_MAGNIFYING_GLASS_CLASS = _T("MiKTeX_mag");
+  const _TCHAR* const YAP_MAGNIFYING_GLASS_CLASS = _T("MiKTeX_mag");
   bool classRegistered = false;
 }
 
@@ -36,7 +39,7 @@ BEGIN_MESSAGE_MAP(DviMagnifyingGlass, CWnd)
   ON_WM_ERASEBKGND()
 END_MESSAGE_MAP();
 
-DviMagnifyingGlass::DviMagnifyingGlass(DviView * pDviView, DviDoc * pDviDoc, DviMagnifyingGlass::Size size, int shrinkFactor) :
+DviMagnifyingGlass::DviMagnifyingGlass(DviView* pDviView, DviDoc* pDviDoc, DviMagnifyingGlass::Size size, int shrinkFactor) :
   pDviView(pDviView),
   pDviDoc(pDviDoc),
   size(size),
@@ -78,7 +81,7 @@ void DviMagnifyingGlass::OnPaint()
       return;
     }
 
-    DviPage * pPage = pDviDoc->GetLoadedPage(pageIdx);
+    DviPage* pPage = pDviDoc->GetLoadedPage(pageIdx);
 
     if (pPage == nullptr)
     {
@@ -109,7 +112,7 @@ void DviMagnifyingGlass::OnPaint()
 
     AutoDeleteObject autoDeleteBitmap(&bitmap);
 
-    CBitmap * pBitmapOld = dcMem.SelectObject(&bitmap);
+    CBitmap* pBitmapOld = dcMem.SelectObject(&bitmap);
 
     if (pBitmapOld == nullptr)
     {
@@ -132,7 +135,7 @@ void DviMagnifyingGlass::OnPaint()
       DrawDibChunks(&dcMem, pDviDoc, pPage);
       DrawRules(&dcMem, false, pDviDoc, pPage);
     }
-    catch (const exception &)
+    catch (const exception&)
     {
       dcMem.SetViewportOrg(CPoint(0, 0));
       throw;
@@ -146,30 +149,30 @@ void DviMagnifyingGlass::OnPaint()
     }
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-BOOL DviMagnifyingGlass::OnEraseBkgnd(CDC * pDC)
+BOOL DviMagnifyingGlass::OnEraseBkgnd(CDC* pDC)
 {
   UNUSED_ALWAYS(pDC);
   return TRUE;
 }
 
-BOOL DviMagnifyingGlass::PreCreateWindow(CREATESTRUCT & cs)
+BOOL DviMagnifyingGlass::PreCreateWindow(CREATESTRUCT& cs)
 {
   cs.lpszClass = YAP_MAGNIFYING_GLASS_CLASS;
   return CWnd::PreCreateWindow(cs);
 }
 
-void DviMagnifyingGlass::Create(const CPoint & point)
+void DviMagnifyingGlass::Create(const CPoint& point)
 {
   if (!classRegistered)
   {
@@ -206,7 +209,7 @@ void DviMagnifyingGlass::Create(const CPoint & point)
   ShowWindow(SW_SHOWNA);
 }
 
-void DviMagnifyingGlass::MoveGlass(const CPoint & point)
+void DviMagnifyingGlass::MoveGlass(const CPoint& point)
 {
   int cx = GetSystemMetrics(SM_CXBORDER);
   int cy = GetSystemMetrics(SM_CXBORDER);

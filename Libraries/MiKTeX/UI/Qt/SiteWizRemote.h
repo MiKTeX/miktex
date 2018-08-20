@@ -1,6 +1,6 @@
 /* SiteWizRemote.h:                                     -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -27,32 +27,36 @@
 #define A3643CF8B9BF477B8A6ABB24B46841B7
 
 #include <vector>
+
+#include <QThread>
+
 #include <miktex/PackageManager/PackageManager>
 
 #include "ui_SiteWizRemote.h"
-#include <QThread>
 
 class QSortFilterProxyModel;
 
-class SiteWizRemote : public QWizardPage, private Ui::SiteWizRemote
+class SiteWizRemote :
+  public QWizardPage,
+  private Ui::SiteWizRemote
 {
 private:
   Q_OBJECT;
 
 public:
-  SiteWizRemote(std::shared_ptr<MiKTeX::Packages::PackageManager> pManager);
+  SiteWizRemote(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager);
 
 public:
-  virtual void initializePage();
+  void initializePage() override;
 
 public:
-  virtual bool isComplete() const;
+  bool isComplete() const override;
 
 public:
-  virtual bool validatePage();
+  bool validatePage() override;
 
 public:
-  virtual int nextId() const
+  int nextId() const override
   {
     return -1;
   }
@@ -61,18 +65,18 @@ private slots:
   void FillList();
 
 private:
-  void SetItemText(int row, int column, const QString & text);
+  void SetItemText(int row, int column, const QString& text);
 
 private:
   class DownloadThread : public QThread
   {
   public:
-    DownloadThread(SiteWizRemote * pParent) :
-      QThread(pParent)
+    DownloadThread(SiteWizRemote* parent) :
+      QThread(parent)
     {
     }
   public:
-    virtual void run();
+    void run() override;
   public:
     MiKTeX::Core::MiKTeXException threadMiKTeXException;
   public:
@@ -80,10 +84,10 @@ private:
   };
 
 private:
-  DownloadThread * pDownloadThread = nullptr;
+  DownloadThread* downloadThread = nullptr;
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pManager;
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
 private:
   std::vector<MiKTeX::Packages::RepositoryInfo> repositories;
@@ -92,7 +96,7 @@ private:
   bool firstVisit = true;
 
 private:
-  QSortFilterProxyModel * pProxyModel = nullptr;
+  QSortFilterProxyModel* proxyModel = nullptr;
 };
 
 #endif

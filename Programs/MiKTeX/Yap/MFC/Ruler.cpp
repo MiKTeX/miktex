@@ -1,6 +1,6 @@
 /* Ruler.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -22,12 +22,14 @@
 
 #include "yap.h"
 
+#include "ErrorDialog.h"
+
 #include "Ruler.h"
 
 #define RULER_COLOR RGB(186, 218, 254)
 
 namespace {
-  const _TCHAR * const YAP_RULER_CLASS = _T("MiKTeX_ruler");
+  const _TCHAR* const YAP_RULER_CLASS = _T("MiKTeX_ruler");
   bool classRegistered = false;
 }
 
@@ -55,7 +57,7 @@ BEGIN_MESSAGE_MAP(Ruler, CWnd)
   ON_WM_ERASEBKGND()
 END_MESSAGE_MAP();
 
-Ruler::Ruler(CWnd * pParent, const CSize & size, Unit unit, double pixelsPerInch, Kind kind) :
+Ruler::Ruler(CWnd* pParent, const CSize& size, Unit unit, double pixelsPerInch, Kind kind) :
   pParent(pParent),
   unit(unit),
   kind(kind)
@@ -265,24 +267,24 @@ void Ruler::OnPaint()
     }
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-BOOL Ruler::OnEraseBkgnd(CDC * pDC)
+BOOL Ruler::OnEraseBkgnd(CDC* pDC)
 {
   try
   {
     ASSERT_VALID(pDC);
     CBrush brushBack(RULER_COLOR);
-    CBrush * pOldBrush = pDC->SelectObject(&brushBack);
+    CBrush* pOldBrush = pDC->SelectObject(&brushBack);
     if (pOldBrush == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -299,25 +301,25 @@ BOOL Ruler::OnEraseBkgnd(CDC * pDC)
     }
     return TRUE;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
 }
 
-BOOL Ruler::PreCreateWindow(CREATESTRUCT & cs)
+BOOL Ruler::PreCreateWindow(CREATESTRUCT& cs)
 {
   cs.lpszClass = YAP_RULER_CLASS;
   return CWnd::PreCreateWindow(cs);
 }
 
-void Ruler::Create(const CPoint & point)
+void Ruler::Create(const CPoint& point)
 {
   if (!classRegistered)
   {
@@ -348,7 +350,7 @@ void Ruler::Create(const CPoint & point)
   ShowWindow(SW_SHOWNA);
 }
 
-void Ruler::MoveRuler(const CPoint & point)
+void Ruler::MoveRuler(const CPoint& point)
 {
   MoveWindow(point.x, point.y, sizeWindow.cx, sizeWindow.cy);
 }

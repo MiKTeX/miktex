@@ -380,13 +380,5 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     nullptr
   },
 
-  {
-    "xml", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
-    OPT_XML,
-    nullptr,
-    nullptr
-  },
-
   POPT_TABLEEND
 };

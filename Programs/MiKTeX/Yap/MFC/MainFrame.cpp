@@ -1,6 +1,6 @@
 /* MainFrame.cpp: main frame window
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -26,14 +26,16 @@
 #include "DisplayOptionsPage.h"
 #include "DviDoc.h"
 #include "DviView.h"
+#include "ErrorDialog.h"
 #include "InverseSearchOptionsPage.h"
 #include "MagnifyingGlassOptionsPage.h"
-#include "MainFrame.h"
 #include "PrintOptionsPage.h"
 #include "SecurityOptionsPage.h"
 #include "UIOptionsPage.h"
 #include "winplace.h"
 #include "yaphelp.h"
+
+#include "MainFrame.h"
 
 IMPLEMENT_DYNAMIC(MainFrame, CMDIFrameWnd);
 
@@ -78,8 +80,7 @@ END_MESSAGE_MAP();
 
 namespace {
 
-  UINT
-    indicators[] =
+  UINT indicators[] =
   {
     ID_SEPARATOR,           // status line indicator
     ID_INDICATOR_COMMAND_PREFIX,
@@ -136,20 +137,20 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     return 0;
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(nullptr, e);
     return -1;
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(nullptr, e);
     return -1;
   }
 }
 
-BOOL MainFrame::PreCreateWindow(CREATESTRUCT & cs)
+BOOL MainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
   SetTitle(T_(_T("Yap")));
   cs.lpszClass = YAP_WND_CLASS;
@@ -193,37 +194,37 @@ void MainFrame::OnViewOptions()
     }
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MainFrame::OnUpdatePageMofN(CCmdUI * pCmdUI)
+void MainFrame::OnUpdatePageMofN(CCmdUI* pCmdUI)
 {
   try
   {
-    CMDIChildWnd * pChild = MDIGetActive();
+    CMDIChildWnd* pChild = MDIGetActive();
     pCmdUI->Enable(pChild != nullptr);
     if (pChild == nullptr)
     {
       pCmdUI->SetText(_T(""));
       return;
     }
-    CView * pView = pChild->GetActiveView();
+    CView* pView = pChild->GetActiveView();
     if (pView == nullptr || !pView->IsKindOf(RUNTIME_CLASS(DviView)))
     {
       pCmdUI->SetText(_T(""));
       return;
     }
-    DviView * pDviView = reinterpret_cast<DviView*>(pView);
-    CDocument * pDoc = pChild->GetActiveDocument();
-    DviDoc * pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
+    DviView* pDviView = reinterpret_cast<DviView*>(pView);
+    CDocument* pDoc = pChild->GetActiveDocument();
+    DviDoc* pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
     if (pDviDoc->GetDviFileStatus() != DviDoc::DVIFILE_LOADED || pDviView->GetCurrentPageIdx() < 0)
     {
       pCmdUI->SetText(_T(""));
@@ -252,18 +253,18 @@ void MainFrame::OnUpdatePageMofN(CCmdUI * pCmdUI)
     pCmdUI->SetText(str);
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MainFrame::OnUpdateCommandPrefix(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateCommandPrefix(CCmdUI* pCmdUI)
 {
   pCmdUI->SetText(UT_(commandPrefix.c_str()));
 }
@@ -284,26 +285,26 @@ void MainFrame::OnHelpKeyboard()
   AfxGetApp()->HtmlHelp(KEYBOARD_SHORTCUTS);
 }
 
-void MainFrame::OnUpdateSource(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateSource(CCmdUI* pCmdUI)
 {
   try
   {
-    CMDIChildWnd * pChild = MDIGetActive();
+    CMDIChildWnd* pChild = MDIGetActive();
     pCmdUI->Enable(pChild != nullptr);
     if (pChild == nullptr)
     {
       pCmdUI->SetText(_T(""));
       return;
     }
-    CView * pView = pChild->GetActiveView();
+    CView* pView = pChild->GetActiveView();
     if (pView == nullptr || !pView->IsKindOf(RUNTIME_CLASS(DviView)))
     {
       pCmdUI->SetText(_T(""));
       return;
     }
-    DviView * pDviView = reinterpret_cast<DviView*>(pView);
-    CDocument * pDoc = pChild->GetActiveDocument();
-    DviDoc * pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
+    DviView* pDviView = reinterpret_cast<DviView*>(pView);
+    CDocument* pDoc = pChild->GetActiveDocument();
+    DviDoc* pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
     if (pDviDoc->GetDviFileStatus() != DviDoc::DVIFILE_LOADED || pDviView->IsZooming())
     {
       // <fixme/>
@@ -328,36 +329,36 @@ void MainFrame::OnUpdateSource(CCmdUI * pCmdUI)
     }
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MainFrame::OnUpdatePoint(CCmdUI * pCmdUI)
+void MainFrame::OnUpdatePoint(CCmdUI* pCmdUI)
 {
   try
   {
-    CMDIChildWnd * pChild = MDIGetActive();
+    CMDIChildWnd* pChild = MDIGetActive();
     pCmdUI->Enable(pChild != nullptr);
     if (pChild == nullptr)
     {
       pCmdUI->SetText(_T(""));
       return;
     }
-    CView * pView = pChild->GetActiveView();
+    CView* pView = pChild->GetActiveView();
     if (pView == nullptr || !pView->IsKindOf(RUNTIME_CLASS(DviView)))
     {
       pCmdUI->SetText(_T(""));
       return;
     }
-    CDocument * pDoc = pChild->GetActiveDocument();
-    DviDoc * pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
+    CDocument* pDoc = pChild->GetActiveDocument();
+    DviDoc* pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
     int x, y;
     if (pDviDoc->GetDviFileStatus() != DviDoc::DVIFILE_LOADED
       || !reinterpret_cast<DviView*>(pView)->GetPoint(x, y))
@@ -371,7 +372,7 @@ void MainFrame::OnUpdatePoint(CCmdUI * pCmdUI)
 #define pxl2mm(pxl) (((pxl) * 25.4) / pDviDoc->GetDisplayResolution())
 #define pxl2pc(pxl) (((pxl) * 12.0) / pDviDoc->GetDisplayResolution())
     double x2, y2;
-    const char * lpszUnit = nullptr;
+    const char* lpszUnit = nullptr;
     switch (g_pYapConfig->unit)
     {
     case Unit::Centimeters:
@@ -408,42 +409,42 @@ void MainFrame::OnUpdatePoint(CCmdUI * pCmdUI)
     pCmdUI->SetText(str);
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MainFrame::OnUpdateEffectivePageMode(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateEffectivePageMode(CCmdUI* pCmdUI)
 {
   try
   {
-    CMDIChildWnd * pChild = MDIGetActive();
+    CMDIChildWnd* pChild = MDIGetActive();
     pCmdUI->Enable(pChild != nullptr);
     if (pChild == nullptr)
     {
       pCmdUI->SetText(_T(""));
       return;
     }
-    CDocument * pDoc = pChild->GetActiveDocument();
-    DviDoc * pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
+    CDocument* pDoc = pChild->GetActiveDocument();
+    DviDoc* pDviDoc = reinterpret_cast<DviDoc*>(pDoc);
     if (pDviDoc->GetDviFileStatus() != DviDoc::DVIFILE_LOADED)
     {
       pCmdUI->SetText(_T(""));
       return;
     }
-    CView * pView = pChild->GetActiveView();
+    CView* pView = pChild->GetActiveView();
     if (pView == nullptr || !pView->IsKindOf(RUNTIME_CLASS(DviView)))
     {
       pCmdUI->SetText(_T(""));
       return;
     }
-    DviView * pDviView = reinterpret_cast<DviView*>(pView);
+    DviView* pDviView = reinterpret_cast<DviView*>(pView);
     int pageIdx;
     int x, y;
     if (!pDviView->GetPageUnderCursor(pageIdx, x, y))
@@ -456,7 +457,7 @@ void MainFrame::OnUpdateEffectivePageMode(CCmdUI * pCmdUI)
       pCmdUI->SetText(_T(""));
       return;
     }
-    DviPage * pDviPage = pDviDoc->GetLoadedPage(pageIdx);
+    DviPage* pDviPage = pDviDoc->GetLoadedPage(pageIdx);
     if (pDviPage == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -472,12 +473,12 @@ void MainFrame::OnUpdateEffectivePageMode(CCmdUI * pCmdUI)
     }
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -533,18 +534,18 @@ void MainFrame::OnContinuousSingle()
     UpdateAllDviViews();
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MainFrame::OnUpdateContinuousSingle(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateContinuousSingle(CCmdUI* pCmdUI)
 {
 #if WIN95NOCONTVIEW
   bool supported = !g_pYapConfig->win95;
@@ -564,18 +565,18 @@ void MainFrame::OnContinuousDouble()
     UpdateAllDviViews();
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MainFrame::OnUpdateContinuousDouble(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateContinuousDouble(CCmdUI* pCmdUI)
 {
 #if WIN95NOCONTVIEW
   bool supported = !g_pYapConfig->win95;
@@ -595,18 +596,18 @@ void MainFrame::OnSinglePage()
     UpdateAllDviViews();
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MainFrame::OnUpdateSinglePage(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateSinglePage(CCmdUI* pCmdUI)
 {
   pCmdUI->SetCheck((!g_pYapConfig->doublePage && !g_pYapConfig->continuousView) ? 1 : 0);
 }
@@ -620,18 +621,18 @@ void MainFrame::OnDoublePage()
     UpdateAllDviViews();
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MainFrame::OnUpdateDoublePage(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateDoublePage(CCmdUI* pCmdUI)
 {
   pCmdUI->SetCheck((g_pYapConfig->doublePage && !g_pYapConfig->continuousView) ? 1 : 0);
 }
@@ -640,7 +641,7 @@ void MainFrame::OnViewFullScreen()
 {
   try
   {
-    CMDIChildWnd * pChild = MDIGetActive();
+    CMDIChildWnd* pChild = MDIGetActive();
 
     if (pChild == nullptr)
     {
@@ -721,20 +722,20 @@ void MainFrame::OnViewFullScreen()
     }
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MainFrame::OnUpdateViewFullScreen(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateViewFullScreen(CCmdUI* pCmdUI)
 {
-  CMDIChildWnd * pChild = MDIGetActive();
+  CMDIChildWnd* pChild = MDIGetActive();
   pCmdUI->Enable(pChild != nullptr);
   if (IsFullScreen())
   {
@@ -746,7 +747,7 @@ void MainFrame::OnUpdateViewFullScreen(CCmdUI * pCmdUI)
   }
 }
 
-void MainFrame::OnGetMinMaxInfo(MINMAXINFO * lpMMI)
+void MainFrame::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 {
   if (IsFullScreen())
   {
@@ -772,7 +773,7 @@ void MainFrame::OnViewCentimeters()
   g_pYapConfig->unit = Unit::Centimeters;
 }
 
-void MainFrame::OnUpdateViewCentimeters(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateViewCentimeters(CCmdUI* pCmdUI)
 {
   pCmdUI->Enable(TRUE);
   pCmdUI->SetCheck(g_pYapConfig->unit == Unit::Centimeters);
@@ -783,7 +784,7 @@ void MainFrame::OnViewInches()
   g_pYapConfig->unit = Unit::Inches;
 }
 
-void MainFrame::OnUpdateViewInches(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateViewInches(CCmdUI* pCmdUI)
 {
   pCmdUI->Enable(TRUE);
   pCmdUI->SetCheck(g_pYapConfig->unit == Unit::Inches);
@@ -794,7 +795,7 @@ void MainFrame::OnViewMillimeters()
   g_pYapConfig->unit = Unit::Millimeters;
 }
 
-void MainFrame::OnUpdateViewMillimeters(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateViewMillimeters(CCmdUI* pCmdUI)
 {
   pCmdUI->Enable(TRUE);
   pCmdUI->SetCheck(g_pYapConfig->unit == Unit::Millimeters);
@@ -805,7 +806,7 @@ void MainFrame::OnViewPicas()
   g_pYapConfig->unit = Unit::Picas;
 }
 
-void MainFrame::OnUpdateViewPicas(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateViewPicas(CCmdUI* pCmdUI)
 {
   pCmdUI->Enable(TRUE);
   pCmdUI->SetCheck(g_pYapConfig->unit == Unit::Picas);
@@ -816,7 +817,7 @@ void MainFrame::OnViewPoints()
   g_pYapConfig->unit = Unit::BigPoints;
 }
 
-void MainFrame::OnUpdateViewPoints(CCmdUI * pCmdUI)
+void MainFrame::OnUpdateViewPoints(CCmdUI* pCmdUI)
 {
   pCmdUI->Enable(TRUE);
   pCmdUI->SetCheck(g_pYapConfig->unit == Unit::BigPoints);

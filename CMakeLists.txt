@@ -413,12 +413,6 @@ option(
 )
 
 option(
-  WITH_COPY_START
-  "Build copy starter (obsolete)."
-  FALSE
-)
-
-option(
   WITH_CODE_SIGNING
   "Sign MiKTeX executables."
   FALSE
@@ -428,30 +422,6 @@ option(
   WITH_LIBRESSL_CRYPTO
   "Use the LibreSSL crypto library supplied with MiKTeX."
   ${WIN32}
-)
-
-option(
-  WITH_MPM_GUI
-  "Build MPM GUI application (obsolete)."
-  FALSE
-)
-
-option(
-  WITH_MO
-  "Build MiKTeX Options application (obsolete)."
-  FALSE
-)
-
-option(
-  WITH_UPDATE_WIZARD
-  "Build update wizard (obsolete)."
-  FALSE
-)
-
-option(
-  WITH_TASKBAR_ICON
-  "Build the taskbar icon (obsolete)."
-  FALSE
 )
 
 option(
@@ -801,7 +771,6 @@ include(DisableRuntimeChecks)
 include(InstallPaths)
 include(GenerateExportHeader)
 include(LibraryNames)
-include(Rebase)
 include(RuntimePaths)
 include(SetSharedLibraryVersion)
 include(SourcePaths)
@@ -914,11 +883,16 @@ set(required_programs
   xsltproc
 )
 
+if(WITH_MIKTEX_DOC)
+  list(APPEND required_programs
+    pandoc
+  )
+endif()
+
 if(WITH_UI_MFC)
   list(APPEND required_programs
     hhc
     makehm
-    pandoc
   )
 endif()
 
@@ -2085,18 +2059,7 @@ if(WITH_UI_QT)
 endif()
 
 if(WITH_UI_MFC)
-  if(WITH_MO)
-    add_subdirectory(${MIKTEX_REL_MO_MFC_DIR})
-  endif()
-  if(WITH_MPM_GUI)
-    add_subdirectory(${MIKTEX_REL_MPM_MFC_DIR})
-  endif()
-  add_subdirectory(${MIKTEX_REL_REMOVE_MFC_DIR})
   add_subdirectory(${MIKTEX_REL_SETUP_MFC_DIR})
-  add_subdirectory(${MIKTEX_REL_UI_MFC_DIR})
-  if(WITH_UPDATE_WIZARD)
-    add_subdirectory(${MIKTEX_REL_UPDATE_MFC_DIR})
-  endif()
   add_subdirectory(${MIKTEX_REL_YAP_MFC_DIR})
 endif()
 
@@ -2111,15 +2074,9 @@ endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_subdirectory(${MIKTEX_REL_ARCTRL_WIN_DIR})
-  if(WITH_COPY_START)
-    add_subdirectory(${MIKTEX_REL_COPYSTART_DIR})
-  endif()
   add_subdirectory(${MIKTEX_REL_DIB_DIR})
   add_subdirectory(${MIKTEX_REL_DVI_DIR})
   add_subdirectory(${MIKTEX_REL_MTPRINT_DIR})
-  if(WITH_TASKBAR_ICON)
-    add_subdirectory(${MIKTEX_REL_TASKBAR_ICON_WIN_DIR})
-  endif()
   add_subdirectory(${MIKTEX_REL_UNXEMU_DIR})
   add_subdirectory(${MIKTEX_REL_UTF8WRAP_DIR})
 endif()

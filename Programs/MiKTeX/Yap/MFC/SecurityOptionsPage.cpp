@@ -1,6 +1,6 @@
 /* SecurityOptionsPage.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -22,6 +22,8 @@
 
 #include "yap.h"
 
+#include "ErrorDialog.h"
+
 #include "SecurityOptionsPage.h"
 
 BEGIN_MESSAGE_MAP(SecurityOptionsPage, CPropertyPage)
@@ -39,7 +41,7 @@ SecurityOptionsPage::SecurityOptionsPage() :
 {
 }
 
-void SecurityOptionsPage::DoDataExchange(CDataExchange * pDX)
+void SecurityOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Radio(pDX, IDC_SECURITY_DISABLE_COMMANDS, enableShellCommands);
@@ -54,12 +56,12 @@ BOOL SecurityOptionsPage::OnApply()
     g_pYapConfig->secureCommands = TU_(secureCommands);
     return CPropertyPage::OnApply();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;

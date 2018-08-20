@@ -1,6 +1,6 @@
 /* DocumentFontsPage.h:                                 -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -36,13 +36,13 @@ public:
   vector<DviFontInfo> fontTable;
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  void DoDataExchange(CDataExchange* pDX) override;
 
 protected:
-  afx_msg void OnDoubleClick(NMHDR * pNMHDR, LRESULT * pResult);
+  afx_msg void OnDoubleClick(NMHDR* pNMHDR, LRESULT* pResult);
 
 private:
   CListCtrl listControl;

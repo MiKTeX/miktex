@@ -66,8 +66,6 @@ target_include_directories(${regex_dll_name}
     ${public_include_directories}
 )
 
-rebase(${regex_dll_name})
-
 install(TARGETS ${regex_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -796,7 +796,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
         done = false;
         if (!silently)
         {
-          MIKTEX_FATAL_ERROR_2(FatalError(ERROR_CANNOT_DELETE), "path", path.ToString(), "reason", e.what());
+          MIKTEX_FATAL_ERROR_2(FatalError(ERROR_CANNOT_DELETE), "path", path.ToString(), "reason", e.GetErrorMessage());
         }
       }
     }
@@ -933,7 +933,7 @@ void PackageInstallerImpl::MyCopyFile(const PathName& source, const PathName& de
         << T_("The write operation failed for the following reason:")
         << LF
         << LF
-        << "  " << e.what()
+        << "  " << e.GetErrorMessage()
         << LF
         << LF
         << T_("Make sure that no other application uses the file and that you have write permission on the file.");
@@ -1769,7 +1769,7 @@ void PackageInstallerImpl::InstallRemove()
       AutoSysString a(errorInfo.message);
       AutoSysString b(errorInfo.info);
       AutoSysString c(errorInfo.sourceFile);
-      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), MiKTeXException::KVMAP("", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
+      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), "", "", "", MiKTeXException::KVMAP("", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
     }
     return;
   }
@@ -2281,7 +2281,7 @@ void PackageInstallerImpl::UpdateDb()
       AutoSysString a(errorInfo.message);
       AutoSysString b(errorInfo.info);
       AutoSysString c(errorInfo.sourceFile);
-      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), MiKTeXException::KVMAP("", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
+      Session::FatalMiKTeXError(string(WU_(errorInfo.message)), "", "", "", MiKTeXException::KVMAP("", string(WU_(errorInfo.info))), SourceLocation("", string(WU_(errorInfo.sourceFile)), errorInfo.sourceLine));
     }
     return;
   }

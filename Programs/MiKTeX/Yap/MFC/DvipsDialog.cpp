@@ -1,6 +1,6 @@
 /* DvipsDialog.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -22,6 +22,8 @@
 
 #include "yap.h"
 
+#include "ErrorDialog.h"
+
 #include "DvipsDialog.h"
 
 BEGIN_MESSAGE_MAP(DvipsDialog, CDialog)
@@ -30,7 +32,7 @@ BEGIN_MESSAGE_MAP(DvipsDialog, CDialog)
   ON_EN_CHANGE(IDC_LAST_PAGE, OnChangeLastPage)
 END_MESSAGE_MAP();
 
-DvipsDialog::DvipsDialog(CWnd * pParent) :
+DvipsDialog::DvipsDialog(CWnd* pParent) :
   CDialog(IDD, pParent)
 {
 }
@@ -48,7 +50,7 @@ BOOL DvipsDialog::OnInitDialog()
       MIKTEX_FATAL_WINDOWS_ERROR(T_("EnumPrinters"));
     }
 
-    unsigned char * lpBuf = new unsigned char[needed];
+    unsigned char* lpBuf = new unsigned char[needed];
 
     try
     {
@@ -76,7 +78,7 @@ BOOL DvipsDialog::OnInitDialog()
         {
           MIKTEX_FATAL_WINDOWS_ERROR(T_("GetPrinter"));
         }
-        PRINTER_INFO_2 * lppi2 = reinterpret_cast<LPPRINTER_INFO_2>(GlobalAlloc(GPTR, needed2));
+        PRINTER_INFO_2* lppi2 = reinterpret_cast<LPPRINTER_INFO_2>(GlobalAlloc(GPTR, needed2));
         AutoGlobalMemory autoGlobalFree(lppi2);
         DWORD returned;
         if (!GetPrinter(hPrinter, 2, reinterpret_cast<LPBYTE>(lppi2), needed2, &returned))
@@ -90,7 +92,7 @@ BOOL DvipsDialog::OnInitDialog()
       }
     }
 
-    catch (const exception &)
+    catch (const exception&)
     {
       delete[] lpBuf;
       throw;
@@ -111,12 +113,12 @@ BOOL DvipsDialog::OnInitDialog()
     PathName path = session->GetGhostscript(nullptr);
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -124,7 +126,7 @@ BOOL DvipsDialog::OnInitDialog()
   return ret;
 }
 
-void DvipsDialog::DoDataExchange(CDataExchange * pDX)
+void DvipsDialog::DoDataExchange(CDataExchange* pDX)
 {
   CDialog::DoDataExchange(pDX);
 

@@ -530,7 +530,7 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
   LOG4CXX_INFO(logger, "installing package " << deploymentName << " triggered by " << trigger.ToString())
   if (!GetQuietFlag())
   {
-    cout << endl << SEP << endl;
+    cout << "\n" << SEP << endl;
   }
   bool done = false;
   bool switchToAdminMode = (pimpl->mpmAutoAdmin == TriState::True && !pimpl->session->IsAdminMode());
@@ -548,15 +548,19 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
   {
     pimpl->enableInstaller = TriState::False;
     pimpl->ignoredPackages.insert(deploymentName);
-    LOG4CXX_FATAL(logger, ex.what());
+    LOG4CXX_FATAL(logger, ex.GetErrorMessage());
     LOG4CXX_FATAL(logger, "Info: " << ex.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << ex.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << ex.GetSourceLine());
-    cerr << endl << "Unfortunately, the package " << deploymentName << " could not be installed.";
+    cerr
+      << "\n"
+      << "Unfortunately, the package " << deploymentName << " could not be installed." << endl;
     log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
     if (appender != nullptr)
     {
-      cerr << "Please check the log file:" << endl << PathName(appender->getFile()).ToUnix() << endl;
+      cerr
+        << "Please check the log file:" << "\n"
+        << PathName(appender->getFile()) << endl;
     }
   }
   if (switchToAdminMode)
@@ -687,42 +691,57 @@ void Application::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
   }
 }
 
-void Application::Sorry(const string& name, const string& reason)
+void Application::Sorry(const string& name, const string& description, const string& remedy, const string& url)
 {
   if (cerr.fail())
   {
     return;
   }
   cerr << endl;
-  if (reason.empty())
+  if (description.empty())
   {
     cerr << StringUtil::FormatString(T_("Sorry, but %s did not succeed."), Q_(name)) << endl;
   }
   else
   {
     cerr
-      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(name)) << endl << endl
-      << "  " << reason << endl;
+      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(name)) << "\n"
+      << "\n"
+      << "  " << description << endl;
+    if (!remedy.empty())
+    {
+      cerr
+        << "\n"
+        << T_("Remedy:") << "\n"
+        << "\n"
+        << "  " << remedy << endl;
+    }
   }
-  log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-  if (appender != nullptr)
+  if (instance != nullptr && instance->pimpl->isLog4cxxConfigured)
+  {
+    log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+    if (appender != nullptr)
+    {
+      cerr
+        << "\n"
+        << "The log file hopefully contains the information to get MiKTeX going again:" << "\n"
+        << "\n"
+        << "  " << PathName(appender->getFile()) << endl;
+    }
+  }
+  if (!url.empty())
   {
     cerr
-      << endl
-      << "The log file hopefully contains the information to get MiKTeX going again:" << endl
-      << endl
-      << "  " << PathName(appender->getFile()).ToUnix() << endl;
+      << "\n"
+      << T_("For more information, visit:") << " " << url << endl;
   }
-  cerr
-    << endl
-    << T_("You may want to visit the MiKTeX project page, if you need help.") << endl;
 }
 
 void Application::Sorry(const string& name, const MiKTeXException& ex)
 {
   if (logger != nullptr)
   {
-    LOG4CXX_FATAL(logger, ex.what());
+    LOG4CXX_FATAL(logger, ex.GetErrorMessage());
     LOG4CXX_FATAL(logger, "Info: " << ex.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << ex.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << ex.GetSourceLine());
@@ -730,12 +749,12 @@ void Application::Sorry(const string& name, const MiKTeXException& ex)
   else
   {
     cerr
-      << "ERROR: " << ex.what() << "\n"
+      << "ERROR: " << ex.GetErrorMessage() << "\n"
       << "ERROR: Info: " << ex.GetInfo() << "\n"
       << "ERROR: Source: " << ex.GetSourceFile() << "\n"
       << "ERROR: Line: " << ex.GetSourceLine() << "\n";
   }
-  Sorry(name);
+  Sorry(name, ex.GetDescription(), ex.GetRemedy(), ex.GetUrl());
 }
 
 void Application::Sorry(const string& name, const exception& ex)

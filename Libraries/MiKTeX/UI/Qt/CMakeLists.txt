@@ -150,6 +150,7 @@ target_link_libraries(${ui_qt_dll_name}
   PRIVATE
     ${core_dll_name}
     ${mpm_dll_name}
+    ${setup_dll_name}
     Qt5::Gui
     Qt5::Widgets
 )
@@ -161,8 +162,6 @@ if(MIKTEX_NATIVE_WINDOWS)
       Secur32
   )
 endif()
-
-rebase(${ui_qt_dll_name})
 
 install(TARGETS ${ui_qt_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"

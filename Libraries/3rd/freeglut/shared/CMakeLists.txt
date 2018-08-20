@@ -62,8 +62,6 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-rebase(${freeglut_dll_name})
-
 install(TARGETS ${freeglut_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -1,6 +1,6 @@
 /* AddChangeEditorDialog.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -22,6 +22,8 @@
 
 #include "yap.h"
 
+#include "ErrorDialog.h"
+
 #include "AddChangeEditorDialog.h"
 
 BEGIN_MESSAGE_MAP(AddChangeEditorDialog, CDialog)
@@ -31,7 +33,7 @@ BEGIN_MESSAGE_MAP(AddChangeEditorDialog, CDialog)
   ON_EN_CHANGE(IDC_NAME, &AddChangeEditorDialog::OnChangeName)
 END_MESSAGE_MAP()
 
-AddChangeEditorDialog::AddChangeEditorDialog(CWnd * pParent, const vector<EditorInfo> & editors, int firstCustomIdx) :
+AddChangeEditorDialog::AddChangeEditorDialog(CWnd* pParent, const vector<EditorInfo>& editors, int firstCustomIdx) :
   CDialog(AddChangeEditorDialog::IDD, pParent),
   editors(editors),
   firstCustomIdx(firstCustomIdx),
@@ -41,7 +43,7 @@ AddChangeEditorDialog::AddChangeEditorDialog(CWnd * pParent, const vector<Editor
 {
 }
 
-AddChangeEditorDialog::AddChangeEditorDialog(CWnd * pParent, const vector<EditorInfo> & editors, int firstCustomIdx, int currentIdx) :
+AddChangeEditorDialog::AddChangeEditorDialog(CWnd* pParent, const vector<EditorInfo>& editors, int firstCustomIdx, int currentIdx) :
   CDialog(AddChangeEditorDialog::IDD, pParent),
   editors(editors),
   firstCustomIdx(firstCustomIdx),
@@ -71,19 +73,19 @@ BOOL AddChangeEditorDialog::OnInitDialog()
 
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
 
   return ret;
 }
 
-void AddChangeEditorDialog::DoDataExchange(CDataExchange * pDX)
+void AddChangeEditorDialog::DoDataExchange(CDataExchange* pDX)
 {
   CDialog::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_NAME, nameEdit);
@@ -167,11 +169,11 @@ void AddChangeEditorDialog::OnBrowse()
     programEdit.SetWindowText(CW2T(ofn.lpstrFile));
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -183,11 +185,11 @@ void AddChangeEditorDialog::OnChangeName()
   {
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -199,11 +201,11 @@ void AddChangeEditorDialog::OnChangePath()
   {
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -215,11 +217,11 @@ void AddChangeEditorDialog::OnChangeArguments()
   {
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -227,7 +229,7 @@ void AddChangeEditorDialog::OnChangeArguments()
 
 void AddChangeEditorDialog::EnableButtons()
 {
-  CWnd * pOk = GetDlgItem(IDOK);
+  CWnd* pOk = GetDlgItem(IDOK);
   if (pOk == nullptr)
   {
     MIKTEX_UNEXPECTED();

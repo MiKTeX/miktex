@@ -1,6 +1,6 @@
 /* winMemoryMappedFile.cpp: memory mapped files
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -52,9 +52,9 @@ winMemoryMappedFile::~winMemoryMappedFile()
   }
 }
 
-void* winMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
+void* winMemoryMappedFile::Open(const PathName& path_, bool readWrite)
 {
-  path = pathArg;
+  path = path_;
   this->readWrite = readWrite;
 
   // create a unique object name
@@ -80,7 +80,12 @@ void* winMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
     ptr = MapViewOfFile(hMapping, (readWrite ? FILE_MAP_WRITE : FILE_MAP_READ), 0, 0, 0);
     if (ptr == nullptr)
     {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "path", path.ToString());
+      MIKTEX_FATAL_WINDOWS_ERROR_5("MapViewOfFile",
+        T_("MiKTeX cannot access the file '{path}'. It might be in use (blocked by another program)."),
+        T_("Close other programs and try again."),
+        "file-in-use",
+        "path", path.ToDisplayString(),
+        "readWrite", std::to_string(readWrite));
     }
 
     // get the size
@@ -97,6 +102,13 @@ void* winMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
   }
   else
   {
+    DWORD lastError = GetLastError();
+    MIKTEX_ASSERT(lastError != ERROR_SUCCESS);
+    if (lastError != ERROR_FILE_NOT_FOUND)
+    {
+      MIKTEX_FATAL_WINDOWS_RESULT_2("OpenFileMappingW", lastError, "path", name);
+    }
+
     traceStream->WriteFormattedLine("core", T_("creating new file mapping object %s"), Q_(name));
 
     // create a new file mapping
@@ -166,14 +178,14 @@ void winMemoryMappedFile::CreateMapping(size_t maximumFileSize)
   hMapping = ::CreateFileMappingW(hFile, nullptr, (readWrite ? PAGE_READWRITE : PAGE_READONLY), 0, static_cast<DWORD>(maximumFileSize), UW_(name));
   if (hMapping == nullptr)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileMappingW", "name", name);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileMappingW", "path", name);
   }
 
   // map file view into memory
   ptr = MapViewOfFile(hMapping, (readWrite ? FILE_MAP_WRITE : FILE_MAP_READ), 0, 0, maximumFileSize);
   if (ptr == nullptr)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "name", name);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "path", name);
   }
 }
 

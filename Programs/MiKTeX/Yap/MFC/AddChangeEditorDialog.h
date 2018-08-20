@@ -1,6 +1,6 @@
 /* AddChangeEditorDialog.cpp:                           -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -30,16 +30,19 @@ protected:
   DECLARE_MESSAGE_MAP();
 
 public:
-  AddChangeEditorDialog(CWnd * pParent, const vector<EditorInfo> & editors, int firstCustomIdx);
+  AddChangeEditorDialog(CWnd* pParent, const vector<EditorInfo>& editors, int firstCustomIdx);
 
 public:
-  AddChangeEditorDialog(CWnd * pParent, const vector<EditorInfo> & editors, int firstCustomIdx, int currentIdx);
+  AddChangeEditorDialog(CWnd* pParent, const vector<EditorInfo>& editors, int firstCustomIdx, int currentIdx);
 
 public:
   EditorInfo GetEditorInfo();
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
+
+protected:
+  void DoDataExchange(CDataExchange* pDX) override;
 
 protected:
   afx_msg void OnChangeName();
@@ -49,9 +52,6 @@ protected:
 
 protected:
   afx_msg void OnChangePath();
-
-protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
 
 public:
   afx_msg void OnBrowse();

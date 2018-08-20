@@ -1,6 +1,6 @@
 /* SourceSpecialsDialog.h:                              -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -33,25 +33,25 @@ protected:
   DECLARE_MESSAGE_MAP();
 
 public:
-  SourceSpecialsDialog(CWnd * pParent, DviDoc * pDoc);
+  SourceSpecialsDialog(CWnd* pParent, DviDoc* pDoc);
 
 protected:
-  virtual BOOL OnInitDialog();
+  BOOL OnInitDialog() override;
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  void DoDataExchange(CDataExchange* pDX) override;
 
 protected:
-  virtual void OnCancel();
+  void OnCancel() override;
 
 protected:
-  virtual void PostNcDestroy();
+  void PostNcDestroy() override;
 
 protected:
   afx_msg void OnClose();
 
 protected:
-  afx_msg void OnDblclkSourceSpecials(NMHDR * pNMHDR, LRESULT * pResult);
+  afx_msg void OnDblclkSourceSpecials(NMHDR* pNMHDR, LRESULT* pResult);
 
 protected:
   afx_msg void OnEditSource();
@@ -60,13 +60,13 @@ protected:
   afx_msg void OnGoto();
 
 protected:
-  afx_msg void OnItemchangedSourceSpecials(NMHDR * pNMHDR, LRESULT * pResult);
+  afx_msg void OnItemchangedSourceSpecials(NMHDR* pNMHDR, LRESULT* pResult);
 
 private:
-  DviDoc * pDviDoc;
+  DviDoc* pDviDoc;
 
 private:
-  DviView * pView;
+  DviView* pView;
 
 private:
   struct SrcSpecial

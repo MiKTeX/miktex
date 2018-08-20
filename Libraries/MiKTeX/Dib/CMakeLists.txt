@@ -72,8 +72,6 @@ target_link_libraries(${dib_dll_name}
     ${core_dll_name}
 )
 
-rebase(${dib_dll_name})
-
 set(chunkdib_sources chunkdib.cpp)
 
 if(MIKTEX_NATIVE_WINDOWS)

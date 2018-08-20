@@ -84,8 +84,6 @@ target_link_libraries(${texmf_dll_name}
     miktex-popt-wrapper
 )
 
-rebase(${texmf_dll_name})
-
 install(TARGETS ${texmf_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

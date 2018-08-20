@@ -1,6 +1,6 @@
 /* MagnifyingGlassOptionsPage.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -21,6 +21,8 @@
 #include "StdAfx.h"
 
 #include "yap.h"
+
+#include "ErrorDialog.h"
 
 #include "MagnifyingGlassOptionsPage.h"
 
@@ -76,18 +78,18 @@ BOOL MagnifyingGlassOptionsPage::OnInitDialog()
       MIKTEX_UNEXPECTED();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
   return ret;
 }
 
-void MagnifyingGlassOptionsPage::DoDataExchange(CDataExchange * pDX)
+void MagnifyingGlassOptionsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Text(pDX, IDC_MAGGLASS_MEDIUM_HEIGHT, mediumHeight);
@@ -150,12 +152,12 @@ BOOL MagnifyingGlassOptionsPage::OnApply()
 
     return CPropertyPage::OnApply();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;

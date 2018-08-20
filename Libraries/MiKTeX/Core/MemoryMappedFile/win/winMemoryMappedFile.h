@@ -1,6 +1,6 @@
 /* winMemoryMappedFile.h: memory mapped files           -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -39,16 +39,16 @@ public:
   ~winMemoryMappedFile() override;
 
 public:
-  void * MIKTEXTHISCALL Open(const MiKTeX::Core::PathName & path, bool readWrite) override;
+  void* MIKTEXTHISCALL Open(const MiKTeX::Core::PathName& path, bool readWrite) override;
 
 public:
   void MIKTEXTHISCALL Close() override;
 
 public:
-  void * MIKTEXTHISCALL Resize(size_t newSize) override;
+  void* MIKTEXTHISCALL Resize(size_t newSize) override;
 
 public:
-  void * GetPtr() const override
+  void* GetPtr() const override
   {
     return ptr;
   }
@@ -81,7 +81,7 @@ private:
   void DestroyMapping();
 
 private:
-  void * ptr = nullptr;
+  void* ptr = nullptr;
 
 private:
   bool readWrite = false;

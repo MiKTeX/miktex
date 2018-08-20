@@ -1,6 +1,6 @@
 /* GotoPageDialog.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -23,12 +23,14 @@
 #include "yap.h"
 
 #include "DviDoc.h"
+#include "ErrorDialog.h"
+
 #include "GotoPageDialog.h"
 
 BEGIN_MESSAGE_MAP(GotoPageDialog, CDialog)
 END_MESSAGE_MAP();
 
-GotoPageDialog::GotoPageDialog(CWnd * pParent, DviDoc * pDoc, int pageIdx) :
+GotoPageDialog::GotoPageDialog(CWnd* pParent, DviDoc* pDoc, int pageIdx) :
   CDialog(IDD, pParent),
   pDviDoc(pDoc),
   pageIdx(pageIdx)
@@ -53,18 +55,18 @@ BOOL GotoPageDialog::OnInitDialog()
       }
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
-    ErrorDialog::DoModal(0, e);
+    ErrorDialog::DoModal(nullptr, e);
   }
   return ret;
 }
 
-void GotoPageDialog::DoDataExchange(CDataExchange * pDX)
+void GotoPageDialog::DoDataExchange(CDataExchange* pDX)
 {
   CDialog::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_COMBO_PAGENO, pageComboBox);

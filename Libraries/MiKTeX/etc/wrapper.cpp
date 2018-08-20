@@ -1,6 +1,6 @@
 /* wrapper.cpp: wrap a main function
 
-   Copyright (C) 2004-2017 Christian Schenk
+   Copyright (C) 2004-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -124,6 +124,7 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
   {
     MiKTeX::App::Application::Sorry(nameOfTheGame, ex);
     app.Finalize2(EXIT_FAILURE);
+    ex.Save();
     return EXIT_FAILURE;
   }
   catch (const std::exception& ex)

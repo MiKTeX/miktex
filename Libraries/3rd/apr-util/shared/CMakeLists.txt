@@ -61,8 +61,6 @@ else()
   target_link_libraries(${apr_util_dll_name} PRIVATE ${expat_dll_name})
 endif()
 
-rebase(${apr_util_dll_name})
-
 install(TARGETS ${apr_util_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

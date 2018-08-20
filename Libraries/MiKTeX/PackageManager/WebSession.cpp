@@ -21,11 +21,6 @@
 
 #include "config.h"
 
-#if defined(MIKTEX_WINDOWS) && defined(WITH_WININET)
-#  include "win/winWebSession.h"
-static bool USE_WININET = false;
-#endif
-
 #if defined(HAVE_LIBCURL)
 #  include "CurlWebSession.h"
 #endif
@@ -47,12 +42,6 @@ WebFile::~WebFile()
 
 shared_ptr<WebSession> WebSession::Create(IProgressNotify_* pIProgressNotify)
 {
-#if defined (MIKTEX_WINDOWS) && defined(WITH_WININET)
-  if (USE_WININET)
-  {
-    return new winWebSession;
-  }
-#endif
 #if defined(HAVE_LIBCURL)
   return make_shared<CurlWebSession>(pIProgressNotify);
 #else

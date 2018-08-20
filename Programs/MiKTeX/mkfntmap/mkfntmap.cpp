@@ -983,7 +983,7 @@ void MakeFontMapApp::ParseDvipsMapFile(const PathName& mapFile, set<FontMapEntry
     }
     catch (const MiKTeXException& e)
     {
-      MapError("%s", e.what());
+      MapError("%s", e.GetErrorMessage().c_str());
     }
   }
 
@@ -1399,6 +1399,7 @@ int MAIN(int argc, MAINCHAR** argv)
   {
     Application::Sorry(THE_NAME_OF_THE_GAME, ex);
     logger = nullptr;
+    ex.Save();
     return 1;
   }
   catch (const exception& ex)

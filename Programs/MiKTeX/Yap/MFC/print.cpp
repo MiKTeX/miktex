@@ -1,6 +1,6 @@
 /* print.cpp: DVI printing
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -25,12 +25,14 @@
 #include "DviView.h"
 #include "Dvidoc.h"
 #include "DvipsDialog.h"
+#include "ErrorDialog.h"
+#include "ProgressDialog.h"
 
-BOOL DviView::OnPreparePrinting(CPrintInfo * pInfo)
+BOOL DviView::OnPreparePrinting(CPrintInfo* pInfo)
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
 
     pInfo->m_nCurPage = GetCurrentPageIdx() + 1;
@@ -59,68 +61,67 @@ BOOL DviView::OnPreparePrinting(CPrintInfo * pInfo)
     return TRUE;
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
 }
 
-void DviView::OnBeginPrinting(CDC * pDC, CPrintInfo * pInfo)
+void DviView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
   try
   {
     CScrollView::OnBeginPrinting(pDC, pInfo);
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     pDoc->BeginDviPrinting(pDC);
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnEndPrinting(CDC * pDC, CPrintInfo * pInfo)
+void DviView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
   try
   {
     CScrollView::OnEndPrinting(pDC, pInfo);
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     pDoc->EndDviPrinting();
     pPrintInfo = nullptr;
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void
-DviView::OnFileDvips()
+void DviView::OnFileDvips()
 {
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     DvipsDialog dlg(this);
     dlg.m_iFirstPage = pDoc->GetPageNum(0);
@@ -162,41 +163,41 @@ DviView::OnFileDvips()
     g_pYapConfig->Save();
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateFileDvips(CCmdUI * pCmdUI)
+void DviView::OnUpdateFileDvips(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
       enable = TRUE;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
   pCmdUI->Enable(enable);
 }
 
-void DviView::PrintPostScript(const char * lpszDviFileName, const char * lpszPrinterName, const DviView::PrintRange & pr)
+void DviView::PrintPostScript(const char* lpszDviFileName, const char* lpszPrinterName, const DviView::PrintRange& pr)
 {
   // locate mtprint.exe
   PathName mtprint;
@@ -255,44 +256,44 @@ void DviView::PrintPostScript(const char * lpszDviFileName, const char * lpszPri
   }
 }
 
-void DviView::OnPrint(CDC * pDC, CPrintInfo * pInfo)
+void DviView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 {
   try
   {
     pPrintInfo = pInfo;
     CScrollView::OnPrint(pDC, pInfo);
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void DviView::OnUpdateFilePrint(CCmdUI * pCmdUI)
+void DviView::OnUpdateFilePrint(CCmdUI* pCmdUI)
 {
   BOOL enable = FALSE;
   try
   {
-    DviDoc * pDoc = GetDocument();
+    DviDoc* pDoc = GetDocument();
     ASSERT_VALID(pDoc);
     if (pDoc->GetDviFileStatus() == DviDoc::DVIFILE_LOADED)
     {
       enable = TRUE;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }

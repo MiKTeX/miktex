@@ -1,6 +1,6 @@
 /* DviStatusBar.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -21,6 +21,8 @@
 #include "StdAfx.h"
 
 #include "yap.h"
+
+#include "ErrorDialog.h"
 
 #include "DviStatusBar.h"
 
@@ -53,18 +55,18 @@ void DviStatusBar::OnRButtonDown(UINT nFlags, CPoint point)
       MIKTEX_FATAL_WINDOWS_ERROR("CMenu::LoadMenu");
     }
     AutoDetachMenu autoDetachMenu(&menu);
-    CMenu * pPopup = menu.GetSubMenu(0);
+    CMenu* pPopup = menu.GetSubMenu(0);
     MIKTEX_ASSERT(pPopup != nullptr);
     if (!pPopup->TrackPopupMenu(TPM_RIGHTBUTTON, point.x, point.y, AfxGetApp()->m_pMainWnd, nullptr))
     {
       MIKTEX_UNEXPECTED();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
