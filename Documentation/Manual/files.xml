@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<chapter id="files">
+
+<title>Files</title>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktexini.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/pdftexcfg.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/updmapcfg.xml" />
+
+</chapter>

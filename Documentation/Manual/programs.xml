@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<chapter id="programs">
+
+<title>Programs</title>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/bibtex.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/dvicopy.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/dvips.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/findtexmf.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/gftodvi.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/initexmf.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/luatex.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/mf.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktexsetup.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/mpm.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/mpost.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/mthelp.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/mtprint.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/pdftex.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/setupwiz.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/tex.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/texify.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/xetex.xml" />
+
+</chapter>

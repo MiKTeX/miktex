@@ -43,8 +43,6 @@ configure_file(
 )
 
 set(screenshots_png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/autoinstall.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/Images/mpm.png
 )
 
 set(envvar_xml_files
@@ -153,12 +151,17 @@ set(ref_xml_files
 
 set(manual_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/configuring.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Manual/defaults.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/envvars.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/features.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Manual/files.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/installing.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/intro.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/localguide.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/printing.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Manual/programs.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Manual/psfonts.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Manual/runtimeparams.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/tcxtables.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texfeatures.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texifying.xml

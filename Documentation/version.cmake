@@ -17,4 +17,4 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_COMP_J2000_VERSION 6630)
+set(MIKTEX_COMP_J2000_VERSION 6806)

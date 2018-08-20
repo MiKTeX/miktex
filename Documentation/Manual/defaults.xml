@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+<!ENTITY mfappdefaults SYSTEM "mfapp.defaults">
+<!ENTITY mfdefaults SYSTEM "mf.defaults">
+<!ENTITY miktexconfigini SYSTEM "miktex-config.ini">
+<!ENTITY mpostdefaults SYSTEM "mpost.defaults">
+<!ENTITY omegadefaults SYSTEM "omega.defaults">
+<!ENTITY pdftexdefaults SYSTEM "pdftex.defaults">
+<!ENTITY texappdefaults SYSTEM "texapp.defaults">
+<!ENTITY texmfappdefaults SYSTEM "texmfapp.defaults">
+%entities.ent;
+]>
+
+<chapter id="defaults">
+
+<title>Run-Time Defaults</title>
+
+<para>&MiKTeX; configuration settings are initialized with default
+values which are described in this chapter.</para>
+
+<section id="miktexconfig">
+
+<title>All &MiKTeX; Programs</title>
+
+<programlisting>&miktexconfigini;</programlisting>
+
+</section>
+
+<section id="texmfdefaults">
+
+<title>All &TeXMF; Programs</title>
+
+<programlisting>&texmfappdefaults;</programlisting>
+
+</section>
+
+<section id="texdefaults">
+
+<title>All &TeX; Programs</title>
+
+<programlisting>&texappdefaults;</programlisting>
+
+</section>
+
+<section id="omegadefaults">
+
+<title>&Omega;</title>
+
+<programlisting>&omegadefaults;</programlisting>
+
+</section>
+
+<section id="pdftexdefaults">
+
+<title>&pdfTeX;</title>
+
+<programlisting>&pdftexdefaults;</programlisting>
+
+</section>
+
+<section id="mpmfdefaults">
+
+<title>&METAFONT; &amp; &MetaPost;</title>
+
+<programlisting>&mfappdefaults;</programlisting>
+
+</section>
+
+<section id="mfdefaults">
+
+<title>&METAFONT;</title>
+
+<programlisting>&mfdefaults;</programlisting>
+
+</section>
+
+<section id="mpostdefaults">
+
+<title>&MetaPost;</title>
+
+<programlisting>&mpostdefaults;</programlisting>
+
+</section>
+
+</chapter>

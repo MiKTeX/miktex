@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<!DOCTYPE variablelist PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                              "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 <!ENTITY TFMFONTS SYSTEM "../EnvVars/TFMFONTS.xml">
@@ -8,6 +8,10 @@
 <!ENTITY MPINPUTS SYSTEM "../EnvVars/MPINPUTS.xml">
 <!ENTITY BSTINPUTS SYSTEM "../EnvVars/BSTINPUTS.xml">
 ]>
+
+<chapter id="envvars">
+
+<title>Environment variables</title>
 
 <variablelist>
 
@@ -21,3 +25,5 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/TFMFONTS.xml" />
 
 </variablelist>
+
+</chapter>

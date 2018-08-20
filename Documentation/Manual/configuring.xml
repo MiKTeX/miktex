@@ -96,22 +96,7 @@ tutorial</ulink>, for a step-by-step guide.</para>
 </indexterm>
 missing packages.</para>
 
-<para>&MiKTeX; asks your permission before installing a package (see
-<xref linkend="autoinstalldlg"/>.</para>
-
-<figure id="autoinstalldlg">
-<title>Automatic Package Installation</title>
-<screenshot>
-<mediaobject>
-<imageobject role="html">
-<imagedata format="PNG" fileref="images/autoinstall.png" scale="75" />
-</imageobject>
-<imageobject role="fo">
-<imagedata format="PNG" fileref="images/autoinstall.png" />
-</imageobject>
-</mediaobject>
-</screenshot>
-</figure>
+<para>&MiKTeX; asks your permission before installing a package.</para>
 
 <para>Click <guibutton>Install</guibutton> to start the installation of the
 package. Click <guibutton>Cancel</guibutton>, to cancel the

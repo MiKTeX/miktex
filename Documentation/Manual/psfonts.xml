@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<section id="psfonts">
+
+<title>Managing Font Map Files</title>
+
+<indexterm>
+<primary>Outline fonts</primary>
+<secondary>psfonts.map</secondary>
+</indexterm>
+
+<indexterm>
+<primary>PostScript Type 1 fonts</primary>
+<secondary>psfonts.map</secondary>
+</indexterm>
+
+<para>Information about outline fonts is stored in a file by the name
+of <filename>psfonts.map</filename>.  This file is normally created
+automatically.  It can be manually created by
+<indexterm>
+<primary>psfonts.map</primary>
+<secondary>creating</secondary>
+</indexterm>
+running <userinput moreinfo="refentry">initexmf --mkmaps</userinput>.</para>
+
+<para><filename>psfonts.map</filename> depends on the file
+<filename>updmap.cfg</filename>.  This configuration file contains
+declarative instructions (see <xref linkend="updmapcfg"/>), which will
+be used to build <filename>psfonts.map</filename>.</para>
+
+<caution>
+<para>The contents of <filename>psfonts.map</filename> should never be
+edited directly.  Your modifications get lost when you install new
+packages.</para>
+</caution>
+
+<para>For example, follow these steps if you want to add an entry for
+the font map file <filename>xyz.map</filename>:</para>
+
+<procedure>
+<step><para>Run <userinput>initexmf --edit-config-file updmap</userinput>.</para></step>
+<step><para>Insert the following line at the end of the file:</para>
+<programlisting>Map xyz.map</programlisting></step>
+<step><para>Save the file and close the editor.</para></step>
+<step><para>Run <userinput>initexmf --mkmaps</userinput> to rebuild
+the font map files.</para></step>
+</procedure>
+
+</section>

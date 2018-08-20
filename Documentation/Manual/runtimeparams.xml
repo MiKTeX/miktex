@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<section id="runtimeparams">
+
+<title>Changing &TEXMF; run-time parameters</title>
+
+<para>You can control a number of run-time parameters (in particular,
+array sizes) on the command-line or in a configuration file.</para>
+
+<para>Some of the more interesting paramaters:</para>
+
+<variablelist>
+<varlistentry>
+<term>main_memory</term>
+<listitem><para>Total words of memory available, for &TeX;, &METAFONT;, and &MetaPost;.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>extra_mem_bot</term>
+<listitem><para>Extra space for large &TeX; data structures: boxes, glue,
+breakpoints, et al.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>font_mem_size</term>
+<listitem><para>Words of font info available for &TeX;.</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>See <xref linkend="defaults"/>, for a complete list of the
+&TEXMF; run-time parameters.</para>
+
+<para>Here is a typical example of a configuration file:</para>
+
+<indexterm>
+<primary>main_memory</primary>
+</indexterm>
+
+<indexterm>
+<primary>extra_mem_bot</primary>
+</indexterm>
+
+<indexterm>
+<primary>font_mem_size</primary>
+</indexterm>
+
+<programlisting>main_memory=2000000
+extra_mem_bot=2000000
+font_mem_size=2000000</programlisting>
+
+<para>The name of the configuration file is that of the engine (e.g., &miktexpdftex;)
+or format (e.g, &miktexpdflatex;). You use the <option>--edit-config-file</option>
+option of &initexmf; to edit the configuration file, e.g.:</para>
+
+<informalexample>
+<screen><prompt>&prompt;</prompt><userinput>initexmf --edit-config-file=pdflatex</userinput>
+
+<prompt>&prompt;</prompt></screen>
+</informalexample>
+
+</section>
