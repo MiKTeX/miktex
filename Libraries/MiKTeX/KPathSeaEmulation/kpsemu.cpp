@@ -505,7 +505,7 @@ MIKTEXKPSCEEAPI(void) miktex_xfclose(FILE* file, const char* path)
   session->CloseFile(file);
 }
 
-MIKTEXKPSCEEAPI(FILE *) miktex_xfopen(const char* path, const char* modeString)
+MIKTEXKPSCEEAPI(FILE*) miktex_xfopen(const char* path, const char* modeString)
 {
   return FOpen(path, modeString);
 }
