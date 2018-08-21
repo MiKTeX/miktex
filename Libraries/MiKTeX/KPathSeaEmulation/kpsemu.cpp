@@ -344,7 +344,7 @@ MIKTEXSTATICFUNC(void) TranslateModeString(const char* modeString, FileMode& mod
   }
 }
 
-MIKTEXSTATICFUNC(FILE *) TryFOpen(const char* fileName, const char* modeString)
+MIKTEXSTATICFUNC(FILE*) TryFOpen(const char* fileName, const char* modeString)
 {
   shared_ptr<Session> session = Session::Get();
   FileMode mode(FileMode::Open);
