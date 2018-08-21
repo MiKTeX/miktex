@@ -360,7 +360,7 @@ MIKTEXKPSCEEAPI(FILE*) miktex_kpathsea_open_file(kpathsea kpseInstance, const ch
   char* path = kpse_find_file(fileName, format, 1);
   if (path == nullptr)
   {
-    MIKTEX_FATAL_ERROR_2(T_("File not found."), "fileName", path);
+    MIKTEX_FATAL_ERROR_2(T_("File '{fileName}' not found."), "fileName", fileName);
   }
   FILE* file;
   try
@@ -414,37 +414,37 @@ MIKTEXKPSCEEAPI(int) miktex_strcasecmp(const char* lpsz1, const char* lpsz2)
   return StringCompare(lpsz1, lpsz2, true);
 }
 
-MIKTEXKPSCEEAPI(int) miktex_xfseek(FILE* file, long offset, int where, const char* fileName)
+MIKTEXKPSCEEAPI(int) miktex_xfseek(FILE* file, long offset, int where, const char* path)
 {
   if (fseek(file, offset, where) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("fseek", "fileName", fileName);
+    MIKTEX_FATAL_CRT_ERROR_2("fseek", "path", path);
   }
   return 0;
 }
 
-MIKTEXKPSCEEAPI(int) miktex_xfseeko(FILE* file, off_t offset, int where, const char* fileName)
+MIKTEXKPSCEEAPI(int) miktex_xfseeko(FILE* file, off_t offset, int where, const char* path)
 {
   if (fseek(file, offset, where) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("fseek", "fileName", fileName);
+    MIKTEX_FATAL_CRT_ERROR_2("fseek", "path", path);
   }
   return 0;
 }
 
 
-MIKTEXKPSCEEAPI(int) miktex_xfseeko64(FILE* file, MIKTEX_INT64 offset, int where, const char* fileName)
+MIKTEXKPSCEEAPI(int) miktex_xfseeko64(FILE* file, MIKTEX_INT64 offset, int where, const char* path)
 {
 #if defined(_MSC_VER)
   if (_fseeki64(file, offset, where) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("_fseeki64", "fileName", fileName);
+    MIKTEX_FATAL_CRT_ERROR_2("_fseeki64", "path", path);
   }
   return 0;
 #elif defined(HAVE_FSEEKO64)
   if (fseeko64(file, offset, where) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("fseeko64", "fileName", fileName);
+    MIKTEX_FATAL_CRT_ERROR_2("fseeko64", "path", path);
   }
   return 0;
 #else
@@ -454,46 +454,46 @@ MIKTEXKPSCEEAPI(int) miktex_xfseeko64(FILE* file, MIKTEX_INT64 offset, int where
   }
   if (fseeko(file, offset, where) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("fseeko", "fileName", fileName);
+    MIKTEX_FATAL_CRT_ERROR_2("fseeko", "path", path);
   }
   return 0;
 #endif
 }
 
-MIKTEXKPSCEEAPI(long) miktex_xftell(FILE* file, const char* fileName)
+MIKTEXKPSCEEAPI(long) miktex_xftell(FILE* file, const char* path)
 {
   long pos = ftell(file);
   if (pos < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("ftell", "fileName", fileName);
+    MIKTEX_FATAL_CRT_ERROR_2("ftell", "path", path);
   }
   return pos;
 }
 
-MIKTEXKPSCEEAPI(off_t) miktex_xftello(FILE* file, const char* fileName)
+MIKTEXKPSCEEAPI(off_t) miktex_xftello(FILE* file, const char* path)
 {
   long pos = ftell(file);
   if (pos < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("ftell", "fileName", fileName);
+    MIKTEX_FATAL_CRT_ERROR_2("ftell", "path", path);
   }
   return pos;
 }
 
-MIKTEXKPSCEEAPI(MIKTEX_INT64) miktex_xftello64(FILE* file, const char* fileName)
+MIKTEXKPSCEEAPI(MIKTEX_INT64) miktex_xftello64(FILE* file, const char* path)
 {
 #if defined(_MSC_VER)
   MIKTEX_INT64 pos = _ftelli64(file);
   if (pos < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("_ftelli64", "fileName", fileName);
+    MIKTEX_FATAL_CRT_ERROR_2("_ftelli64", "path", path);
   }
   return pos;
 #elif defined(HAVE_FTELLO64)
   MIKTEX_INT64 pos = ftello64(file);
   if (pos < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("ftello64", "fileName", fileName);
+    MIKTEX_FATAL_CRT_ERROR_2("ftello64", "path", path);
   }
   return pos;
 #else
@@ -504,26 +504,26 @@ MIKTEXKPSCEEAPI(MIKTEX_INT64) miktex_xftello64(FILE* file, const char* fileName)
   MIKTEX_INT64 pos = ftello(file);
   if (pos < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("ftello", "fileName", fileName);
+    MIKTEX_FATAL_CRT_ERROR_2("ftello", "path", path);
   }
   return pos;
 #endif
 }
 
-MIKTEXKPSCEEAPI(void) miktex_xfclose(FILE* file, const char* fileName)
+MIKTEXKPSCEEAPI(void) miktex_xfclose(FILE* file, const char* path)
 {
   shared_ptr<Session> session = Session::Get();
   session->CloseFile(file);
 }
 
-MIKTEXKPSCEEAPI(FILE *) miktex_xfopen(const char* fileName, const char* modeString)
+MIKTEXKPSCEEAPI(FILE *) miktex_xfopen(const char* path, const char* modeString)
 {
   shared_ptr<Session> session = Session::Get();
   FileMode mode(FileMode::Open);
   FileAccess access(FileAccess::Read);
   bool isTextFile;
   TranslateModeString(modeString, mode, access, isTextFile);
-  return session->OpenFile(fileName, mode, access, isTextFile, FileShare::ReadWrite);
+  return session->OpenFile(path, mode, access, isTextFile, FileShare::ReadWrite);
 }
 
 MIKTEXKPSCEEAPI(char*) miktex_xgetcwd()
