@@ -1,7 +1,7 @@
 /* miktex/KPSE/Emulation.h: kpathsea emulation          -*- C++ -*-
 
    Copyright 1993, 1995, 1996, 2005, 2008, 2009, 2010 Karl Berry
-   Copyright (C) 2000-2017 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -191,8 +191,8 @@
 
 MIKTEX_BEGIN_EXTERN_C_BLOCK;
 
-typedef char * string;
-typedef const char * const_string;
+typedef char* string;
+typedef const char* const_string;
 
 #if defined(MIKTEX_WINDOWS)
 #  include <Windows.h>
@@ -282,8 +282,8 @@ typedef struct
 {
   const_string path;
   const_string type;
-  const_string * suffix;
-  const_string * alt_suffix;
+  const_string* suffix;
+  const_string* alt_suffix;
   boolean program_enabled_p;
 } kpse_format_info_type;
 
@@ -302,11 +302,11 @@ typedef struct kpathsea_instance * kpathsea;
 
 typedef struct kpathsea_instance
 {
-  char * program_name;
+  char* program_name;
   const_string fallback_resolutions_string;
   unsigned debug;
   boolean make_tex_discard_errors;
-  char * invocation_name;
+  char* invocation_name;
   kpse_format_info_type format_info[kpse_last_format];
 } kpathsea_instance;
 
@@ -403,7 +403,7 @@ MIKTEX_END_EXTERN_C_BLOCK;
   START_FATAL(); fprintf(stderr, str, e1, e2, e3, e4, e5, e6); END_FATAL()
 
 #if defined(__cplusplus)
-MIKTEXNORETURN inline void FATAL_PERROR(const char * str)
+MIKTEXNORETURN inline void FATAL_PERROR(const char* str)
 {
   fprintf(stderr, "%s: ", kpse_invocation_name);
   perror(str);
@@ -419,7 +419,7 @@ MIKTEXNORETURN inline void FATAL_PERROR(const char * str)
 #endif
 
 #if defined(__cplusplus)
-inline int FILESTRCASEEQ(const char * s1, const char * s2)
+inline int FILESTRCASEEQ(const char* s1, const char* s2)
 {
   return MiKTeX::Core::PathName::Compare(s1, s2) == 0;
 }
@@ -554,7 +554,7 @@ inline int FILESTRCASEEQ(const char * s1, const char * s2)
 typedef struct
 {
   unsigned length;
-  char ** list;
+  char** list;
 } str_list_type;
 
 #define STR_LIST_LENGTH(l) ((l).length)
@@ -598,10 +598,10 @@ typedef struct
  */
 
 #define kpathsea_find_file(kpse, name, format, must_exist) \
-      miktex_kpathsea_find_file(kpse, name, format, must_exist)
+  miktex_kpathsea_find_file(kpse, name, format, must_exist)
 
 #define kpathsea_find_file_generic(kpse, name, format, must_exist, all) \
-      miktex_kpathsea_find_file_generic(kpse, name, format, must_exist, all)
+  miktex_kpathsea_find_file_generic(kpse, name, format, must_exist, all)
 
 #define kpathsea_in_name_ok(kpse, fname) miktex_kpathsea_in_name_ok(kpse, fname)
 #define kpathsea_in_name_ok_silent(kpse, fname) miktex_kpathsea_in_name_ok(kpse, fname)
@@ -610,7 +610,7 @@ typedef struct
 #define kpathsea_out_name_ok_silent(kpse, fname) miktex_kpathsea_out_name_ok(kpse, fname)
 
 #define kpathsea_init_format(kpse, format) \
-      miktex_kpathsea_init_format(kpse, format)
+  miktex_kpathsea_init_format(kpse, format)
 
 #define kpathsea_maketex_option(kpse, fmtname, value) \
   miktex_kpathsea_maketex_option(kpse, fmtname, value)
@@ -633,7 +633,7 @@ typedef struct
 #define kpse_reset_program_name(progname)
 
 #define kpse_find_file(name, format, must_exist) \
-      kpathsea_find_file(kpse_def, name, format, must_exist)
+  kpathsea_find_file(kpse_def, name, format, must_exist)
 
 #define kpse_find_ofm(name) kpse_find_file(name, kpse_ofm_format, 1)
 
@@ -654,7 +654,7 @@ typedef struct
 #define kpse_out_name_ok(fname) kpathsea_out_name_ok(kpse_def, fname)
 
 #define kpse_init_format(format) \
-      kpathsea_init_format(kpse_def, format)
+  kpathsea_init_format(kpse_def, format)
 
 #endif
 
@@ -737,7 +737,7 @@ typedef enum
 
 typedef struct
 {
-  char * name;
+  char* name;
   unsigned dpi;
   kpse_file_format_type format;
   kpse_glyph_source_type source;
@@ -839,103 +839,103 @@ MIKTEX_END_EXTERN_C_BLOCK;
 
 MIKTEX_BEGIN_EXTERN_C_BLOCK;
 
-MIKTEXKPSCEEAPI(boolean) miktex_kpathsea_absolute_p(kpathsea kpse, const char * lpszFileName, boolean relativeOk);
+MIKTEXKPSCEEAPI(boolean) miktex_kpathsea_absolute_p(kpathsea kpseInstance, const char* fileName, boolean relativeOk);
 
-MIKTEXKPSCEEAPI(char **) miktex_kpathsea_all_path_search(kpathsea kpse, const char * lpszPath, const char * lpszName);
+MIKTEXKPSCEEAPI(char**) miktex_kpathsea_all_path_search(kpathsea kpseInstance, const char* path, const char* fileName);
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_bitmap_tolerance(kpathsea kpse, double dpi1, double dpi2);
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_bitmap_tolerance(kpathsea kpseInstance, double dpi1, double dpi2);
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_brace_expand(kpathsea kpse, const char * lpszPath);
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_brace_expand(kpathsea kpseInstance, const char* path);
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_file(kpathsea kpse, const char * lpszFileName, kpse_file_format_type format, int mustExist);
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_file(kpathsea kpseInstance, const char* fileName, kpse_file_format_type format, int mustExist);
 
-MIKTEXKPSCEEAPI(char **) miktex_kpathsea_find_file_generic(kpathsea kpse, const char * lpszFileName, kpse_file_format_type format, boolean mustExist, boolean all);
+MIKTEXKPSCEEAPI(char**) miktex_kpathsea_find_file_generic(kpathsea kpseInstance, const char* fileName, kpse_file_format_type format, boolean mustExist, boolean all);
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_glyph(kpathsea kpse, const char * lpszFontName, unsigned dpi, kpse_file_format_type format, kpse_glyph_file_type * glyph_file);
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_glyph(kpathsea kpseInstance, const char* fontName, unsigned dpi, kpse_file_format_type format, kpse_glyph_file_type* glyph_file);
 
-MIKTEXKPSCEEAPI(void) miktex_kpathsea_finish(kpathsea kpse);
+MIKTEXKPSCEEAPI(void) miktex_kpathsea_finish(kpathsea kpseInstance);
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpse, const char * lpszFileName);
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const char* fileName);
 
-MIKTEXKPSCEEAPI(const char *) miktex_kpathsea_init_format(kpathsea kpse, kpse_file_format_type format);
+MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea kpseInstance, kpse_file_format_type format);
 
-MIKTEXKPSCEEAPI(void) miktex_kpathsea_init_prog(kpathsea kpse, const char * lpszPrefix, unsigned dpi, const char * lpszMode, const char * lpszFallback);
+MIKTEXKPSCEEAPI(void) miktex_kpathsea_init_prog(kpathsea kpseInstance, const char* prefix, unsigned dpi, const char* modeString, const char* fallback);
 
-MIKTEXKPSCEEAPI(unsigned) miktex_kpathsea_magstep_fix(kpathsea kpse, unsigned dpi, unsigned bdpi, int * pRet);
+MIKTEXKPSCEEAPI(unsigned) miktex_kpathsea_magstep_fix(kpathsea kpseInstance, unsigned dpi, unsigned bdpi, int* ret);
 
-MIKTEXKPSCEEAPI(void) miktex_kpathsea_maketex_option(kpathsea kpse, const char * lpszFmtName, boolean value);
+MIKTEXKPSCEEAPI(void) miktex_kpathsea_maketex_option(kpathsea kpseInstance, const char* formatName, boolean value);
 
 MIKTEXKPSCEEAPI(kpathsea) miktex_kpathsea_new();
 
-MIKTEXKPSCEEAPI(FILE *) miktex_kpathsea_open_file(kpathsea kpse, const char * lpszFileName, kpse_file_format_type format);
+MIKTEXKPSCEEAPI(FILE *) miktex_kpathsea_open_file(kpathsea kpseInstance, const char* fileName, kpse_file_format_type format);
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpse, const char * lpszFileName);
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const char* fileName);
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_path_expand(kpathsea kpse, const char * lpszPath);
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_expand(kpathsea kpseInstance, const char* path);
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_path_search(kpathsea kpse, const char * lpszPath, const char * lpszName, boolean mustExist);
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_search(kpathsea kpseInstance, const char* path, const char* fileName, boolean mustExist);
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_program_basename(const char * lpszArgv0);
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_program_basename(const char* argv0);
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_readable_file(kpathsea kpse, const char * lpszName);
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_readable_file(kpathsea kpseInstance, const char* fileName);
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_selfdir(kpathsea kpse, const char * lpszArgv0);
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_selfdir(kpathsea kpseInstance, const char* argv0);
 
-MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_name(kpathsea kpse, const char * lpszArgv0, const char * lpszProgramName);
+MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_name(kpathsea kpseInstance, const char* argv0, const char* programName);
 
-MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_enabled(kpathsea kpse, kpse_file_format_type fmt, boolean value, kpse_src_type level);
+MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_enabled(kpathsea kpseInstance, kpse_file_format_type fmt, boolean value, kpse_src_type level);
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_var_expand(kpathsea kpse, const char * lpszSource);
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_var_expand(kpathsea kpseInstance, const char* soure);
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_var_value(kpathsea kpse, const char * lpszVarName);
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_var_value(kpathsea kpseInstance, const char* varName);
 
-MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpse, const char * lpszVarName, const char * lpszValue);
+MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpseInstance, const char* varName, const char* value);
 
 #if WITH_CONTEXT_SUPPORT
-MIKTEXKPSCEEAPI(char *) miktex_kpsemu_create_texmf_cnf();
+MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf();
 #endif
 
-MIKTEXKPSCEEAPI(char *) miktex_concatn(const char * lpsz1, ...);
+MIKTEXKPSCEEAPI(char*) miktex_concatn(const char* s1, ...);
 
-MIKTEXKPSCEEAPI(char *) miktex_find_suffix(const char * lpszPath);
+MIKTEXKPSCEEAPI(char*) miktex_find_suffix(const char* path);
 
-MIKTEXKPSCEEAPI(char *) miktex_read_line(FILE * pFile);
+MIKTEXKPSCEEAPI(char*) miktex_read_line(FILE* file);
 
-MIKTEXKPSCEEAPI(char *) miktex_remove_suffix(const char * lpszPath);
+MIKTEXKPSCEEAPI(char*) miktex_remove_suffix(const char* path);
 
-MIKTEXKPSCEEAPI(void) miktex_str_list_add(str_list_type * pStringList, char * lpsz);
+MIKTEXKPSCEEAPI(void) miktex_str_list_add(str_list_type* stringList, char* s);
 
-MIKTEXKPSCEEAPI(int) miktex_strcasecmp(const char * lpsz1, const char * lpsz2);
+MIKTEXKPSCEEAPI(int) miktex_strcasecmp(const char* s1, const char* s2);
 
-MIKTEXKPSCEEAPI(char *) miktex_uppercasify(const char * lpsz);
+MIKTEXKPSCEEAPI(char*) miktex_uppercasify(const char* s);
 
-MIKTEXKPSCEEAPI(const char *) miktex_xbasename(const char * lpszFileName);
+MIKTEXKPSCEEAPI(const char*) miktex_xbasename(const char* fileName);
 
-MIKTEXKPSCEEAPI(char *) miktex_xdirname(const char * lpszFileName);
+MIKTEXKPSCEEAPI(char*) miktex_xdirname(const char* fileName);
 
-MIKTEXKPSCEEAPI(void) miktex_xfclose(FILE * stream, const char * fileName);
+MIKTEXKPSCEEAPI(void) miktex_xfclose(FILE* file, const char* fileName);
 
-MIKTEXKPSCEEAPI(FILE *) miktex_xfopen(const char * lpszName, const char * lpszMode);
+MIKTEXKPSCEEAPI(FILE *) miktex_xfopen(const char* fileName, const char* modeString);
 
-MIKTEXKPSCEEAPI(int) miktex_xfseek(FILE * pfile, long offset, int where, const char * lpszFileName);
+MIKTEXKPSCEEAPI(int) miktex_xfseek(FILE* file, long offset, int where, const char* fileName);
 
-MIKTEXKPSCEEAPI(int) miktex_xfseeko(FILE * pfile, off_t offset, int where, const char * lpszFileName);
+MIKTEXKPSCEEAPI(int) miktex_xfseeko(FILE* file, off_t offset, int where, const char* fileName);
 
-MIKTEXKPSCEEAPI(int) miktex_xfseeko64(FILE * pfile, MIKTEX_INT64 offset, int where, const char * lpszFileName);
+MIKTEXKPSCEEAPI(int) miktex_xfseeko64(FILE* file, MIKTEX_INT64 offset, int where, const char* fileName);
 
-MIKTEXKPSCEEAPI(long) miktex_xftell(FILE * pfile, const char * lpszFileName);
+MIKTEXKPSCEEAPI(long) miktex_xftell(FILE* file, const char* fileName);
 
-MIKTEXKPSCEEAPI(off_t) miktex_xftello(FILE * pfile, const char * lpszFileName);
+MIKTEXKPSCEEAPI(off_t) miktex_xftello(FILE* file, const char* fileName);
 
-MIKTEXKPSCEEAPI(MIKTEX_INT64) miktex_xftello64(FILE * pfile, const char * lpszFileName);
+MIKTEXKPSCEEAPI(MIKTEX_INT64) miktex_xftello64(FILE* file, const char* fileName);
 
-MIKTEXKPSCEEAPI(char *) miktex_xgetcwd();
+MIKTEXKPSCEEAPI(char*) miktex_xgetcwd();
 
-extern MIKTEXKPSDATA(const char *) miktex_kpathsea_version_string;
+extern MIKTEXKPSDATA(const char*) miktex_kpathsea_version_string;
 
 #if defined(KPSE_COMPAT_API)
 
-extern MIKTEXKPSDATA(const char *) miktex_kpathsea_bug_address;
+extern MIKTEXKPSDATA(const char*) miktex_kpathsea_bug_address;
 
 extern MIKTEXKPSDATA(kpathsea) miktex_kpse_def;
 
