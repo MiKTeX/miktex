@@ -62,20 +62,6 @@ MIKTEXSTATICFUNC(char*) ToUnix(char* s)
   return ret;
 }
 
-MIKTEXSTATICFUNC(std::string&) ToUnix(std::string& s)
-{
-#if defined(MIKTEX_WINDOWS)
-  for (char& ch : s)
-  {
-    if (ch == '\\')
-    {
-      ch = '/';
-    }
-  }
-#endif
-  return s;
-}
-
 // FIXME: duplicate
 MIKTEXSTATICFUNC(int) magstep(int n, int bdpi)
 {
