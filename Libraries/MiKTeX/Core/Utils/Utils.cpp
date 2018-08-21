@@ -241,6 +241,10 @@ static vector<string> forbiddenFileNames = {
 #endif
 };
 
+static vector<string> allowedFileNames = {
+  ".tex"
+};
+
 bool Utils::IsSafeFileName(const PathName& path, bool forInput)
 {
   if (IsAbsolutePath(path))
@@ -251,7 +255,7 @@ bool Utils::IsSafeFileName(const PathName& path, bool forInput)
   for (PathNameParser comp(path); comp; ++comp)
   {
     fileName = *comp;
-    if (fileName.GetLength() > 1 && fileName[0] == '.')
+    if (fileName.GetLength() > 1 && fileName[0] == '.' && fileName != ".tex")
     {
       return false;
     }    
