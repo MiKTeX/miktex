@@ -25,6 +25,7 @@
 #include <cstdlib>
 
 #include <iostream>
+#include <memory>
 #include <string>
 
 #if defined(MIKTEX_UNIX)

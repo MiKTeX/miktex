@@ -344,36 +344,25 @@ MIKTEXSTATICFUNC(void) TranslateModeString(const char* modeString, FileMode& mod
   }
 }
 
-MIKTEXSTATICFUNC(FILE*) TryFOpen(const char* fileName, const char* modeString)
+MIKTEXSTATICFUNC(FILE*) FOpen(const char* fileName, const char* modeString)
 {
   shared_ptr<Session> session = Session::Get();
   FileMode mode(FileMode::Open);
   FileAccess access(FileAccess::Read);
   bool isTextFile;
   TranslateModeString(modeString, mode, access, isTextFile);
-  return session->TryOpenFile(fileName, mode, access, isTextFile);
+  return session->OpenFile(fileName, mode, access, isTextFile);
 }
 
 MIKTEXKPSCEEAPI(FILE*) miktex_kpathsea_open_file(kpathsea kpseInstance, const char* fileName, kpse_file_format_type format)
 {
   MIKTEX_ASSERT(fileName != nullptr);
-  char* path = kpse_find_file(fileName, format, 1);
+  auto path = std::unique_ptr<char, decltype(free)*>{ kpse_find_file(fileName, format, 1), free };
   if (path == nullptr)
   {
     MIKTEX_FATAL_ERROR_2(T_("File '{fileName}' not found."), "fileName", fileName);
   }
-  FILE* file;
-  try
-  {
-    file = TryFOpen(path, IsBinary(format) ? "rb" : "r");
-  }
-  catch (const exception&)
-  {
-    MIKTEX_FREE(path);
-    throw;
-  }
-  MIKTEX_FREE(path);
-  return file;
+  return FOpen(path.get(), IsBinary(format) ? "rb" : "r");
 }
 
 MIKTEXKPSCEEAPI(char*) miktex_concatn(const char* s1, ...)
@@ -518,12 +507,7 @@ MIKTEXKPSCEEAPI(void) miktex_xfclose(FILE* file, const char* path)
 
 MIKTEXKPSCEEAPI(FILE *) miktex_xfopen(const char* path, const char* modeString)
 {
-  shared_ptr<Session> session = Session::Get();
-  FileMode mode(FileMode::Open);
-  FileAccess access(FileAccess::Read);
-  bool isTextFile;
-  TranslateModeString(modeString, mode, access, isTextFile);
-  return session->OpenFile(path, mode, access, isTextFile, FileShare::ReadWrite);
+  return FOpen(path, modeString);
 }
 
 MIKTEXKPSCEEAPI(char*) miktex_xgetcwd()
