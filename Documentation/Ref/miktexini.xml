@@ -3,6 +3,7 @@
                           "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
+<!ENTITY miktexconfigini SYSTEM "miktex-config.ini">
 ]>
 
 <refentry id="miktexini">
@@ -44,19 +45,7 @@
 
 <title>Settings</title>
 
-<variablelist>
-
-<varlistentry>
-<term>[MPM]AutoAdmin</term>
-<listitem><para>tbd</para></listitem>
-</varlistentry>
-
-<varlistentry>
-<term>[MPM]AutoInstall</term>
-<listitem><para>tbd</para></listitem>
-</varlistentry>
-
-</variablelist>
+<programlisting>&miktexconfigini;</programlisting>
 
 </refsect1>
 
