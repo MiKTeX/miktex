@@ -874,6 +874,7 @@ MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const cha
     : 0;
   if (ret == 0 && silent == 0)
   {
+    MIKTEX_ASSERT(kpseInstance != nullptr &&  kpseInstance->invocation_name != nullptr);
     cerr << "\n" << kpseInstance->invocation_name << ": " << T_("file not readable for security reasons:") << " " << fileName << endl;
   }
   return ret;
@@ -886,6 +887,7 @@ MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const ch
     : 0;
   if (ret == 0 && silent == 0)
   {
+    MIKTEX_ASSERT(kpseInstance != nullptr &&  kpseInstance->invocation_name != nullptr);
     cerr << "\n" << kpseInstance->invocation_name << ": " << T_("file not writable for security reasons:") << " " << fileName << endl;
   }
   return ret;
