@@ -578,9 +578,9 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   {
     frontendArgs = {
       "pkexec",
-      // TODO: quote me
-      me.ToString() + " "s + StringUtil::Flatten(args, ' ')
+      me.ToString(),
     };
+    frontendArgs.insert(frontendArgs.end(), args.begin(), args.end());
   }
   else if (session->FindFile("kdesu", FileType::EXE, frontend))
   {
