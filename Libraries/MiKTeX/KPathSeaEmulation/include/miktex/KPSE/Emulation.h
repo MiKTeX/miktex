@@ -603,11 +603,11 @@ typedef struct
 #define kpathsea_find_file_generic(kpse, name, format, must_exist, all) \
   miktex_kpathsea_find_file_generic(kpse, name, format, must_exist, all)
 
-#define kpathsea_in_name_ok(kpse, fname) miktex_kpathsea_in_name_ok(kpse, fname)
-#define kpathsea_in_name_ok_silent(kpse, fname) miktex_kpathsea_in_name_ok(kpse, fname)
+#define kpathsea_in_name_ok(kpse, fname) miktex_kpathsea_in_name_ok(kpse, fname, 0)
+#define kpathsea_in_name_ok_silent(kpse, fname) miktex_kpathsea_in_name_ok(kpse, fname, 1)
 
-#define kpathsea_out_name_ok(kpse, fname) miktex_kpathsea_out_name_ok(kpse, fname)
-#define kpathsea_out_name_ok_silent(kpse, fname) miktex_kpathsea_out_name_ok(kpse, fname)
+#define kpathsea_out_name_ok(kpse, fname) miktex_kpathsea_out_name_ok(kpse, fname, 0)
+#define kpathsea_out_name_ok_silent(kpse, fname) miktex_kpathsea_out_name_ok(kpse, fname, 1)
 
 #define kpathsea_init_format(kpse, format) \
   miktex_kpathsea_init_format(kpse, format)
@@ -855,7 +855,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_glyph(kpathsea kpseInstance, const c
 
 MIKTEXKPSCEEAPI(void) miktex_kpathsea_finish(kpathsea kpseInstance);
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const char* fileName);
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const char* fileName, int silent);
 
 MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea kpseInstance, kpse_file_format_type format);
 
@@ -869,7 +869,7 @@ MIKTEXKPSCEEAPI(kpathsea) miktex_kpathsea_new();
 
 MIKTEXKPSCEEAPI(FILE *) miktex_kpathsea_open_file(kpathsea kpseInstance, const char* fileName, kpse_file_format_type format);
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const char* fileName);
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const char* fileName, int silent);
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_expand(kpathsea kpseInstance, const char* path);
 

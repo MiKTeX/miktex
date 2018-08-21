@@ -23,6 +23,10 @@
 
 #include <cstdarg>
 #include <cstdlib>
+
+#include <iostream>
+#include <string>
+
 #if defined(MIKTEX_UNIX)
 #include <sys/time.h>
 #endif
@@ -41,5 +45,3 @@
 #include <miktex/TeXAndFriends/Prototypes>
 #include <miktex/Util/CharBuffer>
 #include <miktex/Version>
-
-#include <string>

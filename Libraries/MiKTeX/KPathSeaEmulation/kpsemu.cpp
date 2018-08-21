@@ -867,18 +867,28 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpseInstance, const char*
   Utils::SetEnvironmentString(varName, value);
 }
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const char* fileName)
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const char* fileName, int silent)
 {
-  return Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool() || Utils::IsSafeFileName(fileName, true)
+  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool() || Utils::IsSafeFileName(fileName, true)
     ? 1
     : 0;
+  if (ret == 0 && silent == 0)
+  {
+    cerr << "\n" << kpseInstance->invocation_name << ": " << T_("file not readable for security reasons:") << " " << fileName << endl;
+  }
+  return ret;
 }
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const char* fileName)
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const char* fileName, int silent)
 {
-  return Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool() || Utils::IsSafeFileName(fileName, false)
+  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool() || Utils::IsSafeFileName(fileName, false)
     ? 1
     : 0;
+  if (ret == 0 && silent == 0)
+  {
+    cerr << "\n" << kpseInstance->invocation_name << ": " << T_("file not writable for security reasons:") << " " << fileName << endl;
+  }
+  return ret;
 }
 
 MIKTEXKPSCEEAPI(boolean) miktex_kpathsea_absolute_p(kpathsea kpseInstance, const char* fileName, boolean relativeOk)
