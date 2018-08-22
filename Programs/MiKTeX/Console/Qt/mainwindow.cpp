@@ -26,6 +26,8 @@
 #include <fstream>
 #include <iomanip>
 
+#include <log4cxx/logger.h>
+
 #include "FormatDefinitionDialog.h"
 #include "FormatTableModel.h"
 #include "LanguageTableModel.h"
@@ -65,6 +67,8 @@ using namespace MiKTeX::Setup;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 using namespace std;
+
+static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("mainwindow"));
 
 inline double Divide(double a, double b)
 {
@@ -171,6 +175,7 @@ void MainWindow::setVisible(bool visible)
 
 void MainWindow::CriticalError(const QString& shortText, const MiKTeXException& e)
 {
+  LOG4CXX_ERROR(logger, e);
   QString description = QString::fromUtf8(e.GetDescription().c_str());
   QString text = shortText;
   if (!description.isEmpty())
@@ -605,8 +610,9 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   {
     MIKTEX_FATAL_ERROR(tr("No graphical sudo frontend is available. Please install 'pkexec', 'kdesu' (KDE) or 'gksu' (Gnome). Alternatively, you can enter 'sudo miktex-console %1' in a terminal window.").arg(QString::fromUtf8(StringUtil::Flatten(args, ' ').c_str())).toStdString());
   }
+  LOG4CXX_INFO(logger, "restarting with administrative privileges: frontend='" << frontend << "', args='" << StringUtil::Flatten(args, ' ') << "'");
   Process::Start(frontend, frontendArgs);
-#endif  
+#endif
   this->close();
 }
 

@@ -252,6 +252,12 @@ private:
   SourceLocation sourceLocation;
 };
 
+inline std::ostream& operator<<(std::ostream& os, const SourceLocation& loc)
+{
+  os << loc.fileName << ":" << loc.lineNo;
+  return os;
+}
+
 inline std::ostream& operator<<(std::ostream& os, const MiKTeXException::KVMAP& kvmap)
 {
   for (auto it = kvmap.begin(); it != kvmap.end(); ++it)
@@ -262,6 +268,12 @@ inline std::ostream& operator<<(std::ostream& os, const MiKTeXException::KVMAP& 
     }
     os << it->first << "=\"" << it->second << "\"";
   }
+  return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const MiKTeXException& ex)
+{
+  os << ex.GetSourceLocation() << ": " << ex.GetErrorMessage() << "(" << ex.GetInfo() << ")";
   return os;
 }
 

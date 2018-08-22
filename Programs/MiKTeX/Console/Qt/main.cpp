@@ -104,7 +104,7 @@ namespace {
   };
 }
 
-static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("Console"));
+static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("main"));
 static bool isLog4cxxConfigured = false;
 
 class TraceSink :
