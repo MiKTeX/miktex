@@ -583,6 +583,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   {
     frontendArgs = {
       "pkexec",
+      "--disable-internal-agent",
       me.ToString(),
     };
     frontendArgs.insert(frontendArgs.end(), args.begin(), args.end());
