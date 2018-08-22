@@ -240,17 +240,4 @@ environment variables are used to run those commands, if they are set.</para>
 
 </refsect1>
 
-<refsect1>
-
-<title>Aliases</title>
-
-<variablelist>
-<varlistentry>
-<term>&texi2dvi;</term>
-<listitem><para>Equivalent to &texify;.</para></listitem>
-</varlistentry>
-</variablelist>
-
-</refsect1>
-
 </refentry>

@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ...................................................................... -->
+<!-- DocBook XML DTD V4.5 ................................................. -->
+<!-- File docbookx.dtd .................................................... -->
+<!--
+  Copyright 1992-2006 HaL Computer Systems, Inc.,
+  O'Reilly & Associates, Inc., ArborText, Inc., Fujitsu Software
+  Corporation, Norman Walsh, Sun Microsystems, Inc., and the
+  Organization for the Advancement of Structured Information
+  Standards (OASIS).
+  
+  See also http://docbook.org/specs/
+  
+  $Id: docbookx.dtd 6340 2006-10-03 13:23:24Z nwalsh $
+  
+  Permission to use, copy, modify and distribute the DocBook XML DTD
+  and its accompanying documentation for any purpose and without fee
+  is hereby granted in perpetuity, provided that the above copyright
+  notice and this paragraph appear in all copies.  The copyright
+  holders make no representation about the suitability of the DTD for
+  any purpose.  It is provided "as is" without expressed or implied
+  warranty.
+  
+  If you modify the DocBook DTD in any way, except for declaring and
+  referencing additional sets of general entities and declaring
+  additional notations, label your DTD as a variant of DocBook.  See
+  the maintenance documentation for more information.
+  
+  Please direct all questions, bug reports, or suggestions for
+  changes to the docbook@lists.oasis-open.org mailing list. For more
+  information, see http://www.oasis-open.org/docbook/.
+-->
+<!-- ...................................................................... -->
+<!--
+  This is the driver file for V4.5 of the DocBook DTD.
+  Please use the following formal public identifier to identify it:
+  
+  "-//OASIS//DTD DocBook XML V4.5//EN"
+  
+  For example, if your document's top-level element is Book, and
+  you are using DocBook directly, use the FPI in the DOCTYPE
+  declaration:
+  
+  <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"
+                 [...]>
+  
+  Or, if you have a higher-level driver file that customizes DocBook,
+  use the FPI in the parameter entity declaration:
+  
+  <!ENTITY % DocBookDTD PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+             "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+  %DocBookDTD;
+  
+  See the documentation for detailed information on the parameter
+  entity and module scheme used in DocBook, customizing DocBook and
+  planning for interchange, and changes made since the last release
+  of DocBook.
+-->
+<!-- ...................................................................... -->
+<!-- Enable SGML features ................................................. -->
+<!-- ...................................................................... -->
+<!-- Notation declarations ................................................ -->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="dbnotnx.rng"/>
+  <!-- ...................................................................... -->
+  <!-- ISO character entity sets ............................................ -->
+  <!-- euro sign, U+20AC NEW -->
+  <!-- ...................................................................... -->
+  <!-- DTD modules .......................................................... -->
+  <!-- Information pool .............. -->
+  <include href="dbpoolx.rng"/>
+  <!-- Redeclaration placeholder ..... -->
+  <!-- Document hierarchy ............ -->
+  <include href="dbhierx.rng"/>
+  <start>
+    <choice>
+      <ref name="articleinfo"/>
+      <ref name="honorific"/>
+      <ref name="legalnotice"/>
+      <ref name="procedure"/>
+      <ref name="simplelist"/>
+      <ref name="keycode"/>
+      <ref name="refsynopsisdiv"/>
+      <ref name="article"/>
+      <ref name="phrase"/>
+      <ref name="destructorsynopsis"/>
+      <ref name="itemizedlist"/>
+      <ref name="audioobject"/>
+      <ref name="link"/>
+      <ref name="sect1info"/>
+      <ref name="xref"/>
+      <ref name="glossaryinfo"/>
+      <ref name="varname"/>
+      <ref name="keywordset"/>
+      <ref name="informalequation"/>
+      <ref name="toc"/>
+      <ref name="pagenums"/>
+      <ref name="lot"/>
+      <ref name="shortcut"/>
+      <ref name="glosslist"/>
+      <ref name="option"/>
+      <ref name="bibliosource"/>
+      <ref name="variablelist"/>
+      <ref name="filename"/>
+      <ref name="pob"/>
+      <ref name="colgroup"/>
+      <ref name="foreignphrase"/>
+      <ref name="group"/>
+      <ref name="substeps"/>
+      <ref name="conftitle"/>
+      <ref name="textobject"/>
+      <ref name="menuchoice"/>
+      <ref name="colspec"/>
+      <ref name="contractsponsor"/>
+      <ref name="tocback"/>
+      <ref name="contractnum"/>
+      <ref name="constant"/>
+      <ref name="dedication"/>
+      <ref name="inlineequation"/>
+      <ref name="bibliographyinfo"/>
+      <ref name="country"/>
+      <ref name="glossseealso"/>
+      <ref name="bridgehead"/>
+      <ref name="mousebutton"/>
+      <ref name="surname"/>
+      <ref name="stepalternatives"/>
+      <ref name="tertiaryie"/>
+      <ref name="mediaobject"/>
+      <ref name="msgentry"/>
+      <ref name="fax"/>
+      <ref name="initializer"/>
+      <ref name="table"/>
+      <ref name="task"/>
+      <ref name="setinfo"/>
+      <ref name="videodata"/>
+      <ref name="bibliodiv"/>
+      <ref name="issuenum"/>
+      <ref name="phone"/>
+      <ref name="state"/>
+      <ref name="refsynopsisdivinfo"/>
+      <ref name="member"/>
+      <ref name="glossentry"/>
+      <ref name="term"/>
+      <ref name="msgtext"/>
+      <ref name="tr"/>
+      <ref name="errortype"/>
+      <ref name="confdates"/>
+      <ref name="inlinegraphic"/>
+      <ref name="th"/>
+      <ref name="segmentedlist"/>
+      <ref name="remark"/>
+      <ref name="preface"/>
+      <ref name="structname"/>
+      <ref name="publisher"/>
+      <ref name="td"/>
+      <ref name="oointerface"/>
+      <ref name="refsection"/>
+      <ref name="type"/>
+      <ref name="taskrelated"/>
+      <ref name="msgrel"/>
+      <ref name="artpagenums"/>
+      <ref name="bibliomixed"/>
+      <ref name="revnumber"/>
+      <ref name="firstterm"/>
+      <ref name="seeie"/>
+      <ref name="spanspec"/>
+      <ref name="toclevel5"/>
+      <ref name="trademark"/>
+      <ref name="toclevel4"/>
+      <ref name="toclevel3"/>
+      <ref name="toclevel2"/>
+      <ref name="indexentry"/>
+      <ref name="toclevel1"/>
+      <ref name="colophon"/>
+      <ref name="methodparam"/>
+      <ref name="sidebarinfo"/>
+      <ref name="productnumber"/>
+      <ref name="funcprototype"/>
+      <ref name="inlinemediaobject"/>
+      <ref name="refclass"/>
+      <ref name="lotentry"/>
+      <ref name="paramdef"/>
+      <ref name="classsynopsisinfo"/>
+      <ref name="qandaset"/>
+      <ref name="footnote"/>
+      <ref name="msglevel"/>
+      <ref name="keysym"/>
+      <ref name="citation"/>
+      <ref name="simplemsgentry"/>
+      <ref name="othercredit"/>
+      <ref name="subjectset"/>
+      <ref name="keycap"/>
+      <ref name="orderedlist"/>
+      <ref name="refmiscinfo"/>
+      <ref name="blockinfo"/>
+      <ref name="programlistingco"/>
+      <ref name="abbrev"/>
+      <ref name="sidebar"/>
+      <ref name="informalfigure"/>
+      <ref name="tip"/>
+      <ref name="primaryie"/>
+      <ref name="appendixinfo"/>
+      <ref name="partintro"/>
+      <ref name="glossdiv"/>
+      <ref name="confgroup"/>
+      <ref name="segtitle"/>
+      <ref name="taskprerequisites"/>
+      <ref name="street"/>
+      <ref name="tbody"/>
+      <ref name="caption"/>
+      <ref name="markup"/>
+      <ref name="setindex"/>
+      <ref name="msgsub"/>
+      <ref name="subscript"/>
+      <ref name="orgname"/>
+      <ref name="fieldsynopsis"/>
+      <ref name="refname"/>
+      <ref name="void"/>
+      <ref name="sect5"/>
+      <ref name="sect4"/>
+      <ref name="sect3"/>
+      <ref name="chapter"/>
+      <ref name="sect2"/>
+      <ref name="sect1"/>
+      <ref name="modifier"/>
+      <ref name="col"/>
+      <ref name="orgdiv"/>
+      <ref name="city"/>
+      <ref name="bibliolist"/>
+      <ref name="funcparams"/>
+      <ref name="application"/>
+      <ref name="token"/>
+      <ref name="imageobject"/>
+      <ref name="literal"/>
+      <ref name="funcsynopsis"/>
+      <ref name="olink"/>
+      <ref name="package"/>
+      <ref name="collab"/>
+      <ref name="seealsoie"/>
+      <ref name="primary"/>
+      <ref name="glossterm"/>
+      <ref name="termdef"/>
+      <ref name="area"/>
+      <ref name="ackno"/>
+      <ref name="function"/>
+      <ref name="collabname"/>
+      <ref name="lineannotation"/>
+      <ref name="guisubmenu"/>
+      <ref name="msgexplan"/>
+      <ref name="errorname"/>
+      <ref name="property"/>
+      <ref name="synopfragmentref"/>
+      <ref name="refentryinfo"/>
+      <ref name="entry"/>
+      <ref name="manvolnum"/>
+      <ref name="synopsis"/>
+      <ref name="emphasis"/>
+      <ref name="appendix"/>
+      <ref name="bookinfo"/>
+      <ref name="contrib"/>
+      <ref name="otheraddr"/>
+      <ref name="copyright"/>
+      <ref name="methodname"/>
+      <ref name="email"/>
+      <ref name="ooclass"/>
+      <ref name="videoobject"/>
+      <ref name="abstract"/>
+      <ref name="firstname"/>
+      <ref name="revremark"/>
+      <ref name="glossdef"/>
+      <ref name="guibutton"/>
+      <ref name="informalexample"/>
+      <ref name="screen"/>
+      <ref name="errorcode"/>
+      <ref name="command"/>
+      <ref name="seriesvolnums"/>
+      <ref name="refpurpose"/>
+      <ref name="parameter"/>
+      <ref name="equation"/>
+      <ref name="tfoot"/>
+      <ref name="code"/>
+      <ref name="jobtitle"/>
+      <ref name="sgmltag"/>
+      <ref name="screenco"/>
+      <ref name="holder"/>
+      <ref name="isbn"/>
+      <ref name="corpcredit"/>
+      <ref name="biblioset"/>
+      <ref name="part"/>
+      <ref name="symbol"/>
+      <ref name="row"/>
+      <ref name="bibliomisc"/>
+      <ref name="imagedata"/>
+      <ref name="secondary"/>
+      <ref name="classname"/>
+      <ref name="callout"/>
+      <ref name="screenshot"/>
+      <ref name="bibliomset"/>
+      <ref name="indexterm"/>
+      <ref name="refsect3"/>
+      <ref name="tocchap"/>
+      <ref name="para"/>
+      <ref name="refsect2"/>
+      <ref name="refsect1"/>
+      <ref name="date"/>
+      <ref name="refdescriptor"/>
+      <ref name="wordasword"/>
+      <ref name="epigraph"/>
+      <ref name="audiodata"/>
+      <ref name="hardware"/>
+      <ref name="confsponsor"/>
+      <ref name="authorgroup"/>
+      <ref name="warning"/>
+      <ref name="authorinitials"/>
+      <ref name="medialabel"/>
+      <ref name="varlistentry"/>
+      <ref name="authorblurb"/>
+      <ref name="itermset"/>
+      <ref name="refsect3info"/>
+      <ref name="informaltable"/>
+      <ref name="guimenuitem"/>
+      <ref name="postcode"/>
+      <ref name="subjectterm"/>
+      <ref name="refnamediv"/>
+      <ref name="note"/>
+      <ref name="figure"/>
+      <ref name="envar"/>
+      <ref name="listitem"/>
+      <ref name="methodsynopsis"/>
+      <ref name="affiliation"/>
+      <ref name="funcsynopsisinfo"/>
+      <ref name="structfield"/>
+      <ref name="blockquote"/>
+      <ref name="keyword"/>
+      <ref name="chapterinfo"/>
+      <ref name="tertiary"/>
+      <ref name="year"/>
+      <ref name="subtitle"/>
+      <ref name="personblurb"/>
+      <ref name="refentry"/>
+      <ref name="citebiblioid"/>
+      <ref name="seglistitem"/>
+      <ref name="bibliography"/>
+      <ref name="msg"/>
+      <ref name="constructorsynopsis"/>
+      <ref name="refsect2info"/>
+      <ref name="volumenum"/>
+      <ref name="database"/>
+      <ref name="funcdef"/>
+      <ref name="uri"/>
+      <ref name="graphicco"/>
+      <ref name="biblioid"/>
+      <ref name="msgmain"/>
+      <ref name="printhistory"/>
+      <ref name="glosssee"/>
+      <ref name="beginpage"/>
+      <ref name="glossary"/>
+      <ref name="set"/>
+      <ref name="highlights"/>
+      <ref name="objectinfo"/>
+      <ref name="tocpart"/>
+      <ref name="guiicon"/>
+      <ref name="revhistory"/>
+      <ref name="seg"/>
+      <ref name="see"/>
+      <ref name="msgorig"/>
+      <ref name="areaspec"/>
+      <ref name="partinfo"/>
+      <ref name="index"/>
+      <ref name="sectioninfo"/>
+      <ref name="refsectioninfo"/>
+      <ref name="optional"/>
+      <ref name="confnum"/>
+      <ref name="replaceable"/>
+      <ref name="refsect1info"/>
+      <ref name="corpauthor"/>
+      <ref name="step"/>
+      <ref name="anchor"/>
+      <ref name="arg"/>
+      <ref name="mathphrase"/>
+      <ref name="setindexinfo"/>
+      <ref name="keycombo"/>
+      <ref name="address"/>
+      <ref name="cmdsynopsis"/>
+      <ref name="computeroutput"/>
+      <ref name="literallayout"/>
+      <ref name="qandaentry"/>
+      <ref name="sect5info"/>
+      <ref name="bibliocoverage"/>
+      <ref name="coref"/>
+      <ref name="editor"/>
+      <ref name="superscript"/>
+      <ref name="personname"/>
+      <ref name="pubsnumber"/>
+      <ref name="graphic"/>
+      <ref name="simplesect"/>
+      <ref name="accel"/>
+      <ref name="secondaryie"/>
+      <ref name="biblioref"/>
+      <ref name="publishername"/>
+      <ref name="bibliorelation"/>
+      <ref name="prefaceinfo"/>
+      <ref name="revision"/>
+      <ref name="screeninfo"/>
+      <ref name="sbr"/>
+      <ref name="example"/>
+      <ref name="citetitle"/>
+      <ref name="issn"/>
+      <ref name="invpartnumber"/>
+      <ref name="indexdiv"/>
+      <ref name="sect4info"/>
+      <ref name="corpname"/>
+      <ref name="lineage"/>
+      <ref name="ooexception"/>
+      <ref name="reference"/>
+      <ref name="revdescription"/>
+      <ref name="title"/>
+      <ref name="edition"/>
+      <ref name="co"/>
+      <ref name="msgaud"/>
+      <ref name="guimenu"/>
+      <ref name="shortaffil"/>
+      <ref name="titleabbrev"/>
+      <ref name="msginfo"/>
+      <ref name="refmeta"/>
+      <ref name="qandadiv"/>
+      <ref name="mediaobjectco"/>
+      <ref name="seealso"/>
+      <ref name="exceptionname"/>
+      <ref name="answer"/>
+      <ref name="programlisting"/>
+      <ref name="tgroup"/>
+      <ref name="refentrytitle"/>
+      <ref name="book"/>
+      <ref name="errortext"/>
+      <ref name="varargs"/>
+      <ref name="sect3info"/>
+      <ref name="citerefentry"/>
+      <ref name="tasksummary"/>
+      <ref name="quote"/>
+      <ref name="othername"/>
+      <ref name="prompt"/>
+      <ref name="entrytbl"/>
+      <ref name="interfacename"/>
+      <ref name="acronym"/>
+      <ref name="modespec"/>
+      <ref name="msgset"/>
+      <ref name="thead"/>
+      <ref name="textdata"/>
+      <ref name="userinput"/>
+      <ref name="attribution"/>
+      <ref name="footnoteref"/>
+      <ref name="action"/>
+      <ref name="tocentry"/>
+      <ref name="tocfront"/>
+      <ref name="author"/>
+      <ref name="imageobjectco"/>
+      <ref name="alt"/>
+      <ref name="question"/>
+      <ref name="ulink"/>
+      <ref name="subject"/>
+      <ref name="pubdate"/>
+      <ref name="returnvalue"/>
+      <ref name="label"/>
+      <ref name="caution"/>
+      <ref name="section"/>
+      <ref name="systemitem"/>
+      <ref name="referenceinfo"/>
+      <ref name="sect2info"/>
+      <ref name="calloutlist"/>
+      <ref name="classsynopsis"/>
+      <ref name="productname"/>
+      <ref name="simpara"/>
+      <ref name="synopfragment"/>
+      <ref name="important"/>
+      <ref name="interface"/>
+      <ref name="releaseinfo"/>
+      <ref name="formalpara"/>
+      <ref name="areaset"/>
+      <ref name="biblioentry"/>
+      <ref name="indexinfo"/>
+      <ref name="guilabel"/>
+    </choice>
+  </start>
+</grammar>
+<!-- ...................................................................... -->
+<!-- Other general entities ............................................... -->
+<!-- End of DocBook XML DTD V4.5 .......................................... -->
+<!-- ...................................................................... -->

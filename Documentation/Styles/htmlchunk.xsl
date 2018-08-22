@@ -14,6 +14,11 @@
 
   <!-- ==================================================================== -->
   
+  <xsl:param name="citerefentry.link" select="1"/>
+  <xsl:template name="generate.citerefentry.link">
+    <xsl:value-of select="refentrytitle"/><xsl:text>.html</xsl:text>
+  </xsl:template>
+
   <xsl:template name="header.navigation">
     <xsl:param name="prev" select="/foo"/>
     <xsl:param name="next" select="/foo"/>

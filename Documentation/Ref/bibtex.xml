@@ -5,7 +5,7 @@
 %entities.ent;
 ]>
 
-<refentry id="bibtex">
+<refentry id="miktex-bibtex">
 
 <?dbhh topicname="MIKTEXHELP_BIBTEX" topicid="0"?>
 
@@ -27,7 +27,10 @@
 <cmdsynopsis>
 <command>miktex-bibtex</command>
 <arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
-<arg choice="opt"><replaceable>auxname</replaceable></arg>
+<arg  choice="plain"><replaceable>auxname</replaceable></arg>
+<command>miktex-bibtex</command>
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+<arg choice="plain"><replaceable>auxname</replaceable>.aux</arg>
 </cmdsynopsis>
 
 </refsynopsisdiv>
@@ -36,10 +39,14 @@
 
 <title>Description</title>
 
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="_tlack.xml" />
+
 <para>&BibTeX; reads the top-level auxiliary
 (<filename>.aux</filename>) file that was output during the running of
-&miktexlatex; or &miktextex; and creates a bibliography
-(<filename>.bbl</filename>) file that will be
+<citerefentry><refentrytitle>&miktexlatex;</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+<citerefentry><refentrytitle>&miktextex;</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+and creates a bibliography (<filename>.bbl</filename>) file that will
+be
 <indexterm>
 <primary>.bbl (bibliography file)</primary>
 </indexterm>
@@ -48,13 +55,7 @@ incorporated into the document on subsequent runs of &LaTeX; or &TeX;.
 <primary>bibliography</primary>
 <secondary>creation</secondary>
 </indexterm>
-The <replaceable>auxname</replaceable> on the command-line must be
-given without the <filename>.aux</filename> extension.  If you don't
-<indexterm>
-<primary>.aux (auxiliary file)</primary>
-</indexterm>
-give the <replaceable>auxname</replaceable>, the program prompts you
-for it.</para>
+</para>
 
 <para>&BibTeX; looks up, in bibliographic database
 <indexterm>
@@ -92,9 +93,7 @@ details of this format, and it gives other useful hints for using
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/alias.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/includedirectory.xml" />
@@ -137,20 +136,14 @@ two.</para></listitem>
 
 <title>See Also</title>
 
-<variablelist>
-<varlistentry>
-<term><citetitle>&BibTeX;ing</citetitle></term>
-<listitem><para>Run <userinput>mthelp btxdoc</userinput></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><citetitle>Designing &BibTeX; Styles</citetitle></term>
-<listitem><para>Run <userinput>mthelp btxhak</userinput></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><citetitle>&LaTeX;: A Document Preparation System</citetitle></term>
-<listitem><para><acronym>ISBN</acronym> 0-201-52983-1</para></listitem>
-</varlistentry>
-</variablelist>
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>&miktexlatex;</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+<member><citerefentry><refentrytitle>&miktextex;</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+</simplelist>
+
+<bibliolist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../BibEntries/latex.xml" />
+</bibliolist>
 
 </refsect1>
 

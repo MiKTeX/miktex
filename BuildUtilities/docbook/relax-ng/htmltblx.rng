@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ...................................................................... -->
+<!-- DocBook XML HTML Table Module V4.5 ................................... -->
+<!-- File htmltblx.mod .................................................... -->
+<!--
+  Copyright 2003-2006 ArborText, Inc., Norman Walsh, Sun Microsystems,
+  Inc., and the Organization for the Advancement of Structured Information
+  Standards (OASIS).
+  
+  $Id: htmltblx.mod 6340 2006-10-03 13:23:24Z nwalsh $
+  
+  Permission to use, copy, modify and distribute the DocBook XML DTD
+  and its accompanying documentation for any purpose and without fee
+  is hereby granted in perpetuity, provided that the above copyright
+  notice and this paragraph appear in all copies.  The copyright
+  holders make no representation about the suitability of the DTD for
+  any purpose.  It is provided "as is" without expressed or implied
+  warranty.
+  
+  If you modify the DocBook XML DTD in any way, except for declaring and
+  referencing additional sets of general entities and declaring
+  additional notations, label your DTD as a variant of DocBook.  See
+  the maintenance documentation for more information.
+  
+  Please direct all questions, bug reports, or suggestions for
+  changes to the docbook@lists.oasis-open.org mailing list. For more
+  information, see http://www.oasis-open.org/docbook/.
+-->
+<!-- ...................................................................... -->
+<!--
+  This module contains the definitions for elements that are
+  isomorphic to the HTML elements. One could argue we should
+  instead have based ourselves on the XHTML Table Module, but the
+  HTML one is more like what browsers are likely to accept today
+  and users are likely to use.
+  
+  This module has been developed for use with the DocBook V4.5
+  "union table model" in which elements and attlists common to both
+  models are defined (as the union) in the CALS table module by
+  setting various parameter entities appropriately in this file.
+  
+  In DTD driver files referring to this module, please use an entity
+  declaration that uses the public identifier shown below:
+  
+  <!ENTITY % htmltbl PUBLIC
+  "-//OASIS//ELEMENTS DocBook XML HTML Tables V4.5//EN"
+  "htmltblx.mod">
+  %htmltbl;
+  
+  See the documentation for detailed information on the parameter
+  entity and module scheme used in DocBook, customizing DocBook and
+  planning for interchange, and changes made since the last release
+  of DocBook.
+-->
+<!-- ======================= XHTML Tables ======================================= -->
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <define name="html.coreattrs">
+    <ref name="common.attrib"/>
+    <optional>
+      <attribute name="class"/>
+    </optional>
+    <optional>
+      <attribute name="style"/>
+    </optional>
+    <optional>
+      <attribute name="title"/>
+    </optional>
+  </define>
+  <!-- Does not contain lang or dir because they are in %common.attribs -->
+  <define name="i18n">
+    <optional>
+      <attribute name="xml:lang">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="events">
+    <optional>
+      <attribute name="onclick"/>
+    </optional>
+    <optional>
+      <attribute name="ondblclick"/>
+    </optional>
+    <optional>
+      <attribute name="onmousedown"/>
+    </optional>
+    <optional>
+      <attribute name="onmouseup"/>
+    </optional>
+    <optional>
+      <attribute name="onmouseover"/>
+    </optional>
+    <optional>
+      <attribute name="onmousemove"/>
+    </optional>
+    <optional>
+      <attribute name="onmouseout"/>
+    </optional>
+    <optional>
+      <attribute name="onkeypress"/>
+    </optional>
+    <optional>
+      <attribute name="onkeydown"/>
+    </optional>
+    <optional>
+      <attribute name="onkeyup"/>
+    </optional>
+  </define>
+  <define name="attrs">
+    <ref name="html.coreattrs"/>
+    <ref name="i18n"/>
+    <ref name="events"/>
+  </define>
+  <define name="cellhalign">
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>center</value>
+          <value>right</value>
+          <value>justify</value>
+          <value>char</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="char"/>
+    </optional>
+    <optional>
+      <attribute name="charoff"/>
+    </optional>
+  </define>
+  <define name="cellvalign">
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+          <value>baseline</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <!-- doc:A group of columns in an HTML table. -->
+  <define name="colgroup">
+    <element name="colgroup">
+      <ref name="colgroup.attlist"/>
+      <zeroOrMore>
+        <ref name="col"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- doc:Specifications for a column in an HTML table. -->
+  <define name="col">
+    <element name="col">
+      <ref name="col.attlist"/>
+      <empty/>
+    </element>
+  </define>
+  <!-- doc:A row in an HTML table. -->
+  <define name="tr">
+    <element name="tr">
+      <ref name="tr.attlist"/>
+      <oneOrMore>
+        <choice>
+          <ref name="th"/>
+          <ref name="td"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- doc:A table header entry in an HTML table. -->
+  <define name="th">
+    <element name="th">
+      <ref name="th.attlist"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="para.char.mix"/>
+          <ref name="tabentry.mix"/>
+          <ref name="table"/>
+          <ref name="informaltable"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- doc:A table ntry in an HTML table. -->
+  <define name="td">
+    <element name="td">
+      <ref name="td.attlist"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="para.char.mix"/>
+          <ref name="tabentry.mix"/>
+          <ref name="table"/>
+          <ref name="informaltable"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="colgroup.attlist" combine="interleave">
+    <ref name="attrs"/>
+    <optional>
+      <attribute name="span" a:defaultValue="1"/>
+    </optional>
+    <optional>
+      <attribute name="width"/>
+    </optional>
+    <ref name="cellhalign"/>
+    <ref name="cellvalign"/>
+  </define>
+  <define name="col.attlist" combine="interleave">
+    <ref name="attrs"/>
+    <optional>
+      <attribute name="span" a:defaultValue="1"/>
+    </optional>
+    <optional>
+      <attribute name="width"/>
+    </optional>
+    <ref name="cellhalign"/>
+    <ref name="cellvalign"/>
+  </define>
+  <define name="tr.attlist" combine="interleave">
+    <ref name="attrs"/>
+    <ref name="cellhalign"/>
+    <ref name="cellvalign"/>
+    <optional>
+      <attribute name="bgcolor"/>
+    </optional>
+  </define>
+  <define name="th.attlist" combine="interleave">
+    <ref name="attrs"/>
+    <optional>
+      <attribute name="abbr"/>
+    </optional>
+    <optional>
+      <attribute name="axis"/>
+    </optional>
+    <optional>
+      <attribute name="headers">
+        <data type="IDREFS"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="scope">
+        <choice>
+          <value>row</value>
+          <value>col</value>
+          <value>rowgroup</value>
+          <value>colgroup</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowspan" a:defaultValue="1"/>
+    </optional>
+    <optional>
+      <attribute name="colspan" a:defaultValue="1"/>
+    </optional>
+    <ref name="cellhalign"/>
+    <ref name="cellvalign"/>
+    <optional>
+      <attribute name="nowrap">
+        <choice>
+          <value>nowrap</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="bgcolor"/>
+    </optional>
+    <optional>
+      <attribute name="width"/>
+    </optional>
+    <optional>
+      <attribute name="height"/>
+    </optional>
+  </define>
+  <define name="td.attlist" combine="interleave">
+    <ref name="attrs"/>
+    <optional>
+      <attribute name="abbr"/>
+    </optional>
+    <optional>
+      <attribute name="axis"/>
+    </optional>
+    <optional>
+      <attribute name="headers">
+        <data type="IDREFS"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="scope">
+        <choice>
+          <value>row</value>
+          <value>col</value>
+          <value>rowgroup</value>
+          <value>colgroup</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowspan" a:defaultValue="1"/>
+    </optional>
+    <optional>
+      <attribute name="colspan" a:defaultValue="1"/>
+    </optional>
+    <ref name="cellhalign"/>
+    <ref name="cellvalign"/>
+    <optional>
+      <attribute name="nowrap">
+        <choice>
+          <value>nowrap</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="bgcolor"/>
+    </optional>
+    <optional>
+      <attribute name="width"/>
+    </optional>
+    <optional>
+      <attribute name="height"/>
+    </optional>
+  </define>
+  <!-- ====================================================== -->
+  <!--
+    Set up to read in the CALS model configured to
+    merge with the XHTML table model
+  -->
+  <!-- ====================================================== -->
+  <define name="tables.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- Add label and role attributes to table and informaltable -->
+  <define name="bodyatt">
+    <optional>
+      <attribute name="floatstyle"/>
+    </optional>
+    <optional>
+      <attribute name="rowheader">
+        <choice>
+          <value>firstcol</value>
+          <value>norowheader</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="label.attrib"/>
+  </define>
+  <!--
+    Add common attributes to Table, TGroup, TBody, THead, TFoot, Row, 
+    EntryTbl, and Entry (and InformalTable element).
+  -->
+  <define name="secur">
+    <ref name="common.attrib"/>
+    <optional>
+      <attribute name="class"/>
+    </optional>
+    <optional>
+      <attribute name="style"/>
+    </optional>
+    <optional>
+      <attribute name="title"/>
+    </optional>
+    <ref name="i18n"/>
+    <ref name="events"/>
+    <ref name="tables.role.attrib"/>
+  </define>
+  <define name="common.table.attribs">
+    <ref name="bodyatt"/>
+    <ref name="secur"/>
+  </define>
+  <!-- Content model for Table (that also allows HTML tables) -->
+  <define name="tbl.table.mdl">
+    <choice>
+      <group>
+        <optional>
+          <ref name="blockinfo"/>
+        </optional>
+        <ref name="formalobject.title.content"/>
+        <zeroOrMore>
+          <ref name="ndxterm.class"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="textobject"/>
+        </zeroOrMore>
+        <choice>
+          <oneOrMore>
+            <ref name="graphic"/>
+          </oneOrMore>
+          <oneOrMore>
+            <ref name="mediaobject"/>
+          </oneOrMore>
+          <oneOrMore>
+            <ref name="tgroup"/>
+          </oneOrMore>
+        </choice>
+      </group>
+      <group>
+        <ref name="caption"/>
+        <choice>
+          <zeroOrMore>
+            <ref name="col"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="colgroup"/>
+          </zeroOrMore>
+        </choice>
+        <optional>
+          <ref name="thead"/>
+        </optional>
+        <optional>
+          <ref name="tfoot"/>
+        </optional>
+        <choice>
+          <oneOrMore>
+            <ref name="tbody"/>
+          </oneOrMore>
+          <oneOrMore>
+            <ref name="tr"/>
+          </oneOrMore>
+        </choice>
+      </group>
+    </choice>
+  </define>
+  <define name="informal.tbl.table.mdl">
+    <choice>
+      <group>
+        <zeroOrMore>
+          <ref name="textobject"/>
+        </zeroOrMore>
+        <choice>
+          <oneOrMore>
+            <ref name="graphic"/>
+          </oneOrMore>
+          <oneOrMore>
+            <ref name="mediaobject"/>
+          </oneOrMore>
+          <oneOrMore>
+            <ref name="tgroup"/>
+          </oneOrMore>
+        </choice>
+      </group>
+      <group>
+        <choice>
+          <zeroOrMore>
+            <ref name="col"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="colgroup"/>
+          </zeroOrMore>
+        </choice>
+        <optional>
+          <ref name="thead"/>
+        </optional>
+        <optional>
+          <ref name="tfoot"/>
+        </optional>
+        <choice>
+          <oneOrMore>
+            <ref name="tbody"/>
+          </oneOrMore>
+          <oneOrMore>
+            <ref name="tr"/>
+          </oneOrMore>
+        </choice>
+      </group>
+    </choice>
+  </define>
+  <!-- Attributes for Table (including HTML ones) -->
+  <!-- N.B. rules = (none | groups | rows | cols | all) but it can't be spec'd -->
+  <!-- that way because 'all' already occurs in a different enumeration in -->
+  <!-- CALS tables (frame). -->
+  <define name="tbl.table.att">
+    <optional>
+      <attribute name="tabstyle"/>
+    </optional>
+    <optional>
+      <attribute name="tocentry">
+        <ref name="yesorno.attvals"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="shortentry">
+        <ref name="yesorno.attvals"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="orient">
+        <choice>
+          <value>port</value>
+          <value>land</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="pgwide">
+        <ref name="yesorno.attvals"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="summary"/>
+    </optional>
+    <optional>
+      <attribute name="width"/>
+    </optional>
+    <optional>
+      <attribute name="border"/>
+    </optional>
+    <optional>
+      <attribute name="rules"/>
+    </optional>
+    <optional>
+      <attribute name="cellspacing"/>
+    </optional>
+    <optional>
+      <attribute name="cellpadding"/>
+    </optional>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>center</value>
+          <value>right</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="bgcolor"/>
+    </optional>
+  </define>
+  <define name="tbl.frame.attval">
+    <choice>
+      <value>void</value>
+      <value>above</value>
+      <value>below</value>
+      <value>hsides</value>
+      <value>lhs</value>
+      <value>rhs</value>
+      <value>vsides</value>
+      <value>box</value>
+      <value>border</value>
+      <value>top</value>
+      <value>bottom</value>
+      <value>topbot</value>
+      <value>all</value>
+      <value>sides</value>
+      <value>none</value>
+    </choice>
+  </define>
+  <!-- Allow either objects or inlines; beware of REs between elements. -->
+  <define name="tbl.entry.mdl">
+    <choice>
+      <ref name="para.char.mix"/>
+      <ref name="tabentry.mix"/>
+    </choice>
+  </define>
+  <!--
+    thead, tfoot, and tbody are defined in both table models,
+    so we set up parameter entities to define union models for them
+  -->
+  <define name="tbl.hdft.mdl">
+    <choice>
+      <oneOrMore>
+        <ref name="tr"/>
+      </oneOrMore>
+      <group>
+        <zeroOrMore>
+          <ref name="colspec"/>
+        </zeroOrMore>
+        <oneOrMore>
+          <ref name="row"/>
+        </oneOrMore>
+      </group>
+    </choice>
+  </define>
+  <define name="tbl.tbody.mdl">
+    <choice>
+      <oneOrMore>
+        <ref name="tr"/>
+      </oneOrMore>
+      <oneOrMore>
+        <ref name="row"/>
+      </oneOrMore>
+    </choice>
+  </define>
+</grammar>
+<!-- End of DocBook XML HTML Table Module V4.5 ............................ -->
+<!-- ...................................................................... -->

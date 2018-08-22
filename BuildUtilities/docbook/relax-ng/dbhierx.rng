@@ -1,0 +1,2978 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ...................................................................... -->
+<!-- DocBook document hierarchy module V4.5 ............................... -->
+<!-- File dbhierx.mod ..................................................... -->
+<!--
+  Copyright 1992-2004 HaL Computer Systems, Inc.,
+  O'Reilly & Associates, Inc., ArborText, Inc., Fujitsu Software
+  Corporation, Norman Walsh, Sun Microsystems, Inc., and the
+  Organization for the Advancement of Structured Information
+  Standards (OASIS).
+  
+  $Id: dbhierx.mod 6340 2006-10-03 13:23:24Z nwalsh $
+  
+  Permission to use, copy, modify and distribute the DocBook DTD
+  and its accompanying documentation for any purpose and without fee
+  is hereby granted in perpetuity, provided that the above copyright
+  notice and this paragraph appear in all copies.  The copyright
+  holders make no representation about the suitability of the DTD for
+  any purpose.  It is provided "as is" without expressed or implied
+  warranty.
+  
+  If you modify the DocBook DTD in any way, except for declaring and
+  referencing additional sets of general entities and declaring
+  additional notations, label your DTD as a variant of DocBook.  See
+  the maintenance documentation for more information.
+  
+  Please direct all questions, bug reports, or suggestions for
+  changes to the docbook@lists.oasis-open.org mailing list. For more
+  information, see http://www.oasis-open.org/docbook/.
+-->
+<!-- ...................................................................... -->
+<!--
+  This module contains the definitions for the overall document
+  hierarchies of DocBook documents.  It covers computer documentation
+  manuals and manual fragments, as well as reference entries (such as
+  man pages) and technical journals or anthologies containing
+  articles.
+  
+  This module depends on the DocBook information pool module.  All
+  elements and entities referenced but not defined here are assumed
+  to be defined in the information pool module.
+  
+  In DTD driver files referring to this module, please use an entity
+  declaration that uses the public identifier shown below:
+  
+  <!ENTITY % dbhier PUBLIC
+  "-//OASIS//ELEMENTS DocBook Document Hierarchy V4.5//EN"
+  "dbhierx.mod">
+  %dbhier;
+  
+  See the documentation for detailed information on the parameter
+  entity and module scheme used in DocBook, customizing DocBook and
+  planning for interchange, and changes made since the last release
+  of DocBook.
+-->
+<!-- ...................................................................... -->
+<!-- Entities for module inclusions ....................................... -->
+<!-- ...................................................................... -->
+<!-- Entities for element classes ......................................... -->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <define name="local.appendix.class">
+    <notAllowed/>
+  </define>
+  <define name="appendix.class">
+    <choice>
+      <ref name="appendix"/>
+      <ref name="local.appendix.class"/>
+    </choice>
+  </define>
+  <define name="local.article.class">
+    <notAllowed/>
+  </define>
+  <define name="article.class">
+    <choice>
+      <ref name="article"/>
+      <ref name="local.article.class"/>
+    </choice>
+  </define>
+  <define name="local.book.class">
+    <notAllowed/>
+  </define>
+  <define name="book.class">
+    <choice>
+      <ref name="book"/>
+      <ref name="local.book.class"/>
+    </choice>
+  </define>
+  <define name="local.chapter.class">
+    <notAllowed/>
+  </define>
+  <define name="chapter.class">
+    <choice>
+      <ref name="chapter"/>
+      <ref name="local.chapter.class"/>
+    </choice>
+  </define>
+  <define name="local.index.class">
+    <notAllowed/>
+  </define>
+  <define name="index.class">
+    <choice>
+      <ref name="index"/>
+      <ref name="setindex"/>
+      <ref name="local.index.class"/>
+    </choice>
+  </define>
+  <define name="local.refentry.class">
+    <notAllowed/>
+  </define>
+  <define name="refentry.class">
+    <choice>
+      <ref name="refentry"/>
+      <ref name="local.refentry.class"/>
+    </choice>
+  </define>
+  <define name="local.section.class">
+    <notAllowed/>
+  </define>
+  <define name="section.class">
+    <choice>
+      <ref name="section"/>
+      <ref name="local.section.class"/>
+    </choice>
+  </define>
+  <define name="local.nav.class">
+    <notAllowed/>
+  </define>
+  <define name="nav.class">
+    <choice>
+      <ref name="toc"/>
+      <ref name="lot"/>
+      <ref name="index"/>
+      <ref name="glossary"/>
+      <ref name="bibliography"/>
+      <ref name="local.nav.class"/>
+    </choice>
+  </define>
+  <!-- Redeclaration placeholder ............................................ -->
+  <!--
+    For redeclaring entities that are declared after this point while
+    retaining their references to the entities that are declared before
+    this point
+  -->
+  <!-- ...................................................................... -->
+  <!-- Entities for element mixtures ........................................ -->
+  <define name="local.divcomponent.mix">
+    <notAllowed/>
+  </define>
+  <define name="divcomponent.mix">
+    <choice>
+      <ref name="list.class"/>
+      <ref name="admon.class"/>
+      <ref name="linespecific.class"/>
+      <ref name="synop.class"/>
+      <ref name="para.class"/>
+      <ref name="informal.class"/>
+      <ref name="formal.class"/>
+      <ref name="compound.class"/>
+      <ref name="genobj.class"/>
+      <ref name="descobj.class"/>
+      <ref name="ndxterm.class"/>
+      <ref name="beginpage"/>
+      <ref name="forms.hook"/>
+      <ref name="local.divcomponent.mix"/>
+    </choice>
+  </define>
+  <define name="local.refcomponent.mix">
+    <notAllowed/>
+  </define>
+  <define name="refcomponent.mix">
+    <choice>
+      <ref name="list.class"/>
+      <ref name="admon.class"/>
+      <ref name="linespecific.class"/>
+      <ref name="synop.class"/>
+      <ref name="para.class"/>
+      <ref name="informal.class"/>
+      <ref name="formal.class"/>
+      <ref name="compound.class"/>
+      <ref name="genobj.class"/>
+      <ref name="descobj.class"/>
+      <ref name="ndxterm.class"/>
+      <ref name="beginpage"/>
+      <ref name="forms.hook"/>
+      <ref name="local.refcomponent.mix"/>
+    </choice>
+  </define>
+  <define name="local.indexdivcomponent.mix">
+    <notAllowed/>
+  </define>
+  <define name="indexdivcomponent.mix">
+    <choice>
+      <ref name="itemizedlist"/>
+      <ref name="orderedlist"/>
+      <ref name="variablelist"/>
+      <ref name="simplelist"/>
+      <ref name="linespecific.class"/>
+      <ref name="synop.class"/>
+      <ref name="para.class"/>
+      <ref name="informal.class"/>
+      <ref name="anchor"/>
+      <ref name="remark"/>
+      <ref name="link.char.class"/>
+      <ref name="beginpage"/>
+      <ref name="local.indexdivcomponent.mix"/>
+    </choice>
+  </define>
+  <define name="local.refname.char.mix">
+    <notAllowed/>
+  </define>
+  <define name="refname.char.mix">
+    <choice>
+      <text/>
+      <ref name="tech.char.class"/>
+      <ref name="local.refname.char.mix"/>
+    </choice>
+  </define>
+  <define name="local.partcontent.mix">
+    <notAllowed/>
+  </define>
+  <define name="partcontent.mix">
+    <choice>
+      <ref name="appendix.class"/>
+      <ref name="chapter.class"/>
+      <ref name="nav.class"/>
+      <ref name="article.class"/>
+      <ref name="preface"/>
+      <ref name="refentry.class"/>
+      <ref name="reference"/>
+      <ref name="local.partcontent.mix"/>
+    </choice>
+  </define>
+  <define name="local.refinline.char.mix">
+    <notAllowed/>
+  </define>
+  <define name="refinline.char.mix">
+    <choice>
+      <text/>
+      <ref name="xref.char.class"/>
+      <ref name="gen.char.class"/>
+      <ref name="link.char.class"/>
+      <ref name="tech.char.class"/>
+      <ref name="base.char.class"/>
+      <ref name="docinfo.char.class"/>
+      <ref name="other.char.class"/>
+      <ref name="ndxterm.class"/>
+      <ref name="beginpage"/>
+      <ref name="local.refinline.char.mix"/>
+    </choice>
+  </define>
+  <define name="local.refclass.char.mix">
+    <notAllowed/>
+  </define>
+  <define name="refclass.char.mix">
+    <choice>
+      <text/>
+      <ref name="application"/>
+      <ref name="local.refclass.char.mix"/>
+    </choice>
+  </define>
+  <!-- Redeclaration placeholder 2 .......................................... -->
+  <!--
+    For redeclaring entities that are declared after this point while
+    retaining their references to the entities that are declared before
+    this point
+  -->
+  <!-- ...................................................................... -->
+  <!-- Entities for content models .......................................... -->
+  <define name="div.title.content">
+    <ref name="title"/>
+    <optional>
+      <ref name="subtitle"/>
+    </optional>
+    <optional>
+      <ref name="titleabbrev"/>
+    </optional>
+  </define>
+  <define name="bookcomponent.title.content">
+    <ref name="title"/>
+    <optional>
+      <ref name="subtitle"/>
+    </optional>
+    <optional>
+      <ref name="titleabbrev"/>
+    </optional>
+  </define>
+  <define name="sect.title.content">
+    <ref name="title"/>
+    <optional>
+      <ref name="subtitle"/>
+    </optional>
+    <optional>
+      <ref name="titleabbrev"/>
+    </optional>
+  </define>
+  <define name="refsect.title.content">
+    <ref name="title"/>
+    <optional>
+      <ref name="subtitle"/>
+    </optional>
+    <optional>
+      <ref name="titleabbrev"/>
+    </optional>
+  </define>
+  <define name="bookcomponent.content">
+    <choice>
+      <group>
+        <oneOrMore>
+          <ref name="divcomponent.mix"/>
+        </oneOrMore>
+        <choice>
+          <zeroOrMore>
+            <ref name="sect1"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="refentry.class"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="simplesect"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="section.class"/>
+          </zeroOrMore>
+        </choice>
+      </group>
+      <choice>
+        <oneOrMore>
+          <ref name="sect1"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="refentry.class"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="simplesect"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="section.class"/>
+        </oneOrMore>
+      </choice>
+    </choice>
+  </define>
+  <!-- ...................................................................... -->
+  <!-- Set and SetInfo ...................................................... -->
+  <define name="local.set.attrib">
+    <empty/>
+  </define>
+  <define name="set.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A collection of books. -->
+  <define name="set">
+    <element name="set">
+      <ref name="set.attlist"/>
+      <optional>
+        <ref name="div.title.content"/>
+      </optional>
+      <optional>
+        <ref name="setinfo"/>
+      </optional>
+      <optional>
+        <ref name="toc"/>
+      </optional>
+      <oneOrMore>
+        <choice>
+          <ref name="set"/>
+          <ref name="book.class"/>
+        </choice>
+      </oneOrMore>
+      <optional>
+        <ref name="setindex"/>
+      </optional>
+    </element>
+  </define>
+  <!-- end of set.element -->
+  <!-- FPI: SGML formal public identifier -->
+  <define name="set.attlist" combine="interleave">
+    <optional>
+      <attribute name="fpi"/>
+    </optional>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="set.role.attrib"/>
+    <ref name="local.set.attrib"/>
+  </define>
+  <!-- end of set.attlist -->
+  <!-- end of set.module -->
+  <define name="local.setinfo.attrib">
+    <empty/>
+  </define>
+  <define name="setinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Set. -->
+  <define name="setinfo">
+    <element name="setinfo">
+      <ref name="setinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of setinfo.element -->
+  <!--
+    Contents: IDs of the ToC, Books, and SetIndex that comprise
+    the set, in the order of their appearance
+  -->
+  <define name="setinfo.attlist" combine="interleave">
+    <optional>
+      <attribute name="contents">
+        <data type="IDREFS"/>
+      </attribute>
+    </optional>
+    <ref name="common.attrib"/>
+    <ref name="setinfo.role.attrib"/>
+    <ref name="local.setinfo.attrib"/>
+  </define>
+  <!-- end of setinfo.attlist -->
+  <!-- end of setinfo.module -->
+  <!-- end of set.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Book and BookInfo .................................................... -->
+  <define name="local.book.attrib">
+    <empty/>
+  </define>
+  <define name="book.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A book. -->
+  <define name="book">
+    <element name="book">
+      <ref name="book.attlist"/>
+      <optional>
+        <ref name="div.title.content"/>
+      </optional>
+      <optional>
+        <ref name="bookinfo"/>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="dedication"/>
+          <ref name="toc"/>
+          <ref name="lot"/>
+          <ref name="glossary"/>
+          <ref name="bibliography"/>
+          <ref name="preface"/>
+          <ref name="chapter.class"/>
+          <ref name="reference"/>
+          <ref name="part"/>
+          <ref name="article.class"/>
+          <ref name="appendix.class"/>
+          <ref name="index.class"/>
+          <ref name="colophon"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of book.element -->
+  <!-- FPI: SGML formal public identifier -->
+  <define name="book.attlist" combine="interleave">
+    <optional>
+      <attribute name="fpi"/>
+    </optional>
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="book.role.attrib"/>
+    <ref name="local.book.attrib"/>
+  </define>
+  <!-- end of book.attlist -->
+  <!-- end of book.module -->
+  <define name="local.bookinfo.attrib">
+    <empty/>
+  </define>
+  <define name="bookinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Book. -->
+  <define name="bookinfo">
+    <element name="bookinfo">
+      <ref name="bookinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of bookinfo.element -->
+  <!--
+    Contents: IDs of the ToC, LoTs, Prefaces, Parts, Chapters,
+    Appendixes, References, GLossary, Bibliography, and indexes
+    comprising the Book, in the order of their appearance
+  -->
+  <define name="bookinfo.attlist" combine="interleave">
+    <optional>
+      <attribute name="contents">
+        <data type="IDREFS"/>
+      </attribute>
+    </optional>
+    <ref name="common.attrib"/>
+    <ref name="bookinfo.role.attrib"/>
+    <ref name="local.bookinfo.attrib"/>
+  </define>
+  <!-- end of bookinfo.attlist -->
+  <!-- end of bookinfo.module -->
+  <!-- end of book.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Dedication, ToC, and LoT ............................................. -->
+  <define name="local.dedication.attrib">
+    <empty/>
+  </define>
+  <define name="dedication.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A wrapper for the dedication section of a book. -->
+  <define name="dedication">
+    <element name="dedication">
+      <ref name="dedication.attlist"/>
+      <optional>
+        <ref name="sect.title.content"/>
+      </optional>
+      <oneOrMore>
+        <ref name="legalnotice.mix"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of dedication.element -->
+  <define name="dedication.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="dedication.role.attrib"/>
+    <ref name="local.dedication.attrib"/>
+  </define>
+  <!-- end of dedication.attlist -->
+  <!-- end of dedication.module -->
+  <define name="local.colophon.attrib">
+    <empty/>
+  </define>
+  <define name="colophon.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Text at the back of a book describing facts about its production. -->
+  <define name="colophon">
+    <element name="colophon">
+      <ref name="colophon.attlist"/>
+      <optional>
+        <ref name="sect.title.content"/>
+      </optional>
+      <oneOrMore>
+        <ref name="textobject.mix"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of colophon.element -->
+  <define name="colophon.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="colophon.role.attrib"/>
+    <ref name="local.colophon.attrib"/>
+  </define>
+  <!-- end of colophon.attlist -->
+  <!-- end of colophon.module -->
+  <define name="local.toc.attrib">
+    <empty/>
+  </define>
+  <define name="toc.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A table of contents. -->
+  <define name="toc">
+    <element name="toc">
+      <ref name="toc.attlist"/>
+      <optional>
+        <ref name="beginpage"/>
+      </optional>
+      <optional>
+        <ref name="bookcomponent.title.content"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="tocfront"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <choice>
+          <ref name="tocpart"/>
+          <ref name="tocchap"/>
+        </choice>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="tocback"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of toc.element -->
+  <define name="toc.attlist" combine="interleave">
+    <ref name="pagenum.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="toc.role.attrib"/>
+    <ref name="local.toc.attrib"/>
+  </define>
+  <!-- end of toc.attlist -->
+  <!-- end of toc.module -->
+  <define name="local.tocfront.attrib">
+    <empty/>
+  </define>
+  <define name="tocfront.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:An entry in a table of contents for a front matter component. -->
+  <define name="tocfront">
+    <element name="tocfront">
+      <ref name="tocfront.attlist"/>
+      <zeroOrMore>
+        <ref name="para.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of tocfront.element -->
+  <!-- to element that this entry represents -->
+  <define name="tocfront.attlist" combine="interleave">
+    <ref name="label.attrib"/>
+    <ref name="linkend.attrib"/>
+    <ref name="pagenum.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="tocfront.role.attrib"/>
+    <ref name="local.tocfront.attrib"/>
+  </define>
+  <!-- end of tocfront.attlist -->
+  <!-- end of tocfront.module -->
+  <define name="local.tocentry.attrib">
+    <empty/>
+  </define>
+  <define name="tocentry.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A component title in a table of contents. -->
+  <define name="tocentry">
+    <element name="tocentry">
+      <ref name="tocentry.attlist"/>
+      <zeroOrMore>
+        <ref name="para.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of tocentry.element -->
+  <!-- to element that this entry represents -->
+  <define name="tocentry.attlist" combine="interleave">
+    <ref name="linkend.attrib"/>
+    <ref name="pagenum.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="tocentry.role.attrib"/>
+    <ref name="local.tocentry.attrib"/>
+  </define>
+  <!-- end of tocentry.attlist -->
+  <!-- end of tocentry.module -->
+  <define name="local.tocpart.attrib">
+    <empty/>
+  </define>
+  <define name="tocpart.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:An entry in a table of contents for a part of a book. -->
+  <define name="tocpart">
+    <element name="tocpart">
+      <ref name="tocpart.attlist"/>
+      <oneOrMore>
+        <ref name="tocentry"/>
+      </oneOrMore>
+      <zeroOrMore>
+        <ref name="tocchap"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of tocpart.element -->
+  <define name="tocpart.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="tocpart.role.attrib"/>
+    <ref name="local.tocpart.attrib"/>
+  </define>
+  <!-- end of tocpart.attlist -->
+  <!-- end of tocpart.module -->
+  <define name="local.tocchap.attrib">
+    <empty/>
+  </define>
+  <define name="tocchap.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:An entry in a table of contents for a component in the body of a document. -->
+  <define name="tocchap">
+    <element name="tocchap">
+      <ref name="tocchap.attlist"/>
+      <oneOrMore>
+        <ref name="tocentry"/>
+      </oneOrMore>
+      <zeroOrMore>
+        <ref name="toclevel1"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of tocchap.element -->
+  <define name="tocchap.attlist" combine="interleave">
+    <ref name="label.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="tocchap.role.attrib"/>
+    <ref name="local.tocchap.attrib"/>
+  </define>
+  <!-- end of tocchap.attlist -->
+  <!-- end of tocchap.module -->
+  <define name="local.toclevel1.attrib">
+    <empty/>
+  </define>
+  <define name="toclevel1.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A top-level entry within a table of contents entry for a chapter-like component. -->
+  <define name="toclevel1">
+    <element name="toclevel1">
+      <ref name="toclevel1.attlist"/>
+      <oneOrMore>
+        <ref name="tocentry"/>
+      </oneOrMore>
+      <zeroOrMore>
+        <ref name="toclevel2"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of toclevel1.element -->
+  <define name="toclevel1.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="toclevel1.role.attrib"/>
+    <ref name="local.toclevel1.attrib"/>
+  </define>
+  <!-- end of toclevel1.attlist -->
+  <!-- end of toclevel1.module -->
+  <define name="local.toclevel2.attrib">
+    <empty/>
+  </define>
+  <define name="toclevel2.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A second-level entry within a table of contents entry for a chapter-like component. -->
+  <define name="toclevel2">
+    <element name="toclevel2">
+      <ref name="toclevel2.attlist"/>
+      <oneOrMore>
+        <ref name="tocentry"/>
+      </oneOrMore>
+      <zeroOrMore>
+        <ref name="toclevel3"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of toclevel2.element -->
+  <define name="toclevel2.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="toclevel2.role.attrib"/>
+    <ref name="local.toclevel2.attrib"/>
+  </define>
+  <!-- end of toclevel2.attlist -->
+  <!-- end of toclevel2.module -->
+  <define name="local.toclevel3.attrib">
+    <empty/>
+  </define>
+  <define name="toclevel3.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A third-level entry within a table of contents entry for a chapter-like component. -->
+  <define name="toclevel3">
+    <element name="toclevel3">
+      <ref name="toclevel3.attlist"/>
+      <oneOrMore>
+        <ref name="tocentry"/>
+      </oneOrMore>
+      <zeroOrMore>
+        <ref name="toclevel4"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of toclevel3.element -->
+  <define name="toclevel3.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="toclevel3.role.attrib"/>
+    <ref name="local.toclevel3.attrib"/>
+  </define>
+  <!-- end of toclevel3.attlist -->
+  <!-- end of toclevel3.module -->
+  <define name="local.toclevel4.attrib">
+    <empty/>
+  </define>
+  <define name="toclevel4.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A fourth-level entry within a table of contents entry for a chapter-like component. -->
+  <define name="toclevel4">
+    <element name="toclevel4">
+      <ref name="toclevel4.attlist"/>
+      <oneOrMore>
+        <ref name="tocentry"/>
+      </oneOrMore>
+      <zeroOrMore>
+        <ref name="toclevel5"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of toclevel4.element -->
+  <define name="toclevel4.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="toclevel4.role.attrib"/>
+    <ref name="local.toclevel4.attrib"/>
+  </define>
+  <!-- end of toclevel4.attlist -->
+  <!-- end of toclevel4.module -->
+  <define name="local.toclevel5.attrib">
+    <empty/>
+  </define>
+  <define name="toclevel5.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A fifth-level entry within a table of contents entry for a chapter-like component. -->
+  <define name="toclevel5">
+    <element name="toclevel5">
+      <ref name="toclevel5.attlist"/>
+      <oneOrMore>
+        <ref name="tocentry"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of toclevel5.element -->
+  <define name="toclevel5.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="toclevel5.role.attrib"/>
+    <ref name="local.toclevel5.attrib"/>
+  </define>
+  <!-- end of toclevel5.attlist -->
+  <!-- end of toclevel5.module -->
+  <define name="local.tocback.attrib">
+    <empty/>
+  </define>
+  <define name="tocback.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:An entry in a table of contents for a back matter component. -->
+  <define name="tocback">
+    <element name="tocback">
+      <ref name="tocback.attlist"/>
+      <zeroOrMore>
+        <ref name="para.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of tocback.element -->
+  <!-- to element that this entry represents -->
+  <define name="tocback.attlist" combine="interleave">
+    <ref name="label.attrib"/>
+    <ref name="linkend.attrib"/>
+    <ref name="pagenum.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="tocback.role.attrib"/>
+    <ref name="local.tocback.attrib"/>
+  </define>
+  <!-- end of tocback.attlist -->
+  <!-- end of tocback.module -->
+  <!-- end of toc.content.module -->
+  <define name="local.lot.attrib">
+    <empty/>
+  </define>
+  <define name="lot.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A list of the titles of formal objects (as tables or figures) in a document. -->
+  <define name="lot">
+    <element name="lot">
+      <ref name="lot.attlist"/>
+      <optional>
+        <ref name="beginpage"/>
+      </optional>
+      <optional>
+        <ref name="bookcomponent.title.content"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="lotentry"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of lot.element -->
+  <define name="lot.attlist" combine="interleave">
+    <ref name="label.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="lot.role.attrib"/>
+    <ref name="local.lot.attrib"/>
+  </define>
+  <!-- end of lot.attlist -->
+  <!-- end of lot.module -->
+  <define name="local.lotentry.attrib">
+    <empty/>
+  </define>
+  <define name="lotentry.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:An entry in a list of titles. -->
+  <define name="lotentry">
+    <element name="lotentry">
+      <ref name="lotentry.attlist"/>
+      <zeroOrMore>
+        <ref name="para.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of lotentry.element -->
+  <!--
+    SrcCredit: Information about the source of the entry,
+    as for a list of illustrations
+  -->
+  <!--  linkend: to element that this entry represents -->
+  <define name="lotentry.attlist" combine="interleave">
+    <ref name="linkend.attrib"/>
+    <ref name="pagenum.attrib"/>
+    <optional>
+      <attribute name="srccredit"/>
+    </optional>
+    <ref name="common.attrib"/>
+    <ref name="lotentry.role.attrib"/>
+    <ref name="local.lotentry.attrib"/>
+  </define>
+  <!-- end of lotentry.attlist -->
+  <!-- end of lotentry.module -->
+  <!-- end of lot.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Appendix, Chapter, Part, Preface, Reference, PartIntro ............... -->
+  <define name="local.appendix.attrib">
+    <empty/>
+  </define>
+  <define name="appendix.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:An appendix in a Book or Article. -->
+  <define name="appendix">
+    <element name="appendix">
+      <ref name="appendix.attlist"/>
+      <optional>
+        <ref name="beginpage"/>
+      </optional>
+      <optional>
+        <ref name="appendixinfo"/>
+      </optional>
+      <ref name="bookcomponent.title.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="tocchap"/>
+      </optional>
+      <ref name="bookcomponent.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of appendix.element -->
+  <define name="appendix.attlist" combine="interleave">
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="appendix.role.attrib"/>
+    <ref name="local.appendix.attrib"/>
+  </define>
+  <!-- end of appendix.attlist -->
+  <!-- end of appendix.module -->
+  <define name="local.chapter.attrib">
+    <empty/>
+  </define>
+  <define name="chapter.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A chapter, as of a book. -->
+  <define name="chapter">
+    <element name="chapter">
+      <ref name="chapter.attlist"/>
+      <optional>
+        <ref name="beginpage"/>
+      </optional>
+      <optional>
+        <ref name="chapterinfo"/>
+      </optional>
+      <ref name="bookcomponent.title.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="tocchap"/>
+      </optional>
+      <ref name="bookcomponent.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of chapter.element -->
+  <define name="chapter.attlist" combine="interleave">
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="chapter.role.attrib"/>
+    <ref name="local.chapter.attrib"/>
+  </define>
+  <!-- end of chapter.attlist -->
+  <!-- end of chapter.module -->
+  <!--
+    Note that Part was to have its content model reduced in V4.5.  This
+    change will not be made after all.
+  -->
+  <define name="local.part.attrib">
+    <empty/>
+  </define>
+  <define name="part.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A division in a book. -->
+  <define name="part">
+    <element name="part">
+      <ref name="part.attlist"/>
+      <optional>
+        <ref name="beginpage"/>
+      </optional>
+      <optional>
+        <ref name="partinfo"/>
+      </optional>
+      <ref name="bookcomponent.title.content"/>
+      <optional>
+        <ref name="partintro"/>
+      </optional>
+      <oneOrMore>
+        <ref name="partcontent.mix"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of part.element -->
+  <define name="part.attlist" combine="interleave">
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="part.role.attrib"/>
+    <ref name="local.part.attrib"/>
+  </define>
+  <!-- end of part.attlist -->
+  <!-- ELEMENT PartIntro (defined below) -->
+  <!-- end of part.module -->
+  <define name="local.preface.attrib">
+    <empty/>
+  </define>
+  <define name="preface.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Introductory matter preceding the first chapter of a book. -->
+  <define name="preface">
+    <element name="preface">
+      <ref name="preface.attlist"/>
+      <optional>
+        <ref name="beginpage"/>
+      </optional>
+      <optional>
+        <ref name="prefaceinfo"/>
+      </optional>
+      <ref name="bookcomponent.title.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="tocchap"/>
+      </optional>
+      <ref name="bookcomponent.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of preface.element -->
+  <define name="preface.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="preface.role.attrib"/>
+    <ref name="local.preface.attrib"/>
+  </define>
+  <!-- end of preface.attlist -->
+  <!-- end of preface.module -->
+  <define name="local.reference.attrib">
+    <empty/>
+  </define>
+  <define name="reference.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A collection of reference entries. -->
+  <define name="reference">
+    <element name="reference">
+      <ref name="reference.attlist"/>
+      <optional>
+        <ref name="beginpage"/>
+      </optional>
+      <optional>
+        <ref name="referenceinfo"/>
+      </optional>
+      <ref name="bookcomponent.title.content"/>
+      <optional>
+        <ref name="partintro"/>
+      </optional>
+      <oneOrMore>
+        <ref name="refentry.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of reference.element -->
+  <define name="reference.attlist" combine="interleave">
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="reference.role.attrib"/>
+    <ref name="local.reference.attrib"/>
+  </define>
+  <!-- end of reference.attlist -->
+  <!-- ELEMENT PartIntro (defined below) -->
+  <!-- end of reference.module -->
+  <define name="local.partintro.attrib">
+    <empty/>
+  </define>
+  <define name="partintro.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:An introduction to the contents of a part. -->
+  <define name="partintro">
+    <element name="partintro">
+      <ref name="partintro.attlist"/>
+      <optional>
+        <ref name="div.title.content"/>
+      </optional>
+      <ref name="bookcomponent.content"/>
+    </element>
+  </define>
+  <!-- end of partintro.element -->
+  <define name="partintro.attlist" combine="interleave">
+    <ref name="label.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="partintro.role.attrib"/>
+    <ref name="local.partintro.attrib"/>
+  </define>
+  <!-- end of partintro.attlist -->
+  <!-- end of partintro.module -->
+  <!-- ...................................................................... -->
+  <!-- Other Info elements .................................................. -->
+  <define name="local.appendixinfo.attrib">
+    <empty/>
+  </define>
+  <define name="appendixinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for an Appendix. -->
+  <define name="appendixinfo">
+    <element name="appendixinfo">
+      <ref name="appendixinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of appendixinfo.element -->
+  <define name="appendixinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="appendixinfo.role.attrib"/>
+    <ref name="local.appendixinfo.attrib"/>
+  </define>
+  <!-- end of appendixinfo.attlist -->
+  <!-- end of appendixinfo.module -->
+  <define name="local.bibliographyinfo.attrib">
+    <empty/>
+  </define>
+  <define name="bibliographyinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Bibliography. -->
+  <define name="bibliographyinfo">
+    <element name="bibliographyinfo">
+      <ref name="bibliographyinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of bibliographyinfo.element -->
+  <define name="bibliographyinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="bibliographyinfo.role.attrib"/>
+    <ref name="local.bibliographyinfo.attrib"/>
+  </define>
+  <!-- end of bibliographyinfo.attlist -->
+  <!-- end of bibliographyinfo.module -->
+  <define name="local.chapterinfo.attrib">
+    <empty/>
+  </define>
+  <define name="chapterinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Chapter. -->
+  <define name="chapterinfo">
+    <element name="chapterinfo">
+      <ref name="chapterinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of chapterinfo.element -->
+  <define name="chapterinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="chapterinfo.role.attrib"/>
+    <ref name="local.chapterinfo.attrib"/>
+  </define>
+  <!-- end of chapterinfo.attlist -->
+  <!-- end of chapterinfo.module -->
+  <define name="local.glossaryinfo.attrib">
+    <empty/>
+  </define>
+  <define name="glossaryinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Glossary. -->
+  <define name="glossaryinfo">
+    <element name="glossaryinfo">
+      <ref name="glossaryinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of glossaryinfo.element -->
+  <define name="glossaryinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="glossaryinfo.role.attrib"/>
+    <ref name="local.glossaryinfo.attrib"/>
+  </define>
+  <!-- end of glossaryinfo.attlist -->
+  <!-- end of glossaryinfo.module -->
+  <define name="local.indexinfo.attrib">
+    <empty/>
+  </define>
+  <define name="indexinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for an Index. -->
+  <define name="indexinfo">
+    <element name="indexinfo">
+      <ref name="indexinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of indexinfo.element -->
+  <define name="indexinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="indexinfo.role.attrib"/>
+    <ref name="local.indexinfo.attrib"/>
+  </define>
+  <!-- end of indexinfo.attlist -->
+  <!-- end of indexinfo.module -->
+  <define name="local.setindexinfo.attrib">
+    <empty/>
+  </define>
+  <define name="setindexinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a SetIndex. -->
+  <define name="setindexinfo">
+    <element name="setindexinfo">
+      <ref name="setindexinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of setindexinfo.element -->
+  <define name="setindexinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="setindexinfo.role.attrib"/>
+    <ref name="local.setindexinfo.attrib"/>
+  </define>
+  <!-- end of setindexinfo.attlist -->
+  <!-- end of setindexinfo.module -->
+  <define name="local.partinfo.attrib">
+    <empty/>
+  </define>
+  <define name="partinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Part. -->
+  <define name="partinfo">
+    <element name="partinfo">
+      <ref name="partinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of partinfo.element -->
+  <define name="partinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="partinfo.role.attrib"/>
+    <ref name="local.partinfo.attrib"/>
+  </define>
+  <!-- end of partinfo.attlist -->
+  <!-- end of partinfo.module -->
+  <define name="local.prefaceinfo.attrib">
+    <empty/>
+  </define>
+  <define name="prefaceinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Preface. -->
+  <define name="prefaceinfo">
+    <element name="prefaceinfo">
+      <ref name="prefaceinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of prefaceinfo.element -->
+  <define name="prefaceinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="prefaceinfo.role.attrib"/>
+    <ref name="local.prefaceinfo.attrib"/>
+  </define>
+  <!-- end of prefaceinfo.attlist -->
+  <!-- end of prefaceinfo.module -->
+  <define name="local.refentryinfo.attrib">
+    <empty/>
+  </define>
+  <define name="refentryinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Refentry. -->
+  <define name="refentryinfo">
+    <element name="refentryinfo">
+      <ref name="refentryinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of refentryinfo.element -->
+  <define name="refentryinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refentryinfo.role.attrib"/>
+    <ref name="local.refentryinfo.attrib"/>
+  </define>
+  <!-- end of refentryinfo.attlist -->
+  <!-- end of refentryinfo.module -->
+  <define name="local.refsectioninfo.attrib">
+    <empty/>
+  </define>
+  <define name="refsectioninfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a refsection. -->
+  <define name="refsectioninfo">
+    <element name="refsectioninfo">
+      <ref name="refsectioninfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of refsectioninfo.element -->
+  <define name="refsectioninfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refsectioninfo.role.attrib"/>
+    <ref name="local.refsectioninfo.attrib"/>
+  </define>
+  <!-- end of refsectioninfo.attlist -->
+  <!-- end of refsectioninfo.module -->
+  <define name="local.refsect1info.attrib">
+    <empty/>
+  </define>
+  <define name="refsect1info.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a RefSect1. -->
+  <define name="refsect1info">
+    <element name="refsect1info">
+      <ref name="refsect1info.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of refsect1info.element -->
+  <define name="refsect1info.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refsect1info.role.attrib"/>
+    <ref name="local.refsect1info.attrib"/>
+  </define>
+  <!-- end of refsect1info.attlist -->
+  <!-- end of refsect1info.module -->
+  <define name="local.refsect2info.attrib">
+    <empty/>
+  </define>
+  <define name="refsect2info.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a RefSect2. -->
+  <define name="refsect2info">
+    <element name="refsect2info">
+      <ref name="refsect2info.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of refsect2info.element -->
+  <define name="refsect2info.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refsect2info.role.attrib"/>
+    <ref name="local.refsect2info.attrib"/>
+  </define>
+  <!-- end of refsect2info.attlist -->
+  <!-- end of refsect2info.module -->
+  <define name="local.refsect3info.attrib">
+    <empty/>
+  </define>
+  <define name="refsect3info.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a RefSect3. -->
+  <define name="refsect3info">
+    <element name="refsect3info">
+      <ref name="refsect3info.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of refsect3info.element -->
+  <define name="refsect3info.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refsect3info.role.attrib"/>
+    <ref name="local.refsect3info.attrib"/>
+  </define>
+  <!-- end of refsect3info.attlist -->
+  <!-- end of refsect3info.module -->
+  <define name="local.refsynopsisdivinfo.attrib">
+    <empty/>
+  </define>
+  <define name="refsynopsisdivinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a RefSynopsisDiv. -->
+  <define name="refsynopsisdivinfo">
+    <element name="refsynopsisdivinfo">
+      <ref name="refsynopsisdivinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of refsynopsisdivinfo.element -->
+  <define name="refsynopsisdivinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refsynopsisdivinfo.role.attrib"/>
+    <ref name="local.refsynopsisdivinfo.attrib"/>
+  </define>
+  <!-- end of refsynopsisdivinfo.attlist -->
+  <!-- end of refsynopsisdivinfo.module -->
+  <define name="local.referenceinfo.attrib">
+    <empty/>
+  </define>
+  <define name="referenceinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Reference. -->
+  <define name="referenceinfo">
+    <element name="referenceinfo">
+      <ref name="referenceinfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of referenceinfo.element -->
+  <define name="referenceinfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="referenceinfo.role.attrib"/>
+    <ref name="local.referenceinfo.attrib"/>
+  </define>
+  <!-- end of referenceinfo.attlist -->
+  <!-- end of referenceinfo.module -->
+  <define name="local.sect1info.attrib">
+    <empty/>
+  </define>
+  <define name="sect1info.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Sect1. -->
+  <define name="sect1info">
+    <element name="sect1info">
+      <ref name="sect1info.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of sect1info.element -->
+  <define name="sect1info.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="sect1info.role.attrib"/>
+    <ref name="local.sect1info.attrib"/>
+  </define>
+  <!-- end of sect1info.attlist -->
+  <define name="local.sect2info.attrib">
+    <empty/>
+  </define>
+  <define name="sect2info.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Sect2. -->
+  <define name="sect2info">
+    <element name="sect2info">
+      <ref name="sect2info.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of sect2info.element -->
+  <define name="sect2info.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="sect2info.role.attrib"/>
+    <ref name="local.sect2info.attrib"/>
+  </define>
+  <!-- end of sect2info.attlist -->
+  <define name="local.sect3info.attrib">
+    <empty/>
+  </define>
+  <define name="sect3info.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Sect3. -->
+  <define name="sect3info">
+    <element name="sect3info">
+      <ref name="sect3info.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of sect3info.element -->
+  <define name="sect3info.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="sect3info.role.attrib"/>
+    <ref name="local.sect3info.attrib"/>
+  </define>
+  <!-- end of sect3info.attlist -->
+  <define name="local.sect4info.attrib">
+    <empty/>
+  </define>
+  <define name="sect4info.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Sect4. -->
+  <define name="sect4info">
+    <element name="sect4info">
+      <ref name="sect4info.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of sect4info.element -->
+  <define name="sect4info.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="sect4info.role.attrib"/>
+    <ref name="local.sect4info.attrib"/>
+  </define>
+  <!-- end of sect4info.attlist -->
+  <define name="local.sect5info.attrib">
+    <empty/>
+  </define>
+  <define name="sect5info.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a Sect5. -->
+  <define name="sect5info">
+    <element name="sect5info">
+      <ref name="sect5info.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of sect5info.element -->
+  <define name="sect5info.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="sect5info.role.attrib"/>
+    <ref name="local.sect5info.attrib"/>
+  </define>
+  <!-- end of sect5info.attlist -->
+  <!-- ...................................................................... -->
+  <!-- Section (parallel to Sect*) ......................................... -->
+  <define name="local.section.attrib">
+    <empty/>
+  </define>
+  <define name="section.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A recursive section. -->
+  <define name="section">
+    <element name="section">
+      <ref name="section.attlist"/>
+      <optional>
+        <ref name="sectioninfo"/>
+      </optional>
+      <ref name="sect.title.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+      <choice>
+        <group>
+          <oneOrMore>
+            <ref name="divcomponent.mix"/>
+          </oneOrMore>
+          <choice>
+            <zeroOrMore>
+              <ref name="refentry.class"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="section.class"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="simplesect"/>
+            </zeroOrMore>
+          </choice>
+        </group>
+        <oneOrMore>
+          <ref name="refentry.class"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="section.class"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="simplesect"/>
+        </oneOrMore>
+      </choice>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of section.element -->
+  <define name="section.attlist" combine="interleave">
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="section.role.attrib"/>
+    <ref name="local.section.attrib"/>
+  </define>
+  <!-- end of section.attlist -->
+  <!-- end of section.module -->
+  <define name="sectioninfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <define name="local.sectioninfo.attrib">
+    <empty/>
+  </define>
+  <!-- doc:Meta-information for a recursive section. -->
+  <define name="sectioninfo">
+    <element name="sectioninfo">
+      <ref name="sectioninfo.attlist"/>
+      <oneOrMore>
+        <ref name="info.class"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of sectioninfo.element -->
+  <define name="sectioninfo.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="sectioninfo.role.attrib"/>
+    <ref name="local.sectioninfo.attrib"/>
+  </define>
+  <!-- end of sectioninfo.attlist -->
+  <!-- end of sectioninfo.module -->
+  <!-- end of section.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Sect1, Sect2, Sect3, Sect4, Sect5 .................................... -->
+  <define name="local.sect1.attrib">
+    <empty/>
+  </define>
+  <define name="sect1.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A top-level section of document. -->
+  <define name="sect1">
+    <element name="sect1">
+      <ref name="sect1.attlist"/>
+      <optional>
+        <ref name="sect1info"/>
+      </optional>
+      <ref name="sect.title.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+      <choice>
+        <group>
+          <oneOrMore>
+            <ref name="divcomponent.mix"/>
+          </oneOrMore>
+          <choice>
+            <zeroOrMore>
+              <ref name="refentry.class"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="sect2"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="simplesect"/>
+            </zeroOrMore>
+          </choice>
+        </group>
+        <oneOrMore>
+          <ref name="refentry.class"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="sect2"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="simplesect"/>
+        </oneOrMore>
+      </choice>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of sect1.element -->
+  <!--
+    Renderas: Indicates the format in which the heading should
+    appear
+  -->
+  <define name="sect1.attlist" combine="interleave">
+    <optional>
+      <attribute name="renderas">
+        <choice>
+          <value>sect2</value>
+          <value>sect3</value>
+          <value>sect4</value>
+          <value>sect5</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="sect1.role.attrib"/>
+    <ref name="local.sect1.attrib"/>
+  </define>
+  <!-- end of sect1.attlist -->
+  <!-- end of sect1.module -->
+  <define name="local.sect2.attrib">
+    <empty/>
+  </define>
+  <define name="sect2.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A subsection within a Sect1. -->
+  <define name="sect2">
+    <element name="sect2">
+      <ref name="sect2.attlist"/>
+      <optional>
+        <ref name="sect2info"/>
+      </optional>
+      <ref name="sect.title.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+      <choice>
+        <group>
+          <oneOrMore>
+            <ref name="divcomponent.mix"/>
+          </oneOrMore>
+          <choice>
+            <zeroOrMore>
+              <ref name="refentry.class"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="sect3"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="simplesect"/>
+            </zeroOrMore>
+          </choice>
+        </group>
+        <oneOrMore>
+          <ref name="refentry.class"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="sect3"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="simplesect"/>
+        </oneOrMore>
+      </choice>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of sect2.element -->
+  <!--
+    Renderas: Indicates the format in which the heading should
+    appear
+  -->
+  <define name="sect2.attlist" combine="interleave">
+    <optional>
+      <attribute name="renderas">
+        <choice>
+          <value>sect1</value>
+          <value>sect3</value>
+          <value>sect4</value>
+          <value>sect5</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="sect2.role.attrib"/>
+    <ref name="local.sect2.attrib"/>
+  </define>
+  <!-- end of sect2.attlist -->
+  <!-- end of sect2.module -->
+  <define name="local.sect3.attrib">
+    <empty/>
+  </define>
+  <define name="sect3.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A subsection within a Sect2. -->
+  <define name="sect3">
+    <element name="sect3">
+      <ref name="sect3.attlist"/>
+      <optional>
+        <ref name="sect3info"/>
+      </optional>
+      <ref name="sect.title.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+      <choice>
+        <group>
+          <oneOrMore>
+            <ref name="divcomponent.mix"/>
+          </oneOrMore>
+          <choice>
+            <zeroOrMore>
+              <ref name="refentry.class"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="sect4"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="simplesect"/>
+            </zeroOrMore>
+          </choice>
+        </group>
+        <oneOrMore>
+          <ref name="refentry.class"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="sect4"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="simplesect"/>
+        </oneOrMore>
+      </choice>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of sect3.element -->
+  <!--
+    Renderas: Indicates the format in which the heading should
+    appear
+  -->
+  <define name="sect3.attlist" combine="interleave">
+    <optional>
+      <attribute name="renderas">
+        <choice>
+          <value>sect1</value>
+          <value>sect2</value>
+          <value>sect4</value>
+          <value>sect5</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="sect3.role.attrib"/>
+    <ref name="local.sect3.attrib"/>
+  </define>
+  <!-- end of sect3.attlist -->
+  <!-- end of sect3.module -->
+  <define name="local.sect4.attrib">
+    <empty/>
+  </define>
+  <define name="sect4.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A subsection within a Sect3. -->
+  <define name="sect4">
+    <element name="sect4">
+      <ref name="sect4.attlist"/>
+      <optional>
+        <ref name="sect4info"/>
+      </optional>
+      <ref name="sect.title.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+      <choice>
+        <group>
+          <oneOrMore>
+            <ref name="divcomponent.mix"/>
+          </oneOrMore>
+          <choice>
+            <zeroOrMore>
+              <ref name="refentry.class"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="sect5"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="simplesect"/>
+            </zeroOrMore>
+          </choice>
+        </group>
+        <oneOrMore>
+          <ref name="refentry.class"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="sect5"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="simplesect"/>
+        </oneOrMore>
+      </choice>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of sect4.element -->
+  <!--
+    Renderas: Indicates the format in which the heading should
+    appear
+  -->
+  <define name="sect4.attlist" combine="interleave">
+    <optional>
+      <attribute name="renderas">
+        <choice>
+          <value>sect1</value>
+          <value>sect2</value>
+          <value>sect3</value>
+          <value>sect5</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="sect4.role.attrib"/>
+    <ref name="local.sect4.attrib"/>
+  </define>
+  <!-- end of sect4.attlist -->
+  <!-- end of sect4.module -->
+  <define name="local.sect5.attrib">
+    <empty/>
+  </define>
+  <define name="sect5.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A subsection within a Sect4. -->
+  <define name="sect5">
+    <element name="sect5">
+      <ref name="sect5.attlist"/>
+      <optional>
+        <ref name="sect5info"/>
+      </optional>
+      <ref name="sect.title.content"/>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+      <choice>
+        <group>
+          <oneOrMore>
+            <ref name="divcomponent.mix"/>
+          </oneOrMore>
+          <choice>
+            <zeroOrMore>
+              <ref name="refentry.class"/>
+            </zeroOrMore>
+            <zeroOrMore>
+              <ref name="simplesect"/>
+            </zeroOrMore>
+          </choice>
+        </group>
+        <oneOrMore>
+          <ref name="refentry.class"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="simplesect"/>
+        </oneOrMore>
+      </choice>
+      <zeroOrMore>
+        <ref name="nav.class"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of sect5.element -->
+  <!--
+    Renderas: Indicates the format in which the heading should
+    appear
+  -->
+  <define name="sect5.attlist" combine="interleave">
+    <optional>
+      <attribute name="renderas">
+        <choice>
+          <value>sect1</value>
+          <value>sect2</value>
+          <value>sect3</value>
+          <value>sect4</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="label.attrib"/>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="sect5.role.attrib"/>
+    <ref name="local.sect5.attrib"/>
+  </define>
+  <!-- end of sect5.attlist -->
+  <!-- end of sect5.module -->
+  <define name="local.simplesect.attrib">
+    <empty/>
+  </define>
+  <define name="simplesect.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A section of a document with no subdivisions. -->
+  <define name="simplesect">
+    <element name="simplesect">
+      <ref name="simplesect.attlist"/>
+      <ref name="sect.title.content"/>
+      <oneOrMore>
+        <ref name="divcomponent.mix"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of simplesect.element -->
+  <define name="simplesect.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="simplesect.role.attrib"/>
+    <ref name="local.simplesect.attrib"/>
+  </define>
+  <!-- end of simplesect.attlist -->
+  <!-- end of simplesect.module -->
+  <!-- ...................................................................... -->
+  <!-- Bibliography ......................................................... -->
+  <define name="local.bibliography.attrib">
+    <empty/>
+  </define>
+  <define name="bibliography.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A bibliography. -->
+  <define name="bibliography">
+    <element name="bibliography">
+      <ref name="bibliography.attlist"/>
+      <optional>
+        <ref name="bibliographyinfo"/>
+      </optional>
+      <optional>
+        <ref name="bookcomponent.title.content"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="component.mix"/>
+      </zeroOrMore>
+      <choice>
+        <oneOrMore>
+          <ref name="bibliodiv"/>
+        </oneOrMore>
+        <oneOrMore>
+          <choice>
+            <ref name="biblioentry"/>
+            <ref name="bibliomixed"/>
+          </choice>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+  <!-- end of bibliography.element -->
+  <define name="bibliography.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="bibliography.role.attrib"/>
+    <ref name="local.bibliography.attrib"/>
+  </define>
+  <!-- end of bibliography.attlist -->
+  <!-- end of bibliography.module -->
+  <define name="local.bibliodiv.attrib">
+    <empty/>
+  </define>
+  <define name="bibliodiv.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A section of a Bibliography. -->
+  <define name="bibliodiv">
+    <element name="bibliodiv">
+      <ref name="bibliodiv.attlist"/>
+      <optional>
+        <ref name="sect.title.content"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="component.mix"/>
+      </zeroOrMore>
+      <oneOrMore>
+        <choice>
+          <ref name="biblioentry"/>
+          <ref name="bibliomixed"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of bibliodiv.element -->
+  <define name="bibliodiv.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="bibliodiv.role.attrib"/>
+    <ref name="local.bibliodiv.attrib"/>
+  </define>
+  <!-- end of bibliodiv.attlist -->
+  <!-- end of bibliodiv.module -->
+  <!-- end of bibliography.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Glossary ............................................................. -->
+  <define name="local.glossary.attrib">
+    <empty/>
+  </define>
+  <define name="glossary.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A glossary. -->
+  <define name="glossary">
+    <element name="glossary">
+      <ref name="glossary.attlist"/>
+      <optional>
+        <ref name="glossaryinfo"/>
+      </optional>
+      <optional>
+        <ref name="bookcomponent.title.content"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="component.mix"/>
+      </zeroOrMore>
+      <choice>
+        <oneOrMore>
+          <ref name="glossdiv"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="glossentry"/>
+        </oneOrMore>
+      </choice>
+      <optional>
+        <ref name="bibliography"/>
+      </optional>
+    </element>
+  </define>
+  <!-- end of glossary.element -->
+  <define name="glossary.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="glossary.role.attrib"/>
+    <ref name="local.glossary.attrib"/>
+  </define>
+  <!-- end of glossary.attlist -->
+  <!-- end of glossary.module -->
+  <define name="local.glossdiv.attrib">
+    <empty/>
+  </define>
+  <define name="glossdiv.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A division in a Glossary. -->
+  <define name="glossdiv">
+    <element name="glossdiv">
+      <ref name="glossdiv.attlist"/>
+      <ref name="sect.title.content"/>
+      <zeroOrMore>
+        <ref name="component.mix"/>
+      </zeroOrMore>
+      <oneOrMore>
+        <ref name="glossentry"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of glossdiv.element -->
+  <define name="glossdiv.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="glossdiv.role.attrib"/>
+    <ref name="local.glossdiv.attrib"/>
+  </define>
+  <!-- end of glossdiv.attlist -->
+  <!-- end of glossdiv.module -->
+  <!-- end of glossary.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Index and SetIndex ................................................... -->
+  <define name="local.indexes.attrib">
+    <empty/>
+  </define>
+  <define name="indexes.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:An index. -->
+  <define name="index">
+    <element name="index">
+      <ref name="index.attlist"/>
+      <optional>
+        <ref name="indexinfo"/>
+      </optional>
+      <optional>
+        <ref name="bookcomponent.title.content"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="component.mix"/>
+      </zeroOrMore>
+      <choice>
+        <zeroOrMore>
+          <ref name="indexdiv"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="indexentry"/>
+        </zeroOrMore>
+      </choice>
+    </element>
+  </define>
+  <!-- end of index.element -->
+  <define name="index.attlist" combine="interleave">
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <ref name="common.attrib"/>
+    <ref name="indexes.role.attrib"/>
+    <ref name="local.indexes.attrib"/>
+  </define>
+  <!-- end of index.attlist -->
+  <!-- doc:An index to a set of books. -->
+  <define name="setindex">
+    <element name="setindex">
+      <ref name="setindex.attlist"/>
+      <optional>
+        <ref name="setindexinfo"/>
+      </optional>
+      <optional>
+        <ref name="bookcomponent.title.content"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="component.mix"/>
+      </zeroOrMore>
+      <choice>
+        <zeroOrMore>
+          <ref name="indexdiv"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="indexentry"/>
+        </zeroOrMore>
+      </choice>
+    </element>
+  </define>
+  <!-- end of setindex.element -->
+  <define name="setindex.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="indexes.role.attrib"/>
+    <ref name="local.indexes.attrib"/>
+  </define>
+  <!-- end of setindex.attlist -->
+  <!-- end of indexes.module -->
+  <!--
+    SegmentedList in this content is useful for marking up permuted
+    indices.
+  -->
+  <define name="local.indexdiv.attrib">
+    <empty/>
+  </define>
+  <define name="indexdiv.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A division in an index. -->
+  <define name="indexdiv">
+    <element name="indexdiv">
+      <ref name="indexdiv.attlist"/>
+      <optional>
+        <ref name="sect.title.content"/>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <ref name="indexdivcomponent.mix"/>
+        </zeroOrMore>
+        <choice>
+          <oneOrMore>
+            <ref name="indexentry"/>
+          </oneOrMore>
+          <ref name="segmentedlist"/>
+        </choice>
+      </group>
+    </element>
+  </define>
+  <!-- end of indexdiv.element -->
+  <define name="indexdiv.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="indexdiv.role.attrib"/>
+    <ref name="local.indexdiv.attrib"/>
+  </define>
+  <!-- end of indexdiv.attlist -->
+  <!-- end of indexdiv.module -->
+  <!-- Index entries appear in the index, not the text. -->
+  <define name="local.indexentry.attrib">
+    <empty/>
+  </define>
+  <define name="indexentry.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:An entry in an index. -->
+  <define name="indexentry">
+    <element name="indexentry">
+      <ref name="indexentry.attlist"/>
+      <ref name="primaryie"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="seeie"/>
+          <ref name="seealsoie"/>
+        </choice>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="secondaryie"/>
+        <zeroOrMore>
+          <choice>
+            <ref name="seeie"/>
+            <ref name="seealsoie"/>
+            <ref name="tertiaryie"/>
+          </choice>
+        </zeroOrMore>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of indexentry.element -->
+  <define name="indexentry.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="indexentry.role.attrib"/>
+    <ref name="local.indexentry.attrib"/>
+  </define>
+  <!-- end of indexentry.attlist -->
+  <!-- end of indexentry.module -->
+  <define name="local.primsecterie.attrib">
+    <empty/>
+  </define>
+  <define name="primsecterie.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A primary term in an index entry, not in the text. -->
+  <define name="primaryie">
+    <element name="primaryie">
+      <ref name="primaryie.attlist"/>
+      <zeroOrMore>
+        <ref name="ndxterm.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of primaryie.element -->
+  <!-- to IndexTerms that these entries represent -->
+  <define name="primaryie.attlist" combine="interleave">
+    <ref name="linkends.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="primsecterie.role.attrib"/>
+    <ref name="local.primsecterie.attrib"/>
+  </define>
+  <!-- end of primaryie.attlist -->
+  <!-- doc:A secondary term in an index entry, rather than in the text. -->
+  <define name="secondaryie">
+    <element name="secondaryie">
+      <ref name="secondaryie.attlist"/>
+      <zeroOrMore>
+        <ref name="ndxterm.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of secondaryie.element -->
+  <!-- to IndexTerms that these entries represent -->
+  <define name="secondaryie.attlist" combine="interleave">
+    <ref name="linkends.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="primsecterie.role.attrib"/>
+    <ref name="local.primsecterie.attrib"/>
+  </define>
+  <!-- end of secondaryie.attlist -->
+  <!-- doc:A tertiary term in an index entry, rather than in the text. -->
+  <define name="tertiaryie">
+    <element name="tertiaryie">
+      <ref name="tertiaryie.attlist"/>
+      <zeroOrMore>
+        <ref name="ndxterm.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of tertiaryie.element -->
+  <!-- to IndexTerms that these entries represent -->
+  <define name="tertiaryie.attlist" combine="interleave">
+    <ref name="linkends.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="primsecterie.role.attrib"/>
+    <ref name="local.primsecterie.attrib"/>
+  </define>
+  <!-- end of tertiaryie.attlist -->
+  <!-- end of primsecterie.module -->
+  <define name="local.seeie.attrib">
+    <empty/>
+  </define>
+  <define name="seeie.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A See entry in an index, rather than in the text. -->
+  <define name="seeie">
+    <element name="seeie">
+      <ref name="seeie.attlist"/>
+      <zeroOrMore>
+        <ref name="ndxterm.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of seeie.element -->
+  <!-- to IndexEntry to look up -->
+  <define name="seeie.attlist" combine="interleave">
+    <ref name="linkend.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="seeie.role.attrib"/>
+    <ref name="local.seeie.attrib"/>
+  </define>
+  <!-- end of seeie.attlist -->
+  <!-- end of seeie.module -->
+  <define name="local.seealsoie.attrib">
+    <empty/>
+  </define>
+  <define name="seealsoie.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A See also entry in an index, rather than in the text. -->
+  <define name="seealsoie">
+    <element name="seealsoie">
+      <ref name="seealsoie.attlist"/>
+      <zeroOrMore>
+        <ref name="ndxterm.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of seealsoie.element -->
+  <!-- to related IndexEntries -->
+  <define name="seealsoie.attlist" combine="interleave">
+    <ref name="linkends.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="seealsoie.role.attrib"/>
+    <ref name="local.seealsoie.attrib"/>
+  </define>
+  <!-- end of seealsoie.attlist -->
+  <!-- end of seealsoie.module -->
+  <!-- end of index.content.module -->
+  <!-- ...................................................................... -->
+  <!-- RefEntry ............................................................. -->
+  <define name="local.refentry.attrib">
+    <empty/>
+  </define>
+  <define name="refentry.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A reference page (originally a UNIX man-style reference page). -->
+  <define name="refentry">
+    <element name="refentry">
+      <ref name="refentry.attlist"/>
+      <optional>
+        <ref name="beginpage"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="ndxterm.class"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="refentryinfo"/>
+      </optional>
+      <optional>
+        <ref name="refmeta"/>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="remark"/>
+          <ref name="link.char.class"/>
+        </choice>
+      </zeroOrMore>
+      <oneOrMore>
+        <ref name="refnamediv"/>
+      </oneOrMore>
+      <optional>
+        <ref name="refsynopsisdiv"/>
+      </optional>
+      <choice>
+        <oneOrMore>
+          <ref name="refsect1"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="refsection"/>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+  <!-- end of refentry.element -->
+  <define name="refentry.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="refentry.role.attrib"/>
+    <ref name="local.refentry.attrib"/>
+  </define>
+  <!-- end of refentry.attlist -->
+  <!-- end of refentry.module -->
+  <define name="local.refmeta.attrib">
+    <empty/>
+  </define>
+  <define name="refmeta.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a reference entry. -->
+  <define name="refmeta">
+    <element name="refmeta">
+      <ref name="refmeta.attlist"/>
+      <zeroOrMore>
+        <ref name="ndxterm.class"/>
+      </zeroOrMore>
+      <ref name="refentrytitle"/>
+      <optional>
+        <ref name="manvolnum"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="refmiscinfo"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="ndxterm.class"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of refmeta.element -->
+  <define name="refmeta.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refmeta.role.attrib"/>
+    <ref name="local.refmeta.attrib"/>
+  </define>
+  <!-- end of refmeta.attlist -->
+  <!-- end of refmeta.module -->
+  <define name="local.refmiscinfo.attrib">
+    <empty/>
+  </define>
+  <define name="refmiscinfo.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:Meta-information for a reference entry other than the title and volume number. -->
+  <define name="refmiscinfo">
+    <element name="refmiscinfo">
+      <ref name="refmiscinfo.attlist"/>
+      <zeroOrMore>
+        <ref name="docinfo.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of refmiscinfo.element -->
+  <!-- Class: Freely assignable parameter; no default -->
+  <define name="refmiscinfo.attlist" combine="interleave">
+    <optional>
+      <attribute name="class"/>
+    </optional>
+    <ref name="common.attrib"/>
+    <ref name="refmiscinfo.role.attrib"/>
+    <ref name="local.refmiscinfo.attrib"/>
+  </define>
+  <!-- end of refmiscinfo.attlist -->
+  <!-- end of refmiscinfo.module -->
+  <define name="local.refnamediv.attrib">
+    <empty/>
+  </define>
+  <define name="refnamediv.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:The name, purpose, and classification of a reference page. -->
+  <define name="refnamediv">
+    <element name="refnamediv">
+      <ref name="refnamediv.attlist"/>
+      <optional>
+        <ref name="refdescriptor"/>
+      </optional>
+      <oneOrMore>
+        <ref name="refname"/>
+      </oneOrMore>
+      <ref name="refpurpose"/>
+      <zeroOrMore>
+        <ref name="refclass"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <choice>
+          <ref name="remark"/>
+          <ref name="link.char.class"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of refnamediv.element -->
+  <define name="refnamediv.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refnamediv.role.attrib"/>
+    <ref name="local.refnamediv.attrib"/>
+  </define>
+  <!-- end of refnamediv.attlist -->
+  <!-- end of refnamediv.module -->
+  <define name="local.refdescriptor.attrib">
+    <empty/>
+  </define>
+  <define name="refdescriptor.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A description of the topic of a reference page. -->
+  <define name="refdescriptor">
+    <element name="refdescriptor">
+      <ref name="refdescriptor.attlist"/>
+      <zeroOrMore>
+        <ref name="refname.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of refdescriptor.element -->
+  <define name="refdescriptor.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refdescriptor.role.attrib"/>
+    <ref name="local.refdescriptor.attrib"/>
+  </define>
+  <!-- end of refdescriptor.attlist -->
+  <!-- end of refdescriptor.module -->
+  <define name="local.refname.attrib">
+    <empty/>
+  </define>
+  <define name="refname.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:The name of (one of) the subject(s) of a reference page. -->
+  <define name="refname">
+    <element name="refname">
+      <ref name="refname.attlist"/>
+      <zeroOrMore>
+        <ref name="refname.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of refname.element -->
+  <define name="refname.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refname.role.attrib"/>
+    <ref name="local.refname.attrib"/>
+  </define>
+  <!-- end of refname.attlist -->
+  <!-- end of refname.module -->
+  <define name="local.refpurpose.attrib">
+    <empty/>
+  </define>
+  <define name="refpurpose.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A short (one sentence) synopsis of the topic of a reference page. -->
+  <define name="refpurpose">
+    <element name="refpurpose">
+      <ref name="refpurpose.attlist"/>
+      <zeroOrMore>
+        <ref name="refinline.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of refpurpose.element -->
+  <define name="refpurpose.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refpurpose.role.attrib"/>
+    <ref name="local.refpurpose.attrib"/>
+  </define>
+  <!-- end of refpurpose.attlist -->
+  <!-- end of refpurpose.module -->
+  <define name="local.refclass.attrib">
+    <empty/>
+  </define>
+  <define name="refclass.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:The scope or other indication of applicability of a reference entry. -->
+  <define name="refclass">
+    <element name="refclass">
+      <ref name="refclass.attlist"/>
+      <zeroOrMore>
+        <ref name="refclass.char.mix"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of refclass.element -->
+  <define name="refclass.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refclass.role.attrib"/>
+    <ref name="local.refclass.attrib"/>
+  </define>
+  <!-- end of refclass.attlist -->
+  <!-- end of refclass.module -->
+  <define name="local.refsynopsisdiv.attrib">
+    <empty/>
+  </define>
+  <define name="refsynopsisdiv.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A syntactic synopsis of the subject of the reference page. -->
+  <define name="refsynopsisdiv">
+    <element name="refsynopsisdiv">
+      <ref name="refsynopsisdiv.attlist"/>
+      <optional>
+        <ref name="refsynopsisdivinfo"/>
+      </optional>
+      <optional>
+        <ref name="refsect.title.content"/>
+      </optional>
+      <choice>
+        <group>
+          <oneOrMore>
+            <ref name="refcomponent.mix"/>
+          </oneOrMore>
+          <zeroOrMore>
+            <ref name="refsect2"/>
+          </zeroOrMore>
+        </group>
+        <oneOrMore>
+          <ref name="refsect2"/>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+  <!-- end of refsynopsisdiv.element -->
+  <define name="refsynopsisdiv.attlist" combine="interleave">
+    <ref name="common.attrib"/>
+    <ref name="refsynopsisdiv.role.attrib"/>
+    <ref name="local.refsynopsisdiv.attrib"/>
+  </define>
+  <!-- end of refsynopsisdiv.attlist -->
+  <!-- end of refsynopsisdiv.module -->
+  <define name="local.refsection.attrib">
+    <empty/>
+  </define>
+  <define name="refsection.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A recursive section in a refentry. -->
+  <define name="refsection">
+    <element name="refsection">
+      <ref name="refsection.attlist"/>
+      <optional>
+        <ref name="refsectioninfo"/>
+      </optional>
+      <ref name="refsect.title.content"/>
+      <choice>
+        <group>
+          <oneOrMore>
+            <ref name="refcomponent.mix"/>
+          </oneOrMore>
+          <zeroOrMore>
+            <ref name="refsection"/>
+          </zeroOrMore>
+        </group>
+        <oneOrMore>
+          <ref name="refsection"/>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+  <!-- end of refsection.element -->
+  <define name="refsection.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="refsection.role.attrib"/>
+    <ref name="local.refsection.attrib"/>
+  </define>
+  <!-- end of refsection.attlist -->
+  <!-- end of refsection.module -->
+  <define name="local.refsect1.attrib">
+    <empty/>
+  </define>
+  <define name="refsect1.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A major subsection of a reference entry. -->
+  <define name="refsect1">
+    <element name="refsect1">
+      <ref name="refsect1.attlist"/>
+      <optional>
+        <ref name="refsect1info"/>
+      </optional>
+      <ref name="refsect.title.content"/>
+      <choice>
+        <group>
+          <oneOrMore>
+            <ref name="refcomponent.mix"/>
+          </oneOrMore>
+          <zeroOrMore>
+            <ref name="refsect2"/>
+          </zeroOrMore>
+        </group>
+        <oneOrMore>
+          <ref name="refsect2"/>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+  <!-- end of refsect1.element -->
+  <define name="refsect1.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="refsect1.role.attrib"/>
+    <ref name="local.refsect1.attrib"/>
+  </define>
+  <!-- end of refsect1.attlist -->
+  <!-- end of refsect1.module -->
+  <define name="local.refsect2.attrib">
+    <empty/>
+  </define>
+  <define name="refsect2.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A subsection of a RefSect1. -->
+  <define name="refsect2">
+    <element name="refsect2">
+      <ref name="refsect2.attlist"/>
+      <optional>
+        <ref name="refsect2info"/>
+      </optional>
+      <ref name="refsect.title.content"/>
+      <choice>
+        <group>
+          <oneOrMore>
+            <ref name="refcomponent.mix"/>
+          </oneOrMore>
+          <zeroOrMore>
+            <ref name="refsect3"/>
+          </zeroOrMore>
+        </group>
+        <oneOrMore>
+          <ref name="refsect3"/>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+  <!-- end of refsect2.element -->
+  <define name="refsect2.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="refsect2.role.attrib"/>
+    <ref name="local.refsect2.attrib"/>
+  </define>
+  <!-- end of refsect2.attlist -->
+  <!-- end of refsect2.module -->
+  <define name="local.refsect3.attrib">
+    <empty/>
+  </define>
+  <define name="refsect3.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:A subsection of a RefSect2. -->
+  <define name="refsect3">
+    <element name="refsect3">
+      <ref name="refsect3.attlist"/>
+      <optional>
+        <ref name="refsect3info"/>
+      </optional>
+      <ref name="refsect.title.content"/>
+      <oneOrMore>
+        <ref name="refcomponent.mix"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- end of refsect3.element -->
+  <define name="refsect3.attlist" combine="interleave">
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="refsect3.role.attrib"/>
+    <ref name="local.refsect3.attrib"/>
+  </define>
+  <!-- end of refsect3.attlist -->
+  <!-- end of refsect3.module -->
+  <!-- end of refentry.content.module -->
+  <!-- ...................................................................... -->
+  <!-- Article .............................................................. -->
+  <!--
+    An Article is a chapter-level, stand-alone document that is often,
+    but need not be, collected into a Book.
+  -->
+  <define name="local.article.attrib">
+    <empty/>
+  </define>
+  <define name="article.role.attrib">
+    <ref name="role.attrib"/>
+  </define>
+  <!-- doc:An article. -->
+  <define name="article">
+    <element name="article">
+      <ref name="article.attlist"/>
+      <optional>
+        <ref name="div.title.content"/>
+      </optional>
+      <optional>
+        <ref name="articleinfo"/>
+      </optional>
+      <optional>
+        <ref name="tocchap"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="lot"/>
+      </zeroOrMore>
+      <ref name="bookcomponent.content"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="nav.class"/>
+          <ref name="appendix.class"/>
+          <ref name="colophon"/>
+          <ref name="ackno"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- end of article.element -->
+  <!--
+    Class: Indicates the type of a particular article;
+    all articles have the same structure and general purpose.
+    No default.
+  -->
+  <!-- ParentBook: ID of the enclosing Book -->
+  <define name="article.attlist" combine="interleave">
+    <optional>
+      <attribute name="class">
+        <choice>
+          <value>journalarticle</value>
+          <value>productsheet</value>
+          <value>whitepaper</value>
+          <value>techreport</value>
+          <value>specification</value>
+          <value>faq</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="parentbook">
+        <data type="IDREF"/>
+      </attribute>
+    </optional>
+    <ref name="status.attrib"/>
+    <ref name="common.attrib"/>
+    <ref name="article.role.attrib"/>
+    <ref name="local.article.attrib"/>
+  </define>
+</grammar>
+<!-- end of article.attlist -->
+<!-- end of article.module -->
+<!-- End of DocBook document hierarchy module V4.5 ........................ -->
+<!-- ...................................................................... -->

@@ -11,6 +11,7 @@
 <!ENTITY DVDdashR "<acronym>DVD-R</acronym>">
 <!ENTITY DVI "<acronym>DVI</acronym>">
 <!ENTITY DebugView "<application>DebugView</application>">
+<!ENTITY DonaldEKnuth "Donald&nbsp;E.&nbsp;Knuth">
 <!ENTITY Dvipdfm "<application>Dvipdfm</application>">
 <!ENTITY Dvips "<application>Dvips</application>">
 <!ENTITY EPS "<acronym>EPS</acronym>">
@@ -70,6 +71,7 @@
 <!ENTITY SVG "<acronym>SVG</acronym>">
 <!ENTITY SyncTeX "<application>SyncTeX</application>">
 <!ENTITY TCX "<acronym>TCX</acronym>">
+<!ENTITY TeXLive "<application>TeX Live</application>">
 <!ENTITY TDS "<acronym>TDS</acronym>">
 <!ENTITY TEXMF "<acronym>TEXMF</acronym>">
 <!ENTITY TeX "<application>TeX</application>">

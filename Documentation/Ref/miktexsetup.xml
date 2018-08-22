@@ -51,9 +51,9 @@
 <title>Description</title>
 
 <para>The &MiKTeXSetupUtility; is used to download, install and
-uninstall &MiKTeX;. This utility is the command line counterpart of the
-&MiKTeXSetupWizard; (see <xref linkend="setupwiz"/>), i.e., it is
-suitable for unattended setup tasks.
+uninstall &MiKTeX;. This utility is the command line counterpart of
+the &MiKTeXSetupWizard;, i.e., it is suitable for unattended setup
+tasks.
 <indexterm>
 <primary>unattended setup</primary>
 </indexterm>

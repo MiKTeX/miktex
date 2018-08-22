@@ -261,7 +261,8 @@ become a link to the internal &Perl; wrapper
 <indexterm>
 <primary>--set-config-value=[section]valuename=value</primary>
 </indexterm>
-<para>Set a configuration value.</para></listitem>
+<para>Set a value to be stored in the &MiKTeXconfigurationdatastore;
+(see <citerefentry><refentrytitle>miktex.ini</refentrytitle><manvolnum>5</manvolnum></citerefentry>).</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--show-config-value=[<replaceable>section</replaceable>]<replaceable>valuename</replaceable></option></term>
@@ -269,7 +270,7 @@ become a link to the internal &Perl; wrapper
 <indexterm>
 <primary>--show-config-value=[section]valuename</primary>
 </indexterm>
-<para>Show a configuration value.</para></listitem>
+<para>Print a value from the &MiKTeXconfigurationdatastore; (see <citerefentry><refentrytitle>miktex.ini</refentrytitle><manvolnum>5</manvolnum></citerefentry>).</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--unregister-root=<replaceable>dir</replaceable></option></term>
@@ -329,7 +330,9 @@ become a link to the internal &Perl; wrapper
 
 <title>See also</title>
 
-<para><ulink url="&hqbaseurl;">MiKTeX Project Page</ulink></para>
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex.ini</refentrytitle><manvolnum>5</manvolnum></citerefentry></member>
+</simplelist>
 
 </refsect1>
 

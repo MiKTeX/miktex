@@ -45,6 +45,11 @@ configure_file(
 set(screenshots_png
 )
 
+set(bibentries_xml_files
+  ${CMAKE_CURRENT_SOURCE_DIR}/BibEntries/latex.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/BibEntries/texbook.xml
+)
+
 set(envvar_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/EnvVars/BIBINPUTS.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/EnvVars/BSTINPUTS.xml
@@ -126,6 +131,7 @@ set(options_xml_files
 )
 
 set(ref_xml_files
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/_tlack.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/bibtex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/dvicopy.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/dvips.xml
@@ -168,6 +174,7 @@ set(manual_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texifying.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/tracestreams.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/manual.xml
+  ${bibentries_xml_files}
   ${envvar_xml_files}
   ${options_xml_files}
   ${ref_xml_files}
@@ -442,6 +449,7 @@ if(WITH_MAN_PAGES)
       ${CMAKE_CURRENT_BINARY_DIR}/filetypes
       ${CMAKE_CURRENT_SOURCE_DIR}/Styles/manpages.xsl
       ${CMAKE_CURRENT_SOURCE_DIR}/manual.xml
+      ${bibentries_xml_files}
       ${envvar_xml_files}
       ${options_xml_files}
       ${ref_xml_files}

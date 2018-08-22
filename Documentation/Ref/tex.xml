@@ -202,14 +202,13 @@ character (usually <keycombo>
 
 <title>See Also</title>
 
-<variablelist>
-<varlistentry>
-<term><citetitle>The &TeX;book</citetitle></term>
-<listitem><para><acronym>ISBN</acronym> 0-201-13448-9</para></listitem>
-</varlistentry>
-</variablelist>
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>texify</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+</simplelist>
 
-<para>See <xref linkend="texify"/>, for an alternative way to invoke &TeX;.</para>
+<bibliolist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../BibEntries/texbook.xml" />
+</bibliolist>
 
 </refsect1>
 

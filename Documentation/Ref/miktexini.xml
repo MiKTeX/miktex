@@ -6,7 +6,7 @@
 <!ENTITY miktexconfigini SYSTEM "miktex-config.ini">
 ]>
 
-<refentry id="miktexini">
+<refentry id="miktex.ini">
 
 <?dbhh topicname="MIKTEXHELP_MIKTEX_INI" topicid="0"?>
 
@@ -20,7 +20,7 @@
 
 <refnamediv>
 <refname>miktex.ini</refname>
-<refpurpose>&MiKTeX; configuration file</refpurpose>
+<refpurpose>&MiKTeXconfigurationdatastore;</refpurpose>
 </refnamediv>
 
 <refsect1>
@@ -43,9 +43,30 @@
 
 <refsect1>
 
-<title>Settings</title>
+<title>Querying and Modifying</title>
+
+<para>It is recommended that you use the &MiKTeXConfigurationUtility;
+(see
+<citerefentry><refentrytitle>initexmf</refentrytitle><manvolnum>1</manvolnum></citerefentry>)
+to query and modify configuration settings.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Settings Reference</title>
 
 <programlisting>&miktexconfigini;</programlisting>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>initexmf</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+</simplelist>
 
 </refsect1>
 

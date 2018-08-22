@@ -30,7 +30,7 @@ running <userinput moreinfo="refentry">initexmf --mkmaps</userinput>.</para>
 
 <para><filename>psfonts.map</filename> depends on the file
 <filename>updmap.cfg</filename>.  This configuration file contains
-declarative instructions (see <xref linkend="updmapcfg"/>), which will
+declarative instructions (see <xref linkend="updmap.cfg"/>), which will
 be used to build <filename>psfonts.map</filename>.</para>
 
 <caution>

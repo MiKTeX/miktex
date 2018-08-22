@@ -231,8 +231,8 @@ avoid overflowing printer memory.</para></listitem>
 <listitem><para>Download only needed characters from Type&nbsp;1
 fonts. This is the default.  Some debugging flags trace this
 operation.  You can also control partial downloading on a per-font
-basis (by editing <filename>updmap.cfg</filename>).  See
-<xref linkend="psfonts"/>.</para></listitem>
+basis (see
+<citerefentry><refentrytitle>updmap.cfg</refentrytitle><manvolnum>5</manvolnum></citerefentry>).</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-k*</option></term>
@@ -590,12 +590,9 @@ file.</para></listitem>
 
 <title>See Also</title>
 
-<variablelist>
-<varlistentry>
-<term><citetitle>&Dvips;: A &DVI;-to-&PostScript; Translator</citetitle></term>
-<listitem><para>Run <userinput>mthelp dvips</userinput></para></listitem>
-</varlistentry>
-</variablelist>
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>updmap.cfg</refentrytitle><manvolnum>5</manvolnum></citerefentry></member>
+</simplelist>
 
 </refsect1>
 

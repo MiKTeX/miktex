@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE biblioentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                             "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<biblioentry>
+<biblioid class="isbn">978-0201529838</biblioid>
+<title>&LaTeX;: A Document Preparation System</title>
+<edition>2nd Edition</edition>
+<author><firstname>Leslie</firstname><surname>Lamport</surname></author>
+<publishername>Addison-Wesley</publishername>
+<pubdate>1994</pubdate>
+</biblioentry>
