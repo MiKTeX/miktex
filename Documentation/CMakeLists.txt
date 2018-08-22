@@ -132,27 +132,27 @@ set(options_xml_files
 
 set(ref_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/_tlack.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/bibtex.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/dvicopy.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/dvips.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/findtexmf.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/gftodvi.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/initexmf.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/luatex.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mf.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-bibtex.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvicopy.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvips.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-gftodvi.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-luatex.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-mf.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-mpost.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-pdftex.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-tex.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-xetex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktexini.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktexsetup.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mpm.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mpost.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mthelp.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mtprint.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/pdftex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/pdftexcfg.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/setupwiz.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/tex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/texify.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/updmapcfg.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/xetex.xml
 )
 
 set(manual_xml_files
