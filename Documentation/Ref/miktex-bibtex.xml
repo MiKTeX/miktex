@@ -43,8 +43,8 @@
 
 <para>&BibTeX; reads the top-level auxiliary
 (<filename>.aux</filename>) file that was output during the running of
-<citerefentry><refentrytitle>&miktexlatex;</refentrytitle><manvolnum>1</manvolnum></citerefentry>
-<citerefentry><refentrytitle>&miktextex;</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+<citerefentry><refentrytitle>miktex-latex</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+<citerefentry><refentrytitle>miktex-tex</refentrytitle><manvolnum>1</manvolnum></citerefentry>
 and creates a bibliography (<filename>.bbl</filename>) file that will
 be
 <indexterm>
@@ -137,8 +137,8 @@ two.</para></listitem>
 <title>See Also</title>
 
 <simplelist type="inline">
-<member><citerefentry><refentrytitle>&miktexlatex;</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
-<member><citerefentry><refentrytitle>&miktextex;</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+<member><citerefentry><refentrytitle>miktex-latex</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+<member><citerefentry><refentrytitle>miktex-tex</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
 </simplelist>
 
 <bibliolist>
