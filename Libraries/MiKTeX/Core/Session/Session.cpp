@@ -245,10 +245,12 @@ void SessionImpl::ScheduleSystemCommand(const std::string& commandLine)
 
 void SessionImpl::StartFinishScript(int delay)
 {
+#if MIKTEX_KEEP_FINISH_SCRIPT
   if (onFinishScript.empty())
   {
     return;
   }
+#endif
   unique_ptr<TemporaryDirectory> tmpdir = TemporaryDirectory::Create();
   vector<string> pre = {
 #if defined(MIKTEX_WINDOWS)
