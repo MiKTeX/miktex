@@ -145,15 +145,15 @@ set(ref_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-pdftex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-tex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-xetex.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktexini.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex.ini.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktexsetup.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mpm.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mthelp.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mtprint.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/pdftexcfg.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/pdftex.cfg.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/setupwiz.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/texify.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/updmapcfg.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/updmap.cfg.xml
 )
 
 set(manual_xml_files
