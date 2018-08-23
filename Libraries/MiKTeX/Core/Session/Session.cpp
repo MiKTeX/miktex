@@ -240,6 +240,9 @@ void SessionImpl::ScheduleSystemCommand(const std::string& commandLine)
   onFinishScript.push_back(commandLine);
 }
 
+// TODO: undefine this
+#define MIKTEX_KEEP_FINISH_SCRIPT 1
+
 void SessionImpl::StartFinishScript(int delay)
 {
   if (onFinishScript.empty())
@@ -260,10 +263,14 @@ void SessionImpl::StartFinishScript(int delay)
   vector<string> post = {
 #if defined(MIKTEX_WINDOWS)
     "popd",
+#if MIKTEX_KEEP_FINISH_SCRIPT
     "start \"\" /B cmd /C rmdir /S /Q "s + Q_(tmpdir->GetPathName().ToDos()),
+#endif
 #else
     "popd",
+#if MIKTEX_KEEP_FINISH_SCRIPT
     "rm -fr "s + Q_(tmpdir->GetPathName()),
+#endif
 #endif
   };
   PathName script = tmpdir->GetPathName() / GetMyProgramFile(false).GetFileNameWithoutExtension();
