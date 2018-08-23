@@ -263,12 +263,12 @@ void SessionImpl::StartFinishScript(int delay)
   vector<string> post = {
 #if defined(MIKTEX_WINDOWS)
     "popd",
-#if MIKTEX_KEEP_FINISH_SCRIPT
+#if !MIKTEX_KEEP_FINISH_SCRIPT
     "start \"\" /B cmd /C rmdir /S /Q "s + Q_(tmpdir->GetPathName().ToDos()),
 #endif
 #else
     "popd",
-#if MIKTEX_KEEP_FINISH_SCRIPT
+#if !MIKTEX_KEEP_FINISH_SCRIPT
     "rm -fr "s + Q_(tmpdir->GetPathName()),
 #endif
 #endif
