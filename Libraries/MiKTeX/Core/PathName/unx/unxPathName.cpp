@@ -1,6 +1,6 @@
 /* unxPathName.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -60,7 +60,15 @@ PathName& PathName::SetToTempDirectory()
 
 PathName& PathName::SetToTempFile()
 {
-  *this = SessionImpl::GetSession()->GetTempDirectory();
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    *this = SessionImpl::GetSession()->GetTempDirectory();
+  }
+  else
+  {
+    SetToTempDirectory();
+  }    
   AppendComponent("mikXXXXXX");
   int fd = mkstemp(GetData());
   if (fd < 0)
@@ -68,7 +76,10 @@ PathName& PathName::SetToTempFile()
     MIKTEX_FATAL_CRT_ERROR("mkstemp");
   }
   close(fd);
-  SessionImpl::GetSession()->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(GetData()));
+  if (session != nullptr)
+  {
+    session->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(GetData()));
+  }
   return *this;
 }
 

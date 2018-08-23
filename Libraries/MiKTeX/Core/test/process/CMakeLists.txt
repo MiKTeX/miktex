@@ -22,6 +22,7 @@ set(tests
   2
   3
   4
+  5
 )
 
 set(exes
@@ -29,6 +30,7 @@ set(exes
   1-2
   1-3
   3-1
+  5-1
 )
 
 foreach(t ${tests})

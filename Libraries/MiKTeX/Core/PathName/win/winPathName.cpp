@@ -28,6 +28,7 @@
 #include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
+using namespace std;
 
 PathName& PathName::SetToCurrentDirectory()
 {
@@ -65,13 +66,27 @@ PathName& PathName::SetToTempFile(const PathName& directory)
     MIKTEX_FATAL_WINDOWS_ERROR_2("GetTempFileNameW", "directory", directory.ToString());
   }
   *this = szTemp;
-  SessionImpl::GetSession()->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(GetData()));
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(GetData()));
+  }
   return *this;
 }
 
 PathName& PathName::SetToTempFile()
 {
-  return SetToTempFile(SessionImpl::GetSession()->GetTempDirectory());
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  PathName tmpDir;
+  if (session != nullptr)
+  {
+    tmpDir = session->GetTempDirectory();
+  }
+  else
+  {
+    tmpDir.SetToTempDirectory();
+  }
+  return SetToTempFile(tmpDir);
 }
 
 PathName PathName::GetMountPoint() const

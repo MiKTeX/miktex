@@ -61,7 +61,11 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
   {
     return;
   }
-  SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", T_("setting env %s=%s"), valueName.c_str(), value.c_str());
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->trace_config->WriteFormattedLine("core", T_("setting env %s=%s"), valueName.c_str(), value.c_str());
+  }
   if (setenv(valueName.c_str(), value.c_str(), 1) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("setenv", "name", valueName);
@@ -70,7 +74,11 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
 
 void Utils::RemoveEnvironmentString(const string& valueName)
 {
-  SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", T_("unsetting env %s"), valueName.c_str());
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->trace_config->WriteFormattedLine("core", T_("unsetting env %s"), valueName.c_str());
+  }
   if (unsetenv(valueName.c_str()) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("unsetenv", "name", valueName);
