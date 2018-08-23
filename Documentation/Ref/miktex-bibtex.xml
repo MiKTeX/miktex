@@ -27,10 +27,7 @@
 <cmdsynopsis>
 <command>miktex-bibtex</command>
 <arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
-<arg  choice="plain"><replaceable>auxname</replaceable></arg>
-<command>miktex-bibtex</command>
-<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
-<arg choice="plain"><replaceable>auxname</replaceable>.aux</arg>
+<arg  choice="plain"><replaceable>auxfile</replaceable></arg>
 </cmdsynopsis>
 
 </refsynopsisdiv>

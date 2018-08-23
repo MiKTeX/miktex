@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE biblioentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                             "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<biblioentry>
+<biblioid class="isbn">978-0201134452</biblioid>
+<title>The &METAFONT;book</title>
+<author><firstname>Donald</firstname><othername role="middle">E.</othername><surname>Knuth</surname></author>
+<publishername>Addison-Wesley</publishername>
+<pubdate>1986</pubdate>
+</biblioentry>

@@ -69,7 +69,7 @@ files.</para></listitem>
 <para>Use the specified file type (see below).</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--list-file-typse</option></term>
+<term><option>--list-file-types</option></term>
 <listitem>
 <indexterm>
 <primary>--list-file-types</primary>

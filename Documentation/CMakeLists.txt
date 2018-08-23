@@ -47,6 +47,7 @@ set(screenshots_png
 
 set(bibentries_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/BibEntries/latex.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/BibEntries/metafontbook.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/BibEntries/texbook.xml
 )
 

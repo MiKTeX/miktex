@@ -5,7 +5,7 @@
 %entities.ent;
 ]>
 
-<refentry id="mpost">
+<refentry id="miktex-mpost">
 
 <?dbhh topicname="MIKTEXHELP_MPOST" topicid="0"?>
 
@@ -19,7 +19,7 @@
 
 <refnamediv>
 <refname>miktex-mpost</refname>
-<refpurpose>&MetaPost;, a system for drawing pictures</refpurpose>
+<refpurpose>&MetaPost;, a system for creating graphics</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -39,12 +39,13 @@
 
 <title>Description</title>
 
-<para>&MetaPost; (installed as &miktexmpost;) interprets the
-&MetaPost; language and produces &PostScript; (&EPS;) or Scalable
-Vector Graphics (&SVG;) pictures.  The &MetaPost; language is similar
-to Knuth's &METAFONT; with additional features for including &TeX;
-commands and accessing features of &PostScript; not found in
-&METAFONT;.</para>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="_tlack.xml" />
+
+<para>&MetaPost; interprets the &MetaPost; language and produces
+&PostScript; (&EPS;) or Scalable Vector Graphics (&SVG;) pictures.
+The &MetaPost; language is similar to Knuth's &METAFONT; with
+additional features for including &TeX; commands and accessing
+features of &PostScript; not found in &METAFONT;.</para>
 
 <para>&MetaPost; is normally used with some preloaded macros, and it
 will use its executable name as the name of the preload file to use.
@@ -58,16 +59,16 @@ line to the &MetaPost; program are passed to it as the first input
 line.  (But it is often easier to type extended arguments as the first
 input line, since shells tend to gobble up or misinterpret
 &MetaPost;'s favorite symbols, like semicolons, unless you quote
-them.)  The normal usage is to say mpost figs to process the file
-<filename>figs.mp</filename>. The basename of
-<replaceable>figs</replaceable> becomes the <quote>jobname</quote>,
-and is used in forming output file names.  If no file is named, the
-jobname becomes <filename>mpout</filename>. The default extension,
-<filename>.mp</filename>, can be overridden by specifying an extension
-explicitly.</para>
+them.)  The normal usage is to say <userinput>miktex-mpost
+figs</userinput> to process the file <filename>figs.mp</filename>. The
+basename of <replaceable>figs</replaceable> becomes the
+<quote>jobname</quote>, and is used in forming output file names.  If
+no file is named, the jobname becomes <filename>mpout</filename>. The
+default extension, <filename>.mp</filename>, can be overridden by
+specifying an extension explicitly.</para>
 
 <para>When the <option>--dvitomp</option> option is given, &MetaPost;
-acts as DVI-to-MPX converter only.  Run <userinput>%miktexmpost;
+acts as DVI-to-MPX converter only.  Run <userinput>miktex-mpost
 --dvitomp --help</userinput> for option explanation.</para>
 
 </refsect1>
@@ -162,19 +163,6 @@ variable <envar>TEX</envar>.</para></listitem>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MPINPUTS.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MPINPUTS.xml" />
-</variablelist>
-
-</refsect1>
-
-<refsect1>
-
-<title>See also</title>
-
-<variablelist>
-<varlistentry>
-<term><citetitle>AT&amp;T technical report CSTR-162</citetitle></term>
-<listitem><para>Run <userinput>mthelp mpman</userinput></para></listitem>
-</varlistentry>
 </variablelist>
 
 </refsect1>

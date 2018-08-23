@@ -5,7 +5,7 @@
 %entities.ent;
 ]>
 
-<refentry id="mf">
+<refentry id="miktex-mf">
 
 <?dbhh topicname="MIKTEXHELP_MF" topicid="0"?>
 
@@ -39,6 +39,8 @@
 
 <title>Description</title>
 
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="_tlack.xml" />
+
 <para>&METAFONT; reads the program in the specified files and outputs
 font rasters (in &GF; format) and font metrics (in
 <acronym>TFM</acronym> format).  The &METAFONT; language is described
@@ -46,16 +48,17 @@ in <citetitle>The &METAFONT;book</citetitle>.</para>
 
 <para>Like &TeX;, &METAFONT; is normally used with a large body of
 precompiled macros, and font generation in particular requires the
-support of several macro files.  &METAFONT; looks at its command line
-to see what name it was called under.  Both &inimf; and &virmf; are
-linked to the &miktexmf; executable.  When called as &inimf; (or when
-the <option>--initialize</option> option is given) it can be used to
-precompile macros into a <filename>.base</filename> file.  When called
-as &virmf; it will use the plain base.  When called under any other
-name, &METAFONT; will use that name as the name of the base to use.
-For example, when called as &miktexmf; the mf base is used, which is
-identical to the plain base.  Other bases than plain are rarely
-used.</para>
+support of several macro files.  This version of &METAFONT; looks at
+its command line to see what name it was called under.  Both &inimf;
+and &virmf; are links to the &miktexmf; executable.  When called as
+&inimf; (or when the <option>--initialize</option> option is given) it
+can be used to precompile macros into a <filename>.base</filename>
+file.  When called as &virmf; it will use the
+<emphasis>plain</emphasis> base.  When called under any other name,
+&METAFONT; will use that name as the name of the base to use.  For
+example, when called as &miktexmf; the <emphasis>mf</emphasis> base is
+used, which is identical to the <emphasis>plain</emphasis> base.
+Other bases than <emphasis>plain</emphasis> are rarely used.</para>
 
 <para>The commands given on the command line to the &METAFONT; program
 are passed to it as the first input line.  (But it is often easier to
@@ -73,7 +76,7 @@ filename, a <markup role="metafont">\controlsequence</markup>, or a
 just say &miktexmf; and give the other stuff on the next line.)  Other
 control sequences, such as <userinput>batchmode</userinput> (for
 silent operation) can also appear.  The name
-<replaceable>font</replaceable> will be the <quote>job name</quote>,
+<replaceable>font</replaceable> will be the <quote>jobname</quote>,
 and is used in forming output file names.  If &METAFONT; doesn't get a
 file name in the first line, the job name is
 <filename>mfput</filename>.  The default extension,
@@ -81,17 +84,18 @@ file name in the first line, the job name is
 explicitly.</para>
 
 <para>A log of error messages goes into the file
-<filename><replaceable>font</replaceable>.log</filename>.  The output
-files are <filename><replaceable>font</replaceable>.tfm</filename> and
-<filename><replaceable>font</replaceable>.<replaceable>number</replaceable>gf</filename>,
+<filename><replaceable>jobname</replaceable>.log</filename>.  The
+output files are
+<filename><replaceable>jobname</replaceable>.tfm</filename> and
+<filename><replaceable>jobname</replaceable>.<replaceable>number</replaceable>gf</filename>,
 where <replaceable>number</replaceable> depends on the resolution and
 magnification of the font.  The mode in this example is shown
 generically as <replaceable>printengine</replaceable>, a symbolic term
 for which the name of an actual device or, most commonly, the name
-<filename>localfont</filename> must be substituted.  If the mode is
-not specified or is not valid, &METAFONT; will default to proof mode
-which produces large character images for use in font design and
-refinement.  Proof mode can be recognized by the suffix
+<filename>localfont</filename> (see below) must be substituted.  If
+the mode is not specified or is not valid, &METAFONT; will default to
+proof mode which produces large character images for use in font
+design and refinement.  Proof mode can be recognized by the suffix
 <filename>.2602gf</filename> after the job name.  Examples of proof
 mode output can be found in <citetitle>Computer Modern
 Typefaces</citetitle> (Volume&nbsp;E of Computers and
@@ -110,21 +114,26 @@ production for a given printengine is the
 role="metafont">mode_def</markup> file.  The macros in
 <filename>plain.mf</filename> can be studied in an appendix to
 <citetitle>The &METAFONT;book</citetitle>; they were developed by
-Donald&nbsp;E. Knuth, and this file should never be altered.  Each
-<markup role="metafont">mode_def</markup> specification helps adapt
-fonts to a particular printengine.  The local ones in use on this
+Donald&nbsp;E. Knuth, and this file should never be altered except
+when it is officially upgraded.  Each <markup
+role="metafont">mode_def</markup> specification helps adapt fonts to a
+particular printengine.  The local ones in use on this
 <indexterm>
 <primary>modes.mf</primary>
 </indexterm>
 computer should be in <filename>modes.mf</filename>.</para>
 
-<para>The <userinput>e</userinput> response to &METAFONT;'s error
-prompt causes the default editor to start up at the current line of
-the current file.  The configuration value <parameter
-class="option">Editor</parameter> can be used to change the editor
-used.  It may contain a string with <literal>%f</literal> indicating
-where the filename goes and <literal>%l</literal> indicating where the
-decimal line number (if any) goes.</para>
+<para>The <userinput>e</userinput> response to &METAFONT;'s
+error-recovery prompt causes the default editor to start up at the
+current line of the current file.  The configuration value <parameter
+class="option">[Core]Editor</parameter> can be used to change the
+editor used.  It may contain a string with <literal>%f</literal>
+indicating where the file name goes and <literal>%l</literal>
+indicating where the decimal line number (if any) goes. For example,
+an <parameter class="option">[Core]Editor</parameter> string for
+<command>emacs</command> can be set with the command
+<screen><prompt>&prompt;</prompt><userinput>initexmf --set-config-value="[Core]Editor=emacs +%l%f"</userinput></screen>
+</para>
 
 <para>A convenient file is <filename>null.mf</filename>, containing
 nothing.  When &METAFONT; can't find the file it thinks you want to
@@ -156,10 +165,8 @@ command-line.</para>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/bufsize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/cstyleerrors.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/dontparsefirstline.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/errorline.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/halferrorline.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/haltonerror.xml" />
@@ -220,12 +227,9 @@ command-line.</para>
 
 <title>See also</title>
 
-<variablelist>
-<varlistentry>
-<term><citetitle>The METAFONTbook</citetitle></term>
-<listitem><para><acronym>ISBN</acronym> 0-201-13444-6</para></listitem>
-</varlistentry>
-</variablelist>
+<bibliolist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../BibEntries/metafontbook.xml" />
+</bibliolist>
 
 </refsect1>
 

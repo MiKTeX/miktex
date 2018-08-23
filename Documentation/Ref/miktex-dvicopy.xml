@@ -5,7 +5,7 @@
 %entities.ent;
 ]>
 
-<refentry id="dvicopy">
+<refentry id="miktex-dvicopy">
 
 <?dbhh topicname="MIKTEXHELP_DVICOPY" topicid="0"?>
 
@@ -37,6 +37,8 @@
 
 <title>Description</title>
 
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="_tlack.xml" />
+
 <para>&miktexdvicopy; reads a &DVI; file, expands any references to
 virtual fonts to base fonts, and writes the resulting &DVI; file.
 Thus you can use virtual fonts
@@ -56,9 +58,7 @@ by passing the documents through &miktexdvicopy; first.</para>
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/alias.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/includedirectory.xml" />

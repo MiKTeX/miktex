@@ -62,7 +62,7 @@ there are several specific formatting systems, such as &LaTeX;, which
 require the support of several macro files.</para>
 
 <para>This version of &TeX; looks at its command-line to see what name
-it was called under.  Both &initex; and &virtex; are linked to the
+it was called under.  Both &initex; and &virtex; are links to the
 &miktextex; executable.  When called as &initex; (or when the
 <option>-initialize</option> option is given) it can be used to
 precompile macros into a <filename>.fmt</filename> file.  When called
@@ -109,15 +109,15 @@ based on the name by which the program is invoked. The
 class="option">parse_first_line</parameter> configuration value
 controls whether this behaviour is enabled.</para>
 
-<para>The <userinput>e</userinput> response to &TeX;'s error prompt
-causes the default editor to start up at the current line of the
-current file.  The configuration value <parameter
-class="option">[Core]Editor</parameter> can be used to change the editor
-used.  It may contain a string with <literal>%f</literal> indicating
-where the file name goes and <literal>%l</literal> indicating where
-the decimal line number (if any) goes. For example, an <parameter
-class="option">[Core]Editor</parameter> string for <command>emacs</command>
-can be set with the command
+<para>The <userinput>e</userinput> response to &TeX;'s error-recovery
+prompt causes the default editor to start up at the current line of
+the current file.  The configuration value <parameter
+class="option">[Core]Editor</parameter> can be used to change the
+editor used.  It may contain a string with <literal>%f</literal>
+indicating where the file name goes and <literal>%l</literal>
+indicating where the decimal line number (if any) goes. For example,
+an <parameter class="option">[Core]Editor</parameter> string for
+<command>emacs</command> can be set with the command
 <screen><prompt>&prompt;</prompt><userinput>initexmf --set-config-value="[Core]Editor=emacs +%l %f"</userinput></screen>
 </para>
 

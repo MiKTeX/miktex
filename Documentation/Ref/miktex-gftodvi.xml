@@ -5,7 +5,7 @@
 %entities.ent;
 ]>
 
-<refentry id="gftodvi">
+<refentry id="miktex-gftodvi">
 
 <?dbhh topicname="MIKTEXHELP_GFTODVI" topicid="0"?>
 
@@ -35,6 +35,8 @@
 <refsect1>
 
 <title>Description</title>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="_tlack.xml" />
 
 <para>The &miktexgftodvi; program converts a generic font (&GF;) file
 output by, for example, &METAFONT;, to a device independent (&DVI;)
@@ -169,14 +171,15 @@ default.</para></listitem>
 
 <refsect1>
 
-<title>Documentation</title>
+<title>See also</title>
 
-<variablelist>
-<varlistentry>
-<term><citetitle>The METAFONTbook</citetitle></term>
-<listitem><para><acronym>ISBN</acronym> 0-201-13444-6</para></listitem>
-</varlistentry>
-</variablelist>
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex-mf</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+</simplelist>
+
+<bibliolist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../BibEntries/metafontbook.xml" />
+</bibliolist>
 
 </refsect1>
 

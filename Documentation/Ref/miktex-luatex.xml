@@ -5,7 +5,7 @@
 %entities.ent;
 ]>
 
-<refentry id="luatex">
+<refentry id="miktex-luatex">
 
 <?dbhh topicname="MIKTEXHELP_LUATEX" topicid="0"?>
 
@@ -39,6 +39,8 @@
 
 <title>Description</title>
 
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="_tlack.xml" />
+
 <para>Run the &LuaTeX; typesetter on <replaceable>file</replaceable>,
 usually creating <filename>file.pdf</filename>.  Any remaining
 commands are processed as &LuaTeX; input, after
@@ -63,10 +65,11 @@ as &Lua; bytecode compiler.</para>
 <para>&LuaTeX; is an extended version of &pdfTeX; with Unicode and
 OpenType font support, embeded &Lua; scripting language, the &eTeX;
 and &Omega; extensions, as well as integrated &MetaPost; engine, that
-can create &PDF; files as well as &DVI; files.</para>
-
-<para>You can read the &LuaTeX; manual using the &MiKTeXHelpUtility;
-(run <userinput>&mthelp; luatex</userinput>).</para>
+can create &PDF; files as well as &DVI; files. For more information
+about &LuaTeX;, see <ulink
+url="http://www.luatex.org">http://www.luatex.org</ulink>, you can
+read the &LuaTeX; manual using the &MiKTeXHelpUtility;
+(<userinput>&mthelp; luatex</userinput>).</para>
 
 <para>All &LuaTeX; text input and output is considered to be Unicode
 text.</para>
@@ -77,9 +80,8 @@ for the &TeX; engine.</para>
 <para>In &PDF; mode, &LuaTeX; can natively handle the &PDF;, &JPG;,
 &JBIG2;, and &PNG; graphics formats.  &LuaTeX; cannot include
 &PostScript; or Encapsulated &PostScript; (&EPS;) graphics files;
-first convert them to &PDF; using &miktexepstopdf; (consult the
-<citerefentry><refentrytitle>miktex-epstopdf</refentrytitle><manvolnum>1</manvolnum></citerefentry>
-manual page).</para>
+first convert them to &PDF; using
+<citerefentry><refentrytitle>miktex-epstopdf</refentrytitle><manvolnum>1</manvolnum></citerefentry>.</para>
 
 </refsect1>
 
@@ -96,6 +98,53 @@ parsing in comparison to the standard &MiKTeX; programs.  The presence
 of <option>--lua</option> makes most of other options unreliable,
 because the &Lua; initialization file can disable path searching
 and/or hook functions into various callbacks.</para>
+
+<variablelist>
+<varlistentry>
+<term><option>--lua=<replaceable>file</replaceable></option></term>
+<listitem>
+<para>Load and execute a
+<indexterm>
+<primary>--lua=file</primary>
+</indexterm>
+&Lua; initialization script.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>The following two options alter the executable behaviour:</para>
+
+<variablelist>
+<varlistentry>
+<term><option>--luaonly</option></term>
+<listitem>
+<para>Start &LuaTeX; as a &Lua; interpreter.
+<indexterm>
+<primary>--luaonly</primary>
+</indexterm>
+In this mode, it will set &Lua;’s <code>arg[0]</code> to the found
+script name, pushing preceding options in negative values and the rest
+of the commandline in the positive values, just like the &Lua;
+interpreter. &LuaTeX; will exit immediately after executing the
+specified &Lua; script.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--luaconly</option></term>
+<listitem>
+<para>Start &LuaTeX; as a &Lua; byte compiler.
+<indexterm>
+<primary>--luaconly</primary>
+</indexterm>
+In this mode, &LuaTeX; is exactly like <userinput>luac</userinput>
+from the standalone &Lua; distribution, except that it does not have
+the <option>−l</option> switch, and that it accepts (but ignores) the
+<option>−−luaconly</option> switch.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>Then the regular options:</para>
 
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/alias.xml" />
@@ -139,16 +188,28 @@ execution.</para></listitem>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/interaction.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/jobname.xml" />
 <varlistentry>
-<term><option>--lua=<replaceable>file</replaceable></option></term>
+<term><option>--mktex=<replaceable>fmt</replaceable></option></term>
 <listitem>
-<para>Load and execute a
 <indexterm>
-<primary>--lua=file</primary>
+<primary>--mktex=fmt</primary>
 </indexterm>
-&Lua; initialization script.</para>
+<para>Enable <replaceable>fmt</replaceable> generation, where
+<replaceable>fmt</replaceable> must be either <option>tex</option> or
+<option>tfm</option>.</para>
 </listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/nocstyleerrors.xml" />
+<varlistentry>
+<term><option>--no-mktex=<replaceable>fmt</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--no-mktex=fmt</primary>
+</indexterm>
+<para>Disable <replaceable>fmt</replaceable> generation, where
+<replaceable>fmt</replaceable> must be either <option>tex</option> or
+<option>tfm</option>.</para>
+</listitem>
+</varlistentry>
 <varlistentry>
 <term><option>--nosocket</option></term>
 <listitem>
@@ -206,6 +267,20 @@ time to &UTC;.</para>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 </variablelist>
 
+<para>The following options are ignored:</para>
+<simplelist type="inline">
+<member><option>−−8bit</option></member>
+<member><option>−−etex</option></member>
+<member><option>−−parse−first−line</option></member>
+<member><option>−−no−parse−first−line</option></member>
+</simplelist>
+<para>These are always on.</para>
+<simplelist type="inline">
+<member><option>−−default−translate−file=<replaceable>tcxname</replaceable></option></member>
+<member><option>−−translate−file=<replaceable>tcxname</replaceable></option></member>
+</simplelist>
+<para>These are always off.</para>
+
 </refsect1>
 
 <refsect1>
@@ -216,6 +291,16 @@ time to &UTC;.</para>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_EDITOR.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
 </variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See Also</title>
+
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex-pdftex</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+</simplelist>
 
 </refsect1>
 

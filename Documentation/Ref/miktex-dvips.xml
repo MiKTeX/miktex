@@ -5,7 +5,7 @@
 %entities.ent;
 ]>
 
-<refentry id="dvips">
+<refentry id="miktex-dvips">
 
 <?dbhh topicname="MIKTEXHELP_DVIPS" topicid="0"?>
 
@@ -35,6 +35,10 @@
 <refsect1>
 
 <title>Description</title>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="_tlack.xml" />
+
+<para>This man page is obsolete! See the Texinfo documentation instead.</para>
 
 <para>&Dvips; takes a &DVI; file produced by &TeX; (or by some other
 processor such as &miktexgftodvi;) and
