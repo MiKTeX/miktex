@@ -252,7 +252,8 @@ void SessionImpl::StartFinishScript(int delay)
     "ping localhost -n " + std::to_string(delay) + " >nul",
     "pushd "s + Q_(tmpdir->GetPathName().ToDos()),
 #else
-    "sleep " + std::to_string(delay),
+    "#!/bin/sh",
+    "wait " + std::to_string(getpid()),
     "pushd "s + Q_(tmpdir->GetPathName()),
 #endif
   };
@@ -266,7 +267,10 @@ void SessionImpl::StartFinishScript(int delay)
 #endif
   };
   PathName script = tmpdir->GetPathName() / GetMyProgramFile(false).GetFileNameWithoutExtension();
-  script += "-finish.cmd";
+  script += "-finish";
+#if defined(MIKTEX_WINDOWS)
+  script.SetExtension(".cmd");
+#endif
   StreamWriter writer(script);
   for (const auto& cmd : pre)
   {
@@ -282,7 +286,12 @@ void SessionImpl::StartFinishScript(int delay)
   }
   writer.Close();
   trace_core->WriteFormattedLine("core", T_("starting finish script"));
+#if defined(MIKTEX_UNIX)
+  File::SetAttributes(script, { FileAttribute::Executable });
+  Process::Start(script);
+#else
   Process::StartSystemCommand(script.ToString());
+#endif
   tmpdir->Keep();
 }
 

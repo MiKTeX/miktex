@@ -43,6 +43,7 @@
 
 #include <miktex/Core/Cfg>
 #include <miktex/Core/ConfigNames>
+#include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/FileStream>
@@ -578,41 +579,45 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   Process::Start(console, consoleArgs);
 #else
   PathName frontend;
-  vector<string> frontendArgs;
+  CommandLineBuilder cmd;
   if (session->FindFile("pkexec", FileType::EXE, frontend))
   {
-    frontendArgs = {
-      "pkexec",
-      "--disable-internal-agent",
-      me.ToString(),
-    };
-    frontendArgs.insert(frontendArgs.end(), args.begin(), args.end());
+    cmd.AppendArgument(frontend);
+    cmd.AppendArgument("--disable-internal-agent");
+    cmd.AppendArgument(me);
+    cmd.AppendArguments(args);
   }
   else if (session->FindFile("kdesu", FileType::EXE, frontend))
   {
-    frontendArgs = {
-      "kdesu",
-      "-c",
-      // TODO: quote me
-      me.ToString() + " "s + StringUtil::Flatten(args, ' '),
-      "-i", "miktex-console"
-    };
+    cmd.AppendArgument(frontend);
+    cmd.AppendArgument("-c");
+    cmd.AppendArgument(me.ToString() + " "s + StringUtil::Flatten(args, ' '));
+    cmd.AppendArgument("-i");
+    cmd.AppendArgument("miktex-console");
   }
   else if (session->FindFile("gksu", FileType::EXE, frontend))
   {
-    frontendArgs = {
-      "gksu",
-      "-D", "MiKTeX Console",
-      // TODO: quote me
-      me.ToString() + " "s + StringUtil::Flatten(args, ' ')
-    };
+    cmd.AppendArgument(frontend);
+    cmd.AppendArgument("-D");
+    cmd.AppendArgument("MiKTeX Console");
+    cmd.AppendArgument(me.ToString() + " "s + StringUtil::Flatten(args, ' '));
   }
   else
   {
     MIKTEX_FATAL_ERROR(tr("No graphical sudo frontend is available. Please install 'pkexec', 'kdesu' (KDE) or 'gksu' (Gnome). Alternatively, you can enter 'sudo miktex-console %1' in a terminal window.").arg(QString::fromUtf8(StringUtil::Flatten(args, ' ').c_str())).toStdString());
   }
-  LOG4CXX_INFO(logger, "restarting with administrative privileges: frontend='" << frontend << "', args='" << StringUtil::Flatten(args, ' ') << "'");
-  Process::Start(frontend, frontendArgs);
+  LOG4CXX_INFO(logger, "scheduling restart with administrative privileges: " << cmd);
+  string env;
+  bool isWayland = Utils::GetEnvironmentString("XDG_SESSION_TYPE", env) && env == "wayland";
+  if (isWayland)
+  {
+    session->ScheduleSystemCommand("xhost +si:localuser:root");
+  }
+  session->ScheduleSystemCommand(cmd.ToString());
+  if (isWayland)
+  {
+    session->ScheduleSystemCommand("xhost -si:localuser:root");
+  }
 #endif
   this->close();
 }
