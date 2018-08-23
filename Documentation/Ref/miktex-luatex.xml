@@ -299,6 +299,7 @@ time to &UTC;.</para>
 <title>See Also</title>
 
 <simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex-epstopdf</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
 <member><citerefentry><refentrytitle>miktex-pdftex</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
 </simplelist>
 

@@ -5,7 +5,7 @@
 %entities.ent;
 ]>
 
-<refentry id="pdftex">
+<refentry id="miktex-pdftex">
 
 <?dbhh topicname="MIKTEXHELP_PDFTEX" topicid="0"?>
 
@@ -38,14 +38,22 @@
 
 <title>Description</title>
 
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="_tlack.xml" />
+
 <para>Run the &pdfTeX; typesetter on <replaceable>file</replaceable>,
 usually creating <filename>file.pdf</filename>.  If the file argument
 has no extension, <filename>.tex</filename> will be appended to it.
 Instead of a file name, a set of &pdfTeX; commands can be given, the
-first of which must start with a backslash.</para>
+first of which must start with a backslash.  With a
+<option>&amp;<replaceable>format</replaceable></option> argument
+&pdfTeX; uses a different set of precompiled commands, contained in
+<filename><replaceable>format.fmt</replaceable></filename>; it is
+usually better to use the
+<option>--undump=<replaceable>format</replaceable></option> option
+instead.</para>
 
-<para>&pdfTeX; is a version of &TeX; that can create &PDF; files as
-well as &DVI; files.</para>
+<para>&pdfTeX; is a version of &TeX;, with the &eTeX; extensions, that
+can create &PDF; files as well as &DVI; files.</para>
 
 <para>In &DVI; mode, &pdfTeX; can be used as a complete replacement
 for the &TeX; engine.</para>
@@ -54,12 +62,15 @@ for the &TeX; engine.</para>
 which &PDF; output has been enabled.  The &miktexpdftex; command uses
 the equivalent of the plain &TeX; format, and the &miktexpdflatex;
 command uses the equivalent of the &LaTeX; format.  To generate
-formats, use the <option>-initialize</option> switch.</para>
+formats, use the <option>--initialize</option> switch.</para>
 
 <para>In &PDF; mode, &pdfTeX; can natively handle the &PDF;, &JPG;,
 <acronym>JBIG2</acronym> and &PNG; graphics formats.  &pdfTeX; cannot
-include &PostScript; or Encapsulated PostScript (&EPS;) graphics
-files; first convert them to &PDF; using epstopdf(1).</para>
+include &PostScript; or Encapsulated &PostScript; (&EPS;) graphics
+files; first convert them to &PDF; using
+<citerefentry><refentrytitle>miktex-epstopdf</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+&pdfTeX;’s handling of its command-line arguments is similar to that
+of of the other &TeX; programs in the &MiKTeX; implementation.</para>
 
 </refsect1>
 
@@ -151,14 +162,10 @@ formats understood by &pdfTeX;.</para></listitem>
 
 <title>Files</title>
 
-<variablelist>
-<varlistentry>
-<term><filename>pdftex.cfg</filename></term>
-<listitem>
-<para>The &MiKTeXpdfTeX; configuration file.</para>
-</listitem>
-</varlistentry>
-</variablelist>
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>pdftex.cfg</refentrytitle><manvolnum>5</manvolnum></citerefentry></member>
+</simplelist>
+
 </refsect1>
 
 <refsect1>
@@ -179,12 +186,11 @@ formats understood by &pdfTeX;.</para></listitem>
 
 <title>See also</title>
 
-<variablelist>
-<varlistentry>
-<term><citetitle>The &pdfTeX; user manual</citetitle> (A4 version)</term>
-<listitem><para>Run <userinput>mthelp pdftex-a</userinput></para></listitem>
-</varlistentry>
-</variablelist>
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex-epstopdf</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+</simplelist>
+
+<para>The full &pdfTeX; manual can be accessed from the home page or &CTAN; page.</para>
 
 </refsect1>
 

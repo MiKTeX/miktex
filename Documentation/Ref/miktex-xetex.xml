@@ -5,7 +5,7 @@
 %entities.ent;
 ]>
 
-<refentry id="xetex">
+<refentry id="miktex-xetex">
 
 <?dbhh topicname="MIKTEXHELP_XETEX" topicid="0"?>
 
@@ -37,6 +37,8 @@
 <refsect1>
 
 <title>Description</title>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="_tlack.xml" />
 
 <para>Run the &XeTeX; typesetter on <replaceable>file</replaceable>,
 usually creating <filename>file.pdf</filename>.  If the file argument
@@ -147,19 +149,6 @@ ligatures and variable font weights.</para>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/TEXINPUTS.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/TFMFONTS.xml" />
-</variablelist>
-
-</refsect1>
-
-<refsect1>
-
-<title>See also</title>
-
-<variablelist>
-<varlistentry>
-<term><citetitle>The &XeTeX; reference guide</citetitle></term>
-<listitem><para>Run <userinput>mthelp xetexref</userinput></para></listitem>
-</varlistentry>
 </variablelist>
 
 </refsect1>
