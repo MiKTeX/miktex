@@ -175,10 +175,7 @@ unique_ptr<Process> Process::Start(const ProcessStartInfo& startinfo)
 
 void unxProcess::Create()
 {
-  if (startinfo.FileName.empty())
-  {
-    MIKTEX_UNEXPECTED();
-  }
+  MIKTEX_EXPECT(!startinfo.FileName.empty());
 
   Argv argv(startinfo.Arguments.empty() ? vector<string>{ PathName(startinfo.FileName).GetFileNameWithoutExtension().ToString() } : startinfo.Arguments);
 
@@ -512,10 +509,7 @@ string ConfStr(int name)
   {
     MIKTEX_FATAL_CRT_ERROR("confstr");
   }
-  if (n > result.GetCapacity())
-  {
-    MIKTEX_UNEXPECTED();
-  }
+  MIKTEX_EXPECT(n <= result.GetCapacity());
   return result.ToString();
 }
 

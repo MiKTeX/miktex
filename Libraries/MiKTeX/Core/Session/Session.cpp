@@ -45,10 +45,7 @@ weak_ptr<SessionImpl> SessionImpl::theSession;
 
 shared_ptr<Session> Session::Create(const Session::InitInfo& initInfo)
 {
-  if (!SessionImpl::theSession.expired())
-  {
-    MIKTEX_UNEXPECTED();
-  }
+  MIKTEX_EXPECT(SessionImpl::theSession.expired());
   shared_ptr<SessionImpl> session = make_shared<SessionImpl>();
   SessionImpl::theSession = session;
   session->Initialize(initInfo);

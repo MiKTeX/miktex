@@ -49,10 +49,7 @@ unique_ptr<Process> Process::Start(const ProcessStartInfo& startinfo)
 
 void winProcess::Create()
 {
-  if (startinfo.FileName.empty())
-  {
-    MIKTEX_UNEXPECTED();
-  }
+  MIKTEX_EXPECT(!startinfo.FileName.empty());
 
   PathName fileName;
 
@@ -472,11 +469,8 @@ int winProcess::get_ExitCode() const
   {
     MIKTEX_FATAL_WINDOWS_ERROR("GetExitCodeProcess");
   }
-  if (exitCode == STATUS_PENDING)
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  else if (exitCode == STATUS_ACCESS_VIOLATION)
+  MIKTEX_EXPECT(exitCode != STATUS_PENDING);
+  if (exitCode == STATUS_ACCESS_VIOLATION)
   {
     MIKTEX_FATAL_ERROR_2(T_("The process terminated due to an access violation."), "fileName", startinfo.FileName);
   }
@@ -515,10 +509,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
     {
       const wchar_t* lpszShell = L"cmd.exe";
       wchar_t* lpsz = nullptr;
-      if (SearchPathW(nullptr, lpszShell, nullptr, ARRAY_SIZE(szCmd), szCmd, &lpsz) == 0)
-      {
-        MIKTEX_UNEXPECTED();
-      }
+      MIKTEX_EXPECT(SearchPathW(nullptr, lpszShell, nullptr, ARRAY_SIZE(szCmd), szCmd, &lpsz) != 0);
     }
   }
 

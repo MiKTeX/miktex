@@ -304,10 +304,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   }
   if (options[FileMoveOption::UpdateFndb])
   {
-    if (session == nullptr)
-    {
-      MIKTEX_UNEXPECTED();
-    }
+    MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(source) && Fndb::FileExists(source))
     {
       Fndb::Remove(source);
@@ -374,10 +371,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
   }
   if (options[FileCopyOption::UpdateFndb])
   {
-    if (session == nullptr)
-    {
-      MIKTEX_UNEXPECTED();
-    }
+    MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
     {
       Fndb::Add(dest);
@@ -417,10 +411,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   }
   if (options[CreateLinkOption::UpdateFndb])
   {
-    if (session == nullptr)
-    {
-      MIKTEX_UNEXPECTED();
-    }
+    MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(newName) && !Fndb::FileExists(newName))
     {
       Fndb::Add(newName);

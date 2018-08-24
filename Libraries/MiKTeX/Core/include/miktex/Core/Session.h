@@ -1171,6 +1171,8 @@ MIKTEX_CORE_END_NAMESPACE;
 
 #define MIKTEX_UNEXPECTED() MIKTEX_INTERNAL_ERROR()
 
+#define MIKTEX_EXPECT(p) if (!(p)) { MIKTEX_UNEXPECTED(); }
+
 #define MIKTEX_FATAL_CRT_ERROR(functionName)                            \
   {                                                                     \
     int errorCode = errno;                                              \
