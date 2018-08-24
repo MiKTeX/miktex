@@ -222,13 +222,21 @@ void unxProcess::Create()
     pipeStdin.Create();
   }
 
-  SessionImpl::GetSession()->UnloadFilenameDatabase();
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+
+  if (session != nullptr)
+  {
+    session->UnloadFilenameDatabase();
+  }
 
   tmpFile = TemporaryFile::Create();
   tmpEnv.Set(MIKTEX_ENV_EXCEPTION_PATH, tmpFile->GetPathName().ToString());
 
   // fork
-  SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "forking...");
+  if (session != nullptr)
+  {
+    session->trace_process->WriteFormattedLine("core", "forking...");
+  }
   if (pipeStdout.GetReadEnd() >= 0
     || pipeStderr.GetReadEnd() >= 0
     || pipeStdin.GetReadEnd() >= 0
@@ -276,11 +284,14 @@ void unxProcess::Create()
       pipeStdout.Dispose();
       pipeStderr.Dispose();
       pipeStdin.Dispose();
-      SessionImpl::GetSession()->SetEnvironmentVariables();
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "execv: %s", startinfo.FileName.c_str());
-      for (int idx = 0; argv[idx] != nullptr; ++idx)
+      if (session != nullptr)
       {
-        SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", " argv[%d]: %s", idx, argv[idx]);
+        session->SetEnvironmentVariables();
+        session->trace_process->WriteFormattedLine("core", "execv: %s", startinfo.FileName.c_str());
+        for (int idx = 0; argv[idx] != nullptr; ++idx)
+        {
+          session->trace_process->WriteFormattedLine("core", " argv[%d]: %s", idx, argv[idx]);
+        }
       }
       if (!startinfo.WorkingDirectory.empty())
       {
