@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <?xml version="1.0"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
@@ -26,12 +27,14 @@ automatically.  It can be manually created by
 <primary>psfonts.map</primary>
 <secondary>creating</secondary>
 </indexterm>
-running <userinput moreinfo="refentry">initexmf --mkmaps</userinput>.</para>
+running <userinput>initexmf --mkmaps</userinput> (see
+<citerefentry><refentrytitle>initexmf</refentrytitle><manvolnum>1</manvolnum></citerefentry>).</para>
 
 <para><filename>psfonts.map</filename> depends on the file
 <filename>updmap.cfg</filename>.  This configuration file contains
-declarative instructions (see <xref linkend="updmap.cfg"/>), which will
-be used to build <filename>psfonts.map</filename>.</para>
+declarative instructions (see
+<citerefentry><refentrytitle>updmap.cfg</refentrytitle><manvolnum>5</manvolnum></citerefentry>),
+which will be used to build <filename>psfonts.map</filename>.</para>
 
 <caution>
 <para>The contents of <filename>psfonts.map</filename> should never be
