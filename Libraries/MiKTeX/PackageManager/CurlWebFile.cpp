@@ -143,11 +143,7 @@ void CurlWebFile::Close()
   {
     trace_mpm->WriteLine("libmpm", T_("closing Web file"));
     initialized = false;
-    CURLMcode code = curl_multi_remove_handle(webSession->GetMultiHandle(), webSession->GetEasyHandle());
-    if (code != CURLM_OK)
-    {
-      MIKTEX_FATAL_ERROR(webSession->GetCurlErrorString(code));
-    }
+    webSession->ExpectOK(curl_multi_remove_handle(webSession->GetMultiHandle(), webSession->GetEasyHandle()));
   }
   buffer.Clear();
 }

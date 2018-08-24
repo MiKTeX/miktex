@@ -84,6 +84,21 @@ public:
     return str;
   }
 
+public:
+  void FatalCurlError(CURLMcode code) const
+  {
+    MIKTEX_FATAL_ERROR(GetCurlErrorString(code));
+  }
+
+public:
+  void ExpectOK(CURLMcode code) const
+  {
+    if (code != CURLM_OK)
+    {
+      FatalCurlError(code);
+    }
+  }
+
 private:
   CURL* pCurl = nullptr;
 
@@ -128,6 +143,18 @@ public:
       std::string str = T_("The cURL easy interface returned an error code: ");
       str += std::to_string(code);
       return str;
+    }
+  }
+
+public:
+  void FatalCurlError(CURLcode code) const;
+
+public:
+  void ExpectOK(CURLcode code) const
+  {
+    if (code != CURLE_OK)
+    {
+      FatalCurlError(code);
     }
   }
 

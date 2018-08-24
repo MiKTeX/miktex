@@ -1,6 +1,6 @@
 /* CurlWebSession.cpp:
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -184,6 +184,21 @@ CurlWebSession::~CurlWebSession()
   }
 }
 
+void CurlWebSession::FatalCurlError(CURLcode code) const
+{
+  string message = GetCurlErrorString(code);
+  string description;
+  string remedy;
+  string tag;
+  switch (code)
+  {
+  case CURLE_SSL_CACERT:
+    tag = "ssl-cacert";
+    break;
+  }
+  MIKTEX_FATAL_ERROR_5(message, description, remedy, tag, "code", std::to_string(code));
+}
+
 unique_ptr<WebFile> CurlWebSession::OpenUrl(const string& url, const std::unordered_map<std::string, std::string>& formData)
 {
   runningHandles = -1;
@@ -232,10 +247,7 @@ void CurlWebSession::Dispose()
     trace_curl->WriteLine("libmpm", T_("releasing cURL multi handle"));
     CURLMcode code = curl_multi_cleanup(pCurlm);
     pCurlm = nullptr;
-    if (code != CURLM_OK)
-    {
-      MIKTEX_FATAL_ERROR(GetCurlErrorString(code));
-    }
+    ExpectOK(code);
   }
   runningHandles = -1;
 }
@@ -280,12 +292,7 @@ void CurlWebSession::Perform()
 
     int maxfd;
 
-    CURLMcode code = curl_multi_fdset(pCurlm, &fdread, &fdwrite, &fdexcep, &maxfd);
-
-    if (code != CURLM_OK)
-    {
-      MIKTEX_FATAL_ERROR(GetCurlErrorString(code));
-    }
+    ExpectOK(curl_multi_fdset(pCurlm, &fdread, &fdwrite, &fdexcep, &maxfd));
 
     long timeout;
 
@@ -324,6 +331,7 @@ void CurlWebSession::Perform()
 
       if (n > 0)
       {
+        CURLMcode code;
         do
         {
           code = curl_multi_perform(pCurlm, &runningHandles);
@@ -352,10 +360,7 @@ void CurlWebSession::ReadInformationals()
     {
       MIKTEX_FATAL_ERROR_2(T_("Unexpected cURL message."), "msg", std::to_string(pCurlMsg->msg));
     }
-    if (pCurlMsg->data.result != CURLE_OK)
-    {
-      MIKTEX_FATAL_ERROR(GetCurlErrorString(pCurlMsg->data.result));
-    }
+    ExpectOK(pCurlMsg->data.result);
     long responseCode;
     CURLcode r;
 #if LIBCURL_VERSION_NUM >= 0x70a08
@@ -368,17 +373,10 @@ void CurlWebSession::ReadInformationals()
     {
       r = curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_HTTP_CODE, &responseCode);
     }
-    if (r != CURLE_OK)
-    {
-      MIKTEX_FATAL_ERROR(GetCurlErrorString(r));
-    }
+    ExpectOK(r);
     trace_mpm->WriteFormattedLine("libmpm", T_("response code: %ld"), responseCode);
     char* lpszEffectiveUrl = nullptr;
-    r = curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_EFFECTIVE_URL, &lpszEffectiveUrl);
-    if (r != CURLE_OK)
-    {
-      MIKTEX_FATAL_ERROR(GetCurlErrorString(r));
-    }
+    ExpectOK(curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_EFFECTIVE_URL, &lpszEffectiveUrl));
     if (lpszEffectiveUrl != nullptr)
     {
       trace_mpm->WriteFormattedLine("libmpm", T_("effective URL: %s"), lpszEffectiveUrl);
@@ -400,16 +398,17 @@ void CurlWebSession::ReadInformationals()
       string message = T_("Error response from server: {responseCode}");
       string description;
       string remedy;
+      string tag;
       switch (responseCode)
       {
       case 404:
         throw NotFoundException();
       case 503:
         description = T_("The server is currently unavailable (because it is overloaded or down for maintenance). Generally, this is a temporary state.");
-        remedy = T_("For more information, visit the MiKTeX project page (https://miktex.org).");
+        tag = "503";
         break;
       }
-      MIKTEX_FATAL_ERROR_4(message, description, remedy, "responseCode", std::to_string(responseCode));
+      MIKTEX_FATAL_ERROR_5(message, description, remedy, tag, "responseCode", std::to_string(responseCode));
     }
   }
 }
