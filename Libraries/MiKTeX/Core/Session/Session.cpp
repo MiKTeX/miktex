@@ -88,6 +88,16 @@ SessionImpl::~SessionImpl()
   {
     Uninitialize();
   }
+  catch (const MiKTeXException& ex)
+  {
+    try
+    {
+      cerr << ex;
+    }
+    catch (const exception&)
+    {
+    }
+  }
   catch (const exception&)
   {
   }
