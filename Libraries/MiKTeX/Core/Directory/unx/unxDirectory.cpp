@@ -1,6 +1,6 @@
 /* unxDirectory.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -28,6 +28,7 @@
 #include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
+using namespace std;
 
 PathName Directory::GetCurrent()
 {
@@ -46,12 +47,16 @@ void Directory::SetCurrent(const PathName& path)
 
 bool Directory::Exists(const PathName& path)
 {
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   struct stat statbuf;
   if (stat(path.GetData(), &statbuf) == 0)
   {
     if (S_ISDIR(statbuf.st_mode) == 0)
     {
-      SessionImpl::GetSession()->trace_access->WriteFormattedLine("core", T_("%s is not a directory"), Q_(path));
+      if (session != nullptr)
+      {
+        session->trace_access->WriteFormattedLine("core", T_("%s is not a directory"), Q_(path));
+      }
       return false;
     }
     return true;
@@ -66,7 +71,11 @@ bool Directory::Exists(const PathName& path)
 
 void Directory::Delete(const PathName& path)
 {
-  SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
+  }
   if (rmdir(path.GetData()) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("rmdir", "path", path.ToString());

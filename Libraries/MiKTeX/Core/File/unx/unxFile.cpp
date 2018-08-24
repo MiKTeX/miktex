@@ -45,6 +45,7 @@ mode_t GetFileCreationMask()
 
 bool File::Exists(const PathName& path, FileExistsOptionSet options)
 {
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   struct stat statbuf;
   int statret;
   if (options[FileExistsOption::SymbolicLink])
@@ -59,10 +60,16 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
   {
     if (S_ISDIR(statbuf.st_mode) != 0)
     {
-      SessionImpl::GetSession()->trace_access->WriteFormattedLine("core", T_("%s is a directory"), Q_(path));
+      if (session != nullptr)
+      {
+        session->trace_access->WriteFormattedLine("core", T_("%s is a directory"), Q_(path));
+      }
       return false;
     }
-    SessionImpl::GetSession()->trace_access->WriteFormattedLine("core", T_("accessing file %s: OK"), Q_(path));
+    if (session != nullptr)
+    {
+      session->trace_access->WriteFormattedLine("core", T_("accessing file %s: OK"), Q_(path));
+    }
     return true;
   }
   int error = errno;
@@ -70,7 +77,10 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
   {
     MIKTEX_FATAL_CRT_ERROR_2("stat", "path", path.ToString());
   }
-  SessionImpl::GetSession()->trace_access->WriteFormattedLine("core", T_("accessing file %s: NOK"), Q_(path));
+  if (session != nullptr)
+  {
+    session->trace_access->WriteFormattedLine("core", T_("accessing file %s: NOK"), Q_(path));
+  }
   return false;
 }
 
@@ -134,8 +144,11 @@ void File::SetAttributes(const PathName& path, FileAttributeSet attributes)
 
 void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttributes)
 {
-  SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("setting new attributes (%x) on %s"), static_cast<int>(nativeAttributes), Q_(path));
-
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->trace_files->WriteFormattedLine("core", T_("setting new attributes (%x) on %s"), static_cast<int>(nativeAttributes), Q_(path));
+  }
   if (chmod(path.GetData(), static_cast<mode_t>(nativeAttributes)) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("chmod", "path", path.ToString());
@@ -224,7 +237,11 @@ void File::GetTimes(const PathName& path, time_t& creationTime, time_t& lastAcce
 
 void File::Delete(const PathName& path)
 {
-  SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("deleting %s"), Q_(path));
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->trace_files->WriteFormattedLine("core", T_("deleting %s"), Q_(path));
+  }
   if (remove(path.GetData()) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("remove", "path", path.ToString());
@@ -233,8 +250,11 @@ void File::Delete(const PathName& path)
 
 void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession(); 
-  session->trace_files->WriteFormattedLine("core", T_("renaming %s to %s"), Q_(source), Q_(dest));
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->trace_files->WriteFormattedLine("core", T_("renaming %s to %s"), Q_(source), Q_(dest));
+  }
   struct stat sourceStat;
   if (stat(source.GetData(), &sourceStat) != 0)
   {
@@ -284,6 +304,10 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   }
   if (options[FileMoveOption::UpdateFndb])
   {
+    if (session == nullptr)
+    {
+      MIKTEX_UNEXPECTED();
+    }
     if (session->IsTEXMFFile(source) && Fndb::FileExists(source))
     {
       Fndb::Remove(source);
@@ -297,8 +321,11 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
 
 void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession(); 
-  session->trace_files->WriteFormattedLine("core", T_("copying %s to %s"), Q_(source), Q_(dest));
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession(); 
+  if (session != nullptr)
+  {
+    session->trace_files->WriteFormattedLine("core", T_("copying %s to %s"), Q_(source), Q_(dest));
+  }
   struct stat sourceStat;
   if (options[FileCopyOption::PreserveAttributes])
   {
@@ -345,9 +372,16 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
     }
     throw;
   }
-  if (options[FileCopyOption::UpdateFndb] && session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
+  if (options[FileCopyOption::UpdateFndb])
   {
-    Fndb::Add(dest);
+    if (session == nullptr)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
+    {
+      Fndb::Add(dest);
+    }
   }
 }
 
@@ -362,8 +396,11 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
     }
     File::Delete(newName, deleteOptions);
   }
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  session->trace_files->WriteFormattedLine("core", T_("creating %s link from %s to %s"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard",  Q_(newName), Q_(oldName));
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->trace_files->WriteFormattedLine("core", T_("creating %s link from %s to %s"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard",  Q_(newName), Q_(oldName));
+  }
   if (options[CreateLinkOption::Symbolic])
   {
     if (symlink(oldName.GetData(), newName.GetData()) != 0)
@@ -378,9 +415,16 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
       MIKTEX_FATAL_CRT_ERROR_2("link", "oldName", oldName.ToString(), "newName", newName.ToString());
     }
   }
-  if (options[CreateLinkOption::UpdateFndb] && session->IsTEXMFFile(newName) && !Fndb::FileExists(newName))
+  if (options[CreateLinkOption::UpdateFndb])
   {
-    Fndb::Add(newName);
+    if (session == nullptr)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    if (session->IsTEXMFFile(newName) && !Fndb::FileExists(newName))
+    {
+      Fndb::Add(newName);
+    }
   }
 }
 
@@ -421,7 +465,12 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   UNUSED_ALWAYS(isTextFile);
   UNUSED_ALWAYS(share);
 
-  SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d %d)"), Q_(path), (int)mode, (int)access, (int)share, (int)isTextFile);
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+
+  if (session != nullptr)
+  {
+    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d %d)"), Q_(path), (int)mode, (int)access, (int)share, (int)isTextFile);
+  }
 
   int flags = 0;
   string strFlags;

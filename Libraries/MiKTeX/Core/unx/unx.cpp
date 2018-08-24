@@ -1,6 +1,6 @@
 /* unx.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -74,7 +74,12 @@ MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName& path, mode_t 
     return;
   }
 
-  SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", T_("creating directory %s..."), Q_(path));
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+
+  if (session != nullptr)
+  {
+    session->trace_config->WriteFormattedLine("core", T_("creating directory %s..."), Q_(path));
+  }
 
   // create the directory itself
   if (mkdir(path.GetData(), mode) != 0)
