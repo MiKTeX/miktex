@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.6800 - not yet released
+## 2.9.6800 - 2018-08-27
 
 ### Fedora 28 & openSUSE Leap 15
 
