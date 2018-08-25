@@ -180,12 +180,13 @@ public:
 #if defined(MIKTEX_WINDOWS)
     fputs(T_("Passphrase: "), stdout);
     const int EOL = '\r';
-    passphrase = "";
-    int ch;
-    while ((ch = getch()) != EOL)
+    CharBuffer<wchar_t> buf;
+    wint_t ch;
+    while ((ch = _getwch()) != EOL)
     {
-      passphrase += ch;
+      buf += ch;
     }
+    passphrase = StringUtil::WideCharToUTF8(buf.GetData());
     putchar('\n');
     return true;
 #else

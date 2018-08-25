@@ -19,8 +19,6 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}")
 
-#use_static_crt()
-
 set(cfg_sources
   cfg-version.h
   cfg.cpp
@@ -30,6 +28,13 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND cfg_sources
     ${MIKTEX_COMPATIBILITY_MANIFEST}
     cfg.rc
+  )
+endif()
+
+if(MIKTEX_NATIVE_WINDOWS)
+  add_definitions(
+    -DUNICODE
+    -D_UNICODE
   )
 endif()
 
