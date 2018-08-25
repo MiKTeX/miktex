@@ -1,6 +1,6 @@
-/* cfg.rc: version number					-*- C++ -*-
+/* cfg.rc: version number                               -*- C++ -*-
 
-   Copyright (C) 2006-2016 Christian Schenk
+   Copyright (C) 2006-2018 Christian Schenk
 
    This file is part of cfg.
 

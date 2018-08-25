@@ -1,6 +1,6 @@
 /* cfg.cpp:
 
-   Copyright (C) 2006-2016 Christian Schenk
+   Copyright (C) 2006-2018 Christian Schenk
 
    This file is part of cfg.
 
@@ -89,7 +89,7 @@ const struct poptOption aoption[] = {
   POPT_TABLEEND
 };
 
-void FatalError(const char * lpszFormat, ...)
+void FatalError(const char* lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
@@ -98,12 +98,12 @@ void FatalError(const char * lpszFormat, ...)
   throw (1);
 }
 
-void PrintDigest(const MD5 & md5)
+void PrintDigest(const MD5& md5)
 {
   cout << md5.ToString() << endl;
 }
 
-string ToStr(const string & s)
+string ToStr(const string& s)
 {
   string result;
   for (char ch : s)
@@ -124,16 +124,16 @@ string ToStr(const string & s)
   return result;
 }
 
-void DoPrintClasses(Cfg & cfg)
+void DoPrintClasses(Cfg& cfg)
 {
-  for (const shared_ptr<Cfg::Key> & key : cfg.GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : cfg.GetKeys())
   {
     cout << "class " << key->GetName() << " {" << endl;
     vector <shared_ptr<Cfg::Value>> values = key->GetValues();
-    for (const shared_ptr<Cfg::Value> & val : values)
+    for (const shared_ptr<Cfg::Value>& val : values)
     {
       string value = val->GetValue();
-      char * endptr = nullptr;
+      char* endptr = nullptr;
       strtol(value.c_str(), &endptr, 0);
       bool isNumber = endptr == nullptr || *endptr == 0;
       cout << "  public: static ";
@@ -165,7 +165,7 @@ void DoPrintClasses(Cfg & cfg)
 class PrivateKeyProvider : public IPrivateKeyProvider
 {
 public:
-  PrivateKeyProvider(const PathName & privateKeyFile) :
+  PrivateKeyProvider(const PathName& privateKeyFile) :
     privateKeyFile(privateKeyFile)
   {
   }
@@ -175,7 +175,7 @@ public:
     return privateKeyFile;
   }
 public:
-  bool GetPassphrase(std::string & passphrase) override
+  bool GetPassphrase(std::string& passphrase) override
   {
 #if defined(MIKTEX_WINDOWS)
     fputs(T_("Passphrase: "), stdout);
@@ -242,7 +242,7 @@ void Main(int argc, const char ** argv)
     case OPT_VERSION:
       cout
         << Utils::MakeProgramVersionString(Utils::GetExeName(), VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << T_("Copyright (C) 2006-2016 Christian Schenk") << endl
+        << T_("Copyright (C) 2006-2018 Christian Schenk") << endl
         << T_("This is free software; see the source for copying conditions.  There is NO") << endl
         << T_("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.") << endl;
       return;
@@ -264,7 +264,7 @@ void Main(int argc, const char ** argv)
     FatalError(T_("no file name arguments"));
   }
 
-  for (const string & fileName : leftovers)
+  for (const string& fileName : leftovers)
   {
     unique_ptr<Cfg> pCfg(Cfg::Create());
     pCfg->Read(fileName);
@@ -283,7 +283,7 @@ void Main(int argc, const char ** argv)
     }
     else if (task == SetValue)
     {
-      for (const pair<string, string> & nv : values)
+      for (const pair<string, string>& nv : values)
       {
         pCfg->PutValue("", nv.first, nv.second);
       }
@@ -292,7 +292,7 @@ void Main(int argc, const char ** argv)
   }
 }
 
-int main(int argc, const char ** argv)
+int main(int argc, const char** argv)
 {
   int exitCode;
   try
@@ -301,12 +301,12 @@ int main(int argc, const char ** argv)
     Main(argc, argv);
     exitCode = 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     exitCode = 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     exitCode = 1;
