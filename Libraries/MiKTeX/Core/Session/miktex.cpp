@@ -43,6 +43,7 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
 using namespace std;
 
 MIKTEXSTATICFUNC(bool) IsGoodTempDirectory(const char* lpszPath)
@@ -618,14 +619,16 @@ MIKTEXINTERNALFUNC(Botan::Public_Key*) LoadPublicKey_Botan(const PathName& publi
 #if defined(ENABLE_OPENSSL)
 extern "C" int OnOpenSSLError(const char* str, size_t len, void* u)
 {
-  // TODO: log
+  CharBuffer<char>* message = reinterpret_cast<CharBuffer<char>*>(u);
+  message->Append(str, len);
   return 1;
 }
 
 MIKTEXINTERNALFUNC(void) FatalOpenSSLError()
 {
-  ERR_print_errors_cb(OnOpenSSLError, nullptr);
-  MIKTEX_UNEXPECTED();
+  CharBuffer<char> message;
+  ERR_print_errors_cb(OnOpenSSLError, &message);
+  MIKTEX_FATAL_ERROR(message.ToString());
 }
 #endif
 
