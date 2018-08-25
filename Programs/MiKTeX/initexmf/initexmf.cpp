@@ -1548,6 +1548,7 @@ vector<FileLink> miktexFileLinks =
 #if defined(MIKTEX_MACOS_BUNDLE)
   { MIKTEX_INITEXMF_EXE, { MIKTEX_INITEXMF_EXE }},
   { MIKTEX_MPM_EXE, { MIKTEX_MPM_EXE } },
+  { MIKTEX_TEXIFY_EXE, { MIKTEX_TEXIFY_EXE } },
   { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "mthelp" MIKTEX_EXE_FILE_SUFFIX } },
 #endif
 #if defined(WITH_MKTEXLSR)
