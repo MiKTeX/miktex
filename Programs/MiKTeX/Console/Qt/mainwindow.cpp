@@ -199,7 +199,7 @@ void MainWindow::CriticalError(const QString& shortText, const MiKTeXException& 
   }
   else
   {
-    text += "<p>" + tr("Do you want to see the error details?") + "/p>";
+    text += "<p>" + tr("Do you want to see the error details?") + "</p>";
     if (QMessageBox::critical(this, tr("MiKTeX Console"), text,
       QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
       == QMessageBox::StandardButton::Yes)
