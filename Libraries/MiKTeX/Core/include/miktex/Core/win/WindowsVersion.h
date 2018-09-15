@@ -1,6 +1,6 @@
 /* WindowsVersion.h:                                    -*- C++ -*-
 
-   Copyright (C) 2015-2016 Christian Schenk
+   Copyright (C) 2015-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,16 +29,16 @@ public:
   WindowsVersion() = delete;
 
 public:
-  WindowsVersion(const WindowsVersion & other) = delete;
+  WindowsVersion(const WindowsVersion& other) = delete;
 
 public:
-  WindowsVersion & operator=(const WindowsVersion & other) = delete;
+  WindowsVersion& operator=(const WindowsVersion& other) = delete;
 
 public:
   WindowsVersion(WindowsVersion && other) = delete;
 
 public:
-  WindowsVersion & operator=(WindowsVersion && other) = delete;
+  WindowsVersion& operator=(WindowsVersion&& other) = delete;
 
 public:
   ~WindowsVersion() = delete;

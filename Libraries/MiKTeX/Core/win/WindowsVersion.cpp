@@ -1,6 +1,6 @@
 /* WindowsVersion.cpp: get Windows version information
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -32,7 +32,7 @@ class LazyWindowsVersion
 private:
   DWORD windowsVersion = 0;
 public:
-  operator DWORD ()
+  operator DWORD()
   {
     if (windowsVersion == 0)
     {
