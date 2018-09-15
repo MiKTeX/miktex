@@ -23,6 +23,8 @@
 
 #include <miktex/Core/config.h>
 
+#include <string>
+
 class MIKTEXNOVTABLE WindowsVersion
 {
 public:
@@ -42,6 +44,9 @@ public:
 
 public:
   ~WindowsVersion() = delete;
+
+public:
+  static MIKTEXCORECEEAPI(std::string) GetMajorMinorString();
 
 public:
   static MIKTEXCORECEEAPI(bool) IsWindows8OrGreater();

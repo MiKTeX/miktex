@@ -25,6 +25,8 @@
 
 #include "miktex/Core/win/WindowsVersion.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 
 class LazyWindowsVersion
@@ -43,6 +45,13 @@ public:
 };
 
 LazyWindowsVersion windowsVersion;
+
+string WindowsVersion::GetMajorMinorString()
+{
+  unsigned major = LOBYTE(LOWORD(windowsVersion));
+  unsigned minor = HIBYTE(LOWORD(windowsVersion));
+  return std::to_string(major) + "." + std::to_string(minor);
+}
 
 bool WindowsVersion::IsWindows8OrGreater()
 {
