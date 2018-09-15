@@ -36,7 +36,7 @@
 #define MIKTEX_WINDOWS_32 1
 #else
 #define MIKTEX_UNIX 1
-#if __APPLE__
+#if defined(__APPLE__)
 #define MIKTEX_MACOS 1
 #endif
 #if defined(__linux__)
