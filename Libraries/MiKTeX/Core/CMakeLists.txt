@@ -216,6 +216,14 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND public_headers ${public_headers_win})
 endif()
 
+if(MIKTEX_LINUX)
+  set(public_headers_tux
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/tux/LinuxOsRelease
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/tux/LinuxOsRelease.h
+  )
+  list(APPEND public_headers ${public_headers_tux})
+endif()
+
 set(cfg_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Cfg/Cfg.cpp
 )
@@ -334,6 +342,11 @@ else()
   list(APPEND misc_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/unx/unx.cpp
   )
+  if(MIKTEX_LINUX)
+    list(APPEND misc_sources
+      ${CMAKE_CURRENT_SOURCE_DIR}/tux/LinuxOsRelease.cpp
+    )
+  endif()
 endif()
 
 set(pathname_sources
@@ -571,6 +584,14 @@ if(INSTALL_MIKTEX_HEADERS)
         ${public_headers_win}
       DESTINATION
         ${MIKTEX_HEADER_DESTINATION_DIR}/miktex/Core/win
+    )
+  endif()
+  if(MIKTEX_LINUX)
+    install(
+      FILES
+        ${public_headers_tux}
+      DESTINATION
+        ${MIKTEX_HEADER_DESTINATION_DIR}/miktex/Core/tux
     )
   endif()
 endif()
