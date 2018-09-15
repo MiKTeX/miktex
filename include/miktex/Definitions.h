@@ -39,6 +39,9 @@
 #if __APPLE__
 #define MIKTEX_MACOS 1
 #endif
+#if defined(__linux__)
+#define MIKTEX_LINUX 1
+#endif
 #endif
 
 #if defined(_MSC_VER)
