@@ -23,9 +23,19 @@
 
 #if defined(HAVE_LIBCURL)
 
+#include <strstream>
 #include <thread>
 
 #include <miktex/Core/Registry>
+#include <miktex/Util/StringUtil>
+
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/WindowsVersion>
+#endif
+
+#if defined(MIKTEX_LINUX)
+#include <miktex/Core/tux/LinuxOsRelease>
+#endif
 
 #include "miktex/PackageManager/PackageManager.h"
 
@@ -37,6 +47,7 @@
 using namespace std;
 
 using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
@@ -51,6 +62,42 @@ CurlWebSession::CurlWebSession(IProgressNotify_* pIProgressNotify) :
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
   trace_curl(TraceStream::Open(MIKTEX_TRACE_CURL))
 {
+}
+
+string BuildUserAgentString()
+{
+  ostrstream str;
+  str << MPM_AGENT;
+#if defined(MIKTEX_WINDOWS)
+  str << " (Windows NT " << WindowsVersion::GetMajorMinorString();
+#  if defined(MIKTEX_WINDOWS_64)
+  str << "; Win64; x64";
+#  else
+  BOOL isWow64;
+  if (!IsWow64Process(GetCurrentProcess(), &isWow64))
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("IsWow64Process");
+  }
+  if (isWow64)
+  {
+    str << "; WOW64";
+  }
+#  endif
+  str << ")";
+#elif defined(MIKTEX_MACOS)
+  // TODO
+  str << " (Macintosh; Intel Mac OS X " << "10.13" << ")";
+#elif defined(MIKTEX_LINUX)
+  str << " (Linux x86_64)";
+  LinuxOsRelease linuxOsRelease = LinuxOsRelease::Get();
+  auto name = StringUtil::Split(linuxOsRelease.name, ' ');
+  auto version_id = StringUtil::Split(linuxOsRelease.version_id, ' ');
+  if (name.size() > 0 && version_id.size() > 0)
+  {
+    str << " " << name[0] << "/" << version_id[0];
+  }
+#endif
+  return str.str();
 }
 
 void CurlWebSession::Initialize()
@@ -73,7 +120,7 @@ void CurlWebSession::Initialize()
     MIKTEX_FATAL_ERROR(T_("The cURL easy interface could not be initialized."));
   }
 
-  SetOption(CURLOPT_USERAGENT, MPM_AGENT);
+  SetOption(CURLOPT_USERAGENT, BuildUserAgentString().c_str());
 
   string ftpMode = session->GetConfigValue("", MIKTEX_REGVAL_FTP_MODE, "default").GetString();
 
