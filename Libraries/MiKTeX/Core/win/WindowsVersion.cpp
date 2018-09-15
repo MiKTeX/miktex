@@ -57,8 +57,3 @@ bool WindowsVersion::IsWindows7OrGreater()
   unsigned minor = HIBYTE(LOWORD(windowsVersion));
   return major > 6 || (major == 6 && minor >= 1);
 }
-
-bool WindowsVersion::IsWindowsVistaOrGreater()
-{
-  return (windowsVersion & 0xff) >= 6;
-}

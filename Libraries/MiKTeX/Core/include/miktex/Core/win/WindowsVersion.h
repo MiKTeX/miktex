@@ -48,7 +48,4 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(bool) IsWindows7OrGreater();
-
-public:
-  static MIKTEXCORECEEAPI(bool) IsWindowsVistaOrGreater();
 };
