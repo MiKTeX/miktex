@@ -35,7 +35,7 @@ public:
   WindowsVersion& operator=(const WindowsVersion& other) = delete;
 
 public:
-  WindowsVersion(WindowsVersion && other) = delete;
+  WindowsVersion(WindowsVersion&& other) = delete;
 
 public:
   WindowsVersion& operator=(WindowsVersion&& other) = delete;
