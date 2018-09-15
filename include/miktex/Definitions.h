@@ -1,6 +1,6 @@
 /* miktex/Definitions.h: basic definitions              -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -36,6 +36,9 @@
 #define MIKTEX_WINDOWS_32 1
 #else
 #define MIKTEX_UNIX 1
+#if __APPLE__
+#define MIKTEX_MACOS 1
+#endif
 #endif
 
 #if defined(_MSC_VER)
