@@ -23,7 +23,7 @@
 
 #if defined(HAVE_LIBCURL)
 
-#include <strstream>
+#include <sstream>
 #include <thread>
 
 #include <miktex/Core/Registry>
@@ -66,7 +66,7 @@ CurlWebSession::CurlWebSession(IProgressNotify_* pIProgressNotify) :
 
 string BuildUserAgentString()
 {
-  ostrstream str;
+  ostringstream str;
   str << MPM_AGENT;
 #if defined(MIKTEX_WINDOWS)
   str << " (Windows NT " << WindowsVersion::GetMajorMinorString();
