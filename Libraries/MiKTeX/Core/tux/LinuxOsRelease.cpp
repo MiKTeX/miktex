@@ -37,7 +37,7 @@ string Unquote(const string& s)
   {
     return s;
   }
-  return s.substr(1, len - 1);
+  return s.substr(1, len - 2);
 }
 
 LinuxOsRelease ReadOsRelease()
@@ -81,12 +81,12 @@ public:
     {
       linuxOsRelease = ReadOsRelease();
     }
+    return linuxOsRelease;
   }
 };
 
-LazyLinuxOsRelease linuxOsRelease;
-
 LinuxOsRelease LinuxOsRelease::Get()
 {
+  static LazyLinuxOsRelease linuxOsRelease;
   return linuxOsRelease;
 }
