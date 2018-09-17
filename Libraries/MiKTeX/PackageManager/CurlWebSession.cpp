@@ -33,6 +33,10 @@
 #include <miktex/Core/win/WindowsVersion>
 #endif
 
+#if defined(MIKTEX_MACOS)
+#include <miktex/Core/mac/MacOsVersion>
+#endif
+
 #if defined(MIKTEX_LINUX)
 #include <miktex/Core/tux/LinuxOsRelease>
 #endif
@@ -85,12 +89,15 @@ string BuildUserAgentString()
 #  endif
   str << ")";
 #elif defined(MIKTEX_MACOS)
-  // TODO
-  str << " (Macintosh; Intel Mac OS X " << "10.13" << ")";
+  MacOsVersion macOsVersion = MacOsVersion::Get();
+  str << " (Macintosh; Intel Mac OS X " << macOsVersion.productVersion << ")";
 #elif defined(MIKTEX_LINUX)
   str << " (Linux x86_64)";
   LinuxOsRelease linuxOsRelease = LinuxOsRelease::Get();
-  str << " " << linuxOsRelease.id << "/" << linuxOsRelease.version_id;
+  if (!linuxOsRelease.id.empty() && !linuxOsRelease.version_id.empty())
+  {
+    str << " " << linuxOsRelease.id << "/" << linuxOsRelease.version_id;
+  }
 #endif
   return str.str();
 }
