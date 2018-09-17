@@ -89,11 +89,13 @@ string BuildUserAgentString()
   }
 #  endif
   str << ")";
+  str << " windows/" << WindowsVersion::GetMajorMinorString();
 #elif defined(MIKTEX_MACOS)
   MacOsVersion macOsVersion = MacOsVersion::Get();
   string version = macOsVersion.productVersion;
   std::replace(version.begin(), version.end(), '.', '_');
   str << " (Macintosh; Intel Mac OS X " << version << ")";
+  str << " macos/" << macOsVersion.productVersion;
 #elif defined(MIKTEX_LINUX)
   str << " (Linux x86_64)";
   LinuxOsRelease linuxOsRelease = LinuxOsRelease::Get();
