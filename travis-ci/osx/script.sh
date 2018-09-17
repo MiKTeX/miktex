@@ -3,23 +3,23 @@
 set -e
 set -v
 
-runTests=$1
+skip_tests=$MIKTEX_SKIP_TESTS
 
-if [ -z $runTests ]; then
-    runTests=false
+if [ -z $skip_tests ]; then
+    skip_tests=true
     if [ ! -z $TRAVIS_TAG ]; then
-	runTests=true
+	skip_tests=false
     fi
     if [ "$TRAVIS_EVENT_TYPE" = "cron" ]; then
-	runTests=true
+	skip_tests=false
     fi
 fi
-
+   
 cd "${TRAVIS_BUILD_DIR}/build"
 make
 make test
 
-if [ "$runTests" = "true" ]; then
+if [ "$skip_tests" = "false" ]; then
     . "${TRAVIS_BUILD_DIR}/travis-ci/osx/_install.sh"
     . "${TRAVIS_BUILD_DIR}/travis-ci/osx/_test.sh"
 fi
