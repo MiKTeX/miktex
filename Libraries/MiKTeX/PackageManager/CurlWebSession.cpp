@@ -23,6 +23,7 @@
 
 #if defined(HAVE_LIBCURL)
 
+#include <algorithm>
 #include <sstream>
 #include <thread>
 
@@ -90,7 +91,9 @@ string BuildUserAgentString()
   str << ")";
 #elif defined(MIKTEX_MACOS)
   MacOsVersion macOsVersion = MacOsVersion::Get();
-  str << " (Macintosh; Intel Mac OS X " << macOsVersion.productVersion << ")";
+  string version = macOsVersion.productVersion;
+  std::replace(version.begin(), version.end(), '.', '_');
+  str << " (Macintosh; Intel Mac OS X " << version << ")";
 #elif defined(MIKTEX_LINUX)
   str << " (Linux x86_64)";
   LinuxOsRelease linuxOsRelease = LinuxOsRelease::Get();
