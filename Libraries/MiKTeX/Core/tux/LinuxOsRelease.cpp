@@ -32,12 +32,10 @@ using namespace std;
 
 string Unquote(const string& s)
 {
-  size_t len = s.length();
-  if (len < 2 || s[0] != '"' || s[len - 1] != '"')
-  {
-    return s;
-  }
-  return s.substr(1, len - 2);
+  string result;
+  istringstream str(s);
+  str >> std::quoted(result);
+  return result;
 }
 
 LinuxOsRelease ReadOsRelease()
@@ -49,21 +47,69 @@ LinuxOsRelease ReadOsRelease()
   {
     for (const shared_ptr<Cfg::Value>& val : key->GetValues())
     {
-      if (val->GetName() == "ID")
+      if (val->GetName() == "NAME")
+      {
+        result.name = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "VERSION")
+      {
+        result.version = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "ID")
       {
         result.id = Unquote(val->GetValue());
       }
-      else if (val->GetName() == "PRETTY_NAME")
+      else if (val->GetName() == "ID_LIKE")
       {
-        result.pretty_name = Unquote(val->GetValue());
+        result.id_like = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "VERSION_CODENAME")
+      {
+        result.version_codename = Unquote(val->GetValue());
       }
       else if (val->GetName() == "VERSION_ID")
       {
         result.version_id = Unquote(val->GetValue());
       }
-      else if (val->GetName() == "VERSION")
+      else if (val->GetName() == "PRETTY_NAME")
       {
-        result.version = Unquote(val->GetValue());
+        result.pretty_name = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "ANSI_COLOR")
+      {
+        result.ansi_color = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "CPE_NAME")
+      {
+        result.cpe_name = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "HOME_URL")
+      {
+        result.home_url = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "SUPPORT_URL")
+      {
+        result.support_url = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "BUG_REPORT_URL")
+      {
+        result.bug_report_url = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "PRIVACY_POLICY_URL")
+      {
+        result.privacy_policy_url = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "BUILD_ID")
+      {
+        result.build_id = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "VARIANT")
+      {
+        result.variant = Unquote(val->GetValue());
+      }
+      else if (val->GetName() == "VARIANT_ID")
+      {
+        result.variant_id = Unquote(val->GetValue());
       }
     }
   }

@@ -28,20 +28,53 @@
 class LinuxOsRelease
 {
 public:
-  std::string id;
-
-public:
   std::string name;
-
-public:
-  std::string pretty_name;
-
- public:
-  std::string version_id;
 
 public:
   std::string version;
 
+public:
+  std::string id;
+
+public:
+  std::string id_like;
+
+public:
+  std::string version_codename;
+
+public:
+  std::string version_id;
+
+public:
+  std::string pretty_name;
+
+public:
+  std::string ansi_color;
+
+public:
+  std::string cpe_name;
+
+public:
+  std::string home_url;
+
+public:
+  std::string support_url;
+
+public:
+  std::string bug_report_url;
+
+public:
+  std::string privacy_policy_url;
+
+public:
+  std::string build_id;
+
+public:
+  std::string variant;
+
+public:
+  std::string variant_id;
+  
 public:
   static MIKTEXCORECEEAPI(LinuxOsRelease) Get();
 };

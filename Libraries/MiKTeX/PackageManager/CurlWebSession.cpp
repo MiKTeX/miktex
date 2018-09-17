@@ -90,12 +90,7 @@ string BuildUserAgentString()
 #elif defined(MIKTEX_LINUX)
   str << " (Linux x86_64)";
   LinuxOsRelease linuxOsRelease = LinuxOsRelease::Get();
-  auto name = StringUtil::Split(linuxOsRelease.name, ' ');
-  auto version_id = StringUtil::Split(linuxOsRelease.version_id, ' ');
-  if (name.size() > 0 && version_id.size() > 0)
-  {
-    str << " " << name[0] << "/" << version_id[0];
-  }
+  str << " " << linuxOsRelease.id << "/" << linuxOsRelease.version_id;
 #endif
   return str.str();
 }
