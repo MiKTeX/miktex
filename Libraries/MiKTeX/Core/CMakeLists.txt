@@ -216,6 +216,14 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND public_headers ${public_headers_win})
 endif()
 
+if(MIKTEX_MACOS)
+  set(public_headers_mac
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/mac/MacOsVersion
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/mac/MacOsVersion.h
+  )
+  list(APPEND public_headers ${public_headers_mac})
+endif()
+
 if(MIKTEX_LINUX)
   set(public_headers_tux
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/tux/LinuxOsRelease
@@ -342,6 +350,11 @@ else()
   list(APPEND misc_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/unx/unx.cpp
   )
+  if(MIKTEX_MACOS)
+    list(APPEND misc_sources
+      ${CMAKE_CURRENT_SOURCE_DIR}/mac/MacOsVersion.cpp
+    )
+  endif()
   if(MIKTEX_LINUX)
     list(APPEND misc_sources
       ${CMAKE_CURRENT_SOURCE_DIR}/tux/LinuxOsRelease.cpp
@@ -584,6 +597,14 @@ if(INSTALL_MIKTEX_HEADERS)
         ${public_headers_win}
       DESTINATION
         ${MIKTEX_HEADER_DESTINATION_DIR}/miktex/Core/win
+    )
+  endif()
+  if(MIKTEX_MACOS)
+    install(
+      FILES
+        ${public_headers_mac}
+      DESTINATION
+        ${MIKTEX_HEADER_DESTINATION_DIR}/miktex/Core/mac
     )
   endif()
   if(MIKTEX_LINUX)
