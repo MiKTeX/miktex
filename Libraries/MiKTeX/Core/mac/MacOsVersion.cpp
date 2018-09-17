@@ -31,6 +31,16 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
+void rtrim(std::string& str)
+{
+}
+
+void ltrim(std::string& str) {
+  size_t startpos = str.find_first_not_of(" \t\r\n");
+  if(std::string::npos != startpos )
+    str = str.substr(startpos);
+}
+
 MacOsVersion RunSwVers()
 {
   PathName sw_vers;
@@ -44,7 +54,13 @@ MacOsVersion RunSwVers()
   int exitCode;
   if (Process::Run(sw_vers, args, &swversOutput, &exitCode, nullptr) && exitCode == 0)
   {
-    result.productVersion = swversOutput.StdoutToString();
+    string str = swversOutput.StdoutToString();
+    size_t endpos = str.find_last_not_of(" \t\r\n");
+    if(endpos != string::npos)
+    {
+      str = str.substr(0, endpos + 1);
+    }
+    result.productVersion = str;
   }
   return result;
 }
