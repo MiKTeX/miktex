@@ -216,7 +216,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND public_headers ${public_headers_win})
 endif()
 
-if(MIKTEX_MACOS)
+if(APPLE)
   set(public_headers_mac
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/mac/MacOsVersion
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/mac/MacOsVersion.h
@@ -350,7 +350,7 @@ else()
   list(APPEND misc_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/unx/unx.cpp
   )
-  if(MIKTEX_MACOS)
+  if(APPLE)
     list(APPEND misc_sources
       ${CMAKE_CURRENT_SOURCE_DIR}/mac/MacOsVersion.cpp
     )
@@ -599,7 +599,7 @@ if(INSTALL_MIKTEX_HEADERS)
         ${MIKTEX_HEADER_DESTINATION_DIR}/miktex/Core/win
     )
   endif()
-  if(MIKTEX_MACOS)
+  if(APPLE)
     install(
       FILES
         ${public_headers_mac}
