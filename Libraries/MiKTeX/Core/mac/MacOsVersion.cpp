@@ -23,7 +23,9 @@
 
 #include "internal.h"
 
+#include "miktex/Core/PathName.h"
 #include "miktex/Core/Process.h"
+#include "miktex/Core/Utils.h"
 #include "miktex/Core/mac/MacOsVersion.h"
 
 using namespace MiKTeX::Core;
@@ -31,11 +33,16 @@ using namespace std;
 
 MacOsVersion RunSwVers()
 {
+  PathName sw_vers;
+  if (!Utils::FindProgram("sw_vers", sw_vers))
+  {
+    MIKTEX_FATAL_ERROR("sw_vers not found");
+  }
   MacOsVersion result;
   vector<string> args{ "sw_vers", "-productVersion" };
   ProcessOutput<80> swversOutput;
   int exitCode;
-  if (Process::Run("sw_vers", args, &swversOutput, &exitCode, nullptr) && exitCode == 0)
+  if (Process::Run(sw_vers, args, &swversOutput, &exitCode, nullptr) && exitCode == 0)
   {
     result.productVersion = swversOutput.StdoutToString();
   }
