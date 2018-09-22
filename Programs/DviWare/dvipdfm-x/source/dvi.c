@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2017 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 2012-2015 by Khaled Hosny <khaledhosny@eglug.org>
@@ -2002,21 +2002,24 @@ dvi_init (char *dvi_filename, double mag)
     else
       ungetc(ch, dvi_file);
   } else {
-    dvi_file = MFOPEN(dvi_filename, FOPEN_RBIN_MODE);
-    if (!dvi_file) {
-      char *p;
-      p = strrchr(dvi_filename, '.');
-      if (p == NULL || (!FILESTRCASEEQ(p, ".dvi") &&
-                        !FILESTRCASEEQ(p, ".xdv"))) {
-        strcat(dvi_filename, ".xdv");
+    char *p, *saved_orig_name;
+    dvi_file = NULL;
+    saved_orig_name = xstrdup(dvi_filename);
+    p = strrchr(dvi_filename, '.');
+    if (p == NULL || (!FILESTRCASEEQ(p, ".dvi") &&
+                      !FILESTRCASEEQ(p, ".xdv"))) {
+      strcat(dvi_filename, ".xdv");
+      dvi_file = MFOPEN(dvi_filename, FOPEN_RBIN_MODE);
+      if (!dvi_file) {
+        dvi_filename[strlen(dvi_filename) - 4] = '\0';
+        strcat(dvi_filename, ".dvi");
         dvi_file = MFOPEN(dvi_filename, FOPEN_RBIN_MODE);
-        if (!dvi_file) {
-          dvi_filename[strlen(dvi_filename) - 4] = '\0';
-          strcat(dvi_filename, ".dvi");
-          dvi_file = MFOPEN(dvi_filename, FOPEN_RBIN_MODE);
-        }
       }
     }
+    if (!dvi_file)
+      dvi_file = MFOPEN(saved_orig_name, FOPEN_RBIN_MODE);
+    free(saved_orig_name);
+
     if (!dvi_file) {
       ERROR("Could not open specified DVI (or XDV) file: %s",
             dvi_filename);
