@@ -216,6 +216,12 @@ bool SessionImpl::FindFileInternal(const string& fileName, const vector<PathName
       // don't search the virtual MPM directory tree
       continue;
     }
+    unsigned rootIdx = TryDeriveTEXMFRoot(*it);
+    if (rootIdx != INVALID_ROOT_INDEX && IsManagedRoot(rootIdx))
+    {
+      // don't search managed root file system
+      continue;
+    }
     shared_ptr<FileNameDatabase> fndb = GetFileNameDatabase(it->GetData());
     if (fndb == nullptr)
     {
