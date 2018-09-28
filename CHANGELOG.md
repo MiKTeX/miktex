@@ -1,5 +1,23 @@
 # MiKTeX Change Log
 
+## 2.9.6840 - not yet released
+
+### Fixed security issues
+
+#### CVE-2018-17407
+
+This applies to MiKTeX (TeX Live is an upstream source):
+
+> An issue was discovered in t1_check_unusual_charstring functions in writet1.c files in TeX Live before 2018-09-21.
+> A buffer overflow in the handling of Type 1 fonts allows arbitrary code execution when a malicious font is loaded by one of
+> the vulnerable tools: pdflatex, pdftex, dvips, or luatex.
+
+More info: [https://nvd.nist.gov/vuln/detail/CVE-2018-17407](https://nvd.nist.gov/vuln/detail/CVE-2018-17407)
+
+### Fixed issues
+
+* [199](https://github.com/MiKTeX/miktex/issues/199): miktex searches the whole file system if grffile is used
+
 ## 2.9.6800 - 2018-08-27
 
 ### Fedora 28 & openSUSE Leap 15
