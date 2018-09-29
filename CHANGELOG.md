@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.6840 - not yet released
+## 2.9.6840 - 2018-09-30
 
 ### Fixed security issues
 
