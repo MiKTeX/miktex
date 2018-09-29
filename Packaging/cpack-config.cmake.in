@@ -5,6 +5,9 @@ if("${CPACK_GENERATOR}" STREQUAL "DragNDrop")
   set(CPACK_DMG_DS_STORE_SETUP_SCRIPT
     "@CMAKE_SOURCE_DIR@/Packaging/dmg/setup.scpt"
   )
+  set(CPACK_DMG_VOLUME_NAME
+    "MiKTeX"
+  )
 endif()
 
 if("${CPACK_GENERATOR}" STREQUAL "productbuild")
