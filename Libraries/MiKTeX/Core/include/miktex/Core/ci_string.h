@@ -17,7 +17,8 @@
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
-struct ci_char_traits : public std::char_traits<char>
+struct ci_char_traits :
+  public std::char_traits<char>
 {
   static bool eq(char ch1, char ch2)
   {
@@ -31,12 +32,12 @@ struct ci_char_traits : public std::char_traits<char>
     return tolower(ch1) < tolower(ch2);
   }
 
-  static int compare(const char * s1, const char * s2, size_t n)
+  static int compare(const char* s1, const char* s2, size_t n)
   {
     return MiKTeX::Util::StringCompare(s1, s2, n, true);
   }
 
-  static const char * find(const char * s, int n, const char & ch)
+  static const char* find(const char* s, int n, const char& ch)
   {
     while (n-- > 0 && tolower(*s) != tolower(ch))
     {
@@ -54,7 +55,7 @@ namespace std
 {
   template <> struct hash<MiKTeX::Core::ci_string>
   {
-    size_t operator ()(const MiKTeX::Core::ci_string & str) const
+    size_t operator()(const MiKTeX::Core::ci_string& str) const
     {
       // see http://www.isthe.com/chongo/tech/comp/fnv/index.html
 #if defined(_M_AMD64) || defined(_M_X64) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)
@@ -69,11 +70,11 @@ namespace std
       size_t hash = offset_basis;
       for (MiKTeX::Core::ci_string::const_iterator it = str.begin(); it != str.end(); ++it)
       {
-	char ch = *it;
-	MIKTEX_ASSERT(static_cast<unsigned>(ch) < 128);
-	ch = tolower(ch);
-	hash ^= (size_t)ch;
-	hash *= FNV_prime;
+        char ch = *it;
+        MIKTEX_ASSERT(static_cast<unsigned>(ch) < 128);
+        ch = tolower(ch);
+        hash ^= (size_t)ch;
+        hash *= FNV_prime;
       }
       return hash;
     }
