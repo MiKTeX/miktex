@@ -37,20 +37,20 @@
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
+#include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Registry>
-#include <miktex/Core/Paths>
 #include <miktex/Core/Session>
 #include <miktex/Core/TemporaryFile>
 #include <miktex/Trace/Trace>
 #include <miktex/UI/UI>
 #include <miktex/Util/StringUtil>
 
-#include <log4cxx/logger.h>
-#include <log4cxx/xml/domconfigurator.h>
 #include <log4cxx/basicconfigurator.h>
+#include <log4cxx/logger.h>
 #include <log4cxx/rollingfileappender.h>
+#include <log4cxx/xml/domconfigurator.h>
 
 #include "internal.h"
 

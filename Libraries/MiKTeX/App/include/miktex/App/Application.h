@@ -26,15 +26,15 @@
 
 #include "config.h"
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include <miktex/App/vi/Version>
 #include <miktex/Core/LibraryVersion>
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Trace/TraceCallback>
-
-#include <memory>
-#include <string>
-#include <vector>
 
 MIKTEX_APP_BEGIN_NAMESPACE;
 
