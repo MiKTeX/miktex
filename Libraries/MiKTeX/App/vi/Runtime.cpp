@@ -22,8 +22,6 @@
 #include <miktex/Core/vi/Version>
 #include <miktex/PackageManager/vi/Version>
 
-#include "internal.h"
-
 #include "miktex/App/vi/Version.h"
 
 using namespace MiKTeX::App::vi;
