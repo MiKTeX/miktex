@@ -25,11 +25,11 @@
 
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <utime.h>
 #include <unistd.h>
+#include <utime.h>
 
 #if defined(HAVE_SYS_TIME_H)
-#include <sys/time.h>
+#  include <sys/time.h>
 #endif
 
 #include "internal.h"
