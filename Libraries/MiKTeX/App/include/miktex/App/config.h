@@ -1,6 +1,6 @@
 /* miktex/App/config.h: app library configuration       -*- C++ -*-
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(E29CD633E4AF46E0B5DA41D1A2FCC75F)
 #define E29CD633E4AF46E0B5DA41D1A2FCC75F

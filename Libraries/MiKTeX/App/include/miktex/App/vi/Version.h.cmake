@@ -1,6 +1,6 @@
 /* miktex/App/vi/Version.h: app library version         -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(BC10CB5E408F47049169C389845723A3)
 #define BC10CB5E408F47049169C389845723A3

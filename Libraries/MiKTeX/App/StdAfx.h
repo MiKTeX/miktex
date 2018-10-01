@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
 
-   Copyright (C) 2005-2017 Christian Schenk
+   Copyright (C) 2005-2018 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if defined(HAVE_CONFIG_H)
 #  include "config.h"
