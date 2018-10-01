@@ -29,6 +29,7 @@
 
 #include "miktex/Core/File.h"
 #include "miktex/Core/Paths.h"
+
 #include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
