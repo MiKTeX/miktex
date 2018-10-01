@@ -1,6 +1,6 @@
 /* unxDirectoryLister.h:                                -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(F2A2B73E1341485FAFAB1FC525782032)
 #define F2A2B73E1341485FAFAB1FC525782032
