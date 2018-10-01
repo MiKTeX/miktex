@@ -1,6 +1,6 @@
 /* unxMemoryMappedFile.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -18,6 +18,8 @@
    along with the MiKTeX Core Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
+
+#pragma once
 
 #if !defined(D3F1FF54CD2C40CC99A6E4E4DB457FB4)
 #define D3F1FF54CD2C40CC99A6E4E4DB457FB4
