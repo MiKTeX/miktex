@@ -1,6 +1,6 @@
 /* miktex/Core/AutoResource.h:                          -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -46,16 +46,16 @@ public:
   AutoResource() = default;
 
 public:
-  AutoResource(const AutoResource & other) = delete;
+  AutoResource(const AutoResource& other) = delete;
 
 public:
-  AutoResource & operator= (const AutoResource & other) = delete;
+  AutoResource& operator=(const AutoResource& other) = delete;
 
 public:
-  AutoResource(AutoResource && other) = delete;
+  AutoResource(AutoResource&& other) = delete;
 
 public:
-  AutoResource & operator= (AutoResource && other) = delete;
+  AutoResource& operator=(AutoResource&& other) = delete;
 
 public:
   virtual ~AutoResource() noexcept
@@ -64,7 +64,7 @@ public:
     {
       Reset();
     }
-    catch (const std::exception &)
+    catch (const std::exception&)
     {
     }
   }
@@ -112,7 +112,7 @@ public:
   }
 
 public:
-  HandleType * operator & ()
+  HandleType* operator&()
   {
     return &handle;
   }
@@ -127,16 +127,16 @@ public:
   AutoResource2() = default;
 
 public:
-  AutoResource2(const AutoResource2 & other) = delete;
+  AutoResource2(const AutoResource2& other) = delete;
 
 public:
-  AutoResource2 & operator= (const AutoResource2 & other) = delete;
+  AutoResource2& operator=(const AutoResource2& other) = delete;
 
 public:
-  AutoResource2(AutoResource2 && other) = delete;
+  AutoResource2(AutoResource2&& other) = delete;
 
 public:
-  AutoResource2 & operator= (AutoResource2 && other) = delete;
+  AutoResource2& operator=(AutoResource2&& other) = delete;
 
 public:
   virtual ~AutoResource2()
@@ -145,7 +145,7 @@ public:
     {
       Reset();
     }
-    catch (const std::exception &)
+    catch (const std::exception&)
     {
     }
   }
@@ -192,7 +192,7 @@ public:
   }
 
 public:
-  HandleType2 * operator & () const
+  HandleType2* operator&() const
   {
     return &handle2;
   }
@@ -207,7 +207,7 @@ private:
 struct fclose_
 {
 public:
-  void operator() (FILE * file) const
+  void operator()(FILE* file) const
   {
     if (fclose(file) != 0)
     {
@@ -216,18 +216,18 @@ public:
   }
 };
 
-typedef AutoResource<FILE *, fclose_> AutoFILE;
+typedef AutoResource<FILE*, fclose_> AutoFILE;
 
 struct free_
 {
 public:
-  void operator() (void * ptr) const
+  void operator()(void* ptr) const
   {
     free(ptr);
   }
 };
 
-typedef AutoResource<void *, free_> AutoMemoryPointer;
+typedef AutoResource<void*, free_> AutoMemoryPointer;
 
 MIKTEX_CORE_END_NAMESPACE;
 
