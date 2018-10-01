@@ -19,9 +19,41 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include <csignal>
+#include <cstdarg>
+#include <cstdlib>
+#include <ctime>
+
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <set>
+
+#include <miktex/Core/AutoResource>
+#include <miktex/Core/Cfg>
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/ConfigNames>
+#include <miktex/Core/Directory>
+#include <miktex/Core/Exceptions>
+#include <miktex/Core/File>
+#include <miktex/Core/FileType>
+#include <miktex/Core/Process>
+#include <miktex/Core/Quoter>
+#include <miktex/Core/Registry>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Session>
+#include <miktex/Core/TemporaryFile>
+#include <miktex/Trace/Trace>
+#include <miktex/UI/UI>
+#include <miktex/Util/StringUtil>
+
+#include <log4cxx/logger.h>
+#include <log4cxx/xml/domconfigurator.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/rollingfileappender.h>
 
 #include "internal.h"
+
 #include "app-version.h"
 
 using namespace MiKTeX::App;

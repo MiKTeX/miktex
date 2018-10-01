@@ -51,7 +51,6 @@ configure_file(
 
 set(app_sources
   ${CMAKE_CURRENT_BINARY_DIR}/app-version.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h
   ${CMAKE_CURRENT_SOURCE_DIR}/app.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
