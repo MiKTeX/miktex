@@ -19,7 +19,22 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
+#include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#if defined(__APPLE__)
+#  include <libproc.h>
+#  include <mach-o/dyld.h>
+#endif
+
+#include <thread>
+
+#include <miktex/Util/Tokenizer>
 
 #include "internal.h"
 

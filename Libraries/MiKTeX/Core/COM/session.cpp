@@ -1,6 +1,6 @@
 /* session.cpp: MiKTeX session
 
-   Copyright (C) 2006-2017 Christian Schenk
+   Copyright (C) 2006-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,11 +19,26 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
+#if defined(HAVE_ATLBASE_H)
+#  define _ATL_FREE_THREADED
+#  define _ATL_NO_AUTOMATIC_NAMESPACE
+#  define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS
+#  include <atlbase.h>
+#  include <ATLComTime.h>
+#  include <atlcom.h>
+#endif
 
 #include "internal.h"
 
 #include "Resource.h"
+
+#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
+#  import "MiKTeX209-session.tlb" raw_interfaces_only
+#endif
 
 #include "COM/session.h"
 #include "Session/SessionImpl.h"

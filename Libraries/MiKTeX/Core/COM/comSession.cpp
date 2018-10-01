@@ -19,15 +19,25 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
+#include <Windows.h>
+#include <Sddl.h>
 
 #include "internal.h"
 
 #include "miktex/Core/win/winAutoResource.h"
 
+#include "Session/SessionImpl.h"
+
+#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
+#  import "MiKTeX209-session.tlb" raw_interfaces_only
+#endif
+
 #include "COM/comSession.h"
 #include "COM/session.h"
-#include "Session/SessionImpl.h"
 
 using namespace ATL;
 using namespace MiKTeX::Core;

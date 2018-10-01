@@ -24,6 +24,8 @@
 #if !defined(BA15DC038D4549859111D4B075360D81)
 #define BA15DC038D4549859111D4B075360D81
 
+#include <mutex>
+
 #include "miktex/Core/Debug.h"
 #include "miktex/Core/DirectoryLister.h"
 #include "miktex/Core/Fndb.h"

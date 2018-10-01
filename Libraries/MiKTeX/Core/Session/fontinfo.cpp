@@ -1,6 +1,6 @@
 /* fontinfo.cpp: font information
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,7 +21,11 @@
 
 /* Algorithms are borrowed from the web2c mktex* shell scripts. */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
+#include <miktex/Util/Tokenizer>
 
 #include "internal.h"
 

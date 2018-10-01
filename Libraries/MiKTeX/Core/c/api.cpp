@@ -19,7 +19,9 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
 
 #include "internal.h"
 
@@ -97,6 +99,11 @@ MIKTEXCORECEEAPI(void*) miktex_core_realloc(void* ptr, size_t size, const char* 
   C_FUNC_END();
 }
 
+#if defined(_MSC_VER)
+#  pragma push_macro("StrDup")
+#  undef StrDup
+#endif
+
 MIKTEXCORECEEAPI(char*) miktex_core_strdup(const char* lpsz, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
@@ -107,6 +114,10 @@ MIKTEXCORECEEAPI(char*) miktex_core_strdup(const char* lpsz, const char* lpszFil
 #endif
   C_FUNC_END();
 }
+
+#if defined(_MSC_VER)
+#  pragma pop_macro("StrDup")
+#endif
 
 MIKTEXCORECEEAPI(int) miktex_pathcmp(const char* lpszPath1, const char* lpszPath2)
 {

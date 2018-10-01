@@ -72,11 +72,6 @@ configure_file(
 )
 
 configure_file(
-  StdAfx.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/StdAfx.h
-)  
-
-configure_file(
   core-version.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/core-version.h
 )
@@ -328,7 +323,6 @@ else()
 endif()
 
 set(misc_sources
-  ${CMAKE_CURRENT_BINARY_DIR}/StdAfx.h
   ${CMAKE_CURRENT_BINARY_DIR}/core-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Debug.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Exceptions.cpp

@@ -1,6 +1,6 @@
 /* FileStream.cpp: file stream
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,7 +19,15 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
+#include <fcntl.h>
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#  include <io.h>
+#endif
 
 #include "internal.h"
 

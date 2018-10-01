@@ -1,6 +1,6 @@
 /* unxMemoryMappedFile.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,17 +19,16 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "internal.h"
-
-#if !defined(HAVE_MMAP) && defined(__CYGWIN__)
-#  define HAVE_MMAP
-#endif
-
-#if !defined(HAVE_MMAP)
-#  error this system does not provide the mmap() function
-#endif
 
 #include "unxMemoryMappedFile.h"
 

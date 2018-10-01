@@ -1,6 +1,6 @@
 /* Pipe.h:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -20,6 +20,10 @@
    02111-1307, USA. */
 
 #pragma once
+
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
 
 BEGIN_INTERNAL_NAMESPACE;
 

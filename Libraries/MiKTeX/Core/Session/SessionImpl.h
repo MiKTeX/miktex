@@ -24,6 +24,19 @@
 #if !defined(INTERNAL_CORE_SESSION_SESSIONIMPL_H)
 #define INTERNAL_CORE_SESSION_SESSIONIMPL_H
 
+#include <deque>
+#include <map>
+#include <set>
+
+#if defined(HAVE_ATLBASE_H)
+#  define _ATL_FREE_THREADED
+#  define _ATL_NO_AUTOMATIC_NAMESPACE
+#  define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS
+#  include <atlbase.h>
+#  include <ATLComTime.h>
+#  include <atlcom.h>
+#endif
+
 #include "miktex/Core/Cfg.h"
 #include "miktex/Core/Session.h"
 #include "miktex/Core/Stream.h"
@@ -34,6 +47,10 @@
 #include "core-version.h"
 #include "Fndb/FileNameDatabase.h"
 #include "RootDirectoryInternals.h"
+
+#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
+#  import "MiKTeX209-session.tlb" raw_interfaces_only
+#endif
 
 BEGIN_INTERNAL_NAMESPACE;
 

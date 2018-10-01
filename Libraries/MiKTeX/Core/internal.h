@@ -19,6 +19,11 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#pragma once
+
+#define EAD86981C92C904D808A5E6CEC64B90E
+#include <miktex/First>
+
 #if defined(MIKTEX_CORE_SHARED)
 #  define MIKTEXCOREEXPORT MIKTEXDLLEXPORT
 #else
@@ -28,8 +33,25 @@
 #define EAD86981C92C904D808A5E6CEC64B90E
 #include "miktex/Core/config.h"
 
+#if defined(ENABLE_BOTAN)
+#include <botan/botan.h>
+#include <botan/look_pk.h>
+#include <botan/pk_keys.h>
+#include <botan/pk_filts.h>
+#include <botan/rsa.h>
+#endif
+
+#if defined(ENABLE_OPENSSL)
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/pem.h>
+#include <openssl/x509.h>
+#endif
+
+
 #include "miktex/Core/Quoter.h"
 #include "miktex/Core/Session.h"
+#include <miktex/Trace/TraceStream>
 
 #if MIKTEX_UNIX
 #  define NO_REGISTRY 1
