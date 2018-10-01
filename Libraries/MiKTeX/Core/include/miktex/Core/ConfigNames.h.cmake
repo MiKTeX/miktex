@@ -1,6 +1,6 @@
 /* miktex/Core/ConfigNames.h:                           -*- C++ -*-
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(D67BA8FF3D0844B281CB96F2D2FE7ED7)
 #define D67BA8FF3D0844B281CB96F2D2FE7ED7
