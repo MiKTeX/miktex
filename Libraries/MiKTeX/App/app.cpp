@@ -99,7 +99,8 @@ public:
   string commandLine;
 };
 
-class Application::impl : public Impl
+class Application::impl :
+  public Impl
 {
 
 };
