@@ -1,6 +1,6 @@
 /* miktex/Core/config.h: core library configuration     -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,9 +21,7 @@
 
 /* This file was generated from miktex/Core/config.h.cmake. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(EAFC4257E4C00445B61E2528E8344FE6)
 #define EAFC4257E4C00445B61E2528E8344FE6
