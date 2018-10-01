@@ -21,9 +21,7 @@
 
 /* Support utilities which cannot be compiled with a C++ compiler. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(A4210C159BBA4B268A6BB2E90069621A)
 #define A4210C159BBA4B268A6BB2E90069621A

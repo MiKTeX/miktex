@@ -1,8 +1,6 @@
 // see: http://www.gotw.ca/gotw/029.htm
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(E034F645499649F392B9201728F88A26)
 #define E034F645499649F392B9201728F88A26

@@ -22,9 +22,7 @@
 /// @file Text
 /// @brief MiKTeX message text wrapper.
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(MIKTEXTEXT)
 
