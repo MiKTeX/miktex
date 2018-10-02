@@ -167,7 +167,7 @@ void SessionImpl::ReadDvipsPaperSizes()
       {
         MIKTEX_FATAL_CRT_ERROR_2("ifstream::open", "path", it->ToString());
       }
-      reader.exceptions(ifstream::badbit | ifstream::failbit);
+      reader.exceptions(ifstream::badbit);
       bool inDefinition = false;
       DvipsPaperSizeInfo current;
       for (string line; std::getline(reader, line); )
@@ -399,7 +399,7 @@ public:
     {
       MIKTEX_FATAL_CRT_ERROR_2("ifstream::open", "path", bak.ToString());
     }
-    reader.exceptions(ifstream::badbit | ifstream::failbit);
+    reader.exceptions(ifstream::badbit);
     writer.open(path.ToDisplayString());
     if (!writer.is_open())
     {

@@ -975,7 +975,7 @@ void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level
   {
     MIKTEX_FATAL_CRT_ERROR_2("ifstream::open", "path", path.ToString());
   }
-  reader.exceptions(ifstream::badbit | ifstream::failbit);
+  reader.exceptions(ifstream::badbit);
   Read(reader, defaultKeyName, level, mustBeSigned, publicKeyFile);
   reader.close();
 }
