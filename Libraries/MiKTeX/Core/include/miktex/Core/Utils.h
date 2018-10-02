@@ -59,7 +59,7 @@ struct FontMapEntry
   std::string headerList;
 };
 
-inline bool operator< (const FontMapEntry& lhs, const FontMapEntry& rhs)
+inline bool operator<(const FontMapEntry& lhs, const FontMapEntry& rhs)
 {
   return lhs.texName < rhs.texName;
 }

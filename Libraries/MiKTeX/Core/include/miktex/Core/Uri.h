@@ -1,6 +1,6 @@
 /* miktex/Core/Uri.h:                                   -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -37,22 +37,22 @@ public:
   Uri() = default;
 
 public:
-  Uri(const Uri & other) = delete;
+  Uri(const Uri& other) = delete;
 
 public:
-  Uri & operator=(const Uri & other) = delete;
+  Uri& operator=(const Uri& other) = delete;
 
 public:
-  Uri(Uri && other) = delete;
+  Uri(Uri&& other) = delete;
 
 public:
-  Uri & operator=(Uri && other) = delete;
+  Uri& operator=(Uri&& other) = delete;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Uri() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL Uri(const std::string & uri);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL Uri(const std::string& uri);
 
 public:
   MIKTEXCORETHISAPI(std::string) GetHost() const;
