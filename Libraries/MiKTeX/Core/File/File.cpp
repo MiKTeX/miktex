@@ -153,6 +153,17 @@ std::ifstream File::CreateInputStream(const PathName& path, std::ios_base::openm
   return stream;
 }
   
+std::ofstream File::CreateOutputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions)
+{
+  ofstream stream(path.ToNativeString(), mode);
+  if (!stream.is_open())
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("ofstream::open", "path", path.ToString());
+  }
+  stream.exceptions(exceptions);
+  return stream;
+}
+
 bool File::Equals(const PathName& path1, const PathName& path2)
 {
   size_t size = GetSize(path1);
