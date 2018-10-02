@@ -372,7 +372,7 @@ public:
   }
 #else
 public:
-  std::wstring ToNativeString() const
+  std::string ToNativeString() const
   {
     return ToString();
   }
