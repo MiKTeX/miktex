@@ -29,7 +29,6 @@
 
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/Paths.h"
-#include "miktex/Core/StreamReader.h"
 
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
@@ -163,11 +162,15 @@ void SessionImpl::ReadDvipsPaperSizes()
   {
     for (vector<PathName>::const_reverse_iterator it = configFiles.rbegin(); it != configFiles.rend(); ++it)
     {
-      StreamReader reader(*it);
-      string line;
+      ifstream reader(it->ToNativeString());
+      if (!reader.is_open())
+      {
+        MIKTEX_FATAL_CRT_ERROR_2("ifstream::open", "path", it->ToString());
+      }
+      reader.exceptions(ifstream::badbit | ifstream::failbit);
       bool inDefinition = false;
       DvipsPaperSizeInfo current;
-      while (reader.ReadLine(line))
+      for (string line; std::getline(reader, line); )
       {
         if (line.empty() || line[0] != '@')
         {
@@ -391,7 +394,12 @@ public:
     bak = path;
     bak.Append(".bak", false);
     File::Move(path, bak);
-    reader.Attach(File::Open(bak, FileMode::Open, FileAccess::Read));
+    ifstream reader(bak.ToNativeString());
+    if (!reader.is_open())
+    {
+      MIKTEX_FATAL_CRT_ERROR_2("ifstream::open", "path", bak.ToString());
+    }
+    reader.exceptions(ifstream::badbit | ifstream::failbit);
     writer.open(path.ToDisplayString());
     if (!writer.is_open())
     {
@@ -405,7 +413,7 @@ public:
   {
     try
     {
-      reader.Close();
+      reader.close();
       writer.close();
       File::Delete(bak);
       if (!Fndb::FileExists(path))
@@ -421,7 +429,7 @@ public:
 public:
   bool ReadLine(string& line)
   {
-    return reader.ReadLine(line);
+    return (bool)std::getline(reader, line);
   }
 
 public:
@@ -452,7 +460,7 @@ private:
   PathName bak;
 
 private:
-  StreamReader reader;
+  ifstream reader;
 
 private:
   ofstream writer;
