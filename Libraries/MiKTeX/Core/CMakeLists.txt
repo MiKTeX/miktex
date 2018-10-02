@@ -147,13 +147,13 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 if(APPLE)
-  set(headers_no_ext
+  list(APPEND headers_no_ext
     miktex/Core/mac/MacOsVersion
   )
 endif()
 
 if(MIKTEX_LINUX)
-  set(headers_no_ext
+  list(APPEND headers_no_ext
     miktex/Core/tux/LinuxOsRelease
   )
 endif()
