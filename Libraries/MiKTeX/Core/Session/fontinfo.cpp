@@ -25,6 +25,8 @@
 #  include "config.h"
 #endif
 
+#include <fstream>
+
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
@@ -32,7 +34,6 @@
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/PathNameParser.h"
 #include "miktex/Core/Paths.h"
-#include "miktex/Core/StreamReader.h"
 
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
@@ -69,10 +70,9 @@ MIKTEXSTATICFUNC(bool) SessionImpl::FindInTypefaceMap(const string& fontName, st
     MIKTEX_UNEXPECTED();
   }
 
-  StreamReader reader(typefaceMap);
-
-  string line;
-  while (reader.ReadLine(line))
+  ifstream reader = File::CreateInputStream(typefaceMap);  
+  
+  for (string line; std::getline(reader, line); )
   {
     Tokenizer tok(line, WHITESPACE);
     if (!tok || fontAbbrev != *tok)
@@ -110,11 +110,10 @@ bool SessionImpl::FindInSupplierMap(const string& fontName, string& supplier, st
     MIKTEX_UNEXPECTED();
   }
 
-  StreamReader reader(supplierMap);
+  ifstream reader = File::CreateInputStream(supplierMap);
 
-  string line;
   bool found = false;
-  while (!found && reader.ReadLine(line))
+  for (string line; !found && std::getline(reader, line); )
   {
     Tokenizer tok(line, WHITESPACE);
     if (!tok || supplierAbbrev != *tok)
@@ -148,11 +147,10 @@ bool SessionImpl::FindInSpecialMap(const string& fontName, string& supplier, str
     MIKTEX_UNEXPECTED();
   }
 
-  StreamReader reader(specialMap);
+  ifstream reader = File::CreateInputStream(specialMap);
 
-  string line;
   bool found = false;
-  while (!found && reader.ReadLine(line))
+  for (string line; !found && std::getline(reader, line); )
   {
     Tokenizer tok(line, WHITESPACE);
     if (!tok

@@ -23,6 +23,7 @@
 #  include "config.h"
 #endif
 
+#include <fstream>
 #include <thread>
 
 #include <miktex/Trace/Trace>
@@ -33,7 +34,6 @@
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
-#include "miktex/Core/StreamReader.h"
 
 #include "Session/SessionImpl.h"
 #include "fndbmem.h"
@@ -252,10 +252,9 @@ void FndbManager::GetIgnorableFiles(const char* lpszPath, vector<string>& filesT
   {
     return;
   }
-  StreamReader reader(ignoreFile);
+  ifstream reader = File::CreateInputStream(ignoreFile);
   filesToBeIgnored.reserve(10);
-  string line;
-  while (reader.ReadLine(line))
+  for (string line; std::getline(reader, line); )
   {
     filesToBeIgnored.push_back(line);
   }
@@ -500,8 +499,8 @@ bool FndbManager::Create(const char* lpszFndbPath, const char* lpszRootPath, ICr
     {
       Directory::Create(directory);
     }
-    FileStream streamFndb(File::Open(lpszFndbPath, FileMode::Create, FileAccess::Write, false));
-    streamFndb.Write(GetMemPointer(), GetMemTop());
+    ofstream streamFndb = File::CreateOutputStream(lpszFndbPath, ios_base::binary);
+    streamFndb.write((const char*)GetMemPointer(), GetMemTop());
     traceStream->WriteFormattedLine("core", T_("fndb creation completed"));
     SessionImpl::GetSession()->RecordMaintenance();
     return true;
