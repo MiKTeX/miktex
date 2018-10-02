@@ -84,6 +84,89 @@ configure_file(
 set(miktex_der_h ${CMAKE_CURRENT_BINARY_DIR}/miktex.der.h)
 set(miktex_config_ini_h ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.ini.h)
 
+set(headers_no_ext
+  miktex/Core/AutoResource
+  miktex/Core/BZip2Stream
+  miktex/Core/BufferSizes
+  miktex/Core/Cfg
+  miktex/Core/CommandLineBuilder
+  miktex/Core/ConfigNames
+  miktex/Core/CsvList
+  miktex/Core/Debug
+  miktex/Core/Directory
+  miktex/Core/DirectoryLister
+  miktex/Core/Environment
+  miktex/Core/Exceptions
+  miktex/Core/File
+  miktex/Core/FileStream
+  miktex/Core/FileType
+  miktex/Core/Fndb
+  miktex/Core/GzipStream
+  miktex/Core/HasNamedValues
+  miktex/Core/Help
+  miktex/Core/IntegerTypes
+  miktex/Core/LibraryVersion
+  miktex/Core/LzmaStream
+  miktex/Core/MD5
+  miktex/Core/MemoryMappedFile
+  miktex/Core/OptionSet
+  miktex/Core/PathName
+  miktex/Core/PathNameParser
+  miktex/Core/Paths
+  miktex/Core/Quoter
+  miktex/Core/Registry
+  miktex/Core/RootDirectoryInfo
+  miktex/Core/Session
+  miktex/Core/Stream
+  miktex/Core/StreamReader
+  miktex/Core/StreamWriter
+  miktex/Core/TemporaryDirectory
+  miktex/Core/TemporaryFile
+  miktex/Core/Test
+  miktex/Core/Text
+  miktex/Core/TriState
+  miktex/Core/Uri
+  miktex/Core/Urls
+  miktex/Core/Utils
+  miktex/Core/VersionNumber
+  miktex/Core/ci_string
+  miktex/Core/equal_icase
+  miktex/Core/hash_icase
+  miktex/Core/less_icase_dos
+  miktex/Core/vi/Version
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND headers_no_ext
+    miktex/Core/win/DllProc
+    miktex/Core/win/HResult
+    miktex/Core/win/WindowsVersion
+    miktex/Core/win/winAutoResource
+  )
+endif()
+
+if(APPLE)
+  set(headers_no_ext
+    miktex/Core/mac/MacOsVersion
+  )
+endif()
+
+if(MIKTEX_LINUX)
+  set(headers_no_ext
+    miktex/Core/tux/LinuxOsRelease
+  )
+endif()
+
+foreach(h ${headers_no_ext})
+  set(_path ${CMAKE_CURRENT_BINARY_DIR}/include/${h})
+  list(APPEND public_headers_core_no_ext ${_path})
+  if (NOT EXISTS ${_path})
+    file(WRITE ${_path}
+      "#pragma once\n#include <${h}.h>\n"
+    )
+  endif()
+endforeach()
+
 set(public_headers_core
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/ConfigNames.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/IntegerTypes.h
@@ -91,101 +174,52 @@ set(public_headers_core
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Urls.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/config.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/vi/Version.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/AutoResource
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/AutoResource.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BZip2Stream
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BZip2Stream.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BufferSizes
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BufferSizes.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Cfg
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Cfg.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CommandLineBuilder
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CommandLineBuilder.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/ConfigNames
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Debug
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Debug.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Directory
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Directory.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/DirectoryLister
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/DirectoryLister.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Environment
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Environment.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Exceptions
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Exceptions.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/File
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/File.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/FileStream
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/FileStream.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/FileType
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/FileType.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Fndb
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Fndb.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/GzipStream
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/GzipStream.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/HasNamedValues
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/HasNamedValues.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Help
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Help.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/IntegerTypes
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/LibraryVersion
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/LibraryVersion.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/LzmaStream
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/LzmaStream.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/MD5
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/MD5.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/MemoryMappedFile
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/MemoryMappedFile.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/OptionSet
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/OptionSet.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/PathName
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/PathName.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/PathNameParser
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/PathNameParser.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Paths
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Process.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Quoter
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Quoter.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Registry
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Registry.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/RootDirectoryInfo
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/RootDirectoryInfo.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Session
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Session.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Stream
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Stream.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/StreamReader
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/StreamReader.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/StreamWriter
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/StreamWriter.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/StructChecker.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/TemporaryDirectory
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/TemporaryDirectory.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/TemporaryFile
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/TemporaryFile.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Test
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Test.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Text
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Text.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/TriState
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/TriState.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Uri
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Uri.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Urls
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Utils
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Utils.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/VersionNumber
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/VersionNumber.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/ci_string
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/ci_string.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/equal_icase
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/equal_icase.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/hash_icase
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/hash_icase.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/less_icase_dos
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/less_icase_dos.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/vi/Version
 )
 
 set(public_headers_c
@@ -195,6 +229,7 @@ set(public_headers_c
 set(public_headers
   ${public_headers_c}
   ${public_headers_core}
+  ${public_headers_core_no_ext}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
