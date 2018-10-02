@@ -28,7 +28,8 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-class winMemoryMappedFile : public MiKTeX::Core::MemoryMappedFile
+class winMemoryMappedFile :
+  public MiKTeX::Core::MemoryMappedFile
 {
 public:
   winMemoryMappedFile();
