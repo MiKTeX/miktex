@@ -49,7 +49,7 @@ void SessionImpl::ReadMetafontModes()
 
   if (!FindFile("modes.mf", FileType::MF, path))
   {
-    MIKTEX_FATAL_ERROR(T_("METAFONT modes cannot be initialized becaus 'modes.mf' is missing."));
+    MIKTEX_FATAL_ERROR(T_("METAFONT modes cannot be initialized because 'modes.mf' is missing."));
   }
 
   StreamReader reader(path);
