@@ -48,7 +48,7 @@ string VersionNumber::ToString() const
   return str;
 }
 
-bool VersionNumber::TryParse(const string & versionString, VersionNumber & versionNumber)
+bool VersionNumber::TryParse(const string& versionString, VersionNumber& versionNumber)
 {
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
 #  define SScanF sscanf_s
@@ -77,7 +77,7 @@ bool VersionNumber::TryParse(const string & versionString, VersionNumber & versi
 #undef SScanF
 }
 
-VersionNumber VersionNumber::Parse(const string & versionString)
+VersionNumber VersionNumber::Parse(const string& versionString)
 {
   VersionNumber versionNumber;
   if (!TryParse(versionString, versionNumber))
@@ -86,4 +86,3 @@ VersionNumber VersionNumber::Parse(const string & versionString)
   }
   return versionNumber;
 }
-

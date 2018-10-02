@@ -34,7 +34,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-void Utils::UncompressFile(const PathName & pathIn, PathName & pathOut)
+void Utils::UncompressFile(const PathName& pathIn, PathName& pathOut)
 {
   SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("uncompressing %s..."), Q_(pathIn));
   if (!File::Exists(pathIn))

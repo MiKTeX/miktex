@@ -56,7 +56,7 @@ public:
   }
 
 public:
-  void Write(const void * data, size_t count)
+  void Write(const void* data, size_t count)
   {
     std::unique_lock<std::mutex> lock(mut);
     size_t written = 0;
@@ -80,7 +80,7 @@ public:
   }
 
 public:
-  size_t Read(void * data, size_t count)
+  size_t Read(void* data, size_t count)
   {
     std::unique_lock<std::mutex> lock(mut);
     size_t read = 0;
@@ -110,7 +110,7 @@ private:
     {
       return;
     }
-    unsigned char * newBuffer = new unsigned char[newCapacity];
+    unsigned char* newBuffer = new unsigned char[newCapacity];
     size_t size = GetSize();
     size_t num1 = min(size, capacity - head);
     size_t num2 = size - num1;
@@ -141,7 +141,7 @@ private:
   size_t head = 0;
   size_t tail = 0;
   std::atomic_bool done{ false };
-  unsigned char * buffer = nullptr;
+  unsigned char* buffer = nullptr;
   std::mutex mut;
   std::condition_variable writeCondition;
   std::condition_variable readCondition;
