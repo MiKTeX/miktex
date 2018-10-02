@@ -23,10 +23,11 @@
 #  include "config.h"
 #endif
 
+#include <fstream>
+
 #include "internal.h"
 
 #include "miktex/Core/Paths.h"
-#include "miktex/Core/StreamReader.h"
 
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
@@ -52,11 +53,9 @@ void SessionImpl::ReadMetafontModes()
     MIKTEX_FATAL_ERROR(T_("METAFONT modes cannot be initialized because 'modes.mf' is missing."));
   }
 
-  StreamReader reader(path);
+  ifstream reader = File::CreateInputStream(path);
 
   bool readingModeDef = false;
-
-  string line;
 
   metafontModes.reserve(200);
 
@@ -64,7 +63,7 @@ void SessionImpl::ReadMetafontModes()
   mfmode.horizontalResolution = 0;
   mfmode.verticalResolution = 0;
 
-  while (reader.ReadLine(line))
+  for (string line; std::getline(reader, line); )
   {
     if (readingModeDef)
     {
