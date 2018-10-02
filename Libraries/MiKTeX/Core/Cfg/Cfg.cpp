@@ -1297,12 +1297,7 @@ string ToBase64(const vector<unsigned char>& bytes)
 void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvider* pPrivateKeyProvider)
 {
   time_t t = time(nullptr);
-  ofstream stream(path.ToNativeString());
-  if (!stream.is_open())
-  {
-    MIKTEX_FATAL_CRT_ERROR_2("ofstream::open", "path", path.ToString());
-  }
-  stream.exceptions(ofstream::badbit | ofstream::failbit);
+  ofstream stream = File::CreateOutputStream(path);
   if (!header.empty())
   {
     stream

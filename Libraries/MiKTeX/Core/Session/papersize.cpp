@@ -389,13 +389,8 @@ public:
     bak = path;
     bak.Append(".bak", false);
     File::Move(path, bak);
-    ifstream reader = File::CreateInputStream(bak);
-    writer.open(path.ToDisplayString());
-    if (!writer.is_open())
-    {
-      MIKTEX_FATAL_CRT_ERROR_2("ofstream::open", "path", path.ToString());
-    }
-    writer.exceptions(ofstream::badbit | ofstream::failbit);
+    reader = File::CreateInputStream(bak);
+    writer = File::CreateOutputStream(path);
   }
 
 public:

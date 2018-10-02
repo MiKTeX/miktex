@@ -259,11 +259,16 @@ public:
   static MIKTEXCORECEEAPI(std::ofstream) CreateOutputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions);
 
 public:
+  static std::ofstream CreateOutputStream(const PathName& path, std::ios_base::openmode mode)
+  {
+    return CreateOutputStream(path, mode, std::ios_base::badbit | std::ios_base::failbit);
+  }
+
+public:
   static std::ofstream CreateOutputStream(const PathName& path)
   {
     return CreateOutputStream(path, std::ios_base::out, std::ios_base::badbit | std::ios_base::failbit);
   }
-
   /// Sets file attributes.
 public:
   static MIKTEXCORECEEAPI(void) SetAttributes(const PathName& path, FileAttributeSet attributes);

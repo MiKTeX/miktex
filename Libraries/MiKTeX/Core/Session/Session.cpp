@@ -291,12 +291,7 @@ void SessionImpl::StartFinishScript(int delay)
 #if defined(MIKTEX_WINDOWS)
   script.SetExtension(".cmd");
 #endif
-  ofstream writer(script.ToNativeString());
-  if (!writer.is_open())
-  {
-    MIKTEX_FATAL_CRT_ERROR_2("ofstream::open", "path", script.ToString());
-  }
-  writer.exceptions(ofstream::badbit | ofstream::failbit);
+  ofstream writer = File::CreateOutputStream(script);
   for (const auto& cmd : pre)
   {
     writer << cmd << "\n";
