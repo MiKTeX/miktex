@@ -1,6 +1,6 @@
 /* AutoTraceTime.h:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -28,7 +28,7 @@ BEGIN_INTERNAL_NAMESPACE;
 class AutoTraceTime
 {
 public:
-  AutoTraceTime(const char * lpsz1, const char * lpsz2) :
+  AutoTraceTime(const char* lpsz1, const char* lpsz2) :
     start(clock()),
     str1(lpsz1),
     str2(lpsz2)
