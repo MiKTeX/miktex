@@ -44,10 +44,10 @@ public:
   VersionNumber& operator=(const VersionNumber& other) = default;
 
 public:
-  VersionNumber(VersionNumber && other) = default;
+  VersionNumber(VersionNumber&& other) = default;
 
 public:
-  VersionNumber& operator=(VersionNumber && other) = default;
+  VersionNumber& operator=(VersionNumber&& other) = default;
 
 public:
   ~VersionNumber() = default;
