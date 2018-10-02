@@ -29,7 +29,6 @@
 
 #if defined(__APPLE__)
 #  include <libproc.h>
-#  include <mach-o/dyld.h>
 #endif
 
 #include <thread>
