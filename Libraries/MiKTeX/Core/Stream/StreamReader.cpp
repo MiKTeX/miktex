@@ -30,7 +30,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-StreamReader::StreamReader(const PathName & path) :
+StreamReader::StreamReader(const PathName& path) :
   stream(File::Open(path, FileMode::Open, FileAccess::Read))
 {
 }
@@ -41,7 +41,7 @@ StreamReader::~StreamReader() noexcept
   {
     Close();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -51,7 +51,7 @@ void StreamReader::Close()
   stream.Close();
 }
 
-bool StreamReader::ReadLine(string & line)
+bool StreamReader::ReadLine(string& line)
 {
   return Utils::ReadLine(line, stream.Get(), false);
 }

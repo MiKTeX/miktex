@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -46,7 +46,7 @@ public:
 private:
   shared_ptr<Session> session;
 public:
-  bool TryGetValue(const std::string & valueName, std::string & varValue) override
+  bool TryGetValue(const std::string& valueName, std::string& varValue) override
   {
     if (valueName == "jkl")
     {
@@ -64,7 +64,7 @@ public:
     }
   }
 public:
-  std::string GetValue(const std::string & valueName) override
+  std::string GetValue(const std::string& valueName) override
   {
     MIKTEX_UNEXPECTED();
   }

@@ -37,19 +37,19 @@ vector<LanguageInfo> SessionImpl::GetLanguages()
 {
   vector<LanguageInfo> result;
   ReadLanguagesIni();
-  for (const auto & l : languages)
+  for (const auto& l : languages)
   {
     result.push_back(l);
   }
   return result;
 }
 
-void SessionImpl::ReadLanguagesIni(const PathName & cfgFile)
+void SessionImpl::ReadLanguagesIni(const PathName& cfgFile)
 {
   unique_ptr<Cfg> cfgLanguages(Cfg::Create());
   cfgLanguages->Read(cfgFile);
   bool custom = TryDeriveTEXMFRoot(cfgFile) != GetInstallRoot();
-  for (const shared_ptr<Cfg::Key> & key : cfgLanguages->GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : cfgLanguages->GetKeys())
   {
     LanguageInfo_ languageInfo;
     vector<LanguageInfo_>::iterator itExisting;
@@ -183,7 +183,7 @@ void SessionImpl::WriteLanguagesIni()
   }
 }
 
-void SessionImpl::SetLanguageInfo(const LanguageInfo & languageInfo)
+void SessionImpl::SetLanguageInfo(const LanguageInfo& languageInfo)
 {
   ReadLanguagesIni();
   vector<LanguageInfo_>::iterator it;

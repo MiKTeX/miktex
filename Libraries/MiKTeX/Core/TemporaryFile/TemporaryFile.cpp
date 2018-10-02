@@ -35,7 +35,8 @@ TemporaryFile::~TemporaryFile() noexcept
 {
 }
 
-class TemporaryFileImpl : public TemporaryFile
+class TemporaryFileImpl :
+  public TemporaryFile
 {
 public:
   TemporaryFileImpl()
@@ -44,7 +45,7 @@ public:
   }
 
 public:
-  TemporaryFileImpl(const PathName & path)
+  TemporaryFileImpl(const PathName& path)
   {
     this->path = path;
   }
@@ -59,7 +60,7 @@ public:
 	Delete();
       }
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }
@@ -92,7 +93,7 @@ unique_ptr<TemporaryFile> TemporaryFile::Create()
   return make_unique<TemporaryFileImpl>();
 }
 
-unique_ptr<TemporaryFile> TemporaryFile::Create(const PathName & path)
+unique_ptr<TemporaryFile> TemporaryFile::Create(const PathName& path)
 {
   return make_unique<TemporaryFileImpl>(path);
 }

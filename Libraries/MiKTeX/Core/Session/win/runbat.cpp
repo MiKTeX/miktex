@@ -33,7 +33,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-int SessionImpl::RunBatch(int argc, const char ** argv)
+int SessionImpl::RunBatch(int argc, const char** argv)
 {
   MIKTEX_ASSERT(argc > 0);
 

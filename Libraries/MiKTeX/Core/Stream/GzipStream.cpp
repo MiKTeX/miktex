@@ -39,7 +39,7 @@ class GzipStreamImpl :
   public CompressedStreamBase<GzipStream>
 {
 public:
-  GzipStreamImpl(const PathName & path, bool reading)
+  GzipStreamImpl(const PathName& path, bool reading)
   {
     StartThread(path, reading);
   }
@@ -77,7 +77,7 @@ private:
   };
 
 protected:
-  void DoUncompress(const PathName & path)
+  void DoUncompress(const PathName& path)
   {
     const size_t BUFFER_SIZE = 1024 * 16;
     unsigned char inbuf[BUFFER_SIZE];
@@ -118,7 +118,7 @@ protected:
   }
 };
 
-unique_ptr<GzipStream> GzipStream::Create(const PathName & path, bool reading)
+unique_ptr<GzipStream> GzipStream::Create(const PathName& path, bool reading)
 {
   return make_unique<GzipStreamImpl>(path, reading);
 }

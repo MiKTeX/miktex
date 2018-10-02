@@ -39,7 +39,7 @@ class LzmaStreamImpl :
   public CompressedStreamBase<LzmaStream>
 {
 public:
-  LzmaStreamImpl(const PathName & path, bool reading)
+  LzmaStreamImpl(const PathName& path, bool reading)
   {
     StartThread(path, reading);
   }
@@ -77,7 +77,7 @@ private:
   };
 
 protected:
-  virtual void DoUncompress(const PathName & path)
+  virtual void DoUncompress(const PathName& path)
   {
     const size_t BUFFER_SIZE = 1024 * 16;
     uint8_t inbuf[BUFFER_SIZE];
@@ -118,7 +118,7 @@ protected:
   }
 };
 
-unique_ptr<LzmaStream> LzmaStream::Create(const PathName & path, bool reading)
+unique_ptr<LzmaStream> LzmaStream::Create(const PathName& path, bool reading)
 {
   return make_unique<LzmaStreamImpl>(path, reading);
 }

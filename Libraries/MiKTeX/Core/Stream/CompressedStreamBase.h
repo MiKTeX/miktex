@@ -29,7 +29,7 @@ template<typename Interface> class CompressedStreamBase :
   public Interface
 {
 public:
-  size_t Read(void * pBytes, size_t count) override
+  size_t Read(void* pBytes, size_t count) override
   {
     if (IsUnsuccessful())
     {
@@ -39,7 +39,7 @@ public:
   }
 
 public:
-  void Write(const void * pBytes, size_t count) override
+  void Write(const void* pBytes, size_t count) override
   {
     UNIMPLEMENTED();
   }

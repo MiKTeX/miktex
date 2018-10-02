@@ -39,7 +39,7 @@ class BZip2StreamImpl :
   public CompressedStreamBase<BZip2Stream>
 {
 public:
-  BZip2StreamImpl(const PathName & path, bool reading)
+  BZip2StreamImpl(const PathName& path, bool reading)
   {
     StartThread(path, reading);
   }
@@ -77,7 +77,7 @@ private:
   };
 
 protected:
-  virtual void DoUncompress(const PathName & path)
+  virtual void DoUncompress(const PathName& path)
   {
     const size_t BUFFER_SIZE = 1024 * 16;
     char inbuf[BUFFER_SIZE];
@@ -118,7 +118,7 @@ protected:
   }
 };
 
-unique_ptr<BZip2Stream> BZip2Stream::Create(const PathName & path, bool reading)
+unique_ptr<BZip2Stream> BZip2Stream::Create(const PathName& path, bool reading)
 {
   return make_unique<BZip2StreamImpl>(path, reading);
 }

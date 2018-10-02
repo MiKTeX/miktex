@@ -31,8 +31,8 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-StreamWriter::StreamWriter(const PathName & path)
-  : stream(File::Open(path, FileMode::Create, FileAccess::Write))
+StreamWriter::StreamWriter(const PathName & path) :
+  stream(File::Open(path, FileMode::Create, FileAccess::Write))
 {
 }
 
@@ -42,7 +42,7 @@ StreamWriter::~StreamWriter() noexcept
   {
     Close();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -52,7 +52,7 @@ void StreamWriter::Close()
   stream.Close();
 }
 
-inline int FPutC(int ch, FILE * stream)
+inline int FPutC(int ch, FILE* stream)
 {
   int chWritten = fputc(ch, stream);
   if (chWritten == EOF)
@@ -62,7 +62,7 @@ inline int FPutC(int ch, FILE * stream)
   return chWritten;
 }
 
-inline void FPutS(const char * lpsz, FILE * stream)
+inline void FPutS(const char* lpsz, FILE* stream)
 {
   int ok = fputs(lpsz, stream);
   if (ok < 0)
@@ -92,7 +92,7 @@ void StreamWriter::WriteLine()
   FPutC('\n', stream.Get());
 }
 
-void StreamWriter::WriteFormatted(const char * lpszFormat, ...)
+void StreamWriter::WriteFormatted(const char* lpszFormat, ...)
 {
   va_list marker;
   va_start(marker, lpszFormat);
@@ -100,7 +100,7 @@ void StreamWriter::WriteFormatted(const char * lpszFormat, ...)
   va_end(marker);
 }
 
-void StreamWriter::WriteFormattedLine(const char * lpszFormat, ...)
+void StreamWriter::WriteFormattedLine(const char* lpszFormat, ...)
 {
   va_list marker;
   va_start(marker, lpszFormat);

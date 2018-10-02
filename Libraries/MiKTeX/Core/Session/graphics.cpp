@@ -31,12 +31,12 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-bool SessionImpl::FindGraphicsRule(const string & fromExt, const string & toExt, string & rule)
+bool SessionImpl::FindGraphicsRule(const string& fromExt, const string& toExt, string& rule)
 {
   return GetSessionValue("Graphics", fromExt + toExt, rule);
 }
 
-bool SessionImpl::ConvertToBitmapFile(const PathName & sourceFileName, PathName & destFileName, IRunProcessCallback * callback)
+bool SessionImpl::ConvertToBitmapFile(const PathName& sourceFileName, PathName& destFileName, IRunProcessCallback* callback)
 {
   string ext = sourceFileName.GetExtension();
 
@@ -59,7 +59,7 @@ bool SessionImpl::ConvertToBitmapFile(const PathName & sourceFileName, PathName 
 
   string commandLine;
 
-  for (const char * lpsz = rule.c_str(); *lpsz != 0; ++lpsz)
+  for (const char* lpsz = rule.c_str(); *lpsz != 0; ++lpsz)
   {
     if (*lpsz == '%')
     {
