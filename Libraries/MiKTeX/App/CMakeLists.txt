@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -31,12 +31,26 @@ set(public_include_directories
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+set(headers_no_ext
+  miktex/App/Application
+  miktex/App/vi/Version
+)
+
+foreach(h ${headers_no_ext})
+  set(_path ${CMAKE_CURRENT_BINARY_DIR}/include/${h})
+  list(APPEND public_headers_no_ext ${_path})
+  if (NOT EXISTS ${_path})
+    file(WRITE ${_path}
+      "#pragma once\n#include <${h}.h>\n"
+    )
+  endif()
+endforeach()
+
 set(public_headers
+  ${public_headers_no_ext}
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/vi/Version.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/Application
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/Application.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/config.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/vi/Version
 )
 
 configure_file(
