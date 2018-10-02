@@ -114,6 +114,19 @@ vector<unsigned char> File::ReadAllBytes(const PathName& path)
   return arr;
 }
 
+void File::WriteBytes(const PathName& path, const vector<unsigned char>& data)
+{
+  ofstream stream(path.ToNativeString(), ofstream::binary);
+  if (!stream.is_open())
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("ofstream::open", "path", path.ToString());
+  }
+  stream.exceptions(ofstream::badbit | ofstream::failbit);
+  stream.write((const char*)data.data(), data.size());
+  stream.close();
+}
+
+
 FILE* File::Open(const PathName& path, FileMode mode, FileAccess access)
 {
   return Open(path, mode, access, true, FileShare::ReadWrite);

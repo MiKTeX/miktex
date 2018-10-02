@@ -282,6 +282,9 @@ public:
   /// @return Returns the read bytes.
 public:
   static MIKTEXCORECEEAPI(std::vector<unsigned char>) ReadAllBytes(const PathName& path);
+
+public:
+  static MIKTEXCORECEEAPI(void) WriteBytes(const PathName& path, const std::vector<unsigned char>& data);
 };
 
 MIKTEX_CORE_END_NAMESPACE;
