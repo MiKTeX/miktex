@@ -1,6 +1,6 @@
 /* cfg.cpp: configuration files
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -32,7 +32,6 @@
 
 #include "miktex/Core/Cfg.h"
 #include "miktex/Core/Registry.h"
-#include "miktex/Core/StreamWriter.h"
 
 #include "Utils/inliners.h"
 
@@ -45,7 +44,10 @@ using namespace std;
   MIKTEX_FATAL_ERROR_2(T_("A MiKTeX configuration file could not be loaded."), "file", currentFile.ToString(), "line", std::to_string(lineno), "error", message)
 
 const char COMMENT_CHAR = ';';
-const char* const COMMENT_CHAR_STR = ";";
+const char* const COMMENT1 = ";";
+const char* const COMMENT2 = ";;";
+const char* const COMMENT3 = ";;;";
+const char* const COMMENT4 = ";;;;";
 
 #if defined(ENABLE_BOTAN)
 const char* const EMSA_ = "EMSA3(SHA-256)";
@@ -239,7 +241,7 @@ private:
   ValueMap::iterator iter = valueMap.end();
 
 public:
-  void WriteValues(StreamWriter& writer) const;
+  void WriteValues(ostream& stream) const;
 };
 
 inline bool operator<(const CfgKey& lhs, const CfgKey& rhs)
@@ -266,70 +268,58 @@ bool IsSearchPathValue(const string& valueName)
   return false;
 }
 
-void CfgKey::WriteValues(StreamWriter& writer) const
+void CfgKey::WriteValues(ostream& stream) const
 {
   bool isKeyWritten = false;
   for (const CfgValue& v : GetCfgValues(true))
   {
     if (!isKeyWritten)
     {
-      writer.WriteLine();
-      writer.WriteFormattedLine("[%s]", name.c_str());
+      stream
+        << "\n"
+        << "[" << name << "]" << "\n";
       isKeyWritten = true;
     }
     if (!v.documentation.empty())
     {
-      writer.WriteLine();
+      stream << "\n";
       bool start = true;
       for (const char& ch : v.documentation)
       {
         if (start)
         {
-          writer.WriteFormatted("%c%c ", COMMENT_CHAR, COMMENT_CHAR);
+          stream << COMMENT2 << " ";
         }
-        writer.Write(ch);
+        stream << ch;
         start = (ch == '\n');
       }
       if (!start)
       {
-        writer.WriteLine();
+        stream << "\n";
       }
     }
     if (v.value.empty())
     {
-      writer.WriteFormattedLine("%s%s=",
-        v.commentedOut ? COMMENT_CHAR_STR : "",
-        v.name.c_str());
+      stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << "\n";
     }
     else if (v.IsMultiValue())
     {
       for (const string& val : v.value)
       {
-        writer.WriteFormattedLine("%s%s=%s",
-          v.commentedOut ? COMMENT_CHAR_STR : "",
-          v.name.c_str(),
-          val.c_str());
+        stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << val << "\n";
       }
     }
     else if (IsSearchPathValue(v.name) && v.value.front().find_first_of(PathName::PathNameDelimiter) != string::npos)
     {
-      writer.WriteFormattedLine("%s%s=",
-        v.commentedOut ? COMMENT_CHAR_STR : "",
-        v.name.c_str());
+      stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << "\n";
       for (const string& root: StringUtil::Split(v.value.front(), PathName::PathNameDelimiter))
       {
-        writer.WriteFormattedLine("%s%s;=%s",
-          v.commentedOut ? COMMENT_CHAR_STR : "",
-          v.name.c_str(),
-          root.c_str());
+        stream << (v.commentedOut ? COMMENT1 : "") << v.name << ";=" << root << "\n";
       }
     }
     else
     {
-      writer.WriteFormattedLine("%s%s=%s",
-        v.commentedOut ? COMMENT_CHAR_STR : "",
-        v.name.c_str(),
-        v.value.front().c_str());
+      stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << v.value.front() << "\n";
     }
   }
 }
@@ -684,7 +674,7 @@ private:
   shared_ptr<CfgKey> FindKey(const string& keyName) const;
 
 private:
-  void WriteKeys(StreamWriter& writer);
+  void WriteKeys(ostream& stream);
 
 private:
   void PutValue(const string& keyName, const string& valueName, const string& value, PutMode putMode, const string& documentation, bool commentedOut);
@@ -743,11 +733,11 @@ shared_ptr<CfgKey> CfgImpl::FindKey(const string& keyName) const
   return it->second;
 }
 
-void CfgImpl::WriteKeys(StreamWriter& writer)
+void CfgImpl::WriteKeys(ostream& stream)
 {
   for (const CfgKey& k : GetCfgKeys(true))
   {
-    k.WriteValues(writer);
+    k.WriteValues(stream);
   }
   if (tracking)
   {
@@ -1311,13 +1301,19 @@ string ToBase64(const vector<unsigned char>& bytes)
 void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvider* pPrivateKeyProvider)
 {
   time_t t = time(nullptr);
-  StreamWriter writer(path);
+  ofstream stream;
+  stream.open(path.ToNativeString());
+  if (!stream.is_open())
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("ofstream::open", "path", path.ToString());
+  }
   if (!header.empty())
   {
-    writer.WriteFormattedLine("%c%c%c %s", COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR, header.c_str());
-    writer.WriteLine();
+    stream
+      << COMMENT3 << " " << header << "\n"
+      << "\n";
   }
-  WriteKeys(writer);
+  WriteKeys(stream);
   if (pPrivateKeyProvider != nullptr)
   {
     string sig;
@@ -1372,21 +1368,14 @@ void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvi
       sig = ToBase64(callback.Sign());
     }
 #endif
-    writer.WriteLine();
-    writer.WriteFormattedLine(
-      T_("%c%c%c%c This configuration file is signed by a MiKTeX maintainer. The signature follows."),
-      COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR);
-    writer.WriteFormattedLine(
-      T_("%c%c%c%c-----BEGIN MIKTEX SIGNATURE-----"),
-      COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR);
-    writer.WriteFormattedLine("%c%c%c%c signature/miktex: %s",
-      COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR,
-      sig.c_str());
-    writer.WriteFormattedLine(
-      T_("%c%c%c%c-----END MIKTEX SIGNATURE-----"),
-      COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR);
+    stream
+      << "\n"
+      << COMMENT4 << T_("This configuration file is signed by a MiKTeX maintainer. The signature follows.") << "\n"
+      << COMMENT4 << "-----BEGIN MIKTEX SIGNATURE-----" << "\n"
+      << COMMENT4 << " " << "signature/miktex:" << " " << sig << "\n"
+      << COMMENT4 << "-----END MIKTEX SIGNATURE-----" << "\n";
   }
-  writer.Close();
+  stream.close();
   File::SetTimes(path, t, t, t);
 }
 
