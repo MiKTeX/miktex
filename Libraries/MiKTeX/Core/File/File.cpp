@@ -142,6 +142,17 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   return File::Open(path, mode, access, isTextFile, share, {});
 }
 
+std::ifstream File::CreateInputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions)
+{
+  ifstream stream(path.ToNativeString(), mode);
+  if (!stream.is_open())
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("ifstream::open", "path", path.ToString());
+  }
+  stream.exceptions(exceptions);
+  return stream;
+}
+  
 bool File::Equals(const PathName& path1, const PathName& path2)
 {
   size_t size = GetSize(path1);

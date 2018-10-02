@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <ctime>
 
+#include <fstream>
 #include <vector>
 
 #include "OptionSet.h"
@@ -244,6 +245,15 @@ public:
   /// Opens a stream on a file.
 public:
   static MIKTEXCORECEEAPI(FILE*) Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options);
+
+public:
+  static MIKTEXCORECEEAPI(std::ifstream) CreateInputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions);
+
+public:
+  static std::ifstream CreateInputStream(const PathName& path)
+  {
+    return CreateInputStream(path, std::ios_base::in, std::ios_base::badbit);
+  }
 
   /// Sets file attributes.
 public:
