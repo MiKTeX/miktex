@@ -33,22 +33,22 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-unique_ptr<DirectoryLister> DirectoryLister::Open(const PathName & directory)
+unique_ptr<DirectoryLister> DirectoryLister::Open(const PathName& directory)
 {
   return make_unique<winDirectoryLister>(directory, nullptr, (int)Options::None);
 }
 
-unique_ptr<DirectoryLister> DirectoryLister::Open(const PathName & directory, const char * lpszPattern)
+unique_ptr<DirectoryLister> DirectoryLister::Open(const PathName& directory, const char* lpszPattern)
 {
   return make_unique<winDirectoryLister>(directory, lpszPattern, (int)Options::None);
 }
 
-unique_ptr<DirectoryLister> DirectoryLister::Open(const PathName & directory, const char * lpszPattern, int options)
+unique_ptr<DirectoryLister> DirectoryLister::Open(const PathName& directory, const char* lpszPattern, int options)
 {
   return make_unique<winDirectoryLister>(directory, lpszPattern, options);
 }
 
-winDirectoryLister::winDirectoryLister(const PathName & directory, const char * lpszPattern, int options) :
+winDirectoryLister::winDirectoryLister(const PathName& directory, const char* lpszPattern, int options) :
   directory(directory),
   pattern(lpszPattern == nullptr ? "" : lpszPattern),
   options(options)
@@ -80,7 +80,7 @@ void winDirectoryLister::Close()
   }
 }
 
-bool winDirectoryLister::GetNext(DirectoryEntry & direntry)
+bool winDirectoryLister::GetNext(DirectoryEntry& direntry)
 {
   DirectoryEntry2 direntry2;
   if (!GetNext(direntry2))
@@ -93,7 +93,7 @@ bool winDirectoryLister::GetNext(DirectoryEntry & direntry)
   return true;
 }
 
-inline bool IsDotDirectory(const wchar_t * lpszDirectory)
+inline bool IsDotDirectory(const wchar_t* lpszDirectory)
 {
   if (lpszDirectory[0] != L'.')
   {
@@ -106,7 +106,7 @@ inline bool IsDotDirectory(const wchar_t * lpszDirectory)
   return lpszDirectory[1] == L'.' && lpszDirectory[2] == 0;
 }
 
-bool winDirectoryLister::GetNext(DirectoryEntry2 & direntry2)
+bool winDirectoryLister::GetNext(DirectoryEntry2& direntry2)
 {
   WIN32_FIND_DATAW ffdat;
   do
