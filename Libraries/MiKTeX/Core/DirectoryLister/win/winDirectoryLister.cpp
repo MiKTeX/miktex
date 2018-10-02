@@ -26,7 +26,7 @@
 #include "internal.h"
 
 #include "miktex/Core/DirectoryLister.h"
-#include "miktex/Core/win/WindowsVersion"
+#include "miktex/Core/win/WindowsVersion.h"
 
 #include "winDirectoryLister.h"
 
