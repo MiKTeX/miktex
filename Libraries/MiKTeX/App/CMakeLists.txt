@@ -47,10 +47,10 @@ foreach(h ${headers_no_ext})
 endforeach()
 
 set(public_headers
-  ${public_headers_no_ext}
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/vi/Version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/Application.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/config.h
+  ${public_headers_no_ext}
 )
 
 configure_file(
