@@ -1,6 +1,6 @@
 /* miktex/Core/MemoryMappedFile.h:                      -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -45,7 +45,7 @@ public:
   /// be open for reading and writing.
   /// @return Returns a pointer to the block of memory.
 public:
-  virtual void * MIKTEXTHISCALL Open(const PathName & path, bool readWrite) = 0;
+  virtual void* MIKTEXTHISCALL Open(const PathName& path, bool readWrite) = 0;
 
   /// Closes a file mapping.
 public:
@@ -55,12 +55,12 @@ public:
   /// @param newSize The new size of the memory-mapped file.
   /// @return Returns a pointer to the block of memory.
 public:
-  virtual void * MIKTEXTHISCALL Resize(std::size_t newSize) = 0;
+  virtual void* MIKTEXTHISCALL Resize(std::size_t newSize) = 0;
 
   /// Gets a pointer to rhe block of memory.
   /// @return Returns a pointer to the block of memory.
 public:
-  virtual void * MIKTEXTHISCALL GetPtr() const = 0;
+  virtual void* MIKTEXTHISCALL GetPtr() const = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetName() const = 0;
@@ -78,7 +78,7 @@ public:
   /// for deleting the object.
   /// @return Returns the MemoryMappedFile object.
 public:
-  static MIKTEXCORECEEAPI(MemoryMappedFile *) Create();
+  static MIKTEXCORECEEAPI(MemoryMappedFile*) Create();
 };
 
 MIKTEX_CORE_END_NAMESPACE;

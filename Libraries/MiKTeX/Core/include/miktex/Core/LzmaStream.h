@@ -1,6 +1,6 @@
 /* miktex/Core/LzmaStream.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -33,10 +33,11 @@
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
-class MIKTEXNOVTABLE LzmaStream : public Stream
+class MIKTEXNOVTABLE LzmaStream :
+  public Stream
 {
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<LzmaStream>) Create(const PathName & path, bool reading);
+  static MIKTEXCORECEEAPI(std::unique_ptr<LzmaStream>) Create(const PathName& path, bool reading);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

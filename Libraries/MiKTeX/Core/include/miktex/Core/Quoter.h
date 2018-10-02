@@ -1,6 +1,6 @@
 /* miktex/Core/Quoter.h:                                -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -42,40 +42,40 @@ public:
   Quoter() = delete;
 
 public:
-  Quoter(const Quoter & other) = delete;
+  Quoter(const Quoter& other) = delete;
 
 public:
-  Quoter & operator= (const Quoter & other) = delete;
+  Quoter& operator=(const Quoter& other) = delete;
 
 public:
-  Quoter(Quoter && other) = delete;
+  Quoter(Quoter&& other) = delete;
 
 public:
-  Quoter & operator= (Quoter && other) = delete;
+  Quoter& operator= (Quoter&& other) = delete;
 
 public:
   ~Quoter() = default;
 
 public:
-  Quoter(const CharType * lpsz)
+  Quoter(const CharType* lpsz)
   {
     Quote(lpsz);
   }
 
 public:
-  Quoter(const std::basic_string<CharType> & s)
+  Quoter(const std::basic_string<CharType>& s)
   {
     Quote(s.c_str());
   }
 
 public:
-  Quoter(const PathName & path)
+  Quoter(const PathName& path)
   {
     Quote(path.GetData());
   }
 
 private:
-  void Quote(const CharType * lpsz)
+  void Quote(const CharType* lpsz)
   {
     bool needQuotes = (*lpsz == 0 || MiKTeX::Util::StrChr(lpsz, 0x20/*' '*/) != nullptr);
     if (needQuotes)

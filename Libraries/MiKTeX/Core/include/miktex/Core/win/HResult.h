@@ -41,13 +41,13 @@ public:
   HResult(const HResult& other) = default;
 
 public:
-  HResult& operator= (const HResult& other) = default;
+  HResult& operator=(const HResult& other) = default;
 
 public:
   HResult(HResult&& other) = default;
 
 public:
-  HResult& operator= (HResult&& other) = default;
+  HResult& operator=(HResult&& other) = default;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~HResult() noexcept;
@@ -92,7 +92,7 @@ public:
   }
 
 public:
-  bool operator== (HRESULT other)
+  bool operator==(HRESULT other)
   {
     return hr == other;
   }

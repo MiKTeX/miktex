@@ -1,6 +1,6 @@
 /* miktex/Core/MD5.h:                                   -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -39,25 +39,26 @@
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
 /// Instances of this struct represent MD5 values.
-class MD5 : public std::array<md5_byte_t, 16>
+class MD5 :
+  public std::array<md5_byte_t, 16>
 {
   /// Calculates the MD5 value of a file.
   /// @param lpszPath The path name of the file.
   /// @return Returns the MD5 of the file.
 public:
-  static MIKTEXCORECEEAPI(MD5) FromFile(const PathName & path);
+  static MIKTEXCORECEEAPI(MD5) FromFile(const PathName& path);
 
   /// Calculates the MD5 value of a char sequence.
   /// @param s The char sequence.
   /// @return Returns the MD5 of the char sequence.
 public:
-  static MIKTEXCORECEEAPI(MD5) FromChars(const std::string & s);
+  static MIKTEXCORECEEAPI(MD5) FromChars(const std::string& s);
 
   /// Parses the string represention of an MD5.
   /// @param lpszHexString The string representation (32 hex characters).
   /// @return Returns the MD5.
 public:
-  static MIKTEXCORECEEAPI(MD5) Parse(const std::string & hexString);
+  static MIKTEXCORECEEAPI(MD5) Parse(const std::string& hexString);
 
   /// Converts this MD5 into a string object.
   /// @return Returns a string object.
@@ -79,16 +80,16 @@ public:
   }
 
 public:
-  MD5Builder(const MD5Builder & other) = delete;
+  MD5Builder(const MD5Builder& other) = delete;
 
 public:
-  MD5Builder & operator= (const MD5Builder & other) = delete;
+  MD5Builder& operator=(const MD5Builder& other) = delete;
 
 public:
-  MD5Builder(MD5Builder && other) = delete;
+  MD5Builder(MD5Builder&& other) = delete;
 
 public:
-  MD5Builder & operator= (MD5Builder && other) = delete;
+  MD5Builder& operator=(MD5Builder&& other) = delete;
 
 public:
   ~MD5Builder() = default;
@@ -104,9 +105,9 @@ public:
   /// @param ptr Bytes to be contributed to the MD5 value.
   /// @param size Size of the byte buffer.
 public:
-  void Update(const void * ptr, size_t size)
+  void Update(const void* ptr, size_t size)
   {
-    md5_append(&ctx, reinterpret_cast<const md5_byte_t *>(ptr), static_cast<int>(size));
+    md5_append(&ctx, reinterpret_cast<const md5_byte_t*>(ptr), static_cast<int>(size));
   }
 
   /// Calculates the final MD5 value.

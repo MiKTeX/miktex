@@ -1,6 +1,6 @@
 /* miktex/Core/equal_icase_dos:                         -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -33,7 +33,7 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 struct less_icase_dos
 {
 public:
-  bool operator() (const std::string & str1, const std::string & str2) const
+  bool operator() (const std::string& str1, const std::string& str2) const
   {
     std::size_t l1 = str1.length();
     std::size_t l2 = str2.length();
