@@ -1381,7 +1381,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
   }
   
   // set auto-install
-  string valueSpec = "[" MIKTEX_CONFIG_SECTION_MPM "]";
+  string valueSpec = "["s + MIKTEX_CONFIG_SECTION_MPM + "]";
   valueSpec += MIKTEX_CONFIG_VALUE_AUTOINSTALL;
   valueSpec += "=";
   valueSpec += std::to_string((int)options.IsInstallOnTheFlyEnabled);
