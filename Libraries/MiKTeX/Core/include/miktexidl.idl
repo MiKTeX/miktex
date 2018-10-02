@@ -1,6 +1,6 @@
 /* miktexidl.idl:
 
-   Copyright (C) 2006-2016 Christian Schenk
+   Copyright (C) 2006-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,11 +25,6 @@
 import "oaidl.idl";
 import "ocidl.idl";
 
-/* _________________________________________________________________________
-   
-   ErrorInfo
-   _________________________________________________________________________ */
-
 /// @brief Information about a MiKTeX error.
 typedef [uuid(6AEC83E4-BF9A-4C21-8CC4-151D3E5A7C38)] struct ErrorInfo
 {
@@ -42,4 +37,3 @@ typedef [uuid(6AEC83E4-BF9A-4C21-8CC4-151D3E5A7C38)] struct ErrorInfo
   /// @brief The line number in the source file.
   LONG sourceLine;
 } ErrorInfo;
-
