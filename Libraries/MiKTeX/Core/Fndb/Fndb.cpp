@@ -31,12 +31,12 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-void Fndb::Add(const PathName & path)
+void Fndb::Add(const PathName& path)
 {
   Fndb::Add(path, "");
 }
 
-void Fndb::Add(const PathName & path, const string & fileNameInfo)
+void Fndb::Add(const PathName& path, const string& fileNameInfo)
 {
 #if 0
   MIKTEX_ASSERT(File::Exists(path));
@@ -72,7 +72,7 @@ void Fndb::Add(const PathName & path, const string & fileNameInfo)
   }
 }
 
-bool Fndb::Enumerate(const PathName & fndbPath, IEnumerateFndbCallback * callback)
+bool Fndb::Enumerate(const PathName& fndbPath, IEnumerateFndbCallback* callback)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(fndbPath.GetData());
@@ -83,7 +83,7 @@ bool Fndb::Enumerate(const PathName & fndbPath, IEnumerateFndbCallback * callbac
   return fndb->Enumerate(fndbPath.GetData(), callback);
 }
 
-void Fndb::Remove(const PathName & path)
+void Fndb::Remove(const PathName& path)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   unsigned root = session->DeriveTEXMFRoot(path.GetData());
@@ -95,7 +95,7 @@ void Fndb::Remove(const PathName & path)
   fndb->RemoveFile(path.GetData());
 }
 
-bool Fndb::FileExists(const PathName & path)
+bool Fndb::FileExists(const PathName& path)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   unsigned root = session->DeriveTEXMFRoot(path);
@@ -107,7 +107,7 @@ bool Fndb::FileExists(const PathName & path)
   return fndb->FileExists(path);
 }
 
-bool Fndb::Search(const PathName & fileName, const string & pathPattern, bool firstMatchOnly, vector<PathName> & result, vector<string> & fileNameInfo)
+bool Fndb::Search(const PathName& fileName, const string& pathPattern, bool firstMatchOnly, vector<PathName>& result, vector<string>& fileNameInfo)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   unsigned root = session->DeriveTEXMFRoot(pathPattern);

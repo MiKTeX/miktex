@@ -33,7 +33,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-MD5 MD5::FromFile(const PathName & path)
+MD5 MD5::FromFile(const PathName& path)
 {
   MD5Builder md5Builder;
   md5Builder.Init();
@@ -41,14 +41,14 @@ MD5 MD5::FromFile(const PathName & path)
   if (size > 0)
   {
     unique_ptr<MemoryMappedFile> mmapFile(MemoryMappedFile::Create());
-    const void * ptr = mmapFile->Open(path, false);
+    const void* ptr = mmapFile->Open(path, false);
     md5Builder.Update(ptr, size);
   }
   md5Builder.Final();
   return md5Builder.GetMD5();
 }
 
-MD5 MD5::FromChars(const string & s)
+MD5 MD5::FromChars(const string& s)
 {
   MD5Builder md5Builder;
   md5Builder.Init();
@@ -77,7 +77,7 @@ MIKTEXSTATICFUNC(int) Unhex(char x)
   }
 }
 
-MD5 MD5::Parse(const string & hexString)
+MD5 MD5::Parse(const string& hexString)
 {
   size_t l = hexString.length();
   if (l != 32)
