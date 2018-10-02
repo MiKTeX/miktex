@@ -162,12 +162,7 @@ void SessionImpl::ReadDvipsPaperSizes()
   {
     for (vector<PathName>::const_reverse_iterator it = configFiles.rbegin(); it != configFiles.rend(); ++it)
     {
-      ifstream reader(it->ToNativeString());
-      if (!reader.is_open())
-      {
-        MIKTEX_FATAL_CRT_ERROR_2("ifstream::open", "path", it->ToString());
-      }
-      reader.exceptions(ifstream::badbit);
+      ifstream reader = File::CreateInputStream(*it);
       bool inDefinition = false;
       DvipsPaperSizeInfo current;
       for (string line; std::getline(reader, line); )
@@ -394,12 +389,7 @@ public:
     bak = path;
     bak.Append(".bak", false);
     File::Move(path, bak);
-    ifstream reader(bak.ToNativeString());
-    if (!reader.is_open())
-    {
-      MIKTEX_FATAL_CRT_ERROR_2("ifstream::open", "path", bak.ToString());
-    }
-    reader.exceptions(ifstream::badbit);
+    ifstream reader = File::CreateInputStream(bak);
     writer.open(path.ToDisplayString());
     if (!writer.is_open())
     {
