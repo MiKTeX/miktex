@@ -1,6 +1,6 @@
 /* miktex/Core/hash_icase:                              -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -37,7 +37,7 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 struct hash_icase
 {
 public:
-  std::size_t operator() (const std::string & str) const
+  std::size_t operator() (const std::string& str) const
   {
     // see http://www.isthe.com/chongo/tech/comp/fnv/index.html
 #if defined(_M_AMD64) || defined(_M_X64) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)

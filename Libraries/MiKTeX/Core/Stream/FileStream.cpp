@@ -42,29 +42,29 @@ FileStream::~FileStream() noexcept
   {
     Close();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void FileStream::Attach(FILE * pFile)
+void FileStream::Attach(FILE* file)
 {
-  if (this->pFile != nullptr)
+  if (this->file != nullptr)
   {
     Close();
   }
-  this->pFile = pFile;
+  this->file = file;
 }
 
 void FileStream::Close()
 {
-  if (pFile != nullptr)
+  if (file != nullptr)
   {
-    FILE * pFile_ = pFile;
-    pFile = nullptr;
-    if (pFile_ != stdin && pFile_ != stdout && pFile_ != stderr)
+    FILE* file_ = file;
+    file = nullptr;
+    if (file_ != stdin && file_ != stdout && file_ != stderr)
     {
-      if (fclose(pFile_) != 0)
+      if (fclose(file_) != 0)
       {
 	MIKTEX_FATAL_CRT_ERROR("fclose");
       }
@@ -72,19 +72,19 @@ void FileStream::Close()
   }
 }
 
-size_t FileStream::Read(void * pBytes, size_t count)
+size_t FileStream::Read(void* data, size_t count)
 {
-  size_t n = fread(pBytes, 1, count, pFile);
-  if (ferror(pFile) != 0)
+  size_t n = fread(data, 1, count, file);
+  if (ferror(file) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR("fread");
   }
   return n;
 }
 
-void FileStream::Write(const void * pBytes, size_t count)
+void FileStream::Write(const void* data, size_t count)
 {
-  if (fwrite(pBytes, 1, count, pFile) != count)
+  if (fwrite(data, 1, count, file) != count)
   {
     MIKTEX_FATAL_CRT_ERROR("fwrite");
   }
@@ -108,7 +108,7 @@ void FileStream::Seek(long offset, SeekOrigin seekOrigin)
     MIKTEX_UNEXPECTED();
     break;
   }
-  if (fseek(pFile, offset, origin) != 0)
+  if (fseek(file, offset, origin) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR("fseek");
   }
@@ -116,7 +116,7 @@ void FileStream::Seek(long offset, SeekOrigin seekOrigin)
 
 long FileStream::GetPosition() const
 {
-  long pos = ftell(pFile);
+  long pos = ftell(file);
   if (pos < 0)
   {
     MIKTEX_FATAL_CRT_ERROR("ftell");
@@ -127,7 +127,7 @@ long FileStream::GetPosition() const
 void FileStream::SetBinary()
 {
 #if defined(MIKTEX_WINDOWS)
-  if (_setmode(_fileno(pFile), _O_BINARY) < 0)
+  if (_setmode(_fileno(file), _O_BINARY) < 0)
   {
     MIKTEX_FATAL_CRT_ERROR("_setmode");
   }

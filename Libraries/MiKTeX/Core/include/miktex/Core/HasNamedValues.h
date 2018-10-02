@@ -1,6 +1,6 @@
 /* miktex/Core/HasNamedValues.h:                        -*- C++ -*-
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -33,8 +33,8 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE HasNamedValues
 {
 public:
-  virtual bool MIKTEXTHISCALL TryGetValue(const std::string & valueName, std::string & value) = 0;
-  virtual std::string MIKTEXTHISCALL GetValue(const std::string & valueName) = 0;
+  virtual bool MIKTEXTHISCALL TryGetValue(const std::string& valueName, std::string& value) = 0;
+  virtual std::string MIKTEXTHISCALL GetValue(const std::string& valueName) = 0;
 };
 
 MIKTEX_CORE_END_NAMESPACE;

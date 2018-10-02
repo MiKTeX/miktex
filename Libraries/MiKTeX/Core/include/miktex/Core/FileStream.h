@@ -1,6 +1,6 @@
 /* miktex/Core/FileStream.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -34,44 +34,45 @@
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
 /// FileStream class. Encapsulates a stdio file stream pointer (FILE*).
-class MIKTEXCORETYPEAPI(FileStream) : public Stream
+class MIKTEXCORETYPEAPI(FileStream) :
+  public Stream
 {
 public:
   FileStream() = default;
 
 public:
-  FileStream(const FileStream & other) = delete;
+  FileStream(const FileStream& other) = delete;
 
 public:
-  FileStream & operator= (const FileStream & other) = delete;
+  FileStream& operator= (const FileStream& other) = delete;
 
 public:
-  FileStream(FileStream && other) = delete;
+  FileStream(FileStream & other) = delete;
 
 public:
-  FileStream & operator= (FileStream && other) = delete;
+  FileStream& operator=(FileStream&& other) = delete;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~FileStream() noexcept;
 
 public:
-  FileStream(FILE * pFile) :
-    pFile(pFile)
+  FileStream(FILE* file) :
+    file(file)
   {
   }
 
 public:
-  MIKTEXCORETHISAPI(void) Attach(FILE * pFile);
+  MIKTEXCORETHISAPI(void) Attach(FILE* file);
 
   /// Closes the encapsulated stream (except for stdin/stdout/stderr).
 public:
   MIKTEXCORETHISAPI(void) Close();
 
 public:
-  MIKTEXCORETHISAPI(std::size_t) Read(void * pBytes, std::size_t count) override;
+  MIKTEXCORETHISAPI(std::size_t) Read(void* data, std::size_t count) override;
 
 public:
-  MIKTEXCORETHISAPI(void) Write(const void * pBytes, std::size_t count) override;
+  MIKTEXCORETHISAPI(void) Write(const void* data, std::size_t count) override;
 
 public:
   MIKTEXCORETHISAPI(void) Seek(long offset, SeekOrigin origin) override;
@@ -83,21 +84,21 @@ public:
   MIKTEXCORETHISAPI(void) SetBinary();
 
 public:
-  FILE * Get() const
+  FILE* Get() const
   {
-    return pFile;
+    return file;
   }
 
 public:
-  FILE * Detach()
+  FILE* Detach()
   {
-    FILE * ret = pFile;
-    pFile = nullptr;
+    FILE* ret = file;
+    file = nullptr;
     return ret;
   }
 
 private:
-  FILE * pFile = nullptr;
+  FILE* file = nullptr;
 };
 
 MIKTEX_CORE_END_NAMESPACE;

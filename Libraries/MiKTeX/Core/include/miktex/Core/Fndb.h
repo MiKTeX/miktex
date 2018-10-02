@@ -36,16 +36,16 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE ICreateFndbCallback
 {
 public:
-  virtual bool MIKTEXTHISCALL ReadDirectory(const PathName & path, std::vector<std::string> & subDirNames, std::vector<std::string> & fileNames, std::vector<std::string> & fileNameInfos) = 0;
+  virtual bool MIKTEXTHISCALL ReadDirectory(const PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL OnProgress(unsigned level, const PathName & directory) = 0;
+  virtual bool MIKTEXTHISCALL OnProgress(unsigned level, const PathName& directory) = 0;
 };
 
 class MIKTEXNOVTABLE IEnumerateFndbCallback
 {
 public:
-  virtual bool MIKTEXTHISCALL OnFndbItem(const PathName & path, const std::string & name, const std::string & info, bool isDirectory) = 0;
+  virtual bool MIKTEXTHISCALL OnFndbItem(const PathName& path, const std::string& name, const std::string& info, bool isDirectory) = 0;
 };
 
 class MIKTEXNOVTABLE Fndb
@@ -54,49 +54,49 @@ public:
   Fndb() = delete;
 
 public:
-  Fndb(const Fndb & other) = delete;
+  Fndb(const Fndb& other) = delete;
 
 public:
-  Fndb & operator= (const Fndb & other) = delete;
+  Fndb& operator=(const Fndb& other) = delete;
 
 public:
-  Fndb(Fndb && other) = delete;
+  Fndb(Fndb&& other) = delete;
 
 public:
-  Fndb & operator= (Fndb && other) = delete;
+  Fndb& operator= (Fndb&& other) = delete;
 
 public:
   ~Fndb() = delete;
 
 public:
-  static MIKTEXCORECEEAPI(void) Add(const PathName & path);
+  static MIKTEXCORECEEAPI(void) Add(const PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(void) Add(const PathName & path, const std::string & fileNameInfo);
+  static MIKTEXCORECEEAPI(void) Add(const PathName& path, const std::string& fileNameInfo);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Create(const PathName & fndbPath, const PathName & rootPath, ICreateFndbCallback * callback);
+  static MIKTEXCORECEEAPI(bool) Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Create(const PathName & fndbPath, const PathName & rootPath, ICreateFndbCallback * callback, bool enableStringPooling, bool storeFileNameInfo);
+  static MIKTEXCORECEEAPI(bool) Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Enumerate(const PathName & fndbPath, IEnumerateFndbCallback * callback);
+  static MIKTEXCORECEEAPI(bool) Enumerate(const PathName& fndbPath, IEnumerateFndbCallback* callback);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Refresh(const PathName & path, ICreateFndbCallback * callback);
+  static MIKTEXCORECEEAPI(bool) Refresh(const PathName& path, ICreateFndbCallback* callback);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Refresh(ICreateFndbCallback * callback);
+  static MIKTEXCORECEEAPI(bool) Refresh(ICreateFndbCallback* callback);
 
 public:
-  static MIKTEXCORECEEAPI(void) Remove(const PathName & path);
+  static MIKTEXCORECEEAPI(void) Remove(const PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) FileExists(const PathName & path);
+  static MIKTEXCORECEEAPI(bool) FileExists(const PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Search(const PathName & fileName, const std::string & pathPattern, bool firstMatchOnly, std::vector<PathName> & result, std::vector<std::string> & fileNameInfo);
+  static MIKTEXCORECEEAPI(bool) Search(const PathName& fileName, const std::string& pathPattern, bool firstMatchOnly, std::vector<PathName>& result, std::vector<std::string>& fileNameInfo);
 };
 
 MIKTEX_CORE_END_NAMESPACE;
