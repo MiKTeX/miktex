@@ -33,13 +33,13 @@ class winDirectoryLister :
   public MiKTeX::Core::DirectoryLister
 {
 public:
-  virtual void MIKTEXTHISCALL Close();
+  void MIKTEXTHISCALL Close() override;
 
 public:
-  virtual bool MIKTEXTHISCALL GetNext(MiKTeX::Core::DirectoryEntry& direntry);
+  bool MIKTEXTHISCALL GetNext(MiKTeX::Core::DirectoryEntry& direntry) override;
 
 public:
-  virtual bool MIKTEXTHISCALL GetNext(MiKTeX::Core::DirectoryEntry2& direntry2);
+  bool MIKTEXTHISCALL GetNext(MiKTeX::Core::DirectoryEntry2& direntry2) override;
 
 public:
   winDirectoryLister(const MiKTeX::Core::PathName& directory, const char* lpszPattern, int options);
