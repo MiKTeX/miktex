@@ -1,6 +1,6 @@
 /* miktex/Core/win/AutoResource.h:                      -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -36,7 +36,7 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 struct SetErrorMode_
 {
 public:
-  void operator() (unsigned int mode) const
+  void operator()(unsigned int mode) const
   {
     SetErrorMode(mode);
   }
@@ -52,7 +52,7 @@ template<> inline HANDLE InvalidHandleValue<HANDLE>()
 struct CloseHandle_
 {
 public:
-  void operator() (HANDLE h) const
+  void operator()(HANDLE h) const
   {
     if (!CloseHandle(h))
     {
@@ -66,7 +66,7 @@ typedef AutoResource<HANDLE, CloseHandle_> AutoHANDLE;
 struct RegCloseKey_
 {
 public:
-  void operator() (HKEY hkey) const
+  void operator()(HKEY hkey) const
   {
     long result = RegCloseKey(hkey);
     if (result != ERROR_SUCCESS)
@@ -81,7 +81,7 @@ typedef AutoResource<HKEY, RegCloseKey_> AutoHKEY;
 struct GlobalUnlock_
 {
 public:
-  void operator() (HGLOBAL hMem) const
+  void operator()(HGLOBAL hMem) const
   {
     if (GlobalUnlock(hMem) == FALSE && GetLastError() != NO_ERROR)
     {
@@ -90,12 +90,12 @@ public:
   }
 };
 
-typedef AutoResource<void *, GlobalUnlock_> AutoGlobal;
+typedef AutoResource<void*, GlobalUnlock_> AutoGlobal;
 
 struct GlobalFree_
 {
 public:
-  void operator() (HGLOBAL hMem) const
+  void operator()(HGLOBAL hMem) const
   {
     if (GlobalFree(hMem) != nullptr)
     {
@@ -104,12 +104,12 @@ public:
   }
 };
 
-typedef AutoResource<void *, GlobalFree_> AutoGlobalMemory;
+typedef AutoResource<void*, GlobalFree_> AutoGlobalMemory;
 
 struct LocalFree_
 {
 public:
-  void operator() (void * ptr) const
+  void operator()(void* ptr) const
   {
     if (LocalFree(ptr) != nullptr)
     {
@@ -118,27 +118,27 @@ public:
   }
 };
 
-typedef AutoResource<void *, LocalFree_> AutoLocalMemory;
-typedef AutoResource<void *, LocalFree_> AutoLocalMem;
+typedef AutoResource<void*, LocalFree_> AutoLocalMemory;
+typedef AutoResource<void*, LocalFree_> AutoLocalMem;
 
 #if defined(WINOLEAPI)
 struct CoTaskMemFree_
 {
 public:
-  void operator() (void * ptr) const
+  void operator()(void* ptr) const
   {
     CoTaskMemFree(ptr);
   }
 };
 
-typedef AutoResource<void *, CoTaskMemFree_> AutoCoTaskMem;
+typedef AutoResource<void*, CoTaskMemFree_> AutoCoTaskMem;
 #endif
 
 #if defined(WINOLEAUTAPI)
 struct SysFreeString_
 {
 public:
-  void operator() (BSTR bstr) const
+  void operator()(BSTR bstr) const
   {
     SysFreeString(bstr);
   }
@@ -151,7 +151,7 @@ typedef AutoResource<BSTR, SysFreeString_> AutoSysString;
 struct ClosePrinter_
 {
 public:
-  void operator() (HANDLE hPrinter) const
+  void operator()(HANDLE hPrinter) const
   {
     if (!ClosePrinter(hPrinter))
     {
@@ -167,7 +167,7 @@ typedef AutoResource<HANDLE, ClosePrinter_> AutoClosePrinter;
 struct DdeFreeStringHandle_
 {
 public:
-  void operator() (unsigned long inst, HSZ hsz) const
+  void operator()(unsigned long inst, HSZ hsz) const
   {
     if (!DdeFreeStringHandle(inst, hsz))
     {
@@ -181,7 +181,7 @@ typedef AutoResource2<unsigned long, HSZ, DdeFreeStringHandle_> AutoDdeFreeStrin
 struct FreeSid_
 {
 public:
-  void operator() (PSID psid) const
+  void operator()(PSID psid) const
   {
     if (FreeSid(psid) != nullptr)
     {

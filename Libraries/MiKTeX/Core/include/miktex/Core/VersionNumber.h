@@ -1,6 +1,6 @@
 /* miktex/Core/VersionNumber.h:                         -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -38,16 +38,16 @@ public:
   VersionNumber() = default;
 
 public:
-  VersionNumber(const VersionNumber & other) = default;
+  VersionNumber(const VersionNumber& other) = default;
 
 public:
-  VersionNumber & operator=(const VersionNumber & other) = default;
+  VersionNumber& operator=(const VersionNumber& other) = default;
 
 public:
   VersionNumber(VersionNumber && other) = default;
 
 public:
-  VersionNumber & operator=(VersionNumber && other) = default;
+  VersionNumber& operator=(VersionNumber && other) = default;
 
 public:
   ~VersionNumber() = default;
@@ -78,7 +78,7 @@ public:
   /// Initializes an instance of the struct.
   /// @param versionString The version number as a string.
 public:
-  VersionNumber(const std::string & versionString)
+  VersionNumber(const std::string& versionString)
   {
     *this = Parse(versionString);
   }
@@ -133,7 +133,7 @@ public:
   /// Returns 0, if both version numbers compare equal.
   /// Otherwise returns 1.
 public:
-  int CompareTo(const VersionNumber & other) const
+  int CompareTo(const VersionNumber& other) const
   {
     long cmp1 = GetHighWord() - other.GetHighWord();
     long cmp2 = GetLowWord() - other.GetLowWord();
@@ -161,20 +161,20 @@ public:
   /// @param[out] The version number object to fill.
   /// @returns Returns true if the string could be parsed.
 public:
-  static MIKTEXCORECEEAPI(bool) TryParse(const std::string & versionString, VersionNumber & versionNumber);
+  static MIKTEXCORECEEAPI(bool) TryParse(const std::string& versionString, VersionNumber& versionNumber);
 
   /// Parses the string representation of a version number.
   /// @param versionString The string to parse.
   /// @returns Returns the parsed version number.
 public:
-  static MIKTEXCORECEEAPI(VersionNumber) Parse(const std::string & versionString);
+  static MIKTEXCORECEEAPI(VersionNumber) Parse(const std::string& versionString);
 };
 
 /// Compares two version numbers.
 /// @param v1 The first version number.
 /// @param v2 The second version number.
 /// @return Returns true, if both version numbers compare equal.
-inline bool operator== (const VersionNumber & v1, const VersionNumber & v2)
+inline bool operator==(const VersionNumber& v1, const VersionNumber& v2)
 {
   return v1.CompareTo(v2) == 0;
 }
@@ -184,12 +184,12 @@ inline bool operator== (const VersionNumber & v1, const VersionNumber & v2)
 /// @param v2 The second version number.
 /// @return Returns true, if the first version number is less than the
 /// other.
-inline bool operator< (const VersionNumber & v1, const VersionNumber & v2)
+inline bool operator<(const VersionNumber& v1, const VersionNumber& v2)
 {
   return v1.CompareTo(v2) < 0;
 }
 
-inline std::ostream & operator<<(std::ostream & os, const VersionNumber & v)
+inline std::ostream& operator<<(std::ostream& os, const VersionNumber& v)
 {
   return os << v.ToString();
 }
