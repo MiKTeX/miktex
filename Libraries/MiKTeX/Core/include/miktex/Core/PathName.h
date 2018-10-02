@@ -364,6 +364,20 @@ public:
     return MiKTeX::Util::StringUtil::UTF8ToWideChar(GetData());
   }
 
+#if defined(MIKTEX_WINDOWS)
+public:
+  std::wstring ToNativeString() const
+  {
+    return ToWideCharString();
+  }
+#else
+public:
+  std::wstring ToNativeString() const
+  {
+    return ToString();
+  }
+#endif
+
 public:
   MIKTEXCORETHISAPI(std::string) ToDisplayString(DisplayPathNameOptions options = {}) const;
 
