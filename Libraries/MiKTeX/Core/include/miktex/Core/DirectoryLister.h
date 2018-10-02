@@ -1,6 +1,6 @@
 /* miktex/Core/DirectoryLister.h:                       -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -48,7 +48,8 @@ struct DirectoryEntry
 };
 
 /// Contains detailed information about a directory entry.
-struct DirectoryEntry2 : public DirectoryEntry
+struct DirectoryEntry2 :
+  public DirectoryEntry
 {
   /// The size (in bytes) of the file.
   std::size_t size;
@@ -58,7 +59,8 @@ struct DirectoryEntry2 : public DirectoryEntry
 class MIKTEXNOVTABLE DirectoryLister
 {
 public:
-  enum class Options : int
+  enum class Options :
+    int
   {
     None,
     DirectoriesOnly = 1,
@@ -78,21 +80,21 @@ public:
   /// @return Returns true, if an entry could be retrieved. Returns, if
   /// there are no more directory entries.
 public:
-  virtual bool MIKTEXTHISCALL GetNext(DirectoryEntry & direntry) = 0;
+  virtual bool MIKTEXTHISCALL GetNext(DirectoryEntry& direntry) = 0;
 
   /// Gets the next directory entry.
   /// @param[out] The directory entry to be filled.
   /// @return Returns true, if an entry could be retrieved. Returns, if
   /// there are no more directory entries.
 public:
-  virtual bool MIKTEXTHISCALL GetNext(DirectoryEntry2 & direntry2) = 0;
+  virtual bool MIKTEXTHISCALL GetNext(DirectoryEntry2& direntry2) = 0;
 
   /// Creates a DirectoryLister object. The caller is responsible for deleting
   /// the object.
   /// @param directory Path to the directory.
   /// @return Returns the DirectoryLister object.
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName & directory);
+  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory);
 
   /// Creates a DirectoryLister object. The caller is responsible for deleting
   /// the object.
@@ -100,7 +102,7 @@ public:
   /// @param lpszPattern A filter pattern (e.g. "*.txt").
   /// @return Returns the DirectoryLister object.
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName & directory, const char * lpszPattern);
+  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory, const char* lpszPattern);
 
   /// Creates a DirectoryLister object. The caller is responsible for deleting
   /// the object.
@@ -109,7 +111,7 @@ public:
   /// @param options Options.
   /// @return Returns the DirectoryLister object.
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName & directory, const char * lpszPattern, int options);
+  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory, const char* lpszPattern, int options);
 };
 
 MIKTEX_CORE_END_NAMESPACE;
