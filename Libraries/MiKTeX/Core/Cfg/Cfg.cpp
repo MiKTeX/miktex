@@ -77,7 +77,8 @@ MIKTEXSTATICFUNC(string&) Trim(string& str)
   return str;
 }
 
-class CfgValue : public Cfg::Value
+class CfgValue :
+  public Cfg::Value
 {
 public:
   string name;
@@ -160,14 +161,15 @@ public:
   }
 };
 
-inline bool operator< (const CfgValue& lhs, const CfgValue& rhs)
+inline bool operator<(const CfgValue& lhs, const CfgValue& rhs)
 {
   return lhs.lookupName < rhs.lookupName;
 }
 
 typedef unordered_map<string, shared_ptr<CfgValue>> ValueMap;
 
-class CfgKey : public Cfg::Key
+class CfgKey :
+  public Cfg::Key
 {
 public:
   ValueMap valueMap;
@@ -240,7 +242,7 @@ public:
   void WriteValues(StreamWriter& writer) const;
 };
 
-inline bool operator< (const CfgKey& lhs, const CfgKey& rhs)
+inline bool operator<(const CfgKey& lhs, const CfgKey& rhs)
 {
   return lhs.lookupName < rhs.lookupName;
 }
@@ -341,7 +343,8 @@ public:
   virtual void addData(const string& data) = 0;
 };
 
-class MD5WalkCallback : public WalkCallback
+class MD5WalkCallback :
+  public WalkCallback
 {
 public:
   void addData(const string& data) override
@@ -360,7 +363,8 @@ private:
 };
 
 #if defined(ENABLE_BOTAN)
-class BotanWalkCallback : public WalkCallback
+class BotanWalkCallback :
+  public WalkCallback
 {
 public:
   BotanWalkCallback(Botan::Pipe& pipe) :
@@ -380,7 +384,8 @@ public:
 #endif
 
 #if defined(ENABLE_OPENSSL)
-class OpenSSLWalkCallback : public WalkCallback
+class OpenSSLWalkCallback :
+  public WalkCallback
 {
 public:
   OpenSSLWalkCallback(EVP_PKEY* pkey, bool verify) :
@@ -488,7 +493,8 @@ private:
 };
 #endif
 
-class CfgImpl : public Cfg
+class CfgImpl :
+  public Cfg
 {
 public:
   bool MIKTEXTHISCALL Empty() const override;
