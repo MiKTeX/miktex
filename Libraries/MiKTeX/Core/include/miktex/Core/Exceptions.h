@@ -27,10 +27,10 @@
 #include <miktex/Core/config.h>
 
 #include <exception>
-#include <unordered_map>
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
