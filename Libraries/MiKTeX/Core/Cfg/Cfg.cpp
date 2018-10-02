@@ -25,6 +25,7 @@
 
 #include <fstream>
 
+#include "miktex/Core/FileStream.h"
 #include <miktex/Trace/Trace>
 #include <miktex/Util/Tokenizer>
 

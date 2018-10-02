@@ -28,6 +28,7 @@
 #include "internal.h"
 
 #include "miktex/Core/BZip2Stream.h"
+#include "miktex/Core/FileStream.h"
 
 #include "CompressedStreamBase.h"
 #include "Session/SessionImpl.h"

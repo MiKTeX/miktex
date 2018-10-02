@@ -29,6 +29,7 @@
 
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/Environment.h"
+#include "miktex/Core/FileStream.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
 #include "miktex/Core/Urls.h"

@@ -28,6 +28,7 @@
 #include "internal.h"
 
 #include "miktex/Core/File.h"
+#include "miktex/Core/FileStream.h"
 #include "miktex/Core/Paths.h"
 
 #include "Session/SessionImpl.h"

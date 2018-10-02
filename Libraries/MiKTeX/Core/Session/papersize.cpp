@@ -23,11 +23,14 @@
 #  include "config.h"
 #endif
 
+#include <fstream>
+
 #include "internal.h"
 
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/StreamReader.h"
+#include "miktex/Core/StreamWriter.h"
 
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
@@ -390,7 +393,12 @@ public:
     bak.Append(".bak", false);
     File::Move(path, bak);
     reader.Attach(File::Open(bak, FileMode::Open, FileAccess::Read));
-    writer.Attach(File::Open(path, FileMode::Create, FileAccess::Write));
+    writer.open(path.ToDisplayString());
+    if (!writer.is_open())
+    {
+      MIKTEX_FATAL_CRT_ERROR_2("ofstream::open", "path", path.ToString());
+    }
+    writer.exceptions(ofstream::badbit | ofstream::failbit);
   }
 
 public:
@@ -399,7 +407,7 @@ public:
     try
     {
       reader.Close();
-      writer.Close();
+      writer.close();
       File::Delete(bak);
       if (!Fndb::FileExists(path))
       {
@@ -420,13 +428,13 @@ public:
 public:
   void WriteLine(const string& line)
   {
-    writer.WriteLine(line);
+    writer << line << "\n";
   }
 
 public:
   void WriteLine()
   {
-    writer.WriteLine();
+    writer << "\n";
   }
 
 public:
@@ -448,7 +456,7 @@ private:
   StreamReader reader;
 
 private:
-  StreamWriter writer;
+  ofstream writer;
 };
 
 bool SessionImpl::TryCreateFromTemplate(const PathName& path)

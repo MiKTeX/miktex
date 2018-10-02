@@ -31,6 +31,7 @@
 
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/File.h"
+#include "miktex/Core/FileStream.h"
 #include "miktex/Core/win/winAutoResource.h"
 
 #include "Session/SessionImpl.h"

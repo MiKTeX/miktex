@@ -27,6 +27,7 @@
 
 #include "internal.h"
 
+#include "miktex/Core/FileStream.h"
 #include "miktex/Core/LzmaStream.h"
 
 #include "CompressedStreamBase.h"

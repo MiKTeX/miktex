@@ -25,6 +25,7 @@
 #define INTERNAL_CORE_SESSION_SESSIONIMPL_H
 
 #include <deque>
+#include <fstream>
 #include <map>
 #include <set>
 
@@ -40,7 +41,6 @@
 #include "miktex/Core/Cfg.h"
 #include "miktex/Core/Session.h"
 #include "miktex/Core/Stream.h"
-#include "miktex/Core/StreamWriter.h"
 #include "miktex/Core/equal_icase.h"
 #include "miktex/Core/hash_icase.h"
 
@@ -976,7 +976,7 @@ private:
   bool recordingPackageNames = false;
 
 private:
-  MiKTeX::Core::StreamWriter fileNameRecorderStream;
+  std::ofstream fileNameRecorderStream;
 
   // package history file
 private:

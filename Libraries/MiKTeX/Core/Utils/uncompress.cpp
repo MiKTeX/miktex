@@ -26,6 +26,7 @@
 #include "internal.h"
 
 #include "miktex/Core/BZip2Stream.h"
+#include "miktex/Core/FileStream.h"
 #include "miktex/Core/GzipStream.h"
 #include "miktex/Core/LzmaStream.h"
 

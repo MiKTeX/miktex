@@ -26,6 +26,7 @@
 #include "internal.h"
 
 #include "miktex/Core/CommandLineBuilder.h"
+#include "miktex/Core/FileStream.h"
 #include "miktex/Core/Process.h"
 
 #include "Session/SessionImpl.h"

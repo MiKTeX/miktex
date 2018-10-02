@@ -27,6 +27,7 @@
 #  include <unistd.h>
 #endif
 
+#include <fstream>
 #include <iostream>
 
 #include "internal.h"
@@ -290,20 +291,25 @@ void SessionImpl::StartFinishScript(int delay)
 #if defined(MIKTEX_WINDOWS)
   script.SetExtension(".cmd");
 #endif
-  StreamWriter writer(script);
+  ofstream writer(script.ToNativeString());
+  if (!writer.is_open())
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("ofstream::open", "path", script.ToString());
+  }
+  writer.exceptions(ofstream::badbit | ofstream::failbit);
   for (const auto& cmd : pre)
   {
-    writer.WriteLine(cmd);
+    writer << cmd << "\n";
   }
   for (const auto& cmd : onFinishScript)
   {
-    writer.WriteLine(cmd);
+    writer << cmd << "\n";
   }
   for (const auto& cmd : post)
   {
-    writer.WriteLine(cmd);
+    writer << cmd << "\n";
   }
-  writer.Close();
+  writer.close();
   trace_core->WriteFormattedLine("core", T_("starting finish script"));
 #if defined(MIKTEX_UNIX)
   File::SetAttributes(script, { FileAttribute::Executable });

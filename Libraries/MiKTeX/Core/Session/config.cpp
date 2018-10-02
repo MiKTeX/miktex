@@ -31,6 +31,7 @@
 #include "miktex/Core/CsvList.h"
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/Environment.h"
+#include "miktex/Core/FileStream.h"
 #include "miktex/Core/PathName.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
