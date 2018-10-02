@@ -31,12 +31,12 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-void Directory::Create(const PathName & path)
+void Directory::Create(const PathName& path)
 {
   CreateDirectoryPath(path);
 }
 
-void Directory::Delete(const PathName & path, bool recursive)
+void Directory::Delete(const PathName& path, bool recursive)
 {
   if (recursive)
   {
@@ -85,7 +85,7 @@ void Directory::Delete(const PathName & path, bool recursive)
   Directory::Delete(path);
 }
 
-void Directory::Copy(const PathName & source, const PathName & dest, DirectoryCopyOptionSet options)
+void Directory::Copy(const PathName& source, const PathName& dest, DirectoryCopyOptionSet options)
 {
   vector<PathName> files;
   files.reserve(10);
@@ -110,7 +110,7 @@ void Directory::Copy(const PathName & source, const PathName & dest, DirectoryCo
 
   Directory::Create(dest);
 
-  for (const PathName & file : files)
+  for (const PathName& file : files)
   {
     PathName sourceFile;
     sourceFile = source;
@@ -123,7 +123,7 @@ void Directory::Copy(const PathName & source, const PathName & dest, DirectoryCo
 
   if (options[DirectoryCopyOption::CopySubDirectories])
   {
-    for (const PathName & dir : subDirectories)
+    for (const PathName& dir : subDirectories)
     {
       PathName sourceDir;
       sourceDir = source;
