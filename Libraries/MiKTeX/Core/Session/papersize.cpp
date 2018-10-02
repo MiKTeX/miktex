@@ -30,7 +30,6 @@
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/StreamReader.h"
-#include "miktex/Core/StreamWriter.h"
 
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
@@ -502,8 +501,7 @@ void SessionImpl::WriteDvipsPaperSizes()
     if (!TryCreateFromTemplate(configFile))
     {
       Directory::Create(PathName(configFile).RemoveFileSpec());
-      StreamWriter writer(configFile);
-      writer.Close();
+      File::WriteBytes(configFile, {});
     }
   }
 
@@ -553,8 +551,7 @@ void SessionImpl::WriteDvipdfmxPaperSize()
     if (!TryCreateFromTemplate(configFile))
     {
       Directory::Create(PathName(configFile).RemoveFileSpec());
-      StreamWriter writer(configFile);
-      writer.Close();
+      File::WriteBytes(configFile, {});
     }
   }
 
@@ -598,8 +595,7 @@ void SessionImpl::WritePdfTeXPaperSize()
     if (!TryCreateFromTemplate(configFile))
     {
       Directory::Create(PathName(configFile).RemoveFileSpec());
-      StreamWriter writer(configFile);
-      writer.Close();
+      File::WriteBytes(configFile, {});
     }
   }
 
