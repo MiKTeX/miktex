@@ -25,6 +25,7 @@
 
 #include <fcntl.h>
 
+#include <fstream>
 #include <thread>
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -407,13 +408,18 @@ void SessionImpl::WritePackageHistory()
   {
     return;
   }
-  StreamWriter writer(File::Open(packageHistoryFile, FileMode::Append, FileAccess::Write));
+  ofstream stream(PathName(packageHistoryFile).ToNativeString(), ofstream::app);
+  if (!stream.is_open())
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("ofstream::open", "path", packageHistoryFile);
+  }
+  stream.exceptions(ofstream::badbit | ofstream::failbit);
   for (vector<FileInfoRecord>::const_iterator it = fileInfoRecords.begin(); it != fileInfoRecords.end(); ++it)
   {
     if (!it->packageName.empty())
     {
-      writer.WriteLine(it->packageName);
+      stream << it->packageName << "\n";
     }
   }
-  writer.Close();
+  stream.close();
 }

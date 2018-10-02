@@ -1301,12 +1301,12 @@ string ToBase64(const vector<unsigned char>& bytes)
 void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvider* pPrivateKeyProvider)
 {
   time_t t = time(nullptr);
-  ofstream stream;
-  stream.open(path.ToNativeString());
+  ofstream stream(path.ToNativeString());
   if (!stream.is_open())
   {
     MIKTEX_FATAL_CRT_ERROR_2("ofstream::open", "path", path.ToString());
   }
+  stream.exceptions(ofstream::badbit | ofstream::failbit);
   if (!header.empty())
   {
     stream
