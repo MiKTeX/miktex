@@ -1,6 +1,6 @@
 /* miktex/Core/Debug.h: MiKTeX debug macros             -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -67,7 +67,7 @@ MIKTEXCORECEEAPI(void*) Calloc(std::size_t num, std::size_t size, const MiKTeX::
 #  undef StrDup
 #endif
 
-MIKTEXCORECEEAPI(char *) StrDup(const char* lpsz, const MiKTeX::Core::SourceLocation& sourceLocation);
+MIKTEXCORECEEAPI(char*) StrDup(const char* lpsz, const MiKTeX::Core::SourceLocation& sourceLocation);
 
 #if defined(_MSC_VER)
 #  pragma pop_macro("StrDup")
