@@ -113,6 +113,7 @@ set(headers_no_ext
   miktex/Core/PathName
   miktex/Core/PathNameParser
   miktex/Core/Paths
+  miktex/Core/Process
   miktex/Core/Quoter
   miktex/Core/Registry
   miktex/Core/RootDirectoryInfo
