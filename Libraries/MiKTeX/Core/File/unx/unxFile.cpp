@@ -36,6 +36,7 @@
 
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/File.h"
+#include "miktex/Core/FileStream.h"
 
 #include "Session/SessionImpl.h"
 
