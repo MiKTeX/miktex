@@ -1,6 +1,6 @@
 /* miktex/Core/CsvList.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -37,31 +37,31 @@ public:
   CsvList() = delete;
 
 public:
-  CsvList(const CsvList & other) = delete;
+  CsvList(const CsvList& other) = delete;
 
 public:
-  CsvList & operator= (const CsvList & other) = delete;
+  CsvList& operator= (const CsvList& other) = delete;
 
 public:
-  CsvList(CsvList && other) = delete;
+  CsvList(CsvList&& other) = delete;
 
 public:
-  CsvList & operator= (CsvList && other) = delete;
+  CsvList& operator= (CsvList&& other) = delete;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CsvList() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL CsvList(const std::string & s, char separator);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL CsvList(const std::string& s, char separator);
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL operator bool() const;
 
 public:
-  MIKTEXCORETHISAPI(std::string) operator* () const;
+  MIKTEXCORETHISAPI(std::string) operator*() const;
 
 public:
-  MIKTEXCORETHISAPI(CsvList &) operator++ ();
+  MIKTEXCORETHISAPI(CsvList &) operator++();
 
 private:
   class impl;
