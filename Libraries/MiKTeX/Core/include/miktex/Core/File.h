@@ -1,6 +1,6 @@
 /* miktex/Core/File.h:                                  -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -155,13 +155,13 @@ public:
   File(const File& other) = delete;
 
 public:
-  File& operator= (const File& other) = delete;
+  File& operator=(const File& other) = delete;
 
 public:
   File(File&& other) = delete;
 
 public:
-  File& operator= (File&& other) = delete;
+  File& operator=(File&& other) = delete;
 
 public:
   ~File() = delete;
