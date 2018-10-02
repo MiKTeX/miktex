@@ -1,6 +1,6 @@
 /* miktex/Core/equal_icase.h:                           -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,7 +35,7 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 struct equal_icase
 {
 public:
-  bool operator() (const std::string & str1, const std::string & str2) const
+  bool operator()(const std::string& str1, const std::string& str2) const
   {
     return Utils::EqualsIgnoreCase(str1, str2);
   }
