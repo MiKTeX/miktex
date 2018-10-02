@@ -51,23 +51,23 @@ public:
   Directory() = delete;
 
 public:
-  Directory(const Directory & other) = delete;
+  Directory(const Directory& other) = delete;
 
 public:
-  Directory & operator= (const Directory & other) = delete;
+  Directory& operator=(const Directory& other) = delete;
 
 public:
-  Directory(Directory && other) = delete;
+  Directory(Directory&& other) = delete;
 
 public:
-  Directory & operator= (Directory && other) = delete;
+  Directory& operator=(Directory&& other) = delete;
 
 public:
   ~Directory() = delete;
 
   /// Creates a new directory.
 public:
-  static MIKTEXCORECEEAPI(void) Create(const PathName & path);
+  static MIKTEXCORECEEAPI(void) Create(const PathName& path);
 
   /// Gets the current (working) directory.
 public:
@@ -75,29 +75,29 @@ public:
 
   /// Sets the current (working) directory.
 public:
-  static MIKTEXCORECEEAPI(void) SetCurrent(const PathName & path);
+  static MIKTEXCORECEEAPI(void) SetCurrent(const PathName& path);
 
   /// Deletes a directory.
 public:
-  static MIKTEXCORECEEAPI(void) Delete(const PathName & path);
+  static MIKTEXCORECEEAPI(void) Delete(const PathName& path);
 
   /// Deletes a directory (recursively).
 public:
-  static MIKTEXCORECEEAPI(void) Delete(const PathName & path, bool recursive);
+  static MIKTEXCORECEEAPI(void) Delete(const PathName& path, bool recursive);
 
 public:
-  static MIKTEXCORECEEAPI(void) Copy(const PathName & source, const PathName & dest, DirectoryCopyOptionSet options);
+  static MIKTEXCORECEEAPI(void) Copy(const PathName& source, const PathName& dest, DirectoryCopyOptionSet options);
 
   /// Tests if a directory exists.
 public:
-  static MIKTEXCORECEEAPI(bool) Exists(const PathName & path);
+  static MIKTEXCORECEEAPI(bool) Exists(const PathName& path);
 
   /// Set directory time-stamps.
 public:
-  static MIKTEXCORECEEAPI(void) SetTimes(const PathName & path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime);
+  static MIKTEXCORECEEAPI(void) SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime);
 
 public:
-  static MIKTEXCORECEEAPI(void) Move(const PathName & source, const PathName & dest);
+  static MIKTEXCORECEEAPI(void) Move(const PathName& source, const PathName& dest);
 };
 
 MIKTEX_CORE_END_NAMESPACE;
