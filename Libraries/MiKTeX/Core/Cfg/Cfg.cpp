@@ -981,6 +981,10 @@ void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level
   AutoRestore<PathName> autoRestore(currentFile);
   std::ifstream reader;
   reader.open(path.ToNativeString());
+  if (!reader.is_open())
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("ifstream::open", "path", path.ToString());
+  }
   Read(reader, defaultKeyName, level, mustBeSigned, publicKeyFile);
   reader.close();
 }
