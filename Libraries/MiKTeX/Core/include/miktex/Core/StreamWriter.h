@@ -1,6 +1,6 @@
 /* miktex/Core/StreamWriter.h:                          -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -41,33 +41,33 @@ public:
   StreamWriter() = default;
 
 public:
-  StreamWriter(const StreamWriter & other) = delete;
+  StreamWriter(const StreamWriter& other) = delete;
 
 public:
-  StreamWriter operator=(const StreamWriter & other) = delete;
+  StreamWriter operator=(const StreamWriter& other) = delete;
 
 public:
-  StreamWriter(StreamWriter && other) = delete;
+  StreamWriter(StreamWriter&& other) = delete;
 
 public:
-  StreamWriter operator=(StreamWriter && other) = delete;
+  StreamWriter operator=(StreamWriter&& other) = delete;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamWriter() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL StreamWriter(const PathName & path);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL StreamWriter(const PathName& path);
 
 public:
-  StreamWriter(FILE * pFile) :
-    stream(pFile)
+  StreamWriter(FILE* file) :
+    stream(file)
   {
   }
 
 public:
-  void Attach(FILE * pFile)
+  void Attach(FILE* file)
   {
-    stream.Attach(pFile);
+    stream.Attach(file);
   }
 
 public:
@@ -86,19 +86,19 @@ public:
   MIKTEXCORETHISAPI(void) Write(char ch);
 
 public:
-  MIKTEXCORETHISAPI(void) Write(const std::string & line);
+  MIKTEXCORETHISAPI(void) Write(const std::string& line);
 
 public:
-  MIKTEXCORETHISAPI(void) WriteLine(const std::string & line);
+  MIKTEXCORETHISAPI(void) WriteLine(const std::string& line);
 
 public:
   MIKTEXCORETHISAPI(void) WriteLine();
 
 public:
-  MIKTEXCOREEXPORT void MIKTEXCEECALL WriteFormatted(const char * lpszFormat, ...);
+  MIKTEXCOREEXPORT void MIKTEXCEECALL WriteFormatted(const char* lpszFormat, ...);
 
 public:
-  MIKTEXCOREEXPORT void MIKTEXCEECALL WriteFormattedLine(const char *  lpszFormat, ...);
+  MIKTEXCOREEXPORT void MIKTEXCEECALL WriteFormattedLine(const char*  lpszFormat, ...);
 
 public:
   MIKTEXCORETHISAPI(void) Close();

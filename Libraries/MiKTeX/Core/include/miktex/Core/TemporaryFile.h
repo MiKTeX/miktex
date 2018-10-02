@@ -1,6 +1,6 @@
 /* miktex/Core/TemporaryFile.h:                         -*- C++ -*-
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -50,7 +50,7 @@ public:
   static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryFile>) Create();
 
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryFile>) Create(const PathName & path);
+  static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryFile>) Create(const PathName& path);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

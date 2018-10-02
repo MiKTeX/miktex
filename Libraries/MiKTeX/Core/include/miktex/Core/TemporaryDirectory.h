@@ -50,7 +50,7 @@ public:
   static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryDirectory>) Create();
 
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryDirectory>) Create(const PathName & path);
+  static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryDirectory>) Create(const PathName& path);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

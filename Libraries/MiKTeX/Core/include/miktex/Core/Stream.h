@@ -1,6 +1,6 @@
 /* miktex/Core/Stream.h:                                -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -43,10 +43,10 @@ public:
   virtual MIKTEXTHISCALL ~Stream() noexcept = 0;
 
 public:
-  virtual std::size_t MIKTEXTHISCALL Read(void * pBytes, std::size_t count) = 0;
+  virtual std::size_t MIKTEXTHISCALL Read(void* data, std::size_t count) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL Write(const void * pBytes, std::size_t count) = 0;
+  virtual void MIKTEXTHISCALL Write(const void* data, std::size_t count) = 0;
 
 public:
   virtual void MIKTEXTHISCALL Seek(long offset, SeekOrigin origin) = 0;

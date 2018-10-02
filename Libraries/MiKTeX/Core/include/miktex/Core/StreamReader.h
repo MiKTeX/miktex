@@ -1,6 +1,6 @@
 /* miktex/Core/StreamReader.h:                          -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -39,22 +39,22 @@ public:
   StreamReader() = default;
 
 public:
-  StreamReader(const StreamReader & other) = delete;
+  StreamReader(const StreamReader& other) = delete;
 
 public:
-  StreamReader & operator=(const StreamReader & other) = delete;
+  StreamReader& operator=(const StreamReader& other) = delete;
 
 public:
-  StreamReader(StreamReader && other) = delete;
+  StreamReader(StreamReader&& other) = delete;
 
 public:
-  StreamReader & operator=(StreamReader && other) = delete;
+  StreamReader& operator=(StreamReader&& other) = delete;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamReader() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL StreamReader(const PathName & path);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL StreamReader(const PathName& path);
 
 public:
   StreamReader(bool readStdin) :
@@ -63,13 +63,13 @@ public:
   }
 
 public:
-  void Attach(FILE * pFile)
+  void Attach(FILE* file)
   {
-    stream.Attach(pFile);
+    stream.Attach(file);
   }
 
 public:
-  MIKTEXCORETHISAPI(bool) ReadLine(std::string & line);
+  MIKTEXCORETHISAPI(bool) ReadLine(std::string& line);
 
 public:
   MIKTEXCORETHISAPI(void) Close();

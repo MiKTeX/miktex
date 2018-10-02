@@ -1,6 +1,6 @@
 /* miktex/Core/StructChecker.h:                         -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -36,7 +36,7 @@ private:
   std::size_t sizeOfStruct = sizeof(Derived);
 
 public:
-  std::size_t GetSizeOfStruct () const
+  std::size_t GetSizeOfStruct() const
   {
     return sizeOfStruct;
   }
