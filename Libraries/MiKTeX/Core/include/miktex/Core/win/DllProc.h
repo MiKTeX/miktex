@@ -1,6 +1,6 @@
 /* miktex/Core/win/DllProc.h:                           -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,22 +35,22 @@ public:
   DllProcBase() = default;
 
 public:
-  DllProcBase(const DllProcBase & other) = delete;
+  DllProcBase(const DllProcBase& other) = delete;
 
 public:
-  DllProcBase & operator= (const DllProcBase & other) = delete;
+  DllProcBase& operator=(const DllProcBase& other) = delete;
 
 public:
-  DllProcBase(DllProcBase && other) = delete;
+  DllProcBase(DllProcBase&& other) = delete;
 
 public:
-  DllProcBase & operator= (DllProcBase && other) = delete;
+  DllProcBase& operator=(DllProcBase&& other) = delete;
 
 protected:
   MIKTEXCOREEXPORT virtual MIKTEXTHISCALL ~DllProcBase() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL DllProcBase(const char * lpszDllName, const char * lpszProcName);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL DllProcBase(const char* lpszDllName, const char* lpszProcName);
 
 protected:
   MIKTEXCOREEXPORT FARPROC MIKTEXTHISCALL GetProc();
@@ -68,16 +68,17 @@ private:
   FARPROC proc = nullptr;
 };
 
-template<typename RetType_> class DllProc0 : public DllProcBase
+template<typename RetType_> class DllProc0 :
+  public DllProcBase
 {
 public:
-  DllProc0(const char * lpszDllName, const char * lpszProcName) :
+  DllProc0(const char* lpszDllName, const char* lpszProcName) :
     DllProcBase(lpszDllName, lpszProcName)
   {
   }
 
 protected:
-  typedef RetType_(WINAPI * ProcType) ();
+  typedef RetType_(WINAPI* ProcType) ();
 
 public:
   RetType_ operator() ()
@@ -86,16 +87,17 @@ public:
   }
 };
 
-template<typename RetType_, typename Param1Type_> class DllProc1 : public DllProcBase
+template<typename RetType_, typename Param1Type_> class DllProc1 :
+  public DllProcBase
 {
 public:
-  DllProc1(const char * lpszDllName, const char * lpszProcName) :
+  DllProc1(const char* lpszDllName, const char* lpszProcName) :
     DllProcBase(lpszDllName, lpszProcName)
   {
   }
 
 protected:
-  typedef RetType_(WINAPI * ProcType) (Param1Type_);
+  typedef RetType_(WINAPI* ProcType) (Param1Type_);
 
 public:
   RetType_ operator() (Param1Type_ param1)
@@ -104,16 +106,17 @@ public:
   }
 };
 
-template<typename RetType_, typename Param1Type_, typename Param2Type_> class DllProc2 : public DllProcBase
+template<typename RetType_, typename Param1Type_, typename Param2Type_> class DllProc2 :
+  public DllProcBase
 {
 public:
-  DllProc2(const char * lpszDllName, const char * lpszProcName) :
+  DllProc2(const char* lpszDllName, const char* lpszProcName) :
     DllProcBase(lpszDllName, lpszProcName)
   {
   }
 
 protected:
-  typedef RetType_(WINAPI * ProcType) (Param1Type_, Param2Type_);
+  typedef RetType_(WINAPI* ProcType) (Param1Type_, Param2Type_);
 
 public:
   RetType_ operator() (Param1Type_ param1, Param2Type_ param2)
@@ -122,16 +125,17 @@ public:
   }
 };
 
-template<typename RetType_, typename Param1Type_, typename Param2Type_, typename Param3Type_> class DllProc3 : public DllProcBase
+template<typename RetType_, typename Param1Type_, typename Param2Type_, typename Param3Type_> class DllProc3 :
+  public DllProcBase
 {
 public:
-  DllProc3(const char * lpszDllName, const char * lpszProcName) :
+  DllProc3(const char* lpszDllName, const char* lpszProcName) :
     DllProcBase(lpszDllName, lpszProcName)
   {
   }
 
 protected:
-  typedef RetType_(WINAPI * ProcType) (Param1Type_, Param2Type_, Param3Type_);
+  typedef RetType_(WINAPI* ProcType) (Param1Type_, Param2Type_, Param3Type_);
 
 public:
   RetType_ operator() (Param1Type_ param1, Param2Type_ param2, Param3Type_ param3)
@@ -140,16 +144,17 @@ public:
   }
 };
 
-template<typename RetType_, typename Param1Type_, typename Param2Type_, typename Param3Type_, typename Param4Type_> class DllProc4 : public DllProcBase
+template<typename RetType_, typename Param1Type_, typename Param2Type_, typename Param3Type_, typename Param4Type_> class DllProc4 :
+  public DllProcBase
 {
 public:
-  DllProc4(const char * lpszDllName, const char * lpszProcName) :
+  DllProc4(const char* lpszDllName, const char* lpszProcName) :
     DllProcBase(lpszDllName, lpszProcName)
   {
   }
 
 protected:
-  typedef RetType_(WINAPI * ProcType) (Param1Type_, Param2Type_, Param3Type_, Param4Type_);
+  typedef RetType_(WINAPI* ProcType) (Param1Type_, Param2Type_, Param3Type_, Param4Type_);
 
 public:
   RetType_ operator() (Param1Type_ param1, Param2Type_ param2, Param3Type_ param3, Param4Type_ param4)
@@ -158,16 +163,17 @@ public:
   }
 };
 
-template<typename RetType_, typename Param1Type_, typename Param2Type_, typename Param3Type_, typename Param4Type_, typename Param5Type_> class DllProc5 : public DllProcBase
+template<typename RetType_, typename Param1Type_, typename Param2Type_, typename Param3Type_, typename Param4Type_, typename Param5Type_> class DllProc5 :
+  public DllProcBase
 {
 public:
-  DllProc5(const char * lpszDllName, const char * lpszProcName) :
+  DllProc5(const char* lpszDllName, const char* lpszProcName) :
     DllProcBase(lpszDllName, lpszProcName)
   {
   }
 
 protected:
-  typedef RetType_(WINAPI * ProcType) (Param1Type_, Param2Type_, Param3Type_, Param4Type_, Param5Type_);
+  typedef RetType_(WINAPI* ProcType) (Param1Type_, Param2Type_, Param3Type_, Param4Type_, Param5Type_);
 
 public:
   RetType_ operator() (Param1Type_ param1, Param2Type_ param2, Param3Type_ param3, Param4Type_ param4, Param5Type_ param5)
