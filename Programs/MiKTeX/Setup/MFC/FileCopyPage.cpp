@@ -537,7 +537,16 @@ void FileCopyPage::Report(bool writeLog, const char* lpszFmt, ...)
   if (!lines.empty())
   {
     singlelock.Unlock();
-    SendMessage(WM_REPORT, reinterpret_cast<WPARAM>(static_cast<LPCTSTR>(UT_(lines))));
+    wstring text;
+    try
+    {
+      text = MiKTeX::Util::StringUtil::UTF8ToWideChar(lines);
+    }
+    catch (const exception&)
+    {
+      text = UW_(MiKTeX::Util::StringUtil::AnsiToUTF8(lines.c_str()));
+    }
+    SendMessage(WM_REPORT, reinterpret_cast<WPARAM>(text.c_str()));
   }
 }
 
