@@ -44,7 +44,6 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
-#include <miktex/Core/FileStream>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Fndb>
 #include <miktex/Core/Paths>
@@ -255,9 +254,7 @@ private:
       outfile += "_";
       outfile += Timestamp().c_str();
       outfile.SetExtension(".out");
-      FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
-      outstream.Write(&outputBytes[0], outputBytes.size());
-      outstream.Close();
+      File::WriteBytes(outfile, outputBytes);
       MIKTEX_ASSERT(isLog4cxxConfigured);
       LOG4CXX_ERROR(logger, "sub-process error output has been saved to '" << outfile.ToDisplayString() << "'");
       throw miktexException;
