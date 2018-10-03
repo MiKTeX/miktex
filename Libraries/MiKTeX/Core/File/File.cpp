@@ -27,6 +27,7 @@
 
 #include "internal.h"
 
+#include "miktex/Core/Directory.h"
 #include "miktex/Core/File.h"
 #include "miktex/Core/FileStream.h"
 #include "miktex/Core/Paths.h"
@@ -149,6 +150,13 @@ std::ifstream File::CreateInputStream(const PathName& path, std::ios_base::openm
 
 std::ofstream File::CreateOutputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions)
 {
+  PathName dir(path);
+  dir.MakeAbsolute();
+  dir.RemoveFileSpec();
+  if (!Directory::Exists(dir))
+  {
+    Directory::Create(dir);
+  }
   ofstream stream(path.ToNativeString(), mode);
   if (!stream.is_open())
   {
