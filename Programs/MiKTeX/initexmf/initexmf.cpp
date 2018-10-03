@@ -27,6 +27,7 @@
 #include <cstring>
 
 #include <algorithm>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -43,6 +44,7 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
+#include <miktex/Core/FileStream>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Fndb>
 #include <miktex/Core/Paths>
@@ -50,7 +52,6 @@
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
-#include <miktex/Core/StreamWriter>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Setup/SetupService>
 #include <miktex/Trace/Trace>
@@ -473,7 +474,7 @@ private:
   vector<string> formatsMade;
 
 private:
-  StreamWriter logStream;
+  ofstream logStream;
 
 private:
   bool updateWizardRunning = false;
@@ -736,9 +737,9 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
 
 void IniTeXMFApp::Finalize(bool keepSession)
 {
-  if (logStream.IsOpen())
+  if (logStream.is_open())
   {
-    logStream.Close();
+    logStream.close();
   }
   FlushPendingTraceMessages();
   packageInstaller = nullptr;
@@ -1315,9 +1316,9 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
     default:
       MIKTEX_UNEXPECTED();
     }
-    if (logStream.IsOpen())
+    if (logStream.is_open())
     {
-      logStream.WriteLine(linkName);
+      logStream << linkName << "\n";
     }
   }
 }
@@ -1809,9 +1810,9 @@ void IniTeXMFApp::ManageLinks(LinkCategoryOptions linkCategories, bool remove, b
     Directory::Create(pathBinDir);
   }
 
-  if (!remove && logStream.IsOpen())
+  if (!remove && logStream.is_open())
   {
-    logStream.WriteLine("[files]");
+    logStream << "[files]" << "\n";
   }
 
   for (const FileLink& fileLink : CollectLinks(linkCategories))
@@ -1860,31 +1861,17 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
     return;
   }
 
-  PathName dir;
+  PathName languageDatPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
+  ofstream languageDat = File::CreateOutputStream(languageDatPath);
 
-  PathName languageDatPath = session->GetSpecialPath(SpecialPath::ConfigRoot);
-  languageDatPath /= MIKTEX_PATH_LANGUAGE_DAT;
-  dir = languageDatPath;
-  dir.RemoveFileSpec();
-  Directory::Create(dir);
-  StreamWriter languageDat(languageDatPath);
+  PathName languageDatLuaPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT_LUA;
+  ofstream languageDatLua = File::CreateOutputStream(languageDatLuaPath);
 
-  PathName languageDatLuaPath = session->GetSpecialPath(SpecialPath::ConfigRoot);
-  languageDatLuaPath /= MIKTEX_PATH_LANGUAGE_DAT_LUA;
-  dir = languageDatLuaPath;
-  dir.RemoveFileSpec();
-  Directory::Create(dir);
-  StreamWriter languageDatLua(languageDatLuaPath);
+  PathName languageDefPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_LANGUAGE_DEF;
+  ofstream languageDef = File::CreateOutputStream(languageDefPath);
 
-  PathName languageDefPath = session->GetSpecialPath(SpecialPath::ConfigRoot);
-  languageDefPath /= MIKTEX_PATH_LANGUAGE_DEF;
-  dir = languageDefPath;
-  dir.RemoveFileSpec();
-  Directory::Create(dir);
-  StreamWriter languageDef(languageDefPath);
-
-  languageDatLua.WriteLine("return {");
-  languageDef.WriteLine("%% e-TeX V2.2");
+  languageDatLua << "return {" << "\n";
+  languageDef << "%% e-TeX V2.2" << "\n";
 
   for (const LanguageInfo& languageInfo : session->GetLanguages())
   {
@@ -1900,46 +1887,46 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
     }
 
     // language.dat
-    languageDat.WriteFormattedLine("%s %s", languageInfo.key.c_str(), languageInfo.loader.c_str());
+    languageDat << languageInfo.key << " " << languageInfo.loader << "\n";
     for (const string& synonym : StringUtil::Split(languageInfo.synonyms, ','))
     {
-      languageDat.WriteFormattedLine("=%s", synonym.c_str());
+      languageDat << "=" << synonym << "\n";
     }
 
     // language.def
-    languageDef.WriteFormattedLine("\\addlanguage{%s}{%s}{}{%d}{%d}", languageInfo.key.c_str(), languageInfo.loader.c_str(), languageInfo.lefthyphenmin, languageInfo.righthyphenmin);
+    languageDef << "\\addlanguage{" << languageInfo.key << "}{" << languageInfo.loader << "}{}{" << languageInfo.lefthyphenmin << "}{" << languageInfo.righthyphenmin << "}" << "\n";
 
     // language.dat.lua
-    languageDatLua.WriteFormattedLine("\t['%s'] = {", languageInfo.key.c_str());
-    languageDatLua.WriteFormattedLine("\t\tloader='%s',", languageInfo.loader.c_str());
-    languageDatLua.WriteFormattedLine("\t\tlefthyphenmin=%d,", languageInfo.lefthyphenmin);
-    languageDatLua.WriteFormattedLine("\t\trighthyphenmin=%d,", languageInfo.righthyphenmin);
-    languageDatLua.Write("\t\tsynonyms={ ");
+    languageDatLua << "\t['" << languageInfo.key << "'] = {" << "\n";
+    languageDatLua << "\t\tloader='" << languageInfo.loader << "'," << "\n";
+    languageDatLua << "\t\tlefthyphenmin=" << languageInfo.lefthyphenmin << "," << "\n";
+    languageDatLua << "\t\trighthyphenmin=" << languageInfo.righthyphenmin << "," << "\n";
+    languageDatLua << "\t\tsynonyms={ ";
     int nSyn = 0;
     for (const string& synonym : StringUtil::Split(languageInfo.synonyms, ','))
     {
-      languageDatLua.WriteFormatted("%s'%s'", nSyn > 0 ? "," : "", synonym.c_str());
+      languageDatLua << (nSyn > 0 ? "," : "") << "'" << synonym << "'";
       nSyn++;
     }
-    languageDatLua.WriteLine(" },");
-    languageDatLua.WriteFormattedLine("\t\tpatterns='%s',", languageInfo.patterns.c_str());
-    languageDatLua.WriteFormattedLine("\t\thyphenation='%s',", languageInfo.hyphenation.c_str());
+    languageDatLua << " }," << "\n";
+    languageDatLua << "\t\tpatterns='" << languageInfo.patterns << "'," << "\n";
+    languageDatLua << "\t\thyphenation='" << languageInfo.hyphenation << "'," << "\n";
     if (!languageInfo.luaspecial.empty())
     {
-      languageDatLua.WriteFormattedLine("\t\tspecial='%s',", languageInfo.luaspecial.c_str());
+      languageDatLua << "\t\tspecial='" << languageInfo.luaspecial << "'," << "\n";
     }
-    languageDatLua.WriteLine("\t},");
+    languageDatLua << "\t}," << "\n";
   }
 
-  languageDatLua.WriteLine("}");
+  languageDatLua << "}" << "\n";
 
-  languageDatLua.Close();
+  languageDatLua.close();
   Fndb::Add(languageDatLuaPath);
 
-  languageDef.Close();
+  languageDef.close();
   Fndb::Add(languageDefPath);
 
-  languageDat.Close();
+  languageDat.close();
   Fndb::Add(languageDatPath);
 }
 
@@ -2676,14 +2663,8 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   if (!logFile.empty())
   {
-    if (File::Exists(logFile))
-    {
-      logStream.Attach(File::Open(logFile, FileMode::Append, FileAccess::Write));
-    }
-    else
-    {
-      logStream.Attach(File::Open(logFile, FileMode::Create, FileAccess::Write));
-    }
+    auto mode = File::Exists(logFile) ? ios_base::app : ios_base::out;
+    logStream = File::CreateOutputStream(logFile, mode);
   }
 
   if (optPortable)
