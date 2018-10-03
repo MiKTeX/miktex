@@ -660,6 +660,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   }
   Bootstrap();
   enableInstaller = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
+  verbose = session->GetConfigValue("", "Verbose", verbose).GetBool();
   PathName xmlFileName;
   if (session->FindFile("initexmf." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
@@ -1967,11 +1968,10 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
   }
   if (!File::Exists(configFile))
   {
+    Verbose(T_("Creating config file: %s..."), configFile.GetData());
     if (!session->TryCreateFromTemplate(configFile))
     {
-      Directory::Create(PathName(configFile).RemoveFileSpec());
-      StreamWriter writer(configFile);
-      writer.Close();
+      File::WriteBytes(configFile, {});
       Fndb::Add(configFile);
     }
   }
@@ -2026,6 +2026,7 @@ void IniTeXMFApp::SetConfigValue(const string& valueSpec)
   }
   ++lpsz;
   string value = lpsz;
+  Verbose(T_("Setting config value: [%s]%s=%s"), section.c_str(), valueName.c_str(), value.c_str());
   session->SetConfigValue(section, valueName, value);
 }
 
