@@ -18,7 +18,51 @@
    along with IniTeXMF; if not, write to the Free Software Foundation,
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include <config.h>
+#endif
+
+#include <cstdarg>
+#include <cstdlib>
+#include <cstring>
+
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <stack>
+#include <string>
+#include <vector>
+
+#include "initexmf-version.h"
+
+#include <miktex/Core/BufferSizes>
+#include <miktex/Core/Cfg>
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/ConfigNames>
+#include <miktex/Core/Directory>
+#include <miktex/Core/Exceptions>
+#include <miktex/Core/File>
+#include <miktex/Core/FileType>
+#include <miktex/Core/Fndb>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Process>
+#include <miktex/Core/Quoter>
+#include <miktex/Core/Registry>
+#include <miktex/Core/Session>
+#include <miktex/Core/StreamWriter>
+#include <miktex/PackageManager/PackageManager>
+#include <miktex/Setup/SetupService>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
+#include <miktex/Util/StringUtil>
+#include <miktex/Util/Tokenizer>
+#include <miktex/Wrappers/PoptWrapper>
+
+#include <log4cxx/logger.h>
+#include <log4cxx/rollingfileappender.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/xml/domconfigurator.h>
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
