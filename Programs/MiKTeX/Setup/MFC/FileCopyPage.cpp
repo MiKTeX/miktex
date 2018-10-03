@@ -519,7 +519,7 @@ void FileCopyPage::Report(bool writeLog, const char* lpszFmt, ...)
   string lines;
   for (int i = 0; i < len; ++i)
   {
-    if (str[i] == '\n' && i > 0 && str[i] != '\r')
+    if (str[i] == '\n' && i > 0 && str[i - 1] != '\r')
     {
       sharedData.currentLine += '\r';
     }
