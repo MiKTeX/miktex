@@ -50,8 +50,8 @@ namespace log4cxx {
            public virtual RollingPolicy,
            public virtual helpers::ObjectImpl {
 #if defined(MIKTEX)
-	private: RollingPolicyBase(const RollingPolicyBase &);
-	private: RollingPolicyBase & operator=(const RollingPolicyBase &);
+           private: RollingPolicyBase(const RollingPolicyBase &);
+           private: RollingPolicyBase & operator=(const RollingPolicyBase &);
 #endif
         protected:
           DECLARE_ABSTRACT_LOG4CXX_OBJECT(RollingPolicyBase)

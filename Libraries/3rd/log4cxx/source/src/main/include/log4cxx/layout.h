@@ -40,9 +40,9 @@ namespace log4cxx
                 public virtual helpers::ObjectImpl
         {
 #if defined(MIKTEX)
-	public: Layout() {}
-	private: Layout(const Layout &);
-	private: Layout & operator=(const Layout &);
+                public: Layout() {}
+                private: Layout(const Layout &);
+                private: Layout & operator=(const Layout &);
 #endif
         public:
                 DECLARE_ABSTRACT_LOG4CXX_OBJECT(Layout)

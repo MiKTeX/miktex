@@ -24,7 +24,6 @@
 #if defined(MIKTEX)
 #include <cstring> // memmove()
 #endif
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 

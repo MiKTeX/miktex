@@ -70,8 +70,8 @@ namespace log4cxx
                         public virtual helpers::ObjectImpl
                 {
 #if defined(MIKTEX)
-	private: Filter(const Filter &);
-	private: Filter & operator=(const Filter &);
+                private: Filter(const Filter &);
+                private: Filter & operator=(const Filter &);
 #endif
                   /**
                   Points to the next filter in the filter chain.

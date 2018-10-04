@@ -23,7 +23,6 @@
 #if defined(MIKTEX)
 #include <cstring> // memcpy()
 #endif
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 

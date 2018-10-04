@@ -34,7 +34,6 @@
 #if defined(MIKTEX) && LOG4CXX_LOGCHAR_IS_WCHAR
 #define LOG4CXX_LOGCHAR_IS_WCHAR_T 1
 #endif
-
 #if LOG4CXX_LOGCHAR_IS_UNICHAR || LOG4CXX_CFSTRING_API || LOG4CXX_UNICHAR_API
 #include <CoreFoundation/CFString.h>
 #endif

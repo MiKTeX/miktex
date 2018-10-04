@@ -43,9 +43,9 @@ namespace log4cxx {
               public virtual spi::OptionHandler,
               public virtual helpers::ObjectImpl {
 #if defined(MIKTEX)
-	public: TriggeringPolicy() {}
-	private: TriggeringPolicy(const TriggeringPolicy &);
-	private: TriggeringPolicy & operator=(const TriggeringPolicy &);
+              public: TriggeringPolicy() {}
+              private: TriggeringPolicy(const TriggeringPolicy &);
+              private: TriggeringPolicy & operator=(const TriggeringPolicy &);
 #endif
               DECLARE_ABSTRACT_LOG4CXX_OBJECT(TriggeringPolicy)
               BEGIN_LOG4CXX_CAST_MAP()
