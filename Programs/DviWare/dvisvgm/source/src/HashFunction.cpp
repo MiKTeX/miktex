@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#  include <config.h>
+#endif
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
