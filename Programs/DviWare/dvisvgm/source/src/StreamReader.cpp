@@ -99,7 +99,7 @@ string StreamReader::readString () {
  *  @return the string read */
 string StreamReader::readString (CRC32 &crc32, bool finalZero) {
 	string ret = readString();
-	crc32.update((const uint8_t*)ret.c_str(), ret.length());
+	crc32.update(reinterpret_cast<const uint8_t*>(ret.data()), ret.length());
 	if (finalZero)
 		crc32.update(0, 1);
 	return ret;
@@ -114,7 +114,7 @@ string StreamReader::readString (int length) {
 		throw StreamReaderException("no stream assigned");
 	length = max(0, length);
 	string str(length, '\0');
-	_is->read(&str[0], length);  // reads 'length' bytes and appends \0
+	_is->read(&str[0], length);  // read 'length' bytes and append '\0'
 	return str;
 }
 
@@ -125,7 +125,7 @@ string StreamReader::readString (int length) {
  *  @return the string read */
 string StreamReader::readString (int length, CRC32 &crc32) {
 	string ret = readString(length);
-	crc32.update(ret.c_str());
+	crc32.update(reinterpret_cast<const uint8_t*>(ret.data()), length);
 	return ret;
 }
 

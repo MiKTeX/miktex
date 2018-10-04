@@ -266,7 +266,6 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"makepattern",    {-1, &PSActions::makepattern}},
 		{"moveto",         { 2, &PSActions::moveto}},
 		{"newpath",        { 1, &PSActions::newpath}},
-		{"pdfpagebox",     { 4, &PSActions::pdfpagebox}},
 		{"querypos",       { 2, &PSActions::querypos}},
 		{"raw",            {-1, nullptr}},
 		{"restore",        { 1, &PSActions::restore}},
@@ -344,3 +343,32 @@ int GSDLLCALL PSInterpreter::error (void *inst, const char *buf, int len) {
 	return len;
 }
 
+
+/** Returns the total number of pages of a PDF file.
+ *  @param[in] fname name/path of the PDF file */
+int PSInterpreter::pdfPageCount (const string &fname) {
+	executeRaw("\n("+fname+")@pdfpagecount ", 1);
+	if (!_rawData.empty()) {
+		size_t index;
+		int ret = stoi(_rawData[0], &index, 10);
+		if (index > 0)
+			return ret;
+	}
+	return 0;
+}
+
+
+/** Returns the bounding box of a PDF page. If the selected page doesn't exist,
+ *  the "invalid" flag of the returned bounding box is set.
+ *  @param[in] fname name/path of the PDF file
+ *  @param[in] pageno page number
+ *  @return the bounding box of the given page */
+BoundingBox PSInterpreter::pdfPageBox (const string &fname, int pageno) {
+	BoundingBox pagebox;
+	executeRaw("\n"+to_string(pageno)+"("+fname+")@pdfpagebox ", 4);
+	if (_rawData.size() < 4)
+		pagebox.invalidate();
+	else
+		pagebox = BoundingBox(stod(_rawData[0]), stod(_rawData[1]), stod(_rawData[2]), stod(_rawData[3]));
+	return pagebox;
+}

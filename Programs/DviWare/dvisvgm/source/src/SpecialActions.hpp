@@ -42,7 +42,7 @@ class SpecialActions {
 		virtual Color getColor () const =0;
 		virtual void setMatrix (const Matrix &m) =0;
 		virtual const Matrix& getMatrix () const =0;
-		virtual void getPageTransform (Matrix &matrix) const =0;
+		virtual Matrix getPageTransformation () const {return Matrix(1);}
 		virtual void setBgColor (const Color &color) =0;
 		virtual void appendToPage(std::unique_ptr<XMLNode> &&node) =0;
 		virtual void appendToDefs(std::unique_ptr<XMLNode> &&node) =0;
@@ -75,7 +75,6 @@ class EmptySpecialActions : public SpecialActions {
 		Color getColor () const override {return Color::BLACK;}
 		void setMatrix (const Matrix &m) override {}
 		const Matrix& getMatrix () const override {return _matrix;}
-		void getPageTransform (Matrix &matrix) const override {}
 		void appendToPage(std::unique_ptr<XMLNode> &&node) override {}
 		void appendToDefs(std::unique_ptr<XMLNode> &&node) override {}
 		void prependToPage(std::unique_ptr<XMLNode> &&node) override {}

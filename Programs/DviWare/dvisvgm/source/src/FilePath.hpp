@@ -39,9 +39,10 @@ class FilePath {
 	};
 
 	public:
-		FilePath (const std::string &path);
+		FilePath (const std::string &path) {set(path);}
 		FilePath (const std::string &path, bool isfile) : FilePath(path, isfile, "") {}
 		FilePath (const std::string &path, bool isfile, const std::string &current_dir);
+		void set (const std::string &path);
 		std::string absolute (bool with_filename=true) const;
 		std::string relative (std::string reldir="", bool with_filename=true) const;
 		std::string basename () const;

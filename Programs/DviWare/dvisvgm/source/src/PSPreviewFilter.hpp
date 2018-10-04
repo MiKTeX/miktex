@@ -28,8 +28,7 @@
 
 class SpecialActions;
 
-class PSPreviewFilter : public PSFilter
-{
+class PSPreviewFilter : public PSFilter {
 	public:
 		PSPreviewFilter (PSInterpreter &psi);
 		void activate ();
@@ -38,7 +37,6 @@ class PSPreviewFilter : public PSFilter
 		std::string version () const           {return _version;}
 		bool tightpage () const                {return _tightpage;}
 		void setDviScaleFactor (double dvi2bp) {_dvi2bp = dvi2bp;}
-		bool getBorders (double &left, double &right, double &top, double &bottom) const;
 		void assignBorders (BoundingBox &bbox) const;
 		bool getBoundingBox (BoundingBox &bbox) const;
 		double height () const;

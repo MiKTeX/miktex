@@ -18,16 +18,32 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#ifndef DVIINPUT_HPP
-#define DVIINPUT_HPP
+#ifndef SOURCEINPUT_HPP
+#define SOURCEINPUT_HPP
 
 #include <fstream>
 #include <string>
 
+
+/** Helper class to handle temporary files. */
+class TemporaryFile {
+	public:
+		~TemporaryFile () {close();}
+		bool create ();
+		bool opened () const {return _fd >= 0;}
+		bool write (const char *buf, size_t len);
+		bool close ();
+		const std::string& path () const {return _path;}
+
+	private:
+		int _fd = -1;       ///< file descriptor assigned to the temporary file
+		std::string _path;  ///< path to temporary file
+};
+
+
 class SourceInput {
 	public:
 		SourceInput (const std::string &fname) : _fname(fname) {}
-		~SourceInput ();
 		std::istream& getInputStream (bool showMessages=false);
 		std::string getFileName () const;
 		std::string getMessageFileName () const;
@@ -35,7 +51,7 @@ class SourceInput {
 
 	private:
 		const std::string &_fname; ///< name of file to read from
-		std::string _tmpfilepath;  ///< path of temporary file used when reading from stdin
+		TemporaryFile _tmpfile;    ///< temporary file used when reading from stdin
 		std::ifstream _ifs;
 };
 

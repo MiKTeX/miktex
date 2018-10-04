@@ -54,6 +54,7 @@ class CommandLine : public CL::CommandLine {
 		Option noStylesOpt {"no-styles", '\0', "don't use CSS styles to reference fonts"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> outputOpt {"output", 'o', "pattern", "set name pattern of output files"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> pageOpt {"page", 'p', "ranges", "1", "choose page(s) to convert"};
+		TypedOption<std::string, Option::ArgMode::OPTIONAL> pageHashesOpt {"page-hashes", 'H', "params", "xxh64", "activate usage of page hashes"};
 		Option pdfOpt {"pdf", 'P', "convert PDF file to SVG"};
 		TypedOption<int, Option::ArgMode::REQUIRED> precisionOpt {"precision", 'd', "number", 0, "set number of decimal points (0-6)"};
 		TypedOption<double, Option::ArgMode::OPTIONAL> progressOpt {"progress", '\0', "delay", 0.5, "enable progress indicator"};
@@ -136,6 +137,7 @@ class CommandLine : public CL::CommandLine {
 			{&magOpt, 3},
 			{&noMktexmfOpt, 3},
 			{&noSpecialsOpt, 3},
+			{&pageHashesOpt, 3},
 			{&traceAllOpt, 3},
 			{&colorOpt, 4},
 			{&helpOpt, 4},

@@ -34,7 +34,7 @@ GFGlyphTracer::GFGlyphTracer (string &fname, double upp, Callback *cb)
 {
 	if (_callback)
 		_callback->setFont(fname);
-	_ifs.open(fname.c_str(), ios::binary);
+	_ifs.open(fname, ios::binary);
 }
 
 
@@ -44,7 +44,7 @@ void GFGlyphTracer::reset (string &fname, double upp) {
 	if (_ifs.is_open())
 		_ifs.close();
 	unitsPerPoint(upp);
-	_ifs.open(fname.c_str(), ios::binary);
+	_ifs.open(fname, ios::binary);
 }
 
 

@@ -68,7 +68,10 @@ void PSPreviewFilter::execute (const char *code, size_t len) {
 	else {
 		// Read bounding box information pushed on the operand stack by the preview package.
 		// It consists of 7 values in DVI units:
-		// llx, lly, urx, ury, height, depth, width
+		// adj_left, adj_bottom, adj_right, adj_top, height, depth, width,
+		// where the first 4 values are set by \PreviewBorder or \PreviewBbAdjust. They denote
+		// the border adjustments to create additional space around the graphics.
+		// The baseline of the tight box extends from (0,0) to (tight_width, 0).
 		CharInputBuffer ib(code, len);
 		BufferInputReader ir(ib);
 		ir.skipSpace();
@@ -86,34 +89,21 @@ void PSPreviewFilter::execute (const char *code, size_t len) {
 bool PSPreviewFilter::getBoundingBox (BoundingBox &bbox) const {
 	if (_boxExtents.size() < 7)
 		return false;
-	double left = -_boxExtents[0]*_dvi2bp;
-	bbox = BoundingBox(-left, -height(), width()-left, depth());
-	return true;
-}
-
-
-/** Gets the 4 border position values set by the preview package (in bp units).
- *  @return true if the border data is available */
-bool PSPreviewFilter::getBorders (double &left, double &right, double &top, double &bottom) const {
-	if (_boxExtents.size() < 4)
-		return false;
-	left   = -_boxExtents[0]*_dvi2bp;
-	top    = -_boxExtents[1]*_dvi2bp;
-	right  = _boxExtents[2]*_dvi2bp;
-	bottom = _boxExtents[3]*_dvi2bp;
+	const double leftX = _boxExtents[0]*_dvi2bp;
+	bbox = BoundingBox(leftX, -height(), width()+leftX, depth());
 	return true;
 }
 
 
 /** Returns the box height in PS points, or -1 if no data was found or read yet. */
 double PSPreviewFilter::height () const {
-	return _boxExtents.size() > 4 ? (_boxExtents[4]-_boxExtents[1])*_dvi2bp : -1;
+	return _boxExtents.size() > 4 ? (_boxExtents[4]+_boxExtents[3])*_dvi2bp : -1;
 }
 
 
 /** Returns the box depth in PS points, or -1 if no data was found or read yet. */
 double PSPreviewFilter::depth () const {
-	return _boxExtents.size() > 5 ? (_boxExtents[5]+_boxExtents[3])*_dvi2bp : -1;
+	return _boxExtents.size() > 5 ? (_boxExtents[5]-_boxExtents[1])*_dvi2bp : -1;
 }
 
 

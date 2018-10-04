@@ -6,7 +6,7 @@
     <TPM:Title>Dvisvgm, Windows x86</TPM:Title>
     <TPM:Copyright owner="Martin Gieseking" year="2005-2018"/>
     <TPM:License type="gpl3"/>    
-    <TPM:Version>2.4</TPM:Version>
+    <TPM:Version>2.6</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

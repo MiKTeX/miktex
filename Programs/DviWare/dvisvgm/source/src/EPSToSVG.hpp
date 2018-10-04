@@ -24,9 +24,13 @@
 #include "EPSFile.hpp"
 #include "ImageToSVG.hpp"
 
+class PsSpecialHandler;
+
 class EPSToSVG : public ImageToSVG {
 	public:
 		EPSToSVG (const std::string &fname, SVGOutputBase &out) : ImageToSVG(fname, out) {}
+		bool isSinglePageFormat() const override {return true;}
+		int totalPageCount() override {return 1;}
 
 	protected:
 		std::string imageFormat () const override {return "EPS";}

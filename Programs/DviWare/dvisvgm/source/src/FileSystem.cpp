@@ -118,11 +118,11 @@ bool FileSystem::remove (const string &fname) {
  *  @return true on success */
 bool FileSystem::copy (const string &src, const string &dest, bool remove_src) {
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(src.c_str()), ios::in | ios::binary);
-        ofstream ofs(UW_(dest.c_str()), ios::out | ios::binary);
+        ifstream ifs(UW_(src), ios::in | ios::binary);
+        ofstream ofs(UW_(dest), ios::out | ios::binary);
 #else
-	ifstream ifs(src.c_str(), ios::in|ios::binary);
-	ofstream ofs(dest.c_str(), ios::out|ios::binary);
+	ifstream ifs(src, ios::in|ios::binary);
+	ofstream ofs(dest, ios::out|ios::binary);
 #endif
 	if (ifs && ofs) {
 		ofs << ifs.rdbuf();

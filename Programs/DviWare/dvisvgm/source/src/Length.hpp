@@ -21,7 +21,8 @@
 #ifndef LENGTH_HPP
 #define LENGTH_HPP
 
-#include <string>
+#include <map>
+#include <vector>
 #include "MessageException.hpp"
 
 #ifdef IN
@@ -57,9 +58,12 @@ class Length {
 		double sp () const {return _pt*pt2sp;}
 		double get (Unit unit) const;
 		std::string toString (Unit unit) const;
+		bool operator == (Length len) const {return _pt == len._pt;}
+		bool operator != (Length len) const {return _pt != len._pt;}
 
 		static Unit stringToUnit (const std::string &unitstr);
 		static std::string unitToString (Unit unit);
+		static std::map<std::string,Unit> getUnits ();
 
 	public:
 		static constexpr double pt2in = 1.0/72.27;

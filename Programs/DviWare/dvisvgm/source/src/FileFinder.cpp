@@ -63,9 +63,6 @@ FileFinder::FileFinder () {
 	kpse_set_program_enabled(kpse_tfm_format, 1, kpse_src_env);
 	kpse_set_program_enabled(kpse_mf_format, 1, kpse_src_env);
 	kpse_make_tex_discard_errors = true;  // suppress messages from mktexFOO tools
-#ifdef TEXLIVEWIN32
-	texlive_gs_init();
-#endif
 #endif
 }
 

@@ -162,6 +162,10 @@
 				<arg type="string" name="prefixes" optional="yes"/>
 				<description>don't process [selected] specials</description>
 			</option>
+			<option long="page-hashes" short="H">
+				<arg type="string" name="params" optional="yes" default="xxh64"/>
+				<description>activate usage of page hashes</description>
+			</option>
 			<option long="trace-all" short="a">
 				<arg name="retrace" type="bool" optional="yes" default="false"/>
 				<description>trace all glyphs of bitmap fonts</description>

@@ -26,7 +26,6 @@
 #include <potracelib.h>
 #include <sstream>
 #include <vector>
-#include <xxhash.h>
 #include <zlib.h>
 #include "CommandLine.hpp"
 #include "DVIToSVG.hpp"
@@ -37,6 +36,7 @@
 #include "Font.hpp"
 #include "FontEngine.hpp"
 #include "Ghostscript.hpp"
+#include "HashFunction.hpp"
 #include "HyperlinkManager.hpp"
 #include "Message.hpp"
 #include "PageSize.hpp"
@@ -47,12 +47,13 @@
 #include "SourceInput.hpp"
 #include "SVGOutput.hpp"
 #include "System.hpp"
+#include "XXHashFunction.hpp"
 #include "utility.hpp"
 #include "version.hpp"
 
 #ifndef DISABLE_WOFF
 #include <brotli/encode.h>
-#include <woff2/version.h>
+//#include <woff2/version.h>
 #include "ffwrapper.h"
 #include "TTFAutohint.hpp"
 #endif
@@ -121,7 +122,12 @@ static bool set_cache_dir (const CommandLine &args) {
 			Message::wstream(true) << "cache directory '" << args.cacheOpt.value() << "' does not exist (caching disabled)\n";
 	}
 	else if (const char *userdir = FileSystem::userdir()) {
-		static string cachepath = userdir + string("/.dvisvgm/cache");
+#ifdef _WIN32
+		string cachedir = "\\.dvisvgm\\cache";
+#else
+		string cachedir = "/.dvisvgm/cache";
+#endif
+		static string cachepath = userdir + cachedir;
 		if (!FileSystem::exists(cachepath))
 			FileSystem::mkdir(cachepath);
 		PhysicalFont::CACHE_PATH = cachepath.c_str();
@@ -254,12 +260,12 @@ static void print_version (bool extended) {
 		versionInfo.add("clipper", CLIPPER_VERSION);
 		versionInfo.add("freetype", FontEngine::version());
 		versionInfo.add("potrace", strchr(potrace_version(), ' '));
-		versionInfo.add("xxhash", XXH_versionNumber(), 3, 100);
+		versionInfo.add("xxhash", XXH64HashFunction::version(), 3, 100);
 		versionInfo.add("zlib", zlibVersion());
 		versionInfo.add("Ghostscript", Ghostscript().revisionstr(), true);
 #ifndef DISABLE_WOFF
 		versionInfo.add("brotli", BrotliEncoderVersion(), 3, 0x1000);
-		versionInfo.add("woff2", woff2::version, 3, 0x100);
+//		versionInfo.add("woff2", woff2::version, 3, 0x100);
 		versionInfo.add("fontforge", ff_version());
 		versionInfo.add("ttfautohint", TTFAutohint().version(), true);
 #endif
@@ -289,6 +295,39 @@ static void init_fontmap (const CommandLine &cmdline) {
 	}
 	if (!mapseq.empty())
 		FontMap::instance().read(mapseq);
+}
+
+
+/** Returns a unique string for the current state of the command-line
+ *  options affecting the SVG output. */
+static string svg_options_hash (const CommandLine &cmdline) {
+	// options affecting the SVG output
+	vector<const CL::Option*> svg_options = {
+		&cmdline.bboxOpt,	&cmdline.clipjoinOpt, &cmdline.colornamesOpt, &cmdline.commentsOpt,
+		&cmdline.exactOpt, &cmdline.fontFormatOpt, &cmdline.fontmapOpt, &cmdline.gradOverlapOpt,
+		&cmdline.gradSegmentsOpt, &cmdline.gradSimplifyOpt, &cmdline.linkmarkOpt, &cmdline.magOpt,
+		&cmdline.noFontsOpt, &cmdline.noMergeOpt,	&cmdline.noSpecialsOpt,	&cmdline.noStylesOpt,
+		&cmdline.precisionOpt,	&cmdline.relativeOpt, &cmdline.zoomOpt
+	};
+	string idString = get_transformation_string(cmdline);
+	for (const CL::Option *opt : svg_options) {
+		idString += opt->given();
+		idString += opt->valueString();
+	}
+	return XXH64HashFunction(idString).digestString();
+}
+
+
+static bool list_page_hashes (const CommandLine &cmdline, DVIToSVG &dvisvg) {
+	if (cmdline.pageHashesOpt.given()) {
+		DVIToSVG::PAGE_HASH_SETTINGS.setParameters(cmdline.pageHashesOpt.value());
+		DVIToSVG::PAGE_HASH_SETTINGS.setOptionHash(svg_options_hash(cmdline));
+		if (DVIToSVG::PAGE_HASH_SETTINGS.isSet(DVIToSVG::HashSettings::P_LIST)) {
+			dvisvg.listHashes(cmdline.pageOpt.value(), cout);
+			return true;
+		}
+	}
+	return false;
 }
 
 
@@ -324,6 +363,19 @@ static void set_variables (const CommandLine &cmdline) {
 	PsSpecialHandler::SHADING_SEGMENT_OVERLAP = cmdline.gradOverlapOpt.given();
 	PsSpecialHandler::SHADING_SEGMENT_SIZE = max(1, cmdline.gradSegmentsOpt.value());
 	PsSpecialHandler::SHADING_SIMPLIFY_DELTA = cmdline.gradSimplifyOpt.value();
+}
+
+
+static void timer_message (double start_time, const pair<int,int> *pageinfo) {
+	Message::mstream().indent(0);
+	if (!pageinfo)
+		Message::mstream(false, Message::MC_PAGE_NUMBER) << "\n" << "file";
+	else {
+		Message::mstream(false, Message::MC_PAGE_NUMBER) << "\n" << pageinfo->first << " of " << pageinfo->second << " page";
+		if (pageinfo->second > 1)
+			Message::mstream(false, Message::MC_PAGE_NUMBER) << 's';
+	}
+	Message::mstream(false, Message::MC_PAGE_NUMBER) << " converted in " << (System::time()-start_time) << " seconds\n";
 }
 
 
@@ -375,24 +427,21 @@ int main (int argc, char *argv[]) {
 		SVGOutput out(cmdline.stdoutOpt.given() ? "" : srcin.getFileName(),
 			cmdline.outputOpt.value(),
 			cmdline.zipOpt.given() ? cmdline.zipOpt.value() : 0);
+		pair<int,int> pageinfo;
 		if (cmdline.epsOpt.given() || cmdline.pdfOpt.given()) {
 			auto img2svg = unique_ptr<ImageToSVG>(
 				cmdline.epsOpt.given()
 				? static_cast<ImageToSVG*>(new EPSToSVG(srcin.getFilePath(), out))
 				: static_cast<ImageToSVG*>(new PDFToSVG(srcin.getFilePath(), out)));
-			img2svg->convert();
-			Message::mstream().indent(0);
-			Message::mstream(false, Message::MC_PAGE_NUMBER) << "file converted in " << (System::time()-start_time) << " seconds\n";
-		}
-		else if (cmdline.pdfOpt.given()) {
-			PDFToSVG pdf2svg(srcin.getFilePath(), out);
-			pdf2svg.convert();
-			Message::mstream().indent(0);
-			Message::mstream(false, Message::MC_PAGE_NUMBER) << "file converted in " << (System::time()-start_time) << " seconds\n";
+			img2svg->setPageTransformation(get_transformation_string(cmdline));
+			img2svg->convert(cmdline.pageOpt.value(), &pageinfo);
+			timer_message(start_time, img2svg->isSinglePageFormat() ? nullptr : &pageinfo);
 		}
 		else {
 			init_fontmap(cmdline);
 			DVIToSVG dvi2svg(srcin.getInputStream(), out);
+			if (list_page_hashes(cmdline, dvi2svg))
+				return 0;
 			const char *ignore_specials=nullptr;
 			if (cmdline.noSpecialsOpt.given())
 				ignore_specials = cmdline.noSpecialsOpt.value().empty() ? "*" : cmdline.noSpecialsOpt.value().c_str();
@@ -400,13 +449,8 @@ int main (int argc, char *argv[]) {
 			dvi2svg.setPageTransformation(get_transformation_string(cmdline));
 			dvi2svg.setPageSize(cmdline.bboxOpt.value());
 
-			pair<int,int> pageinfo;
 			dvi2svg.convert(cmdline.pageOpt.value(), &pageinfo);
-			Message::mstream().indent(0);
-			Message::mstream(false, Message::MC_PAGE_NUMBER) << "\n" << pageinfo.first << " of " << pageinfo.second << " page";
-			if (pageinfo.second > 1)
-				Message::mstream(false, Message::MC_PAGE_NUMBER) << 's';
-			Message::mstream(false, Message::MC_PAGE_NUMBER) << " converted in " << (System::time()-start_time) << " seconds\n";
+			timer_message(start_time, &pageinfo);
 		}
 	}
 	catch (DVIException &e) {

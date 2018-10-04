@@ -139,3 +139,19 @@ void Length::set (double val, string unitstr) {
 		throw UnitException(string("invalid length unit: ")+unitstr);
 	set(val, stringToUnit(unitstr));
 }
+
+
+map<string,Length::Unit> Length::getUnits () {
+	map<string,Length::Unit> units = {
+		{"pt", Unit::PT},
+		{"bp", Unit::BP},
+		{"in", Unit::IN},
+		{"cm", Unit::CM},
+		{"mm", Unit::MM},
+		{"pc", Unit::PC},
+		{"dd", Unit::DD},
+		{"cc", Unit::CC},
+		{"sp", Unit::SP},
+	};
+	return units;
+}

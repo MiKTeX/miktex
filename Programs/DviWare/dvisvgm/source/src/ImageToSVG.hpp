@@ -24,6 +24,7 @@
 #include <istream>
 #include <memory>
 #include <string>
+#include "PsSpecialHandler.hpp"
 #include "SpecialActions.hpp"
 #include "SVGTree.hpp"
 
@@ -33,12 +34,19 @@ class ImageToSVG : protected SpecialActions {
 	public:
 		ImageToSVG (const std::string &fname, SVGOutputBase &out) : _fname(fname), _out(out) {}
 		virtual ~ImageToSVG () =default;
-		void convert ();
-		void setTransformation (const Matrix &m);
-		void setPageSize (const std::string &name);
+		void convert (int pageno);
+		void convert (int firstPage, int lastPage, std::pair<int,int> *pageinfo);
+		void convert (const std::string &rangestr, std::pair<int,int> *pageinfo);
+		void setPageTransformation (const std::string &transCmds) {_transCmds = transCmds;}
+//		void setPageSize (const std::string &name);
 		std::string filename () const {return _fname;}
+		PSInterpreter& psInterpreter () {return _psHandler.psInterpreter();}
+		virtual bool isSinglePageFormat () const =0;
+		virtual int totalPageCount () =0;
 
 	protected:
+		void checkGSAndFileFormat ();
+		Matrix getUserMatrix (const BoundingBox &bbox) const;
 		virtual std::string imageFormat () const =0;
 		virtual bool imageIsValid () const =0;
 		virtual BoundingBox imageBBox () const =0;
@@ -53,7 +61,6 @@ class ImageToSVG : protected SpecialActions {
 		Color getColor () const override                        {return _svg.getColor();}
 		void setMatrix (const Matrix &m) override               {_svg.setMatrix(m);}
 		const Matrix& getMatrix () const override               {return _svg.getMatrix();}
-		void getPageTransform (Matrix &matrix) const override   {}
 		void setBgColor (const Color &color) override           {}
 		void appendToPage(std::unique_ptr<XMLNode> &&node) override  {_svg.appendToPage(std::move(node));}
 		void appendToDefs(std::unique_ptr<XMLNode> &&node) override  {_svg.appendToDefs(std::move(node));}
@@ -75,6 +82,9 @@ class ImageToSVG : protected SpecialActions {
 		SVGOutputBase &_out;
 		double _x=0, _y=0;
 		BoundingBox _bbox;
+		PsSpecialHandler _psHandler;
+		bool _haveGS=false;      ///< true if Ghostscript is available
+		std::string _transCmds;  ///< transformation commands
 };
 
 #endif

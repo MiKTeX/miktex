@@ -20,8 +20,8 @@
 
 #if defined(MIKTEX)
 #  include <config.h>
-#  include <array>
 #endif
+#include <array>
 #include <cmath>
 #include <fstream>
 #include <memory>
@@ -52,7 +52,7 @@ int PsSpecialHandler::SHADING_SEGMENT_SIZE = 20;
 double PsSpecialHandler::SHADING_SIMPLIFY_DELTA = 0.01;
 
 
-PsSpecialHandler::PsSpecialHandler () : _psi(this), _actions(), _previewFilter(_psi), _psSection(PS_NONE), _xmlnode(), _savenode()
+PsSpecialHandler::PsSpecialHandler () : _psi(this), _actions(), _previewFilter(_psi), _xmlnode(), _savenode()
 {
 }
 
@@ -255,9 +255,9 @@ bool PsSpecialHandler::process (const string &prefix, istream &is, SpecialAction
 		if (in.check(" plotfile ")) { // ps: plotfile fname
 			string fname = in.getString();
 #if defined(MIKTEX_WINDOWS)
-                        ifstream ifs(UW_(fname.c_str()));
+                        ifstream ifs(UW_(fname));
 #else
-			ifstream ifs(fname.c_str());
+			ifstream ifs(fname);
 #endif
 			if (ifs)
 				_psi.execute(ifs);
@@ -282,6 +282,11 @@ bool PsSpecialHandler::process (const string &prefix, istream &is, SpecialAction
  *  @param[in] fname EPS/PDF file to be included
  *  @param[in] attr attributes given with psfile/pdffile special */
 void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const unordered_map<string,string> &attr) {
+	// prevent warning about missing image file "/dev/null" which is
+	// added by option "psfixbb" of the preview package
+	if (fname == "/dev/null")
+		return;
+
 	const char *filepath = FileFinder::instance().lookup(fname, false);
 	if (!filepath && FileSystem::exists(fname))
 		filepath = fname.c_str();
@@ -296,14 +301,15 @@ void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const un
 	double lly = (it = attr.find("lly")) != attr.end() ? stod(it->second) : 0;
 	double urx = (it = attr.find("urx")) != attr.end() ? stod(it->second) : 0;
 	double ury = (it = attr.find("ury")) != attr.end() ? stod(it->second) : 0;
+	int pageno = (it = attr.find("page")) != attr.end() ? stoi(it->second, nullptr, 10) : 1;
 
 	if (filetype == FileType::PDF && llx == 0 && lly == 0 && urx == 0 && ury == 0) {
-		_psi.execute("\n("+fname+")@getpdfpagebox ");
-		if (_pdfpagebox.valid()) {
-			llx = _pdfpagebox.minX();
-			lly = _pdfpagebox.minY();
-			urx = _pdfpagebox.maxX();
-			ury = _pdfpagebox.maxY();
+		BoundingBox pagebox = _psi.pdfPageBox(fname, pageno);
+		if (pagebox.valid()) {
+			llx = pagebox.minX();
+			lly = pagebox.minY();
+			urx = pagebox.maxX();
+			ury = pagebox.maxY();
 		}
 	}
 
@@ -345,11 +351,13 @@ void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const un
 	auto groupNode = util::make_unique<XMLElementNode>("g");  // append following elements to this group
 	_xmlnode = groupNode.get();
 	_psi.execute(
-		"\n@beginspecial @setspecial"        // enter special environment
-		"/setpagedevice{@setpagedevice}def"  // activate processing of operator "setpagedevice"
-		"[1 0 0 -1 0 0] setmatrix"           // don't apply outer PS transformations
-		"(" + string(filepath) + ")run "     // execute file content
-		"@endspecial "                       // leave special environment
+		"\n@beginspecial @setspecial"          // enter special environment
+		"/setpagedevice{@setpagedevice}def"    // activate processing of operator "setpagedevice"
+		"[1 0 0 -1 0 0] setmatrix"             // don't apply outer PS transformations
+		"/FirstPage "+to_string(pageno)+" def" // set number of fisrt page to convert (PDF only)
+		"/LastPage "+to_string(pageno)+" def"  // set number of last page to convert (PDF only)
+		"(" + string(filepath) + ")run "       // execute file content
+		"@endspecial "                         // leave special environment
 	);
 	if (!groupNode->empty()) {       // has anything been drawn?
 		Matrix matrix(1);
@@ -413,38 +421,25 @@ static bool transform_box_extents (const Matrix &matrix, double &w, double &h, d
 void PsSpecialHandler::dviEndPage (unsigned, SpecialActions &actions) {
 	BoundingBox bbox;
 	if (_previewFilter.getBoundingBox(bbox)) {  // is there any data written by preview package?
-		double w = max(0.0, _previewFilter.width());
-		double h = max(0.0, _previewFilter.height());
-		double d = max(0.0, _previewFilter.depth());
+		double w=0, h=0, d=0;
 		if (actions.getBBoxFormatString() == "preview" || actions.getBBoxFormatString() == "min") {
 			if (actions.getBBoxFormatString() == "preview") {
+				w = max(0.0, _previewFilter.width());
+				h = max(0.0, _previewFilter.height());
+				d = max(0.0, _previewFilter.depth());
 				actions.bbox() = bbox;
 				Message::mstream() << "\napplying bounding box set by";
 			}
 			else {
-				// compute height, depth and width depending on the
-				// tight bounding box derived from the objects on the page
-				double y0 = bbox.maxY()-h;      // y coordinate of the baseline
-				h = actions.bbox().maxY()-y0;
-				if (h < 0) {
-					h = 0;
-					d = actions.bbox().height();
-				}
-				else {
-					d = y0-actions.bbox().minY();
-					if (d < 0) {
-						h = actions.bbox().height();
-						d = 0;
-					}
-				}
 				w = actions.bbox().width();
+				h = max(0.0, -actions.bbox().minY());
+				d = max(0.0, actions.bbox().maxY());
 				Message::mstream() << "\ncomputing extents based on data set by";
 			}
 			Message::mstream() << " preview package (version " << _previewFilter.version() << ")\n";
 
 			// apply page transformations to box extents
-			Matrix pagetrans;
-			actions.getPageTransform(pagetrans);
+			Matrix pagetrans = actions.getPageTransformation();
 			bool isBaselineHorizontal = transform_box_extents(pagetrans, w, h, d);
 			actions.bbox().lock();
 
@@ -457,28 +452,28 @@ void PsSpecialHandler::dviEndPage (unsigned, SpecialActions &actions) {
 					"height=" << XMLString(h*bp2pt) << "pt, "
 					"depth=" << XMLString(d*bp2pt) << "pt\n";
 			}
-		}
 #if 0
-		XMLElementNode *rect = new XMLElementNode("rect");
-		rect->addAttribute("x", actions.bbox().minX());
-		rect->addAttribute("y", actions.bbox().minY());
-		rect->addAttribute("width", w);
-		rect->addAttribute("height", h+d);
-		rect->addAttribute("fill", "none");
-		rect->addAttribute("stroke", "red");
-		rect->addAttribute("stroke-width", "0.5");
-		actions.appendToPage(rect);
-		if (d > 0) {
-			XMLElementNode *line = new XMLElementNode("line");
-			line->addAttribute("x1", actions.bbox().minX());
-			line->addAttribute("y1", actions.bbox().minY()+h);
-			line->addAttribute("x2", actions.bbox().maxX());
-			line->addAttribute("y2", actions.bbox().minY()+h);
-			line->addAttribute("stroke", "blue");
-			line->addAttribute("stroke-width", "0.5");
-			actions.appendToPage(line);
-		}
+			auto rect = util::make_unique<XMLElementNode>("rect");
+			rect->addAttribute("x", actions.bbox().minX());
+			rect->addAttribute("y", actions.bbox().minY());
+			rect->addAttribute("width", w);
+			rect->addAttribute("height", h+d);
+			rect->addAttribute("fill", "none");
+			rect->addAttribute("stroke", "red");
+			rect->addAttribute("stroke-width", "0.1");
+			actions.appendToPage(std::move(rect));
+			if (d > 0) {
+				auto line = util::make_unique<XMLElementNode>("line");
+				line->addAttribute("x1", actions.bbox().minX());
+				line->addAttribute("y1", actions.bbox().minY()+h);
+				line->addAttribute("x2", actions.bbox().maxX());
+				line->addAttribute("y2", actions.bbox().minY()+h);
+				line->addAttribute("stroke", "blue");
+				line->addAttribute("stroke-width", "0.1");
+				actions.appendToPage(std::move(line));
+			}
 #endif
+		}
 	}
 	// close dictionary TeXDict and execute end-hook if defined
 	if (_psSection == PS_BODY) {

@@ -78,14 +78,6 @@ bool FilePath::Directory::operator == (const Directory &dir) const {
 }
 
 
-/** Constructs a FilePath object from a given path. Relative paths are
- *  relative to the current working directory.
- *  @param[in] path absolute or relative path to a file or directory */
-FilePath::FilePath (const string &path) {
-	init(path, !FileSystem::isDirectory(path), FileSystem::getcwd());
-}
-
-
 /** Constructs a FilePath object.
  *  @param[in] path absolute or relative path to a file or directory
  *  @param[in] isfile true if 'path' references a file, false if a directory is referenced
@@ -95,11 +87,20 @@ FilePath::FilePath (const string &path, bool isfile, const string &current_dir) 
 }
 
 
+/** Assigns a new path. Relative paths are relative to the current working directory.
+ *  @param[in] path absolute or relative path to a file or directory */
+void FilePath::set(const string &path) {
+	init(path, !FileSystem::isDirectory(path), FileSystem::getcwd());
+}
+
+
 /** Initializes a FilePath object. This method should be called by the constructors only.
  *  @param[in] path absolute or relative path to a file or directory
  *  @param[in] isfile true if 'path' references a file, false if a directory is referenced
  *  @param[in] current_dir if 'path' is a relative path expression it will be related to 'current_dir' */
 void FilePath::init (string path, bool isfile, string current_dir) {
+	_dirs.clear();
+	_fname.clear();
 	single_slashes(path);
 	single_slashes(current_dir);
 #ifdef _WIN32

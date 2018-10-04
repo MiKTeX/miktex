@@ -131,7 +131,7 @@ string util::read_file_contents (const string &fname) {
 #if defined(MIKTEX_WINDOWS)
         ifstream ifs(UW_(fname), ios::binary);
 #else
-	ifstream ifs(fname.c_str(), ios::binary);
+	ifstream ifs(fname, ios::binary);
 #endif
 	return string(istreambuf_iterator<char>(ifs.rdbuf()), istreambuf_iterator<char>());
 }
@@ -145,7 +145,7 @@ void util::write_file_contents (const string &fname, string::iterator start, str
 #if defined(MIKTEX_WINDOWS)
         ofstream ofs(UW_(fname), ios::binary);
 #else
-	ofstream ofs(fname.c_str(), ios::binary);
+	ofstream ofs(fname, ios::binary);
 #endif
 	copy(start, end, ostream_iterator<char>(ofs));
 }

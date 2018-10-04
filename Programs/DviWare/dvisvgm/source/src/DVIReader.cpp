@@ -27,6 +27,7 @@
 #include "DVIReader.hpp"
 #include "Font.hpp"
 #include "FontManager.hpp"
+#include "HashFunction.hpp"
 #include "VectorStream.hpp"
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
@@ -72,7 +73,7 @@ void DVIReader::executeAll () {
 
 /** Reads and executes the commands of a single page.
  *  This methods stops reading after the page's eop command has been executed.
- *  @param[in] n number of page to be executed
+ *  @param[in] n number of page to be executed (1-based)
  *  @returns true if page was read successfully */
 bool DVIReader::executePage (unsigned n) {
 	clearStream();    // reset all status bits
@@ -136,13 +137,45 @@ void DVIReader::collectBopOffsets () {
 	_bopOffsets.push_back(tell());      // also add offset of postamble
 	readByte();                         // skip post command
 	uint32_t offset = readUnsigned(4);  // offset of final bop
-	while ((int32_t)offset > 0) {       // not yet on first bop?
+	while (int32_t(offset) != -1) {     // not yet on first bop?
 		_bopOffsets.push_back(offset);   // record offset
-		seek(offset+41);                 // skip bop command and the 10 \count values => now on offset of previous bop
-		offset = readUnsigned(4);
+		seek(offset);                    // now on previous bop
+		if (readByte() != OP_BOP)
+			throw DVIException("bop offset at "+to_string(offset)+" doesn't point to bop command" );
+		seek(40, ios::cur);              // skip the 10 \count values => now on offset of previous bop
+		uint32_t prevOffset = readUnsigned(4);
+		if ((prevOffset >= offset && int32_t(prevOffset) != -1))
+			throw DVIException("invalid bop offset at "+to_string(tell()-static_cast<streamoff>(4)));
+		offset = prevOffset;
 	}
 	reverse(_bopOffsets.begin(), _bopOffsets.end());
 }
+
+
+/** Computes a hash value for a given page. The hash algorithm is selected by
+ *  a HashFunction object which will also contain the resulting hash value if
+ *  this function returns true.
+ *  @param[in] pageno number of page to process (1-based)
+ *  @param[in,out] hashFunc hash function to use
+ *  @return true on success, hashFunc contains the resulting hash value */
+bool DVIReader::computePageHash (size_t pageno, HashFunction &hashFunc) {
+	if (pageno == 0 || pageno > numberOfPages())
+		return false;
+
+	hashFunc.reset();
+	clearStream();
+	seek(_bopOffsets[pageno-1]+45);  // now on first command after bop of selected page
+	const size_t BUFSIZE = 4096;
+	char buf[BUFSIZE];
+	size_t numBytes = numberOfPageBytes(pageno-1)-46;  // number of bytes excluding bop and eop
+	while (numBytes > 0) {
+		getInputStream().read(buf, min(numBytes, BUFSIZE));
+		hashFunc.update(buf, getInputStream().gcount());
+		numBytes -= getInputStream().gcount();
+	}
+	return true;
+}
+
 
 /////////////////////////////////////
 
@@ -178,7 +211,7 @@ void DVIReader::cmdPost (int) {
 	uint32_t pageWidth  = readUnsigned(4); // width of widest page in dvi units
 	uint16_t stackDepth = readUnsigned(2); // max. stack depth required
 	uint16_t numPages = readUnsigned(2);
-	if (numPages != numberOfPages())
+	if (numPages != (numberOfPages() & 0xffff))
 		throw DVIException("page count in postamble doesn't match actual number of pages");
 
 	// 1 dviunit * num/den == multiples of 0.0000001m

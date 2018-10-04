@@ -86,9 +86,9 @@ bool FontCache::write (const string &fontname, const string &dir) const {
 		ostringstream oss;
 		oss << dirstr << '/' << fontname << ".fgd";
 #if defined(MIKTEX_WINDOWS)
-                ofstream ofs(UW_(oss.str().c_str()), ios::binary);
+                ofstream ofs(UW_(oss.str()), ios::binary);
 #else
-		ofstream ofs(oss.str().c_str(), ios::binary);
+		ofstream ofs(oss.str(), ios::binary);
 #endif
 		return write(fontname, ofs);
 	}
@@ -186,9 +186,9 @@ bool FontCache::read (const string &fontname, const string &dir) {
 	ostringstream oss;
 	oss << dirstr << '/' << fontname << ".fgd";
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(oss.str().c_str()), ios::binary);
+        ifstream ifs(UW_(oss.str()), ios::binary);
 #else
-	ifstream ifs(oss.str().c_str(), ios::binary);
+	ifstream ifs(oss.str(), ios::binary);
 #endif
 	return read(fontname, ifs);
 }
@@ -278,9 +278,9 @@ bool FontCache::fontinfo (const string &dirname, vector<FontInfo> &infos, vector
 				FontInfo info;
 				string path = dirname+"/"+(fname.substr(1));
 #if defined(MIKTEX_WINDOWS)
-                                ifstream ifs(UW_(path.c_str()), ios::binary);
+                                ifstream ifs(UW_(path), ios::binary);
 #else
-				ifstream ifs(path.c_str(), ios::binary);
+				ifstream ifs(path, ios::binary);
 #endif
 				if (fontinfo(ifs, info))
 					infos.emplace_back(move(info));

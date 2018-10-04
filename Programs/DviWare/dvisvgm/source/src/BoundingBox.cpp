@@ -257,6 +257,8 @@ ostream& BoundingBox::write (ostream &os) const {
 	os << '('  << _ulx << ", " << _uly << ", " << _lrx << ", " << _lry << ')';
 	if (!_valid)
 		os << " (invalid)";
+	else if (_locked)
+		os << " (locked)";
 	return os;
 }
 

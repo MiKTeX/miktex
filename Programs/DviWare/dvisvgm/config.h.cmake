@@ -49,6 +49,9 @@
 /* Define to 1 if you have the `ttfautohint' library (-lttfautohint). */
 #cmakedefine HAVE_LIBTTFAUTOHINT 1
 
+/* Define to 1 if you have the `xxhash' library (-lxxhash). */
+#cmakedefine HAVE_LIBXXHASH 1
+
 /* Define to 1 if you have the `z' library (-lz). */
 #cmakedefine HAVE_LIBZ 1
 
@@ -57,6 +60,9 @@
 
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #cmakedefine HAVE_NDIR_H 1
+
+/* Define to 1 if you have the <openssl/md5.h> header file. */
+#cmakedefine HAVE_OPENSSL_MD5_H 1
 
 /* Define to 1 if you have the `sigaction' function. */
 #cmakedefine HAVE_SIGACTION 1
@@ -103,6 +109,9 @@
 /* Define to 1 if you have the <ttfautohint.h> header file. */
 #cmakedefine HAVE_TTFAUTOHINT_H 1
 
+/* Define to 1 if you have the `umask' function. */
+#cmakedefine HAVE_UMASK 1
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
 
@@ -135,7 +144,7 @@
 #cmakedefine PACKAGE_NAME
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "dvisvgm 2.4"
+#define PACKAGE_STRING "dvisvgm 2.6"
 
 /* Define to the one symbol short name of this package. */
 #cmakedefine PACKAGE_TARNAME
@@ -156,7 +165,7 @@
 #cmakedefine TM_IN_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "2.4"
+#define VERSION "2.6"
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #cmakedefine size_t

@@ -50,7 +50,7 @@ class DVIToSVGActions : public DVIActions, public SpecialActions {
 		void setColor (const Color &color) override             {_svg.setColor(color);}
 		void setMatrix (const Matrix &m) override               {_svg.setMatrix(m);}
 		const Matrix& getMatrix () const override               {return _svg.getMatrix();}
-		void getPageTransform (Matrix &matrix) const override   {_dvireader->getPageTransformation(matrix);}
+		Matrix getPageTransformation () const override          {return _dvireader->getPageTransformation();}
 		Color getColor () const override                        {return _svg.getColor();}
 		int getDVIStackDepth() const override                   {return _dvireader->stackDepth();}
 		unsigned getCurrentPageNumber() const override          {return _dvireader->currentPageNumber();}

@@ -52,9 +52,9 @@ FontMap& FontMap::instance() {
  *  @return true if file could be opened */
 bool FontMap::read (const string &fname, FontMap::Mode mode) {
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(fname.c_str()));
+        ifstream ifs(UW_(fname));
 #else
-	ifstream ifs(fname.c_str());
+	ifstream ifs(fname);
 #endif
 	if (!ifs)
 		return false;

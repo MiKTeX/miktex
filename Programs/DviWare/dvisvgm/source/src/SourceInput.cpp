@@ -26,22 +26,27 @@
 #include "SourceInput.hpp"
 #include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/TemporaryFile>
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#define WU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
 #endif
 
 #ifdef _WIN32
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <windows.h>
+#	include <fcntl.h>
+#	include <sys/stat.h>
+#	include <windows.h>
+#else
+#	include <config.h>
+#	ifdef HAVE_UMASK
+#		include <sys/stat.h>
+#	endif
 #endif
 
 #ifdef _MSC_VER
-#include <io.h>
+#	include <io.h>
 #else
-#include <cstdlib>
-#include <unistd.h>
+#	include <cstdlib>
+#	include <unistd.h>
 #endif
 
 using namespace std;
@@ -55,69 +60,92 @@ static int fdclose (int fd) {return close(fd);}
 #endif
 
 
-SourceInput::~SourceInput () {
-	// remove temporary file created for reading from stdin
-	if (!_tmpfilepath.empty())
-		FileSystem::remove(_tmpfilepath);
-}
-
-
-/** Creates a temporary file in the configured tmp folder.
- *  @param[out] path path of the created file
- *  @return file descriptor (>= 0 on success) */
-static int create_tmp_file (string &path) {
-#if !defined(MIKTEX_WINDOWS)
-	path = FileSystem::tmpdir();
-#endif
+/** Creates a new temporary file in the configured tmp folder.
+ *  If the object already holds an opened temporary file, it's closed
+ *  and removed before creating the new one.
+ *  @return true on success */
+bool TemporaryFile::create () {
+	if (opened())
+		close();
+	_path = FileSystem::tmpdir();
 #ifndef _WIN32
-	path += "stdinXXXXXX";
-	int fd = mkstemp(&path[0]);
-#else
+	_path += "stdinXXXXXX";
+#ifdef HAVE_UMASK
+	mode_t mode_mask = umask(S_IXUSR | S_IRWXG | S_IRWXO);  // set file permissions to 0600
+#endif
+	_fd = mkstemp(&_path[0]);
+#ifdef HAVE_UMASK
+	umask(mode_mask);
+#endif
+#else  // !_WIN32
 #if defined(MIKTEX_WINDOWS)
-        auto tmpfile = MiKTeX::Core::TemporaryFile::Create();
-        int fd = _wopen(tmpfile->GetPathName().ToWideCharString().c_str(), _O_CREAT | _O_WRONLY | _O_BINARY, _S_IWRITE);
-        if (fd >= 0)
+        wchar_t fname[MAX_PATH];
+#else
+	char fname[MAX_PATH];
+#endif
+	std::replace(_path.begin(), _path.end(), '/', '\\');
+#if defined(MIKTEX_WINDOWS)
+        if (GetTempFileNameW(UW_(_path), L"stdin", 0, fname))
         {
-          tmpfile->Keep();
+          _fd = _wopen(fname, _O_CREAT | _O_WRONLY | _O_BINARY, _S_IWRITE);
+          _path = WU_(fname);
         }
 #else
-        int fd = -1;
-	char fname[MAX_PATH];
-	std::replace(path.begin(), path.end(), '/', '\\');
-	if (GetTempFileName(path.c_str(), "stdin", 0, fname)) {
-		fd = _open(fname, _O_CREAT | _O_WRONLY | _O_BINARY, _S_IWRITE);
-		path = fname;
+	if (GetTempFileName(_path.c_str(), "stdin", 0, fname)) {
+		_fd = _open(fname, _O_CREAT | _O_WRONLY | _O_BINARY, _S_IWRITE);
+		_path = fname;
 	}
 #endif
 #endif
-	return fd;
+	return opened();
 }
 
+
+/** Writes a sequence of characters to the file.
+ *  @param[in] buf buffer containing the characters to write
+ *  @param[in] len number of characters to write
+ *  @return true on success */
+bool TemporaryFile::write (const char *buf, size_t len) {
+	return opened() && fdwrite(_fd, buf, len) >= 0;
+}
+
+
+/** Closes and removes the temporary file.
+ *  @return true on success */
+bool TemporaryFile::close () {
+	bool ok = true;
+	if (opened()) {
+		ok = (fdclose(_fd) >= 0);
+		FileSystem::remove(_path);
+		_fd = -1;
+		_path.clear();
+	}
+	return ok;
+}
+
+////////////////////////////////////////////////////////////////
 
 istream& SourceInput::getInputStream (bool showMessages) {
 	if (!_ifs.is_open()) {
 		if (!_fname.empty())
 			_ifs.open(_fname, ios::binary);
 		else {
-			int fd = create_tmp_file(_tmpfilepath);
-			if (fd < 0)
-				throw MessageException("can't create temporary file for writing");
 #ifdef _WIN32
 			if (_setmode(_fileno(stdin), _O_BINARY) == -1)
 				throw MessageException("can't open stdin in binary mode");
 #endif
+			if (!_tmpfile.create())
+				throw MessageException("can't create temporary file for writing");
 			if (showMessages)
 				Message::mstream() << "reading from " << getMessageFileName() << '\n';
 			char buf[1024];
 			while (cin) {
 				cin.read(buf, 1024);
 				size_t count = cin.gcount();
-				if (fdwrite(fd, buf, count) < 0)
+				if (!_tmpfile.write(buf, count))
 					throw MessageException("failed to write data to temporary file");
 			}
-			if (fdclose(fd) < 0)
-				throw MessageException("failed to close temporary file");
-			_ifs.open(_tmpfilepath, ios::binary);
+			_ifs.open(_tmpfile.path(), ios::binary);
 		}
 	}
 	return _ifs;
@@ -135,5 +163,5 @@ string SourceInput::getMessageFileName () const {
 
 
 string SourceInput::getFilePath () const {
-	return _tmpfilepath.empty() ? _fname : _tmpfilepath;
+	return _tmpfile.path().empty() ? _fname : _tmpfile.path();
 }

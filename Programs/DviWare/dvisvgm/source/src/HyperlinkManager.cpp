@@ -182,10 +182,10 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 			actions.prependToPage(std::move(rect));
 			if (MARKER_TYPE == MarkerType::BOX || MARKER_TYPE == MarkerType::BGCOLOR) {
 				// slightly enlarge the boxed area
-				x -= linewidth;
-				y -= linewidth;
-				w += 2*linewidth;
-				h += 2*linewidth;
+				x -= linewidth/2;
+				y -= linewidth/2;
+				w += linewidth;
+				h += linewidth;
 			}
 			actions.embed(BoundingBox(x, y, x+w, y+h));
 		}

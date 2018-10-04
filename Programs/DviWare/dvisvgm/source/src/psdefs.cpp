@@ -108,6 +108,8 @@ const char *PSInterpreter::PSDEFS =
 "exec<</Normal 0/Compatible 0/Multiply 1/Screen 2/Overlay 3/SoftLight 4/HardLig"
 "ht 5/ColorDodge 6/ColorBurn 7/Darken 8/Lighten 9/Difference 10/Exclusion 11/Hu"
 "e 12/Saturation 13/Color 14/Luminosity 15/CompatibleOverprint 16>>exch get 1(s"
-"etblendmode)prcmd}def/@getpdfpagebox{GS_PDF_ProcSet begin pdfdict begin(r)file"
-" pdfopen begin 1 pdfgetpage/MediaBox pget pop aload pop 4(pdfpagebox)prcmd cur"
-"rentdict pdfclose end end end}def DELAYBIND{.bindnow}if ";
+"etblendmode)prcmd}def/@pdfpagecount{GS_PDF_ProcSet begin pdfdict begin(r)file "
+"pdfopen begin pdfpagecount currentdict pdfclose end end end}def/@pdfpagebox{GS"
+"_PDF_ProcSet begin pdfdict begin(r)file pdfopen begin dup dup 1 lt exch pdfpag"
+"ecount gt or{pop}{pdfgetpage/MediaBox pget pop aload pop}ifelse currentdict pd"
+"fclose end end end}def DELAYBIND{.bindnow}if ";

@@ -68,20 +68,20 @@ struct TEdge {
   IntPoint Curr;
   IntPoint Top;
   IntPoint Delta;
-  double Dx;
-  PolyType PolyTyp;
-  EdgeSide Side;
-  int WindDelta; //1 or -1 depending on winding direction
-  int WindCnt;
-  int WindCnt2; //winding count of the opposite polytype
-  int OutIdx;
-  TEdge *Next;
-  TEdge *Prev;
-  TEdge *NextInLML;
-  TEdge *NextInAEL;
-  TEdge *PrevInAEL;
-  TEdge *NextInSEL;
-  TEdge *PrevInSEL;
+  double Dx = 0.0;
+  PolyType PolyTyp = ptSubject;
+  EdgeSide Side = esLeft;
+  int WindDelta = 0; //1 or -1 depending on winding direction
+  int WindCnt = 0;
+  int WindCnt2 = 0; //winding count of the opposite polytype
+  int OutIdx = 0;
+  TEdge *Next = nullptr;
+  TEdge *Prev = nullptr;
+  TEdge *NextInLML = nullptr;
+  TEdge *NextInAEL = nullptr;
+  TEdge *PrevInAEL = nullptr;
+  TEdge *NextInSEL = nullptr;
+  TEdge *PrevInSEL = nullptr;
 };
 
 struct IntersectNode {
@@ -711,7 +711,7 @@ void DisposeOutPts(OutPt*& pp)
 
 inline void InitEdge(TEdge* e, TEdge* eNext, TEdge* ePrev, const IntPoint& Pt)
 {
-  std::memset(e, 0, sizeof(TEdge));
+  *e = TEdge();
   e->Next = eNext;
   e->Prev = ePrev;
   e->Curr = Pt;

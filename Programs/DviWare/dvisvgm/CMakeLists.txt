@@ -20,15 +20,19 @@
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_DVIWARE_FOLDER}/dvisvgm")
 
 include_directories(BEFORE
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}
   source/libs/brotli/include
   source/libs/clipper
   source/libs/ff-woff/fontforge
   source/libs/ff-woff/inc
+  source/libs/potrace
   source/libs/variant/include
   source/libs/woff2/include
   source/libs/xxHash
+)
+
+include_directories(BEFORE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -67,6 +71,7 @@ set(libbrotli_sources
   source/libs/brotli/common/dictionary.c
   source/libs/brotli/common/dictionary.h
   source/libs/brotli/common/platform.h
+  source/libs/brotli/common/transform.c
   source/libs/brotli/common/transform.h
   source/libs/brotli/common/version.h
   source/libs/brotli/enc/backward_references.c
@@ -102,10 +107,12 @@ set(libbrotli_sources
   source/libs/brotli/enc/fast_log.h
   source/libs/brotli/enc/find_match_length.h
   source/libs/brotli/enc/hash.h
+  source/libs/brotli/enc/hash_composite_inc.h
   source/libs/brotli/enc/hash_forgetful_chain_inc.h
   source/libs/brotli/enc/hash_longest_match64_inc.h
   source/libs/brotli/enc/hash_longest_match_inc.h
   source/libs/brotli/enc/hash_longest_match_quickly_inc.h
+  source/libs/brotli/enc/hash_rolling_inc.h
   source/libs/brotli/enc/hash_to_binary_tree_inc.h
   source/libs/brotli/enc/histogram.c
   source/libs/brotli/enc/histogram.h
@@ -242,6 +249,21 @@ set(libffwoff_sources
   source/libs/ff-woff/inc/utype.h
 )
 
+set(potrace_sources
+  source/libs/potrace/auxiliary.h
+  source/libs/potrace/bitmap.h
+  source/libs/potrace/config.h
+  source/libs/potrace/curve.c
+  source/libs/potrace/curve.h
+  source/libs/potrace/decompose.c
+  source/libs/potrace/decompose.h
+  source/libs/potrace/lists.h
+  source/libs/potrace/potracelib.c
+  source/libs/potrace/potracelib.h
+  source/libs/potrace/progress.h
+  source/libs/potrace/trace.c
+  source/libs/potrace/trace.h
+)
 set(libdvisvgm_sources
   source/src/AGLTable.hpp
   source/src/BasicDVIReader.cpp
@@ -330,6 +352,8 @@ set(libdvisvgm_sources
   source/src/Glyph.hpp
   source/src/GlyphTracerMessages.hpp
   source/src/GraphicsPath.hpp
+  source/src/HashFunction.cpp
+  source/src/HashFunction.hpp
   source/src/HtmlSpecialHandler.cpp
   source/src/HtmlSpecialHandler.hpp
   source/src/HyperlinkManager.cpp
@@ -344,6 +368,7 @@ set(libdvisvgm_sources
   source/src/JFM.hpp
   source/src/Length.cpp
   source/src/Length.hpp
+  source/src/MD5HashFunction.hpp
   source/src/MapLine.cpp
   source/src/MapLine.hpp
   source/src/Matrix.cpp
@@ -446,6 +471,7 @@ set(libdvisvgm_sources
   source/src/XMLNode.hpp
   source/src/XMLString.cpp
   source/src/XMLString.hpp
+  source/src/XXHashFunction.hpp
   source/src/ZLibOutputStream.hpp
   source/src/macros.hpp
   source/src/psdefs.cpp
@@ -472,6 +498,7 @@ set(dvisvgm_sources
   ${libclipper_sources}
   ${libdvisvgm_sources}
   ${libffwoff_sources}
+  ${potrace_sources}
   ${libwoff2_sources}
   ${libxxhash_sources}
   dvisvgm-version.h
@@ -499,12 +526,6 @@ if(USE_SYSTEM_FREETYPE2)
   target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::FREETYPE2)
 else()
   target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${freetype2_dll_name})
-endif()
-
-if(USE_SYSTEM_POTRACE)
-  target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::POTRACE)
-else()
-  target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${potrace_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)

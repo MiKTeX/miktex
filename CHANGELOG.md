@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## NEXT
+
+### Upgraded programs
+
+* Dvisvgm 2.6
+
 ## 2.9.6840 - 2018-09-30
 
 ### Fixed security issues

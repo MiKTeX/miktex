@@ -111,11 +111,11 @@ bool MetafontWrapper::call (const string &mode, double mag) {
  *  @return true on success */
 bool MetafontWrapper::make (const string &mode, double mag) {
 #if defined(MIKTEX_WINDOWS)
-        ifstream tfm(UW_((_dir+_fontname+".tfm").c_str()));
-        ifstream gf(UW_((_dir+_fontname+".gf").c_str()));
+        ifstream tfm(UW_(_dir+_fontname+".tfm"));
+        ifstream gf(UW_(_dir+_fontname+".gf"));
 #else
-	ifstream tfm((_dir+_fontname+".tfm").c_str());
-	ifstream gf((_dir+_fontname+".gf").c_str());
+	ifstream tfm(_dir+_fontname+".tfm");
+	ifstream gf(_dir+_fontname+".gf");
 #endif
 	if (gf && tfm) // @@ distinguish between gf and tfm
 		return true;
@@ -125,11 +125,11 @@ bool MetafontWrapper::make (const string &mode, double mag) {
 
 bool MetafontWrapper::success () const {
 #if defined(MIKTEX_WINDOWS)
-        ifstream tfm(UW_((_dir+_fontname+".tfm").c_str()));
-        ifstream gf(UW_((_dir+_fontname+".gf").c_str()));
+        ifstream tfm(UW_(_dir+_fontname+".tfm"));
+        ifstream gf(UW_(_dir+_fontname+".gf"));
 #else
-	ifstream tfm((_dir+_fontname+".tfm").c_str());
-	ifstream gf((_dir+_fontname+".gf").c_str());
+	ifstream tfm(_dir+_fontname+".tfm");
+	ifstream gf(_dir+_fontname+".gf");
 #endif
 	return tfm && gf;
 }

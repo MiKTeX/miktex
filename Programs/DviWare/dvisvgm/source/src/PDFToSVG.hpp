@@ -24,9 +24,22 @@
 #include <fstream>
 #include "ImageToSVG.hpp"
 
+class PsSpecialHandler;
+
 class PDFToSVG : public ImageToSVG {
 	public:
 		PDFToSVG (const std::string &fname, SVGOutputBase &out) : ImageToSVG(fname, out) {}
+		bool isSinglePageFormat() const override {return false;}
+
+		/** Returns the total number of pages in the PDF file. */
+		int totalPageCount() override {
+			if (_totalPageCount < 0) {
+				_totalPageCount = psInterpreter().pdfPageCount(filename());
+				if (_totalPageCount < 1)
+					throw MessageException("can't retrieve number of pages from file " + filename());
+			}
+			return _totalPageCount;
+		}
 
 	protected:
 		bool imageIsValid () const override {
@@ -41,6 +54,9 @@ class PDFToSVG : public ImageToSVG {
 		std::string imageFormat () const override {return "PDF";}
 		BoundingBox imageBBox () const override {return BoundingBox();}
 		std::string psSpecialCmd () const override {return "pdffile=";}
+
+	private:
+		mutable int _totalPageCount = -1;
 };
 
 #endif
