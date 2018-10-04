@@ -80,16 +80,16 @@ public:
   }
 
 public:
-  MD5Builder(const MD5Builder& other) = delete;
+  MD5Builder(const MD5Builder& other) = default;
 
 public:
-  MD5Builder& operator=(const MD5Builder& other) = delete;
+  MD5Builder& operator=(const MD5Builder& other) = default;
 
 public:
-  MD5Builder(MD5Builder&& other) = delete;
+  MD5Builder(MD5Builder&& other) = default;
 
 public:
-  MD5Builder& operator=(MD5Builder&& other) = delete;
+  MD5Builder& operator=(MD5Builder&& other) = default;
 
 public:
   ~MD5Builder() = default;
