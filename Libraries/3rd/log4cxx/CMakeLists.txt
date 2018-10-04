@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2017 Christian Schenk
+## Copyright (C) 2015-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -220,6 +220,7 @@ foreach(h ${public_headers})
     ${CMAKE_CURRENT_BINARY_DIR}/include/${h}
     COPYONLY
   )
+  list(APPEND log4cxx_sources ${CMAKE_CURRENT_BINARY_DIR}/include/${h})
 endforeach()
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -252,13 +253,15 @@ configure_file(
   ${log4cxx_h_in}
   ${CMAKE_CURRENT_BINARY_DIR}/include/log4cxx/log4cxx.h
 )
+list(APPEND log4cxx_sources ${CMAKE_CURRENT_BINARY_DIR}/include/log4cxx/log4cxx.h)
 
 configure_file(
   ${log4cxx_private_h_in}
   ${CMAKE_CURRENT_BINARY_DIR}/privateinclude/log4cxx/private/log4cxx_private.h
 )
+list(APPEND log4cxx_sources ${CMAKE_CURRENT_BINARY_DIR}/privateinclude/log4cxx/private/log4cxx_private.h)
 
-set(log4cxx_sources
+list(APPEND log4cxx_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/action.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/appenderattachableimpl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/appenderskeleton.cpp
