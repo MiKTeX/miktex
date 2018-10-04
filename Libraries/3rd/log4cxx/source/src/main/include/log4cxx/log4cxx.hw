@@ -23,7 +23,11 @@
  *
  */
 
+#if defined(MIKTEX_WINDOWS)
+#define LOG4CXX_LOGCHAR_IS_UTF8 1
+#else
 #define LOG4CXX_LOGCHAR_IS_UTF8 0
+#endif
 #if LOG4CXX_LOGCHAR_IS_UTF8
 #define LOG4CXX_LOGCHAR_IS_WCHAR 0
 #else
