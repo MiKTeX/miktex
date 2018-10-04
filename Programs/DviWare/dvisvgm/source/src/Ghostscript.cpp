@@ -123,7 +123,7 @@ static string get_libgs (const string &fname) {
 	string gsdll_path = get_path_from_registry();
 	if (!gsdll_path.empty())
 		return gsdll_path;
-#endif
+#endif //_WIN32
 #if defined(_WIN64)
 	return "gsdll64.dll";
 #elif defined(_WIN32)
