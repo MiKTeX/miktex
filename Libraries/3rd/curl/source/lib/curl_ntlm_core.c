@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2018, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -557,8 +557,11 @@ CURLcode Curl_ntlm_core_mk_nt_hash(struct Curl_easy *data,
                                    unsigned char *ntbuffer /* 21 bytes */)
 {
   size_t len = strlen(password);
-  unsigned char *pw = malloc(len * 2);
+  unsigned char *pw;
   CURLcode result;
+  if(len > SIZE_T_MAX/2) /* avoid integer overflow */
+    return CURLE_OUT_OF_MEMORY;
+  pw = len ? malloc(len * 2) : strdup("");
   if(!pw)
     return CURLE_OUT_OF_MEMORY;
 
@@ -655,9 +658,19 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
                                        unsigned char *ntlmv2hash)
 {
   /* Unicode representation */
-  size_t identity_len = (userlen + domlen) * 2;
-  unsigned char *identity = malloc(identity_len);
+  size_t identity_len;
+  unsigned char *identity;
   CURLcode result = CURLE_OK;
+
+  /* we do the length checks below separately to avoid integer overflow risk
+     on extreme data lengths */
+  if((userlen > SIZE_T_MAX/2) ||
+     (domlen > SIZE_T_MAX/2) ||
+     ((userlen + domlen) > SIZE_T_MAX/2))
+    return CURLE_OUT_OF_MEMORY;
+
+  identity_len = (userlen + domlen) * 2;
+  identity = malloc(identity_len);
 
   if(!identity)
     return CURLE_OUT_OF_MEMORY;
@@ -735,11 +748,9 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(unsigned char *ntlmv2hash,
   len = NTLM_HMAC_MD5_LEN + NTLMv2_BLOB_LEN;
 
   /* Allocate the response */
-  ptr = malloc(len);
+  ptr = calloc(1, len);
   if(!ptr)
     return CURLE_OUT_OF_MEMORY;
-
-  memset(ptr, 0, len);
 
   /* Create the BLOB structure */
   snprintf((char *)ptr + NTLM_HMAC_MD5_LEN, NTLMv2_BLOB_LEN,

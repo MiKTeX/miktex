@@ -6,6 +6,10 @@
 
 * Dvisvgm 2.6
 
+### Upgraded libraries
+
+* libcurl 7.61.1
+
 ## 2.9.6840 - 2018-09-30
 
 ### Fixed security issues

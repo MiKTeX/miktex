@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2018, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -22,9 +22,15 @@
 
 #include "curl_setup.h"
 
-#ifdef HAVE_LIMITS_H
+/***********************************************************************
+ * Only for ares-enabled builds
+ * And only for functions that fulfill the asynch resolver backend API
+ * as defined in asyn.h, nothing else belongs in this file!
+ **********************************************************************/
+
+#ifdef CURLRES_ARES
+
 #include <limits.h>
-#endif
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
@@ -47,14 +53,6 @@
 #undef in_addr_t
 #define in_addr_t unsigned long
 #endif
-
-/***********************************************************************
- * Only for ares-enabled builds
- * And only for functions that fulfill the asynch resolver backend API
- * as defined in asyn.h, nothing else belongs in this file!
- **********************************************************************/
-
-#ifdef CURLRES_ARES
 
 #include "urldata.h"
 #include "sendf.h"
@@ -314,22 +312,25 @@ CURLcode Curl_resolver_is_resolved(struct connectdata *conn,
     conn->async.os_specific;
   CURLcode result = CURLE_OK;
 
-  *dns = NULL;
+  if(dns)
+    *dns = NULL;
 
   waitperform(conn, 0);
 
   if(res && !res->num_pending) {
-    (void)Curl_addrinfo_callback(conn, res->last_status, res->temp_ai);
-    /* temp_ai ownership is moved to the connection, so we need not free-up
-       them */
-    res->temp_ai = NULL;
+    if(dns) {
+      (void)Curl_addrinfo_callback(conn, res->last_status, res->temp_ai);
+      /* temp_ai ownership is moved to the connection, so we need not free-up
+         them */
+      res->temp_ai = NULL;
+    }
     if(!conn->async.dns) {
       failf(data, "Could not resolve: %s (%s)",
             conn->async.hostname, ares_strerror(conn->async.status));
       result = conn->bits.proxy?CURLE_COULDNT_RESOLVE_PROXY:
         CURLE_COULDNT_RESOLVE_HOST;
     }
-    else
+    else if(dns)
       *dns = conn->async.dns;
 
     destroy_async_data(&conn->async);
@@ -354,8 +355,8 @@ CURLcode Curl_resolver_wait_resolv(struct connectdata *conn,
 {
   CURLcode result = CURLE_OK;
   struct Curl_easy *data = conn->data;
-  long timeout;
-  struct curltime now = Curl_tvnow();
+  timediff_t timeout;
+  struct curltime now = Curl_now();
   struct Curl_dns_entry *temp_entry;
 
   if(entry)
@@ -392,7 +393,7 @@ CURLcode Curl_resolver_wait_resolv(struct connectdata *conn,
       timeout_ms = 1000;
 
     waitperform(conn, timeout_ms);
-    result = Curl_resolver_is_resolved(conn, &temp_entry);
+    result = Curl_resolver_is_resolved(conn, entry?&temp_entry:NULL);
 
     if(result || conn->async.done)
       break;
@@ -400,8 +401,8 @@ CURLcode Curl_resolver_wait_resolv(struct connectdata *conn,
     if(Curl_pgrsUpdate(conn))
       result = CURLE_ABORTED_BY_CALLBACK;
     else {
-      struct curltime now2 = Curl_tvnow();
-      time_t timediff = Curl_tvdiff(now2, now); /* spent time */
+      struct curltime now2 = Curl_now();
+      timediff_t timediff = Curl_timediff(now2, now); /* spent time */
       if(timediff <= 0)
         timeout -= 1; /* always deduct at least 1 */
       else if(timediff > timeout)
@@ -474,17 +475,19 @@ static void query_completed_cb(void *arg,  /* (struct connectdata *) */
     return;
 
   res = (struct ResolverResults *)conn->async.os_specific;
-  res->num_pending--;
+  if(res) {
+    res->num_pending--;
 
-  if(CURL_ASYNC_SUCCESS == status) {
-    Curl_addrinfo *ai = Curl_he2ai(hostent, conn->async.port);
-    if(ai) {
-      compound_results(res, ai);
+    if(CURL_ASYNC_SUCCESS == status) {
+      Curl_addrinfo *ai = Curl_he2ai(hostent, conn->async.port);
+      if(ai) {
+        compound_results(res, ai);
+      }
     }
+    /* A successful result overwrites any previous error */
+    if(res->last_status != ARES_SUCCESS)
+      res->last_status = status;
   }
-  /* A successful result overwrites any previous error */
-  if(res->last_status != ARES_SUCCESS)
-    res->last_status = status;
 }
 
 /*
