@@ -29,7 +29,6 @@ brew outdated pkg-config || brew upgrade pkg-config
 ( brew ls -1 | grep -w openssl ) || brew install openssl
 ( brew ls -1 | grep -w pixman ) || brew install pixman
 ( brew ls -1 | grep -w popt ) || brew install popt
-( brew ls -1 | grep -w potrace ) || brew install potrace
 ( brew ls -1 | grep -w qt ) || brew install qt
 ( brew ls -1 | grep -w uriparser ) || brew install uriparser
 ( brew ls -1 | grep -w xz ) || brew install xz

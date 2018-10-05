@@ -99,7 +99,6 @@ In addition, you can try one of the Dockerized build environments to build MiKTe
   * poppler
   * poppler-qt5
   * popt
-  * potrace
   * uriparser
   * zzip
 

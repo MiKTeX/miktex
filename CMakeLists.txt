@@ -375,12 +375,6 @@ option(
 )
 
 option(
-  USE_SYSTEM_POTRACE
-  "Use the system Potrace bitmap tracing library."
-  ${MIKTEX_UNIX_ALIKE}
-)
-
-option(
   USE_SYSTEM_URIPARSER
   "Use the system uriparser (URI parser) library."
   ${MIKTEX_UNIX_ALIKE}
@@ -1070,10 +1064,6 @@ endif()
 
 if(USE_SYSTEM_POPT)
   find_package(POPT REQUIRED)
-endif()
-
-if(USE_SYSTEM_POTRACE)
-  find_package(POTRACE REQUIRED)
 endif()
 
 if(USE_SYSTEM_POPPLER)
@@ -1907,22 +1897,6 @@ else()
   add_subdirectory(${MIKTEX_REL_POPT_DIR})
 endif()
 
-if(USE_SYSTEM_POTRACE)
-  get_filename_component(suffix ${POTRACE_LIBRARY} EXT)
-  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
-    add_library(MiKTeX::Imported::POTRACE SHARED IMPORTED)
-  else()
-    add_library(MiKTeX::Imported::POTRACE STATIC IMPORTED)
-  endif()
-  set_target_properties(MiKTeX::Imported::POTRACE
-    PROPERTIES
-      IMPORTED_LOCATION "${POTRACE_LIBRARY}"
-      INTERFACE_INCLUDE_DIRECTORIES "${POTRACE_INCLUDE_DIRS}"
-  )
-else()
-  add_subdirectory(${MIKTEX_REL_POTRACE_LIB_DIR})
-endif()
-
 if(USE_SYSTEM_URIPARSER)
   get_filename_component(suffix ${URIPARSER_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
@@ -2248,7 +2222,7 @@ if(DPKG_SHLIBDEPS_EXECUTABLE)
   set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS TRUE)
 else()
   set(CPACK_DEBIAN_PACKAGE_DEPENDS
-    "${debian_install_dependencies}, ${debian_runtime_dependencies}, libbz2-1.0, libc6 (>= 2.14), libcairo2 (>= 1.2.4), libcurl3-gnutls (>= 7.16.2), libexpat1 (>= 2.0.1), libfontconfig1 (>= 2.11), libfreetype6 (>= 2.3.9), libfribidi0 (>= 0.19.2), libgcc1 (>= 1:4.0), libgd3 (>= 2.1.0~alpha~), libgmp10, libgraphite2-3 (>= 1.2.2), libharfbuzz-icu0 (>= 0.9.9), libharfbuzz0b (>= 1.4.1), libicu57 (>= 57.1-1~), libjpeg62-turbo (>= 1.3.1), liblog4cxx10v5, liblzma5 (>= 5.1.1alpha+20120614), libmpfr4 (>= 3.1.3), libmspack0 (>= 0.4), libpixman-1-0 (>= 0.10.0), libpng16-16 (>= 1.6.2-1), libpoppler57 (>= 0.38.0), libpopt0 (>= 1.14), libpotrace0, libssl1.0.2 (>= 1.0.2d), libstdc++6 (>= 6), liburiparser1 (>= 0.6.0), libzzip-0-13 (>= 0.13.56), zlib1g (>= 1:1.1.4)"
+    "${debian_install_dependencies}, ${debian_runtime_dependencies}, libbz2-1.0, libc6 (>= 2.14), libcairo2 (>= 1.2.4), libcurl3-gnutls (>= 7.16.2), libexpat1 (>= 2.0.1), libfontconfig1 (>= 2.11), libfreetype6 (>= 2.3.9), libfribidi0 (>= 0.19.2), libgcc1 (>= 1:4.0), libgd3 (>= 2.1.0~alpha~), libgmp10, libgraphite2-3 (>= 1.2.2), libharfbuzz-icu0 (>= 0.9.9), libharfbuzz0b (>= 1.4.1), libicu57 (>= 57.1-1~), libjpeg62-turbo (>= 1.3.1), liblog4cxx10v5, liblzma5 (>= 5.1.1alpha+20120614), libmpfr4 (>= 3.1.3), libmspack0 (>= 0.4), libpixman-1-0 (>= 0.10.0), libpng16-16 (>= 1.6.2-1), libpoppler57 (>= 0.38.0), libpopt0 (>= 1.14), libssl1.0.2 (>= 1.0.2d), libstdc++6 (>= 6), liburiparser1 (>= 0.6.0), libzzip-0-13 (>= 0.13.56), zlib1g (>= 1:1.1.4)"
   )
 endif()
 
