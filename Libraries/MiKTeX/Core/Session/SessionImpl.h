@@ -49,7 +49,7 @@
 #include "RootDirectoryInternals.h"
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-#  import "MiKTeX209-session.tlb" raw_interfaces_only
+#  import MIKTEX_SESSION_TLB raw_interfaces_only
 #endif
 
 BEGIN_INTERNAL_NAMESPACE;

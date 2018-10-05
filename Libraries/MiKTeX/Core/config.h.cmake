@@ -1,6 +1,6 @@
 /* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -65,6 +65,8 @@
 #if defined(WITH_LIBRESSL_CRYPTO) || defined(USE_SYSTEM_OPENSSL_CRYPTO)
 #  define ENABLE_OPENSSL 1
 #endif
+
+#define MIKTEX_SESSION_TLB "${session_tlb_name}.tlb"
 
 #define MIKTEX_SOURCE_DIR "${CMAKE_SOURCE_DIR}"
 #define MIKTEX_BINARY_DIR "${CMAKE_BINARY_DIR}"
