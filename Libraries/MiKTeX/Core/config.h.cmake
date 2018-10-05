@@ -52,13 +52,6 @@
 #cmakedefine ADMIN_CONTROLS_USER_CONFIG 1
 #cmakedefine REPORT_EVENTS 1
 
-#cmakedefine USE_SYSTEM_BOTAN 1
-#cmakedefine WITH_BOTAN 1
-
-#if defined(WITH_BOTAN) || defined(USE_SYSTEM_BOTAN)
-#  define ENABLE_BOTAN 1
-#endif
-
 #cmakedefine USE_SYSTEM_OPENSSL_CRYPTO 1
 #cmakedefine WITH_LIBRESSL_CRYPTO 1
 

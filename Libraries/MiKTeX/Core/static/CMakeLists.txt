@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -85,12 +85,6 @@ if(MIKTEX_NATIVE_WINDOWS)
         htmlhelp.lib
     )
   endif()
-endif()
-
-if(USE_SYSTEM_BOTAN)
-  target_link_libraries(${core_lib_name} PUBLIC MiKTeX::Imported::BOTAN110)
-elseif(WITH_BOTAN)
-  target_link_libraries(${core_lib_name} PUBLIC ${botan_lib_name})
 endif()
 
 if(USE_SYSTEM_OPENSSL_CRYPTO)

@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -32,14 +32,6 @@
 
 #define EAD86981C92C904D808A5E6CEC64B90E
 #include "miktex/Core/config.h"
-
-#if defined(ENABLE_BOTAN)
-#include <botan/botan.h>
-#include <botan/look_pk.h>
-#include <botan/pk_keys.h>
-#include <botan/pk_filts.h>
-#include <botan/rsa.h>
-#endif
 
 #if defined(ENABLE_OPENSSL)
 #include <openssl/err.h>
@@ -204,10 +196,6 @@ const size_t MPM_ROOT_PATH_LEN_ = 14;
 const size_t MPM_ROOT_PATH_LEN = MPM_ROOT_PATH_LEN_;
 #endif
 
-#if defined(ENABLE_BOTAN)
-Botan::Public_Key * LoadPublicKey_Botan(const MiKTeX::Core::PathName & publicKeyFile);
-#endif
-
 #if defined(ENABLE_OPENSSL)
 using BIO_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;
 #if defined(LIBRESSL_VERSION_NUMBER) || OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -251,7 +239,6 @@ const char * GetFileNameExtension(const char * lpszPath);
 enum class CryptoLib
 {
   None,
-  Botan,
   OpenSSL
 };
 CryptoLib GetCryptoLib();

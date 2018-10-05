@@ -50,10 +50,6 @@ const char* const COMMENT2 = ";;";
 const char* const COMMENT3 = ";;;";
 const char* const COMMENT4 = ";;;;";
 
-#if defined(ENABLE_BOTAN)
-const char* const EMSA_ = "EMSA3(SHA-256)";
-#endif
-
 MIKTEXSTATICFUNC(bool) EndsWith(const string& s, const string& suffix)
 {
   return s.length() >= suffix.length() &&
@@ -352,27 +348,6 @@ public:
 private:
   MD5Builder md5Builder;
 };
-
-#if defined(ENABLE_BOTAN)
-class BotanWalkCallback :
-  public WalkCallback
-{
-public:
-  BotanWalkCallback(Botan::Pipe& pipe) :
-    pipe(pipe)
-  {
-  }
-
-private:
-  Botan::Pipe& pipe;
-  
-public:
-  void addData(const string& data) override
-  {
-    pipe.write(data);
-  }
-};
-#endif
 
 #if defined(ENABLE_OPENSSL)
 class OpenSSLWalkCallback :
@@ -1095,40 +1070,6 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
 
   if (wasEmpty && level == 0 && !signature.empty())
   {
-#if defined(ENABLE_BOTAN)
-    if (GetCryptoLib() == CryptoLib::Botan)
-    {
-      Botan::Pipe sigPipe(new Botan::Base64_Decoder(Botan::Decoder_Checking::FULL_CHECK));
-      sigPipe.process_msg(signature);
-      unique_ptr<Botan::Public_Key> pPublicKey(LoadPublicKey_Botan(publicKeyFile));
-      Botan::RSA_PublicKey* pRsaKey = dynamic_cast<Botan::RSA_PublicKey*>(pPublicKey.get());
-      if (pRsaKey == nullptr)
-      {
-        MIKTEX_UNEXPECTED();
-      }
-#if BOTAN_VERSION_CODE >= BOTAN_VERSION_CODE_FOR(1, 10, 0)
-      Botan::Pipe pipe(new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(*pRsaKey, EMSA_), sigPipe.read_all()));
-#else
-      Botan::Pipe pipe(new Botan::PK_Verifier_Filter(Botan::get_pk_verifier(*pRsaKey, EMSA_), sigPipe.read_all()));
-#endif
-      BotanWalkCallback callback(pipe);
-      pipe.start_msg();
-      Walk(&callback);
-      pipe.end_msg();
-      Botan::byte ok;
-      if (pipe.read_byte(ok) != 1)
-      {
-        MIKTEX_UNEXPECTED();
-      }
-      MIKTEX_ASSERT(ok == 1 || ok == 0);
-      if (ok != 1)
-      {
-#if !defined(DISABLE_SIGNATURE_CHECK)
-        FATAL_CFG_ERROR(T_("the file has been tampered with"));
-#endif
-      }
-    }
-#endif
 #if defined(ENABLE_OPENSSL)
     if (GetCryptoLib() == CryptoLib::OpenSSL)
     {
@@ -1216,26 +1157,6 @@ bool CfgImpl::ParseValueDefinition(const string& line, string& valueName, string
   return true;
 }
 
-#if defined(ENABLE_BOTAN)
-class BotanUI : public Botan::User_Interface
-{
-public:
-  BotanUI(IPrivateKeyProvider* pPrivateKeyProvider) :
-    pPrivateKeyProvider(pPrivateKeyProvider)
-  {
-  }
-public:
-  string get_passphrase(const string& what, const string& source, UI_Result& result) const override
-  {
-    string passphrase;
-    result = (pPrivateKeyProvider->GetPassphrase(passphrase) ? UI_Result::OK : UI_Result::CANCEL_ACTION);
-    return passphrase;
-  }
-private:
-  IPrivateKeyProvider* pPrivateKeyProvider = nullptr;
-};
-#endif
-
 #if defined(ENABLE_OPENSSL)
 extern "C" int OpenSSLPasswordCallback(char* buf, int size, int rwflag, void* userdata)
 {
@@ -1308,33 +1229,6 @@ void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvi
   if (pPrivateKeyProvider != nullptr)
   {
     string sig;
-#if defined(ENABLE_BOTAN)
-    if (GetCryptoLib() == CryptoLib::Botan)
-    {
-      unique_ptr<Botan::PKCS8_PrivateKey> privateKey;
-      Botan::AutoSeeded_RNG rng;
-      BotanUI ui(pPrivateKeyProvider);
-      unique_ptr<Botan::Pipe> pPipe;
-      privateKey.reset(Botan::PKCS8::load_key(pPrivateKeyProvider->GetPrivateKeyFile().ToString(), rng, ui));
-      Botan::RSA_PrivateKey* pRsaKey = dynamic_cast<Botan::RSA_PrivateKey*>(privateKey.get());
-      if (pRsaKey == nullptr)
-      {
-        MIKTEX_UNEXPECTED();
-      }
-      pPipe.reset(new Botan::Pipe(
-#if BOTAN_VERSION_CODE >= BOTAN_VERSION_CODE_FOR(1, 10, 0)
-                                  new Botan::PK_Signer_Filter(new Botan::PK_Signer(*pRsaKey, EMSA_), rng),
-#else
-                                  new Botan::PK_Signer_Filter(new Botan::PK_Signer(*pRsaKey, Botan::get_emsa(EMSA_)), rng),
-#endif
-                                  new Botan::Base64_Encoder()));
-      pPipe->start_msg();
-      BotanWalkCallback callback(*pPipe);
-      Walk(&callback);
-      pPipe->end_msg();
-      sig = pPipe->read_all_as_string();
-    }
-#endif
 #if defined(ENABLE_OPENSSL)
     if (GetCryptoLib() == CryptoLib::OpenSSL)
     {

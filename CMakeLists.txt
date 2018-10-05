@@ -183,12 +183,6 @@ option(
 )
 
 option(
-  USE_SYSTEM_BOTAN
-  "Use the system Botan cryptography library as an alternative crypto library."
-  FALSE
-)
-
-option(
   USE_SYSTEM_BZIP2
   "Use the system bzip2 compression library."
   ${MIKTEX_UNIX_ALIKE}
@@ -402,12 +396,6 @@ option(
   WITH_BOOTSTRAPPING
   "Install files necessary for initializing a bare MiKTeX installation."
   ${MIKTEX_UNIX_ALIKE}
-)
-
-option(
-  WITH_BOTAN
-  "Use the Botan crypto library supplied with MiKTeX."
-  FALSE
 )
 
 option(
@@ -966,10 +954,6 @@ if(USE_SYSTEM_APRUTIL)
   find_package(APRUTIL REQUIRED)
 endif()
 
-if(USE_SYSTEM_BOTAN)
-  find_package(BOTAN110 REQUIRED)
-endif()
-
 if(USE_SYSTEM_BZIP2)
   find_package(BZip2 REQUIRED)
 endif()
@@ -1438,23 +1422,6 @@ if(USE_SYSTEM_APRUTIL)
   )
 else()
   add_subdirectory(${MIKTEX_REL_APR_UTIL_DIR})
-endif()
-
-if(USE_SYSTEM_BOTAN)
-  get_filename_component(suffix ${BOTAN110_LIBRARY} EXT)
-  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
-    add_library(MiKTeX::Imported::BOTAN110 SHARED IMPORTED)
-  else()
-    add_library(MiKTeX::Imported::BOTAN110 STATIC IMPORTED)
-  endif()
-  set_target_properties(MiKTeX::Imported::BOTAN110
-    PROPERTIES
-      IMPORTED_LOCATION "${BOTAN110_LIBRARY}"
-      INTERFACE_INCLUDE_DIRECTORIES "${BOTAN110_INCLUDE_DIRS}"
-      INTERFACE_TARGET_LIBRARIES "${BOTAN110_LIBRARIES}"
-  )
-elseif(WITH_BOTAN)
-  add_subdirectory(${MIKTEX_REL_BOTAN_DIR})
 endif()
 
 if(USE_SYSTEM_BZIP2)

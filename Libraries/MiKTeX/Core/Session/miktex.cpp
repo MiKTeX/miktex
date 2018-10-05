@@ -591,9 +591,7 @@ namespace {
 
 MIKTEXINTERNALFUNC(CryptoLib) GetCryptoLib()
 {
-#if defined(ENABLE_BOTAN)
-  return CryptoLib::Botan;
-#elif defined(ENABLE_OPENSSL)
+#if defined(ENABLE_OPENSSL)
   static bool initDone = false;
   if (!initDone)
   {
@@ -606,20 +604,6 @@ MIKTEXINTERNALFUNC(CryptoLib) GetCryptoLib()
   return CryptoLib::None;
 #endif
 }
-
-#if defined(ENABLE_BOTAN)
-MIKTEXINTERNALFUNC(Botan::Public_Key*) LoadPublicKey_Botan(const PathName& publicKeyFile)
-{
-  if (publicKeyFile.Empty())
-  {
-    return Botan::X509::load_key(Botan::MemoryVector<Botan::byte>(&PUBLIC_KEY_NAME[0], sizeof(PUBLIC_KEY_NAME)));
-  }
-  else
-  {
-    return Botan::X509::load_key(publicKeyFile.ToString());
-  }
-}
-#endif
 
 #if defined(ENABLE_OPENSSL)
 extern "C" int OnOpenSSLError(const char* str, size_t len, void* u)
