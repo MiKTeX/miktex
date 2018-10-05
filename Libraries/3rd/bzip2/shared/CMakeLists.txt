@@ -25,7 +25,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_BINARY_DIR}/libbz2.rc
   )
   list(APPEND ${bzip2_dll_name}_sources
-    ../source/libbz2.def
+    ../libbz2.def
     ${CMAKE_CURRENT_BINARY_DIR}/libbz2.rc
   )
 endif()
