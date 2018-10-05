@@ -1,6 +1,6 @@
-/* potrace.rc: version number                           -*- C++ -*-
+/* mplib.rc: version number                             -*- C++ -*-
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,7 +21,7 @@
 
 #define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
 #define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${potrace_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${potrace_dll_name}.dll"
+#define VER_INTERNALNAME_STR "${metapost_dll_name}"
+#define VER_ORIGINALFILENAME_STR "${metapost_dll_name}.dll"
 
 #include <miktex/win/version.rc>

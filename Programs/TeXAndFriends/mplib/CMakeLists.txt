@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2017 Christian Schenk
+## Copyright (C) 2010-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -248,7 +248,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     mplib.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/mplib.rc
   )
-  list(APPEND mpllib_sources mplib.rc)
+  list(APPEND mplib_sources mplib.rc)
 endif()
 
 add_library(${metapost_dll_name} SHARED ${mplib_sources})
