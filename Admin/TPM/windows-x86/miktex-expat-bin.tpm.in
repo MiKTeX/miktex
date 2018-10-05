@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Expat maintainers" year="2001-2016"/>
     <TPM:Copyright owner="Thai Open Source Software Center Ltd" year="1998-2000"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>2.2.0</TPM:Version>
+    <TPM:Version>2.2.6</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

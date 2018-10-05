@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2001-2016 Christian Schenk
+## Copyright (C) 2001-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -26,6 +26,7 @@ set(expat_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/latin1tab.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/nametab.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/siphash.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/utf8tab.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/xmlparse.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/xmlrole.c
@@ -37,8 +38,14 @@ set(expat_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/expat-version.h
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND expat_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/loadlibrary.c
+  )
+endif()
+
 configure_file(
-  expat_config.h.cmake
+  source/expat_config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/expat_config.h
 )
 
