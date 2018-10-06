@@ -68,8 +68,13 @@ typedef enum {
     call_edit_callback,
     build_page_insert_callback,
     glyph_stream_provider_callback,
+    font_descriptor_objnum_provider_callback,
     finish_synctex_callback,
-    total_callbacks
+    wrapup_run_callback,
+    new_graf_callback,
+    page_objnum_provider_callback,
+    make_extensible_callback,
+    total_callbacks,
 } callback_callback_types;
 
 /* lcallbacklib.c */
@@ -96,7 +101,6 @@ extern void get_lua_boolean(const char *table, const char *name, boolean * targe
 extern void get_lua_number(const char *table, const char *name, int *target);
 extern void get_lua_string(const char *table, const char *name, char **target);
 
-extern int lua_reader_callback(int callback_id, pointer *buffloc);
 
 extern char *get_lua_name(int i);
 

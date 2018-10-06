@@ -17,9 +17,9 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 6839
+#define MIKTEX_COMP_J2000_VERSION 6853
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "1.07.0"
+#define MIKTEX_COMP_ORIG_VERSION_STR "1.09.0"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "(C) 2018 Taco Hoekwater and the LuaTeX Team"
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2018 Taco Hoekwater and the LuaTeX Team"

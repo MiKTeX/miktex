@@ -180,7 +180,8 @@ size_t          T##_limit
 #  include "tex/expand.h"
 #  include "tex/conditional.h"
 
-#  include "pdf/pdftypes.h" /* the backend data structure, shared between dvi and pdf */
+#  include "pdf/pdftypes.h" /* the backend data structure, shared between dvi and pdf (might move to |tex/backend| */
+#  include "tex/backend.h"  /* more backend data  */
 
 #  include "synctex.h"
 
@@ -281,7 +282,7 @@ int lua_appendtovlist_callback(
     halfword box, int location, halfword prev_depth, boolean is_mirrored,
     halfword * result, int * next_depth, boolean * prev_set);
 
-void lua_pdf_literal(PDF pdf, int i);
+void lua_pdf_literal(PDF pdf, int i, int noline);
 void copy_pdf_literal(pointer r, pointer p);
 void free_pdf_literal(pointer p);
 void show_pdf_literal(pointer p);
@@ -304,7 +305,7 @@ void undump_luac_registers(void);
 void luacstring_start(int n);
 void luacstring_close(int n);
 int luacstring_cattable(void);
-int luacstring_input(void);
+int luacstring_input(halfword *n);
 int luacstring_partial(void);
 int luacstring_final_line(void);
 
@@ -320,6 +321,7 @@ void flush_loggable_info(void);
 
 /* lua/luastuff.w  */
 void luafunctioncall(int slot);
+void luabytecodecall(int slot);
 
 /* lua/luastuff.c */
 void luatokencall(int p, int nameptr);
