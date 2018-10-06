@@ -332,13 +332,14 @@ mem[NODE+TYPE##_node_size-synchronization_field_size+1].cint
 #include <miktex/Core/PathName>
 #endif
 #endif
-
-#if !defined(MIKTEX) && defined(_WIN32) && (defined(upTeX) || defined(eupTeX) || defined(XeTeX))
+#if !defined(MIKTEX)
+#if defined(_WIN32) && (defined(pdfTeX) || defined(upTeX) || defined(eupTeX) || defined(XeTeX))
 #define W32UPTEXSYNCTEX 1
 #include <wchar.h>
 static char *chgto_oem(char *src);
 static int fsyscp_remove(char *name);
 #define remove fsyscp_remove
+#endif
 #endif
 
 /*  This macro layer was added to take luatex into account as suggested by T. Hoekwater. */
@@ -725,7 +726,8 @@ static void *synctex_dot_open(void)
             if (SYNCTEX_FILE) {
                 if (SYNCTEX_NO_ERROR == synctex_record_preamble()) {
                     /*  Initialization of the context */
-                    synctex_ctxt.magnification = 1000;
+                    if (synctex_ctxt.magnification == 0)
+                        synctex_ctxt.magnification = 1000;
                     synctex_ctxt.unit = SYNCTEX_UNIT_FACTOR;
                     /*  synctex_ctxt.busy_name was NULL before, it now owns the_busy_name */
                     synctex_ctxt.busy_name = the_busy_name;
@@ -1157,17 +1159,17 @@ void synctexsheet(integer mag)
         }
         return;
     }
+    if (SYNCTEX_GET_TOTAL_PAGES() == 0) {
+        /*  Now it is time to properly set up the scale factor. */
+        if (mag > 0) {
+            synctex_ctxt.magnification = mag;
+        }
+    }
     if (NULL != synctex_prepare_content()) {
         /*  First possibility: the .synctex file is already open because SyncTeX was activated on the CLI
          *  or it was activated with the \synctex macro and the first page is already shipped out.
          *  Second possibility: tries to open the .synctex, useful if synchronization was enabled
          *  from the source file and not from the CLI. */
-        if (SYNCTEX_GET_TOTAL_PAGES() == 0) {
-            /*  Now it is time to properly set up the scale factor. */
-            if (mag > 0) {
-                synctex_ctxt.magnification = mag;
-            }
-        }
         synctex_record_sheet(SYNCTEX_GET_TOTAL_PAGES()+1);
     }
 #   if SYNCTEX_DEBUG
