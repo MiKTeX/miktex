@@ -1,4 +1,4 @@
-/* chktex-version.h: version number			-*- C++ -*-
+/* chktex-version.h: version number                     -*- C++ -*-
 
    Copyright (C) 2016 Christian Schenk
 
@@ -17,7 +17,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 6300
+#define MIKTEX_COMP_J2000_VERSION 6853
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.7.6"
 

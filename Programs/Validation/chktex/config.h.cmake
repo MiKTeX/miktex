@@ -128,7 +128,9 @@
 #cmakedefine PACKAGE_URL
 
 /* Define to the version of this package. */
-#include "chktex-version.h"
+#if defined(MIKTEX)
+#  include "chktex-version.h"
+#endif
 #define PACKAGE_VERSION MIKTEX_COMP_ORIG_VERSION_STR
 
 /* Define to 1 if you have the ANSI C header files. */
