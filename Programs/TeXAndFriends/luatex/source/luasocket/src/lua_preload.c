@@ -15,6 +15,7 @@ int luatex_http_lua_open(lua_State*);
 int luatex_ftp_lua_open(lua_State*);
 
 
+extern void luatex_socketlua_open (lua_State *) ;
 #include "ftp_lua.c"
 #include "headers_lua.c" 
 #include "http_lua.c"

@@ -98,13 +98,6 @@ typedef struct {
 
 /**********************************************************************/
 
-#  define FONT_SLANT_MIN   -2000
-#  define FONT_SLANT_MAX    2000
-#  define FONT_EXTEND_MIN  -5000
-#  define FONT_EXTEND_MAX   5000
-
-/**********************************************************************/
-
 fm_entry *getfontmap(char *tfm_name);
 void fm_free(void);
 ff_entry *check_ff_exist(char *, boolean);

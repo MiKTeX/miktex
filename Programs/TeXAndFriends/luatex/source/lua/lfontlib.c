@@ -324,7 +324,9 @@ static int l_vf_char(lua_State * L)
     }
     mat_p = &(vsp->packet_stack[vsp->packet_stack_level]);
     w = char_width(lf, k);
-    mat_p->pos.h += round_xn_over_d(w, 1000 + ex_glyph, 1000);
+    if (ex_glyph != 0)
+        w = round_xn_over_d(w, 1000 + ex_glyph, 1000);
+    mat_p->pos.h += w;
     synch_pos_with_cur(static_pdf->posstruct, vsp->refpos, mat_p->pos);
     return 0;
 }
@@ -416,11 +418,14 @@ static int l_vf_right(lua_State * L)
 {
     scaled i;
     vf_struct *vsp = static_pdf->vfstruct;
+    int ex_glyph = vsp->ex_glyph/1000;
     packet_stack_record *mat_p;
     if (!vsp->vflua)
         normal_error("vf", "vf.right() outside virtual font");
     mat_p = &(vsp->packet_stack[vsp->packet_stack_level]);
     i = (scaled) luaL_checkinteger(L, 1);
+    if (ex_glyph != 0 && i != 0) /* new, experiment */
+        i = round_xn_over_d(i, 1000 + ex_glyph, 1000);
     i = store_scaled_f(i, vsp->fs_f);
     mat_p->pos.h += i;
     synch_pos_with_cur(static_pdf->posstruct, vsp->refpos, mat_p->pos);
@@ -431,11 +436,14 @@ static int l_vf_rule(lua_State * L)
 {
     scaledpos size;
     vf_struct *vsp = static_pdf->vfstruct;
+    int ex_glyph = vsp->ex_glyph/1000;
     packet_stack_record *mat_p;
     if (!vsp->vflua)
         normal_error("vf", "vf.rule() outside virtual font");
     size.h = (scaled) luaL_checkinteger(L, 1);
     size.v = (scaled) luaL_checkinteger(L, 2);
+    if (ex_glyph != 0 && size.h > 0) /* new, experiment */
+        size.h = round_xn_over_d(size.h, 1000 + ex_glyph, 1000);
     size.h = store_scaled_f(size.h, vsp->fs_f);
     size.v = store_scaled_f(size.v, vsp->fs_f);
     if (size.h > 0 && size.v > 0)
@@ -460,6 +468,16 @@ static int l_vf_special(lua_State * L)
     return 0;
 }
 
+static int l_vf_pdf(lua_State * L)
+{
+    vf_struct *vsp = static_pdf->vfstruct;
+    if (!vsp->vflua)
+        normal_error("vf", "vf.special() outside virtual font");
+    luapdfprint(L);
+    pdf_out(static_pdf, '\n');
+    return 0;
+}
+
 static const struct luaL_Reg vflib[] = {
     {"char", l_vf_char},
     {"down", l_vf_down},
@@ -476,6 +494,7 @@ static const struct luaL_Reg vflib[] = {
     /* {"scale", l_vf_scale}, */
     /* {"slot", l_vf_slot}, */
     {"special", l_vf_special},
+    {"pdf", l_vf_pdf},
     {NULL, NULL}                /* sentinel */
 };
 

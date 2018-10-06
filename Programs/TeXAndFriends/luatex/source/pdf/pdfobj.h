@@ -35,6 +35,7 @@
 
 #  define OBJ_FLAG_ISSTREAM              (1 << 0)
 #  define OBJ_FLAG_ISFILE                (1 << 1)
+#  define OBJ_FLAG_NOLENGTH              (1 << 2)
 
 #  define obj_obj_is_stream(pdf,A)       ((obj_obj_flags((pdf), (A)) & OBJ_FLAG_ISSTREAM) != 0)
 #  define set_obj_obj_is_stream(pdf,A)   ((obj_obj_flags((pdf), (A)) |= OBJ_FLAG_ISSTREAM))
@@ -43,6 +44,10 @@
 #  define obj_obj_is_file(pdf,A)         ((obj_obj_flags((pdf), (A)) & OBJ_FLAG_ISFILE) != 0)
 #  define set_obj_obj_is_file(pdf,A)     ((obj_obj_flags((pdf), (A)) |= OBJ_FLAG_ISFILE))
 #  define unset_obj_obj_is_file(pdf,A)   ((obj_obj_flags((pdf), (A)) &= ~OBJ_FLAG_ISFILE))
+
+#  define obj_obj_no_length(pdf,A)       ((obj_obj_flags((pdf), (A)) & OBJ_FLAG_NOLENGTH) != 0)
+#  define set_obj_obj_no_length(pdf,A)   ((obj_obj_flags((pdf), (A)) |= OBJ_FLAG_NOLENGTH))
+#  define unset_obj_obj_no_length(pdf,A) ((obj_obj_flags((pdf), (A)) &= ~OBJ_FLAG_NOLENGTH))
 
 extern void init_obj_obj(PDF pdf, int k);
 extern void pdf_write_obj(PDF pdf, int n);

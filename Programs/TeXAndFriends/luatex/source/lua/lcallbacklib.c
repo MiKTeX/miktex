@@ -22,6 +22,9 @@
 
 int callback_count = 0;
 int saved_callback_count = 0;
+int direct_callback_count = 0;
+int late_callback_count = 0;
+int function_callback_count = 0;
 
 int callback_set[total_callbacks] = { 0 };
 
@@ -74,7 +77,12 @@ static const char *const callbacknames[] = {
     "call_edit",
     "build_page_insert",
     "glyph_stream_provider",
-    "finish_synctex_callback",
+    "font_descriptor_objnum_provider",
+    "finish_synctex",
+    "wrapup_run",
+    "new_graf",
+    "page_objnum_provider",
+    "make_extensible",
     NULL
 };
 
@@ -207,7 +215,6 @@ int run_saved_callback(int r, const char *name, const char *values, ...)
     lua_rawget(Luas, -2);
     if (lua_isfunction(Luas, -1)) {
         saved_callback_count++;
-        callback_count++;
         ret = do_run_callback(2, values, args);
     }
     va_end(args);

@@ -20,9 +20,6 @@
 #ifndef LINEBREAK_H
 #  define LINEBREAK_H
 
-#  define left_side 0
-#  define right_side 1
-
 extern halfword just_box;       /* the |hlist_node| for the last line of the new paragraph */
 
 extern void line_break(boolean d, int line_break_context);

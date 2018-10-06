@@ -306,6 +306,7 @@ typedef enum {
     mark_text = 14,             /* |token_type| code for \.{\\topmark}, etc. */
     every_eof_text = 15,        /* |token_type| code for \.{\\everyeof} */
     write_text = 16,            /* |token_type| code for \.{\\write} */
+    local_text = 17,            /* |token_type| code for special purposed */
 } token_types;
 
 extern pointer *param_stack;

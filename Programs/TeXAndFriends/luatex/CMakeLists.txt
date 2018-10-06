@@ -115,7 +115,6 @@ set(luasocket_sources
   source/luasocket/src/mime.h
   source/luasocket/src/options.c
   source/luasocket/src/options.h
-  source/luasocket/src/pierror.h
   source/luasocket/src/select.c
   source/luasocket/src/select.h
   source/luasocket/src/serial.c
@@ -218,6 +217,110 @@ if(WITH_LUA53TEX)
   )
   if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(luatex-lua53misc-static
+      PUBLIC
+        ${unxemu_dll_name}
+        ${utf8wrap_dll_name}
+    )
+  endif()
+endif()
+
+###############################################################################
+## luatex-luapplib-static
+###############################################################################
+
+set(luapplib_sources
+  source/luapplib/ppapi.h
+  source/luapplib/pparray.c
+  source/luapplib/pparray.h
+  source/luapplib/ppconf.h
+  source/luapplib/ppcrypt.c
+  source/luapplib/ppcrypt.h
+  source/luapplib/ppdict.c
+  source/luapplib/ppdict.h
+  source/luapplib/ppfilter.h
+  source/luapplib/ppheap.c
+  source/luapplib/ppheap.h
+  source/luapplib/pplib.h
+  source/luapplib/ppload.c
+  source/luapplib/ppload.h
+  source/luapplib/ppstream.c
+  source/luapplib/ppstream.h
+  source/luapplib/ppxref.c
+  source/luapplib/ppxref.h
+  source/luapplib/util/utilbasexx.c
+  source/luapplib/util/utilbasexx.h
+  source/luapplib/util/utilcrypt.c
+  source/luapplib/util/utilcrypt.h
+  source/luapplib/util/utilcryptdef.h
+  source/luapplib/util/utildecl.h
+  source/luapplib/util/utilflate.c
+  source/luapplib/util/utilflate.h
+  source/luapplib/util/utilfpred.c
+  source/luapplib/util/utilfpred.h
+  source/luapplib/util/utiliof.c
+  source/luapplib/util/utiliof.h
+  source/luapplib/util/utillog.c
+  source/luapplib/util/utillog.h
+  source/luapplib/util/utillzw.c
+  source/luapplib/util/utillzw.h
+  source/luapplib/util/utilmd5.c
+  source/luapplib/util/utilmd5.h
+  source/luapplib/util/utilmem.c
+  source/luapplib/util/utilmem.h
+  source/luapplib/util/utilnumber.c
+  source/luapplib/util/utilnumber.h
+  source/luapplib/util/utilplat.h
+  source/luapplib/util/utilsha.c
+  source/luapplib/util/utilsha.h
+  source/luapplib/zlib/zconf.h
+  source/luapplib/zlib/zlib.h 
+)
+
+add_library(luatex-lua52pplib-static STATIC ${luapplib_sources})
+set_property(TARGET luatex-lua52pplib-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_include_directories(luatex-lua52pplib-static
+  PUBLIC
+    source/luapplib/util
+    source/luapplib/zlib
+)
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(luatex-lua52pplib-static PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(luatex-lua52pplib-static PUBLIC ${zlib_dll_name})
+endif()
+target_link_libraries(luatex-lua52pplib-static
+  PUBLIC
+    ${core_dll_name}
+    ${lua52_target_name}
+)
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(luatex-lua52pplib-static
+    PUBLIC
+      ${unxemu_dll_name}
+      ${utf8wrap_dll_name}
+  )
+endif()
+
+if(WITH_LUA53TEX)
+  add_library(luatex-lua53pplib-static STATIC ${luapplib_sources})
+  set_property(TARGET luatex-lua53pplib-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  target_include_directories(luatex-lua53pplib-static
+    PUBLIC
+      source/luapplib/util
+      source/luapplib/zlib
+  )
+  if(USE_SYSTEM_ZLIB)
+    target_link_libraries(luatex-lua53pplib-static PUBLIC MiKTeX::Imported::ZLIB)
+  else()
+    target_link_libraries(luatex-lua53pplib-static PUBLIC ${zlib_dll_name})
+  endif()
+  target_link_libraries(luatex-lua53pplib-static
+    PUBLIC
+      ${core_dll_name}
+      ${lua53_target_name}
+  )
+  if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(luatex-lua53pplib-static
       PUBLIC
         ${unxemu_dll_name}
         ${utf8wrap_dll_name}
@@ -460,263 +563,210 @@ endif()
 ## luatex-static
 ###############################################################################
 
-set(luatexlib_cwebs
-  source/dvi/dvigen.w
-  source/font/dofont.w
-  source/font/luafont.w
-  source/font/mapfile.w
-  source/font/pkin.w
-  source/font/sfnt.w
-  source/font/texfont.w
-  source/font/tfmofm.w
-  source/font/tounicode.w
-  source/font/tt_glyf.w
-  source/font/tt_table.w
-  source/font/vfovf.w
-  source/font/vfpacket.w
-  source/font/writecff.w
-  source/font/writeenc.w
-  source/font/writefont.w
-  source/font/writet1.w
-  source/font/writet3.w
-  source/font/writettf.w
-  source/font/writetype0.w
-  source/font/writetype2.w
-  source/image/writeimg.w
-  source/image/writejbig2.w
-  source/image/writejp2.w
-  source/image/writejpg.w
-  source/image/writepng.w
-  source/lang/hnjalloc.w
-  source/lang/hyphen.w
-  source/lang/texlang.w
-  source/lua/helpers.w
-  source/lua/luainit.w
-  source/lua/luanode.w
-  source/lua/luastuff.w
-  source/lua/luatoken.w
-  source/lua/mplibstuff.w
-  source/lua/texluac.w
-  source/pdf/pdfaction.w
-  source/pdf/pdfannot.w
-  source/pdf/pdfcolorstack.w
-  source/pdf/pdfdest.w
-  source/pdf/pdffont.w
-  source/pdf/pdfgen.w
-  source/pdf/pdfglyph.w
-  source/pdf/pdfimage.w
-  source/pdf/pdflink.w
-  source/pdf/pdflistout.w
-  source/pdf/pdfliteral.w
-  source/pdf/pdfobj.w
-  source/pdf/pdfoutline.w
-  source/pdf/pdfpage.w
-  source/pdf/pdfpagetree.w
-  source/pdf/pdfrule.w
-  source/pdf/pdfsaverestore.w
-  source/pdf/pdfsetmatrix.w
-  source/pdf/pdfshipout.w
-  source/pdf/pdftables.w
-  source/pdf/pdfthread.w
-  source/pdf/pdfxform.w
-  source/tex/align.w
-  source/tex/arithmetic.w
-  source/tex/buildpage.w
-  source/tex/commands.w
-  source/tex/conditional.w
-  source/tex/directions.w
-  source/tex/dumpdata.w
-  source/tex/equivalents.w
-  source/tex/errors.w
-  source/tex/expand.w
-  source/tex/extensions.w
-  source/tex/filename.w
-  source/tex/inputstack.w
-  source/tex/linebreak.w
-  source/tex/mainbody.w
-  source/tex/maincontrol.w
-  source/tex/mathcodes.w
-  source/tex/memoryword.w
-  source/tex/mlist.w
-  source/tex/nesting.w
-  source/tex/packaging.w
-  source/tex/postlinebreak.w
-  source/tex/primitive.w
-  source/tex/printing.w
-  source/tex/scanning.w
-  source/tex/stringpool.w
-  source/tex/texdeffont.w
-  source/tex/texfileio.w
-  source/tex/texmath.w
-  source/tex/texnodes.w
-  source/tex/textcodes.w
-  source/tex/textoken.w
-  source/utils/avlstuff.w
-  source/utils/managed-sa.w
-  source/utils/unistring.w
-  source/utils/utils.w
-)
-
-set(luatexlib_ccwebs
-  source/image/pdftoepdf.w
-)
-
-foreach(cweb ${luatexlib_cwebs})
-  get_filename_component(fn ${cweb} NAME_WE)
-  add_custom_command(
-    OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/${fn}.c
-    COMMAND
-      ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/${cweb}
-    WORKING_DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}
-    MAIN_DEPENDENCY
-      ${cweb}
-    DEPENDS
-      ${MIKTEX_PREFIX}ctangle
-      ${CMAKE_CURRENT_SOURCE_DIR}/${cweb}
-    VERBATIM
-  )
-  set(luatexlib_cweb_sources ${luatexlib_cweb_sources}
-    ${CMAKE_CURRENT_BINARY_DIR}/${fn}.c
-  )
-endforeach()
-
-foreach(ccweb ${luatexlib_ccwebs})
-  get_filename_component(fn ${ccweb} NAME_WE)
-  add_custom_command(
-    OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/${fn}.cc
-    COMMAND
-      ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/${ccweb} - ${CMAKE_CURRENT_BINARY_DIR}/${fn}.cc
-    WORKING_DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}
-    MAIN_DEPENDENCY
-      ${ccweb}
-    DEPENDS
-      ${MIKTEX_PREFIX}ctangle
-      ${CMAKE_CURRENT_SOURCE_DIR}/${ccweb}
-    VERBATIM
-  )
-  set(luatexlib_cweb_sources ${luatexlib_cweb_sources}
-    ${CMAKE_CURRENT_BINARY_DIR}/${fn}.cc
-  )
-endforeach()
-
-set_source_files_properties(
-  ${luatexlib_cweb_sources}
-  PROPERTIES
-    GENERATED TRUE
-)
-
 set(luatexlib_sources
-  ${luatexlib_cweb_sources}
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_MP_DIR}/source/lmplib.c
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-common.h
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-luatex.h
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.c
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.h
+  source/dvi/dvigen.c
   source/dvi/dvigen.h
+  source/font/dofont.c
+  source/font/luafont.c
   source/font/luatexfont.h
+  source/font/mapfile.c
   source/font/mapfile.h
+  source/font/pkin.c
+  source/font/sfnt.c
   source/font/sfnt.h
+  source/font/texfont.c
   source/font/texfont.h
+  source/font/tfmofm.c
+  source/font/tounicode.c
+  source/font/tt_glyf.c
   source/font/tt_glyf.h
+  source/font/tt_table.c
   source/font/tt_table.h
+  source/font/vfovf.c
+  source/font/vfpacket.c
+  source/font/writecff.c
   source/font/writecff.h
+  source/font/writeenc.c
+  source/font/writefont.c
+  source/font/writet1.c
+  source/font/writet3.c
+  source/font/writettf.c
   source/font/writettf.h
+  source/font/writetype0.c
+  source/font/writetype2.c 
   source/image/epdf.h
   source/image/image.h
+  source/image/pdftoepdf.c
   source/image/pdftoepdf.h
+  source/image/writeimg.c
   source/image/writeimg.h
+  source/image/writejbig2.c
   source/image/writejbig2.h
+  source/image/writejp2.c
   source/image/writejp2.h
+  source/image/writejpg.c
   source/image/writejpg.h
+  source/image/writepng.c
   source/image/writepng.h
+  source/lang/hnjalloc.c
   source/lang/hnjalloc.h
+  source/lang/hyphen.c
   source/lang/hyphen.h
+  source/lang/texlang.c
   source/lang/texlang.h
+  source/lua/lstrlibext.c
+  source/lua/helpers.c
+  source/lua/texluac.c 
   source/lua/lcallbacklib.c
-  source/lua/lepdflib.cc
   source/lua/lfontlib.c
   source/lua/limglib.c
-  source/lua/liolibext.c
+  source/lua/lpdfelib.c
+  source/lua/lpdfscannerlib.c
   source/lua/lkpselib.c
   source/lua/llanglib.c
-  source/lua/llfslibext.c
   source/lua/llualib.c
-  source/lua/lnewtokenlib.c
   source/lua/lnodelib.c
+  source/lua/liolibext.c
   source/lua/loslibext.c
   source/lua/lpdflib.c
-  source/lua/lpdfscannerlib.cc
   source/lua/lstatslib.c
-  source/lua/lstrlibext.c
   source/lua/ltexiolib.c
   source/lua/ltexlib.c
+  source/lua/lnewtokenlib.c
   source/lua/luatex-api.h
   source/lua/luatex-core.c
+  source/lua/helpers.c
+  source/lua/luainit.c
+  source/lua/luanode.c
+  source/lua/luastuff.c
+  source/lua/luatoken.c
+  source/lua/mplibstuff.c 
   source/luatex.h
+  source/pdf/pdfaction.c
   source/pdf/pdfaction.h
+  source/pdf/pdfannot.c
   source/pdf/pdfannot.h
+  source/pdf/pdfcolorstack.c
   source/pdf/pdfcolorstack.h
+  source/pdf/pdfdest.c
   source/pdf/pdfdest.h
+  source/pdf/pdffont.c
   source/pdf/pdffont.h
+  source/pdf/pdfgen.c
   source/pdf/pdfgen.h
+  source/pdf/pdfglyph.c
   source/pdf/pdfglyph.h
+  source/pdf/pdfimage.c
   source/pdf/pdfimage.h
+  source/pdf/pdflink.c
   source/pdf/pdflink.h
+  source/pdf/pdflistout.c
   source/pdf/pdflistout.h
+  source/pdf/pdfliteral.c
   source/pdf/pdfliteral.h
+  source/pdf/pdfobj.c
   source/pdf/pdfobj.h
+  source/pdf/pdfoutline.c
   source/pdf/pdfoutline.h
+  source/pdf/pdfpage.c
   source/pdf/pdfpage.h
+  source/pdf/pdfpagetree.c
   source/pdf/pdfpagetree.h
+  source/pdf/pdfrule.c
   source/pdf/pdfrule.h
+  source/pdf/pdfsaverestore.c
   source/pdf/pdfsaverestore.h
+  source/pdf/pdfsetmatrix.c
   source/pdf/pdfsetmatrix.h
+  source/pdf/pdfshipout.c
   source/pdf/pdfshipout.h
+  source/pdf/pdftables.c
   source/pdf/pdftables.h
+  source/pdf/pdfthread.c
   source/pdf/pdfthread.h
   source/pdf/pdftypes.h
+  source/pdf/pdfxform.c
   source/pdf/pdfxform.h
+  source/tex/align.c
   source/tex/align.h
+  source/tex/arithmetic.c
   source/tex/arithmetic.h
+  source/tex/backend.c
+  source/tex/backend.h
+  source/tex/buildpage.c
   source/tex/buildpage.h
+  source/tex/commands.c
   source/tex/commands.h
+  source/tex/conditional.c
   source/tex/conditional.h
+  source/tex/directions.c
   source/tex/directions.h
+  source/tex/dumpdata.c
   source/tex/dumpdata.h
+  source/tex/equivalents.c
   source/tex/equivalents.h
+  source/tex/errors.c
   source/tex/errors.h
+  source/tex/expand.c
   source/tex/expand.h
+  source/tex/extensions.c
   source/tex/extensions.h
+  source/tex/filename.c
   source/tex/filename.h
+  source/tex/inputstack.c
   source/tex/inputstack.h
+  source/tex/linebreak.c
   source/tex/linebreak.h
+  source/tex/mainbody.c
   source/tex/mainbody.h
+  source/tex/maincontrol.c
   source/tex/maincontrol.h
+  source/tex/mathcodes.c
   source/tex/mathcodes.h
+  source/tex/memoryword.c
   source/tex/memoryword.h
+  source/tex/mlist.c
   source/tex/mlist.h
+  source/tex/nesting.c
   source/tex/nesting.h
+  source/tex/packaging.c
   source/tex/packaging.h
+  source/tex/postlinebreak.c
   source/tex/postlinebreak.h
+  source/tex/primitive.c
   source/tex/primitive.h
+  source/tex/printing.c
   source/tex/printing.h
+  source/tex/scanning.c
   source/tex/scanning.h
+  source/tex/stringpool.c
   source/tex/stringpool.h
+  source/tex/texdeffont.c
   source/tex/texdeffont.h
+  source/tex/texfileio.c
   source/tex/texfileio.h
+  source/tex/texmath.c
   source/tex/texmath.h
+  source/tex/texnodes.c
   source/tex/texnodes.h
+  source/tex/textcodes.c
   source/tex/textcodes.h
+  source/tex/textoken.c
   source/tex/textoken.h
   source/utils/avl.c
   source/utils/avl.h
+  source/utils/avlstuff.c
   source/utils/avlstuff.h
+  source/utils/managed-sa.c
   source/utils/managed-sa.h
+  source/utils/unistring.c
   source/utils/unistring.h
+  source/utils/utils.c
   source/utils/utils.h
 )
 
@@ -751,6 +801,7 @@ target_link_libraries(lua52tex-static
     luatex-miktex-static
     luatex-lua52ffi-static
     luatex-lua52misc-static
+    luatex-lua52pplib-static
     luatex-lua52socket-static
     luatex-lua52fontforge-static
 )
@@ -787,6 +838,7 @@ if(WITH_LUA53TEX)
       luatex-miktex-static
       luatex-lua53ffi-static
       luatex-lua53misc-static
+      luatex-lua53pplib-static
       luatex-lua53socket-static
       luatex-lua53fontforge-static
   )
@@ -867,6 +919,7 @@ list(APPEND libs52
   luatex-lua52fontforge-static
   luatex-lua52ffi-static
   luatex-lua52misc-static
+  luatex-lua52pplib-static
   luatex-lua52socket-static
   lua52tex-static
 )
@@ -892,6 +945,7 @@ if(WITH_LUA53TEX)
     luatex-lua53fontforge-static
     luatex-lua53ffi-static
     luatex-lua53misc-static
+    luatex-lua53pplib-static
     luatex-lua53socket-static
     lua53tex-static
   )

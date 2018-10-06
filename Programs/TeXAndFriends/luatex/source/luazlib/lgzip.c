@@ -178,6 +178,7 @@ static int test_eof (lua_State *L, gzFile f) {
   return (gzeof(f) != 1);
 }
 
+
 #if defined(MIKTEX) && defined(read_line)
 #  undef read_line
 #endif

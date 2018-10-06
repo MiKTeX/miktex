@@ -1,5 +1,5 @@
 /* stringpool.h
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -43,9 +43,10 @@ extern str_number init_str_ptr;
 
 #  define get_nullstr() STRING_OFFSET
 
-#  define biggest_char 1114111
-#  define number_chars 1114112
-#  define special_char 1114113  /* |biggest_char+2| */
+#  define biggest_char           1114111  /* 0x10FFFF, the largest allowed character number; must be |< max_halfword| */
+#  define too_big_char   (biggest_char+1) /* 1114112, |biggest_char+1| */
+#  define special_char   (biggest_char+2) /* 1114113, |biggest_char+2| */
+#  define number_chars   (biggest_char+3) /* 1114112, |biggest_char+1| */
 
 /*
   Several of the elementary string operations are performed using

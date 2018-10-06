@@ -2667,9 +2667,9 @@ static void FontInfoFree(struct fontinfo *fi) {
 void PSFontFree(FontDict *fd) {
     int i;
 
-    if ( fd->encoding!=NULL )
-	for ( i=0; i<256; ++i )
-	    free( fd->encoding[i]);
+    /*if ( fd->encoding!=NULL ): useless: fd->encoding is *char[256] */
+    for ( i=0; i<256; ++i )
+       free( fd->encoding[i]);
     free(fd->fontname);
     free(fd->cidfontname);
     free(fd->registry);

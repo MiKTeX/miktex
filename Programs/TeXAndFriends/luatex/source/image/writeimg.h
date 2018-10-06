@@ -38,6 +38,7 @@ void scan_pdfrefximage(PDF pdf);
 scaled_whd tex_scale(scaled_whd nat, scaled_whd tex);
 scaled_whd scale_img(image_dict *, scaled_whd, int);
 void write_img(PDF, image_dict *);
+int write_img_object(PDF, image_dict *, int n);
 void pdf_write_image(PDF pdf, int n);
 void check_pdfstream_dict(image_dict *);
 void write_pdfstream(PDF, image_dict *);

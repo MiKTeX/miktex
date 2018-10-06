@@ -1,17 +1,20 @@
 -- luatex-core security and io overloads ...........
 
 -- if not modules then modules = { } end modules ['luatex-core'] = {
---     version   = 1.005,
+--     version   = 1.080,
 --     comment   = 'companion to luatex',
 --     author    = 'Hans Hagen & Luigi Scarso',
 --     copyright = 'LuaTeX Development Team',
 -- }
 
-LUATEXCOREVERSION = 1.005
+LUATEXCOREVERSION = 1.080 -- we reflect the luatex version where changes happened
 
 -- This file overloads some Lua functions. The readline variants provide the same
 -- functionality as LuaTeX <= 1.04 and doing it this way permits us to keep the
 -- original io libraries clean. Performance is probably even a bit better now.
+
+-- We test for functions already being defined so that we don't overload ones that
+-- are provided in the startup script.
 
 local type, next, getmetatable, require = type, next, getmetatable, require
 local find, gsub, format = string.find, string.gsub, string.format
@@ -195,16 +198,20 @@ if md5 then
     local format = string.format
     local byte   = string.byte
 
-    function md5.sumhexa(k)
-        return (gsub(sum(k), ".", function(c)
-            return format("%02x",byte(c))
-        end))
+    if not md5.sumhexa then
+        function md5.sumhexa(k)
+            return (gsub(sum(k), ".", function(c)
+                return format("%02x",byte(c))
+            end))
+        end
     end
 
-    function md5.sumHEXA(k)
-        return (gsub(sum(k), ".", function(c)
-            return format("%02X",byte(c))
-        end))
+    if not md5.sumHEXA then
+        function md5.sumHEXA(k)
+            return (gsub(sum(k), ".", function(c)
+                return format("%02X",byte(c))
+            end))
+        end
     end
 
 end
@@ -366,6 +373,45 @@ do
 
     if not loaded.socket then loaded.socket = loaded["socket.core"] end
     if not loaded.mime   then loaded.mime   = loaded["mime.core"]   end
+
+end
+
+do
+
+    local lfsattributes     = lfs.attributes
+    local symlinkattributes = lfs.symlinkattributes
+
+    -- these can now be done using lfs (was dead slow before)
+
+    if not lfs.isfile then
+        function lfs.isfile(name)
+            local m = lfsattributes(name,"mode")
+            return m == "file" or m == "link"
+        end
+    end
+
+    if not lfs.isdir then
+        function lfs.isdir(name)
+            local m = lfsattributes(name,"mode")
+            return m == "directory"
+        end
+    end
+
+    -- shortnames have also be sort of dropped from kpse
+
+    if not lfs.shortname then
+        function lfs.shortname(name)
+            return name
+        end
+    end
+
+    -- now there is a target field, so ...
+
+    if not lfs.readlink then
+        function lfs.readlink(name)
+            return symlinkattributes(name,"target") or nil
+        end
+    end
 
 end
 

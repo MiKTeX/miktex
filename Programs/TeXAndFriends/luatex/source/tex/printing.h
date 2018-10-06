@@ -77,7 +77,7 @@ extern void print_esc(str_number s);
 extern void print_the_digs(eight_bits k);
 extern void print_int(longinteger n);
 extern void print_two(int n);
-extern void print_hex(int n);
+extern void print_qhex(int n);
 extern void print_roman_int(int n);
 extern void print_current_string(void);
 

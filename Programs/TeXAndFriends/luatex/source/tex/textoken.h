@@ -25,19 +25,19 @@
 #  define null 0
 #  define cs_token_flag 0x1FFFFFFF
 
-#  define left_brace_token 0x200000     /* $2^{21}\cdot|left_brace|$ */
-#  define right_brace_token 0x400000    /* $2^{21}\cdot|right_brace|$ */
-#  define left_brace_limit 0x400000     /* $2^{21}\cdot(|left_brace|+1)$ */
-#  define right_brace_limit 0x600000    /* $2^{21}\cdot(|right_brace|+1)$ */
-#  define math_shift_token 0x600000     /* $2^{21}\cdot|math_shift|$ */
-#  define tab_token 0x800000    /* $2^{21}\cdot|tab_mark|$ */
-#  define out_param_token 0xA00000      /* $2^{21}\cdot|out_param|$ */
-#  define space_token 0x1400020 /* $2^{21}\cdot|spacer|+|" "|$ */
-#  define letter_token 0x1600000        /* $2^{21}\cdot|letter|$ */
-#  define other_token 0x1800000 /* $2^{21}\cdot|other_char|$ */
-#  define match_token 0x1A00000 /* $2^{21}\cdot|match|$ */
-#  define end_match_token 0x1C00000     /* $2^{21}\cdot|end_match|$ */
-#  define protected_token 0x1C00001     /* $2^{21}\cdot|end_match|+1$ */
+#  define left_brace_token  0x0200000  /* $2^{21}\cdot|left_brace|$ */
+#  define right_brace_token 0x0400000  /* $2^{21}\cdot|right_brace|$ */
+#  define left_brace_limit  0x0400000  /* $2^{21}\cdot(|left_brace|+1)$ */
+#  define right_brace_limit 0x0600000  /* $2^{21}\cdot(|right_brace|+1)$ */
+#  define math_shift_token  0x0600000  /* $2^{21}\cdot|math_shift|$ */
+#  define tab_token         0x0800000  /* $2^{21}\cdot|tab_mark|$ */
+#  define out_param_token   0x0A00000  /* $2^{21}\cdot|out_param|$ */
+#  define space_token       0x1400020  /* $2^{21}\cdot|spacer|+|" "|$ */
+#  define letter_token      0x1600000  /* $2^{21}\cdot|letter|$ */
+#  define other_token       0x1800000  /* $2^{21}\cdot|other_char|$ */
+#  define match_token       0x1A00000  /* $2^{21}\cdot|match|$ */
+#  define end_match_token   0x1C00000  /* $2^{21}\cdot|end_match|$ */
+#  define protected_token   0x1C00001  /* $2^{21}\cdot|end_match|+1$ */
 
 #  include "tex/stringpool.h"
 
@@ -126,6 +126,7 @@ extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
 extern void get_next(void);
 extern void check_outer_validity(void);
 extern boolean scan_keyword(const char *);
+extern boolean scan_keyword_case_sensitive(const char *);
 extern halfword active_to_cs(int, int);
 extern void get_token_lua(void);
 halfword string_to_toks(const char *);
@@ -182,5 +183,7 @@ extern void free_lstring(lstring * ls);
 #  define token_cmd(A) ((A) >> STRING_OFFSET_BITS)
 #  define token_chr(A) ((A) & (STRING_OFFSET - 1))
 #  define token_val(A,B) (((A)<<STRING_OFFSET_BITS)+(B))
+
+extern void l_set_token_data(void) ;
 
 #endif

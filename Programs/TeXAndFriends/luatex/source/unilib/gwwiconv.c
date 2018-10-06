@@ -46,7 +46,8 @@ struct gww_iconv_t {
     enum encoding to;
 };
 
-enum extended_encoding { e_jisgbpk = e_encodingmax };
+/*enum extended_encoding { e_jisgbpk = e_encodingmax };*/
+#define e_jisgbpk e_encodingmax 
 
 static enum endian { end_big, end_little, end_unknown } endian = end_unknown;
 

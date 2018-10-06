@@ -39,6 +39,7 @@ extern scaled one_hundred_bp;   /* from pdfgen.w */
 
 typedef struct {
     char *stream;
+    size_t size;
 } pdf_stream_struct;
 
 typedef struct {
@@ -116,6 +117,8 @@ typedef struct {
     char *filepath;             /* full file path after kpathsea */
     char *attr;                 /* additional image dict entries */
     FILE *file;
+    char *userpassword;
+    char *ownerpassword;
     imgtype_e image_type;
     int procset;                /* /ProcSet flags */
     int color_depth;            /* color depth */
@@ -125,6 +128,7 @@ typedef struct {
     int flags;
     int luaref ;
     boolean keepopen;
+    boolean nolength;
     int errorlevel;
     int pdfmajorversion;
     int pdfminorversion;
@@ -159,6 +163,8 @@ typedef struct {
 #  define img_pagename(N)         ((N)->pagename)
 #  define img_filename(N)         ((N)->filename)
 #  define img_visiblefilename(N)  ((N)->visiblefilename)
+#  define img_userpassword(N)     ((N)->userpassword)
+#  define img_ownerpassword(N)    ((N)->ownerpassword)
 #  define img_filepath(N)         ((N)->filepath)
 #  define img_attr(N)             ((N)->attr)
 #  define img_file(N)             ((N)->file)
@@ -171,12 +177,14 @@ typedef struct {
 #  define img_flags(N)            ((N)->flags)
 #  define img_luaref(N)           ((N)->luaref)
 #  define img_keepopen(N)         ((N)->keepopen)
+#  define img_nolength(N)         ((N)->nolength)
 #  define img_errorlevel(N)       ((N)->errorlevel)
 #  define img_pdfmajorversion(N)  ((N)->pdfmajorversion)
 #  define img_pdfminorversion(N)  ((N)->pdfminorversion)
 
 #  define img_pdfstream_ptr(N)    ((N)->img_struct.pdfstream)
 #  define img_pdfstream_stream(N) ((N)->img_struct.pdfstream->stream)
+#  define img_pdfstream_size(N)   ((N)->img_struct.pdfstream->size)
 
 #  define img_png_ptr(N)          ((N)->img_struct.png)
 #  define img_png_png_ptr(N)      ((N)->img_struct.png->png_ptr)

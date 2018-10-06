@@ -20,7 +20,6 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-
 #define LANG_METATABLE "luatex.lang"
 
 #define check_islang(L,b) (struct tex_language **)luaL_checkudata(L,b,LANG_METATABLE)
@@ -84,7 +83,6 @@ static int lang_clear_patterns(lua_State * L)
     return 0;
 }
 
-
 static int lang_hyphenation(lua_State * L)
 {
     struct tex_language **lang_ptr;
@@ -136,7 +134,6 @@ static int lang_post_hyphen_char(lua_State * L)
         return 1;
     }
 }
-
 
 static int lang_pre_exhyphen_char(lua_State * L)
 {
@@ -262,7 +259,6 @@ static int do_lang_hyphenate(lua_State * L)
 }
 
 static const struct luaL_Reg langlib_d[] = {
-    /* *INDENT-OFF* */
     {"clear_patterns",    lang_clear_patterns},
     {"clear_hyphenation", lang_clear_hyphenation},
     {"patterns",          lang_patterns},
@@ -275,13 +271,11 @@ static const struct luaL_Reg langlib_d[] = {
     {"sethjcode",         lang_sethjcode},
     {"gethjcode",         lang_gethjcode},
     {"id",                lang_id},
-    /* *INDENT-ON* */
-    {NULL, NULL}                /* sentinel */
+    /*tex sentinel */
+    {NULL,                NULL}
 };
 
-
 static const struct luaL_Reg langlib[] = {
-    /* *INDENT-OFF* */
     {"clear_patterns",    lang_clear_patterns},
     {"clear_hyphenation", lang_clear_hyphenation},
     {"patterns",          lang_patterns},
@@ -297,17 +291,19 @@ static const struct luaL_Reg langlib[] = {
     {"clean",             do_lang_clean},
     {"hyphenate",         do_lang_hyphenate},
     {"new",               lang_new},
-    /* *INDENT-ON* */
-    {NULL, NULL}                /* sentinel */
+    /*tex sentinel */
+    {NULL,                NULL}
 };
-
 
 int luaopen_lang(lua_State * L)
 {
     luaL_newmetatable(L, LANG_METATABLE);
-    lua_pushvalue(L, -1);       /* push metatable */
-    lua_setfield(L, -2, "__index");     /* metatable.__index = metatable */
-    luaL_openlib(L, NULL, langlib_d, 0);  /* dict methods */
+    /*tex push metatable */
+    lua_pushvalue(L, -1);
+    /*tex metatable.__index = metatable */
+    lua_setfield(L, -2, "__index");
+    /*tex set dict methods */
+    luaL_openlib(L, NULL, langlib_d, 0);
     luaL_openlib(L, "lang", langlib, 0);
     return 1;
 }

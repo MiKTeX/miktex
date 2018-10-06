@@ -114,6 +114,19 @@ printing ones but the output is going to PDF buffer. Subroutines with suffix
     pdf_out(pdf, '\n'); \
 } while (0)
 
+#define pdf_check_space(pdf) do { \
+    if (pdf->cave > 0) { \
+        pdf_out(pdf, ' '); \
+        pdf->cave = 0; \
+    } \
+} while (0)
+
+#define pdf_set_space(pdf) \
+    pdf->cave = 1;
+
+#define pdf_reset_space(pdf) \
+    pdf->cave = 0;
+
 extern __attribute__ ((format(printf, 2, 3)))
 void pdf_printf(PDF, const char *, ...);
 
@@ -125,6 +138,7 @@ extern void pdf_print_str(PDF, const char *);
 extern void pdf_add_null(PDF);
 extern void pdf_add_bool(PDF, int i);
 extern void pdf_add_int(PDF, int i);
+extern void pdf_add_real(PDF, double d);
 extern void pdf_add_longint(PDF, longinteger n);
 extern void pdf_add_ref(PDF, int num);
 extern void pdf_add_string(PDF, const char *s);
@@ -139,6 +153,18 @@ extern void pdf_dict_add_streaminfo(PDF);
 
 extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
+
+typedef unsigned char BYTE;
+typedef unsigned long ULONG;
+
+typedef struct {
+    ULONG length;
+    BYTE *data;
+} pdf_obj;
+
+extern pdf_obj *pdf_new_stream(void);
+extern void pdf_add_stream(pdf_obj * stream, unsigned char *buf, long len);
+extern void pdf_release_obj(pdf_obj * stream);
 
 extern void pdf_add_bp(PDF, scaled);
 
@@ -191,8 +217,6 @@ extern char *convertStringToPDFString(const char *in, int len);
 extern void initialize_start_time(PDF);
 extern char *getcreationdate(PDF);
 
-extern void check_o_mode(PDF pdf, const char *s, int o_mode, boolean errorflag);
-
 extern void set_job_id(PDF, int, int, int, int);
 extern char *get_resname_prefix(PDF);
 extern void pdf_begin_page(PDF pdf);
@@ -200,6 +224,10 @@ extern void pdf_end_page(PDF pdf);
 extern void print_pdf_table_string(PDF pdf, const char *s);
 extern const char *get_pdf_table_string(const char *s);
 extern int get_pdf_table_bool(PDF, const char *, int);
+
+extern void pdf_open_file(PDF pdf);
+extern void pdf_write_header(PDF pdf);
+extern void pdf_finish_file(PDF pdf, int fatal_error);
 
 extern void ensure_output_state(PDF pdf, output_state s);
 extern PDF init_pdf_struct(PDF pdf);
@@ -210,8 +238,18 @@ extern halfword pdf_catalog_openaction;
 extern halfword pdf_names_toks;         /* additional keys of Names dictionary */
 extern halfword pdf_trailer_toks;       /* additional keys of Trailer dictionary */
 extern void scan_pdfcatalog(PDF pdf);
-extern void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision);
 
 extern shipping_mode_e global_shipping_mode;
+
+extern void pdf_push_list(PDF pdf, scaledpos *saved_pos, int *saved_loc);
+extern void pdf_pop_list(PDF pdf, scaledpos *saved_pos, int *saved_loc);
+
+extern void pdf_set_reference_point(PDF pdf, posstructure *refpoint);
+
+/* not pdf specific */
+
+extern void check_o_mode(PDF pdf, const char *s, int o_mode, boolean errorflag);
+extern void ensure_output_file_open(PDF pdf, const char *ext);
+
 
 #endif

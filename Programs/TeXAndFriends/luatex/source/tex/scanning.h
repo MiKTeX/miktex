@@ -63,9 +63,13 @@ extern void scan_fifty_one_bit_int(void);
 #  define hex_token (other_token+'"')               /* double quote, indicates a hex constant */
 #  define alpha_token (other_token+'`')             /* reverse apostrophe, precedes alpha constants */
 #  define point_token (other_token+'.')             /* decimal point */
+#  define comma_token (other_token+',')             /* decimal comma */
+#  define plus_token (other_token + '+')
+#  define minus_token (other_token + '-')
 #  define continental_point_token (other_token+',') /* decimal point, Eurostyle */
 #  define infinity 017777777777                     /* the largest positive value that \TeX\ knows */
 #  define zero_token (other_token+'0')              /* zero, the smallest digit */
+#  define nine_token (other_token+'9')              /* zero, the smallest digit */
 #  define A_token (letter_token+'A')                /* the smallest special hex digit */
 #  define other_A_token (other_token+'A')           /* special hex digit of type |other_char| */
 extern int radix;
@@ -78,7 +82,6 @@ extern int cur_order;
 
 extern void scan_dimen(boolean mu, boolean inf, boolean shortcut);
 extern void scan_glue(int level);
-extern void scan_scaled(void);
 
 extern halfword the_toks(void);
 extern str_number the_scanned_result(void);

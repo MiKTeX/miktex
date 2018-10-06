@@ -129,7 +129,7 @@ static int readcardinal1_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p >= l) {
+    if (p >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p]);
@@ -154,7 +154,7 @@ static int readcardinal2_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p+1 >= l) {
+    if (p+1 >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p++]);
@@ -181,7 +181,7 @@ static int readcardinal3_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p+2 >= l) {
+    if (p+2 >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p++]);
@@ -210,7 +210,7 @@ static int readcardinal4_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p+3 >= l) {
+    if (p+3 >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p++]);
@@ -219,6 +219,139 @@ static int readcardinal4_s(lua_State *L) {
         int d = uchar(s[p]);
         lua_pushinteger(L,0x1000000 * a + 0x10000 * b + 0x100 * c + d);
     }
+    return 1;
+}
+
+static int readcardinaltable(lua_State *L) {
+    FILE *f = tofile(L);
+    int n = lua_tointeger(L,2);
+    int b = lua_tointeger(L,3);
+    int i;
+    lua_createtable(L,n,0);
+    switch (b) {
+        case 1:
+            for (i=1;i<=n;i++) {
+                int a = getc(f);
+                if (a == EOF) {
+                    break;
+                } else {
+                    lua_pushinteger(L, a);
+                    lua_rawseti(L, -2, i);
+                }
+            }
+            break;
+        case 2:
+            for (i=1;i<=n;i++) {
+                int a = getc(f);
+                int b = getc(f);
+                if (b == EOF) {
+                    break;
+                } else {
+                    /* (a<<8) | b */
+                    lua_pushinteger(L, 0x100 * a + b);
+                    lua_rawseti(L, -2, i);
+                }
+            }
+            break;
+        case 3:
+            for (i=1;i<=n;i++) {
+                int a = getc(f);
+                int b = getc(f);
+                int c = getc(f);
+                if (c == EOF) {
+                    break;
+                } else {
+                    /* (a<<16) | (b<<8) | c */
+                    lua_pushinteger(L, 0x10000 * a + 0x100 * b + c);
+                    lua_rawseti(L, -2, i);
+                }
+            }
+            break;
+        case 4:
+            for (i=1;i<=n;i++) {
+                int a = getc(f);
+                int b = getc(f);
+                int c = getc(f);
+                int d = getc(f);
+                if (d == EOF) {
+                    break;
+                } else {
+                    /* (a<<24) | (b<<16) | (c<<8) | d */
+                    lua_pushinteger(L,0x1000000 * a + 0x10000 * b + 0x100 * c + d);
+                    lua_rawseti(L, -2, i);
+                }
+            }
+            break;
+        default:
+            break;
+    }
+    return 1;
+}
+
+static int readcardinaltable_s(lua_State *L) {
+    size_t l;
+    const char *s = luaL_checklstring(L, 1, &l);
+    size_t p = luaL_checkinteger(L, 2) - 1;
+    int n = lua_tointeger(L,3);
+    int b = lua_tointeger(L,4);
+    int i;
+    lua_createtable(L,n,0);
+    /*if (p >= 0) {*/
+        switch (b) {
+            case 1:
+                for (i=1;i<=n;i++) {
+                    if (p >= l) {
+                        break;
+                    } else {
+                        int a = uchar(s[p++]);
+                        lua_pushinteger(L, a);
+                        lua_rawseti(L, -2, i);
+                    }
+                }
+                break;
+            case 2:
+                for (i=1;i<=n;i++) {
+                    if (p+1 >= l) {
+                        break;
+                    } else {
+                        int a = uchar(s[p++]);
+                        int b = uchar(s[p++]);
+                        lua_pushinteger(L, 0x100 * a + b);
+                        lua_rawseti(L, -2, i);
+                    }
+                }
+                break;
+            case 3:
+                for (i=1;i<=n;i++) {
+                    if (p+2 >= l) {
+                        break;
+                    } else {
+                        int a = uchar(s[p++]);
+                        int b = uchar(s[p++]);
+                        int c = uchar(s[p++]);
+                        lua_pushinteger(L, 0x10000 * a + 0x100 * b + c);
+                        lua_rawseti(L, -2, i);
+                    }
+                }
+                break;
+            case 4:
+                for (i=1;i<=n;i++) {
+                    if (p+3 >= l) {
+                        break;
+                    } else {
+                        int a = uchar(s[p++]);
+                        int b = uchar(s[p++]);
+                        int c = uchar(s[p++]);
+                        int d = uchar(s[p++]);
+                        lua_pushinteger(L,0x1000000 * a + 0x10000 * b + 0x100 * c + d);
+                        lua_rawseti(L, -2, i);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    /*}*/
     return 1;
 }
 
@@ -238,7 +371,7 @@ static int readinteger1_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p >= l) {
+    if (p >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p]);
@@ -267,7 +400,7 @@ static int readinteger2_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p+1 >= l) {
+    if (p+1 >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p++]);
@@ -298,7 +431,7 @@ static int readinteger3_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p+2 >= l) {
+    if (p+2 >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p++]);
@@ -331,7 +464,7 @@ static int readinteger4_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p+3 >= l) {
+    if (p+3 >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p++]);
@@ -343,6 +476,160 @@ static int readinteger4_s(lua_State *L) {
         else
             lua_pushinteger(L, 0x1000000 * a + 0x10000 * b + 0x100 * c + d);
     }
+    return 1;
+}
+
+static int readintegertable(lua_State *L) {
+    FILE *f = tofile(L);
+    int n = lua_tointeger(L,2);
+    int b = lua_tointeger(L,3);
+    int i;
+    lua_createtable(L,n,0);
+    switch (b) {
+        case 1:
+            for (i=1;i<=n;i++) {
+                int a = getc(f);
+                if (a == EOF) {
+                    break;
+                } else if (a >= 0x80) {
+                    lua_pushinteger(L, a - 0x100);
+                } else {
+                    lua_pushinteger(L, a);
+                }
+                lua_rawseti(L, -2, i);
+            }
+            break;
+        case 2:
+            for (i=1;i<=n;i++) {
+                int a = getc(f);
+                int b = getc(f);
+                if (b == EOF) {
+                    break;
+                } else if (a >= 0x80) {
+                    lua_pushinteger(L, 0x100 * a + b - 0x10000);
+                } else {
+                    lua_pushinteger(L, 0x100 * a + b);
+                }
+                lua_rawseti(L, -2, i);
+            }
+            break;
+        case 3:
+            for (i=1;i<=n;i++) {
+                int a = getc(f);
+                int b = getc(f);
+                int c = getc(f);
+                if (c == EOF) {
+                    break;
+                } else if (a >= 0x80) {
+                    lua_pushinteger(L, 0x10000 * a + 0x100 * b + c - 0x1000000);
+                } else {
+                    lua_pushinteger(L, 0x10000 * a + 0x100 * b + c);
+                }
+                lua_rawseti(L, -2, i);
+            }
+            break;
+        case 4:
+            for (i=1;i<=n;i++) {
+                int a = getc(f);
+                int b = getc(f);
+                int c = getc(f);
+                int d = getc(f);
+                if (d == EOF) {
+                    break;
+                } else if (a >= 0x80) {
+                    lua_pushinteger(L, 0x1000000 * a + 0x10000 * b + 0x100 * c + d - 0x100000000);
+                } else {
+                    lua_pushinteger(L, 0x1000000 * a + 0x10000 * b + 0x100 * c + d);
+                }
+                lua_rawseti(L, -2, i);
+            }
+            break;
+        default:
+            break;
+    }
+    return 1;
+}
+
+static int readintegertable_s(lua_State *L) {
+    size_t l;
+    const char *s = luaL_checklstring(L, 1, &l);
+    size_t p = luaL_checkinteger(L, 2) - 1;
+    int n = lua_tointeger(L,3);
+    int b = lua_tointeger(L,4);
+    int i;
+    lua_createtable(L,n,0);
+    /*if (p >= 0) {*/
+        switch (b) {
+            case 1:
+                for (i=1;i<=n;i++) {
+                    if (p >= l) {
+                        break;
+                    } else {
+                        int a = uchar(s[p++]);
+                        if (a >= 0x80) {
+                            lua_pushinteger(L, a - 0x100);
+                        } else {
+                            lua_pushinteger(L, a);
+                        }
+                        lua_rawseti(L, -2, i);
+                    }
+                }
+                break;
+            case 2:
+                for (i=1;i<=n;i++) {
+                    if (p+1 >= l) {
+                        break;
+                    } else {
+                        int a = uchar(s[p++]);
+                        int b = uchar(s[p++]);
+                        if (a >= 0x80) {
+                            lua_pushinteger(L, 0x100 * a + b - 0x10000);
+                        } else {
+                            lua_pushinteger(L, 0x100 * a + b);
+                        }
+                        lua_rawseti(L, -2, i);
+                    }
+                }
+                break;
+            case 3:
+                for (i=1;i<=n;i++) {
+                    if (p+2 >= l) {
+                        break;
+                    } else {
+                        int a = uchar(s[p++]);
+                        int b = uchar(s[p++]);
+                        int c = uchar(s[p++]);
+                        if (a >= 0x80) {
+                            lua_pushinteger(L, 0x10000 * a + 0x100 * b + c - 0x1000000);
+                        } else {
+                            lua_pushinteger(L, 0x10000 * a + 0x100 * b + c);
+                        }
+                        lua_rawseti(L, -2, i);
+                    }
+                }
+                break;
+            case 4:
+                for (i=1;i<=n;i++) {
+                    if (p+3 >= l) {
+                        break;
+                    } else {
+                        int a = uchar(s[p++]);
+                        int b = uchar(s[p++]);
+                        int c = uchar(s[p++]);
+                        int d = uchar(s[p++]);
+                        if (a >= 0x80) {
+                            lua_pushinteger(L, 0x1000000 * a + 0x10000 * b + 0x100 * c + d - 0x100000000);
+                        } else {
+                            lua_pushinteger(L, 0x1000000 * a + 0x10000 * b + 0x100 * c + d);
+                        }
+                        lua_rawseti(L, -2, i);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    /*}*/
     return 1;
 }
 
@@ -363,7 +650,7 @@ static int readfixed2_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p+3 >= l) {
+    if (p+3 >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p++]);
@@ -398,7 +685,7 @@ static int readfixed4_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p+3 >= l) {
+    if (p+3 >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p++]);
@@ -431,7 +718,7 @@ static int read2dot14_s(lua_State *L) {
     size_t l;
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
-    if (p < 0 || p+1 >= l) {
+    if (p+1 >= l) {
         lua_pushnil(L);
     } else {
         int a = uchar(s[p++]);
@@ -501,7 +788,7 @@ static int readbytetable_s(lua_State *L) {
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
     int n = lua_tointeger(L,3);
-    if (p < 0 || p >= l) {
+    if (p >= l) {
         lua_pushnil(L);
     } else {
         int i ;
@@ -538,7 +825,7 @@ static int readbytes_s(lua_State *L) {
     const char *s = luaL_checklstring(L, 1, &l);
     size_t p = luaL_checkinteger(L, 2) - 1;
     int n = lua_tointeger(L,3);
-    if (p < 0 || p >= l) {
+    if (p >= l) {
         return 0;
     } else {
         int i ;
@@ -648,44 +935,48 @@ static int readline(lua_State *L)
 
 static const luaL_Reg fiolib[] = {
     /* helpers */
-    { "readcardinal1",   readcardinal1 },
-    { "readcardinal2",   readcardinal2 },
-    { "readcardinal3",   readcardinal3 },
-    { "readcardinal4",   readcardinal4 },
-    { "readinteger1",    readinteger1 },
-    { "readinteger2",    readinteger2 },
-    { "readinteger3",    readinteger3 },
-    { "readinteger4",    readinteger4 },
-    { "readfixed2",      readfixed2 },
-    { "readfixed4",      readfixed4 },
-    { "read2dot14",      read2dot14 },
-    { "setposition",     setposition },
-    { "getposition",     getposition },
-    { "skipposition",    skipposition },
-    { "readbytes",       readbytes },
-    { "readbytetable",   readbytetable },
-    { "readline",        readline },
+    { "readcardinal1",     readcardinal1 },
+    { "readcardinal2",     readcardinal2 },
+    { "readcardinal3",     readcardinal3 },
+    { "readcardinal4",     readcardinal4 },
+    { "readcardinaltable", readcardinaltable },
+    { "readinteger1",      readinteger1 },
+    { "readinteger2",      readinteger2 },
+    { "readinteger3",      readinteger3 },
+    { "readinteger4",      readinteger4 },
+    { "readintegertable",  readintegertable },
+    { "readfixed2",        readfixed2 },
+    { "readfixed4",        readfixed4 },
+    { "read2dot14",        read2dot14 },
+    { "setposition",       setposition },
+    { "getposition",       getposition },
+    { "skipposition",      skipposition },
+    { "readbytes",         readbytes },
+    { "readbytetable",     readbytetable },
+    { "readline",          readline },
     /* extras */
-    { "recordfilename",  recordfilename },
-    { "checkpermission", checkpermission },
+    { "recordfilename",    recordfilename },
+    { "checkpermission",   checkpermission },
     /* done */
     {NULL, NULL}
 };
 
 static const luaL_Reg siolib[] = {
-    { "readcardinal1",   readcardinal1_s },
-    { "readcardinal2",   readcardinal2_s },
-    { "readcardinal3",   readcardinal3_s },
-    { "readcardinal4",   readcardinal4_s },
-    { "readinteger1",    readinteger1_s },
-    { "readinteger2",    readinteger2_s },
-    { "readinteger3",    readinteger3_s },
-    { "readinteger4",    readinteger4_s },
-    { "readfixed2",      readfixed2_s },
-    { "readfixed4",      readfixed4_s },
-    { "read2dot14",      read2dot14_s },
-    { "readbytes",       readbytes_s },
-    { "readbytetable",   readbytetable_s },
+    { "readcardinal1",     readcardinal1_s },
+    { "readcardinal2",     readcardinal2_s },
+    { "readcardinal3",     readcardinal3_s },
+    { "readcardinal4",     readcardinal4_s },
+    { "readcardinaltable", readcardinaltable_s },
+    { "readinteger1",      readinteger1_s },
+    { "readinteger2",      readinteger2_s },
+    { "readinteger3",      readinteger3_s },
+    { "readinteger4",      readinteger4_s },
+    { "readintegertable",  readintegertable_s },
+    { "readfixed2",        readfixed2_s },
+    { "readfixed4",        readfixed4_s },
+    { "read2dot14",        read2dot14_s },
+    { "readbytes",         readbytes_s },
+    { "readbytetable",     readbytetable_s },
     /* done */
     {NULL, NULL}
 };

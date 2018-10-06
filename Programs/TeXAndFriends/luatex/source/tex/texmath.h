@@ -38,22 +38,6 @@ extern halfword new_sub_box(halfword);
 
 #  define default_code 010000000000     /* denotes |default_rule_thickness| */
 
-typedef enum {
-    ord_noad_type = 0,
-    op_noad_type_normal,
-    op_noad_type_limits,
-    op_noad_type_no_limits,
-    bin_noad_type,
-    rel_noad_type,
-    open_noad_type,
-    close_noad_type,
-    punct_noad_type,
-    inner_noad_type,
-    under_noad_type,
-    over_noad_type,
-    vcenter_noad_type,
-} noad_types;
-
 extern void initialize_math(void);
 extern void initialize_math_spacing(void);
 extern halfword math_vcenter_group(halfword);

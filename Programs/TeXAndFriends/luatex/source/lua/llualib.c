@@ -20,14 +20,13 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-
-#define LOAD_BUF_SIZE 256
+#define LOAD_BUF_SIZE 64*1024
 #define UINT_MAX32 0xFFFFFFFF
 
 typedef struct {
     unsigned char *buf;
     int size;
-    int done;
+ /* int done; */
     int alloc;
 } bytecode;
 
@@ -95,7 +94,7 @@ void undump_luac_registers(void)
         lua_bytecode_registers = xmalloc((unsigned) (i * sizeof(bytecode)));
         luabytecode_bytes = (unsigned) (i * sizeof(bytecode));
         for (i = 0; i <= (unsigned) luabytecode_max; i++) {
-            lua_bytecode_registers[i].done = 0;
+         /* lua_bytecode_registers[i].done = 0; */
             lua_bytecode_registers[i].size = 0;
             lua_bytecode_registers[i].buf = NULL;
         }
@@ -170,14 +169,18 @@ static int writer(lua_State * L, const void *b, size_t size, void *B)
 static const char *reader(lua_State * L, void *ud, size_t * size)
 {
     bytecode *buf = (bytecode *) ud;
-    (void) L;                   /* for -Wunused */
+    (void) L; /* for -Wunused */
+    /*
     if (buf->done == buf->size) {
         *size = 0;
         buf->done = 0;
         return NULL;
     }
+    */
     *size = (size_t) buf->size;
+    /*
     buf->done = buf->size;
+    */
     return (const char *) buf->buf;
 }
 
@@ -196,7 +199,7 @@ static int get_bytecode(lua_State * L)
 #else
                  "bytecode", NULL)) {
 #endif
-		return luaL_error(L, "bad bytecode register");
+                return luaL_error(L, "bad bytecode register");
             } else {
                 lua_pushvalue(L, -1);
                 bytecode_register_shadow_set(L, k);
@@ -206,6 +209,41 @@ static int get_bytecode(lua_State * L)
         }
     }
     return 1;
+}
+
+void luabytecodecall(int slot)
+{
+    int i;
+    int stacktop = lua_gettop(Luas);
+    lua_active++;
+    if (slot < 0 || slot > luabytecode_max) {
+        luaL_error(Luas, "bytecode register out of range");
+    } else if (bytecode_register_shadow_get(Luas, slot) || lua_bytecode_registers[slot].buf == NULL) {
+        luaL_error(Luas, "undefined bytecode register");
+    } else if (lua_load(Luas, reader, (void *) (lua_bytecode_registers + slot),
+#ifdef LuajitTeX
+             "bytecode"))
+#else
+             "bytecode", NULL))
+#endif
+    {
+        luaL_error(Luas, "bytecode register doesn't load well");
+    } else {
+        int base = lua_gettop(Luas); /* function index */
+        lua_pushinteger(Luas, slot);
+        lua_pushcfunction(Luas, lua_traceback); /* push traceback function */
+        lua_insert(Luas, base); /* put it under chunk  */
+++function_callback_count; /* this will be a dedicated counter */
+        i = lua_pcall(Luas, 1, 0, base);
+        lua_remove(Luas, base); /* remove traceback function */
+        if (i != 0) {
+            lua_gc(Luas, LUA_GCCOLLECT, 0);
+            Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
+        }
+    }
+
+    lua_settop(Luas,stacktop);
+    lua_active--;
 }
 
 static int set_bytecode(lua_State * L)
@@ -244,7 +282,7 @@ static int set_bytecode(lua_State * L)
         for (i = (unsigned) (luabytecode_max + 1); i <= (unsigned) k; i++) {
             lua_bytecode_registers[i].buf = NULL;
             lua_bytecode_registers[i].size = 0;
-            lua_bytecode_registers[i].done = 0;
+         /* lua_bytecode_registers[i].done = 0; */
         }
         luabytecode_max = k;
     }
@@ -252,7 +290,7 @@ static int set_bytecode(lua_State * L)
         xfree(lua_bytecode_registers[k].buf);
         luabytecode_bytes -= (unsigned) lua_bytecode_registers[k].size;
         lua_bytecode_registers[k].size = 0;
-        lua_bytecode_registers[k].done = 0;
+     /* lua_bytecode_registers[k].done = 0; */
         lua_pushnil(L);
         bytecode_register_shadow_set(L, k);
     }
@@ -268,7 +306,7 @@ static int set_bytecode(lua_State * L)
         lua_dump(L, writer, (void *) (lua_bytecode_registers + k),strip);
 #endif
 #if LUA_VERSION_NUM == 502
-        lua_dump(L, writer, (void *) (lua_bytecode_registers + k));    
+        lua_dump(L, writer, (void *) (lua_bytecode_registers + k));
 #endif
 #endif
     }
@@ -329,6 +367,18 @@ static int new_table(lua_State * L) /* hh */
     return 1;
 }
 
+static int get_stack_top(lua_State * L) /* hh */
+{
+    lua_pushinteger(L, lua_gettop(L));
+    return 1;
+}
+
+static int get_call_level(lua_State * L) /* hh */
+{
+    lua_pushinteger(L, lua_active);
+    return 1;
+}
+
 static const struct luaL_Reg lualib[] = {
     /* *INDENT-OFF* */
     {"getluaname",  get_luaname},
@@ -337,6 +387,8 @@ static const struct luaL_Reg lualib[] = {
     {"setbytecode", set_bytecode},
     {"newtable",    new_table},
     {"get_functions_table",lua_functions_get_table},
+    {"getstacktop",get_stack_top},
+    {"getcalllevel", get_call_level},
     /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */
 };

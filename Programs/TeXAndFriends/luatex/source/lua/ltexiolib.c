@@ -155,10 +155,26 @@ static int texio_setescape(lua_State * L)
     return 0 ;
 }
 
+static int texio_closeinput(lua_State * L)
+{
+    /*
+        printf("before, first %i, index %i, iname %i, inopen %i, pointer %i\n",istart,iindex,iname,in_open,input_ptr);
+    */
+    if (iindex > 0) {
+        end_token_list();
+        end_file_reading();
+        /*
+            printf("after, first %i, index %i, iname %i, inopen %i, pointer %i\n",istart,iindex,iname,in_open,input_ptr);
+        */
+    }
+    return 0 ;
+}
+
 static const struct luaL_Reg texiolib[] = {
     {"write", texio_print},
     {"write_nl", texio_printnl},
     {"setescape", texio_setescape},
+    {"closeinput",texio_closeinput},
     {NULL, NULL}
 };
 

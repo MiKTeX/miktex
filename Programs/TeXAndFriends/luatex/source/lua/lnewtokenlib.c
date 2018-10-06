@@ -33,10 +33,12 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
+/*
 typedef struct lua_token {
     int token;
     int origin;
 } lua_token;
+*/
 
 typedef struct saved_tex_scanner {
     int token;
@@ -145,33 +147,51 @@ static void push_token(lua_State * L, int tok)
     lua_setmetatable(L, -2);
 }
 
-/* static int run_get_cs_offset(lua_State * L) */
-/* { */
-/*     lua_pushinteger(L, cs_token_flag); */
-/*     return 1; */
-/* } */
+static int run_get_biggest_char(lua_State * L)
+{
+    lua_pushinteger(L, biggest_char);
+    return 1;
+}
 
-/* static int run_get_command_id(lua_State * L) */
-/* { */
-/*     int cs = -1; */
-/*     if (lua_type(L, -1) == LUA_TSTRING) { */
-/*         cs = get_command_id(lua_tostring(L, -1)); */
-/*     } */
-/*     lua_pushinteger(L, cs); */
-/*     return 1; */
-/* } */
+/* not that useful:
 
-/* static int run_get_csname_id(lua_State * L) */
-/* { */
-/*     const char *s; */
-/*     size_t k, cs = 0; */
-/*     if (lua_type(L, -1) == LUA_TSTRING) { */
-/*         s = lua_tolstring(L, -1, &k); */
-/*         cs = (size_t) string_lookup(s, k); */
-/*     } */
-/*     lua_pushinteger(L, (lua_Number) cs); */
-/*     return 1; */
-/* } */
+static int run_get_cs_offset(lua_State * L)
+{
+    lua_pushinteger(L, cs_token_flag);
+    return 1;
+}
+
+*/
+
+static int run_get_command_id(lua_State * L)
+{
+    int id = -1;
+    if (lua_type(L, -1) == LUA_TSTRING) {
+        id = get_command_id(lua_tostring(L, -1));
+    }
+    if (id >= 0) {
+        lua_pushinteger(L, id);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+/* not that useful:
+
+static int run_get_csname_id(lua_State * L)
+{
+    const char *s;
+    size_t k, cs = 0;
+    if (lua_type(L, -1) == LUA_TSTRING) {
+        s = lua_tolstring(L, -1, &k);
+        cs = (size_t) string_lookup(s, k);
+    }
+    lua_pushinteger(L, (lua_Number) cs);
+    return 1;
+}
+
+*/
 
 static int run_get_next(lua_State * L)
 {
@@ -296,6 +316,22 @@ static int run_scan_keyword(lua_State * L)
     return 1;
 }
 
+static int run_scan_keyword_cs(lua_State * L)
+{
+    saved_tex_scanner texstate;
+    const char *s = luaL_checkstring(L, -1);
+    int v = 0;
+    if (s) {
+        save_tex_scanner(texstate);
+        if (scan_keyword_case_sensitive(s)) {
+            v = 1;
+        }
+        unsave_tex_scanner(texstate);
+    }
+    lua_pushboolean(L,v);
+    return 1;
+}
+
 static int run_scan_csname(lua_State * L)
 {
     unsigned char *s;
@@ -328,6 +364,138 @@ static int run_scan_int(lua_State * L)
     return 1;
 }
 
+/*
+    char * str ;
+*/
+
+# define declare_buffer \
+    unsigned char word[5 + 1]; \
+    char *uindex = (char *)word; \
+    luaL_Buffer b ; \
+    luaL_buffinit(L,&b) ;
+
+/*
+    str = (char *) uni2str(cur_chr);
+    luaL_addstring(&b,(char *) str);
+    xfree(str);
+*/
+
+# define add_to_buffer(chr) \
+    if (chr <= 255) { \
+        luaL_addchar(&b,(unsigned) (char) chr); \
+    } else { \
+        uindex = uni2string((char *)word,(unsigned) chr); \
+        *uindex = '\0'; \
+        luaL_addstring(&b,(char *) word); \
+    }
+
+# define push_buffer \
+    luaL_pushresult(&b);
+
+static int run_scan_float_indeed(lua_State * L, boolean exponent)
+{
+    saved_tex_scanner texstate;
+    int ok;
+    boolean negative = false;
+    double d;
+    declare_buffer;
+    save_tex_scanner(texstate);
+    /* we collapse as in scan_dimen */
+    while(1) {
+        do {
+            get_x_token();
+        } while (cur_cmd == spacer_cmd);
+        if (cur_tok == minus_token) {
+            negative = !negative;
+        } else if (cur_tok != plus_token) {
+            break;
+        }
+    }
+    if (negative) {
+        add_to_buffer('-');
+    }
+    /* we accept [.,]digits */
+    if (cur_tok == point_token || cur_tok == comma_token) {
+        add_to_buffer('.');
+        while (1) {
+            get_x_token();
+            if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
+                add_to_buffer(cur_chr);
+            } else if (exponent) {
+                goto EXPONENT;
+            } else {
+                back_input();
+                goto DONE;
+            }
+        }
+    } else {
+        back_input();
+        while (1) {
+            get_x_token();
+            if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
+                add_to_buffer(cur_chr);
+            } else {
+                if (cur_tok == point_token || cur_tok == comma_token) {
+                    add_to_buffer('.');
+                    while (1) {
+                        get_x_token();
+                        if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
+                            add_to_buffer(cur_chr);
+                        } else {
+                            back_input();
+                            break;
+                        }
+                    }
+                } else if (exponent) {
+                    goto EXPONENT;
+                } else {
+                    back_input();
+                    goto DONE;
+                }
+            }
+        }
+    }
+EXPONENT:
+    if ((cur_chr == 'E') || (cur_chr == 'e')) {
+        add_to_buffer(cur_chr);
+        get_x_token();
+        if ((cur_tok == minus_token) || (cur_tok == plus_token)) {
+            add_to_buffer(cur_chr);
+        } else if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
+            add_to_buffer(cur_chr);
+        }
+        while (1) {
+            get_x_token();
+            if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
+                add_to_buffer(cur_chr);
+            } else {
+                break;
+            }
+        }
+    }
+    back_input();
+DONE:
+    push_buffer;
+    d = lua_tonumberx(L,1,&ok);
+    if (ok) {
+        lua_pushnumber(L,d);
+    } else {
+        lua_pushnil(L);
+    }
+    unsave_tex_scanner(texstate);
+    return 1;
+}
+
+static int run_scan_float(lua_State * L)
+{
+    return run_scan_float_indeed(L,true);
+}
+
+static int run_scan_real(lua_State * L)
+{
+    return run_scan_float_indeed(L,false);
+}
+
 static int run_scan_dimen(lua_State * L)
 {
     saved_tex_scanner texstate;
@@ -339,7 +507,7 @@ static int run_scan_dimen(lua_State * L)
     if (t>1)
       mu = lua_toboolean(L,2);  /* mu units required ?*/
     save_tex_scanner(texstate);
-    scan_dimen( mu,inf, false); /* arg3 = shortcut */
+    scan_dimen(mu,inf, false); /* arg3 = shortcut */
     v = cur_val;
     o = cur_order;
     unsave_tex_scanner(texstate);
@@ -415,25 +583,67 @@ static int run_scan_string(lua_State * L) /* HH */
     } else if (cur_cmd == call_cmd) {
         t = token_link(cur_chr);
         tokenlist_to_luastring(L,t);
-    } else {
-        if (cur_cmd == 11 || cur_cmd == 12 ) {
-            char * str ;
-            luaL_Buffer b ;
-            luaL_buffinit(L,&b) ;
-            while (1) {
-                str = (char *) uni2str(cur_chr);
-                luaL_addstring(&b,(char *) str);
-                get_x_token();
-                if (cur_cmd != 11 && cur_cmd != 12 ) {
-                    break ;
-                }
+    } else if (cur_cmd == 11 || cur_cmd == 12 ) {
+        declare_buffer;
+        while (1) {
+            add_to_buffer(cur_chr);
+            get_x_token();
+            if (cur_cmd != 11 && cur_cmd != 12 ) {
+                break ;
             }
-            back_input();
-            luaL_pushresult(&b);
-        } else {
-            back_input();
-            lua_pushnil(L);
         }
+        back_input();
+        push_buffer;
+    } else {
+        back_input();
+        lua_pushnil(L);
+    }
+    unsave_tex_scanner(texstate);
+    return 1;
+}
+
+static int run_scan_argument(lua_State * L) /* HH */
+{   /* can be simplified, no need for intermediate list */
+    saved_tex_scanner texstate;
+    halfword t, saved_defref;
+    save_tex_scanner(texstate);
+    do {
+        get_token();
+    } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+    if (cur_cmd == left_brace_cmd) {
+        back_input();
+        saved_defref = def_ref;
+        (void) scan_toks(false, true);
+        t = def_ref;
+        def_ref = saved_defref;
+        tokenlist_to_luastring(L,t);
+    } else if (cur_cmd == call_cmd) {
+        halfword saved_cur_tok = cur_tok;
+        cur_tok = right_brace_token + '}';
+        back_input();
+        cur_tok = saved_cur_tok;
+        back_input();
+        cur_tok = left_brace_token + '{';
+        back_input();
+        saved_defref = def_ref;
+        (void) scan_toks(false, true);
+        t = def_ref;
+        def_ref = saved_defref;
+        tokenlist_to_luastring(L,t);
+    } else if (cur_cmd == 11 || cur_cmd == 12 ) {
+        declare_buffer;
+        while (1) {
+            add_to_buffer(cur_chr);
+            get_x_token();
+            if (cur_cmd != 11 && cur_cmd != 12 ) {
+                break ;
+            }
+        }
+        back_input();
+        push_buffer;
+    } else {
+        back_input();
+        lua_pushnil(L);
     }
     unsave_tex_scanner(texstate);
     return 1;
@@ -447,20 +657,16 @@ static int run_scan_word(lua_State * L) /* HH */
         get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
     if (cur_cmd == 11 || cur_cmd == 12 ) {
-        char *str ;
-        luaL_Buffer b ;
-        luaL_buffinit(L,&b) ;
+        declare_buffer;
         while (1) {
-            str = (char *) uni2str(cur_chr);
-            luaL_addstring(&b,str);
-            xfree(str);
+            add_to_buffer(cur_chr);
             get_x_token();
             if (cur_cmd != 11 && cur_cmd != 12 ) {
                 break ;
             }
         }
         back_input();
-        luaL_pushresult(&b);
+        push_buffer;
     } else {
         back_input();
         lua_pushnil(L);
@@ -503,12 +709,12 @@ static int lua_tokenlib_is_token(lua_State * L) /* HH */
     return 1;
 }
 
-/* static int run_expand(lua_State * L) */
-/* { */
-/*     (void) L; */
-/*     expand(); */
-/*     return 0; */
-/* } */
+static int run_expand(lua_State * L)
+{
+    (void) L;
+    expand();
+    return 0;
+}
 
 static int run_lookup(lua_State * L)
 {
@@ -522,6 +728,21 @@ static int run_lookup(lua_State * L)
             cmd = eq_type(cs);
             chr = equiv(cs);
             make_new_token(L, cmd, chr, cs);
+            return 1;
+        }
+    }
+    lua_pushnil(L);
+    return 1;
+}
+
+static int lua_tokenlib_is_defined(lua_State * L)
+{
+    const char *s;
+    size_t l;
+    if (lua_type(L, -1) == LUA_TSTRING) {
+        s = lua_tolstring(L, -1, &l);
+        if (l > 0) {
+            lua_pushboolean(L,string_lookup(s, l) != undefined_control_sequence);
             return 1;
         }
     }
@@ -548,6 +769,15 @@ static int run_build(lua_State * L)
     } else {
         return run_lookup(L);
     }
+}
+
+static int run_new(lua_State * L)
+{
+    int cs = 0;
+    int chr = (int) lua_tointeger(L, 1);
+    int cmd = (int) lua_tointeger(L, 2);
+    make_new_token(L, cmd, chr, cs);
+    return 1;
 }
 
 /* token instance functions */
@@ -602,7 +832,6 @@ inline static int lua_tokenlib_get_index(lua_State * L)
             e -= toks_base;
             break;
         default:
-            e = -1;
             break;
     }
     if ((e >= 0) && (e <= 65535)) {
@@ -630,7 +859,7 @@ inline static int lua_tokenlib_get_cmdname(lua_State * L)
     lua_token *n = check_istoken(L, 1);
     halfword t = token_info(n->token);
     int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
-    lua_pushstring(L, command_names[cmd].cmd_name); /* can be sped up */
+    lua_push_string_by_index(L, command_names[cmd].lua);
     return 1;
 }
 
@@ -750,7 +979,7 @@ static int lua_tokenlib_equal(lua_State * L)
     n = check_istoken(L, 1);
     m = check_istoken(L, 2);
     if (token_info(n->token) == token_info(m->token)) {
-	lua_pushboolean(L,1);
+    lua_pushboolean(L,1);
         return 1;
     }
     lua_pushboolean(L,0);
@@ -785,6 +1014,19 @@ static int run_scan_token(lua_State * L)
     save_tex_scanner(texstate);
     get_x_token();
     make_new_token(L, cur_cmd, cur_chr, cur_cs);
+    unsave_tex_scanner(texstate);
+    return 1;
+}
+
+static int run_scan_list(lua_State * L)
+{
+    saved_tex_scanner texstate;
+    save_tex_scanner(texstate);
+    /*tex
+        This is s tricky call as we are in \LUA\ and therefore
+        mess with the main loop.
+    */
+    lua_nodelib_push_fast(L, local_scan_box());
     unsave_tex_scanner(texstate);
     return 1;
 }
@@ -840,6 +1082,56 @@ static int get_macro(lua_State * L)
             free(str);
             return 1;
         }
+    }
+    return 0;
+}
+
+static int set_lua(lua_State *L)
+{
+    const char *name = null;
+    const char *s  = null;
+    size_t lname = 0;
+    int cs;
+    int n = lua_gettop(L);
+    int a = 0; /* global state */
+    int p = 0; /* protected state */
+    int f = 0; /* function index */
+    int nncs = no_new_control_sequence;
+    if (n < 2) {
+        return 0 ;
+    }
+    name = lua_tolstring(L, 1, &lname);
+    if (name == null) {
+        return 0 ;
+    }
+    f = lua_tointeger(L, 2);
+    if (n > 2)  {
+        s = lua_tostring(L, 3);
+        if (s) {
+            if (lua_key_eq(s, global)) {
+                a = 4;
+            } else if (lua_key_eq(s, protected)) {
+                p = 1;
+            }
+        }
+        if (n > 3) {
+            s = lua_tostring(L, 4);
+            if (s) {
+                if (lua_key_eq(s, global)) {
+                    a = 4;
+                } else if (lua_key_eq(s, protected)) {
+                    p = 1;
+                }
+            }
+        }
+    }
+    no_new_control_sequence = false ;
+    cs = string_lookup(name, lname);
+    no_new_control_sequence = nncs;
+    if (p) {
+        define(cs, lua_call_cmd, f);
+    } else {
+        define(cs, lua_expandable_call_cmd, f);
     }
     return 0;
 }
@@ -963,27 +1255,75 @@ static int set_macro(lua_State * L)
     return 0;
 }
 
+static int set_char(lua_State * L)
+{
+    const char *name = null;
+    const char *s  = null;
+    size_t lname = 0;
+    int cs, value;
+    int n = lua_gettop(L);
+    int a = 0 ; /* global state */
+    int nncs = no_new_control_sequence;
+    if (n < 2)
+        return 0;
+    name = lua_tolstring(L, 1, &lname);
+    if (name == null)
+        return 0;
+    value = lua_tointeger(L, 2);
+    if (value < 0)
+        return 0;
+    if (n > 2)
+        s = lua_tostring(L, 3);
+    if (s && (lua_key_eq(s, global))) {
+        a = 4;
+    }
+    no_new_control_sequence = false ;
+    cs = string_lookup(name, lname);
+    no_new_control_sequence = nncs;
+    define(cs, char_given_cmd, value);
+    return 0;
+}
+
+static int get_command_names(lua_State * L)
+{
+    int i;
+    lua_createtable(L,data_cmd+1,0);
+    for (i = 0; command_names[i].lua != 0; i++) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, command_names[i].lua);
+        lua_rawseti(L, -2, i);
+    }
+    return 1;
+}
+
 static const struct luaL_Reg tokenlib[] = {
     { "type", lua_tokenlib_type },
     { "create", run_build },
+    { "new", run_new },
     { "is_token", lua_tokenlib_is_token },
+    { "is_defined", lua_tokenlib_is_defined },
+    { "commands", get_command_names },
+    { "command_id", run_get_command_id },
+    { "biggest_char", run_get_biggest_char },
     /* scanners */
     { "get_next", run_get_next },
-    { "put_next", run_put_next },
     { "scan_keyword", run_scan_keyword },
+    { "scan_keyword_cs", run_scan_keyword_cs },
     { "scan_int", run_scan_int },
+    { "scan_float", run_scan_float },
+    { "scan_real", run_scan_real },
     { "scan_dimen", run_scan_dimen },
     { "scan_glue", run_scan_glue },
     { "scan_toks", run_scan_toks },
     { "scan_code", run_scan_code },
     { "scan_string", run_scan_string },
+    { "scan_argument", run_scan_argument },
     { "scan_word", run_scan_word },
     { "scan_csname", run_scan_csname },
     { "scan_token", run_scan_token }, /* expands next token if needed */
-    /* push into input stream */
-    /*
-    { "write",luatwrite },
-    */
+    { "scan_list", run_scan_list },
+    /* writers */
+    { "put_next", run_put_next },
+    { "expand", run_expand },
     /* getters */
     { "get_command", lua_tokenlib_get_command },
     { "get_index", lua_tokenlib_get_index },
@@ -995,15 +1335,12 @@ static const struct luaL_Reg tokenlib[] = {
     { "get_active", lua_tokenlib_get_active },
     { "get_expandable", lua_tokenlib_get_expandable },
     { "get_protected", lua_tokenlib_get_protected },
-    /* maybe more setters */
-    { "set_macro", set_macro },
     { "get_macro", get_macro },
     { "get_meaning", get_meaning },
-    /* probably never */
- /* {"expand", run_expand},               */ /* does not work yet! */
- /* {"csname_id", run_get_csname_id},     */ /* yes or no */
- /* {"command_id", run_get_command_id},   */ /* yes or no */
- /* {"cs_offset", run_get_cs_offset},     */ /* not that useful */
+    /* setters */
+    { "set_macro", set_macro },
+    { "set_char", set_char },
+    { "set_lua", set_lua },
     {NULL, NULL}
 };
 

@@ -139,6 +139,9 @@ extern int filelineerrorstylep;
 extern int haltonerrorp;
 extern boolean quoted_filename;
 
+extern int total_pages;
+extern int dead_cycles;
+
 /*
 In order to make efficient use of storage space, \TeX\ bases its major data
 structures on a |memory_word|, which contains either a (signed) integer,

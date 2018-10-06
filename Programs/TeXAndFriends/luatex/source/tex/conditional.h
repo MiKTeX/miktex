@@ -24,30 +24,31 @@
 #  define unless_code 32        /* amount added for `\.{\\unless}' prefix */
 
 typedef enum {
-    if_char_code      =  0, /* \.{\\if}          */
-    if_cat_code       =  1, /* \.{\\ifcat}       */
-    if_int_code       =  2, /* \.{\\ifnum}       */
-    if_dim_code       =  3, /* \.{\\ifdim}       */
-    if_odd_code       =  4, /* \.{\\ifodd}       */
-    if_vmode_code     =  5, /* \.{\\ifvmode}     */
-    if_hmode_code     =  6, /* \.{\\ifhmode}     */
-    if_mmode_code     =  7, /* \.{\\ifmmode}     */
-    if_inner_code     =  8, /* \.{\\ifinner}     */
-    if_void_code      =  9, /* \.{\\ifvoid}      */
-    if_hbox_code      = 10, /* \.{\\ifhbox}      */
-    if_vbox_code      = 11, /* \.{\\ifvbox}      */
-    ifx_code          = 12, /* \.{\\ifx}         */
-    if_eof_code       = 13, /* \.{\\ifeof}       */
-    if_true_code      = 14, /* \.{\\iftrue}      */
-    if_false_code     = 15, /* \.{\\iffalse}     */
-    if_case_code      = 16, /* \.{\\ifcase}      */
-    if_def_code       = 17, /* \.{\\ifdefined}   */
-    if_cs_code        = 18, /* \.{\\ifcsname}    */
-    if_font_char_code = 19, /* \.{\\iffontchar}  */
-    if_in_csname_code = 20, /* \.{\\ifincsname}  */
-    if_primitive_code = 21, /* \.{\\ifprimitive} */
-    if_abs_num_code   = 22, /* \.{\\ifabsnum}    */
-    if_abs_dim_code   = 23, /* \.{\\ifabsdim}    */
+    if_char_code       =  0, /* \.{\\if}          */
+    if_cat_code        =  1, /* \.{\\ifcat}       */
+    if_int_code        =  2, /* \.{\\ifnum}       */
+    if_dim_code        =  3, /* \.{\\ifdim}       */
+    if_odd_code        =  4, /* \.{\\ifodd}       */
+    if_vmode_code      =  5, /* \.{\\ifvmode}     */
+    if_hmode_code      =  6, /* \.{\\ifhmode}     */
+    if_mmode_code      =  7, /* \.{\\ifmmode}     */
+    if_inner_code      =  8, /* \.{\\ifinner}     */
+    if_void_code       =  9, /* \.{\\ifvoid}      */
+    if_hbox_code       = 10, /* \.{\\ifhbox}      */
+    if_vbox_code       = 11, /* \.{\\ifvbox}      */
+    if_x_code          = 12, /* \.{\\ifx}         */
+    if_eof_code        = 13, /* \.{\\ifeof}       */
+    if_true_code       = 14, /* \.{\\iftrue}      */
+    if_false_code      = 15, /* \.{\\iffalse}     */
+    if_case_code       = 16, /* \.{\\ifcase}      */
+    if_def_code        = 17, /* \.{\\ifdefined}   */
+    if_cs_code         = 18, /* \.{\\ifcsname}    */
+    if_font_char_code  = 19, /* \.{\\iffontchar}  */
+    if_in_csname_code  = 20, /* \.{\\ifincsname}  */
+    if_primitive_code  = 21, /* \.{\\ifprimitive} */
+    if_abs_num_code    = 22, /* \.{\\ifabsnum}    */
+    if_abs_dim_code    = 23, /* \.{\\ifabsdim}    */
+    if_condition_code  = 24, /* \.{\\ifcondition} */
 } if_type_codes;
 
 #  define if_limit_subtype(A) subtype((A)+1)

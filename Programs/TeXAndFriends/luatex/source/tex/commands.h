@@ -89,6 +89,7 @@ typedef enum {
     char_num_cmd,                         /* character specified numerically ( \.{\\char} ) */
     math_char_num_cmd,                    /* explicit math code ( \.{\\mathchar} ) */
     mark_cmd,                             /* mark definition ( \.{\\mark} ) */
+    node_cmd,
     xray_cmd,                             /* peek inside of \TeX\ ( \.{\\show}, \.{\\showbox}, etc.~) */
     make_box_cmd,                         /* make a box ( \.{\\box}, \.{\\copy}, \.{\\hbox}, etc.~) */
     hmove_cmd,                            /* horizontal motion ( \.{\\moveleft}, \.{\\moveright} ) */
@@ -134,6 +135,9 @@ typedef enum {
     normal_cmd,                           /* general extensions to \TeX\ that don't fit into a category */
     extension_cmd,                        /* extensions to \TeX\ ( \.{\\write}, \.{\\special}, etc.~) */
     option_cmd,
+    lua_function_call_cmd,
+    lua_bytecode_call_cmd,
+    lua_call_cmd,
     in_stream_cmd,                        /* files for reading ( \.{\\openin}, \.{\\closein} ) */
     begin_group_cmd,                      /* begin local grouping ( \.{\\begingroup} ) */
     end_group_cmd,                        /* end local grouping ( \.{\\endgroup} ) */
@@ -179,7 +183,9 @@ typedef enum {
     set_font_cmd,                         /* set current font ( font identifiers ) */
     def_font_cmd,                         /* define a font file ( \.{\\font} ) */
     register_cmd,                         /* internal register ( \.{\\count}, \.{\\dimen}, etc.~) */
+    assign_box_direction_cmd,             /* (\.{\\boxdirection}) */
     assign_box_dir_cmd,                   /* (\.{\\boxdir}) */
+    assign_direction_cmd,                 /* (\.{\\pagedirection}, \.{\\textdirection}) */
     assign_dir_cmd,                       /* (\.{\\pagedir}, \.{\\textdir}) */
 # define max_internal_cmd assign_dir_cmd  /* the largest code that can follow \.{\\the} */
     advance_cmd,                          /* advance a register or parameter ( \.{\\advance} ) */
@@ -188,6 +194,7 @@ typedef enum {
     prefix_cmd,                           /* qualify a definition ( \.{\\global}, \.{\\long}, \.{\\outer} ) */
     let_cmd,                              /* assign a command code ( \.{\\let}, \.{\\futurelet} ) */
     shorthand_def_cmd,                    /* code definition ( \.{\\chardef}, \.{\\countdef}, etc.~) */
+    def_lua_call_cmd,
     read_to_cs_cmd,                       /* read into a control sequence ( \.{\\read} ) */
     def_cmd,                              /* macro definition ( \.{\\def}, \.{\\gdef}, \.{\\xdef}, \.{\\edef} ) */
     set_box_cmd,                          /* set a box ( \.{\\setbox} ) */
@@ -201,6 +208,8 @@ typedef enum {
     expand_after_cmd,                     /* special expansion ( \.{\\expandafter} ) */
     no_expand_cmd,                        /* special nonexpansion ( \.{\\noexpand} ) */
     input_cmd,                            /* input a source file ( \.{\\input}, \.{\\endinput} or \.{\\scantokens} or \.{\\scantextokens} ) */
+    lua_expandable_call_cmd,
+    lua_local_call_cmd,
     if_test_cmd,                          /* conditional text ( \.{\\if}, \.{\\ifcase}, etc.~) */
     fi_or_else_cmd,                       /* delimiters for conditionals ( \.{\\else}, etc.~) */
     cs_name_cmd,                          /* make a control sequence from tokens ( \.{\\csname} ) */
@@ -236,9 +245,12 @@ typedef enum {
 
 typedef enum {
     number_code = 0,            /* command code for \.{\\number} */
-    lua_function_code,          /* command code for \.{\\luafunction} */
     lua_code,                   /* command code for \.{\\directlua} */
+    lua_function_code,          /* command code for \.{\\luafunction} */
+    lua_bytecode_code,          /* command code for \.{\\luabytecode} */
     expanded_code,              /* command code for \.{\\expanded} */
+    immediate_assignment_code,  /* command code for \.{\\immediateassignment} */
+    immediate_assigned_code,    /* command code for \.{\\assigned} */
     math_style_code,            /* command code for \.{\\mathstyle} */
     string_code,                /* command code for \.{\\string} */
     cs_string_code,             /* command code for \.{\\csstring} */
@@ -324,6 +336,7 @@ typedef enum {
     set_random_seed_code,
     save_pos_code,
     late_lua_code,
+    late_lua_call_code,
     expand_font_code,
 } normal_codes;
 

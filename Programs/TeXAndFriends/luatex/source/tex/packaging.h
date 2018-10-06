@@ -143,7 +143,8 @@ latter two are used denote \.{\\vbox} and \.{\\hbox}, respectively.
 #  define global_box_flag     (box_flag+number_regs)        /* context code for `\.{\\global\\setbox0}' */
 #  define max_global_box_flag (global_box_flag+number_regs)
 #  define ship_out_flag       (max_global_box_flag+1)       /* context code for `\.{\\shipout}' */
-#  define leader_flag         ship_out_flag+1               /* context code for `\.{\\leaders}' */
+#  define lua_scan_flag       (max_global_box_flag+2)       /* context code for |scan_list| */
+#  define leader_flag         (max_global_box_flag+3)       /* context code for `\.{\\leaders}' */
 
 extern void begin_box(int box_context);
 

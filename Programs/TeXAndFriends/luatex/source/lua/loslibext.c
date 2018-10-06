@@ -631,14 +631,8 @@ static void find_env(lua_State * L)
 {
     char *envitem, *envitem_orig;
     char *envkey;
-#if defined(MIKTEX_WINDOWS)
-    wchar_t** envpointer = _wenviron;
-    // FIXME
-    char buffer[4096];
-#else
     char **envpointer;
     envpointer = environ;
-#endif
     lua_getglobal(L, "os");
     if (envpointer != NULL && lua_istable(L, -1)) {
         luaL_checkstack(L, 2, "out of stack space");
@@ -647,11 +641,7 @@ static void find_env(lua_State * L)
         while (*envpointer) {
             /* TODO: perhaps a memory leak here  */
             luaL_checkstack(L, 2, "out of stack space");
-#if defined(MIKTEX_WINDOWS)
-            envitem = xstrdup(miktex_wide_char_to_utf8(*envpointer, sizeof(buffer), buffer));
-#else
             envitem = xstrdup(*envpointer);
-#endif
             envitem_orig = envitem;
             envkey = envitem;
             while (*envitem != '=') {
@@ -713,28 +703,49 @@ static int uname(struct utsname *uts)
     GetVersionEx(&osver);
     GetSystemInfo(&sysinfo);
 
+
+    /*
+        Windows 10               10.0*
+        Windows Server 2016      10.0*
+        Windows 8.1               6.3*
+        Windows Server 2012 R2    6.3*
+        Windows 8                 6.2
+        Windows Server 2012       6.2
+        Windows 7                 6.1
+        Windows Server 2008 R2	  6.1
+        Windows Server 2008       6.0
+        Windows Vista             6.0
+        Windows Server 2003 R2	  5.2
+        Windows Server 2003       5.2
+        Windows XP 64-Bit Edition 5.2
+        Windows XP                5.1
+        Windows 2000              5.0
+    */
+
     switch (osver.dwPlatformId) {
-    case VER_PLATFORM_WIN32_NT:        /* NT, Windows 2000 or Windows XP */
+    case VER_PLATFORM_WIN32_NT:
         if (osver.dwMajorVersion == 4)
-            strcpy(uts->sysname, "Windows NT4x");       /* NT4x */
+            strcpy(uts->sysname, "Windows NT 4");
         else if (osver.dwMajorVersion <= 3)
-            strcpy(uts->sysname, "Windows NT3x");       /* NT3x */
+            strcpy(uts->sysname, "Windows NT 3");
         else if (osver.dwMajorVersion == 5) {
             if (osver.dwMinorVersion == 0)
-                strcpy(uts->sysname, "Windows 2000");   /* 2k */
+                strcpy(uts->sysname, "Windows 2000");
             else if (osver.dwMinorVersion == 1)
-                strcpy(uts->sysname, "Windows XP");     /* XP */
+                strcpy(uts->sysname, "Windows XP");
             else if (osver.dwMinorVersion == 2)
-                strcpy(uts->sysname, "Windows Server 2003");    /* Server 2003 */
+                strcpy(uts->sysname, "Windows XP 64-Bit");
         } else if (osver.dwMajorVersion == 6) {
-            /*
-               if( osver.wProductType == VER_NT_WORKSTATION )
-             */
-            strcpy(uts->sysname, "Windows Vista");      /* Vista */
-            /*
-               else
-               strcpy (uts->sysname, "Windows Server 2008");
-             */
+            if (osver.dwMinorVersion == 0)
+                strcpy(uts->sysname, "Windows Vista");
+            else if (osver.dwMinorVersion == 1)
+                strcpy(uts->sysname, "Windows 7");
+            else if (osver.dwMinorVersion == 2)
+                strcpy(uts->sysname, "Windows 8");
+            else if (osver.dwMinorVersion == 3)
+                strcpy(uts->sysname, "Windows 8.1");
+        } else if (osver.dwMajorVersion == 10) {
+                strcpy(uts->sysname, "Windows 10");
         }
         os = WinNT;
         break;

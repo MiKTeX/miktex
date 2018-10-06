@@ -136,9 +136,12 @@ typedef enum {
     use_box_resource_code,
     save_image_resource_code,
     use_image_resource_code,
+    end_local_code,
     /* backend */
     dvi_extension_code,
     pdf_extension_code,
 } extension_codes ;
+
+extern void wrapup_leader(halfword p);
 
 #endif

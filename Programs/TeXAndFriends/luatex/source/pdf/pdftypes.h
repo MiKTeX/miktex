@@ -94,10 +94,7 @@ typedef struct {
 typedef struct scaledpos_ {
     int64_t h;
     int64_t v;
- } scaledpos;
-
-
-
+} scaledpos;
 
 typedef struct scaled_whd_ {
     scaled wd; /* TeX width */
@@ -110,11 +107,11 @@ typedef struct posstructure_ {
     int dir;       /* direction of stuff to be put onto the page */
 } posstructure;
 
-typedef struct {
-    scaledpos curpos;    /* \pdflastpos position */
-    posstructure boxpos; /* box dir and position of the box origin on the page */
-    scaled_whd boxdim;   /* box dimensions (in hlist/vlist coordinate system) */
-} pos_info_structure;
+/* typedef struct {         */
+/*     scaledpos curpos;    */ /* \pdflastpos position */
+/*     posstructure boxpos; */ /* box dir and position of the box origin on the page */
+/*     scaled_whd boxdim;   */ /* box dimensions (in hlist/vlist coordinate system) */
+/* } pos_info_structure;    */
 
 typedef enum {
     PMODE_NONE,
@@ -163,6 +160,10 @@ typedef struct {
     int need_tf;                /* flag whether Tf needs to be set */
     int need_tm;                /* flag whether Tm needs to be set */
     int cur_ex;                 /* the current glyph ex factor */
+    int need_width;
+    int need_mode;
+    int done_width;
+    int done_mode;
 } pdfstructure;
 
 typedef struct obj_entry_ {
@@ -296,9 +297,11 @@ typedef struct pdf_output_file_ {
     int decimal_digits;
     int gen_tounicode;
     int omit_cidset;
+    int omit_charset;
     int inclusion_copy_font;
     int major_version;          /* fixed major part of the PDF version */
     int minor_version;          /* fixed minor part of the PDF version */
+    int recompress;
     int compress_level;         /* level for zlib object stream compression */
     int objcompresslevel;       /* fixed level for activating PDF object streams */
     char *job_id_string;        /* the full job string */
@@ -354,6 +357,8 @@ typedef struct pdf_output_file_ {
     int obj_count;
     int xform_count;
     int ximage_count;
+
+    int force_file;
 
     pdf_resource_struct *page_resources;
 
