@@ -77,10 +77,10 @@ static int my_##func(int c) \
     ((LaTeXMsgs[(enum ErrNum) c].InUse == iuOK) && !SUPPRESSED_ON_LINE(c))
 
 #define PSERR2(pos,len,err,a,b) \
-    PrintError(CurStkName(&InputStack), RealBuf, pos, len, Line, err, a, b)
+    PrintError(err, CurStkName(&InputStack), RealBuf, pos, len, Line, a, b)
 
 #define PSERRA(pos,len,err,a) \
-    PrintError(CurStkName(&InputStack), RealBuf, pos, len, Line, err, a)
+    PrintError(err, CurStkName(&InputStack), RealBuf, pos, len, Line, a)
 
 #define HEREA(len, err, a)     PSERRA(BufPtr - Buf - 1, len, err, a)
 #define PSERR(pos,len,err)     PSERRA(pos,len,err,"")
@@ -625,10 +625,10 @@ static void PerformBigCmd(char *CmdPtr)
             SKIP_AHEAD(TmpPtr, TmpC, TmpC == '{');      /* } */
 
             if ((*TmpPtr == 'i') || (*TmpPtr == 'j'))
-                PrintError(CurStkName(&InputStack), RealBuf,
+                PrintError(emAccent, CurStkName(&InputStack), RealBuf,
                            CmdPtr - Buf,
                            (long) strlen(CmdBuffer), Line,
-                           emAccent, CmdBuffer, *TmpPtr,
+                           CmdBuffer, *TmpPtr,
                            MathMode ? "math" : "");
         }
         else
@@ -670,18 +670,18 @@ static void PerformBigCmd(char *CmdPtr)
                 if ((ei = PopErr(&EnvStack)))
                 {
                     if (strcmp(ei->Data, ArgBuffer))
-                        PrintError(CurStkName(&InputStack), RealBuf,
+                        PrintError(emExpectC, CurStkName(&InputStack), RealBuf,
                                    CmdPtr - Buf,
                                    (long) strlen(CmdBuffer),
-                                   Line, emExpectC, ei->Data, ArgBuffer);
+                                   Line, ei->Data, ArgBuffer);
 
                     FreeErrInfo(ei);
                 }
                 else
-                    PrintError(CurStkName(&InputStack), RealBuf,
+                    PrintError(emSoloC, CurStkName(&InputStack), RealBuf,
                                CmdPtr - Buf,
                                (long) strlen(CmdBuffer),
-                               Line, emSoloC, ArgBuffer);
+                               Line, ArgBuffer);
             }
 
             PerformEnv(ArgBuffer, (int) CmdBuffer[1] == 'b');
@@ -697,28 +697,28 @@ static void PerformBigCmd(char *CmdPtr)
         {
             TmpPtr = CmdBuffer + 6;
             if (!(PushErr(TmpPtr, Line, CmdPtr - Buf + 6,
-                          CmdLen - 6, RealBuf, &EnvStack)))
+                          CmdLen - 6, RealBuf, &ConTeXtStack)))
                 PrintPrgErr(pmNoStackMem);
         }
         else
         {
             TmpPtr = CmdBuffer + 5;
-            if ((ei = PopErr(&EnvStack)))
+            if ((ei = PopErr(&ConTeXtStack)))
             {
                 if (strcmp(ei->Data, TmpPtr))
-                    PrintError(CurStkName(&InputStack), RealBuf,
+                    PrintError(emExpectConTeXt, CurStkName(&InputStack), RealBuf,
                                CmdPtr - Buf + 5,
                                (long) strlen(TmpPtr),
-                               Line, emExpectC, ei->Data, TmpPtr);
+                               Line, ei->Data, TmpPtr);
 
                 FreeErrInfo(ei);
             }
             else
             {
-                PrintError(CurStkName(&InputStack), RealBuf,
+                PrintError(emSoloC, CurStkName(&InputStack), RealBuf,
                            CmdPtr - Buf,
                            (long) strlen(CmdBuffer),
-                           Line, emSoloC, TmpPtr);
+                           Line, TmpPtr);
             }
         }
         /* TODO: Do I need to call PerformEnv? */
@@ -1160,8 +1160,8 @@ static void HandleBracket(char Char)
                 BBuf[0] = Char;
                 ABuf[1] = BBuf[1] = 0;
                 if (Match)
-                    PrintError(CurStkName(&InputStack), RealBuf,
-                               BufPtr - Buf - 1, 1, Line, emExpectC,
+                    PrintError(emExpectC, CurStkName(&InputStack), RealBuf,
+                               BufPtr - Buf - 1, 1, Line,
                                ABuf, BBuf);
                 else
                     HEREA(1, emSoloC, BBuf);
@@ -1524,9 +1524,8 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
             case '`':
                 if ((Char == *BufPtr) && (Char == BufPtr[1]))
                 {
-                    PrintError(CurStkName(&InputStack), RealBuf,
+                    PrintError(emThreeQuotes, CurStkName(&InputStack), RealBuf,
                                BufPtr - Buf - 1, 3, Line,
-                               emThreeQuotes,
                                Char, Char, Char, Char, Char, Char);
                 }
 
@@ -1557,7 +1556,7 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
                         HERE(TmpPtr - BufPtr + 1, emBeginQ);
 
                     /* Now check quote style */
-#define ISPUNCT(ptr) (strchr(LTX_GenPunc, *ptr) && (ptr[-1] != '\\'))
+#define ISPUNCT(ptr) ((strchr(LTX_EosPunc, *ptr) || strchr(LTX_GenPunc, *ptr)) && (ptr[-1] != '\\'))
 
                     /* We ignore all single words/abbreviations in quotes */
 
@@ -1696,7 +1695,7 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
                 break;
 
             case ')':
-                if (isspace((unsigned char)*PrePtr))
+                if (SeenSpace)
                     PSERRA(BufPtr - Buf - 1, 1, emNoSpaceParen,
                            "in front of");
                 if (isalpha((unsigned char)*BufPtr))
@@ -1782,29 +1781,35 @@ void PrintStatus(unsigned long Lines)
 
     while ((ei = PopErr(&CharStack)))
     {
-        PrintError(ei->File, ei->LineBuf, ei->Column,
-                   ei->ErrLen, ei->Line, emNoMatchC, (char *) ei->Data);
+        PrintError(emNoMatchC, ei->File, ei->LineBuf, ei->Column,
+                   ei->ErrLen, ei->Line, (char *) ei->Data);
         FreeErrInfo(ei);
     }
 
     while ((ei = PopErr(&EnvStack)))
     {
-        PrintError(ei->File, ei->LineBuf, ei->Column,
-                   ei->ErrLen, ei->Line, emNoMatchC, (char *) ei->Data);
+        PrintError(emNoMatchC, ei->File, ei->LineBuf, ei->Column,
+                   ei->ErrLen, ei->Line, (char *) ei->Data);
+        FreeErrInfo(ei);
+    }
+
+    while ((ei = PopErr(&ConTeXtStack)))
+    {
+        PrintError(emNoMatchConTeXt, ei->File, ei->LineBuf, ei->Column,
+                   ei->ErrLen, ei->Line, (char *) ei->Data);
         FreeErrInfo(ei);
     }
 
     if (MathMode)
     {
-        PrintError(CurStkName(&InputStack), "", 0L, 0L, Lines, emMathStillOn);
+        PrintError(emMathStillOn, CurStkName(&InputStack), "", 0L, 0L, Lines);
     }
 
     for (Cnt = 0L; Cnt < (NUMBRACKETS >> 1); Cnt++)
     {
         if (Brackets[Cnt << 1] != Brackets[(Cnt << 1) + 1])
         {
-            PrintError(CurStkName(&InputStack), "", 0L, 0L, Lines,
-                       emNoMatchCC,
+            PrintError(emNoMatchCC, CurStkName(&InputStack), "", 0L, 0L, Lines,
                        BrOrder[Cnt << 1], BrOrder[(Cnt << 1) + 1]);
         }
     }
@@ -1847,9 +1852,8 @@ void PrintStatus(unsigned long Lines)
 
 
 void
-PrintError(const char *File, const char *String,
-           const long Position, const long Len,
-           const long LineNo, const enum ErrNum Error, ...)
+PrintError(const enum ErrNum Error, const char *File, const char *String,
+           const long Position, const long Len, const long LineNo,  ...)
 {
     static                      /* Just to reduce stack usage... */
     char PrintBuffer[BUFSIZ];
@@ -1884,15 +1888,17 @@ PrintError(const char *File, const char *String,
                 RGTCTXT(ctInHead, InHeader);
                 RGTCTXT(ctOutHead, !InHeader);
 
+                /* Count how warnings or errors we've found, and
+                 * update the return code with the worst. */
                 switch (LaTeXMsgs[Error].Type)
                 {
                 case etWarn:
                     WarnPrint++;
-                    FoundErr = EXIT_FAILURE;
+                    FoundErr = max(FoundErr, EXIT_WARNINGS);
                     break;
                 case etErr:
                     ErrPrint++;
-                    FoundErr = EXIT_FAILURE;
+                    FoundErr = max(FoundErr, EXIT_ERRORS);
                     break;
                 case etMsg:
                     break;
@@ -1947,7 +1953,7 @@ PrintError(const char *File, const char *String,
                         fprintf(OutputFile, "%ld", LineNo);
                         break;
                     case 'm':
-                        va_start(MsgArgs, Error);
+                        va_start(MsgArgs, LineNo);
                         vfprintf(OutputFile,
                                  LaTeXMsgs[Error].Message, MsgArgs);
                         va_end(MsgArgs);

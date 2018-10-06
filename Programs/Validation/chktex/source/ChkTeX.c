@@ -54,6 +54,9 @@ struct Stack CharStack = {
 0L}, EnvStack =
 
 {
+0L}, ConTeXtStack =
+
+{
 0L};
 
 /************************************************************************/
@@ -182,7 +185,17 @@ static const char *HelpText =
     "----------------------------------------------------------------------\n"
     "If no LaTeX files are specified on the command line, we will read from\n"
     "stdin.   For explanation of warning/error messages, please consult the\n"
-    "main documentation ChkTeX.dvi, ChkTeX.ps or ChkTeX.pdf.\n";
+    "main documentation ChkTeX.dvi, ChkTeX.ps or ChkTeX.pdf:\n"
+    "  http://www.nongnu.org/chktex/ChkTeX.pdf\n"
+    "\n"
+    "Any of the above arguments can be made permanent by setting them in the\n"
+    "chktexrc file "
+#if defined(__unix__)
+    "(~/.chktexrc).\n"
+#else
+    "(see documentation for location).\n"
+#endif
+    ;
 
 
 

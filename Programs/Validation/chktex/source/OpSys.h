@@ -83,6 +83,9 @@
 #  define  EXIT_SUCCESS    0
 #endif
 
+#define EXIT_WARNINGS 2
+#define EXIT_ERRORS 3
+
 /*  -=><=- -=><=- -=><=- -=><=- -=><=- -=><=- -=><=- -=><=- -=><=-  */
 
 /*
@@ -189,7 +192,7 @@
 struct WordList;
 #endif
 /* Sorry; there are now cyclic dependencies in the
-* source tree. :-/ 
+* source tree. :-/
 */
 
 extern const char *ReverseOn;

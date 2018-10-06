@@ -128,7 +128,11 @@
  MSG(emDisplayMath, etWarn, iuOK, ctOutMath,\
      "Use \\[ ... \\] instead of $$ ... $$.")\
  MSG(emInlineMath, etWarn, iuNotSys, ctOutMath,\
-     "Use \\( ... \\) instead of $ ... $.")
+     "Use \\( ... \\) instead of $ ... $.")\
+ MSG(emExpectConTeXt, etWarn, iuOK, ctNone,\
+     "`%s' expected, found `%s' (ConTeXt).")\
+ MSG(emNoMatchConTeXt, etWarn, iuOK, ctNone,\
+     "No match found for `%s' (ConTeXt).")
 
 #undef MSG
 #define MSG(num, type, inuse, ctxt, text) num,
@@ -193,8 +197,8 @@ extern char *OutputFormat;
 
 int CheckSilentRegex(void);
 int FindErr(const char *, const unsigned long);
-void PrintError(const char *, const char *, const long, const long,
-                const long, const enum ErrNum, ...);
+void PrintError(const enum ErrNum, const char *, const char *, const long,
+                const long, const long,  ...);
 void PrintStatus(unsigned long Lines);
 
 #endif /* FINDERRS */
