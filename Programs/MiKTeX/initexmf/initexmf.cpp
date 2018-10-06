@@ -59,9 +59,9 @@
 #include <miktex/Util/Tokenizer>
 #include <miktex/Wrappers/PoptWrapper>
 
+#include <log4cxx/basicconfigurator.h>
 #include <log4cxx/logger.h>
 #include <log4cxx/rollingfileappender.h>
-#include <log4cxx/basicconfigurator.h>
 #include <log4cxx/xml/domconfigurator.h>
 
 using namespace MiKTeX::Core;
