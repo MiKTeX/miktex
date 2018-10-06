@@ -66,7 +66,7 @@ struct png_info {
 };
 
 #if defined(MIKTEX)
-extern int png_scan_file (struct xetex_png_info *info, FILE *file);
+extern int png_scan_file(struct xetex_png_info* info, FILE* file);
 #else
 extern int png_scan_file (struct png_info *info, FILE *file);
 #endif

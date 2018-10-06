@@ -81,6 +81,14 @@ countpdffilepages(void)
 	return full path in *path
 	return bounds (tex points) in *bounds
 */
+
+#if !defined(MIKTEX)
+#ifdef _WIN32
+#undef fopen
+#define fopen fsyscp_fopen
+#endif
+#endif
+
 int
 find_pic_file(char** path, realrect* bounds, int pdfBoxType, int page)
 {
@@ -127,7 +135,7 @@ find_pic_file(char** path, realrect* bounds, int pdfBoxType, int page)
 
 	if (check_for_png(fp)) {
 #if defined(MIKTEX)
-                struct xetex_png_info	info;
+                struct xetex_png_info info;
 #else
 		struct png_info	info;
 #endif
