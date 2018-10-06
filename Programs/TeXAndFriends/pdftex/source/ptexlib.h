@@ -20,25 +20,37 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PDFTEXLIB
 #  define PDFTEXLIB
 
-#  if defined(MIKTEX)
-#    if defined(MIKTEX_WINDOWS)
-#      define MIKTEX_UTF8_WRAP_ALL 1
-#      include <miktex/utf8wrap.h>
-#      include <miktex/unxemu.h>
-#    endif
-#    define _USE_MATH_DEFINES 
-#    include <cmath>
-#    include "pdftex-version.h"
-#    include <miktex/KPSE/Emulation>
-#    include <miktex/W2C/Emulation>
-#    include "pdftex-miktex.h"
-#    include <miktex/Core/Debug>
-#    if defined(assert)
-#      undef assert
-#    endif
-#    define assert MIKTEX_ASSERT
-#    define __attribute__(x)
+#if !defined(MIKTEX)
+#ifdef _WIN32
+#undef fopen
+#undef xfopen
+#undef fputs
+#undef putc
+#define fopen fsyscp_fopen
+#define xfopen fsyscp_xfopen
+#define fputs win32_fputs
+#define putc win32_putc
+#endif
+#endif
+#if defined(MIKTEX)
+#  if defined(MIKTEX_WINDOWS)
+#    define MIKTEX_UTF8_WRAP_ALL 1
+#    include <miktex/utf8wrap.h>
+#    include <miktex/unxemu.h>
 #  endif
+#  define _USE_MATH_DEFINES 
+#  include <cmath>
+#  include "pdftex-version.h"
+#  include <miktex/KPSE/Emulation>
+#  include <miktex/W2C/Emulation>
+#  include "pdftex-miktex.h"
+#  include <miktex/Core/Debug>
+#  if defined(assert)
+#    undef assert
+#  endif
+#  define assert MIKTEX_ASSERT
+#  define __attribute__(x)
+#endif
 /* WEB2C macros and prototypes */
 #  if !defined(PDFTEXCOERCE) && !defined(PDFETEXCOERCE)
 #    ifdef pdfTeX

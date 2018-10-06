@@ -266,7 +266,7 @@ set(${pdftex_target_name}_sources
   source/mapfile.c
   source/pdftex-common.h
   source/pdftex.h
-  source/pdftoepdf-newpoppler.cc
+  source/pdftoepdf-poppler0.68.0.cc
   source/pkin.c
   source/ptexlib.h
   source/ptexmac.h

@@ -10748,7 +10748,8 @@ such that |job_name_code| remains last.
 @d etex_convert_base=5 {base for \eTeX's command codes}
 @d eTeX_revision_code=etex_convert_base {command code for \.{\\eTeXrevision}}
 @d etex_convert_codes=etex_convert_base+1 {end of \eTeX's command codes}
-@d pdftex_first_expand_code = etex_convert_codes {base for \pdfTeX's command codes}
+@d expanded_code = etex_convert_codes {command code for \.{\\expanded}}
+@d pdftex_first_expand_code = expanded_code + 1 {base for \pdfTeX's command codes}
 @d pdftex_revision_code     = pdftex_first_expand_code + 0 {command code for \.{\\pdftexrevision}}
 @d pdftex_banner_code       = pdftex_first_expand_code + 1 {command code for \.{\\pdftexbanner}}
 @d pdf_font_name_code       = pdftex_first_expand_code + 2 {command code for \.{\\pdffontname}}
@@ -10789,6 +10790,9 @@ primitive("meaning",convert,meaning_code);@/
 @!@:meaning_}{\.{\\meaning} primitive@>
 primitive("fontname",convert,font_name_code);@/
 @!@:font_name_}{\.{\\fontname} primitive@>
+@#
+primitive("expanded",convert,expanded_code);@/
+@!@:expanded_}{\.{\\expanded} primitive@>
 @#
 primitive("pdftexrevision",convert,pdftex_revision_code);@/
 @!@:pdftex_revision_}{\.{\\pdftexrevision} primitive@>
@@ -10854,6 +10858,7 @@ convert: case chr_code of
   meaning_code: print_esc("meaning");
   font_name_code: print_esc("fontname");
   eTeX_revision_code: print_esc("eTeXrevision");
+  expanded_code: print_esc("expanded");
   pdftex_revision_code: print_esc("pdftexrevision");
   pdftex_banner_code:   print_esc("pdftexbanner");
   pdf_font_name_code:   print_esc("pdffontname");
@@ -10926,6 +10931,20 @@ string_code, meaning_code: begin save_scanner_status:=scanner_status;
   end;
 font_name_code: scan_font_ident;
 eTeX_revision_code: do_nothing;
+expanded_code:
+  begin
+    save_scanner_status := scanner_status;
+    save_warning_index := warning_index;
+    save_def_ref := def_ref;
+    save_cur_string;
+    scan_pdf_ext_toks;
+    warning_index := save_warning_index;
+    scanner_status := save_scanner_status;
+    ins_list(link(def_ref));
+    def_ref := save_def_ref;
+    restore_cur_string;
+    return;
+  end;
 pdftex_revision_code: do_nothing;
 pdftex_banner_code: do_nothing;
 pdf_font_name_code, pdf_font_objnum_code, pdf_font_size_code: begin

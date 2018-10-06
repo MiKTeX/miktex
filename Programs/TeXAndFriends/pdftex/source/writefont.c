@@ -484,16 +484,26 @@ static void write_fontdescriptor(fd_entry * fd)
     pdf_printf("/Flags %i\n", fd_flags);
     write_fontmetrics(fd);
     if (fd->ff_found) {
+#ifdef ENABLE_PDF_CHARSET /* just in case a builder wants it */
         if (is_subsetted(fd->fm) && is_type1(fd->fm)) {
-            /* /CharSet is optional; names may appear in any order */
+            /* CharSet is optional, but if it appears, it must be
+               correct. Unfortunately, there is no practical way we can
+               guarantee correctness with precomposed accent characters
+               in our usual fonts (EC, TX, etc.):
+              https://mailman.ntg.nl/pipermail/ntg-pdftex/2018-June/004251.html
+               Therefore, we disable its output. The code is left in
+               just in case it turns out that something important was
+               relying on the (incorrect) CharSet. */
             assert(fd->gl_tree != NULL);
             avl_t_init(&t, fd->gl_tree);
+            /* Names may appear in any order. */
             pdf_puts("/CharSet (");
             for (glyph = (char *) avl_t_first(&t, fd->gl_tree); glyph != NULL;
                  glyph = (char *) avl_t_next(&t))
                 pdf_printf("/%s", glyph);
             pdf_puts(")\n");
         }
+#endif /* ENABLE_PDF_CHARSET */
         if (is_type1(fd->fm))
             pdf_printf("/FontFile %i 0 R\n", (int) fd->ff_objnum);
         else if (is_truetype(fd->fm))

@@ -25,6 +25,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 This is based on the patch texlive-poppler-0.59.patch <2017-09-19> at
 https://git.archlinux.org/svntogit/packages.git/plain/texlive-bin/trunk
 by Arch Linux. The poppler should be 0.59.0 or newer versions.
+It is tested up to the poppler 0.69.0.
 POPPLER_VERSION should be defined.
 */
 
@@ -126,7 +127,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "No SourceName found\n");
             exit(1);
         }
-        outname = srcName.getString()->getCString();
+        outname = (char *)srcName.getString()->getCString();
         // We cannot free srcName, as objname shares its string.
         // srcName.free();
     } else if (objnum > 0) {

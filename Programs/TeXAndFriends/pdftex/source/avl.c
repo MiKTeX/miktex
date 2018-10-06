@@ -806,7 +806,7 @@ struct libavl_allocator avl_allocator_default = {
     avl_free
 };
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #undef NDEBUG
 #include <assert.h>
 #endif
