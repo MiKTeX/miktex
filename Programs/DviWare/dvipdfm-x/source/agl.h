@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -58,7 +58,6 @@ extern agl_name   *agl_lookup_list     (const char *glyphname);
 extern int         agl_select_listfile (const char *mapfile);
 #endif
 
-extern void  agl_set_verbose (void);
 extern void  agl_init_map    (void);
 extern void  agl_close_map   (void);
 

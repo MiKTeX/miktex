@@ -36,6 +36,7 @@
 #include "error.h"
 #include "mem.h"
 
+#include "dpxconf.h"
 #include "dpxutil.h"
 #include "mfileio.h"
 
@@ -69,16 +70,6 @@
 #  define PATH_MAX 256
 #endif
 #endif /* MIKTEX || TESTCOMPILE */
-
-static int verbose = 0;
-int keep_cache = 0;
-
-void
-dpx_file_set_verbose (void)
-{
-  verbose++;
-}
-
 
 /* Kpathsea library does not check file type. */
 static int qcheck_filetype (const char *fqpn, dpx_res_type type);
@@ -361,7 +352,7 @@ insistupdate (const char      *filename,
 #else
   kpse_format_info_type *fif;
   kpse_format_info_type *fir;
-  if (verbose < 1)
+  if (dpx_conf.verbose_level < 1)
     return;
   fif = &kpse_format_info[foolformat];
   fir = &kpse_format_info[realformat];
@@ -433,7 +424,7 @@ dpx_open_file (const char *filename, dpx_res_type type)
   switch (type) {
   case DPX_RES_TYPE_FONTMAP:
     fqpn = dpx_find_fontmap_file(filename);
-    if (verbose) {
+    if (dpx_conf.verbose_level > 0) {
       if (fqpn != NULL)
         MESG(fqpn);
     }
@@ -971,7 +962,7 @@ dpx_delete_old_cache (int life)
   time_t limit;
 
   if (life == -2) {
-      keep_cache = -1;
+      dpx_conf.file.keep_cache = -1;
       return;
   }
 
@@ -979,7 +970,7 @@ dpx_delete_old_cache (int life)
   pathname = NEW(strlen(dir)+1+strlen(PREFIX)+MAX_KEY_LEN*2 + 1, char);
   limit = time(NULL) - life * 60 * 60;
 
-  if (life >= 0) keep_cache = 1;
+  if (life >= 0) dpx_conf.file.keep_cache = 1;
   if ((dp = opendir(dir)) != NULL) {
       while((de = readdir(dp)) != NULL) {
           if (dpx_clear_cache_filter(de)) {
@@ -1003,7 +994,7 @@ dpx_delete_temp_file (char *tmp, int force)
 {
   if (!tmp)
     return;
-  if (force || keep_cache != 1) remove (tmp);
+  if (force || dpx_conf.file.keep_cache != 1) remove (tmp);
   RELEASE(tmp);
 
   return;

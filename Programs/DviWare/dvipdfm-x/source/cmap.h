@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     This program is free software; you can redistribute it and/or modify
@@ -56,7 +56,6 @@ typedef struct CMap CMap;
 
 /************************** CMAP_MAIN **************************/
 
-extern void CMap_set_verbose (void);
 extern void CMap_set_silent  (int value);
 
 extern CMap  *CMap_new     (void);
@@ -105,8 +104,6 @@ extern void CMap_decode_char (CMap *cmap,
 extern int  CMap_decode (CMap *cmap,
 			 const unsigned char **inbuf,  int *inbytesleft,
 			 unsigned char **outbuf, int *outbytesleft);
-
-extern int  CMap_reverse_decode(CMap *cmap, CID cid);
 
 extern void  CMap_cache_init  (void);
 extern CMap *CMap_cache_get   (int id);

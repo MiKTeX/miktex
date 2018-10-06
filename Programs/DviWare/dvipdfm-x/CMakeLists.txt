@@ -124,8 +124,6 @@ set(dvipdfm_x_sources
   source/mpost.h
   source/numbers.c
   source/numbers.h
-  source/otl_conf.c
-  source/otl_conf.h
   source/otl_opt.c
   source/otl_opt.h
   source/pdfcolor.c

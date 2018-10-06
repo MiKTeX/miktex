@@ -29,6 +29,7 @@
 #include "system.h"
 #include "mem.h"
 #include "error.h"
+#include "dpxconf.h"
 #include "dpxutil.h"
 
 #include "pdfparse.h"
@@ -42,8 +43,6 @@ static int      is_similar_charset (char **encoding, const char **encoding2);
 static pdf_obj *make_encoding_differences (char **encoding, char **baseenc,
 					   const char *is_used);
 
-static unsigned char verbose = 0;
-
 static const char *MacRomanEncoding[256];
 static const char *MacExpertEncoding[256];
 static const char *WinAnsiEncoding[256];
@@ -51,12 +50,6 @@ static const char *WinAnsiEncoding[256];
 static const char *StandardEncoding[256];
 static const char *ISOLatin1Encoding[256];
 #endif
-
-void
-pdf_encoding_set_verbose (void)
-{
-  verbose++;
-}
 
 /*
  * ident:  File name, e.g., 8a.enc.
@@ -291,7 +284,7 @@ load_encoding_file (const char *filename)
   if (!filename)
     return -1;
 
-  if (verbose) {
+  if (dpx_conf.verbose_level > 0) {
     MESG("(Encoding:%s", filename);
   }
 
@@ -340,13 +333,13 @@ load_encoding_file (const char *filename)
 				     filename, enc_vec, NULL, 0);
 
   if (enc_name) {
-    if (verbose > 1)
+    if (dpx_conf.verbose_level > 1)
       MESG("[%s]", pdf_name_value(enc_name));
     pdf_release_obj(enc_name);
   }
   pdf_release_obj(encoding_array);
 
-  if (verbose) MESG(")");
+  if (dpx_conf.verbose_level > 0) MESG(")");
 
   return enc_id;
 }
@@ -639,6 +632,10 @@ pdf_encoding_get_tounicode (int encoding_id)
  * Note: The PDF 1.4 reference is not consistent: Section 5.9 describes
  * the Unicode mapping of PDF 1.3 and Section 9.7.2 (in the context of
  * Tagged PDF) the one of PDF 1.5.
+ * 
+ * CHANGED: 20180906
+ * Always create ToUnicode CMap unless there is missing mapping.
+ * Change made on rev.7557 broke ToUnicode CMap support. Now reverted.
  */
 pdf_obj *
 pdf_create_ToUnicode_CMap (const char *enc_name,
@@ -646,7 +643,7 @@ pdf_create_ToUnicode_CMap (const char *enc_name,
 {
   pdf_obj  *stream;
   CMap     *cmap;
-  int       code, all_predef;
+  int       code, total_fail;
   char     *cmap_name;
   unsigned char *p, *endptr;
 
@@ -664,32 +661,31 @@ pdf_create_ToUnicode_CMap (const char *enc_name,
 
   CMap_add_codespacerange(cmap, range_min, range_max, 1);
 
-  all_predef = 1;
+  total_fail = 0;
   for (code = 0; code <= 0xff; code++) {
     if (is_used && !is_used[code])
       continue;
 
     if (enc_vec[code]) {
-      int32_t len;
+      size_t len;
       int    fail_count = 0;
-      agl_name *agln = agl_lookup_list(enc_vec[code]);
-      /* Adobe glyph naming conventions are not used by viewers,
-       * hence even ligatures (e.g, "f_i") must be explicitly defined
-       */
-      if (pdf_check_version(1, 5) < 0 || !agln || !agln->is_predef) {
-        wbuf[0] = (code & 0xff);
-        p      = wbuf + 1;
-        endptr = wbuf + WBUF_SIZE;
-        len = agl_sput_UTF16BE(enc_vec[code], &p, endptr, &fail_count);
-        if (len >= 1 && !fail_count) {
-          CMap_add_bfchar(cmap, wbuf, 1, wbuf + 1, len);
-	  all_predef &= agln && agln->is_predef;
-        }
-      }
+      wbuf[0] = (code & 0xff);
+      p       = wbuf + 1;
+      endptr  = wbuf + WBUF_SIZE;
+      len = agl_sput_UTF16BE(enc_vec[code], &p, endptr, &fail_count);
+      if (len < 1 && fail_count > 0) {
+        total_fail++;
+      } else {
+        CMap_add_bfchar(cmap, wbuf, 1, wbuf + 1, len);
+      }  
     }
   }
 
-  stream = all_predef ? NULL : CMap_create_stream(cmap);
+  if (total_fail > 0) {
+    if (dpx_conf.verbose_level > 0)
+      WARN("Glyphs with no Unicode mapping found. Removing ToUnicode CMap.");
+  }
+  stream = total_fail > 0 ? NULL : CMap_create_stream(cmap);
 
   CMap_release(cmap);
   RELEASE(cmap_name);
@@ -720,7 +716,7 @@ pdf_load_ToUnicode_stream (const char *ident)
   if (CMap_parse(cmap, fp) < 0) {
     WARN("Reading CMap file \"%s\" failed.", ident);
   } else {
-    if (verbose) {
+    if (dpx_conf.verbose_level > 0) {
       MESG("(CMap:%s)", ident);
     }
     stream = CMap_create_stream(cmap);

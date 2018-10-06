@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,6 @@
 
 #ifndef _SUBFONT_H_
 #define _SUBFONT_H_
-
-extern void   subfont_set_verbose (void);
 
 extern void   release_sfd_record  (void);
 

@@ -31,19 +31,13 @@
 #include "mem.h"
 #include "error.h"
 
+#include "dpxconf.h"
 #include "dpxfile.h"
 
 #include "pdfdoc.h"
 #include "pdfdev.h"
 
 #include "pdfcolor.h"
-
-static int verbose = 0;
-void
-pdf_color_set_verbose (void)
-{
-  verbose++;
-}
 
 /* This function returns PDF_COLORSPACE_TYPE_GRAY,
  * PDF_COLORSPACE_TYPE_RGB, PDF_COLORSPACE_TYPE_CMYK or
@@ -1182,12 +1176,12 @@ iccp_load_profile (const char *ident,
   cspc_id = pdf_colorspace_findresource(ident,
 					PDF_COLORSPACE_TYPE_ICCBASED, cdata);
   if (cspc_id >= 0) {
-    if (verbose)
+    if (dpx_conf.verbose_level > 0)
       MESG("(ICCP:[id=%d])", cspc_id);
     release_iccbased_cdata(cdata);
     return cspc_id;
   }
-  if (verbose > 1) {
+  if (dpx_conf.verbose_level > 1) {
     print_iccp_header(&icch, checksum);
   }
 
@@ -1354,13 +1348,13 @@ pdf_colorspace_load_ICCBased (const char *ident, const char *filename)
   cspc_id = pdf_colorspace_findresource(ident,
 					PDF_COLORSPACE_TYPE_ICCBASED, cdata);
   if (cspc_id >= 0) {
-    if (verbose)
+    if (dpx_conf.verbose_level > 0)
       MESG("(ICCP:[id=%d])", cspc_id);
     release_iccbased_cdata(cdata);
     pdf_release_obj(stream);
     return cspc_id;
   }
-  if (verbose > 1) {
+  if (dpx_conf.verbose_level > 1) {
     print_iccp_header(&icch, checksum);
   }
 
@@ -1506,9 +1500,9 @@ pdf_colorspace_defineresource (const char *ident,
   colorspace->cdata    = cdata;
   colorspace->resource = resource;
 
-  if (verbose) {
+  if (dpx_conf.verbose_level > 0) {
     MESG("(ColorSpace:%s", ident);
-    if (verbose > 1) {
+    if (dpx_conf.verbose_level > 1) {
       switch (subtype) {
       case PDF_COLORSPACE_TYPE_ICCBASED:
 	MESG("[ICCBased]");

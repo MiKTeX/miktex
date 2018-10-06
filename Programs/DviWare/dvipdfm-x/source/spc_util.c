@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2017 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -29,6 +29,7 @@
 #include "error.h"
 #include "dpxutil.h"
 
+#include "pdfdoc.h"
 #include "pdfdev.h"
 #include "pdfparse.h"
 #include "pdfcolor.h"
@@ -721,7 +722,8 @@ spc_util_read_dimtrns (struct spc_env *spe,
 
 int
 spc_util_read_blahblah (struct spc_env *spe,
-                        transform_info *p, int *page_no, int *bbox_type,
+                        transform_info *p, int *page_no,
+                        enum pdf_page_boundary *bbox_type,
                         struct spc_arg *ap)
 {
   int     has_scale, has_xscale, has_yscale, has_rotate, has_matrix;
@@ -867,15 +869,15 @@ spc_util_read_blahblah (struct spc_env *spe,
         q = parse_c_ident (&ap->curptr, ap->endptr);
         if (q) {
           if (bbox_type) {
-            if (strcasecmp(q, "cropbox") == 0)       *bbox_type = 1;
-            else if (strcasecmp(q, "mediabox") == 0) *bbox_type = 2;
-            else if (strcasecmp(q, "artbox") == 0)   *bbox_type = 3;
-            else if (strcasecmp(q, "trimbox") == 0)  *bbox_type = 4;
-            else if (strcasecmp(q, "bleedbox") == 0) *bbox_type = 5;
+            if (strcasecmp(q, "cropbox") == 0)       *bbox_type = pdf_page_boundary_cropbox;
+            else if (strcasecmp(q, "mediabox") == 0) *bbox_type = pdf_page_boundary_mediabox;
+            else if (strcasecmp(q, "artbox") == 0)   *bbox_type = pdf_page_boundary_artbox;
+            else if (strcasecmp(q, "trimbox") == 0)  *bbox_type = pdf_page_boundary_trimbox;
+            else if (strcasecmp(q, "bleedbox") == 0) *bbox_type = pdf_page_boundary_bleedbox;
           }
           RELEASE(q);
         } else if (bbox_type) {
-          *bbox_type = 0;
+          *bbox_type = pdf_page_boundary__auto;
         }
       }
       break;

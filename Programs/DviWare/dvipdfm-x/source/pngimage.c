@@ -41,7 +41,7 @@
 #include "error.h"
 #include "mem.h"
 
-#include "dvipdfmx.h"
+#include "dpxconf.h"
 
 #include "pdfcolor.h"
 #include "pdfobj.h"
@@ -219,7 +219,7 @@ png_include_image (pdf_ximage *ximage, FILE *png_file)
   info.height = height;
   info.bits_per_component = bpc;
 
-  if (compat_mode)
+  if (dpx_conf.compat_mode == dpx_mode_compat_mode)
     info.xdensity = info.ydensity = 72.0 / 100.0;
   else
   {
@@ -1120,7 +1120,7 @@ png_get_bbox (FILE *png_file, uint32_t *width, uint32_t *height,
   *width      = png_get_image_width (png_ptr, png_info_ptr);
   *height     = png_get_image_height(png_ptr, png_info_ptr);
 
-  if (compat_mode)
+  if (dpx_conf.compat_mode == dpx_mode_compat_mode)
     *xdensity = *ydensity = 72.0 / 100.0;
   else
   {

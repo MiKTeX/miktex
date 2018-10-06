@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2017 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -31,19 +31,14 @@
 #include "error.h"
 #include "mem.h"
 #include "mfileio.h"
+#include "dpxconf.h"
 
 #include "sfnt.h"
 
 #include "otl_opt.h"
 #include "tt_gsub.h"
 
-#define VERBOSE_LEVEL_MIN 0
-static int verbose = 0;
-void
-otl_gsub_set_verbose (void)
-{
-  verbose++;
-}
+#define VERBOSE_LEVEL_MIN 2
 
 typedef USHORT Offset;
 typedef USHORT GlyphID;
@@ -888,7 +883,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
           script_tab.DefaultLangSys != 0) { 
         struct clt_langsys_table langsys_tab;
 
-        if(verbose > VERBOSE_LEVEL_MIN) {
+        if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
           MESG("otl_gsub>> OTL script-language enabled: %c%c%c%c.dflt\n",
                script_list.record[script_idx].tag[0],
                script_list.record[script_idx].tag[1],
@@ -918,7 +913,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
         if (otl_match_optrule(language, langsys_rec->tag)) {
           struct clt_langsys_table langsys_tab;
 
-          if(verbose > VERBOSE_LEVEL_MIN) {
+          if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
             MESG("otl_gsub>> OTL script-language enabled: %c%c%c%c.%c%c%c%c\n",
                  script_list.record[script_idx].tag[0],
                  script_list.record[script_idx].tag[1],
@@ -956,7 +951,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
   sfnt_seek_set(sfont, offset);
   clt_read_number_list(&lookup_list, sfont);
 
-  if(verbose > VERBOSE_LEVEL_MIN) {
+  if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
     MESG("otl_gsub>> Reading OTL feature(s):");
   }
 
@@ -968,7 +963,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
       struct clt_feature_table feature_table;
       int    i;
 
-      if(verbose > VERBOSE_LEVEL_MIN) {
+      if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
         MESG(" %c%c%c%c",
              feature_list.record[feat_idx].tag[0],
              feature_list.record[feat_idx].tag[1],
@@ -1004,7 +999,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
             lookup_table.LookupType != OTL_GSUB_TYPE_ALTERNATE &&
             lookup_table.LookupType != OTL_GSUB_TYPE_LIGATURE  &&
             lookup_table.LookupType != OTL_GSUB_TYPE_ESUBST) {
-          if (verbose > VERBOSE_LEVEL_MIN)
+          if (dpx_conf.verbose_level > VERBOSE_LEVEL_MIN)
             WARN("Skipping unsupported GSUB subtable: LookupType=%d", lookup_table.LookupType);
           continue;
         }
@@ -1028,7 +1023,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
             if (r <= 0)
               WARN("Reading GSUB subtable (single) failed...");
             else {
-              if(verbose > VERBOSE_LEVEL_MIN) {
+              if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
                 MESG("(single)");
               }
               n_st++;
@@ -1041,7 +1036,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
             if (r <= 0)
               WARN("Reading GSUB subtable (alternate) failed...");
             else {
-              if(verbose > VERBOSE_LEVEL_MIN) {
+              if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
                 MESG("(alternate)");
               }
               n_st++;
@@ -1054,7 +1049,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
             if (r <= 0)
               WARN("Reading GSUB subtable (ligature) failed...");
             else {
-              if(verbose > VERBOSE_LEVEL_MIN) {
+              if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
                 MESG("(ligature)");
               }
               n_st++;
@@ -1081,7 +1076,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
                 if (r <= 0)
                   WARN("Reading GSUB subtable (ext:single) failed...");
                 else {
-                  if(verbose > VERBOSE_LEVEL_MIN) {
+                  if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
                     MESG("(ext:single)");
                   }
                   n_st++;
@@ -1094,7 +1089,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
                 if (r <= 0)
                   WARN("Reading GSUB subtable (alternate) failed...");
                 else {
-                  if(verbose > VERBOSE_LEVEL_MIN) {
+                  if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
                     MESG("(alternate)");
                   }
                   n_st++;
@@ -1107,7 +1102,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
                 if (r <= 0)
                   WARN("Reading GSUB subtable (ext:ligature) failed...");
                 else {
-                  if(verbose > VERBOSE_LEVEL_MIN) {
+                  if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
                     MESG("(ext:ligature)");
                   }
                   n_st++;
@@ -1129,7 +1124,7 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
     }
   }
 
-  if(verbose > VERBOSE_LEVEL_MIN) {
+  if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
     MESG("\n");
     MESG("otl_gsub>> %ld subtable(s) read.\n", num_subtabs);
   }
@@ -1338,7 +1333,7 @@ otl_gsub_add_feat (otl_gsub *gsub_list,
   gsub->feature  = NEW(strlen(feature) +1, char);
   strcpy(gsub->feature,  feature);
 
-  if(verbose > VERBOSE_LEVEL_MIN) {
+  if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
     MESG("\n");
     MESG("otl_gsub>> Reading \"%s.%s.%s\"...\n", script, language, feature);
   }
@@ -1348,7 +1343,7 @@ otl_gsub_add_feat (otl_gsub *gsub_list,
     gsub_list->select = i;
     gsub_list->num_gsubs++;
   } else {
-    if(verbose > VERBOSE_LEVEL_MIN) {
+    if(dpx_conf.verbose_level > VERBOSE_LEVEL_MIN) {
       MESG("otl_gsub>> Failed\n");
     }
     RELEASE(gsub->script);

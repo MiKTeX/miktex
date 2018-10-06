@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,7 @@
  *
  * TODO:
  *   Only cid(range|char) allowed for CODE_TO_CID and bf(range|char) for CID_TO_CODE ?
+ * 
  */
 
 #ifdef HAVE_CONFIG_H
@@ -44,19 +45,13 @@
 #include "system.h"
 #include "mem.h"
 #include "error.h"
+#include "dpxconf.h"
 #include "dpxutil.h"
 
 #include "cmap_p.h"
 #include "cmap.h"
 
-static int __verbose = 0;
 static int __silent  = 0;
-
-void
-CMap_set_verbose (void)
-{
-  __verbose++;
-}
 
 void
 CMap_set_silent (int value)
@@ -109,9 +104,6 @@ CMap_new (void)
   cmap->mapData->pos  = 0;
   cmap->mapData->data = NEW(MEM_ALLOC_SIZE, unsigned char);
 
-  cmap->reverseMap = NEW(65536, int);
-  memset(cmap->reverseMap, 0, 65536 * sizeof(int));
-
   return cmap;
 }
 
@@ -142,9 +134,6 @@ CMap_release (CMap *cmap)
       map = prev;
     }
   }
-
-  if (cmap->reverseMap)
-    RELEASE(cmap->reverseMap);
 
   RELEASE(cmap);
 }
@@ -363,14 +352,6 @@ CMap_decode (CMap *cmap,
     CMap_decode_char(cmap, inbuf, inbytesleft, outbuf, outbytesleft);
 
   return count;
-}
-
-int
-CMap_reverse_decode(CMap *cmap, CID cid) {
-  int ch = cmap->reverseMap ? cmap->reverseMap[cid] : -1;
-  if (ch == 0 && cmap->useCMap)
-    return CMap_reverse_decode(cmap->useCMap, cid);
-  return ch;
 }
 
 char *
@@ -696,8 +677,6 @@ CMap_add_cidrange (CMap *cmap,
   for (v = 0, i = 0; i < srcdim - 1; i++)
     v = (v << 8) + srclo[i];
 
-  cmap->reverseMap[base] = v;
-
   for (c = srclo[srcdim-1]; c <= srchi[srcdim-1]; c++) {
     if (cur[c].flag != 0) {
       if (!__silent)
@@ -708,8 +687,6 @@ CMap_add_cidrange (CMap *cmap,
       cur[c].code = get_mem(cmap, 2);
       cur[c].code[0] = base >> 8;
       cur[c].code[1] = base & 0xff;
-
-      cmap->reverseMap[base] = (v << 8) + c;
     }
     if (base >= CID_MAX)
       WARN("CID number too large.");
@@ -949,7 +926,7 @@ CMap_cache_find (const char *cmap_name)
     return -1;
   }
      
-  if (__verbose)
+  if (dpx_conf.verbose_level > 0)
     MESG("(CMap:%s", cmap_name);
 
   if (__cache->num >= __cache->max) {
@@ -965,7 +942,7 @@ CMap_cache_find (const char *cmap_name)
 
   DPXFCLOSE(fp);
 
-  if (__verbose)
+  if (dpx_conf.verbose_level > 0)
     MESG(")");
 
   return id;

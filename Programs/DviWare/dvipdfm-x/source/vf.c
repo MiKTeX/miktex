@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -28,7 +28,7 @@
 #include "numbers.h"
 #include "error.h"
 #include "mem.h"
-
+#include "dpxconf.h"
 #include "dpxfile.h"
 /* pdfdev... */
 #include "pdfdev.h"
@@ -46,13 +46,6 @@
 #define FIX_WORD_BASE 1048576.0
 #define TEXPT2PT (72.0/72.27)
 #define FW2PT (TEXPT2PT/((double)(FIX_WORD_BASE)))
-
-static unsigned char verbose = 0;
-
-void vf_set_verbose(void)
-{
-  if (verbose < 255) verbose++;
-}
 
 struct font_def {
   int32_t font_id /* id used internally in vf file */;
@@ -269,9 +262,9 @@ int vf_locate_font (const char *tex_name, spt_t ptsize)
     }
     if (full_vf_file_name &&
 	(vf_file = MFOPEN (full_vf_file_name, FOPEN_RBIN_MODE)) != NULL) {
-      if (verbose == 1)
+      if (dpx_conf.verbose_level == 1)
 	fprintf (stderr, "(VF:%s", tex_name);
-      if (verbose > 1)
+      if (dpx_conf.verbose_level > 1)
 	fprintf (stderr, "(VF:%s", full_vf_file_name);
       if (num_vf_fonts >= max_vf_fonts) {
 	resize_vf_fonts (max_vf_fonts + VF_ALLOC_SIZE);
@@ -287,7 +280,7 @@ int vf_locate_font (const char *tex_name, spt_t ptsize)
       }
       read_header(vf_file, thisfont);
       process_vf_file (vf_file, thisfont);
-      if (verbose)
+      if (dpx_conf.verbose_level > 0)
 	fprintf (stderr, ")");
       MFCLOSE (vf_file);
     }
@@ -391,7 +384,7 @@ static void vf_xxx (int32_t len, unsigned char **start, unsigned char *end)
        * Warning message from virtual font.
        */
       if (!memcmp((char *)p, "Warning:", 8)) {
-        if (verbose)
+        if (dpx_conf.verbose_level > 0)
 	  WARN("VF:%s", p+8);
       } else {
 	dvi_do_special(buffer, len);

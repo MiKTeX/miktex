@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 #include "error.h"
 #include "mem.h"
 
+#include "dpxconf.h"
 #include "dpxfile.h"
 #include "dpxutil.h"
 
@@ -273,8 +274,6 @@ do_widths (pdf_font *font, double *widths)
   return;
 }
 
-static int verbose = 0;
-
 #define PDFUNIT(v) ((double) (ROUND(1000.0*(v)/(glyphs->emsize), 1)))
 
 /*
@@ -314,7 +313,7 @@ do_builtin_encoding (pdf_font *font, const char *usedchars, sfnt *sfont)
 
   glyphs = tt_build_init();
 
-  if (verbose > 2)
+  if (dpx_conf.verbose_level > 2)
     MESG("[glyphs:/.notdef");
 
   count = 1; /* .notdef */
@@ -322,7 +321,7 @@ do_builtin_encoding (pdf_font *font, const char *usedchars, sfnt *sfont)
     if (!usedchars[code])
       continue;
 
-    if (verbose > 2)
+    if (dpx_conf.verbose_level > 2)
       MESG("/.c0x%02x", code);
 
     gid = tt_cmap_lookup(ttcm, code);
@@ -340,7 +339,7 @@ do_builtin_encoding (pdf_font *font, const char *usedchars, sfnt *sfont)
   }
   tt_cmap_release(ttcm);
 
-  if (verbose > 2)
+  if (dpx_conf.verbose_level > 2)
     MESG("]");
 
   if (tt_build_tables(sfont, glyphs) < 0) {
@@ -360,7 +359,7 @@ do_builtin_encoding (pdf_font *font, const char *usedchars, sfnt *sfont)
   }
   do_widths(font, widths);
 
-  if (verbose > 1) 
+  if (dpx_conf.verbose_level > 1) 
     MESG("[%d glyphs]", glyphs->num_glyphs);
 
   tt_build_finish(glyphs);
@@ -424,7 +423,7 @@ select_gsub (const char *feat, struct glyph_mapper *gm)
   if (idx >= 0)
     return  0;
 
-  if (verbose > 1)
+  if (dpx_conf.verbose_level > 1)
     MESG("\ntrutype>> Try loading OTL GSUB for \"*.*.%s\"...", feat);
   error = otl_gsub_add_feat(gm->gsub, "*", "*", feat, gm->sfont);
   if (!error) {
@@ -564,7 +563,7 @@ findposttable (const char *glyph_name, USHORT *gid, struct glyph_mapper *gm)
 
   *gid = tt_lookup_post_table(gm->nametogid, glyph_name);
 #if  0
-  if (verbose > 1)
+  if (dpx_conf.verbose_level > 1)
   {
     if (*gid > 0)
       MESG("%s =post=> 0x%04X\n", glyph_name, *gid);
@@ -648,11 +647,11 @@ findparanoiac (const char *glyphname, USHORT *gid, struct glyph_mapper *gm)
       if (agln->n_components == 1)
         idx = tt_cmap_lookup(gm->codetogid, agln->unicodes[0]);
       else if (agln->n_components > 1) {
-        if (verbose >= 0) /* give warning */
+        if (dpx_conf.verbose_level >= 0) /* give warning */
           WARN("Glyph \"%s\" looks like a composite glyph...",
                agln->name);
         error = composeuchar(agln->unicodes, agln->n_components, NULL, gm, &idx);
-        if (verbose >= 0) {
+        if (dpx_conf.verbose_level >= 0) {
           if (error)
             WARN("Not found...");
           else {
@@ -829,7 +828,7 @@ do_custom_encoding (pdf_font *font,
         WARN("Glyph \"%s\" not available in font \"%s\".",
              encoding[code], pdf_font_get_ident(font));
       } else {
-        if (verbose > 1)
+        if (dpx_conf.verbose_level > 1)
           MESG("truetype>> Glyph glyph-name=\"%s\" found at glyph-id=\"%u\".\n", encoding[code], gid);
       }
       idx = tt_find_glyph(glyphs, gid);
@@ -859,7 +858,7 @@ do_custom_encoding (pdf_font *font,
   }
   do_widths(font, widths);
 
-  if (verbose > 1) 
+  if (dpx_conf.verbose_level > 1) 
     MESG("[%d glyphs]", glyphs->num_glyphs);
 
   tt_build_finish(glyphs);
@@ -888,8 +887,6 @@ pdf_font_load_truetype (pdf_font *font)
 
   if (!pdf_font_is_in_use(font))
     return  0;
-
-  verbose = pdf_font_get_verbose();
 
   fp = DPXFOPEN(ident, DPX_RES_TYPE_TTFONT);
   if (!fp) {
@@ -986,7 +983,7 @@ pdf_font_load_truetype (pdf_font *font)
   if (fp)
     DPXFCLOSE(fp);
 
-  if (verbose > 1)
+  if (dpx_conf.verbose_level > 1)
     MESG("[%ld bytes]", pdf_stream_length(fontfile));
 
   pdf_add_dict(descriptor,

@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -24,8 +24,6 @@
 #define _TFM_H_
 
 #include "numbers.h"
-
-extern void tfm_set_verbose (void);
 
 extern int  tfm_open (const char * tex_name, int must_exist);
 extern void tfm_close_all (void);

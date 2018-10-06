@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -70,9 +70,6 @@ typedef struct
 #define INFO_DO_CLIP       (1 << 3)
 #define INFO_DO_HIDE       (1 << 4)
 extern void   transform_info_clear (transform_info *info);
-
-
-extern void   pdf_dev_set_verbose (void);
 
 /* Not in spt_t. */
 extern int    pdf_sprint_matrix (char *buf, const pdf_tmatrix *p);

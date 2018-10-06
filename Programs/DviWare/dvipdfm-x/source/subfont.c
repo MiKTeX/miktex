@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -27,16 +27,10 @@
 #include "system.h"
 #include "mem.h"
 #include "error.h"
+#include "dpxconf.h"
 #include "dpxfile.h"
 
 #include "subfont.h"
-
-static int verbose = 0;
-void
-subfont_set_verbose (void)
-{
-  verbose++;
-}
 
 /* Don't forget fontmap reading now requires information
  * from SFD files. You must initialize at least sfd_file_
@@ -249,7 +243,7 @@ scan_sfd_file (struct sfd_file_ *sfd, FILE *fp)
 
   ASSERT( sfd && fp );
 
-  if (verbose > 3) {
+  if (dpx_conf.verbose_level > 3) {
     MESG("\nsubfont>> Scanning SFD file \"%s\"...\n", sfd->ident);
   }
 
@@ -270,7 +264,7 @@ scan_sfd_file (struct sfd_file_ *sfd, FILE *fp)
       sfd->sub_id = RENEW(sfd->sub_id, sfd->max_subfonts, char *);
     }
 
-    if (verbose > 3) {
+    if (dpx_conf.verbose_level > 3) {
       MESG("subfont>>   id=\"%s\" at line=\"%d\"\n", id, lpos);
     }
     sfd->sub_id[sfd->num_subfonts] = id;
@@ -282,7 +276,7 @@ scan_sfd_file (struct sfd_file_ *sfd, FILE *fp)
     sfd->rec_id[n] = -1; /* Not loaded yet. We do lazy loading of map definitions. */
   }
 
-  if (verbose > 3) {
+  if (dpx_conf.verbose_level > 3) {
     MESG("subfont>> %d entries found in SFD file \"%s\".\n", sfd->num_subfonts, sfd->ident);
   }
 
@@ -386,7 +380,7 @@ sfd_load_record (const char *sfd_name, const char *subfont_id)
     return  sfd->rec_id[i];
   }
 
-  if (verbose > 3) {
+  if (dpx_conf.verbose_level > 3) {
     MESG("\nsubfont>> Loading SFD mapping table for <%s,%s>...",
          sfd->ident, subfont_id);
   }
@@ -429,7 +423,7 @@ sfd_load_record (const char *sfd_name, const char *subfont_id)
   sfd->rec_id[i] = rec_id;
   DPXFCLOSE(fp);
 
-  if (verbose > 3) {
+  if (dpx_conf.verbose_level > 3) {
     int __i;
     if (rec_id >= 0) {
       MESG(" at id=\"%d\"", rec_id);
@@ -515,7 +509,7 @@ dump_table (const char *sfd_name, const char *sub_name, iconv_t cd)
 #ifdef HAVE_ICONV
         r = iconv(cd, &p, &inbufleft, &q, &outbufleft);
         if (r == -1) {
-          if (verbose) {
+          if (dpx_conf.verbose_level > 0) {
             WARN("Conversion to Unicode failed for subfont-id=\"%s\" code=\"0x%02x\"",
                  sub_name, i);
             WARN(">> with: %s", strerror(errno));

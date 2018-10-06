@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@
 #include "numbers.h"
 #include "mem.h"
 #include "error.h"
+#include "dpxconf.h"
 #include "dpxfile.h"
 
 #include "pdfobj.h"
@@ -57,14 +58,7 @@
 #include "cid_p.h"
 #include "cidtype2.h"
 
-static int verbose   = 0;
 static int opt_flags = 0;
-
-void
-CIDFont_type2_set_verbose (void)
-{
-  verbose++;
-}
 
 void
 CIDFont_type2_set_flags (int32_t flags)
@@ -837,7 +831,7 @@ CIDFont_type2_dofont (CIDFont *font)
   if (CIDFont_get_embedding(font)) {
     if (tt_build_tables(sfont, glyphs) < 0)
       ERROR("Could not created FontFile stream.");
-    if (verbose > 1)
+    if (dpx_conf.verbose_level > 1)
       MESG("[%u glyphs (Max CID: %u)]", glyphs->num_glyphs, last_cid);
   } else {
     if (tt_get_metrics(sfont, glyphs) < 0)
@@ -854,6 +848,26 @@ CIDFont_type2_dofont (CIDFont *font)
     add_TTCIDHMetrics(font->fontdict, glyphs, used_chars, cidtogidmap, last_cid);
     if (v_used_chars)
       add_TTCIDVMetrics(font->fontdict, glyphs, used_chars, last_cid);
+  }
+
+  /* CIDSet
+   * NOTE: All glyphs including component glyph and dummy glyph must be
+   * listed in CIDSet. However, .notdef glyph should be ommitted.
+   */
+  {
+    pdf_obj *cidset;
+    char    *cidset_data;
+
+    cidset_data = NEW(glyphs->last_gid/8 + 1, char);
+    memset(cidset_data, 0, glyphs->last_gid/8 + 1);
+    for (i = 1; i <= glyphs->last_gid; i++)
+      cidset_data[i/8] |= (1 << (7 - i % 8));
+    cidset = pdf_new_stream(STREAM_COMPRESS);
+    pdf_add_stream(cidset, cidset_data, glyphs->last_gid/8 + 1);
+    RELEASE(cidset_data);
+    pdf_add_dict(font->descriptor,
+      pdf_new_name("CIDSet"), pdf_ref_obj(cidset));
+    pdf_release_obj(cidset);
   }
 
   tt_build_finish(glyphs);
@@ -890,7 +904,7 @@ CIDFont_type2_dofont (CIDFont *font)
   if (!fontfile)
     ERROR("Could not created FontFile stream for \"%s\".", font->ident);
 
-  if (verbose > 1) {
+  if (dpx_conf.verbose_level > 1) {
     MESG("[%ld bytes]", pdf_stream_length(fontfile));
   }
 
@@ -898,20 +912,6 @@ CIDFont_type2_dofont (CIDFont *font)
 	       pdf_new_name("FontFile2"),
 	       pdf_ref_obj (fontfile));
   pdf_release_obj(fontfile);
-
-  /*
-   * CIDSet
-   */
-  {
-    pdf_obj *cidset;
-
-    cidset = pdf_new_stream(STREAM_COMPRESS);
-    pdf_add_stream(cidset, used_chars, last_cid/8 + 1);
-    pdf_add_dict(font->descriptor,
-		 pdf_new_name("CIDSet"),
-		 pdf_ref_obj(cidset));
-    pdf_release_obj(cidset);
-  }
 
   /*
    * CIDToGIDMap

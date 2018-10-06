@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -24,8 +24,6 @@
 #define _PDFENCODING_H_
 
 #include "pdfobj.h"
-
-extern void      pdf_encoding_set_verbose    (void);
 
 extern void      pdf_init_encodings          (void);
 extern void      pdf_close_encodings         (void);

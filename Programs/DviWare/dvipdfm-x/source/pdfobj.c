@@ -33,6 +33,7 @@
 #include "mem.h"
 #include "error.h"
 #include "mfileio.h"
+#include "dpxconf.h"
 #include "dpxutil.h"
 #include "pdflimits.h"
 #include "pdfencrypt.h"
@@ -73,7 +74,16 @@ struct pdf_obj
   unsigned refcount;  /* Number of links to this object */
   int      flags;
   void    *data;
+
+#if defined(PDFOBJ_DEBUG)
+  int      obj_id;
+#endif
 };
+
+#if defined(PDFOBJ_DEBUG)
+static pdf_obj *bucket[65535];
+static int cur_obj_id = 0;
+#endif
 
 struct pdf_boolean
 {
@@ -247,7 +257,6 @@ static void release_dict (pdf_dict *dict);
 static void write_stream   (pdf_stream *stream, FILE *file);
 static void release_stream (pdf_stream *stream);
 
-static int  verbose = 0;
 static char compression_level = 9;
 static char compression_use_predictor = 1;
 
@@ -271,10 +280,10 @@ pdf_set_compression (int level)
   return;
 }
 
-void
-pdf_set_use_predictor (int bval)
+FILE *
+pdf_get_output_file (void)
 {
-  compression_use_predictor = bval ? 1 : 0;
+  return pdf_output_file;
 }
 
 static int pdf_version = PDF_VERSION_DEFAULT;
@@ -312,18 +321,6 @@ pdf_check_version (int major, int minor)
   return (pdf_version >= major*10+minor) ? 0 : -1;
 }
 
-int
-pdf_obj_get_verbose(void)
-{
-  return verbose;
-}
-
-void
-pdf_obj_set_verbose(void)
-{
-  verbose++;
-}
-
 static pdf_obj *current_objstm = NULL;
 static int do_objstm;
 
@@ -344,7 +341,8 @@ add_xref_entry (unsigned label, unsigned char type, unsigned int field2, unsigne
 
 #define BINARY_MARKER "%\344\360\355\370\n"
 void
-pdf_out_init (const char *filename, int do_encryption, int enable_objstm)
+pdf_out_init (const char *filename,
+              int do_encryption, int enable_objstm, int enable_predictor)
 {
   char v;
 
@@ -397,6 +395,7 @@ pdf_out_init (const char *filename, int do_encryption, int enable_objstm)
 
   enc_mode = 0;
   doc_enc_mode = do_encryption;
+  compression_use_predictor = enable_predictor;
 }
 
 static void
@@ -534,7 +533,7 @@ pdf_out_flush (void)
 #if !defined(LIBDPX)
     MESG("\n");
 #endif /* !LIBDPX */
-    if (verbose) {
+    if (dpx_conf.verbose_level > 0) {
       if (compression_level > 0) {
 	MESG("Compression saved %ld bytes%s\n", compression_saved,
 	     pdf_version < 15 ? ". Try \"-V 1.5\" for better compression" : "");
@@ -545,7 +544,27 @@ pdf_out_flush (void)
 #endif /* !LIBDPX */
 
     MFCLOSE(pdf_output_file);
+    pdf_output_file = NULL;
   }
+#if defined(PDFOBJ_DEBUG)
+  {
+    int i;
+    MESG("\ndebug>> %d PDF objects created.", cur_obj_id);
+    for (i = 0; i < cur_obj_id; i++) {
+      pdf_obj *obj = bucket[i];
+      if (obj) {
+        if (obj->label > 0) {
+          WARN("Object obj_id=<%lu, %u> unreleased...", obj->label, obj->generation);
+          WARN("Reference count=%d", obj->refcount);
+        } else {
+          WARN("Unreleased object found: %d", i);
+          pdf_write_obj(obj, stderr);
+          MESG("\n");
+        }
+      }
+    }
+  }
+#endif
 }
 
 void
@@ -557,6 +576,7 @@ pdf_error_cleanup (void)
    */
   if (pdf_output_file)
     MFCLOSE(pdf_output_file);
+  pdf_output_file = NULL;
 }
 
 
@@ -685,6 +705,12 @@ pdf_new_obj(int type)
   result->generation = 0;
   result->refcount   = 1;
   result->flags      = 0;
+
+#if defined(PDFOBJ_DEBUG)
+  result->obj_id = cur_obj_id;
+  bucket[cur_obj_id] = result;
+  cur_obj_id++;
+#endif
 
   return result;
 }
@@ -2777,6 +2803,9 @@ pdf_release_obj (pdf_obj *object)
   }
   object->refcount -= 1;
   if (object->refcount == 0) {
+#if defined(PDFOBJ_DEBUG)
+  bucket[object->obj_id] = NULL;
+#endif
     /*
      * Nothing is using this object so it's okay to remove it.
      * Nonzero "label" means object needs to be written before it's destroyed.
@@ -3582,19 +3611,17 @@ parse_xref_stream (pdf_file *pf, int xref_pos, pdf_obj **trailer)
   if (index_obj) {
     unsigned int index_len;
     if (!PDF_OBJ_ARRAYTYPE(index_obj) ||
-	((index_len = pdf_array_length(index_obj)) % 2 ))
+        ((index_len = pdf_array_length(index_obj)) % 2 ))
       goto error;
 
     i = 0;
     while (i < index_len) {
       pdf_obj *first = pdf_get_array(index_obj, i++);
       size_obj  = pdf_get_array(index_obj, i++);
-      if (!PDF_OBJ_NUMBERTYPE(first) ||
-	  !PDF_OBJ_NUMBERTYPE(size_obj) ||
-	  parse_xrefstm_subsec(pf, &p, &length, W, wsum,
-			       (int) pdf_number_value(first),
-			       (int) pdf_number_value(size_obj)))
-	goto error;
+      if (!PDF_OBJ_NUMBERTYPE(first) || !PDF_OBJ_NUMBERTYPE(size_obj) ||
+          parse_xrefstm_subsec(pf, &p, &length, W, wsum,
+            (int) pdf_number_value(first), (int) pdf_number_value(size_obj)))
+        goto error;
     }
   } else if (parse_xrefstm_subsec(pf, &p, &length, W, wsum, 0, size))
       goto error;
@@ -3758,6 +3785,10 @@ pdf_file_get_trailer (pdf_file *pf)
   return pdf_link_obj(pf->trailer);
 }
 
+/* FIXME:
+ * pdf_file_get_trailer() does pdf_link_obj() but
+ * pdf_file_get_catalog() does not. Why?
+ */
 pdf_obj *
 pdf_file_get_catalog (pdf_file *pf)
 {
@@ -3813,9 +3844,9 @@ pdf_open (const char *ident, FILE *file)
 
       if (!PDF_OBJ_NAMETYPE(new_version) ||
           sscanf(pdf_name_value(new_version), "%u.%u", &major, &minor) != 2) {
-	pdf_release_obj(new_version);
-	WARN("Illegal Version entry in document catalog. Broken PDF file?");
-	goto error;
+        pdf_release_obj(new_version);
+        WARN("Illegal Version entry in document catalog. Broken PDF file?");
+        goto error;
       }
 
       if (pf->version < major*10+minor)
@@ -3892,15 +3923,12 @@ import_dict (pdf_obj *key, pdf_obj *value, void *pdata)
   return 0;
 }
 
-static pdf_obj loop_marker = { PDF_OBJ_INVALID, 0, 0, 0, 0, NULL };
-
 static pdf_obj *
 pdf_import_indirect (pdf_obj *object)
 {
   pdf_file *pf = OBJ_FILE(object);
   unsigned int obj_num = OBJ_NUM(object);
   unsigned short obj_gen = OBJ_GEN(object);
-
   pdf_obj *ref;
 
   ASSERT(pf);
@@ -3910,12 +3938,9 @@ pdf_import_indirect (pdf_obj *object)
     return pdf_new_null();
   }
 
-  if ((ref = pf->xref_table[obj_num].indirect)) {
-    if (ref == &loop_marker)
-      ERROR("Loop in object hierarchy detected. Broken PDF file?");
-    return  pdf_link_obj(ref);
-  } else {
-    pdf_obj *obj, *tmp;
+  ref = pf->xref_table[obj_num].indirect;
+  if (!ref) {
+    pdf_obj *obj, *reserved, *imported;
 
     obj = pdf_get_object(pf, obj_num, obj_gen);
     if (!obj) {
@@ -3923,18 +3948,35 @@ pdf_import_indirect (pdf_obj *object)
       return NULL;
     }
 
-    /* We mark the reference to be able to detect loops */
-    pf->xref_table[obj_num].indirect = &loop_marker;
+    /* Fix for circular reference issue
+     *
+     * Older version of dvipdfmx disallowed the following case of
+     * circular reference:
+     *   obj #1 --> << /Kids [2 0 R] >>
+     *   obj #2 --> << /Parents [1 0 R] >>
+     * The problem is in that dvipdfmx gives new labels to objects after they
+     * are completely read.
+     */
+    reserved = pdf_new_null(); /* for reservation of label */
+    pf->xref_table[obj_num].indirect = ref = pdf_new_ref(reserved);
+    imported = pdf_import_object(obj);
+    if (imported) {
+      if (imported->label) {
+        WARN("Imported object already has a label: obj_id=%lu", imported->label);
+      }
+      OBJ_OBJ(ref) = imported;
+      imported->label = reserved->label;
+      imported->generation = reserved->generation;
+      reserved->label = 0;
+      reserved->generation = 0;
+      pdf_release_obj(imported);
+    }
 
-    tmp = pdf_import_object(obj);
-    
-    pf->xref_table[obj_num].indirect = ref = pdf_ref_obj(tmp);
-    
-    pdf_release_obj(tmp);
+    pdf_release_obj(reserved);
     pdf_release_obj(obj);
+  }
     
     return  pdf_link_obj(ref);
-  }
 }
 
 /*

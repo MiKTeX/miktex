@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -45,14 +45,13 @@ typedef struct fontmap_opt {
   char  *otl_tags;    /* currently unused */
   char  *tounicode;   /* not implemented yet */
 
-  void  *cff_charsets;
-
   double design_size; /* unused */
 
   char  *charcoll;    /* Adobe-Japan1-4, etc. */
   int    index;       /* TTC index */
   int    style;       /* ,Bold, etc. */
   int    stemv;       /* StemV value especially for CJK fonts */
+  int    use_glyph_encoding; /* XeTeX support */
 } fontmap_opt;
 
 typedef struct fontmap_rec {
@@ -71,8 +70,6 @@ typedef struct fontmap_rec {
 
   fontmap_opt opt;
 } fontmap_rec;
-
-extern void         pdf_fontmap_set_verbose   (void);
 
 extern void         pdf_init_fontmaps         (void);
 #if 0

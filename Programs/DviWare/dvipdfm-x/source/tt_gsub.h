@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2017 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -23,8 +23,6 @@
 
 #include "sfnt.h"
 #include "otl_opt.h"
-
-extern void otl_gsub_set_verbose (void);
 
 typedef struct otl_gsub otl_gsub;
 

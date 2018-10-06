@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -34,9 +34,6 @@
 
 #define PDF_FONT_FONTTYPE_TYPE0    4
 
-extern void pdf_font_set_verbose (void);
-extern int  pdf_font_get_verbose (void);
-
 extern void pdf_font_set_dpi (int font_dpi);
 
 #define PDF_FONT_FLAG_NOEMBED   (1 << 0)
@@ -58,7 +55,7 @@ extern void     pdf_close_fonts (void);
  * various optical sizes supported in the future.
  */
 extern int      pdf_font_findresource  (const char *font_name,
-					double font_scale, fontmap_rec *mrec);
+                                        double font_scale, fontmap_rec *mrec);
 
 extern int      pdf_get_font_subtype   (int font_id);
 extern pdf_obj *pdf_get_font_reference (int font_id);

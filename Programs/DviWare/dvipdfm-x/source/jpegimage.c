@@ -59,7 +59,7 @@
 #include "mfileio.h"
 #include "numbers.h"
 
-#include "dvipdfmx.h"
+#include "dpxconf.h"
 
 #include "pdfobj.h"
 
@@ -363,7 +363,7 @@ jpeg_include_image (pdf_ximage *ximage, FILE *fp)
 static void
 jpeg_get_density (struct JPEG_info *j_info, double *xdensity, double *ydensity)
 {
-  if (compat_mode) {
+  if (dpx_conf.compat_mode == dpx_mode_compat_mode) {
     *xdensity = *ydensity = 72.0 / 100.0;
     return;
   }
@@ -955,6 +955,12 @@ JPEG_copy_stream (struct JPEG_info *j_info, pdf_obj *stream, FILE *fp)
   return (found_SOFn ? 0 : -1);
 }
 
+/* Adobe Technical Note #5116 "Supporting the DCT Filters in PostScript Level 2" 
+ * 6. "DCTDecode Filter Summary"
+ *    ... APPn (application-specific) markers are skipped over harmlessly except
+ *   for the Adobe reserved marker described later.
+ *
+ */
 #define SET_SKIP(j,c) if ((c) < MAX_COUNT) { \
   (j)->skipbits[(c) / 8] |= (1 << (7 - ((c) % 8))); \
 }
@@ -990,11 +996,17 @@ JPEG_scan_file (struct JPEG_info *j_info, FILE *fp)
             return -1;
           length -= 5;
           if (!memcmp(app_sig, "JFIF\000", 5)) {
+            /* APP0 JFIF marker preserved */
             j_info->flags |= HAVE_APPn_JFIF;
             length -= read_APP0_JFIF(j_info, fp);
           } else if (!memcmp(app_sig, "JFXX", 5)) {
             length -= read_APP0_JFXX(fp, length);
+            SET_SKIP(j_info, count);
+          } else {
+            SET_SKIP(j_info, count);
           }
+        } else {
+          SET_SKIP(j_info, count);
         }
         seek_relative(fp, length);
         break;
@@ -1004,6 +1016,7 @@ JPEG_scan_file (struct JPEG_info *j_info, FILE *fp)
             return -1;
           length -= 5;
           if (!memcmp(app_sig, "Exif\000", 5)) {
+            /* APP1 Exif marker preserved */
             j_info->flags |= HAVE_APPn_Exif;
             length -= read_APP1_Exif(j_info, fp, length);
           } else if (!memcmp(app_sig, "http:", 5) && length > 24) {
@@ -1013,9 +1026,11 @@ JPEG_scan_file (struct JPEG_info *j_info, FILE *fp)
             if (!memcmp(app_sig, "//ns.adobe.com/xap/1.0/\000", 24)) {
               j_info->flags |= HAVE_APPn_XMP;
               length -= read_APP1_XMP(j_info, fp, length);
-              SET_SKIP(j_info, count);
             }
+            SET_SKIP(j_info, count);
           }
+        } else {
+          SET_SKIP(j_info, count);
         }
         seek_relative(fp, length);
         break;
@@ -1027,10 +1042,10 @@ JPEG_scan_file (struct JPEG_info *j_info, FILE *fp)
           if (!memcmp(app_sig, "ICC_PROFILE\000", 12)) {
             j_info->flags |= HAVE_APPn_ICC;
             length -= read_APP2_ICC(j_info, fp, length);
-            SET_SKIP(j_info, count);
           }
         }
         seek_relative(fp, length);
+        SET_SKIP(j_info, count);
         break;
       case JM_APP14:
         if (length > 5) {
@@ -1038,11 +1053,14 @@ JPEG_scan_file (struct JPEG_info *j_info, FILE *fp)
             return -1;
           length -= 5;
           if (!memcmp(app_sig, "Adobe", 5)) {
+            /* APP14 Adobe marker preserved */
             j_info->flags |= HAVE_APPn_ADOBE;
             length -= read_APP14_Adobe(j_info, fp);
           } else {
             SET_SKIP(j_info, count);
           }
+        } else {
+          SET_SKIP(j_info, count);
         }
         seek_relative(fp, length);
         break;

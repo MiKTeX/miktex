@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -25,7 +25,6 @@
 
 #include "pdfdev.h"
 
-extern void vf_set_verbose (void);
 extern int  vf_locate_font (const char *tex_name, spt_t ptsize);
 extern void vf_set_char    (int32_t ch, int vf_font);
 extern void vf_close_all_fonts(void);

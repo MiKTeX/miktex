@@ -23,18 +23,21 @@
 #ifndef _SYSTEM_H_
 #define _SYSTEM_H_
 
-#ifdef MIKTEX
-#if defined(__cplusplus)
-#include <miktex/Core/Core>
+#if defined(MIKTEX)
+#  if defined(__cplusplus)
+#    include <miktex/Core/Core>
+#  else
+#    include <miktex/Core/c/api.h>
+#  endif
+#  include <miktex/KPSE/Emulation>
 #else
-#include <miktex/Core/c/api.h>
-#endif
-#if 0
+#ifdef MIKTEX
+#include <miktex/Core/Core>
 #include "gnu-miktex.h"
-#endif
 #include <miktex/KPSE/Emulation>
 #else
 #include <kpathsea/kpathsea.h>
+#endif
 #endif
 
 #ifdef WIN32

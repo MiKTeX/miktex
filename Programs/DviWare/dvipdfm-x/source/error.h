@@ -46,10 +46,11 @@ extern void MESG  (const char *fmt, ...);
 extern void WARN  (const char *fmt, ...);
 
 #define ASSERT(e) assert(e)
-
-#if defined(WIN32) && !defined(MIKTEX)
+#if !defined(MIKTEX)
+#if defined(WIN32)
 #undef vfprintf
 #define vfprintf win32_vfprintf
+#endif
 #endif
 
 #endif /* _ERROR_H_ */

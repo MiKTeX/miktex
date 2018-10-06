@@ -39,10 +39,14 @@ int mfclose (FILE *file, const char *function, int line);
 #define MFCLOSE(file) \
    mfclose((file),__FUNCTION__,__LINE__)
 #else
-#if defined(WIN32) && !defined(MIKTEX)
+#if defined(MIKTEX)
+#define MFOPEN(name,mode) fopen((name),(mode))
+#else
+#if defined(WIN32)
 #define MFOPEN(name,mode) fsyscp_fopen((name),(mode))
 #else
 #define MFOPEN(name,mode) fopen((name),(mode))
+#endif
 #endif
 #define MFCLOSE(file) fclose(file)
 #endif

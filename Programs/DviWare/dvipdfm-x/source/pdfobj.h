@@ -51,13 +51,13 @@ typedef struct pdf_obj  pdf_obj;
 typedef struct pdf_file pdf_file;
 
 /* External interface to pdf routines */
-
-extern int      pdf_obj_get_verbose (void);
-extern void     pdf_obj_set_verbose (void);
 extern void     pdf_error_cleanup   (void);
 
+extern FILE    *pdf_get_output_file (void);
+
 extern void     pdf_out_init      (const char *filename,
-                                   int enable_encrypt, int enable_objstm);
+                                   int enable_encrypt, int enable_objstm,
+                                   int enable_predictor);
 extern void     pdf_out_flush     (void);
 extern void     pdf_set_version   (int version);
 extern int      pdf_get_version   (void);
@@ -177,7 +177,6 @@ extern int         pdf_compare_reference (pdf_obj *ref1, pdf_obj *ref2);
  */
 
 extern void      pdf_set_compression (int level);
-extern void      pdf_set_use_predictor (int bval);
 
 extern void      pdf_set_info     (pdf_obj *obj);
 extern void      pdf_set_root     (pdf_obj *obj);
@@ -199,9 +198,6 @@ extern pdf_obj *pdf_import_object (pdf_obj *object);
 extern int      pdfobj_escape_str (char *buffer, int size, const unsigned char *s, int len);
 
 extern pdf_obj *pdf_new_indirect  (pdf_file *pf, unsigned label, unsigned short generation);
-
-extern time_t get_unique_time_if_given(void);
-#define INVALID_EPOCH_VALUE ((time_t)-1)
 
 extern int pdf_check_version (int major, int minor);
 

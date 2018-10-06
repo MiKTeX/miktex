@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -30,6 +30,7 @@
 #include "mem.h"
 #include "error.h"
 
+#include "dpxconf.h"
 #include "dpxutil.h"
 #include "pst.h"
 
@@ -37,8 +38,6 @@
 #include "cmap.h"
 
 #include "cmap_read.h"
-
-static int __verbose = 0;
 
 #define CMAP_PARSE_DEBUG_STR "CMap_parse:"
 #define CMAP_PARSE_DEBUG     3
@@ -97,8 +96,6 @@ ifreader_read (ifreader *reader, size_t size)
   ASSERT(reader);
   bytesrem = (size_t) reader->endptr - (size_t) reader->cursor;
   if (size > reader->max) {
-    if (__verbose)
-      MESG("\nExtending buffer (%ld bytes)...\n", size);
     reader->buf = RENEW(reader->buf, size+1, unsigned char);
     reader->max = size;
   }
@@ -111,8 +108,6 @@ ifreader_read (ifreader *reader, size_t size)
       ERROR("Reading file failed.");
     reader->endptr += bytesread;
     reader->unread -= bytesread;
-    if (__verbose)
-      MESG("Reading more %ld bytes (%ld bytes remains in buffer)...\n", bytesread, bytesrem);
   }
 
   *reader->endptr = 0;

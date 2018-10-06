@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2008-2016 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
+    Copyright (C) 2008-2018 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -41,7 +41,7 @@
 #include "system.h"
 #include "mem.h"
 #include "error.h"
-
+#include "dpxconf.h"
 #include "dpxfile.h"
 
 #include "pdfobj.h"
@@ -258,11 +258,8 @@ pdf_font_load_type1c (pdf_font *font)
   cs_ginfo      ginfo;
   double        nominal_width, default_width, notdef_width;
   double        widths[256];
-  int           verbose;
 
   ASSERT(font);
-
-  verbose = pdf_font_get_verbose();
 
   if (!pdf_font_is_in_use(font)) {
     return 0;
@@ -437,7 +434,7 @@ pdf_font_load_type1c (pdf_font *font)
   /* First we add .notdef glyph.
    * All Type 1 font requires .notdef glyph to be present.
    */
-  if (verbose > 2) {
+  if (dpx_conf.verbose_level > 2) {
     MESG("[glyphs:/.notdef");
   }
   size = cs_idx->offset[1] - cs_idx->offset[0];
@@ -511,7 +508,7 @@ pdf_font_load_type1c (pdf_font *font)
     pdf_add_stream(pdfcharset, "/", 1);
     pdf_add_stream(pdfcharset, enc_vec[code], strlen(enc_vec[code]));
 
-    if (verbose > 2) {
+    if (dpx_conf.verbose_level > 2) {
       MESG("/%s", enc_vec[code]);
     }
 
@@ -537,7 +534,7 @@ pdf_font_load_type1c (pdf_font *font)
     charset->num_entries  += 1;
     num_glyphs++;
   }
-  if (verbose > 2) {
+  if (dpx_conf.verbose_level > 2) {
     MESG("]");
   }
   RELEASE(data);
@@ -725,7 +722,7 @@ pdf_font_load_type1c (pdf_font *font)
   if (fp)
     DPXFCLOSE(fp);
 
-  if (verbose > 1) {
+  if (dpx_conf.verbose_level > 1) {
     MESG("[%u/%u glyphs][%ld bytes]", num_glyphs, cs_count, offset);
   }
 

@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -25,6 +25,7 @@
 
 #include "pdfcolor.h"
 #include "pdfdev.h"
+#include "pdfdoc.h"
 
 #include "specials.h"
 
@@ -41,9 +42,9 @@ extern int  spc_util_read_dimtrns   (struct spc_env *spe,
                                      struct spc_arg *args, int syntax);
 
 extern int  spc_util_read_blahblah  (struct spc_env *spe,
-                                     transform_info *dimtrns,
-                                     int            *page_no,
-                                     int            *bbox_type,
+                                     transform_info         *dimtrns,
+                                     int                    *page_no,
+                                     enum pdf_page_boundary *bbox_type,
                                      struct spc_arg *args);
 
 

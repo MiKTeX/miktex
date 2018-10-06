@@ -32,6 +32,7 @@
 #include "error.h"
 
 #include "numbers.h"
+#include "dpxconf.h"
 #include "dpxutil.h"
 
 #include "tfm.h"
@@ -40,9 +41,6 @@
 #define OFM_FORMAT 2
 
 #define FWBASE ((double) (1<<20))
-
-static int verbose = 0;
-
 
 #ifndef WITHOUT_ASCII_PTEX
 /*
@@ -327,13 +325,6 @@ fms_need (unsigned n)
     fms = RENEW(fms, max_fms, struct font_metric);
   }
 }
-
-void
-tfm_set_verbose (void)
-{
-  verbose++;
-}
-
 
 static int
 fread_fwords (fixword *words, int32_t nmemb, FILE *fp)
@@ -921,12 +912,12 @@ tfm_open (const char *tfm_name, int must_exist)
     ERROR("Could not open specified TFM/OFM file \"%s\".", tfm_name);
   }
 
-  if (verbose) {
+  if (dpx_conf.verbose_level > 0) {
     if (format == TFM_FORMAT)
       MESG("(TFM:%s", tfm_name);
     else if (format == OFM_FORMAT)
       MESG("(OFM:%s", tfm_name);
-    if (verbose > 1)
+    if (dpx_conf.verbose_level > 1)
       MESG("[%s]", file_name);
   }
 
@@ -956,7 +947,7 @@ tfm_open (const char *tfm_name, int must_exist)
   fms[numfms].tex_name = NEW(strlen(tfm_name)+1, char);
   strcpy(fms[numfms].tex_name, tfm_name);
 
-  if (verbose) 
+  if (dpx_conf.verbose_level > 0) 
     MESG(")");
 
   return numfms++;

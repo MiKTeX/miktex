@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* dvipdfmx 20181002
 * Dvisvgm 2.6
 
 ### Upgraded libraries

@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -31,6 +31,7 @@
 #include "system.h"
 #include "mem.h"
 #include "error.h"
+#include "dpxconf.h"
 
 #include "mfileio.h"
 #include "numbers.h"
@@ -51,16 +52,6 @@
 #include "dvi.h"
 
 #include "pdfdev.h"
-
-#include "cff.h"
-
-static int verbose = 0;
-
-void
-pdf_dev_set_verbose (void)
-{
-  verbose++;
-}
 
 /* Not working yet... */
 double
@@ -500,8 +491,6 @@ struct dev_font {
   int      ucs_plane;
 
   int      is_unicode;
-
-  cff_charsets *cff_charsets;
 };
 static struct dev_font *dev_fonts = NULL;
 
@@ -963,26 +952,8 @@ handle_multibyte_string (struct dev_font *font,
   p      = *str_ptr;
   length = *str_len;
 
-  if (ctype == -1 && font->cff_charsets) { /* freetype glyph indexes */
-    /* Convert freetype glyph indexes to CID. */
-    const unsigned char *inbuf = p;
-    unsigned char *outbuf = sbuf0;
-    for (i = 0; i < length; i += 2) {
-      unsigned int gid;
-      gid = *inbuf++ << 8;
-      gid += *inbuf++;
-
-      gid = cff_charsets_lookup_cid(font->cff_charsets, gid);
-
-      *outbuf++ = gid >> 8;
-      *outbuf++ = gid & 0xff;
-    }
-
-    p = sbuf0;
-    length = outbuf - sbuf0;
-  }
   /* _FIXME_ */
-  else if (font->is_unicode) { /* UCS-4 */
+  if (font->is_unicode) { /* UCS-4 */
     if (ctype == 1) {
       if (length * 4 >= FORMAT_BUF_SIZE) {
         WARN("Too long string...");
@@ -1045,7 +1016,7 @@ handle_multibyte_string (struct dev_font *font,
    * encoding.
    * TODO: A character decomposed to multiple characters.
    */
-  if (ctype != -1 && font->enc_id >= 0) {
+  if (font->enc_id >= 0) {
     const unsigned char *inbuf;
     unsigned char *outbuf;
     int            inbytesleft, outbytesleft;
@@ -1316,7 +1287,6 @@ pdf_close_device (void)
         pdf_release_obj(dev_fonts[i].resource);
       dev_fonts[i].tex_name = NULL;
       dev_fonts[i].resource = NULL;
-      dev_fonts[i].cff_charsets = NULL;
     }
     RELEASE(dev_fonts);
   }
@@ -1492,15 +1462,12 @@ pdf_dev_locate_font (const char *font_name, spt_t ptsize)
   /* New font */
   mrec = pdf_lookup_fontmap_record(font_name);
 
-  if (verbose > 1)
+  if (dpx_conf.verbose_level > 1)
     print_fontmap(font_name, mrec);
 
   font->font_id = pdf_font_findresource(font_name, ptsize * dev_unit.dvi2pts, mrec);
   if (font->font_id < 0)
     return  -1;
-
-  if (mrec)
-    font->cff_charsets = mrec->opt.cff_charsets;
 
   /* We found device font here. */
   if (i < num_dev_fonts) {
