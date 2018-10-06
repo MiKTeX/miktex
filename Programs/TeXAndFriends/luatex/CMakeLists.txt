@@ -220,7 +220,7 @@ if(WITH_LUA53TEX)
     target_link_libraries(luatex-lua53misc-static
       PUBLIC
         ${unxemu_dll_name}
-	${utf8wrap_dll_name}
+        ${utf8wrap_dll_name}
     )
   endif()
 endif()
