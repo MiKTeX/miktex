@@ -139,7 +139,7 @@ typedef struct MP_instance {
 
 @ @c
 /*\#define DEBUGENVELOPE */
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 static int DEBUGENVELOPECOUNTER=0;
 #define dbg_str(A)	  printf("\n--[==[%03d DEBUGENVELOPE ]==] %s",		   DEBUGENVELOPECOUNTER++, #A)
 #define dbg_n(A) 	  printf("\n--[==[%03d DEBUGENVELOPE ]==] ['%s']=%s, ",	   DEBUGENVELOPECOUNTER++, #A, number_tostring(A))
@@ -176,8 +176,8 @@ static int DEBUGENVELOPECOUNTER=0;
 #include <png.h>                /* for |PNG_LIBPNG_VER_STRING|, |png_libpng_ver| */
 /*\#include <pixman.h>*/             /* for |PIXMAN_VERSION_STRING|, |pixman_version_string()| */
 /*\#include <cairo.h>*/              /* for |CAIRO_VERSION_STRING|, |cairo_version_string()| */
-#include <gmp.h>                /* for |gmp_version| */
-#include <mpfr.h>               /* for |MPFR_VERSION_STRING|, |mpfr_get_version()| */
+/*\#include <gmp.h>*/                /* for |gmp_version| */
+/*\#include <mpfr.h>*/               /* for |MPFR_VERSION_STRING|, |mpfr_get_version()| */
 #include "mplib.h"
 #include "mplibps.h"            /* external header */
 /*\#include "mplibsvg.h" */          /* external header */
@@ -189,7 +189,7 @@ static int DEBUGENVELOPECOUNTER=0;
 #include "mpmath.h"             /* internal header */
 #include "mpmathdouble.h"       /* internal header */
 #include "mpmathdecimal.h"      /* internal header */
-#include "mpmathbinary.h"       /* internal header */
+/*#include "mpmathbinary.h"*/       /* internal header */
 #include "mpstrings.h"          /* internal header */
 /* BEGIN PATCH */
 mp_number dx_ap;    /* approximation of dx */
@@ -200,15 +200,20 @@ mp_number ueps_ap;  /* epsilon for above approximations */
 boolean is_dxdy, is_dxindyin;
 /* END PATCH */
 
-@ We move the {\tt cairo} and {\tt pixman} libraries outside {\tt mp.w}, 
+@ We move the {\tt cairo} and {\tt pixman} libraries outside {\tt mp.w},
 to minimize dependencies.
 
 @c
 extern const char *COMPILED_CAIRO_VERSION_STRING;
 extern const char* cairo_version_string (void);
-#if !defined(MIKTEX)
+extern const char *COMPILED_MPFR_VERSION_STRING;
+extern const char* mpfr_get_version (void);
+extern void * mp_initialize_binary_math (MP mp) ;
+extern int COMPILED__GNU_MP_VERSION;
+extern int COMPILED__GNU_MP_VERSION_MINOR;
+extern int COMPILED__GNU_MP_VERSION_PATCHLEVEL;
+extern const char * const COMPILED_gmp_version;
 extern const char *COMPILED_PIXMAN_VERSION_STRING;
-#endif
 extern const char* pixman_version_string (void);
 extern void mp_png_backend_initialize (MP mp);
 extern void mp_png_backend_free (MP mp);
@@ -2630,7 +2635,7 @@ void mp_new_randoms (MP mp) {
   mp->j_random = 54;
 }
 
-@ To consume a random fraction, the program below will say `|next_random|'. 
+@ To consume a random fraction, the program below will say `|next_random|'.
 Now each number system has its own implementation,
 true to the original as much as possibile.
 
@@ -2659,7 +2664,7 @@ As said before, now each number system has its own implementation.
 @c
 /*Unused.
 static void mp\_unif\_rand (MP mp, mp\_number *ret, mp\_number x\_orig) {
-  mp\_number y;     // trial value 
+  mp\_number y;     // trial value
   mp\_number x, abs\_x;
   mp\_number u;
   new\_fraction (y);
@@ -2898,7 +2903,7 @@ void *do_alloc_node (MP mp, size_t size) {
 
 @c
 void mp_xfree (void *x) {
-  if (x != NULL) 
+  if (x != NULL)
     free (x);
 }
 void *mp_xrealloc (MP mp, void *p, size_t nmem, size_t size) {
@@ -3241,8 +3246,7 @@ mp_random_seed, /* initialize random number generator (\&{randomseed}) */
 mp_message_command, /* communicate to user (\&{message}, \&{errmessage}) */
 mp_every_job_command, /* designate a starting token (\&{everyjob}) */
 mp_delimiters, /* define a pair of delimiters (\&{delimiters}) */
-mp_special_command, /* output special info (\&{special})
-                       or font map info (\&{fontmapfile}, \&{fontmapline}) */
+mp_special_command, /* output special info (\&{special}) or font map info (\&{fontmapfile}, \&{fontmapline}) */
 mp_write_command, /* write text to a file (\&{write}) */
 mp_type_name, /* declare a type (\&{numeric}, \&{pair}, etc.) */
 mp_left_delimiter, /* the left delimiter of a matching pair */
@@ -3281,15 +3285,13 @@ mp_left_bracket, /* the operator `\.[' */
 mp_right_bracket, /* the operator `\.]' */
 mp_right_brace, /* the operator `\.{\char`\}}' */
 mp_with_option, /* option for filling (\&{withpen}, \&{withweight}, etc.) */
-mp_thing_to_add,
-  /* variant of \&{addto} (\&{contour}, \&{doublepath}, \&{also}) */
+mp_thing_to_add, /* variant of \&{addto} (\&{contour}, \&{doublepath}, \&{also}) */
 mp_of_token, /* the operator `\&{of}' */
 mp_to_token, /* the operator `\&{to}' */
 mp_step_token, /* the operator `\&{step}' */
 mp_until_token, /* the operator `\&{until}' */
 mp_within_token, /* the operator `\&{within}' */
-mp_lig_kern_token,
-  /* the operators `\&{kern}' and `\.{=:}' and `\.{=:\char'174}', etc. */
+mp_lig_kern_token, /* the operators `\&{kern}' and `\.{=:}' and `\.{=:\char'174}', etc. */
 mp_assignment, /* the operator `\.{:=}' */
 mp_skip_to, /* the operation `\&{skipto}' */
 mp_bchar_label, /* the operator `\.{\char'174\char'174:}' */
@@ -4052,6 +4054,7 @@ enum mp_given_internal {
   mp_pausing,                   /* positive to display lines on the terminal before they are read */
   mp_showstopping,              /* positive to stop after each \&{show} command */
   mp_fontmaking,                /* positive if font metric output is to be produced */
+  mp_texscriptmode,             /* controls spacing in texmode */
   mp_linejoin,                  /* as in \ps: 0 for mitered, 1 for round, 2 for beveled */
   mp_linecap,                   /* as in \ps: 0 for butt, 1 for round, 2 for square */
   mp_miterlimit,                /* controls miter length as in \ps */
@@ -4202,6 +4205,8 @@ mp_primitive (mp, "showstopping", mp_internal_quantity, mp_showstopping);
 @:mp_showstopping_}{\&{showstopping} primitive@>;
 mp_primitive (mp, "fontmaking", mp_internal_quantity, mp_fontmaking);
 @:mp_fontmaking_}{\&{fontmaking} primitive@>;
+mp_primitive (mp, "texscriptmode", mp_internal_quantity, mp_texscriptmode);
+@:mp_texscriptmode_}{\&{texscriptmode} primitive@>;
 mp_primitive (mp, "linejoin", mp_internal_quantity, mp_linejoin);
 @:mp_linejoin_}{\&{linejoin} primitive@>;
 mp_primitive (mp, "linecap", mp_internal_quantity, mp_linecap);
@@ -4220,8 +4225,7 @@ mp_primitive (mp, "mpprocset", mp_internal_quantity, mp_procset);
 @:mp_procset_}{\&{mpprocset} primitive@>;
 mp_primitive (mp, "troffmode", mp_internal_quantity, mp_gtroffmode);
 @:troffmode_}{\&{troffmode} primitive@>;
-mp_primitive (mp, "defaultcolormodel", mp_internal_quantity,
-              mp_default_color_model);
+mp_primitive (mp, "defaultcolormodel", mp_internal_quantity, mp_default_color_model);
 @:mp_default_color_model_}{\&{defaultcolormodel} primitive@>;
 mp_primitive (mp, "restoreclipcolor", mp_internal_quantity, mp_restore_clip_color);
 @:mp_restore_clip_color_}{\&{restoreclipcolor} primitive@>;
@@ -4279,6 +4283,7 @@ set_internal_string (mp_output_format, mp_intern (mp, "eps"));
 set_internal_string (mp_output_format_options, mp_intern (mp, ""));
 set_internal_string (mp_number_system, mp_intern (mp, "scaled"));
 set_internal_from_number (mp_number_precision, precision_default);
+set_internal_from_number (mp_texscriptmode, unity_t);
 #if DEBUG
 number_clone (internal_value (mp_tracing_titles), three_t);
 number_clone (internal_value (mp_tracing_equations), three_t);
@@ -4326,6 +4331,7 @@ set_internal_name (mp_design_size, xstrdup ("designsize"));
 set_internal_name (mp_pausing, xstrdup ("pausing"));
 set_internal_name (mp_showstopping, xstrdup ("showstopping"));
 set_internal_name (mp_fontmaking, xstrdup ("fontmaking"));
+set_internal_name (mp_texscriptmode, xstrdup ("texscriptmode"));
 set_internal_name (mp_linejoin, xstrdup ("linejoin"));
 set_internal_name (mp_linecap, xstrdup ("linecap"));
 set_internal_name (mp_miterlimit, xstrdup ("miterlimit"));
@@ -4448,6 +4454,8 @@ class numbers in nonstandard extensions of \MP.
 @d mp_right_bracket_class 18 /* `\.]' */
 @d invalid_class 20 /* bad character in the input */
 @d max_class 20 /* the largest class number */
+
+@d semicolon_class 6 /* the ; */
 
 @<Glob...@>=
 #define digit_class 0 /* the class number of \.{0123456789} */
@@ -4853,10 +4861,26 @@ char *mp_get_string_value (MP mp, const char *s, size_t l) {
    return NULL;
 }
 
+mp_knot mp_get_path_value (MP mp, const char *s, size_t l) {
+    char *ss = mp_xstrdup(mp,s);
+    if (ss) {
+        mp_sym sym = mp_id_lookup(mp,ss,l,false);
+        if (sym != NULL) {
+            if (mp_type(sym->v.data.node) == mp_path_type) {
+                mp_xfree (ss);
+                return (mp_knot) sym->v.data.node->data.p;
+            }
+        }
+    }
+    mp_xfree (ss);
+    return NULL;
+}
+
 @ @<Exported function headers@>=
 double mp_get_numeric_value(MP mp,const char *s,size_t l);
 int mp_get_boolean_value(MP mp,const char *s,size_t l);
 char *mp_get_string_value(MP mp,const char *s,size_t l);
+mp_knot mp_get_path_value(MP mp,const char *s,size_t l);
 
 @ We need to put \MP's ``primitive'' symbolic tokens into the hash
 table, together with their command code (which will be the |eq_type|)
@@ -13280,26 +13304,26 @@ static mp_knot mp_offset_prep (MP mp, mp_knot c, mp_knot h) {
   c0 = c;
   k_needed = 0;
 #ifdef DEBUGENVELOPE
-dbg_nl;dbg_str(--[==[BEGIN]==]);dbg_nl; 
-dbg_str(return {);dbg_nl; 
+dbg_nl;dbg_str(--[==[BEGIN]==]);dbg_nl;
+dbg_str(return {);dbg_nl;
 dbg_n(w0->x_coord);
 dbg_n(w0->y_coord);
 #endif
  do {
     q = mp_next_knot (p);
 #ifdef DEBUGENVELOPE
-dbg_nl;dbg_open_t;dbg_str(--[==[begin loop]==]);dbg_nl; 
+dbg_nl;dbg_open_t;dbg_str(--[==[begin loop]==]);dbg_nl;
 dbg_n(p->x_coord);dbg_n(p->y_coord);
 dbg_n(p->right_x);dbg_n(p->right_y);
 dbg_n(q->left_x);dbg_n(q->left_y);
 dbg_n(q->x_coord);dbg_n(q->y_coord);
 dbg_n(w0->x_coord);
 dbg_n(w0->y_coord);
-#endif 
+#endif
     @<Split the cubic between |p| and |q|, if necessary, into cubics
       associated with single offsets, after which |q| should
       point to the end of the final such cubic@>;
-#ifdef DEBUGENVELOPE   
+#ifdef DEBUGENVELOPE
 dbg_key(end Split the cubic between |p| and |q|);dbg_open_t;dbg_nl;
 dbg_n(w->x_coord);dbg_n(w->y_coord);
 dbg_n(w0->x_coord);dbg_n(w0->y_coord);
@@ -13311,7 +13335,7 @@ dbg_close_t; dbg_comma;dbg_nl;
 #ifdef DEBUGENVELOPE
 dbg_n(w0->x_coord);dbg_n(w0->y_coord);
 dbg_str(--[==[end loop]==]);dbg_nl; dbg_close_t;dbg_comma;dbg_nl;
-#endif 
+#endif
   } while (q != c);
 #ifdef DEBUGENVELOPE
  dbg_key(Fix the offset change);dbg_open_t;dbg_nl;
@@ -13322,7 +13346,7 @@ dbg_str(--[==[end loop]==]);dbg_nl; dbg_close_t;dbg_comma;dbg_nl;
 #endif
   @<Fix the offset change in |mp_knot_info(c)| and set |c| to the return value of
     |offset_prep|@>;
-#ifdef DEBUGENVELOPE  
+#ifdef DEBUGENVELOPE
 dbg_n(p->x_coord);dbg_n(p->y_coord);
 dbg_key_ival(info post,mp_knot_info(p));dbg_comma;dbg_nl;
 dbg_n(c->x_coord);dbg_n(c->y_coord);
@@ -13422,7 +13446,7 @@ the testcase reported by Bogus\l{}aw Jackowski in tracker id 267, case 52c
 on Sarovar.)
 
 @<Advance |p| to node |q|, removing any ``dead'' cubics...@>=
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_comment(Advance |p| to node |q|);dbg_nl;
 #endif
 q0 = q;
@@ -13447,11 +13471,11 @@ if ((q != q0) && (q != c || c == c0))
 
 @ @<Remove the cubic following |p| and update the data structures...@>=
 {
- #ifdef DEBUGENVELOPE 
+ #ifdef DEBUGENVELOPE
  dbg_key(Remove the cubic following p);dbg_open_t;dbg_nl;
  dbg_n(p->x_coord);dbg_n(p->y_coord);
  dbg_key_ival(pre info p,mp_knot_info(p));  dbg_close_t;dbg_comma;dbg_nl;
- #endif 
+ #endif
   k_needed = mp_knot_info (p) - zero_off;
   if (r == q) {
     q = p;
@@ -13469,11 +13493,11 @@ if ((q != q0) && (q != c || c == c0))
     mp->spec_p2 = p;
   r = p;
   mp_remove_cubic (mp, p);
-  #ifdef DEBUGENVELOPE 
+  #ifdef DEBUGENVELOPE
   dbg_key(Remove the cubic following p);dbg_open_t;dbg_nl;
   dbg_n(p->x_coord);dbg_n(p->y_coord);
   dbg_key_ival(post info p,mp_knot_info (p)); dbg_close_t;dbg_comma;dbg_nl;
-  #endif 
+  #endif
 }
 
 
@@ -13542,16 +13566,16 @@ We may have to split a cubic into many pieces before each
 piece corresponds to a unique offset.
 
 @<Split the cubic between |p| and |q|, if necessary, into cubics...@>=
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_comment(Split the cubic between |p| and |q|);dbg_nl;
 dbg_key(Split the cubic);dbg_open_t;dbg_nl;
 dbg_key_ival(pre info p,mp_knot_info(p));dbg_comma;
 dbg_n(w0->x_coord);dbg_n(w0->y_coord);
-#endif 
+#endif
 mp_knot_info (p) = zero_off + k_needed;
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_key_ival(post info p,mp_knot_info(p));dbg_close_t;dbg_comma; dbg_nl;
-#endif 
+#endif
 k_needed = 0;
 @<Prepare for derivative computations;
   |goto not_found| if the current cubic is dead@>;
@@ -13718,7 +13742,7 @@ void mp_fin_offset_prep (MP mp, mp_knot p, mp_knot w, mp_number
   new_number(t2);
   new_fraction(s);
   new_fraction(t);
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_key(mp_fin_offset_prep);dbg_open_t;dbg_nl;
 #endif
   while (1) {
@@ -13726,7 +13750,7 @@ dbg_key(mp_fin_offset_prep);dbg_open_t;dbg_nl;
       ww = mp_next_knot (w);    /* a pointer to $w\k$ */
     else
       ww = mp_prev_knot (w);    /* a pointer to $w_{k-1}$ */
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_comment(begin iteration);
 dbg_open_t;dbg_nl;
 dbg_n(w->x_coord);dbg_n(w->y_coord);
@@ -13737,11 +13761,11 @@ dbg_in(rise);
 #endif
     @<Compute test coefficients |(t0,t1,t2)|
       for $d(t)$ versus $d_k$ or $d_{k-1}$@>;
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_comment(crossing_point);
 #endif
     crossing_point (t, t0, t1, t2);
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_n(t);dbg_n(t0);dbg_n(t1);dbg_n(t2);
 dbg_in(number_greaterequal(t, fraction_one_t));
 dbg_in(turn_amt);
@@ -13753,18 +13777,18 @@ dbg_close_t; dbg_comma;dbg_nl;
       else
         goto RETURN;
     }
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_comment(Split the cubic at $t$ and split off another cubic if the derivative crosses back);
 #endif
     @<Split the cubic at $t$,
       and split off another cubic if the derivative crosses back@>;
     w = ww;
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_comment(end iteration);
 #endif
   }
 RETURN:
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_comment(RETURN);
 dbg_n(t);
 #endif
@@ -13776,7 +13800,7 @@ dbg_n(t);
   free_number (t0);
   free_number (t1);
   free_number (t2);
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_close_t; dbg_comma;dbg_nl;
 #endif
 }
@@ -13792,7 +13816,7 @@ begins to fail.
   mp_number abs_du, abs_dv;
   new_number (abs_du);
   new_number (abs_dv);
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_key(Compute test coefficients |(t0,t1,t2)| for $d(t)$ versus...);dbg_open_t;dbg_nl;
 #endif
   set_number_from_substraction(du, ww->x_coord, w->x_coord);
@@ -13801,7 +13825,7 @@ dbg_key(Compute test coefficients |(t0,t1,t2)| for $d(t)$ versus...);dbg_open_t;
   number_abs(abs_du);
   number_clone(abs_dv, dv);
   number_abs(abs_dv);
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_CUBIC;
 dbg_n(w->x_coord);dbg_n(w->y_coord);
 dbg_n(ww->x_coord);dbg_n(ww->y_coord);
@@ -13848,7 +13872,7 @@ dbg_in(number_greaterequal(abs_du, abs_dv));
   free_number (abs_dv);
   if (number_negative(t0))
     set_number_to_zero(t0); /* should be positive without rounding error */
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_n(t0);dbg_n(t1);dbg_n(t2);
 dbg_close_t; dbg_comma;dbg_nl;
 #endif
@@ -13991,19 +14015,19 @@ if (number_zero(dxin) && number_zero(dyin)) {
 #ifdef DEBUGENVELOPE
 dbg_key(dxin dyin before);dbg_open_t;dbg_nl;
 dbg_n(dxin);dbg_n(dyin);
-dbg_close_t;dbg_comma; 
+dbg_close_t;dbg_comma;
 #endif
 #ifdef DEBUGENVELOPE
 dbg_key(dxin dyin after);dbg_open_t;dbg_nl;
 dbg_n(dxin);dbg_n(dyin);
-dbg_close_t;dbg_comma; 
+dbg_close_t;dbg_comma;
 #endif
 /* BEGIN PATCH */
 #ifdef DEBUGENVELOPE
 dbg_key(dx dy dxin dyin after patch);dbg_open_t;dbg_nl;
 dbg_n(dx);dbg_n(dy);dbg_n(dx_ap);dbg_n(dy_ap);
 dbg_n(dxin);dbg_n(dyin);dbg_n(dxin_ap);dbg_n(dyin_ap);
-dbg_close_t;dbg_comma; 
+dbg_close_t;dbg_comma;
 #endif
 /* END PATCH ****/
 
@@ -14022,13 +14046,13 @@ right.) This code depends on |w0| being the offset for |(dxin,dyin)|.
 #ifdef DEBUGENVELOPE
 dbg_nl;
 dbg_comment(Update |mp_knot_info(p)|);dbg_nl;
-dbg_key(mp_get_turn_amt_dx_dy);dbg_open_t;dbg_str(--[==[call mp_get_turn_amt]==]);dbg_nl; 
+dbg_key(mp_get_turn_amt_dx_dy);dbg_open_t;dbg_str(--[==[call mp_get_turn_amt]==]);dbg_nl;
 dbg_n(w0->x_coord);dbg_n(w0->y_coord);dbg_n(dx);dbg_n(dy);dbg_in(number_nonnegative(ab_vs_cd));
 dbg_n(ab_vs_cd);
 #endif
  is_dxdy=true;
  turn_amt = mp_get_turn_amt (mp, w0, dx, dy, number_nonnegative(ab_vs_cd));
- is_dxdy=false; 
+ is_dxdy=false;
 #ifdef DEBUGENVELOPE
 dbg_dn(turn_amt);
 dbg_close_t;dbg_comma;
@@ -14088,20 +14112,20 @@ integer mp_get_turn_amt (MP mp, mp_knot w, mp_number dx, mp_number dy, boolean c
       ab_vs_cd (t, dy, arg1, dx, arg2);
 #ifdef DEBUGENVELOPE
      dbg_sp;
-     dbg_open_t;dbg_str(--[==[inside mp_get_turn_amt do loop ]==]);dbg_nl; 
+     dbg_open_t;dbg_str(--[==[inside mp_get_turn_amt do loop ]==]);dbg_nl;
      dbg_n(w->x_coord);dbg_n(w->y_coord);dbg_n(ww->x_coord);dbg_n(ww->y_coord);
      dbg_n(t);dbg_n(dy);dbg_n(arg1);dbg_n(dx);dbg_n(arg2);
      dbg_n(t_ap);dbg_n(dy_ap);dbg_n(dx_ap);dbg_n(dyin_ap);dbg_n(dxin_ap);
      dbg_close_t;dbg_comma;
      dbg_in(number_zero(dx) && number_zero(arg1) && number_positive(dy) && number_positive(arg2) && is_dxdy);
-     dbg_in(is_dxdy && number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_negative(arg2)  && number_positive(dyin_ap)); 
+     dbg_in(is_dxdy && number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_negative(arg2)  && number_positive(dyin_ap));
      dbg_in(is_dxindyin && number_zero(dx) && number_zero(arg1) && number_positive(dy) && number_positive(arg2) && number_negative(dyin_ap));
      dbg_in(number_zero(dy) && number_zero(arg2) && number_negative(dx) && number_negative(arg1));
      dbg_in(number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_positive(arg2));
      dbg_in(number_zero(dy) && number_zero(arg2) && number_positive(dx) && number_negative(arg1));
      dbg_nl;
 #endif
-      if (number_negative(t)) 
+      if (number_negative(t))
         break;
       incr (s);
       w = ww;
@@ -14114,7 +14138,7 @@ integer mp_get_turn_amt (MP mp, mp_knot w, mp_number dx, mp_number dy, boolean c
     ab_vs_cd (t, dy, arg1, dx, arg2);
 #ifdef DEBUGENVELOPE
      dbg_sp;
-     dbg_open_t;dbg_str(--[==[outside mp_get_turn_amt do loop ]==]);dbg_nl; 
+     dbg_open_t;dbg_str(--[==[outside mp_get_turn_amt do loop ]==]);dbg_nl;
      dbg_n(w->x_coord);dbg_n(w->y_coord);dbg_n(ww->x_coord);dbg_n(ww->y_coord);
      dbg_n(t);dbg_n(dy);dbg_n(arg1);dbg_n(dx);dbg_n(arg2);
      dbg_n(t_ap);dbg_n(dy_ap);dbg_n(dx_ap);dbg_n(dyin_ap);dbg_n(dxin_ap);
@@ -14130,7 +14154,7 @@ integer mp_get_turn_amt (MP mp, mp_knot w, mp_number dx, mp_number dy, boolean c
       ab_vs_cd (t, dy, arg1, dx, arg2);
 #ifdef DEBUGENVELOPE
      dbg_sp;
-     dbg_open_t;dbg_str(--[==[inside mp_get_turn_amt do loop for t<0 ]==]);dbg_nl; 
+     dbg_open_t;dbg_str(--[==[inside mp_get_turn_amt do loop for t<0 ]==]);dbg_nl;
      dbg_n(w->x_coord);dbg_n(w->y_coord);dbg_n(ww->x_coord);dbg_n(ww->y_coord);
      dbg_n(t);dbg_n(dy);dbg_n(arg1);dbg_n(dx);dbg_n(arg2);
      dbg_n(t_ap);dbg_n(dy_ap);dbg_n(dx_ap);
@@ -14183,14 +14207,14 @@ with respect to $d_{k-1}$, and apply |fin_offset_prep| to each part.
 
 @<Complete the offset splitting process@>=
 ww = mp_prev_knot (w);
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_key(Complete the offset splitting process);dbg_open_t;dbg_nl;
 dbg_n(w->x_coord);dbg_n(w->y_coord);
 dbg_n(ww->x_coord);dbg_n(ww->y_coord);
 dbg_close_t; dbg_comma;dbg_nl;
 #endif
 @<Compute test coeff...@>;
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_key(after Compute test coeff);dbg_open_t;dbg_nl;
 dbg_n(w->x_coord);dbg_n(w->y_coord);
 dbg_n(ww->x_coord);dbg_n(ww->y_coord);
@@ -14199,7 +14223,7 @@ dbg_close_t; dbg_comma;dbg_nl;
 @<Find the first |t| where $d(t)$ crosses $d_{k-1}$ or set
   |t:=fraction_one+1|@>;
 if (number_greater(t, fraction_one_t)) {
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_key(t > fraction_one_t);dbg_open_t;dbg_nl;
 dbg_n(p->x_coord);dbg_n(p->y_coord);
 dbg_n(w->x_coord);dbg_n(w->y_coord);
@@ -14217,7 +14241,7 @@ dbg_close_t; dbg_comma;dbg_nl;
   set_number_from_of_the_way(y1a, t, y0, y1);
   set_number_from_of_the_way(y1,  t, y1, y2);
   set_number_from_of_the_way(y2a, t, y1a, y1);
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_key(t <= fraction_one_t);dbg_open_t;dbg_nl;
 dbg_n(p->x_coord);dbg_n(p->y_coord);
 dbg_n(t);
@@ -14255,7 +14279,7 @@ dbg_close_t; dbg_comma;dbg_nl;
     mp_fin_offset_prep (mp, r, ww, x0, x1, x2, y0, y1, y2, -1, (-1 - turn_amt));
   }
 }
-#ifdef DEBUGENVELOPE 
+#ifdef DEBUGENVELOPE
 dbg_key(end Complete the offset splitting process);dbg_open_t;dbg_nl;
 dbg_n(w->x_coord);dbg_n(w->y_coord);
 dbg_n(w0->x_coord);dbg_n(w0->y_coord);
@@ -14288,7 +14312,7 @@ crossing and the first crossing cannot be antiparallel.
 @<Find the first |t| where $d(t)$ crosses $d_{k-1}$ or set...@>=
 #ifdef DEBUGENVELOPE
 dbg_key(Find the first |t| where);dbg_open_t;dbg_nl;
-#endif 
+#endif
 crossing_point (t, t0, t1, t2);
 if (turn_amt >= 0) {
   if (number_negative(t2)) {
@@ -14326,7 +14350,7 @@ if (turn_amt >= 0) {
 #ifdef DEBUGENVELOPE
 dbg_n(t);
 dbg_close_t; dbg_comma;dbg_nl;
-#endif 
+#endif
 
 
 @ @<Other local variables for |offset_prep|@>=
@@ -19855,6 +19879,7 @@ is less than |loop_text|.
 @ @<Run a script@>=
 if (s != NULL) {
     int k ;
+    mp_value new_expr;
     size_t size = strlen(s);
     memset(&new_expr,0,sizeof(mp_value));
     new_number(new_expr.data.n);
@@ -19870,7 +19895,6 @@ if (s != NULL) {
     }
     limit = (halfword) k;
     (void) memcpy ((mp->buffer + mp->first), s, size);
-    free(s);
     mp->buffer[limit] = xord ('%');
     mp->first = (size_t) (limit + 1);
     loc = start;
@@ -19901,26 +19925,42 @@ if (s != NULL) {
     } else {
         mp_back_input (mp);
         if (cur_exp_str ()->len > 0) {
-            mp_value new_expr;
             char *s = mp->run_script(mp,(const char*) cur_exp_str()->str) ;
             @<Run a script@>
+            free(s);
         }
     }
 }
 
-@ @<Pass btex ... etex to script@>=
+@ The |texscriptmode| parameter controls how spaces and newlines get honoured in
+|btex| or |verbatimtex| ... |etex|. The default value is~1. Possible values are:
+0: no newlines, 1: newlines in |verbatimtex|, 2: newlines in |verbatimtex| and
+|etex|, 3: no leading and trailing strip in |verbatimtex|, 4: no leading and
+trailing strip in |verbatimtex| and |btex|. That way the Lua handler can do what
+it likes. An |etex| has to be followed by a space or |;| or be at the end of a
+line and preceded by a space or at the beginning of a line.
+
+@<Pass btex ... etex to script@>=
 {
-    int first ;
-    while ((loc < limit - 4) && (mp->buffer[loc] == ' ')) {
+    char *txt = NULL;
+    char *ptr = NULL;
+    int slin = line;
+    int size = 0;
+    int done = 0;
+    int mode = round_unscaled(internal_value(mp_texscriptmode)) ; /* default: 1 */
+    int verb = cur_mod() == verbatim_code;
+    int first;
+    /* we had a (mandate) trailing space */
+    if (loc <= limit && mp->char_class[mp->buffer[loc]] == space_class) {
         incr(loc);
+    } else {
+        /* maybe issue an error message and quit */
     }
-    first = loc ;
-    if (mp->buffer[loc-1] == ' ') {
-        decr(loc);
-    }
-    while (loc < limit - 5) {
-        if (mp->buffer[loc] == ' ') {
-            incr(loc);
+    /* we loop over lines */
+    first = loc;
+    while (1) {
+        /* we don't need to check when we have less than 4 characters left */
+        if (loc < limit - 4) {
             if (mp->buffer[loc] == 'e') {
                 incr(loc);
                 if (mp->buffer[loc] == 't') {
@@ -19928,38 +19968,134 @@ if (s != NULL) {
                     if (mp->buffer[loc] == 'e') {
                         incr(loc) ;
                         if (mp->buffer[loc] == 'x') {
-                            /* start action */
-                            char *s, *txt ;
-                            int size ;
-                            mp_value new_expr;
-                            size = loc - first + 1 - 4 ;
-                            if (size < 0) {
-                                size = 0 ;
-                            } else {
-                                while ((size > 1) && (mp->buffer[first+size-1] == ' ')) {
-                                    decr(size);
+                            /* let's see if we have the right boundary */
+                            if (first == (loc - 3)) {
+                                /* when we're at the start of a line no leading space is required */
+                                done = 1;
+                            } else if (mp->char_class[mp->buffer[loc - 4]] == space_class) {
+                                /* when we're beyond the start of a line a leading space is required */
+                                done = 2;
+                            }
+                            if (done) {
+                                if ((loc + 1) <= limit) {
+                                    quarterword c = mp->char_class[mp->buffer[loc + 1]] ;
+                                    if (c != letter_class) {
+                                        incr(loc) ;
+                                        /* we're past the 'x' */
+                                        break;
+                                    } else {
+                                        /* this is no valid etex */
+                                        done = 0;
+                                    }
+                                } else {
+                                    /* when we're at the end of a line we're ok */
+                                    incr(loc) ;
+                                    /* we're past the 'x' */
+                                    break;
                                 }
                             }
-                            txt = malloc(size+1);
-                            if (size > 0) {
-                                (void) memcpy (txt, mp->buffer + first, size);
-                            }
-                            txt[size] = '\0';
-                            incr(loc);
-                            s = mp->make_text(mp,txt,(cur_mod() == verbatim_code)) ; /* we could pass the size */
-                            @<Run a script@>
-                            /* done */
-                            free(txt);
-                            break ;
-                        } else {
-                      //      decr(loc) ;
                         }
                     }
                 }
             }
+        }
+        /* no etex seen (yet) */
+        if (loc >= limit) {
+            if (size) {
+                txt = realloc(txt, size + limit - first + 1);
+            } else {
+                txt = malloc(limit - first + 1);
+            }
+            (void) memcpy (txt + size, mp->buffer + first, limit - first);
+            size += limit - first + 1;
+            if (mode <= 0) {
+                txt[size - 1] = ' ';
+            } else if (verb) {
+                /* modes >= 1 permit a newline in verbatimtex */
+                txt[size - 1] = '\n';
+            } else if (mode >= 2) {
+                /* modes >= 2 permit a newline in btex */
+                txt[size - 1] = '\n';
+            } else {
+                txt[size - 1] = ' ';
+            }
+            if (move_to_next_line(mp)) {
+                /* we abort the scanning */
+                goto FATAL_ERROR;
+            }
+            first = loc;
         } else {
             incr(loc);
         }
+    }
+    if (done) {
+        /* we're past the 'x' */
+        int l = loc - 5 ; // 4
+        int n = l - first + 1 ;
+        /* we're before the 'etex' */
+        if (done == 2) {
+            /* we had ' etex' */
+            l -= 1;
+            n -= 1;
+            /* we're before the ' etex' */
+        }
+        if (size) {
+            txt = realloc(txt, size + n + 1);
+        } else {
+            txt = malloc(n + 1);
+        }
+        (void) memcpy (txt + size, mp->buffer + first, n); /* 0 */
+        size += n;
+        if (verb && mode >= 3) {
+            /* don't strip verbatimtex */
+            txt[size] = '\0';
+            ptr = txt;
+        } else if (mode >= 4) {
+            /* don't strip btex */
+            txt[size] = '\0';
+            ptr = txt;
+        } else {
+            /* strip trailing whitespace, we have a \0 so we're one off  */
+         /* while ((size > 1) && (mp->char_class[(ASCII_code) txt[size-2]] == space_class || txt[size-2] == '\n')) { */
+            while ((size > 1) && (mp->char_class[(ASCII_code) txt[size-1]] == space_class || txt[size-1] == '\n')) {
+                decr(size);
+            }
+            /* prune the string */
+            txt[size] = '\0';
+            /* strip leading whitespace */
+            ptr = txt;
+            while ((size > 1) && (mp->char_class[(ASCII_code) ptr[0]] == space_class || ptr[0] == '\n')) {
+                incr(ptr);
+                decr(size);
+            }
+        }
+        /* action */
+        {
+            char *s = mp->make_text(mp,ptr,verb) ;
+            @<Run a script@>
+            free(s);
+        }
+        free(txt);
+        /* really needed */
+        mp_get_next(mp);
+        return;
+    }
+    /*
+        we don't recover because in practice the graphic will be broken anyway and
+        we're not really interacting in mplib .. just fix the input
+    */
+    FATAL_ERROR:
+    {
+        /* line numbers are not always meaningfull so we can get a 0 reported */
+        char msg[256];
+        const char *hlp[] = { "An 'etex' is missing at this input level, nothing gets done.", NULL };
+        if (slin > 0) {
+            mp_snprintf(msg, 256, "No matching 'etex' for '%stex'.", verb ? "verbatim" : "b");
+        } else {
+            mp_snprintf(msg, 256, "No matching 'etex' for '%stex' in line %d.", verb ? "verbatim" : "b",slin);
+        }
+        mp_error (mp, msg, hlp, false);
+        free(txt);
     }
 }
 
@@ -19974,7 +20110,7 @@ if (s != NULL) {
         mp_value new_expr;
         const char *hlp[] = {
            "I'm going to flush this expression, since",
-           "makete should be followed by a known string.",
+           "maketext should be followed by a known string.",
            NULL };
         memset(&new_expr,0,sizeof(mp_value));
         new_number(new_expr.data.n);
@@ -19986,9 +20122,9 @@ if (s != NULL) {
     } else {
         mp_back_input (mp);
         if (cur_exp_str ()->len > 0) {
-            mp_value new_expr;
             char *s = mp->make_text(mp,(const char*) cur_exp_str()->str,0) ;
             @<Run a script@>
+            free(s);
         }
     }
 }
@@ -23305,7 +23441,7 @@ RESTART:
 
       q = mp_get_value_node (mp);
       mp_name_type (q) = mp_capsule;
-      if (cur_cmd() == mp_comma) { 
+      if (cur_cmd() == mp_comma) {
         mp_init_color_node (mp, q);
         r = value_node (q);
         mp_stash_in (mp, y_part (r));
@@ -23331,7 +23467,7 @@ RESTART:
         }
         mp_stash_in (mp, blue_part (r));
 
-        if (cur_cmd() == mp_comma) { 
+        if (cur_cmd() == mp_comma) {
           mp_node t;      /* a token */
           mp_init_cmykcolor_node (mp, q);
           t = value_node (q);
@@ -23347,13 +23483,13 @@ RESTART:
             set_dep_list (cyan_part(t),dep_list ((mp_value_node) red_part(r)));
             set_prev_dep (cyan_part(t),prev_dep ((mp_value_node) red_part(r)));
             set_mp_link (prev_dep (cyan_part(t)), (mp_node) cyan_part(t));
-          }		
+          }
 	  if ( ((mp_type (magenta_part (t))) != mp_independent) && ((mp_type (magenta_part (t))) != mp_known) ) {
      	     /* Copy the dep list */
             set_dep_list (magenta_part(t),dep_list ((mp_value_node) green_part(r)));
             set_prev_dep (magenta_part(t),prev_dep ((mp_value_node) green_part(r)));
             set_mp_link (prev_dep (magenta_part(t)), (mp_node) magenta_part(t));
-          }		
+          }
 	  if ( ((mp_type (yellow_part (t))) != mp_independent) && ((mp_type (yellow_part (t))) != mp_known)) {
      	     /* Copy the dep list */
             set_dep_list (yellow_part(t),dep_list ((mp_value_node) blue_part(r)));
@@ -28995,7 +29131,7 @@ static void mp_set_up_boundingpath (MP mp, mp_node p) {
   unsigned char ljoin, lcap;
   mp_number miterlim;
   mp_knot q = mp_copy_path (mp, cur_exp_knot ());       /* the original path */
-  mp_knot pen; 
+  mp_knot pen;
   mp_knot qq;
 
   new_number(miterlim);
@@ -30683,8 +30819,8 @@ void mp_show_library_versions (void) {
 #endif
   fprintf(stdout, "Compiled with libpng %s; using %s\n", PNG_LIBPNG_VER_STRING, png_libpng_ver);
   fprintf(stdout, "Compiled with zlib %s; using %s\n", ZLIB_VERSION, zlibVersion());
-  fprintf(stdout, "Compiled with mpfr %s; using %s\n", MPFR_VERSION_STRING, mpfr_get_version());
-  fprintf(stdout, "Compiled with gmp %d.%d.%d; using %s\n\n", __GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, __GNU_MP_VERSION_PATCHLEVEL, gmp_version);
+  fprintf(stdout, "Compiled with mpfr %s; using %s\n", COMPILED_MPFR_VERSION_STRING, mpfr_get_version());
+  fprintf(stdout, "Compiled with gmp %d.%d.%d; using %s\n\n", COMPILED__GNU_MP_VERSION, COMPILED__GNU_MP_VERSION_MINOR, COMPILED__GNU_MP_VERSION_PATCHLEVEL, COMPILED_gmp_version);
 }
 
 @ @<Exported function headers@>=
@@ -33242,7 +33378,7 @@ We may need to cancel skips that span more than 127 lig/kern steps.
 
 
 @ The header could contain ASCII zeroes, so can't use |strdup|.
-The index |j| can be beyond the index |header_last|, hence we 
+The index |j| can be beyond the index |header_last|, hence we
 have to sure  to update the end of stream marker to reflect the
 actual position.
 
@@ -34567,8 +34703,9 @@ extreme cases so it may have to be shortened on some systems.
 
 @<Use |c| to compute the file extension |s|@>=
 {
-  s = xmalloc (7, 1);
-  mp_snprintf (s, 7, ".%i", (int) c);
+  s = xmalloc (12, 1);
+  mp_snprintf (s, 12, ".%i", (int) c);
+  s[7]='\0';
 }
 
 
