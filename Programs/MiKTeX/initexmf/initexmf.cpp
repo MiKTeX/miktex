@@ -22,7 +22,6 @@
 #  include <config.h>
 #endif
 
-#include <cstdarg>
 #include <cstdlib>
 #include <cstring>
 
@@ -58,6 +57,9 @@
 #include <miktex/Util/StringUtil>
 #include <miktex/Util/Tokenizer>
 #include <miktex/Wrappers/PoptWrapper>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/logger.h>
@@ -205,16 +207,16 @@ public:
   void Finalize(bool keepSession);
 
 private:
-  void Verbose(const char* lpszFormat, ...);
+  void Verbose(const string& s);
 
 private:
-  void PrintOnly(const char* lpszFormat, ...);
+  void PrintOnly(const string& s);
 
 private:
-  void Warning(const char* lpszFormat, ...);
+  void Warning(const string& s);
 
 private:
-  MIKTEXNORETURN void FatalError(const char* lpszFormat, ...);
+  MIKTEXNORETURN void FatalError(const string& s);
 
 private:
   void UpdateFilenameDatabase(const PathName& root);
@@ -755,21 +757,8 @@ void IniTeXMFApp::FindWizards()
   }
 }
 
-void IniTeXMFApp::Verbose(const char* lpszFormat, ...)
+void IniTeXMFApp::Verbose(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  string s;
-  try
-  {
-    s = StringUtil::FormatStringVA(lpszFormat, arglist);
-  }
-  catch (...)
-  {
-    va_end(arglist);
-    throw;
-  }
-  va_end(arglist);
   if (!printOnly && isLog4cxxConfigured)
   {
     LOG4CXX_INFO(logger, s);
@@ -780,43 +769,17 @@ void IniTeXMFApp::Verbose(const char* lpszFormat, ...)
   }
 }
 
-void IniTeXMFApp::PrintOnly(const char* lpszFormat, ...)
+void IniTeXMFApp::PrintOnly(const string& s)
 {
   if (!printOnly)
   {
     return;
   }
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  string s;
-  try
-  {
-    s = StringUtil::FormatStringVA(lpszFormat, arglist);
-  }
-  catch (...)
-  {
-    va_end(arglist);
-    throw;
-  }
-  va_end(arglist);
   cout << s << endl;
 }
 
-void IniTeXMFApp::Warning(const char* lpszFormat, ...)
+void IniTeXMFApp::Warning(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  string s;
-  try
-  {
-    s = StringUtil::FormatStringVA(lpszFormat, arglist);
-  }
-  catch (...)
-  {
-    va_end(arglist);
-    throw;
-  }
-  va_end(arglist);
   if (isLog4cxxConfigured)
   {
     LOG4CXX_WARN(logger, s);
@@ -878,12 +841,8 @@ static void Sorry()
   Sorry("", "", "");
 }
 
-MIKTEXNORETURN void IniTeXMFApp::FatalError(const char* lpszFormat, ...)
+MIKTEXNORETURN void IniTeXMFApp::FatalError(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  string s = StringUtil::FormatStringVA(lpszFormat, arglist);
-  va_end(arglist);
   if (isLog4cxxConfigured)
   {
     LOG4CXX_FATAL(logger, s);
@@ -903,7 +862,7 @@ bool IniTeXMFApp::InstallPackage(const string& deploymentName, const PathName& t
     return false;
   }
   LOG4CXX_INFO(logger, "installing package " << deploymentName << " triggered by " << trigger.ToString());
-  Verbose(T_("Installing package %s..."), deploymentName.c_str());
+  Verbose(fmt::format(T_("Installing package {0}..."), deploymentName));
   EnsureInstaller();
   packageInstaller->SetFileLists({ deploymentName }, {});
   packageInstaller->InstallRemove();
@@ -930,7 +889,7 @@ bool IniTeXMFApp::OnProgress(unsigned level, const PathName& directory)
 #if 0
   if (verbose && level == 1)
   {
-    Verbose(T_("Scanning %s"), Q_(directory));
+    Verbose(fmt::format(T_("Scanning {0}"), Q_(directory)));
   }
   else if (level == 1)
   {
@@ -954,7 +913,7 @@ void IniTeXMFApp::UpdateFilenameDatabase(const PathName& root)
   PathName path = session->GetFilenameDatabasePathName(rootIdx);
   if (File::Exists(path))
   {
-    PrintOnly("rm %s", Q_(path));
+    PrintOnly(fmt::format("rm {}", Q_(path)));
     if (!printOnly)
     {
       File::Delete(path, { FileDeleteOption::TryHard });
@@ -965,13 +924,13 @@ void IniTeXMFApp::UpdateFilenameDatabase(const PathName& root)
   PathName fndbPath = session->GetFilenameDatabasePathName(rootIdx);
   if (session->IsCommonRootDirectory(rootIdx))
   {
-    Verbose(T_("Creating fndb for common root directory (%s)..."), Q_(root));
+    Verbose(fmt::format(T_("Creating fndb for common root directory ({0})..."), Q_(root)));
   }
   else
   {
-    Verbose(T_("Creating fndb for user root directory (%s)..."), Q_(root));
+    Verbose(fmt::format(T_("Creating fndb for user root directory ({0})..."), Q_(root)));
   }
-  PrintOnly("fndbcreate %s %s", Q_(fndbPath), Q_(root));
+  PrintOnly(fmt::format("fndbcreate {} {}", Q_(fndbPath), Q_(root)));
   if (!printOnly)
   {
     Fndb::Create(fndbPath, root, this);
@@ -1023,10 +982,10 @@ void IniTeXMFApp::RemoveFndb()
   for (unsigned r = 0; r < nRoots; ++r)
   {
     PathName path = session->GetFilenameDatabasePathName(r);
-    PrintOnly("rm %s", Q_(path));
+    PrintOnly(fmt::format("rm {}", Q_(path)));
     if (!printOnly && File::Exists(path))
     {
-      Verbose(T_("Removing fndb (%s)..."), Q_(session->GetRootDirectoryPath(r)));
+      Verbose(fmt::format(T_("Removing fndb ({0})..."), Q_(session->GetRootDirectoryPath(r))));
       File::Delete(path, { FileDeleteOption::TryHard });
     }
   }
@@ -1039,7 +998,9 @@ void IniTeXMFApp::SetTeXMFRootDirectories(
   )
 {
   Verbose(T_("Registering root directories..."));
-  PrintOnly("regroots ur=%s ud=%s uc=%s ui=%s cr=%s cd=%s cc=%s ci=%s", Q_(startupConfig.userRoots), Q_(startupConfig.userDataRoot), Q_(startupConfig.userConfigRoot), Q_(startupConfig.userInstallRoot), Q_(startupConfig.commonRoots), Q_(startupConfig.commonDataRoot), Q_(startupConfig.commonConfigRoot), Q_(startupConfig.commonInstallRoot));
+  PrintOnly(fmt::format("regroots ur={} ud={} uc={} ui={} cr={} cd={} cc={} ci={}",
+    Q_(startupConfig.userRoots), Q_(startupConfig.userDataRoot), Q_(startupConfig.userConfigRoot), Q_(startupConfig.userInstallRoot),
+    Q_(startupConfig.commonRoots), Q_(startupConfig.commonDataRoot), Q_(startupConfig.commonConfigRoot), Q_(startupConfig.commonInstallRoot)));
   if (!printOnly)
   {
     RegisterRootDirectoriesOptionSet options;
@@ -1059,7 +1020,7 @@ void IniTeXMFApp::RunMakeTeX(const string& makeProg, const vector<string>& argum
 
   if (!session->FindFile(makeProg, FileType::EXE, exe))
   {
-    FatalError(T_("The %s executable could not be found."), Q_(makeProg));
+    FatalError(fmt::format(T_("The {0} executable could not be found."), Q_(makeProg)));
   }
 
   vector<string> xArguments{ makeProg };
@@ -1112,7 +1073,7 @@ void IniTeXMFApp::MakeFormatFile(const string& formatKey)
   FormatInfo formatInfo;
   if (!session->TryGetFormatInfo(formatKey, formatInfo))
   {
-    FatalError(T_("Unknown format: %s"), Q_(formatKey));
+    FatalError(fmt::format(T_("Unknown format: {0}"), Q_(formatKey)));
   }
 
   string maker;
@@ -1136,7 +1097,7 @@ void IniTeXMFApp::MakeFormatFile(const string& formatKey)
     if (PathName::Compare(formatInfo.preloaded, formatKey) == 0)
     {
       LOG4CXX_FATAL(logger, T_("Rule recursion detected for: ") << formatKey);
-      FatalError(T_("Format '%s' cannot be built."), formatKey.c_str());
+      FatalError(fmt::format(T_("Format '{0}' cannot be built."), formatKey));
     }
     // RECURSION
     MakeFormatFile(formatInfo.preloaded);
@@ -1199,11 +1160,11 @@ void IniTeXMFApp::MakeFormatFilesByName(const vector<string>& formatsByName, con
     {
       if (engine.empty())
       {
-        FatalError(T_("Unknown format name: %s"), Q_(name));
+        FatalError(fmt::format(T_("Unknown format name: {0}"), Q_(name)));
       }
       else
       {
-        FatalError(T_("Unknown format name/engine: %s/%s"), Q_(name), engine.c_str());
+        FatalError(fmt::format(T_("Unknown format name/engine: {0}/{1}"), Q_(name), engine));
       }
     }
   }
@@ -1247,7 +1208,7 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
         }
       }
 #endif
-      PrintOnly("rm %s", Q_(linkName));
+      PrintOnly(fmt::format("rm {}", Q_(linkName)));
       if (!printOnly)
       {
         File::Delete(linkName, { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
@@ -1272,7 +1233,7 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
         {
           target = fileLink.target.c_str();
         }
-        PrintOnly("ln -s %s %s", Q_(linkName), Q_(target));
+        PrintOnly(fmt::format("ln -s {} {}", Q_(linkName), Q_(target)));
         if (!printOnly)
         {
           File::CreateLink(target, linkName, { CreateLinkOption::UpdateFndb, CreateLinkOption::Symbolic });
@@ -1280,14 +1241,14 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
         break;
       }
     case LinkType::Hard:
-      PrintOnly("ln %s %s", Q_(fileLink.target), Q_(linkName));
+      PrintOnly(fmt::format("ln {} {}", Q_(fileLink.target), Q_(linkName)));
       if (!printOnly)
       {
         File::CreateLink(fileLink.target, linkName, { CreateLinkOption::UpdateFndb });
       }
       break;
     case LinkType::Copy:
-      PrintOnly("cp %s %s", Q_(fileLink.target), Q_(linkName));
+      PrintOnly(fmt::format("cp {} {}", Q_(fileLink.target), Q_(linkName)));
       if (!printOnly)
       {
         File::Copy(fileLink.target, linkName, { FileCopyOption::UpdateFndb });
@@ -1425,7 +1386,7 @@ void IniTeXMFApp::RegisterShellFileTypes(bool reg)
       PathName exe;
       if (sft.lpszExecutable != nullptr && !session->FindFile(sft.lpszExecutable, FileType::EXE, exe))
       {
-        FatalError(T_("Could not find %s."), sft.lpszExecutable);
+        FatalError(fmt::format(T_("Could not find {0}."), sft.lpszExecutable));
       }
       string command;
       if (sft.lpszExecutable != nullptr && sft.lpszCommandArgs != nullptr)
@@ -1696,7 +1657,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       }
       else
       {
-        Warning(T_("The link target %s does not exist."), Q_(targetPath));
+        Warning(fmt::format(T_("The link target {0} does not exist."), Q_(targetPath)));
       }
     }
   }
@@ -1719,7 +1680,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       PathName enginePath;
       if (!session->FindFile(string(MIKTEX_PREFIX) + engine, FileType::EXE, enginePath))
       {
-        Warning(T_("The %s executable could not be found."), engine.c_str());
+        Warning(fmt::format(T_("The {0} executable could not be found."), engine));
         continue;
       }
       PathName exePath(pathLocalBinDir, formatInfo.name);
@@ -1943,7 +1904,7 @@ void IniTeXMFApp::MakeMaps(bool force)
   }
   if (printOnly)
   {
-    PrintOnly("%s", CommandLineBuilder(arguments).ToString().c_str());
+    PrintOnly(CommandLineBuilder(arguments).ToString());
   }
   else
   {
@@ -1979,7 +1940,7 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
   }
   if (!File::Exists(configFile))
   {
-    Verbose(T_("Creating config file: %s..."), configFile.GetData());
+    Verbose(fmt::format(T_("Creating config file: {0}..."), configFile));
     if (!session->TryCreateFromTemplate(configFile))
     {
       File::WriteBytes(configFile, {});
@@ -2021,7 +1982,7 @@ void IniTeXMFApp::SetConfigValue(const string& valueSpec)
     if (*lpsz == 0)
     {
       LOG4CXX_FATAL(logger, T_("Invalid value: ") << Q_(valueSpec));
-      FatalError(T_("The configuration value '%s' could not be set."), Q_(valueSpec));
+      FatalError(fmt::format(T_("The configuration value '{0}' could not be set."), Q_(valueSpec)));
     }
     ++lpsz;
   }
@@ -2033,11 +1994,11 @@ void IniTeXMFApp::SetConfigValue(const string& valueSpec)
   if (*lpsz == 0)
   {
     LOG4CXX_FATAL(logger, T_("Invalid value: ") << Q_(valueSpec));
-    FatalError(T_("The configuration value '%s' could not be set."), Q_(valueSpec));
+    FatalError(fmt::format(T_("The configuration value '{0}' could not be set."), Q_(valueSpec)));
   }
   ++lpsz;
   string value = lpsz;
-  Verbose(T_("Setting config value: [%s]%s=%s"), section.c_str(), valueName.c_str(), value.c_str());
+  Verbose(fmt::format(T_("Setting config value: [{0}]{1}={2}"), section, valueName, value));
   session->SetConfigValue(section, valueName, value);
 }
 
@@ -2055,7 +2016,7 @@ void IniTeXMFApp::ShowConfigValue(const string& valueSpec)
     }
     if (*lpsz == 0)
     {
-      FatalError(T_("Invalid value: %s."), Q_(valueSpec));
+      FatalError(fmt::format(T_("Invalid value: {0}."), Q_(valueSpec)));
     }
     ++lpsz;
   }
@@ -2069,7 +2030,7 @@ void IniTeXMFApp::ShowConfigValue(const string& valueSpec)
 
 void IniTeXMFApp::ReportLine(const string& str)
 {
-  Verbose("%s", str.c_str());
+  Verbose(str);
 }
 
 bool IniTeXMFApp::OnRetryableError(const string& message)
@@ -2614,7 +2575,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    FatalError("%s", msg.c_str());
+    FatalError(msg);
   }
 
   if (!popt.GetLeftovers().empty())
@@ -2717,8 +2678,8 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   for (const string& fileName : addFiles)
   {
-    Verbose(T_("Adding %s to the file name database..."), Q_(fileName));
-    PrintOnly("fndbadd %s", Q_(fileName));
+    Verbose(fmt::format(T_("Adding {0} to the file name database..."), Q_(fileName)));
+    PrintOnly(fmt::format("fndbadd {}", Q_(fileName)));
     if (!printOnly)
     {
       if (!Fndb::FileExists(fileName))
@@ -2727,15 +2688,15 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       }
       else
       {
-        Warning(T_("%s is already recorded in the file name database"), Q_(fileName));
+        Warning(fmt::format(T_("{0} is already recorded in the file name database"), Q_(fileName)));
       }
     }
   }
 
   for (const string& fileName : removeFiles)
   {
-    Verbose(T_("Removing %s from the file name database..."), Q_(fileName));
-    PrintOnly("fndbremove %s", Q_(fileName));
+    Verbose(fmt::format(T_("Removing {0} from the file name database..."), Q_(fileName)));
+    PrintOnly(fmt::format("fndbremove {}", Q_(fileName)));
     if (!printOnly)
     {
       if (Fndb::FileExists(fileName))
@@ -2744,7 +2705,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       }
       else
       {
-        Warning(T_("%s is not recorded in the file name database"), Q_(fileName));
+        Warning(fmt::format(T_("{0} is not recorded in the file name database"), Q_(fileName)));
       }
     }
   }
@@ -2779,7 +2740,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
           }
           else
           {
-            Verbose(T_("Skipping user root directory (%s)..."), Q_(session->GetRootDirectoryPath(r)));
+            Verbose(fmt::format(T_("Skipping user root directory ({0})..."), Q_(session->GetRootDirectoryPath(r))));
           }
         }
         else
@@ -2790,7 +2751,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
           }
           else
           {
-            Verbose(T_("Skipping common root directory (%s)..."), Q_(session->GetRootDirectoryPath(r)));
+            Verbose(fmt::format(T_("Skipping common root directory ({0})..."), Q_(session->GetRootDirectoryPath(r))));
           }
         }
       }

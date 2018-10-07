@@ -76,6 +76,12 @@ else()
   target_link_libraries(initexmf ${log4cxx_dll_name})
 endif()
 
+if (USE_SYSTEM_FMT)
+  target_link_libraries(initexmf MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(initexmf ${fmt_dll_name})
+endif()
+
 target_link_libraries(initexmf
   ${core_dll_name}
   ${mpm_dll_name}
