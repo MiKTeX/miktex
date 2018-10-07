@@ -474,9 +474,6 @@ private:
   ofstream logStream;
 
 private:
-  bool updateWizardRunning = false;
-
-private:
   bool setupWizardRunning = false;
 
 private:
@@ -498,19 +495,13 @@ private:
   std::shared_ptr<MiKTeX::Core::Session> session;
 
 private:
-  static const struct poptOption aoption_user[];
+  static const struct poptOption options[];
 
 private:
-  static const struct poptOption aoption_setup[];
+  static const struct poptOption options_mktexlsr[];
 
 private:
-  static const struct poptOption aoption_update[];
-
-private:
-  static const struct poptOption aoption_mktexlsr[];
-
-private:
-  static const struct poptOption aoption_texlinks[];
+  static const struct poptOption options_texlinks[];
 };
 
 enum Option
@@ -572,11 +563,9 @@ enum Option
   OPT_USER_INSTALL,             // <internal/>
 };
 
-#include "aoption_user.h"
-#include "aoption_setup.h"
-#include "aoption_update.h"
+#include "options.h"
 
-const struct poptOption IniTeXMFApp::aoption_mktexlsr[] = {
+const struct poptOption IniTeXMFApp::options_mktexlsr[] = {
   {
     "dry-run", 0,
     POPT_ARG_NONE, nullptr,
@@ -621,7 +610,7 @@ const struct poptOption IniTeXMFApp::aoption_mktexlsr[] = {
   POPT_TABLEEND
 };
 
-const struct poptOption IniTeXMFApp::aoption_texlinks[] = {
+const struct poptOption IniTeXMFApp::options_texlinks[] = {
   {
     "quiet", 'q',
     POPT_ARG_NONE, nullptr,
@@ -750,16 +739,10 @@ void IniTeXMFApp::Finalize(bool keepSession)
 void IniTeXMFApp::FindWizards()
 {
   setupWizardRunning = false;
-  updateWizardRunning = false;
   vector<string> invokerNames = Process::GetInvokerNames();
   for (const string& name : invokerNames)
   {
-    if (PathName::Compare(name, MIKTEX_PREFIX "update") == 0
-      || PathName::Compare(name, MIKTEX_PREFIX "update" MIKTEX_ADMIN_SUFFIX) == 0)
-    {
-      updateWizardRunning = true;
-    }
-    else if (
+    if (
       name.find("basic-miktex") != string::npos ||
       name.find("BASIC-MIKTEX") != string::npos ||
       name.find("setup") != string::npos ||
@@ -2325,25 +2308,17 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   const struct poptOption* aoptions;
 
-  if (setupWizardRunning)
+  if (isMktexlsrMode)
   {
-    aoptions = aoption_setup;
-  }
-  else if (updateWizardRunning)
-  {
-    aoptions = aoption_update;
-  }
-  else if (isMktexlsrMode)
-  {
-    aoptions = aoption_mktexlsr;
+    aoptions = options_mktexlsr;
   }
   else if (isTexlinksMode)
   {
-    aoptions = aoption_texlinks;
+    aoptions = options_texlinks;
   }
   else
   {
-    aoptions = aoption_user;
+    aoptions = options;
   }
 
   PoptWrapper popt(argc, argv, aoptions);

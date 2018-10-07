@@ -1,18 +1,18 @@
-const struct poptOption IniTeXMFApp::aoption_update[] = {
+const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "add-file", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_ADD_FILE,
-    nullptr,
-    nullptr
+    T_("Add a file to the file name database."),
+    T_("FILE")
   },
 
   {
     "admin", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_ADMIN,
-    nullptr,
+    T_("Run in administrative mode."),
     nullptr
   },
 
@@ -20,7 +20,7 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "clean", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_CLEAN,
-    nullptr,
+    T_("Remove restorable data."),
     nullptr
   },
 
@@ -60,31 +60,31 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "create-config-file", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_CREATE_CONFIG_FILE,
-    nullptr,
-    nullptr
+    T_("Create the specified configuration file."),
+    T_("CONFIGFILE")
   },
 
   {
     "csv", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_CSV,
-    nullptr,
+    T_("Print comma-separated values."),
     nullptr
   },
 
   {
     "default-paper-size", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_DEFAULT_PAPER_SIZE,
-    nullptr,
-    nullptr
+    T_("Set the default paper size (one of: a4, letter)."),
+    T_("PAPER"),
   },
 
   {
     "disable-installer", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_DISABLE_INSTALLER,
-    nullptr,
+    T_("Disable the package installer (do not automatically install missing files)."),
     nullptr
   },
 
@@ -92,55 +92,55 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "dump", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr,
     OPT_DUMP,
-    nullptr,
-    nullptr
+    T_("Create memory dump files."),
+    T_("KEY")
   },
 
   {
     "dump-by-name", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_DUMP_BY_NAME,
-    nullptr,
-    nullptr
+    T_("Create a memory dump file by name."),
+    T_("NAME")
   },
 
   {
     "edit-config-file", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_EDIT_CONFIG_FILE,
-    nullptr,
-    nullptr
+    T_("Open the specified configuration file in an editor. See the manual, for more information."),
+    T_("CONFIGFILE")
   },
 
   {
     "enable-installer", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_ENABLE_INSTALLER,
-    nullptr,
+    T_("Enable the package installer (automatically install missing files)."),
     nullptr
   },
 
   {
     "engine", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_ENGINE,
-    nullptr,
-    nullptr
+    T_("Engine to be used."),
+    T_("ENGINE")
   },
 
   {
     "find-other-tex", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_FIND_OTHER_TEX,
-    nullptr,
+    T_("Locate other TeX installations."),
     nullptr
   },
 
   {
     "force", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_FORCE,
-    nullptr,
+    T_("Force --mklinks to overwrite existing files."),
     nullptr
   },
 
@@ -148,23 +148,23 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "list-directory", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_LIST_DIRECTORY,
-    nullptr,
-    nullptr
+    T_("List the FNDB contents of a directory."),
+    T_("DIR")
   },
 
   {
     "list-formats", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_LIST_FORMATS,
-    nullptr,
-    nullptr
+    T_("List formats."),
+    0
   },
 
   {
     "list-modes", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_LIST_MODES,
-    nullptr,
+    T_("List METAFONT modes"),
     nullptr
   },
 
@@ -180,7 +180,7 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "mklangs", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_MKLANGS,
-    nullptr,
+    T_("Create language.dat, language.dat.lua and language.def."),
     nullptr
   },
 
@@ -188,15 +188,15 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "mklinks", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr,
     OPT_MKLINKS,
-    nullptr,
-    nullptr
+    T_("Create links for formats, scripts and miktex- executables."),
+    T_("CATEGORY")
   },
 
   {
     "mkmaps", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_MKMAPS,
-    nullptr,
+    T_("Create font map files."),
     nullptr
   },
 
@@ -204,23 +204,41 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "modify-path", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_MODIFY_PATH,
-    nullptr,
+    T_("Modify the environmaent variable PATH."),
     nullptr
+  },
+
+#if defined(MIKTEX_WINDOWS)
+  {
+    "no-registry", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_NO_REGISTRY,
+    T_("Do not use the Windows Registry to store configuration settings."),
+    nullptr
+  },
+#endif
+
+  {
+    "portable", 0,
+    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_PORTABLE,
+    T_("Create a portable setup."),
+    "DIR"
   },
 
   {
     "print-only", 'n',
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_PRINT_ONLY,
-    nullptr,
+    T_("Print what would be done."),
     nullptr
   },
 
   {
     "quiet", 'q',
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_QUIET,
-    nullptr,
+    T_("Suppress screen output."),
     nullptr
   },
 
@@ -228,7 +246,7 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "recursive", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_RECURSIVE,
-    nullptr,
+    T_("Operate recursively."),
     nullptr
   },
 
@@ -236,16 +254,16 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "register-other-roots", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_REGISTER_OTHER_ROOTS,
-    nullptr,
+    T_("Register TEXMF root directories of other TeX installations."),
     nullptr
   },
 
   {
     "register-root", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_REGISTER_ROOT,
-    nullptr,
-    nullptr
+    T_("Register a TEXMF root directory."),
+    T_("DIR"),
   },
 
 #if defined(MIKTEX_WINDOWS)
@@ -253,7 +271,7 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "register-shell-file-types", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_REGISTER_SHELL_FILE_TYPES,
-    nullptr,
+    T_("Register shell file types."),
     nullptr
   },
 #endif
@@ -262,23 +280,23 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "remove-file", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_REMOVE_FILE,
-    nullptr,
-    nullptr
+    T_("Remove a file from the file name database."),
+    T_("FILE")
   },
 
   {
     "remove-links", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_REMOVE_LINKS,
-    nullptr,
+    T_("Remove linked executables."),
     nullptr
   },
 
   {
     "report", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_REPORT,
-    nullptr,
+    T_("Create a configuration report."),
     nullptr
   },
 
@@ -286,32 +304,32 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "rmfndb", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_RMFNDB,
-    nullptr,
+    T_("Remove file name database files."),
     nullptr
   },
 
   {
     "set-config-value", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_SET_CONFIG_VALUE,
-    nullptr,
-    nullptr
+    T_("Set the specified configuration value."),
+    T_("[SECTION]VALUENAME=VALUE")
   },
 
   {
     "show-config-value", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_SHOW_CONFIG_VALUE,
-    nullptr,
-    nullptr
+    T_("Show the specified configuration value."),
+    T_("[SECTION]VALUENAME")
   },
 
   {
     "unregister-root", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_UNREGISTER_ROOT,
-    nullptr,
-    nullptr
+    T_("Unegister a TEXMF root directory."),
+    T_("DIR"),
   },
 
 #if defined(MIKTEX_WINDOWS)
@@ -319,7 +337,7 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "unregister-shell-file-types", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_UNREGISTER_SHELL_FILE_TYPES,
-    nullptr,
+    T_("Unregister shell file types."),
     nullptr
   },
 #endif
@@ -328,8 +346,8 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     "update-fndb", 'u',
     POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr,
     OPT_UPDATE_FNDB,
-    nullptr,
-    nullptr
+    T_("Update the file name database."),
+    T_("ROOT")
   },
 
   {
@@ -358,27 +376,28 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
 
   {
     "user-roots", 'r',
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_USER_ROOTS,
-    nullptr,
-    nullptr
+    T_("Register user root directories."),
+    T_("DIRS")
   },
 
   {
     "verbose", 'v',
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_VERBOSE,
-    nullptr,
+    T_("Print information on what is being done."),
     nullptr
   },
 
   {
     "version", 'V',
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_VERSION,
-    nullptr,
+    T_("Print version information and exit."),
     nullptr
   },
 
+  POPT_AUTOHELP
   POPT_TABLEEND
 };

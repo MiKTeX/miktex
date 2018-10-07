@@ -52,9 +52,7 @@ configure_file(
 
 set(initexmf_sources
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
-  aoption_setup.h
-  aoption_update.h
-  aoption_user.h
+  options.h
   initexmf-version.h
   initexmf.cpp
 )
