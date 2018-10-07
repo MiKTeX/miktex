@@ -799,12 +799,12 @@ static void Sorry(const string& description, const string& remedy, const string&
   cerr << endl;
   if (description.empty())
   {
-    cerr << StringUtil::FormatString(T_("Sorry, but %s did not succeed."), Q_(TheNameOfTheGame)) << endl;
+    cerr << fmt::format(T_("Sorry, but {0} did not succeed."), Q_(TheNameOfTheGame)) << endl;
   }
   else
   {
     cerr
-      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(TheNameOfTheGame)) << "\n"
+      << fmt::format(T_("Sorry, but {0} did not succeed for the following reason:"), Q_(TheNameOfTheGame)) << "\n"
       << "\n"
       << "  " << description << endl;
     if (!remedy.empty())
@@ -946,7 +946,7 @@ void IniTeXMFApp::ListFormats()
 {
   for (const FormatInfo& formatInfo : session->GetFormats())
   {
-    cout << formatInfo.key << " (" << formatInfo.description << ")" << endl;
+    cout << fmt::format("{} ({})", formatInfo.key, formatInfo.description) << endl;
   }
 }
 
@@ -955,7 +955,7 @@ void IniTeXMFApp::ListMetafontModes()
   MIKTEXMFMODE mode;
   for (unsigned i = 0; session->GetMETAFONTMode(i, mode); ++i)
   {
-    cout << StringUtil::FormatString("%-8s  %5dx%-5d  %s", mode.mnemonic.c_str(), mode.horizontalResolution, mode.verticalResolution, mode.description.c_str()) << endl;
+    cout << fmt::format("{<8}  {>5}x{<5}  {}", mode.mnemonic, mode.horizontalResolution, mode.verticalResolution, mode.description) << endl;
   }
 }
 
