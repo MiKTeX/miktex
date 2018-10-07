@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2017 Christian Schenk
+## Copyright (C) 2013-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -34,7 +34,8 @@ add_definitions(
   -DUSE_SSSE3
   -DPACKAGE=pixman-1
   -DPACKAGE_VERSION=""
-  -DPACKAGE_BUGREPORT="")
+  -DPACKAGE_BUGREPORT=""
+)
 
 if(NOT CMAKE_CL_64)
   add_definitions(-DUSE_X86_MMX)
