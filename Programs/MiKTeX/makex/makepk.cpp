@@ -295,7 +295,7 @@ void MakePk::RunGSF2PK(const FontMapEntry& mapEntry, const char* lpszPkName, int
   arguments.push_back(lpszPkName);
   if (!RunProcess(MIKTEX_GSF2PK_EXE, arguments, workingDirectory))
   {
-    FatalError(T_("GSF2PK failed on %s."), Q_(mapEntry.fontFile));
+    FatalError(fmt::format(T_("GSF2PK failed on {0}."), Q_(mapEntry.fontFile)));
   }
 }
 
@@ -325,7 +325,7 @@ void MakePk::RunPS2PK(const FontMapEntry& mapEntry, const char* lpszPkName, int 
 
   if (!RunProcess(MIKTEX_PS2PK_EXE, arguments, workingDirectory))
   {
-    FatalError(T_("PS2PK failed on %s."), Q_(mapEntry.fontFile));
+    FatalError(fmt::format(T_("PS2PK failed on {0}."), Q_(mapEntry.fontFile)));
   }
 }
 
@@ -348,7 +348,7 @@ void MakePk::CheckOptions(int* baseDpi, int dpi, const string& mode)
   }
   if (!found)
   {
-    FatalError(T_("%s is an unknown METAFONT mode."), Q_(mode));
+    FatalError(fmt::format(T_("{0} is an unknown METAFONT mode."), Q_(mode)));
   }
   if (*baseDpi == 0)
   {
@@ -356,7 +356,7 @@ void MakePk::CheckOptions(int* baseDpi, int dpi, const string& mode)
   }
   if (mfmode.horizontalResolution != *baseDpi)
   {
-    FatalError(T_("Specified BDPI (%d) doesn't match %s resolution (%d)."), *baseDpi, Q_(mode), mfmode.horizontalResolution);
+    FatalError(fmt::format(T_("Specified BDPI ({0}) doesn't match {1} resolution ({2})."), *baseDpi, Q_(mode), mfmode.horizontalResolution));
   }
 }
 
@@ -544,7 +544,7 @@ void MakePk::Run(int argc, const char** argv)
 
   if (!haveSource)
   {
-    FatalError(T_("PK font %s could not be created."), Q_(name));
+    FatalError(fmt::format(T_("PK font {0} could not be created."), Q_(name)));
   }
 
   // create destination directory
@@ -581,7 +581,7 @@ void MakePk::Run(int argc, const char** argv)
       // convert GF file into PK file
       if (!RunProcess(MIKTEX_GFTOPK_EXE, { gfName, pkName.ToString() }, wrkDir->GetPathName()))
       {
-        FatalError(T_("GFtoPK failed on %s."), Q_(gfName));
+        FatalError(fmt::format(T_("GFtoPK failed on {0}."), Q_(gfName)));
       }
     }
     else
@@ -607,11 +607,11 @@ void MakePk::Run(int argc, const char** argv)
     // run METAFONT/GFtoPK to make a PK font
     if (!RunMETAFONT(name.c_str(), mfMode.c_str(), magnification.c_str(), wrkDir->GetPathName()))
     {
-      FatalError(T_("METAFONT failed on %s."), Q_(name));
+      FatalError(fmt::format(T_("METAFONT failed on {0}."), Q_(name)));
     }
     if (!RunProcess(MIKTEX_GFTOPK_EXE, { gfName, pkName.ToString() }, wrkDir->GetPathName()))
     {
-      FatalError(T_("GFtoPK failed on %s."), Q_(gfName));
+      FatalError(fmt::format(T_("GFtoPK failed on {0}."), Q_(gfName)));
     }
   }
 

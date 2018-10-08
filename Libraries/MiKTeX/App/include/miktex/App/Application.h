@@ -127,10 +127,10 @@ public:
   MIKTEXAPPTHISAPI(void) EnableInstaller(MiKTeX::Core::TriState tri);
 
 public:
-  MIKTEXNORETURN MIKTEXAPPCEEAPI(void) FatalError(const char* lpszFormat, ...);
+  MIKTEXNORETURN MIKTEXAPPCEEAPI(void) FatalError(const std::string& s);
 
 public:
-  MIKTEXAPPCEEAPI(void) Warning(const char* lpszFormat, ...);
+  MIKTEXAPPCEEAPI(void) Warning(const std::string& s);
 
 public:
   MIKTEXAPPTHISAPI(void) InvokeEditor(const MiKTeX::Core::PathName& editFileName, int editLineNumber, MiKTeX::Core::FileType editFileType, const MiKTeX::Core::PathName& transcriptFileName) const;

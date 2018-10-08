@@ -144,7 +144,7 @@ bool MakeTfm::MakeFromHBF(const char* lpszName, const PathName& workingDirectory
   arguments.push_back(PathName(lpszName).AppendExtension(".tfm").ToString());
   if (!RunProcess(MIKTEX_PLTOTF_EXE, arguments, workingDirectory))
   {
-    FatalError(T_("PLtoTF failed on %s."), Q_(lpszName));
+    FatalError(fmt::format(T_("PLtoTF failed on {0}."), Q_(lpszName)));
   }
 
   return true;
@@ -204,7 +204,7 @@ void MakeTfm::Run(int argc, const char** argv)
       // no METAFONT input file; try to make from HBF file
       if (!MakeFromHBF(name.c_str(), wrkDir->GetPathName()))
       {
-        FatalError(T_("No creation rule for font %s."), Q_(name));
+        FatalError(fmt::format(T_("No creation rule for font {0}."), Q_(name)));
       }
       done = true;
     }
@@ -216,7 +216,7 @@ void MakeTfm::Run(int argc, const char** argv)
     Verbose(T_("Making %s from %s..."), Q_(pathTFMName), Q_(mfPath));
     if (!RunMETAFONT(name.c_str(), nullptr, nullptr, wrkDir->GetPathName()))
     {
-      FatalError(T_("METAFONT failed on %s."), Q_(name));
+      FatalError(fmt::format(T_("METAFONT failed on {0}."), Q_(name)));
     }
     done = true;
   }

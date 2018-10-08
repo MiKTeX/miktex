@@ -57,6 +57,9 @@
 #include <miktex/Util/StringUtil>
 #include <miktex/Util/Tokenizer>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <log4cxx/logger.h>
 #include <log4cxx/rollingfileappender.h>
 #include <log4cxx/xml/domconfigurator.h>
@@ -233,7 +236,7 @@ protected:
     PathName exe;
     if (!session->FindFile(lpszExeName, FileType::EXE, exe))
     {
-      FatalError(T_("The application file %s could not be found."), Q_(lpszExeName));
+      FatalError(fmt::format(T_("The application file {0} could not be found."), Q_(lpszExeName)));
     }
 
     std::vector<std::string> allArgs{ lpszExeName };
@@ -271,7 +274,7 @@ protected:
         }
       if (!Process::Run(exe, allArgs, callback, &exitCode, workingDirectory.GetData()))
       {
-        FatalError(T_("The application file %s could not be started."), Q_(lpszExeName));
+        FatalError(fmt::format(T_("The application file {0} could not be started."), Q_(lpszExeName)));
       }
     }
 

@@ -241,7 +241,7 @@ void MakeMf::Run(int argc, const char** argv)
         strLHDriverName += "codes";
         if (!session->FindFile(strLHDriverName, FileType::MF, driverPath))
         {
-          FatalError(T_("The %s source file could not be found."), strLHDriverName.c_str());
+          FatalError(fmt::format(T_("The {0} source file could not be found."), strLHDriverName));
         }
       }
       else if (HasPrefix(driverName, cspref))
@@ -260,7 +260,7 @@ void MakeMf::Run(int argc, const char** argv)
       }
       else if (!session->FindFile(driverName, FileType::MF, driverPath))
       {
-        FatalError(T_("The %s source file could not be found."), driverName.c_str());
+        FatalError(fmt::format(T_("The {0} source file could not be found."), driverName));
       }
     }
   }
@@ -269,7 +269,7 @@ void MakeMf::Run(int argc, const char** argv)
   double true_pt_size;
   if (!session->GetFontInfo(texFontname, supplier, typeface, &true_pt_size))
   {
-    FatalError(T_("No info available for %s."), texFontname.c_str());
+    FatalError(fmt::format(T_("No info available for {0}."), texFontname));
   }
 
   // create destination directory

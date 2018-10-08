@@ -20,7 +20,6 @@
    02111-1307, USA. */
 
 #include <csignal>
-#include <cstdarg>
 #include <cstdlib>
 #include <ctime>
 
@@ -804,21 +803,8 @@ void Application::Sorry(const string& name, const exception& ex)
   Sorry(name);
 }
 
-MIKTEXNORETURN void Application::FatalError(const char* lpszFormat, ...)
+MIKTEXNORETURN void Application::FatalError(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  string s;
-  try
-  {
-    s = StringUtil::FormatStringVA(lpszFormat, arglist);
-  }
-  catch (...)
-  {
-    va_end(arglist);
-    throw;
-  }
-  va_end(arglist);
   if (logger != nullptr)
   {
     LOG4CXX_FATAL(logger, s);
@@ -827,21 +813,8 @@ MIKTEXNORETURN void Application::FatalError(const char* lpszFormat, ...)
   throw 1;
 }
 
-void Application::Warning(const char* lpszFormat, ...)
+void Application::Warning(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  string s;
-  try
-  {
-    s = StringUtil::FormatStringVA(lpszFormat, arglist);
-  }
-  catch (...)
-  {
-    va_end(arglist);
-    throw;
-  }
-  va_end(arglist);
   LogWarn(s);
   if (!pimpl->beQuiet)
   {

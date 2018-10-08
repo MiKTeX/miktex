@@ -387,7 +387,7 @@ void MakeFontMapApp::ProcessOptions(int argc, const char** argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    FatalError("%s", msg.c_str());
+    FatalError(msg);
   }
 
   if (!popt.GetLeftovers().empty())
@@ -764,7 +764,7 @@ bool MakeFontMapApp::LocateMap(const char* lpszFileName, PathName& path, bool mu
   disableInstaller = false;
   if (!found && mustExist)
   {
-    FatalError(T_("Font map file %s could not be found."), Q_(lpszFileName));
+    FatalError(fmt::format(T_("Font map file {0} could not be found."), Q_(lpszFileName)));
   }
 #if 0
   if (!found)
