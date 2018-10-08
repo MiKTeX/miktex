@@ -1,6 +1,6 @@
 /* CabExtractor.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -30,12 +30,12 @@ using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Trace;
 using namespace std;
 
-struct mspack_file * CabExtractor::Open(struct mspack_system * self, const char * lpszFileName, int mode)
+struct mspack_file* CabExtractor::Open(struct mspack_system* self, const char* lpszFileName, int mode)
 {
   UNUSED_ALWAYS(self);
   try
   {
-    MyFile * pMyFile = new MyFile;
+    MyFile* pMyFile = new MyFile;
     pMyFile->fileName = lpszFileName;
     FileMode fileMode(FileMode::Open);
     FileAccess fileAccess(FileAccess::Read);
@@ -78,9 +78,9 @@ struct mspack_file * CabExtractor::Open(struct mspack_system * self, const char 
   }
 }
 
-void CabExtractor::Close(struct mspack_file * pFile)
+void CabExtractor::Close(struct mspack_file* pFile)
 {
-  MyFile * pMyFile = reinterpret_cast<MyFile*>(pFile);
+  MyFile* pMyFile = reinterpret_cast<MyFile*>(pFile);
   try
   {
     fclose(pMyFile->pFile);
@@ -91,9 +91,9 @@ void CabExtractor::Close(struct mspack_file * pFile)
   }
 }
 
-int CabExtractor::Read(struct mspack_file * pFile, void * pBuffer, int numBytes)
+int CabExtractor::Read(struct mspack_file* pFile, void* pBuffer, int numBytes)
 {
-  MyFile * pMyFile = reinterpret_cast<MyFile*>(pFile);
+  MyFile* pMyFile = reinterpret_cast<MyFile*>(pFile);
   try
   {
     if (feof(pMyFile->pFile))
@@ -113,9 +113,9 @@ int CabExtractor::Read(struct mspack_file * pFile, void * pBuffer, int numBytes)
   }
 }
 
-int CabExtractor::Write(struct mspack_file * pFile, void * pBuffer, int numBytes)
+int CabExtractor::Write(struct mspack_file* pFile, void* pBuffer, int numBytes)
 {
-  MyFile * pMyFile = reinterpret_cast<MyFile*>(pFile);
+  MyFile* pMyFile = reinterpret_cast<MyFile*>(pFile);
   try
   {
     size_t n = fwrite(pBuffer, 1, numBytes, pMyFile->pFile);
@@ -131,9 +131,9 @@ int CabExtractor::Write(struct mspack_file * pFile, void * pBuffer, int numBytes
   }
 }
 
-int CabExtractor::Seek(struct mspack_file * pFile, off_t offset, int mode)
+int CabExtractor::Seek(struct mspack_file* pFile, off_t offset, int mode)
 {
-  MyFile * pMyFile = reinterpret_cast<MyFile*>(pFile);
+  MyFile* pMyFile = reinterpret_cast<MyFile*>(pFile);
   try
   {
     int origin;
@@ -163,9 +163,9 @@ int CabExtractor::Seek(struct mspack_file * pFile, off_t offset, int mode)
   }
 }
 
-off_t CabExtractor::Tell(struct mspack_file * pFile)
+off_t CabExtractor::Tell(struct mspack_file* pFile)
 {
-  MyFile * pMyFile = reinterpret_cast<MyFile*>(pFile);
+  MyFile* pMyFile = reinterpret_cast<MyFile*>(pFile);
   try
   {
     long position = ftell(pMyFile->pFile);
@@ -181,18 +181,18 @@ off_t CabExtractor::Tell(struct mspack_file * pFile)
   }
 }
 
-void CabExtractor::Message(struct mspack_file * pFile, const char * lpszFormat, ...)
+void CabExtractor::Message(struct mspack_file* pFile, const char* lpszFormat, ...)
 {
   UNUSED_ALWAYS(pFile);
   UNUSED_ALWAYS(lpszFormat);
 }
 
-void * CabExtractor::Alloc(struct mspack_system * self, size_t numBytes)
+void* CabExtractor::Alloc(struct mspack_system* self, size_t numBytes)
 {
   UNUSED_ALWAYS(self);
   try
   {
-    void * ptr = malloc(numBytes);
+    void* ptr = malloc(numBytes);
     if (ptr == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -205,12 +205,12 @@ void * CabExtractor::Alloc(struct mspack_system * self, size_t numBytes)
   }
 }
 
-void CabExtractor::Free(void * ptr)
+void CabExtractor::Free(void* ptr)
 {
   free(ptr);
 }
 
-void CabExtractor::Copy(void * pSource, void * pDest, size_t numBytes)
+void CabExtractor::Copy(void* pSource, void* pDest, size_t numBytes)
 {
   memcpy(pDest, pSource, numBytes);
 }
@@ -257,7 +257,7 @@ CabExtractor::~CabExtractor()
   }
 }
 
-static void SetAttributes(const PathName & path, int cabattr)
+static void SetAttributes(const PathName& path, int cabattr)
 {
   unsigned long nativeAttributes;
 #if defined(MIKTEX_WINDOWS)
@@ -305,11 +305,11 @@ static void SetAttributes(const PathName & path, int cabattr)
   File::SetNativeAttributes(path, nativeAttributes);
 }
 
-void CabExtractor::Extract(const PathName & cabinetPath, const PathName & destDir, bool makeDirectories, IExtractCallback * pCallback, const string & prefix)
+void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const string& prefix)
 {
   traceStream->WriteFormattedLine("libextractor", T_("extracting %s to %s (%s)"), Q_(cabinetPath), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories")));
 
-  mscabd_cabinet * pCabinet = 0;
+  mscabd_cabinet* pCabinet = 0;
 
   try
   {
@@ -324,7 +324,7 @@ void CabExtractor::Extract(const PathName & cabinetPath, const PathName & destDi
 
     unsigned fileCount = 0;
 
-    for (mscabd_file * pCabFile = pCabinet->files; pCabFile != nullptr; pCabFile = pCabFile->next)
+    for (mscabd_file* pCabFile = pCabinet->files; pCabFile != nullptr; pCabFile = pCabFile->next)
     {
       PathName dest(pCabFile->filename);
 
@@ -403,7 +403,7 @@ void CabExtractor::Extract(const PathName & cabinetPath, const PathName & destDi
     pCabinet = nullptr;
 
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     if (pCabinet != nullptr)
     {
@@ -413,7 +413,7 @@ void CabExtractor::Extract(const PathName & cabinetPath, const PathName & destDi
   }
 }
 
-void CabExtractor::Extract(Stream * pStream, const PathName & destDir, bool makeDirectories, IExtractCallback * pCallback, const string & prefix)
+void CabExtractor::Extract(Stream* pStream, const PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const string& prefix)
 {
   UNUSED_ALWAYS(pStream);
   UNUSED_ALWAYS(destDir);

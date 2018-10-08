@@ -21,7 +21,7 @@
 
 #pragma once
 
-#if ! defined(BF702FE409EC4B9592640F4FD967F75B)
+#if !defined(BF702FE409EC4B9592640F4FD967F75B)
 #define BF702FE409EC4B9592640F4FD967F75B
 
 #include "miktex/Extractor/Extractor"
@@ -37,13 +37,13 @@ public:
   virtual MIKTEXTHISCALL ~TarExtractor();
 
 public:
-  virtual void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName & tarPath, const MiKTeX::Core::PathName & destDir, bool makeDirectories, IExtractCallback * pCallback, const std::string & prefix);
+  virtual void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& tarPath, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const std::string& prefix);
 
 public:
-  virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream * pStream, const MiKTeX::Core::PathName & destDir, bool makeDirectories, IExtractCallback * pCallback, const std::string & prefix);
+  virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* pStream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const std::string& prefix);
 
 protected:
-  size_t Read(void * pBuffer, size_t bytes)
+  size_t Read(void* pBuffer, size_t bytes)
   {
     size_t n = pStreamIn->Read(pBuffer, bytes);
     totalBytesRead += n;
@@ -51,7 +51,7 @@ protected:
   }
 
 protected:
-  void ReadBlock(void * pBuffer);
+  void ReadBlock(void* pBuffer);
 
 protected:
   std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
@@ -66,7 +66,7 @@ protected:
   size_t totalBytesRead;
 
 protected:
-  MiKTeX::Core::Stream * pStreamIn = nullptr;
+  MiKTeX::Core::Stream* pStreamIn = nullptr;
 
 protected:
   void Skip(size_t bytes);

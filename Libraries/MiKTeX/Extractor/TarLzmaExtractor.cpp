@@ -1,6 +1,6 @@
 /* TarLzmaExtractor.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -29,7 +29,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace std;
 
-void TarLzmaExtractor::Extract(const PathName & tarlzmaPath, const PathName & destDir, bool makeDirectories, IExtractCallback * pCallback, const string & prefix)
+void TarLzmaExtractor::Extract(const PathName& tarlzmaPath, const PathName& destDir, bool makeDirectories, IExtractCallback * pCallback, const string& prefix)
 {
   traceStream->WriteFormattedLine("libextractor", T_("extracting %s"), Q_(tarlzmaPath));
   unique_ptr<LzmaStream> lzmaStream = LzmaStream::Create(tarlzmaPath, true);

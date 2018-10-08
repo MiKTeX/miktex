@@ -1,6 +1,6 @@
 /* TarExtractor.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -36,7 +36,7 @@ const size_t BLOCKSIZE = 512;
 struct Header
 {
 private:
-  int GetOctal(const char * lpszField) const
+  int GetOctal(const char* lpszField) const
   {
 #if defined(_MSC_VER)
 #  define SSCANF sscanf_s
@@ -226,7 +226,7 @@ private:
   char reservered[12];
 };
 
-void TarExtractor::ReadBlock(void * pBuffer)
+void TarExtractor::ReadBlock(void* pBuffer)
 {
   size_t n = pStreamIn->Read(pBuffer, BLOCKSIZE);
   totalBytesRead += n;
@@ -263,7 +263,7 @@ TarExtractor::~TarExtractor()
 {
 }
 
-void TarExtractor::Extract(Stream * pStreamIn_, const PathName & destDir, bool makeDirectories, IExtractCallback * pCallback, const string & prefix)
+void TarExtractor::Extract(Stream* pStreamIn_, const PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const string& prefix)
 {
   try
   {
@@ -415,7 +415,7 @@ void TarExtractor::Extract(Stream * pStreamIn_, const PathName & destDir, bool m
   }
 }
 
-void TarExtractor::Extract(const PathName & tarPath, const PathName & destDir, bool makeDirectories, IExtractCallback * pCallback, const string & prefix)
+void TarExtractor::Extract(const PathName& tarPath, const PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const string& prefix)
 {
   traceStream->WriteFormattedLine("libextractor", T_("extracting %s"), Q_(tarPath));
   FileStream stream(File::Open(tarPath, FileMode::Open, FileAccess::Read, false));
