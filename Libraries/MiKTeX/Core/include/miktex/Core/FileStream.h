@@ -47,7 +47,7 @@ public:
   FileStream& operator= (const FileStream& other) = delete;
 
 public:
-  FileStream(FileStream& other) = delete;
+  FileStream(FileStream&& other) = delete;
 
 public:
   FileStream& operator=(FileStream&& other) = delete;
