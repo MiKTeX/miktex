@@ -234,9 +234,9 @@ void TraceStream::SetTraceFlags(const string& flags)
     TraceStreamImpl::traceFlags = flags;
   }
 
-  for (TraceStreamImpl::TraceStreamTable::iterator it = TraceStreamImpl::traceStreams.begin(); it != TraceStreamImpl::traceStreams.end(); ++it)
+  for (auto& kv : TraceStreamImpl::traceStreams)
   {
-    it->second->isEnabled = false;
+    kv.second->isEnabled = false;
   }
 
   for (Tokenizer tok(TraceStreamImpl::traceFlags, ",; \n\t"); tok; ++tok)
