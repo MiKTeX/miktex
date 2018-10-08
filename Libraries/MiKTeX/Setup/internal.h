@@ -34,6 +34,7 @@
 
 #include <cstdarg>
 
+#include <fstream>
 #include <mutex>
 #include <set>
 
@@ -349,7 +350,7 @@ protected:
   Section section;
 
 protected:
-  MiKTeX::Core::StreamWriter logStream;
+  std::ofstream logStream;
 
 protected:
   std::mutex logStreamMutex;
@@ -358,7 +359,7 @@ protected:
   MiKTeX::Core::PathName intermediateLogFile;
 
 protected:
-  MiKTeX::Core::StreamWriter uninstStream;
+  std::ofstream uninstStream;
 
 protected:
   std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;

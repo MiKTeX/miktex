@@ -26,8 +26,6 @@
 
 #include <miktex/Core/config.h>
 
-#include <cstdio>
-
 #include "FileStream.h"
 #include "PathName.h"
 
@@ -60,12 +58,6 @@ public:
   StreamReader(bool readStdin) :
     stream(readStdin ? stdin : nullptr)
   {
-  }
-
-public:
-  void Attach(FILE* file)
-  {
-    stream.Attach(file);
   }
 
 public:

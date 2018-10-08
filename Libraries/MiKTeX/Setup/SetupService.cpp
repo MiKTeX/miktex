@@ -319,7 +319,7 @@ SetupOptions SetupServiceImpl::SetOptions(const SetupOptions& options)
 
 void SetupServiceImpl::OpenLog()
 {
-  if (logStream.IsOpen())
+  if (logStream.is_open())
   {
     return;
   }
@@ -329,21 +329,22 @@ void SetupServiceImpl::OpenLog()
 
   // open the intermediate log file
   lock_guard<mutex> lockGuard(logStreamMutex);
-  logStream.Attach(File::Open(intermediateLogFile, FileMode::Create, FileAccess::Write));
-  logStream.WriteLine();
-  logStream.WriteLine();
+  logStream = File::CreateOutputStream(intermediateLogFile);
+  logStream
+    << "\n"
+    << endl;
 }
 
 PathName SetupServiceImpl::CloseLog(bool cancel)
 {
   // we must have an intermediate log file
-  if (!logStream.IsOpen())
+  if (!logStream.is_open())
   {
     return "";
   }
 
   // close the intermediate log file
-  logStream.Close();
+  logStream.close();
 
   if (cancel)
   {
@@ -490,9 +491,9 @@ void SetupServiceImpl::LogV(const char* format, va_list argList)
     if (lpsz[0] == '\n' || (lpsz[0] == '\r' && lpsz[1] == '\n'))
     {
       traceStream->WriteFormattedLine("setup", "%s", currentLine.c_str());
-      if (logStream.IsOpen())
+      if (logStream.is_open())
       {
-        logStream.WriteLine(currentLine);
+        logStream << currentLine << "\n";
       }
       currentLine = "";
       if (lpsz[0] == '\r')
@@ -514,8 +515,7 @@ void SetupServiceImpl::ULogOpen()
     return;
   }
   PathName uninstLog(GetULogFileName());
-  FileMode mode = (File::Exists(uninstLog) ? FileMode::Append : FileMode::Create);
-  uninstStream.Attach(File::Open(uninstLog, mode, FileAccess::Write));;
+  uninstStream = File::CreateOutputStream(uninstLog, File::Exists(uninstLog) ? ios_base::app : ios_base::out);
   section = None;
 }
 
@@ -537,7 +537,7 @@ PathName SetupServiceImpl::GetULogFileName()
 
 void SetupServiceImpl::ULogClose(bool finalize)
 {
-  if (!uninstStream.IsOpen())
+  if (!uninstStream.is_open())
   {
     return;
   }
@@ -555,22 +555,22 @@ void SetupServiceImpl::ULogClose(bool finalize)
   }
   catch (const exception &)
   {
-    uninstStream.Close();
+    uninstStream.close();
     throw;
   }
 
-  uninstStream.Close();
+  uninstStream.close();
 }
 
 void SetupServiceImpl::ULogAddFile(const PathName& path)
 {
-  if (!uninstStream.IsOpen())
+  if (!uninstStream.is_open())
   {
     return;
   }
   if (section != Files)
   {
-    uninstStream.WriteLine("[files]");
+    uninstStream << "[files]" << "\n";
     section = Files;
   }
   PathName absolutePath(path);
@@ -578,7 +578,7 @@ void SetupServiceImpl::ULogAddFile(const PathName& path)
 #if defined(MIKTEX_WINDOWS)
   absolutePath.ConvertToDos();
 #endif
-  uninstStream.WriteLine(absolutePath.GetData());
+  uninstStream << absolutePath << endl;
 }
 
 void SetupServiceImpl::SetCallback(SetupServiceCallback* callback)

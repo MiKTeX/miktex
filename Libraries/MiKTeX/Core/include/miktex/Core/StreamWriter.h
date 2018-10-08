@@ -26,8 +26,6 @@
 
 #include <miktex/Core/config.h>
 
-#include <cstdio>
-
 #include <string>
 
 #include "FileStream.h"
@@ -57,18 +55,6 @@ public:
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL StreamWriter(const PathName& path);
-
-public:
-  StreamWriter(FILE* file) :
-    stream(file)
-  {
-  }
-
-public:
-  void Attach(FILE* file)
-  {
-    stream.Attach(file);
-  }
 
 public:
   bool IsOpen() const

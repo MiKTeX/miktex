@@ -79,21 +79,21 @@ void winSetupServiceImpl::Initialize()
 
 void winSetupServiceImpl::ULogAddRegValue(HKEY hkey, const string& valueName, const string& value)
 {
-  if (!uninstStream.IsOpen())
+  if (!uninstStream.is_open())
   {
     return;
   }
   if (hkey == HKEY_LOCAL_MACHINE && section != HKLM)
   {
-    uninstStream.WriteLine("[hklm]");
+    uninstStream << "[hklm]" << "\n";
     section = HKLM;
   }
   else if (hkey == HKEY_CURRENT_USER && section != HKCU)
   {
-    uninstStream.WriteLine("[hkcu]");
+    uninstStream << "[hkcu]" << "\n";
     section = HKCU;
   }
-  uninstStream.WriteLine(fmt::format("{};{}", valueName, value));
+  uninstStream << fmt::format("{};{}", valueName, value) << endl;
 }
 
 PathName winSetupServiceImpl::CreateProgramFolder()
