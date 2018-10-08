@@ -40,6 +40,9 @@
 #include <miktex/Core/Session>
 #include <miktex/Wrappers/PoptWrapper>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Wrappers;
@@ -266,7 +269,7 @@ void FindTeXMF::Run(int argc, const char** argv)
       fileType = session->DeriveFileType(optArg);
       if (fileType == FileType::None)
       {
-        FatalError(T_("Unknown file type: %s."), optArg.c_str());
+        FatalError(fmt::format(T_("Unknown file type: {0}."), optArg));
       }
       break;
 
@@ -287,7 +290,7 @@ void FindTeXMF::Run(int argc, const char** argv)
       FileType filetype = session->DeriveFileType(optArg);
       if (filetype == FileType::None)
       {
-        FatalError(T_("Unknown file type: %s."), optArg.c_str());
+        FatalError(fmt::format(T_("Unknown file type: {0}."), optArg));
       }
       string searchPath = session->GetExpandedSearchPath(filetype);
       if (!searchPath.empty())
@@ -320,7 +323,7 @@ void FindTeXMF::Run(int argc, const char** argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    FatalError("%s", msg.c_str());
+    FatalError(msg);
   }
 
   EnableInstaller(mustExist ? TriState::True : TriState::False);
@@ -362,7 +365,7 @@ void FindTeXMF::Run(int argc, const char** argv)
         pathDir.RemoveFileSpec();
         if (ShellExecuteW(nullptr, UW_("open"), path.ToWideCharString().c_str(), nullptr, pathDir.ToWideCharString().c_str(), SW_SHOW) <= reinterpret_cast<HINSTANCE>(32))
         {
-          FatalError(T_("%s could not be started."), Q_(fileName));
+          FatalError(fmt::format(T_("{0} could not be started."), Q_(fileName)));
         }
 #else
         // TODO: start program

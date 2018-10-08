@@ -51,6 +51,12 @@ add_executable(findtexmf ${findtexmf_sources})
 
 set_property(TARGET findtexmf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+if (USE_SYSTEM_FMT)
+  target_link_libraries(findtexmf MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(findtexmf ${fmt_dll_name})
+endif()
+
 target_link_libraries(findtexmf
   ${app_dll_name}
   ${core_dll_name}
