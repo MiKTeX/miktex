@@ -64,6 +64,9 @@
 #include <miktex/Util/inliners.h>
 #include <miktex/Wrappers/PoptWrapper>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <regex.h>
 
 #include "mcd-version.h"
@@ -550,7 +553,7 @@ void McdApp::Version()
 {
   cout
     << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-    << "Copyright (C) 1998-2017 Christian Schenk" << endl
+    << "Copyright (C) 1998-2018 Christian Schenk" << endl
     << "Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001," << endl
     << "2002, 2003, 2004, 2005 Free Software Foundation, Inc." << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
@@ -571,7 +574,7 @@ public:
 private:
   void FatalUtilityError(const string& name)
   {
-    pApplication->FatalError("A required utility could not be found. Utility name: %s.", name.c_str());
+    pApplication->FatalError(fmt::format("A required utility could not be found. Utility name: {}.", name));
   }
 
 private:
@@ -1992,7 +1995,7 @@ void McdApp::Run(int argc, const char** argv)
     case OPT_ENGINE:
       if (!options.SetEngine(optArg))
       {
-        FatalError(T_("%s: unknown engine"), optArg.c_str());
+        FatalError(fmt::format(T_("{}: unknown engine"), optArg.c_str()));
       }
       break;
     case OPT_EXPAND:
@@ -2027,7 +2030,7 @@ void McdApp::Run(int argc, const char** argv)
       }
       else
       {
-        FatalError(T_("%s: unknown language"), optArg.c_str());
+        FatalError(fmt::format(T_("{}: unknown language"), optArg));
       }
       break;
     case OPT_PDF:
@@ -2085,7 +2088,7 @@ void McdApp::Run(int argc, const char** argv)
       {
         if (optArg.find(o) != string::npos)
         {
-          FatalError(T_("TeX option \"--%s\" is not supported."), o.c_str());
+          FatalError(fmt::format(T_("TeX option \"--{}\" is not supported."), o));
         }
       }
       options.texOptions.push_back(optArg);
@@ -2117,7 +2120,7 @@ void McdApp::Run(int argc, const char** argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    FatalError("%s", msg.c_str());
+    FatalError(msg);
   }
 
   vector<string> leftovers = popt.GetLeftovers();

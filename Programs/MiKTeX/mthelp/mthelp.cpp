@@ -535,7 +535,7 @@ void MiKTeXHelp::Run(int argc, const char** argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    FatalError("%s", msg.c_str());
+    FatalError(msg);
   }
 
   vector<string> leftovers = popt.GetLeftovers();

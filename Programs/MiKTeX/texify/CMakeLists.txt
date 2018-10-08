@@ -58,6 +58,12 @@ target_link_libraries(texify
     miktex-popt-wrapper
 )
 
+if(USE_SYSTEM_FMT)
+  target_link_libraries(texify MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(texify ${fmt_dll_name})
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(texify
     ${regex_dll_name}
