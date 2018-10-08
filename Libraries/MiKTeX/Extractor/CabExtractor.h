@@ -36,13 +36,13 @@ public:
   CabExtractor();
 
 public:
-  virtual MIKTEXTHISCALL ~CabExtractor();
+  MIKTEXTHISCALL ~CabExtractor() override;
 
 public:
-  virtual void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& path, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& str);
+  void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& path, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& str) override;
 
 public:
-  virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& str);
+  void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& str) override;
 
 private:
   mscab_decompressor* pDecompressor = nullptr;

@@ -36,13 +36,13 @@ public:
   TarExtractor();
 
 public:
-  virtual MIKTEXTHISCALL ~TarExtractor();
+  MIKTEXTHISCALL ~TarExtractor() override;
 
 public:
-  virtual void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& path, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix);
+  void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& path, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
 
 public:
-  virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix);
+  void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
 
 protected:
   size_t Read(void* data, size_t numBytes)
