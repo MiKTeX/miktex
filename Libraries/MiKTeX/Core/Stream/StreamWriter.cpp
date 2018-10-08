@@ -91,19 +91,3 @@ void StreamWriter::WriteLine()
 {
   FPutC('\n', stream.Get());
 }
-
-void StreamWriter::WriteFormatted(const char* lpszFormat, ...)
-{
-  va_list marker;
-  va_start(marker, lpszFormat);
-  Write(StringUtil::FormatStringVA(lpszFormat, marker));
-  va_end(marker);
-}
-
-void StreamWriter::WriteFormattedLine(const char* lpszFormat, ...)
-{
-  va_list marker;
-  va_start(marker, lpszFormat);
-  WriteLine(StringUtil::FormatStringVA(lpszFormat, marker));
-  va_end(marker);
-}

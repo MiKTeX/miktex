@@ -93,7 +93,7 @@ void winSetupServiceImpl::ULogAddRegValue(HKEY hkey, const string& valueName, co
     uninstStream.WriteLine("[hkcu]");
     section = HKCU;
   }
-  uninstStream.WriteFormattedLine("%s;%s", valueName.c_str(), value.c_str());
+  uninstStream.WriteLine(fmt::format("{};{}", valueName, value));
 }
 
 PathName winSetupServiceImpl::CreateProgramFolder()

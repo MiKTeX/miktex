@@ -49,6 +49,9 @@
 
 #include <miktex/Wrappers/PoptWrapper>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <log4cxx/logger.h>
 #include <log4cxx/xml/domconfigurator.h>
 #include <log4cxx/rollingfileappender.h>

@@ -69,6 +69,9 @@
 #include <miktex/Util/Tokenizer>
 #include <miktex/Util/inliners.h>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
 #define BEGIN_INTERNAL_NAMESPACE                        \

@@ -58,6 +58,12 @@ add_executable(mkfntmap ${mkfntmap_sources})
 
 set_property(TARGET mkfntmap PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+if(USE_SYSTEM_FMT)
+  target_link_libraries(mkfntmap MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(mkfntmap ${fmt_dll_name})
+endif()
+
 if(USE_SYSTEM_LOG4CXX)
   target_link_libraries(mkfntmap MiKTeX::Imported::LOG4CXX)
 else()

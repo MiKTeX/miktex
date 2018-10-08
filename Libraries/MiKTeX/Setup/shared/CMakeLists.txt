@@ -57,6 +57,12 @@ target_link_libraries(${setup_dll_name}
     ${mpm_dll_name}
 )
 
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${setup_dll_name} PRIVATE MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${setup_dll_name} PRIVATE ${fmt_dll_name})
+endif()
+
 target_link_libraries(${setup_dll_name}
   PRIVATE
     ${extractor_dll_name}

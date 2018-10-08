@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2013-2016 Christian Schenk
+## Copyright (C) 2013-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -38,6 +38,12 @@ target_link_libraries(${setup_lib_name}
     ${core_lib_name}
     ${mpm_lib_name}
 )
+
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${setup_lib_name} PRIVATE MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${setup_lib_name} PRIVATE ${fmt_lib_name})
+endif()
 
 target_link_libraries(${setup_lib_name}
   PRIVATE 

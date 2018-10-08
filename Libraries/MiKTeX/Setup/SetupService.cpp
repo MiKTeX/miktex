@@ -979,7 +979,7 @@ void SetupServiceImpl::DoTheInstallation()
     cmdScriptFileName /= "miktex-portable.cmd";
     StreamWriter cmdScript(cmdScriptFileName);
     cmdScript.WriteLine("@echo off");
-    cmdScript.WriteFormattedLine("start \"\" \"%%~d0%%~p0%s\" --hide --mkmaps", console.ToDos().GetData());
+    cmdScript.WriteLine(fmt::format("start \"\" \"%~d0%~p0{}\" --hide --mkmaps", console.ToDos()));
     cmdScript.Close();
   }
 }
@@ -1535,7 +1535,9 @@ void SetupServiceImpl::CreateInfoFile()
   default:
     MIKTEX_ASSERT(false);
   }
-  stream.WriteFormattedLine(T_("This folder contains the %s package set.\n\n"), lpszPackageSet);
+  stream.WriteLine(fmt::format(T_("This folder contains the {0} package set."), lpszPackageSet));
+  stream.WriteLine();
+  stream.WriteLine();
 #if defined(MIKTEX_WINDOWS)
   wchar_t szSetupPath[BufferSizes::MaxPath];
   if (GetModuleFileNameW(0, szSetupPath, BufferSizes::MaxPath) == 0)
@@ -1544,17 +1546,20 @@ void SetupServiceImpl::CreateInfoFile()
   }
   PathName setupExe(szSetupPath);
   setupExe.RemoveDirectorySpec();
-  stream.WriteFormattedLine(T_("To install MiKTeX, run %s.\n\n"), setupExe.GetData());
+  stream.WriteLine(fmt::format(T_("To install MiKTeX, run {0}."), setupExe));
+  stream.WriteLine();
+  stream.WriteLine();
 #endif
-  stream.WriteFormattedLine(T_("For more information, visit the MiKTeX project page at\n\nhttps://miktex.org.\n"));
+  stream.WriteLine(T_("For more information, visit the MiKTeX project page at\n\nhttps://miktex.org."));
+  stream.WriteLine();
   stream.Close();
   RepositoryInfo repositoryInfo;
   if (packageManager->TryGetRepositoryInfo(options.RemotePackageRepository, repositoryInfo))
   {
     StreamWriter stream(PathName(options.LocalPackageRepository, "pr.ini"));
-    stream.WriteFormattedLine("[repository]");
-    stream.WriteFormattedLine("date=%d", static_cast<int>(repositoryInfo.timeDate));
-    stream.WriteFormattedLine("version=%u", static_cast<unsigned>(repositoryInfo.version));
+    stream.WriteLine("[repository]");
+    stream.WriteLine(fmt::format("date={}", repositoryInfo.timeDate));
+    stream.WriteLine(fmt::format("version={}", repositoryInfo.version));
     stream.Close();
   }
 }

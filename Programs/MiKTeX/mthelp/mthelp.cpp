@@ -50,6 +50,9 @@
 #include <string>
 #include <vector>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
@@ -460,7 +463,7 @@ void MiKTeXHelp::CreateHtmlAndView(const char* lpszPackageName, const vector<str
       {
         for (const string& fileName : files)
         {
-          writer.WriteFormattedLine("<tr><td><a href=\"file://%s\">%s</td></tr>", fileName.c_str(), fileName.c_str());
+          writer.WriteLine(fmt::format("<tr><td><a href=\"file://{0}\">{0}</td></tr>", fileName));
         }
       }
     }

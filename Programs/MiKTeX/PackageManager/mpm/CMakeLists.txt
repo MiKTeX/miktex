@@ -58,7 +58,7 @@ add_executable(mpm ${mpm_sources})
 
 set_property(TARGET mpm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(USE_SYSTEM_LOG4CXX)
+if(USE_SYSTEM_FMT)
   target_link_libraries(mpm MiKTeX::Imported::FMT)
 else()
   target_link_libraries(mpm ${fmt_dll_name})

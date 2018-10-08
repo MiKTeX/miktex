@@ -95,12 +95,6 @@ public:
   MIKTEXCORETHISAPI(void) WriteLine();
 
 public:
-  MIKTEXCOREEXPORT void MIKTEXCEECALL WriteFormatted(const char* lpszFormat, ...);
-
-public:
-  MIKTEXCOREEXPORT void MIKTEXCEECALL WriteFormattedLine(const char*  lpszFormat, ...);
-
-public:
   MIKTEXCORETHISAPI(void) Close();
 
 private:
