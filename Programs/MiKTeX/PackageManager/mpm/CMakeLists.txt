@@ -31,7 +31,6 @@ configure_file(
 
 set(mpm_sources
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
-  StdAfx.h
   internal.h
   mpm-version.h
   mpm.cpp

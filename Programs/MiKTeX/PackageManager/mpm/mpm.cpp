@@ -19,7 +19,62 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include <config.h>
+#endif
+
+#if defined(_WIN32)
+#  include <Windows.h>
+#endif
+
+#include <climits>
+#include <cstdarg>
+#include <cstdio>
+
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <set>
+#include <vector>
+
+#include <signal.h>
+
+#include <log4cxx/logger.h>
+#include <log4cxx/rollingfileappender.h>
+#include <log4cxx/xml/domconfigurator.h>
+
+#include "mpm-version.h"
+
+#include <miktex/Core/Cfg>
+#include <miktex/Core/Exceptions>
+#include <miktex/Core/File>
+#include <miktex/Core/FileType>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Process>
+#include <miktex/Core/Quoter>
+#include <miktex/Core/Session>
+#include <miktex/Core/StreamReader>
+#include <miktex/PackageManager/PackageManager>
+#include <miktex/Setup/SetupService>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceCallback>
+#include <miktex/Util/StringUtil>
+#include <miktex/Util/Tokenizer>
+#include <miktex/Wrappers/PoptWrapper>
+
+#if defined(MIKTEX_WINDOWS)
+#  include <MiKTeX/Core/Help>
+#endif
+
+using namespace MiKTeX::Packages;
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Setup;
+using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
+using namespace MiKTeX::Wrappers;
+using namespace std;
 
 #include "internal.h"
 
