@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -44,15 +44,15 @@ namespace MiKTeX {                                      \
 #define BEGIN_ANONYMOUS_NAMESPACE namespace {
 #define END_ANONYMOUS_NAMESPACE }
 
-#if ! defined(UNUSED)
-#  if ! defined(NDEBUG)
+#if !defined(UNUSED)
+#  if !defined(NDEBUG)
 #    define UNUSED(x)
 #  else
 #    define UNUSED(x) static_cast<void>(x)
 #  endif
 #endif
 
-#if ! defined(UNUSED_ALWAYS)
+#if !defined(UNUSED_ALWAYS)
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
@@ -67,8 +67,6 @@ namespace MiKTeX {                                      \
 #define EXTRACTORINTERNALVAR(type) type
 
 #define ARRAY_SIZE(buf) (sizeof(buf)/sizeof(buf[0]))
-
-#include "miktex/Extractor/Extractor"
 
 #define CURRENT_DIRECTORY "."
 
