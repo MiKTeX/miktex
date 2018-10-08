@@ -19,7 +19,12 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include <config.h>
+#endif
+
+#include <miktex/Core/Directory>
+#include <miktex/Trace/Trace>
 
 #include "internal.h"
 

@@ -19,6 +19,9 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
+#include <miktex/Core/Quoter>
+#include <miktex/Core/Text>
+
 #if defined(_MSC_VER) && defined(MIKTEX_EXTRACTOR_SHARED)
 #  define MIKTEXEXTRACTOREXPORT __declspec(dllexport)
 #else

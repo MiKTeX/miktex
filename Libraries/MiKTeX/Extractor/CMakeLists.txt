@@ -54,7 +54,6 @@ set(extractor_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Extractor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h
   ${CMAKE_CURRENT_SOURCE_DIR}/TarBzip2Extractor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TarBzip2Extractor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/TarExtractor.cpp

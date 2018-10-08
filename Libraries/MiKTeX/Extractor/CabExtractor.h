@@ -24,6 +24,10 @@
 #if !defined(AE5923232DF04F7888B2DD7F583253A4)
 #define AE5923232DF04F7888B2DD7F583253A4
 
+#include <miktex/Trace/TraceStream>
+
+#include <mspack.h>
+
 BEGIN_INTERNAL_NAMESPACE;
 
 class CabExtractor : public MiKTeX::Extractor::Extractor

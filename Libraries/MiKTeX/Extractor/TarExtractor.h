@@ -24,6 +24,8 @@
 #if !defined(BF702FE409EC4B9592640F4FD967F75B)
 #define BF702FE409EC4B9592640F4FD967F75B
 
+#include <miktex/Trace/TraceStream>
+
 #include "miktex/Extractor/Extractor"
 
 BEGIN_INTERNAL_NAMESPACE;
