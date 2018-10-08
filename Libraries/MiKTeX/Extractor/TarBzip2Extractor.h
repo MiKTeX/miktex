@@ -1,6 +1,6 @@
 /* TarBzip2Extractor.h:                                 -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -19,9 +19,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(E03089A1127031428EBAC6B157F22548)
 #define E03089A1127031428EBAC6B157F22548

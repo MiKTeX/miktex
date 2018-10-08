@@ -1,6 +1,6 @@
 /* miktex/Extractor/config.h: library configuration     -*- C++ -*-
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -19,9 +19,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(D7FF36DC8CE240E398C46F976819AD44)
 #define D7FF36DC8CE240E398C46F976819AD44

@@ -1,6 +1,6 @@
 /* CabExtractor.h:                                      -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -19,9 +19,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(AE5923232DF04F7888B2DD7F583253A4)
 #define AE5923232DF04F7888B2DD7F583253A4
