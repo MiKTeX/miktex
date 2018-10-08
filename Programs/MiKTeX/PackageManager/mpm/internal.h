@@ -1,6 +1,6 @@
 /* internal.h:                                          -*- C++ -*-
 
-   Copyright (C) 2003-2016 Christian Schenk
+   Copyright (C) 2003-2018 Christian Schenk
 
    This file is part of MpmCon.
 
@@ -21,17 +21,3 @@
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define T_(x) MIKTEXTEXT(x)
-
-#define VA_START(arglist, lpszFormat   )        \
-va_start(arglist, lpszFormat);                  \
-try                                             \
-{
-
-#define VA_END(arglist)                         \
-}                                               \
-catch(...)                                      \
-{                                               \
-  va_end(arglist);                              \
-  throw;                                        \
-}                                               \
-va_end(arglist);

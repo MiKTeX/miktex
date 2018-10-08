@@ -28,7 +28,6 @@
 #endif
 
 #include <climits>
-#include <cstdarg>
 #include <cstdio>
 
 #include <algorithm>
@@ -40,6 +39,9 @@
 #include <vector>
 
 #include <signal.h>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <log4cxx/logger.h>
 #include <log4cxx/rollingfileappender.h>
@@ -212,16 +214,16 @@ public:
   void Main(int argc, const char** argv);
 
 private:
-  void Verbose(const char* format, ...);
+  void Verbose(const string& s);
 
 private:
-  void Warn(const char* format, ...);
+  void Warn(const string& s);
 
 private:
-  void Message(const char* format, ...);
+  void Message(const string& s);
 
 private:
-  MIKTEXNORETURN void Error(const char* format, ...);
+  MIKTEXNORETURN void Error(const string& s);
 
 private:
   void UpdateDb();
@@ -693,13 +695,8 @@ const struct poptOption Application::aoption[] = {
 volatile sig_atomic_t Application::interrupted = false;
 bool Application::isLog4cxxConfigured = false;
 
-void Application::Message(const char* format, ...)
+void Application::Message(const string& s)
 {
-  va_list arglist;
-  string s;
-  VA_START(arglist, format);
-  s = StringUtil::FormatStringVA(format, arglist);
-  VA_END(arglist);
   LOG4CXX_INFO(logger, s);
   if (!quiet)
   {
@@ -707,13 +704,8 @@ void Application::Message(const char* format, ...)
   }
 }
 
-void Application::Verbose(const char* format, ...)
+void Application::Verbose(const string& s)
 {
-  va_list arglist;
-  string s;
-  VA_START(arglist, format);
-  s = StringUtil::FormatStringVA(format, arglist);
-  VA_END(arglist);
   LOG4CXX_INFO(logger, s);
   if (verbose)
   {
@@ -721,13 +713,8 @@ void Application::Verbose(const char* format, ...)
   }
 }
 
-void Application::Warn(const char* format, ...)
+void Application::Warn(const string& s)
 {
-  va_list arglist;
-  string s;
-  VA_START(arglist, format);
-  s = StringUtil::FormatStringVA(format, arglist);
-  VA_END(arglist);
   LOG4CXX_WARN(logger, s);
   cout << T_("Warning:") << " " << s << endl;
 }
@@ -742,12 +729,12 @@ void Application::Sorry(const string& description, const string& remedy, const s
   cerr << endl;
   if (description.empty())
   {
-    cerr << StringUtil::FormatString(T_("Sorry, but %s did not succeed."), Q_(THE_NAME_OF_THE_GAME)) << endl;
+    cerr << fmt::format(T_("Sorry, but {0} did not succeed."), Q_(THE_NAME_OF_THE_GAME)) << endl;
   }
   else
   {
     cerr
-      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(THE_NAME_OF_THE_GAME)) << "\n"
+      << fmt::format(T_("Sorry, but {0} did not succeed for the following reason:"), Q_(THE_NAME_OF_THE_GAME)) << "\n"
       << "\n"
       << "  " << description << endl;
     if (!remedy.empty())
@@ -779,13 +766,8 @@ void Application::Sorry(const string& description, const string& remedy, const s
   }
 }
 
-MIKTEXNORETURN void Application::Error(const char* format, ...)
+MIKTEXNORETURN void Application::Error(const string& s)
 {
-  va_list arglist;
-  string s;
-  VA_START(arglist, format);
-  s = StringUtil::FormatStringVA(format, arglist);
-  VA_END(arglist);
   LOG4CXX_FATAL(logger, s);
   Sorry(s, "", "");
   throw 1;
@@ -793,7 +775,7 @@ MIKTEXNORETURN void Application::Error(const char* format, ...)
 
 void Application::ReportLine(const string& str)
 {
-  Verbose("%s", str.c_str());
+  Verbose(str);
 }
 
 bool Application::OnRetryableError(const string& message)
@@ -829,7 +811,7 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
     PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
     if (packageInfo.IsInstalled())
     {
-      Error(T_("Package \"%s\" is already installed."), deploymentName.c_str());
+      Error(fmt::format(T_("Package \"{0}\" is already installed."), deploymentName));
     }
   }
 
@@ -838,7 +820,7 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
     PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
     if (!packageInfo.IsInstalled())
     {
-      Error(T_("Package \"%s\" is not installed."), deploymentName.c_str());
+      Error(fmt::format(T_("Package \"{0}\" is not installed."), deploymentName));
     }
   }
 
@@ -855,19 +837,19 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
   installer->Dispose();
   if (toBeInstalled.size() == 1)
   {
-    Message(T_("Package \"%s\" has been successfully installed."), toBeInstalled[0].c_str());
+    Message(fmt::format(T_("Package \"{0}\" has been successfully installed."), toBeInstalled[0]));
   }
   else if (toBeInstalled.size() > 1)
   {
-    Message(T_("%u packages have been successfully installed."), toBeInstalled.size());
+    Message(fmt::format(T_("{0} packages have been successfully installed."), toBeInstalled.size()));
   }
   if (toBeRemoved.size() == 1)
   {
-    Message(T_("Package \"%s\" has been successfully removed."), toBeRemoved[0].c_str());
+    Message(fmt::format(T_("Package \"{0}\" has been successfully removed."), toBeRemoved[0]));
   }
   else if (toBeRemoved.size() > 1)
   {
-    Message(T_("%u packages have been successfully removed."), toBeRemoved.size());
+    Message(fmt::format(T_("{0} packages have been successfully removed."), toBeRemoved.size()));
   }
 }
 
@@ -960,7 +942,7 @@ void Application::Verify(const vector<string>& toBeVerifiedArg)
   {
     if (!packageManager->TryVerifyInstalledPackage(deploymentName))
     {
-      Message(T_("%s: this package needs to be reinstalled."), deploymentName.c_str());
+      Message(fmt::format(T_("{0}: this package needs to be reinstalled."), deploymentName));
       ok = false;
     }
   }
@@ -974,7 +956,7 @@ void Application::Verify(const vector<string>& toBeVerifiedArg)
     {
       if (toBeVerified.size() == 1)
       {
-        Message(T_("Package %s is correctly installed."), toBeVerified[0].c_str());
+        Message(fmt::format(T_("Package {0} is correctly installed."), toBeVerified[0]));
       }
       else
       {
@@ -998,31 +980,31 @@ void Application::ImportPackage(const string& deploymentName, vector<string>& to
   packagesIni /= MIKTEX_PATH_PACKAGES_INI;
   if (!File::Exists(packagesIni))
   {
-    Error(T_("Not a MiKTeX installation directory: %s"), repository.c_str());
+    Error(fmt::format(T_("Not a MiKTeX installation directory: {0}"), repository));
   }
   unique_ptr<Cfg> cfg = Cfg::Create();
   cfg->Read(packagesIni);
   if (strncmp(deploymentName.c_str(), "miktex-", 7) == 0)
   {
-    Error(T_("Cannot import package %s."), deploymentName.c_str());
+    Error(fmt::format(T_("Cannot import package {0}."), deploymentName));
   }
   string str;
   if (!cfg->TryGetValue(deploymentName, "TimeInstalled", str) || str.empty() || str == "0")
   {
-    Error(T_("Package %s is not installed."), deploymentName.c_str());
+    Error(fmt::format(T_("Package {0} is not installed."), deploymentName));
   }
   if (cfg->TryGetValue(deploymentName, T_("Obsolete"), str) && str == "1")
   {
-    Error(T_("Package %s is obsolete."), deploymentName.c_str());
+    Error(fmt::format(T_("Package {0} is obsolete."), deploymentName));
   }
   PackageInfo packageInfo;
   if (!packageManager->TryGetPackageInfo(deploymentName.c_str(), packageInfo))
   {
-    Error(T_("Unknown package: %s."), deploymentName.c_str());
+    Error(fmt::format(T_("Unknown package: {0}."), deploymentName));
   }
   if (packageInfo.IsInstalled())
   {
-    Error(T_("Package %s is already installed."), deploymentName.c_str());
+    Error(fmt::format(T_("Package {0} is already installed."), deploymentName));
   }
   toBeinstalled.push_back(deploymentName);
 }
@@ -1037,7 +1019,7 @@ void Application::ImportPackages(vector<string>& toBeinstalled)
   packagesIni /= MIKTEX_PATH_PACKAGES_INI;
   if (!File::Exists(packagesIni))
   {
-    Error(T_("Not a MiKTeX installation directory: %s"), repository.c_str());
+    Error(fmt::format(T_("Not a MiKTeX installation directory: {0}"), repository));
   }
   unique_ptr<Cfg> cfg = Cfg::Create();
   cfg->Read(packagesIni);
@@ -1147,7 +1129,7 @@ void Application::Update(const vector<string>& requestedUpdates)
       PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
       if (!packageInfo.IsInstalled())
       {
-        Error(T_("Package \"%s\" is not installed."), deploymentName.c_str());
+        Error(fmt::format(T_("Package \"{0}\" is not installed."), deploymentName));
       }
       if (binary_search(serverUpdates.begin(), serverUpdates.end(), deploymentName))
       {
@@ -1155,7 +1137,7 @@ void Application::Update(const vector<string>& requestedUpdates)
       }
       else
       {
-        Message(T_("Package \"%s\" is up to date."), deploymentName.c_str());
+        Message(fmt::format(T_("Package \"{0}\" is up to date."), deploymentName));
       }
     }
   }
@@ -1174,11 +1156,11 @@ void Application::Update(const vector<string>& requestedUpdates)
   service = nullptr;
   if (toBeInstalled.size() == 1)
   {
-    Message(T_("Package \"%s\" has been successfully updated."), toBeInstalled[0].c_str());
+    Message(fmt::format(T_("Package \"{0}\" has been successfully updated."), toBeInstalled[0]));
   }
   else if (toBeInstalled.size() > 1)
   {
-    Message(T_("%u packages have been successfully updated."), toBeInstalled.size());
+    Message(fmt::format(T_("{0} packages have been successfully updated."), toBeInstalled.size()));
   }
 }
 
@@ -1238,11 +1220,11 @@ void Application::Upgrade(PackageLevel packageLevel)
   installer->InstallRemove();
   if (toBeInstalled.size() == 1)
   {
-    Message(T_("Package \"%s\" has been successfully installed."), toBeInstalled[0].c_str());
+    Message(fmt::format(T_("Package \"{0}\" has been successfully installed."), toBeInstalled[0]));
   }
   else if (toBeInstalled.size() > 1)
   {
-    Message(T_("%u packages have been successfully installed."), toBeInstalled.size());
+    Message(fmt::format(T_("{0} packages have been successfully installed."), toBeInstalled.size()));
   }
 }
 
@@ -1293,14 +1275,14 @@ void Application::List(OutputFormat outputFormat, int maxCount)
     if (outputFormat == OutputFormat::Listing)
     {
       cout
-        << StringUtil::FormatString("%c %.5d %10d %s", it->IsInstalled() ? 'i' : '-', static_cast<int>(it->GetNumFiles()), static_cast<int>(it->GetSize()), it->deploymentName.c_str())
+        << fmt::format("{} {:05} {:10} {}", it->IsInstalled() ? 'i' : '-', it->GetNumFiles(), it->GetSize(), it->deploymentName)
         << endl;
     }
     else if (outputFormat == OutputFormat::CSV)
     {
       string path = packageManager->GetContainerPath(it->deploymentName, false);
       string directories = GetDirectories(it->deploymentName);
-      cout << StringUtil::FormatString("%s\\%s,%s", path.c_str(), it->deploymentName.c_str(), directories.c_str()) << endl;
+      cout << fmt::format("{}\\{},{}", path, it->deploymentName, directories) << endl;
     }
     else if (outputFormat == OutputFormat::DeploymentNames)
     {
@@ -1829,7 +1811,7 @@ void Application::Main(int argc, const char** argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    Error("%s", msg.c_str());
+    Error(msg);
   }
 
   if (!popt.GetLeftovers().empty())
@@ -1981,7 +1963,7 @@ void Application::Main(int argc, const char** argv)
     PackageInfo packageInfo;
     if (!packageManager->TryGetPackageInfo(package, packageInfo))
     {
-      Error(T_("%s: unknown package"), package.c_str());
+      Error(fmt::format(T_("{0}: unknown package"), package));
     }
     if (!packageInfo.IsInstalled())
     {
