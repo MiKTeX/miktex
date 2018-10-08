@@ -23,9 +23,9 @@
 #  include <config.h>
 #endif
 
-#include "internal.h"
-
 #include <miktex/Core/vi/Version>
+
+#include "internal.h"
 
 #include "miktex/Extractor/vi/Version.h"
 
