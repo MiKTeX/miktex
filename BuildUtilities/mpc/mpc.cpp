@@ -637,7 +637,7 @@ void PackageCreator::WriteDescriptionFile(const string& description, const PathN
 {
   Directory::Create(stagingDir);
   FileStream stream(File::Open(PathName(stagingDir, "Description"), FileMode::Create, FileAccess::Write));
-  fputs(description.c_str(), stream.Get());
+  fputs(description.c_str(), stream.GetFile());
   stream.Close();
 }
 
@@ -650,32 +650,32 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
 
   // write package.ini
   stream.Attach(File::Open(PathName(stagingDir, "package.ini"), FileMode::Create, FileAccess::Write));
-  fprintf(stream.Get(), "externalname=%s\n", packageInfo.deploymentName.c_str());
-  fprintf(stream.Get(), "name=%s\n", packageInfo.displayName.c_str());
-  fprintf(stream.Get(), "creator=%s\n", packageInfo.creator.c_str());
-  fprintf(stream.Get(), "title=%s\n", packageInfo.title.c_str());
-  fprintf(stream.Get(), "version=%s\n", packageInfo.version.c_str());
-  fprintf(stream.Get(), "targetsystem=%s\n", packageInfo.targetSystem.c_str());
-  fprintf(stream.Get(), "md5=%s\n", digest.ToString().c_str());
+  fprintf(stream.GetFile(), "externalname=%s\n", packageInfo.deploymentName.c_str());
+  fprintf(stream.GetFile(), "name=%s\n", packageInfo.displayName.c_str());
+  fprintf(stream.GetFile(), "creator=%s\n", packageInfo.creator.c_str());
+  fprintf(stream.GetFile(), "title=%s\n", packageInfo.title.c_str());
+  fprintf(stream.GetFile(), "version=%s\n", packageInfo.version.c_str());
+  fprintf(stream.GetFile(), "targetsystem=%s\n", packageInfo.targetSystem.c_str());
+  fprintf(stream.GetFile(), "md5=%s\n", digest.ToString().c_str());
 #if defined(MIKTEX_EXTENDED_PACKAGEINFO)
-  fprintf(stream.Get(), "ctan_path=%s\n", packageInfo.ctanPath.c_str());
-  fprintf(stream.Get(), "copyright_owner=%s\n", packageInfo.copyrightOwner.c_str());
-  fprintf(stream.Get(), "copyright_year=%s\n", packageInfo.copyrightYear.c_str());
-  fprintf(stream.Get(), "license_type=%s\n", packageInfo.licenseType.c_str());
+  fprintf(stream.GetFile(), "ctan_path=%s\n", packageInfo.ctanPath.c_str());
+  fprintf(stream.GetFile(), "copyright_owner=%s\n", packageInfo.copyrightOwner.c_str());
+  fprintf(stream.GetFile(), "copyright_year=%s\n", packageInfo.copyrightYear.c_str());
+  fprintf(stream.GetFile(), "license_type=%s\n", packageInfo.licenseType.c_str());
 #endif
   bool first = true;
   for (const string& name : packageInfo.requiredPackages)
   {
     if (first)
     {
-      fputs("requires=", stream.Get());
+      fputs("requires=", stream.GetFile());
       first = false;
     }
     else
     {
-      fputc(';', stream.Get());
+      fputc(';', stream.GetFile());
     }
-    fputs(name.c_str(), stream.Get());
+    fputs(name.c_str(), stream.GetFile());
   }
   stream.Close();
 
@@ -683,7 +683,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
   stream.Attach(File::Open(PathName(stagingDir, "md5sums.txt"), FileMode::Create, FileAccess::Write));
   for (const pair<string, MD5>& p : fileDigests)
   {
-    fprintf(stream.Get(), "%s %s\n", p.second.ToString().c_str(), PathName(p.first).ToUnix().GetData());
+    fprintf(stream.GetFile(), "%s %s\n", p.second.ToString().c_str(), PathName(p.first).ToUnix().GetData());
   }
   stream.Close();
 
@@ -731,7 +731,7 @@ void PackageCreator::ReadDescriptionFile(const char* lpszStagingDir, string& des
   }
   FileStream stream(File::Open(descriptionFileName, FileMode::Open, FileAccess::Read));
   int ch;
-  while ((ch = fgetc(stream.Get())) != EOF)
+  while ((ch = fgetc(stream.GetFile())) != EOF)
   {
     description += static_cast<char>(ch);
   }
@@ -1832,7 +1832,7 @@ void PackageCreator::ReadList(const PathName& path, set<string>& setPackageList)
 {
   FileStream stream(File::Open(path, FileMode::Open, FileAccess::Read));
   string line;
-  while (Utils::ReadUntilDelim(line, '\n', stream.Get()))
+  while (Utils::ReadUntilDelim(line, '\n', stream.GetFile()))
   {
     size_t l = line.length();
     if (l == 0)
