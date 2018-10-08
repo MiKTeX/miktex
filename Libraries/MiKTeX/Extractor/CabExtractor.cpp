@@ -234,7 +234,7 @@ CabExtractor::CabExtractor() :
   mspackSystem.alloc = Alloc;
   mspackSystem.free = Free;
   mspackSystem.copy = Copy;
-  mspackSystem.null_ptr = 0;
+  mspackSystem.null_ptr = nullptr;
   pDecompressor = mspack_create_cab_decompressor(&mspackSystem);
   if (pDecompressor == nullptr)
   {
@@ -314,7 +314,7 @@ void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir,
 {
   traceStream->WriteFormattedLine("libextractor", T_("extracting %s to %s (%s)"), Q_(cabinetPath), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories")));
 
-  mscabd_cabinet* pCabinet = 0;
+  mscabd_cabinet* pCabinet = nullptr;
 
   try
   {
