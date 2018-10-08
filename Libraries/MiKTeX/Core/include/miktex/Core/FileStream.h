@@ -84,7 +84,7 @@ public:
   MIKTEXCORETHISAPI(void) SetBinary();
 
 public:
-  FILE* Get() const
+  FILE* GetFile() const
   {
     return file;
   }

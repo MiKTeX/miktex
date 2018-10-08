@@ -288,7 +288,7 @@ void File::SetTimes(FILE* stream, time_t creationTime, time_t lastAccessTime, ti
 void File::SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
   FileStream stream(File::Open(path, FileMode::Open, FileAccess::ReadWrite, false));
-  SetTimes(stream.Get(), creationTime, lastAccessTime, lastWriteTime);
+  SetTimes(stream.GetFile(), creationTime, lastAccessTime, lastWriteTime);
   stream.Close();
 }
 

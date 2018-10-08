@@ -73,13 +73,13 @@ public:
 public:
   bool IsOpen() const
   {
-    return stream.Get() != nullptr;
+    return stream.GetFile() != nullptr;
   }
 
 public:
   void Flush()
   {
-    fflush(stream.Get());
+    fflush(stream.GetFile());
   }
 
 public:

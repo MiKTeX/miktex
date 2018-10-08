@@ -645,7 +645,7 @@ MIKTEXINTERNALFUNC(RSA_ptr) LoadPublicKey_OpenSSL(const PathName& publicKeyFile)
   else
   {
     FileStream stream(File::Open(publicKeyFile, FileMode::Open, FileAccess::Read));
-    rsa = PEM_read_RSA_PUBKEY(stream.Get(), nullptr, nullptr, nullptr);
+    rsa = PEM_read_RSA_PUBKEY(stream.GetFile(), nullptr, nullptr, nullptr);
   }
   if (rsa == nullptr)
   {

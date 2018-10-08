@@ -114,10 +114,10 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
     bool cancelled = false;
     FileStream stdoutStream(process->get_StandardOutput());
     size_t total = 0;
-    while (!cancelled && feof(stdoutStream.Get()) == 0)
+    while (!cancelled && feof(stdoutStream.GetFile()) == 0)
     {
-      size_t n = fread(buf, 1, CHUNK_SIZE, stdoutStream.Get());
-      int err = ferror(stdoutStream.Get());
+      size_t n = fread(buf, 1, CHUNK_SIZE, stdoutStream.GetFile());
+      int err = ferror(stdoutStream.GetFile());
       if (err != 0 && err != EPIPE)
       {
         MIKTEX_FATAL_CRT_ERROR_2("fread", "processFileName", fileName.ToString());

@@ -73,12 +73,12 @@ inline void FPutS(const char* lpsz, FILE* stream)
 
 void StreamWriter::Write(char ch)
 {
-  FPutC(ch, stream.Get());
+  FPutC(ch, stream.GetFile());
 }
 
 void StreamWriter::Write(const string& s)
 {
-  FPutS(s.c_str(), stream.Get());
+  FPutS(s.c_str(), stream.GetFile());
 }
 
 void StreamWriter::WriteLine(const string& s)
@@ -89,5 +89,5 @@ void StreamWriter::WriteLine(const string& s)
 
 void StreamWriter::WriteLine()
 {
-  FPutC('\n', stream.Get());
+  FPutC('\n', stream.GetFile());
 }

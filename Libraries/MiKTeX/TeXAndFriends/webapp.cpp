@@ -132,7 +132,7 @@ void WebApp::Finalize()
     }
     for (const string& pkg : packages)
     {
-      fprintf(stream.Get(), "%s\n", pkg.c_str());
+      fprintf(stream.GetFile(), "%s\n", pkg.c_str());
     }
     stream.Close();
   }

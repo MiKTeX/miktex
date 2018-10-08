@@ -53,5 +53,5 @@ void StreamReader::Close()
 
 bool StreamReader::ReadLine(string& line)
 {
-  return Utils::ReadLine(line, stream.Get(), false);
+  return Utils::ReadLine(line, stream.GetFile(), false);
 }

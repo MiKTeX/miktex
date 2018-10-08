@@ -30,7 +30,6 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/Environment>
-#include <miktex/Core/FileStream>
 #include <miktex/Core/PathNameParser>
 #include <miktex/Core/Registry>
 #include <miktex/Core/TemporaryDirectory>
@@ -1064,10 +1063,32 @@ PackageInfo PackageManager::ReadPackageDefinitionFile(const PathName& path, cons
 class XmlWriter
 {
 public:
-  XmlWriter(FILE* stream)
-    : stream(stream)
+  XmlWriter(const PathName& path)
+    : stream(File::Open(path, FileMode::Create, FileAccess::Write, false))
   {
     FPutS("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n", stream);
+  }
+
+public:
+  ~XmlWriter()
+  {
+    try
+    {
+      Close();
+    }
+    catch (const exception&)
+    {
+    }
+  }
+
+public:
+  void Close()
+  {
+    if (fclose(stream) != 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR("fclose");
+    }
+    stream = nullptr;
   }
 
 public:
@@ -1163,9 +1184,7 @@ private:
 
 void PackageManager::WritePackageDefinitionFile(const PathName& path, const PackageInfo& packageInfo, time_t timePackaged)
 {
-  FileStream stream(File::Open(path, FileMode::Create, FileAccess::Write, false));
-
-  XmlWriter xml(stream.Get());
+  XmlWriter xml(path);
 
   // create "rdf:Description" node
   xml.StartElement("rdf:RDF");
@@ -1322,7 +1341,7 @@ void PackageManager::WritePackageDefinitionFile(const PathName& path, const Pack
 
   xml.EndAllElements();
 
-  stream.Close();
+  xml.Close();
 }
 
 bool PackageManager::StripTeXMFPrefix(const string& str, string& result)

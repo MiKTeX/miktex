@@ -1233,7 +1233,7 @@ void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvi
     if (GetCryptoLib() == CryptoLib::OpenSSL)
     {
       FileStream stream(File::Open(pPrivateKeyProvider->GetPrivateKeyFile(), FileMode::Open, FileAccess::Read));
-      RSA_ptr rsa (PEM_read_RSAPrivateKey(stream.Get(), nullptr, OpenSSLPasswordCallback, pPrivateKeyProvider), RSA_free);
+      RSA_ptr rsa (PEM_read_RSAPrivateKey(stream.GetFile(), nullptr, OpenSSLPasswordCallback, pPrivateKeyProvider), RSA_free);
       stream.Close();
       if (rsa == nullptr)
       {

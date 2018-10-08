@@ -469,7 +469,7 @@ bool EpsToPdfApp::GetLine(string& line)
       return false;
     }
   }
-  bool done = Utils::ReadUntilDelim(line, '\n', inStream.Get());
+  bool done = Utils::ReadUntilDelim(line, '\n', inStream.GetFile());
   if (done)
   {
     string::size_type l = line.length();
@@ -492,9 +492,9 @@ void EpsToPdfApp::PutFormattedLine(const char* format, ...)
   {
     va_list marker;
     VA_START(marker, format);
-    vfprintf(outStream.Get(), format, marker);
+    vfprintf(outStream.GetFile(), format, marker);
     VA_END(marker);
-    fputc('\n', outStream.Get());
+    fputc('\n', outStream.GetFile());
   }
 }
 
@@ -502,7 +502,7 @@ void EpsToPdfApp::PutLine(const string& line)
 {
   if (!printOnly)
   {
-    fprintf(outStream.Get(), "%s\n", line.c_str());
+    fprintf(outStream.GetFile(), "%s\n", line.c_str());
   }
 }
 
