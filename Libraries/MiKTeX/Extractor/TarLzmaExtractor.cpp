@@ -29,9 +29,9 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace std;
 
-void TarLzmaExtractor::Extract(const PathName& tarlzmaPath, const PathName& destDir, bool makeDirectories, IExtractCallback * pCallback, const string& prefix)
+void TarLzmaExtractor::Extract(const PathName& path, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
-  traceStream->WriteFormattedLine("libextractor", T_("extracting %s"), Q_(tarlzmaPath));
-  unique_ptr<LzmaStream> lzmaStream = LzmaStream::Create(tarlzmaPath, true);
-  TarExtractor::Extract(lzmaStream.get(), destDir, makeDirectories, pCallback, prefix);
+  traceStream->WriteFormattedLine("libextractor", T_("extracting %s"), Q_(path));
+  unique_ptr<LzmaStream> lzmaStream = LzmaStream::Create(path, true);
+  TarExtractor::Extract(lzmaStream.get(), destDir, makeDirectories, callback, prefix);
 }

@@ -37,21 +37,21 @@ public:
   virtual MIKTEXTHISCALL ~TarExtractor();
 
 public:
-  virtual void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& tarPath, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const std::string& prefix);
+  virtual void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& path, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix);
 
 public:
-  virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* pStream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const std::string& prefix);
+  virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix);
 
 protected:
-  size_t Read(void* pBuffer, size_t bytes)
+  size_t Read(void* data, size_t numBytes)
   {
-    size_t n = pStreamIn->Read(pBuffer, bytes);
+    size_t n = streamIn->Read(data, numBytes);
     totalBytesRead += n;
     return n;
   }
 
 protected:
-  void ReadBlock(void* pBuffer);
+  void ReadBlock(void* data);
 
 protected:
   std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
@@ -66,7 +66,7 @@ protected:
   size_t totalBytesRead;
 
 protected:
-  MiKTeX::Core::Stream* pStreamIn = nullptr;
+  MiKTeX::Core::Stream* streamIn = nullptr;
 
 protected:
   void Skip(size_t bytes);

@@ -29,9 +29,9 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace std;
 
-void TarBzip2Extractor::Extract(const PathName& tarbz2Path, const PathName& destDir, bool makeDirectories, IExtractCallback * pCallback, const string& prefix)
+void TarBzip2Extractor::Extract(const PathName& path, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
-  traceStream->WriteFormattedLine("libextractor", T_("extracting %s"), Q_(tarbz2Path));
-  unique_ptr<BZip2Stream> bz2Stream = BZip2Stream::Create(tarbz2Path, true);
-  TarExtractor::Extract(bz2Stream.get(), destDir, makeDirectories, pCallback, prefix);
+  traceStream->WriteFormattedLine("libextractor", T_("extracting %s"), Q_(path));
+  unique_ptr<BZip2Stream> bz2Stream = BZip2Stream::Create(path, true);
+  TarExtractor::Extract(bz2Stream.get(), destDir, makeDirectories, callback, prefix);
 }

@@ -226,9 +226,9 @@ private:
   char reservered[12];
 };
 
-void TarExtractor::ReadBlock(void* pBuffer)
+void TarExtractor::ReadBlock(void* data)
 {
-  size_t n = pStreamIn->Read(pBuffer, BLOCKSIZE);
+  size_t n = streamIn->Read(data, BLOCKSIZE);
   totalBytesRead += n;
   if (n != BLOCKSIZE)
   {
@@ -263,11 +263,11 @@ TarExtractor::~TarExtractor()
 {
 }
 
-void TarExtractor::Extract(Stream* pStreamIn_, const PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const string& prefix)
+void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
   try
   {
-    pStreamIn = pStreamIn_;
+    streamIn = streamIn_;
     totalBytesRead = 0;
 
     traceStream->WriteFormattedLine("libextractor", T_("extracting to %s (%s)"), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories")));
@@ -352,9 +352,9 @@ void TarExtractor::Extract(Stream* pStreamIn_, const PathName& destDir, bool mak
       path /= dest;
 
       // notify the client
-      if (pCallback != nullptr)
+      if (callback != nullptr)
       {
-        pCallback->OnBeginFileExtraction(path.ToString(), size);
+        callback->OnBeginFileExtraction(path.ToString(), size);
       }
 
       // create the destination directory
@@ -400,25 +400,25 @@ void TarExtractor::Extract(Stream* pStreamIn_, const PathName& destDir, bool mak
 #endif
 
       // notify the client
-      if (pCallback != nullptr)
+      if (callback != nullptr)
       {
-        pCallback->OnEndFileExtraction("", size);
+        callback->OnEndFileExtraction("", size);
       }
     }
 
     traceStream->WriteFormattedLine("libextractor", T_("extracted %u file(s)"), fileCount);
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     traceStream->WriteFormattedLine("libextractor", T_("%u bytes were read from the tar stream"), static_cast<unsigned>(totalBytesRead));
     throw;
   }
 }
 
-void TarExtractor::Extract(const PathName& tarPath, const PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const string& prefix)
+void TarExtractor::Extract(const PathName& path, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
-  traceStream->WriteFormattedLine("libextractor", T_("extracting %s"), Q_(tarPath));
-  FileStream stream(File::Open(tarPath, FileMode::Open, FileAccess::Read, false));
-  Extract(&stream, destDir, makeDirectories, pCallback, prefix);
+  traceStream->WriteFormattedLine("libextractor", T_("extracting %s"), Q_(path));
+  FileStream stream(File::Open(path, FileMode::Open, FileAccess::Read, false));
+  Extract(&stream, destDir, makeDirectories, callback, prefix);
   stream.Close();
 }

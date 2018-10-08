@@ -35,34 +35,34 @@ public:
   virtual MIKTEXTHISCALL ~CabExtractor();
 
 public:
-  virtual void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& cabinetPath, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const std::string& str);
+  virtual void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& path, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& str);
 
 public:
-  virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* pStream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* pCallback, const std::string& str);
+  virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& str);
 
 private:
   mscab_decompressor* pDecompressor = nullptr;
 
 private:
-  static struct mspack_file* Open(struct mspack_system* self, const char* lpszFileName, int mode);
+  static struct mspack_file* Open(struct mspack_system* self, const char* fileName, int mode);
 
 private:
-  static void Close(struct mspack_file* pFile);
+  static void Close(struct mspack_file* mspackFile);
 
 private:
-  static int Read(struct mspack_file* pFile, void* pBuffer, int numBytes);
+  static int Read(struct mspack_file* mspackFile, void* data, int numBytes);
 
 private:
-  static int Write(struct mspack_file* pFile, void* pBuffer, int numBytes);
+  static int Write(struct mspack_file* mspackFile, void* data, int numBytes);
 
 private:
-  static int Seek(struct mspack_file* pFile, off_t offset, int mode);
+  static int Seek(struct mspack_file* mspackFile, off_t offset, int mode);
 
 private:
-  static off_t Tell(struct mspack_file* pFile);
+  static off_t Tell(struct mspack_file* mspackFile);
 
 private:
-  static void Message(struct mspack_file* pFile, const char* lpszFormat, ...);
+  static void Message(struct mspack_file* mspackFile, const char* lpszFormat, ...);
 
 private:
   static void* Alloc(struct mspack_system* self, size_t numBytes);
@@ -71,7 +71,7 @@ private:
   static void Free(void* pv);
 
 private:
-  static void Copy(void* pSource, void* pDest, size_t numBytes);
+  static void Copy(void* source, void* dest, size_t numBytes);
 
 private:
   struct MySystem : public mspack_system
@@ -83,7 +83,7 @@ private:
   struct MyFile
   {
     std::string fileName;
-    FILE* pFile = nullptr;
+    FILE* stdioFile = nullptr;
   };
 
 private:
