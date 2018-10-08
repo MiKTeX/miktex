@@ -23,6 +23,10 @@
 #  include <config.h>
 #endif
 
+#if !defined(MIKTEX_WINDOWS)
+#include <fcntl.h>
+#endif
+
 #include <miktex/Core/Directory>
 #include <miktex/Trace/Trace>
 
