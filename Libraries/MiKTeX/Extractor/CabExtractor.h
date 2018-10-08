@@ -45,7 +45,7 @@ public:
   void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& str) override;
 
 private:
-  mscab_decompressor* pDecompressor = nullptr;
+  mscab_decompressor* decompressor = nullptr;
 
 private:
   static struct mspack_file* Open(struct mspack_system* self, const char* fileName, int mode);

@@ -186,10 +186,10 @@ off_t CabExtractor::Tell(struct mspack_file* mspackFile)
   }
 }
 
-void CabExtractor::Message(struct mspack_file* mspackFile, const char* lpszFormat, ...)
+void CabExtractor::Message(struct mspack_file* mspackFile, const char* format, ...)
 {
   UNUSED_ALWAYS(mspackFile);
-  UNUSED_ALWAYS(lpszFormat);
+  UNUSED_ALWAYS(format);
 }
 
 void* CabExtractor::Alloc(struct mspack_system* self, size_t numBytes)
@@ -235,8 +235,8 @@ CabExtractor::CabExtractor() :
   mspackSystem.free = Free;
   mspackSystem.copy = Copy;
   mspackSystem.null_ptr = nullptr;
-  pDecompressor = mspack_create_cab_decompressor(&mspackSystem);
-  if (pDecompressor == nullptr)
+  decompressor = mspack_create_cab_decompressor(&mspackSystem);
+  if (decompressor == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
@@ -246,10 +246,10 @@ CabExtractor::~CabExtractor()
 {
   try
   {
-    if (pDecompressor != nullptr)
+    if (decompressor != nullptr)
     {
-      mspack_destroy_cab_decompressor(pDecompressor);
-      pDecompressor = nullptr;
+      mspack_destroy_cab_decompressor(decompressor);
+      decompressor = nullptr;
     }
     if (traceStream.get() != nullptr)
     {
@@ -314,13 +314,13 @@ void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir,
 {
   traceStream->WriteFormattedLine("libextractor", T_("extracting %s to %s (%s)"), Q_(cabinetPath), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories")));
 
-  mscabd_cabinet* pCabinet = nullptr;
+  mscabd_cabinet* cabinet = nullptr;
 
   try
   {
-    pCabinet = pDecompressor->open(pDecompressor, const_cast<char *>(cabinetPath.GetData()));
+    cabinet = decompressor->open(decompressor, const_cast<char *>(cabinetPath.GetData()));
 
-    if (pCabinet == nullptr)
+    if (cabinet == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("The cabinet file could not be opened."), "path", cabinetPath.ToString());
     }
@@ -329,9 +329,9 @@ void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir,
 
     unsigned fileCount = 0;
 
-    for (mscabd_file* pCabFile = pCabinet->files; pCabFile != nullptr; pCabFile = pCabFile->next)
+    for (mscabd_file* cabFile = cabinet->files; cabFile != nullptr; cabFile = cabFile->next)
     {
-      PathName dest(pCabFile->filename);
+      PathName dest(cabFile->filename);
 
 #if defined(MIKTEX_UNIX)
       dest.ConvertToUnix();
@@ -355,7 +355,7 @@ void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir,
       // notify the client
       if (callback != nullptr)
       {
-        callback->OnBeginFileExtraction(path.ToString(), pCabFile->length);
+        callback->OnBeginFileExtraction(path.ToString(), cabFile->length);
       }
 
       // create the destination directory
@@ -368,22 +368,22 @@ void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir,
       }
 
       // extract the file
-      int r = pDecompressor->extract(pDecompressor, pCabFile, path.GetData());
+      int r = decompressor->extract(decompressor, cabFile, path.GetData());
       if (r != MSPACK_ERR_OK)
       {
-         MIKTEX_FATAL_ERROR_2(T_("The member could not bex extracted from the cabinet file."), "cabinetPath", cabinetPath.ToString(), "member", pCabFile->filename, "ret", std::to_string(r));
+         MIKTEX_FATAL_ERROR_2(T_("The member could not bex extracted from the cabinet file."), "cabinetPath", cabinetPath.ToString(), "member", cabFile->filename, "ret", std::to_string(r));
       }
 
       fileCount += 1;
 
       // set time when the file was created
       struct tm tm;
-      tm.tm_sec = pCabFile->time_s;
-      tm.tm_min = pCabFile->time_m;
-      tm.tm_hour = pCabFile->time_h;
-      tm.tm_mday = pCabFile->date_d;
-      tm.tm_mon = pCabFile->date_m - 1;
-      tm.tm_year = pCabFile->date_y - 1900;
+      tm.tm_sec = cabFile->time_s;
+      tm.tm_min = cabFile->time_m;
+      tm.tm_hour = cabFile->time_h;
+      tm.tm_mday = cabFile->date_d;
+      tm.tm_mon = cabFile->date_m - 1;
+      tm.tm_year = cabFile->date_y - 1900;
       tm.tm_isdst = 0;
       time_t time = mktime(&tm);
       if (time == static_cast<time_t>(-1))
@@ -393,26 +393,26 @@ void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir,
       File::SetTimes(path, time, time, time);
 
       // set file attributes
-      SetAttributes(path, pCabFile->attribs);
+      SetAttributes(path, cabFile->attribs);
 
       // notify the client
       if (callback != nullptr)
       {
-        callback->OnEndFileExtraction("", pCabFile->length);
+        callback->OnEndFileExtraction("", cabFile->length);
       }
     }
 
     traceStream->WriteFormattedLine("libextractor", T_("extracted %u file(s)"), fileCount);
 
-    pDecompressor->close(pDecompressor, pCabinet);
-    pCabinet = nullptr;
+    decompressor->close(decompressor, cabinet);
+    cabinet = nullptr;
 
   }
   catch (const exception&)
   {
-    if (pCabinet != nullptr)
+    if (cabinet != nullptr)
     {
-      pDecompressor->close(pDecompressor, pCabinet);
+      decompressor->close(decompressor, cabinet);
     }
     throw;
   }
