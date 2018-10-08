@@ -1,6 +1,6 @@
 /* TaceStream.cpp: tracing
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Trace Library.
 
@@ -89,7 +89,7 @@ public:
   void MIKTEXTHISCALL VTrace(const std::string& facility, const std::string& format, va_list arglist) override;
 
 public:
-  TraceStreamImpl(shared_ptr<TraceStreamInfo> info, TraceCallback * callback) :
+  TraceStreamImpl(shared_ptr<TraceStreamInfo> info, TraceCallback* callback) :
     info(info),
     callback(callback)
   {
@@ -106,7 +106,7 @@ public:
     {
       Close();
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }
@@ -115,18 +115,18 @@ private:
   shared_ptr<TraceStreamInfo> info;
 
 private:
-  TraceCallback * callback;
+  TraceCallback* callback;
 
 private:
-  void Logger(const string & facility, const string & message, bool appendNewline);
+  void Logger(const string& facility, const string& message, bool appendNewline);
 
 #if ENABLE_LEGACY_TRACING
 private:
-  void LegacyLogger(const string & facility, const string & message, bool appendNewline);
+  void LegacyLogger(const string& facility, const string& message, bool appendNewline);
 #endif
 
 private:
-  void FormatV(const string & facility, bool appendNewline, const string & format, va_list arglist);
+  void FormatV(const string& facility, bool appendNewline, const string& format, va_list arglist);
 
 private:
   friend class TraceStream;
@@ -148,7 +148,7 @@ mutex TraceStreamImpl::traceStreamsMutex;
 TraceStreamImpl::TraceStreamTable TraceStreamImpl::traceStreams;
 string TraceStreamImpl::traceFlags;
 
-void TraceStreamImpl::Logger(const string & facility, const string & message, bool appendNewline)
+void TraceStreamImpl::Logger(const string& facility, const string& message, bool appendNewline)
 {
 #if ENABLE_LEGACY_TRACING
   if (info->callbacks.size() == 0)
@@ -157,7 +157,7 @@ void TraceStreamImpl::Logger(const string & facility, const string & message, bo
     return;
   }
 #endif
-  for (TraceCallback * callback : info->callbacks)
+  for (TraceCallback* callback : info->callbacks)
   {
     callback->Trace(TraceCallback::TraceMessage(info->name, facility, message));
   }
@@ -165,7 +165,7 @@ void TraceStreamImpl::Logger(const string & facility, const string & message, bo
 
 #if ENABLE_LEGACY_TRACING
 
-void TraceStreamImpl::LegacyLogger(const string & facility, const string & message, bool appendNewline)
+void TraceStreamImpl::LegacyLogger(const string& facility, const string& message, bool appendNewline)
 {
   string str;
   str.reserve(256);
@@ -201,7 +201,7 @@ void TraceStreamImpl::LegacyLogger(const string & facility, const string & messa
   {
     debstr = StringUtil::UTF8ToWideChar(str);
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     debstr = L"???";
   }
@@ -216,7 +216,7 @@ void TraceStreamImpl::LegacyLogger(const string & facility, const string & messa
 }
 #endif
 
-void TraceStreamImpl::FormatV(const string & facility, bool appendNewline, const string & format, va_list arglist)
+void TraceStreamImpl::FormatV(const string& facility, bool appendNewline, const string& format, va_list arglist)
 {
   Logger(facility, StringUtil::FormatStringVA(format.c_str(), arglist), appendNewline);
 }
@@ -294,7 +294,7 @@ void TraceStreamImpl::VTrace(const string& facility, const string& format, va_li
   FormatV(facility, true, format, arglist);
 }
 
-unique_ptr<TraceStream> TraceStream::Open(const string & name, TraceCallback * callback)
+unique_ptr<TraceStream> TraceStream::Open(const string& name, TraceCallback* callback)
 {
   lock_guard<mutex> lockGuard(TraceStreamImpl::traceStreamsMutex);
   shared_ptr<TraceStreamInfo> traceStreamInfo = TraceStreamImpl::traceStreams[name];
