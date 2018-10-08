@@ -31,7 +31,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-StreamWriter::StreamWriter(const PathName & path) :
+StreamWriter::StreamWriter(const PathName& path) :
   stream(File::Open(path, FileMode::Create, FileAccess::Write))
 {
 }
@@ -76,14 +76,14 @@ void StreamWriter::Write(char ch)
   FPutC(ch, stream.Get());
 }
 
-void StreamWriter::Write(const string & line)
+void StreamWriter::Write(const string& s)
 {
-  FPutS(line.c_str(), stream.Get());
+  FPutS(s.c_str(), stream.Get());
 }
 
-void StreamWriter::WriteLine(const string & line)
+void StreamWriter::WriteLine(const string& s)
 {
-  Write(line);
+  Write(s);
   WriteLine();
 }
 
