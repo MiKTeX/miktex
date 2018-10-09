@@ -31,7 +31,7 @@ public:
   PkChar(DviFont* dviFont = nullptr);
 
 public:
-  virtual ~PkChar();
+  ~PkChar() override;
 
 public:
   void Read(InputStream& inputstream, int flag);

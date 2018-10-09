@@ -32,7 +32,7 @@ public:
   VFont(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConv, double conv, int mag, const char* metafontMode, int baseDpi);
 
 public:
-  virtual ~VFont();
+  ~VFont() override;
 
 public:
   VfChar* GetCharAt(int idx);

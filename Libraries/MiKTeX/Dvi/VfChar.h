@@ -31,7 +31,7 @@ public:
   VfChar(DviFont* dviFont = nullptr);
 
 public:
-  virtual ~VfChar();
+  ~VfChar() override;
 
 public:
   void Read(InputStream& inputStream, int size, double conv);

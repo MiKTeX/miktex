@@ -30,7 +30,7 @@ public:
   PkFont(DviImpl* dviImpl, int checksum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConf, double conv, int mag, const char* metafontMode, int baseDpi);
 
 public:
-  virtual ~PkFont();
+  ~PkFont() override;
 
 public:
   PkChar* operator[](unsigned long idx);

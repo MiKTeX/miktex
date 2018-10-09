@@ -138,7 +138,7 @@ public:
   }
 
 public:
-  virtual MIKTEXTHISCALL ~GraphicsInclusionImpl()
+  MIKTEXTHISCALL ~GraphicsInclusionImpl() override
   {
     try
     {
@@ -162,7 +162,7 @@ public:
   }
 
 public:
-  virtual void MIKTEXTHISCALL Render(HDC hdc)
+  void MIKTEXTHISCALL Render(HDC hdc) override
   {
     switch (imageType)
     {
@@ -221,7 +221,7 @@ class StdoutReader :
   public IRunProcessCallback
 {
 public:
-  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* output_, size_t n)
+  bool MIKTEXTHISCALL OnProcessOutput(const void* output_, size_t n) override
   {
     output.append(reinterpret_cast<const char*>(output_), n);
     return true;
@@ -530,25 +530,25 @@ class DviRuleImpl :
   public DviRule
 {
 public:
-  virtual int MIKTEXTHISCALL GetLeft(int shrinkFactor);
+  int MIKTEXTHISCALL GetLeft(int shrinkFactor) override;
 
 public:
-  virtual int MIKTEXTHISCALL GetRight(int shrinkFactor);
+  int MIKTEXTHISCALL GetRight(int shrinkFactor) override;
 
 public:
-  virtual int MIKTEXTHISCALL GetTop(int shrinkFactor);
+  int MIKTEXTHISCALL GetTop(int shrinkFactor) override;
 
 public:
-  virtual int MIKTEXTHISCALL GetBottom(int shrinkFactor);
+  int MIKTEXTHISCALL GetBottom(int shrinkFactor) override;
 
 public:
-  virtual unsigned long MIKTEXTHISCALL GetBackgroundColor();
+  unsigned long MIKTEXTHISCALL GetBackgroundColor() override;
 
 public:
-  virtual unsigned long MIKTEXTHISCALL GetForegroundColor();
+  unsigned long MIKTEXTHISCALL GetForegroundColor() override;
 
 public:
-  virtual bool MIKTEXTHISCALL IsBlackboard();
+  bool MIKTEXTHISCALL IsBlackboard() override;
 
 public:
   DviRuleImpl(DviImpl* dviImpl, int x, int y, int width, int height, unsigned long rgb);
@@ -625,52 +625,52 @@ class DviPageImpl :
   public IDibChunkerCallback
 {
 public:
-  virtual const DviBitmap& MIKTEXTHISCALL GetDviBitmap(int shrinkFactor, int idx);
+  const DviBitmap& MIKTEXTHISCALL GetDviBitmap(int shrinkFactor, int idx) override;
 
 public:
-  virtual int MIKTEXTHISCALL GetNumberOfDviBitmaps(int shrinkFactor);
+  int MIKTEXTHISCALL GetNumberOfDviBitmaps(int shrinkFactor) override;
 
 public:
-  virtual DviSpecial* MIKTEXTHISCALL GetSpecial(int idx);
+  DviSpecial* MIKTEXTHISCALL GetSpecial(int idx) override;
 
 public:
-  virtual DviRule* MIKTEXTHISCALL GetRule(int idx);
+  DviRule* MIKTEXTHISCALL GetRule(int idx) override;
 
 public:
-  virtual int MIKTEXTHISCALL GetReg(int idx);
+  int MIKTEXTHISCALL GetReg(int idx) override;
 
 public:
-  virtual const char* MIKTEXTHISCALL GetName();
+  const char* MIKTEXTHISCALL GetName() override;
 
 public:
-  virtual unsigned long MIKTEXTHISCALL GetBackgroundColor();
+  unsigned long MIKTEXTHISCALL GetBackgroundColor() override;
 
 public:
-  virtual void MIKTEXTHISCALL Lock();
+  void MIKTEXTHISCALL Lock() override;
 
 public:
-  virtual void MIKTEXTHISCALL Unlock();
+  void MIKTEXTHISCALL Unlock() override;
 
 public:
-  virtual HypertexSpecial* MIKTEXTHISCALL GetNextHyperref(int& idx);
+  HypertexSpecial* MIKTEXTHISCALL GetNextHyperref(int& idx) override;
 
 public:
-  virtual shared_ptr<DibChunk> MIKTEXTHISCALL GetDibChunk(int shrinkFactor, int idx);
+  shared_ptr<DibChunk> MIKTEXTHISCALL GetDibChunk(int shrinkFactor, int idx) override;
 
 public:
-  virtual int MIKTEXTHISCALL GetNumberOfDibChunks(int shrinkFactor);
+  int MIKTEXTHISCALL GetNumberOfDibChunks(int shrinkFactor) override;
 
 public:
-  virtual DviPageMode MIKTEXTHISCALL GetDviPageMode()
+  DviPageMode MIKTEXTHISCALL GetDviPageMode() override
   {
     return pageMode;
   }
 
 public:
-  virtual int MIKTEXTHISCALL GetNumberOfGraphicsInclusions(int shrinkFactor);
+  int MIKTEXTHISCALL GetNumberOfGraphicsInclusions(int shrinkFactor) override;
 
 public:
-  virtual shared_ptr<GraphicsInclusion> MIKTEXTHISCALL GetGraphicsInclusion(int shrinkFactor, int idx);
+  shared_ptr<GraphicsInclusion> MIKTEXTHISCALL GetGraphicsInclusion(int shrinkFactor, int idx) override;
 
 public:
   DviImpl* GetDviObject();
@@ -783,10 +783,10 @@ private:
   void GhostscriptTranscriptReader();
 
 public:
-  virtual size_t MIKTEXTHISCALL Read(void* data, size_t size);
+  size_t MIKTEXTHISCALL Read(void* data, size_t size) override;
 
 public:
-  virtual void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> dibChunk);
+  void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> dibChunk) override;
 
 private:
   unique_ptr<Process> StartGhostscript(int shrinkFactor);
@@ -925,80 +925,79 @@ struct DviInfo
 class DviImpl : public Dvi
 {
 public:
-  virtual int MIKTEXTHISCALL GetNumberOfPages();
+  int MIKTEXTHISCALL GetNumberOfPages() override;
 
 public:
-  virtual bool MIKTEXTHISCALL GetSource(const DviPosition& pos, PathName& fileName, int* pLineNum);
+  bool MIKTEXTHISCALL GetSource(const DviPosition& pos, PathName& fileName, int* pLineNum) override;
 
 public:
-  virtual bool MIKTEXTHISCALL FindSource(const char* fileName, int line, DviPosition& position);
+  bool MIKTEXTHISCALL FindSource(const char* fileName, int line, DviPosition& position) override;
 
 public:
-  virtual DviPage* MIKTEXTHISCALL GetPage(int pageidx);
+  DviPage* MIKTEXTHISCALL GetPage(int pageidx) override;
 
 public:
-  virtual int MIKTEXTHISCALL GetMinPageNumber();
+  int MIKTEXTHISCALL GetMinPageNumber() override;
 
 public:
-  virtual int MIKTEXTHISCALL GetMaxPageNumber();
+  int MIKTEXTHISCALL GetMaxPageNumber() override;
 
 public:
-  virtual int MIKTEXTHISCALL GetMagnification();
+  int MIKTEXTHISCALL GetMagnification() override;
 
 public:
-  virtual int MIKTEXTHISCALL GetMaxH();
+  int MIKTEXTHISCALL GetMaxH() override;
 
 public:
-  virtual int MIKTEXTHISCALL GetMaxV();
+  int MIKTEXTHISCALL GetMaxV() override;
 
 public:
-  virtual PageStatus MIKTEXTHISCALL GetPageStatus(int pageidx);
+  PageStatus MIKTEXTHISCALL GetPageStatus(int pageidx) override;
 
 public:
-  virtual DviPage* MIKTEXTHISCALL GetLoadedPage(int pageno);
+  DviPage* MIKTEXTHISCALL GetLoadedPage(int pageno) override;
 
 public:
-  virtual bool MIKTEXTHISCALL FindHyperLabel(const char* label, DviPosition& position);
+  bool MIKTEXTHISCALL FindHyperLabel(const char* label, DviPosition& position) override;
 
 public:
-  virtual string MIKTEXTHISCALL GetStatusText();
+  string MIKTEXTHISCALL GetStatusText() override;
 
 public:
-  virtual bool MIKTEXTHISCALL MakeFonts();
+  bool MIKTEXTHISCALL MakeFonts() override;
 
 public:
-  virtual vector<DviFontInfo>
-    MIKTEXTHISCALL GetFontTable();
+  vector<DviFontInfo> MIKTEXTHISCALL GetFontTable() override;
 
 public:
-  virtual PaperSizeInfo MIKTEXTHISCALL GetPaperSizeInfo()
+  PaperSizeInfo MIKTEXTHISCALL GetPaperSizeInfo() override
   {
     return paperSizeInfo;
   }
 
 public:
-  virtual bool MIKTEXTHISCALL Landscape()
+  bool MIKTEXTHISCALL Landscape() override
   {
     return landscape;
   }
 
 public:
-  virtual void MIKTEXTHISCALL Lock();
+  void MIKTEXTHISCALL Lock() override;
 
 public:
-  virtual void MIKTEXTHISCALL Unlock();
+  void MIKTEXTHISCALL Unlock() override;
 
 public:
-  virtual void MIKTEXTHISCALL Scan();
+  void MIKTEXTHISCALL Scan() override;
 
 private:
   DviImpl(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const PaperSizeInfo& paperSizeInfo, bool landscape);
 
 private:
-  virtual MIKTEXTHISCALL ~DviImpl();
+  MIKTEXTHISCALL ~DviImpl() override;
 
 public:
-  virtual void MIKTEXTHISCALL Dispose();
+  void MIKTEXTHISCALL Dispose() override;
 
 private:
   friend class Dvi; // FIXME
@@ -1437,30 +1436,30 @@ template<class T> class DviSpecialObject
   : public T
 {
 public:
-  virtual ~DviSpecialObject()
+  ~DviSpecialObject() override
   {
   }
 
 public:
-  virtual int MIKTEXTHISCALL GetX()
+  int MIKTEXTHISCALL GetX() override
   {
     return x;
   }
 
 public:
-  virtual int MIKTEXTHISCALL GetY()
+  int MIKTEXTHISCALL GetY() override
   {
     return y;
   }
 
 public:
-  virtual const char* MIKTEXTHISCALL GetXXX()
+  const char* MIKTEXTHISCALL GetXXX() override
   {
     return specialString.c_str();
   }
 
 public:
-  virtual DviSpecialType MIKTEXTHISCALL GetType()
+  DviSpecialType MIKTEXTHISCALL GetType() override
   {
     return specialType;
   }
@@ -1751,7 +1750,7 @@ public:
   }
 
 public:
-  virtual ~HyperTeXSpecialImpl()
+  ~HyperTeXSpecialImpl() override
   {
     try
     {

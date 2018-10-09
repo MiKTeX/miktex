@@ -33,7 +33,7 @@ public:
   Tfm(DviImpl* dviImpl, int checksum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConf, double conv);
 
 public:
-  virtual ~Tfm();
+  ~Tfm() override;
 
 public:
   DviChar* operator[](unsigned long idx);

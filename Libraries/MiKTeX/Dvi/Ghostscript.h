@@ -28,22 +28,22 @@ class Ghostscript :
   public IDibChunkerCallback
 {
 public:
-  virtual ~Ghostscript();
+  ~Ghostscript() override;
 
 private:
-  virtual void Finalize();
+  void Finalize() override;
 
 public:
-  virtual void Write(const void* data, unsigned n);
+  void Write(const void* data, unsigned n) override;
 
 public:
-  virtual void Execute(const char* format, ...);
+  void Execute(const char* format, ...) override;
 
 public:
-  virtual size_t MIKTEXTHISCALL Read(void* data, size_t size);
+  size_t MIKTEXTHISCALL Read(void* data, size_t size) override;
 
 public:
-  virtual void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> chunk);
+  void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> chunk) override;
 
 public:
   Ghostscript();
