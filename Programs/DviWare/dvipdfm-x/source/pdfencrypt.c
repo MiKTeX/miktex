@@ -98,13 +98,13 @@ pdf_enc_compute_id_string (const char *producer,
   MD5_init(&md5);
   /* Don't use timezone for compatibility */
   dpx_util_format_asn_date(datestr, 0);
-  MD5_write(&md5, (unsigned char *)datestr, strlen(datestr));
+  MD5_write(&md5, (const unsigned char *)datestr, strlen(datestr));
   if (producer)
-    MD5_write(&md5, (unsigned char *)producer, strlen(producer));
+    MD5_write(&md5, (const unsigned char *)producer, strlen(producer));
   if (dviname)
-    MD5_write(&md5, (unsigned char *)dviname, strlen(dviname));
+    MD5_write(&md5, (const unsigned char *)dviname, strlen(dviname));
   if (pdfname)
-    MD5_write(&md5, (unsigned char *)pdfname, strlen(pdfname));
+    MD5_write(&md5, (const unsigned char *)pdfname, strlen(pdfname));
   MD5_final(p->ID, &md5);
 }
 
@@ -284,17 +284,20 @@ compute_hash_V5 (unsigned char       *hash,
                  const unsigned char *salt,
                  const unsigned char *user_key, int R /* revision */)
 {
-  SHA256_CONTEXT sha;
   unsigned char  K[64];
   size_t         K_len;
   int            nround;
 
-  SHA256_init (&sha);
-  SHA256_write(&sha, (const unsigned char *)passwd, strlen(passwd));
-  SHA256_write(&sha, salt, 8);
-  if (user_key)
-    SHA256_write(&sha, user_key, 48);
-  SHA256_final(hash, &sha);
+  {
+    SHA256_CONTEXT sha;
+
+    SHA256_init (&sha);
+    SHA256_write(&sha, (const unsigned char *)passwd, strlen(passwd));
+    SHA256_write(&sha, salt, 8);
+    if (user_key)
+      SHA256_write(&sha, user_key, 48);
+    SHA256_final(hash, &sha);
+  }
 
   ASSERT( R ==5 || R == 6 );
 

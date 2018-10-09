@@ -1052,7 +1052,7 @@ if ((l) + (n) >= (m)) { \
         }
         break;
       case  'v': /* Version number, e.g. 1.4 */ {
-       char buf[6];
+       char buf[256];
        sprintf(buf, "%d.%d", version/10, version%10);
        need(cmd, n, size, strlen(buf));
        strcpy(cmd + n, buf);  n += strlen(buf);

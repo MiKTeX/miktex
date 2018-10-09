@@ -199,7 +199,7 @@ restore_font (void)
 static void
 clear_fonts (void)
 {
-  while (currentfont >= 0) {
+  while (currentfont > 0) {
     clear_mp_font_struct(&font_stack[currentfont]);
     currentfont--;
   }

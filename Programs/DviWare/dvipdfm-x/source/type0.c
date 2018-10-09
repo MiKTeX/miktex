@@ -221,7 +221,6 @@ Type0Font_attach_ToUnicode_stream (Type0Font *font)
     case CIDFONT_TYPE2:
     /* PLEASE FIX THIS */
       {
-        CIDFont *cidfont = font->descendant;
         tounicode = otf_create_ToUnicode_stream(CIDFont_get_ident(cidfont),
                                                 CIDFont_get_opt_index(cidfont),
                                                 CIDFont_get_fontname(cidfont),
@@ -230,7 +229,6 @@ Type0Font_attach_ToUnicode_stream (Type0Font *font)
       break;
     default:
       if (CIDFont_get_flag(cidfont, CIDFONT_FLAG_TYPE1C)) {
-        CIDFont *cidfont = font->descendant;
         tounicode = otf_create_ToUnicode_stream(CIDFont_get_ident(cidfont),
                                                 CIDFont_get_opt_index(cidfont),
                                                 CIDFont_get_fontname(cidfont),
