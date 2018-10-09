@@ -722,7 +722,7 @@ void DviPageImpl::MakeDibChunks(int shrinkFactor)
   catch (const exception &)
   {
     dvipsErr.Close();
-    if (dvipsOut.Get() != nullptr)
+    if (dvipsOut.GetFile() != nullptr)
     {
       dvipsOut.Close();
     }
@@ -731,7 +731,7 @@ void DviPageImpl::MakeDibChunks(int shrinkFactor)
     throw;
   }
   dvipsErr.Close();
-  if (dvipsOut.Get() != nullptr)
+  if (dvipsOut.GetFile() != nullptr)
   {
     dvipsOut.Close();
   }
@@ -921,7 +921,7 @@ unique_ptr<Process> DviPageImpl::StartGhostscript(int shrinkFactor)
 
   processStartInfo.Arguments = arguments;
   processStartInfo.FileName = gsPath.ToString();
-  processStartInfo.StandardInput = dvipsOut.Get();
+  processStartInfo.StandardInput = dvipsOut.GetFile();
   processStartInfo.RedirectStandardError = true;
   processStartInfo.RedirectStandardOutput = true;
   processStartInfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();

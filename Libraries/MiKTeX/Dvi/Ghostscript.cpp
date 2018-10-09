@@ -218,7 +218,7 @@ void Ghostscript::Execute(const char * lpszFormat, ...)
 void Ghostscript::Finalize()
 {
   // close Ghostscript's input stream
-  if (gsIn.Get() != nullptr)
+  if (gsIn.GetFile() != nullptr)
   {
     gsIn.Close();
   }
@@ -257,13 +257,13 @@ void Ghostscript::Finalize()
   }
 
   // close Ghostscript's output stream
-  if (gsOut.Get() != nullptr)
+  if (gsOut.GetFile() != nullptr)
   {
     gsOut.Close();
   }
 
   // close Ghostscript's error stream
-  if (gsErr.Get() != nullptr)
+  if (gsErr.GetFile() != nullptr)
   {
     gsErr.Close();
   }
