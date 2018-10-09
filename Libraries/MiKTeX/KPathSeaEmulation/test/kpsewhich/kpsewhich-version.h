@@ -1,4 +1,4 @@
-/* makeindex-version.h: version number			-*- C++ -*-
+/* makeindex-version.h: version number                  -*- C++ -*-
 
    Copyright (C) 2010-2016 Christian Schenk
 
