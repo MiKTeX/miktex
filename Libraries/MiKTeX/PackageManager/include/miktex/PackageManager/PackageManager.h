@@ -22,9 +22,7 @@
 /// @file mpm.h
 /// @brief MiKTeX package manager API.
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(D5760AC70396FF41BBDD7DD560BDBBBC)
 #define D5760AC70396FF41BBDD7DD560BDBBBC

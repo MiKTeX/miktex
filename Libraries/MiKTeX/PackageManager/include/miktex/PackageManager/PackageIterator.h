@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageIterator.h:             -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(E2B06574362B414885CF42E8C46BDB28)
 #define E2B06574362B414885CF42E8C46BDB28

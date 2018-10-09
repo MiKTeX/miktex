@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageInfo.h:                 -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(C47620F83A5C47D2B408E1D3C4EF0E48)
 #define C47620F83A5C47D2B408E1D3C4EF0E48
