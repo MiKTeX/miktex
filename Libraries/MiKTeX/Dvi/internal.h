@@ -1405,7 +1405,7 @@ public:
         trace_error = nullptr;
       }
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }
@@ -1760,7 +1760,7 @@ public:
         trace_hypertex = nullptr;
       }
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }

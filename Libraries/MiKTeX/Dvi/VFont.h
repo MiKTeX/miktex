@@ -26,7 +26,8 @@ class VfChar;
 
 typedef unordered_map<int, class VfChar *> MAPNUMTOVFCHAR;
 
-class VFont : public DviFont
+class VFont :
+  public DviFont
 {
 public:
   VFont(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConv, double conv, int mag, const char* metafontMode, int baseDpi);
