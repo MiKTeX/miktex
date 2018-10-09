@@ -21,7 +21,15 @@
 
    /* some tricks are borrowed from Dvips, TFtoPL and other celebrities */
 
-#include "StdAfx.h"
+#include <miktex/First>
+
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/Paths>
+
 #include "internal.h"
 
 Tfm::Tfm(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConv, double conv) :

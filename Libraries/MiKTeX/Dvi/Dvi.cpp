@@ -21,7 +21,13 @@
 
    /* code is heavily borrowed from DVItype and other celebs */
 
-#include "StdAfx.h"
+#include <miktex/First>
+
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
+#include <miktex/Core/Quoter>
 
 #include "internal.h"
 

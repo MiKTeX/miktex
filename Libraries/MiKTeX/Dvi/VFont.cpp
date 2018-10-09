@@ -19,7 +19,14 @@
    Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
    USA.  */
 
-#include "StdAfx.h"
+#include <miktex/First>
+
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
+#include <miktex/Core/Quoter>
+
 #include "internal.h"
 
 VFont::VFont(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConv, double conv, int mag, const char* metafontMode, int baseDpi) :

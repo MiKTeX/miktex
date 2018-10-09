@@ -21,6 +21,15 @@
 
 #define MIKTEXDVIEXPORT MIKTEXDLLEXPORT
 
+#include <atomic>
+#include <mutex>
+#include <stack>
+
+#include <miktex/Core/FileStream>
+#include <miktex/Core/TemporaryFile>
+#include <miktex/Trace/TraceStream>
+#include <miktex/Trace/Trace>
+
 #define A86DAFD3F286A340B6BD420E71BCD906
 #include "miktex/DVI/Dvi.h"
 
