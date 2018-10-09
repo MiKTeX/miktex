@@ -1,6 +1,6 @@
 /* dviscan.cpp: test driver for the DVI interfaces
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public License
@@ -57,7 +57,7 @@ class DviScanner :
   public Application
 {
 public:
-  void Run(int argc, const char ** argv);
+  void Run(int argc, const char** argv);
 
 private:
   DviPageMode pageMode = DviPageMode::Pk;
@@ -66,7 +66,7 @@ private:
   shared_ptr<Session> session;
 };
 
-void DviScanner::Run(int argc, const char ** argv)
+void DviScanner::Run(int argc, const char** argv)
 {
   Session::InitInfo initInfo(argv[0]);
 
@@ -122,31 +122,31 @@ void DviScanner::Run(int argc, const char ** argv)
   Init(initInfo);
   session = GetSession();
 
-  for (const string & dviFileName : leftovers)
+  for (const string& dviFileName : leftovers)
   {
-    unique_ptr<Dvi> pDvi(Dvi::Create(dviFileName.c_str(), metafontMode.c_str(), dpi, 5, DviAccess::Sequential, pageMode, session->GetPaperSizeInfo("A4size"), false, 0));
-    pDvi->Scan();
-    for (int i = 0; i < pDvi->GetNumberOfPages(); ++i)
+    unique_ptr<Dvi> dvi(Dvi::Create(dviFileName.c_str(), metafontMode.c_str(), dpi, 5, DviAccess::Sequential, pageMode, session->GetPaperSizeInfo("A4size"), false, 0));
+    dvi->Scan();
+    for (int i = 0; i < dvi->GetNumberOfPages(); ++i)
     {
-      DviPage * pPage = pDvi->GetLoadedPage(i);
-      if (pPage == nullptr)
+      DviPage* dviPage = dvi->GetLoadedPage(i);
+      if (dviPage == nullptr)
       {
         break;
       }
-      for (int j = 0; j < pPage->GetNumberOfDviBitmaps(5); ++j)
+      for (int j = 0; j < dviPage->GetNumberOfDviBitmaps(5); ++j)
       {
-        pPage->GetDviBitmap(5, j);
+        dviPage->GetDviBitmap(5, j);
       }
-      pPage->Unlock();
+      dviPage->Unlock();
     }
-    pDvi->Dispose();
-    pDvi = nullptr;
+    dvi->Dispose();
+    dvi = nullptr;
   }
 
   Finalize();
 }
 
-int main(int argc, const char ** argv)
+int main(int argc, const char** argv)
 
 {
   try
@@ -155,19 +155,19 @@ int main(int argc, const char ** argv)
     app.Run(argc, argv);
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     return 1;
   }
-  catch (const char * lpszMessage)
+  catch (const char* message)
   {
-    cerr << "fatal error: " << lpszMessage << endl;
+    cerr << "fatal error: " << message << endl;
     return 1;
   }
   catch (int retCode)
