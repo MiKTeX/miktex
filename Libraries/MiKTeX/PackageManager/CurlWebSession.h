@@ -147,14 +147,14 @@ public:
   }
 
 public:
-  void FatalCurlError(CURLcode code) const;
+  void FatalCurlError(CURLcode code, const char* effectiveUrl) const;
 
 public:
-  void ExpectOK(CURLcode code) const
+  void ExpectOK(CURLcode code, const char* effectiveUrl) const
   {
     if (code != CURLE_OK)
     {
-      FatalCurlError(code);
+      FatalCurlError(code, effectiveUrl);
     }
   }
 

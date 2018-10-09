@@ -28,6 +28,7 @@
 #include <thread>
 
 #include <miktex/Core/Registry>
+#include <miktex/Core/Uri>
 #include <miktex/Util/StringUtil>
 
 #if defined(MIKTEX_WINDOWS)
@@ -51,6 +52,7 @@
 
 using namespace std;
 
+using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
@@ -238,7 +240,7 @@ CurlWebSession::~CurlWebSession()
   }
 }
 
-void CurlWebSession::FatalCurlError(CURLcode code) const
+void CurlWebSession::FatalCurlError(CURLcode code, const char* effectiveUrl) const
 {
   string message = GetCurlErrorString(code);
   string description;
@@ -246,11 +248,19 @@ void CurlWebSession::FatalCurlError(CURLcode code) const
   string tag;
   switch (code)
   {
+  case CURLE_COULDNT_CONNECT:
+    if (effectiveUrl != nullptr)
+    {
+      Uri uri(effectiveUrl);
+      description = StringUtil::FormatString2(T_("A connection to {host} could not be established."), { {"host", uri.GetHost()} });
+      tag = "couldnt-connect";
+    }
+    break;
   case CURLE_SSL_CACERT:
     tag = "ssl-cacert";
     break;
   }
-  MIKTEX_FATAL_ERROR_5(message, description, remedy, tag, "code", std::to_string(code));
+  MIKTEX_FATAL_ERROR_5(message, description, remedy, tag, "code", std::to_string(code), "url", effectiveUrl == nullptr ? "" : effectiveUrl);
 }
 
 unique_ptr<WebFile> CurlWebSession::OpenUrl(const string& url, const std::unordered_map<std::string, std::string>& formData)
@@ -414,7 +424,13 @@ void CurlWebSession::ReadInformationals()
     {
       MIKTEX_FATAL_ERROR_2(T_("Unexpected cURL message."), "msg", std::to_string(pCurlMsg->msg));
     }
-    ExpectOK(pCurlMsg->data.result);
+    char* effectiveUrl = nullptr;
+    ExpectOK(curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_EFFECTIVE_URL, &effectiveUrl), nullptr);
+    if (effectiveUrl != nullptr)
+    {
+      trace_mpm->WriteFormattedLine("libmpm", T_("effective URL: %s"), effectiveUrl);
+    }
+    ExpectOK(pCurlMsg->data.result, effectiveUrl);
     long responseCode;
     CURLcode r;
 #if LIBCURL_VERSION_NUM >= 0x70a08
@@ -427,14 +443,8 @@ void CurlWebSession::ReadInformationals()
     {
       r = curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_HTTP_CODE, &responseCode);
     }
-    ExpectOK(r);
+    ExpectOK(r, effectiveUrl);
     trace_mpm->WriteFormattedLine("libmpm", T_("response code: %ld"), responseCode);
-    char* lpszEffectiveUrl = nullptr;
-    ExpectOK(curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_EFFECTIVE_URL, &lpszEffectiveUrl));
-    if (lpszEffectiveUrl != nullptr)
-    {
-      trace_mpm->WriteFormattedLine("libmpm", T_("effective URL: %s"), lpszEffectiveUrl);
-    }
     if (responseCode >= 300 && responseCode <= 399)
     {
 #if ALLOW_REDIRECTS
