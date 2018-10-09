@@ -115,7 +115,7 @@ DviSpecialType GraphicsSpecialImpl::Parse()
   {
     float texWidth;
     char unit[3];
-    if (sscanf_s(lpsz, "%f%2s", &texWidth, unit) != 2)
+    if (sscanf_s(lpsz, "%f%2s", &texWidth, unit, 3) != 2)
     {
       trace_error->WriteFormattedLine("libdvi", T_("invalid width specification: %s"), lpsz);
       return DviSpecialType::Unknown;
@@ -136,7 +136,7 @@ DviSpecialType GraphicsSpecialImpl::Parse()
     if (*lpsz != 0)
     {
       float texHeight;
-      if (sscanf_s(lpsz, "%f%2s", &texHeight, unit) != 2)
+      if (sscanf_s(lpsz, "%f%2s", &texHeight, unit, 3) != 2)
       {
         trace_error->WriteFormattedLine("libdvi", T_("invalid width specification: %s"), lpsz);
         return DviSpecialType::Unknown;
