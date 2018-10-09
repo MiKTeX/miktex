@@ -224,13 +224,13 @@ private:
   void CreateFontconfigLocalfontsConf();
 
 private:
-  void Verbose(const char* lpszFormat, ...);
+  void Verbose(const string& s);
 
 private:
-  MIKTEXNORETURN void CfgError(const char* lpszMessage, ...);
+  MIKTEXNORETURN void CfgError(const string& s);
 
 private:
-  MIKTEXNORETURN void MapError(const char* lpszMessage, ...);
+  MIKTEXNORETURN void MapError(const string& s);
 
 private:
   void ParseDvipsMapFile(const PathName& mapFile, set<FontMapEntry>& fontMapEntries);
@@ -396,13 +396,8 @@ void MakeFontMapApp::ProcessOptions(int argc, const char** argv)
   }
 }
 
-void MakeFontMapApp::Verbose(const char* lpszFormat, ...)
+void MakeFontMapApp::Verbose(const string& s)
 {
-  string s;
-  va_list arglist;
-  VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatStringVA(lpszFormat, arglist);
-  VA_END(arglist);
   LOG4CXX_INFO(logger, s);
   if (verbose)
   {
@@ -410,24 +405,18 @@ void MakeFontMapApp::Verbose(const char* lpszFormat, ...)
   }
 }
 
-MIKTEXNORETURN void MakeFontMapApp::CfgError(const char* lpszFormat, ...)
+MIKTEXNORETURN void MakeFontMapApp::CfgError(const string& s)
 {
-  va_list arglist;
-  VA_START(arglist, lpszFormat);
-  LOG4CXX_FATAL(logger, StringUtil::FormatStringVA(lpszFormat, arglist));
-  VA_END(arglist);
+  LOG4CXX_FATAL(logger, s);
   LOG4CXX_FATAL(logger, "cfg file: " << cfgContext.path);
   LOG4CXX_FATAL(logger, "line: " << cfgContext.line);
   Sorry(PROGRAM_NAME);
   throw 1;
 }
 
-MIKTEXNORETURN void MakeFontMapApp::MapError(const char* lpszFormat, ...)
+MIKTEXNORETURN void MakeFontMapApp::MapError(const string& s)
 {
-  va_list arglist;
-  VA_START(arglist, lpszFormat);
-  LOG4CXX_FATAL(logger, StringUtil::FormatStringVA(lpszFormat, arglist));
-  VA_END(arglist);
+  LOG4CXX_FATAL(logger, s);
   LOG4CXX_FATAL(logger, "map file: " << mapContext.path.GetData());
   LOG4CXX_FATAL(logger, "line: " << mapContext.line);
   Sorry(PROGRAM_NAME);
@@ -480,7 +469,7 @@ bool MakeFontMapApp::ScanConfigLine(const string& line, string& directive, strin
 
 void MakeFontMapApp::ParseConfigFile(const PathName& path)
 {
-  Verbose(T_("Parsing config file %s..."), Q_(path));
+  Verbose(fmt::format(T_("Parsing config file {0}..."), Q_(path)));
   StreamReader reader(path);
   cfgContext.path = path;
   cfgContext.line = 0;
@@ -769,7 +758,7 @@ bool MakeFontMapApp::LocateMap(const string& fileName, PathName& path, bool must
 #if 0
   if (!found)
   {
-    Verbose(T_("Not using map file %s"), Q_(fileName));
+    Verbose(fmt::format(T_("Not using map file {0}"), Q_(fileName)));
   }
 #endif
   return found;
@@ -906,7 +895,7 @@ void MakeFontMapApp::WriteDvipsMapFile(const PathName& fileName, const set<FontM
 {
   PathName path(GetDvipsOutputDir());
   path /= fileName;
-  Verbose(T_("Writing %s..."), Q_(path));
+  Verbose(fmt::format(T_("Writing {0}..."), Q_(path)));
   // TODO: backup old file
   ofstream writer = File::CreateOutputStream(path, ios_base::binary);
   WriteHeader(writer, path);
@@ -925,7 +914,7 @@ void MakeFontMapApp::WriteDvipdfmMapFile(const PathName& fileName, const set<Fon
 {
   PathName path(GetDvipdfmxOutputDir());
   path /= fileName;
-  Verbose(T_("Writing %s..."), Q_(path));
+  Verbose(fmt::format(T_("Writing {0}..."), Q_(path)));
   // TODO: backup old file
   ofstream writer = File::CreateOutputStream(path, ios_base::binary);
   WriteHeader(writer, path);
@@ -944,7 +933,7 @@ void MakeFontMapApp::WritePdfTeXMapFile(const PathName& fileName, const set<Font
 {
   PathName path(GetPdfTeXOutputDir());
   path /= fileName;
-  Verbose(T_("Writing %s..."), Q_(path));
+  Verbose(fmt::format(T_("Writing {0}..."), Q_(path)));
   // TODO: backup old file
   ofstream writer = File::CreateOutputStream(path, ios_base::binary);
   WriteHeader(writer, path);
@@ -961,7 +950,7 @@ void MakeFontMapApp::WritePdfTeXMapFile(const PathName& fileName, const set<Font
 
 void MakeFontMapApp::ParseDvipsMapFile(const PathName& mapFile, set<FontMapEntry>& fontMapEntries)
 {
-  Verbose(T_("Parsing %s..."), Q_(mapFile));
+  Verbose(fmt::format(T_("Parsing {0}..."), Q_(mapFile)));
 
   StreamReader reader(mapFile);
 
@@ -983,7 +972,7 @@ void MakeFontMapApp::ParseDvipsMapFile(const PathName& mapFile, set<FontMapEntry
     }
     catch (const MiKTeXException& e)
     {
-      MapError("%s", e.GetErrorMessage().c_str());
+      MapError(e.GetErrorMessage());
     }
   }
 
@@ -1108,8 +1097,8 @@ set<FontMapEntry> MakeFontMapApp::TranslateLW35(const set<FontMapEntry>& set1)
 
 void MakeFontMapApp::CopyFile(const PathName& pathSrc, const PathName& pathDest)
 {
-  Verbose(T_("Copying %s"), Q_(pathSrc));
-  Verbose(T_("     to %s..."), Q_(pathDest));
+  Verbose(fmt::format(T_("Copying {0}"), Q_(pathSrc)));
+  Verbose(fmt::format(T_("     to {0}..."), Q_(pathDest)));
   File::Copy(pathSrc, pathDest);
   if (!Fndb::FileExists(pathDest))
   {

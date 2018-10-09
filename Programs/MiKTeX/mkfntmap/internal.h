@@ -18,8 +18,6 @@
    along with MkFntMap; if not, write to the Free Software Foundation,
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#include <cstdarg>
-
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -69,17 +67,3 @@
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define BOOLSTR(b) ((b) ? "true" : "false")
-
-#define VA_START(arglist, lpszFormat   )        \
-va_start(arglist, lpszFormat);                  \
-try                                             \
-{
-
-#define VA_END(arglist)                         \
-}                                               \
-catch(...)                                      \
-{                                               \
-  va_end(arglist);                              \
-  throw;                                        \
-}                                               \
-va_end(arglist);
