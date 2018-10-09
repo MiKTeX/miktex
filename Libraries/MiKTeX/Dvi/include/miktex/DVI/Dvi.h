@@ -1,6 +1,6 @@
 /* miktex/DVI/Dvi.h: DVI interfaces                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -19,9 +19,7 @@
    Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
    USA.  */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(B371214BB940374EA689C48ED44141CD)
 #define B371214BB940374EA689C48ED44141CD
