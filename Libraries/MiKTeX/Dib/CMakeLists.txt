@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -32,7 +32,6 @@ set(public_headers
 set(${dib_dll_name}_sources
   ${public_headers}
   DibChunker.cpp
-  StdAfx.h
   dib-version.h
   internal.h
 )

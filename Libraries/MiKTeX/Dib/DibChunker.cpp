@@ -19,7 +19,17 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include <Windows.h>
+
+#include <memory>
+
+#include <miktex/Core/AutoResource>
+#include <miktex/Core/Debug>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/Session>
+
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
 
