@@ -110,7 +110,6 @@ configure_file(
 set(kpsemu_sources
   ${public_headers}
   ${CMAKE_CURRENT_BINARY_DIR}/kpsemu-version.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/kpsemu.cpp
 )

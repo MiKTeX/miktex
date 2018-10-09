@@ -20,7 +20,31 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include <cstdarg>
+#include <cstdlib>
+
+#include <iostream>
+#include <memory>
+#include <string>
+
+#if defined(MIKTEX_UNIX)
+#include <sys/time.h>
+#endif
+
+#include <miktex/App/Application>
+#include <miktex/C4P/C4P>
+#include <miktex/Core/BufferSizes>
+#include <miktex/Core/Cfg>
+#include <miktex/Core/ConfigNames>
+#include <miktex/Core/File>
+#include <miktex/Core/FileType>
+#include <miktex/Core/Fndb>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Process>
+#include <miktex/Core/Registry>
+#include <miktex/TeXAndFriends/Prototypes>
+#include <miktex/Util/CharBuffer>
+#include <miktex/Version>
 
 #include "internal.h"
 
