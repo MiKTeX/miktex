@@ -1,6 +1,6 @@
-/* kpsemu-version.h: version number			-*- C++ -*-
+/* kpsemu-version.h: version number                     -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
