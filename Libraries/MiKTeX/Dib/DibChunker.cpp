@@ -1,6 +1,6 @@
 /* DibChunker.cpp:
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of the MiKTeX DibChunker Library.
 
@@ -49,8 +49,8 @@ DibChunker::~DibChunker()
 {
 }
 
-DibChunkerImpl::DibChunkerImpl()
-  : trace_dib(TraceStream::Open(MIKTEX_TRACE_DIB))
+DibChunkerImpl::DibChunkerImpl() :
+  trace_dib(TraceStream::Open(MIKTEX_TRACE_DIB))
 {
 }
 
@@ -58,20 +58,20 @@ DibChunkerImpl::~DibChunkerImpl()
 {
   try
   {
-    if (pColors != nullptr)
+    if (colors != nullptr)
     {
-      delete[] pColors;
-      pColors = nullptr;
+      delete[] colors;
+      colors = nullptr;
     }
-    if (pScanLine != nullptr)
+    if (scanLine != nullptr)
     {
-      delete[] pScanLine;
-      pScanLine = nullptr;
+      delete[] scanLine;
+      scanLine = nullptr;
     }
-    if (pBits != nullptr)
+    if (bits != nullptr)
     {
-      delete[] pBits;
-      pBits = nullptr;
+      delete[] bits;
+      bits = nullptr;
     }
     if (trace_dib != nullptr)
     {
@@ -79,19 +79,19 @@ DibChunkerImpl::~DibChunkerImpl()
       trace_dib = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-bool DibChunkerImpl::Read(void * pData, size_t size, bool allowEof)
+bool DibChunkerImpl::Read(void* data, size_t size, bool allowEof)
 {
   while (size > 0)
   {
-    size_t n = pCallback->Read(pData, size);
+    size_t n = callback->Read(data, size);
     size -= n;
     this->numBytesRead += n;
-    pData = reinterpret_cast<unsigned char*>(pData) + n;
+    data = reinterpret_cast<unsigned char*>(data) + n;
     if (n == 0)
     {
       if (allowEof)
@@ -154,7 +154,7 @@ void DibChunkerImpl::ReadBitmapInfo()
   if (bitmapInfoHeader.biSize > sizeof(bitmapInfoHeader))
   {
     unsigned long n = bitmapInfoHeader.biSize - sizeof(bitmapInfoHeader);
-    void * p = malloc(n);
+    void* p = malloc(n);
     if (p == nullptr)
     {
       OUT_OF_MEMORY("malloc");
@@ -167,8 +167,8 @@ void DibChunkerImpl::ReadBitmapInfo()
   numColors = bitmapInfoHeader.biClrUsed == 0 ? CalcNumColors(bitmapInfoHeader.biBitCount) : bitmapInfoHeader.biClrUsed;
   if (numColors > 0)
   {
-    pColors = new RGBQUAD[numColors];
-    Read(pColors, sizeof(RGBQUAD) * numColors);
+    colors = new RGBQUAD[numColors];
+    Read(colors, sizeof(RGBQUAD) * numColors);
   }
 
   // seek for bitmap bits
@@ -179,7 +179,7 @@ void DibChunkerImpl::ReadBitmapInfo()
   if (bitmapFileHeader.bfOffBits > numBytesRead)
   {
     unsigned long n = bitmapFileHeader.bfOffBits - numBytesRead;
-    void * p = malloc(n);
+    void* p = malloc(n);
     if (p == nullptr)
     {
       OUT_OF_MEMORY("malloc");
@@ -191,7 +191,7 @@ void DibChunkerImpl::ReadBitmapInfo()
   trace_dib->WriteFormattedLine("libdib", T_("chunking bitmap %ldx%ld, %u colors"), bitmapInfoHeader.biWidth, bitmapInfoHeader.biHeight, numColors);
 }
 
-bool DibChunkerImpl::Crop1(unsigned long & left, unsigned long & right)
+bool DibChunkerImpl::Crop1(unsigned long& left, unsigned long& right)
 {
   left = UINT_MAX;
   right = UINT_MAX;
@@ -217,7 +217,7 @@ bool DibChunkerImpl::Crop1(unsigned long & left, unsigned long & right)
   // crop
   for (unsigned long idx = 0; idx < n; idx += 1)
   {
-    if (pScanLine[idx] != white)
+    if (scanLine[idx] != white)
     {
       if (idx < left)
       {
@@ -230,7 +230,7 @@ bool DibChunkerImpl::Crop1(unsigned long & left, unsigned long & right)
   return true;
 }
 
-bool DibChunkerImpl::Crop4(unsigned long & left, unsigned long & right)
+bool DibChunkerImpl::Crop4(unsigned long& left, unsigned long& right)
 {
   left = UINT_MAX;
   right = UINT_MAX;
@@ -243,7 +243,7 @@ bool DibChunkerImpl::Crop4(unsigned long & left, unsigned long & right)
   // crop
   for (unsigned long idx = 0; idx < n; idx += 1)
   {
-    unsigned char byte = pScanLine[idx];
+    unsigned char byte = scanLine[idx];
     unsigned high = (byte >> 4) & 15;
     unsigned low = byte & 15;
     if (!(GetColor(high) == RGB_WHITE && GetColor(low) == RGB_WHITE))
@@ -263,7 +263,7 @@ bool DibChunkerImpl::Crop4(unsigned long & left, unsigned long & right)
   return isBlackAndWhite;
 }
 
-bool DibChunkerImpl::Crop8(unsigned long & left, unsigned long & right)
+bool DibChunkerImpl::Crop8(unsigned long& left, unsigned long& right)
 {
   left = UINT_MAX;
   right = UINT_MAX;
@@ -276,14 +276,14 @@ bool DibChunkerImpl::Crop8(unsigned long & left, unsigned long & right)
   // crop
   for (unsigned long idx = 0; idx < n; idx += 1)
   {
-    if (GetColor(pScanLine[idx]) != RGB_WHITE)
+    if (GetColor(scanLine[idx]) != RGB_WHITE)
     {
       if (idx < left)
       {
         left = idx;
       }
       right = idx;
-      if (GetColor(pScanLine[idx]) != RGB_BLACK)
+      if (GetColor(scanLine[idx]) != RGB_BLACK)
       {
         isBlackAndWhite = false;
       }
@@ -293,7 +293,7 @@ bool DibChunkerImpl::Crop8(unsigned long & left, unsigned long & right)
   return isBlackAndWhite;
 }
 
-bool DibChunkerImpl::Crop24(unsigned long & left, unsigned long & right)
+bool DibChunkerImpl::Crop24(unsigned long& left, unsigned long& right)
 {
   left = UINT_MAX;
   right = UINT_MAX;
@@ -306,7 +306,7 @@ bool DibChunkerImpl::Crop24(unsigned long & left, unsigned long & right)
   // crop
   for (unsigned long idx = 0; idx < n; idx += 3)
   {
-    COLORREF clr = RGB(pScanLine[idx + 2], pScanLine[idx + 1], pScanLine[idx]);
+    COLORREF clr = RGB(scanLine[idx + 2], scanLine[idx + 1], scanLine[idx]);
     if (clr != RGB_WHITE)
     {
       if (idx < left)
@@ -324,16 +324,16 @@ bool DibChunkerImpl::Crop24(unsigned long & left, unsigned long & right)
   return isBlackAndWhite;
 }
 
-bool DibChunkerImpl::ReadScanLine(unsigned long & left, unsigned long & right)
+bool DibChunkerImpl::ReadScanLine(unsigned long& left, unsigned long& right)
 {
   unsigned long n = BytesPerLine();
 
-  if (pScanLine == nullptr)
+  if (scanLine == nullptr)
   {
-    pScanLine = new unsigned char[n];
+    scanLine = new unsigned char[n];
   }
 
-  Read(pScanLine, n);
+  Read(scanLine, n);
 
   bool isBlackAndWhite;
 
@@ -389,7 +389,7 @@ bool DibChunkerImpl::ReadScanLine(unsigned long & left, unsigned long & right)
 void DibChunkerImpl::AddScanLine()
 {
   unsigned long n = BytesPerLine();
-  memcpy(&pBits[n * numScanLines], pScanLine, n);
+  memcpy(&bits[n * numScanLines], scanLine, n);
   numScanLines += 1;
 }
 
@@ -404,27 +404,27 @@ void DibChunkerImpl::BeginChunk()
   yPosChunk = yPos;
 }
 
-void DibChunkerImpl::Monochromize24(const unsigned char * pSrc, unsigned char * pDst, unsigned long width)
+void DibChunkerImpl::Monochromize24(const unsigned char* src, unsigned char* dst, unsigned long width)
 {
   unsigned char byte = 0;
   unsigned long idx;
   for (idx = 0; idx < width; ++idx)
   {
     unsigned n = (idx % 8);
-    COLORREF clr = RGB(pSrc[idx * 3 + 2], pSrc[idx * 3 + 1], pSrc[idx * 3 + 0]);
+    COLORREF clr = RGB(src[idx * 3 + 2], src[idx * 3 + 1], src[idx * 3 + 0]);
     if (clr != RGB_WHITE)
     {
       byte |= (1 << (7 - n));
     }
     if (n == 7)
     {
-      *pDst++ = byte;
+      *dst++ = byte;
       byte = 0;
     }
   }
   if ((idx % 8) > 0)
   {
-    *pDst++ = byte;
+    *dst++ = byte;
   }
 }
 
@@ -476,9 +476,9 @@ void DibChunkerImpl::EndChunk()
     MIKTEX_UNEXPECTED();
   }
 
-  shared_ptr<DibChunkImpl> pChunk = make_shared<DibChunkImpl>(bytesPerLine, numScanLines);
+  shared_ptr<DibChunkImpl> chunk = make_shared<DibChunkImpl>(bytesPerLine, numScanLines);
 
-  pChunk->SetX(x);
+  chunk->SetX(x);
 
   // make chunked bitmap info header
   BITMAPINFOHEADER bitmapinfoheader;
@@ -486,50 +486,50 @@ void DibChunkerImpl::EndChunk()
   bitmapinfoheader.biHeight = numScanLines;
   bitmapinfoheader.biWidth = biWidth;
   bitmapinfoheader.biSizeImage = 0;
-  const RGBQUAD * pColors = nullptr;
+  const RGBQUAD* colors = nullptr;
   unsigned numColors = 0;
   if (monochromize24)
   {
     bitmapinfoheader.biBitCount = 1;
     numColors = 2;
-    pColors = &whiteAndBlack[0];
+    colors = &whiteAndBlack[0];
   }
   else
   {
     numColors = this->numColors;
-    pColors = this->pColors;
+    colors = this->colors;
   }
   // FIXME: okay?
   int y = yPosChunk;
   y += bitmapinfoheader.biHeight - 1;
   y = this->bitmapInfoHeader.biHeight - y;
-  pChunk->SetY(y);
+  chunk->SetY(y);
   //
-  unsigned char * pBits = reinterpret_cast<unsigned char*>(pChunk->GetBits2());
+  unsigned char* bits = reinterpret_cast<unsigned char*>(chunk->GetBits2());
   for (unsigned long i = 0; i < numScanLines; ++i)
   {
-    const unsigned char * pSrc = this->pBits + i * BytesPerLine() + leftPos;
-    unsigned char * pDest = pBits + i * bytesPerLine;
-    memset(pDest, 0, bytesPerLine);
+    const unsigned char* src = this->bits + i * BytesPerLine() + leftPos;
+    unsigned char* dest = bits + i * bytesPerLine;
+    memset(dest, 0, bytesPerLine);
     if (monochromize24)
     {
-      Monochromize24(pSrc, pDest, biWidth);
+      Monochromize24(src, dest, biWidth);
     }
     else
     {
-      memcpy(pDest, pSrc, bytesInChunk);
+      memcpy(dest, src, bytesInChunk);
     }
   }
-  trace_dib->WriteFormattedLine("libdib", T_("shipping chunk: x=%ld, y=%ld, w=%ld, h=%ld, monochromized=%s"), pChunk->GetX(), pChunk->GetY(), bitmapinfoheader.biWidth, bitmapinfoheader.biHeight, (monochromize24 ? "true" : "false"));
+  trace_dib->WriteFormattedLine("libdib", T_("shipping chunk: x=%ld, y=%ld, w=%ld, h=%ld, monochromized=%s"), chunk->GetX(), chunk->GetY(), bitmapinfoheader.biWidth, bitmapinfoheader.biHeight, (monochromize24 ? "true" : "false"));
   inChunk = false;
-  pChunk->SetBitmapInfo(bitmapinfoheader, numColors, pColors);
-  pCallback->OnNewChunk(pChunk);
+  chunk->SetBitmapInfo(bitmapinfoheader, numColors, colors);
+  callback->OnNewChunk(chunk);
 }
 
-bool DibChunkerImpl::Process(unsigned long flags, unsigned long chunkSize, IDibChunkerCallback * pCallback)
+bool DibChunkerImpl::Process(unsigned long flags, unsigned long chunkSize, IDibChunkerCallback* callback)
 {
   this->processingFlags = flags;
-  this->pCallback = pCallback;
+  this->callback = callback;
   numBytesRead = 0;
   if (!ReadBitmapFileHeader())
   {
@@ -540,7 +540,7 @@ bool DibChunkerImpl::Process(unsigned long flags, unsigned long chunkSize, IDibC
   {
     MIKTEX_UNEXPECTED();
   }
-  pBits = new unsigned char[chunkSize];
+  bits = new unsigned char[chunkSize];
   try
   {
     inChunk = false;
@@ -597,14 +597,14 @@ bool DibChunkerImpl::Process(unsigned long flags, unsigned long chunkSize, IDibC
     {
       EndChunk();
     }
-    delete[] pBits;
-    pBits = nullptr;
+    delete[] bits;
+    bits = nullptr;
     return true;
   }
   catch (const exception &)
   {
-    delete[] pBits;
-    pBits = nullptr;
+    delete[] bits;
+    bits = nullptr;
     throw;
   }
 }

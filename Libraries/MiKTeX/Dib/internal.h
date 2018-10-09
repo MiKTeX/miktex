@@ -1,6 +1,6 @@
 /* internal.h:                                          -*- C++ -*-
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of the MiKTeX DibChunker Library.
 
@@ -32,14 +32,15 @@
 
 #define INTERNALFUNC(type) type
 
-class DibChunkImpl : public MiKTeX::Graphics::DibChunk
+class DibChunkImpl :
+  public MiKTeX::Graphics::DibChunk
 {
 public:
   DibChunkImpl(unsigned bytesPerLine, unsigned numScanLines) :
     size(bytesPerLine * numScanLines)
   {
-    pBits = malloc(size);
-    if (pBits == nullptr)
+    bits = malloc(size);
+    if (bits == nullptr)
     {
       OUT_OF_MEMORY("malloc");
     }
@@ -48,15 +49,15 @@ public:
 public:
   virtual MIKTEXTHISCALL ~DibChunkImpl()
   {
-    if (pBitmapInfo != nullptr)
+    if (bitmapInfo != nullptr)
     {
-      free(pBitmapInfo);
-      pBitmapInfo = nullptr;
+      free(bitmapInfo);
+      bitmapInfo = nullptr;
     }
-    if (pBits != nullptr)
+    if (bits != nullptr)
     {
-      free(pBits);
-      pBits = nullptr;
+      free(bits);
+      bits = nullptr;
     }
   }
 
@@ -75,25 +76,25 @@ public:
 public:
   virtual BITMAPINFOHEADER MIKTEXTHISCALL GetBitmapInfoHeader() const
   {
-    return pBitmapInfo->bmiHeader;
+    return bitmapInfo->bmiHeader;
   }
 
 public:
-  virtual const RGBQUAD * MIKTEXTHISCALL GetColors() const
+  virtual const RGBQUAD* MIKTEXTHISCALL GetColors() const
   {
-    return &pBitmapInfo->bmiColors[0];
+    return &bitmapInfo->bmiColors[0];
   }
 
 public:
-  virtual const void * MIKTEXTHISCALL GetBits() const
+  virtual const void* MIKTEXTHISCALL GetBits() const
   {
-    return pBits;
+    return bits;
   }
 
 public:
-  virtual const BITMAPINFO * MIKTEXTHISCALL GetBitmapInfo() const
+  virtual const BITMAPINFO* MIKTEXTHISCALL GetBitmapInfo() const
   {
-    return pBitmapInfo;
+    return bitmapInfo;
   }
 
 public:
@@ -115,29 +116,29 @@ public:
   }
 
 public:
-  void SetBitmapInfo(const BITMAPINFOHEADER & bitmapInfoHeader, unsigned numColors, const RGBQUAD * pColors)
+  void SetBitmapInfo(const BITMAPINFOHEADER& bitmapInfoHeader, unsigned numColors, const RGBQUAD* colors)
   {
-    if (pBitmapInfo != nullptr)
+    if (bitmapInfo != nullptr)
     {
-      free(pBitmapInfo);
-      pBitmapInfo = nullptr;
+      free(bitmapInfo);
+      bitmapInfo = nullptr;
     }
-    pBitmapInfo = reinterpret_cast<BITMAPINFO*>(malloc(bitmapInfoHeader.biSize + numColors * sizeof(RGBQUAD)));
-    if (pBitmapInfo == nullptr)
+    bitmapInfo = reinterpret_cast<BITMAPINFO*>(malloc(bitmapInfoHeader.biSize + numColors * sizeof(RGBQUAD)));
+    if (bitmapInfo == nullptr)
     {
       OUT_OF_MEMORY("malloc");
     }
-    memcpy(&pBitmapInfo->bmiHeader, &bitmapInfoHeader, bitmapInfoHeader.biSize);
+    memcpy(&bitmapInfo->bmiHeader, &bitmapInfoHeader, bitmapInfoHeader.biSize);
     if (numColors > 0)
     {
-      memcpy(pBitmapInfo->bmiColors, pColors, numColors * sizeof(RGBQUAD));
+      memcpy(bitmapInfo->bmiColors, colors, numColors * sizeof(RGBQUAD));
     }
   }
 
 public:
-  void * GetBits2()
+  void* GetBits2()
   {
-    return pBits;
+    return bits;
   }
 
 private:
@@ -147,10 +148,10 @@ private:
   int y;
 
 private:
-  BITMAPINFO * pBitmapInfo = nullptr;
+  BITMAPINFO* bitmapInfo = nullptr;
 
 private:
-  void * pBits;
+  void* bits;
 
 private:
   size_t size;
@@ -165,10 +166,10 @@ public:
   virtual MIKTEXTHISCALL ~DibChunkerImpl();
 
 public:
-  virtual bool MIKTEXTHISCALL Process(unsigned long flags, unsigned long chunkSize, MiKTeX::Graphics::IDibChunkerCallback * pCallback);
+  virtual bool MIKTEXTHISCALL Process(unsigned long flags, unsigned long chunkSize, MiKTeX::Graphics::IDibChunkerCallback* callback);
 
 private:
-  bool Read(void * pData, size_t n, bool allowEof = false);
+  bool Read(void* data, size_t n, bool allowEof = false);
 
 private:
   bool ReadBitmapFileHeader();
@@ -177,7 +178,7 @@ private:
   void ReadBitmapInfo();
 
 private:
-  bool ReadScanLine(unsigned long & left, unsigned long & right);
+  bool ReadScanLine(unsigned long& left, unsigned long& right);
 
 private:
   void BeginChunk();
@@ -191,7 +192,7 @@ private:
 private:
   unsigned long BytesPerLine(long width, long bitCount) const
   {
-    return (((width * bitCount) + 31) & ~31) >> 3;
+    return (((width* bitCount) + 31) & ~31) >> 3;
   }
 
 private:
@@ -209,41 +210,41 @@ private:
 private:
   COLORREF GetColor(unsigned long idx) const
   {
-    MIKTEX_ASSERT(pColors != nullptr);
+    MIKTEX_ASSERT(colors != nullptr);
     MIKTEX_ASSERT(idx < numColors);
-    RGBQUAD q = pColors[idx];
+    RGBQUAD q = colors[idx];
     return RGB(q.rgbRed, q.rgbGreen, q.rgbBlue);
   }
 
 private:
-  bool Crop1(unsigned long & left, unsigned long & right);
+  bool Crop1(unsigned long& left, unsigned long& right);
 
 private:
-  bool Crop4(unsigned long & left, unsigned long & right);
+  bool Crop4(unsigned long& left, unsigned long& right);
 
 private:
-  bool Crop8(unsigned long & left, unsigned long & right);
+  bool Crop8(unsigned long& left, unsigned long& right);
 
 private:
-  bool Crop24(unsigned long & left, unsigned long & right);
+  bool Crop24(unsigned long& left, unsigned long& right);
 
 private:
-  void Monochromize24(const unsigned char * pSrc, unsigned char * pDst, unsigned long width);
+  void Monochromize24(const unsigned char* src, unsigned char* dst, unsigned long width);
 
 private:
-  MiKTeX::Graphics::IDibChunkerCallback * pCallback;
+  MiKTeX::Graphics::IDibChunkerCallback* callback;
 
 private:
-  RGBQUAD * pColors = nullptr;
+  RGBQUAD* colors = nullptr;
 
 private:
   size_t numBytesRead;
 
 private:
-  unsigned char * pScanLine = nullptr;
+  unsigned char* scanLine = nullptr;
 
 private:
-  unsigned char * pBits = nullptr;
+  unsigned char* bits = nullptr;
 
 private:
   unsigned numScanLines;

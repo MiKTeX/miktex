@@ -61,13 +61,13 @@ public:
   virtual BITMAPINFOHEADER MIKTEXTHISCALL GetBitmapInfoHeader() const = 0;
 
 public:
-  virtual const RGBQUAD * MIKTEXTHISCALL GetColors() const = 0;
+  virtual const RGBQUAD* MIKTEXTHISCALL GetColors() const = 0;
 
 public:
-  virtual const void * MIKTEXTHISCALL GetBits() const = 0;
+  virtual const void* MIKTEXTHISCALL GetBits() const = 0;
 
 public:
-  virtual const BITMAPINFO * MIKTEXTHISCALL GetBitmapInfo() const = 0;
+  virtual const BITMAPINFO* MIKTEXTHISCALL GetBitmapInfo() const = 0;
 
 public:
   virtual std::size_t MIKTEXTHISCALL GetSize() const = 0;
@@ -76,7 +76,7 @@ public:
 class MIKTEXNOVTABLE IDibChunkerCallback
 {
 public:
-  virtual std::size_t MIKTEXTHISCALL Read(void * pBuf, std::size_t size) = 0;
+  virtual std::size_t MIKTEXTHISCALL Read(void* data, std::size_t size) = 0;
 
 public:
   virtual void MIKTEXTHISCALL OnNewChunk(std::shared_ptr<DibChunk> chunk) = 0;
@@ -96,7 +96,7 @@ public:
   };
 
 public:
-  virtual bool MIKTEXTHISCALL Process(unsigned long flags, unsigned long chunkSize, IDibChunkerCallback * pCallback) = 0;
+  virtual bool MIKTEXTHISCALL Process(unsigned long flags, unsigned long chunkSize, IDibChunkerCallback* callback) = 0;
 
 public:
   static MIKTEXDIBCEEAPI(std::unique_ptr<DibChunker>) Create();
