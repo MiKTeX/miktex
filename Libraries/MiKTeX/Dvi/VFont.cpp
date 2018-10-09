@@ -67,7 +67,7 @@ VFont::~VFont()
       trace_vfont = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }

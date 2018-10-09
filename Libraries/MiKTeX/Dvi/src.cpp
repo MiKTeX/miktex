@@ -112,7 +112,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
       {
         dviPage = reinterpret_cast<DviPageImpl*>(GetLoadedPage(pageIdx));
       }
-      catch (const OperationCancelledException &)
+      catch (const OperationCancelledException&)
       {
         return false;
       }

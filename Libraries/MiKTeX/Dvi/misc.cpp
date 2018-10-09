@@ -93,7 +93,7 @@ InputStream::~InputStream()
       stream.Close();
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }

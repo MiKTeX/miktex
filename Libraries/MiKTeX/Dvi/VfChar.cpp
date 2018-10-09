@@ -54,7 +54,7 @@ VfChar::~VfChar()
       trace_vfchar = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }

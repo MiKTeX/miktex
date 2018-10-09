@@ -63,7 +63,7 @@ Tfm::~Tfm()
       trace_tfm = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }

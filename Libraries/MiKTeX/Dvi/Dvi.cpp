@@ -121,7 +121,7 @@ DviImpl::~DviImpl()
   {
     Dispose();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -685,7 +685,7 @@ void DviImpl::DoPage(int pageIdx)
     page.Freeze();
   }
 
-  catch (const DviFileInUseException &)
+  catch (const DviFileInUseException&)
   {
     page.Freeze();
     throw;
@@ -1263,13 +1263,13 @@ DviPage* DviImpl::GetPage(int pageIdx)
       }
       return dviPage;
     }
-    catch (const exception &)
+    catch (const exception&)
     {
       try
       {
         dviPage->Unlock();
       }
-      catch (const exception &)
+      catch (const exception&)
       {
       }
       throw;

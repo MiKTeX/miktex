@@ -184,7 +184,7 @@ DviPageImpl::~DviPageImpl()
       traceBitmap = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -684,7 +684,7 @@ void DviPageImpl::Unlock()
       FreeContents(false, false);
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     pageMutex.unlock();
     throw;
@@ -694,12 +694,12 @@ void DviPageImpl::Unlock()
 
 HypertexSpecial* DviPageImpl::GetNextHyperref(int& idx)
 {
-  HypertexSpecial* pHyperSpecial;
-  while ((pHyperSpecial = GetNextSpecial<HypertexSpecial>(idx)) != 0)
+  HypertexSpecial* hyperSpecial;
+  while ((hyperSpecial = GetNextSpecial<HypertexSpecial>(idx)) != 0)
   {
-    if (!pHyperSpecial->IsName())
+    if (!hyperSpecial->IsName())
     {
-      return pHyperSpecial;
+      return hyperSpecial;
     }
   }
   return nullptr;
@@ -725,7 +725,7 @@ void DviPageImpl::MakeDibChunks(int shrinkFactor)
     dvipsTranscriptReader.join();
     ghostscriptTranscriptReader.join();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     dvipsErr.Close();
     if (dvipsOut.GetFile() != nullptr)
@@ -774,14 +774,14 @@ void DviPageImpl::DvipsTranscriptReader()
         dvipsTranscript.append(buf, n);
       }
     }
-    catch (const BrokenPipeException &)
+    catch (const BrokenPipeException&)
     {
     }
   }
-  catch (const MiKTeXException &)
+  catch (const MiKTeXException&)
   {
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -801,14 +801,14 @@ void DviPageImpl::GhostscriptTranscriptReader()
         gsTranscript.append(buf, n);
       }
     }
-    catch (const BrokenPipeException &)
+    catch (const BrokenPipeException&)
     {
     }
   }
-  catch (const MiKTeXException &)
+  catch (const MiKTeXException&)
   {
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }

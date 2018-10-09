@@ -185,7 +185,7 @@ void Ghostscript::Chunker()
     {
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     gsOut.Close();
     throw;

@@ -95,7 +95,7 @@ PkChar::~PkChar()
       trace_pkchar = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }

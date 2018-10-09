@@ -199,18 +199,17 @@ bool DviImpl::FindHyperLabel(const char* label, DviPosition& position)
         throw DviPageNotFoundException("", T_("The DVI page could not be found."), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
       }
       AutoUnlockPage autoUnlockPage(dviPage);
-      HypertexSpecial* pHyperSpecial;
+      HypertexSpecial* hyperSpecial;
       for (int j = -1;
-      ((pHyperSpecial = dviPage->GetNextSpecial<HypertexSpecial>(j))
+      ((hyperSpecial = dviPage->GetNextSpecial<HypertexSpecial>(j))
         != 0);
       )
       {
-        if (pHyperSpecial->IsName()
-          && strcmp(label, pHyperSpecial->GetName()) == 0)
+        if (hyperSpecial->IsName() && strcmp(label, hyperSpecial->GetName()) == 0)
         {
           position.pageIdx = p;
-          position.x = pHyperSpecial->GetX();
-          position.y = pHyperSpecial->GetY();
+          position.x = hyperSpecial->GetX();
+          position.y = hyperSpecial->GetY();
           trace_hypertex->WriteFormattedLine("libdvi", T_("found %s on page %d at %d,%d"), label, p, position.x, position.y);
           return true;
         }

@@ -158,7 +158,7 @@ FILE* PostScript::ConvertToEPS(const char* fileName)
   {
     pFileIn = File::Open(fileName, FileMode::Open, FileAccess::Read, false);
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     fclose(filePipeRead);
     fclose(filePipeWrite);
@@ -170,7 +170,7 @@ FILE* PostScript::ConvertToEPS(const char* fileName)
     thread converterThread(&PostScript::ConvertToEPSThread, this, fileName, pFileIn, filePipeWrite);
     converterThread.detach();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     fclose(filePipeRead);
     throw;
