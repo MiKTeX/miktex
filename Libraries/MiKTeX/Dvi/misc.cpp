@@ -285,7 +285,7 @@ HENHMETAFILE GraphicsInclusionImpl::LoadEnhMetaFile(const PathName& fileName)
 
   if (pMapFile == nullptr)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR("MapViewOfFile", "fileName", fileName.Get());
+    MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "fileName", fileName.GetData());
   }
 
   AutoUnmapViewOfFile autoUnmap(pMapFile);
