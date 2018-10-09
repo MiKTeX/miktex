@@ -1,6 +1,6 @@
 /* vfchar.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -25,8 +25,8 @@
 
 class DviFont;
 
-VfChar::VfChar(DviFont * pFont) :
-  DviChar(pFont),
+VfChar::VfChar(DviFont* dviFont) :
+  DviChar(dviFont),
   trace_vfchar(TraceStream::Open(MIKTEX_TRACE_DVIVFCHAR))
 {
 }
@@ -35,13 +35,13 @@ VfChar::~VfChar()
 {
   try
   {
-    if (pPacket != nullptr)
+    if (packet != nullptr)
     {
       if (packetSize > sizeof(smallPacket))
       {
-        delete[] pPacket;
+        delete[] packet;
       }
-      pPacket = nullptr;
+      packet = nullptr;
       packetSize = 0;
     }
     if (trace_vfchar != nullptr)
@@ -57,7 +57,7 @@ VfChar::~VfChar()
 
 const short long_char = 242;
 
-void VfChar::Read(InputStream & inputstream, int size, double conv)
+void VfChar::Read(InputStream& inputstream, int size, double conv)
 {
   if (size == long_char)
   {
@@ -77,19 +77,19 @@ void VfChar::Read(InputStream & inputstream, int size, double conv)
   trace_vfchar->WriteFormattedLine("libdvi", "cc: %d", charCode);
   trace_vfchar->WriteFormattedLine("libdvi", "tfm: %d", tfm);
 
-  tfm = ScaleFix(tfm, pDviFont->GetScaledAt());
+  tfm = ScaleFix(tfm, dviFont->GetScaledAt());
   cx = static_cast<int>(tfm * conv + 0.5);
 
   trace_vfchar->WriteFormattedLine("libdvi", "dx: %d", cx);
 
   if (packetSize <= sizeof(smallPacket))
   {
-    pPacket = smallPacket;
+    packet = smallPacket;
   }
   else
   {
-    pPacket = new BYTE[packetSize];
+    packet = new BYTE[packetSize];
   }
 
-  inputstream.Read(pPacket, packetSize);
+  inputstream.Read(packet, packetSize);
 }

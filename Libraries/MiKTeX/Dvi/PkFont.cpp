@@ -1,6 +1,6 @@
 /* PkFont.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -24,10 +24,10 @@
 #include "StdAfx.h"
 #include "internal.h"
 
-PkFont::PkFont(DviImpl * pDvi, int checkSum, int scaledSize, int designSize, const char * lpszAreaName, const char * lpszFontName, const char * lpszFileName, double tfmConv, double conv, int mag, const char * lpszMetafontMode, int baseDpi) :
-  DviFont(pDvi, checkSum, scaledSize, designSize, lpszAreaName, lpszFontName, lpszFileName, tfmConv, conv),
+PkFont::PkFont(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConv, double conv, int mag, const char* metafontMode, int baseDpi) :
+  DviFont(dviImpl, checkSum, scaledSize, designSize, area, fontName, fileName, tfmConv, conv),
   mag(mag),
-  metafontMode(lpszMetafontMode),
+  metafontMode(metafontMode),
   baseDpi(baseDpi),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_pkfont(TraceStream::Open(MIKTEX_TRACE_DVIPKFONT))
@@ -62,7 +62,7 @@ PkFont::~PkFont()
       trace_pkfont = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -70,7 +70,7 @@ PkFont::~PkFont()
 void PkFont::AddSize(int rhsize)
 {
   int hsize = rhsize;
-  int * p;
+  int* p;
   for (p = existSizes; *p < hsize; ++p)
   {
     ;
@@ -286,9 +286,9 @@ void PkFont::Read()
     default:
 
       // do a character definition
-      PkChar * pPkChar = new PkChar(this);
-      pPkChar->Read(inputstream, b);
-      pkChars[pPkChar->GetCharacterCode()] = pPkChar;
+      PkChar* pkChar = new PkChar(this);
+      pkChar->Read(inputstream, b);
+      pkChars[pkChar->GetCharacterCode()] = pkChar;
       break;
     }
   }
@@ -296,7 +296,7 @@ void PkFont::Read()
   dviInfo.notLoadable = !fontFileExists;
 }
 
-bool PkFont::Make(const string & name, int dpi, int baseDpi, const string & metafontMode)
+bool PkFont::Make(const string& name, int dpi, int baseDpi, const string& metafontMode)
 {
   dviInfo.transcript += "\r\n";
   dviInfo.transcript += T_("Making PK font:\r\n");
@@ -304,7 +304,7 @@ bool PkFont::Make(const string & name, int dpi, int baseDpi, const string & meta
   vector<string> args = session->MakeMakePkCommandLine(name, dpi, baseDpi, metafontMode, pathMakePk, TriState::Undetermined);
   dviInfo.transcript += CommandLineBuilder(args).ToString();
   dviInfo.transcript += "\r\n";
-  pDviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
+  dviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
   ProcessOutput<4096> makepkOutput;
   int exitCode;
   bool b = Process::Run(pathMakePk, args, &makepkOutput, &exitCode, nullptr) && exitCode == 0;
@@ -317,17 +317,17 @@ bool PkFont::Make(const string & name, int dpi, int baseDpi, const string & meta
   return b;
 }
 
-PkChar * PkFont::operator[] (unsigned long idx)
+PkChar* PkFont::operator[] (unsigned long idx)
 {
   Read();
-  PkChar * pPkChar = pkChars[idx];
-  if (pPkChar == nullptr)
+  PkChar* pkChar = pkChars[idx];
+  if (pkChar == nullptr)
   {
     trace_pkfont->WriteFormattedLine("libdvi", T_("%s: nil character at %u"), dviInfo.name.c_str(), idx);
-    pPkChar = new PkChar(this);
-    pkChars[idx] = pPkChar;
+    pkChar = new PkChar(this);
+    pkChars[idx] = pkChar;
   }
-  return pPkChar;
+  return pkChar;
 }
 
 void PkFont::ReadTFM()
@@ -370,7 +370,7 @@ void PkFont::ReadTFM()
   }
 }
 
-bool PkFont::MakeTFM(const string & name)
+bool PkFont::MakeTFM(const string& name)
 {
   dviInfo.transcript += "\r\n";
   dviInfo.transcript += T_("Making TFM file:\r\n");
@@ -385,7 +385,7 @@ bool PkFont::MakeTFM(const string & name)
   args.push_back(baseName.ToString());
   dviInfo.transcript += CommandLineBuilder(args).ToString();
   dviInfo.transcript += "\r\n";
-  pDviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
+  dviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
   ProcessOutput<4096> maketfmOutput;
   int exitCode;
   bool done = Process::Run(makeTFM, args, &maketfmOutput, &exitCode, nullptr) && exitCode == 0;

@@ -1,6 +1,6 @@
 /* VFont.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -22,10 +22,10 @@
 #include "StdAfx.h"
 #include "internal.h"
 
-VFont::VFont(DviImpl * pDvi, int checkSum, int scaledSize, int designSize, const char * lpszAreaName, const char * lpszFontName, const char * lpszFileName, double tfmConv, double conv, int mag, const char * lpszMetafontMode, int baseDpi) :
-  DviFont(pDvi, checkSum, scaledSize, designSize, lpszAreaName, lpszFontName, lpszFileName, tfmConv, conv),
+VFont::VFont(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConv, double conv, int mag, const char* metafontMode, int baseDpi) :
+  DviFont(dviImpl, checkSum, scaledSize, designSize, area, fontName, fileName, tfmConv, conv),
   mag(mag),
-  metafontMode(lpszMetafontMode),
+  metafontMode(metafontMode),
   baseDpi(baseDpi),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_vfont(TraceStream::Open(MIKTEX_TRACE_DVIVFONT))
@@ -99,7 +99,7 @@ void VFont::Read()
   dviInfo.notLoadable = false;
 }
 
-void VFont::ReadPreamble(InputStream & inputStream)
+void VFont::ReadPreamble(InputStream& inputStream)
 {
   if (inputStream.ReadByte() != id_byte)
   {
@@ -131,7 +131,7 @@ void VFont::ReadPreamble(InputStream & inputStream)
   }
 }
 
-void VFont::ReadFontDefsAndCharPackets(InputStream & inputStream)
+void VFont::ReadFontDefsAndCharPackets(InputStream& inputStream)
 {
   short tempByte;
   do
@@ -151,7 +151,7 @@ void VFont::ReadFontDefsAndCharPackets(InputStream & inputStream)
   } while (tempByte != post);
 }
 
-void VFont::ReadFontDef(InputStream & inputStream, short fntDefX)
+void VFont::ReadFontDef(InputStream& inputStream, short fntDefX)
 {
   int fontNum;
 
@@ -197,34 +197,34 @@ void VFont::ReadFontDef(InputStream & inputStream, short fntDefX)
   trace_vfont->WriteFormattedLine("libdvi", "scaledSize: %d", ss);
   trace_vfont->WriteFormattedLine("libdvi", "designSize: %d", ds);
 
-  DviFont * pFont;
+  DviFont* pFont;
   PathName fileName;
   shared_ptr<Session> session = Session::Get();
   if (session->FindFile(szName, FileType::VF, fileName))
   {
     trace_vfont->WriteFormattedLine("libdvi", T_("found vf file %s"), Q_(fileName));
-    pFont = new VFont(pDviImpl, cs, ScaleFix(ss, scaledAt), static_cast<int>(ds * tfmConv), szArea, szName, fileName.GetData(), tfmConv, conv, mag, metafontMode.c_str(), baseDpi);
+    pFont = new VFont(dviImpl, cs, ScaleFix(ss, scaledAt), static_cast<int>(ds * tfmConv), szArea, szName, fileName.GetData(), tfmConv, conv, mag, metafontMode.c_str(), baseDpi);
   }
-  else if (pDviImpl->GetPageMode() != DviPageMode::Dvips)
+  else if (dviImpl->GetPageMode() != DviPageMode::Dvips)
   {
-    pFont = new PkFont(pDviImpl, cs, ScaleFix(ss, scaledAt), static_cast<int>(ds * tfmConv), szArea, szName, "", tfmConv, conv, mag, metafontMode.c_str(), baseDpi);
+    pFont = new PkFont(dviImpl, cs, ScaleFix(ss, scaledAt), static_cast<int>(ds * tfmConv), szArea, szName, "", tfmConv, conv, mag, metafontMode.c_str(), baseDpi);
   }
   else
   {
-    pFont = new Tfm(pDviImpl, cs, ScaleFix(ss, scaledAt), static_cast<int>(ds * tfmConv), szArea, szName, "", tfmConv, conv);
+    pFont = new Tfm(dviImpl, cs, ScaleFix(ss, scaledAt), static_cast<int>(ds * tfmConv), szArea, szName, "", tfmConv, conv);
   }
 
   fontMap[fontNum] = pFont;
 }
 
-void VFont::ReadCharPacket(InputStream & inputStream, short size)
+void VFont::ReadCharPacket(InputStream& inputStream, short size)
 {
-  VfChar * pVfChar = new VfChar(this);
+  VfChar* pVfChar = new VfChar(this);
   pVfChar->Read(inputStream, size, conv);
   characterTable[pVfChar->GetCharacterCode()] = pVfChar;
 }
 
-void VFont::ReadPostamble(InputStream & inputStream)
+void VFont::ReadPostamble(InputStream& inputStream)
 
 {
   int by;
@@ -237,7 +237,7 @@ void VFont::ReadPostamble(InputStream & inputStream)
   }
 }
 
-VfChar * VFont::GetCharAt(int idx)
+VfChar* VFont::GetCharAt(int idx)
 
 {
   Read();

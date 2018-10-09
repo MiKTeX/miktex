@@ -1,6 +1,6 @@
 /* DviFont.h:                                           -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -26,7 +26,7 @@ class DviImpl;
 class DviFont
 {
 protected:
-  DviFont(DviImpl * pDviImpl, int checkSum, int scaledAt, int designSize, const char * lpszArea, const char * lpszName, const char * lpszFileName, double tfmConv, double conv);
+  DviFont(DviImpl* dviImpl, int checkSum, int scaledAt, int designSize, const char* area, const char* name, const char* fileName, double tfmConv, double conv);
 
 public:
   virtual ~DviFont();
@@ -41,7 +41,7 @@ public:
   int GetLineSpacing();
 
 public:
-  const string & GetFileName()
+  const string& GetFileName()
   {
     return dviInfo.fileName;
   }
@@ -59,9 +59,9 @@ public:
   inline int WidthShrink(int shrinkFactor, int pxl);
 
 public:
-  DviImpl * GetDviObject()
+  DviImpl* GetDviObject()
   {
-    return pDviImpl;
+    return dviImpl;
   }
 
 public:
@@ -71,7 +71,7 @@ public:
   }
 
 public:
-  void GetInfo(DviFontInfo & fontinfo)
+  void GetInfo(DviFontInfo& fontinfo)
   {
     fontinfo = dviInfo;
   }
@@ -99,7 +99,7 @@ protected:
   int checkSum;
 
 protected:
-  DviImpl * pDviImpl = nullptr;
+  DviImpl* dviImpl = nullptr;
 
 protected:
   DviFontInfo dviInfo;

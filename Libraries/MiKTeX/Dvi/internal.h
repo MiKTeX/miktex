@@ -1,6 +1,6 @@
 /* internal.h: internal DVI definitions                 -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -97,7 +97,8 @@ enum class ImageType
   EMF
 };
 
-class GraphicsInclusionImpl : public GraphicsInclusion
+class GraphicsInclusionImpl :
+  public GraphicsInclusion
 {
 public:
   GraphicsInclusionImpl()
@@ -105,7 +106,7 @@ public:
   }
 
 public:
-  GraphicsInclusionImpl(ImageType imageType, const PathName & fileName, bool temporary, int x, int y, int cx, int cy) :
+  GraphicsInclusionImpl(ImageType imageType, const PathName& fileName, bool temporary, int x, int y, int cx, int cy) :
     imageType(imageType),
     fileName(fileName),
     temporary(temporary),
@@ -146,7 +147,7 @@ public:
         File::Delete(fileName, { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
       }
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }
@@ -177,7 +178,7 @@ public:
   }
 
 private:
-  HENHMETAFILE LoadEnhMetaFile(const PathName & fileName);
+  HENHMETAFILE LoadEnhMetaFile(const PathName& fileName);
 
 private:
   ImageType imageType = ImageType::None;
@@ -207,12 +208,13 @@ private:
   int cy = -1;
 };
 
-class StdoutReader : public IRunProcessCallback
+class StdoutReader :
+  public IRunProcessCallback
 {
 public:
-  virtual bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, size_t n)
+  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* output_, size_t n)
   {
-    output.append(reinterpret_cast<const char *>(pOutput), n);
+    output.append(reinterpret_cast<const char*>(output_), n);
     return true;
   }
 
@@ -220,7 +222,7 @@ private:
   string output;
 };
 
-typedef unordered_map<int, DviFont *> FontMap;
+typedef unordered_map<int, DviFont*> FontMap;
 
 typedef unordered_map<int, bool> MAPNUMTOBOOL;
 
@@ -249,7 +251,7 @@ int ScaleFix(int tfm, int z);
 
 void ExpandBoundingBox(int llx, int lly, int urx, int ury);
 
-int CalculateWidth(float width, const char * unit, int resolution);
+int CalculateWidth(float width, const char* unit, int resolution);
 
 struct CmykColor
 {
@@ -281,7 +283,7 @@ struct HsbColor
 template<class VALTYPE> class AutoRestore
 {
 public:
-  AutoRestore(VALTYPE & val) :
+  AutoRestore(VALTYPE& val) :
     oldVal(val),
     pVal(&val)
   {
@@ -297,7 +299,7 @@ private:
   VALTYPE oldVal;
 
 private:
-  VALTYPE * pVal;
+  VALTYPE* pVal;
 };
 
 struct DviItem
@@ -315,7 +317,7 @@ public:
   unsigned long rgbBackground;
 
 public:
-  PkChar * pPkChar;
+  PkChar* pkChar;
 
 public:
   inline int GetWidthShr(int shrinkFactor);
@@ -369,16 +371,16 @@ public:
 class InputStream
 {
 public:
-  InputStream(const char * lpszFileName);
+  InputStream(const char* fileName);
 
 public:
-  InputStream(const BYTE * pBytes, size_t nBytes);
+  InputStream(const BYTE* pBytes, size_t nBytes);
 
 public:
   ~InputStream();
 
 public:
-  bool Read(void * pBytes, size_t nBytes, bool allowEof = false);
+  bool Read(void* pBytes, size_t nBytes, bool allowEof = false);
 
 public:
   short ReadByte()
@@ -388,7 +390,7 @@ public:
   }
 
 public:
-  bool TryToReadByte(int & by);
+  bool TryToReadByte(int& by);
 
 public:
   short ReadSignedByte()
@@ -455,43 +457,43 @@ public:
   }
 
 protected:
-  short MakeByte(const char * ptr)
+  short MakeByte(const char* ptr)
   {
     return static_cast<short>(*ptr & 0xff);
   }
 
 protected:
-  short MakeSignedByte(const char * ptr)
+  short MakeSignedByte(const char* ptr)
   {
     return *ptr;
   }
 
 protected:
-  long MakePair(const char * ptr)
+  long MakePair(const char* ptr)
   {
     return (MakeByte(ptr) << 8 | MakeByte(ptr + 1)) & 0xffff;
   }
 
 protected:
-  long MakeSignedPair(const char * ptr)
+  long MakeSignedPair(const char* ptr)
   {
     return MakeSignedByte(ptr) << 8 | MakeByte(ptr + 1);
   }
 
 protected:
-  long MakeTrio(const char * ptr)
+  long MakeTrio(const char* ptr)
   {
     return ((static_cast<long>(MakeByte(ptr)) << 16) | MakePair(ptr + 1)) & 0x00ffffff;
   }
 
 protected:
-  long MakeSignedTrio(const char * ptr)
+  long MakeSignedTrio(const char* ptr)
   {
     return (static_cast<long>(MakeSignedByte(ptr)) << 16) | MakePair(ptr + 1);
   }
 
 protected:
-  long MakeSignedQuad(const char * ptr)
+  long MakeSignedQuad(const char* ptr)
   {
     return MakeSignedPair(ptr) << 16 | MakePair(ptr + 2);
   }
@@ -506,7 +508,7 @@ protected:
   FileStream stream;
 
 protected:
-  char * pBytes = nullptr;
+  char* pBytes = nullptr;
 
 protected:
   size_t nBytes = 0;
@@ -515,7 +517,8 @@ protected:
   size_t idx = 0;
 };
 
-class DviRuleImpl : public DviRule
+class DviRuleImpl :
+  public DviRule
 {
 public:
   virtual int MIKTEXTHISCALL GetLeft(int shrinkFactor);
@@ -539,7 +542,7 @@ public:
   virtual bool MIKTEXTHISCALL IsBlackboard();
 
 public:
-  DviRuleImpl(DviImpl * pDviImpl, int x, int y, int width, int height, unsigned long rgb);
+  DviRuleImpl(DviImpl* dviImpl, int x, int y, int width, int height, unsigned long rgb);
 
 public:
   enum Flag { flblackboard = 1 };
@@ -605,28 +608,30 @@ private:
   unsigned long rgb;
 
 private:
-  DviImpl * pDviImpl = nullptr;
+  DviImpl* dviImpl = nullptr;
 };
 
-class DviPageImpl : public DviPage, public IDibChunkerCallback
+class DviPageImpl :
+  public DviPage,
+  public IDibChunkerCallback
 {
 public:
-  virtual const DviBitmap & MIKTEXTHISCALL GetDviBitmap(int shrinkFactor, int idx);
+  virtual const DviBitmap& MIKTEXTHISCALL GetDviBitmap(int shrinkFactor, int idx);
 
 public:
   virtual int MIKTEXTHISCALL GetNumberOfDviBitmaps(int shrinkFactor);
 
 public:
-  virtual DviSpecial * MIKTEXTHISCALL GetSpecial(int idx);
+  virtual DviSpecial* MIKTEXTHISCALL GetSpecial(int idx);
 
 public:
-  virtual DviRule * MIKTEXTHISCALL GetRule(int idx);
+  virtual DviRule* MIKTEXTHISCALL GetRule(int idx);
 
 public:
   virtual int MIKTEXTHISCALL GetReg(int idx);
 
 public:
-  virtual const char * MIKTEXTHISCALL GetName();
+  virtual const char* MIKTEXTHISCALL GetName();
 
 public:
   virtual unsigned long MIKTEXTHISCALL GetBackgroundColor();
@@ -638,7 +643,7 @@ public:
   virtual void MIKTEXTHISCALL Unlock();
 
 public:
-  virtual HypertexSpecial * MIKTEXTHISCALL GetNextHyperref(int & idx);
+  virtual HypertexSpecial* MIKTEXTHISCALL GetNextHyperref(int& idx);
 
 public:
   virtual shared_ptr<DibChunk> MIKTEXTHISCALL GetDibChunk(int shrinkFactor, int idx);
@@ -659,7 +664,7 @@ public:
   virtual shared_ptr<GraphicsInclusion> MIKTEXTHISCALL GetGraphicsInclusion(int shrinkFactor, int idx);
 
 public:
-  DviImpl * GetDviObject();
+  DviImpl* GetDviObject();
 
 public:
   void Freeze(bool force = false);
@@ -698,24 +703,24 @@ public:
   }
 
 public:
-  template<class T> T * GetNextSpecial(int & idx)
+  template<class T> T* GetNextSpecial(int& idx)
   {
     MIKTEX_ASSERT(IsLocked());
     MIKTEX_ASSERT(idx >= -1 && idx < static_cast<int>(dviSpecials.size()));
     for (int j = idx + 1; j < static_cast<int>(dviSpecials.size()); ++j)
     {
-      T * pSpecial = dynamic_cast<T *>(dviSpecials[j]);
-      if (pSpecial != nullptr)
+      T* special = dynamic_cast<T*>(dviSpecials[j]);
+      if (special != nullptr)
       {
         idx = j;
-        return pSpecial;
+        return special;
       }
     }
     return nullptr;
   }
 
 private:
-  DviPageImpl(DviImpl * pDvi, int pageIdx, DviPageMode pageMode, long readPosition, int c0 = 0, int c1 = 0, int c2 = 0, int c3 = 0, int c4 = 0, int c5 = 0, int c6 = 0, int c7 = 0, int c8 = 0, int c9 = 0);
+  DviPageImpl(DviImpl* dviImpl, int pageIdx, DviPageMode pageMode, long readPosition, int c0 = 0, int c1 = 0, int c2 = 0, int c3 = 0, int c4 = 0, int c5 = 0, int c6 = 0, int c7 = 0, int c8 = 0, int c9 = 0);
 
 private:
   void SetAutoClean(bool enabled = true)
@@ -727,13 +732,13 @@ private:
   virtual ~DviPageImpl();
 
 private:
-  void AddItem(const DviItem & item);
+  void AddItem(const DviItem& item);
 
 private:
-  void AddSpecial(DviSpecial * pSpecial);
+  void AddSpecial(DviSpecial* special);
 
 private:
-  void AddRule(DviRuleImpl * pRule);
+  void AddRule(DviRuleImpl* rule);
 
 private:
   void MakeShrinkedRaster(int shrinkFactor);
@@ -742,10 +747,10 @@ private:
   void MakeDviBitmaps(int shrinkFactor);
 
 private:
-  void ProcessBand(int shrinkFactor, vector<DviItem *> & vecDviItemPtr);
+  void ProcessBand(int shrinkFactor, vector<DviItem*>& vecDviItemPtr);
 
 private:
-  void MakeDviBitmap(int shrinkFactor, DviBitmap & bitmap, vector<DviItem *>::iterator ititemptrBegin, vector<DviItem *>::iterator ititemptrEnd);
+  void MakeDviBitmap(int shrinkFactor, DviBitmap& bitmap, vector<DviItem*>::iterator ititemptrBegin, vector<DviItem*>::iterator ititemptrEnd);
 
 private:
   void CheckRules();
@@ -769,10 +774,10 @@ private:
   void GhostscriptTranscriptReader();
 
 public:
-  virtual size_t MIKTEXTHISCALL Read(void * pBuf, size_t size);
+  virtual size_t MIKTEXTHISCALL Read(void* data, size_t size);
 
 public:
-  virtual void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> pChunk);
+  virtual void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> dibChunk);
 
 private:
   unique_ptr<Process> StartGhostscript(int shrinkFactor);
@@ -825,11 +830,11 @@ private:
 
   // special vector
 private:
-  vector<DviSpecial *> dviSpecials;
+  vector<DviSpecial*> dviSpecials;
 
   // rule vector
 private:
-  vector<DviRuleImpl *> dviRules;
+  vector<DviRuleImpl*> dviRules;
 
 private:
   MAPNUMTOBOOL haveShrinkedRaster;
@@ -865,7 +870,7 @@ private:
   string gsTranscript;
 
 private:
-  DviImpl * pDviImpl;
+  DviImpl* dviImpl;
 
 private:
   mutex pageMutex;
@@ -914,13 +919,13 @@ public:
   virtual int MIKTEXTHISCALL GetNumberOfPages();
 
 public:
-  virtual bool MIKTEXTHISCALL GetSource(const DviPosition & pos, PathName & fileName, int * pLineNum);
+  virtual bool MIKTEXTHISCALL GetSource(const DviPosition& pos, PathName& fileName, int* pLineNum);
 
 public:
-  virtual bool MIKTEXTHISCALL FindSource(const char * lpszFileName, int line, DviPosition & position);
+  virtual bool MIKTEXTHISCALL FindSource(const char* fileName, int line, DviPosition& position);
 
 public:
-  virtual DviPage * MIKTEXTHISCALL GetPage(int pageidx);
+  virtual DviPage* MIKTEXTHISCALL GetPage(int pageidx);
 
 public:
   virtual int MIKTEXTHISCALL GetMinPageNumber();
@@ -941,10 +946,10 @@ public:
   virtual PageStatus MIKTEXTHISCALL GetPageStatus(int pageidx);
 
 public:
-  virtual DviPage * MIKTEXTHISCALL GetLoadedPage(int pageno);
+  virtual DviPage* MIKTEXTHISCALL GetLoadedPage(int pageno);
 
 public:
-  virtual bool MIKTEXTHISCALL FindHyperLabel(const char * lpszLabel, DviPosition & position);
+  virtual bool MIKTEXTHISCALL FindHyperLabel(const char* label, DviPosition& position);
 
 public:
   virtual string MIKTEXTHISCALL GetStatusText();
@@ -978,7 +983,7 @@ public:
   virtual void MIKTEXTHISCALL Scan();
 
 private:
-  DviImpl(const char * lpszFileName, const char * lpszMetafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const PaperSizeInfo & paperSizeInfo, bool landscape);
+  DviImpl(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const PaperSizeInfo& paperSizeInfo, bool landscape);
 
 private:
   virtual MIKTEXTHISCALL ~DviImpl();
@@ -993,7 +998,7 @@ private:
   void CheckCondition();
 
 public:
-  void Progress(DviNotification nf, const char * lpszFormat, ...);
+  void Progress(DviNotification nf, const char* format, ...);
 
 public:
   int PixelShrink(int shrinkFactor, int pxl)
@@ -1057,7 +1062,7 @@ public:
   }
 
 public:
-  MAPNUMTOPOINT & GetPoints()
+  MAPNUMTOPOINT& GetPoints()
   {
     return pointTable;
   }
@@ -1081,13 +1086,13 @@ public:
   }
 
 public:
-  void RememberTempFile(const string & key, const PathName & path)
+  void RememberTempFile(const string& key, const PathName& path)
   {
     tempFiles[key] = TemporaryFile::Create(path);
   }
 
 public:
-  bool TryGetTempFile(const string & key, PathName & path)
+  bool TryGetTempFile(const string& key, PathName& path)
   {
     TempFileCollection::const_iterator it = tempFiles.find(key);
     if (it != tempFiles.end())
@@ -1102,16 +1107,16 @@ public:
   }
 
 public:
-  bool FindGraphicsFile(const char * lpszFileName, PathName & result);
+  bool FindGraphicsFile(const char* fileName, PathName& result);
 
 private:
-  bool InterpretSpecial(DviPageImpl * pPage, int x, int y, InputStream & inputstream, DWORD p, DviSpecial * & pSpecial);
+  bool InterpretSpecial(DviPageImpl* dviPage, int x, int y, InputStream& inputstream, DWORD p, DviSpecial*& special);
 
 private:
-  bool SetCurrentColor(const char * lpszColor);
+  bool SetCurrentColor(const char* colorSpec);
 
 private:
-  bool ParseColorSpec(const char * lpsz, unsigned long & rgb);
+  bool ParseColorSpec(const char* colorSpec, unsigned long& rgb);
 
 private:
   void PushColor(unsigned long rgb);
@@ -1123,22 +1128,22 @@ private:
   void ResetCurrentColor();
 
 private:
-  int FirstParam(InputStream & inputstream, int opcode); // FIXME
+  int FirstParam(InputStream& inputstream, int opcode); // FIXME
 
 private:
   int PixelRound(int du); // FIXME
 
 private:
-  void DefineFont(InputStream & inputstream, int fontnum);
+  void DefineFont(InputStream& inputstream, int fontnum);
 
 private:
   void DoPage(int pageidx);
 
 private:
-  bool DoNextCommand(InputStream & inputstream, DviPageImpl & page);
+  bool DoNextCommand(InputStream& inputstream, DviPageImpl& page);
 
 private:
-  void SpecialCases(InputStream & inputstream, int opcode, int p, DviPageImpl & page); // FIXME
+  void SpecialCases(InputStream& inputstream, int opcode, int p, DviPageImpl& page); // FIXME
 
 private:
   int RulePixels(int x); // FIXME
@@ -1153,10 +1158,10 @@ private:
   void PopState();
 
 private:
-  void GetFontTable(const FontMap & mapnumtofontptr, vector<DviFontInfo> & vec, int recursion);
+  void GetFontTable(const FontMap& mapnumtofontptr, vector<DviFontInfo>& vec, int recursion);
 
 private:
-  bool MakeFonts(const FontMap & mapnumtofontptr, int recursion);
+  bool MakeFonts(const FontMap& mapnumtofontptr, int recursion);
 
 private:
   double GetConv()
@@ -1165,10 +1170,10 @@ private:
   }
 
 private:
-  DviSpecial * ProcessHtmlSpecial(DviPageImpl * ppage, int x, int y, const char * lpszSpecial);
+  DviSpecial* ProcessHtmlSpecial(DviPageImpl* ppage, int x, int y, const char* specialSpec);
 
 private:
-  float PatternToShadeLevel(const char * lpszTexture);
+  float PatternToShadeLevel(const char* textureSpec);
 
 private:
   void GarbageCollector();
@@ -1180,7 +1185,7 @@ private:
   shared_ptr<Session> session = Session::Get();
 
 private:
-  HANDLE hByeByteEvent;
+  HANDLE hByeByeEvent;
 
 private:
   HANDLE hNewPageEvent;
@@ -1232,15 +1237,15 @@ private:
 
   // current font object
 private:
-  DviFont * pCurrentFont;
+  DviFont* currentFont;
 
   // current char object
 private:
-  class DviChar * pCurrentChar;
+  class DviChar* currentChar;
 
   // current VfChar object
 private:
-  class VfChar * pCurrentVfChar;
+  class VfChar* currentVfChar;
 
   // stated conversion ratio
 private:
@@ -1262,10 +1267,10 @@ private:
   string metafontMode;
 
 private:
-  vector<class DviPageImpl *> pages;
+  vector<class DviPageImpl*> pages;
 
 private:
-  FontMap * pFontMap;
+  FontMap* fontMap;
 
 private:
   int currentFontNumber;
@@ -1328,7 +1333,7 @@ private:
   string progressStatus;
 
 private:
-  IDviCallback * pCallback = nullptr;
+  IDviCallback* callback = nullptr;
 
 private:
   mutex statusTextMutex;
@@ -1398,13 +1403,13 @@ public:
   }
 
 protected:
-  DviPageImpl * GetPage()
+  DviPageImpl* GetPage()
   {
     return pDviPageImpl;
   }
 
 protected:
-  DviPageImpl * pDviPageImpl = nullptr;
+  DviPageImpl* pDviPageImpl = nullptr;
 
 protected:
   int x, y;
@@ -1419,7 +1424,8 @@ protected:
   unique_ptr<TraceStream> trace_error;
 };
 
-template<class T> class DviSpecialObject : public T
+template<class T> class DviSpecialObject
+  : public T
 {
 public:
   virtual ~DviSpecialObject()
@@ -1439,7 +1445,7 @@ public:
   }
 
 public:
-  virtual const char * MIKTEXTHISCALL GetXXX()
+  virtual const char* MIKTEXTHISCALL GetXXX()
   {
     return specialString.c_str();
   }
@@ -1451,14 +1457,14 @@ public:
   }
 
 public:
-  DviSpecialObject(DviPageImpl * ppage, int x, int y, const char * lpszSpecial)
+  DviSpecialObject(DviPageImpl* ppage, int x, int y, const char* specialSpec)
   {
     pDviPageImpl = ppage;
     this->x = x;
     this->y = y;
-    if (lpszSpecial != nullptr)
+    if (specialSpec != nullptr)
     {
-      specialString = lpszSpecial;
+      specialString = specialSpec;
     }
     specialType = Parse();
   }
@@ -1531,7 +1537,7 @@ class MIKTEXNOVTABLE SourceSpecialImpl :
   public SpecialRoot
 {
 public:
-  const char * MIKTEXTHISCALL GetFileName()
+  const char* MIKTEXTHISCALL GetFileName()
   {
     return fileName.c_str();
   }
@@ -1594,10 +1600,11 @@ public:
   static TpicContext TpicSpecialRoot::tpicContext;
 };
 
-template<class T> class MIKTEXNOVTABLE TpicSpecialObject : public T
+template<class T> class MIKTEXNOVTABLE TpicSpecialObject :
+  public T
 {
 public:
-  const TpicSpecial::path & MIKTEXTHISCALL GetPath()
+  const TpicSpecial::path& MIKTEXTHISCALL GetPath()
   {
     return tpicPath;
   }
@@ -1638,29 +1645,29 @@ class MIKTEXNOVTABLE TpicPolySpecialImpl :
   public TpicSpecialRoot
 {
 public:
-  OutlineStyle MIKTEXTHISCALL GetOutlineStyle(float & length)
+  OutlineStyle MIKTEXTHISCALL GetOutlineStyle(float& length)
   {
-    length = m_length;
-    return m_outline;
+    length = polyLength;
+    return outlineStyle;
   }
 
 public:
   bool MIKTEXTHISCALL IsSpline()
   {
-    return m_bSpline;
+    return isSpline;
   }
 
 protected:
   DviSpecialType Parse();
 
 protected:
-  OutlineStyle m_outline = OutlineStyle::None;
+  OutlineStyle outlineStyle = OutlineStyle::None;
 
 protected:
-  float m_length;
+  float polyLength;
 
 protected:
-  bool m_bSpline;
+  bool isSpline;
 };
 
 class MIKTEXNOVTABLE TpicArcSpecialImpl :
@@ -1708,7 +1715,7 @@ public:
 public:
   bool MIKTEXTHISCALL HasOutline()
   {
-    return m_bOutline;
+    return hasOutline;
   }
 
 protected:
@@ -1721,7 +1728,7 @@ protected:
   float m_s, m_e;
 
 protected:
-  bool m_bOutline;
+  bool hasOutline;
 };
 
 class MIKTEXNOVTABLE HyperTeXSpecialImpl :
@@ -1751,13 +1758,13 @@ public:
   }
 
 public:
-  const char * MIKTEXTHISCALL GetName()
+  const char* MIKTEXTHISCALL GetName()
   {
     return name.c_str();
   }
 
 public:
-  void MIKTEXTHISCALL GetBbox(int & llx, int & lly, int & urx, int & ury)
+  void MIKTEXTHISCALL GetBbox(int& llx, int& lly, int& urx, int& ury)
   {
     llx = this->llx;
     lly = this->lly;
@@ -1802,7 +1809,7 @@ class MIKTEXNOVTABLE GraphicsSpecialImpl :
   public SpecialRoot
 {
 public:
-  const char * MIKTEXTHISCALL GetFileName()
+  const char* MIKTEXTHISCALL GetFileName()
   {
     return fileName.c_str();
   }
@@ -1846,13 +1853,13 @@ class MIKTEXNOVTABLE PsdefSpecialImpl :
   public SpecialRoot
 {
 public:
-  const char * MIKTEXTHISCALL GetDef()
+  const char* MIKTEXTHISCALL GetDef()
   {
     return isFileName ? nullptr : str.c_str();
   }
 
 public:
-  const char * MIKTEXTHISCALL GetFileName()
+  const char* MIKTEXTHISCALL GetFileName()
   {
     return isFileName ? str.c_str() : nullptr;
   }
@@ -1872,13 +1879,13 @@ class MIKTEXNOVTABLE DvipsSpecialImpl :
   public SpecialRoot
 {
 public:
-  const char * MIKTEXTHISCALL GetString()
+  const char* MIKTEXTHISCALL GetString()
   {
     return isFileName ? nullptr : str.c_str();
   }
 
 public:
-  const char * MIKTEXTHISCALL GetFileName()
+  const char* MIKTEXTHISCALL GetFileName()
   {
     return isFileName ? str.c_str() : nullptr;
   }
@@ -1935,7 +1942,7 @@ class MIKTEXNOVTABLE PsfileSpecialImpl :
   public SpecialRoot
 {
 public:
-  const char * MIKTEXTHISCALL GetFileName()
+  const char* MIKTEXTHISCALL GetFileName()
   {
     return fileName.c_str();
   }
@@ -2109,10 +2116,10 @@ public:
   }
 
 public:
-  bool MIKTEXTHISCALL GetBoundingBox(float & left, float & bottom, float & right, float & top);
+  bool MIKTEXTHISCALL GetBoundingBox(float& left, float& bottom, float& right, float& top);
 
 public:
-  bool MIKTEXTHISCALL GetBoundingBox(int shrinkFactor, int & left, int & bottom, int & right, int & top);
+  bool MIKTEXTHISCALL GetBoundingBox(int shrinkFactor, int& left, int& bottom, int& right, int& top);
 
 protected:
   DviSpecialType Parse();

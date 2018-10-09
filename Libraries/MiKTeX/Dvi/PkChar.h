@@ -1,6 +1,6 @@
 /* PkChar.h:                                            -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -24,16 +24,17 @@
 class InputStream;
 class DviFont;
 
-class PkChar : public DviChar
+class PkChar :
+  public DviChar
 {
 public:
-  PkChar(DviFont * pfont = nullptr);
+  PkChar(DviFont* dviFont = nullptr);
 
 public:
   virtual ~PkChar();
 
 public:
-  void Read(InputStream & inputstream, int flag);
+  void Read(InputStream& inputstream, int flag);
 
 public:
   int GetWidthShr(int shrinkFactor)
@@ -108,13 +109,13 @@ private:
   bool IsLong();
 
 private:
-  unsigned long CountBits(const RASTERWORD * pRasterWord, int xStart, int rasterWordsPerLine, int w, int h);
+  unsigned long CountBits(const RASTERWORD* rasterWord, int xStart, int rasterWordsPerLine, int w, int h);
 
 private:
   void Unpack();
 
 private:
-  void * Shrink(int shrinkFactor);
+  void* Shrink(int shrinkFactor);
 
 private:
   inline int PixelShrink(int shrinkFactor, int pxl);
@@ -123,7 +124,7 @@ private:
   inline int WidthShrink(int shrinkFactor, int pxl);
 
 private:
-  typedef unordered_map<int, void *> MAPINTTORASTER;
+  typedef unordered_map<int, void*> MAPINTTORASTER;
 
 private:
   MAPINTTORASTER bitmaps;
@@ -154,11 +155,11 @@ private:
 
   // the packed raster data
 private:
-  unsigned char * pPackedRaster = nullptr;
+  unsigned char* packedRaster = nullptr;
 
   // the unpacked raster data
 private:
-  RASTERWORD * pUnpackedRaster = nullptr;
+  RASTERWORD* unpackedRaster = nullptr;
 
   // rwords per line
 private:
@@ -176,8 +177,8 @@ private:
   class Unpacker
   {
   public:
-    Unpacker(const unsigned char * p, int dynf) :
-      pRaster(p),
+    Unpacker(const unsigned char* p, int dynf) :
+      raster(p),
       dynf(dynf)
     {
     }
@@ -198,7 +199,7 @@ private:
   private:
     int GetByte()
     {
-      return *pRaster++;
+      return *raster++;
     }
 
     // the byte we are currently decimating
@@ -217,7 +218,7 @@ private:
     int repeatCount; // FIXME
 
   private:
-    const unsigned char * pRaster = nullptr;
+    const unsigned char* raster = nullptr;
 
   private:
     int GetNybble();

@@ -1,6 +1,6 @@
 /* dvi.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -64,10 +64,10 @@ int DviImpl::RulePixels(int x)
   }
 }
 
-DviImpl::DviImpl(const char * lpszFileName, const char * lpszMetafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, DviPageMode pageMode, const PaperSizeInfo & paperSizeInfo, bool landscape) :
+DviImpl::DviImpl(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, DviPageMode pageMode, const PaperSizeInfo & paperSizeInfo, bool landscape) :
   currentColor(rgbDefaultColor),
   dviAccess(dviAccess),
-  dviFileName(lpszFileName),
+  dviFileName(fileName),
   landscape(landscape),
   trace_color(TraceStream::Open(MIKTEX_TRACE_DVICOLOR)),
   trace_dvifile(TraceStream::Open(MIKTEX_TRACE_DVIFILE)),
@@ -76,7 +76,7 @@ DviImpl::DviImpl(const char * lpszFileName, const char * lpszMetafontMode, int r
   trace_gc(TraceStream::Open(MIKTEX_TRACE_DVIGC)),
   trace_hypertex(TraceStream::Open(MIKTEX_TRACE_DVIHYPERTEX)),
   trace_search(TraceStream::Open(MIKTEX_TRACE_DVISEARCH)),
-  metafontMode(lpszMetafontMode), pCallback(0),
+  metafontMode(metafontMode), callback(0),
   pageMode(pageMode),
   paperSizeInfo(paperSizeInfo),
   resolution(resolution),
@@ -86,9 +86,9 @@ DviImpl::DviImpl(const char * lpszFileName, const char * lpszMetafontMode, int r
   fqDviFileName.MakeAbsolute();
 
   dviInfo.lastWriteTime = 0;
-  pFontMap = new FontMap;
-  hByeByteEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
-  if (hByeByteEvent == nullptr)
+  fontMap = new FontMap;
+  hByeByeEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+  if (hByeByeEvent == nullptr)
   {
     MIKTEX_FATAL_WINDOWS_ERROR("CreateEventW");
   }
@@ -122,9 +122,9 @@ DviImpl::~DviImpl()
 
 void DviImpl::Dispose()
 {
-  if (hByeByteEvent != nullptr)
+  if (hByeByeEvent != nullptr)
   {
-    if (!SetEvent(hByeByteEvent))
+    if (!SetEvent(hByeByeEvent))
     {
       MIKTEX_FATAL_WINDOWS_ERROR("SetEvent");
     }
@@ -140,15 +140,15 @@ void DviImpl::Dispose()
   BEGIN_CRITICAL_SECTION(dviMutex)
   {
     FreeContents();
-    if (pFontMap != nullptr)
+    if (fontMap != nullptr)
     {
-      delete pFontMap;
-      pFontMap = nullptr;
+      delete fontMap;
+      fontMap = nullptr;
     }
-    if (hByeByteEvent != nullptr)
+    if (hByeByeEvent != nullptr)
     {
-      CloseHandle(hByeByteEvent);
-      hByeByteEvent = nullptr;
+      CloseHandle(hByeByeEvent);
+      hByeByeEvent = nullptr;
     }
     if (hNewPageEvent != nullptr)
     {
@@ -206,16 +206,16 @@ void DviImpl::FreeContents(bool keepFonts)
     delete *itPagePtr;
   }
   pages.clear();
-  if (pFontMap == nullptr || keepFonts)
+  if (fontMap == nullptr || keepFonts)
   {
     return;
   }
-  for (FontMap::iterator it = pFontMap->begin(); it != pFontMap->end(); ++it)
+  for (FontMap::iterator it = fontMap->begin(); it != fontMap->end(); ++it)
   {
     delete it->second;
     it->second = nullptr;
   }
-  pFontMap->clear();
+  fontMap->clear();
   tempFiles.clear();
 }
 
@@ -496,8 +496,8 @@ void DviImpl::Scan()
     int count8 = inputStream.ReadSignedQuad();
     int count9 = inputStream.ReadSignedQuad();
     backpointer = inputStream.ReadSignedQuad();
-    DviPageImpl * pPage = new DviPageImpl(this, dviInfo.nPages, pageMode, inputStream.GetReadPosition(), count0, count1, count2, count3, count4, count5, count6, count7, count8, count9);
-    pages.push_back(pPage);
+    DviPageImpl* dviPage = new DviPageImpl(this, dviInfo.nPages, pageMode, inputStream.GetReadPosition(), count0, count1, count2, count3, count4, count5, count6, count7, count8, count9);
+    pages.push_back(dviPage);
   }
   reverse(pages.begin(), pages.end());
   lastChecked = clock();
@@ -506,8 +506,8 @@ void DviImpl::Scan()
   // load the first DVI page
   if (pages.size() > 0)
   {
-    DviPage * pPage = GetLoadedPage(0);
-    pPage->Unlock();
+    DviPage* dviPage = GetLoadedPage(0);
+    dviPage->Unlock();
   }
 #endif
 
@@ -544,25 +544,25 @@ void DviImpl::DefineFont(InputStream & inputStream, int fontNum)
   trace_dvifile->WriteFormattedLine("libdvi", "scaledSize: %d", scaledSize);
   trace_dvifile->WriteFormattedLine("libdvi", "designSize: %d", designSize);
 
-  DviFont * pfont;
+  DviFont* dviFont;
   PathName fileName;
   if (session->FindFile(fontName, FileType::VF, fileName)
     || session->FindFile(fontName, FileType::OVF, fileName))
   {
     trace_dvifile->WriteFormattedLine("libdvi", T_("found VF file %s"), Q_(fileName));
-    pfont = new VFont(this, checkSum, scaledSize, designSize, areaName, fontName, fileName.GetData(), tfmConv, conv, mag, metafontMode.c_str(), resolution);
+    dviFont = new VFont(this, checkSum, scaledSize, designSize, areaName, fontName, fileName.GetData(), tfmConv, conv, mag, metafontMode.c_str(), resolution);
   }
   else if (pageMode == DviPageMode::Dvips)
   {
     // no need to display glyph bitmaps
-    pfont = new Tfm(this, checkSum, scaledSize, designSize, areaName, fontName, "", tfmConv, conv);
+    dviFont = new Tfm(this, checkSum, scaledSize, designSize, areaName, fontName, "", tfmConv, conv);
   }
   else
   {
-    pfont = new PkFont(this, checkSum, scaledSize, designSize, areaName, fontName, "", tfmConv, conv, mag, metafontMode.c_str(), resolution);
+    dviFont = new PkFont(this, checkSum, scaledSize, designSize, areaName, fontName, "", tfmConv, conv, mag, metafontMode.c_str(), resolution);
   }
 
-  (*pFontMap)[fontNum] = pfont;
+  (*fontMap)[fontNum] = dviFont;
 }
 
 PageStatus DviImpl::GetPageStatus(int pageIdx)
@@ -577,15 +577,15 @@ PageStatus DviImpl::GetPageStatus(int pageIdx)
       return PageStatus::Unknown;
     }
 
-    DviPageImpl * pPage = pages[pageIdx];
+    DviPageImpl* dviPage = pages[pageIdx];
 
-    MIKTEX_ASSERT(pPage != nullptr);
+    MIKTEX_ASSERT(dviPage != nullptr);
 
-    pPage->Lock();
+    dviPage->Lock();
 
-    AutoUnlockPage autoUnlockPage(pPage);
+    AutoUnlockPage autoUnlockPage(dviPage);
 
-    if (!pPage->IsFrozen())
+    if (!dviPage->IsFrozen())
     {
       return PageStatus::NotLoaded;
     }
@@ -633,8 +633,8 @@ const int max_drift = 1;
 void DviImpl::DoPage(int pageIdx)
 {
   currentFontNumber = 0;
-  pCurrentFont = 0;
-  pCurrentChar = 0;
+  currentFont = 0;
+  currentChar = 0;
   currentState = DviState();
   currentFontNumber = 0;
 
@@ -688,9 +688,9 @@ void DviImpl::DoPage(int pageIdx)
 
 bool DviImpl::DoNextCommand(InputStream & inputStream, DviPageImpl & page)
 {
-  MIKTEX_ASSERT(hByeByteEvent != nullptr);
+  MIKTEX_ASSERT(hByeByeEvent != nullptr);
 
-  DWORD wait = WaitForSingleObject(hByeByteEvent, 0);
+  DWORD wait = WaitForSingleObject(hByeByeEvent, 0);
   if (wait == WAIT_FAILED)
   {
     MIKTEX_FATAL_WINDOWS_ERROR("WaitForSingleObject");
@@ -710,12 +710,12 @@ bool DviImpl::DoNextCommand(InputStream & inputStream, DviPageImpl & page)
 
     // translate a char command
 
-    if (pCurrentFont == nullptr)
+    if (currentFont == nullptr)
     {
       FATAL_DVI_ERROR_2(T_("Invalid DVI file."), "fileName", dviFileName.ToString());
     }
 
-    VFont * pVFont = dynamic_cast<VFont*>(pCurrentFont);
+    VFont* pVFont = dynamic_cast<VFont*>(currentFont);
 
     if (pVFont != nullptr)
     {
@@ -727,33 +727,33 @@ bool DviImpl::DoNextCommand(InputStream & inputStream, DviPageImpl & page)
         FATAL_DVI_ERROR_2(T_("Invalid DVI file."), "fileName", dviFileName.ToString());
       }
 
-      VfChar * pVfChar = pVFont->GetCharAt(p);
+      VfChar* pVfChar = pVFont->GetCharAt(p);
 
       if (pVfChar == nullptr)
       {
         MIKTEX_UNEXPECTED();
       }
 
-      AutoRestore<FontMap *> autoRestorFontMap(pFontMap);
+      AutoRestore<FontMap *> autoRestorFontMap(fontMap);
       AutoRestore<int> autoRestoreFontNumber(currentFontNumber);
-      AutoRestore<DviFont *> autoRestoreCurrentFont(pCurrentFont);
-      AutoRestore<VfChar *> autoRestoreCurrentVfChar(pCurrentVfChar);
+      AutoRestore<DviFont *> autoRestoreCurrentFont(currentFont);
+      AutoRestore<VfChar *> autoRestoreCurrentVfChar(currentVfChar);
 
-      pFontMap = const_cast<FontMap*>(&(pVFont->GetFontMap()));
+      fontMap = const_cast<FontMap*>(&(pVFont->GetFontMap()));
 
-      if (pFontMap->size() > 0)
+      if (fontMap->size() > 0)
       {
-        const pair<int, DviFont*> & pair = *(pFontMap->begin());
+        const pair<int, DviFont*> & pair = *(fontMap->begin());
         currentFontNumber = pair.first;
-        pCurrentFont = pair.second;
+        currentFont = pair.second;
       }
       else
       {
         currentFontNumber = 0;
-        pCurrentFont = nullptr;
+        currentFont = nullptr;
       }
 
-      pCurrentVfChar = pVfChar;
+      currentVfChar = pVfChar;
 
       PushState();
 
@@ -763,7 +763,7 @@ bool DviImpl::DoNextCommand(InputStream & inputStream, DviPageImpl & page)
       currentState.z = 0;
 
       unsigned long pl;
-      const BYTE * p = pVfChar->GetPacket(pl);
+      const BYTE* p = pVfChar->GetPacket(pl);
 
       InputStream inputStream(p, pl);
 
@@ -778,26 +778,26 @@ bool DviImpl::DoNextCommand(InputStream & inputStream, DviPageImpl & page)
 
       PopState();
 
-      pCurrentChar = pVfChar;
+      currentChar = pVfChar;
 
       goto fin_set;
     }
     else
     {
-      pCurrentFont->Read();
-      PkFont * pPkFont = dynamic_cast<PkFont*>(pCurrentFont);
+      currentFont->Read();
+      PkFont* pPkFont = dynamic_cast<PkFont*>(currentFont);
       if (pPkFont != nullptr)
       {
-        PkChar * pPkChar = (*pPkFont)[p];
-        pCurrentChar = pPkChar;
-        if (pCurrentChar == nullptr)
+        PkChar* pkChar = (*pPkFont)[p];
+        currentChar = pkChar;
+        if (currentChar == nullptr)
         {
           MIKTEX_UNEXPECTED();
         }
         DviItem item;
         item.x = currentState.hh + resolution;
         item.y = currentState.vv + resolution;
-        item.pPkChar = pPkChar;
+        item.pkChar = pkChar;
         item.rgbForeground = currentColor;
         item.rgbBackground = 0x00ffffff;
         page.AddItem(item);
@@ -805,20 +805,20 @@ bool DviImpl::DoNextCommand(InputStream & inputStream, DviPageImpl & page)
       }
       else
       {
-        Tfm * pTfm = dynamic_cast<Tfm*>(pCurrentFont);
+        Tfm* pTfm = dynamic_cast<Tfm*>(currentFont);
         if (pTfm == nullptr)
         {
           MIKTEX_UNEXPECTED();
         }
-        pCurrentChar = (*pTfm)[p];
-        if (pCurrentChar == nullptr)
+        currentChar = (*pTfm)[p];
+        if (currentChar == nullptr)
         {
           MIKTEX_UNEXPECTED();
         }
         int x = currentState.hh + resolution;
         int y = currentState.vv + resolution;
         ExpandBoundingBox
-          (x, y, x + pCurrentChar->GetWidth(), y - PixelRound(pCurrentFont->GetScaledAt()) + 1);
+          (x, y, x + currentChar->GetWidth(), y - PixelRound(currentFont->GetScaledAt()) + 1);
 
 
       }
@@ -880,7 +880,7 @@ bool DviImpl::DoNextCommand(InputStream & inputStream, DviPageImpl & page)
       {
         p =
           static_cast<int>
-          (ScaleFix(p, static_cast<int>(pCurrentVfChar->GetScaledAt()
+          (ScaleFix(p, static_cast<int>(currentVfChar->GetScaledAt()
             / tfmConv))
             * tfmConv);
       }
@@ -896,7 +896,7 @@ bool DviImpl::DoNextCommand(InputStream & inputStream, DviPageImpl & page)
       {
         p =
           static_cast<int>
-          (ScaleFix(p, static_cast<int>(pCurrentVfChar->GetScaledAt()
+          (ScaleFix(p, static_cast<int>(currentVfChar->GetScaledAt()
             / tfmConv))
             * tfmConv);
       }
@@ -911,15 +911,15 @@ bool DviImpl::DoNextCommand(InputStream & inputStream, DviPageImpl & page)
       {
         p =
           static_cast<int>
-          (ScaleFix(p, static_cast<int>(pCurrentVfChar->GetScaledAt()
+          (ScaleFix(p, static_cast<int>(currentVfChar->GetScaledAt()
             / tfmConv))
             * tfmConv);
       }
 
     out_space:
-      if (pCurrentFont != nullptr
-        && (p >= pCurrentFont->GetInterWordSpacing()
-          || p <= -pCurrentFont->GetBackSpacing()))
+      if (currentFont != nullptr
+        && (p >= currentFont->GetInterWordSpacing()
+          || p <= -currentFont->GetBackSpacing()))
       {
         currentState.hh = PixelRound(currentState.h + p);
       }
@@ -951,14 +951,14 @@ fin_set:
     p %= 256;         // width computation for oriental fonts
   }
 
-  q = pCurrentChar->GetDviWidth();
+  q = currentChar->GetDviWidth();
 
   if (opCode >= put1)
   {
     return true;
   }
 
-  currentState.hh += pCurrentChar->GetWidth();
+  currentState.hh += currentChar->GetWidth();
 
   goto move_right;
 
@@ -974,12 +974,12 @@ fin_rule:
     {
       p =
         static_cast<int>
-        (ScaleFix(p, static_cast<int>(pCurrentVfChar->GetScaledAt()
+        (ScaleFix(p, static_cast<int>(currentVfChar->GetScaledAt()
           / tfmConv))
           * tfmConv);
       q =
         static_cast<int>
-        (ScaleFix(q, static_cast<int>(pCurrentVfChar->GetScaledAt()
+        (ScaleFix(q, static_cast<int>(currentVfChar->GetScaledAt()
           / tfmConv))
           * tfmConv);
     }
@@ -1033,7 +1033,7 @@ void DviImpl::SpecialCases(InputStream & inputStream, int opCode, int p, DviPage
     {
       p =
         static_cast<int>
-        (ScaleFix(p, static_cast<int>(pCurrentVfChar->GetScaledAt()
+        (ScaleFix(p, static_cast<int>(currentVfChar->GetScaledAt()
           / tfmConv))
           * tfmConv);
     }
@@ -1046,7 +1046,7 @@ void DviImpl::SpecialCases(InputStream & inputStream, int opCode, int p, DviPage
     {
       p =
         static_cast<int>
-        (ScaleFix(p, static_cast<int>(pCurrentVfChar->GetScaledAt()
+        (ScaleFix(p, static_cast<int>(currentVfChar->GetScaledAt()
           / tfmConv))
           * tfmConv);
     }
@@ -1058,12 +1058,12 @@ void DviImpl::SpecialCases(InputStream & inputStream, int opCode, int p, DviPage
     {
       p =
         static_cast<int>
-        (ScaleFix(p, static_cast<int>(pCurrentVfChar->GetScaledAt()
+        (ScaleFix(p, static_cast<int>(currentVfChar->GetScaledAt()
           / tfmConv))
           * tfmConv);
     }
   out_vmove:
-    if (pCurrentFont != nullptr && abs(p) >= pCurrentFont->GetLineSpacing())
+    if (currentFont != nullptr && abs(p) >= currentFont->GetLineSpacing())
     {
       currentState.vv = PixelRound(currentState.v + p);
     }
@@ -1095,11 +1095,11 @@ void DviImpl::SpecialCases(InputStream & inputStream, int opCode, int p, DviPage
     }
     int x = currentState.hh + resolution;
     int y = currentState.vv + resolution;
-    DviSpecial * pSpecial = 0;
-    if (InterpretSpecial(&page, x, y, inputStream, p, pSpecial)
-      && pSpecial != nullptr)
+    DviSpecial* special = 0;
+    if (InterpretSpecial(&page, x, y, inputStream, p, special)
+      && special != nullptr)
     {
-      page.AddSpecial(pSpecial);
+      page.AddSpecial(special);
     }
   }
   return;
@@ -1139,14 +1139,14 @@ move_down:
 change_font:
   // finish a command that changes the current font, then return
   currentFontNumber = p;
-  pCurrentFont = (*pFontMap)[p];
-  if (pCurrentFont == nullptr)
+  currentFont = (*fontMap)[p];
+  if (currentFont == nullptr)
   {
     FATAL_DVI_ERROR_2(T_("Invalid DVI file."), "fileName", dviFileName.ToString());
   }
 }
 
-Dvi * Dvi::Create(const char * lpszFileName, const char * lpszMetafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, IDviCallback * pCallback)
+Dvi* Dvi::Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, IDviCallback* callback)
 {
   shared_ptr<Session> session = Session::Get();
   PaperSizeInfo defaultPaperSizeInfo;
@@ -1154,22 +1154,22 @@ Dvi * Dvi::Create(const char * lpszFileName, const char * lpszMetafontMode, int 
   {
     MIKTEX_UNEXPECTED();
   }
-  return Create(lpszFileName, lpszMetafontMode, resolution, shrinkFactor, dviAccess, DEFAULT_PAGE_MODE, defaultPaperSizeInfo, false, pCallback);
+  return Create(fileName, metafontMode, resolution, shrinkFactor, dviAccess, DEFAULT_PAGE_MODE, defaultPaperSizeInfo, false, callback);
 }
 
-Dvi * Dvi::Create(const char * lpszFileName, const char * lpszMetafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, DviPageMode pageMode, const PaperSizeInfo & paperSizeInfo, bool landscape, IDviCallback * pCallback)
+Dvi* Dvi::Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, DviPageMode pageMode, const PaperSizeInfo & paperSizeInfo, bool landscape, IDviCallback* callback)
 {
-  DviImpl * pDvi = new DviImpl(lpszFileName, lpszMetafontMode, resolution, shrinkFactor, dviAccess, pageMode, paperSizeInfo, landscape);
-  pDvi->pCallback = pCallback;
-  return pDvi;
+  DviImpl* dviImpl = new DviImpl(fileName, metafontMode, resolution, shrinkFactor, dviAccess, pageMode, paperSizeInfo, landscape);
+  dviImpl->callback = callback;
+  return dviImpl;
 }
 
 Dvi::~Dvi()
 {
 }
 
-DviRuleImpl::DviRuleImpl(DviImpl * pDviImpl, int x, int y, int width, int height, unsigned long rgb) :
-  pDviImpl(pDviImpl),
+DviRuleImpl::DviRuleImpl(DviImpl* dviImpl, int x, int y, int width, int height, unsigned long rgb) :
+  dviImpl(dviImpl),
   x(x),
   y(y),
   width(width),
@@ -1185,22 +1185,22 @@ bool DviRuleImpl::IsBlackboard()
 
 int DviRuleImpl::GetLeft(int shrinkFactor)
 {
-  return pDviImpl->WidthShrink(shrinkFactor, x);
+  return dviImpl->WidthShrink(shrinkFactor, x);
 }
 
 int DviRuleImpl::GetRight(int shrinkFactor)
 {
-  return GetLeft(shrinkFactor) + pDviImpl->WidthShrink(shrinkFactor, width) - 1;
+  return GetLeft(shrinkFactor) + dviImpl->WidthShrink(shrinkFactor, width) - 1;
 }
 
 int DviRuleImpl::GetTop(int shrinkFactor)
 {
-  return pDviImpl->WidthShrink(shrinkFactor, y) - pDviImpl->WidthShrink(shrinkFactor, height) + 1;
+  return dviImpl->WidthShrink(shrinkFactor, y) - dviImpl->WidthShrink(shrinkFactor, height) + 1;
 }
 
 int DviRuleImpl::GetBottom(int shrinkFactor)
 {
-  return GetTop(shrinkFactor) + pDviImpl->WidthShrink(shrinkFactor, height) - 1;
+  return GetTop(shrinkFactor) + dviImpl->WidthShrink(shrinkFactor, height) - 1;
 }
 
 unsigned long DviRuleImpl::GetBackgroundColor()
@@ -1223,7 +1223,7 @@ int DviImpl::GetNumberOfPages()
   END_CRITICAL_SECTION();
 }
 
-DviPage * DviImpl::GetPage(int pageIdx)
+DviPage* DviImpl::GetPage(int pageIdx)
 {
   CheckCondition();
   BEGIN_CRITICAL_SECTION(dviMutex)
@@ -1232,8 +1232,8 @@ DviPage * DviImpl::GetPage(int pageIdx)
     {
       return nullptr;
     }
-    DviPageImpl * pPage = pages[pageIdx];
-    pPage->Lock();
+    DviPageImpl* dviPage = pages[pageIdx];
+    dviPage->Lock();
     try
     {
       if ((!pageLoaderThread.joinable() || this_thread::get_id() != pageLoaderThread.get_id())
@@ -1255,13 +1255,13 @@ DviPage * DviImpl::GetPage(int pageIdx)
           MIKTEX_FATAL_WINDOWS_ERROR("SetEvent");
         }
       }
-      return pPage;
+      return dviPage;
     }
     catch (const exception &)
     {
       try
       {
-        pPage->Unlock();
+        dviPage->Unlock();
       }
       catch (const exception &)
       {
@@ -1302,7 +1302,7 @@ int DviImpl::GetMaxV()
   return maxV;
 }
 
-DviPage * DviImpl::GetLoadedPage(int pageIdx)
+DviPage* DviImpl::GetLoadedPage(int pageIdx)
 {
   CheckCondition();
   BEGIN_CRITICAL_SECTION(dviMutex)
@@ -1318,11 +1318,11 @@ DviPage * DviImpl::GetLoadedPage(int pageIdx)
       DoPage(pageIdx);     // fall through
     case PageStatus::Loaded:
     {
-      DviPageImpl * pPage =
+      DviPageImpl* dviPage =
         reinterpret_cast<DviPageImpl*>(GetPage(pageIdx));
-      MIKTEX_ASSERT(pPage != nullptr);
-      pPage->SetAutoClean(dviAccess == DviAccess::Sequential);
-      return pPage;
+      MIKTEX_ASSERT(dviPage != nullptr);
+      dviPage->SetAutoClean(dviAccess == DviAccess::Sequential);
+      return dviPage;
     }
     default:
       MIKTEX_ASSERT(false);
@@ -1332,7 +1332,7 @@ DviPage * DviImpl::GetLoadedPage(int pageIdx)
   END_CRITICAL_SECTION();
 }
 
-void DviImpl::Progress(DviNotification nf, const char * lpszFormat, ...)
+void DviImpl::Progress(DviNotification nf, const char* format, ...)
 {
   if ((pageLoaderThread.joinable() && this_thread::get_id() == pageLoaderThread.get_id())
     || (garbageCollectorThread.joinable() && this_thread::get_id() == garbageCollectorThread.get_id()))
@@ -1340,17 +1340,17 @@ void DviImpl::Progress(DviNotification nf, const char * lpszFormat, ...)
     return;
   }
 
-  if (lpszFormat != nullptr)
+  if (format != nullptr)
   {
     lock_guard<mutex> lockGuard(statusTextMutex);
     va_list args;
-    va_start(args, lpszFormat);
-    progressStatus = StringUtil::FormatStringVA(lpszFormat, args);
+    va_start(args, format);
+    progressStatus = StringUtil::FormatStringVA(format, args);
   }
 
-  if (pCallback != nullptr)
+  if (callback != nullptr)
   {
-    pCallback->OnProgress(nf);
+    callback->OnProgress(nf);
   }
 }
 
@@ -1383,13 +1383,13 @@ void DviImpl::PageLoader()
     }
 #endif
 
-    MIKTEX_ASSERT(hByeByteEvent != nullptr);
+    MIKTEX_ASSERT(hByeByeEvent != nullptr);
     MIKTEX_ASSERT(hNewPageEvent != nullptr);
     MIKTEX_ASSERT(hScannedEvent != nullptr);
 
     HANDLE handles[2];
 
-    handles[0] = hByeByteEvent;
+    handles[0] = hByeByeEvent;
     handles[1] = hScannedEvent;
 
     unsigned long wait = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
@@ -1404,13 +1404,13 @@ void DviImpl::PageLoader()
       return;
     }
 
-    for (int pageIdx = currentPageIdx + 1; (wait = WaitForSingleObject(hByeByteEvent, sleepDurationBelowNormalPrio)) != WAIT_OBJECT_0; pageIdx += direction)
+    for (int pageIdx = currentPageIdx + 1; (wait = WaitForSingleObject(hByeByeEvent, sleepDurationBelowNormalPrio)) != WAIT_OBJECT_0; pageIdx += direction)
     {
       if (wait == WAIT_FAILED)
       {
         MIKTEX_FATAL_WINDOWS_ERROR("WaitForSingleObject");
       }
-      DviPage * pPage = nullptr;
+      DviPage* dviPage = nullptr;
       AutoUnlockPage autoUnlockPage(nullptr);
       BEGIN_CRITICAL_SECTION(dviMutex)
       {
@@ -1443,18 +1443,18 @@ void DviImpl::PageLoader()
             continue;
           }
         }
-        DviPageImpl * pPageImpl = pages[pageIdx];
+        DviPageImpl* pPageImpl = pages[pageIdx];
         if (pPageImpl->IsLocked())
         {
           continue;
         }
-        pPage = GetLoadedPage(pageIdx);
-        autoUnlockPage.Attach(pPage);
+        dviPage = GetLoadedPage(pageIdx);
+        autoUnlockPage.Attach(dviPage);
       }
       END_CRITICAL_SECTION();
-      if (pPage != nullptr)
+      if (dviPage != nullptr)
       {
-        pPage->GetNumberOfDviBitmaps(defaultShrinkFactor);
+        dviPage->GetNumberOfDviBitmaps(defaultShrinkFactor);
       }
     }
   }
@@ -1490,7 +1490,7 @@ void DviImpl::GarbageCollector()
       MIKTEX_FATAL_WINDOWS_ERROR("SetThreadPriority");
     }
     DWORD wait;
-    while ((wait = WaitForSingleObject(hByeByteEvent, sleepDuration)) != WAIT_OBJECT_0)
+    while ((wait = WaitForSingleObject(hByeByeEvent, sleepDuration)) != WAIT_OBJECT_0)
     {
       if (wait == WAIT_FAILED)
       {
@@ -1498,10 +1498,10 @@ void DviImpl::GarbageCollector()
       }
       size_t sizeBiggest = 0;
       int biggestPageIdx = -1;
-      DviPageImpl * pPage;
+      DviPageImpl* dviPage;
       size_t totalSize = 0;
       time_t now = time(nullptr);
-      for (int pageIdx = 0; (wait = WaitForSingleObject(hByeByteEvent, 0)) != WAIT_OBJECT_0; ++pageIdx)
+      for (int pageIdx = 0; (wait = WaitForSingleObject(hByeByeEvent, 0)) != WAIT_OBJECT_0; ++pageIdx)
       {
         if (wait == WAIT_FAILED)
         {
@@ -1528,25 +1528,25 @@ void DviImpl::GarbageCollector()
               continue;
             }
           }
-          DviPageImpl * pPage = pages[pageIdx];
-          totalSize += pPage->GetSize();
-          if (!pPage->IsFrozen())
+          DviPageImpl* dviPage = pages[pageIdx];
+          totalSize += dviPage->GetSize();
+          if (!dviPage->IsFrozen())
           {
             continue;
           }
-          time_t timeLastVisit = pPage->GetTimeLastVisit();
+          time_t timeLastVisit = dviPage->GetTimeLastVisit();
           if (timeLastVisit + timeKeepBitmaps < now)
           {
-            if (pPage->GetSize() > sizeBiggest && !pPage->IsLocked())
+            if (dviPage->GetSize() > sizeBiggest && !dviPage->IsLocked())
             {
-              sizeBiggest = pPage->GetSize();
+              sizeBiggest = dviPage->GetSize();
               biggestPageIdx = pageIdx;
             }
           }
         }
         END_CRITICAL_SECTION();
       }
-      wait = WaitForSingleObject(hByeByteEvent, 0);
+      wait = WaitForSingleObject(hByeByeEvent, 0);
       if (wait == WAIT_FAILED)
       {
         MIKTEX_FATAL_WINDOWS_ERROR("WaitForSingleObject");
@@ -1613,15 +1613,15 @@ void DviImpl::GarbageCollector()
         {
           continue;
         }
-        pPage = pages[biggestPageIdx];
-        if (pPage->IsLocked())
+        dviPage = pages[biggestPageIdx];
+        if (dviPage->IsLocked())
         {
           continue;
         }
-        pPage->Lock();
-        AutoUnlockPage autoUnlockPage(pPage);
-        trace_gc->WriteFormattedLine("libdvi", T_("freeing page #%d (%u bytes)"), biggestPageIdx, pPage->GetSize());
-        pPage->FreeContents(false, false);
+        dviPage->Lock();
+        AutoUnlockPage autoUnlockPage(dviPage);
+        trace_gc->WriteFormattedLine("libdvi", T_("freeing page #%d (%u bytes)"), biggestPageIdx, dviPage->GetSize());
+        dviPage->FreeContents(false, false);
       }
       END_CRITICAL_SECTION();
     }
@@ -1656,7 +1656,7 @@ bool DviImpl::MakeFonts(const FontMap & fontMap, int recursion)
       done = false;
       continue;
     }
-    VFont * pVFont = dynamic_cast<VFont*>(it->second);
+    VFont* pVFont = dynamic_cast<VFont*>(it->second);
     if (pVFont == nullptr)
     {
       continue;
@@ -1676,11 +1676,11 @@ bool DviImpl::MakeFonts()
   CheckCondition();
   BEGIN_CRITICAL_SECTION(dviMutex)
   {
-    if (pFontMap == nullptr)
+    if (fontMap == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
-    return MakeFonts(*pFontMap, 0);
+    return MakeFonts(*fontMap, 0);
   }
   END_CRITICAL_SECTION();
 }
@@ -1692,7 +1692,7 @@ void DviImpl::GetFontTable(const FontMap & fontMap, vector<DviFontInfo> & vec, i
     DviFontInfo info;
     it->second->GetInfo(info);
     vec.push_back(info);
-    VFont * pVFont = dynamic_cast<VFont*>(it->second);
+    VFont* pVFont = dynamic_cast<VFont*>(it->second);
     if (pVFont == nullptr)
     {
       continue;
@@ -1712,32 +1712,32 @@ vector<DviFontInfo> DviImpl::GetFontTable()
   BEGIN_CRITICAL_SECTION(dviMutex)
   {
     vector<DviFontInfo> ret;
-    MIKTEX_ASSERT(pFontMap != nullptr);
-    if (pFontMap != nullptr)
+    MIKTEX_ASSERT(fontMap != nullptr);
+    if (fontMap != nullptr)
     {
-      GetFontTable(*pFontMap, ret, 0);
+      GetFontTable(*fontMap, ret, 0);
     }
     return ret;
   }
   END_CRITICAL_SECTION();
 }
 
-bool DviImpl::FindGraphicsFile(const char * lpszFileName, PathName & result)
+bool DviImpl::FindGraphicsFile(const char* fileName, PathName & result)
 {
-  if (Utils::IsAbsolutePath(lpszFileName))
+  if (Utils::IsAbsolutePath(fileName))
   {
-    result = lpszFileName;
+    result = fileName;
     return File::Exists(result);
   }
   MIKTEX_ASSERT(dviFileName.GetLength() > 0);
   result = dviFileName;
   result.RemoveFileSpec();
-  result /= lpszFileName;
+  result /= fileName;
   if (File::Exists(result))
   {
     return true;
   }
-  if (!session->FindFile(lpszFileName, FileType::GRAPHICS, result))
+  if (!session->FindFile(fileName, FileType::GRAPHICS, result))
   {
     return false;
   }

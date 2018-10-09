@@ -1,6 +1,6 @@
 /* Ghostscript.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -31,7 +31,7 @@ Ghostscript::Ghostscript()
 
 Ghostscript::~Ghostscript()
 {
-  MIKTEX_ASSERT(pProcess == nullptr);
+  MIKTEX_ASSERT(process == nullptr);
   MIKTEX_ASSERT(!chunkerThread.joinable());
   MIKTEX_ASSERT(!stderrReaderThread.joinable());
   MIKTEX_ASSERT(gsIn.Get() == nullptr);
@@ -55,20 +55,20 @@ void Ghostscript::Start()
 
   // make Ghostscript command line
   vector<string> arguments{ gsExe.GetFileNameWithoutExtension().ToString() };
-  string res = std::to_string(static_cast<double>(pDviImpl->GetResolution()) / shrinkFactor);
+  string res = std::to_string(static_cast<double>(dviImpl->GetResolution()) / shrinkFactor);
   arguments.push_back("-r" + res + 'x' + res);
-  PaperSizeInfo paperSizeInfo = pDviImpl->GetPaperSizeInfo();
+  PaperSizeInfo paperSizeInfo = dviImpl->GetPaperSizeInfo();
   int width = paperSizeInfo.width;
   int height = paperSizeInfo.height;
-  if (pDviImpl->Landscape())
+  if (dviImpl->Landscape())
   {
     swap(width, height);
   }
   width =
-    static_cast<int>(((pDviImpl->GetResolution() * width) / 72.0)
+    static_cast<int>(((dviImpl->GetResolution() * width) / 72.0)
       / shrinkFactor);
   height =
-    static_cast<int>(((pDviImpl->GetResolution() * height) / 72.0)
+    static_cast<int>(((dviImpl->GetResolution() * height) / 72.0)
       / shrinkFactor);
   arguments.push_back("-g" + std::to_string(width) + 'x' + std::to_string(height));
   arguments.push_back("-sDEVICE="s + "bmp16m");
@@ -93,13 +93,13 @@ void Ghostscript::Start()
   startinfo.RedirectStandardInput = true;
   startinfo.RedirectStandardOutput = true;
   startinfo.RedirectStandardError = true;
-  startinfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();
+  startinfo.WorkingDirectory = dviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();
 
-  pProcess = Process::Start(startinfo);
+  process = Process::Start(startinfo);
 
-  gsIn.Attach(pProcess->get_StandardInput());
-  gsOut.Attach(pProcess->get_StandardOutput());
-  gsErr.Attach(pProcess->get_StandardError());
+  gsIn.Attach(process->get_StandardInput());
+  gsOut.Attach(process->get_StandardOutput());
+  gsErr.Attach(process->get_StandardError());
 
   // start chunker thread
   chunkerThread = thread(&Ghostscript::Chunker, this);
@@ -108,12 +108,12 @@ void Ghostscript::Start()
   stderrReaderThread = thread(&Ghostscript::StderrReader, this);
 }
 
-size_t Ghostscript::Read(void * pBuf, size_t size)
+size_t Ghostscript::Read(void* data, size_t size)
 {
-  return gsOut.Read(pBuf, size);
+  return gsOut.Read(data, size);
 }
 
-void Ghostscript::OnNewChunk(shared_ptr<DibChunk> pChunk)
+void Ghostscript::OnNewChunk(shared_ptr<DibChunk> dibChunk)
 {
   PathName fileName;
 
@@ -122,19 +122,19 @@ void Ghostscript::OnNewChunk(shared_ptr<DibChunk> pChunk)
   tracePS->WriteFormattedLine("libdvi", T_("creating bitmap file %s"), Q_(fileName));
   FileStream stream(File::Open(fileName, FileMode::Create, FileAccess::Write, false));
 
-  const BITMAPINFO * pBitmapInfo = pChunk->GetBitmapInfo();
+  const BITMAPINFO* bitmapInfo = dibChunk->GetBitmapInfo();
 
   size_t nBytesPerLine =
-    ((((pBitmapInfo->bmiHeader.biWidth
-      * pBitmapInfo->bmiHeader.biBitCount)
+    ((((bitmapInfo->bmiHeader.biWidth
+      * bitmapInfo->bmiHeader.biBitCount)
       + 31)
       & ~31)
       >> 3);
 
   unsigned uNumColors =
-    (pBitmapInfo->bmiHeader.biBitCount == 24
+    (bitmapInfo->bmiHeader.biBitCount == 24
       ? 0
-      : 1 << pBitmapInfo->bmiHeader.biBitCount);
+      : 1 << bitmapInfo->bmiHeader.biBitCount);
 
   // dump bitmap file header
   BITMAPFILEHEADER header;
@@ -144,7 +144,7 @@ void Ghostscript::OnNewChunk(shared_ptr<DibChunk> pChunk)
       + sizeof(BITMAPINFOHEADER)
       + uNumColors * sizeof(RGBQUAD)
       + (static_cast<DWORD>(nBytesPerLine)
-        * pBitmapInfo->bmiHeader.biHeight));
+        * bitmapInfo->bmiHeader.biHeight));
   header.bfReserved1 = 0;
   header.bfReserved2 = 0;
   header.bfOffBits =
@@ -154,18 +154,18 @@ void Ghostscript::OnNewChunk(shared_ptr<DibChunk> pChunk)
   stream.Write(&header, sizeof(header));
 
   // dump bitmap info header
-  stream.Write(&pBitmapInfo->bmiHeader, sizeof(BITMAPINFOHEADER));
+  stream.Write(&bitmapInfo->bmiHeader, sizeof(BITMAPINFOHEADER));
 
   // dump color table
-  stream.Write(pChunk->GetColors(), uNumColors * sizeof(RGBQUAD));
+  stream.Write(dibChunk->GetColors(), uNumColors * sizeof(RGBQUAD));
 
   // dump bits
-  stream.Write(pChunk->GetBits(), nBytesPerLine * pBitmapInfo->bmiHeader.biHeight);
+  stream.Write(dibChunk->GetBits(), nBytesPerLine * bitmapInfo->bmiHeader.biHeight);
 
   stream.Close();
 
   graphicsInclusions.push_back(make_shared<GraphicsInclusionImpl>(
-    ImageType::DIB, fileName, true, pChunk->GetX(), pChunk->GetY(), pBitmapInfo->bmiHeader.biWidth, pBitmapInfo->bmiHeader.biHeight));
+    ImageType::DIB, fileName, true, dibChunk->GetX(), dibChunk->GetY(), bitmapInfo->bmiHeader.biWidth, bitmapInfo->bmiHeader.biHeight));
 }
 
 void Ghostscript::Chunker()
@@ -197,20 +197,20 @@ void Ghostscript::StderrReader()
   }
 }
 
-void Ghostscript::Write(const void * p, unsigned n)
+void Ghostscript::Write(const void* data, unsigned n)
 {
-  gsIn.Write(p, n);
+  gsIn.Write(data, n);
 }
 
-void Ghostscript::Execute(const char * lpszFormat, ...)
+void Ghostscript::Execute(const char* format, ...)
 {
-  if (pProcess == nullptr)
+  if (process == nullptr)
   {
     Start();
   }
   va_list argptr;
-  va_start(argptr, lpszFormat);
-  string str = StringUtil::FormatStringVA(lpszFormat, argptr);
+  va_start(argptr, format);
+  string str = StringUtil::FormatStringVA(format, argptr);
   va_end(argptr);
   Write(str.c_str(), str.length());
 }
@@ -225,13 +225,13 @@ void Ghostscript::Finalize()
 
   // wait for Ghostscript to finish
   int gsExitCode = -1;
-  if (pProcess != nullptr)
+  if (process != nullptr)
   {
-    if (pProcess->WaitForExit(10000))
+    if (process->WaitForExit(10000))
     {
-      gsExitCode = pProcess->get_ExitCode();
+      gsExitCode = process->get_ExitCode();
     }
-    pProcess = nullptr;
+    process = nullptr;
   }
 
   // wait for the chunker to finish

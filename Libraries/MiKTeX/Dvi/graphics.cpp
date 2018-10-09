@@ -1,6 +1,6 @@
 /* graphics.cpp: graphics specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -23,11 +23,11 @@
 
 #include "internal.h"
 
-int CalculateWidth(float width, const char * lpszUnit, int resolution)
+int CalculateWidth(float width, const char* lpszUnit, int resolution)
 {
   static const struct
   {
-    const char * lpszUnit;
+    const char* lpszUnit;
     double factor;
   } unittable[] = {
     { "pt", 72.27 },
@@ -44,7 +44,7 @@ int CalculateWidth(float width, const char * lpszUnit, int resolution)
   {
     if (strcmp(unittable[i].lpszUnit, lpszUnit) == 0)
     {
-      return static_cast<int>((width * resolution / unittable[i].factor));
+      return static_cast<int>((width* resolution / unittable[i].factor));
     }
   }
   if (strcmp(lpszUnit, "px") == 0)
@@ -59,7 +59,7 @@ DviSpecialType GraphicsSpecialImpl::Parse()
   width = -1;
   height = -1;
 
-  const char * lpsz = GetXXX();
+  const char* lpsz = GetXXX();
 
   if (strncmp(GetXXX(), "em:", 3) == 0)
   {

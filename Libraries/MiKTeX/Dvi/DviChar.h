@@ -1,6 +1,6 @@
 /* DviChar.h:                                           -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -27,7 +27,7 @@ class DviChar
 {
 
 public:
-  DviChar(DviFont * pDviFont = nullptr);
+  DviChar(DviFont* dviFont = nullptr);
 
 public:
   virtual ~DviChar();
@@ -88,5 +88,5 @@ protected:
   int cy = 0;
 
 protected:
-  DviFont * pDviFont = nullptr;
+  DviFont* dviFont = nullptr;
 };

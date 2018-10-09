@@ -1,6 +1,6 @@
 /* inliners.h: inlined functions                        -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -21,77 +21,77 @@
 
 inline int PkChar::PixelShrink(int shrinkFactor, int pxl)
 {
-  return pDviFont->PixelShrink(shrinkFactor, pxl);
+  return dviFont->PixelShrink(shrinkFactor, pxl);
 }
 
 inline int PkChar::WidthShrink(int shrinkFactor, int pxl)
 {
-  return pDviFont->WidthShrink(shrinkFactor, pxl);
+  return dviFont->WidthShrink(shrinkFactor, pxl);
 }
 
 inline int DviPageImpl::PixelShrink(int shrinkFactor, int pxl)
 {
-  return pDviImpl->PixelShrink(shrinkFactor, pxl);
+  return dviImpl->PixelShrink(shrinkFactor, pxl);
 }
 
 inline int DviPageImpl::WidthShrink(int shrinkFactor, int pxl)
 {
-  return pDviImpl->WidthShrink(shrinkFactor, pxl);
+  return dviImpl->WidthShrink(shrinkFactor, pxl);
 }
 
 inline int DviItem::GetWidthShr(int shrinkFactor)
 {
-  return pPkChar->GetWidthShr(shrinkFactor);
+  return pkChar->GetWidthShr(shrinkFactor);
 }
 
 inline int DviItem::GetHeightShr(int shrinkFactor)
 {
-  return pPkChar->GetHeightShr(shrinkFactor);
+  return pkChar->GetHeightShr(shrinkFactor);
 }
 
 inline int DviItem::GetLeftShr(int shrinkFactor)
 {
-  return pPkChar->GetLeftShr(shrinkFactor, x);
+  return pkChar->GetLeftShr(shrinkFactor, x);
 }
 
 inline int DviItem::GetTopShr(int shrinkFactor)
 {
-  return pPkChar->GetTopShr(shrinkFactor, y);
+  return pkChar->GetTopShr(shrinkFactor, y);
 }
 
 inline int DviItem::GetWidthUns()
 {
-  return pPkChar->GetWidthUns();
+  return pkChar->GetWidthUns();
 }
 
 inline int DviItem::GetHeightUns()
 {
-  return pPkChar->GetHeightUns();
+  return pkChar->GetHeightUns();
 }
 
 inline int DviItem::GetLeftUns()
 {
-  return pPkChar->GetLeftUns(x);
+  return pkChar->GetLeftUns(x);
 }
 
 inline int DviItem::GetTopUns()
 {
-  return pPkChar->GetTopUns(y);
+  return pkChar->GetTopUns(y);
 }
 
 inline int DviChar::GetScaledAt()
 {
-  return pDviFont->GetScaledAt();
+  return dviFont->GetScaledAt();
 }
 
 inline int DviFont::PixelShrink(int shrinkFactor, int pxl)
 {
-  return pDviImpl->PixelShrink(shrinkFactor, pxl);
+  return dviImpl->PixelShrink(shrinkFactor, pxl);
 }
 
 inline int DviFont::WidthShrink(int shrinkFactor, int pxl)
 {
-  return pDviImpl->WidthShrink(shrinkFactor, pxl);
+  return dviImpl->WidthShrink(shrinkFactor, pxl);
 }
 
 inline unsigned long Round(double r)

@@ -1,6 +1,6 @@
 /* Tfm.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -24,8 +24,8 @@
 #include "StdAfx.h"
 #include "internal.h"
 
-Tfm::Tfm(DviImpl * pDvi, int checkSum, int scaledSize, int designSize, const char * lpszAreaName, const char * lpszFontName, const char * lpszFileName, double tfmConv, double conv) :
-  DviFont(pDvi, checkSum, scaledSize, designSize, lpszAreaName, lpszFontName, lpszFileName, tfmConv, conv),
+Tfm::Tfm(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConv, double conv) :
+  DviFont(dviImpl, checkSum, scaledSize, designSize, area, fontName, fileName, tfmConv, conv),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_tfm(TraceStream::Open(MIKTEX_TRACE_DVITFM))
 
@@ -59,17 +59,17 @@ Tfm::~Tfm()
   {
   }
 }
-DviChar * Tfm::operator[] (unsigned long idx)
+DviChar* Tfm::operator[](unsigned long idx)
 {
   Read();
-  DviChar * pDviChar = dviChars[idx];
-  if (pDviChar == nullptr)
+  DviChar* dviChar = dviChars[idx];
+  if (dviChar == nullptr)
   {
     trace_tfm->WriteFormattedLine("libdvi", T_("%s: nil character at %u"), dviInfo.name.c_str(), idx);
-    pDviChar = new DviChar(this);
-    dviChars[idx] = pDviChar;
+    dviChar = new DviChar(this);
+    dviChars[idx] = dviChar;
   }
-  return pDviChar;
+  return dviChar;
 }
 
 void Tfm::Read()
@@ -99,11 +99,8 @@ void Tfm::Read()
     {
       dviInfo.transcript += "\r\n";
       dviInfo.transcript += T_("Loading 'cmr10' instead.\r\n");
-      trace_error->WriteFormattedLine
-        ("libdvi", T_("'%s' not loadable - loading 'cmr10' instead!"), dviInfo.name.c_str());
-      if (!(session->FindTfmFile("cmr10", fileName, false)
-        || (Make("cmr10")
-          && session->FindTfmFile("cmr10", fileName, false))))
+      trace_error->WriteFormattedLine("libdvi", T_("'%s' not loadable - loading 'cmr10' instead!"), dviInfo.name.c_str());
+      if (!(session->FindTfmFile("cmr10", fileName, false) || (Make("cmr10") && session->FindTfmFile("cmr10", fileName, false))))
       {
         dviInfo.transcript += T_("'cmr10' not loadable either!");
         trace_error->WriteLine("libdvi", T_("'cmr10' not loadable - will display blank chars!"));
@@ -180,9 +177,9 @@ void Tfm::Read()
 
   for (int charCode = bc; charCode < ec; ++charCode)
   {
-    DviChar * pDviChar = new DviChar(this);
-    dviChars[charCode] = pDviChar;
-    pDviChar->SetCharacterCode(charCode);
+    DviChar* dviChar = new DviChar(this);
+    dviChars[charCode] = dviChar;
+    dviChar->SetCharacterCode(charCode);
     TfmIndex tfmIndex;
     tfmIndex.widthIndex = inputStream.ReadSignedByte();
     int heightDepth = inputStream.ReadSignedByte();
@@ -232,7 +229,7 @@ void Tfm::Read()
   }
 }
 
-bool Tfm::Make(const string & name)
+bool Tfm::Make(const string& name)
 {
   dviInfo.transcript += "\r\n";
   dviInfo.transcript += T_("Making TFM file:\r\n");
@@ -247,7 +244,7 @@ bool Tfm::Make(const string & name)
   args.push_back(baseName.ToString());
   dviInfo.transcript += CommandLineBuilder(args).ToString();
   dviInfo.transcript += "\r\n";
-  pDviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
+  dviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
   ProcessOutput<4096> maketfmOutput;
   int exitCode;
   bool done = Process::Run(makeTFM, args, &maketfmOutput, &exitCode, nullptr) && exitCode == 0;
@@ -259,4 +256,3 @@ bool Tfm::Make(const string & name)
   dviInfo.transcript += "\r\n";
   return done;
 }
-

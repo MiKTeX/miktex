@@ -1,6 +1,6 @@
 /* Dib.h:                                               -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -27,25 +27,25 @@ public:
   Dib();
 
 public:
-  Dib(const PathName & path);
+  Dib(const PathName& path);
 
 public:
   ~Dib();
 
 public:
-  void GetSize(long * pcx, long * pcy) const;
+  void GetSize(long* pcx, long* pcy) const;
 
 public:
   void Render(HDC hdc, int x, int y, int cx, int cy);
 
 private:
-  void AttachFile(const char * lpszFileName);
+  void AttachFile(const char* fileName);
 
 private:
-  const BITMAPINFO * GetBitmapInfo() const
+  const BITMAPINFO* GetBitmapInfo() const
   {
-    MIKTEX_ASSERT(pBitmapFileHeader != nullptr);
-    return reinterpret_cast<const BITMAPINFO *>(reinterpret_cast<const BYTE *>(pBitmapFileHeader) + sizeof(*pBitmapFileHeader));
+    MIKTEX_ASSERT(bitmapFileHeader != nullptr);
+    return reinterpret_cast<const BITMAPINFO*>(reinterpret_cast<const BYTE *>(bitmapFileHeader) + sizeof(*bitmapFileHeader));
   }
 
 private:
@@ -61,10 +61,10 @@ private:
   }
 
 private:
-  const void * GetBits() const
+  const void* GetBits() const
   {
-    MIKTEX_ASSERT(pBitmapFileHeader != nullptr);
-    return reinterpret_cast<const BYTE *>(pBitmapFileHeader) + pBitmapFileHeader->bfOffBits;
+    MIKTEX_ASSERT(bitmapFileHeader != nullptr);
+    return reinterpret_cast<const BYTE*>(bitmapFileHeader) + bitmapFileHeader->bfOffBits;
   }
 
 private:
@@ -77,5 +77,5 @@ private:
   HANDLE hMap = nullptr;
 
 private:
-  BITMAPFILEHEADER * pBitmapFileHeader = nullptr;
+  BITMAPFILEHEADER* bitmapFileHeader = nullptr;
 };

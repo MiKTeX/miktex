@@ -1,6 +1,6 @@
 /* tpic.cpp: tpic specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -27,48 +27,48 @@ struct TpicContext TpicSpecialRoot::tpicContext;
 
 DviSpecialType TpicPolySpecialImpl::Parse()
 {
-  m_outline = OutlineStyle::Solid;
-  m_length = 0;
-  m_bSpline = false;
+  outlineStyle = OutlineStyle::Solid;
+  polyLength = 0;
+  isSpline = false;
   if (strncmp(GetXXX(), "ip", 2) == 0)
   {
-    m_outline = OutlineStyle::None;
+    outlineStyle = OutlineStyle::None;
   }
   else if (strncmp(GetXXX(), "da", 2) == 0)
   {
-    if (sscanf_s(GetXXX(), "da %f", &m_length) != 1)
+    if (sscanf_s(GetXXX(), "da %f", &polyLength) != 1)
     {
       trace_error->WriteLine("libdvi", T_("bad da special"));
     }
     else
     {
-      m_outline = OutlineStyle::Dashes;
+      outlineStyle = OutlineStyle::Dashes;
     }
   }
   else if (strncmp(GetXXX(), "dt", 2) == 0)
   {
-    if (sscanf_s(GetXXX(), "dt %f", &m_length) != 1)
+    if (sscanf_s(GetXXX(), "dt %f", &polyLength) != 1)
     {
       trace_error->WriteLine("libdvi", T_("bad dt special"));
     }
     else
     {
-      m_outline = OutlineStyle::Dots;
+      outlineStyle = OutlineStyle::Dots;
     }
   }
   else if (strncmp(GetXXX(), "sp", 2) == 0)
   {
-    m_bSpline = true;
-    if (sscanf_s(GetXXX(), "sp %f", &m_length) == 1)
+    isSpline = true;
+    if (sscanf_s(GetXXX(), "sp %f", &polyLength) == 1)
     {
-      if (m_length > 0)
+      if (polyLength > 0)
       {
-        m_outline = OutlineStyle::Dashes;
+        outlineStyle = OutlineStyle::Dashes;
       }
-      else if (m_length < 0)
+      else if (polyLength < 0)
       {
-        m_length *= -1;
-        m_outline = OutlineStyle::Dots;
+        polyLength *= -1;
+        outlineStyle = OutlineStyle::Dots;
       }
     }
   }
@@ -78,7 +78,7 @@ DviSpecialType TpicPolySpecialImpl::Parse()
 
 DviSpecialType TpicArcSpecialImpl::Parse()
 {
-  m_bOutline = (strncmp(GetXXX(), "ar", 2) == 0);
+  hasOutline = (strncmp(GetXXX(), "ar", 2) == 0);
   if (sscanf_s(GetXXX() + 2, " %d %d %d %d %f %f", &cx, &cy, &m_rx, &m_ry, &m_s, &m_e) != 6)
   {
     trace_error->WriteLine("libdvi", T_("bad ar special"));

@@ -1,6 +1,6 @@
 /* src.cpp: src specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-STATICFUNC(int) MyPathNameCompare(const PathName & path1, const PathName & path2)
+STATICFUNC(int) MyPathNameCompare(const PathName& path1, const PathName& path2)
 {
   int ret = PathName::Compare(path1, path2);
 
@@ -57,16 +57,16 @@ STATICFUNC(int) MyPathNameCompare(const PathName & path1, const PathName & path2
   return PathName::Compare(path11, path22);
 }
 
-bool DviImpl::FindSource(const char * lpszFileName, int line, DviPosition & position)
+bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
 {
   CheckCondition();
 
   BEGIN_CRITICAL_SECTION(dviMutex)
   {
-    trace_search->WriteFormattedLine("libdvi", T_("searching src special %d %s"), line, lpszFileName);
+    trace_search->WriteFormattedLine("libdvi", T_("searching src special %d %s"), line, fileName);
 
-    SourceSpecial * pSourceSpecial1Best = nullptr;
-    SourceSpecial * pSourceSpecial2Best = nullptr;
+    SourceSpecial* pSourceSpecial1Best = nullptr;
+    SourceSpecial* pSourceSpecial2Best = nullptr;
 
     int pageIdx1 = -1;
     int pageIdx2 = -1;
@@ -77,22 +77,22 @@ bool DviImpl::FindSource(const char * lpszFileName, int line, DviPosition & posi
     documentLocation.RemoveFileSpec();
 
     // file name relative to the location of the DVI document
-    const char * lpszRelFileName;
+    const char* lpszRelFileName;
 
     // absolute file name
     PathName fqFileName;
 
-    if (Utils::IsAbsolutePath(lpszFileName))
+    if (Utils::IsAbsolutePath(fileName))
     {
-      lpszRelFileName = Utils::GetRelativizedPath(lpszFileName, documentLocation.GetData());
-      fqFileName = lpszFileName;
+      lpszRelFileName = Utils::GetRelativizedPath(fileName, documentLocation.GetData());
+      fqFileName = fileName;
       fqFileName.MakeAbsolute();
     }
     else
     {
-      lpszRelFileName = lpszFileName;
+      lpszRelFileName = fileName;
       fqFileName = documentLocation;
-      fqFileName /= lpszFileName;
+      fqFileName /= fileName;
       fqFileName.MakeAbsolute();
     }
 
@@ -102,49 +102,49 @@ bool DviImpl::FindSource(const char * lpszFileName, int line, DviPosition & posi
 
     for (int pageIdx = 0; pageIdx < GetNumberOfPages(); ++pageIdx)
     {
-      DviPageImpl * pPage;
+      DviPageImpl* dviPage;
 
       try
       {
-        pPage = reinterpret_cast<DviPageImpl*>(GetLoadedPage(pageIdx));
+        dviPage = reinterpret_cast<DviPageImpl*>(GetLoadedPage(pageIdx));
       }
       catch (const OperationCancelledException &)
       {
         return false;
       }
 
-      if (pPage == nullptr)
+      if (dviPage == nullptr)
       {
         throw DviPageNotFoundException("", T_("The DVI page could not be found."), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
       }
 
-      AutoUnlockPage autoUnlockPage(pPage);
+      AutoUnlockPage autoUnlockPage(dviPage);
 
-      SourceSpecial * pSourceSpecial1 = nullptr;
-      SourceSpecial * pSourceSpecial2 = nullptr;
+      SourceSpecial* pSourceSpecial1 = nullptr;
+      SourceSpecial* pSourceSpecial2 = nullptr;
 
-      SourceSpecial * pSourceSpecial;
+      SourceSpecial* pSourceSpecial;
 
-      for (int j = -1; (pSourceSpecial = pPage->GetNextSpecial<SourceSpecial>(j)) != nullptr; )
+      for (int j = -1; (pSourceSpecial = dviPage->GetNextSpecial<SourceSpecial>(j)) != nullptr; )
       {
-        const char * lpszName = pSourceSpecial->GetFileName();
+        const char* name = pSourceSpecial->GetFileName();
 
         // try exact match
-        bool nameMatch = (MyPathNameCompare(lpszName, lpszFileName) == 0);
+        bool nameMatch = (MyPathNameCompare(name, fileName) == 0);
 
         // try fully qualified file names
         if (!nameMatch)
         {
           PathName fqName;
-          if (Utils::IsAbsolutePath(lpszName))
+          if (Utils::IsAbsolutePath(name))
           {
-            fqName = lpszName;
+            fqName = name;
             fqName.MakeAbsolute();
           }
           else
           {
             fqName = documentLocation;
-            fqName /= lpszName;
+            fqName /= name;
             fqName.MakeAbsolute();
           }
           nameMatch = (MyPathNameCompare(fqName, fqFileName) == 0);
@@ -153,14 +153,14 @@ bool DviImpl::FindSource(const char * lpszFileName, int line, DviPosition & posi
         // try relative file names
         if (!nameMatch && lpszRelFileName != nullptr)
         {
-          const char * lpszRelName;
-          if (!Utils::IsAbsolutePath(lpszName))
+          const char* lpszRelName;
+          if (!Utils::IsAbsolutePath(name))
           {
-            lpszRelName = lpszName;
+            lpszRelName = name;
           }
           else
           {
-            lpszRelName = Utils::GetRelativizedPath(lpszName, documentLocation.GetData());
+            lpszRelName = Utils::GetRelativizedPath(name, documentLocation.GetData());
           }
           nameMatch = lpszRelName != nullptr && MyPathNameCompare(lpszRelName, lpszRelFileName) == 0;
         }
@@ -268,7 +268,7 @@ bool DviImpl::FindSource(const char * lpszFileName, int line, DviPosition & posi
 
 #define OFFSET(x, y) ((y) * PixelRound(maxH) + (x))
 
-bool DviImpl::GetSource(const DviPosition & pos, PathName & fileName, int * pLineNum)
+bool DviImpl::GetSource(const DviPosition& pos, PathName& fileName, int* pLineNum)
 {
   CheckCondition();
   BEGIN_CRITICAL_SECTION(dviMutex)
@@ -278,27 +278,27 @@ bool DviImpl::GetSource(const DviPosition & pos, PathName & fileName, int * pLin
       return false;
     }
 
-    DviPageImpl * pPage = reinterpret_cast<DviPageImpl*>(GetLoadedPage(pos.pageIdx));
+    DviPageImpl* dviPage = reinterpret_cast<DviPageImpl*>(GetLoadedPage(pos.pageIdx));
 
-    if (pPage == nullptr)
+    if (dviPage == nullptr)
     {
       throw DviPageNotFoundException("", T_("The DVI page could not be found."), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
     }
 
-    AutoUnlockPage autoUnlockPage(pPage);
+    AutoUnlockPage autoUnlockPage(dviPage);
 
-    SourceSpecial * pSourceSpecial1 = nullptr;
-    SourceSpecial * pSourceSpecial2 = nullptr;
+    SourceSpecial* pSourceSpecial1 = nullptr;
+    SourceSpecial* pSourceSpecial2 = nullptr;
 
     int cursorOffset = OFFSET(pos.x, pos.y);
 
     int src1Offset = 0;
     int src2Offset = 0;
 
-    SourceSpecial * pSourceSpecial;
+    SourceSpecial* pSourceSpecial;
 
     // find two adjacent src specials
-    for (int j = -1; (pSourceSpecial = pPage->GetNextSpecial<SourceSpecial>(j)) != nullptr; )
+    for (int j = -1; (pSourceSpecial = dviPage->GetNextSpecial<SourceSpecial>(j)) != nullptr; )
     {
       int srcOffset = OFFSET(pSourceSpecial->GetX(), pSourceSpecial->GetY());
       if (cursorOffset > srcOffset)
@@ -375,24 +375,24 @@ DviSpecialType SourceSpecialImpl::Parse()
 {
   static atomic_long nextid = 1;
   id = nextid++;
-  const char * lpsz = GetXXX() + 4; // src:
+  const char* lpsz = GetXXX() + 4; // src:
   while (*lpsz == ' ')
   {
     ++lpsz;
   }
   if (*lpsz != 0 && isdigit(*lpsz))
   {
-    char * lpszFileName;
-    lineNum = strtol(lpsz, &lpszFileName, 10);
-    if (lpszFileName != nullptr)
+    char* fileName;
+    lineNum = strtol(lpsz, &fileName, 10);
+    if (fileName != nullptr)
     {
-      while (*lpszFileName == ' ')
+      while (*fileName == ' ')
       {
-        ++lpszFileName;
+        ++fileName;
       }
-      if (*lpszFileName != 0)
+      if (*fileName != 0)
       {
-        fileName = lpszFileName;
+        this->fileName = fileName;
       }
     }
   }

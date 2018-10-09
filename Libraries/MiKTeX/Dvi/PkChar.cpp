@@ -1,6 +1,6 @@
 /* PkChar.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -54,7 +54,7 @@ int PkChar::GetLower3()
   return flag & 7;
 }
 
-PkChar::PkChar(DviFont * pFont) :
+PkChar::PkChar(DviFont* pFont) :
   DviChar(pFont),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_pkchar(TraceStream::Open(MIKTEX_TRACE_DVIPKCHAR))
@@ -65,15 +65,15 @@ PkChar::~PkChar()
 {
   try
   {
-    if (pPackedRaster != nullptr)
+    if (packedRaster != nullptr)
     {
-      delete[] pPackedRaster;
-      pPackedRaster = nullptr;
+      delete[] packedRaster;
+      packedRaster = nullptr;
     }
-    if (pUnpackedRaster != nullptr)
+    if (unpackedRaster != nullptr)
     {
-      delete[] pUnpackedRaster;
-      pUnpackedRaster = nullptr;
+      delete[] unpackedRaster;
+      unpackedRaster = nullptr;
     }
     for (MAPINTTORASTER::iterator it = bitmaps.begin(); it != bitmaps.end(); ++it)
     {
@@ -111,7 +111,7 @@ bool PkChar::IsLong()
   return GetLower3() == 7 ? true : false;
 }
 
-void PkChar::Read(InputStream & inputstream, int flag)
+void PkChar::Read(InputStream& inputstream, int flag)
 {
   this->flag = flag;
 
@@ -155,7 +155,7 @@ void PkChar::Read(InputStream & inputstream, int flag)
     cyOffset = inputstream.ReadSignedQuad();
   }
 
-  tfm = ScaleFix(tfm, pDviFont->GetScaledAt());
+  tfm = ScaleFix(tfm, dviFont->GetScaledAt());
 
   if (packetSize == 0)
   {
@@ -166,8 +166,8 @@ void PkChar::Read(InputStream & inputstream, int flag)
   else
   {
     trace_pkchar->WriteFormattedLine("libdvi", T_("going to read character %d"), charCode);
-    pPackedRaster = new BYTE[packetSize];
-    inputstream.Read(pPackedRaster, packetSize);
+    packedRaster = new BYTE[packetSize];
+    inputstream.Read(packedRaster, packetSize);
   }
 }
 
@@ -248,12 +248,12 @@ int PkChar::Unpacker::GetPackedNumber()
 
 void PkChar::Unpack()
 {
-  if (pUnpackedRaster != nullptr)
+  if (unpackedRaster != nullptr)
   {
     return;
   }
   int dynf = flag >> 4;
-  Unpacker unp(pPackedRaster, dynf);
+  Unpacker unp(packedRaster, dynf);
   numberOfRasterWords = (rasterWidth + bitsPerRasterWord - 1) / bitsPerRasterWord;
   if (rasterWidth == 0 || rasterHeight == 0)
   {
@@ -262,9 +262,9 @@ void PkChar::Unpack()
 #endif
     return;
   }
-  pUnpackedRaster = new RASTERWORD[rasterHeight * numberOfRasterWords];
+  unpackedRaster = new RASTERWORD[rasterHeight * numberOfRasterWords];
   RASTERWORD rword = 0;
-  RASTERWORD * pUnpackedRaster = this->pUnpackedRaster;
+  RASTERWORD* unpackedRaster = this->unpackedRaster;
   bool turnOn = (flag & 8 ? true : false);
   if (dynf == 14)
   {
@@ -283,14 +283,14 @@ void PkChar::Unpack()
         --unp.rasterWordHeight;
         if (unp.rasterWordHeight == -1)
         {
-          *pUnpackedRaster++ = rword;
+          *unpackedRaster++ = rword;
           rword = 0;
           unp.rasterWordHeight = bitsPerRasterWord - 1;
         }
       }
       if (unp.rasterWordHeight < bitsPerRasterWord - 1)
       {
-        *pUnpackedRaster++ = rword;
+        *unpackedRaster++ = rword;
       }
     }
   }
@@ -324,13 +324,13 @@ void PkChar::Unpack()
           {
             rword = static_cast<RASTERWORD>(rword + (gpower[unp.rasterWordHeight] - gpower[unp.rasterWordHeight - h_bit]));
           }
-          *pUnpackedRaster++ = rword;
+          *unpackedRaster++ = rword;
           // send row
           for (int i = 1; i <= unp.repeatCount; ++i)
           {
-            for (int j = 1; j <= numberOfRasterWords; ++j, ++pUnpackedRaster)
+            for (int j = 1; j <= numberOfRasterWords; ++j, ++unpackedRaster)
             {
-              *pUnpackedRaster = pUnpackedRaster[-numberOfRasterWords];
+              *unpackedRaster = unpackedRaster[-numberOfRasterWords];
             }
           }
           rows_left = rows_left - unp.repeatCount - 1;
@@ -346,7 +346,7 @@ void PkChar::Unpack()
           {
             rword = static_cast<RASTERWORD>(rword + gpower[unp.rasterWordHeight]);
           }
-          *pUnpackedRaster++ = rword;
+          *unpackedRaster++ = rword;
           rword = 0;
           count -= unp.rasterWordHeight;
           h_bit -= unp.rasterWordHeight;
@@ -371,19 +371,19 @@ namespace {
   };
 }
 
-unsigned long PkChar::CountBits(const RASTERWORD * pRasterWord, int xStart, int rasterWordsPerLine, int w, int h)
+unsigned long PkChar::CountBits(const RASTERWORD* rasterWord, int xStart, int rasterWordsPerLine, int w, int h)
 {
   unsigned long result = 0;
 
   unsigned long rightShift = bitsPerRasterWord - (xStart % bitsPerRasterWord);
-  pRasterWord += xStart / bitsPerRasterWord;
+  rasterWord += xStart / bitsPerRasterWord;
 
   while (w > 0)
   {
     unsigned long bitFieldLength = std::min(rightShift, static_cast<unsigned long>(w));
     bitFieldLength = std::min(bitFieldLength, maxBitFieldLength);
     rightShift -= bitFieldLength;
-    const RASTERWORD * pRasterWord2 = pRasterWord;
+    const RASTERWORD* pRasterWord2 = rasterWord;
     for (int i = 0; i < h; ++i, pRasterWord2 += rasterWordsPerLine)
     {
       RASTERWORD rw = *pRasterWord2;
@@ -394,7 +394,7 @@ unsigned long PkChar::CountBits(const RASTERWORD * pRasterWord, int xStart, int 
     if (rightShift == 0)
     {
       rightShift = bitsPerRasterWord;
-      pRasterWord++;
+      rasterWord++;
     }
     w -= bitFieldLength;
   }
@@ -411,7 +411,7 @@ inline unsigned long color(unsigned long n, unsigned long bitsPerPixel, unsigned
   return Round(static_cast<double>(n * (twopwr(bitsPerPixel) - 1)) / static_cast<double>(shrinkFactor * shrinkFactor));
 }
 
-void * PkChar::Shrink(int shrinkFactor)
+void* PkChar::Shrink(int shrinkFactor)
 {
 #define BE_FAST
 #ifdef BE_FAST
@@ -420,19 +420,19 @@ void * PkChar::Shrink(int shrinkFactor)
     unsigned long cbLine = ((rasterWidth + 31) / 32) * 4;
     unsigned long rasterWordsPerLine = (rasterWidth + bitsPerRasterWord - 1) / bitsPerRasterWord;
 
-    unsigned char * pShrinkedRaster = reinterpret_cast<unsigned char*>(malloc(rasterHeight * cbLine));
+    unsigned char* pShrinkedRaster = reinterpret_cast<unsigned char*>(malloc(rasterHeight * cbLine));
     memset(pShrinkedRaster, 0, rasterHeight * cbLine);
 
     int shrinkedRasterHeight = 0;
 
     for (int row = 0; row < rasterHeight; ++shrinkedRasterHeight, ++row)
     {
-      BYTE * pbyte = &pShrinkedRaster[shrinkedRasterHeight * cbLine];
+      BYTE* pbyte = &pShrinkedRaster[shrinkedRasterHeight * cbLine];
       unsigned long idxBit = 7;
       for (int col = 0; col < rasterWidth; ++col)
       {
         RASTERWORD rw =
-          pUnpackedRaster[(rasterWordsPerLine * row
+          unpackedRaster[(rasterWordsPerLine * row
             + col / bitsPerRasterWord)];
         unsigned long n =
           ((rw & powerOfTwo[bitsPerRasterWord
@@ -463,12 +463,12 @@ void * PkChar::Shrink(int shrinkFactor)
   int widthShr = GetWidthShr(shrinkFactor);
   int heightShr = GetHeightShr(shrinkFactor);
 
-  unsigned long bitsPerPixel = pDviFont->GetDviObject()->GetBitsPerPixel(shrinkFactor);
+  unsigned long bitsPerPixel = dviFont->GetDviObject()->GetBitsPerPixel(shrinkFactor);
   unsigned long lineSizeShr = ((widthShr * bitsPerPixel + 31) / 32) * 4;
 
   unsigned long rasterWordsPerLine = (rasterWidth + bitsPerRasterWord - 1) / bitsPerRasterWord;
 
-  unsigned char * pShrinkedRaster = reinterpret_cast<unsigned char*>(malloc(heightShr * lineSizeShr));
+  unsigned char* pShrinkedRaster = reinterpret_cast<unsigned char*>(malloc(heightShr * lineSizeShr));
   memset(pShrinkedRaster, 0, heightShr * lineSizeShr);
 
   int shrinkedRasterHeight = 0;
@@ -482,7 +482,7 @@ void * PkChar::Shrink(int shrinkFactor)
 
   for (int row = 0; row < rasterHeight; shrinkedRasterHeight += 1)
   {
-    BYTE * pbyte = &pShrinkedRaster[shrinkedRasterHeight * lineSizeShr];
+    BYTE* pbyte = &pShrinkedRaster[shrinkedRasterHeight * lineSizeShr];
     unsigned long idxBit = 7;
 
     int sampleWidth = ((cxOffset + 1) - ((cxOffset + 1) / shrinkFactor) * shrinkFactor);
@@ -493,7 +493,7 @@ void * PkChar::Shrink(int shrinkFactor)
 
     for (int col = 0; col < rasterWidth; )
     {
-      unsigned long n = color(CountBits(pUnpackedRaster + (rasterWordsPerLine * row), col, rasterWordsPerLine, std::min(sampleWidth, rasterWidth - col), std::min(sampleHeight, rasterHeight - row)), bitsPerPixel, shrinkFactor);
+      unsigned long n = color(CountBits(unpackedRaster + (rasterWordsPerLine * row), col, rasterWordsPerLine, std::min(sampleWidth, rasterWidth - col), std::min(sampleHeight, rasterHeight - row)), bitsPerPixel, shrinkFactor);
 
       if (idxBit == bitsPerPixel - 1)
       {
@@ -519,7 +519,7 @@ void * PkChar::Shrink(int shrinkFactor)
   return pShrinkedRaster;
 }
 
-const void * PkChar::GetBitmap(int shrinkFactor)
+const void* PkChar::GetBitmap(int shrinkFactor)
 {
   MAPINTTORASTER::const_iterator it = bitmaps.find(shrinkFactor);
   if (it != bitmaps.end())
@@ -527,7 +527,7 @@ const void * PkChar::GetBitmap(int shrinkFactor)
     return it->second;
   }
   Unpack();
-  void * p = Shrink(shrinkFactor);
+  void* p = Shrink(shrinkFactor);
   bitmaps[shrinkFactor] = p;
   return p;
 }

@@ -418,7 +418,7 @@ public:
 
 struct DviBitmap
 {
-  const void* pPixels;
+  const void* pixels;
   int x;
   int y;
   int width;
@@ -558,10 +558,10 @@ public:
   virtual void MIKTEXTHISCALL Dispose() = 0;
 
 public:
-  static MIKTEXDVICEEAPI(Dvi*) Create(const char* lpszFileName, const char* lpszMetafontMode, int resolution, int shrinkFactor, DviAccess access, IDviCallback* pCallback);
+  static MIKTEXDVICEEAPI(Dvi*) Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess access, IDviCallback* callback);
 
 public:
-  static MIKTEXDVICEEAPI(Dvi*) Create(const char* lpszFileName, const char* lpszMetafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const MiKTeX::Core::PaperSizeInfo& defaultPaperSizeInfo, bool landscape, IDviCallback* pCallback);
+  static MIKTEXDVICEEAPI(Dvi*) Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const MiKTeX::Core::PaperSizeInfo& defaultPaperSizeInfo, bool landscape, IDviCallback* callback);
 
 public:
   virtual int MIKTEXTHISCALL GetNumberOfPages() = 0;
@@ -570,7 +570,7 @@ public:
   virtual bool MIKTEXTHISCALL GetSource(const DviPosition& pos, MiKTeX::Core::PathName& fileName, int* pLineNum = 0) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindSource(const char* lpszFileName, int line, DviPosition& position) = 0;
+  virtual bool MIKTEXTHISCALL FindSource(const char* fileName, int line, DviPosition& position) = 0;
 
 public:
   virtual DviPage* MIKTEXTHISCALL GetPage(int pageIdx) = 0;
@@ -597,7 +597,7 @@ public:
   virtual DviPage* MIKTEXTHISCALL GetLoadedPage(int pageIdx) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindHyperLabel(const char* lpszLabel, DviPosition& position) = 0;
+  virtual bool MIKTEXTHISCALL FindHyperLabel(const char* label, DviPosition& position) = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetStatusText() = 0;

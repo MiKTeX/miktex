@@ -1,6 +1,6 @@
 /* color.cpp: color specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -26,8 +26,8 @@
 namespace {
   const struct
   {
-    const char *        lpszName;
-    CmykColor           color;
+    const char* name;
+    CmykColor color;
   } colorNames[] =
   {                             // borrowed from color.lpro (Dvips)
     "Apricot", 0, 0.32, 0.52, 0,
@@ -102,8 +102,7 @@ namespace {
 }
 
 #if defined(MIKTEX_DEBUG)
-STATICFUNC(void)
-DebugCheckColorNames()
+STATICFUNC(void) DebugCheckColorNames()
 {
   static bool done = false;
   if (done)
@@ -112,28 +111,21 @@ DebugCheckColorNames()
   }
   for (size_t i = 1; i < sizeof(colorNames) / sizeof(colorNames[0]); ++i)
   {
-    MIKTEX_ASSERT(StringCompare(colorNames[i].lpszName,
-      colorNames[i - 1].lpszName,
-      true)
-  > 0);
+    MIKTEX_ASSERT(StringCompare(colorNames[i].name, colorNames[i - 1].name, true) > 0);
   }
   done = true;
 }
 #endif
 
-STATICFUNC(bool)
-LookupColorName(/*[in]*/ const char *  lpszName,
-  /*[in]*/ CmykColor &   color)
+STATICFUNC(bool) LookupColorName(const char* name, CmykColor& color)
 {
 #if defined(MIKTEX_DEBUG)
   DebugCheckColorNames();
 #endif
   // <fixme>use binary search for efficiency</fixme>
-  for (size_t idx = 0;
-  idx < sizeof(colorNames) / sizeof(colorNames[0]);
-    ++idx)
+  for (size_t idx = 0; idx < sizeof(colorNames) / sizeof(colorNames[0]); ++idx)
   {
-    if (Utils::EqualsIgnoreCase(colorNames[idx].lpszName, lpszName))
+    if (Utils::EqualsIgnoreCase(colorNames[idx].name, name))
     {
       color = colorNames[idx].color;
       return true;
@@ -332,11 +324,11 @@ HsbColor::operator unsigned long()
   return rgbcol;
 }
 
-bool DviImpl::ParseColorSpec(const char * lpsz, unsigned long & rgb)
+bool DviImpl::ParseColorSpec(const char* colorSpec, unsigned long& rgb)
 {
-  while (isspace(*lpsz))
+  while (isspace(*colorSpec))
   {
-    ++lpsz;
+    ++colorSpec;
   }
 
   bool isRgb = false;
@@ -344,35 +336,35 @@ bool DviImpl::ParseColorSpec(const char * lpsz, unsigned long & rgb)
   bool isHsb = false;
   bool isGray = false;
 
-  if (strncmp(lpsz, "rgb", 3) == 0)
+  if (strncmp(colorSpec, "rgb", 3) == 0)
   {
     isRgb = true;
-    lpsz += 3;
+    colorSpec += 3;
   }
-  else if (strncmp(lpsz, "hsb", 3) == 0)
+  else if (strncmp(colorSpec, "hsb", 3) == 0)
   {
     isHsb = true;
-    lpsz += 3;
+    colorSpec += 3;
   }
-  else if (strncmp(lpsz, "cmyk", 4) == 0)
+  else if (strncmp(colorSpec, "cmyk", 4) == 0)
   {
     isCmyk = true;
-    lpsz += 4;
+    colorSpec += 4;
   }
-  else if (strncmp(lpsz, "gray", 4) == 0)
+  else if (strncmp(colorSpec, "gray", 4) == 0)
   {
     isGray = true;
-    lpsz += 4;
+    colorSpec += 4;
   }
 
   if (isRgb || isHsb || isCmyk || isGray)
   {
-    while (isspace(*lpsz))
+    while (isspace(*colorSpec))
     {
-      ++lpsz;
+      ++colorSpec;
     }
 
-    if (*lpsz == 0)
+    if (*colorSpec == 0)
     {
       return false;
     }
@@ -380,12 +372,12 @@ bool DviImpl::ParseColorSpec(const char * lpsz, unsigned long & rgb)
     if (isRgb || isHsb)
     {
       float frac1, frac2, frac3;
-      if (sscanf_s(lpsz, "%f %f %f", &frac1, &frac2, &frac3) != 3
+      if (sscanf_s(colorSpec, "%f %f %f", &frac1, &frac2, &frac3) != 3
         || frac1 < 0.0 || frac1 > 1.0
         || frac2 < 0.0 || frac2 > 1.0
         || frac3 < 0.0 || frac3 > 1.0)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("invalid color triple: %s"), lpsz);
+        trace_error->WriteFormattedLine("libdvi", T_("invalid color triple: %s"), colorSpec);
         return false;
       }
       if (isRgb)
@@ -408,10 +400,10 @@ bool DviImpl::ParseColorSpec(const char * lpsz, unsigned long & rgb)
     else if (isGray)
     {
       float frac1;
-      if (sscanf_s(lpsz, "%f", &frac1) != 1
+      if (sscanf_s(colorSpec, "%f", &frac1) != 1
         || frac1 < 0.0 || frac1 > 1.0)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("invalid gray value: %s"), lpsz);
+        trace_error->WriteFormattedLine("libdvi", T_("invalid gray value: %s"), colorSpec);
         return false;
       }
       CmykColor cmykcolor;
@@ -424,14 +416,14 @@ bool DviImpl::ParseColorSpec(const char * lpsz, unsigned long & rgb)
     else if (isCmyk)
     {
       float frac1, frac2, frac3, frac4;
-      if ((sscanf_s(lpsz, "%f %f %f %f", &frac1, &frac2, &frac3, &frac4) != 4)
+      if ((sscanf_s(colorSpec, "%f %f %f %f", &frac1, &frac2, &frac3, &frac4) != 4)
         || frac1 < 0.0 || frac1 > 1.0
         || frac2 < 0.0 || frac2 > 1.0
         || frac3 < 0.0 || frac3 > 1.0
         || frac4 < 0.0 || frac4 > 1.0)
 
       {
-        trace_error->WriteFormattedLine("libdvi", T_("invalid cmyk quadrupel: %s"), lpsz);
+        trace_error->WriteFormattedLine("libdvi", T_("invalid cmyk quadrupel: %s"), colorSpec);
         return false;
       }
       CmykColor cmykcolor;
@@ -444,15 +436,15 @@ bool DviImpl::ParseColorSpec(const char * lpsz, unsigned long & rgb)
   }
   else
   {
-    if (!isalpha(*lpsz))
+    if (!isalpha(*colorSpec))
     {
-      trace_error->WriteFormattedLine("libdvi", T_("invalid color name: %s"), lpsz);
+      trace_error->WriteFormattedLine("libdvi", T_("invalid color name: %s"), colorSpec);
       return false;
     }
     string name;
-    while (isalpha(*lpsz))
+    while (isalpha(*colorSpec))
     {
-      name += *lpsz++;
+      name += *colorSpec++;
     }
     CmykColor cmykcolor;
     if (!LookupColorName(name.c_str(), cmykcolor))
@@ -466,10 +458,10 @@ bool DviImpl::ParseColorSpec(const char * lpsz, unsigned long & rgb)
   return true;
 }
 
-bool DviImpl::SetCurrentColor(const char * lpszColor)
+bool DviImpl::SetCurrentColor(const char* colorSpec)
 {
-  MIKTEX_ASSERT(strncmp(lpszColor, "color", 5) == 0);
-  const char * lpsz = lpszColor + 5;
+  MIKTEX_ASSERT(strncmp(colorSpec, "color", 5) == 0);
+  const char* lpsz = colorSpec + 5;
 
   while (isspace(*lpsz))
   {
@@ -527,8 +519,7 @@ void DviImpl::PopColor()
   }
   currentColor = colorStack.top();
   colorStack.pop();
-  trace_color->WriteFormattedLine
-    ("libdvi", T_("pop color; currentcolor now %x"), currentColor);
+  trace_color->WriteFormattedLine("libdvi", T_("pop color; currentcolor now %x"), currentColor);
 }
 
 void DviImpl::ResetCurrentColor()

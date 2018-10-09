@@ -23,8 +23,8 @@
 
 #include "internal.h"
 
-DviChar::DviChar(DviFont * pDviFont) :
-  pDviFont(pDviFont)
+DviChar::DviChar(DviFont* dviFont) :
+  dviFont(dviFont)
 {
 }
 

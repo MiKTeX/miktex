@@ -1,6 +1,6 @@
 /* special.cpp: dvi specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -23,12 +23,12 @@
 
 #include "internal.h"
 
-float DviImpl::PatternToShadeLevel(const char * lpszTexture)
+float DviImpl::PatternToShadeLevel(const char* textureSpec)
 {
   unsigned long black = 0;
   unsigned long size = 0;
 
-  const char * lpszPattern = lpszTexture;
+  const char* lpszPattern = textureSpec;
   while (*lpszPattern)
   {
     switch (*lpszPattern)
@@ -72,20 +72,18 @@ float DviImpl::PatternToShadeLevel(const char * lpszTexture)
     case ' ':
       break;
     default:
-      trace_error->WriteFormattedLine
-        ("libdvi", T_("invalid texture: %s"), lpszTexture);
+      trace_error->WriteFormattedLine("libdvi", T_("invalid texture: %s"), textureSpec);
       return 0.5;
     }
     lpszPattern++;
   }
-  return static_cast<float>(1.0
-    - (static_cast<float>(black) / static_cast<float>(size)));
+  return static_cast<float>(1.0 - (static_cast<float>(black) / static_cast<float>(size)));
 }
 
-bool DviImpl::InterpretSpecial(DviPageImpl * pPage, int x, int y, InputStream & inputStream, unsigned long p, DviSpecial * & pSpecial)
+bool DviImpl::InterpretSpecial(DviPageImpl* dviPage, int x, int y, InputStream& inputStream, unsigned long p, DviSpecial*& special)
 {
   CharBuffer<char> autoBuffer(p + 1);
-  char * lpszBuf = autoBuffer.GetData();
+  char* lpszBuf = autoBuffer.GetData();
 
   for (unsigned long k = 0; k < p; ++k)
   {
@@ -95,76 +93,76 @@ bool DviImpl::InterpretSpecial(DviPageImpl * pPage, int x, int y, InputStream & 
 
   lpszBuf[p] = 0;
 
-  char * lpszSpecial = lpszBuf;
+  char* specialSpec = lpszBuf;
 
-  while (isspace(*lpszSpecial))
+  while (isspace(*specialSpec))
   {
-    ++lpszSpecial;
+    ++specialSpec;
   }
 
   bool ret = false;
 
-  pSpecial = nullptr;
+  special = nullptr;
 
-  switch (lpszSpecial[0])
+  switch (specialSpec[0])
   {
   case '!':
-    pSpecial = new DviSpecialObject<PsdefSpecialImpl>(pPage, x, y, lpszSpecial);
+    special = new DviSpecialObject<PsdefSpecialImpl>(dviPage, x, y, specialSpec);
     ret = true;
     break;
   case '"':
-    pSpecial = new DviSpecialObject<DvipsSpecialImpl>(pPage, x, y, lpszSpecial);
+    special = new DviSpecialObject<DvipsSpecialImpl>(dviPage, x, y, specialSpec);
     ret = true;
     break;
   case 'a':
-    if (strncmp(lpszSpecial, "ar", 2) == 0)
+    if (strncmp(specialSpec, "ar", 2) == 0)
     {
-      pSpecial = new DviSpecialObject<TpicSpecialObject<TpicArcSpecialImpl>>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<TpicSpecialObject<TpicArcSpecialImpl>>(dviPage, x, y, specialSpec);
       ret = true;
     }
-    else if (strncmp(lpszSpecial, "anisoscale", 10) == 0)
+    else if (strncmp(specialSpec, "anisoscale", 10) == 0)
     {
-      pSpecial = new DviSpecialObject<GraphicsSpecialImpl>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<GraphicsSpecialImpl>(dviPage, x, y, specialSpec);
       ret = true;
     }
     break;
   case 'b':
-    if (strncmp(lpszSpecial, "bk", 2) == 0)
+    if (strncmp(specialSpec, "bk", 2) == 0)
     {
       TpicSpecialRoot::tpicContext.shade = 1.0;
       ret = true;
     }
     break;
   case 'c':
-    if (strncmp(lpszSpecial, "center", 6) == 0)
+    if (strncmp(specialSpec, "center", 6) == 0)
     {
-      pSpecial = new DviSpecialObject<GraphicsSpecialImpl>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<GraphicsSpecialImpl>(dviPage, x, y, specialSpec);
       ret = true;
     }
-    else if (strncmp(lpszSpecial, "color", 5) == 0)
+    else if (strncmp(specialSpec, "color", 5) == 0)
     {
-      ret = SetCurrentColor(lpszSpecial);
+      ret = SetCurrentColor(specialSpec);
     }
     break;
   case 'd':
-    if (strncmp(lpszSpecial, "da", 2) == 0
-      || strncmp(lpszSpecial, "dt", 2) == 0)
+    if (strncmp(specialSpec, "da", 2) == 0
+      || strncmp(specialSpec, "dt", 2) == 0)
     {
-      pSpecial = new DviSpecialObject<TpicSpecialObject<TpicPolySpecialImpl>>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<TpicSpecialObject<TpicPolySpecialImpl>>(dviPage, x, y, specialSpec);
       ret = true;
     }
     break;
   case 'e':
-    if (strncmp(lpszSpecial, "em:", 3) == 0)
+    if (strncmp(specialSpec, "em:", 3) == 0)
     {
-      const char * lpsz = lpszSpecial + 3;
+      const char* lpsz = specialSpec + 3;
       while (*lpsz != 0 && *lpsz == ' ')
       {
         ++lpsz;
       }
       if (strncmp(lpsz, "graph", 5) == 0)
       {
-        pSpecial = new DviSpecialObject<GraphicsSpecialImpl>(pPage, x, y, lpszSpecial);
+        special = new DviSpecialObject<GraphicsSpecialImpl>(dviPage, x, y, specialSpec);
         ret = true;
       }
       else if (strncmp(lpsz, "linewidth", 9) == 0)
@@ -184,7 +182,7 @@ bool DviImpl::InterpretSpecial(DviPageImpl * pPage, int x, int y, InputStream & 
       }
       else if (strncmp(lpsz, "lineto", 6) == 0 || strncmp(lpsz, "line", 4) == 0)
       {
-        pSpecial = new DviSpecialObject<SolidLineSpecialImpl>(pPage, x, y, lpszSpecial);
+        special = new DviSpecialObject<SolidLineSpecialImpl>(dviPage, x, y, specialSpec);
         ret = true;
       }
       else if (strncmp(lpsz, "moveto", 6) == 0)
@@ -210,45 +208,45 @@ bool DviImpl::InterpretSpecial(DviPageImpl * pPage, int x, int y, InputStream & 
     }
     break;
   case 'f':
-    if (strncmp(lpszSpecial, "fp", 2) == 0)
+    if (strncmp(specialSpec, "fp", 2) == 0)
     {
-      pSpecial = new DviSpecialObject<TpicSpecialObject<TpicPolySpecialImpl>>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<TpicSpecialObject<TpicPolySpecialImpl>>(dviPage, x, y, specialSpec);
       ret = true;
     }
     break;
   case 'h':
-    if (strncmp(lpszSpecial, "header=", 7) == 0)
+    if (strncmp(specialSpec, "header=", 7) == 0)
     {
-      pSpecial = new DviSpecialObject<PsdefSpecialImpl>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<PsdefSpecialImpl>(dviPage, x, y, specialSpec);
       ret = true;
     }
-    else if (strncmp(lpszSpecial, "html:", 5) == 0)
+    else if (strncmp(specialSpec, "html:", 5) == 0)
     {
-      pSpecial = ProcessHtmlSpecial(pPage, x, y, lpszSpecial);
-      ret = (pSpecial != 0);
+      special = ProcessHtmlSpecial(dviPage, x, y, specialSpec);
+      ret = (special != 0);
     }
     break;
   case 'i':
-    if (strncmp(lpszSpecial, "ia", 2) == 0)
+    if (strncmp(specialSpec, "ia", 2) == 0)
     {
-      pSpecial = new DviSpecialObject<TpicSpecialObject<TpicArcSpecialImpl>>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<TpicSpecialObject<TpicArcSpecialImpl>>(dviPage, x, y, specialSpec);
       ret = true;
     }
-    else if (strncmp(lpszSpecial, "ip", 2) == 0)
+    else if (strncmp(specialSpec, "ip", 2) == 0)
     {
-      pSpecial = new DviSpecialObject<TpicSpecialObject<TpicPolySpecialImpl>>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<TpicSpecialObject<TpicPolySpecialImpl>>(dviPage, x, y, specialSpec);
       ret = true;
     }
-    else if (strncmp(lpszSpecial, "isoscale", 8) == 0)
+    else if (strncmp(specialSpec, "isoscale", 8) == 0)
     {
-      pSpecial = new DviSpecialObject<GraphicsSpecialImpl>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<GraphicsSpecialImpl>(dviPage, x, y, specialSpec);
       ret = true;
     }
     break;
   case 'l':
-    if (strncmp(lpszSpecial, "landscape", 9) == 0)
+    if (strncmp(specialSpec, "landscape", 9) == 0)
     {
-      pSpecial = new DviSpecialObject<LandscapeSpecialImpl>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<LandscapeSpecialImpl>(dviPage, x, y, specialSpec);
       landscape = true;
       haveLandscapeSpecial = true;
       ret = true;
@@ -256,30 +254,30 @@ bool DviImpl::InterpretSpecial(DviPageImpl * pPage, int x, int y, InputStream & 
     break;
   case 'P':
   case 'p':
-    if (strncmp(lpszSpecial, "pn", 2) == 0)
+    if (strncmp(specialSpec, "pn", 2) == 0)
     {
-      if (sscanf_s(lpszSpecial, "pn %d", &TpicSpecialRoot::tpicContext.penSize) != 1)
+      if (sscanf_s(specialSpec, "pn %d", &TpicSpecialRoot::tpicContext.penSize) != 1)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad pn special: %s"), lpszSpecial);
+        trace_error->WriteFormattedLine("libdvi", T_("bad pn special: %s"), specialSpec);
       }
       else
       {
         ret = true;
       }
     }
-    else if (strncmp(lpszSpecial, "papersize=", 10) == 0 || strncmp(lpszSpecial, "papersize ", 10) == 0)
+    else if (strncmp(specialSpec, "papersize=", 10) == 0 || strncmp(specialSpec, "papersize ", 10) == 0)
     {
-      pSpecial = new DviSpecialObject<PaperSizeSpecialImpl>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<PaperSizeSpecialImpl>(dviPage, x, y, specialSpec);
       havePaperSizeSpecial = true;
-      paperSizeInfo = dynamic_cast<PaperSizeSpecial*>(pSpecial)->GetPaperSizeInfo();
+      paperSizeInfo = dynamic_cast<PaperSizeSpecial*>(special)->GetPaperSizeInfo();
       ret = true;
     }
-    else if (strncmp(lpszSpecial, "pa", 2) == 0)
+    else if (strncmp(specialSpec, "pa", 2) == 0)
     {
       TpicSpecial::point p;
-      if (sscanf_s(lpszSpecial, "pa %d %d", &p.x, &p.y) != 2)
+      if (sscanf_s(specialSpec, "pa %d %d", &p.x, &p.y) != 2)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad pa special: %s"), lpszSpecial);
+        trace_error->WriteFormattedLine("libdvi", T_("bad pa special: %s"), specialSpec);
       }
       else
       {
@@ -287,49 +285,49 @@ bool DviImpl::InterpretSpecial(DviPageImpl * pPage, int x, int y, InputStream & 
         ret = true;
       }
     }
-    else if (strncmp(lpszSpecial, "PSfile=", 7) == 0 || strncmp(lpszSpecial, "psfile=", 7) == 0)
+    else if (strncmp(specialSpec, "PSfile=", 7) == 0 || strncmp(specialSpec, "psfile=", 7) == 0)
     {
-      pSpecial = new DviSpecialObject<PsfileSpecialImpl>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<PsfileSpecialImpl>(dviPage, x, y, specialSpec);
       ret = true;
     }
-    else if (strncmp(lpszSpecial, "ps:", 3) == 0)
+    else if (strncmp(specialSpec, "ps:", 3) == 0)
     {
-      pSpecial = new DviSpecialObject<DvipsSpecialImpl>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<DvipsSpecialImpl>(dviPage, x, y, specialSpec);
       ret = true;
     }
     break;
   case 's':
-    if (strncmp(lpszSpecial, "src:", 4) == 0)
+    if (strncmp(specialSpec, "src:", 4) == 0)
     {
-      pSpecial = new DviSpecialObject<SourceSpecialImpl>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<SourceSpecialImpl>(dviPage, x, y, specialSpec);
       ret = true;
     }
-    else if (strncmp(lpszSpecial, "sh", 2) == 0)
+    else if (strncmp(specialSpec, "sh", 2) == 0)
     {
-      if (sscanf_s(lpszSpecial, "sh %f", &TpicSpecialRoot::tpicContext.shade) != 2)
+      if (sscanf_s(specialSpec, "sh %f", &TpicSpecialRoot::tpicContext.shade) != 2)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad sh special: %s"), lpszSpecial);
+        trace_error->WriteFormattedLine("libdvi", T_("bad sh special: %s"), specialSpec);
       }
       else
       {
         ret = true;
       }
     }
-    else if (strncmp(lpszSpecial, "sp", 2) == 0)
+    else if (strncmp(specialSpec, "sp", 2) == 0)
     {
-      pSpecial = new DviSpecialObject<TpicSpecialObject< TpicPolySpecialImpl>>(pPage, x, y, lpszSpecial);
+      special = new DviSpecialObject<TpicSpecialObject< TpicPolySpecialImpl>>(dviPage, x, y, specialSpec);
       ret = true;
     }
     break;
   case 't':
-    if (strncmp(lpszSpecial, "tx", 2) == 0)
+    if (strncmp(specialSpec, "tx", 2) == 0)
     {
-      TpicSpecialRoot::tpicContext.shade = PatternToShadeLevel(lpszSpecial + 2);
+      TpicSpecialRoot::tpicContext.shade = PatternToShadeLevel(specialSpec + 2);
       ret = true;
     }
     break;
   case 'w':
-    if (strncmp(lpszSpecial, "wh", 2) == 0)
+    if (strncmp(specialSpec, "wh", 2) == 0)
     {
       TpicSpecialRoot::tpicContext.shade = 0.0;
       ret = true;
@@ -339,7 +337,7 @@ bool DviImpl::InterpretSpecial(DviPageImpl * pPage, int x, int y, InputStream & 
 
   if (!ret)
   {
-    trace_error->WriteFormattedLine("libdvi", T_("unimplemented special: %s"), lpszSpecial);
+    trace_error->WriteFormattedLine("libdvi", T_("unimplemented special: %s"), specialSpec);
   }
 
   return ret;
@@ -347,10 +345,10 @@ bool DviImpl::InterpretSpecial(DviPageImpl * pPage, int x, int y, InputStream & 
 
 DviSpecialType SolidLineSpecialImpl::Parse()
 {
-  DviPageImpl * pPage = GetPage();
-  DviImpl * dvi = pPage->GetDviObject();
-  MAPNUMTOPOINT & mapnumtopoint = dvi->GetPoints();
-  const char * lpsz = GetXXX();
+  DviPageImpl* dviPage = GetPage();
+  DviImpl* dvi = dviPage->GetDviObject();
+  MAPNUMTOPOINT& mapnumtopoint = dvi->GetPoints();
+  const char* lpsz = GetXXX();
   if (strncmp(lpsz, "em:", 3) != 0)
   {
     return DviSpecialType::Unknown;
@@ -459,7 +457,7 @@ DviSpecialType SolidLineSpecialImpl::Parse()
 
 DviSpecialType PaperSizeSpecialImpl::Parse()
 {
-  const char * lpsz = GetXXX() + 10;
+  const char* lpsz = GetXXX() + 10;
   paperSizeInfo = PaperSizeInfo::Parse(lpsz);
   return DviSpecialType::PaperSize;
 }

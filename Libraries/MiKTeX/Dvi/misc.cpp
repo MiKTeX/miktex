@@ -1,6 +1,6 @@
 /* misc.cpp: common DVI stuff
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -27,7 +27,7 @@
 struct UnmapViewOfFile_
 {
 public:
-  void operator() (void * p) const
+  void operator() (void* p) const
   {
     if (!UnmapViewOfFile(p))
     {
@@ -55,13 +55,13 @@ public:
 typedef AutoResource<HMETAFILE, DeleteMetaFile_> AutoDeleteMetaFile;
 #endif
 
-InputStream::InputStream(const char * lpszFileName) :
-  fileName(lpszFileName),
-  stream(File::Open(lpszFileName, FileMode::Open, FileAccess::Read, false))
+InputStream::InputStream(const char* fileName) :
+  fileName(fileName),
+  stream(File::Open(fileName, FileMode::Open, FileAccess::Read, false))
 {
 }
 
-InputStream::InputStream(const BYTE * pBytes, size_t nBytes)
+InputStream::InputStream(const BYTE* pBytes, size_t nBytes)
 {
   this->pBytes = new char[nBytes];
   this->nBytes = nBytes;
@@ -90,7 +90,7 @@ InputStream::~InputStream()
   }
 }
 
-bool InputStream::Read(void * pBytes, size_t nBytes, bool allowEof)
+bool InputStream::Read(void* pBytes, size_t nBytes, bool allowEof)
 {
   if (this->pBytes != nullptr)
   {
@@ -169,7 +169,7 @@ long InputStream::GetReadPosition()
   }
 }
 
-bool InputStream::TryToReadByte(int & by)
+bool InputStream::TryToReadByte(int& by)
 {
   if (!Read(reinterpret_cast<char*>(buffer), 1, true))
   {
@@ -177,7 +177,7 @@ bool InputStream::TryToReadByte(int & by)
   }
   else
   {
-    by = (buffer[0] & 0xff);
+    by = (buffer[0]& 0xff);
     return true;
   }
 }
@@ -187,7 +187,7 @@ DviException::DviException() :
 {
 }
 
-DviException::DviException(const string & programInvocationName, const string & message, const KVMAP & info, const SourceLocation & sourceLocation) :
+DviException::DviException(const string& programInvocationName, const string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
   MiKTeXException(programInvocationName, message, info, sourceLocation)
 {
 }
@@ -196,7 +196,7 @@ DviFileInUseException::DviFileInUseException()
 {
 }
 
-DviFileInUseException::DviFileInUseException (const string & programInvocationName, const string & message, const KVMAP & info, const SourceLocation & sourceLocation) :
+DviFileInUseException::DviFileInUseException (const string& programInvocationName, const string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
   DviException(programInvocationName, message, info, sourceLocation)
 {
 }
@@ -205,7 +205,7 @@ DviPageNotFoundException::DviPageNotFoundException()
 {
 }
 
-DviPageNotFoundException::DviPageNotFoundException(const string & programInvocationName, const string & message, const KVMAP & info, const SourceLocation & sourceLocation) :
+DviPageNotFoundException::DviPageNotFoundException(const string& programInvocationName, const string& message, const KVMAP& info, const SourceLocation& sourceLocation) :
   DviException(programInvocationName, message, info, sourceLocation)
 {
 }
@@ -247,7 +247,7 @@ GraphicsInclusion::~GraphicsInclusion()
 }
 
 // Borrowed from the mfedit sample.
-HENHMETAFILE GraphicsInclusionImpl::LoadEnhMetaFile(const PathName & fileName)
+HENHMETAFILE GraphicsInclusionImpl::LoadEnhMetaFile(const PathName& fileName)
 {
   HENHMETAFILE hEmf = nullptr;
 
@@ -264,16 +264,16 @@ HENHMETAFILE GraphicsInclusionImpl::LoadEnhMetaFile(const PathName & fileName)
 
   AutoHANDLE autoCloseFile(hFile);
 
-  HANDLE hMapFile = CreateFileMappingW(hFile, nullptr, PAGE_READONLY, 0, 0, L"MIKEMF");
+  HANDLE fileData = CreateFileMappingW(hFile, nullptr, PAGE_READONLY, 0, 0, L"MIKEMF");
 
-  if (hMapFile == nullptr)
+  if (fileData == nullptr)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileMappingW", "fileName", fileName.GetData());
   }
 
-  AutoHANDLE autoCloseFileMapping(hMapFile);
+  AutoHANDLE autoCloseFileMapping(fileData);
 
-  void * pMapFile = MapViewOfFile(hMapFile, FILE_MAP_READ, 0, 0, 0);
+  void* pMapFile = MapViewOfFile(fileData, FILE_MAP_READ, 0, 0, 0);
 
   if (pMapFile == nullptr)
   {
@@ -322,7 +322,7 @@ HENHMETAFILE GraphicsInclusionImpl::LoadEnhMetaFile(const PathName & fileName)
     MIKTEX_FATAL_ERROR_2(T_("The metafile could not be loaded."), "path", fileName.ToString());
   }
 
-  void * pvData = malloc(size);
+  void* pvData = malloc(size);
 
   if (pvData == nullptr)
   {

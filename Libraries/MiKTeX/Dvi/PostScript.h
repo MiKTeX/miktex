@@ -30,10 +30,10 @@ protected:
   virtual void Finalize();
 
 protected:
-  virtual void Write(const void * p, unsigned n) = 0;
+  virtual void Write(const void* data, unsigned n) = 0;
 
 protected:
-  virtual void Execute(const char * lpszFormat, ...) = 0;
+  virtual void Execute(const char* format, ...) = 0;
 
 protected:
   PostScript();
@@ -65,7 +65,7 @@ public:
   }
 
 public:
-  void AddDefinition(class PsdefSpecial * ppsdefspecial);
+  void AddDefinition(class PsdefSpecial* psDefSepcial);
 
 public:
   void BeginPage();
@@ -74,25 +74,25 @@ public:
   void Close();
 
 public:
-  void DoSpecial(class PsfileSpecial * ppsfilespecial);
+  void DoSpecial(class PsfileSpecial* psFileSpecial);
 
 public:
-  void DoSpecial(class DvipsSpecial * pdvipsspecial);
+  void DoSpecial(class DvipsSpecial* dvipsSpecial);
 
 public:
   void EndPage();
 
 public:
-  void Open(class DviImpl * pDviImpl, int shrinkFactor);
+  void Open(class DviImpl* dviImpl, int shrinkFactor);
 
 protected:
-  void AddHeader(const char * lpszFileName);
+  void AddHeader(const char* fileName);
 
 protected:
-  FILE * ConvertToEPS(const char * lpszFileName);
+  FILE* ConvertToEPS(const char* fileName);
 
 private:
-  void ConvertToEPSThread(PathName pathFile, FILE * pfileIn, FILE * pFileOut);
+  void ConvertToEPSThread(PathName pathFile, FILE* fileIn, FILE* fileOut);
 
 protected:
   void CopyFile(FileStream & stream, unsigned length);
@@ -104,26 +104,26 @@ protected:
   void DoProlog();
 
 protected:
-  void ExecuteBatch(const char * lpszFileName);
+  void ExecuteBatch(const char* fileName);
 
 protected:
-  void ExecuteEncapsulatedPostScript(const char * lpszFileName);
+  void ExecuteEncapsulatedPostScript(const char* fileName);
 
 protected:
   bool
-    FindGraphicsFile(const char * lpszFileName, PathName & result);
+    FindGraphicsFile(const char* fileName, PathName & result);
 
 protected:
   void Initialize();
 
 protected:
-  void SendHeader(const char * lpszHeaderName);
+  void SendHeader(const char* headerName);
 
 protected:
-  void Uncompress(const char * lpszFileName, PathName & result);
+  void Uncompress(const char* fileName, PathName & result);
 
 protected:
-  DviImpl * pDviImpl = nullptr;
+  DviImpl* dviImpl = nullptr;
 
 protected:
   int shrinkFactor;

@@ -1,6 +1,6 @@
 /* DviPage.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -40,12 +40,12 @@ size_t DviPageImpl::totalSize = 0;
 #undef min
 #endif
 
-inline bool operator< (DviItem & item1, DviItem & item2)
+inline bool operator< (DviItem& item1, DviItem& item2)
 {
   return item1.GetTopShr(1) < item2.GetTopShr(1);
 }
 
-inline bool operator>= (DviItem & item1, DviItem & item2)
+inline bool operator>= (DviItem& item1, DviItem& item2)
 {
   return !(item1 < item2);
 }
@@ -53,7 +53,7 @@ inline bool operator>= (DviItem & item1, DviItem & item2)
 class ItemTopDown
 {
 public:
-  bool operator() (DviItem & i1, DviItem & i2) const
+  bool operator() (DviItem& i1, DviItem& i2) const
   {
     return i1 < i2;
   }
@@ -62,7 +62,7 @@ public:
 class ItemLeftRight
 {
 public:
-  bool operator() (DviItem * i1, DviItem * i2) const
+  bool operator() (DviItem* i1, DviItem* i2) const
   {
     return i1->GetLeftShr(1) < i2->GetLeftShr(1);
   }
@@ -72,7 +72,7 @@ public:
 string ToRoman(unsigned n)
 {
   string result;
-  const char * NUMERALS = "m2d5c2l5x2v5i";
+  const char* NUMERALS = "m2d5c2l5x2v5i";
   unsigned j = 0;
   unsigned v = 1000;
   for (;;)
@@ -106,8 +106,8 @@ string ToRoman(unsigned n)
   }
 }
 
-DviPageImpl::DviPageImpl(DviImpl * pDviImpl, int pageIdx, DviPageMode pageMode, long readPosition, int c0, int c1, int c2, int c3, int c4, int c5, int c6, int c7, int c8, int c9) :
-  pDviImpl(pDviImpl),
+DviPageImpl::DviPageImpl(DviImpl* dviImpl, int pageIdx, DviPageMode pageMode, long readPosition, int c0, int c1, int c2, int c3, int c4, int c5, int c6, int c7, int c8, int c9) :
+  dviImpl(dviImpl),
   pageIdx(pageIdx),
   pageMode(pageMode),
   readPosition(readPosition),
@@ -183,27 +183,27 @@ DviPageImpl::~DviPageImpl()
   }
 }
 
-void DviPageImpl::AddItem(const DviItem & item)
+void DviPageImpl::AddItem(const DviItem& item)
 {
   MIKTEX_ASSERT(IsLocked());
   dviItems.push_back(item);
   frozen = false;
 }
 
-void DviPageImpl::AddSpecial(DviSpecial * pSpecial)
+void DviPageImpl::AddSpecial(DviSpecial* special)
 {
   MIKTEX_ASSERT(IsLocked());
   dviSpecials.reserve(100);
-  dviSpecials.push_back(pSpecial);
+  dviSpecials.push_back(special);
 }
 
-void DviPageImpl::AddRule(DviRuleImpl * pRule)
+void DviPageImpl::AddRule(DviRuleImpl* rule)
 {
   MIKTEX_ASSERT(IsLocked());
   if (pageMode != DviPageMode::Dvips)
   {
     dviRules.reserve(100);
-    dviRules.push_back(pRule);
+    dviRules.push_back(rule);
   }
 }
 
@@ -258,7 +258,7 @@ void DviPageImpl::MakeDviBitmaps(int shrinkFactor)
   vector<DviItem>::iterator it = dviItems.begin();
 
   // initialize band
-  vector<DviItem *> dviItemPointers;
+  vector<DviItem*> dviItemPointers;
   dviItemPointers.reserve(200);
   dviItemPointers.push_back(&*it);
   int bandBottom = it->GetBottomShr(shrinkFactor);
@@ -286,15 +286,15 @@ void DviPageImpl::MakeDviBitmaps(int shrinkFactor)
   ProcessBand(shrinkFactor, dviItemPointers);
 }
 
-void DviPageImpl::ProcessBand(int shrinkFactor, vector<DviItem *> & dviItemPointers)
+void DviPageImpl::ProcessBand(int shrinkFactor, vector<DviItem*>& dviItemPointers)
 {
   MIKTEX_ASSERT(dviItemPointers.size() > 0);
 
   // sort band from left to right
   sort(dviItemPointers.begin(), dviItemPointers.end(), ItemLeftRight());
 
-  vector<DviItem *>::iterator itItemPtr = dviItemPointers.begin();
-  vector<DviItem *>::iterator itItemPtrMark = itItemPtr;
+  vector<DviItem*>::iterator itItemPtr = dviItemPointers.begin();
+  vector<DviItem*>::iterator itItemPtrMark = itItemPtr;
 
   int x1 = (*itItemPtr)->GetLeftShr(shrinkFactor);
   int x2 = (*itItemPtr)->GetLeftShr(shrinkFactor) + (*itItemPtr)->GetWidthShr(shrinkFactor) - 1;
@@ -305,7 +305,7 @@ void DviPageImpl::ProcessBand(int shrinkFactor, vector<DviItem *> & dviItemPoint
   currentBitmap.y = (*itItemPtr)->GetTopShr(shrinkFactor);
   currentBitmap.width = x2 - x1 + 1;
   currentBitmap.height = (*itItemPtr)->GetHeightShr(shrinkFactor);
-  currentBitmap.pPixels = 0;
+  currentBitmap.pixels = 0;
   currentBitmap.monochrome = true;
   currentBitmap.foregroundColor = (*itItemPtr)->rgbForeground;
   currentBitmap.backgroundColor = (*itItemPtr)->rgbBackground;
@@ -315,7 +315,7 @@ void DviPageImpl::ProcessBand(int shrinkFactor, vector<DviItem *> & dviItemPoint
   // divide horizontally
   for (; itItemPtr != dviItemPointers.end(); ++itItemPtr)
   {
-    DviItem & item = **itItemPtr;
+    DviItem& item = **itItemPtr;
 
     int itemTop = item.GetTopShr(shrinkFactor);
     int item_left = item.GetLeftShr(shrinkFactor);
@@ -341,7 +341,7 @@ void DviPageImpl::ProcessBand(int shrinkFactor, vector<DviItem *> & dviItemPoint
       currentBitmap.y = itemTop;
       currentBitmap.width = x2 - x1 + 1;
       currentBitmap.height = item.GetHeightShr(shrinkFactor);
-      currentBitmap.pPixels = 0;
+      currentBitmap.pixels = 0;
       currentBitmap.foregroundColor = item.rgbForeground;
       currentBitmap.backgroundColor = item.rgbBackground;
 
@@ -369,36 +369,36 @@ void DviPageImpl::ProcessBand(int shrinkFactor, vector<DviItem *> & dviItemPoint
   dviItemPointers.clear();
 }
 
-void DviPageImpl::MakeDviBitmap(int shrinkFactor, DviBitmap & bitmap, vector<DviItem *>::iterator itItemPtrBegin, vector<DviItem *>::iterator itItemPtrEnd)
+void DviPageImpl::MakeDviBitmap(int shrinkFactor, DviBitmap& bitmap, vector<DviItem*>::iterator itItemPtrBegin, vector<DviItem*>::iterator itItemPtrEnd)
 {
-  MIKTEX_ASSERT(bitmap.pPixels == nullptr);
+  MIKTEX_ASSERT(bitmap.pixels == nullptr);
 
-  vector<DviBitmap> & bitmaps = shrinkedDviBitmaps[shrinkFactor];
+  vector<DviBitmap>& bitmaps = shrinkedDviBitmaps[shrinkFactor];
 
   bitmaps.reserve(1000 / shrinkFactor);
 
   traceBitmap->WriteFormattedLine("libdvi", T_("bitmap %d; bounding box: %d,%d,%d,%d"), bitmaps.size(), bitmap.x, bitmap.y, bitmap.width, bitmap.height);
 
-  int bytesPerLine = pDviImpl->GetBytesPerLine(shrinkFactor, bitmap.width);
+  int bytesPerLine = dviImpl->GetBytesPerLine(shrinkFactor, bitmap.width);
   MIKTEX_ASSERT(bytesPerLine > 0);
   bitmap.bytesPerLine = bytesPerLine;
 
   int rasterSize = (bytesPerLine * bitmap.height);
-  bitmap.pPixels = malloc(rasterSize);
-  if (bitmap.pPixels == nullptr)
+  bitmap.pixels = malloc(rasterSize);
+  if (bitmap.pixels == nullptr)
   {
     OUT_OF_MEMORY("malloc");
   }
   size += rasterSize;
   totalSize += rasterSize;
-  memset(const_cast<void *>(bitmap.pPixels), 0, rasterSize);
+  memset(const_cast<void*>(bitmap.pixels), 0, rasterSize);
 
-  int bitsPerPixel = pDviImpl->GetBitsPerPixel(shrinkFactor);
-  int pixelsPerByte = pDviImpl->GetPixelsPerByte(shrinkFactor);
+  int bitsPerPixel = dviImpl->GetBitsPerPixel(shrinkFactor);
+  int pixelsPerByte = dviImpl->GetPixelsPerByte(shrinkFactor);
 
   for (; itItemPtrBegin != itItemPtrEnd; ++itItemPtrBegin)
   {
-    DviItem & item = **itItemPtrBegin;
+    DviItem& item = **itItemPtrBegin;
 
     int itemLeft = item.GetLeftShr(shrinkFactor);
     int itemTop = item.GetTopShr(shrinkFactor);
@@ -407,7 +407,7 @@ void DviPageImpl::MakeDviBitmap(int shrinkFactor, DviBitmap & bitmap, vector<Dvi
     UNUSED(itemBottom);
 
     int itemWidth = item.GetWidthShr(shrinkFactor);
-    unsigned long itemSize = pDviImpl->GetBytesPerLine(shrinkFactor, itemWidth);
+    unsigned long itemSize = dviImpl->GetBytesPerLine(shrinkFactor, itemWidth);
 
     int bitOffset = (itemLeft - bitmap.x) % pixelsPerByte;
     int bitShift = (bitOffset * bitsPerPixel) % 8;
@@ -417,9 +417,9 @@ void DviPageImpl::MakeDviBitmap(int shrinkFactor, DviBitmap & bitmap, vector<Dvi
     MIKTEX_ASSERT(itemBottom <= (bitmap.y + (bitmap.height - 1)));
     MIKTEX_ASSERT(item.GetRightShr(shrinkFactor) <= bitmap.x + bitmap.width - 1);
 
-    BYTE * pRaster = const_cast<BYTE *>(reinterpret_cast<const BYTE *>(bitmap.pPixels));
+    BYTE* raster = const_cast<BYTE*>(reinterpret_cast<const BYTE*>(bitmap.pixels));
 
-    const BYTE * pRasterChar = reinterpret_cast<const BYTE *>(item.pPkChar->GetBitmap(shrinkFactor));
+    const BYTE* rasterChar = reinterpret_cast<const BYTE*>(item.pkChar->GetBitmap(shrinkFactor));
 
     int column = itemLeft - bitmap.x;
 
@@ -431,13 +431,13 @@ void DviPageImpl::MakeDviBitmap(int shrinkFactor, DviBitmap & bitmap, vector<Dvi
       {
         int idxRasterChar = i * itemSize + j;
 
-        BYTE byte = pRasterChar[idxRasterChar];
+        BYTE byte = rasterChar[idxRasterChar];
         BYTE mask = static_cast<BYTE>(byte >> bitShift);
 
         if (mask != 0)
         {
           MIKTEX_ASSERT(rasterIdx >= 0 && rasterIdx < rasterSize);
-          pRaster[rasterIdx] |= mask;
+          raster[rasterIdx] |= mask;
         }
 
         if (bitOffset != 0 && (pixelsPerByte * j + pixelsPerByte - bitOffset < itemWidth))
@@ -446,7 +446,7 @@ void DviPageImpl::MakeDviBitmap(int shrinkFactor, DviBitmap & bitmap, vector<Dvi
           if (mask)
           {
             MIKTEX_ASSERT(rasterIdx + 1 < rasterSize);
-            pRaster[rasterIdx + 1] |= mask;
+            raster[rasterIdx + 1] |= mask;
           }
         }
       }
@@ -460,15 +460,15 @@ void DviPageImpl::DestroyDviBitmaps()
 {
   for (MAPNUMTOBITMAPVEC::iterator it = shrinkedDviBitmaps.begin(); it != shrinkedDviBitmaps.end(); ++it)
   {
-    vector<DviBitmap> & bitmaps = it->second;
+    vector<DviBitmap>& bitmaps = it->second;
     for (size_t j = 0; j < bitmaps.size(); ++j)
     {
-      if (bitmaps[j].pPixels != nullptr)
+      if (bitmaps[j].pixels != nullptr)
       {
         size -= (bitmaps[j].bytesPerLine * bitmaps[j].height);
         totalSize -= (bitmaps[j].bytesPerLine * bitmaps[j].height);
-        free(const_cast<void*>(bitmaps[j].pPixels));
-        bitmaps[j].pPixels = nullptr;
+        free(const_cast<void*>(bitmaps[j].pixels));
+        bitmaps[j].pixels = nullptr;
       }
     }
     bitmaps.clear();
@@ -480,7 +480,7 @@ void DviPageImpl::DestroyDibChunks()
 {
   for (MAPNUMTODIBCHUNKVEC::iterator it = shrinkedDibChunks.begin(); it != shrinkedDibChunks.end(); ++it)
   {
-    vector<shared_ptr<DibChunk>> & dibChunks = it->second;
+    vector<shared_ptr<DibChunk>>& dibChunks = it->second;
     for (size_t j = 0; j < dibChunks.size(); ++j)
     {
       size -= dibChunks[j]->GetSize();
@@ -497,9 +497,9 @@ void DviPageImpl::FreeContents(bool keepSpecials, bool keepItems)
   {
     for (size_t idx = 0; idx < dviSpecials.size(); ++idx)
     {
-      DviSpecial * pSpecial = dviSpecials[idx];
+      DviSpecial* special = dviSpecials[idx];
       dviSpecials[idx] = nullptr;
-      delete dynamic_cast<SpecialRoot*>(pSpecial);
+      delete dynamic_cast<SpecialRoot*>(special);
     }
     dviSpecials.clear();
   }
@@ -508,9 +508,9 @@ void DviPageImpl::FreeContents(bool keepSpecials, bool keepItems)
     dviItems.clear();
     for (size_t idx = 0; idx < dviRules.size(); ++idx)
     {
-      DviRuleImpl * pRule = dviRules[idx];
+      DviRuleImpl* rule = dviRules[idx];
       dviRules[idx] = nullptr;
-      delete pRule;
+      delete rule;
     }
     dviRules.clear();
   }
@@ -522,7 +522,7 @@ void DviPageImpl::FreeContents(bool keepSpecials, bool keepItems)
   frozen = false;
 }
 
-const char * DviPageImpl::GetName()
+const char* DviPageImpl::GetName()
 {
   return pageName.c_str();
 }
@@ -531,7 +531,7 @@ void DviPageImpl::CheckRules()
 {
   for (size_t idx = 0; idx < dviRules.size(); ++idx)
   {
-    DviRuleImpl & rule = *dviRules[idx];
+    DviRuleImpl& rule = *dviRules[idx];
     rule.ClearFlag(DviRuleImpl::flblackboard);
     int ruleTop = rule.GetTopUns();
     int ruleBottom = rule.GetBottomUns();
@@ -540,7 +540,7 @@ void DviPageImpl::CheckRules()
     size_t nItems = dviItems.size();
     for (size_t j = 0; j < nItems; ++j)
     {
-      DviItem & item = dviItems[j];
+      DviItem& item = dviItems[j];
       int itemTop = item.GetTopUns();
       if (itemTop > ruleBottom)
       {
@@ -575,7 +575,7 @@ void DviPageImpl::Freeze(bool force)
   }
 }
 
-const DviBitmap & DviPageImpl::GetDviBitmap(int shrinkFactor, int idx)
+const DviBitmap& DviPageImpl::GetDviBitmap(int shrinkFactor, int idx)
 {
   MIKTEX_ASSERT(IsLocked());
   MIKTEX_ASSERT(IsFrozen());
@@ -593,9 +593,9 @@ shared_ptr<DibChunk> DviPageImpl::GetDibChunk(int shrinkFactor, int idx)
   return shrinkedDibChunks[shrinkFactor][idx];
 }
 
-DviImpl * DviPageImpl::GetDviObject()
+DviImpl* DviPageImpl::GetDviObject()
 {
-  return pDviImpl;
+  return dviImpl;
 }
 
 int DviPageImpl::GetReg(int idx)
@@ -604,7 +604,7 @@ int DviPageImpl::GetReg(int idx)
   return counts[idx];
 }
 
-DviRule * DviPageImpl::GetRule(int idx)
+DviRule* DviPageImpl::GetRule(int idx)
 {
   MIKTEX_ASSERT(IsLocked());
   int size = static_cast<int>(dviRules.size());
@@ -625,7 +625,7 @@ DviRule * DviPageImpl::GetRule(int idx)
   }
 }
 
-DviSpecial * DviPageImpl::GetSpecial(int idx)
+DviSpecial* DviPageImpl::GetSpecial(int idx)
 {
   MIKTEX_ASSERT(IsLocked());
   int size = static_cast<int>(dviSpecials.size());
@@ -686,9 +686,9 @@ void DviPageImpl::Unlock()
   pageMutex.unlock();
 }
 
-HypertexSpecial * DviPageImpl::GetNextHyperref(int & idx)
+HypertexSpecial* DviPageImpl::GetNextHyperref(int& idx)
 {
-  HypertexSpecial * pHyperSpecial;
+  HypertexSpecial* pHyperSpecial;
   while ((pHyperSpecial = GetNextSpecial<HypertexSpecial>(idx)) != 0)
   {
     if (!pHyperSpecial->IsName())
@@ -809,11 +809,11 @@ void DviPageImpl::GhostscriptTranscriptReader()
 
 void DviPageImpl::OnNewChunk(shared_ptr<DibChunk> chunk)
 {
-  vector<shared_ptr<DibChunk>> & dibChunks = shrinkedDibChunks[dibShrinkFactor];
+  vector<shared_ptr<DibChunk>>& dibChunks = shrinkedDibChunks[dibShrinkFactor];
 
-  const BITMAPINFO * pBitmapInfo = chunk->GetBitmapInfo();
+  const BITMAPINFO* bitmapInfo = chunk->GetBitmapInfo();
 
-  traceBitmap->WriteFormattedLine("libdvi", T_("new DIB chunk %d; bounding box: %d,%d,%d,%d"), dibChunks.size(), chunk->GetX(), chunk->GetY(), pBitmapInfo->bmiHeader.biWidth, pBitmapInfo->bmiHeader.biHeight);
+  traceBitmap->WriteFormattedLine("libdvi", T_("new DIB chunk %d; bounding box: %d,%d,%d,%d"), dibChunks.size(), chunk->GetX(), chunk->GetY(), bitmapInfo->bmiHeader.biWidth, bitmapInfo->bmiHeader.biHeight);
 
   size += chunk->GetSize();
   totalSize += chunk->GetSize();
@@ -821,9 +821,9 @@ void DviPageImpl::OnNewChunk(shared_ptr<DibChunk> chunk)
   dibChunks.push_back(chunk);
 }
 
-size_t DviPageImpl::Read(void * pBuf, size_t size)
+size_t DviPageImpl::Read(void* data, size_t size)
 {
-  return gsOut.Read(pBuf, size);
+  return gsOut.Read(data, size);
 }
 
 unique_ptr<Process> DviPageImpl::StartDvips()
@@ -837,8 +837,8 @@ unique_ptr<Process> DviPageImpl::StartDvips()
 
   // make Dvips command line
   vector<string> arguments{ dvipsPath.GetFileNameWithoutExtension().ToString() };
-  arguments.push_back("-D" + std::to_string(pDviImpl->GetResolution()));
-  string metafontMode = pDviImpl->GetMetafontMode();
+  arguments.push_back("-D" + std::to_string(dviImpl->GetResolution()));
+  string metafontMode = dviImpl->GetMetafontMode();
   if (!metafontMode.empty())
   {
     arguments.push_back("-mode");
@@ -847,12 +847,12 @@ unique_ptr<Process> DviPageImpl::StartDvips()
   arguments.push_back("-f"s + "1");
   arguments.push_back("-p=" + std::to_string(pageIdx + 1));
   arguments.push_back("-l" + std::to_string(pageIdx + 1));
-  if (!pDviImpl->HavePaperSizeSpecial())
+  if (!dviImpl->HavePaperSizeSpecial())
   {
-    PaperSizeInfo paperSizeInfo = pDviImpl->GetPaperSizeInfo();
+    PaperSizeInfo paperSizeInfo = dviImpl->GetPaperSizeInfo();
     int width = paperSizeInfo.width;
     int height = paperSizeInfo.height;
-    if (pDviImpl->Landscape())
+    if (dviImpl->Landscape())
     {
       swap(width, height);
     }
@@ -865,9 +865,9 @@ unique_ptr<Process> DviPageImpl::StartDvips()
   }
   arguments.push_back("-MiKTeX:allowallpaths");
   arguments.push_back("-h"s + "gs_permitfilereading.pro");
-  arguments.push_back(pDviImpl->GetDviFileName().ToString());
+  arguments.push_back(dviImpl->GetDviFileName().ToString());
 
-  PathName dir(pDviImpl->GetDviFileName());
+  PathName dir(dviImpl->GetDviFileName());
   dir.MakeAbsolute();
   dir.RemoveFileSpec();
 
@@ -893,17 +893,17 @@ unique_ptr<Process> DviPageImpl::StartGhostscript(int shrinkFactor)
 
   // make Ghostscript command line
   vector<string> arguments{ gsPath.GetFileNameWithoutExtension().ToString() };
-  string res = std::to_string(static_cast<double>(pDviImpl->GetResolution()) / shrinkFactor);
+  string res = std::to_string(static_cast<double>(dviImpl->GetResolution()) / shrinkFactor);
   arguments.push_back("-r" + res + 'x' + res);
-  PaperSizeInfo paperSizeInfo = pDviImpl->GetPaperSizeInfo();
+  PaperSizeInfo paperSizeInfo = dviImpl->GetPaperSizeInfo();
   int width = paperSizeInfo.width;
   int height = paperSizeInfo.height;
-  if (pDviImpl->Landscape())
+  if (dviImpl->Landscape())
   {
     swap(width, height);
   }
-  width = static_cast<int>(((pDviImpl->GetResolution() * width) / 72.0) / shrinkFactor);
-  height = static_cast<int>(((pDviImpl->GetResolution() * height) / 72.0) / shrinkFactor);
+  width = static_cast<int>(((dviImpl->GetResolution() * width) / 72.0) / shrinkFactor);
+  height = static_cast<int>(((dviImpl->GetResolution() * height) / 72.0) / shrinkFactor);
   arguments.push_back("-g" + std::to_string(width) + 'x' + std::to_string(height));
   arguments.push_back("-sDEVICE="s + "bmp16m");
   arguments.push_back("-q");
@@ -924,7 +924,7 @@ unique_ptr<Process> DviPageImpl::StartGhostscript(int shrinkFactor)
   processStartInfo.StandardInput = dvipsOut.GetFile();
   processStartInfo.RedirectStandardError = true;
   processStartInfo.RedirectStandardOutput = true;
-  processStartInfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();
+  processStartInfo.WorkingDirectory = dviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();
 
   unique_ptr<Process> pGhostscript(Process::Start(processStartInfo));
 
@@ -959,34 +959,34 @@ void DviPageImpl::DoPostScriptSpecials(int shrinkFactor)
 
   for (size_t idx = 0; idx < dviSpecials.size(); ++idx)
   {
-    DviSpecial * pSpecial = dviSpecials[idx];
-    if (pSpecial->GetType() == DviSpecialType::Psdef)
+    DviSpecial* special = dviSpecials[idx];
+    if (special->GetType() == DviSpecialType::Psdef)
     {
-      gs.AddDefinition(reinterpret_cast<PsdefSpecial*>(pSpecial));
+      gs.AddDefinition(reinterpret_cast<PsdefSpecial*>(special));
     }
-    else if (pSpecial->GetType() == DviSpecialType::Psfile)
+    else if (special->GetType() == DviSpecialType::Psfile)
     {
       if (!gs.IsOpen())
       {
-        gs.Open(pDviImpl, shrinkFactor);
+        gs.Open(dviImpl, shrinkFactor);
       }
       if (gs.IsPageEmpty())
       {
         gs.BeginPage();
       }
-      gs.DoSpecial(reinterpret_cast<PsfileSpecial*>(pSpecial));
+      gs.DoSpecial(reinterpret_cast<PsfileSpecial*>(special));
     }
-    else if (pSpecial->GetType() == DviSpecialType::Ps)
+    else if (special->GetType() == DviSpecialType::Ps)
     {
       if (!gs.IsOpen())
       {
-        gs.Open(pDviImpl, shrinkFactor);
+        gs.Open(dviImpl, shrinkFactor);
       }
       if (gs.IsPageEmpty())
       {
         gs.BeginPage();
       }
-      gs.DoSpecial(reinterpret_cast<DvipsSpecial*>(pSpecial));
+      gs.DoSpecial(reinterpret_cast<DvipsSpecial*>(special));
     }
   }
 
@@ -1001,7 +1001,7 @@ void DviPageImpl::DoPostScriptSpecials(int shrinkFactor)
   }
 
   shared_ptr<GraphicsInclusion> pGrinc;
-  vector<shared_ptr<GraphicsInclusion> > & vec = graphicsInclusions[shrinkFactor];
+  vector<shared_ptr<GraphicsInclusion> >& vec = graphicsInclusions[shrinkFactor];
   for (int idx = 0; (pGrinc = gs.GetGraphicsInclusion(idx)) != nullptr; ++idx)
   {
     vec.push_back(pGrinc);
@@ -1010,15 +1010,15 @@ void DviPageImpl::DoPostScriptSpecials(int shrinkFactor)
 
 void DviPageImpl::DoGraphicsSpecials(int shrinkFactor)
 {
-  vector<shared_ptr<GraphicsInclusion> > & vec = graphicsInclusions[shrinkFactor];
+  vector<shared_ptr<GraphicsInclusion> >& vec = graphicsInclusions[shrinkFactor];
   for (size_t idx = 0; idx < dviSpecials.size(); ++idx)
   {
-    DviSpecial * pSpecial = dviSpecials[idx];
-    if (pSpecial->GetType() == DviSpecialType::IncludeGraphics)
+    DviSpecial* special = dviSpecials[idx];
+    if (special->GetType() == DviSpecialType::IncludeGraphics)
     {
-      GraphicsSpecial * pGraphicsSpecial = reinterpret_cast<GraphicsSpecial*>(pSpecial);
+      GraphicsSpecial* pGraphicsSpecial = reinterpret_cast<GraphicsSpecial*>(special);
       PathName fileName;
-      if (!pDviImpl->FindGraphicsFile(pGraphicsSpecial->GetFileName(), fileName))
+      if (!dviImpl->FindGraphicsFile(pGraphicsSpecial->GetFileName(), fileName))
       {
         MIKTEX_FATAL_ERROR_2(T_("The graphics file could not be found."), "path", pGraphicsSpecial->GetFileName());
       }
@@ -1034,13 +1034,13 @@ void DviPageImpl::DoGraphicsSpecials(int shrinkFactor)
       else
       {
         PathName tempFileName;
-        if (!pDviImpl->TryGetTempFile(fileName.GetData(), tempFileName))
+        if (!dviImpl->TryGetTempFile(fileName.GetData(), tempFileName))
         {
           if (!session->ConvertToBitmapFile(fileName, tempFileName, nullptr))
           {
             MIKTEX_FATAL_ERROR_2(T_("Could not convert to bitmap file."), "path", fileName.GetData());
           }
-          pDviImpl->RememberTempFile(fileName.GetData(), tempFileName);
+          dviImpl->RememberTempFile(fileName.GetData(), tempFileName);
         }
         imageType = ImageType::DIB;
         fileName = tempFileName;

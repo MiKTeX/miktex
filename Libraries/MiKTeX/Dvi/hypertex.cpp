@@ -1,6 +1,6 @@
 /* hypertex.cpp: html specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -25,22 +25,22 @@
 
 HyperTeXSpecialImpl::State HyperTeXSpecialImpl::state;
 
-DviSpecial * DviImpl::ProcessHtmlSpecial(DviPageImpl * ppage, int x, int y, const char * lpszSpecial)
+DviSpecial* DviImpl::ProcessHtmlSpecial(DviPageImpl* ppage, int x, int y, const char* specialSpec)
 {
-  MIKTEX_ASSERT(strncmp(lpszSpecial, "html:", 5) == 0);
-  const char * lpsz = lpszSpecial + 5;
+  MIKTEX_ASSERT(strncmp(specialSpec, "html:", 5) == 0);
+  const char* lpsz = specialSpec + 5;
   while (isspace(*lpsz))
   {
     ++lpsz;
   }
   if (*lpsz++ != '<')
   {
-    trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), lpszSpecial);
+    trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), specialSpec);
     return 0;
   }
   if (*lpsz == '/' && tolower(lpsz[1]) == 'a' && lpsz[2] == '>')
   {
-    return new DviSpecialObject<HyperTeXSpecialImpl>(ppage, x, y, lpszSpecial);
+    return new DviSpecialObject<HyperTeXSpecialImpl>(ppage, x, y, specialSpec);
   }
   else if (_strnicmp(lpsz, "img", 3) == 0 && (lpsz[3] == ' ' || lpsz[3] == '\t'))
   {
@@ -77,7 +77,7 @@ DviSpecial * DviImpl::ProcessHtmlSpecial(DviPageImpl * ppage, int x, int y, cons
     }
     if (isBaseUrl && !HyperTeXSpecialImpl::state.isHref)
     {
-      trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), lpszSpecial);
+      trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), specialSpec);
       return 0;
     }
     if (HyperTeXSpecialImpl::state.isName || HyperTeXSpecialImpl::state.isHref)
@@ -88,7 +88,7 @@ DviSpecial * DviImpl::ProcessHtmlSpecial(DviPageImpl * ppage, int x, int y, cons
       }
       if (*lpsz != '=')
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), lpszSpecial);
+        trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), specialSpec);
         return 0;
       }
       ++lpsz;
@@ -98,7 +98,7 @@ DviSpecial * DviImpl::ProcessHtmlSpecial(DviPageImpl * ppage, int x, int y, cons
       }
       if (*lpsz != '"')
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), lpszSpecial);
+        trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), specialSpec);
         return 0;
       }
       ++lpsz;
@@ -109,7 +109,7 @@ DviSpecial * DviImpl::ProcessHtmlSpecial(DviPageImpl * ppage, int x, int y, cons
       }
       if (*lpsz != '"')
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), lpszSpecial);
+        trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), specialSpec);
         return 0;
       }
       if (isBaseUrl)
@@ -171,43 +171,43 @@ void ExpandBoundingBox(int llx, int lly, int urx, int ury)
   }
 }
 
-bool DviImpl::FindHyperLabel(const char * lpszLabel, DviPosition & position)
+bool DviImpl::FindHyperLabel(const char* label, DviPosition& position)
 {
   CheckCondition();
   BEGIN_CRITICAL_SECTION(dviMutex)
   {
     trace_hypertex->WriteFormattedLine
-      ("libdvi", T_("searching hyperlabel %s"), lpszLabel);
+      ("libdvi", T_("searching hyperlabel %s"), label);
 
     for (int p = 0; p < GetNumberOfPages(); ++p)
     {
-      DviPageImpl * pPage;
+      DviPageImpl* dviPage;
       try
       {
-        pPage = reinterpret_cast<DviPageImpl*>(GetLoadedPage(p));
+        dviPage = reinterpret_cast<DviPageImpl*>(GetLoadedPage(p));
       }
-      catch (const OperationCancelledException &)
+      catch (const OperationCancelledException&)
       {
         return false;
       }
-      if (pPage == 0)
+      if (dviPage == 0)
       {
         throw DviPageNotFoundException("", T_("The DVI page could not be found."), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
       }
-      AutoUnlockPage autoUnlockPage(pPage);
-      HypertexSpecial * pHyperSpecial;
+      AutoUnlockPage autoUnlockPage(dviPage);
+      HypertexSpecial* pHyperSpecial;
       for (int j = -1;
-      ((pHyperSpecial = pPage->GetNextSpecial<HypertexSpecial>(j))
+      ((pHyperSpecial = dviPage->GetNextSpecial<HypertexSpecial>(j))
         != 0);
       )
       {
         if (pHyperSpecial->IsName()
-          && strcmp(lpszLabel, pHyperSpecial->GetName()) == 0)
+          && strcmp(label, pHyperSpecial->GetName()) == 0)
         {
           position.pageIdx = p;
           position.x = pHyperSpecial->GetX();
           position.y = pHyperSpecial->GetY();
-          trace_hypertex->WriteFormattedLine("libdvi", T_("found %s on page %d at %d,%d"), lpszLabel, p, position.x, position.y);
+          trace_hypertex->WriteFormattedLine("libdvi", T_("found %s on page %d at %d,%d"), label, p, position.x, position.y);
           return true;
         }
       }

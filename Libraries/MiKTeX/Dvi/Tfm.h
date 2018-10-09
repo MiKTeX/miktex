@@ -1,6 +1,6 @@
 /* Tfm.h:                                               -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -26,19 +26,20 @@ class DviImpl;
 
 typedef unordered_map<int, DviChar *> MAPNUMTODVICHAR;
 
-class Tfm : public DviFont
+class Tfm :
+  public DviFont
 {
 public:
-  Tfm(DviImpl * pDvi, int checksum, int scaledSize, int designSize, const char * lpszAreaName, const char * lpszFontName, const char * lpszFileName, double tfmConf, double conv);
+  Tfm(DviImpl* dviImpl, int checksum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConf, double conv);
 
 public:
   virtual ~Tfm();
 
 public:
-  DviChar * operator[] (unsigned long idx);
+  DviChar* operator[](unsigned long idx);
 
 private:
-  bool Make(const string & name);
+  bool Make(const string& name);
 
 public:
   void Read();

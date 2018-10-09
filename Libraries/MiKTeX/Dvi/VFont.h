@@ -1,6 +1,6 @@
 /* vfont.h:                                             -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -29,16 +29,16 @@ typedef unordered_map<int, class VfChar *> MAPNUMTOVFCHAR;
 class VFont : public DviFont
 {
 public:
-  VFont(DviImpl * pDvi, int checkSum, int scaledSize, int designSize, const char * lpszAreaName, const char * lpszFontName, const char * lpszFileName, double tfmConv, double conv, int mag, const char * lpszMetafontMode, int baseDpi);
+  VFont(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConv, double conv, int mag, const char* metafontMode, int baseDpi);
 
 public:
   virtual ~VFont();
 
 public:
-  VfChar * GetCharAt(int idx);
+  VfChar* GetCharAt(int idx);
 
 public:
-  const FontMap & GetFontMap() const
+  const FontMap& GetFontMap() const
   {
     return fontMap;
   }
@@ -47,19 +47,19 @@ private:
   void Read();
 
 private:
-  void ReadPreamble(InputStream & inputStream);
+  void ReadPreamble(InputStream& inputStream);
 
 private:
-  void ReadFontDefsAndCharPackets(InputStream & inputStream);
+  void ReadFontDefsAndCharPackets(InputStream& inputStream);
 
 private:
-  void ReadFontDef(InputStream & inputStream, short fntDefX);
+  void ReadFontDef(InputStream& inputStream, short fntDefX);
 
 private:
-  void ReadCharPacket(InputStream & inputStream, short size);
+  void ReadCharPacket(InputStream& inputStream, short size);
 
 private:
-  void ReadPostamble(InputStream & inputStream);
+  void ReadPostamble(InputStream& inputStream);
 
 private:
   int mag;

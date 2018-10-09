@@ -1,6 +1,6 @@
 /* Ghostscript.h:                                       -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -34,16 +34,16 @@ private:
   virtual void Finalize();
 
 public:
-  virtual void Write(const void * p, unsigned n);
+  virtual void Write(const void* data, unsigned n);
 
 public:
-  virtual void Execute(const char * lpszFormat, ...);
+  virtual void Execute(const char* format, ...);
 
 public:
-  virtual size_t MIKTEXTHISCALL Read(void * pBuf, size_t size);
+  virtual size_t MIKTEXTHISCALL Read(void* data, size_t size);
 
 public:
-  virtual void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> pChunk);
+  virtual void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> chunk);
 
 public:
   Ghostscript();
@@ -73,7 +73,7 @@ private:
   FileStream gsErr;
 
 private:
-  unique_ptr<Process> pProcess;
+  unique_ptr<Process> process;
 
 private:
   string stderrBuffer;

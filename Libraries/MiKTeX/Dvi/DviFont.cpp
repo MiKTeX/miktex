@@ -1,6 +1,6 @@
 /* DviFont.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -23,18 +23,18 @@
 
 #include "internal.h"
 
-DviFont::DviFont(DviImpl * pDviImpl, int checkSum, int scaledAt, int designSize, const char * lpszArea, const char * lpszName, const char * lpszFileName, double tfmConf, double conv) :
-  pDviImpl(pDviImpl),
+DviFont::DviFont(DviImpl* dviImpl, int checkSum, int scaledAt, int designSize, const char* area, const char* name, const char* fileName, double tfmConf, double conv) :
+  dviImpl(dviImpl),
   checkSum(checkSum),
   scaledAt(scaledAt),
   designSize(designSize),
   tfmConv(tfmConf),
   conv(conv)
 {
-  UNUSED_ALWAYS(lpszArea);
+  UNUSED_ALWAYS(area);
   dviInfo.notLoadable = false;
-  dviInfo.name = lpszName;
-  dviInfo.fileName = lpszFileName;
+  dviInfo.name = name;
+  dviInfo.fileName = fileName;
 }
 
 DviFont::~DviFont()

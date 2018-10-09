@@ -1,6 +1,6 @@
 /* PkFont.h:                                            -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -23,16 +23,17 @@
 
 typedef unordered_map<int, PkChar *> MAPNUMTOPKCHAR;
 
-class PkFont : public DviFont
+class PkFont :
+  public DviFont
 {
 public:
-  PkFont(DviImpl * pDvi, int checksum, int scaledSize, int designSize, const char * lpszAreaName, const char * lpszFontName, const char * lpszFileName, double tfmConf, double conv, int mag, const char * lpszMetafontMode, int baseDpi);
+  PkFont(DviImpl* dviImpl, int checksum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConf, double conv, int mag, const char* metafontMode, int baseDpi);
 
 public:
   virtual ~PkFont();
 
 public:
-  PkChar * operator[] (unsigned long idx);
+  PkChar* operator[](unsigned long idx);
 
 private:
   void AddSize(int rhsize);
@@ -44,10 +45,10 @@ private:
   int CheckDpi(int dpi, int baseDpi);
 
 private:
-  bool Make(const string & name, int dpi, int baseDpi, const string & metafontMode);
+  bool Make(const string& name, int dpi, int baseDpi, const string& metafontMode);
 
 private:
-  bool MakeTFM(const string & name);
+  bool MakeTFM(const string& name);
 
 public:
   void Read();

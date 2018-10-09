@@ -1,6 +1,6 @@
 /* vfchar.h:                                            -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -24,22 +24,23 @@
 class DviFont;
 class InputStream;
 
-class VfChar : public DviChar
+class VfChar :
+  public DviChar
 {
 public:
-  VfChar(DviFont * pFont = nullptr);
+  VfChar(DviFont* dviFont = nullptr);
 
 public:
   virtual ~VfChar();
 
 public:
-  void Read(InputStream & inputStream, int size, double conv);
+  void Read(InputStream& inputStream, int size, double conv);
 
 public:
-  const BYTE * GetPacket(unsigned long & length)
+  const BYTE* GetPacket(unsigned long& length)
   {
     length = packetSize;
-    return pPacket;
+    return packet;
   }
 
 private:
@@ -49,7 +50,7 @@ private:
   BYTE smallPacket[1];
 
 private:
-  BYTE * pPacket = nullptr;
+  BYTE* packet = nullptr;
 
 private:
   unique_ptr<TraceStream> trace_vfchar;

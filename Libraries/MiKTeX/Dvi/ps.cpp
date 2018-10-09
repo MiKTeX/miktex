@@ -1,6 +1,6 @@
 /* ps.cpp: PostScript specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -24,7 +24,7 @@
 
 DviSpecialType PsdefSpecialImpl::Parse()
 {
-  const char * lpsz = GetXXX();
+  const char* lpsz = GetXXX();
   if (strncmp(GetXXX(), "header=", 7) == 0)
   {
     isFileName = true;
@@ -46,7 +46,7 @@ DviSpecialType DvipsSpecialImpl::Parse()
 {
   protection = false;
   isFileName = false;
-  const char * lpsz = GetXXX();
+  const char* lpsz = GetXXX();
   if (*lpsz == '"')
   {
     lpsz += 1;
@@ -69,7 +69,7 @@ DviSpecialType DvipsSpecialImpl::Parse()
     else
     {
       lpsz += 3;
-      const char * lpsz2 = lpsz;
+      const char* lpsz2 = lpsz;
       while (*lpsz2 && isspace(*lpsz2))
       {
         ++lpsz2;
@@ -105,7 +105,7 @@ DviSpecialType DvipsSpecialImpl::Parse()
 }
 
 
-bool getkv(char * & lpsz, pair<char *, char *> & keyVal)
+bool getkv(char*& lpsz, pair<char*, char*>& keyVal)
 {
   for (; *lpsz <= ' ' && *lpsz != 0; ++lpsz)
   {
@@ -204,10 +204,10 @@ DviSpecialType PsfileSpecialImpl::Parse()
   hasClipFlag = false;
 
   CharBuffer<char> autoBuffer(specialString.length() + 1);
-  char * lpszSpecial = autoBuffer.GetData();
-  strcpy_s(lpszSpecial, specialString.length() + 1, GetXXX());
-  pair<char *, char *> keyVal;
-  while (*lpszSpecial && getkv(lpszSpecial, keyVal))
+  char* specialSpec = autoBuffer.GetData();
+  strcpy_s(specialSpec, specialString.length() + 1, GetXXX());
+  pair<char*, char*> keyVal;
+  while (*specialSpec && getkv(specialSpec, keyVal))
   {
     if (_strcmpi(keyVal.first, "psfile") == 0)
     {
@@ -330,7 +330,7 @@ DviSpecialType PsfileSpecialImpl::Parse()
   return DviSpecialType::Psfile;
 }
 
-bool PsfileSpecialImpl::GetBoundingBox(float & left, float & bottom, float & right, float & top)
+bool PsfileSpecialImpl::GetBoundingBox(float& left, float& bottom, float& right, float& top)
 {
   float my_hsize = 0;
   float my_vsize = 0;
@@ -418,21 +418,21 @@ bool PsfileSpecialImpl::GetBoundingBox(float & left, float & bottom, float & rig
   return true;
 }
 
-bool PsfileSpecialImpl::GetBoundingBox(int shrinkFactor, int & left, int & bottom, int & right, int & top)
+bool PsfileSpecialImpl::GetBoundingBox(int shrinkFactor, int& left, int& bottom, int& right, int& top)
 {
   float l, b, r, t;
   if (!GetBoundingBox(l, b, r, t))
   {
     return false;
   }
-  DviImpl * pDviImpl = pDviPageImpl->GetDviObject();
+  DviImpl* dviImpl = pDviPageImpl->GetDviObject();
   double conv =
-    (((72.0 * pDviImpl->GetMagnification())
-      / pDviImpl->GetResolution())
+    (((72.0 * dviImpl->GetMagnification())
+      / dviImpl->GetResolution())
       / 1000);
-  left = pDviImpl->PixelShrink(shrinkFactor, static_cast<int>(x + l / conv));
-  top = pDviImpl->PixelShrink(shrinkFactor, static_cast<int>(y - t / conv));
-  right = pDviImpl->PixelShrink(shrinkFactor, static_cast<int>(x + r / conv));
-  bottom = pDviImpl->PixelShrink(shrinkFactor, static_cast<int>(y + b / conv));
+  left = dviImpl->PixelShrink(shrinkFactor, static_cast<int>(x + l / conv));
+  top = dviImpl->PixelShrink(shrinkFactor, static_cast<int>(y - t / conv));
+  right = dviImpl->PixelShrink(shrinkFactor, static_cast<int>(x + r / conv));
+  bottom = dviImpl->PixelShrink(shrinkFactor, static_cast<int>(y + b / conv));
   return true;
 }

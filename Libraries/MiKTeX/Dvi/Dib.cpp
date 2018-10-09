@@ -1,6 +1,6 @@
 /* Dib.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -26,7 +26,7 @@ Dib::Dib()
 {
 }
 
-Dib::Dib(const PathName & path)
+Dib::Dib(const PathName& path)
 {
   AttachFile(path.GetData());
 }
@@ -37,7 +37,7 @@ Dib::~Dib()
   {
     Clear();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -54,14 +54,14 @@ void Dib::Clear()
     CloseHandle(hFile);
     hFile = INVALID_HANDLE_VALUE;
   }
-  if (pBitmapFileHeader != nullptr)
+  if (bitmapFileHeader != nullptr)
   {
-    UnmapViewOfFile(pBitmapFileHeader);
-    pBitmapFileHeader = nullptr;
+    UnmapViewOfFile(bitmapFileHeader);
+    bitmapFileHeader = nullptr;
   }
 }
 
-void Dib::GetSize(long * pcx, long * pcy) const
+void Dib::GetSize(long* pcx, long* pcy) const
 {
   *pcx = static_cast<LONG>(GetBitmapInfo()->bmiHeader.biWidth);
   *pcy = static_cast<LONG>(GetBitmapInfo()->bmiHeader.biHeight);
@@ -84,26 +84,26 @@ void Dib::Render(HDC hdc, int x, int y, int cx, int cy)
   }
 }
 
-void Dib::AttachFile(const char * lpszFileName)
+void Dib::AttachFile(const char* fileName)
 {
-  hFile = CreateFileW(UW_(lpszFileName), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, nullptr);
+  hFile = CreateFileW(UW_(fileName), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", lpszFileName);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", fileName);
   }
   hMap = CreateFileMappingW(hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
   if (hMap == nullptr)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileMappingW", "path", lpszFileName);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileMappingW", "path", fileName);
   }
-  void * pv = MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, 0);
+  void* pv = MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, 0);
   if (pv == nullptr)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "path", lpszFileName);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "path", fileName);
   }
-  pBitmapFileHeader = reinterpret_cast<BITMAPFILEHEADER *>(pv);
-  if (pBitmapFileHeader->bfType != 0x4d42)
+  bitmapFileHeader = reinterpret_cast<BITMAPFILEHEADER *>(pv);
+  if (bitmapFileHeader->bfType != 0x4d42)
   {
-    MIKTEX_FATAL_ERROR_2(T_("Not a Windows Bitmap file."), "path", lpszFileName);
+    MIKTEX_FATAL_ERROR_2(T_("Not a Windows Bitmap file."), "path", fileName);
   }
 }
