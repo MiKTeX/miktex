@@ -56,31 +56,34 @@
 
 MIKTEX_DVI_BEGIN_NAMESPACE;
 
-class DviException : public MiKTeX::Core::MiKTeXException
+class DviException :
+  public MiKTeX::Core::MiKTeXException
 {
 public:
   MIKTEXDVIEXPORT MIKTEXTHISCALL DviException();
 
 public:
-  MIKTEXDVIEXPORT MIKTEXTHISCALL DviException(const std::string & programInvocationName, const std::string & message, const MiKTeX::Core::MiKTeXException::KVMAP & info, const MiKTeX::Core::SourceLocation & sourceLocation);
+  MIKTEXDVIEXPORT MIKTEXTHISCALL DviException(const std::string& programInvocationName, const std::string& message, const MiKTeX::Core::MiKTeXException::KVMAP& info, const MiKTeX::Core::SourceLocation& sourceLocation);
 };
 
-class DviPageNotFoundException : public DviException
+class DviPageNotFoundException :
+  public DviException
 {
 public:
   MIKTEXDVIEXPORT MIKTEXTHISCALL DviPageNotFoundException();
 
 public:
-  MIKTEXDVIEXPORT MIKTEXTHISCALL DviPageNotFoundException(const std::string & programInvocationName, const std::string & message, const MiKTeX::Core::MiKTeXException::KVMAP & info, const MiKTeX::Core::SourceLocation & sourceLocation);
+  MIKTEXDVIEXPORT MIKTEXTHISCALL DviPageNotFoundException(const std::string& programInvocationName, const std::string& message, const MiKTeX::Core::MiKTeXException::KVMAP& info, const MiKTeX::Core::SourceLocation& sourceLocation);
 };
 
-class DviFileInUseException : public DviException
+class DviFileInUseException :
+  public DviException
 {
 public:
   MIKTEXDVIEXPORT MIKTEXTHISCALL DviFileInUseException();
 
 public:
-  MIKTEXDVIEXPORT MIKTEXTHISCALL DviFileInUseException(const std::string & programInvocationName, const std::string & message, const MiKTeX::Core::MiKTeXException::KVMAP & info, const MiKTeX::Core::SourceLocation & sourceLocation);
+  MIKTEXDVIEXPORT MIKTEXTHISCALL DviFileInUseException(const std::string& programInvocationName, const std::string& message, const MiKTeX::Core::MiKTeXException::KVMAP& info, const MiKTeX::Core::SourceLocation& sourceLocation);
 };
 
 class MIKTEXNOVTABLE DviRule
@@ -132,13 +135,14 @@ public:
   virtual int MIKTEXTHISCALL GetY() = 0;
 
 public:
-  virtual const char * MIKTEXTHISCALL GetXXX() = 0;
+  virtual const char* MIKTEXTHISCALL GetXXX() = 0;
 
 public:
   virtual DviSpecialType MIKTEXTHISCALL GetType() = 0;
 };
 
-class MIKTEXNOVTABLE SolidLineSpecial : public DviSpecial
+class MIKTEXNOVTABLE SolidLineSpecial :
+  public DviSpecial
 {
 public:
   virtual unsigned long MIKTEXTHISCALL GetColor() = 0;
@@ -159,10 +163,11 @@ public:
   virtual int MIKTEXTHISCALL GetEndY() = 0;
 };
 
-class MIKTEXNOVTABLE SourceSpecial : public DviSpecial
+class MIKTEXNOVTABLE SourceSpecial :
+  public DviSpecial
 {
 public:
-  virtual const char * MIKTEXTHISCALL GetFileName() = 0;
+  virtual const char* MIKTEXTHISCALL GetFileName() = 0;
 
 public:
   virtual int MIKTEXTHISCALL GetLineNum() = 0;
@@ -171,7 +176,8 @@ public:
   virtual int MIKTEXTHISCALL GetId() = 0;
 };
 
-class MIKTEXNOVTABLE TpicSpecial : public DviSpecial
+class MIKTEXNOVTABLE TpicSpecial :
+  public DviSpecial
 {
 public:
   struct point { int x, y; };
@@ -180,7 +186,7 @@ public:
   typedef std::vector<point> path;
 
 public:
-  virtual const path & MIKTEXTHISCALL GetPath() = 0;
+  virtual const path& MIKTEXTHISCALL GetPath() = 0;
 
 public:
   virtual float MIKTEXTHISCALL GetShade() = 0;
@@ -197,16 +203,18 @@ enum class OutlineStyle
   Dots
 };
 
-class MIKTEXNOVTABLE TpicPolySpecial : public TpicSpecial
+class MIKTEXNOVTABLE TpicPolySpecial :
+  public TpicSpecial
 {
 public:
-  virtual OutlineStyle MIKTEXTHISCALL GetOutlineStyle(float & length) = 0;
+  virtual OutlineStyle MIKTEXTHISCALL GetOutlineStyle(float& length) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL IsSpline() = 0;
 };
 
-class MIKTEXNOVTABLE TpicArcSpecial : public TpicSpecial
+class MIKTEXNOVTABLE TpicArcSpecial :
+  public TpicSpecial
 {
 public:
   virtual int MIKTEXTHISCALL GetCx() = 0;
@@ -230,13 +238,14 @@ public:
   virtual bool MIKTEXTHISCALL HasOutline() = 0;
 };
 
-class MIKTEXNOVTABLE HypertexSpecial : public DviSpecial
+class MIKTEXNOVTABLE HypertexSpecial :
+  public DviSpecial
 {
 public:
-  virtual const char * MIKTEXTHISCALL GetName() = 0;
+  virtual const char* MIKTEXTHISCALL GetName() = 0;
 
 public:
-  virtual void MIKTEXTHISCALL GetBbox(int & llx, int & llr, int & urx, int & ury) = 0;
+  virtual void MIKTEXTHISCALL GetBbox(int& llx, int& llr, int& urx, int& ury) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL IsName() = 0;
@@ -251,10 +260,11 @@ enum class GraphicsSpecialAction
   EmGraph
 };
 
-class MIKTEXNOVTABLE GraphicsSpecial : public DviSpecial
+class MIKTEXNOVTABLE GraphicsSpecial :
+  public DviSpecial
 {
 public:
-  virtual const char * MIKTEXTHISCALL GetFileName() = 0;
+  virtual const char* MIKTEXTHISCALL GetFileName() = 0;
 
 public:
   virtual int MIKTEXTHISCALL GetWidth() = 0;
@@ -266,28 +276,31 @@ public:
   virtual GraphicsSpecialAction MIKTEXTHISCALL GetAction() = 0;
 };
 
-class MIKTEXNOVTABLE PsdefSpecial : public DviSpecial
+class MIKTEXNOVTABLE PsdefSpecial :
+  public DviSpecial
 {
 public:
-  virtual const char * MIKTEXTHISCALL GetDef() = 0;
+  virtual const char* MIKTEXTHISCALL GetDef() = 0;
 
 public:
-  virtual const char * MIKTEXTHISCALL GetFileName() = 0;
+  virtual const char* MIKTEXTHISCALL GetFileName() = 0;
 };
 
-class MIKTEXNOVTABLE DvipsSpecial : public DviSpecial
+class MIKTEXNOVTABLE DvipsSpecial :
+  public DviSpecial
 {
 public:
-  virtual const char * MIKTEXTHISCALL GetString() = 0;
+  virtual const char* MIKTEXTHISCALL GetString() = 0;
 
 public:
-  virtual const char * MIKTEXTHISCALL GetFileName() = 0;
+  virtual const char* MIKTEXTHISCALL GetFileName() = 0;
 
 public:
   virtual bool MIKTEXTHISCALL GetProtection() = 0;
 };
 
-class MIKTEXNOVTABLE PaperSizeSpecial : public DviSpecial
+class MIKTEXNOVTABLE PaperSizeSpecial :
+  public DviSpecial
 {
 public:
   virtual MiKTeX::Core::PaperSizeInfo MIKTEXTHISCALL GetPaperSizeInfo() = 0;
@@ -297,10 +310,11 @@ class MIKTEXNOVTABLE LandscapeSpecial : public DviSpecial
 {
 };
 
-class MIKTEXNOVTABLE PsfileSpecial : public DviSpecial
+class MIKTEXNOVTABLE PsfileSpecial :
+  public DviSpecial
 {
 public:
-  virtual const char * MIKTEXTHISCALL GetFileName() = 0;
+  virtual const char* MIKTEXTHISCALL GetFileName() = 0;
 
 public:
   virtual int MIKTEXTHISCALL GetHsize() = 0;
@@ -387,10 +401,10 @@ public:
   virtual bool MIKTEXTHISCALL HasClipFlag() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetBoundingBox(float & left, float & bottom, float & right, float & top) = 0;
+  virtual bool MIKTEXTHISCALL GetBoundingBox(float& left, float& bottom, float& right, float& top) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetBoundingBox(int shrinkFactor, int & left, int & bottom, int & right, int & top) = 0;
+  virtual bool MIKTEXTHISCALL GetBoundingBox(int shrinkFactor, int& left, int& bottom, int& right, int& top) = 0;
 };
 
 class MIKTEXNOVTABLE GraphicsInclusion
@@ -404,7 +418,7 @@ public:
 
 struct DviBitmap
 {
-  const void * pPixels;
+  const void* pPixels;
   int x;
   int y;
   int width;
@@ -425,22 +439,22 @@ enum class DviPageMode
 class MIKTEXNOVTABLE DviPage
 {
 public:
-  virtual const DviBitmap & MIKTEXTHISCALL GetDviBitmap(int shrinkFactor, int idx) = 0;
+  virtual const DviBitmap& MIKTEXTHISCALL GetDviBitmap(int shrinkFactor, int idx) = 0;
 
 public:
   virtual int MIKTEXTHISCALL GetNumberOfDviBitmaps(int shrinkFactor) = 0;
 
 public:
-  virtual DviSpecial * MIKTEXTHISCALL GetSpecial(int idx) = 0;
+  virtual DviSpecial* MIKTEXTHISCALL GetSpecial(int idx) = 0;
 
 public:
-  virtual DviRule * MIKTEXTHISCALL GetRule(int idx) = 0;
+  virtual DviRule* MIKTEXTHISCALL GetRule(int idx) = 0;
 
 public:
   virtual int MIKTEXTHISCALL GetReg(int idx) = 0;
 
 public:
-  virtual const char * MIKTEXTHISCALL GetName() = 0;
+  virtual const char* MIKTEXTHISCALL GetName() = 0;
 
 public:
   virtual unsigned long MIKTEXTHISCALL GetBackgroundColor() = 0;
@@ -452,7 +466,7 @@ public:
   virtual void MIKTEXTHISCALL Unlock() = 0;
 
 public:
-  virtual HypertexSpecial * MIKTEXTHISCALL GetNextHyperref(int & idx) = 0;
+  virtual HypertexSpecial* MIKTEXTHISCALL GetNextHyperref(int& idx) = 0;
 
 public:
   virtual std::shared_ptr<MiKTeX::Graphics::DibChunk> MIKTEXTHISCALL GetDibChunk(int shrinkFactor, int idx) = 0;
@@ -544,22 +558,22 @@ public:
   virtual void MIKTEXTHISCALL Dispose() = 0;
 
 public:
-  static MIKTEXDVICEEAPI(Dvi*) Create(const char * lpszFileName, const char * lpszMetafontMode, int resolution, int shrinkFactor, DviAccess access, IDviCallback * pCallback);
+  static MIKTEXDVICEEAPI(Dvi*) Create(const char* lpszFileName, const char* lpszMetafontMode, int resolution, int shrinkFactor, DviAccess access, IDviCallback* pCallback);
 
 public:
-  static MIKTEXDVICEEAPI(Dvi*) Create(const char * lpszFileName, const char * lpszMetafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const MiKTeX::Core::PaperSizeInfo & defaultPaperSizeInfo, bool landscape, IDviCallback * pCallback);
+  static MIKTEXDVICEEAPI(Dvi*) Create(const char* lpszFileName, const char* lpszMetafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const MiKTeX::Core::PaperSizeInfo& defaultPaperSizeInfo, bool landscape, IDviCallback* pCallback);
 
 public:
   virtual int MIKTEXTHISCALL GetNumberOfPages() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetSource(const DviPosition & pos, MiKTeX::Core::PathName & fileName, int * pLineNum = 0) = 0;
+  virtual bool MIKTEXTHISCALL GetSource(const DviPosition& pos, MiKTeX::Core::PathName& fileName, int* pLineNum = 0) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindSource(const char * lpszFileName, int line, DviPosition & position) = 0;
+  virtual bool MIKTEXTHISCALL FindSource(const char* lpszFileName, int line, DviPosition& position) = 0;
 
 public:
-  virtual DviPage * MIKTEXTHISCALL GetPage(int pageIdx) = 0;
+  virtual DviPage* MIKTEXTHISCALL GetPage(int pageIdx) = 0;
 
 public:
   virtual int MIKTEXTHISCALL GetMinPageNumber() = 0;
@@ -580,10 +594,10 @@ public:
   virtual PageStatus MIKTEXTHISCALL GetPageStatus(int pageIdx) = 0;
 
 public:
-  virtual DviPage * MIKTEXTHISCALL GetLoadedPage(int pageIdx) = 0;
+  virtual DviPage* MIKTEXTHISCALL GetLoadedPage(int pageIdx) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindHyperLabel(const char * lpszLabel, DviPosition & position) = 0;
+  virtual bool MIKTEXTHISCALL FindHyperLabel(const char* lpszLabel, DviPosition& position) = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetStatusText() = 0;
@@ -613,13 +627,13 @@ public:
 class UnlockDviPage_
 {
 public:
-  void operator() (DviPage * p)
+  void operator()(DviPage* p)
   {
     p->Unlock();
   }
 };
 
-typedef MiKTeX::Core::AutoResource<DviPage *, UnlockDviPage_> AutoUnlockPage;
+typedef MiKTeX::Core::AutoResource<DviPage*, UnlockDviPage_> AutoUnlockPage;
 
 MIKTEX_DVI_END_NAMESPACE;
 
