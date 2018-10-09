@@ -152,7 +152,7 @@ private:
   void ParseConfigFile(const PathName& path);
 
 private:
-  bool LocateMap(const char* lpszFileName, PathName& path, bool mustExist);
+  bool LocateMap(const string& fileName, PathName& path, bool mustExist);
 
 private:
   void ReadMap(const string& fileName, set<FontMapEntry>& fontMapEntries, bool mustExist);
@@ -161,7 +161,7 @@ private:
   void WriteHeader(ostream& writer, const PathName& fileName);
 
 private:
-  PathName CreateOutputDir(const char* lpszRelPath);
+  PathName CreateOutputDir(const string& relPath);
 
 private:
   PathName GetDvipsOutputDir()
@@ -440,11 +440,11 @@ bool MakeFontMapApp::ToBool(const string& param)
   {
     CfgError(T_("missing bool value"));
   }
-  if (Utils::EqualsIgnoreCase(param.c_str(), BOOLSTR(false)))
+  if (Utils::EqualsIgnoreCase(param, BOOLSTR(false)))
   {
     return false;
   }
-  else if (Utils::EqualsIgnoreCase(param.c_str(), BOOLSTR(true)))
+  else if (Utils::EqualsIgnoreCase(param, BOOLSTR(true)))
   {
     return true;
   }
@@ -494,29 +494,29 @@ void MakeFontMapApp::ParseConfigFile(const PathName& path)
     {
       continue;
     }
-    if (Utils::EqualsIgnoreCase(directive.c_str(), "dvipsPreferOutline"))
+    if (Utils::EqualsIgnoreCase(directive, "dvipsPreferOutline"))
     {
       dvipsPreferOutline = ToBool(param);
     }
-    else if (Utils::EqualsIgnoreCase(directive.c_str(), "LW35"))
+    else if (Utils::EqualsIgnoreCase(directive, "LW35"))
     {
       if (param.empty())
       {
         CfgError(T_("missing value"));
       }
-      if (Utils::EqualsIgnoreCase(param.c_str(), "URW"))
+      if (Utils::EqualsIgnoreCase(param, "URW"))
       {
         namingConvention = NamingConvention::URW;
       }
-      else if (Utils::EqualsIgnoreCase(param.c_str(), "URWkb"))
+      else if (Utils::EqualsIgnoreCase(param, "URWkb"))
       {
         namingConvention = NamingConvention::URWkb;
       }
-      else if (Utils::EqualsIgnoreCase(param.c_str(), "ADOBE"))
+      else if (Utils::EqualsIgnoreCase(param, "ADOBE"))
       {
         namingConvention = NamingConvention::ADOBE;
       }
-      else if (Utils::EqualsIgnoreCase(param.c_str(), "ADOBEkb"))
+      else if (Utils::EqualsIgnoreCase(param, "ADOBEkb"))
       {
         namingConvention = NamingConvention::ADOBEkb;
       }
@@ -525,19 +525,19 @@ void MakeFontMapApp::ParseConfigFile(const PathName& path)
         CfgError(T_("invalid value"));
       }
     }
-    else if (Utils::EqualsIgnoreCase(directive.c_str(), "dvipsDownloadBase35"))
+    else if (Utils::EqualsIgnoreCase(directive, "dvipsDownloadBase35"))
     {
       dvipsDownloadBase35 = ToBool(param);
     }
-    else if (Utils::EqualsIgnoreCase(directive.c_str(), "pdftexDownloadBase14"))
+    else if (Utils::EqualsIgnoreCase(directive, "pdftexDownloadBase14"))
     {
       pdftexDownloadBase14 = ToBool(param);
     }
-    else if (Utils::EqualsIgnoreCase(directive.c_str(), "dvipdfmDownloadBase14"))
+    else if (Utils::EqualsIgnoreCase(directive, "dvipdfmDownloadBase14"))
     {
       dvipdfmDownloadBase14 = ToBool(param);
     }
-    else if (Utils::EqualsIgnoreCase(directive.c_str(), "Map"))
+    else if (Utils::EqualsIgnoreCase(directive, "Map"))
     {
       if (param.empty())
       {
@@ -545,7 +545,7 @@ void MakeFontMapApp::ParseConfigFile(const PathName& path)
       }
       mapFiles.insert(param);
     }
-    else if (Utils::EqualsIgnoreCase(directive.c_str(), "MixedMap"))
+    else if (Utils::EqualsIgnoreCase(directive, "MixedMap"))
     {
       if (param.empty())
       {
@@ -757,19 +757,19 @@ void MakeFontMapApp::Init(int argc, const char** argv)
   psADOBE["Dingbats"] = "ZapfDingbats";
 }
 
-bool MakeFontMapApp::LocateMap(const char* lpszFileName, PathName& path, bool mustExist)
+bool MakeFontMapApp::LocateMap(const string& fileName, PathName& path, bool mustExist)
 {
   disableInstaller = !mustExist;
-  bool found = session->FindFile(lpszFileName, FileType::MAP, path);
+  bool found = session->FindFile(fileName, FileType::MAP, path);
   disableInstaller = false;
   if (!found && mustExist)
   {
-    FatalError(fmt::format(T_("Font map file {0} could not be found."), Q_(lpszFileName)));
+    FatalError(fmt::format(T_("Font map file {0} could not be found."), Q_(fileName)));
   }
 #if 0
   if (!found)
   {
-    Verbose(T_("Not using map file %s"), Q_(lpszFileName));
+    Verbose(T_("Not using map file %s"), Q_(fileName));
   }
 #endif
   return found;
@@ -884,7 +884,7 @@ void MakeFontMapApp::WriteDvipdfmMap(ostream& writer, const set<FontMapEntry>& s
   }
 }
 
-PathName MakeFontMapApp::CreateOutputDir(const char* lpszRelPath)
+PathName MakeFontMapApp::CreateOutputDir(const string& relPath)
 {
   PathName path;
   if (!outputDirectory.empty())
@@ -893,7 +893,7 @@ PathName MakeFontMapApp::CreateOutputDir(const char* lpszRelPath)
   }
   else
   {
-    path = session->GetSpecialPath(SpecialPath::DataRoot) / lpszRelPath;
+    path = session->GetSpecialPath(SpecialPath::DataRoot) / relPath;
   }
   if (!Directory::Exists(path))
   {
@@ -1020,7 +1020,7 @@ bool MIKTEXTHISCALL MakeFontMapApp::OnProcessOutput(const void* pOutput, size_t 
 void MakeFontMapApp::ReadMap(const string& fileName, set<FontMapEntry>& result, bool mustExist)
 {
   PathName path;
-  if (!LocateMap(fileName.c_str(), path, mustExist))
+  if (!LocateMap(fileName, path, mustExist))
   {
     return;
   }
