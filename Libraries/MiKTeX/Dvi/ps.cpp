@@ -147,7 +147,7 @@ bool getkv(char*& lpsz, pair<char*, char*>& keyVal)
     }
   }
 
-  keyVal.second = 0;
+  keyVal.second = nullptr;
   if (lastChar == '=')
   {
     while (*lpsz != 0 && *lpsz <= ' ')

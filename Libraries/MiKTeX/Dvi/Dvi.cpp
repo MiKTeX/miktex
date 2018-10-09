@@ -639,8 +639,8 @@ const int max_drift = 1;
 void DviImpl::DoPage(int pageIdx)
 {
   currentFontNumber = 0;
-  currentFont = 0;
-  currentChar = 0;
+  currentFont = nullptr;
+  currentChar = nullptr;
   currentState = DviState();
   currentFontNumber = 0;
 
@@ -1101,7 +1101,7 @@ void DviImpl::SpecialCases(InputStream & inputStream, int opCode, int p, DviPage
     }
     int x = currentState.hh + resolution;
     int y = currentState.vv + resolution;
-    DviSpecial* special = 0;
+    DviSpecial* special = nullptr;
     if (InterpretSpecial(&page, x, y, inputStream, p, special)
       && special != nullptr)
     {

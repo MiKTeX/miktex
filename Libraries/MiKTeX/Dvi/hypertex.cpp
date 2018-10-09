@@ -194,7 +194,7 @@ bool DviImpl::FindHyperLabel(const char* label, DviPosition& position)
       {
         return false;
       }
-      if (dviPage == 0)
+      if (dviPage == nullptr)
       {
         throw DviPageNotFoundException("", T_("The DVI page could not be found."), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
       }

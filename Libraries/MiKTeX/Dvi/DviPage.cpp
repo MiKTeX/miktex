@@ -311,7 +311,7 @@ void DviPageImpl::ProcessBand(int shrinkFactor, vector<DviItem*>& dviItemPointer
   currentBitmap.y = (*itItemPtr)->GetTopShr(shrinkFactor);
   currentBitmap.width = x2 - x1 + 1;
   currentBitmap.height = (*itItemPtr)->GetHeightShr(shrinkFactor);
-  currentBitmap.pixels = 0;
+  currentBitmap.pixels = nullptr;
   currentBitmap.monochrome = true;
   currentBitmap.foregroundColor = (*itItemPtr)->rgbForeground;
   currentBitmap.backgroundColor = (*itItemPtr)->rgbBackground;
@@ -347,7 +347,7 @@ void DviPageImpl::ProcessBand(int shrinkFactor, vector<DviItem*>& dviItemPointer
       currentBitmap.y = itemTop;
       currentBitmap.width = x2 - x1 + 1;
       currentBitmap.height = item.GetHeightShr(shrinkFactor);
-      currentBitmap.pixels = 0;
+      currentBitmap.pixels = nullptr;
       currentBitmap.foregroundColor = item.rgbForeground;
       currentBitmap.backgroundColor = item.rgbBackground;
 
