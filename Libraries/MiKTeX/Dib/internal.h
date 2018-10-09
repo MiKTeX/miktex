@@ -47,7 +47,7 @@ public:
   }
 
 public:
-  virtual MIKTEXTHISCALL ~DibChunkImpl()
+  MIKTEXTHISCALL ~DibChunkImpl() override
   {
     if (bitmapInfo != nullptr)
     {
@@ -62,43 +62,43 @@ public:
   }
 
 public:
-  virtual int MIKTEXTHISCALL GetX() const
+  int MIKTEXTHISCALL GetX() const override
   {
     return x;
   }
 
 public:
-  virtual int MIKTEXTHISCALL GetY() const
+  int MIKTEXTHISCALL GetY() const override
   {
     return y;
   }
 
 public:
-  virtual BITMAPINFOHEADER MIKTEXTHISCALL GetBitmapInfoHeader() const
+  BITMAPINFOHEADER MIKTEXTHISCALL GetBitmapInfoHeader() const override
   {
     return bitmapInfo->bmiHeader;
   }
 
 public:
-  virtual const RGBQUAD* MIKTEXTHISCALL GetColors() const
+  const RGBQUAD* MIKTEXTHISCALL GetColors() const override
   {
     return &bitmapInfo->bmiColors[0];
   }
 
 public:
-  virtual const void* MIKTEXTHISCALL GetBits() const
+  const void* MIKTEXTHISCALL GetBits() const override
   {
     return bits;
   }
 
 public:
-  virtual const BITMAPINFO* MIKTEXTHISCALL GetBitmapInfo() const
+  const BITMAPINFO* MIKTEXTHISCALL GetBitmapInfo() const override
   {
     return bitmapInfo;
   }
 
 public:
-  virtual size_t MIKTEXTHISCALL GetSize() const
+  size_t MIKTEXTHISCALL GetSize() const override
   {
     return size;
   }
@@ -163,10 +163,10 @@ public:
   DibChunkerImpl();
 
 public:
-  virtual MIKTEXTHISCALL ~DibChunkerImpl();
+  MIKTEXTHISCALL ~DibChunkerImpl() override;
 
 public:
-  virtual bool MIKTEXTHISCALL Process(unsigned long flags, unsigned long chunkSize, MiKTeX::Graphics::IDibChunkerCallback* callback);
+  bool MIKTEXTHISCALL Process(unsigned long flags, unsigned long chunkSize, MiKTeX::Graphics::IDibChunkerCallback* callback) override;
 
 private:
   bool Read(void* data, size_t n, bool allowEof = false);
