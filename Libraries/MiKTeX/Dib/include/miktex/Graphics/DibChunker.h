@@ -1,6 +1,6 @@
 /* miktex/Graphics/DibChunker.h:                        -*- C++ -*-
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of the MiKTeX DibChunker Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(EA12EA6239A13E40B589B41B84360852)
 #define EA12EA6239A13E40B589B41B84360852
