@@ -1,6 +1,6 @@
 /* miktex/Wrappers/PoptWrapper.h: popt library wrapper  -*- C++ -*-
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU Library General Public License as
@@ -16,9 +16,7 @@
    License along with this file; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(B67A80F5A5EE48459F83EE04616B8DFE)
 #define B67A80F5A5EE48459F83EE04616B8DFE
