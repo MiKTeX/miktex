@@ -227,6 +227,14 @@ const struct poptOption IniTeXMFApp::options[] = {
   },
 
   {
+    "principal", 0,
+    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_PRINCIPAL,
+    T_("Set the principal of this program invocation."),
+    nullptr
+  },
+
+  {
     "print-only", 'n',
     POPT_ARG_NONE, nullptr,
     OPT_PRINT_ONLY,

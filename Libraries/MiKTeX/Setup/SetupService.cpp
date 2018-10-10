@@ -1457,6 +1457,10 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
   allArgs.insert(allArgs.end(), args.begin(), args.end());
+  if (options.Task == SetupTask::FinishSetup)
+  {
+    allArgs.push_back("--principal=setup");
+  }
   if (options.IsCommonSetup)
   {
     allArgs.push_back("--admin");

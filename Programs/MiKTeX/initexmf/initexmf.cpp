@@ -342,9 +342,6 @@ public:
   void Run(int argc, const char* argv[]);
 
 private:
-  void FindWizards();
-
-private:
   bool InstallPackage(const string& deploymentName, const PathName& trigger, PathName& installRoot) override;
 
 private:
@@ -476,9 +473,6 @@ private:
   ofstream logStream;
 
 private:
-  bool setupWizardRunning = false;
-
-private:
   bool isMktexlsrMode = false;
 
 private:
@@ -521,6 +515,7 @@ enum Option
   OPT_LIST_MODES,
   OPT_MKLINKS,
   OPT_MKMAPS,
+  OPT_PRINCIPAL,
   OPT_PRINT_ONLY,
   OPT_REGISTER_ROOT,
   OPT_REMOVE_LINKS,
@@ -666,7 +661,19 @@ IniTeXMFApp::~IniTeXMFApp()
 
 void IniTeXMFApp::Init(int argc, const char* argv[])
 {
-  bool adminMode = argc > 0 && std::any_of(&argv[1], &argv[argc], [](const char* arg) { return strcmp(arg, "--admin") == 0 || strcmp(arg, "-admin") == 0; });
+  bool adminMode = false;
+  bool setupWizardRunning = false;
+  for (const char** opt = &argv[1]; opt != nullptr; ++opt)
+  {
+    if ("--admin"s == *opt || "-admin"s == *opt)
+    {
+      adminMode = true;
+    }
+    else if ("--principal=setup"s == *opt || "-principal=setup"s == *opt)
+    {
+      setupWizardRunning = true;
+    }
+  }
   Session::InitInfo initInfo(argv[0]);
 #if defined(MIKTEX_WINDOWS)
   initInfo.SetOptions({ Session::InitOption::InitializeCOM });
@@ -674,7 +681,6 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   initInfo.SetTraceCallback(this);
   session = Session::Create(initInfo);
   packageManager = PackageManager::Create(PackageManager::InitInfo(this));
-  FindWizards();
   if (adminMode)
   {
     if (!setupWizardRunning && !session->IsSharedSetup())
@@ -735,25 +741,6 @@ void IniTeXMFApp::Finalize(bool keepSession)
   if (!keepSession)
   {
     session = nullptr;
-  }
-}
-
-void IniTeXMFApp::FindWizards()
-{
-  setupWizardRunning = false;
-  vector<string> invokerNames = Process::GetInvokerNames();
-  for (const string& name : invokerNames)
-  {
-    if (
-      name.find("basic-miktex") != string::npos ||
-      name.find("BASIC-MIKTEX") != string::npos ||
-      name.find("setup") != string::npos ||
-      name.find("SETUP") != string::npos ||
-      name.find("install") != string::npos ||
-      name.find("INSTALL") != string::npos)
-    {
-      setupWizardRunning = true;
-    }
   }
 }
 
@@ -2457,6 +2444,9 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
       portableRoot = optArg;
       optPortable = true;
+      break;
+
+    case OPT_PRINCIPAL:
       break;
 
     case OPT_PRINT_ONLY:
