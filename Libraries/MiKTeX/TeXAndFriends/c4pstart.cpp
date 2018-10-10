@@ -131,7 +131,7 @@ C4P::Program::~Program() noexcept
       Finish();
     }
   }
-  catch (const std::exception &)
+  catch (const std::exception&)
   {
   }
 }
@@ -213,10 +213,10 @@ C4PCEEAPI(const char*) C4P::GetCmdLine()
   MIKTEX_API_END("C4P::GetCmdLine");
 }
 
-C4PCEEAPI(char*) C4P::GetProgName(char* lpszProgName)
+C4PCEEAPI(char*) C4P::GetProgName(char* programName)
 {
   MIKTEX_API_BEGIN("C4P::GetProgName");
-  StringUtil::CopyString(lpszProgName, BufferSizes::MaxPath, programData.programName.c_str());
-  return lpszProgName;
+  StringUtil::CopyString(programName, BufferSizes::MaxPath, programData.programName.c_str());
+  return programName;
   MIKTEX_API_END("C4P::GetProgName");
 }
