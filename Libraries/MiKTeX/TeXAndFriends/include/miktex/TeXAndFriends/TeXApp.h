@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/TeXApp.h:                       -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,9 +17,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(EC8B1ACFE8E843EA960CDDFE7DD89AC9)
 #define EC8B1ACFE8E843EA960CDDFE7DD89AC9

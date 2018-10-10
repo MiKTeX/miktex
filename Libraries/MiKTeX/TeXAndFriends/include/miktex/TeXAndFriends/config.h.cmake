@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/config.h:                       -*- C++ -*-
 
-   Copyright (C) 2009-2017 Christian Schenk
+   Copyright (C) 2009-2018 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -22,9 +22,7 @@
 /* This file was generated from
    miktex/TeXAndFriends/config.h.cmake. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(D6EDC25DF28A4C09A02D177CFBE34499)
 #define D6EDC25DF28A4C09A02D177CFBE34499

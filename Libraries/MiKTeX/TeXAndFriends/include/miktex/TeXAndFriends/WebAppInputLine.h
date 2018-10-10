@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebAppInputLine.h:              -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,9 +17,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(CCBF075DC1F84F54BFB0FC72972CB3E4)
 #define CCBF075DC1F84F54BFB0FC72972CB3E4

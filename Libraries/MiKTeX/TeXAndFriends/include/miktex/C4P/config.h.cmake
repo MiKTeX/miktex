@@ -1,6 +1,6 @@
 /* miktex/C4P/config.h: C4P compile-time configuration  -*- C++ -*-
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -22,9 +22,7 @@
 
 /* This file was generated from miktex/C4P/config.h.cmake. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(E5FE95F6CC5C4570A1DACB0E4FAE06B2)
 #define E5FE95F6CC5C4570A1DACB0E4FAE06B2
