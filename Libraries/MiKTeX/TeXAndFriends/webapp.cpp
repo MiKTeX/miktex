@@ -1,6 +1,6 @@
 /* webapp.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -19,11 +19,13 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include <set>
+
+#include <miktex/Core/Directory>
+#include <miktex/Core/FileStream>
 
 #include "internal.h"
-
-#include <miktex/Version>
+#include "texmf-version.h"
 
 class WebApp::impl
 {

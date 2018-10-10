@@ -118,7 +118,6 @@ configure_file(
 
 set(texmf_sources
   ${CMAKE_CURRENT_BINARY_DIR}/texmf-version.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h
   ${CMAKE_CURRENT_SOURCE_DIR}/c4plib.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/c4pstart.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/etexapp.cpp
