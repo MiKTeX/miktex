@@ -100,7 +100,7 @@ C4P::Program::Program(const char* programName, int argc, char* argv[]) :
   pimpl(make_unique<impl>())
 {
   MIKTEX_API_BEGIN("C4P::StartUp");
-  MIKTEX_ASSERT_STRING(lpszProgramName);
+  MIKTEX_ASSERT_STRING(programName);
   programData.programName = programName;
   if (programData.startUpTime == static_cast<time_t>(-1))
   {
