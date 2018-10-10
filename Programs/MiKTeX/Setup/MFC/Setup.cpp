@@ -21,6 +21,8 @@
 
 #include "StdAfx.h"
 
+#include <fmt/format.h>
+
 #include "Setup.h"
 
 #include "SetupWizard.h"
@@ -855,7 +857,7 @@ BOOL SetupApp::InitInstance()
     }
     else
     {
-      Service->Log("this is a self-extracting installer; sfxDir=%s\n", Q_(sfxDir->GetPathName()));
+      Service->Log(fmt::format("this is a self-extracting installer; sfxDir={}\n", Q_(sfxDir->GetPathName())));
       if (SetupService::TestLocalRepository(sfxDir->GetPathName(), PackageLevel::None) > PackageLevel::None)
       {
         options.LocalPackageRepository = sfxDir->GetPathName();
@@ -1152,10 +1154,10 @@ void ReportError(const MiKTeXException& e)
     if (SetupApp::Instance->Service != nullptr)
     {
       SetupApp::Instance->Service->Log(T_("\nAn error occurred:\n"));
-      SetupApp::Instance->Service->Log(T_("  source file: %s\n"), e.GetSourceFile().c_str());
-      SetupApp::Instance->Service->Log(T_("  source line: %d\n"), e.GetSourceLine());
-      SetupApp::Instance->Service->Log(T_("  message: %s\n"), e.GetErrorMessage().c_str());
-      SetupApp::Instance->Service->Log(T_("  info: %s\n"), e.GetInfo().ToString().c_str());
+      SetupApp::Instance->Service->Log(fmt::format(T_("  source file: {0}\n"), e.GetSourceFile()));
+      SetupApp::Instance->Service->Log(fmt::format(T_("  source line: {0}\n"), e.GetSourceLine()));
+      SetupApp::Instance->Service->Log(fmt::format(T_("  message: {0}\n"), e.GetErrorMessage()));
+      SetupApp::Instance->Service->Log(fmt::format(T_("  info: {0}\n"), e.GetInfo().ToString()));
     }
   }
   catch (const exception&)
@@ -1170,7 +1172,7 @@ void ReportError(const exception& e)
     string str = T_("The operation could not be completed for the following reason: ");
     str += "\n\n";
     str += e.what();
-    SetupApp::Instance->Service->Log("\n%s\n", str.c_str());
+    SetupApp::Instance->Service->Log(fmt::format("\n{}\n", str));
     AfxMessageBox(UT_(str), MB_OK | MB_ICONSTOP);
   }
   catch (const exception&)

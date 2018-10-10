@@ -21,6 +21,8 @@
 
 #include "StdAfx.h"
 
+#include <fmt/format.h>
+
 #include "Setup.h"
 
 #include "FileCopyPage.h"
@@ -532,7 +534,7 @@ void FileCopyPage::Report(bool writeLog, const char* lpszFmt, ...)
   }
   if (writeLog)
   {
-    SetupApp::Instance->Service->Log("%s", str.c_str());
+    SetupApp::Instance->Service->Log(str);
   }
   if (!lines.empty())
   {

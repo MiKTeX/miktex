@@ -102,6 +102,7 @@ set(setup_mfc_sources
 
 set(libs
   ${core_lib_name}
+  ${fmt_lib_name}
   ${getopt_lib_name}
   ${mpm_lib_name}
   ${setup_lib_name}
