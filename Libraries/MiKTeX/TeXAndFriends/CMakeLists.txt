@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -47,53 +47,68 @@ set(generated_texmf_sources
   ${CMAKE_BINARY_DIR}/include/miktex/texmfapp.defaults.h
 )
 
+set(headers_no_ext
+  miktex/C4P/C4P
+  miktex/TeXAndFriends/CharacterConverterImpl
+  miktex/TeXAndFriends/ETeXApp
+  miktex/TeXAndFriends/ETeXMemoryHandlerImpl
+  miktex/TeXAndFriends/ErrorHandlerImpl
+  miktex/TeXAndFriends/FormatHandlerImpl
+  miktex/TeXAndFriends/InitFinalizeImpl
+  miktex/TeXAndFriends/InputOutputImpl
+  miktex/TeXAndFriends/MetafontApp
+  miktex/TeXAndFriends/MetafontMemoryHandlerImpl
+  miktex/TeXAndFriends/Prototypes
+  miktex/TeXAndFriends/StringHandlerImpl
+  miktex/TeXAndFriends/TeXApp
+  miktex/TeXAndFriends/TeXMFApp
+  miktex/TeXAndFriends/TeXMFMemoryHandlerImpl
+  miktex/TeXAndFriends/TeXMemoryHandlerImpl
+  miktex/TeXAndFriends/WebApp
+  miktex/TeXAndFriends/WebAppInputLine
+)
+
+foreach(h ${headers_no_ext})
+  set(_path ${CMAKE_CURRENT_BINARY_DIR}/include/${h})
+  list(APPEND public_headers_no_ext ${_path})
+  if (NOT EXISTS ${_path})
+    file(WRITE ${_path}
+      "#pragma once\n#include <${h}.h>\n"
+    )
+  endif()
+endforeach()
+
 set(public_headers_c4p
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/C4P/config.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/C4P/C4P
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/C4P/C4P.h
 )
 
 set(public_headers_texmf
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/TeXAndFriends/config.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/CharacterConverterImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/CharacterConverterImpl.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXApp.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXMemoryHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXMemoryHandlerImpl.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ErrorHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ErrorHandlerImpl.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/FormatHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/FormatHandlerImpl.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/InitFinalizeImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/InitFinalizeImpl.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/InputOutputImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/InputOutputImpl.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/MetafontApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/MetafontApp.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/MetafontMemoryHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/MetafontMemoryHandlerImpl.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/Prototypes
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/Prototypes.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/StringHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/StringHandlerImpl.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXApp.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFApp.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFMemoryHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFMemoryHandlerImpl.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMemoryHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMemoryHandlerImpl.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebApp.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebAppInputLine
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebAppInputLine.h
 )
 
 set(public_headers
   ${public_headers_c4p}
   ${public_headers_texmf}
+
+  ${public_headers_no_ext}
 )
 
 configure_file(
