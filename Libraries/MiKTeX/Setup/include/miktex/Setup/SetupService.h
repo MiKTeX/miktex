@@ -243,10 +243,7 @@ public:
   virtual MiKTeX::Core::PathName MIKTEXTHISCALL CloseLog(bool cancel) = 0;
 
 public:
-  virtual void MIKTEXCEECALL Log(const char* format, ...) = 0;
-
-public:
-  virtual void MIKTEXTHISCALL LogV(const char* format, va_list argList) = 0;
+  virtual void MIKTEXCEECALL Log(const std::string& s) = 0;
 
 public:
   virtual void MIKTEXTHISCALL ULogOpen() = 0;

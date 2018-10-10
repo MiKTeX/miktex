@@ -32,8 +32,6 @@
 #  include <shlobj.h>
 #endif
 
-#include <cstdarg>
-
 #include <fstream>
 #include <mutex>
 #include <set>
@@ -72,6 +70,7 @@
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <fmt/time.h>
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
@@ -249,10 +248,7 @@ public:
   MiKTeX::Core::PathName CloseLog(bool cancel) override;
 
 public:
-  void MIKTEXCEECALL Log(const char* format, ...) override;
-
-public:
-  void LogV(const char* format, va_list argList) override;
+  void MIKTEXCEECALL Log(const std::string& s) override;
 
 public:
   void ULogOpen() override;

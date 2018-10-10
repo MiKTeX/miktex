@@ -424,24 +424,20 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
 
 void SetupServiceImpl::LogHeader()
 {
-  Log(T_("%s %s Report\n\n"), options.Banner.c_str(), options.Version.c_str());
+  Log(fmt::format(T_("{0} {0} Report\n\n"), options.Banner, options.Version));
   time_t t = time(nullptr);
   struct tm* pTm = localtime(&t);
-  char dateString[128];
-  strftime(dateString, 128, "%A, %B %d, %Y", pTm);
-  char timeString[128];
-  strftime(timeString, 128, "%H:%M:%S", pTm);
-  Log(T_("Date: %s\n"), dateString);
-  Log(T_("Time: %s\n"), timeString);
-  Log(T_("OS version: %s\n"), Utils::GetOSVersionString().c_str());
+  Log(fmt::format(T_("Date: {0:%A, %B %d, %Y}\n"), *pTm));
+  Log(fmt::format(T_("Time: {0:%H:%M:%S}\n"), *pTm));
+  Log(fmt::format(T_("OS version: {0}\n"), Utils::GetOSVersionString()));
   shared_ptr<Session> session = Session::Get();
 #if defined(MIKTEX_WINDOWS)
-  Log("SystemAdmin: %s\n", (session->RunningAsAdministrator() ? "yes" : "false"));
-  Log("PowerUser: %s\n", (session->RunningAsPowerUser() ? "yes" : "false"));
+  Log(fmt::format("SystemAdmin: {}\n", session->RunningAsAdministrator()));
+  Log(fmt::format("PowerUser: {}\n", session->RunningAsPowerUser()));
 #endif
   if (options.Task != SetupTask::Download)
   {
-    Log("SharedSetup: %s\n", (options.IsCommonSetup ? "yes" : "false"));
+    Log(fmt::format("SharedSetup: {}\n", options.IsCommonSetup));
   }
 #if MIKTEX_WINDOWS
   wchar_t szSetupPath[BufferSizes::MaxPath];
@@ -449,32 +445,24 @@ void SetupServiceImpl::LogHeader()
   {
     MIKTEX_FATAL_WINDOWS_ERROR("GetModuleFileNameW");
   }
-  Log(T_("Setup path: %s\n"), WU_(szSetupPath));
+  Log(fmt::format(T_("Setup path: {0}\n"), WU_(szSetupPath)));
 #else
   // TODO: log setup path
 #endif
   if (options.Task != SetupTask::Download)
   {
-    Log("UserRoots: %s\n", (options.Config.userRoots.empty() ? T_("<none specified>") : options.Config.userRoots.c_str()));
-    Log("UserData: %s\n", (options.Config.userDataRoot.Empty() ? T_("<none specified>") : options.Config.userDataRoot.GetData()));
-    Log("UserConfig: %s\n", (options.Config.userConfigRoot.Empty() ? T_("<none specified>") : options.Config.userConfigRoot.GetData()));
-    Log("CommonRoots: %s\n", (options.Config.commonRoots.empty() ? T_("<none specified>") : options.Config.commonRoots.c_str()));
-    Log("CommonData: %s\n", (options.Config.commonDataRoot.Empty() ? T_("<none specified>") : options.Config.commonDataRoot.GetData()));
-    Log("CommonConfig: %s\n", (options.Config.commonConfigRoot.Empty() ? T_("<none specified>") : options.Config.commonConfigRoot.GetData()));
+    Log(fmt::format("UserRoots: {}\n", options.Config.userRoots.empty() ? T_("<none specified>") : options.Config.userRoots));
+    Log(fmt::format("UserData: {}\n", options.Config.userDataRoot.Empty() ? T_("<none specified>") : options.Config.userDataRoot));
+    Log(fmt::format("UserConfig: {}\n", options.Config.userConfigRoot.Empty() ? T_("<none specified>") : options.Config.userConfigRoot));
+    Log(fmt::format("CommonRoots: {}\n", options.Config.commonRoots.empty() ? T_("<none specified>") : options.Config.commonRoots));
+    Log(fmt::format("CommonData: {}\n", options.Config.commonDataRoot.Empty() ? T_("<none specified>") : options.Config.commonDataRoot));
+    Log(fmt::format("CommonConfig: {}\n", options.Config.commonConfigRoot.Empty() ? T_("<none specified>") : options.Config.commonConfigRoot));
     PathName installRoot = GetInstallRoot();
-    Log("Installation: %s\n", installRoot.Empty() ? T_("<none specified>") : installRoot.GetData());
+    Log(fmt::format("Installation: {}\n", installRoot.Empty() ? T_("<none specified>") : installRoot));
   }
 }
 
-void SetupServiceImpl::Log(const char* format, ...)
-{
-  va_list argList;
-  va_start(argList, format);
-  LogV(format, argList);
-  va_end(argList);
-}
-
-void SetupServiceImpl::LogV(const char* format, va_list argList)
+void SetupServiceImpl::Log(const string& s)
 {
 #if 0
   lock_guard<mutex> lockGuard(logStreamMutex);
@@ -484,9 +472,8 @@ void SetupServiceImpl::LogV(const char* format, va_list argList)
     logging = true;
     LogHeader();
   }
-  string formatted = StringUtil::FormatStringVA(format, argList);
   static string currentLine;
-  for (const char* lpsz = formatted.c_str(); *lpsz != 0; ++lpsz)
+  for (const char* lpsz = s.c_str(); *lpsz != 0; ++lpsz)
   {
     if (lpsz[0] == '\n' || (lpsz[0] == '\r' && lpsz[1] == '\n'))
     {
@@ -1475,7 +1462,7 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   // run initexmf.exe
   if (!options.IsDryRun)
   {
-    Log("%s:\n", CommandLineBuilder(allArgs).ToString().c_str());
+    Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
     ULogClose(false);
     session->UnloadFilenameDatabase();
     int exitCode;
@@ -1513,7 +1500,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
   // run mpm.exe
   if (!options.IsDryRun)
   {
-    Log("%s:\n", CommandLineBuilder(allArgs).ToString().c_str());
+    Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
     ULogClose(false);
     session->UnloadFilenameDatabase();
     Process::Run(exePath, allArgs, this);
@@ -1758,10 +1745,10 @@ void SetupServiceImpl::Warning(const MiKTeX::Core::MiKTeXException& ex)
 {
   string message = ex.GetErrorMessage();
   string description = ex.GetDescription();
-  Log("Warning: %s\n", message.c_str());
+  Log(fmt::format("Warning: {}\n", message));
   if (!description.empty())
   {
-    Log("Warning: %s\n", description.c_str());
+    Log(fmt::format("Warning: {}\n", description));
     ReportLine("Warning: " + description);
   }
   else
