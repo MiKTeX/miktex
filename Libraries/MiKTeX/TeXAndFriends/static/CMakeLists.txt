@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2009-2016 Christian Schenk
+## Copyright (C) 2009-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -70,3 +70,4 @@ endif()
 
 source_group(Public/C4P FILES ${public_headers_c4p})
 source_group(Public/TEXMF FILES ${public_headers_texmf})
+source_group(Public/noext FILES ${public_headers_no_ext})

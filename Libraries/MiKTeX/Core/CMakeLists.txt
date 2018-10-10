@@ -160,7 +160,7 @@ endif()
 
 foreach(h ${headers_no_ext})
   set(_path ${CMAKE_CURRENT_BINARY_DIR}/include/${h})
-  list(APPEND public_headers_core_no_ext ${_path})
+  list(APPEND public_headers_no_ext ${_path})
   if (NOT EXISTS ${_path})
     file(WRITE ${_path}
       "#pragma once\n#include <${h}.h>\n"
@@ -230,7 +230,8 @@ set(public_headers_c
 set(public_headers
   ${public_headers_c}
   ${public_headers_core}
-  ${public_headers_core_no_ext}
+  
+  ${public_headers_no_ext}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
