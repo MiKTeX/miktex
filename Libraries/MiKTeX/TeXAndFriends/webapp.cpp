@@ -122,7 +122,7 @@ void WebApp::Finalize()
   shared_ptr<Session> session = GetSession();
   if (!pimpl->packageListFileName.Empty())
   {
-    FileStream stream(File::Open(pimpl->packageListFileName, FileMode::Create, FileAccess::Write));
+    ofstream stream = File::CreateOutputStream(pimpl->packageListFileName);
     vector<FileInfoRecord> fileInfoRecords = session->GetFileInfoRecords();
     set<string> packages;
     for (const FileInfoRecord& fir : fileInfoRecords)
@@ -134,9 +134,9 @@ void WebApp::Finalize()
     }
     for (const string& pkg : packages)
     {
-      fprintf(stream.GetFile(), "%s\n", pkg.c_str());
+      stream << pkg << "\n";
     }
-    stream.Close();
+    stream.close();
   }
   pimpl->features.Reset();
   pimpl->copyright = "";
