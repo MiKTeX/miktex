@@ -1,6 +1,6 @@
 /* miktex/utf8wrap.h: Unx emulation                     -*- C++ -*-
 
-   Copyright (C) 2011-2017 Christian Schenk
+   Copyright (C) 2011-2018 Christian Schenk
 
    This file is part of the MiKTeX UTF8Wrap Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(B2E524AD08FE4528BE66DC6ED9CF716C)
 #define B2E524AD08FE4528BE66DC6ED9CF716C

@@ -1,6 +1,6 @@
 /* miktex/utf8wrap-config.h:                            -*- C++ -*-
 
-   Copyright (C) 2011-2017 Christian Schenk
+   Copyright (C) 2011-2018 Christian Schenk
 
    This file is part of the MiKTeX UTF8Wrap Library.
 
@@ -21,9 +21,7 @@
 
 /* This file was generated from miktex/utf8wrap-config.h.cmake. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(AF491419E11348C0BB9C38F3CFA29EF4)
 #define AF491419E11348C0BB9C38F3CFA29EF4
