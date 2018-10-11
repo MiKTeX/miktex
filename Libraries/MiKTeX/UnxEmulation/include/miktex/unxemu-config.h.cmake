@@ -1,6 +1,6 @@
 /* miktex/unxemu-config.h:                             -*- C++ -*-
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -21,9 +21,7 @@
 
 /* This file was generated from miktex/unxemu-config.h.cmake. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(D5D965B9944A4F40B5E53EDA36F6FC72)
 #define D5D965B9944A4F40B5E53EDA36F6FC72
