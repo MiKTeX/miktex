@@ -207,7 +207,7 @@ void TraceStreamImpl::LegacyLogger(const string& facility, const string& message
   }
   OutputDebugStringW(debstr.c_str());
 #else
-  if (stderr != 0)
+  if (stderr != nullptr)
   {
     fputs(str.c_str(), stderr);
     fflush(stderr);
