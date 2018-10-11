@@ -1,6 +1,6 @@
 /* miktex/Trace/Trace.h:                                -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Trace Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(C2B1F89566BE4276AFC1F2CC52AABCC6)
 #define C2B1F89566BE4276AFC1F2CC52AABCC6
