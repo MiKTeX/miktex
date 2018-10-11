@@ -1,6 +1,6 @@
 /* utf8wrap.cpp:
 
-   Copyright (C) 2011-2017 Christian Schenk
+   Copyright (C) 2011-2018 Christian Schenk
 
    This file is part of the MiKTeX UTF8Wrap Library.
 
@@ -30,7 +30,8 @@
 
 using namespace std;
 
-class utf8wraperror : public std::exception
+class utf8wraperror :
+  public std::exception
 {
 public:
   utf8wraperror(const char* function, const char* utf8)
@@ -51,34 +52,34 @@ private:
   char errorMessage[2048];
 };
 
-MIKTEXSTATICFUNC(unique_ptr<wchar_t[]>) UTF8ToWideChar(const char* lpszUtf8, const char* function)
+MIKTEXSTATICFUNC(unique_ptr<wchar_t[]>) UTF8ToWideChar(const char* utf8String, const char* function)
 {
-  int len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, lpszUtf8, -1, nullptr, 0);
+  int len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, utf8String, -1, nullptr, 0);
   if (len <= 0)
   {    
-    throw utf8wraperror(function, lpszUtf8);
+    throw utf8wraperror(function, utf8String);
   }
   unique_ptr<wchar_t[]> buf(new wchar_t[len]);
-  len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, lpszUtf8, -1, buf.get(), len);
+  len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, utf8String, -1, buf.get(), len);
   if (len <= 0)
   {
-    throw utf8wraperror(function, lpszUtf8);
+    throw utf8wraperror(function, utf8String);
   }
   return buf;
 }
 
-MIKTEXSTATICFUNC(unique_ptr<char[]>) WideCharToUTF8(const wchar_t* lpszWideChar, const char* function)
+MIKTEXSTATICFUNC(unique_ptr<char[]>) WideCharToUTF8(const wchar_t* wideCharString, const char* function)
 {
-  int len = WideCharToMultiByte(CP_UTF8, 0, lpszWideChar, -1, nullptr, 0, nullptr, nullptr);
+  int len = WideCharToMultiByte(CP_UTF8, 0, wideCharString, -1, nullptr, 0, nullptr, nullptr);
   if (len <= 0)
   {
-    throw utf8wraperror(function, lpszWideChar);
+    throw utf8wraperror(function, wideCharString);
   }
   unique_ptr<char[]> buf(new char[len]);
-  len = WideCharToMultiByte(CP_UTF8, 0, lpszWideChar, -1, buf.get(), len, nullptr, nullptr);
+  len = WideCharToMultiByte(CP_UTF8, 0, wideCharString, -1, buf.get(), len, nullptr, nullptr);
   if (len <= 0)
   {
-    throw utf8wraperror(function, lpszWideChar);
+    throw utf8wraperror(function, wideCharString);
   }
   return buf;
 };
@@ -86,12 +87,12 @@ MIKTEXSTATICFUNC(unique_ptr<char[]>) WideCharToUTF8(const wchar_t* lpszWideChar,
 #define UW_(x) UTF8ToWideChar(x, __func__).get()
 #define WU_(x) WideCharToUTF8(x, __func__).get()
 
-MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8_fopen(const char* lpszFileName, const char* lpszMode)
+MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8_fopen(const char* path, const char* lpszMode)
 {
-  return _wfopen(UW_(lpszFileName), UW_(lpszMode));
+  return _wfopen(UW_(path), UW_(lpszMode));
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__open(const char* lpszFileName, int flags, ...)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__open(const char* path, int flags, ...)
 {
   int pmode = 0;
   if ((flags & _O_CREAT) != 0)
@@ -101,50 +102,50 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__open(const char* lpszFileName, int flags,
     pmode = va_arg(ap, int);
     va_end(ap);
   }
-  return _wopen(UW_(lpszFileName), flags, pmode);
+  return _wopen(UW_(path), flags, pmode);
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__stat64i32(const char* lpszFileName, struct _stat64i32* pStat)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__stat64i32(const char* path, struct _stat64i32* statBuf)
 {
-  return _wstat(UW_(lpszFileName), pStat);
+  return _wstat(UW_(path), statBuf);
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__unlink(const char* lpszFileName)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__unlink(const char* path)
 {
-  return _wunlink(UW_(lpszFileName));
+  return _wunlink(UW_(path));
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_remove(const char* lpszFileName)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_remove(const char* path)
 {
-  return _wremove(UW_(lpszFileName));
+  return _wremove(UW_(path));
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__access(const char* lpszFileName, int mode)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__access(const char* path, int mode)
 {
-  return _waccess(UW_(lpszFileName), mode);
+  return _waccess(UW_(path), mode);
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__chmod(const char* lpszFileName, int mode)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__chmod(const char* path, int mode)
 {
-  return _wchmod(UW_(lpszFileName), mode);
+  return _wchmod(UW_(path), mode);
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__mkdir(const char* lpszDirectoryName)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__mkdir(const char* path)
 {
-  return _wmkdir(UW_(lpszDirectoryName));
+  return _wmkdir(UW_(path));
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__rmdir(const char* lpszDirectoryName)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__rmdir(const char* path)
 {
-  return _wrmdir(UW_(lpszDirectoryName));
+  return _wrmdir(UW_(path));
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__chdir(const char* lpszDirectoryName)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__chdir(const char* path)
 {
-  return _wchdir(UW_(lpszDirectoryName));
+  return _wchdir(UW_(path));
 }
 
-MIKTEXUTF8WRAPCEEAPI(char*) miktex_utf8__getcwd(char* lpszDirectoryName, size_t maxSize)
+MIKTEXUTF8WRAPCEEAPI(char*) miktex_utf8__getcwd(char* path, size_t maxSize)
 {
   unique_ptr<wchar_t[]> wideChar(new wchar_t[maxSize]);
   if (_wgetcwd(wideChar.get(), maxSize) == nullptr)
@@ -156,21 +157,21 @@ MIKTEXUTF8WRAPCEEAPI(char*) miktex_utf8__getcwd(char* lpszDirectoryName, size_t 
   {
     throw std::runtime_error("buffer too small");
   }
-  strcpy_s(lpszDirectoryName, maxSize, utf8.get());
-  return lpszDirectoryName;
+  strcpy_s(path, maxSize, utf8.get());
+  return path;
 }
 
 static unordered_map<string, unique_ptr<char[]>> env;
 
-MIKTEXUTF8WRAPCEEAPI(char*) miktex_utf8_getenv(const char* lpszName)
+MIKTEXUTF8WRAPCEEAPI(char*) miktex_utf8_getenv(const char* name)
 {
-  wchar_t* lpszWideChar = _wgetenv(UW_(lpszName));
-  if (lpszWideChar == nullptr)
+  wchar_t* wideCharString = _wgetenv(UW_(name));
+  if (wideCharString == nullptr)
   {
     return nullptr;
   }
-  env[lpszName] = WideCharToUTF8(lpszWideChar, __func__);
-  return env[lpszName].get();
+  env[name] = WideCharToUTF8(wideCharString, __func__);
+  return env[name].get();
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putenv(const char* envString)
@@ -178,17 +179,17 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putenv(const char* envString)
   return _wputenv(UW_(envString));
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__utime64(const char* lpszFileName, struct __utimbuf64* pTime)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__utime64(const char* path, struct __utimbuf64* timeBuf)
 {
-  return _wutime64(UW_(lpszFileName), pTime);
+  return _wutime64(UW_(path), timeBuf);
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_rename(const char* lpszOld, const char* lpszNew)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_rename(const char* oldName, const char* newName)
 {
-  return _wrename(UW_(lpszOld), UW_(lpszNew));
+  return _wrename(UW_(oldName), UW_(newName));
 }
 
-MIKTEXUTF8WRAPCEEAPI(intptr_t) miktex_utf8__spawnvp(int mode, const char* lpszFileName, const char* const* argv)
+MIKTEXUTF8WRAPCEEAPI(intptr_t) miktex_utf8__spawnvp(int mode, const char* path, const char* const* argv)
 {
   vector<wstring> wideArguments;
   int count;
@@ -196,14 +197,14 @@ MIKTEXUTF8WRAPCEEAPI(intptr_t) miktex_utf8__spawnvp(int mode, const char* lpszFi
   {
     wideArguments.push_back(UW_(argv[count]));
   }
-  vector<const wchar_t *> wargv;
+  vector<const wchar_t*> wargv;
   wargv.reserve(count + 1);
   for (int idx = 0; idx < count; ++idx)
   {
     wargv.push_back(wideArguments[idx].c_str());
   }
   wargv.push_back(0);
-  return _wspawnvp(mode, UW_(lpszFileName), &wargv[0]);
+  return _wspawnvp(mode, UW_(path), &wargv[0]);
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_system(const char* lpszCommand)
@@ -216,11 +217,11 @@ MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8__popen(const char* lpszCommand, const ch
   return _wpopen(UW_(lpszCommand), UW_(lpszMode));
 }
 
-MIKTEXSTATICFUNC(HANDLE) GetConsoleHandle(FILE* pFile)
+MIKTEXSTATICFUNC(HANDLE) GetConsoleHandle(FILE* file)
 {
-  bool isStdout = _fileno(pFile) == _fileno(stdout);
-  bool isStderr = _fileno(pFile) == _fileno(stderr);
-  if (_isatty(_fileno(pFile)) && (isStdout || isStderr))
+  bool isStdout = _fileno(file) == _fileno(stdout);
+  bool isStderr = _fileno(file) == _fileno(stderr);
+  if (_isatty(_fileno(file)) && (isStdout || isStderr))
   {
     return isStdout ? GetStdHandle(STD_OUTPUT_HANDLE) : GetStdHandle(STD_ERROR_HANDLE);
   }
@@ -244,9 +245,9 @@ public:
   ~NonUtf8ConsoleWarning()
   {
     const char* envvar = "MIKTEX_UTF8_SUPPRESS_CONSOLE_WARNING";
-    if (pConsole != 0 && getenv(envvar) == 0)
+    if (console != 0 && getenv(envvar) == 0)
     {
-      fprintf(pConsole, "\
+      fprintf(console, "\
 \n\n\
 *** Warning:\n\
 ***\n\
@@ -261,21 +262,21 @@ public:
     }
   }
 public:
-  void Emit(FILE* pConsole)
+  void Emit(FILE* console)
   {
-    this->pConsole = pConsole;
+    this->console = console;
   }
 private:
-  FILE* pConsole;
+  FILE* console;
 };
 #endif
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_fputc(int ch, FILE* pFile)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_fputc(int ch, FILE* file)
 {
-  HANDLE hConsole = GetConsoleHandle(pFile);
+  HANDLE hConsole = GetConsoleHandle(file);
   if (hConsole == INVALID_HANDLE_VALUE)
   {
-    return fputc(ch, pFile);
+    return fputc(ch, file);
   }
   if (GetConsoleOutputCP() != CP_UTF8)
   {
@@ -283,11 +284,11 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_fputc(int ch, FILE* pFile)
     static NonUtf8ConsoleWarning warning;
     if ((ch & 0x80) != 0)
     {
-      warning.Emit(pFile);
+      warning.Emit(file);
       ch = '?';
     }
 #endif
-    return fputc(ch, pFile);
+    return fputc(ch, file);
   }
   static int remaining = 0;
   static char buf[5];
@@ -325,7 +326,7 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_fputc(int ch, FILE* pFile)
   {
     buf[bufidx] = 0;
     bufidx = 0;
-    if (fputs(buf, pFile) < 0)
+    if (fputs(buf, file) < 0)
     {
       ch = EOF;
     }
@@ -333,9 +334,9 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_fputc(int ch, FILE* pFile)
   return ch;
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putc(int ch, FILE* pFile)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putc(int ch, FILE* file)
 {
-  return miktex_utf8_fputc(ch, pFile);
+  return miktex_utf8_fputc(ch, file);
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putchar(int ch)
@@ -344,15 +345,15 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putchar(int ch)
 }
 
 #if MIKTEX_UTF8_CONSOLE_WARNING
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_fprintf(FILE* pFile, const char* lpszFormat, ...)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_fprintf(FILE* file, const char* lpszFormat, ...)
 {
-  HANDLE hConsole = GetConsoleHandle(pFile);
+  HANDLE hConsole = GetConsoleHandle(file);
   va_list ap;
   va_start(ap, lpszFormat);
   int ret;
   if (hConsole == INVALID_HANDLE_VALUE || GetConsoleOutputCP() == CP_UTF8)
   {
-    ret = vfprintf(pFile, lpszFormat, ap);
+    ret = vfprintf(file, lpszFormat, ap);
   }
   else
   {
@@ -364,7 +365,7 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_fprintf(FILE* pFile, const char* lpszForma
       if (n >= 0)
       {
         // TODO: check buffer and warn if it contains UTF-8 bytes
-        n = fputs(pBuffer, pFile);
+        n = fputs(pBuffer, file);
       }
       delete[] pBuffer;
     }

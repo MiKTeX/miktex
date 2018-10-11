@@ -1,6 +1,6 @@
 /* unxemu.cpp:
 
-   Copyright (C) 2007-2017 Christian Schenk
+   Copyright (C) 2007-2018 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -36,107 +36,107 @@ using namespace std;
 
 struct DIR_
 {
-  unique_ptr<DirectoryLister> pLister;
+  unique_ptr<DirectoryLister> directoryLister;
   struct dirent direntry;
   PathName path;
-  DIR_(const char* lpszPath) :
-    path(lpszPath),
-    pLister(DirectoryLister::Open(lpszPath))
+  DIR_(const char* path) :
+    path(path),
+    directoryLister(DirectoryLister::Open(path))
   {
   }
 };
 
 struct WDIR_
 {
-  unique_ptr<DirectoryLister> pLister;
+  unique_ptr<DirectoryLister> directoryLister;
   struct wdirent direntry;
   PathName path;
-  WDIR_(const wchar_t* lpszPath) :
-    path(lpszPath),
-    pLister(DirectoryLister::Open(lpszPath))
+  WDIR_(const wchar_t* path) :
+    path(path),
+    directoryLister(DirectoryLister::Open(path))
   {
   }
 };
 
-MIKTEXUNXCEEAPI(int) closedir(DIR* pDir)
+MIKTEXUNXCEEAPI(int) closedir(DIR* dir)
 {
   C_FUNC_BEGIN();
-  delete pDir;
+  delete dir;
   return 0;
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(int) wclosedir(WDIR* pDir)
+MIKTEXUNXCEEAPI(int) wclosedir(WDIR* dir)
 {
   C_FUNC_BEGIN();
-  delete pDir;
+  delete dir;
   return 0;
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(DIR*) opendir(const char* lpszPath)
+MIKTEXUNXCEEAPI(DIR*) opendir(const char* path)
 {
   C_FUNC_BEGIN();
-  if (!Directory::Exists(lpszPath))
+  if (!Directory::Exists(path))
   {
     errno = ENOENT;
     return nullptr;
   }
-  return new DIR_(lpszPath);
+  return new DIR_(path);
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(WDIR*) wopendir(const wchar_t* lpszPath)
+MIKTEXUNXCEEAPI(WDIR*) wopendir(const wchar_t* path)
 {
   C_FUNC_BEGIN();
-  if (!Directory::Exists(lpszPath))
+  if (!Directory::Exists(path))
   {
     errno = ENOENT;
     return nullptr;
   }
-  return new WDIR_(lpszPath);
+  return new WDIR_(path);
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(struct dirent*) readdir(DIR* pDir)
+MIKTEXUNXCEEAPI(struct dirent*) readdir(DIR* dir)
 {
   C_FUNC_BEGIN();
   DirectoryEntry directoryEntry;
-  if (!pDir->pLister->GetNext(directoryEntry))
+  if (!dir->directoryLister->GetNext(directoryEntry))
   {
     return nullptr;
   }
-  StringUtil::CopyString(pDir->direntry.d_name, sizeof(pDir->direntry.d_name) / sizeof(pDir->direntry.d_name[0]), directoryEntry.name.c_str());
-  return &pDir->direntry;
+  StringUtil::CopyString(dir->direntry.d_name, sizeof(dir->direntry.d_name) / sizeof(dir->direntry.d_name[0]), directoryEntry.name.c_str());
+  return &dir->direntry;
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(struct wdirent*) wreaddir(WDIR* pDir)
+MIKTEXUNXCEEAPI(struct wdirent*) wreaddir(WDIR* dir)
 {
   C_FUNC_BEGIN();
   DirectoryEntry directoryEntry;
-  if (!pDir->pLister->GetNext(directoryEntry))
+  if (!dir->directoryLister->GetNext(directoryEntry))
   {
     return nullptr;
   }
-  StringUtil::CopyString(pDir->direntry.d_name, sizeof(pDir->direntry.d_name) / sizeof(pDir->direntry.d_name[0]), directoryEntry.wname.c_str());
-  return &pDir->direntry;
+  StringUtil::CopyString(dir->direntry.d_name, sizeof(dir->direntry.d_name) / sizeof(dir->direntry.d_name[0]), directoryEntry.wname.c_str());
+  return &dir->direntry;
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(void) rewinddir(DIR* pDir)
+MIKTEXUNXCEEAPI(void) rewinddir(DIR* dir)
 {
   C_FUNC_BEGIN();
-  pDir->pLister->Close();
-  pDir->pLister = DirectoryLister::Open(pDir->path);
+  dir->directoryLister->Close();
+  dir->directoryLister = DirectoryLister::Open(dir->path);
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(void) wrewinddir(WDIR* pDir)
+MIKTEXUNXCEEAPI(void) wrewinddir(WDIR* dir)
 {
   C_FUNC_BEGIN();
-  pDir->pLister->Close();
-  pDir->pLister = DirectoryLister::Open(pDir->path);
+  dir->directoryLister->Close();
+  dir->directoryLister = DirectoryLister::Open(dir->path);
   C_FUNC_END();
 }
 
