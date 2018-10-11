@@ -82,7 +82,6 @@ set(${ui_qt_dll_name}_sources
   SiteWizType.cpp
   SiteWizType.h
   SiteWizType.h
-  StdAfx.h
   UpdateDialog.cpp
   UpdateDialog.h
   UpdateDialog.h

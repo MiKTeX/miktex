@@ -19,7 +19,20 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#if defined(MIKTEX_WINDOWS)
+#  include <Windows.h>
+#  define SECURITY_WIN32
+#  include <Security.h>
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  include <QtWinExtras/qwinfunctions.h>
+#endif
+
+#include <QtWidgets>
+
+#include <miktex/Core/Directory>
+#include <miktex/Core/Session>
 
 #include "internal.h"
 

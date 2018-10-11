@@ -1,6 +1,6 @@
 /* FileTableModel.cpp:
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -18,8 +18,6 @@
    along with the MiKTeX UI Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
-
-#include "StdAfx.h"
 
 #include "FileTableModel.h"
 

@@ -19,7 +19,9 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#if defined(MIKTEX_WINDOWS)
+#  include <miktex/Core/win/winAutoResource>
+#endif
 
 #include "internal.h"
 
