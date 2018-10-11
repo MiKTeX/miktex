@@ -1,6 +1,6 @@
 /* FileTableModel.h:                                    -*- C++ -*-
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(ACB59209CE7F49D8A061486660DC4B27)
 #define ACB59209CE7F49D8A061486660DC4B27
