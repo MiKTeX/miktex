@@ -87,9 +87,9 @@ MIKTEXSTATICFUNC(unique_ptr<char[]>) WideCharToUTF8(const wchar_t* wideCharStrin
 #define UW_(x) UTF8ToWideChar(x, __func__).get()
 #define WU_(x) WideCharToUTF8(x, __func__).get()
 
-MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8_fopen(const char* path, const char* lpszMode)
+MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8_fopen(const char* path, const char* mode)
 {
-  return _wfopen(UW_(path), UW_(lpszMode));
+  return _wfopen(UW_(path), UW_(mode));
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__open(const char* path, int flags, ...)
@@ -207,14 +207,14 @@ MIKTEXUTF8WRAPCEEAPI(intptr_t) miktex_utf8__spawnvp(int mode, const char* path, 
   return _wspawnvp(mode, UW_(path), &wargv[0]);
 }
 
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_system(const char* lpszCommand)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_system(const char* command)
 {
-  return _wsystem(lpszCommand == nullptr ? nullptr : UW_(lpszCommand));
+  return _wsystem(command == nullptr ? nullptr : UW_(command));
 }
 
-MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8__popen(const char* lpszCommand, const char* lpszMode)
+MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8__popen(const char* command, const char* mode)
 {
-  return _wpopen(UW_(lpszCommand), UW_(lpszMode));
+  return _wpopen(UW_(command), UW_(mode));
 }
 
 MIKTEXSTATICFUNC(HANDLE) GetConsoleHandle(FILE* file)
@@ -238,7 +238,7 @@ class NonUtf8ConsoleWarning
 {
 public:
   NonUtf8ConsoleWarning()
-    : pConsole(console)
+    : console(console)
   {
   }
 public:
@@ -345,29 +345,29 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putchar(int ch)
 }
 
 #if MIKTEX_UTF8_CONSOLE_WARNING
-MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_fprintf(FILE* file, const char* lpszFormat, ...)
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_fprintf(FILE* file, const char* format, ...)
 {
   HANDLE hConsole = GetConsoleHandle(file);
   va_list ap;
-  va_start(ap, lpszFormat);
+  va_start(ap, format);
   int ret;
   if (hConsole == INVALID_HANDLE_VALUE || GetConsoleOutputCP() == CP_UTF8)
   {
-    ret = vfprintf(file, lpszFormat, ap);
+    ret = vfprintf(file, format, ap);
   }
   else
   {
-    int n = _vscprintf(lpszFormat, ap);
+    int n = _vscprintf(format, ap);
     if (n >= 0)
     {
-      char* pBuffer = new char[n + 1];
-      n = vsprintf_s(pBuffer, n + 1, lpszFormat, ap);
+      char* buffer = new char[n + 1];
+      n = vsprintf_s(buffer, n + 1, format, ap);
       if (n >= 0)
       {
         // TODO: check buffer and warn if it contains UTF-8 bytes
-        n = fputs(pBuffer, file);
+        n = fputs(buffer, file);
       }
-      delete[] pBuffer;
+      delete[] buffer;
     }
   }
   va_end(ap);
