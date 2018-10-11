@@ -203,7 +203,7 @@ MIKTEXUTF8WRAPCEEAPI(intptr_t) miktex_utf8__spawnvp(int mode, const char* path, 
   {
     wargv.push_back(wideArguments[idx].c_str());
   }
-  wargv.push_back(0);
+  wargv.push_back(nullptr);
   return _wspawnvp(mode, UW_(path), &wargv[0]);
 }
 
@@ -238,14 +238,14 @@ class NonUtf8ConsoleWarning
 {
 public:
   NonUtf8ConsoleWarning()
-    : pConsole(0)
+    : pConsole(console)
   {
   }
 public:
   ~NonUtf8ConsoleWarning()
   {
     const char* envvar = "MIKTEX_UTF8_SUPPRESS_CONSOLE_WARNING";
-    if (console != 0 && getenv(envvar) == 0)
+    if (console != nullptr && getenv(envvar) == nullptr)
     {
       fprintf(console, "\
 \n\n\
