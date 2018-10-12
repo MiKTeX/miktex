@@ -42,7 +42,7 @@
  
 typedef struct {
        int32_t high;
-       uint32_t low;
+       int32_t low;
 } doublelong;
  
 /*END SHARED*/

@@ -36,6 +36,7 @@
 
 #include <stdio.h>
 #include "pkin.h"
+#include "basics.h"
 
 #ifdef WIN32
 #include <fcntl.h>

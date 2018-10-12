@@ -231,7 +231,7 @@ struct xobject {
 /*SHARED*/
 /* NDW: personally, I want to see status and error messages! */
 #define IfTrace0(condition,model)                                 \
-        {if (condition) printf(model);}
+        {if (condition) printf("%s",model);}
 #define IfTrace1(condition,model,arg0)                            \
         {if (condition) printf(model,arg0);}
 #define IfTrace2(condition,model,arg0,arg1)                       \
