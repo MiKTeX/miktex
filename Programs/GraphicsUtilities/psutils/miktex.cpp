@@ -1,6 +1,6 @@
 /* miktex.cpp
 
-   Copyright (C) 2015-2016 Christian Schenk
+   Copyright (C) 2015-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -24,14 +24,16 @@ using namespace MiKTeX::Core;
 
 MIKTEX_BEGIN_EXTERN_C_BLOCK;
 
-int paper_size(const char *paper_name, double *width, double *height)
+int paper_size(const char* paper_name, double* width, double* height)
 {
   std::shared_ptr<Session> session = Session::Get();
   PaperSizeInfo paperSize;
-  if (paper_name == 0) {
+  if (paper_name == 0)
+  {
     session->GetPaperSizeInfo(0, paperSize);
   }
-  else {
+  else
+  {
     paperSize = session->GetPaperSizeInfo(paper_name);
   }
   *width = (double)paperSize.width;
@@ -39,16 +41,16 @@ int paper_size(const char *paper_name, double *width, double *height)
   return 1;
 }
 
-void verror(int status, int errnum, const char *format, va_list args)
+void verror(int status, int errnum, const char* format, va_list args)
 {
   vfprintf(stderr, format, args);
   fputc('\n', stderr);
   throw status;
 }
 
-char *program_name;
+char* program_name;
 
-void set_program_name(const char *argv0)
+void set_program_name(const char* argv0)
 {
   std::shared_ptr<Session> session = Session::Get();
   program_name = strdup(argv0);
