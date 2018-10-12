@@ -1,6 +1,6 @@
 /* miktex/Util/Tokenizer.h:                             -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if !defined(B8F781CD4C5C48639A1A9A90A45F9855)
 #define B8F781CD4C5C48639A1A9A90A45F9855
