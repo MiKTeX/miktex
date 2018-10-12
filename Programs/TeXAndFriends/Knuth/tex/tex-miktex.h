@@ -45,10 +45,8 @@
 
 extern TEXPROGCLASS TEXPROG;
 
-class TEXAPPCLASS
-
-  : public MiKTeX::TeXAndFriends::TeXApp
-
+class TEXAPPCLASS :
+  public MiKTeX::TeXAndFriends::TeXApp
 {
 private:
   MiKTeX::TeXAndFriends::CharacterConverterImpl<TEXPROGCLASS> charConv{ TEXPROG };
