@@ -92,10 +92,8 @@ public:
   }
 };
 
-class MFAPPCLASS
-
-  : public MiKTeX::TeXAndFriends::MetafontApp
-
+class MFAPPCLASS :
+  public MiKTeX::TeXAndFriends::MetafontApp
 {
 private:
   MiKTeX::TeXAndFriends::CharacterConverterImpl<MFPROGCLASS> charConv{ MFPROG };
@@ -167,7 +165,7 @@ public:
         done = MetafontApp::ProcessOption(opt, optArg);
         break;
       }
-    return (done);
+    return done;
   }
 
 public:
