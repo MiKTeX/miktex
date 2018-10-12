@@ -75,7 +75,7 @@ public:
         
     if (selections.size() > DVICOPYPROG.maxselections)
     {
-      FatalError(MIKTEXTEXT("Too mant page selections."));
+      FatalError(MIKTEXTEXT("Too many page selections."));
     }
         
     for (const std::string& s : selections)
