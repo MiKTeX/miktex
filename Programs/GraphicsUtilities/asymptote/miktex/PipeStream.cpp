@@ -140,8 +140,8 @@ void PipeStream::ChildStdoutReaderThread()
   try
   {
     FileStream childStdoutFile(childProcess->get_StandardOutput());
-    setvbuf(childStdoutFile.Get(), nullptr, _IONBF, 0);
-    HANDLE childStdoutFileHandle = (HANDLE)_get_osfhandle(fileno(childStdoutFile.Get()));
+    setvbuf(childStdoutFile.GetFile(), nullptr, _IONBF, 0);
+    HANDLE childStdoutFileHandle = (HANDLE)_get_osfhandle(fileno(childStdoutFile.GetFile()));
     if (childStdoutFileHandle == INVALID_HANDLE_VALUE)
     {
       MIKTEX_UNEXPECTED();
