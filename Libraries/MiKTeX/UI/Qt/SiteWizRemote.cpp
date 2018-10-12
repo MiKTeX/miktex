@@ -143,14 +143,14 @@ void SiteWizRemote::FillList()
 #if MIKTEX_RELEASE_STATE < 4
       if (it->packageLevel == PackageLevel::None)
       {
-	continue;
+        continue;
       }
 #endif
       if (it->url == selected)
       {
-	selectedItem = proxyModel->mapFromSource(model->index(row, 0));
-	treeView->selectionModel()->select(selectedItem, QItemSelectionModel::Select | QItemSelectionModel::Rows);
-	emit completeChanged();
+        selectedItem = proxyModel->mapFromSource(model->index(row, 0));
+        treeView->selectionModel()->select(selectedItem, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        emit completeChanged();
       }
     }
 

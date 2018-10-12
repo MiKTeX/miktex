@@ -90,8 +90,8 @@ bool SiteWizLocal::validatePage()
       mpmIni /= MIKTEX_PATH_MPM_INI;
       if (!File::Exists(mpmIni))
       {
-	QMessageBox::critical(this, QString(), T_("Not a local package repository."));
-	return false;
+        QMessageBox::critical(this, QString(), T_("Not a local package repository."));
+        return false;
       }
     }
     packageManager->SetDefaultPackageRepository(RepositoryType::Local, directory.GetData());

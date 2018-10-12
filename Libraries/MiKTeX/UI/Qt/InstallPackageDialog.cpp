@@ -94,23 +94,23 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
       DWORD sizeLogonName = sizeof(szLogonName) / sizeof(szLogonName[0]);
       if (GetUserNameA(szLogonName, &sizeLogonName))
       {
-	currentUser = szLogonName;
+        currentUser = szLogonName;
       }
       else if (GetLastError() == ERROR_NOT_LOGGED_ON)
       {
-	currentUser = T_("Unknown user");
+        currentUser = T_("Unknown user");
       }
       else
       {
-	MIKTEX_FATAL_WINDOWS_ERROR("GetUserNameA");
+        MIKTEX_FATAL_WINDOWS_ERROR("GetUserNameA");
       }
       char szDisplayName[30];
       ULONG sizeDisplayName = sizeof(szDisplayName) / sizeof(szDisplayName[0]);
       if (GetUserNameExA(NameDisplay, szDisplayName, &sizeDisplayName))
       {
-	currentUser += " (";
-	currentUser += szDisplayName;
-	currentUser += ")";
+        currentUser += " (";
+        currentUser += szDisplayName;
+        currentUser += ")";
       }
 #else
       currentUser = T_("The current user");
@@ -174,11 +174,11 @@ void InstallPackageDialog::on_cbInstallationDirectory_currentIndexChanged(int id
       ICONINFO iconInfo;
       if (GetIconInfo(hiconShield, &iconInfo))
       {
-	QPixmap pixmapShield = QtWin::fromHBITMAP(iconInfo.hbmColor, QtWin::HBitmapAlpha);
-	DeleteObject(iconInfo.hbmColor);
-	DeleteObject(iconInfo.hbmMask);
-	okayButton->setIcon(QIcon(pixmapShield));
-	iconSet = true;
+        QPixmap pixmapShield = QtWin::fromHBITMAP(iconInfo.hbmColor, QtWin::HBitmapAlpha);
+        DeleteObject(iconInfo.hbmColor);
+        DeleteObject(iconInfo.hbmMask);
+        okayButton->setIcon(QIcon(pixmapShield));
+        iconSet = true;
       }
       DestroyIcon(hiconShield);
     }
