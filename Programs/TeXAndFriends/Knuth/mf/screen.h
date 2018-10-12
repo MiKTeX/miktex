@@ -1,6 +1,6 @@
 /* screen.h: METAFONT online displays
 
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2018 Christian Schenk
    Copyright (C) 1998 Wolfgang Kleinschmidt
 
    This file is free software; you can redistribute it and/or modify
@@ -18,9 +18,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #if defined(MIKTEX_WINDOWS)
 bool miktexinitscreen(int w, int h);
