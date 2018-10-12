@@ -1,6 +1,6 @@
-/* w2cemu-version.h: version number			-*- C++ -*-
+/* w2cemu-version.h: version number                     -*- C++ -*-
 
-   Copyright (C) 2010-2016 Christian Schenk
+   Copyright (C) 2010-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
