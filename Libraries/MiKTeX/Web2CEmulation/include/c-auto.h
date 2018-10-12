@@ -1,6 +1,6 @@
 /* c-auto.h:                                            -*- C++ -*-
 
-   Copyright (C) 2010-2016 Christian Schenk
+   Copyright (C) 2010-2018 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(_MSC_VER)
-#  pragma once
-#endif
+#pragma once
 
 #define RETSIGTYPE void
 #include <w2c/c-auto.h>
