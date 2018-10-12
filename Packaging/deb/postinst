@@ -1,2 +1,0 @@
-#!/bin/sh -e
-miktexsetup --shared=yes finish

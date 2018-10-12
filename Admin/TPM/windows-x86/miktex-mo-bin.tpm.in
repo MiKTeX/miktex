@@ -13,8 +13,8 @@
       This package includes the MiKTeX Options executable.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/initexmf.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/miktexsetup.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_INITEXMF_EXECUTABLE}
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_SETUP_EXECUTABLE}
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

@@ -17,22 +17,22 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_SETUP_FOLDER}/standalone")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_SETUP_FOLDER}/${MIKTEX_PROG_NAME_SETUP_STANDALONE}")
 
 use_static_crt()
 
-add_executable(miktexsetup-standalone ${miktexsetup_sources})
+add_executable(${MIKTEX_PROG_NAME_SETUP_STANDALONE} ${miktexsetup_sources})
 
-set_property(TARGET miktexsetup-standalone PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PROG_NAME_SETUP_STANDALONE} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(miktexsetup-standalone
+target_link_libraries(${MIKTEX_PROG_NAME_SETUP_STANDALONE}
   ${core_lib_name}
   ${setup_lib_name}
   miktex-popt-wrapper-static
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(miktexsetup-standalone
+  target_link_libraries(${MIKTEX_PROG_NAME_SETUP_STANDALONE}
     Wldap32
     shlwapi
     version
@@ -42,4 +42,4 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-install(TARGETS miktexsetup-standalone DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PROG_NAME_SETUP_STANDALONE} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

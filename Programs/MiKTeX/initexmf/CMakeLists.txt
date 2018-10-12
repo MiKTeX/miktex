@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/initexmf")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/${MIKTEX_PROG_NAME_INITEXMF}")
 
 if(LINK_EVERYTHING_STATICALLY)
   use_static_crt()
@@ -64,31 +64,31 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(initexmf ${initexmf_sources})
+add_executable(${MIKTEX_PROG_NAME_INITEXMF} ${initexmf_sources})
 
-set_property(TARGET initexmf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PROG_NAME_INITEXMF} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-install(TARGETS initexmf DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PROG_NAME_INITEXMF} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 if (USE_SYSTEM_LOG4CXX)
-  target_link_libraries(initexmf MiKTeX::Imported::LOG4CXX)
+  target_link_libraries(${MIKTEX_PROG_NAME_INITEXMF} MiKTeX::Imported::LOG4CXX)
 else()
-  target_link_libraries(initexmf ${log4cxx_dll_name})
+  target_link_libraries(${MIKTEX_PROG_NAME_INITEXMF} ${log4cxx_dll_name})
 endif()
 
 if (USE_SYSTEM_FMT)
-  target_link_libraries(initexmf MiKTeX::Imported::FMT)
+  target_link_libraries(${MIKTEX_PROG_NAME_INITEXMF} MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(initexmf ${fmt_dll_name})
+  target_link_libraries(${MIKTEX_PROG_NAME_INITEXMF} ${fmt_dll_name})
 endif()
 
-target_link_libraries(initexmf
+target_link_libraries(${MIKTEX_PROG_NAME_INITEXMF}
   ${core_dll_name}
   ${mpm_dll_name}
   ${setup_dll_name}
   miktex-popt-wrapper
 )
 
-target_link_libraries(initexmf
+target_link_libraries(${MIKTEX_PROG_NAME_INITEXMF}
   ${texmf_dll_name}
 )

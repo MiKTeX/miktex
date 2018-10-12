@@ -2,10 +2,10 @@
 
 case "$1" in
     remove)
-	miktexsetup factoryreset
+	${MIKTEX_SETUP_EXECUTABLE} factoryreset
 	;;
     upgrade)
-	initexmf --admin --clean
+	${MIKTEX_INITEXMF_EXECUTABLE} --admin --clean
 	;;
     failed-upgrade)
 	;;

@@ -17,20 +17,20 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_SETUP_FOLDER}/integrated")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_SETUP_FOLDER}/${MIKTEX_PROG_NAME_SETUP}")
 
-add_executable(miktexsetup ${miktexsetup_sources})
+add_executable(${MIKTEX_PROG_NAME_SETUP} ${miktexsetup_sources})
 
-set_property(TARGET miktexsetup PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PROG_NAME_SETUP} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(miktexsetup
+target_link_libraries(${MIKTEX_PROG_NAME_SETUP}
   ${core_dll_name}
   ${setup_dll_name}
   miktex-popt-wrapper
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(miktexsetup
+  target_link_libraries(${MIKTEX_PROG_NAME_SETUP}
     Wldap32
     shlwapi
     version
@@ -40,4 +40,4 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-install(TARGETS miktexsetup DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PROG_NAME_SETUP} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

@@ -577,6 +577,7 @@ set(MIKTEX_DOC_BASE_URL "${MIKTEX_DOC_BASE_URL_NO_SLASH}/")
 
 set(MIKTEX_PREFIX "miktex-")
 set(MIKTEX_ADMIN_SUFFIX "_admin")
+set(MIKTEX_STANDALONE_SUFFIX "_standalone")
 
 ## autotools compatibility names
 set(PACKAGE_NAME ${MIKTEX_PRODUCT_NAME})
@@ -760,6 +761,7 @@ include(CreateWebApp)
 include(DefaultCharTypeIsUnsigned)
 include(DelayLoad)
 include(DisableRuntimeChecks)
+include(ExecutableNames)
 include(InstallPaths)
 include(GenerateExportHeader)
 include(LibraryNames)
@@ -2225,24 +2227,40 @@ set(CPACK_DEBIAN_PACKAGE_SECTION
   "tex"
 )
 
-#list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-#  "${CMAKE_SOURCE_DIR}/Packaging/deb/config"
+#configure_file(
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/config.cmake"
+#  "${CMAKE_BINARY_DIR}/Packaging/deb/config"
 #)
 
 #list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
+#  "${CMAKE_BINARY_DIR}/Packaging/deb/config"
 #)
 
-list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-  "${CMAKE_SOURCE_DIR}/Packaging/deb/prerm"
+#configure_file(
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst.cmake"
+#  "${CMAKE_BINARY_DIR}/Packaging/deb/postinst"
+#)
+
+#list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+#  "${CMAKE_BINARY_DIR}/Packaging/deb/postinst"
+#)
+
+configure_file(
+  "${CMAKE_SOURCE_DIR}/Packaging/deb/prerm.cmake"
+  "${CMAKE_BINARY_DIR}/Packaging/deb/prerm"
 )
 
-#list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postrm"
+list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+  "${CMAKE_BINARY_DIR}/Packaging/deb/prerm"
+)
+
+#configure_file(
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/templates.cmake"
+#  "${CMAKE_BINARY_DIR}/Packaging/deb/templates"
 #)
 
 #list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-#  "${CMAKE_SOURCE_DIR}/Packaging/deb/templates"
+#  "${CMAKE_BINARY_DIR}/Packaging/deb/templates"
 #)
 
 set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
@@ -2272,12 +2290,21 @@ set(CPACK_RPM_PACKAGE_URL "${MIKTEX_HQ_BASE_URL_NO_SLASH}")
 
 set(CPACK_RPM_PACKAGE_AUTOREQ 1)
 
+configure_file(
+  "${CMAKE_SOURCE_DIR}/Packaging/rpm/post-install.sh.cmake"
+  "${CMAKE_BINARY_DIR}/Packaging/rpm/post-install.sh"
+)
 set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE
-  "${CMAKE_SOURCE_DIR}/Packaging/rpm/post-install.sh"
+  "${CMAKE_BINARY_DIR}/Packaging/rpm/post-install.sh"
+)
+
+configure_file(
+  "${CMAKE_SOURCE_DIR}/Packaging/rpm/pre-uninstall.sh.cmake"
+  "${CMAKE_BINARY_DIR}/Packaging/rpm/pre-uninstall.sh"
 )
 
 set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE
-  "${CMAKE_SOURCE_DIR}/Packaging/rpm/pre-uninstall.sh"
+  "${CMAKE_BINARY_DIR}/Packaging/rpm/pre-uninstall.sh"
 )
 
 set(CPACK_STRIP_SYMBOLS TRUE)
