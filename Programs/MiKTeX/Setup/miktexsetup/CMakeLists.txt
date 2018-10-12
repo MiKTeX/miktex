@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2014-2017 Christian Schenk
+## Copyright (C) 2014-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,7 +27,6 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 set(miktexsetup_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/miktexsetup-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/miktexsetup.cpp
