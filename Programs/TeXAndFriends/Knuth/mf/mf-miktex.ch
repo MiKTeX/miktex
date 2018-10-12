@@ -1,6 +1,6 @@
 %% mf-miktex.ch: WEB change file for METAFONT
 %% 
-%% Copyright (C) 1991-2016 Christian Schenk
+%% Copyright (C) 1991-2018 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -713,7 +713,7 @@ not been commented out.
     begin
     edit_name_start:=str_start[edit_file.name_field];
     edit_name_length:=str_start[edit_file.name_field+1] -
-    		      str_start[edit_file.name_field];
+                      str_start[edit_file.name_field];
     edit_line:=line;
     jump_out;
 @z

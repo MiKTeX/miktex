@@ -1,6 +1,6 @@
-/* vftovp-version.h: version number			-*- C++ -*-
+/* vftovp-version.h: version number                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
