@@ -107,7 +107,6 @@
 #endif
 
 #include    <stdio.h>
-
 #if defined(MIKTEX)
 #  define exit(status) throw(status)
 #endif
@@ -585,7 +584,6 @@ int	access (const char *, int);
 #ifndef    R_OK
 #define R_OK 4                         /* only symbol from sys/file.h */
 #endif
-
 #if defined(MIKTEX)
 #  if defined (_MSC_VER)
 #    define HAVE_SPRINTF_S 1
