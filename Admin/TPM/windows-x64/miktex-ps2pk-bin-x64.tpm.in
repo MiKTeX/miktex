@@ -5,7 +5,7 @@
     <TPM:Name>PS2PK win64</TPM:Name>
     <TPM:Title>PS2PK Windows xx64</TPM:Title>
     <TPM:License type="permissive"/>
-    <TPM:Version>1.7</TPM:Version>
+    <TPM:Version>1.8</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
