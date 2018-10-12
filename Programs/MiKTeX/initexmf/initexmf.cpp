@@ -663,7 +663,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
 {
   bool adminMode = false;
   bool setupWizardRunning = false;
-  for (const char** opt = &argv[1]; opt != nullptr; ++opt)
+  for (const char** opt = &argv[1]; *opt != nullptr; ++opt)
   {
     if ("--admin"s == *opt || "-admin"s == *opt)
     {
