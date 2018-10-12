@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #if defined(MIKTEX_WINDOWS)
+#  define NOMINMAX
 #  include <Windows.h>
 #  define SECURITY_WIN32
 #  include <Security.h>

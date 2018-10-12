@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #if defined(MIKTEX_WINDOWS)
+#  define NOMINMAX
 #  include <miktex/Core/win/winAutoResource>
 #endif
 
