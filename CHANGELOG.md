@@ -11,6 +11,7 @@
 ### Upgraded libraries
 
 * libcurl 7.61.1
+* m-tx 0.63a
 * expat 2.2.6
 
 ## 2.9.6840 - 2018-09-30

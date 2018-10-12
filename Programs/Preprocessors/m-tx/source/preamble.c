@@ -801,8 +801,8 @@ void preambleDefaults(void)
     stave_size[i] = unspec;
   for (i = 0; i <= maxstaves; i++)
     nspace[i] = unspec;
-  nspace[i] = unspec;
-  stave_size[i-1] = unspec;
+  /* next line seems to be spurious.  0.63a RDT */
+  /* begin  nspace[i]:=unspec;  stave_size[i]:=unspec;  end; */
   n_pages = 1;
   n_systems = 1;
   readStyles();

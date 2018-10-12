@@ -66,8 +66,8 @@
 
 /** M-Tx preprocessor to PMX     Dirk Laurie */
 
-#define version         "0.63"
-#define version_date    "<7 January 2018>"
+#define version         "0.63a"
+#define version_date    "<8 April 2018>"
 
 /** See file "Corrections" for updates */
 
@@ -758,7 +758,7 @@ Static boolean isControlParagraph(Char (*P)[256], paragraph_index para_len)
 Static void topOfPMXfile(void)
 {
   Char STR2[24];
-  Char STR3[32];
+  Char STR3[30];
 
   putLine("---");
   sprintf(STR2, "\\def\\mtxversion{%s}", version);

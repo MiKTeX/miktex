@@ -73,8 +73,8 @@ register int n;
 {
     register char *dd = (char *)d, *ss = (char *)s;
     if (dd < ss || dd - ss >= n) {
-#if defined(bcopy) && defined(memcpy)
-        my_memcpy(dd, ss, n);
+#if defined(bcopy) && defined(memcpy) 
+        Anyptr my_memcpy(Anyptr d, Const Anyptr s, size_t n);
 #else
 	memcpy(dd, ss, n);
 #endif
