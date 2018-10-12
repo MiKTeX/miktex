@@ -28,7 +28,7 @@ int paper_size(const char* paper_name, double* width, double* height)
 {
   std::shared_ptr<Session> session = Session::Get();
   PaperSizeInfo paperSize;
-  if (paper_name == 0)
+  if (paper_name == nullptr)
   {
     session->GetPaperSizeInfo(0, paperSize);
   }
