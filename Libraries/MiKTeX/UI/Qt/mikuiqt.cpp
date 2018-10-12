@@ -19,6 +19,10 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#if defined(MIKTEX_MACOS_BUNDLE)
+#include <mach-o/dyld.h>
+#endif
+
 #include <miktex/Core/ConfigNames>
 
 #include "internal.h"
