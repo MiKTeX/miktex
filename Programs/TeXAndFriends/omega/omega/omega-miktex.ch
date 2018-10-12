@@ -2451,7 +2451,7 @@ function miktex_make_full_name_string : str_number; forward;@t\2@>@/
 @!insert_src_special_every_hbox:boolean;
 @!insert_src_special_every_vbox:boolean;
 @!insert_src_special_every_display:boolean;
-	
+        
 @!ocp_buf_size:integer;
 @!ocp_stack_size:integer;
 

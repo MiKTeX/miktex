@@ -34,7 +34,7 @@ btestin(void)
     kpse_find_file (nameoffile + 1, kpse_program_binary_format, true);
 
     if (fname) {
-#if 0				// MiKTeX
+#if 0                           // MiKTeX
       libcfree(nameoffile);
       nameoffile = xmalloc(2+strlen(fname));
 #endif
@@ -42,13 +42,13 @@ btestin(void)
       strcpy(nameoffile+1, fname);
     }
     else {
-#if 0				// MiKTeX
+#if 0                           // MiKTeX
       libcfree(nameoffile);
       nameoffile = xmalloc(2);
 #endif
       namelength = 0;
-      nameoffile[1] = 0;	// MiKTeX
-      nameoffile[2] = 0;	// MiKTeX
+      nameoffile[1] = 0;        // MiKTeX
+      nameoffile[2] = 0;        // MiKTeX
     }
 }
 
@@ -328,7 +328,7 @@ undumphhashtable P1H(void)
    }
 }
 
-#if 0				// MiKTeX
+#if 0                           // MiKTeX
 void
 odateandtime P4C(int,timecode, int,daycode, int,monthcode, int,yearcode)
 {
@@ -341,7 +341,7 @@ odateandtime P4C(int,timecode, int,daycode, int,monthcode, int,yearcode)
 }
 #endif
 
-#if 0				// MiKTeX
+#if 0                           // MiKTeX
 memoryword **fonttables;
 #endif
 static int font_entries = 0;
@@ -354,7 +354,7 @@ allocatefonttable P2C(int, font_number, int, font_size)
       fonttables = (memoryword **) xmalloc(256*sizeof(memoryword**));
       font_entries=256;
     } else if ((font_number==256)&&(font_entries==256)) {
-      fonttables = (memoryword **) xrealloc(fonttables, 65536);	// MiKTeX
+      fonttables = (memoryword **) xrealloc(fonttables, 65536); // MiKTeX
       font_entries=65536;
     }
     fonttables[font_number] =
@@ -383,7 +383,7 @@ undumpfonttable(int font_number) // MiKTeX
       fonttables = (memoryword **) xmalloc(256*sizeof(memoryword**));
       font_entries=256;
     } else if ((font_number==256)&&(font_entries==256)) {
-      fonttables = (memoryword **) xrealloc(fonttables, 65536);	// MiKTeX
+      fonttables = (memoryword **) xrealloc(fonttables, 65536); // MiKTeX
       font_entries=65536;
     }
 
@@ -394,7 +394,7 @@ undumpfonttable(int font_number) // MiKTeX
     undumpthings(fonttables[font_number][1], sizeword.cint);
 }
 
-#if 0				// MiKTeX
+#if 0                           // MiKTeX
 memoryword **fontsorttables;
 #endif
 static int fontsort_entries = 0;
@@ -407,7 +407,7 @@ allocatefontsorttable P2C(int, fontsort_number, int, fontsort_size)
       fontsorttables = (memoryword **) xmalloc(256*sizeof(memoryword**));
       fontsort_entries=256;
     } else if ((fontsort_number==256)&&(fontsort_entries==256)) {
-      fontsorttables = (memoryword **) xrealloc(fontsorttables, 65536);	// MiKTeX
+      fontsorttables = (memoryword **) xrealloc(fontsorttables, 65536); // MiKTeX
       fontsort_entries=65536;
     }
     fontsorttables[fontsort_number] =
@@ -437,7 +437,7 @@ undumpfontsorttable(int fontsort_number)
       fontsorttables = (memoryword **) xmalloc(256*sizeof(memoryword**));
       fontsort_entries=256;
     } else if ((fontsort_number==256)&&(fontsort_entries==256)) {
-      fontsorttables = (memoryword **) xrealloc(fontsorttables, 65536);	// MiKTeX
+      fontsorttables = (memoryword **) xrealloc(fontsorttables, 65536); // MiKTeX
       fontsort_entries=65536;
     }
 
@@ -448,7 +448,7 @@ undumpfontsorttable(int fontsort_number)
     undumpthings(fontsorttables[fontsort_number][1], sizeword.cint);
 }
 
-#if 0				// MiKTeX
+#if 0                           // MiKTeX
 int **ocptables;
 #endif
 static int ocp_entries = 0;
