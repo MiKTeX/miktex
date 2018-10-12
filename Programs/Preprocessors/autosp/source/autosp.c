@@ -1,4 +1,4 @@
-char version[12] = "2018-01-17";
+char version[12] = "2018-02-23";
 
 /*  Copyright (C) 2014-18 R. D. Tennent School of Computing,
  *  Queen's University, rdt@cs.queensu.ca
@@ -2003,10 +2003,11 @@ void process_command (char **ln)
     *ln = *ln + strlen(*ln);
   }
 
-  else if ( prefix ("\\end", *ln)
-        && !prefix ("\\end{", *ln) )
+  else if ( prefix ("\\end ", *ln) 
+         || prefix ("\\end%", *ln) 
+         || prefix ("\\end{document}", *ln) )
   {
-    fprintf (outfile, "\\end\n");
+    fprintf (outfile, *ln);
     exit(0);
   }
 
@@ -2077,7 +2078,7 @@ int main (int argc, char *argv[])
   time (&mytime);
   strftime (today, 11, "%Y-%m-%d", localtime (&mytime) );
   printf ("This is autosp, version %s.\n", version);
-  printf ("Copyright (C) 2014-17  R. D. Tennent\n" );
+  printf ("Copyright (C) 2014-18  R. D. Tennent\n" );
   printf ("School of Computing, Queen's University, rdt@cs.queensu.ca\n" );
   printf ("License GNU GPL version 2 or later <http://gnu.org/licences/gpl.html>.\n" );
   printf ("There is NO WARRANTY, to the extent permitted by law.\n\n" );

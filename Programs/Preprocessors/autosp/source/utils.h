@@ -1,6 +1,6 @@
 
 /*  
-  utils.h  -- header file for fixmsxpart.c and msxlint.c
+  utils.h  -- header file for autosp, rebar and tex2aspc
 
   Copyright (c) 2005-15  R. D. Tennent   
   School of Computing, Queen's University, rdt@cs.queensu.ca 
