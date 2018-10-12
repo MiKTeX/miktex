@@ -1,6 +1,6 @@
 /* Recipe.cpp:                                          -*- C++ -*-
 
-   Copyright (C) 2016-2017 Christian Schenk
+   Copyright (C) 2016-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,7 +17,21 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#include "StdAfx.h"
+#if defined(HAVE_CONFIG_H)
+#  include <config.h>
+#endif
+
+#include <iostream>
+#include <unordered_set>
+
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/Directory>
+#include <miktex/Core/DirectoryLister>
+#include <miktex/Core/Process>
+#include <miktex/Core/Quoter>
+#include <miktex/Core/StreamWriter>
+#include <miktex/Core/TemporaryDirectory>
+#include <miktex/Core/TemporaryFile>
 
 #include "internal.h"
 

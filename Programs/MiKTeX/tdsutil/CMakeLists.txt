@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016-2017 Christian Schenk
+## Copyright (C) 2016-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -34,7 +34,6 @@ set(tdsutil_sources
   Recipe.cpp
   Recipe.h
   TDS.h
-  StdAfx.h
   internal.h
   tdsutil-version.h
   tdsutil.cpp

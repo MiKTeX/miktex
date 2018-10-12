@@ -19,6 +19,10 @@
 
 #pragma once
 
+#include <string>
+
+#include <miktex/Core/PathName>
+
 class TDS
 {
 public:

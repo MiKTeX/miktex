@@ -19,6 +19,14 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
+#include <miktex/Core/Cfg>
+#include <miktex/Core/HasNamedValues>
+#include <miktex/Core/PathName>
+#include <miktex/Core/Session>
+
 #include "TDS.h"
 
 class Recipe :
