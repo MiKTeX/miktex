@@ -1,6 +1,6 @@
-/* tex2xindy-version.h: version number			-*- C++ -*-
+/* tex2xindy-version.h: version number                  -*- C++ -*-
 
-   Copyright (C) 2015-2016 Christian Schenk
+   Copyright (C) 2015-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
