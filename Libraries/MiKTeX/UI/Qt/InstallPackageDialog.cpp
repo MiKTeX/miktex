@@ -25,11 +25,11 @@
 #  include <Security.h>
 #endif
 
+#include <QtWidgets>
+
 #if defined(MIKTEX_WINDOWS)
 #  include <QtWinExtras/qwinfunctions.h>
 #endif
-
-#include <QtWidgets>
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/Session>

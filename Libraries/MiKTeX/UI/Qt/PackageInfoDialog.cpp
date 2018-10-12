@@ -21,6 +21,7 @@
 
 #include <QDateTime>
 #include <QSortFilterProxyModel>
+#include <QtWidgets>
 
 #include "internal.h"
 
