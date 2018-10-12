@@ -154,7 +154,6 @@
 # define IMPLEMENTATION             "EMX/GNU C 32 bit for OS/2"
 # define PATH_DELIM                 ';'
 #endif				/* OS2 */
-
 #if defined(MIKTEX) && !defined(MIKTEX_WINDOWS)
 # ifndef IMPLEMENTATION
 #  define IMPLEMENTATION            "GNU C"
