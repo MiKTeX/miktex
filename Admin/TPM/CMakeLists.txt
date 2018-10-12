@@ -130,11 +130,6 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
       windows-x86/miktex-mpm-bin.tpm.in
     )
   endif()
-  if(WITH_UPDATE_WIZARD OR WITH_COPY_START)
-    list(APPEND target_system_tpms
-      windows-x86/miktex-bin.tpm.in
-    )
-  endif()
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms
       windows-x86/miktex-context-bin.tpm.in
@@ -230,11 +225,6 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
   if(WITH_MPM_GUI)
     list(APPEND target_system_tpms
       windows-x64/miktex-mpm-bin-x64.tpm.in
-    )
-  endif()
-  if(WITH_UPDATE_WIZARD OR WITH_COPY_START)
-    list(APPEND target_system_tpms
-      windows-x64/miktex-bin-x64.tpm.in
     )
   endif()
   if(WITH_CONTEXT_SUPPORT)
