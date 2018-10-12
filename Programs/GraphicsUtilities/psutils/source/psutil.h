@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdarg.h>
-
 #if defined(MIKTEX)
 #include <sys/types.h>
 #include <getopt.h>
