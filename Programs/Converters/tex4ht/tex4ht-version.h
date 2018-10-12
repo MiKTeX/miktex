@@ -1,4 +1,4 @@
-/* tex4ht-version.h: version number			-*- C++ -*-
+/* tex4ht-version.h: version number                     -*- C++ -*-
 
    Copyright (C) 1996-2016 Christian Schenk
 
