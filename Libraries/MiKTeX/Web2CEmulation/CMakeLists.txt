@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2017 Christian Schenk
+## Copyright (C) 2010-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -48,7 +48,6 @@ set(${w2cemu_dll_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/include/w2c/c-auto.h
   ${CMAKE_CURRENT_BINARY_DIR}/w2cemu-version.h
   ${public_headers}
-  StdAfx.h
   include/c-auto.h
   include/cpascal.h
   include/lib/lib.h

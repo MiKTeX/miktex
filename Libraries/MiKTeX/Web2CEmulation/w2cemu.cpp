@@ -1,6 +1,6 @@
 /* w2cemu.cpp: web2c compatibility functions
 
-   Copyright (C) 2010-2017 Christian Schenk
+   Copyright (C) 2010-2018 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -19,7 +19,24 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "StdAfx.h"
+#include <cstdlib>
+
+#if defined(MIKTEX_UNIX)
+#include <sys/time.h>
+#endif
+
+#include <iostream>
+
+#include <miktex/Core/BufferSizes>
+#include <miktex/Core/ConfigNames>
+#include <miktex/Core/Directory>
+#include <miktex/Core/Registry>
+#include <miktex/TeXAndFriends/TeXApp>
+#include <miktex/TeXAndFriends/WebAppInputLine>
+#include <miktex/Util/StringUtil>
+#include <miktex/Version>
+
+#include <string>
 
 #include "internal.h"
 
