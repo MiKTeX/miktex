@@ -1,6 +1,6 @@
 /* Tokenizer.cpp: splitting strings
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -28,14 +28,14 @@ class Tokenizer::impl
 public:
   CharBuffer<char> buf;
 public:
-  const char * current = nullptr;
+  const char* current = nullptr;
 public:
-  char * next = nullptr;
+  char* next = nullptr;
 public:
   bitset<256> delims;
 };
 
-Tokenizer::Tokenizer(const string & s, const string & delims) :
+Tokenizer::Tokenizer(const string& s, const string& delims) :
   pimpl(new impl{})
 {
   pimpl->buf = s;
@@ -44,10 +44,10 @@ Tokenizer::Tokenizer(const string & s, const string & delims) :
   this->operator++();
 }
 
-void Tokenizer::SetDelimiters(const string & delims)
+void Tokenizer::SetDelimiters(const string& delims)
 {
   pimpl->delims.reset();
-  for (const char & ch : delims)
+  for (const char& ch : delims)
   {
     pimpl->delims.set(static_cast<unsigned char>(ch));
   }
@@ -67,7 +67,7 @@ string Tokenizer::operator*() const
   return pimpl->current;
 }
 
-Tokenizer & Tokenizer::operator++ ()
+Tokenizer& Tokenizer::operator++()
 {
   // TODO: MIKTEX_ASSERT(pimpl->next != nullptr);
   pimpl->current = pimpl->next;

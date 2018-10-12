@@ -37,34 +37,34 @@ public:
   Tokenizer() = delete;
 
 public:
-  Tokenizer(const Tokenizer & other) = delete;
+  Tokenizer(const Tokenizer& other) = delete;
 
 public:
-  Tokenizer & operator= (const Tokenizer & other) = delete;
+  Tokenizer& operator=(const Tokenizer& other) = delete;
 
 public:
-  Tokenizer(Tokenizer && other) = delete;
+  Tokenizer(Tokenizer&& other) = delete;
 
 public:
-  Tokenizer & operator= (Tokenizer && other) = delete;
+  Tokenizer& operator= (Tokenizer&& other) = delete;
 
 public:
   virtual MIKTEXUTILEXPORT MIKTEXTHISCALL ~Tokenizer() noexcept;
 
 public:
-  MIKTEXUTILEXPORT MIKTEXTHISCALL Tokenizer(const std::string & s, const std::string & delims);
+  MIKTEXUTILEXPORT MIKTEXTHISCALL Tokenizer(const std::string& s, const std::string& delims);
 
 public:
-  MIKTEXUTILTHISAPI(void) SetDelimiters(const std::string & delims);
+  MIKTEXUTILTHISAPI(void) SetDelimiters(const std::string& delims);
 
 public:
   MIKTEXUTILEXPORT MIKTEXTHISCALL operator bool() const;
 
 public:
-  MIKTEXUTILTHISAPI(std::string) operator* () const;
+  MIKTEXUTILTHISAPI(std::string) operator*() const;
 
 public:
-  MIKTEXUTILTHISAPI(Tokenizer &) operator++ ();
+  MIKTEXUTILTHISAPI(Tokenizer&) operator++();
 
 private:
   class impl;

@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -60,15 +60,16 @@ namespace MiKTeX {                              \
 
 BEGIN_INTERNAL_NAMESPACE;
 
-class UtilException : public std::exception
+class UtilException :
+  public std::exception
 {
 public:
-  UtilException(const char * msg) :
+  UtilException(const char* msg) :
     msg(msg)
   {
   }
 public:
-  const char * what() const noexcept override
+  const char* what() const noexcept override
   {
     return msg.c_str();
   }

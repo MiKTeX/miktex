@@ -1,6 +1,6 @@
 /* winStringUtil.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -21,7 +21,7 @@
 
 #include "internal.h"
 
-MIKTEXSTATICFUNC(wchar_t *) AnsiToWideChar(const char * source, wchar_t * dest, size_t destSize)
+MIKTEXSTATICFUNC(wchar_t *) AnsiToWideChar(const char* source, wchar_t* dest, size_t destSize)
 {
   if (*source == 0)
   {
@@ -41,7 +41,7 @@ MIKTEXSTATICFUNC(wchar_t *) AnsiToWideChar(const char * source, wchar_t * dest, 
   return dest;
 }
 
-string StringUtil::AnsiToUTF8(const char * ansi)
+string StringUtil::AnsiToUTF8(const char* ansi)
 {
   CharBuffer<wchar_t, 512> buf(strlen(ansi) + 1);
   return StringUtil::WideCharToUTF8(AnsiToWideChar(ansi, buf.GetData(), buf.GetCapacity()));
