@@ -59,14 +59,14 @@ static inline void uexit(int status)
 #endif
 
 #if defined(__cplusplus)
-inline void usagehelp(const char** lpszLines, const char* lpszBugEmail)
+inline void usagehelp(const char** lines, const char* bugEmail)
 {
-  miktex_usagehelp(lpszLines, lpszBugEmail);
+  miktex_usagehelp(lines, bugEmail);
 }
 #else
-static inline void usagehelp(const char** lpszLines, const char* lpszBugEmail)
+static inline void usagehelp(const char** lines, const char* bugEmail)
 {
-  miktex_usagehelp(lpszLines, lpszBugEmail);
+  miktex_usagehelp(lines, bugEmail);
 }
 #endif
 

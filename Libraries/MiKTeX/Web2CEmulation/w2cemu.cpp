@@ -50,33 +50,33 @@ namespace {
   PathName outputDirectory;
 }
 
-static void TranslateModeString(const char* lpszMode, FileMode& mode, FileAccess& access, bool& isTextFile)
+static void TranslateModeString(const char* modeString, FileMode& mode, FileAccess& access, bool& isTextFile)
 {
-  if (Utils::Equals(lpszMode, "r"))
+  if (Utils::Equals(modeString, "r"))
   {
     mode = FileMode::Open;
     access = FileAccess::Read;
     isTextFile = true;
   }
-  else if (Utils::Equals(lpszMode, "w"))
+  else if (Utils::Equals(modeString, "w"))
   {
     mode = FileMode::Create;
     access = FileAccess::Write;
     isTextFile = true;
   }
-  else if (Utils::Equals(lpszMode, "rb"))
+  else if (Utils::Equals(modeString, "rb"))
   {
     mode = FileMode::Open;
     access = FileAccess::Read;
     isTextFile = false;
   }
-  else if (Utils::Equals(lpszMode, "wb"))
+  else if (Utils::Equals(modeString, "wb"))
   {
     mode = FileMode::Create;
     access = FileAccess::Write;
     isTextFile = false;
   }
-  else if (Utils::Equals(lpszMode, "ab"))
+  else if (Utils::Equals(modeString, "ab"))
   {
     mode = FileMode::Append;
     access = FileAccess::Write;
@@ -88,67 +88,67 @@ static void TranslateModeString(const char* lpszMode, FileMode& mode, FileAccess
   }
 }
 
-static FILE* TryFOpen(const char* lpszFileName, const char* lpszMode)
+static FILE* TryFOpen(const char* path, const char* modeString)
 {
   shared_ptr<Session> session = Session::Get();
   FileMode mode(FileMode::Open);
   FileAccess access(FileAccess::Read);
   bool isTextFile;
-  TranslateModeString(lpszMode, mode, access, isTextFile);
-  return session->TryOpenFile(lpszFileName, mode, access, isTextFile);
+  TranslateModeString(modeString, mode, access, isTextFile);
+  return session->TryOpenFile(path, mode, access, isTextFile);
 }
 
-int Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* fopenMode)
+int Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* modeString)
 {
   PathName fileName(WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
-  char* lpszPath = miktex_kpathsea_find_file(kpse_def, fileName.GetData(), format, 0);
-  if (lpszPath == nullptr)
+  char* path = miktex_kpathsea_find_file(kpse_def, fileName.GetData(), format, 0);
+  if (path == nullptr)
   {
     return 0;
   }
   try
   {
-    *ppfile = TryFOpen(lpszPath, fopenMode);
+    *ppfile = TryFOpen(path, modeString);
   }
   catch (const exception&)
   {
-    MIKTEX_FREE(lpszPath);
+    MIKTEX_FREE(path);
     throw;
   }
   if (*ppfile != nullptr)
   {
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(lpszPath);
+    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(path);
   }
-  MIKTEX_FREE(lpszPath);
+  MIKTEX_FREE(path);
   return *ppfile == nullptr ? 0 : 1;
 }
 
-void Web2C::RecordFileName(const char* lpszPath, FileAccess access)
+void Web2C::RecordFileName(const char* path, FileAccess access)
 {
   shared_ptr<Session> session = Session::Get();
   if (miktex_web2c_recorder_enabled)
   {
     session->StartFileInfoRecorder();
   }
-  session->RecordFileInfo(lpszPath, access);
+  session->RecordFileInfo(path, access);
 }
 
-void miktex_web2c_record_file_name(const char* lpszPath, int reading)
+void miktex_web2c_record_file_name(const char* path, int reading)
 {
-  Web2C::RecordFileName(lpszPath, reading ? FileAccess::Read : FileAccess::Write);
+  Web2C::RecordFileName(path, reading ? FileAccess::Read : FileAccess::Write);
 }
 
-void Web2C::ChangeRecorderFileName(const char* lpszName)
+void Web2C::ChangeRecorderFileName(const char* fileName)
 {
   shared_ptr<Session> session = Session::Get();
-  PathName path(GetOutputDirectory(), lpszName);
+  PathName path(GetOutputDirectory(), fileName);
   path.AppendExtension(".fls");
   session->SetRecorderPath(path);
 }
 
-void miktex_web2c_change_recorder_file_name(const char* lpszPath)
+void miktex_web2c_change_recorder_file_name(const char* path)
 {
-  Web2C::ChangeRecorderFileName(lpszPath);
+  Web2C::ChangeRecorderFileName(path);
 }
 
 void Web2C::SetOutputDirectory(const PathName& path)
@@ -176,9 +176,9 @@ void Web2C::SetOutputDirectory(const PathName& path)
   session->AddInputDirectory(outputDirectory, true);
 }
 
-void miktex_web2c_set_output_directory(const char* lpszPath)
+void miktex_web2c_set_output_directory(const char* path)
 {
-  Web2C::SetOutputDirectory(lpszPath);
+  Web2C::SetOutputDirectory(path);
 }
 
 PathName Web2C::GetOutputDirectory()
