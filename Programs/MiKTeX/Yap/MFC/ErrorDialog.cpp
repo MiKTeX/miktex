@@ -205,50 +205,50 @@ string ErrorDialogImpl::CreateReport()
     {
       vector<string> invokerNames = Process::GetInvokerNames();
       s << "MiKTeX: "
-	<< Utils::GetMiKTeXVersionString() << endl
-	<< "OS: " << Utils::GetOSVersionString() << endl;
+        << Utils::GetMiKTeXVersionString() << endl
+        << "OS: " << Utils::GetOSVersionString() << endl;
       s << "Invokers: ";
       for (vector<string>::const_iterator it = invokerNames.begin(); it != invokerNames.end(); ++it)
       {
-	if (it != invokerNames.begin())
-	{
-	  s << "/";
-	}
-	s << *it;
+        if (it != invokerNames.begin())
+        {
+          s << "/";
+        }
+        s << *it;
       }
       s << endl;
       s << "SystemAdmin: " << (pSession->RunningAsAdministrator()
-	? T_("yes")
-	: T_("no"))
-	<< endl;
+        ? T_("yes")
+        : T_("no"))
+        << endl;
       s << "PowerUser: " << (pSession->RunningAsPowerUser()
-	? T_("yes")
-	: T_("no"))
-	<< endl;
+        ? T_("yes")
+        : T_("no"))
+        << endl;
       for (unsigned idx = 0; idx < pSession->GetNumberOfTEXMFRoots(); ++idx)
       {
-	PathName absFileName;
-	PathName root = pSession->GetRootDirectoryPath(idx);
-	s << "Root" << idx << ": " << root.GetData() << endl;
+        PathName absFileName;
+        PathName root = pSession->GetRootDirectoryPath(idx);
+        s << "Root" << idx << ": " << root.GetData() << endl;
       }
       s << "UserInstall: "
-	<< pSession->GetSpecialPath(SpecialPath::UserInstallRoot).GetData()
-	<< endl;
+        << pSession->GetSpecialPath(SpecialPath::UserInstallRoot).GetData()
+        << endl;
       s << "UserConfig: "
-	<< pSession->GetSpecialPath(SpecialPath::UserConfigRoot).GetData()
-	<< endl;
+        << pSession->GetSpecialPath(SpecialPath::UserConfigRoot).GetData()
+        << endl;
       s << "UserData: "
-	<< pSession->GetSpecialPath(SpecialPath::UserDataRoot).GetData()
-	<< endl;
+        << pSession->GetSpecialPath(SpecialPath::UserDataRoot).GetData()
+        << endl;
       s << "CommonInstall: "
-	<< pSession->GetSpecialPath(SpecialPath::CommonInstallRoot).GetData()
-	<< endl;
+        << pSession->GetSpecialPath(SpecialPath::CommonInstallRoot).GetData()
+        << endl;
       s << "CommonConfig: "
-	<< (pSession->GetSpecialPath(SpecialPath::CommonConfigRoot).GetData())
-	<< endl;
+        << (pSession->GetSpecialPath(SpecialPath::CommonConfigRoot).GetData())
+        << endl;
       s << "CommonData: "
-	<< pSession->GetSpecialPath(SpecialPath::CommonDataRoot).GetData()
-	<< endl;
+        << pSession->GetSpecialPath(SpecialPath::CommonDataRoot).GetData()
+        << endl;
     }
     catch (const exception&)
     {
