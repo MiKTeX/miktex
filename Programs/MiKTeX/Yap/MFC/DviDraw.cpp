@@ -242,7 +242,7 @@ void DviDraw::DrawDviBitmaps(CDC* pDC, DviDoc* pDoc, DviPage* pPage)
 #endif
 
 #if USE_BITBLT
-    HBITMAP hBitmap = CreateDIBitmap(pDC->GetSafeHdc(), &pBitmapInfo->bmiHeader, CBM_INIT, reinterpret_cast<const void*>(dvibm.pPixels), pBitmapInfo, pDoc->GetShrinkFactor() == 1 ? DIB_RGB_COLORS : DIB_PAL_COLORS);
+    HBITMAP hBitmap = CreateDIBitmap(pDC->GetSafeHdc(), &pBitmapInfo->bmiHeader, CBM_INIT, reinterpret_cast<const void*>(dvibm.pixels), pBitmapInfo, pDoc->GetShrinkFactor() == 1 ? DIB_RGB_COLORS : DIB_PAL_COLORS);
     if (hBitmap == nullptr)
     {
       MIKTEX_UNEXPECTED();
