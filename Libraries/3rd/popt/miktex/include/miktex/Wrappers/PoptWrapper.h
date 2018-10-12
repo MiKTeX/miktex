@@ -60,9 +60,9 @@ public:
   }
 
 public:
-  PoptWrapper(const char* lpszName, int argc, const char** argv, const struct poptOption* options, int flags = 0)
+  PoptWrapper(const char* name, int argc, const char** argv, const struct poptOption* options, int flags = 0)
   {
-    Construct(lpszName, argc, argv, options, flags);
+    Construct(name, argc, argv, options, flags);
   }
 
 public:
@@ -73,9 +73,9 @@ public:
 
 
 public:
-  void Construct(const char* lpszName, int argc, const char** argv, const struct poptOption* options, int flags = 0)
+  void Construct(const char* name, int argc, const char** argv, const struct poptOption* options, int flags = 0)
   {
-    ctx = poptGetContext(lpszName, argc, argv, options, flags);
+    ctx = poptGetContext(name, argc, argv, options, flags);
   }
 
 public:
