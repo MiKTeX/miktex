@@ -300,7 +300,6 @@ const char *version = "2.17";
 #  include <miktex/utf8wrap.h>
 #  include <miktex/unxemu.h>
 #endif
-
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
