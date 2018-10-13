@@ -18,7 +18,6 @@
    USA. */
 
 #include <climits>
-#include <cstdio>
 
 #if defined(_MSC_VER)
 #  pragma warning (push, 1)
