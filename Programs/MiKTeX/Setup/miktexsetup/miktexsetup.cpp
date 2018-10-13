@@ -63,17 +63,15 @@ using namespace std;
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-#if !defined(THE_NAME_OF_THE_GAME)
-#  define THE_NAME_OF_THE_GAME T_("MiKTeX Setup Utility")
-#endif
+const string THE_NAME_OF_THE_GAME = T_("MiKTeX Setup Utility");
 
-const char* DEFAULT_TRACE_STREAMS =
-MIKTEX_TRACE_CORE ","
-MIKTEX_TRACE_CURL ","
-MIKTEX_TRACE_ERROR ","
-MIKTEX_TRACE_FNDB ","
-MIKTEX_TRACE_MPM
-;
+const string DEFAULT_TRACE_STREAMS = StringUtil::Flatten({
+  MIKTEX_TRACE_CORE,
+  MIKTEX_TRACE_CURL,
+  MIKTEX_TRACE_ERROR,
+  MIKTEX_TRACE_FNDB,
+  MIKTEX_TRACE_MPM
+  }, ',');
 
 class Application :
   SetupServiceCallback
