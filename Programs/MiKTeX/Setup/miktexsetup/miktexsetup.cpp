@@ -147,10 +147,10 @@ private:
   static void SignalHandler(int sig);
 
 private:
-  unique_ptr<SetupService> pSetupService;
+  unique_ptr<SetupService> setupService;
 
 private:
-  shared_ptr<Session> pSession;
+  shared_ptr<Session> session;
 
 private:
   static const struct poptOption aoption[];
@@ -438,8 +438,8 @@ void Application::ListRepositories()
 
 void Application::PrintInfo()
 {
-  pSetupService->Initialize();
-  SetupOptions options = pSetupService->GetOptions();
+  setupService->Initialize();
+  SetupOptions options = setupService->GetOptions();
   string task;
   switch (options.Task)
   {
@@ -722,11 +722,11 @@ void Application::Main(int argc, const char** argv)
 
   //initInfo.AddOption(Session::InitOption::NoFixPath);
 
-  pSession = Session::Create(initInfo);
+  session = Session::Create(initInfo);
 
   if (optShared)
   {
-    pSession->SetAdminMode(true, true);
+    session->SetAdminMode(true, true);
   }
 
   if (optListRepositories)
@@ -747,8 +747,8 @@ void Application::Main(int argc, const char** argv)
     Error(T_("Too many arguments."));
   }
 
-  pSetupService = SetupService::Create();
-  SetupOptions setupOptions = pSetupService->GetOptions();
+  setupService = SetupService::Create();
+  SetupOptions setupOptions = setupService->GetOptions();
 
   if (leftovers[0] == "download")
   {
@@ -863,9 +863,9 @@ void Application::Main(int argc, const char** argv)
     setupOptions.PackageLevel = optPackageLevel;
   }
 
-  pSetupService->SetOptions(setupOptions);
+  setupService->SetOptions(setupOptions);
 
-  pSetupService->SetCallback(this);
+  setupService->SetCallback(this);
 
   if (optPrintInfoOnly)
   {
@@ -873,15 +873,15 @@ void Application::Main(int argc, const char** argv)
   }
   else
   {
-    if (setupOptions.IsCommonSetup && !pSession->IsAdminMode())
+    if (setupOptions.IsCommonSetup && !session->IsAdminMode())
     {
-      pSession->SetAdminMode(true, true);
+      session->SetAdminMode(true, true);
     }
-    pSetupService->Run();
+    setupService->Run();
   }
 
-  pSetupService = nullptr;
-  pSession = nullptr;
+  setupService = nullptr;
+  session = nullptr;
 }
 
 extern "C" void Application::SignalHandler(int signalToBeHandled)
