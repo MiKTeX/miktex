@@ -17,8 +17,6 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#include <climits>
-
 #if defined(_MSC_VER)
 #  pragma warning (push, 1)
 #  pragma warning (disable: 4702)
@@ -26,10 +24,6 @@
 
 #if defined(HAVE_CONFIG_H)
 #  include <config.h>
-#endif
-
-#if defined(_WIN32)
-#  include <Windows.h>
 #endif
 
 #include <algorithm>
@@ -58,10 +52,6 @@
 #include <miktex/Trace/Trace>
 #include <miktex/Util/StringUtil>
 #include <miktex/Wrappers/PoptWrapper>
-
-#if defined(MIKTEX_WINDOWS)
-#  include <MiKTeX/Core/Help>
-#endif
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
