@@ -402,7 +402,7 @@ bool Application::OnProcessOutput(const void* output, size_t n)
 class CountryComparer
 {
 public:
-  inline bool operator() (const RepositoryInfo& lhs, const RepositoryInfo& rhs)
+  inline bool operator()(const RepositoryInfo& lhs, const RepositoryInfo& rhs)
   {
     if (lhs.ranking == rhs.ranking)
     {
