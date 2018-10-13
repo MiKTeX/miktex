@@ -468,7 +468,7 @@ void Application::PrintInfo()
   default:
     break;
   }
-  printf("setup task: %s\n", task.c_str());
+  cout << "setup task: " << task << "\n";
   if (options.Task != SetupTask::CleanUp)
   {
     cout << "local package repository: " << Q_(options.LocalPackageRepository) << endl;
