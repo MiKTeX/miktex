@@ -13,7 +13,7 @@
       This package includes the MiKTeX TDS Utility for Windows 64-bit.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/tdsutil.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_TDSUTIL_EXECUTABLE}
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

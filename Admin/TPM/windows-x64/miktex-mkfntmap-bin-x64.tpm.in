@@ -13,7 +13,7 @@
       This package includes the MkFntMap executable.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/mkfntmap.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_MKFNTMAP_EXECUTABLE}
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

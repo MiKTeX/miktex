@@ -13,7 +13,7 @@
       This package contains the command-line variant of the MiKTeX package manager.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/mpm.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_MPM_EXECUTABLE}
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

@@ -68,12 +68,12 @@
 <!ENTITY date "${MIKTEX_CACHED_MONTH_NAME} ${MIKTEX_CACHED_MDAY}, ${MIKTEX_CACHED_YEAR}">
 <!ENTITY eTeX "<application>eTeX</application>">
 <!ENTITY encTeX "<application>encTeX</application>">
-<!ENTITY findtexmf "<command>findtexmf</command>">
+<!ENTITY findtexmf "<command>${MIKTEX_PROG_NAME_FINDTEXMF}</command>">
 <!ENTITY hellip "<symbol>&#8230;</symbol>">
 <!ENTITY hqbaseurl "${MIKTEX_HQ_BASE_URL}">
 <!ENTITY inimf "<command>inimf</command>">
 <!ENTITY initex "<command>initex</command>">
-<!ENTITY initexmf "<command>initexmf</command>">
+<!ENTITY initexmf "<command>${MIKTEX_PROG_NAME_INITEXMF}</command>">
 <!ENTITY macOS "<application>macOS</application>">
 <!ENTITY makeinfo "<command>makeinfo</command>">
 <!ENTITY miktexdvicopy "<command>${MIKTEX_PREFIX}dvicopy</command>">
@@ -84,12 +84,12 @@
 <!ENTITY miktexpdftex "<command>${MIKTEX_PREFIX}pdftex</command>">
 <!ENTITY miktexprefix "<filename>${MIKTEX_PREFIX}</filename>">
 <!ENTITY miktexrev "${MIKTEX_FULL_VERSION_STR}">
-<!ENTITY miktexsetup "<command>miktexsetup</command>">
+<!ENTITY miktexsetup "<command>${MIKTEX_PROG_NAME_SETUP}</command>">
 <!ENTITY miktextex "<command>${MIKTEX_PREFIX}tex</command>">
 <!ENTITY miktexxetex "<command>${MIKTEX_PREFIX}xetex</command>">
-<!ENTITY mpm "<command>mpm</command>">
-<!ENTITY mthelp "<command>mthelp</command>">
-<!ENTITY mtprint "<command>mtprint</command>">
+<!ENTITY mpm "<command>${MIKTEX_PROG_NAME_MPM}</command>">
+<!ENTITY mthelp "<command>${MIKTEX_PROG_NAME_MTHELP}</command>">
+<!ENTITY mtprint "<command>${MIKTEX_PROG_NAME_MTPRINT}</command>">
 <!ENTITY nbsp "<symbol>&#160;</symbol>">
 <!ENTITY ndash "<symbol>&#8211;</symbol>">
 <!ENTITY pTeX "<application>pTeX</application>">

@@ -14,7 +14,7 @@
       This package includes the GSF2PK executable.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/gsf2pk.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_GSF2PK_EXECUTABLE}
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

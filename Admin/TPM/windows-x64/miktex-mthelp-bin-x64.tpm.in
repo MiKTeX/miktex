@@ -13,7 +13,7 @@
       This package includes the mthelp executable.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/mthelp.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_MTHELP_EXECUTABLE}
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>
