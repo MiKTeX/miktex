@@ -20,8 +20,6 @@
 #include <climits>
 #include <cstdio>
 
-#include <stdarg.h>
-
 #if defined(_MSC_VER)
 #  pragma warning (push, 1)
 #  pragma warning (disable: 4702)
@@ -47,6 +45,8 @@
 #if defined(_MSC_VER)
 #  pragma warning (pop)
 #endif
+
+#include <fmt/format.h>
 
 #include "miktexsetup-version.h"
 
@@ -135,13 +135,13 @@ public:
   void Main(int argc, const char** argv);
 
 private:
-  void Verbose(const char* format, ...);
+  void Verbose(const string& s);
 
 private:
-  void Message(const char* format, ...);
+  void Message(const string& s);
 
 private:
-  MIKTEXNORETURN void Error(const char* format, ...);
+  MIKTEXNORETURN void Error(const string& s);
 
 private:
   static void SignalHandler(int sig);
@@ -347,42 +347,33 @@ const struct poptOption Application::aoption[] = {
 
 volatile sig_atomic_t Application::interrupted = false;
 
-void Application::Message(const char*  format, ...)
+void Application::Message(const string& s)
 {
   if (quiet)
   {
     return;
   }
-  va_list arglist;
-  VA_START(arglist, format);
-  cout << StringUtil::FormatStringVA(format, arglist) << endl;
-  VA_END(arglist);
+  cout << s << endl;
 }
 
-void Application::Verbose(const char* format, ...)
+void Application::Verbose(const string& s)
 {
   if (!verbose)
   {
     return;
   }
-  va_list arglist;
-  VA_START(arglist, format);
-  cout << StringUtil::FormatStringVA(format, arglist) << endl;
-  VA_END(arglist);
+  cout << s << endl;
 }
 
-MIKTEXNORETURN void Application::Error(const char* format, ...)
+MIKTEXNORETURN void Application::Error(const string& s)
 {
-  va_list arglist;
-  VA_START(arglist, format);
-  cerr << "miktexsetup: " << StringUtil::FormatStringVA(format, arglist) << endl;
-  VA_END(arglist);
+  cerr << "miktexsetup: " << s << endl;
   throw 1;
 }
 
 void Application::ReportLine(const string& str)
 {
-  Verbose("%s", str.c_str());
+  Verbose(str);
 }
 
 bool Application::OnRetryableError(const string& message)
@@ -701,7 +692,7 @@ void Application::Main(int argc, const char** argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    Error("%s", msg.c_str());
+    Error(msg);
   }
 
   if (optVersion)
@@ -739,7 +730,7 @@ void Application::Main(int argc, const char** argv)
 
   if (leftovers.empty())
   {
-    Error(T_("Nothing to do?\nTry '%s --help' for more information."), argv[0]);
+    Error(fmt::format(T_("Nothing to do?\nTry '{0} --help' for more information."), argv[0]));
   }
 
   if (leftovers.size() > 1)
@@ -774,7 +765,7 @@ void Application::Main(int argc, const char** argv)
   }
   else
   {
-    Error(T_("Unknown/unsupported setup task: %s"), leftovers[0].c_str());
+    Error(fmt::format(T_("Unknown/unsupported setup task: {0}"), leftovers[0]));
   }
 
   if (optShared)

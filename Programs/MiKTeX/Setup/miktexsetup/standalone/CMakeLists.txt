@@ -25,6 +25,12 @@ add_executable(${MIKTEX_PROG_NAME_SETUP_STANDALONE} ${miktexsetup_sources})
 
 set_property(TARGET ${MIKTEX_PROG_NAME_SETUP_STANDALONE} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+if (USE_SYSTEM_FMT)
+  target_link_libraries(${MIKTEX_PROG_NAME_SETUP_STANDALONE} MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${MIKTEX_PROG_NAME_SETUP_STANDALONE} ${fmt_lib_name})
+endif()
+
 target_link_libraries(${MIKTEX_PROG_NAME_SETUP_STANDALONE}
   ${core_lib_name}
   ${setup_lib_name}
