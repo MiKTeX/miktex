@@ -63,7 +63,11 @@ using namespace std;
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
+#if defined(MIKTEX_SETUP_STANDALONE)
+const string THE_NAME_OF_THE_GAME = T_("MiKTeX Setup Utility (Standalone)");
+#else
 const string THE_NAME_OF_THE_GAME = T_("MiKTeX Setup Utility");
+#endif
 
 const string DEFAULT_TRACE_STREAMS = StringUtil::Flatten({
   MIKTEX_TRACE_CORE,
