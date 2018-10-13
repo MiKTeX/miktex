@@ -404,9 +404,9 @@ public:
 
 void Application::ListRepositories()
 {
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pPackageManager = PackageManager::Create();
-  pPackageManager->DownloadRepositoryList();
-  vector<RepositoryInfo> repositories = pPackageManager->GetRepositories();
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager = PackageManager::Create();
+  packageManager->DownloadRepositoryList();
+  vector<RepositoryInfo> repositories = packageManager->GetRepositories();
   if (repositories.empty())
   {
     Message(T_("No package repositories are currently available."));
