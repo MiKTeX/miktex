@@ -154,6 +154,9 @@ private:
   shared_ptr<Session> session;
 
 private:
+  string programName;
+
+private:
   static const struct poptOption aoption[];
 
 private:
@@ -368,7 +371,7 @@ void Application::Verbose(const string& s)
 
 MIKTEXNORETURN void Application::Error(const string& s)
 {
-  cerr << "miktexsetup: " << s << endl;
+  cerr << fmt::format("{}: {}", programName, s) << endl;
   throw 1;
 }
 
@@ -528,6 +531,8 @@ void Application::PrintInfo()
 
 void Application::Main(int argc, const char** argv)
 {
+  programName = PathName(argv[0]).GetFileName().ToString();
+
   Session::InitInfo initInfo;
   initInfo.SetProgramInvocationName(argv[0]);
 
