@@ -71,7 +71,8 @@ using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
 
-#include "internal.h"
+#define T_(x) MIKTEXTEXT(x)
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #if !defined(THE_NAME_OF_THE_GAME)
 #  define THE_NAME_OF_THE_GAME T_("MiKTeX Setup Utility")

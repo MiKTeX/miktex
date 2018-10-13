@@ -27,7 +27,6 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 set(miktexsetup_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/miktexsetup-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/miktexsetup.cpp
 )
