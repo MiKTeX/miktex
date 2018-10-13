@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/Maker")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/MakeUtilities")
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
@@ -57,29 +57,30 @@ foreach(t ${exes})
       ${t}.rc
     )
   endif()
-  add_executable(${MIKTEX_PREFIX}${t} ${${t}_sources})
-  set_property(TARGET ${MIKTEX_PREFIX}${t} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  string(TOUPPER "${t}" _prog_name_u)
+  add_executable(${MIKTEX_PROG_NAME_${_prog_name_u}} ${${t}_sources})
+  set_property(TARGET ${MIKTEX_PROG_NAME_${_prog_name_u}} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   if(USE_SYSTEM_FMT)
-    target_link_libraries(${MIKTEX_PREFIX}${t} MiKTeX::Imported::FMT)
+    target_link_libraries(${MIKTEX_PROG_NAME_${_prog_name_u}} MiKTeX::Imported::FMT)
   else()
-    target_link_libraries(${MIKTEX_PREFIX}${t} ${fmt_dll_name})
+    target_link_libraries(${MIKTEX_PROG_NAME_${_prog_name_u}} ${fmt_dll_name})
   endif()
   if(USE_SYSTEM_LOG4CXX)
-    target_link_libraries(${MIKTEX_PREFIX}${t} MiKTeX::Imported::LOG4CXX)
+    target_link_libraries(${MIKTEX_PROG_NAME_${_prog_name_u}} MiKTeX::Imported::LOG4CXX)
   else()
-    target_link_libraries(${MIKTEX_PREFIX}${t} ${log4cxx_dll_name})
+    target_link_libraries(${MIKTEX_PROG_NAME_${_prog_name_u}} ${log4cxx_dll_name})
   endif()
-  target_link_libraries(${MIKTEX_PREFIX}${t}
+  target_link_libraries(${MIKTEX_PROG_NAME_${_prog_name_u}}
     ${app_dll_name}
     ${core_dll_name}
     ${texmf_dll_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(${MIKTEX_PREFIX}${t}
+    target_link_libraries(${MIKTEX_PROG_NAME_${_prog_name_u}}
       ${getopt_dll_name}
     )
   endif()
-  install(TARGETS ${MIKTEX_PREFIX}${t}
+  install(TARGETS ${MIKTEX_PROG_NAME_${_prog_name_u}}
     RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
     LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
     ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

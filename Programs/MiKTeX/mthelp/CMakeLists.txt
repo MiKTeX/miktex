@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/mthelp")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/${MIKTEX_PROG_NAME_MTHELP}")
 
 if(LINK_EVERYTHING_STATICALLY)
   use_static_crt()
@@ -62,24 +62,24 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(mthelp ${mthelp_sources})
+add_executable(${MIKTEX_PROG_NAME_MTHELP} ${mthelp_sources})
 
-set_property(TARGET mthelp PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PROG_NAME_MTHELP} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if(USE_SYSTEM_FMT)
-  target_link_libraries(mthelp MiKTeX::Imported::FMT)
+  target_link_libraries(${MIKTEX_PROG_NAME_MTHELP} MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(mthelp ${fmt_dll_name})
+  target_link_libraries(${MIKTEX_PROG_NAME_MTHELP} ${fmt_dll_name})
 endif()
 
-target_link_libraries(mthelp
+target_link_libraries(${MIKTEX_PROG_NAME_MTHELP}
   ${app_dll_name}
   ${core_dll_name}
   ${mpm_dll_name}
   miktex-popt-wrapper
 )
 
-install(TARGETS mthelp
+install(TARGETS ${MIKTEX_PROG_NAME_MTHELP}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
   ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/mkfntmap")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/${MIKTEX_PROG_NAME_MKFNTMAP}")
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -54,29 +54,29 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(mkfntmap ${mkfntmap_sources})
+add_executable(${MIKTEX_PROG_NAME_MKFNTMAP} ${mkfntmap_sources})
 
-set_property(TARGET mkfntmap PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PROG_NAME_MKFNTMAP} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if(USE_SYSTEM_FMT)
-  target_link_libraries(mkfntmap MiKTeX::Imported::FMT)
+  target_link_libraries(${MIKTEX_PROG_NAME_MKFNTMAP} MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(mkfntmap ${fmt_dll_name})
+  target_link_libraries(${MIKTEX_PROG_NAME_MKFNTMAP} ${fmt_dll_name})
 endif()
 
 if(USE_SYSTEM_LOG4CXX)
-  target_link_libraries(mkfntmap MiKTeX::Imported::LOG4CXX)
+  target_link_libraries(${MIKTEX_PROG_NAME_MKFNTMAP} MiKTeX::Imported::LOG4CXX)
 else()
-  target_link_libraries(mkfntmap ${log4cxx_dll_name})
+  target_link_libraries(${MIKTEX_PROG_NAME_MKFNTMAP} ${log4cxx_dll_name})
 endif()
 
-target_link_libraries(mkfntmap
+target_link_libraries(${MIKTEX_PROG_NAME_MKFNTMAP}
   ${app_dll_name}
   ${core_dll_name}
   miktex-popt-wrapper
 )
 
-install(TARGETS mkfntmap
+install(TARGETS ${MIKTEX_PROG_NAME_MKFNTMAP}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
   ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

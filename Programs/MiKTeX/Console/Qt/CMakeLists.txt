@@ -143,11 +143,11 @@ if(MIKTEX_MACOS_BUNDLE)
   get_filename_component(Qt_BIN_DIR "${Qt_BIN_DIR}" PATH)
 endif()
 
-add_executable(miktex-console WIN32 MACOSX_BUNDLE ${sources})
-set_property(TARGET miktex-console PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-target_link_libraries(miktex-console ${libs})  
+add_executable(${MIKTEX_PROG_NAME_CONSOLE} WIN32 MACOSX_BUNDLE ${sources})
+set_property(TARGET ${MIKTEX_PROG_NAME_CONSOLE} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_link_libraries(${MIKTEX_PROG_NAME_CONSOLE} ${libs})  
 if(MIKTEX_MACOS_BUNDLE)
-  set_target_properties(miktex-console
+  set_target_properties(${MIKTEX_PROG_NAME_CONSOLE}
     PROPERTIES
       OUTPUT_NAME ${MIKTEX_MACOS_BUNDLE_NAME}
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist.in"
@@ -197,11 +197,11 @@ if(MIKTEX_MACOS_BUNDLE)
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
-  add_executable(miktex-console${MIKTEX_ADMIN_SUFFIX} WIN32 ${sources})
-  set_property(TARGET miktex-console${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  add_link_flags(miktex-console${MIKTEX_ADMIN_SUFFIX} "/MANIFESTUAC:level='requireAdministrator'")
-  target_link_libraries(miktex-console${MIKTEX_ADMIN_SUFFIX} ${libs})
-  install(TARGETS miktex-console${MIKTEX_ADMIN_SUFFIX}
+  add_executable(${MIKTEX_PROG_NAME_CONSOLE_ADMIN} WIN32 ${sources})
+  set_property(TARGET ${MIKTEX_PROG_NAME_CONSOLE_ADMIN} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  add_link_flags(${MIKTEX_PROG_NAME_CONSOLE_ADMIN} "/MANIFESTUAC:level='requireAdministrator'")
+  target_link_libraries(${MIKTEX_PROG_NAME_CONSOLE_ADMIN} ${libs})
+  install(TARGETS ${MIKTEX_PROG_NAME_CONSOLE_ADMIN}
     RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
   )
 endif()
@@ -209,7 +209,7 @@ endif()
 if(MIKTEX_MACOS_BUNDLE)
   install(
     PROGRAMS
-      mac/miktex-console${MIKTEX_ADMIN_SUFFIX}
+      mac/miktex-console_admin
       mac/Terminal
     DESTINATION "${MIKTEX_MACOS_BUNDLE_DIR}/Resources"
   )

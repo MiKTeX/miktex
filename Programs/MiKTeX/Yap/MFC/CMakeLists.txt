@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/Yap")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/${MIKTEX_PROG_NAME_YAP}")
 
 set(CMAKE_MFC_FLAG 2)
 
@@ -158,19 +158,19 @@ add_custom_command(
   VERBATIM
 )
 
-add_executable(yap WIN32 ${yap_mfc_sources})
+add_executable(${MIKTEX_PROG_NAME_YAP} WIN32 ${yap_mfc_sources})
 
-set_property(TARGET yap PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PROG_NAME_YAP} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-add_link_flags(yap "/ENTRY:\"wWinMainCRTStartup\"")
+add_link_flags(${MIKTEX_PROG_NAME_YAP} "/ENTRY:\"wWinMainCRTStartup\"")
 
-target_link_libraries(yap
+target_link_libraries(${MIKTEX_PROG_NAME_YAP}
   ${core_dll_name}
   ${dvi_dll_name}
   miktex-popt-wrapper
 )
 
-install(TARGETS yap DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PROG_NAME_YAP} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(screenshots_dir ${CMAKE_CURRENT_SOURCE_DIR}/../Screenshots)
 

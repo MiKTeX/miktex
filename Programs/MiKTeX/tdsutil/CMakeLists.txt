@@ -46,14 +46,14 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(tdsutil ${tdsutil_sources})
+add_executable(${MIKTEX_PROG_NAME_TDSUTIL} ${tdsutil_sources})
 
-set_property(TARGET tdsutil PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PROG_NAME_TDSUTIL} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(tdsutil
+target_link_libraries(${MIKTEX_PROG_NAME_TDSUTIL}
   ${app_dll_name}
   ${core_dll_name}
   miktex-popt-wrapper
 )
 
-install(TARGETS tdsutil DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PROG_NAME_TDSUTIL} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

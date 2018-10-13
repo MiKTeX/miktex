@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/texify")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/${MIKTEX_PROG_NAME_TEXIFY}")
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -47,11 +47,11 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(texify ${mcd_sources})
+add_executable(${MIKTEX_PROG_NAME_TEXIFY} ${mcd_sources})
 
-set_property(TARGET texify PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PROG_NAME_TEXIFY} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(texify
+target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY}
     ${app_dll_name}
     ${core_dll_name}
     ${texmf_dll_name}
@@ -59,18 +59,18 @@ target_link_libraries(texify
 )
 
 if(USE_SYSTEM_FMT)
-  target_link_libraries(texify MiKTeX::Imported::FMT)
+  target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY} MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(texify ${fmt_dll_name})
+  target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY} ${fmt_dll_name})
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(texify
+  target_link_libraries(${MIKTEX_PROG_NAME_TEXIFY}
     ${regex_dll_name}
   )
 endif()
 
-install(TARGETS texify
+install(TARGETS ${MIKTEX_PROG_NAME_TEXIFY}
       RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
       LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
       ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}")

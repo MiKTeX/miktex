@@ -54,23 +54,23 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(mpm ${mpm_sources})
+add_executable(${MIKTEX_PROG_NAME_MPM} ${mpm_sources})
 
-set_property(TARGET mpm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PROG_NAME_MPM} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if(USE_SYSTEM_FMT)
-  target_link_libraries(mpm MiKTeX::Imported::FMT)
+  target_link_libraries(${MIKTEX_PROG_NAME_MPM} MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(mpm ${fmt_dll_name})
+  target_link_libraries(${MIKTEX_PROG_NAME_MPM} ${fmt_dll_name})
 endif()
 
 if(USE_SYSTEM_LOG4CXX)
-  target_link_libraries(mpm MiKTeX::Imported::LOG4CXX)
+  target_link_libraries(${MIKTEX_PROG_NAME_MPM} MiKTeX::Imported::LOG4CXX)
 else()
-  target_link_libraries(mpm ${log4cxx_dll_name})
+  target_link_libraries(${MIKTEX_PROG_NAME_MPM} ${log4cxx_dll_name})
 endif()
 
-target_link_libraries(mpm
+target_link_libraries(${MIKTEX_PROG_NAME_MPM}
   ${core_dll_name}
   ${mpm_dll_name}
   ${setup_dll_name}
@@ -78,7 +78,7 @@ target_link_libraries(mpm
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(mpm
+  target_link_libraries(${MIKTEX_PROG_NAME_MPM}
     Wldap32
     shlwapi
     wininet
@@ -87,4 +87,4 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-install(TARGETS mpm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PROG_NAME_MPM} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

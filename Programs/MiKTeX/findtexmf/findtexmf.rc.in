@@ -1,6 +1,6 @@
 /* findtexmf.rc: findtexmf resources                    -*- C++ -*-
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of FindTeXMF.
 
@@ -21,9 +21,9 @@
 
 #include "findtexmf-version.h"
 
-#define VER_INTERNALNAME_STR "findtexmf"
-#define VER_ORIGINALFILENAME_STR "findtexmf.exe"
+#define VER_INTERNALNAME_STR "${MIKTEX_PROG_NAME_FINDTEXMF}"
+#define VER_ORIGINALFILENAME_STR "${MIKTEX_FINDTEXMF_EXECUTABLE}"
 
-#define VER_FILEDESCRIPTION_STR "MiKTeX Finder"
+#define VER_FILEDESCRIPTION_STR "MiKTeX Find Utility"
 
 #include "miktex/win/version.rc"
