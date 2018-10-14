@@ -104,6 +104,7 @@ MIKTEX_TRACE_MPM
 ;
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("mpmcli"));
+static bool isLog4cxxConfigured = false;
 
 enum class OutputFormat
 {
@@ -310,9 +311,6 @@ private:
 
 private:
   string repository;
-
-private:
-  static bool isLog4cxxConfigured;
 
 private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
@@ -693,11 +691,13 @@ const struct poptOption Application::aoption[] = {
 };
 
 volatile sig_atomic_t Application::interrupted = false;
-bool Application::isLog4cxxConfigured = false;
 
 void Application::Message(const string& s)
 {
-  LOG4CXX_INFO(logger, s);
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_INFO(logger, s);
+  }
   if (!quiet)
   {
     cout << s << endl;
@@ -706,7 +706,10 @@ void Application::Message(const string& s)
 
 void Application::Verbose(const string& s)
 {
-  LOG4CXX_INFO(logger, s);
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_INFO(logger, s);
+  }
   if (verbose)
   {
     cout << s << endl;
@@ -715,7 +718,10 @@ void Application::Verbose(const string& s)
 
 void Application::Warn(const string& s)
 {
-  LOG4CXX_WARN(logger, s);
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_WARN(logger, s);
+  }
   cout << T_("Warning:") << " " << s << endl;
 }
 
@@ -768,7 +774,10 @@ void Application::Sorry(const string& description, const string& remedy, const s
 
 MIKTEXNORETURN void Application::Error(const string& s)
 {
-  LOG4CXX_FATAL(logger, s);
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_FATAL(logger, s);
+  }
   Sorry(s, "", "");
   throw 1;
 }
@@ -2111,17 +2120,23 @@ int MAIN(int argc, MAINCHAR* argv[])
   }
   catch (const MiKTeXException& e)
   {
-    LOG4CXX_FATAL(logger, e.GetErrorMessage());
-    LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
-    LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
-    LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
+    if (isLog4cxxConfigured)
+    {
+      LOG4CXX_FATAL(logger, e.GetErrorMessage());
+      LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
+      LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
+      LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
+    }
     Application::Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
     e.Save();
     retCode = 1;
   }
   catch (const exception& e)
   {
-    LOG4CXX_FATAL(logger, e.what());
+    if (isLog4cxxConfigured)
+    {
+      LOG4CXX_FATAL(logger, e.what());
+    }
     Application::Sorry();
     retCode = 1;
   }
