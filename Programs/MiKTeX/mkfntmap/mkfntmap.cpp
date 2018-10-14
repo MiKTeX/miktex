@@ -987,7 +987,7 @@ bool MIKTEXTHISCALL MakeFontMapApp::OnProcessOutput(const void* output, size_t n
     char ch = text[idx];
     if (ch == '\r')
     {
-      if (idx < n)
+      if (idx < n - 1)
       {
         ++idx;
         ch = text[idx];
