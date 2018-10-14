@@ -722,7 +722,7 @@ void Application::Warn(const string& s)
   {
     LOG4CXX_WARN(logger, s);
   }
-  cout << T_("Warning:") << " " << s << endl;
+  cerr << T_("Warning:") << " " << s << endl;
 }
 
 void Application::Sorry(const string& description, const string& remedy, const string& url)
