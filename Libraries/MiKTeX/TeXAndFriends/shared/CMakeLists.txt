@@ -21,12 +21,6 @@ hide_symbols()
 
 set(${texmf_dll_name}_sources ${texmf_sources})
 
-if(MIKTEX_NATIVE_WINDOWS AND MSVC AND NOT CMAKE_CL_64)
-  list(APPEND ${texmf_dll_name}_sources
-    ../mfmpi386asm.cpp
-  )
-endif()
-
 if(MIKTEX_NATIVE_WINDOWS)
   configure_file(
     ../texmf.rc.in

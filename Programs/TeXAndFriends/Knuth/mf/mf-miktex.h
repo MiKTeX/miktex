@@ -240,36 +240,20 @@ inline void miktexfreememory()
 
 inline C4P::C4P_integer makefraction(C4P::C4P_integer p, C4P::C4P_integer q)
 {
-#if defined(MIKTEXMFAPI_USE_ASM)
-  return MiKTeX::TeXAndFriends::MakeFraction(p, q, MFPROG.aritherror);
-#else
   return MFPROG.makefractionorig(p, q);
-#endif
 }
 
 inline C4P::C4P_integer makescaled(C4P::C4P_integer p, C4P::C4P_integer q)
 {
-#if 0 && defined(MIKTEXMFAPI_USE_ASM)
-  return MiKTeX::TeXAndFriends::MakeScaled(p, q, MFPROG.aritherror);
-#else
   return MFPROG.makescaledorig(p, q);
-#endif
 }
 
 inline C4P::C4P_integer takefraction(C4P::C4P_integer p, C4P::C4P_integer q)
 {
-#if defined(MIKTEXMFAPI_USE_ASM)
-  return MiKTeX::TeXAndFriends::TakeFraction(p, q, MFPROG.aritherror);
-#else
   return MFPROG.takefractionorig(p, q);
-#endif
 }
 
 inline C4P::C4P_integer takescaled(C4P::C4P_integer p, C4P::C4P_integer q)
 {
-#if defined(MIKTEXMFAPI_USE_ASM)
-  return MiKTeX::TeXAndFriends::TakeScaled(p, q, MFPROG.aritherror);
-#else
   return MFPROG.takescaledorig(p, q);
-#endif
 }

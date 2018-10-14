@@ -43,26 +43,6 @@ MIKTEXMFCEEAPI(int) OpenXFMFile(void* ptr, const MiKTeX::Core::PathName& fileNam
 
 MIKTEXMFCEEAPI(int) OpenXVFFile(void* ptr, const MiKTeX::Core::PathName& fileName);
 
-#if defined(MIKTEX_WINDOWS_32)
-#  define MIKTEXMFAPI_USE_ASM 1
-#endif
-
-#if defined(MIKTEXMFAPI_USE_ASM)
-MIKTEXMFAPI_(int, __stdcall) TakeFraction(int p, int q, bool& arithError);
-#endif
-
-#if defined(MIKTEXMFAPI_USE_ASM)
-MIKTEXMFAPI_(int, __stdcall) TakeScaled(int p, int q, bool& arithError);
-#endif
-
-#if defined(MIKTEXMFAPI_USE_ASM)
-MIKTEXMFAPI_(int, __stdcall) MakeFraction(int p, int q, bool& arithError);
-#endif
-
-#if defined(MIKTEXMFAPI_USE_ASM)
-MIKTEXMFAPI_(int, __stdcall) MakeScaled(int p, int q, bool& arithError);
-#endif
-
 MIKTEXMF_END_NAMESPACE;
 
 #endif
