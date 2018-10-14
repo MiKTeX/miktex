@@ -1074,7 +1074,10 @@ public:
   {
     try
     {
-      Close();
+      if (stream != nullptr)
+      {
+        Close();
+      }
     }
     catch (const exception&)
     {
