@@ -324,7 +324,7 @@ private:
   }
 
 private:
-  bool OnProcessOutput(const void* pOutput, size_t n) override;
+  bool OnProcessOutput(const void* output, size_t n) override;
 
 private:
   string currentProcessOutputLine;
@@ -979,18 +979,18 @@ void MakeFontMapApp::ParseDvipsMapFile(const PathName& mapFile, set<FontMapEntry
   reader.Close();
 }
 
-bool MIKTEXTHISCALL MakeFontMapApp::OnProcessOutput(const void* pOutput, size_t n)
+bool MIKTEXTHISCALL MakeFontMapApp::OnProcessOutput(const void* output, size_t n)
 {
-  const char* pText = (const char*)pOutput;
+  const char* text = (const char*)output;
   for (size_t idx = 0; idx < n; ++idx)
   {
-    char ch = pText[idx];
+    char ch = text[idx];
     if (ch == '\r')
     {
       if (idx < n)
       {
         ++idx;
-        ch = pText[idx];
+        ch = text[idx];
       }
     }
     if (ch == '\n')
