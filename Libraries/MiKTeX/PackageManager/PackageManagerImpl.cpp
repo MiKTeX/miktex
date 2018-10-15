@@ -1066,8 +1066,8 @@ PackageInfo PackageManager::ReadPackageDefinitionFile(const PathName& path, cons
 class XmlWriter
 {
 public:
-  XmlWriter(const PathName& path)
-    : stream(File::CreateOutputStream(path))
+  XmlWriter(const PathName& path) :
+    stream(File::CreateOutputStream(path))
   {
     stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << "\n";
   }
