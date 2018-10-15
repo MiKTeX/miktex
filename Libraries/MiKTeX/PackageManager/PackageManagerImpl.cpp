@@ -23,9 +23,12 @@
 
 #include <cstdarg>
 
+#include <fstream>
 #include <future>
 #include <locale>
 #include <unordered_set>
+
+#include <fmt/format.h>
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
@@ -1064,57 +1067,33 @@ class XmlWriter
 {
 public:
   XmlWriter(const PathName& path)
-    : stream(File::Open(path, FileMode::Create, FileAccess::Write, false))
+    : stream(File::CreateOutputStream(path))
   {
-    FPutS("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n", stream);
-  }
-
-public:
-  ~XmlWriter()
-  {
-    try
-    {
-      if (stream != nullptr)
-      {
-        Close();
-      }
-    }
-    catch (const exception&)
-    {
-    }
+    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << "\n";
   }
 
 public:
   void Close()
   {
-    if (fclose(stream) != 0)
-    {
-      MIKTEX_FATAL_CRT_ERROR("fclose");
-    }
-    stream = nullptr;
+    stream.close();
   }
 
 public:
-  void StartElement(const char* lpszName)
+  void StartElement(const string& name)
   {
     if (freshElement)
     {
-      FPutC('>', stream);
+      stream << '>';
     }
-    FPutC('<', stream);
-    FPutS(lpszName, stream);
+    stream << fmt::format("<{}", name);
     freshElement = true;
-    elements.push(lpszName);
+    elements.push(name);
   }
 
 public:
-  void AddAttribute(const char* lpszAttributeName, const char* lpszAttributeValue)
+  void AddAttribute(const string& name, const string& value)
   {
-    FPutC(' ', stream);
-    FPutS(lpszAttributeName, stream);
-    FPutS("=\"", stream);
-    FPutS(lpszAttributeValue, stream);
-    FPutC('"', stream);
+    stream << fmt::format(" {}=\"{}\"", name, value);
   }
 
 public:
@@ -1126,14 +1105,12 @@ public:
     }
     if (freshElement)
     {
-      FPutS("/>", stream);
+      stream << "/>";
       freshElement = false;
     }
     else
     {
-      FPutS("</", stream);
-      FPutS(elements.top().c_str(), stream);
-      FPutC('>', stream);
+      stream << fmt::format("</{}>", elements.top());
     }
     elements.pop();
   }
@@ -1152,7 +1129,7 @@ public:
   {
     if (freshElement)
     {
-      FPutC('>', stream);
+      stream << '>';
       freshElement = false;
     }
     for (const char& ch : text)
@@ -1160,23 +1137,23 @@ public:
       switch (ch)
       {
       case '&':
-        FPutS("&amp;", stream);
+        stream << "&amp;";
         break;
       case '<':
-        FPutS("&lt;", stream);
+        stream << "&lt;";
         break;
       case '>':
-        FPutS("&gt;", stream);
+        stream << "&gt;";
         break;
       default:
-        FPutC(ch, stream);
+        stream << ch;
         break;
       }
     }
   }
 
 private:
-  FILE* stream;
+  ofstream stream;
 
 private:
   stack<string> elements;

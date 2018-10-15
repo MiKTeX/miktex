@@ -81,6 +81,12 @@ else()
   target_link_libraries(${mpm_dll_name} PRIVATE ${expat_dll_name})
 endif()
 
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${mpm_dll_name} PRIVATE MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${mpm_dll_name} PRIVATE ${fmt_dll_name})
+endif()
+
 if(USE_SYSTEM_CURL)
   target_link_libraries(${mpm_dll_name} PRIVATE MiKTeX::Imported::CURL)
 else()
