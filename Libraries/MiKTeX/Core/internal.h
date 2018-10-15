@@ -40,10 +40,10 @@
 #include <openssl/x509.h>
 #endif
 
+#include <miktex/Trace/TraceStream>
 
 #include "miktex/Core/Quoter.h"
 #include "miktex/Core/Session.h"
-#include <miktex/Trace/TraceStream>
 
 #if MIKTEX_UNIX
 #  define NO_REGISTRY 1
@@ -105,7 +105,7 @@ BEGIN_INTERNAL_NAMESPACE;
   __assume(false)
 #else
 #define UNSUPPORTED_PLATFORM()                                          \
-  MIKTEX_ASSERT (false)
+  MIKTEX_ASSERT(false)
 #endif
 
 #define T_(x) MIKTEXTEXT(x)
@@ -162,9 +162,9 @@ const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
 
-const char * const RECURSION_INDICATOR = "//";
+const char* const RECURSION_INDICATOR = "//";
 const size_t RECURSION_INDICATOR_LENGTH = 2;
-const char * const SESSIONSVC = "sessionsvc";
+const char* const SESSIONSVC = "sessionsvc";
 
 // The virtual TEXMF root MPM_ROOT_PATH is assigned to the MiKTeX
 // package manager.  We make sure that MPM_ROOT_PATH is a valid path
@@ -173,12 +173,12 @@ const char * const SESSIONSVC = "sessionsvc";
 #if defined(MIKTEX_WINDOWS)
 // An UNC path with an impossible share name suits our needs: `['
 // isn't a valid character in a share name (KB236388)
-const char * const COMMON_MPM_ROOT_PATH = "\\\\MiKTeX\\[MPM]";
-const char * const USER_MPM_ROOT_PATH = "\\\\MiKTeX\\]MPM[";
+const char* const COMMON_MPM_ROOT_PATH = "\\\\MiKTeX\\[MPM]";
+const char* const USER_MPM_ROOT_PATH = "\\\\MiKTeX\\]MPM[";
 const size_t MPM_ROOT_PATH_LEN_ = 14;
 #else
-const char * const COMMON_MPM_ROOT_PATH = "//MiKTeX/[MPM]";
-const char * const USER_MPM_ROOT_PATH = "//MiKTeX/]MPM[";
+const char* const COMMON_MPM_ROOT_PATH = "//MiKTeX/[MPM]";
+const char* const USER_MPM_ROOT_PATH = "//MiKTeX/]MPM[";
 const size_t MPM_ROOT_PATH_LEN_ = 14;
 #endif
 
@@ -206,21 +206,29 @@ using EVP_MD_CTX_ptr = std::unique_ptr<EVP_MD_CTX, decltype(&::EVP_MD_CTX_free)>
 using EVP_PKEY_ptr = std::unique_ptr<EVP_PKEY, decltype(&::EVP_PKEY_free)>;
 using RSA_ptr = std::unique_ptr<RSA, decltype(&::RSA_free)>;
 void FatalOpenSSLError();
-RSA_ptr LoadPublicKey_OpenSSL(const MiKTeX::Core::PathName & publicKeyFile);
+RSA_ptr LoadPublicKey_OpenSSL(const MiKTeX::Core::PathName& publicKeyFile);
 #endif
 
-void AppendDirectoryDelimiter(std::string & path);
-void AppendDirectoryDelimiter(char * lpszPath, size_t size);
-void CopyString2(char * lpszBuf, size_t bufSize, const char * lpszSource, size_t count);
-void CreateDirectoryPath(const MiKTeX::Core::PathName & path);
-bool FileIsOnROMedia(const char * lpszPath);
-bool GetCrtErrorMessage(int functionResult, std::string & errorMessage);
-MiKTeX::Core::PathName GetFullPath(const char * lpszPath);
+void AppendDirectoryDelimiter(std::string& path);
+
+void AppendDirectoryDelimiter(char* path, size_t size);
+
+void CopyString2(char* destBuf, size_t destBufSize, const char* sourceBuf, size_t count);
+
+void CreateDirectoryPath(const MiKTeX::Core::PathName& path);
+
+bool FileIsOnROMedia(const char* path);
+
+bool GetCrtErrorMessage(int functionResult, std::string& errorMessage);
+
+MiKTeX::Core::PathName GetFullPath(const char* path);
+
 MiKTeX::Core::PathName GetHomeDirectory();
+
 bool FixProgramSearchPath(const std::string& oldPath, const MiKTeX::Core::PathName& binDir_, bool checkCompetition, std::string& newPath, bool& competition);
 
 #if defined(MIKTEX_WINDOWS)
-bool GetUserProfileDirectory(MiKTeX::Core::PathName & path);
+bool GetUserProfileDirectory(MiKTeX::Core::PathName& path);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
@@ -228,39 +236,46 @@ void SetTimesInternal(HANDLE handle, time_t creationTime, time_t lastAccessTime,
 #endif
 
 #if defined(MIKTEX_WINDOWS)
-bool GetWindowsFontsDirectory(MiKTeX::Core::PathName & path);
+bool GetWindowsFontsDirectory(MiKTeX::Core::PathName& path);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
-bool GetWindowsErrorMessage(unsigned long functionResult, std::string & errorMessage);
+bool GetWindowsErrorMessage(unsigned long functionResult, std::string& errorMessage);
 #endif
 
-const char * GetFileNameExtension(const char * lpszPath);
+const char* GetFileNameExtension(const char* path);
+
 enum class CryptoLib
 {
   None,
   OpenSSL
 };
+
 CryptoLib GetCryptoLib();
-bool HaveEnvironmentString(const char * lpszName);
-bool GetEnvironmentString(const std::string & name, std::string & value);
-bool IsExplicitlyRelativePath(const char * lpszPath);
-std::string MakeSearchPath(const std::vector<MiKTeX::Core::PathName> & vec);
-void RemoveDirectoryDelimiter(char * lpszPath);
+
+bool HaveEnvironmentString(const char* name);
+
+bool GetEnvironmentString(const std::string& name, std::string& value);
+
+bool IsExplicitlyRelativePath(const char* path);
+
+std::string MakeSearchPath(const std::vector<MiKTeX::Core::PathName>& vec);
+
+void RemoveDirectoryDelimiter(char* path);
 
 #if defined(MIKTEX_WINDOWS) && REPORT_EVENTS
 bool ReportMiKTeXEvent(unsigned short eventType, unsigned long eventId, ...);
 #endif
 
-void TraceError(const char * lpszFormat, ...);
+void TraceError(const char* format, ...);
 
 #if defined(MIKTEX_WINDOWS)
-void TraceWindowsError(const char * lpszWindowsFunction, unsigned long functionResult, const char * lpszInfo, const char * lpszSourceFile, int lpszSourceLine);
+void TraceWindowsError(const char* windowsFunction, unsigned long functionResult, const char* info, const char* sourceFileName, int sourceLine);
 #endif
 
-const char * GetShortSourceFile(const char * lpszSourceFile);
+const char* GetShortSourceFile(const char* sourceFileName);
 
-inline void DbgView(const std::string & s)
+inline void DbgView(const std::string& s)
 {
 #if defined(_WIN32)
   OutputDebugStringW(UW_("MiKTeX Core: " + s));
@@ -273,7 +288,7 @@ inline bool AdminControlsUserConfig()
 #if 1
   return true;
 #else
-  const char * lpsz = getenv("MIKTEX_ADMIN_CONTROLS_USER_CONFIG");
+  const char* lpsz = getenv("MIKTEX_ADMIN_CONTROLS_USER_CONFIG");
   return lpsz != 0 && strcmp(lpsz, "t") == 0;
 #endif
 #else
@@ -295,7 +310,7 @@ public:
 template<class VALTYPE> class AutoRestore
 {
 public:
-  AutoRestore(VALTYPE & val) :
+  AutoRestore(VALTYPE& val) :
     oldVal(val),
     pVal(&val)
   {
@@ -311,7 +326,7 @@ private:
   VALTYPE oldVal;
 
 private:
-  VALTYPE * pVal;
+  VALTYPE* pVal;
 };
 
 template<class VALTYPE> class Optional
@@ -322,7 +337,7 @@ public:
   {
   }
 public:
-  Optional(const VALTYPE & value) :
+  Optional(const VALTYPE& value) :
     value(value),
     hasValue(true)
   {
@@ -338,7 +353,7 @@ public:
     return HasValue();
   }
 public:
-  const VALTYPE & GetValue () const
+  const VALTYPE& GetValue() const
   {
     if (!hasValue)
     {
@@ -347,7 +362,7 @@ public:
     return value;
   }
 public:
-  const VALTYPE & operator * () const
+  const VALTYPE& operator*() const
   {
     return GetValue();
   }
@@ -360,18 +375,18 @@ private:
 struct StringComparerIgnoringCase :
   public std::binary_function<std::string, std::string, bool>
 {
-  bool operator() (const std::string & lhs, const std::string & rhs) const
+  bool operator()(const std::string& lhs, const std::string& rhs) const
   {
     return MiKTeX::Util::StringCompare(lhs.c_str(), rhs.c_str(), true) < 0;
   }
 };
 
-inline FILE * FdOpen(const MiKTeX::Core::PathName & path, int fd, const char * lpszMode)
+inline FILE* FdOpen(const MiKTeX::Core::PathName& path, int fd, const char* mode)
 {
 #if defined(_MSC_VER)
-  FILE * stream = _fdopen(fd, lpszMode);
+  FILE* stream = _fdopen(fd, mode);
 #else
-  FILE * stream = fdopen(fd, lpszMode);
+  FILE* stream = fdopen(fd, mode);
 #endif
   if (stream == nullptr)
   {
@@ -380,12 +395,12 @@ inline FILE * FdOpen(const MiKTeX::Core::PathName & path, int fd, const char * l
   return stream;
 }
 
-inline FILE * FdOpen(int fd, const char * lpszMode)
+inline FILE* FdOpen(int fd, const char* mode)
 {
 #if defined(_MSC_VER)
-  FILE * stream = _fdopen(fd, lpszMode);
+  FILE* stream = _fdopen(fd, mode);
 #else
-  FILE * stream = fdopen(fd, lpszMode);
+  FILE* stream = fdopen(fd, mode);
 #endif
   if (stream == nullptr)
   {
