@@ -218,9 +218,6 @@ public:
 public:
   MiKTeX::Packages::PackageInfo* DefinePackage(const std::string& deploymentName, const MiKTeX::Packages::PackageInfo& packageinfo);
 
-public:
-  void TraceError(const char* lpszFormat, ...);
-
 private:
   void LoadVariablePackageTable();
 

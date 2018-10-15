@@ -890,14 +890,6 @@ void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, 
   SetDefaultPackageRepository(repository);
 }
 
-void PackageManagerImpl::TraceError(const char* lpszFormat, ...)
-{
-  va_list marker;
-  va_start(marker, lpszFormat);
-  trace_error->VTrace("libmpm", lpszFormat, marker);
-  va_end(marker);
-}
-
 namespace {
 
   typedef unordered_set<string, hash_path, equal_path> SubDirectoryTable;
