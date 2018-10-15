@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#include <cstdarg>
-
 #include <fstream>
 #include <future>
 #include <locale>
