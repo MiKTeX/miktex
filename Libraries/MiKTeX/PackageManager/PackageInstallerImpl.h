@@ -438,7 +438,7 @@ private:
   MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState = MiKTeX::Packages::RepositoryReleaseState::Unknown;
 
 private:
-  void ReportLine(const char* lpsz, ...);
+  void ReportLine(const std::string& s);
 
 private:
   std::string MakeUrl(const std::string& relPath);

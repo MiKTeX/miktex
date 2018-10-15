@@ -23,6 +23,9 @@
 
 #include <unordered_set>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/FileStream>
@@ -166,11 +169,11 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
 
   if (expectedSize > 0)
   {
-    ReportLine(T_("downloading %s (expecting %u bytes)..."), Q_(url), static_cast<unsigned>(expectedSize));
+    ReportLine(fmt::format(T_("downloading {0} (expecting {1} bytes)..."), Q_(url), expectedSize));
   }
   else
   {
-    ReportLine(T_("downloading %s..."), Q_(url));
+    ReportLine(fmt::format(T_("downloading {0}..."), Q_(url)));
   }
 
   // open the remote file
@@ -236,7 +239,7 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
   double mb = Divide(received, 1000000);
   double seconds = Divide(end - start, CLOCKS_PER_SEC);
   trace_mpm->WriteFormattedLine("libmpm", T_("downloaded %.2f MB in %.2f seconds"), mb, seconds);
-  ReportLine(T_("%.2f MB, %.2f Mbit/s"), mb, Divide(8 * mb, seconds));
+  ReportLine(fmt::format(T_("{0:.2f} MB, {1:.2f} Mbit/s"), mb, Divide(8 * mb, seconds)));
 
   if (expectedSize > 0 && expectedSize != received)
   {
@@ -317,14 +320,14 @@ void PackageInstallerImpl::InstallDbLight()
     repositoryType = RepositoryType::Remote;
   }
 
-  ReportLine(T_("visiting repository %s..."), Q_(repository));
-  ReportLine(T_("repository type: %s"), (repositoryType == RepositoryType::Remote
+  ReportLine(fmt::format(T_("visiting repository {0}..."), Q_(repository)));
+  ReportLine(fmt::format(T_("repository type: {0}"), (repositoryType == RepositoryType::Remote
     ? T_("remote package repository")
     : (repositoryType == RepositoryType::Local
       ? T_("local package repository")
       : (repositoryType == RepositoryType::MiKTeXInstallation
         ? "other MiKTeX installation"
-        : "MiKTeXDirect"))));
+        : "MiKTeXDirect")))));
 
   // path to config dir
   PathName pathConfigDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_MIKTEX_CONFIG_DIR);
@@ -439,7 +442,7 @@ void PackageInstallerImpl::LoadDbLight(bool download)
 #if 0
   MD5 md5 = MD5::FromFile(pathMpmIni.GetData());
 #endif
-  ReportLine(T_("lightweight database digest: %s"), dbLight.GetDigest().ToString().c_str());
+  ReportLine(fmt::format(T_("lightweight database digest: {0}"), dbLight.GetDigest().ToString()));
 }
 
 int CompareSerieses(const string& ver1, const string& ver2)
@@ -832,7 +835,7 @@ void PackageInstallerImpl::RemovePackage(const string& deploymentName)
 
   // notify client
   Notify(Notification::RemovePackageStart);
-  ReportLine(T_("removing package %s..."), Q_(deploymentName));
+  ReportLine(fmt::format(T_("removing package {0}..."), Q_(deploymentName)));
 
   // get package info
   PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
@@ -1200,7 +1203,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
   {
     // unpack the archive file
-    ReportLine(T_("extracting files from %s..."), Q_(deploymentName + MiKTeX::Extractor::Extractor::GetFileNameExtension(aft).c_str()));
+    ReportLine(fmt::format(T_("extracting files from {0}..."), Q_(deploymentName + MiKTeX::Extractor::Extractor::GetFileNameExtension(aft))));
     ExtractFiles(pathArchiveFile, aft);
   }
   else if (repositoryType == RepositoryType::MiKTeXDirect)
@@ -1213,7 +1216,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   else if (repositoryType == RepositoryType::MiKTeXInstallation)
   {
     // import from another MiKTeX installation
-    ReportLine(T_("importing package %s..."), deploymentName.c_str());
+    ReportLine(fmt::format(T_("importing package {0}..."), deploymentName));
     PathName pathSourceRoot(repository);
     CopyPackage(pathSourceRoot, deploymentName);
   }
@@ -1365,12 +1368,12 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
 
   if (package.cbDownloadTotal > 0)
   {
-    ReportLine(T_("going to download %u bytes"), package.cbDownloadTotal);
+    ReportLine(fmt::format(T_("going to download {0} bytes"), package.cbDownloadTotal));
   }
 
   if (!downloadOnly && !toBeInstalled.empty())
   {
-    ReportLine(T_("going to install %u file(s) (%u package(s))"), package.cFilesInstallTotal, package.cPackagesInstallTotal);
+    ReportLine(fmt::format(T_("going to install {0} file(s) ({1} package(s))"), package.cFilesInstallTotal, package.cPackagesInstallTotal));
   }
 
   if (!downloadOnly && !toBeRemoved.empty())
@@ -1387,7 +1390,7 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
       package.cFilesRemoveTotal += removeCandidate->GetNumFiles();
     }
 
-    ReportLine(T_("going to remove %u file(s) (%u package(s))"), package.cFilesRemoveTotal, package.cPackagesRemoveTotal);
+    ReportLine(fmt::format(T_("going to remove {0} file(s) ({1} package(s))"), package.cFilesRemoveTotal, package.cPackagesRemoveTotal));
   }
 
   lock_guard<mutex> lockGuard(progressIndicatorMutex);
@@ -1489,7 +1492,7 @@ void PackageInstallerImpl::ConnectToServer()
 void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& path, bool mustSucceed)
 {
   MIKTEX_ASSERT(!session->IsMiKTeXPortable());
-  ReportLine("%s %s", (doRegister ? "registering" : "unregistering"), path.GetData());
+  ReportLine(fmt::format("{0} {1}", (doRegister ? "registering" : "unregistering"), path));
 #if !USE_REGSVR32
   MIKTEX_ASSERT(path.HasExtension(MIKTEX_SHARED_LIB_FILE_SUFFIX));
   DllProc0<HRESULT> regsvr(path.GetData(), doRegister ? "DllRegisterServer" : "DllUnregisterServer");
@@ -1592,12 +1595,12 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
           pathIn /= relPathIn;
           if (File::Exists(pathIn))
           {
-            ReportLine(T_("configuring %s"), relPath.GetData());
+            ReportLine(fmt::format(T_("configuring {0}"), relPath));
             session->ConfigureFile(relPath);
           }
           else
           {
-            ReportLine(T_("problem: %s does not exist"), pathIn.GetData());
+            ReportLine(fmt::format(T_("problem: {0} does not exist"), pathIn));
           }
         }
 #endif
@@ -1643,12 +1646,12 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
       pathIn.AppendExtension(".in");
       if (File::Exists(pathIn))
       {
-        ReportLine(T_("configuring %s"), relPath.GetData());
+        ReportLine(fmt::format(T_("configuring {0}"), relPath));
         session->ConfigureFile(relPath);
       }
       else
       {
-        ReportLine(T_("problem: %s does not exist"), pathIn.GetData());
+        ReportLine(fmt::format(T_("problem: {0} does not exist"), pathIn));
       }
     }
 #endif
@@ -1667,7 +1670,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
       }
       else
       {
-        ReportLine(T_("problem: %s does not exist"), path.GetData());
+        ReportLine(fmt::format(T_("problem: {0} does not exist"), path));
       }
     }
   }
@@ -1791,10 +1794,10 @@ void PackageInstallerImpl::InstallRemove()
   }
 
   ReportLine(T_("starting package maintenance..."));
-  ReportLine(T_("installation directory: %s"), Q_(session->GetSpecialPath(SpecialPath::InstallRoot)));
+  ReportLine(fmt::format(T_("installation directory: {0}"), Q_(session->GetSpecialPath(SpecialPath::InstallRoot))));
   if (installing)
   {
-    ReportLine(T_("package repository: %s"), Q_(repository));
+    ReportLine(fmt::format(T_("package repository: {0}"), Q_(repository)));
   }
 
   SetAutoFndbSync(true);
@@ -2004,8 +2007,8 @@ void PackageInstallerImpl::Download()
   MIKTEX_ASSERT(repositoryType == RepositoryType::Remote);
 
   ReportLine(T_("starting download..."));
-  ReportLine(T_("repository: %s"), Q_(repository));
-  ReportLine(T_("download directory: %s"), Q_(downloadDirectory));
+  ReportLine(fmt::format(T_("repository: {0}"), Q_(repository)));
+  ReportLine(fmt::format(T_("download directory: {0}"), Q_(downloadDirectory)));
 
   // download and load the lightweight database
   LoadDbLight(true);
@@ -2041,10 +2044,10 @@ void PackageInstallerImpl::Download()
         if (digest1 == digest2)
         {
           // valid => don't download again
-          ReportLine(T_("%s already exists - keep it"), Q_(pathLocalArchiveFile));
+          ReportLine(fmt::format(T_("{0} already exists - keep it"), Q_(pathLocalArchiveFile)));
           continue;
         }
-        ReportLine(T_("%s already exists but seems to be damaged"), Q_(pathLocalArchiveFile));
+        ReportLine(fmt::format(T_("{0} already exists but seems to be damaged"), Q_(pathLocalArchiveFile)));
       }
 
       // pick up the package
@@ -2325,7 +2328,7 @@ void PackageInstallerImpl::UpdateDb()
 
   // update the package definition directory
   PathName packageDefinitionDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
-  ReportLine(T_("updating package definition directory (%s)..."), Q_(packageDefinitionDir));
+  ReportLine(fmt::format(T_("updating package definition directory ({0})..."), Q_(packageDefinitionDir)));
   size_t count = 0;
   unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(pkgDir);
   DirectoryEntry direntry;
@@ -2390,7 +2393,7 @@ void PackageInstallerImpl::UpdateDb()
 
   pLister->Close();
 
-  ReportLine(T_("installed %u package definition files"), static_cast<unsigned>(count));
+  ReportLine(fmt::format(T_("installed {0} package definition files"), count));
 
   // clean up the user database
   if (!session->IsAdminMode())
@@ -2476,17 +2479,12 @@ string PackageInstallerImpl::FatalError(ErrorCode error)
   }
 }
 
-void PackageInstallerImpl::ReportLine(const char* lpszFormat, ...)
+void PackageInstallerImpl::ReportLine(const string& s)
 {
-  if (callback == nullptr)
+  if (callback != nullptr)
   {
-    return;
+    callback->ReportLine(s);
   }
-  va_list marker;
-  va_start(marker, lpszFormat);
-  string str = StringUtil::FormatStringVA(lpszFormat, marker);
-  va_end(marker);
-  callback->ReportLine(str);
 }
 
 void PackageInstallerImpl::Dispose()
