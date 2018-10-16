@@ -213,8 +213,6 @@ void AppendDirectoryDelimiter(std::string& path);
 
 void AppendDirectoryDelimiter(char* path, size_t size);
 
-void CopyString2(char* destBuf, size_t destBufSize, const char* sourceBuf, size_t count);
-
 void CreateDirectoryPath(const MiKTeX::Core::PathName& path);
 
 bool FileIsOnROMedia(const char* path);

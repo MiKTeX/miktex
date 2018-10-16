@@ -127,7 +127,9 @@ MIKTEXSTATICFUNC(unsigned int) GetMediaType(const char* path)
     && PathName::IsVolumeDelimiter(path[1])
     && PathName::IsDirectoryDelimiter(path[2]))
   {
-    CopyString2(pathRootName.GetData(), pathRootName.GetCapacity(), path, 3);
+    pathRootName += path[0];
+    pathRootName += PathName::VolumeDelimiter;
+    pathRootName += PathName::DirectoryDelimiter;
   }
   else if (!Utils::GetUncRootFromPath(path, pathRootName))
   {

@@ -1253,7 +1253,8 @@ unsigned SessionImpl::SplitTEXMFPath(const PathName& path, PathName& root, PathN
     size_t rootDirLen = rootDir.GetLength();
     if (PathName::Compare(rootDir, path, rootDirLen) == 0 && (path[rootDirLen] == 0 || IsDirectoryDelimiter(path[rootDirLen])))
     {
-      CopyString2(root.GetData(), BufferSizes::MaxPath, rootDir.GetData(), rootDirLen);
+      root = rootDir;
+      root[rootDirLen] = 0;
       const char* lpsz = &path[0] + rootDirLen;
       if (IsDirectoryDelimiter(*lpsz))
       {

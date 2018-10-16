@@ -42,41 +42,6 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-MIKTEXINTERNALFUNC(void) CopyString2(char* lpszBuf, size_t bufSize, const char* lpszSource, size_t count)
-{
-  MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
-  MIKTEX_ASSERT_STRING(lpszSource);
-
-  *lpszBuf = 0;
-
-  if (count == 0)
-  {
-    return;
-  }
-
-  char* lpsz = lpszBuf;
-
-  while (bufSize > 0 && count > 0 && (*lpsz++ = *lpszSource++) != 0)
-  {
-    --bufSize;
-    --count;
-  }
-
-  if (bufSize == 0)
-  {
-    TraceError(T_("CopyString2() is going to throw an exception"));
-    TraceError("  bufSize=%u", static_cast<unsigned>(bufSize));
-    TraceError("  count=%u", static_cast<unsigned>(count));
-    TraceError("  lpszSource=%.*s...", static_cast<int>(bufSize), lpszSource);
-    BUF_TOO_SMALL();
-  }
-
-  if (count == 0)
-  {
-    *lpsz = 0;
-  }
-}
-
 string Utils::Hexify(const void* pv, size_t nBytes, bool lowerCase)
 {
   string ret;
