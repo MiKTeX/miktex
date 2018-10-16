@@ -367,33 +367,6 @@ bool Utils::GetPathNamePrefix(const PathName& path, const PathName& suffix, Path
   return true;
 }
 
-MIKTEXINTERNALFUNC(void) AppendDirectoryDelimiter(string& path)
-{
-  size_t l = path.length();
-  if (l > 0 && !IsDirectoryDelimiter(path[l - 1]))
-  {
-    path += PathName::DirectoryDelimiter;
-  }
-}
-
-MIKTEXINTERNALFUNC(void) AppendDirectoryDelimiter(char* lpszPath, size_t size)
-{
-  MIKTEX_ASSERT(size > 0);
-  MIKTEX_ASSERT_STRING(lpszPath);
-  MIKTEX_ASSERT_CHAR_BUFFER(lpszPath, size);
-  size_t l = strlen(lpszPath);
-  MIKTEX_ASSERT(l < size);
-  if (l > 0 && !IsDirectoryDelimiter(lpszPath[l - 1]))
-  {
-    if (l + 1 >= size)
-    {
-      INVALID_ARGUMENT("path", lpszPath);
-    }
-    lpszPath[l] = PathName::DirectoryDelimiter;
-    lpszPath[l + 1] = 0;
-  }
-}
-
 MIKTEXINTERNALFUNC(void) RemoveDirectoryDelimiter(char* lpszPath)
 {
   size_t l = strlen(lpszPath);
