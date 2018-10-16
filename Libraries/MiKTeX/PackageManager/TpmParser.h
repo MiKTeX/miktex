@@ -55,16 +55,16 @@ public:
   }
 
 private:
-  static void OnStartElement(void* pv, const XML_Char* lpszName, const XML_Char ** aAttr);
+  static void OnStartElement(void* pv, const XML_Char* name, const XML_Char** aAttr);
 
 private:
-  static void OnEndElement(void* pv, const XML_Char* lpszName);
+  static void OnEndElement(void* pv, const XML_Char* name);
 
 private:
   static void OnCharacterData(void* pv, const XML_Char* lpsz, int len);
 
 private:
-  void GetFiles(const XML_Char* lpszFiles, std::vector<std::string>& files);
+  void GetFiles(const XML_Char* text, std::vector<std::string>& files);
 
   // the result
 private:
@@ -79,7 +79,7 @@ private:
   std::stack<std::string> elementStack;
 
 private:
-  void* pParser = nullptr;
+  void* parser = nullptr;
 
 private:
   std::string texMFPrefix;

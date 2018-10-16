@@ -1,6 +1,6 @@
 /* TpmParser.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -54,23 +54,23 @@ TpmParser::~TpmParser()
 {
   try
   {
-    if (pParser != nullptr)
+    if (parser != nullptr)
     {
-      XML_ParserFree(reinterpret_cast<XML_Parser>(pParser));
-      pParser = nullptr;
+      XML_ParserFree(reinterpret_cast<XML_Parser>(parser));
+      parser = nullptr;
     }
     traceError->Close();
     traceError = nullptr;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void TpmParser::GetFiles(const XML_Char* lpszFiles, vector<string> & files)
+void TpmParser::GetFiles(const XML_Char* text, vector<string>& files)
 {
-  MIKTEX_ASSERT(Utils::IsPureAscii(lpszFiles));
-  for (Tokenizer tok(lpszFiles, X_(";\n\r \t")); tok; ++tok)
+  MIKTEX_ASSERT(Utils::IsPureAscii(text));
+  for (Tokenizer tok(text, X_(";\n\r \t")); tok; ++tok)
   {
     PathName path(*tok);
 #if defined(MIKTEX_UNIX)
@@ -83,11 +83,11 @@ void TpmParser::GetFiles(const XML_Char* lpszFiles, vector<string> & files)
   }
 }
 
-const XML_Char* GetAttributeValue(const XML_Char** aAttr, const XML_Char* lpszKey)
+const XML_Char* GetAttributeValue(const XML_Char** aAttr, const XML_Char* key)
 {
   for (size_t i = 0; aAttr[i] != 0; i += 2)
   {
-    if (StrCmp(aAttr[i], lpszKey) == 0)
+    if (StrCmp(aAttr[i], key) == 0)
     {
       return aAttr[i + 1];
     }
@@ -95,32 +95,32 @@ const XML_Char* GetAttributeValue(const XML_Char** aAttr, const XML_Char* lpszKe
   return nullptr;
 }
 
-void TpmParser::OnStartElement(void* pv, const XML_Char* lpszName, const XML_Char** aAttr)
+void TpmParser::OnStartElement(void* pv, const XML_Char* name, const XML_Char** aAttr)
 {
   MIKTEX_ASSERT(pv != nullptr);
   TpmParser* This = reinterpret_cast<TpmParser*>(pv);
   try
   {
     This->charBuffer.Clear();
-    if (StrCmp(lpszName, X_("TPM:Package")) == 0 || StrCmp(lpszName, X_("TPM:Collection")) == 0)
+    if (StrCmp(name, X_("TPM:Package")) == 0 || StrCmp(name, X_("TPM:Collection")) == 0)
     {
-      const XML_Char* lpszPackageName;
+      const XML_Char* packageName;
       if (!This->elementStack.empty()
 	&& This->elementStack.top() == X_("TPM:Requires")
 	&& aAttr != nullptr
-	&& (lpszPackageName = GetAttributeValue(aAttr, X_("name"))) != nullptr)
+	&& (packageName = GetAttributeValue(aAttr, X_("name"))) != nullptr)
       {
-	MIKTEX_ASSERT(Utils::IsPureAscii(lpszPackageName));
-	vector<string>::const_iterator it = find(This->packageInfo.requiredPackages.begin(), This->packageInfo.requiredPackages.end(), lpszPackageName);
+	MIKTEX_ASSERT(Utils::IsPureAscii(packageName));
+	vector<string>::const_iterator it = find(This->packageInfo.requiredPackages.begin(), This->packageInfo.requiredPackages.end(), packageName);
 	if (it == This->packageInfo.requiredPackages.end())
 	{
-	  This->packageInfo.requiredPackages.push_back(lpszPackageName);
+	  This->packageInfo.requiredPackages.push_back(packageName);
 	}
       }
     }
-    else if (StrCmp(lpszName, X_("TPM:RunFiles")) == 0
-      || StrCmp(lpszName, X_("TPM:DocFiles")) == 0
-      || StrCmp(lpszName, X_("TPM:SourceFiles")) == 0)
+    else if (StrCmp(name, X_("TPM:RunFiles")) == 0
+      || StrCmp(name, X_("TPM:DocFiles")) == 0
+      || StrCmp(name, X_("TPM:SourceFiles")) == 0)
     {
       int size = 0;
       const XML_Char* lpszSize;
@@ -129,15 +129,15 @@ void TpmParser::OnStartElement(void* pv, const XML_Char* lpszName, const XML_Cha
 	MIKTEX_ASSERT(Utils::IsPureAscii(lpszSize));
 	size = atoi(lpszSize);
       }
-      if (StrCmp(lpszName, X_("TPM:RunFiles")) == 0)
+      if (StrCmp(name, X_("TPM:RunFiles")) == 0)
       {
 	This->packageInfo.sizeRunFiles = size;
       }
-      else if (StrCmp(lpszName, X_("TPM:DocFiles")) == 0)
+      else if (StrCmp(name, X_("TPM:DocFiles")) == 0)
       {
 	This->packageInfo.sizeDocFiles = size;
       }
-      else if (StrCmp(lpszName, X_("TPM:SourceFiles")) == 0)
+      else if (StrCmp(name, X_("TPM:SourceFiles")) == 0)
       {
 	This->packageInfo.sizeSourceFiles = size;
       }
@@ -147,7 +147,7 @@ void TpmParser::OnStartElement(void* pv, const XML_Char* lpszName, const XML_Cha
       }
     }
 #if MIKTEX_EXTENDED_PACKAGEINFO
-    else if (StrCmp(lpszName, X_("TPM:CTAN")) == 0)
+    else if (StrCmp(name, X_("TPM:CTAN")) == 0)
     {
       const XML_Char* lpszPath;
       if (aAttr != nullptr && (lpszPath = GetAttributeValue(aAttr, X_("path"))) != nullptr)
@@ -155,7 +155,7 @@ void TpmParser::OnStartElement(void* pv, const XML_Char* lpszName, const XML_Cha
 	This->packageInfo.ctanPath = lpszPath;
       }
     }
-    else if (StrCmp(lpszName, X_("TPM:Copyright")) == 0)
+    else if (StrCmp(name, X_("TPM:Copyright")) == 0)
     {
       const XML_Char* lpszOwner;
       if (aAttr != nullptr && (lpszOwner = GetAttributeValue(aAttr, X_("owner"))) != nullptr)
@@ -168,7 +168,7 @@ void TpmParser::OnStartElement(void* pv, const XML_Char* lpszName, const XML_Cha
 	This->packageInfo.copyrightYear = lpszYear;
       }
     }
-    else if (StrCmp(lpszName, X_("TPM:License")) == 0)
+    else if (StrCmp(name, X_("TPM:License")) == 0)
     {
       const XML_Char* lpszType;
       if (aAttr != nullptr && (lpszType = GetAttributeValue(aAttr, X_("type"))) != nullptr)
@@ -177,27 +177,27 @@ void TpmParser::OnStartElement(void* pv, const XML_Char* lpszName, const XML_Cha
       }
     }
 #endif
-    This->elementStack.push(lpszName);
+    This->elementStack.push(name);
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void TpmParser::OnEndElement(void* pv, const XML_Char* lpszName)
+void TpmParser::OnEndElement(void* pv, const XML_Char* name)
 {
   MIKTEX_ASSERT(pv != nullptr);
   TpmParser* This = reinterpret_cast<TpmParser*>(pv);
   try
   {
     MIKTEX_ASSERT(!This->elementStack.empty());
-    MIKTEX_ASSERT(This->elementStack.top() == lpszName);
+    MIKTEX_ASSERT(This->elementStack.top() == name);
     This->elementStack.pop();
-    if (StrCmp(lpszName, X_("TPM:Creator")) == 0)
+    if (StrCmp(name, X_("TPM:Creator")) == 0)
     {
       This->packageInfo.creator = This->charBuffer.GetData();
     }
-    else if (StrCmp(lpszName, X_("TPM:Description")) == 0)
+    else if (StrCmp(name, X_("TPM:Description")) == 0)
     {
       size_t len = This->charBuffer.GetLength();
       This->packageInfo.description.reserve(len);
@@ -221,11 +221,11 @@ void TpmParser::OnEndElement(void* pv, const XML_Char* lpszName)
 	}
       }
     }
-    else if (StrCmp(lpszName, X_("TPM:Name")) == 0)
+    else if (StrCmp(name, X_("TPM:Name")) == 0)
     {
       This->packageInfo.displayName = This->charBuffer.GetData();
     }
-    else if (StrCmp(lpszName, X_("TPM:Title")) == 0)
+    else if (StrCmp(name, X_("TPM:Title")) == 0)
     {
       size_t len = This->charBuffer.GetLength();
       if (len > 0 && This->charBuffer[len - 1] == X_('.'))
@@ -241,39 +241,39 @@ void TpmParser::OnEndElement(void* pv, const XML_Char* lpszName)
       }
       This->packageInfo.title = This->charBuffer.GetData();
     }
-    else if (StrCmp(lpszName, X_("TPM:Version")) == 0)
+    else if (StrCmp(name, X_("TPM:Version")) == 0)
     {
       This->packageInfo.version = This->charBuffer.GetData();
     }
-    else if (StrCmp(lpszName, X_("TPM:TargetSystem")) == 0)
+    else if (StrCmp(name, X_("TPM:TargetSystem")) == 0)
     {
       This->packageInfo.targetSystem = This->charBuffer.GetData();
     }
-    else if (StrCmp(lpszName, X_("TPM:MD5")) == 0)
+    else if (StrCmp(name, X_("TPM:MD5")) == 0)
     {
       This->packageInfo.digest = MD5::Parse(This->charBuffer.GetData());
     }
-    else if (StrCmp(lpszName, X_("TPM:TimePackaged")) == 0)
+    else if (StrCmp(name, X_("TPM:TimePackaged")) == 0)
     {
       This->packageInfo.timePackaged = atoi(This->charBuffer.GetData());
     }
-    else if (StrCmp(lpszName, X_("TPM:RunFiles")) == 0)
+    else if (StrCmp(name, X_("TPM:RunFiles")) == 0)
     {
       This->packageInfo.runFiles.reserve(1000);
       This->GetFiles(This->charBuffer.GetData(), This->packageInfo.runFiles);
     }
-    else if (StrCmp(lpszName, X_("TPM:DocFiles")) == 0)
+    else if (StrCmp(name, X_("TPM:DocFiles")) == 0)
     {
       This->packageInfo.docFiles.reserve(100);
       This->GetFiles(This->charBuffer.GetData(), This->packageInfo.docFiles);
     }
-    else if (StrCmp(lpszName, X_("TPM:SourceFiles")) == 0)
+    else if (StrCmp(name, X_("TPM:SourceFiles")) == 0)
     {
       This->packageInfo.sourceFiles.reserve(100);
       This->GetFiles(This->charBuffer.GetData(), This->packageInfo.sourceFiles);
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -286,17 +286,17 @@ void TpmParser::OnCharacterData(void* pv, const XML_Char* lpsz, int len)
   {
     This->charBuffer.Append(lpsz, len);
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void TpmParser::Parse(const PathName & path)
+void TpmParser::Parse(const PathName& path)
 {
   Parse(path, TEXMF_PREFIX_DIRECTORY);
 }
 
-void TpmParser::Parse(const PathName & path, const string & texmfPrefix)
+void TpmParser::Parse(const PathName& path, const string& texmfPrefix)
 {
   this->texMFPrefix = texmfPrefix;
 
@@ -308,20 +308,20 @@ void TpmParser::Parse(const PathName & path, const string & texmfPrefix)
 
   FileStream stream(File::Open(path, FileMode::Open, FileAccess::Read, false));
 
-  if (pParser == nullptr)
+  if (parser == nullptr)
   {
-    pParser = reinterpret_cast<void*>(XML_ParserCreate(nullptr));
-    if (pParser == nullptr)
+    parser = reinterpret_cast<void*>(XML_ParserCreate(nullptr));
+    if (parser == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
   }
   else
   {
-    XML_ParserReset(reinterpret_cast<XML_Parser>(pParser), nullptr);
+    XML_ParserReset(reinterpret_cast<XML_Parser>(parser), nullptr);
   }
 
-  XML_Parser p = reinterpret_cast<XML_Parser>(pParser);
+  XML_Parser p = reinterpret_cast<XML_Parser>(parser);
 
   XML_SetElementHandler(p, OnStartElement, OnEndElement);
   XML_SetCharacterDataHandler(p, OnCharacterData);
