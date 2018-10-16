@@ -24,6 +24,7 @@
 #include <fstream>
 #include <future>
 #include <locale>
+#include <stack>
 #include <unordered_set>
 
 #include <fmt/format.h>
@@ -414,9 +415,9 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
     // parse package definition file
     futurePackageInfoTable.push_back(async(ASYNC_LAUNCH_POLICY, [](const PathName& path)
     {
-      TpmParser tpmParser;
-      tpmParser.Parse(path);
-      return tpmParser.GetPackageInfo();
+      unique_ptr<TpmParser> tpmParser = TpmParser::Create();
+      tpmParser->Parse(path);
+      return tpmParser->GetPackageInfo();
     }, PathName(directory, name)));
   }
   pLister->Close();
@@ -642,16 +643,16 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
   {
     return nullptr;
   }
-  TpmParser tpmParser;
-  tpmParser.Parse(pathPackageDefinitionFile);
+  unique_ptr<TpmParser> tpmParser = TpmParser::Create();
+  tpmParser->Parse(pathPackageDefinitionFile);
 #if IGNORE_OTHER_SYSTEMS
-  string targetSystems = tpmParser.GetPackageInfo().targetSystem;
+  string targetSystems = tpmParser->GetPackageInfo().targetSystem;
   if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
   {
     return nullptr;
   }
 #endif
-  return DefinePackage(deploymentName, tpmParser.GetPackageInfo());
+  return DefinePackage(deploymentName, tpmParser->GetPackageInfo());
 }
 
 bool PackageManagerImpl::TryGetPackageInfo(const string& deploymentName, PackageInfo& packageInfo)
@@ -1048,9 +1049,9 @@ bool PackageManager::IsLocalPackageRepository(const PathName& path)
 
 PackageInfo PackageManager::ReadPackageDefinitionFile(const PathName& path, const string& texmfPrefix)
 {
-  TpmParser tpmParser;
-  tpmParser.Parse(path, texmfPrefix);
-  return tpmParser.GetPackageInfo();
+  unique_ptr<TpmParser> tpmParser = TpmParser::Create();
+  tpmParser->Parse(path, texmfPrefix);
+  return tpmParser->GetPackageInfo();
 }
 
 class XmlWriter

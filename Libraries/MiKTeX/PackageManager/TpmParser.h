@@ -22,10 +22,7 @@
 #if !defined(F16B91F7E26E4BF69460B977B1C0BC5A)
 #define F16B91F7E26E4BF69460B977B1C0BC5A
 
-#include <stack>
-#include <vector>
-
-#include <expat.h>
+#include <memory>
 
 #include <miktex/Core/PathName>
 
@@ -33,59 +30,22 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-class TpmParser
+class MIKTEXNOVTABLE TpmParser
 {
 public:
-  TpmParser();
+  virtual ~TpmParser() = 0;
 
 public:
-  virtual ~TpmParser();
+  virtual void Parse(const MiKTeX::Core::PathName& path, const std::string& texmfPrefix) = 0;
+
+public:
+  virtual const MiKTeX::Packages::PackageInfo& GetPackageInfo() const = 0;
 
 public:
   void Parse(const MiKTeX::Core::PathName& path);
 
 public:
-  void Parse(const MiKTeX::Core::PathName& path, const std::string& texmfPrefix);
-
-  // get the result
-public:
-  const MiKTeX::Packages::PackageInfo& GetPackageInfo() const
-  {
-    return packageInfo;
-  }
-
-private:
-  static void OnStartElement(void* pv, const XML_Char* name, const XML_Char** aAttr);
-
-private:
-  static void OnEndElement(void* pv, const XML_Char* name);
-
-private:
-  static void OnCharacterData(void* pv, const XML_Char* lpsz, int len);
-
-private:
-  void GetFiles(const XML_Char* text, std::vector<std::string>& files);
-
-  // the result
-private:
-  MiKTeX::Packages::PackageInfo packageInfo;
-
-  // character buffer
-private:
-  MiKTeX::Util::CharBuffer<XML_Char, 8192> charBuffer;
-
-  // element stack
-private:
-  std::stack<std::string> elementStack;
-
-private:
-  void* parser = nullptr;
-
-private:
-  std::string texMFPrefix;
-
-private:
-  std::unique_ptr<MiKTeX::Trace::TraceStream> traceError;
+  static std::unique_ptr<TpmParser> Create();
 };
 
 END_INTERNAL_NAMESPACE;

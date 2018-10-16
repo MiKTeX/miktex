@@ -1061,11 +1061,11 @@ void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const str
   pathPackageFile /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
   pathPackageFile /= deploymentName;
   pathPackageFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
-  TpmParser tpmparser;
-  tpmparser.Parse(pathPackageFile);
+  unique_ptr<TpmParser> tpmparser = TpmParser::Create();
+  tpmparser->Parse(pathPackageFile);
 
   // get the package info from the parser; set the package name
-  PackageInfo package = tpmparser.GetPackageInfo();
+  PackageInfo package = tpmparser->GetPackageInfo();
   package.deploymentName = deploymentName;
 
   // make sure that the package definition file is included in the
@@ -1228,11 +1228,11 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   // parse the new package definition file
   PathName pathPackageFile = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_DEFINITION_DIR / deploymentName;
   pathPackageFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
-  TpmParser tpmparser;
-  tpmparser.Parse(pathPackageFile);
+  unique_ptr<TpmParser> tpmparser = TpmParser::Create();
+  tpmparser->Parse(pathPackageFile);
 
   // get new package info
-  PackageInfo newPackage = tpmparser.GetPackageInfo();
+  PackageInfo newPackage = tpmparser->GetPackageInfo();
   newPackage.deploymentName = deploymentName;
 
   // find recycled and brand new files
@@ -2332,7 +2332,7 @@ void PackageInstallerImpl::UpdateDb()
   size_t count = 0;
   unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(pkgDir);
   DirectoryEntry direntry;
-  TpmParser tpmparser;
+  unique_ptr<TpmParser> tpmparser = TpmParser::Create();
   while (pLister->GetNext(direntry))
   {
     Notify();
@@ -2362,7 +2362,7 @@ void PackageInstallerImpl::UpdateDb()
 
     // parse new package definition file
     PathName newPackageDefinitionFile(pkgDir, name);
-    tpmparser.Parse(newPackageDefinitionFile);
+    tpmparser->Parse(newPackageDefinitionFile);
 
 #if 0
     PackageInfo currentPackageInfo;
@@ -2386,7 +2386,7 @@ void PackageInstallerImpl::UpdateDb()
     File::Copy(newPackageDefinitionFile, currentPackageDefinitionfile);
 
     // update the database
-    packageManager->DefinePackage(deploymentName, tpmparser.GetPackageInfo());
+    packageManager->DefinePackage(deploymentName, tpmparser->GetPackageInfo());
 
     ++count;
   }
