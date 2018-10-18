@@ -1,9 +1,9 @@
 /*
- * fontconfig/fc-query/fc-query.c
+ * fontconfig/fc-conflist/fc-conflist.c
  *
  * Copyright © 2003 Keith Packard
- * Copyright © 2008 Red Hat, Inc.
- * Red Hat Author(s): Behdad Esfahbod
+ * Copyright © 2014 Red Hat, Inc.
+ * Red Hat Author(s): Akira TAGOH
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -24,14 +24,9 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
-#if defined(MIKTEX)
-#  define main Main
-#  if defined(MIKTEX_WINDOWS)
-#    define MIKTEX_UTF8_WRAP_ALL 1
-#    include <miktex/utf8wrap.h>
-#    include <io.h>
-#    include <fcntl.h>
-#  endif
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
 #endif
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -41,9 +36,11 @@
 #endif
 #define HAVE_GETOPT 1
 #endif
+#if defined(MIKTEX)
+#  define main Main
+#endif
 
 #include <fontconfig/fontconfig.h>
-#include <fontconfig/fcfreetype.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -70,9 +67,6 @@
 #define _GNU_SOURCE
 #include <getopt.h>
 static const struct option longopts[] = {
-    {"index", 1, 0, 'i'},
-    {"brief", 0, 0, 'b'},
-    {"format", 1, 0, 'f'},
     {"version", 0, 0, 'V'},
     {"help", 0, 0, 'h'},
     {NULL,0,0,0},
@@ -89,26 +83,20 @@ usage (char *program, int error)
 {
     FILE *file = error ? stderr : stdout;
 #if HAVE_GETOPT_LONG
-    fprintf (file, _("usage: %s [-bVh] [-i index] [-f FORMAT] [--index index] [--brief] [--format FORMAT] [--version] [--help] font-file...\n"),
+    fprintf (file, _("usage: %s [-Vh] [--version] [--help]\n"),
 	     program);
 #else
-    fprintf (file, _("usage: %s [-bVh] [-i index] [-f FORMAT] font-file...\n"),
+    fprintf (file, _("usage: %s [-Vh]\n"),
 	     program);
 #endif
-    fprintf (file, _("Query font files and print resulting pattern(s)\n"));
+    fprintf (file, _("Show the ruleset files information on the system\n"));
     fprintf (file, "\n");
 #if HAVE_GETOPT_LONG
-    fprintf (file, _("  -i, --index INDEX    display the INDEX face of each font file only\n"));
-    fprintf (file, _("  -b, --brief          display font pattern briefly\n"));
-    fprintf (file, _("  -f, --format=FORMAT  use the given output format\n"));
     fprintf (file, _("  -V, --version        display font config version and exit\n"));
     fprintf (file, _("  -h, --help           display this help and exit\n"));
 #else
-    fprintf (file, _("  -i INDEX   (index)         display the INDEX face of each font file only\n"));
-    fprintf (file, _("  -b         (brief)         display font pattern briefly\n"));
-    fprintf (file, _("  -f FORMAT  (format)        use the given output format\n"));
-    fprintf (file, _("  -V         (version)       display font config version and exit\n"));
-    fprintf (file, _("  -h         (help)          display this help and exit\n"));
+    fprintf (file, _("  -V         (version)      display font config version and exit\n"));
+    fprintf (file, _("  -h         (help)         display this help and exit\n"));
 #endif
     exit (error);
 }
@@ -116,32 +104,20 @@ usage (char *program, int error)
 int
 main (int argc, char **argv)
 {
-    unsigned int id = (unsigned int) -1;
-    int         brief = 0;
-    FcFontSet   *fs;
-    FcChar8     *format = NULL;
-    int		err = 0;
-    int		i;
+    FcConfig *config;
+    FcConfigFileInfoIter iter;
+
 #if HAVE_GETOPT_LONG || HAVE_GETOPT
     int		c;
 
     setlocale (LC_ALL, "");
 #if HAVE_GETOPT_LONG
-    while ((c = getopt_long (argc, argv, "i:bf:Vh", longopts, NULL)) != -1)
+    while ((c = getopt_long (argc, argv, "Vh", longopts, NULL)) != -1)
 #else
-    while ((c = getopt (argc, argv, "i:bf:Vh")) != -1)
+    while ((c = getopt (argc, argv, "Vh")) != -1)
 #endif
     {
 	switch (c) {
-	case 'i':
-	    id = (unsigned int) strtol (optarg, NULL, 0); /* strtol() To handle -1. */
-	    break;
-	case 'b':
-	    brief = 1;
-	    break;
-	case 'f':
-	    format = (FcChar8 *) strdup (optarg);
-	    break;
 	case 'V':
 	    fprintf (stderr, "fontconfig version %d.%d.%d\n",
 		     FC_MAJOR, FC_MINOR, FC_REVISION);
@@ -152,57 +128,24 @@ main (int argc, char **argv)
 	    usage (argv[0], 1);
 	}
     }
-    i = optind;
-#else
-    i = 1;
 #endif
 
-    if (i == argc)
-	usage (argv[0], 1);
-
-    fs = FcFontSetCreate ();
-
-#if defined(MIKTEX_WINDOWS)
-    _setmode(_fileno(stdout), _O_BINARY);
-#endif
-    for (; i < argc; i++)
+    config = FcConfigGetCurrent ();
+    FcConfigFileInfoIterInit (config, &iter);
+    do
     {
-	if (!FcFreeTypeQueryAll ((FcChar8*) argv[i], id, NULL, NULL, fs))
+	FcChar8 *name, *desc;
+	FcBool enabled;
+
+	if (FcConfigFileInfoIterGet (config, &iter, &name, &desc, &enabled))
 	{
-	    fprintf (stderr, _("Can't query face %u of font file %s\n"), id, argv[i]);
-	    err = 1;
+	    printf ("%c %s: %s\n", enabled ? '+' : '-', name, desc);
+	    FcStrFree (name);
+	    FcStrFree (desc);
 	}
-    }
-
-    for (i = 0; i < fs->nfont; i++)
-    {
-	FcPattern *pat = fs->fonts[i];
-
-	if (brief)
-	{
-	    FcPatternDel (pat, FC_CHARSET);
-	    FcPatternDel (pat, FC_LANG);
-	}
-
-	if (format)
-	{
-	    FcChar8 *s;
-
-	    s = FcPatternFormat (pat, format);
-	    if (s)
-	    {
-		printf ("%s", s);
-		FcStrFree (s);
-	    }
-	}
-	else
-	{
-	    FcPatternPrint (pat);
-	}
-    }
-
-    FcFontSetDestroy (fs);
+    } while (FcConfigFileInfoIterNext (config, &iter));
 
     FcFini ();
-    return err;
+
+    return 0;
 }

@@ -10,6 +10,7 @@
 
 ### Upgraded libraries
 
+* fontconfig 2.13.1
 * libcurl 7.61.1
 * m-tx 0.63a
 * expat 2.2.6

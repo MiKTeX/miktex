@@ -6,7 +6,7 @@
     <TPM:Title>FontConfig, Windows x86</TPM:Title>
     <TPM:Copyright owner="Keith Packard, et al." year="2000-2004,2006-2007"/>
     <TPM:License type="mit"/>
-    <TPM:Version>2.12.6</TPM:Version>
+    <TPM:Version>2.13.1</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
@@ -16,6 +16,7 @@
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${fontconfig_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}fc-cache.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}fc-cat.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}fc-conflist.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}fc-list.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}fc-match.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}fc-pattern.exe

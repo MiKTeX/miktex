@@ -12,6 +12,10 @@
 /* Use libxml2 instead of Expat */
 #undef ENABLE_LIBXML2
 
+/* Define to 1 if translation of program messages to the user's native
+   language is requested. */
+#undef ENABLE_NLS
+
 /* Additional font directories */
 #undef FC_ADD_FONTS
 
@@ -33,6 +37,21 @@
    MSVC and with C++ compilers. */
 #define FLEXIBLE_ARRAY_MEMBER
 
+/* Gettext package */
+#undef GETTEXT_PACKAGE
+
+/* Define to 1 if you have the Mac OS X function CFLocaleCopyCurrent in the
+   CoreFoundation framework. */
+#undef HAVE_CFLOCALECOPYCURRENT
+
+/* Define to 1 if you have the Mac OS X function CFPreferencesCopyAppValue in
+   the CoreFoundation framework. */
+#undef HAVE_CFPREFERENCESCOPYAPPVALUE
+
+/* Define if the GNU dcgettext() function is already present or preinstalled.
+   */
+#undef HAVE_DCGETTEXT
+
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
 #cmakedefine HAVE_DIRENT_H 1
@@ -52,14 +71,12 @@
 /* Define to 1 if you have the `fstatvfs' function. */
 #cmakedefine HAVE_FSTATVFS 1
 
-/* FT_Bitmap_Size structure includes y_ppem field */
-#define HAVE_FT_BITMAP_SIZE_Y_PPEM 1
+/* Define to 1 if you have the `FT_Done_MM_Var' function. */
+/* TODO: #define HAVE_FT_DONE_MM_VAR 1 */
+#undef HAVE_FT_DONE_MM_VAR
 
 /* Define to 1 if you have the `FT_Get_BDF_Property' function. */
 #define HAVE_FT_GET_BDF_PROPERTY 1
-
-/* Define to 1 if you have the `FT_Get_Next_Char' function. */
-#define HAVE_FT_GET_NEXT_CHAR 1
 
 /* Define to 1 if you have the `FT_Get_PS_Font_Info' function. */
 #define HAVE_FT_GET_PS_FONT_INFO 1
@@ -69,9 +86,6 @@
 
 /* Define to 1 if you have the `FT_Has_PS_Glyph_Names' function. */
 #define HAVE_FT_HAS_PS_GLYPH_NAMES 1
-
-/* Define to 1 if you have the `FT_Select_Size' function. */
-#cmakedefine HAVE_FT_SELECT_SIZE 1
 
 /* Define to 1 if you have the `getexecname' function. */
 #cmakedefine HAVE_GETEXECNAME 1
@@ -87,6 +101,12 @@
 
 /* Define to 1 if you have the `getprogname' function. */
 #cmakedefine HAVE_GETPROGNAME 1
+
+/* Define if the GNU gettext() function is already present or preinstalled. */
+#undef HAVE_GETTEXT
+
+/* Define if you have the iconv() function and it works. */
+#undef HAVE_ICONV
 
 /* Have Intel __sync_* atomic primitives */
 #undef HAVE_INTEL_ATOMIC_PRIMITIVES
@@ -165,6 +185,12 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine HAVE_STDLIB_H 1
 
+/* Define to 1 if you have the `strerror' function. */
+#cmakedefine HAVE_STRERROR 1
+
+/* Define to 1 if you have the `strerror_r' function. */
+#cmakedefine HAVE_STRERROR_R 1
+
 /* Define to 1 if you have the <strings.h> header file. */
 #cmakedefine HAVE_STRINGS_H 1
 
@@ -217,12 +243,6 @@
 
 /* Define to 1 if you have the <sys/vfs.h> header file. */
 #cmakedefine HAVE_SYS_VFS_H 1
-
-/* Define to 1 if `usLowerOpticalPointSize' is a member of `TT_OS2'. */
-#cmakedefine HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE 1
-
-/* Define to 1 if `usUpperOpticalPointSize' is a member of `TT_OS2'. */
-#cmakedefine HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1

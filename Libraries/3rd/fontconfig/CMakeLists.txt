@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2007-2017 Christian Schenk
+## Copyright (C) 2007-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -417,53 +417,6 @@ add_custom_target(gen-fclang-header ALL
 set_property(TARGET gen-fclang-header PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 ###############################################################################
-## fc-glyphname
-
-set(fc-glyphname_sources source/fc-glyphname/fc-glyphname.c)
-
-if (MIKTEX_NATIVE_WINDOWS)
-  list(APPEND fc-glyphname_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
-  )
-endif()
-
-add_executable(fc-glyphname ${fc-glyphname_sources})
-
-set_property(TARGET fc-glyphname PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-target_link_libraries(fc-glyphname
-  ${app_dll_name}
-  ${core_dll_name}
-)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(fc-glyphname
-    ${getopt_dll_name}
-    ${unxemu_dll_name}
-    ${utf8wrap_dll_name}
-  )
-endif()
-
-add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/fcglyphname.h
-  COMMAND $<TARGET_FILE:fc-glyphname> ${fqsrcdir}/fc-glyphname/zapfdingbats.txt
-        < ${fqsrcdir}/fc-glyphname/fcglyphname.tmpl.h
-        > ${CMAKE_CURRENT_BINARY_DIR}/fcglyphname.h
-  MAIN_DEPENDENCY source/fc-glyphname/zapfdingbats.txt
-  DEPENDS
-        fc-glyphname
-        ${fqsrcdir}/fc-glyphname/fcglyphname.tmpl.h
-  VERBATIM
-)
-
-add_custom_target(gen-fcglyphname-header ALL
-    DEPENDS
-        ${CMAKE_CURRENT_BINARY_DIR}/fcglyphname.h
-)
-
-set_property(TARGET gen-fcglyphname-header PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-###############################################################################
 ## lib
 
 configure_file(
@@ -478,13 +431,11 @@ set(${fontconfig_dll_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/fccase.h
   ${CMAKE_CURRENT_BINARY_DIR}/fcftalias.h
   ${CMAKE_CURRENT_BINARY_DIR}/fcftaliastail.h
-  ${CMAKE_CURRENT_BINARY_DIR}/fcglyphname.h
   ${CMAKE_CURRENT_BINARY_DIR}/fclang.h
   ${CMAKE_CURRENT_BINARY_DIR}/fontconfig-version.h
 
   source/src/fcatomic.c
   source/src/fcatomic.h
-  source/src/fcblanks.c
   source/src/fccache.c
   source/src/fccfg.c
   source/src/fccharset.c
@@ -497,6 +448,7 @@ set(${fontconfig_dll_name}_sources
   source/src/fcfreetype.c
   source/src/fcfs.c
   source/src/fcftint.h
+  source/src/fchash.c
   source/src/fcinit.c
   source/src/fcint.h
   source/src/fclang.c
@@ -509,6 +461,7 @@ set(${fontconfig_dll_name}_sources
   source/src/fcobjs.h
   source/src/fcobjshash.h
   source/src/fcpat.c
+  source/src/fcptrlist.c
   source/src/fcrange.c
   source/src/fcserialize.c
   source/src/fcstat.c
@@ -526,7 +479,6 @@ set(${fontconfig_dll_name}_sources
 
 set_source_files_properties(
   ${CMAKE_CURRENT_BINARY_DIR}/fc-case/fccase.h
-  ${CMAKE_CURRENT_BINARY_DIR}/fcglyphname.h
   ${CMAKE_CURRENT_BINARY_DIR}/fclang.h
   ${CMAKE_CURRENT_BINARY_DIR}/fcalias.h
   ${CMAKE_CURRENT_BINARY_DIR}/fcaliastail.h
@@ -595,7 +547,6 @@ endif()
 
 add_dependencies(${fontconfig_dll_name}
   gen-fccase-header
-  gen-fcglyphname-header
   gen-fclang-header
 )
 
@@ -727,6 +678,42 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 install(TARGETS ${MIKTEX_PREFIX}fc-cat DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
+## fc-conflist
+
+set(fc-conflist_sources
+  ${MIKTEX_LIBRARY_WRAPPER}
+  fc-conflist-version.h
+  source/fc-conflist/fc-conflist.c
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND fc-conflist_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    fc-conflist.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}fc-conflist ${fc-conflist_sources})
+
+set_property(TARGET ${MIKTEX_PREFIX}fc-conflist PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}fc-conflist
+  ${app_dll_name}
+  ${core_dll_name}
+  ${fontconfig_dll_name}
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}fc-conflist
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}fc-conflist DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 ###############################################################################
 ## fc-list

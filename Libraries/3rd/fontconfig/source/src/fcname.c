@@ -258,6 +258,11 @@ FcNameBool (const FcChar8 *v, FcBool *result)
 	*result = FcFalse;
 	return FcTrue;
     }
+    if (c0 == 'd' || c0 == 'x' || c0 == '2')
+    {
+	*result = FcDontCare;
+	return FcTrue;
+    }
     if (c0 == 'o')
     {
 	c1 = v[1];
@@ -270,6 +275,11 @@ FcNameBool (const FcChar8 *v, FcBool *result)
 	if (c1 == 'f')
 	{
 	    *result = FcFalse;
+	    return FcTrue;
+	}
+	if (c1 == 'r')
+	{
+	    *result = FcDontCare;
 	    return FcTrue;
 	}
     }
@@ -318,15 +328,39 @@ FcNameConvert (FcType type, FcChar8 *string)
 	    v.type = FcTypeVoid;
 	break;
     case FcTypeRange:
-	if (sscanf ((char *) string, "[%lg %lg)", &b, &e) != 2)
+	if (sscanf ((char *) string, "[%lg %lg]", &b, &e) != 2)
 	{
-	    v.u.d = strtod ((char *) string, &p);
-	    if (p != NULL && p[0] != 0)
+	    char *sc, *ec;
+	    size_t len = strlen ((const char *) string);
+	    int si, ei;
+
+	    sc = malloc (len + 1);
+	    ec = malloc (len + 1);
+	    if (sc && ec && sscanf ((char *) string, "[%s %[^]]]", sc, ec) == 2)
 	    {
-		v.type = FcTypeVoid;
-		break;
+		if (FcNameConstant ((const FcChar8 *) sc, &si) &&
+		    FcNameConstant ((const FcChar8 *) ec, &ei))
+		    v.u.r =  FcRangeCreateDouble (si, ei);
+		else
+		    goto bail1;
 	    }
-	    v.type = FcTypeDouble;
+	    else
+	    {
+	    bail1:
+		v.type = FcTypeDouble;
+		if (FcNameConstant (string, &si))
+		{
+		    v.u.d = (double) si;
+		} else {
+		    v.u.d = strtod ((char *) string, &p);
+		    if (p != NULL && p[0] != 0)
+			v.type = FcTypeVoid;
+		}
+	    }
+	    if (sc)
+		free (sc);
+	    if (ec)
+		free (ec);
 	}
 	else
 	    v.u.r = FcRangeCreateDouble (b, e);
@@ -456,6 +490,10 @@ FcNameParse (const FcChar8 *name)
 			if (!FcPatternAddBool (pat, c->object, c->value))
 			    goto bail2;
 			break;
+		    case FcTypeRange:
+			if (!FcPatternAddInteger (pat, c->object, c->value))
+			    goto bail2;
+			break;
 		    default:
 			break;
 		    }
@@ -514,7 +552,10 @@ FcNameUnparseValue (FcStrBuf	*buf,
     case FcTypeString:
 	return FcNameUnparseString (buf, v.u.s, escape);
     case FcTypeBool:
-	return FcNameUnparseString (buf, v.u.b ? (FcChar8 *) "True" : (FcChar8 *) "False", 0);
+	return FcNameUnparseString (buf,
+				    v.u.b == FcTrue  ? (FcChar8 *) "True" :
+				    v.u.b == FcFalse ? (FcChar8 *) "False" :
+				                       (FcChar8 *) "DontCare", 0);
     case FcTypeMatrix:
 	sprintf ((char *) temp, "%g %g %g %g",
 		 v.u.m->xx, v.u.m->xy, v.u.m->yx, v.u.m->yy);
@@ -526,7 +567,7 @@ FcNameUnparseValue (FcStrBuf	*buf,
     case FcTypeFTFace:
 	return FcTrue;
     case FcTypeRange:
-	sprintf ((char *) temp, "[%g %g)", v.u.r->begin, v.u.r->end);
+	sprintf ((char *) temp, "[%g %g]", v.u.r->begin, v.u.r->end);
 	return FcNameUnparseString (buf, temp, 0);
     }
     return FcFalse;

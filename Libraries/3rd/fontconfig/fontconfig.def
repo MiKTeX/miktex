@@ -43,6 +43,9 @@ EXPORTS
 	FcConfigCreate
 	FcConfigDestroy
 	FcConfigEnableHome
+	FcConfigFileInfoIterGet
+	FcConfigFileInfoIterInit
+	FcConfigFileInfoIterNext
 	FcConfigFilename
 	FcConfigGetBlanks
 	FcConfigGetCache
@@ -56,6 +59,7 @@ EXPORTS
 	FcConfigGetSysRoot
 	FcConfigHome
 	FcConfigParseAndLoad
+	FcConfigParseAndLoadFromMemory
 	FcConfigReference
 	FcConfigSetCurrent
 	FcConfigSetRescanInterval
@@ -65,6 +69,8 @@ EXPORTS
 	FcConfigUptoDate
 	FcDefaultSubstitute
 	FcDirCacheClean
+	FcDirCacheCreateUUID
+	FcDirCacheDeleteUUID
 	FcDirCacheLoad
 	FcDirCacheLoadFile
 	FcDirCacheRead
@@ -93,6 +99,7 @@ EXPORTS
 	FcFreeTypeCharSet
 	FcFreeTypeCharSetAndSpacing
 	FcFreeTypeQuery
+	FcFreeTypeQueryAll
 	FcFreeTypeQueryFace
 	FcGetDefaultLangs
 	FcGetLangs
@@ -156,6 +163,7 @@ EXPORTS
 	FcPatternEqual
 	FcPatternEqualSubset
 	FcPatternFilter
+	FcPatternFindIter
 	FcPatternFormat
 	FcPatternGet
 	FcPatternGetBool
@@ -167,7 +175,16 @@ EXPORTS
 	FcPatternGetMatrix
 	FcPatternGetRange
 	FcPatternGetString
+	FcPatternGetWithBinding
 	FcPatternHash
+	FcPatternIterEqual
+	FcPatternIterGetObject
+	FcPatternIterGetValue
+	FcPatternIterIsValid
+	FcPatternIterNext
+	FcPatternIterStart
+	FcPatternIterValueCount
+	FcPatternObjectCount
 	FcPatternPrint
 	FcPatternReference
 	FcPatternRemove
@@ -209,4 +226,6 @@ EXPORTS
 	FcValuePrint
 	FcValueSave
 	FcWeightFromOpenType
+	FcWeightFromOpenTypeDouble
 	FcWeightToOpenType
+	FcWeightToOpenTypeDouble

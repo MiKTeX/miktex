@@ -59,7 +59,7 @@ FcLangSetBitSet (FcLangSet    *ls,
   if (bucket >= ls->map_size)
     return; /* shouldn't happen really */
 
-  ls->map[bucket] |= ((FcChar32) 1 << (id & 0x1f));
+  ls->map[bucket] |= ((FcChar32) 1U << (id & 0x1f));
 }
 
 static FcBool
@@ -87,7 +87,7 @@ FcLangSetBitReset (FcLangSet    *ls,
   if (bucket >= ls->map_size)
     return; /* shouldn't happen really */
 
-  ls->map[bucket] &= ~((FcChar32) 1 << (id & 0x1f));
+  ls->map[bucket] &= ~((FcChar32) 1U << (id & 0x1f));
 }
 
 FcLangSet *
@@ -157,7 +157,7 @@ FcFreeTypeLangSet (const FcCharSet  *charset,
 			if (map[i])
 			{
 			    for (j = 0; j < 32; j++)
-				if (map[i] & (1 << j))
+				if (map[i] & (1U << j))
 				    printf (" %04x", ucs4 + i * 32 + j);
 			}
 		}
@@ -485,6 +485,9 @@ FcLangSetCreate (void)
 void
 FcLangSetDestroy (FcLangSet *ls)
 {
+    if (!ls)
+	return;
+
     if (ls->extra)
 	FcStrSetDestroy (ls->extra);
     free (ls);
@@ -494,6 +497,9 @@ FcLangSet *
 FcLangSetCopy (const FcLangSet *ls)
 {
     FcLangSet	*new;
+
+    if (!ls)
+	return NULL;
 
     new = FcLangSetCreate ();
     if (!new)
@@ -842,7 +848,7 @@ FcNameUnparseLangSet (FcStrBuf *buf, const FcLangSet *ls)
 	if ((bits = ls->map[i]))
 	{
 	    for (bit = 0; bit <= 31; bit++)
-		if (bits & (1 << bit))
+		if (bits & (1U << bit))
 		{
 		    int id = (i << 5) | bit;
 		    if (!first)
@@ -976,7 +982,7 @@ FcLangSetContains (const FcLangSet *lsa, const FcLangSet *lsb)
 	if (missing)
 	{
 	    for (j = 0; j < 32; j++)
-		if (missing & (1 << j))
+		if (missing & (1U << j))
 		{
 		    if (!FcLangSetContainsLang (lsa,
 						fcLangCharSets[fcLangCharSetIndicesInv[i*32 + j]].lang))

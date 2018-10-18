@@ -230,6 +230,8 @@ static inline int gettimeofday(struct timeval* tp, void* tzp)
 
 /* sys/types.h */
 
+typedef intptr_t ssize_t;
+
 #if !HAVE_CHMOD && !defined(chmod)
 static inline int chmod(const char* path, int mode)
 {
