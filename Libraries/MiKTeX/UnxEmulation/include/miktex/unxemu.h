@@ -191,6 +191,9 @@ static inline int strncasecmp(const char* s1, const char* s2, size_t n)
 #define S_ISDIR(m) (((m) & _S_IFDIR) != 0)
 #define S_ISREG(m) (((m) & _S_IFREG) != 0)
 
+#define S_IWGRP 0
+#define S_IWOTH 0
+
 #if !HAVE_OPEN && !defined(open)
 #undef HAVE_OPEN
 #define HAVE_OPEN 1
@@ -231,6 +234,8 @@ static inline int gettimeofday(struct timeval* tp, void* tzp)
 /* sys/types.h */
 
 typedef intptr_t ssize_t;
+
+typedef short uid_t;
 
 #if !HAVE_CHMOD && !defined(chmod)
 static inline int chmod(const char* path, int mode)
@@ -278,10 +283,24 @@ static inline char* getcwd(char* buf, size_t size)
 }
 #endif
 
+#if !HAVE_GETEUID && !defined(geteuid)
+static inline uid_t geteuid()
+{
+  return 0;
+}
+#endif
+
 #if !HAVE_GETPID && !defined(getpid)
 static inline int getpid()
 {
   return _getpid();
+}
+#endif
+
+#if !HAVE_GETUID && !defined(getuid)
+static inline uid_t getuid()
+{
+  return 0;
 }
 #endif
 

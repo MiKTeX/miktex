@@ -12,12 +12,6 @@
 #    define MIKTEX_UTF8_WRAP_ALL 1
 #    include <miktex/utf8wrap.h>
 #    include <miktex/unxemu.h>
-#    define getuid() 0
-#    define geteuid() 0
-typedef int uid_t;
-#    define S_IWGRP 0
-#    define S_IWOTH 0
-typedef int ssize_t;
 #  endif
 #  include <miktex/Definitions.h>
 #  if defined(MIKTEX_POPT_SHARED)
