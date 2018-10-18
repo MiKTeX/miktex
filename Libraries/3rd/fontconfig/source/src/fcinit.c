@@ -38,7 +38,7 @@
 static FcConfig *
 FcInitFallbackConfig (const FcChar8 *sysroot)
 {
-#if !defined(MIKTEX_WINDOWS)
+#if !defined(MIKTEX)
     FcConfig	*config;
     const FcChar8 *fallback = (const FcChar8 *) ""	\
 	"<fontconfig>" \
@@ -96,7 +96,7 @@ FcInitLoadOwnConfig (FcConfig *config)
 
 	return fallback;
     }
-#if !defined(MIKTEX_WINDOWS)
+#if !defined(MIKTEX)
     (void) FcConfigParseOnly (config, (const FcChar8 *)FC_TEMPLATEDIR, FcFalse);
 #endif
 
