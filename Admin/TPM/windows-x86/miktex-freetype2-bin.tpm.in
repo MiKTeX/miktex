@@ -6,7 +6,7 @@
     <TPM:Title>FreeType2 library, Windows x86</TPM:Title>
     <TPM:Copyright owner="David Turner, Robert Wilhelm, and Werner Lemberg" year="2006-2016"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>2.8.1</TPM:Version>
+    <TPM:Version>2.9.1</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

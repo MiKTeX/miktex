@@ -40,6 +40,7 @@ set(public_include_directories
 set(interface_definitions
   -DHAVE_FT2BUILD_H=1
   -DHAVE_LIBFREETYPE=1
+  -DFT2_DLLIMPORT=1
 )
 
 add_definitions(
@@ -111,13 +112,11 @@ set(sources
   source/src/base/ftbdf.c
   source/src/base/ftbitmap.c
   source/src/base/ftcid.c
-  source/src/base/ftfntfmt.c
   source/src/base/ftfstype.c
   source/src/base/ftgasp.c
   source/src/base/ftglyph.c
   source/src/base/ftgxval.c
   source/src/base/ftinit.c
-  source/src/base/ftlcdfil.c
   source/src/base/ftmm.c
   source/src/base/ftotval.c
   source/src/base/ftpatent.c
@@ -128,7 +127,6 @@ set(sources
   source/src/base/fttype1.c
   source/src/base/ftwinfnt.c
   source/src/bdf/bdf.c
-  source/src/bzip2/ftbzip2.c
   source/src/cache/ftcache.c
   source/src/cff/cff.c
   source/src/cid/type1cid.c
@@ -138,7 +136,7 @@ set(sources
   source/src/pfr/pfr.c
   source/src/psaux/psaux.c
   source/src/pshinter/pshinter.c
-  source/src/psnames/psnames.c
+  source/src/psnames/psmodule.c
   source/src/raster/raster.c
   source/src/sfnt/sfnt.c
   source/src/smooth/smooth.c
@@ -154,15 +152,14 @@ set(sources
   source/include/freetype/config/ftstdlib.h
   source/include/freetype/freetype.h
   source/include/freetype/ftadvanc.h
-  source/include/freetype/ftautoh.h
   source/include/freetype/ftbbox.h
   source/include/freetype/ftbdf.h
   source/include/freetype/ftbitmap.h
   source/include/freetype/ftbzip2.h
   source/include/freetype/ftcache.h
-  source/include/freetype/ftcffdrv.h
   source/include/freetype/ftchapters.h
   source/include/freetype/ftcid.h
+  source/include/freetype/ftdriver.h
   source/include/freetype/fterrdef.h
   source/include/freetype/fterrors.h
   source/include/freetype/ftfntfmt.h
@@ -181,6 +178,7 @@ set(sources
   source/include/freetype/ftmoderr.h
   source/include/freetype/ftotval.h
   source/include/freetype/ftoutln.h
+  source/include/freetype/ftparams.h
   source/include/freetype/ftpfr.h
   source/include/freetype/ftrender.h
   source/include/freetype/ftsizes.h
@@ -189,19 +187,21 @@ set(sources
   source/include/freetype/ftsynth.h
   source/include/freetype/ftsystem.h
   source/include/freetype/fttrigon.h
-  source/include/freetype/ftttdrv.h
   source/include/freetype/fttypes.h
   source/include/freetype/ftwinfnt.h
   source/include/freetype/internal
   source/include/freetype/internal/autohint.h
+  source/include/freetype/internal/cffotypes.h
+  source/include/freetype/internal/cfftypes.h
   source/include/freetype/internal/ftcalc.h
   source/include/freetype/internal/ftdebug.h
-  source/include/freetype/internal/ftdriver.h
+  source/include/freetype/internal/ftdrv.h
   source/include/freetype/internal/ftgloadr.h
   source/include/freetype/internal/fthash.h
   source/include/freetype/internal/ftmemory.h
   source/include/freetype/internal/ftobjs.h
   source/include/freetype/internal/ftpic.h
+  source/include/freetype/internal/ftpsprop.h
   source/include/freetype/internal/ftrfork.h
   source/include/freetype/internal/ftserv.h
   source/include/freetype/internal/ftstream.h
@@ -212,11 +212,13 @@ set(sources
   source/include/freetype/internal/pshints.h
   source/include/freetype/internal/services
   source/include/freetype/internal/services/svbdf.h
+  source/include/freetype/internal/services/svcfftl.h
   source/include/freetype/internal/services/svcid.h
   source/include/freetype/internal/services/svfntfmt.h
   source/include/freetype/internal/services/svgldict.h
   source/include/freetype/internal/services/svgxval.h
   source/include/freetype/internal/services/svkern.h
+  source/include/freetype/internal/services/svmetric.h
   source/include/freetype/internal/services/svmm.h
   source/include/freetype/internal/services/svotval.h
   source/include/freetype/internal/services/svpfr.h
@@ -236,7 +238,6 @@ set(sources
   source/include/freetype/ttnameid.h
   source/include/freetype/tttables.h
   source/include/freetype/tttags.h
-  source/include/freetype/ttunpat.h
   source/include/ft2build.h
 
   freetype2-version.h
