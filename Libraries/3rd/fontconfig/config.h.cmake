@@ -72,8 +72,7 @@
 #cmakedefine HAVE_FSTATVFS 1
 
 /* Define to 1 if you have the `FT_Done_MM_Var' function. */
-/* TODO: #define HAVE_FT_DONE_MM_VAR 1 */
-#undef HAVE_FT_DONE_MM_VAR
+#define HAVE_FT_DONE_MM_VAR 1
 
 /* Define to 1 if you have the `FT_Get_BDF_Property' function. */
 #define HAVE_FT_GET_BDF_PROPERTY 1
