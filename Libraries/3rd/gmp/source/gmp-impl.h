@@ -2687,7 +2687,7 @@ __GMP_DECLSPEC mp_bitcnt_t mpn_remove (mp_ptr, mp_size_t *, mp_srcptr, mp_size_t
 	   ASM_L(done) ":\n"						\
 	   : "=r" (__ptr_dummy)						\
 	   : "0"  (ptr),						\
-	     "ri" ((mp_limb_t) (incr)), "n" (sizeof(mp_limb_t))		\
+	     "re" ((mp_limb_t) (incr)), "n" (sizeof(mp_limb_t))		\
 	   : "memory");							\
       }									\
   } while (0)

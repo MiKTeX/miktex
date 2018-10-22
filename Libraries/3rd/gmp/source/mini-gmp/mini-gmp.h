@@ -108,6 +108,9 @@ mp_limb_t mpn_rshift (mp_ptr, mp_srcptr, mp_size_t, unsigned int);
 mp_bitcnt_t mpn_scan0 (mp_srcptr, mp_bitcnt_t);
 mp_bitcnt_t mpn_scan1 (mp_srcptr, mp_bitcnt_t);
 
+void mpn_com (mp_ptr, mp_srcptr, mp_size_t);
+mp_limb_t mpn_neg (mp_ptr, mp_srcptr, mp_size_t);
+
 mp_bitcnt_t mpn_popcount (mp_srcptr, mp_size_t);
 
 mp_limb_t mpn_invert_3by2 (mp_limb_t, mp_limb_t);

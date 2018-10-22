@@ -1,6 +1,6 @@
 /* longlong.h -- definitions for mixed size 32/64 bit arithmetic.
 
-Copyright 1991-1994, 1996, 1997, 1999-2005, 2007-2009, 2011-2015 Free Software
+Copyright 1991-1994, 1996, 1997, 1999-2005, 2007-2009, 2011-2016 Free Software
 Foundation, Inc.
 
 This file is part of the GNU MP Library.
@@ -424,17 +424,17 @@ long __MPN(count_leading_zeros) (UDItype);
 	   : "=r" (sh),							\
 	     "=&r" (sl)							\
 	   : "r"  ((USItype) (ah)),					\
-	     "rIJ" ((USItype) (bh)),					\
+	     "rICal" ((USItype) (bh)),					\
 	     "%r" ((USItype) (al)),					\
-	     "rIJ" ((USItype) (bl)))
+	     "rICal" ((USItype) (bl)))
 #define sub_ddmmss(sh, sl, ah, al, bh, bl) \
   __asm__ ("sub.f\t%1, %4, %5\n\tsbc\t%0, %2, %3"			\
 	   : "=r" (sh),							\
 	     "=&r" (sl)							\
 	   : "r" ((USItype) (ah)),					\
-	     "rIJ" ((USItype) (bh)),					\
+	     "rICal" ((USItype) (bh)),					\
 	     "r" ((USItype) (al)),					\
-	     "rIJ" ((USItype) (bl)))
+	     "rICal" ((USItype) (bl)))
 #endif
 
 #if defined (__arm__) && (defined (__thumb2__) || !defined (__thumb__)) \
@@ -506,6 +506,7 @@ long __MPN(count_leading_zeros) (UDItype);
 	   : "r" ((USItype) (a)), "r" ((USItype) (b)) __CLOBBER_CC);	\
   } while (0)
 #define UMUL_TIME 20
+#ifndef LONGLONG_STANDALONE
 #define udiv_qrnnd(q, r, n1, n0, d) \
   do { UWtype __r;							\
     (q) = __MPN(udiv_qrnnd) (&__r, (n1), (n0), (d));			\
@@ -513,6 +514,7 @@ long __MPN(count_leading_zeros) (UDItype);
   } while (0)
 extern UWtype __MPN(udiv_qrnnd) (UWtype *, UWtype, UWtype, UWtype);
 #define UDIV_TIME 200
+#endif /* LONGLONG_STANDALONE */
 #else /* ARMv4 or newer */
 #define umul_ppmm(xh, xl, a, b) \
   __asm__ ("umull %0,%1,%2,%3" : "=&r" (xl), "=&r" (xh) : "r" (a), "r" (b))
@@ -1895,11 +1897,11 @@ extern UWtype __MPN(udiv_qrnnd) (UWtype *, UWtype, UWtype, UWtype);
 /* FIXME: "sidi" here is highly doubtful, should sometimes be "diti".  */
 #if !defined (umul_ppmm) && defined (__umulsidi3)
 #define umul_ppmm(ph, pl, m0, m1) \
-  {									\
+  do {									\
     UDWtype __ll = __umulsidi3 (m0, m1);				\
     ph = (UWtype) (__ll >> W_TYPE_SIZE);				\
     pl = (UWtype) __ll;							\
-  }
+  } while (0)
 #endif
 
 #if !defined (__umulsidi3)
@@ -2104,7 +2106,8 @@ extern __longlong_h_C UWtype mpn_udiv_qrnnd_r (UWtype, UWtype, UWtype, UWtype *)
 
 /* If the processor has no udiv_qrnnd but sdiv_qrnnd, go through
    __udiv_w_sdiv (defined in libgcc or elsewhere).  */
-#if !defined (udiv_qrnnd) && defined (sdiv_qrnnd)
+#if !defined (udiv_qrnnd) && defined (sdiv_qrnnd) \
+  && ! defined (LONGLONG_STANDALONE)
 #define udiv_qrnnd(q, r, nh, nl, d) \
   do {									\
     UWtype __r;								\
