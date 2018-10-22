@@ -91,7 +91,7 @@ foreach(gen ${generators})
   add_executable(${gen}
     ${fqsrcdir}/${gen}.c
   )
-  set_property(TARGET ${gen} PROPERTY FOLDER "${MIKTEX_CURRENT_FOLDER}/generators")
+  set_property(TARGET ${gen} PROPERTY FOLDER "${MIKTEX_CURRENT_FOLDER}/gen")
 endforeach()
 
 add_custom_command(
@@ -136,6 +136,8 @@ set(generated_gmp_sources
 add_custom_target(gen-gmp-sources DEPENDS
   ${generated_gmp_sources}
 )
+
+set_property(TARGET gen-gmp-sources PROPERTY FOLDER "${MIKTEX_CURRENT_FOLDER}/gen")
 
 set(basic_sources
   ${fqsrcdir}/assert.c
