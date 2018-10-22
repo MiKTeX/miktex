@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-char-sets-cap-rtl.c - CapRTL character set conversion routines
  *
- * $Id: fribidi-char-sets-cap-rtl.c,v 1.12 2006-01-22 10:12:17 behdad Exp $
- * $Author: behdad $
- * $Date: 2006-01-22 10:12:17 $
- * $Revision: 1.12 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/charset/fribidi-char-sets-cap-rtl.c,v $
- *
  * Authors:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *   Dov Grobgeld, 1999, 2000
@@ -30,7 +24,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 
 #include <common.h>
@@ -64,7 +58,7 @@ enum
 static FriBidiCharType CapRTLCharTypes[] = {
 /* *INDENT-OFF* */
   ON, ON, ON, ON, LTR,RTL,ON, ON, ON, ON, ON, ON, ON, BS, RLO,RLE, /* 00-0f */
-  LRO,LRE,PDF,WS, ON, ON, ON, ON, ON, ON, ON, ON, ON, ON, ON, ON,  /* 10-1f */
+  LRO,LRE,PDF,WS, LRI, RLI, FSI, PDI, ON, ON, ON, ON, ON, ON, ON, ON,  /* 10-1f */
   WS, ON, ON, ON, ET, ON, ON, ON, ON, ON, ON, ET, CS, ON, ES, ES,  /* 20-2f */
   EN, EN, EN, EN, EN, EN, AN, AN, AN, AN, CS, ON, ON, ON, ON, ON,  /* 30-3f */
   RTL,AL, AL, AL, AL, AL, AL, RTL,RTL,RTL,RTL,RTL,RTL,RTL,RTL,RTL, /* 40-4f */
@@ -129,7 +123,7 @@ init_cap_rtl (
 	for (j = 0; j < num_types; j++)
 	  if (to_type[j] == t)
 	    break;
-	if (!request[j])	/* Do not need this type */
+	if (j >= num_types || !request[j])	/* Do not need this type */
 	  continue;
 	for (k = 0; k < CAPRTL_CHARS; k++)
 	  if (caprtl_to_unicode[k] == FRIBIDI_UNICODE_CHARS
@@ -216,6 +210,18 @@ fribidi_cap_rtl_to_unicode (
 	    case 'R':
 	      us[j++] = FRIBIDI_CHAR_RLO;
 	      break;
+            case 'i':
+              us[j++] = FRIBIDI_CHAR_LRI;
+	      break;
+            case 'y':
+              us[j++] = FRIBIDI_CHAR_RLI;
+	      break;
+            case 'f':
+              us[j++] = FRIBIDI_CHAR_FSI;
+	      break;
+            case 'I':
+              us[j++] = FRIBIDI_CHAR_PDI;
+	      break;
 	    case '_':
 	      us[j++] = '_';
 	      break;
@@ -248,8 +254,9 @@ fribidi_unicode_to_cap_rtl (
   for (i = 0; i < len; i++)
     {
       FriBidiChar ch = us[i];
-      if (!FRIBIDI_IS_EXPLICIT (fribidi_get_bidi_type (ch)) && ch != '_'
-	  && ch != FRIBIDI_CHAR_LRM && ch != FRIBIDI_CHAR_RLM)
+      if (!FRIBIDI_IS_EXPLICIT (fribidi_get_bidi_type (ch))
+          && !FRIBIDI_IS_ISOLATE (fribidi_get_bidi_type (ch))
+          && ch != '_' && ch != FRIBIDI_CHAR_LRM && ch != FRIBIDI_CHAR_RLM)
 	s[j++] = fribidi_unicode_to_cap_rtl_c (ch);
       else
 	{
@@ -276,6 +283,18 @@ fribidi_unicode_to_cap_rtl (
 	      break;
 	    case FRIBIDI_CHAR_RLO:
 	      s[j++] = 'R';
+	      break;
+	    case FRIBIDI_CHAR_LRI:
+	      s[j++] = 'i';
+	      break;
+	    case FRIBIDI_CHAR_RLI:
+	      s[j++] = 'y';
+	      break;
+	    case FRIBIDI_CHAR_FSI:
+	      s[j++] = 'f';
+	      break;
+	    case FRIBIDI_CHAR_PDI:
+	      s[j++] = 'I';
 	      break;
 	    case '_':
 	      s[j++] = '_';
@@ -333,7 +352,10 @@ fribidi_char_set_desc_cap_rtl (
 		"    * _>  LRM\n" "    * _<  RLM\n"
 		"    * _l  LRE\n" "    * _r  RLE\n"
 		"    * _L  LRO\n" "    * _R  RLO\n"
-		"    * _o  PDF\n" "    * __  `_' itself\n" "\n");
+		"    * _o  PDF\n" "    * _i  LRI\n"
+		"    * _y  RLI\n" "    * _f  FSI\n"
+		"    * _I  PDI\n" "    * __  `_' itself\n"
+                "\n");
   return s;
 }
 

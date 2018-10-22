@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-bidi.h - bidirectional algorithm
  *
- * $Id: fribidi-bidi.h,v 1.15 2005-11-03 01:39:01 behdad Exp $
- * $Author: behdad $
- * $Date: 2005-11-03 01:39:01 $
- * $Revision: 1.15 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-bidi.h,v $
- *
  * Authors:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *   Dov Grobgeld, 1999, 2000
@@ -30,7 +24,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _FRIBIDI_BIDI_H
 #define _FRIBIDI_BIDI_H
@@ -43,7 +37,6 @@
 
 #include "fribidi-begindecls.h"
 
-#define fribidi_get_par_direction FRIBIDI_NAMESPACE(get_par_direction)
 /* fribidi_get_par_direction - get base paragraph direction
  *
  * This function finds the base direction of a single paragraph,
@@ -68,8 +61,7 @@ FRIBIDI_ENTRY FriBidiParType fribidi_get_par_direction (
   const FriBidiStrIndex len	/* input string length */
 );
 
-#define fribidi_get_par_embedding_levels FRIBIDI_NAMESPACE(get_par_embedding_levels)
-/* fribidi_get_par_embedding_levels - get bidi embedding levels of a paragraph
+/* fribidi_get_par_embedding_levels_ex - get bidi embedding levels of a paragraph
  *
  * This function finds the bidi embedding levels of a single paragraph,
  * as defined by the Unicode Bidirectional Algorithm available at
@@ -81,20 +73,21 @@ FRIBIDI_ENTRY FriBidiParType fribidi_get_par_direction (
  * There are a few macros defined in fribidi-bidi-types.h to work with this
  * embedding levels.
  *
- * Returns: Maximum level found plus one, or zero if any error occured
+ * Returns: Maximum level found plus one, or zero if any error occurred
  * (memory allocation failure most probably).
  */
 FRIBIDI_ENTRY FriBidiLevel
-fribidi_get_par_embedding_levels (
+fribidi_get_par_embedding_levels_ex (
   const FriBidiCharType *bidi_types,	/* input list of bidi types as returned by
 					   fribidi_get_bidi_types() */
+  const FriBidiBracketType *bracket_types,	/* input list of bracket types as returned by
+					   fribidi_get_bracket_types() */
   const FriBidiStrIndex len,	/* input string length of the paragraph */
   FriBidiParType *pbase_dir,	/* requested and resolved paragraph
 				 * base direction */
   FriBidiLevel *embedding_levels	/* output list of embedding levels */
 ) FRIBIDI_GNUC_WARN_UNUSED;
 
-#define fribidi_reorder_line FRIBIDI_NAMESPACE(reorder_line)
 /* fribidi_reorder_line - reorder a line of logical string to visual
  *
  * This function reorders the characters in a line of text from logical to
@@ -123,7 +116,7 @@ fribidi_get_par_embedding_levels (
  * in FRIBIDI_FLAGS_DEFAULT.
  *
  * Returns: Maximum level found in this line plus one, or zero if any error
- * occured (memory allocation failure most probably).
+ * occurred (memory allocation failure most probably).
  */
      FRIBIDI_ENTRY FriBidiLevel fribidi_reorder_line (
   FriBidiFlags flags, /* reorder flags */

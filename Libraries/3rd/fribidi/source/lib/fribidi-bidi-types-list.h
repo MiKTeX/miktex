@@ -2,12 +2,6 @@
 /* FriBidi
  * fribidi-bidi-types-list.h - list of bidi types
  *
- * $Id: fribidi-bidi-types-list.h,v 1.5 2004-06-13 20:11:42 behdad Exp $
- * $Author: behdad $
- * $Date: 2004-06-13 20:11:42 $
- * $Revision: 1.5 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-bidi-types-list.h,v $
- *
  * Author:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *
@@ -29,7 +23,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  *
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 /* *INDENT-OFF* */
 #endif /* !__FRIBIDI_DOC */
@@ -61,6 +55,10 @@ _FRIBIDI_ADD_TYPE (RLE, '+')	/* Right-to-Left Embedding */
 _FRIBIDI_ADD_TYPE (LRO, '+')	/* Left-to-Right Override */
 _FRIBIDI_ADD_TYPE (RLO, '+')	/* Right-to-Left Override */
 _FRIBIDI_ADD_TYPE (PDF, '-')	/* Pop Directional Flag */
+_FRIBIDI_ADD_TYPE (LRI, '+')	/* Left-to-Right Isolate */
+_FRIBIDI_ADD_TYPE (RLI, '+')	/* Right-to-Left Isolate */
+_FRIBIDI_ADD_TYPE (FSI, '+')	/* First-Strong Isolate */
+_FRIBIDI_ADD_TYPE (PDI, '-')	/* Pop Directional Isolate */
 
 #if defined(_FRIBIDI_ADD_ALIAS)
 _FRIBIDI_ADD_ALIAS (L, LTR)

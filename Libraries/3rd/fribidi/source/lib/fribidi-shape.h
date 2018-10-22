@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-shape.h - shaping
  *
- * $Id: fribidi-shape.h,v 1.2 2006-01-14 12:09:29 behdad Exp $
- * $Author: behdad $
- * $Date: 2006-01-14 12:09:29 $
- * $Revision: 1.2 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-shape.h,v $
- *
  * Author:
  *   Behdad Esfahbod, 2004, 2005
  *
@@ -28,7 +22,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _FRIBIDI_SHAPE_H
 #define _FRIBIDI_SHAPE_H
@@ -41,7 +35,6 @@
 #include "fribidi-begindecls.h"
 
 
-#define fribidi_shape FRIBIDI_NAMESPACE(shape)
 /* fribidi_shape - do bidi-aware shaping
  *
  * This function does all shaping work that depends on the resolved embedding

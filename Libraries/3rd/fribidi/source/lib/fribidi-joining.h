@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-joining.h - Arabic joining algorithm
  *
- * $Id: fribidi-joining.h,v 1.3 2004-06-21 21:15:31 behdad Exp $
- * $Author: behdad $
- * $Date: 2004-06-21 21:15:31 $
- * $Revision: 1.3 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-joining.h,v $
- *
  * Authors:
  *   Behdad Esfahbod, 2004
  *
@@ -28,7 +22,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _FRIBIDI_JOINING_H
 #define _FRIBIDI_JOINING_H
@@ -41,7 +35,6 @@
 
 #include "fribidi-begindecls.h"
 
-#define fribidi_join_arabic FRIBIDI_NAMESPACE(join_arabic)
 /* fribidi_join_arabic - do Arabic joining
  *
  * This function does the Arabic joining algorithm.  Means, given Arabic
@@ -68,7 +61,7 @@ FRIBIDI_ENTRY void fribidi_join_arabic (
   const FriBidiLevel *embedding_levels,	/* input list of embedding
 					   levels, as returned by
 					   fribidi_get_par_embedding_levels */
-  FriBidiArabicProp *ar_props	/* Arabic properties to analyze, initilized by
+  FriBidiArabicProp *ar_props	/* Arabic properties to analyze, initialized by
 				   joining types, as returned by
 				   fribidi_get_joining_types */
 );

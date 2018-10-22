@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016 Christian Schenk
+## Copyright (C) 2016-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/fribidi")
 
 include_directories(BEFORE
@@ -30,11 +32,6 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib
 )
 
-set(FRIBIDI_VERSION "0.19.7")
-set(FRIBIDI_MAJOR_VERSION 0)
-set(FRIBIDI_MINOR_VERSION 19)
-set(FRIBIDI_MICRO_VERSION 7)
-set(FRIBIDI_INTERFACE_VERSION 3)
 set(FRIBIDI_CHARSETS 1)
 set(FRIBIDI_USE_GLIB 0)
 set(SIZEOF_INT 4)
@@ -57,27 +54,27 @@ set(public_include_directories
 set(public_headers
   lib/fribidi-arabic.h
   lib/fribidi-begindecls.h
-  lib/fribidi-bidi.h
-  lib/fribidi-bidi-types.h
   lib/fribidi-bidi-types-list.h
+  lib/fribidi-bidi-types.h
+  lib/fribidi-bidi.h
+  lib/fribidi-brackets.h
+  lib/fribidi-char-sets-list.h
+  lib/fribidi-char-sets.h
   lib/fribidi-common.h
   lib/fribidi-deprecated.h
   lib/fribidi-enddecls.h
   lib/fribidi-flags.h
-  lib/fribidi-joining.h
-  lib/fribidi-joining-types.h
   lib/fribidi-joining-types-list.h
+  lib/fribidi-joining-types.h
+  lib/fribidi-joining.h
   lib/fribidi-mirroring.h
   lib/fribidi-shape.h
   lib/fribidi-types.h
-  lib/fribidi-unicode.h
   lib/fribidi-unicode-version.h
+  lib/fribidi-unicode.h
   lib/fribidi.h
-
-  charset/fribidi-char-sets.h
-  charset/fribidi-char-sets-list.h
 )
-      
+
 foreach(hdr ${public_headers})
   get_filename_component(h ${hdr} NAME)
   configure_file(
@@ -86,6 +83,11 @@ foreach(hdr ${public_headers})
     COPYONLY
   )
 endforeach()
+
+configure_file(
+  fribidi-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/fribidi-version.h
+)
 
 include(sources.cmake)
 

@@ -18,14 +18,8 @@
  * along with GNU FriBidi; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  * 
- * For licensing issues, contact <license@farsiweb.info> or write to
+ * For licensing issues, contact <fribidi.license@gmail.com> or write to
  * Sharif FarsiWeb, Inc., PO Box 13445-389, Tehran, Iran.
- */
-/* $Id: fribidi-arabic.h,v 1.1 2005-11-03 01:39:01 behdad Exp $
- * $Author: behdad $
- * $Date: 2005-11-03 01:39:01 $
- * $Revision: 1.1 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-arabic.h,v $
  *
  * Author(s):
  *   Behdad Esfahbod, 2005
@@ -43,7 +37,6 @@
 #include "fribidi-begindecls.h"
 
 
-#define fribidi_shape_arabic FRIBIDI_NAMESPACE(shape_arabic)
 /* fribidi_shape_arabic - do Arabic shaping
  *
  * The actual shaping that is done depends on the flags set.  Only flags
@@ -60,7 +53,7 @@
  *					   rendering capabilities.
  *
  * Of the above, FRIBIDI_FLAG_SHAPE_ARAB_CONSOLE is only used in special
- * cases, but the rest are recommended in any enviroment that doesn't have
+ * cases, but the rest are recommended in any environment that doesn't have
  * other means for doing Arabic shaping.  The set of extra flags that enable
  * this level of Arabic support has a shortcut named FRIBIDI_FLAGS_ARABIC.
  */

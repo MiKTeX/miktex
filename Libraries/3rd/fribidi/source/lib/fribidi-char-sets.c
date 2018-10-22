@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-char-sets.c - character set conversion routines
  *
- * $Id: fribidi-char-sets.c,v 1.7 2006-01-31 03:23:12 behdad Exp $
- * $Author: behdad $
- * $Date: 2006-01-31 03:23:12 $
- * $Revision: 1.7 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/charset/fribidi-char-sets.c,v $
- *
  * Authors:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *   Dov Grobgeld, 1999, 2000
@@ -30,7 +24,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 
 #include <common.h>
@@ -113,12 +107,8 @@ static FriBidiCharSetHandler char_sets[FRIBIDI_CHAR_SETS_NUM + 1] = {
 # undef _FRIBIDI_ADD_CHAR_SET_ONE2ONE
 };
 
-#if FRIBIDI_USE_GLIB+0
-# include <glib.h>
-# define fribidi_strcasecmp g_ascii_strcasecmp
-#else /* !FRIBIDI_USE_GLIB */
 static char
-toupper (
+fribidi_toupper (
   /* input */
   char c
 )
@@ -133,14 +123,13 @@ fribidi_strcasecmp (
   const char *s2
 )
 {
-  while (*s1 && toupper (*s1) == toupper (*s2))
+  while (*s1 && fribidi_toupper (*s1) == fribidi_toupper (*s2))
     {
       s1++;
       s2++;
     }
-  return toupper (*s1) - toupper (*s2);
+  return fribidi_toupper (*s1) - fribidi_toupper (*s2);
 }
-#endif /* !FRIBIDI_USE_GLIB */
 
 FRIBIDI_ENTRY FriBidiCharSet
 fribidi_parse_charset (

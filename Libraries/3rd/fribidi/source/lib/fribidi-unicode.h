@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-unicode.h - general Unicode definitions
  *
- * $Id: fribidi-unicode.h,v 1.7 2006-01-31 03:23:13 behdad Exp $
- * $Author: behdad $
- * $Date: 2006-01-31 03:23:13 $
- * $Revision: 1.7 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-unicode.h,v $
- *
  * Author:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *
@@ -28,7 +22,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _FRIBIDI_UNICODE_H
 #define _FRIBIDI_UNICODE_H
@@ -43,13 +37,12 @@
 #define FRIBIDI_UNICODE_CHARS	(sizeof(FriBidiChar) >= 4 ? 0x110000 : 0xFFFE)
 
 /* Unicode version - FRIBIDI_UNICODE_VERSION */
-#if DONT_HAVE_FRIBIDI_UNICODE_VERSION_H+0
+#ifdef DONT_HAVE_FRIBIDI_UNICODE_VERSION_H
 # define FRIBIDI_UNICODE_VERSION "unknown"
 #else /* !DONT_HAVE_FRIBIDI_UNICODE_VERSION_H */
 # include "fribidi-unicode-version.h"
 #endif /* !DONT_HAVE_FRIBIDI_UNICODE_VERSION_H */
 
-#define fribidi_unicode_version FRIBIDI_NAMESPACE(unicode_version)
 /* An string containing the version the Unicode standard implemented,
  * in the form of "x.y.z", or "unknown". */
 extern const char *fribidi_unicode_version;
@@ -61,10 +54,13 @@ extern const char *fribidi_unicode_version;
 #define FRIBIDI_BIDI_NUM_TYPES			19
 
 /* The maximum embedding level value assigned by explicit marks */
-#define FRIBIDI_BIDI_MAX_EXPLICIT_LEVEL		61
-/* The maximum *number* of different resolved embedding levels: 0-62 */
-#define FRIBIDI_BIDI_MAX_RESOLVED_LEVELS	63
+#define FRIBIDI_BIDI_MAX_EXPLICIT_LEVEL		125
 
+/* The maximum *number* of different resolved embedding levels: 0-126 */
+#define FRIBIDI_BIDI_MAX_RESOLVED_LEVELS	127
+
+/* The maximum *number* of nested brackets: 0-63 */
+#define FRIBIDI_BIDI_MAX_NESTED_BRACKET_PAIRS   63
 
 /* A few Unicode characters: */
 
@@ -76,6 +72,10 @@ extern const char *fribidi_unicode_version;
 #define FRIBIDI_CHAR_PDF		0x202C
 #define FRIBIDI_CHAR_LRO		0x202D
 #define FRIBIDI_CHAR_RLO		0x202E
+#define FRIBIDI_CHAR_LRI		0x2066
+#define FRIBIDI_CHAR_RLI		0x2067
+#define FRIBIDI_CHAR_FSI		0x2068
+#define FRIBIDI_CHAR_PDI		0x2069
 
 /* Line and Paragraph Separators */
 #define FRIBIDI_CHAR_LS			0x2028

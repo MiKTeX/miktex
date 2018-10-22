@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-bidi-types.c - character bidi types
  *
- * $Id: fribidi-bidi-types.c,v 1.9 2006-01-31 03:23:13 behdad Exp $
- * $Author: behdad $
- * $Date: 2006-01-31 03:23:13 $
- * $Revision: 1.9 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-bidi-types.c,v $
- *
  * Authors:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *
@@ -28,7 +22,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  *
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 
 #include "common.h"
@@ -86,7 +80,7 @@ fribidi_get_bidi_type_name (
   FriBidiCharType t
 )
 {
-  switch (t)
+  switch ((int)t)
     {
 #   define _FRIBIDI_ADD_TYPE(TYPE,SYMBOL) case FRIBIDI_TYPE_##TYPE: return STRINGIZE(TYPE);
 #   define _FRIBIDI_ALL_TYPES
@@ -98,7 +92,7 @@ fribidi_get_bidi_type_name (
     }
 }
 
-#if DEBUG+0
+#ifdef DEBUG
 
 char
 fribidi_char_from_bidi_type (
@@ -106,7 +100,7 @@ fribidi_char_from_bidi_type (
   FriBidiCharType t
 )
 {
-  switch (t)
+  switch ((int)t)
     {
 #   define _FRIBIDI_ADD_TYPE(TYPE,SYMBOL) case FRIBIDI_TYPE_##TYPE: return SYMBOL;
 #   define _FRIBIDI_ALL_TYPES

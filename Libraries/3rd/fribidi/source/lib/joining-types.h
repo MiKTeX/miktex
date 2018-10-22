@@ -1,12 +1,6 @@
 /* FriBidi
  * joining-types.h - define internal joining types
  *
- * $Id: joining-types.h,v 1.4 2006-01-31 03:23:13 behdad Exp $
- * $Author: behdad $
- * $Date: 2006-01-31 03:23:13 $
- * $Revision: 1.4 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/joining-types.h,v $
- *
  * Author:
  *   Behdad Esfahbod, 2004
  *
@@ -28,7 +22,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  *
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _JOINING_TYPES_H
 #define _JOINING_TYPES_H
@@ -40,9 +34,8 @@
 
 #include <fribidi-begindecls.h>
 
-#if DEBUG+0
+#ifdef DEBUG
 
-#define fribidi_char_from_joining_type FRIBIDI_PRIVATESPACE(char_from_joining_type)
 char
 fribidi_char_from_joining_type (
   FriBidiJoiningType j,		/* input joining type */

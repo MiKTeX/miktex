@@ -1,12 +1,6 @@
 /* FriBidi
  * run.h - text run data type
  *
- * $Id: run.h,v 1.10 2011-05-04 18:04:29 behdad Exp $
- * $Author: behdad $
- * $Date: 2011-05-04 18:04:29 $
- * $Revision: 1.10 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/run.h,v $
- *
  * Authors:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *   Dov Grobgeld, 1999, 2000
@@ -30,7 +24,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _RUN_H
 #define _RUN_H
@@ -54,40 +48,36 @@ struct _FriBidiRunStruct
   FriBidiStrIndex pos, len;
   FriBidiCharType type;
   FriBidiLevel level;
+  FriBidiLevel isolate_level;
+  FriBidiBracketType bracket_type;
+
+  /* Additional links for connecting the isolate tree */
+  FriBidiRun *prev_isolate, *next_isolate;  
 };
 
 
-#define new_run FRIBIDI_PRIVATESPACE(new_run)
 FriBidiRun *
 new_run (
   void
 )
      FRIBIDI_GNUC_HIDDEN FRIBIDI_GNUC_MALLOC FRIBIDI_GNUC_WARN_UNUSED;
 
-#define free_run FRIBIDI_PRIVATESPACE(free_run)
-     void free_run (
-  FriBidiRun *run
-) FRIBIDI_GNUC_HIDDEN;
-
-#define new_run_list FRIBIDI_PRIVATESPACE(new_run_list)
      FriBidiRun *new_run_list (
   void
 )
      FRIBIDI_GNUC_HIDDEN FRIBIDI_GNUC_MALLOC FRIBIDI_GNUC_WARN_UNUSED;
 
-#define free_run_list FRIBIDI_PRIVATESPACE(free_run_list)
      void free_run_list (
   FriBidiRun *run_list
 ) FRIBIDI_GNUC_HIDDEN;
 
-#define run_list_encode_bidi_types FRIBIDI_PRIVATESPACE(run_list_encode_bidi_types)
      FriBidiRun *run_list_encode_bidi_types (
   const FriBidiCharType *bidi_types,
+  const FriBidiBracketType *bracket_types,
   const FriBidiStrIndex len
 )
      FRIBIDI_GNUC_HIDDEN FRIBIDI_GNUC_WARN_UNUSED;
 
-#define shadow_run_list FRIBIDI_PRIVATESPACE(shadow_run_list)
      fribidi_boolean shadow_run_list (
   FriBidiRun *base,
   FriBidiRun *over,
@@ -136,9 +126,8 @@ new_run (
 	for ((x) = (list)->next; (x)->type != FRIBIDI_TYPE_SENTINEL; (x) = (x)->next)
 
 
-#if DEBUG+0
+#ifdef DEBUG
 
-#define fribidi_validate_run_list FRIBIDI_PRIVATESPACE(validate_run_list)
      void fribidi_validate_run_list (
   FriBidiRun *run_list		/* input run list */
 ) FRIBIDI_GNUC_HIDDEN;

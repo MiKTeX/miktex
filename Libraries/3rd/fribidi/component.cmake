@@ -1,6 +1,6 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## component.cmake:
 ##
-## Copyright (C) 2016-2018 Christian Schenk
+## Copyright (C) 2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,23 +17,10 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-use_static_crt()
+include(version.cmake)
 
-add_library(${fribidi_lib_name} STATIC ${fribidi_sources})
+set(MIKTEX_COMP_DESCRIPTION "fribidi - Unicode Bidirectional Algorithm Library")
 
-set_property(TARGET ${fribidi_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-target_include_directories(${fribidi_lib_name}
-  PUBLIC
-    ${public_include_directories}
-)
-
-target_compile_definitions(${fribidi_lib_name}
-  PRIVATE
-    -DFRIBIDI_ENTRY=
-)
-
-target_compile_definitions(${fribidi_lib_name}
-  INTERFACE
-    -DFRIBIDI_STATIC
-)
+set(MIKTEX_COMP_COMPANY_STR "")
+set(MIKTEX_COMP_COPYRIGHT_STR "")
+set(MIKTEX_COMP_COPYRIGHT_STR_1252 "")

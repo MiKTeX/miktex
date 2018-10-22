@@ -1,11 +1,5 @@
 /* FriBidi
- * fribidi-char-sets-cp1255.h - CP1255 character set conversion routines
- *
- * $Id: fribidi-char-sets-cp1255.h,v 1.2 2004-06-09 14:59:21 behdad Exp $
- * $Author: behdad $
- * $Date: 2004-06-09 14:59:21 $
- * $Revision: 1.2 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/charset/fribidi-char-sets-cp1255.h,v $
+ * fribidi-char-sets-utf8.h - UTF-8 character set conversion routines
  *
  * Authors:
  *   Behdad Esfahbod, 2001, 2002, 2004
@@ -30,11 +24,11 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 
-#ifndef _FRIBIDI_CHAR_SETS_CP1255_H
-#define _FRIBIDI_CHAR_SETS_CP1255_H
+#ifndef _FRIBIDI_CHAR_SETS_UTF8_H
+#define _FRIBIDI_CHAR_SETS_UTF8_H
 
 #include "fribidi-common.h"
 
@@ -42,23 +36,25 @@
 
 #include "fribidi-begindecls.h"
 
-#define fribidi_char_set_name_cp1255 "CP1255"
-#define fribidi_char_set_title_cp1255 "CP1255 (MS Hebrew/Yiddish)"
-#define fribidi_char_set_desc_cp1255 NULL
+#define fribidi_char_set_name_utf8 "UTF-8"
+#define fribidi_char_set_title_utf8 "UTF-8 (Unicode)"
+#define fribidi_char_set_desc_utf8 NULL
 
-#define fribidi_cp1255_to_unicode_c FRIBIDI_NAMESPACE(cp1255_to_unicode_c)
-FriBidiChar fribidi_cp1255_to_unicode_c (
-  char ch
+FriBidiStrIndex fribidi_utf8_to_unicode (
+  const char *s,
+  FriBidiStrIndex length,
+  FriBidiChar *us
 );
 
-#define fribidi_unicode_to_cp1255_c FRIBIDI_NAMESPACE(unicode_to_cp1255_c)
-char fribidi_unicode_to_cp1255_c (
-  FriBidiChar uch
+FriBidiStrIndex fribidi_unicode_to_utf8 (
+  const FriBidiChar *us,
+  FriBidiStrIndex length,
+  char *s
 );
 
 #include "fribidi-enddecls.h"
 
-#endif /* !_FRIBIDI_CHAR_SETS_CP1255_H */
+#endif /* !_FRIBIDI_CHAR_SETS_UTF8_H */
 /* Editor directions:
  * vim:textwidth=78:tabstop=8:shiftwidth=2:autoindent:cindent
  */

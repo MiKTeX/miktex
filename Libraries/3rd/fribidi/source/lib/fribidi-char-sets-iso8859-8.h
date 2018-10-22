@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-char-sets-iso8859-8.h - ISO8859-8 character set conversion routines
  *
- * $Id: fribidi-char-sets-iso8859-8.h,v 1.2 2004-06-09 14:59:21 behdad Exp $
- * $Author: behdad $
- * $Date: 2004-06-09 14:59:21 $
- * $Revision: 1.2 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/charset/fribidi-char-sets-iso8859-8.h,v $
- *
  * Authors:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *   Dov Grobgeld, 1999, 2000
@@ -30,7 +24,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 
 #ifndef _FRIBIDI_CHAR_SETS_ISO8859_8_H
@@ -46,12 +40,10 @@
 #define fribidi_char_set_title_iso8859_8 "ISO8859-8 (Hebrew)"
 #define fribidi_char_set_desc_iso8859_8 NULL
 
-#define fribidi_iso8859_8_to_unicode_c FRIBIDI_NAMESPACE(iso8859_8_to_unicode_c)
 FriBidiChar fribidi_iso8859_8_to_unicode_c (
   char ch
 );
 
-#define fribidi_unicode_to_iso8859_8_c FRIBIDI_NAMESPACE(unicode_to_iso8859_8_c)
 char fribidi_unicode_to_iso8859_8_c (
   FriBidiChar uch
 );

@@ -1,11 +1,5 @@
 /* FriBidi
- * fribidi-char-sets-utf8.h - UTF-8 character set conversion routines
- *
- * $Id: fribidi-char-sets-utf8.h,v 1.2 2004-06-09 14:59:21 behdad Exp $
- * $Author: behdad $
- * $Date: 2004-06-09 14:59:21 $
- * $Revision: 1.2 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/charset/fribidi-char-sets-utf8.h,v $
+ * fribidi-char-sets-cap-rtl.h - CapRTL character set conversion routines
  *
  * Authors:
  *   Behdad Esfahbod, 2001, 2002, 2004
@@ -30,11 +24,11 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 
-#ifndef _FRIBIDI_CHAR_SETS_UTF8_H
-#define _FRIBIDI_CHAR_SETS_UTF8_H
+#ifndef _FRIBIDI_CHAR_SETS_CAP_RTL_H
+#define _FRIBIDI_CHAR_SETS_CAP_RTL_H
 
 #include "fribidi-common.h"
 
@@ -42,19 +36,20 @@
 
 #include "fribidi-begindecls.h"
 
-#define fribidi_char_set_name_utf8 "UTF-8"
-#define fribidi_char_set_title_utf8 "UTF-8 (Unicode)"
-#define fribidi_char_set_desc_utf8 NULL
+#define fribidi_char_set_name_cap_rtl "CapRTL"
+#define fribidi_char_set_title_cap_rtl "CapRTL (Test)"
 
-#define fribidi_utf8_to_unicode FRIBIDI_NAMESPACE(utf8_to_unicode)
-FriBidiStrIndex fribidi_utf8_to_unicode (
+const char *fribidi_char_set_desc_cap_rtl (
+  void
+);
+
+FriBidiStrIndex fribidi_cap_rtl_to_unicode (
   const char *s,
   FriBidiStrIndex length,
   FriBidiChar *us
 );
 
-#define fribidi_unicode_to_utf8 FRIBIDI_NAMESPACE(unicode_to_utf8)
-FriBidiStrIndex fribidi_unicode_to_utf8 (
+FriBidiStrIndex fribidi_unicode_to_cap_rtl (
   const FriBidiChar *us,
   FriBidiStrIndex length,
   char *s
@@ -62,7 +57,7 @@ FriBidiStrIndex fribidi_unicode_to_utf8 (
 
 #include "fribidi-enddecls.h"
 
-#endif /* !_FRIBIDI_CHAR_SETS_UTF8_H */
+#endif /* !_FRIBIDI_CHAR_SETS_CAP_RTL_H */
 /* Editor directions:
  * vim:textwidth=78:tabstop=8:shiftwidth=2:autoindent:cindent
  */

@@ -1,12 +1,6 @@
 /* FriBidi
  * bidi-types.h - define internal bidi types
  *
- * $Id: bidi-types.h,v 1.7 2006-01-31 03:23:12 behdad Exp $
- * $Author: behdad $
- * $Date: 2006-01-31 03:23:12 $
- * $Revision: 1.7 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/bidi-types.h,v $
- *
  * Author:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *
@@ -28,7 +22,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  *
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _BIDI_TYPES_H
 #define _BIDI_TYPES_H
@@ -43,9 +37,8 @@
 #define FRIBIDI_LEVEL_INVALID FRIBIDI_BIDI_MAX_RESOLVED_LEVELS
 #define FRIBIDI_SENTINEL -1
 
-#if DEBUG+0
+#ifdef DEBUG
 
-#define fribidi_char_from_bidi_type FRIBIDI_PRIVATESPACE(char_from_bidi_type)
 char
 fribidi_char_from_bidi_type (
   FriBidiCharType t		/* input bidi type */

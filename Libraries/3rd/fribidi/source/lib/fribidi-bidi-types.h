@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-bidi-types.h - character bidi types
  *
- * $Id: fribidi-bidi-types.h,v 1.15 2008-11-24 17:48:31 behdad Exp $
- * $Author: behdad $
- * $Date: 2008-11-24 17:48:31 $
- * $Revision: 1.15 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-bidi-types.h,v $
- *
  * Author:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *
@@ -28,7 +22,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  *
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _FRIBIDI_BIDI_TYPES_H
 #define _FRIBIDI_BIDI_TYPES_H
@@ -57,17 +51,20 @@ typedef signed char FriBidiLevel;
 #define FRIBIDI_MASK_SENTINEL	0x00000080L	/* Is sentinel */
 /* Sentinels are not valid chars, just identify the start/end of strings. */
 
-/* Each char can be only one of the five following. */
+/* Each char can be only one of the six following. */
 #define FRIBIDI_MASK_LETTER	0x00000100L	/* Is letter: L, R, AL */
 #define FRIBIDI_MASK_NUMBER	0x00000200L	/* Is number: EN, AN */
 #define FRIBIDI_MASK_NUMSEPTER	0x00000400L	/* Is separator or terminator: ES, ET, CS */
 #define FRIBIDI_MASK_SPACE	0x00000800L	/* Is space: BN, BS, SS, WS */
-#define FRIBIDI_MASK_EXPLICIT	0x00001000L	/* Is expilict mark: LRE, RLE, LRO, RLO, PDF */
+#define FRIBIDI_MASK_EXPLICIT	0x00001000L	/* Is explicit mark: LRE, RLE, LRO, RLO, PDF */
+#define FRIBIDI_MASK_ISOLATE	0x00008000L     /* Is isolate mark: LRI, RLI, FSI, PDI */
 
 /* Can be set only if FRIBIDI_MASK_SPACE is also set. */
 #define FRIBIDI_MASK_SEPARATOR	0x00002000L	/* Is text separator: BS, SS */
 /* Can be set only if FRIBIDI_MASK_EXPLICIT is also set. */
 #define FRIBIDI_MASK_OVERRIDE	0x00004000L	/* Is explicit override: LRO, RLO */
+#define FRIBIDI_MASK_FIRST	0x02000000L     /* Whether direction is determined by first strong */
+
 
 /* The following exist to make types pairwise different, some of them can
  * be removed but are here because of efficiency (make queries faster). */
@@ -167,6 +164,18 @@ typedef signed char FriBidiLevel;
 #define FRIBIDI_TYPE_PRIVATE	( FRIBIDI_MASK_PRIVATE )
 
 
+/* New types in Unicode 6.3 */
+
+/* Left-to-Right Isolate */
+#define FRIBIDI_TYPE_LRI_VAL    ( FRIBIDI_MASK_NEUTRAL | FRIBIDI_MASK_ISOLATE )
+/* Right-to-Left Isolate */
+#define FRIBIDI_TYPE_RLI_VAL    ( FRIBIDI_MASK_NEUTRAL | FRIBIDI_MASK_ISOLATE | FRIBIDI_MASK_RTL )
+/* First strong isolate */
+#define FRIBIDI_TYPE_FSI_VAL    ( FRIBIDI_MASK_NEUTRAL | FRIBIDI_MASK_ISOLATE | FRIBIDI_MASK_FIRST )
+
+/* Pop Directional Isolate*/
+#define FRIBIDI_TYPE_PDI_VAL	( FRIBIDI_MASK_NEUTRAL | FRIBIDI_MASK_WEAK | FRIBIDI_MASK_ISOLATE )
+
 /* Define Enums only if sizeof(int) == 4 (UTF-32), and not compiling C++.
  * The problem with C++ is that then casts between int32 and enum will fail!
  */
@@ -194,7 +203,7 @@ typedef enum
 
 #else
 
-typedef fribidi_uint32 FriBidiCharType;
+typedef uint32_t FriBidiCharType;
 # define FRIBIDI_TYPE_LTR	FRIBIDI_TYPE_LTR_VAL
 # define FRIBIDI_TYPE_RTL	FRIBIDI_TYPE_RTL_VAL
 # define FRIBIDI_TYPE_AL	FRIBIDI_TYPE_AL_VAL
@@ -214,8 +223,12 @@ typedef fribidi_uint32 FriBidiCharType;
 # define FRIBIDI_TYPE_LRO	FRIBIDI_TYPE_LRO_VAL
 # define FRIBIDI_TYPE_RLO	FRIBIDI_TYPE_RLO_VAL
 # define FRIBIDI_TYPE_PDF	FRIBIDI_TYPE_PDF_VAL
+# define FRIBIDI_TYPE_LRI	FRIBIDI_TYPE_PDF_LRI
+# define FRIBIDI_TYPE_RLI	FRIBIDI_TYPE_PDF_RLI
+# define FRIBIDI_TYPE_FSI	FRIBIDI_TYPE_PDF_FSI
+# define FRIBIDI_TYPE_PDI	FRIBIDI_TYPE_PDF_PDI
 
-typedef fribidi_uint32 FriBidiParType;
+typedef uint32_t FriBidiParType;
 # define FRIBIDI_PAR_LTR	FRIBIDI_TYPE_LTR_VAL
 # define FRIBIDI_PAR_RTL	FRIBIDI_TYPE_RTL_VAL
 # define FRIBIDI_PAR_ON		FRIBIDI_TYPE_ON_VAL
@@ -273,6 +286,8 @@ typedef fribidi_uint32 FriBidiParType;
 #define FRIBIDI_IS_SPACE(p)    ((p) & FRIBIDI_MASK_SPACE)
 /* Is explicit mark: LRE, RLE, LRO, RLO, PDF? */
 #define FRIBIDI_IS_EXPLICIT(p) ((p) & FRIBIDI_MASK_EXPLICIT)
+/* Is isolator */
+#define FRIBIDI_IS_ISOLATE(p)    ((p) & FRIBIDI_MASK_ISOLATE)
 
 /* Is text separator: BS, SS? */
 #define FRIBIDI_IS_SEPARATOR(p) ((p) & FRIBIDI_MASK_SEPARATOR)
@@ -302,6 +317,10 @@ typedef fribidi_uint32 FriBidiParType;
 /* Is explicit or BN or NSM: LRE, RLE, LRO, RLO, PDF, BN, NSM? */
 #define FRIBIDI_IS_EXPLICIT_OR_BN_OR_NSM(p) \
 	((p) & (FRIBIDI_MASK_EXPLICIT | FRIBIDI_MASK_BN | FRIBIDI_MASK_NSM))
+
+/* Is explicit or BN or NSM: LRE, RLE, LRO, RLO, PDF, BN, NSM? */
+#define FRIBIDI_IS_EXPLICIT_OR_ISOLATE_OR_BN_OR_NSM(p) \
+	((p) & (FRIBIDI_MASK_EXPLICIT | FRIBIDI_MASK_ISOLATE | FRIBIDI_MASK_BN | FRIBIDI_MASK_NSM))
 
 /* Is explicit or BN or WS: LRE, RLE, LRO, RLO, PDF, BN, WS? */
 #define FRIBIDI_IS_EXPLICIT_OR_BN_OR_WS(p) \
@@ -335,7 +354,6 @@ typedef fribidi_uint32 FriBidiParType;
 /* Functions finally */
 
 
-#define fribidi_get_bidi_type FRIBIDI_NAMESPACE(get_bidi_type)
 /* fribidi_get_bidi_type - get character bidi type
  *
  * This function returns the bidi type of a character as defined in Table 3.7
@@ -353,7 +371,6 @@ fribidi_get_bidi_type (
   FriBidiChar ch		/* input character */
 ) FRIBIDI_GNUC_CONST;
 
-#define fribidi_get_bidi_types FRIBIDI_NAMESPACE(get_bidi_types)
 /* fribidi_get_bidi_types - get bidi types for an string of characters
  *
  * This function finds the bidi types of an string of characters.  See
@@ -366,7 +383,6 @@ fribidi_get_bidi_type (
   FriBidiCharType *btypes	/* output bidi types */
 );
 
-#define fribidi_get_bidi_type_name FRIBIDI_NAMESPACE(get_bidi_type_name)
 /* fribidi_get_bidi_type_name - get bidi type name
  *
  * This function returns the bidi type name of a character type.  The

@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-common.h - common include for library headers
  *
- * $Id: fribidi-common.h,v 1.14 2010-02-24 19:40:04 behdad Exp $
- * $Author: behdad $
- * $Date: 2010-02-24 19:40:04 $
- * $Revision: 1.14 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-common.h,v $
- *
  * Author:
  *   Behdad Esfahbod, 2004
  *
@@ -27,12 +21,12 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _FRIBIDI_COMMON_H
 #define _FRIBIDI_COMMON_H
 
-#if DONT_HAVE_FRIBIDI_CONFIG_H+0
+#ifdef DONT_HAVE_FRIBIDI_CONFIG_H
 # define FRIBIDI "fribidi"
 # define FRIBIDI_NAME "fribidi"
 # define FRIBIDI_VERSION "unknown"
@@ -42,47 +36,68 @@
 # include "fribidi-config.h"
 #endif /* !DONT_HAVE_FRIBIDI_CONFIG_H */
 
-#if HAVE_FRIBIDI_CUSTOM_H+0
+#ifdef HAVE_FRIBIDI_CUSTOM_H
 # include <fribidi-custom.h>
 #endif /* HAVE_FRIBIDI_CUSTOM_H */
 
-/* FRIBIDI_NAMESPACE is a macro used to name library symbols. */
-#ifndef FRIBIDI_NAMESPACE
-# define FRIBIDI_NAMESPACE(SYMBOL) fribidi##_##SYMBOL
-#endif /* !FRIBIDI_NAMESPACE */
 
 /* FRIBIDI_ENTRY is a macro used to declare library entry points. */
 #ifndef FRIBIDI_ENTRY
-#  define FRIBIDI_ENTRY		/* empty */
+# if (defined(_MSC_VER) || defined(FRIBIDI_BUILT_WITH_MSVC)) && !defined(FRIBIDI_STATIC)
+/* if we're building fribidi itself with MSVC, FRIBIDI_ENTRY will be defined,
+ * so if we're here then this is an external user including fribidi headers.
+ * The dllimport is needed here mostly for the fribidi_version_info variable,
+ * for functions it's not required. Probably needs more fine-tuning if
+ * someone starts building fribidi as static library with MSVC. We'll cross
+ * that brige when we get there. */
+#  define FRIBIDI_ENTRY __declspec(dllimport) extern
+# else
+#  define FRIBIDI_ENTRY extern
+# endif
 #endif /* !FRIBIDI_ENTRY */
 
-#if FRIBIDI_USE_GLIB+0
-# ifndef __FRIBIDI_DOC
-#  include <glib.h>
-# endif	/* !__FRIBIDI_DOC */
-# define FRIBIDI_BEGIN_DECLS		G_BEGIN_DECLS
-# define FRIBIDI_END_DECLS		G_END_DECLS
-# define FRIBIDI_GNUC_CONST		G_GNUC_CONST
-# define FRIBIDI_GNUC_DEPRECATED	G_GNUC_DEPRECATED
-# if __GNUC__ > 2
-#  define FRIBIDI_GNUC_WARN_UNUSED	\
-	__attribute__((__warn_unused_result__))
-#  define FRIBIDI_GNUC_MALLOC		\
-	__attribute__((__malloc__))
-#  define FRIBIDI_GNUC_HIDDEN		\
-	__attribute__((__visibility__ ("hidden")))
-# else /* __GNUC__ <= 2 */
-#  define FRIBIDI_GNUC_WARN_UNUSED
-#  define FRIBIDI_GNUC_MALLOC
-#  define FRIBIDI_GNUC_HIDDEN
-# endif	/* __GNUC__ <= 2 */
-#else /* !FRIBIDI_USE_GLIB */
-# define FRIBIDI_GNUC_CONST
-# define FRIBIDI_GNUC_DEPRECATED
+#ifdef __ICC
+#define FRIBIDI_BEGIN_IGNORE_DEPRECATIONS               \
+  _Pragma ("warning (push)")                            \
+  _Pragma ("warning (disable:1478)")
+#define FRIBIDI_END_IGNORE_DEPRECATIONS			\
+  _Pragma ("warning (pop)")
+#elif    __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#define FRIBIDI_BEGIN_IGNORE_DEPRECATIONS		\
+  _Pragma ("GCC diagnostic push")			\
+  _Pragma ("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#define FRIBIDI_END_IGNORE_DEPRECATIONS			\
+  _Pragma ("GCC diagnostic pop")
+#elif defined (_MSC_VER) && (_MSC_VER >= 1500)
+#define FRIBIDI_BEGIN_IGNORE_DEPRECATIONS		\
+  __pragma (warning (push))                             \
+  __pragma (warning (disable : 4996))
+#define FRIBIDI_END_IGNORE_DEPRECATIONS			\
+  __pragma (warning (pop))
+#elif defined (__clang__)
+#define FRIBIDI_BEGIN_IGNORE_DEPRECATIONS               \
+  _Pragma("clang diagnostic push")                      \
+  _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"")
+#define FRIBIDI_END_IGNORE_DEPRECATIONS \
+  _Pragma("clang diagnostic pop")
+#else
+#define FRIBIDI_BEGIN_IGNORE_DEPRECATIONS
+#define FRIBIDI_END_IGNORE_DEPRECATIONS
+#endif
+
+#if defined(__GNUC__) && (__GNUC__ > 2)
+# define FRIBIDI_GNUC_WARN_UNUSED __attribute__((__warn_unused_result__))
+# define FRIBIDI_GNUC_MALLOC      __attribute__((__malloc__))
+# define FRIBIDI_GNUC_HIDDEN      __attribute__((__visibility__ ("hidden")))
+# define FRIBIDI_GNUC_CONST       __attribute__((__const__))
+# define FRIBIDI_GNUC_DEPRECATED  __attribute__((__unused__))
+#else /* __GNUC__ */
 # define FRIBIDI_GNUC_WARN_UNUSED
 # define FRIBIDI_GNUC_MALLOC
 # define FRIBIDI_GNUC_HIDDEN
-#endif /* !FRIBIDI_USE_GLIB */
+# define FRIBIDI_GNUC_CONST
+# define FRIBIDI_GNUC_DEPRECATED
+#endif	/* __GNUC__ */
 
 /* FRIBIDI_BEGIN_DECLS should be used at the beginning of your declarations,
  * so that C++ compilers don't mangle their names.  Use FRIBIDI_END_DECLS at
@@ -100,11 +115,16 @@
 
 
 
-#define fribidi_debug_status FRIBIDI_NAMESPACE(debug_status)
+/* fribidi_debug_status - get current debug state
+ *
+ */
 FRIBIDI_ENTRY int fribidi_debug_status (
   void
 );
-#define fribidi_set_debug FRIBIDI_NAMESPACE(set_debug)
+
+/* fribidi_set_debug - set debug state
+ *
+ */
 FRIBIDI_ENTRY int
 fribidi_set_debug (
   int state		/* new state to set */

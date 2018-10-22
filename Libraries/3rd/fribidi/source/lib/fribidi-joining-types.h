@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-joining-types.h - character joining types
  *
- * $Id: fribidi-joining-types.h,v 1.5 2005-11-03 01:39:01 behdad Exp $
- * $Author: behdad $
- * $Date: 2005-11-03 01:39:01 $
- * $Revision: 1.5 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-joining-types.h,v $
- *
  * Author:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *
@@ -28,7 +22,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  *
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _FRIBIDI_JOINING_TYPES_H
 #define _FRIBIDI_JOINING_TYPES_H
@@ -95,12 +89,12 @@ enum _FriBidiJoiningTypeEnum
 #ifdef __FRIBIDI_DOC
 typedef enum _FriBidiJoiningTypeEnum FriBidiJoiningType;
 #else /* !__FRIBIDI_DOC */
-typedef fribidi_uint8 FriBidiJoiningType;
+typedef uint8_t FriBidiJoiningType;
 #endif /* !__FRIBIDI_DOC */
 
 /* FriBidiArabicProp is essentially the same type as FriBidiJoiningType, but
  * not limited to the few values returned by fribidi_get_joining_type. */
-typedef fribidi_uint8 FriBidiArabicProp;
+typedef uint8_t FriBidiArabicProp;
 
 /*
  * The equivalent of JoiningType values for ArabicProp
@@ -204,7 +198,6 @@ typedef fribidi_uint8 FriBidiArabicProp;
 /* Functions finally */
 
 
-#define fribidi_get_joining_type FRIBIDI_NAMESPACE(get_joining_type)
 /* fribidi_get_joining_type - get character joining type
  *
  * This function returns the joining type of a character as defined in Table
@@ -223,7 +216,6 @@ fribidi_get_joining_type (
   FriBidiChar ch		/* input character */
 ) FRIBIDI_GNUC_CONST;
 
-#define fribidi_get_joining_types FRIBIDI_NAMESPACE(get_joining_types)
 /* fribidi_get_joining_types - get joining types for an string of characters
  *
  * This function finds the joining types of an string of characters.  See
@@ -236,7 +228,6 @@ fribidi_get_joining_type (
   FriBidiJoiningType *jtypes	/* output joining types */
 );
 
-#define fribidi_get_joining_type_name FRIBIDI_NAMESPACE(get_joining_type_name)
 /* fribidi_get_joining_type_name - get joining type name
  *
  * This function returns the joining type name of a joining type.  The

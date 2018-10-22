@@ -1,6 +1,6 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## version.cmake:
 ##
-## Copyright (C) 2016-2018 Christian Schenk
+## Copyright (C) 2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,23 +17,15 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-use_static_crt()
+set(MIKTEX_COMP_J2000_VERSION 6568)
 
-add_library(${fribidi_lib_name} STATIC ${fribidi_sources})
+set(FRIBIDI_MAJOR_VERSION 1)
+set(FRIBIDI_MINOR_VERSION 0)
+set(FRIBIDI_MICRO_VERSION 5)
+set(FRIBIDI_INTERFACE_VERSION 4)
 
-set_property(TARGET ${fribidi_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set(FRIBIDI_VERSION "${FRIBIDI_MAJOR_VERSION}.${FRIBIDI_MINOR_VERSION}.${FRIBIDI_MICRO_VERSION}")
 
-target_include_directories(${fribidi_lib_name}
-  PUBLIC
-    ${public_include_directories}
-)
+set(MIKTEX_COMP_ORIG_VERSION_STR "${FRIBIDI_VERSION}")
 
-target_compile_definitions(${fribidi_lib_name}
-  PRIVATE
-    -DFRIBIDI_ENTRY=
-)
-
-target_compile_definitions(${fribidi_lib_name}
-  INTERFACE
-    -DFRIBIDI_STATIC
-)
+set(MIKTEX_COMP_INTERFACE_VERSION ${FRIBIDI_INTERFACE_VERSION})

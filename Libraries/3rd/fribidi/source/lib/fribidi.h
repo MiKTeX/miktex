@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi.h - Unicode bidirectional and Arabic joining/shaping algorithms
  *
- * $Id: fribidi.h,v 1.10 2006-01-31 03:23:13 behdad Exp $
- * $Author: behdad $
- * $Date: 2006-01-31 03:23:13 $
- * $Revision: 1.10 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi.h,v $
- *
  * Author:
  *   Behdad Esfahbod, 2004
  *
@@ -27,7 +21,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 #ifndef _FRIBIDI_H
 #define _FRIBIDI_H
@@ -42,16 +36,13 @@
 #include "fribidi-joining-types.h"
 #include "fribidi-joining.h"
 #include "fribidi-mirroring.h"
+#include "fribidi-brackets.h"
 #include "fribidi-arabic.h"
 #include "fribidi-shape.h"
+#include "fribidi-char-sets.h"
 
 
-#if FRIBIDI_CHARSETS+0
-# include "fribidi-char-sets.h"
-#endif				/* FRIBIDI_CHARSETS */
-
-
-#if FRIBIDI_NO_DEPRECATED+0
+#ifdef FRIBIDI_NO_DEPRECATED
 #else
 # include "fribidi-deprecated.h"
 #endif				/* !FRIBIDI_NO_DEPRECATED */
@@ -61,9 +52,8 @@
 
 
 
-#define fribidi_version_info FRIBIDI_NAMESPACE(version_info)
 /* An string containing the version information of the library. */
-     extern const char *fribidi_version_info;
+FRIBIDI_ENTRY const char *fribidi_version_info;
 
 #include "fribidi-enddecls.h"
 

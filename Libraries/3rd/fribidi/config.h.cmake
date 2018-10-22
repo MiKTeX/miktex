@@ -3,6 +3,9 @@
 /* Define to 1 if you want to include debug code in the library */
 #cmakedefine DEBUG 1
 
+/* Don not build deprecated functionality */
+#cmakedefine FRIBIDI_NO_DEPRECATED 1
+
 /* Define to 1 if you have the <asm/page.h> header file. */
 #cmakedefine HAVE_ASM_PAGE_H 1
 
@@ -92,9 +95,6 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS 1
-
-/* Define to 1 if you want to use simple mallocs instead of memory chunks */
-#cmakedefine USE_SIMPLE_MALLOC 1
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #cmakedefine const 1

@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-deprecated.c - deprecated interfaces.
  *
- * $Id: fribidi-deprecated.c,v 1.6 2006-06-01 22:53:55 behdad Exp $
- * $Author: behdad $
- * $Date: 2006-06-01 22:53:55 $
- * $Revision: 1.6 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-deprecated.c,v $
- *
  * Authors:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *   Dov Grobgeld, 1999, 2000
@@ -30,7 +24,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 
 #include "common.h"
@@ -40,7 +34,7 @@
 #include <fribidi-deprecated.h>
 #include <fribidi.h>
 
-#if FRIBIDI_NO_DEPRECATED+0
+#ifdef FRIBIDI_NO_DEPRECATED
 #else
 
 static FriBidiFlags flags = FRIBIDI_FLAGS_DEFAULT | FRIBIDI_FLAGS_ARABIC;
@@ -92,7 +86,7 @@ fribidi_log2vis_get_embedding_levels (
   FriBidiLevel *embedding_levels	/* output list of embedding levels */
 )
 {
-  return fribidi_get_par_embedding_levels (bidi_types, len, pbase_dir, embedding_levels);
+  return fribidi_get_par_embedding_levels_ex (bidi_types, NULL, len, pbase_dir, embedding_levels);
 }
 
 FRIBIDI_ENTRY FriBidiCharType
@@ -153,6 +147,7 @@ fribidi_remove_bidi_marks (
 
   for (i = 0; i < len; i++)
     if (!FRIBIDI_IS_EXPLICIT_OR_BN (fribidi_get_bidi_type (str[i]))
+        && !FRIBIDI_IS_ISOLATE (fribidi_get_bidi_type (str[i]))
 	&& str[i] != FRIBIDI_CHAR_LRM && str[i] != FRIBIDI_CHAR_RLM)
       {
 	str[j] = str[i];
@@ -182,7 +177,8 @@ out:
   return status ? j : -1;
 }
 
-
+/* Local array size, used for stack-based local arrays */
+#define LOCAL_LIST_SIZE 128
 
 FRIBIDI_ENTRY FriBidiLevel
 fribidi_log2vis (
@@ -203,8 +199,14 @@ fribidi_log2vis (
   fribidi_boolean private_V_to_L = false;
   fribidi_boolean private_embedding_levels = false;
   fribidi_boolean status = false;
+  FriBidiArabicProp local_ar_props[LOCAL_LIST_SIZE];
   FriBidiArabicProp *ar_props = NULL;
+  FriBidiLevel local_embedding_levels[LOCAL_LIST_SIZE];
+  FriBidiCharType local_bidi_types[LOCAL_LIST_SIZE];
   FriBidiCharType *bidi_types = NULL;
+  FriBidiBracketType local_bracket_types[LOCAL_LIST_SIZE];
+  FriBidiBracketType *bracket_types = NULL;
+  FriBidiStrIndex local_positions_V_to_L[LOCAL_LIST_SIZE];
 
   if UNLIKELY
     (len == 0)
@@ -218,22 +220,42 @@ fribidi_log2vis (
   fribidi_assert (str);
   fribidi_assert (pbase_dir);
 
-  bidi_types = fribidi_malloc (len * sizeof bidi_types[0]);
+  if (len < LOCAL_LIST_SIZE)
+    bidi_types = local_bidi_types;
+  else
+    bidi_types = fribidi_malloc (len * sizeof bidi_types[0]);
   if (!bidi_types)
     goto out;
 
   fribidi_get_bidi_types (str, len, bidi_types);
 
+  if (len < LOCAL_LIST_SIZE)
+    bracket_types = local_bracket_types;
+  else
+    bracket_types = fribidi_malloc (len * sizeof bracket_types[0]);
+    
+  if (!bracket_types)
+    goto out;
+
+  fribidi_get_bracket_types (str, len, bidi_types,
+                             /* output */
+                             bracket_types);
   if (!embedding_levels)
     {
-      embedding_levels = fribidi_malloc (len * sizeof embedding_levels[0]);
+      if (len < LOCAL_LIST_SIZE)
+        embedding_levels = local_embedding_levels;
+      else
+        embedding_levels = fribidi_malloc (len * sizeof embedding_levels[0]);
       if (!embedding_levels)
 	goto out;
       private_embedding_levels = true;
     }
 
-  max_level = fribidi_get_par_embedding_levels (bidi_types, len, pbase_dir,
-						embedding_levels) - 1;
+  max_level = fribidi_get_par_embedding_levels_ex (bidi_types,
+                                                   bracket_types,
+                                                   len,
+                                                   pbase_dir,
+                                                   embedding_levels) - 1;
   if UNLIKELY
     (max_level < 0) goto out;
 
@@ -241,7 +263,10 @@ fribidi_log2vis (
      given by the caller, we have to make a private instance of it. */
   if (positions_L_to_V && !positions_V_to_L)
     {
-      positions_V_to_L =
+      if (len < LOCAL_LIST_SIZE)
+        positions_V_to_L = local_positions_V_to_L;
+      else
+        positions_V_to_L =
 	(FriBidiStrIndex *) fribidi_malloc (sizeof (FriBidiStrIndex) * len);
       if (!positions_V_to_L)
 	goto out;
@@ -265,7 +290,10 @@ fribidi_log2vis (
       memcpy (visual_str, str, len * sizeof (*visual_str));
 
       /* Arabic joining */
-      ar_props = fribidi_malloc (len * sizeof ar_props[0]);
+      if (len < LOCAL_LIST_SIZE)
+        ar_props = local_ar_props;
+      else
+        ar_props = fribidi_malloc (len * sizeof ar_props[0]);
       fribidi_get_joining_types (str, len, ar_props);
       fribidi_join_arabic (bidi_types, len, embedding_levels, ar_props);
 
@@ -292,19 +320,43 @@ fribidi_log2vis (
 
 out:
 
-  if (private_V_to_L)
+  if (private_V_to_L && positions_V_to_L != local_positions_V_to_L)
     fribidi_free (positions_V_to_L);
 
-  if (private_embedding_levels)
+  if (private_embedding_levels && embedding_levels != local_embedding_levels)
     fribidi_free (embedding_levels);
 
-  if (ar_props)
+  if (ar_props && ar_props != local_ar_props)
     fribidi_free (ar_props);
 
-  if (bidi_types)
+  if (bidi_types && bidi_types != local_bidi_types)
     fribidi_free (bidi_types);
 
+  if (bracket_types && bracket_types != local_bracket_types)
+    fribidi_free (bracket_types);
+
   return status ? max_level + 1 : 0;
+}
+
+FRIBIDI_ENTRY FriBidiLevel
+fribidi_get_par_embedding_levels (
+  /* input */
+  const FriBidiCharType *bidi_types,
+  const FriBidiStrIndex len,
+  /* input and output */
+  FriBidiParType *pbase_dir,
+  /* output */
+  FriBidiLevel *embedding_levels
+)
+{
+  return fribidi_get_par_embedding_levels_ex (/* input */
+                                              bidi_types,
+                                              NULL, /* No bracket_types */
+                                              len,
+                                              /* input and output */
+                                              pbase_dir,
+                                              /* output */
+                                              embedding_levels);
 }
 
 #endif /* !FRIBIDI_NO_DEPRECATED */

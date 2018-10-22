@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-char-sets-iso8859-8.c - ISO8859-8 character set conversion routines
  *
- * $Id: fribidi-char-sets-iso8859-8.c,v 1.2 2004-05-03 22:05:19 behdad Exp $
- * $Author: behdad $
- * $Date: 2004-05-03 22:05:19 $
- * $Revision: 1.2 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/charset/fribidi-char-sets-iso8859-8.c,v $
- *
  * Authors:
  *   Behdad Esfahbod, 2001, 2002, 2004
  *   Dov Grobgeld, 1999, 2000
@@ -30,7 +24,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 
 #include <common.h>

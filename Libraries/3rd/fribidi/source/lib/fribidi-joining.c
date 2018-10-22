@@ -1,12 +1,6 @@
 /* FriBidi
  * fribidi-joining.h - Arabic joining algorithm
  *
- * $Id: fribidi-joining.c,v 1.6 2006-01-31 03:23:13 behdad Exp $
- * $Author: behdad $
- * $Date: 2006-01-31 03:23:13 $
- * $Revision: 1.6 $
- * $Source: /home/behdad/src/fdo/fribidi/togit/git/../fribidi/fribidi2/lib/fribidi-joining.c,v $
- *
  * Authors:
  *   Behdad Esfahbod, 2004
  *
@@ -28,18 +22,17 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA
  * 
- * For licensing issues, contact <license@farsiweb.info>.
+ * For licensing issues, contact <fribidi.license@gmail.com>.
  */
 
 #include "common.h"
 
 #include <fribidi-joining.h>
 
-#include "mem.h"
 #include "bidi-types.h"
 #include "joining-types.h"
 
-#if DEBUG+0
+#ifdef DEBUG
 /*======================================================================
  *  For debugging, define some functions for printing joining types and
  *  properties.

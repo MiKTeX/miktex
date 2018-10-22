@@ -1,4 +1,4 @@
-/* fribidi-mirroring.h - get mirrored character
+/* fribidi-brackets.h - get bracket character property
  *
  * Copyright (C) 2004  Sharif FarsiWeb, Inc
  * Copyright (C) 2001, 2002, 2004  Behdad Esfahbod
@@ -25,10 +25,10 @@
  *
  * Author(s):
  *   Behdad Esfahbod, 2001, 2002, 2004
- *   Dov Grobgeld, 1999, 2000
+ *   Dov Grobgeld, 1999, 2000, 2017
  */
-#ifndef _FRIBIDI_MIRRORING_H
-#define _FRIBIDI_MIRRORING_H
+#ifndef _FRIBIDI_BRACKETS_H
+#define _FRIBIDI_BRACKETS_H
 
 #include "fribidi-common.h"
 
@@ -37,44 +37,47 @@
 
 #include "fribidi-begindecls.h"
 
-/* fribidi_get_mirror_char - get mirrored character
+/* fribidi_get_bracket - get bracketed character
  *
- * This function finds the mirrored equivalent of a character as defined in
- * the file BidiMirroring.txt of the Unicode Character Database available at
- * http://www.unicode.org/Public/UNIDATA/BidiMirroring.txt.
+ * This function finds the bracketed equivalent of a character as defined in
+ * the file BidiBrackets.txt of the Unicode Character Database available at
+ * http://www.unicode.org/Public/UNIDATA/BidiBrackets.txt.
  *
- * If  the input character is a declared as a mirroring character in the
- * Unicode standard and has a mirrored equivalent.  The matching mirrored
+ * If  the input character is a declared as a brackets character in the
+ * Unicode standard and has a bracketed equivalent.  The matching bracketed
  * character is put in the output, otherwise the input character itself is
  * put.
  *
- * Returns: if the character has a mirroring equivalent or not.
+ * Returns: The bracket type of the character. Use the
+ * FRIBIDI_IS_BRACKET(FriBidiBracketType) to test if it is a valid
+ * property.
  */
-FRIBIDI_ENTRY fribidi_boolean fribidi_get_mirror_char (
-  FriBidiChar ch,		/* input character */
-  FriBidiChar *mirrored_ch	/* output mirrored character */
+FRIBIDI_ENTRY FriBidiBracketType fribidi_get_bracket (
+  FriBidiChar ch		    /* input character */
 );
 
-/* fribidi_shape_mirroring - do mirroring shaping
+/* fribidi_get_bracket_types - get bracketed characters
  *
- * This functions replaces mirroring characters on right-to-left embeddings in
- * string with their mirrored equivalent as returned by
- * fribidi_get_mirror_char().
- *
- * This function implements rule L4 of the Unicode Bidirectional Algorithm
- * available at http://www.unicode.org/reports/tr9/#L4.
+ * This function finds the bracketed characters of an string of characters.
+ * See fribidi_get_bracket() for more information about the bracketed
+ * characters returned by this function.
  */
-FRIBIDI_ENTRY void fribidi_shape_mirroring (
-  const FriBidiLevel *embedding_levels,	/* input list of embedding
-					   levels, as returned by
-					   fribidi_get_par_embedding_levels */
-  const FriBidiStrIndex len,	/* input string length */
-  FriBidiChar *str		/* string to shape */
+FRIBIDI_ENTRY void
+fribidi_get_bracket_types (
+  const FriBidiChar *str,           /* input string */
+  const FriBidiStrIndex len,        /* input string length */
+  const FriBidiCharType *types,     /* input bidi types */
+  FriBidiBracketType *btypes        /* output bracketed characters */
 );
+
+#define FRIBIDI_BRACKET_OPEN_MASK 0x80000000
+#define FRIBIDI_BRACKET_ID_MASK   0x7fffffff
+#define FRIBIDI_IS_BRACKET_OPEN(bt) ((bt & FRIBIDI_BRACKET_OPEN_MASK)>0)
+#define FRIBIDI_BRACKET_ID(bt) ((bt & FRIBIDI_BRACKET_ID_MASK))
 
 #include "fribidi-enddecls.h"
 
-#endif /* !_FRIBIDI_MIRRORING_H */
+#endif /* !_FRIBIDI_BRACKETS_H */
 /* Editor directions:
  * Local Variables:
  *   mode: c
