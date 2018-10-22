@@ -23,7 +23,9 @@
 #include "../test_and_set_t_is_ao_t.h" /* Probably suboptimal */
 
 #if __TARGET_ARCH_ARM < 6
-# error Do not use with ARM instruction sets lower than v6
+# if !defined(CPPCHECK)
+#   error Do not use with ARM instruction sets lower than v6
+# endif
 #else
 
 #define AO_ACCESS_CHECK_ALIGNED

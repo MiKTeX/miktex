@@ -87,6 +87,7 @@ AO_pa_clear(volatile AO_TS_t * addr)
   *a = 1;
 }
 #define AO_CLEAR(addr) AO_pa_clear(addr)
+#define AO_HAVE_CLEAR
 
 #undef AO_PA_LDCW_ALIGNMENT
 #undef AO_ldcw

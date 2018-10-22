@@ -20,6 +20,20 @@
 /* http://www-106.ibm.com/developerworks/eserver/articles/powerpc.html. */
 /* There appears to be no implicit ordering between any kind of         */
 /* independent memory references.                                       */
+
+/* TODO: Implement double-wide operations if available. */
+
+#if (AO_GNUC_PREREQ(4, 8) || AO_CLANG_PREREQ(3, 8)) \
+    && !defined(AO_DISABLE_GCC_ATOMICS)
+  /* Probably, it could be enabled even for earlier gcc/clang versions. */
+
+  /* TODO: As of clang-3.8.1, it emits lwsync in AO_load_acquire        */
+  /* (i.e., the code is less efficient than the one given below).       */
+
+# include "generic.h"
+
+#else /* AO_DISABLE_GCC_ATOMICS */
+
 /* Architecture enforces some ordering based on control dependence.     */
 /* I don't know if that could help.                                     */
 /* Data-dependent loads are always ordered.                             */
@@ -218,7 +232,8 @@ AO_test_and_set_full(volatile AO_TS_t *addr) {
     int result;
     AO_lwsync();
     result = AO_compare_and_swap(addr, old, new_val);
-    AO_lwsync();
+    if (result)
+      AO_lwsync();
     return result;
   }
 # define AO_HAVE_compare_and_swap_full
@@ -271,7 +286,8 @@ AO_fetch_compare_and_swap_full(volatile AO_t *addr, AO_t old_val,
   AO_t result;
   AO_lwsync();
   result = AO_fetch_compare_and_swap(addr, old_val, new_val);
-  AO_lwsync();
+  if (result == old_val)
+    AO_lwsync();
   return result;
 }
 #define AO_HAVE_fetch_compare_and_swap_full
@@ -321,8 +337,6 @@ AO_fetch_and_add_full(volatile AO_t *addr, AO_t incr) {
 #define AO_HAVE_fetch_and_add_full
 #endif /* !AO_PREFER_GENERALIZED */
 
-/* TODO: Implement double-wide operations if available. */
-
 #undef AO_PPC_BR_A
 #undef AO_PPC_CMPx
 #undef AO_PPC_L
@@ -330,3 +344,5 @@ AO_fetch_and_add_full(volatile AO_t *addr, AO_t incr) {
 #undef AO_PPC_LOAD_CLOBBER
 #undef AO_PPC_LxARX
 #undef AO_PPC_STxCXd
+
+#endif /* AO_DISABLE_GCC_ATOMICS */

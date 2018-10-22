@@ -20,20 +20,35 @@
  * SOFTWARE.
  */
 
-/* For 64-bit systems, we extend the double type to hold two int64's.   */
-/* x86-64 (except for x32): __m128 serves as a placeholder which also   */
-/* requires the compiler to align it on 16-byte boundary (as required   */
-/* by cmpxchg16).                                                       */
-/* Similar things could be done for PPC 64-bit using a VMX data type.   */
+/* For 64-bit systems, we expect the double type to hold two int64's.   */
 
-#if ((defined(__x86_64__) && __GNUC__ >= 4) || defined(_WIN64)) \
-    && !defined(__ILP32__)
+#if ((defined(__x86_64__) && defined(AO_GCC_ATOMIC_TEST_AND_SET)) \
+     || defined(__aarch64__)) && !defined(__ILP32__)
+  /* x86-64: __m128 is not applicable to atomic intrinsics.     */
+# if AO_GNUC_PREREQ(4, 7) || AO_CLANG_PREREQ(3, 6)
+#   pragma GCC diagnostic push
+    /* Suppress warning about __int128 type.      */
+#   if defined(__clang__) || AO_GNUC_PREREQ(6, 4)
+#     pragma GCC diagnostic ignored "-Wpedantic"
+#   else
+      /* GCC before ~4.8 does not accept "-Wpedantic" quietly.  */
+#     pragma GCC diagnostic ignored "-pedantic"
+#   endif
+    typedef unsigned __int128 double_ptr_storage;
+#   pragma GCC diagnostic pop
+# else /* pragma diagnostic is not supported */
+    typedef unsigned __int128 double_ptr_storage;
+# endif
+#elif ((defined(__x86_64__) && AO_GNUC_PREREQ(4, 0)) || defined(_WIN64)) \
+      && !defined(__ILP32__)
+  /* x86-64 (except for x32): __m128 serves as a placeholder which also */
+  /* requires the compiler to align it on 16-byte boundary (as required */
+  /* by cmpxchg16b).                                                    */
+  /* Similar things could be done for PPC 64-bit using a VMX data type. */
 # include <xmmintrin.h>
   typedef __m128 double_ptr_storage;
 #elif defined(_WIN32) && !defined(__GNUC__)
   typedef unsigned __int64 double_ptr_storage;
-#elif defined(__aarch64__)
-  typedef unsigned __int128 double_ptr_storage;
 #elif defined(__i386__) && defined(__GNUC__)
   typedef unsigned long long double_ptr_storage
                                 __attribute__((__aligned__(8)));

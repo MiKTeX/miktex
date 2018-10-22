@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-/* If AO_ASSUME_WINDOWS98 is defined, we assume Windows 98 or newer.    */
 /* If AO_ASSUME_VISTA is defined, we assume Windows Server 2003, Vista  */
 /* or later.                                                            */
 
@@ -28,7 +27,9 @@
 
 #include "../test_and_set_t_is_char.h"
 
-#if defined(AO_ASSUME_VISTA) && !defined(AO_ASSUME_WINDOWS98)
+#if !defined(AO_ASSUME_WINDOWS98) \
+    && (defined(AO_ASSUME_VISTA) || _MSC_VER >= 1400)
+   /* Visual Studio 2005 (MS VC++ 8.0) discontinued support of Windows 95. */
 # define AO_ASSUME_WINDOWS98
 #endif
 
@@ -62,7 +63,7 @@ AO_nop_full(void)
 
 #endif
 
-#ifndef AO_NO_ASM_XADD
+#if !defined(AO_NO_ASM_XADD) && !defined(AO_HAVE_char_fetch_and_add_full)
   AO_INLINE unsigned char
   AO_char_fetch_and_add_full(volatile unsigned char *p, unsigned char incr)
   {
@@ -103,8 +104,8 @@ AO_test_and_set_full(volatile AO_TS_t *addr)
 }
 #define AO_HAVE_test_and_set_full
 
-#ifdef _WIN64
-#  error wrong architecture
+#if defined(_WIN64) && !defined(CPPCHECK)
+# error wrong architecture
 #endif
 
 #ifdef AO_ASSUME_VISTA
