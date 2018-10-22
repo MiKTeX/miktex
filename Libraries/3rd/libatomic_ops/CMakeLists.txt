@@ -58,9 +58,11 @@ set(public_headers
   atomic_ops/sysdeps/gcc/m68k.h
   atomic_ops/sysdeps/gcc/mips.h
   atomic_ops/sysdeps/gcc/powerpc.h
+  atomic_ops/sysdeps/gcc/riscv.h
   atomic_ops/sysdeps/gcc/s390.h
   atomic_ops/sysdeps/gcc/sh.h
   atomic_ops/sysdeps/gcc/sparc.h
+  atomic_ops/sysdeps/gcc/tile.h
   atomic_ops/sysdeps/gcc/x86.h
   atomic_ops/sysdeps/generic_pthread.h
   atomic_ops/sysdeps/hpc/hppa.h
