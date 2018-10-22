@@ -124,7 +124,11 @@ _cairo_gl_dispatch_init_buffers (cairo_gl_dispatch_t *dispatch,
 	else
 	    return CAIRO_STATUS_DEVICE_ERROR;
     }
-    else if (gl_flavor == CAIRO_GL_FLAVOR_ES &&
+    else if (gl_flavor == CAIRO_GL_FLAVOR_ES3)
+    {
+	dispatch_name = CAIRO_GL_DISPATCH_NAME_CORE;
+    }
+    else if (gl_flavor == CAIRO_GL_FLAVOR_ES2 &&
 	     gl_version >= CAIRO_GL_VERSION_ENCODE (2, 0))
     {
 	dispatch_name = CAIRO_GL_DISPATCH_NAME_ES;
@@ -156,7 +160,11 @@ _cairo_gl_dispatch_init_shaders (cairo_gl_dispatch_t *dispatch,
 	else
 	    return CAIRO_STATUS_DEVICE_ERROR;
     }
-    else if (gl_flavor == CAIRO_GL_FLAVOR_ES &&
+    else if (gl_flavor == CAIRO_GL_FLAVOR_ES3)
+    {
+	dispatch_name = CAIRO_GL_DISPATCH_NAME_CORE;
+    }
+    else if (gl_flavor == CAIRO_GL_FLAVOR_ES2 &&
 	     gl_version >= CAIRO_GL_VERSION_ENCODE (2, 0))
     {
 	dispatch_name = CAIRO_GL_DISPATCH_NAME_ES;
@@ -189,7 +197,11 @@ _cairo_gl_dispatch_init_fbo (cairo_gl_dispatch_t *dispatch,
 	else
 	    return CAIRO_STATUS_DEVICE_ERROR;
     }
-    else if (gl_flavor == CAIRO_GL_FLAVOR_ES &&
+    else if (gl_flavor == CAIRO_GL_FLAVOR_ES3)
+    {
+	dispatch_name = CAIRO_GL_DISPATCH_NAME_CORE;
+    }
+    else if (gl_flavor == CAIRO_GL_FLAVOR_ES2 &&
 	     gl_version >= CAIRO_GL_VERSION_ENCODE (2, 0))
     {
 	dispatch_name = CAIRO_GL_DISPATCH_NAME_ES;
@@ -214,7 +226,7 @@ _cairo_gl_dispatch_init_multisampling (cairo_gl_dispatch_t *dispatch,
     /* For the multisampling table, there are two GLES versions of the
      * extension, so we put one in the EXT slot and one in the real ES slot.*/
     cairo_gl_dispatch_name_t dispatch_name = CAIRO_GL_DISPATCH_NAME_CORE;
-    if (gl_flavor == CAIRO_GL_FLAVOR_ES) {
+    if (gl_flavor == CAIRO_GL_FLAVOR_ES2) {
 	if (_cairo_gl_has_extension ("GL_EXT_multisampled_render_to_texture"))
 	    dispatch_name = CAIRO_GL_DISPATCH_NAME_EXT;
 	else if (_cairo_gl_has_extension ("GL_IMG_multisampled_render_to_texture"))

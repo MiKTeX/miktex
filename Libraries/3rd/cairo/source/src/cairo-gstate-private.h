@@ -324,6 +324,15 @@ _cairo_gstate_show_surface (cairo_gstate_t	*gstate,
 			    double		height);
 
 cairo_private cairo_status_t
+_cairo_gstate_tag_begin (cairo_gstate_t	*gstate,
+			 const char     *tag_name,
+			 const char     *attributes);
+
+cairo_private cairo_status_t
+_cairo_gstate_tag_end (cairo_gstate_t	*gstate,
+		       const char       *tag_name);
+
+cairo_private cairo_status_t
 _cairo_gstate_set_font_size (cairo_gstate_t *gstate,
 			     double          size);
 

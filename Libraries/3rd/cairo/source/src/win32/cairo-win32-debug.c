@@ -66,7 +66,7 @@ _cairo_win32_debug_dump_hrgn (HRGN rgn, char *header)
     }
 
     z = GetRegionData(rgn, 0, NULL);
-    rd = (RGNDATA*) malloc(z);
+    rd = (RGNDATA*) _cairo_malloc (z);
     z = GetRegionData(rgn, z, rd);
 
     fprintf (stderr, " %ld rects, bounds: %ld %ld %ld %ld\n",

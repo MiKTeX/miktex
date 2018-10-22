@@ -147,7 +147,7 @@ _cairo_output_stream_create (cairo_write_func_t		write_func,
 {
     cairo_output_stream_with_closure_t *stream;
 
-    stream = malloc (sizeof (cairo_output_stream_with_closure_t));
+    stream = _cairo_malloc (sizeof (cairo_output_stream_with_closure_t));
     if (unlikely (stream == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil;
@@ -173,7 +173,7 @@ _cairo_output_stream_create_in_error (cairo_status_t status)
     if (status == CAIRO_STATUS_WRITE_ERROR)
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil_write_error;
 
-    stream = malloc (sizeof (cairo_output_stream_t));
+    stream = _cairo_malloc (sizeof (cairo_output_stream_t));
     if (unlikely (stream == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil;
@@ -293,7 +293,7 @@ _cairo_output_stream_write_hex_string (cairo_output_stream_t *stream,
 
 /* Format a double in a locale independent way and trim trailing
  * zeros.  Based on code from Alex Larson <alexl@redhat.com>.
- * http://mail.gnome.org/archives/gtk-devel-list/2001-October/msg00087.html
+ * https://mail.gnome.org/archives/gtk-devel-list/2001-October/msg00087.html
  *
  * The code in the patch is copyright Red Hat, Inc under the LGPL, but
  * has been relicensed under the LGPL/MPL dual license for inclusion
@@ -312,7 +312,7 @@ _cairo_dtostr (char *buffer, size_t size, double d, cairo_bool_t limited_precisi
     if (d == 0.0)
 	d = 0.0;
 
-    decimal_point = cairo_get_locale_decimal_point ();
+    decimal_point = _cairo_get_locale_decimal_point ();
     decimal_point_len = strlen (decimal_point);
 
     assert (decimal_point_len != 0);
@@ -639,7 +639,7 @@ _cairo_output_stream_create_for_file (FILE *file)
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil_write_error;
     }
 
-    stream = malloc (sizeof *stream);
+    stream = _cairo_malloc (sizeof *stream);
     if (unlikely (stream == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil;
@@ -657,11 +657,16 @@ _cairo_output_stream_create_for_filename (const char *filename)
 {
     stdio_stream_t *stream;
     FILE *file;
+    cairo_status_t status;
 
     if (filename == NULL)
 	return _cairo_null_stream_create ();
 
-    file = fopen (filename, "wb");
+    status = _cairo_fopen (filename, "wb", &file);
+
+    if (status != CAIRO_STATUS_SUCCESS)
+	return _cairo_output_stream_create_in_error (status);
+
     if (file == NULL) {
 	switch (errno) {
 	case ENOMEM:
@@ -673,7 +678,7 @@ _cairo_output_stream_create_for_filename (const char *filename)
 	}
     }
 
-    stream = malloc (sizeof *stream);
+    stream = _cairo_malloc (sizeof *stream);
     if (unlikely (stream == NULL)) {
 	fclose (file);
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
@@ -717,7 +722,7 @@ _cairo_memory_stream_create (void)
 {
     memory_stream_t *stream;
 
-    stream = malloc (sizeof *stream);
+    stream = _cairo_malloc (sizeof *stream);
     if (unlikely (stream == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil;
@@ -744,7 +749,7 @@ _cairo_memory_stream_destroy (cairo_output_stream_t *abstract_stream,
     stream = (memory_stream_t *) abstract_stream;
 
     *length_out = _cairo_array_num_elements (&stream->array);
-    *data_out = malloc (*length_out);
+    *data_out = _cairo_malloc (*length_out);
     if (unlikely (*data_out == NULL)) {
 	status = _cairo_output_stream_destroy (abstract_stream);
 	assert (status == CAIRO_STATUS_SUCCESS);
@@ -794,7 +799,7 @@ _cairo_null_stream_create (void)
 {
     cairo_output_stream_t *stream;
 
-    stream = malloc (sizeof *stream);
+    stream = _cairo_malloc (sizeof *stream);
     if (unlikely (stream == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil;

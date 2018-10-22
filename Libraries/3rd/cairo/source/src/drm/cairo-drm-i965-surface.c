@@ -48,7 +48,6 @@
 #include "cairoint.h"
 
 #include "cairo-drm-private.h"
-#include "cairo-drm-ioctl-private.h"
 #include "cairo-drm-intel-private.h"
 #include "cairo-drm-intel-command-private.h"
 #include "cairo-drm-intel-ioctl-private.h"
@@ -1569,7 +1568,7 @@ i965_surface_create_internal (cairo_drm_device_t *base_dev,
     i965_surface_t *surface;
     cairo_status_t status_ignored;
 
-    surface = malloc (sizeof (i965_surface_t));
+    surface = _cairo_malloc (sizeof (i965_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -1658,7 +1657,7 @@ i965_surface_create_for_name (cairo_drm_device_t *base_dev,
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_INVALID_FORMAT));
     }
 
-    surface = malloc (sizeof (i965_surface_t));
+    surface = _cairo_malloc (sizeof (i965_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -1809,7 +1808,7 @@ _cairo_drm_i965_device_create (int fd, dev_t dev, int vendor_id, int chip_id)
     if (! intel_info (fd, &gtt_size))
 	return  NULL;
 
-    device = malloc (sizeof (i965_device_t));
+    device = _cairo_malloc (sizeof (i965_device_t));
     if (unlikely (device == NULL))
 	return (cairo_drm_device_t *) _cairo_device_create_in_error (CAIRO_STATUS_NO_MEMORY);
 

@@ -57,6 +57,16 @@ _cairo_box_from_integers (cairo_box_t *box, int x, int y, int w, int h)
     box->p2.y = _cairo_fixed_from_int (y + h);
 }
 
+static inline void
+_cairo_box_from_rectangle_int (cairo_box_t *box,
+			       const cairo_rectangle_int_t *rect)
+{
+    box->p1.x = _cairo_fixed_from_int (rect->x);
+    box->p1.y = _cairo_fixed_from_int (rect->y);
+    box->p2.x = _cairo_fixed_from_int (rect->x + rect->width);
+    box->p2.y = _cairo_fixed_from_int (rect->y + rect->height);
+}
+
 /* assumes box->p1 is top-left, p2 bottom-right */
 static inline void
 _cairo_box_add_point (cairo_box_t *box,

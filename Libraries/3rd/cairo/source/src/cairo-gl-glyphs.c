@@ -120,10 +120,10 @@ _cairo_gl_glyph_cache_add_glyph (cairo_gl_context_t *ctx,
     /* search for an unlocked slot */
     if (status == CAIRO_INT_STATUS_UNSUPPORTED) {
 	status = _cairo_rtree_evict_random (&cache->rtree,
-				            width, height, &node);
+					    width, height, &node);
 	if (status == CAIRO_INT_STATUS_SUCCESS) {
 	    status = _cairo_rtree_node_insert (&cache->rtree,
-		                               node, width, height, &node);
+					       node, width, height, &node);
 	}
     }
     if (status)
@@ -132,9 +132,9 @@ _cairo_gl_glyph_cache_add_glyph (cairo_gl_context_t *ctx,
     /* XXX: Make sure we use the mask texture. This should work automagically somehow */
     glActiveTexture (GL_TEXTURE1);
     status = _cairo_gl_surface_draw_image (cache->surface, glyph_surface,
-                                           0, 0,
-                                           glyph_surface->width, glyph_surface->height,
-                                           node->x, node->y, FALSE);
+					   0, 0,
+					   glyph_surface->width, glyph_surface->height,
+					   node->x, node->y, FALSE);
     if (unlikely (status))
 	return status;
 
@@ -174,7 +174,7 @@ _cairo_gl_glyph_cache_lock (cairo_gl_glyph_cache_t *cache,
 static cairo_status_t
 cairo_gl_context_get_glyph_cache (cairo_gl_context_t *ctx,
 				  cairo_format_t format,
-                                  cairo_gl_glyph_cache_t **cache_out)
+				  cairo_gl_glyph_cache_t **cache_out)
 {
     cairo_gl_glyph_cache_t *cache;
     cairo_content_t content;
@@ -185,12 +185,12 @@ cairo_gl_context_get_glyph_cache (cairo_gl_context_t *ctx,
     case CAIRO_FORMAT_ARGB32:
     case CAIRO_FORMAT_RGB24:
 	cache = &ctx->glyph_cache[0];
-        content = CAIRO_CONTENT_COLOR_ALPHA;
+	content = CAIRO_CONTENT_COLOR_ALPHA;
 	break;
     case CAIRO_FORMAT_A8:
     case CAIRO_FORMAT_A1:
 	cache = &ctx->glyph_cache[1];
-        content = CAIRO_CONTENT_ALPHA;
+	content = CAIRO_CONTENT_ALPHA;
 	break;
     default:
     case CAIRO_FORMAT_INVALID:
@@ -202,9 +202,9 @@ cairo_gl_context_get_glyph_cache (cairo_gl_context_t *ctx,
 	cairo_surface_t *surface;
 
 	surface = _cairo_gl_surface_create_scratch_for_caching (ctx,
-							        content,
-							        GLYPH_CACHE_WIDTH,
-							        GLYPH_CACHE_HEIGHT);
+								content,
+								GLYPH_CACHE_WIDTH,
+								GLYPH_CACHE_HEIGHT);
 	if (unlikely (surface->status))
 	    return surface->status;
 
@@ -281,9 +281,9 @@ render_glyphs (cairo_gl_surface_t *dst,
 	if (scaled_glyph->surface->format != last_format) {
 	    status = cairo_gl_context_get_glyph_cache (ctx,
 						       scaled_glyph->surface->format,
-                                                       &cache);
-            if (unlikely (status))
-                goto FINISH;
+						       &cache);
+	    if (unlikely (status))
+		goto FINISH;
 
 	    last_format = scaled_glyph->surface->format;
 
@@ -291,8 +291,8 @@ render_glyphs (cairo_gl_surface_t *dst,
 	    *has_component_alpha |= cache->surface->operand.texture.attributes.has_component_alpha;
 
 	    /* XXX Shoot me. */
-            status = _cairo_gl_composite_begin (&setup, &ctx);
-            status = _cairo_gl_context_release (ctx, status);
+	    status = _cairo_gl_composite_begin (&setup, &ctx);
+	    status = _cairo_gl_context_release (ctx, status);
 	    if (unlikely (status))
 		goto FINISH;
 
@@ -363,11 +363,11 @@ render_glyphs_via_mask (cairo_gl_surface_t *dst,
 
     /* XXX: For non-CA, this should be CAIRO_CONTENT_ALPHA to save memory */
     mask = cairo_gl_surface_create (dst->base.device,
-                                    CAIRO_CONTENT_COLOR_ALPHA,
-                                    info->extents.width,
-                                    info->extents.height);
+				    CAIRO_CONTENT_COLOR_ALPHA,
+				    info->extents.width,
+				    info->extents.height);
     if (unlikely (mask->status))
-        return mask->status;
+	return mask->status;
 
     status = render_glyphs ((cairo_gl_surface_t *) mask,
 			    info->extents.x, info->extents.y,
@@ -385,11 +385,11 @@ render_glyphs_via_mask (cairo_gl_surface_t *dst,
 	mask_pattern.base.extend = CAIRO_EXTEND_NONE;
 
 	cairo_matrix_init_translate (&mask_pattern.base.matrix,
-		                     dst_x-info->extents.x, dst_y-info->extents.y);
+				     dst_x-info->extents.x, dst_y-info->extents.y);
 
 	_cairo_pattern_init_for_surface (&source_pattern, source);
 	cairo_matrix_init_translate (&source_pattern.base.matrix,
-		                     dst_x-info->extents.x, dst_y-info->extents.y);
+				     dst_x-info->extents.x, dst_y-info->extents.y);
 
 	clip = _cairo_clip_copy (clip);
 	clip_extents.x = info->extents.x - dst_x;
@@ -399,7 +399,7 @@ render_glyphs_via_mask (cairo_gl_surface_t *dst,
 	clip = _cairo_clip_intersect_rectangle (clip, &clip_extents);
 
 	status = _cairo_surface_mask (&dst->base, op,
-		                      &source_pattern.base,
+				      &source_pattern.base,
 				      &mask_pattern.base,
 				      clip);
 

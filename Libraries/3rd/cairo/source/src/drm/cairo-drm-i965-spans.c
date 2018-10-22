@@ -87,7 +87,7 @@ i965_spans_accumulate_rectangle (i965_spans_t *spans)
     if (unlikely (spans->vbo_offset + size > I965_VERTEX_SIZE)) {
 	struct i965_vbo *vbo;
 
-	vbo = malloc (sizeof (struct i965_vbo));
+	vbo = _cairo_malloc (sizeof (struct i965_vbo));
 	if (unlikely (vbo == NULL)) {
 	    /* throw error! */
 	}

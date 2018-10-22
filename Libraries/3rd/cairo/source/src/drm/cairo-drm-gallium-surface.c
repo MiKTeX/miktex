@@ -529,7 +529,7 @@ _gallium_fake_bo_create (uint32_t size, uint32_t name)
 
     /* XXX integrate with winsys handle */
 
-    bo = malloc (sizeof (cairo_drm_bo_t));
+    bo = _cairo_malloc (sizeof (cairo_drm_bo_t));
 
     CAIRO_REFERENCE_COUNT_INIT (&bo->ref_count, 1);
     bo->name = name;
@@ -556,7 +556,7 @@ gallium_surface_create_internal (gallium_device_t *device,
     cairo_format_t format;
     int stride, size;
 
-    surface = malloc (sizeof (gallium_surface_t));
+    surface = _cairo_malloc (sizeof (gallium_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -641,7 +641,7 @@ gallium_surface_create_for_name (cairo_drm_device_t *base_dev,
     cairo_status_t status;
     cairo_content_t content;
 
-    surface = malloc (sizeof (gallium_surface_t));
+    surface = _cairo_malloc (sizeof (gallium_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -768,7 +768,7 @@ _cairo_drm_gallium_device_create (int fd, dev_t dev, int vendor_id, int chip_id)
 	return NULL;
     }
 
-    device = malloc (sizeof (gallium_device_t));
+    device = _cairo_malloc (sizeof (gallium_device_t));
     if (device == NULL) {
 	dlclose (handle);
 	return _cairo_drm_device_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));

@@ -140,7 +140,7 @@ _cairo_pdf_operators_flush (cairo_pdf_operators_t	 *pdf_operators)
  * assumptions will be made about the state. The next time a
  * particular graphics state is required (eg line width) the state
  * operator is always emitted and then remembered for subsequent
- * operatations.
+ * operations.
  *
  * This should be called when starting a new stream or after emitting
  * the 'Q' operator (where pdf-operators functions were called inside
@@ -359,7 +359,7 @@ _word_wrap_stream_create (cairo_output_stream_t *output, cairo_bool_t ps, int ma
     if (output->status)
 	return _cairo_output_stream_create_in_error (output->status);
 
-    stream = malloc (sizeof (word_wrap_stream_t));
+    stream = _cairo_malloc (sizeof (word_wrap_stream_t));
     if (unlikely (stream == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_output_stream_t *) &_cairo_output_stream_nil;
@@ -1493,9 +1493,6 @@ _cairo_pdf_operators_show_text_glyphs (cairo_pdf_operators_t	  *pdf_operators,
     cairo_matrix_init_scale (&invert_y_axis, 1, -1);
     text_matrix = scaled_font->scale;
 
-    /* Invert y axis in font space  */
-    cairo_matrix_multiply (&text_matrix, &text_matrix, &invert_y_axis);
-
     /* Invert y axis in device space  */
     cairo_matrix_multiply (&text_matrix, &invert_y_axis, &text_matrix);
 
@@ -1554,6 +1551,43 @@ _cairo_pdf_operators_show_text_glyphs (cairo_pdf_operators_t	  *pdf_operators,
 		return status;
 	}
     }
+
+    return _cairo_output_stream_get_status (pdf_operators->stream);
+}
+
+cairo_int_status_t
+_cairo_pdf_operators_tag_begin (cairo_pdf_operators_t *pdf_operators,
+				const char            *tag_name,
+				int                    mcid)
+{
+    cairo_status_t status;
+
+    if (pdf_operators->in_text_object) {
+	status = _cairo_pdf_operators_end_text (pdf_operators);
+	if (unlikely (status))
+	    return status;
+    }
+
+    _cairo_output_stream_printf (pdf_operators->stream,
+				 "/%s << /MCID %d >> BDC\n",
+				 tag_name,
+				 mcid);
+
+    return _cairo_output_stream_get_status (pdf_operators->stream);
+}
+
+cairo_int_status_t
+_cairo_pdf_operators_tag_end (cairo_pdf_operators_t *pdf_operators)
+{
+    cairo_status_t status;
+
+    if (pdf_operators->in_text_object) {
+	status = _cairo_pdf_operators_end_text (pdf_operators);
+	if (unlikely (status))
+	    return status;
+    }
+
+    _cairo_output_stream_printf (pdf_operators->stream, "EMC\n");
 
     return _cairo_output_stream_get_status (pdf_operators->stream);
 }

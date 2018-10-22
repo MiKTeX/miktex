@@ -39,6 +39,7 @@
 #include "cairo-drm-i915-private.h"
 #include "cairo-error-private.h"
 #include "cairo-rtree-private.h"
+#include "cairo-clip-inline.h"
 
 static void
 i915_emit_glyph_rectangle_zero (i915_device_t *device,

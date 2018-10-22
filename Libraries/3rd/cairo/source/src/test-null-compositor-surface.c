@@ -81,7 +81,7 @@ test_compositor_surface_create (const cairo_compositor_t *compositor,
     if (unlikely (pixman_image == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
-    surface = malloc (sizeof (test_compositor_surface_t));
+    surface = _cairo_malloc (sizeof (test_compositor_surface_t));
     if (unlikely (surface == NULL)) {
 	pixman_image_unref (pixman_image);
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
@@ -90,7 +90,8 @@ test_compositor_surface_create (const cairo_compositor_t *compositor,
     _cairo_surface_init (&surface->base.base,
 			 &test_compositor_surface_backend,
 			 NULL, /* device */
-			 content);
+			 content,
+			 FALSE); /* is_vector */
     _cairo_image_surface_init (&surface->base, pixman_image, pixman_format);
 
     surface->base.compositor = compositor;
@@ -403,9 +404,10 @@ check_composite (const cairo_composite_rectangles_t *extents)
 static const cairo_compositor_t *
 no_traps_compositor_get (void)
 {
+    static cairo_atomic_once_t once = CAIRO_ATOMIC_ONCE_INIT;
     static cairo_traps_compositor_t compositor;
 
-    if (compositor.base.delegate == NULL) {
+    if (_cairo_atomic_init_once_enter(&once)) {
 	_cairo_traps_compositor_init (&compositor,
 				      no_fallback_compositor_get ());
 
@@ -425,6 +427,8 @@ no_traps_compositor_get (void)
 	compositor.composite_traps = composite_traps;
 	compositor.check_composite_glyphs = check_composite_glyphs;
 	compositor.composite_glyphs = composite_glyphs;
+
+	_cairo_atomic_init_once_leave(&once);
     }
 
     return &compositor.base;
@@ -433,9 +437,10 @@ no_traps_compositor_get (void)
 static const cairo_compositor_t *
 no_spans_compositor_get (void)
 {
+    static cairo_atomic_once_t once = CAIRO_ATOMIC_ONCE_INIT;
     static cairo_spans_compositor_t compositor;
 
-    if (compositor.base.delegate == NULL) {
+    if (_cairo_atomic_init_once_enter(&once)) {
 	_cairo_spans_compositor_init (&compositor,
 				      no_traps_compositor_get());
 
@@ -447,6 +452,8 @@ no_spans_compositor_get (void)
 	//compositor.check_span_renderer = check_span_renderer;
 	compositor.renderer_init = span_renderer_init;
 	compositor.renderer_fini = span_renderer_fini;
+
+	_cairo_atomic_init_once_leave(&once);
     }
 
     return &compositor.base;

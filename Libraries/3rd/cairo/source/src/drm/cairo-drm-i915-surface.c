@@ -94,7 +94,6 @@
 #include "cairoint.h"
 
 #include "cairo-drm-private.h"
-#include "cairo-drm-ioctl-private.h"
 #include "cairo-drm-intel-private.h"
 #include "cairo-drm-intel-command-private.h"
 #include "cairo-drm-intel-ioctl-private.h"
@@ -110,6 +109,7 @@
 #include "cairo-path-fixed-private.h"
 #include "cairo-region-private.h"
 #include "cairo-surface-offset-private.h"
+#include "cairo-image-surface-private.h"
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -2432,7 +2432,7 @@ i915_surface_create_internal (cairo_drm_device_t *base_dev,
     i915_surface_t *surface;
     cairo_status_t status_ignored;
 
-    surface = malloc (sizeof (i915_surface_t));
+    surface = _cairo_malloc (sizeof (i915_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -2542,7 +2542,7 @@ i915_surface_create_for_name (cairo_drm_device_t *base_dev,
 	break;
     }
 
-    surface = malloc (sizeof (i915_surface_t));
+    surface = _cairo_malloc (sizeof (i915_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -2698,7 +2698,7 @@ i915_surface_create_from_cacheable_image_internal (i915_device_t *device,
 	    break;
     }
     if (node == NULL) {
-	cache = malloc (sizeof (intel_buffer_cache_t));
+	cache = _cairo_malloc (sizeof (intel_buffer_cache_t));
 	if (unlikely (cache == NULL)) {
 	    status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	    goto CLEANUP_DEVICE;
@@ -2735,7 +2735,7 @@ i915_surface_create_from_cacheable_image_internal (i915_device_t *device,
     if (unlikely (status))
 	goto CLEANUP_CACHE;
 
-    surface = malloc (sizeof (i915_surface_t));
+    surface = _cairo_malloc (sizeof (i915_surface_t));
     if (unlikely (surface == NULL)) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto CLEANUP_CACHE;
@@ -2879,7 +2879,7 @@ _cairo_drm_i915_device_create (int fd, dev_t dev_id, int vendor_id, int chip_id)
     if (! intel_info (fd, &gtt_size))
 	return NULL;
 
-    device = malloc (sizeof (i915_device_t));
+    device = _cairo_malloc (sizeof (i915_device_t));
     if (device == NULL)
 	return (cairo_drm_device_t *) _cairo_device_create_in_error (CAIRO_STATUS_NO_MEMORY);
 

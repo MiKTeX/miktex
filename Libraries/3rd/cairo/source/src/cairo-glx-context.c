@@ -310,7 +310,7 @@ cairo_gl_surface_create_for_window (cairo_device_t	*device,
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 
     if (width <= 0 || height <= 0)
-        return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_INVALID_SIZE));
+	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_INVALID_SIZE));
 
     surface = calloc (1, sizeof (cairo_glx_surface_t));
     if (unlikely (surface == NULL))

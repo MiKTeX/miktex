@@ -111,8 +111,8 @@ _cairo_font_face_init (cairo_font_face_t               *font_face,
  * @font_face from being destroyed until a matching call to
  * cairo_font_face_destroy() is made.
  *
- * The number of references to a #cairo_font_face_t can be get using
- * cairo_font_face_get_reference_count().
+ * Use cairo_font_face_get_reference_count() to get the number of
+ * references to a #cairo_font_face_t.
  *
  * Return value: the referenced #cairo_font_face_t.
  *

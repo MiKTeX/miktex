@@ -71,7 +71,7 @@ i965_glyphs_accumulate_rectangle (i965_glyphs_t *glyphs)
     if (unlikely (glyphs->vbo_offset + size > I965_VERTEX_SIZE)) {
 	struct i965_vbo *vbo;
 
-	vbo = malloc (sizeof (struct i965_vbo));
+	vbo = _cairo_malloc (sizeof (struct i965_vbo));
 	if (unlikely (vbo == NULL)) {
 	    /* throw error! */
 	}

@@ -122,11 +122,7 @@ _cairo_win32_print_gdi_error (const char *context)
 
     fflush (stderr);
 
-    /* We should switch off of last_status, but we'd either return
-     * CAIRO_STATUS_NO_MEMORY or CAIRO_STATUS_UNKNOWN_ERROR and there
-     * is no CAIRO_STATUS_UNKNOWN_ERROR.
-     */
-    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+    return _cairo_error (CAIRO_STATUS_WIN32_GDI_ERROR);
 }
 
 cairo_bool_t

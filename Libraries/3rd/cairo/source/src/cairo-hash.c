@@ -164,7 +164,7 @@ _cairo_hash_table_create (cairo_hash_keys_equal_func_t keys_equal)
 {
     cairo_hash_table_t *hash_table;
 
-    hash_table = malloc (sizeof (cairo_hash_table_t));
+    hash_table = _cairo_malloc (sizeof (cairo_hash_table_t));
     if (unlikely (hash_table == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return NULL;

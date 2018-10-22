@@ -109,7 +109,7 @@ source (cairo_xlib_surface_t *dst, Picture picture, Pixmap pixmap)
     if (picture == None)
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
-    source = malloc (sizeof (*source));
+    source = _cairo_malloc (sizeof (*source));
     if (unlikely (source == NULL)) {
 	XRenderFreePicture (dst->display->display, picture);
 	if (pixmap)
@@ -120,7 +120,8 @@ source (cairo_xlib_surface_t *dst, Picture picture, Pixmap pixmap)
     _cairo_surface_init (&source->base,
 			 &cairo_xlib_source_backend,
 			 NULL, /* device */
-			 CAIRO_CONTENT_COLOR_ALPHA);
+			 CAIRO_CONTENT_COLOR_ALPHA,
+			 FALSE); /* is_vector */
 
     /* The source exists only within an operation */
     source->picture = picture;
@@ -626,7 +627,8 @@ static cairo_xlib_source_t *init_source (cairo_xlib_surface_t *dst,
 	_cairo_surface_init (&source->base,
 			     &cairo_xlib_source_backend,
 			     NULL, /* device */
-			     CAIRO_CONTENT_COLOR_ALPHA);
+			     CAIRO_CONTENT_COLOR_ALPHA,
+			     FALSE); /* is_vector */
 
 	pa.subwindow_mode = IncludeInferiors;
 	source->picture = XRenderCreatePicture (dpy,
@@ -964,14 +966,15 @@ surface_source (cairo_xlib_surface_t *dst,
 	_cairo_xlib_shm_surface_get_pixmap (src)) {
 	cairo_xlib_proxy_t *proxy;
 
-	proxy = malloc (sizeof(*proxy));
+	proxy = _cairo_malloc (sizeof(*proxy));
 	if (unlikely (proxy == NULL))
 	    return _cairo_surface_create_in_error (CAIRO_STATUS_NO_MEMORY);
 
 	_cairo_surface_init (&proxy->source.base,
 			     &cairo_xlib_proxy_backend,
 			     dst->base.device,
-			     src->content);
+			     src->content,
+			     src->is_vector);
 
 	proxy->source.dpy = dst->display->display;
 	proxy->source.picture = XRenderCreatePicture (proxy->source.dpy,

@@ -508,9 +508,13 @@ _cairo_cgcontext_set_cairo_operator (CGContextRef context, cairo_operator_t op)
 
     /* Quartz doesn't support SATURATE at all. COLOR_DODGE and
      * COLOR_BURN in Quartz follow the ISO32000 definition, but cairo
-     * uses the definition from the Adobe Supplement.
+     * uses the definition from the Adobe Supplement.  Also fallback
+     * on SOFT_LIGHT and HSL_HUE, because their results are
+     * significantly different from those provided by pixman.
      */
     if (op == CAIRO_OPERATOR_SATURATE ||
+	op == CAIRO_OPERATOR_SOFT_LIGHT ||
+	op == CAIRO_OPERATOR_HSL_HUE ||
 	op == CAIRO_OPERATOR_COLOR_DODGE ||
 	op == CAIRO_OPERATOR_COLOR_BURN)
     {
@@ -605,14 +609,25 @@ _cairo_quartz_cairo_line_join_to_quartz (cairo_line_join_t cjoin)
 static inline CGInterpolationQuality
 _cairo_quartz_filter_to_quartz (cairo_filter_t filter)
 {
+    /* The CGInterpolationQuality enumeration values seem to have the
+     * following meaning:
+     *  - kCGInterpolationNone: nearest neighbor
+     *  - kCGInterpolationLow: bilinear
+     *  - kCGInterpolationHigh: bicubic? Lanczos?
+     */
+
     switch (filter) {
     case CAIRO_FILTER_NEAREST:
     case CAIRO_FILTER_FAST:
 	return kCGInterpolationNone;
 
     case CAIRO_FILTER_BEST:
+	return kCGInterpolationHigh;
+
     case CAIRO_FILTER_GOOD:
     case CAIRO_FILTER_BILINEAR:
+	return kCGInterpolationLow;
+
     case CAIRO_FILTER_GAUSSIAN:
 	return kCGInterpolationDefault;
 
@@ -811,7 +826,7 @@ _cairo_surface_to_cgimage (cairo_surface_t       *source,
 	}
     }
 
-    source_img = malloc (sizeof (quartz_source_image_t));
+    source_img = _cairo_malloc (sizeof (quartz_source_image_t));
     if (unlikely (source_img == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -969,7 +984,7 @@ _cairo_quartz_cairo_repeating_surface_pattern_to_quartz (cairo_quartz_surface_t 
     if (unlikely (status))
 	return status;
 
-    info = malloc (sizeof (SurfacePatternDrawInfo));
+    info = _cairo_malloc (sizeof (SurfacePatternDrawInfo));
     if (unlikely (!info))
 	return CAIRO_STATUS_NO_MEMORY;
 
@@ -2238,7 +2253,7 @@ _cairo_quartz_surface_create_internal (CGContextRef cgContext,
     quartz_ensure_symbols ();
 
     /* Init the base surface */
-    surface = malloc (sizeof (cairo_quartz_surface_t));
+    surface = _cairo_malloc (sizeof (cairo_quartz_surface_t));
     if (unlikely (surface == NULL))
 	return (cairo_quartz_surface_t*) _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -2247,7 +2262,8 @@ _cairo_quartz_surface_create_internal (CGContextRef cgContext,
     _cairo_surface_init (&surface->base,
 			 &cairo_quartz_surface_backend,
 			 NULL, /* device */
-			 content);
+			 content,
+			 FALSE); /* is_vector */
 
     _cairo_surface_clipper_init (&surface->clipper,
 				 _cairo_quartz_surface_clipper_intersect_clip_path);

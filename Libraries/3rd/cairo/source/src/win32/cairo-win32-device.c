@@ -131,10 +131,12 @@ _cairo_win32_device_get (void)
 {
     cairo_win32_device_t *device;
 
+    CAIRO_MUTEX_INITIALIZE ();
+
     if (__cairo_win32_device)
 	return cairo_device_reference (__cairo_win32_device);
 
-    device = malloc (sizeof (*device));
+    device = _cairo_malloc (sizeof (*device));
 
     _cairo_device_init (&device->base, &_cairo_win32_device_backend);
 
@@ -151,20 +153,35 @@ _cairo_win32_device_get (void)
 }
 
 unsigned
-_cairo_win32_flags_for_dc (HDC dc)
+_cairo_win32_flags_for_dc (HDC dc, cairo_format_t format)
 {
     uint32_t flags = 0;
-    int cap;
+    cairo_bool_t is_display = GetDeviceCaps(dc, TECHNOLOGY) == DT_RASDISPLAY;
 
-    cap = GetDeviceCaps(dc, RASTERCAPS);
-    if (cap & RC_BITBLT)
-	flags |= CAIRO_WIN32_SURFACE_CAN_BITBLT;
-    if (cap & RC_STRETCHBLT)
-	flags |= CAIRO_WIN32_SURFACE_CAN_STRETCHBLT;
-    if (cap & RC_STRETCHDIB)
-	flags |= CAIRO_WIN32_SURFACE_CAN_STRETCHDIB;
+    if (format == CAIRO_FORMAT_RGB24 || format == CAIRO_FORMAT_ARGB32)
+    {
+	int cap = GetDeviceCaps(dc, RASTERCAPS);
+	if (cap & RC_BITBLT)
+	    flags |= CAIRO_WIN32_SURFACE_CAN_BITBLT;
+	if (!is_display && GetDeviceCaps(dc, SHADEBLENDCAPS) != SB_NONE)
+	    flags |= CAIRO_WIN32_SURFACE_CAN_ALPHABLEND;
 
-    if (GetDeviceCaps(dc, TECHNOLOGY) == DT_RASDISPLAY) {
+	/* ARGB32 available operations are a strict subset of RGB24
+	 * available operations. This is because the same GDI functions
+	 * can be used but most of them always reset alpha channel to 0
+	 * which is bad for ARGB32.
+	 */
+	if (format == CAIRO_FORMAT_RGB24)
+	{
+	    flags |= CAIRO_WIN32_SURFACE_CAN_RGB_BRUSH;
+	    if (cap & RC_STRETCHBLT)
+		flags |= CAIRO_WIN32_SURFACE_CAN_STRETCHBLT;
+	    if (cap & RC_STRETCHDIB)
+		flags |= CAIRO_WIN32_SURFACE_CAN_STRETCHDIB;
+	}
+    }
+
+    if (is_display) {
 	flags |= CAIRO_WIN32_SURFACE_IS_DISPLAY;
 
 	/* These will always be possible, but the actual GetDeviceCaps
@@ -179,10 +196,6 @@ _cairo_win32_flags_for_dc (HDC dc)
 	flags |= CAIRO_WIN32_SURFACE_CAN_STRETCHBLT;
 	flags |= CAIRO_WIN32_SURFACE_CAN_STRETCHDIB;
 #endif
-    } else {
-	cap = GetDeviceCaps(dc, SHADEBLENDCAPS);
-	if (cap != SB_NONE)
-	    flags |= CAIRO_WIN32_SURFACE_CAN_ALPHABLEND;
     }
 
     return flags;

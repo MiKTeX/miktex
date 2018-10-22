@@ -325,7 +325,7 @@ _cairo_path_fixed_create (void)
 {
     cairo_path_fixed_t	*path;
 
-    path = malloc (sizeof (cairo_path_fixed_t));
+    path = _cairo_malloc (sizeof (cairo_path_fixed_t));
     if (!path) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return NULL;
@@ -347,7 +347,7 @@ _cairo_path_fixed_fini (cairo_path_fixed_t *path)
 	_cairo_path_buf_destroy (this);
     }
 
-    VG (VALGRIND_MAKE_MEM_NOACCESS (path, sizeof (cairo_path_fixed_t)));
+    VG (VALGRIND_MAKE_MEM_UNDEFINED (path, sizeof (cairo_path_fixed_t)));
 }
 
 void

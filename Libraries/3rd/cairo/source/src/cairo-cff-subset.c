@@ -295,20 +295,11 @@ decode_nibble (int n, char *buf)
 static unsigned char *
 decode_real (unsigned char *p, double *real)
 {
-    const char *decimal_point;
-    int decimal_point_len;
-    int n;
     char buffer[100];
-    char buffer2[200];
-    char *q;
     char *buf = buffer;
     char *buf_end = buffer + sizeof (buffer);
-
-    decimal_point = cairo_get_locale_decimal_point ();
-    decimal_point_len = strlen (decimal_point);
-
-    assert (decimal_point_len != 0);
-    assert (sizeof(buffer) + decimal_point_len < sizeof(buffer2));
+    char *end;
+    int n;
 
     p++;
     while (buf + 2 < buf_end) {
@@ -324,19 +315,7 @@ decode_real (unsigned char *p, double *real)
     };
     *buf = 0;
 
-    buf = buffer;
-    if (strchr (buffer, '.')) {
-	 q = strchr (buffer, '.');
-	 strncpy (buffer2, buffer, q - buffer);
-	 buf = buffer2 + (q - buffer);
-	 strncpy (buf, decimal_point, decimal_point_len);
-	 buf += decimal_point_len;
-	 strcpy (buf, q + 1);
-	 buf = buffer2;
-    }
-
-    if (sscanf(buf, "%lf", real) != 1)
-        *real = 0.0;
+    *real = _cairo_strtod (buffer, &end);
 
     return p;
 }
@@ -568,7 +547,7 @@ cff_index_append_copy (cairo_array_t *index,
 
     element.length = length;
     element.is_copy = TRUE;
-    element.data = malloc (element.length);
+    element.data = _cairo_malloc (element.length);
     if (unlikely (element.data == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -631,12 +610,12 @@ cff_dict_create_operator (int            operator,
 {
     cff_dict_operator_t *op;
 
-    op = malloc (sizeof (cff_dict_operator_t));
+    op = _cairo_malloc (sizeof (cff_dict_operator_t));
     if (unlikely (op == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
     _cairo_dict_init_key (op, operator);
-    op->operand = malloc (size);
+    op->operand = _cairo_malloc (size);
     if (unlikely (op->operand == NULL)) {
         free (op);
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
@@ -737,7 +716,7 @@ cff_dict_set_operands (cairo_hash_table_t *dict,
     op = _cairo_hash_table_lookup (dict, &key.base);
     if (op != NULL) {
         free (op->operand);
-        op->operand = malloc (size);
+        op->operand = _cairo_malloc (size);
 	if (unlikely (op->operand == NULL))
 	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -891,7 +870,7 @@ cairo_cff_font_read_name (cairo_cff_font_t *font)
 		len -= 7;
 	    }
 	}
-        font->ps_name = malloc (len + 1);
+        font->ps_name = _cairo_malloc (len + 1);
         if (unlikely (font->ps_name == NULL))
             return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1879,7 +1858,7 @@ cairo_cff_font_create_cid_fontdict (cairo_cff_font_t *font)
     cairo_status_t status;
 
     font->num_fontdicts = 1;
-    font->fd_dict = malloc (sizeof (cairo_hash_table_t *));
+    font->fd_dict = _cairo_malloc (sizeof (cairo_hash_table_t *));
     if (unlikely (font->fd_dict == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1890,11 +1869,11 @@ cairo_cff_font_create_cid_fontdict (cairo_cff_font_t *font)
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
     }
 
-    font->fd_subset_map = malloc (sizeof (int));
+    font->fd_subset_map = _cairo_malloc (sizeof (int));
     if (unlikely (font->fd_subset_map == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
-    font->private_dict_offset = malloc (sizeof (int));
+    font->private_dict_offset = _cairo_malloc (sizeof (int));
     if (unlikely (font->private_dict_offset == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1989,7 +1968,7 @@ cairo_cff_font_subset_font (cairo_cff_font_t  *font)
 	if (unlikely (status))
 	    return status;
     }  else {
-	font->private_dict_offset = malloc (sizeof (int));
+	font->private_dict_offset = _cairo_malloc (sizeof (int));
 	if (unlikely (font->private_dict_offset == NULL))
 	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
     }
@@ -2581,7 +2560,7 @@ cairo_cff_font_generate (cairo_cff_font_t  *font,
 
     /* If the PS name is not found, create a CairoFont-x-y name. */
     if (font->ps_name == NULL) {
-        font->ps_name = malloc (30);
+        font->ps_name = _cairo_malloc (30);
         if (unlikely (font->ps_name == NULL))
 	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -2731,7 +2710,7 @@ _cairo_cff_font_load_opentype_cff (cairo_cff_font_t  *font)
 
     font->is_opentype = TRUE;
     font->data_length = data_length;
-    font->data = malloc (data_length);
+    font->data = _cairo_malloc (data_length);
     if (unlikely (font->data == NULL))
         return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -2766,7 +2745,7 @@ _cairo_cff_font_load_cff (cairo_cff_font_t  *font)
     font->font_name = NULL;
     font->is_opentype = FALSE;
     font->data_length = data_length;
-    font->data = malloc (data_length);
+    font->data = _cairo_malloc (data_length);
     if (unlikely (font->data == NULL))
         return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -2788,13 +2767,20 @@ _cairo_cff_font_create (cairo_scaled_font_subset_t  *scaled_font_subset,
 {
     const cairo_scaled_font_backend_t *backend;
     cairo_int_status_t status;
+    cairo_bool_t is_synthetic;
     cairo_cff_font_t *font;
 
     backend = scaled_font_subset->scaled_font->backend;
 
-    /* We need to use a fallback font generated from the synthesized outlines. */
-    if (backend->is_synthetic && backend->is_synthetic (scaled_font_subset->scaled_font))
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+    /* We need to use a fallback font if this font differs from the CFF outlines. */
+    if (backend->is_synthetic) {
+	status = backend->is_synthetic (scaled_font_subset->scaled_font, &is_synthetic);
+	if (unlikely (status))
+	    return status;
+
+	if (is_synthetic)
+	    return CAIRO_INT_STATUS_UNSUPPORTED;
+    }
 
     font = calloc (1, sizeof (cairo_cff_font_t));
     if (unlikely (font == NULL))
@@ -2995,7 +2981,7 @@ _cairo_cff_subset_init (cairo_cff_subset_t          *cff_subset,
     cff_subset->ascent = (double)font->ascent/font->units_per_em;
     cff_subset->descent = (double)font->descent/font->units_per_em;
 
-    cff_subset->data = malloc (length);
+    cff_subset->data = _cairo_malloc (length);
     if (unlikely (cff_subset->data == NULL)) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail4;
@@ -3054,7 +3040,7 @@ _cairo_cff_scaled_font_is_cid_cff (cairo_scaled_font_t *scaled_font)
 	(status = backend->load_truetype_table (scaled_font, TT_TAG_CFF,
 						0, NULL, &data_length)) == CAIRO_INT_STATUS_SUCCESS)
     {
-	data = malloc (data_length);
+	data = _cairo_malloc (data_length);
 	if (unlikely (data == NULL)) {
 	    status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	    return FALSE;
@@ -3071,7 +3057,7 @@ _cairo_cff_scaled_font_is_cid_cff (cairo_scaled_font_t *scaled_font)
 	(status = backend->load_type1_data (scaled_font,
 					    0, NULL, &data_length)) == CAIRO_INT_STATUS_SUCCESS)
     {
-	data = malloc (data_length);
+	data = _cairo_malloc (data_length);
 	if (unlikely (data == NULL)) {
 	    status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	    return FALSE;
@@ -3144,7 +3130,7 @@ _cairo_cff_font_fallback_create (cairo_scaled_font_subset_t  *scaled_font_subset
     cairo_status_t status;
     cairo_cff_font_t *font;
 
-    font = malloc (sizeof (cairo_cff_font_t));
+    font = _cairo_malloc (sizeof (cairo_cff_font_t));
     if (unlikely (font == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -3330,7 +3316,7 @@ cairo_cff_font_fallback_generate (cairo_cff_font_t           *font,
 	if (unlikely (status))
 	    return status;
     } else {
-	font->private_dict_offset = malloc (sizeof (int));
+	font->private_dict_offset = _cairo_malloc (sizeof (int));
 	if (unlikely (font->private_dict_offset == NULL))
 	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
     }
@@ -3407,7 +3393,7 @@ _cairo_cff_fallback_init (cairo_cff_subset_t          *cff_subset,
     cff_subset->ascent = (double)type2_subset.y_max/1000;
     cff_subset->descent = (double)type2_subset.y_min/1000;
 
-    cff_subset->data = malloc (length);
+    cff_subset->data = _cairo_malloc (length);
     if (unlikely (cff_subset->data == NULL)) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail4;

@@ -1484,10 +1484,13 @@ _cairo_bentley_ottmann_tessellate_polygon (cairo_traps_t	 *traps,
 	ymin = _cairo_fixed_integer_floor (polygon->limit.p1.y);
 	ymax = _cairo_fixed_integer_ceil (polygon->limit.p2.y) - ymin;
 
-	if (ymax > 64)
+	if (ymax > 64) {
 	    event_y = _cairo_malloc_ab(sizeof (cairo_bo_event_t*), ymax);
-	else
+	    if (unlikely (event_y == NULL))
+		return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	} else {
 	    event_y = stack_event_y;
+	}
 	memset (event_y, 0, ymax * sizeof(cairo_bo_event_t *));
     }
 
@@ -1498,8 +1501,11 @@ _cairo_bentley_ottmann_tessellate_polygon (cairo_traps_t	 *traps,
 					  sizeof (cairo_bo_start_event_t) +
 					  sizeof (cairo_bo_event_t *),
 					  sizeof (cairo_bo_event_t *));
-	if (unlikely (events == NULL))
+	if (unlikely (events == NULL)) {
+	    if (event_y != stack_event_y)
+		free (event_y);
 	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	}
 
 	event_ptrs = (cairo_bo_event_t **) (events + num_events);
     }

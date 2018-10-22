@@ -159,6 +159,10 @@ _cairo_device_create_in_error (cairo_status_t status)
     case CAIRO_STATUS_INVALID_MESH_CONSTRUCTION:
     case CAIRO_STATUS_DEVICE_FINISHED:
     case CAIRO_STATUS_JBIG2_GLOBAL_MISSING:
+    case CAIRO_STATUS_PNG_ERROR:
+    case CAIRO_STATUS_FREETYPE_ERROR:
+    case CAIRO_STATUS_WIN32_GDI_ERROR:
+    case CAIRO_STATUS_TAG_ERROR:
     default:
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_device_t *) &_nil_device;
@@ -190,8 +194,8 @@ _cairo_device_init (cairo_device_t *device,
  * @device from being destroyed until a matching call to
  * cairo_device_destroy() is made.
  *
- * The number of references to a #cairo_device_t can be get using
- * cairo_device_get_reference_count().
+ * Use cairo_device_get_reference_count() to get the number of references
+ * to a #cairo_device_t.
  *
  * Return value: the referenced #cairo_device_t.
  *

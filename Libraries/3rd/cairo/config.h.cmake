@@ -1,7 +1,5 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-#pragma once
-
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
@@ -53,6 +51,9 @@
 /* Define to 1 if your system stores words within floats with the most
    significant word first */
 #cmakedefine FLOAT_WORDS_BIGENDIAN 1
+
+/* Define to (0) if freetype2 does not support color fonts */
+#undef FT_HAS_COLOR
 
 /* Enable pixman glyph cache */
 #undef HAS_PIXMAN_GLYPHS
@@ -112,6 +113,12 @@
 /* Define to 1 if you have the `fork' function. */
 #cmakedefine HAVE_FORK 1
 
+/* Define to 1 if you have the `FT_Done_MM_Var' function. */
+#cmakedefine HAVE_FT_DONE_MM_VAR 1
+
+/* Define to 1 if you have the `FT_Get_Var_Design_Coordinates' function. */
+#cmakedefine HAVE_FT_GET_VAR_DESIGN_COORDINATES 1
+
 /* Define to 1 if you have the `FT_Get_X11_Font_Format' function. */
 #cmakedefine HAVE_FT_GET_X11_FONT_FORMAT 1
 
@@ -130,14 +137,18 @@
 /* Define to 1 if you have the `funlockfile' function. */
 #cmakedefine HAVE_FUNLOCKFILE 1
 
+/* Enable if your compiler supports the legacy GCC __sync_* atomic primitives
+   */
+#cmakedefine HAVE_GCC_LEGACY_ATOMICS 1
+
 /* Whether you have gcov */
-#undef HAVE_GCOV
+#cmakedefine HAVE_GCOV 1
 
 /* Define to 1 if you have the `getline' function. */
 #cmakedefine HAVE_GETLINE 1
 
-/* Enable if your compiler supports the Intel __sync_* atomic primitives */
-#undef HAVE_INTEL_ATOMIC_PRIMITIVES
+/* Define to 1 if you have the `gmtime_r' function. */
+#cmakedefine HAVE_GMTIME_R 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
@@ -157,6 +168,9 @@
 /* Define to 1 if you have the `link' function. */
 #cmakedefine HAVE_LINK 1
 
+/* Define to 1 if you have the `localtime_r' function. */
+#cmakedefine HAVE_LOCALTIME_R 1
+
 /* Define to 1 if you have the Valgrind lockdep tool */
 #cmakedefine HAVE_LOCKDEP 1
 
@@ -175,6 +189,9 @@
 
 /* Define to 1 if you have the `mmap' function. */
 #cmakedefine HAVE_MMAP 1
+
+/* Define to 1 if you have the `newlocale' function. */
+#cmakedefine HAVE_NEWLOCALE 1
 
 /* Enable if you have MacOS X atomic operations */
 #undef HAVE_OS_ATOMIC_OPS
@@ -215,6 +232,9 @@
 /* Define to 1 if you have the `strndup' function. */
 #cmakedefine HAVE_STRNDUP 1
 
+/* Define to 1 if you have the `strtod_l' function. */
+#cmakedefine HAVE_STRTOD_L 1
+
 /* Define to 1 if you have the <sys/int_types.h> header file. */
 #cmakedefine HAVE_SYS_INT_TYPES_H 1
 
@@ -245,6 +265,9 @@
 /* Define to 1 if you have the <time.h> header file. */
 #cmakedefine HAVE_TIME_H 1
 
+/* Define to 1 if typeof works with your compiler. */
+#cmakedefine HAVE_TYPEOF 1
+
 /* Define to 1 if the system has the type `uint128_t'. */
 #cmakedefine HAVE_UINT128_T 1
 
@@ -268,6 +291,9 @@
 
 /* Define to 1 if you have the <X11/extensions/XShm.h> header file. */
 #cmakedefine HAVE_X11_EXTENSIONS_XSHM_H 1
+
+/* Define to 1 if you have the <xlocale.h> header file. */
+#cmakedefine HAVE_XLOCALE_H 1
 
 /* Define to 1 if you have the `XRenderCreateConicalGradient' function. */
 #cmakedefine HAVE_XRENDERCREATECONICALGRADIENT 1
@@ -356,7 +382,7 @@
 
 /* Define to the value your compiler uses to support the warn-unused-result
    attribute */
-#undef WARN_UNUSED_RESULT
+#define WARN_UNUSED_RESULT
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
@@ -412,3 +438,6 @@
 #ifndef __cplusplus
 #define inline __inline
 #endif
+
+/* Define to __typeof__ if your compiler spells it that way. */
+#undef typeof

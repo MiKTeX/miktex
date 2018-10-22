@@ -32,6 +32,7 @@
 #ifndef CAIRO_DRM_INTEL_BRW_EU_H
 #define CAIRO_DRM_INTEL_BRW_EU_H
 
+#include "cairo.h"
 #include "cairo-drm-intel-brw-structs.h"
 #include "cairo-drm-intel-brw-defines.h"
 

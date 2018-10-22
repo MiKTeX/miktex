@@ -760,7 +760,7 @@ _cairo_type1_fallback_init_internal (cairo_type1_subset_t	*type1_subset,
 
     length = font->header_size + font->data_size +
 	font->trailer_size;
-    type1_subset->data = malloc (length);
+    type1_subset->data = _cairo_malloc (length);
     if (unlikely (type1_subset->data == NULL)) {
         status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto fail3;

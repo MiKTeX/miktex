@@ -74,14 +74,15 @@ _cairo_test_paginated_surface_create (cairo_surface_t *target)
     if (unlikely (status))
 	return _cairo_surface_create_in_error (status);
 
-    surface = malloc (sizeof (test_paginated_surface_t));
+    surface = _cairo_malloc (sizeof (test_paginated_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
     _cairo_surface_init (&surface->base,
 			 &test_paginated_surface_backend,
 			 NULL, /* device */
-			 target->content);
+			 target->content,
+			 TRUE); /* is_vector */
 
     surface->target = cairo_surface_reference (target);
 
@@ -231,13 +232,15 @@ _test_paginated_surface_show_text_glyphs (void			    *abstract_surface,
 }
 
 
-static void
+static cairo_int_status_t
 _test_paginated_surface_set_paginated_mode (void			*abstract_surface,
 					    cairo_paginated_mode_t	 mode)
 {
     test_paginated_surface_t *surface = abstract_surface;
 
     surface->paginated_mode = mode;
+
+    return CAIRO_STATUS_SUCCESS;
 }
 
 static const cairo_surface_backend_t test_paginated_surface_backend = {

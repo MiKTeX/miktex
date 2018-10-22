@@ -113,7 +113,7 @@ _cairo_traps_fini (cairo_traps_t *traps)
     if (traps->traps != traps->traps_embedded)
 	free (traps->traps);
 
-    VG (VALGRIND_MAKE_MEM_NOACCESS (traps, sizeof (cairo_traps_t)));
+    VG (VALGRIND_MAKE_MEM_UNDEFINED (traps, sizeof (cairo_traps_t)));
 }
 
 /* make room for at least one more trap */

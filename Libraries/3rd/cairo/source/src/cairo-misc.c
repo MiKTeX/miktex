@@ -41,6 +41,13 @@
 #include "cairoint.h"
 #include "cairo-error-private.h"
 
+#include <stdio.h>
+#include <errno.h>
+#include <locale.h>
+#ifdef HAVE_XLOCALE_H
+#include <xlocale.h>
+#endif
+
 COMPILE_TIME_ASSERT ((int)CAIRO_STATUS_LAST_STATUS < (int)CAIRO_INT_STATUS_UNSUPPORTED);
 COMPILE_TIME_ASSERT (CAIRO_INT_STATUS_LAST_STATUS <= 127);
 
@@ -49,7 +56,7 @@ COMPILE_TIME_ASSERT (CAIRO_INT_STATUS_LAST_STATUS <= 127);
  * @Title: Error handling
  * @Short_Description: Decoding cairo's status
  * @See_Also: cairo_status(), cairo_surface_status(), cairo_pattern_status(),
- *            cairo_font_face_status(), cairo_scaled_font_status(), 
+ *            cairo_font_face_status(), cairo_scaled_font_status(),
  *            cairo_region_status()
  *
  * Cairo uses a single status type to represent all kinds of errors.  A status
@@ -158,6 +165,14 @@ cairo_status_to_string (cairo_status_t status)
 	return "the target device has been finished";
     case CAIRO_STATUS_JBIG2_GLOBAL_MISSING:
 	return "CAIRO_MIME_TYPE_JBIG2_GLOBAL_ID used but no CAIRO_MIME_TYPE_JBIG2_GLOBAL data provided";
+    case CAIRO_STATUS_PNG_ERROR:
+	return "error occurred in libpng while reading from or writing to a PNG file";
+    case CAIRO_STATUS_FREETYPE_ERROR:
+	return "error occurred in libfreetype";
+    case CAIRO_STATUS_WIN32_GDI_ERROR:
+	return "error occurred in the Windows Graphics Device Interface";
+    case CAIRO_STATUS_TAG_ERROR:
+	return "invalid tag name, attributes, or nesting";
     default:
     case CAIRO_STATUS_LAST_STATUS:
 	return "<unknown error status>";
@@ -763,7 +778,7 @@ _cairo_half_from_float (float f)
 # include <locale.h>
 
 const char *
-cairo_get_locale_decimal_point (void)
+_cairo_get_locale_decimal_point (void)
 {
     struct lconv *locale_data = localeconv ();
     return locale_data->decimal_point;
@@ -772,11 +787,159 @@ cairo_get_locale_decimal_point (void)
 #else
 /* Android's Bionic libc doesn't provide decimal_point */
 const char *
-cairo_get_locale_decimal_point (void)
+_cairo_get_locale_decimal_point (void)
 {
     return ".";
 }
 #endif
+
+#if defined (HAVE_NEWLOCALE) && defined (HAVE_STRTOD_L)
+
+static locale_t C_locale;
+
+static locale_t
+get_C_locale (void)
+{
+    locale_t C;
+
+retry:
+    C = (locale_t) _cairo_atomic_ptr_get ((void **) &C_locale);
+
+    if (unlikely (!C)) {
+        C = newlocale (LC_ALL_MASK, "C", NULL);
+
+        if (!_cairo_atomic_ptr_cmpxchg ((void **) &C_locale, NULL, C)) {
+            freelocale (C_locale);
+            goto retry;
+        }
+    }
+
+    return C;
+}
+
+double
+_cairo_strtod (const char *nptr, char **endptr)
+{
+    return strtod_l (nptr, endptr, get_C_locale ());
+}
+
+#else
+
+/* strtod replacement that ignores locale and only accepts decimal points */
+double
+_cairo_strtod (const char *nptr, char **endptr)
+{
+    const char *decimal_point;
+    int decimal_point_len;
+    const char *p;
+    char buf[100];
+    char *bufptr;
+    char *bufend = buf + sizeof(buf) - 1;
+    double value;
+    char *end;
+    int delta;
+    cairo_bool_t have_dp;
+
+    decimal_point = _cairo_get_locale_decimal_point ();
+    decimal_point_len = strlen (decimal_point);
+    assert (decimal_point_len != 0);
+
+    p = nptr;
+    bufptr = buf;
+    delta = 0;
+    have_dp = FALSE;
+    while (*p && _cairo_isspace (*p)) {
+	p++;
+	delta++;
+    }
+
+    while (*p && (bufptr + decimal_point_len < bufend)) {
+	if (_cairo_isdigit (*p)) {
+	    *bufptr++ = *p;
+	} else if (*p == '.') {
+	    if (have_dp)
+		break;
+	    strncpy (bufptr, decimal_point, decimal_point_len);
+	    bufptr += decimal_point_len;
+	    delta -= decimal_point_len - 1;
+	    have_dp = TRUE;
+	} else {
+	    break;
+	}
+	p++;
+    }
+    *bufptr = 0;
+
+    value = strtod (buf, &end);
+    if (endptr) {
+	if (end == buf)
+	    *endptr = (char*)(nptr);
+	else
+	    *endptr = (char*)(nptr + (end - buf) + delta);
+    }
+
+    return value;
+}
+#endif
+
+/**
+ * _cairo_fopen:
+ * @filename: filename to open
+ * @mode: mode string with which to open the file
+ * @file_out: reference to file handle
+ *
+ * Exactly like the C library function, but possibly doing encoding
+ * conversion on the filename. On all platforms, the filename is
+ * passed directly to the system, but on Windows, the filename is
+ * interpreted as UTF-8, rather than in a codepage that would depend
+ * on system settings.
+ *
+ * Return value: CAIRO_STATUS_SUCCESS when the filename was converted
+ * successfully to the native encoding, or the error reported by
+ * _cairo_utf8_to_utf16 otherwise. To check if the file handle could
+ * be obtained, dereference file_out and compare its value against
+ * NULL
+ **/
+cairo_status_t
+_cairo_fopen (const char *filename, const char *mode, FILE **file_out)
+{
+    FILE *result;
+#ifdef _WIN32 /* also defined on x86_64 */
+    uint16_t *filename_w;
+    uint16_t *mode_w;
+    cairo_status_t status;
+
+    *file_out = NULL;
+
+    if (filename == NULL || mode == NULL) {
+	errno = EINVAL;
+	return CAIRO_STATUS_SUCCESS;
+    }
+
+    if ((status = _cairo_utf8_to_utf16 (filename, -1, &filename_w, NULL)) != CAIRO_STATUS_SUCCESS) {
+	errno = EINVAL;
+	return status;
+    }
+
+    if ((status = _cairo_utf8_to_utf16 (mode, -1, &mode_w, NULL)) != CAIRO_STATUS_SUCCESS) {
+	free (filename_w);
+	errno = EINVAL;
+	return status;
+    }
+
+    result = _wfopen(filename_w, mode_w);
+
+    free (filename_w);
+    free (mode_w);
+
+#else /* Use fopen directly */
+    result = fopen (filename, mode);
+#endif
+
+    *file_out = result;
+
+    return CAIRO_STATUS_SUCCESS;
+}
 
 #ifdef _WIN32
 
@@ -854,13 +1017,13 @@ typedef struct _cairo_intern_string {
 
 static cairo_hash_table_t *_cairo_intern_string_ht;
 
-static unsigned long
-_intern_string_hash (const char *str, int len)
+unsigned long
+_cairo_string_hash (const char *str, int len)
 {
     const signed char *p = (const signed char *) str;
     unsigned int h = *p;
 
-    for (p += 1; --len; p++)
+    for (p += 1; len > 0; len--, p++)
 	h = (h << 5) - h + *p;
 
     return h;
@@ -890,7 +1053,7 @@ _cairo_intern_string (const char **str_inout, int len)
 
     if (len < 0)
 	len = strlen (str);
-    tmpl.hash_entry.hash = _intern_string_hash (str, len);
+    tmpl.hash_entry.hash = _cairo_string_hash (str, len);
     tmpl.len = len;
     tmpl.string = (char *) str;
 
@@ -906,7 +1069,7 @@ _cairo_intern_string (const char **str_inout, int len)
     istring = _cairo_hash_table_lookup (_cairo_intern_string_ht,
 					&tmpl.hash_entry);
     if (istring == NULL) {
-	istring = malloc (sizeof (cairo_intern_string_t) + len + 1);
+	istring = _cairo_malloc (sizeof (cairo_intern_string_t) + len + 1);
 	if (likely (istring != NULL)) {
 	    istring->hash_entry.hash = tmpl.hash_entry.hash;
 	    istring->len = tmpl.len;

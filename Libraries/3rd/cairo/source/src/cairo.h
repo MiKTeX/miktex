@@ -292,6 +292,10 @@ typedef struct _cairo_user_data_key {
  * @CAIRO_STATUS_DEVICE_FINISHED: target device has been finished (Since 1.12)
  * @CAIRO_STATUS_JBIG2_GLOBAL_MISSING: %CAIRO_MIME_TYPE_JBIG2_GLOBAL_ID has been used on at least one image
  *   but no image provided %CAIRO_MIME_TYPE_JBIG2_GLOBAL (Since 1.14)
+ * @CAIRO_STATUS_PNG_ERROR: error occurred in libpng while reading from or writing to a PNG file (Since 1.16)
+ * @CAIRO_STATUS_FREETYPE_ERROR: error occurred in libfreetype (Since 1.16)
+ * @CAIRO_STATUS_WIN32_GDI_ERROR: error occurred in the Windows Graphics Device Interface (Since 1.16)
+ * @CAIRO_STATUS_TAG_ERROR: invalid tag name, attributes, or nesting (Since 1.16)
  * @CAIRO_STATUS_LAST_STATUS: this is a special value indicating the number of
  *   status values defined in this enumeration.  When using this value, note
  *   that the version of cairo at run-time may have additional status values
@@ -348,6 +352,10 @@ typedef enum _cairo_status {
     CAIRO_STATUS_INVALID_MESH_CONSTRUCTION,
     CAIRO_STATUS_DEVICE_FINISHED,
     CAIRO_STATUS_JBIG2_GLOBAL_MISSING,
+    CAIRO_STATUS_PNG_ERROR,
+    CAIRO_STATUS_FREETYPE_ERROR,
+    CAIRO_STATUS_WIN32_GDI_ERROR,
+    CAIRO_STATUS_TAG_ERROR,
 
     CAIRO_STATUS_LAST_STATUS
 } cairo_status_t;
@@ -390,7 +398,7 @@ typedef enum _cairo_content {
  * @CAIRO_FORMAT_A1: each pixel is a 1-bit quantity holding
  *   an alpha value. Pixels are packed together into 32-bit
  *   quantities. The ordering of the bits matches the
- *   endianess of the platform. On a big-endian machine, the
+ *   endianness of the platform. On a big-endian machine, the
  *   first pixel is in the uppermost bit, on a little-endian
  *   machine the first pixel is in the least-significant bit. (Since 1.0)
  * @CAIRO_FORMAT_RGB16_565: each pixel is a 16-bit quantity
@@ -598,7 +606,7 @@ cairo_pop_group_to_source (cairo_t *cr);
  * translucent layers too.
  * For a more detailed explanation of the effects of each operator, including
  * the mathematical definitions, see
- * <ulink url="http://cairographics.org/operators/">http://cairographics.org/operators/</ulink>.
+ * <ulink url="https://cairographics.org/operators/">https://cairographics.org/operators/</ulink>.
  *
  * Since: 1.0
  **/
@@ -1018,6 +1026,17 @@ cairo_copy_clip_rectangle_list (cairo_t *cr);
 cairo_public void
 cairo_rectangle_list_destroy (cairo_rectangle_list_t *rectangle_list);
 
+/* Logical structure tagging functions */
+
+#define CAIRO_TAG_DEST "cairo.dest"
+#define CAIRO_TAG_LINK "Link"
+
+cairo_public void
+cairo_tag_begin (cairo_t *cr, const char *tag_name, const char *attributes);
+
+cairo_public void
+cairo_tag_end (cairo_t *cr, const char *tag_name);
+
 /* Font/Text functions */
 
 /**
@@ -1044,7 +1063,7 @@ typedef struct _cairo_scaled_font cairo_scaled_font_t;
  *
  * A #cairo_font_face_t specifies all aspects of a font other
  * than the size or font matrix (a font matrix is used to distort
- * a font by sheering it or scaling it unequally in the two
+ * a font by shearing it or scaling it unequally in the two
  * directions) . A font face can be set on a #cairo_t by using
  * cairo_set_font_face(); the size and font matrix are set with
  * cairo_set_font_size() and cairo_set_font_matrix().
@@ -1410,6 +1429,13 @@ cairo_font_options_set_hint_metrics (cairo_font_options_t *options,
 				     cairo_hint_metrics_t  hint_metrics);
 cairo_public cairo_hint_metrics_t
 cairo_font_options_get_hint_metrics (const cairo_font_options_t *options);
+
+cairo_public const char *
+cairo_font_options_get_variations (cairo_font_options_t *options);
+
+cairo_public void
+cairo_font_options_set_variations (cairo_font_options_t *options,
+                                   const char           *variations);
 
 /* This interface is for dealing with text as text, not caring about the
    font object inside the the cairo_t. */
@@ -2340,7 +2366,6 @@ cairo_surface_status (cairo_surface_t *surface);
  * @CAIRO_SURFACE_TYPE_DRM: The surface is of type Direct Render Manager, since 1.10
  * @CAIRO_SURFACE_TYPE_TEE: The surface is of type 'tee' (a multiplexing surface), since 1.10
  * @CAIRO_SURFACE_TYPE_XML: The surface is of type XML (for debugging), since 1.10
- * @CAIRO_SURFACE_TYPE_SKIA: The surface is of type Skia, since 1.10
  * @CAIRO_SURFACE_TYPE_SUBSURFACE: The surface is a subsurface created with
  *   cairo_surface_create_for_rectangle(), since 1.10
  * @CAIRO_SURFACE_TYPE_COGL: This surface is of type Cogl, since 1.12
@@ -2434,6 +2459,10 @@ cairo_surface_set_user_data (cairo_surface_t		 *surface,
 #define CAIRO_MIME_TYPE_JBIG2 "application/x-cairo.jbig2"
 #define CAIRO_MIME_TYPE_JBIG2_GLOBAL "application/x-cairo.jbig2-global"
 #define CAIRO_MIME_TYPE_JBIG2_GLOBAL_ID "application/x-cairo.jbig2-global-id"
+#define CAIRO_MIME_TYPE_CCITT_FAX "image/g3fax"
+#define CAIRO_MIME_TYPE_CCITT_FAX_PARAMS "application/x-cairo.ccitt.params"
+#define CAIRO_MIME_TYPE_EPS "application/postscript"
+#define CAIRO_MIME_TYPE_EPS_PARAMS "application/x-cairo.eps.params"
 
 cairo_public void
 cairo_surface_get_mime_data (cairo_surface_t		*surface,

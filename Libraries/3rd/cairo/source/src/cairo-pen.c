@@ -106,7 +106,7 @@ _cairo_pen_fini (cairo_pen_t *pen)
 	free (pen->vertices);
 
 
-    VG (VALGRIND_MAKE_MEM_NOACCESS (pen, sizeof (cairo_pen_t)));
+    VG (VALGRIND_MAKE_MEM_UNDEFINED (pen, sizeof (cairo_pen_t)));
 }
 
 cairo_status_t

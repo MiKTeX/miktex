@@ -159,6 +159,17 @@ _cairo_surface_wrapper_show_text_glyphs (cairo_surface_wrapper_t *wrapper,
 					 cairo_scaled_font_t	    *scaled_font,
 					 const cairo_clip_t	    *clip);
 
+cairo_private cairo_status_t
+_cairo_surface_wrapper_tag (cairo_surface_wrapper_t     *wrapper,
+			    cairo_bool_t                 begin,
+			    const char                  *tag_name,
+			    const char                  *attributes,
+			    const cairo_pattern_t	*source,
+			    const cairo_stroke_style_t	*stroke_style,
+			    const cairo_matrix_t	*ctm,
+			    const cairo_matrix_t	*ctm_inverse,
+			    const cairo_clip_t		*clip);
+
 cairo_private cairo_surface_t *
 _cairo_surface_wrapper_create_similar (cairo_surface_wrapper_t *wrapper,
 				       cairo_content_t	content,
@@ -186,6 +197,7 @@ _cairo_surface_wrapper_is_active (cairo_surface_wrapper_t *wrapper)
 
 cairo_private cairo_bool_t
 _cairo_surface_wrapper_get_target_extents (cairo_surface_wrapper_t *wrapper,
+					   cairo_bool_t surface_is_unbounded,
 					   cairo_rectangle_int_t *extents);
 
 CAIRO_END_DECLS

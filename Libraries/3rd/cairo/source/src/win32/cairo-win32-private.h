@@ -79,8 +79,11 @@ enum {
     /* Whether we can use the CHECKJPEGFORMAT escape function */
     CAIRO_WIN32_SURFACE_CAN_CHECK_JPEG = (1<<7),
 
-    /* Whether we can use the CHECKJPEGFORMAT escape function */
+    /* Whether we can use the CHECKPNGFORMAT escape function */
     CAIRO_WIN32_SURFACE_CAN_CHECK_PNG = (1<<8),
+
+    /* Whether we can use gdi drawing with solid rgb brush with this surface */
+    CAIRO_WIN32_SURFACE_CAN_RGB_BRUSH = (1<<9),
 };
 
 typedef struct _cairo_win32_surface {
@@ -100,6 +103,24 @@ typedef struct _cairo_win32_surface {
      * that match bounds of the clipped region.
      */
     cairo_rectangle_int_t extents;
+
+    /* Offset added to extents, used when the extents start with a negative
+     * offset, which can occur on Windows for, and only for, desktop DC.  This
+     * occurs when you have multiple monitors, and at least one monitor
+     * extends to the left, or above, the primaty monitor.  The primary
+     * monitor on Windows always starts with offset (0,0), and any other points
+     * to the left, or above, have negative offsets.  So the 'desktop DC' is
+     * in fact a 'virtual desktop' which can start with extents in the negative
+     * range.
+     *
+     * Why use new variables, and not the device transform?  Simply because since
+     * the device transform functions are exposed, a lot of 3rd party libraries
+     * simply overwrite those, disregarding the prior content, instead of actually
+     * adding the offset.  GTK for example simply resets the device transform of the
+     * desktop cairo surface to zero.  So make some private member variables for
+     * this, which will not be fiddled with externally.
+     */
+    int x_ofs, y_ofs;
 } cairo_win32_surface_t;
 #define to_win32_surface(S) ((cairo_win32_surface_t *)(S))
 
@@ -107,7 +128,7 @@ typedef struct _cairo_win32_display_surface {
     cairo_win32_surface_t win32;
 
     /* We create off-screen surfaces as DIBs or DDBs, based on what we created
-     * originally*/
+     * originally */
     HBITMAP bitmap;
     cairo_bool_t is_dib;
 
@@ -115,7 +136,7 @@ typedef struct _cairo_win32_display_surface {
      * select back into the DC before deleting the DC and our
      * bitmap. For Windows XP, this doesn't seem to be necessary
      * ... we can just delete the DC and that automatically unselects
-     * out bitmap. But it's standard practice so apparently is needed
+     * our bitmap. But it's standard practice so apparently is needed
      * on some versions of Windows.
      */
     HBITMAP saved_dc_bitmap;
@@ -139,6 +160,7 @@ typedef struct _cairo_win32_printing_surface {
     cairo_matrix_t ctm;
     cairo_bool_t has_gdi_ctm;
     cairo_matrix_t gdi_ctm;
+    cairo_bool_t extents_valid;
     HBRUSH brush, old_brush;
     cairo_scaled_font_subsets_t *font_subsets;
 } cairo_win32_printing_surface_t;
@@ -181,11 +203,11 @@ cairo_private void
 _cairo_win32_display_surface_discard_fallback (cairo_win32_display_surface_t *surface);
 
 cairo_bool_t
-_cairo_win32_surface_get_extents (void		          *abstract_surface,
+_cairo_win32_surface_get_extents (void			  *abstract_surface,
 				  cairo_rectangle_int_t   *rectangle);
 
 uint32_t
-_cairo_win32_flags_for_dc (HDC dc);
+_cairo_win32_flags_for_dc (HDC dc, cairo_format_t format);
 
 cairo_int_status_t
 _cairo_win32_surface_emit_glyphs (cairo_win32_surface_t *dst,
@@ -197,7 +219,7 @@ _cairo_win32_surface_emit_glyphs (cairo_win32_surface_t *dst,
 
 static inline void
 _cairo_matrix_to_win32_xform (const cairo_matrix_t *m,
-                              XFORM *xform)
+			      XFORM *xform)
 {
     xform->eM11 = (FLOAT) m->xx;
     xform->eM21 = (FLOAT) m->xy;

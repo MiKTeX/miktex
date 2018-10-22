@@ -91,7 +91,7 @@ _cairo_stroke_style_fini (cairo_stroke_style_t *style)
 
     style->num_dashes = 0;
 
-    VG (VALGRIND_MAKE_MEM_NOACCESS (style, sizeof (cairo_stroke_style_t)));
+    VG (VALGRIND_MAKE_MEM_UNDEFINED (style, sizeof (cairo_stroke_style_t)));
 }
 
 /*

@@ -248,7 +248,7 @@ _cairo_polygon_fini (cairo_polygon_t *polygon)
     if (polygon->edges != polygon->edges_embedded)
 	free (polygon->edges);
 
-    VG (VALGRIND_MAKE_MEM_NOACCESS (polygon, sizeof (cairo_polygon_t)));
+    VG (VALGRIND_MAKE_MEM_UNDEFINED (polygon, sizeof (cairo_polygon_t)));
 }
 
 /* make room for at least one more edge */

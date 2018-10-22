@@ -114,7 +114,7 @@ _cairo_xcb_picture_create (cairo_xcb_screen_t *screen,
 {
     cairo_xcb_picture_t *surface;
 
-    surface = malloc (sizeof (cairo_xcb_picture_t));
+    surface = _cairo_malloc (sizeof (cairo_xcb_picture_t));
     if (unlikely (surface == NULL))
 	return (cairo_xcb_picture_t *)
 	    _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
@@ -122,7 +122,8 @@ _cairo_xcb_picture_create (cairo_xcb_screen_t *screen,
     _cairo_surface_init (&surface->base,
 			 &_cairo_xcb_picture_backend,
 			 &screen->connection->device,
-			 _cairo_content_from_pixman_format (pixman_format));
+			 _cairo_content_from_pixman_format (pixman_format),
+			 FALSE); /* is_vector */
 
     cairo_list_add (&surface->link, &screen->pictures);
 
@@ -4140,7 +4141,7 @@ _cairo_xcb_font_create (cairo_xcb_connection_t *connection,
     cairo_xcb_font_t	*priv;
     int i;
 
-    priv = malloc (sizeof (cairo_xcb_font_t));
+    priv = _cairo_malloc (sizeof (cairo_xcb_font_t));
     if (unlikely (priv == NULL))
 	return NULL;
 
@@ -4333,7 +4334,7 @@ _cairo_xcb_glyph_fini (cairo_scaled_glyph_private_t *glyph_private,
 	}
 
 	if (to_free == NULL) {
-	    to_free = malloc (sizeof (cairo_xcb_font_glyphset_free_glyphs_t));
+	    to_free = _cairo_malloc (sizeof (cairo_xcb_font_glyphset_free_glyphs_t));
 	    if (unlikely (to_free == NULL)) {
 		_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 		return; /* XXX cannot propagate failure */
@@ -4360,7 +4361,7 @@ _cairo_xcb_glyph_attach (cairo_xcb_connection_t  *c,
 {
     cairo_xcb_glyph_private_t *priv;
 
-    priv = malloc (sizeof (*priv));
+    priv = _cairo_malloc (sizeof (*priv));
     if (unlikely (priv == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -4471,7 +4472,7 @@ _cairo_xcb_surface_add_glyph (cairo_xcb_connection_t *connection,
 	    if (c == 0)
 		break;
 
-	    new = malloc (c);
+	    new = _cairo_malloc (c);
 	    if (unlikely (new == NULL)) {
 		status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 		goto BAIL;
@@ -4502,7 +4503,7 @@ _cairo_xcb_surface_add_glyph (cairo_xcb_connection_t *connection,
 	    if (c == 0)
 		break;
 
-	    new = malloc (4 * c);
+	    new = _cairo_malloc (4 * c);
 	    if (unlikely (new == NULL)) {
 		status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 		goto BAIL;
@@ -4584,7 +4585,7 @@ _emit_glyphs_chunk (cairo_xcb_surface_t *dst,
     int i;
 
     if (estimated_req_size > ARRAY_LENGTH (stack_buf)) {
-	buf = malloc (estimated_req_size);
+	buf = _cairo_malloc (estimated_req_size);
 	if (unlikely (buf == NULL))
 	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
     }

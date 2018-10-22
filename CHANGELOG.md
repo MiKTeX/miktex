@@ -10,6 +10,7 @@
 
 ### Upgraded libraries
 
+* cairo 1.16.0
 * fontconfig 2.13.1
 * FreeType 2.9.1
 * libcurl 7.61.1

@@ -69,14 +69,15 @@ _cairo_gl_pattern_to_source (cairo_surface_t *dst,
     if (pattern == NULL)
 	return _cairo_gl_white_source ();
 
-    source = malloc (sizeof (*source));
+    source = _cairo_malloc (sizeof (*source));
     if (unlikely (source == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
     _cairo_surface_init (&source->base,
 			 &cairo_gl_source_backend,
 			 NULL, /* device */
-			 CAIRO_CONTENT_COLOR_ALPHA);
+			 CAIRO_CONTENT_COLOR_ALPHA,
+			 FALSE); /* is_vector */
 
     *src_x = *src_y = 0;
     status = _cairo_gl_operand_init (&source->operand, pattern,
@@ -96,14 +97,15 @@ _cairo_gl_white_source (void)
 {
     cairo_gl_source_t *source;
 
-    source = malloc (sizeof (*source));
+    source = _cairo_malloc (sizeof (*source));
     if (unlikely (source == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
     _cairo_surface_init (&source->base,
 			 &cairo_gl_source_backend,
 			 NULL, /* device */
-			 CAIRO_CONTENT_COLOR_ALPHA);
+			 CAIRO_CONTENT_COLOR_ALPHA,
+			 FALSE); /* is_vector */
 
     _cairo_gl_solid_operand_init (&source->operand, CAIRO_COLOR_WHITE);
 

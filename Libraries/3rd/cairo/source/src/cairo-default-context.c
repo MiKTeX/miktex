@@ -1156,6 +1156,24 @@ _cairo_default_context_copy_page (void *abstract_cr)
 }
 
 static cairo_status_t
+_cairo_default_context_tag_begin (void *abstract_cr,
+				  const char *tag_name, const char *attributes)
+{
+    cairo_default_context_t *cr = abstract_cr;
+
+    return _cairo_gstate_tag_begin (cr->gstate, tag_name, attributes);
+}
+
+static cairo_status_t
+_cairo_default_context_tag_end (void *abstract_cr,
+				const char *tag_name)
+{
+    cairo_default_context_t *cr = abstract_cr;
+
+    return _cairo_gstate_tag_end (cr->gstate, tag_name);
+}
+
+static cairo_status_t
 _cairo_default_context_show_page (void *abstract_cr)
 {
     cairo_default_context_t *cr = abstract_cr;
@@ -1437,6 +1455,9 @@ static const cairo_backend_t _cairo_default_context_backend = {
 
     _cairo_default_context_copy_page,
     _cairo_default_context_show_page,
+
+    _cairo_default_context_tag_begin,
+    _cairo_default_context_tag_end,
 };
 
 cairo_status_t
@@ -1460,7 +1481,7 @@ _cairo_default_context_create (void *target)
 
     cr = _freed_pool_get (&context_pool);
     if (unlikely (cr == NULL)) {
-	cr = malloc (sizeof (cairo_default_context_t));
+	cr = _cairo_malloc (sizeof (cairo_default_context_t));
 	if (unlikely (cr == NULL))
 	    return _cairo_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
     }

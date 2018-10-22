@@ -35,10 +35,6 @@
 #include "cairo-drm-private.h"
 #include "cairo-freelist-private.h"
 
-#define RADEON_GEM_DOMAIN_CPU		0x1
-#define RADEON_GEM_DOMAIN_GTT		0x2
-#define RADEON_GEM_DOMAIN_VRAM		0x4
-
 typedef struct _radeon_bo {
     cairo_drm_bo_t base;
 

@@ -97,7 +97,8 @@ _cairo_composite_rectangles_init (cairo_composite_rectangles_t *extents,
     _cairo_composite_reduce_pattern (source, &extents->source_pattern);
 
     _cairo_pattern_get_extents (&extents->source_pattern.base,
-				&extents->source);
+				&extents->source,
+				surface->is_vector);
     if (extents->is_bounded & CAIRO_OPERATOR_BOUND_BY_SOURCE) {
 	if (! _cairo_rectangle_intersect (&extents->bounded, &extents->source))
 	    return FALSE;
@@ -146,10 +147,8 @@ static cairo_int_status_t
 _cairo_composite_rectangles_intersect (cairo_composite_rectangles_t *extents,
 				       const cairo_clip_t *clip)
 {
-    cairo_bool_t ret;
-
-    ret = _cairo_rectangle_intersect (&extents->bounded, &extents->mask);
-    if (! ret && extents->is_bounded & CAIRO_OPERATOR_BOUND_BY_MASK)
+    if ((!_cairo_rectangle_intersect (&extents->bounded, &extents->mask)) &&
+        (extents->is_bounded & CAIRO_OPERATOR_BOUND_BY_MASK))
 	return CAIRO_INT_STATUS_NOTHING_TO_DO;
 
     if (extents->is_bounded == (CAIRO_OPERATOR_BOUND_BY_MASK | CAIRO_OPERATOR_BOUND_BY_SOURCE)) {
@@ -318,7 +317,7 @@ _cairo_composite_rectangles_intersect_mask_extents (cairo_composite_rectangles_t
 
 cairo_int_status_t
 _cairo_composite_rectangles_init_for_mask (cairo_composite_rectangles_t *extents,
-					   cairo_surface_t*surface,
+					   cairo_surface_t              *surface,
 					   cairo_operator_t		 op,
 					   const cairo_pattern_t	*source,
 					   const cairo_pattern_t	*mask,
@@ -332,7 +331,7 @@ _cairo_composite_rectangles_init_for_mask (cairo_composite_rectangles_t *extents
 
     extents->original_mask_pattern = mask;
     _cairo_composite_reduce_pattern (mask, &extents->mask_pattern);
-    _cairo_pattern_get_extents (&extents->mask_pattern.base, &extents->mask);
+    _cairo_pattern_get_extents (&extents->mask_pattern.base, &extents->mask, surface->is_vector);
 
     return _cairo_composite_rectangles_intersect (extents, clip);
 }
@@ -353,7 +352,7 @@ _cairo_composite_rectangles_init_for_stroke (cairo_composite_rectangles_t *exten
 	return CAIRO_INT_STATUS_NOTHING_TO_DO;
     }
 
-    _cairo_path_fixed_approximate_stroke_extents (path, style, ctm, &extents->mask);
+    _cairo_path_fixed_approximate_stroke_extents (path, style, ctm, surface->is_vector, &extents->mask);
 
     return _cairo_composite_rectangles_intersect (extents, clip);
 }

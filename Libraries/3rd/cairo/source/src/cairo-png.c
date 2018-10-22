@@ -136,7 +136,7 @@ png_simple_error_callback (png_structp png,
 
     /* default to the most likely error */
     if (*error == CAIRO_STATUS_SUCCESS)
-	*error = _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	*error = _cairo_error (CAIRO_STATUS_PNG_ERROR);
 
 #ifdef PNG_SETJMP_SUPPORTED
     longjmp (png_jmpbuf (png), 1);
@@ -158,14 +158,6 @@ png_simple_warning_callback (png_structp png,
      */
 }
 
-static int
-png_setjmp (png_struct *png)
-{
-#ifdef PNG_SETJMP_SUPPORTED
-    return setjmp (png_jmpbuf (png));
-#endif
-    return 0;
-}
 
 /* Starting with libpng-1.2.30, we must explicitly specify an output_flush_fn.
  * Otherwise, we will segfault if we are writing to a stream. */
@@ -237,8 +229,10 @@ write_png (cairo_surface_t	*surface,
 	goto BAIL4;
     }
 
-    if (png_setjmp (png))
+#ifdef PNG_SETJMP_SUPPORTED
+    if (setjmp (png_jmpbuf (png)))
 	goto BAIL4;
+#endif
 
     png_set_write_fn (png, closure, write_func, png_simple_output_flush_fn);
 
@@ -345,7 +339,8 @@ stdio_write_func (png_structp png, png_bytep data, png_size_t size)
 /**
  * cairo_surface_write_to_png:
  * @surface: a #cairo_surface_t with pixel contents
- * @filename: the name of a file to write to
+ * @filename: the name of a file to write to; on Windows this filename
+ *   is encoded in UTF-8.
  *
  * Writes the contents of @surface to a new file @filename as a PNG
  * image.
@@ -355,7 +350,8 @@ stdio_write_func (png_structp png, png_bytep data, png_size_t size)
  * be allocated for the operation or
  * %CAIRO_STATUS_SURFACE_TYPE_MISMATCH if the surface does not have
  * pixel contents, or %CAIRO_STATUS_WRITE_ERROR if an I/O error occurs
- * while attempting to write the file.
+ * while attempting to write the file, or %CAIRO_STATUS_PNG_ERROR if libpng
+ * returned an error.
  *
  * Since: 1.0
  **/
@@ -372,7 +368,11 @@ cairo_surface_write_to_png (cairo_surface_t	*surface,
     if (surface->finished)
 	return _cairo_error (CAIRO_STATUS_SURFACE_FINISHED);
 
-    fp = fopen (filename, "wb");
+    status = _cairo_fopen (filename, "wb", &fp);
+
+    if (status != CAIRO_STATUS_SUCCESS)
+	return _cairo_error (status);
+
     if (fp == NULL) {
 	switch (errno) {
 	case ENOMEM:
@@ -423,7 +423,8 @@ stream_write_func (png_structp png, png_bytep data, png_size_t size)
  * successfully.  Otherwise, %CAIRO_STATUS_NO_MEMORY is returned if
  * memory could not be allocated for the operation,
  * %CAIRO_STATUS_SURFACE_TYPE_MISMATCH if the surface does not have
- * pixel contents.
+ * pixel contents, or %CAIRO_STATUS_PNG_ERROR if libpng
+ * returned an error.
  *
  * Since: 1.0
  **/
@@ -543,11 +544,11 @@ stream_read_func (png_structp png, png_bytep data, png_size_t size)
 static cairo_surface_t *
 read_png (struct png_read_closure_t *png_closure)
 {
-    cairo_surface_t *surface;
+    cairo_surface_t * volatile surface;
     png_struct *png = NULL;
     png_info *info;
-    png_byte *data = NULL;
-    png_byte **row_pointers = NULL;
+    png_byte * volatile data = NULL;
+    png_byte ** volatile row_pointers = NULL;
     png_uint_32 png_width, png_height;
     int depth, color_type, interlace, stride;
     unsigned int i;
@@ -577,11 +578,12 @@ read_png (struct png_read_closure_t *png_closure)
     png_set_read_fn (png, png_closure, stream_read_func);
 
     status = CAIRO_STATUS_SUCCESS;
-
-    if (png_setjmp (png)) {
+#ifdef PNG_SETJMP_SUPPORTED
+    if (setjmp (png_jmpbuf (png))) {
 	surface = _cairo_surface_create_in_error (status);
 	goto BAIL;
     }
+#endif
 
     png_read_info (png, info);
 
@@ -676,7 +678,7 @@ read_png (struct png_read_closure_t *png_closure)
     }
 
     for (i = 0; i < png_height; i++)
-        row_pointers[i] = &data[i * stride];
+        row_pointers[i] = &data[i * (ptrdiff_t)stride];
 
     png_read_image (png, row_pointers);
     png_read_end (png, info);
@@ -736,7 +738,8 @@ read_png (struct png_read_closure_t *png_closure)
 
 /**
  * cairo_image_surface_create_from_png:
- * @filename: name of PNG file to load
+ * @filename: name of PNG file to load. On Windows this filename
+ *   is encoded in UTF-8.
  *
  * Creates a new image surface and initializes the contents to the
  * given PNG file.
@@ -749,6 +752,7 @@ read_png (struct png_read_closure_t *png_closure)
  *	%CAIRO_STATUS_NO_MEMORY
  *	%CAIRO_STATUS_FILE_NOT_FOUND
  *	%CAIRO_STATUS_READ_ERROR
+ *	%CAIRO_STATUS_PNG_ERROR
  *
  * Alternatively, you can allow errors to propagate through the drawing
  * operations and check the status on the context upon completion
@@ -761,10 +765,14 @@ cairo_image_surface_create_from_png (const char *filename)
 {
     struct png_read_closure_t png_closure;
     cairo_surface_t *surface;
+    cairo_status_t status;
 
-    png_closure.closure = fopen (filename, "rb");
+    status = _cairo_fopen (filename, "rb", (FILE **) &png_closure.closure);
+
+    if (status != CAIRO_STATUS_SUCCESS)
+	return _cairo_surface_create_in_error (status);
+
     if (png_closure.closure == NULL) {
-	cairo_status_t status;
 	switch (errno) {
 	case ENOMEM:
 	    status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
@@ -804,6 +812,7 @@ cairo_image_surface_create_from_png (const char *filename)
  *
  *	%CAIRO_STATUS_NO_MEMORY
  *	%CAIRO_STATUS_READ_ERROR
+ *	%CAIRO_STATUS_PNG_ERROR
  *
  * Alternatively, you can allow errors to propagate through the drawing
  * operations and check the status on the context upon completion

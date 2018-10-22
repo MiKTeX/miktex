@@ -316,7 +316,7 @@ _cairo_mempool_init (cairo_mempool_t *pool,
     for (i = 0; i < ARRAY_LENGTH (pool->free); i++)
 	cairo_list_init (&pool->free[i]);
 
-    pool->map = malloc ((num_blocks + 7) >> 3);
+    pool->map = _cairo_malloc ((num_blocks + 7) >> 3);
     if (pool->map == NULL) {
 	free (pool->blocks);
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);

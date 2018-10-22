@@ -55,7 +55,8 @@ static const cairo_font_options_t _cairo_font_options_nil = {
     CAIRO_LCD_FILTER_DEFAULT,
     CAIRO_HINT_STYLE_DEFAULT,
     CAIRO_HINT_METRICS_DEFAULT,
-    CAIRO_ROUND_GLYPH_POS_DEFAULT
+    CAIRO_ROUND_GLYPH_POS_DEFAULT,
+    NULL
 };
 
 /**
@@ -73,6 +74,7 @@ _cairo_font_options_init_default (cairo_font_options_t *options)
     options->hint_style = CAIRO_HINT_STYLE_DEFAULT;
     options->hint_metrics = CAIRO_HINT_METRICS_DEFAULT;
     options->round_glyph_positions = CAIRO_ROUND_GLYPH_POS_DEFAULT;
+    options->variations = NULL;
 }
 
 void
@@ -85,6 +87,7 @@ _cairo_font_options_init_copy (cairo_font_options_t		*options,
     options->hint_style = other->hint_style;
     options->hint_metrics = other->hint_metrics;
     options->round_glyph_positions = other->round_glyph_positions;
+    options->variations = other->variations ? strdup (other->variations) : NULL;
 }
 
 /**
@@ -106,7 +109,7 @@ cairo_font_options_create (void)
 {
     cairo_font_options_t *options;
 
-    options = malloc (sizeof (cairo_font_options_t));
+    options = _cairo_malloc (sizeof (cairo_font_options_t));
     if (!options) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_font_options_t *) &_cairo_font_options_nil;
@@ -140,7 +143,7 @@ cairo_font_options_copy (const cairo_font_options_t *original)
     if (cairo_font_options_status ((cairo_font_options_t *) original))
 	return (cairo_font_options_t *) &_cairo_font_options_nil;
 
-    options = malloc (sizeof (cairo_font_options_t));
+    options = _cairo_malloc (sizeof (cairo_font_options_t));
     if (!options) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return (cairo_font_options_t *) &_cairo_font_options_nil;
@@ -149,6 +152,12 @@ cairo_font_options_copy (const cairo_font_options_t *original)
     _cairo_font_options_init_copy (options, original);
 
     return options;
+}
+
+void
+_cairo_font_options_fini (cairo_font_options_t *options)
+{
+    free (options->variations);
 }
 
 /**
@@ -166,6 +175,7 @@ cairo_font_options_destroy (cairo_font_options_t *options)
     if (cairo_font_options_status (options))
 	return;
 
+    _cairo_font_options_fini (options);
     free (options);
 }
 
@@ -226,6 +236,24 @@ cairo_font_options_merge (cairo_font_options_t       *options,
 	options->hint_metrics = other->hint_metrics;
     if (other->round_glyph_positions != CAIRO_ROUND_GLYPH_POS_DEFAULT)
 	options->round_glyph_positions = other->round_glyph_positions;
+
+    if (other->variations) {
+      if (options->variations) {
+        char *p;
+
+        /* 'merge' variations by concatenating - later entries win */
+        p = malloc (strlen (other->variations) + strlen (options->variations) + 2);
+        p[0] = 0;
+        strcat (p, options->variations);
+        strcat (p, ",");
+        strcat (p, other->variations);
+        free (options->variations);
+        options->variations = p;
+      }
+      else {
+        options->variations = strdup (other->variations);
+      }
+    }
 }
 slim_hidden_def (cairo_font_options_merge);
 
@@ -259,7 +287,10 @@ cairo_font_options_equal (const cairo_font_options_t *options,
 	    options->lcd_filter == other->lcd_filter &&
 	    options->hint_style == other->hint_style &&
 	    options->hint_metrics == other->hint_metrics &&
-	    options->round_glyph_positions == other->round_glyph_positions);
+	    options->round_glyph_positions == other->round_glyph_positions &&
+            ((options->variations == NULL && other->variations == NULL) ||
+             (options->variations != NULL && other->variations != NULL &&
+              strcmp (options->variations, other->variations) == 0)));
 }
 slim_hidden_def (cairo_font_options_equal);
 
@@ -280,14 +311,19 @@ slim_hidden_def (cairo_font_options_equal);
 unsigned long
 cairo_font_options_hash (const cairo_font_options_t *options)
 {
+    unsigned long hash = 0;
+
     if (cairo_font_options_status ((cairo_font_options_t *) options))
 	options = &_cairo_font_options_nil; /* force default values */
+
+    if (options->variations)
+      hash = _cairo_string_hash (options->variations, strlen (options->variations));
 
     return ((options->antialias) |
 	    (options->subpixel_order << 4) |
 	    (options->lcd_filter << 8) |
 	    (options->hint_style << 12) |
-	    (options->hint_metrics << 16));
+	    (options->hint_metrics << 16)) ^ hash;
 }
 slim_hidden_def (cairo_font_options_hash);
 
@@ -532,4 +568,55 @@ cairo_font_options_get_hint_metrics (const cairo_font_options_t *options)
 	return CAIRO_HINT_METRICS_DEFAULT;
 
     return options->hint_metrics;
+}
+
+/**
+ * cairo_font_options_set_variations:
+ * @options: a #cairo_font_options_t
+ * @variations: the new font variations, or %NULL
+ *
+ * Sets the OpenType font variations for the font options object.
+ * Font variations are specified as a string with a format that
+ * is similar to the CSS font-variation-settings. The string contains
+ * a comma-separated list of axis assignments, which each assignment
+ * consists of a 4-character axis name and a value, separated by
+ * whitespace and optional equals sign.
+ *
+ * Examples:
+ *
+ * wght=200,wdth=140.5
+ *
+ * wght 200 , wdth 140.5
+ *
+ * Since: 1.16
+ **/
+void
+cairo_font_options_set_variations (cairo_font_options_t *options,
+                                   const char           *variations)
+{
+  char *tmp = variations ? strdup (variations) : NULL;
+  free (options->variations);
+  options->variations = tmp;
+}
+
+/**
+ * cairo_font_options_get_variations:
+ * @options: a #cairo_font_options_t
+ *
+ * Gets the OpenType font variations for the font options object.
+ * See cairo_font_options_set_variations() for details about the
+ * string format.
+ *
+ * Return value: the font variations for the font options object. The
+ *   returned string belongs to the @options and must not be modified.
+ *   It is valid until either the font options object is destroyed or
+ *   the font variations in this object is modified with
+ *   cairo_font_options_set_variations().
+ *
+ * Since: 1.16
+ **/
+const char *
+cairo_font_options_get_variations (cairo_font_options_t *options)
+{
+  return options->variations;
 }

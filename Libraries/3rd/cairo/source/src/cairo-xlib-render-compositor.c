@@ -965,7 +965,7 @@ _cairo_xlib_font_fini (cairo_scaled_font_private_t *abstract_private,
     cairo_list_del (&priv->link);
 
     status = _cairo_xlib_display_acquire (priv->device, &display);
-    if (status)
+    if (unlikely (status)) /* this should be impossible but leak just in case */
 	goto BAIL;
 
     for (i = 0; i < NUM_GLYPHSETS; i++) {
@@ -978,7 +978,7 @@ _cairo_xlib_font_fini (cairo_scaled_font_private_t *abstract_private,
 
     cairo_device_release (&display->base);
 BAIL:
-    cairo_device_destroy (&display->base);
+    cairo_device_destroy (priv->device);
     free (priv);
 }
 
@@ -989,7 +989,7 @@ _cairo_xlib_font_create (cairo_xlib_display_t *display,
     cairo_xlib_font_t *priv;
     int i;
 
-    priv = malloc (sizeof (cairo_xlib_font_t));
+    priv = _cairo_malloc (sizeof (cairo_xlib_font_t));
     if (unlikely (priv == NULL))
 	return NULL;
 
@@ -1089,7 +1089,7 @@ _cairo_xlib_glyph_attach (cairo_xlib_display_t	*display,
 {
     cairo_xlib_glyph_private_t *priv;
 
-    priv = malloc (sizeof (*priv));
+    priv = _cairo_malloc (sizeof (*priv));
     if (unlikely (priv == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1290,7 +1290,7 @@ _cairo_xlib_surface_add_glyph (cairo_xlib_display_t *display,
 	    if (c == 0)
 		break;
 
-	    new = malloc (c);
+	    new = _cairo_malloc (c);
 	    if (!new) {
 		status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 		goto BAIL;
@@ -1318,7 +1318,7 @@ _cairo_xlib_surface_add_glyph (cairo_xlib_display_t *display,
 	    if (c == 0)
 		break;
 
-	    new = malloc (4 * c);
+	    new = _cairo_malloc (4 * c);
 	    if (unlikely (new == NULL)) {
 		status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 		goto BAIL;
@@ -1725,9 +1725,10 @@ composite_glyphs (void				*surface,
 const cairo_compositor_t *
 _cairo_xlib_mask_compositor_get (void)
 {
+    static cairo_atomic_once_t once = CAIRO_ATOMIC_ONCE_INIT;
     static cairo_mask_compositor_t compositor;
 
-    if (compositor.base.delegate == NULL) {
+    if (_cairo_atomic_init_once_enter(&once)) {
 	_cairo_mask_compositor_init (&compositor,
 				     _cairo_xlib_fallback_compositor_get ());
 
@@ -1745,6 +1746,8 @@ _cairo_xlib_mask_compositor_get (void)
 	compositor.composite_boxes = composite_boxes;
 	compositor.check_composite_glyphs = check_composite_glyphs;
 	compositor.composite_glyphs = composite_glyphs;
+
+	_cairo_atomic_init_once_leave(&once);
     }
 
     return &compositor.base;
@@ -1826,6 +1829,9 @@ composite_traps (void			*abstract_dst,
     int i;
 
     //X_DEBUG ((display->display, "composite_trapezoids (dst=%x)", (unsigned int) dst->drawable));
+
+    if (traps->num_traps == 0)
+	return CAIRO_STATUS_SUCCESS;
 
     if (dst->base.is_clear &&
 	(op == CAIRO_OPERATOR_OVER || op == CAIRO_OPERATOR_ADD))
@@ -1973,9 +1979,10 @@ composite_tristrip (void		*abstract_dst,
 const cairo_compositor_t *
 _cairo_xlib_traps_compositor_get (void)
 {
+    static cairo_atomic_once_t once = CAIRO_ATOMIC_ONCE_INIT;
     static cairo_traps_compositor_t compositor;
 
-    if (compositor.base.delegate == NULL) {
+    if (_cairo_atomic_init_once_enter(&once)) {
 	_cairo_traps_compositor_init (&compositor,
 				      _cairo_xlib_mask_compositor_get ());
 
@@ -1997,6 +2004,8 @@ _cairo_xlib_traps_compositor_get (void)
 	compositor.composite_tristrip = composite_tristrip;
 	compositor.check_composite_glyphs = check_composite_glyphs;
 	compositor.composite_glyphs = composite_glyphs;
+
+	_cairo_atomic_init_once_leave(&once);
     }
 
     return &compositor.base;

@@ -78,19 +78,19 @@ _cairo_type3_glyph_surface_create (cairo_scaled_font_t			 *scaled_font,
 				   cairo_bool_t ps)
 {
     cairo_type3_glyph_surface_t *surface;
-    cairo_matrix_t invert_y_axis;
 
     if (unlikely (stream != NULL && stream->status))
 	return _cairo_surface_create_in_error (stream->status);
 
-    surface = malloc (sizeof (cairo_type3_glyph_surface_t));
+    surface = _cairo_malloc (sizeof (cairo_type3_glyph_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
     _cairo_surface_init (&surface->base,
 			 &cairo_type3_glyph_surface_backend,
 			 NULL, /* device */
-			 CAIRO_CONTENT_COLOR_ALPHA);
+			 CAIRO_CONTENT_COLOR_ALPHA,
+			 TRUE); /* is_vector */
 
     surface->scaled_font = scaled_font;
     surface->stream = stream;
@@ -101,8 +101,6 @@ _cairo_type3_glyph_surface_create (cairo_scaled_font_t			 *scaled_font,
      * entry in the Type 3 dictionary. In the PDF backend this is an
      * identity matrix. */
     surface->cairo_to_pdf = scaled_font->scale_inverse;
-    cairo_matrix_init_scale (&invert_y_axis, 1, -1);
-    cairo_matrix_multiply (&surface->cairo_to_pdf, &surface->cairo_to_pdf, &invert_y_axis);
 
     _cairo_pdf_operators_init (&surface->pdf_operators,
 			       surface->stream,
@@ -294,15 +292,13 @@ _cairo_type3_glyph_surface_show_glyphs (void		     *abstract_surface,
     cairo_type3_glyph_surface_t *surface = abstract_surface;
     cairo_int_status_t status;
     cairo_scaled_font_t *font;
-    cairo_matrix_t new_ctm, invert_y_axis;
+    cairo_matrix_t new_ctm;
 
     status = _cairo_surface_clipper_set_clip (&surface->clipper, clip);
     if (unlikely (status))
 	return status;
 
-    cairo_matrix_init_scale (&invert_y_axis, 1, -1);
-    cairo_matrix_multiply (&new_ctm, &invert_y_axis, &scaled_font->ctm);
-    cairo_matrix_multiply (&new_ctm, &surface->cairo_to_pdf, &new_ctm);
+    cairo_matrix_multiply (&new_ctm, &surface->cairo_to_pdf, &scaled_font->ctm);
     font = cairo_scaled_font_create (scaled_font->font_face,
 				     &scaled_font->font_matrix,
 				     &new_ctm,
@@ -387,14 +383,10 @@ _cairo_type3_glyph_surface_emit_fallback_image (cairo_type3_glyph_surface_t *sur
 
     x = _cairo_fixed_to_double (scaled_glyph->bbox.p1.x);
     y = _cairo_fixed_to_double (scaled_glyph->bbox.p2.y);
-    mat.xx = image->width;
-    mat.xy = 0;
-    mat.yx = 0;
-    mat.yy = image->height;
-    mat.x0 = x;
-    mat.y0 = y;
+    cairo_matrix_init(&mat, image->width, 0,
+		      0, -image->height,
+		      x, y);
     cairo_matrix_multiply (&mat, &mat, &surface->scaled_font->scale_inverse);
-    mat.y0 *= -1;
 
     return _cairo_type3_glyph_surface_emit_image (surface, image, &mat);
 }
@@ -523,9 +515,9 @@ _cairo_type3_glyph_surface_emit_glyph (void		     *abstract_surface,
 				 "%f 0 %f %f %f %f d1\n",
                                  x_advance,
 				 _cairo_fixed_to_double (bbox->p1.x),
-				 - _cairo_fixed_to_double (bbox->p2.y),
+				 _cairo_fixed_to_double (bbox->p1.y),
 				 _cairo_fixed_to_double (bbox->p2.x),
-				 - _cairo_fixed_to_double (bbox->p1.y));
+				 _cairo_fixed_to_double (bbox->p2.y));
 
     if (status == CAIRO_INT_STATUS_SUCCESS) {
 	cairo_output_stream_t *mem_stream;

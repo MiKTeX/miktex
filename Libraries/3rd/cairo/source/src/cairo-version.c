@@ -115,8 +115,8 @@
  * <informalexample><screen>
  * Compile-time
  * ------------
- * CAIRO_VERSION_STRING    Human-readable
- * CAIRO_VERSION           Encoded, suitable for comparison
+ * #CAIRO_VERSION_STRING   Human-readable
+ * #CAIRO_VERSION          Encoded, suitable for comparison
  * &nbsp;
  * Run-time
  * --------

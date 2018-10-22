@@ -28,45 +28,14 @@
  */
 
 #include "cairoint.h"
-
 #include "cairo-drm-private.h"
-#include "cairo-drm-ioctl-private.h"
-
 #include "cairo-error-private.h"
 
 #include <sys/ioctl.h>
 #include <errno.h>
+#include <libdrm/drm.h>
 
 #define ERR_DEBUG(x) x
-
-struct drm_gem_close {
-	/** Handle of the object to be closed. */
-	uint32_t handle;
-	uint32_t pad;
-};
-
-struct drm_gem_flink {
-	/** Handle for the object being named */
-	uint32_t handle;
-
-	/** Returned global name */
-	uint32_t name;
-};
-
-struct drm_gem_open {
-	/** Name of object being opened */
-	uint32_t name;
-
-	/** Returned handle for the object */
-	uint32_t handle;
-
-	/** Returned size of the object */
-	uint64_t size;
-};
-
-#define DRM_IOCTL_GEM_CLOSE		DRM_IOW (0x09, struct drm_gem_close)
-#define DRM_IOCTL_GEM_FLINK		DRM_IOWR(0x0a, struct drm_gem_flink)
-#define DRM_IOCTL_GEM_OPEN		DRM_IOWR(0x0b, struct drm_gem_open)
 
 cairo_status_t
 _cairo_drm_bo_open_for_name (const cairo_drm_device_t *dev,

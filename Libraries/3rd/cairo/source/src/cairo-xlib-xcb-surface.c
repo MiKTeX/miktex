@@ -391,7 +391,7 @@ _cairo_xlib_xcb_device_create (Display *dpy, cairo_device_t *xcb_device)
 	}
     }
 
-    display = malloc (sizeof (cairo_xlib_xcb_display_t));
+    display = _cairo_malloc (sizeof (cairo_xlib_xcb_display_t));
     if (unlikely (display == NULL)) {
 	device = _cairo_device_create_in_error (CAIRO_STATUS_NO_MEMORY);
 	goto unlock;
@@ -438,7 +438,7 @@ _cairo_xlib_xcb_surface_create (void *dpy,
     if (unlikely (xcb->status))
 	return xcb;
 
-    surface = malloc (sizeof (*surface));
+    surface = _cairo_malloc (sizeof (*surface));
     if (unlikely (surface == NULL)) {
 	cairo_surface_destroy (xcb);
 	return _cairo_surface_create_in_error (CAIRO_STATUS_NO_MEMORY);
@@ -447,7 +447,8 @@ _cairo_xlib_xcb_surface_create (void *dpy,
     _cairo_surface_init (&surface->base,
 			 &_cairo_xlib_xcb_surface_backend,
 			 _cairo_xlib_xcb_device_create (dpy, xcb->device),
-			 xcb->content);
+			 xcb->content,
+			 FALSE); /* is_vector */
 
     /* _cairo_surface_init() got another reference to the device, drop ours */
     cairo_device_destroy (surface->base.device);

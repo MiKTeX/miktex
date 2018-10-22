@@ -98,7 +98,7 @@ _cairo_paginated_surface_create (cairo_surface_t				*target,
     cairo_paginated_surface_t *surface;
     cairo_status_t status;
 
-    surface = malloc (sizeof (cairo_paginated_surface_t));
+    surface = _cairo_malloc (sizeof (cairo_paginated_surface_t));
     if (unlikely (surface == NULL)) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto FAIL;
@@ -107,7 +107,8 @@ _cairo_paginated_surface_create (cairo_surface_t				*target,
     _cairo_surface_init (&surface->base,
 			 &cairo_paginated_surface_backend,
 			 NULL, /* device */
-			 content);
+			 content,
+			 target->is_vector);
 
     /* Override surface->base.type with target's type so we don't leak
      * evidence of the paginated wrapper out to the user. */
@@ -290,6 +291,63 @@ _cairo_paginated_surface_release_source_image (void	  *abstract_surface,
 }
 
 static cairo_int_status_t
+_paint_thumbnail_image (cairo_paginated_surface_t *surface,
+			int                        width,
+			int                        height)
+{
+    cairo_surface_pattern_t pattern;
+    cairo_rectangle_int_t extents;
+    double x_scale;
+    double y_scale;
+    cairo_surface_t *image = NULL;
+    cairo_surface_t *opaque = NULL;
+    cairo_status_t status = CAIRO_STATUS_SUCCESS;
+
+    _cairo_surface_get_extents (surface->target, &extents);
+    x_scale = (double)width / extents.width;
+    y_scale = (double)height / extents.height;
+
+    image = _cairo_paginated_surface_create_image_surface (surface, width, height);
+    cairo_surface_set_device_scale (image, x_scale, y_scale);
+    cairo_surface_set_device_offset (image, -extents.x*x_scale, -extents.y*y_scale);
+    status = _cairo_recording_surface_replay (surface->recording_surface, image);
+    if (unlikely (status))
+	goto cleanup;
+
+    /* flatten transparency */
+
+    opaque = cairo_image_surface_create (CAIRO_FORMAT_RGB24, width, height);
+    if (unlikely (opaque->status)) {
+	status = opaque->status;
+	goto cleanup;
+    }
+
+    status = _cairo_surface_paint (opaque,
+				   CAIRO_OPERATOR_SOURCE,
+				   &_cairo_pattern_white.base,
+				   NULL);
+    if (unlikely (status))
+	goto cleanup;
+
+    _cairo_pattern_init_for_surface (&pattern, image);
+    pattern.base.filter = CAIRO_FILTER_NEAREST;
+    status = _cairo_surface_paint (opaque, CAIRO_OPERATOR_OVER, &pattern.base, NULL);
+    _cairo_pattern_fini (&pattern.base);
+    if (unlikely (status))
+	goto cleanup;
+
+    status = surface->backend->set_thumbnail_image (surface->target, (cairo_image_surface_t *)opaque);
+
+  cleanup:
+    if (image)
+	cairo_surface_destroy (image);
+    if (opaque)
+	cairo_surface_destroy (opaque);
+
+    return status;
+}
+
+static cairo_int_status_t
 _paint_fallback_image (cairo_paginated_surface_t *surface,
 		       cairo_rectangle_int_t     *rect)
 {
@@ -351,10 +409,13 @@ _paint_page (cairo_paginated_surface_t *surface)
     if (unlikely (analysis->status))
 	return _cairo_surface_set_error (surface->target, analysis->status);
 
-    surface->backend->set_paginated_mode (surface->target,
+    status = surface->backend->set_paginated_mode (surface->target,
 	                                  CAIRO_PAGINATED_MODE_ANALYZE);
+    if (unlikely (status))
+	goto FAIL;
+
     status = _cairo_recording_surface_replay_and_create_regions (surface->recording_surface,
-								 analysis);
+								 NULL, analysis, FALSE);
     if (status)
 	goto FAIL;
 
@@ -400,8 +461,10 @@ _paint_page (cairo_paginated_surface_t *surface)
     }
 
     if (has_supported) {
-	surface->backend->set_paginated_mode (surface->target,
-		                              CAIRO_PAGINATED_MODE_RENDER);
+	status = surface->backend->set_paginated_mode (surface->target,
+						       CAIRO_PAGINATED_MODE_RENDER);
+	if (unlikely (status))
+	    goto FAIL;
 
 	status = _cairo_recording_surface_replay_region (surface->recording_surface,
 							 NULL,
@@ -416,8 +479,10 @@ _paint_page (cairo_paginated_surface_t *surface)
 	cairo_rectangle_int_t extents;
 	cairo_bool_t is_bounded;
 
-	surface->backend->set_paginated_mode (surface->target,
-		                              CAIRO_PAGINATED_MODE_FALLBACK);
+	status = surface->backend->set_paginated_mode (surface->target,
+						       CAIRO_PAGINATED_MODE_FALLBACK);
+	if (unlikely (status))
+	    goto FAIL;
 
 	is_bounded = _cairo_surface_get_extents (surface->target, &extents);
 	if (! is_bounded) {
@@ -434,8 +499,10 @@ _paint_page (cairo_paginated_surface_t *surface)
         cairo_region_t *region;
         int num_rects, i;
 
-	surface->backend->set_paginated_mode (surface->target,
+	status = surface->backend->set_paginated_mode (surface->target,
 		                              CAIRO_PAGINATED_MODE_FALLBACK);
+	if (unlikely (status))
+	    goto FAIL;
 
 	region = _cairo_analysis_surface_get_unsupported (analysis);
 
@@ -448,6 +515,13 @@ _paint_page (cairo_paginated_surface_t *surface)
 	    if (unlikely (status))
 		goto FAIL;
 	}
+    }
+
+    if (surface->backend->requires_thumbnail_image) {
+	int width, height;
+
+	if (surface->backend->requires_thumbnail_image (surface->target, &width, &height))
+	    _paint_thumbnail_image (surface, width, height);
     }
 
   FAIL:
@@ -659,6 +733,26 @@ _cairo_paginated_surface_get_supported_mime_types (void *abstract_surface)
     return NULL;
 }
 
+static cairo_int_status_t
+_cairo_paginated_surface_tag (void			 *abstract_surface,
+			      cairo_bool_t                begin,
+			      const char                 *tag_name,
+			      const char                 *attributes,
+			      const cairo_pattern_t	 *source,
+			      const cairo_stroke_style_t *style,
+			      const cairo_matrix_t	 *ctm,
+			      const cairo_matrix_t	 *ctm_inverse,
+			      const cairo_clip_t	 *clip)
+{
+    cairo_paginated_surface_t *surface = abstract_surface;
+
+    return _cairo_surface_tag (surface->recording_surface,
+			       begin, tag_name, attributes,
+			       source, style,
+			       ctm, ctm_inverse,
+			       clip);
+}
+
 static cairo_surface_t *
 _cairo_paginated_surface_snapshot (void *abstract_other)
 {
@@ -713,4 +807,5 @@ static const cairo_surface_backend_t cairo_paginated_surface_backend = {
     _cairo_paginated_surface_has_show_text_glyphs,
     _cairo_paginated_surface_show_text_glyphs,
     _cairo_paginated_surface_get_supported_mime_types,
+    _cairo_paginated_surface_tag,
 };

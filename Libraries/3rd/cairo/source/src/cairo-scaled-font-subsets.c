@@ -167,7 +167,7 @@ _cairo_sub_font_glyph_create (unsigned long	scaled_font_glyph_index,
 {
     cairo_sub_font_glyph_t *sub_font_glyph;
 
-    sub_font_glyph = malloc (sizeof (cairo_sub_font_glyph_t));
+    sub_font_glyph = _cairo_malloc (sizeof (cairo_sub_font_glyph_t));
     if (unlikely (sub_font_glyph == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return NULL;
@@ -277,7 +277,7 @@ _cairo_sub_font_create (cairo_scaled_font_subsets_t	*parent,
     cairo_sub_font_t *sub_font;
     int i;
 
-    sub_font = malloc (sizeof (cairo_sub_font_t));
+    sub_font = _cairo_malloc (sizeof (cairo_sub_font_t));
     if (unlikely (sub_font == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -404,7 +404,7 @@ _cairo_sub_font_glyph_lookup_unicode (cairo_scaled_font_t    *scaled_font,
     if (unicode != (uint32_t) -1) {
 	len = _cairo_ucs4_to_utf8 (unicode, buf);
 	if (len > 0) {
-	    *utf8_out = malloc (len + 1);
+	    *utf8_out = _cairo_malloc (len + 1);
 	    if (unlikely (*utf8_out == NULL))
 		return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -441,7 +441,7 @@ _cairo_sub_font_glyph_map_to_unicode (cairo_sub_font_glyph_t *sub_font_glyph,
 	    }
 	} else {
 	    /* No existing mapping. Use the requested mapping */
-	    sub_font_glyph->utf8 = malloc (utf8_len + 1);
+	    sub_font_glyph->utf8 = _cairo_malloc (utf8_len + 1);
 	    if (unlikely (sub_font_glyph->utf8 == NULL))
 		return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -611,7 +611,7 @@ _cairo_sub_font_map_glyph (cairo_sub_font_t	*sub_font,
 		if (ucs4_len == 1) {
 		    font_unicode = ucs4[0];
 		    free (font_utf8);
-		    font_utf8 = malloc (text_utf8_len + 1);
+		    font_utf8 = _cairo_malloc (text_utf8_len + 1);
 		    if (font_utf8 == NULL) {
 			free (ucs4);
 			return _cairo_error (CAIRO_STATUS_NO_MEMORY);
@@ -762,7 +762,7 @@ _cairo_scaled_font_subsets_create_internal (cairo_subsets_type_t type)
 {
     cairo_scaled_font_subsets_t *subsets;
 
-    subsets = malloc (sizeof (cairo_scaled_font_subsets_t));
+    subsets = _cairo_malloc (sizeof (cairo_scaled_font_subsets_t));
     if (unlikely (subsets == NULL)) {
 	_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	return NULL;
@@ -1217,7 +1217,7 @@ _cairo_string_init_key (cairo_string_entry_t *key, char *s)
 static cairo_status_t
 create_string_entry (char *s, cairo_string_entry_t **entry)
 {
-    *entry = malloc (sizeof (cairo_string_entry_t));
+    *entry = _cairo_malloc (sizeof (cairo_string_entry_t));
     if (unlikely (*entry == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 

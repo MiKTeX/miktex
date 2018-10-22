@@ -447,7 +447,7 @@ edges_compare_x_for_y (const cairo_bo_edge_t *a,
        HAVE_BX      = 0x2,
        HAVE_BOTH    = HAVE_AX | HAVE_BX
     } have_ax_bx = HAVE_BOTH;
-    int32_t ax, bx;
+    int32_t ax = 0, bx = 0;
 
     if (y == a->edge.line.p1.y)
 	ax = a->edge.line.p1.x;
@@ -1107,13 +1107,14 @@ edges_start_or_continue (cairo_bo_edge_t	*left,
 			 int			 top,
 			 cairo_polygon_t	*polygon)
 {
+    assert (right != NULL);
     assert (right->deferred.other == NULL);
 
     if (left->deferred.other == right)
 	return;
 
     if (left->deferred.other != NULL) {
-	if (right != NULL && edges_colinear (left->deferred.other, right)) {
+	if (edges_colinear (left->deferred.other, right)) {
 	    cairo_bo_edge_t *old = left->deferred.other;
 
 	    /* continuation on right, extend right to cover both */
@@ -1131,7 +1132,7 @@ edges_start_or_continue (cairo_bo_edge_t	*left,
 	edges_end (left, top, polygon);
     }
 
-    if (right != NULL && ! edges_colinear (left, right)) {
+    if (! edges_colinear (left, right)) {
 	left->deferred.top = top;
 	left->deferred.other = right;
     }

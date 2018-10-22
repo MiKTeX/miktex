@@ -86,6 +86,8 @@ cairo_debug_reset_static_data (void)
 
     _cairo_image_reset_static_data ();
 
+    _cairo_image_compositor_reset_static_data ();
+
 #if CAIRO_HAS_DRM_SURFACE
     _cairo_drm_device_reset_static_data ();
 #endif
@@ -237,7 +239,7 @@ _print_close (void *closure)
 }
 
 void
-_cairo_debug_print_path (FILE *stream, cairo_path_fixed_t *path)
+_cairo_debug_print_path (FILE *stream, const cairo_path_fixed_t *path)
 {
     cairo_status_t status;
     cairo_box_t box;
@@ -301,4 +303,21 @@ _cairo_debug_print_polygon (FILE *stream, cairo_polygon_t *polygon)
 		 edge->dir);
 
     }
+}
+
+void
+_cairo_debug_print_matrix (FILE *file, const cairo_matrix_t *matrix)
+{
+    fprintf (file, "[%g %g %g %g %g %g]\n",
+	     matrix->xx, matrix->yx,
+	     matrix->xy, matrix->yy,
+	     matrix->x0, matrix->y0);
+}
+
+void
+_cairo_debug_print_rect (FILE *file, const cairo_rectangle_int_t *rect)
+{
+    fprintf (file, "x: %d y: %d width: %d height: %d\n",
+	     rect->x, rect->y,
+	     rect->width, rect->height);
 }

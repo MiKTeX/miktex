@@ -173,4 +173,12 @@ _cairo_pdf_operators_show_text_glyphs (cairo_pdf_operators_t	  *pdf_operators,
 				       cairo_text_cluster_flags_t  cluster_flags,
 				       cairo_scaled_font_t	  *scaled_font);
 
+cairo_private cairo_int_status_t
+_cairo_pdf_operators_tag_begin (cairo_pdf_operators_t *pdf_operators,
+				const char            *tag_name,
+				int                    mcid);
+
+cairo_private cairo_int_status_t
+_cairo_pdf_operators_tag_end (cairo_pdf_operators_t *pdf_operators);
+
 #endif /* CAIRO_PDF_OPERATORS_H */

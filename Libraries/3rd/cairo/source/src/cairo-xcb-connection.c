@@ -111,7 +111,7 @@ _cairo_xcb_connection_find_visual_formats (cairo_xcb_connection_t *connection,
 		cairo_xcb_xrender_format_t *f;
 		cairo_status_t status;
 
-		f = malloc (sizeof (cairo_xcb_xrender_format_t));
+		f = _cairo_malloc (sizeof (cairo_xcb_xrender_format_t));
 		if (unlikely (f == NULL))
 		    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -177,7 +177,7 @@ _cairo_xcb_connection_parse_xrender_formats (cairo_xcb_connection_t *connection,
 	    if (! _cairo_hash_table_lookup (connection->xrender_formats, &key)) {
 		cairo_xcb_xrender_format_t *f;
 
-		f = malloc (sizeof (cairo_xcb_xrender_format_t));
+		f = _cairo_malloc (sizeof (cairo_xcb_xrender_format_t));
 		if (unlikely (f == NULL))
 		    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -634,7 +634,7 @@ _cairo_xcb_connection_get (xcb_connection_t *xcb_connection)
 	}
     }
 
-    connection = malloc (sizeof (cairo_xcb_connection_t));
+    connection = _cairo_malloc (sizeof (cairo_xcb_connection_t));
     if (unlikely (connection == NULL))
 	goto unlock;
 

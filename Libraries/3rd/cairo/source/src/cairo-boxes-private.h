@@ -92,8 +92,7 @@ _cairo_boxes_extents (const cairo_boxes_t *boxes,
 
 cairo_private cairo_box_t *
 _cairo_boxes_to_array (const cairo_boxes_t *boxes,
-		       int *num_boxes,
-		       cairo_bool_t force_allocation);
+		       int *num_boxes);
 
 cairo_private cairo_status_t
 _cairo_boxes_intersect (const cairo_boxes_t *a,

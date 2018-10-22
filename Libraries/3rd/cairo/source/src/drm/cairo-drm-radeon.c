@@ -31,134 +31,14 @@
 
 #include "cairo-drm-private.h"
 #include "cairo-drm-radeon-private.h"
-#include "cairo-drm-ioctl-private.h"
 
 #include "cairo-error-private.h"
+#include "cairo-image-surface-private.h"
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <errno.h>
-
-#define DRM_RADEON_GEM_INFO		0x1c
-#define DRM_RADEON_GEM_CREATE		0x1d
-#define DRM_RADEON_GEM_MMAP		0x1e
-#define DRM_RADEON_GEM_PREAD		0x21
-#define DRM_RADEON_GEM_PWRITE		0x22
-#define DRM_RADEON_GEM_SET_DOMAIN	0x23
-#define DRM_RADEON_GEM_WAIT_IDLE	0x24
-#define DRM_RADEON_CS			0x26
-#define DRM_RADEON_INFO			0x27
-
-#define DRM_IOCTL_RADEON_GEM_INFO   DRM_IOWR(DRM_COMMAND_BASE + DRM_RADEON_GEM_INFO, struct drm_radeon_gem_info)
-#define DRM_IOCTL_RADEON_GEM_CREATE   DRM_IOWR(DRM_COMMAND_BASE + DRM_RADEON_GEM_CREATE, struct drm_radeon_gem_create)
-#define DRM_IOCTL_RADEON_GEM_WAIT_IDLE   DRM_IOW(DRM_COMMAND_BASE + DRM_RADEON_GEM_WAIT_IDLE, struct drm_radeon_gem_wait_idle)
-#define DRM_IOCTL_RADEON_GEM_MMAP   DRM_IOWR(DRM_COMMAND_BASE + DRM_RADEON_GEM_MMAP, struct drm_radeon_gem_mmap)
-#define DRM_IOCTL_RADEON_GEM_PREAD   DRM_IOWR(DRM_COMMAND_BASE + DRM_RADEON_GEM_PREAD, struct drm_radeon_gem_pread)
-#define DRM_IOCTL_RADEON_GEM_PWRITE   DRM_IOWR(DRM_COMMAND_BASE + DRM_RADEON_GEM_PWRITE, struct drm_radeon_gem_pwrite)
-#define DRM_IOCTL_RADEON_GEM_SET_DOMAIN  DRM_IOWR(DRM_COMMAND_BASE + DRM_RADEON_GEM_SET_DOMAIN, struct drm_radeon_gem_set_domain)
-//#define DRM_IOCTL_RADEON_CS DRM_IOWR(DRM_COMMAND_BASE + DRM_RADEON_CS, struct drm_radeon_cs)
-
-struct drm_radeon_gem_info {
-    uint64_t	gart_size;
-    uint64_t	vram_size;
-    uint64_t	vram_visible;
-};
-
-#define RADEON_GEM_NO_BACKING_STORE 1
-
-struct drm_radeon_gem_create {
-    uint64_t	size;
-    uint64_t	alignment;
-    uint32_t	handle;
-    uint32_t	initial_domain;
-    uint32_t	flags;
-};
-
-struct drm_radeon_gem_mmap {
-    uint32_t	handle;
-    uint32_t	pad;
-    uint64_t	offset;
-    uint64_t	size;
-    uint64_t	addr_ptr;
-};
-
-struct drm_radeon_gem_set_domain {
-    uint32_t	handle;
-    uint32_t	read_domains;
-    uint32_t	write_domain;
-};
-
-struct drm_radeon_gem_wait_idle {
-    uint32_t	handle;
-    uint32_t	pad;
-};
-
-struct drm_radeon_gem_busy {
-    uint32_t	handle;
-    uint32_t	busy;
-};
-
-struct drm_radeon_gem_pread {
-    /** Handle for the object being read. */
-    uint32_t handle;
-    uint32_t pad;
-    /** Offset into the object to read from */
-    uint64_t offset;
-    /** Length of data to read */
-    uint64_t size;
-    /** Pointer to write the data into. */
-    /* void *, but pointers are not 32/64 compatible */
-    uint64_t data_ptr;
-};
-
-struct drm_radeon_gem_pwrite {
-    /** Handle for the object being written to. */
-    uint32_t handle;
-    uint32_t pad;
-    /** Offset into the object to write to */
-    uint64_t offset;
-    /** Length of data to write */
-    uint64_t size;
-    /** Pointer to read the data from. */
-    /* void *, but pointers are not 32/64 compatible */
-    uint64_t data_ptr;
-};
-
-#define RADEON_CHUNK_ID_RELOCS	0x01
-#define RADEON_CHUNK_ID_IB	0x02
-
-struct drm_radeon_cs_chunk {
-    uint32_t		chunk_id;
-    uint32_t		length_dw;
-    uint64_t		chunk_data;
-};
-
-struct drm_radeon_cs_reloc {
-    uint32_t		handle;
-    uint32_t		read_domains;
-    uint32_t		write_domain;
-    uint32_t		flags;
-};
-
-struct drm_radeon_cs {
-    uint32_t		num_chunks;
-    uint32_t		cs_id;
-    /* this points to uint64_t * which point to cs chunks */
-    uint64_t		chunks;
-    /* updates to the limits after this CS ioctl */
-    uint64_t		gart_limit;
-    uint64_t		vram_limit;
-};
-
-#define RADEON_INFO_DEVICE_ID		0x00
-#define RADEON_INFO_NUM_GB_PIPES	0x01
-
-struct drm_radeon_info {
-    uint32_t		request;
-    uint32_t		pad;
-    uint64_t		value;
-};
-
+#include <drm/radeon_drm.h>
 
 cairo_bool_t
 radeon_info (int fd,

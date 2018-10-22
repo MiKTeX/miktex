@@ -36,7 +36,7 @@
 
 /* This surface is intended to produce a verbose, hierarchical, DAG XML file
  * representing a single surface. It is intended to be used by debuggers,
- * such as cairo-sphinx, or by application test-suites that what a log of
+ * such as cairo-sphinx, or by application test-suites that want a log of
  * operations.
  */
 
@@ -258,7 +258,7 @@ _cairo_xml_create_internal (cairo_output_stream_t *stream)
 {
     cairo_xml_t *xml;
 
-    xml = malloc (sizeof (cairo_xml_t));
+    xml = _cairo_malloc (sizeof (cairo_xml_t));
     if (unlikely (xml == NULL))
 	return _cairo_device_create_in_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -933,7 +933,7 @@ _cairo_xml_emit_type42_font (cairo_xml_t *xml,
     if (unlikely (status))
 	return status;
 
-    buf = malloc (size);
+    buf = _cairo_malloc (size);
     if (unlikely (buf == NULL))
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -1098,14 +1098,15 @@ _cairo_xml_surface_create_internal (cairo_device_t *device,
 {
     cairo_xml_surface_t *surface;
 
-    surface = malloc (sizeof (cairo_xml_surface_t));
+    surface = _cairo_malloc (sizeof (cairo_xml_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
     _cairo_surface_init (&surface->base,
 			 &_cairo_xml_surface_backend,
 			 device,
-			 content);
+			 content,
+			 TRUE); /* is_vector */
 
     surface->width = width;
     surface->height = height;

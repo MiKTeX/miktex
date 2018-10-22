@@ -154,6 +154,7 @@ void
 _cairo_path_fixed_approximate_stroke_extents (const cairo_path_fixed_t *path,
 					      const cairo_stroke_style_t *style,
 					      const cairo_matrix_t *ctm,
+					      cairo_bool_t is_vector,
 					      cairo_rectangle_int_t *extents)
 {
     if (path->has_extents) {
@@ -161,6 +162,17 @@ _cairo_path_fixed_approximate_stroke_extents (const cairo_path_fixed_t *path,
 	double dx, dy;
 
 	_cairo_stroke_style_max_distance_from_path (style, path, ctm, &dx, &dy);
+	if (is_vector)
+	{
+	    /* When calculating extents for vector surfaces, ensure lines thinner
+	     * than the fixed point resolution are not optimized away. */
+	    double min = _cairo_fixed_to_double (CAIRO_FIXED_EPSILON*2);
+	    if (dx < min)
+		dx = min;
+
+	    if (dy < min)
+		dy = min;
+	}
 
 	box_extents = path->extents;
 	box_extents.p1.x -= _cairo_fixed_from_double (dx);
@@ -185,6 +197,17 @@ _cairo_path_fixed_stroke_extents (const cairo_path_fixed_t	*path,
 {
     cairo_polygon_t polygon;
     cairo_status_t status;
+    cairo_stroke_style_t style;
+
+    /* When calculating extents for vector surfaces, ensure lines thinner
+     * than one point are not optimized away. */
+    double min_line_width = _cairo_matrix_transformed_circle_major_axis (ctm_inverse, 1.0);
+    if (stroke_style->line_width < min_line_width)
+    {
+	style = *stroke_style;
+	style.line_width = min_line_width;
+	stroke_style = &style;
+    }
 
     _cairo_polygon_init (&polygon, NULL, 0);
     status = _cairo_path_fixed_stroke_to_polygon (path,

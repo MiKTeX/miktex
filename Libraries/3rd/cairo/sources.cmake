@@ -232,13 +232,11 @@ set(_cairo_font_subset_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-type3-glyph-surface.c
 )
 
-set(cairo_private
-  ${cairo_private}
+list(APPEND cairo_private
   ${_cairo_font_subset_private}
 )
 
-set(cairo_sources
-  ${cairo_sources}
+list(APPEND cairo_sources
   ${_cairo_font_subset_sources}
 )
 
@@ -249,20 +247,20 @@ set(cairo_sources
 set(_cairo_pdf_operators_private
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-pdf-operators-private.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-pdf-shading-private.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-tag-attributes-private.h
 )
 
 set(_cairo_pdf_operators_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-pdf-operators.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-pdf-shading.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-tag-attributes.c
 )
 
-set(cairo_private
-  ${cairo_private}
+list(APPEND cairo_private
   ${_cairo_pdf_operators_private}
 )
 
-set(cairo_sources
-  ${cairo_sources}
+list(APPEND cairo_sources
   ${_cairo_pdf_operators_sources}
 )
 
@@ -286,8 +284,7 @@ set(_cairo_deflate_stream_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-deflate-stream.c
 )
 
-set(cairo_sources
-  ${cairo_sources}
+list(APPEND cairo_sources
   ${_cairo_deflate_stream_sources}
 )
 
@@ -297,10 +294,13 @@ set(cairo_pdf_headers
 
 set(cairo_pdf_private
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-pdf-surface-private.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-tag-stack-private.h
 )
 
 set(cairo_pdf_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-pdf-interchange.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-pdf-surface.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-tag-stack.c
 )
 
 set(cairo_svg_headers
@@ -443,19 +443,6 @@ set(cairo_win32_font_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/win32/cairo-win32-font.c
 )
 
-set(cairo_skia_headers
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-skia.h
-)
-
-set(cairo_skia_private
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/skia/cairo-skia-private.h
-)
-
-set(cairo_skia_cxx_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/skia/cairo-skia-context.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/skia/cairo-skia-surface.cpp
-)
-
 set(cairo_os2_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-os2.h
 )
@@ -515,18 +502,27 @@ set(cairo_glesv2_sources
   ${cairo_gl_sources}
 )
 
-set(cairo_egl_sources
-  ${cairo_egl_sources}
+set(cairo_glesv3_headers
+  ${cairo_gl_headers}
+)
+
+set(cairo_glesv3_private
+  ${cairo_gl_private}
+)
+
+set(cairo_glesv3_sources
+  ${cairo_gl_sources}
+)
+
+list(APPEND cairo_egl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-egl-context.c
 )
 
-set(cairo_glx_sources
-  ${cairo_glx_sources}
+list(APPEND cairo_glx_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-glx-context.c
 )
 
-set(cairo_wgl_sources
-  ${cairo_wgl_sources}
+list(APPEND cairo_wgl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cairo-wgl-context.c
 )
 
@@ -544,7 +540,6 @@ set(cairo_drm_headers
 
 set(cairo_drm_private
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/drm/cairo-drm-private.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/drm/cairo-drm-ioctl-private.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/drm/cairo-drm-intel-private.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/drm/cairo-drm-intel-brw-defines.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/drm/cairo-drm-intel-brw-structs.h

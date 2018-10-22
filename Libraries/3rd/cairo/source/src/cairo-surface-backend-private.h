@@ -200,6 +200,18 @@ struct _cairo_surface_backend {
 
     const char **
     (*get_supported_mime_types)	(void			    *surface);
+
+    cairo_warn cairo_int_status_t
+    (*tag)			(void			*surface,
+				 cairo_bool_t            begin,
+				 const char             *tag_name,
+				 const char             *attributes,
+				 const cairo_pattern_t	*source,
+				 const cairo_stroke_style_t	*style,
+				 const cairo_matrix_t	*ctm,
+				 const cairo_matrix_t	*ctm_inverse,
+				 const cairo_clip_t	*clip);
+
 };
 
 cairo_private cairo_status_t

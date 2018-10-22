@@ -98,7 +98,7 @@ i915_accumulate_rectangle (i915_spans_t *spans)
     if (unlikely (spans->vbo_offset + size > I915_VBO_SIZE)) {
 	struct vbo *vbo;
 
-	vbo = malloc (sizeof (struct vbo));
+	vbo = _cairo_malloc (sizeof (struct vbo));
 	if (unlikely (vbo == NULL)) {
 	    /* throw error! */
 	}

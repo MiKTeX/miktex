@@ -517,7 +517,7 @@ _cairo_cogl_surface_allocate_buffer_space (cairo_cogl_surface_t *surface,
 					   void **pointer)
 {
     /* XXX: In the Cogl journal we found it more efficient to have a pool of
-     * buffers that we re-cycle but for now we simply thow away our stack
+     * buffers that we re-cycle but for now we simply throw away our stack
      * buffer each time we flush. */
     if (unlikely (surface->buffer_stack &&
 		  (surface->buffer_stack_size - surface->buffer_stack_offset) < size)) {
@@ -1994,7 +1994,7 @@ _cairo_cogl_get_path_stroke_meta (cairo_cogl_surface_t *surface,
     CAIRO_REFERENCE_COUNT_INIT (&meta->ref_count, 1);
     meta->cache_entry.hash = hash;
     meta->counter = 0;
-    meta_path = malloc (sizeof (cairo_path_fixed_t));
+    meta_path = _cairo_malloc (sizeof (cairo_path_fixed_t));
     if (!meta_path)
 	goto BAIL;
     /* FIXME: we should add a ref-counted wrapper for our user_paths
@@ -2248,7 +2248,7 @@ _cairo_cogl_get_path_fill_meta (cairo_cogl_surface_t *surface)
     meta->cache_entry.hash = hash;
     meta->counter = 0;
     CAIRO_REFERENCE_COUNT_INIT (&meta->ref_count, 1);
-    meta_path = malloc (sizeof (cairo_path_fixed_t));
+    meta_path = _cairo_malloc (sizeof (cairo_path_fixed_t));
     if (!meta_path)
 	goto BAIL;
     /* FIXME: we should add a ref-counted wrapper for our user_paths
@@ -2504,7 +2504,7 @@ _cairo_cogl_surface_create_full (cairo_cogl_device_t *dev,
     if (unlikely (status))
 	return _cairo_surface_create_in_error (status);
 
-    surface = malloc (sizeof (cairo_cogl_surface_t));
+    surface = _cairo_malloc (sizeof (cairo_cogl_surface_t));
     if (unlikely (surface == NULL))
         return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -2544,7 +2544,8 @@ _cairo_cogl_surface_create_full (cairo_cogl_device_t *dev,
     _cairo_surface_init (&surface->base,
                          &_cairo_cogl_surface_backend,
                          &dev->base,
-                         CAIRO_CONTENT_COLOR_ALPHA);
+                         CAIRO_CONTENT_COLOR_ALPHA,
+			 FALSE); /* is_vector */
 
     return &surface->base;
 }

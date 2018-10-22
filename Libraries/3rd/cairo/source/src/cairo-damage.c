@@ -51,7 +51,7 @@ _cairo_damage_create (void)
 {
     cairo_damage_t *damage;
 
-    damage = malloc (sizeof (*damage));
+    damage = _cairo_malloc (sizeof (*damage));
     if (unlikely (damage == NULL)) {
 	_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 	return (cairo_damage_t *) &__cairo_damage__nil;
@@ -122,7 +122,7 @@ _cairo_damage_add_boxes(cairo_damage_t *damage,
     if (size < count)
 	size = (count + 64) & ~63;
 
-    chunk = malloc (sizeof (*chunk) + sizeof (cairo_box_t) * size);
+    chunk = _cairo_malloc (sizeof (*chunk) + sizeof (cairo_box_t) * size);
     if (unlikely (chunk == NULL)) {
 	_cairo_damage_destroy (damage);
 	return (cairo_damage_t *) &__cairo_damage__nil;
@@ -210,7 +210,7 @@ _cairo_damage_reduce (cairo_damage_t *damage)
 
     boxes = damage->tail->base;
     if (damage->dirty > damage->tail->size) {
-	boxes = free_boxes = malloc (damage->dirty * sizeof (cairo_box_t));
+	boxes = free_boxes = _cairo_malloc (damage->dirty * sizeof (cairo_box_t));
 	if (unlikely (boxes == NULL)) {
 	    _cairo_damage_destroy (damage);
 	    return (cairo_damage_t *) &__cairo_damage__nil;

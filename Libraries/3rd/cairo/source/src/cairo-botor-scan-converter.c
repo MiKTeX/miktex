@@ -456,7 +456,7 @@ edges_compare_x_for_y (const cairo_edge_t *a,
        HAVE_BX      = 0x2,
        HAVE_BOTH    = HAVE_AX | HAVE_BX
     } have_ax_bx = HAVE_BOTH;
-    int32_t ax, bx;
+    int32_t ax = 0, bx = 0;
 
     /* XXX given we have x and dx? */
 
@@ -2124,6 +2124,44 @@ botor_add_edge (cairo_botor_scan_converter_t *self,
     e->flags = START;
 
     self->num_edges++;
+
+    return CAIRO_STATUS_SUCCESS;
+}
+
+#if 0
+static cairo_status_t
+_cairo_botor_scan_converter_add_edge (void		*converter,
+				      const cairo_point_t *p1,
+				      const cairo_point_t *p2,
+				      int top, int bottom,
+				      int dir)
+{
+    cairo_botor_scan_converter_t *self = converter;
+    cairo_edge_t edge;
+
+    edge.line.p1 = *p1;
+    edge.line.p2 = *p2;
+    edge.top = top;
+    edge.bottom = bottom;
+    edge.dir = dir;
+
+    return botor_add_edge (self, &edge);
+}
+#endif
+
+cairo_status_t
+_cairo_botor_scan_converter_add_polygon (cairo_botor_scan_converter_t *converter,
+					 const cairo_polygon_t *polygon)
+{
+    cairo_botor_scan_converter_t *self = converter;
+    cairo_status_t status;
+    int i;
+
+    for (i = 0; i < polygon->num_edges; i++) {
+	status = botor_add_edge (self, &polygon->edges[i]);
+	if (unlikely (status))
+	    return status;
+    }
 
     return CAIRO_STATUS_SUCCESS;
 }

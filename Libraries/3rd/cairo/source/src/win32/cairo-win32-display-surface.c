@@ -214,10 +214,10 @@ _create_dc_and_bitmap (cairo_win32_display_surface_t *surface,
 	goto FAIL;
 
     surface->bitmap = CreateDIBSection (surface->win32.dc,
-			                bitmap_info,
-			                DIB_RGB_COLORS,
-			                &bits,
-			                NULL, 0);
+					bitmap_info,
+					DIB_RGB_COLORS,
+					&bits,
+					NULL, 0);
     if (!surface->bitmap)
 	goto FAIL;
 
@@ -258,7 +258,7 @@ _create_dc_and_bitmap (cairo_win32_display_surface_t *surface,
 	}
     }
 
-    surface->win32.flags = _cairo_win32_flags_for_dc (surface->win32.dc);
+    surface->win32.flags = _cairo_win32_flags_for_dc (surface->win32.dc, format);
 
     return CAIRO_STATUS_SUCCESS;
 
@@ -289,8 +289,8 @@ _create_dc_and_bitmap (cairo_win32_display_surface_t *surface,
 static cairo_surface_t *
 _cairo_win32_display_surface_create_for_dc (HDC             original_dc,
 					    cairo_format_t  format,
-					    int	            width,
-					    int	            height)
+					    int		    width,
+					    int		    height)
 {
     cairo_status_t status;
     cairo_device_t *device;
@@ -298,7 +298,7 @@ _cairo_win32_display_surface_create_for_dc (HDC             original_dc,
     unsigned char *bits;
     int rowstride;
 
-    surface = malloc (sizeof (*surface));
+    surface = _cairo_malloc (sizeof (*surface));
     if (surface == NULL)
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -325,6 +325,8 @@ _cairo_win32_display_surface_create_for_dc (HDC             original_dc,
     surface->win32.extents.y = 0;
     surface->win32.extents.width = width;
     surface->win32.extents.height = height;
+    surface->win32.x_ofs = 0;
+    surface->win32.y_ofs = 0;
 
     surface->initial_clip_rgn = NULL;
     surface->had_simple_clip = FALSE;
@@ -334,7 +336,8 @@ _cairo_win32_display_surface_create_for_dc (HDC             original_dc,
     _cairo_surface_init (&surface->win32.base,
 			 &cairo_win32_display_surface_backend,
 			 device,
-			 _cairo_content_from_format (format));
+			 _cairo_content_from_format (format),
+			 FALSE); /* is_vector */
 
     cairo_device_destroy (device);
 
@@ -465,7 +468,8 @@ _cairo_win32_display_surface_map_to_image (void                    *abstract_sur
 		     surface->win32.extents.width,
 		     surface->win32.extents.height,
 		     surface->win32.dc,
-		     surface->win32.extents.x, surface->win32.extents.y,
+		     surface->win32.extents.x + surface->win32.x_ofs, /* Handling multi-monitor... */
+		     surface->win32.extents.y + surface->win32.y_ofs, /* ... setup on Win32 */
 		     SRCCOPY)) {
 	    status = _cairo_error (CAIRO_STATUS_DEVICE_ERROR);
 	    goto err;
@@ -543,11 +547,12 @@ _cairo_win32_display_surface_flush (void *abstract_surface, unsigned flags)
 
 	if (damage->status) {
 	    if (!BitBlt (surface->win32.dc,
-			 0, 0,
+			 surface->win32.extents.x + surface->win32.x_ofs, /* Handling multi-monitor... */
+			 surface->win32.extents.y + surface->win32.y_ofs, /* ... setup on Win32 */
 			 surface->win32.extents.width,
 			 surface->win32.extents.height,
 			 fallback->win32.dc,
-			 0, 0,
+			 surface->win32.extents.x, surface->win32.extents.y,
 			 SRCCOPY))
 		status = _cairo_win32_print_gdi_error (__FUNCTION__);
 	} else if (damage->region) {
@@ -560,7 +565,8 @@ _cairo_win32_display_surface_flush (void *abstract_surface, unsigned flags)
 			rect.x, rect.y,
 			rect.width, rect.height));
 		if (!BitBlt (surface->win32.dc,
-			     rect.x, rect.y,
+			     rect.x + surface->win32.x_ofs, /* Handling multi-monitor... */
+			     rect.y + surface->win32.y_ofs, /* ... setup on Win32 */
 			     rect.width, rect.height,
 			     fallback->win32.dc,
 			     rect.x, rect.y,
@@ -627,6 +633,35 @@ _cairo_win32_save_initial_clip (HDC hdc, cairo_win32_display_surface_t *surface)
     surface->win32.extents.width = rect.right - rect.left;
     surface->win32.extents.height = rect.bottom - rect.top;
 
+    /* On multi-monitor setup, under Windows, the primary monitor always
+     * have origin (0,0).  Any monitors that extends to the left or above
+     * will have coordinates in the negative range.  Take this into
+     * account, by forcing our Win32 surface to start at extent (0,0) and
+     * using a device offset.  Cairo does not handle extents with negative
+     * offsets.
+     */
+    surface->win32.x_ofs = 0;
+    surface->win32.y_ofs = 0;
+    if ((surface->win32.extents.x < 0) ||
+	(surface->win32.extents.y < 0)) {
+	/* Negative offsets occurs for (and ONLY for) the desktop DC (virtual
+	 * desktop), when a monitor extend to the left or above the primary
+	 * monitor.
+	 *
+	 * More info @ https://www.microsoft.com/msj/0697/monitor/monitor.aspx
+	 *
+	 * Note that any other DC, including memory DC created with
+	 * CreateCompatibleDC(<virtual desktop DC>) will have extents in the
+	 * positive range.  This will be taken into account later when we perform
+	 * raster operations between the DC (may have to perform offset
+	 * translation).
+	 */
+	surface->win32.x_ofs = surface->win32.extents.x;
+	surface->win32.y_ofs = surface->win32.extents.y;
+	surface->win32.extents.x = 0;
+	surface->win32.extents.y = 0;
+    }
+
     surface->initial_clip_rgn = NULL;
     surface->had_simple_clip = FALSE;
 
@@ -684,7 +719,7 @@ _cairo_win32_display_surface_set_clip (cairo_win32_display_surface_t *surface,
 
     data_size = sizeof (RGNDATAHEADER) + num_rects * sizeof (RECT);
     if (data_size > sizeof (stack)) {
-	data = malloc (data_size);
+	data = _cairo_malloc (data_size);
 	if (!data)
 	    return _cairo_error(CAIRO_STATUS_NO_MEMORY);
     } else
@@ -917,33 +952,43 @@ static const cairo_surface_backend_t cairo_win32_display_surface_backend = {
  */
 
 /**
- * cairo_win32_surface_create:
+ * cairo_win32_surface_create_with_format:
  * @hdc: the DC to create a surface for
+ * @format: format of pixels in the surface to create
  *
  * Creates a cairo surface that targets the given DC.  The DC will be
  * queried for its initial clip extents, and this will be used as the
- * size of the cairo surface.  The resulting surface will always be of
- * format %CAIRO_FORMAT_RGB24; should you need another surface format,
- * you will need to create one through
- * cairo_win32_surface_create_with_dib().
+ * size of the cairo surface.
  *
- * Return value: the newly created surface
+ * Supported formats are:
+ * %CAIRO_FORMAT_ARGB32
+ * %CAIRO_FORMAT_RGB24
  *
- * Since: 1.0
+ * Note: @format only tells cairo how to draw on the surface, not what
+ * the format of the surface is. Namely, cairo does not (and cannot)
+ * check that @hdc actually supports alpha-transparency.
+ *
+ * Return value: the newly created surface, NULL on failure
+ *
+ * Since: 1.14
  **/
 cairo_surface_t *
-cairo_win32_surface_create (HDC hdc)
+cairo_win32_surface_create_with_format (HDC hdc, cairo_format_t format)
 {
     cairo_win32_display_surface_t *surface;
 
-    cairo_format_t format;
     cairo_status_t status;
     cairo_device_t *device;
 
-    /* Assume that everything coming in as a HDC is RGB24 */
-    format = CAIRO_FORMAT_RGB24;
+    switch (format) {
+    default:
+	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_INVALID_FORMAT));
+    case CAIRO_FORMAT_ARGB32:
+    case CAIRO_FORMAT_RGB24:
+	break;
+    }
 
-    surface = malloc (sizeof (*surface));
+    surface = _cairo_malloc (sizeof (*surface));
     if (surface == NULL)
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -962,18 +1007,41 @@ cairo_win32_surface_create (HDC hdc)
     surface->is_dib = FALSE;
     surface->saved_dc_bitmap = NULL;
 
-    surface->win32.flags = _cairo_win32_flags_for_dc (surface->win32.dc);
+    surface->win32.flags = _cairo_win32_flags_for_dc (surface->win32.dc, format);
 
     device = _cairo_win32_device_get ();
 
     _cairo_surface_init (&surface->win32.base,
 			 &cairo_win32_display_surface_backend,
 			 device,
-			 _cairo_content_from_format (format));
+			 _cairo_content_from_format (format),
+			 FALSE); /* is_vector */
 
     cairo_device_destroy (device);
 
     return &surface->win32.base;
+}
+
+/**
+ * cairo_win32_surface_create:
+ * @hdc: the DC to create a surface for
+ *
+ * Creates a cairo surface that targets the given DC.  The DC will be
+ * queried for its initial clip extents, and this will be used as the
+ * size of the cairo surface.  The resulting surface will always be of
+ * format %CAIRO_FORMAT_RGB24; should you need another surface format,
+ * you will need to create one through
+ * cairo_win32_surface_create_with_format() or
+ * cairo_win32_surface_create_with_dib().
+ *
+ * Return value: the newly created surface, NULL on failure
+ *
+ * Since: 1.0
+ **/
+cairo_surface_t *
+cairo_win32_surface_create (HDC hdc)
+{
+    return cairo_win32_surface_create_with_format (hdc, CAIRO_FORMAT_RGB24);
 }
 
 /**
@@ -1027,12 +1095,16 @@ cairo_win32_surface_create_with_ddb (HDC hdc,
     HDC screen_dc, ddb_dc;
     HBITMAP saved_dc_bitmap;
 
-    if (format != CAIRO_FORMAT_RGB24)
+    switch (format) {
+    default:
+/* XXX handle these eventually */
+    case CAIRO_FORMAT_A8:
+    case CAIRO_FORMAT_A1:
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_INVALID_FORMAT));
-/* XXX handle these eventually
-	format != CAIRO_FORMAT_A8 ||
-	format != CAIRO_FORMAT_A1)
-*/
+    case CAIRO_FORMAT_ARGB32:
+    case CAIRO_FORMAT_RGB24:
+	break;
+    }
 
     if (!hdc) {
 	screen_dc = GetDC (NULL);

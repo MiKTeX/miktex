@@ -323,7 +323,7 @@ _win32_scaled_font_create (LOGFONTW                   *logfont,
     if (hdc == NULL)
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
-    f = malloc (sizeof(cairo_win32_scaled_font_t));
+    f = _cairo_malloc (sizeof(cairo_win32_scaled_font_t));
     if (f == NULL)
 	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -472,7 +472,7 @@ _win32_scaled_font_get_unscaled_hfont (cairo_win32_scaled_font_t *scaled_font,
 	if (! otm_size)
 	    return _cairo_win32_print_gdi_error ("_win32_scaled_font_get_unscaled_hfont:GetOutlineTextMetrics");
 
-	otm = malloc (otm_size);
+	otm = _cairo_malloc (otm_size);
 	if (otm == NULL)
 	    return _cairo_error (CAIRO_STATUS_NO_MEMORY);
 
@@ -889,7 +889,7 @@ _cairo_win32_scaled_font_set_metrics (cairo_win32_scaled_font_t *scaled_font)
     cairo_status_t status;
     cairo_font_extents_t extents;
 
-    TEXTMETRIC metrics;
+    TEXTMETRIC metrics = {0};
     HDC hdc;
 
     hdc = _get_global_font_dc ();
@@ -902,8 +902,14 @@ _cairo_win32_scaled_font_set_metrics (cairo_win32_scaled_font_t *scaled_font)
 	status = cairo_win32_scaled_font_select_font (&scaled_font->base, hdc);
 	if (status)
 	    return status;
-	GetTextMetrics (hdc, &metrics);
+
+	if (!GetTextMetrics (hdc, &metrics)) {
+	    status = _cairo_win32_print_gdi_error ("_cairo_win32_scaled_font_set_metrics:GetTextMetrics");
+	}
+
 	cairo_win32_scaled_font_done_font (&scaled_font->base);
+	if (status)
+	    return status;
 
 	extents.ascent = metrics.tmAscent / scaled_font->logical_scale;
 	extents.descent = metrics.tmDescent / scaled_font->logical_scale;
@@ -1382,7 +1388,7 @@ _cairo_win32_scaled_font_index_to_ucs4 (void		*abstract_font,
 	goto exit1;
     }
 
-    glyph_set = malloc (res);
+    glyph_set = _cairo_malloc (res);
     if (glyph_set == NULL) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto exit1;
@@ -1444,8 +1450,9 @@ exit1:
     return status;
 }
 
-static cairo_bool_t
-_cairo_win32_scaled_font_is_synthetic (void	       *abstract_font)
+static cairo_int_status_t
+_cairo_win32_scaled_font_is_synthetic (void	        *abstract_font,
+				       cairo_bool_t    *is_synthetic)
 {
     cairo_win32_scaled_font_t *scaled_font = abstract_font;
     cairo_status_t status;
@@ -1453,6 +1460,7 @@ _cairo_win32_scaled_font_is_synthetic (void	       *abstract_font)
     cairo_bool_t bold;
     cairo_bool_t italic;
 
+    *is_synthetic = FALSE;
     status = _cairo_truetype_get_style (&scaled_font->base,
 					&weight,
 					&bold,
@@ -1460,13 +1468,13 @@ _cairo_win32_scaled_font_is_synthetic (void	       *abstract_font)
     /* If this doesn't work assume it is not synthetic to avoid
      * unnecessary subsetting fallbacks. */
     if (status != CAIRO_STATUS_SUCCESS)
-	return FALSE;
+	return CAIRO_STATUS_SUCCESS;
 
     if (scaled_font->logfont.lfWeight != weight ||
 	scaled_font->logfont.lfItalic != italic)
-	return TRUE;
+	*is_synthetic = TRUE;
 
-    return FALSE;
+    return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_int_status_t
@@ -1688,8 +1696,8 @@ _cairo_win32_scaled_font_init_glyph_path (cairo_win32_scaled_font_t *scaled_font
 	goto CLEANUP_FONT;
     }
 
-    ptr = buffer = malloc (bytesGlyph);
-    if (!buffer) {
+    ptr = buffer = _cairo_malloc (bytesGlyph);
+    if (!buffer && bytesGlyph != 0) {
 	status = _cairo_error (CAIRO_STATUS_NO_MEMORY);
 	goto CLEANUP_FONT;
     }
@@ -2063,7 +2071,7 @@ cairo_win32_font_face_create_for_logfontw_hfont (LOGFONTW *logfont, HFONT font)
     }
 
     /* Otherwise create it and insert into hash table. */
-    font_face = malloc (sizeof (cairo_win32_font_face_t));
+    font_face = _cairo_malloc (sizeof (cairo_win32_font_face_t));
     if (!font_face) {
         _cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
 	goto FAIL;

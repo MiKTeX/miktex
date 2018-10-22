@@ -172,6 +172,9 @@ struct _cairo_backend {
 
     cairo_status_t (*copy_page) (void *cr);
     cairo_status_t (*show_page) (void *cr);
+
+    cairo_status_t (*tag_begin) (void *cr, const char *tag_name, const char *attributes);
+    cairo_status_t (*tag_end) (void *cr, const char *tag_name);
 };
 
 static inline void

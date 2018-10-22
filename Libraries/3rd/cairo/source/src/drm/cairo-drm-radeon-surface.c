@@ -34,6 +34,11 @@
 
 #include "cairo-default-context-private.h"
 #include "cairo-error-private.h"
+#include "cairo-image-surface-private.h"
+
+#include <stddef.h>
+#include <inttypes.h>		/* workaround for broken <drm/radeon_drm.h> */
+#include <drm/radeon_drm.h>
 
 /* Basic stub surface for radeon chipsets */
 
@@ -299,7 +304,8 @@ radeon_surface_init (radeon_surface_t *surface,
     _cairo_surface_init (&surface->base.base,
 			 &radeon_surface_backend,
 			 &device->base,
-			 _cairo_content_from_format (format));
+			 _cairo_content_from_format (format),
+			FALSE);
     _cairo_drm_surface_init (&surface->base, format, width, height);
 }
 
@@ -311,7 +317,7 @@ radeon_surface_create_internal (cairo_drm_device_t *device,
     radeon_surface_t *surface;
     cairo_status_t status;
 
-    surface = malloc (sizeof (radeon_surface_t));
+    surface = _cairo_malloc (sizeof (radeon_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -379,7 +385,7 @@ radeon_surface_create_for_name (cairo_drm_device_t *device,
     if (stride < cairo_format_stride_for_width (format, width))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_INVALID_STRIDE));
 
-    surface = malloc (sizeof (radeon_surface_t));
+    surface = _cairo_malloc (sizeof (radeon_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -421,7 +427,7 @@ _cairo_drm_radeon_device_create (int fd, dev_t dev, int vendor_id, int chip_id)
     if (! radeon_info (fd, &gart_size, &vram_size))
 	return NULL;
 
-    device = malloc (sizeof (radeon_device_t));
+    device = _cairo_malloc (sizeof (radeon_device_t));
     if (device == NULL)
 	return _cairo_drm_device_create_in_error (CAIRO_STATUS_NO_MEMORY);
 

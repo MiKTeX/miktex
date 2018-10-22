@@ -445,7 +445,7 @@ edges_compare_x_for_y (const cairo_bo_edge_t *a,
        HAVE_BX      = 0x2,
        HAVE_BOTH    = HAVE_AX | HAVE_BX
     } have_ax_bx = HAVE_BOTH;
-    int32_t ax, bx;
+    int32_t ax = 0, bx = 0;
 
     if (y == a->edge.line.p1.y)
 	ax = a->edge.line.p1.x;

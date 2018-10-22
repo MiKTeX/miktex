@@ -69,7 +69,7 @@
  *   call sites.  The macro works by renaming `f' to an internal name
  *   in the symbol table and hiding that.  As far as cairo internal
  *   calls are concerned they're calling a library internal function
- *   and thus don't need to bounce via the PLT.
+ *   and thus don't need to bounce via the procedure linkage table (PLT).
  *
  * slim_hidden_def(f)
  *

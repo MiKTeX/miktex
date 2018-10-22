@@ -110,9 +110,9 @@ lines_compare_x_for_y_general (const cairo_line_t *a,
      * should prevent that before the tessellation algorithm
      * begins.
      */
-    int32_t dx;
-    int32_t adx, ady;
-    int32_t bdx, bdy;
+    int32_t dx = 0;
+    int32_t adx = 0, ady = 0;
+    int32_t bdx = 0, bdy = 0;
     enum {
        HAVE_NONE    = 0x0,
        HAVE_DX      = 0x1,
@@ -218,7 +218,7 @@ lines_compare_x_for_y (const cairo_line_t *a,
        HAVE_BX      = 0x2,
        HAVE_BOTH    = HAVE_AX | HAVE_BX
     } have_ax_bx = HAVE_BOTH;
-    int32_t ax, bx;
+    int32_t ax = 0, bx = 0;
 
     if (y == a->p1.y)
 	ax = a->p1.x;

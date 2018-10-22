@@ -397,7 +397,7 @@ _cairo_cogl_get_linear_gradient (cairo_cogl_device_t *device,
     }
 
     if (!gradient) {
-	gradient = malloc (sizeof (cairo_cogl_linear_gradient_t) +
+	gradient = _cairo_malloc (sizeof (cairo_cogl_linear_gradient_t) +
 			   sizeof (cairo_gradient_stop_t) * (n_stops - 1));
 	if (!gradient)
 	    return CAIRO_INT_STATUS_NO_MEMORY;
@@ -413,7 +413,7 @@ _cairo_cogl_get_linear_gradient (cairo_cogl_device_t *device,
     } else
 	_cairo_cogl_linear_gradient_reference (gradient);
 
-    entry = malloc (sizeof (cairo_cogl_linear_texture_entry_t));
+    entry = _cairo_malloc (sizeof (cairo_cogl_linear_texture_entry_t));
     if (!entry) {
 	status = CAIRO_INT_STATUS_NO_MEMORY;
 	goto BAIL;

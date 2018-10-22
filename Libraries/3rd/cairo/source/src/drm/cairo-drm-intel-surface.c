@@ -34,6 +34,7 @@
 
 #include "cairo-default-context-private.h"
 #include "cairo-error-private.h"
+#include "cairo-image-surface-private.h"
 
 /* Basic generic/stub surface for intel chipsets */
 
@@ -295,7 +296,9 @@ intel_surface_init (intel_surface_t *surface,
     _cairo_surface_init (&surface->drm.base,
 			 backend,
 			 &device->base,
-			 _cairo_content_from_format (format));
+			 _cairo_content_from_format (format),
+			 FALSE);
+
     _cairo_drm_surface_init (&surface->drm, format, width, height);
 
     surface->snapshot_cache_entry.hash = 0;
@@ -309,7 +312,7 @@ intel_surface_create (cairo_drm_device_t *device,
     intel_surface_t *surface;
     cairo_status_t status;
 
-    surface = malloc (sizeof (intel_surface_t));
+    surface = _cairo_malloc (sizeof (intel_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -360,7 +363,7 @@ intel_surface_create_for_name (cairo_drm_device_t *device,
     if (stride < cairo_format_stride_for_width (format, width))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_INVALID_STRIDE));
 
-    surface = malloc (sizeof (intel_surface_t));
+    surface = _cairo_malloc (sizeof (intel_surface_t));
     if (unlikely (surface == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -422,7 +425,7 @@ _cairo_drm_intel_device_create (int fd, dev_t dev, int vendor_id, int chip_id)
     if (! intel_info (fd, NULL))
 	return NULL;
 
-    device = malloc (sizeof (intel_device_t));
+    device = _cairo_malloc (sizeof (intel_device_t));
     if (unlikely (device == NULL))
 	return (cairo_drm_device_t *) _cairo_device_create_in_error (CAIRO_STATUS_NO_MEMORY);
 

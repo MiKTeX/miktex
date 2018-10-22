@@ -168,6 +168,10 @@ _cairo_botor_scan_converter_init (cairo_botor_scan_converter_t *self,
 				  const cairo_box_t *extents,
 				  cairo_fill_rule_t fill_rule);
 
+cairo_private cairo_status_t
+_cairo_botor_scan_converter_add_polygon (cairo_botor_scan_converter_t *converter,
+					const cairo_polygon_t *polygon);
+
 /* cairo-spans.c: */
 
 cairo_private cairo_scan_converter_t *

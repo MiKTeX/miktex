@@ -631,7 +631,7 @@ map_qimage_to_image (QImage *qimg, const cairo_rectangle_int_t *extents)
 	return _cairo_surface_create_in_error (CAIRO_STATUS_NO_MEMORY);
     }
 
-    surface = (struct _qimage_surface *) malloc (sizeof(*surface));
+    surface = (struct _qimage_surface *) _cairo_malloc (sizeof(*surface));
     if (unlikely (surface == NULL)) {
 	pixman_image_unref (pixman_image);
 	delete qimg;
@@ -1216,7 +1216,7 @@ _cairo_qt_fast_fill (cairo_qt_surface_t *qs,
 
 	cairo_clip_t clip, old_clip = qs->clipper.clip;
 
-	_cairo_clip_init_copy (&clip, &qs->clipper.clip);
+	qs->clipper.clip = _cairo_clip_copy (&clip);
 	status = (cairo_int_status_t) _cairo_clip_clip (&clip,
 							path,
 							fill_rule,
@@ -1530,7 +1530,7 @@ cairo_qt_surface_create (QPainter *painter)
 {
     cairo_qt_surface_t *qs;
 
-    qs = (cairo_qt_surface_t *) malloc (sizeof(cairo_qt_surface_t));
+    qs = (cairo_qt_surface_t *) _cairo_malloc (sizeof(cairo_qt_surface_t));
     if (qs == NULL)
         return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -1569,7 +1569,7 @@ cairo_qt_surface_create_with_qimage (cairo_format_t format,
 {
     cairo_qt_surface_t *qs;
 
-    qs = (cairo_qt_surface_t *) malloc (sizeof(cairo_qt_surface_t));
+    qs = (cairo_qt_surface_t *) _cairo_malloc (sizeof(cairo_qt_surface_t));
     if (qs == NULL)
         return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
@@ -1618,7 +1618,7 @@ cairo_qt_surface_create_with_qpixmap (cairo_content_t content,
     if ((content & CAIRO_CONTENT_COLOR) == 0)
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_INVALID_CONTENT));
 
-    qs = (cairo_qt_surface_t *) malloc (sizeof(cairo_qt_surface_t));
+    qs = (cairo_qt_surface_t *) _cairo_malloc (sizeof(cairo_qt_surface_t));
     if (qs == NULL)
         return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 

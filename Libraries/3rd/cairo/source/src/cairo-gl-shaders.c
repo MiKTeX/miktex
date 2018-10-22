@@ -132,7 +132,7 @@ _cairo_gl_shader_cache_destroy (void *data)
 
     _cairo_gl_shader_fini (entry->ctx, &entry->shader);
     if (entry->ctx->current_shader == &entry->shader)
-        entry->ctx->current_shader = NULL;
+	entry->ctx->current_shader = NULL;
     free (entry);
 }
 
@@ -171,12 +171,12 @@ _cairo_gl_context_init_shaders (cairo_gl_context_t *ctx)
     memset (ctx->vertex_shaders, 0, sizeof (ctx->vertex_shaders));
 
     status = _cairo_cache_init (&ctx->shaders,
-                                ctx->gl_flavor == CAIRO_GL_FLAVOR_DESKTOP ?
+				ctx->gl_flavor == CAIRO_GL_FLAVOR_DESKTOP ?
 				    _cairo_gl_shader_cache_equal_desktop :
 				    _cairo_gl_shader_cache_equal_gles2,
-                                NULL,
-                                _cairo_gl_shader_cache_destroy,
-                                CAIRO_GL_MAX_SHADERS_PER_CONTEXT);
+				NULL,
+				_cairo_gl_shader_cache_destroy,
+				CAIRO_GL_MAX_SHADERS_PER_CONTEXT);
     if (unlikely (status))
 	return status;
 
@@ -225,68 +225,68 @@ cairo_gl_operand_get_var_type (cairo_gl_operand_t *operand)
     switch (operand->type) {
     default:
     case CAIRO_GL_OPERAND_COUNT:
-        ASSERT_NOT_REACHED;
+	ASSERT_NOT_REACHED;
     case CAIRO_GL_OPERAND_NONE:
     case CAIRO_GL_OPERAND_CONSTANT:
-        return CAIRO_GL_VAR_NONE;
+	return CAIRO_GL_VAR_NONE;
     case CAIRO_GL_OPERAND_LINEAR_GRADIENT:
     case CAIRO_GL_OPERAND_RADIAL_GRADIENT_A0:
     case CAIRO_GL_OPERAND_RADIAL_GRADIENT_NONE:
     case CAIRO_GL_OPERAND_RADIAL_GRADIENT_EXT:
-        return operand->gradient.texgen ? CAIRO_GL_VAR_TEXGEN : CAIRO_GL_VAR_TEXCOORDS;
+	return operand->gradient.texgen ? CAIRO_GL_VAR_TEXGEN : CAIRO_GL_VAR_TEXCOORDS;
     case CAIRO_GL_OPERAND_TEXTURE:
-        return operand->texture.texgen ? CAIRO_GL_VAR_TEXGEN : CAIRO_GL_VAR_TEXCOORDS;
+	return operand->texture.texgen ? CAIRO_GL_VAR_TEXGEN : CAIRO_GL_VAR_TEXCOORDS;
     }
 }
 
 static void
 cairo_gl_shader_emit_variable (cairo_output_stream_t *stream,
-                               cairo_gl_var_type_t type,
-                               cairo_gl_tex_t name)
+			       cairo_gl_var_type_t type,
+			       cairo_gl_tex_t name)
 {
     switch (type) {
     default:
-        ASSERT_NOT_REACHED;
+	ASSERT_NOT_REACHED;
     case CAIRO_GL_VAR_NONE:
-        break;
+	break;
     case CAIRO_GL_VAR_TEXCOORDS:
-        _cairo_output_stream_printf (stream,
+	_cairo_output_stream_printf (stream,
 				     "attribute vec4 MultiTexCoord%d;\n"
-                                     "varying vec2 %s_texcoords;\n",
-                                     name,
-                                     operand_names[name]);
-        break;
+				     "varying vec2 %s_texcoords;\n",
+				     name,
+				     operand_names[name]);
+	break;
     case CAIRO_GL_VAR_TEXGEN:
-        _cairo_output_stream_printf (stream,
+	_cairo_output_stream_printf (stream,
 				     "uniform mat3 %s_texgen;\n"
-                                     "varying vec2 %s_texcoords;\n",
-                                     operand_names[name],
-                                     operand_names[name]);
-        break;
+				     "varying vec2 %s_texcoords;\n",
+				     operand_names[name],
+				     operand_names[name]);
+	break;
     }
 }
 
 static void
 cairo_gl_shader_emit_vertex (cairo_output_stream_t *stream,
-                             cairo_gl_var_type_t type,
-                             cairo_gl_tex_t name)
+			     cairo_gl_var_type_t type,
+			     cairo_gl_tex_t name)
 {
     switch (type) {
     default:
-        ASSERT_NOT_REACHED;
+	ASSERT_NOT_REACHED;
     case CAIRO_GL_VAR_NONE:
-        break;
+	break;
     case CAIRO_GL_VAR_TEXCOORDS:
-        _cairo_output_stream_printf (stream,
-                                     "    %s_texcoords = MultiTexCoord%d.xy;\n",
-                                     operand_names[name], name);
-        break;
+	_cairo_output_stream_printf (stream,
+				     "    %s_texcoords = MultiTexCoord%d.xy;\n",
+				     operand_names[name], name);
+	break;
 
     case CAIRO_GL_VAR_TEXGEN:
-        _cairo_output_stream_printf (stream,
+	_cairo_output_stream_printf (stream,
 				     "    %s_texcoords = (%s_texgen * Vertex.xyw).xy;\n",
-                                     operand_names[name], operand_names[name]);
-        break;
+				     operand_names[name], operand_names[name]);
+	break;
     }
 }
 
@@ -304,9 +304,9 @@ cairo_gl_shader_def_coverage (cairo_output_stream_t *stream)
 
 static cairo_status_t
 cairo_gl_shader_get_vertex_source (cairo_gl_var_type_t src,
-                                   cairo_gl_var_type_t mask,
+				   cairo_gl_var_type_t mask,
 				   cairo_bool_t use_coverage,
-                                   cairo_gl_var_type_t dest,
+				   cairo_gl_var_type_t dest,
 				   char **out)
 {
     cairo_output_stream_t *stream = _cairo_memory_stream_create ();
@@ -361,9 +361,9 @@ _cairo_gl_shader_needs_border_fade (cairo_gl_operand_t *operand)
 
 static void
 cairo_gl_shader_emit_color (cairo_output_stream_t *stream,
-                            cairo_gl_context_t *ctx,
-                            cairo_gl_operand_t *op,
-                            cairo_gl_tex_t name)
+			    cairo_gl_context_t *ctx,
+			    cairo_gl_operand_t *op,
+			    cairo_gl_tex_t name)
 {
     const char *namestr = operand_names[name];
     const char *rectstr = (ctx->tex_target == GL_TEXTURE_RECTANGLE ? "Rect" : "");
@@ -371,25 +371,25 @@ cairo_gl_shader_emit_color (cairo_output_stream_t *stream,
     switch (op->type) {
     case CAIRO_GL_OPERAND_COUNT:
     default:
-        ASSERT_NOT_REACHED;
-        break;
+	ASSERT_NOT_REACHED;
+	break;
     case CAIRO_GL_OPERAND_NONE:
-        _cairo_output_stream_printf (stream, 
-            "vec4 get_%s()\n"
-            "{\n"
-            "    return vec4 (0, 0, 0, 1);\n"
-            "}\n",
-            namestr);
-        break;
+	_cairo_output_stream_printf (stream,
+	    "vec4 get_%s()\n"
+	    "{\n"
+	    "    return vec4 (0, 0, 0, 1);\n"
+	    "}\n",
+	    namestr);
+	break;
     case CAIRO_GL_OPERAND_CONSTANT:
-        _cairo_output_stream_printf (stream, 
-            "uniform vec4 %s_constant;\n"
-            "vec4 get_%s()\n"
-            "{\n"
-            "    return %s_constant;\n"
-            "}\n",
-            namestr, namestr, namestr);
-        break;
+	_cairo_output_stream_printf (stream,
+	    "uniform vec4 %s_constant;\n"
+	    "vec4 get_%s()\n"
+	    "{\n"
+	    "    return %s_constant;\n"
+	    "}\n",
+	    namestr, namestr, namestr);
+	break;
     case CAIRO_GL_OPERAND_TEXTURE:
 	_cairo_output_stream_printf (stream,
 	     "uniform sampler2D%s %s_sampler;\n"
@@ -398,7 +398,8 @@ cairo_gl_shader_emit_color (cairo_output_stream_t *stream,
 	     "vec4 get_%s()\n"
 	     "{\n",
 	     rectstr, namestr, namestr, namestr, namestr);
-	if (ctx->gl_flavor == CAIRO_GL_FLAVOR_ES &&
+	if ((ctx->gl_flavor == CAIRO_GL_FLAVOR_ES3 ||
+	     ctx->gl_flavor == CAIRO_GL_FLAVOR_ES2) &&
 	    _cairo_gl_shader_needs_border_fade (op))
 	{
 	    _cairo_output_stream_printf (stream,
@@ -415,7 +416,7 @@ cairo_gl_shader_emit_color (cairo_output_stream_t *stream,
 		"}\n",
 		rectstr, namestr, namestr, namestr);
 	}
-        break;
+	break;
     case CAIRO_GL_OPERAND_LINEAR_GRADIENT:
 	_cairo_output_stream_printf (stream,
 	    "varying vec2 %s_texcoords;\n"
@@ -425,7 +426,8 @@ cairo_gl_shader_emit_color (cairo_output_stream_t *stream,
 	    "vec4 get_%s()\n"
 	    "{\n",
 	    namestr, namestr, rectstr, namestr, namestr);
-	if (ctx->gl_flavor == CAIRO_GL_FLAVOR_ES &&
+	if ((ctx->gl_flavor == CAIRO_GL_FLAVOR_ES3 ||
+	     ctx->gl_flavor == CAIRO_GL_FLAVOR_ES2) &&
 	    _cairo_gl_shader_needs_border_fade (op))
 	{
 	    _cairo_output_stream_printf (stream,
@@ -462,7 +464,8 @@ cairo_gl_shader_emit_color (cairo_output_stream_t *stream,
 	    "    float is_valid = step (-%s_radius_0, t * %s_circle_d.z);\n",
 	    namestr, namestr, rectstr, namestr, namestr, namestr, namestr,
 	    namestr, namestr, namestr, namestr, namestr);
-	if (ctx->gl_flavor == CAIRO_GL_FLAVOR_ES &&
+	if ((ctx->gl_flavor == CAIRO_GL_FLAVOR_ES3 ||
+	     ctx->gl_flavor == CAIRO_GL_FLAVOR_ES2) &&
 	    _cairo_gl_shader_needs_border_fade (op))
 	{
 	    _cairo_output_stream_printf (stream,
@@ -507,7 +510,8 @@ cairo_gl_shader_emit_color (cairo_output_stream_t *stream,
 	    "    float upper_t = mix (t.y, t.x, is_valid.x);\n",
 	    namestr, namestr, rectstr, namestr, namestr, namestr, namestr,
 	    namestr, namestr, namestr, namestr, namestr, namestr);
-	if (ctx->gl_flavor == CAIRO_GL_FLAVOR_ES &&
+	if ((ctx->gl_flavor == CAIRO_GL_FLAVOR_ES3 ||
+	     ctx->gl_flavor == CAIRO_GL_FLAVOR_ES2) &&
 	    _cairo_gl_shader_needs_border_fade (op))
 	{
 	    _cairo_output_stream_printf (stream,
@@ -653,11 +657,11 @@ _cairo_gl_shader_emit_wrap (cairo_gl_context_t *ctx,
 
 static cairo_status_t
 cairo_gl_shader_get_fragment_source (cairo_gl_context_t *ctx,
-                                     cairo_gl_shader_in_t in,
-                                     cairo_gl_operand_t *src,
-                                     cairo_gl_operand_t *mask,
+				     cairo_gl_shader_in_t in,
+				     cairo_gl_operand_t *src,
+				     cairo_gl_operand_t *mask,
 				     cairo_bool_t use_coverage,
-                                     cairo_gl_operand_type_t dest_type,
+				     cairo_gl_operand_type_t dest_type,
 				     char **out)
 {
     cairo_output_stream_t *stream = _cairo_memory_stream_create ();
@@ -674,7 +678,8 @@ cairo_gl_shader_get_fragment_source (cairo_gl_context_t *ctx,
     _cairo_gl_shader_emit_wrap (ctx, stream, src, CAIRO_GL_TEX_SOURCE);
     _cairo_gl_shader_emit_wrap (ctx, stream, mask, CAIRO_GL_TEX_MASK);
 
-    if (ctx->gl_flavor == CAIRO_GL_FLAVOR_ES) {
+    if (ctx->gl_flavor == CAIRO_GL_FLAVOR_ES3 ||
+	ctx->gl_flavor == CAIRO_GL_FLAVOR_ES2) {
 	if (_cairo_gl_shader_needs_border_fade (src))
 	    _cairo_gl_shader_emit_border_fade (stream, src, CAIRO_GL_TEX_SOURCE);
 	if (_cairo_gl_shader_needs_border_fade (mask))
@@ -691,35 +696,35 @@ cairo_gl_shader_get_fragment_source (cairo_gl_context_t *ctx,
     }
 
     _cairo_output_stream_printf (stream,
-        "void main()\n"
-        "{\n");
+	"void main()\n"
+	"{\n");
     switch (in) {
     case CAIRO_GL_SHADER_IN_COUNT:
     default:
-        ASSERT_NOT_REACHED;
+	ASSERT_NOT_REACHED;
     case CAIRO_GL_SHADER_IN_NORMAL:
-        _cairo_output_stream_printf (stream,
-            "    gl_FragColor = get_source() * get_mask().a%s;\n",
+	_cairo_output_stream_printf (stream,
+	    "    gl_FragColor = get_source() * get_mask().a%s;\n",
 	    coverage_str);
-        break;
+	break;
     case CAIRO_GL_SHADER_IN_CA_SOURCE:
-        _cairo_output_stream_printf (stream,
-            "    gl_FragColor = get_source() * get_mask()%s;\n",
+	_cairo_output_stream_printf (stream,
+	    "    gl_FragColor = get_source() * get_mask()%s;\n",
 	    coverage_str);
-        break;
+	break;
     case CAIRO_GL_SHADER_IN_CA_SOURCE_ALPHA:
-        _cairo_output_stream_printf (stream,
-            "    gl_FragColor = get_source().a * get_mask()%s;\n",
+	_cairo_output_stream_printf (stream,
+	    "    gl_FragColor = get_source().a * get_mask()%s;\n",
 	    coverage_str);
-        break;
+	break;
     }
 
     _cairo_output_stream_write (stream,
-                                "}\n\0", 3);
+				"}\n\0", 3);
 
     status = _cairo_memory_stream_destroy (stream, &source, &length);
     if (unlikely (status))
-        return status;
+	return status;
 
     *out = (char *) source;
     return CAIRO_STATUS_SUCCESS;
@@ -995,7 +1000,7 @@ _cairo_gl_set_shader (cairo_gl_context_t *ctx,
 		      cairo_gl_shader_t *shader)
 {
     if (ctx->current_shader == shader)
-        return;
+	return;
 
     if (shader)
 	ctx->dispatch.UseProgram (shader->program);
@@ -1007,11 +1012,11 @@ _cairo_gl_set_shader (cairo_gl_context_t *ctx,
 
 cairo_status_t
 _cairo_gl_get_shader_by_type (cairo_gl_context_t *ctx,
-                              cairo_gl_operand_t *source,
-                              cairo_gl_operand_t *mask,
+			      cairo_gl_operand_t *source,
+			      cairo_gl_operand_t *mask,
 			      cairo_bool_t use_coverage,
-                              cairo_gl_shader_in_t in,
-                              cairo_gl_shader_t **shader)
+			      cairo_gl_shader_in_t in,
+			      cairo_gl_shader_t **shader)
 {
     cairo_shader_cache_entry_t lookup, *entry;
     char *fs_source;
@@ -1040,8 +1045,8 @@ _cairo_gl_get_shader_by_type (cairo_gl_context_t *ctx,
 
     entry = _cairo_cache_lookup (&ctx->shaders, &lookup.base);
     if (entry) {
-        assert (entry->shader.program);
-        *shader = &entry->shader;
+	assert (entry->shader.program);
+	*shader = &entry->shader;
 	return CAIRO_STATUS_SUCCESS;
     }
 
@@ -1055,10 +1060,10 @@ _cairo_gl_get_shader_by_type (cairo_gl_context_t *ctx,
     if (unlikely (status))
 	return status;
 
-    entry = malloc (sizeof (cairo_shader_cache_entry_t));
+    entry = _cairo_malloc (sizeof (cairo_shader_cache_entry_t));
     if (unlikely (entry == NULL)) {
-        free (fs_source);
-        return _cairo_error (CAIRO_STATUS_NO_MEMORY);
+	free (fs_source);
+	return _cairo_error (CAIRO_STATUS_NO_MEMORY);
     }
 
     memcpy (entry, &lookup, sizeof (cairo_shader_cache_entry_t));

@@ -78,7 +78,7 @@ test_compositor_surface_create (const cairo_compositor_t *compositor,
     if (unlikely (pixman_image == NULL))
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
 
-    surface = malloc (sizeof (test_compositor_surface_t));
+    surface = _cairo_malloc (sizeof (test_compositor_surface_t));
     if (unlikely (surface == NULL)) {
 	pixman_image_unref (pixman_image);
 	return _cairo_surface_create_in_error (_cairo_error (CAIRO_STATUS_NO_MEMORY));
@@ -87,7 +87,8 @@ test_compositor_surface_create (const cairo_compositor_t *compositor,
     _cairo_surface_init (&surface->base.base,
 			 &test_compositor_surface_backend,
 			 NULL, /* device */
-			 content);
+			 content,
+			 FALSE); /* is_vector */
     _cairo_image_surface_init (&surface->base, pixman_image, pixman_format);
 
     surface->base.compositor = compositor;

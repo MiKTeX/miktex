@@ -137,13 +137,13 @@ fill_boxes (void		*_dst,
 
     status = _cairo_gl_composite_init (&setup, op, _dst, FALSE);
     if (unlikely (status))
-        goto FAIL;
+	goto FAIL;
 
    _cairo_gl_composite_set_solid_source (&setup, color);
 
     status = _cairo_gl_composite_begin (&setup, &ctx);
     if (unlikely (status))
-        goto FAIL;
+	goto FAIL;
 
     emit_aligned_boxes (ctx, boxes);
     status = _cairo_gl_context_release (ctx, CAIRO_STATUS_SUCCESS);
@@ -173,7 +173,7 @@ composite_boxes (void			*_dst,
 
     status = _cairo_gl_composite_init (&setup, op, _dst, FALSE);
     if (unlikely (status))
-        goto FAIL;
+	goto FAIL;
 
     _cairo_gl_composite_set_source_operand (&setup,
 					    source_to_operand (abstract_src));
@@ -185,7 +185,7 @@ composite_boxes (void			*_dst,
 
     status = _cairo_gl_composite_begin (&setup, &ctx);
     if (unlikely (status))
-        goto FAIL;
+	goto FAIL;
 
     emit_aligned_boxes (ctx, boxes);
     status = _cairo_gl_context_release (ctx, CAIRO_STATUS_SUCCESS);
@@ -215,7 +215,7 @@ composite (void			*_dst,
 
     status = _cairo_gl_composite_init (&setup, op, _dst, FALSE);
     if (unlikely (status))
-        goto FAIL;
+	goto FAIL;
 
     _cairo_gl_composite_set_source_operand (&setup,
 					    source_to_operand (abstract_src));
@@ -227,7 +227,7 @@ composite (void			*_dst,
 
     status = _cairo_gl_composite_begin (&setup, &ctx);
     if (unlikely (status))
-        goto FAIL;
+	goto FAIL;
 
     /* XXX clip */
     _cairo_gl_context_emit_rect (ctx, dst_x, dst_y, dst_x+width, dst_y+height);
@@ -303,36 +303,6 @@ traps_to_operand (void *_dst,
 	return image->status;
     }
 
-    /* GLES2 only supports RGB/RGBA when uploading */
-    if (_cairo_gl_get_flavor () == CAIRO_GL_FLAVOR_ES) {
-	cairo_surface_pattern_t pattern;
-	cairo_surface_t *rgba_image;
-
-	/* XXX perform this fixup inside _cairo_gl_draw_image() */
-
-	rgba_image =
-	    _cairo_image_surface_create_with_pixman_format (NULL,
-							    _cairo_is_little_endian () ?  PIXMAN_a8b8g8r8 : PIXMAN_r8g8b8a8,
-							    extents->width,
-							    extents->height,
-							    0);
-	if (unlikely (rgba_image->status))
-	    return rgba_image->status;
-
-	_cairo_pattern_init_for_surface (&pattern, image);
-	status = _cairo_surface_paint (rgba_image, CAIRO_OPERATOR_SOURCE,
-				       &pattern.base, NULL);
-	_cairo_pattern_fini (&pattern.base);
-
-	cairo_surface_destroy (image);
-	image = rgba_image;
-
-	if (unlikely (status)) {
-	    cairo_surface_destroy (image);
-	    return status;
-	}
-    }
-
     mask = _cairo_surface_create_scratch (_dst,
 					  CAIRO_CONTENT_COLOR_ALPHA,
 					  extents->width,
@@ -394,7 +364,7 @@ composite_traps (void			*_dst,
 
     status = _cairo_gl_composite_init (&setup, op, _dst, FALSE);
     if (unlikely (status))
-        goto FAIL;
+	goto FAIL;
 
     _cairo_gl_composite_set_source_operand (&setup,
 					    source_to_operand (abstract_src));
@@ -405,7 +375,7 @@ composite_traps (void			*_dst,
 
     status = _cairo_gl_composite_begin (&setup, &ctx);
     if (unlikely (status))
-        goto FAIL;
+	goto FAIL;
 
     /* XXX clip */
     _cairo_gl_context_emit_rect (ctx,
@@ -494,7 +464,7 @@ composite_tristrip (void		*_dst,
 
     status = _cairo_gl_composite_init (&setup, op, _dst, FALSE);
     if (unlikely (status))
-        goto FAIL;
+	goto FAIL;
 
     _cairo_gl_composite_set_source_operand (&setup,
 					    source_to_operand (abstract_src));
@@ -503,7 +473,7 @@ composite_tristrip (void		*_dst,
 
     status = _cairo_gl_composite_begin (&setup, &ctx);
     if (unlikely (status))
-        goto FAIL;
+	goto FAIL;
 
     /* XXX clip */
     _cairo_gl_context_emit_rect (ctx,
@@ -530,9 +500,10 @@ check_composite (const cairo_composite_rectangles_t *extents)
 const cairo_compositor_t *
 _cairo_gl_traps_compositor_get (void)
 {
+    static cairo_atomic_once_t once = CAIRO_ATOMIC_ONCE_INIT;
     static cairo_traps_compositor_t compositor;
 
-    if (compositor.base.delegate == NULL) {
+    if (_cairo_atomic_init_once_enter(&once)) {
 	_cairo_traps_compositor_init (&compositor, &_cairo_fallback_compositor);
 	compositor.acquire = acquire;
 	compositor.release = release;
@@ -552,6 +523,8 @@ _cairo_gl_traps_compositor_get (void)
 	compositor.composite_tristrip = composite_tristrip;
 	compositor.check_composite_glyphs = _cairo_gl_check_composite_glyphs;
 	compositor.composite_glyphs = _cairo_gl_composite_glyphs;
+
+	_cairo_atomic_init_once_leave(&once);
     }
 
     return &compositor.base;
