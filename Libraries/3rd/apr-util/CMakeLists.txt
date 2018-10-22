@@ -126,6 +126,7 @@ set(apu_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/crypto/apr_md5.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/crypto/apr_passwd.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/crypto/apr_sha1.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/crypto/apr_siphash.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/crypto/crypt_blowfish.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/crypto/getuuid.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/crypto/uuid.c
@@ -146,10 +147,44 @@ set(apu_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/misc/apr_thread_pool.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/misc/apu_dso.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/misc/apu_version.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/redis/apr_redis.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/strmatch/apr_strmatch.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/uri/apr_uri.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/xlate/xlate.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/xml/apr_xml.c
+
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_anylock.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_base64.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_buckets.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_crypto.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_date.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_dbd.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_dbm.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_hooks.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_ldap_init.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_ldap_option.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_ldap_rebind.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_ldap_url.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_md4.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_md5.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_memcache.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_optional.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_optional_hooks.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_queue.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_redis.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_reslist.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_rmm.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_sdbm.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_sha1.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_siphash.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_strmatch.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_thread_pool.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_uri.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_uuid.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_xlate.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apr_xml.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apu_errno.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apu_version.h
 )
 
 ignore_warnings()
