@@ -24,60 +24,47 @@
  * Google Author(s): Behdad Esfahbod
  */
 
-#include "hb-private.hh"
+#include "hb.hh"
+
+#include "hb-open-type.hh"
+#include "hb-ot-layout-common.hh"
+#include "hb-aat-layout-ankr-table.hh" /* I don't even want to know why... */
+#include "hb-aat-layout-common.hh"
+
+#include "hb-face.hh"
+#include "hb-ot-head-table.hh"
+#include "hb-ot-maxp-table.hh"
 
 #ifndef HB_NO_VISIBILITY
-void * const _hb_NullPool[HB_NULL_POOL_SIZE / sizeof (void *)] = {};
-/*thread_local*/ void * _hb_CrapPool[HB_NULL_POOL_SIZE / sizeof (void *)] = {};
-#endif
+
+hb_vector_size_impl_t const _hb_NullPool[(HB_NULL_POOL_SIZE + sizeof (hb_vector_size_impl_t) - 1) / sizeof (hb_vector_size_impl_t)] = {};
+/*thread_local*/ hb_vector_size_impl_t _hb_CrapPool[(HB_NULL_POOL_SIZE + sizeof (hb_vector_size_impl_t) - 1) / sizeof (hb_vector_size_impl_t)] = {};
+
+DEFINE_NULL_NAMESPACE_BYTES (OT, Index) =  {0xFF,0xFF};
+DEFINE_NULL_NAMESPACE_BYTES (OT, LangSys) = {0x00,0x00, 0xFF,0xFF, 0x00,0x00};
+DEFINE_NULL_NAMESPACE_BYTES (OT, RangeRecord) = {0x00,0x01, 0x00,0x00, 0x00, 0x00};
+/* Hand-coded because Lookup is a template.  Sad. */
+const unsigned char _hb_Null_AAT_Lookup[2] = {0xFF, 0xFF};
 
 
-/* Following comment and table copied from glib. */
-/* Each table size has an associated prime modulo (the first prime
- * lower than the table size) used to find the initial bucket. Probing
- * then works modulo 2^n. The prime modulo is necessary to get a
- * good distribution with poor hash functions.
- */
-static const unsigned int prime_mod [] =
+void
+hb_face_t::load_num_glyphs (void) const
 {
-  1,          /* For 1 << 0 */
-  2,
-  3,
-  7,
-  13,
-  31,
-  61,
-  127,
-  251,
-  509,
-  1021,
-  2039,
-  4093,
-  8191,
-  16381,
-  32749,
-  65521,      /* For 1 << 16 */
-  131071,
-  262139,
-  524287,
-  1048573,
-  2097143,
-  4194301,
-  8388593,
-  16777213,
-  33554393,
-  67108859,
-  134217689,
-  268435399,
-  536870909,
-  1073741789,
-  2147483647  /* For 1 << 31 */
-};
-
-unsigned int _hb_prime_for (unsigned int shift)
-{
-  if (unlikely (shift >= ARRAY_LENGTH (prime_mod)))
-    return prime_mod[ARRAY_LENGTH (prime_mod) - 1];
-
-  return prime_mod[shift];
+  hb_sanitize_context_t c = hb_sanitize_context_t ();
+  c.set_num_glyphs (0); /* So we don't recurse ad infinitum. */
+  hb_blob_t *maxp_blob = c.reference_table<OT::maxp> (this);
+  const OT::maxp *maxp_table = maxp_blob->as<OT::maxp> ();
+  num_glyphs = maxp_table->get_num_glyphs ();
+  hb_blob_destroy (maxp_blob);
 }
+
+void
+hb_face_t::load_upem (void) const
+{
+  hb_blob_t *head_blob = hb_sanitize_context_t ().reference_table<OT::head> (this);
+  const OT::head *head_table = head_blob->as<OT::head> ();
+  upem = head_table->get_upem ();
+  hb_blob_destroy (head_blob);
+}
+
+#endif

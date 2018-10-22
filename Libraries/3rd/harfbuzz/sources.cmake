@@ -20,25 +20,29 @@
 # Base and default-included sources and headers
 
 set(HB_BASE_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-atomic-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-blob-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-atomic.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-blob.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-blob.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-serialize.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-cache.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-common.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-debug.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-dsalgs.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-font-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-font.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-font.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-map-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-iter.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-map.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-map.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-mutex-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-object-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-open-file-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-open-type-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-machinery.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-mutex.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-null.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-object.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-open-file.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-open-type.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-cbdt-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cmap-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-glyf-table.hh
@@ -53,25 +57,28 @@ set(HB_BASE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-os2-unicode-ranges.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-post-macroman.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-post-table.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-tag-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-tag.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set-digest-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set-digest.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape-plan-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape-plan.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape-plan.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-list.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-impl-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-impl.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-static.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-string-array.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode-emoji-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-utf-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-vector.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-utf.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-warning.cc
-  )
+)
 
 set(HB_BASE_RAGEL_GENERATED_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-json.hh
@@ -100,63 +107,62 @@ set(HB_FALLBACK_sources
 
 set(HB_OT_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-common-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-common.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-ankr-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-bsln-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-feat-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-kerx-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-morx-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-trak-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-fmtx-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-gcid-table.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-ltag-table.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-face.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-face.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-font.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-base-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-common-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-common.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gdef-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gpos-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gsubgpos-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gsubgpos.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gsub-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-jstf-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-colr-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-cpal-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-sbix-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-svg-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-map.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-map-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-map.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-math.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-math-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-fallback.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-win1256.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-default.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-hangul.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-hebrew.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic-table.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-khmer-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-khmer.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-khmer.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-myanmar-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-myanmar.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-myanmar.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-thai.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-tibetan.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use-table.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-private.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-normalize-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-normalize.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-normalize.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-fallback-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-fallback.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-fallback.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-avar-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-fvar-table.hh
@@ -176,6 +182,7 @@ set(HB_OT_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-font.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-math.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-name.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-tag.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var.h
@@ -242,17 +249,19 @@ set(HB_ICU_headers
 )
 
 set(HB_SUBSET_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-static.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-glyf.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-glyf.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-input.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-input.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-plan.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-plan.hh
 )
 
 set(HB_SUBSET_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-glyf.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-plan.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-private.hh
 )
 
 set(HB_GOBJECT_DIST_sources

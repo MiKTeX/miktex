@@ -24,11 +24,10 @@
  * Google Author(s): Garret Rieger, Roderick Sheeter
  */
 
-#include "hb-map-private.hh"
-#include "hb-subset-private.hh"
-#include "hb-set-private.hh"
-
 #include "hb-subset-plan.hh"
+#include "hb-map.hh"
+#include "hb-set.hh"
+
 #include "hb-ot-cmap-table.hh"
 #include "hb-ot-glyf-table.hh"
 
@@ -54,8 +53,25 @@ _add_gid_and_children (const OT::glyf::accelerator_t &glyf,
 }
 
 static void
+_gsub_closure (hb_face_t *face, hb_set_t *gids_to_retain)
+{
+  hb_auto_t<hb_set_t> lookup_indices;
+  hb_ot_layout_collect_lookups (face,
+                                HB_OT_TAG_GSUB,
+                                nullptr,
+                                nullptr,
+                                nullptr,
+                                &lookup_indices);
+  hb_ot_layout_lookups_substitute_closure (face,
+                                           &lookup_indices,
+                                           gids_to_retain);
+}
+
+
+static hb_set_t *
 _populate_gids_to_retain (hb_face_t *face,
                           const hb_set_t *unicodes,
+                          bool close_over_gsub,
                           hb_set_t *unicodes_to_retain,
                           hb_map_t *codepoint_to_glyph,
                           hb_vector_t<hb_codepoint_t> *glyphs)
@@ -82,10 +98,12 @@ _populate_gids_to_retain (hb_face_t *face,
     initial_gids_to_retain->add (gid);
   }
 
+  if (close_over_gsub)
+    // Add all glyphs needed for GSUB substitutions.
+    _gsub_closure (face, initial_gids_to_retain);
+
   // Populate a full set of glyphs to retain by adding all referenced
   // composite glyphs.
-  // TODO expand with glyphs reached by G*
-
   hb_codepoint_t gid = HB_SET_VALUE_INVALID;
   hb_set_t *all_gids_to_retain = hb_set_create ();
   while (initial_gids_to_retain->next (&gid))
@@ -99,9 +117,10 @@ _populate_gids_to_retain (hb_face_t *face,
   while (all_gids_to_retain->next (&gid))
     glyphs->push (gid);
 
-  hb_set_destroy (all_gids_to_retain);
   glyf.fini ();
   cmap.fini ();
+
+  return all_gids_to_retain;
 }
 
 static void
@@ -116,7 +135,7 @@ _create_old_gid_to_new_gid_map (const hb_vector_t<hb_codepoint_t> &glyphs,
 /**
  * hb_subset_plan_create:
  * Computes a plan for subsetting the supplied face according
- * to a provide profile and input. The plan describes
+ * to a provided input. The plan describes
  * which tables and glyphs should be retained.
  *
  * Return value: New subset plan.
@@ -125,24 +144,24 @@ _create_old_gid_to_new_gid_map (const hb_vector_t<hb_codepoint_t> &glyphs,
  **/
 hb_subset_plan_t *
 hb_subset_plan_create (hb_face_t           *face,
-                       hb_subset_profile_t *profile,
                        hb_subset_input_t   *input)
 {
   hb_subset_plan_t *plan = hb_object_create<hb_subset_plan_t> ();
 
   plan->drop_hints = input->drop_hints;
+  plan->drop_layout = input->drop_layout;
   plan->unicodes = hb_set_create();
   plan->glyphs.init();
   plan->source = hb_face_reference (face);
-  plan->dest = hb_subset_face_create ();
+  plan->dest = hb_face_builder_create ();
   plan->codepoint_to_glyph = hb_map_create();
   plan->glyph_map = hb_map_create();
-
-  _populate_gids_to_retain (face,
-                            input->unicodes,
-                            plan->unicodes,
-                            plan->codepoint_to_glyph,
-                            &plan->glyphs);
+  plan->glyphset = _populate_gids_to_retain (face,
+					     input->unicodes,
+					     !plan->drop_layout,
+					     plan->unicodes,
+					     plan->codepoint_to_glyph,
+					     &plan->glyphs);
   _create_old_gid_to_new_gid_map (plan->glyphs,
                                   plan->glyph_map);
 
@@ -165,6 +184,7 @@ hb_subset_plan_destroy (hb_subset_plan_t *plan)
   hb_face_destroy (plan->dest);
   hb_map_destroy (plan->codepoint_to_glyph);
   hb_map_destroy (plan->glyph_map);
+  hb_set_destroy (plan->glyphset);
 
   free (plan);
 }
