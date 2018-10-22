@@ -7,6 +7,7 @@
 * dvipdfmx 20181002
 * Dvisvgm 2.6
 * gmp 6.1.2
+* graphite2 1.3.12
 * LuaTeX 1.09.0
 
 ### Upgraded libraries

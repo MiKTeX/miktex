@@ -15,8 +15,8 @@
 
     You should also have received a copy of the GNU Lesser General Public
     License along with this library in the file named "LICENSE".
-    If not, write to the Free Software Foundation, 51 Franklin Street, 
-    Suite 500, Boston, MA 02110-1335, USA or visit their web page on the 
+    If not, write to the Free Software Foundation, 51 Franklin Street,
+    Suite 500, Boston, MA 02110-1335, USA or visit their web page on the
     internet at http://www.fsf.org/licenses/lgpl.html.
 
 Alternatively, the contents of this file may be used under the terms of the
@@ -41,7 +41,7 @@ of the License or (at your option) any later version.
 using namespace graphite2;
 
 #if !defined GRAPHITE2_NTRACING
-json *global_log = NULL;
+json *global_log = 0;
 #endif
 
 extern "C" {
@@ -120,6 +120,7 @@ void gr_stop_logging(GR_MAYBE_UNUSED gr_face * face)
     {
         FILE * log = global_log->stream();
         delete global_log;
+        global_log = 0;
         fclose(log);
     }
 #endif
@@ -214,7 +215,7 @@ json & graphite2::operator << (json & j, const dslot & ds) throw()
     j << "user" << json::flat << json::array;
     for (int n = 0; n!= seg.numAttrs(); ++n)
         j   << s.userAttrs()[n];
-        j   << json::close;
+    j       << json::close;
     if (s.firstChild())
     {
         j   << "children" << json::flat << json::array;
@@ -224,7 +225,7 @@ json & graphite2::operator << (json & j, const dslot & ds) throw()
     }
     if (cslot)
     {
-		// Note: the reason for using Positions to lump together related attributes is to make the 
+		// Note: the reason for using Positions to lump together related attributes is to make the
 		// JSON output slightly more compact.
         j << "collision" << json::flat << json::object
 //              << "shift" << cslot->shift() -- not used pass level, only within the collision routine itself
@@ -251,14 +252,14 @@ json & graphite2::operator << (json & j, const dslot & ds) throw()
 graphite2::objectid::objectid(const dslot & ds) throw()
 {
     const Slot * const p = ds.second;
-    uint32 s = reinterpret_cast<size_t>(p);
+    uint32 s = uint32(reinterpret_cast<size_t>(p));
     sprintf(name, "%.4x-%.2x-%.4hx", uint16(s >> 16), uint16(p ? p->userAttrs()[ds.first->silf()->numUser()] : 0), uint16(s));
     name[sizeof name-1] = 0;
 }
 
 graphite2::objectid::objectid(const Segment * const p) throw()
 {
-    uint32 s = reinterpret_cast<size_t>(p);
+    uint32 s = uint32(reinterpret_cast<size_t>(p));
     sprintf(name, "%.4x-%.2x-%.4hx", uint16(s >> 16), 0, uint16(s));
     name[sizeof name-1] = 0;
 }

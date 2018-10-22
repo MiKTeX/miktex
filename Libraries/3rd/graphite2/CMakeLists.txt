@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2016 Christian Schenk
+## Copyright (C) 2013-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -35,7 +35,6 @@ add_definitions(
 ignore_warnings()
 
 set(GRAPHITE2_VM_TYPE auto)
-set(GRAPHITE2_NSEGCACHE TRUE)
 set(GRAPHITE2_NFILEFACE FALSE)
 set(GRAPHITE2_NTRACING TRUE)
 
@@ -54,20 +53,13 @@ if(GRAPHITE2_VM_TYPE STREQUAL "direct" AND NOT (CMAKE_COMPILER_IS_GNUCXX OR CMAK
 endif()
 
 set(GRAPHITE_API_CURRENT 3)
-set(GRAPHITE_API_REVISION 0)
+set(GRAPHITE_API_REVISION 2)
 set(GRAPHITE_API_AGE 1)
 set(GRAPHITE_VERSION ${GRAPHITE_API_CURRENT}.${GRAPHITE_API_REVISION}.${GRAPHITE_API_AGE})
 set(GRAPHITE_SO_VERSION ${GRAPHITE_API_CURRENT})
 
-set(SEGCACHE
-  source/src/SegCache.cpp
-  source/src/SegCacheEntry.cpp
-  source/src/SegCacheStore.cpp
-)
-
 if(GRAPHITE2_NSEGCACHE)
   add_definitions(-DGRAPHITE2_NSEGCACHE)
-  set(SEGCACHE)
 endif()
 
 set(FILEFACE
@@ -99,7 +91,13 @@ file(GLOB PRIVATE_HEADERS source/src/inc/*.h)
 
 set(${graphite2_dll_name}_sources
   source/src/${GRAPHITE2_VM_TYPE}_machine.cpp
-  source/src/CachedFace.cpp
+  source/src/gr_char_info.cpp
+  source/src/gr_features.cpp
+  source/src/gr_face.cpp
+  source/src/gr_font.cpp
+  source/src/gr_logging.cpp
+  source/src/gr_segment.cpp
+  source/src/gr_slot.cpp
   source/src/CmapCache.cpp
   source/src/Code.cpp
   source/src/Collider.cpp
@@ -107,8 +105,8 @@ set(${graphite2_dll_name}_sources
   source/src/Face.cpp
   source/src/FeatureMap.cpp
   source/src/Font.cpp
-  source/src/GlyphCache.cpp
   source/src/GlyphFace.cpp
+  source/src/GlyphCache.cpp
   source/src/Intervals.cpp
   source/src/Justifier.cpp
   source/src/NameTable.cpp
@@ -120,57 +118,12 @@ set(${graphite2_dll_name}_sources
   source/src/Sparse.cpp
   source/src/TtfUtil.cpp
   source/src/UtfCodec.cpp
-  source/src/gr_char_info.cpp
-  source/src/gr_face.cpp
-  source/src/gr_features.cpp
-  source/src/gr_font.cpp
-  source/src/gr_logging.cpp
-  source/src/gr_segment.cpp
-  source/src/gr_slot.cpp
-  source/src/inc/CachedFace.h
-  source/src/inc/CharInfo.h
-  source/src/inc/CmapCache.h
-  source/src/inc/Code.h
-  source/src/inc/Collider.h
-  source/src/inc/Compression.h
-  source/src/inc/Decompressor.h
-  source/src/inc/Endian.h
-  source/src/inc/Error.h
-  source/src/inc/Face.h
-  source/src/inc/FeatureMap.h
-  source/src/inc/FeatureVal.h
-  source/src/inc/FileFace.h
-  source/src/inc/Font.h
-  source/src/inc/GlyphCache.h
-  source/src/inc/GlyphFace.h
-  source/src/inc/Intervals.h
-  source/src/inc/List.h
-  source/src/inc/Machine.h
-  source/src/inc/Main.h
-  source/src/inc/NameTable.h
-  source/src/inc/Pass.h
-  source/src/inc/Position.h
-  source/src/inc/Rule.h
-  source/src/inc/SegCache.h
-  source/src/inc/SegCacheEntry.h
-  source/src/inc/SegCacheStore.h
-  source/src/inc/Segment.h
-  source/src/inc/Silf.h
-  source/src/inc/Slot.h
-  source/src/inc/Sparse.h
-  source/src/inc/TtfTypes.h
-  source/src/inc/TtfUtil.h
-  source/src/inc/UtfCodec.h
-  source/src/inc/bits.h
-  source/src/inc/debug.h
-  source/src/inc/json.h
-  source/src/inc/locale2lcid.h
-  source/src/inc/opcode_table.h
-  source/src/inc/opcodes.h
 
   ${FILEFACE}
-  ${SEGCACHE}
   ${TRACING}
+
+  ${GRAPHITE_HEADERS}
+  ${PRIVATE_HEADERS}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
