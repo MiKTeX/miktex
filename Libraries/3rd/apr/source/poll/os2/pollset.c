@@ -18,7 +18,9 @@
 #include "apr_poll.h"
 #include "apr_arch_networkio.h"
 
-
+#ifndef MSG_DONTWAIT
+#define MSG_DONTWAIT  0x100
+#endif
 
 struct apr_pollset_t {
     apr_pool_t *pool;
@@ -31,6 +33,9 @@ struct apr_pollset_t {
     int num_total;
     apr_pollfd_t *query_set;
     apr_pollfd_t *result_set;
+    apr_socket_t *wake_listen;
+    apr_socket_t *wake_sender;
+    apr_sockaddr_t *wake_address;
 };
 
 
@@ -40,6 +45,12 @@ APR_DECLARE(apr_status_t) apr_pollset_create(apr_pollset_t **pollset,
                                              apr_pool_t *p,
                                              apr_uint32_t flags)
 {
+    apr_status_t rc = APR_SUCCESS;
+
+    if (flags & APR_POLLSET_WAKEABLE) {
+        size++;
+    }
+
     *pollset = apr_palloc(p, sizeof(**pollset));
     (*pollset)->pool = p;
     (*pollset)->nelts = 0;
@@ -48,7 +59,34 @@ APR_DECLARE(apr_status_t) apr_pollset_create(apr_pollset_t **pollset,
     (*pollset)->query_set = apr_palloc(p, size * sizeof(apr_pollfd_t));
     (*pollset)->result_set = apr_palloc(p, size * sizeof(apr_pollfd_t));
     (*pollset)->num_read = -1;
-    return APR_SUCCESS;
+    (*pollset)->wake_listen = NULL;
+    (*pollset)->wake_sender = NULL;
+
+    if (flags & APR_POLLSET_WAKEABLE) {
+        rc = apr_socket_create(&(*pollset)->wake_listen, APR_UNIX, SOCK_DGRAM, 0, p);
+
+        if (rc == APR_SUCCESS) {
+            apr_sockaddr_t *listen_address;
+            apr_socket_timeout_set((*pollset)->wake_listen, 0);
+            apr_sockaddr_info_get(&listen_address, "", APR_UNIX, 0, 0, p);
+            rc = apr_socket_bind((*pollset)->wake_listen, listen_address);
+
+            if (rc == APR_SUCCESS) {
+                apr_pollfd_t wake_poll_fd;
+                wake_poll_fd.p = p;
+                wake_poll_fd.desc_type = APR_POLL_SOCKET;
+                wake_poll_fd.reqevents = APR_POLLIN;
+                wake_poll_fd.desc.s = (*pollset)->wake_listen;
+                wake_poll_fd.client_data = NULL;
+                apr_pollset_add(*pollset, &wake_poll_fd);
+                apr_socket_addr_get(&(*pollset)->wake_address, APR_LOCAL, (*pollset)->wake_listen);
+
+                rc = apr_socket_create(&(*pollset)->wake_sender, APR_UNIX, SOCK_DGRAM, 0, p);
+            }
+        }
+    }
+
+    return rc;
 }
 
 APR_DECLARE(apr_status_t) apr_pollset_create_ex(apr_pollset_t **pollset,
@@ -57,6 +95,13 @@ APR_DECLARE(apr_status_t) apr_pollset_create_ex(apr_pollset_t **pollset,
                                                 apr_uint32_t flags,
                                                 apr_pollset_method_e method)
 {
+    /* Only one method is supported */
+    if (flags & APR_POLLSET_NODEFAULT) {
+        if (method != APR_POLLSET_DEFAULT && method != APR_POLLSET_POLL) {
+            return APR_ENOTIMPL;
+        }
+    }
+
     return apr_pollset_create(pollset, size, p, flags);
 }
 
@@ -167,6 +212,7 @@ APR_DECLARE(apr_status_t) apr_pollset_poll(apr_pollset_t *pollset,
     apr_uint32_t i;
     int *pollresult;
     int read_pos, write_pos, except_pos;
+    apr_status_t rc = APR_SUCCESS;
 
     if (pollset->num_read < 0) {
         make_pollset(pollset);
@@ -216,9 +262,28 @@ APR_DECLARE(apr_status_t) apr_pollset_poll(apr_pollset_t *pollset,
         }
 
         if (rtnevents) {
-            pollset->result_set[*num] = pollset->query_set[i];
-            pollset->result_set[*num].rtnevents = rtnevents;
-            (*num)++;
+            if (i == 0 && pollset->wake_listen != NULL) {
+                struct apr_sockaddr_t from_addr;
+                char buffer[16];
+                apr_size_t buflen;
+                for (;;) {
+                    buflen = sizeof(buffer);
+                    rv = apr_socket_recvfrom(&from_addr, pollset->wake_listen,
+                                             MSG_DONTWAIT, buffer, &buflen);
+                    if (rv != APR_SUCCESS) {
+                        break;
+                    }
+                    /* Woken up, drain the pipe still. */
+                    rc = APR_EINTR;
+                }
+            }
+            else {
+                pollset->result_set[*num] = pollset->query_set[i];
+                pollset->result_set[*num].rtnevents = rtnevents;
+                /* Event(s) besides wakeup pipe. */
+                rc = APR_SUCCESS;
+                (*num)++;
+            }
         }
     }
 
@@ -226,5 +291,31 @@ APR_DECLARE(apr_status_t) apr_pollset_poll(apr_pollset_t *pollset,
         *descriptors = pollset->result_set;
     }
 
-    return APR_SUCCESS;
+    return rc;
+}
+
+
+
+APR_DECLARE(apr_status_t) apr_pollset_wakeup(apr_pollset_t *pollset)
+{
+    if (pollset->wake_sender) {
+        apr_size_t len = 1;
+        return apr_socket_sendto(pollset->wake_sender, pollset->wake_address, 0, "", &len);
+    }
+
+    return APR_EINIT;
+}
+
+
+
+APR_DECLARE(const char *) apr_poll_method_defname()
+{
+    return "select";
+}
+
+
+
+APR_DECLARE(const char *) apr_pollset_method_name(apr_pollset_t *pollset)
+{
+    return "select";
 }

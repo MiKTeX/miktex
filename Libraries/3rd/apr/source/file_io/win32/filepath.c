@@ -890,9 +890,9 @@ APR_DECLARE(apr_status_t) apr_filepath_merge(char **newpath,
                             memmove(path + keptlen + namelen + 1,
                                    path + keptlen + seglen + 1,
                                    pathlen - keptlen - seglen);
-                            pathlen += namelen - seglen;
-                            seglen = namelen;
                         }
+                        pathlen += namelen - seglen;
+                        seglen = namelen;
                     }
                     else { /* namelen > seglen */
                         if (pathlen + namelen - seglen >= sizeof(path))

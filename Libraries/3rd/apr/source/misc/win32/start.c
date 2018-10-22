@@ -39,7 +39,7 @@ int APR_DECLARE_DATA apr_app_init_complete = 0;
  * _CRT_BLOCK to trick the system into trusting our store.
  */
 static int warrsztoastr(const char * const * *retarr,
-                        const wchar_t * arrsz, int args)
+                        const wchar_t * arrsz)
 {
     const apr_wchar_t *wch;
     apr_size_t totlen;
@@ -48,13 +48,11 @@ static int warrsztoastr(const char * const * *retarr,
     char **env;
     char *pstrs;
     char *strs;
-    int arg;
+    int arg, args;
 
-    if (args < 0) {
-        for (args = 1, wch = arrsz; wch[0] || wch[1]; ++wch)
-            if (!*wch)
-                ++args;
-    }
+    for (args = 1, wch = arrsz; wch[0] || wch[1]; ++wch)
+        if (!*wch)
+            ++args;
     wsize = 1 + wch - arrsz;
 
     /* This is a safe max allocation, we will alloc each
@@ -134,7 +132,7 @@ APR_DECLARE(apr_status_t) apr_app_initialize(int *argc,
         }
 
         sysstr = GetEnvironmentStringsW();
-        dupenv = warrsztoastr(&_environ, sysstr, -1);
+        dupenv = warrsztoastr(&_environ, sysstr);
 
         if (env) {
             *env = apr_malloc_dbg((dupenv + 1) * sizeof (char *),

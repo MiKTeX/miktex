@@ -161,17 +161,43 @@ APR_DECLARE(apr_status_t) apr_file_trunc(apr_file_t *thefile, apr_off_t offset)
     LONG  offhi = (LONG)(offset >> 32);
     DWORD rc;
 
+    if (thefile->buffered) {
+        if (thefile->direction == 1) {
+            /* Figure out what needs to be flushed.  Don't flush the part
+             * of the write buffer that will get truncated anyway.
+             */
+            if (offset < thefile->filePtr) {
+                thefile->bufpos = 0;
+            }
+            else if (offset < thefile->filePtr + (apr_off_t)thefile->bufpos) {
+                thefile->bufpos = offset - thefile->filePtr;
+            }
+
+            if (thefile->bufpos != 0) {
+                rv = apr_file_flush(thefile);
+                if (rv != APR_SUCCESS)
+                    return rv;
+            }
+        }
+        else if (thefile->direction == 0) {
+            /* Discard the read buffer, as we are about to reposition
+             * ourselves to the end of file.
+             */
+            thefile->bufpos = 0;
+            thefile->dataRead = 0;
+        }
+    }
+
     rc = SetFilePointer(thefile->filehand, offlo, &offhi, FILE_BEGIN);
     if (rc == 0xFFFFFFFF)
         if ((rv = apr_get_os_error()) != APR_SUCCESS)
             return rv;
+    thefile->filePtr = offset;
+    /* Don't report EOF until the next read. */
+    thefile->eof_hit = 0;
 
     if (!SetEndOfFile(thefile->filehand))
         return apr_get_os_error();
-
-    if (thefile->buffered) {
-        return setptr(thefile, offset);
-    }
 
     return APR_SUCCESS;
 }

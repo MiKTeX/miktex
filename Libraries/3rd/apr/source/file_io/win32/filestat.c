@@ -430,6 +430,24 @@ APR_DECLARE(apr_status_t) apr_file_info_get(apr_finfo_t *finfo, apr_int32_t want
             return rv;
     }
 
+    /* GetFileInformationByHandle() is implemented via two syscalls:
+     * QueryInformationVolume and QueryAllInformationFile. Use cheaper
+     * GetFileSizeEx() API if we only need to get the file size. */
+    if (wanted == APR_FINFO_SIZE) {
+       LARGE_INTEGER size;
+
+       if (!GetFileSizeEx(thefile->filehand, &size)) {
+          return apr_get_os_error();
+       }
+
+       finfo->pool = thefile->pool;
+       finfo->fname = thefile->fname;
+       finfo->size = size.QuadPart;
+       finfo->valid = APR_FINFO_SIZE;
+
+       return APR_SUCCESS;
+    }
+
     if (!GetFileInformationByHandle(thefile->filehand, &FileInfo)) {
         return apr_get_os_error();
     }

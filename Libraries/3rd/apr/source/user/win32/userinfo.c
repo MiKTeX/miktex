@@ -212,11 +212,11 @@ APR_DECLARE(apr_status_t) apr_uid_get(apr_uid_t *uid, apr_gid_t *gid,
     char *pos;
 
     if ((pos = strchr(username, '/'))) {
-        domain = apr_pstrndup(p, username, pos - username);
+        domain = apr_pstrmemdup(p, username, pos - username);
         username = pos + 1;
     }
     else if ((pos = strchr(username, '\\'))) {
-        domain = apr_pstrndup(p, username, pos - username);
+        domain = apr_pstrmemdup(p, username, pos - username);
         username = pos + 1;
     }
     else {

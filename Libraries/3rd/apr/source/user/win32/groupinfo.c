@@ -37,11 +37,11 @@ APR_DECLARE(apr_status_t) apr_gid_get(apr_gid_t *gid,
     char *pos;
 
     if ((pos = strchr(groupname, '/'))) {
-        domain = apr_pstrndup(p, groupname, pos - groupname);
+        domain = apr_pstrmemdup(p, groupname, pos - groupname);
         groupname = pos + 1;
     }
     else if ((pos = strchr(groupname, '\\'))) {
-        domain = apr_pstrndup(p, groupname, pos - groupname);
+        domain = apr_pstrmemdup(p, groupname, pos - groupname);
         groupname = pos + 1;
     }
     else {

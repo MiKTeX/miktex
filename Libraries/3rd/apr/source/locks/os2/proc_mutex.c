@@ -60,6 +60,11 @@ APR_DECLARE(const char *) apr_proc_mutex_lockfile(apr_proc_mutex_t *mutex)
     return NULL;
 }
 
+APR_DECLARE(apr_lockmech_e) apr_proc_mutex_mech(apr_proc_mutex_t *mutex)
+{
+    return APR_LOCK_DEFAULT;
+}
+
 APR_DECLARE(const char *) apr_proc_mutex_name(apr_proc_mutex_t *mutex)
 {
     return "os2sem";
@@ -199,7 +204,7 @@ APR_DECLARE(apr_status_t) apr_proc_mutex_destroy(apr_proc_mutex_t *mutex)
     return APR_FROM_OS_ERROR(rc);
 }
 
-
+APR_PERMS_SET_ENOTIMPL(proc_mutex)
 
 APR_POOL_IMPLEMENT_ACCESSOR(proc_mutex)
 
@@ -207,20 +212,36 @@ APR_POOL_IMPLEMENT_ACCESSOR(proc_mutex)
 
 /* Implement OS-specific accessors defined in apr_portable.h */
 
+APR_DECLARE(apr_status_t) apr_os_proc_mutex_get_ex(apr_os_proc_mutex_t *ospmutex, 
+                                                   apr_proc_mutex_t *pmutex,
+                                                   apr_lockmech_e *mech)
+{
+    *ospmutex = pmutex->hMutex;
+    if (mech) {
+        *mech = APR_LOCK_DEFAULT;
+    }
+    return APR_SUCCESS;
+}
+
 APR_DECLARE(apr_status_t) apr_os_proc_mutex_get(apr_os_proc_mutex_t *ospmutex,
                                                 apr_proc_mutex_t *pmutex)
 {
-    *ospmutex = pmutex->hMutex;
-    return APR_ENOTIMPL;
+    return apr_os_proc_mutex_get_ex(ospmutex, pmutex, NULL);
 }
 
-
-
-APR_DECLARE(apr_status_t) apr_os_proc_mutex_put(apr_proc_mutex_t **pmutex,
+APR_DECLARE(apr_status_t) apr_os_proc_mutex_put_ex(apr_proc_mutex_t **pmutex,
                                                 apr_os_proc_mutex_t *ospmutex,
+                                                apr_lockmech_e mech,
+                                                int register_cleanup,
                                                 apr_pool_t *pool)
 {
     apr_proc_mutex_t *new;
+    if (pool == NULL) {
+        return APR_ENOPOOL;
+    }
+    if (mech != APR_LOCK_DEFAULT) {
+        return APR_ENOTIMPL;
+    }
 
     new = (apr_proc_mutex_t *)apr_palloc(pool, sizeof(apr_proc_mutex_t));
     new->pool       = pool;
@@ -229,6 +250,18 @@ APR_DECLARE(apr_status_t) apr_os_proc_mutex_put(apr_proc_mutex_t **pmutex,
     new->hMutex     = *ospmutex;
     *pmutex = new;
 
+    if (register_cleanup) {
+        apr_pool_cleanup_register(pool, *pmutex, apr_proc_mutex_cleanup,
+                                  apr_pool_cleanup_null);
+    }
     return APR_SUCCESS;
+}
+
+APR_DECLARE(apr_status_t) apr_os_proc_mutex_put(apr_proc_mutex_t **pmutex,
+                                                apr_os_proc_mutex_t *ospmutex,
+                                                apr_pool_t *pool)
+{
+    return apr_os_proc_mutex_put_ex(pmutex, ospmutex, APR_LOCK_DEFAULT,
+                                    0, pool);
 }
 

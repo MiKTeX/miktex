@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -42,6 +42,7 @@ set(public_include_directories
 set(public_headers
   include/apr_allocator.h
   include/apr_atomic.h
+  include/apr_cstr.h
   include/apr_dso.h
   include/apr_env.h
   include/apr_errno.h
@@ -57,6 +58,7 @@ set(public_headers
   include/apr_lib.h
   include/apr_mmap.h
   include/apr_network_io.h
+  include/apr_perms_set.h
   include/apr_poll.h
   include/apr_pools.h
   include/apr_portable.h
@@ -93,6 +95,8 @@ configure_file(
 )
 
 add_executable(gen_test_char source/tools/gen_test_char.c)
+
+set_property(TARGET gen_test_char PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
 add_custom_command(
   COMMAND
@@ -168,11 +172,13 @@ set(apr_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poll/unix/pollcb.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poll/unix/pollset.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poll/unix/select.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poll/unix/wakeup.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/random/unix/apr_random.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/random/unix/sha2.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/random/unix/sha2_glue.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/shmem/win32/shm.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/strings/apr_cpystrn.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/strings/apr_cstr.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/strings/apr_fnmatch.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/strings/apr_snprintf.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/strings/apr_strings.c

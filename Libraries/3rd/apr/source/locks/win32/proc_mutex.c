@@ -43,6 +43,10 @@ APR_DECLARE(apr_status_t) apr_proc_mutex_create(apr_proc_mutex_t **mutex,
     HANDLE hMutex;
     void *mutexkey;
 
+    if (mech != APR_LOCK_DEFAULT) {
+        return APR_ENOTIMPL;
+    }
+
     /* res_name_from_filename turns fname into a pseduo-name
      * without slashes or backslashes, and prepends the \global
      * prefix on Win2K and later
@@ -189,6 +193,11 @@ APR_DECLARE(const char *) apr_proc_mutex_lockfile(apr_proc_mutex_t *mutex)
     return mutex->fname;
 }
 
+APR_DECLARE(apr_lockmech_e) apr_proc_mutex_mech(apr_proc_mutex_t *mutex)
+{
+    return APR_LOCK_DEFAULT;
+}
+
 APR_DECLARE(const char *) apr_proc_mutex_name(apr_proc_mutex_t *mutex)
 {
     return apr_proc_mutex_defname();
@@ -199,14 +208,53 @@ APR_DECLARE(const char *) apr_proc_mutex_defname(void)
     return "win32mutex";
 }
 
+APR_PERMS_SET_ENOTIMPL(proc_mutex)
+
 APR_POOL_IMPLEMENT_ACCESSOR(proc_mutex)
 
 /* Implement OS-specific accessors defined in apr_portable.h */
 
-APR_DECLARE(apr_status_t) apr_os_proc_mutex_get(apr_os_proc_mutex_t *ospmutex,
-                                                apr_proc_mutex_t *mutex)
+APR_DECLARE(apr_status_t) apr_os_proc_mutex_get_ex(apr_os_proc_mutex_t *ospmutex, 
+                                                   apr_proc_mutex_t *pmutex,
+                                                   apr_lockmech_e *mech)
 {
-    *ospmutex = mutex->handle;
+    *ospmutex = pmutex->handle;
+    if (mech) {
+        *mech = APR_LOCK_DEFAULT;
+    }
+    return APR_SUCCESS;
+}
+
+APR_DECLARE(apr_status_t) apr_os_proc_mutex_get(apr_os_proc_mutex_t *ospmutex,
+                                                apr_proc_mutex_t *pmutex)
+{
+    return apr_os_proc_mutex_get_ex(ospmutex, pmutex, NULL);
+}
+
+APR_DECLARE(apr_status_t) apr_os_proc_mutex_put_ex(apr_proc_mutex_t **pmutex,
+                                                apr_os_proc_mutex_t *ospmutex,
+                                                apr_lockmech_e mech,
+                                                int register_cleanup,
+                                                apr_pool_t *pool)
+{
+    if (pool == NULL) {
+        return APR_ENOPOOL;
+    }
+    if (mech != APR_LOCK_DEFAULT) {
+        return APR_ENOTIMPL;
+    }
+
+    if ((*pmutex) == NULL) {
+        (*pmutex) = (apr_proc_mutex_t *)apr_palloc(pool,
+                                                   sizeof(apr_proc_mutex_t));
+        (*pmutex)->pool = pool;
+    }
+    (*pmutex)->handle = *ospmutex;
+
+    if (register_cleanup) {
+        apr_pool_cleanup_register(pool, *pmutex, proc_mutex_cleanup,
+                                  apr_pool_cleanup_null);
+    }
     return APR_SUCCESS;
 }
 
@@ -214,15 +262,7 @@ APR_DECLARE(apr_status_t) apr_os_proc_mutex_put(apr_proc_mutex_t **pmutex,
                                                 apr_os_proc_mutex_t *ospmutex,
                                                 apr_pool_t *pool)
 {
-    if (pool == NULL) {
-        return APR_ENOPOOL;
-    }
-    if ((*pmutex) == NULL) {
-        (*pmutex) = (apr_proc_mutex_t *)apr_palloc(pool,
-                                                   sizeof(apr_proc_mutex_t));
-        (*pmutex)->pool = pool;
-    }
-    (*pmutex)->handle = *ospmutex;
-    return APR_SUCCESS;
+    return apr_os_proc_mutex_put_ex(pmutex, ospmutex, APR_LOCK_DEFAULT,
+                                    0, pool);
 }
 

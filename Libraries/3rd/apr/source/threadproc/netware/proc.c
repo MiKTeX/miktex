@@ -505,3 +505,11 @@ APR_DECLARE(apr_status_t) apr_procattr_group_set(apr_procattr_t *attr,
     /* Always return SUCCESS because NetWare threads don't run within a group */
     return APR_SUCCESS;
 }
+
+APR_DECLARE(apr_status_t) apr_procattr_perms_set_register(apr_procattr_t *attr,
+                                                 apr_perms_setfn_t *perms_set_fn,
+                                                 void *data,
+                                                 apr_fileperms_t perms)
+{
+    return APR_ENOTIMPL;
+}
