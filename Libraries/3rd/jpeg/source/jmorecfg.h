@@ -206,7 +206,6 @@ typedef unsigned int UINT16;
 #if defined(MIKTEX_WINDOWS)
 #  include <windows.h>
 #endif
-
 #if !defined(MIKTEX_WINDOWS)
 #ifndef XMD_H			/* X11/xmd.h correctly defines INT16 */
 typedef short INT16;

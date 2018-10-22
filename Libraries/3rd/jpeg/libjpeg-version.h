@@ -17,8 +17,8 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 6300
-#define MIKTEX_COMP_ORIG_VERSION_STR "9b"
+#define MIKTEX_COMP_J2000_VERSION 6868
+#define MIKTEX_COMP_ORIG_VERSION_STR "9c"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1991-2016, Thomas G. Lane, Guido Vollbeding"
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1991-2016, Thomas G. Lane, Guido Vollbeding"

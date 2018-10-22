@@ -10,6 +10,7 @@
 * graphite2 1.3.12
 * HarfBuzz 2.0.2
 * hunspell 1.6.2
+* jpeg 9c
 * LuaTeX 1.09.0
 
 ### Upgraded libraries

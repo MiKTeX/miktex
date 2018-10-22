@@ -6,7 +6,7 @@
     <TPM:Title>JPEG runtime library, Windows x64</TPM:Title>
     <TPM:Copyright owner="Thomas G. Lane, Guido Vollbeding" year="1991-2016"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>9b</TPM:Version>
+    <TPM:Version>9c</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

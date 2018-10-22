@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -31,56 +31,54 @@ endif()
 ignore_warnings()
 
 set(${jpeg_dll_name}_sources
-  #COMOBJECTS
+
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jaricom.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcomapi.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jutils.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jerror.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jmemmgr.c
-  #SYSDEPMEM
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jmemnobs.c
-  #CLIBOBJECTS
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jcapimin.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jcapistd.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jcarith.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jctrans.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcparam.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdatadst.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcinit.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcmaster.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcmarker.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcmainct.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcprepct.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jccoefct.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jccolor.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcsample.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jchuff.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jcdctmgr.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jfdctfst.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jfdctflt.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jfdctint.c
-  #DLIBOBJECTS
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jchuff.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcinit.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcmainct.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcmarker.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcmaster.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcomapi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcparam.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcprepct.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jcsample.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jctrans.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jdapimin.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jdapistd.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jdarith.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdtrans.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdatadst.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jdatasrc.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdmaster.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdinput.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdmarker.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdhuff.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdmainct.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jdcoefct.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdpostct.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jddctmgr.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jidctfst.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jidctflt.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jidctint.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdsample.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jdcolor.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jddctmgr.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdhuff.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdinput.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdmainct.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdmarker.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdmaster.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdmerge.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdpostct.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdsample.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdtrans.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jerror.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jfdctflt.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jfdctfst.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jfdctint.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jidctflt.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jidctfst.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jidctint.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jquant1.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jquant2.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/jdmerge.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jutils.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jmemmgr.c
+
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/jmemnobs.c
 
   ${CMAKE_CURRENT_BINARY_DIR}/include/jconfig.h
   libjpeg-version.h
