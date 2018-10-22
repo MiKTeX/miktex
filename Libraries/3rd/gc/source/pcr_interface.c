@@ -65,16 +65,18 @@ typedef struct {
   PCR_Any ed_client_data;
 } enumerate_data;
 
-void GC_enumerate_block(struct hblk *h; enumerate_data * ed)
+void GC_enumerate_block(struct hblk *h, enumerate_data * ed)
 {
     register hdr * hhdr;
     register int sz;
     ptr_t p;
     ptr_t lim;
     word descr;
+
+# if !defined(CPPCHECK)
 #   error This code was updated without testing.
 #   error and its precursor was clearly broken.
-
+# endif
     hhdr = HDR(h);
     descr = hhdr -> hb_descr;
     sz = hhdr -> hb_sz;

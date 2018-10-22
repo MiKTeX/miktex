@@ -62,7 +62,8 @@ static int n_root_sets = 0;
 
     for (i = 0; i < n_root_sets; i++) {
         GC_printf("From %p to %p%s\n",
-                  GC_static_roots[i].r_start, GC_static_roots[i].r_end,
+                  (void *)GC_static_roots[i].r_start,
+                  (void *)GC_static_roots[i].r_end,
                   GC_static_roots[i].r_tmp ? " (temporary)" : "");
     }
     GC_printf("GC_root_size: %lu\n", (unsigned long)GC_root_size);
@@ -167,12 +168,10 @@ GC_API void GC_CALL GC_add_roots(void *b, void *e)
 /* re-registering dynamic libraries.                                    */
 void GC_add_roots_inner(ptr_t b, ptr_t e, GC_bool tmp)
 {
-    struct roots * old;
-
     GC_ASSERT((word)b <= (word)e);
-    b = (ptr_t)(((word)b + (sizeof(word) - 1)) & ~(sizeof(word) - 1));
+    b = (ptr_t)(((word)b + (sizeof(word) - 1)) & ~(word)(sizeof(word) - 1));
                                         /* round b up to word boundary */
-    e = (ptr_t)((word)e & ~(sizeof(word) - 1));
+    e = (ptr_t)((word)e & ~(word)(sizeof(word) - 1));
                                         /* round e down to word boundary */
     if ((word)b >= (word)e) return; /* nothing to do */
 
@@ -185,7 +184,8 @@ void GC_add_roots_inner(ptr_t b, ptr_t e, GC_bool tmp)
       /* takes to scan the roots.                               */
       {
         register int i;
-        old = 0; /* initialized to prevent warning. */
+        struct roots * old = NULL; /* initialized to prevent warning. */
+
         for (i = 0; i < n_root_sets; i++) {
             old = GC_static_roots + i;
             if ((word)b <= (word)old->r_end
@@ -232,13 +232,17 @@ void GC_add_roots_inner(ptr_t b, ptr_t e, GC_bool tmp)
         }
       }
 #   else
-      old = (struct roots *)GC_roots_present(b);
-      if (old != 0) {
-        if ((word)e <= (word)old->r_end) /* already there */ return;
-        /* else extend */
-        GC_root_size += e - old -> r_end;
-        old -> r_end = e;
-        return;
+      {
+        struct roots * old = (struct roots *)GC_roots_present(b);
+
+        if (old != 0) {
+          if ((word)e <= (word)old->r_end)
+            return; /* already there */
+          /* else extend */
+          GC_root_size += e - old -> r_end;
+          old -> r_end = e;
+          return;
+        }
       }
 #   endif
     if (n_root_sets == MAX_ROOT_SETS) {
@@ -247,7 +251,8 @@ void GC_add_roots_inner(ptr_t b, ptr_t e, GC_bool tmp)
 
 #   ifdef DEBUG_ADD_DEL_ROOTS
       GC_log_printf("Adding data root section %d: %p .. %p%s\n",
-                    n_root_sets, b, e, tmp ? " (temporary)" : "");
+                    n_root_sets, (void *)b, (void *)e,
+                    tmp ? " (temporary)" : "");
 #   endif
     GC_static_roots[n_root_sets].r_start = (ptr_t)b;
     GC_static_roots[n_root_sets].r_end = (ptr_t)e;
@@ -285,7 +290,8 @@ STATIC void GC_remove_root_at_pos(int i)
 {
 #   ifdef DEBUG_ADD_DEL_ROOTS
       GC_log_printf("Remove data root section at %d: %p .. %p%s\n",
-                    i, GC_static_roots[i].r_start, GC_static_roots[i].r_end,
+                    i, (void *)GC_static_roots[i].r_start,
+                    (void *)GC_static_roots[i].r_end,
                     GC_static_roots[i].r_tmp ? " (temporary)" : "");
 #   endif
     GC_root_size -= (GC_static_roots[i].r_end - GC_static_roots[i].r_start);
@@ -333,8 +339,8 @@ STATIC void GC_remove_tmp_roots(void)
     DCL_LOCK_STATE;
 
     /* Quick check whether has nothing to do */
-    if ((((word)b + (sizeof(word) - 1)) & ~(sizeof(word) - 1)) >=
-        ((word)e & ~(sizeof(word) - 1)))
+    if ((((word)b + (sizeof(word) - 1)) & ~(word)(sizeof(word) - 1)) >=
+        ((word)e & ~(word)(sizeof(word) - 1)))
       return;
 
     LOCK();
@@ -358,12 +364,108 @@ STATIC void GC_remove_tmp_roots(void)
   }
 #endif /* !defined(MSWIN32) && !defined(MSWINCE) && !defined(CYGWIN32) */
 
-#if (defined(MSWIN32) || defined(MSWINCE) || defined(CYGWIN32)) \
-    && !defined(NO_DEBUGGING)
-  /* Not used at present (except for, may be, debugging purpose).       */
+#ifdef USE_PROC_FOR_LIBRARIES
+  /* Exchange the elements of the roots table.  Requires rebuild of     */
+  /* the roots index table after the swap.                              */
+  GC_INLINE void swap_static_roots(int i, int j)
+  {
+    ptr_t r_start = GC_static_roots[i].r_start;
+    ptr_t r_end = GC_static_roots[i].r_end;
+    GC_bool r_tmp = GC_static_roots[i].r_tmp;
+
+    GC_static_roots[i].r_start = GC_static_roots[j].r_start;
+    GC_static_roots[i].r_end = GC_static_roots[j].r_end;
+    GC_static_roots[i].r_tmp = GC_static_roots[j].r_tmp;
+    /* No need to swap r_next values.   */
+    GC_static_roots[j].r_start = r_start;
+    GC_static_roots[j].r_end = r_end;
+    GC_static_roots[j].r_tmp = r_tmp;
+  }
+
+  /* Remove given range from every static root which intersects with    */
+  /* the range.  It is assumed GC_remove_tmp_roots is called before     */
+  /* this function is called repeatedly by GC_register_map_entries.     */
+  GC_INNER void GC_remove_roots_subregion(ptr_t b, ptr_t e)
+  {
+    int i;
+    GC_bool rebuild = FALSE;
+
+    GC_ASSERT(I_HOLD_LOCK());
+    GC_ASSERT((word)b % sizeof(word) == 0 && (word)e % sizeof(word) == 0);
+    for (i = 0; i < n_root_sets; i++) {
+      ptr_t r_start, r_end;
+
+      if (GC_static_roots[i].r_tmp) {
+        /* The remaining roots are skipped as they are all temporary. */
+#       ifdef GC_ASSERTIONS
+          int j;
+          for (j = i + 1; j < n_root_sets; j++) {
+            GC_ASSERT(GC_static_roots[j].r_tmp);
+          }
+#       endif
+        break;
+      }
+      r_start = GC_static_roots[i].r_start;
+      r_end = GC_static_roots[i].r_end;
+      if (!EXPECT((word)e <= (word)r_start || (word)r_end <= (word)b, TRUE)) {
+#       ifdef DEBUG_ADD_DEL_ROOTS
+          GC_log_printf("Removing %p .. %p from root section %d (%p .. %p)\n",
+                        (void *)b, (void *)e,
+                        i, (void *)r_start, (void *)r_end);
+#       endif
+        if ((word)r_start < (word)b) {
+          GC_root_size -= r_end - b;
+          GC_static_roots[i].r_end = b;
+          /* No need to rebuild as hash does not use r_end value. */
+          if ((word)e < (word)r_end) {
+            int j;
+
+            if (rebuild) {
+              GC_rebuild_root_index();
+              rebuild = FALSE;
+            }
+            GC_add_roots_inner(e, r_end, FALSE); /* updates n_root_sets */
+            for (j = i + 1; j < n_root_sets; j++)
+              if (GC_static_roots[j].r_tmp)
+                break;
+            if (j < n_root_sets-1 && !GC_static_roots[n_root_sets-1].r_tmp) {
+              /* Exchange the roots to have all temporary ones at the end. */
+              swap_static_roots(j, n_root_sets - 1);
+              rebuild = TRUE;
+            }
+          }
+        } else {
+          if ((word)e < (word)r_end) {
+            GC_root_size -= e - r_start;
+            GC_static_roots[i].r_start = e;
+          } else {
+            GC_remove_root_at_pos(i);
+            if (i < n_root_sets - 1 && GC_static_roots[i].r_tmp
+                && !GC_static_roots[i + 1].r_tmp) {
+              int j;
+
+              for (j = i + 2; j < n_root_sets; j++)
+                if (GC_static_roots[j].r_tmp)
+                  break;
+              /* Exchange the roots to have all temporary ones at the end. */
+              swap_static_roots(i, j - 1);
+            }
+            i--;
+          }
+          rebuild = TRUE;
+        }
+      }
+    }
+    if (rebuild)
+      GC_rebuild_root_index();
+  }
+#endif /* USE_PROC_FOR_LIBRARIES */
+
+#if !defined(NO_DEBUGGING)
+  /* For the debugging purpose only.                                    */
   /* Workaround for the OS mapping and unmapping behind our back:       */
   /* Is the address p in one of the temporary static root sections?     */
-  GC_bool GC_is_tmp_root(ptr_t p)
+  GC_API int GC_CALL GC_is_tmp_root(void *p)
   {
     static int last_root_set = MAX_ROOT_SETS;
     register int i;
@@ -381,18 +483,21 @@ STATIC void GC_remove_tmp_roots(void)
     }
     return(FALSE);
   }
-#endif /* MSWIN32 || MSWINCE || CYGWIN32 */
+#endif /* !NO_DEBUGGING */
 
 GC_INNER ptr_t GC_approx_sp(void)
 {
     volatile word sp;
-    sp = (word)&sp;
+#   if defined(CPPCHECK) || (__GNUC__ >= 4 \
+                             && !defined(STACK_NOT_SCANNED))
+        sp = (word)__builtin_frame_address(0);
+#   else
+        sp = (word)&sp;
+#   endif
                 /* Also force stack to grow if necessary. Otherwise the */
                 /* later accesses might cause the kernel to think we're */
                 /* doing something wrong.                               */
     return((ptr_t)sp);
-                /* GNU C: alternatively, we may return the value of     */
-                /*__builtin_frame_address(0).                           */
 }
 
 /*
@@ -418,10 +523,10 @@ STATIC struct exclusion * GC_next_exclusion(ptr_t start_addr)
 {
     size_t low = 0;
     size_t high = GC_excl_table_entries - 1;
-    size_t mid;
 
     while (high > low) {
-        mid = (low + high) >> 1;
+        size_t mid = (low + high) >> 1;
+
         /* low <= mid < high    */
         if ((word) GC_excl_table[mid].e_end <= (word) start_addr) {
             low = mid + 1;
@@ -438,7 +543,7 @@ STATIC struct exclusion * GC_next_exclusion(ptr_t start_addr)
 GC_INNER void GC_exclude_static_roots_inner(void *start, void *finish)
 {
     struct exclusion * next;
-    size_t next_index, i;
+    size_t next_index;
 
     GC_ASSERT((word)start % sizeof(word) == 0);
     GC_ASSERT((word)start < (word)finish);
@@ -449,6 +554,8 @@ GC_INNER void GC_exclude_static_roots_inner(void *start, void *finish)
         next = GC_next_exclusion(start);
     }
     if (0 != next) {
+      size_t i;
+
       if ((word)(next -> e_start) < (word) finish) {
         /* incomplete error check. */
         ABORT("Exclusion ranges overlap");
@@ -478,27 +585,46 @@ GC_API void GC_CALL GC_exclude_static_roots(void *b, void *e)
     if (b == e) return;  /* nothing to exclude? */
 
     /* Round boundaries (in direction reverse to that of GC_add_roots). */
-    b = (void *)((word)b & ~(sizeof(word) - 1));
-    e = (void *)(((word)e + (sizeof(word) - 1)) & ~(sizeof(word) - 1));
-    if (0 == e) e = (void *)(word)(~(sizeof(word) - 1)); /* handle overflow */
+    b = (void *)((word)b & ~(word)(sizeof(word) - 1));
+    e = (void *)(((word)e + (sizeof(word) - 1)) & ~(word)(sizeof(word) - 1));
+    if (NULL == e)
+      e = (void *)(~(word)(sizeof(word) - 1)); /* handle overflow */
 
     LOCK();
     GC_exclude_static_roots_inner(b, e);
     UNLOCK();
 }
 
+#if defined(WRAP_MARK_SOME) && defined(PARALLEL_MARK)
+  /* GC_mark_local does not handle memory protection faults yet.  So,   */
+  /* the static data regions are scanned immediately by GC_push_roots.  */
+  GC_INNER void GC_push_conditional_eager(ptr_t bottom, ptr_t top,
+                                          GC_bool all);
+# define GC_PUSH_CONDITIONAL(b, t, all) \
+                (GC_parallel \
+                    ? GC_push_conditional_eager(b, t, all) \
+                    : GC_push_conditional((ptr_t)(b), (ptr_t)(t), all))
+#elif defined(GC_DISABLE_INCREMENTAL)
+# define GC_PUSH_CONDITIONAL(b, t, all) GC_push_all((ptr_t)(b), (ptr_t)(t))
+#else
+# define GC_PUSH_CONDITIONAL(b, t, all) \
+                GC_push_conditional((ptr_t)(b), (ptr_t)(t), all)
+                        /* Do either of GC_push_all or GC_push_selected */
+                        /* depending on the third arg.                  */
+#endif
+
 /* Invoke push_conditional on ranges that are not excluded. */
 STATIC void GC_push_conditional_with_exclusions(ptr_t bottom, ptr_t top,
                                                 GC_bool all GC_ATTR_UNUSED)
 {
-    struct exclusion * next;
-    ptr_t excl_start;
-
     while ((word)bottom < (word)top) {
-        next = GC_next_exclusion(bottom);
-        if (0 == next || (word)(excl_start = next -> e_start) >= (word)top) {
-            GC_PUSH_CONDITIONAL(bottom, top, all);
-            return;
+        struct exclusion *next = GC_next_exclusion(bottom);
+        ptr_t excl_start;
+
+        if (0 == next
+            || (word)(excl_start = next -> e_start) >= (word)top) {
+          GC_PUSH_CONDITIONAL(bottom, top, all);
+          break;
         }
         if ((word)excl_start > (word)bottom)
           GC_PUSH_CONDITIONAL(bottom, excl_start, all);
@@ -581,7 +707,8 @@ GC_INNER void GC_push_all_stack_sections(ptr_t lo, ptr_t hi,
 STATIC void GC_push_all_stack_partially_eager(ptr_t bottom, ptr_t top,
                                               ptr_t cold_gc_frame)
 {
-  if (!NEED_FIXUP_POINTER && GC_all_interior_pointers) {
+#ifndef NEED_FIXUP_POINTER
+  if (GC_all_interior_pointers) {
     /* Push the hot end of the stack eagerly, so that register values   */
     /* saved inside GC frames are marked before they disappear.         */
     /* The rest of the marking can be deferred until later.             */
@@ -598,11 +725,13 @@ STATIC void GC_push_all_stack_partially_eager(ptr_t bottom, ptr_t top,
         GC_push_all(bottom, cold_gc_frame + sizeof(ptr_t));
         GC_push_all_eager(cold_gc_frame, top);
 #   endif /* STACK_GROWS_UP */
-  } else {
+  } else
+#endif
+  /* else */ {
     GC_push_all_eager(bottom, top);
   }
 # ifdef TRACE_BUF
-      GC_add_trace_entry("GC_push_all_stack", bottom, top);
+    GC_add_trace_entry("GC_push_all_stack", (word)bottom, (word)top);
 # endif
 }
 
@@ -742,7 +871,7 @@ STATIC void GC_push_regs_and_stack(ptr_t cold_gc_frame)
 }
 
 /*
- * Call the mark routines (GC_tl_push for a single pointer,
+ * Call the mark routines (GC_push_one for a single pointer,
  * GC_push_conditional on groups of pointers) on every top level
  * accessible pointer.
  * If all is FALSE, arrange to push only possibly altered values.
@@ -751,7 +880,7 @@ STATIC void GC_push_regs_and_stack(ptr_t cold_gc_frame)
  * A zero value indicates that it's OK to miss some
  * register values.
  */
-GC_INNER void GC_push_roots(GC_bool all, ptr_t cold_gc_frame)
+GC_INNER void GC_push_roots(GC_bool all, ptr_t cold_gc_frame GC_ATTR_UNUSED)
 {
     int i;
     unsigned kind;
@@ -810,7 +939,9 @@ GC_INNER void GC_push_roots(GC_bool all, ptr_t cold_gc_frame)
      * This is usually done by saving the current context on the
      * stack, and then just tracing from the stack.
      */
-      GC_push_regs_and_stack(cold_gc_frame);
+#    ifndef STACK_NOT_SCANNED
+       GC_push_regs_and_stack(cold_gc_frame);
+#    endif
 
     if (GC_push_other_roots != 0) (*GC_push_other_roots)();
         /* In the threads case, this also pushes thread stacks. */

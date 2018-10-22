@@ -46,11 +46,16 @@ typedef struct GC_Thread_Rep {
                                   /* guaranteed to be dead, but we may  */
                                   /* not yet have registered the join.) */
     pthread_t id;
-#   ifdef PLATFORM_ANDROID
+#   ifdef USE_TKILL_ON_ANDROID
       pid_t kernel_id;
 #   endif
     /* Extra bookkeeping information the stopping code uses */
     struct thread_stop_info stop_info;
+
+#   if defined(GC_ENABLE_SUSPEND_THREAD) && !defined(GC_DARWIN_THREADS) \
+        && !defined(GC_OPENBSD_UTHREADS) && !defined(NACL)
+      volatile AO_t suspended_ext;  /* Thread was suspended externally. */
+#   endif
 
     unsigned char flags;
 #       define FINISHED 1       /* Thread has exited.                   */
@@ -62,9 +67,6 @@ typedef struct GC_Thread_Rep {
                                 /* it unregisters itself, since it      */
                                 /* may not return a GC pointer.         */
 #       define MAIN_THREAD 4    /* True for the original thread only.   */
-#       define SUSPENDED_EXT 8  /* Thread was suspended externally      */
-                                /* (this is not used by the unmodified  */
-                                /* GC itself at present).               */
 #       define DISABLED_GC 0x10 /* Collections are disabled while the   */
                                 /* thread is exiting.                   */
 
@@ -86,6 +88,12 @@ typedef struct GC_Thread_Rep {
 
     ptr_t stack_end;            /* Cold end of the stack (except for    */
                                 /* main thread).                        */
+    ptr_t altstack;             /* The start of the alt-stack if there  */
+                                /* is one, NULL otherwise.              */
+    word altstack_size;         /* The size of the alt-stack if exists. */
+    ptr_t stack;                /* The start and size of the normal     */
+                                /* stack (set by GC_register_altstack). */
+    word stack_size;
 #   if defined(GC_DARWIN_THREADS) && !defined(DARWIN_DONT_PARSE_STACK)
       ptr_t topOfStack;         /* Result of GC_FindTopOfStack(0);      */
                                 /* valid only if the thread is blocked; */
@@ -114,17 +122,14 @@ typedef struct GC_Thread_Rep {
 #   endif
 } * GC_thread;
 
-# define THREAD_TABLE_SZ 256    /* Must be power of 2   */
+#ifndef THREAD_TABLE_SZ
+# define THREAD_TABLE_SZ 256    /* Power of 2 (for speed). */
+#endif
 GC_EXTERN volatile GC_thread GC_threads[THREAD_TABLE_SZ];
 
 GC_EXTERN GC_bool GC_thr_initialized;
 
 GC_INNER GC_thread GC_lookup_thread(pthread_t id);
-
-GC_EXTERN GC_bool GC_in_thread_creation;
-        /* We may currently be in thread creation or destruction.       */
-        /* Only set to TRUE while allocation lock is held.              */
-        /* When set, it is OK to run GC from unknown thread.            */
 
 #ifdef NACL
   GC_EXTERN __thread GC_thread GC_nacl_gc_thread_self;

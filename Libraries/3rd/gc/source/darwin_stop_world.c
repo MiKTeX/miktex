@@ -21,6 +21,10 @@
 
 #if defined(GC_DARWIN_THREADS)
 
+#include <sys/sysctl.h>
+#include <mach/machine.h>
+#include <CoreFoundation/CoreFoundation.h>
+
 /* From "Inside Mac OS X - Mach-O Runtime Architecture" published by Apple
    Page 49:
    "The space beneath the stack pointer, where a new stack frame would normally
@@ -69,7 +73,7 @@ GC_INNER ptr_t GC_FindTopOfStack(unsigned long stack_start)
   }
 
 # ifdef DEBUG_THREADS_EXTRA
-    GC_log_printf("FindTopOfStack start at sp = %p\n", frame);
+    GC_log_printf("FindTopOfStack start at sp = %p\n", (void *)frame);
 # endif
   while (frame->savedSP != 0) {
     /* if there are no more stack frames, stop */
@@ -79,11 +83,11 @@ GC_INNER ptr_t GC_FindTopOfStack(unsigned long stack_start)
     /* we do these next two checks after going to the next frame
        because the LR for the first stack frame in the loop
        is not set up on purpose, so we shouldn't check it. */
-    if ((frame->savedLR & ~0x3) == 0 || (frame->savedLR & ~0x3) == ~0x3U)
+    if ((frame->savedLR & ~0x3) == 0 || (frame->savedLR & ~0x3) == ~0x3UL)
       break; /* if the next LR is bogus, stop */
   }
 # ifdef DEBUG_THREADS_EXTRA
-    GC_log_printf("FindTopOfStack finish at sp = %p\n", frame);
+    GC_log_printf("FindTopOfStack finish at sp = %p\n", (void *)frame);
 # endif
   return (ptr_t)frame;
 }
@@ -108,7 +112,9 @@ GC_API void GC_CALL GC_use_threads_discovery(void)
 # if defined(GC_NO_THREADS_DISCOVERY) || defined(DARWIN_DONT_PARSE_STACK)
     ABORT("Darwin task-threads-based stop and push unsupported");
 # else
-    GC_ASSERT(!GC_need_to_lock);
+#   ifndef GC_ALWAYS_MULTITHREADED
+      GC_ASSERT(!GC_need_to_lock);
+#   endif
 #   ifndef GC_DISCOVER_TASK_THREADS
       GC_query_task_threads = TRUE;
 #   endif
@@ -116,10 +122,16 @@ GC_API void GC_CALL GC_use_threads_discovery(void)
 # endif
 }
 
+#ifndef kCFCoreFoundationVersionNumber_iOS_8_0
+# define kCFCoreFoundationVersionNumber_iOS_8_0 1140.1
+#endif
+
 /* Evaluates the stack range for a given thread.  Returns the lower     */
 /* bound and sets *phi to the upper one.                                */
 STATIC ptr_t GC_stack_range_for(ptr_t *phi, thread_act_t thread, GC_thread p,
-                                GC_bool thread_blocked, mach_port_t my_thread)
+                                GC_bool thread_blocked, mach_port_t my_thread,
+                                ptr_t *paltstack_lo,
+                                ptr_t *paltstack_hi GC_ATTR_UNUSED)
 {
   ptr_t lo;
   if (thread == my_thread) {
@@ -130,6 +142,9 @@ STATIC ptr_t GC_stack_range_for(ptr_t *phi, thread_act_t thread, GC_thread p,
 #   endif
 
   } else if (thread_blocked) {
+#   if defined(CPPCHECK)
+      if (NULL == p) ABORT("Invalid GC_thread passed to GC_stack_range_for");
+#   endif
     lo = p->stop_info.stack_ptr;
 #   ifndef DARWIN_DONT_PARSE_STACK
       *phi = p->topOfStack;
@@ -140,13 +155,47 @@ STATIC ptr_t GC_stack_range_for(ptr_t *phi, thread_act_t thread, GC_thread p,
     /* everywhere.  Hence we use our own version.  Alternatively,   */
     /* we could use THREAD_STATE_MAX (but seems to be not optimal). */
     kern_return_t kern_result;
-    mach_msg_type_number_t thread_state_count = GC_MACH_THREAD_STATE_COUNT;
     GC_THREAD_STATE_T state;
 
-    /* Get the thread state (registers, etc) */
-    kern_result = thread_get_state(thread, GC_MACH_THREAD_STATE,
-                                   (natural_t *)&state,
-                                   &thread_state_count);
+#   if defined(ARM32) && defined(ARM_THREAD_STATE32)
+      /* Use ARM_UNIFIED_THREAD_STATE on iOS8+ 32-bit targets and on    */
+      /* 64-bit H/W (iOS7+ 32-bit mode).                                */
+      size_t size;
+      static cpu_type_t cputype = 0;
+
+      if (cputype == 0) {
+        sysctlbyname("hw.cputype", &cputype, &size, NULL, 0);
+      }
+      if (cputype == CPU_TYPE_ARM64
+          || kCFCoreFoundationVersionNumber
+             >= kCFCoreFoundationVersionNumber_iOS_8_0) {
+        arm_unified_thread_state_t unified_state;
+        mach_msg_type_number_t unified_thread_state_count
+                                        = ARM_UNIFIED_THREAD_STATE_COUNT;
+#       if defined(CPPCHECK)
+#         define GC_ARM_UNIFIED_THREAD_STATE 1
+#       else
+#         define GC_ARM_UNIFIED_THREAD_STATE ARM_UNIFIED_THREAD_STATE
+#       endif
+        kern_result = thread_get_state(thread, GC_ARM_UNIFIED_THREAD_STATE,
+                                       (natural_t *)&unified_state,
+                                       &unified_thread_state_count);
+#       if !defined(CPPCHECK)
+          if (unified_state.ash.flavor != ARM_THREAD_STATE32) {
+            ABORT("unified_state flavor should be ARM_THREAD_STATE32");
+          }
+#       endif
+        state = unified_state;
+      } else
+#   endif
+    /* else */ {
+      mach_msg_type_number_t thread_state_count = GC_MACH_THREAD_STATE_COUNT;
+
+      /* Get the thread state (registers, etc) */
+      kern_result = thread_get_state(thread, GC_MACH_THREAD_STATE,
+                                     (natural_t *)&state,
+                                     &thread_state_count);
+    }
 #   ifdef DEBUG_THREADS
       GC_log_printf("thread_get_state returns value = %d\n", kern_result);
 #   endif
@@ -226,28 +275,37 @@ STATIC ptr_t GC_stack_range_for(ptr_t *phi, thread_act_t thread, GC_thread p,
       GC_push_one(state.THREAD_FLD(r31));
 
 #   elif defined(ARM32)
-      lo = (void *)state.__sp;
+      lo = (void *)state.THREAD_FLD(sp);
 #     ifndef DARWIN_DONT_PARSE_STACK
-        *phi = GC_FindTopOfStack(state.__sp);
+        *phi = GC_FindTopOfStack(state.THREAD_FLD(sp));
 #     endif
-      GC_push_one(state.__r[0]);
-      GC_push_one(state.__r[1]);
-      GC_push_one(state.__r[2]);
-      GC_push_one(state.__r[3]);
-      GC_push_one(state.__r[4]);
-      GC_push_one(state.__r[5]);
-      GC_push_one(state.__r[6]);
-      GC_push_one(state.__r[7]);
-      GC_push_one(state.__r[8]);
-      GC_push_one(state.__r[9]);
-      GC_push_one(state.__r[10]);
-      GC_push_one(state.__r[11]);
-      GC_push_one(state.__r[12]);
-      /* GC_push_one(state.__sp); */
-      GC_push_one(state.__lr);
-      /* GC_push_one(state.__pc); */
-      GC_push_one(state.__cpsr);
+      {
+        int j;
+        for (j = 0; j <= 12; j++) {
+          GC_push_one(state.THREAD_FLD(r[j]));
+        }
+      }
+      /* "pc" and "sp" are skipped */
+      GC_push_one(state.THREAD_FLD(lr));
+      GC_push_one(state.THREAD_FLD(cpsr));
 
+#   elif defined(AARCH64)
+      lo = (void *)state.THREAD_FLD(sp);
+#     ifndef DARWIN_DONT_PARSE_STACK
+        *phi = GC_FindTopOfStack(state.THREAD_FLD(sp));
+#     endif
+      {
+        int j;
+        for (j = 0; j <= 28; j++) {
+          GC_push_one(state.THREAD_FLD(x[j]));
+        }
+      }
+      /* "cpsr", "pc" and "sp" are skipped */
+      GC_push_one(state.THREAD_FLD(fp));
+      GC_push_one(state.THREAD_FLD(lr));
+
+#   elif defined(CPPCHECK)
+      lo = NULL;
 #   else
 #     error FIXME for non-x86 || ppc || arm architectures
 #   endif
@@ -257,17 +315,30 @@ STATIC ptr_t GC_stack_range_for(ptr_t *phi, thread_act_t thread, GC_thread p,
     /* p is guaranteed to be non-NULL regardless of GC_query_task_threads. */
     *phi = (p->flags & MAIN_THREAD) != 0 ? GC_stackbottom : p->stack_end;
 # endif
+
+  /* TODO: Determine p and handle altstack if !DARWIN_DONT_PARSE_STACK */
+# ifdef DARWIN_DONT_PARSE_STACK
+  if (p->altstack != NULL && (word)p->altstack <= (word)lo
+      && (word)lo <= (word)p->altstack + p->altstack_size) {
+    *paltstack_lo = lo;
+    *paltstack_hi = p->altstack + p->altstack_size;
+    lo = p->stack;
+    *phi = p->stack + p->stack_size;
+  } else
+# endif
+  /* else */ {
+    *paltstack_lo = NULL;
+  }
 # ifdef DEBUG_THREADS
     GC_log_printf("Darwin: Stack for thread %p = [%p,%p)\n",
-                  (void *)thread, lo, *phi);
+                  (void *)(word)thread, (void *)lo, (void *)(*phi));
 # endif
   return lo;
 }
 
 GC_INNER void GC_push_all_stacks(void)
 {
-  int i;
-  ptr_t lo, hi;
+  ptr_t hi, altstack_lo, altstack_hi;
   task_t my_task = current_task();
   mach_port_t my_thread = mach_thread_self();
   GC_bool found_me = FALSE;
@@ -279,6 +350,7 @@ GC_INNER void GC_push_all_stacks(void)
 
 # ifndef DARWIN_DONT_PARSE_STACK
     if (GC_query_task_threads) {
+      int i;
       kern_return_t kern_result;
       thread_act_array_t act_list = 0;
 
@@ -289,10 +361,15 @@ GC_INNER void GC_push_all_stacks(void)
 
       for (i = 0; i < (int)listcount; i++) {
         thread_act_t thread = act_list[i];
-        lo = GC_stack_range_for(&hi, thread, NULL, FALSE, my_thread);
-        GC_ASSERT((word)lo <= (word)hi);
-        total_size += hi - lo;
-        GC_push_all_stack(lo, hi);
+        ptr_t lo = GC_stack_range_for(&hi, thread, NULL, FALSE, my_thread,
+                                      &altstack_lo, &altstack_hi);
+
+        if (lo) {
+          GC_ASSERT((word)lo <= (word)hi);
+          total_size += hi - lo;
+          GC_push_all_stack(lo, hi);
+        }
+        /* TODO: Handle altstack */
         nthreads++;
         if (thread == my_thread)
           found_me = TRUE;
@@ -304,16 +381,28 @@ GC_INNER void GC_push_all_stacks(void)
     } else
 # endif /* !DARWIN_DONT_PARSE_STACK */
   /* else */ {
+    int i;
+
     for (i = 0; i < (int)listcount; i++) {
       GC_thread p;
+
       for (p = GC_threads[i]; p != NULL; p = p->next)
         if ((p->flags & FINISHED) == 0) {
           thread_act_t thread = (thread_act_t)p->stop_info.mach_thread;
-          lo = GC_stack_range_for(&hi, thread, p, (GC_bool)p->thread_blocked,
-                                  my_thread);
-          GC_ASSERT((word)lo <= (word)hi);
-          total_size += hi - lo;
-          GC_push_all_stack_sections(lo, hi, p->traced_stack_sect);
+          ptr_t lo = GC_stack_range_for(&hi, thread, p,
+                                        (GC_bool)p->thread_blocked,
+                                        my_thread, &altstack_lo,
+                                        &altstack_hi);
+
+          if (lo) {
+            GC_ASSERT((word)lo <= (word)hi);
+            total_size += hi - lo;
+            GC_push_all_stack_sections(lo, hi, p->traced_stack_sect);
+          }
+          if (altstack_lo) {
+            total_size += altstack_hi - altstack_lo;
+            GC_push_all_stack(altstack_lo, altstack_hi);
+          }
           nthreads++;
           if (thread == my_thread)
             found_me = TRUE;
@@ -384,7 +473,8 @@ STATIC GC_bool GC_suspend_thread_list(thread_act_array_t act_list, int count,
 #   endif
 
 #   ifdef DEBUG_THREADS
-      GC_log_printf("Attempting to suspend thread %p\n", (void *)thread);
+      GC_log_printf("Attempting to suspend thread %p\n",
+                    (void *)(word)thread);
 #   endif
     /* find the current thread in the old list */
     found = FALSE;
@@ -428,7 +518,8 @@ STATIC GC_bool GC_suspend_thread_list(thread_act_array_t act_list, int count,
       continue;
     }
 #   ifdef DEBUG_THREADS
-      GC_log_printf("Thread state for %p = %d\n", (void *)thread, info.run_state);
+      GC_log_printf("Thread state for %p = %d\n", (void *)(word)thread,
+                    info.run_state);
 #   endif
     if (info.suspend_count != 0) {
       /* thread is already suspended. */
@@ -438,9 +529,11 @@ STATIC GC_bool GC_suspend_thread_list(thread_act_array_t act_list, int count,
     }
 
 #   ifdef DEBUG_THREADS
-      GC_log_printf("Suspending %p\n", (void *)thread);
+      GC_log_printf("Suspending %p\n", (void *)(word)thread);
 #   endif
-    kern_result = thread_suspend(thread);
+    do {
+      kern_result = thread_suspend(thread);
+    } while (kern_result == KERN_ABORTED);
     if (kern_result != KERN_SUCCESS) {
       /* The thread may have quit since the thread_threads() call we  */
       /* mark already suspended so it's not dealt with anymore later. */
@@ -450,6 +543,8 @@ STATIC GC_bool GC_suspend_thread_list(thread_act_array_t act_list, int count,
     }
     if (!found)
       GC_mach_threads_count++;
+    if (GC_on_thread_event)
+      GC_on_thread_event(GC_EVENT_THREAD_SUSPENDED, (void *)(word)thread);
   }
   return changed;
 }
@@ -459,13 +554,13 @@ STATIC GC_bool GC_suspend_thread_list(thread_act_array_t act_list, int count,
 /* Caller holds allocation lock.        */
 GC_INNER void GC_stop_world(void)
 {
-  unsigned i;
   task_t my_task = current_task();
   mach_port_t my_thread = mach_thread_self();
   kern_return_t kern_result;
 
 # ifdef DEBUG_THREADS
-    GC_log_printf("Stopping the world from thread %p\n", (void *)my_thread);
+    GC_log_printf("Stopping the world from thread %p\n",
+                  (void *)(word)my_thread);
 # endif
 # ifdef PARALLEL_MARK
     if (GC_parallel) {
@@ -481,6 +576,7 @@ GC_INNER void GC_stop_world(void)
 
   if (GC_query_task_threads) {
 #   ifndef GC_NO_THREADS_DISCOVERY
+      unsigned i;
       GC_bool changed;
       thread_act_array_t act_list, prev_list;
       mach_msg_type_number_t listcount, prevcount;
@@ -528,6 +624,8 @@ GC_INNER void GC_stop_world(void)
 #   endif /* !GC_NO_THREADS_DISCOVERY */
 
   } else {
+    unsigned i;
+
     for (i = 0; i < THREAD_TABLE_SZ; i++) {
       GC_thread p;
 
@@ -535,9 +633,14 @@ GC_INNER void GC_stop_world(void)
         if ((p->flags & FINISHED) == 0 && !p->thread_blocked &&
              p->stop_info.mach_thread != my_thread) {
 
-          kern_result = thread_suspend(p->stop_info.mach_thread);
+          do {
+            kern_result = thread_suspend(p->stop_info.mach_thread);
+          } while (kern_result == KERN_ABORTED);
           if (kern_result != KERN_SUCCESS)
             ABORT("thread_suspend failed");
+          if (GC_on_thread_event)
+            GC_on_thread_event(GC_EVENT_THREAD_SUSPENDED,
+                               (void *)(word)p->stop_info.mach_thread);
         }
       }
     }
@@ -554,7 +657,7 @@ GC_INNER void GC_stop_world(void)
 # endif
 
 # ifdef DEBUG_THREADS
-    GC_log_printf("World stopped from %p\n", (void *)my_thread);
+    GC_log_printf("World stopped from %p\n", (void *)(word)my_thread);
 # endif
   mach_port_deallocate(my_task, my_thread);
 }
@@ -571,13 +674,15 @@ GC_INLINE void GC_thread_resume(thread_act_t thread)
       ABORT("thread_info failed");
 # endif
 # ifdef DEBUG_THREADS
-    GC_log_printf("Resuming thread %p with state %d\n", (void *)thread,
+    GC_log_printf("Resuming thread %p with state %d\n", (void *)(word)thread,
                   info.run_state);
 # endif
   /* Resume the thread */
   kern_result = thread_resume(thread);
   if (kern_result != KERN_SUCCESS)
     ABORT("thread_resume failed");
+  if (GC_on_thread_event)
+    GC_on_thread_event(GC_EVENT_THREAD_UNSUSPENDED, (void *)(word)thread);
 }
 
 /* Caller holds allocation lock, and has held it continuously since     */
@@ -585,7 +690,6 @@ GC_INLINE void GC_thread_resume(thread_act_t thread)
 GC_INNER void GC_start_world(void)
 {
   task_t my_task = current_task();
-  int i;
 # ifdef DEBUG_THREADS
     GC_log_printf("World starting\n");
 # endif
@@ -597,6 +701,7 @@ GC_INNER void GC_start_world(void)
 
   if (GC_query_task_threads) {
 #   ifndef GC_NO_THREADS_DISCOVERY
+      int i;
       int j = GC_mach_threads_count;
       kern_return_t kern_result;
       thread_act_array_t act_list;
@@ -630,7 +735,7 @@ GC_INNER void GC_start_world(void)
           if (GC_mach_threads[j].already_suspended) {
 #           ifdef DEBUG_THREADS
               GC_log_printf("Not resuming already suspended thread %p\n",
-                            (void *)thread);
+                            (void *)(word)thread);
 #           endif
           } else {
             GC_thread_resume(thread);
@@ -644,6 +749,7 @@ GC_INNER void GC_start_world(void)
 #   endif /* !GC_NO_THREADS_DISCOVERY */
 
   } else {
+    int i;
     mach_port_t my_thread = mach_thread_self();
 
     for (i = 0; i < THREAD_TABLE_SZ; i++) {

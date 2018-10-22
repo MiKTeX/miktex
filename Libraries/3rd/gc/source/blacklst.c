@@ -60,7 +60,7 @@ GC_INNER void GC_default_print_heap_obj_proc(ptr_t p)
     int kind = HDR(base)->hb_obj_kind;
 
     GC_err_printf("object at %p of appr. %lu bytes (%s)\n",
-                  base, (unsigned long)GC_size(base),
+                  (void *)base, (unsigned long)GC_size(base),
                   kind == PTRFREE ? "atomic" :
                     IS_UNCOLLECTABLE(kind) ? "uncollectable" : "composite");
 }
@@ -75,7 +75,7 @@ GC_INNER void (*GC_print_heap_obj)(ptr_t p) = GC_default_print_heap_obj_proc;
 
     if (0 == base) {
         GC_err_printf("Black listing (%s) %p referenced from %p in %s\n",
-                      kind_str, (ptr_t)p, source,
+                      kind_str, (void *)p, (void *)source,
                       NULL != source ? "root set" : "register");
     } else {
         /* FIXME: We can't call the debug version of GC_print_heap_obj  */
@@ -83,8 +83,8 @@ GC_INNER void (*GC_print_heap_obj)(ptr_t p) = GC_default_print_heap_obj_proc;
         /* the world is stopped.                                        */
         GC_err_printf("Black listing (%s) %p referenced from %p in"
                       " object at %p of appr. %lu bytes\n",
-                      kind_str, (ptr_t)p, source,
-                      base, (unsigned long)GC_size(base));
+                      kind_str, (void *)p, (void *)source,
+                      (void *)base, (unsigned long)GC_size(base));
     }
   }
 #endif /* PRINT_BLACK_LIST */
@@ -109,6 +109,7 @@ GC_INNER void GC_bl_init(void)
     if (!GC_all_interior_pointers) {
       GC_bl_init_no_interiors();
     }
+    GC_ASSERT(NULL == GC_old_stack_bl && NULL == GC_incomplete_stack_bl);
     GC_old_stack_bl = (word *)GC_scratch_alloc(sizeof(page_hash_table));
     GC_incomplete_stack_bl = (word *)GC_scratch_alloc(sizeof(page_hash_table));
     if (GC_old_stack_bl == 0 || GC_incomplete_stack_bl == 0) {
@@ -281,7 +282,7 @@ static word total_stack_black_listed(void)
 
     for (i = 0; i < GC_n_heap_sects; i++) {
         struct hblk * start = (struct hblk *) GC_heap_sects[i].hs_start;
-        struct hblk * endp1 = start + GC_heap_sects[i].hs_bytes/HBLKSIZE;
+        struct hblk * endp1 = start + divHBLKSZ(GC_heap_sects[i].hs_bytes);
 
         total += GC_number_stack_black_listed(start, endp1);
     }

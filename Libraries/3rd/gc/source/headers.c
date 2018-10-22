@@ -108,7 +108,7 @@ GC_INNER hdr *
 }
 
 /* Routines to dynamically allocate collector data structures that will */
-/* never be freed.                                                       */
+/* never be freed.                                                      */
 
 static ptr_t scratch_free_ptr = 0;
 
@@ -117,44 +117,48 @@ static ptr_t scratch_free_ptr = 0;
 
 GC_INNER ptr_t GC_scratch_alloc(size_t bytes)
 {
-    register ptr_t result = scratch_free_ptr;
+    ptr_t result = scratch_free_ptr;
+    size_t bytes_to_get;
 
-    bytes += GRANULE_BYTES-1;
-    bytes &= ~(GRANULE_BYTES-1);
-    scratch_free_ptr += bytes;
-    if ((word)scratch_free_ptr <= (word)GC_scratch_end_ptr) {
-        return(result);
-    }
-    {
-        word bytes_to_get = MINHINCR * HBLKSIZE;
+    bytes = ROUNDUP_GRANULE_SIZE(bytes);
+    for (;;) {
+        scratch_free_ptr += bytes;
+        if ((word)scratch_free_ptr <= (word)GC_scratch_end_ptr) {
+            /* Unallocated space of scratch buffer has enough size. */
+            return result;
+        }
 
-        if (bytes_to_get <= bytes) {
-          /* Undo the damage, and get memory directly */
+        if (bytes >= MINHINCR * HBLKSIZE) {
             bytes_to_get = ROUNDUP_PAGESIZE_IF_MMAP(bytes);
             result = (ptr_t)GET_MEM(bytes_to_get);
             GC_add_to_our_memory(result, bytes_to_get);
+            /* Undo scratch free area pointer update; get memory directly. */
             scratch_free_ptr -= bytes;
             if (result != NULL) {
+                /* Update end point of last obtained area (needed only  */
+                /* by GC_register_dynamic_libraries for some targets).  */
                 GC_scratch_last_end_ptr = result + bytes;
             }
-            return(result);
+            return result;
         }
 
-        bytes_to_get = ROUNDUP_PAGESIZE_IF_MMAP(bytes_to_get); /* for safety */
+        bytes_to_get = ROUNDUP_PAGESIZE_IF_MMAP(MINHINCR * HBLKSIZE);
+                                                /* round up for safety */
         result = (ptr_t)GET_MEM(bytes_to_get);
         GC_add_to_our_memory(result, bytes_to_get);
-        if (result == 0) {
-            WARN("Out of memory - trying to allocate less\n", 0);
-            scratch_free_ptr -= bytes;
+        if (NULL == result) {
+            WARN("Out of memory - trying to allocate requested amount"
+                 " (%" WARN_PRIdPTR " bytes)...\n", (word)bytes);
+            scratch_free_ptr -= bytes; /* Undo free area pointer update */
             bytes_to_get = ROUNDUP_PAGESIZE_IF_MMAP(bytes);
             result = (ptr_t)GET_MEM(bytes_to_get);
             GC_add_to_our_memory(result, bytes_to_get);
             return result;
         }
+        /* Update scratch area pointers and retry.      */
         scratch_free_ptr = result;
         GC_scratch_end_ptr = scratch_free_ptr + bytes_to_get;
         GC_scratch_last_end_ptr = GC_scratch_end_ptr;
-        return(GC_scratch_alloc(bytes));
     }
 }
 
@@ -166,7 +170,7 @@ static hdr * alloc_hdr(void)
     register hdr * result;
 
     if (hdr_free_list == 0) {
-        result = (hdr *) GC_scratch_alloc((word)(sizeof(hdr)));
+        result = (hdr *)GC_scratch_alloc(sizeof(hdr));
     } else {
         result = hdr_free_list;
         hdr_free_list = (hdr *) (result -> hb_next);
@@ -190,7 +194,7 @@ GC_INNER void GC_init_headers(void)
 {
     register unsigned i;
 
-    GC_all_nils = (bottom_index *)GC_scratch_alloc((word)sizeof(bottom_index));
+    GC_all_nils = (bottom_index *)GC_scratch_alloc(sizeof(bottom_index));
     if (GC_all_nils == NULL) {
       GC_err_printf("Insufficient memory for GC_all_nils\n");
       EXIT();
@@ -220,14 +224,14 @@ static GC_bool get_index(word addr)
           if (p -> key == hi) return(TRUE);
           p = p -> hash_link;
       }
-      r = (bottom_index*)GC_scratch_alloc((word)(sizeof (bottom_index)));
+      r = (bottom_index *)GC_scratch_alloc(sizeof(bottom_index));
       if (r == 0) return(FALSE);
       BZERO(r, sizeof (bottom_index));
       r -> hash_link = old;
       GC_top_index[i] = r;
 #   else
       if (GC_top_index[hi] != GC_all_nils) return(TRUE);
-      r = (bottom_index*)GC_scratch_alloc((word)(sizeof (bottom_index)));
+      r = (bottom_index *)GC_scratch_alloc(sizeof(bottom_index));
       if (r == 0) return(FALSE);
       GC_top_index[hi] = r;
       BZERO(r, sizeof (bottom_index));
@@ -273,14 +277,14 @@ GC_INNER struct hblkhdr * GC_install_header(struct hblk *h)
 GC_INNER GC_bool GC_install_counts(struct hblk *h, size_t sz/* bytes */)
 {
     struct hblk * hbp;
-    word i;
 
     for (hbp = h; (word)hbp < (word)h + sz; hbp += BOTTOM_SZ) {
         if (!get_index((word) hbp)) return(FALSE);
     }
     if (!get_index((word)h + sz - 1)) return(FALSE);
     for (hbp = h + 1; (word)hbp < (word)h + sz; hbp += 1) {
-        i = HBLK_PTR_DIFF(hbp, h);
+        word i = HBLK_PTR_DIFF(hbp, h);
+
         SET_HDR(hbp, (hdr *)(i > MAX_JUMP? MAX_JUMP : i));
     }
     return(TRUE);

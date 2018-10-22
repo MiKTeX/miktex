@@ -78,7 +78,7 @@ typedef struct {
     /* We're careful never to overwrite a value with lsb 0.     */
 #   if ALIGNMENT == 1
       /* Fudge back pointer to be even. */
-#     define HIDE_BACK_PTR(p) GC_HIDE_POINTER(~1 & (GC_word)(p))
+#     define HIDE_BACK_PTR(p) GC_HIDE_POINTER(~1 & (word)(p))
 #   else
 #     define HIDE_BACK_PTR(p) GC_HIDE_POINTER(p)
 #   endif
@@ -121,8 +121,7 @@ typedef struct {
 #define SIMPLE_ROUNDED_UP_WORDS(n) BYTES_TO_WORDS((n) + WORDS_TO_BYTES(1) - 1)
 
 /* ADD_CALL_CHAIN stores a (partial) call chain into an object  */
-/* header.  It may be called with or without the allocation     */
-/* lock.                                                        */
+/* header; it should be called with the allocation lock held.   */
 /* PRINT_CALL_CHAIN prints the call chain stored in an object   */
 /* to stderr.  It requires that we do not hold the lock.        */
 #if defined(SAVE_CALL_CHAIN)
@@ -157,6 +156,10 @@ typedef struct {
 #endif
 
 #if defined(KEEP_BACK_PTRS) || defined(MAKE_BACK_GRAPH)
+# ifdef SHORT_DBG_HDRS
+#   error Non-ptr stored in object results in GC_HAS_DEBUG_INFO malfunction
+    /* We may mistakenly conclude that p has a debugging wrapper.       */
+# endif
 # define GC_HAS_DEBUG_INFO(p) \
         ((*((word *)p) & 1) && GC_has_other_debug_info(p) > 0)
 #else

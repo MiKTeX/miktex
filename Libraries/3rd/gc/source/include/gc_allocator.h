@@ -38,16 +38,23 @@
  */
 
 #ifndef GC_ALLOCATOR_H
-
 #define GC_ALLOCATOR_H
 
 #include "gc.h"
-#include <new> // for placement new
+#include <new> // for placement new and bad_alloc
 
-#if defined(__GNUC__)
-#  define GC_ATTR_UNUSED __attribute__((__unused__))
+#ifndef GC_ATTR_EXPLICIT
+# if (__cplusplus >= 201103L) || defined(CPPCHECK)
+#   define GC_ATTR_EXPLICIT explicit
+# else
+#   define GC_ATTR_EXPLICIT /* empty */
+# endif
+#endif
+
+#if defined(GC_NEW_ABORTS_ON_OOM) || defined(_LIBCPP_NO_EXCEPTIONS)
+# define GC_ALLOCATOR_THROW_OR_ABORT() GC_abort_on_oom()
 #else
-#  define GC_ATTR_UNUSED
+# define GC_ALLOCATOR_THROW_OR_ABORT() throw std::bad_alloc()
 #endif
 
 /* First some helpers to allow us to dispatch on whether or not a type
@@ -85,15 +92,24 @@ GC_DECLARE_PTRFREE(long double);
 // pointer-free object.
 template <class GC_Tp>
 inline void * GC_selective_alloc(size_t n, GC_Tp, bool ignore_off_page) {
-    return ignore_off_page?GC_MALLOC_IGNORE_OFF_PAGE(n):GC_MALLOC(n);
+    void *obj = ignore_off_page ? GC_MALLOC_IGNORE_OFF_PAGE(n) : GC_MALLOC(n);
+    if (0 == obj)
+      GC_ALLOCATOR_THROW_OR_ABORT();
+    return obj;
 }
 
-template <>
-inline void * GC_selective_alloc<GC_true_type>(size_t n, GC_true_type,
-                                               bool ignore_off_page) {
-    return ignore_off_page? GC_MALLOC_ATOMIC_IGNORE_OFF_PAGE(n)
-                          : GC_MALLOC_ATOMIC(n);
-}
+#if !defined(__WATCOMC__)
+  /* Note: template-id not supported in this context by Watcom compiler. */
+  template <>
+  inline void * GC_selective_alloc<GC_true_type>(size_t n, GC_true_type,
+                                                 bool ignore_off_page) {
+    void * obj = ignore_off_page ? GC_MALLOC_ATOMIC_IGNORE_OFF_PAGE(n)
+                                 : GC_MALLOC_ATOMIC(n);
+    if (0 == obj)
+      GC_ALLOCATOR_THROW_OR_ABORT();
+    return obj;
+  }
+#endif
 
 /* Now the public gc_allocator<T> class:
  */
@@ -116,7 +132,8 @@ public:
     gc_allocator(const gc_allocator&) throw() {}
 # if !(GC_NO_MEMBER_TEMPLATES || 0 < _MSC_VER && _MSC_VER <= 1200)
   // MSVC++ 6.0 do not support member templates
-  template <class GC_Tp1> gc_allocator(const gc_allocator<GC_Tp1>&) throw() {}
+  template <class GC_Tp1> GC_ATTR_EXPLICIT
+    gc_allocator(const gc_allocator<GC_Tp1>&) throw() {}
 # endif
   ~gc_allocator() throw() {}
 
@@ -133,7 +150,7 @@ public:
   }
 
   // __p is not permitted to be a null pointer.
-  void deallocate(pointer __p, size_type GC_ATTR_UNUSED GC_n)
+  void deallocate(pointer __p, size_type /* GC_n */)
     { GC_FREE(__p); }
 
   size_type max_size() const throw()
@@ -191,7 +208,7 @@ public:
     gc_allocator_ignore_off_page(const gc_allocator_ignore_off_page&) throw() {}
 # if !(GC_NO_MEMBER_TEMPLATES || 0 < _MSC_VER && _MSC_VER <= 1200)
   // MSVC++ 6.0 do not support member templates
-  template <class GC_Tp1>
+  template <class GC_Tp1> GC_ATTR_EXPLICIT
     gc_allocator_ignore_off_page(const gc_allocator_ignore_off_page<GC_Tp1>&)
         throw() {}
 # endif
@@ -210,7 +227,7 @@ public:
   }
 
   // __p is not permitted to be a null pointer.
-  void deallocate(pointer __p, size_type GC_ATTR_UNUSED GC_n)
+  void deallocate(pointer __p, size_type /* GC_n */)
     { GC_FREE(__p); }
 
   size_type max_size() const throw()
@@ -271,8 +288,8 @@ public:
     traceable_allocator(const traceable_allocator&) throw() {}
 # if !(GC_NO_MEMBER_TEMPLATES || 0 < _MSC_VER && _MSC_VER <= 1200)
   // MSVC++ 6.0 do not support member templates
-  template <class GC_Tp1> traceable_allocator
-          (const traceable_allocator<GC_Tp1>&) throw() {}
+  template <class GC_Tp1> GC_ATTR_EXPLICIT
+    traceable_allocator(const traceable_allocator<GC_Tp1>&) throw() {}
 # endif
   ~traceable_allocator() throw() {}
 
@@ -282,11 +299,14 @@ public:
   // GC_n is permitted to be 0.  The C++ standard says nothing about what
   // the return value is when GC_n == 0.
   GC_Tp* allocate(size_type GC_n, const void* = 0) {
-    return static_cast<GC_Tp*>(GC_MALLOC_UNCOLLECTABLE(GC_n * sizeof(GC_Tp)));
+    void * obj = GC_MALLOC_UNCOLLECTABLE(GC_n * sizeof(GC_Tp));
+    if (0 == obj)
+      GC_ALLOCATOR_THROW_OR_ABORT();
+    return static_cast<GC_Tp*>(obj);
   }
 
   // __p is not permitted to be a null pointer.
-  void deallocate(pointer __p, size_type GC_ATTR_UNUSED GC_n)
+  void deallocate(pointer __p, size_type /* GC_n */)
     { GC_FREE(__p); }
 
   size_type max_size() const throw()

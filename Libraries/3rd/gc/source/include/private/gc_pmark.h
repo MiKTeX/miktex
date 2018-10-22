@@ -22,12 +22,18 @@
 #ifndef GC_PMARK_H
 #define GC_PMARK_H
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) && !defined(GC_PRIVATE_H)
 # include "config.h"
 #endif
 
 #ifndef GC_BUILD
 # define GC_BUILD
+#endif
+
+#if (defined(__linux__) || defined(__GLIBC__) || defined(__GNU__)) \
+    && !defined(_GNU_SOURCE) && defined(GC_PTHREADS) \
+    && !defined(GC_NO_PTHREAD_SIGMASK)
+# define _GNU_SOURCE 1
 #endif
 
 #if defined(KEEP_BACK_PTRS) || defined(PRINT_BLACK_LIST)
@@ -130,57 +136,54 @@ GC_INNER mse * GC_signal_mark_stack_overflow(mse *msp);
 
 /* Push the contents of current onto the mark stack if it is a valid    */
 /* ptr to a currently unmarked object.  Mark it.                        */
-/* If we assumed a standard-conforming compiler, we could probably      */
-/* generate the exit_label transparently.                               */
-#define PUSH_CONTENTS(current, mark_stack_top, mark_stack_limit, \
-                      source, exit_label) \
+#define PUSH_CONTENTS(current, mark_stack_top, mark_stack_limit, source) \
   do { \
     hdr * my_hhdr; \
-    HC_GET_HDR(current, my_hhdr, source, exit_label); \
+    HC_GET_HDR(current, my_hhdr, source); /* contains "break" */ \
     PUSH_CONTENTS_HDR(current, mark_stack_top, mark_stack_limit, \
-                  source, exit_label, my_hhdr, TRUE); \
-  exit_label: ; \
+                      source, my_hhdr, TRUE); \
   } while (0)
 
-/* Set mark bit, exit if it was already set.    */
+/* Set mark bit, exit (using "break" statement) if it is already set.   */
 #ifdef USE_MARK_BYTES
   /* There is a race here, and we may set                               */
   /* the bit twice in the concurrent case.  This can result in the      */
   /* object being pushed twice.  But that's only a performance issue.   */
-# define SET_MARK_BIT_EXIT_IF_SET(hhdr,bit_no,exit_label) \
-    do { \
+# define SET_MARK_BIT_EXIT_IF_SET(hhdr, bit_no) \
+    { /* cannot use do-while(0) here */ \
         char * mark_byte_addr = (char *)hhdr -> hb_marks + (bit_no); \
-        if (*mark_byte_addr) goto exit_label; \
+        if (*mark_byte_addr != 0) break; /* go to the enclosing loop end */ \
         *mark_byte_addr = 1; \
-    } while (0)
+    }
 #else
 # ifdef PARALLEL_MARK
     /* This is used only if we explicitly set USE_MARK_BITS.            */
     /* The following may fail to exit even if the bit was already set.  */
     /* For our uses, that's benign:                                     */
-#   define OR_WORD_EXIT_IF_SET(addr, bits, exit_label) \
-        do { \
+#   define OR_WORD_EXIT_IF_SET(addr, bits) \
+        { /* cannot use do-while(0) here */ \
           if (!(*(addr) & (bits))) { \
             AO_or((volatile AO_t *)(addr), (AO_t)(bits)); \
           } else { \
-            goto exit_label; \
+            break; /* go to the enclosing loop end */ \
           } \
-        } while (0)
+        }
 # else
-#   define OR_WORD_EXIT_IF_SET(addr, bits, exit_label) \
-        do { \
+#   define OR_WORD_EXIT_IF_SET(addr, bits) \
+        { /* cannot use do-while(0) here */ \
            word old = *(addr); \
            word my_bits = (bits); \
-           if (old & my_bits) goto exit_label; \
-           *(addr) = (old | my_bits); \
-        } while (0)
+           if ((old & my_bits) != 0) \
+             break; /* go to the enclosing loop end */ \
+           *(addr) = old | my_bits; \
+        }
 # endif /* !PARALLEL_MARK */
-# define SET_MARK_BIT_EXIT_IF_SET(hhdr,bit_no,exit_label) \
-    do { \
+# define SET_MARK_BIT_EXIT_IF_SET(hhdr, bit_no) \
+    { /* cannot use do-while(0) here */ \
         word * mark_word_addr = hhdr -> hb_marks + divWORDSZ(bit_no); \
-        OR_WORD_EXIT_IF_SET(mark_word_addr, (word)1 << modWORDSZ(bit_no), \
-                            exit_label); \
-    } while (0)
+        OR_WORD_EXIT_IF_SET(mark_word_addr, \
+                (word)1 << modWORDSZ(bit_no)); /* contains "break" */ \
+    }
 #endif /* !USE_MARK_BYTES */
 
 #ifdef PARALLEL_MARK
@@ -228,7 +231,7 @@ GC_INNER mse * GC_signal_mark_stack_overflow(mse *msp);
 /* interior of a large object.                                          */
 #ifdef MARK_BIT_PER_GRANULE
 # define PUSH_CONTENTS_HDR(current, mark_stack_top, mark_stack_limit, \
-                           source, exit_label, hhdr, do_offset_check) \
+                           source, hhdr, do_offset_check) \
   do { \
     size_t displ = HBLKDISPL(current); /* Displacement in block; in bytes. */\
     /* displ is always within range.  If current doesn't point to       */ \
@@ -240,7 +243,7 @@ GC_INNER mse * GC_signal_mark_stack_overflow(mse *msp);
     ptr_t base = current; \
     /* The following always fails for large block references. */ \
     if (EXPECT((gran_offset | byte_offset) != 0, FALSE))  { \
-        if (hhdr -> hb_large_block) { \
+        if ((hhdr -> hb_flags & LARGE_BLOCK) != 0) { \
           /* gran_offset is bogus.      */ \
           size_t obj_displ; \
           base = (ptr_t)(hhdr -> hb_block); \
@@ -252,7 +255,7 @@ GC_INNER mse * GC_signal_mark_stack_overflow(mse *msp);
           } else { \
             if (do_offset_check && !GC_valid_offsets[obj_displ]) { \
               GC_ADD_TO_BLACK_LIST_NORMAL(current, source); \
-              goto exit_label; \
+              break; /* go to the end of PUSH_CONTENTS_HDR */ \
             } \
           } \
           gran_displ = 0; \
@@ -264,7 +267,7 @@ GC_INNER mse * GC_signal_mark_stack_overflow(mse *msp);
                              + byte_offset; \
           if (do_offset_check && !GC_valid_offsets[obj_displ]) { \
             GC_ADD_TO_BLACK_LIST_NORMAL(current, source); \
-            goto exit_label; \
+            break; \
           } \
           gran_displ -= gran_offset; \
           base -= obj_displ; \
@@ -274,31 +277,27 @@ GC_INNER mse * GC_signal_mark_stack_overflow(mse *msp);
     GC_ASSERT(gran_displ % BYTES_TO_GRANULES(hhdr -> hb_sz) == 0); \
     TRACE(source, GC_log_printf("GC #%u: passed validity tests\n", \
                                 (unsigned)GC_gc_no)); \
-    SET_MARK_BIT_EXIT_IF_SET(hhdr, gran_displ, exit_label); \
+    SET_MARK_BIT_EXIT_IF_SET(hhdr, gran_displ); \
     TRACE(source, GC_log_printf("GC #%u: previously unmarked\n", \
                                 (unsigned)GC_gc_no)); \
     TRACE_TARGET(base, \
         GC_log_printf("GC #%u: marking %p from %p instead\n", \
-                      (unsigned)GC_gc_no, base, source)); \
+                      (unsigned)GC_gc_no, (void *)base, (void *)(source))); \
     INCR_MARKS(hhdr); \
-    GC_STORE_BACK_PTR((ptr_t)source, base); \
+    GC_STORE_BACK_PTR((ptr_t)(source), base); \
     PUSH_OBJ(base, hhdr, mark_stack_top, mark_stack_limit); \
   } while (0)
 #endif /* MARK_BIT_PER_GRANULE */
 
 #ifdef MARK_BIT_PER_OBJ
 # define PUSH_CONTENTS_HDR(current, mark_stack_top, mark_stack_limit, \
-                           source, exit_label, hhdr, do_offset_check) \
+                           source, hhdr, do_offset_check) \
   do { \
     size_t displ = HBLKDISPL(current); /* Displacement in block; in bytes. */\
-    unsigned32 low_prod, high_prod; \
+    unsigned32 high_prod; \
     unsigned32 inv_sz = hhdr -> hb_inv_sz; \
-    ptr_t base = current; \
-    LONG_MULT(high_prod, low_prod, displ, inv_sz); \
-    /* product is > and within sz_in_bytes of displ * sz_in_bytes * 2**32 */ \
-    if (EXPECT(low_prod >> 16 != 0, FALSE))  { \
-      /* FIXME: fails if offset is a multiple of HBLKSIZE which becomes 0 */ \
-        if (inv_sz == LARGE_INV_SZ) { \
+    ptr_t base; \
+    if (EXPECT(inv_sz == LARGE_INV_SZ, FALSE)) { \
           size_t obj_displ; \
           base = (ptr_t)(hhdr -> hb_block); \
           obj_displ = (ptr_t)(current) - base; \
@@ -309,19 +308,25 @@ GC_INNER mse * GC_signal_mark_stack_overflow(mse *msp);
           } else { \
             if (do_offset_check && !GC_valid_offsets[obj_displ]) { \
               GC_ADD_TO_BLACK_LIST_NORMAL(current, source); \
-              goto exit_label; \
+              break; /* go to the end of PUSH_CONTENTS_HDR */ \
             } \
           } \
           GC_ASSERT(hhdr -> hb_sz > HBLKSIZE || \
                     hhdr -> hb_block == HBLKPTR(current)); \
-          GC_ASSERT((word)hhdr->hb_block < (word)(current)); \
-        } else { \
+          GC_ASSERT((word)(hhdr)->hb_block <= (word)(current)); \
+          high_prod = 0; \
+    } else { \
+        unsigned32 low_prod; \
+        base = (ptr_t)(current); \
+        LONG_MULT(high_prod, low_prod, (unsigned32)displ, inv_sz); \
+        if ((low_prod >> 16) != 0) { \
+          size_t obj_displ; \
           /* Accurate enough if HBLKSIZE <= 2**15.      */ \
           GC_STATIC_ASSERT(HBLKSIZE <= (1 << 15)); \
-          size_t obj_displ = (((low_prod >> 16) + 1) * (hhdr->hb_sz)) >> 16; \
+          obj_displ = (((low_prod >> 16) + 1) * hhdr->hb_sz) >> 16; \
           if (do_offset_check && !GC_valid_offsets[obj_displ]) { \
             GC_ADD_TO_BLACK_LIST_NORMAL(current, source); \
-            goto exit_label; \
+            break; \
           } \
           base -= obj_displ; \
         } \
@@ -331,14 +336,14 @@ GC_INNER mse * GC_signal_mark_stack_overflow(mse *msp);
     GC_ASSERT(high_prod <= HBLK_OBJS(hhdr -> hb_sz)); \
     TRACE(source, GC_log_printf("GC #%u: passed validity tests\n", \
                                 (unsigned)GC_gc_no)); \
-    SET_MARK_BIT_EXIT_IF_SET(hhdr, high_prod, exit_label); \
+    SET_MARK_BIT_EXIT_IF_SET(hhdr, high_prod); \
     TRACE(source, GC_log_printf("GC #%u: previously unmarked\n", \
                                 (unsigned)GC_gc_no)); \
     TRACE_TARGET(base, \
         GC_log_printf("GC #%u: marking %p from %p instead\n", \
-                      (unsigned)GC_gc_no, base, source)); \
+                      (unsigned)GC_gc_no, (void *)base, (void *)(source))); \
     INCR_MARKS(hhdr); \
-    GC_STORE_BACK_PTR((ptr_t)source, base); \
+    GC_STORE_BACK_PTR((ptr_t)(source), base); \
     PUSH_OBJ(base, hhdr, mark_stack_top, mark_stack_limit); \
   } while (0)
 #endif /* MARK_BIT_PER_OBJ */
@@ -359,7 +364,7 @@ GC_INNER mse * GC_signal_mark_stack_overflow(mse *msp);
  * if the mark stack overflows.
  */
 
-#if NEED_FIXUP_POINTER
+#ifdef NEED_FIXUP_POINTER
     /* Try both the raw version and the fixed up one.   */
 # define GC_PUSH_ONE_STACK(p, source) \
     do { \
@@ -439,34 +444,34 @@ typedef int mark_state_t;       /* Current state of marking, as follows:*/
                                 /* grungy if it was marked dirty in the */
                                 /* last set of bits we retrieved.       */
 
-                                /* Invariant I: all roots and marked    */
+                                /* Invariant "I": all roots and marked  */
                                 /* objects p are either dirty, or point */
                                 /* to objects q that are either marked  */
                                 /* or a pointer to q appears in a range */
                                 /* on the mark stack.                   */
 
-#define MS_NONE 0               /* No marking in progress. I holds.     */
+#define MS_NONE 0               /* No marking in progress. "I" holds.   */
                                 /* Mark stack is empty.                 */
 
 #define MS_PUSH_RESCUERS 1      /* Rescuing objects are currently       */
-                                /* being pushed.  I holds, except       */
+                                /* being pushed.  "I" holds, except     */
                                 /* that grungy roots may point to       */
                                 /* unmarked objects, as may marked      */
                                 /* grungy objects above scan_ptr.       */
 
-#define MS_PUSH_UNCOLLECTABLE 2 /* I holds, except that marked          */
+#define MS_PUSH_UNCOLLECTABLE 2 /* "I" holds, except that marked        */
                                 /* uncollectible objects above scan_ptr */
                                 /* may point to unmarked objects.       */
                                 /* Roots may point to unmarked objects  */
 
-#define MS_ROOTS_PUSHED 3       /* I holds, mark stack may be nonempty  */
+#define MS_ROOTS_PUSHED 3       /* "I" holds, mark stack may be nonempty. */
 
-#define MS_PARTIALLY_INVALID 4  /* I may not hold, e.g. because of M.S. */
-                                /* overflow.  However marked heap       */
-                                /* objects below scan_ptr point to      */
-                                /* marked or stacked objects.           */
+#define MS_PARTIALLY_INVALID 4  /* "I" may not hold, e.g. because of    */
+                                /* the mark stack overflow.  However    */
+                                /* marked heap objects below scan_ptr   */
+                                /* point to marked or stacked objects.  */
 
-#define MS_INVALID 5            /* I may not hold.                      */
+#define MS_INVALID 5            /* "I" may not hold.                    */
 
 GC_EXTERN mark_state_t GC_mark_state;
 

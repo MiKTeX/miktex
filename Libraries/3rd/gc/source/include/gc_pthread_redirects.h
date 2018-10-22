@@ -33,15 +33,23 @@
 #ifndef GC_PTHREAD_REDIRECTS_ONLY
 # include <pthread.h>
 
+# ifndef GC_SUSPEND_THREAD_ID
+#   define GC_SUSPEND_THREAD_ID pthread_t
+# endif
+
 # ifndef GC_NO_DLOPEN
 #   include <dlfcn.h>
     GC_API void *GC_dlopen(const char * /* path */, int /* mode */);
 # endif /* !GC_NO_DLOPEN */
 
 # ifndef GC_NO_PTHREAD_SIGMASK
-#   include <signal.h>
-    GC_API int GC_pthread_sigmask(int /* how */, const sigset_t *,
-                                  sigset_t * /* oset */);
+#   include <signal.h>  /* needed anyway for proper redirection */
+#   if defined(GC_PTHREAD_SIGMASK_NEEDED) \
+        || defined(_BSD_SOURCE) || defined(_GNU_SOURCE) \
+        || (_POSIX_C_SOURCE >= 199506L) || (_XOPEN_SOURCE >= 500)
+      GC_API int GC_pthread_sigmask(int /* how */, const sigset_t *,
+                                    sigset_t * /* oset */);
+#   endif
 # endif /* !GC_NO_PTHREAD_SIGMASK */
 
 # ifndef GC_PTHREAD_CREATE_CONST
@@ -59,7 +67,7 @@
     GC_API int GC_pthread_cancel(pthread_t);
 # endif
 
-# if defined(GC_PTHREAD_EXIT_ATTRIBUTE) && !defined(GC_PTHREAD_EXIT_DECLARED)
+# if defined(GC_HAVE_PTHREAD_EXIT) && !defined(GC_PTHREAD_EXIT_DECLARED)
 #   define GC_PTHREAD_EXIT_DECLARED
     GC_API void GC_pthread_exit(void *) GC_PTHREAD_EXIT_ATTRIBUTE;
 # endif
@@ -88,7 +96,7 @@
 #   undef pthread_cancel
 #   define pthread_cancel GC_pthread_cancel
 # endif
-# ifdef GC_PTHREAD_EXIT_ATTRIBUTE
+# ifdef GC_HAVE_PTHREAD_EXIT
 #   undef pthread_exit
 #   define pthread_exit GC_pthread_exit
 # endif

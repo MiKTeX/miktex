@@ -3,9 +3,6 @@
 /* Define to recognise all pointers to the interior of objects. */
 #undef ALL_INTERIOR_POINTERS
 
-/* Define to enable atomic uncollectible allocation. */
-#undef ATOMIC_UNCOLLECTABLE
-
 /* See doc/README.macros. */
 #undef DARWIN_DONT_PARSE_STACK
 
@@ -30,6 +27,9 @@
 /* Define to enable internal debug assertions. */
 #undef GC_ASSERTIONS
 
+/* Define to enable atomic uncollectible allocation. */
+#undef GC_ATOMIC_UNCOLLECTABLE
+
 /* Define to support Darwin pthreads. */
 #undef GC_DARWIN_THREADS
 
@@ -39,6 +39,9 @@
 /* Define to build dynamic libraries with only API symbols exposed. */
 #undef GC_DLL
 
+/* Define to turn on GC_suspend_thread support. */
+#undef GC_ENABLE_SUSPEND_THREAD
+
 /* Define to support FreeBSD pthreads. */
 #undef GC_FREEBSD_THREADS
 
@@ -47,6 +50,9 @@
 
 /* Define to support GNU pthreads. */
 #undef GC_GNU_THREADS
+
+/* Define to support Haiku pthreads. */
+#undef GC_HAIKU_THREADS
 
 /* Define if backtrace information is supported. */
 #undef GC_HAVE_BUILTIN_BACKTRACE
@@ -62,6 +68,9 @@
 
 /* Define to support pthreads on Linux. */
 #undef GC_LINUX_THREADS
+
+/* Missing execinfo.h header. */
+#undef GC_MISSING_EXECINFO_H
 
 /* Define to support NetBSD pthreads. */
 #undef GC_NETBSD_THREADS
@@ -102,7 +111,7 @@
 /* The minor version number of this GC release. */
 #undef GC_VERSION_MINOR
 
-/* Define to support pthreads-win32. */
+/* Define to support pthreads-win32 or winpthreads. */
 #undef GC_WIN32_PTHREADS
 
 /* Define to support Win32 threads. */
@@ -116,6 +125,15 @@
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
+
+/* Define if 'dl_iterate_phdr' function is available. */
+#undef HAVE_DL_ITERATE_PHDR
+
+/* Define to 1 if you have the <execinfo.h> header file. */
+#undef HAVE_EXECINFO_H
+
+/* Define to 1 if you have the `getcontext' function. */
+#undef HAVE_GETCONTEXT
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -170,6 +188,9 @@
 
 /* Define to make the collector not allocate executable memory by default. */
 #undef NO_EXECUTE_PERMISSION
+
+/* Missing getcontext function. */
+#undef NO_GETCONTEXT
 
 /* Prohibit installation of pthread_atfork() handlers. */
 #undef NO_HANDLE_FORK
