@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -128,7 +128,7 @@ set(liblzma_sources
 
   # COND_FILTER_LZMA1 AND COND_SMALL
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/liblzma/lzma/fastpos_table.c
-	
+        
   # COND_FILTER_LZMA1 AND COND_DECODER_LZMA1
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/liblzma/lzma/lzma_decoder.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/liblzma/lzma/lzma_decoder.h
