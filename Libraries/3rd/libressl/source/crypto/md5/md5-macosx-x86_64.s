@@ -665,5 +665,5 @@ L$end:
 	movq	32(%rsp),%rbp
 	addq	$40,%rsp
 L$epilogue:
-	.byte	0xf3,0xc3
+	retq
 

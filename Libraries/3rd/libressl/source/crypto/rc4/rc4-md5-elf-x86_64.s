@@ -1256,7 +1256,7 @@ rc4_md5_enc:
 	leaq	88(%rsp),%rsp
 .Lepilogue:
 .Labort:
-	.byte	0xf3,0xc3
+	retq
 .size	rc4_md5_enc,.-rc4_md5_enc
 #if defined(HAVE_GNU_STACK)
 .section .note.GNU-stack,"",%progbits

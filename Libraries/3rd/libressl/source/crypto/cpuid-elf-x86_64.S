@@ -20,7 +20,7 @@ OPENSSL_atomic_add:
 	jne	.Lspin
 	movl	%r8d,%eax
 .byte	0x48,0x98	
-	.byte	0xf3,0xc3
+	retq
 .size	OPENSSL_atomic_add,.-OPENSSL_atomic_add
 
 .globl	OPENSSL_ia32_cpuid
@@ -145,7 +145,7 @@ OPENSSL_ia32_cpuid:
 	movl	%r10d,%eax
 	movq	%r8,%rbx
 	orq	%r9,%rax
-	.byte	0xf3,0xc3
+	retq
 .size	OPENSSL_ia32_cpuid,.-OPENSSL_ia32_cpuid
 .globl	OPENSSL_wipe_cpu
 .type	OPENSSL_wipe_cpu,@function
@@ -176,7 +176,7 @@ OPENSSL_wipe_cpu:
 	xorq	%r10,%r10
 	xorq	%r11,%r11
 	leaq	8(%rsp),%rax
-	.byte	0xf3,0xc3
+	retq
 .size	OPENSSL_wipe_cpu,.-OPENSSL_wipe_cpu
 #if defined(HAVE_GNU_STACK)
 .section .note.GNU-stack,"",%progbits

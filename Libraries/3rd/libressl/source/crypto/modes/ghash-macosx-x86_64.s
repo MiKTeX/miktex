@@ -87,7 +87,7 @@ L$break1:
 	movq	16(%rsp),%rbx
 	leaq	24(%rsp),%rsp
 L$gmult_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 .globl	_gcm_ghash_4bit
 
@@ -653,7 +653,7 @@ L$outer_loop:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 L$ghash_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 .globl	_gcm_init_clmul
 
@@ -718,7 +718,7 @@ _gcm_init_clmul:
 	pxor	%xmm4,%xmm0
 	movdqu	%xmm2,(%rdi)
 	movdqu	%xmm0,16(%rdi)
-	.byte	0xf3,0xc3
+	retq
 
 .globl	_gcm_gmult_clmul
 
@@ -768,7 +768,7 @@ _gcm_gmult_clmul:
 	pxor	%xmm4,%xmm0
 .byte	102,15,56,0,197
 	movdqu	%xmm0,(%rdi)
-	.byte	0xf3,0xc3
+	retq
 
 .globl	_gcm_ghash_clmul
 
@@ -973,7 +973,7 @@ L$odd_tail:
 L$done:
 .byte	102,15,56,0,197
 	movdqu	%xmm0,(%rdi)
-	.byte	0xf3,0xc3
+	retq
 L$SEH_end_gcm_ghash_clmul:
 
 .p2align	6

@@ -194,7 +194,7 @@ _mul_1x1:
 	xorq	%rdi,%rdx
 
 	addq	$128+8,%rsp
-	.byte	0xf3,0xc3
+	retq
 L$end_mul_1x1:
 
 
@@ -227,7 +227,7 @@ _bn_GF2m_mul_2x2:
 	pxor	%xmm5,%xmm0
 	movdqu	%xmm2,0(%rdi)
 	movdqu	%xmm0,16(%rdi)
-	.byte	0xf3,0xc3
+	retq
 
 .p2align	4
 L$vanilla_mul_2x2:
@@ -286,7 +286,7 @@ L$body_mul_2x2:
 	movq	104(%rsp),%rbp
 	movq	112(%rsp),%rbx
 	leaq	136(%rsp),%rsp
-	.byte	0xf3,0xc3
+	retq
 L$end_mul_2x2:
 
 .byte	71,70,40,50,94,109,41,32,77,117,108,116,105,112,108,105,99,97,116,105,111,110,32,102,111,114,32,120,56,54,95,54,52,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,60,97,112,112,114,111,64,111,112,101,110,115,115,108,46,111,114,103,62,0

@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_lib.c,v 1.37 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: bn_lib.c,v 1.45 2018/07/23 18:14:32 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -220,10 +220,8 @@ BN_clear_free(BIGNUM *a)
 	if (a == NULL)
 		return;
 	bn_check_top(a);
-	if (a->d != NULL && !(BN_get_flags(a, BN_FLG_STATIC_DATA))) {
-		explicit_bzero(a->d, a->dmax * sizeof(a->d[0]));
-		free(a->d);
-	}
+	if (a->d != NULL && !(BN_get_flags(a, BN_FLG_STATIC_DATA)))
+		freezero(a->d, a->dmax * sizeof(a->d[0]));
 	i = BN_get_flags(a, BN_FLG_MALLOCED);
 	explicit_bzero(a, sizeof(BIGNUM));
 	if (i)
@@ -393,10 +391,8 @@ bn_expand2(BIGNUM *b, int words)
 		BN_ULONG *a = bn_expand_internal(b, words);
 		if (!a)
 			return NULL;
-		if (b->d) {
-			explicit_bzero(b->d, b->dmax * sizeof(b->d[0]));
-			free(b->d);
-		}
+		if (b->d)
+			freezero(b->d, b->dmax * sizeof(b->d[0]));
 		b->d = a;
 		b->dmax = words;
 	}
@@ -533,7 +529,7 @@ BN_clear(BIGNUM *a)
 {
 	bn_check_top(a);
 	if (a->d != NULL)
-		memset(a->d, 0, a->dmax * sizeof(a->d[0]));
+		explicit_bzero(a->d, a->dmax * sizeof(a->d[0]));
 	a->top = 0;
 	a->neg = 0;
 }
@@ -841,8 +837,10 @@ bn_cmp_part_words(const BN_ULONG *a, const BN_ULONG *b, int cl, int dl)
 
 /*
  * Constant-time conditional swap of a and b.
- * a and b are swapped if condition is not 0.  The code assumes that at most one bit of condition is set.
- * nwords is the number of words to swap.  The code assumes that at least nwords are allocated in both a and b,
+ * a and b are swapped if condition is not 0.
+ * The code assumes that at most one bit of condition is set.
+ * nwords is the number of words to swap.
+ * The code assumes that at least nwords are allocated in both a and b,
  * and that no more than nwords are used by either a or b.
  * a and b cannot be the same number
  */
@@ -891,4 +889,80 @@ BN_consttime_swap(BN_ULONG condition, BIGNUM *a, BIGNUM *b, int nwords)
 		BN_CONSTTIME_SWAP(0);
 	}
 #undef BN_CONSTTIME_SWAP
+}
+
+/*
+ * Constant-time conditional swap of a and b.
+ * a and b are swapped if condition is not 0.
+ * nwords is the number of words to swap.
+ */
+int
+BN_swap_ct(BN_ULONG condition, BIGNUM *a, BIGNUM *b, size_t nwords)
+{
+	BN_ULONG t;
+	int i, words;
+
+	if (a == b)
+		return 1;
+	if (nwords > INT_MAX)
+		return 0;
+	words = (int)nwords;
+	if (bn_wexpand(a, words) == NULL || bn_wexpand(b, words) == NULL)
+		return 0;
+	if (a->top > words || b->top > words) {
+		BNerror(BN_R_INVALID_LENGTH);
+		return 0;
+	}
+
+	/* Set condition to 0 (if it was zero) or all 1s otherwise. */
+	condition = ((~condition & (condition - 1)) >> (BN_BITS2 - 1)) - 1;
+
+	/* swap top field */
+	t = (a->top ^ b->top) & condition;
+	a->top ^= t;
+	b->top ^= t;
+
+	/* swap neg field */
+	t = (a->neg ^ b->neg) & condition;
+	a->neg ^= t;
+	b->neg ^= t;
+
+	/* swap BN_FLG_CONSTTIME from flag field */
+	t = ((a->flags ^ b->flags) & BN_FLG_CONSTTIME) & condition;
+	a->flags ^= t;
+	b->flags ^= t;
+
+	/* swap the data */
+	for (i = 0; i < words; i++) {
+		t = (a->d[i] ^ b->d[i]) & condition;
+		a->d[i] ^= t;
+		b->d[i] ^= t;
+	}
+
+	return 1;
+}
+
+BN_GENCB *
+BN_GENCB_new(void)
+{
+	BN_GENCB *cb;
+
+	if ((cb = calloc(1, sizeof(*cb))) == NULL)
+		return NULL;
+
+	return cb;
+}
+
+void
+BN_GENCB_free(BN_GENCB *cb)
+{
+	if (cb == NULL)
+		return;
+	free(cb);
+}
+
+void *
+BN_GENCB_get_arg(BN_GENCB *cb)
+{
+	return cb->arg;
 }

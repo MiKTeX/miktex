@@ -1288,7 +1288,7 @@ sha1_block_data_order:
 	movq	24(%rsi),%rbx
 	leaq	32(%rsi),%rsp
 .Lepilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	sha1_block_data_order,.-sha1_block_data_order
 .type	sha1_block_data_order_ssse3,@function
 .align	16
@@ -2475,7 +2475,7 @@ _ssse3_shortcut:
 	movq	16(%rsi),%rbx
 	leaq	24(%rsi),%rsp
 .Lepilogue_ssse3:
-	.byte	0xf3,0xc3
+	retq
 .size	sha1_block_data_order_ssse3,.-sha1_block_data_order_ssse3
 .align	64
 K_XX_XX:

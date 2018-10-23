@@ -585,7 +585,7 @@ whirlpool_block:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Lepilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	whirlpool_block,.-whirlpool_block
 
 .align	64

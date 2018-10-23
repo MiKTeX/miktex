@@ -152,7 +152,7 @@ _x86_64_AES_encrypt:
 	xorl	%r11d,%ebx
 	xorl	%r12d,%ecx
 	xorl	%r8d,%edx
-.byte	0xf3,0xc3			
+	retq
 .size	_x86_64_AES_encrypt,.-_x86_64_AES_encrypt
 .type	_x86_64_AES_encrypt_compact,@function
 .align	16
@@ -327,7 +327,7 @@ _x86_64_AES_encrypt_compact:
 	xorl	4(%r15),%ebx
 	xorl	8(%r15),%ecx
 	xorl	12(%r15),%edx
-.byte	0xf3,0xc3			
+	retq
 .size	_x86_64_AES_encrypt_compact,.-_x86_64_AES_encrypt_compact
 .globl	AES_encrypt
 .type	AES_encrypt,@function
@@ -394,7 +394,7 @@ AES_encrypt:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Lenc_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	AES_encrypt,.-AES_encrypt
 .type	_x86_64_AES_decrypt,@function
 .align	16
@@ -549,7 +549,7 @@ _x86_64_AES_decrypt:
 	xorl	%r11d,%ebx
 	xorl	%r12d,%ecx
 	xorl	%r8d,%edx
-.byte	0xf3,0xc3			
+	retq
 .size	_x86_64_AES_decrypt,.-_x86_64_AES_decrypt
 .type	_x86_64_AES_decrypt_compact,@function
 .align	16
@@ -775,7 +775,7 @@ _x86_64_AES_decrypt_compact:
 	xorl	4(%r15),%ebx
 	xorl	8(%r15),%ecx
 	xorl	12(%r15),%edx
-.byte	0xf3,0xc3			
+	retq
 .size	_x86_64_AES_decrypt_compact,.-_x86_64_AES_decrypt_compact
 .globl	AES_decrypt
 .type	AES_decrypt,@function
@@ -844,7 +844,7 @@ AES_decrypt:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Ldec_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	AES_decrypt,.-AES_decrypt
 .globl	AES_set_encrypt_key
 .type	AES_set_encrypt_key,@function
@@ -869,7 +869,7 @@ AES_set_encrypt_key:
 	movq	48(%rsp),%rbx
 	addq	$56,%rsp
 .Lenc_key_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	AES_set_encrypt_key,.-AES_set_encrypt_key
 
 .type	_x86_64_AES_set_encrypt_key,@function
@@ -1109,7 +1109,7 @@ _x86_64_AES_set_encrypt_key:
 .Lbadpointer:
 	movq	$-1,%rax
 .Lexit:
-.byte	0xf3,0xc3			
+	retq
 .size	_x86_64_AES_set_encrypt_key,.-_x86_64_AES_set_encrypt_key
 .globl	AES_set_decrypt_key
 .type	AES_set_decrypt_key,@function
@@ -1296,7 +1296,7 @@ AES_set_decrypt_key:
 	movq	48(%rsp),%rbx
 	addq	$56,%rsp
 .Ldec_key_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	AES_set_decrypt_key,.-AES_set_decrypt_key
 .globl	AES_cbc_encrypt
 .type	AES_cbc_encrypt,@function
@@ -1754,7 +1754,7 @@ AES_cbc_encrypt:
 .Lcbc_popfq:
 	popfq
 .Lcbc_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	AES_cbc_encrypt,.-AES_cbc_encrypt
 .align	64
 .LAES_Te:

@@ -21,7 +21,7 @@ L$spin:	leaq	(%rsi,%rax,1),%r8
 	jne	L$spin
 	movl	%r8d,%eax
 .byte	0x48,0x98	
-	.byte	0xf3,0xc3
+	retq
 
 
 .globl	_OPENSSL_ia32_cpuid
@@ -146,7 +146,7 @@ L$done:
 	movl	%r10d,%eax
 	movq	%r8,%rbx
 	orq	%r9,%rax
-	.byte	0xf3,0xc3
+	retq
 
 .globl	_OPENSSL_wipe_cpu
 
@@ -177,5 +177,5 @@ _OPENSSL_wipe_cpu:
 	xorq	%r10,%r10
 	xorq	%r11,%r11
 	leaq	8(%rsp),%rax
-	.byte	0xf3,0xc3
+	retq
 

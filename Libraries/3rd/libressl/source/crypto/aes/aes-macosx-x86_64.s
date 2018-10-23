@@ -152,7 +152,7 @@ L$enc_loop:
 	xorl	%r11d,%ebx
 	xorl	%r12d,%ecx
 	xorl	%r8d,%edx
-.byte	0xf3,0xc3			
+	retq
 
 
 .p2align	4
@@ -327,7 +327,7 @@ L$enc_compact_done:
 	xorl	4(%r15),%ebx
 	xorl	8(%r15),%ecx
 	xorl	12(%r15),%edx
-.byte	0xf3,0xc3			
+	retq
 
 .globl	_AES_encrypt
 
@@ -394,7 +394,7 @@ L$enc_prologue:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 L$enc_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 .p2align	4
@@ -549,7 +549,7 @@ L$dec_loop:
 	xorl	%r11d,%ebx
 	xorl	%r12d,%ecx
 	xorl	%r8d,%edx
-.byte	0xf3,0xc3			
+	retq
 
 
 .p2align	4
@@ -775,7 +775,7 @@ L$dec_compact_done:
 	xorl	4(%r15),%ebx
 	xorl	8(%r15),%ecx
 	xorl	12(%r15),%edx
-.byte	0xf3,0xc3			
+	retq
 
 .globl	_AES_decrypt
 
@@ -844,7 +844,7 @@ L$dec_prologue:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 L$dec_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 .globl	_AES_set_encrypt_key
 
@@ -869,7 +869,7 @@ L$enc_key_prologue:
 	movq	48(%rsp),%rbx
 	addq	$56,%rsp
 L$enc_key_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 
@@ -1109,7 +1109,7 @@ L$14break:
 L$badpointer:
 	movq	$-1,%rax
 L$exit:
-.byte	0xf3,0xc3			
+	retq
 
 .globl	_AES_set_decrypt_key
 
@@ -1296,7 +1296,7 @@ L$abort:
 	movq	48(%rsp),%rbx
 	addq	$56,%rsp
 L$dec_key_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 .globl	_AES_cbc_encrypt
 
@@ -1754,7 +1754,7 @@ L$cbc_exit:
 L$cbc_popfq:
 	popfq
 L$cbc_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 .p2align	6
 L$AES_Te:

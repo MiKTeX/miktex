@@ -1,4 +1,4 @@
-/* $OpenBSD: pem_lib.c,v 1.44 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: pem_lib.c,v 1.48 2018/08/24 19:48:39 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -227,8 +227,7 @@ check_pem(const char *nm, const char *name)
 				else
 					r = 0;
 #ifndef OPENSSL_NO_ENGINE
-				if (e)
-					ENGINE_finish(e);
+				ENGINE_finish(e);
 #endif
 				return r;
 			}
@@ -425,10 +424,7 @@ err:
 	explicit_bzero(iv, sizeof(iv));
 	explicit_bzero((char *)&ctx, sizeof(ctx));
 	explicit_bzero(buf, PEM_BUFSIZE);
-	if (data != NULL) {
-		explicit_bzero(data, (unsigned int)dsize);
-		free(data);
-	}
+	freezero(data, (unsigned int)dsize);
 	return (ret);
 }
 
@@ -568,7 +564,8 @@ load_iv(char **fromp, unsigned char *to, int num)
 }
 
 int
-PEM_write(FILE *fp, char *name, char *header, unsigned char *data, long len)
+PEM_write(FILE *fp, const char *name, const char *header,
+    const unsigned char *data, long len)
 {
 	BIO *b;
 	int ret;
@@ -584,8 +581,8 @@ PEM_write(FILE *fp, char *name, char *header, unsigned char *data, long len)
 }
 
 int
-PEM_write_bio(BIO *bp, const char *name, char *header, unsigned char *data,
-    long len)
+PEM_write_bio(BIO *bp, const char *name, const char *header,
+    const unsigned char *data, long len)
 {
 	int nlen, n, i, j, outl;
 	unsigned char *buf = NULL;
@@ -616,7 +613,8 @@ PEM_write_bio(BIO *bp, const char *name, char *header, unsigned char *data,
 	i = j = 0;
 	while (len > 0) {
 		n = (int)((len > (PEM_BUFSIZE * 5)) ? (PEM_BUFSIZE * 5) : len);
-		EVP_EncodeUpdate(&ctx, buf, &outl, &(data[j]), n);
+		if (!EVP_EncodeUpdate(&ctx, buf, &outl, &(data[j]), n))
+			goto err;
 		if ((outl) && (BIO_write(bp, (char *)buf, outl) != outl))
 			goto err;
 		i += outl;
@@ -626,8 +624,7 @@ PEM_write_bio(BIO *bp, const char *name, char *header, unsigned char *data,
 	EVP_EncodeFinal(&ctx, buf, &outl);
 	if ((outl > 0) && (BIO_write(bp, (char *)buf, outl) != outl))
 		goto err;
-	explicit_bzero(buf, PEM_BUFSIZE * 8);
-	free(buf);
+	freezero(buf, PEM_BUFSIZE * 8);
 	buf = NULL;
 	if ((BIO_write(bp, "-----END ", 9) != 9) ||
 	    (BIO_write(bp, name, nlen) != nlen) ||
@@ -636,10 +633,7 @@ PEM_write_bio(BIO *bp, const char *name, char *header, unsigned char *data,
 	return (i + outl);
 
 err:
-	if (buf) {
-		explicit_bzero(buf, PEM_BUFSIZE * 8);
-		free(buf);
-	}
+	freezero(buf, PEM_BUFSIZE * 8);
 	PEMerror(reason);
 	return (0);
 }

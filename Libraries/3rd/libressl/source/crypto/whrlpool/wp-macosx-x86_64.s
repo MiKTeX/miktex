@@ -585,7 +585,7 @@ L$alldone:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 L$epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 .p2align	6

@@ -1,4 +1,4 @@
-/* $OpenBSD: ssl3.h,v 1.45 2017/01/22 09:02:07 jsing Exp $ */
+/* $OpenBSD: ssl3.h,v 1.47 2018/04/07 16:55:13 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -348,11 +348,7 @@ typedef struct ssl3_buffer_st {
  */
 #define SSL3_CT_NUMBER			11
 
-
 #define SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS	0x0001
-#define SSL3_FLAGS_DELAY_CLIENT_FINISHED	0x0002
-#define SSL3_FLAGS_POP_BUFFER			0x0004
-#define TLS1_FLAGS_TLS_PADDING_BUG		0x0
 #define TLS1_FLAGS_SKIP_CERT_VERIFY		0x0010
 #define TLS1_FLAGS_KEEP_HANDSHAKE		0x0020
 #define SSL3_FLAGS_CCS_OK			0x0080
@@ -415,8 +411,6 @@ typedef struct ssl3_state_st {
 #define SSL3_ST_CW_CERT_VRFY_B			(0x191|SSL_ST_CONNECT)
 #define SSL3_ST_CW_CHANGE_A			(0x1A0|SSL_ST_CONNECT)
 #define SSL3_ST_CW_CHANGE_B			(0x1A1|SSL_ST_CONNECT)
-#define SSL3_ST_CW_NEXT_PROTO_A			(0x200|SSL_ST_CONNECT)
-#define SSL3_ST_CW_NEXT_PROTO_B			(0x201|SSL_ST_CONNECT)
 #define SSL3_ST_CW_FINISHED_A			(0x1B0|SSL_ST_CONNECT)
 #define SSL3_ST_CW_FINISHED_B			(0x1B1|SSL_ST_CONNECT)
 /* read from server */
@@ -462,8 +456,6 @@ typedef struct ssl3_state_st {
 #define SSL3_ST_SR_CERT_VRFY_B			(0x1A1|SSL_ST_ACCEPT)
 #define SSL3_ST_SR_CHANGE_A			(0x1B0|SSL_ST_ACCEPT)
 #define SSL3_ST_SR_CHANGE_B			(0x1B1|SSL_ST_ACCEPT)
-#define SSL3_ST_SR_NEXT_PROTO_A			(0x210|SSL_ST_ACCEPT)
-#define SSL3_ST_SR_NEXT_PROTO_B			(0x211|SSL_ST_ACCEPT)
 #define SSL3_ST_SR_FINISHED_A			(0x1C0|SSL_ST_ACCEPT)
 #define SSL3_ST_SR_FINISHED_B			(0x1C1|SSL_ST_ACCEPT)
 /* write to client */
@@ -488,8 +480,6 @@ typedef struct ssl3_state_st {
 #define SSL3_MT_CLIENT_KEY_EXCHANGE		16
 #define SSL3_MT_FINISHED			20
 #define SSL3_MT_CERTIFICATE_STATUS		22
-
-#define SSL3_MT_NEXT_PROTO			67
 
 #define DTLS1_MT_HELLO_VERIFY_REQUEST		3
 

@@ -1,4 +1,4 @@
-/* $OpenBSD: ecp_nist.c,v 1.10 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: ecp_nist.c,v 1.14 2018/07/16 17:32:39 tb Exp $ */
 /*
  * Written by Nils Larsch for the OpenSSL project.
  */
@@ -103,6 +103,9 @@ EC_GFp_nist_method(void)
 		.point_cmp = ec_GFp_simple_cmp,
 		.make_affine = ec_GFp_simple_make_affine,
 		.points_make_affine = ec_GFp_simple_points_make_affine,
+		.mul_generator_ct = ec_GFp_simple_mul_generator_ct,
+		.mul_single_ct = ec_GFp_simple_mul_single_ct,
+		.mul_double_nonct = ec_GFp_simple_mul_double_nonct,
 		.field_mul = ec_GFp_nist_field_mul,
 		.field_sqr = ec_GFp_nist_field_sqr
 	};
@@ -151,7 +154,7 @@ ec_GFp_nist_group_set_curve(EC_GROUP *group, const BIGNUM *p,
 
 	ret = ec_GFp_simple_group_set_curve(group, p, a, b, ctx);
 
-err:
+ err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(new_ctx);
 	return ret;
@@ -179,7 +182,7 @@ ec_GFp_nist_field_mul(const EC_GROUP *group, BIGNUM *r, const BIGNUM *a,
 		goto err;
 
 	ret = 1;
-err:
+ err:
 	BN_CTX_free(ctx_new);
 	return ret;
 }
@@ -206,7 +209,7 @@ ec_GFp_nist_field_sqr(const EC_GROUP * group, BIGNUM * r, const BIGNUM * a,
 		goto err;
 
 	ret = 1;
-err:
+ err:
 	BN_CTX_free(ctx_new);
 	return ret;
 }

@@ -60,7 +60,7 @@ Camellia_EncryptBlock_Rounds:
 	movq	32(%rsp),%rbx
 	leaq	40(%rsp),%rsp
 .Lenc_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	Camellia_EncryptBlock_Rounds,.-Camellia_EncryptBlock_Rounds
 
 .type	_x86_64_Camellia_encrypt,@function
@@ -267,7 +267,7 @@ _x86_64_Camellia_encrypt:
 	movl	%ecx,%r10d
 	movl	%edx,%r11d
 
-.byte	0xf3,0xc3		
+	retq
 .size	_x86_64_Camellia_encrypt,.-_x86_64_Camellia_encrypt
 
 
@@ -329,7 +329,7 @@ Camellia_DecryptBlock_Rounds:
 	movq	32(%rsp),%rbx
 	leaq	40(%rsp),%rsp
 .Ldec_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	Camellia_DecryptBlock_Rounds,.-Camellia_DecryptBlock_Rounds
 
 .type	_x86_64_Camellia_decrypt,@function
@@ -537,7 +537,7 @@ _x86_64_Camellia_decrypt:
 	movl	%eax,%r10d
 	movl	%ebx,%r11d
 
-.byte	0xf3,0xc3		
+	retq
 .size	_x86_64_Camellia_decrypt,.-_x86_64_Camellia_decrypt
 .globl	Camellia_Ekeygen
 .type	Camellia_Ekeygen,@function
@@ -1081,7 +1081,7 @@ Camellia_Ekeygen:
 	movq	32(%rsp),%rbx
 	leaq	40(%rsp),%rsp
 .Lkey_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	Camellia_Ekeygen,.-Camellia_Ekeygen
 .align	64
 .LCamellia_SIGMA:
@@ -1833,7 +1833,7 @@ Camellia_cbc_encrypt:
 	movq	40(%rcx),%rbx
 	leaq	48(%rcx),%rsp
 .Lcbc_abort:
-	.byte	0xf3,0xc3
+	retq
 .size	Camellia_cbc_encrypt,.-Camellia_cbc_encrypt
 
 .byte	67,97,109,101,108,108,105,97,32,102,111,114,32,120,56,54,95,54,52,32,98,121,32,60,97,112,112,114,111,64,111,112,101,110,115,115,108,46,111,114,103,62,0

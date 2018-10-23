@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2017 Christian Schenk
+## Copyright (C) 2015-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -119,16 +119,6 @@ add_definitions(-DOPENSSL_NO_HW_PADLOCK)
 add_definitions(-D__BEGIN_HIDDEN_DECLS=)
 add_definitions(-D__END_HIDDEN_DECLS=)
 
-if(MSVC)
-#  add_definitions(-Dinline=__inline)
-#  add_definitions(-Drestrict)
-#  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-#  add_definitions(-D_CRT_DEPRECATED_NO_WARNINGS)
-#  add_definitions(-D_REENTRANT -D_POSIX_THREAD_SAFE_FUNCTIONS)
-#  add_definitions(-DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0501)
-#  add_definitions(-DCPPFLAGS -DOPENSSL_NO_SPEED -DNO_SYSLOG -DNO_CRYPT)
-endif()
-
 if(HAVE_STRNLEN)
   add_definitions(-DHAVE_STRNLEN)
 endif()
@@ -145,4 +135,3 @@ if(HAVE_INET_PTON)
 endif()
 
 add_subdirectory(crypto)
-#add_subdirectory(ssl)

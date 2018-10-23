@@ -1,4 +1,4 @@
-/* $OpenBSD: ec_curve.c,v 1.15 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: ec_curve.c,v 1.19 2018/07/15 16:27:39 tb Exp $ */
 /*
  * Written by Nils Larsch for the OpenSSL project.
  */
@@ -2135,7 +2135,7 @@ static const struct {
 	}
 };
 
-/* IPSec curves */
+/* IPsec curves */
 /* NOTE: The of curves over a extension field of non prime degree
  * is not recommended (Weil-descent).
  * As the group order is not a prime this curve is not suitable
@@ -3235,7 +3235,7 @@ ec_group_new_from_data(const ec_list_element curve)
 		}
 	}
 	ok = 1;
-err:
+ err:
 	if (!ok) {
 		EC_GROUP_free(group);
 		group = NULL;

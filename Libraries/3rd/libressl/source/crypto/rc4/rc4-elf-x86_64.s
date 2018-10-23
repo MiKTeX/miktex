@@ -8,7 +8,7 @@
 .align	16
 RC4:	orq	%rsi,%rsi
 	jne	.Lentry
-	.byte	0xf3,0xc3
+	retq
 .Lentry:
 	pushq	%rbx
 	pushq	%r12
@@ -517,7 +517,7 @@ RC4:	orq	%rsi,%rsi
 	movq	16(%rsp),%rbx
 	addq	$24,%rsp
 .Lepilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	RC4,.-RC4
 .globl	RC4_set_key
 .type	RC4_set_key,@function
@@ -588,7 +588,7 @@ RC4_set_key:
 	xorl	%eax,%eax
 	movl	%eax,-8(%rdi)
 	movl	%eax,-4(%rdi)
-	.byte	0xf3,0xc3
+	retq
 .size	RC4_set_key,.-RC4_set_key
 
 .globl	RC4_options
@@ -602,11 +602,11 @@ RC4_options:
 	btl	$IA32CAP_BIT0_INTEL,%edx
 	jnc	.Ldone
 	addq	$25,%rax
-	.byte	0xf3,0xc3
+	retq
 .L8xchar:
 	addq	$12,%rax
 .Ldone:
-	.byte	0xf3,0xc3
+	retq
 .align	64
 .Lopts:
 .byte	114,99,52,40,56,120,44,105,110,116,41,0

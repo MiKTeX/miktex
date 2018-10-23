@@ -6,23 +6,24 @@
 
 * dvipdfmx 20181002
 * Dvisvgm 2.6
-* gmp 6.1.2
-* graphite2 1.3.12
-* HarfBuzz 2.0.2
-* hunspell 1.6.2
-* jpeg 9c
-* liblzma 5.2.4
-* libpng 1.6.35
 * LuaTeX 1.09.0
 
 ### Upgraded libraries
 
 * cairo 1.16.0
+* expat 2.2.6
 * fontconfig 2.13.1
 * FreeType 2.9.1
+* gmp 6.1.2
+* graphite2 1.3.12
+* HarfBuzz 2.0.2
+* hunspell 1.6.2
+* jpeg 9c
 * libcurl 7.61.1
+* liblzma 5.2.4
+* libpng 1.6.35
+* LibreSSL 2.8.2
 * m-tx 0.63a
-* expat 2.2.6
 
 ## 2.9.6840 - 2018-09-30
 

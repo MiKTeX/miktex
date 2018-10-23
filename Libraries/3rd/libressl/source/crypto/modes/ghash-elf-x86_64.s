@@ -87,7 +87,7 @@ gcm_gmult_4bit:
 	movq	16(%rsp),%rbx
 	leaq	24(%rsp),%rsp
 .Lgmult_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	gcm_gmult_4bit,.-gcm_gmult_4bit
 .globl	gcm_ghash_4bit
 .type	gcm_ghash_4bit,@function
@@ -653,7 +653,7 @@ gcm_ghash_4bit:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Lghash_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	gcm_ghash_4bit,.-gcm_ghash_4bit
 .globl	gcm_init_clmul
 .type	gcm_init_clmul,@function
@@ -718,7 +718,7 @@ gcm_init_clmul:
 	pxor	%xmm4,%xmm0
 	movdqu	%xmm2,(%rdi)
 	movdqu	%xmm0,16(%rdi)
-	.byte	0xf3,0xc3
+	retq
 .size	gcm_init_clmul,.-gcm_init_clmul
 .globl	gcm_gmult_clmul
 .type	gcm_gmult_clmul,@function
@@ -768,7 +768,7 @@ gcm_gmult_clmul:
 	pxor	%xmm4,%xmm0
 .byte	102,15,56,0,197
 	movdqu	%xmm0,(%rdi)
-	.byte	0xf3,0xc3
+	retq
 .size	gcm_gmult_clmul,.-gcm_gmult_clmul
 .globl	gcm_ghash_clmul
 .type	gcm_ghash_clmul,@function
@@ -973,7 +973,7 @@ gcm_ghash_clmul:
 .Ldone:
 .byte	102,15,56,0,197
 	movdqu	%xmm0,(%rdi)
-	.byte	0xf3,0xc3
+	retq
 .LSEH_end_gcm_ghash_clmul:
 .size	gcm_ghash_clmul,.-gcm_ghash_clmul
 .align	64

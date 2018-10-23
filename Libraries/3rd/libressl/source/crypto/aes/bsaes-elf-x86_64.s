@@ -473,7 +473,7 @@ _bsaes_encrypt8_bitslice:
 	pxor	%xmm7,%xmm4
 	pxor	%xmm7,%xmm15
 	pxor	%xmm7,%xmm0
-	.byte	0xf3,0xc3
+	retq
 .size	_bsaes_encrypt8,.-_bsaes_encrypt8
 
 .type	_bsaes_decrypt8,@function
@@ -979,7 +979,7 @@ _bsaes_decrypt8:
 	pxor	%xmm7,%xmm4
 	pxor	%xmm7,%xmm15
 	pxor	%xmm7,%xmm0
-	.byte	0xf3,0xc3
+	retq
 .size	_bsaes_decrypt8,.-_bsaes_decrypt8
 .type	_bsaes_key_convert,@function
 .align	16
@@ -1061,7 +1061,7 @@ _bsaes_key_convert:
 
 	movdqa	80(%r11),%xmm7
 
-	.byte	0xf3,0xc3
+	retq
 .size	_bsaes_key_convert,.-_bsaes_key_convert
 
 .globl	bsaes_cbc_encrypt
@@ -1311,7 +1311,7 @@ bsaes_cbc_encrypt:
 	leaq	120(%rsp),%rsp
 	movq	%rax,%rbp
 .Lcbc_dec_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	bsaes_cbc_encrypt,.-bsaes_cbc_encrypt
 
 .globl	bsaes_ctr32_encrypt_blocks
@@ -1511,7 +1511,7 @@ bsaes_ctr32_encrypt_blocks:
 	leaq	120(%rsp),%rsp
 	movq	%rax,%rbp
 .Lctr_enc_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	bsaes_ctr32_encrypt_blocks,.-bsaes_ctr32_encrypt_blocks
 .globl	bsaes_xts_encrypt
 .type	bsaes_xts_encrypt,@function
@@ -1962,7 +1962,7 @@ bsaes_xts_encrypt:
 	leaq	120(%rsp),%rsp
 	movq	%rax,%rbp
 .Lxts_enc_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	bsaes_xts_encrypt,.-bsaes_xts_encrypt
 
 .globl	bsaes_xts_decrypt
@@ -2440,7 +2440,7 @@ bsaes_xts_decrypt:
 	leaq	120(%rsp),%rsp
 	movq	%rax,%rbp
 .Lxts_dec_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	bsaes_xts_decrypt,.-bsaes_xts_decrypt
 .type	_bsaes_const,@object
 .align	64

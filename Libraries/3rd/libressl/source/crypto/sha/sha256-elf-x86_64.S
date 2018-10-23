@@ -1756,7 +1756,7 @@ sha256_block_data_order:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Lepilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	sha256_block_data_order,.-sha256_block_data_order
 .align	64
 .type	K256,@object

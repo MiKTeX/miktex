@@ -98,7 +98,7 @@ _vpaes_encrypt_core:
 	movdqa	64(%r11,%r10,1),%xmm1
 	pxor	%xmm4,%xmm0
 .byte	102,15,56,0,193
-	.byte	0xf3,0xc3
+	retq
 .size	_vpaes_encrypt_core,.-_vpaes_encrypt_core
 
 
@@ -205,7 +205,7 @@ _vpaes_decrypt_core:
 .byte	102,15,56,0,195
 	pxor	%xmm4,%xmm0
 .byte	102,15,56,0,194
-	.byte	0xf3,0xc3
+	retq
 .size	_vpaes_decrypt_core,.-_vpaes_decrypt_core
 
 
@@ -381,7 +381,7 @@ _vpaes_schedule_core:
 	pxor	%xmm5,%xmm5
 	pxor	%xmm6,%xmm6
 	pxor	%xmm7,%xmm7
-	.byte	0xf3,0xc3
+	retq
 .size	_vpaes_schedule_core,.-_vpaes_schedule_core
 
 
@@ -408,7 +408,7 @@ _vpaes_schedule_192_smear:
 	movdqa	%xmm6,%xmm0
 	pxor	%xmm1,%xmm1
 	movhlps	%xmm1,%xmm6
-	.byte	0xf3,0xc3
+	retq
 .size	_vpaes_schedule_192_smear,.-_vpaes_schedule_192_smear
 
 
@@ -484,7 +484,7 @@ _vpaes_schedule_low_round:
 
 	pxor	%xmm7,%xmm0
 	movdqa	%xmm0,%xmm7
-	.byte	0xf3,0xc3
+	retq
 .size	_vpaes_schedule_round,.-_vpaes_schedule_round
 
 
@@ -508,7 +508,7 @@ _vpaes_schedule_transform:
 	movdqa	16(%r11),%xmm0
 .byte	102,15,56,0,193
 	pxor	%xmm2,%xmm0
-	.byte	0xf3,0xc3
+	retq
 .size	_vpaes_schedule_transform,.-_vpaes_schedule_transform
 
 
@@ -600,7 +600,7 @@ _vpaes_schedule_mangle:
 	addq	$-16,%r8
 	andq	$48,%r8
 	movdqu	%xmm3,(%rdx)
-	.byte	0xf3,0xc3
+	retq
 .size	_vpaes_schedule_mangle,.-_vpaes_schedule_mangle
 
 
@@ -619,7 +619,7 @@ vpaes_set_encrypt_key:
 	movl	$48,%r8d
 	call	_vpaes_schedule_core
 	xorl	%eax,%eax
-	.byte	0xf3,0xc3
+	retq
 .size	vpaes_set_encrypt_key,.-vpaes_set_encrypt_key
 
 .globl	vpaes_set_decrypt_key
@@ -640,7 +640,7 @@ vpaes_set_decrypt_key:
 	xorl	$32,%r8d
 	call	_vpaes_schedule_core
 	xorl	%eax,%eax
-	.byte	0xf3,0xc3
+	retq
 .size	vpaes_set_decrypt_key,.-vpaes_set_decrypt_key
 
 .globl	vpaes_encrypt
@@ -651,7 +651,7 @@ vpaes_encrypt:
 	call	_vpaes_preheat
 	call	_vpaes_encrypt_core
 	movdqu	%xmm0,(%rsi)
-	.byte	0xf3,0xc3
+	retq
 .size	vpaes_encrypt,.-vpaes_encrypt
 
 .globl	vpaes_decrypt
@@ -662,7 +662,7 @@ vpaes_decrypt:
 	call	_vpaes_preheat
 	call	_vpaes_decrypt_core
 	movdqu	%xmm0,(%rsi)
-	.byte	0xf3,0xc3
+	retq
 .size	vpaes_decrypt,.-vpaes_decrypt
 .globl	vpaes_cbc_encrypt
 .type	vpaes_cbc_encrypt,@function
@@ -702,7 +702,7 @@ vpaes_cbc_encrypt:
 .Lcbc_done:
 	movdqu	%xmm6,(%r8)
 .Lcbc_abort:
-	.byte	0xf3,0xc3
+	retq
 .size	vpaes_cbc_encrypt,.-vpaes_cbc_encrypt
 
 
@@ -721,7 +721,7 @@ _vpaes_preheat:
 	movdqa	64(%r10),%xmm12
 	movdqa	80(%r10),%xmm15
 	movdqa	96(%r10),%xmm14
-	.byte	0xf3,0xc3
+	retq
 .size	_vpaes_preheat,.-_vpaes_preheat
 
 

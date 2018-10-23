@@ -62,12 +62,12 @@
  * [including the GNU Public Licence.]
  */
 
-#define NUM_NID 956
-#define NUM_SN 949
-#define NUM_LN 949
-#define NUM_OBJ 890
+#define NUM_NID 968
+#define NUM_SN 961
+#define NUM_LN 961
+#define NUM_OBJ 893
 
-static const unsigned char lvalues[6217]={
+static const unsigned char lvalues[6250]={
 0x2A,0x86,0x48,0x86,0xF7,0x0D,               /* [  0] OBJ_rsadsi */
 0x2A,0x86,0x48,0x86,0xF7,0x0D,0x01,          /* [  6] OBJ_pkcs */
 0x2A,0x86,0x48,0x86,0xF7,0x0D,0x02,0x02,     /* [ 13] OBJ_md2 */
@@ -952,6 +952,9 @@ static const unsigned char lvalues[6217]={
 0x2B,0x65,0x71,                              /* [6207] OBJ_Ed448 */
 0x2B,0x65,0x72,                              /* [6210] OBJ_Ed25519ph */
 0x2B,0x65,0x73,                              /* [6213] OBJ_Ed448ph */
+0x2B,0x06,0x01,0x04,0x01,0x82,0x37,0x3C,0x02,0x01,0x01,/* [6216] OBJ_jurisdictionLocalityName */
+0x2B,0x06,0x01,0x04,0x01,0x82,0x37,0x3C,0x02,0x01,0x02,/* [6227] OBJ_jurisdictionStateOrProvinceName */
+0x2B,0x06,0x01,0x04,0x01,0x82,0x37,0x3C,0x02,0x01,0x03,/* [6238] OBJ_jurisdictionCountryName */
 };
 
 static const ASN1_OBJECT nid_objs[NUM_NID]={
@@ -2495,6 +2498,21 @@ static const ASN1_OBJECT nid_objs[NUM_NID]={
 {"Ed448","Ed448",NID_Ed448,3,&(lvalues[6207]),0},
 {"Ed25519ph","Ed25519ph",NID_Ed25519ph,3,&(lvalues[6210]),0},
 {"Ed448ph","Ed448ph",NID_Ed448ph,3,&(lvalues[6213]),0},
+{"jurisdictionLocalityName","jurisdictionLocalityName",
+	NID_jurisdictionLocalityName,11,&(lvalues[6216]),0},
+{"jurisdictionStateOrProvinceName","jurisdictionStateOrProvinceName",
+	NID_jurisdictionStateOrProvinceName,11,&(lvalues[6227]),0},
+{"jurisdictionCountryName","jurisdictionCountryName",
+	NID_jurisdictionCountryName,11,&(lvalues[6238]),0},
+{"KxRSA","kx-rsa",NID_kx_rsa,0,NULL,0},
+{"KxECDHE","kx-ecdhe",NID_kx_ecdhe,0,NULL,0},
+{"KxDHE","kx-dhe",NID_kx_dhe,0,NULL,0},
+{"KxGOST","kx-gost",NID_kx_gost,0,NULL,0},
+{"AuthRSA","auth-rsa",NID_auth_rsa,0,NULL,0},
+{"AuthECDSA","auth-ecdsa",NID_auth_ecdsa,0,NULL,0},
+{"AuthGOST01","auth-gost01",NID_auth_gost01,0,NULL,0},
+{"AuthNULL","auth-null",NID_auth_null,0,NULL,0},
+{"ChaCha20-Poly1305","chacha20-poly1305",NID_chacha20_poly1305,0,NULL,0},
 };
 
 static const unsigned int sn_objs[NUM_SN]={
@@ -2525,6 +2543,10 @@ static const unsigned int sn_objs[NUM_SN]={
 426,	/* "AES-256-ECB" */
 428,	/* "AES-256-OFB" */
 914,	/* "AES-256-XTS" */
+964,	/* "AuthECDSA" */
+965,	/* "AuthGOST01" */
+966,	/* "AuthNULL" */
+963,	/* "AuthRSA" */
 91,	/* "BF-CBC" */
 93,	/* "BF-CFB" */
 92,	/* "BF-ECB" */
@@ -2557,6 +2579,7 @@ static const unsigned int sn_objs[NUM_SN]={
 141,	/* "CRLReason" */
 417,	/* "CSPName" */
 937,	/* "ChaCha" */
+967,	/* "ChaCha20-Poly1305" */
 367,	/* "CrlID" */
 391,	/* "DC" */
 31,	/* "DES-CBC" */
@@ -2603,6 +2626,10 @@ static const unsigned int sn_objs[NUM_SN]={
 645,	/* "ITU-T" */
 646,	/* "JOINT-ISO-ITU-T" */
 773,	/* "KISA" */
+961,	/* "KxDHE" */
+960,	/* "KxECDHE" */
+962,	/* "KxGOST" */
+959,	/* "KxRSA" */
 15,	/* "L" */
 856,	/* "LocalKeySet" */
  3,	/* "MD2" */
@@ -3106,6 +3133,9 @@ static const unsigned int sn_objs[NUM_SN]={
 86,	/* "issuerAltName" */
 770,	/* "issuingDistributionPoint" */
 492,	/* "janetMailbox" */
+958,	/* "jurisdictionCountryName" */
+956,	/* "jurisdictionLocalityName" */
+957,	/* "jurisdictionStateOrProvinceName" */
 150,	/* "keyBag" */
 83,	/* "keyUsage" */
 477,	/* "lastModifiedBy" */
@@ -3642,6 +3672,10 @@ static const unsigned int ln_objs[NUM_LN]={
 484,	/* "associatedDomain" */
 485,	/* "associatedName" */
 501,	/* "audio" */
+964,	/* "auth-ecdsa" */
+965,	/* "auth-gost01" */
+966,	/* "auth-null" */
+963,	/* "auth-rsa" */
 882,	/* "authorityRevocationList" */
 91,	/* "bf-cbc" */
 93,	/* "bf-cfb" */
@@ -3714,6 +3748,7 @@ static const unsigned int ln_objs[NUM_LN]={
 517,	/* "certificate extensions" */
 883,	/* "certificateRevocationList" */
 937,	/* "chacha" */
+967,	/* "chacha20-poly1305" */
 54,	/* "challengePassword" */
 407,	/* "characteristic-two-field" */
 395,	/* "clearance" */
@@ -4047,8 +4082,15 @@ static const unsigned int ln_objs[NUM_LN]={
 645,	/* "itu-t" */
 492,	/* "janetMailbox" */
 646,	/* "joint-iso-itu-t" */
+958,	/* "jurisdictionCountryName" */
+956,	/* "jurisdictionLocalityName" */
+957,	/* "jurisdictionStateOrProvinceName" */
 150,	/* "keyBag" */
 773,	/* "kisa" */
+961,	/* "kx-dhe" */
+960,	/* "kx-ecdhe" */
+962,	/* "kx-gost" */
+959,	/* "kx-rsa" */
 477,	/* "lastModifiedBy" */
 476,	/* "lastModifiedTime" */
 157,	/* "localKeyID" */
@@ -5292,5 +5334,8 @@ static const unsigned int obj_objs[NUM_OBJ]={
 154,	/* OBJ_secretBag                    1 2 840 113549 1 12 10 1 5 */
 155,	/* OBJ_safeContentsBag              1 2 840 113549 1 12 10 1 6 */
 34,	/* OBJ_idea_cbc                     1 3 6 1 4 1 188 7 1 1 2 */
+956,	/* OBJ_jurisdictionLocalityName     1 3 6 1 4 1 311 60 2 1 1 */
+957,	/* OBJ_jurisdictionStateOrProvinceName 1 3 6 1 4 1 311 60 2 1 2 */
+958,	/* OBJ_jurisdictionCountryName      1 3 6 1 4 1 311 60 2 1 3 */
 };
 

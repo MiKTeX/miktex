@@ -1,4 +1,4 @@
-/* $OpenBSD: pvkfmt.c,v 1.18 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: pvkfmt.c,v 1.20 2018/08/05 11:19:25 bcook Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2005.
  */
@@ -828,10 +828,7 @@ b2i_PVK_bio(BIO *in, pem_password_cb *cb, void *u)
 	ret = do_PVK_body(&p, saltlen, keylen, cb, u);
 
 err:
-	if (buf) {
-		explicit_bzero(buf, buflen);
-		free(buf);
-	}
+	freezero(buf, buflen);
 	return ret;
 }
 
@@ -850,17 +847,10 @@ i2b_PVK(unsigned char **out, EVP_PKEY*pk, int enclevel, pem_password_cb *cb,
 	if (pklen < 0)
 		return -1;
 	outlen += pklen;
-	if (!out)
-		return outlen;
-	if (*out)
-		p = *out;
-	else {
-		p = malloc(outlen);
-		if (!p) {
-			PEMerror(ERR_R_MALLOC_FAILURE);
-			return -1;
-		}
-		*out = p;
+	p = malloc(outlen);
+	if (!p) {
+		PEMerror(ERR_R_MALLOC_FAILURE);
+		return -1;
 	}
 
 	write_ledword(&p, MS_PVKMAGIC);
@@ -878,9 +868,10 @@ i2b_PVK(unsigned char **out, EVP_PKEY*pk, int enclevel, pem_password_cb *cb,
 		p += PVK_SALTLEN;
 	}
 	do_i2b(&p, pk, 0);
-	if (enclevel == 0)
+	if (enclevel == 0) {
+		*out = p;
 		return outlen;
-	else {
+	} else {
 		char psbuf[PEM_BUFSIZE];
 		unsigned char keybuf[20];
 		int enctmplen, inlen;
@@ -907,10 +898,12 @@ i2b_PVK(unsigned char **out, EVP_PKEY*pk, int enclevel, pem_password_cb *cb,
 			goto error;
 	}
 	EVP_CIPHER_CTX_cleanup(&cctx);
+	*out = p;
 	return outlen;
 
 error:
 	EVP_CIPHER_CTX_cleanup(&cctx);
+	free(p);
 	return -1;
 }
 

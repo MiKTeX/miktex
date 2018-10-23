@@ -665,7 +665,7 @@ md5_block_asm_data_order:
 	movq	32(%rsp),%rbp
 	addq	$40,%rsp
 .Lepilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	md5_block_asm_data_order,.-md5_block_asm_data_order
 #if defined(HAVE_GNU_STACK)
 .section .note.GNU-stack,"",%progbits

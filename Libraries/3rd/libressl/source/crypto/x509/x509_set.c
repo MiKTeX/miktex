@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_set.c,v 1.12 2015/09/30 17:49:59 jsing Exp $ */
+/* $OpenBSD: x509_set.c,v 1.17 2018/08/24 19:55:58 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -63,6 +63,18 @@
 #include <openssl/objects.h>
 #include <openssl/x509.h>
 
+const STACK_OF(X509_EXTENSION) *
+X509_get0_extensions(const X509 *x)
+{
+	return x->cert_info->extensions;
+}
+
+const X509_ALGOR *
+X509_get0_tbs_sigalg(const X509 *x)
+{
+	return x->cert_info->signature;
+}
+
 int
 X509_set_version(X509 *x, long version)
 {
@@ -73,6 +85,12 @@ X509_set_version(X509 *x, long version)
 			return (0);
 	}
 	return (ASN1_INTEGER_set(x->cert_info->version, version));
+}
+
+long
+X509_get_version(const X509 *x)
+{
+	return ASN1_INTEGER_get(x->cert_info->version);
 }
 
 int
@@ -104,9 +122,23 @@ X509_set_issuer_name(X509 *x, X509_NAME *name)
 int
 X509_set_subject_name(X509 *x, X509_NAME *name)
 {
-	if ((x == NULL) || (x->cert_info == NULL))
+	if (x == NULL || x->cert_info == NULL)
 		return (0);
 	return (X509_NAME_set(&x->cert_info->subject, name));
+}
+
+const ASN1_TIME *
+X509_get0_notBefore(const X509 *x)
+{
+	return X509_getm_notBefore(x);
+}
+
+ASN1_TIME *
+X509_getm_notBefore(const X509 *x)
+{
+	if (x == NULL || x->cert_info == NULL || x->cert_info->validity == NULL)
+		return (NULL);
+	return x->cert_info->validity->notBefore;
 }
 
 int
@@ -114,7 +146,7 @@ X509_set_notBefore(X509 *x, const ASN1_TIME *tm)
 {
 	ASN1_TIME *in;
 
-	if ((x == NULL) || (x->cert_info->validity == NULL))
+	if (x == NULL || x->cert_info->validity == NULL)
 		return (0);
 	in = x->cert_info->validity->notBefore;
 	if (in != tm) {
@@ -128,11 +160,31 @@ X509_set_notBefore(X509 *x, const ASN1_TIME *tm)
 }
 
 int
+X509_set1_notBefore(X509 *x, const ASN1_TIME *tm)
+{
+	return X509_set_notBefore(x, tm);
+}
+
+const ASN1_TIME *
+X509_get0_notAfter(const X509 *x)
+{
+	return X509_getm_notAfter(x);
+}
+
+ASN1_TIME *
+X509_getm_notAfter(const X509 *x)
+{
+	if (x == NULL || x->cert_info == NULL || x->cert_info->validity == NULL)
+		return (NULL);
+	return x->cert_info->validity->notAfter;
+}
+
+int
 X509_set_notAfter(X509 *x, const ASN1_TIME *tm)
 {
 	ASN1_TIME *in;
 
-	if ((x == NULL) || (x->cert_info->validity == NULL))
+	if (x == NULL || x->cert_info->validity == NULL)
 		return (0);
 	in = x->cert_info->validity->notAfter;
 	if (in != tm) {
@@ -146,9 +198,21 @@ X509_set_notAfter(X509 *x, const ASN1_TIME *tm)
 }
 
 int
+X509_set1_notAfter(X509 *x, const ASN1_TIME *tm)
+{
+	return X509_set_notAfter(x, tm);
+}
+
+int
 X509_set_pubkey(X509 *x, EVP_PKEY *pkey)
 {
 	if ((x == NULL) || (x->cert_info == NULL))
 		return (0);
 	return (X509_PUBKEY_set(&(x->cert_info->key), pkey));
+}
+
+int
+X509_get_signature_type(const X509 *x)
+{
+	return EVP_PKEY_type(OBJ_obj2nid(x->sig_alg->algorithm));
 }

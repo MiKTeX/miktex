@@ -11,7 +11,7 @@ aesni_cbc_sha1_enc:
 	movl	OPENSSL_ia32cap_P+0(%rip),%r10d
 	movl	OPENSSL_ia32cap_P+4(%rip),%r11d
 	jmp	aesni_cbc_sha1_enc_ssse3
-	.byte	0xf3,0xc3
+	retq
 .size	aesni_cbc_sha1_enc,.-aesni_cbc_sha1_enc
 .type	aesni_cbc_sha1_enc_ssse3,@function
 .align	16
@@ -1384,7 +1384,7 @@ aesni_cbc_sha1_enc_ssse3:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Lepilogue_ssse3:
-	.byte	0xf3,0xc3
+	retq
 .size	aesni_cbc_sha1_enc_ssse3,.-aesni_cbc_sha1_enc_ssse3
 .align	64
 K_XX_XX:

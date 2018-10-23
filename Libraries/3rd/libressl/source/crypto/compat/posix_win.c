@@ -212,6 +212,7 @@ posix_setsockopt(int sockfd, int level, int optname,
 }
 
 #ifdef _MSC_VER
+struct timezone;
 int gettimeofday(struct timeval * tp, struct timezone * tzp)
 {
 	/*

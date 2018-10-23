@@ -395,7 +395,7 @@ bn_mul_mont_gather5:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Lmul_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	bn_mul_mont_gather5,.-bn_mul_mont_gather5
 .type	bn_mul4x_mont_gather5,@function
 .align	16
@@ -984,7 +984,7 @@ bn_mul4x_mont_gather5:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Lmul4x_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	bn_mul4x_mont_gather5,.-bn_mul4x_mont_gather5
 .globl	bn_scatter5
 .type	bn_scatter5,@function
@@ -1001,7 +1001,7 @@ bn_scatter5:
 	subq	$1,%rsi
 	jnz	.Lscatter
 .Lscatter_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	bn_scatter5,.-bn_scatter5
 
 .globl	bn_gather5
@@ -1164,7 +1164,7 @@ bn_gather5:
 	jnz	.Lgather
 
 	leaq	(%r10),%rsp
-	.byte	0xf3,0xc3
+	retq
 .LSEH_end_bn_gather5:
 .size	bn_gather5,.-bn_gather5
 .align	64

@@ -473,7 +473,7 @@ L$enc_done:
 	pxor	%xmm7,%xmm4
 	pxor	%xmm7,%xmm15
 	pxor	%xmm7,%xmm0
-	.byte	0xf3,0xc3
+	retq
 
 
 
@@ -979,7 +979,7 @@ L$dec_done:
 	pxor	%xmm7,%xmm4
 	pxor	%xmm7,%xmm15
 	pxor	%xmm7,%xmm0
-	.byte	0xf3,0xc3
+	retq
 
 
 .p2align	4
@@ -1061,7 +1061,7 @@ L$key_loop:
 
 	movdqa	80(%r11),%xmm7
 
-	.byte	0xf3,0xc3
+	retq
 
 
 .globl	_bsaes_cbc_encrypt
@@ -1311,7 +1311,7 @@ L$cbc_dec_bzero:
 	leaq	120(%rsp),%rsp
 	movq	%rax,%rbp
 L$cbc_dec_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 .globl	_bsaes_ctr32_encrypt_blocks
@@ -1511,7 +1511,7 @@ L$ctr_enc_bzero:
 	leaq	120(%rsp),%rsp
 	movq	%rax,%rbp
 L$ctr_enc_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 .globl	_bsaes_xts_encrypt
 
@@ -1962,7 +1962,7 @@ L$xts_enc_bzero:
 	leaq	120(%rsp),%rsp
 	movq	%rax,%rbp
 L$xts_enc_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 .globl	_bsaes_xts_decrypt
@@ -2440,7 +2440,7 @@ L$xts_dec_bzero:
 	leaq	120(%rsp),%rsp
 	movq	%rax,%rbp
 L$xts_dec_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 .p2align	6

@@ -60,7 +60,7 @@ L$enc_prologue:
 	movq	32(%rsp),%rbx
 	leaq	40(%rsp),%rsp
 L$enc_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 
@@ -267,7 +267,7 @@ L$edone:
 	movl	%ecx,%r10d
 	movl	%edx,%r11d
 
-.byte	0xf3,0xc3		
+	retq
 
 
 
@@ -329,7 +329,7 @@ L$dec_prologue:
 	movq	32(%rsp),%rbx
 	leaq	40(%rsp),%rsp
 L$dec_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 
@@ -537,7 +537,7 @@ L$ddone:
 	movl	%eax,%r10d
 	movl	%ebx,%r11d
 
-.byte	0xf3,0xc3		
+	retq
 
 .globl	_Camellia_Ekeygen
 
@@ -1081,7 +1081,7 @@ L$done:
 	movq	32(%rsp),%rbx
 	leaq	40(%rsp),%rsp
 L$key_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 .p2align	6
 L$Camellia_SIGMA:
@@ -1833,7 +1833,7 @@ L$cbc_done:
 	movq	40(%rcx),%rbx
 	leaq	48(%rcx),%rsp
 L$cbc_abort:
-	.byte	0xf3,0xc3
+	retq
 
 
 .byte	67,97,109,101,108,108,105,97,32,102,111,114,32,120,56,54,95,54,52,32,98,121,32,60,97,112,112,114,111,64,111,112,101,110,115,115,108,46,111,114,103,62,0

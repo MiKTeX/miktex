@@ -129,7 +129,7 @@ MULADD_128x512:
 	addq	%rbx,%r8
 	adcq	$0,%rdx
 	movq	%rdx,%r9
-	.byte	0xf3,0xc3
+	retq
 .size	MULADD_128x512,.-MULADD_128x512
 .type	mont_reduce,@function
 .align	16
@@ -572,7 +572,7 @@ mont_reduce:
 	movq	%r8,48(%rsi)
 	movq	%r9,56(%rsi)
 
-	.byte	0xf3,0xc3
+	retq
 .size	mont_reduce,.-mont_reduce
 .type	mont_mul_a3b,@function
 .align	16
@@ -1770,7 +1770,7 @@ end_main_loop_a3b:
 	movq	40(%rsi),%rbp
 	leaq	48(%rsi),%rsp
 .Lepilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	mod_exp_512, . - mod_exp_512
 #if defined(HAVE_GNU_STACK)
 .section .note.GNU-stack,"",%progbits

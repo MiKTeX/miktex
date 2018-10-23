@@ -129,7 +129,7 @@ MULADD_128x512:
 	addq	%rbx,%r8
 	adcq	$0,%rdx
 	movq	%rdx,%r9
-	.byte	0xf3,0xc3
+	retq
 
 
 .p2align	4
@@ -572,7 +572,7 @@ mont_reduce:
 	movq	%r8,48(%rsi)
 	movq	%r9,56(%rsi)
 
-	.byte	0xf3,0xc3
+	retq
 
 
 .p2align	4
@@ -1770,5 +1770,5 @@ end_main_loop_a3b:
 	movq	40(%rsi),%rbp
 	leaq	48(%rsi),%rsp
 L$epilogue:
-	.byte	0xf3,0xc3
+	retq
 

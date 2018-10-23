@@ -1,4 +1,4 @@
-/* $OpenBSD: buffer.c,v 1.24 2017/03/16 13:29:56 jsing Exp $ */
+/* $OpenBSD: buffer.c,v 1.27 2017/05/02 03:59:44 deraadt Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -63,9 +63,11 @@
 #include <openssl/buffer.h>
 #include <openssl/err.h>
 
-/* LIMIT_BEFORE_EXPANSION is the maximum n such that (n+3)/3*4 < 2**31. That
- * function is applied in several functions in this file and this limit ensures
- * that the result fits in an int. */
+/*
+ * LIMIT_BEFORE_EXPANSION is the maximum n such that (n + 3) / 3 * 4 < 2**31.
+ * That function is applied in several functions in this file and this limit
+ * ensures that the result fits in an int.
+ */
 #define LIMIT_BEFORE_EXPANSION 0x5ffffffc
 
 BUF_MEM *
@@ -87,43 +89,14 @@ BUF_MEM_free(BUF_MEM *a)
 	if (a == NULL)
 		return;
 
-	if (a->data != NULL) {
-		explicit_bzero(a->data, a->max);
-		free(a->data);
-	}
+	freezero(a->data, a->max);
 	free(a);
 }
 
 int
 BUF_MEM_grow(BUF_MEM *str, size_t len)
 {
-	char *ret;
-	size_t n;
-
-	if (str->length >= len) {
-		str->length = len;
-		return (len);
-	}
-	if (str->max >= len) {
-		str->length = len;
-		return (len);
-	}
-	/* This limit is sufficient to ensure (len+3)/3*4 < 2**31 */
-	if (len > LIMIT_BEFORE_EXPANSION) {
-		BUFerror(ERR_R_MALLOC_FAILURE);
-		return 0;
-	}
-	n = (len + 3) / 3 * 4;
-	ret = recallocarray(str->data, str->max, n, 1);
-	if (ret == NULL) {
-		BUFerror(ERR_R_MALLOC_FAILURE);
-		len = 0;
-	} else {
-		str->data = ret;
-		str->max = n;
-		str->length = len;
-	}
-	return (len);
+	return BUF_MEM_grow_clean(str, len);
 }
 
 int
@@ -132,30 +105,27 @@ BUF_MEM_grow_clean(BUF_MEM *str, size_t len)
 	char *ret;
 	size_t n;
 
-	if (str->length >= len) {
-		memset(&str->data[len], 0, str->length - len);
-		str->length = len;
-		return (len);
-	}
 	if (str->max >= len) {
+		if (str->length >= len)
+			memset(&str->data[len], 0, str->length - len);
 		str->length = len;
 		return (len);
 	}
-	/* This limit is sufficient to ensure (len+3)/3*4 < 2**31 */
+
 	if (len > LIMIT_BEFORE_EXPANSION) {
 		BUFerror(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
+
 	n = (len + 3) / 3 * 4;
-	ret = recallocarray(str->data, str->max, n, 1);
-	if (ret == NULL) {
+	if ((ret = recallocarray(str->data, str->max, n, 1)) == NULL) {
 		BUFerror(ERR_R_MALLOC_FAILURE);
-		len = 0;
-	} else {
-		str->data = ret;
-		str->max = n;
-		str->length = len;
+		return (0);
 	}
+	str->data = ret;
+	str->max = n;
+	str->length = len;
+
 	return (len);
 }
 

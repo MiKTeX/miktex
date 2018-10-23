@@ -395,7 +395,7 @@ L$copy:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 L$mul_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 .p2align	4
@@ -984,7 +984,7 @@ L$copy4x:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 L$mul4x_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 .globl	_bn_scatter5
 
@@ -1001,7 +1001,7 @@ L$scatter:
 	subq	$1,%rsi
 	jnz	L$scatter
 L$scatter_epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 .globl	_bn_gather5
@@ -1164,7 +1164,7 @@ L$gather:
 	jnz	L$gather
 
 	leaq	(%r10),%rsp
-	.byte	0xf3,0xc3
+	retq
 L$SEH_end_bn_gather5:
 
 .p2align	6

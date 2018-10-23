@@ -1,4 +1,4 @@
-/* $OpenBSD: dsa_asn1.c,v 1.19 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: dsa_asn1.c,v 1.22 2018/06/14 17:03:19 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */
@@ -71,13 +71,10 @@ sig_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it, void *exarg)
 	if (operation == ASN1_OP_NEW_PRE) {
 		DSA_SIG *sig;
 
-		sig = malloc(sizeof(DSA_SIG));
-		if (!sig) {
+		if ((sig = DSA_SIG_new()) == NULL) {
 			DSAerror(ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
-		sig->r = NULL;
-		sig->s = NULL;
 		*pval = (ASN1_VALUE *)sig;
 		return 2;
 	}
@@ -131,6 +128,29 @@ int
 i2d_DSA_SIG(const DSA_SIG *a, unsigned char **out)
 {
 	return ASN1_item_i2d((ASN1_VALUE *)a, out, &DSA_SIG_it);
+}
+
+void
+DSA_SIG_get0(const DSA_SIG *sig, const BIGNUM **pr, const BIGNUM **ps)
+{
+	if (pr != NULL)
+		*pr = sig->r;
+	if (ps != NULL)
+		*ps = sig->s;
+}
+
+int
+DSA_SIG_set0(DSA_SIG *sig, BIGNUM *r, BIGNUM *s)
+{
+	if (r == NULL || s == NULL)
+		return 0;
+
+	BN_clear_free(sig->r);
+	sig->r = r;
+	BN_clear_free(sig->s);
+	sig->s = s;
+
+	return 1;
 }
 
 /* Override the default free and new methods */
@@ -454,10 +474,7 @@ DSA_verify(int type, const unsigned char *dgst, int dgst_len,
 		goto err;
 	ret = DSA_do_verify(dgst, dgst_len, s, dsa);
 err:
-	if (derlen > 0) {
-		explicit_bzero(der, derlen);
-		free(der);
-	}
+	freezero(der, derlen);
 	DSA_SIG_free(s);
 	return ret;
 }

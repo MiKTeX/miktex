@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016-2017 Christian Schenk
+## Copyright (C) 2016-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -48,6 +48,7 @@ list(APPEND crypto_sources
 list(APPEND crypto_sources
   ${crypto_source_dir}/cpt_err.c
   ${crypto_source_dir}/cryptlib.c
+  ${crypto_source_dir}/crypto_init.c
   ${crypto_source_dir}/cversion.c
   ${crypto_source_dir}/ex_data.c
   ${crypto_source_dir}/malloc-wrapper.c
@@ -153,6 +154,7 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/bio/bio_cb.c
   ${crypto_source_dir}/bio/bio_err.c
   ${crypto_source_dir}/bio/bio_lib.c
+  ${crypto_source_dir}/bio/bio_meth.c
   ${crypto_source_dir}/bio/bss_acpt.c
   ${crypto_source_dir}/bio/bss_bio.c
   ${crypto_source_dir}/bio/bss_conn.c
@@ -259,6 +261,7 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/dsa/dsa_gen.c
   ${crypto_source_dir}/dsa/dsa_key.c
   ${crypto_source_dir}/dsa/dsa_lib.c
+  ${crypto_source_dir}/dsa/dsa_meth.c
   ${crypto_source_dir}/dsa/dsa_ossl.c
   ${crypto_source_dir}/dsa/dsa_pmeth.c
   ${crypto_source_dir}/dsa/dsa_prn.c
@@ -288,10 +291,6 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/ec/ecp_mont.c
   ${crypto_source_dir}/ec/ecp_nist.c
   ${crypto_source_dir}/ec/ecp_oct.c
-  ${crypto_source_dir}/ec/ecp_nistp224.c
-  ${crypto_source_dir}/ec/ecp_nistp256.c
-  ${crypto_source_dir}/ec/ecp_nistp521.c
-  ${crypto_source_dir}/ec/ecp_nistputil.c
   ${crypto_source_dir}/ec/ecp_smpl.c
   ${crypto_source_dir}/ecdh/ech_err.c
   ${crypto_source_dir}/ecdh/ech_key.c
@@ -399,6 +398,7 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/gost/gostr341001_pmeth.c
   ${crypto_source_dir}/gost/gostr341194.c
   ${crypto_source_dir}/gost/streebog.c
+  ${crypto_source_dir}/hkdf/hkdf.c
   ${crypto_source_dir}/hmac/hm_ameth.c
   ${crypto_source_dir}/hmac/hm_pmeth.c
   ${crypto_source_dir}/hmac/hmac.c
@@ -490,6 +490,7 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/rsa/rsa_err.c
   ${crypto_source_dir}/rsa/rsa_gen.c
   ${crypto_source_dir}/rsa/rsa_lib.c
+  ${crypto_source_dir}/rsa/rsa_meth.c
   ${crypto_source_dir}/rsa/rsa_none.c
   ${crypto_source_dir}/rsa/rsa_oaep.c
   ${crypto_source_dir}/rsa/rsa_pk1.c
@@ -498,7 +499,6 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/rsa/rsa_pss.c
   ${crypto_source_dir}/rsa/rsa_saos.c
   ${crypto_source_dir}/rsa/rsa_sign.c
-  ${crypto_source_dir}/rsa/rsa_ssl.c
   ${crypto_source_dir}/rsa/rsa_x931.c
   ${crypto_source_dir}/sha/sha1_one.c
   ${crypto_source_dir}/sha/sha1dgst.c
@@ -586,14 +586,14 @@ list(APPEND crypto_sources
   ${libressl_dir}/libressl-version.h
 )
 
-if(CMAKE_HOST_WIN32)
+if(WIN32)
   list(APPEND crypto_sources
     ${crypto_source_dir}/bio/b_win.c
     ${crypto_source_dir}/ui/ui_openssl_win.c
   )
 endif()
 
-if(CMAKE_HOST_WIN32)
+if(WIN32)
   list(APPEND crypto_sources
     ${crypto_source_dir}/compat/posix_win.c
   )
@@ -601,6 +601,10 @@ endif()
 
 if(NOT HAVE_ASPRINTF)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/bsd-asprintf.c)
+endif()
+
+if(NOT HAVE_FREEZERO)
+  list(APPEND crypto_sources ${crypto_source_dir}/compat/freezero.c)
 endif()
 
 if(NOT HAVE_GETPAGESIZE)
@@ -647,7 +651,7 @@ if(NOT HAVE_TIMEGM)
 endif()
 
 if(NOT HAVE_EXPLICIT_BZERO)
-  if(CMAKE_HOST_WIN32)
+  if(WIN32)
     list(APPEND crypto_sources ${crypto_source_dir}/compat/explicit_bzero_win.c)
   endif()
 endif()
@@ -656,7 +660,7 @@ if(NOT HAVE_ARC4RANDOM_BUF)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/arc4random.c)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/arc4random_uniform.c)
   if(NOT HAVE_GETENTROPY)
-    if(CMAKE_HOST_WIN32)
+    if(WIN32)
       list(APPEND crypto_sources ${crypto_source_dir}/compat/getentropy_win.c)
     endif()
   endif()
@@ -668,55 +672,6 @@ endif()
 
 if(NOT HAVE_TIMINGSAFE_MEMCMP)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/timingsafe_memcmp.c)
-endif()
-
-set(CERT_LOAD_MEM FALSE)
-
-if(CERT_LOAD_MEM)
-  set(cert_pem ${libressl_source_dir}/apps/openssl/cert.pem)
-  set(squeezed_cert_pem ${CMAKE_CURRENT_BINARY_DIR}/squeezed-cert.pem)
-  add_custom_command(
-    OUTPUT
-      ${squeezed_cert_pem}
-    COMMAND
-      ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cert-squeeze.py
-      < ${cert_pem}
-      > ${squeezed_cert_pem}
-    DEPENDS
-      ${CMAKE_CURRENT_SOURCE_DIR}/cert-squeeze.py
-      ${cert_pem}
-    VERBATIM
-  )
-  set(cert_pem_h ${CMAKE_CURRENT_BINARY_DIR}/cert.pem.h)
-  add_custom_command(
-    OUTPUT
-      ${cert_pem_h}
-    COMMAND
-      bintoc cert_pem
-      < ${squeezed_cert_pem}
-      > ${CMAKE_CURRENT_BINARY_DIR}/cert.pem.h.tmp
-    COMMAND
-      ${CMAKE_COMMAND} -E copy_if_different
-      ${CMAKE_CURRENT_BINARY_DIR}/cert.pem.h.tmp
-      ${cert_pem_h}
-    COMMAND
-      ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/cert.pem.h.tmp
-    DEPENDS
-      bintoc
-      ${squeezed_cert_pem}
-    VERBATIM
-  )
-  list(APPEND generated_crypto_sources
-    ${cert_pem_h}
-  )
-  list(APPEND crypto_sources ${generated_crypto_sources})
-  add_custom_target(gen-crypto-sources DEPENDS
-    ${generated_crypto_sources}
-  )
-  set_property(TARGET gen-crypto-sources PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
-  add_definitions(
-    -DHAVE_CERT_PEM_H
-  )
 endif()
 
 if(NOT LINK_EVERYTHING_STATICALLY)

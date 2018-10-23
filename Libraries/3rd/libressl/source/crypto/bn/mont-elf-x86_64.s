@@ -206,7 +206,7 @@ bn_mul_mont:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Lmul_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	bn_mul_mont,.-bn_mul_mont
 .type	bn_mul4x_mont,@function
 .align	16
@@ -604,7 +604,7 @@ bn_mul4x_mont:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Lmul4x_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	bn_mul4x_mont,.-bn_mul4x_mont
 .type	bn_sqr4x_mont,@function
 .align	16
@@ -1369,7 +1369,7 @@ bn_sqr4x_mont:
 	movq	40(%rsi),%rbx
 	leaq	48(%rsi),%rsp
 .Lsqr4x_epilogue:
-	.byte	0xf3,0xc3
+	retq
 .size	bn_sqr4x_mont,.-bn_sqr4x_mont
 .byte	77,111,110,116,103,111,109,101,114,121,32,77,117,108,116,105,112,108,105,99,97,116,105,111,110,32,102,111,114,32,120,56,54,95,54,52,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,60,97,112,112,114,111,64,111,112,101,110,115,115,108,46,111,114,103,62,0
 .align	16

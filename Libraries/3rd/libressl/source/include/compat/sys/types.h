@@ -20,12 +20,17 @@
 
 #ifdef __MINGW32__
 #include <_bsd_types.h>
+typedef uint32_t        in_addr_t;
+typedef uint32_t        uid_t;
 #endif
 
 #ifdef _MSC_VER
 typedef unsigned char   u_char;
 typedef unsigned short  u_short;
 typedef unsigned int    u_int;
+typedef uint32_t        in_addr_t;
+typedef uint32_t        mode_t;
+typedef uint32_t        uid_t;
 
 #include <basetsd.h>
 typedef SSIZE_T ssize_t;
@@ -57,7 +62,7 @@ typedef SSIZE_T ssize_t;
 #if defined(__GNUC__)  && defined (HAS_GNU_WARNING_LONG)
 #define __warn_references(sym,msg)          \
   __asm__(".section .gnu.warning." __STRING(sym)  \
-         " ; .ascii \"" msg "\" ; .text");
+         "\n\t.ascii \"" msg "\"\n\t.text");
 #else
 #define __warn_references(sym,msg)
 #endif

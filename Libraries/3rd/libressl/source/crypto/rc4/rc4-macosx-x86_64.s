@@ -8,7 +8,7 @@
 .p2align	4
 _RC4:	orq	%rsi,%rsi
 	jne	L$entry
-	.byte	0xf3,0xc3
+	retq
 L$entry:
 	pushq	%rbx
 	pushq	%r12
@@ -517,7 +517,7 @@ L$exit:
 	movq	16(%rsp),%rbx
 	addq	$24,%rsp
 L$epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 .globl	_RC4_set_key
 
@@ -588,7 +588,7 @@ L$exit_key:
 	xorl	%eax,%eax
 	movl	%eax,-8(%rdi)
 	movl	%eax,-4(%rdi)
-	.byte	0xf3,0xc3
+	retq
 
 
 .globl	_RC4_options
@@ -602,11 +602,11 @@ _RC4_options:
 	btl	$IA32CAP_BIT0_INTEL,%edx
 	jnc	L$done
 	addq	$25,%rax
-	.byte	0xf3,0xc3
+	retq
 L$8xchar:
 	addq	$12,%rax
 L$done:
-	.byte	0xf3,0xc3
+	retq
 .p2align	6
 L$opts:
 .byte	114,99,52,40,56,120,44,105,110,116,41,0

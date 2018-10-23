@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_vfy.c,v 1.61 2017/02/05 02:33:21 beck Exp $ */
+/* $OpenBSD: x509_vfy.c,v 1.71 2018/08/19 20:19:31 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -73,8 +73,9 @@
 #include <openssl/objects.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
-#include "x509_lcl.h"
+#include "asn1_locl.h"
 #include "vpm_int.h"
+#include "x509_lcl.h"
 
 /* CRL score values */
 
@@ -137,8 +138,12 @@ static int crl_crldp_check(X509 *x, X509_CRL *crl, int crl_score,
 static int check_crl_path(X509_STORE_CTX *ctx, X509 *x);
 static int check_crl_chain(X509_STORE_CTX *ctx, STACK_OF(X509) *cert_path,
     STACK_OF(X509) *crl_path);
+static int X509_cmp_time_internal(const ASN1_TIME *ctm, time_t *cmp_time,
+    int clamp_notafter);
 
 static int internal_verify(X509_STORE_CTX *ctx);
+
+int ASN1_time_tm_clamp_notafter(struct tm *tm);
 
 static int
 null_callback(int ok, X509_STORE_CTX *e)
@@ -177,10 +182,10 @@ check_id_error(X509_STORE_CTX *ctx, int errcode)
 static int
 check_hosts(X509 *x, X509_VERIFY_PARAM_ID *id)
 {
-	size_t i;
-	size_t n = sk_OPENSSL_STRING_num(id->hosts);
+	size_t i, n;
 	char *name;
 
+	n = sk_OPENSSL_STRING_num(id->hosts);
 	free(id->peername);
 	id->peername = NULL;
 
@@ -236,6 +241,15 @@ X509_verify_cert(X509_STORE_CTX *ctx)
 		/*
 		 * This X509_STORE_CTX has already been used to verify
 		 * a cert. We cannot do another one.
+		 */
+		X509error(ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
+		ctx->error = X509_V_ERR_INVALID_CALL;
+		return -1;
+	}
+	if (ctx->param->id->poisoned) {
+		/*
+		 * This X509_STORE_CTX had failures setting
+		 * up verify parameters. We can not use it.
 		 */
 		X509error(ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		ctx->error = X509_V_ERR_INVALID_CALL;
@@ -482,9 +496,10 @@ X509_verify_cert(X509_STORE_CTX *ctx)
 			ctx->current_cert = x;
 		} else {
 			if (!sk_X509_push(ctx->chain, chain_ss)) {
-				X509_free(chain_ss);
 				X509error(ERR_R_MALLOC_FAILURE);
-				return 0;
+				ctx->error = X509_V_ERR_OUT_OF_MEM;
+				ok = 0;
+				goto end;
 			}
 			num++;
 			ctx->last_untrusted = num;
@@ -534,22 +549,13 @@ X509_verify_cert(X509_STORE_CTX *ctx)
 		ok = ctx->check_policy(ctx);
 
  end:
-	if (sktmp != NULL)
-		sk_X509_free(sktmp);
+	sk_X509_free(sktmp);
 	X509_free(chain_ss);
 
 	/* Safety net, error returns must set ctx->error */
 	if (ok <= 0 && ctx->error == X509_V_OK)
 		ctx->error = X509_V_ERR_UNSPECIFIED;
-
-	/*
-	 * Safety net, if user provided verify callback indicates sucess
-	 * make sure they have set error to X509_V_OK
-	 */
-	if (ctx->verify_cb != null_callback && ok == 1)
-		ctx->error = X509_V_OK;
-
-	return(ctx->error == X509_V_OK);
+	return ok;
 }
 
 /* Given a STACK_OF(X509) find the issuer of cert (if any)
@@ -1753,7 +1759,7 @@ x509_check_cert_time(X509_STORE_CTX *ctx, X509 *x, int depth)
 		X509_V_ERR_CERT_NOT_YET_VALID))
 		return 0;
 
-	i = X509_cmp_time(X509_get_notAfter(x), ptime);
+	i = X509_cmp_time_internal(X509_get_notAfter(x), ptime, 1);
 	if (i <= 0 && depth < 0)
 		return 0;
 	if (i == 0 && !verify_cb_cert(ctx, x, depth,
@@ -1860,8 +1866,8 @@ X509_cmp_current_time(const ASN1_TIME *ctm)
  * 1 if the ASN1_time is later than *cmp_time.
  * 0 on error.
  */
-int
-X509_cmp_time(const ASN1_TIME *ctm, time_t *cmp_time)
+static int
+X509_cmp_time_internal(const ASN1_TIME *ctm, time_t *cmp_time, int clamp_notafter)
 {
 	time_t time1, time2;
 	struct tm tm1, tm2;
@@ -1885,6 +1891,12 @@ X509_cmp_time(const ASN1_TIME *ctm, time_t *cmp_time)
 	if (tm1.tm_year >= 150 && type != V_ASN1_GENERALIZEDTIME)
 		goto out;
 
+	if (clamp_notafter) {
+		/* Allow for completely broken operating systems. */
+		if (!ASN1_time_tm_clamp_notafter(&tm1))
+			goto out;
+	}
+
 	/*
 	 * Defensively fail if the time string is not representable as
 	 * a time_t. A time_t must be sane if you care about times after
@@ -1902,6 +1914,13 @@ X509_cmp_time(const ASN1_TIME *ctm, time_t *cmp_time)
  out:
 	return (ret);
 }
+
+int
+X509_cmp_time(const ASN1_TIME *ctm, time_t *cmp_time)
+{
+	return X509_cmp_time_internal(ctm, cmp_time, 0);
+}
+
 
 ASN1_TIME *
 X509_gmtime_adj(ASN1_TIME *s, long adj)
@@ -2013,12 +2032,20 @@ X509_STORE_CTX_get_current_cert(X509_STORE_CTX *ctx)
 	return ctx->current_cert;
 }
 
-STACK_OF(X509) *X509_STORE_CTX_get_chain(X509_STORE_CTX *ctx)
+STACK_OF(X509) *
+X509_STORE_CTX_get_chain(X509_STORE_CTX *ctx)
 {
 	return ctx->chain;
 }
 
-STACK_OF(X509) *X509_STORE_CTX_get1_chain(X509_STORE_CTX *ctx)
+STACK_OF(X509) *
+X509_STORE_CTX_get0_chain(X509_STORE_CTX *xs)
+{
+	return xs->chain;
+}
+
+STACK_OF(X509) *
+X509_STORE_CTX_get1_chain(X509_STORE_CTX *ctx)
 {
 	int i;
 	X509 *x;
@@ -2049,6 +2076,12 @@ X509_STORE_CTX *
 X509_STORE_CTX_get0_parent_ctx(X509_STORE_CTX *ctx)
 {
 	return ctx->parent;
+}
+
+X509_STORE *
+X509_STORE_CTX_get0_store(X509_STORE_CTX *xs)
+{
+	return xs->ctx;
 }
 
 void
@@ -2292,6 +2325,12 @@ X509_STORE_CTX_trusted_stack(X509_STORE_CTX *ctx, STACK_OF(X509) *sk)
 }
 
 void
+X509_STORE_CTX_set0_trusted_stack(X509_STORE_CTX *ctx, STACK_OF(X509) *sk)
+{
+	X509_STORE_CTX_trusted_stack(ctx, sk);
+}
+
+void
 X509_STORE_CTX_cleanup(X509_STORE_CTX *ctx)
 {
 	if (ctx->cleanup)
@@ -2337,6 +2376,24 @@ X509_STORE_CTX_set_verify_cb(X509_STORE_CTX *ctx,
     int (*verify_cb)(int, X509_STORE_CTX *))
 {
 	ctx->verify_cb = verify_cb;
+}
+
+X509 *
+X509_STORE_CTX_get0_cert(X509_STORE_CTX *ctx)
+{
+	return ctx->cert;
+}
+
+STACK_OF(X509) *
+X509_STORE_CTX_get0_untrusted(X509_STORE_CTX *ctx)
+{
+	return ctx->untrusted;
+}
+
+void
+X509_STORE_CTX_set0_untrusted(X509_STORE_CTX *ctx, STACK_OF(X509) *sk)
+{
+	ctx->untrusted = sk;
 }
 
 X509_POLICY_TREE *

@@ -1,4 +1,4 @@
-/* $OpenBSD: v3_ncons.c,v 1.11 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: v3_ncons.c,v 1.13 2017/07/20 19:45:08 tedu Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project.
  */
@@ -223,11 +223,8 @@ v2i_NAME_CONSTRAINTS(const X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 memerr:
 	X509V3error(ERR_R_MALLOC_FAILURE);
 err:
-	if (ncons)
-		NAME_CONSTRAINTS_free(ncons);
-	if (sub)
-		GENERAL_SUBTREE_free(sub);
-
+	NAME_CONSTRAINTS_free(ncons);
+	GENERAL_SUBTREE_free(sub);
 	return NULL;
 }
 
@@ -460,7 +457,7 @@ nc_dns(ASN1_IA5STRING *dns, ASN1_IA5STRING *base)
 	 */
 	if (dns->length > base->length) {
 		dnsptr += dns->length - base->length;
-		if (dnsptr[-1] != '.')
+		if (baseptr[0] != '.' && dnsptr[-1] != '.')
 			return X509_V_ERR_PERMITTED_VIOLATION;
 	}
 

@@ -1,4 +1,4 @@
-/* $OpenBSD: x_crl.c,v 1.27 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: x_crl.c,v 1.33 2018/08/24 19:55:58 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -462,6 +462,12 @@ X509_REVOKED_free(X509_REVOKED *a)
 	ASN1_item_free((ASN1_VALUE *)a, &X509_REVOKED_it);
 }
 
+X509_REVOKED *
+X509_REVOKED_dup(X509_REVOKED *a)
+{
+	return ASN1_item_dup(&X509_REVOKED_it, a);
+}
+
 X509_CRL_INFO *
 d2i_X509_CRL_INFO(X509_CRL_INFO **a, const unsigned char **in, long len)
 {
@@ -669,6 +675,8 @@ X509_CRL_METHOD_new(int (*crl_init)(X509_CRL *crl),
 void
 X509_CRL_METHOD_free(X509_CRL_METHOD *m)
 {
+	if (m == NULL)
+		return;
 	if (!(m->flags & X509_CRL_METHOD_DYNAMIC))
 		return;
 	free(m);
@@ -684,4 +692,68 @@ void *
 X509_CRL_get_meth_data(X509_CRL *crl)
 {
 	return crl->meth_data;
+}
+
+int
+X509_CRL_get_signature_nid(const X509_CRL *crl)
+{
+	return OBJ_obj2nid(crl->sig_alg->algorithm);
+}
+
+const STACK_OF(X509_EXTENSION) *
+X509_CRL_get0_extensions(const X509_CRL *crl)
+{
+	return crl->crl->extensions;
+}
+
+long
+X509_CRL_get_version(const X509_CRL *crl)
+{
+	return ASN1_INTEGER_get(crl->crl->version);
+}
+
+const ASN1_TIME *
+X509_CRL_get0_lastUpdate(const X509_CRL *crl)
+{
+	return crl->crl->lastUpdate;
+}
+
+ASN1_TIME *
+X509_CRL_get_lastUpdate(X509_CRL *crl)
+{
+	return crl->crl->lastUpdate;
+}
+
+const ASN1_TIME *
+X509_CRL_get0_nextUpdate(const X509_CRL *crl)
+{
+	return crl->crl->nextUpdate;
+}
+
+ASN1_TIME *
+X509_CRL_get_nextUpdate(X509_CRL *crl)
+{
+	return crl->crl->nextUpdate;
+}
+
+X509_NAME *
+X509_CRL_get_issuer(const X509_CRL *crl)
+{
+	return crl->crl->issuer;
+}
+
+STACK_OF(X509_REVOKED) *
+X509_CRL_get_REVOKED(X509_CRL *crl)
+{
+	return crl->crl->revoked;
+}
+
+void
+X509_CRL_get0_signature(const X509_CRL *crl, const ASN1_BIT_STRING **psig,
+    const X509_ALGOR **palg)
+{
+	if (psig != NULL)
+		*psig = crl->signature;
+	if (palg != NULL)
+		*palg = crl->sig_alg;
 }

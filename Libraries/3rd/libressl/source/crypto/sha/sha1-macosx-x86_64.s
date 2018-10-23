@@ -1288,7 +1288,7 @@ L$loop:
 	movq	24(%rsi),%rbx
 	leaq	32(%rsi),%rsp
 L$epilogue:
-	.byte	0xf3,0xc3
+	retq
 
 
 .p2align	4
@@ -2475,7 +2475,7 @@ L$done_ssse3:
 	movq	16(%rsi),%rbx
 	leaq	24(%rsi),%rsp
 L$epilogue_ssse3:
-	.byte	0xf3,0xc3
+	retq
 
 .p2align	6
 K_XX_XX:

@@ -1,4 +1,4 @@
-/* $OpenBSD: asn1_lib.c,v 1.38 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: asn1_lib.c,v 1.41 2018/04/25 11:48:21 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -401,9 +401,7 @@ ASN1_STRING_set(ASN1_STRING *str, const void *_data, int len)
 void
 ASN1_STRING_set0(ASN1_STRING *str, void *data, int len)
 {
-	if (str->data != NULL)
-		explicit_bzero(str->data, str->length);
-	free(str->data);
+	freezero(str->data, str->length);
 	str->data = data;
 	str->length = len;
 }
@@ -436,10 +434,8 @@ ASN1_STRING_free(ASN1_STRING *a)
 {
 	if (a == NULL)
 		return;
-	if (a->data != NULL && !(a->flags & ASN1_STRING_FLAG_NDEF)) {
-		explicit_bzero(a->data, a->length);
-		free(a->data);
-	}
+	if (a->data != NULL && !(a->flags & ASN1_STRING_FLAG_NDEF))
+		freezero(a->data, a->length);
 	free(a);
 }
 
@@ -478,13 +474,19 @@ ASN1_STRING_length_set(ASN1_STRING *x, int len)
 }
 
 int
-ASN1_STRING_type(ASN1_STRING *x)
+ASN1_STRING_type(const ASN1_STRING *x)
 {
 	return (x->type);
 }
 
 unsigned char *
 ASN1_STRING_data(ASN1_STRING *x)
+{
+	return (x->data);
+}
+
+const unsigned char *
+ASN1_STRING_get0_data(const ASN1_STRING *x)
 {
 	return (x->data);
 }
