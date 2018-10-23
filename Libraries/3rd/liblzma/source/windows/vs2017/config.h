@@ -1,4 +1,4 @@
-/* config.h for compiling liblzma (*not* the whole XZ Utils) with MSVC 2013 */
+/* config.h for compiling liblzma (*not* the whole XZ Utils) with MSVC 2017 */
 
 /* Prefix for symbols exported by tuklib_*.c files */
 #define TUKLIB_SYMBOL_PREFIX lzma_
@@ -134,7 +134,7 @@
 #define PACKAGE_NAME "XZ Utils"
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL "http://tukaani.org/xz/"
+#define PACKAGE_URL "https://tukaani.org/xz/"
 
 /* The size of `size_t', as computed by sizeof. */
 #ifdef _WIN64

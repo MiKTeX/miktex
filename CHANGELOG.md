@@ -11,6 +11,7 @@
 * HarfBuzz 2.0.2
 * hunspell 1.6.2
 * jpeg 9c
+* liblzma 5.2.4
 * LuaTeX 1.09.0
 
 ### Upgraded libraries

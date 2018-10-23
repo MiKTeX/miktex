@@ -37,7 +37,7 @@ include_directories(BEFORE
 
 if(MIKTEX_NATIVE_WINDOWS)
   include_directories(BEFORE
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/windows
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/windows/vs2017
   )
 endif()
 
