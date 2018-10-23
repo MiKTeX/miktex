@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>GNU MPFR lib win32</TPM:Name>
     <TPM:Title>Multiple-precision floating-point computations library, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Free Software Foundation, Inc." year="2016"/>
+    <TPM:Copyright owner="Free Software Foundation, Inc." year="2018"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>3.1.4</TPM:Version>
+    <TPM:Version>4.0.1</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

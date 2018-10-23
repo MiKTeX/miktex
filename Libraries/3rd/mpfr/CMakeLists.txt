@@ -112,6 +112,7 @@ set(mpfr_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mulders.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/neg.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/next.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/pool.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/powerof2.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/rem1.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/rint.c
@@ -137,9 +138,9 @@ set(mpfr_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/setmax.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/setmin.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sgn.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/si_op.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sin.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sin_cos.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/si_op.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sqr.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sqrt.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sqrt_ui.c
@@ -149,6 +150,7 @@ set(mpfr_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sub1sp.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sub_ui.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/swap.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/ubf.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/ui_div.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/ui_sub.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/version.c
