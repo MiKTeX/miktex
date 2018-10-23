@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2017 Christian Schenk
+## Copyright (C) 2015-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -237,6 +237,7 @@ endforeach()
 set(mpn_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mp_bases.c
   ${CMAKE_CURRENT_BINARY_DIR}/popcount.c
+
   ${fqsrcdir}/mpn/generic/add.c
   ${fqsrcdir}/mpn/generic/add_1.c
   ${fqsrcdir}/mpn/generic/add_n.c
@@ -246,6 +247,8 @@ set(mpn_sources
   ${fqsrcdir}/mpn/generic/binvert.c
   ${fqsrcdir}/mpn/generic/cmp.c
   ${fqsrcdir}/mpn/generic/com.c
+  ${fqsrcdir}/mpn/generic/copyd.c
+  ${fqsrcdir}/mpn/generic/copyi.c
   ${fqsrcdir}/mpn/generic/dcpi1_bdiv_q.c
   ${fqsrcdir}/mpn/generic/dcpi1_bdiv_qr.c
   ${fqsrcdir}/mpn/generic/dcpi1_div_q.c
@@ -281,8 +284,8 @@ set(mpn_sources
   ${fqsrcdir}/mpn/generic/mul.c
   ${fqsrcdir}/mpn/generic/mul_1.c
   ${fqsrcdir}/mpn/generic/mul_basecase.c
-  ${fqsrcdir}/mpn/generic/mul_n.c
   ${fqsrcdir}/mpn/generic/mul_fft.c
+  ${fqsrcdir}/mpn/generic/mul_n.c
   ${fqsrcdir}/mpn/generic/mullo_basecase.c
   ${fqsrcdir}/mpn/generic/mullo_n.c
   ${fqsrcdir}/mpn/generic/mulmod_bnm1.c
@@ -312,16 +315,16 @@ set(mpn_sources
   ${fqsrcdir}/mpn/generic/sub_n.c
   ${fqsrcdir}/mpn/generic/submul_1.c
   ${fqsrcdir}/mpn/generic/tdiv_qr.c
-  ${fqsrcdir}/mpn/generic/toom2_sqr.c
   ${fqsrcdir}/mpn/generic/toom22_mul.c
-  ${fqsrcdir}/mpn/generic/toom3_sqr.c
+  ${fqsrcdir}/mpn/generic/toom2_sqr.c
   ${fqsrcdir}/mpn/generic/toom32_mul.c
   ${fqsrcdir}/mpn/generic/toom33_mul.c
-  ${fqsrcdir}/mpn/generic/toom4_sqr.c
+  ${fqsrcdir}/mpn/generic/toom3_sqr.c
   ${fqsrcdir}/mpn/generic/toom42_mul.c
   ${fqsrcdir}/mpn/generic/toom42_mulmid.c
   ${fqsrcdir}/mpn/generic/toom43_mul.c
   ${fqsrcdir}/mpn/generic/toom44_mul.c
+  ${fqsrcdir}/mpn/generic/toom4_sqr.c
   ${fqsrcdir}/mpn/generic/toom53_mul.c
   ${fqsrcdir}/mpn/generic/toom63_mul.c
   ${fqsrcdir}/mpn/generic/toom6_sqr.c
@@ -350,17 +353,22 @@ set(mpz_sources
   ${fqsrcdir}/mpz/add_ui.c
   ${fqsrcdir}/mpz/aorsmul.c
   ${fqsrcdir}/mpz/aorsmul_i.c
+  ${fqsrcdir}/mpz/cdiv_q_ui.c
   ${fqsrcdir}/mpz/cfdiv_q_2exp.c
   ${fqsrcdir}/mpz/clear.c
+  ${fqsrcdir}/mpz/cmp.c
   ${fqsrcdir}/mpz/cmp_ui.c
   ${fqsrcdir}/mpz/cmpabs.c
   ${fqsrcdir}/mpz/divexact.c
   ${fqsrcdir}/mpz/fdiv_q.c
   ${fqsrcdir}/mpz/fdiv_q_ui.c
   ${fqsrcdir}/mpz/fdiv_qr.c
+  ${fqsrcdir}/mpz/fits_slong.c
   ${fqsrcdir}/mpz/gcdext.c
   ${fqsrcdir}/mpz/get_si.c
+  ${fqsrcdir}/mpz/get_ui.c
   ${fqsrcdir}/mpz/init.c
+  ${fqsrcdir}/mpz/init2.c
   ${fqsrcdir}/mpz/invert.c
   ${fqsrcdir}/mpz/iset.c
   ${fqsrcdir}/mpz/iset_ui.c
@@ -371,9 +379,12 @@ set(mpz_sources
   ${fqsrcdir}/mpz/mul_ui.c
   ${fqsrcdir}/mpz/n_pow_ui.c
   ${fqsrcdir}/mpz/neg.c
+  ${fqsrcdir}/mpz/pow_ui.c
   ${fqsrcdir}/mpz/powm.c
   ${fqsrcdir}/mpz/powm_ui.c
   ${fqsrcdir}/mpz/realloc.c
+  ${fqsrcdir}/mpz/realloc2.c
+  ${fqsrcdir}/mpz/scan0.c
   ${fqsrcdir}/mpz/scan1.c
   ${fqsrcdir}/mpz/set.c
   ${fqsrcdir}/mpz/size.c
