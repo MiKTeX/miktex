@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>PNG lib win32</TPM:Name>
     <TPM:Title>PNG runtime library, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Glenn Randers-Pehrson" year="1998-2016"/>
+    <TPM:Copyright owner="Glenn Randers-Pehrson" year="1998-2018"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>1.6.34</TPM:Version>
+    <TPM:Version>1.6.35</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

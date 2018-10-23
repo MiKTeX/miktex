@@ -34,8 +34,7 @@ set(public_include_directories
 )
 
 add_definitions(
-  -DPNG_CONFIGURE_LIBPNG
-  -DPNG_NO_CONSOLE_IO
+  -DPNG_NO_CONFIG_H
 )
 
 ignore_warnings()
