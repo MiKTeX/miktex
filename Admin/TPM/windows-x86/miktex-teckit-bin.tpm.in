@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>TECkit lib win32</TPM:Name>
     <TPM:Title>TECkit runtime library, Windows x86</TPM:Title>
-    <TPM:Copyright owner="SIL International" year="2002-2016"/>
+    <TPM:Copyright owner="SIL International" year="2002-2018"/>
     <TPM:License type="lgpl"/>
-    <TPM:Version>2.5.7</TPM:Version>
+    <TPM:Version>2.5.8</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

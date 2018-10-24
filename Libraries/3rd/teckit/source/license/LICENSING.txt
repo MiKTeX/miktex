@@ -12,7 +12,7 @@ with a license of LGPL-2+
 
 Rest of the project:
 
-		   Copyright 2002-2017, SIL International
+		   Copyright 2002-2018, SIL International
 			    All rights reserved.
 
     This library is free software; you can redistribute it and/or modify

@@ -22,5 +22,5 @@ include(version.cmake)
 set(MIKTEX_COMP_DESCRIPTION "TECkit - a Text Encoding Conversion toolkit")
 
 set(MIKTEX_COMP_COMPANY_STR "SIL International")
-set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2002-2016 SIL International")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2002-2016 SIL International")
+set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2002-2018 SIL International")
+set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2002-2018 SIL International")
