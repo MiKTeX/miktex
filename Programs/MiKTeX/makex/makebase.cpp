@@ -32,13 +32,13 @@ class MakeBase :
   public MakeUtility
 {
 public:
-  virtual void Run(int argc, const char** argv);
+  void Run(int argc, const char** argv) override;
 
 private:
-  virtual void Usage();
+  void Usage() override;
 
 private:
-  virtual void CreateDestinationDirectory();
+  void CreateDestinationDirectory() override;
 
 private:
   BEGIN_OPTION_MAP(MakeBase)
