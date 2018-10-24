@@ -159,6 +159,12 @@ option(
 )
 
 option(
+  MIKTEX_CORE_AUTO_ADMIN
+  "Turn on adminstrator mode for shared installations and elevated programs."
+  FALSE
+)
+
+option(
   MIKTEX_MPM_AUTO_ADMIN
   "Install packages for all users."
   FALSE

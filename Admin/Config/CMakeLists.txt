@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2017 Christian Schenk
+## Copyright (C) 2017-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,6 +18,12 @@
 ## USA.
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_ADMIN_FOLDER}/Config")
+
+if(MIKTEX_CORE_AUTO_ADMIN)
+  set(Core_AutoAdmin "t")
+else()
+  set(Core_AutoAdmin "?")
+endif()
 
 if(MIKTEX_MPM_AUTO_ADMIN)
   set(MPM_AutoAdmin "t")

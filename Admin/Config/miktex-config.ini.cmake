@@ -40,6 +40,10 @@
 	;; /etc/passwd)?
 	${MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES} = false
 
+	;; Automatically turn on administrator mode for elevated MiKTeX programs
+	;; in a shared setup.
+	${MIKTEX_CONFIG_VALUE_AUTOADMIN} = ${Core_AutoAdmin}
+
 [${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.afm]
 
 	;; Search path for Adobe font metric (AFM) files.

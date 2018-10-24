@@ -34,6 +34,7 @@
 
 #include "core-version.h"
 
+#include "miktex/Core/ConfigNames.h"
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
@@ -207,6 +208,16 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
   {
     MIKTEX_FATAL_ERROR(T_("Administrator mode startup refused because this is not a shared MiKTeX setup."));
   }
+
+#if 1 // experimental
+  if (RunningAsAdministrator() && IsSharedSetup() && !IsAdminMode())
+  {
+    if (GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState() == TriState::True)
+    {
+      SetAdminMode(true, false);
+    }
+  }
+#endif
 }
 
 void SessionImpl::Uninitialize()
