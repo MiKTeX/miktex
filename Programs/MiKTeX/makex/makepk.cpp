@@ -98,29 +98,29 @@ void
 MakePk::Usage()
 {
   OUT__
-    << T_("Usage:") << " " << Utils::GetExeName() << " " << T_("[OPTION]... name dpi bdpi magnification [MODE]") << endl
-    << endl
-    << T_("This program makes a PK font.") << endl
-    << endl
-    << T_("NAME is the name of the TeX font, such as 'cmr10'.  DPI is") << endl
-    << T_("the resolution the font is needed at.  BDPI is the base") << endl
-    << T_("resolution, useful for figuring out the mode to make the font") << endl
-    << T_("in.  MAGNIFICATION is a string to pass to METAFONT as the") << endl
-    << T_("magnification.  MODE, if supplied, is the mode to use.") << endl
-    << endl
-    << T_("You can specify 0 as BDPI. In that case, BDPI is calculated from") << endl
-    << T_("the MODE.") << endl
-    << endl
-    << T_("Options:") << endl
-    << "--debug, -d " << T_("Print debugging information.") << endl
-    << "--disable-installer " << T_("Disable the package installer.") << endl
-    << "--enable-installer " << T_("Enable the package installer.") << endl
-    << "--force " << T_("Make PK font, even if it exists already.") << endl
-    << "--help, -h " << T_("Print this help screen and exit.") << endl
-    << "--map-file=FILE " << T_("Consult additional map file.") << endl
-    << "--print-only, -n " << T_("Print what commands would be executed.") << endl
-    << "--verbose, -v " << T_("Print information on what is being done.") << endl
-    << "--version, -V " << T_("Print the version number and exit.") << endl;
+    << T_("Usage:") << " " << Utils::GetExeName() << " " << T_("[OPTION]... name dpi bdpi magnification [MODE]") << "\n"
+    << "\n"
+    << T_("This program makes a PK font.") << "\n"
+    << "\n"
+    << T_("NAME is the name of the TeX font, such as 'cmr10'.  DPI is") << "\n"
+    << T_("the resolution the font is needed at.  BDPI is the base") << "\n"
+    << T_("resolution, useful for figuring out the mode to make the font") << "\n"
+    << T_("in.  MAGNIFICATION is a string to pass to METAFONT as the") << "\n"
+    << T_("magnification.  MODE, if supplied, is the mode to use.") << "\n"
+    << "\n"
+    << T_("You can specify 0 as BDPI. In that case, BDPI is calculated from") << "\n"
+    << T_("the MODE.") << "\n"
+    << "\n"
+    << T_("Options:") << "\n"
+    << "--debug, -d " << T_("Print debugging information.") << "\n"
+    << "--disable-installer " << T_("Disable the package installer.") << "\n"
+    << "--enable-installer " << T_("Enable the package installer.") << "\n"
+    << "--force " << T_("Make PK font, even if it exists already.") << "\n"
+    << "--help, -h " << T_("Print this help screen and exit.") << "\n"
+    << "--map-file=FILE " << T_("Consult additional map file.") << "\n"
+    << "--print-only, -n " << T_("Print what commands would be executed.") << "\n"
+    << "--verbose, -v " << T_("Print information on what is being done.") << "\n"
+    << "--version, -V " << T_("Print the version number and exit.") << "\n";
 }
 
 namespace {

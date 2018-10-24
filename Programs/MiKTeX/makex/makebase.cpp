@@ -66,23 +66,23 @@ private:
 void MakeBase::Usage()
 {
   OUT__
-    << T_("Usage:") << " " << Utils::GetExeName() << " " << T_("[OPTION]... NAME") << endl
-    << endl
-    << T_("This program makes a METAFONT base file.") << endl
-    << endl
-    << T_("NAME is the name of the base file, such as 'mf'.") << endl
-    << endl
-    << T_("Options:") << endl
-    << "--debug, -d " << T_("Print debugging information.") << endl
-    << "--dest-name NAME " << T_("Destination file name.") << endl
-    << "--disable-installer " << T_("Disable the package installer.") << endl
-    << "--enable-installer " << T_("Enable the package installer.") << endl
-    << "--engine-option=OPTION " << T_("Add an engine option.") << endl
-    << "--help, -h " << T_("Print this help screen and exit.") << endl
-    << "--no-dump " << T_("Don't issue the dump command.") << endl
-    << "--print-only, -n " << T_("Print what commands would be executed.") << endl
-    << "--verbose, -v " << T_("Print information on what is being done.") << endl
-    << "--version, -V " << T_("Print the version number and exit.") << endl;
+    << T_("Usage:") << " " << Utils::GetExeName() << " " << T_("[OPTION]... NAME") << "\n"
+    << "\n"
+    << T_("This program makes a METAFONT base file.") << "\n"
+    << "\n"
+    << T_("NAME is the name of the base file, such as 'mf'.") << "\n"
+    << "\n"
+    << T_("Options:") << "\n"
+    << "--debug, -d " << T_("Print debugging information.") << "\n"
+    << "--dest-name NAME " << T_("Destination file name.") << "\n"
+    << "--disable-installer " << T_("Disable the package installer.") << "\n"
+    << "--enable-installer " << T_("Enable the package installer.") << "\n"
+    << "--engine-option=OPTION " << T_("Add an engine option.") << "\n"
+    << "--help, -h " << T_("Print this help screen and exit.") << "\n"
+    << "--no-dump " << T_("Don't issue the dump command.") << "\n"
+    << "--print-only, -n " << T_("Print what commands would be executed.") << "\n"
+    << "--verbose, -v " << T_("Print information on what is being done.") << "\n"
+    << "--version, -V " << T_("Print the version number and exit.") << "\n";
 }
 
 namespace
