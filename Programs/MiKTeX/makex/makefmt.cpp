@@ -387,7 +387,7 @@ void MakeFmt::Run(int argc, const char** argv)
   PathName pathDest(destinationDirectory, destinationName);
   pathDest.AppendExtension(MIKTEX_FORMAT_FILE_SUFFIX);
 
-  Verbose(T_("Creating the %s format file..."), Q_(destinationName));
+  Verbose(fmt::format(T_("Creating the {0} format file..."), Q_(destinationName)));
 
   // create a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();

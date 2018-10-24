@@ -140,7 +140,7 @@ void MakePk::CreateDestinationDirectory()
   string typeface;
   if (!session->GetFontInfo(name, supplier, typeface, nullptr))
   {
-    Verbose(T_("No information available for font %s."), Q_(name));
+    Verbose(fmt::format(T_("No information available for font {0}."), Q_(name)));
     supplier = "unknown";
     typeface = "unknown";
   }
@@ -439,13 +439,13 @@ void MakePk::Run(int argc, const char** argv)
     mfMode = argv[optionIndex++];
   }
 
-  Verbose(T_("Trying to make PK font %s at %d DPI..."), Q_(name), static_cast<int>(dpi));
+  Verbose(fmt::format(T_("Trying to make PK font {0} at {1} DPI..."), Q_(name), static_cast<int>(dpi)));
 
   // make a mode name if none was specified
   if (mfMode.empty() || mfMode == "default")
   {
     mfMode = MakeModeName(bdpi);
-    Verbose(T_("The METFAONT mode is: %s"), mfMode.c_str());
+    Verbose(fmt::format(T_("The METFAONT mode is: {0}"), mfMode));
   }
 
   // validate command-line arguments
@@ -560,14 +560,14 @@ void MakePk::Run(int argc, const char** argv)
   // quit, if destination file already exists
   if (File::Exists(pathDest))
   {
-    Message(T_("The PK font file %s already exists."), Q_(pathDest));
+    Message(fmt::format(T_("The PK font file %s already exists."), Q_(pathDest)));
     if (!overwriteExisting)
     {
       return;
     }
   }
 
-  Verbose(T_("Creating %s..."), Q_(pkName));
+  Verbose(fmt::format(T_("Creating {0}..."), Q_(pkName)));
 
   // now make the font
   if (modeless)

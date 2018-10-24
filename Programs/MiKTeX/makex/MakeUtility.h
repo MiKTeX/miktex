@@ -29,7 +29,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -63,20 +62,6 @@
 #include <log4cxx/xml/domconfigurator.h>
 
 #define OUT__ (stdoutStderr ? cerr : cout)
-
-#define VA_START(arglist, format)               \
-va_start(arglist, format);                      \
-try                                             \
-{
-
-#define VA_END(arglist)                         \
-}                                               \
-catch(...)                                      \
-{                                               \
-  va_end(arglist);                              \
-  throw;                                        \
-}                                               \
-va_end(arglist);
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
@@ -246,9 +231,9 @@ protected:
     }
     allArgs.insert(allArgs.end(), arguments.begin(), arguments.end());
 
-    Message(T_("Running %s..."), Q_(exeName));
+    Message(fmt::format(T_("Running {0}..."), Q_(exeName)));
     LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(allArgs).ToString());
-    PrintOnly("%s", CommandLineBuilder(allArgs).ToString().c_str());
+    PrintOnly(CommandLineBuilder(allArgs).ToString());
     
     // run the program
     int exitCode = 0;
@@ -315,7 +300,7 @@ protected:
     }
     if (noError)
     {
-      Verbose(T_("ignoring %u strange path(s)"), nStrangePaths);
+      Verbose(fmt::format(T_("ignoring {0} strange path(s)"), nStrangePaths));
     }
     pLogFile.Reset();
     return noError;
@@ -324,7 +309,7 @@ protected:
 protected:
   void Install(const PathName& source, const PathName& dest)
   {
-    PrintOnly("cp %s %s", Q_(source), Q_(dest));
+    PrintOnly(fmt::format("cp {} {}", Q_(source), Q_(dest)));
     PrintOnly("initexmf --update-fndb");
     if (!printOnly)
     {
@@ -351,7 +336,7 @@ protected:
 
     if (!Directory::Exists(path))
     {
-      PrintOnly(CommandLineBuilder("mkdir", path.ToString()).ToString().c_str());
+      PrintOnly(CommandLineBuilder("mkdir", path.ToString()).ToString());
       if (!printOnly)
       {
         Directory::Create(path);
@@ -371,17 +356,12 @@ protected:
   }
 
 protected:
-  void Verbose(const char* format, ...)
+  void Verbose(const std::string& s)
   {
     if (printOnly)
     {
       return;
     }
-    string s;
-    va_list arglist;
-    VA_START(arglist, format);
-    s = StringUtil::FormatStringVA(format, arglist);
-    VA_END(arglist);
     LOG4CXX_INFO(logger, s);
     if (verbose && !quiet)
     {
@@ -390,17 +370,12 @@ protected:
   }
 
 protected:
-  void Message(const char* format, ...)
+  void Message(const std::string& s)
   {
     if (printOnly)
     {
       return;
     }
-    string s;
-    va_list arglist;
-    VA_START(arglist, format);
-    s = StringUtil::FormatStringVA(format, arglist);
-    VA_END(arglist);
     LOG4CXX_INFO(logger, s);
     if (!quiet)
     {
@@ -409,16 +384,13 @@ protected:
   }
 
 protected:
-  void PrintOnly(const char* format, ...)
+  void PrintOnly(const std::string& s)
   {
     if (!printOnly)
     {
       return;
     }
-    va_list arglist;
-    VA_START(arglist, format);
-    OUT__ << StringUtil::FormatStringVA(format, arglist) << "\n";
-    VA_END(arglist);
+    OUT__ << s << "\n";
   }
 
 protected:

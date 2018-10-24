@@ -288,7 +288,7 @@ void MakeMf::Run(int argc, const char** argv)
     // make fully qualified destination file name
     pathDest = destinationDirectory / texFontname;
     pathDest.AppendExtension(".mf");
-    Verbose(T_("Writing on %s..."), Q_(pathDest));
+    Verbose(fmt::format(T_("Writing on {0}..."), Q_(pathDest)));
     if (!printOnly)
     {
       stream = File::Open(pathDest, FileMode::Create, FileAccess::Write);
@@ -296,7 +296,7 @@ void MakeMf::Run(int argc, const char** argv)
     }
   }
 
-  PrintOnly("cat <<__END__ > %s", Q_(pathDest));
+  PrintOnly(fmt::format("cat <<__END__ > {}", Q_(pathDest)));
 
   if (HasPrefix(texFontname, "ec") || HasPrefix(texFontname, "tc"))
   {

@@ -177,7 +177,7 @@ void MakeTfm::Run(int argc, const char** argv)
   // quit, if destination font file already exists
   if (File::Exists(pathDest))
   {
-    Message(T_("TFM file %s already exists."), Q_(pathDest));
+    Message(fmt::format(T_("TFM file {0} already exists."), Q_(pathDest)));
     return;
   }
 
@@ -214,7 +214,7 @@ void MakeTfm::Run(int argc, const char** argv)
   // run METAFONT, if an appropriate input file exists
   if (!done)
   {
-    Verbose(T_("Making %s from %s..."), Q_(pathTFMName), Q_(mfPath));
+    Verbose(fmt::format(T_("Making {0} from {1}..."), Q_(pathTFMName), Q_(mfPath)));
     if (!RunMETAFONT(name.c_str(), nullptr, nullptr, wrkDir->GetPathName()))
     {
       FatalError(fmt::format(T_("METAFONT failed on {0}."), Q_(name)));

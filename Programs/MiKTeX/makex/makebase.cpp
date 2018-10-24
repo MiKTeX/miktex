@@ -130,7 +130,7 @@ void MakeBase::Run(int argc, const char** argv)
   PathName pathDest(destinationDirectory, destinationName);
   pathDest.AppendExtension(".base");
 
-  Verbose(T_("Creating the %s base file..."), Q_(destinationName));
+  Verbose(fmt::format(T_("Creating the {0} base file..."), Q_(destinationName)));
 
   // create a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
