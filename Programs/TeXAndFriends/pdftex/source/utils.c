@@ -350,8 +350,7 @@ void makepdftexbanner(void)
         strlen(versionstring) + strlen(kpathsea_version_string);
     s = xtalloc(slen, char);
 #if defined(MIKTEX)
-    i = snprintf(s, slen,
-                 "%s", ptexbanner);
+    i = snprintf(s, slen, "%s", ptexbanner);
 #else
     /* The Web2c version string starts with a space.  */
     i = snprintf(s, slen,

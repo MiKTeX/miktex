@@ -1079,7 +1079,7 @@ int main(int argc, char **argv)
                     "named COPYING and the pdfTeX source.\n"
                     "Primary author of ttf2afm: Han The Thanh.\n");
 #if defined(MIKTEX)
-	    throw 0;
+            throw 0;
 #else
             _exit(0);
 #endif

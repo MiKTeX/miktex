@@ -693,7 +693,7 @@ struct avl_table *avl_copy(const struct avl_table *org, avl_copy_func * copy,
 
             y->avl_link[0] =
 #if defined(MIKTEX)
-	      (avl_node*)
+              (avl_node*)
 #endif
                 new->avl_alloc->libavl_malloc(new->avl_alloc,
                                               sizeof *y->avl_link[0]);
@@ -730,7 +730,7 @@ struct avl_table *avl_copy(const struct avl_table *org, avl_copy_func * copy,
             if (x->avl_link[1] != NULL) {
                 y->avl_link[1] =
 #if defined(MIKTEX)
-		  (avl_node*)
+                  (avl_node*)
 #endif
                     new->avl_alloc->libavl_malloc(new->avl_alloc,
                                                   sizeof *y->avl_link[1]);

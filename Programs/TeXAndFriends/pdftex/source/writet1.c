@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2014 Han The Thanh <thanh@pdftex.org>
+Copyright 1996-2018 Han The Thanh <thanh@pdftex.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1598,7 +1598,9 @@ static void t1_check_unusual_charstring(void)
         *(strend(t1_buf_array) - 1) = ' ';
 
         t1_getline();
-        alloc_array(t1_buf, strlen(t1_line_array) + strlen(t1_buf_array) + 1, T1_BUF_SIZE);
+        alloc_array(t1_buf, strlen(t1_line_array)
+                            + (t1_buf_array ? strlen(t1_buf_array) + 1 : 0),
+                            T1_BUF_SIZE);
         strcat(t1_buf_array, t1_line_array);
         alloc_array(t1_line, strlen(t1_buf_array) + 1, T1_BUF_SIZE);
         strcpy(t1_line_array, t1_buf_array);

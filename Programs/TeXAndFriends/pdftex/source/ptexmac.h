@@ -128,7 +128,7 @@ T##_entry      *T##_ptr, *T##_array = NULL;                 \
 size_t          T##_limit
 
 #if defined(MIKTEX)
-#  define xfree(p)            MIKTEX_FREE (p)
+#  define xfree(p)            MIKTEX_FREE(p)
 #else
 #  define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
 #endif

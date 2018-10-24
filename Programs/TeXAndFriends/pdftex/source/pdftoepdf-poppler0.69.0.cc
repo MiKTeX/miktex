@@ -22,26 +22,16 @@ This is based on the patch texlive-poppler-0.59.patch <2017-09-19> at
 https://git.archlinux.org/svntogit/packages.git/plain/texlive-bin/trunk
 by Arch Linux. A little modifications are made to avoid a crash for
 some kind of pdf images, such as figure_missing.pdf in gnuplot.
-The poppler should be 0.59.0, ..., 0.68.0. For the poppler-0.69.0 or
-newer versions, a similar file pdftoepdf-poppler0.69.0 is given.
+The poppler should be 0.69.0 or newer versions.
 POPPLER_VERSION should be defined.
 */
 
-#if defined(MIKTEX)
-#include "miktex-first.h"
-#endif
 /* Do this early in order to avoid a conflict between
    MINGW32 <rpcndr.h> defining 'boolean' as 'unsigned char' and
    <kpathsea/types.h> defining Pascal's boolean as 'int'.
 */
-#if !defined(MIKTEX)
-extern "C" {
-#endif
 #include <w2c/config.h>
 #include <kpathsea/lib.h>
-#if !defined(MIKTEX)
-}
-#endif
 
 #include <stdlib.h>
 #include <math.h>
@@ -50,9 +40,6 @@ extern "C" {
 #include <string.h>
 #include <ctype.h>
 
-#if defined(MIKTEX)
-#include <poppler-config.h>
-#endif
 #ifdef POPPLER_VERSION
 #include <dirent.h>
 #include <poppler-config.h>
@@ -63,11 +50,8 @@ extern "C" {
 #else
 #error POPPLER_VERSION should be defined.
 #endif
-#if defined(MIKTEX)
-#define assert MIKTEX_ASSERT
-#else
 #include <assert.h>
-#endif
+
 #include "Object.h"
 #include "Stream.h"
 #include "Array.h"
@@ -84,28 +68,17 @@ extern "C" {
 // This file is mostly C and not very much C++; it's just used to interface
 // the functions of xpdf, which are written in C++.
 
-#if !defined(MIKTEX)
 extern "C" {
-#endif
-#if defined(MIKTEX)
-#include <ptexmac.h>
-#include <pdftex-common.h>
-#else
 #include <pdftexdir/ptexmac.h>
 #include <pdftexdir/pdftex-common.h>
-#endif
 
 // These functions from pdftex.web gets declared in pdftexcoerce.h in the
 // usual web2c way, but we cannot include that file here because C++
 // does not allow it.
-#if !defined(MIKTEX)
 extern int getpdfsuppresswarningpagegroup(void);
 extern integer getpdfsuppressptexinfo(void);
 extern integer zround(double);
-#endif
-#if !defined(MIKTEX)
 }
-#endif
 
 // The prefix "PTEX" for the PDF keys is special to pdfTeX;
 // this has been registered with Adobe by Hans Hagen.
@@ -344,7 +317,7 @@ static void copyFontDict(Object * obj, InObj * r)
     pdf_puts("<<\n");
     assert(r->type == objFont); // FontDescriptor is in fd_tree
     for (i = 0, l = obj->dictGetLength(); i < l; ++i) {
-        key = obj->dictGetKey(i);
+        key = (char *)obj->dictGetKey(i);
         if (strncmp("FontDescriptor", key, strlen("FontDescriptor")) == 0
             || strncmp("BaseFont", key, strlen("BaseFont")) == 0
             || strncmp("Encoding", key, strlen("Encoding")) == 0)
@@ -481,7 +454,7 @@ static void copyFontResources(Object * obj)
     for (i = 0, l = obj->dictGetLength(); i < l; ++i) {
         fontRef = obj->dictGetValNF(i);
         if (fontRef.isRef())
-            copyFont(obj->dictGetKey(i), &fontRef);
+            copyFont((char *)obj->dictGetKey(i), &fontRef);
         else if (fontRef.isDict()) {   // some programs generate pdf with embedded font object
             copyName((char *)obj->dictGetKey(i));
             pdf_puts(" ");
@@ -1004,7 +977,7 @@ The changes below seem to work fine.
             }
             l = dic1.getLength();
             for (i = 0; i < l; i++) {
-                groupDict.dictAdd(copyString(dic1.getKey(i)),
+                groupDict.dictAdd((const char *)copyString(dic1.getKey(i)),
                                   dic1.getValNF(i));
             }
 // end modification
@@ -1028,13 +1001,13 @@ The changes below seem to work fine.
         pdf_puts("/Resources <<\n");
         for (i = 0, l = obj1->dictGetLength(); i < l; ++i) {
             obj2 = obj1->dictGetVal(i);
-            key = obj1->dictGetKey(i);
+            key = (char *)obj1->dictGetKey(i);
             if (strcmp("Font", key) == 0)
                 copyFontResources(&obj2);
             else if (strcmp("ProcSet", key) == 0)
                 copyProcSet(&obj2);
             else
-                copyOtherResources(&obj2, key);
+                copyOtherResources(&obj2, (char *)key);
         }
         pdf_puts(">>\n");
     }

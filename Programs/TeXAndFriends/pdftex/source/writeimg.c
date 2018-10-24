@@ -475,16 +475,16 @@ void img_free(void)
   } while (0)
 
 #if defined(MIKTEX)
-#define undumpcharptr(s)			\
-  do {						\
-    integer x;					\
-    char *a;					\
-    undumpinteger (x);				\
-    if (x>0) {					\
-      a = (char*)MIKTEX_MALLOC(x);		\
-      undumpthings(*a,x);			\
-      s = a ;					\
-    } else { s = NULL; }			\
+#define undumpcharptr(s)                        \
+  do {                                          \
+    integer x;                                  \
+    char *a;                                    \
+    undumpinteger (x);                          \
+    if (x>0) {                                  \
+      a = (char*)MIKTEX_MALLOC(x);              \
+      undumpthings(*a,x);                       \
+      s = a ;                                   \
+    } else { s = NULL; }                        \
   } while (0)
 #else
 #define undumpcharptr(s)			\

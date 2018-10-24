@@ -25,7 +25,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 This is based on the patch texlive-poppler-0.59.patch <2017-09-19> at
 https://git.archlinux.org/svntogit/packages.git/plain/texlive-bin/trunk
 by Arch Linux. The poppler should be 0.59.0 or newer versions.
-It is tested up to the poppler 0.69.0.
+It is tested up to the poppler 0.70.0.
 POPPLER_VERSION should be defined.
 */
 
@@ -65,7 +65,6 @@ POPPLER_VERSION should be defined.
 #include "PDFDoc.h"
 #include "GlobalParams.h"
 #include "Error.h"
-
 #if defined(MIKTEX)
 #undef assert
 #define assert MIKTEX_ASSERT
