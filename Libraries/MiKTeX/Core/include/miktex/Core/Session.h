@@ -590,7 +590,7 @@ public:
     /// Initialize the COM library.
     InitializeCOM,
 #endif
-    /// start in administration mode
+    /// start in administrator mode
     AdminMode,
   };
 
