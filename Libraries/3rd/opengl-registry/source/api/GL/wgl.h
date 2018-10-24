@@ -1,12 +1,12 @@
-#ifndef __wgl_h_
-#define __wgl_h_ 1
+#ifndef __wgl_wgl_h_
+#define __wgl_wgl_h_ 1
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*
-** Copyright (c) 2013-2017 The Khronos Group Inc.
+** Copyright (c) 2013-2018 The Khronos Group Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and/or associated documentation files (the
@@ -39,7 +39,7 @@ extern "C" {
 #include <windows.h>
 #endif
 
-/* Generated on date 20170121 */
+/* Generated on date 20181017 */
 
 /* Generated C header for:
  * API: wgl
@@ -180,6 +180,11 @@ typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShar
 HGLRC WINAPI wglCreateContextAttribsARB (HDC hDC, HGLRC hShareContext, const int *attribList);
 #endif
 #endif /* WGL_ARB_create_context */
+
+#ifndef WGL_ARB_create_context_no_error
+#define WGL_ARB_create_context_no_error 1
+#define WGL_CONTEXT_OPENGL_NO_ERROR_ARB   0x31B3
+#endif /* WGL_ARB_create_context_no_error */
 
 #ifndef WGL_ARB_create_context_profile
 #define WGL_ARB_create_context_profile 1
@@ -430,9 +435,14 @@ VOID WINAPI wglBlitContextFramebufferAMD (HGLRC dstCtx, GLint srcX0, GLint srcY0
 #define WGL_TYPE_RGBA_FLOAT_ATI           0x21A0
 #endif /* WGL_ATI_pixel_format_float */
 
+#ifndef WGL_ATI_render_texture_rectangle
+#define WGL_ATI_render_texture_rectangle 1
+#define WGL_TEXTURE_RECTANGLE_ATI         0x21A5
+#endif /* WGL_ATI_render_texture_rectangle */
+
 #ifndef WGL_EXT_colorspace
 #define WGL_EXT_colorspace 1
-#define WGL_COLORSPACE_EXT                0x3087
+#define WGL_COLORSPACE_EXT                0x309D
 #define WGL_COLORSPACE_SRGB_EXT           0x3089
 #define WGL_COLORSPACE_LINEAR_EXT         0x308A
 #endif /* WGL_EXT_colorspace */

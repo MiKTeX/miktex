@@ -17,32 +17,22 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/opengl-registry")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/egl-registry")
 
 set(interface_include_directories
   ${CMAKE_CURRENT_SOURCE_DIR}/source/api
 )
 
-add_library(${opengl_registry_dll_name} INTERFACE)
+add_library(${egl_registry_dll_name} INTERFACE)
 
-target_link_libraries(${opengl_registry_dll_name}
-  INTERFACE
-    ${egl_registry_dll_name}
-)
-
-target_include_directories(${opengl_registry_dll_name}
+target_include_directories(${egl_registry_dll_name}
   INTERFACE
     ${interface_include_directories}
 )
 
-add_library(${opengl_registry_lib_name} INTERFACE)
+add_library(${egl_registry_lib_name} INTERFACE)
 
-target_link_libraries(${opengl_registry_lib_name}
-  INTERFACE
-    ${egl_registry_lib_name}
-)
-
-target_include_directories(${opengl_registry_lib_name}
+target_include_directories(${egl_registry_lib_name}
   INTERFACE
     ${interface_include_directories}
 )
