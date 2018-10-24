@@ -35,6 +35,7 @@
 #include <zzip/fetch.h>
 #include <zzip/__mmap.h>
 #include <zzip/__fnmatch.h>
+#include <zzip/__errno.h>
 
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -78,10 +79,10 @@
 #define PAGESIZE 8192
 
 #ifdef DEBUG
-#define debug1(msg) do { fprintf(stderr, "%s : " msg "\n", __func__); } while(0)
-#define debug2(msg, arg1) do { fprintf(stderr, "%s : " msg "\n", __func__, arg1); } while(0)
-#define debug3(msg, arg1, arg2) do { fprintf(stderr, "%s : " msg "\n", __func__, arg1, arg2); } while(0)
-#define debug4(msg, arg1, arg2, arg3) do { fprintf(stderr, "%s : " msg "\n", __func__, arg1, arg2, arg3); } while(0)
+#define debug1(msg) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__); } while(0)
+#define debug2(msg, arg1) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__, arg1); } while(0)
+#define debug3(msg, arg1, arg2) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__, arg1, arg2); } while(0)
+#define debug4(msg, arg1, arg2, arg3) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__, arg1, arg2, arg3); } while(0)
 #else
 #define debug1(msg) 
 #define debug2(msg, arg1) 
@@ -97,7 +98,7 @@
  * This functions read the correspoding struct zzip_file_header from
  * the zip disk of the given "entry". The returned off_t points to the
  * end of the file_header where the current fseek pointer has stopped.
- * This is used to immediatly parse out any filename/extras block following
+ * This is used to immediately parse out any filename/extras block following
  * the file_header. 
  *
  * Returns zero on error. (errno = EINVAL|EBADMSG|EBADF|EIO)
@@ -319,7 +320,7 @@ zzip_entry_findfirst(FILE * disk)
     }
     /* we read out chunks of 8 KiB in the hope to match disk granularity */
     ___ zzip_off_t pagesize = PAGESIZE; /* getpagesize() */
-    ___ ZZIP_ENTRY *entry = malloc(sizeof(*entry));
+    ___ ZZIP_ENTRY *entry = calloc(1, sizeof(*entry));
     if (! entry)
         goto error0; /* ENOMEM */
     ___ unsigned char *buffer = malloc(pagesize);
@@ -808,7 +809,7 @@ zzip_entry_fread(void *ptr, zzip_size_t sized, zzip_size_t nmemb,
                                         file->entry->diskfile);
             file->zlib.next_in = file->buffer;
             file->dataoff += file->zlib.avail_in;
-            debug2("remaing compressed fread %lli", (long long) file->zlib.avail_in);
+            debug2("remaining compressed fread %lli", (long long) file->zlib.avail_in);
         }
         if (! file->zlib.avail_in)
         {

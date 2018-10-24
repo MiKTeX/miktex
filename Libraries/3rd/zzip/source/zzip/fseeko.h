@@ -99,6 +99,7 @@ struct zzip_entry : public struct zzip_disk_entry
     zzip_off_t                   zz_offset;  /* or zip64 extension block */
     int                          zz_diskstart;
 };
+# define zzip_entry_d(_p) (_p)
 #  else
 struct zzip_entry /* : struct zzip_disk_entry */
 {
@@ -113,8 +114,37 @@ struct zzip_entry /* : struct zzip_disk_entry */
     zzip_off_t                   zz_offset;  /* or zip64 extension block */
     int                          zz_diskstart;
 };
+# define zzip_entry_d(_p) (&(_p)->head)
 #  endif /* __cplusplus */
 # endif /* _ZZIP_MEM_ENTRY_PRIVATE */
+
+#ifdef _ZZIP_ENTRY_STRUCT
+/* zzip_entry is-a zip_disk_entry => fetch.h */
+#define zzip_entry_csize(__p)   ((zzip_size_t) \
+        zzip_disk_entry_get_csize(zzip_entry_d(__p)))
+#define zzip_entry_usize(__p)   ((zzip_size_t) \
+        zzip_disk_entry_get_usize(zzip_entry_d(__p))) 
+#define zzip_entry_compr(__p) ( \
+        zzip_disk_entry_get_compr(zzip_entry_d(__p)))
+#define zzip_entry_flags(__p) ( \
+        zzip_disk_entry_get_flags(zzip_entry_d(__p)))
+#define zzip_entry_namlen(__p)   ((zzip_size_t) \
+        zzip_disk_entry_get_namlen(zzip_entry_d(__p)))
+#define zzip_entry_extras(__p)   ((zzip_size_t) \
+        zzip_disk_entry_get_extras(zzip_entry_d(__p)))
+#define zzip_entry_comment(__p)   ((zzip_size_t) \
+        zzip_disk_entry_get_comment(zzip_entry_d(__p)))
+#define zzip_entry_diskstart(__p) ((int) \
+        zzip_disk_entry_get_diskstart(zzip_entry_d(__p)))
+#define zzip_entry_filetype(__p) ((int) \
+        zzip_disk_entry_get_filetype(zzip_entry_d(__p)))
+#define zzip_entry_filemode(__p) ((int) \
+        zzip_disk_entry_get_filemode(zzip_entry_d(__p)))
+#define zzip_entry_fileoffset(__p) ((zzip_off_t) \
+        zzip_disk_entry_get_offset(zzip_entry_d(__p)))
+#define zzip_entry_sizeof_tail(__p) ((zzip_size_t) \
+        zzip_disk_entry_sizeof_tails(zzip_entry_d(__p)))
+#endif
 
 #ifdef __cplusplus
 extern "C" {

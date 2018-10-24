@@ -76,7 +76,7 @@ ZZIP_DIR*
 zzip_dir_fdopen_ext_io(int fd, zzip_error_t * errorcode_p,
                        zzip_strings_t* ext, const zzip_plugin_io_t io);
 
-ZZIP_DIR* /*depracated*/
+ZZIP_DIR* /*deprecated*/
 zzip_dir_alloc_ext_io (zzip_strings_t* ext, const zzip_plugin_io_t io);
 
 #ifdef __cplusplus

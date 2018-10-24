@@ -163,7 +163,7 @@ _zzip_export
 void	 	zzip_seekdir(ZZIP_DIR * dir, zzip_off_t offset);
 
 /*
- * 'opening', 'closing' and reading invidual files in zip archive.
+ * 'opening', 'closing' and reading individual files in zip archive.
  * zzip/file.c
  */
 _zzip_export

@@ -6,7 +6,7 @@
     <TPM:Title>Zzip runtime library, Windows x86</TPM:Title>
     <TPM:Copyright owner="Guido Draheim" year="1999-2004"/>
     <TPM:License type="lgpl2"/>
-    <TPM:Version>0.13.66</TPM:Version>
+    <TPM:Version>0.13.68</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

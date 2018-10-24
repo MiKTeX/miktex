@@ -1,7 +1,8 @@
-#ifndef _ZZIP__MSVC_H
-#define _ZZIP__MSVC_H 1
+#ifndef _ZZIP__CONFIG_H
+#define _ZZIP__CONFIG_H 1
  
-/* zzip/_msvc.h. Generated automatically at end of configure. */
+/* zzip/_config.h. Generated automatically at end of configure. */
+/* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define if building universal (internal helper macro) */
@@ -11,30 +12,36 @@
 /* #undef HAVE_ALIGNED_ACCESS_REQUIRED */
 
 /* Define to 1 if you have the <byteswap.h> header file. */
-/* #undef HAVE_BYTESWAP_H */
+#ifndef ZZIP_HAVE_BYTESWAP_H 
+#define ZZIP_HAVE_BYTESWAP_H  1 
+#endif
 
 /* Define to 1 if you have the <direct.h> header file. */
-#ifndef ZZIP_HAVE_DIRECT_H 
-#define ZZIP_HAVE_DIRECT_H  1 
-#endif
+/* #undef HAVE_DIRECT_H */
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
-/* #undef HAVE_DIRENT_H */
+#ifndef ZZIP_HAVE_DIRENT_H 
+#define ZZIP_HAVE_DIRENT_H  1 
+#endif
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-/* #undef HAVE_DLFCN_H */
+#ifndef ZZIP_HAVE_DLFCN_H 
+#define ZZIP_HAVE_DLFCN_H  1 
+#endif
 
 /* Define to 1 if you have the <fnmatch.h> header file. */
-/* #undef HAVE_FNMATCH_H */
+#ifndef ZZIP_HAVE_FNMATCH_H 
+#define ZZIP_HAVE_FNMATCH_H  1 
+#endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-/* #undef HAVE_INTTYPES_H */
+#ifndef ZZIP_HAVE_INTTYPES_H 
+#define ZZIP_HAVE_INTTYPES_H  1 
+#endif
 
 /* Define to 1 if you have the <io.h> header file. */
-#ifndef ZZIP_HAVE_IO_H 
-#define ZZIP_HAVE_IO_H  1 
-#endif
+/* #undef HAVE_IO_H */
 
 /* Define to 1 if you have the <memory.h> header file. */
 #ifndef ZZIP_HAVE_MEMORY_H 
@@ -45,7 +52,9 @@
 /* #undef HAVE_NDIR_H */
 
 /* Define to 1 if you have the <stdint.h> header file. */
-/* #undef HAVE_STDINT_H */
+#ifndef ZZIP_HAVE_STDINT_H 
+#define ZZIP_HAVE_STDINT_H  1 
+#endif
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #ifndef ZZIP_HAVE_STDLIB_H 
@@ -53,10 +62,14 @@
 #endif
 
 /* Define to 1 if you have the `strcasecmp' function. */
-/* #undef HAVE_STRCASECMP */
+#ifndef ZZIP_HAVE_STRCASECMP 
+#define ZZIP_HAVE_STRCASECMP  1 
+#endif
 
 /* Define to 1 if you have the <strings.h> header file. */
-/* #undef HAVE_STRINGS_H */
+#ifndef ZZIP_HAVE_STRINGS_H 
+#define ZZIP_HAVE_STRINGS_H  1 
+#endif
 
 /* Define to 1 if you have the <string.h> header file. */
 #ifndef ZZIP_HAVE_STRING_H 
@@ -64,7 +77,9 @@
 #endif
 
 /* Define to 1 if you have the `strndup' function. */
-/* #undef HAVE_STRNDUP */
+#ifndef ZZIP_HAVE_STRNDUP 
+#define ZZIP_HAVE_STRNDUP  1 
+#endif
 
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
@@ -74,14 +89,18 @@
 /* #undef HAVE_SYS_INT_TYPES_H */
 
 /* Define to 1 if you have the <sys/mman.h> header file. */
-/* #undef HAVE_SYS_MMAN_H */
+#ifndef ZZIP_HAVE_SYS_MMAN_H 
+#define ZZIP_HAVE_SYS_MMAN_H  1 
+#endif
 
 /* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
    */
 /* #undef HAVE_SYS_NDIR_H */
 
 /* Define to 1 if you have the <sys/param.h> header file. */
-/* #undef HAVE_SYS_PARAM_H */
+#ifndef ZZIP_HAVE_SYS_PARAM_H 
+#define ZZIP_HAVE_SYS_PARAM_H  1 
+#endif
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #ifndef ZZIP_HAVE_SYS_STAT_H 
@@ -94,26 +113,22 @@
 #endif
 
 /* Define to 1 if you have the <unistd.h> header file. */
-/* #undef HAVE_UNISTD_H */
+#ifndef ZZIP_HAVE_UNISTD_H 
+#define ZZIP_HAVE_UNISTD_H  1 
+#endif
 
 /* Define to 1 if you have the <winbase.h> header file. */
-#ifndef ZZIP_HAVE_WINBASE_H 
-#define ZZIP_HAVE_WINBASE_H  1  /* hmm, is that win32 ? */ 
-#endif
+/* #undef HAVE_WINBASE_H */
 
 /* Define to 1 if you have the <windows.h> header file. */
-#ifndef ZZIP_HAVE_WINDOWS_H 
-#define ZZIP_HAVE_WINDOWS_H  1  /* yes, this is windows */ 
-#endif
+/* #undef HAVE_WINDOWS_H */
 
 /* Define to 1 if you have the <winnt.h> header file. */
-#ifndef ZZIP_HAVE_WINNT_H 
-#define ZZIP_HAVE_WINNT_H  1      /* is that always true? */ 
-#endif
+/* #undef HAVE_WINNT_H */
 
 /* Define to 1 if you have the <zlib.h> header file. */
 #ifndef ZZIP_HAVE_ZLIB_H 
-#define ZZIP_HAVE_ZLIB_H  1      /* you do have it, right? */ 
+#define ZZIP_HAVE_ZLIB_H  1 
 #endif
 
 /* whether the system defaults to 32bit off_t but can do 64bit when requested
@@ -122,30 +137,44 @@
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
-/* #undef LT_OBJDIR */
+#ifndef ZZIP_LT_OBJDIR 
+#define ZZIP_LT_OBJDIR  ".libs/" 
+#endif
 
 /* Name of package */
 #ifndef ZZIP_PACKAGE 
-#define ZZIP_PACKAGE  "zziplib-msvc"     /* yes, make it known */ 
+#define ZZIP_PACKAGE  "zziplib" 
 #endif
 
 /* Define to the address where bug reports for this package should be sent. */
-/* #undef PACKAGE_BUGREPORT */
+#ifndef ZZIP_PACKAGE_BUGREPORT 
+#define ZZIP_PACKAGE_BUGREPORT  "" 
+#endif
 
 /* Define to the full name of this package. */
-/* #undef PACKAGE_NAME */
+#ifndef ZZIP_PACKAGE_NAME 
+#define ZZIP_PACKAGE_NAME  "" 
+#endif
 
 /* Define to the full name and version of this package. */
-/* #undef PACKAGE_STRING */
+#ifndef ZZIP_PACKAGE_STRING 
+#define ZZIP_PACKAGE_STRING  "" 
+#endif
 
 /* Define to the one symbol short name of this package. */
-/* #undef PACKAGE_TARNAME */
+#ifndef ZZIP_PACKAGE_TARNAME 
+#define ZZIP_PACKAGE_TARNAME  "" 
+#endif
 
 /* Define to the home page for this package. */
-/* #undef PACKAGE_URL */
+#ifndef ZZIP_PACKAGE_URL 
+#define ZZIP_PACKAGE_URL  "" 
+#endif
 
 /* Define to the version of this package. */
-/* #undef PACKAGE_VERSION */
+#ifndef ZZIP_PACKAGE_VERSION 
+#define ZZIP_PACKAGE_VERSION  "" 
+#endif
 
 /* The number of bytes in type int */
 #ifndef ZZIP_SIZEOF_INT 
@@ -154,7 +183,7 @@
 
 /* The number of bytes in type long */
 #ifndef ZZIP_SIZEOF_LONG 
-#define ZZIP_SIZEOF_LONG  4 
+#define ZZIP_SIZEOF_LONG  8 
 #endif
 
 /* The number of bytes in type short */
@@ -169,7 +198,7 @@
 
 /* Version number of package */
 #ifndef ZZIP_VERSION 
-#define ZZIP_VERSION  "0.13.x" 
+#define ZZIP_VERSION  "0.13.68" 
 #endif
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
@@ -196,7 +225,9 @@
 /* #undef _LARGE_FILES */
 
 /* Define to `long long' if <sys/types.h> does not define. */
-/* #undef __int64 */
+#ifndef ZZIP___int64 
+#define ZZIP___int64  long long 
+#endif
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
@@ -204,34 +235,28 @@
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
-#ifndef _zzip_inline 
-#define _zzip_inline  __inline 
-#endif
+/* #undef inline */
 #endif
 
 /* Define to `_zzip_off_t' if <sys/types.h> does not define. */
 #ifndef _zzip_off64_t 
-#define _zzip_off64_t  __int64 
+#define _zzip_off64_t  _zzip_off_t 
 #endif
 
 /* Define to `long int' if <sys/types.h> does not define. */
-#ifndef _zzip_off_t 
-#define _zzip_off_t  long 
-#endif
+/* #undef off_t */
 
 /* Define to equivalent of C99 restrict keyword, or to nothing if this is not
    supported. Do not define if restrict is supported directly. */
 #ifndef _zzip_restrict 
-#define _zzip_restrict  
+#define _zzip_restrict  __restrict__ 
 #endif
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 /* #undef size_t */
 
 /* Define to `int' if <sys/types.h> does not define. */
-#ifndef _zzip_ssize_t 
-#define _zzip_ssize_t  int 
-#endif
+/* #undef ssize_t */
  
-/* once: _ZZIP__MSVC_H */
+/* once: _ZZIP__CONFIG_H */
 #endif

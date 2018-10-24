@@ -33,33 +33,23 @@
 #include <zzip/mmapped.h>
 #include <zzip/memdisk.h>
 #include <zzip/__fnmatch.h>
+#include <zzip/__errno.h>
 
 #define ___ {
 #define ____ }
 
 #define DEBUG 1
 #ifdef DEBUG
-#define debug1(msg) do { fprintf(stderr, "%s : " msg "\n", __func__); } while(0)
-#define debug2(msg, arg1) do { fprintf(stderr, "%s : " msg "\n", __func__, arg1); } while(0)
-#define debug3(msg, arg1, arg2) do { fprintf(stderr, "%s : " msg "\n", __func__, arg1, arg2); } while(0)
-#define debug4(msg, arg1, arg2, arg3) do { fprintf(stderr, "%s : " msg "\n", __func__, arg1, arg2, arg3); } while(0)
+#define debug1(msg) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__); } while(0)
+#define debug2(msg, arg1) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__, arg1); } while(0)
+#define debug3(msg, arg1, arg2) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__, arg1, arg2); } while(0)
+#define debug4(msg, arg1, arg2, arg3) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__, arg1, arg2, arg3); } while(0)
 #else
 #define debug1(msg) 
 #define debug2(msg, arg1) 
 #define debug3(msg, arg1, arg2) 
 #define debug4(msg, arg1, arg2, arg3) 
 #endif
-
-static const char *error[] = {
-    "Ok",
-#   define _zzip_mem_disk_open_fail 1
-    "zzip_mem_disk_open: zzip_disk_open did fail",
-#   define _zzip_mem_disk_fdopen_fail 2
-    "zzip_mem_disk_fdopen: zzip_disk_mmap did fail"
-#   define _zzip_mem_disk_buffer_fail 3
-    "zzip_mem_disk_buffer: zzip_disk_buffer did fail",
-    0
-};
 
 #define ZZIP_EXTRA_zip64 0x0001
 typedef struct _zzip_extra_zip64
@@ -92,7 +82,10 @@ zzip_mem_disk_open(char *filename)
 {
     ZZIP_DISK *disk = zzip_disk_open(filename);
     if (! disk)
-        { perror(error[_zzip_mem_disk_open_fail]); return 0; }
+    { 
+       debug2("can not open disk file %s", filename);
+       return 0;
+    }
     ___ ZZIP_MEM_DISK *dir = zzip_mem_disk_new();
     if (zzip_mem_disk_load(dir, disk) == -1)
     {
@@ -109,9 +102,15 @@ zzip_mem_disk_fdopen(int fd)
 {
     ZZIP_DISK *disk = zzip_disk_mmap(fd);
     if (! disk)
-        { perror(error[_zzip_mem_disk_fdopen_fail]); return 0; }
+    { 
+       debug2("can not open disk fd %i", fd);
+       return 0;
+    }
     ___ ZZIP_MEM_DISK *dir = zzip_mem_disk_new();
-    zzip_mem_disk_load(dir, disk);
+    if (zzip_mem_disk_load(dir, disk) == -1)
+    {
+       debug2("unable to load disk fd %s", fd);
+    }
     return dir;
     ____;
 }
@@ -123,9 +122,15 @@ zzip_mem_disk_buffer(char *buffer, size_t buflen)
 {
     ZZIP_DISK *disk = zzip_disk_buffer(buffer, buflen);
     if (! disk)
-        { perror(error[_zzip_mem_disk_buffer_fail]); return 0; }
+    { 
+       debug2("can not open disk buf %p", buffer);
+       return 0;
+    }
     ___ ZZIP_MEM_DISK *dir = zzip_mem_disk_new();
-    zzip_mem_disk_load(dir, disk);
+    if (zzip_mem_disk_load(dir, disk) == -1)
+    {
+       debug2("unable to load disk buf %p", buffer);
+    }
     return dir;
     ____;
 }
@@ -209,6 +214,14 @@ zzip_mem_entry_new(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry)
     item->zz_diskstart = zzip_disk_entry_get_diskstart(entry);
     item->zz_filetype = zzip_disk_entry_get_filetype(entry);
 
+    /*
+     * If the file is uncompressed, zz_csize and zz_usize should be the same
+     * If they are not, we cannot guarantee that either is correct, so ...
+     */
+    if (item->zz_compr == ZZIP_IS_STORED && item->zz_csize != item->zz_usize)
+    {
+        goto error;
+    }
     /* zz_comment and zz_name are empty strings if not present on disk */
     if (! item->zz_comment || ! item->zz_name)
     {
@@ -221,34 +234,39 @@ zzip_mem_entry_new(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry)
         zzip_size_t /*    */ ext2_len = zzip_file_header_get_extras(header);
         char *_zzip_restrict ext2_ptr = zzip_file_header_to_extras(header);
 
-        if (ext1_ptr + ext1_len >= disk->endbuf ||
-            ext2_ptr + ext2_len >= disk->endbuf)
+        if (ext1_len > 0 && ext1_len <= 65535)
         {
-            errno = EBADMSG; /* format error CVE-2017-5978 */
-            goto error; /* zzip_mem_entry_free(item); return 0; */
+            if (ext1_ptr + ext1_len >= disk->endbuf)
+            {
+                errno = EBADMSG;
+                goto error; /* zzip_mem_entry_free(item); return 0; */
+            } else {
+                void *mem = malloc(ext1_len);
+                if (! mem) goto error; /* errno = ENOMEM */
+                item->zz_ext[1] = mem;
+                item->zz_extlen[1] = ext1_len;
+                memcpy(mem, ext1_ptr, ext1_len);
+            }
         }
-
-        if (ext1_len)
+        if (ext2_len > 0 && ext2_len <= 65535)
         {
-            void *mem = malloc(ext1_len);
-            if (! mem) goto error; /* errno = ENOMEM */
-            item->zz_ext[1] = mem;
-            item->zz_extlen[1] = ext1_len;
-            memcpy(mem, ext1_ptr, ext1_len);
-        }
-        if (ext2_len)
-        {
-            void *mem = malloc(ext2_len);
-            if (! mem) goto error; /* errno = ENOMEM */
-            item->zz_ext[2] = mem;
-            item->zz_extlen[2] = ext2_len;
-            memcpy(mem, ext2_ptr, ext2_len);
+            if (ext2_ptr + ext2_len >= disk->endbuf)
+            {
+                errno = EBADMSG;
+                goto error; /* zzip_mem_entry_free(item); return 0; */
+            } else {
+                void *mem = malloc(ext2_len);
+                if (! mem) goto error; /* errno = ENOMEM */
+                item->zz_ext[2] = mem;
+                item->zz_extlen[2] = ext2_len;
+                memcpy(mem, ext2_ptr, ext2_len);
+            }
         }
     }
     {
         /* override sizes/offsets with zip64 values for largefile support */
         zzip_extra_zip64 *block = (zzip_extra_zip64 *)
-            zzip_mem_entry_extra_block(item, ZZIP_EXTRA_zip64);
+            zzip_mem_entry_find_extra_block(item, ZZIP_EXTRA_zip64, sizeof(zzip_extra_zip64));
         if (block)
         {
             item->zz_usize = ZZIP_GET64(block->z_usize);
@@ -269,12 +287,26 @@ error:
     ____;
 }
 
-/* find an extra block for the given datatype code.
- * The returned EXTRA_BLOCK is still in disk-encoding but
- * already a pointer into an allocated heap space block.
+/** => zzip_mem_entry_find_extra_block.
+ *
+ * Note that for this function only the block_header is asserted 
+ * to be completely in memory, so the returned pointer should be checked.
  */
 ZZIP_EXTRA_BLOCK *
 zzip_mem_entry_extra_block(ZZIP_MEM_ENTRY * entry, short datatype)
+{
+   return zzip_mem_entry_find_extra_block(entry, datatype, 16);
+}
+
+/* find an extra block for the given datatype code.
+ * The returned EXTRA_BLOCK is still in disk-encoding but
+ * already a pointer into an allocated heap space block.
+ *
+ * The second argument of this function ensures that the 
+ * complete datasize is in memory.
+ */
+ZZIP_EXTRA_BLOCK *
+zzip_mem_entry_find_extra_block(ZZIP_MEM_ENTRY * entry, short datatype, zzip_size_t blocksize)
 {
     int i = 2;
     while (1)
@@ -287,7 +319,10 @@ zzip_mem_entry_extra_block(ZZIP_MEM_ENTRY * entry, short datatype)
             {
                 if (datatype == zzip_extra_block_get_datatype(ext))
                 {
-                    return ((ZZIP_EXTRA_BLOCK*) ext);
+                    if (blocksize <= zzip_extra_block_get_datasize(ext) + zzip_extra_block_headerlength)
+                    {
+                        return ((ZZIP_EXTRA_BLOCK*) ext);
+                    }
                 }
                 /* skip to start of next extra_block */
                 ___ zzip_size_t datasize = zzip_extra_block_get_datasize(ext);
@@ -348,7 +383,7 @@ zzip_mem_disk_close(ZZIP_MEM_DISK * _zzip_restrict dir)
 static void
 foo(short zz_datatype)
 {
-    /* Header IDs of 0 thru 31 are reserved for use by PKWARE.(APPNOTE.TXT) */
+    /* Header IDs of 0 through 31 are reserved for use by PKWARE.(APPNOTE.TXT) */
     switch (zz_datatype)
     {
     /* *INDENT-OFF* */

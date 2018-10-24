@@ -94,7 +94,7 @@
 # endif
 #endif
 
-/* resolve references to this function during pre-linking the libary */
+/* resolve references to this function during pre-linking the library */
 #ifndef ZZIP_GNUC_LIB_PROTECTED
 # if ZZIP_GNUC_ATLEAST(3,1)
 # define ZZIP_GNUC_LIB_PROTECTED __attribute__((visiblity("protected")))

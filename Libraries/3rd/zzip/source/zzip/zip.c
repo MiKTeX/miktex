@@ -320,6 +320,12 @@ __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
 #                  endif
 
                     __fixup_rootseek(offset + tail - mapped, trailer);
+		    /*
+		     * "extract data from files archived in a single zip file."
+		     * So the file offsets must be within the current ZIP archive!
+		     */
+		    if (trailer->zz_rootseek >= filesize || (trailer->zz_rootseek + trailer->zz_rootsize) >= filesize)
+		        return(ZZIP_CORRUPTED);
                     { return(0); }
                 } else if ((*tail == 'P') &&
                            end - tail >=
@@ -338,6 +344,12 @@ __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
                         zzip_disk64_trailer_finalentries(orig);
                     trailer->zz_rootseek = zzip_disk64_trailer_rootseek(orig);
                     trailer->zz_rootsize = zzip_disk64_trailer_rootsize(orig);
+		    /*
+		     * "extract data from files archived in a single zip file."
+		     * So the file offsets must be within the current ZIP archive!
+		     */
+		    if (trailer->zz_rootseek >= filesize || (trailer->zz_rootseek + trailer->zz_rootsize) >= filesize)
+		        return(ZZIP_CORRUPTED);
                     { return(0); }
 #                  endif
                 }
@@ -626,7 +638,7 @@ zzip_dir_alloc(zzip_strings_t * fileext)
  * are helper functions used implicitly in other zzipcalls
  * e.g. => zzip_dir_close = zzip_close
  *
- * returns zero on sucess
+ * returns zero on success
  * returns the refcount when files are attached.
  */
 int

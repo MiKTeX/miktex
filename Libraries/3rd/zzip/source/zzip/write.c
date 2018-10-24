@@ -1,4 +1,3 @@
-
 /*
  * The write-support in zziplib is not a full-flegded interface to the
  * internals that zip file-header or zip archive an contain. It's
@@ -6,7 +5,7 @@
  * where time-stamps are rather unimportant. Here we can create an 
  * archive with filenames and their data portions, possibly obfuscated.
  *
- * DONT USE THIS
+ * DON'T USE THIS
  *
  * The write support is supposed to be added directly into the main
  * zziplib but it has not been implemented so far. It does however
@@ -43,6 +42,7 @@
 
 #include <zzip/format.h>
 #include <zzip/plugin.h>
+#include <zzip/__mkdir.h>
 #include <zzip/__debug.h>
 
 #define ___ {
@@ -69,12 +69,6 @@
 #  endif
 #  ifndef S_IRWXO
 #  define S_IRWXO 00007
-#  endif
-
-#  ifdef ZZIP_HAVE_DIRECT_H
-#  define _mkdir(a,b) mkdir(a)
-#  else
-#  define _mkdir      mkdir
 #  endif
 
 /** create a new zip archive for writing
@@ -136,7 +130,7 @@ zzip_dir_creat_ext_io(zzip_char_t * name, int o_mode,
         /* not implemented - however, we respect that a null argument to 
          * zzip_mkdir and zzip_creat works, so we silently still do the mkdir 
          */
-        if (! _mkdir(name, o_mode) || errno == EEXIST)
+        if (! _zzip_mkdir(name, o_mode) || errno == EEXIST)
             errno = EROFS;
         return 0;
     } else
@@ -218,7 +212,7 @@ zzip_createdir(zzip_char_t * name, int o_mode)
 {
     if (o_mode & S_IWGRP)
     {
-        if (-1 == _mkdir(name, o_mode) && errno != EEXIST)      /* fail */
+        if (-1 == _zzip_mkdir(name, o_mode) && errno != EEXIST)      /* fail */
             return 0;
         return zzip_opendir(name);
     } else
@@ -261,7 +255,7 @@ int
 zzip_file_mkdir(ZZIP_DIR * dir, zzip_char_t * name, int o_mode)
 {
     if (! dir)
-        return _mkdir(name, o_mode);
+        return _zzip_mkdir(name, o_mode);
 
     if (! _ZZIP_TRY)
     {                           /* not implemented */
