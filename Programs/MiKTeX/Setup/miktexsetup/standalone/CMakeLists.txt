@@ -22,7 +22,7 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_SETUP_FOLDER}/${MIKTEX_PROG_NAME_
 use_static_crt()
 
 add_definitions(
-	-DMIKTEX_SETUP_STANDALONE
+  -DMIKTEX_SETUP_STANDALONE
 )
 
 add_executable(${MIKTEX_PROG_NAME_SETUP_STANDALONE} ${miktexsetup_sources})
