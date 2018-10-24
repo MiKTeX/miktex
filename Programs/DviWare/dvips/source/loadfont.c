@@ -16,7 +16,7 @@
 #define MAXPATHLEN (256)
 #endif
 #else
-#if defined(SYSV) || defined(VMS) || (defined(MSDOS) && !defined(__DJGPP__)) || defined(OS2) || defined(ATARIST) || defined(MIKTEX_WINDOWS)
+#if defined(SYSV) || defined(VMS) || (defined(MSDOS) && !defined(__DJGPP__)) || defined(OS2) || defined(ATARIST)
 #define MAXPATHLEN (256)
 #else
 #include <sys/param.h>          /* for MAXPATHLEN */

@@ -11,7 +11,6 @@
 #endif
 #define register
 #endif
-
 /* The stuff from the path searching library.  */
 #include <kpathsea/config.h>
 

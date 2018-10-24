@@ -20,7 +20,7 @@
 #include <kpathsea/c-pathch.h>
 #include <kpathsea/variable.h>
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef WIN32
 #undef fopen
 #undef popen
@@ -54,7 +54,7 @@ static char *
 quote_name (const char *name)
 {
 #if defined(MIKTEX)
-  char *quoted = (char*)xmalloc (strlen (name) * 2 + 3);
+  char* quoted = (char*)xmalloc(strlen(name) * 2 + 3);
 #else
   char *quoted = xmalloc (strlen (name) * 2 + 3);
 #endif
@@ -134,24 +134,23 @@ search(kpse_file_format_type format, const char *file, const char *mode)
   // fixes #2336 dvips chokes on graphic files with accents
   // https://sourceforge.net/p/miktex/bugs/2336/
   std::string utf8FileName;
-  if (! Utils::IsUTF8(file))
+  if (!Utils::IsUTF8(file))
   {
     utf8FileName = MiKTeX::Util::StringUtil::AnsiToUTF8(file);
     file = utf8FileName.c_str();
   }
 #endif
-
   FILE *ret;
   string found_name;
 
   /* This change suggested by maj@cl.cam.ac.uk to disallow reading of
      arbitrary files.  Further modified by Y. Oiwa. */
 #ifndef SECURE
-#  if defined(MIKTEX)
-  if (secure == 2 && ! miktex_allow_all_paths) {
-#  else
+#if defined(MIKTEX)
+  if (secure == 2 && !miktex_allow_all_paths) {
+#else
   if (secure == 2) {
-#  endif
+#endif
 #endif
     /* an absolute path is denied */
     if (kpse_absolute_p (file, false))
@@ -192,15 +191,10 @@ search(kpse_file_format_type format, const char *file, const char *mode)
             || (len > 3 && FILESTRCASEEQ (found_name + len - 3, ".gz")))) {
 #if defined(MIKTEX)
       std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
-      char * lpszCommand = concat3("zcat \"", found_name, "\"");
-      ret =
-	session->TryOpenFile
-	(lpszCommand,
-	 MiKTeX::Core::FileMode::Command,
-	 MiKTeX::Core::FileAccess::Read,
-	 false);
-      free (lpszCommand);
-      to_close = USE_MIKTEX_CLOSE_FILE ;
+      char* command = concat3("zcat \"", found_name, "\"");
+      ret = session->TryOpenFile(command, MiKTeX::Core::FileMode::Command, MiKTeX::Core::FileAccess::Read, false);
+      free(command);
+      to_close = USE_MIKTEX_CLOSE_FILE;
 #else
       /* automatically but safely decompress.  */
       char *quoted_name = quote_name (found_name);
@@ -383,7 +377,7 @@ case USE_FCLOSE:  return fclose(f);
    {
      std::shared_ptr<MiKTeX::Core::Session> session = Session::Get();
      session->CloseFile(f);
-     return (0);
+     return 0;
    }
 #endif
 default:          return -1;

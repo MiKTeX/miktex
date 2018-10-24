@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2013 Han The Thanh <thanh@pdftex.org>
+Copyright 1996-2018 Han The Thanh <thanh@pdftex.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -453,7 +453,7 @@ static byte edecrypt(byte cipher)
 }
 
 #if defined(MIKTEX)
-static byte cdecrypt(byte cipher, unsigned *cr)
+static byte cdecrypt(byte cipher, unsigned* cr)
 #else
 static byte cdecrypt(byte cipher, unsigned short *cr)
 #endif
@@ -479,7 +479,7 @@ static byte eencrypt(byte plain)
 }
 
 #if defined(MIKTEX)
-static byte cencrypt(byte plain, unsigned *cr)
+static byte cencrypt(byte plain, unsigned* cr)
 #else
 static byte cencrypt(byte plain, unsigned short *cr)
 #endif
@@ -1353,7 +1353,7 @@ static void t1_flush_cs(boolean is_subr)
     int count, size_pos;
 #if defined(MIKTEX)
     unsigned cr;
-    unsigned short cs_len = 0;      /* to avoid warning about uninitialized use of cs_len */
+    unsigned short cs_len = 0;
 #else
     unsigned short cr, cs_len = 0;      /* to avoid warning about uninitialized use of cs_len */
 #endif
@@ -1495,7 +1495,9 @@ static void t1_check_unusual_charstring(void)
         *(strend(t1_buf_array) - 1) = ' ';
 
         t1_getline();
-        alloc_array(t1_buf, strlen(t1_line_array) + strlen(t1_buf_array) + 1, T1_BUF_SIZE);
+        alloc_array(t1_buf, strlen(t1_line_array)
+                            + (t1_buf_array ? strlen(t1_buf_array) + 1 : 0),
+                            T1_BUF_SIZE);
         strcat(t1_buf_array, t1_line_array);
         alloc_array(t1_line, strlen(t1_buf_array) + 1, T1_BUF_SIZE);
         strcpy(t1_line_array, t1_buf_array);

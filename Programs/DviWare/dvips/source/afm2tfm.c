@@ -1634,7 +1634,7 @@ openfiles(int argc, char **argv)
       exit(0);
    }
 
-#if defined(MSDOS) || defined(OS2) || defined(ATARIST) || defined(MIKTEX)
+#if defined(MSDOS) || defined(OS2) || defined(ATARIST)
    /* Make VPL file identical to that created under Unix */
    snprintf(titlebuf, sizeof(titlebuf), "afm2tfm %s", argv[1]);
 #else

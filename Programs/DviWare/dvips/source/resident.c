@@ -321,7 +321,7 @@ getdefaults(const char *s)
          char *dvipsrc = kpse_var_value ("DVIPSRC");
 #ifdef WIN32
 #if defined(MIKTEX)
-	 strcpy (PSname, DVIPSRC); /* <fixme/> */
+         strcpy(PSname, DVIPSRC); /* <fixme/> */
 #else
 	 if (dvipsrc && *dvipsrc) {
 	   /* $DVIPSRC was set by user */
@@ -516,7 +516,7 @@ case 'o' :
            tmp_oname = configstring(was_inline+1, 1);
            if ((*tmp_oname && tmp_oname[strlen(tmp_oname)-1] == ':')
 #if defined(MIKTEX_WINDOWS)
-               || (stat(oname, &st_buf) == 0 && st_buf.st_mode&_S_IFCHR)) {
+             || (stat(oname, &st_buf) == 0 && st_buf.st_mode&_S_IFCHR)) {
 #else
                || (stat(tmp_oname, &st_buf) == 0 && S_ISCHR(st_buf.st_mode))) {
 #endif
@@ -786,10 +786,10 @@ case 't' :
             } else
                paperfmt = newstring(PSname);
 #if defined(MIKTEX)
-	   if (miktex_no_landscape && landscape)
-	     {
-	       landscape = 0;
-	     }
+            if (miktex_no_landscape && landscape)
+            {
+              landscape = 0;
+            }
 #endif
          }
          break;
@@ -913,8 +913,10 @@ getpsinfo(const char *name)
                   if (hdr_name) {
                      const char *suffix = find_suffix (hdr_name);
 #if defined(MIKTEX)
-		     if (suffix == 0)
-		       suffix = "";
+                     if (suffix == nullptr)
+                     {
+                       suffix = "";
+                     }
 #endif
                      if (encoding_p || STREQ (suffix, "enc")) {
                         /* (SPQR) if it is a reencoding, pass on to

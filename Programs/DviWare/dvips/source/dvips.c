@@ -1087,33 +1087,33 @@ case 'G' :
 	       break;
 case 'M':
 #if defined(MIKTEX)
+{
+  if (strcmp(p, "iKTeX:noglyphs") == 0)
   {
-    if (strcmp(p, "iKTeX:noglyphs") == 0)
-      {
-	miktex_no_glyphs = 1;
-	break;
-      }
-    if (strcmp(p, "iKTeX:norules") == 0)
-      {
-	miktex_no_rules = 1;
-	break;
-      }
-    if (strcmp(p, "iKTeX:nolandscape") == 0)
-      {
-	miktex_no_landscape = 1;
-	break;
-      }
-    if (strcmp(p, "iKTeX:pedantic") == 0)
-      {
-	miktex_pedantic = 1;
-	break;
-      }
-    if (strcmp(p, "iKTeX:allowallpaths") == 0)
-      {
-	miktex_allow_all_paths = 1;
-	break;
-      }
+    miktex_no_glyphs = 1;
+    break;
   }
+  if (strcmp(p, "iKTeX:norules") == 0)
+  {
+    miktex_no_rules = 1;
+    break;
+  }
+  if (strcmp(p, "iKTeX:nolandscape") == 0)
+  {
+    miktex_no_landscape = 1;
+    break;
+  }
+  if (strcmp(p, "iKTeX:pedantic") == 0)
+  {
+    miktex_pedantic = 1;
+    break;
+  }
+  if (strcmp(p, "iKTeX:allowallpaths") == 0)
+  {
+    miktex_allow_all_paths = 1;
+    break;
+  }
+}
 #endif
                dontmakefont = (*p != '0');
 #ifdef KPATHSEA

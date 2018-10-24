@@ -16,7 +16,7 @@
 #define pclose(pstream) _pclose(pstream)
 #endif
 #endif
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #if defined(WIN32) && defined(KPATHSEA)
 #undef fopen
 #undef popen
@@ -78,7 +78,7 @@ static struct papsiz defpapsiz = {
    0, 40258437L, 52099154L, "letter", ""
 };
 #ifdef CREATIONDATE
-#if (!defined(VMS) && !defined(MSDOS) && !(defined(OS2) && defined(_MSC_VER)) && !defined(ATARIST) && ! defined(MIKTEX))
+#if (!defined(VMS) && !defined(MSDOS) && !(defined(OS2) && defined(_MSC_VER)) && !defined(ATARIST))
  /* VAXC/MSDOS don't like/need this !! */
 #include <sys/types.h>
 #ifndef WIN32
@@ -1196,10 +1196,10 @@ findpapersize(void) {
             }
          }
 #if defined(MIKTEX)
-	 if (miktex_no_landscape && landscape)
-	   {
-	     landscape = 0;
-	   }
+         if (miktex_no_landscape && landscape)
+         {
+           landscape = 0;
+         }
 #endif
          finpapsiz = fps;
       }
@@ -1382,8 +1382,10 @@ open_output(void) {
 #endif /* MSDOS && !__DJGPP__ || VMS || ... */
       } else {
 #if defined(MIKTEX)
-         if ((bitfile=fopen(oname,"wb"))==NULL)
-            error("! couldn't open PostScript file") ;
+        if ((bitfile = fopen(oname, "wb")) == nullptr)
+        {
+          error("! couldn't open PostScript file");
+        }
 #else
          if ((bitfile=fopen(oname,"w"))==NULL)
             error("! couldn't open PostScript file");
@@ -1687,11 +1689,11 @@ drawrule(integer rw, integer rh)
 {
 #if defined(MIKTEX)
   if (miktex_no_rules)
-    {
-      rulex = rw;
-      ruley = rh;
-      return;
-    }
+  {
+    rulex = rw;
+    ruley = rh;
+    return;
+  }
 #endif
    if (!dir) {
      numout((integer)hh);
@@ -1734,7 +1736,7 @@ drawchar(chardesctype *c, int cc)
       if (lastfont != curfnt->psname)
          fontout(curfnt->psname);
 #if defined(MIKTEX)
-      if (! miktex_no_glyphs)
+      if (!miktex_no_glyphs)
 #endif
       scout2(cc);
    }
@@ -1742,7 +1744,7 @@ drawchar(chardesctype *c, int cc)
       if (lastfont != curfnt->psname)
          fontout(curfnt->psname);
 #if defined(MIKTEX)
-      if (! miktex_no_glyphs)
+      if (!miktex_no_glyphs)
 #endif
       jscout(cc, curfnt->resfont->PSname);
    }
