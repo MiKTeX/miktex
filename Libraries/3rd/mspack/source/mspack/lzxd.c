@@ -300,8 +300,14 @@ struct lzxd_stream *lzxd_init(struct mspack_system *system,
       if (window_bits < 15 || window_bits > 21) return NULL;
   }
 
+  if (reset_interval < 0 || output_length < 0) {
+      D(("reset interval or output length < 0"))
+      return NULL;
+  }
+
+  /* round up input buffer size to multiple of two */
   input_buffer_size = (input_buffer_size + 1) & -2;
-  if (!input_buffer_size) return NULL;
+  if (input_buffer_size < 2) return NULL;
 
   /* allocate decompression state */
   if (!(lzx = (struct lzxd_stream *) system->alloc(system, sizeof(struct lzxd_stream)))) {
@@ -382,7 +388,7 @@ int lzxd_set_reference_data(struct lzxd_stream *lzx,
 }
 
 void lzxd_set_output_length(struct lzxd_stream *lzx, off_t out_bytes) {
-  if (lzx) lzx->length = out_bytes;
+  if (lzx && out_bytes > 0) lzx->length = out_bytes;
 }
 
 int lzxd_decompress(struct lzxd_stream *lzx, off_t out_bytes) {
@@ -393,7 +399,7 @@ int lzxd_decompress(struct lzxd_stream *lzx, off_t out_bytes) {
   register unsigned short sym;
 
   int match_length, length_footer, extra, verbatim_bits, bytes_todo;
-  int this_run, main_element, aligned_bits, j;
+  int this_run, main_element, aligned_bits, j, warned = 0;
   unsigned char *window, *runsrc, *rundest, buf[12];
   unsigned int frame_size=0, end_frame, match_offset, window_posn;
   unsigned int R0, R1, R2;
@@ -429,8 +435,12 @@ int lzxd_decompress(struct lzxd_stream *lzx, off_t out_bytes) {
     /* have we reached the reset interval? (if there is one?) */
     if (lzx->reset_interval && ((lzx->frame % lzx->reset_interval) == 0)) {
       if (lzx->block_remaining) {
-	D(("%d bytes remaining at reset interval", lzx->block_remaining))
-	return lzx->error = MSPACK_ERR_DECRUNCH;
+        /* this is a file format error, we can make a best effort to extract what we can */
+        D(("%d bytes remaining at reset interval", lzx->block_remaining))
+        if (!warned) {
+          lzx->sys->message(NULL, "WARNING; invalid reset interval detected during LZX decompression");
+          warned++;
+        }
       }
 
       /* re-read the intel header and reset the huffman lengths */
@@ -488,7 +498,7 @@ int lzxd_decompress(struct lzxd_stream *lzx, off_t out_bytes) {
 	  /* read lengths of and build aligned huffman decoding tree */
 	  for (i = 0; i < 8; i++) { READ_BITS(j, 3); lzx->ALIGNED_len[i] = j; }
 	  BUILD_TABLE(ALIGNED);
-	  /* no break -- rest of aligned header is same as verbatim */
+	  /* rest of aligned header is same as verbatim */ /*@fallthrough@*/
 	case LZX_BLOCKTYPE_VERBATIM:
 	  /* read lengths of and build main huffman decoding tree */
 	  READ_LENGTHS(MAINTREE, 0, 256);
@@ -835,10 +845,10 @@ int lzxd_decompress(struct lzxd_stream *lzx, off_t out_bytes) {
 	if ((abs_off >= -curpos) && (abs_off < filesize)) {
 	  rel_off = (abs_off >= 0) ? abs_off - curpos : abs_off + filesize;
 #if defined(MIKTEX)
-	  data[0] = (unsigned char) (rel_off & 0xff);
-	  data[1] = (unsigned char) ((rel_off >> 8) & 0xff);
-	  data[2] = (unsigned char) ((rel_off >> 16) & 0xff);
-	  data[3] = (unsigned char) ((rel_off >> 24) & 0xff);
+          data[0] = (unsigned char)(rel_off & 0xff);
+          data[1] = (unsigned char)((rel_off >> 8) & 0xff);
+          data[2] = (unsigned char)((rel_off >> 16) & 0xff);
+          data[3] = (unsigned char)((rel_off >> 24) & 0xff);
 #else
 	  data[0] = (unsigned char) rel_off;
 	  data[1] = (unsigned char) (rel_off >> 8);

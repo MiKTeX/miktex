@@ -1,5 +1,5 @@
 /* This file is part of libmspack.
- * (C) 2003-2011 Stuart Caie.
+ * (C) 2003-2018 Stuart Caie.
  *
  * libmspack is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License (LGPL) version 2.1
@@ -397,7 +397,7 @@ static int chmd_read_headers(struct mspack_system *sys, struct mspack_file *fh,
     D(("first pmgl chunk is after last pmgl chunk"))
     return MSPACK_ERR_DATAFORMAT;
   }
-  if (chm->index_root != 0xFFFFFFFF && chm->index_root > chm->num_chunks) {
+  if (chm->index_root != 0xFFFFFFFF && chm->index_root >= chm->num_chunks) {
     D(("index_root outside valid range"))
     return MSPACK_ERR_DATAFORMAT;
   }
@@ -451,6 +451,9 @@ static int chmd_read_headers(struct mspack_system *sys, struct mspack_file *fh,
       READ_ENCINT(section);
       READ_ENCINT(offset);
       READ_ENCINT(length);
+
+      /* ignore blank or one-char (e.g. "/") filenames we'd return as blank */
+      if (name_len < 2 || !name[0] || !name[1]) continue;
 
       /* empty files and directory names are stored as a file entry at
        * offset 0 with length 0. We want to keep empty files, but not
@@ -524,7 +527,7 @@ static int chmd_read_headers(struct mspack_system *sys, struct mspack_file *fh,
  * directly from the on-disk index.
  *
  * TODO: protect against infinite loops in chunks (where pgml_NextChunk
- * or a PGMI index entry point to an already visited chunk)
+ * or a PMGI index entry point to an already visited chunk)
  */
 static int chmd_fast_find(struct mschm_decompressor *base,
 			  struct mschmd_header *chm, const char *filename,
@@ -622,7 +625,7 @@ static unsigned char *read_chunk(struct mschm_decompressor_p *self,
     unsigned char *buf;
 
     /* check arguments - most are already checked by chmd_fast_find */
-    if (chunk_num > chm->num_chunks) return NULL;
+    if (chunk_num >= chm->num_chunks) return NULL;
     
     /* ensure chunk cache is available */
     if (!chm->chunk_cache) {
@@ -831,7 +834,7 @@ static int search_chunk(struct mschmd_header *chm,
 # endif
 # define TOLOWER(x) tolower(x)
 #else
-# define TOLOWER(x) (((x)<0||(x)>256)?(x):mspack_tolower_map[(x)])
+# define TOLOWER(x) (((x)<0||(x)>255)?(x):mspack_tolower_map[(x)])
 /* Map of char -> lowercase char for the first 256 chars. Generated with:
  * LC_CTYPE=en_GB.utf-8 perl -Mlocale -le 'print map{ord(lc chr).","} 0..255'
  */
@@ -1269,9 +1272,15 @@ static int read_spaninfo(struct mschm_decompressor_p *self,
 
     /* get the uncompressed length of the LZX stream */
     err = read_off64(length_ptr, data, sys, self->d->infh);
-
     sys->free(data);
-    return (err) ? MSPACK_ERR_DATAFORMAT : MSPACK_ERR_OK;
+    if (err) return MSPACK_ERR_DATAFORMAT;
+
+    if (*length_ptr <= 0) {
+        D(("output length is invalid"))
+        return MSPACK_ERR_DATAFORMAT;
+    }
+
+    return MSPACK_ERR_OK;
 }
 
 /***************************************
@@ -1373,7 +1382,7 @@ static int chmd_error(struct mschm_decompressor *base) {
 static int read_off64(off_t *var, unsigned char *mem,
 		      struct mspack_system *sys, struct mspack_file *fh)
 {
-#ifdef LARGEFILE_SUPPORT
+#if LARGEFILE_SUPPORT
     *var = EndGetI64(mem);
 #else
     *var = EndGetI32(mem);

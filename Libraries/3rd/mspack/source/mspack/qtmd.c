@@ -197,6 +197,7 @@ struct qtmd_stream *qtmd_init(struct mspack_system *system,
   /* Quantum supports window sizes of 2^10 (1Kb) through 2^21 (2Mb) */
   if (window_bits < 10 || window_bits > 21) return NULL;
 
+  /* round up input buffer size to multiple of two */
   input_buffer_size = (input_buffer_size + 1) & -2;
   if (input_buffer_size < 2) return NULL;
 

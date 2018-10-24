@@ -1,5 +1,5 @@
 /* libmspack -- a library for working with Microsoft compression formats.
- * (C) 2003-2013 Stuart Caie <kyzer@4u.net>
+ * (C) 2003-2016 Stuart Caie <kyzer@cabextract.org.uk>
  *
  * libmspack is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License (LGPL) version 2.1
@@ -328,7 +328,9 @@ struct mspack_system {
    * @param bytes   the number of bytes to read from the file.
    * @return the number of bytes successfully read (this can be less than
    *         the number requested), zero to mark the end of file, or less
-   *         than zero to indicate an error.
+   *         than zero to indicate an error. The library does not "retry"
+   *         reads and assumes short reads are due to EOF, so you should
+   *         avoid returning short reads because of transient errors.
    * @see open(), write()
    */
   int (*read)(struct mspack_file *file,
@@ -422,7 +424,7 @@ struct mspack_system {
   /**
    * Frees memory.
    * 
-   * @param ptr the memory to be freed.
+   * @param ptr the memory to be freed. NULL is accepted and ignored.
    * @see alloc()
    */
   void (*free)(void *ptr);
@@ -932,6 +934,13 @@ struct mscabd_file {
 #define MSCABD_PARAM_FIXMSZIP  (1)
 /** mscab_decompressor::set_param() parameter: size of decompression buffer */
 #define MSCABD_PARAM_DECOMPBUF (2)
+/** mscab_decompressor::set_param() parameter: salvage data from bad cabinets?
+ * If enabled, open() will skip file with bad folder indices or filenames
+ * rather than reject the whole cabinet, and extract() will limit rather than
+ * reject files with invalid offsets and lengths, and bad data block checksums
+ * will be ignored. Available only in CAB decoder version 2 and above.
+ */
+#define MSCABD_PARAM_SALVAGE   (3)
 
 /** TODO */
 struct mscab_compressor {

@@ -349,8 +349,9 @@ struct mszipd_stream *mszipd_init(struct mspack_system *system,
 
   if (!system) return NULL;
 
+  /* round up input buffer size to multiple of two */
   input_buffer_size = (input_buffer_size + 1) & -2;
-  if (!input_buffer_size) return NULL;
+  if (input_buffer_size < 2) return NULL;
 
   /* allocate decompression state */
   if (!(zip = (struct mszipd_stream *) system->alloc(system, sizeof(struct mszipd_stream)))) {

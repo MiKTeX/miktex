@@ -23,8 +23,9 @@
 * liblzma 5.2.4
 * libpng 1.6.35
 * LibreSSL 2.8.2
-* mpfr 4.0.1
 * m-tx 0.63a
+* mpfr 4.0.1
+* mspack 0.8alpha
 
 ## 2.9.6840 - 2018-09-30
 

@@ -40,7 +40,6 @@
 #if defined(MIKTEX) && defined(HAVE_CONFIG_H)
 #  include <config.h>
 #endif
-
 #include "crc32.h"
 
 const unsigned int crc32_table[256] = {
