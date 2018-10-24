@@ -78,7 +78,8 @@ private:
   unordered_map<string, string> values;
 };
 
-class MakeFmt : public MakeUtility
+class MakeFmt :
+  public MakeUtility
 {
 public:
   virtual void Run(int argc, const char** argv);

@@ -28,7 +28,8 @@ enum {
   OPT_AAA = 1, OPT_DESTNAME, OPT_ENGINE_OPTION, OPT_NO_DUMP
 };
 
-class MakeBase : public MakeUtility
+class MakeBase :
+  public MakeUtility
 {
 public:
   virtual void Run(int argc, const char** argv);

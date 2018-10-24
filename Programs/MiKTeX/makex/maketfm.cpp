@@ -24,7 +24,8 @@
 
 log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("maketfm"));
 
-class MakeTfm : public MakeUtility
+class MakeTfm :
+  public MakeUtility
 {
 public:
   virtual void Run(int argc, const char** argv);
