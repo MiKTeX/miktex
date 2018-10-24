@@ -1149,9 +1149,6 @@ main (int argc, char *argv[])
                       &x_offset, &y_offset, &landscape_mode,
                       &pdf_version_major, &pdf_version_minor,
                       &do_encryption, &key_bits, &permission, oplain, uplain);
-    if (landscape_mode) {
-      SWAP(paper_width, paper_height);
-    }
   }
 
   /* Command-line options take precedence */
@@ -1198,6 +1195,9 @@ main (int argc, char *argv[])
    * annot_grow:    Margin of annotation.
    * bookmark_open: Miximal depth of open bookmarks.
    */
+  if (landscape_mode) {
+    SWAP(paper_width, paper_height);
+  }  
   settings.media_width        = paper_width;
   settings.media_height       = paper_height;
   settings.annot_grow_amount  = annot_grow;

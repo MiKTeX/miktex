@@ -4,7 +4,7 @@
 
 ### Upgraded programs
 
-* dvipdfmx 20181002
+* dvipdfmx 20181012
 * Dvisvgm 2.6
 * LuaTeX 1.09.0
 
