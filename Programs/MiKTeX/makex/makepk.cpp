@@ -41,7 +41,7 @@ private:
 
 private:
   BEGIN_OPTION_MAP(MakePk)
-    OPTION_ENTRY(OPT_MAP_FILE, mapFiles.push_back(lpszOptArg))
+    OPTION_ENTRY(OPT_MAP_FILE, mapFiles.push_back(optArg))
     OPTION_ENTRY_TRUE(OPT_FORCE, overwriteExisting)
   END_OPTION_MAP();
 

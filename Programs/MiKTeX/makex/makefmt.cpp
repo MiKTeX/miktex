@@ -92,8 +92,8 @@ private:
 
 private:
   BEGIN_OPTION_MAP(MakeFmt)
-    OPTION_ENTRY(OPT_ENGINE, SetEngine(lpszOptArg))
-    OPTION_ENTRY(OPT_ENGINE_OPTION, AppendEngineOption(lpszOptArg))
+    OPTION_ENTRY(OPT_ENGINE, SetEngine(optArg))
+    OPTION_ENTRY(OPT_ENGINE_OPTION, AppendEngineOption(optArg))
     OPTION_ENTRY_SET(OPT_DESTNAME, destinationName)
     OPTION_ENTRY_SET(OPT_JOB_TIME, jobTime)
     OPTION_ENTRY_SET(OPT_PRELOAD, preloadedFormat)

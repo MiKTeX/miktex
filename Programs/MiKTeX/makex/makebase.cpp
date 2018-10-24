@@ -43,7 +43,7 @@ private:
 private:
   BEGIN_OPTION_MAP(MakeBase)
     OPTION_ENTRY_SET(OPT_DESTNAME, destinationName)
-    OPTION_ENTRY(OPT_ENGINE_OPTION, AppendEngineOption(lpszOptArg))
+    OPTION_ENTRY(OPT_ENGINE_OPTION, AppendEngineOption(optArg))
     OPTION_ENTRY_TRUE(OPT_NO_DUMP, noDumpPrimitive)
   END_OPTION_MAP();
 

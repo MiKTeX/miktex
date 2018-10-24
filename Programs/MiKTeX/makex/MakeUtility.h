@@ -466,9 +466,9 @@ protected:
     "version",      no_argument,            0,      'V'
 
 #define BEGIN_OPTION_MAP(cls)                                           \
-void HandleOption(int ch, const char* lpszOptArg, bool& bHandled)       \
+void HandleOption(int ch, const char* optArg, bool& handled)            \
 {                                                                       \
-  UNUSED_ALWAYS(lpszOptArg);                                            \
+  UNUSED_ALWAYS(optArg);                                                \
   switch (ch)                                                           \
   {
 
@@ -479,12 +479,12 @@ void HandleOption(int ch, const char* lpszOptArg, bool& bHandled)       \
 
 #define OPTION_ENTRY_SET(ch, var)               \
     case ch:                                    \
-      var = lpszOptArg;                         \
+      var = optArg;                             \
       break;
 
 #define OPTION_ENTRY_STRING(ch, var, size)              \
     case ch:                                            \
-      StringUtil::CopyString (var, size, lpszOptArg);   \
+      StringUtil::CopyString(var, size, optArg);        \
       break;
 
 #define OPTION_ENTRY(ch, action)                \
@@ -494,7 +494,7 @@ void HandleOption(int ch, const char* lpszOptArg, bool& bHandled)       \
 
 #define END_OPTION_MAP()                        \
     default:                                    \
-      bHandled = false;                         \
+      handled = false;                          \
       break;                                    \
     }                                           \
 }
