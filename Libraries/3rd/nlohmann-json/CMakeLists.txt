@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016 Christian Schenk
+## Copyright (C) 2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -20,13 +20,7 @@
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/nlohmann-json")
 
 set(interface_include_directories
-  ${CMAKE_CURRENT_BINARY_DIR}/include
-)
-
-configure_file(
-  source/src/json.hpp
-  ${CMAKE_CURRENT_BINARY_DIR}/include/nlohmann/json.hpp
-  COPYONLY
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/single_include
 )
 
 add_library(${nlohmann_json_dll_name} INTERFACE)
