@@ -12,7 +12,7 @@ const struct poptOption IniTeXMFApp::options[] = {
     "admin", 0,
     POPT_ARG_NONE, nullptr,
     OPT_ADMIN,
-    T_("Run in administrative mode."),
+    T_("Run in administrator mode."),
     nullptr
   },
 

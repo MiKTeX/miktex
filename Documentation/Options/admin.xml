@@ -5,7 +5,7 @@
 %entities.ent;
 ]>
 <varlistentry><term><option>--admin</option></term>
-<listitem><para>Run in administrative mode:</para>
+<listitem><para>Run in administrator mode:</para>
 <itemizedlist>
 <listitem><para>Operate on the system-wide &MiKTeXconfigurationdatastore;.</para></listitem>
 <listitem><para>Install packages for all users.</para></listitem>

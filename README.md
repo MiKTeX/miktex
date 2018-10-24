@@ -139,7 +139,7 @@ The most useful build variables are:
   * `$HOME/miktex`
 
     Use this prefix, if you want to install MiKTeX just for yourself.
-    No administrative privileges are required.
+    No administrator privileges are required.
 
   * `/opt/miktex`
 

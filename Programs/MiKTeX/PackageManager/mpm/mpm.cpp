@@ -418,7 +418,7 @@ const struct poptOption Application::aoption[] = {
 
   {
     "admin", 0, POPT_ARG_NONE, 0, OPT_ADMIN,
-    T_("Run in administrative mode."),
+    T_("Run in administrator mode."),
     nullptr,
   },
 
@@ -1846,14 +1846,14 @@ void Application::Main(int argc, const char** argv)
     }
     if (!session->RunningAsAdministrator())
     {
-      Warn(T_("Option --admin may require administrative privileges"));
+      Warn(T_("Option --admin may require administrator privileges"));
     }
     session->SetAdminMode(true);
   }
 
   if (session->RunningAsAdministrator() && !session->IsAdminMode())
   {
-    Warn(T_("Option --admin should be specified when running this program with administrative privileges"));
+    Warn(T_("Option --admin should be specified when running this program with administrator privileges"));
   }
 
   PathName xmlFileName;

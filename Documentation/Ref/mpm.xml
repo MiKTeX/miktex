@@ -44,7 +44,7 @@ command-line options.</para>
 </refsect1>
 
 <refsect1>
-<title>User mode vs. administrative mode</title>
+<title>User mode vs. administrator mode</title>
 
 <para>This utility can be run in two modes:</para>
 
@@ -57,7 +57,7 @@ command-line options.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
-<term>Administrative mode</term>
+<term>Administrator mode</term>
 <listitem>
 <para>&MPM; operates on the system-wide installation directory
 (usually &commoninstalldir;), assuming that the &MiKTeX; setup is
@@ -68,7 +68,7 @@ privileges.</para>
 </variablelist>
 
 <para>By default, &MPM; runs in user mode.  You can turn on
-administrative mode with the <option>--admin</option> option.  For
+administrator mode with the <option>--admin</option> option.  For
 example, if you want to install a package for all users, you invoke
 &MPM; as follows:</para>
 

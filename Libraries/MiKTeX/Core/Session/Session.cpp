@@ -205,7 +205,7 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 
   if (IsAdminMode() && !IsSharedSetup())
   {
-    MIKTEX_FATAL_ERROR(T_("Administrative startup refused because this is not a shared MiKTeX setup."));
+    MIKTEX_FATAL_ERROR(T_("Administrator mode startup refused because this is not a shared MiKTeX setup."));
   }
 }
 

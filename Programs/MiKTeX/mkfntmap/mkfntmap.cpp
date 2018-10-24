@@ -64,7 +64,7 @@ const struct poptOption aoption[] = {
     "admin", 0,
     POPT_ARG_NONE, nullptr,
     OPT_ADMIN,
-    T_("Run in administrative mode."),
+    T_("Run in administrator mode."),
     nullptr
   },
 
@@ -564,7 +564,7 @@ void MakeFontMapApp::Init(int argc, const char** argv)
   session = GetSession();
   if (optAdminMode)
   {
-    Verbose(T_("Entering administrative mode..."));
+    Verbose(T_("Entering administrator mode..."));
   }
   if (optDisableleInstaller)
   {

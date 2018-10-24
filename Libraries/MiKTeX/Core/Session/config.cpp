@@ -1270,9 +1270,9 @@ void SessionImpl::SetAdminMode(bool adminMode, bool force)
   }
   if (adminMode && !force && !IsSharedSetup())
   {
-    MIKTEX_FATAL_ERROR(T_("Administrative mode cannot be enabled (makes no sense) because this is not a shared MiKTeX setup."));
+    MIKTEX_FATAL_ERROR(T_("Administrator mode cannot be enabled (makes no sense) because this is not a shared MiKTeX setup."));
   }
-  trace_config->WriteFormattedLine("core", T_("turning %s administrative mode"), (adminMode ? "on" : "off"));
+  trace_config->WriteFormattedLine("core", T_("turning %s administrator mode"), (adminMode ? "on" : "off"));
   fileTypes.clear();
   UnloadFilenameDatabase();
   this->adminMode = adminMode;

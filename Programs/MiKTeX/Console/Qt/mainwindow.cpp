@@ -606,7 +606,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   {
     MIKTEX_FATAL_ERROR(tr("No graphical sudo frontend is available. Please install 'pkexec', 'kdesu' (KDE) or 'gksu' (Gnome). Alternatively, you can enter 'sudo miktex-console %1' in a terminal window.").arg(QString::fromUtf8(StringUtil::Flatten(args, ' ').c_str())).toStdString());
   }
-  LOG4CXX_INFO(logger, "scheduling restart with administrative privileges: " << cmd);
+  LOG4CXX_INFO(logger, "scheduling restart with administrator privileges: " << cmd);
   string env;
   bool isWayland = Utils::GetEnvironmentString("XDG_SESSION_TYPE", env) && env == "wayland";
   if (isWayland)

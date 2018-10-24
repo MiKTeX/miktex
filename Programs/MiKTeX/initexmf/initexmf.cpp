@@ -689,13 +689,13 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     }
     if (!session->RunningAsAdministrator())
     {
-      Warning(T_("Option --admin may require administrative privileges"));
+      Warning(T_("Option --admin may require administrator privileges"));
     }
     session->SetAdminMode(true, setupWizardRunning);
   }
   if (session->RunningAsAdministrator() && !session->IsAdminMode())
   {
-    Warning(T_("Option --admin should be specified when running this program with administrative privileges"));
+    Warning(T_("Option --admin should be specified when running this program with administrator privileges"));
   }
   Bootstrap();
   enableInstaller = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
