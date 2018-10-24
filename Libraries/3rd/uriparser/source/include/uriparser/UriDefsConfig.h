@@ -2,7 +2,7 @@
  * uriparser - RFC 3986 URI parsing library
  *
  * Copyright (C) 2007, Weijia Song <songweijia@gmail.com>
- * Copyright (C) 2007, Sebastian Pipping <webmaster@hartwork.org>
+ * Copyright (C) 2007, Sebastian Pipping <sebastian@pipping.org>
  * All rights reserved.
  *
  * Redistribution  and use in source and binary forms, with or without
@@ -88,7 +88,7 @@
 /* http://predef.sourceforge.net/precomp.html#sec32 */
 /* http://msdn2.microsoft.com/en-us/library/ms882281.aspx */
 # define URI_INLINE __forceinline
-#elif (__STDC_VERSION__ >= 199901L)
+#elif (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))
 /* C99, "inline" is a keyword */
 # define URI_INLINE inline
 #else

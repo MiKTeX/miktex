@@ -2,7 +2,7 @@
  * uriparser - RFC 3986 URI parsing library
  *
  * Copyright (C) 2007, Weijia Song <songweijia@gmail.com>
- * Copyright (C) 2007, Sebastian Pipping <webmaster@hartwork.org>
+ * Copyright (C) 2007, Sebastian Pipping <sebastian@pipping.org>
  * All rights reserved.
  *
  * Redistribution  and use in source and binary forms, with or without
@@ -434,8 +434,8 @@ static URI_INLINE UriBool URI_FUNC(MakeOwner)(URI_TYPE(Uri) * uri,
 							&& (ranger->text.afterLast != NULL)
 							&& (ranger->text.afterLast > ranger->text.first)) {
 						free((URI_CHAR *)ranger->text.first);
-						free(ranger);
 					}
+					free(ranger);
 					ranger = next;
 				}
 

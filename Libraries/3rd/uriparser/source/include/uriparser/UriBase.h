@@ -2,7 +2,7 @@
  * uriparser - RFC 3986 URI parsing library
  *
  * Copyright (C) 2007, Weijia Song <songweijia@gmail.com>
- * Copyright (C) 2007, Sebastian Pipping <webmaster@hartwork.org>
+ * Copyright (C) 2007, Sebastian Pipping <sebastian@pipping.org>
  * All rights reserved.
  *
  * Redistribution  and use in source and binary forms, with or without
@@ -55,7 +55,7 @@
 /* Version */
 #define URI_VER_MAJOR           0
 #define URI_VER_MINOR           8
-#define URI_VER_RELEASE         4
+#define URI_VER_RELEASE         6
 #define URI_VER_SUFFIX_ANSI     ""
 #define URI_VER_SUFFIX_UNICODE  URI_ANSI_TO_UNICODE(URI_VER_SUFFIX_ANSI)
 

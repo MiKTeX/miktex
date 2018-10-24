@@ -27,6 +27,7 @@
 * mpfr 4.0.1
 * mspack 0.8alpha
 * teckit 2.5.8
+* uriparser 0.8.6
 
 ## 2.9.6840 - 2018-09-30
 

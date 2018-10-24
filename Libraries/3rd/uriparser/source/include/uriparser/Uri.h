@@ -1,8 +1,9 @@
-/*
+/* 5afca6d8abb5d1a22b4e28c912538e6729692afc98f089d9e538ca01c43ab805 (0.8.6+)
+ *
  * uriparser - RFC 3986 URI parsing library
  *
  * Copyright (C) 2007, Weijia Song <songweijia@gmail.com>
- * Copyright (C) 2007, Sebastian Pipping <webmaster@hartwork.org>
+ * Copyright (C) 2007, Sebastian Pipping <sebastian@pipping.org>
  * All rights reserved.
  *
  * Redistribution  and use in source and binary forms, with or without
@@ -157,7 +158,8 @@ typedef struct URI_TYPE(UriStruct) {
 	URI_TYPE(PathSegment) * pathTail; /**< Tail of the list behind pathHead */
 	URI_TYPE(TextRange) query; /**< Query without leading "?" */
 	URI_TYPE(TextRange) fragment; /**< Query without leading "#" */
-	UriBool absolutePath; /**< Absolute path flag, distincting "a" and "/a" */
+	UriBool absolutePath; /**< Absolute path flag, distincting "a" and "/a";
+								always <c>URI_FALSE</c> for URIs with host */
 	UriBool owner; /**< Memory owner flag */
 
 	void * reserved; /**< Reserved to the parser */
@@ -175,7 +177,7 @@ typedef struct URI_TYPE(UriStruct) {
  */
 typedef struct URI_TYPE(ParserStateStruct) {
 	URI_TYPE(Uri) * uri; /**< Plug in the %URI structure to be filled while parsing here */
-	int errorCode; /**< Code identifying the occured error */
+	int errorCode; /**< Code identifying the error which occurred */
 	const URI_CHAR * errorPos; /**< Pointer to position in case of a syntax error */
 
 	void * reserved; /**< Reserved to the parser */
@@ -256,8 +258,8 @@ void URI_FUNC(FreeUriMembers)(URI_TYPE(Uri) * uri);
  * @param inFirst           <b>IN</b>: Pointer to first character of the input text
  * @param inAfterLast       <b>IN</b>: Pointer after the last character of the input text
  * @param out               <b>OUT</b>: Encoded text destination
- * @param spaceToPlus       <b>IN</b>: Wether to convert ' ' to '+' or not
- * @param normalizeBreaks   <b>IN</b>: Wether to convert CR and LF to CR-LF or not.
+ * @param spaceToPlus       <b>IN</b>: Whether to convert ' ' to '+' or not
+ * @param normalizeBreaks   <b>IN</b>: Whether to convert CR and LF to CR-LF or not.
  * @return                  Position of terminator in output string
  *
  * @see uriEscapeA
@@ -280,8 +282,8 @@ URI_CHAR * URI_FUNC(EscapeEx)(const URI_CHAR * inFirst,
  *
  * @param in                <b>IN</b>: Text source
  * @param out               <b>OUT</b>: Encoded text destination
- * @param spaceToPlus       <b>IN</b>: Wether to convert ' ' to '+' or not
- * @param normalizeBreaks   <b>IN</b>: Wether to convert CR and LF to CR-LF or not.
+ * @param spaceToPlus       <b>IN</b>: Whether to convert ' ' to '+' or not
+ * @param normalizeBreaks   <b>IN</b>: Whether to convert CR and LF to CR-LF or not.
  * @return                  Position of terminator in output string
  *
  * @see uriEscapeExA
@@ -379,9 +381,9 @@ int URI_FUNC(AddBaseUriEx)(URI_TYPE(Uri) * absoluteDest,
 
 /**
  * Tries to make a relative %URI (a reference) from an
- * absolute %URI and a given base %URI. This can only work if
- * the absolute %URI shares scheme and authority with
- * the base %URI. If it does not the result will still be
+ * absolute %URI and a given base %URI. The resulting %URI is going to be
+ * relative if the absolute %URI and base %UI share both scheme and authority.
+ * If that is not the case, the result will still be
  * an absolute URI (with scheme part if necessary).
  * NOTE: On success you have to call uriFreeUriMembersA on
  * \p dest manually later.
@@ -567,7 +569,7 @@ int URI_FUNC(UriStringToUnixFilename)(const URI_CHAR * uriString,
 
 /**
  * Extracts a Windows filename from a %URI string.
- * The destination buffer must be large enough to hold len(uriString) + 1 - 8
+ * The destination buffer must be large enough to hold len(uriString) + 1 - 5
  * characters in case of an absolute %URI or len(uriString) + 1 in case
  * of a relative %URI.
  *
@@ -610,8 +612,8 @@ int URI_FUNC(ComposeQueryCharsRequired)(const URI_TYPE(QueryList) * queryList,
  *
  * @param queryList         <b>IN</b>: Query list to measure
  * @param charsRequired     <b>OUT</b>: Length of the string representation in characters <b>excluding</b> terminator
- * @param spaceToPlus       <b>IN</b>: Wether to convert ' ' to '+' or not
- * @param normalizeBreaks   <b>IN</b>: Wether to convert CR and LF to CR-LF or not.
+ * @param spaceToPlus       <b>IN</b>: Whether to convert ' ' to '+' or not
+ * @param normalizeBreaks   <b>IN</b>: Whether to convert CR and LF to CR-LF or not.
  * @return                  Error code or 0 on success
  *
  * @see uriComposeQueryCharsRequiredA
@@ -654,8 +656,8 @@ int URI_FUNC(ComposeQuery)(URI_CHAR * dest,
  * @param queryList         <b>IN</b>: Query list to convert
  * @param maxChars          <b>IN</b>: Maximum number of characters to copy <b>including</b> terminator
  * @param charsWritten      <b>OUT</b>: Number of characters written, can be lower than maxChars even if the query list is too long!
- * @param spaceToPlus       <b>IN</b>: Wether to convert ' ' to '+' or not
- * @param normalizeBreaks   <b>IN</b>: Wether to convert CR and LF to CR-LF or not.
+ * @param spaceToPlus       <b>IN</b>: Whether to convert ' ' to '+' or not
+ * @param normalizeBreaks   <b>IN</b>: Whether to convert CR and LF to CR-LF or not.
  * @return                  Error code or 0 on success
  *
  * @see uriComposeQueryA
@@ -698,8 +700,8 @@ int URI_FUNC(ComposeQueryMalloc)(URI_CHAR ** dest,
  *
  * @param dest              <b>OUT</b>: Output destination
  * @param queryList         <b>IN</b>: Query list to convert
- * @param spaceToPlus       <b>IN</b>: Wether to convert ' ' to '+' or not
- * @param normalizeBreaks   <b>IN</b>: Wether to convert CR and LF to CR-LF or not.
+ * @param spaceToPlus       <b>IN</b>: Whether to convert ' ' to '+' or not
+ * @param normalizeBreaks   <b>IN</b>: Whether to convert CR and LF to CR-LF or not.
  * @return                  Error code or 0 on success
  *
  * @see uriComposeQueryMallocA
