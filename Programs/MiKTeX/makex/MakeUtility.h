@@ -369,10 +369,10 @@ protected:
   void ShowVersion()
   {
     OUT__
-      << MiKTeX::Core::Utils::MakeProgramVersionString(MiKTeX::Core::Utils::GetExeName(), MiKTeX::Core::VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 1998-2018 Christian Schenk" << endl
-      << "This is free software; see the source for copying conditions.  There is NO" << endl
-      << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
+      << MiKTeX::Core::Utils::MakeProgramVersionString(MiKTeX::Core::Utils::GetExeName(), MiKTeX::Core::VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << "\n"
+      << "Copyright (C) 1998-2018 Christian Schenk" << "\n"
+      << "This is free software; see the source for copying conditions.  There is NO" << "\n"
+      << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << "\n";
   }
 
 protected:
@@ -390,7 +390,7 @@ protected:
     LOG4CXX_INFO(logger, s);
     if (verbose && !quiet)
     {
-      cout << s << endl;
+      cout << s << "\n";
     }
   }
 
@@ -409,7 +409,7 @@ protected:
     LOG4CXX_INFO(logger, s);
     if (!quiet)
     {
-      cout << s << endl;
+      cout << s << "\n";
     }
   }
 
@@ -422,7 +422,7 @@ protected:
     }
     va_list arglist;
     VA_START(arglist, lpszFormat);
-    OUT__ << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
+    OUT__ << StringUtil::FormatStringVA(lpszFormat, arglist) << "\n";
     VA_END(arglist);
   }
 
