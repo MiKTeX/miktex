@@ -26,12 +26,21 @@ The poppler should be 0.69.0 or newer versions.
 POPPLER_VERSION should be defined.
 */
 
+#if defined(MIKTEX)
+#include "miktex-first.h"
+#endif
 /* Do this early in order to avoid a conflict between
    MINGW32 <rpcndr.h> defining 'boolean' as 'unsigned char' and
    <kpathsea/types.h> defining Pascal's boolean as 'int'.
 */
+#if !defined(MIKTEX)
+extern "C" {
+#endif
 #include <w2c/config.h>
 #include <kpathsea/lib.h>
+#if !defined(MIKTEX)
+}
+#endif
 
 #include <stdlib.h>
 #include <math.h>
@@ -40,6 +49,9 @@ POPPLER_VERSION should be defined.
 #include <string.h>
 #include <ctype.h>
 
+#if defined(MIKTEX)
+#include <poppler-config.h>
+#endif
 #ifdef POPPLER_VERSION
 #include <dirent.h>
 #include <poppler-config.h>
@@ -50,8 +62,11 @@ POPPLER_VERSION should be defined.
 #else
 #error POPPLER_VERSION should be defined.
 #endif
+#if defined(MIKTEX)
+#define assert MIKTEX_ASSERT
+#else
 #include <assert.h>
-
+#endif
 #include "Object.h"
 #include "Stream.h"
 #include "Array.h"
@@ -68,17 +83,28 @@ POPPLER_VERSION should be defined.
 // This file is mostly C and not very much C++; it's just used to interface
 // the functions of xpdf, which are written in C++.
 
+#if !defined(MIKTEX)
 extern "C" {
+#endif
+#if defined(MIKTEX)
+#include <ptexmac.h>
+#include <pdftex-common.h>
+#else
 #include <pdftexdir/ptexmac.h>
 #include <pdftexdir/pdftex-common.h>
+#endif
 
 // These functions from pdftex.web gets declared in pdftexcoerce.h in the
 // usual web2c way, but we cannot include that file here because C++
 // does not allow it.
+#if !defined(MIKTEX)
 extern int getpdfsuppresswarningpagegroup(void);
 extern integer getpdfsuppressptexinfo(void);
 extern integer zround(double);
+#endif
+#if !defined(MIKTEX)
 }
+#endif
 
 // The prefix "PTEX" for the PDF keys is special to pdfTeX;
 // this has been registered with Adobe by Hans Hagen.
