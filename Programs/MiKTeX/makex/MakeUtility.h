@@ -64,8 +64,8 @@
 
 #define OUT__ (stdoutStderr ? cerr : cout)
 
-#define VA_START(arglist, lpszFormat   )        \
-va_start(arglist, lpszFormat);                  \
+#define VA_START(arglist, format)               \
+va_start(arglist, format);                      \
 try                                             \
 {
 
@@ -100,9 +100,9 @@ class ProcessOutputTrash :
   public IRunProcessCallback
 {
 public:
-  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n) override
+  bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) override
   {
-    UNUSED_ALWAYS(pOutput);
+    UNUSED_ALWAYS(output);
     UNUSED_ALWAYS(n);
     return true;
   }
@@ -112,9 +112,9 @@ class ProcessOutputStderr :
   public IRunProcessCallback
 {
 public:
-  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n) override
+  bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) override
   {
-    cerr.write((const char *)pOutput, n);
+    cerr.write((const char*)output, n);
     return true;
   }
 };
@@ -141,13 +141,13 @@ protected:
   virtual void CreateDestinationDirectory() = 0;
 
 protected:
-  virtual void HandleOption(int ch, const char* lpszOptArg, bool& handled) = 0;
+  virtual void HandleOption(int ch, const char* optArg, bool& handled) = 0;
 
 private:
-  void GetShortOptions(const struct option* pLongOptions, string& shortOptions)
+  void GetShortOptions(const struct option* longOptions, string& shortOptions)
   {
     shortOptions = "";
-    for (const struct option* opt = pLongOptions; opt->name != nullptr; ++opt)
+    for (const struct option* opt = longOptions; opt->name != nullptr; ++opt)
     {
       if (isprint(opt->val))
       {
@@ -165,15 +165,15 @@ private:
   }
   
 protected:
-  void GetOptions(int argc, const char ** argv, const struct option* pLongOptions, int& optionIndex)
+  void GetOptions(int argc, const char** argv, const struct option* longOptions, int& optionIndex)
   {
     string shortOptions;
-    GetShortOptions(pLongOptions, shortOptions);
+    GetShortOptions(longOptions, shortOptions);
 
     int c;
     int idx;
     optind = 0;
-    while ((c = getopt_long(argc, const_cast<char* const *>(argv), shortOptions.c_str(), pLongOptions, &idx)) != EOF)
+    while ((c = getopt_long(argc, const_cast<char*const*>(argv), shortOptions.c_str(), longOptions, &idx)) != EOF)
     {
       switch (c)
       {
@@ -223,16 +223,16 @@ protected:
   }
   
 protected:
-  bool RunProcess(const char* lpszExeName, const std::vector<std::string>& arguments, const PathName& workingDirectory)
+  bool RunProcess(const char* exeName, const std::vector<std::string>& arguments, const PathName& workingDirectory)
   {
     // find the executable; make sure it contains no blanks
     PathName exe;
-    if (!session->FindFile(lpszExeName, FileType::EXE, exe))
+    if (!session->FindFile(exeName, FileType::EXE, exe))
     {
-      FatalError(fmt::format(T_("The application file {0} could not be found."), Q_(lpszExeName)));
+      FatalError(fmt::format(T_("The application file {0} could not be found."), Q_(exeName)));
     }
 
-    std::vector<std::string> allArgs{ lpszExeName };
+    std::vector<std::string> allArgs{ exeName };
     switch (GetEnableInstaller())
     {
     case TriState::False:
@@ -246,7 +246,7 @@ protected:
     }
     allArgs.insert(allArgs.end(), arguments.begin(), arguments.end());
 
-    Message(T_("Running %s..."), Q_(lpszExeName));
+    Message(T_("Running %s..."), Q_(exeName));
     LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(allArgs).ToString());
     PrintOnly("%s", CommandLineBuilder(allArgs).ToString().c_str());
     
@@ -267,7 +267,7 @@ protected:
         }
       if (!Process::Run(exe, allArgs, callback, &exitCode, workingDirectory.GetData()))
       {
-        FatalError(fmt::format(T_("The application file {0} could not be started."), Q_(lpszExeName)));
+        FatalError(fmt::format(T_("The application file {0} could not be started."), Q_(exeName)));
       }
     }
 
@@ -275,26 +275,26 @@ protected:
   }
 
 protected:
-  bool RunMETAFONT(const char* lpszName, const char* lpszMode, const char* lpszMag, const PathName& workingDirectory)
+  bool RunMETAFONT(const char* name, const char* mode, const char* mag, const PathName& workingDirectory)
   {
     vector<string> arguments;
     arguments.push_back("--undump="s + "mf");
-    arguments.push_back("\\mode:="s + (lpszMode == nullptr ? "ljfour" : lpszMode) + ";");
-    if (lpszMag != nullptr)
+    arguments.push_back("\\mode:="s + (mode == nullptr ? "ljfour" : mode) + ";");
+    if (mag != nullptr)
     {
-      arguments.push_back("\\mag:="s + lpszMag + ";");
+      arguments.push_back("\\mag:="s + mag + ";");
     }
     if (!debug)
     {
       arguments.push_back("nonstopmode;");
     }
-    arguments.push_back("input "s + lpszName);
+    arguments.push_back("input "s + name);
     if (RunProcess(MIKTEX_MF_EXE, arguments, workingDirectory))
     {
       return true;
     }
     Verbose(T_("METAFONT failed for some reason"));
-    PathName pathLogFile = lpszName;
+    PathName pathLogFile = name;
     pathLogFile.AppendExtension(".log");
     AutoFILE pLogFile(File::Open(pathLogFile, FileMode::Open, FileAccess::Read));
     string line;
@@ -371,7 +371,7 @@ protected:
   }
 
 protected:
-  void Verbose(const char* lpszFormat, ...)
+  void Verbose(const char* format, ...)
   {
     if (printOnly)
     {
@@ -379,8 +379,8 @@ protected:
     }
     string s;
     va_list arglist;
-    VA_START(arglist, lpszFormat);
-    s = StringUtil::FormatStringVA(lpszFormat, arglist);
+    VA_START(arglist, format);
+    s = StringUtil::FormatStringVA(format, arglist);
     VA_END(arglist);
     LOG4CXX_INFO(logger, s);
     if (verbose && !quiet)
@@ -390,7 +390,7 @@ protected:
   }
 
 protected:
-  void Message(const char* lpszFormat, ...)
+  void Message(const char* format, ...)
   {
     if (printOnly)
     {
@@ -398,8 +398,8 @@ protected:
     }
     string s;
     va_list arglist;
-    VA_START(arglist, lpszFormat);
-    s = StringUtil::FormatStringVA(lpszFormat, arglist);
+    VA_START(arglist, format);
+    s = StringUtil::FormatStringVA(format, arglist);
     VA_END(arglist);
     LOG4CXX_INFO(logger, s);
     if (!quiet)
@@ -409,15 +409,15 @@ protected:
   }
 
 protected:
-  void PrintOnly(const char* lpszFormat, ...)
+  void PrintOnly(const char* format, ...)
   {
     if (!printOnly)
     {
       return;
     }
     va_list arglist;
-    VA_START(arglist, lpszFormat);
-    OUT__ << StringUtil::FormatStringVA(lpszFormat, arglist) << "\n";
+    VA_START(arglist, format);
+    OUT__ << StringUtil::FormatStringVA(format, arglist) << "\n";
     VA_END(arglist);
   }
 
