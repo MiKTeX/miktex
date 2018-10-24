@@ -125,13 +125,8 @@ class MakeUtility :
   public Application
 {
 public:
-  void Init(const Session::InitInfo& initInfoArg, std::vector<char*>& args) override
+  void Init(const Session::InitInfo& initInfo, std::vector<char*>& args) override
   {
-    Session::InitInfo initInfo = initInfoArg;
-    if (adminMode)
-    {
-      initInfo.SetOptions({ Session::InitOption::AdminMode });
-    }
     Application::Init(initInfo, args);
     session = GetSession();
   }
@@ -446,9 +441,6 @@ protected:
 
 protected:
   string name;
-
-protected:
-  bool adminMode = false;
 
 protected:
   std::shared_ptr<MiKTeX::Core::Session> session;
