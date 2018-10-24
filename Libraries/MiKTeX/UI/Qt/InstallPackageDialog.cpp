@@ -91,11 +91,11 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
     {
       QString currentUser;
 #if defined(MIKTEX_WINDOWS)
-      char szLogonName[30];
+      wchar_t szLogonName[30];
       DWORD sizeLogonName = sizeof(szLogonName) / sizeof(szLogonName[0]);
-      if (GetUserNameA(szLogonName, &sizeLogonName))
+      if (GetUserNameW(szLogonName, &sizeLogonName))
       {
-        currentUser = szLogonName;
+        currentUser = QString::fromWCharArray(szLogonName);
       }
       else if (GetLastError() == ERROR_NOT_LOGGED_ON)
       {
@@ -103,14 +103,14 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
       }
       else
       {
-        MIKTEX_FATAL_WINDOWS_ERROR("GetUserNameA");
+        MIKTEX_FATAL_WINDOWS_ERROR("GetUserNameW");
       }
-      char szDisplayName[30];
+      wchar_t szDisplayName[30];
       ULONG sizeDisplayName = sizeof(szDisplayName) / sizeof(szDisplayName[0]);
-      if (GetUserNameExA(NameDisplay, szDisplayName, &sizeDisplayName))
+      if (GetUserNameExW(NameDisplay, szDisplayName, &sizeDisplayName))
       {
         currentUser += " (";
-        currentUser += szDisplayName;
+        currentUser += QString::fromWCharArray(szDisplayName);
         currentUser += ")";
       }
 #else
