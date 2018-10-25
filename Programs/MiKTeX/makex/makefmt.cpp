@@ -134,7 +134,7 @@ private:
     }
     else
     {
-      FatalError(fmt::format(T_("Unknown engine: %s"), engine));
+      FatalError(fmt::format(T_("Unknown engine: {0}"), engine));
     }
   }
 
@@ -437,7 +437,7 @@ void MakeFmt::Run(int argc, const char** argv)
   // start the engine
   if (!RunProcess(GetEngineExeName(), arguments, wrkDir->GetPathName()))
   {
-    FatalError(fmt::format(T_("%s failed on %s."), GetEngineExeName(), Q_(name)));
+    FatalError(fmt::format(T_("{0} failed on {1}."), GetEngineExeName(), Q_(name)));
   }
 
   // install format file
