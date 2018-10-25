@@ -128,7 +128,7 @@ const char* const cbpref[] = {
 
 bool HasPrefix(const string& s, const char* const prefixes[])
 {
-  for (size_t i = 0; prefixes[i] != 0; ++i)
+  for (size_t i = 0; prefixes[i] != nullptr; ++i)
   {
     if (HasPrefix(s, prefixes[i]))
     {
