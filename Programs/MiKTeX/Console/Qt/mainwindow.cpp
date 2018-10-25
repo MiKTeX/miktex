@@ -1466,47 +1466,36 @@ void MainWindow::UpdateActionsDirectories()
   ui->actionAddRootDirectory->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
 }
 
-const char* tdsDirs[] = {
-  "bibtex",
-  "dvipdfm",
-  "dvips",
-  "fontname",
-  "fonts",
-  "makeindex",
-  "metafont",
-  "metapost",
-  "mft",
-  "miktex",
-  "pdftex",
-  "psutils",
-  "scripts",
-  "tex",
-  "tpm",
-  "ttf2pfb",
-  "ttf2tfm",
+string tdsDirs[] = {
+  "bibtex/bib",
+  "bibtex/bst",
+  "fonts/afm",
+  "fonts/enc",
+  "fonts/map",
+  "fonts/opentype",
+  "fonts/pfb",
+  "fonts/source",
+  "fonts/tfm",
+  "fonts/type1",
+  "fonts/vf",
+  "tex/generic",
+  "tex/latex",
+  "tex/lualatex",
+  "tex/luatex",
+  "tex/plain",
+  "tex/xelatex",
 };
 
 bool CheckRoot(const PathName& root)
 {
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(root);
-  DirectoryEntry entry;
-  bool isEmpty = true;
-  while (lister->GetNext(entry))
+  for (const string& dir : tdsDirs)
   {
-    isEmpty = false;
-    if (entry.isDirectory)
+    if (Directory::Exists(root / dir))
     {
-      PathName name(entry.name);
-      for (const char* dir : tdsDirs)
-      {
-        if (name == dir)
-        {
-          return true;
-        }
-      }
+      return true;
     }
   }
-  return isEmpty;
+  return false;
 }
 
 void MainWindow::AddRootDirectory()
