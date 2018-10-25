@@ -79,7 +79,7 @@ public:
     return value;
   }
 public:
-  string& operator[] (const string& valueName)
+  string& operator[](const string& valueName)
   {
     return values[valueName];
   }
