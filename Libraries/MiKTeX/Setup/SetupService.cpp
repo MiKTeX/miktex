@@ -1760,12 +1760,20 @@ void SetupServiceImpl::Warning(const MiKTeX::Core::MiKTeXException& ex)
 void SetupService::WriteReport(ostream& s, ReportOptionSet options)
 {
   shared_ptr<Session> session = Session::Get();
+  vector<string> problems;
   if (options[ReportOption::General])
   {
+    bool pathOkay = Utils::CheckPath();
+#if 0
+    if (!pathOkay)
+    {
+      problems.push_back(T_("The PATH variable does not include the MiKTeX executables."));
+    }
+#endif
     s << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
       << "OS: " << Utils::GetOSVersionString() << "\n"
       << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
-      << "PathOkay: " << (Utils::CheckPath() ? T_("yes") : T_("no")) << "\n";
+      << "PathOkay: " << (pathOkay ? T_("yes") : T_("no")) << "\n";
   }
   if (options[ReportOption::CurrentUser])
   {
@@ -1774,9 +1782,21 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   }
   if (options[ReportOption::RootDirectories])
   {
-    for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
+    vector<RootDirectoryInfo> roots = session->GetRootDirectories();
+    for (int idx = 0; idx < roots.size(); ++idx)
     {
-      s << "Root" << idx << ": " << session->GetRootDirectoryPath(idx) << "\n";
+      for (int idx2 = 0; idx2 < idx; ++idx2)
+      {
+        if (Utils::IsParentDirectoryOf(roots[idx2].path, roots[idx].path))
+        {
+          problems.push_back(fmt::format(T_("root{0} is covered by root{1}"), idx, idx2));
+        }
+        else if (Utils::IsParentDirectoryOf(roots[idx].path, roots[idx2].path))
+        {
+          problems.push_back(fmt::format(T_("root{0} covers root{1}"), idx, idx2));
+        }
+      }
+      s << fmt::format("Root{}: {}", idx, roots[idx].path) << "\n";
     }
     s << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << "\n"
       << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << "\n"
@@ -1804,7 +1824,6 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   if (options[ReportOption::BrokenPackages])
   {
     shared_ptr<PackageManager> packageManager = PackageManager::Create();
-    vector<string> broken;
     unique_ptr<PackageIterator> pkgIter(packageManager->CreateIterator());
     PackageInfo packageInfo;
     for (int idx = 0; pkgIter->GetNext(packageInfo); ++idx)
@@ -1815,17 +1834,18 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       {
         if (!(packageManager->TryVerifyInstalledPackage(packageInfo.deploymentName)))
         {
-          broken.push_back(packageInfo.deploymentName);
+          problems.push_back(fmt::format(T_("package {0} has been tampered with"), packageInfo.deploymentName));
         }
       }
     }
     pkgIter->Dispose();
-    if (!broken.empty())
+  }
+  if (!problems.empty())
+  {
+    s << "\n" << "Warning: the following problems were detected:" << "\n";
+    for (const string& msg : problems)
     {
-      for (const string& name : broken)
-      {
-        s << name << ": " << T_("needs to be reinstalled") << "\n";
-      }
+      s << fmt::format("  - {}", msg) << "\n";
     }
   }
 }
