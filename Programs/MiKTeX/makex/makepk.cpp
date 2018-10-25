@@ -105,8 +105,7 @@ private:
   vector<string> mapFiles;
 };
 
-void
-MakePk::Usage()
+void MakePk::Usage()
 {
   OUT__
     << T_("Usage:") << " " << Utils::GetExeName() << " " << T_("[OPTION]... name dpi bdpi magnification [MODE]") << "\n"

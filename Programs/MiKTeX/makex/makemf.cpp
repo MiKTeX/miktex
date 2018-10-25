@@ -244,13 +244,13 @@ void MakeMf::Run(int argc, const char** argv)
       // lh fonts get special treatment
       if (HasPrefix(driverName, lhpref))
       {
-        string strLHDriverName;
-        strLHDriverName += driverName[0];
-        strLHDriverName += driverName[1];
-        strLHDriverName += "codes";
-        if (!session->FindFile(strLHDriverName, FileType::MF, driverPath))
+        string lhDriverName;
+        lhDriverName += driverName[0];
+        lhDriverName += driverName[1];
+        lhDriverName += "codes";
+        if (!session->FindFile(lhDriverName, FileType::MF, driverPath))
         {
-          FatalError(fmt::format(T_("The {0} source file could not be found."), strLHDriverName));
+          FatalError(fmt::format(T_("The {0} source file could not be found."), lhDriverName));
         }
       }
       else if (HasPrefix(driverName, cspref))
