@@ -110,38 +110,38 @@ private:
   END_OPTION_MAP();
 
 private:
-  void SetEngine(const char* lpszEngine)
+  void SetEngine(const char* engine)
   {
-    if (Utils::EqualsIgnoreCase(lpszEngine, "luatex"))
+    if (Utils::EqualsIgnoreCase(engine, "luatex"))
     {
-      engine = Engine::LuaTeX;
+      this->engine = Engine::LuaTeX;
     }
-    else if (Utils::EqualsIgnoreCase(lpszEngine, "tex"))
+    else if (Utils::EqualsIgnoreCase(engine, "tex"))
     {
-      engine = Engine::TeX;
+      this->engine = Engine::TeX;
     }
-    else if (Utils::EqualsIgnoreCase(lpszEngine, "pdftex"))
+    else if (Utils::EqualsIgnoreCase(engine, "pdftex"))
     {
-      engine = Engine::pdfTeX;
+      this->engine = Engine::pdfTeX;
     }
-    else if (Utils::EqualsIgnoreCase(lpszEngine, "xetex"))
+    else if (Utils::EqualsIgnoreCase(engine, "xetex"))
     {
-      engine = Engine::XeTeX;
+      this->engine = Engine::XeTeX;
     }
-    else if (Utils::EqualsIgnoreCase(lpszEngine, "omega"))
+    else if (Utils::EqualsIgnoreCase(engine, "omega"))
     {
-      engine = Engine::Omega;
+      this->engine = Engine::Omega;
     }
     else
     {
-      FatalError(fmt::format(T_("Unknown engine: %s"), lpszEngine));
+      FatalError(fmt::format(T_("Unknown engine: %s"), engine));
     }
   }
 
 private:
-  void AppendEngineOption(const char* lpszOption)
+  void AppendEngineOption(const char* option)
   {
-    engineOptions.push_back(lpszOption);
+    engineOptions.push_back(option);
   }
 
 private:

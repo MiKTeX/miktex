@@ -57,7 +57,7 @@ private:
 #endif
 
 private:
-  bool MakeFromHBF(const char* lpszName, const PathName& workingDirectory);
+  bool MakeFromHBF(const char* name, const PathName& workingDirectory);
 };
 
 void MakeTfm::Usage()
@@ -133,7 +133,7 @@ void MakeTfm::CreateDestinationDirectory()
   destinationDirectory = CreateDirectoryFromTemplate(templ2);
 }
 
-bool MakeTfm::MakeFromHBF(const char* lpszName, const PathName& workingDirectory)
+bool MakeTfm::MakeFromHBF(const char* name, const PathName& workingDirectory)
 {
   // run hbf2gf to make a .pl file
   vector<string> arguments;
@@ -142,7 +142,7 @@ bool MakeTfm::MakeFromHBF(const char* lpszName, const PathName& workingDirectory
     arguments.push_back("-q");
   }
   arguments.push_back("-g");
-  arguments.push_back(lpszName);
+  arguments.push_back(name);
   arguments.push_back(std::to_string(300));
   if (!RunProcess(MIKTEX_HBF2GF_EXE, arguments, workingDirectory))
   {
@@ -151,11 +151,11 @@ bool MakeTfm::MakeFromHBF(const char* lpszName, const PathName& workingDirectory
 
   // run PLtoTF
   arguments.clear();
-  arguments.push_back(PathName(lpszName).AppendExtension(".pl").ToString());
-  arguments.push_back(PathName(lpszName).AppendExtension(".tfm").ToString());
+  arguments.push_back(PathName(name).AppendExtension(".pl").ToString());
+  arguments.push_back(PathName(name).AppendExtension(".tfm").ToString());
   if (!RunProcess(MIKTEX_PLTOTF_EXE, arguments, workingDirectory))
   {
-    FatalError(fmt::format(T_("PLtoTF failed on {0}."), Q_(lpszName)));
+    FatalError(fmt::format(T_("PLtoTF failed on {0}."), Q_(name)));
   }
 
   return true;
