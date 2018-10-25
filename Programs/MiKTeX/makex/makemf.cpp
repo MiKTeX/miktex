@@ -302,13 +302,13 @@ void MakeMf::Run(int argc, const char** argv)
   if (HasPrefix(texFontname, "ec") || HasPrefix(texFontname, "tc"))
   {
     stream << "if unknown exbase: input exbase fi;" << "\n";
-    stream << fmt::format("gensize:={:0.2f};", true_pt_size) << "\n";
+    stream << fmt::format("gensize:={:.2f};", true_pt_size) << "\n";
     stream << fmt::format("generate {};", driverName) << "\n";
   }
   else if (HasPrefix(texFontname, "dc"))
   {
     stream << "if unknown dxbase: input dxbase fi;" << "\n";
-    stream << fmt::format("gensize:={:f};", true_pt_size) << "\n";
+    stream << fmt::format("gensize:={:.2f};", true_pt_size) << "\n";
     stream << fmt::format("generate {};", driverName) << "\n";
   }
   else if (HasPrefix(texFontname, lhpref))
@@ -325,7 +325,7 @@ void MakeMf::Run(int argc, const char** argv)
   }
   else
   {
-    stream << fmt::format("design_size:={:f};", true_pt_size) << "\n";
+    stream << fmt::format("design_size:={:.2f};", true_pt_size) << "\n";
     stream << fmt::format("input b-{};", driverName) << "\n";
   }
 
