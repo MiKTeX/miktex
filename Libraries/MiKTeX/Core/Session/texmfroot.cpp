@@ -715,6 +715,14 @@ void SessionImpl::RegisterRootDirectory(const PathName& path)
   for (size_t r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
+    if (Utils::IsParentDirectoryOf(root.get_Path(), path))
+    {
+      MIKTEX_FATAL_ERROR_3(T_("Invalid root directory."), T_("The requested root directory ({requested}) is a sub-directory of another root directory ({other})."), "requested", path.ToString(), "other", root.get_Path().ToString());
+    }
+    if (Utils::IsParentDirectoryOf(path, root.get_Path()))
+    {
+      MIKTEX_FATAL_ERROR_3(T_("Invalid root directory."), T_("The requested root directory ({requested}) is the parent directory of another root directory ({other})."), "requested", path.ToString(), "other", root.get_Path().ToString());
+    }
     bool skipit = root.IsOther();
     skipit = skipit || IsAdminMode() && !root.IsCommon();
     skipit = skipit || !IsAdminMode() && root.IsCommon();
