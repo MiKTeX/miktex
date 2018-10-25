@@ -196,6 +196,12 @@ protected:
     }
 
     std::vector<std::string> allArgs{ exeName };
+
+    if (session->IsAdminMode())
+    {
+      allArgs.push_back("--miktex-admin");
+    }
+
     switch (GetEnableInstaller())
     {
     case MiKTeX::Core::TriState::False:
