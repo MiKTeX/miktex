@@ -449,7 +449,7 @@ void MakePk::Run(int argc, const char** argv)
     mfMode = argv[optionIndex++];
   }
 
-  Verbose(fmt::format(T_("Trying to make PK font {0} at {1} DPI..."), Q_(name), static_cast<int>(dpi)));
+  Verbose(fmt::format(T_("Trying to make PK font {0} at {1} DPI..."), Q_(name), dpi));
 
   // make a mode name if none was specified
   if (mfMode.empty() || mfMode == "default")
@@ -464,7 +464,7 @@ void MakePk::Run(int argc, const char** argv)
   // create a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
 
-  string gfName = name + '.' + std::to_string(dpi) + "gf";
+  string gfName = fmt::format("{}.{}gf", name, dpi);
 
   FontMapEntry mapEntry;
 
