@@ -570,7 +570,7 @@ void MakePk::Run(int argc, const char** argv)
   // quit, if destination file already exists
   if (File::Exists(pathDest))
   {
-    Message(fmt::format(T_("The PK font file %s already exists."), Q_(pathDest)));
+    Message(fmt::format(T_("The PK font file {0} already exists."), Q_(pathDest)));
     if (!overwriteExisting)
     {
       return;
