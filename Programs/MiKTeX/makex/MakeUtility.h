@@ -32,9 +32,9 @@
 
 #include <miktex/App/Application>
 
-#include <miktex/Core/AutoResource>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
+#include <miktex/Core/File>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
@@ -259,11 +259,11 @@ protected:
     Verbose(T_("METAFONT failed for some reason"));
     MiKTeX::Core::PathName pathLogFile = name;
     pathLogFile.AppendExtension(".log");
-    MiKTeX::Core::AutoFILE pLogFile(MiKTeX::Core::File::Open(pathLogFile, MiKTeX::Core::FileMode::Open, MiKTeX::Core::FileAccess::Read));
-    std::string line;
     bool noError = true;
     size_t nStrangePaths = 0;
-    while (noError && MiKTeX::Core::Utils::ReadUntilDelim(line, '\n', pLogFile.Get()))
+    std::ifstream stream = MiKTeX::Core::File::CreateInputStream(pathLogFile);
+    std::string line;
+    while (noError && std::getline(stream, line))
     {
       if (line[0] != '!')
       {
@@ -276,11 +276,11 @@ protected:
       }
       noError = false;
     }
+    stream.close();
     if (noError)
     {
       Verbose(fmt::format(T_("ignoring {0} strange path(s)"), nStrangePaths));
     }
-    pLogFile.Reset();
     return noError;
   }
   

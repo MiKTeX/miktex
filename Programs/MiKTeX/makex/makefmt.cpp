@@ -318,9 +318,9 @@ PdfConfigValues MakeFmt::ParsePdfConfigFiles() const
 
 void MakeFmt::ParsePdfConfigFile(const PathName& cfgFile, PdfConfigValues& values) const
 {
-  AutoFILE pFile(File::Open(cfgFile, FileMode::Open, FileAccess::Read));
+  ifstream stream = File::CreateInputStream(cfgFile);
   string line;
-  while (Utils::ReadUntilDelim(line, '\n', pFile.Get()))
+  while (std::getline(stream, line))
   {
     Tokenizer tok(line, " \t\r\n");
     if (!tok)

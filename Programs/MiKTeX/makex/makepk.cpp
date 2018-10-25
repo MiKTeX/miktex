@@ -381,12 +381,12 @@ bool MakePk::FindFontMapping(const char* lpszTeXFontName, const char* lpszMapFil
   }
 
   // open the map file
-  AutoFILE pStream(File::Open(mapFile, FileMode::Open, FileAccess::Read));
+  ifstream stream = File::CreateInputStream(mapFile);
 
   // try to find the font mapping
   bool found = false;
   string line;
-  while (!found && Utils::ReadUntilDelim(line, '\n', pStream.Get()))
+  while (!found && std::getline(stream, line))
   {
     if (Utils::ParseDvipsMapLine(line, mapEntry) && mapEntry.texName == lpszTeXFontName)
     {
@@ -394,7 +394,7 @@ bool MakePk::FindFontMapping(const char* lpszTeXFontName, const char* lpszMapFil
     }
   }
 
-  pStream.Reset();
+  stream.close();
 
   return found;
 }

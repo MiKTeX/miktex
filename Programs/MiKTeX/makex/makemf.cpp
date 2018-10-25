@@ -285,64 +285,56 @@ void MakeMf::Run(int argc, const char** argv)
   CreateDestinationDirectory();
 
   // open the output stream
-  FILE* stream = nullptr;
+  ofstream filestream;
   PathName pathDest;
-  AutoFILE autoClose;
-  if (toStdout || printOnly)
-  {
-    stream = stdout;
-  }
-  else
+  if (!(toStdout || printOnly))
   {
     // make fully qualified destination file name
     pathDest = destinationDirectory / texFontname;
     pathDest.AppendExtension(".mf");
     Verbose(fmt::format(T_("Writing on {0}..."), Q_(pathDest)));
-    if (!printOnly)
-    {
-      stream = File::Open(pathDest, FileMode::Create, FileAccess::Write);
-      autoClose.Attach(stream);
-    }
+    filestream = File::CreateOutputStream(pathDest);
   }
+  ostream& stream = toStdout || printOnly ? cout : filestream;
 
   PrintOnly(fmt::format("cat <<__END__ > {}", Q_(pathDest)));
 
   if (HasPrefix(texFontname, "ec") || HasPrefix(texFontname, "tc"))
   {
-    fprintf(stream, "if unknown exbase: input exbase fi;\n");
-    fprintf(stream, "gensize:=%0.2f;\n", true_pt_size);
-    fprintf(stream, "generate %s;\n", driverName.c_str());
+    stream << "if unknown exbase: input exbase fi;" << "\n";
+    stream << fmt::format("gensize:={:0.2f};", true_pt_size) << "\n";
+    stream << fmt::format("generate {};", driverName) << "\n";
   }
   else if (HasPrefix(texFontname, "dc"))
   {
-    fprintf(stream, "if unknown dxbase: input dxbase fi;\n");
-    fprintf(stream, "gensize:=%f;\n", true_pt_size);
-    fprintf(stream, "generate %s;\n", driverName.c_str());
+    stream << "if unknown dxbase: input dxbase fi;" << "\n";
+    stream << fmt::format("gensize:={:f};", true_pt_size) << "\n";
+    stream << fmt::format("generate {};", driverName) << "\n";
   }
   else if (HasPrefix(texFontname, lhpref))
   {
-    fprintf(stream, "input fikparm;\n");
+    stream << "input fikparm;" << "\n";
   }
   else if (HasPrefix(texFontname, cspref))
   {
-    fprintf(stream, "input cscode\nuse_driver;\n");
+    stream << "input cscode\nuse_driver;" << "\n";
   }
   else if (HasPrefix(texFontname, cbpref))
   {
-    fprintf(stream, "input cbgreek;\n");
+    stream << "input cbgreek;" << "\n";
   }
   else
   {
-    fprintf(stream, "design_size:=%f;\n", true_pt_size);
-    fprintf(stream, "input b-%s;\n", driverName.c_str());
+    stream << fmt::format("design_size:={:f};", true_pt_size) << "\n";
+    stream << fmt::format("input b-{};", driverName) << "\n";
   }
 
   PrintOnly("__END__");
 
   // close output stream
-  if (stream != stdout)
+  if (!(toStdout || printOnly))
   {
-    autoClose.Reset();
+    filestream.close();
 
     // add to file name database
     if (!Fndb::FileExists(pathDest))
