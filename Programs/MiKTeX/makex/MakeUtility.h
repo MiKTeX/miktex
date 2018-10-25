@@ -19,51 +19,33 @@
 
 #pragma once
 
-#include <array>
-#include <iomanip>
 #include <iostream>
-#include <unordered_map>
-#include <vector>
-
-#include <cstdio>
-#include <cstdlib>
 #include <string>
+#include <vector>
 
 #include <getopt.h>
 
-#include <miktex/App/Application>
-#include <miktex/Core/AutoResource>
-#include <miktex/Core/BufferSizes>
-#include <miktex/Core/CommandLineBuilder>
-#include <miktex/Core/Debug>
-#include <miktex/Core/Directory>
-#include <miktex/Core/Exceptions>
-#include <miktex/Core/File>
-#include <miktex/Core/FileType>
-#include <miktex/Core/Fndb>
-#include <miktex/Core/Paths>
-#include <miktex/Core/Process>
-#include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
-#include <miktex/Core/Session>
-#include <miktex/Core/TemporaryDirectory>
-#include <miktex/Util/StringUtil>
-#include <miktex/Util/Tokenizer>
+#include <log4cxx/logger.h>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <log4cxx/logger.h>
-#include <log4cxx/rollingfileappender.h>
-#include <log4cxx/xml/domconfigurator.h>
+#include <miktex/App/Application>
 
-#define OUT__ (stdoutStderr ? cerr : cout)
+#include <miktex/Core/AutoResource>
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/Directory>
+#include <miktex/Core/PathName>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Process>
+#include <miktex/Core/Quoter>
+#include <miktex/Core/Session>
 
-using namespace MiKTeX::App;
-using namespace MiKTeX::Core;
-using namespace MiKTeX::Util;
-using namespace std;
-using namespace std::string_literals;
+#include <miktex/Util/StringUtil>
+
+#include "makefmt-version.h"
+
+#define OUT__ (stdoutStderr ? std::cerr : std::cout)
 
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
@@ -72,13 +54,13 @@ using namespace std::string_literals;
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
-inline bool HasPrefix(const string& s1, const string& s2)
+inline bool HasPrefix(const std::string& s1, const std::string& s2)
 {
-  return PathName::Compare(s1, s2, s2.length()) == 0;
+  return MiKTeX::Core::PathName::Compare(s1, s2, s2.length()) == 0;
 }
 
 class ProcessOutputTrash :
-  public IRunProcessCallback
+  public MiKTeX::Core::IRunProcessCallback
 {
 public:
   bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) override
@@ -90,12 +72,12 @@ public:
 };
 
 class ProcessOutputStderr :
-  public IRunProcessCallback
+  public MiKTeX::Core::IRunProcessCallback
 {
 public:
   bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) override
   {
-    cerr.write((const char*)output, n);
+    std::cerr.write((const char*)output, n);
     return true;
   }
 };
@@ -103,10 +85,10 @@ public:
 extern log4cxx::LoggerPtr logger;
 
 class MakeUtility :
-  public Application
+  public MiKTeX::App::Application
 {
 public:
-  void Init(const Session::InitInfo& initInfo, std::vector<char*>& args) override
+  void Init(const MiKTeX::Core::Session::InitInfo& initInfo, std::vector<char*>& args) override
   {
     Application::Init(initInfo, args);
     session = GetSession();
@@ -125,7 +107,7 @@ protected:
   virtual void HandleOption(int ch, const char* optArg, bool& handled) = 0;
 
 private:
-  void GetShortOptions(const struct option* longOptions, string& shortOptions)
+  void GetShortOptions(const struct option* longOptions, std::string& shortOptions)
   {
     shortOptions = "";
     for (const struct option* opt = longOptions; opt->name != nullptr; ++opt)
@@ -148,7 +130,7 @@ private:
 protected:
   void GetOptions(int argc, const char** argv, const struct option* longOptions, int& optionIndex)
   {
-    string shortOptions;
+    std::string shortOptions;
     GetShortOptions(longOptions, shortOptions);
 
     int c;
@@ -162,10 +144,10 @@ protected:
         session->SetAdminMode(true);
         break;
       case 'D':
-        this->EnableInstaller(TriState::False);
+        this->EnableInstaller(MiKTeX::Core::TriState::False);
         break;
       case 'E':
-        this->EnableInstaller(TriState::True);
+        this->EnableInstaller(MiKTeX::Core::TriState::True);
         break;
       case 'h':
         Usage();
@@ -204,11 +186,11 @@ protected:
   }
   
 protected:
-  bool RunProcess(const char* exeName, const std::vector<std::string>& arguments, const PathName& workingDirectory)
+  bool RunProcess(const char* exeName, const std::vector<std::string>& arguments, const MiKTeX::Core::PathName& workingDirectory)
   {
     // find the executable; make sure it contains no blanks
-    PathName exe;
-    if (!session->FindFile(exeName, FileType::EXE, exe))
+    MiKTeX::Core::PathName exe;
+    if (!session->FindFile(exeName, MiKTeX::Core::FileType::EXE, exe))
     {
       FatalError(fmt::format(T_("The application file {0} could not be found."), Q_(exeName)));
     }
@@ -216,10 +198,10 @@ protected:
     std::vector<std::string> allArgs{ exeName };
     switch (GetEnableInstaller())
     {
-    case TriState::False:
+    case MiKTeX::Core::TriState::False:
       allArgs.push_back("--miktex-disable-installer");
       break;
-    case TriState::True:
+    case MiKTeX::Core::TriState::True:
       allArgs.push_back("--miktex-enable-installer");
       break;
     default:
@@ -228,8 +210,8 @@ protected:
     allArgs.insert(allArgs.end(), arguments.begin(), arguments.end());
 
     Message(fmt::format(T_("Running {0}..."), Q_(exeName)));
-    LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(allArgs).ToString());
-    PrintOnly(CommandLineBuilder(allArgs).ToString());
+    LOG4CXX_INFO(logger, "running: " << MiKTeX::Core::CommandLineBuilder(allArgs).ToString());
+    PrintOnly(MiKTeX::Core::CommandLineBuilder(allArgs).ToString());
     
     // run the program
     int exitCode = 0;
@@ -237,7 +219,7 @@ protected:
     {
       ProcessOutputTrash trash;
       ProcessOutputStderr toStderr;
-      IRunProcessCallback* callback = nullptr;
+      MiKTeX::Core::IRunProcessCallback* callback = nullptr;
       if (quiet)
       {
         callback = &trash;
@@ -246,7 +228,7 @@ protected:
         {
           callback = &toStderr;
         }
-      if (!Process::Run(exe, allArgs, callback, &exitCode, workingDirectory.GetData()))
+      if (!MiKTeX::Core::Process::Run(exe, allArgs, callback, &exitCode, workingDirectory.GetData()))
       {
         FatalError(fmt::format(T_("The application file {0} could not be started."), Q_(exeName)));
       }
@@ -256,32 +238,32 @@ protected:
   }
 
 protected:
-  bool RunMETAFONT(const char* name, const char* mode, const char* mag, const PathName& workingDirectory)
+  bool RunMETAFONT(const char* name, const char* mode, const char* mag, const MiKTeX::Core::PathName& workingDirectory)
   {
-    vector<string> arguments;
-    arguments.push_back("--undump="s + "mf");
-    arguments.push_back("\\mode:="s + (mode == nullptr ? "ljfour" : mode) + ";");
+    std::vector<std::string> arguments;
+    arguments.push_back(fmt::format("--undump={}", "mf"));
+    arguments.push_back(fmt::format("\\mode:={};", mode == nullptr ? "ljfour" : mode));
     if (mag != nullptr)
     {
-      arguments.push_back("\\mag:="s + mag + ";");
+      arguments.push_back(fmt::format("\\mag:={};", mag));
     }
     if (!debug)
     {
       arguments.push_back("nonstopmode;");
     }
-    arguments.push_back("input "s + name);
+    arguments.push_back(fmt::format("input {}", name));
     if (RunProcess(MIKTEX_MF_EXE, arguments, workingDirectory))
     {
       return true;
     }
     Verbose(T_("METAFONT failed for some reason"));
-    PathName pathLogFile = name;
+    MiKTeX::Core::PathName pathLogFile = name;
     pathLogFile.AppendExtension(".log");
-    AutoFILE pLogFile(File::Open(pathLogFile, FileMode::Open, FileAccess::Read));
-    string line;
+    MiKTeX::Core::AutoFILE pLogFile(MiKTeX::Core::File::Open(pathLogFile, MiKTeX::Core::FileMode::Open, MiKTeX::Core::FileAccess::Read));
+    std::string line;
     bool noError = true;
     size_t nStrangePaths = 0;
-    while (noError && Utils::ReadUntilDelim(line, '\n', pLogFile.Get()))
+    while (noError && MiKTeX::Core::Utils::ReadUntilDelim(line, '\n', pLogFile.Get()))
     {
       if (line[0] != '!')
       {
@@ -303,26 +285,26 @@ protected:
   }
   
 protected:
-  void Install(const PathName& source, const PathName& dest)
+  void Install(const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& dest)
   {
     PrintOnly(fmt::format("cp {} {}", Q_(source), Q_(dest)));
     PrintOnly("initexmf --update-fndb");
     if (!printOnly)
     {
-      File::Copy(source, dest, { FileCopyOption::ReplaceExisting, FileCopyOption::UpdateFndb });
+      MiKTeX::Core::File::Copy(source, dest, { MiKTeX::Core::FileCopyOption::ReplaceExisting, MiKTeX::Core::FileCopyOption::UpdateFndb });
     }
   }
 
 protected:
-  PathName CreateDirectoryFromTemplate(const string& templ)
+  MiKTeX::Core::PathName CreateDirectoryFromTemplate(const std::string& templ)
   {
-    PathName path;
+    MiKTeX::Core::PathName path;
     const char* lpszTemplate = templ.c_str();
     if (lpszTemplate[0] == '%'
         && lpszTemplate[1] == 'R'
-        && IsDirectoryDelimiter(lpszTemplate[2]))
+        && MiKTeX::Core::IsDirectoryDelimiter(lpszTemplate[2]))
     {
-      path = session->GetSpecialPath(SpecialPath::DataRoot);
+      path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot);
       path /= lpszTemplate + 3;
     }
     else
@@ -330,12 +312,12 @@ protected:
       path = lpszTemplate;
     }
 
-    if (!Directory::Exists(path))
+    if (!MiKTeX::Core::Directory::Exists(path))
     {
-      PrintOnly(CommandLineBuilder("mkdir", path.ToString()).ToString());
+      PrintOnly(MiKTeX::Core::CommandLineBuilder("mkdir", path.ToString()).ToString());
       if (!printOnly)
       {
-        Directory::Create(path);
+        MiKTeX::Core::Directory::Create(path);
       }
     }
     return path;
@@ -361,7 +343,7 @@ protected:
     LOG4CXX_INFO(logger, s);
     if (verbose && !quiet)
     {
-      cout << s << "\n";
+      std::cout << s << "\n";
     }
   }
 
@@ -375,7 +357,7 @@ protected:
     LOG4CXX_INFO(logger, s);
     if (!quiet)
     {
-      cout << s << "\n";
+      std::cout << s << "\n";
     }
   }
 
@@ -405,10 +387,10 @@ protected:
   bool stdoutStderr = true;
 
 protected:
-  PathName destinationDirectory;
+  MiKTeX::Core::PathName destinationDirectory;
 
 protected:
-  string name;
+  std::string name;
 
 protected:
   std::shared_ptr<MiKTeX::Core::Session> session;
@@ -442,9 +424,9 @@ void HandleOption(int ch, const char* optArg, bool& handled)            \
       var = optArg;                             \
       break;
 
-#define OPTION_ENTRY_STRING(ch, var, size)              \
-    case ch:                                            \
-      StringUtil::CopyString(var, size, optArg);        \
+#define OPTION_ENTRY_STRING(ch, var, size)                     \
+    case ch:                                                   \
+      MiKTeX::Util::StringUtil::CopyString(var, size, optArg); \
       break;
 
 #define OPTION_ENTRY(ch, action)                \

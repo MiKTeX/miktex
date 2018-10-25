@@ -21,8 +21,17 @@
 
 /* Some algorithms are borrowed from the web2c mktex* shell scripts. */
 
-#include "makemf-version.h"
+#include "config.h"
+
+#include <miktex/Core/Fndb>
+
 #include "MakeUtility.h"
+
+using namespace std;
+
+using namespace MiKTeX::App;
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("makemf"));
 

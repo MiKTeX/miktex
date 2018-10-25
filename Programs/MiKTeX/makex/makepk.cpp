@@ -19,8 +19,19 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#include "makepk-version.h"
+#include "config.h"
+
+#include <miktex/Core/Registry>
+#include <miktex/Core/TemporaryDirectory>
+#include <miktex/Util/Tokenizer>
+
 #include "MakeUtility.h"
+
+using namespace std;
+
+using namespace MiKTeX::App;
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("makepk"));
 
