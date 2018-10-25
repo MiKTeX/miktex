@@ -153,7 +153,7 @@ void MakeBase::Run(int argc, const char** argv)
   arguments.insert(arguments.end(), engineOptions.begin(), engineOptions.end());
   if (!noDumpPrimitive)
   {
-    arguments.push_back(name + "; input modes; dump");
+    arguments.push_back(fmt::format("{}; input modes; dump", name));
   }
   else
   {
