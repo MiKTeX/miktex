@@ -236,10 +236,10 @@ void MakeMf::Run(int argc, const char** argv)
   // find the driver file
   {
     // try a sauterized driver first
-    string strSauterDriverName = "b-";
-    strSauterDriverName += driverName;
+    string sauterDriverName = "b-";
+    sauterDriverName += driverName;
     PathName driverPath;
-    if (!session->FindFile(strSauterDriverName, FileType::MF, driverPath))
+    if (!session->FindFile(sauterDriverName, FileType::MF, driverPath))
     {
       // lh fonts get special treatment
       if (HasPrefix(driverName, lhpref))
