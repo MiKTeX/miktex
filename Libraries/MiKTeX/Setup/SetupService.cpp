@@ -1757,6 +1757,8 @@ void SetupServiceImpl::Warning(const MiKTeX::Core::MiKTeXException& ex)
   }
 }
 
+constexpr time_t HALF_A_YEAR = 15768000;
+
 void SetupService::WriteReport(ostream& s, ReportOptionSet options)
 {
   shared_ptr<Session> session = Session::Get();
@@ -1770,10 +1772,52 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       problems.push_back(T_("The PATH variable does not include the MiKTeX executables."));
     }
 #endif
+    string lastUpdateCheckText;
+    time_t lastUpdateCheck;
+    if (session->TryGetConfigValue(
+      MIKTEX_REGKEY_PACKAGE_MANAGER,
+      session->IsSharedSetup() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
+      lastUpdateCheckText))
+    {
+      lastUpdateCheck = std::stol(lastUpdateCheckText);
+      lastUpdateCheckText = fmt::format("{:%Y-%m-%d-%H-%M}", *localtime(&lastUpdateCheck));
+      if (time(nullptr) > lastUpdateCheck + HALF_A_YEAR)
+      {
+        problems.push_back(T_("it has been a long time since updates were checked"));
+      }
+    }
+    else
+    {
+      lastUpdateCheck = -1;
+      lastUpdateCheckText = T_("not yet");
+      problems.push_back(T_("not yet checked for updates"));
+    }
+    string lastUpdateText;
+    time_t lastUpdate;
+    if (session->TryGetConfigValue(
+      MIKTEX_REGKEY_PACKAGE_MANAGER,
+      session->IsSharedSetup() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE : MIKTEX_REGVAL_LAST_USER_UPDATE,
+      lastUpdateText))
+    {
+      lastUpdate = std::stol(lastUpdateText);
+      lastUpdateText = fmt::format("{:%Y-%m-%d-%H-%M}", *localtime(&lastUpdate));
+      if (time(nullptr) > lastUpdate + HALF_A_YEAR)
+      {
+        problems.push_back(T_("installation is not up-to-date"));
+      }
+    }
+    else
+    {
+      lastUpdate = -1;
+      lastUpdateText = T_("not yet");
+      problems.push_back(T_("installation is not up-to-date"));
+    }
     s << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
       << "OS: " << Utils::GetOSVersionString() << "\n"
       << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
-      << "PathOkay: " << (pathOkay ? T_("yes") : T_("no")) << "\n";
+      << "PathOkay: " << (pathOkay ? T_("yes") : T_("no")) << "\n"
+      << "LastUpdateCheck: " << lastUpdateCheckText << "\n"
+      << "LastUpdate: " << lastUpdateText << "\n";
   }
   if (options[ReportOption::CurrentUser])
   {
