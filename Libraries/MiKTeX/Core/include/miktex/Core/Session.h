@@ -535,7 +535,8 @@ enum class RegisterRootDirectoriesOption
 #if defined(MIKTEX_WINDOWS)
   NoRegistry,
 #endif
-  Temporary
+  Temporary,
+  Review
 };
 
 typedef OptionSet<RegisterRootDirectoriesOption> RegisterRootDirectoriesOptionSet;

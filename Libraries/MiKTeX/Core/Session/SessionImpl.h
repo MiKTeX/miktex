@@ -798,7 +798,7 @@ private:
   void MoveRootDirectory(unsigned r, int dir);
 
 private:
-  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, MiKTeX::Core::RootDirectoryInfo::Purpose purpose, bool common, bool other);
+  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, MiKTeX::Core::RootDirectoryInfo::Purpose purpose, bool common, bool other, bool review);
 
 private:
   bool FindStartupConfigFile(bool common, MiKTeX::Core::PathName& path);
@@ -835,7 +835,7 @@ private:
   void DoStartupConfig();
 
 private:
-  void InitializeRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig);
+  void InitializeRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig, bool review);
 
 private:
   void InitializeRootDirectories();

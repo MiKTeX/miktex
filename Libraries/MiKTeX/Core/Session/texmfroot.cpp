@@ -88,11 +88,22 @@ static string ExpandEnvironmentVariables(const char* toBeExpanded)
   return expansion;
 }
 
-unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryInfo::Purpose purpose, bool common, bool other)
+unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryInfo::Purpose purpose, bool common, bool other, bool review)
 {
   unsigned idx;
   for (idx = 0; idx < rootDirectories.size(); ++idx)
   {
+    if (review)
+    {
+      if (Utils::IsParentDirectoryOf(rootDirectories[idx].get_Path(), root))
+      {
+        MIKTEX_FATAL_ERROR_3(T_("Invalid root directory."), T_("The requested root directory ({requested}) is a sub-directory of another root directory ({other})."), "requested", root.ToDisplayString(), "other", rootDirectories[idx].get_Path().ToDisplayString());
+      }
+      if (Utils::IsParentDirectoryOf(root, rootDirectories[idx].get_Path()))
+      {
+        MIKTEX_FATAL_ERROR_3(T_("Invalid root directory."), T_("The requested root directory ({requested}) is the parent directory of another root directory ({other})."), "requested", root.ToDisplayString(), "other", rootDirectories[idx].get_Path().ToDisplayString());
+      }
+    }
     if (root == rootDirectories[idx].get_UnexpandedPath())
     {
       // already registered
@@ -238,10 +249,10 @@ void SessionImpl::DoStartupConfig()
 
 void SessionImpl::InitializeRootDirectories()
 {
-  InitializeRootDirectories(startupConfig);
+  InitializeRootDirectories(startupConfig, false);
 }
 
-void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
+void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, bool review)
 {
   rootDirectories.clear();
 
@@ -255,13 +266,13 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   // UserConfig
   if (!startupConfig.userConfigRoot.Empty())
   {
-    userConfigRootIndex = RegisterRootDirectory(startupConfig.userConfigRoot, RootDirectoryInfo::Purpose::Config, false, false);
+    userConfigRootIndex = RegisterRootDirectory(startupConfig.userConfigRoot, RootDirectoryInfo::Purpose::Config, false, false, review);
   }
 
   // UserData
   if (!startupConfig.userDataRoot.Empty())
   {
-    userDataRootIndex = RegisterRootDirectory(startupConfig.userDataRoot, RootDirectoryInfo::Purpose::Data, false, false);
+    userDataRootIndex = RegisterRootDirectory(startupConfig.userDataRoot, RootDirectoryInfo::Purpose::Data, false, false, review);
   }
 
   // UserRoots
@@ -269,26 +280,26 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   {
     if (!root.empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false, false);
+      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false, false, review);
     }
   }
 
   // UserInstall
   if (!startupConfig.userInstallRoot.Empty())
   {
-    userInstallRootIndex = RegisterRootDirectory(startupConfig.userInstallRoot, RootDirectoryInfo::Purpose::Install, false, false);
+    userInstallRootIndex = RegisterRootDirectory(startupConfig.userInstallRoot, RootDirectoryInfo::Purpose::Install, false, false, review);
   }
 
   // CommonConfig
   if (!startupConfig.commonConfigRoot.Empty())
   {
-    commonConfigRootIndex = RegisterRootDirectory(startupConfig.commonConfigRoot, RootDirectoryInfo::Purpose::Config, true, false);
+    commonConfigRootIndex = RegisterRootDirectory(startupConfig.commonConfigRoot, RootDirectoryInfo::Purpose::Config, true, false, review);
   }
 
   // CommonData
   if (!startupConfig.commonDataRoot.Empty())
   {
-    commonDataRootIndex = RegisterRootDirectory(startupConfig.commonDataRoot, RootDirectoryInfo::Purpose::Data, true, false);
+    commonDataRootIndex = RegisterRootDirectory(startupConfig.commonDataRoot, RootDirectoryInfo::Purpose::Data, true, false, review);
   }
 
   // CommonRoots
@@ -296,14 +307,14 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   {
     if (!root.empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, true, false);
+      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, true, false, review);
     }
   }
 
   // CommonInstall
   if (!startupConfig.commonInstallRoot.Empty())
   {
-    commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, RootDirectoryInfo::Purpose::Install, true, false);
+    commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, RootDirectoryInfo::Purpose::Install, true, false, review);
   }
 
   // OtherUserRoots
@@ -311,7 +322,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   {
     if (!root.empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false , true);
+      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false , true, review);
     }
   }
 
@@ -320,7 +331,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   {
     if (!root.empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, true, true);
+      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, true, true, review);
     }
   }
 
@@ -359,7 +370,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
     userInstallRootIndex = userConfigRootIndex;
   }
 
-  RegisterRootDirectory(MPM_ROOT_PATH, RootDirectoryInfo::Purpose::Generic, IsAdminMode(), false);
+  RegisterRootDirectory(MPM_ROOT_PATH, RootDirectoryInfo::Purpose::Generic, IsAdminMode(), false, false);
 
   trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectoryPath(userDataRootIndex).GetData());
 
@@ -699,6 +710,7 @@ void SessionImpl::RegisterRootDirectories(const string& roots, bool other)
     }
   }
   RegisterRootDirectoriesOptionSet options;
+  options += RegisterRootDirectoriesOption::Review;
 #if defined(MIKTEX_WINDOWS)
   // FIXME: should be: NO_REGISTRY ? false : true
   if (IsMiKTeXPortable() || GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
@@ -715,14 +727,6 @@ void SessionImpl::RegisterRootDirectory(const PathName& path)
   for (size_t r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
-    if (Utils::IsParentDirectoryOf(root.get_Path(), path))
-    {
-      MIKTEX_FATAL_ERROR_3(T_("Invalid root directory."), T_("The requested root directory ({requested}) is a sub-directory of another root directory ({other})."), "requested", path.ToString(), "other", root.get_Path().ToString());
-    }
-    if (Utils::IsParentDirectoryOf(path, root.get_Path()))
-    {
-      MIKTEX_FATAL_ERROR_3(T_("Invalid root directory."), T_("The requested root directory ({requested}) is the parent directory of another root directory ({other})."), "requested", path.ToString(), "other", root.get_Path().ToString());
-    }
     bool skipit = root.IsOther();
     skipit = skipit || IsAdminMode() && !root.IsCommon();
     skipit = skipit || !IsAdminMode() && root.IsCommon();
@@ -811,7 +815,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, Re
 
   MergeStartupConfig(startupConfig_, DefaultConfig());
 
-  InitializeRootDirectories(startupConfig_);
+  InitializeRootDirectories(startupConfig_, options[RegisterRootDirectoriesOption::Review]);
 
   if (!options[RegisterRootDirectoriesOption::Temporary])
   {

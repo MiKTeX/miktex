@@ -991,6 +991,7 @@ void IniTeXMFApp::SetTeXMFRootDirectories(
   if (!printOnly)
   {
     RegisterRootDirectoriesOptionSet options;
+    options += RegisterRootDirectoriesOption::Review;
 #if defined(MIKTEX_WINDOWS)
     if (noRegistry)
     {
