@@ -1789,11 +1789,11 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       {
         if (Utils::IsParentDirectoryOf(roots[idx2].path, roots[idx].path))
         {
-          problems.push_back(fmt::format(T_("root{0} is covered by root{1}"), idx, idx2));
+          problems.push_back(fmt::format(T_("Root{0} is covered by Root{1}"), idx, idx2));
         }
         else if (Utils::IsParentDirectoryOf(roots[idx].path, roots[idx2].path))
         {
-          problems.push_back(fmt::format(T_("root{0} covers root{1}"), idx, idx2));
+          problems.push_back(fmt::format(T_("Root{0} covers Root{1}"), idx, idx2));
         }
       }
       s << fmt::format("Root{}: {}", idx, roots[idx].path) << "\n";
@@ -1843,9 +1843,11 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   if (!problems.empty())
   {
     s << "\n" << "Warning: the following problems were detected:" << "\n";
+    int nr = 1;
     for (const string& msg : problems)
     {
-      s << fmt::format("  - {}", msg) << "\n";
+      s << fmt::format("  {}: {}", nr, msg) << "\n";
+      nr++;
     }
   }
 }
