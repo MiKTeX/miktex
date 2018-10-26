@@ -534,7 +534,7 @@ void Utils::RegisterMiKTeXUser()
 
 string Utils::GetMiKTeXVersionString()
 {
-  return MIKTEX_VERSION_STR;
+  return MIKTEX_FULL_VERSION_STR;
 }
 
 string Utils::GetMiKTeXBannerString()
