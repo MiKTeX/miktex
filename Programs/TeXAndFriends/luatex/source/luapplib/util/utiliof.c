@@ -1,5 +1,9 @@
 /* input/iutput stream */
 
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
