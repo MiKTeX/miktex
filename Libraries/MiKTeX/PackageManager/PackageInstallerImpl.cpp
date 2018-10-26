@@ -1722,7 +1722,7 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
   }
 }
 
-void PackageInstallerImpl::InstallRemove()
+void PackageInstallerImpl::InstallRemove(Role role)
 {
   NeedRepository();
 
@@ -1898,6 +1898,14 @@ void PackageInstallerImpl::InstallRemove()
     RemovePackage(p);
   }
 
+  if (role == Role::Updater)
+  {
+    session->SetConfigValue(
+      MIKTEX_REGKEY_PACKAGE_MANAGER,
+      session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE : MIKTEX_REGVAL_LAST_USER_UPDATE,
+      std::to_string(time(nullptr)));
+  }
+
   // check dependencies (install missing required packages)
   tmp.clear();
   for (const string& p : toBeInstalled)
@@ -1941,8 +1949,9 @@ void PackageInstallerImpl::InstallRemove()
   }
 }
 
-void PackageInstallerImpl::InstallRemoveAsync()
+void PackageInstallerImpl::InstallRemoveAsync(Role role)
 {
+  currentRole = role;
   StartWorkerThread(&PackageInstallerImpl::InstallRemoveThread);
 }
 
@@ -1960,7 +1969,7 @@ void PackageInstallerImpl::InstallRemoveThread()
       MIKTEX_FATAL_ERROR_2(T_("Cannot start installer thread."), "hr", hr.GetText());
     }
 #endif
-    InstallRemove();
+    InstallRemove(currentRole);
     progressInfo.ready = true;
     Notify();
   }

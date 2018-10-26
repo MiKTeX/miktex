@@ -852,7 +852,7 @@ bool IniTeXMFApp::InstallPackage(const string& deploymentName, const PathName& t
   Verbose(fmt::format(T_("Installing package {0}..."), deploymentName));
   EnsureInstaller();
   packageInstaller->SetFileLists({ deploymentName }, {});
-  packageInstaller->InstallRemove();
+  packageInstaller->InstallRemove(PackageInstaller::Role::Application);
   installRoot = session->GetSpecialPath(SpecialPath::InstallRoot);
   return true;
 }

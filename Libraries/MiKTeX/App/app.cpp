@@ -572,7 +572,7 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
   }
   try
   {
-    pimpl->installer->InstallRemove();
+    pimpl->installer->InstallRemove(PackageInstaller::Role::Application);
     installRoot = pimpl->session->GetSpecialPath(SpecialPath::InstallRoot);
     done = true;
   }

@@ -842,7 +842,7 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
 
   installer->SetCallback(this);
   installer->SetFileLists(toBeInstalled, toBeRemoved);
-  installer->InstallRemove();
+  installer->InstallRemove(PackageInstaller::Role::Application);
   installer->Dispose();
   if (toBeInstalled.size() == 1)
   {
@@ -1155,7 +1155,7 @@ void Application::Update(const vector<string>& requestedUpdates)
     return;
   }
   installer->SetFileLists(toBeInstalled, toBeRemoved);
-  installer->InstallRemove();
+  installer->InstallRemove(PackageInstaller::Role::Updater);
   installer = nullptr;
   unique_ptr<SetupService> service = SetupService::Create();
   SetupOptions options = service->GetOptions();
@@ -1226,7 +1226,7 @@ void Application::Upgrade(PackageLevel packageLevel)
   }
   sort(toBeInstalled.begin(), toBeInstalled.end());
   installer->SetFileLists(toBeInstalled, vector<string>());
-  installer->InstallRemove();
+  installer->InstallRemove(PackageInstaller::Role::Application);
   if (toBeInstalled.size() == 1)
   {
     Message(fmt::format(T_("Package \"{0}\" has been successfully installed."), toBeInstalled[0]));

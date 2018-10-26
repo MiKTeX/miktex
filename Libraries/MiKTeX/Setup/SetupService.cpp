@@ -899,7 +899,7 @@ void SetupServiceImpl::DoTheInstallation()
 #endif
 
   // run installer
-  packageInstaller->InstallRemove();
+  packageInstaller->InstallRemove(PackageInstaller::Role::Installer);
 
   if (cancelled)
   {

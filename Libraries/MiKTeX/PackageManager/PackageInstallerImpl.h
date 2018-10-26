@@ -291,10 +291,10 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL InstallRemove() override;
+  void MIKTEXTHISCALL InstallRemove(Role role) override;
 
 public:
-  void MIKTEXTHISCALL InstallRemoveAsync() override;
+  void MIKTEXTHISCALL InstallRemoveAsync(Role role) override;
 
 public:
   void MIKTEXTHISCALL WaitForCompletion() override;
@@ -415,6 +415,9 @@ public:
 public:
   HRESULT __stdcall OnProgress(LONG nf, VARIANT_BOOL* pDoContinue) override;
 #endif
+
+private:
+  Role currentRole;
 
 private:
   std::string repository;

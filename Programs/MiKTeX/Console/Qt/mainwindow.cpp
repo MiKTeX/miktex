@@ -753,7 +753,7 @@ bool UpgradeWorker::Run()
         toBeInstalled.push_back(upg.deploymentName);
       }
       packageInstaller->SetFileLists(toBeInstalled, vector<string>());
-      packageInstaller->InstallRemove();
+      packageInstaller->InstallRemove(PackageInstaller::Role::Installer);
     }
     result = true;
   }
@@ -1162,7 +1162,7 @@ bool UpdateWorker::Run()
       }
     }
     packageInstaller->SetFileLists(toBeUpdated, toBeRemoved);
-    packageInstaller->InstallRemove();
+    packageInstaller->InstallRemove(PackageInstaller::Role::Updater);
     packageInstaller = nullptr;
     unique_ptr<SetupService> service = SetupService::Create();
     SetupOptions options = service->GetOptions();

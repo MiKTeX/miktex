@@ -170,11 +170,19 @@ public:
   virtual std::vector<UpgradeInfo> MIKTEXTHISCALL GetUpgrades() = 0;
 
 public:
-  virtual void MIKTEXTHISCALL InstallRemove() = 0;
+  enum class Role
+  {
+    Application,
+    Installer,
+    Updater
+  };
+
+public:
+  virtual void MIKTEXTHISCALL InstallRemove(Role role) = 0;
 
   /// Starts the installer background thread.
 public:
-  virtual void MIKTEXTHISCALL InstallRemoveAsync() = 0;
+  virtual void MIKTEXTHISCALL InstallRemoveAsync(Role role) = 0;
 
 public:
   virtual void MIKTEXTHISCALL WaitForCompletion() = 0;

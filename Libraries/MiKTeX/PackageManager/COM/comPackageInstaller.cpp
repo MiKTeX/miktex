@@ -181,7 +181,7 @@ STDMETHODIMP comPackageInstaller::InstallRemove()
     }
     packageInstaller->SetCallback(this);
     packageInstaller->SetFileLists(packagesToBeInstalled, packagesToBeRemoved);
-    packageInstaller->InstallRemove();
+    packageInstaller->InstallRemove(PackageInstaller::Role::Application);
     packagesToBeInstalled.clear();
     packagesToBeRemoved.clear();
   }

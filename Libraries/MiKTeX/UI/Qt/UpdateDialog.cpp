@@ -74,7 +74,7 @@ void UpdateDialogImpl::WorkerThread::run()
     }
 #endif
     This->packageInstaller->SetCallback(This);
-    This->packageInstaller->InstallRemove();
+    This->packageInstaller->InstallRemove(PackageInstaller::Role::Application);
   }
   catch (const MiKTeXException& e)
   {
