@@ -79,7 +79,10 @@ void make_subset_tag(fd_entry * fd)
     assert(fd != NULL);
     assert(fd->gl_tree != NULL);
     assert(fd->fontname != NULL);
-    assert(fd->subset_tag == NULL);
+ //   assert(fd->subset_tag == NULL);
+if (fd->subset_tag != NULL) {
+    return;
+}
     fd->subset_tag = xtalloc(SUBSET_TAG_LENGTH + 1, char);
     do {
         md5_init(&pms);

@@ -2124,6 +2124,9 @@ void begin_box(int box_context)
                 normal_paragraph();
             }
             push_nest();
+/* new */
+/* eq_word_define(int_base + no_local_whatsits_code, 0); */
+eq_word_define(int_base + no_local_dirs_code, 0);
             cur_list.mode_field = -k;
             if (k == vmode) {
                 prev_depth_par = ignore_depth;

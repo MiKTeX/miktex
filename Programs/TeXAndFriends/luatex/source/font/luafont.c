@@ -381,6 +381,41 @@ static void write_lua_parameters(lua_State * L, int f)
     lua_rawset(L, -3);
 }
 
+int font_parameters_to_lua(lua_State * L, int f)
+{
+    int k;
+    lua_newtable(L);
+    for (k = 1; k <= font_params(f); k++) {
+        switch (k) {
+            case slant_code:
+                dump_intfield(L,slant,font_param(f, k));
+                break;
+            case space_code:
+                dump_intfield(L,space,font_param(f, k));
+                break;
+            case space_stretch_code:
+                dump_intfield(L,space_stretch,font_param(f, k));
+                break;
+            case space_shrink_code:
+                dump_intfield(L,space_shrink,font_param(f, k));
+                break;
+            case x_height_code:
+                dump_intfield(L,x_height,font_param(f, k));
+                break;
+            case quad_code:
+                dump_intfield(L,quad,font_param(f, k));
+                break;
+            case extra_space_code:
+                dump_intfield(L,extra_space,font_param(f, k));
+                break;
+            default:
+                lua_pushinteger(L, font_param(f, k));
+                lua_rawseti(L, -2, k);
+        }
+    }
+    return 1;
+}
+
 static void write_lua_math_parameters(lua_State * L, int f)
 {
     int k;
@@ -404,8 +439,6 @@ int font_to_lua(lua_State * L, int f)
     if (font_cache_id(f) > 0) {
         /*tex Fetch the table from the registry if it was saved there by |font_from_lua|. */
         lua_rawgeti(L, LUA_REGISTRYINDEX, font_cache_id(f));
-        /*tex Font dimenensions can be changed from \TEX\ code. */
-        write_lua_parameters(L, f);
         return 1;
     }
     lua_newtable(L);

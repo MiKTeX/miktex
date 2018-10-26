@@ -237,6 +237,8 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     int i;
     /*tex DVI! \.{DVI} byte location upon entry */
     int saved_loc = 0;
+    /*tex safeguard */
+    int dir_done = 0;
     /*tex DVI! what |dvi| should pop to */
     scaledpos saved_pos = { 0, 0 };
     int synctex = synctex_par ;
@@ -576,12 +578,15 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                         localpos.dir = dir_dir(p);
                         cur.h = 0;
                         cur.v = 0;
-                    } else {
+                        dir_done = 1;
+                    } else if (dir_done) {
                         refpos->pos.h = dir_refpos_h(p);
                         refpos->pos.v = dir_refpos_v(p);
                         localpos.dir = dir_dir(p);
                         cur.h = dir_cur_h(p);
                         cur.v = dir_cur_v(p);
+                    } else {
+                        /*tex maybe issue a warning */
                     }
                     break;
                 case whatsit_node:

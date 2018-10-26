@@ -28,6 +28,11 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 #  include <inttypes.h>
 #endif
 #include "image/epdf.h"
+#include "luatexcallbackids.h"
+
+/* to be sorted out, we cannot include */
+
+#define xfree(a) do { free(a); a = NULL; } while (0)
 
 /* Conflict with pdfgen.h */
 
@@ -413,7 +418,7 @@ static void copyDict(PDF pdf, PdfDocument * pdf_doc, ppdict *dict)
     pdf_end_dict(pdf);
 }
 
-static void copyStreamStream(PDF pdf, ppstream * stream, int decode)
+static void copyStreamStream(PDF pdf, ppstream * stream, int decode, int callback_id)
 {
     uint8_t *data = NULL;
     size_t size = 0;
@@ -424,7 +429,18 @@ static void copyStreamStream(PDF pdf, ppstream * stream, int decode)
     } else {
         data = ppstream_all(stream,&size,decode);
         if (data != NULL) {
-            pdf_out_block(pdf, (const char *) data, size);
+            /*tex We only do this when we recompress in which case we fetch the whole stream. */
+            if (callback_id == 1) {
+                callback_id = callback_defined(process_pdf_image_content_callback);
+            }
+            if (callback_id) {
+                char *result = NULL;
+                run_callback(callback_id, "S->S",(char *) data,&result);
+                pdf_out_block(pdf, (const char *) (uint8_t *) result, size);
+                xfree(result);
+            } else {
+                pdf_out_block(pdf, (const char *) data, size);
+            }
         }
     }
     ppstream_done(stream);
@@ -434,38 +450,57 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, ppstream * stream)
 {
     ppdict *dict = stream->dict; /* bug in: stream_dict(stream) */
     if (pdf->compress_level == 0 || pdf->recompress) {
-        const char *ignoredkeys[] = {
-            "Filter", "Decode", "Length", "DL", NULL
-        };
-        int i;
-        int n = dict->size;
-        pdf_begin_dict(pdf);
-        for (i=0; i<n; ++i) {
-            const char *key = ppdict_key(dict,i);
-            int okay = 1;
+        ppobj * obj = ppdict_get_obj (dict, "Filter");
+        int known = 0;
+        if (obj != NULL && obj->type == PPNAME) {
+            const char *codecs[] = {
+                "ASCIIHexDecode", "ASCII85Decode", "RunLengthDecode",
+                "FlateDecode", "LZWDecode", NULL
+            };
             int k;
-            for (k = 0; ignoredkeys[k] != NULL; k++) {
-                if (strcmp(key,ignoredkeys[k]) == 0) {
-                    okay = 0;
+            const char *val = ppobj_get_name(obj);
+            for (k = 0; codecs[k] != NULL; k++) {
+                if (strcmp(val,codecs[k]) == 0) {
+                    known = 1;
                     break;
                 }
             }
-            if (okay) {
-                pdf_add_name(pdf, key);
-                copyObject(pdf, pdf_doc, ppdict_at(dict,i));
-            }
         }
-        pdf_dict_add_streaminfo(pdf);
-        pdf_end_dict(pdf);
-        pdf_begin_stream(pdf);
-        copyStreamStream(pdf, stream, 1);
-        pdf_end_stream(pdf);
-    } else {
-        copyDict(pdf, pdf_doc, dict);
-        pdf_begin_stream(pdf);
-        copyStreamStream(pdf, stream, 0);
-        pdf_end_stream(pdf);
+        if (known) {
+            /*tex recompress or keep uncompressed */
+            const char *ignoredkeys[] = {
+                "Filter", "DecodeParms", "Length", "DL", NULL
+            };
+            int i;
+            pdf_begin_dict(pdf);
+            for (i=0; i<dict->size; ++i) {
+                const char *key = ppdict_key(dict,i);
+                int copy = 1;
+                int k;
+                for (k = 0; ignoredkeys[k] != NULL; k++) {
+                    if (strcmp(key,ignoredkeys[k]) == 0) {
+                        copy = 0;
+                        break;
+                    }
+                }
+                if (copy) {
+                    pdf_add_name(pdf, key);
+                    copyObject(pdf, pdf_doc, ppdict_at(dict,i));
+                }
+            }
+            pdf_dict_add_streaminfo(pdf);
+            pdf_end_dict(pdf);
+            pdf_begin_stream(pdf);
+            copyStreamStream(pdf, stream, 1, 0);
+            pdf_end_stream(pdf);
+            return ;
+        }
     }
+    /* copy as-is */
+    copyDict(pdf, pdf_doc, dict);
+    pdf_begin_stream(pdf);
+    copyStreamStream(pdf, stream, 0, 0);
+    pdf_end_stream(pdf);
 }
 
 static void copyObject(PDF pdf, PdfDocument * pdf_doc, ppobj * obj)
@@ -597,7 +632,7 @@ void read_pdf_info(image_dict * idict)
     ppint rotate = 0;
     int pdf_major_version_found = 1;
     int pdf_minor_version_found = 3;
-    float xsize, ysize, xorig, yorig;
+    double xsize, ysize, xorig, yorig;
     if (img_type(idict) == IMG_TYPE_PDF) {
         pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL, img_userpassword(idict), img_ownerpassword(idict));
     } else if (img_type(idict) == IMG_TYPE_PDFMEMSTREAM) {
@@ -856,12 +891,12 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         Write the Page contents.
     */
     content = ppdict_rget_obj(pageDict, "Contents");
-    if (content->type == PPSTREAM) {
+    if (content && content->type == PPSTREAM) {
         if (pdf->compress_level == 0 || pdf->recompress) {
             pdf_dict_add_streaminfo(pdf);
             pdf_end_dict(pdf);
             pdf_begin_stream(pdf);
-            copyStreamStream(pdf, content->stream,1); /* decompress */
+            copyStreamStream(pdf, content->stream, 1, 1); /* decompress */
         } else {
             /* copies compressed stream */
             ppstream * stream = content->stream;
@@ -885,16 +920,16 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
                 }
                pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
-                copyStreamStream(pdf, stream,0);
+                copyStreamStream(pdf, stream, 0, 0);
             } else {
                 pdf_dict_add_streaminfo(pdf);
                 pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
-                copyStreamStream(pdf, stream,1);
+                copyStreamStream(pdf, stream, 1, 0);
             }
         }
         pdf_end_stream(pdf);
-    } else if (content->type == PPARRAY) {
+    } else if (content && content->type == PPARRAY) {
         /* listens to compresslevel */
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
@@ -918,7 +953,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
                     } else {
                         b = 1;
                     }
-                    copyStreamStream(pdf, (ppstream *) o->stream,1);
+                    copyStreamStream(pdf, (ppstream *) o->stream, 1, 0);
                 }
             }
         }

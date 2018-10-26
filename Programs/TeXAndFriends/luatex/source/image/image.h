@@ -129,6 +129,8 @@ typedef struct {
     int luaref ;
     boolean keepopen;
     boolean nolength;
+    boolean notype;
+    boolean nobbox;
     int errorlevel;
     int pdfmajorversion;
     int pdfminorversion;
@@ -177,7 +179,9 @@ typedef struct {
 #  define img_flags(N)            ((N)->flags)
 #  define img_luaref(N)           ((N)->luaref)
 #  define img_keepopen(N)         ((N)->keepopen)
+#  define img_nobbox(N)           ((N)->nobbox)
 #  define img_nolength(N)         ((N)->nolength)
+#  define img_notype(N)           ((N)->notype)
 #  define img_errorlevel(N)       ((N)->errorlevel)
 #  define img_pdfmajorversion(N)  ((N)->pdfmajorversion)
 #  define img_pdfminorversion(N)  ((N)->pdfminorversion)

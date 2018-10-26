@@ -541,53 +541,68 @@ scaled_whd scale_img(image_dict * idict, scaled_whd alt_rule, int transform)
     /*tex natural size corresponding to image resolution */
     scaled_whd nat;
     int default_res;
-    if ((img_type(idict) == IMG_TYPE_PDF || img_type(idict) == IMG_TYPE_PDFMEMSTREAM
-         || img_type(idict) == IMG_TYPE_PDFSTREAM) && img_is_bbox(idict)) {
-        /*tex dimensions from image.bbox */
-        x = img_xsize(idict) = img_bbox(idict)[2] - img_bbox(idict)[0];
-        y = img_ysize(idict) = img_bbox(idict)[3] - img_bbox(idict)[1];
-        img_xorig(idict) = img_bbox(idict)[0];
-        img_yorig(idict) = img_bbox(idict)[1];
-    } else {
-        /*tex dimensions, resolutions from image file */
-        x = img_xsize(idict);
-        y = img_ysize(idict);
-    }
-    xr = img_xres(idict);
-    yr = img_yres(idict);
-    if (x <= 0 || y <= 0 || xr < 0 || yr < 0)
-        normal_error("pdf backend","invalid image dimensions");
-    if (xr > 65535 || yr > 65535) {
-        xr = 0;
-        yr = 0;
-        normal_warning("pdf backend","too large image resolution ignored");
-    }
-    if (((transform - img_rotation(idict)) & 1) == 1) {
-        tmp = x;
-        x = y;
-        y = tmp;
-        tmp = xr;
-        xr = yr;
-        yr = tmp;
-    }
-    /*tex always for images */
     nat.dp = 0;
-    if (img_type(idict) == IMG_TYPE_PDF || img_type(idict) == IMG_TYPE_PDFMEMSTREAM
-        || img_type(idict) == IMG_TYPE_PDFSTREAM) {
-        nat.wd = x;
-        nat.ht = y;
-    } else {
-        default_res = fix_int(pdf_image_resolution, 0, 65535);
-        if (default_res > 0 && (xr == 0 || yr == 0)) {
-            xr = default_res;
-            yr = default_res;
-        }
-        if (xr > 0 && yr > 0) {
-            nat.wd = ext_xn_over_d(one_hundred_inch, x, 100 * xr);
-            nat.ht = ext_xn_over_d(one_hundred_inch, y, 100 * yr);
+    nat.wd = 0;
+    nat.ht = 0;
+    if (img_nobbox(idict)) {
+        if (img_is_bbox(idict)) {
+            x = img_xsize(idict) = img_bbox(idict)[2] - img_bbox(idict)[0];
+            y = img_ysize(idict) = img_bbox(idict)[3] - img_bbox(idict)[1];
+            img_xorig(idict) = img_bbox(idict)[0];
+            img_yorig(idict) = img_bbox(idict)[1];
+            nat.wd = x;
+            nat.ht = y;
         } else {
-            nat.wd = ext_xn_over_d(one_hundred_inch, x, 7200);
-            nat.ht = ext_xn_over_d(one_hundred_inch, y, 7200);
+            normal_error("pdf backend","use boundingbox to pass dimensions");
+        }
+    } else {
+        if ((img_type(idict) == IMG_TYPE_PDF || img_type(idict) == IMG_TYPE_PDFMEMSTREAM
+             || img_type(idict) == IMG_TYPE_PDFSTREAM) && img_is_bbox(idict)) {
+            /*tex dimensions from image.bbox */
+            x = img_xsize(idict) = img_bbox(idict)[2] - img_bbox(idict)[0];
+            y = img_ysize(idict) = img_bbox(idict)[3] - img_bbox(idict)[1];
+            img_xorig(idict) = img_bbox(idict)[0];
+            img_yorig(idict) = img_bbox(idict)[1];
+        } else {
+            /*tex dimensions, resolutions from image file */
+            x = img_xsize(idict);
+            y = img_ysize(idict);
+        }
+        xr = img_xres(idict);
+        yr = img_yres(idict);
+        if (x <= 0 || y <= 0 || xr < 0 || yr < 0)
+            normal_error("pdf backend","invalid image dimensions");
+        if (xr > 65535 || yr > 65535) {
+            xr = 0;
+            yr = 0;
+            normal_warning("pdf backend","too large image resolution ignored");
+        }
+        if (((transform - img_rotation(idict)) & 1) == 1) {
+            tmp = x;
+            x = y;
+            y = tmp;
+            tmp = xr;
+            xr = yr;
+            yr = tmp;
+        }
+        /*tex always for images */
+        if (img_type(idict) == IMG_TYPE_PDF || img_type(idict) == IMG_TYPE_PDFMEMSTREAM
+            || img_type(idict) == IMG_TYPE_PDFSTREAM) {
+            nat.wd = x;
+            nat.ht = y;
+        } else {
+            default_res = fix_int(pdf_image_resolution, 0, 65535);
+            if (default_res > 0 && (xr == 0 || yr == 0)) {
+                xr = default_res;
+                yr = default_res;
+            }
+            if (xr > 0 && yr > 0) {
+                nat.wd = ext_xn_over_d(one_hundred_inch, x, 100 * xr);
+                nat.ht = ext_xn_over_d(one_hundred_inch, y, 100 * yr);
+            } else {
+                nat.wd = ext_xn_over_d(one_hundred_inch, x, 7200);
+                nat.ht = ext_xn_over_d(one_hundred_inch, y, 7200);
+            }
         }
     }
     return tex_scale(nat, alt_rule);
@@ -642,26 +657,32 @@ void pdf_write_image(PDF pdf, int n)
 
 void check_pdfstream_dict(image_dict * idict)
 {
-    if (!img_is_bbox(idict))
+    if (!img_is_bbox(idict) && !img_nobbox(idict)) {
         normal_error("pdf backend","image.stream: no bbox given");
-    if (img_state(idict) < DICT_FILESCANNED)
+    }
+    if (img_state(idict) < DICT_FILESCANNED) {
         img_state(idict) = DICT_FILESCANNED;
+    }
 }
 
 void write_pdfstream(PDF pdf, image_dict * idict)
 {
     pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
-    pdf_dict_add_name(pdf, "Type", "XObject");
-    pdf_dict_add_name(pdf, "Subtype", "Form");
-    pdf_dict_add_int(pdf, "FormType", 1);
-    pdf_add_name(pdf, "BBox");
-    pdf_begin_array(pdf);
-    pdf_add_real(pdf, sp2bp(img_bbox(idict)[0]));
-    pdf_add_real(pdf, sp2bp(img_bbox(idict)[1]));
-    pdf_add_real(pdf, sp2bp(img_bbox(idict)[2]));
-    pdf_add_real(pdf, sp2bp(img_bbox(idict)[3]));
-    pdf_end_array(pdf);
+    if (!img_notype(idict)) {
+        pdf_dict_add_name(pdf, "Type", "XObject");
+        pdf_dict_add_name(pdf, "Subtype", "Form");
+        pdf_dict_add_int(pdf, "FormType", 1);
+    }
+    if (!img_nobbox(idict)) {
+        pdf_add_name(pdf, "BBox");
+        pdf_begin_array(pdf);
+        pdf_add_real(pdf, sp2bp(img_bbox(idict)[0]));
+        pdf_add_real(pdf, sp2bp(img_bbox(idict)[1]));
+        pdf_add_real(pdf, sp2bp(img_bbox(idict)[2]));
+        pdf_add_real(pdf, sp2bp(img_bbox(idict)[3]));
+        pdf_end_array(pdf);
+    }
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0) {
         pdf_printf(pdf, "\n%s\n", img_attr(idict));
     }

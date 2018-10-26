@@ -3878,7 +3878,7 @@ static void mpx_erasetmp(MPX mpx);
 @ @c
 static void mpx_cleandir(MPX mpx, char *cur_path) {
   char *wrk, *p;
-#if defined(_WIN32) && !defined(MIKTEX)
+#if !defined(MIKTEX) && defined(_WIN32)
   struct _finddata_t c_file;
   long hFile;
 #else
@@ -3889,7 +3889,7 @@ static void mpx_cleandir(MPX mpx, char *cur_path) {
   p = strrchr(wrk, '.');
   *p = '\0'; /* now wrk is identical to tmpname */ 
 
-#if defined(_WIN32) && !defined(MIKTEX)
+#if !defined(MIKTEX) && defined(_WIN32)
   strcat(cur_path,"/*");
   if ((hFile = _findfirst (cur_path, &c_file)) == -1L) {
     mpx_default_erasetmp(mpx);

@@ -2830,7 +2830,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         The |CIDSet| is a table of bits indexed by cid, bytes with high order bit
         first, each (set) bit is a (present) CID.
     */
-    if (1) {
+    if ((! pdf->omit_cidset) && (pdf->major_version == 1)) {
         int cid;
         cidset = pdf_create_obj(pdf, obj_type_others, 0);
         if (cidset != 0) {
@@ -2969,7 +2969,7 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         The |CIDSet| table is a table of bits indexed by cid, bytes with high
         order bit first, each (set) bit is a (present) CID.
     */
-    if (1) {
+    if ((! pdf->omit_cidset) && (pdf->major_version == 1)) {
         cidset = pdf_create_obj(pdf, obj_type_others, 0);
         if (cidset != 0) {
             size_t l = (last_cid / 8) + 1;

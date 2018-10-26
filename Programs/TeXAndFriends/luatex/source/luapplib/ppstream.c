@@ -11,59 +11,15 @@ ppstream * ppstream_create (ppdoc *pdf, ppdict *dict, size_t offset)
 	//if (!ppdict_rget_uint(dict, "Length", &stream->length)) // may be indirect pointing PPNONE at this moment
 	//  stream->length = 0;
 	stream->length = 0;
+	stream->filespec = NULL;
+	stream->filter.filters = NULL;
+	stream->filter.params = NULL;
+	stream->filter.count = 0;
 	stream->input = &pdf->input;
 	stream->I = NULL;
 	stream->cryptkey = NULL;
 	stream->flags = 0;
 	return stream;
-}
-
-/* codecs */
-
-enum {
-  PPSTREAM_UNKNOWN = -1,
-  PPSTREAM_BASE16 = 0,
-  PPSTREAM_BASE85,
-  PPSTREAM_RUNLENGTH,
-  PPSTREAM_FLATE,
-  PPSTREAM_LZW,
-  PPSTREAM_CCITT,
-  PPSTREAM_DCT,
-  PPSTREAM_JBIG2,
-  PPSTREAM_JPX,
-  PPSTREAM_CRYPT
-};
-
-static int ppstream_codec_type (ppname name)
-{ // one of those places where some hash wuld be nice..
-  switch (name[0])
-  {
-    case 'A':
-      if (ppname_is(name, "ASCIIHexDecode")) return PPSTREAM_BASE16;
-      if (ppname_is(name, "ASCII85Decode")) return PPSTREAM_BASE85;
-      break;
-    case 'R':
-      if (ppname_is(name, "RunLengthDecode")) return PPSTREAM_RUNLENGTH;
-      break;
-    case 'F':
-      if (ppname_is(name, "FlateDecode")) return PPSTREAM_FLATE;
-      break;
-    case 'L':
-      if (ppname_is(name, "LZWDecode")) return PPSTREAM_LZW;
-      break;
-    case 'D':
-      if (ppname_is(name, "DCTDecode")) return PPSTREAM_DCT;
-      break;
-    case 'C':
-      if (ppname_is(name, "CCITTFaxDecode")) return PPSTREAM_CCITT;
-      if (ppname_is(name, "Crypt")) return PPSTREAM_CRYPT;
-      break;
-    case 'J':
-      if (ppname_is(name, "JPXDecode")) return PPSTREAM_JPX;
-      if (ppname_is(name, "JBIG2Decode")) return PPSTREAM_JBIG2;
-      break;
-  }
-  return PPSTREAM_UNKNOWN;
 }
 
 static iof * ppstream_predictor (ppdict *params, iof *N)
@@ -81,14 +37,14 @@ static iof * ppstream_predictor (ppdict *params, iof *N)
   return iof_filter_predictor_decoder(N, (int)predictor, (int)rowsamples, (int)components, (int)samplebits);
 }
 
-static iof * ppstream_decoder (ppstream *stream, int codectype, ppdict *params, iof *N)
+static iof * ppstream_decoder (ppstream *stream, ppstreamtp filtertype, ppdict *params, iof *N)
 {
   int flags;
   iof *F, *P;
   ppint earlychange;
   ppstring cryptkey;
 
-  switch (codectype)
+  switch (filtertype)
   {
     case PPSTREAM_BASE16:
       return iof_filter_base16_decoder(N);
@@ -137,18 +93,15 @@ static iof * ppstream_decoder (ppstream *stream, int codectype, ppdict *params, 
     case PPSTREAM_DCT:
     case PPSTREAM_JBIG2:
     case PPSTREAM_JPX:
-    case PPSTREAM_UNKNOWN:
       break;
   }
   return NULL;
 }
 
-#define ppstream_image(type) (type == PPSTREAM_DCT || type == PPSTREAM_JBIG2 || PPSTREAM_JPX)
-
 #define ppstream_source(stream) iof_filter_stream_coreader((iof_file *)((stream)->input), (size_t)((stream)->offset), (size_t)((stream)->length))
 #define ppstream_auxsource(filename) iof_filter_file_reader(filename)
 
-static ppname ppstream_filter_name (ppobj *filterobj, size_t index)
+static ppname ppstream_get_filter_name (ppobj *filterobj, size_t index)
 {
   if (filterobj->type == PPNAME)
     return index == 0 ? filterobj->name : NULL;
@@ -157,7 +110,7 @@ static ppname ppstream_filter_name (ppobj *filterobj, size_t index)
   return NULL;
 }
 
-static ppdict * ppstream_filter_params (ppobj *paramsobj, size_t index)
+static ppdict * ppstream_get_filter_params (ppobj *paramsobj, size_t index)
 {
   if (paramsobj->type == PPDICT)
     return index == 0 ? paramsobj->dict : NULL;
@@ -176,66 +129,64 @@ static const char * ppstream_aux_filename (ppobj *filespec)
   return NULL;
 }
 
+#define ppstream_image_filter(fcode) (fcode == PPSTREAM_DCT || fcode == PPSTREAM_CCITT || fcode == PPSTREAM_JBIG2 || fcode == PPSTREAM_JPX)
+
 iof * ppstream_read (ppstream *stream, int decode, int all)
 {
-  ppdict *dict;
   iof *I, *F;
-  int codectype, external, owncrypt;
-  ppobj *filterobj, *paramsobj, *filespecobj;
-  ppname filter;
-  ppdict *params;
-  size_t index;
+  ppstreamtp *filtertypes, filtertype;
+  int owncrypt;
+  ppdict **filterparams, *fparams;
+  size_t index, filtercount;
   const char *filename;
 
   if (ppstream_iof(stream) != NULL)
     return NULL; // usage error
 
-  dict = stream->dict;
-  if ((filespecobj = ppdict_rget_obj(dict, "F")) != NULL)
+  if (stream->filespec != NULL)
   {
-    filename = ppstream_aux_filename(filespecobj);
+    filename = ppstream_aux_filename(stream->filespec); // mockup, basic support
     I = filename != NULL ? ppstream_auxsource(filename) : NULL;
-    external = 1;
   }
   else
   {
     I = ppstream_source(stream);
-    external = 0;
   }
   if (I == NULL)
     return NULL;
+
   /* If the stream is encrypted, decipher is the first to be applied */
   owncrypt = (stream->flags & PPSTREAM_ENCRYPTED_OWN) != 0;
   if (!owncrypt)
   {
-    if (stream->cryptkey != NULL)
-    { /* implied global crypt */
+    if (stream->cryptkey != NULL && stream->filespec == NULL)
+    { /* implied global crypt; does not apply to external files (pdf psec page 115), except for embedded file streams (not supported so far) */
       if ((F = ppstream_decoder(stream, PPSTREAM_CRYPT, NULL, I)) == NULL)
         goto stream_error;
       I = F;
     } /* otherwise no crypt at all or /Identity */
   }
+
   if (decode || owncrypt)
   {
-    filterobj = ppdict_rget_obj(dict, external ? "FFilter" : "Filter");
-    if (filterobj != NULL)
+    if ((filtercount = stream->filter.count) > 0)
     {
-      paramsobj = ppdict_rget_obj(dict, external ? "FDecodeParms" : "DecodeParms");
-      for (index = 0, filter = ppstream_filter_name(filterobj, 0); filter != NULL; filter = ppstream_filter_name(filterobj, ++index))
+      filtertypes = stream->filter.filters;
+      filterparams = stream->filter.params;
+      for (index = 0; index < filtercount; ++index)
       {
-        params = paramsobj != NULL ? ppstream_filter_params(paramsobj, index) : NULL;
-        codectype = ppstream_codec_type(filter);
-        if ((F = ppstream_decoder(stream, codectype, params, I)) != NULL)
+        fparams = filterparams != NULL ? filterparams[index] : NULL;
+        filtertype = filtertypes[index];
+        if ((F = ppstream_decoder(stream, filtertype, fparams, I)) != NULL)
         {
           I = F;
-          if (owncrypt && !decode && codectype == PPSTREAM_CRYPT)
+          if (owncrypt && !decode && filtertype == PPSTREAM_CRYPT)
             break; // /Crypt filter should always be first, so in practise we return decrypted but compressed
           continue;
         }
-        if (!ppstream_image(codectype)) // something unexpected
-          goto stream_error;
-        else // just treat image data (jpeg/jbig) as the target data
-          break;
+        if (!ppstream_image_filter(filtertype))
+          goto stream_error; // failed to create non-image filter, something unexpected
+        break;
       }
     }
   }
@@ -294,6 +245,234 @@ void ppstream_done (ppstream *stream)
   {
     iof_close(I);
     stream->I = NULL;
+  }
+}
+
+/* fetching stream info
+PJ20190916: revealed it makes sense to do a lilbit more just after parsing stream entry to simplify stream operations
+and extend ppstream api
+*/
+
+/* stream filters */
+
+const char * ppstream_filter_name[] = {
+  "ASCIIHexDecode",
+  "ASCII85Decode",
+  "RunLengthDecode",
+  "FlateDecode",
+  "LZWDecode",
+  "CCITTFaxDecode",
+  "DCTDecode",
+  "JBIG2Decode",
+  "JPXDecode",
+  "Crypt"
+};
+
+int ppstream_filter_type (ppname name, ppstreamtp *filtertype)
+{
+  switch (name[0])
+  {
+    case 'A':
+      if (ppname_is(name, "ASCIIHexDecode")) { *filtertype = PPSTREAM_BASE16; return 1; }
+      if (ppname_is(name, "ASCII85Decode")) { *filtertype = PPSTREAM_BASE85; return 1; }
+      break;
+    case 'R':
+      if (ppname_is(name, "RunLengthDecode")) { *filtertype = PPSTREAM_RUNLENGTH; return 1; }
+      break;
+    case 'F':
+      if (ppname_is(name, "FlateDecode")) { *filtertype = PPSTREAM_FLATE; return 1; }
+      break;
+    case 'L':
+      if (ppname_is(name, "LZWDecode")) { *filtertype = PPSTREAM_LZW; return 1; }
+      break;
+    case 'D':
+      if (ppname_is(name, "DCTDecode")) { *filtertype = PPSTREAM_DCT; return 1; }
+      break;
+    case 'C':
+      if (ppname_is(name, "CCITTFaxDecode")) { *filtertype = PPSTREAM_CCITT; return 1; }
+      if (ppname_is(name, "Crypt")) { *filtertype = PPSTREAM_CRYPT; return 1; }
+      break;
+    case 'J':
+      if (ppname_is(name, "JPXDecode")) { *filtertype = PPSTREAM_JPX; return 1; }
+      if (ppname_is(name, "JBIG2Decode")) { *filtertype = PPSTREAM_JBIG2; return 1; }
+      break;
+  }
+  return 0;
+}
+
+void ppstream_info (ppstream *stream, ppdoc *pdf)
+{ // called in ppdoc_load_entries() for every stream, but after loading non-stream objects (eg. /Length..)
+  ppdict *dict, *fparams;
+  ppobj *fobj, *pobj;
+  ppname fname, tname, owncryptfilter = NULL;
+  ppcrypt *crypt;
+  ppref *ref;
+  size_t i;
+  int cflags;
+
+  ppstreamtp *filtertypes = NULL, filtertype;
+  ppdict **filterparams = NULL;
+  size_t filtercount = 0, farraysize = 0;
+
+  const char *filterkey, *paramskey;
+
+  dict = stream->dict;
+  ppdict_rget_uint(dict, "Length", &stream->length);
+
+  if ((stream->filespec = ppdict_get_obj(dict, "F")) != NULL)
+  {
+    stream->flags |= PPSTREAM_NOT_SUPPORTED;
+    filterkey = "FFilter", paramskey = "FDecodeParms";
+  }
+  else
+    filterkey = "Filter", paramskey = "DecodeParms";
+
+  if ((fobj = ppdict_rget_obj(dict, filterkey)) != NULL)
+  {
+    switch (fobj->type)
+    {
+      case PPNAME:
+        farraysize = 1;
+        break;
+      case PPARRAY:
+        farraysize = fobj->array->size;
+        break;
+      default:
+        break;
+    }
+    if (farraysize > 0)
+    {
+      filtertypes = ppheap_take(&pdf->heap, farraysize * sizeof(ppstreamtp));
+      if ((pobj = ppdict_rget_obj(dict, paramskey)) != NULL)
+        filterparams = ppheap_take(&pdf->heap, farraysize * sizeof(ppdict *));
+      for (i = 0; i < farraysize; ++i)
+      {
+        if ((fname = ppstream_get_filter_name(fobj, i)) != NULL && ppstream_filter_type(fname, &filtertype))
+        {
+          filtertypes[filtercount] = filtertype;
+          if (pobj != NULL)
+          {
+            fparams = ppstream_get_filter_params(pobj, i);
+            filterparams[filtercount] = fparams;
+          }
+          else
+            fparams = NULL;
+          switch (filtertype)
+          {
+            case PPSTREAM_BASE16:
+            case PPSTREAM_BASE85:
+            case PPSTREAM_RUNLENGTH:
+            case PPSTREAM_FLATE:
+            case PPSTREAM_LZW:
+              stream->flags |= PPSTREAM_FILTER;
+              break;
+            case PPSTREAM_CCITT:
+            case PPSTREAM_DCT:
+            case PPSTREAM_JBIG2:
+            case PPSTREAM_JPX:
+              stream->flags |= PPSTREAM_IMAGE;
+              break;
+            case PPSTREAM_CRYPT:
+              stream->flags |= PPSTREAM_ENCRYPTED_OWN;
+              owncryptfilter = fparams != NULL ? ppdict_get_name(fparams, "Name") : NULL; // /Type /CryptFilterDecodeParms /Name ...
+              if (i != 0) // we assume it is first
+                stream->flags |= PPSTREAM_NOT_SUPPORTED;
+              break;
+          }
+          ++filtercount;
+        }
+        else
+        {
+          stream->flags |= PPSTREAM_NOT_SUPPORTED;
+        }
+      }
+    }
+  }
+  stream->filter.filters = filtertypes;
+  stream->filter.params = filterparams;
+  stream->filter.count = filtercount;
+
+  if ((crypt = pdf->crypt) == NULL || (ref = crypt->ref) == NULL)
+    return;
+  if (stream->flags & PPSTREAM_ENCRYPTED_OWN)
+  {
+    /* Seems a common habit to use just /Crypt filter name with no params, which defaults to /Identity.
+       A real example with uncompressed metadata: <</Filter[/Crypt]/Length 4217/Subtype/XML/Type/Metadata>> */
+    if (owncryptfilter != NULL && !ppname_is(owncryptfilter, "Identity") && stream->filespec == NULL) // ?
+    {
+      if (crypt->map != NULL && ppcrypt_type(crypt, owncryptfilter, NULL, &cflags))
+      {
+        if (cflags & PPCRYPT_INFO_AES)
+          stream->flags |= PPSTREAM_ENCRYPTED_AES;
+        else if (cflags & PPCRYPT_INFO_RC4)
+          stream->flags |= PPSTREAM_ENCRYPTED_RC4;
+      }
+    }
+  }
+  else
+  {
+    if ((crypt->flags & PPCRYPT_NO_METADATA) && (tname = ppdict_get_name(dict, "Type")) != NULL && ppname_is(tname, "Metadata"))
+      ; /* special treatment of metadata stream; we assume that explicit /Filter /Crypt setup overrides document level setup of EncryptMetadata. */
+    else if (stream->filespec == NULL) /* external files are not encrypted, expect embedded files (not supported yet) */
+    {
+      if (crypt->flags & PPCRYPT_STREAM_RC4)
+        stream->flags |= PPSTREAM_ENCRYPTED_RC4;
+      else if (crypt->flags & PPCRYPT_STREAM_AES)
+        stream->flags |= PPSTREAM_ENCRYPTED_AES;
+    }
+  }
+
+  /* finally, if the stream is encrypted with non-identity crypt (implicit or explicit), make and save the crypt key */
+  if (stream->flags & PPSTREAM_ENCRYPTED)
+    stream->cryptkey = ppcrypt_stmkey(crypt, ref, ((stream->flags & PPSTREAM_ENCRYPTED_AES) != 0), &pdf->heap);
+}
+
+void ppstream_filter_info (ppstream *stream, ppstream_filter *info, int decode)
+{
+  size_t from, index;
+  ppstreamtp filtertype;
+  ppdict *params;
+
+  *info = stream->filter;
+  if (info->count > 0)
+  {
+    from = (stream->flags & PPSTREAM_ENCRYPTED_OWN) && info->filters[0] == PPSTREAM_CRYPT ? 1 : 0;
+    if (decode)
+    {
+      for (index = from; index < info->count; ++index)
+      {
+        filtertype = info->filters[index];
+        if (ppstream_image_filter(filtertype))
+        {
+          break;
+        }
+      }
+    }
+    else
+    {
+      index = from;
+    }
+    if (index > 0) {
+      info->count -= index;
+      if (info->count > 0)
+      {
+        info->filters += index;
+        if (info->params != NULL)
+        {
+          info->params += index;
+          for (index = 0, params = NULL; index < info->count; ++index)
+            if ((params = info->params[index]) != NULL)
+              break;
+          if (params == NULL)
+            info->params = NULL;
+        }
+      }
+      else
+      {
+        info->filters = NULL;
+        info->params = NULL;
+      }
+    }
   }
 }
 

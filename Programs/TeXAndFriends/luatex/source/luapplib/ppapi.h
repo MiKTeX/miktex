@@ -8,7 +8,7 @@
 
 #include "ppconf.h"
 
-#define pplib_version "v0.97"
+#define pplib_version "v1.02"
 #define pplib_author "p.jackowski@gust.org.pl"
 
 /* types */
@@ -34,7 +34,7 @@ typedef struct ppobj ppobj;
 typedef struct ppref ppref;
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) && defined(__SVR4))
 typedef struct {
   ppobj *data;
   size_t size;
@@ -48,7 +48,7 @@ typedef struct {
 #endif
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) && defined(__SVR4))
 typedef struct {
   ppobj *data;
 	ppname *keys;
@@ -64,23 +64,51 @@ typedef struct {
 } ppdict;
 #endif
 
+typedef enum {
+  PPSTREAM_BASE16 = 0,
+  PPSTREAM_BASE85,
+  PPSTREAM_RUNLENGTH,
+  PPSTREAM_FLATE,
+  PPSTREAM_LZW,
+  PPSTREAM_CCITT,
+  PPSTREAM_DCT,
+  PPSTREAM_JBIG2,
+  PPSTREAM_JPX,
+  PPSTREAM_CRYPT
+} ppstreamtp;
+
+typedef struct {
+  ppstreamtp *filters;
+  ppdict **params;
+  size_t count;
+} ppstream_filter;
 
 typedef struct {
   ppdict *dict;
   void *input, *I;
   size_t offset;
   size_t length;
+  ppstream_filter filter;
+  ppobj *filespec;
   ppstring cryptkey;
   int flags;
 } ppstream;
 
-#define PPSTREAM_COMPRESSED (1<<0)
-#define PPSTREAM_ENCRYPTED_AES (1<<1)
-#define PPSTREAM_ENCRYPTED_RC4 (1<<2)
-#define PPSTREAM_ENCRYPTED (PPSTREAM_ENCRYPTED_AES|PPSTREAM_ENCRYPTED_RC4)
-#define PPSTREAM_ENCRYPTED_OWN (1<<3)
+PPDEF extern const char * ppstream_filter_name[];
+PPAPI int ppstream_filter_type (ppname filtername, ppstreamtp *filtertype);
+PPAPI void ppstream_filter_info (ppstream *stream, ppstream_filter *info, int decode);
 
-#define ppstream_compressed(stream) ((stream)->flags & PPSTREAM_COMPRESSED)
+#define PPSTREAM_FILTER (1<<0)
+#define PPSTREAM_IMAGE (1<<1)
+#define PPSTREAM_ENCRYPTED_AES (1<<2)
+#define PPSTREAM_ENCRYPTED_RC4 (1<<3)
+#define PPSTREAM_ENCRYPTED (PPSTREAM_ENCRYPTED_AES|PPSTREAM_ENCRYPTED_RC4)
+#define PPSTREAM_ENCRYPTED_OWN (1<<4)
+#define PPSTREAM_NOT_SUPPORTED (1<<6)
+
+#define ppstream_compressed(stream) ((stream)->flags & (PPSTREAM_FILTER|PPSTREAM_IMAGE))
+#define ppstream_filtered(stream) ((stream)->flags & PPSTREAM_FILTER)
+#define ppstream_image(stream) ((stream)->flags & PPSTREAM_IMAGE)
 #define ppstream_encrypted(stream) ((stream)->flags & PPSTREAM_ENCRYPTED)
 
 typedef enum {
@@ -162,7 +190,7 @@ typedef struct ppdoc ppdoc;
 #define ppname_is(name, s) (memcmp(name, s, sizeof("" s) - 1) == 0)
 #define ppname_eq(name, n) (memcmp(name, s, ppname_size(name)) == 0)
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) && defined(__SVR4))
 #define _ppname_ghost(name) (((const _ppname *)((void *)name)) - 1)
 #else
 #define _ppname_ghost(name) (((const _ppname *)(name)) - 1)
@@ -180,7 +208,7 @@ PPAPI ppname ppname_encoded (ppname name);
 
 /* string */
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) && defined(__SVR4))
 #define _ppstring_ghost(string) (((const _ppstring *)((void *)string)) - 1)
 #else
 #define _ppstring_ghost(string) (((const _ppstring *)(string)) - 1)

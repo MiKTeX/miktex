@@ -1242,6 +1242,19 @@ static int getpdfnofobjects(lua_State * L)
     return 2;
 }
 
+/*tex
+
+    The following option is not official and needs testing anyway. It's a
+    prelude a followup where the dependencies are limited.
+
+*/
+
+static int settypeonewidemode(lua_State * L)
+{
+    t1_wide_mode = lua_tointeger(L,1);
+    return 0;
+}
+
 /*tex For normal output see |pdflistout.c|: */
 
 static const struct luaL_Reg pdflib[] = {
@@ -1342,6 +1355,8 @@ static const struct luaL_Reg pdflib[] = {
     { "fontobjnum", getpdffontobjnum },
     { "fontsize", getpdffontsize },
     { "xformname", getpdfxformname },
+    /* experimental */
+    { "settypeonewidemode", settypeonewidemode},
     /* sentinel */
     {NULL, NULL}
 };

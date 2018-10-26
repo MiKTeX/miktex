@@ -6,11 +6,6 @@
 
 /* crypt struct */
 
-#define CRYPT_AES  (1<<0)
-#define CRYPT_RC4  (1<<1)
-#define CRYPT_MD   (1<<2)
-#define CRYPT_NOMD (1<<3)
-
 static ppcrypt * ppcrypt_create (ppheap **pheap)
 {
   ppcrypt *crypt;
@@ -19,7 +14,7 @@ static ppcrypt * ppcrypt_create (ppheap **pheap)
   return crypt;
 }
 
-static int ppcrypt_type (ppcrypt *crypt, ppname cryptname, ppuint *length, int *cryptflags)
+int ppcrypt_type (ppcrypt *crypt, ppname cryptname, ppuint *length, int *cryptflags)
 {
   ppdict *filterdict;
   ppname filtertype;
@@ -31,21 +26,21 @@ static int ppcrypt_type (ppcrypt *crypt, ppname cryptname, ppuint *length, int *
     return 0;
   *cryptflags = 0;
   if (ppname_is(filtertype, "V2"))
-    *cryptflags |= CRYPT_RC4;
+    *cryptflags |= PPCRYPT_INFO_RC4;
   else if (ppname_is(filtertype, "AESV2"))
-    *cryptflags |= CRYPT_AES;
+    *cryptflags |= PPCRYPT_INFO_AES;
   else if (ppname_is(filtertype, "AESV3"))
-    *cryptflags |= CRYPT_AES, default256 = 1;
+    *cryptflags |= PPCRYPT_INFO_AES, default256 = 1;
   else
     return 0;
   /* pdf spec page. 134: /Length is said to be optional bit-length of the key, but it seems to be a mistake, as Acrobat
      produces /Length key with bytes lengths, opposite to /Length key of the main encrypt dict. */
   if (length != NULL)
     if (!ppdict_get_uint(filterdict, "Length", length))
-      *length = (*cryptflags & CRYPT_RC4) ? 5 : (default256 ? 32 : 16);
+      *length = (*cryptflags & PPCRYPT_INFO_RC4) ? 5 : (default256 ? 32 : 16);
   /* one of metadata flags is set iff there is an explicit EncryptMetadata key */
   if (ppdict_get_bool(filterdict, "EncryptMetadata", &cryptmd))
-    *cryptflags |= (cryptmd ? CRYPT_MD : CRYPT_NOMD);
+    *cryptflags |= (cryptmd ? PPCRYPT_INFO_MD : PPCRYPT_INFO_NOMD);
   return 1;
 }
 
@@ -296,21 +291,21 @@ ppcrypt_status ppdoc_crypt_init (ppdoc *pdf, const void *userpass, size_t userpa
       /* streams filter */
       if ((name = ppdict_get_name(encrypt, "StmF")) != NULL && ppcrypt_type(crypt, name, &stmkeylength, &cryptflags))
       {
-        if (cryptflags & CRYPT_AES)
+        if (cryptflags & PPCRYPT_INFO_AES)
           crypt->flags |= PPCRYPT_STREAM_AES;
-        else if (cryptflags & CRYPT_RC4)
+        else if (cryptflags & PPCRYPT_INFO_RC4)
           crypt->flags |= PPCRYPT_STREAM_RC4;
-        if (cryptflags & CRYPT_NOMD)
+        if (cryptflags & PPCRYPT_INFO_NOMD)
           crypt->flags |= PPCRYPT_NO_METADATA;
-        else if (cryptflags & CRYPT_MD)
+        else if (cryptflags & PPCRYPT_INFO_MD)
           crypt->flags &= ~PPCRYPT_NO_METADATA;
       } /* else identity */
       /* strings filter */
       if ((name = ppdict_get_name(encrypt, "StrF")) != NULL && ppcrypt_type(crypt, name, &strkeylength, &cryptflags))
       {
-        if (cryptflags & CRYPT_AES)
+        if (cryptflags & PPCRYPT_INFO_AES)
           crypt->flags |= PPCRYPT_STRING_AES;
-        else if (cryptflags & CRYPT_RC4)
+        else if (cryptflags & PPCRYPT_INFO_RC4)
           crypt->flags |= PPCRYPT_STRING_RC4;
       } /* else identity */
 
@@ -489,7 +484,7 @@ Since streams and strings might theoretically be encrypted with different filter
 decryption state here.
 */
 
-static ppstring ppcrypt_stmkey (ppcrypt *crypt, ppref *ref, int aes, ppheap **pheap)
+ppstring ppcrypt_stmkey (ppcrypt *crypt, ppref *ref, int aes, ppheap **pheap)
 {
   ppstring cryptkeystring;
   //if (crypt->cryptkeylength > 0)
@@ -521,108 +516,4 @@ static ppstring ppcrypt_stmkey (ppcrypt *crypt, ppref *ref, int aes, ppheap **ph
   }
   cryptkeystring = ppstring_internal(crypt->cryptkey, crypt->cryptkeylength, pheap);
   return ppstring_decoded(cryptkeystring);
-}
-
-void ppstream_info (ppstream *stream, ppdoc *pdf)
-{ // just after the stream creation
-  ppdict *dict;
-  ppobj *fobj, *pobj;
-  pparray *farray;
-  ppname fname, owncryptfilter, tname;
-  ppcrypt *crypt;
-  ppref *ref;
-  size_t i;
-  int owncrypt, cflags;
-
-  dict = stream->dict;
-	ppdict_rget_uint(dict, "Length", &stream->length);
-
-  if ((fobj = ppdict_get_obj(dict, "Filter")) != NULL)
-  {
-    fobj = ppobj_preloaded(pdf, fobj);
-    switch (fobj->type)
-    {
-      case PPNAME:
-        stream->flags |= PPSTREAM_COMPRESSED;
-        break;
-      case PPARRAY:
-        if (fobj->array->size > 0)
-          stream->flags |= PPSTREAM_COMPRESSED;
-        break;
-      default:
-        break;
-    }
-  }
-  if ((crypt = pdf->crypt) == NULL || (ref = crypt->ref) == NULL)
-    return;
-  owncrypt = 0;
-  owncryptfilter = NULL;
-  if (fobj != NULL)
-  {
-    if ((pobj = ppdict_get_obj(dict, "DecodeParms")) != NULL)
-      pobj = ppobj_preloaded(pdf, pobj);
-    switch (fobj->type)
-    {
-      case PPNAME:
-        if (ppname_is(fobj->name, "Crypt"))
-        {
-          owncrypt = 1;
-          if (pobj != NULL && pobj->type == PPDICT) // /Type /CryptFilterDecodeParms
-            owncryptfilter = ppdict_get_name(pobj->dict, "Name");
-        }
-        break;
-      case PPARRAY:
-        farray = fobj->array;
-        for (i = 0; i < farray->size; ++i)
-        {
-          if ((fname = pparray_get_name(farray, i)) != NULL && ppname_is(fname, "Crypt"))
-          {
-            owncrypt = 1;
-            if (pobj != NULL && pobj->type == PPARRAY && (pobj = pparray_get_obj(pobj->array, i)) != NULL)
-            {
-              pobj = ppobj_preloaded(pdf, pobj);
-              if (pobj != NULL && pobj->type == PPDICT) // /Type /CryptFilterDecodeParms
-                owncryptfilter = ppdict_get_name(pobj->dict, "Name");
-            }
-            break;
-          }
-        }
-        break;
-      default:
-        break;
-    }
-  }
-
-  if (owncrypt)
-  {
-    stream->flags |= PPSTREAM_ENCRYPTED_OWN;
-    /* Seems a common habit to use just /Crypt filter name with no params, which defaults to /Identity.
-       A real example with uncompressed metadata: <</Filter[/Crypt]/Length 4217/Subtype/XML/Type/Metadata>> */
-    if (owncryptfilter != NULL && !ppname_is(owncryptfilter, "Identity"))
-    {
-      if (crypt->map != NULL && ppcrypt_type(crypt, owncryptfilter, NULL, &cflags))
-      {
-        if (cflags & CRYPT_AES)
-          stream->flags |= PPSTREAM_ENCRYPTED_AES;
-        else if (cflags & CRYPT_RC4)
-          stream->flags |= PPSTREAM_ENCRYPTED_RC4;
-      }
-    }
-  }
-  else
-  {
-    if ((crypt->flags & PPCRYPT_NO_METADATA) && (tname = ppdict_get_name(dict, "Type")) != NULL && ppname_is(tname, "Metadata"))
-      ; /* special treatment of metadata stream; we assume that explicit /Filter /Crypt setup overrides document level setup of EncryptMetadata. */
-    else
-    {
-      if (crypt->flags & PPCRYPT_STREAM_RC4)
-        stream->flags |= PPSTREAM_ENCRYPTED_RC4;
-      else if (crypt->flags & PPCRYPT_STREAM_AES)
-        stream->flags |= PPSTREAM_ENCRYPTED_AES;
-    }
-  }
-
-  /* finally, if the stream is encrypted with non-identity crypt (implicit or explicit), make and save the crypt key */
-  if (stream->flags & PPSTREAM_ENCRYPTED)
-    stream->cryptkey = ppcrypt_stmkey(crypt, ref, ((stream->flags & PPSTREAM_ENCRYPTED_AES) != 0), &pdf->heap);
 }

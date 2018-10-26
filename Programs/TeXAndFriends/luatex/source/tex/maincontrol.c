@@ -131,9 +131,15 @@ static void run_node (void) {
         n = copy_node_list(n);
     }
     tail_append(n);
+    if (nodetype_has_attributes(type(n)) && node_attr(n) == null) {
+        build_attribute_list(n);
+    }
     while (vlink(n) != null) {
         n = vlink(n);
         tail_append(n);
+        if (nodetype_has_attributes(type(n)) && node_attr(n) == null) {
+            build_attribute_list(n);
+        }
     }
 }
 
@@ -2692,9 +2698,8 @@ void prefixed_command(void)
                     /*tex |letcharcode| */
                     scan_int();
                     if (cur_val > 0) {
-                        cur_cs = active_to_cs(cur_val, true);
-                        set_token_info(cur_cs, cur_cs + cs_token_flag);
-                        p = cur_cs;
+                        /*tex HH: I need to  do a more extensive test later. */
+                        p = active_to_cs(cur_val, true);
                         do {
                             get_token();
                         } while (cur_cmd == spacer_cmd);

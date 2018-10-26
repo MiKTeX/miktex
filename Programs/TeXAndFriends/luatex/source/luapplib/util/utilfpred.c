@@ -1,5 +1,8 @@
 /* predictor filters; common for flate and lzw */
 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__
+#include <assert.h>
+#endif 
 #include "utilmem.h"
 #include "utillog.h"
 #include "utilfpred.h"
@@ -60,7 +63,8 @@ at the left edge of the row). Both state->rowup and state->rowsave has a safe sp
 that are permanently \0.
 */
 
-#define predictor_component_t unsigned short
+/* #define predictor_component_t unsigned short */
+#define predictor_component_t unsigned int
 #define predictor_pixel1b_t unsigned int
 
 typedef struct predictor_state {
@@ -124,23 +128,26 @@ predictor_state * predictor_decoder_init (predictor_state *state, int predictor,
     state->pixbufsize = (int)(compbuf > pixbuf ? compbuf : pixbuf);
     buffersize = rowsize + state->pixbufsize;
     buffer = (uint8_t *)util_calloc(buffersize, 1);
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
-    { /*memory leak */
-      predictor_component_t *c;
-      if (state->pixbufsize%(sizeof(predictor_component_t))) {
-       c = malloc(state->pixbufsize - state->pixbufsize%(sizeof(predictor_component_t)) + sizeof(predictor_component_t) );
-      } else {
-       c = malloc(state->pixbufsize); 
-      }
-      memcpy(c,(state->rowin + rowsize),state->pixbufsize);
-      if (state->prevcomp){
-	free(state->prevcomp);
-      }
-      state->prevcomp = c;
-    }
-#else
-    state->prevcomp = (predictor_component_t *)(state->rowin + rowsize);
-#endif			
+/* #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__  */
+/*     { /\*memory leak *\/ */
+/*       predictor_component_t *c; */
+/*       if (state->pixbufsize%(sizeof(predictor_component_t))) { */
+/*        c = malloc(state->pixbufsize - state->pixbufsize%(sizeof(predictor_component_t)) + sizeof(predictor_component_t) ); */
+/*       } else { */
+/*        c = malloc(state->pixbufsize);  */
+/*       } */
+/*       assert(c); */
+/*       memcpy(c,(state->rowin + rowsize),state->pixbufsize); */
+/*       if (state->prevcomp){ */
+/* 	free(state->prevcomp); */
+/*       } */
+/*       state->prevcomp = c; */
+/*     } */
+/* #else */
+    state->prevcomp = NULL ; /* will be assigned later */
+    /* if (state->rowin)  */
+    /* 	state->prevcomp = (predictor_component_t *)(state->rowin + rowsize); */
+/* #endif			 */
     state->sampleindex = state->compindex = 0;
     state->bitsin = state->bitsout = 0;
     state->compin = state->compout = 0;
@@ -406,7 +413,8 @@ iof_status predictor_decode_state (iof *I, iof *O, predictor_state *state)
             for ( ; state->rowindex < state->rowsize; ++state->rowindex)
             {
               ensure_output_bytes(O, 1);
-              c = (row_byte(state) + left_pixel_component(state)) & 0xff;
+	      state->prevcomp = (predictor_component_t *)(state->rowin + state->rowsize);
+	      c = (left_pixel_component(state)) & 0xff;
               save_pixel_component(state, c);
               iof_set(O, c);
             }
@@ -418,7 +426,9 @@ iof_status predictor_decode_state (iof *I, iof *O, predictor_state *state)
               d = row_byte(state) << 8;
               ++state->rowindex;
               d |= row_byte(state);
-              c = (d + left_pixel_component(state)) & 0xff;
+	      state->prevcomp = (predictor_component_t *)(state->rowin + state->rowsize);
+	      /*c = (d + left_pixel_component(state)) & 0xff;*/
+	      c = (d + left_pixel_component(state)) & 0xffff;
               save_pixel_component(state, c);
               iof_set2(O, c >> 8, c & 0xff);
             }

@@ -257,6 +257,15 @@ static int getfont(lua_State * L)
     return 1;
 }
 
+static int getparameters(lua_State * L)
+{
+    int i = luaL_checkinteger(L, -1);
+    if (i && is_valid_font(i)) {
+        return font_parameters_to_lua(L,i);
+    }
+    return 0;
+}
+
 static int getfontid(lua_State * L)
 {
     if (lua_type(L, 1) == LUA_TSTRING) {
@@ -284,6 +293,7 @@ static const struct luaL_Reg fontlib[] = {
     {"max", tex_max_font},
     {"each", tex_each_font},
     {"getfont", getfont},
+    {"getparameters", getparameters},
     {"setfont", setfont},
     {"addcharacters", addcharacters},
     {"setexpansion", setexpansion},

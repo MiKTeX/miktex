@@ -152,9 +152,11 @@ void register_fd_entry(fd_entry * fd);
 
 boolean t1_subset(char *, char *, unsigned char *);
 char **load_enc_file(char *);
-void writet1(PDF, fd_entry *);
+void writet1(PDF, fd_entry *, int wide);
 void t1_free(void);
 extern int t1_length1, t1_length2, t1_length3;
+
+extern int t1_wide_mode;
 
 /* writetype2.c */
 

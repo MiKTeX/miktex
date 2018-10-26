@@ -24,8 +24,8 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
 {
     /*tex A transformation matrix: */
-    float a[6];
-    float xoff, yoff, tmp;
+    double a[6];
+    double xoff, yoff, tmp;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
     /*tex The number of digits after the decimal point: */
@@ -38,10 +38,10 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
     a[1] = a[2] = 0;
     if (img_type(idict) == IMG_TYPE_PDF || img_type(idict) == IMG_TYPE_PDFMEMSTREAM
         || img_type(idict) == IMG_TYPE_PDFSTREAM) {
-        a[0] /= (float) img_xsize(idict);
-        a[3] /= (float) img_ysize(idict);
-        xoff = (float) img_xorig(idict) / (float) img_xsize(idict);
-        yoff = (float) img_yorig(idict) / (float) img_ysize(idict);
+        a[0] /= (double) img_xsize(idict);
+        a[3] /= (double) img_ysize(idict);
+        xoff = (double) img_xorig(idict) / (double) img_xsize(idict);
+        yoff = (double) img_yorig(idict) / (double) img_ysize(idict);
         r = 6;
     } else {
         if (img_type(idict) == IMG_TYPE_PNG) {
@@ -49,7 +49,7 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
             if ((groupref > 0) && (pdf->img_page_group_val == 0))
                 pdf->img_page_group_val = groupref;
         }
-        a[0] /= (float) one_hundred_bp;
+        a[0] /= (double) one_hundred_bp;
         a[3] = a[0];
         xoff = yoff = 0;
         r = 4;
@@ -90,14 +90,14 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
             break;
         default:;
     }
-    xoff *= (float) dim.wd;
-    yoff *= (float) (dim.ht + dim.dp);
-    a[0] *= (float) dim.wd;
-    a[1] *= (float) (dim.ht + dim.dp);
-    a[2] *= (float) dim.wd;
-    a[3] *= (float) (dim.ht + dim.dp);
-    a[4] = (float) pos.h - xoff;
-    a[5] = (float) pos.v - yoff;
+    xoff *= (double) dim.wd;
+    yoff *= (double) (dim.ht + dim.dp);
+    a[0] *= (double) dim.wd;
+    a[1] *= (double) (dim.ht + dim.dp);
+    a[2] *= (double) dim.wd;
+    a[3] *= (double) (dim.ht + dim.dp);
+    a[4] = (double) pos.h - xoff;
+    a[5] = (double) pos.v - yoff;
     k = transform + img_rotation(idict);
     if ((transform & 7) > 3)
         k++;
@@ -107,16 +107,16 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
             break;
         case 1:
             /*tex rotation over 90 degrees (counterclockwise) */
-            a[4] += (float) dim.wd;
+            a[4] += (double) dim.wd;
             break;
         case 2:
             /*tex rotation over 180 degrees (counterclockwise) */
-            a[4] += (float) dim.wd;
-            a[5] += (float) (dim.ht + dim.dp);
+            a[4] += (double) dim.wd;
+            a[5] += (double) (dim.ht + dim.dp);
             break;
         case 3:
             /*tex rotation over 270 degrees (counterclockwise) */
-            a[5] += (float) (dim.ht + dim.dp);
+            a[5] += (double) (dim.ht + dim.dp);
             break;
         default:;
     }

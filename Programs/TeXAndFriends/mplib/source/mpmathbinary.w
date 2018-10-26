@@ -289,7 +289,7 @@ void * mp_initialize_binary_math (MP mp) {
   mpfr_set_d(math->precision_max.data.num, MAX_PRECISION, ROUNDING);
   mp_new_number (mp, &math->precision_min, mp_scaled_type);
   /* really should be |precision_bits_to_digits(MPFR_PREC_MIN)| but that produces a horrible number */
-  mpfr_set_d(math->precision_min.data.num, 1.0 , ROUNDING); 
+  mpfr_set_d(math->precision_min.data.num, 2.0 , ROUNDING); 
   /* here are the constants for |scaled| objects */
   mp_new_number (mp, &math->epsilon_t, mp_scaled_type);
   mpfr_set (math->epsilon_t.data.num, epsilon_mpfr_t, ROUNDING);

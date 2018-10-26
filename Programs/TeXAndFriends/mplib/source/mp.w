@@ -756,7 +756,7 @@ defined.
 @<Glob...@>=
 integer bad;    /* is some ``constant'' wrong? */
 
-@ Later on we will say `|if ( int_packets+17*int_increment>bistack_size )mp->bad=19;|',
+@ Later on we will say `|if ( int_packets+(17+3)*int_increment>bistack_size )mp->bad=19;|',
 or something similar.
 
 In case you are wondering about the non-consequtive values of |bad|: most
@@ -4805,7 +4805,7 @@ double mp_get_numeric_value (MP mp, const char *s, size_t l) {
 	   mp_loop_data *s;
            s = mp->loop_ptr;
            while (s != NULL && sym != s->var)
-             s = mp->loop_ptr->link;
+             s = s->link;
            if (s != NULL &&  sym == s->var ){
 	     mp_xfree (ss);
              return number_to_double(s->old_value) ;
@@ -15688,7 +15688,7 @@ mp->bisect_stack = xmalloc ((bistack_size + 1), sizeof (mp_number));
 xfree (mp->bisect_stack);
 
 @ @<Check the ``constant''...@>=
-if (int_packets + 17 * int_increment > bistack_size)
+if (int_packets + (17+2) * int_increment > bistack_size)
   mp->bad = 19;
 
 @ Computation of the min and max is a tedious but fairly fast sequence of
@@ -15777,11 +15777,28 @@ and |(pp,mp_link(pp))|, respectively.
 @c
 static void mp_cubic_intersection (MP mp, mp_knot p, mp_knot pp) {
   mp_knot q, qq;        /* |mp_link(p)|, |mp_link(pp)| */
+  mp_number x_two_t;     /* increment bit precision by x bit */
   mp->time_to_go = max_patience;
   set_number_from_scaled (mp->max_t, 2);
+  new_number (x_two_t); 
+  number_clone (x_two_t,two_t); 
+  number_double(x_two_t); number_double(x_two_t); /* add x=3 bit of precision */   
+  number_double(x_two_t); 
   @<Initialize for intersections at level zero@>;
 CONTINUE:
   while (1) {
+    /* When we are in arbitrary precision math, low precisions can */
+    /* lead to acces locations beyond the stack_size: in this case */
+    /* we say that there is no intersection.*/               
+    if ( ((x_packet (mp->xy))+4)>bistack_size ||
+         ((u_packet (mp->uv))+4)>bistack_size ||
+    	 ((y_packet (mp->xy))+4)>bistack_size ||
+         ((v_packet (mp->uv))+4)>bistack_size ){
+    	 set_number_from_scaled (mp->cur_t, 1);
+    	 set_number_from_scaled (mp->cur_tt, 1);
+         goto NOT_FOUND;
+    }
+
     if (number_to_scaled (mp->delx) - mp->tol <=
         number_to_scaled (stack_max (x_packet (mp->xy))) - number_to_scaled (stack_min (u_packet (mp->uv))))
       if (number_to_scaled (mp->delx) + mp->tol >=
@@ -15791,7 +15808,8 @@ CONTINUE:
           if (number_to_scaled (mp->dely) + mp->tol >=
               number_to_scaled (stack_min (y_packet (mp->xy))) - number_to_scaled (stack_max (v_packet (mp->uv)))) {
             if (number_to_scaled (mp->cur_t) >= number_to_scaled (mp->max_t)) {
-              if (number_equal(mp->max_t, two_t)) {   /* we've done 17 bisections */
+              if (number_equal(mp->max_t, x_two_t)) {   /* we've done 17+x bisections */
+                number_divide_int(mp->cur_t,1<<3);number_divide_int(mp->cur_tt,1<<3);
                 set_number_from_scaled (mp->cur_t, ((number_to_scaled (mp->cur_t) + 1)/2));
                 set_number_from_scaled (mp->cur_tt, ((number_to_scaled (mp->cur_tt) + 1)/2));
                 return;
@@ -15806,6 +15824,7 @@ CONTINUE:
     if (mp->time_to_go > 0) {
       decr (mp->time_to_go);
     } else {
+      number_divide_int(mp->appr_t,1<<3);number_divide_int(mp->appr_tt,1<<3);
       while (number_less (mp->appr_t, unity_t)) {
         number_double(mp->appr_t);
         number_double(mp->appr_tt);

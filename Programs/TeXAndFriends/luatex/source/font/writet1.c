@@ -1292,9 +1292,10 @@ static void t1_subset_ascii_part(PDF pdf)
         strncpy((char *) pdf->fb->data + t1_fontname_offset, fd_cur->subset_tag,6);
     }
     /*tex Now really all glyphs needed from this font are in the |fd_cur->gl_tree|. */
-    if (t1_encoding == ENC_STANDARD)
-        t1_puts(pdf, "/Encoding StandardEncoding def\n");
-    else {
+
+    if (t1_encoding == ENC_STANDARD) {
+        t1_puts(pdf,"/Encoding StandardEncoding def\n");
+    } else {
         t1_puts(pdf,"/Encoding 256 array\n0 1 255 {1 index exch /.notdef put} for\n");
         gl_tree = create_t1_glyph_tree(glyph_names);
         avl_t_init(&t, fd_cur->gl_tree);
@@ -1425,10 +1426,17 @@ static void t1_read_subrs(PDF pdf)
     }
 }
 
-#define t1_subr_flush()  t1_flush_cs(pdf, true)
-#define t1_cs_flush()    t1_flush_cs(pdf, false)
+/*tex
 
-static void t1_flush_cs(PDF pdf, boolean is_subr)
+    For historical reasons we share the funcition but it makes not much sense to
+    do so as not that much is shared.
+
+*/
+
+#define t1_subr_flush(wide)  t1_flush_cs(pdf, true, wide)
+#define t1_cs_flush(wide)    t1_flush_cs(pdf, false, wide)
+
+static void t1_flush_cs(PDF pdf, boolean is_subr, int wide)
 {
     char *p;
     byte *r, *return_cs = NULL;
@@ -1449,7 +1457,11 @@ static void t1_flush_cs(PDF pdf, boolean is_subr)
         size_pos = cs_size_pos;
         tab = cs_tab;
         end_tab = cs_ptr;
-        count = cs_counter;
+        if (wide) {
+            count = cs_ptr - cs_tab + 1;
+        } else {
+            count = cs_counter;
+        }
     }
     t1_line_ptr = t1_line_array;
     for (p = start_line; p - start_line < size_pos;)
@@ -1462,50 +1474,63 @@ static void t1_flush_cs(PDF pdf, boolean is_subr)
     t1_putline(pdf);
     /*tex For |-Wall|. */
     cs_len = 0;
-    /*tex Create |return_cs| to replace unsused |subr|s. */
+    /*tex Create |return_cs| to replace unused |subr|s. */
     if (is_subr) {
         cr = 4330;
-        cs_len = 0;
         /*tex
             At this point we have |t1_lenIV >= 0;| a negative value would be
             caught in |t1_scan_param|.
         */
         return_cs = xtalloc((unsigned) (t1_lenIV + 1), byte);
-        for (cs_len = 0, r = return_cs; cs_len < t1_lenIV; cs_len++, r++)
+        for (cs_len = 0, r = return_cs; cs_len < t1_lenIV; cs_len++, r++) {
             *r = cencrypt(0x00, &cr);
+        }
         *r = cencrypt(CS_RETURN, &cr);
         cs_len++;
     }
     for (ptr = tab; ptr < end_tab; ptr++) {
         if (ptr->used) {
-            if (is_subr)
-                sprintf(t1_line_array, "dup %li %u", (long int) (ptr - tab),
-                        ptr->cslen);
-            else
+            if (is_subr) {
+                sprintf(t1_line_array, "dup %li %u", (long int) (ptr - tab), ptr->cslen);
+            } else {
                 sprintf(t1_line_array, "/%s %u", ptr->name, ptr->cslen);
+            }
             p = strend(t1_line_array);
             memcpy(p, ptr->data, ptr->len);
             t1_line_ptr = p + ptr->len;
             t1_putline(pdf);
-        } else {
-            /*tex Replace unsused subr's by |return_cs|. */
-            if (is_subr) {
-                sprintf(t1_line_array, "dup %li %u%s ", (long int) (ptr - tab),
-                        cs_len, cs_token_pair[0]);
+        } else if (is_subr) {
+            /*tex Replace unused subr's by |return_cs|. */
+            sprintf(t1_line_array, "dup %li %u%s ", (long int) (ptr - tab), cs_len, cs_token_pair[0]);
+            p = strend(t1_line_array);
+            memcpy(p, return_cs, cs_len);
+            t1_line_ptr = p + cs_len;
+            t1_putline(pdf);
+            sprintf(t1_line_array, " %s", cs_token_pair[1]);
+            t1_line_ptr = eol(t1_line_array);
+            t1_putline(pdf);
+        } else if (wide) {
+            if (cs_notdef != NULL) {
+                sprintf(t1_line_array, "/%s %u", ptr->name, cs_notdef->cslen);
                 p = strend(t1_line_array);
-                memcpy(p, return_cs, cs_len);
-                t1_line_ptr = p + cs_len;
+                memcpy(p, cs_notdef->data, cs_notdef->len);
+                t1_line_ptr = p + cs_notdef->len;
                 t1_putline(pdf);
-                sprintf(t1_line_array, " %s", cs_token_pair[1]);
-                t1_line_ptr = eol(t1_line_array);
-                t1_putline(pdf);
+            } else {
+                /*tex Troubles! */
             }
         }
-        xfree(ptr->data);
-        if (is_subr)
+        if (ptr->name != notdef) {
+            if (wide) {
+                xfree(ptr->data);
+            }
+        }
+        if (is_subr) {
             ptr->valid = false;
-        if (ptr->name != notdef)
+        }
+        if (ptr->name != notdef) {
             xfree(ptr->name);
+        }
     }
     sprintf(t1_line_array, "%s", line_end);
     t1_line_ptr = eol(t1_line_array);
@@ -1520,15 +1545,16 @@ static void t1_flush_cs(PDF pdf, boolean is_subr)
             }
         }
         xfree(return_cs);
+    } else if (wide && cs_notdef != NULL) {
+        xfree(cs_notdef->data);
     }
     xfree(tab);
     xfree(start_line);
     xfree(line_end);
 }
 
-static void t1_mark_glyphs(void)
+static void t1_mark_glyphs(int wide)
 {
-    char *glyph;
     struct avl_traverser t;
     cs_entry *ptr;
     if (t1_synthetic || fd_cur->all_glyphs) {
@@ -1547,16 +1573,22 @@ static void t1_mark_glyphs(void)
     }
     mark_cs(notdef);
     avl_t_init(&t, fd_cur->gl_tree);
-    for (glyph = (char *) avl_t_first(&t, fd_cur->gl_tree); glyph != NULL;
-         glyph = (char *) avl_t_next(&t)) {
-        mark_cs(glyph);
+    if (wide) {
+        glw_entry *glyph;
+        for (glyph = (glw_entry *) avl_t_first(&t, fd_cur->gl_tree); glyph != NULL; glyph = (glw_entry *) avl_t_next(&t)) {
+            mark_cs((cs_tab + (int) glyph->id)->name);
+        }
+    } else {
+        char *glyph;
+        for (glyph = (char *) avl_t_first(&t, fd_cur->gl_tree); glyph != NULL; glyph = (char *) avl_t_next(&t)) {
+            mark_cs(glyph);
+        }
     }
     if (subr_tab != NULL)
         for (subr_max = -1, ptr = subr_tab; ptr - subr_tab < subr_size; ptr++)
             if (ptr->used && ptr - subr_tab > subr_max)
                 subr_max = (int) (ptr - subr_tab);
 }
-
 
 /*tex
 
@@ -1581,15 +1613,15 @@ static void t1_check_unusual_charstring(void)
     if (sscanf(p, "%i", &i) != 1) {
         strcpy(t1_buf_array, t1_line_array);
         t1_getline();
-        alloc_array(t1_buf, strlen(t1_line_array) + strlen(t1_buf_array) + 1, T1_BUF_SIZE);
+	alloc_array(t1_buf, strlen(t1_line_array) + (t1_buf_array?strlen(t1_buf_array):0) + 1, T1_BUF_SIZE);
         strcat(t1_buf_array, t1_line_array);
-        alloc_array(t1_line, strlen(t1_buf_array) + 1, T1_BUF_SIZE);
+	alloc_array(t1_line, strlen(t1_buf_array) + 1, T1_BUF_SIZE);
         strcpy(t1_line_array, t1_buf_array);
         t1_line_ptr = eol(t1_line_array);
     }
 }
 
-static void t1_subset_charstrings(PDF pdf)
+static void t1_subset_charstrings(PDF pdf, int wide)
 {
     cs_entry *ptr;
     t1_check_unusual_charstring();
@@ -1607,16 +1639,16 @@ static void t1_subset_charstrings(PDF pdf)
         t1_getline();
     }
     cs_dict_end = xstrdup(t1_line_array);
-    t1_mark_glyphs();
+    t1_mark_glyphs(wide);
     if (subr_tab != NULL) {
         if (cs_token_pair == NULL)
             formatted_error("type 1","mismatched subroutine begin/end token pairs");
-        t1_subr_flush();
+        t1_subr_flush(wide);
     }
     for (cs_counter = 0, ptr = cs_tab; ptr < cs_ptr; ptr++)
         if (ptr->used)
             cs_counter++;
-    t1_cs_flush();
+    t1_cs_flush(wide);
 }
 
 static void t1_subset_end(PDF pdf)
@@ -1656,14 +1688,13 @@ static void t1_subset_end(PDF pdf)
     get_length3();
 }
 
-void writet1(PDF pdf, fd_entry * fd)
+void writet1(PDF pdf, fd_entry * fd, int wide)
 {
     /*tex |fd_cur| is global inside |writet1.c|. */
     fd_cur = fd;
     assert(fd_cur->fm != NULL);
     assert(is_type1(fd->fm));
     assert(is_included(fd->fm));
-
     t1_save_offset = 0;
     if (!is_subsetted(fd_cur->fm)) {
         /*tex Include entire font. */
@@ -1675,14 +1706,15 @@ void writet1(PDF pdf, fd_entry * fd)
         return;
     }
     /*tex Partial downloading. */
-    if (!(fd->ff_found = t1_open_fontfile(filetype_subset)))
+    if (!(fd->ff_found = t1_open_fontfile(filetype_subset))) {
         return;
+    }
     t1_subset_ascii_part(pdf);
     t1_start_eexec(pdf);
     cc_init();
     cs_init();
     t1_read_subrs(pdf);
-    t1_subset_charstrings(pdf);
+    t1_subset_charstrings(pdf,wide);
     t1_subset_end(pdf);
     t1_close_font_file(filetype_subset);
     xfree(t1_buffer);

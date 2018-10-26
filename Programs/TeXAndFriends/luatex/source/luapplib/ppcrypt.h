@@ -49,6 +49,11 @@ typedef struct {
 #define PPCRYPT_RC4 (PPCRYPT_STREAM_RC4|PPCRYPT_STRING_RC4)
 #define PPCRYPT_AES (PPCRYPT_STREAM_AES|PPCRYPT_STRING_AES)
 
+#define PPCRYPT_INFO_AES  (1<<0)
+#define PPCRYPT_INFO_RC4  (1<<1)
+#define PPCRYPT_INFO_MD   (1<<2)
+#define PPCRYPT_INFO_NOMD (1<<3)
+
 ppcrypt_status ppdoc_crypt_init (ppdoc *pdf, const void *userpass, size_t userpasslength, const void *ownerpass, size_t ownerpasslength);
 int ppstring_decrypt (ppcrypt *crypt, const void *input, size_t size, void *output, size_t *newsize);
 
@@ -56,6 +61,7 @@ int ppstring_decrypt (ppcrypt *crypt, const void *input, size_t size, void *outp
 #define ppcrypt_end_ref(crypt) ((crypt)->ref = NULL, (crypt)->cryptkeylength = 0)
 #define ppcrypt_ref(pdf, crypt) ((crypt = (pdf)->crypt) != NULL && crypt->ref != NULL)
 
-void ppstream_info (ppstream *stream, ppdoc *pdf);
+int ppcrypt_type (ppcrypt *crypt, ppname cryptname, ppuint *length, int *cryptflags);
+ppstring ppcrypt_stmkey (ppcrypt *crypt, ppref *ref, int aes, ppheap **pheap);
 
 #endif

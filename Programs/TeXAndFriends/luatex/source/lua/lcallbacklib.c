@@ -83,6 +83,7 @@ static const char *const callbacknames[] = {
     "new_graf",
     "page_objnum_provider",
     "make_extensible",
+    "process_pdf_image_content",
     NULL
 };
 

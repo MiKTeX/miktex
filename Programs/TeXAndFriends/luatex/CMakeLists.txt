@@ -272,8 +272,6 @@ set(luapplib_sources
   source/luapplib/util/utilplat.h
   source/luapplib/util/utilsha.c
   source/luapplib/util/utilsha.h
-  source/luapplib/zlib/zconf.h
-  source/luapplib/zlib/zlib.h 
 )
 
 add_library(luatex-lua52pplib-static STATIC ${luapplib_sources})

@@ -497,7 +497,7 @@ static int lzlib_decompress(lua_State *L)
             break;
 
         /* error condition? */
-        if (ret != Z_BUF_ERROR)
+        if (ret != Z_OK)
             break;
     }
 

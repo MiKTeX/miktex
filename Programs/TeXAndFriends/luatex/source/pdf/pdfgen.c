@@ -2484,14 +2484,17 @@ void scan_pdfcatalog(PDF pdf)
     real conforming to the implementation limits of \PDF\ as specified in
     appendix C.1 of the \PDF\ standard. The maximum value of ints is |+2^32|, the
     maximum value of reals is |+2^15| and the smallest values of reals is
-    |1/(2^16)|.
+    |1/(2^16)|. We are quite large on precision, because it could happen that a
+    pdf file imported as figure has real numbers with an unusual (and possibly useless) 
+    high precision. Later the formatter will write the numbers in the correct format.
 
 */
 
 static pdffloat conv_double_to_pdffloat(double n)
 {
     pdffloat a;
-    a.e = 6;
+/*  was  a.e = 6; */
+    a.e = 9 ;
     a.m = i64round(n * ten_pow[a.e]);
     return a;
 }
