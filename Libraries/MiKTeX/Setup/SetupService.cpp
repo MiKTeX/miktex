@@ -1763,6 +1763,7 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
 {
   shared_ptr<Session> session = Session::Get();
   vector<string> problems;
+  time_t now = time(nullptr);
   if (options[ReportOption::General])
   {
     bool pathOkay = Utils::CheckPath();
@@ -1780,8 +1781,8 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       lastUpdateCheckText))
     {
       lastUpdateCheck = std::stol(lastUpdateCheckText);
-      lastUpdateCheckText = fmt::format("{:%Y-%m-%d-%H-%M}", *localtime(&lastUpdateCheck));
-      if (time(nullptr) > lastUpdateCheck + HALF_A_YEAR)
+      lastUpdateCheckText = fmt::format("{:%F %T}", *localtime(&lastUpdateCheck));
+      if (now > lastUpdateCheck + HALF_A_YEAR)
       {
         problems.push_back(T_("it has been a long time since updates were checked"));
       }
@@ -1800,8 +1801,8 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       lastUpdateText))
     {
       lastUpdate = std::stol(lastUpdateText);
-      lastUpdateText = fmt::format("{:%Y-%m-%d-%H-%M}", *localtime(&lastUpdate));
-      if (time(nullptr) > lastUpdate + HALF_A_YEAR)
+      lastUpdateText = fmt::format("{:%F %T}", *localtime(&lastUpdate));
+      if (now > lastUpdate + HALF_A_YEAR)
       {
         problems.push_back(T_("installation is not up-to-date"));
       }
@@ -1812,7 +1813,8 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       lastUpdateText = T_("not yet");
       problems.push_back(T_("installation is not up-to-date"));
     }
-    s << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
+    s << "Date: " << fmt::format("{:%F %T}", *localtime(&now)) << "\n"
+      << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
       << "OS: " << Utils::GetOSVersionString() << "\n"
       << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
       << "PathOkay: " << (pathOkay ? T_("yes") : T_("no")) << "\n"
