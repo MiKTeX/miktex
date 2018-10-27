@@ -2054,7 +2054,7 @@ void IniTeXMFApp::Bootstrap()
       packageInstaller->SetRepository(bootstrappingDir.ToString());
       packageInstaller->UpdateDb();
       packageInstaller->SetFileList(neededPackages);
-      packageInstaller->InstallRemove();
+      packageInstaller->InstallRemove(PackageInstaller::Role::Application);
       packageInstaller = nullptr;
     }
   }
