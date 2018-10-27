@@ -815,7 +815,15 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, Re
 
   MergeStartupConfig(startupConfig_, DefaultConfig());
 
-  InitializeRootDirectories(startupConfig_, options[RegisterRootDirectoriesOption::Review]);
+  try
+  {
+    InitializeRootDirectories(startupConfig_, options[RegisterRootDirectoriesOption::Review]);
+  }
+  catch (const MiKTeXException& ex)
+  {
+    InitializeRootDirectories();
+    throw;
+  }
 
   if (!options[RegisterRootDirectoriesOption::Temporary])
   {
