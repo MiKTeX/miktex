@@ -99,7 +99,12 @@ SessionImpl::~SessionImpl()
   {
     try
     {
-      cerr << ex;
+#if defined(MIKTEX_WINDOWS)
+      ostringstream s;
+      s << ex << endl;
+      OutputDebugStringA(s.str().c_str());
+#endif
+      cerr << ex << endl;
     }
     catch (const exception&)
     {
