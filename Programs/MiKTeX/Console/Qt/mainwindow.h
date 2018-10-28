@@ -43,11 +43,13 @@ class RepositoryTableModel;
 class RootTableModel;
 class UpdateTableModel;
 
-namespace Ui {
+namespace Ui
+{
   class MainWindow;
 }
 
-class MainWindow : public QMainWindow
+class MainWindow :
+  public QMainWindow
 {
   Q_OBJECT;
 
@@ -382,10 +384,6 @@ private:
 private slots:
   void OnContextMenuRootDirectories(const QPoint& pos);
 
-
-
-
-
 private:
   QToolBar* toolBarFormats = nullptr;
 
@@ -434,24 +432,6 @@ private slots:
 
 private:
   LanguageTableModel* languageModel = nullptr;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 private:
   PackageTableModel* packageModel;
@@ -933,6 +913,5 @@ private:
 protected:
   bool Run() override;
 };
-
 
 #endif
