@@ -144,7 +144,7 @@ private:
   {
     if (isLog4cxxConfigured)
     {
-      log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.") + Utils::GetExeName() + "." + traceMessage.facility);
+      log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.") + "miktex-console" + "." + traceMessage.facility);
       if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
       {
         LOG4CXX_ERROR(logger, traceMessage.message);
@@ -353,28 +353,31 @@ int main(int argc, char* argv[])
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return 0;
     }
-    MainWindow mainWindow(nullptr, startPage);
-    if (optHide)
     {
-      mainWindow.hide();
+      MainWindow mainWindow(nullptr, startPage);
+      if (optHide)
+      {
+        mainWindow.hide();
+      }
+      else
+      {
+        mainWindow.show();
+      }
+      if (optFinishSetup)
+      {
+        QTimer::singleShot(100, &mainWindow, SLOT(FinishSetup()));
+      }
+      if (optCheckUpdates)
+      {
+        QTimer::singleShot(100, &mainWindow, SLOT(CheckUpdates()));
+      }
+      if (optMkmaps)
+      {
+        QTimer::singleShot(100, &mainWindow, SLOT(RefreshFontMaps()));
+      }
+      ret = application.exec();
     }
-    else
-    {
-      mainWindow.show();
-    }
-    if (optFinishSetup)
-    {
-      QTimer::singleShot(100, &mainWindow, SLOT(FinishSetup()));
-    }
-    if (optCheckUpdates)
-    {
-      QTimer::singleShot(100, &mainWindow, SLOT(CheckUpdates()));
-    }
-    if (optMkmaps)
-    {
-      QTimer::singleShot(100, &mainWindow, SLOT(RefreshFontMaps()));
-    }
-    ret = application.exec();
+    session = nullptr;
     if (isLog4cxxConfigured)
     {
       LOG4CXX_INFO(logger, "finishing with exit code " << ret);
