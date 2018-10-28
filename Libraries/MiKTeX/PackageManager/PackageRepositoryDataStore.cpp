@@ -183,9 +183,9 @@ bool PackageRepositoryDataStore::TryGetRepositoryInfo(const string& url, Reposit
   {
     PathName configFile(url);
     configFile /= "pr.ini";
-    unique_ptr<Cfg> pConfig(Cfg::Create());
-    pConfig->Read(configFile);
-    string value = pConfig->GetValue("repository", "date")->GetValue();
+    unique_ptr<Cfg> config(Cfg::Create());
+    config->Read(configFile);
+    string value = config->GetValue("repository", "date")->GetValue();
     repositoryInfo.timeDate = std::stoi(value);
     return true;
   }

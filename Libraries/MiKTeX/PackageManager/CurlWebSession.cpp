@@ -64,8 +64,8 @@ const long DEFAULT_FTP_RESPONSE_TIMEOUT_SECONDS = 30;
 #define ALLOW_REDIRECTS 1
 #define DEFAULT_MAX_REDIRECTS 20
 
-CurlWebSession::CurlWebSession(IProgressNotify_* pIProgressNotify) :
-  pIProgressNotify(pIProgressNotify),
+CurlWebSession::CurlWebSession(IProgressNotify_* callback) :
+  callback(callback),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
   trace_curl(TraceStream::Open(MIKTEX_TRACE_CURL))
 {
@@ -235,7 +235,7 @@ CurlWebSession::~CurlWebSession()
   {
     Dispose();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -416,32 +416,32 @@ void CurlWebSession::Perform()
 
 void CurlWebSession::ReadInformationals()
 {
-  CURLMsg* pCurlMsg;
+  CURLMsg* curlMsg;
   int remaining;
-  while ((pCurlMsg = curl_multi_info_read(pCurlm, &remaining)) != nullptr)
+  while ((curlMsg = curl_multi_info_read(pCurlm, &remaining)) != nullptr)
   {
-    if (pCurlMsg->msg != CURLMSG_DONE)
+    if (curlMsg->msg != CURLMSG_DONE)
     {
-      MIKTEX_FATAL_ERROR_2(T_("Unexpected cURL message."), "msg", std::to_string(pCurlMsg->msg));
+      MIKTEX_FATAL_ERROR_2(T_("Unexpected cURL message."), "msg", std::to_string(curlMsg->msg));
     }
     char* effectiveUrl = nullptr;
-    ExpectOK(curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_EFFECTIVE_URL, &effectiveUrl), nullptr);
+    ExpectOK(curl_easy_getinfo(curlMsg->easy_handle, CURLINFO_EFFECTIVE_URL, &effectiveUrl), nullptr);
     if (effectiveUrl != nullptr)
     {
       trace_mpm->WriteFormattedLine("libmpm", T_("effective URL: %s"), effectiveUrl);
     }
-    ExpectOK(pCurlMsg->data.result, effectiveUrl);
+    ExpectOK(curlMsg->data.result, effectiveUrl);
     long responseCode;
     CURLcode r;
 #if LIBCURL_VERSION_NUM >= 0x70a08
     if (curlVersionInfo->version_num >= 0x70a08)
     {
-      r = curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_RESPONSE_CODE, &responseCode);
+      r = curl_easy_getinfo(curlMsg->easy_handle, CURLINFO_RESPONSE_CODE, &responseCode);
     }
     else
 #endif
     {
-      r = curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_HTTP_CODE, &responseCode);
+      r = curl_easy_getinfo(curlMsg->easy_handle, CURLINFO_HTTP_CODE, &responseCode);
     }
     ExpectOK(r, effectiveUrl);
     trace_mpm->WriteFormattedLine("libmpm", T_("response code: %ld"), responseCode);
@@ -490,9 +490,9 @@ int CurlWebSession::ProgressCallback(void* pv, double dltotal, double dlnow, dou
   try
   {
     CurlWebFile* This = reinterpret_cast<CurlWebSession*>(pv);
-    if (This->pIProgressNotify != nullptr)
+    if (This->callback != nullptr)
     {
-      This->pIProgressNotify->OnProgress();
+      This->callback->OnProgress();
     }
     return 0;
   }

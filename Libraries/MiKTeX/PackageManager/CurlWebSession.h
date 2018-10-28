@@ -44,7 +44,7 @@ class CurlWebSession :
   public WebSession
 {
 public:
-  CurlWebSession(IProgressNotify_* pIProgressNotify);
+  CurlWebSession(IProgressNotify_* callback);
 
 public:
   ~CurlWebSession() override;
@@ -109,7 +109,7 @@ private:
   int runningHandles = -1;
 
 private:
-  IProgressNotify_* pIProgressNotify;
+  IProgressNotify_* callback;
 
 public:
   bool IsReady() const
