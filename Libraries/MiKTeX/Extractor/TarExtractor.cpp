@@ -42,33 +42,18 @@ const size_t BLOCKSIZE = 512;
 struct Header
 {
 private:
-  int GetOctal(const char* field) const
+  template<size_t N> string GetString(const char(&field)[N]) const
   {
-#if defined(_MSC_VER)
-#  define SSCANF sscanf_s
-#else
-#  define SSCANF sscanf
-#endif
+    char fieldz[N + 1];
+    memcpy(fieldz, field, N);
+    fieldz[N] = 0;
+    return fieldz;
+  }
 
-    int ret;
-
-    MIKTEX_ASSERT_STRING(field);
-
-    if (field[0] == 0)
-    {
-      MIKTEX_UNEXPECTED();
-    }
-
-    if (SSCANF(field, "%o", &ret) != 1)
-    {
-      string info = "value=";
-      info += field;
-      MIKTEX_UNEXPECTED();
-    }
-
-    return ret;
-
-#undef SSCANF
+private:
+  template<size_t N> int GetOctal(const char (&field)[N]) const
+  {
+    return std::stoi(GetString(field), nullptr, 8);
   }
 
 public:
@@ -114,15 +99,12 @@ private:
 public:
   PathName GetFileName() const
   {
-    char namez[sizeof(name) + 1];
-    memcpy(namez, name, sizeof(name));
-    namez[sizeof(name)] = 0;
     PathName ret;
     if (IsUSTAR())
     {
       ret = prefix;
     }
-    ret /= namez;
+    ret /= GetString(name);
     return ret;
   }
 
