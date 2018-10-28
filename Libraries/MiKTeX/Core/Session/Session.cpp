@@ -271,7 +271,9 @@ void SessionImpl::StartFinishScript(int delay)
   {
     return;
   }
+  trace_core->WriteFormattedLine("core", T_("finish script: %u commands to execute"), (unsigned)onFinishScript.size());
   unique_ptr<TemporaryDirectory> tmpdir = TemporaryDirectory::Create();
+  trace_core->WriteFormattedLine("core", T_("finish script: tmpdir=%s"), tmpdir->GetPathName().GetData());
   vector<string> pre = {
 #if defined(MIKTEX_WINDOWS)
     "ping localhost -n " + std::to_string(delay) + " >nul",
