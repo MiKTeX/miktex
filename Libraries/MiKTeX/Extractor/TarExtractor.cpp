@@ -42,7 +42,7 @@ const size_t BLOCKSIZE = 512;
 struct Header
 {
 private:
-  int GetOctal(const char* lpszField) const
+  int GetOctal(const char* field) const
   {
 #if defined(_MSC_VER)
 #  define SSCANF sscanf_s
@@ -52,17 +52,17 @@ private:
 
     int ret;
 
-    MIKTEX_ASSERT_STRING(lpszField);
+    MIKTEX_ASSERT_STRING(field);
 
-    if (lpszField[0] == 0)
+    if (field[0] == 0)
     {
       MIKTEX_UNEXPECTED();
     }
 
-    if (SSCANF(lpszField, "%o", &ret) != 1)
+    if (SSCANF(field, "%o", &ret) != 1)
     {
       string info = "value=";
-      info += lpszField;
+      info += field;
       MIKTEX_UNEXPECTED();
     }
 
@@ -84,13 +84,13 @@ public:
     size_t i;
     for (i = 0; i < offsetof(Header, chksum); ++i)
     {
-      myHeaderCheckSum += reinterpret_cast<const unsigned char *>(this)[i];
+      myHeaderCheckSum += reinterpret_cast<const unsigned char*>(this)[i];
     }
     myHeaderCheckSum += ' ' * sizeof(chksum);
     i += sizeof(chksum);
     for (; i < sizeof(*this); ++i)
     {
-      myHeaderCheckSum += reinterpret_cast<const unsigned char *>(this)[i];
+      myHeaderCheckSum += reinterpret_cast<const unsigned char*>(this)[i];
     }
     return myHeaderCheckSum == GetHeaderCheckSum();
   }
@@ -100,7 +100,7 @@ public:
   {
     for (size_t i = 0; i < sizeof(*this); ++i)
     {
-      if (reinterpret_cast<const unsigned char *>(this)[i] != 0)
+      if (reinterpret_cast<const unsigned char*>(this)[i] != 0)
       {
         return false;
       }
