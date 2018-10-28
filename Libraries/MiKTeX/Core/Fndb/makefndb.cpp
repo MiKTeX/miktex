@@ -308,7 +308,7 @@ void FndbManager::ReadDirectory(const char* dirPath, vector<string>& subDirector
       }
       else
       {
-        File::Delete(path);
+        File::Delete(path, { FileDeleteOption::TryHard });
       }
     }
     catch (const exception&)
