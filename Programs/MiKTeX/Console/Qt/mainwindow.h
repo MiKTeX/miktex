@@ -70,7 +70,7 @@ public:
   explicit MainWindow(QWidget* parent = nullptr, Pages startPage = Pages::Overview);
 
 public:
-  ~MainWindow();
+  ~MainWindow() override;
 
 private:
   void closeEvent(QCloseEvent* event) override;
