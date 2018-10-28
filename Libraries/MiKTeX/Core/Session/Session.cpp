@@ -101,17 +101,29 @@ SessionImpl::~SessionImpl()
     {
 #if defined(MIKTEX_WINDOWS)
       ostringstream s;
-      s << ex << endl;
+      s << "error: ~Session(): " << ex << endl;
       OutputDebugStringA(s.str().c_str());
 #endif
-      cerr << ex << endl;
+      cerr << "error: ~Session(): " << ex << endl;
     }
     catch (const exception&)
     {
     }
   }
-  catch (const exception&)
+  catch (const exception& ex)
   {
+    try
+    {
+#if defined(MIKTEX_WINDOWS)
+      ostringstream s;
+      s << "error: ~Session(): " << ex.what() << endl;
+      OutputDebugStringA(s.str().c_str());
+#endif
+      cerr << "error: ~Session(): " << ex.what() << endl;
+    }
+    catch (const exception&)
+    {
+    }
   }
 }
 
