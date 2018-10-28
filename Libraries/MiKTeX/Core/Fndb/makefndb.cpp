@@ -70,7 +70,7 @@ public:
   }
 
 public:
-  bool Create(const char* lpszFndbPath, const char* lpszRootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
+  bool Create(const char* fndbPath, const char* rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
 
 private:
   void* GetMemPointer()
@@ -129,13 +129,13 @@ private:
   void AlignMem(size_t align = 8);
 
 private:
-  static void GetIgnorableFiles(const char* lpszPath, vector<string>& filesToBeIgnored);
+  static void GetIgnorableFiles(const char* dirPath, vector<string>& filesToBeIgnored);
 
 public:
-  void ReadDirectory(const char* lpszPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp);
+  void ReadDirectory(const char* dirPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp);
 
 private:
-  FndbByteOffset ProcessFolder(FndbByteOffset foParent, const char* lpszParentPath, const char* lpszFolderName, FndbByteOffset foFolderName);
+  FndbByteOffset ProcessFolder(FndbByteOffset foParent, const char* parentPath, const char* folderName, FndbByteOffset foFolderName);
 
 private:
   vector<uint8_t> byteArray;
@@ -188,7 +188,7 @@ FndbByteOffset FndbManager::ReserveMem(size_t size)
 FndbByteOffset FndbManager::PushBack(FndbWord data)
 {
   AlignMem(sizeof(FndbWord));
-  const uint8_t* byteArray = reinterpret_cast<const uint8_t *>(&data);
+  const uint8_t* byteArray = reinterpret_cast<const uint8_t*>(&data);
   if (sizeof(FndbWord) == 4)
   {
     FndbByteOffset ret = GetMemTop();
@@ -207,7 +207,7 @@ FndbByteOffset FndbManager::PushBack(FndbWord data)
 FndbByteOffset FndbManager::PushBack(const void* data, size_t size)
 {
   FndbByteOffset ret = GetMemTop();
-  const uint8_t* byteArray = reinterpret_cast<const uint8_t *>(data);
+  const uint8_t* byteArray = reinterpret_cast<const uint8_t*>(data);
   for (size_t i = 0; i < size; ++i)
   {
     FastPushBack(byteArray[i]);
@@ -245,9 +245,9 @@ void FndbManager::AlignMem(size_t align)
   }
 }
 
-void FndbManager::GetIgnorableFiles(const char* lpszPath, vector<string>& filesToBeIgnored)
+void FndbManager::GetIgnorableFiles(const char* dirPath, vector<string>& filesToBeIgnored)
 {
-  PathName ignoreFile(lpszPath, FN_MIKTEXIGNORE);
+  PathName ignoreFile(dirPath, FN_MIKTEXIGNORE);
   if (!File::Exists(ignoreFile))
   {
     return;
@@ -261,16 +261,16 @@ void FndbManager::GetIgnorableFiles(const char* lpszPath, vector<string>& filesT
   sort(filesToBeIgnored.begin(), filesToBeIgnored.end(), StringComparerIgnoringCase());
 }
 
-void FndbManager::ReadDirectory(const char* lpszPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp)
+void FndbManager::ReadDirectory(const char* dirPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp)
 {
-  if (!Directory::Exists(lpszPath))
+  if (!Directory::Exists(dirPath))
   {
-    traceStream->WriteFormattedLine("core", T_("the directory %s does not exist"), Q_(lpszPath));
+    traceStream->WriteFormattedLine("core", T_("the directory %s does not exist"), Q_(dirPath));
     return;
   }
   vector<string> filesToBeIgnored;
-  GetIgnorableFiles(lpszPath, filesToBeIgnored);
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(lpszPath);
+  GetIgnorableFiles(dirPath, filesToBeIgnored);
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dirPath);
   DirectoryEntry entry;
   vector<DirectoryEntry> toBeDeleted;
   while (lister->GetNext(entry))
@@ -301,7 +301,7 @@ void FndbManager::ReadDirectory(const char* lpszPath, vector<string>& subDirecto
   {
     try
     {
-      PathName path(lpszPath, e.name);
+      PathName path(dirPath, e.name);
       if (e.isDirectory)
       {
         Directory::Delete(path, true);
@@ -317,7 +317,7 @@ void FndbManager::ReadDirectory(const char* lpszPath, vector<string>& subDirecto
   }
 }
 
-FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* lpszParentPath, const char* lpszFolderName, FndbByteOffset foFolderName)
+FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* parentPath, const char* folderName, FndbByteOffset foFolderName)
 {
   const size_t cReservedEntries = 0;
 
@@ -334,7 +334,7 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* l
 
   bool done = false;
 
-  PathName path(lpszParentPath, lpszFolderName);
+  PathName path(parentPath, folderName);
 
   path.MakeAbsolute();
 
@@ -417,7 +417,7 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* l
   FndbByteOffset foOffsetTable = ReserveMem(vecfndboff.size() * sizeof(FndbByteOffset));
 
   // recurse into sub-directories and remember offsets
-  PathName pathFolder(lpszParentPath, lpszFolderName);
+  PathName pathFolder(parentPath, folderName);
   size_t i = 0;
   ++currentLevel;
   for (const string& s : subDirectoryNames)
@@ -434,10 +434,10 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* l
   return foThis;
 }
 
-bool FndbManager::Create(const char* lpszFndbPath, const char* lpszRootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo)
+bool FndbManager::Create(const char* fndbPath, const char* rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo)
 {
-  traceStream->WriteFormattedLine("core", T_("creating fndb file %s..."), Q_(lpszFndbPath));
-  unsigned rootIdx = SessionImpl::GetSession()->DeriveTEXMFRoot(lpszRootPath);
+  traceStream->WriteFormattedLine("core", T_("creating fndb file %s..."), Q_(fndbPath));
+  unsigned rootIdx = SessionImpl::GetSession()->DeriveTEXMFRoot(rootPath);
   this->enableStringPooling = enableStringPooling;
   this->storeFileNameInfo = storeFileNameInfo;
   byteArray.reserve(2 * 1024 * 1024);
@@ -446,7 +446,7 @@ bool FndbManager::Create(const char* lpszFndbPath, const char* lpszRootPath, ICr
     ReserveMem(sizeof(FileNameDatabaseHeader));
     FileNameDatabaseHeader fndb;
     fndb.Init();
-    if (callback == nullptr && FileIsOnROMedia(lpszRootPath))
+    if (callback == nullptr && FileIsOnROMedia(rootPath))
     {
       fndb.flags |= FileNameDatabaseHeader::FndbFlags::Frozen;
     }
@@ -455,16 +455,16 @@ bool FndbManager::Create(const char* lpszFndbPath, const char* lpszRootPath, ICr
       fndb.flags |= FileNameDatabaseHeader::FndbFlags::FileNameInfo;
     }
     AlignMem();
-    fndb.foPath = PushBack(lpszRootPath);
+    fndb.foPath = PushBack(rootPath);
     numDirectories = 0;
     numFiles = 0;
     deepestLevel = 0;
     currentLevel = 0;
     this->callback = callback;
 #if 0                           // FIXME: this will break prev MiKTeX
-    fndb.foTopDir = ProcessFolder(0, lpszRootPath, CURRENT_DIRECTORY, 0);
+    fndb.foTopDir = ProcessFolder(0, rootPath, CURRENT_DIRECTORY, 0);
 #else
-    fndb.foTopDir = ProcessFolder(0, lpszRootPath, CURRENT_DIRECTORY, fndb.foPath);
+    fndb.foTopDir = ProcessFolder(0, rootPath, CURRENT_DIRECTORY, fndb.foPath);
 #endif
     fndb.numDirs = numDirectories;
     fndb.numFiles = numFiles;
@@ -494,18 +494,18 @@ bool FndbManager::Create(const char* lpszFndbPath, const char* lpszRootPath, ICr
       traceError->WriteFormattedLine("core", T_("fndb cannot be unloaded"));
     }
     // </fixme>
-    PathName directory = PathName(lpszFndbPath).RemoveFileSpec();
+    PathName directory = PathName(fndbPath).RemoveFileSpec();
     if (!Directory::Exists(directory))
     {
       Directory::Create(directory);
     }
-    ofstream streamFndb = File::CreateOutputStream(lpszFndbPath, ios_base::binary);
+    ofstream streamFndb = File::CreateOutputStream(fndbPath, ios_base::binary);
     streamFndb.write((const char*)GetMemPointer(), GetMemTop());
     traceStream->WriteFormattedLine("core", T_("fndb creation completed"));
     SessionImpl::GetSession()->RecordMaintenance();
     return true;
   }
-  catch (const OperationCancelledException &)
+  catch (const OperationCancelledException&)
   {
     traceStream->WriteFormattedLine("core", T_("fndb creation cancelled"));
     return false;
@@ -527,7 +527,7 @@ bool Fndb::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFnd
   }
 
 #if defined(MIKTEX_WINDOWS) && REPORT_EVENTS
-  ReportMiKTeXEvent(EVENTLOG_INFORMATION_TYPE, MIKTEX_EVENT_FNDB_CREATED, lpszFndbPath, lpszRootPath, 0);
+  ReportMiKTeXEvent(EVENTLOG_INFORMATION_TYPE, MIKTEX_EVENT_FNDB_CREATED, fndbPath, rootPath, 0);
 #endif
 
   return true;
