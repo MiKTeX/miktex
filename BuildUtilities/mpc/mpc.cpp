@@ -107,7 +107,7 @@ struct MpcPackageInfo :
 class PackagedOnReversed
 {
 public:
-  bool operator() (const MpcPackageInfo& pi1, const MpcPackageInfo& pi2) const
+  bool operator()(const MpcPackageInfo& pi1, const MpcPackageInfo& pi2) const
   {
     return pi1.timePackaged >= pi2.timePackaged;
   }
@@ -162,7 +162,7 @@ protected:
   void MD5WildCopy(const PathName& sourceTemplate, const PathName& destDir, const PathName& prefix, FileDigestTable& fileDigests);
 
 protected:
-  void MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* lpszSourceSubDir, const PathName& destDir, const char* lpszDestSubDir, FileDigestTable& fileDigests);
+  void MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* sourceSubDir, const PathName& destDir, const char* destSupDir, FileDigestTable& fileDigests);
 
 protected:
   void WriteDescriptionFile(const string& description, const PathName& stagingDir);
@@ -174,10 +174,10 @@ protected:
   void CopyPackage(const MpcPackageInfo& packageinfo, const PathName& destDir);
 
 protected:
-  void ReadDescriptionFile(const char* lpszStagingDir, string& description);
+  void ReadDescriptionFile(const char* stagingDir, string& description);
 
 protected:
-  MpcPackageInfo InitializePackageInfo(const char* lpszStagingDir);
+  MpcPackageInfo InitializePackageInfo(const char* stagingDir);
 
 protected:
   char GetPackageLevel(const MpcPackageInfo& packageInfo) const;
@@ -212,13 +212,13 @@ protected:
   bool IsPureContainerPackage(const MpcPackageInfo& packageInfo) const;
 
 protected:
-  bool IsInTeXMFDirectory(const PathName& relPath, const char* lpszDirectory);
+  bool IsInTeXMFDirectory(const PathName& relPath, const char* dir);
 
 protected:
   void CollectFiles(const PathName& rootDir, const PathName& subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles);
 
 protected:
-  void CollectSubTree(const PathName& path, const char* lpszSubDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles);
+  void CollectSubTree(const PathName& path, const char* subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles);
 
 protected:
   void CollectPackage(MpcPackageInfo& packageInfo);
@@ -233,16 +233,16 @@ protected:
   void WritePackageDefinitionFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& dbLight);
 
 protected:
-  void ExecuteSystemCommand(const char* lpszCommand, const PathName& workingDirectory);
+  void ExecuteSystemCommand(const char* command, const PathName& workingDirectory);
 
 protected:
-  void ExecuteSystemCommand(const char* lpszCommand)
+  void ExecuteSystemCommand(const char* command)
   {
-    ExecuteSystemCommand(lpszCommand, PathName());
+    ExecuteSystemCommand(command, PathName());
   }
   
 protected:
-  void RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const char* lpszFilter);
+  void RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const char* filter);
 
 protected:
   void CreateRepositoryInformationFile(const PathName& repository, Cfg& dbLight, const map<string, MpcPackageInfo>& packageTable);
@@ -284,7 +284,7 @@ protected:
   void ReadList(const PathName& path, map<string, PackageSpec>& mapPackageList);
 
 protected:
-  void ReadList(const PathName& path, set<string>& setPackageList);
+  void ReadList(const PathName& path, set<string>& packageList);
 
 protected:
   void DisassemblePackage(const PathName& packageDefinitionFile, const PathName& sourceDir, const PathName& stagingDir);
@@ -293,7 +293,7 @@ protected:
   PathName FindLzma();
 
 private:
-  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n) override;
+  bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) override;
 
 private:
   shared_ptr<Session> session;
@@ -611,13 +611,13 @@ void PackageCreator::MD5WildCopy(const PathName& sourceTemplate, const PathName&
   }
 }
 
-void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* lpszSourceSubDir, const PathName& destDir, const char* lpszDestSubDir, FileDigestTable& fileDigests)
+void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* sourceSubDir, const PathName& destDir, const char* destSupDir, FileDigestTable& fileDigests)
 {
   // path to source root directory
-  PathName sourceRootDir(sourceDir, lpszSourceSubDir);
+  PathName sourceRootDir(sourceDir, sourceSubDir);
 
   // path to destination root directory
-  PathName destRootDir(destDir, lpszDestSubDir);
+  PathName destRootDir(destDir, destSupDir);
 
   for (const string& fileName : files)
   {
@@ -721,9 +721,9 @@ void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathNa
   }
 }
 
-void PackageCreator::ReadDescriptionFile(const char* lpszStagingDir, string& description)
+void PackageCreator::ReadDescriptionFile(const char* stagingDir, string& description)
 {
-  PathName descriptionFileName(lpszStagingDir, "Description");
+  PathName descriptionFileName(stagingDir, "Description");
   if (!File::Exists(descriptionFileName))
   {
     description = "";
@@ -738,14 +738,14 @@ void PackageCreator::ReadDescriptionFile(const char* lpszStagingDir, string& des
   stream.Close();
 }
 
-MpcPackageInfo PackageCreator::InitializePackageInfo(const char* lpszStagingDir)
+MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
 {
   MpcPackageInfo packageInfo;
 
   unique_ptr<Cfg> cfg(Cfg::Create());
 
   // read package.ini
-  cfg->Read(PathName(lpszStagingDir, "package.ini"));
+  cfg->Read(PathName(stagingDir, "package.ini"));
 
   // get deployment name (mandatory value)
   if (!cfg->TryGetValue("", "externalname", packageInfo.deploymentName))
@@ -796,10 +796,10 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* lpszStagingDir)
 #endif
 
   // read extra description file
-  ReadDescriptionFile(lpszStagingDir, packageInfo.description);
+  ReadDescriptionFile(stagingDir, packageInfo.description);
 
   // remember the staging directory
-  packageInfo.path = lpszStagingDir;
+  packageInfo.path = stagingDir;
 
   return packageInfo;
 }
@@ -850,10 +850,10 @@ bool PackageCreator::IsPureContainerPackage(const MpcPackageInfo& packageInfo) c
   return false;
 }
 
-bool PackageCreator::IsInTeXMFDirectory(const PathName& relPath, const char* lpszDirectory)
+bool PackageCreator::IsInTeXMFDirectory(const PathName& relPath, const char* dir)
 {
   PathName texmfDirectory(texmfPrefix);
-  texmfDirectory /= lpszDirectory;
+  texmfDirectory /= dir;
   return PathName::Compare(texmfDirectory, relPath, texmfDirectory.GetLength()) == 0;
 }
 
@@ -910,9 +910,9 @@ void PackageCreator::CollectFiles(const PathName& rootDir, const PathName& subDi
   lister.reset();
 }
 
-void PackageCreator::CollectSubTree(const PathName& path, const char* lpszSubDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles)
+void PackageCreator::CollectSubTree(const PathName& path, const char* subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles)
 {
-  PathName sourceDir(path, lpszSubDir);
+  PathName sourceDir(path, subDir);
   CollectFiles(sourceDir, PathName(), runFiles, sizeRunFiles, docFiles, sizeDocFiles, sourceFiles, sizeSourceFiles);
 }
 
@@ -1051,25 +1051,25 @@ void PackageCreator::WritePackageDefinitionFiles(const map<string, MpcPackageInf
   }
 }
 
-bool PackageCreator::OnProcessOutput(const void* pOutput, size_t n)
+bool PackageCreator::OnProcessOutput(const void* output, size_t n)
 {
-  processOutput.Append(reinterpret_cast<const char*>(pOutput), n);
+  processOutput.Append(reinterpret_cast<const char*>(output), n);
   return true;
 }
 
-void PackageCreator::ExecuteSystemCommand(const char* lpszCommand, const PathName& workingDirectory)
+void PackageCreator::ExecuteSystemCommand(const char* command, const PathName& workingDirectory)
 {
   processOutput.Clear();
   int exitCode = 0;
-  if (!Process::ExecuteSystemCommand(lpszCommand, &exitCode, this, workingDirectory.Empty() ? nullptr : workingDirectory.GetData()) || exitCode != 0)
+  if (!Process::ExecuteSystemCommand(command, &exitCode, this, workingDirectory.Empty() ? nullptr : workingDirectory.GetData()) || exitCode != 0)
   {
-    cerr << lpszCommand << ':' << endl;
+    cerr << command << ':' << endl;
     cerr << processOutput.GetData() << endl;
     FatalError(T_("A system command failed."));
   }
 }
 
-void PackageCreator::RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const char* lpszFilter)
+void PackageCreator::RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const char* filter)
 {
   string command;
   switch (archiveFileType)
@@ -1078,11 +1078,11 @@ void PackageCreator::RunArchiver(ArchiveFileType archiveFileType, const PathName
     command = "tar -cjf ";
     command += Q_(archiveFile);
     command += " ";
-    command += lpszFilter;
+    command += filter;
     break;
   case ArchiveFileType::TarLzma:
     command = "tar -cf - ";
-    command += lpszFilter;
+    command += filter;
     command += " | ";
     command += Q_(lzmaExe);
     command += " e ";
@@ -1828,7 +1828,7 @@ void PackageCreator::ReadList(const PathName& path, map<string, PackageSpec>& ma
   reader.Close();
 }
 
-void PackageCreator::ReadList(const PathName& path, set<string>& setPackageList)
+void PackageCreator::ReadList(const PathName& path, set<string>& packageList)
 {
   FileStream stream(File::Open(path, FileMode::Open, FileAccess::Read));
   string line;
@@ -1848,7 +1848,7 @@ void PackageCreator::ReadList(const PathName& path, set<string>& setPackageList)
     {
       continue;
     }
-    setPackageList.insert(line);
+    packageList.insert(line);
   }
   stream.Close();
 }
