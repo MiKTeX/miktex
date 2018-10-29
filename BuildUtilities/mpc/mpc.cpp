@@ -700,7 +700,7 @@ void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathNa
 
   // path to package manifest directory, e.g.:
   // /miktex/texmf/tpm/packages/
-  PathName packageManifestDirectory = destDir / texmfPrefix /MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  PathName packageManifestDirectory = destDir / texmfPrefix / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
 
   // create package manifest directory
   Directory::Create(packageManifestDirectory);
