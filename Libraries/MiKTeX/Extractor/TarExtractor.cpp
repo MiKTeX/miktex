@@ -368,6 +368,9 @@ void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool make
         streamOut.Write(buffer.GetData(), n);
         bytesRead += n;
       }
+      // set time when the file was created
+      time_t time = header.GetLastModificationTime();
+      File::SetTimes(streamOut.GetFile(), time, time, time);
       streamOut.Close();
 
       // skip extra bytes
@@ -377,10 +380,6 @@ void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool make
       }
 
       fileCount += 1;
-
-      // set time when the file was created
-      time_t time = header.GetLastModificationTime();
-      File::SetTimes(path, time, time, time);
 
 #if 0
       // set file attributes
