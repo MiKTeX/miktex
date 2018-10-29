@@ -377,6 +377,10 @@ int main(int argc, char* argv[])
       }
       ret = application.exec();
     }
+    if (session.use_count() > 1)
+    {
+      LOG4CXX_WARN(logger, "session.use_count() == " << session.use_count());
+    }
     session = nullptr;
     if (isLog4cxxConfigured)
     {
