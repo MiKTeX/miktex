@@ -374,21 +374,21 @@ PackageInfo* PackageManagerImpl::DefinePackage(const string& deploymentName, con
   return &(p.first->second);
 }
 
-void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathName& directory)
+void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName& directory)
 {
-  trace_mpm->WriteFormattedLine("libmpm", T_("searching %s for package definition files"), Q_(directory));
+  trace_mpm->WriteFormattedLine("libmpm", T_("searching %s for package manifest files"), Q_(directory));
 
   if (!Directory::Exists(directory))
   {
-    trace_mpm->WriteFormattedLine("libmpm", T_("package definition directory (%s) does not exist"), Q_(directory));
+    trace_mpm->WriteFormattedLine("libmpm", T_("directory %s does not exist"), Q_(directory));
     return;
   }
 
-  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 
   vector<future<PackageInfo>> futurePackageInfoTable;
 
-  // parse package definition files
+  // parse package manifest files
   if (((int)ASYNC_LAUNCH_POLICY & (int)launch::async) != 0)
   {
     const size_t maxPackageFiles = 4000;
@@ -412,7 +412,7 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
       continue;
     }
 
-    // parse package definition file
+    // parse package manifest file
     futurePackageInfoTable.push_back(async(ASYNC_LAUNCH_POLICY, [](const PathName& path)
     {
       unique_ptr<TpmParser> tpmParser = TpmParser::Create();
@@ -453,7 +453,7 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
     }
   }
 
-  trace_mpm->WriteFormattedLine("libmpm", T_("found %u package definition files"), static_cast<unsigned>(count));
+  trace_mpm->WriteFormattedLine("libmpm", T_("found %u package manifest files"), static_cast<unsigned>(count));
 
   // determine dependencies
   for (auto& kv : packageTable)
@@ -533,9 +533,9 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
   }
 }
 
-void PackageManagerImpl::ParseAllPackageDefinitionFiles()
+void PackageManagerImpl::ParseAllPackageManifestFiles()
 {
-  if (parsedAllPackageDefinitionFiles)
+  if (parsedAllPackageManifestFiles)
   {
     // we do this once
     return;
@@ -544,15 +544,15 @@ void PackageManagerImpl::ParseAllPackageDefinitionFiles()
   PathName commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
   if (!session->IsAdminMode())
   {
-    ParseAllPackageDefinitionFilesInDirectory(PathName(userInstallRoot, MIKTEX_PATH_PACKAGE_DEFINITION_DIR));
+    ParseAllPackageManifestFilesInDirectory(PathName(userInstallRoot, MIKTEX_PATH_PACKAGE_MANIFEST_DIR));
     if (userInstallRoot.Canonicalize() == commonInstallRoot.Canonicalize())
     {
-      parsedAllPackageDefinitionFiles = true;
+      parsedAllPackageManifestFiles = true;
       return;
     }
   }
-  ParseAllPackageDefinitionFilesInDirectory(PathName(commonInstallRoot, MIKTEX_PATH_PACKAGE_DEFINITION_DIR));
-  parsedAllPackageDefinitionFiles = true;
+  ParseAllPackageManifestFilesInDirectory(PathName(commonInstallRoot, MIKTEX_PATH_PACKAGE_MANIFEST_DIR));
+  parsedAllPackageManifestFiles = true;
 }
 
 void PackageManagerImpl::LoadDatabase(const PathName& path)
@@ -579,15 +579,15 @@ void PackageManagerImpl::LoadDatabase(const PathName& path)
 
     pathPackageInfoDir = tempDir->GetPathName();
 
-    // unpack the package definition files
+    // unpack the package manifest files
     unique_ptr<MiKTeX::Extractor::Extractor> pExtractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
     pExtractor->Extract(absPath, pathPackageInfoDir);
   }
 
-  // read package definition files
-  ParseAllPackageDefinitionFilesInDirectory(pathPackageInfoDir);
+  // read package manifest files
+  ParseAllPackageManifestFilesInDirectory(pathPackageInfoDir);
 
-  parsedAllPackageDefinitionFiles = true;
+  parsedAllPackageManifestFiles = true;
 }
 
 void PackageManagerImpl::ClearAll()
@@ -602,7 +602,7 @@ void PackageManagerImpl::ClearAll()
   {
     userVariablePackageTable = nullptr;
   }
-  parsedAllPackageDefinitionFiles = false;
+  parsedAllPackageManifestFiles = false;
 }
 
 void PackageManagerImpl::UnloadDatabase()
@@ -617,34 +617,34 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
   {
     return &it->second;
   }
-  if (parsedAllPackageDefinitionFiles)
+  if (parsedAllPackageManifestFiles)
   {
     return nullptr;
   }
-  PathName pathPackageDefinitionFile;
+  PathName pathPackageManifestFile;
   bool havePackageInfoFile = false;
   if (!session->IsAdminMode())
   {
-    pathPackageDefinitionFile = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-    pathPackageDefinitionFile /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
-    pathPackageDefinitionFile /= deploymentName;
-    pathPackageDefinitionFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
-    havePackageInfoFile = File::Exists(pathPackageDefinitionFile);
+    pathPackageManifestFile = session->GetSpecialPath(SpecialPath::UserInstallRoot);
+    pathPackageManifestFile /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+    pathPackageManifestFile /= deploymentName;
+    pathPackageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
+    havePackageInfoFile = File::Exists(pathPackageManifestFile);
   }
   if (!havePackageInfoFile)
   {
-    pathPackageDefinitionFile = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
-    pathPackageDefinitionFile /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
-    pathPackageDefinitionFile /= deploymentName;
-    pathPackageDefinitionFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
-    havePackageInfoFile = File::Exists(pathPackageDefinitionFile);
+    pathPackageManifestFile = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
+    pathPackageManifestFile /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+    pathPackageManifestFile /= deploymentName;
+    pathPackageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
+    havePackageInfoFile = File::Exists(pathPackageManifestFile);
   }
   if (!havePackageInfoFile)
   {
     return nullptr;
   }
   unique_ptr<TpmParser> tpmParser = TpmParser::Create();
-  tpmParser->Parse(pathPackageDefinitionFile);
+  tpmParser->Parse(pathPackageManifestFile);
 #if IGNORE_OTHER_SYSTEMS
   string targetSystems = tpmParser->GetPackageInfo().targetSystem;
   if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
@@ -692,7 +692,7 @@ unsigned long PackageManagerImpl::GetFileRefCount(const PathName& path)
 
 void PackageManagerImpl::NeedInstalledFileInfoTable()
 {
-  ParseAllPackageDefinitionFiles();
+  ParseAllPackageManifestFiles();
 }
 
 bool PackageManager::TryGetRemotePackageRepository(string& url, RepositoryReleaseState& repositoryReleaseState)
@@ -983,7 +983,7 @@ bool PackageManagerImpl::OnProgress(unsigned level, const PathName& directory)
 
 void PackageManagerImpl::CreateMpmFndb()
 {
-  ParseAllPackageDefinitionFiles();
+  ParseAllPackageManifestFiles();
 
   // collect the file names
   for (const auto& kv : packageTable)
@@ -1012,7 +1012,7 @@ void PackageManagerImpl::CreateMpmFndb()
 
 void PackageManagerImpl::GetAllPackageDefinitions(vector<PackageInfo>& packages)
 {
-  ParseAllPackageDefinitionFiles();
+  ParseAllPackageManifestFiles();
   for (const auto& kv : packageTable)
   {
     packages.push_back(kv.second);
@@ -1021,7 +1021,7 @@ void PackageManagerImpl::GetAllPackageDefinitions(vector<PackageInfo>& packages)
 
 InstalledFileInfo* PackageManagerImpl::GetInstalledFileInfo(const char* lpszPath)
 {
-  ParseAllPackageDefinitionFiles();
+  ParseAllPackageManifestFiles();
   InstalledFileInfoTable::iterator it = installedFileInfoTable.find(lpszPath);
   if (it == installedFileInfoTable.end())
   {
@@ -1047,7 +1047,7 @@ bool PackageManager::IsLocalPackageRepository(const PathName& path)
   return false;
 }
 
-PackageInfo PackageManager::ReadPackageDefinitionFile(const PathName& path, const string& texmfPrefix)
+PackageInfo PackageManager::ReadPackageManifestFile(const PathName& path, const string& texmfPrefix)
 {
   unique_ptr<TpmParser> tpmParser = TpmParser::Create();
   tpmParser->Parse(path, texmfPrefix);
@@ -1153,7 +1153,7 @@ private:
   bool freshElement = false;
 };
 
-void PackageManager::WritePackageDefinitionFile(const PathName& path, const PackageInfo& packageInfo, time_t timePackaged)
+void PackageManager::WritePackageManifestFile(const PathName& path, const PackageInfo& packageInfo, time_t timePackaged)
 {
   XmlWriter xml(path);
 
@@ -1451,7 +1451,7 @@ bool PackageManagerImpl::TryGetFileDigest(const PathName& prefix, const string& 
     trace_mpm->WriteFormattedLine("libmpm", T_("package verification failed: file %s does not exist"), Q_(path));
     return false;
   }
-  if (path.HasExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX))
+  if (path.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
   {
     haveDigest = false;
   }

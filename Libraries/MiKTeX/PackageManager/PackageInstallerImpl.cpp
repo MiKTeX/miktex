@@ -82,12 +82,12 @@ MPMSTATICFUNC(bool) IsMiKTeXPackage(const string& deploymentName)
   return strncmp(deploymentName.c_str(), "miktex-", 7) == 0;
 }
 
-MPMSTATICFUNC(PathName) PrefixedPackageDefinitionFile(const string& deploymentName)
+MPMSTATICFUNC(PathName) PrefixedPackageManifestFile(const string& deploymentName)
 {
   PathName path(TEXMF_PREFIX_DIRECTORY);
-  path /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
+  path /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
   path /= deploymentName;
-  path.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+  path.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
   return path;
 }
 
@@ -860,12 +860,12 @@ void PackageInstallerImpl::RemovePackage(const string& deploymentName)
   {
     // it's an obsolete package: make sure that the package
     // definition file gets removed too
-    AddToFileList(package->runFiles, PrefixedPackageDefinitionFile(deploymentName));
+    AddToFileList(package->runFiles, PrefixedPackageManifestFile(deploymentName));
   }
   else
   {
-    // make sure that the package definition file does not get removed
-    RemoveFromFileList(package->runFiles, PrefixedPackageDefinitionFile(deploymentName));
+    // make sure that the package manifest file does not get removed
+    RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(deploymentName));
   }
 
   // remove the files
@@ -1056,11 +1056,11 @@ void PackageInstallerImpl::RemoveFromFileList(vector<string>& fileList, const Pa
 
 void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const string& deploymentName)
 {
-  // parse the package definition file
+  // parse the package manifest file
   PathName pathPackageFile = pathSourceRoot;
-  pathPackageFile /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
+  pathPackageFile /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
   pathPackageFile /= deploymentName;
-  pathPackageFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+  pathPackageFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
   unique_ptr<TpmParser> tpmparser = TpmParser::Create();
   tpmparser->Parse(pathPackageFile);
 
@@ -1068,9 +1068,9 @@ void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const str
   PackageInfo package = tpmparser->GetPackageInfo();
   package.deploymentName = deploymentName;
 
-  // make sure that the package definition file is included in the
+  // make sure that the package manifest file is included in the
   // file list
-  AddToFileList(package.runFiles, PrefixedPackageDefinitionFile(deploymentName));
+  AddToFileList(package.runFiles, PrefixedPackageManifestFile(deploymentName));
 
   // copy the files
   CopyFiles(pathSourceRoot, package.runFiles);
@@ -1191,7 +1191,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   {
     trace_mpm->WriteFormattedLine("libmpm", T_("%s: removing old files"), deploymentName.c_str());
     // make sure that the package info file does not get removed
-    RemoveFromFileList(package->runFiles, PrefixedPackageDefinitionFile(deploymentName));
+    RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(deploymentName));
     RemoveFiles(package->runFiles, true);
     RemoveFiles(package->docFiles, true);
     RemoveFiles(package->sourceFiles, true);
@@ -1225,9 +1225,9 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
     MIKTEX_UNEXPECTED();
   }
 
-  // parse the new package definition file
-  PathName pathPackageFile = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_DEFINITION_DIR / deploymentName;
-  pathPackageFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+  // parse the new package manifest file
+  PathName pathPackageFile = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR / deploymentName;
+  pathPackageFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
   unique_ptr<TpmParser> tpmparser = TpmParser::Create();
   tpmparser->Parse(pathPackageFile);
 
@@ -2080,7 +2080,7 @@ void PackageInstallerImpl::Download()
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
     progressInfo.deploymentName = MIKTEX_MPM_DB_FULL_FILE_NAME_NO_SUFFIX;
-    progressInfo.displayName = T_("complete package database");
+    progressInfo.displayName = T_("package manifest files");
     progressInfo.cbPackageDownloadCompleted = 0;
     progressInfo.cbPackageDownloadTotal = MPM_APSIZE_DB_FULL;
   }
@@ -2136,7 +2136,7 @@ void PackageInstallerImpl::DownloadThread()
 #endif
 }
 
-void PackageInstallerImpl::SetUpPackageDefinitionFiles(const PathName& directory)
+void PackageInstallerImpl::SetUpPackageManifestFiles(const PathName& directory)
 {
   // path to the database file
   PathName pathDatabase;
@@ -2162,9 +2162,9 @@ void PackageInstallerImpl::SetUpPackageDefinitionFiles(const PathName& directory
 
 void PackageInstallerImpl::CleanUpUserDatabase()
 {
-  PathName userDir(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
+  PathName userDir(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
 
-  PathName commonDir(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
+  PathName commonDir(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
 
   if (!Directory::Exists(userDir) || !Directory::Exists(commonDir))
   {
@@ -2178,7 +2178,7 @@ void PackageInstallerImpl::CleanUpUserDatabase()
 
   vector<PathName> toBeRemoved;
 
-  // check all package definition files
+  // check all package manifest files
   unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(userDir);
   DirectoryEntry direntry;
   while (pLister->GetNext(direntry))
@@ -2186,40 +2186,40 @@ void PackageInstallerImpl::CleanUpUserDatabase()
     PathName name(direntry.name);
 
     if (direntry.isDirectory
-      || !name.HasExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX))
+      || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
     {
       continue;
     }
 
     // check to see whether the system-wide file exists
-    PathName commonPackageDefinitionFile(commonDir, name);
-    if (!File::Exists(commonPackageDefinitionFile))
+    PathName commonPackageManifestFile(commonDir, name);
+    if (!File::Exists(commonPackageManifestFile))
     {
       continue;
     }
 
     // compare files
-    PathName userPackageDefinitionFile(userDir, name);
-    if (File::GetSize(userPackageDefinitionFile) == File::GetSize(commonPackageDefinitionFile)
-      && MD5::FromFile(userPackageDefinitionFile.GetData()) == MD5::FromFile(commonPackageDefinitionFile.GetData()))
+    PathName userPackageManifestFile(userDir, name);
+    if (File::GetSize(userPackageManifestFile) == File::GetSize(commonPackageManifestFile)
+      && MD5::FromFile(userPackageManifestFile.GetData()) == MD5::FromFile(commonPackageManifestFile.GetData()))
     {
       // files are identical; remove user file later
-      toBeRemoved.push_back(userPackageDefinitionFile);
+      toBeRemoved.push_back(userPackageManifestFile);
     }
   }
   pLister->Close();
 
-  // remove redundant user package definition files
+  // remove redundant user package manifest files
   for (const PathName& p : toBeRemoved)
   {
-    trace_mpm->WriteFormattedLine("libmpm", T_("removing redundant package definition file: %s"), Q_(p));
+    trace_mpm->WriteFormattedLine("libmpm", T_("removing redundant package manifest file: %s"), Q_(p));
     File::Delete(p, { FileDeleteOption::TryHard });
   }
 }
 
-void PackageInstallerImpl::HandleObsoletePackageDefinitionFiles(const PathName& temporaryDirectory)
+void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& temporaryDirectory)
 {
-  PathName pathPackageDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
+  PathName pathPackageDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
 
   if (!Directory::Exists(pathPackageDir))
   {
@@ -2232,13 +2232,13 @@ void PackageInstallerImpl::HandleObsoletePackageDefinitionFiles(const PathName& 
   {
     PathName name(direntry.name);
 
-    if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX))
+    if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
     {
       continue;
     }
 
     // it's not an obsolete package if the temporary directory
-    // contains a corresponding package definition file
+    // contains a corresponding package manifest file
     if (File::Exists(temporaryDirectory / name))
     {
       continue;
@@ -2246,13 +2246,13 @@ void PackageInstallerImpl::HandleObsoletePackageDefinitionFiles(const PathName& 
 
     // now we know that the package is obsolete
 
-    MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX).GetExtension()));
+    MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX).GetExtension()));
     string deploymentName = name.GetFileNameWithoutExtension().ToString();
 
     // check to see whether the obsolete package is installed
     if (packageManager->GetTimeInstalled(deploymentName) == 0 || IsPureContainer(deploymentName))
     {
-      // not installed: remove the package definition file
+      // not installed: remove the package manifest file
       trace_mpm->WriteFormattedLine("libmpm", T_("removing obsolete %s"), Q_(name));
       File::Delete(pathPackageDir / name, { FileDeleteOption::TryHard });
     }
@@ -2310,34 +2310,34 @@ void PackageInstallerImpl::UpdateDb()
   // we might need a temporary directory
   unique_ptr<TemporaryDirectory> tempDir;
 
-  // path to the package definition directory
+  // path to the directory containing package manifests
   PathName pkgDir;
 
-  // copy the new package definition files into a temporary directory
+  // copy the new package manifest files into a temporary directory
   if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
   {
     tempDir = TemporaryDirectory::Create();
     pkgDir = tempDir->GetPathName();
-    SetUpPackageDefinitionFiles(pkgDir);
+    SetUpPackageManifestFiles(pkgDir);
   }
   else if (repositoryType == RepositoryType::MiKTeXDirect)
   {
     // installing from the CD
     pkgDir = repository;
     pkgDir /= MIKTEXDIRECT_PREFIX_DIR;
-    pkgDir /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
+    pkgDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
   }
   else
   {
     MIKTEX_UNEXPECTED();
   }
 
-  // handle obsolete package definition files
-  HandleObsoletePackageDefinitionFiles(pkgDir);
+  // handle obsolete package manifest files
+  HandleObsoletePackageManifestFiles(pkgDir);
 
-  // update the package definition directory
-  PathName packageDefinitionDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
-  ReportLine(fmt::format(T_("updating package definition directory ({0})..."), Q_(packageDefinitionDir)));
+  // update the package manifest files
+  PathName packageManifestDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
+  ReportLine(fmt::format(T_("updating package manifest files in {0}..."), Q_(packageManifestDir)));
   size_t count = 0;
   unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(pkgDir);
   DirectoryEntry direntry;
@@ -2348,30 +2348,30 @@ void PackageInstallerImpl::UpdateDb()
 
     PathName name(direntry.name);
 
-    if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX))
+    if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
     {
       continue;
     }
 
     // get external package name
-    MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX).GetExtension()));
+    MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX).GetExtension()));
     string deploymentName = name.GetFileNameWithoutExtension().ToString();
 
-    // build name of current package definition file
-    PathName currentPackageDefinitionfile(packageDefinitionDir, name);
+    // build name of current package manifest file
+    PathName currentPackageManifestFile(packageManifestDir, name);
 
     // ignore package, if package is already installed
     if (!IsPureContainer(deploymentName) && packageManager->IsPackageInstalled(deploymentName))
     {
 #if 0
-      if (File::Exists(currentPackageDefinitionfile))
+      if (File::Exists(currentPackageManifestFile))
 #endif
         continue;
     }
 
-    // parse new package definition file
-    PathName newPackageDefinitionFile(pkgDir, name);
-    tpmparser->Parse(newPackageDefinitionFile);
+    // parse new package manifest file
+    PathName newPackageManifestFile(pkgDir, name);
+    tpmparser->Parse(newPackageManifestFile);
 
 #if 0
     PackageInfo currentPackageInfo;
@@ -2384,15 +2384,15 @@ void PackageInstallerImpl::UpdateDb()
     }
 #endif
 
-    // move the new package definition file into the package
-    // definition directory
-    Directory::Create(packageDefinitionDir);
-    if (File::Exists(currentPackageDefinitionfile))
+    // move the new package manifest file into the package
+    // manifest directory
+    Directory::Create(packageManifestDir);
+    if (File::Exists(currentPackageManifestFile))
     {
       // move the current file out of the way
-      File::Delete(currentPackageDefinitionfile, { FileDeleteOption::TryHard });
+      File::Delete(currentPackageManifestFile, { FileDeleteOption::TryHard });
     }
-    File::Copy(newPackageDefinitionFile, currentPackageDefinitionfile);
+    File::Copy(newPackageManifestFile, currentPackageManifestFile);
 
     // update the database
     packageManager->DefinePackage(deploymentName, tpmparser->GetPackageInfo());
@@ -2402,7 +2402,7 @@ void PackageInstallerImpl::UpdateDb()
 
   pLister->Close();
 
-  ReportLine(fmt::format(T_("installed {0} package definition files"), count));
+  ReportLine(fmt::format(T_("installed {0} package manifest files"), count));
 
   // clean up the user database
   if (!session->IsAdminMode())

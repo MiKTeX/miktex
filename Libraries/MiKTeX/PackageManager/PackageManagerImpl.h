@@ -225,10 +225,10 @@ private:
   void IncrementFileRefCounts(const std::vector<std::string>& files);
 
 private:
-  void ParseAllPackageDefinitionFilesInDirectory(const MiKTeX::Core::PathName& directory);
+  void ParseAllPackageManifestFilesInDirectory(const MiKTeX::Core::PathName& directory);
 
 private:
-  void ParseAllPackageDefinitionFiles();
+  void ParseAllPackageManifestFiles();
 
 private:
   bool TryGetFileDigest(const MiKTeX::Core::PathName& prefix, const std::string& fileName, bool& haveDigest, MiKTeX::Core::MD5& digest);
@@ -261,7 +261,7 @@ private:
   InstalledFileInfoTable installedFileInfoTable;
 
 private:
-  bool parsedAllPackageDefinitionFiles = false;
+  bool parsedAllPackageManifestFiles = false;
 
 private:
   std::unique_ptr<MiKTeX::Core::Cfg> commonVariablePackageTable;

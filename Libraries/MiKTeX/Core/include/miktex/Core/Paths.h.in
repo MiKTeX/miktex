@@ -90,7 +90,7 @@
 
 #define MIKTEX_ZIP_FILE_SUFFIX ".zip"
 
-#define MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX ".tpm"
+#define MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX ".tpm"
 
 #define MIKTEX_TDSUTIL_RECIPE_FILE_SUFFIX ".ini"
 
@@ -650,10 +650,10 @@
 
 /* _________________________________________________________________________
 
-   MIKTEX_PATH_PACKAGE_DEFINITION_DIR
+   MIKTEX_PATH_PACKAGE_MANIFEST_DIR
    _________________________________________________________________________ */
 
-#define MIKTEX_PATH_PACKAGE_DEFINITION_DIR      \
+#define MIKTEX_PATH_PACKAGE_MANIFEST_DIR        \
   MIKTEX_PATH_TPM_DIR                           \
   MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
   "packages"

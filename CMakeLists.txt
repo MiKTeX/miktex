@@ -502,7 +502,7 @@ option(
 
 option(
   WITH_TPMS
-  "Build package definition files."
+  "Build package manifest files."
   ${WIN32}
 )
 

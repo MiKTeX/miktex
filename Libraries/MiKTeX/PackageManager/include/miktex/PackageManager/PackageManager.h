@@ -233,10 +233,10 @@ public:
   static MIKTEXMPMCEEAPI(void) SetMiKTeXDirectRoot(const MiKTeX::Core::PathName& path);
 
 public:
-  static MIKTEXMPMCEEAPI(PackageInfo) ReadPackageDefinitionFile(const MiKTeX::Core::PathName& path, const std::string& texmfPrefix);
+  static MIKTEXMPMCEEAPI(PackageInfo) ReadPackageManifestFile(const MiKTeX::Core::PathName& path, const std::string& texmfPrefix);
 
 public:
-  static MIKTEXMPMCEEAPI(void) WritePackageDefinitionFile(const MiKTeX::Core::PathName& path, const PackageInfo& packageInfo, time_t timePackaged);
+  static MIKTEXMPMCEEAPI(void) WritePackageManifestFile(const MiKTeX::Core::PathName& path, const PackageInfo& packageInfo, time_t timePackaged);
 
   /// Strips the TEXMF prefix from a string.
   /// @param str The string to strip.

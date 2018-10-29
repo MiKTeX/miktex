@@ -64,9 +64,9 @@ void LogFile::AddPackages()
   while (pIter->GetNext(pi))
   {
     // add .tpm file
-    PathName tpmFile("texmf", MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
+    PathName tpmFile("texmf", MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
     tpmFile /= pi.deploymentName;
-    tpmFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+    tpmFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
     AddFile(tpmFile);
 
     // check if the package is installed

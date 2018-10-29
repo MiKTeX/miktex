@@ -875,11 +875,11 @@ void SetupServiceImpl::DoTheInstallation()
   session->RegisterRootDirectories(startupConfig, { RegisterRootDirectoriesOption::Temporary });
 #endif
   
-  // parse package definition files
+  // parse package manifest files
   PathName pathDB;
   if (options.Task == SetupTask::InstallFromCD)
   {
-    pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
+    pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
   }
   else
   {
@@ -906,7 +906,7 @@ void SetupServiceImpl::DoTheInstallation()
     return;
   }
 
-  // install package definition files
+  // install package manifest files
   packageManager->UnloadDatabase();
   packageInstaller->UpdateDb();
 

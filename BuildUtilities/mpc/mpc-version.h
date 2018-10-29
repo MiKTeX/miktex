@@ -1,6 +1,7 @@
 /* mpc-version.h: version number                        -*- C++ -*-
 
    Copyright (C) 1996-2018 Christian Schenk
+
    This file is part of MPC.
 
    MPC is free software; you can redistribute it and/or modify it
@@ -17,6 +18,6 @@
    along with MPC; if not, write to the Free Software Foundation, 59
    Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#define MIKTEX_COMP_J2000_VERSION 6855
+#define MIKTEX_COMP_J2000_VERSION 6875
 
 #include <miktex/Version>

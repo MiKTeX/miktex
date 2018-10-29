@@ -230,7 +230,7 @@ protected:
   void BuildTDS(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& dbLight);
 
 protected:
-  void WritePackageDefinitionFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& dbLight);
+  void WritePackageManifestFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& dbLight);
 
 protected:
   void ExecuteSystemCommand(const char* command, const PathName& workingDirectory);
@@ -287,7 +287,7 @@ protected:
   void ReadList(const PathName& path, set<string>& packageList);
 
 protected:
-  void DisassemblePackage(const PathName& packageDefinitionFile, const PathName& sourceDir, const PathName& stagingDir);
+  void DisassemblePackage(const PathName& packageManifestFile, const PathName& sourceDir, const PathName& stagingDir);
 
 protected:
   PathName FindLzma();
@@ -395,11 +395,11 @@ const struct poptOption PackageCreator::options[] = {
   },
 
   {
-    "tpm-dir", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TPM_DIR, T_("Specify the destination directory for package definition files."), T_("DIR")
+    "tpm-dir", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TPM_DIR, T_("Specify the destination directory for package manifest files."), T_("DIR")
   },
 
   {
-    "tpm-file", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TPM_FILE, T_("Specify the name of a package definition file."), T_("FILE")
+    "tpm-file", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TPM_FILE, T_("Specify the name of a package manifest file."), T_("FILE")
   },
 
   {
@@ -589,8 +589,8 @@ void PackageCreator::MD5WildCopy(const PathName& sourceTemplate, const PathName&
     // copy file and calculate its digest
     MD5 digest = MD5CopyFile(sourcePath, destPath);
 
-    // package definition files do not contribute to the TDS digest
-    if (sourcePath.HasExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX))
+    // package manifest files do not contribute to the TDS digest
+    if (sourcePath.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
     {
       continue;
     }
@@ -698,15 +698,15 @@ void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathNa
 {
   Verbose(T_("Copying %s ..."), Q_(packageinfo.deploymentName));
 
-  // path to package definition directory, e.g.:
+  // path to package manifest directory, e.g.:
   // /miktex/texmf/tpm/packages/
-  PathName packageDefinitionDirectory = destDir / texmfPrefix /MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
+  PathName packageManifestDirectory = destDir / texmfPrefix /MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
 
-  // create package definition directory
-  Directory::Create(packageDefinitionDirectory);
+  // create package manifest directory
+  Directory::Create(packageManifestDirectory);
 
-  // create the package definition file...
-  PackageManager::WritePackageDefinitionFile(PathName(packageDefinitionDirectory, packageinfo.deploymentName).AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX), packageinfo, programStartTime);
+  // create the package manifest file...
+  PackageManager::WritePackageManifestFile(PathName(packageManifestDirectory, packageinfo.deploymentName).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), packageinfo, programStartTime);
 
   // copy files and calculate digests
   FileDigestTable fileDigests;
@@ -844,7 +844,7 @@ bool PackageCreator::IsPureContainerPackage(const MpcPackageInfo& packageInfo) c
     }
     else if (n == 1)
     {
-      return PathName(packageInfo.runFiles[0]).HasExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+      return PathName(packageInfo.runFiles[0]).HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
     }
   }
   return false;
@@ -1014,9 +1014,9 @@ void PackageCreator::BuildTDS(const map<string, MpcPackageInfo>& packageTable, c
   }
 }
 
-void PackageCreator::WritePackageDefinitionFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& dbLight)
+void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& dbLight)
 {
-  // create package definition directory
+  // create package manifest directory
   Directory::Create(destDir);
 
   for (const pair<string, MpcPackageInfo>& p : packageTable)
@@ -1026,17 +1026,17 @@ void PackageCreator::WritePackageDefinitionFiles(const map<string, MpcPackageInf
       continue;
     }
 
-    // path to package definition file
-    PathName packageDefinitionFile(destDir, p.second.deploymentName);
-    packageDefinitionFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+    // path to package manifest file
+    PathName packageManifestFile(destDir, p.second.deploymentName);
+    packageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 
-    // remove existing package definition file
-    if (File::Exists(packageDefinitionFile))
+    // remove existing package manifest file
+    if (File::Exists(packageManifestFile))
     {
-      File::Delete(packageDefinitionFile);
+      File::Delete(packageManifestFile);
     }
 
-    // write the package definition file
+    // write the package manifest file
     string str;
     time_t timePackaged;
     if (dbLight.TryGetValue(p.second.deploymentName, "TimePackaged", str))
@@ -1047,7 +1047,7 @@ void PackageCreator::WritePackageDefinitionFiles(const map<string, MpcPackageInf
     {
       timePackaged = 0;
     }
-    PackageManager::WritePackageDefinitionFile(packageDefinitionFile, p.second, timePackaged);
+    PackageManager::WritePackageManifestFile(packageManifestFile, p.second, timePackaged);
   }
 }
 
@@ -1315,20 +1315,20 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   // delete temporary mpm.ini
   tempIni = nullptr;
 
-  // create temporary package definition directory
+  // create temporary package manifest directory
   unique_ptr<TemporaryDirectory> tempDir = TemporaryDirectory::Create(PathName(repository, texmfPrefix));
-  PathName packageDefinitionDir = tempDir->GetPathName();
-  packageDefinitionDir /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
-  Directory::Create(packageDefinitionDir);
+  PathName packageManifestDir = tempDir->GetPathName();
+  packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  Directory::Create(packageManifestDir);
 
-  // write all package definition files
-  WritePackageDefinitionFiles(packageTable, packageDefinitionDir, dbLight);
+  // write all package manifest files
+  WritePackageManifestFiles(packageTable, packageManifestDir, dbLight);
 
   // create heavy-weight database
   PathName dbPath2 = GetDbHeavyFileName();
   RunArchiver(GetDbArchiveFileType(), dbPath2, texmfPrefix.c_str());
 
-  // delete package definition files
+  // delete package manifest files
   tempDir = nullptr;
 
   CreateFileListFile(packageTable, repository);
@@ -1487,19 +1487,19 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
 #if 1
     else
     {
-      // extract the package definition file
+      // extract the package manifest file
       PathName filter(texmfPrefix);
-      filter /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
+      filter /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
       filter /= packageInfo.deploymentName;
-      filter.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+      filter.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 #if defined(MIKTEX_WINDOWS)
       filter.ConvertToUnix();
 #endif
-      unique_ptr<TemporaryFile> packageDefinitionFile = TemporaryFile::Create();
-      ExtractFile(archiveFile, archiveFileType, filter, packageDefinitionFile->GetPathName());
+      unique_ptr<TemporaryFile> packageManifestFile = TemporaryFile::Create();
+      ExtractFile(archiveFile, archiveFileType, filter, packageManifestFile->GetPathName());
 
-      // read the package definition file
-      PackageInfo existingPackageInfo = PackageManager::ReadPackageDefinitionFile(packageDefinitionFile->GetPathName(), texmfPrefix);
+      // read the package manifest file
+      PackageInfo existingPackageInfo = PackageManager::ReadPackageManifestFile(packageManifestFile->GetPathName(), texmfPrefix);
 
       // check to see whether we can keep the existing file
       if (packageInfo.digest == existingPackageInfo.digest)
@@ -1536,20 +1536,20 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
     // /mypackages/a0poster/
     Directory::SetCurrent(packageInfo.path);
 
-    // path to package definition directory, e.g.:
+    // path to package manifest directory, e.g.:
     // /mypackages/a0poster/Files/texmf/tpm/packages/
-    PathName packageDefinitionDir(packageInfo.path);
-    packageDefinitionDir /= "Files";
-    packageDefinitionDir /= texmfPrefix;
-    packageDefinitionDir /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
+    PathName packageManifestDir(packageInfo.path);
+    packageManifestDir /= "Files";
+    packageManifestDir /= texmfPrefix;
+    packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
 
-    // create package definition directory
-    Directory::Create(packageDefinitionDir);
+    // create package manifest directory
+    Directory::Create(packageManifestDir);
 
-    // path to package definition file, e.g.:
+    // path to package manifest file, e.g.:
     // /mypackages/a0poster/Files/texmf/tpm/packages/a0poster.tpm
-    PathName packageDefinitionFile(packageDefinitionDir, packageInfo.deploymentName);
-    packageDefinitionFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+    PathName packageManifestFile(packageManifestDir, packageInfo.deploymentName);
+    packageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 
 #if 1
     // keep the time-stamp, if possible
@@ -1567,8 +1567,8 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
     }
 #endif
 
-    // create the package definition file
-    PackageManager::WritePackageDefinitionFile(packageDefinitionFile, packageInfo, packageInfo.timePackaged);
+    // create the package manifest file
+    PackageManager::WritePackageManifestFile(packageManifestFile, packageInfo, packageInfo.timePackaged);
 
     string command;
 
@@ -1675,19 +1675,19 @@ map<string, MpcPackageInfo> PackageCreator::LoadDbHeavy(const PathName& reposito
   // create a temporary directory
   unique_ptr<TemporaryDirectory> tempDir;
 
-  // extract all package definition files
+  // extract all package manifest files
   Extract(pathDbHeavy, GetDbArchiveFileType(), tempDir->GetPathName());
 
-  // parse all package definition files
-  PathName directory = tempDir->GetPathName() / texmfPrefix / MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
-  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+  // parse all package manifest files
+  PathName directory = tempDir->GetPathName() / texmfPrefix / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
   DirectoryEntry direntry;
   while (pLister->GetNext(direntry))
   {
-    PathName packageDefinitionFile(directory);
-    packageDefinitionFile /= direntry.name;
-    PackageInfo packageInfo = PackageManager::ReadPackageDefinitionFile(packageDefinitionFile, texmfPrefix);
-    packageInfo.deploymentName = packageDefinitionFile.GetFileNameWithoutExtension().ToString();
+    PathName packageManifestFile(directory);
+    packageManifestFile /= direntry.name;
+    PackageInfo packageInfo = PackageManager::ReadPackageManifestFile(packageManifestFile, texmfPrefix);
+    packageInfo.deploymentName = packageManifestFile.GetFileNameWithoutExtension().ToString();
     packageTable[packageInfo.deploymentName] = packageInfo;
   }
 
@@ -1853,14 +1853,14 @@ void PackageCreator::ReadList(const PathName& path, set<string>& packageList)
   stream.Close();
 }
 
-void PackageCreator::DisassemblePackage(const PathName& packageDefinitionFile, const PathName& sourceDir, const PathName& stagingDir)
+void PackageCreator::DisassemblePackage(const PathName& packageManifestFile, const PathName& sourceDir, const PathName& stagingDir)
 {
-  // parse the package definition file
-  Verbose(T_("Parsing %s..."), Q_(packageDefinitionFile));
-  PackageInfo packageInfo = PackageManager::ReadPackageDefinitionFile(packageDefinitionFile, texmfPrefix);
+  // parse the package manifest file
+  Verbose(T_("Parsing %s..."), Q_(packageManifestFile));
+  PackageInfo packageInfo = PackageManager::ReadPackageManifestFile(packageManifestFile, texmfPrefix);
 
-  // remove the package definition file from the RunFiles list
-  const char* lpszRelPath = Utils::GetRelativizedPath(packageDefinitionFile.GetData(), sourceDir.GetData());
+  // remove the package manifest file from the RunFiles list
+  const char* lpszRelPath = Utils::GetRelativizedPath(packageManifestFile.GetData(), sourceDir.GetData());
   if (lpszRelPath != nullptr)
   {
     vector<string>::iterator it;
@@ -1879,11 +1879,11 @@ void PackageCreator::DisassemblePackage(const PathName& packageDefinitionFile, c
 
   // determine the deployment name, e.g.:
   // a0poster
-  packageInfo.deploymentName = packageDefinitionFile.GetFileNameWithoutExtension().ToString();
+  packageInfo.deploymentName = packageManifestFile.GetFileNameWithoutExtension().ToString();
 
   Verbose(" %s (%u files)...", packageInfo.deploymentName.c_str(), static_cast<unsigned>(packageInfo.GetNumFiles()));
 
-  // copy files and calculate checksums; the package definition file
+  // copy files and calculate checksums; the package manifest file
   // has been removed from the RunFiles list
   FileDigestTable fileDigests;
   MD5CopyFiles(packageInfo.runFiles, sourceDir, nullptr, stagingDir, "Files", fileDigests);
@@ -1899,25 +1899,25 @@ void PackageCreator::DisassemblePackage(const PathName& packageDefinitionFile, c
   // /mypackages/a0poster/Description
   InitializeStagingDirectory(stagingDir, packageInfo, fileDigests, tdsDigest);
 
-  // write new package Definition file, e.g.:
+  // write new package manifest file, e.g.:
   // /mypackages/a0poster/Files/texmf/tpm/packages/a0poster.tpm
   MpcPackageInfo mpcPackageInfo(packageInfo);
   mpcPackageInfo.digest = tdsDigest;
   mpcPackageInfo.path = stagingDir;
   CollectPackage(mpcPackageInfo);
-  PathName packageDefinitionDir(stagingDir);
-  packageDefinitionDir /= "Files";
-  packageDefinitionDir /= texmfPrefix;
-  packageDefinitionDir /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
-  Directory::Create(packageDefinitionDir);
-  PackageManager::WritePackageDefinitionFile(PathName(packageDefinitionDir, packageInfo.deploymentName).AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX), mpcPackageInfo, 0);
+  PathName packageManifestDir(stagingDir);
+  packageManifestDir /= "Files";
+  packageManifestDir /= texmfPrefix;
+  packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  Directory::Create(packageManifestDir);
+  PackageManager::WritePackageManifestFile(PathName(packageManifestDir, packageInfo.deploymentName).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), mpcPackageInfo, 0);
 }
 
 void PackageCreator::Run(int argc, const char** argv)
 {
   vector<string> stagingRoots;
 
-  PathName packageDefinitionFile;
+  PathName packageManifestFile;
   PathName repository;
   PathName stagingDir;
   PathName texmfParent;
@@ -1997,7 +1997,7 @@ void PackageCreator::Run(int argc, const char** argv)
       tpmDir = optArg;
       break;
     case OPT_TPM_FILE:
-      packageDefinitionFile = optArg;
+      packageManifestFile = optArg;
       break;
     case OPT_UPDATE_REPOSITORY:
       optUpdateRepository = true;
@@ -2050,9 +2050,9 @@ void PackageCreator::Run(int argc, const char** argv)
   }
   else if (optDisassemblePackage)
   {
-    if (packageDefinitionFile.Empty())
+    if (packageManifestFile.Empty())
     {
-      FatalError(T_("No package definition file has been specified."));
+      FatalError(T_("No package manifest file has been specified."));
     }
     if (texmfParent.Empty())
     {
@@ -2062,7 +2062,7 @@ void PackageCreator::Run(int argc, const char** argv)
     {
       FatalError(T_("No staging directory has been specified."));
     }
-    DisassemblePackage(packageDefinitionFile, texmfParent, stagingDir);
+    DisassemblePackage(packageManifestFile, texmfParent, stagingDir);
   }
   else if (optUpdateRepository || optBuildTDS)
   {
@@ -2094,7 +2094,7 @@ void PackageCreator::Run(int argc, const char** argv)
       BuildTDS(packageTable, texmfParent, *dbLight);
       if (!tpmDir.Empty())
       {
-        WritePackageDefinitionFiles(packageTable, tpmDir, *dbLight);
+        WritePackageManifestFiles(packageTable, tpmDir, *dbLight);
       }
       // write mpm.ini
       PathName iniFile(texmfParent);

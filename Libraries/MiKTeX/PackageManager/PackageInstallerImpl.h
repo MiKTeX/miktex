@@ -547,10 +547,10 @@ private:
   void DoInstall();
 
 private:
-  void SetUpPackageDefinitionFiles(const MiKTeX::Core::PathName& directory);
+  void SetUpPackageManifestFiles(const MiKTeX::Core::PathName& directory);
 
 private:
-  void HandleObsoletePackageDefinitionFiles(const MiKTeX::Core::PathName& temporaryDirectory);
+  void HandleObsoletePackageManifestFiles(const MiKTeX::Core::PathName& temporaryDirectory);
 
 private:
   void CleanUpUserDatabase();

@@ -1244,7 +1244,7 @@ string Application::GetDirectories(const string& deploymentName)
   for (const string& fileName : pi.runFiles)
   {
     PathName path(fileName);
-    if (!path.HasExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX))
+    if (!path.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
     {
       directories.insert(path.RemoveFileSpec().ToString());
     }

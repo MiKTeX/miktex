@@ -331,7 +331,7 @@ void ExpatTpmParser::Parse(const PathName& path, const string& texmfPrefix)
     if (st == XML_STATUS_ERROR)
     {
       traceError->WriteLine("libmpm", XML_ErrorString(XML_GetErrorCode(p)));
-      MIKTEX_FATAL_ERROR_2(T_("The package definition file could not be parsed."), "path", path.ToString(), "line", std::to_string(XML_GetCurrentLineNumber(p)), "column", std::to_string(XML_GetCurrentColumnNumber(p)));
+      MIKTEX_FATAL_ERROR_2(T_("The package manifest file could not be parsed."), "path", path.ToString(), "line", std::to_string(XML_GetCurrentLineNumber(p)), "column", std::to_string(XML_GetCurrentColumnNumber(p)));
     }
   }
 
