@@ -73,7 +73,7 @@ shared_ptr<Session> Session::Get()
 
 shared_ptr<Session> Session::TryGet()
 {
-  return SessionImpl::theSession.lock();
+  return SessionImpl::TryGetSession();
 }
 
 SessionImpl::SessionImpl() :
@@ -101,8 +101,8 @@ SessionImpl::~SessionImpl()
     {
 #if defined(MIKTEX_WINDOWS)
       ostringstream s;
-      s << "error: ~Session(): " << ex << endl;
-      OutputDebugStringA(s.str().c_str());
+      s << "error: ~Session(): " << ex;
+      OutputDebugStringW(StringUtil::UTF8ToWideChar(s.str()).c_str());
 #endif
       cerr << "error: ~Session(): " << ex << endl;
     }
@@ -116,8 +116,8 @@ SessionImpl::~SessionImpl()
     {
 #if defined(MIKTEX_WINDOWS)
       ostringstream s;
-      s << "error: ~Session(): " << ex.what() << endl;
-      OutputDebugStringA(s.str().c_str());
+      s << "error: ~Session(): " << ex.what();
+      OutputDebugStringW(StringUtil::UTF8ToWideChar(s.str()).c_str());
 #endif
       cerr << "error: ~Session(): " << ex.what() << endl;
     }
