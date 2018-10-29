@@ -44,11 +44,18 @@ bool File::Exists(const PathName& path)
 
 void File::Delete(const PathName& path, FileDeleteOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
 
-  if (options[FileDeleteOption::UpdateFndb] && session->IsTEXMFFile(path) && Fndb::FileExists(path))
+  if (options[FileDeleteOption::UpdateFndb])
   {
-    Fndb::Remove(path);
+    if (session == nullptr)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    if (session->IsTEXMFFile(path) && Fndb::FileExists(path))
+    {
+      Fndb::Remove(path);
+    }
   }
 
 #if defined(MIKTEX_WINDOWS)
@@ -77,7 +84,10 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
     {
       throw;
     }
-    session->trace_files->WriteFormattedLine("core", T_("file %s is in use"), Q_(path));
+    if (session != nullptr)
+    {
+      session->trace_files->WriteFormattedLine("core", T_("file %s is in use"), Q_(path));
+    }
     done = false;
 #else
     throw;
