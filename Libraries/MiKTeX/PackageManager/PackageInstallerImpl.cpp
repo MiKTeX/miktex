@@ -2079,12 +2079,12 @@ void PackageInstallerImpl::Download()
   Download(MIKTEX_MPM_DB_LIGHT_FILE_NAME);
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
-    progressInfo.deploymentName = MIKTEX_MPM_DB_FULL_FILE_NAME_NO_SUFFIX;
+    progressInfo.deploymentName = MIKTEX_TPM_ARCHIVE_FILE_NAME_NO_SUFFIX;
     progressInfo.displayName = T_("package manifest files");
     progressInfo.cbPackageDownloadCompleted = 0;
     progressInfo.cbPackageDownloadTotal = MPM_APSIZE_DB_FULL;
   }
-  Download(MIKTEX_MPM_DB_FULL_FILE_NAME);
+  Download(MIKTEX_TPM_ARCHIVE_FILE_NAME);
 
   // download archive files
   for (const string& p : toBeInstalled)
@@ -2146,13 +2146,13 @@ void PackageInstallerImpl::SetUpPackageManifestFiles(const PathName& directory)
   if (repositoryType == RepositoryType::Remote)
   {
     // download the database file
-    pathDatabase = directory / MIKTEX_MPM_DB_FULL_FILE_NAME;
-    Download(MakeUrl(MIKTEX_MPM_DB_FULL_FILE_NAME), pathDatabase);
+    pathDatabase = directory / MIKTEX_TPM_ARCHIVE_FILE_NAME;
+    Download(MakeUrl(MIKTEX_TPM_ARCHIVE_FILE_NAME), pathDatabase);
   }
   else
   {
     MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-    pathDatabase = repository / MIKTEX_MPM_DB_FULL_FILE_NAME;
+    pathDatabase = repository / MIKTEX_TPM_ARCHIVE_FILE_NAME;
   }
 
   // extract package defintion files

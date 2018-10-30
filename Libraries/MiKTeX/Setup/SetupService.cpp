@@ -883,7 +883,7 @@ void SetupServiceImpl::DoTheInstallation()
   }
   else
   {
-    pathDB = options.LocalPackageRepository / MIKTEX_MPM_DB_FULL_FILE_NAME;
+    pathDB = options.LocalPackageRepository / MIKTEX_TPM_ARCHIVE_FILE_NAME;
   }
   ReportLine(T_("Loading package database..."));
   packageManager->LoadDatabase(pathDB);
