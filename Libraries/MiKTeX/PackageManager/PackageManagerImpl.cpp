@@ -1038,7 +1038,7 @@ bool PackageManager::IsLocalPackageRepository(const PathName& path)
   }
 
   // local mirror of remote package repository?
-  if (File::Exists(PathName(path, MIKTEX_MPM_DB_LIGHT_FILE_NAME))
+  if (File::Exists(PathName(path, MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME))
     && File::Exists(PathName(path, MIKTEX_TPM_ARCHIVE_FILE_NAME)))
   {
     return true;

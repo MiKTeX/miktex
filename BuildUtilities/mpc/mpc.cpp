@@ -138,7 +138,7 @@ protected:
   PathName GetDbFileName(int id, const VersionNumber& versionNumber);
 
 protected:
-  PathName GetDbLightFileName();
+  PathName GetRepositoryManifestArchiveFileName();
 
 protected:
   PathName GetTpmArchiveFileName();
@@ -227,10 +227,10 @@ protected:
   void CollectPackages(const PathName& stagingRoot, map<string, MpcPackageInfo>& packageTable);
 
 protected:
-  void BuildTDS(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& dbLight);
+  void BuildTDS(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& repositoryManifest);
 
 protected:
-  void WritePackageManifestFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& dbLight);
+  void WritePackageManifestFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& repositoryManifest);
 
 protected:
   void ExecuteSystemCommand(const char* command, const PathName& workingDirectory);
@@ -245,7 +245,7 @@ protected:
   void RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const char* filter);
 
 protected:
-  void CreateRepositoryInformationFile(const PathName& repository, Cfg& dbLight, const map<string, MpcPackageInfo>& packageTable);
+  void CreateRepositoryInformationFile(const PathName& repository, Cfg& repositoryManifest, const map<string, MpcPackageInfo>& packageTable);
 
 protected:
   void CreateFileListFile(const map<string, MpcPackageInfo>& packageTable, const PathName& repository);
@@ -254,7 +254,7 @@ protected:
   void CleanUp(const PathName& repository);
 
 protected:
-  void WriteDatabase(const map<string, MpcPackageInfo>& packageTable, const PathName& repository, bool removeObsoleteRecords, Cfg& dbLight);
+  void WriteDatabase(const map<string, MpcPackageInfo>& packageTable, const PathName& repository, bool removeObsoleteSections, Cfg& repositoryManifest);
 
 protected:
   void Extract(const PathName& archiveFile, ArchiveFileType archiveFileType, const PathName& outDir);
@@ -266,19 +266,19 @@ protected:
   void CompressArchive(const PathName& toBeCompressed, ArchiveFileType archiveFileType, const PathName& outFile);
 
 protected:
-  ArchiveFileType CreateArchiveFile(MpcPackageInfo& packageInfo, const PathName& repository, Cfg& dblight);
+  ArchiveFileType CreateArchiveFile(MpcPackageInfo& packageInfo, const PathName& repository, Cfg& repositoryManifest);
 
 protected:
   bool HavePackageArchiveFile(const PathName& repository, const string& deploymentName, PathName& archiveFile, ArchiveFileType& archiveFileType);
 
 protected:
-  unique_ptr<Cfg> LoadDbLight(const PathName& repository);
+  unique_ptr<Cfg> LoadRepositoryManifest(const PathName& repository);
 
 protected:
-  map<string, MpcPackageInfo> LoadDbHeavy(const PathName& repository);
+  map<string, MpcPackageInfo> LoadPackageManifests(const PathName& repository);
 
 protected:
-  void UpdateRepository(map<string, MpcPackageInfo>& packageTable, const PathName& repository, Cfg& dbLight);
+  void UpdateRepository(map<string, MpcPackageInfo>& packageTable, const PathName& repository, Cfg& repositoryManifest);
 
 protected:
   void ReadList(const PathName& path, map<string, PackageSpec>& mapPackageList);
@@ -468,7 +468,7 @@ PathName PackageCreator::GetDbFileName(int id, const VersionNumber& versionNumbe
   return ret;
 }
 
-PathName PackageCreator::GetDbLightFileName()
+PathName PackageCreator::GetRepositoryManifestArchiveFileName()
 {
   return GetDbFileName(1, majorMinorVersion);
 }
@@ -985,7 +985,7 @@ void PackageCreator::CollectPackages(const PathName& stagingRoot, map<string, Mp
   lister->Close();
 }
 
-void PackageCreator::BuildTDS(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& dbLight)
+void PackageCreator::BuildTDS(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& repositoryManifest)
 {
   for (const pair<string, MpcPackageInfo>& p : packageTable)
   {
@@ -997,24 +997,24 @@ void PackageCreator::BuildTDS(const map<string, MpcPackageInfo>& packageTable, c
     // assemble package
     CopyPackage(p.second, destDir);
 
-    // update database records
+    // update manifest
     string level;
     level = GetPackageLevel(p.second);
-    dbLight.PutValue(p.second.deploymentName, "Level", level);
-    dbLight.PutValue(p.second.deploymentName, "MD5", p.second.digest.ToString());
-    dbLight.PutValue(p.second.deploymentName, "TimePackaged", std::to_string(programStartTime));
+    repositoryManifest.PutValue(p.second.deploymentName, "Level", level);
+    repositoryManifest.PutValue(p.second.deploymentName, "MD5", p.second.digest.ToString());
+    repositoryManifest.PutValue(p.second.deploymentName, "TimePackaged", std::to_string(programStartTime));
     if (!p.second.version.empty())
     {
-      dbLight.PutValue(p.second.deploymentName, "Version", p.second.version);
+      repositoryManifest.PutValue(p.second.deploymentName, "Version", p.second.version);
     }
     if (!p.second.targetSystem.empty())
     {
-      dbLight.PutValue(p.second.deploymentName, "TargetSystem", p.second.targetSystem);
+      repositoryManifest.PutValue(p.second.deploymentName, "TargetSystem", p.second.targetSystem);
     }
   }
 }
 
-void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& dbLight)
+void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& repositoryManifest)
 {
   // create package manifest directory
   Directory::Create(destDir);
@@ -1039,7 +1039,7 @@ void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>
     // write the package manifest file
     string str;
     time_t timePackaged;
-    if (dbLight.TryGetValue(p.second.deploymentName, "TimePackaged", str))
+    if (repositoryManifest.TryGetValue(p.second.deploymentName, "TimePackaged", str))
     {
       timePackaged = std::stoi(str);
     }
@@ -1099,10 +1099,10 @@ void PackageCreator::RunArchiver(ArchiveFileType archiveFileType, const PathName
   ExecuteSystemCommand(command.c_str());
 }
 
-void PackageCreator::CreateRepositoryInformationFile(const PathName& repository, Cfg& dbLight, const map<string, MpcPackageInfo>& packageTable)
+void PackageCreator::CreateRepositoryInformationFile(const PathName& repository, Cfg& repositoryManifest, const map<string, MpcPackageInfo>& packageTable)
 {
   int numberOfPackages = 0;
-  for (const shared_ptr<Cfg::Key>& key : dbLight.GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : repositoryManifest.GetKeys())
   {
     numberOfPackages += 1;
   }
@@ -1111,7 +1111,7 @@ void PackageCreator::CreateRepositoryInformationFile(const PathName& repository,
   {
     MpcPackageInfo pi =p.second;
     string str;
-    if (dbLight.TryGetValue(p.second.deploymentName, "TimePackaged", str))
+    if (repositoryManifest.TryGetValue(p.second.deploymentName, "TimePackaged", str))
     {
       pi.timePackaged = std::stoi(str);
     }
@@ -1276,7 +1276,7 @@ void PackageCreator::CleanUp(const PathName& repository)
   }
 }
 
-void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTable, const PathName& repository, bool removeObsoleteRecords, Cfg& dbLight)
+void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTable, const PathName& repository, bool removeObsoleteSections, Cfg& repositoryManifest)
 {
   // create repository
   Directory::Create(repository);
@@ -1284,11 +1284,11 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   // change into repository
   Directory::SetCurrent(repository);
 
-  if (removeObsoleteRecords)
+  if (removeObsoleteSections)
   {
-    // find obsolete packages
+    // find obsolete package sections
     vector<string> obsoletePackages;
-    for (const shared_ptr<Cfg::Key>& key : dbLight.GetKeys())
+    for (const shared_ptr<Cfg::Key>& key : repositoryManifest.GetKeys())
     {
       map<string, MpcPackageInfo>::const_iterator it = packageTable.find(key->GetName());
       if (it == packageTable.end() || IsToBeIgnored(it->second))
@@ -1297,19 +1297,19 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
       }
     }
 
-    // remove obsolete package records
+    // remove obsolete package sections
     for (const string& fileName : obsoletePackages)
     {
-      dbLight.DeleteKey(fileName);
+      repositoryManifest.DeleteKey(fileName);
     }
   }
 
   // create temporary mpm.ini
   unique_ptr<TemporaryFile> tempIni = TemporaryFile::Create(PathName(repository, MIKTEX_MPM_INI_FILENAME));
-  dbLight.Write(tempIni->GetPathName());
+  repositoryManifest.Write(tempIni->GetPathName());
 
-  // create light-weight database
-  PathName dbPath1 = GetDbLightFileName();
+  // create repository manifest archive
+  PathName dbPath1 = GetRepositoryManifestArchiveFileName();
   RunArchiver(GetDbArchiveFileType(), dbPath1, MIKTEX_MPM_INI_FILENAME);
 
   // delete temporary mpm.ini
@@ -1322,9 +1322,9 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   Directory::Create(packageManifestDir);
 
   // write all package manifest files
-  WritePackageManifestFiles(packageTable, packageManifestDir, dbLight);
+  WritePackageManifestFiles(packageTable, packageManifestDir, repositoryManifest);
 
-  // create heavy-weight database
+  // create TPM archive
   PathName dbPath2 = GetTpmArchiveFileName();
   RunArchiver(GetDbArchiveFileType(), dbPath2, texmfPrefix.c_str());
 
@@ -1336,7 +1336,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   CleanUp(repository);
 
   // create pr.ini
-  CreateRepositoryInformationFile(repository, dbLight, packageTable);
+  CreateRepositoryInformationFile(repository, repositoryManifest, packageTable);
 }
 
 void PackageCreator::Extract(const PathName& archiveFile, ArchiveFileType archiveFileType, const PathName& outDir)
@@ -1461,7 +1461,7 @@ bool PackageCreator::HavePackageArchiveFile(const PathName& repository, const st
   return archiveFileType != ArchiveFileType::None;
 }
 
-ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, const PathName& repository, Cfg& dblight)
+ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, const PathName& repository, Cfg& repositoryManifest)
 {
   PathName archiveFile;
   ArchiveFileType archiveFileType(ArchiveFileType::None);
@@ -1477,9 +1477,9 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
     // don't remake archive file if there are no changes
     string strMD5;
     string strTimePackaged;
-    if (dblight.TryGetValue(packageInfo.deploymentName, "MD5", strMD5)
+    if (repositoryManifest.TryGetValue(packageInfo.deploymentName, "MD5", strMD5)
       && MD5::Parse(strMD5.c_str()) == packageInfo.digest
-      && dblight.TryGetValue(packageInfo.deploymentName, "TimePackaged", strTimePackaged))
+      && repositoryManifest.TryGetValue(packageInfo.deploymentName, "TimePackaged", strTimePackaged))
     {
       packageInfo.timePackaged = atoi(strTimePackaged.c_str());
       reuseExisting = true;
@@ -1555,9 +1555,9 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
     // keep the time-stamp, if possible
     string strMD5;
     string strTimePackaged;
-    if (dblight.TryGetValue(packageInfo.deploymentName, "MD5", strMD5)
+    if (repositoryManifest.TryGetValue(packageInfo.deploymentName, "MD5", strMD5)
       && MD5::Parse(strMD5.c_str()) == packageInfo.digest
-      && dblight.TryGetValue(packageInfo.deploymentName, "TimePackaged", strTimePackaged))
+      && repositoryManifest.TryGetValue(packageInfo.deploymentName, "TimePackaged", strTimePackaged))
     {
       packageInfo.timePackaged = atoi(strTimePackaged.c_str());
     }
@@ -1627,56 +1627,56 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
   return archiveFileType;
 }
 
-unique_ptr<Cfg> PackageCreator::LoadDbLight(const PathName& repository)
+unique_ptr<Cfg> PackageCreator::LoadRepositoryManifest(const PathName& repository)
 {
-  // path to the light-weight database file
-  PathName pathDbLight = repository;
-  pathDbLight /= GetDbLightFileName();
+  // path to the repository manifest archive file
+  PathName pathRepositoryManifestArchive = repository;
+  pathRepositoryManifestArchive /= GetRepositoryManifestArchiveFileName();
 #if defined(MIKTEX_WINDOWS)
-  pathDbLight.ConvertToUnix();
+  pathRepositoryManifestArchive.ConvertToUnix();
 #endif
 
-  // check to see if the database file exists
-  if (!File::Exists(pathDbLight))
+  // check to see if the archive file exists
+  if (!File::Exists(pathRepositoryManifestArchive))
   {
-    FatalError("The light-weight database does not exist.");
+    FatalError("The repository manifest archive file does not exist.");
   }
 
   // create a temporary file
   unique_ptr<TemporaryFile> tempFile = TemporaryFile::Create();
 
   // extract mpm.ini:
-  ExtractFile(pathDbLight, GetDbArchiveFileType(), MIKTEX_MPM_INI_FILENAME, tempFile->GetPathName());
+  ExtractFile(pathRepositoryManifestArchive, GetDbArchiveFileType(), MIKTEX_MPM_INI_FILENAME, tempFile->GetPathName());
 
   // parse mpm.ini
-  unique_ptr<Cfg> dbLight(Cfg::Create());
-  dbLight->Read(tempFile->GetPathName());
+  unique_ptr<Cfg> repositoryManifest(Cfg::Create());
+  repositoryManifest->Read(tempFile->GetPathName());
 
-  return dbLight;
+  return repositoryManifest;
 }
 
-map<string, MpcPackageInfo> PackageCreator::LoadDbHeavy(const PathName& repository)
+map<string, MpcPackageInfo> PackageCreator::LoadPackageManifests(const PathName& repository)
 {
   map<string, MpcPackageInfo> packageTable;
 
-  // path to the heavy-weight database file
-  PathName pathDbHeavy = repository;
-  pathDbHeavy /= GetTpmArchiveFileName();
+  // path to the TPM archive file
+  PathName pathTpmArchive = repository;
+  pathTpmArchive /= GetTpmArchiveFileName();
 #if defined(MIKTEX_WINDOWS)
-  pathDbHeavy.ConvertToUnix();
+  pathTpmArchive.ConvertToUnix();
 #endif
 
-  // check to see if the database file exists
-  if (!File::Exists(pathDbHeavy))
+  // check to see if the archive file exists
+  if (!File::Exists(pathTpmArchive))
   {
-    FatalError("The heavy-weight database does not exist.");
+    FatalError("The TPM archive file does not exist.");
   }
 
   // create a temporary directory
   unique_ptr<TemporaryDirectory> tempDir;
 
   // extract all package manifest files
-  Extract(pathDbHeavy, GetDbArchiveFileType(), tempDir->GetPathName());
+  Extract(pathTpmArchive, GetDbArchiveFileType(), tempDir->GetPathName());
 
   // parse all package manifest files
   PathName directory = tempDir->GetPathName() / texmfPrefix / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
@@ -1694,7 +1694,7 @@ map<string, MpcPackageInfo> PackageCreator::LoadDbHeavy(const PathName& reposito
   return packageTable;
 }
 
-void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable, const PathName& repository, Cfg& dbLight)
+void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable, const PathName& repository, Cfg& repositoryManifest)
 {
   for (pair<const string, MpcPackageInfo>& p : packageTable)
   {
@@ -1706,12 +1706,12 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable,
     // update level field
     string level;
     level = GetPackageLevel(p.second);
-    dbLight.PutValue(p.second.deploymentName, "Level", level);
+    repositoryManifest.PutValue(p.second.deploymentName, "Level", level);
 
 #if 0
     // get TDS digest of already existing package
     string str;
-    if (dbLight.TryGetValue(it->second.deploymentName, "MD5", str))
+    if (repositoryManifest.TryGetValue(it->second.deploymentName, "MD5", str))
     {
       // don't remake archive file if there are no changes
       PathName archiveFile;
@@ -1728,14 +1728,14 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable,
 #endif
 
     // create the archive file
-    ArchiveFileType archiveFileType = CreateArchiveFile(p.second, repository, dbLight);
+    ArchiveFileType archiveFileType = CreateArchiveFile(p.second, repository, repositoryManifest);
 
-    // update database records
-    dbLight.PutValue(p.second.deploymentName, "MD5", p.second.digest.ToString());
-    dbLight.PutValue(p.second.deploymentName, "TimePackaged", std::to_string(p.second.timePackaged));
-    dbLight.PutValue(p.second.deploymentName, "CabSize", std::to_string(static_cast<int>(p.second.archiveFileSize)));
-    dbLight.PutValue(p.second.deploymentName, "CabMD5", p.second.archiveFileDigest.ToString());
-    dbLight.PutValue(p.second.deploymentName, "Type",
+    // update repository manifest
+    repositoryManifest.PutValue(p.second.deploymentName, "MD5", p.second.digest.ToString());
+    repositoryManifest.PutValue(p.second.deploymentName, "TimePackaged", std::to_string(p.second.timePackaged));
+    repositoryManifest.PutValue(p.second.deploymentName, "CabSize", std::to_string(static_cast<int>(p.second.archiveFileSize)));
+    repositoryManifest.PutValue(p.second.deploymentName, "CabMD5", p.second.archiveFileDigest.ToString());
+    repositoryManifest.PutValue(p.second.deploymentName, "Type",
       (archiveFileType == ArchiveFileType::MSCab ? "MSCab"
         : (archiveFileType == ArchiveFileType::TarBzip2 ? "TarBzip2"
           : (archiveFileType == ArchiveFileType::TarLzma ? "TarLzma"
@@ -1744,26 +1744,26 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable,
     if (p.second.version.empty())
     {
       string oldVersion;
-      if (dbLight.TryGetValue(p.second.deploymentName, "Version", oldVersion))
+      if (repositoryManifest.TryGetValue(p.second.deploymentName, "Version", oldVersion))
       {
-        dbLight.DeleteValue(p.second.deploymentName, "Version");
+        repositoryManifest.DeleteValue(p.second.deploymentName, "Version");
       }
     }
     else
     {
-      dbLight.PutValue(p.second.deploymentName, "Version", p.second.version);
+      repositoryManifest.PutValue(p.second.deploymentName, "Version", p.second.version);
     }
     if (p.second.targetSystem.empty())
     {
       string oldTargetSystem;
-      if (dbLight.TryGetValue(p.second.deploymentName, "TargetSystem", oldTargetSystem))
+      if (repositoryManifest.TryGetValue(p.second.deploymentName, "TargetSystem", oldTargetSystem))
       {
-        dbLight.DeleteValue(p.second.deploymentName, "TargetSystem");
+        repositoryManifest.DeleteValue(p.second.deploymentName, "TargetSystem");
       }
     }
     else
     {
-      dbLight.PutValue(p.second.deploymentName, "TargetSystem", p.second.targetSystem);
+      repositoryManifest.PutValue(p.second.deploymentName, "TargetSystem", p.second.targetSystem);
     }
   }
 }
@@ -2037,16 +2037,16 @@ void PackageCreator::Run(int argc, const char** argv)
     {
       FatalError(T_("No repository location was specified."));
     }
-    Verbose(T_("Loading database from %s..."), Q_(repository));
-    unique_ptr<Cfg> dbLight(LoadDbLight(repository));
-    map<string, MpcPackageInfo> packageTable = LoadDbHeavy(repository);
+    Verbose(T_("Loading repository manifest from %s..."), Q_(repository));
+    unique_ptr<Cfg> repositoryManifest(LoadRepositoryManifest(repository));
+    map<string, MpcPackageInfo> packageTable = LoadPackageManifests(repository);
     Verbose(T_("Reading staging directory %s..."), Q_(stagingDir));
     MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.GetData());
     CollectPackage(packageInfo);
     packageTable[packageInfo.deploymentName] = packageInfo;
-    UpdateRepository(packageTable, repository, *dbLight);
+    UpdateRepository(packageTable, repository, *repositoryManifest);
     Verbose(T_("Writing database to %s..."), Q_(repository));
-    WriteDatabase(packageTable, repository, false, *dbLight);
+    WriteDatabase(packageTable, repository, false, *repositoryManifest);
   }
   else if (optDisassemblePackage)
   {
@@ -2090,17 +2090,17 @@ void PackageCreator::Run(int argc, const char** argv)
       {
         FatalError(T_("No TEXMF parent directory has been specified."));
       }
-      unique_ptr<Cfg> dbLight(Cfg::Create());
-      BuildTDS(packageTable, texmfParent, *dbLight);
+      unique_ptr<Cfg> repositoryManifest(Cfg::Create());
+      BuildTDS(packageTable, texmfParent, *repositoryManifest);
       if (!tpmDir.Empty())
       {
-        WritePackageManifestFiles(packageTable, tpmDir, *dbLight);
+        WritePackageManifestFiles(packageTable, tpmDir, *repositoryManifest);
       }
       // write mpm.ini
       PathName iniFile(texmfParent);
       iniFile /= texmfPrefix;
       iniFile /= MIKTEX_PATH_MPM_INI;
-      dbLight->Write(iniFile);
+      repositoryManifest->Write(iniFile);
     }
     else if (optUpdateRepository)
     {
@@ -2108,8 +2108,8 @@ void PackageCreator::Run(int argc, const char** argv)
       {
         FatalError(T_("No repository location was specified."));
       }
-      // load light-weight database
-      unique_ptr<Cfg> dbLight(LoadDbLight(repository));
+      // load repository manifest archive
+      unique_ptr<Cfg> repositoryManifest(LoadRepositoryManifest(repository));
 #if 1
       bool autoCategorize = true;
       if (autoCategorize)
@@ -2159,8 +2159,8 @@ void PackageCreator::Run(int argc, const char** argv)
         }
       }
 #endif
-      UpdateRepository(packageTable, repository, *dbLight);
-      WriteDatabase(packageTable, repository, true, *dbLight);
+      UpdateRepository(packageTable, repository, *repositoryManifest);
+      WriteDatabase(packageTable, repository, true, *repositoryManifest);
     }
   }
   else

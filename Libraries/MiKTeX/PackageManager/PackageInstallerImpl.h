@@ -43,19 +43,19 @@ BEGIN_INTERNAL_NAMESPACE;
 
 const time_t Y2000 = 946681200;
 
-class DbLight
+class RepositoryManifest
 {
 private:
   std::unique_ptr<MiKTeX::Core::Cfg> cfg;
 
 public:
-  DbLight() :
+  RepositoryManifest() :
     cfg(MiKTeX::Core::Cfg::Create())
   {
   }
 
 public:
-  virtual ~DbLight()
+  virtual ~RepositoryManifest()
   {
   }
 
@@ -426,13 +426,13 @@ private:
   MiKTeX::Core::PathName downloadDirectory;
 
 private:
-  DbLight dbLight;
+  RepositoryManifest repositoryManifest;
 
 private:
-  void InstallDbLight();
+  void InstallRepositoryManifest();
 
 private:
-  void LoadDbLight(bool download);
+  void LoadRepositoryManifest(bool download);
 
 private:
   MiKTeX::Packages::RepositoryType repositoryType = MiKTeX::Packages::RepositoryType::Unknown;

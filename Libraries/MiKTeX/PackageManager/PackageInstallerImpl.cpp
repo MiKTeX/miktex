@@ -310,7 +310,7 @@ void PackageInstallerImpl::ExtractFiles(const PathName& archiveFileName, Archive
   pExtractor->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
 }
 
-void PackageInstallerImpl::InstallDbLight()
+void PackageInstallerImpl::InstallRepositoryManifest()
 {
   // we must have a package repository
   NeedRepository();
@@ -337,7 +337,7 @@ void PackageInstallerImpl::InstallDbLight()
     // we need a temporary file when we download from the Internet
     unique_ptr<TemporaryFile> tempFile;
 
-    ReportLine(T_("loading lightweight database..."));
+    ReportLine(T_("loading package repository manifest..."));
 
     // full path to the database file
     PathName pathZzdb1;
@@ -353,19 +353,19 @@ void PackageInstallerImpl::InstallDbLight()
       // update progress indicator
       {
         lock_guard<mutex> lockGuard(progressIndicatorMutex);
-        progressInfo.deploymentName = MIKTEX_MPM_DB_LIGHT_FILE_NAME_NO_SUFFIX;
-        progressInfo.displayName = T_("Lightweight package database");
+        progressInfo.deploymentName = MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
+        progressInfo.displayName = T_("Package repository manifest");
         progressInfo.cbPackageDownloadCompleted = 0;
-        progressInfo.cbPackageDownloadTotal = MPM_APSIZE_DB_LIGHT;
+        progressInfo.cbPackageDownloadTotal = ZZDB1_SIZE;
       }
 
       // download the database file
-      Download(MakeUrl(MIKTEX_MPM_DB_LIGHT_FILE_NAME), pathZzdb1);
+      Download(MakeUrl(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME), pathZzdb1);
     }
     else
     {
       MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-      pathZzdb1 = repository / MIKTEX_MPM_DB_LIGHT_FILE_NAME;
+      pathZzdb1 = repository / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME;
     }
 
     // unpack database
@@ -397,9 +397,9 @@ void PackageInstallerImpl::InstallDbLight()
   }
 }
 
-void PackageInstallerImpl::LoadDbLight(bool download)
+void PackageInstallerImpl::LoadRepositoryManifest(bool download)
 {
-  dbLight.Clear();
+  repositoryManifest.Clear();
 
 #if 1
   // path to mpm.ini
@@ -432,17 +432,17 @@ void PackageInstallerImpl::LoadDbLight(bool download)
   time_t ONE_DAY_IN_SECONDS = 86400;
   if (download || !File::Exists(pathMpmIni) || File::GetLastWriteTime(pathMpmIni) + ONE_DAY_IN_SECONDS < time(nullptr))
   {
-    InstallDbLight();
+    InstallRepositoryManifest();
   }
 
   // load mpm.ini
-  dbLight.Read(pathMpmIni);
+  repositoryManifest.Read(pathMpmIni);
 
   // report digest
 #if 0
   MD5 md5 = MD5::FromFile(pathMpmIni.GetData());
 #endif
-  ReportLine(fmt::format(T_("lightweight database digest: {0}"), dbLight.GetDigest().ToString()));
+  ReportLine(fmt::format(T_("package repository digest: {0}"), repositoryManifest.GetDigest().ToString()));
 }
 
 int CompareSerieses(const string& ver1, const string& ver2)
@@ -473,21 +473,21 @@ void PackageInstallerImpl::FindUpdates()
 
   UpdateDb();
 
-  LoadDbLight(false);
+  LoadRepositoryManifest(false);
 
   updates.clear();
 
-  for (string deploymentName = dbLight.FirstPackage(); !deploymentName.empty(); deploymentName = dbLight.NextPackage())
+  for (string deploymentName = repositoryManifest.FirstPackage(); !deploymentName.empty(); deploymentName = repositoryManifest.NextPackage())
   {
     Notify();
 
     UpdateInfo updateInfo;
     updateInfo.deploymentName = deploymentName;
-    updateInfo.timePackaged = dbLight.GetTimePackaged(deploymentName);
-    updateInfo.version = dbLight.GetPackageVersion(deploymentName);
+    updateInfo.timePackaged = repositoryManifest.GetTimePackaged(deploymentName);
+    updateInfo.version = repositoryManifest.GetPackageVersion(deploymentName);
 
 #if IGNORE_OTHER_SYSTEMS
-    string targetSystem = dbLight.GetPackageTargetSystem(deploymentName);
+    string targetSystem = repositoryManifest.GetPackageTargetSystem(deploymentName);
     bool isOthertargetSystem = !(targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG);
     if (isOthertargetSystem)
     {
@@ -495,7 +495,7 @@ void PackageInstallerImpl::FindUpdates()
     }
 #endif
 
-    bool isEssential = dbLight.GetPackageLevel(deploymentName) <= PackageLevel::Essential;
+    bool isEssential = repositoryManifest.GetPackageLevel(deploymentName) <= PackageLevel::Essential;
 
     const PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
 
@@ -540,7 +540,7 @@ void PackageInstallerImpl::FindUpdates()
     }
 
     // compare digests, version numbers and time stamps
-    MD5 md5 = dbLight.GetPackageDigest(deploymentName);
+    MD5 md5 = repositoryManifest.GetPackageDigest(deploymentName);
     if (md5 == package->digest)
     {
       // digests do match => no update necessary
@@ -564,7 +564,7 @@ void PackageInstallerImpl::FindUpdates()
     if (!isReleaseStateDiff)
     {
       // compare time stamps
-      time_t timePackaged = dbLight.GetTimePackaged(deploymentName);
+      time_t timePackaged = repositoryManifest.GetTimePackaged(deploymentName);
       if (timePackaged <= package->timePackaged)
       {
         // server has an older package => no update
@@ -672,9 +672,9 @@ void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
 {
   trace_mpm->WriteLine("libmpm", T_("searching for upgrades"));
   UpdateDb();
-  LoadDbLight(false);
+  LoadRepositoryManifest(false);
   upgrades.clear();
-  for (string deploymentName = dbLight.FirstPackage(); !deploymentName.empty(); deploymentName = dbLight.NextPackage())
+  for (string deploymentName = repositoryManifest.FirstPackage(); !deploymentName.empty(); deploymentName = repositoryManifest.NextPackage())
   {
     Notify();
     const PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
@@ -683,21 +683,21 @@ void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
       continue;
     }
 #if IGNORE_OTHER_SYSTEMS
-    string targetSystem = dbLight.GetPackageTargetSystem(deploymentName);
+    string targetSystem = repositoryManifest.GetPackageTargetSystem(deploymentName);
     if (!targetSystem.empty() && targetSystem != MIKTEX_SYSTEM_TAG)
     {
       continue;
     }
 #endif
-    if (dbLight.GetPackageLevel(deploymentName) > packageLevel)
+    if (repositoryManifest.GetPackageLevel(deploymentName) > packageLevel)
     {
       continue;
     }
     trace_mpm->WriteFormattedLine("libmpm", T_("%s: upgrade"), deploymentName.c_str());
     UpgradeInfo upgrade;
     upgrade.deploymentName = deploymentName;
-    upgrade.timePackaged = dbLight.GetTimePackaged(deploymentName);
-    upgrade.version = dbLight.GetPackageVersion(deploymentName);
+    upgrade.timePackaged = repositoryManifest.GetTimePackaged(deploymentName);
+    upgrade.version = repositoryManifest.GetPackageVersion(deploymentName);
     upgrades.push_back(upgrade);
   }
 }
@@ -1145,7 +1145,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
     if (repositoryType == RepositoryType::Remote)
     {
       progressInfo.cbPackageDownloadCompleted = 0;
-      progressInfo.cbPackageDownloadTotal = dbLight.GetArchiveFileSize(deploymentName);
+      progressInfo.cbPackageDownloadTotal = repositoryManifest.GetArchiveFileSize(deploymentName);
     }
   }
 
@@ -1153,7 +1153,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   Notify(Notification::InstallPackageStart);
 
   PathName pathArchiveFile;
-  ArchiveFileType aft = dbLight.GetArchiveFileType(deploymentName);
+  ArchiveFileType aft = repositoryManifest.GetArchiveFileType(deploymentName);
   unique_ptr<TemporaryFile> temporaryFile;
 
   // get hold of the archive file
@@ -1180,7 +1180,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
     // check to see whether the digest is good
     if (!CheckArchiveFile(deploymentName, pathArchiveFile, false))
     {
-      LoadDbLight(true);
+      LoadRepositoryManifest(true);
       CheckArchiveFile(deploymentName, pathArchiveFile, true);
     }
   }
@@ -1306,7 +1306,7 @@ void PackageInstallerImpl::DownloadPackage(const string& deploymentName)
     progressInfo.displayName = deploymentName;
     MIKTEX_ASSERT(repositoryType == RepositoryType::Remote);
     progressInfo.cbPackageDownloadCompleted = 0;
-    progressInfo.cbPackageDownloadTotal = dbLight.GetArchiveFileSize(deploymentName);
+    progressInfo.cbPackageDownloadTotal = repositoryManifest.GetArchiveFileSize(deploymentName);
     expectedSize = progressInfo.cbPackageDownloadTotal;
   }
 
@@ -1314,7 +1314,7 @@ void PackageInstallerImpl::DownloadPackage(const string& deploymentName)
   Notify(Notification::DownloadPackageStart);
 
   // make the archive file name
-  ArchiveFileType aft = dbLight.GetArchiveFileType(deploymentName);
+  ArchiveFileType aft = repositoryManifest.GetArchiveFileType(deploymentName);
   PathName pathArchiveFile = deploymentName;
   pathArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
 
@@ -1353,11 +1353,11 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
     }
     if (repositoryType == RepositoryType::Remote)
     {
-      int iSize = dbLight.GetArchiveFileSize(p);
+      int iSize = repositoryManifest.GetArchiveFileSize(p);
       if (iSize == 0)
       {
-        LoadDbLight(true);
-        if ((iSize = dbLight.GetArchiveFileSize(p)) == 0)
+        LoadRepositoryManifest(true);
+        if ((iSize = repositoryManifest.GetArchiveFileSize(p)) == 0)
         {
           MIKTEX_UNEXPECTED();
         }
@@ -1427,7 +1427,7 @@ bool PackageInstallerImpl::CheckArchiveFile(const std::string& deploymentName, c
   {
     MIKTEX_FATAL_ERROR_2(FatalError(ERROR_MISSING_PACKAGE), "package", deploymentName, "archiveFile", archiveFileName.ToString());
   }
-  MD5 digest1 = dbLight.GetArchiveFileDigest(deploymentName);
+  MD5 digest1 = repositoryManifest.GetArchiveFileDigest(deploymentName);
   MD5 digest2 = MD5::FromFile(archiveFileName.GetData());
   bool ok = (digest1 == digest2);
   if (!ok && mustBeOk)
@@ -1816,17 +1816,17 @@ void PackageInstallerImpl::InstallRemove(Role role)
   // collect all packages, if no packages were specified by the caller
   if (upgrade)
   {
-    LoadDbLight(true);
+    LoadRepositoryManifest(true);
 
-    string deploymentName = dbLight.FirstPackage();
+    string deploymentName = repositoryManifest.FirstPackage();
     if (deploymentName.empty())
     {
       MIKTEX_FATAL_ERROR(T_("No packages on server."));
     }
     do
     {
-      // search dblight
-      PackageLevel lvl = dbLight.GetPackageLevel(deploymentName);
+      // search repository manifest
+      PackageLevel lvl = repositoryManifest.GetPackageLevel(deploymentName);
       if (lvl > taskPackageLevel)
       {
         // not found or not required
@@ -1835,7 +1835,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
 #if IGNORE_OTHER_SYSTEMS
       // check target system
-      string targetSystem = dbLight.GetPackageTargetSystem(deploymentName);
+      string targetSystem = repositoryManifest.GetPackageTargetSystem(deploymentName);
       if (!(targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG))
       {
         continue;
@@ -1851,7 +1851,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
         }
 
         // check to see whether the archive file exists
-        ArchiveFileType aft = dbLight.GetArchiveFileType(deploymentName);
+        ArchiveFileType aft = repositoryManifest.GetArchiveFileType(deploymentName);
         PathName pathLocalArchiveFile = repository / deploymentName;
         pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
         if (!File::Exists(pathLocalArchiveFile))
@@ -1865,12 +1865,12 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
       // collect the package
       toBeInstalled.push_back(deploymentName);
-    } while (!(deploymentName = dbLight.NextPackage()).empty());
+    } while (!(deploymentName = repositoryManifest.NextPackage()).empty());
   }
   else if (!toBeInstalled.empty())
   {
     // we need mpm.ini, if packages are to be installed
-    LoadDbLight(false);
+    LoadRepositoryManifest(false);
   }
 
   // check dependencies
@@ -2019,12 +2019,12 @@ void PackageInstallerImpl::Download()
   ReportLine(fmt::format(T_("repository: {0}"), Q_(repository)));
   ReportLine(fmt::format(T_("download directory: {0}"), Q_(downloadDirectory)));
 
-  // download and load the lightweight database
-  LoadDbLight(true);
+  // download and load the package repository manifest
+  LoadRepositoryManifest(true);
 
   // collect required packages
   string deploymentName;
-  if (!(deploymentName = dbLight.FirstPackage()).empty())
+  if (!(deploymentName = repositoryManifest.FirstPackage()).empty())
   {
     do
     {
@@ -2035,20 +2035,20 @@ void PackageInstallerImpl::Download()
       }
 
       // check package level
-      if (taskPackageLevel < dbLight.GetPackageLevel(deploymentName))
+      if (taskPackageLevel < repositoryManifest.GetPackageLevel(deploymentName))
       {
         // package is not required
         continue;
       }
 
       // check to see whether the file was downloaded previously
-      ArchiveFileType aft = dbLight.GetArchiveFileType(deploymentName);
+      ArchiveFileType aft = repositoryManifest.GetArchiveFileType(deploymentName);
       PathName pathLocalArchiveFile = downloadDirectory / deploymentName;
       pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
       if (File::Exists(pathLocalArchiveFile))
       {
         // the archive file exists;  check to see if it is valid
-        MD5 digest1 = dbLight.GetArchiveFileDigest(deploymentName);
+        MD5 digest1 = repositoryManifest.GetArchiveFileDigest(deploymentName);
         MD5 digest2 = MD5::FromFile(pathLocalArchiveFile.GetData());
         if (digest1 == digest2)
         {
@@ -2061,28 +2061,28 @@ void PackageInstallerImpl::Download()
 
       // pick up the package
       toBeInstalled.push_back(deploymentName);
-    } while (!(deploymentName = dbLight.NextPackage()).empty());
+    } while (!(deploymentName = repositoryManifest.NextPackage()).empty());
   }
 
   // count bytes
   CalculateExpenditure(true);
 
-  // download dblight & dbfull
+  // download database archive files
   ReportLine(T_("downloading package database..."));
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
-    progressInfo.deploymentName = MIKTEX_MPM_DB_LIGHT_FILE_NAME_NO_SUFFIX;
-    progressInfo.displayName = T_("Lightweight package database");
+    progressInfo.deploymentName = MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
+    progressInfo.displayName = T_("Package repository manifest");
     progressInfo.cbPackageDownloadCompleted = 0;
-    progressInfo.cbPackageDownloadTotal = MPM_APSIZE_DB_LIGHT;
+    progressInfo.cbPackageDownloadTotal = ZZDB1_SIZE;
   }
-  Download(MIKTEX_MPM_DB_LIGHT_FILE_NAME);
+  Download(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
     progressInfo.deploymentName = MIKTEX_TPM_ARCHIVE_FILE_NAME_NO_SUFFIX;
-    progressInfo.displayName = T_("package manifest files");
+    progressInfo.displayName = T_("Package manifest files");
     progressInfo.cbPackageDownloadCompleted = 0;
-    progressInfo.cbPackageDownloadTotal = MPM_APSIZE_DB_FULL;
+    progressInfo.cbPackageDownloadTotal = ZZDB2_SIZE;
   }
   Download(MIKTEX_TPM_ARCHIVE_FILE_NAME);
 
@@ -2411,10 +2411,10 @@ void PackageInstallerImpl::UpdateDb()
   }
 
   // install mpm.ini
-  InstallDbLight();
+  InstallRepositoryManifest();
 
   // force a reload of the database
-  dbLight.Clear();
+  repositoryManifest.Clear();
   packageManager->ClearAll();
 
   // create the MPM file name database
