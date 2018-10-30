@@ -266,8 +266,8 @@ public:
 public:
   struct ProgressInfo
   {
-    /// Deployment name of package.
-    std::string deploymentName;
+    /// Package ID.
+    std::string packageId;
 
     /// Display name of package.
     std::string displayName;

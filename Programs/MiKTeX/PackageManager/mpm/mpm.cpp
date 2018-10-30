@@ -111,13 +111,13 @@ enum class OutputFormat
   None = 0,
   Listing,
   CSV,
-  DeploymentNames,
+  PackageIdentifiers,
 };
 
 enum class SortKey
 {
   None = 0,
-  DeploymentName,
+  PackageId,
   InstalledOn,
   PackagedOn,
 };
@@ -130,8 +130,8 @@ public:
     bool cmp;
     switch (sortKey)
     {
-    case SortKey::DeploymentName:
-      cmp = (PathName::Compare(pi1.deploymentName, pi2.deploymentName) < 0);
+    case SortKey::PackageId:
+      cmp = (PathName::Compare(pi1.id, pi2.id) < 0);
       break;
     case SortKey::InstalledOn:
       cmp = (pi1.timeInstalled < pi2.timeInstalled);
@@ -151,7 +151,7 @@ public:
   static bool reverse;
 };
 
-SortKey PackageInfoComparer::sortKey(SortKey::DeploymentName);
+SortKey PackageInfoComparer::sortKey(SortKey::PackageId);
 
 bool PackageInfoComparer::reverse = false;
 
@@ -160,7 +160,7 @@ class UpdateInfoComparer
 public:
   bool operator() (const PackageInstaller::UpdateInfo& ui1, const PackageInstaller::UpdateInfo& ui2) const
   {
-    return PathName::Compare(ui1.deploymentName, ui2.deploymentName) < 0;
+    return PathName::Compare(ui1.packageId, ui2.packageId) < 0;
   }
 };
 
@@ -169,7 +169,7 @@ class UpgradeInfoComparer
 public:
   bool operator() (const PackageInstaller::UpgradeInfo& upg1, const PackageInstaller::UpgradeInfo& upg2) const
   {
-    return PathName::Compare(upg1.deploymentName, upg2.deploymentName) < 0;
+    return PathName::Compare(upg1.packageId, upg2.packageId) < 0;
   }
 };
 
@@ -247,7 +247,7 @@ private:
   void FindConflicts();
 
 private:
-  void ImportPackage(const string& deploymentName, vector<string>& toBeinstalled);
+  void ImportPackage(const string& packageId, vector<string>& toBeinstalled);
 
 private:
   void ImportPackages(vector<string>& toBeinstalled);
@@ -265,7 +265,7 @@ private:
   void Upgrade(PackageLevel packageLevel);
 
 private:
-  string GetDirectories(const string& deploymentName);
+  string GetDirectories(const string& packageId);
 
 private:
   void List(OutputFormat outputFormat, int maxCount);
@@ -283,7 +283,7 @@ private:
   void PrintFiles(const vector<string>& files);
 
 private:
-  void PrintPackageInfo(const string& deploymentName);
+  void PrintPackageInfo(const string& packageId);
 
 private:
   void RestartWindowed();
@@ -815,21 +815,21 @@ void Application::UpdateDb()
 
 void Application::Install(const vector<string>& toBeInstalled, const vector<string>& toBeRemoved)
 {
-  for (const string& deploymentName : toBeInstalled)
+  for (const string& packageId : toBeInstalled)
   {
-    PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
+    PackageInfo packageInfo = packageManager->GetPackageInfo(packageId);
     if (packageInfo.IsInstalled())
     {
-      Error(fmt::format(T_("Package \"{0}\" is already installed."), deploymentName));
+      Error(fmt::format(T_("Package \"{0}\" is already installed."), packageId));
     }
   }
 
-  for (const string& deploymentName : toBeRemoved)
+  for (const string& packageId : toBeRemoved)
   {
-    PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
+    PackageInfo packageInfo = packageManager->GetPackageInfo(packageId);
     if (!packageInfo.IsInstalled())
     {
-      Error(fmt::format(T_("Package \"{0}\" is not installed."), deploymentName));
+      Error(fmt::format(T_("Package \"{0}\" is not installed."), packageId));
     }
   }
 
@@ -885,19 +885,19 @@ void Application::FindConflicts()
     {
       PathName file(fileName);
       file.TransformForComparison();
-      filesAndPackages[file.GetData()].push_back(packageInfo.deploymentName);
+      filesAndPackages[file.GetData()].push_back(packageInfo.id);
     }
     for (const string& fileName : packageInfo.docFiles)
     {
       PathName file(fileName);
       file.TransformForComparison();
-      filesAndPackages[file.GetData()].push_back(packageInfo.deploymentName);
+      filesAndPackages[file.GetData()].push_back(packageInfo.id);
     }
     for (const string& fileName : packageInfo.sourceFiles)
     {
       PathName file(fileName);
       file.TransformForComparison();
-      filesAndPackages[file.GetData()].push_back(packageInfo.deploymentName);
+      filesAndPackages[file.GetData()].push_back(packageInfo.id);
     }
   }
   for (const auto& package : filesAndPackages)
@@ -922,9 +922,9 @@ void Application::VerifyMiKTeX()
   {
     if (!packageInfo.IsPureContainer()
       && packageInfo.IsInstalled()
-      && packageInfo.deploymentName.compare(0, 7, "miktex-") == 0)
+      && packageInfo.id.compare(0, 7, "miktex-") == 0)
     {
-      toBeVerified.push_back(packageInfo.deploymentName);
+      toBeVerified.push_back(packageInfo.id);
     }
   }
   Verify(toBeVerified);
@@ -942,16 +942,16 @@ void Application::Verify(const vector<string>& toBeVerifiedArg)
     {
       if (!packageInfo.IsPureContainer() && packageInfo.IsInstalled())
       {
-        toBeVerified.push_back(packageInfo.deploymentName);
+        toBeVerified.push_back(packageInfo.id);
       }
     }
   }
   bool ok = true;
-  for (const string& deploymentName : toBeVerified)
+  for (const string& packageId : toBeVerified)
   {
-    if (!packageManager->TryVerifyInstalledPackage(deploymentName))
+    if (!packageManager->TryVerifyInstalledPackage(packageId))
     {
-      Message(fmt::format(T_("{0}: this package needs to be reinstalled."), deploymentName));
+      Message(fmt::format(T_("{0}: this package needs to be reinstalled."), packageId));
       ok = false;
     }
   }
@@ -979,7 +979,7 @@ void Application::Verify(const vector<string>& toBeVerifiedArg)
   }
 }
 
-void Application::ImportPackage(const string& deploymentName, vector<string>& toBeinstalled)
+void Application::ImportPackage(const string& packageId, vector<string>& toBeinstalled)
 {
   if (repository.empty())
   {
@@ -993,29 +993,29 @@ void Application::ImportPackage(const string& deploymentName, vector<string>& to
   }
   unique_ptr<Cfg> cfg = Cfg::Create();
   cfg->Read(packagesIni);
-  if (strncmp(deploymentName.c_str(), "miktex-", 7) == 0)
+  if (strncmp(packageId.c_str(), "miktex-", 7) == 0)
   {
-    Error(fmt::format(T_("Cannot import package {0}."), deploymentName));
+    Error(fmt::format(T_("Cannot import package {0}."), packageId));
   }
   string str;
-  if (!cfg->TryGetValue(deploymentName, "TimeInstalled", str) || str.empty() || str == "0")
+  if (!cfg->TryGetValue(packageId, "TimeInstalled", str) || str.empty() || str == "0")
   {
-    Error(fmt::format(T_("Package {0} is not installed."), deploymentName));
+    Error(fmt::format(T_("Package {0} is not installed."), packageId));
   }
-  if (cfg->TryGetValue(deploymentName, T_("Obsolete"), str) && str == "1")
+  if (cfg->TryGetValue(packageId, T_("Obsolete"), str) && str == "1")
   {
-    Error(fmt::format(T_("Package {0} is obsolete."), deploymentName));
+    Error(fmt::format(T_("Package {0} is obsolete."), packageId));
   }
   PackageInfo packageInfo;
-  if (!packageManager->TryGetPackageInfo(deploymentName.c_str(), packageInfo))
+  if (!packageManager->TryGetPackageInfo(packageId.c_str(), packageInfo))
   {
-    Error(fmt::format(T_("Unknown package: {0}."), deploymentName));
+    Error(fmt::format(T_("Unknown package: {0}."), packageId));
   }
   if (packageInfo.IsInstalled())
   {
-    Error(fmt::format(T_("Package {0} is already installed."), deploymentName));
+    Error(fmt::format(T_("Package {0} is already installed."), packageId));
   }
-  toBeinstalled.push_back(deploymentName);
+  toBeinstalled.push_back(packageId);
 }
 
 void Application::ImportPackages(vector<string>& toBeinstalled)
@@ -1082,7 +1082,7 @@ void Application::FindUpdates()
       case PackageInstaller::UpdateInfo::ReleaseStateChange:
       case PackageInstaller::UpdateInfo::Update:
       case PackageInstaller::UpdateInfo::ForceUpdate:
-        cout << upd.deploymentName << endl;
+        cout << upd.packageId << endl;
         break;
       case PackageInstaller::UpdateInfo::ForceRemove:        
         break;
@@ -1110,10 +1110,10 @@ void Application::Update(const vector<string>& requestedUpdates)
     case PackageInstaller::UpdateInfo::ReleaseStateChange:
     case PackageInstaller::UpdateInfo::Update:
     case PackageInstaller::UpdateInfo::ForceUpdate:
-      serverUpdates.push_back(upd.deploymentName);
+      serverUpdates.push_back(upd.packageId);
       break;
     case PackageInstaller::UpdateInfo::ForceRemove:
-      toBeRemoved.push_back(upd.deploymentName);
+      toBeRemoved.push_back(upd.packageId);
       break;
     }
   }
@@ -1133,20 +1133,20 @@ void Application::Update(const vector<string>& requestedUpdates)
   {
     toBeRemoved.clear();
     sort(serverUpdates.begin(), serverUpdates.end());
-    for (const string& deploymentName : requestedUpdates)
+    for (const string& packageId : requestedUpdates)
     {
-      PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
+      PackageInfo packageInfo = packageManager->GetPackageInfo(packageId);
       if (!packageInfo.IsInstalled())
       {
-        Error(fmt::format(T_("Package \"{0}\" is not installed."), deploymentName));
+        Error(fmt::format(T_("Package \"{0}\" is not installed."), packageId));
       }
-      if (binary_search(serverUpdates.begin(), serverUpdates.end(), deploymentName))
+      if (binary_search(serverUpdates.begin(), serverUpdates.end(), packageId))
       {
-        toBeInstalled.push_back(deploymentName);
+        toBeInstalled.push_back(packageId);
       }
       else
       {
-        Message(fmt::format(T_("Package \"{0}\" is up to date."), deploymentName));
+        Message(fmt::format(T_("Package \"{0}\" is up to date."), packageId));
       }
     }
   }
@@ -1196,7 +1196,7 @@ void Application::FindUpgrades(PackageLevel packageLevel)
   sort(upgrades.begin(), upgrades.end(), UpgradeInfoComparer());
   for (const PackageInstaller::UpgradeInfo& upg : upgrades)
   {
-    cout << upg.deploymentName << endl;
+    cout << upg.packageId << endl;
   }
 }
 
@@ -1222,7 +1222,7 @@ void Application::Upgrade(PackageLevel packageLevel)
   vector<string> toBeInstalled;
   for (const PackageInstaller::UpgradeInfo& upg : upgrades)
   {
-    toBeInstalled.push_back(upg.deploymentName);
+    toBeInstalled.push_back(upg.packageId);
   }
   sort(toBeInstalled.begin(), toBeInstalled.end());
   installer->SetFileLists(toBeInstalled, vector<string>());
@@ -1237,10 +1237,10 @@ void Application::Upgrade(PackageLevel packageLevel)
   }
 }
 
-string Application::GetDirectories(const string& deploymentName)
+string Application::GetDirectories(const string& packageId)
 {
   set<string> directories;
-  PackageInfo pi = packageManager->GetPackageInfo(deploymentName);
+  PackageInfo pi = packageManager->GetPackageInfo(packageId);
   for (const string& fileName : pi.runFiles)
   {
     PathName path(fileName);
@@ -1284,18 +1284,18 @@ void Application::List(OutputFormat outputFormat, int maxCount)
     if (outputFormat == OutputFormat::Listing)
     {
       cout
-        << fmt::format("{} {:05} {:10} {}", it->IsInstalled() ? 'i' : '-', it->GetNumFiles(), it->GetSize(), it->deploymentName)
+        << fmt::format("{} {:05} {:10} {}", it->IsInstalled() ? 'i' : '-', it->GetNumFiles(), it->GetSize(), it->id)
         << endl;
     }
     else if (outputFormat == OutputFormat::CSV)
     {
-      string path = packageManager->GetContainerPath(it->deploymentName, false);
-      string directories = GetDirectories(it->deploymentName);
-      cout << fmt::format("{}\\{},{}", path, it->deploymentName, directories) << endl;
+      string path = packageManager->GetContainerPath(it->id, false);
+      string directories = GetDirectories(it->id);
+      cout << fmt::format("{}\\{},{}", path, it->id, directories) << endl;
     }
-    else if (outputFormat == OutputFormat::DeploymentNames)
+    else if (outputFormat == OutputFormat::PackageIdentifiers)
     {
-      cout << it->deploymentName << endl;
+      cout << it->id << endl;
     }
   }
 }
@@ -1383,10 +1383,10 @@ void Application::PrintFiles(const vector<string>& files)
   }
 }
 
-void Application::PrintPackageInfo(const string& deploymentName)
+void Application::PrintPackageInfo(const string& packageId)
 {
-  PackageInfo packageInfo = packageManager->GetPackageInfo(deploymentName);
-  cout << T_("name:") << " " << packageInfo.deploymentName << endl;
+  PackageInfo packageInfo = packageManager->GetPackageInfo(packageId);
+  cout << T_("name:") << " " << packageInfo.id << endl;
   cout << T_("title:") << " " << packageInfo.title << endl;
   if (!packageInfo.runFiles.empty())
   {
@@ -1511,7 +1511,7 @@ void Application::Main(int argc, const char** argv)
   int optMaxCount = INT_MAX;
   int optProxyPort = -1;
   OutputFormat outputFormat(OutputFormat::Listing);
-  string deploymentName;
+  string packageId;
   string optProxy;
   string optProxyPassword;
   string optProxyUser;
@@ -1605,7 +1605,7 @@ void Application::Main(int argc, const char** argv)
       break;
     case OPT_LIST_PACKAGE_NAMES:
       optList = true;
-      outputFormat = OutputFormat::DeploymentNames;
+      outputFormat = OutputFormat::PackageIdentifiers;
       break;
     case OPT_LIST_REPOSITORIES:
       optListRepositories = true;
@@ -1633,7 +1633,7 @@ void Application::Main(int argc, const char** argv)
       break;
     case OPT_PRINT_PACKAGE_INFO:
       optPrintPackageInfo = true;
-      deploymentName = optArg;
+      packageId = optArg;
       break;
     case OPT_PROXY:
     {
@@ -1651,7 +1651,7 @@ void Application::Main(int argc, const char** argv)
       optSort = true;
       if (Utils::EqualsIgnoreCase(optArg, "deploymentname"))
       {
-        PackageInfoComparer::sortKey = SortKey::DeploymentName;
+        PackageInfoComparer::sortKey = SortKey::PackageId;
       }
       else if (Utils::EqualsIgnoreCase(optArg, "installedon"))
       {
@@ -1701,7 +1701,7 @@ void Application::Main(int argc, const char** argv)
       }
       else if (Utils::EqualsIgnoreCase(optArg, "deploymentnames"))
       {
-        outputFormat = OutputFormat::DeploymentNames;
+        outputFormat = OutputFormat::PackageIdentifiers;
       }
       else
       {
@@ -2054,7 +2054,7 @@ void Application::Main(int argc, const char** argv)
 
   if (optPrintPackageInfo)
   {
-    PrintPackageInfo(deploymentName);
+    PrintPackageInfo(packageId);
     restartWindowed = false;
   }
 

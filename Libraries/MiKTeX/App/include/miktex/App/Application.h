@@ -106,7 +106,7 @@ public:
   virtual MIKTEXAPPTHISAPI(void) ShowLibraryVersions() const;
 
 public:
-  MIKTEXAPPTHISAPI(bool) InstallPackage(const std::string& deploymentName, const MiKTeX::Core::PathName& trigger, MiKTeX::Core::PathName& installRoot) override;
+  MIKTEXAPPTHISAPI(bool) InstallPackage(const std::string& packageId, const MiKTeX::Core::PathName& trigger, MiKTeX::Core::PathName& installRoot) override;
 
 public:
   MIKTEXAPPTHISAPI(bool) TryCreateFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::FileType fileType) override;

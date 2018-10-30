@@ -83,13 +83,13 @@ public:
   STDMETHOD(CreateInstaller) (MiKTeXPackageManagerLib::IPackageInstaller** ppInstaller);
 
 public:
-  STDMETHOD(GetPackageInfo) (BSTR deploymentName, MiKTeXPackageManagerLib::PackageInfo* pPackageInfo);
+  STDMETHOD(GetPackageInfo) (BSTR packageId, MiKTeXPackageManagerLib::PackageInfo* pPackageInfo);
 
 public:
   STDMETHOD(CreatePackageIterator) (MiKTeXPackageManagerLib::IPackageIterator** ppIter);
 
 public:
-  STDMETHOD(GetPackageInfo2) (BSTR deploymentName, MiKTeXPackageManagerLib::PackageInfo2* pPackageInfo);
+  STDMETHOD(GetPackageInfo2) (BSTR packageId, MiKTeXPackageManagerLib::PackageInfo2* pPackageInfo);
 
 private:
   void CreateSession();

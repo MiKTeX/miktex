@@ -44,7 +44,7 @@ PackageInfoDialogImpl::PackageInfoDialogImpl(QWidget* parent, const PackageInfo&
   ui(new Ui::PackageInfoDialog)
 {
   ui->setupUi(this);
-  ui->leName->setText(QString::fromUtf8(packageInfo.deploymentName.c_str()));
+  ui->leName->setText(QString::fromUtf8(packageInfo.id.c_str()));
   ui->leDate->setText(ToDateTime(packageInfo.timePackaged).toString());
   ui->leVersion->setText(QString::fromUtf8(packageInfo.version.c_str()));
   ui->leMaintainer->setText(QString::fromUtf8(packageInfo.copyrightOwner.c_str()));

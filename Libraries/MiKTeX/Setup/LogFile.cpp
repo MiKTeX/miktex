@@ -65,7 +65,7 @@ void LogFile::AddPackages()
   {
     // add .tpm file
     PathName tpmFile("texmf", MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-    tpmFile /= pi.deploymentName;
+    tpmFile /= pi.id;
     tpmFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
     AddFile(tpmFile);
 

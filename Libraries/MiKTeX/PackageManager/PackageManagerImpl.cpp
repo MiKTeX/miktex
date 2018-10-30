@@ -161,7 +161,7 @@ void PackageManagerImpl::FlushVariablePackageTable()
   }
 }
 
-bool PackageManagerImpl::IsRemovable(const string& deploymentName)
+bool PackageManagerImpl::IsRemovable(const string& packageId)
 {
   bool ret;
   LoadVariablePackageTable();
@@ -169,24 +169,24 @@ bool PackageManagerImpl::IsRemovable(const string& deploymentName)
   if (session->IsAdminMode())
   {
     // administrator can remove system-wide packages
-    ret = GetCommonTimeInstalled(deploymentName) != 0;
+    ret = GetCommonTimeInstalled(packageId) != 0;
   }
   else
   {
     // user can remove private packages
     if (session->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize() == session->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize())
     {
-      ret = GetTimeInstalled(deploymentName) != 0;
+      ret = GetTimeInstalled(packageId) != 0;
     }
     else
     {
-      ret = GetUserTimeInstalled(deploymentName) != 0;
+      ret = GetUserTimeInstalled(packageId) != 0;
     }
   }
   return ret;
 }
 
-time_t PackageManagerImpl::GetUserTimeInstalled(const string& deploymentName)
+time_t PackageManagerImpl::GetUserTimeInstalled(const string& packageId)
 {
   if (session->IsAdminMode())
   {
@@ -194,7 +194,7 @@ time_t PackageManagerImpl::GetUserTimeInstalled(const string& deploymentName)
   }
   LoadVariablePackageTable();
   string str;
-  if (userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(deploymentName, "TimeInstalled", str))
+  if (userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(packageId, "TimeInstalled", str))
   {
     return std::stoi(str);
   }
@@ -204,11 +204,11 @@ time_t PackageManagerImpl::GetUserTimeInstalled(const string& deploymentName)
   }
 }
 
-time_t PackageManagerImpl::GetCommonTimeInstalled(const string& deploymentName)
+time_t PackageManagerImpl::GetCommonTimeInstalled(const string& packageId)
 {
   LoadVariablePackageTable();
   string str;
-  if (commonVariablePackageTable != nullptr && commonVariablePackageTable->TryGetValue(deploymentName, "TimeInstalled", str))
+  if (commonVariablePackageTable != nullptr && commonVariablePackageTable->TryGetValue(packageId, "TimeInstalled", str))
   {
     return std::stoi(str);
   }
@@ -218,12 +218,12 @@ time_t PackageManagerImpl::GetCommonTimeInstalled(const string& deploymentName)
   }
 }
 
-time_t PackageManagerImpl::GetTimeInstalled(const string& deploymentName)
+time_t PackageManagerImpl::GetTimeInstalled(const string& packageId)
 {
   LoadVariablePackageTable();
   string str;
-  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(deploymentName, "TimeInstalled", str))
-    || commonVariablePackageTable->TryGetValue(deploymentName, "TimeInstalled", str))
+  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(packageId, "TimeInstalled", str))
+    || commonVariablePackageTable->TryGetValue(packageId, "TimeInstalled", str))
   {
     return std::stoi(str);
   }
@@ -233,19 +233,19 @@ time_t PackageManagerImpl::GetTimeInstalled(const string& deploymentName)
   }
 }
 
-bool PackageManagerImpl::IsPackageInstalled(const string& deploymentName)
+bool PackageManagerImpl::IsPackageInstalled(const string& packageId)
 {
-  return GetTimeInstalled(deploymentName) > 0;
+  return GetTimeInstalled(packageId) > 0;
 }
 
-bool PackageManagerImpl::IsPackageObsolete(const string& deploymentName)
+bool PackageManagerImpl::IsPackageObsolete(const string& packageId)
 {
   LoadVariablePackageTable();
   string str;
   if ((!session->IsAdminMode()
     && userVariablePackageTable != nullptr
-    && userVariablePackageTable->TryGetValue(deploymentName, "Obsolete", str))
-    || commonVariablePackageTable->TryGetValue(deploymentName, "Obsolete", str))
+    && userVariablePackageTable->TryGetValue(packageId, "Obsolete", str))
+    || commonVariablePackageTable->TryGetValue(packageId, "Obsolete", str))
   {
     return std::stoi(str) != 0;
   }
@@ -255,65 +255,65 @@ bool PackageManagerImpl::IsPackageObsolete(const string& deploymentName)
   }
 }
 
-void PackageManagerImpl::DeclarePackageObsolete(const string& deploymentName, bool obsolete)
+void PackageManagerImpl::DeclarePackageObsolete(const string& packageId, bool obsolete)
 {
   LoadVariablePackageTable();
   if (session->IsAdminMode() || userVariablePackageTable == nullptr)
   {
-    commonVariablePackageTable->PutValue(deploymentName, "Obsolete", (obsolete ? "1" : "0"));
+    commonVariablePackageTable->PutValue(packageId, "Obsolete", (obsolete ? "1" : "0"));
   }
   else
   {
-    userVariablePackageTable->PutValue(deploymentName, "Obsolete", (obsolete ? "1" : "0"));
+    userVariablePackageTable->PutValue(packageId, "Obsolete", (obsolete ? "1" : "0"));
   }
 }
 
-void PackageManagerImpl::SetTimeInstalled(const string& deploymentName, time_t timeInstalled)
+void PackageManagerImpl::SetTimeInstalled(const string& packageId, time_t timeInstalled)
 {
   LoadVariablePackageTable();
   if (session->IsAdminMode() || userVariablePackageTable == nullptr)
   {
     if (timeInstalled == 0)
     {
-      commonVariablePackageTable->DeleteKey(deploymentName);
+      commonVariablePackageTable->DeleteKey(packageId);
     }
     else
     {
-      commonVariablePackageTable->PutValue(deploymentName, "TimeInstalled", std::to_string(timeInstalled));
+      commonVariablePackageTable->PutValue(packageId, "TimeInstalled", std::to_string(timeInstalled));
     }
   }
   else
   {
     if (timeInstalled == 0)
     {
-      userVariablePackageTable->DeleteKey(deploymentName);
+      userVariablePackageTable->DeleteKey(packageId);
     }
     else
     {
-      userVariablePackageTable->PutValue(deploymentName, "TimeInstalled", std::to_string(timeInstalled));
+      userVariablePackageTable->PutValue(packageId, "TimeInstalled", std::to_string(timeInstalled));
     }
   }
 }
 
-void PackageManagerImpl::SetReleaseState(const string& deploymentName, RepositoryReleaseState releaseState)
+void PackageManagerImpl::SetReleaseState(const string& packageId, RepositoryReleaseState releaseState)
 {
   LoadVariablePackageTable();
   if (session->IsAdminMode() || userVariablePackageTable == nullptr)
   {
-    commonVariablePackageTable->PutValue(deploymentName, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
+    commonVariablePackageTable->PutValue(packageId, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
   }
   else
   {
-    userVariablePackageTable->PutValue(deploymentName, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
+    userVariablePackageTable->PutValue(packageId, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
   }
 }
 
-RepositoryReleaseState PackageManagerImpl::GetReleaseState(const string& deploymentName)
+RepositoryReleaseState PackageManagerImpl::GetReleaseState(const string& packageId)
 {
   LoadVariablePackageTable();
   string str;
-  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(deploymentName, "ReleaseState", str))
-    || commonVariablePackageTable->TryGetValue(deploymentName, "ReleaseState", str))
+  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(packageId, "ReleaseState", str))
+    || commonVariablePackageTable->TryGetValue(packageId, "ReleaseState", str))
   {
     if (str == "stable")
     {
@@ -341,19 +341,19 @@ void PackageManagerImpl::IncrementFileRefCounts(const vector<string>& files)
   }
 }
 
-void PackageManagerImpl::IncrementFileRefCounts(const string& deploymentName)
+void PackageManagerImpl::IncrementFileRefCounts(const string& packageId)
 {
   NeedInstalledFileInfoTable();
-  const PackageInfo& pi = packageTable[deploymentName];
+  const PackageInfo& pi = packageTable[packageId];
   IncrementFileRefCounts(pi.runFiles);
   IncrementFileRefCounts(pi.docFiles);
   IncrementFileRefCounts(pi.sourceFiles);
 }
 
-PackageInfo* PackageManagerImpl::DefinePackage(const string& deploymentName, const PackageInfo& packageInfo)
+PackageInfo* PackageManagerImpl::DefinePackage(const string& packageId, const PackageInfo& packageInfo)
 {
-  pair<PackageDefinitionTable::iterator, bool> p = packageTable.insert(make_pair(deploymentName, packageInfo));
-  p.first->second.deploymentName = deploymentName;
+  pair<PackageDefinitionTable::iterator, bool> p = packageTable.insert(make_pair(packageId, packageInfo));
+  p.first->second.id = packageId;
   if (session->IsMiKTeXDirect())
   {
     // installed from the start
@@ -363,12 +363,12 @@ PackageInfo* PackageManagerImpl::DefinePackage(const string& deploymentName, con
   }
   else
   {
-    p.first->second.isRemovable = IsRemovable(deploymentName);
-    p.first->second.isObsolete = IsPackageObsolete(deploymentName);
-    p.first->second.timeInstalled = GetTimeInstalled(deploymentName);
+    p.first->second.isRemovable = IsRemovable(packageId);
+    p.first->second.isObsolete = IsPackageObsolete(packageId);
+    p.first->second.timeInstalled = GetTimeInstalled(packageId);
     if (p.first->second.IsInstalled())
     {
-      p.first->second.releaseState = GetReleaseState(deploymentName);
+      p.first->second.releaseState = GetReleaseState(packageId);
     }
   }
   return &(p.first->second);
@@ -401,13 +401,13 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
     PathName name(direntry.name);
 
     // get deployment name
-    string deploymentName = name.GetFileNameWithoutExtension().ToString();
+    string packageId = name.GetFileNameWithoutExtension().ToString();
 
     // ignore redefinition
-    if (packageTable.find(deploymentName) != packageTable.end())
+    if (packageTable.find(packageId) != packageTable.end())
     {
 #if 0
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: ignoring redefinition"), deploymentName.c_str());
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: ignoring redefinition"), packageId.c_str());
 #endif
       continue;
     }
@@ -430,19 +430,19 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
     string targetSystems = packageInfo.targetSystem;
     if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
     {
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: ignoring %s package"), packageInfo.deploymentName.c_str(), targetSystems.c_str());
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: ignoring %s package"), packageInfo.id.c_str(), targetSystems.c_str());
       continue;
     }
 #endif
 
 #if POLLUTE_THE_DEBUG_STREAM
-    trace_mpm->WriteFormattedLine("libmpm", T_("  adding %s"), packageInfo.deploymentName.c_str());
+    trace_mpm->WriteFormattedLine("libmpm", T_("  adding %s"), packageInfo.id.c_str());
 #endif
 
     count += 1;
 
     // insert into database
-    PackageInfo* pPi = DefinePackage(packageInfo.deploymentName, packageInfo);
+    PackageInfo* pPi = DefinePackage(packageInfo.id, packageInfo);
 
     // increment file ref counts, if package is installed
     if (pPi->timeInstalled > 0)
@@ -467,11 +467,11 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
       PackageDefinitionTable::iterator it3 = packageTable.find(req);
       if (it3 == packageTable.end())
       {
-        trace_mpm->WriteFormattedLine("libmpm", T_("dependancy problem: %s is required by %s"), req.c_str(), pkg.deploymentName.c_str());
+        trace_mpm->WriteFormattedLine("libmpm", T_("dependancy problem: %s is required by %s"), req.c_str(), pkg.id.c_str());
       }
       else
       {
-        it3->second.requiredBy.push_back(pkg.deploymentName);
+        it3->second.requiredBy.push_back(pkg.id);
         if (it3->second.timeInstalled < timeInstalledMin)
         {
           timeInstalledMin = it3->second.timeInstalled;
@@ -493,28 +493,28 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
 
   // create "Obsolete" container
   PackageInfo piObsolete;
-  piObsolete.deploymentName = "_miktex-obsolete";
+  piObsolete.id = "_miktex-obsolete";
   piObsolete.displayName = T_("Obsolete");
   piObsolete.title = T_("Obsolete packages");
   piObsolete.description = T_("Packages that were removed from the MiKTeX package repository.");
   for (auto& kv : packageTable)
   {
     PackageInfo& pkg = kv.second;
-    if (!pkg.IsContained() && !pkg.IsContainer() && IsPackageObsolete(pkg.deploymentName))
+    if (!pkg.IsContained() && !pkg.IsContainer() && IsPackageObsolete(pkg.id))
     {
-      piObsolete.requiredPackages.push_back(pkg.deploymentName);
-      pkg.requiredBy.push_back(piObsolete.deploymentName);
+      piObsolete.requiredPackages.push_back(pkg.id);
+      pkg.requiredBy.push_back(piObsolete.id);
     }
   }
   if (!piObsolete.requiredPackages.empty())
   {
     // insert "Obsolete" into the database
-    DefinePackage(piObsolete.deploymentName, piObsolete);
+    DefinePackage(piObsolete.id, piObsolete);
   }
 
   // create "Uncategorized" container
   PackageInfo piOther;
-  piOther.deploymentName = "_miktex-all-the-rest";
+  piOther.id = "_miktex-all-the-rest";
   piOther.displayName = T_("Uncategorized");
   piOther.title = T_("Uncategorized packages");
   for (auto& kv : packageTable)
@@ -522,14 +522,14 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
     PackageInfo& pkg = kv.second;
     if (!pkg.IsContained() && !pkg.IsContainer())
     {
-      piOther.requiredPackages.push_back(pkg.deploymentName);
-      pkg.requiredBy.push_back(piOther.deploymentName);
+      piOther.requiredPackages.push_back(pkg.id);
+      pkg.requiredBy.push_back(piOther.id);
     }
   }
   if (!piOther.requiredPackages.empty())
   {
     // insert "Other" into the database
-    DefinePackage(piOther.deploymentName, piOther);
+    DefinePackage(piOther.id, piOther);
   }
 }
 
@@ -610,9 +610,9 @@ void PackageManagerImpl::UnloadDatabase()
   ClearAll();
 }
 
-PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
+PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& packageId)
 {
-  PackageDefinitionTable::iterator it = packageTable.find(deploymentName);
+  PackageDefinitionTable::iterator it = packageTable.find(packageId);
   if (it != packageTable.end())
   {
     return &it->second;
@@ -627,7 +627,7 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
   {
     pathPackageManifestFile = session->GetSpecialPath(SpecialPath::UserInstallRoot);
     pathPackageManifestFile /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-    pathPackageManifestFile /= deploymentName;
+    pathPackageManifestFile /= packageId;
     pathPackageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
     havePackageInfoFile = File::Exists(pathPackageManifestFile);
   }
@@ -635,7 +635,7 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
   {
     pathPackageManifestFile = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
     pathPackageManifestFile /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-    pathPackageManifestFile /= deploymentName;
+    pathPackageManifestFile /= packageId;
     pathPackageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
     havePackageInfoFile = File::Exists(pathPackageManifestFile);
   }
@@ -652,12 +652,12 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
     return nullptr;
   }
 #endif
-  return DefinePackage(deploymentName, tpmParser->GetPackageInfo());
+  return DefinePackage(packageId, tpmParser->GetPackageInfo());
 }
 
-bool PackageManagerImpl::TryGetPackageInfo(const string& deploymentName, PackageInfo& packageInfo)
+bool PackageManagerImpl::TryGetPackageInfo(const string& packageId, PackageInfo& packageInfo)
 {
-  PackageInfo* pPackageInfo = TryGetPackageInfo(deploymentName);
+  PackageInfo* pPackageInfo = TryGetPackageInfo(packageId);
   if (pPackageInfo == nullptr)
   {
     return false;
@@ -669,12 +669,12 @@ bool PackageManagerImpl::TryGetPackageInfo(const string& deploymentName, Package
   }
 }
 
-PackageInfo PackageManagerImpl::GetPackageInfo(const string& deploymentName)
+PackageInfo PackageManagerImpl::GetPackageInfo(const string& packageId)
 {
-  const PackageInfo* pPackageInfo = TryGetPackageInfo(deploymentName);
+  const PackageInfo* pPackageInfo = TryGetPackageInfo(packageId);
   if (pPackageInfo == nullptr)
   {
-    MIKTEX_FATAL_ERROR_2(T_("The requested package is unknown."), "name", deploymentName);
+    MIKTEX_FATAL_ERROR_2(T_("The requested package is unknown."), "name", packageId);
   }
   return *pPackageInfo;
 }
@@ -991,15 +991,15 @@ void PackageManagerImpl::CreateMpmFndb()
     const PackageInfo& pi = kv.second;
     for (const string& file : pi.runFiles)
     {
-      RememberFileNameInfo(file, pi.deploymentName);
+      RememberFileNameInfo(file, pi.id);
     }
     for (const string& file : pi.docFiles)
     {
-      RememberFileNameInfo(file, pi.deploymentName);
+      RememberFileNameInfo(file, pi.id);
     }
     for (const string& file : pi.sourceFiles)
     {
-      RememberFileNameInfo(file, pi.deploymentName);
+      RememberFileNameInfo(file, pi.id);
     }
   }
 
@@ -1163,7 +1163,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
   xml.AddAttribute("xmlns:TPM", "http://texlive.dante.de/");
   xml.StartElement("rdf:Description");
   string about("http://www.miktex.org/packages/");
-  about += packageInfo.deploymentName;
+  about += packageInfo.id;
   xml.AddAttribute("about", about.c_str());
 
   // create "TPM:Name" node
@@ -1481,13 +1481,13 @@ bool PackageManagerImpl::TryCollectFileDigests(const PathName& prefix, const vec
   return true;
 }
 
-bool PackageManagerImpl::TryVerifyInstalledPackage(const string& deploymentName)
+bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
 {
-  PackageInfo packageInfo = GetPackageInfo(deploymentName);
+  PackageInfo packageInfo = GetPackageInfo(packageId);
 
   PathName prefix;
 
-  if (!session->IsAdminMode() && GetUserTimeInstalled(deploymentName) != static_cast<time_t>(0))
+  if (!session->IsAdminMode() && GetUserTimeInstalled(packageId) != static_cast<time_t>(0))
   {
     prefix = session->GetSpecialPath(SpecialPath::UserInstallRoot);
   }
@@ -1521,7 +1521,7 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& deploymentName)
 
   if (!ok)
   {
-    trace_mpm->WriteFormattedLine("libmpm", T_("package %s verification failed: some files have been modified"), Q_(deploymentName));
+    trace_mpm->WriteFormattedLine("libmpm", T_("package %s verification failed: some files have been modified"), Q_(packageId));
     trace_mpm->WriteFormattedLine("libmpm", T_("expected digest: %s"), packageInfo.digest.ToString().c_str());
     trace_mpm->WriteFormattedLine("libmpm", T_("computed digest: %s"), md5Builder.GetMD5().ToString().c_str());
   }
@@ -1529,10 +1529,10 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& deploymentName)
   return ok;
 }
 
-string PackageManagerImpl::GetContainerPath(const string& deploymentName, bool useDisplayNames)
+string PackageManagerImpl::GetContainerPath(const string& packageId, bool useDisplayNames)
 {
   string path;
-  PackageInfo packageInfo = GetPackageInfo(deploymentName);
+  PackageInfo packageInfo = GetPackageInfo(packageId);
   for (const string& reqby : packageInfo.requiredBy)
   {
     PackageInfo packageInfo2 = GetPackageInfo(reqby);
@@ -1547,7 +1547,7 @@ string PackageManagerImpl::GetContainerPath(const string& deploymentName, bool u
       }
       else
       {
-        path += packageInfo2.deploymentName;
+        path += packageInfo2.id;
       }
       break;
     }

@@ -496,9 +496,9 @@ MIKTEXAPPTHISAPI(void) Application::ShowLibraryVersions() const
 
 const char* const SEP = "======================================================================";
 
-bool Application::InstallPackage(const string& deploymentName, const PathName& trigger, PathName& installRoot)
+bool Application::InstallPackage(const string& packageId, const PathName& trigger, PathName& installRoot)
 {
-  if (pimpl->ignoredPackages.find(deploymentName) != pimpl->ignoredPackages.end())
+  if (pimpl->ignoredPackages.find(packageId) != pimpl->ignoredPackages.end())
   {
     return false;
   }
@@ -518,7 +518,7 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
       initUiFrameworkDone = true;
     }
     bool doInstall = false;
-    unsigned int msgBoxRet = MiKTeX::UI::InstallPackageMessageBox(pimpl->packageManager, deploymentName, trigger.ToString());
+    unsigned int msgBoxRet = MiKTeX::UI::InstallPackageMessageBox(pimpl->packageManager, packageId, trigger.ToString());
     doInstall = ((msgBoxRet & MiKTeX::UI::YES) != 0);
     if ((msgBoxRet & MiKTeX::UI::DONTASKAGAIN) != 0)
     {
@@ -526,7 +526,7 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
     }
     if (!doInstall)
     {
-      pimpl->ignoredPackages.insert(deploymentName);
+      pimpl->ignoredPackages.insert(packageId);
       return false;
     }
     pimpl->mpmAutoAdmin = (((msgBoxRet & MiKTeX::UI::ADMIN) != 0) ? TriState::True : TriState::False);
@@ -557,9 +557,9 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
   }
   pimpl->installer->SetCallback(this);
   vector<string> fileList;
-  fileList.push_back(deploymentName);
+  fileList.push_back(packageId);
   pimpl->installer->SetFileLists(fileList, vector<string>());
-  LOG4CXX_INFO(logger, "installing package " << deploymentName << " triggered by " << trigger.ToString())
+  LOG4CXX_INFO(logger, "installing package " << packageId << " triggered by " << trigger.ToString())
   if (!GetQuietFlag())
   {
     cout << "\n" << SEP << endl;
@@ -579,14 +579,14 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
   catch (const MiKTeXException& ex)
   {
     pimpl->enableInstaller = TriState::False;
-    pimpl->ignoredPackages.insert(deploymentName);
+    pimpl->ignoredPackages.insert(packageId);
     LOG4CXX_FATAL(logger, ex.GetErrorMessage());
     LOG4CXX_FATAL(logger, "Info: " << ex.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << ex.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << ex.GetSourceLine());
     cerr
       << "\n"
-      << "Unfortunately, the package " << deploymentName << " could not be installed." << endl;
+      << "Unfortunately, the package " << packageId << " could not be installed." << endl;
     log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
     if (appender != nullptr)
     {

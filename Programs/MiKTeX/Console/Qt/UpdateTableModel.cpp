@@ -72,11 +72,11 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
     switch (index.column())
     {
     case 0:
-      return QString::fromUtf8(update.deploymentName.c_str());
+      return QString::fromUtf8(update.packageId.c_str());
     case 1:
     {
       PackageInfo oldPackageInfo;
-      if (packageManager->TryGetPackageInfo(update.deploymentName, oldPackageInfo) && oldPackageInfo.timeInstalled > 0)
+      if (packageManager->TryGetPackageInfo(update.packageId, oldPackageInfo) && oldPackageInfo.timeInstalled > 0)
       {
         return FormatPackageVersion(oldPackageInfo);
       }

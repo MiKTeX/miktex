@@ -1568,7 +1568,7 @@ SetupService::ProgressInfo SetupServiceImpl::GetProgressInfo()
   else
   {
     PackageInstaller::ProgressInfo pi = packageInstaller->GetProgressInfo();
-    progressInfo.deploymentName = pi.deploymentName;
+    progressInfo.packageId = pi.packageId;
     progressInfo.displayName = pi.displayName;
     progressInfo.fileName = pi.fileName;
     progressInfo.cFilesRemoveCompleted = pi.cFilesRemoveCompleted;
@@ -1876,11 +1876,11 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
     {
       if (!packageInfo.IsPureContainer()
         && packageInfo.IsInstalled()
-        && packageInfo.deploymentName.compare(0, 7, "miktex-") == 0)
+        && packageInfo.id.compare(0, 7, "miktex-") == 0)
       {
-        if (!(packageManager->TryVerifyInstalledPackage(packageInfo.deploymentName)))
+        if (!(packageManager->TryVerifyInstalledPackage(packageInfo.id)))
         {
-          problems.push_back(fmt::format(T_("package {0} has been tampered with"), packageInfo.deploymentName));
+          problems.push_back(fmt::format(T_("package {0} has been tampered with"), packageInfo.id));
         }
       }
     }

@@ -126,8 +126,8 @@ public:
 public:
   struct UpdateInfo
   {
-    /// Package deployment name.
-    std::string deploymentName;
+    /// Package ID.
+    std::string packageId;
 
     /// Date/Time the package was created.
     time_t timePackaged = static_cast<time_t>(0);
@@ -161,7 +161,7 @@ public:
 public:
   struct UpgradeInfo
   {
-    std::string deploymentName;
+    std::string packageId;
     time_t timePackaged = static_cast<time_t>(0);
     std::string version;
   };
@@ -198,8 +198,8 @@ public:
 public:
   struct ProgressInfo
   {
-    /// Deployment name of package.
-    std::string deploymentName;
+    /// Package ID.
+    std::string packageId;
 
     /// Display name of package.
     std::string displayName;

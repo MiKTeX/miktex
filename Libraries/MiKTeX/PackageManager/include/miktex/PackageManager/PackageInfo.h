@@ -41,8 +41,8 @@ MPM_BEGIN_NAMESPACE;
 /// Package info struct.
 struct PackageInfo
 {
-  /// Deployment name.
-  std::string deploymentName;
+  /// Package ID.
+  std::string id;
 
   /// Display name.
   std::string displayName;

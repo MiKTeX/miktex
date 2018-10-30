@@ -30,7 +30,7 @@
 
 inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo& left, const MiKTeX::Packages::PackageInfo& right)
 {
-  left.deploymentName = _bstr_t(UW_(right.deploymentName)).Detach();
+  left.deploymentName = _bstr_t(UW_(right.id)).Detach();
   left.displayName = _bstr_t(UW_(right.displayName)).Detach();
   left.title = _bstr_t(UW_(right.title)).Detach();
   left.version = _bstr_t(UW_(right.version)).Detach();
@@ -66,7 +66,7 @@ inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo& left, const Mi
 
 inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo2& left, const MiKTeX::Packages::PackageInfo& right)
 {
-  left.deploymentName = _bstr_t(UW_(right.deploymentName)).Detach();
+  left.deploymentName = _bstr_t(UW_(right.id)).Detach();
   left.displayName = _bstr_t(UW_(right.displayName)).Detach();
   left.title = _bstr_t(UW_(right.title)).Detach();
   left.version = _bstr_t(UW_(right.version)).Detach();

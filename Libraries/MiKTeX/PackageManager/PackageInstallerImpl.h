@@ -66,9 +66,9 @@ public:
   }
 
 private:
-  bool TryGetValue(const std::string& deploymentName, const std::string& valueName, std::string& value)
+  bool TryGetValue(const std::string& packageId, const std::string& valueName, std::string& value)
   {
-    return cfg->TryGetValue(deploymentName, valueName, value);
+    return cfg->TryGetValue(packageId, valueName, value);
   }
 
 public:
@@ -98,70 +98,70 @@ public:
   }
 
 public:
-  int GetArchiveFileSize(const std::string& deploymentName)
+  int GetArchiveFileSize(const std::string& packageId)
   {
     std::string str;
-    if (!TryGetValue(deploymentName, "CabSize", str))
+    if (!TryGetValue(packageId, "CabSize", str))
     {
-      MIKTEX_FATAL_ERROR_2(T_("Unknown archive file size."), "package", deploymentName);
+      MIKTEX_FATAL_ERROR_2(T_("Unknown archive file size."), "package", packageId);
     }
     return atoi(str.c_str());
   }
 
 public:
-  MiKTeX::Core::MD5 GetArchiveFileDigest(const std::string& deploymentName)
+  MiKTeX::Core::MD5 GetArchiveFileDigest(const std::string& packageId)
   {
     std::string str;
-    if (!cfg->TryGetValue(deploymentName, "CabMD5", str))
+    if (!cfg->TryGetValue(packageId, "CabMD5", str))
     {
-      MIKTEX_FATAL_ERROR_2(T_("Unknown archive file digest."), "package", deploymentName);
+      MIKTEX_FATAL_ERROR_2(T_("Unknown archive file digest."), "package", packageId);
     }
     return MiKTeX::Core::MD5::Parse(str.c_str());
   }
 
 public:
-  MiKTeX::Core::MD5 GetPackageDigest(const std::string& deploymentName)
+  MiKTeX::Core::MD5 GetPackageDigest(const std::string& packageId)
   {
     std::string str;
-    if (!cfg->TryGetValue(deploymentName, "MD5", str))
+    if (!cfg->TryGetValue(packageId, "MD5", str))
     {
-      MIKTEX_FATAL_ERROR_2(T_("Unknown package digest."), "package", deploymentName);
+      MIKTEX_FATAL_ERROR_2(T_("Unknown package digest."), "package", packageId);
     }
     return MiKTeX::Core::MD5::Parse(str.c_str());
   }
 
 public:
-  time_t GetTimePackaged(const std::string& deploymentName)
+  time_t GetTimePackaged(const std::string& packageId)
   {
     std::string str;
-    if (!TryGetValue(deploymentName, "TimePackaged", str))
+    if (!TryGetValue(packageId, "TimePackaged", str))
     {
-      MIKTEX_FATAL_ERROR_2(T_("Unknown package time-stamp."), "package", deploymentName);
+      MIKTEX_FATAL_ERROR_2(T_("Unknown package time-stamp."), "package", packageId);
     }
     unsigned time = static_cast<unsigned>(atoi(str.c_str()));
     if (time < Y2000)
     {
-      MIKTEX_FATAL_ERROR_2(T_("Invalid package time-stamp."), "package", deploymentName);
+      MIKTEX_FATAL_ERROR_2(T_("Invalid package time-stamp."), "package", packageId);
     }
     return time;
   }
 
 public:
-  PackageLevel GetPackageLevel(const std::string& deploymentName)
+  PackageLevel GetPackageLevel(const std::string& packageId)
   {
     std::string str;
-    if (!TryGetValue(deploymentName, "Level", str))
+    if (!TryGetValue(packageId, "Level", str))
     {
-      MIKTEX_FATAL_ERROR_2(T_("Unknown package level."), "package", deploymentName);
+      MIKTEX_FATAL_ERROR_2(T_("Unknown package level."), "package", packageId);
     }
     return CharToPackageLevel(str[0]);
   }
 
 public:
-  std::string GetPackageVersion(const std::string& deploymentName)
+  std::string GetPackageVersion(const std::string& packageId)
   {
     std::string version;
-    if (!TryGetValue(deploymentName, "Version", version))
+    if (!TryGetValue(packageId, "Version", version))
     {
       version = "";
     }
@@ -169,10 +169,10 @@ public:
   }
 
 public:
-  std::string GetPackageTargetSystem(const std::string& deploymentName)
+  std::string GetPackageTargetSystem(const std::string& packageId)
   {
     std::string targetSystem;
-    if (!TryGetValue(deploymentName, "TargetSystem", targetSystem))
+    if (!TryGetValue(packageId, "TargetSystem", targetSystem))
     {
       targetSystem = "";
     }
@@ -180,10 +180,10 @@ public:
   }
 
 public:
-  MiKTeX::Extractor::ArchiveFileType GetArchiveFileType(const std::string& deploymentName)
+  MiKTeX::Extractor::ArchiveFileType GetArchiveFileType(const std::string& packageId)
   {
     std::string str;
-    if (!TryGetValue(deploymentName, "Type", str))
+    if (!TryGetValue(packageId, "Type", str))
     {
       return MiKTeX::Extractor::ArchiveFileType::MSCab;
     }
@@ -201,7 +201,7 @@ public:
     }
     else
     {
-      MIKTEX_FATAL_ERROR_2(T_("Unknown archive file type."), "package", deploymentName);
+      MIKTEX_FATAL_ERROR_2(T_("Unknown archive file type."), "package", packageId);
     }
   }
 
@@ -577,7 +577,7 @@ private:
   void RemoveFromFileList(std::vector<std::string>& fileList, const MiKTeX::Core::PathName& fileName) const;
 
 private:
-  void CopyPackage(const MiKTeX::Core::PathName& pathSourceRoot, const std::string& deploymentName);
+  void CopyPackage(const MiKTeX::Core::PathName& pathSourceRoot, const std::string& packageId);
 
 private:
   bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) override;
@@ -586,22 +586,22 @@ private:
   bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName& directory) override;
 
 private:
-  void RemovePackage(const std::string& deploymentName);
+  void RemovePackage(const std::string& packageId);
 
 private:
-  void InstallPackage(const std::string& deploymentName);
+  void InstallPackage(const std::string& packageId);
 
 private:
   void MyCopyFile(const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& dest, size_t& size);
 
 private:
-  void DownloadPackage(const std::string& deploymentName);
+  void DownloadPackage(const std::string& packageId);
 
 private:
-  bool CheckArchiveFile(const std::string& deploymentName, const MiKTeX::Core::PathName& archiveFileName, bool mustBeOk);
+  bool CheckArchiveFile(const std::string& packageId, const MiKTeX::Core::PathName& archiveFileName, bool mustBeOk);
 
 private:
-  void CheckDependencies(std::set<std::string>& packages, const std::string& deploymentName, bool force, int level);
+  void CheckDependencies(std::set<std::string>& packages, const std::string& packageId, bool force, int level);
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 private:

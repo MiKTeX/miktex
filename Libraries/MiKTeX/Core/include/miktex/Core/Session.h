@@ -553,12 +553,12 @@ enum class ShellCommandMode
 class MIKTEXNOVTABLE IFindFileCallback
 {
   /// Request to install package. Called by the FindFile machinery.
-  /// @param deploymentName Package to be installed.
+  /// @param packageId Package to be installed.
   /// @param trigger File name that triggered the auto-installer.
   /// @param[out] installRoot Installation root directory.
   /// @return Returns true, if the package has been installed.
 public:
-  virtual bool MIKTEXTHISCALL InstallPackage(const std::string& deploymentName, const PathName& trigger, PathName& installRoot) = 0;
+  virtual bool MIKTEXTHISCALL InstallPackage(const std::string& packageId, const PathName& trigger, PathName& installRoot) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL TryCreateFile(const PathName& fileName, FileType fileType) = 0;

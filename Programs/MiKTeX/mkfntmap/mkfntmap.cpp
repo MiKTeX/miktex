@@ -314,13 +314,13 @@ private:
   bool disableInstaller = false;
 
 private:
-  bool InstallPackage(const string& deploymentName, const PathName& trigger, PathName& installRoot) override
+  bool InstallPackage(const string& packageId, const PathName& trigger, PathName& installRoot) override
   {
     if (disableInstaller)
     {
       return false;
     }
-    return Application::InstallPackage(deploymentName, trigger, installRoot);
+    return Application::InstallPackage(packageId, trigger, installRoot);
   }
 
 private:

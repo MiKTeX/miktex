@@ -342,7 +342,7 @@ public:
   void Run(int argc, const char* argv[]);
 
 private:
-  bool InstallPackage(const string& deploymentName, const PathName& trigger, PathName& installRoot) override;
+  bool InstallPackage(const string& packageId, const PathName& trigger, PathName& installRoot) override;
 
 private:
   bool TryCreateFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::FileType fileType) override;
@@ -842,16 +842,16 @@ MIKTEXNORETURN void IniTeXMFApp::FatalError(const string& s)
   throw 1;
 }
 
-bool IniTeXMFApp::InstallPackage(const string& deploymentName, const PathName& trigger, PathName& installRoot)
+bool IniTeXMFApp::InstallPackage(const string& packageId, const PathName& trigger, PathName& installRoot)
 {
   if (enableInstaller != TriState::True)
   {
     return false;
   }
-  LOG4CXX_INFO(logger, "installing package " << deploymentName << " triggered by " << trigger.ToString());
-  Verbose(fmt::format(T_("Installing package {0}..."), deploymentName));
+  LOG4CXX_INFO(logger, "installing package " << packageId << " triggered by " << trigger.ToString());
+  Verbose(fmt::format(T_("Installing package {0}..."), packageId));
   EnsureInstaller();
-  packageInstaller->SetFileLists({ deploymentName }, {});
+  packageInstaller->SetFileLists({ packageId }, {});
   packageInstaller->InstallRemove(PackageInstaller::Role::Application);
   installRoot = session->GetSpecialPath(SpecialPath::InstallRoot);
   return true;

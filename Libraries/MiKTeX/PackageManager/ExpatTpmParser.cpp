@@ -297,7 +297,7 @@ void ExpatTpmParser::Parse(const PathName& path, const string& texmfPrefix)
 
   packageInfo = PackageInfo();
 
-  packageInfo.deploymentName = path.GetFileNameWithoutExtension().ToString();
+  packageInfo.id = path.GetFileNameWithoutExtension().ToString();
 
   size_t bytesToRead = File::GetSize(path);
 

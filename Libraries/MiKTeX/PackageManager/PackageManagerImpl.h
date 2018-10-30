@@ -86,7 +86,7 @@ public:
   unsigned long MIKTEXTHISCALL GetFileRefCount(const MiKTeX::Core::PathName& path) override;
 
 public:
-  MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& deploymentName) override;
+  MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& packageId) override;
 
 public:
   void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName& path) override;
@@ -125,7 +125,7 @@ public:
   }
 
 public:
-  bool MIKTEXTHISCALL TryGetPackageInfo(const std::string& deploymentName, MiKTeX::Packages::PackageInfo& packageInfo) override;
+  bool MIKTEXTHISCALL TryGetPackageInfo(const std::string& packageId, MiKTeX::Packages::PackageInfo& packageInfo) override;
 
 private:
   bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) override;
@@ -156,10 +156,10 @@ public:
   }
 
 public:
-  bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string& deploymentName) override;
+  bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string& packageId) override;
 
 public:
-  std::string MIKTEXTHISCALL GetContainerPath(const std::string& deploymentName, bool useDisplayNames) override;
+  std::string MIKTEXTHISCALL GetContainerPath(const std::string& packageId, bool useDisplayNames) override;
 
 public:
   PackageManagerImpl(const MiKTeX::Packages::PackageManager::InitInfo& initInfo);
@@ -168,7 +168,7 @@ public:
   void ClearAll();
 
 public:
-  void IncrementFileRefCounts(const std::string& deploymentName);
+  void IncrementFileRefCounts(const std::string& packageId);
 
 public:
   void NeedInstalledFileInfoTable();
@@ -180,43 +180,43 @@ public:
   void GetAllPackageDefinitions(std::vector<MiKTeX::Packages::PackageInfo>& packages);
 
 public:
-  MiKTeX::Packages::PackageInfo* TryGetPackageInfo(const std::string& deploymentName);
+  MiKTeX::Packages::PackageInfo* TryGetPackageInfo(const std::string& packageId);
 
 public:
   InstalledFileInfo * GetInstalledFileInfo(const char* lpszPath);
 
 public:
-  bool IsRemovable(const std::string& deploymentName);
+  bool IsRemovable(const std::string& packageId);
 
 public:
-  time_t GetUserTimeInstalled(const std::string& deploymentName);
+  time_t GetUserTimeInstalled(const std::string& packageId);
 
 public:
-  time_t GetCommonTimeInstalled(const std::string& deploymentName);
+  time_t GetCommonTimeInstalled(const std::string& packageId);
 
 public:
-  time_t GetTimeInstalled(const std::string& deploymentName);
+  time_t GetTimeInstalled(const std::string& packageId);
 
 public:
-  bool IsPackageInstalled(const std::string& deploymentName);
+  bool IsPackageInstalled(const std::string& packageId);
 
 public:
-  bool IsPackageObsolete(const std::string& deploymentName);
+  bool IsPackageObsolete(const std::string& packageId);
 
 public:
-  void DeclarePackageObsolete(const std::string& deploymentName, bool obsolete);
+  void DeclarePackageObsolete(const std::string& packageId, bool obsolete);
 
 public:
-  void SetTimeInstalled(const std::string& deploymentName, time_t timeInstalled);
+  void SetTimeInstalled(const std::string& packageId, time_t timeInstalled);
 
 public:
-  void SetReleaseState(const std::string& deploymentName, MiKTeX::Packages::RepositoryReleaseState releaseState);
+  void SetReleaseState(const std::string& packageId, MiKTeX::Packages::RepositoryReleaseState releaseState);
 
 public:
-  MiKTeX::Packages::RepositoryReleaseState GetReleaseState(const std::string& deploymentName);
+  MiKTeX::Packages::RepositoryReleaseState GetReleaseState(const std::string& packageId);
 
 public:
-  MiKTeX::Packages::PackageInfo* DefinePackage(const std::string& deploymentName, const MiKTeX::Packages::PackageInfo& packageinfo);
+  MiKTeX::Packages::PackageInfo* DefinePackage(const std::string& packageId, const MiKTeX::Packages::PackageInfo& packageinfo);
 
 private:
   void LoadVariablePackageTable();

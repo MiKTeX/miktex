@@ -449,7 +449,7 @@ void MiKTeXHelp::CreateHtmlAndView(const char* lpszPackageName, const vector<str
       }
       if (tag == "NAME")
       {
-        WriteText(writer, pi.deploymentName);
+        WriteText(writer, pi.id);
       }
       else if (tag == "TITLE")
       {

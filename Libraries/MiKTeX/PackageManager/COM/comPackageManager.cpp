@@ -122,7 +122,7 @@ STDMETHODIMP comPackageManager::CreateInstaller(IPackageInstaller** ppInstaller)
   }
 }
 
-STDMETHODIMP comPackageManager::GetPackageInfo(BSTR deploymentName, MiKTeXPackageManagerLib::PackageInfo* pPackageInfo)
+STDMETHODIMP comPackageManager::GetPackageInfo(BSTR packageId, MiKTeXPackageManagerLib::PackageInfo* pPackageInfo)
 {
   PackageManagerImpl::localServer = true;
   try
@@ -132,7 +132,7 @@ STDMETHODIMP comPackageManager::GetPackageInfo(BSTR deploymentName, MiKTeXPackag
     {
       packageManager = MiKTeX::Packages::PackageManager::Create();
     }
-    MiKTeX::Packages::PackageInfo packageInfo = packageManager->GetPackageInfo(WU_((deploymentName)));
+    MiKTeX::Packages::PackageInfo packageInfo = packageManager->GetPackageInfo(WU_((packageId)));
     CopyPackageInfo(*pPackageInfo, packageInfo);
     return S_OK;
   }
@@ -178,7 +178,7 @@ STDMETHODIMP comPackageManager::CreatePackageIterator(IPackageIterator** ppIter)
   }
 }
 
-STDMETHODIMP comPackageManager::GetPackageInfo2(BSTR deploymentName, PackageInfo2* pPackageInfo)
+STDMETHODIMP comPackageManager::GetPackageInfo2(BSTR packageId, PackageInfo2* pPackageInfo)
 {
   PackageManagerImpl::localServer = true;
   try
@@ -188,7 +188,7 @@ STDMETHODIMP comPackageManager::GetPackageInfo2(BSTR deploymentName, PackageInfo
     {
       packageManager = MiKTeX::Packages::PackageManager::Create();
     }
-    MiKTeX::Packages::PackageInfo packageInfo = packageManager->GetPackageInfo(WU_(deploymentName));
+    MiKTeX::Packages::PackageInfo packageInfo = packageManager->GetPackageInfo(WU_(packageId));
     CopyPackageInfo(*pPackageInfo, packageInfo);
     return S_OK;
   }

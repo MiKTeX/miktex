@@ -45,7 +45,7 @@ bool PackageIteratorImpl::GetNext(PackageInfo& packageInfo)
     {
       continue;
     }
-    if (filter[PackageFilter::Obsolete] && !packageManager->IsPackageObsolete(iter->deploymentName))
+    if (filter[PackageFilter::Obsolete] && !packageManager->IsPackageObsolete(iter->id))
     {
       continue;
     }

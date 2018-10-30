@@ -60,9 +60,9 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
       switch (index.column())
       {
       case 0:
-        return QString::fromUtf8(packageInfo.deploymentName.c_str());
+        return QString::fromUtf8(packageInfo.id.c_str());
       case 1:
-        return QString::fromUtf8(packageManager->GetContainerPath(packageInfo.deploymentName, true).c_str());
+        return QString::fromUtf8(packageManager->GetContainerPath(packageInfo.id, true).c_str());
       case 2:
         return (qlonglong)packageInfo.GetSize();
       case 3:

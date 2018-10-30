@@ -72,21 +72,21 @@ PackageInstaller::~PackageInstaller() noexcept
 {
 }
 
-MPMSTATICFUNC(bool) IsPureContainer(const string& deploymentName)
+MPMSTATICFUNC(bool) IsPureContainer(const string& packageId)
 {
-  return strncmp(deploymentName.c_str(), "_miktex-", 8) == 0;
+  return strncmp(packageId.c_str(), "_miktex-", 8) == 0;
 }
 
-MPMSTATICFUNC(bool) IsMiKTeXPackage(const string& deploymentName)
+MPMSTATICFUNC(bool) IsMiKTeXPackage(const string& packageId)
 {
-  return strncmp(deploymentName.c_str(), "miktex-", 7) == 0;
+  return strncmp(packageId.c_str(), "miktex-", 7) == 0;
 }
 
-MPMSTATICFUNC(PathName) PrefixedPackageManifestFile(const string& deploymentName)
+MPMSTATICFUNC(PathName) PrefixedPackageManifestFile(const string& packageId)
 {
   PathName path(TEXMF_PREFIX_DIRECTORY);
   path /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-  path /= deploymentName;
+  path /= packageId;
   path.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
   return path;
 }
@@ -353,7 +353,7 @@ void PackageInstallerImpl::InstallRepositoryManifest()
       // update progress indicator
       {
         lock_guard<mutex> lockGuard(progressIndicatorMutex);
-        progressInfo.deploymentName = MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
+        progressInfo.packageId = MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
         progressInfo.displayName = T_("Package repository manifest");
         progressInfo.cbPackageDownloadCompleted = 0;
         progressInfo.cbPackageDownloadTotal = ZZDB1_SIZE;
@@ -477,17 +477,17 @@ void PackageInstallerImpl::FindUpdates()
 
   updates.clear();
 
-  for (string deploymentName = repositoryManifest.FirstPackage(); !deploymentName.empty(); deploymentName = repositoryManifest.NextPackage())
+  for (string packageId = repositoryManifest.FirstPackage(); !packageId.empty(); packageId = repositoryManifest.NextPackage())
   {
     Notify();
 
     UpdateInfo updateInfo;
-    updateInfo.deploymentName = deploymentName;
-    updateInfo.timePackaged = repositoryManifest.GetTimePackaged(deploymentName);
-    updateInfo.version = repositoryManifest.GetPackageVersion(deploymentName);
+    updateInfo.packageId = packageId;
+    updateInfo.timePackaged = repositoryManifest.GetTimePackaged(packageId);
+    updateInfo.version = repositoryManifest.GetPackageVersion(packageId);
 
 #if IGNORE_OTHER_SYSTEMS
-    string targetSystem = repositoryManifest.GetPackageTargetSystem(deploymentName);
+    string targetSystem = repositoryManifest.GetPackageTargetSystem(packageId);
     bool isOthertargetSystem = !(targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG);
     if (isOthertargetSystem)
     {
@@ -495,15 +495,15 @@ void PackageInstallerImpl::FindUpdates()
     }
 #endif
 
-    bool isEssential = repositoryManifest.GetPackageLevel(deploymentName) <= PackageLevel::Essential;
+    bool isEssential = repositoryManifest.GetPackageLevel(packageId) <= PackageLevel::Essential;
 
-    const PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
+    const PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
 
-    if (package == nullptr || !packageManager->IsPackageInstalled(deploymentName))
+    if (package == nullptr || !packageManager->IsPackageInstalled(packageId))
     {
       if (isEssential)
       {
-        trace_mpm->WriteFormattedLine("libmpm", T_("%s: new essential package"), deploymentName.c_str());
+        trace_mpm->WriteFormattedLine("libmpm", T_("%s: new essential package"), packageId.c_str());
         updateInfo.action = UpdateInfo::ForceUpdate;
         updates.push_back(updateInfo);
       }
@@ -513,26 +513,26 @@ void PackageInstallerImpl::FindUpdates()
     // clean the user-installation directory
     if (!session->IsAdminMode()
       && session->GetSpecialPath(SpecialPath::UserInstallRoot) != session->GetSpecialPath(SpecialPath::CommonInstallRoot)
-      && packageManager->GetUserTimeInstalled(deploymentName) != static_cast<time_t>(0)
-      && packageManager->GetCommonTimeInstalled(deploymentName) != static_cast<time_t>(0))
+      && packageManager->GetUserTimeInstalled(packageId) != static_cast<time_t>(0)
+      && packageManager->GetCommonTimeInstalled(packageId) != static_cast<time_t>(0))
     {
       if (!package->isRemovable)
       {
         MIKTEX_UNEXPECTED();
       }
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: double installed"), deploymentName.c_str());
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: double installed"), packageId.c_str());
       updateInfo.action = UpdateInfo::ForceRemove;
       updates.push_back(updateInfo);
       continue;
     }
 
     // check the integrity of installed MiKTeX packages
-    if (IsMiKTeXPackage(deploymentName)
-      && !packageManager->TryVerifyInstalledPackage(deploymentName)
+    if (IsMiKTeXPackage(packageId)
+      && !packageManager->TryVerifyInstalledPackage(packageId)
       && package->isRemovable)
     {
       // the package has been tampered with
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: package is broken"), deploymentName.c_str());
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: package is broken"), packageId.c_str());
       updateInfo.timePackaged = static_cast<time_t>(-1);
       updateInfo.action = UpdateInfo::Repair;
       updates.push_back(updateInfo);
@@ -540,7 +540,7 @@ void PackageInstallerImpl::FindUpdates()
     }
 
     // compare digests, version numbers and time stamps
-    MD5 md5 = repositoryManifest.GetPackageDigest(deploymentName);
+    MD5 md5 = repositoryManifest.GetPackageDigest(packageId);
     if (md5 == package->digest)
     {
       // digests do match => no update necessary
@@ -553,18 +553,18 @@ void PackageInstallerImpl::FindUpdates()
       && package->releaseState != repositoryReleaseState;
     if (isReleaseStateDiff)
     {
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: package release state changed"), deploymentName.c_str());
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: package release state changed"), packageId.c_str());
     }
     else
     {
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: server has a different version"), deploymentName.c_str());
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: server has a different version"), packageId.c_str());
     }
     trace_mpm->WriteFormattedLine("libmpm", T_("server digest: %s"), md5.ToString().c_str());
     trace_mpm->WriteFormattedLine("libmpm", T_("local digest: %s"), package->digest.ToString().c_str());
     if (!isReleaseStateDiff)
     {
       // compare time stamps
-      time_t timePackaged = repositoryManifest.GetTimePackaged(deploymentName);
+      time_t timePackaged = repositoryManifest.GetTimePackaged(packageId);
       if (timePackaged <= package->timePackaged)
       {
         // server has an older package => no update
@@ -572,12 +572,12 @@ void PackageInstallerImpl::FindUpdates()
         continue;
       }
       // server has a newer package
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: server has new version"), deploymentName.c_str());
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: server has new version"), packageId.c_str());
     }
 
     if (!package->isRemovable)
     {
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: no permission to update package"), deploymentName.c_str());
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: no permission to update package"), packageId.c_str());
       updateInfo.action = UpdateInfo::KeepAdmin;
     }
     else
@@ -604,9 +604,9 @@ void PackageInstallerImpl::FindUpdates()
   PackageInfo package;
   while (pIter->GetNext(package))
   {
-    trace_mpm->WriteFormattedLine("libmpm", T_("%s: package is obsolete"), package.deploymentName.c_str());
+    trace_mpm->WriteFormattedLine("libmpm", T_("%s: package is obsolete"), package.id.c_str());
     UpdateInfo updateInfo;
-    updateInfo.deploymentName = package.deploymentName;
+    updateInfo.packageId = package.id;
     updateInfo.timePackaged = package.timePackaged;
     if (package.isRemovable)
     {
@@ -674,30 +674,30 @@ void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
   UpdateDb();
   LoadRepositoryManifest(false);
   upgrades.clear();
-  for (string deploymentName = repositoryManifest.FirstPackage(); !deploymentName.empty(); deploymentName = repositoryManifest.NextPackage())
+  for (string packageId = repositoryManifest.FirstPackage(); !packageId.empty(); packageId = repositoryManifest.NextPackage())
   {
     Notify();
-    const PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
-    if (package != nullptr && packageManager->IsPackageInstalled(deploymentName))
+    const PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
+    if (package != nullptr && packageManager->IsPackageInstalled(packageId))
     {
       continue;
     }
 #if IGNORE_OTHER_SYSTEMS
-    string targetSystem = repositoryManifest.GetPackageTargetSystem(deploymentName);
+    string targetSystem = repositoryManifest.GetPackageTargetSystem(packageId);
     if (!targetSystem.empty() && targetSystem != MIKTEX_SYSTEM_TAG)
     {
       continue;
     }
 #endif
-    if (repositoryManifest.GetPackageLevel(deploymentName) > packageLevel)
+    if (repositoryManifest.GetPackageLevel(packageId) > packageLevel)
     {
       continue;
     }
-    trace_mpm->WriteFormattedLine("libmpm", T_("%s: upgrade"), deploymentName.c_str());
+    trace_mpm->WriteFormattedLine("libmpm", T_("%s: upgrade"), packageId.c_str());
     UpgradeInfo upgrade;
-    upgrade.deploymentName = deploymentName;
-    upgrade.timePackaged = repositoryManifest.GetTimePackaged(deploymentName);
-    upgrade.version = repositoryManifest.GetPackageVersion(deploymentName);
+    upgrade.packageId = packageId;
+    upgrade.timePackaged = repositoryManifest.GetTimePackaged(packageId);
+    upgrade.version = repositoryManifest.GetPackageVersion(packageId);
     upgrades.push_back(upgrade);
   }
 }
@@ -829,43 +829,43 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
   }
 }
 
-void PackageInstallerImpl::RemovePackage(const string& deploymentName)
+void PackageInstallerImpl::RemovePackage(const string& packageId)
 {
-  trace_mpm->WriteFormattedLine("libmpm", T_("going to remove %s"), Q_(deploymentName));
+  trace_mpm->WriteFormattedLine("libmpm", T_("going to remove %s"), Q_(packageId));
 
   // notify client
   Notify(Notification::RemovePackageStart);
-  ReportLine(fmt::format(T_("removing package {0}..."), Q_(deploymentName)));
+  ReportLine(fmt::format(T_("removing package {0}..."), Q_(packageId)));
 
   // get package info
-  PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
+  PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
   if (package == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
 
   // check to see whether it is installed
-  if (packageManager->GetTimeInstalled(deploymentName) == 0)
+  if (packageManager->GetTimeInstalled(packageId) == 0)
   {
     MIKTEX_UNEXPECTED();
   }
 
   // clear the installTime value => package is not installed
-  trace_mpm->WriteFormattedLine("libmpm", T_("removing %s from the variable package table"), Q_(deploymentName));
-  packageManager->SetTimeInstalled(deploymentName, 0);
+  trace_mpm->WriteFormattedLine("libmpm", T_("removing %s from the variable package table"), Q_(packageId));
+  packageManager->SetTimeInstalled(packageId, 0);
   packageManager->FlushVariablePackageTable();
   package->timeInstalled = 0;
 
-  if (packageManager->IsPackageObsolete(deploymentName))
+  if (packageManager->IsPackageObsolete(packageId))
   {
     // it's an obsolete package: make sure that the package
     // definition file gets removed too
-    AddToFileList(package->runFiles, PrefixedPackageManifestFile(deploymentName));
+    AddToFileList(package->runFiles, PrefixedPackageManifestFile(packageId));
   }
   else
   {
     // make sure that the package manifest file does not get removed
-    RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(deploymentName));
+    RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(packageId));
   }
 
   // remove the files
@@ -877,7 +877,7 @@ void PackageInstallerImpl::RemovePackage(const string& deploymentName)
   RemoveFiles(package->docFiles);
   RemoveFiles(package->sourceFiles);
 
-  trace_mpm->WriteFormattedLine("libmpm", T_("package %s successfully removed"), Q_(deploymentName));
+  trace_mpm->WriteFormattedLine("libmpm", T_("package %s successfully removed"), Q_(packageId));
 
   // update progress info
   {
@@ -1054,23 +1054,23 @@ void PackageInstallerImpl::RemoveFromFileList(vector<string>& fileList, const Pa
   }
 }
 
-void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const string& deploymentName)
+void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const string& packageId)
 {
   // parse the package manifest file
   PathName pathPackageFile = pathSourceRoot;
   pathPackageFile /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-  pathPackageFile /= deploymentName;
+  pathPackageFile /= packageId;
   pathPackageFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
   unique_ptr<TpmParser> tpmparser = TpmParser::Create();
   tpmparser->Parse(pathPackageFile);
 
   // get the package info from the parser; set the package name
   PackageInfo package = tpmparser->GetPackageInfo();
-  package.deploymentName = deploymentName;
+  package.id = packageId;
 
   // make sure that the package manifest file is included in the
   // file list
-  AddToFileList(package.runFiles, PrefixedPackageManifestFile(deploymentName));
+  AddToFileList(package.runFiles, PrefixedPackageManifestFile(packageId));
 
   // copy the files
   CopyFiles(pathSourceRoot, package.runFiles);
@@ -1120,12 +1120,12 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
   }
 }
 
-void PackageInstallerImpl::InstallPackage(const string& deploymentName)
+void PackageInstallerImpl::InstallPackage(const string& packageId)
 {
-  trace_mpm->WriteFormattedLine("libmpm", T_("installing package %s"), Q_(deploymentName));
+  trace_mpm->WriteFormattedLine("libmpm", T_("installing package %s"), Q_(packageId));
 
   // search the package table
-  PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
+  PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
   if (package == nullptr)
   {
     MIKTEX_UNEXPECTED();
@@ -1136,7 +1136,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   // initialize progress info
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
-    progressInfo.deploymentName = deploymentName;
+    progressInfo.packageId = packageId;
     progressInfo.displayName = package->displayName;
     progressInfo.cFilesPackageInstallCompleted = 0;
     progressInfo.cFilesPackageInstallTotal = package->GetNumFiles();
@@ -1145,7 +1145,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
     if (repositoryType == RepositoryType::Remote)
     {
       progressInfo.cbPackageDownloadCompleted = 0;
-      progressInfo.cbPackageDownloadTotal = repositoryManifest.GetArchiveFileSize(deploymentName);
+      progressInfo.cbPackageDownloadTotal = repositoryManifest.GetArchiveFileSize(packageId);
     }
   }
 
@@ -1153,14 +1153,14 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   Notify(Notification::InstallPackageStart);
 
   PathName pathArchiveFile;
-  ArchiveFileType aft = repositoryManifest.GetArchiveFileType(deploymentName);
+  ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
   unique_ptr<TemporaryFile> temporaryFile;
 
   // get hold of the archive file
   if (repositoryType == RepositoryType::Remote
     || repositoryType == RepositoryType::Local)
   {
-    PathName packageFileName = deploymentName;
+    PathName packageFileName = packageId;
     packageFileName.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
 
     if (repositoryType == RepositoryType::Remote)
@@ -1173,37 +1173,37 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
     else
     {
       MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-      pathArchiveFile = repository / deploymentName;
+      pathArchiveFile = repository / packageId;
       pathArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
     }
 
     // check to see whether the digest is good
-    if (!CheckArchiveFile(deploymentName, pathArchiveFile, false))
+    if (!CheckArchiveFile(packageId, pathArchiveFile, false))
     {
       LoadRepositoryManifest(true);
-      CheckArchiveFile(deploymentName, pathArchiveFile, true);
+      CheckArchiveFile(packageId, pathArchiveFile, true);
     }
   }
 
   // silently uninstall the package (this also decrements the file
   // reference counts)
-  if (packageManager->IsPackageInstalled(deploymentName))
+  if (packageManager->IsPackageInstalled(packageId))
   {
-    trace_mpm->WriteFormattedLine("libmpm", T_("%s: removing old files"), deploymentName.c_str());
+    trace_mpm->WriteFormattedLine("libmpm", T_("%s: removing old files"), packageId.c_str());
     // make sure that the package info file does not get removed
-    RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(deploymentName));
+    RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(packageId));
     RemoveFiles(package->runFiles, true);
     RemoveFiles(package->docFiles, true);
     RemoveFiles(package->sourceFiles, true);
     // temporarily set the status to "not installed"
-    packageManager->SetTimeInstalled(deploymentName, 0);
+    packageManager->SetTimeInstalled(packageId, 0);
     packageManager->FlushVariablePackageTable();
   }
 
   if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
   {
     // unpack the archive file
-    ReportLine(fmt::format(T_("extracting files from {0}..."), Q_(deploymentName + MiKTeX::Extractor::Extractor::GetFileNameExtension(aft))));
+    ReportLine(fmt::format(T_("extracting files from {0}..."), Q_(packageId + MiKTeX::Extractor::Extractor::GetFileNameExtension(aft))));
     ExtractFiles(pathArchiveFile, aft);
   }
   else if (repositoryType == RepositoryType::MiKTeXDirect)
@@ -1211,14 +1211,14 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
     // copy from CD
     PathName pathSourceRoot(repository);
     pathSourceRoot /= MIKTEXDIRECT_PREFIX_DIR;
-    CopyPackage(pathSourceRoot, deploymentName);
+    CopyPackage(pathSourceRoot, packageId);
   }
   else if (repositoryType == RepositoryType::MiKTeXInstallation)
   {
     // import from another MiKTeX installation
-    ReportLine(fmt::format(T_("importing package {0}..."), deploymentName));
+    ReportLine(fmt::format(T_("importing package {0}..."), packageId));
     PathName pathSourceRoot(repository);
-    CopyPackage(pathSourceRoot, deploymentName);
+    CopyPackage(pathSourceRoot, packageId);
   }
   else
   {
@@ -1226,14 +1226,14 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   }
 
   // parse the new package manifest file
-  PathName pathPackageFile = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR / deploymentName;
+  PathName pathPackageFile = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR / packageId;
   pathPackageFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
   unique_ptr<TpmParser> tpmparser = TpmParser::Create();
   tpmparser->Parse(pathPackageFile);
 
   // get new package info
   PackageInfo newPackage = tpmparser->GetPackageInfo();
-  newPackage.deploymentName = deploymentName;
+  newPackage.id = packageId;
 
   // find recycled and brand new files
   StringSet set1;
@@ -1268,20 +1268,20 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   // update the MPM file name database
   if (autoFndbSync)
   {
-    UpdateMpmFndb(newFiles, recycledFiles, deploymentName.c_str());
+    UpdateMpmFndb(newFiles, recycledFiles, packageId.c_str());
   }
 
   // set the timeInstalled value => package is installed
   newPackage.timeInstalled = time(nullptr);
-  packageManager->SetTimeInstalled(deploymentName, newPackage.timeInstalled);
-  packageManager->SetReleaseState(deploymentName, repositoryReleaseState);
+  packageManager->SetTimeInstalled(packageId, newPackage.timeInstalled);
+  packageManager->SetReleaseState(packageId, repositoryReleaseState);
   packageManager->FlushVariablePackageTable();
 
   // update package info table
   *package = newPackage;
 
   // increment file ref counts
-  packageManager->IncrementFileRefCounts(deploymentName);
+  packageManager->IncrementFileRefCounts(packageId);
 
   // update progress info
   {
@@ -1293,7 +1293,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   Notify(Notification::InstallPackageEnd);
 }
 
-void PackageInstallerImpl::DownloadPackage(const string& deploymentName)
+void PackageInstallerImpl::DownloadPackage(const string& packageId)
 {
   size_t expectedSize;
 
@@ -1302,11 +1302,11 @@ void PackageInstallerImpl::DownloadPackage(const string& deploymentName)
   // update progress info
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
-    progressInfo.deploymentName = deploymentName;
-    progressInfo.displayName = deploymentName;
+    progressInfo.packageId = packageId;
+    progressInfo.displayName = packageId;
     MIKTEX_ASSERT(repositoryType == RepositoryType::Remote);
     progressInfo.cbPackageDownloadCompleted = 0;
-    progressInfo.cbPackageDownloadTotal = repositoryManifest.GetArchiveFileSize(deploymentName);
+    progressInfo.cbPackageDownloadTotal = repositoryManifest.GetArchiveFileSize(packageId);
     expectedSize = progressInfo.cbPackageDownloadTotal;
   }
 
@@ -1314,15 +1314,15 @@ void PackageInstallerImpl::DownloadPackage(const string& deploymentName)
   Notify(Notification::DownloadPackageStart);
 
   // make the archive file name
-  ArchiveFileType aft = repositoryManifest.GetArchiveFileType(deploymentName);
-  PathName pathArchiveFile = deploymentName;
+  ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
+  PathName pathArchiveFile = packageId;
   pathArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
 
   // download the archive file
   Download(pathArchiveFile, expectedSize);
 
   // check to see whether the archive file is ok
-  CheckArchiveFile(deploymentName, downloadDirectory / pathArchiveFile, true);
+  CheckArchiveFile(packageId, downloadDirectory / pathArchiveFile, true);
 
   // notify client: end of package download
   Notify(Notification::DownloadPackageEnd);
@@ -1421,18 +1421,18 @@ bool PackageInstallerImpl::OnProgress(unsigned level, const PathName& directory)
   }
 }
 
-bool PackageInstallerImpl::CheckArchiveFile(const std::string& deploymentName, const PathName& archiveFileName, bool mustBeOk)
+bool PackageInstallerImpl::CheckArchiveFile(const std::string& packageId, const PathName& archiveFileName, bool mustBeOk)
 {
   if (!File::Exists(archiveFileName))
   {
-    MIKTEX_FATAL_ERROR_2(FatalError(ERROR_MISSING_PACKAGE), "package", deploymentName, "archiveFile", archiveFileName.ToString());
+    MIKTEX_FATAL_ERROR_2(FatalError(ERROR_MISSING_PACKAGE), "package", packageId, "archiveFile", archiveFileName.ToString());
   }
-  MD5 digest1 = repositoryManifest.GetArchiveFileDigest(deploymentName);
+  MD5 digest1 = repositoryManifest.GetArchiveFileDigest(packageId);
   MD5 digest2 = MD5::FromFile(archiveFileName.GetData());
   bool ok = (digest1 == digest2);
   if (!ok && mustBeOk)
   {
-    MIKTEX_FATAL_ERROR_2(FatalError(ERROR_CORRUPTED_PACKAGE), "package", deploymentName, "arhiveFile", archiveFileName.ToString(), "expectedMD5", digest1.ToString(), "actualMD5", digest2.ToString());
+    MIKTEX_FATAL_ERROR_2(FatalError(ERROR_CORRUPTED_PACKAGE), "package", packageId, "arhiveFile", archiveFileName.ToString(), "expectedMD5", digest1.ToString(), "actualMD5", digest2.ToString());
   }
   return ok;
 }
@@ -1702,13 +1702,13 @@ void PackageInstallerImpl::RunIniTeXMF(const vector<string>& extraArguments)
   Process::Run(initexmf, arguments, this);
 }
 
-void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string& deploymentName, bool force, int level)
+void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string& packageId, bool force, int level)
 {
   if (level > 10)
   {
     MIKTEX_UNEXPECTED();
   }
-  PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
+  PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
   if (package != nullptr)
   {
     for (const string& p : package->requiredPackages)
@@ -1716,9 +1716,9 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
       CheckDependencies(packages, p, force, level + 1);
     }
   }
-  if (force || !packageManager->IsPackageInstalled(deploymentName))
+  if (force || !packageManager->IsPackageInstalled(packageId))
   {
-    packages.insert(deploymentName);
+    packages.insert(packageId);
   }
 }
 
@@ -1818,15 +1818,15 @@ void PackageInstallerImpl::InstallRemove(Role role)
   {
     LoadRepositoryManifest(true);
 
-    string deploymentName = repositoryManifest.FirstPackage();
-    if (deploymentName.empty())
+    string packageId = repositoryManifest.FirstPackage();
+    if (packageId.empty())
     {
       MIKTEX_FATAL_ERROR(T_("No packages on server."));
     }
     do
     {
       // search repository manifest
-      PackageLevel lvl = repositoryManifest.GetPackageLevel(deploymentName);
+      PackageLevel lvl = repositoryManifest.GetPackageLevel(packageId);
       if (lvl > taskPackageLevel)
       {
         // not found or not required
@@ -1835,7 +1835,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
 #if IGNORE_OTHER_SYSTEMS
       // check target system
-      string targetSystem = repositoryManifest.GetPackageTargetSystem(deploymentName);
+      string targetSystem = repositoryManifest.GetPackageTargetSystem(packageId);
       if (!(targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG))
       {
         continue;
@@ -1845,27 +1845,27 @@ void PackageInstallerImpl::InstallRemove(Role role)
       if (repositoryType == RepositoryType::Local || repositoryType == RepositoryType::Remote)
       {
         // ignore pure containers
-        if (IsPureContainer(deploymentName))
+        if (IsPureContainer(packageId))
         {
           continue;
         }
 
         // check to see whether the archive file exists
-        ArchiveFileType aft = repositoryManifest.GetArchiveFileType(deploymentName);
-        PathName pathLocalArchiveFile = repository / deploymentName;
+        ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
+        PathName pathLocalArchiveFile = repository / packageId;
         pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
         if (!File::Exists(pathLocalArchiveFile))
         {
-          MIKTEX_FATAL_ERROR_2(FatalError(ERROR_MISSING_PACKAGE), "package", deploymentName, "archiveFile", pathLocalArchiveFile.ToString());
+          MIKTEX_FATAL_ERROR_2(FatalError(ERROR_MISSING_PACKAGE), "package", packageId, "archiveFile", pathLocalArchiveFile.ToString());
         }
 
         // check to see if the archive file is valid
-        CheckArchiveFile(deploymentName, pathLocalArchiveFile, true);
+        CheckArchiveFile(packageId, pathLocalArchiveFile, true);
       }
 
       // collect the package
-      toBeInstalled.push_back(deploymentName);
-    } while (!(deploymentName = repositoryManifest.NextPackage()).empty());
+      toBeInstalled.push_back(packageId);
+    } while (!(packageId = repositoryManifest.NextPackage()).empty());
   }
   else if (!toBeInstalled.empty())
   {
@@ -2023,32 +2023,32 @@ void PackageInstallerImpl::Download()
   LoadRepositoryManifest(true);
 
   // collect required packages
-  string deploymentName;
-  if (!(deploymentName = repositoryManifest.FirstPackage()).empty())
+  string packageId;
+  if (!(packageId = repositoryManifest.FirstPackage()).empty())
   {
     do
     {
       // don't add pure containers
-      if (IsPureContainer(deploymentName))
+      if (IsPureContainer(packageId))
       {
         continue;
       }
 
       // check package level
-      if (taskPackageLevel < repositoryManifest.GetPackageLevel(deploymentName))
+      if (taskPackageLevel < repositoryManifest.GetPackageLevel(packageId))
       {
         // package is not required
         continue;
       }
 
       // check to see whether the file was downloaded previously
-      ArchiveFileType aft = repositoryManifest.GetArchiveFileType(deploymentName);
-      PathName pathLocalArchiveFile = downloadDirectory / deploymentName;
+      ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
+      PathName pathLocalArchiveFile = downloadDirectory / packageId;
       pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
       if (File::Exists(pathLocalArchiveFile))
       {
         // the archive file exists;  check to see if it is valid
-        MD5 digest1 = repositoryManifest.GetArchiveFileDigest(deploymentName);
+        MD5 digest1 = repositoryManifest.GetArchiveFileDigest(packageId);
         MD5 digest2 = MD5::FromFile(pathLocalArchiveFile.GetData());
         if (digest1 == digest2)
         {
@@ -2060,8 +2060,8 @@ void PackageInstallerImpl::Download()
       }
 
       // pick up the package
-      toBeInstalled.push_back(deploymentName);
-    } while (!(deploymentName = repositoryManifest.NextPackage()).empty());
+      toBeInstalled.push_back(packageId);
+    } while (!(packageId = repositoryManifest.NextPackage()).empty());
   }
 
   // count bytes
@@ -2071,7 +2071,7 @@ void PackageInstallerImpl::Download()
   ReportLine(T_("downloading package database..."));
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
-    progressInfo.deploymentName = MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
+    progressInfo.packageId = MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
     progressInfo.displayName = T_("Package repository manifest");
     progressInfo.cbPackageDownloadCompleted = 0;
     progressInfo.cbPackageDownloadTotal = ZZDB1_SIZE;
@@ -2079,7 +2079,7 @@ void PackageInstallerImpl::Download()
   Download(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
-    progressInfo.deploymentName = MIKTEX_TPM_ARCHIVE_FILE_NAME_NO_SUFFIX;
+    progressInfo.packageId = MIKTEX_TPM_ARCHIVE_FILE_NAME_NO_SUFFIX;
     progressInfo.displayName = T_("Package manifest files");
     progressInfo.cbPackageDownloadCompleted = 0;
     progressInfo.cbPackageDownloadTotal = ZZDB2_SIZE;
@@ -2247,10 +2247,10 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
     // now we know that the package is obsolete
 
     MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX).GetExtension()));
-    string deploymentName = name.GetFileNameWithoutExtension().ToString();
+    string packageId = name.GetFileNameWithoutExtension().ToString();
 
     // check to see whether the obsolete package is installed
-    if (packageManager->GetTimeInstalled(deploymentName) == 0 || IsPureContainer(deploymentName))
+    if (packageManager->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
     {
       // not installed: remove the package manifest file
       trace_mpm->WriteFormattedLine("libmpm", T_("removing obsolete %s"), Q_(name));
@@ -2260,8 +2260,8 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
     {
       // installed: declare the package as obsolete (we wont
       // uninstall obsolete packages)
-      trace_mpm->WriteFormattedLine("libmpm", T_("declaring %s obsolete"), Q_(deploymentName));
-      packageManager->DeclarePackageObsolete(deploymentName, true);
+      trace_mpm->WriteFormattedLine("libmpm", T_("declaring %s obsolete"), Q_(packageId));
+      packageManager->DeclarePackageObsolete(packageId, true);
     }
   }
 
@@ -2355,13 +2355,13 @@ void PackageInstallerImpl::UpdateDb()
 
     // get external package name
     MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX).GetExtension()));
-    string deploymentName = name.GetFileNameWithoutExtension().ToString();
+    string packageId = name.GetFileNameWithoutExtension().ToString();
 
     // build name of current package manifest file
     PathName currentPackageManifestFile(packageManifestDir, name);
 
     // ignore package, if package is already installed
-    if (!IsPureContainer(deploymentName) && packageManager->IsPackageInstalled(deploymentName))
+    if (!IsPureContainer(packageId) && packageManager->IsPackageInstalled(packageId))
     {
 #if 0
       if (File::Exists(currentPackageManifestFile))
@@ -2375,8 +2375,8 @@ void PackageInstallerImpl::UpdateDb()
 
 #if 0
     PackageInfo currentPackageInfo;
-    if (!IsPureContainer(szDeploymentName)
-      && packageManager->TryGetPackageInfo(szDeploymentName, currentPackageInfo)
+    if (!IsPureContainer(szpackageId)
+      && packageManager->TryGetPackageInfo(szpackageId, currentPackageInfo)
       && tpmparser.GetPackageInfo().digest == currentPackageInfo.digest)
     {
       // nothing new
@@ -2395,7 +2395,7 @@ void PackageInstallerImpl::UpdateDb()
     File::Copy(newPackageManifestFile, currentPackageManifestFile);
 
     // update the database
-    packageManager->DefinePackage(deploymentName, tpmparser->GetPackageInfo());
+    packageManager->DefinePackage(packageId, tpmparser->GetPackageInfo());
 
     ++count;
   }

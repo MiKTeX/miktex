@@ -86,10 +86,10 @@ public:
   virtual unsigned long MIKTEXTHISCALL GetFileRefCount(const MiKTeX::Core::PathName& path) = 0;
 
   /// Gets information about a specified package.
-  /// @param lpszDeploymentName Package key.
+  /// @param packageId Package key.
   /// @param packageInfo Package info struct to be filled..
 public:
-  virtual PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& deploymentName) = 0;
+  virtual PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& packageId) = 0;
 
 public:
   virtual void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName& path) = 0;
@@ -115,7 +115,7 @@ public:
   virtual std::string MIKTEXTHISCALL PickRepositoryUrl() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryGetPackageInfo(const std::string& deploymentName, PackageInfo& packageInfo) = 0;
+  virtual bool MIKTEXTHISCALL TryGetPackageInfo(const std::string& packageId, PackageInfo& packageInfo) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL TryGetRepositoryInfo(const std::string& url, RepositoryInfo& repositoryInfo) = 0;
@@ -127,10 +127,10 @@ public:
   virtual RepositoryInfo MIKTEXTHISCALL VerifyPackageRepository(const std::string& url) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string& deploymentName) = 0;
+  virtual bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string& packageId) = 0;
 
 public:
-  virtual std::string MIKTEXTHISCALL GetContainerPath(const std::string& deploymentName, bool useDisplayNames) = 0;
+  virtual std::string MIKTEXTHISCALL GetContainerPath(const std::string& packageId, bool useDisplayNames) = 0;
 
 public:
   struct InitInfo

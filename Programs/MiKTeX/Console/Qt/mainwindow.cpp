@@ -750,7 +750,7 @@ bool UpgradeWorker::Run()
       vector<string> toBeInstalled;
       for (const PackageInstaller::UpgradeInfo& upg : upgrades)
       {
-        toBeInstalled.push_back(upg.deploymentName);
+        toBeInstalled.push_back(upg.packageId);
       }
       packageInstaller->SetFileLists(toBeInstalled, vector<string>());
       packageInstaller->InstallRemove(PackageInstaller::Role::Installer);
@@ -809,11 +809,11 @@ void MainWindow::on_buttonUpgrade_clicked()
     }
     else if (status == UpgradeWorker::Status::Download)
     {
-      ui->labelUpgradeDetails->setText(tr("(downloading: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+      ui->labelUpgradeDetails->setText(tr("(downloading: %1)").arg(QString::fromUtf8(progressInfo.packageId.c_str())));
     }
     else if (status == UpgradeWorker::Status::Install)
     {
-      ui->labelUpgradeDetails->setText(tr("(installing: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+      ui->labelUpgradeDetails->setText(tr("(installing: %1)").arg(QString::fromUtf8(progressInfo.packageId.c_str())));
     }
     else
     {
@@ -1154,10 +1154,10 @@ bool UpdateWorker::Run()
       case PackageInstaller::UpdateInfo::ReleaseStateChange:
       case PackageInstaller::UpdateInfo::Update:
       case PackageInstaller::UpdateInfo::ForceUpdate:
-        toBeUpdated.push_back(update.deploymentName);
+        toBeUpdated.push_back(update.packageId);
         break;
       case PackageInstaller::UpdateInfo::ForceRemove:
-        toBeRemoved.push_back(update.deploymentName);
+        toBeRemoved.push_back(update.packageId);
         break;
       }
     }
@@ -1224,11 +1224,11 @@ void MainWindow::Update()
     }
     else if (status == UpdateWorker::Status::Download)
     {
-      ui->labelUpdateDetails->setText(tr("(downloading: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+      ui->labelUpdateDetails->setText(tr("(downloading: %1)").arg(QString::fromUtf8(progressInfo.packageId.c_str())));
     }
     else if (status == UpdateWorker::Status::Install)
     {
-      ui->labelUpdateDetails->setText(tr("(installing: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+      ui->labelUpdateDetails->setText(tr("(installing: %1)").arg(QString::fromUtf8(progressInfo.packageId.c_str())));
     }
     else
     {
@@ -2001,11 +2001,11 @@ void MainWindow::InstallPackage()
       }
       else if (packageInfo.timeInstalled == 0)
       {
-        toBeInstalled.push_back(packageInfo.deploymentName);
+        toBeInstalled.push_back(packageInfo.id);
       }
       else
       {
-        toBeRemoved.push_back(packageInfo.deploymentName);
+        toBeRemoved.push_back(packageInfo.id);
       }
     }
     QString message =
