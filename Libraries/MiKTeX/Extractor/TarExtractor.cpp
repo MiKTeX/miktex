@@ -289,7 +289,7 @@ void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool make
         {
           MIKTEX_UNEXPECTED();
         }
-#if ! defined(MIKTEX_DEBUG)
+#if !defined(MIKTEX_DEBUG)
         checkHeader = false;
 #endif
       }
