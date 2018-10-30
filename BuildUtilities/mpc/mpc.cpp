@@ -60,7 +60,7 @@ private:
 
 struct PackageSpec
 {
-  string deploymentName; // external package name
+  string id; // package id
   char level = '\0';     // one of: '-', 'S', 'M', 'L', 'T'
   ArchiveFileType archiveFileType = ArchiveFileType::None;
 };
@@ -269,7 +269,7 @@ protected:
   ArchiveFileType CreateArchiveFile(MpcPackageInfo& packageInfo, const PathName& repository, Cfg& repositoryManifest);
 
 protected:
-  bool HavePackageArchiveFile(const PathName& repository, const string& deploymentName, PathName& archiveFile, ArchiveFileType& archiveFileType);
+  bool HavePackageArchiveFile(const PathName& repository, const string& id, PathName& archiveFile, ArchiveFileType& archiveFileType);
 
 protected:
   unique_ptr<Cfg> LoadRepositoryManifest(const PathName& repository);
@@ -1799,7 +1799,7 @@ void PackageCreator::ReadList(const PathName& path, map<string, PackageSpec>& ma
     }
     Tokenizer tok(lpsz, ";");
     PackageSpec pkgspec;
-    pkgspec.deploymentName = *tok;
+    pkgspec.id = *tok;
     pkgspec.level = ch;
     ArchiveFileType archiveFileType = defaultArchiveFileType;
     ++tok;
@@ -1823,7 +1823,7 @@ void PackageCreator::ReadList(const PathName& path, map<string, PackageSpec>& ma
       }
     }
     pkgspec.archiveFileType = archiveFileType;
-    mapPackageList[pkgspec.deploymentName] = pkgspec;
+    mapPackageList[pkgspec.id] = pkgspec;
   }
   reader.Close();
 }
