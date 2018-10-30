@@ -400,7 +400,7 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
   {
     PathName name(direntry.name);
 
-    // get deployment name
+    // get package ID
     string packageId = name.GetFileNameWithoutExtension().ToString();
 
     // ignore redefinition
