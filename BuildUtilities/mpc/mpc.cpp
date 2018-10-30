@@ -141,7 +141,7 @@ protected:
   PathName GetDbLightFileName();
 
 protected:
-  PathName GetDbHeavyFileName();
+  PathName GetTpmArchiveFileName();
 
 protected:
   void Verbose(const char* lpszFormat, ...);
@@ -473,7 +473,7 @@ PathName PackageCreator::GetDbLightFileName()
   return GetDbFileName(1, majorMinorVersion);
 }
 
-PathName PackageCreator::GetDbHeavyFileName()
+PathName PackageCreator::GetTpmArchiveFileName()
 {
   return GetDbFileName(2, majorMinorVersion);
 }
@@ -1325,7 +1325,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   WritePackageManifestFiles(packageTable, packageManifestDir, dbLight);
 
   // create heavy-weight database
-  PathName dbPath2 = GetDbHeavyFileName();
+  PathName dbPath2 = GetTpmArchiveFileName();
   RunArchiver(GetDbArchiveFileType(), dbPath2, texmfPrefix.c_str());
 
   // delete package manifest files
@@ -1661,7 +1661,7 @@ map<string, MpcPackageInfo> PackageCreator::LoadDbHeavy(const PathName& reposito
 
   // path to the heavy-weight database file
   PathName pathDbHeavy = repository;
-  pathDbHeavy /= GetDbHeavyFileName();
+  pathDbHeavy /= GetTpmArchiveFileName();
 #if defined(MIKTEX_WINDOWS)
   pathDbHeavy.ConvertToUnix();
 #endif
