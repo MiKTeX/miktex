@@ -483,11 +483,11 @@ PathName PackageCreator::FindLzma()
   string path;
   if (!Utils::GetEnvironmentString("PATH", path))
   {
-    FatalError("The lzma utility could not be found.");
+    FatalError(T_("PATH is not set."));
   }
   if (!(session->FindFile("lzma_alone" MIKTEX_EXE_FILE_SUFFIX, path, lzmaExe) || session->FindFile("lzma" MIKTEX_EXE_FILE_SUFFIX, path, lzmaExe)))
   {
-    FatalError("The lzma utility could not be found.");
+    FatalError(T_("The lzma utility could not be found."));
   }
   return lzmaExe;
 }
