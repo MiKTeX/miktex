@@ -1232,7 +1232,7 @@ void PackageCreator::CreateRepositoryInformationFile(const PathName& repository,
   set<MpcPackageInfo, PackagedOnReversed> packagedOnReversed;
   for (const pair<string, MpcPackageInfo>& p: packageTable)
   {
-    MpcPackageInfo pi =p.second;
+    MpcPackageInfo pi = p.second;
     string str;
     if (repositoryManifest.TryGetValue(p.second.id, "TimePackaged", str))
     {
