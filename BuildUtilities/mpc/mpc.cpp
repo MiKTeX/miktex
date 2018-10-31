@@ -18,7 +18,6 @@
    along with MPC; if not, write to the Free Software Foundation, 59
    Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#include <cstdarg>
 #include <cstdio>
 
 #include <algorithm>
@@ -29,6 +28,8 @@
 #include <set>
 #include <string>
 #include <vector>
+
+#include <fmt/format.h>
 
 #include <sys/stat.h>
 
@@ -189,13 +190,13 @@ protected:
   PathName GetTpmArchiveFileName();
 
 protected:
-  void Verbose(const char* lpszFormat, ...);
+  void Verbose(const string& s);
 
 protected:
-  void FatalError(const char* lpszFormat, ...);
+  void FatalError(const string& s);
 
 protected:
-  void Warning(const char* lpszFormat, ...);
+  void Warning(const string& s);
 
 protected:
   MD5 GetTdsDigest(const FileDigestTable& fileDigests);
@@ -523,38 +524,23 @@ PathName PackageCreator::GetTpmArchiveFileName()
   return GetDbFileName(2, majorMinorVersion);
 }
 
-void PackageCreator::Verbose(const char* lpszFormat, ...)
+void PackageCreator::Verbose(const string& s)
 {
   if (optVerbose)
   {
-    va_list arglist;
-    va_start(arglist, lpszFormat);
-    cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
-    va_end(arglist);
+    cout << s << endl;
   }
 }
 
-void PackageCreator::FatalError(const char* lpszFormat, ...)
+void PackageCreator::FatalError(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  cerr
-    << PROGNAME << ": "
-    << StringUtil::FormatStringVA(lpszFormat, arglist)
-    << endl;
-  va_end(arglist);
+  cerr << PROGNAME << ": " << s << endl;
   throw 1;
 }
 
-void PackageCreator::Warning(const char* lpszFormat, ...)
+void PackageCreator::Warning(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  cerr
-    << PROGNAME << T_(": warning: ")
-    << StringUtil::FormatStringVA(lpszFormat, arglist)
-    << endl;
-  va_end(arglist);
+  cerr << PROGNAME << T_(": warning: ") << s << endl;
 }
 
 MD5 PackageCreator::GetTdsDigest(const FileDigestTable& fileDigests)
@@ -652,7 +638,7 @@ void PackageCreator::MD5WildCopy(const PathName& sourceTemplate, const PathName&
 
   if (!haveSomething)
   {
-    FatalError(T_("No match for %s"), Q_(sourceTemplate));
+    FatalError(fmt::format(T_("No match for {0}"), Q_(sourceTemplate)));
   }
 }
 
@@ -741,7 +727,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
 
 void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathName& destDir)
 {
-  Verbose(T_("Copying %s ..."), Q_(packageinfo.id));
+  Verbose(fmt::format(T_("Copying {0} ..."), Q_(packageinfo.id)));
 
   // path to package manifest directory, e.g.:
   // /miktex/texmf/tpm/packages/
@@ -762,7 +748,7 @@ void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathNa
   // check TDS digest
   if (!(GetTdsDigest(fileDigests) == packageinfo.digest))
   {
-    FatalError(T_("Bad TDS digest (%s)."), packageinfo.id.c_str());
+    FatalError(fmt::format(T_("Bad TDS digest ({0})."), packageinfo.id));
   }
 }
 
@@ -1010,13 +996,13 @@ void PackageCreator::CollectPackages(const PathName& stagingRoot, map<string, Mp
       continue;
     }
 
-    Verbose(T_("Collecting %s..."), Q_(packageInfo.id));
+    Verbose(fmt::format(T_("Collecting {0}..."), Q_(packageInfo.id)));
 
     // ignore duplicates
     map<string, MpcPackageInfo>::const_iterator it = packageTable.find(packageInfo.id);
     if (it != packageTable.end())
     {
-      Warning(T_("%s already collected."), Q_(packageInfo.id));
+      Warning(fmt::format(T_("{0} already collected."), Q_(packageInfo.id)));
       continue;
     }
 
@@ -1316,7 +1302,7 @@ void PackageCreator::CleanUp(const PathName& repository)
   }
   for (const string& fileName : toBeDeleted)
   {
-    Verbose("Removing %s...", Q_(fileName));
+    Verbose(fmt::format("Removing {0}...", Q_(fileName)));
     File::Delete(fileName);
   }
 }
@@ -1516,7 +1502,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
   if (HavePackageArchiveFile(repository, packageInfo.id, archiveFile, archiveFileType))
   {
 #if 0
-    Verbose(T_("Checking %s..."), Q_(archiveFile));
+    Verbose(fmt::format(T_("Checking {0}..."), Q_(archiveFile)));
 #endif
 
     // don't remake archive file if there are no changes
@@ -1572,7 +1558,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
     packageArchiveFile.AppendExtension
     (PackageCreator::GetFileNameExtension(archiveFileType));
 
-    Verbose(T_("Creating %s..."), Q_(packageArchiveFile));
+    Verbose(fmt::format(T_("Creating {0}..."), Q_(packageArchiveFile)));
 
     // create destination directory
     Directory::Create(repository);
@@ -1765,7 +1751,7 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable,
         && HavePackageArchiveFile(repository, it->second.packageId, archiveFile, archiveFileType))
       {
 #if 0
-        Verbose(T_("%s hasn't changed => skipping"), Q_(it->second.packageId));
+        Verbose(fmt::format(T_("{0} hasn't changed => skipping"), Q_(it->second.packageId)));
 #endif
         continue;
       }
@@ -1901,7 +1887,7 @@ void PackageCreator::ReadList(const PathName& path, set<string>& packageList)
 void PackageCreator::DisassemblePackage(const PathName& packageManifestFile, const PathName& sourceDir, const PathName& stagingDir)
 {
   // parse the package manifest file
-  Verbose(T_("Parsing %s..."), Q_(packageManifestFile));
+  Verbose(fmt::format(T_("Parsing {0}..."), Q_(packageManifestFile)));
   PackageInfo packageInfo = PackageManager::ReadPackageManifestFile(packageManifestFile, texmfPrefix);
 
   // remove the package manifest file from the RunFiles list
@@ -1926,7 +1912,7 @@ void PackageCreator::DisassemblePackage(const PathName& packageManifestFile, con
   // a0poster
   packageInfo.id = packageManifestFile.GetFileNameWithoutExtension().ToString();
 
-  Verbose(" %s (%u files)...", packageInfo.id.c_str(), static_cast<unsigned>(packageInfo.GetNumFiles()));
+  Verbose(fmt::format(" {0} ({1} files)...", packageInfo.id, packageInfo.GetNumFiles()));
 
   // copy files and calculate checksums; the package manifest file
   // has been removed from the RunFiles list
@@ -2061,14 +2047,14 @@ void PackageCreator::Run(int argc, const char** argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    FatalError("%s", msg.c_str());
+    FatalError(msg);
   }
 
   if (optVersion)
   {
     cout
       << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 1996-2017 Christian Schenk" << endl
+      << "Copyright (C) 1996-2018 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
   }
@@ -2082,15 +2068,15 @@ void PackageCreator::Run(int argc, const char** argv)
     {
       FatalError(T_("No repository location was specified."));
     }
-    Verbose(T_("Loading repository manifest from %s..."), Q_(repository));
+    Verbose(fmt::format(T_("Loading repository manifest from {0}..."), Q_(repository)));
     unique_ptr<Cfg> repositoryManifest(LoadRepositoryManifest(repository));
     map<string, MpcPackageInfo> packageTable = LoadPackageManifests(repository);
-    Verbose(T_("Reading staging directory %s..."), Q_(stagingDir));
+    Verbose(fmt::format(T_("Reading staging directory {0}..."), Q_(stagingDir)));
     MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.GetData());
     CollectPackage(packageInfo);
     packageTable[packageInfo.id] = packageInfo;
     UpdateRepository(packageTable, repository, *repositoryManifest);
-    Verbose(T_("Writing database to %s..."), Q_(repository));
+    Verbose(fmt::format(T_("Writing database to {0}..."), Q_(repository)));
     WriteDatabase(packageTable, repository, false, *repositoryManifest);
   }
   else if (optDisassemblePackage)
@@ -2167,7 +2153,7 @@ void PackageCreator::Run(int argc, const char** argv)
             auto it3 = packageTable.find(req);
             if (it3 == packageTable.end())
             {
-              Warning(T_("dependancy problem: %s is required by %s"), req.c_str(), pkg.second.id.c_str());
+              Warning(fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.second.id));
             }
             else
             {
