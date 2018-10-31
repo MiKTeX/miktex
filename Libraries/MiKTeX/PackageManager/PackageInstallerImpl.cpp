@@ -2353,7 +2353,7 @@ void PackageInstallerImpl::UpdateDb()
       continue;
     }
 
-    // get external package name
+    // get package ID
     MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX).GetExtension()));
     string packageId = name.GetFileNameWithoutExtension().ToString();
 
