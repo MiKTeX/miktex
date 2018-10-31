@@ -18,7 +18,45 @@
    along with MPC; if not, write to the Free Software Foundation, 59
    Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#include "StdAfx.h"
+#include <cstdarg>
+#include <cstdio>
+
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
+
+#include <sys/stat.h>
+
+#include "mpc-version.h"
+
+#include <miktex/Core/BufferSizes>
+#include <miktex/Core/Cfg>
+#include <miktex/Core/Directory>
+#include <miktex/Core/DirectoryLister>
+#include <miktex/Core/Exceptions>
+#include <miktex/Core/File>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/FileType>
+#include <miktex/Core/MD5>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Process>
+#include <miktex/Core/Quoter>
+#include <miktex/Core/Session>
+#include <miktex/Core/StreamReader>
+#include <miktex/Core/StreamWriter>
+#include <miktex/Core/TemporaryDirectory>
+#include <miktex/Core/TemporaryFile>
+#include <miktex/Core/less_icase_dos>
+#include <miktex/PackageManager/PackageManager>
+#include <miktex/Util/Tokenizer>
+#include <miktex/Version>
+#include <miktex/Wrappers/PoptWrapper.h>
+
 #include "internal.h"
 
 const char* const TheNameOfTheGame = T_("MiKTeX Package Creator");
