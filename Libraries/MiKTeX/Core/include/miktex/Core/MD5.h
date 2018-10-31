@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <array>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -133,6 +134,12 @@ private:
 private:
   MD5 md5;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const MD5& md5)
+{
+  return os << md5.ToString();
+}
+
 
 MIKTEX_CORE_END_NAMESPACE;
 

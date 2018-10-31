@@ -28,6 +28,7 @@
 #include <unordered_set>
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
@@ -1521,8 +1522,8 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
   if (!ok)
   {
     trace_mpm->WriteLine("libmpm", fmt::format(T_("package {0} verification failed: some files have been modified"), Q_(packageId)));
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("expected digest: {0}"), packageInfo.digest.ToString()));
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("computed digest: {0}"), md5Builder.GetMD5().ToString()));
+    trace_mpm->WriteLine("libmpm", fmt::format(T_("expected digest: {0}"), packageInfo.digest));
+    trace_mpm->WriteLine("libmpm", fmt::format(T_("computed digest: {0}"), md5Builder.GetMD5()));
   }
 
   return ok;
