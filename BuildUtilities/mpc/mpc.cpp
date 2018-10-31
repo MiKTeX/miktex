@@ -18,6 +18,8 @@
    along with MPC; if not, write to the Free Software Foundation, 59
    Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
+#define SUPPORT_LEGACY_EXTERNALNAME
+
 #include <cstdio>
 
 #include <algorithm>
@@ -676,7 +678,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
   // write package.ini
   stream = File::CreateOutputStream(stagingDir / "package.ini");
   stream
-    << "externalname=" << packageInfo.id << "\n"
+    << "id=" << packageInfo.id << "\n"
     << "name=" << packageInfo.displayName << "\n"
     << "creator=" << packageInfo.creator << "\n"
     << "title=" << packageInfo.title << "\n"
@@ -691,6 +693,10 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
     << "license_type=" << packageInfo.licenseType << "\n";
 #endif
   stream << "requires=" << StringUtil::Flatten(packageInfo.requiredPackages, ';') << "\n";
+#if defined(SUPPORT_LEGACY_EXTERNALNAME)
+  stream
+    << "externalname=" << packageInfo.id << "\n";
+#endif
   stream.close();
 
   // write md5sums.txt
@@ -758,9 +764,16 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
   cfg->Read(PathName(stagingDir, "package.ini"));
 
   // get package ID (mandatory value)
-  if (!cfg->TryGetValue("", "externalname", packageInfo.id))
+  if (!cfg->TryGetValue("", "id", packageInfo.id))
   {
-    FatalError(T_("Invalid package information file (externalname)."));
+#if defined(SUPPORT_LEGACY_EXTERNALNAME)
+    if (!cfg->TryGetValue("", "externalname", packageInfo.id))
+    {
+      FatalError(T_("Invalid package information file (id)."));
+    }
+#else
+    FatalError(T_("Invalid package information file (id)."));
+#endif
   }
 
   // get display name (mandatory value)
