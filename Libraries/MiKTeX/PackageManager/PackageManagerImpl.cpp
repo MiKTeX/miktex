@@ -900,7 +900,6 @@ namespace {
     vector<string> packageNames;
   };
 
-
   typedef unordered_map<string, DirectoryInfo, hash_path, equal_path> DirectoryInfoTable;
 
   // directory info table: written by
