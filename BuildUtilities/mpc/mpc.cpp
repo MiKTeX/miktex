@@ -32,6 +32,7 @@
 #include <vector>
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <sys/stat.h>
 
@@ -1053,6 +1054,8 @@ void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>
   // create package manifest directory
   Directory::Create(destDir);
 
+  Verbose(fmt::format(T_("writing package manifest files in {0}..."), Q_(destDir)));
+
   for (const pair<string, MpcPackageInfo>& p : packageTable)
   {
     if (IsToBeIgnored(p.second))
@@ -1086,6 +1089,7 @@ void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>
 }
 void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& packageTable, const PathName& path, Cfg& repositoryManifest)
 {
+  Verbose(fmt::format(T_("dumping package manifests to {0}..."), Q_(path)));
   unique_ptr<Cfg> cfg = Cfg::Create();
   for (const pair<string, MpcPackageInfo>& p : packageTable)
   {
@@ -1179,6 +1183,7 @@ void PackageCreator::ExecuteSystemCommand(const char* command, const PathName& w
 {
   processOutput.Clear();
   int exitCode = 0;
+  Verbose(fmt::format(T_("running: {0}"), command));
   if (!Process::ExecuteSystemCommand(command, &exitCode, this, workingDirectory.Empty() ? nullptr : workingDirectory.GetData()) || exitCode != 0)
   {
     cerr << command << ':' << endl;
