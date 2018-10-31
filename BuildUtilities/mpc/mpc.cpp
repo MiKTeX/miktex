@@ -57,7 +57,14 @@
 #include <miktex/Version>
 #include <miktex/Wrappers/PoptWrapper.h>
 
-#include "internal.h"
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Packages;
+using namespace MiKTeX::Util;
+using namespace MiKTeX::Wrappers;
+using namespace std;
+
+#define T_(x) MIKTEXTEXT(x)
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 const char* const TheNameOfTheGame = T_("MiKTeX Package Creator");
 

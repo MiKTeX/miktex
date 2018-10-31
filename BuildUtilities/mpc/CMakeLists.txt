@@ -20,7 +20,6 @@
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}")
 
 set(mpc_sources
-  internal.h
   mpc-version.h
   mpc.cpp
 )
