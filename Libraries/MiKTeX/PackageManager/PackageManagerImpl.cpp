@@ -384,7 +384,7 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
     return;
   }
 
-  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
+  unique_ptr<DirectoryLister> dirLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 
   vector<future<PackageInfo>> futurePackageInfoTable;
 
@@ -396,7 +396,7 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
   }
   unsigned count = 0;
   DirectoryEntry direntry;
-  while (pLister->GetNext(direntry))
+  while (dirLister->GetNext(direntry))
   {
     PathName name(direntry.name);
 
@@ -420,7 +420,7 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
       return tpmParser->GetPackageInfo();
     }, PathName(directory, name)));
   }
-  pLister->Close();
+  dirLister->Close();
 
   for (future<PackageInfo>& fpi : futurePackageInfoTable)
   {
@@ -442,14 +442,14 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
     count += 1;
 
     // insert into database
-    PackageInfo* pPi = DefinePackage(packageInfo.id, packageInfo);
+    PackageInfo* insertedPackageInfo = DefinePackage(packageInfo.id, packageInfo);
 
     // increment file ref counts, if package is installed
-    if (pPi->timeInstalled > 0)
+    if (insertedPackageInfo->timeInstalled > 0)
     {
-      IncrementFileRefCounts(pPi->runFiles);
-      IncrementFileRefCounts(pPi->docFiles);
-      IncrementFileRefCounts(pPi->sourceFiles);
+      IncrementFileRefCounts(insertedPackageInfo->runFiles);
+      IncrementFileRefCounts(insertedPackageInfo->docFiles);
+      IncrementFileRefCounts(insertedPackageInfo->sourceFiles);
     }
   }
 
@@ -657,26 +657,26 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& packageId)
 
 bool PackageManagerImpl::TryGetPackageInfo(const string& packageId, PackageInfo& packageInfo)
 {
-  PackageInfo* pPackageInfo = TryGetPackageInfo(packageId);
-  if (pPackageInfo == nullptr)
+  PackageInfo* packageInfoOrNull = TryGetPackageInfo(packageId);
+  if (packageInfoOrNull == nullptr)
   {
     return false;
   }
   else
   {
-    packageInfo = *pPackageInfo;
+    packageInfo = *packageInfoOrNull;
     return true;
   }
 }
 
 PackageInfo PackageManagerImpl::GetPackageInfo(const string& packageId)
 {
-  const PackageInfo* pPackageInfo = TryGetPackageInfo(packageId);
-  if (pPackageInfo == nullptr)
+  const PackageInfo* packageInfoOrNull = TryGetPackageInfo(packageId);
+  if (packageInfoOrNull == nullptr)
   {
     MIKTEX_FATAL_ERROR_2(T_("The requested package is unknown."), "name", packageId);
   }
-  return *pPackageInfo;
+  return *packageInfoOrNull;
 }
 
 unsigned long PackageManagerImpl::GetFileRefCount(const PathName& path)
