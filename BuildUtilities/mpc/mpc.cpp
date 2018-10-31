@@ -48,8 +48,6 @@
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
-#include <miktex/Core/StreamReader>
-#include <miktex/Core/StreamWriter>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/TemporaryFile>
 #include <miktex/Core/less_icase_dos>
@@ -666,57 +664,42 @@ void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& s
 
 void PackageCreator::WriteDescriptionFile(const string& description, const PathName& stagingDir)
 {
-  Directory::Create(stagingDir);
-  FileStream stream(File::Open(PathName(stagingDir, "Description"), FileMode::Create, FileAccess::Write));
-  fputs(description.c_str(), stream.GetFile());
-  stream.Close();
+  ofstream stream = File::CreateOutputStream(stagingDir / "Description");
+  stream << description;
+  stream.close();
 }
 
 void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, const PackageInfo& packageInfo, const FileDigestTable& fileDigests, const MD5& digest)
 {
-  // create staging directory
-  Directory::Create(stagingDir);
-
-  FileStream stream;
+  ofstream stream;
 
   // write package.ini
-  stream.Attach(File::Open(PathName(stagingDir, "package.ini"), FileMode::Create, FileAccess::Write));
-  fprintf(stream.GetFile(), "externalname=%s\n", packageInfo.id.c_str());
-  fprintf(stream.GetFile(), "name=%s\n", packageInfo.displayName.c_str());
-  fprintf(stream.GetFile(), "creator=%s\n", packageInfo.creator.c_str());
-  fprintf(stream.GetFile(), "title=%s\n", packageInfo.title.c_str());
-  fprintf(stream.GetFile(), "version=%s\n", packageInfo.version.c_str());
-  fprintf(stream.GetFile(), "targetsystem=%s\n", packageInfo.targetSystem.c_str());
-  fprintf(stream.GetFile(), "md5=%s\n", digest.ToString().c_str());
+  stream = File::CreateOutputStream(stagingDir / "package.ini");
+  stream
+    << "externalname=" << packageInfo.id << "\n"
+    << "name=" << packageInfo.displayName << "\n"
+    << "creator=" << packageInfo.creator << "\n"
+    << "title=" << packageInfo.title << "\n"
+    << "version=" << packageInfo.version << "n"
+    << "targetsystem=" << packageInfo.targetSystem << "\n"
+    << "md5=" << digest << "\n";
 #if defined(MIKTEX_EXTENDED_PACKAGEINFO)
-  fprintf(stream.GetFile(), "ctan_path=%s\n", packageInfo.ctanPath.c_str());
-  fprintf(stream.GetFile(), "copyright_owner=%s\n", packageInfo.copyrightOwner.c_str());
-  fprintf(stream.GetFile(), "copyright_year=%s\n", packageInfo.copyrightYear.c_str());
-  fprintf(stream.GetFile(), "license_type=%s\n", packageInfo.licenseType.c_str());
+  stream
+    << "ctan_path=" << packageInfo.ctanPath << "\n"
+    << "copyright_owner=" << packageInfo.copyrightOwner << "\n"
+    << "copyright_year=" << packageInfo.copyrightYear << "\n"
+    << "license_type=" << packageInfo.licenseType << "\n";
 #endif
-  bool first = true;
-  for (const string& name : packageInfo.requiredPackages)
-  {
-    if (first)
-    {
-      fputs("requires=", stream.GetFile());
-      first = false;
-    }
-    else
-    {
-      fputc(';', stream.GetFile());
-    }
-    fputs(name.c_str(), stream.GetFile());
-  }
-  stream.Close();
+  stream << "requires=" << StringUtil::Flatten(packageInfo.requiredPackages, ';') << "\n";
+  stream.close();
 
   // write md5sums.txt
-  stream.Attach(File::Open(PathName(stagingDir, "md5sums.txt"), FileMode::Create, FileAccess::Write));
+  stream = File::CreateOutputStream(stagingDir / "md5sums.txt");
   for (const pair<string, MD5>& p : fileDigests)
   {
-    fprintf(stream.GetFile(), "%s %s\n", p.second.ToString().c_str(), PathName(p.first).ToUnix().GetData());
+    stream << p.second << " " << PathName(p.first).ToUnix() << "\n";
   }
-  stream.Close();
+  stream.close();
 
   // write Description
   if (!packageInfo.description.empty())
@@ -760,13 +743,9 @@ void PackageCreator::ReadDescriptionFile(const char* stagingDir, string& descrip
     description = "";
     return;
   }
-  FileStream stream(File::Open(descriptionFileName, FileMode::Open, FileAccess::Read));
-  int ch;
-  while ((ch = fgetc(stream.GetFile())) != EOF)
-  {
-    description += static_cast<char>(ch);
-  }
-  stream.Close();
+  ifstream stream = File::CreateInputStream(descriptionFileName);
+  description = string(istreambuf_iterator<char>(stream), istreambuf_iterator<char>());
+  stream.close();
 }
 
 MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
@@ -1246,12 +1225,12 @@ void PackageCreator::CreateFileListFile(const map<string, MpcPackageInfo>& packa
   filesCsv /= "files.csv";
   PathName filesCsvLzma(filesCsv);
   filesCsvLzma.AppendExtension(".lzma");
-  StreamWriter writer(filesCsv);
+  ofstream writer = File::CreateOutputStream(filesCsv);
   for (const string& line : lines)
   {
-    writer.WriteLine(line);
+    writer << line << "\n";
   }
-  writer.Close();
+  writer.close();
   string command = Q_(lzmaExe);
   command += " e ";
   command += Q_(filesCsv);
@@ -1801,9 +1780,9 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable,
 
 void PackageCreator::ReadList(const PathName& path, map<string, PackageSpec>& mapPackageList)
 {
-  StreamReader reader(path);
+  ifstream reader = File::CreateInputStream(path);
   string line;
-  while (reader.ReadLine(line))
+  while (std::getline(reader, line))
   {
     if (line.empty())
     {
@@ -1856,14 +1835,14 @@ void PackageCreator::ReadList(const PathName& path, map<string, PackageSpec>& ma
     pkgspec.archiveFileType = archiveFileType;
     mapPackageList[pkgspec.id] = pkgspec;
   }
-  reader.Close();
+  reader.close();
 }
 
 void PackageCreator::ReadList(const PathName& path, set<string>& packageList)
 {
-  FileStream stream(File::Open(path, FileMode::Open, FileAccess::Read));
+  ifstream stream = File::CreateInputStream(path);
   string line;
-  while (Utils::ReadUntilDelim(line, '\n', stream.GetFile()))
+  while (std::getline(stream, line))
   {
     size_t l = line.length();
     if (l == 0)
@@ -1881,7 +1860,7 @@ void PackageCreator::ReadList(const PathName& path, set<string>& packageList)
     }
     packageList.insert(line);
   }
-  stream.Close();
+  stream.close();
 }
 
 void PackageCreator::DisassemblePackage(const PathName& packageManifestFile, const PathName& sourceDir, const PathName& stagingDir)
