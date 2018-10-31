@@ -1164,7 +1164,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
   xml.StartElement("rdf:Description");
   string about("http://www.miktex.org/packages/");
   about += packageInfo.id;
-  xml.AddAttribute("about", about.c_str());
+  xml.AddAttribute("about", about);
 
   // create "TPM:Name" node
   xml.StartElement("TPM:Name");
@@ -1201,7 +1201,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
   if (!packageInfo.runFiles.empty())
   {
     xml.StartElement("TPM:RunFiles");
-    xml.AddAttribute("size", std::to_string(static_cast<unsigned>(packageInfo.sizeRunFiles)).c_str());
+    xml.AddAttribute("size", std::to_string(packageInfo.sizeRunFiles));
     bool start = true;
     for (const string& file : packageInfo.runFiles)
     {
@@ -1222,7 +1222,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
   if (!packageInfo.docFiles.empty())
   {
     xml.StartElement("TPM:DocFiles");
-    xml.AddAttribute("size", std::to_string(static_cast<unsigned>(packageInfo.sizeDocFiles)).c_str());
+    xml.AddAttribute("size", std::to_string(packageInfo.sizeDocFiles));
     bool start = true;
     for (const string& file : packageInfo.docFiles)
     {
@@ -1243,7 +1243,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
   if (!packageInfo.sourceFiles.empty())
   {
     xml.StartElement("TPM:SourceFiles");
-    xml.AddAttribute("size", std::to_string(static_cast<unsigned>(packageInfo.sizeSourceFiles)).c_str());
+    xml.AddAttribute("size", std::to_string(packageInfo.sizeSourceFiles));
     bool start = true;
     for (const string& file : packageInfo.sourceFiles)
     {
@@ -1267,7 +1267,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
     for (const string& req : packageInfo.requiredPackages)
     {
       xml.StartElement("TPM:Package");
-      xml.AddAttribute("name", req.c_str());
+      xml.AddAttribute("name", req);
       xml.EndElement();
     }
     xml.EndElement();
@@ -1290,22 +1290,22 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
   if (!packageInfo.ctanPath.empty())
   {
     xml.StartElement("TPM:CTAN");
-    xml.AddAttribute("path", packageInfo.ctanPath.c_str());
+    xml.AddAttribute("path", packageInfo.ctanPath);
     xml.EndElement();
   }
 
   if (!(packageInfo.copyrightOwner.empty() && packageInfo.copyrightYear.empty()))
   {
     xml.StartElement("TPM:Copyright");
-    xml.AddAttribute("owner", packageInfo.copyrightOwner.c_str());
-    xml.AddAttribute("year", packageInfo.copyrightYear.c_str());
+    xml.AddAttribute("owner", packageInfo.copyrightOwner);
+    xml.AddAttribute("year", packageInfo.copyrightYear);
     xml.EndElement();
   }
 
   if (!packageInfo.licenseType.empty())
   {
     xml.StartElement("TPM:License");
-    xml.AddAttribute("type", packageInfo.licenseType.c_str());
+    xml.AddAttribute("type", packageInfo.licenseType);
     xml.EndElement();
   }
 #endif
