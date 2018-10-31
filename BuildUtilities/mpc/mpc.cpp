@@ -1183,6 +1183,14 @@ void PackageCreator::ExecuteSystemCommand(const char* command, const PathName& w
 {
   processOutput.Clear();
   int exitCode = 0;
+  if (workingDirectory.Empty())
+  {
+    Verbose(fmt::format(T_("working directory: {0}"), PathName().SetToCurrentDirectory()));
+  }
+  else
+  {
+    Verbose(fmt::format(T_("working directory: {0}"), workingDirectory));
+  }
   Verbose(fmt::format(T_("running: {0}"), command));
   if (!Process::ExecuteSystemCommand(command, &exitCode, this, workingDirectory.Empty() ? nullptr : workingDirectory.GetData()) || exitCode != 0)
   {
