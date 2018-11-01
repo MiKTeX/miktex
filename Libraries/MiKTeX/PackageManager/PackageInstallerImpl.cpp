@@ -762,21 +762,21 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
     bool done = false;
 
     // get information about the installed file
-    InstalledFileInfo* pInstalledFileInfo = packageManager->GetInstalledFileInfo(f.c_str());
+    InstalledFileInfo* installedFileInfo = packageManager->GetInstalledFileInfo(f.c_str());
 
     // decrement the file reference counter
-    if (pInstalledFileInfo != nullptr && pInstalledFileInfo->refCount > 0)
+    if (installedFileInfo != nullptr && installedFileInfo->refCount > 0)
     {
-      pInstalledFileInfo->refCount -= 1;
+      installedFileInfo->refCount -= 1;
     }
 
     // make an absolute path name
     PathName path(session->GetSpecialPath(SpecialPath::InstallRoot), fileName);
 
     // only delete if the reference count reached zero
-    if (pInstalledFileInfo != nullptr && pInstalledFileInfo->refCount > 0)
+    if (installedFileInfo != nullptr && installedFileInfo->refCount > 0)
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("will not delete {0} (ref count is {1})"), Q_(path), pInstalledFileInfo->refCount));
+      trace_mpm->WriteLine("libmpm", fmt::format(T_("will not delete {0} (ref count is {1})"), Q_(path), installedFileInfo->refCount));
       done = true;
     }
     else if (File::Exists(path))
@@ -1677,7 +1677,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
 #endif
 }
 
-bool MIKTEXTHISCALL PackageInstallerImpl::OnProcessOutput(const void* pOutput, size_t n)
+bool MIKTEXTHISCALL PackageInstallerImpl::OnProcessOutput(const void* output, size_t n)
 {
   return true;
 }
