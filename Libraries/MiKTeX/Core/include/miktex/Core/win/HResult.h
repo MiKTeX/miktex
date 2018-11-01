@@ -24,6 +24,8 @@
 #if !defined(AD4328AD75F0402480253D8834185B23)
 #define AD4328AD75F0402480253D8834185B23
 
+#include <ostream>
+
 #include <miktex/Core/config.h>
 
 #include <Windows.h>
@@ -108,6 +110,11 @@ private:
 private:
   HRESULT hr = S_FALSE;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const HResult& hr)
+{
+  return os << hr.ToString();
+}
 
 MIKTEX_CORE_END_NAMESPACE;
 

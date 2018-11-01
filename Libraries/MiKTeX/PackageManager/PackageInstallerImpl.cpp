@@ -1505,7 +1505,7 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& pa
     }
     else
     {
-      trace_error->WriteLine("libmpm", fmt::format(T_("registration/unregistration of {0} did not succeed; hr={1}"), Q_(path), hr.ToString()));
+      trace_error->WriteLine("libmpm", fmt::format(T_("registration/unregistration of {0} did not succeed; hr={1}"), Q_(path), hr));
     }
   }
 #else
