@@ -1126,7 +1126,7 @@ void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& pac
       cfg->PutValue(p.second.id, "runSize", std::to_string(p.second.sizeRunFiles));
       for (const string& file : p.second.runFiles)
       {
-        cfg->PutValue(p.second.id, "run[]", file);
+        cfg->PutValue(p.second.id, "run[]", PathName(file).ToUnix().ToString());
       }
     }
     if (!p.second.docFiles.empty())
@@ -1134,7 +1134,7 @@ void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& pac
       cfg->PutValue(p.second.id, "docSize", std::to_string(p.second.sizeDocFiles));
       for (const string& file : p.second.docFiles)
       {
-        cfg->PutValue(p.second.id, "doc[]", file);
+        cfg->PutValue(p.second.id, "doc[]", PathName(file).ToUnix().ToString());
       }
     }
     if (!p.second.sourceFiles.empty())
@@ -1142,7 +1142,7 @@ void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& pac
       cfg->PutValue(p.second.id, "sourceSize", std::to_string(p.second.sizeSourceFiles));
       for (const string& file : p.second.sourceFiles)
       {
-        cfg->PutValue(p.second.id, "source[]", file);
+        cfg->PutValue(p.second.id, "source[]", PathName(file).ToUnix().ToString());
       }
     }
     string str;
