@@ -306,8 +306,8 @@ bool PackageInstallerImpl::OnError(const string& message)
 
 void PackageInstallerImpl::ExtractFiles(const PathName& archiveFileName, ArchiveFileType archiveFileType)
 {
-  unique_ptr<MiKTeX::Extractor::Extractor> pExtractor(MiKTeX::Extractor::Extractor::CreateExtractor(archiveFileType));
-  pExtractor->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
+  unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(archiveFileType));
+  extractor->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
 }
 
 void PackageInstallerImpl::InstallRepositoryManifest()
@@ -369,8 +369,8 @@ void PackageInstallerImpl::InstallRepositoryManifest()
     }
 
     // unpack database
-    unique_ptr<MiKTeX::Extractor::Extractor> pExtractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
-    pExtractor->Extract(pathZzdb1, pathConfigDir);
+    unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
+    extractor->Extract(pathZzdb1, pathConfigDir);
   }
   else if (repositoryType == RepositoryType::MiKTeXDirect)
   {
@@ -599,10 +599,10 @@ void PackageInstallerImpl::FindUpdates()
     updates.push_back(updateInfo);
   }
 
-  shared_ptr<PackageIterator> pIter(packageManager->CreateIterator());
-  pIter->AddFilter({ PackageFilter::Obsolete });
+  shared_ptr<PackageIterator> iter(packageManager->CreateIterator());
+  iter->AddFilter({ PackageFilter::Obsolete });
   PackageInfo package;
-  while (pIter->GetNext(package))
+  while (iter->GetNext(package))
   {
     trace_mpm->WriteFormattedLine("libmpm", T_("%s: package is obsolete"), package.id.c_str());
     UpdateInfo updateInfo;
@@ -2156,8 +2156,8 @@ void PackageInstallerImpl::SetUpPackageManifestFiles(const PathName& directory)
   }
 
   // extract package defintion files
-  unique_ptr<MiKTeX::Extractor::Extractor> pExtractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
-  pExtractor->Extract(pathDatabase, directory);
+  unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
+  extractor->Extract(pathDatabase, directory);
 }
 
 void PackageInstallerImpl::CleanUpUserDatabase()
@@ -2179,9 +2179,9 @@ void PackageInstallerImpl::CleanUpUserDatabase()
   vector<PathName> toBeRemoved;
 
   // check all package manifest files
-  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(userDir);
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(userDir);
   DirectoryEntry direntry;
-  while (pLister->GetNext(direntry))
+  while (lister->GetNext(direntry))
   {
     PathName name(direntry.name);
 
@@ -2207,7 +2207,7 @@ void PackageInstallerImpl::CleanUpUserDatabase()
       toBeRemoved.push_back(userPackageManifestFile);
     }
   }
-  pLister->Close();
+  lister->Close();
 
   // remove redundant user package manifest files
   for (const PathName& p : toBeRemoved)
@@ -2226,9 +2226,9 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
     return;
   }
 
-  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(pathPackageDir);
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(pathPackageDir);
   DirectoryEntry direntry;
-  while (pLister->GetNext(direntry))
+  while (lister->GetNext(direntry))
   {
     PathName name(direntry.name);
 
@@ -2265,7 +2265,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
     }
   }
 
-  pLister->Close();
+  lister->Close();
 
   packageManager->FlushVariablePackageTable();
 }
@@ -2339,10 +2339,10 @@ void PackageInstallerImpl::UpdateDb()
   PathName packageManifestDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
   ReportLine(fmt::format(T_("updating package manifest files in {0}..."), Q_(packageManifestDir)));
   size_t count = 0;
-  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(pkgDir);
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(pkgDir);
   DirectoryEntry direntry;
   unique_ptr<TpmParser> tpmparser = TpmParser::Create();
-  while (pLister->GetNext(direntry))
+  while (lister->GetNext(direntry))
   {
     Notify();
 
@@ -2400,7 +2400,7 @@ void PackageInstallerImpl::UpdateDb()
     ++count;
   }
 
-  pLister->Close();
+  lister->Close();
 
   ReportLine(fmt::format(T_("installed {0} package manifest files"), count));
 
