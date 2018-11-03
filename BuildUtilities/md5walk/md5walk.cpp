@@ -246,7 +246,7 @@ void PrintMD5(const MD5& md5)
   }
   else
   {
-    cout << md5.ToString() << endl;
+    cout << md5 << endl;
   }
 }
 
@@ -460,7 +460,7 @@ void Main(int argc, const char** argv)
   case List:
     for (auto& p : mapFnToMD5)
     {
-      cout << p.second.get().ToString() << " " << PathName(p.first).ToUnix() << endl;
+      cout << p.second.get() << " " << PathName(p.first).ToUnix() << endl;
     }
   default:
     break;
