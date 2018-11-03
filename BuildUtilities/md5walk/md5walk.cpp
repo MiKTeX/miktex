@@ -85,7 +85,7 @@ inline unsigned MakeWord(unsigned char a, unsigned char b)
 class hash_compare_md5sum
 {
 public:
-  size_t operator() (const MD5& md5) const
+  size_t operator()(const MD5& md5) const
   {
     long b03 = MakeLong(MakeWord(md5[0], md5[1]), MakeWord(md5[2], md5[3]));
 #if SIZE_MAX == 0xffffffff
