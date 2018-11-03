@@ -1,6 +1,6 @@
 /* padout.cpp:
 
-   Copyright (C) 2007-2016 Christian Schenk
+   Copyright (C) 2007-2018 Christian Schenk
 
    This file is part of PadOut.
 
@@ -26,52 +26,50 @@
 
 using namespace std;
 
-int
-main (/*[in]*/ int		argc,
-      /*[in]*/ const char **	argv)
+int main(int argc, const char** argv)
 {
   if (argc != 2)
-    {
-      cerr << "Usage: padout FILE" << '\n';
-      return (1);
-    }
+  {
+    cerr << "Usage: padout FILE" << '\n';
+    return 1;
+  }
 
-  FILE * pFile = fopen(argv[1], "ab");
-  
-  if (pFile == 0)
-    {
-      cerr << "cannot open " << argv[1] << '\n';
-      return (1);
-    }
+  FILE * file = fopen(argv[1], "ab");
 
-  if (fseek(pFile, 0, SEEK_END) != 0)
-    {
-      cerr << "seek error" << '\n';
-      return (1);
-    }
+  if (file == 0)
+  {
+    cerr << "cannot open " << argv[1] << '\n';
+    return 1;
+  }
 
-  long size = ftell(pFile);
+  if (fseek(file, 0, SEEK_END) != 0)
+  {
+    cerr << "seek error" << '\n';
+    return 1;
+  }
+
+  long size = ftell(file);
 
   if (size < 0)
+  {
+    cerr << "I/O error" << '\n';
+    return 1;
+  }
+
+  srand(static_cast<unsigned>(time(nullptr)));
+
+  for (; (size % 512) != 0; ++size)
+  {
+    int byte = rand() & 0xff;
+    if (fputc(byte, file) == EOF)
     {
       cerr << "I/O error" << '\n';
-      return (1);
+      return 1;
     }
-  
-  srand (static_cast<unsigned>(time(nullptr)));
+    ++size;
+  }
 
-  for (; (size % 512) != 0; ++ size)
-    {
-      int byte = rand() & 0xff;
-      if (fputc(byte, pFile) == EOF)
-	{
-	  cerr << "I/O error" << '\n';
-	  return (1);
-	}
-      ++ size;
-    }
+  fclose(file);
 
-  fclose (pFile);
-
-  return (0);
+  return 0;
 }
