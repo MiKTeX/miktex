@@ -126,7 +126,11 @@ catch(...)                                      \
 }                                               \
 va_end(arglist);
 
-const char* DEFAULT_TRACE_STREAMS = MIKTEX_TRACE_ERROR "," MIKTEX_TRACE_PROCESS "," PROGRAM_NAME;
+vector<string> DEFAULT_TRACE_STREAMS = {
+  MIKTEX_TRACE_ERROR,
+  MIKTEX_TRACE_PROCESS,
+  PROGRAM_NAME
+};
 
 class ProcessOutputTrash :
   public IRunProcessCallback
@@ -1990,7 +1994,7 @@ void McdApp::Run(int argc, const char** argv)
       options.clean = true;
       break;
     case OPT_DEBUG:
-      options.traceStreams = DEFAULT_TRACE_STREAMS;
+      options.traceStreams = StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ',');
       break;
     case OPT_ENGINE:
       if (!options.SetEngine(optArg))
@@ -2105,7 +2109,7 @@ void McdApp::Run(int argc, const char** argv)
     case OPT_TRACE:
       if (optArg.empty())
       {
-        options.traceStreams = DEFAULT_TRACE_STREAMS;
+        options.traceStreams = StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ',');
       }
       else
       {

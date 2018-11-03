@@ -28,7 +28,10 @@
 #  define THE_NAME_OF_THE_GAME T_("MiKTeX Print Utility")
 #endif
 
-const char* DEFAULT_TRACE_STREAMS = MIKTEX_TRACE_ERROR "," MIKTEX_TRACE_MTPRINT;
+vector<string> DEFAULT_TRACE_STREAMS = {
+  MIKTEX_TRACE_ERROR,
+  MIKTEX_TRACE_MTPRINT
+};
 
 struct PAPERSIZEINFO
 {
@@ -608,7 +611,7 @@ void PrintUtility::Run(int argc, const char** argv)
     dvipsOpts.runAsFilter = true;
   }
 
-  TraceStream::SetTraceFlags(DEFAULT_TRACE_STREAMS);
+  TraceStream::SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
 
   for (const string& fileName : leftovers)
   {

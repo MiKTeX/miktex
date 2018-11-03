@@ -79,10 +79,11 @@ catch(...)                                      \
 }                                               \
 va_end(arglist);
 
-const char* DEFAULT_TRACE_STREAMS =
-MIKTEX_TRACE_ERROR ","
-MIKTEX_TRACE_PROCESS ","
-PROGRAM_NAME;
+vector<string> DEFAULT_TRACE_STREAMS = {
+  MIKTEX_TRACE_ERROR,
+  MIKTEX_TRACE_PROCESS,
+  PROGRAM_NAME
+};
 
 class EpsToPdfApp :
   public Application
@@ -763,7 +764,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
       doCompress = true;
       break;
     case OPT_DEBUG:
-      initInfo.SetTraceFlags(DEFAULT_TRACE_STREAMS);
+      initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
       break;
     case OPT_ENLARGE:
       enlarge = std::stoi(optArg);
@@ -819,7 +820,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     case OPT_TRACE:
       if (optArg.empty())
       {
-        initInfo.SetTraceFlags(DEFAULT_TRACE_STREAMS);
+        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
       }
       else
       {

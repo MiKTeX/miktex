@@ -95,13 +95,13 @@ const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
 
-const char* DEFAULT_TRACE_STREAMS =
-MIKTEX_TRACE_CORE ","
-MIKTEX_TRACE_CURL ","
-MIKTEX_TRACE_ERROR ","
-MIKTEX_TRACE_FNDB ","
-MIKTEX_TRACE_MPM
-;
+vector<string> DEFAULT_TRACE_STREAMS = {
+  MIKTEX_TRACE_CORE,
+  MIKTEX_TRACE_CURL,
+  MIKTEX_TRACE_ERROR,
+  MIKTEX_TRACE_FNDB,
+  MIKTEX_TRACE_MPM
+};
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("mpmcli"));
 static bool isLog4cxxConfigured = false;
@@ -1540,7 +1540,7 @@ void Application::Main(int argc, const char** argv)
     case OPT_TRACE:
       if (optArg.empty())
       {
-        initInfo.SetTraceFlags(DEFAULT_TRACE_STREAMS);
+        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
       }
       else
       {
