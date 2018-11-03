@@ -23,6 +23,8 @@
 #  include "config.h"
 #endif
 
+#include <fmt/format.h>
+
 #include "internal.h"
 
 #include "miktex/Core/Paths.h"
@@ -30,7 +32,7 @@
 
 #include "Fndb/FileNameDatabase.h"
 #include "Session/SessionImpl.h"
-#include "Utils/AutoTraceTime.h"
+#include "Utils/CoreStopWatch.h"
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
@@ -111,9 +113,8 @@ bool SessionImpl::SearchFileSystem(const string& fileName, const char* lpszDirec
 }
 
 bool SessionImpl::FindFileInternal(const string& fileName, const vector<PathName>& directoryPatterns, bool firstMatchOnly, bool useFndb, bool searchFileSystem, vector<PathName>& result)
-
 {
-  AutoTraceTime att("find file", fileName.c_str());
+  CoreStopWatch stopWatch(fmt::format("find file {}", Q_(fileName)));
 
   MIKTEX_ASSERT(useFndb || searchFileSystem);
 

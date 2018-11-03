@@ -23,6 +23,9 @@
 #  include "config.h"
 #endif
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Trace/Trace>
 
 #include "internal.h"
@@ -30,7 +33,7 @@
 #include "miktex/Core/PathNameParser.h"
 
 #include "FileNameDatabase.h"
-#include "Utils/AutoTraceTime.h"
+#include "Utils/CoreStopWatch.h"
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
@@ -824,7 +827,7 @@ void FileNameDatabase::ReadFileNames()
 {
   fileNames.clear();
   fileNames.rehash(pHeader->numFiles);
-  AutoTraceTime att("fndb read files", rootDirectory.GetData());
+  CoreStopWatch stopWatch(fmt::format("fndb read file names {}", Q_(rootDirectory)));
   ReadFileNames(GetTopDirectory());
 }
 

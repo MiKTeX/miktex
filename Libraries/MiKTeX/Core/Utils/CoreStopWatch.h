@@ -1,4 +1,4 @@
-/* AutoTraceTime.h:
+/* CoreStopWatch.h:
 
    Copyright (C) 1996-2018 Christian Schenk
 
@@ -27,16 +27,16 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-class AutoTraceTime
+class CoreStopWatch
 {
 public:
-  AutoTraceTime(const std::string& s1, const std::string& s2) :
-    stopWatch(MiKTeX::Trace::StopWatch::Start(SessionImpl::GetSession()->trace_time.get(), "core", s1 + " " + s2))
+  CoreStopWatch(const std::string& message) :
+    stopWatch(MiKTeX::Trace::StopWatch::Start(SessionImpl::GetSession()->trace_time.get(), "core", message))
   {
   }
 
 public:
-  ~AutoTraceTime()
+  ~CoreStopWatch()
   {
     try
     {
