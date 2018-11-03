@@ -25,7 +25,8 @@
 #  define MIKTEXTRACEEXPORT
 #endif
 
-#include <ctime>
+#include <chrono>
+#include <ratio>
 
 #include <fmt/format.h>
 
@@ -46,12 +47,11 @@ public:
   StopWatchImpl(TraceStream* traceStream, const string& facility, const string& message) :
     traceStream(traceStream),
     facility(facility),
-    message(message),
-    start(clock())
+    message(message)
   {
     if (traceStream->IsEnabled())
     {
-      traceStream->WriteLine(facility, fmt::format("{}: starting", message));
+      traceStream->WriteLine(facility, fmt::format("stopwatch START: {}", message));
     }
   }
 
@@ -73,10 +73,9 @@ public:
 public:
   void Stop() override
   {
-    if (traceStream->IsEnabled())
-    {
-      traceStream->WriteLine(facility, fmt::format("{}: stopping after {} clock ticks", message, std::to_string(clock() - start)));
-    }
+    chrono::time_point<chrono::high_resolution_clock> stop = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsedTime = chrono::duration_cast<chrono::duration<double>>(stop - start);
+    traceStream->WriteLine(facility, fmt::format("stopwatch STOP: {} ({:.4f} seconds)", message, elapsedTime.count()));
     traceStream = nullptr;
   }
 
@@ -90,7 +89,7 @@ private:
   string message;
 
 private:
-  clock_t start;
+  chrono::time_point<chrono::high_resolution_clock> start = chrono::high_resolution_clock::now();
 };
 
 unique_ptr<StopWatch> StopWatch::Start(TraceStream* traceStream, const string& facility, const string& message)
