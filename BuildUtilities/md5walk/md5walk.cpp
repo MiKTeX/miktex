@@ -22,6 +22,9 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #if defined(HAVE_CONFIG_H)
 #  include <config.h>
 #endif
@@ -119,16 +122,13 @@ int optAsync = false;
 int optPauseWhenFinished = false;
 #endif
 
-void Verbose(const char* lpszFormat, ...)
+void Verbose(const string& s)
 {
   if (!optVerbose)
   {
     return;
   }
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  cout << StringUtil::FormatStringVA(lpszFormat, arglist);
-  va_end(arglist);
+  cout << s;
 }
 
 enum Option
@@ -189,15 +189,9 @@ const struct poptOption aoption[] = {
   POPT_TABLEEND
 };
 
-void FatalError(const char* lpszFormat, ...)
+void FatalError(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  cerr
-    << Utils::GetExeName() << ": "
-    << StringUtil::FormatStringVA(lpszFormat, arglist)
-    << endl;
-  va_end(arglist);
+  cerr << Utils::GetExeName() << ": " << s << endl;
   throw FATAL_ERROR;
 }
 
@@ -262,9 +256,7 @@ void PrintDuplicates(const set<string>& setstr)
   {
     return;
   }
-  Verbose(T_("found %u identical files (size: %u):\n"),
-    static_cast<unsigned>(setstr.size()),
-    static_cast<unsigned>(File::GetSize(setstr.begin()->c_str())));
+  Verbose(fmt::format(T_("found {} identical files (size: {}):\n"), setstr.size(), File::GetSize(*setstr.begin())));
   for (const string& s : setstr)
   {
     cout << "  " << s << endl;
@@ -357,7 +349,7 @@ void Main(int argc, const char** argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    FatalError("%s", msg.c_str());
+    FatalError(msg);
   }
 
   FileNameToMD5 mapFnToMD5;
@@ -389,7 +381,7 @@ void Main(int argc, const char** argv)
   {
     if (task == Check)
     {
-      Verbose(T_("Checking the data integrity of \"%s\"...\n"), dir.c_str());
+      Verbose(fmt::format(T_("Checking the data integrity of \"{}\"...\n"), dir));
     }
     DirectoryWalk(task, dir, dir, mapFnToMD5, mapSizeToFn);
     if (task == Check && !haveMD5File)

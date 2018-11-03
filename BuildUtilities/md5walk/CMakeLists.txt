@@ -42,4 +42,10 @@ target_link_libraries(md5walk
   miktex-popt-wrapper-static
 )
 
+if (USE_SYSTEM_FMT)
+  target_link_libraries(md5walk MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(md5walk ${fmt_dll_name})
+endif()
+
 install(TARGETS md5walk DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
