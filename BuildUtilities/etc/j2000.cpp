@@ -1,6 +1,6 @@
 /* j2000.cpp: compute number of days since Jan 1, 2000
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -21,26 +21,24 @@
 #include <ctime>
 #include <sys/stat.h>
 
-int
-main (/*[in]*/ int		argc,
-      /*[in]*/ const char **	argv)
+int main(int argc, const char** argv)
 {
   time_t tQuery;
   const time_t t2000 = 946681200;
   if (argc > 1)
+  {
+    struct stat statbuf;
+    if (stat(argv[1], &statbuf) != 0)
     {
-      struct stat statbuf;
-      if (stat(argv[1], &statbuf) != 0)
-	{
-	  return (0);
-	}
-      tQuery = statbuf.st_mtime;
+      return 0;
     }
+    tQuery = statbuf.st_mtime;
+  }
   else
-    {
-      time (&tQuery);
-    }
+  {
+    time(&tQuery);
+  }
   int days = static_cast<int>((tQuery - t2000) / (60 * 60 * 24));
-  printf ("%d\n", days);
-  return (0);
+  printf("%d\n", days);
+  return 0;
 }

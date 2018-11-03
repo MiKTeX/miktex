@@ -1,4 +1,4 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
 ## Copyright (C) 2006-2018 Christian Schenk
 ## 

@@ -1,6 +1,6 @@
-/* numberit.cc: find web section numbers
+/* web-n.cpp: find web section numbers
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2018 Christian Schenk
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -37,42 +37,41 @@ using namespace std;
 %% _____________________________________________________________________________\n"
 
 
-int
-main ()
+int main()
 {
   char szLine[2048];
   int iSecNum = 0;
   int iChapNum = 0;
   while (fgets(szLine, sizeof(szLine), stdin))
+  {
+    if (szLine[0] == '@'
+      && (szLine[1] == '*' || szLine[1] == ' ' || szLine[1] == '\n'))
     {
-      if (szLine[0] == '@'
-	  && (szLine[1] == '*' || szLine[1] == ' ' || szLine[1] == '\n'))
-	{
-	  ++ iSecNum;
-	  fputc ('\n', stdout);
-	  if (szLine[1] == '*')
-	    {
-	      ++ iChapNum;
-	      char * lpsz = &szLine[2];
-	      while (*lpsz != 0 && isspace(*lpsz))
-		{
-		  ++ lpsz;
-		}
-	      string strTitle;
-	      while (*lpsz != 0 && *lpsz != '.')
-		{
-		  strTitle += *lpsz;
-		  ++ lpsz;
-		}
-	      fprintf (stdout, SEP1, iChapNum, iSecNum, strTitle.c_str());
-	    }
-	  else
-	    {
-	      fprintf (stdout, SEP2, iChapNum, iSecNum);
-	    }
-	  fputc ('\n', stdout);
-	}
-      fputs (szLine, stdout);
+      ++iSecNum;
+      fputc('\n', stdout);
+      if (szLine[1] == '*')
+      {
+        ++iChapNum;
+        char * lpsz = &szLine[2];
+        while (*lpsz != 0 && isspace(*lpsz))
+        {
+          ++lpsz;
+        }
+        string strTitle;
+        while (*lpsz != 0 && *lpsz != '.')
+        {
+          strTitle += *lpsz;
+          ++lpsz;
+        }
+        fprintf(stdout, SEP1, iChapNum, iSecNum, strTitle.c_str());
+      }
+      else
+      {
+        fprintf(stdout, SEP2, iChapNum, iSecNum);
+      }
+      fputc('\n', stdout);
     }
-  return (0);
+    fputs(szLine, stdout);
+  }
+  return 0;
 }
