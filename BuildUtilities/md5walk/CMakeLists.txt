@@ -45,7 +45,7 @@ target_link_libraries(md5walk
 if (USE_SYSTEM_FMT)
   target_link_libraries(md5walk MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(md5walk ${fmt_dll_name})
+  target_link_libraries(md5walk ${fmt_lib_name})
 endif()
 
 install(TARGETS md5walk DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
