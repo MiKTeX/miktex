@@ -93,7 +93,7 @@ progname);
       }
       if (data[i] == '?')
       {
-        printf("\" \"");	// suppress trigraphs
+        printf("\" \"");        // suppress trigraphs
       }
       putchar(data[i]);
     }
