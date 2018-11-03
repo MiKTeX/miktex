@@ -413,7 +413,8 @@ void Main(int argc, const char** argv)
       // we must dosify the path name for backward compatibility
       path.ConvertToDos();
       md5Builder.Update(path.GetData(), path.GetLength());
-      md5Builder.Update(&p.second.get()[0], p.second.get().size());
+      MD5 md5 = p.second.get();
+      md5Builder.Update(&md5[0], md5.size());
     }
     MD5 md5 = md5Builder.Final();
     if (task == Check)
