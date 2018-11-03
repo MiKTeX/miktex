@@ -1,6 +1,6 @@
 /* md5walk.cpp: calculate the MD5 of a file tree
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MD5Walk.
 
@@ -62,8 +62,8 @@ using namespace std;
 
 #define T_(x) MIKTEXTEXT(x)
 
-const char * MD5WALK_FILE = ".nvsbl";
-const char * NAME_CHECK_INTEGRITY = "chkdata";
+const char* MD5WALK_FILE = ".nvsbl";
+const char* NAME_CHECK_INTEGRITY = "chkdata";
 
 inline long MakeLong(unsigned a, unsigned b)
 {
@@ -82,7 +82,7 @@ inline unsigned MakeWord(unsigned char a, unsigned char b)
 class hash_compare_md5sum
 {
 public:
-  size_t operator() (const MD5 & md5) const
+  size_t operator() (const MD5& md5) const
   {
     long b03 = MakeLong(MakeWord(md5[0], md5[1]), MakeWord(md5[2], md5[3]));
 #if SIZE_MAX == 0xffffffff
@@ -94,7 +94,7 @@ public:
   }
   
 public:
-  bool operator() (const MD5 & md5_1, const MD5 & md5_2) const
+  bool operator()(const MD5& md5_1, const MD5& md5_2) const
   {
     return md5_1 < md5_2;
   }
@@ -119,7 +119,7 @@ int optAsync = false;
 int optPauseWhenFinished = false;
 #endif
 
-void Verbose(const char * lpszFormat, ...)
+void Verbose(const char* lpszFormat, ...)
 {
   if (!optVerbose)
   {
@@ -189,7 +189,7 @@ const struct poptOption aoption[] = {
   POPT_TABLEEND
 };
 
-void FatalError(const char * lpszFormat, ...)
+void FatalError(const char* lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
@@ -201,7 +201,7 @@ void FatalError(const char * lpszFormat, ...)
   throw FATAL_ERROR;
 }
 
-void DirectoryWalk(TASK task, const PathName & path, const string & stripPrefix, FileNameToMD5 & mapFnToMD5, SizeToFileName & mapSizeToFn)
+void DirectoryWalk(TASK task, const PathName& path, const string& stripPrefix, FileNameToMD5& mapFnToMD5, SizeToFileName& mapSizeToFn)
 {
   unique_ptr<DirectoryLister> lister = DirectoryLister::Open(path);
   DirectoryEntry2 dirEntry;
@@ -226,7 +226,7 @@ void DirectoryWalk(TASK task, const PathName & path, const string & stripPrefix,
         case List:
         {
           launch launchPolicy = optAsync ? launch::async : launch::deferred;
-          mapFnToMD5[Utils::GetRelativizedPath(path2.GetData(), stripPrefix.c_str())] = async(launchPolicy, [](const PathName & path2) { return MD5::FromFile(path2.GetData()); }, path2);
+          mapFnToMD5[Utils::GetRelativizedPath(path2.GetData(), stripPrefix.c_str())] = async(launchPolicy, [](const PathName& path2) { return MD5::FromFile(path2.GetData()); }, path2);
           break;
         }
         case FindDuplicates:
@@ -241,7 +241,7 @@ void DirectoryWalk(TASK task, const PathName & path, const string & stripPrefix,
   lister->Close();
 }
 
-void PrintMD5(const MD5 & md5)
+void PrintMD5(const MD5& md5)
 {
   if (optBinary)
   {
@@ -256,7 +256,7 @@ void PrintMD5(const MD5 & md5)
   }
 }
 
-void PrintDuplicates(const set<string> & setstr)
+void PrintDuplicates(const set<string>& setstr)
 {
   if (setstr.size() <= 1)
   {
@@ -265,21 +265,21 @@ void PrintDuplicates(const set<string> & setstr)
   Verbose(T_("found %u identical files (size: %u):\n"),
     static_cast<unsigned>(setstr.size()),
     static_cast<unsigned>(File::GetSize(setstr.begin()->c_str())));
-  for (const string & s : setstr)
+  for (const string& s : setstr)
   {
     cout << "  " << s << endl;
   }
   cout << endl;
 }
 
-void FindDuplicateFiles(const set<string> & setstr)
+void FindDuplicateFiles(const set<string>& setstr)
 {
   if (setstr.size() <= 1)
   {
     return;
   }
   MD5ToFileName mapMd5sumToFn;
-  for (const string & s : setstr)
+  for (const string& s : setstr)
   {
     mapMd5sumToFn.insert(make_pair(MD5::FromFile(s), s));
   }
@@ -298,7 +298,7 @@ void FindDuplicateFiles(const set<string> & setstr)
   PrintDuplicates(setstrFiles);
 }
 
-void Main(int argc, const char ** argv)
+void Main(int argc, const char** argv)
 {
   int option;
 
@@ -345,7 +345,7 @@ void Main(int argc, const char ** argv)
     case OPT_VERSION:
       cout
         << Utils::MakeProgramVersionString(Utils::GetExeName(), VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2005-2016 Christian Schenk" << endl
+        << "Copyright (C) 2005-2018 Christian Schenk" << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return;
@@ -376,7 +376,7 @@ void Main(int argc, const char ** argv)
   }
   else
   {
-    for (const string & dir : leftovers)
+    for (const string& dir : leftovers)
     {
       directories.push_back(dir);
     }
@@ -385,7 +385,7 @@ void Main(int argc, const char ** argv)
   MD5 md5Good;
   bool haveMD5File = false;
 
-  for (const string & dir : directories)
+  for (const string& dir : directories)
   {
     if (task == Check)
     {
@@ -415,7 +415,7 @@ void Main(int argc, const char ** argv)
   case ComputeDigest:
   {
     MD5Builder md5Builder;
-    for (auto & p : mapFnToMD5)
+    for (auto& p : mapFnToMD5)
     {
       PathName path(p.first);
       // we must dosify the path name for backward compatibility
@@ -466,7 +466,7 @@ void Main(int argc, const char ** argv)
     break;
   }
   case List:
-    for (auto & p : mapFnToMD5)
+    for (auto& p : mapFnToMD5)
     {
       cout << p.second.get().ToString() << " " << PathName(p.first).ToUnix() << endl;
     }
@@ -485,12 +485,12 @@ int main(int argc, const char ** argv)
     Main(argc, argv);
     exitCode = 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     exitCode = FATAL_ERROR;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     exitCode = FATAL_ERROR;

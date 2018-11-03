@@ -1,6 +1,6 @@
-/* md5walk.rc: version number				-*- C++ -*-
+/* md5walk.rc: version number                           -*- C++ -*-
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of MD5Walk.
 
