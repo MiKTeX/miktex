@@ -1,6 +1,6 @@
 /* touch.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of miktex-touch.
 
@@ -64,18 +64,16 @@ const struct poptOption aoption[] = {
   POPT_TABLEEND
 };
 
-void FatalError(const char * lpszFormat, ...)
+void FatalError(const char* lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
-  cerr << Utils::GetExeName() << ": "
-    << StringUtil::FormatStringVA(lpszFormat, arglist)
-    << endl;
+  cerr << Utils::GetExeName() << ": " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   va_end(arglist);
   throw 1;
 }
 
-void Main(int argc, const char ** argv)
+void Main(int argc, const char** argv)
 {
   int option;
   time_t timeStamp = time(nullptr);
@@ -91,7 +89,7 @@ void Main(int argc, const char ** argv)
     case OPT_VERSION:
       cout
         << Utils::MakeProgramVersionString(Utils::GetExeName().c_str(), VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0))
-        << "Copyright (C) 2008-2016 Christian Schenk" << endl
+        << "Copyright (C) 2008-2018 Christian Schenk" << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return;
@@ -109,7 +107,7 @@ void Main(int argc, const char ** argv)
   {
     FatalError(T_("no file name arguments"));
   }
-  for (const string & fileName : leftovers)
+  for (const string& fileName : leftovers)
   {
     if (Directory::Exists(fileName))
     {
@@ -122,7 +120,7 @@ void Main(int argc, const char ** argv)
   }
 }
 
-int main(int argc, const char ** argv)
+int main(int argc, const char** argv)
 {
   int exitCode;
   try
@@ -133,7 +131,7 @@ int main(int argc, const char ** argv)
     Main(argc, argv);
     exitCode = 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     exitCode = 1;
