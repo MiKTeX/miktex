@@ -23,7 +23,11 @@
 
 #include <locale>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/FileStream>
+#include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
 #include <miktex/Util/Tokenizer>
@@ -46,7 +50,8 @@ using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 #endif
 
 ExpatTpmParser::ExpatTpmParser() :
-  traceError(TraceStream::Open(MIKTEX_TRACE_ERROR))
+  traceError(TraceStream::Open(MIKTEX_TRACE_ERROR)),
+  traceTime(TraceStream::Open(MIKTEX_TRACE_TIME))
 {
 }
 
@@ -61,6 +66,8 @@ ExpatTpmParser::~ExpatTpmParser()
     }
     traceError->Close();
     traceError = nullptr;
+    traceTime->Close();
+    traceTime = nullptr;
   }
   catch (const exception&)
   {
@@ -293,6 +300,8 @@ void ExpatTpmParser::OnCharacterData(void* pv, const XML_Char* lpsz, int len)
 
 void ExpatTpmParser::Parse(const PathName& path, const string& texmfPrefix)
 {
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceTime.get(), "libmpm", fmt::format("{}({})", __func__, path));
+
   this->texMFPrefix = texmfPrefix;
 
   packageInfo = PackageInfo();

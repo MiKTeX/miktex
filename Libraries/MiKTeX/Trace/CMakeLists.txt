@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -34,6 +34,8 @@ set(public_include_directories
 )
 
 set(public_headers
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Trace/StopWatch
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Trace/StopWatch.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Trace/Trace
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Trace/Trace.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Trace/TraceCallback
@@ -50,6 +52,7 @@ configure_file(
 
 set(trace_sources
   ${CMAKE_CURRENT_BINARY_DIR}/trace-version.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/StopWatch.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TraceStream.cpp
   ${public_headers}
 )

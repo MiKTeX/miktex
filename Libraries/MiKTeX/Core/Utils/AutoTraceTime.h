@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <miktex/Trace/StopWatch>
+
 #include "Session/SessionImpl.h"
 
 BEGIN_INTERNAL_NAMESPACE;
@@ -28,32 +30,25 @@ BEGIN_INTERNAL_NAMESPACE;
 class AutoTraceTime
 {
 public:
-  AutoTraceTime(const char* lpsz1, const char* lpsz2) :
-    start(clock()),
-    str1(lpsz1),
-    str2(lpsz2)
+  AutoTraceTime(const std::string& s1, const std::string& s2) :
+    stopWatch(MiKTeX::Trace::StopWatch::Start(SessionImpl::GetSession()->trace_time.get(), "core", s1 + " " + s2))
   {
   }
+
 public:
   ~AutoTraceTime()
   {
     try
     {
-      if (SessionImpl::GetSession()->trace_time->IsEnabled())
-      {
-        SessionImpl::GetSession()->trace_time->WriteFormattedLine("core", "%s %s %s clock ticks", str1.c_str(), str2.c_str(), std::to_string(clock() - start).c_str());
-      }
+      stopWatch->Stop();
     }
-    catch (const std::exception &)
+    catch (const std::exception&)
     {
     }
   }
+
 private:
-  clock_t start;
-private:
-  std::string str1;
-private:
-  std::string str2;
+  std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch;
 };
 
 END_INTERNAL_NAMESPACE;
