@@ -36,7 +36,7 @@ int main(int argc, const char** argv)
 
   FILE * file = fopen(argv[1], "ab");
 
-  if (file == 0)
+  if (file == nullptr)
   {
     cerr << "cannot open " << argv[1] << '\n';
     return 1;
