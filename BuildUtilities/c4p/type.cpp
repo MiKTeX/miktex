@@ -1,6 +1,6 @@
 /* type.c: type table                                   -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2018 Christian Schenk
 
    This file is part of C4P.
 
@@ -364,28 +364,28 @@ void generate_routine_head(prototype_node * proto)
 {
   cppout.out_s("\n");
   cppout.out_s(std::string((!class_name_scope.empty()
-			    && proto->result_type != nullptr
-			    && !(proto->result_type->s_flags & S_PREDEFINED))
-			   ? class_name_scope.c_str()
-			   : "") +
-	       std::string(proto->result_type == nullptr
-			   ? "void"
-			   : (proto->result_type->s_translated_type
-			      ? proto->result_type->s_translated_type
-			      : proto->result_type->s_repr)) +
-	       "\n" +
-	       class_name_scope +
-	       std::string(proto->name->s_repr) +
-	       " (");
+                            && proto->result_type != nullptr
+                            && !(proto->result_type->s_flags & S_PREDEFINED))
+                           ? class_name_scope.c_str()
+                           : "") +
+               std::string(proto->result_type == nullptr
+                           ? "void"
+                           : (proto->result_type->s_translated_type
+                              ? proto->result_type->s_translated_type
+                              : proto->result_type->s_repr)) +
+               "\n" +
+               class_name_scope +
+               std::string(proto->name->s_repr) +
+               " (");
   cppout.redir_file(H_FILE_NUM);
   cppout.out_s(std::string(proto->result_type == nullptr
-			   ? "void"
-			   : (proto->result_type->s_translated_type
-			      ? proto->result_type->s_translated_type
-			      : proto->result_type->s_repr)) +
-	       " " +
-	       std::string(proto->name->s_repr) +
-	       " (");
+                           ? "void"
+                           : (proto->result_type->s_translated_type
+                              ? proto->result_type->s_translated_type
+                              : proto->result_type->s_repr)) +
+               " " +
+               std::string(proto->name->s_repr) +
+               " (");
   cppout.redir_file(C_FILE_NUM);
   parameter_node * par = proto->formal_parameter;
   if (par == nullptr)
@@ -408,18 +408,18 @@ void generate_routine_head(prototype_node * proto)
     param_symbol->s_type_ptr = type_symbol->s_type_ptr;
     param_symbol->s_type = flatten_type(param_symbol->s_type, param_symbol->s_type_ptr, &param_symbol->s_type_ptr);
     cppout.out_s(std::string(type_symbol->s_translated_type != nullptr
-			     ? type_symbol->s_translated_type
-			     : type_symbol->s_repr) +
-		 " " +
-		 std::string(par->by_reference ? "& " : "") +
-		 std::string(par->name));
+                             ? type_symbol->s_translated_type
+                             : type_symbol->s_repr) +
+                 " " +
+                 std::string(par->by_reference ? "& " : "") +
+                 std::string(par->name));
     cppout.redir_file(H_FILE_NUM);
     cppout.out_s(std::string(type_symbol->s_translated_type != nullptr
-			     ? type_symbol->s_translated_type
-			     : type_symbol->s_repr) +
-		 " " +
-		 std::string(par->by_reference ? "& " : "") +
-		 std::string(par->name));
+                             ? type_symbol->s_translated_type
+                             : type_symbol->s_repr) +
+                 " " +
+                 std::string(par->by_reference ? "& " : "") +
+                 std::string(par->name));
     cppout.redir_file(C_FILE_NUM);
     if (par->by_reference)
     {

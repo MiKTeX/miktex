@@ -1,6 +1,6 @@
 /* misc.c: C4P utilities                                -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2018 Christian Schenk
 
    This file is part of C4P.
 
@@ -286,13 +286,13 @@ void declare_fast_var_macro(unsigned routine_handle)
     if (sym != nullptr)
     {
       cppout.out_s("register " +
-		   std::string(sym->s_translated_type ? sym->s_translated_type : "FIXME") +
-		   std::string(" ") +
-		   std::string(sym->s_type == ARRAY_NODE ? "*" : "") +
-		   std::string("_c4p_fast_") + std::string(sym->s_repr) +
-		   std::string("_") + std::to_string(routine_handle) +
-		   std::string(" = ") + std::string(sym->s_repr) +
-		   std::string(";\n"));
+                   std::string(sym->s_translated_type ? sym->s_translated_type : "FIXME") +
+                   std::string(" ") +
+                   std::string(sym->s_type == ARRAY_NODE ? "*" : "") +
+                   std::string("_c4p_fast_") + std::string(sym->s_repr) +
+                   std::string("_") + std::to_string(routine_handle) +
+                   std::string(" = ") + std::string(sym->s_repr) +
+                   std::string(";\n"));
     }
     v = strtok(nullptr, " ");
   }

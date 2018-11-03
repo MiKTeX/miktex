@@ -1,6 +1,6 @@
 /* gram.y: C4P parser specification                     -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2018 Christian Schenk
 
    This file is part of C4P.
 
@@ -489,31 +489,31 @@ constant_definition:
           IDENTIFIER '='
                 {
                   cppout.out_s("static constexpr ");
-		  $<buf_mark>$ = cppout.get_buf_mark();
-		  cppout.out_s("                    " + std::string($1->s_repr) + " { ");
+                  $<buf_mark>$ = cppout.get_buf_mark();
+                  cppout.out_s("                    " + std::string($1->s_repr) + " { ");
                 }
           constant ';'
                 {
-		  if (last_type == REAL_TYPE)
-		  {
-		    cppout.out_buf_over($<buf_mark>3, "C4P_real            ", 20);
-		  }
-		  else if (last_type == LONG_REAL_TYPE)
-		  {
-		    cppout.out_buf_over($<buf_mark>3, "C4P_longreal        ", 20);
-		  }
-		  else if (last_type == INTEGER_TYPE)
-		  {
-		    cppout.out_buf_over($<buf_mark>3, "C4P_integer         ", 20);
-		  }
-		  else if (last_type == STRING_TYPE)
-		  {
-		    cppout.out_buf_over($<buf_mark>3, "const char*         ", 20);
-		  }
-		  else if (last_type == CHARACTER_TYPE)
-		  {
-		    cppout.out_buf_over($<buf_mark>3, "char                ", 20);
-		  }
+                  if (last_type == REAL_TYPE)
+                  {
+                    cppout.out_buf_over($<buf_mark>3, "C4P_real            ", 20);
+                  }
+                  else if (last_type == LONG_REAL_TYPE)
+                  {
+                    cppout.out_buf_over($<buf_mark>3, "C4P_longreal        ", 20);
+                  }
+                  else if (last_type == INTEGER_TYPE)
+                  {
+                    cppout.out_buf_over($<buf_mark>3, "C4P_integer         ", 20);
+                  }
+                  else if (last_type == STRING_TYPE)
+                  {
+                    cppout.out_buf_over($<buf_mark>3, "const char*         ", 20);
+                  }
+                  else if (last_type == CHARACTER_TYPE)
+                  {
+                    cppout.out_buf_over($<buf_mark>3, "char                ", 20);
+                  }
                   cppout.out_s(" };\n");
                   define_symbol($1, CONSTANT_IDENTIFIER, block_level, last_type, nullptr, &last_value);
                 }
@@ -1733,30 +1733,30 @@ expression:
           simple_expression
         | expression relational_operator
                 {
-		  if (relational_cast_expressions)
-		  {
-		    $<buf_mark>$ = cppout.get_buf_mark();
-		    cppout.out_s("(C4P_integer)     ");
-		  }
+                  if (relational_cast_expressions)
+                  {
+                    $<buf_mark>$ = cppout.get_buf_mark();
+                    cppout.out_s("(C4P_integer)     ");
+                  }
                 }
           simple_expression
                 {
                   $$ = coerce($1, $4);
-		  if (relational_cast_expressions)
-		  {
-		    if ($$ == REAL_TYPE)
-		    {
-		      cppout.out_buf_over($<buf_mark>3, "(C4P_real)        ", 18);
-		    }
-		    if ($$ == LONG_REAL_TYPE)
+                  if (relational_cast_expressions)
+                  {
+                    if ($$ == REAL_TYPE)
                     {
-		      cppout.out_buf_over($<buf_mark>3, "(C4P_longreal)    ", 18);
-		    }
-		    if ($$ == LONG_INTEGER_TYPE)
+                      cppout.out_buf_over($<buf_mark>3, "(C4P_real)        ", 18);
+                    }
+                    if ($$ == LONG_REAL_TYPE)
                     {
-		      cppout.out_buf_over($<buf_mark>3, "(C4P_longinteger) ", 18);
-		    }
-		  }
+                      cppout.out_buf_over($<buf_mark>3, "(C4P_longreal)    ", 18);
+                    }
+                    if ($$ == LONG_INTEGER_TYPE)
+                    {
+                      cppout.out_buf_over($<buf_mark>3, "(C4P_longinteger) ", 18);
+                    }
+                  }
                 }
         ;
 
@@ -1796,10 +1796,10 @@ simple_expression:
         | '-'
                 {
                   cppout.out_s(" - ");
-		  if (other_cast_expressions)
-		  {
-		    cppout.out_s("(C4P_integer) ");
-		  }
+                  if (other_cast_expressions)
+                  {
+                    cppout.out_s("(C4P_integer) ");
+                  }
                 }
           term
                 {
@@ -1811,30 +1811,30 @@ simple_expression:
                 }
         | simple_expression adding_operator
                 {
-		  if (other_cast_expressions)
-		  {
-		    $<buf_mark>$ = cppout.get_buf_mark();
-		    cppout.out_s("(C4P_integer)     ");
-		  }
+                  if (other_cast_expressions)
+                  {
+                    $<buf_mark>$ = cppout.get_buf_mark();
+                    cppout.out_s("(C4P_integer)     ");
+                  }
                 }
           term
                 {
                   $$ = coerce($1, $4);
-		  if (other_cast_expressions)
-		  {
-		    if ($$ == REAL_TYPE)
-		    {
-		      cppout.out_buf_over($<buf_mark>3, "(C4P_real)        ", 18);
-		    }
-		    if ($$ == LONG_REAL_TYPE)
-		    {
-		      cppout.out_buf_over($<buf_mark>3, "(C4P_longreal)    ", 18);
-		    }
-		    if ($$ == LONG_INTEGER_TYPE)
+                  if (other_cast_expressions)
+                  {
+                    if ($$ == REAL_TYPE)
                     {
-		      cppout.out_buf_over($<buf_mark>3, "(C4P_longinteger) ", 18);
-		    }
-		  }
+                      cppout.out_buf_over($<buf_mark>3, "(C4P_real)        ", 18);
+                    }
+                    if ($$ == LONG_REAL_TYPE)
+                    {
+                      cppout.out_buf_over($<buf_mark>3, "(C4P_longreal)    ", 18);
+                    }
+                    if ($$ == LONG_INTEGER_TYPE)
+                    {
+                      cppout.out_buf_over($<buf_mark>3, "(C4P_longinteger) ", 18);
+                    }
+                  }
                 }
         | simple_expression OR
                 {
@@ -1859,38 +1859,38 @@ term:
         | term '/'
                 {
                   cppout.out_s(" / ");
-		  if (other_cast_expressions)
-		  {
-		    cppout.out_s("(C4P_real) ");
-		  }
+                  if (other_cast_expressions)
+                  {
+                    cppout.out_s("(C4P_real) ");
+                  }
                 }
           factor
         | term multiplying_operator
                 {
-		  if (other_cast_expressions)
-		  {
+                  if (other_cast_expressions)
+                  {
                     $<buf_mark>$ = cppout.get_buf_mark();
                     cppout.out_s("(C4P_integer)     ");
-		  }
+                  }
                 }
           factor
                 {
                   $$ = coerce($1,$4);
-		  if (other_cast_expressions)
-		  {
-		    if ($$ == REAL_TYPE)
+                  if (other_cast_expressions)
+                  {
+                    if ($$ == REAL_TYPE)
                     {
-		      cppout.out_buf_over($<buf_mark>3, "(C4P_real)        ", 18);
-		    }
-		    if ($$ == LONG_REAL_TYPE)
+                      cppout.out_buf_over($<buf_mark>3, "(C4P_real)        ", 18);
+                    }
+                    if ($$ == LONG_REAL_TYPE)
                     {
-		      cppout.out_buf_over($<buf_mark>3, "(C4P_longreal)    ", 18);
-		    }
-		    if ($$ == LONG_INTEGER_TYPE)
+                      cppout.out_buf_over($<buf_mark>3, "(C4P_longreal)    ", 18);
+                    }
+                    if ($$ == LONG_INTEGER_TYPE)
                     {
-		      cppout.out_buf_over($<buf_mark>3, "(C4P_longinteger) ", 18);
-		    }
-		  }
+                      cppout.out_buf_over($<buf_mark>3, "(C4P_longinteger) ", 18);
+                    }
+                  }
                 }
         | term AND
                 {
