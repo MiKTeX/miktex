@@ -34,7 +34,7 @@ int main(int argc, const char** argv)
     return 1;
   }
 
-  FILE * file = fopen(argv[1], "ab");
+  FILE* file = fopen(argv[1], "ab");
 
   if (file == nullptr)
   {
