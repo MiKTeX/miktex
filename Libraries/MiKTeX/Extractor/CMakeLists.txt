@@ -65,13 +65,6 @@ set(extractor_sources
   ${public_headers}
 )
 
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND exctractor_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/win/winCabExtractor.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win/winCabExtractor.h
-  )
-endif()
-
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)
 endif()
