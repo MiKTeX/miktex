@@ -56,6 +56,7 @@
 #define MIKTEX_TRACE_MTPRINT "mtprint"
 #define MIKTEX_TRACE_PACKAGES "packages"
 #define MIKTEX_TRACE_PROCESS "process"
+#define MIKTEX_TRACE_SETUP "setup"
 #define MIKTEX_TRACE_TEMPFILE "tempfile"
 #define MIKTEX_TRACE_TIME "time"
 #define MIKTEX_TRACE_VALUES "values"

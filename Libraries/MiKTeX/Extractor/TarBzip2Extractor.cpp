@@ -25,6 +25,9 @@
 
 #include <memory>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/BZip2Stream>
 
 #include "internal.h"
@@ -37,7 +40,7 @@ using namespace std;
 
 void TarBzip2Extractor::Extract(const PathName& path, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
-  traceStream->WriteFormattedLine("libextractor", T_("extracting %s"), Q_(path));
+  traceStream->WriteLine("libextractor", fmt::format(T_("extracting {0}"), Q_(path)));
   unique_ptr<BZip2Stream> bz2Stream = BZip2Stream::Create(path, true);
   TarExtractor::Extract(bz2Stream.get(), destDir, makeDirectories, callback, prefix);
 }

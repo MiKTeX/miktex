@@ -27,6 +27,9 @@
 #include <fcntl.h>
 #endif
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Directory>
 #include <miktex/Trace/Trace>
 
@@ -316,7 +319,7 @@ static void SetAttributes(const PathName& path, int cabattr)
 
 void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
-  traceStream->WriteFormattedLine("libextractor", T_("extracting %s to %s (%s)"), Q_(cabinetPath), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories")));
+  traceStream->WriteLine("libextractor", fmt::format(T_("extracting {0} to {1} ({2})"), Q_(cabinetPath), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories"))));
 
   mscabd_cabinet* cabinet = nullptr;
 
@@ -406,7 +409,7 @@ void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir,
       }
     }
 
-    traceStream->WriteFormattedLine("libextractor", T_("extracted %u file(s)"), fileCount);
+    traceStream->WriteLine("libextractor", fmt::format(T_("extracted {0} file(s)"), fileCount));
 
     decompressor->close(decompressor, cabinet);
     cabinet = nullptr;

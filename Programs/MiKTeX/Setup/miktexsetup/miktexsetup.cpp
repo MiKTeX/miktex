@@ -69,13 +69,15 @@ const string THE_NAME_OF_THE_GAME = T_("MiKTeX Setup Utility (Standalone)");
 const string THE_NAME_OF_THE_GAME = T_("MiKTeX Setup Utility");
 #endif
 
-const string DEFAULT_TRACE_STREAMS = StringUtil::Flatten({
-  MIKTEX_TRACE_CORE,
+vector<string> DEFAULT_TRACE_STREAMS = {
+  MIKTEX_TRACE_CONFIG,
   MIKTEX_TRACE_CURL,
   MIKTEX_TRACE_ERROR,
-  MIKTEX_TRACE_FNDB,
-  MIKTEX_TRACE_MPM
-  }, ',');
+  MIKTEX_TRACE_EXTRACTOR,
+  MIKTEX_TRACE_MPM,
+  MIKTEX_TRACE_PROCESS,
+  MIKTEX_TRACE_SETUP
+};
 
 class Application :
   SetupServiceCallback
@@ -647,7 +649,7 @@ void Application::Main(int argc, const char** argv)
     case OPT_TRACE:
       if (optArg.empty())
       {
-        initInfo.SetTraceFlags(DEFAULT_TRACE_STREAMS);
+        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
       }
       else
       {

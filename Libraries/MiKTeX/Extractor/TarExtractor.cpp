@@ -23,8 +23,12 @@
 #  include <config.h>
 #endif
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileStream>
+#include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 
 #include "internal.h"
@@ -258,7 +262,7 @@ void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool make
     streamIn = streamIn_;
     totalBytesRead = 0;
 
-    traceStream->WriteFormattedLine("libextractor", T_("extracting to %s (%s)"), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories")));
+    traceStream->WriteLine("libextractor", fmt::format(T_("extracting to {0} ({1})"), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories"))));
 
     size_t len;
     Header header;
@@ -393,18 +397,18 @@ void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool make
       }
     }
 
-    traceStream->WriteFormattedLine("libextractor", T_("extracted %u file(s)"), fileCount);
+    traceStream->WriteLine("libextractor", fmt::format(T_("extracted {0} file(s)"), fileCount));
   }
   catch (const exception&)
   {
-    traceStream->WriteFormattedLine("libextractor", T_("%u bytes were read from the tar stream"), static_cast<unsigned>(totalBytesRead));
+    traceStream->WriteLine("libextractor", fmt::format(T_("{0} bytes were read from the tar stream"), totalBytesRead));
     throw;
   }
 }
 
 void TarExtractor::Extract(const PathName& path, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
-  traceStream->WriteFormattedLine("libextractor", T_("extracting %s"), Q_(path));
+  traceStream->WriteLine("libextractor", fmt::format(T_("extracting {0}"), Q_(path)));
   FileStream stream(File::Open(path, FileMode::Open, FileAccess::Read, false));
   Extract(&stream, destDir, makeDirectories, callback, prefix);
   stream.Close();

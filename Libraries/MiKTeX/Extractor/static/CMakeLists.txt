@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -37,6 +37,12 @@ if(USE_SYSTEM_BZIP2)
   target_link_libraries(${extractor_lib_name} PUBLIC MiKTeX::Imported::BZIP2)
 else()
   target_link_libraries(${extractor_lib_name} PUBLIC ${bzip2_lib_name})
+endif()
+
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${extractor_lib_name} PUBLIC MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${extractor_lib_name} PUBLIC ${fmt_lib_name})
 endif()
 
 if(USE_SYSTEM_MSPACK)

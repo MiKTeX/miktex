@@ -108,7 +108,6 @@ SetupService::~SetupService() noexcept
 SetupServiceImpl::SetupServiceImpl()
 {
   traceStream = TraceStream::Open("setup");
-  TraceStream::SetTraceFlags("error,extractor,mpm,process,config,setup");
   packageManager = PackageManager::Create();
   shared_ptr<Session> session = Session::Get();
   logFile.SetCallback(this);
