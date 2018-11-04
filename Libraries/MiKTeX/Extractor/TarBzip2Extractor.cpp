@@ -42,7 +42,7 @@ using namespace std;
 
 void TarBzip2Extractor::Extract(const PathName& path, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
-  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), TRACE_FACILITY, fmt::format(".tar.bz2 {}", path.GetFileName()));
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), TRACE_FACILITY, path.GetFileName().ToString());
   traceStream->WriteLine(TRACE_FACILITY, fmt::format(T_("extracting {0}"), Q_(path)));
   unique_ptr<BZip2Stream> bz2Stream = BZip2Stream::Create(path, true);
   TarExtractor::Extract(bz2Stream.get(), destDir, makeDirectories, callback, prefix);

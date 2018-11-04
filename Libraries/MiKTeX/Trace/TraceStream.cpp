@@ -53,6 +53,23 @@ using namespace std;
 
 #define ENABLE_LEGACY_TRACING 1
 
+pair<string, string> ParseOption(const string& option)
+{
+  string facility;
+  string name;
+  size_t pos = option.find(':');
+  if (pos == string::npos)
+  {
+    name = option;
+  }
+  else
+  {
+    facility = option.substr(0, pos);
+    name = option.substr(pos + 1);
+  }
+  return make_pair(facility, name);
+}
+
 TraceStream::~TraceStream() noexcept
 {
 }
@@ -61,6 +78,7 @@ struct TraceStreamInfo
 {
   string name;
   bool isEnabled;
+  vector<string> enabledFor;
   vector<TraceCallback*> callbacks;
 };
 
@@ -71,10 +89,7 @@ public:
   void MIKTEXTHISCALL Close() override;
 
 public:
-  void MIKTEXTHISCALL Enable(bool enable) override;
-
-public:
-  bool MIKTEXTHISCALL IsEnabled() override;
+  bool MIKTEXTHISCALL IsEnabled(const std::string& facility) override;
 
 public:
   void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) override;
@@ -141,12 +156,12 @@ private:
   static TraceStreamTable traceStreams;
 
 private:
-  static string traceFlags;
+  static vector<string> options;
 };
 
 mutex TraceStreamImpl::traceStreamsMutex;
 TraceStreamImpl::TraceStreamTable TraceStreamImpl::traceStreams;
-string TraceStreamImpl::traceFlags;
+vector<string> TraceStreamImpl::options;
 
 void TraceStreamImpl::Logger(const string& facility, const string& message, bool appendNewline)
 {
@@ -221,43 +236,56 @@ void TraceStreamImpl::FormatV(const string& facility, bool appendNewline, const 
   Logger(facility, StringUtil::FormatStringVA(format.c_str(), arglist), appendNewline);
 }
 
-void TraceStream::SetTraceFlags(const string& flags)
+void TraceStream::SetOptions(const string& optionsString)
+{
+  vector<string> options;
+  for (Tokenizer tok(optionsString, ",; \n\t"); tok; ++tok)
+  {
+    options.push_back(*tok);
+  }
+  SetOptions(options);
+}
+
+void TraceStream::SetOptions(const vector<string>& options)
 {
   lock_guard<mutex> lockGuard(TraceStreamImpl::traceStreamsMutex);
 
-  if (flags.empty())
+  if (options.empty())
   {
-    TraceStreamImpl::traceFlags = "error";
+    TraceStreamImpl::options = { "error" };
   }
   else
   {
-    TraceStreamImpl::traceFlags = flags;
+    TraceStreamImpl::options = options;
   }
 
   for (auto& kv : TraceStreamImpl::traceStreams)
   {
     kv.second->isEnabled = false;
+    kv.second->enabledFor.clear();
   }
 
-  for (Tokenizer tok(TraceStreamImpl::traceFlags, ",; \n\t"); tok; ++tok)
+  for (const string& opt : TraceStreamImpl::options)
   {
-    string name(*tok);
-    TraceStreamImpl::TraceStreamTable::iterator it = TraceStreamImpl::traceStreams.equal_range(name).first;
+    auto p = ParseOption(opt);
+    TraceStreamImpl::TraceStreamTable::iterator it = TraceStreamImpl::traceStreams.equal_range(p.second).first;
     if (it != TraceStreamImpl::traceStreams.end() && it->second != nullptr)
     {
-      it->second->isEnabled = true;
+      if (p.first.empty())
+      {
+        it->second->isEnabled = true;
+      }
+      else
+      {
+        it->second->enabledFor.push_back(p.first);
+      }
     }
   }
 }
 
-void TraceStreamImpl::Enable(bool enable)
-{
-  info->isEnabled = enable;
-}
-
 void TraceStreamImpl::WriteFormattedLine(const string& facility, const char* format, ...)
 {
-  if (!IsEnabled())
+  if (!IsEnabled(facility))
   {
     return;
   }
@@ -269,7 +297,7 @@ void TraceStreamImpl::WriteFormattedLine(const string& facility, const char* for
 
 void TraceStreamImpl::WriteLine(const string& facility, const string& text)
 {
-  if (!IsEnabled())
+  if (!IsEnabled(facility))
   {
     return;
   }
@@ -278,7 +306,7 @@ void TraceStreamImpl::WriteLine(const string& facility, const string& text)
 
 void TraceStreamImpl::Write(const string& facility, const string& text)
 {
-  if (!IsEnabled())
+  if (!IsEnabled(facility))
   {
     return;
   }
@@ -287,7 +315,7 @@ void TraceStreamImpl::Write(const string& facility, const string& text)
 
 void TraceStreamImpl::VTrace(const string& facility, const string& format, va_list arglist)
 {
-  if (!IsEnabled())
+  if (!IsEnabled(facility))
   {
     return;
   }
@@ -302,8 +330,22 @@ unique_ptr<TraceStream> TraceStream::Open(const string& name, TraceCallback* cal
   {
     traceStreamInfo = make_shared<TraceStreamInfo>();
     traceStreamInfo->name = name;
-    bool enable = StringUtil::Contains(TraceStreamImpl::traceFlags.c_str(), name.c_str(), ",; \n\t");
-    traceStreamInfo->isEnabled = enable;
+    traceStreamInfo->isEnabled = false;
+    for (const string& opt : TraceStreamImpl::options)
+    {
+      auto p = ParseOption(opt);
+      if (name == p.second)
+      {
+        if (p.first.empty())
+        {
+          traceStreamInfo->isEnabled = true;
+        }
+        else
+        {
+          traceStreamInfo->enabledFor.push_back(p.first);
+        }
+      }
+    }
     TraceStreamImpl::traceStreams[name] = traceStreamInfo;
   }
   return make_unique<TraceStreamImpl>(traceStreamInfo, callback);
@@ -322,7 +364,7 @@ void TraceStreamImpl::Close()
   }
 }
 
-bool TraceStreamImpl::IsEnabled()
+bool TraceStreamImpl::IsEnabled(const string& facility)
 {
-  return this->info->isEnabled;
+  return this->info->isEnabled || find(this->info->enabledFor.begin(), this->info->enabledFor.end(), facility) != this->info->enabledFor.end();
 }

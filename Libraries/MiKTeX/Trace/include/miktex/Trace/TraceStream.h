@@ -28,6 +28,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "TraceCallback.h"
 
@@ -42,10 +43,7 @@ public:
   virtual void MIKTEXTHISCALL Close() = 0;
 
 public:
-  virtual void MIKTEXTHISCALL Enable(bool enable) = 0;
-
-public:
-  virtual bool MIKTEXTHISCALL IsEnabled() = 0;
+  virtual bool MIKTEXTHISCALL IsEnabled(const std::string& facility) = 0;
 
 public:
   static MIKTEXTRACECEEAPI(std::unique_ptr<TraceStream>) Open(const std::string& name, TraceCallback* callback);
@@ -57,7 +55,17 @@ public:
   }
 
 public:
-  static MIKTEXTRACECEEAPI(void) SetTraceFlags(const std::string& flags);
+  static MIKTEXTRACECEEAPI(void) SetOptions(const std::vector<std::string>& options);
+
+public:
+  static MIKTEXTRACECEEAPI(void) SetOptions(const std::string& options);
+
+public:
+  // DEPRECATED
+  static void SetTraceFlags(const std::string& options)
+  {
+    SetOptions(options);
+  }
 
 public:
   virtual void MIKTEXTHISCALL Write(const std::string& facility, const std::string& text) = 0;

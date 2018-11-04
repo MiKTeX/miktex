@@ -559,7 +559,7 @@ bool Utils::GetEnvironmentString(const string& name, string& str)
   bool haveValue = ::GetEnvironmentString(name, str);
   if (SessionImpl::TryGetSession() != 0
     && SessionImpl::GetSession()->trace_env.get() != 0
-    && SessionImpl::GetSession()->trace_env->IsEnabled())
+    && SessionImpl::GetSession()->trace_env->IsEnabled("core"))
   {
     SessionImpl::GetSession()->trace_env->WriteFormattedLine("core", "%s => %s", name.c_str(), (haveValue ? str.c_str() : "null"));
   }

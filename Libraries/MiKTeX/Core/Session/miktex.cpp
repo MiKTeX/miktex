@@ -95,7 +95,6 @@ void SessionImpl::RegisterLibraryTraceStreams()
   trace_fonts = TraceStream::Open(MIKTEX_TRACE_FONTINFO, callback);
   trace_mem = TraceStream::Open(MIKTEX_TRACE_MEM, callback);
   trace_mmap = TraceStream::Open(MIKTEX_TRACE_MMAP, callback);
-  trace_packages = TraceStream::Open(MIKTEX_TRACE_PACKAGES, callback);
   trace_process = TraceStream::Open(MIKTEX_TRACE_PROCESS, callback);
   trace_tempfile = TraceStream::Open(MIKTEX_TRACE_TEMPFILE, callback);
   trace_time = TraceStream::Open(MIKTEX_TRACE_TIME, callback);
@@ -114,7 +113,6 @@ void SessionImpl::UnregisterLibraryTraceStreams()
   trace_fndb->Close();
   trace_fonts->Close();
   trace_mem->Close();
-  trace_packages->Close();
   trace_process->Close();
   trace_tempfile->Close();
   trace_time->Close();

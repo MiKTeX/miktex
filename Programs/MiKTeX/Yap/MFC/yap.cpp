@@ -958,7 +958,7 @@ void VYapLog(const char* lpszFormat, va_list argptr)
 
 void YapLog(const char* lpszFormat, ...)
 {
-  if (theApp.trace_yap != nullptr && theApp.trace_yap->IsEnabled())
+  if (theApp.trace_yap != nullptr && theApp.trace_yap->IsEnabled("yap"))
   {
     va_list argptr;
     va_start(argptr, lpszFormat);

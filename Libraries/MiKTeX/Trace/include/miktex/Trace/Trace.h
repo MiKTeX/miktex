@@ -54,7 +54,6 @@
 #define MIKTEX_TRACE_MMAP "mmap"
 #define MIKTEX_TRACE_MPM "mpm"
 #define MIKTEX_TRACE_MTPRINT "mtprint"
-#define MIKTEX_TRACE_PACKAGES "packages"
 #define MIKTEX_TRACE_PROCESS "process"
 #define MIKTEX_TRACE_SETUP "setup"
 #define MIKTEX_TRACE_STOPWATCH "stopwatch"

@@ -167,7 +167,7 @@ MIKTEXINTERNALFUNC(string) MakeSearchPath(const vector<PathName>& vec)
 
 void SessionImpl::TraceSearchVector(const char* lpszKey, const vector<PathName>& vec)
 {
-  if (!trace_filesearch->IsEnabled())
+  if (!trace_filesearch->IsEnabled("core"))
   {
     return;
   }

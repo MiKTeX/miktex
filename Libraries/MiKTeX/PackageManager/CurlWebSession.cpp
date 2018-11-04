@@ -157,7 +157,7 @@ void CurlWebSession::Initialize()
   curl_progress_callback progressCallback = ProgressCallback;
   SetOption(CURLOPT_PROGRESSFUNCTION, progressCallback);
 
-  if (trace_curl->IsEnabled())
+  if (trace_curl->IsEnabled(TRACE_FACILITY))
   {
     SetOption(CURLOPT_VERBOSE, static_cast<long>(true));
     curl_debug_callback debugCallback = DebugCallback;

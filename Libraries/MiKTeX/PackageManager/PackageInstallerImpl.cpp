@@ -2553,7 +2553,7 @@ bool PackageInstallerImpl::UseLocalServer()
 HRESULT PackageInstallerImpl::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
   using namespace MiKTeXPackageManagerLib;
-  if (trace_mpm->IsEnabled())
+  if (trace_mpm->IsEnabled(TRACE_FACILITY))
   {
     WCHAR szRiid[100];
     if (StringFromGUID2(riid, szRiid, 100) > 0)

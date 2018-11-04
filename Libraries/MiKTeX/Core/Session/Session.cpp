@@ -180,7 +180,7 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 #endif
   if (!traceOptions.empty())
   {
-    TraceStream::SetTraceFlags(traceOptions);
+    TraceStream::SetOptions(traceOptions);
   }
 
   DoStartupConfig();

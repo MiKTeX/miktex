@@ -326,7 +326,7 @@ static void SetAttributes(const PathName& path, int cabattr)
 
 void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
-  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), TRACE_FACILITY, fmt::format(".cab {}", cabinetPath.GetFileName()));
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), TRACE_FACILITY, cabinetPath.GetFileName().ToString());
   traceStream->WriteLine(TRACE_FACILITY, fmt::format(T_("extracting {0} to {1} ({2})"), Q_(cabinetPath), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories"))));
 
   mscabd_cabinet* cabinet = nullptr;

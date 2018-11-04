@@ -300,7 +300,7 @@ void ExpatTpmParser::OnCharacterData(void* pv, const XML_Char* lpsz, int len)
 
 void ExpatTpmParser::Parse(const PathName& path, const string& texmfPrefix)
 {
-  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), TRACE_FACILITY, fmt::format(".tpm {}", path.GetFileName()));
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), TRACE_FACILITY, path.GetFileName().ToString());
 
   this->texMFPrefix = texmfPrefix;
 

@@ -913,7 +913,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   }
 #endif
 
-  if (trace_values->IsEnabled())
+  if (trace_values->IsEnabled("core"))
   {
     if (!sectionName.empty())
     {
