@@ -55,8 +55,8 @@ namespace MiKTeX {                                      \
 #define MPMINTERNALFUNC(type) type
 #define MPMINTERNALVAR(type) type
 
-#define ZZDB1_SIZE 1024 * 40
-#define ZZDB2_SIZE 1024 * 245
+#define ZZDB1_SIZE 182471
+#define ZZDB2_SIZE 1048881
 
 #define DB_ARCHIVE_FILE_TYPE ArchiveFileType::TarLzma
 
