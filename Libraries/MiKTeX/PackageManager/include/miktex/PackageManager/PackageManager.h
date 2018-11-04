@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 
+#include <miktex/Core/Cfg>
 #include <miktex/Core/PathName>
 
 #include <miktex/Trace/TraceCallback>
@@ -237,6 +238,12 @@ public:
 
 public:
   static MIKTEXMPMCEEAPI(void) WritePackageManifestFile(const MiKTeX::Core::PathName& path, const PackageInfo& packageInfo, time_t timePackaged);
+
+public:
+  static MIKTEXMPMCEEAPI(void) SavePackageManifest(MiKTeX::Core::Cfg* cfg, const PackageInfo& packageInfo, time_t timePackaged);
+
+public:
+  static MIKTEXMPMCEEAPI(PackageInfo) LoadPackageManifest(const MiKTeX::Core::Cfg* cfg, const std::string& packageId, const std::string& texmfPrefix);
 
   /// Strips the TEXMF prefix from a string.
   /// @param str The string to strip.

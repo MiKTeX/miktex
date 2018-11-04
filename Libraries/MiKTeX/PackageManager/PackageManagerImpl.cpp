@@ -1042,8 +1042,15 @@ bool PackageManager::IsLocalPackageRepository(const PathName& path)
   }
 
   // local mirror of remote package repository?
-  if (File::Exists(PathName(path, MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME))
-    && File::Exists(PathName(path, MIKTEX_TPM_ARCHIVE_FILE_NAME)))
+  PathName file1 = PathName(path, MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
+#if USE_ZZDB3
+  PathName file2 = PathName(path, MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
+#elif USE_ZZDB2
+  PathName file2 = PathName(path, MIKTEX_TPM_ARCHIVE_FILE_NAME);
+#else
+  // must use either zzdb2 or zzdb3
+#endif
+  if (File::Exists(file1) && File::Exists(file2))
   {
     return true;
   }
@@ -1317,6 +1324,195 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
   xml.EndAllElements();
 
   xml.Close();
+}
+
+void PackageManager::SavePackageManifest(Cfg* cfg, const PackageInfo& packageInfo, time_t timePackaged)
+{
+  // TODO: remove old manifests (if it exists)
+  if (!packageInfo.displayName.empty())
+  {
+    cfg->PutValue(packageInfo.id, "displayName", packageInfo.displayName);
+  }
+  cfg->PutValue(packageInfo.id, "creator", "mpc");
+  if (!packageInfo.title.empty())
+  {
+    cfg->PutValue(packageInfo.id, "title", packageInfo.title);
+  }
+  if (!packageInfo.version.empty())
+  {
+    cfg->PutValue(packageInfo.id, "version", packageInfo.version);
+  }
+  if (!packageInfo.targetSystem.empty())
+  {
+    cfg->PutValue(packageInfo.id, "targetSystem", packageInfo.targetSystem);
+  }
+  if (!packageInfo.description.empty())
+  {
+    for (const string& line : StringUtil::Split(packageInfo.description, '\n'))
+    {
+      cfg->PutValue(packageInfo.id, "description[]", line);
+    }
+  }
+  if (!packageInfo.runFiles.empty())
+  {
+    cfg->PutValue(packageInfo.id, "runSize", std::to_string(packageInfo.sizeRunFiles));
+    for (const string& file : packageInfo.runFiles)
+    {
+      cfg->PutValue(packageInfo.id, "run[]", PathName(file).ToUnix().ToString());
+    }
+  }
+  if (!packageInfo.docFiles.empty())
+  {
+    cfg->PutValue(packageInfo.id, "docSize", std::to_string(packageInfo.sizeDocFiles));
+    for (const string& file : packageInfo.docFiles)
+    {
+      cfg->PutValue(packageInfo.id, "doc[]", PathName(file).ToUnix().ToString());
+    }
+  }
+  if (!packageInfo.sourceFiles.empty())
+  {
+    cfg->PutValue(packageInfo.id, "sourceSize", std::to_string(packageInfo.sizeSourceFiles));
+    for (const string& file : packageInfo.sourceFiles)
+    {
+      cfg->PutValue(packageInfo.id, "source[]", PathName(file).ToUnix().ToString());
+    }
+  }
+  if (IsValidTimeT(timePackaged))
+  {
+    cfg->PutValue(packageInfo.id, "timePackaged", std::to_string(timePackaged));
+  }
+  cfg->PutValue(packageInfo.id, "digest", packageInfo.digest.ToString());
+#if MIKTEX_EXTENDED_PACKAGEINFO
+  if (!packageInfo.ctanPath.empty())
+  {
+    cfg->PutValue(packageInfo.id, "ctanPath", packageInfo.ctanPath);
+  }
+  if (!packageInfo.copyrightOwner.empty())
+  {
+    cfg->PutValue(packageInfo.id, "copyrightOwner", packageInfo.copyrightOwner);
+  }
+  if (!packageInfo.copyrightYear.empty())
+  {
+    cfg->PutValue(packageInfo.id, "copyrightYear", packageInfo.copyrightYear);
+  }
+  if (!packageInfo.licenseType.empty())
+  {
+    cfg->PutValue(packageInfo.id, "licenseType", packageInfo.licenseType);
+  }
+#endif
+}
+
+PackageInfo PackageManager::LoadPackageManifest(const Cfg* cfg, const string& packageId, const std::string& texmfPrefix)
+{
+  PackageInfo packageInfo;
+  packageInfo.id = packageId;
+  if (!cfg->TryGetValue(packageId, "displayName", packageInfo.displayName))
+  {
+    packageInfo.displayName = "";
+  }
+  if (!cfg->TryGetValue(packageId, "creator", packageInfo.creator))
+  {
+    packageInfo.creator = "";
+  }
+  if (!cfg->TryGetValue(packageId, "title", packageInfo.title))
+  {
+    packageInfo.title = "";
+  }
+  if (!cfg->TryGetValue(packageId, "version", packageInfo.version))
+  {
+    packageInfo.version = "";
+  }
+  if (!cfg->TryGetValue(packageId, "targetSystem", packageInfo.targetSystem))
+  {
+    packageInfo.targetSystem = "";
+  }
+  vector<string> lines;
+  if (cfg->TryGetValue(packageId, "description[]", lines))
+  {
+    packageInfo.description = StringUtil::Flatten(lines, '\n');
+  }
+  string str;
+  if (cfg->TryGetValue(packageId, "runSize", str))
+  {
+    packageInfo.sizeRunFiles = std::stoi(str);
+  }
+  if (cfg->TryGetValue(packageId, "run[]", lines))
+  {
+    for (const string& s : lines)
+    {
+      PathName path(s);
+#if defined(MIKTEX_UNIX)
+      path.ConvertToUnix();
+#endif
+      if (texmfPrefix.length() == 0 || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+      {
+        packageInfo.runFiles.push_back(path.ToString());
+      }
+    }
+  }
+  if (cfg->TryGetValue(packageId, "docSize", str))
+  {
+    packageInfo.sizeDocFiles = std::stoi(str);
+  }
+  if (cfg->TryGetValue(packageId, "doc[]", lines))
+  {
+    for (const string& s : lines)
+    {
+      PathName path(s);
+#if defined(MIKTEX_UNIX)
+      path.ConvertToUnix();
+#endif
+      if (texmfPrefix.length() == 0 || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+      {
+        packageInfo.docFiles.push_back(path.ToString());
+      }
+    }
+  }
+  if (cfg->TryGetValue(packageId, "sourceSize", str))
+  {
+    packageInfo.sizeSourceFiles = std::stoi(str);
+  }
+  if (cfg->TryGetValue(packageId, "source[]", lines))
+  {
+    for (const string& s : lines)
+    {
+      PathName path(s);
+#if defined(MIKTEX_UNIX)
+      path.ConvertToUnix();
+#endif
+      if (texmfPrefix.length() == 0 || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+      {
+        packageInfo.sourceFiles.push_back(path.ToString());
+      }
+    }
+  }
+  if (cfg->TryGetValue(packageId, "timePackaged", str))
+  {
+    packageInfo.timePackaged = std::stoi(str);
+  }
+  if (cfg->TryGetValue(packageId, "digest", str))
+  {
+    packageInfo.digest = MD5::Parse(str);
+  }
+#if MIKTEX_EXTENDED_PACKAGEINFO
+  if (!cfg->TryGetValue(packageId, "ctanPath", packageInfo.ctanPath))
+  {
+    packageInfo.ctanPath = "";
+  }
+  if (!cfg->TryGetValue(packageId, "copyrightOwner", packageInfo.copyrightOwner))
+  {
+    packageInfo.copyrightOwner = "";
+  }
+  if (!cfg->TryGetValue(packageId, "copyrightYear", packageInfo.copyrightYear))
+  {
+    packageInfo.copyrightYear = "";
+  }
+  if (!cfg->TryGetValue(packageId, "licenseType", packageInfo.licenseType))
+  {
+    packageInfo.licenseType = "";
+  }
+#endif
+  return packageInfo;
 }
 
 bool PackageManager::StripTeXMFPrefix(const string& str, string& result)

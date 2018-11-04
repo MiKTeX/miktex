@@ -22,6 +22,8 @@
 #if !defined(D02AFD831E4F4B9E8394D2B294DF4582)
 #define D02AFD831E4F4B9E8394D2B294DF4582
 
+#include <ctime>
+
 #include <string>
 
 #include <miktex/Core/Paths>
@@ -104,6 +106,11 @@ inline int FPutC(int ch, FILE* stream)
 }
 
 bool IsUrl(const std::string& url);
+
+inline bool IsValidTimeT(time_t time)
+{
+  return time != static_cast<std::time_t>(0) && time != static_cast<std::time_t>(-1);
+}
 
 std::string MakeUrl(const std::string& base, const std::string& rel);
 

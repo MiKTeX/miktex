@@ -191,7 +191,7 @@ protected:
   PathName GetTpmArchiveFileName();
 
 protected:
-  PathName GetPackageManifestsIniArchiveFileName();
+  PathName GetPackageManifestsArchiveFileName();
 
 protected:
   void Verbose(const string& s);
@@ -531,7 +531,7 @@ PathName PackageCreator::GetTpmArchiveFileName()
   return GetDbFileName(2, majorMinorVersion);
 }
 
-PathName PackageCreator::GetPackageManifestsIniArchiveFileName()
+PathName PackageCreator::GetPackageManifestsArchiveFileName()
 {
   return GetDbFileName(3, majorMinorVersion);
 }
@@ -1087,6 +1087,7 @@ void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>
     PackageManager::WritePackageManifestFile(packageManifestFile, p.second, timePackaged);
   }
 }
+
 void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& packageTable, const PathName& path, Cfg& repositoryManifest)
 {
   Verbose(fmt::format(T_("dumping package manifests to {0}..."), Q_(path)));
@@ -1097,78 +1098,13 @@ void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& pac
     {
       continue;
     }
-    if (!p.second.displayName.empty())
-    {
-      cfg->PutValue(p.second.id, "displayName", p.second.displayName);
-    }
-    cfg->PutValue(p.second.id, "creator", "mpc");
-    if (!p.second.title.empty())
-    {
-      cfg->PutValue(p.second.id, "title", p.second.title);
-    }
-    if (!p.second.version.empty())
-    {
-      cfg->PutValue(p.second.id, "version", p.second.version);
-    }
-    if (!p.second.targetSystem.empty())
-    {
-      cfg->PutValue(p.second.id, "targetSystem", p.second.targetSystem);
-    }
-    if (!p.second.description.empty())
-    {
-      for (const string& line : StringUtil::Split(p.second.description, '\n'))
-      {
-        cfg->PutValue(p.second.id, "description[]", line);
-      }
-    }
-    if (!p.second.runFiles.empty())
-    {
-      cfg->PutValue(p.second.id, "runSize", std::to_string(p.second.sizeRunFiles));
-      for (const string& file : p.second.runFiles)
-      {
-        cfg->PutValue(p.second.id, "run[]", PathName(file).ToUnix().ToString());
-      }
-    }
-    if (!p.second.docFiles.empty())
-    {
-      cfg->PutValue(p.second.id, "docSize", std::to_string(p.second.sizeDocFiles));
-      for (const string& file : p.second.docFiles)
-      {
-        cfg->PutValue(p.second.id, "doc[]", PathName(file).ToUnix().ToString());
-      }
-    }
-    if (!p.second.sourceFiles.empty())
-    {
-      cfg->PutValue(p.second.id, "sourceSize", std::to_string(p.second.sizeSourceFiles));
-      for (const string& file : p.second.sourceFiles)
-      {
-        cfg->PutValue(p.second.id, "source[]", PathName(file).ToUnix().ToString());
-      }
-    }
     string str;
+    time_t timePackaged = 0;
     if (repositoryManifest.TryGetValue(p.second.id, "TimePackaged", str))
     {
-      cfg->PutValue(p.second.id, "timePackaged", str);
+      timePackaged = std::stoi(str);
     }
-    cfg->PutValue(p.second.id, "digest", p.second.digest.ToString());
-#if MIKTEX_EXTENDED_PACKAGEINFO
-    if (!p.second.ctanPath.empty())
-    {
-      cfg->PutValue(p.second.id, "ctanPath", p.second.ctanPath);
-    }
-    if (!p.second.copyrightOwner.empty())
-    {
-      cfg->PutValue(p.second.id, "copyrightOwner", p.second.copyrightOwner);
-    }
-    if (!p.second.copyrightYear.empty())
-    {
-      cfg->PutValue(p.second.id, "copyrightYear", p.second.copyrightYear);
-    }
-    if (!p.second.licenseType.empty())
-    {
-      cfg->PutValue(p.second.id, "licenseType", p.second.licenseType);
-    }
-#endif
+    PackageManager::SavePackageManifest(cfg.get(), p.second, timePackaged);
   }
   cfg->Write(path);
 }
@@ -1467,7 +1403,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   DumpPackageManifests(packageTable, tempIni->GetPathName(), repositoryManifest);
 
   // create package-manifests.ini archive
-  PathName dbPath3 = GetPackageManifestsIniArchiveFileName();
+  PathName dbPath3 = GetPackageManifestsArchiveFileName();
   RunArchiver(GetDbArchiveFileType(), dbPath3, "package-manifests.ini");
 
   // delete temporary mpm.ini

@@ -2076,6 +2076,7 @@ void PackageInstallerImpl::Download()
     progressInfo.cbPackageDownloadCompleted = 0;
     progressInfo.cbPackageDownloadTotal = ZZDB1_SIZE;
   }
+#if DOWNLOAD_ZZDB2
   Download(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
@@ -2085,6 +2086,17 @@ void PackageInstallerImpl::Download()
     progressInfo.cbPackageDownloadTotal = ZZDB2_SIZE;
   }
   Download(MIKTEX_TPM_ARCHIVE_FILE_NAME);
+#endif
+#if DOWNLOAD_ZZDB3
+  {
+    lock_guard<mutex> lockGuard(progressIndicatorMutex);
+    progressInfo.packageId = MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
+    progressInfo.displayName = T_("Package manifests");
+    progressInfo.cbPackageDownloadCompleted = 0;
+    progressInfo.cbPackageDownloadTotal = ZZDB3_SIZE;
+  }
+  Download(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
+#endif
 
   // download archive files
   for (const string& p : toBeInstalled)
