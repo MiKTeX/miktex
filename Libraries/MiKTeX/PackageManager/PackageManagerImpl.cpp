@@ -38,6 +38,7 @@
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/Uri>
 
+#include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 
 #include "internal.h"
@@ -70,6 +71,7 @@ PackageManager::~PackageManager() noexcept
 PackageManagerImpl::PackageManagerImpl(const PackageManager::InitInfo& initInfo) :
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR, initInfo.traceCallback)),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM, initInfo.traceCallback)),
+  trace_stopwatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH, initInfo.traceCallback)),
   repositories(webSession)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("initializing MPM library version {0}"), MIKTEX_COMPONENT_VERSION_STR));
@@ -377,6 +379,8 @@ PackageInfo* PackageManagerImpl::DefinePackage(const string& packageId, const Pa
 
 void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName& directory)
 {
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, fmt::format("parse all manifests in {}", Q_(directory)));
+
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("searching {0} for package manifest files"), Q_(directory)));
 
   if (!Directory::Exists(directory))

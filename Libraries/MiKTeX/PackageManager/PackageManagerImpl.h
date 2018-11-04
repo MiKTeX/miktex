@@ -249,6 +249,9 @@ private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mpm;
 
 private:
+  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_stopwatch;
+
+private:
   typedef std::unordered_map<std::string, MiKTeX::Packages::PackageInfo, MiKTeX::Core::hash_icase, MiKTeX::Core::equal_icase> PackageDefinitionTable;
 
 private:
