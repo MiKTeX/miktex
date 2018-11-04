@@ -88,7 +88,7 @@ private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> traceError;
 
 private:
-  std::unique_ptr<MiKTeX::Trace::TraceStream> traceTime;
+  std::unique_ptr<MiKTeX::Trace::TraceStream> traceStopWatch;
 };
 
 END_INTERNAL_NAMESPACE;

@@ -31,6 +31,7 @@
 #include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
+#include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 
 #include "internal.h"
@@ -229,7 +230,8 @@ void CabExtractor::Copy(void* source, void* dest, size_t numBytes)
 
 
 CabExtractor::CabExtractor() :
-  traceStream(TraceStream::Open(MIKTEX_TRACE_EXTRACTOR))
+  traceStream(TraceStream::Open(MIKTEX_TRACE_EXTRACTOR)),
+  traceStopWatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH))
 {
   mspackSystem.open = Open;
   mspackSystem.close = Close;
@@ -262,6 +264,11 @@ CabExtractor::~CabExtractor()
     {
       traceStream->Close();
       traceStream.reset();
+    }
+    if (traceStopWatch.get() != nullptr)
+    {
+      traceStopWatch->Close();
+      traceStopWatch.reset();
     }
   }
   catch (const exception&)
@@ -319,7 +326,8 @@ static void SetAttributes(const PathName& path, int cabattr)
 
 void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
-  traceStream->WriteLine("libextractor", fmt::format(T_("extracting {0} to {1} ({2})"), Q_(cabinetPath), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories"))));
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), TRACE_FACILITY, fmt::format(".cab {}", cabinetPath.GetFileName()));
+  traceStream->WriteLine(TRACE_FACILITY, fmt::format(T_("extracting {0} to {1} ({2})"), Q_(cabinetPath), Q_(destDir), (makeDirectories ? T_("make directories") : T_("don't make directories"))));
 
   mscabd_cabinet* cabinet = nullptr;
 
@@ -409,7 +417,7 @@ void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir,
       }
     }
 
-    traceStream->WriteLine("libextractor", fmt::format(T_("extracted {0} file(s)"), fileCount));
+    traceStream->WriteLine(TRACE_FACILITY, fmt::format(T_("extracted {0} file(s)"), fileCount));
 
     decompressor->close(decompressor, cabinet);
     cabinet = nullptr;

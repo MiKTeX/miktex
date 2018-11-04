@@ -51,7 +51,7 @@ using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 ExpatTpmParser::ExpatTpmParser() :
   traceError(TraceStream::Open(MIKTEX_TRACE_ERROR)),
-  traceTime(TraceStream::Open(MIKTEX_TRACE_TIME))
+  traceStopWatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH))
 {
 }
 
@@ -66,8 +66,8 @@ ExpatTpmParser::~ExpatTpmParser()
     }
     traceError->Close();
     traceError = nullptr;
-    traceTime->Close();
-    traceTime = nullptr;
+    traceStopWatch->Close();
+    traceStopWatch = nullptr;
   }
   catch (const exception&)
   {
@@ -300,7 +300,7 @@ void ExpatTpmParser::OnCharacterData(void* pv, const XML_Char* lpsz, int len)
 
 void ExpatTpmParser::Parse(const PathName& path, const string& texmfPrefix)
 {
-  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceTime.get(), "libmpm", fmt::format("parse TPM {}", path.GetFileName()));
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), TRACE_FACILITY, fmt::format(".tpm {}", path.GetFileName()));
 
   this->texMFPrefix = texmfPrefix;
 
@@ -339,7 +339,7 @@ void ExpatTpmParser::Parse(const PathName& path, const string& texmfPrefix)
     XML_Status st = XML_Parse(p, buf, static_cast<int>(n), (bytesToRead == 0));
     if (st == XML_STATUS_ERROR)
     {
-      traceError->WriteLine("libmpm", XML_ErrorString(XML_GetErrorCode(p)));
+      traceError->WriteLine(TRACE_FACILITY, XML_ErrorString(XML_GetErrorCode(p)));
       MIKTEX_FATAL_ERROR_2(T_("The package manifest file could not be parsed."), "path", path.ToString(), "line", std::to_string(XML_GetCurrentLineNumber(p)), "column", std::to_string(XML_GetCurrentColumnNumber(p)));
     }
   }

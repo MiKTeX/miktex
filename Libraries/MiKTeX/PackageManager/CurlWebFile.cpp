@@ -104,7 +104,7 @@ size_t CurlWebFile::WriteCallback(char* data, size_t elemSize, size_t numElement
     if (!This->buffer.CanWrite(size))
     {
       size_t newCapacity = This->buffer.GetCapacity() + 2 * size;
-      This->trace_mpm->WriteFormattedLine("libmpm", T_("reserve buffer: %u"), (unsigned)newCapacity);
+      This->trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("reserve buffer: %u"), (unsigned)newCapacity);
       This->buffer.Reserve(newCapacity);
       MIKTEX_ASSERT(This->buffer.CanWrite(size));
     }
@@ -141,7 +141,7 @@ void CurlWebFile::Close()
 {
   if (initialized)
   {
-    trace_mpm->WriteLine("libmpm", T_("closing Web file"));
+    trace_mpm->WriteLine(TRACE_FACILITY, T_("closing Web file"));
     initialized = false;
     webSession->ExpectOK(curl_multi_remove_handle(webSession->GetMultiHandle(), webSession->GetEasyHandle()));
   }

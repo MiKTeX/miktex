@@ -40,6 +40,11 @@ set(public_headers
 )
 
 configure_file(
+  config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
+configure_file(
   extractor-version.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/extractor-version.h
 )
@@ -50,6 +55,7 @@ configure_file(
 )
 
 set(extractor_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${CMAKE_CURRENT_BINARY_DIR}/extractor-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.h

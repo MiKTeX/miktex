@@ -113,7 +113,7 @@ void CurlWebSession::Initialize()
 {
   curlVersionInfo = curl_version_info(CURLVERSION_NOW);
 
-  trace_curl->WriteFormattedLine("libmpm", T_("initializing cURL library version %s"), curlVersionInfo->version);
+  trace_curl->WriteFormattedLine(TRACE_FACILITY, T_("initializing cURL library version %s"), curlVersionInfo->version);
 
   pCurlm = curl_multi_init();
 
@@ -270,7 +270,7 @@ unique_ptr<WebFile> CurlWebSession::OpenUrl(const string& url, const std::unorde
   {
     Initialize();
   }
-  trace_mpm->WriteFormattedLine("libmpm", T_("going to download %s"), Q_(url));
+  trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("going to download %s"), Q_(url));
   return make_unique<CurlWebFile>(shared_from_this(), url, formData);
 }
 
@@ -302,13 +302,13 @@ void CurlWebSession::Dispose()
   }
   if (pCurl != nullptr)
   {
-    trace_curl->WriteLine("libmpm", T_("releasing cURL easy handle"));
+    trace_curl->WriteLine(TRACE_FACILITY, T_("releasing cURL easy handle"));
     curl_easy_cleanup(pCurl);
     pCurl = nullptr;
   }
   if (pCurlm != nullptr)
   {
-    trace_curl->WriteLine("libmpm", T_("releasing cURL multi handle"));
+    trace_curl->WriteLine(TRACE_FACILITY, T_("releasing cURL multi handle"));
     CURLMcode code = curl_multi_cleanup(pCurlm);
     pCurlm = nullptr;
     ExpectOK(code);
@@ -428,7 +428,7 @@ void CurlWebSession::ReadInformationals()
     ExpectOK(curl_easy_getinfo(curlMsg->easy_handle, CURLINFO_EFFECTIVE_URL, &effectiveUrl), nullptr);
     if (effectiveUrl != nullptr)
     {
-      trace_mpm->WriteFormattedLine("libmpm", T_("effective URL: %s"), effectiveUrl);
+      trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("effective URL: %s"), effectiveUrl);
     }
     ExpectOK(curlMsg->data.result, effectiveUrl);
     long responseCode;
@@ -444,7 +444,7 @@ void CurlWebSession::ReadInformationals()
       r = curl_easy_getinfo(curlMsg->easy_handle, CURLINFO_HTTP_CODE, &responseCode);
     }
     ExpectOK(r, effectiveUrl);
-    trace_mpm->WriteFormattedLine("libmpm", T_("response code: %ld"), responseCode);
+    trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("response code: %ld"), responseCode);
     if (responseCode >= 300 && responseCode <= 399)
     {
 #if ALLOW_REDIRECTS
@@ -513,7 +513,7 @@ int CurlWebSession::DebugCallback(CURL* pCurl, curl_infotype infoType, char* pDa
     {
       MIKTEX_ASSERT(pData != nullptr);
       string text(pData, sizeData);
-      This->trace_curl->Write("libmpm", text.c_str());
+      This->trace_curl->Write(TRACE_FACILITY, text.c_str());
     }
   }
   catch (const exception&)

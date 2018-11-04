@@ -165,7 +165,7 @@ void PackageInstallerImpl::OnProgress()
 
 void PackageInstallerImpl::Download(const string& url, const PathName& dest, size_t expectedSize)
 {
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("going to download: {0} => {1}"), Q_(url), Q_(dest)));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to download: {0} => {1}"), Q_(url), Q_(dest)));
 
   if (expectedSize > 0)
   {
@@ -184,7 +184,7 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
   unique_ptr<TemporaryFile> downloadedFile = TemporaryFile::Create(dest);
 
   // receive the data
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("start writing on {0}"), Q_(dest)));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("start writing on {0}"), Q_(dest)));
 #if defined(CURL_MAX_WRITE_SIZE)
   const size_t bufsize = 2 * CURL_MAX_WRITE_SIZE;
 #else
@@ -238,7 +238,7 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
   // report statistics
   double mb = Divide(received, 1000000);
   double seconds = Divide(end - start, CLOCKS_PER_SEC);
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("downloaded {0:.2f} MB in {1:.2f} seconds"), mb, seconds));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("downloaded {0:.2f} MB in {1:.2f} seconds"), mb, seconds));
   ReportLine(fmt::format(T_("{0:.2f} MB, {1:.2f} Mbit/s"), mb, Divide(8 * mb, seconds)));
 
   if (expectedSize > 0 && expectedSize != received)
@@ -469,7 +469,7 @@ int CompareSerieses(const string& ver1, const string& ver2)
 
 void PackageInstallerImpl::FindUpdates()
 {
-  trace_mpm->WriteLine("libmpm", T_("searching for updateable packages"));
+  trace_mpm->WriteLine(TRACE_FACILITY, T_("searching for updateable packages"));
 
   UpdateDb();
 
@@ -503,7 +503,7 @@ void PackageInstallerImpl::FindUpdates()
     {
       if (isEssential)
       {
-        trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: new essential package"), packageId));
+        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: new essential package"), packageId));
         updateInfo.action = UpdateInfo::ForceUpdate;
         updates.push_back(updateInfo);
       }
@@ -520,7 +520,7 @@ void PackageInstallerImpl::FindUpdates()
       {
         MIKTEX_UNEXPECTED();
       }
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: double installed"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: double installed"), packageId));
       updateInfo.action = UpdateInfo::ForceRemove;
       updates.push_back(updateInfo);
       continue;
@@ -532,7 +532,7 @@ void PackageInstallerImpl::FindUpdates()
       && package->isRemovable)
     {
       // the package has been tampered with
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: package is broken"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package is broken"), packageId));
       updateInfo.timePackaged = static_cast<time_t>(-1);
       updateInfo.action = UpdateInfo::Repair;
       updates.push_back(updateInfo);
@@ -553,14 +553,14 @@ void PackageInstallerImpl::FindUpdates()
       && package->releaseState != repositoryReleaseState;
     if (isReleaseStateDiff)
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: package release state changed"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package release state changed"), packageId));
     }
     else
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: server has a different version"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: server has a different version"), packageId));
     }
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("server digest: {0}"), md5));;
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("local digest: {0}"), package->digest));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("server digest: {0}"), md5));;
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("local digest: {0}"), package->digest));
     if (!isReleaseStateDiff)
     {
       // compare time stamps
@@ -572,12 +572,12 @@ void PackageInstallerImpl::FindUpdates()
         continue;
       }
       // server has a newer package
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: server has new version"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: server has new version"), packageId));
     }
 
     if (!package->isRemovable)
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: no permission to update package"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: no permission to update package"), packageId));
       updateInfo.action = UpdateInfo::KeepAdmin;
     }
     else
@@ -604,7 +604,7 @@ void PackageInstallerImpl::FindUpdates()
   PackageInfo package;
   while (iter->GetNext(package))
   {
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: package is obsolete"), package.id));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package is obsolete"), package.id));
     UpdateInfo updateInfo;
     updateInfo.packageId = package.id;
     updateInfo.timePackaged = package.timePackaged;
@@ -670,7 +670,7 @@ void PackageInstallerImpl::FindUpdatesThread()
 
 void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
 {
-  trace_mpm->WriteLine("libmpm", T_("searching for upgrades"));
+  trace_mpm->WriteLine(TRACE_FACILITY, T_("searching for upgrades"));
   UpdateDb();
   LoadRepositoryManifest(false);
   upgrades.clear();
@@ -693,7 +693,7 @@ void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
     {
       continue;
     }
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: upgrade"), packageId));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: upgrade"), packageId));
     UpgradeInfo upgrade;
     upgrade.packageId = packageId;
     upgrade.timePackaged = repositoryManifest.GetTimePackaged(packageId);
@@ -776,7 +776,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
     // only delete if the reference count reached zero
     if (installedFileInfo != nullptr && installedFileInfo->refCount > 0)
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("will not delete {0} (ref count is {1})"), Q_(path), installedFileInfo->refCount));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("will not delete {0} (ref count is {1})"), Q_(path), installedFileInfo->refCount));
       done = true;
     }
     else if (File::Exists(path))
@@ -803,7 +803,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
     }
     else
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("file {0} does not exist"), Q_(path)));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("file {0} does not exist"), Q_(path)));
       done = true;
     }
 
@@ -831,7 +831,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
 
 void PackageInstallerImpl::RemovePackage(const string& packageId)
 {
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("going to remove {0}"), Q_(packageId)));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0}"), Q_(packageId)));
 
   // notify client
   Notify(Notification::RemovePackageStart);
@@ -851,7 +851,7 @@ void PackageInstallerImpl::RemovePackage(const string& packageId)
   }
 
   // clear the installTime value => package is not installed
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("removing {0} from the variable package table"), Q_(packageId)));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing {0} from the variable package table"), Q_(packageId)));
   packageManager->SetTimeInstalled(packageId, 0);
   packageManager->FlushVariablePackageTable();
   package->timeInstalled = 0;
@@ -872,12 +872,12 @@ void PackageInstallerImpl::RemovePackage(const string& packageId)
   size_t nTotal = (package->runFiles.size()
     + package->docFiles.size()
     + package->sourceFiles.size());
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("going to remove {0} file(s)"), nTotal));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0} file(s)"), nTotal));
   RemoveFiles(package->runFiles);
   RemoveFiles(package->docFiles);
   RemoveFiles(package->sourceFiles);
 
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("package {0} successfully removed"), Q_(packageId)));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("package {0} successfully removed"), Q_(packageId)));
 
   // update progress info
   {
@@ -1103,7 +1103,7 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
     }
     else
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0} already exists in mpm fndb"), Q_(path)));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0} already exists in mpm fndb"), Q_(path)));
     }
   }
   for (const string& f : removedFiles)
@@ -1115,14 +1115,14 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
     }
     else
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0} does not exist in mpm fndb"), Q_(path)));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0} does not exist in mpm fndb"), Q_(path)));
     }
   }
 }
 
 void PackageInstallerImpl::InstallPackage(const string& packageId)
 {
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("installing package {0}"), Q_(packageId)));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("installing package {0}"), Q_(packageId)));
 
   // search the package table
   PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
@@ -1189,7 +1189,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   // reference counts)
   if (packageManager->IsPackageInstalled(packageId))
   {
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: removing old files"), packageId));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: removing old files"), packageId));
     // make sure that the package info file does not get removed
     RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(packageId));
     RemoveFiles(package->runFiles, true);
@@ -1505,7 +1505,7 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& pa
     }
     else
     {
-      trace_error->WriteLine("libmpm", fmt::format(T_("registration/unregistration of {0} did not succeed; hr={1}"), Q_(path), hr));
+      trace_error->WriteLine(TRACE_FACILITY, fmt::format(T_("registration/unregistration of {0} did not succeed; hr={1}"), Q_(path), hr));
     }
   }
 #else
@@ -1539,7 +1539,7 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& pa
     }
     else
     {
-      trace_error->WriteLine("libmpm", fmt::format(T_("{0} {1} did not succeed (exit code: {2})"), regExe, cmdLine, exitCode));
+      trace_error->WriteLine(TRACE_FACILITY, fmt::format(T_("{0} {1} did not succeed (exit code: {2})"), regExe, cmdLine, exitCode));
     }
   }
 #endif
@@ -2212,7 +2212,7 @@ void PackageInstallerImpl::CleanUpUserDatabase()
   // remove redundant user package manifest files
   for (const PathName& p : toBeRemoved)
   {
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("removing redundant package manifest file: {0}"), Q_(p)));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing redundant package manifest file: {0}"), Q_(p)));
     File::Delete(p, { FileDeleteOption::TryHard });
   }
 }
@@ -2253,14 +2253,14 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
     if (packageManager->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
     {
       // not installed: remove the package manifest file
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("removing obsolete {0}"), Q_(name)));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete {0}"), Q_(name)));
       File::Delete(pathPackageDir / name, { FileDeleteOption::TryHard });
     }
     else
     {
       // installed: declare the package as obsolete (we wont
       // uninstall obsolete packages)
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("declaring {0} obsolete"), Q_(packageId)));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("declaring {0} obsolete"), Q_(packageId)));
       packageManager->DeclarePackageObsolete(packageId, true);
     }
   }
@@ -2558,7 +2558,7 @@ HRESULT PackageInstallerImpl::QueryInterface(REFIID riid, LPVOID* ppvObj)
     WCHAR szRiid[100];
     if (StringFromGUID2(riid, szRiid, 100) > 0)
     {
-      trace_mpm->WriteLine("libmpm", fmt::format("QI {0}", StringUtil::WideCharToUTF8(szRiid)));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("QI {0}", StringUtil::WideCharToUTF8(szRiid)));
     }
   }
   if (riid == __uuidof(IUnknown))

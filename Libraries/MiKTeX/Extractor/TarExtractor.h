@@ -59,6 +59,9 @@ protected:
   std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
 
 protected:
+  std::unique_ptr<MiKTeX::Trace::TraceStream> traceStopWatch;
+
+protected:
   bool haveLongName;
 
 protected:

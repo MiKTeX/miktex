@@ -29,6 +29,7 @@
 #include <fmt/ostream.h>
 
 #include <miktex/Core/LzmaStream>
+#include <miktex/Trace/StopWatch>
 
 #include "internal.h"
 
@@ -36,11 +37,13 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
+using namespace MiKTeX::Trace;
 using namespace std;
 
 void TarLzmaExtractor::Extract(const PathName& path, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {
-  traceStream->WriteLine("libextractor", fmt::format(T_("extracting {0}"), Q_(path)));
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), TRACE_FACILITY, fmt::format(".tar.lzma {}", path.GetFileName()));
+  traceStream->WriteLine(TRACE_FACILITY, fmt::format(T_("extracting {0}"), Q_(path)));
   unique_ptr<LzmaStream> lzmaStream = LzmaStream::Create(path, true);
   TarExtractor::Extract(lzmaStream.get(), destDir, makeDirectories, callback, prefix);
 }

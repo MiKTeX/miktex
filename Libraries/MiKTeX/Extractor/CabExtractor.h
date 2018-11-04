@@ -95,6 +95,9 @@ private:
 
 private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
+
+private:
+  std::unique_ptr<MiKTeX::Trace::TraceStream> traceStopWatch;
 };
 
 END_INTERNAL_NAMESPACE;

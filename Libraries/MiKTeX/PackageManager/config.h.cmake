@@ -60,4 +60,6 @@ namespace MiKTeX {                                      \
 
 #define DB_ARCHIVE_FILE_TYPE ArchiveFileType::TarLzma
 
+#define TRACE_FACILITY "packagemanager"
+
 #include "mpm-version.h"

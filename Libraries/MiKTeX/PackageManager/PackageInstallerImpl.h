@@ -457,8 +457,8 @@ private:
   {
     if (callback != nullptr && !callback->OnProgress(nf))
     {
-      trace_mpm->WriteLine("libmpm", T_("client wants to cancel"));
-      trace_mpm->WriteLine("libmpm", T_("throwing OperationCancelledException"));
+      trace_mpm->WriteLine(TRACE_FACILITY, T_("client wants to cancel"));
+      trace_mpm->WriteLine(TRACE_FACILITY, T_("throwing OperationCancelledException"));
       throw MiKTeX::Core::OperationCancelledException();
     }
   }
@@ -491,7 +491,7 @@ private:
     {
       return;
     }
-    trace_mpm->WriteFormattedLine("libmpm", T_("turning %s autoFndbSync"), autoFndbSync ? "on" : "off");
+    trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("turning %s autoFndbSync"), autoFndbSync ? "on" : "off");
     this->autoFndbSync = autoFndbSync;
   }
 

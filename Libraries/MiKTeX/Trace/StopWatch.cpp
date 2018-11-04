@@ -49,7 +49,7 @@ public:
     facility(facility),
     message(message)
   {
-    if (traceStream->IsEnabled())
+    if (traceStream != nullptr)
     {
       traceStream->WriteLine(facility, fmt::format("stopwatch START: {}", message));
     }
@@ -60,7 +60,7 @@ public:
   {
     try
     {
-      if (traceStream != nullptr)
+      if (!stopped)
       {
         Stop();
       }
@@ -71,12 +71,21 @@ public:
   }
 
 public:
-  void Stop() override
+  double Stop() override
   {
+    if (stopped)
+    {
+      return 0;
+    }
+    stopped = true;
     chrono::time_point<chrono::high_resolution_clock> stop = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsedTime = chrono::duration_cast<chrono::duration<double>>(stop - start);
-    traceStream->WriteLine(facility, fmt::format("stopwatch STOP: {} ({:.4f} seconds)", message, elapsedTime.count()));
-    traceStream = nullptr;
+    if (traceStream != nullptr)
+    {
+      traceStream->WriteLine(facility, fmt::format("stopwatch STOP: {} ({:.4f} seconds)", message, elapsedTime.count()));
+      traceStream = nullptr;
+    }
+    return elapsedTime.count();
   }
 
 private:
@@ -90,7 +99,15 @@ private:
 
 private:
   chrono::time_point<chrono::high_resolution_clock> start = chrono::high_resolution_clock::now();
+
+private:
+  bool stopped = false;
 };
+
+unique_ptr<StopWatch> StopWatch::Start()
+{
+  return make_unique<StopWatchImpl>(nullptr, "", "");
+}
 
 unique_ptr<StopWatch> StopWatch::Start(TraceStream* traceStream, const string& facility, const string& message)
 {

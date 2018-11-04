@@ -72,7 +72,7 @@ PackageManagerImpl::PackageManagerImpl(const PackageManager::InitInfo& initInfo)
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM, initInfo.traceCallback)),
   repositories(webSession)
 {
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("initializing MPM library version {0}"), MIKTEX_COMPONENT_VERSION_STR));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("initializing MPM library version {0}"), MIKTEX_COMPONENT_VERSION_STR));
 }
 
 PackageManagerImpl::~PackageManagerImpl()
@@ -125,7 +125,7 @@ void PackageManagerImpl::LoadVariablePackageTable()
 
   if (File::Exists(pathCommonPackagesIni))
   {
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("loading common variable package table ({0})"), Q_(pathCommonPackagesIni)));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("loading common variable package table ({0})"), Q_(pathCommonPackagesIni)));
     commonVariablePackageTable->Read(pathCommonPackagesIni);
   }
 
@@ -138,7 +138,7 @@ void PackageManagerImpl::LoadVariablePackageTable()
     userVariablePackageTable = Cfg::Create();
     if (File::Exists(pathUserPackagesIni))
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("loading user variable package table ({0})"), Q_(pathUserPackagesIni)));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("loading user variable package table ({0})"), Q_(pathUserPackagesIni)));
       userVariablePackageTable->Read(pathUserPackagesIni);
     }
     userVariablePackageTable->SetModified(false);
@@ -151,13 +151,13 @@ void PackageManagerImpl::FlushVariablePackageTable()
     && commonVariablePackageTable->IsModified())
   {
     PathName pathPackagesIni(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("flushing common variable package table ({0})"), Q_(pathPackagesIni)));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("flushing common variable package table ({0})"), Q_(pathPackagesIni)));
     commonVariablePackageTable->Write(pathPackagesIni);
   }
   if (userVariablePackageTable != nullptr && userVariablePackageTable->IsModified())
   {
     PathName pathPackagesIni(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("flushing user variable package table ({0})"), Q_(pathPackagesIni)));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("flushing user variable package table ({0})"), Q_(pathPackagesIni)));
     userVariablePackageTable->Write(pathPackagesIni);
   }
 }
@@ -336,7 +336,7 @@ void PackageManagerImpl::IncrementFileRefCounts(const vector<string>& files)
 #if POLLUTE_THE_DEBUG_STREAM
     if (installedFileInfoTable[file].refCount >= 2)
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: ref count > 1"), Q_(file)));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ref count > 1"), Q_(file)));
     }
 #endif
   }
@@ -377,11 +377,11 @@ PackageInfo* PackageManagerImpl::DefinePackage(const string& packageId, const Pa
 
 void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName& directory)
 {
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("searching {0} for package manifest files"), Q_(directory)));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("searching {0} for package manifest files"), Q_(directory)));
 
   if (!Directory::Exists(directory))
   {
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("directory {0} does not exist"), Q_(directory)));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("directory {0} does not exist"), Q_(directory)));
     return;
   }
 
@@ -408,7 +408,7 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
     if (packageTable.find(packageId) != packageTable.end())
     {
 #if 0
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: ignoring redefinition"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ignoring redefinition"), packageId));
 #endif
       continue;
     }
@@ -431,13 +431,13 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
     string targetSystems = packageInfo.targetSystem;
     if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
     {
-      trace_mpm->WriteLine("libmpm", fmt::format(T_("{0}: ignoring {1} package"), packageInfo.id, targetSystems));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ignoring {1} package"), packageInfo.id, targetSystems));
       continue;
     }
 #endif
 
 #if POLLUTE_THE_DEBUG_STREAM
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("  adding {0}"), packageInfo.id));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("  adding {0}"), packageInfo.id));
 #endif
 
     count += 1;
@@ -454,7 +454,7 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
     }
   }
 
-  trace_mpm->WriteLine("libmpm", fmt::format(T_("found {0} package manifest files"), count));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("found {0} package manifest files"), count));
 
   // determine dependencies
   for (auto& kv : packageTable)
@@ -468,7 +468,7 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
       PackageDefinitionTable::iterator it3 = packageTable.find(req);
       if (it3 == packageTable.end())
       {
-        trace_mpm->WriteLine("libmpm", fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.id));
+        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.id));
       }
       else
       {
@@ -1448,7 +1448,7 @@ bool PackageManagerImpl::TryGetFileDigest(const PathName& prefix, const string& 
   path /= unprefixed;
   if (!File::Exists(path))
   {
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("package verification failed: file {0} does not exist"), Q_(path)));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("package verification failed: file {0} does not exist"), Q_(path)));
     return false;
   }
   if (path.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
@@ -1521,9 +1521,9 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
 
   if (!ok)
   {
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("package {0} verification failed: some files have been modified"), Q_(packageId)));
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("expected digest: {0}"), packageInfo.digest));
-    trace_mpm->WriteLine("libmpm", fmt::format(T_("computed digest: {0}"), md5Builder.GetMD5()));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("package {0} verification failed: some files have been modified"), Q_(packageId)));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("expected digest: {0}"), packageInfo.digest));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("computed digest: {0}"), md5Builder.GetMD5()));
   }
 
   return ok;

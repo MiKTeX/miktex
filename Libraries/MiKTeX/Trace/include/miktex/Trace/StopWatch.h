@@ -39,7 +39,10 @@ public:
   virtual MIKTEXTHISCALL ~StopWatch() noexcept = 0;
 
 public:
-  virtual void MIKTEXTHISCALL Stop() = 0;
+  virtual double MIKTEXTHISCALL Stop() = 0;
+
+public:
+  static MIKTEXTRACECEEAPI(std::unique_ptr<StopWatch>) Start();
 
 public:
   static MIKTEXTRACECEEAPI(std::unique_ptr<StopWatch>) Start(TraceStream* traceStream, const std::string& facility, const std::string& message);
