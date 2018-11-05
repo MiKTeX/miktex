@@ -162,6 +162,30 @@ struct PackageInfo
   }
 };
 
+inline bool operator==(const PackageInfo& lhs, const PackageInfo& rhs)
+{
+  return
+    lhs.id == rhs.id
+    && lhs.digest == rhs.digest
+    && lhs.displayName == rhs.displayName
+    && lhs.title == rhs.title
+    && lhs.version == rhs.version
+    && lhs.targetSystem == rhs.targetSystem
+    && lhs.description == rhs.description
+    && lhs.creator == rhs.creator
+    && lhs.sizeRunFiles == rhs.sizeRunFiles
+    && lhs.sizeDocFiles == rhs.sizeDocFiles
+    && lhs.sizeSourceFiles == rhs.sizeSourceFiles
+    && lhs.requiredPackages == rhs.requiredPackages
+    && lhs.timePackaged == rhs.timePackaged
+    && lhs.ctanPath == rhs.ctanPath
+    && lhs.licenseType == rhs.licenseType
+    && lhs.copyrightOwner == rhs.copyrightOwner
+    && lhs.copyrightYear == rhs.copyrightYear
+    && lhs.versionDate == rhs.versionDate
+    ;
+}
+
 MPM_END_NAMESPACE;
 
 #endif

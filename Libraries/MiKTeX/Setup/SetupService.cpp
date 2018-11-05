@@ -17,6 +17,8 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
+#include "config.h"
+
 #include "internal.h"
 
 #if defined(MIKTEX_WINDOWS)
@@ -874,18 +876,29 @@ void SetupServiceImpl::DoTheInstallation()
   session->RegisterRootDirectories(startupConfig, { RegisterRootDirectoriesOption::Temporary });
 #endif
   
-  // parse package manifest files
+  // load package manifests
   PathName pathDB;
+  bool isArchive;
   if (options.Task == SetupTask::InstallFromCD)
   {
+    isArchive = false;
+#if defined(MIKTEX_USE_ZZDB3)
+    pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+#else
     pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+#endif
   }
   else
   {
+    isArchive = true;
+#if defined(MIKTEX_USE_ZZDB3)
+    pathDB = options.LocalPackageRepository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
+#else
     pathDB = options.LocalPackageRepository / MIKTEX_TPM_ARCHIVE_FILE_NAME;
+#endif
   }
   ReportLine(T_("Loading package database..."));
-  packageManager->LoadDatabase(pathDB);
+  packageManager->LoadDatabase(pathDB, isArchive);
 
   // create the destination directory
   Directory::Create(GetInstallRoot());

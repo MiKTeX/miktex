@@ -177,6 +177,12 @@ option(
 )
 
 option(
+  MIKTEX_USE_ZZDB3
+  "Make use of the new zzdb3 package database file."
+  FALSE
+)
+
+option(
   USE_SYSTEM_APR
   "Use the system Apache Portable Runtime (APR) library."
   ${MIKTEX_UNIX_ALIKE}

@@ -581,6 +581,17 @@ public:
   }
 
 public:
+  virtual shared_ptr<Key> TryGetKey(const string& keyName) override
+  {
+    KeyMap::iterator it = keyMap.find(Utils::MakeLower(keyName));
+    if (it == keyMap.end())
+    {
+      return nullptr;
+    }
+    return it->second;
+  }
+
+public:
   shared_ptr<Key> MIKTEXTHISCALL FirstKey() override;
 
 public:

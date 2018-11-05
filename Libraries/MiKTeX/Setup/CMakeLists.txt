@@ -36,11 +36,17 @@ set(public_headers
 )
 
 configure_file(
+  config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
+configure_file(
   setup-version.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/setup-version.h
 )
 
 set(setup_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${CMAKE_CURRENT_BINARY_DIR}/setup-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/LogFile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/SetupService.cpp

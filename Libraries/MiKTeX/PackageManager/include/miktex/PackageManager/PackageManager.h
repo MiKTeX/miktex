@@ -93,7 +93,7 @@ public:
   virtual PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& packageId) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName& path) = 0;
+  virtual void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName& path, bool isArchive) = 0;
 
 public:
   virtual void MIKTEXTHISCALL UnloadDatabase() = 0;

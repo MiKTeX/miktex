@@ -377,19 +377,60 @@ PackageInfo* PackageManagerImpl::DefinePackage(const string& packageId, const Pa
   return &(p.first->second);
 }
 
-void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName& directory)
+void PackageManagerImpl::LoadAllPackageManifests(const PathName& packageManifestsPath)
 {
-  unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, fmt::format("parse all manifests in {}", Q_(directory)));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("loading all package manifests ({0})"), Q_(packageManifestsPath)));
 
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("searching {0} for package manifest files"), Q_(directory)));
-
-  if (!Directory::Exists(directory))
+#if defined(MIKTEX_USE_ZZDB3)
+  if (!File::Exists(packageManifestsPath))
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("directory {0} does not exist"), Q_(directory)));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("file {0} does not exist"), Q_(packageManifestsPath)));
     return;
   }
 
-  unique_ptr<DirectoryLister> dirLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
+  unique_ptr<Cfg> cfg = Cfg::Create();
+  cfg->Read(packageManifestsPath);
+
+  unsigned count = 0;
+  for (auto key = cfg->FirstKey(); key != nullptr; key = cfg->NextKey())
+  {
+    // ignore redefinition
+    if (packageTable.find(key->GetName()) != packageTable.end())
+    {
+      continue;
+    }
+    PackageInfo packageInfo = LoadPackageManifest(cfg.get(), key->GetName(), TEXMF_PREFIX_DIRECTORY);
+
+#if IGNORE_OTHER_SYSTEMS
+    string targetSystems = packageInfo.targetSystem;
+    if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
+    {
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ignoring {1} package"), packageInfo.id, targetSystems));
+      continue;
+    }
+#endif
+
+    count += 1;
+
+    // insert into database
+    PackageInfo* insertedPackageInfo = DefinePackage(packageInfo.id, packageInfo);
+
+    // increment file ref counts, if package is installed
+    if (insertedPackageInfo->timeInstalled > 0)
+    {
+      IncrementFileRefCounts(insertedPackageInfo->runFiles);
+      IncrementFileRefCounts(insertedPackageInfo->docFiles);
+      IncrementFileRefCounts(insertedPackageInfo->sourceFiles);
+    }
+  }
+#else
+  if (!Directory::Exists(packageManifestsPath))
+  {
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("directory {0} does not exist"), Q_(packageManifestsPath)));
+    return;
+  }
+
+  unique_ptr<DirectoryLister> dirLister = DirectoryLister::Open(packageManifestsPath, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 
   vector<future<PackageInfo>> futurePackageInfoTable;
 
@@ -423,7 +464,7 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
       unique_ptr<TpmParser> tpmParser = TpmParser::Create();
       tpmParser->Parse(path);
       return tpmParser->GetPackageInfo();
-    }, PathName(directory, name)));
+    }, PathName(packageManifestsPath, name)));
   }
   dirLister->Close();
 
@@ -457,8 +498,9 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
       IncrementFileRefCounts(insertedPackageInfo->sourceFiles);
     }
   }
+#endif
 
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("found {0} package manifest files"), count));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("found {0} package manifests"), count));
 
   // determine dependencies
   for (auto& kv : packageTable)
@@ -538,61 +580,67 @@ void PackageManagerImpl::ParseAllPackageManifestFilesInDirectory(const PathName&
   }
 }
 
-void PackageManagerImpl::ParseAllPackageManifestFiles()
+void PackageManagerImpl::LoadAllPackageManifests()
 {
-  if (parsedAllPackageManifestFiles)
+  if (loadedAllPackageManifests)
   {
     // we do this once
     return;
   }
-  PathName userInstallRoot = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-  PathName commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
+#if defined(MIKTEX_USE_ZZDB3)
+  PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+  PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+#else
+  PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+#endif
   if (!session->IsAdminMode())
   {
-    ParseAllPackageManifestFilesInDirectory(PathName(userInstallRoot, MIKTEX_PATH_PACKAGE_MANIFEST_DIR));
-    if (userInstallRoot.Canonicalize() == commonInstallRoot.Canonicalize())
+    LoadAllPackageManifests(userPath);
+    if (userPath.Canonicalize() == commonPath.Canonicalize())
     {
-      parsedAllPackageManifestFiles = true;
+      loadedAllPackageManifests = true;
       return;
     }
   }
-  ParseAllPackageManifestFilesInDirectory(PathName(commonInstallRoot, MIKTEX_PATH_PACKAGE_MANIFEST_DIR));
-  parsedAllPackageManifestFiles = true;
+  LoadAllPackageManifests(commonPath);
+  loadedAllPackageManifests = true;
 }
 
-void PackageManagerImpl::LoadDatabase(const PathName& path)
+void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
 {
   // get the full path name
   PathName absPath(path);
   absPath.MakeAbsolute();
 
-  // check to see whether it is an archive file or a directory
-  bool isDirectory = Directory::Exists(absPath);
-
   unique_ptr<TemporaryDirectory> tempDir;
 
-  PathName pathPackageInfoDir;
+  PathName packageManifestsPath;
 
-  if (isDirectory)
+  if (!isArchive)
   {
-    pathPackageInfoDir = absPath;
+    packageManifestsPath = absPath;
   }
   else
   {
     // create temporary directory
     tempDir = TemporaryDirectory::Create();
 
-    pathPackageInfoDir = tempDir->GetPathName();
+    // extract from archive
+    unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
+    extractor->Extract(absPath, tempDir->GetPathName());
 
-    // unpack the package manifest files
-    unique_ptr<MiKTeX::Extractor::Extractor> pExtractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
-    pExtractor->Extract(absPath, pathPackageInfoDir);
+#if MIKTEX_USE_ZZDB3
+    packageManifestsPath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;
+#else
+    packageManifestsPath = tempDir->GetPathName();
+#endif
   }
 
   // read package manifest files
-  ParseAllPackageManifestFilesInDirectory(pathPackageInfoDir);
+  LoadAllPackageManifests(packageManifestsPath);
 
-  parsedAllPackageManifestFiles = true;
+  loadedAllPackageManifests = true;
 }
 
 void PackageManagerImpl::ClearAll()
@@ -607,7 +655,7 @@ void PackageManagerImpl::ClearAll()
   {
     userVariablePackageTable = nullptr;
   }
-  parsedAllPackageManifestFiles = false;
+  loadedAllPackageManifests = false;
 }
 
 void PackageManagerImpl::UnloadDatabase()
@@ -622,7 +670,7 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& packageId)
   {
     return &it->second;
   }
-  if (parsedAllPackageManifestFiles)
+  if (loadedAllPackageManifests)
   {
     return nullptr;
   }
@@ -697,7 +745,7 @@ unsigned long PackageManagerImpl::GetFileRefCount(const PathName& path)
 
 void PackageManagerImpl::NeedInstalledFileInfoTable()
 {
-  ParseAllPackageManifestFiles();
+  LoadAllPackageManifests();
 }
 
 bool PackageManager::TryGetRemotePackageRepository(string& url, RepositoryReleaseState& repositoryReleaseState)
@@ -987,7 +1035,7 @@ bool PackageManagerImpl::OnProgress(unsigned level, const PathName& directory)
 
 void PackageManagerImpl::CreateMpmFndb()
 {
-  ParseAllPackageManifestFiles();
+  LoadAllPackageManifests();
 
   // collect the file names
   for (const auto& kv : packageTable)
@@ -1016,7 +1064,7 @@ void PackageManagerImpl::CreateMpmFndb()
 
 void PackageManagerImpl::GetAllPackageDefinitions(vector<PackageInfo>& packages)
 {
-  ParseAllPackageManifestFiles();
+  LoadAllPackageManifests();
   for (const auto& kv : packageTable)
   {
     packages.push_back(kv.second);
@@ -1025,7 +1073,7 @@ void PackageManagerImpl::GetAllPackageDefinitions(vector<PackageInfo>& packages)
 
 InstalledFileInfo* PackageManagerImpl::GetInstalledFileInfo(const char* lpszPath)
 {
-  ParseAllPackageManifestFiles();
+  LoadAllPackageManifests();
   InstalledFileInfoTable::iterator it = installedFileInfoTable.find(lpszPath);
   if (it == installedFileInfoTable.end())
   {
@@ -1043,12 +1091,10 @@ bool PackageManager::IsLocalPackageRepository(const PathName& path)
 
   // local mirror of remote package repository?
   PathName file1 = PathName(path, MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
-#if USE_ZZDB3
+#if defined(MIKTEX_USE_ZZDB3)
   PathName file2 = PathName(path, MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
-#elif USE_ZZDB2
-  PathName file2 = PathName(path, MIKTEX_TPM_ARCHIVE_FILE_NAME);
 #else
-  // must use either zzdb2 or zzdb3
+  PathName file2 = PathName(path, MIKTEX_TPM_ARCHIVE_FILE_NAME);
 #endif
   if (File::Exists(file1) && File::Exists(file2))
   {
@@ -1328,7 +1374,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
 
 void PackageManager::SavePackageManifest(Cfg* cfg, const PackageInfo& packageInfo, time_t timePackaged)
 {
-  // TODO: remove old manifests (if it exists)
+  // TODO: remove old manifest (if it exists)
   if (!packageInfo.displayName.empty())
   {
     cfg->PutValue(packageInfo.id, "displayName", packageInfo.displayName);

@@ -651,6 +651,16 @@
 
 /* _________________________________________________________________________
 
+   MIKTEX_PATH_PACKAGE_MANIFESTS_INI
+   _________________________________________________________________________ */
+
+#define MIKTEX_PATH_PACKAGE_MANIFESTS_INI       \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME
+
+/* _________________________________________________________________________
+
    MIKTEX_PATH_TPM_DIR
    _________________________________________________________________________ */
 

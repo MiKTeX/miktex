@@ -89,7 +89,7 @@ public:
   MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& packageId) override;
 
 public:
-  void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName& path) override;
+  void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName& path, bool isArchive) override;
 
 public:
   void MIKTEXTHISCALL UnloadDatabase() override;
@@ -225,10 +225,10 @@ private:
   void IncrementFileRefCounts(const std::vector<std::string>& files);
 
 private:
-  void ParseAllPackageManifestFilesInDirectory(const MiKTeX::Core::PathName& directory);
+  void LoadAllPackageManifests(const MiKTeX::Core::PathName& packageManifestsPath);
 
 private:
-  void ParseAllPackageManifestFiles();
+  void LoadAllPackageManifests();
 
 private:
   bool TryGetFileDigest(const MiKTeX::Core::PathName& prefix, const std::string& fileName, bool& haveDigest, MiKTeX::Core::MD5& digest);
@@ -264,7 +264,7 @@ private:
   InstalledFileInfoTable installedFileInfoTable;
 
 private:
-  bool parsedAllPackageManifestFiles = false;
+  bool loadedAllPackageManifests = false;
 
 private:
   std::unique_ptr<MiKTeX::Core::Cfg> commonVariablePackageTable;
