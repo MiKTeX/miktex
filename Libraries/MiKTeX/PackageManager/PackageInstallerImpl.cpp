@@ -2161,41 +2161,18 @@ void PackageInstallerImpl::SetUpPackageManifestFiles(const PathName& directory)
   if (repositoryType == RepositoryType::Remote)
   {
     // download the database file
-#if USE_ZZDB2
     pathDatabase = directory / MIKTEX_TPM_ARCHIVE_FILE_NAME;
     Download(MakeUrl(MIKTEX_TPM_ARCHIVE_FILE_NAME), pathDatabase);
-#endif
-#if USE_ZZDB3
-    pathDatabase = directory / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
-    Download(MakeUrl(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME), pathDatabase);
-#endif
   }
   else
   {
     MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-#if USE_ZZDB2
     pathDatabase = repository / MIKTEX_TPM_ARCHIVE_FILE_NAME;
-#endif
-#if USE_ZZDB3
-    pathDatabase = repository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
-#endif
   }
 
   // extract files from archive
   unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
   extractor->Extract(pathDatabase, directory);
-
-#if USE_ZZDB3
-  unique_ptr<Cfg> cfg = Cfg::Create();
-  cfg->Read(directory / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
-  for (auto key = cfg->FirstKey(); key != nullptr; key = cfg->NextKey())
-  {
-    PackageInfo packageInfo = PackageManager::LoadPackageManifest(cfg.get(), key->GetName(), TEXMF_PREFIX_DIRECTORY);
-    PathName path(directory / packageInfo.id);
-    path.SetExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
-    PackageManager::WritePackageManifestFile(path, packageInfo, packageInfo.timePackaged);
-  }
-#endif
 }
 
 void PackageInstallerImpl::CleanUpUserDatabase()

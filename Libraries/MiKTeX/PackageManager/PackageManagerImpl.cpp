@@ -1438,6 +1438,10 @@ PackageInfo PackageManager::LoadPackageManifest(const Cfg* cfg, const string& pa
   {
     packageInfo.description = StringUtil::Flatten(lines, '\n');
   }
+  if (cfg->TryGetValue(packageId, "requiredPackages[]", lines))
+  {
+    packageInfo.requiredPackages = lines;
+  }
   string str;
   if (cfg->TryGetValue(packageId, "runSize", str))
   {
