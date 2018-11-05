@@ -26,6 +26,7 @@
 #include <fstream>
 
 #include "miktex/Core/FileStream.h"
+#include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 #include <miktex/Util/Tokenizer>
 
@@ -637,6 +638,9 @@ private:
 private:
   unique_ptr<TraceStream> traceError;
 
+private:
+  unique_ptr<TraceStream> traceStopWatch;
+
 public:
   CfgImpl();
 
@@ -674,7 +678,8 @@ Cfg::~Cfg() noexcept
 
 CfgImpl::CfgImpl() :
   traceStream(TraceStream::Open(MIKTEX_TRACE_CONFIG)),
-  traceError(TraceStream::Open(MIKTEX_TRACE_ERROR))
+  traceError(TraceStream::Open(MIKTEX_TRACE_ERROR)),
+  traceStopWatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH))
 {
 }
 
@@ -684,6 +689,7 @@ CfgImpl::~CfgImpl()
   {
     traceError->Close();
     traceStream->Close();
+    traceStopWatch->Close();
   }
   catch (const exception&)
   {
@@ -942,6 +948,7 @@ void CfgImpl::PutValue(const string& keyName, const string& valueName, const str
 
 void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
 {
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), "core", path.ToString());
   traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.GetData());
   AutoRestore<int> autoRestore1(lineno);
   AutoRestore<PathName> autoRestore(currentFile);

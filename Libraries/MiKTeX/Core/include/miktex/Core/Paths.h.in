@@ -416,6 +416,8 @@
 
 #define MIKTEX_EDITORS_INI_FILENAME "editors.ini"
 
+#define MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME "package-manifests.ini"
+
 #define MIKTEX_MPM_INI_FILENAME "mpm.ini"
 
 #define MIKTEX_YAP_INI_FILENAME "yap.ini"

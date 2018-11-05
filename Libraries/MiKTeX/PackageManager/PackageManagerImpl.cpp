@@ -1224,7 +1224,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
       {
         xml.Text(" ");
       }      
-      xml.Text(file);
+      xml.Text(PathName(file).ToDos().ToString());
     }
     xml.EndElement();
   }
@@ -1245,7 +1245,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
       {
         xml.Text(" ");
       }      
-      xml.Text(file);
+      xml.Text(PathName(file).ToDos().ToString());
     }
     xml.EndElement();
   }
@@ -1266,7 +1266,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
       {
         xml.Text(" ");
       }      
-      xml.Text(file);
+      xml.Text(PathName(file).ToDos().ToString());
     }
     xml.EndElement();
   }
@@ -1351,6 +1351,13 @@ void PackageManager::SavePackageManifest(Cfg* cfg, const PackageInfo& packageInf
     for (const string& line : StringUtil::Split(packageInfo.description, '\n'))
     {
       cfg->PutValue(packageInfo.id, "description[]", line);
+    }
+  }
+  if (!packageInfo.requiredPackages.empty())
+  {
+    for (const string& pkg : packageInfo.requiredPackages)
+    {
+      cfg->PutValue(packageInfo.id, "requiredPackages[]", pkg);
     }
   }
   if (!packageInfo.runFiles.empty())

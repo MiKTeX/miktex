@@ -630,6 +630,9 @@ private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mpm;
 
 private:
+  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_stopwatch;
+
+private:
   std::shared_ptr<PackageManagerImpl> packageManager;
 
 private:

@@ -42,6 +42,8 @@
 
 #include "miktex/PackageManager/PackageManager"
 
+#include "miktex/Trace/StopWatch"
+
 #include "internal.h"
 #include "PackageInstallerImpl.h"
 #include "TpmParser.h"
@@ -95,7 +97,8 @@ PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manage
   packageManager(manager),
   session(Session::Get()),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
-  trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM))
+  trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
+  trace_stopwatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH))
 {
   MIKTEX_ASSERT(
     PackageLevel::None < PackageLevel::Essential
@@ -2158,18 +2161,41 @@ void PackageInstallerImpl::SetUpPackageManifestFiles(const PathName& directory)
   if (repositoryType == RepositoryType::Remote)
   {
     // download the database file
+#if USE_ZZDB2
     pathDatabase = directory / MIKTEX_TPM_ARCHIVE_FILE_NAME;
     Download(MakeUrl(MIKTEX_TPM_ARCHIVE_FILE_NAME), pathDatabase);
+#endif
+#if USE_ZZDB3
+    pathDatabase = directory / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
+    Download(MakeUrl(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME), pathDatabase);
+#endif
   }
   else
   {
     MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
+#if USE_ZZDB2
     pathDatabase = repository / MIKTEX_TPM_ARCHIVE_FILE_NAME;
+#endif
+#if USE_ZZDB3
+    pathDatabase = repository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
+#endif
   }
 
-  // extract package defintion files
+  // extract files from archive
   unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
   extractor->Extract(pathDatabase, directory);
+
+#if USE_ZZDB3
+  unique_ptr<Cfg> cfg = Cfg::Create();
+  cfg->Read(directory / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
+  for (auto key = cfg->FirstKey(); key != nullptr; key = cfg->NextKey())
+  {
+    PackageInfo packageInfo = PackageManager::LoadPackageManifest(cfg.get(), key->GetName(), TEXMF_PREFIX_DIRECTORY);
+    PathName path(directory / packageInfo.id);
+    path.SetExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
+    PackageManager::WritePackageManifestFile(path, packageInfo, packageInfo.timePackaged);
+  }
+#endif
 }
 
 void PackageInstallerImpl::CleanUpUserDatabase()
@@ -2284,6 +2310,8 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
 
 void PackageInstallerImpl::UpdateDb()
 {
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "update package database");
+
   NeedRepository();
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
