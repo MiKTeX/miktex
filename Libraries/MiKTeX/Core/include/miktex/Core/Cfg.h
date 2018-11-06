@@ -165,7 +165,7 @@ public:
   virtual std::vector<std::shared_ptr<Key>> GetKeys() = 0;
 
 public:
-  virtual std::shared_ptr<Key> TryGetKey(const std::string& keyName) = 0;
+  virtual std::shared_ptr<Key> GetKey(const std::string& keyName) = 0;
 
   /// Starts a key iteration.
 public:

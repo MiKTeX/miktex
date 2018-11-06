@@ -399,7 +399,7 @@ void PackageManagerImpl::LoadAllPackageManifests(const PathName& packageManifest
     {
       continue;
     }
-    PackageInfo packageInfo = LoadPackageManifest(cfg.get(), key->GetName(), TEXMF_PREFIX_DIRECTORY);
+    PackageInfo packageInfo = GetPackageManifest(*cfg, key->GetName(), TEXMF_PREFIX_DIRECTORY);
 
 #if IGNORE_OTHER_SYSTEMS
     string targetSystems = packageInfo.targetSystem;
@@ -416,7 +416,7 @@ void PackageManagerImpl::LoadAllPackageManifests(const PathName& packageManifest
     PackageInfo* insertedPackageInfo = DefinePackage(packageInfo.id, packageInfo);
 
     // increment file ref counts, if package is installed
-    if (insertedPackageInfo->timeInstalled > 0)
+    if (IsValidTimeT(insertedPackageInfo->timeInstalled))
     {
       IncrementFileRefCounts(insertedPackageInfo->runFiles);
       IncrementFileRefCounts(insertedPackageInfo->docFiles);
@@ -491,7 +491,7 @@ void PackageManagerImpl::LoadAllPackageManifests(const PathName& packageManifest
     PackageInfo* insertedPackageInfo = DefinePackage(packageInfo.id, packageInfo);
 
     // increment file ref counts, if package is installed
-    if (insertedPackageInfo->timeInstalled > 0)
+    if (IsValidTimeT(insertedPackageInfo->timeInstalled))
     {
       IncrementFileRefCounts(insertedPackageInfo->runFiles);
       IncrementFileRefCounts(insertedPackageInfo->docFiles);
@@ -580,6 +580,35 @@ void PackageManagerImpl::LoadAllPackageManifests(const PathName& packageManifest
   }
 }
 
+void PackageManagerImpl::NeedPackageManifestsIni()
+{
+  PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+  if (File::Exists(existingPackageManifestsIni))
+  {
+    return;
+  }
+  PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  if (Directory::Exists(tpmDir))
+  {
+    unique_ptr<Cfg> cfgExisting = Cfg::Create();
+    unique_ptr<DirectoryLister> lister = DirectoryLister::Open(tpmDir);
+    DirectoryEntry direntry;
+    unique_ptr<TpmParser> tpmParser = TpmParser::Create();
+    while (lister->GetNext(direntry))
+    {
+      PathName name(direntry.name);
+      if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
+      {
+        continue;
+      }
+      tpmParser->Parse(tpmDir / name);
+      PackageInfo packageInfo = tpmParser->GetPackageInfo();
+      PackageManager::PutPackageManifest(*cfgExisting, packageInfo, packageInfo.timePackaged);
+    }
+    cfgExisting->Write(existingPackageManifestsIni);
+  }
+}
+
 void PackageManagerImpl::LoadAllPackageManifests()
 {
   if (loadedAllPackageManifests)
@@ -588,6 +617,7 @@ void PackageManagerImpl::LoadAllPackageManifests()
     return;
   }
 #if defined(MIKTEX_USE_ZZDB3)
+  NeedPackageManifestsIni();
   PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
 #else
@@ -1372,128 +1402,131 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
   xml.Close();
 }
 
-void PackageManager::SavePackageManifest(Cfg* cfg, const PackageInfo& packageInfo, time_t timePackaged)
+void PackageManager::PutPackageManifest(Cfg& cfg, const PackageInfo& packageInfo, time_t timePackaged)
 {
-  // TODO: remove old manifest (if it exists)
+  if (cfg.GetKey(packageInfo.id) != nullptr)
+  {
+    cfg.DeleteKey(packageInfo.id);
+  }
   if (!packageInfo.displayName.empty())
   {
-    cfg->PutValue(packageInfo.id, "displayName", packageInfo.displayName);
+    cfg.PutValue(packageInfo.id, "displayName", packageInfo.displayName);
   }
-  cfg->PutValue(packageInfo.id, "creator", "mpc");
+  cfg.PutValue(packageInfo.id, "creator", "mpc");
   if (!packageInfo.title.empty())
   {
-    cfg->PutValue(packageInfo.id, "title", packageInfo.title);
+    cfg.PutValue(packageInfo.id, "title", packageInfo.title);
   }
   if (!packageInfo.version.empty())
   {
-    cfg->PutValue(packageInfo.id, "version", packageInfo.version);
+    cfg.PutValue(packageInfo.id, "version", packageInfo.version);
   }
   if (!packageInfo.targetSystem.empty())
   {
-    cfg->PutValue(packageInfo.id, "targetSystem", packageInfo.targetSystem);
+    cfg.PutValue(packageInfo.id, "targetSystem", packageInfo.targetSystem);
   }
   if (!packageInfo.description.empty())
   {
     for (const string& line : StringUtil::Split(packageInfo.description, '\n'))
     {
-      cfg->PutValue(packageInfo.id, "description[]", line);
+      cfg.PutValue(packageInfo.id, "description[]", line);
     }
   }
   if (!packageInfo.requiredPackages.empty())
   {
     for (const string& pkg : packageInfo.requiredPackages)
     {
-      cfg->PutValue(packageInfo.id, "requiredPackages[]", pkg);
+      cfg.PutValue(packageInfo.id, "requiredPackages[]", pkg);
     }
   }
   if (!packageInfo.runFiles.empty())
   {
-    cfg->PutValue(packageInfo.id, "runSize", std::to_string(packageInfo.sizeRunFiles));
+    cfg.PutValue(packageInfo.id, "runSize", std::to_string(packageInfo.sizeRunFiles));
     for (const string& file : packageInfo.runFiles)
     {
-      cfg->PutValue(packageInfo.id, "run[]", PathName(file).ToUnix().ToString());
+      cfg.PutValue(packageInfo.id, "run[]", PathName(file).ToUnix().ToString());
     }
   }
   if (!packageInfo.docFiles.empty())
   {
-    cfg->PutValue(packageInfo.id, "docSize", std::to_string(packageInfo.sizeDocFiles));
+    cfg.PutValue(packageInfo.id, "docSize", std::to_string(packageInfo.sizeDocFiles));
     for (const string& file : packageInfo.docFiles)
     {
-      cfg->PutValue(packageInfo.id, "doc[]", PathName(file).ToUnix().ToString());
+      cfg.PutValue(packageInfo.id, "doc[]", PathName(file).ToUnix().ToString());
     }
   }
   if (!packageInfo.sourceFiles.empty())
   {
-    cfg->PutValue(packageInfo.id, "sourceSize", std::to_string(packageInfo.sizeSourceFiles));
+    cfg.PutValue(packageInfo.id, "sourceSize", std::to_string(packageInfo.sizeSourceFiles));
     for (const string& file : packageInfo.sourceFiles)
     {
-      cfg->PutValue(packageInfo.id, "source[]", PathName(file).ToUnix().ToString());
+      cfg.PutValue(packageInfo.id, "source[]", PathName(file).ToUnix().ToString());
     }
   }
   if (IsValidTimeT(timePackaged))
   {
-    cfg->PutValue(packageInfo.id, "timePackaged", std::to_string(timePackaged));
+    cfg.PutValue(packageInfo.id, "timePackaged", std::to_string(timePackaged));
   }
-  cfg->PutValue(packageInfo.id, "digest", packageInfo.digest.ToString());
+  cfg.PutValue(packageInfo.id, "digest", packageInfo.digest.ToString());
 #if MIKTEX_EXTENDED_PACKAGEINFO
   if (!packageInfo.ctanPath.empty())
   {
-    cfg->PutValue(packageInfo.id, "ctanPath", packageInfo.ctanPath);
+    cfg.PutValue(packageInfo.id, "ctanPath", packageInfo.ctanPath);
   }
   if (!packageInfo.copyrightOwner.empty())
   {
-    cfg->PutValue(packageInfo.id, "copyrightOwner", packageInfo.copyrightOwner);
+    cfg.PutValue(packageInfo.id, "copyrightOwner", packageInfo.copyrightOwner);
   }
   if (!packageInfo.copyrightYear.empty())
   {
-    cfg->PutValue(packageInfo.id, "copyrightYear", packageInfo.copyrightYear);
+    cfg.PutValue(packageInfo.id, "copyrightYear", packageInfo.copyrightYear);
   }
   if (!packageInfo.licenseType.empty())
   {
-    cfg->PutValue(packageInfo.id, "licenseType", packageInfo.licenseType);
+    cfg.PutValue(packageInfo.id, "licenseType", packageInfo.licenseType);
   }
 #endif
 }
 
-PackageInfo PackageManager::LoadPackageManifest(const Cfg* cfg, const string& packageId, const std::string& texmfPrefix)
+PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& packageId, const std::string& texmfPrefix)
 {
   PackageInfo packageInfo;
   packageInfo.id = packageId;
-  if (!cfg->TryGetValue(packageId, "displayName", packageInfo.displayName))
+  if (!cfg.TryGetValue(packageId, "displayName", packageInfo.displayName))
   {
     packageInfo.displayName = "";
   }
-  if (!cfg->TryGetValue(packageId, "creator", packageInfo.creator))
+  if (!cfg.TryGetValue(packageId, "creator", packageInfo.creator))
   {
     packageInfo.creator = "";
   }
-  if (!cfg->TryGetValue(packageId, "title", packageInfo.title))
+  if (!cfg.TryGetValue(packageId, "title", packageInfo.title))
   {
     packageInfo.title = "";
   }
-  if (!cfg->TryGetValue(packageId, "version", packageInfo.version))
+  if (!cfg.TryGetValue(packageId, "version", packageInfo.version))
   {
     packageInfo.version = "";
   }
-  if (!cfg->TryGetValue(packageId, "targetSystem", packageInfo.targetSystem))
+  if (!cfg.TryGetValue(packageId, "targetSystem", packageInfo.targetSystem))
   {
     packageInfo.targetSystem = "";
   }
   vector<string> lines;
-  if (cfg->TryGetValue(packageId, "description[]", lines))
+  if (cfg.TryGetValue(packageId, "description[]", lines))
   {
     packageInfo.description = StringUtil::Flatten(lines, '\n');
   }
-  if (cfg->TryGetValue(packageId, "requiredPackages[]", lines))
+  if (cfg.TryGetValue(packageId, "requiredPackages[]", lines))
   {
     packageInfo.requiredPackages = lines;
   }
   string str;
-  if (cfg->TryGetValue(packageId, "runSize", str))
+  if (cfg.TryGetValue(packageId, "runSize", str))
   {
     packageInfo.sizeRunFiles = std::stoi(str);
   }
-  if (cfg->TryGetValue(packageId, "run[]", lines))
+  if (cfg.TryGetValue(packageId, "run[]", lines))
   {
     for (const string& s : lines)
     {
@@ -1507,11 +1540,11 @@ PackageInfo PackageManager::LoadPackageManifest(const Cfg* cfg, const string& pa
       }
     }
   }
-  if (cfg->TryGetValue(packageId, "docSize", str))
+  if (cfg.TryGetValue(packageId, "docSize", str))
   {
     packageInfo.sizeDocFiles = std::stoi(str);
   }
-  if (cfg->TryGetValue(packageId, "doc[]", lines))
+  if (cfg.TryGetValue(packageId, "doc[]", lines))
   {
     for (const string& s : lines)
     {
@@ -1525,11 +1558,11 @@ PackageInfo PackageManager::LoadPackageManifest(const Cfg* cfg, const string& pa
       }
     }
   }
-  if (cfg->TryGetValue(packageId, "sourceSize", str))
+  if (cfg.TryGetValue(packageId, "sourceSize", str))
   {
     packageInfo.sizeSourceFiles = std::stoi(str);
   }
-  if (cfg->TryGetValue(packageId, "source[]", lines))
+  if (cfg.TryGetValue(packageId, "source[]", lines))
   {
     for (const string& s : lines)
     {
@@ -1543,28 +1576,28 @@ PackageInfo PackageManager::LoadPackageManifest(const Cfg* cfg, const string& pa
       }
     }
   }
-  if (cfg->TryGetValue(packageId, "timePackaged", str))
+  if (cfg.TryGetValue(packageId, "timePackaged", str))
   {
     packageInfo.timePackaged = std::stoi(str);
   }
-  if (cfg->TryGetValue(packageId, "digest", str))
+  if (cfg.TryGetValue(packageId, "digest", str))
   {
     packageInfo.digest = MD5::Parse(str);
   }
 #if MIKTEX_EXTENDED_PACKAGEINFO
-  if (!cfg->TryGetValue(packageId, "ctanPath", packageInfo.ctanPath))
+  if (!cfg.TryGetValue(packageId, "ctanPath", packageInfo.ctanPath))
   {
     packageInfo.ctanPath = "";
   }
-  if (!cfg->TryGetValue(packageId, "copyrightOwner", packageInfo.copyrightOwner))
+  if (!cfg.TryGetValue(packageId, "copyrightOwner", packageInfo.copyrightOwner))
   {
     packageInfo.copyrightOwner = "";
   }
-  if (!cfg->TryGetValue(packageId, "copyrightYear", packageInfo.copyrightYear))
+  if (!cfg.TryGetValue(packageId, "copyrightYear", packageInfo.copyrightYear))
   {
     packageInfo.copyrightYear = "";
   }
-  if (!cfg->TryGetValue(packageId, "licenseType", packageInfo.licenseType))
+  if (!cfg.TryGetValue(packageId, "licenseType", packageInfo.licenseType))
   {
     packageInfo.licenseType = "";
   }

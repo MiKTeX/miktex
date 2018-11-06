@@ -2079,6 +2079,7 @@ void PackageInstallerImpl::Download()
     progressInfo.cbPackageDownloadCompleted = 0;
     progressInfo.cbPackageDownloadTotal = ZZDB1_SIZE;
   }
+  Download(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
 #if defined(MIKTEX_USE_ZZDB3)
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
@@ -2089,7 +2090,6 @@ void PackageInstallerImpl::Download()
   }
   Download(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
 #else
-  Download(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
     progressInfo.packageId = MIKTEX_TPM_ARCHIVE_FILE_NAME_NO_SUFFIX;
@@ -2201,20 +2201,20 @@ void PackageInstallerImpl::CleanUpUserDatabase()
   cfgCommon->Read(commonFile);
 
   // check all user package manifests
-  for (auto keyUser = cfgUser->FirstKey(); keyUser != nullptr; key = cfgUser->NextKey())
+  for (auto keyUser = cfgUser->FirstKey(); keyUser != nullptr; keyUser = cfgUser->NextKey())
   {
     string packageId = keyUser->GetName();
 
     // check to see whether the system-wide manifest exists
-    auto keyCommon = cfgCommon->TryGetKey(packageId);
+    auto keyCommon = cfgCommon->GetKey(packageId);
     if (keyCommon == nullptr)
     {
       continue;
     }
 
     // compare manifests
-    PackageInfo packageInfoUser = PackageManager::LoadPackageManifest(cfgUser.get(), packageId, TEXMF_PREFIX_DIRECTORY);
-    PackageInfo packageInfoCommon = PackageManager::LoadPackageManifest(cfgCommon.get(), packageId, TEXMF_PREFIX_DIRECTORY);
+    PackageInfo packageInfoUser = PackageManager::GetPackageManifest(*cfgUser, packageId, TEXMF_PREFIX_DIRECTORY);
+    PackageInfo packageInfoCommon = PackageManager::GetPackageManifest(*cfgCommon, packageId, TEXMF_PREFIX_DIRECTORY);
     if (packageInfoUser == packageInfoCommon)
     {
       // manifests are identical; remove user manifest later
@@ -2294,7 +2294,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg* cfgExisting, Cfg*
 
     // it's not an obsolete package if cfgNew
     // contains a corresponding package manifest
-    if (cfgNew->TryGetKey(packageId) != nullptr)
+    if (cfgNew->GetKey(packageId) != nullptr)
     {
       continue;
     }
@@ -2441,40 +2441,15 @@ void PackageInstallerImpl::UpdateDb()
   cfgNew->Read(tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
 
   // load existing package-manifests.ini
+  packageManager->NeedPackageManifestsIni();
   unique_ptr<Cfg> cfgExisting = Cfg::Create();
   PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-  if (File::Exists(existingPackageManifestsIni))
-  {
-    cfgExisting->Read(existingPackageManifestsIni);
-  }
-  else
-  {
-    // migrate
-    PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-    if (Directory::Exists(tpmDir))
-    {
-      unique_ptr<DirectoryLister> lister = DirectoryLister::Open(tpmDir);
-      DirectoryEntry direntry;
-      unique_ptr<TpmParser> tpmparser = TpmParser::Create();
-      while (lister->GetNext(direntry))
-      {
-        PathName name(direntry.name);
-        if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
-        {
-          continue;
-        }
-        tpmparser->Parse(tpmDir / name);
-        PackageInfo packageInfo = tpmparser->GetPackageInfo();
-        PackageManager::SavePackageManifest(cfgExisting.get(), packageInfo, packageInfo.timePackaged);
-      }
-      cfgExisting->Write(existingPackageManifestsIni);
-    }
-  }
+  cfgExisting->Read(existingPackageManifestsIni);
 
   HandleObsoletePackageManifests(cfgExisting.get(), cfgNew.get());
 
-  // update the package manifest files
-  ReportLine(fmt::format(T_("updating package manifest file {0}..."), Q_(existingPackageManifestsIni)));
+  // update the package manifests
+  ReportLine(fmt::format(T_("updating package manifests ({0})..."), Q_(existingPackageManifestsIni)));
   for (auto key = cfgNew->FirstKey(); key != nullptr; key = cfgNew->NextKey())
   {
     string packageId = key->GetName();
@@ -2487,21 +2462,23 @@ void PackageInstallerImpl::UpdateDb()
       continue;
     }
 
-    // move the new package manifest file into the package
-    // manifest directory
-    if (cfgExisting->TryGetKey(packageId) != nullptr)
+    if (cfgExisting->GetKey(packageId) != nullptr)
     {
       // remove the existing manifest
       cfgExisting->DeleteKey(packageId);
     }
-    PackageInfo packageInfo = PackageManager::LoadPackageManifest(cfgNew.get(), packageId, TEXMF_PREFIX_DIRECTORY);
-    PackageManager::SavePackageManifest(cfgExisting.get(), packageInfo, packageInfo.timePackaged);
+    // install the new manifest
+    PackageInfo packageInfo = PackageManager::GetPackageManifest(*cfgNew, packageId, TEXMF_PREFIX_DIRECTORY);
+    PackageManager::PutPackageManifest(*cfgExisting, packageInfo, packageInfo.timePackaged);
 
-    // update the database
+    // update the package table
     packageManager->DefinePackage(packageId, packageInfo);
 
     ++count;
   }
+
+  // write package-manifests.ini
+  cfgExisting->Write(existingPackageManifestsIni);
 #else
   // path to the directory containing package manifests
   PathName pkgDir;

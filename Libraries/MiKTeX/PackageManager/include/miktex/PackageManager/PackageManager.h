@@ -240,10 +240,10 @@ public:
   static MIKTEXMPMCEEAPI(void) WritePackageManifestFile(const MiKTeX::Core::PathName& path, const PackageInfo& packageInfo, time_t timePackaged);
 
 public:
-  static MIKTEXMPMCEEAPI(void) SavePackageManifest(MiKTeX::Core::Cfg* cfg, const PackageInfo& packageInfo, time_t timePackaged);
+  static MIKTEXMPMCEEAPI(void) PutPackageManifest(MiKTeX::Core::Cfg& cfg, const PackageInfo& packageInfo, time_t timePackaged);
 
 public:
-  static MIKTEXMPMCEEAPI(PackageInfo) LoadPackageManifest(const MiKTeX::Core::Cfg* cfg, const std::string& packageId, const std::string& texmfPrefix);
+  static MIKTEXMPMCEEAPI(PackageInfo) GetPackageManifest(const MiKTeX::Core::Cfg& cfg, const std::string& packageId, const std::string& texmfPrefix);
 
   /// Strips the TEXMF prefix from a string.
   /// @param str The string to strip.

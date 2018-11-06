@@ -1104,7 +1104,7 @@ void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& pac
     {
       timePackaged = std::stoi(str);
     }
-    PackageManager::SavePackageManifest(cfg.get(), p.second, timePackaged);
+    PackageManager::PutPackageManifest(*cfg, p.second, timePackaged);
   }
   cfg->Write(path);
 }

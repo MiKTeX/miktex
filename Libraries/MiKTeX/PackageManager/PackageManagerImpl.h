@@ -173,6 +173,11 @@ public:
 public:
   void NeedInstalledFileInfoTable();
 
+#if defined(MIKTEX_USE_ZZDB3)
+public:
+  void NeedPackageManifestsIni();
+#endif
+
 public:
   void FlushVariablePackageTable();
 

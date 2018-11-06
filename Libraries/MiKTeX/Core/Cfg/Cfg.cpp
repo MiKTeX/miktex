@@ -581,7 +581,7 @@ public:
   }
 
 public:
-  virtual shared_ptr<Key> TryGetKey(const string& keyName) override
+  virtual shared_ptr<Key> GetKey(const string& keyName) override
   {
     KeyMap::iterator it = keyMap.find(Utils::MakeLower(keyName));
     if (it == keyMap.end())
