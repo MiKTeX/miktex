@@ -1105,7 +1105,7 @@ void MainWindow::CheckUpdates()
           }
           else
           {
-            msg = tr("There is are %1 updates available!").arg(updates.size());
+            msg = tr("There are %1 updates available!").arg(updates.size());
           }
         }
         ShowTrayMessage(TrayMessageContext::Updates, msg);
