@@ -158,6 +158,7 @@ BEGIN_TEST_FUNCTION(8);
     keys.push_back(key->GetName());
   }
   TEST(keys.size() == 2);
+  std::sort(keys.begin(), keys.end());
   TEST(keys[0] == "abc");
   TEST(keys[1] == "def");
 }
