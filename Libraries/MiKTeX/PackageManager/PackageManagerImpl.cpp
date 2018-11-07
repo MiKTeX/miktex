@@ -392,7 +392,7 @@ void PackageManagerImpl::LoadAllPackageManifests(const PathName& packageManifest
   cfg->Read(packageManifestsPath);
 
   unsigned count = 0;
-  for (auto key = cfg->FirstKey(); key != nullptr; key = cfg->NextKey())
+  for (auto key : *cfg)
   {
     // ignore redefinition
     if (packageTable.find(key->GetName()) != packageTable.end())

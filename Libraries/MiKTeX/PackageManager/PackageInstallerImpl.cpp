@@ -2201,7 +2201,7 @@ void PackageInstallerImpl::CleanUpUserDatabase()
   cfgCommon->Read(commonFile);
 
   // check all user package manifests
-  for (auto keyUser = cfgUser->FirstKey(); keyUser != nullptr; keyUser = cfgUser->NextKey())
+  for (auto keyUser : *cfgUser)
   {
     string packageId = keyUser->GetName();
 
@@ -2288,7 +2288,7 @@ void PackageInstallerImpl::CleanUpUserDatabase()
 #if defined(MIKTEX_USE_ZZDB3)
 void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg* cfgExisting, Cfg* cfgNew)
 {
-  for (auto keyExisting = cfgExisting->FirstKey(); keyExisting != nullptr; keyExisting = cfgExisting->NextKey())
+  for (auto keyExisting : *cfgExisting)
   {
     string packageId = keyExisting->GetName();
 
@@ -2450,7 +2450,7 @@ void PackageInstallerImpl::UpdateDb()
 
   // update the package manifests
   ReportLine(fmt::format(T_("updating package manifests ({0})..."), Q_(existingPackageManifestsIni)));
-  for (auto key = cfgNew->FirstKey(); key != nullptr; key = cfgNew->NextKey())
+  for (auto key : *cfgNew)
   {
     string packageId = key->GetName();
 

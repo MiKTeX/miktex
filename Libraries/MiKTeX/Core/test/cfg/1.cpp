@@ -146,6 +146,23 @@ BEGIN_TEST_FUNCTION(7);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(8);
+{
+  shared_ptr<Cfg> cfg;
+  TESTX(cfg = Cfg::Create());
+  cfg->PutValue("abc", "value", "abra");
+  cfg->PutValue("def", "value", "kadabra");
+  vector<string> keys;
+  for (auto key : *cfg)
+  {
+    keys.push_back(key->GetName());
+  }
+  TEST(keys.size() == 2);
+  TEST(keys[0] == "abc");
+  TEST(keys[1] == "def");
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -155,6 +172,7 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(5);
   CALL_TEST_FUNCTION(6);
   CALL_TEST_FUNCTION(7);
+  CALL_TEST_FUNCTION(8);
 }
 END_TEST_PROGRAM();
 

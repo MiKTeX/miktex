@@ -592,10 +592,10 @@ public:
   }
 
 public:
-  shared_ptr<Key> MIKTEXTHISCALL FirstKey() override;
+  KeyIterator begin() override;
 
 public:
-  shared_ptr<Key> MIKTEXTHISCALL NextKey() override;
+  KeyIterator end() override;
 
 public:
   void MIKTEXTHISCALL DeleteKey(const string& keyName) override;
@@ -630,9 +630,6 @@ private:
 
 private:
   KeyMap keyMap;
-
-private:
-  KeyMap::const_iterator iter = keyMap.end();
 
 private:
   bool tracking = false;
@@ -1282,28 +1279,54 @@ void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvi
   File::SetTimes(path, t, t, t);
 }
 
-shared_ptr<Cfg::Key> CfgImpl::FirstKey()
+class Cfg::KeyIterator::impl
 {
-  iter = keyMap.begin();
-  if (iter == keyMap.end())
-  {
-    return nullptr;
-  }
-  return iter->second;
+public:
+  KeyMap::iterator it;
+};
+
+Cfg::KeyIterator::KeyIterator() :
+  pimpl(make_unique<Cfg::KeyIterator::impl>())
+{
 }
 
-shared_ptr<Cfg::Key> CfgImpl::NextKey()
+Cfg::KeyIterator::~KeyIterator()
 {
-  if (iter == keyMap.end())
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  ++iter;
-  if (iter == keyMap.end())
-  {
-    return nullptr;
-  }
-  return iter->second;
+}
+
+shared_ptr<Cfg::Key> Cfg::KeyIterator::operator*() const
+{
+  return pimpl->it->second;
+}
+
+Cfg::KeyIterator& Cfg::KeyIterator::operator++()
+{
+  pimpl->it++;
+  return *this;
+}
+
+bool Cfg::KeyIterator::operator==(const Cfg::KeyIterator& other)
+{
+  return pimpl->it == other.pimpl->it;
+}
+
+bool Cfg::KeyIterator::operator!=(const Cfg::KeyIterator& other)
+{
+  return pimpl->it != other.pimpl->it;
+}
+
+Cfg::KeyIterator CfgImpl::begin()
+{
+  Cfg::KeyIterator it;
+  it.GetImpl().it = keyMap.begin();
+  return it;
+}
+
+Cfg::KeyIterator CfgImpl::end()
+{
+  Cfg::KeyIterator it;
+  it.GetImpl().it = keyMap.end();
+  return it;
 }
 
 void CfgImpl::DeleteValue(const string& keyName, const string& valueName)

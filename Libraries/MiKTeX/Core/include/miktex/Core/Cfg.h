@@ -167,13 +167,44 @@ public:
 public:
   virtual std::shared_ptr<Key> GetKey(const std::string& keyName) = 0;
 
-  /// Starts a key iteration.
 public:
-  virtual std::shared_ptr<Key> MIKTEXTHISCALL FirstKey() = 0;
+  class KeyIterator
+  {
+  public:
+    MIKTEXCOREEXPORT MIKTEXTHISCALL KeyIterator();
+  public:
+    KeyIterator(const KeyIterator& other) = delete;
+  public:
+    KeyIterator& operator=(const KeyIterator& other) = delete;
+  public:
+    KeyIterator(KeyIterator&& other) = default;
+  public:
+    KeyIterator& operator=(KeyIterator&& other) = default;
+  public:
+    virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~KeyIterator();
+  public:
+    MIKTEXCORETHISAPI(std::shared_ptr<Key>) operator*() const;
+  public:
+    MIKTEXCORETHISAPI(KeyIterator&) operator++();
+  public:
+    MIKTEXCORETHISAPI(bool) operator==(const KeyIterator& other);
+  public:
+    MIKTEXCORETHISAPI(bool) operator!=(const KeyIterator& other);
+  private:
+    class impl;
+    std::unique_ptr<impl> pimpl;
+  public:
+    impl& GetImpl()
+    {
+      return *pimpl;
+    }
+  };
 
-  /// Continues a key iteration.
 public:
-  virtual std::shared_ptr<Key> MIKTEXTHISCALL NextKey() = 0;
+  virtual KeyIterator MIKTEXTHISCALL begin() = 0;
+
+public:
+  virtual KeyIterator MIKTEXTHISCALL end() = 0;
 
   /// Deletes a key.
 public:

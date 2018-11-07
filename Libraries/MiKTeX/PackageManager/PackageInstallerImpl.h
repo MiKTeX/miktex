@@ -77,18 +77,22 @@ public:
     cfg->Read(path);
   }
 
+private:
+  MiKTeX::Core::Cfg::KeyIterator keyIt = cfg->begin();
+
 public:
   std::string FirstPackage()
   {
-    std::shared_ptr<MiKTeX::Core::Cfg::Key> key = cfg->FirstKey();
-    return key == nullptr ? "" : key->GetName();
+    auto keyIt = cfg->begin();
+    return keyIt == cfg->end() ? "" : (*keyIt)->GetName();
   }
 
 public:
   std::string NextPackage()
   {
-    std::shared_ptr<MiKTeX::Core::Cfg::Key> key = cfg->NextKey();
-    return key == nullptr ? "" : key->GetName();
+    ++keyIt;
+    return keyIt == cfg->end() ? "" : (*keyIt)->GetName();
+    return "";
   }
 
 public:
