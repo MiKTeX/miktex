@@ -591,10 +591,12 @@ void PackageManagerImpl::NeedPackageManifestsIni()
   PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
   if (Directory::Exists(tpmDir))
   {
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("starting migration: {} -> {}", tpmDir, existingPackageManifestsIni));
     unique_ptr<Cfg> cfgExisting = Cfg::Create();
     unique_ptr<DirectoryLister> lister = DirectoryLister::Open(tpmDir);
     DirectoryEntry direntry;
     unique_ptr<TpmParser> tpmParser = TpmParser::Create();
+    int count = 0;
     while (lister->GetNext(direntry))
     {
       PathName name(direntry.name);
@@ -605,8 +607,10 @@ void PackageManagerImpl::NeedPackageManifestsIni()
       tpmParser->Parse(tpmDir / name);
       PackageInfo packageInfo = tpmParser->GetPackageInfo();
       PackageManager::PutPackageManifest(*cfgExisting, packageInfo, packageInfo.timePackaged);
+      count++;
     }
     cfgExisting->Write(existingPackageManifestsIni);
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("successfully migrated {} package manifest files", count));
   }
 }
 #endif

@@ -83,7 +83,7 @@ private:
 public:
   std::string FirstPackage()
   {
-    auto keyIt = cfg->begin();
+    keyIt = cfg->begin();
     return keyIt == cfg->end() ? "" : (*keyIt)->GetName();
   }
 
