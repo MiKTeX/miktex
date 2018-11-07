@@ -580,6 +580,7 @@ void PackageManagerImpl::LoadAllPackageManifests(const PathName& packageManifest
   }
 }
 
+#if MIKTEX_USE_ZZDB3
 void PackageManagerImpl::NeedPackageManifestsIni()
 {
   PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
@@ -608,6 +609,7 @@ void PackageManagerImpl::NeedPackageManifestsIni()
     cfgExisting->Write(existingPackageManifestsIni);
   }
 }
+#endif
 
 void PackageManagerImpl::LoadAllPackageManifests()
 {
