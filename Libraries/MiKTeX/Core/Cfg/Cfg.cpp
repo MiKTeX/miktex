@@ -1290,6 +1290,17 @@ Cfg::KeyIterator::KeyIterator() :
 {
 }
 
+Cfg::KeyIterator::KeyIterator(Cfg::KeyIterator&& other) :
+  pimpl(std::move(other.pimpl))
+{
+}
+
+Cfg::KeyIterator& Cfg::KeyIterator::operator=(Cfg::KeyIterator&& other)
+{
+  pimpl = std::move(other.pimpl);
+  return *this;
+}
+
 Cfg::KeyIterator::~KeyIterator()
 {
 }

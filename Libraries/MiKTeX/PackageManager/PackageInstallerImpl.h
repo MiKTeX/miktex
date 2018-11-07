@@ -78,7 +78,7 @@ public:
   }
 
 private:
-  MiKTeX::Core::Cfg::KeyIterator keyIt = cfg->begin();
+  MiKTeX::Core::Cfg::KeyIterator keyIt;
 
 public:
   std::string FirstPackage()

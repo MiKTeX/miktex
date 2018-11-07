@@ -177,9 +177,9 @@ public:
   public:
     KeyIterator& operator=(const KeyIterator& other) = delete;
   public:
-    KeyIterator(KeyIterator&& other) = default;
+    MIKTEXCOREEXPORT MIKTEXTHISCALL KeyIterator(KeyIterator&& other);
   public:
-    KeyIterator& operator=(KeyIterator&& other) = default;
+    MIKTEXCORETHISAPI(KeyIterator&) operator=(KeyIterator&& other);
   public:
     virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~KeyIterator();
   public:
