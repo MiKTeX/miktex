@@ -2453,7 +2453,10 @@ void PackageInstallerImpl::UpdateDb()
   packageManager->NeedPackageManifestsIni();
   unique_ptr<Cfg> cfgExisting = Cfg::Create();
   PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-  cfgExisting->Read(existingPackageManifestsIni);
+  if (File::Exists(existingPackageManifestsIni))
+  {
+    cfgExisting->Read(existingPackageManifestsIni);
+  }
 
   HandleObsoletePackageManifests(*cfgExisting, *cfgNew);
 
