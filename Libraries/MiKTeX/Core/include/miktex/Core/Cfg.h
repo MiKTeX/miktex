@@ -66,6 +66,39 @@ public:
   };
 
 public:
+  class ValueIterator
+  {
+  public:
+    MIKTEXCOREEXPORT MIKTEXTHISCALL ValueIterator();
+  public:
+    ValueIterator(const ValueIterator& other) = delete;
+  public:
+    ValueIterator& operator=(const ValueIterator& other) = delete;
+  public:
+    MIKTEXCOREEXPORT MIKTEXTHISCALL ValueIterator(ValueIterator&& other);
+  public:
+    MIKTEXCORETHISAPI(ValueIterator&) operator=(ValueIterator&& other);
+  public:
+    virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~ValueIterator();
+  public:
+    MIKTEXCORETHISAPI(std::shared_ptr<Value>) operator*() const;
+  public:
+    MIKTEXCORETHISAPI(ValueIterator&) operator++();
+  public:
+    MIKTEXCORETHISAPI(bool) operator==(const ValueIterator& other);
+  public:
+    MIKTEXCORETHISAPI(bool) operator!=(const ValueIterator& other);
+  private:
+    class impl;
+    std::unique_ptr<impl> pimpl;
+  public:
+    impl& GetImpl()
+    {
+      return *pimpl;
+    }
+  };
+
+public:
   class MIKTEXNOVTABLE Key
   {
   public:
@@ -74,6 +107,10 @@ public:
     virtual std::shared_ptr<Value> MIKTEXTHISCALL GetValue(const std::string& valueName) const = 0;
   public:
     virtual std::vector<std::shared_ptr<Value>> MIKTEXTHISCALL GetValues() const = 0;
+  public:
+    virtual ValueIterator MIKTEXTHISCALL begin() = 0;
+  public:
+    virtual ValueIterator MIKTEXTHISCALL end() = 0;
   };
 
 public:

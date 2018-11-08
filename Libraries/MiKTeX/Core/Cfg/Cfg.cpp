@@ -238,6 +238,12 @@ public:
 
 public:
   void WriteValues(ostream& stream) const;
+
+public:
+  Cfg::ValueIterator begin() override;
+
+public:
+  Cfg::ValueIterator end() override;
 };
 
 inline bool operator<(const CfgKey& lhs, const CfgKey& rhs)
@@ -1335,6 +1341,67 @@ Cfg::KeyIterator CfgImpl::end()
 {
   Cfg::KeyIterator it;
   it.GetImpl().it = keyMap.end();
+  return it;
+}
+
+class Cfg::ValueIterator::impl
+{
+public:
+  ValueMap::iterator it;
+};
+
+Cfg::ValueIterator::ValueIterator() :
+  pimpl(make_unique<Cfg::ValueIterator::impl>())
+{
+}
+
+Cfg::ValueIterator::ValueIterator(Cfg::ValueIterator&& other) :
+  pimpl(std::move(other.pimpl))
+{
+}
+
+Cfg::ValueIterator& Cfg::ValueIterator::operator=(Cfg::ValueIterator&& other)
+{
+  pimpl = std::move(other.pimpl);
+  return *this;
+}
+
+Cfg::ValueIterator::~ValueIterator()
+{
+}
+
+shared_ptr<Cfg::Value> Cfg::ValueIterator::operator*() const
+{
+  return pimpl->it->second;
+}
+
+Cfg::ValueIterator& Cfg::ValueIterator::operator++()
+{
+  ++pimpl->it;
+  return *this;
+}
+
+bool Cfg::ValueIterator::operator==(const Cfg::ValueIterator& other)
+{
+  return pimpl->it == other.pimpl->it;
+}
+
+bool Cfg::ValueIterator::operator!=(const Cfg::ValueIterator& other)
+{
+  return pimpl->it != other.pimpl->it;
+}
+
+Cfg::ValueIterator CfgKey::begin()
+{
+  Cfg::ValueIterator it;
+  it.GetImpl().it = valueMap.begin();
+  return it;
+}
+
+Cfg::ValueIterator CfgKey::end()
+{
+  Cfg::ValueIterator it;
+  it.GetImpl().it = valueMap.end();
   return it;
 }
 

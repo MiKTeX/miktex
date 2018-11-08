@@ -153,14 +153,23 @@ BEGIN_TEST_FUNCTION(8);
   cfg->PutValue("abc", "value", "abra");
   cfg->PutValue("def", "value", "kadabra");
   vector<string> keys;
+  vector<string> values;
   for (auto key : *cfg)
   {
     keys.push_back(key->GetName());
+    for (auto val : *key)
+    {
+      values.push_back(val->GetValue());
+    }
   }
   TEST(keys.size() == 2);
   std::sort(keys.begin(), keys.end());
   TEST(keys[0] == "abc");
   TEST(keys[1] == "def");
+  TEST(values.size() == 2);
+  std::sort(values.begin(), values.end());
+  TEST(values[0] == "abra");
+  TEST(values[1] == "kadabra");
 }
 END_TEST_FUNCTION();
 
