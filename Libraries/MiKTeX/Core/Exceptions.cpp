@@ -91,10 +91,10 @@ bool MiKTeXException::Load(const string& path, MiKTeXException& ex)
   unique_ptr<Cfg> cfg = Cfg::Create();
   cfg->Read(path);
   bool result = false;
-  for (const auto& key : cfg->GetKeys())
+  for (const auto& key : *cfg)
   {
     string keyName = key->GetName();
-    for (const auto& val : key->GetValues())
+    for (const auto& val : *key)
     {
       string valueName = val->GetName();
       string value = val->GetValue();

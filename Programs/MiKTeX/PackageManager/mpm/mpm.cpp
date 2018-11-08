@@ -1032,7 +1032,7 @@ void Application::ImportPackages(vector<string>& toBeinstalled)
   }
   unique_ptr<Cfg> cfg = Cfg::Create();
   cfg->Read(packagesIni);
-  for (const shared_ptr<Cfg::Key>& key : cfg->GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : *cfg)
   {
     if (strncmp(key->GetName().c_str(), "miktex-", 7) == 0)
     {

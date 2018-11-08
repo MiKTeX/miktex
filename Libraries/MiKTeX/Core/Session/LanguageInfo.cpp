@@ -49,7 +49,7 @@ void SessionImpl::ReadLanguagesIni(const PathName& cfgFile)
   unique_ptr<Cfg> cfgLanguages(Cfg::Create());
   cfgLanguages->Read(cfgFile);
   bool custom = TryDeriveTEXMFRoot(cfgFile) != GetInstallRoot();
-  for (const shared_ptr<Cfg::Key>& key : cfgLanguages->GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : *cfgLanguages)
   {
     LanguageInfo_ languageInfo;
     vector<LanguageInfo_>::iterator itExisting;

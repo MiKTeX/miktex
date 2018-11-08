@@ -226,17 +226,6 @@ public:
   }
 
 public:
-  vector<shared_ptr<Cfg::Value>> MIKTEXTHISCALL GetValues() const override
-  {
-    vector<shared_ptr<Cfg::Value>> values;
-    for (const auto& p : valueMap)
-    {
-      values.push_back(p.second);
-    }
-    return values;
-  }
-
-public:
   void WriteValues(ostream& stream) const;
 
 public:
@@ -569,17 +558,6 @@ public:
     if (sorted)
     {
       sort(keys.begin(), keys.end());
-    }
-    return keys;
-  }
-
-public:
-  vector<shared_ptr<Key>> GetKeys() const override
-  {
-    vector<shared_ptr<Cfg::Key>> keys;
-    for (const auto& p : keyMap)
-    {
-      keys.push_back(p.second);
     }
     return keys;
   }

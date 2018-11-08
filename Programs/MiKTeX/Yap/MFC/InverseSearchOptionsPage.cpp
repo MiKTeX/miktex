@@ -572,7 +572,7 @@ void InverseSearchOptionsPage::CollectEditors()
     {
       unique_ptr<Cfg> pCfg(Cfg::Create());
       pCfg->Read(editorsIni);
-      for (const shared_ptr<Cfg::Key>& key : pCfg->GetKeys())
+      for (const shared_ptr<Cfg::Key>& key : *pCfg)
       {
         editors.push_back(EditorInfo(key->GetName(), pCfg->GetValue(key->GetName(), "program")->GetValue(), pCfg->GetValue(key->GetName(), "arguments")->GetValue()));
       }

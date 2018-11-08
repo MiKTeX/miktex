@@ -75,7 +75,7 @@ void SessionImpl::ReadFormatsIni(const PathName& cfgFile)
   cfgFormats->Read(cfgFile);
   unsigned distRoot = GetInstallRoot();
   bool isCustom = distRoot != INVALID_ROOT_INDEX && DeriveTEXMFRoot(cfgFile) != distRoot;
-  for (const shared_ptr<Cfg::Key>& key : cfgFormats->GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : *cfgFormats)
   {
     FormatInfo_ formatInfo;
     vector<FormatInfo_>::iterator it;

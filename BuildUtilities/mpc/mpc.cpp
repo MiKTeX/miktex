@@ -1169,7 +1169,7 @@ void PackageCreator::RunArchiver(ArchiveFileType archiveFileType, const PathName
 void PackageCreator::CreateRepositoryInformationFile(const PathName& repository, Cfg& repositoryManifest, const map<string, MpcPackageInfo>& packageTable)
 {
   int numberOfPackages = 0;
-  for (const shared_ptr<Cfg::Key>& key : repositoryManifest.GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : repositoryManifest)
   {
     numberOfPackages += 1;
   }
@@ -1355,7 +1355,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   {
     // find obsolete package sections
     vector<string> obsoletePackages;
-    for (const shared_ptr<Cfg::Key>& key : repositoryManifest.GetKeys())
+    for (const shared_ptr<Cfg::Key>& key : repositoryManifest)
     {
       map<string, MpcPackageInfo>::const_iterator it = packageTable.find(key->GetName());
       if (it == packageTable.end() || IsToBeIgnored(it->second))

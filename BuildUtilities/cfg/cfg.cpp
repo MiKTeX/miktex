@@ -126,11 +126,10 @@ string ToStr(const string& s)
 
 void DoPrintClasses(Cfg& cfg)
 {
-  for (const shared_ptr<Cfg::Key>& key : cfg.GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : cfg)
   {
     cout << "class " << key->GetName() << " {" << endl;
-    vector <shared_ptr<Cfg::Value>> values = key->GetValues();
-    for (const shared_ptr<Cfg::Value>& val : values)
+    for (const shared_ptr<Cfg::Value>& val : *key)
     {
       string value = val->GetValue();
       char* endptr = nullptr;

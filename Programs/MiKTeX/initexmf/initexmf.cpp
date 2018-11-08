@@ -1693,7 +1693,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
     }
     unique_ptr<Cfg> config(Cfg::Create());
     config->Read(scriptsIni, true);
-    for (const shared_ptr<Cfg::Key>& key : config->GetKeys())
+    for (const shared_ptr<Cfg::Key>& key : *config)
     {
       PathName wrapper = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
       wrapper.AppendDirectoryDelimiter();
@@ -1710,7 +1710,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       {
         continue;
       }
-      for (const shared_ptr<Cfg::Value>& v : key->GetValues())
+      for (const shared_ptr<Cfg::Value>& v : *key)
       {
         PathName pathExe(pathLocalBinDir, v->GetName());
         if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
@@ -1762,13 +1762,13 @@ void IniTeXMFApp::MakeScriptsExecutable()
   config->Read(scriptsIni, true);
   AutoRestore<TriState> x(enableInstaller);
   enableInstaller = TriState::False;
-  for (const shared_ptr<Cfg::Key>& key : config->GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : *config)
   {
     if (key->GetName() != "sh")
     {
       continue;
     }
-    for (const shared_ptr<Cfg::Value>& val : key->GetValues())
+    for (const shared_ptr<Cfg::Value>& val : *key)
     {
       PathName scriptPath;
       if (!session->FindFile(val->GetValue(), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))

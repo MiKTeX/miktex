@@ -106,8 +106,6 @@ public:
   public:
     virtual std::shared_ptr<Value> MIKTEXTHISCALL GetValue(const std::string& valueName) const = 0;
   public:
-    virtual std::vector<std::shared_ptr<Value>> MIKTEXTHISCALL GetValues() const = 0;
-  public:
     virtual ValueIterator MIKTEXTHISCALL begin() = 0;
   public:
     virtual ValueIterator MIKTEXTHISCALL end() = 0;
@@ -232,10 +230,6 @@ public:
 
 public:
   virtual std::shared_ptr<Key> GetKey(const std::string& keyName) const = 0;
-
-  /// Gets all keys.
-public:
-  virtual std::vector<std::shared_ptr<Key>> GetKeys() const = 0;
 
   /// Deletes a key.
 public:
