@@ -177,12 +177,6 @@ option(
 )
 
 option(
-  MIKTEX_USE_ZZDB3
-  "Make use of the new zzdb3 package database file."
-  FALSE
-)
-
-option(
   USE_SYSTEM_APR
   "Use the system Apache Portable Runtime (APR) library."
   ${MIKTEX_UNIX_ALIKE}
@@ -782,6 +776,17 @@ include(SetSharedLibraryVersion)
 include(SourcePaths)
 include(UseStaticCRT)
 include(IgnoreWarnings)
+
+###############################################################################
+## set options which depends on the release state
+
+if(MIKTEX_RELEASE_STATE EQUAL 0)
+  set(_use_zzdb3 FALSE)
+else()
+  set(_use_zzdb3 TRUE)
+endif()
+
+set(MIKTEX_USE_ZZDB3 ${_use_zzdb3} CACHE BOOL "Make use of the new zzdb3 package database file.")
 
 ###############################################################################
 ## build sandbox
