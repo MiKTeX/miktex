@@ -2122,8 +2122,16 @@ if(WITH_BOOTSTRAPPING)
   endif()
   list(APPEND bootstrapping_files
     miktex-zzdb1-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
-    miktex-zzdb2-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
   )
+  if(MIKTEX_USE_ZZDB3)
+    list(APPEND bootstrapping_files
+      miktex-zzdb3-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
+    )
+  else()
+    list(APPEND bootstrapping_files
+      miktex-zzdb2-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
+    )
+  endif()
   foreach(p ${MIKTEX_BOOTSTRAPPING_PACKAGES})
     list(APPEND bootstrapping_files
       ${p}.tar.lzma
