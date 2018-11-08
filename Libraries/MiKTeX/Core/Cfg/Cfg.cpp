@@ -235,9 +235,6 @@ public:
     return values;
   }
 
-private:
-  ValueMap::iterator iter = valueMap.end();
-
 public:
   void WriteValues(ostream& stream) const;
 };
