@@ -2286,15 +2286,16 @@ void PackageInstallerImpl::CleanUpUserDatabase()
 }
 
 #if defined(MIKTEX_USE_ZZDB3)
-void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg* cfgExisting, Cfg* cfgNew)
+void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, const Cfg& cfgNew)
 {
-  for (auto keyExisting : *cfgExisting)
+  vector<string> toBeRemoved;
+  for (auto keyExisting : cfgExisting)
   {
     string packageId = keyExisting->GetName();
 
     // it's not an obsolete package if cfgNew
     // contains a corresponding package manifest
-    if (cfgNew->GetKey(packageId) != nullptr)
+    if (cfgNew.GetKey(packageId) != nullptr)
     {
       continue;
     }
@@ -2303,9 +2304,9 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg* cfgExisting, Cfg*
     // check to see whether the obsolete package is installed
     if (packageManager->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
     {
-      // not installed: remove the package manifest
+      // not installed: remove the package manifest (later)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete package manifest '{0}'"), packageId));
-      cfgExisting->DeleteKey(packageId);
+      toBeRemoved.push_back(packageId);
     }
     else
     {
@@ -2314,6 +2315,10 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg* cfgExisting, Cfg*
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("declaring '{0}' obsolete"), packageId));
       packageManager->DeclarePackageObsolete(packageId, true);
     }
+  }
+  for (const auto& p : toBeRemoved)
+  {
+    cfgExisting.DeleteKey(p);
   }
 
   packageManager->FlushVariablePackageTable();
@@ -2418,6 +2423,8 @@ void PackageInstallerImpl::UpdateDb()
   unique_ptr<TemporaryDirectory> tempDir;
 
 #if defined(MIKTEX_USE_ZZDB3)
+  tempDir = TemporaryDirectory::Create();
+
   PathName pathDatabase;
 
   if (repositoryType == RepositoryType::Remote)
@@ -2446,7 +2453,7 @@ void PackageInstallerImpl::UpdateDb()
   PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   cfgExisting->Read(existingPackageManifestsIni);
 
-  HandleObsoletePackageManifests(cfgExisting.get(), cfgNew.get());
+  HandleObsoletePackageManifests(*cfgExisting, *cfgNew);
 
   // update the package manifests
   ReportLine(fmt::format(T_("updating package manifests ({0})..."), Q_(existingPackageManifestsIni)));

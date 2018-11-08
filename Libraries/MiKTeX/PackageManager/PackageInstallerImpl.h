@@ -557,7 +557,7 @@ private:
 
 #if defined(MIKTEX_USE_ZZDB3)
 private:
-  void HandleObsoletePackageManifests(MiKTeX::Core::Cfg* cfgExisting, MiKTeX::Core::Cfg* cfgNew);
+  void HandleObsoletePackageManifests(MiKTeX::Core::Cfg& cfgExisting, const MiKTeX::Core::Cfg& cfgNew);
 #else
 private:
   void HandleObsoletePackageManifestFiles(const MiKTeX::Core::PathName& temporaryDirectory);
