@@ -472,6 +472,8 @@ int CompareSerieses(const string& ver1, const string& ver2)
 
 void PackageInstallerImpl::FindUpdates()
 {
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "checking for updates");
+
   trace_mpm->WriteLine(TRACE_FACILITY, T_("searching for updateable packages"));
 
   UpdateDb();
