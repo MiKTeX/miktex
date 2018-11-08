@@ -181,7 +181,8 @@ public:
 
 public:
   CfgKey(const string& name, const string& lookupName) :
-    name(name), lookupName(lookupName)
+    name(name),
+    lookupName(lookupName)
   {
   }
 
@@ -1227,7 +1228,7 @@ string ToBase64(const vector<unsigned char>& bytes)
 #endif
 }
 
-void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvider* pPrivateKeyProvider)
+void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvider* privateKeyProvider)
 {
   time_t t = time(nullptr);
   ofstream stream = File::CreateOutputStream(path);
@@ -1238,14 +1239,14 @@ void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvi
       << "\n";
   }
   WriteKeys(stream);
-  if (pPrivateKeyProvider != nullptr)
+  if (privateKeyProvider != nullptr)
   {
     string sig;
 #if defined(ENABLE_OPENSSL)
     if (GetCryptoLib() == CryptoLib::OpenSSL)
     {
-      FileStream stream(File::Open(pPrivateKeyProvider->GetPrivateKeyFile(), FileMode::Open, FileAccess::Read));
-      RSA_ptr rsa (PEM_read_RSAPrivateKey(stream.GetFile(), nullptr, OpenSSLPasswordCallback, pPrivateKeyProvider), RSA_free);
+      FileStream stream(File::Open(privateKeyProvider->GetPrivateKeyFile(), FileMode::Open, FileAccess::Read));
+      RSA_ptr rsa (PEM_read_RSAPrivateKey(stream.GetFile(), nullptr, OpenSSLPasswordCallback, privateKeyProvider), RSA_free);
       stream.Close();
       if (rsa == nullptr)
       {
