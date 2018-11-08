@@ -30,7 +30,8 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-class NotFoundException : public MiKTeX::Core::MiKTeXException
+class NotFoundException :
+  public MiKTeX::Core::MiKTeXException
 {
 public:
   NotFoundException()
@@ -39,8 +40,8 @@ public:
   }
 
 public:
-  NotFoundException(const std::string& programInvocationName, const std::string& message, const MiKTeX::Core::MiKTeXException::KVMAP& info, const MiKTeX::Core::SourceLocation& sourceLocation)
-    : MiKTeX::Core::MiKTeXException(programInvocationName, message, info, sourceLocation)
+  NotFoundException(const std::string& programInvocationName, const std::string& message, const MiKTeX::Core::MiKTeXException::KVMAP& info, const MiKTeX::Core::SourceLocation& sourceLocation) :
+    MiKTeX::Core::MiKTeXException(programInvocationName, message, info, sourceLocation)
   {
   }
 };
