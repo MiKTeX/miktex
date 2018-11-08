@@ -34,8 +34,8 @@ class NotFoundException :
   public MiKTeX::Core::MiKTeXException
 {
 public:
-  NotFoundException()
-    : MiKTeX::Core::MiKTeXException(T_("Requested resource not found."))
+  NotFoundException() :
+    MiKTeX::Core::MiKTeXException(T_("Requested resource not found."))
   {
   }
 
