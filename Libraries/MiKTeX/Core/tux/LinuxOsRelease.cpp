@@ -47,9 +47,9 @@ LinuxOsRelease ReadOsRelease()
   LinuxOsRelease result;
   unique_ptr<Cfg> cfg = Cfg::Create();
   cfg->Read("/etc/os-release");
-  for (const shared_ptr<Cfg::Key>& key : cfg->GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : *cfg)
   {
-    for (const shared_ptr<Cfg::Value>& val : key->GetValues())
+    for (const shared_ptr<Cfg::Value>& val : *key)
     {
       if (val->GetName() == "NAME")
       {
