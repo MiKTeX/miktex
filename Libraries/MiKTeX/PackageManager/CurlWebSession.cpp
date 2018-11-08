@@ -466,7 +466,14 @@ void CurlWebSession::ReadInformationals()
       switch (responseCode)
       {
       case 404:
-        throw NotFoundException();
+        if (effectiveUrl != nullptr)
+        {
+          throw NotFoundException(effectiveUrl);
+        }
+        else
+        {
+          throw NotFoundException();
+        }
       case 503:
         description = T_("The server is currently unavailable (because it is overloaded or down for maintenance). Generally, this is a temporary state.");
         tag = "503";
