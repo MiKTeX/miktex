@@ -114,6 +114,39 @@ public:
   };
 
 public:
+  class KeyIterator
+  {
+  public:
+    MIKTEXCOREEXPORT MIKTEXTHISCALL KeyIterator();
+  public:
+    KeyIterator(const KeyIterator& other) = delete;
+  public:
+    KeyIterator& operator=(const KeyIterator& other) = delete;
+  public:
+    MIKTEXCOREEXPORT MIKTEXTHISCALL KeyIterator(KeyIterator&& other);
+  public:
+    MIKTEXCORETHISAPI(KeyIterator&) operator=(KeyIterator&& other);
+  public:
+    virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~KeyIterator();
+  public:
+    MIKTEXCORETHISAPI(std::shared_ptr<Key>) operator*() const;
+  public:
+    MIKTEXCORETHISAPI(KeyIterator&) operator++();
+  public:
+    MIKTEXCORETHISAPI(bool) operator==(const KeyIterator& other);
+  public:
+    MIKTEXCORETHISAPI(bool) operator!=(const KeyIterator& other);
+  private:
+    class impl;
+    std::unique_ptr<impl> pimpl;
+  public:
+    impl& GetImpl()
+    {
+      return *pimpl;
+    }
+  };
+
+public:
   /// Creates a new Cfg object. The caller is responsible for deleting
   /// the object.
   static MIKTEXCORECEEAPI(std::unique_ptr<Cfg>) Create();
@@ -197,62 +230,29 @@ public:
 public:
   virtual void MIKTEXTHISCALL Write(const PathName& path, const std::string& header, IPrivateKeyProvider* privateKeyProvider) = 0;
 
+public:
+  virtual std::shared_ptr<Key> GetKey(const std::string& keyName) const = 0;
+
   /// Gets all keys.
 public:
   virtual std::vector<std::shared_ptr<Key>> GetKeys() const = 0;
 
+  /// Deletes a key.
 public:
-  virtual std::shared_ptr<Key> GetKey(const std::string& keyName) const = 0;
+  virtual void MIKTEXTHISCALL DeleteKey(const std::string& keyName) = 0;
+
+  /// Deletes a value.
+public:
+  virtual void MIKTEXTHISCALL DeleteValue(const std::string& keyName, const std::string& valueName) = 0;
 
 public:
-  class KeyIterator
-  {
-  public:
-    MIKTEXCOREEXPORT MIKTEXTHISCALL KeyIterator();
-  public:
-    KeyIterator(const KeyIterator& other) = delete;
-  public:
-    KeyIterator& operator=(const KeyIterator& other) = delete;
-  public:
-    MIKTEXCOREEXPORT MIKTEXTHISCALL KeyIterator(KeyIterator&& other);
-  public:
-    MIKTEXCORETHISAPI(KeyIterator&) operator=(KeyIterator&& other);
-  public:
-    virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~KeyIterator();
-  public:
-    MIKTEXCORETHISAPI(std::shared_ptr<Key>) operator*() const;
-  public:
-    MIKTEXCORETHISAPI(KeyIterator&) operator++();
-  public:
-    MIKTEXCORETHISAPI(bool) operator==(const KeyIterator& other);
-  public:
-    MIKTEXCORETHISAPI(bool) operator!=(const KeyIterator& other);
-  private:
-    class impl;
-    std::unique_ptr<impl> pimpl;
-  public:
-    impl& GetImpl()
-    {
-      return *pimpl;
-    }
-  };
+  virtual bool MIKTEXTHISCALL IsSigned() const = 0;
 
 public:
   virtual KeyIterator MIKTEXTHISCALL begin() = 0;
 
 public:
   virtual KeyIterator MIKTEXTHISCALL end() = 0;
-
-  /// Deletes a key.
-public:
-  virtual void MIKTEXTHISCALL DeleteKey(const std::string& keyName) = 0;
-
-  /// Deletes a value (experimental).
-public:
-  virtual void MIKTEXTHISCALL DeleteValue(const std::string& keyName, const std::string& valueName) = 0;
-
-public:
-  virtual bool MIKTEXTHISCALL IsSigned() const = 0;
 };
 
 MIKTEX_CORE_END_NAMESPACE;
