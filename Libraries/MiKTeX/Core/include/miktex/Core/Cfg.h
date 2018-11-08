@@ -162,10 +162,10 @@ public:
 
   /// Gets all keys.
 public:
-  virtual std::vector<std::shared_ptr<Key>> GetKeys() = 0;
+  virtual std::vector<std::shared_ptr<Key>> GetKeys() const = 0;
 
 public:
-  virtual std::shared_ptr<Key> GetKey(const std::string& keyName) = 0;
+  virtual std::shared_ptr<Key> GetKey(const std::string& keyName) const = 0;
 
 public:
   class KeyIterator

@@ -570,7 +570,7 @@ public:
   }
 
 public:
-  vector<shared_ptr<Key>> GetKeys() override
+  vector<shared_ptr<Key>> GetKeys() const override
   {
     vector<shared_ptr<Cfg::Key>> keys;
     for (const auto& p : keyMap)
@@ -581,9 +581,9 @@ public:
   }
 
 public:
-  virtual shared_ptr<Key> GetKey(const string& keyName) override
+  virtual shared_ptr<Key> GetKey(const string& keyName) const override
   {
-    KeyMap::iterator it = keyMap.find(Utils::MakeLower(keyName));
+    KeyMap::const_iterator it = keyMap.find(Utils::MakeLower(keyName));
     if (it == keyMap.end())
     {
       return nullptr;
@@ -1312,7 +1312,7 @@ shared_ptr<Cfg::Key> Cfg::KeyIterator::operator*() const
 
 Cfg::KeyIterator& Cfg::KeyIterator::operator++()
 {
-  pimpl->it++;
+  ++pimpl->it;
   return *this;
 }
 
