@@ -131,7 +131,11 @@ private:
   std::vector<MiKTeX::Packages::RepositoryInfo> repositories;
 
 private:
+#if MIKTEX_RELEASE_STATE == 1
+  MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState = MiKTeX::Packages::RepositoryReleaseState::Next;
+#else
   MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState = MiKTeX::Packages::RepositoryReleaseState::Stable;
+#endif
 
 private:
   std::string remoteServiceBaseUrl;
