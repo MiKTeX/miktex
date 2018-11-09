@@ -466,13 +466,7 @@ public:
   shared_ptr<Value> MIKTEXTHISCALL GetValue(const string& keyName, const string& valueName) const override;
 
 public:
-  bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, shared_ptr<Value>& value) const override;
-
-public:
   bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, string& value) const override;
-
-public:
-  bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, PathName& path) const override;
 
 public:
   bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, vector<string>& value) const override;
@@ -786,31 +780,10 @@ shared_ptr<Cfg::Value> CfgImpl::GetValue(const string& keyName, const string& va
   return value == nullptr || value->IsCommentedOut() ? nullptr : value;
 }
 
-bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, shared_ptr<Value>& outValue) const
-{
-  shared_ptr<CfgKey> key = FindKey(keyName);
-
-  if (key == nullptr)
-  {
-    return false;
-  }
-
-  shared_ptr<Cfg::Value> value = key->GetValue(valueName);
-
-  if (value == nullptr || value->IsCommentedOut())
-  {
-    return false;
-  }
-
-  outValue = value;
-
-  return true;
-}
-
 bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, string& outValue) const
 {
-  shared_ptr<Value> value;
-  if (!TryGetValue(keyName, valueName, value))
+  shared_ptr<Value> value = GetValue(keyName, valueName);
+  if (value == nullptr)
   {
     return false;
   }
@@ -818,21 +791,10 @@ bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, string
   return true;
 }
 
-bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, PathName& path) const
-{
-  shared_ptr<Value> value;
-  if (!TryGetValue(keyName, valueName, value))
-  {
-    return false;
-  }
-  path = value->GetValue();
-  return true;
-}
-
 bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, vector<string>& outValue) const
 {
-  shared_ptr<Value> value;
-  if (!TryGetValue(keyName, valueName, value))
+  shared_ptr<Value> value = GetValue(keyName, valueName);
+  if (value == nullptr)
   {
     return false;
   }
