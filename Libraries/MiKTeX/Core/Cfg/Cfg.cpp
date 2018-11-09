@@ -1310,22 +1310,23 @@ bool Cfg::KeyIterator::operator!=(const Cfg::KeyIterator& other)
 
 Cfg::KeyIterator CfgImpl::begin()
 {
-  Cfg::KeyIterator it;
-  it.GetImpl().it = keyMap.begin();
-  return it;
+  Cfg::KeyIterator keyIterator;
+  keyIterator.GetImpl().it = keyMap.begin();
+  return keyIterator;
 }
 
 Cfg::KeyIterator CfgImpl::end()
 {
-  Cfg::KeyIterator it;
-  it.GetImpl().it = keyMap.end();
-  return it;
+  Cfg::KeyIterator keyIterator;
+  keyIterator.GetImpl().it = keyMap.end();
+  return keyIterator;
 }
 
 class Cfg::ValueIterator::impl
 {
 public:
   ValueMap::iterator it;
+  ValueMap::iterator end;
 };
 
 Cfg::ValueIterator::ValueIterator() :
@@ -1355,7 +1356,10 @@ shared_ptr<Cfg::Value> Cfg::ValueIterator::operator*() const
 
 Cfg::ValueIterator& Cfg::ValueIterator::operator++()
 {
-  ++pimpl->it;
+  do
+  {
+    ++pimpl->it;
+  } while (pimpl->it != pimpl->end && pimpl->it->second->IsCommentedOut());
   return *this;
 }
 
@@ -1371,16 +1375,22 @@ bool Cfg::ValueIterator::operator!=(const Cfg::ValueIterator& other)
 
 Cfg::ValueIterator CfgKey::begin()
 {
-  Cfg::ValueIterator it;
-  it.GetImpl().it = valueMap.begin();
-  return it;
+  ValueMap::iterator it;
+  for (it = valueMap.begin(); it != valueMap.end() && it->second->IsCommentedOut(); ++it)
+  {
+  }
+  Cfg::ValueIterator valueIterator;
+  valueIterator.GetImpl().it = it;
+  valueIterator.GetImpl().end = valueMap.end();
+  return valueIterator;
 }
 
 Cfg::ValueIterator CfgKey::end()
 {
-  Cfg::ValueIterator it;
-  it.GetImpl().it = valueMap.end();
-  return it;
+  Cfg::ValueIterator valueIterator;
+  valueIterator.GetImpl().it = valueMap.end();
+  valueIterator.GetImpl().end = valueMap.end();
+  return valueIterator;
 }
 
 void CfgImpl::DeleteValue(const string& keyName, const string& valueName)
