@@ -29,17 +29,17 @@ template<typename Interface> class CompressedStreamBase :
   public Interface
 {
 public:
-  size_t Read(void* pBytes, size_t count) override
+  size_t Read(void* data, size_t count) override
   {
     if (IsUnsuccessful())
     {
       throw threadMiKTeXException;
     }
-    return pipe.Read(pBytes, count);
+    return pipe.Read(data, count);
   }
 
 public:
-  void Write(const void* pBytes, size_t count) override
+  void Write(const void* data, size_t count) override
   {
     UNIMPLEMENTED();
   }
@@ -57,7 +57,7 @@ public:
   }
 
 protected:
-  void StartThread(const MiKTeX::Core::PathName & path, bool reading)
+  void StartThread(const MiKTeX::Core::PathName& path, bool reading)
   {
     thrd = std::thread(&CompressedStreamBase::UncompressThread, this, path, reading);
   }
@@ -82,12 +82,12 @@ protected:
       pipe.Close();
       Finish(true);
     }
-    catch (const MiKTeX::Core::MiKTeXException & e)
+    catch (const MiKTeX::Core::MiKTeXException& e)
     {
       threadMiKTeXException = e;
       Finish(false);
     }
-    catch (const std::exception & e)
+    catch (const std::exception& e)
     {
       threadMiKTeXException = MiKTeX::Core::MiKTeXException(e.what());
       Finish(false);
@@ -95,7 +95,7 @@ protected:
   }
 
 protected:
-  virtual void DoUncompress(const MiKTeX::Core::PathName & path) = 0;
+  virtual void DoUncompress(const MiKTeX::Core::PathName& path) = 0;
 
 protected:
   std::thread thrd;
@@ -110,7 +110,7 @@ protected:
   };
 
 protected:
-  std::atomic_int state {0};
+  std::atomic_int state{ 0 };
 
 protected:
   bool IsReady()
