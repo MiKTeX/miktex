@@ -63,9 +63,6 @@ private slots:
   void FillList();
 
 private:
-  void SetItemText(int row, int column, const QString& text);
-
-private:
   class DownloadThread : public QThread
   {
   public:
