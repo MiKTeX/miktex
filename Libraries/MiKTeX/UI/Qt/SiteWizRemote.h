@@ -63,7 +63,8 @@ private slots:
   void FillList();
 
 private:
-  class DownloadThread : public QThread
+  class DownloadThread :
+    public QThread
   {
   public:
     DownloadThread(SiteWizRemote* parent) :
