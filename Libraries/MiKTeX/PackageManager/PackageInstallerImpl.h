@@ -66,9 +66,9 @@ public:
   }
 
 private:
-  bool TryGetValue(const std::string& packageId, const std::string& valueName, std::string& value)
+  std::shared_ptr<MiKTeX::Core::Cfg::Value> GetValue(const std::string& packageId, const std::string& valueName)
   {
-    return cfg->TryGetValue(packageId, valueName, value);
+    return cfg->GetValue(packageId, valueName);
   }
 
 public:
@@ -104,45 +104,45 @@ public:
 public:
   int GetArchiveFileSize(const std::string& packageId)
   {
-    std::string str;
-    if (!TryGetValue(packageId, "CabSize", str))
+    auto val = GetValue(packageId, "CabSize");
+    if (val == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown archive file size."), "package", packageId);
     }
-    return atoi(str.c_str());
+    return std::stoi(val->GetValue());
   }
 
 public:
   MiKTeX::Core::MD5 GetArchiveFileDigest(const std::string& packageId)
   {
-    std::string str;
-    if (!cfg->TryGetValue(packageId, "CabMD5", str))
+    auto val = GetValue(packageId, "CabMD5");
+    if (val == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown archive file digest."), "package", packageId);
     }
-    return MiKTeX::Core::MD5::Parse(str.c_str());
+    return MiKTeX::Core::MD5::Parse(val->GetValue());
   }
 
 public:
   MiKTeX::Core::MD5 GetPackageDigest(const std::string& packageId)
   {
-    std::string str;
-    if (!cfg->TryGetValue(packageId, "MD5", str))
+    auto val = GetValue(packageId, "MD5");
+    if (val == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown package digest."), "package", packageId);
     }
-    return MiKTeX::Core::MD5::Parse(str.c_str());
+    return MiKTeX::Core::MD5::Parse(val->GetValue());
   }
 
 public:
   time_t GetTimePackaged(const std::string& packageId)
   {
-    std::string str;
-    if (!TryGetValue(packageId, "TimePackaged", str))
+    auto val = GetValue(packageId, "TimePackaged");
+    if (val == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown package time-stamp."), "package", packageId);
     }
-    unsigned time = static_cast<unsigned>(atoi(str.c_str()));
+    int time = std::stoi(val->GetValue());
     if (time < Y2000)
     {
       MIKTEX_FATAL_ERROR_2(T_("Invalid package time-stamp."), "package", packageId);
@@ -153,53 +153,41 @@ public:
 public:
   PackageLevel GetPackageLevel(const std::string& packageId)
   {
-    std::string str;
-    if (!TryGetValue(packageId, "Level", str))
+    auto val = GetValue(packageId, "Level");
+    if (val == nullptr || val->GetValue().empty())
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown package level."), "package", packageId);
     }
-    return CharToPackageLevel(str[0]);
+    return CharToPackageLevel(val->GetValue()[0]);
   }
 
 public:
   std::string GetPackageVersion(const std::string& packageId)
   {
-    std::string version;
-    if (!TryGetValue(packageId, "Version", version))
-    {
-      version = "";
-    }
-    return version;
+    auto val = GetValue(packageId, "Version");
+    return val == nullptr ? "" : val->GetValue();
   }
 
 public:
   std::string GetPackageTargetSystem(const std::string& packageId)
   {
-    std::string targetSystem;
-    if (!TryGetValue(packageId, "TargetSystem", targetSystem))
-    {
-      targetSystem = "";
-    }
-    return targetSystem;
+    auto val = GetValue(packageId, "TargetSystem");
+    return val == nullptr ? "" : val->GetValue();
   }
 
 public:
   MiKTeX::Extractor::ArchiveFileType GetArchiveFileType(const std::string& packageId)
   {
-    std::string str;
-    if (!TryGetValue(packageId, "Type", str))
+    auto val = GetValue(packageId, "Type");
+    if (val == nullptr || val->GetValue() == "MSCab")
     {
       return MiKTeX::Extractor::ArchiveFileType::MSCab;
     }
-    if (str == "MSCab")
-    {
-      return MiKTeX::Extractor::ArchiveFileType::MSCab;
-    }
-    else if (str == "TarBzip2")
+    else if (val->GetValue() == "TarBzip2")
     {
       return MiKTeX::Extractor::ArchiveFileType::TarBzip2;
     }
-    else if (str == "TarLzma")
+    else if (val->GetValue() == "TarLzma")
     {
       return MiKTeX::Extractor::ArchiveFileType::TarLzma;
     }

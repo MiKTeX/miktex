@@ -844,10 +844,10 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
   {
     unique_ptr<Cfg> yapConfig(Cfg::Create());
     yapConfig->Read(yapIni);
-    string yapEditor;
-    if (yapConfig->TryGetValue("Settings", "Editor", yapEditor))
+    auto yapEditor = yapConfig->GetValue("Settings", "Editor");
+    if (yapEditor != nullptr)
     {
-      defaultEditor = yapEditor;
+      defaultEditor = yapEditor->GetValue();
     }
   }
 
