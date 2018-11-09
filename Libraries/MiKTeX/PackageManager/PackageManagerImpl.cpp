@@ -617,6 +617,7 @@ void PackageManagerImpl::NeedPackageManifestsIni()
 
 void PackageManagerImpl::LoadAllPackageManifests()
 {
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "loading all package manifests");
   if (loadedAllPackageManifests)
   {
     // we do this once
