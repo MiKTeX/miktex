@@ -1502,118 +1502,124 @@ void PackageManager::PutPackageManifest(Cfg& cfg, const PackageInfo& packageInfo
 
 PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& packageId, const std::string& texmfPrefix)
 {
+  auto key = cfg.GetKey(packageId);
+  if (key == nullptr)
+  {
+    MIKTEX_UNEXPECTED();
+  }
   PackageInfo packageInfo;
   packageInfo.id = packageId;
-  if (!cfg.TryGetValue(packageId, "displayName", packageInfo.displayName))
+  for (auto val : *key)
   {
-    packageInfo.displayName = "";
-  }
-  if (!cfg.TryGetValue(packageId, "creator", packageInfo.creator))
-  {
-    packageInfo.creator = "";
-  }
-  if (!cfg.TryGetValue(packageId, "title", packageInfo.title))
-  {
-    packageInfo.title = "";
-  }
-  if (!cfg.TryGetValue(packageId, "version", packageInfo.version))
-  {
-    packageInfo.version = "";
-  }
-  if (!cfg.TryGetValue(packageId, "targetSystem", packageInfo.targetSystem))
-  {
-    packageInfo.targetSystem = "";
-  }
-  vector<string> lines;
-  if (cfg.TryGetValue(packageId, "description[]", lines))
-  {
-    packageInfo.description = StringUtil::Flatten(lines, '\n');
-  }
-  if (cfg.TryGetValue(packageId, "requiredPackages[]", lines))
-  {
-    packageInfo.requiredPackages = lines;
-  }
-  string str;
-  if (cfg.TryGetValue(packageId, "runSize", str))
-  {
-    packageInfo.sizeRunFiles = std::stoi(str);
-  }
-  if (cfg.TryGetValue(packageId, "run[]", lines))
-  {
-    for (const string& s : lines)
+    if (val->GetName() == "displayName")
     {
-      PathName path(s);
-#if defined(MIKTEX_UNIX)
-      path.ConvertToUnix();
-#endif
-      if (texmfPrefix.length() == 0 || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+      packageInfo.displayName = val->GetValue();
+    }
+    else if (val->GetName() == "creator")
+    {
+      packageInfo.creator = val->GetValue();
+    }
+    else if (val->GetName() == "title")
+    {
+      packageInfo.title = val->GetValue();
+    }
+    else if (val->GetName() == "version")
+    {
+      packageInfo.version = val->GetValue();
+    }
+    else if (val->GetName() == "targetSystem")
+    {
+      packageInfo.targetSystem = val->GetValue();
+    }
+    else if (val->GetName() == "description[]")
+    {
+      packageInfo.description = StringUtil::Flatten(val->GetMultiValue(), '\n');
+    }
+    else if (val->GetName() == "requiredPackages[]")
+    {
+      packageInfo.requiredPackages = val->GetMultiValue();
+    }
+    else if (val->GetName() == "runSize")
+    {
+      packageInfo.sizeRunFiles = std::stoi(val->GetValue());
+    }
+    else if (val->GetName() == "run[]")
+    {
+      for (const string& s : val->GetMultiValue())
       {
-        packageInfo.runFiles.push_back(path.ToString());
+        PathName path(s);
+#if defined(MIKTEX_UNIX)
+        path.ConvertToUnix();
+#endif
+        if (texmfPrefix.empty() || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+        {
+          packageInfo.runFiles.push_back(path.ToString());
+        }
       }
     }
-  }
-  if (cfg.TryGetValue(packageId, "docSize", str))
-  {
-    packageInfo.sizeDocFiles = std::stoi(str);
-  }
-  if (cfg.TryGetValue(packageId, "doc[]", lines))
-  {
-    for (const string& s : lines)
+    else if (val->GetName() == "docSize")
     {
-      PathName path(s);
-#if defined(MIKTEX_UNIX)
-      path.ConvertToUnix();
-#endif
-      if (texmfPrefix.length() == 0 || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+      packageInfo.sizeDocFiles = std::stoi(val->GetValue());
+    }
+    else if (val->GetName() == "doc[]")
+    {
+      for (const string& s : val->GetMultiValue())
       {
-        packageInfo.docFiles.push_back(path.ToString());
+        PathName path(s);
+#if defined(MIKTEX_UNIX)
+        path.ConvertToUnix();
+#endif
+        if (texmfPrefix.empty() || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+        {
+          packageInfo.docFiles.push_back(path.ToString());
+        }
       }
     }
-  }
-  if (cfg.TryGetValue(packageId, "sourceSize", str))
-  {
-    packageInfo.sizeSourceFiles = std::stoi(str);
-  }
-  if (cfg.TryGetValue(packageId, "source[]", lines))
-  {
-    for (const string& s : lines)
+    else if (val->GetName() == "sourceSize")
     {
-      PathName path(s);
-#if defined(MIKTEX_UNIX)
-      path.ConvertToUnix();
-#endif
-      if (texmfPrefix.length() == 0 || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+      packageInfo.sizeSourceFiles = std::stoi(val->GetValue());
+    }
+    else if (val->GetName() == "source[]")
+    {
+      for (const string& s : val->GetMultiValue())
       {
-        packageInfo.sourceFiles.push_back(path.ToString());
+        PathName path(s);
+#if defined(MIKTEX_UNIX)
+        path.ConvertToUnix();
+#endif
+        if (texmfPrefix.empty() || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+        {
+          packageInfo.sourceFiles.push_back(path.ToString());
+        }
       }
     }
-  }
-  if (cfg.TryGetValue(packageId, "timePackaged", str))
-  {
-    packageInfo.timePackaged = std::stoi(str);
-  }
-  if (cfg.TryGetValue(packageId, "digest", str))
-  {
-    packageInfo.digest = MD5::Parse(str);
-  }
+    else if (val->GetName() == "timePackaged")
+    {
+      packageInfo.timePackaged = std::stoi(val->GetValue());
+    }
+    else if (val->GetName() == "digest")
+    {
+      packageInfo.digest = MD5::Parse(val->GetValue());
+    }
 #if MIKTEX_EXTENDED_PACKAGEINFO
-  if (!cfg.TryGetValue(packageId, "ctanPath", packageInfo.ctanPath))
-  {
-    packageInfo.ctanPath = "";
-  }
-  if (!cfg.TryGetValue(packageId, "copyrightOwner", packageInfo.copyrightOwner))
-  {
-    packageInfo.copyrightOwner = "";
-  }
-  if (!cfg.TryGetValue(packageId, "copyrightYear", packageInfo.copyrightYear))
-  {
-    packageInfo.copyrightYear = "";
-  }
-  if (!cfg.TryGetValue(packageId, "licenseType", packageInfo.licenseType))
-  {
-    packageInfo.licenseType = "";
-  }
+    else if (val->GetName() == "ctanPath")
+    {
+      packageInfo.ctanPath = val->GetValue();
+    }
+    else if (val->GetName() == "copyrightOwner")
+    {
+      packageInfo.copyrightOwner = val->GetValue();
+    }
+    else if (val->GetName() == "copyrightYear")
+    {
+      packageInfo.copyrightYear = val->GetValue();
+    }
+    else if (val->GetName() == "licenseType")
+    {
+      packageInfo.licenseType = val->GetValue();
+    }
 #endif
+  }
   return packageInfo;
 }
 
