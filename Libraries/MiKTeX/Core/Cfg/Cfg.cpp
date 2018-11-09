@@ -777,12 +777,13 @@ unique_ptr<Cfg> Cfg::Create()
 
 shared_ptr<Cfg::Value> CfgImpl::GetValue(const string& keyName, const string& valueName) const
 {
-  shared_ptr<Value> result;
-  if (!TryGetValue(keyName, valueName, result))
+  shared_ptr<CfgKey> key = FindKey(keyName);
+  if (key == nullptr)
   {
-    MIKTEX_FATAL_ERROR_2(T_("The configuration value does not exist."), "valueName", valueName);
+    return nullptr;
   }
-  return result;
+  shared_ptr<Cfg::Value> value = key->GetValue(valueName);
+  return value == nullptr || value->IsCommentedOut() ? nullptr : value;
 }
 
 bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, shared_ptr<Value>& outValue) const

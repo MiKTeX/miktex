@@ -185,8 +185,12 @@ bool PackageRepositoryDataStore::TryGetRepositoryInfo(const string& url, Reposit
     configFile /= "pr.ini";
     unique_ptr<Cfg> config(Cfg::Create());
     config->Read(configFile);
-    string value = config->GetValue("repository", "date")->GetValue();
-    repositoryInfo.timeDate = std::stoi(value);
+    auto value = config->GetValue("repository", "date");
+    if (value == nullptr)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    repositoryInfo.timeDate = std::stoi(value->GetValue());
     return true;
   }
   else
