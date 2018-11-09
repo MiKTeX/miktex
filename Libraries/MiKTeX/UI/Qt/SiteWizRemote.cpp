@@ -63,9 +63,8 @@ SiteWizRemote::SiteWizRemote(std::shared_ptr<MiKTeX::Packages::PackageManager> p
 
 void SiteWizRemote::initializePage()
 {
-  if (firstVisit)
+  if (downloadThread == nullptr || downloadThread->isFinished())
   {
-    firstVisit = false;
     downloadThread = new DownloadThread(this);
     connect(downloadThread, SIGNAL(finished()), this, SLOT(FillList()));
     downloadThread->start();

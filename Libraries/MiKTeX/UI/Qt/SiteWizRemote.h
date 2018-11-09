@@ -89,9 +89,6 @@ private:
   std::vector<MiKTeX::Packages::RepositoryInfo> repositories;
 
 private:
-  bool firstVisit = true;
-
-private:
   QSortFilterProxyModel* proxyModel = nullptr;
 };
 
