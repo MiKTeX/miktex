@@ -701,6 +701,11 @@ void PackageManagerImpl::UnloadDatabase()
 
 PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& packageId)
 {
+#if MIKTEX_USE_ZZDB3
+  LoadAllPackageManifests();
+  PackageDefinitionTable::iterator it = packageTable.find(packageId);
+  return it == packageTable.end() ? nullptr : &it->second;
+#else
   PackageDefinitionTable::iterator it = packageTable.find(packageId);
   if (it != packageTable.end())
   {
@@ -742,6 +747,7 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& packageId)
   }
 #endif
   return DefinePackage(packageId, tpmParser->GetPackageInfo());
+#endif
 }
 
 bool PackageManagerImpl::TryGetPackageInfo(const string& packageId, PackageInfo& packageInfo)
