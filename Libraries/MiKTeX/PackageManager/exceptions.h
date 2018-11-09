@@ -41,7 +41,7 @@ public:
 
 public:
   NotFoundException(const std::string& url) :
-    MiKTeX::Core::MiKTeXException("", T_("Requested resource not found."), { "url", url }, MiKTeX::Core::SourceLocation::SourceLocation())
+    MiKTeX::Core::MiKTeXException("", T_("Requested resource not found."), { "url", url }, MiKTeX::Core::SourceLocation())
   {
   }
 
