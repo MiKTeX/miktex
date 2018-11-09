@@ -48,7 +48,7 @@ void SiteWizRemote::DownloadThread::run()
     threadMiKTeXException = e;
     error = true;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -58,7 +58,7 @@ SiteWizRemote::SiteWizRemote(std::shared_ptr<MiKTeX::Packages::PackageManager> p
   packageManager(packageManager)
 {
   setupUi(this);
-  connect(treeView, SIGNAL(clicked(const QModelIndex &)), this, SIGNAL(completeChanged()));
+  connect(treeView, SIGNAL(clicked(const QModelIndex&)), this, SIGNAL(completeChanged()));
 }
 
 void SiteWizRemote::initializePage()
