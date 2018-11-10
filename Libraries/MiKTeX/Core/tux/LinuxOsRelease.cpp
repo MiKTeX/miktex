@@ -53,67 +53,67 @@ LinuxOsRelease ReadOsRelease()
     {
       if (val->GetName() == "NAME")
       {
-        result.name = Unquote(val->GetValue());
+        result.name = Unquote(val->AsString());
       }
       else if (val->GetName() == "VERSION")
       {
-        result.version = Unquote(val->GetValue());
+        result.version = Unquote(val->AsString());
       }
       else if (val->GetName() == "ID")
       {
-        result.id = Unquote(val->GetValue());
+        result.id = Unquote(val->AsString());
       }
       else if (val->GetName() == "ID_LIKE")
       {
-        result.id_like = Unquote(val->GetValue());
+        result.id_like = Unquote(val->AsString());
       }
       else if (val->GetName() == "VERSION_CODENAME")
       {
-        result.version_codename = Unquote(val->GetValue());
+        result.version_codename = Unquote(val->AsString());
       }
       else if (val->GetName() == "VERSION_ID")
       {
-        result.version_id = Unquote(val->GetValue());
+        result.version_id = Unquote(val->AsString());
       }
       else if (val->GetName() == "PRETTY_NAME")
       {
-        result.pretty_name = Unquote(val->GetValue());
+        result.pretty_name = Unquote(val->AsString());
       }
       else if (val->GetName() == "ANSI_COLOR")
       {
-        result.ansi_color = Unquote(val->GetValue());
+        result.ansi_color = Unquote(val->AsString());
       }
       else if (val->GetName() == "CPE_NAME")
       {
-        result.cpe_name = Unquote(val->GetValue());
+        result.cpe_name = Unquote(val->AsString());
       }
       else if (val->GetName() == "HOME_URL")
       {
-        result.home_url = Unquote(val->GetValue());
+        result.home_url = Unquote(val->AsString());
       }
       else if (val->GetName() == "SUPPORT_URL")
       {
-        result.support_url = Unquote(val->GetValue());
+        result.support_url = Unquote(val->AsString());
       }
       else if (val->GetName() == "BUG_REPORT_URL")
       {
-        result.bug_report_url = Unquote(val->GetValue());
+        result.bug_report_url = Unquote(val->AsString());
       }
       else if (val->GetName() == "PRIVACY_POLICY_URL")
       {
-        result.privacy_policy_url = Unquote(val->GetValue());
+        result.privacy_policy_url = Unquote(val->AsString());
       }
       else if (val->GetName() == "BUILD_ID")
       {
-        result.build_id = Unquote(val->GetValue());
+        result.build_id = Unquote(val->AsString());
       }
       else if (val->GetName() == "VARIANT")
       {
-        result.variant = Unquote(val->GetValue());
+        result.variant = Unquote(val->AsString());
       }
       else if (val->GetName() == "VARIANT_ID")
       {
-        result.variant_id = Unquote(val->GetValue());
+        result.variant_id = Unquote(val->AsString());
       }
     }
   }
