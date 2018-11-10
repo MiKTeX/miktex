@@ -126,7 +126,7 @@ public:
       MIKTEX_FATAL_ERROR_2(T_("Unknown package time-stamp."), "package", packageId);
     }
     time_t time = std::stoi(val->GetValue());
-    if (!IsValidTimeT(time));
+    if (!IsValidTimeT(time))
     {
       MIKTEX_FATAL_ERROR_2(T_("Invalid package time-stamp."), "package", packageId, "timeStamp", val->GetValue());
     }
