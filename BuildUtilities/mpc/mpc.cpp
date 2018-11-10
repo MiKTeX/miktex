@@ -776,10 +776,10 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
   cfg->Read(PathName(stagingDir, "package.ini"));
 
   // get package ID (mandatory value)
-  if (!cfg->TryGetValue("", "id", packageInfo.id))
+  if (!cfg->TryGetValueAsString("", "id", packageInfo.id))
   {
 #if defined(SUPPORT_LEGACY_EXTERNALNAME)
-    if (!cfg->TryGetValue("", "externalname", packageInfo.id))
+    if (!cfg->TryGetValueAsString("", "externalname", packageInfo.id))
     {
       FatalError(T_("Invalid package information file (id)."));
     }
@@ -789,26 +789,26 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
   }
 
   // get display name (mandatory value)
-  if (!cfg->TryGetValue("", "name", packageInfo.displayName))
+  if (!cfg->TryGetValueAsString("", "name", packageInfo.displayName))
   {
     FatalError(T_("Invalid package information file (name)."));
   }
 
   // get creator (optional value)
-  cfg->TryGetValue("", "creator", packageInfo.creator);
+  cfg->TryGetValueAsString("", "creator", packageInfo.creator);
 
   // get title (optional value)
-  cfg->TryGetValue("", "title", packageInfo.title);
+  cfg->TryGetValueAsString("", "title", packageInfo.title);
 
   // get version (optional value)
-  cfg->TryGetValue("", "version", packageInfo.version);
+  cfg->TryGetValueAsString("", "version", packageInfo.version);
 
   // get target system (optional value)
-  cfg->TryGetValue("", "targetsystem", packageInfo.targetSystem);
+  cfg->TryGetValueAsString("", "targetsystem", packageInfo.targetSystem);
 
   // get required packages (optional value)
   string strReqList;
-  if (cfg->TryGetValue("", "requires", strReqList))
+  if (cfg->TryGetValueAsString("", "requires", strReqList))
   {
     for (const string& tok : StringUtil::Split(strReqList, ';'))
     {
@@ -818,16 +818,16 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
 
   // get TDS digest (optional value)
   string str;
-  if (cfg->TryGetValue("", "MD5", str))
+  if (cfg->TryGetValueAsString("", "MD5", str))
   {
     packageInfo.digest = MD5::Parse(str);
   }
 
 #if defined(MIKTEX_EXTENDED_PACKAGEINFO)
-  cfg->TryGetValue("", "ctan_path", packageInfo.ctanPath);
-  cfg->TryGetValue("", "copyright_owner", packageInfo.copyrightOwner);
-  cfg->TryGetValue("", "copyright_year", packageInfo.copyrightYear);
-  cfg->TryGetValue("", "license_type", packageInfo.licenseType);
+  cfg->TryGetValueAsString("", "ctan_path", packageInfo.ctanPath);
+  cfg->TryGetValueAsString("", "copyright_owner", packageInfo.copyrightOwner);
+  cfg->TryGetValueAsString("", "copyright_year", packageInfo.copyrightYear);
+  cfg->TryGetValueAsString("", "license_type", packageInfo.licenseType);
 #endif
 
   // read extra description file
@@ -1076,7 +1076,7 @@ void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>
     // write the package manifest file
     string str;
     time_t timePackaged;
-    if (repositoryManifest.TryGetValue(p.second.id, "TimePackaged", str))
+    if (repositoryManifest.TryGetValueAsString(p.second.id, "TimePackaged", str))
     {
       timePackaged = std::stoi(str);
     }
@@ -1100,7 +1100,7 @@ void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& pac
     }
     string str;
     time_t timePackaged = 0;
-    if (repositoryManifest.TryGetValue(p.second.id, "TimePackaged", str))
+    if (repositoryManifest.TryGetValueAsString(p.second.id, "TimePackaged", str))
     {
       timePackaged = std::stoi(str);
     }
@@ -1178,7 +1178,7 @@ void PackageCreator::CreateRepositoryInformationFile(const PathName& repository,
   {
     MpcPackageInfo pi = p.second;
     string str;
-    if (repositoryManifest.TryGetValue(p.second.id, "TimePackaged", str))
+    if (repositoryManifest.TryGetValueAsString(p.second.id, "TimePackaged", str))
     {
       pi.timePackaged = std::stoi(str);
     }
@@ -1555,9 +1555,9 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
     // don't remake archive file if there are no changes
     string strMD5;
     string strTimePackaged;
-    if (repositoryManifest.TryGetValue(packageInfo.id, "MD5", strMD5)
+    if (repositoryManifest.TryGetValueAsString(packageInfo.id, "MD5", strMD5)
       && MD5::Parse(strMD5.c_str()) == packageInfo.digest
-      && repositoryManifest.TryGetValue(packageInfo.id, "TimePackaged", strTimePackaged))
+      && repositoryManifest.TryGetValueAsString(packageInfo.id, "TimePackaged", strTimePackaged))
     {
       packageInfo.timePackaged = atoi(strTimePackaged.c_str());
       reuseExisting = true;
@@ -1633,9 +1633,9 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
     // keep the time-stamp, if possible
     string strMD5;
     string strTimePackaged;
-    if (repositoryManifest.TryGetValue(packageInfo.id, "MD5", strMD5)
+    if (repositoryManifest.TryGetValueAsString(packageInfo.id, "MD5", strMD5)
       && MD5::Parse(strMD5.c_str()) == packageInfo.digest
-      && repositoryManifest.TryGetValue(packageInfo.id, "TimePackaged", strTimePackaged))
+      && repositoryManifest.TryGetValueAsString(packageInfo.id, "TimePackaged", strTimePackaged))
     {
       packageInfo.timePackaged = atoi(strTimePackaged.c_str());
     }
@@ -1789,7 +1789,7 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable,
 #if 0
     // get TDS digest of already existing package
     string str;
-    if (repositoryManifest.TryGetValue(it->second.packageId, "MD5", str))
+    if (repositoryManifest.TryGetValueAsString(it->second.packageId, "MD5", str))
     {
       // don't remake archive file if there are no changes
       PathName archiveFile;
@@ -1822,7 +1822,7 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable,
     if (p.second.version.empty())
     {
       string oldVersion;
-      if (repositoryManifest.TryGetValue(p.second.id, "Version", oldVersion))
+      if (repositoryManifest.TryGetValueAsString(p.second.id, "Version", oldVersion))
       {
         repositoryManifest.DeleteValue(p.second.id, "Version");
       }
@@ -1834,7 +1834,7 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable,
     if (p.second.targetSystem.empty())
     {
       string oldTargetSystem;
-      if (repositoryManifest.TryGetValue(p.second.id, "TargetSystem", oldTargetSystem))
+      if (repositoryManifest.TryGetValueAsString(p.second.id, "TargetSystem", oldTargetSystem))
       {
         repositoryManifest.DeleteValue(p.second.id, "TargetSystem");
       }

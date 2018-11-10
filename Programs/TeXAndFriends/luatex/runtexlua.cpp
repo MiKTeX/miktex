@@ -100,7 +100,7 @@ int MAIN(int argc, MAINCHAR** argv)
     unique_ptr<Cfg> scriptConfig(Cfg::Create());
     scriptConfig->Read(scriptsIni, true);
     std::string relScriptPath;
-    if (!scriptConfig->TryGetValue(CFGKEY, scriptName, relScriptPath))
+    if (!scriptConfig->TryGetValueAsString(CFGKEY, scriptName, relScriptPath))
     {
       MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("The Lua script is not registered."), "programName", programName.ToString());
     }

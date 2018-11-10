@@ -2371,7 +2371,7 @@ void MainWindow::ReadSettings()
   unique_ptr<Cfg> settings = Cfg::Create();
   settings->Read(consoleIni);
   string s;
-  if (!settings->TryGetValue("MainWindow", "geometry", s))
+  if (!settings->TryGetValueAsString("MainWindow", "geometry", s))
   {
     return;
   }

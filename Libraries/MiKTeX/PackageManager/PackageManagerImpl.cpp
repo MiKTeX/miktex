@@ -197,7 +197,7 @@ time_t PackageManagerImpl::GetUserTimeInstalled(const string& packageId)
   }
   LoadVariablePackageTable();
   string str;
-  if (userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(packageId, "TimeInstalled", str))
+  if (userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
   {
     return std::stoi(str);
   }
@@ -211,7 +211,7 @@ time_t PackageManagerImpl::GetCommonTimeInstalled(const string& packageId)
 {
   LoadVariablePackageTable();
   string str;
-  if (commonVariablePackageTable != nullptr && commonVariablePackageTable->TryGetValue(packageId, "TimeInstalled", str))
+  if (commonVariablePackageTable != nullptr && commonVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
   {
     return std::stoi(str);
   }
@@ -225,8 +225,8 @@ time_t PackageManagerImpl::GetTimeInstalled(const string& packageId)
 {
   LoadVariablePackageTable();
   string str;
-  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(packageId, "TimeInstalled", str))
-    || commonVariablePackageTable->TryGetValue(packageId, "TimeInstalled", str))
+  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
+    || commonVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
   {
     return std::stoi(str);
   }
@@ -247,8 +247,8 @@ bool PackageManagerImpl::IsPackageObsolete(const string& packageId)
   string str;
   if ((!session->IsAdminMode()
     && userVariablePackageTable != nullptr
-    && userVariablePackageTable->TryGetValue(packageId, "Obsolete", str))
-    || commonVariablePackageTable->TryGetValue(packageId, "Obsolete", str))
+    && userVariablePackageTable->TryGetValueAsString(packageId, "Obsolete", str))
+    || commonVariablePackageTable->TryGetValueAsString(packageId, "Obsolete", str))
   {
     return std::stoi(str) != 0;
   }
@@ -315,8 +315,8 @@ RepositoryReleaseState PackageManagerImpl::GetReleaseState(const string& package
 {
   LoadVariablePackageTable();
   string str;
-  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValue(packageId, "ReleaseState", str))
-    || commonVariablePackageTable->TryGetValue(packageId, "ReleaseState", str))
+  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValueAsString(packageId, "ReleaseState", str))
+    || commonVariablePackageTable->TryGetValueAsString(packageId, "ReleaseState", str))
   {
     if (str == "stable")
     {
@@ -1514,39 +1514,39 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
   {
     if (val->GetName() == "displayName")
     {
-      packageInfo.displayName = val->GetValue();
+      packageInfo.displayName = val->AsString();
     }
     else if (val->GetName() == "creator")
     {
-      packageInfo.creator = val->GetValue();
+      packageInfo.creator = val->AsString();
     }
     else if (val->GetName() == "title")
     {
-      packageInfo.title = val->GetValue();
+      packageInfo.title = val->AsString();
     }
     else if (val->GetName() == "version")
     {
-      packageInfo.version = val->GetValue();
+      packageInfo.version = val->AsString();
     }
     else if (val->GetName() == "targetSystem")
     {
-      packageInfo.targetSystem = val->GetValue();
+      packageInfo.targetSystem = val->AsString();
     }
     else if (val->GetName() == "description[]")
     {
-      packageInfo.description = StringUtil::Flatten(val->GetMultiValue(), '\n');
+      packageInfo.description = StringUtil::Flatten(val->AsStringVector(), '\n');
     }
     else if (val->GetName() == "requiredPackages[]")
     {
-      packageInfo.requiredPackages = val->GetMultiValue();
+      packageInfo.requiredPackages = val->AsStringVector();
     }
     else if (val->GetName() == "runSize")
     {
-      packageInfo.sizeRunFiles = std::stoi(val->GetValue());
+      packageInfo.sizeRunFiles = std::stoi(val->AsString());
     }
     else if (val->GetName() == "run[]")
     {
-      for (const string& s : val->GetMultiValue())
+      for (const string& s : val->AsStringVector())
       {
         PathName path(s);
 #if defined(MIKTEX_UNIX)
@@ -1560,11 +1560,11 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "docSize")
     {
-      packageInfo.sizeDocFiles = std::stoi(val->GetValue());
+      packageInfo.sizeDocFiles = std::stoi(val->AsString());
     }
     else if (val->GetName() == "doc[]")
     {
-      for (const string& s : val->GetMultiValue())
+      for (const string& s : val->AsStringVector())
       {
         PathName path(s);
 #if defined(MIKTEX_UNIX)
@@ -1578,11 +1578,11 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "sourceSize")
     {
-      packageInfo.sizeSourceFiles = std::stoi(val->GetValue());
+      packageInfo.sizeSourceFiles = std::stoi(val->AsString());
     }
     else if (val->GetName() == "source[]")
     {
-      for (const string& s : val->GetMultiValue())
+      for (const string& s : val->AsStringVector())
       {
         PathName path(s);
 #if defined(MIKTEX_UNIX)
@@ -1596,28 +1596,28 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "timePackaged")
     {
-      packageInfo.timePackaged = std::stoi(val->GetValue());
+      packageInfo.timePackaged = std::stoi(val->AsString());
     }
     else if (val->GetName() == "digest")
     {
-      packageInfo.digest = MD5::Parse(val->GetValue());
+      packageInfo.digest = MD5::Parse(val->AsString());
     }
 #if MIKTEX_EXTENDED_PACKAGEINFO
     else if (val->GetName() == "ctanPath")
     {
-      packageInfo.ctanPath = val->GetValue();
+      packageInfo.ctanPath = val->AsString();
     }
     else if (val->GetName() == "copyrightOwner")
     {
-      packageInfo.copyrightOwner = val->GetValue();
+      packageInfo.copyrightOwner = val->AsString();
     }
     else if (val->GetName() == "copyrightYear")
     {
-      packageInfo.copyrightYear = val->GetValue();
+      packageInfo.copyrightYear = val->AsString();
     }
     else if (val->GetName() == "licenseType")
     {
-      packageInfo.licenseType = val->GetValue();
+      packageInfo.licenseType = val->AsString();
     }
 #endif
   }

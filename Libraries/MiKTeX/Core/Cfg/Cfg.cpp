@@ -119,7 +119,7 @@ public:
   }
 
 public:
-  string MIKTEXTHISCALL GetValue() const override
+  string MIKTEXTHISCALL AsString() const override
   {
     if (IsMultiValue())
     {
@@ -132,7 +132,7 @@ public:
   }
 
 public:
-  vector<string> MIKTEXTHISCALL GetMultiValue() const override
+  vector<string> MIKTEXTHISCALL AsStringVector() const override
   {
     if (IsMultiValue())
     {
@@ -466,10 +466,10 @@ public:
   shared_ptr<Value> MIKTEXTHISCALL GetValue(const string& keyName, const string& valueName) const override;
 
 public:
-  bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, string& value) const override;
+  bool MIKTEXTHISCALL TryGetValueAsString(const string& keyName, const string& valueName, string& value) const override;
 
 public:
-  bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, vector<string>& value) const override;
+  bool MIKTEXTHISCALL TryGetValueAsStringVector(const string& keyName, const string& valueName, vector<string>& value) const override;
 
 public:
   void MIKTEXTHISCALL SetModified(bool b) override;
@@ -780,25 +780,25 @@ shared_ptr<Cfg::Value> CfgImpl::GetValue(const string& keyName, const string& va
   return value == nullptr || value->IsCommentedOut() ? nullptr : value;
 }
 
-bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, string& outValue) const
+bool CfgImpl::TryGetValueAsString(const string& keyName, const string& valueName, string& outValue) const
 {
   shared_ptr<Value> value = GetValue(keyName, valueName);
   if (value == nullptr)
   {
     return false;
   }
-  outValue = value->GetValue();
+  outValue = value->AsString();
   return true;
 }
 
-bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, vector<string>& outValue) const
+bool CfgImpl::TryGetValueAsStringVector(const string& keyName, const string& valueName, vector<string>& outValue) const
 {
   shared_ptr<Value> value = GetValue(keyName, valueName);
   if (value == nullptr)
   {
     return false;
   }
-  outValue = value->GetMultiValue();
+  outValue = value->AsStringVector();
   return true;
 }
 

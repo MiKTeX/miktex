@@ -97,7 +97,7 @@ bool MiKTeXException::Load(const string& path, MiKTeXException& ex)
     for (const auto& val : *key)
     {
       string valueName = val->GetName();
-      string value = val->GetValue();
+      string value = val->AsString();
       if (keyName == "general")
       {
         result = true;

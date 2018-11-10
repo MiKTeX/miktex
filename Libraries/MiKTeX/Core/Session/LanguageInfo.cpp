@@ -64,35 +64,35 @@ void SessionImpl::ReadLanguagesIni(const PathName& cfgFile)
     string val;
     languageInfo.cfgFile = cfgFile;
     languageInfo.key = key->GetName();
-    if (cfgLanguages->TryGetValue(key->GetName(), "synonyms", val))
+    if (cfgLanguages->TryGetValueAsString(key->GetName(), "synonyms", val))
     {
       languageInfo.synonyms = val;
     }
-    if (cfgLanguages->TryGetValue(key->GetName(), "loader", val))
+    if (cfgLanguages->TryGetValueAsString(key->GetName(), "loader", val))
     {
       languageInfo.loader = val;
     }
-    if (cfgLanguages->TryGetValue(key->GetName(), "patterns", val))
+    if (cfgLanguages->TryGetValueAsString(key->GetName(), "patterns", val))
     {
       languageInfo.patterns = val;
     }
-    if (cfgLanguages->TryGetValue(key->GetName(), "hyphenation", val))
+    if (cfgLanguages->TryGetValueAsString(key->GetName(), "hyphenation", val))
     {
       languageInfo.hyphenation = val;
     }
-    if (cfgLanguages->TryGetValue(key->GetName(), "luaspecial", val))
+    if (cfgLanguages->TryGetValueAsString(key->GetName(), "luaspecial", val))
     {
       languageInfo.luaspecial = val;
     }
-    if (cfgLanguages->TryGetValue(key->GetName(), "lefthyphenmin", val))
+    if (cfgLanguages->TryGetValueAsString(key->GetName(), "lefthyphenmin", val))
     {
       languageInfo.lefthyphenmin = std::stoi(val);
     }
-    if (cfgLanguages->TryGetValue(key->GetName(), "righthyphenmin", val))
+    if (cfgLanguages->TryGetValueAsString(key->GetName(), "righthyphenmin", val))
     {
       languageInfo.righthyphenmin = std::stoi(val);
     }
-    if (cfgLanguages->TryGetValue(key->GetName(), "attributes", val))
+    if (cfgLanguages->TryGetValueAsString(key->GetName(), "attributes", val))
     {
       languageInfo.exclude = (val == "exclude");
     }

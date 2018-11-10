@@ -56,9 +56,9 @@ public:
   public:
     virtual std::string MIKTEXTHISCALL GetName() const = 0;
   public:
-    virtual std::string MIKTEXTHISCALL GetValue() const = 0;
+    virtual std::string MIKTEXTHISCALL AsString() const = 0;
   public:
-    virtual std::vector<std::string> GetMultiValue() const = 0;
+    virtual std::vector<std::string> AsStringVector() const = 0;
   public:
     virtual std::string MIKTEXTHISCALL GetDocumentation() const = 0;
   public:
@@ -166,11 +166,11 @@ public:
 
   /// Gets a configuration value.
 public:
-  virtual bool MIKTEXTHISCALL TryGetValue(const std::string& keyName, const std::string& valueName, std::string& value) const = 0;
+  virtual bool MIKTEXTHISCALL TryGetValueAsString(const std::string& keyName, const std::string& valueName, std::string& value) const = 0;
 
   /// Gets a configuration value.
 public:
-  virtual bool MIKTEXTHISCALL TryGetValue(const std::string& keyName, const std::string& valueName, std::vector<std::string>& value) const = 0;
+  virtual bool MIKTEXTHISCALL TryGetValueAsStringVector(const std::string& keyName, const std::string& valueName, std::vector<std::string>& value) const = 0;
 
   /// Marks this Cfg object as modified.
 public:

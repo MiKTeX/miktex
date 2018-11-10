@@ -579,13 +579,13 @@ void InverseSearchOptionsPage::CollectEditors()
         {
           MIKTEX_UNEXPECTED();
         }
-        string program = value->GetValue();
+        string program = value->AsString();
         value = pCfg->GetValue(key->GetName(), "arguments");
         if (value == nullptr)
         {
           MIKTEX_UNEXPECTED();
         }
-        string arguments = value->GetValue();
+        string arguments = value->AsString();
         editors.push_back(EditorInfo(key->GetName(), program, arguments));
       }
     }

@@ -998,11 +998,11 @@ void Application::ImportPackage(const string& packageId, vector<string>& toBeins
     Error(fmt::format(T_("Cannot import package {0}."), packageId));
   }
   string str;
-  if (!cfg->TryGetValue(packageId, "TimeInstalled", str) || str.empty() || str == "0")
+  if (!cfg->TryGetValueAsString(packageId, "TimeInstalled", str) || str.empty() || str == "0")
   {
     Error(fmt::format(T_("Package {0} is not installed."), packageId));
   }
-  if (cfg->TryGetValue(packageId, T_("Obsolete"), str) && str == "1")
+  if (cfg->TryGetValueAsString(packageId, T_("Obsolete"), str) && str == "1")
   {
     Error(fmt::format(T_("Package {0} is obsolete."), packageId));
   }
@@ -1039,11 +1039,11 @@ void Application::ImportPackages(vector<string>& toBeinstalled)
       continue;
     }
     string str;
-    if (!cfg->TryGetValue(key->GetName(), "TimeInstalled", str) || str.empty() || str == "0")
+    if (!cfg->TryGetValueAsString(key->GetName(), "TimeInstalled", str) || str.empty() || str == "0")
     {
       continue;
     }
-    if (cfg->TryGetValue(key->GetName(), "Obsolete", str) && str == "1")
+    if (cfg->TryGetValueAsString(key->GetName(), "Obsolete", str) && str == "1")
     {
       continue;
     }

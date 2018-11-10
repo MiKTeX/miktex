@@ -90,7 +90,7 @@ void SessionImpl::ReadFormatsIni(const PathName& cfgFile)
     string val;
     formatInfo.cfgFile = cfgFile;
     formatInfo.key = key->GetName();
-    if (cfgFormats->TryGetValue(key->GetName(), "name", val))
+    if (cfgFormats->TryGetValueAsString(key->GetName(), "name", val))
     {
       formatInfo.name = val;
     }
@@ -98,27 +98,27 @@ void SessionImpl::ReadFormatsIni(const PathName& cfgFile)
     {
       formatInfo.name = key->GetName();
     }
-    if (cfgFormats->TryGetValue(key->GetName(), "description", val))
+    if (cfgFormats->TryGetValueAsString(key->GetName(), "description", val))
     {
       formatInfo.description = val;
     }
-    if (cfgFormats->TryGetValue(key->GetName(), "compiler", val))
+    if (cfgFormats->TryGetValueAsString(key->GetName(), "compiler", val))
     {
       formatInfo.compiler = val;
     }
-    if (cfgFormats->TryGetValue(key->GetName(), "input", val))
+    if (cfgFormats->TryGetValueAsString(key->GetName(), "input", val))
     {
       formatInfo.inputFile = val;
     }
-    if (cfgFormats->TryGetValue(key->GetName(), "output", val))
+    if (cfgFormats->TryGetValueAsString(key->GetName(), "output", val))
     {
       formatInfo.outputFile = val;
     }
-    if (cfgFormats->TryGetValue(key->GetName(), "preloaded", val))
+    if (cfgFormats->TryGetValueAsString(key->GetName(), "preloaded", val))
     {
       formatInfo.preloaded = val;
     }
-    if (cfgFormats->TryGetValue(key->GetName(), "attributes", val))
+    if (cfgFormats->TryGetValueAsString(key->GetName(), "attributes", val))
     {
       formatInfo.exclude = false;
       formatInfo.noExecutable = false;
@@ -134,7 +134,7 @@ void SessionImpl::ReadFormatsIni(const PathName& cfgFile)
         }
       }
     }
-    if (cfgFormats->TryGetValue(key->GetName(), "arguments", val))
+    if (cfgFormats->TryGetValueAsString(key->GetName(), "arguments", val))
     {
       formatInfo.arguments = val;
     }

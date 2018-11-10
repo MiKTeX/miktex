@@ -50,10 +50,10 @@ public:
   void Save();
 
 public:
-  bool TryGetValue(const std::string& keyName, const std::string& valueName, std::string& value);
+  bool TryGetValueAsString(const std::string& keyName, const std::string& valueName, std::string& value);
 
 public:
-  bool TryGetValue(Scope scope, const std::string& keyName, const std::string& valueName, std::string& value);
+  bool TryGetValueAsString(Scope scope, const std::string& keyName, const std::string& valueName, std::string& value);
 
 public:
   void PutValue(const std::string& keyName, const std::string& valueName, const std::string& value);

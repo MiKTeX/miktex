@@ -66,7 +66,7 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
   unique_ptr<Cfg> config(Cfg::Create());
   config->Read(scriptsIni, true);
   string relScriptPath;
-  if (!config->TryGetValue(scriptEngine, name.ToString(), relScriptPath))
+  if (!config->TryGetValueAsString(scriptEngine, name.ToString(), relScriptPath))
   {
     MIKTEX_FATAL_ERROR_2(T_("The script is not registered."), "scriptEngine", scriptEngine, "scriptName", name.ToString());
   }
@@ -80,7 +80,7 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
 
   vector<string> args{ scriptEngine };
   vector<string> scriptEngineOptions;
-  if (config->TryGetValue(scriptEngine, name.ToString() + "." + scriptEngine + "." + "options" + "[]", scriptEngineOptions))
+  if (config->TryGetValueAsStringVector(scriptEngine, name.ToString() + "." + scriptEngine + "." + "options" + "[]", scriptEngineOptions))
   {
     args.insert(args.end(), scriptEngineOptions.begin(), scriptEngineOptions.end());
   }

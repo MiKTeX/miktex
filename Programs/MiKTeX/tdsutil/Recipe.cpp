@@ -151,7 +151,7 @@ void Recipe::Execute(bool printOnly)
   this->printOnly = printOnly;
   if (format.empty())
   {
-    if (!recipe->TryGetValue("general", "format", format))
+    if (!recipe->TryGetValueAsString("general", "format", format))
     {
       format = standardFormat;
     }
@@ -159,7 +159,7 @@ void Recipe::Execute(bool printOnly)
   }
   if (foundry.empty())
   {
-    if (!recipe->TryGetValue("general", "foundry", foundry))
+    if (!recipe->TryGetValueAsString("general", "foundry", foundry))
     {
       foundry = standardFoundry;
     }
@@ -240,7 +240,7 @@ void Recipe::Prepare()
 {
   WriteFiles();
   vector<string> actions;
-  if (recipe->TryGetValue("prepare", "actions[]", actions))
+  if (recipe->TryGetValueAsStringVector("prepare", "actions[]", actions))
   {
     for (const string& action : actions)
     {
@@ -253,7 +253,7 @@ void Recipe::Prepare()
 void Recipe::Finalize()
 {
   vector<string> actions;
-  if (recipe->TryGetValue("finalize", "actions[]", actions))
+  if (recipe->TryGetValueAsStringVector("finalize", "actions[]", actions))
   {
     for (const string& action : actions)
     {
@@ -266,10 +266,10 @@ void Recipe::WriteFiles()
 {
   string file;
   string fileName;
-  for (int n = 1; recipe->TryGetValue(file = ("file." + std::to_string(n)), "filename", fileName); ++n)
+  for (int n = 1; recipe->TryGetValueAsString(file = ("file." + std::to_string(n)), "filename", fileName); ++n)
   {
     vector<string> lines;
-    if (!recipe->TryGetValue(file, "lines[]", lines))
+    if (!recipe->TryGetValueAsStringVector(file, "lines[]", lines))
     {
       MIKTEX_FATAL_ERROR(T_("missing lines"));
     }
@@ -447,17 +447,17 @@ void Recipe::RunInsEngine(const string& engine, const vector<string>& options, c
 void Recipe::RunDtxUnpacker()
 {
   string engine;
-  if (!recipe->TryGetValue("ins", "engine", engine))
+  if (!recipe->TryGetValueAsString("ins", "engine", engine))
   {
     engine = standardInsEngine;
   }
   vector<string> options;
-  if (!recipe->TryGetValue("ins", "options[]", options))
+  if (!recipe->TryGetValueAsStringVector("ins", "options[]", options))
   {
     options = standardInsOptions;
   }
   vector<string> patterns;
-  if (!recipe->TryGetValue("patterns", "ins[]", patterns))
+  if (!recipe->TryGetValueAsStringVector("patterns", "ins[]", patterns))
   {
     patterns = standardInsPatterns;
   }
@@ -473,7 +473,7 @@ void Recipe::RunDtxUnpacker()
   }
   if (insFiles.empty())
   {
-    if (!recipe->TryGetValue("patterns", "dtx[]", patterns))
+    if (!recipe->TryGetValueAsStringVector("patterns", "dtx[]", patterns))
     {
       patterns = standardDtxPatterns;
     }
@@ -509,7 +509,7 @@ void Recipe::RunDtxUnpacker()
 void Recipe::InstallFiles(const string& patternName, const vector<string>& defaultPatterns, const PathName& tdsDir)
 {
   vector<string> patterns;
-  if (!recipe->TryGetValue("patterns", patternName + "[]", patterns))
+  if (!recipe->TryGetValueAsStringVector("patterns", patternName + "[]", patterns))
   {
     patterns = defaultPatterns;
   }
@@ -520,10 +520,10 @@ void Recipe::InstallFileSets()
 {
   string fileset;
   string tdsdir;
-  for (int n = 1; recipe->TryGetValue(fileset = ("fileset." + std::to_string(n)), "tdsdir", tdsdir); ++n)
+  for (int n = 1; recipe->TryGetValueAsString(fileset = ("fileset." + std::to_string(n)), "tdsdir", tdsdir); ++n)
   {
     vector<string> patterns;
-    if (!recipe->TryGetValue(fileset, "patterns[]", patterns))
+    if (!recipe->TryGetValueAsStringVector(fileset, "patterns[]", patterns))
     {
       MIKTEX_FATAL_ERROR(T_("missing file patterns"));
     }

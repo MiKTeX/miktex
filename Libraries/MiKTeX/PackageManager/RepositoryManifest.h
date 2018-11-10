@@ -88,47 +88,47 @@ public:
   int GetArchiveFileSize(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "CabSize");
-    if (val == nullptr || val->GetValue().empty())
+    if (val == nullptr || val->AsString().empty())
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown archive file size."), "package", packageId);
     }
-    return std::stoi(val->GetValue());
+    return std::stoi(val->AsString());
   }
 
 public:
   MiKTeX::Core::MD5 GetArchiveFileDigest(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "CabMD5");
-    if (val == nullptr || val->GetValue().empty())
+    if (val == nullptr || val->AsString().empty())
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown archive file digest."), "package", packageId);
     }
-    return MiKTeX::Core::MD5::Parse(val->GetValue());
+    return MiKTeX::Core::MD5::Parse(val->AsString());
   }
 
 public:
   MiKTeX::Core::MD5 GetPackageDigest(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "MD5");
-    if (val == nullptr || val->GetValue().empty())
+    if (val == nullptr || val->AsString().empty())
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown package digest."), "package", packageId);
     }
-    return MiKTeX::Core::MD5::Parse(val->GetValue());
+    return MiKTeX::Core::MD5::Parse(val->AsString());
   }
 
 public:
   time_t GetTimePackaged(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "TimePackaged");
-    if (val == nullptr || val->GetValue().empty())
+    if (val == nullptr || val->AsString().empty())
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown package time-stamp."), "package", packageId);
     }
-    time_t time = std::stoi(val->GetValue());
+    time_t time = std::stoi(val->AsString());
     if (!IsValidTimeT(time))
     {
-      MIKTEX_FATAL_ERROR_2(T_("Invalid package time-stamp."), "package", packageId, "timeStamp", val->GetValue());
+      MIKTEX_FATAL_ERROR_2(T_("Invalid package time-stamp."), "package", packageId, "timeStamp", val->AsString());
     }
     return time;
   }
@@ -137,46 +137,46 @@ public:
   PackageLevel GetPackageLevel(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "Level");
-    if (val == nullptr || val->GetValue().empty())
+    if (val == nullptr || val->AsString().empty())
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown package level."), "package", packageId);
     }
-    return CharToPackageLevel(val->GetValue()[0]);
+    return CharToPackageLevel(val->AsString()[0]);
   }
 
 public:
   std::string GetPackageVersion(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "Version");
-    return val == nullptr ? "" : val->GetValue();
+    return val == nullptr ? "" : val->AsString();
   }
 
 public:
   std::string GetPackageTargetSystem(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "TargetSystem");
-    return val == nullptr ? "" : val->GetValue();
+    return val == nullptr ? "" : val->AsString();
   }
 
 public:
   MiKTeX::Extractor::ArchiveFileType GetArchiveFileType(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "Type");
-    if (val == nullptr || val->GetValue().empty() || val->GetValue() == "MSCab")
+    if (val == nullptr || val->AsString().empty() || val->AsString() == "MSCab")
     {
       return MiKTeX::Extractor::ArchiveFileType::MSCab;
     }
-    else if (val->GetValue() == "TarBzip2")
+    else if (val->AsString() == "TarBzip2")
     {
       return MiKTeX::Extractor::ArchiveFileType::TarBzip2;
     }
-    else if (val->GetValue() == "TarLzma")
+    else if (val->AsString() == "TarLzma")
     {
       return MiKTeX::Extractor::ArchiveFileType::TarLzma;
     }
     else
     {
-      MIKTEX_FATAL_ERROR_2(T_("Unknown archive file type."), "package", packageId, "type", val->GetValue());
+      MIKTEX_FATAL_ERROR_2(T_("Unknown archive file type."), "package", packageId, "type", val->AsString());
     }
   }
 

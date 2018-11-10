@@ -1322,5 +1322,5 @@ bool Utils::IsMiKTeXDirectRoot(const PathName& root)
   unique_ptr<Cfg> cfg(Cfg::Create());
   cfg->Read(path);
   string str;
-  return cfg->TryGetValue("Auto", "Config", str) && str == "Direct";
+  return cfg->TryGetValueAsString("Auto", "Config", str) && str == "Direct";
 }

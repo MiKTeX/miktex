@@ -250,7 +250,7 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
 
   string str;
 
-  if (cfg->TryGetValue("Auto", "Config", str))
+  if (cfg->TryGetValueAsString("Auto", "Config", str))
   {
     if (str == "Regular")
     {
@@ -275,27 +275,27 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
 
   if (common)
   {
-    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_ROOTS, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_COMMON_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonRoots = str;
     }
-    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_OTHER_COMMON_ROOTS, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_OTHER_COMMON_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.otherCommonRoots = str;
     }
-    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_INSTALL, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_COMMON_INSTALL, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonInstallRoot = str;
     }
-    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_DATA, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_COMMON_DATA, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonDataRoot = str;
     }
-    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_CONFIG, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_COMMON_CONFIG, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonConfigRoot = str;
@@ -303,27 +303,27 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
   }
   if (!common || AdminControlsUserConfig())
   {
-    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_ROOTS, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.userRoots = str;
     }
-    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_OTHER_USER_ROOTS, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_OTHER_USER_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.otherUserRoots = str;
     }
-    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_INSTALL, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_INSTALL, str))
     {
       Absolutize(str, relativeFrom);
       ret.userInstallRoot = str;
     }
-    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_DATA, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_DATA, str))
     {
       Absolutize(str, relativeFrom);
       ret.userDataRoot = str;
     }
-    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_CONFIG, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_CONFIG, str))
     {
       Absolutize(str, relativeFrom);
       ret.userConfigRoot = str;
@@ -769,7 +769,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 #endif
 
     // try configuration file
-    if (cfg != nullptr && cfg->TryGetValue(defaultSectionName, valueName, value))
+    if (cfg != nullptr && cfg->TryGetValueAsString(defaultSectionName, valueName, value))
     {
       haveValue = true;
       break;
@@ -897,7 +897,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
       istream reader(&buf);
       cfg->Read(reader);
     }
-    if (cfg->TryGetValue(sectionName, valueName, value))
+    if (cfg->TryGetValueAsString(sectionName, valueName, value))
     {
       haveValue = true;
     }

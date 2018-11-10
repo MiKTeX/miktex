@@ -267,7 +267,7 @@ bool SetupService::IsMiKTeXDirect(PathName& root)
   unique_ptr<Cfg> pcfg(Cfg::Create());
   pcfg->Read(pathStartupConfig);
   string str;
-  if (!pcfg->TryGetValue("Auto", "Config", str) || str != "Direct")
+  if (!pcfg->TryGetValueAsString("Auto", "Config", str) || str != "Direct")
   {
     return false;
   }

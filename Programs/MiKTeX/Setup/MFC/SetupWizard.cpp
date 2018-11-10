@@ -117,7 +117,7 @@ BOOL SetupWizard::OnInitDialog()
       {
         MIKTEX_UNEXPECTED();
       }
-      version += UT_(value->GetValue().c_str());
+      version += UT_(value->AsString().c_str());
       switch (SetupApp::Instance->GetPackageLevel())
       {
       case PackageLevel::Essential:

@@ -450,25 +450,25 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo& info)
     }
     unique_ptr<Cfg> cfg = Cfg::Create();
     cfg->Read(userInfoFile, true);
-    if (!cfg->TryGetValue("user", "id", result.userid))
+    if (!cfg->TryGetValueAsString("user", "id", result.userid))
     {
       result.userid = "";
     }
-    if (!cfg->TryGetValue("user", "name", result.name))
+    if (!cfg->TryGetValueAsString("user", "name", result.name))
     {
       result.name = "";
     }
-    if (!cfg->TryGetValue("user", "organization", result.organization))
+    if (!cfg->TryGetValueAsString("user", "organization", result.organization))
     {
       result.organization = "";
     }
-    if (!cfg->TryGetValue("user", "email", result.email))
+    if (!cfg->TryGetValueAsString("user", "email", result.email))
     {
       result.email = "";
     }
     string str;
     int year, month, day;
-    if (cfg->TryGetValue("membership", "expirationdate", str) && sscanf(str.c_str(), "%d-%d-%d", &year, &month, &day) == 3 && year >= 1970 && month >= 1 && month <= 12 && day >= 1 && day <= 31)
+    if (cfg->TryGetValueAsString("membership", "expirationdate", str) && sscanf(str.c_str(), "%d-%d-%d", &year, &month, &day) == 3 && year >= 1970 && month >= 1 && month <= 12 && day >= 1 && day <= 31)
     {
       struct tm date;
       memset(&date, 0, sizeof(date));
@@ -485,7 +485,7 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo& info)
     {
       result.expirationDate = static_cast<time_t>(-1);
     }
-    if (cfg->TryGetValue("membership", "level", str))
+    if (cfg->TryGetValueAsString("membership", "level", str))
     {
       if (Utils::EqualsIgnoreCase(str, "individual"))
       {
@@ -502,7 +502,7 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo& info)
     }
     result.role = 0;
     vector<string> roles;
-    if (cfg->TryGetValue("membership", "roles[]", roles))
+    if (cfg->TryGetValueAsStringVector("membership", "roles[]", roles))
     {
       for (const auto& r : roles)
       {

@@ -262,7 +262,7 @@ private:
     if (value == defaultValue)
     {
       string s;
-      if (pCfg->TryGetValue(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, s))
+      if (pCfg->TryGetValueAsString(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, s))
       {
         pCfg->DeleteValue(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName);
       }
@@ -277,7 +277,7 @@ private:
   template<typename ValueType> ValueType GetValue(const char* lpszKeyName, const char* lpszValueName, const ValueType& defaultValue)
   {
     string value;
-    if (pCfg->TryGetValue(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
+    if (pCfg->TryGetValueAsString(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
     {
       return static_cast<ValueType>(atoi(value.c_str()));
     }
@@ -291,7 +291,7 @@ private:
   template<> bool GetValue(const char* lpszKeyName, const char* lpszValueName, const bool& defaultValue)
   {
     string value;
-    if (pCfg->TryGetValue(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
+    if (pCfg->TryGetValueAsString(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
     {
       return atoi(value.c_str()) == 0 ? false : true;
     }
@@ -305,7 +305,7 @@ private:
   template<> double GetValue(const char* lpszKeyName, const char* lpszValueName, const double& defaultValue)
   {
     string value;
-    if (pCfg->TryGetValue(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
+    if (pCfg->TryGetValueAsString(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
     {
       return atof(value.c_str());
     }
@@ -319,7 +319,7 @@ private:
   template<> string GetValue(const char* lpszKeyName, const char* lpszValueName, const string& defaultValue)
   {
     string value;
-    if (pCfg->TryGetValue(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
+    if (pCfg->TryGetValueAsString(lpszKeyName == nullptr ? "" : lpszKeyName, lpszValueName, value))
     {
       return value;
     }

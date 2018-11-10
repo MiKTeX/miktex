@@ -74,20 +74,20 @@ void ComboCfg::Save()
   }
 }
 
-bool ComboCfg::TryGetValue(const std::string& keyName, const std::string& valueName, std::string& value)
+bool ComboCfg::TryGetValueAsString(const std::string& keyName, const std::string& valueName, std::string& value)
 {
-  return !session->IsAdminMode() && cfgUser != nullptr && cfgUser->TryGetValue(keyName, valueName, value)
-    || cfgCommon->TryGetValue(keyName, valueName, value);
+  return !session->IsAdminMode() && cfgUser != nullptr && cfgUser->TryGetValueAsString(keyName, valueName, value)
+    || cfgCommon->TryGetValueAsString(keyName, valueName, value);
 }
 
-bool ComboCfg::TryGetValue(ComboCfg::Scope scope, const string& keyName, const string& valueName, string& value)
+bool ComboCfg::TryGetValueAsString(ComboCfg::Scope scope, const string& keyName, const string& valueName, string& value)
 {
   switch (scope)
   {
   case Scope::User:
-    return cfgUser != nullptr && cfgUser->TryGetValue(keyName, valueName, value);
+    return cfgUser != nullptr && cfgUser->TryGetValueAsString(keyName, valueName, value);
   case Scope::Common:
-    return cfgCommon != nullptr && cfgCommon->TryGetValue(keyName, valueName, value);
+    return cfgCommon != nullptr && cfgCommon->TryGetValueAsString(keyName, valueName, value);
   }
 }
 
@@ -190,7 +190,7 @@ bool PackageRepositoryDataStore::TryGetRepositoryInfo(const string& url, Reposit
     {
       MIKTEX_UNEXPECTED();
     }
-    repositoryInfo.timeDate = std::stoi(value->GetValue());
+    repositoryInfo.timeDate = std::stoi(value->AsString());
     return true;
   }
   else
@@ -319,15 +319,15 @@ void PackageRepositoryDataStore::LoadVarData(RepositoryInfo& repositoryInfo)
 {
   string key = MakeKey(repositoryInfo.url);
   string val;
-  if (comboCfg.TryGetValue(key, "LastCheckTime", val))
+  if (comboCfg.TryGetValueAsString(key, "LastCheckTime", val))
   {
     repositoryInfo.lastCheckTime = std::stoi(val);
   }
-  if (comboCfg.TryGetValue(key, "LastVisitTime", val))
+  if (comboCfg.TryGetValueAsString(key, "LastVisitTime", val))
   {
     repositoryInfo.lastVisitTime = std::stoi(val);
   }
-  if (comboCfg.TryGetValue(key, "DataTransferRate", val))
+  if (comboCfg.TryGetValueAsString(key, "DataTransferRate", val))
   {
     repositoryInfo.dataTransferRate = std::stod(val);
   }

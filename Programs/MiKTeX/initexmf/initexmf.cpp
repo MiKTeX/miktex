@@ -1771,7 +1771,7 @@ void IniTeXMFApp::MakeScriptsExecutable()
     for (const shared_ptr<Cfg::Value>& val : *key)
     {
       PathName scriptPath;
-      if (!session->FindFile(val->GetValue(), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
+      if (!session->FindFile(val->AsString(), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
       {
         continue;
       }

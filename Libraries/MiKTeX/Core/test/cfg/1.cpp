@@ -41,11 +41,11 @@ BEGIN_TEST_FUNCTION(1);
   TESTX(cfg = Cfg::Create());
   TESTX(cfg->PutValue("ABC", "xYz", "abrakadabraa"));
   TESTX(cfg->PutValue("AbC", "xyZ", "abrakadabra"));
-  TEST(cfg->GetValue("abc", "xyz")->GetValue() == "abrakadabra");
+  TEST(cfg->GetValue("abc", "xyz")->AsString() == "abrakadabra");
   TESTX(cfg->PutValue("abc", "arr[]", "abc"));
   TESTX(cfg->PutValue("abc", "arr[]", "def"));
   vector<string> arr;
-  TEST(cfg->TryGetValue("abc", "arr[]", arr));
+  TEST(cfg->TryGetValueAsStringVector("abc", "arr[]", arr));
   TEST(arr.size() == 2 && arr[0] == "abc" && arr[1] == "def");
   TESTX(cfg->PutValue("abc", "empty", ""));
   TESTX(cfg->Write("test.ini"));
@@ -57,14 +57,14 @@ BEGIN_TEST_FUNCTION(2);
   shared_ptr<Cfg> cfg;
   TESTX(cfg = Cfg::Create());
   TESTX(cfg->Read("test.ini"));
-  TEST(cfg->GetValue("abc", "xyz")->GetValue() == "abrakadabra");
+  TEST(cfg->GetValue("abc", "xyz")->AsString() == "abrakadabra");
   TESTX(cfg->DeleteValue("abc", "xyz"));
   string value;
-  TEST(!cfg->TryGetValue("abc", "xyz", value));
+  TEST(!cfg->TryGetValueAsString("abc", "xyz", value));
   vector<string> arr;
-  TEST(cfg->TryGetValue("abc", "arr[]", arr));
+  TEST(cfg->TryGetValueAsStringVector("abc", "arr[]", arr));
   TEST(arr.size() == 2 && arr[0] == "abc" && arr[1] == "def");
-  TEST(cfg->GetValue("abc", "empty")->GetValue() == "");
+  TEST(cfg->GetValue("abc", "empty")->AsString() == "");
 }
 END_TEST_FUNCTION();
 
@@ -82,13 +82,13 @@ BEGIN_TEST_FUNCTION(3);
   TESTX(cfg = Cfg::Create());
   TESTX(cfg->Read("test2.ini"));
   vector<string> arr1;
-  TEST(cfg->TryGetValue("sec1", "arr1[]", arr1));
+  TEST(cfg->TryGetValueAsStringVector("sec1", "arr1[]", arr1));
   TEST(arr1.size() == 2 && arr1[0] == "abc" && arr1[1] == "");
   vector<string> arr2;
-  TEST(cfg->TryGetValue("sec1", "arr2[]", arr2));
+  TEST(cfg->TryGetValueAsStringVector("sec1", "arr2[]", arr2));
   TEST(arr2.size() == 0);
   vector<string> arr3;
-  TEST(!cfg->TryGetValue("sec1", "arr3[]", arr3));
+  TEST(!cfg->TryGetValueAsStringVector("sec1", "arr3[]", arr3));
 }
 END_TEST_FUNCTION();
 
@@ -142,7 +142,7 @@ BEGIN_TEST_FUNCTION(7);
   TESTX(cfg = Cfg::Create());
   istringstream reader("[sec1]\nfoo=bar\n[sec2]\nfoo=bar\n");
   TESTX(cfg->Read(reader));
-  TEST(cfg->GetValue("sec2", "foo")->GetValue() == "bar");
+  TEST(cfg->GetValue("sec2", "foo")->AsString() == "bar");
 }
 END_TEST_FUNCTION();
 
@@ -159,7 +159,7 @@ BEGIN_TEST_FUNCTION(8);
     keys.push_back(key->GetName());
     for (auto val : *key)
     {
-      values.push_back(val->GetValue());
+      values.push_back(val->AsString());
     }
   }
   TEST(keys.size() == 2);

@@ -131,7 +131,7 @@ void DoPrintClasses(Cfg& cfg)
     cout << "class " << key->GetName() << " {" << endl;
     for (const shared_ptr<Cfg::Value>& val : *key)
     {
-      string value = val->GetValue();
+      string value = val->AsString();
       char* endptr = nullptr;
       strtol(value.c_str(), &endptr, 0);
       bool isNumber = endptr == nullptr || *endptr == 0;
