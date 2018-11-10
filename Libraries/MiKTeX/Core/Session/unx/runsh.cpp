@@ -49,7 +49,7 @@ int SessionImpl::RunSh(int argc, const char** argv)
   unique_ptr<Cfg> config(Cfg::Create());
   config->Read(scriptsIni, true);
   string relScriptPath;
-  if (!config->TryGetValue("sh", name.ToString(), relScriptPath))
+  if (!config->TryGetValueAsString("sh", name.ToString(), relScriptPath))
   {
     MIKTEX_FATAL_ERROR_2(T_("The shell script is not registered."), "script", name.ToString());
   }
