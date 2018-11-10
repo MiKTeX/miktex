@@ -439,13 +439,10 @@ void PackageInstallerImpl::LoadRepositoryManifest(bool download)
   }
 
   // load mpm.ini
-  repositoryManifest.Read(pathMpmIni);
+  repositoryManifest.Load(pathMpmIni);
 
   // report digest
-#if 0
-  MD5 md5 = MD5::FromFile(pathMpmIni.GetData());
-#endif
-  ReportLine(fmt::format(T_("package repository digest: {0}"), repositoryManifest.GetDigest().ToString()));
+  ReportLine(fmt::format(T_("package repository digest: {0}"), repositoryManifest.GetDigest()));
 }
 
 int CompareSerieses(const string& ver1, const string& ver2)
@@ -493,8 +490,8 @@ void PackageInstallerImpl::FindUpdates()
 
 #if IGNORE_OTHER_SYSTEMS
     string targetSystem = repositoryManifest.GetPackageTargetSystem(packageId);
-    bool isOthertargetSystem = !(targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG);
-    if (isOthertargetSystem)
+    bool isOtherTargetSystem = !(targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG);
+    if (isOtherTargetSystem)
     {
       continue;
     }

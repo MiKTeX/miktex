@@ -86,6 +86,7 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/PackageRepositoryDataStore.h
   ${CMAKE_CURRENT_SOURCE_DIR}/RemoteService.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/RemoteService.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/RepositoryManifest.h
   ${CMAKE_CURRENT_SOURCE_DIR}/RestRemoteService.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/RestRemoteService.h
   ${CMAKE_CURRENT_SOURCE_DIR}/TpmParser.cpp
