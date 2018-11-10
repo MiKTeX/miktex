@@ -37,6 +37,7 @@
 #include <miktex/Core/Registry>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/Uri>
+#include <miktex/Core/Utils>
 
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
@@ -199,7 +200,7 @@ time_t PackageManagerImpl::GetUserTimeInstalled(const string& packageId)
   string str;
   if (userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
   {
-    return std::stoi(str);
+    return Utils::ToTimeT(str);
   }
   else
   {
@@ -213,7 +214,7 @@ time_t PackageManagerImpl::GetCommonTimeInstalled(const string& packageId)
   string str;
   if (commonVariablePackageTable != nullptr && commonVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
   {
-    return std::stoi(str);
+    return Utils::ToTimeT(str);
   }
   else
   {
@@ -228,7 +229,7 @@ time_t PackageManagerImpl::GetTimeInstalled(const string& packageId)
   if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
     || commonVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
   {
-    return std::stoi(str);
+    return Utils::ToTimeT(str);
   }
   else
   {
@@ -1542,7 +1543,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "runSize")
     {
-      packageInfo.sizeRunFiles = std::stoi(val->AsString());
+      packageInfo.sizeRunFiles = Utils::ToSizeT(val->AsString());
     }
     else if (val->GetName() == "run[]")
     {
@@ -1560,7 +1561,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "docSize")
     {
-      packageInfo.sizeDocFiles = std::stoi(val->AsString());
+      packageInfo.sizeDocFiles = Utils::ToSizeT(val->AsString());
     }
     else if (val->GetName() == "doc[]")
     {
@@ -1578,7 +1579,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "sourceSize")
     {
-      packageInfo.sizeSourceFiles = std::stoi(val->AsString());
+      packageInfo.sizeSourceFiles = Utils::ToSizeT(val->AsString());
     }
     else if (val->GetName() == "source[]")
     {
@@ -1596,7 +1597,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "timePackaged")
     {
-      packageInfo.timePackaged = std::stoi(val->AsString());
+      packageInfo.timePackaged = Utils::ToTimeT(val->AsString());
     }
     else if (val->GetName() == "digest")
     {

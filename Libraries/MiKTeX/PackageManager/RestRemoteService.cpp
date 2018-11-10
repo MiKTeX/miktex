@@ -203,7 +203,7 @@ void RestRemoteService::Initialize()
       session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthTokenNotValidAfter", configAuthTokenNotValidAfter))
   {
     token = configAuthToken;
-    tokenNotValidAfter = system_clock::from_time_t((time_t)std::stoi(configAuthTokenNotValidAfter));
+    tokenNotValidAfter = system_clock::from_time_t(Utils::ToTimeT(configAuthTokenNotValidAfter));
     SetAuthHeader(token);
   }
 }

@@ -27,6 +27,7 @@
 
 #include <miktex/Core/Cfg>
 #include <miktex/Core/PathName>
+#include <miktex/Core/Utils>
 
 #include <miktex/Extractor/Extractor>
 
@@ -85,14 +86,14 @@ public:
   }
 
 public:
-  int GetArchiveFileSize(const std::string& packageId)
+  size_t GetArchiveFileSize(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "CabSize");
-    if (val == nullptr || val->AsString().empty())
+    if (val == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown archive file size."), "package", packageId);
     }
-    return std::stoi(val->AsString());
+    return MiKTeX::Core::Utils::ToSizeT(val->AsString());
   }
 
 public:
@@ -121,11 +122,11 @@ public:
   time_t GetTimePackaged(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "TimePackaged");
-    if (val == nullptr || val->AsString().empty())
+    if (val == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown package time-stamp."), "package", packageId);
     }
-    time_t time = std::stoi(val->AsString());
+    time_t time = MiKTeX::Core::Utils::ToTimeT(val->AsString());
     if (!IsValidTimeT(time))
     {
       MIKTEX_FATAL_ERROR_2(T_("Invalid package time-stamp."), "package", packageId, "timeStamp", val->AsString());

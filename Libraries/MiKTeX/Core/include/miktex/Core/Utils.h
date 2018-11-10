@@ -29,6 +29,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
+#include <ctime>
 
 #include <algorithm>
 #include <exception>
@@ -276,6 +277,15 @@ public:
     std::transform(str.begin(), str.end(), str2.begin(), ::tolower);
     return str2;
   }
+
+public:
+  static MIKTEXCORECEEAPI(unsigned long long) ToUnsignedLongLong(const std::string& s);
+
+public:
+  static MIKTEXCORECEEAPI(std::size_t) ToSizeT(const std::string& s);
+
+public:
+  static MIKTEXCORECEEAPI(std::time_t) ToTimeT(const std::string& s);
 
 public:
   static MIKTEXCORECEEAPI(bool) CheckPath();

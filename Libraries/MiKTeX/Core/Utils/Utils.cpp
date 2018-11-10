@@ -962,3 +962,52 @@ bool Utils::CheckPath()
   }
   return pathOkay;
 }
+
+unsigned long long Utils::ToUnsignedLongLong(const string& s)
+{
+  unsigned long long val;
+  if (s == "0")
+  {
+    return 0;
+  }
+  bool good = true;
+  if (s.empty() || !(s[0] == '1' || s[0] == '2' || s[0] == '3' || s[0] == '4' || s[0] == '5' || s[0] == '6' || s[0] == '7' || s[0] == '8' || s[0] == '9'))
+  {
+    good = false;
+  }
+  else
+  {
+    try
+    {
+      size_t pos;
+      val = std::stoull(s, &pos, 10);
+      if (pos != s.length())
+      {
+        good = false;
+      }
+    }
+    catch (const invalid_argument&)
+    {
+      good = false;
+    }
+    catch (const out_of_range&)
+    {
+      good = false;
+    }
+  }
+  if (!good)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("Invalid number."), "number", s);
+  }
+  return val;
+}
+
+size_t Utils::ToSizeT(const string& s)
+{
+  return ToUnsignedLongLong(s);
+}
+
+time_t Utils::ToTimeT(const string& s)
+{
+  return ToUnsignedLongLong(s);
+}

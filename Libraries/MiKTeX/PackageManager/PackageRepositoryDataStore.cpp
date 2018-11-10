@@ -190,7 +190,7 @@ bool PackageRepositoryDataStore::TryGetRepositoryInfo(const string& url, Reposit
     {
       MIKTEX_UNEXPECTED();
     }
-    repositoryInfo.timeDate = std::stoi(value->AsString());
+    repositoryInfo.timeDate = Utils::ToTimeT(value->AsString());
     return true;
   }
   else
@@ -321,11 +321,11 @@ void PackageRepositoryDataStore::LoadVarData(RepositoryInfo& repositoryInfo)
   string val;
   if (comboCfg.TryGetValueAsString(key, "LastCheckTime", val))
   {
-    repositoryInfo.lastCheckTime = std::stoi(val);
+    repositoryInfo.lastCheckTime = Utils::ToTimeT(val);
   }
   if (comboCfg.TryGetValueAsString(key, "LastVisitTime", val))
   {
-    repositoryInfo.lastVisitTime = std::stoi(val);
+    repositoryInfo.lastVisitTime = Utils::ToTimeT(val);
   }
   if (comboCfg.TryGetValueAsString(key, "DataTransferRate", val))
   {
