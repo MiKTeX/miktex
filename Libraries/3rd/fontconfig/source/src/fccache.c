@@ -154,6 +154,9 @@ FcBool
 FcDirCacheDeleteUUID (const FcChar8  *dir,
 		      FcConfig       *config)
 {
+#if defined(MIKTEX_WINDOWS)
+  return FcTrue;
+#else
     const FcChar8 *sysroot = FcConfigGetSysRoot (config);
     FcChar8 *target;
     FcBool ret = FcTrue;
@@ -163,15 +166,12 @@ FcDirCacheDeleteUUID (const FcChar8  *dir,
     else
 	target = FcStrBuildFilename (dir, ".uuid", NULL);
 
-#if defined(MIKTEX_WINDOWS)
-    ret = miktex_file_delete(target) ? FcTrue : FcFalse;
-#else
     ret = unlink ((char *) target) == 0;
-#endif
     FcHashTableRemove (config->uuid_table, target);
     FcStrFree(target);
 
     return ret;
+#endif
 }
 
 #ifndef _WIN32
