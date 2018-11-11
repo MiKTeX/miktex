@@ -694,7 +694,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
     << "name=" << packageInfo.displayName << "\n"
     << "creator=" << packageInfo.creator << "\n"
     << "title=" << packageInfo.title << "\n"
-    << "version=" << packageInfo.version << "n"
+    << "version=" << packageInfo.version << "\n"
     << "targetsystem=" << packageInfo.targetSystem << "\n"
     << "md5=" << digest << "\n";
 #if defined(MIKTEX_EXTENDED_PACKAGEINFO)
