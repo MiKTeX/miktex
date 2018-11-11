@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## NEXT
+## 2.9.6880 - not yet released
 
 ### Upgraded programs
 
