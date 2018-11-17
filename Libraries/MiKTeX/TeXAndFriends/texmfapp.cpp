@@ -467,7 +467,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
       File::GetTimes(optArg, creationTime, lastAccessTime, lastWriteTime);
       jobTime = lastWriteTime;
     }
-    SetStartUpTime(jobTime, false);
+    SetStartUpTime(jobTime, true);
     pimpl->setJobTime = true;
   }
   break;
