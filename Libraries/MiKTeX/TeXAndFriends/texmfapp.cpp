@@ -457,7 +457,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
     time_t jobTime;
     if (isdigit(optArg[0]))
     {
-      jobTime = std::stoi(optArg);
+      jobTime = Utils::ToTimeT(optArg);
     }
     else
     {
