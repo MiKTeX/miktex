@@ -668,12 +668,6 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void
     fileName.SetExtension(GetMemoryDumpFileExtension());
   }
 
-  char szProgName[BufferSizes::MaxPath];
-  GetProgName(szProgName);
-#if 0
-  PathName::Convert(szProgName, szProgName, ConvertPathNameOption::MakeLower);
-#endif
-
   PathName path;
 
   string dumpName = fileName.GetFileNameWithoutExtension().ToString();

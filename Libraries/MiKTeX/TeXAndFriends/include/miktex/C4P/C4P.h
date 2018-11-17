@@ -312,8 +312,6 @@ C4PCEEAPI(const char**) GetArgV();
 
 C4PCEEAPI(const char*) GetCmdLine();
 
-C4PCEEAPI(char*) GetProgName(char* lpsz);
-
 C4PCEEAPI(C4P_text*) GetStdFilePtr(unsigned idx);
 
 #define c4pargc C4P::GetArgC()

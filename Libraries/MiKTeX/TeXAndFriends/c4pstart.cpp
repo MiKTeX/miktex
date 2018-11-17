@@ -212,11 +212,3 @@ C4PCEEAPI(const char*) C4P::GetCmdLine()
   return programData.commandLine.c_str();
   MIKTEX_API_END("C4P::GetCmdLine");
 }
-
-C4PCEEAPI(char*) C4P::GetProgName(char* programName)
-{
-  MIKTEX_API_BEGIN("C4P::GetProgName");
-  StringUtil::CopyString(programName, BufferSizes::MaxPath, programData.programName.c_str());
-  return programName;
-  MIKTEX_API_END("C4P::GetProgName");
-}
