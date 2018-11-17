@@ -104,7 +104,17 @@ C4P::Program::Program(const char* programName, int argc, char* argv[]) :
   programData.programName = programName;
   if (programData.startUpTime == static_cast<time_t>(-1))
   {
-    SetStartUpTime(time(nullptr));
+    string sde;
+    time_t now;
+    if (Utils::GetEnvironmentString("SOURCE_DATE_EPOCH", sde))
+    {
+      now = Utils::ToTimeT(sde);
+    }
+    else
+    {
+      now = time(nullptr);
+    }
+    SetStartUpTime(now);
   }
   vector<string> args;
   for (int idx = 1; idx < argc; ++idx)
