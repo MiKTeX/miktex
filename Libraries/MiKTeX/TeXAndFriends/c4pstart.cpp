@@ -37,7 +37,9 @@ struct ProgramData
     commandLine = "";
   }
   time_t startUpTime = static_cast<time_t>(-1);
-  struct tm startUpTimeStruct;
+  struct tm startUpTimeStructLocal;
+  struct tm startUpTimeStructUtc;
+  bool startUpTimeUseUtc;
   C4P_text standardTextFiles[3];
   vector<char*> argumentVector;
   string commandLine;
@@ -63,22 +65,33 @@ C4PCEEAPI(int) C4P::MakeCommandLine(const vector<string>& args)
   MIKTEX_API_END("C4P::MakeCommandLine");
 }
 
-C4PCEEAPI(void) C4P::SetStartUpTime(time_t time)
+C4PCEEAPI(void) C4P::SetStartUpTime(time_t time, bool useUtc)
 {
   MIKTEX_API_BEGIN("C4P::SetStartUpTime");
   programData.startUpTime = time;
+  programData.startUpTimeUseUtc = useUtc;
 #if defined(_MSC_VER) && (_MSC_VER) >= 1400
-  if (_localtime64_s(&programData.startUpTimeStruct, &programData.startUpTime) != 0)
+  if (_localtime64_s(&programData.startUpTimeStructLocal, &programData.startUpTime) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR("_localtime_s");
   }
+  if (_gmtime64_s(&programData.startUpTimeStructUtc, &programData.startUpTime) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("_gmtime64_s");
+  }
 #else
-  struct tm* p = localtime(&programData.startUpTime);
-  if (p == nullptr)
+  struct tm* localTm = localtime(&programData.startUpTime);
+  if (localTm == nullptr)
   {
     MIKTEX_FATAL_CRT_ERROR("localtime");
   }
-  programData.startUpTimeStruct = *p;
+  programData.startUpTimeStructLocal = *localTm;
+  struct tm* utcTm = gmtime(&programData.startUpTime);
+  if (utcTm == nullptr)
+  {
+    MIKTEX_FATAL_CRT_ERROR("gmtime");
+  }
+  programData.startUpTimeStructUtc = *utcTm;
 #endif
   MIKTEX_API_END("C4P::SetStartUpTime");
 }
@@ -105,16 +118,20 @@ C4P::Program::Program(const char* programName, int argc, char* argv[]) :
   if (programData.startUpTime == static_cast<time_t>(-1))
   {
     string sde;
+    string fsd;
     time_t now;
-    if (Utils::GetEnvironmentString("SOURCE_DATE_EPOCH", sde))
+    bool useUtc;
+    if (Utils::GetEnvironmentString("FORCE_SOURCE_DATE", fsd) && fsd == "1" && Utils::GetEnvironmentString("SOURCE_DATE_EPOCH", sde))
     {
       now = Utils::ToTimeT(sde);
+      useUtc = true;
     }
     else
     {
       now = time(nullptr);
+      useUtc = false;
     }
-    SetStartUpTime(now);
+    SetStartUpTime(now, useUtc);
   }
   vector<string> args;
   for (int idx = 1; idx < argc; ++idx)
@@ -155,42 +172,48 @@ C4PTHISAPI(void) C4P::Program::Finish()
 C4PCEEAPI(unsigned) C4P::GetYear()
 {
   MIKTEX_API_BEGIN("C4P::GetYear");
-  return programData.startUpTimeStruct.tm_year + 1900;
+  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
+  return tmData.tm_year + 1900;
   MIKTEX_API_END("C4P::GetYear");
 }
 
 C4PCEEAPI(unsigned) C4P::GetMonth()
 {
   MIKTEX_API_BEGIN("C4P::GetMonth");
-  return programData.startUpTimeStruct.tm_mon + 1;
+  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
+  return tmData.tm_mon + 1;
   MIKTEX_API_END("C4P::GetMonth");
 }
 
 C4PCEEAPI(unsigned) C4P::GetDay()
 {
   MIKTEX_API_BEGIN("C4P::GetDay");
-  return programData.startUpTimeStruct.tm_mday;
+  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
+  return tmData.tm_mday;
   MIKTEX_API_END("C4P::GetDay");
 }
 
 C4PCEEAPI(unsigned) C4P::GetHour()
 {
   MIKTEX_API_BEGIN("C4P::GetHour");
-  return programData.startUpTimeStruct.tm_hour;
+  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
+  return tmData.tm_hour;
   MIKTEX_API_END("C4P::GetHour");
 }
 
 C4PCEEAPI(unsigned) C4P::GetMinute()
 {
   MIKTEX_API_BEGIN("C4P::GetMinute");
-  return programData.startUpTimeStruct.tm_min;
+  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
+  return tmData.tm_min;
   MIKTEX_API_END("C4P::GetMinute");
 }
 
 C4PCEEAPI(unsigned) C4P::GetSecond()
 {
   MIKTEX_API_BEGIN("C4P::GetSecond");
-  return programData.startUpTimeStruct.tm_sec;
+  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
+  return tmData.tm_sec;
   MIKTEX_API_END("C4P::GetSecond");
 }
 

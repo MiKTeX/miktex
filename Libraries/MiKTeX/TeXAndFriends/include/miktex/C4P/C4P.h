@@ -720,7 +720,7 @@ template<int handle> inline void c4p_proc_exit()
 #define C4P_PROC_ENTRY(handle) c4p_proc_entry<handle>();
 #define C4P_PROC_EXIT(handle) C4P_LABEL_PROC_EXIT: c4p_proc_exit<handle>();
 
-C4PCEEAPI(void) SetStartUpTime(time_t time);
+C4PCEEAPI(void) SetStartUpTime(time_t time, bool useUtc);
 
 C4PCEEAPI(time_t) GetStartUpTime();
 
