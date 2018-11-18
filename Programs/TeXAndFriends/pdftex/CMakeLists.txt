@@ -46,6 +46,7 @@ add_definitions(
   -DUSE_GZIP
   -D__SyncTeX__
   -DpdfTeX
+  -DTeX
 )
 
 if(MSVC)
