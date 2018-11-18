@@ -87,6 +87,25 @@ ppref * ppxref_find_local (ppxref *xref, ppuint refnumber)
   return NULL;
 }
 
+/*
+PJ 20180910
+
+So far we were resolving references in the context of the current xref:
+
+- if a given object is found in this xref, than this is the object
+- otherwise older xrefs are queried in order
+- only in linearized documents older body may refer to object from newer xref
+
+Hans sent a document where an incremental update (newer body) has only an updated page object
+(plus /Metadata and /Info), but /Root (catalog) and /Pages dict refs are defined only in the older body.
+If we resolve references using the approach so far, we actually drop the update; newer objects are parsed
+and linked to the newest xref, but never linked to objects tree. Assuming we will never need to interpret
+older versions, makes sense to assume, that the newest object version is always the correct version.
+
+*/
+
+#if 0
+
 ppref * ppxref_find (ppxref *xref, ppuint refnumber)
 {
   ppref *ref;
@@ -114,6 +133,21 @@ ppref * ppxref_find (ppxref *xref, ppuint refnumber)
   }
   return NULL;
 }
+
+#else
+
+ppref * ppxref_find (ppxref *xref, ppuint refnumber)
+{
+  ppref *ref;
+  ppxref *other;
+
+  for (other = xref->pdf->xref; other != NULL; other = other->prev)
+    if ((ref = ppxref_find_local(other, refnumber)) != NULL)
+      return ref;
+  return NULL;
+}
+
+#endif
 
 ppdict * ppxref_trailer (ppxref *xref)
 {

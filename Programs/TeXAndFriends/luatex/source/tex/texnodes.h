@@ -248,14 +248,35 @@ typedef enum {
 /* todo, make an enum of this */
 
 typedef enum {
-    unknown_list         = 0,
-    line_list            = 1, /* paragraph lines */
-    hbox_list            = 2, /* \.{\\hbox} */
-    indent_list          = 3, /* indentation box */
-    align_row_list       = 4, /* row from a \.{\\halign} or \.{\\valign} */
-    align_cell_list      = 5, /* cell from a \.{\\halign} or \.{\\valign} */
-    equation_list        = 6, /* display equation */
-    equation_number_list = 7, /* display equation number */
+    unknown_list              =  0,
+    line_list                 =  1, /* paragraph lines */
+    hbox_list                 =  2, /* \.{\\hbox} */
+    indent_list               =  3, /* indentation box */
+    align_row_list            =  4, /* row from a \.{\\halign} or \.{\\valign} */
+    align_cell_list           =  5, /* cell from a \.{\\halign} or \.{\\valign} */
+    equation_list             =  6, /* display equation */
+    equation_number_list      =  7, /* display equation number */
+    math_list_list            =  8,
+    math_char_list            =  9,
+    math_h_extensible_list    = 10,
+    math_v_extensible_list    = 11,
+    math_h_delimiter_list     = 12,
+    math_v_delimiter_list     = 13,
+    math_over_delimiter_list  = 14,
+    math_under_delimiter_list = 15,
+    math_numerator_list       = 16,
+    math_denominator_list     = 17,
+    math_limits_list          = 18,
+    math_fraction_list        = 19,
+    math_nucleus_list         = 20,
+    math_sup_list             = 21,
+    math_sub_list             = 22,
+    math_degree_list          = 23,
+    math_scripts_list         = 24,
+    math_over_list            = 25,
+    math_under_list           = 26,
+    math_accent_list          = 27,
+    math_radical_list         = 28,
 } list_subtypes ;
 
 #  define width(a)            varmem[(a)+2].cint

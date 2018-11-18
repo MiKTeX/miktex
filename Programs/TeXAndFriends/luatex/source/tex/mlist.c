@@ -1146,8 +1146,9 @@ static pointer char_box(internal_font_number f, int c, pointer bb)
         width(b) = char_width(f, c) + char_italic(f, c);
     height(b) = char_height(f, c);
     depth(b) = char_depth(f, c);
+    subtype(b) = math_char_list ;
     reset_attributes(b, bb);
-    p = new_char(f, c);
+    p = new_glyph(f, c);
     reset_attributes(p, bb);
     list_ptr(b) = p;
     return b;
@@ -1475,8 +1476,10 @@ pointer make_extensible(internal_font_number fnt, halfword chr, scaled v, scaled
     }
     if (horizontal) {
         width(b) = b_max;
+        subtype(b) = math_h_extensible_list;
     } else {
         height(b) = b_max;
+        subtype(b) = math_v_extensible_list;
     }
     return b;
 }
@@ -1537,8 +1540,9 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
     extinfo *ext;
     f = null_font;
     c = 0;
-    if (d == null)
+    if (d == null) {
         goto FOUND;
+    }
     z = small_fam(d);
     x = small_char(d);
     i = 0;
@@ -1650,9 +1654,11 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
         reset_attributes(b, att);
         if (flat) {
             width(b) = 0;
+            subtype(b) = math_h_delimiter_list;
         } else {
             /*tex Use this width if no delimiter was found. */
             width(b) = null_delimiter_space_par;
+            subtype(b) = math_v_delimiter_list;
         }
         if (delta != NULL) {
             *delta = 0;
@@ -1876,7 +1882,7 @@ void run_mlist_to_hlist(halfword p, boolean penalties, int mstyle)
 
 */
 
-static pointer clean_box(pointer p, int s, int cur_style)
+static pointer clean_box(pointer p, int s, int cur_style, halfword st)
 {
     /*tex beginning of a list to be boxed */
     pointer q;
@@ -1901,6 +1907,7 @@ static pointer clean_box(pointer p, int s, int cur_style)
             break;
         default:
             q = new_null_box();
+            subtype(q) = math_list_list;
             goto FOUND;
     }
     mlist_to_hlist(mlist, false, s);
@@ -1917,6 +1924,7 @@ static pointer clean_box(pointer p, int s, int cur_style)
         x = hpack(q, 0, additional, -1);
     if (x != q && q != null)
         reset_attributes(x, node_attr(q));
+    subtype(x) = st;
     /*tex Here we save memory space in a common case. */
     q = list_ptr(x);
     if (is_char_node(q)) {
@@ -2061,9 +2069,10 @@ static void make_over(pointer q, int cur_style, int cur_size, int cur_fam)
             }
         }
     }
-    p = overbar(clean_box(nucleus(q), cramped_style(cur_style), cur_style),
+    p = overbar(clean_box(nucleus(q), cramped_style(cur_style), cur_style, math_nucleus_list),
                 overbar_vgap(cur_style), used_thickness, overbar_kern(cur_style),
                 node_attr(nucleus(q)), math_over_rule, cur_size, used_fam);
+    subtype(p) = math_over_list;
     math_list(nucleus(q)) = p;
     type(nucleus(q)) = sub_box_node;
 }
@@ -2083,7 +2092,7 @@ static void make_under(pointer q, int cur_style, int cur_size, int cur_fam)
     scaled f, t;
     scaled used_thickness = underbar_rule(cur_style);
     scaled used_fam = cur_fam;
-    x = clean_box(nucleus(q), cur_style, cur_style);
+    x = clean_box(nucleus(q), cur_style, cur_style, math_nucleus_list);
     p = new_kern(underbar_vgap(cur_style));
     reset_attributes(p, node_attr(q));
     couple_nodes(x,p);
@@ -2104,6 +2113,7 @@ static void make_under(pointer q, int cur_style, int cur_size, int cur_fam)
     couple_nodes(p,r);
     y = vpackage(x, 0, additional, max_dimen, math_direction_par);
     reset_attributes(y, node_attr(q));
+    subtype(y) = math_under_list;
     delta = height(y) + depth(y) + underbar_kern(cur_style);
     height(y) = height(x);
     depth(y) = delta - height(y);
@@ -2170,7 +2180,7 @@ static void make_radical(pointer q, int cur_style)
     /*tex dimensions involved in the calculation */
     scaled delta, clr, theta, h, f;
     scaled t, used_fam ;
-    x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
+    x = clean_box(nucleus(q), cramped_style(cur_style), cur_style, math_nucleus_list);
     clr = radical_vgap(cur_style);
     theta = radical_rule_par(cur_style);
     used_fam = small_fam(left_delimiter(q));
@@ -2240,10 +2250,11 @@ static void make_radical(pointer q, int cur_style)
     shift_amount(y) = (height(y) - theta) - (height(x) + clr);
     h = depth(y) + height(y);
     p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y), math_radical_rule, cur_size, used_fam);
+    subtype(p) = math_radical_list;
     couple_nodes(y,p);
     if (degree(q) != null) {
         scaled wr, br, ar;
-        pointer r = clean_box(degree(q), script_script_style, cur_style);
+        pointer r = clean_box(degree(q), script_script_style, cur_style, math_degree_list);
         reset_attributes(r, node_attr(degree(q)));
         wr = width(r);
         if (wr == 0) {
@@ -2277,11 +2288,12 @@ static void make_radical(pointer q, int cur_style)
 
 /*tex Construct a vlist box: */
 
-static pointer wrapup_over_under_delimiter(pointer x, pointer y, pointer q, scaled shift_up, scaled shift_down)
+static pointer wrapup_over_under_delimiter(pointer x, pointer y, pointer q, scaled shift_up, scaled shift_down, halfword st)
 {
     pointer p;
     pointer v = new_null_box();
     type(v) = vlist_node;
+    subtype(v) = st;
     height(v) = shift_up + height(x);
     depth(v) = depth(y) + shift_down;
     reset_attributes(v, node_attr(q));
@@ -2354,7 +2366,7 @@ static void make_over_delimiter(pointer q, int cur_style)
     pointer x, y, v;
     scaled shift_up, shift_down, clr, delta, wd;
     boolean stack;
-    x = clean_box(nucleus(q), sub_style(cur_style), cur_style);
+    x = clean_box(nucleus(q), sub_style(cur_style), cur_style, math_nucleus_list);
     check_widths(q,x);
     y = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
@@ -2367,7 +2379,7 @@ static void make_over_delimiter(pointer q, int cur_style)
     if (delta > 0) {
         shift_up = shift_up + delta;
     }
-    v = wrapup_over_under_delimiter(x, y, q, shift_up, shift_down);
+    v = wrapup_over_under_delimiter(x, y, q, shift_up, shift_down, math_over_delimiter_list);
     /*tex This also equals |width(y)|: */
     width(v) = width(x);
     math_list(nucleus(q)) = v;
@@ -2385,7 +2397,7 @@ static void make_under_delimiter(pointer q, int cur_style)
     pointer x, y, v;
     scaled shift_up, shift_down, clr, delta, wd;
     boolean stack;
-    y = clean_box(nucleus(q), sup_style(cur_style), cur_style);
+    y = clean_box(nucleus(q), sup_style(cur_style), cur_style, math_nucleus_list);
     check_widths(q,y);
     x = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
@@ -2398,7 +2410,7 @@ static void make_under_delimiter(pointer q, int cur_style)
     if (delta > 0) {
         shift_down = shift_down + delta;
     }
-    v = wrapup_over_under_delimiter(x, y, q, shift_up, shift_down);
+    v = wrapup_over_under_delimiter(x, y, q, shift_up, shift_down, math_under_delimiter_list);
     /*tex This also equals |width(y)|: */
     width(v) = width(y);
     math_list(nucleus(q)) = v;
@@ -2416,7 +2428,7 @@ static void make_delimiter_over(pointer q, int cur_style)
     pointer x, y, v;
     scaled shift_up, shift_down, clr, actual, wd;
     boolean stack;
-    y = clean_box(nucleus(q), cur_style, cur_style);
+    y = clean_box(nucleus(q), cur_style, cur_style, math_nucleus_list);
     check_widths(q,y);
     x = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
@@ -2429,7 +2441,7 @@ static void make_delimiter_over(pointer q, int cur_style)
     if (actual < clr) {
         shift_up = shift_up + (clr-actual);
     }
-    v = wrapup_over_under_delimiter(x, y, q, shift_up, shift_down);
+    v = wrapup_over_under_delimiter(x, y, q, shift_up, shift_down, math_over_delimiter_list);
     /*tex This also equals |width(y)|: */
     width(v) = width(x);
     math_list(nucleus(q)) = v;
@@ -2447,7 +2459,7 @@ static void make_delimiter_under(pointer q, int cur_style)
     pointer x, y, v;
     scaled shift_up, shift_down, clr, actual, wd;
     boolean stack;
-    x = clean_box(nucleus(q), cur_style, cur_style);
+    x = clean_box(nucleus(q), cur_style, cur_style, math_nucleus_list);
     check_widths(q,x);
     y = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
@@ -2460,7 +2472,7 @@ static void make_delimiter_under(pointer q, int cur_style)
     if (actual<clr) {
        shift_down += (clr-actual);
     }
-    v = wrapup_over_under_delimiter(x, y, q, shift_up, shift_down);
+    v = wrapup_over_under_delimiter(x, y, q, shift_up, shift_down, math_under_delimiter_list);
     /*tex This also equals |width(y)|: */
     width(v) = width(y);
     math_list(nucleus(q)) = v;
@@ -2585,7 +2597,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     }
     /*tex Compute the amount of skew, or set |s| to an alignment point */
     s_is_absolute = compute_accent_skew(q, flags, &s);
-    x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
+    x = clean_box(nucleus(q), cramped_style(cur_style), cur_style, math_nucleus_list);
     w = width(x);
     h = height(x);
     if (do_new_math(cur_f) && !s_is_absolute) {
@@ -2661,7 +2673,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
             subscr(q) = null;
             type(nucleus(q)) = sub_mlist_node;
             math_list(nucleus(q)) = x;
-            x = clean_box(nucleus(q), cur_style, cur_style);
+            x = clean_box(nucleus(q), cur_style, cur_style, math_nucleus_list);
             delta = delta + height(x) - h;
             h = height(x);
         }
@@ -2722,6 +2734,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     }
     r = vpackage(y, 0, additional, max_dimen, math_direction_par);
     reset_attributes(r, node_attr(q));
+    subtype(r) = math_accent_list;
     width(r) = width(x);
     y = r;
     if (flags & (TOP_CODE | OVERLAY_CODE)) {
@@ -2815,8 +2828,8 @@ static void make_fraction(pointer q, int cur_style)
         are displaced from the baseline.
 
     */
-    x = clean_box(numerator(q), num_style(cur_style), cur_style);
-    z = clean_box(denominator(q), denom_style(cur_style), cur_style);
+    x = clean_box(numerator(q), num_style(cur_style), cur_style, math_numerator_list);
+    z = clean_box(denominator(q), denom_style(cur_style), cur_style, math_denominator_list);
     if (middle_delimiter(q) != null) {
         delta = 0;
         m = do_delimiter(q, middle_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL, NULL);
@@ -2892,6 +2905,7 @@ static void make_fraction(pointer q, int cur_style)
         v = new_null_box();
         reset_attributes(v, node_attr(q));
         type(v) = hlist_node;
+        subtype(v) = math_numerator_list;
         list_ptr(v) = x;
         width(v) = width(x);
         height(v) = height(x) + shift_up;
@@ -2901,6 +2915,7 @@ static void make_fraction(pointer q, int cur_style)
         v = new_null_box();
         reset_attributes(v, node_attr(q));
         type(v) = hlist_node;
+        subtype(v) = math_denominator_list;
         list_ptr(v) = z;
         width(v) = width(z);
         height(v) = height(z);
@@ -2908,6 +2923,7 @@ static void make_fraction(pointer q, int cur_style)
         shift_amount(v) = shift_down;
         z = v;
         v = new_null_box();
+        subtype(v) = math_fraction_list;
         reset_attributes(v, node_attr(q));
         type(v) = hlist_node;
         if (height(x) > height(z)) {
@@ -2954,6 +2970,7 @@ static void make_fraction(pointer q, int cur_style)
         */
         v = new_null_box();
         type(v) = vlist_node;
+        subtype(v) = math_fraction_list;
         height(v) = shift_up + height(x);
         depth(v) = depth(z) + shift_down;
         /*tex This also equals |width(z)|. */
@@ -2997,6 +3014,8 @@ static void make_fraction(pointer q, int cur_style)
     couple_nodes(v,r);
     y = hpack(l, 0, additional, -1);
     reset_attributes(y, node_attr(q));
+    /*tex There can also be a nested one: */
+    subtype(y) = math_fraction_list;
     assign_new_hlist(q, y);
 }
 
@@ -3045,7 +3064,7 @@ static scaled make_op(pointer q, int cur_style)
             if (ok_size != undefined_math_parameter) {
                 /*tex creating a temporary delimiter is the cleanest way */
                 y = new_node(delim_node, 0);
-                reset_attributes(y, node_attr(q));
+                reset_attributes(y, node_attr(nucleus(q)));
                 small_fam(y) = math_fam(nucleus(q));
                 small_char(y) = math_character(nucleus(q));
                 x = do_delimiter(q, y, text_size, ok_size, false, cur_style, true, NULL, &delta, NULL);
@@ -3067,7 +3086,7 @@ static scaled make_op(pointer q, int cur_style)
                     math_character(nucleus(q)) = c;
                 }
                 delta = char_italic(cur_f, cur_c);
-                x = clean_box(nucleus(q), cur_style, cur_style);
+                x = clean_box(nucleus(q), cur_style, cur_style, math_nucleus_list);
                 if (delta != 0) {
                     if (do_new_math(cur_f)) {
                         /*tex we never added italic correction */
@@ -3081,7 +3100,7 @@ static scaled make_op(pointer q, int cur_style)
         } else {
             /*tex normal size */
             delta = char_italic(cur_f, cur_c);
-            x = clean_box(nucleus(q), cur_style, cur_style);
+            x = clean_box(nucleus(q), cur_style, cur_style, math_nucleus_list);
             if (delta != 0) {
                 if (do_new_math(cur_f)) {
                     /*tex we never added italic correction */
@@ -3180,12 +3199,13 @@ static scaled make_op(pointer q, int cur_style)
             be skewed.
 
         */
-        x = clean_box(supscr(q), sup_style(cur_style), cur_style);
-        y = clean_box(nucleus(q), cur_style, cur_style);
-        z = clean_box(subscr(q), sub_style(cur_style), cur_style);
+        x = clean_box(supscr(q), sup_style(cur_style), cur_style, math_sup_list);
+        y = clean_box(nucleus(q), cur_style, cur_style, math_nucleus_list);
+        z = clean_box(subscr(q), sub_style(cur_style), cur_style, math_sub_list);
         v = new_null_box();
         reset_attributes(v, node_attr(q));
         type(v) = vlist_node;
+        subtype(v) = math_limits_list;
         if (do_new_math(cur_f)) {
             n = nucleus(q);
             if (n != null) {
@@ -3724,7 +3744,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             should not exceed the baseline plus four-fifths of the x-height.
 
         */
-        x = clean_box(subscr(q), (noadoptionnosubscript(q) ? cur_style : sub_style(cur_style)), cur_style);
+        x = clean_box(subscr(q), (noadoptionnosubscript(q) ? cur_style : sub_style(cur_style)), cur_style, math_sub_list);
         width(x) = width(x) + space_after_script(cur_style);
         switch (math_scripts_mode_par) {
             case 1:
@@ -3774,7 +3794,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             never descend below the baseline plus one-fourth of the x-height.
 
         */
-        x = clean_box(supscr(q), (noadoptionnosupscript(q) ? cur_style : sup_style(cur_style)), cur_style);
+        x = clean_box(supscr(q), (noadoptionnosupscript(q) ? cur_style : sup_style(cur_style)), cur_style, math_sup_list);
         width(x) = width(x) + space_after_script(cur_style);
         switch (math_scripts_mode_par) {
             case 1:
@@ -3832,7 +3852,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
                 four-fifths of the x-height.
 
             */
-            y = clean_box(subscr(q), (noadoptionnosubscript(q) ? cur_style : sub_style(cur_style)), cur_style);
+            y = clean_box(subscr(q), (noadoptionnosubscript(q) ? cur_style : sub_style(cur_style)), cur_style, math_sub_list);
             width(y) = width(y) + space_after_script(cur_style);
             switch (math_scripts_mode_par) {
                 case 1:
@@ -3912,6 +3932,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             /*tex We end up with funny dimensions. */
             x = vpackage(x, 0, additional, max_dimen, math_direction_par);
             reset_attributes(x, node_attr(q));
+            subtype(x) = math_scripts_list;
             shift_amount(x) = shift_down;
         }
     }

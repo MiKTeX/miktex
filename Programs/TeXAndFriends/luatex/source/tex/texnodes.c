@@ -345,15 +345,36 @@ subtype_info node_subtypes_marginkern[] = {
 };
 
 subtype_info node_subtypes_list[] = {
-    { unknown_list,         NULL, 0 },
-    { line_list,            NULL, 0 },
-    { hbox_list,            NULL, 0 },
-    { indent_list,          NULL, 0 },
-    { align_row_list,       NULL, 0 },
-    { align_cell_list,      NULL, 0 },
-    { equation_list,        NULL, 0 },
-    { equation_number_list, NULL, 0 },
-    { -1,                   NULL, 0 },
+    { unknown_list,              NULL, 0 },
+    { line_list,                 NULL, 0 },
+    { hbox_list,                 NULL, 0 },
+    { indent_list,               NULL, 0 },
+    { align_row_list,            NULL, 0 },
+    { align_cell_list,           NULL, 0 },
+    { equation_list,             NULL, 0 },
+    { equation_number_list,      NULL, 0 },
+    { math_list_list,            NULL, 0 },
+    { math_char_list,            NULL, 0 },
+    { math_h_extensible_list,    NULL, 0 },
+    { math_v_extensible_list,    NULL, 0 },
+    { math_h_delimiter_list,     NULL, 0 },
+    { math_v_delimiter_list,     NULL, 0 },
+    { math_over_delimiter_list,  NULL, 0 },
+    { math_under_delimiter_list, NULL, 0 },
+    { math_numerator_list,       NULL, 0 },
+    { math_denominator_list,     NULL, 0 },
+    { math_limits_list,          NULL, 0 },
+    { math_fraction_list,        NULL, 0 },
+    { math_nucleus_list,         NULL, 0 },
+    { math_sup_list,             NULL, 0 },
+    { math_sub_list,             NULL, 0 },
+    { math_degree_list,          NULL, 0 },
+    { math_scripts_list,         NULL, 0 },
+    { math_over_list,            NULL, 0 },
+    { math_under_list,           NULL, 0 },
+    { math_accent_list,          NULL, 0 },
+    { math_radical_list,         NULL, 0 },
+    { -1,                        NULL, 0 },
 };
 
 subtype_info node_subtypes_adjust[] = {
@@ -610,14 +631,35 @@ void l_set_node_data(void) {
     init_node_key(node_subtypes_fence, right_noad_side,  right)
     init_node_key(node_subtypes_fence, no_noad_side,     no)
 
-    init_node_key(node_subtypes_list, unknown_list,         unknown)
-    init_node_key(node_subtypes_list, line_list,            line)
-    init_node_key(node_subtypes_list, hbox_list,            box)
-    init_node_key(node_subtypes_list, indent_list,          indent)
-    init_node_key(node_subtypes_list, align_row_list,       alignment)
-    init_node_key(node_subtypes_list, align_cell_list,      cell)
-    init_node_key(node_subtypes_list, equation_list,        equation)
-    init_node_key(node_subtypes_list, equation_number_list, equationnumber)
+    init_node_key(node_subtypes_list, unknown_list,              unknown)
+    init_node_key(node_subtypes_list, line_list,                 line)
+    init_node_key(node_subtypes_list, hbox_list,                 box)
+    init_node_key(node_subtypes_list, indent_list,               indent)
+    init_node_key(node_subtypes_list, align_row_list,            alignment)
+    init_node_key(node_subtypes_list, align_cell_list,           cell)
+    init_node_key(node_subtypes_list, equation_list,             equation)
+    init_node_key(node_subtypes_list, equation_number_list,      equationnumber)
+    init_node_key(node_subtypes_list, math_list_list,            math)
+    init_node_key(node_subtypes_list, math_char_list,            mathchar)
+    init_node_key(node_subtypes_list, math_h_extensible_list,    hextensible)
+    init_node_key(node_subtypes_list, math_v_extensible_list,    vextensible)
+    init_node_key(node_subtypes_list, math_h_delimiter_list,     hdelimiter)
+    init_node_key(node_subtypes_list, math_v_delimiter_list,     vdelimiter)
+    init_node_key(node_subtypes_list, math_over_delimiter_list,  overdelimiter)
+    init_node_key(node_subtypes_list, math_under_delimiter_list, underdelimiter)
+    init_node_key(node_subtypes_list, math_numerator_list,       numerator)
+    init_node_key(node_subtypes_list, math_denominator_list,     denominator)
+    init_node_key(node_subtypes_list, math_limits_list,          limits)
+    init_node_key(node_subtypes_list, math_fraction_list,        fraction)
+    init_node_key(node_subtypes_list, math_nucleus_list,         nucleus)
+    init_node_key(node_subtypes_list, math_sup_list,             sup)
+    init_node_key(node_subtypes_list, math_sub_list,             sub)
+    init_node_key(node_subtypes_list, math_degree_list,          degree)
+    init_node_key(node_subtypes_list, math_scripts_list,         scripts)
+    init_node_key(node_subtypes_list, math_over_list,            over)
+    init_node_key(node_subtypes_list, math_under_list,           under)
+    init_node_key(node_subtypes_list, math_accent_list,          accent)
+    init_node_key(node_subtypes_list, math_radical_list,         radical)
 
     init_node_key(node_subtypes_math, before, beginmath)
     init_node_key(node_subtypes_math, after,  endmath)
