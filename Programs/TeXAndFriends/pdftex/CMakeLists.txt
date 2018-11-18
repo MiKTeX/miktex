@@ -46,6 +46,7 @@ add_definitions(
   -DUSE_GZIP
   -D__SyncTeX__
   -DpdfTeX
+  -DTeX
 )
 
 if(MSVC)
@@ -285,9 +286,13 @@ set(${pdftex_target_name}_sources
   source/writettf.c
   source/writettf.h
   source/writezip.c
-  texlive/texmfmp.cpp
-  texlive/texmfmp.h
 )
+
+list(APPEND ${pdftex_target_name}_sources
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_WEB2C_DIR}/source/lib/texmfmp.c
+)
+
+set_source_files_properties(${CMAKE_SOURCE_DIR}/${MIKTEX_REL_WEB2C_DIR}/source/lib/texmfmp.c PROPERTIES LANGUAGE CXX)
 
 set_source_files_properties(
   ${${pdftex_target_name}_sources}
@@ -346,6 +351,7 @@ if(LINK_EVERYTHING_STATICALLY)
     ${kpsemu_lib_name}
     ${md5_lib_name}
     ${w2cemu_lib_name}
+    ${web2c_sources_lib_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${MIKTEX_PREFIX}pdftex
@@ -374,6 +380,7 @@ else()
       ${kpsemu_dll_name}
       ${md5_dll_name}
       ${w2cemu_dll_name}
+      ${web2c_sources_dll_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${pdftex_target_name}

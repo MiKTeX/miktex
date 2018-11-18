@@ -49,7 +49,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #if defined(MIKTEX)
-#include "texlive/texmfmp.h"
+#include "texmfmp.h"
 #endif
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \

@@ -53,9 +53,11 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 /* WEB2C macros and prototypes */
 #  if !defined(PDFTEXCOERCE) && !defined(PDFETEXCOERCE)
+#if !defined(MIKTEX)
 #    ifdef pdfTeX
 #      undef pdfTeX             /* to avoid warning about redefining pdfTeX in pdftexd.h */
 #    endif                      /* pdfTeX */
+#endif
 #    define EXTERN extern
 #    include "pdftexd.h"
 #  endif
