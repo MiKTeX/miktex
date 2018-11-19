@@ -3146,6 +3146,7 @@ void initstarttime(void)
     }
 }
 
+#if !defined(XeTeX)
 char *makecstring(integer s)
 {
     static char *cstrbuf = NULL;
@@ -3194,6 +3195,7 @@ char *makecfilename(integer s)
     *q = '\0';
     return name;
 }
+#endif /* !XeTeX */
 
 void getcreationdate(void)
 {
@@ -3282,6 +3284,9 @@ void getfilesize(integer s)
     if (file_name == NULL) {
         return;                 /* empty string */
     }
+    if (! kpse_in_name_ok(file_name)) {
+       return;                  /* no permission */
+    }
 
     recorder_record_input(file_name);
     /* get file status */
@@ -3320,13 +3325,15 @@ void getfiledump(integer s, int offset, int length)
 {
     FILE *f;
     int read, i;
-    poolpointer data_ptr;
-    poolpointer data_end;
-    char *file_name;
 #if defined(XeTeX)
     char *readbuffer, strbuf[3];
     int j, k;
-#endif
+#else
+    poolpointer data_ptr;
+    poolpointer data_end;
+#endif /* XeTeX */
+    char *file_name;
+
     if (length == 0) {
         /* empty result string */
         return;
@@ -3346,6 +3353,9 @@ void getfiledump(integer s, int offset, int length)
 #endif
     if (file_name == NULL) {
         return;                 /* empty string */
+    }
+    if (! kpse_in_name_ok(file_name)) {
+       return;                  /* no permission */
     }
 
     /* read file data */
@@ -3440,6 +3450,10 @@ void getmd5sum(strnumber s, boolean file)
         if (file_name == NULL) {
             return;             /* empty string */
         }
+        if (! kpse_in_name_ok(file_name)) {
+           return;              /* no permission */
+        }
+
         /* in case of error the empty string is returned,
            no need for xfopen that aborts on error.
          */
