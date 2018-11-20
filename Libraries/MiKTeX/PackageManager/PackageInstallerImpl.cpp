@@ -1237,6 +1237,19 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   PackageInfo newPackage = tpmparser->GetPackageInfo();
   newPackage.id = packageId;
 
+#if defined(MIKTEX_USE_ZZDB3)
+  // install new package manifest
+  unique_ptr<Cfg> cfg = Cfg::Create();
+  PathName packageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+  if (File::Exists(packageManifestsIni))
+  {
+    cfg->Read(packageManifestsIni);
+    PackageManager::PutPackageManifest(*cfg, newPackage, newPackage.timePackaged);
+    cfg->Write(packageManifestsIni);
+  }
+  cfg = nullptr;
+#endif
+
   // find recycled and brand new files
   StringSet set1;
   GetFiles(*package, set1);
