@@ -34,6 +34,8 @@
 #include "miktex/PackageManager/PackageManager.h"
 
 #include "internal.h"
+
+#include "PackageInstallationDataStore.h"
 #include "PackageRepositoryDataStore.h"
 #include "WebSession.h"
 
@@ -288,6 +290,9 @@ public:
   {
     return webSession.get();
   }
+
+private:
+  PackageInstallationDataStore installedPackages;
 
 private:
   PackageRepositoryDataStore repositories;
