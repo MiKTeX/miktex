@@ -19,6 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#pragma once
+
 #if !defined(DBD8ED6A4EAB41A49E187B7912407D4D)
 #define DBD8ED6A4EAB41A49E187B7912407D4D
 
@@ -30,52 +32,10 @@
 
 #include "miktex/PackageManager/RepositoryInfo.h"
 
+#include "ComboCfg.h"
 #include "WebSession.h"
 
 BEGIN_INTERNAL_NAMESPACE;
-
-class ComboCfg
-{
-public:
-  enum class Scope
-  {
-    User,
-    Common
-  };
-
-public:
-  void Load(const MiKTeX::Core::PathName& fileNameUser, const MiKTeX::Core::PathName& fileNameCommon);
-
-public:
-  void Save();
-
-public:
-  bool TryGetValueAsString(const std::string& keyName, const std::string& valueName, std::string& value);
-
-public:
-  bool TryGetValueAsString(Scope scope, const std::string& keyName, const std::string& valueName, std::string& value);
-
-public:
-  void PutValue(const std::string& keyName, const std::string& valueName, const std::string& value);
-
-public:
-  void DeleteKey(const std::string& keyName);
-
-private:
-  MiKTeX::Core::PathName fileNameUser;
-
-private:
-  MiKTeX::Core::PathName fileNameCommon;
-
-private:
-  std::unique_ptr<MiKTeX::Core::Cfg> cfgUser;
-
-private:
-  std::unique_ptr<MiKTeX::Core::Cfg> cfgCommon;
-
-private:
-  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
-};
 
 class PackageRepositoryDataStore
 {

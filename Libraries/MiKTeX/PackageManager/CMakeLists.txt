@@ -69,6 +69,8 @@ set(mpm_sources
   ${public_headers}
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${CMAKE_CURRENT_BINARY_DIR}/mpm-version.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/ComboCfg.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ComboCfg.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebFile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebSession.cpp
