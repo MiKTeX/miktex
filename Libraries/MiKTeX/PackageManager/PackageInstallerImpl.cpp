@@ -501,7 +501,7 @@ void PackageInstallerImpl::FindUpdates()
 
     const PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
 
-    if (package == nullptr || !packageManager->IsPackageInstalled(packageId))
+    if (package == nullptr || !packageManager->GetInstalledPackages().IsInstalled(packageId))
     {
       if (isEssential)
       {
@@ -515,8 +515,8 @@ void PackageInstallerImpl::FindUpdates()
     // clean the user-installation directory
     if (!session->IsAdminMode()
       && session->GetSpecialPath(SpecialPath::UserInstallRoot) != session->GetSpecialPath(SpecialPath::CommonInstallRoot)
-      && packageManager->GetUserTimeInstalled(packageId) != static_cast<time_t>(0)
-      && packageManager->GetCommonTimeInstalled(packageId) != static_cast<time_t>(0))
+      && packageManager->GetInstalledPackages().GetUserTimeInstalled(packageId) != static_cast<time_t>(0)
+      && packageManager->GetInstalledPackages().GetCommonTimeInstalled(packageId) != static_cast<time_t>(0))
     {
       if (!package->isRemovable)
       {
@@ -680,7 +680,7 @@ void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
   {
     Notify();
     const PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
-    if (package != nullptr && packageManager->IsPackageInstalled(packageId))
+    if (package != nullptr && packageManager->GetInstalledPackages().IsInstalled(packageId))
     {
       continue;
     }
@@ -847,18 +847,18 @@ void PackageInstallerImpl::RemovePackage(const string& packageId)
   }
 
   // check to see whether it is installed
-  if (packageManager->GetTimeInstalled(packageId) == 0)
+  if (packageManager->GetInstalledPackages().GetTimeInstalled(packageId) == 0)
   {
     MIKTEX_UNEXPECTED();
   }
 
   // clear the installTime value => package is not installed
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing {0} from the variable package table"), Q_(packageId)));
-  packageManager->SetTimeInstalled(packageId, 0);
-  packageManager->FlushVariablePackageTable();
+  packageManager->GetInstalledPackages().SetTimeInstalled(packageId, 0);
+  packageManager->GetInstalledPackages().Save();
   package->timeInstalled = 0;
 
-  if (packageManager->IsPackageObsolete(packageId))
+  if (packageManager->GetInstalledPackages().IsObsolete(packageId))
   {
     // it's an obsolete package: make sure that the package
     // definition file gets removed too
@@ -1189,7 +1189,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
 
   // silently uninstall the package (this also decrements the file
   // reference counts)
-  if (packageManager->IsPackageInstalled(packageId))
+  if (packageManager->GetInstalledPackages().IsInstalled(packageId))
   {
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: removing old files"), packageId));
     // make sure that the package info file does not get removed
@@ -1198,8 +1198,8 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
     RemoveFiles(package->docFiles, true);
     RemoveFiles(package->sourceFiles, true);
     // temporarily set the status to "not installed"
-    packageManager->SetTimeInstalled(packageId, 0);
-    packageManager->FlushVariablePackageTable();
+    packageManager->GetInstalledPackages().SetTimeInstalled(packageId, 0);
+    packageManager->GetInstalledPackages().Save();
   }
 
   if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
@@ -1288,9 +1288,9 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
 
   // set the timeInstalled value => package is installed
   newPackage.timeInstalled = time(nullptr);
-  packageManager->SetTimeInstalled(packageId, newPackage.timeInstalled);
-  packageManager->SetReleaseState(packageId, repositoryReleaseState);
-  packageManager->FlushVariablePackageTable();
+  packageManager->GetInstalledPackages().SetTimeInstalled(packageId, newPackage.timeInstalled);
+  packageManager->GetInstalledPackages().SetReleaseState(packageId, repositoryReleaseState);
+  packageManager->GetInstalledPackages().Save();
 
   // update package info table
   *package = newPackage;
@@ -1731,7 +1731,7 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
       CheckDependencies(packages, p, force, level + 1);
     }
   }
-  if (force || !packageManager->IsPackageInstalled(packageId))
+  if (force || !packageManager->GetInstalledPackages().IsInstalled(packageId))
   {
     packages.insert(packageId);
   }
@@ -2314,7 +2314,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
 
     // now we know that the package is obsolete
     // check to see whether the obsolete package is installed
-    if (packageManager->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
+    if (packageManager->GetInstalledPackages().GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
     {
       // not installed: remove the package manifest (later)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete package manifest '{0}'"), packageId));
@@ -2325,7 +2325,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
       // installed: declare the package as obsolete (we wont
       // uninstall obsolete packages)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("declaring '{0}' obsolete"), packageId));
-      packageManager->DeclarePackageObsolete(packageId, true);
+      packageManager->GetInstalledPackages().DeclareObsolete(packageId, true);
     }
   }
   for (const auto& p : toBeRemoved)
@@ -2333,7 +2333,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
     cfgExisting.DeleteKey(p);
   }
 
-  packageManager->FlushVariablePackageTable();
+  packageManager->GetInstalledPackages().Save();
 }
 #else
 void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& temporaryDirectory)
@@ -2479,7 +2479,7 @@ void PackageInstallerImpl::UpdateDb()
     Notify();
 
     // ignore package, if package is already installed
-    if (!IsPureContainer(packageId) && packageManager->IsPackageInstalled(packageId))
+    if (!IsPureContainer(packageId) && packageManager->GetInstalledPackages().IsInstalled(packageId))
     {
       continue;
     }

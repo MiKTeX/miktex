@@ -114,223 +114,6 @@ unique_ptr<PackageIterator> PackageManagerImpl::CreateIterator()
   return make_unique<PackageIteratorImpl>(shared_from_this());
 }
 
-void PackageManagerImpl::LoadVariablePackageTable()
-{
-  // only load once
-  if (commonVariablePackageTable != nullptr)
-  {
-    return;
-  }
-
-  commonVariablePackageTable = Cfg::Create();
-
-  PathName pathCommonPackagesIni(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
-
-  if (File::Exists(pathCommonPackagesIni))
-  {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("loading common variable package table ({0})"), Q_(pathCommonPackagesIni)));
-    commonVariablePackageTable->Read(pathCommonPackagesIni);
-  }
-
-  commonVariablePackageTable->SetModified(false);
-
-  PathName pathUserPackagesIni(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
-
-  if (!session->IsAdminMode() && (pathCommonPackagesIni.Canonicalize() != pathUserPackagesIni.Canonicalize()))
-  {
-    userVariablePackageTable = Cfg::Create();
-    if (File::Exists(pathUserPackagesIni))
-    {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("loading user variable package table ({0})"), Q_(pathUserPackagesIni)));
-      userVariablePackageTable->Read(pathUserPackagesIni);
-    }
-    userVariablePackageTable->SetModified(false);
-  }
-}
-
-void PackageManagerImpl::FlushVariablePackageTable()
-{
-  if (commonVariablePackageTable != nullptr
-    && commonVariablePackageTable->IsModified())
-  {
-    PathName pathPackagesIni(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("flushing common variable package table ({0})"), Q_(pathPackagesIni)));
-    commonVariablePackageTable->Write(pathPackagesIni);
-  }
-  if (userVariablePackageTable != nullptr && userVariablePackageTable->IsModified())
-  {
-    PathName pathPackagesIni(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("flushing user variable package table ({0})"), Q_(pathPackagesIni)));
-    userVariablePackageTable->Write(pathPackagesIni);
-  }
-}
-
-bool PackageManagerImpl::IsRemovable(const string& packageId)
-{
-  bool ret;
-  LoadVariablePackageTable();
-  string str;
-  if (session->IsAdminMode())
-  {
-    // administrator can remove system-wide packages
-    ret = GetCommonTimeInstalled(packageId) != 0;
-  }
-  else
-  {
-    // user can remove private packages
-    if (session->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize() == session->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize())
-    {
-      ret = GetTimeInstalled(packageId) != 0;
-    }
-    else
-    {
-      ret = GetUserTimeInstalled(packageId) != 0;
-    }
-  }
-  return ret;
-}
-
-time_t PackageManagerImpl::GetUserTimeInstalled(const string& packageId)
-{
-  if (session->IsAdminMode())
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  LoadVariablePackageTable();
-  string str;
-  if (userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
-  {
-    return Utils::ToTimeT(str);
-  }
-  else
-  {
-    return 0;
-  }
-}
-
-time_t PackageManagerImpl::GetCommonTimeInstalled(const string& packageId)
-{
-  LoadVariablePackageTable();
-  string str;
-  if (commonVariablePackageTable != nullptr && commonVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
-  {
-    return Utils::ToTimeT(str);
-  }
-  else
-  {
-    return 0;
-  }
-}
-
-time_t PackageManagerImpl::GetTimeInstalled(const string& packageId)
-{
-  LoadVariablePackageTable();
-  string str;
-  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
-    || commonVariablePackageTable->TryGetValueAsString(packageId, "TimeInstalled", str))
-  {
-    return Utils::ToTimeT(str);
-  }
-  else
-  {
-    return 0;
-  }
-}
-
-bool PackageManagerImpl::IsPackageInstalled(const string& packageId)
-{
-  return GetTimeInstalled(packageId) > 0;
-}
-
-bool PackageManagerImpl::IsPackageObsolete(const string& packageId)
-{
-  LoadVariablePackageTable();
-  string str;
-  if ((!session->IsAdminMode()
-    && userVariablePackageTable != nullptr
-    && userVariablePackageTable->TryGetValueAsString(packageId, "Obsolete", str))
-    || commonVariablePackageTable->TryGetValueAsString(packageId, "Obsolete", str))
-  {
-    return std::stoi(str) != 0;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-void PackageManagerImpl::DeclarePackageObsolete(const string& packageId, bool obsolete)
-{
-  LoadVariablePackageTable();
-  if (session->IsAdminMode() || userVariablePackageTable == nullptr)
-  {
-    commonVariablePackageTable->PutValue(packageId, "Obsolete", (obsolete ? "1" : "0"));
-  }
-  else
-  {
-    userVariablePackageTable->PutValue(packageId, "Obsolete", (obsolete ? "1" : "0"));
-  }
-}
-
-void PackageManagerImpl::SetTimeInstalled(const string& packageId, time_t timeInstalled)
-{
-  LoadVariablePackageTable();
-  if (session->IsAdminMode() || userVariablePackageTable == nullptr)
-  {
-    if (timeInstalled == 0)
-    {
-      commonVariablePackageTable->DeleteKey(packageId);
-    }
-    else
-    {
-      commonVariablePackageTable->PutValue(packageId, "TimeInstalled", std::to_string(timeInstalled));
-    }
-  }
-  else
-  {
-    if (timeInstalled == 0)
-    {
-      userVariablePackageTable->DeleteKey(packageId);
-    }
-    else
-    {
-      userVariablePackageTable->PutValue(packageId, "TimeInstalled", std::to_string(timeInstalled));
-    }
-  }
-}
-
-void PackageManagerImpl::SetReleaseState(const string& packageId, RepositoryReleaseState releaseState)
-{
-  LoadVariablePackageTable();
-  if (session->IsAdminMode() || userVariablePackageTable == nullptr)
-  {
-    commonVariablePackageTable->PutValue(packageId, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
-  }
-  else
-  {
-    userVariablePackageTable->PutValue(packageId, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
-  }
-}
-
-RepositoryReleaseState PackageManagerImpl::GetReleaseState(const string& packageId)
-{
-  LoadVariablePackageTable();
-  string str;
-  if ((!session->IsAdminMode() && userVariablePackageTable != nullptr && userVariablePackageTable->TryGetValueAsString(packageId, "ReleaseState", str))
-    || commonVariablePackageTable->TryGetValueAsString(packageId, "ReleaseState", str))
-  {
-    if (str == "stable")
-    {
-      return RepositoryReleaseState::Stable;
-    }
-    else if (str == "next")
-    {
-      return RepositoryReleaseState::Next;
-    }
-  }
-  return RepositoryReleaseState::Unknown;
-}
-
 void PackageManagerImpl::IncrementFileRefCounts(const vector<string>& files)
 {
   for (const string& file : files)
@@ -367,12 +150,12 @@ PackageInfo* PackageManagerImpl::DefinePackage(const string& packageId, const Pa
   }
   else
   {
-    p.first->second.isRemovable = IsRemovable(packageId);
-    p.first->second.isObsolete = IsPackageObsolete(packageId);
-    p.first->second.timeInstalled = GetTimeInstalled(packageId);
+    p.first->second.isRemovable = installedPackages.IsRemovable(packageId);
+    p.first->second.isObsolete = installedPackages.IsObsolete(packageId);
+    p.first->second.timeInstalled = installedPackages.GetTimeInstalled(packageId);
     if (p.first->second.IsInstalled())
     {
-      p.first->second.releaseState = GetReleaseState(packageId);
+      p.first->second.releaseState = installedPackages.GetReleaseState(packageId);
     }
   }
   return &(p.first->second);
@@ -548,7 +331,7 @@ void PackageManagerImpl::LoadAllPackageManifests(const PathName& packageManifest
   for (auto& kv : packageTable)
   {
     PackageInfo& pkg = kv.second;
-    if (!pkg.IsContained() && !pkg.IsContainer() && IsPackageObsolete(pkg.id))
+    if (!pkg.IsContained() && !pkg.IsContainer() && installedPackages.IsObsolete(pkg.id))
     {
       piObsolete.requiredPackages.push_back(pkg.id);
       pkg.requiredBy.push_back(piObsolete.id);
@@ -685,14 +468,7 @@ void PackageManagerImpl::ClearAll()
 {
   packageTable.clear();
   installedFileInfoTable.clear();
-  if (commonVariablePackageTable != nullptr)
-  {
-    commonVariablePackageTable = nullptr;
-  }
-  if (userVariablePackageTable != nullptr)
-  {
-    userVariablePackageTable = nullptr;
-  }
+  installedPackages.Clear();
   loadedAllPackageManifests = false;
 }
 
@@ -1797,7 +1573,7 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
 
   PathName prefix;
 
-  if (!session->IsAdminMode() && GetUserTimeInstalled(packageId) != static_cast<time_t>(0))
+  if (!session->IsAdminMode() && installedPackages.GetUserTimeInstalled(packageId) != static_cast<time_t>(0))
   {
     prefix = session->GetSpecialPath(SpecialPath::UserInstallRoot);
   }

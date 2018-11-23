@@ -181,9 +181,6 @@ public:
 #endif
 
 public:
-  void FlushVariablePackageTable();
-
-public:
   void GetAllPackageDefinitions(std::vector<MiKTeX::Packages::PackageInfo>& packages);
 
 public:
@@ -193,40 +190,7 @@ public:
   InstalledFileInfo * GetInstalledFileInfo(const char* lpszPath);
 
 public:
-  bool IsRemovable(const std::string& packageId);
-
-public:
-  time_t GetUserTimeInstalled(const std::string& packageId);
-
-public:
-  time_t GetCommonTimeInstalled(const std::string& packageId);
-
-public:
-  time_t GetTimeInstalled(const std::string& packageId);
-
-public:
-  bool IsPackageInstalled(const std::string& packageId);
-
-public:
-  bool IsPackageObsolete(const std::string& packageId);
-
-public:
-  void DeclarePackageObsolete(const std::string& packageId, bool obsolete);
-
-public:
-  void SetTimeInstalled(const std::string& packageId, time_t timeInstalled);
-
-public:
-  void SetReleaseState(const std::string& packageId, MiKTeX::Packages::RepositoryReleaseState releaseState);
-
-public:
-  MiKTeX::Packages::RepositoryReleaseState GetReleaseState(const std::string& packageId);
-
-public:
   MiKTeX::Packages::PackageInfo* DefinePackage(const std::string& packageId, const MiKTeX::Packages::PackageInfo& packageinfo);
-
-private:
-  void LoadVariablePackageTable();
 
 private:
   void IncrementFileRefCounts(const std::vector<std::string>& files);
@@ -274,12 +238,6 @@ private:
   bool loadedAllPackageManifests = false;
 
 private:
-  std::unique_ptr<MiKTeX::Core::Cfg> commonVariablePackageTable;
-
-private:
-  std::unique_ptr<MiKTeX::Core::Cfg> userVariablePackageTable;
-
-private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:
@@ -293,6 +251,12 @@ public:
 
 private:
   PackageInstallationDataStore installedPackages;
+
+public:
+  PackageInstallationDataStore& GetInstalledPackages()
+  {
+    return installedPackages;
+  }
 
 private:
   PackageRepositoryDataStore repositories;

@@ -24,6 +24,11 @@
 #if !defined(C4939A5A964940F38CA68698DDEC6718)
 #define C4939A5A964940F38CA68698DDEC6718
 
+#include <ctime>
+#include <string>
+
+#include <miktex/PackageManager/PackageManager.h>
+
 #include "ComboCfg.h"
 
 BEGIN_INTERNAL_NAMESPACE;
@@ -34,10 +39,49 @@ public:
   PackageInstallationDataStore();
 
 public:
+  void Load();
+
+public:
   void Save();
+
+public:
+  void Clear();
+
+public:
+  void SetTimeInstalled(const std::string& packageId, std::time_t timeInstalled);
+
+public:
+  std::time_t GetUserTimeInstalled(const std::string& packageId);
+
+public:
+  std::time_t GetCommonTimeInstalled(const std::string& packageId);
+
+public:
+  std::time_t GetTimeInstalled(const std::string& packageId);
+
+public:
+  bool IsInstalled(const std::string& packageId);
+
+public:
+  bool IsRemovable(const std::string& packageId);
+
+public:
+  void DeclareObsolete(const std::string& packageId, bool obsolete);
+
+public:
+  bool IsObsolete(const std::string& packageId);
+
+public:
+  void SetReleaseState(const std::string& packageId, MiKTeX::Packages::RepositoryReleaseState releaseState);
+
+public:
+  MiKTeX::Packages::RepositoryReleaseState GetReleaseState(const std::string& packageId);
 
 private:
   ComboCfg comboCfg;
+
+private:
+  bool loaded = false;
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();

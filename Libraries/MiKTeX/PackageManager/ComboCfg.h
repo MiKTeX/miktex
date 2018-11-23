@@ -45,6 +45,9 @@ public:
   void Load(const MiKTeX::Core::PathName& fileNameUser, const MiKTeX::Core::PathName& fileNameCommon);
 
 public:
+  void Clear();
+
+public:
   void Save();
 
 public:
@@ -58,6 +61,9 @@ public:
 
 public:
   void DeleteKey(const std::string& keyName);
+
+public:
+  bool Exists(Scope scope);
 
 private:
   MiKTeX::Core::PathName fileNameUser;

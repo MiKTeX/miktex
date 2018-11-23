@@ -107,6 +107,8 @@ inline int FPutC(int ch, FILE* stream)
 
 bool IsUrl(const std::string& url);
 
+constexpr std::time_t InvalidTimeT = 0;
+
 inline bool IsValidTimeT(time_t time)
 {
   return time != static_cast<std::time_t>(0) && time != static_cast<std::time_t>(-1);

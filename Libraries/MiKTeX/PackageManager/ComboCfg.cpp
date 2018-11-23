@@ -54,6 +54,14 @@ void ComboCfg::Load(const PathName& fileNameUser_, const PathName& fileNameCommo
   }
 }
 
+void ComboCfg::Clear()
+{
+  fileNameUser.Clear();
+  fileNameCommon.Clear();
+  cfgCommon = nullptr;
+  cfgUser = nullptr;
+}
+
 void ComboCfg::Save()
 {
   if (cfgCommon != nullptr && cfgCommon->IsModified())
@@ -104,5 +112,16 @@ void ComboCfg::DeleteKey(const string& keyName)
   else
   {
     cfgUser->DeleteKey(keyName);
+  }
+}
+
+bool ComboCfg::Exists(ComboCfg::Scope scope)
+{
+  switch (scope)
+  {
+  case Scope::User:
+    return cfgUser != nullptr;
+  case Scope::Common:
+    return cfgCommon != nullptr;
   }
 }
