@@ -2386,7 +2386,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
 
   lister->Close();
 
-  packageManager->FlushVariablePackageTable();
+  packageManager->GetInstalledPackages().Save();
 }
 #endif
 
