@@ -25,7 +25,6 @@
 #include <map>
 #include <unordered_map>
 
-#include <miktex/Core/Cfg>
 #include <miktex/Core/Fndb>
 #include <miktex/Core/equal_icase>
 #include <miktex/Core/hash_icase>

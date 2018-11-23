@@ -25,9 +25,11 @@
 #define C4939A5A964940F38CA68698DDEC6718
 
 #include <ctime>
+
+#include <memory>
 #include <string>
 
-#include <miktex/PackageManager/PackageManager.h>
+#include <miktex/PackageManager/PackageManager>
 
 #include "ComboCfg.h"
 
