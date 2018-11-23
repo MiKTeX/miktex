@@ -74,7 +74,7 @@ void ComboCfg::Save()
   }
 }
 
-bool ComboCfg::TryGetValueAsString(const std::string& keyName, const std::string& valueName, std::string& value)
+bool ComboCfg::TryGetValueAsString(const string& keyName, const string& valueName, string& value)
 {
   return !session->IsAdminMode() && cfgUser != nullptr && cfgUser->TryGetValueAsString(keyName, valueName, value)
     || cfgCommon->TryGetValueAsString(keyName, valueName, value);
