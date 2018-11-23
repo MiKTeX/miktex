@@ -465,6 +465,9 @@ private:
   std::shared_ptr<PackageManagerImpl> packageManager;
 
 private:
+  PackageInstallationDataStore* installedPackages = nullptr;
+
+private:
   MiKTeX::Packages::PackageInstallerCallback* callback = nullptr;
 
 private:
