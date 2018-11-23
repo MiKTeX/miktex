@@ -2553,7 +2553,7 @@ void PackageInstallerImpl::UpdateDb()
     PathName currentPackageManifestFile(packageManifestDir, name);
 
     // ignore package, if package is already installed
-    if (!IsPureContainer(packageId) && packageManager->IsPackageInstalled(packageId))
+    if (!IsPureContainer(packageId) && installedPackages->IsInstalled(packageId))
     {
 #if 0
       if (File::Exists(currentPackageManifestFile))
