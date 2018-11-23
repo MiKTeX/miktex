@@ -2369,7 +2369,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
     string packageId = name.GetFileNameWithoutExtension().ToString();
 
     // check to see whether the obsolete package is installed
-    if (packageManager->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
+    if (packageManager->GetInstalledPackages().GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
     {
       // not installed: remove the package manifest file
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete {0}"), Q_(name)));
@@ -2380,7 +2380,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
       // installed: declare the package as obsolete (we wont
       // uninstall obsolete packages)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("declaring {0} obsolete"), Q_(packageId)));
-      packageManager->DeclarePackageObsolete(packageId, true);
+      packageManager->GetInstalledPackages().DeclareObsolete(packageId, true);
     }
   }
 
