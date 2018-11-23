@@ -187,7 +187,7 @@ public:
   MiKTeX::Packages::PackageInfo* TryGetPackageInfo(const std::string& packageId);
 
 public:
-  InstalledFileInfo * GetInstalledFileInfo(const char* lpszPath);
+  InstalledFileInfo* GetInstalledFileInfo(const char* path);
 
 public:
   MiKTeX::Packages::PackageInfo* DefinePackage(const std::string& packageId, const MiKTeX::Packages::PackageInfo& packageinfo);
