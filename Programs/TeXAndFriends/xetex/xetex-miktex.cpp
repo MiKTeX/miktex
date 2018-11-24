@@ -1,6 +1,6 @@
 /* xetex-miktex.cpp:
    
-   Copyright (C) 2007-2017 Christian Schenk
+   Copyright (C) 2007-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -58,9 +58,12 @@ C4P::C4P_signed16& namelength16 = XETEXPROG.namelength16;
 XETEXPROGCLASS::utf16code*& nameoffile16 = XETEXPROG.nameoffile16;
 C4P::C4P_integer& nativefonttypeflag = XETEXPROG.nativefonttypeflag;
 C4P::C4P_boolean& nopdfoutput = XETEXPROG.nopdfoutput;
+XETEXPROGCLASS::poolpointer& poolptr = XETEXPROG.poolptr;
+C4P::C4P_integer& poolsize = XETEXPROG.poolsize;
 XETEXPROGCLASS::scaled& ruledp = XETEXPROG.ruledp;
 XETEXPROGCLASS::scaled& ruleht = XETEXPROG.ruleht;
 XETEXPROGCLASS::scaled& rulewd = XETEXPROG.rulewd;
+XETEXPROGCLASS::packedutf16code*& strpool = XETEXPROG.strpool;
 C4P::C4P_integer& synctexoffset = XETEXPROG.synctexoffset;
 C4P::C4P_integer& synctexoption = XETEXPROG.synctexoption;
 C4P::C4P_unsigned16& termoffset = XETEXPROG.termoffset;

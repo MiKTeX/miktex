@@ -6,6 +6,7 @@
 #include <kpathsea/c-pathch.h> /* for IS_DIR_SEP, used in the change files */
 #include <kpathsea/tex-make.h> /* for kpse_make_tex_discard_errors */
 
+#if !defined(MIKTEX)
 #ifdef XeTeX
 #ifdef XETEX_MAC
 /* include this here to avoid conflict between clang's emmintrin.h and
@@ -25,6 +26,7 @@ typedef struct {
 typedef UFILE* unicodefile;
 
 typedef void* voidpointer;
+#endif
 #endif
 
 /* If we have these macros, use them, as they provide a better guide to
@@ -47,6 +49,7 @@ typedef void* voidpointer;
 #endif
 #endif
 
+#if !defined(MIKTEX)
 /* Some things are the same except for the name.  */
 #ifdef TeX
 #if defined (pdfTeX)
@@ -105,7 +108,9 @@ typedef void* voidpointer;
 #define OUT_FILE gffile
 #define OUT_BUF gfbuf
 #endif /* MF */
+#endif
 
+#if !defined(MIKTEX)
 /* Restore underscores.  */
 #define dumpname dump_name
 #define kpsedvipsconfigformat kpse_dvips_config_format
@@ -115,6 +120,7 @@ typedef void* voidpointer;
 #define kpsemppoolformat kpse_mppool_format
 #define kpsetexpoolformat kpse_texpool_format
 #define kpsetexformat kpse_tex_format
+#endif
 
 /* Hacks for TeX that are better not to #ifdef, see lib/openclose.c.  */
 extern int tfmtemp, texinputtype;
@@ -208,6 +214,7 @@ extern void ipcpage (int);
     putbyte (v >> 8, f);  putbyte (v & 0xff, f); \
   } while (0)
 
+#if !defined(MIKTEX)
 /* Read a line of input as quickly as possible.  */
 #define	inputln(stream, flag) input_line (stream)
 #ifdef XeTeX
@@ -215,15 +222,18 @@ extern boolean input_line (UFILE *);
 #else
 extern boolean input_line (FILE *);
 #endif
+#endif
 
 /* This routine has to return four values.  */
 #define	dateandtime(i,j,k,l) get_date_and_time (&(i), &(j), &(k), &(l))
 extern void get_date_and_time (integer *, integer *, integer *, integer *);
 
+#if !defined(MIKTEX)
 #if defined(pdfTeX) || defined(epTeX) || defined(eupTeX) || defined(XeTeX)
 /* Get high-res time info. */
 #define secondsandmicros(i,j) get_seconds_and_micros (&(i), &(j))
 extern void get_seconds_and_micros (integer *, integer *);
+#endif
 #endif
 
 /* Copy command-line arguments into the buffer, despite the name.  */
@@ -238,6 +248,7 @@ extern void topenin (void);
 /* These defines reroute the file i/o calls to the new pipe-enabled 
    functions in texmfmp.c*/
 
+#if !defined(MIKTEX)
 #if ENABLE_PIPES
 #undef aopenin
 #undef aopenout
@@ -246,7 +257,9 @@ extern void topenin (void);
 #define aopenout(f)   open_out_or_pipe(&(f),FOPEN_W_MODE)
 #define aclose(f)     close_file_or_pipe(f)
 #endif
+#endif
 
+#if !defined(MIKTEX)
 /* `bopenin' (and out) is used only for reading (and writing) .tfm
    files; `wopenin' (and out) only for dump files.  The filenames are
    passed in as a global variable, `nameoffile'.  */
@@ -270,7 +283,9 @@ extern void topenin (void);
 #define wopenout	bopenout
 #define wclose		aclose
 #endif
+#endif
 
+#if !defined(MIKTEX)
 #ifdef XeTeX
 #if ENABLE_PIPES
 extern boolean u_open_in_or_pipe(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode, integer encodingData);
@@ -280,6 +295,7 @@ extern void u_close_file_or_pipe(unicodefile* f);
 #else
 #define uopenin(f,p,m,d) u_open_in(&(f), p, FOPEN_RBIN_MODE, m, d)
 #define uclose(f) u_close_inout(&(f))
+#endif
 #endif
 #endif
 

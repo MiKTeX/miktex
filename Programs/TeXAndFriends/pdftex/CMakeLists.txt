@@ -267,6 +267,7 @@ set(${pdftex_target_name}_sources
   source/mapfile.c
   source/pdftex-common.h
   source/pdftex.h
+  source/pdftexextra.c
   source/pdftoepdf-poppler0.68.0.cc
   source/pkin.c
   source/ptexlib.h
@@ -288,11 +289,7 @@ set(${pdftex_target_name}_sources
   source/writezip.c
 )
 
-list(APPEND ${pdftex_target_name}_sources
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_WEB2C_DIR}/source/lib/texmfmp.c
-)
-
-set_source_files_properties(${CMAKE_SOURCE_DIR}/${MIKTEX_REL_WEB2C_DIR}/source/lib/texmfmp.c PROPERTIES LANGUAGE CXX)
+set_source_files_properties(source/pdftexextra.c PROPERTIES LANGUAGE CXX)
 
 set_source_files_properties(
   ${${pdftex_target_name}_sources}

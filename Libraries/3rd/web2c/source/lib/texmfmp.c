@@ -24,10 +24,6 @@
 #ifdef WIN32
 #include <kpathsea/concatn.h>
 #endif
-#if defined(MIKTEX) && defined (pdfTeX)
-#include "ptexlib.h"
-#define fsyscp_stat stat
-#endif
 
 #if defined (HAVE_SYS_TIME_H)
 #include <sys/time.h>
@@ -46,12 +42,18 @@
 #include <texmfmp-help.h>
 #endif
 
+#if defined(MIKTEX)
+#define IS_eTeX 1
+#define fsyscp_stat stat
+#if defined(pdfTeX)
+#include "ptexlib.h"
+#endif
+#else
 /* {tex,mf}d.h defines TeX, MF, INI, and other such symbols.
    Unfortunately there's no way to get the banner into this code, so
    just repeat the text.  */
 /* We also define predicates, e.g., IS_eTeX for all e-TeX like engines, so
    the rest of this file can remain unchanged when adding a new engine.  */
-#if !defined(MIKTEX)
 #ifdef TeX
 #if defined(XeTeX)
 #define IS_eTeX 1
@@ -598,6 +600,7 @@ runsystem (const char *cmd)
 #endif /* TeX */
 #endif
 
+#if !defined(MIKTEX)
 #if ENABLE_PIPES
 /* Like runsystem(), the runpopen() function is called only when
    shellenabledp == 1.   Unlike runsystem(), here we write errors to
@@ -643,11 +646,16 @@ runpopen (char *cmd, const char *mode)
   return f;
 }
 #endif /* ENABLE_PIPES */
+#endif
 
 /* The main program, etc.  */
 
 #ifdef XeTeX
+#if defined(MIKTEX)
+#include "XeTeX_ext.h"
+#else
 #include "xetexdir/XeTeX_ext.h"
+#endif
 #endif
 
 #if !defined(MIKTEX)
@@ -2019,7 +2027,8 @@ parse_first_line (const_string filename)
   }
 }
 #endif
-
+
+#if !defined(MIKTEX)
 /* 
   piped I/O
  */
@@ -2219,6 +2228,7 @@ u_close_file_or_pipe (unicodefile* f)
 #endif
 
 #endif /* ENABLE_PIPES */
+#endif
 
 #if !defined(MIKTEX)
 /* All our interrupt handler has to do is set TeX's or Metafont's global
@@ -2890,6 +2900,7 @@ compare_paths (const_string p1, const_string p2)
 }
 #endif
 
+#if !defined(MIKTEX)
 #ifdef XeTeX /* the string pool is UTF-16 but we want a UTF-8 string */
 
 string
@@ -2941,7 +2952,6 @@ gettexstring (strnumber s)
 
 #else
 
-#if !defined(MIKTEX)
 string
 gettexstring (strnumber s)
 {
@@ -3053,7 +3063,10 @@ static void safe_print(const char *str)
 
    The output format of this fuction must be the same as pdf_error in
    pdftex.web! */
+#if defined(MIKTEX) && defined(_MSC_VER)
+#else
 __attribute__ ((noreturn, format(printf, 1, 2)))
+#endif
 void pdftex_fail(const char *fmt, ...)
 {
     va_list args;
