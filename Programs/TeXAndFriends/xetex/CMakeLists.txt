@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2017 Christian Schenk
+## Copyright (C) 2008-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -35,6 +35,7 @@ add_definitions(
   -DHAVE_C4P_PRE_H
   -DLE_USE_CMEMORY
   -DSYNCTEX_ENGINE_H="synctex-xetex.h"
+  -DTeX
   -DXETEX_OTHER
   -DXeTeX
   -D__SyncTeX__
@@ -210,10 +211,14 @@ set(${xetex_target_name}_sources
   source/trans.h
   source/xetex.h
   source/xetex_version.h
+  source/xetexextra.c
+  source/xetexextra.h
   xetex-miktex.cpp
   xetex-miktex.h
   xetex-version.h
 )
+
+set_source_files_properties(source/xetexextra.c PROPERTIES LANGUAGE CXX)
 
 set_source_files_properties(
   ${${xetex_target_name}_sources}
@@ -312,6 +317,7 @@ target_link_libraries(${xetex_target_name}
     ${kpsemu_dll_name}
     ${teckit_dll_name}
     ${w2cemu_dll_name}
+    ${web2c_sources_lib_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

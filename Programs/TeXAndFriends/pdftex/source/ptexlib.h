@@ -243,10 +243,6 @@ extern integer write_tounicode(char **, const char *, const char *);
 
 /* utils.c */
 extern boolean str_eq_cstr(strnumber, char *);
-#if defined(MIKTEX)
-// from texmfmp.h
-extern char *makecstring(integer);
-#endif
 extern int xfflush(FILE *);
 extern int xgetc(FILE *);
 extern int xputc(int, FILE *);
@@ -259,10 +255,6 @@ extern void fb_flush(void);
 extern void fb_putchar(eightbits b);
 extern void fb_seek(integer);
 extern void libpdffinish(void);
-#if defined(MIKTEX)
-// from texmfmp.h
-extern char *makecfilename(strnumber s);
-#endif
 extern void make_subset_tag(fd_entry *);
 extern void setjobid(int, int, int, int);
 extern void writestreamlength(longinteger, longinteger);
@@ -274,24 +266,10 @@ extern void escapename(poolpointer in);
 extern void escapestring(poolpointer in);
 extern void escapehex(poolpointer in);
 extern void unescapehex(poolpointer in);
-#if defined(MIKTEX)
-// from texmfmp.h
-extern void getcreationdate(void);
-extern void getfilemoddate(strnumber s);
-extern void getfilesize(strnumber s);
-#endif
 extern void getmd5sum(strnumber s, boolean file);
-#if defined(MIKTEX)
-// from texmfmp.h
-extern void getfiledump(strnumber s, int offset, int length);
-#endif
 extern void matchstrings(strnumber s, strnumber t, int subcount, boolean icase);
 extern void getmatch(int i);
 extern void makepdftexbanner(void);
-#if defined(MIKTEX)
-// from texmfmp.h
-extern void initstarttime(void);
-#endif
 extern void removepdffile(void);
 extern void garbagewarning(void);
 extern void initversionstring(char **versions);

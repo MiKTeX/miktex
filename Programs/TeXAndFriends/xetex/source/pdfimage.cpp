@@ -85,19 +85,19 @@ pdf_get_rect(char* filename, int page_num, int pdf_box, realrect* box)
 	switch (pdf_box) {
 		default:
 		case pdfbox_crop:
-			r = page->getCropBox();
+			r = (PDFRectangle *)page->getCropBox();
 			break;
 		case pdfbox_media:
-			r = page->getMediaBox();
+			r = (PDFRectangle *)page->getMediaBox();
 			break;
 		case pdfbox_bleed:
-			r = page->getBleedBox();
+			r = (PDFRectangle *)page->getBleedBox();
 			break;
 		case pdfbox_trim:
-			r = page->getTrimBox();
+			r = (PDFRectangle *)page->getTrimBox();
 			break;
 		case pdfbox_art:
-			r = page->getArtBox();
+			r = (PDFRectangle *)page->getArtBox();
 			break;
 	}
 

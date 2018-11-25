@@ -44,6 +44,8 @@
 
 #include "pdftexd.h"
 
+#include "texmfmp.h"
+
 namespace pdftex {
 #include <miktex/pdftex.defaults.h>
 }
