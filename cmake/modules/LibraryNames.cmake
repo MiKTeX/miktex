@@ -111,6 +111,7 @@ define_library(uriparser)
 define_library(utf8wrap)
 define_library(util)
 define_library(web2c w2cemu)
+define_library(web2c_sources)
 define_library(zlib)
 define_library(zzip)
 

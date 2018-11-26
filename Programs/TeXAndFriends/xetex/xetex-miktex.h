@@ -44,6 +44,8 @@
 
 #include "xetexd.h"
 
+#include "texmfmp.h"
+
 #if 0
 namespace xetex {
 #include "xetex.defaults.h"
@@ -252,6 +254,7 @@ public:
 using halfword = XETEXPROGCLASS::halfword;
 using memoryword = XETEXPROGCLASS::memoryword;
 using scaled = XETEXPROGCLASS::scaled;
+using strnumber = XETEXPROGCLASS::strnumber;
 
 constexpr auto filenamesize = XETEXPROGCLASS::filenamesize;
 
@@ -282,9 +285,12 @@ extern C4P::C4P_signed16& namelength16;
 extern XETEXPROGCLASS::utf16code*& nameoffile16;
 extern C4P::C4P_integer& nativefonttypeflag;
 extern C4P::C4P_boolean& nopdfoutput;
+extern XETEXPROGCLASS::poolpointer& poolptr;
+extern C4P::C4P_integer& poolsize;
 extern XETEXPROGCLASS::scaled& ruledp;
 extern XETEXPROGCLASS::scaled& ruleht;
 extern XETEXPROGCLASS::scaled& rulewd;
+extern XETEXPROGCLASS::packedutf16code*& strpool;
 extern C4P::C4P_integer& synctexoffset;
 extern C4P::C4P_integer& synctexoption;
 extern C4P::C4P_unsigned16& termoffset;
@@ -330,6 +336,11 @@ inline auto gettracingfontsstate()
   return XETEXPROG.gettracingfontsstate();
 }
 
+inline void print(C4P::C4P_integer s)
+{
+  XETEXPROG.print(s);
+}
+
 inline void printchar(C4P::C4P_integer s)
 {
   XETEXPROG.printchar(s);
@@ -338,6 +349,11 @@ inline void printchar(C4P::C4P_integer s)
 inline void printint(C4P::C4P_integer n)
 {
   XETEXPROG.printint(n);
+}
+
+inline void println()
+{
+  XETEXPROG.println();
 }
 
 inline auto printnl(XETEXPROGCLASS::strnumber s)
@@ -514,36 +530,6 @@ template<class CharType> void printcstring(const CharType* lpsz)
   for (; *lpsz != 0; ++ lpsz)
   {
     XETEXPROG.printchar(*lpsz);
-  }
-}
-
-inline void getmd5sum(XETEXPROGCLASS::strnumber s, boolean isFile)
-{
-  using namespace MiKTeX::Core;
-  char* lpsz = gettexstring(s);
-  std::string str = lpsz;
-  free(lpsz);
-  MD5 md5;
-  if (isFile)
-  {
-    PathName file;
-    if (!Session::Get()->FindFile(str, FileType::TEX, file))
-    {
-      return;
-    }
-    md5 = MD5::FromFile(file);
-  }
-  else
-  {
-    MD5Builder md5Builder;
-    md5Builder.Init();
-    md5Builder.Update(str.c_str(), str.length());
-    md5 = md5Builder.Final();
-  }
-  for (const char& ch : Utils::Hexify(&md5[0], md5.size(), false))
-  {
-    XETEXPROG.strpool[XETEXPROG.poolptr] = (XETEXPROGCLASS::packedutf16code)ch;
-    XETEXPROG.poolptr += 1;
   }
 }
 
