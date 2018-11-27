@@ -39,8 +39,8 @@ PackageInstallationDataStore::PackageInstallationDataStore()
 void PackageInstallationDataStore::Load()
 {
   comboCfg.Load(
-    session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_PACKAGES_INI,
-    session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_PACKAGES_INI);
+    session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGES_INI,
+    session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGES_INI);
   loaded = true;
 }
 
