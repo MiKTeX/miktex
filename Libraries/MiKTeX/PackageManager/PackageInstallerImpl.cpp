@@ -2587,7 +2587,7 @@ void PackageInstallerImpl::UpdateDb()
     File::Copy(newPackageManifestFile, currentPackageManifestFile);
 
     // update the database
-    packageManager->DefinePackage(packageId, tpmparser->GetPackageInfo());
+    packageManager->GetPackageDataStore()->DefinePackage(packageId, tpmparser->GetPackageInfo());
 
     ++count;
   }
