@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-#include "PackageInstallationDataStore.h"
+#include "PackageDataStore.h"
 
 using namespace std;
 

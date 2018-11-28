@@ -34,7 +34,7 @@
 
 #include "internal.h"
 
-#include "PackageInstallationDataStore.h"
+#include "PackageDataStore.h"
 #include "PackageRepositoryDataStore.h"
 #include "WebSession.h"
 

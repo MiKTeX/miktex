@@ -77,9 +77,9 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebSession.h
   ${CMAKE_CURRENT_SOURCE_DIR}/ExpatTpmParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ExpatTpmParser.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/PackageInstallationDataStore.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/PackageInstallationDataStore.h
   ${CMAKE_CURRENT_SOURCE_DIR}/NoRemoteService.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageDataStore.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageDataStore.h
   ${CMAKE_CURRENT_SOURCE_DIR}/PackageInstallerImpl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/PackageInstallerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/PackageIteratorImpl.cpp
