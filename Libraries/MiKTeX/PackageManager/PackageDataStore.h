@@ -28,12 +28,42 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
+
+#include <miktex/Core/equal_icase>
+#include <miktex/Core/hash_icase>
+#include <miktex/Core/less_icase_dos>
+#include <miktex/Core/PathName>
 
 #include <miktex/PackageManager/PackageManager>
 
 #include "ComboCfg.h"
 
 BEGIN_INTERNAL_NAMESPACE;
+
+struct InstalledFileInfo
+{
+  unsigned long refCount = 0;
+};
+
+struct hash_path
+{
+public:
+  std::size_t operator()(const std::string& str) const
+  {
+    return MiKTeX::Core::PathName(str).GetHash();
+  }
+};
+
+struct equal_path
+{
+public:
+  bool operator()(const std::string& str1, const std::string& str2) const
+  {
+    return MiKTeX::Core::PathName::Compare(str1.c_str(), str2.c_str()) == 0;
+  }
+};
+
 
 class PackageDataStore
 {
@@ -84,6 +114,71 @@ private:
 
 private:
   bool loaded = false;
+
+private:
+  typedef std::unordered_map<std::string, MiKTeX::Packages::PackageInfo, MiKTeX::Core::hash_icase, MiKTeX::Core::equal_icase> PackageDefinitionTable;
+
+private:
+  PackageDefinitionTable packageTable;
+
+public:
+  PackageDefinitionTable* GetPackageTable()
+  {
+    return &packageTable;
+  }
+
+public:
+  MiKTeX::Packages::PackageInfo* DefinePackage(const std::string& packageId, const MiKTeX::Packages::PackageInfo& packageinfo);
+
+public:
+  void IncrementFileRefCounts(const std::string& packageId);
+
+private:
+  void IncrementFileRefCounts(const std::vector<std::string>& files);
+
+public:
+  void NeedInstalledFileInfoTable();
+
+private:
+  typedef std::unordered_map<std::string, InstalledFileInfo, hash_path, equal_path> InstalledFileInfoTable;
+
+private:
+  InstalledFileInfoTable installedFileInfoTable;
+
+public:
+  unsigned long GetFileRefCount(const MiKTeX::Core::PathName& path);
+
+public:
+  InstalledFileInfo* GetInstalledFileInfo(const char* path);
+
+public:
+  void LoadAllPackageManifests(const MiKTeX::Core::PathName& packageManifestsPath);
+
+public:
+  void LoadAllPackageManifests();
+
+#if defined(MIKTEX_USE_ZZDB3)
+public:
+  void NeedPackageManifestsIni();
+#endif
+
+private:
+  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mpm;
+
+private:
+  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_stopwatch;
+
+private:
+  bool loadedAllPackageManifests = false;
+
+public:
+  bool LoadedAllPackageManifests() const
+  {
+    return loadedAllPackageManifests;
+  }
+
+
+
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();

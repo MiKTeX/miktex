@@ -765,7 +765,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
     bool done = false;
 
     // get information about the installed file
-    InstalledFileInfo* installedFileInfo = packageManager->GetInstalledFileInfo(f.c_str());
+    InstalledFileInfo* installedFileInfo = packageManager->GetPackageDataStore()->GetInstalledFileInfo(f.c_str());
 
     // decrement the file reference counter
     if (installedFileInfo != nullptr && installedFileInfo->refCount > 0)
@@ -1297,7 +1297,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   *package = newPackage;
 
   // increment file ref counts
-  packageManager->IncrementFileRefCounts(packageId);
+  packageManager->GetPackageDataStore()->IncrementFileRefCounts(packageId);
 
   // update progress info
   {
@@ -1826,7 +1826,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
   if (toBeInstalled.size() > 1 || !toBeRemoved.empty())
   {
-    packageManager->NeedInstalledFileInfoTable();
+    packageManager->GetPackageDataStore()->NeedInstalledFileInfoTable();
   }
 
   // collect all packages, if no packages were specified by the caller
@@ -2461,7 +2461,7 @@ void PackageInstallerImpl::UpdateDb()
   cfgNew->Read(tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
 
   // load existing package-manifests.ini
-  packageManager->NeedPackageManifestsIni();
+  packageManager->GetPackageDataStore()->NeedPackageManifestsIni();
   unique_ptr<Cfg> cfgExisting = Cfg::Create();
   PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   if (File::Exists(existingPackageManifestsIni))
@@ -2495,7 +2495,7 @@ void PackageInstallerImpl::UpdateDb()
     PackageManager::PutPackageManifest(*cfgExisting, packageInfo, packageInfo.timePackaged);
 
     // update the package table
-    packageManager->DefinePackage(packageId, packageInfo);
+    packageManager->GetPackageDataStore()->DefinePackage(packageId, packageInfo);
 
     ++count;
   }
