@@ -249,12 +249,12 @@ public:
   }
 
 private:
-  PackageInstallationDataStore installedPackages;
+  PackageDataStore packageDataStore;
 
 public:
-  PackageInstallationDataStore* GetInstalledPackages()
+  PackageDataStore* GetPackageDataStore()
   {
-    return &installedPackages;
+    return &packageDataStore;
   }
 
 private:

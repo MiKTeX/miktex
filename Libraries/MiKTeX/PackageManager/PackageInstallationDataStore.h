@@ -1,4 +1,4 @@
-/* PackageInstallationDataStore.h:                      -*- C++ -*-
+/* PackageDataStore.h:                                  -*- C++ -*-
 
    Copyright (C) 2018 Christian Schenk
 
@@ -35,16 +35,16 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-class PackageInstallationDataStore
+class PackageDataStore
 {
 public:
-  PackageInstallationDataStore();
+  PackageDataStore();
+
+private:
+  void LoadVarData();
 
 public:
-  void Load();
-
-public:
-  void Save();
+  void SaveVarData();
 
 public:
   void Clear();

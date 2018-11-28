@@ -150,12 +150,12 @@ PackageInfo* PackageManagerImpl::DefinePackage(const string& packageId, const Pa
   }
   else
   {
-    p.first->second.isRemovable = installedPackages.IsRemovable(packageId);
-    p.first->second.isObsolete = installedPackages.IsObsolete(packageId);
-    p.first->second.timeInstalled = installedPackages.GetTimeInstalled(packageId);
+    p.first->second.isRemovable = packageDataStore.IsRemovable(packageId);
+    p.first->second.isObsolete = packageDataStore.IsObsolete(packageId);
+    p.first->second.timeInstalled = packageDataStore.GetTimeInstalled(packageId);
     if (p.first->second.IsInstalled())
     {
-      p.first->second.releaseState = installedPackages.GetReleaseState(packageId);
+      p.first->second.releaseState = packageDataStore.GetReleaseState(packageId);
     }
   }
   return &(p.first->second);
@@ -331,7 +331,7 @@ void PackageManagerImpl::LoadAllPackageManifests(const PathName& packageManifest
   for (auto& kv : packageTable)
   {
     PackageInfo& pkg = kv.second;
-    if (!pkg.IsContained() && !pkg.IsContainer() && installedPackages.IsObsolete(pkg.id))
+    if (!pkg.IsContained() && !pkg.IsContainer() && packageDataStore.IsObsolete(pkg.id))
     {
       piObsolete.requiredPackages.push_back(pkg.id);
       pkg.requiredBy.push_back(piObsolete.id);
@@ -468,7 +468,7 @@ void PackageManagerImpl::ClearAll()
 {
   packageTable.clear();
   installedFileInfoTable.clear();
-  installedPackages.Clear();
+  packageDataStore.Clear();
   loadedAllPackageManifests = false;
 }
 
@@ -1573,7 +1573,7 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
 
   PathName prefix;
 
-  if (!session->IsAdminMode() && installedPackages.GetUserTimeInstalled(packageId) != static_cast<time_t>(0))
+  if (!session->IsAdminMode() && packageDataStore.GetUserTimeInstalled(packageId) != static_cast<time_t>(0))
   {
     prefix = session->GetSpecialPath(SpecialPath::UserInstallRoot);
   }

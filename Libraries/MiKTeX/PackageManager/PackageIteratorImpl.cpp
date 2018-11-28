@@ -45,7 +45,7 @@ bool PackageIteratorImpl::GetNext(PackageInfo& packageInfo)
     {
       continue;
     }
-    if (filter[PackageFilter::Obsolete] && !packageManager->GetInstalledPackages()->IsObsolete(iter->id))
+    if (filter[PackageFilter::Obsolete] && !packageManager->GetPackageDataStore()->IsObsolete(iter->id))
     {
       continue;
     }

@@ -95,7 +95,7 @@ MPMSTATICFUNC(PathName) PrefixedPackageManifestFile(const string& packageId)
 
 PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manager) :
   packageManager(manager),
-  installedPackages(manager->GetInstalledPackages()),
+  packageDataStore(manager->GetPackageDataStore()),
   session(Session::Get()),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
@@ -502,7 +502,7 @@ void PackageInstallerImpl::FindUpdates()
 
     const PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
 
-    if (package == nullptr || !installedPackages->IsInstalled(packageId))
+    if (package == nullptr || !packageDataStore->IsInstalled(packageId))
     {
       if (isEssential)
       {
@@ -516,8 +516,8 @@ void PackageInstallerImpl::FindUpdates()
     // clean the user-installation directory
     if (!session->IsAdminMode()
       && session->GetSpecialPath(SpecialPath::UserInstallRoot) != session->GetSpecialPath(SpecialPath::CommonInstallRoot)
-      && installedPackages->GetUserTimeInstalled(packageId) != static_cast<time_t>(0)
-      && installedPackages->GetCommonTimeInstalled(packageId) != static_cast<time_t>(0))
+      && packageDataStore->GetUserTimeInstalled(packageId) != static_cast<time_t>(0)
+      && packageDataStore->GetCommonTimeInstalled(packageId) != static_cast<time_t>(0))
     {
       if (!package->isRemovable)
       {
@@ -681,7 +681,7 @@ void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
   {
     Notify();
     const PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
-    if (package != nullptr && installedPackages->IsInstalled(packageId))
+    if (package != nullptr && packageDataStore->IsInstalled(packageId))
     {
       continue;
     }
@@ -848,18 +848,18 @@ void PackageInstallerImpl::RemovePackage(const string& packageId)
   }
 
   // check to see whether it is installed
-  if (installedPackages->GetTimeInstalled(packageId) == 0)
+  if (packageDataStore->GetTimeInstalled(packageId) == 0)
   {
     MIKTEX_UNEXPECTED();
   }
 
   // clear the installTime value => package is not installed
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing {0} from the variable package table"), Q_(packageId)));
-  installedPackages->SetTimeInstalled(packageId, 0);
-  installedPackages->Save();
+  packageDataStore->SetTimeInstalled(packageId, 0);
+  packageDataStore->SaveVarData();
   package->timeInstalled = 0;
 
-  if (installedPackages->IsObsolete(packageId))
+  if (packageDataStore->IsObsolete(packageId))
   {
     // it's an obsolete package: make sure that the package
     // definition file gets removed too
@@ -1190,7 +1190,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
 
   // silently uninstall the package (this also decrements the file
   // reference counts)
-  if (installedPackages->IsInstalled(packageId))
+  if (packageDataStore->IsInstalled(packageId))
   {
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: removing old files"), packageId));
     // make sure that the package info file does not get removed
@@ -1199,8 +1199,8 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
     RemoveFiles(package->docFiles, true);
     RemoveFiles(package->sourceFiles, true);
     // temporarily set the status to "not installed"
-    installedPackages->SetTimeInstalled(packageId, 0);
-    installedPackages->Save();
+    packageDataStore->SetTimeInstalled(packageId, 0);
+    packageDataStore->SaveVarData();
   }
 
   if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
@@ -1289,9 +1289,9 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
 
   // set the timeInstalled value => package is installed
   newPackage.timeInstalled = time(nullptr);
-  installedPackages->SetTimeInstalled(packageId, newPackage.timeInstalled);
-  installedPackages->SetReleaseState(packageId, repositoryReleaseState);
-  installedPackages->Save();
+  packageDataStore->SetTimeInstalled(packageId, newPackage.timeInstalled);
+  packageDataStore->SetReleaseState(packageId, repositoryReleaseState);
+  packageDataStore->SaveVarData();
 
   // update package info table
   *package = newPackage;
@@ -1732,7 +1732,7 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
       CheckDependencies(packages, p, force, level + 1);
     }
   }
-  if (force || !installedPackages->IsInstalled(packageId))
+  if (force || !packageDataStore->IsInstalled(packageId))
   {
     packages.insert(packageId);
   }
@@ -2315,7 +2315,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
 
     // now we know that the package is obsolete
     // check to see whether the obsolete package is installed
-    if (installedPackages->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
+    if (packageDataStore->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
     {
       // not installed: remove the package manifest (later)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete package manifest '{0}'"), packageId));
@@ -2326,7 +2326,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
       // installed: declare the package as obsolete (we wont
       // uninstall obsolete packages)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("declaring '{0}' obsolete"), packageId));
-      installedPackages->DeclareObsolete(packageId, true);
+      packageDataStore->DeclareObsolete(packageId, true);
     }
   }
   for (const auto& p : toBeRemoved)
@@ -2334,7 +2334,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
     cfgExisting.DeleteKey(p);
   }
 
-  installedPackages->Save();
+  packageDataStore->SaveVarData();
 }
 #else
 void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& temporaryDirectory)
@@ -2370,7 +2370,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
     string packageId = name.GetFileNameWithoutExtension().ToString();
 
     // check to see whether the obsolete package is installed
-    if (installedPackages->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
+    if (packageDataStore->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
     {
       // not installed: remove the package manifest file
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete {0}"), Q_(name)));
@@ -2381,13 +2381,13 @@ void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& te
       // installed: declare the package as obsolete (we wont
       // uninstall obsolete packages)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("declaring {0} obsolete"), Q_(packageId)));
-      installedPackages->DeclareObsolete(packageId, true);
+      packageDataStore->DeclareObsolete(packageId, true);
     }
   }
 
   lister->Close();
 
-  installedPackages->Save();
+  packageDataStore->SaveVarData();
 }
 #endif
 
@@ -2480,7 +2480,7 @@ void PackageInstallerImpl::UpdateDb()
     Notify();
 
     // ignore package, if package is already installed
-    if (!IsPureContainer(packageId) && installedPackages->IsInstalled(packageId))
+    if (!IsPureContainer(packageId) && packageDataStore->IsInstalled(packageId))
     {
       continue;
     }
@@ -2553,7 +2553,7 @@ void PackageInstallerImpl::UpdateDb()
     PathName currentPackageManifestFile(packageManifestDir, name);
 
     // ignore package, if package is already installed
-    if (!IsPureContainer(packageId) && installedPackages->IsInstalled(packageId))
+    if (!IsPureContainer(packageId) && packageDataStore->IsInstalled(packageId))
     {
 #if 0
       if (File::Exists(currentPackageManifestFile))

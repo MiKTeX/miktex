@@ -1,4 +1,4 @@
-/* PackageInstallationDataStore.cpp
+/* PackageDataStore.cpp
 
    Copyright (C) 2018 Christian Schenk
 
@@ -32,11 +32,11 @@ using namespace MiKTeX::Packages;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
-PackageInstallationDataStore::PackageInstallationDataStore()
+PackageDataStore::PackageDataStore()
 {
 }
 
-void PackageInstallationDataStore::Load()
+void PackageDataStore::LoadVarData()
 {
   comboCfg.Load(
     session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGES_INI,
@@ -44,22 +44,22 @@ void PackageInstallationDataStore::Load()
   loaded = true;
 }
 
-void PackageInstallationDataStore::Save()
+void PackageDataStore::SaveVarData()
 {
   comboCfg.Save();
 }
 
-void PackageInstallationDataStore::Clear()
+void PackageDataStore::Clear()
 {
   comboCfg.Clear();
   loaded = false;
 }
 
-void PackageInstallationDataStore::SetTimeInstalled(const string& packageId, time_t timeInstalled)
+void PackageDataStore::SetTimeInstalled(const string& packageId, time_t timeInstalled)
 {
   if (!loaded)
   {
-    Load();
+    LoadVarData();
   }
   if (IsValidTimeT(timeInstalled))
   {
@@ -71,11 +71,11 @@ void PackageInstallationDataStore::SetTimeInstalled(const string& packageId, tim
   }
 }
 
-time_t PackageInstallationDataStore::GetUserTimeInstalled(const string& packageId)
+time_t PackageDataStore::GetUserTimeInstalled(const string& packageId)
 {
   if (!loaded)
   {
-    Load();
+    LoadVarData();
   }
   string str;
   if (comboCfg.TryGetValueAsString(ComboCfg::Scope::User, packageId, "TimeInstalled", str))
@@ -88,11 +88,11 @@ time_t PackageInstallationDataStore::GetUserTimeInstalled(const string& packageI
   }
 }
 
-time_t PackageInstallationDataStore::GetCommonTimeInstalled(const std::string& packageId)
+time_t PackageDataStore::GetCommonTimeInstalled(const std::string& packageId)
 {
   if (!loaded)
   {
-    Load();
+    LoadVarData();
   }
   string str;
   if (comboCfg.TryGetValueAsString(ComboCfg::Scope::Common, packageId, "TimeInstalled", str))
@@ -105,11 +105,11 @@ time_t PackageInstallationDataStore::GetCommonTimeInstalled(const std::string& p
   }
 }
 
-time_t PackageInstallationDataStore::GetTimeInstalled(const string& packageId)
+time_t PackageDataStore::GetTimeInstalled(const string& packageId)
 {
   if (!loaded)
   {
-    Load();
+    LoadVarData();
   }
   string str;
   if ((!session->IsAdminMode() && comboCfg.TryGetValueAsString(ComboCfg::Scope::User, packageId, "TimeInstalled", str))
@@ -123,20 +123,20 @@ time_t PackageInstallationDataStore::GetTimeInstalled(const string& packageId)
   }
 }
 
-bool PackageInstallationDataStore::IsInstalled(const string& packageId)
+bool PackageDataStore::IsInstalled(const string& packageId)
 {
   if (!loaded)
   {
-    Load();
+    LoadVarData();
   }
   return IsValidTimeT(GetTimeInstalled(packageId));
 }
 
-bool PackageInstallationDataStore::IsRemovable(const string& packageId)
+bool PackageDataStore::IsRemovable(const string& packageId)
 {
   if (!loaded)
   {
-    Load();
+    LoadVarData();
   }
   bool ret;
   string str;
@@ -160,20 +160,20 @@ bool PackageInstallationDataStore::IsRemovable(const string& packageId)
   return ret;
 }
 
-void PackageInstallationDataStore::DeclareObsolete(const string& packageId, bool obsolete)
+void PackageDataStore::DeclareObsolete(const string& packageId, bool obsolete)
 {
   if (!loaded)
   {
-    Load();
+    LoadVarData();
   }
   comboCfg.PutValue(packageId, "Obsolete", (obsolete ? "1" : "0"));
 }
 
-bool PackageInstallationDataStore::IsObsolete(const string& packageId)
+bool PackageDataStore::IsObsolete(const string& packageId)
 {
   if (!loaded)
   {
-    Load();
+    LoadVarData();
   }
   string str;
   if ((!session->IsAdminMode() && comboCfg.TryGetValueAsString(ComboCfg::Scope::User, packageId, "Obsolete", str))
@@ -187,20 +187,20 @@ bool PackageInstallationDataStore::IsObsolete(const string& packageId)
   }
 }
 
-void PackageInstallationDataStore::SetReleaseState(const string& packageId, RepositoryReleaseState releaseState)
+void PackageDataStore::SetReleaseState(const string& packageId, RepositoryReleaseState releaseState)
 {
   if (!loaded)
   {
-    Load();
+    LoadVarData();
   }
   comboCfg.PutValue(packageId, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
 }
 
-RepositoryReleaseState PackageInstallationDataStore::GetReleaseState(const string& packageId)
+RepositoryReleaseState PackageDataStore::GetReleaseState(const string& packageId)
 {
   if (!loaded)
   {
-    Load();
+    LoadVarData();
   }
   string str;
   if (comboCfg.TryGetValueAsString(packageId, "ReleaseState", str))
