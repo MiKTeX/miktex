@@ -1826,7 +1826,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
   if (toBeInstalled.size() > 1 || !toBeRemoved.empty())
   {
-    packageManager->GetPackageDataStore()->NeedInstalledFileInfoTable();
+    packageManager->GetPackageDataStore()->LoadAllPackageManifests();
   }
 
   // collect all packages, if no packages were specified by the caller

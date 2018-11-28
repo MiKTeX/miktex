@@ -56,10 +56,12 @@ PackageDataStore::PackageDataStore() :
 
 void PackageDataStore::LoadVarData()
 {
-  comboCfg.Load(
-    session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGES_INI,
-    session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGES_INI);
-  loaded = true;
+  if (!comboCfg.Loaded())
+  {
+    comboCfg.Load(
+      session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGES_INI,
+      session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGES_INI);
+  }
 }
 
 void PackageDataStore::SaveVarData()
@@ -73,15 +75,11 @@ void PackageDataStore::Clear()
   installedFileInfoTable.clear();
   loadedAllPackageManifests = false;
   comboCfg.Clear();
-  loaded = false;
 }
 
 void PackageDataStore::SetTimeInstalled(const string& packageId, time_t timeInstalled)
 {
-  if (!loaded)
-  {
-    LoadVarData();
-  }
+  LoadVarData();
   if (IsValidTimeT(timeInstalled))
   {
     comboCfg.PutValue(packageId, "TimeInstalled", std::to_string(timeInstalled));
@@ -94,10 +92,7 @@ void PackageDataStore::SetTimeInstalled(const string& packageId, time_t timeInst
 
 time_t PackageDataStore::GetUserTimeInstalled(const string& packageId)
 {
-  if (!loaded)
-  {
-    LoadVarData();
-  }
+  LoadVarData();
   string str;
   if (comboCfg.TryGetValueAsString(ComboCfg::Scope::User, packageId, "TimeInstalled", str))
   {
@@ -111,10 +106,7 @@ time_t PackageDataStore::GetUserTimeInstalled(const string& packageId)
 
 time_t PackageDataStore::GetCommonTimeInstalled(const std::string& packageId)
 {
-  if (!loaded)
-  {
-    LoadVarData();
-  }
+  LoadVarData();
   string str;
   if (comboCfg.TryGetValueAsString(ComboCfg::Scope::Common, packageId, "TimeInstalled", str))
   {
@@ -128,10 +120,7 @@ time_t PackageDataStore::GetCommonTimeInstalled(const std::string& packageId)
 
 time_t PackageDataStore::GetTimeInstalled(const string& packageId)
 {
-  if (!loaded)
-  {
-    LoadVarData();
-  }
+  LoadVarData();
   string str;
   if ((!session->IsAdminMode() && comboCfg.TryGetValueAsString(ComboCfg::Scope::User, packageId, "TimeInstalled", str))
     || comboCfg.TryGetValueAsString(ComboCfg::Scope::Common, packageId, "TimeInstalled", str))
@@ -146,19 +135,13 @@ time_t PackageDataStore::GetTimeInstalled(const string& packageId)
 
 bool PackageDataStore::IsInstalled(const string& packageId)
 {
-  if (!loaded)
-  {
-    LoadVarData();
-  }
+  LoadVarData();
   return IsValidTimeT(GetTimeInstalled(packageId));
 }
 
 bool PackageDataStore::IsRemovable(const string& packageId)
 {
-  if (!loaded)
-  {
-    LoadVarData();
-  }
+  LoadVarData();
   bool ret;
   string str;
   if (session->IsAdminMode())
@@ -183,19 +166,13 @@ bool PackageDataStore::IsRemovable(const string& packageId)
 
 void PackageDataStore::DeclareObsolete(const string& packageId, bool obsolete)
 {
-  if (!loaded)
-  {
-    LoadVarData();
-  }
+  LoadVarData();
   comboCfg.PutValue(packageId, "Obsolete", (obsolete ? "1" : "0"));
 }
 
 bool PackageDataStore::IsObsolete(const string& packageId)
 {
-  if (!loaded)
-  {
-    LoadVarData();
-  }
+  LoadVarData();
   string str;
   if ((!session->IsAdminMode() && comboCfg.TryGetValueAsString(ComboCfg::Scope::User, packageId, "Obsolete", str))
     || comboCfg.TryGetValueAsString(ComboCfg::Scope::Common, packageId, "Obsolete", str))
@@ -210,19 +187,13 @@ bool PackageDataStore::IsObsolete(const string& packageId)
 
 void PackageDataStore::SetReleaseState(const string& packageId, RepositoryReleaseState releaseState)
 {
-  if (!loaded)
-  {
-    LoadVarData();
-  }
+  LoadVarData();
   comboCfg.PutValue(packageId, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
 }
 
 RepositoryReleaseState PackageDataStore::GetReleaseState(const string& packageId)
 {
-  if (!loaded)
-  {
-    LoadVarData();
-  }
+  LoadVarData();
   string str;
   if (comboCfg.TryGetValueAsString(packageId, "ReleaseState", str))
   {
@@ -279,21 +250,16 @@ void PackageDataStore::IncrementFileRefCounts(const vector<string>& files)
 
 void PackageDataStore::IncrementFileRefCounts(const string& packageId)
 {
-  NeedInstalledFileInfoTable();
+  LoadAllPackageManifests();
   const PackageInfo& pi = packageTable[packageId];
   IncrementFileRefCounts(pi.runFiles);
   IncrementFileRefCounts(pi.docFiles);
   IncrementFileRefCounts(pi.sourceFiles);
 }
 
-void PackageDataStore::NeedInstalledFileInfoTable()
-{
-  LoadAllPackageManifests();
-}
-
 unsigned long PackageDataStore::GetFileRefCount(const PathName& path)
 {
-  NeedInstalledFileInfoTable();
+  LoadAllPackageManifests();
   InstalledFileInfoTable::const_iterator it = installedFileInfoTable.find(path.GetData());
   if (it == installedFileInfoTable.end())
   {
@@ -545,7 +511,7 @@ void PackageDataStore::LoadAllPackageManifests()
   LoadAllPackageManifests(commonPath);
 }
 
-#if MIKTEX_USE_ZZDB3
+#if defined(MIKTEX_USE_ZZDB3)
 void PackageDataStore::NeedPackageManifestsIni()
 {
   PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;

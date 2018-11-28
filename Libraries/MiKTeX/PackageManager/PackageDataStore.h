@@ -30,10 +30,11 @@
 #include <string>
 #include <unordered_map>
 
+#include <miktex/Core/PathName>
+#include <miktex/Core/Session>
 #include <miktex/Core/equal_icase>
 #include <miktex/Core/hash_icase>
 #include <miktex/Core/less_icase_dos>
-#include <miktex/Core/PathName>
 
 #include <miktex/PackageManager/PackageManager>
 
@@ -113,9 +114,6 @@ private:
   ComboCfg comboCfg;
 
 private:
-  bool loaded = false;
-
-private:
   typedef std::unordered_map<std::string, MiKTeX::Packages::PackageInfo, MiKTeX::Core::hash_icase, MiKTeX::Core::equal_icase> PackageDefinitionTable;
 
 private:
@@ -135,9 +133,6 @@ public:
 
 private:
   void IncrementFileRefCounts(const std::vector<std::string>& files);
-
-public:
-  void NeedInstalledFileInfoTable();
 
 private:
   typedef std::unordered_map<std::string, InstalledFileInfo, hash_path, equal_path> InstalledFileInfoTable;
@@ -171,14 +166,13 @@ private:
 private:
   bool loadedAllPackageManifests = false;
 
+#if !defined(MIKTEX_USE_ZZDB3)
 public:
   bool LoadedAllPackageManifests() const
   {
     return loadedAllPackageManifests;
   }
-
-
-
+#endif
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();

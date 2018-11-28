@@ -63,7 +63,7 @@ public:
   void DeleteKey(const std::string& keyName);
 
 public:
-  bool Exists(Scope scope);
+  bool Loaded() const;
 
 private:
   MiKTeX::Core::PathName fileNameUser;

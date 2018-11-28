@@ -115,13 +115,7 @@ void ComboCfg::DeleteKey(const string& keyName)
   }
 }
 
-bool ComboCfg::Exists(ComboCfg::Scope scope)
+bool ComboCfg::Loaded() const
 {
-  switch (scope)
-  {
-  case Scope::User:
-    return cfgUser != nullptr;
-  case Scope::Common:
-    return cfgCommon != nullptr;
-  }
+  return cfgUser != nullptr || cfgCommon != nullptr;
 }

@@ -23,7 +23,6 @@
 #define D76F495437014794AC4EF6832E8EEE52
 
 #include <map>
-#include <unordered_map>
 
 #include <miktex/Core/Fndb>
 

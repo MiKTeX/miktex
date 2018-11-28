@@ -137,7 +137,7 @@ void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
     unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
     extractor->Extract(absPath, tempDir->GetPathName());
 
-#if MIKTEX_USE_ZZDB3
+#if defined(MIKTEX_USE_ZZDB3)
     packageManifestsPath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;
 #else
     packageManifestsPath = tempDir->GetPathName();
@@ -160,7 +160,7 @@ void PackageManagerImpl::UnloadDatabase()
 
 PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& packageId)
 {
-#if MIKTEX_USE_ZZDB3
+#if defined(MIKTEX_USE_ZZDB3)
   packageDataStore.LoadAllPackageManifests();
   auto it = packageDataStore.GetPackageTable()->find(packageId);
   return it == packageDataStore.GetPackageTable()->end() ? nullptr : &it->second;
