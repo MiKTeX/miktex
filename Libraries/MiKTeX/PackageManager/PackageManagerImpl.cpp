@@ -154,35 +154,23 @@ void PackageManagerImpl::UnloadDatabase()
   ClearAll();
 }
 
-PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& packageId)
-{
-  packageDataStore.LoadAllPackageManifests();
-  auto it = packageDataStore.GetPackageTable()->find(packageId);
-  return it == packageDataStore.GetPackageTable()->end() ? nullptr : &it->second;
-}
-
 bool PackageManagerImpl::TryGetPackageInfo(const string& packageId, PackageInfo& packageInfo)
 {
-  PackageInfo* packageInfoOrNull = TryGetPackageInfo(packageId);
-  if (packageInfoOrNull == nullptr)
-  {
-    return false;
-  }
-  else
-  {
-    packageInfo = *packageInfoOrNull;
-    return true;
-  }
+  bool knownPackage;
+  tie(knownPackage, packageInfo) = packageDataStore.TryGetPackage(packageId);
+  return knownPackage;
 }
 
 PackageInfo PackageManagerImpl::GetPackageInfo(const string& packageId)
 {
-  const PackageInfo* packageInfoOrNull = TryGetPackageInfo(packageId);
-  if (packageInfoOrNull == nullptr)
+  bool knownPackage;
+  PackageInfo packageInfo;
+  tie(knownPackage, packageInfo) = packageDataStore.TryGetPackage(packageId);
+  if (!knownPackage)
   {
     MIKTEX_FATAL_ERROR_2(T_("The requested package is unknown."), "name", packageId);
   }
-  return *packageInfoOrNull;
+  return packageInfo;
 }
 
 unsigned long PackageManagerImpl::GetFileRefCount(const PathName& path)

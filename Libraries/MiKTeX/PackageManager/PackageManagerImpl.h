@@ -144,9 +144,6 @@ public:
 public:
   void GetAllPackageDefinitions(std::vector<MiKTeX::Packages::PackageInfo>& packages);
 
-public:
-  MiKTeX::Packages::PackageInfo* TryGetPackageInfo(const std::string& packageId);
-
 private:
   bool TryGetFileDigest(const MiKTeX::Core::PathName& prefix, const std::string& fileName, bool& haveDigest, MiKTeX::Core::MD5& digest);
 

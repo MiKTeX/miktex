@@ -500,9 +500,11 @@ void PackageInstallerImpl::FindUpdates()
 
     bool isEssential = repositoryManifest.GetPackageLevel(packageId) <= PackageLevel::Essential;
 
-    const PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
+    bool knownPackage;
+    PackageInfo package;
+    tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
 
-    if (package == nullptr || !packageDataStore->IsInstalled(packageId))
+    if (!knownPackage || !packageDataStore->IsInstalled(packageId))
     {
       if (isEssential)
       {
@@ -519,7 +521,7 @@ void PackageInstallerImpl::FindUpdates()
       && packageDataStore->GetUserTimeInstalled(packageId) != static_cast<time_t>(0)
       && packageDataStore->GetCommonTimeInstalled(packageId) != static_cast<time_t>(0))
     {
-      if (!package->isRemovable)
+      if (!package.isRemovable)
       {
         MIKTEX_UNEXPECTED();
       }
@@ -532,7 +534,7 @@ void PackageInstallerImpl::FindUpdates()
     // check the integrity of installed MiKTeX packages
     if (IsMiKTeXPackage(packageId)
       && !packageManager->TryVerifyInstalledPackage(packageId)
-      && package->isRemovable)
+      && package.isRemovable)
     {
       // the package has been tampered with
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package is broken"), packageId));
@@ -544,16 +546,16 @@ void PackageInstallerImpl::FindUpdates()
 
     // compare digests, version numbers and time stamps
     MD5 md5 = repositoryManifest.GetPackageDigest(packageId);
-    if (md5 == package->digest)
+    if (md5 == package.digest)
     {
       // digests do match => no update necessary
       continue;
     }
 
     // check release state mismatch
-    bool isReleaseStateDiff = package->releaseState != RepositoryReleaseState::Unknown
+    bool isReleaseStateDiff = package.releaseState != RepositoryReleaseState::Unknown
       && repositoryReleaseState != RepositoryReleaseState::Unknown
-      && package->releaseState != repositoryReleaseState;
+      && package.releaseState != repositoryReleaseState;
     if (isReleaseStateDiff)
     {
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package release state changed"), packageId));
@@ -563,12 +565,12 @@ void PackageInstallerImpl::FindUpdates()
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: server has a different version"), packageId));
     }
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("server digest: {0}"), md5));;
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("local digest: {0}"), package->digest));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("local digest: {0}"), package.digest));
     if (!isReleaseStateDiff)
     {
       // compare time stamps
       time_t timePackaged = repositoryManifest.GetTimePackaged(packageId);
-      if (timePackaged <= package->timePackaged)
+      if (timePackaged <= package.timePackaged)
       {
         // server has an older package => no update
         // necessary
@@ -578,7 +580,7 @@ void PackageInstallerImpl::FindUpdates()
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: server has new version"), packageId));
     }
 
-    if (!package->isRemovable)
+    if (!package.isRemovable)
     {
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: no permission to update package"), packageId));
       updateInfo.action = UpdateInfo::KeepAdmin;
@@ -680,8 +682,10 @@ void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
   for (string packageId = repositoryManifest.FirstPackage(); !packageId.empty(); packageId = repositoryManifest.NextPackage())
   {
     Notify();
-    const PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
-    if (package != nullptr && packageDataStore->IsInstalled(packageId))
+    bool knownPackage;
+    PackageInfo package;
+    tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
+    if (knownPackage && packageDataStore->IsInstalled(packageId))
     {
       continue;
     }
@@ -841,8 +845,10 @@ void PackageInstallerImpl::RemovePackage(const string& packageId)
   ReportLine(fmt::format(T_("removing package {0}..."), Q_(packageId)));
 
   // get package info
-  PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
-  if (package == nullptr)
+  bool knownPackage;
+  PackageInfo package;
+  tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
+  if (!knownPackage)
   {
     MIKTEX_UNEXPECTED();
   }
@@ -857,28 +863,28 @@ void PackageInstallerImpl::RemovePackage(const string& packageId)
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing {0} from the variable package table"), Q_(packageId)));
   packageDataStore->SetTimeInstalled(packageId, 0);
   packageDataStore->SaveVarData();
-  package->timeInstalled = 0;
+  package.timeInstalled = 0;
 
   if (packageDataStore->IsObsolete(packageId))
   {
     // it's an obsolete package: make sure that the package
     // definition file gets removed too
-    AddToFileList(package->runFiles, PrefixedPackageManifestFile(packageId));
+    AddToFileList(package.runFiles, PrefixedPackageManifestFile(packageId));
   }
   else
   {
     // make sure that the package manifest file does not get removed
-    RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(packageId));
+    RemoveFromFileList(package.runFiles, PrefixedPackageManifestFile(packageId));
   }
 
   // remove the files
-  size_t nTotal = (package->runFiles.size()
-    + package->docFiles.size()
-    + package->sourceFiles.size());
+  size_t nTotal = (package.runFiles.size()
+    + package.docFiles.size()
+    + package.sourceFiles.size());
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0} file(s)"), nTotal));
-  RemoveFiles(package->runFiles);
-  RemoveFiles(package->docFiles);
-  RemoveFiles(package->sourceFiles);
+  RemoveFiles(package.runFiles);
+  RemoveFiles(package.docFiles);
+  RemoveFiles(package.sourceFiles);
 
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("package {0} successfully removed"), Q_(packageId)));
 
@@ -1128,8 +1134,10 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("installing package {0}"), Q_(packageId)));
 
   // search the package table
-  PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
-  if (package == nullptr)
+  bool knownPackage;
+  PackageInfo package;
+  tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
+  if (!knownPackage)
   {
     MIKTEX_UNEXPECTED();
   }
@@ -1140,11 +1148,11 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
     progressInfo.packageId = packageId;
-    progressInfo.displayName = package->displayName;
+    progressInfo.displayName = package.displayName;
     progressInfo.cFilesPackageInstallCompleted = 0;
-    progressInfo.cFilesPackageInstallTotal = package->GetNumFiles();
+    progressInfo.cFilesPackageInstallTotal = package.GetNumFiles();
     progressInfo.cbPackageInstallCompleted = 0;
-    progressInfo.cbPackageInstallTotal = package->GetSize();
+    progressInfo.cbPackageInstallTotal = package.GetSize();
     if (repositoryType == RepositoryType::Remote)
     {
       progressInfo.cbPackageDownloadCompleted = 0;
@@ -1194,10 +1202,10 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   {
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: removing old files"), packageId));
     // make sure that the package info file does not get removed
-    RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(packageId));
-    RemoveFiles(package->runFiles, true);
-    RemoveFiles(package->docFiles, true);
-    RemoveFiles(package->sourceFiles, true);
+    RemoveFromFileList(package.runFiles, PrefixedPackageManifestFile(packageId));
+    RemoveFiles(package.runFiles, true);
+    RemoveFiles(package.docFiles, true);
+    RemoveFiles(package.sourceFiles, true);
     // temporarily set the status to "not installed"
     packageDataStore->SetTimeInstalled(packageId, 0);
     packageDataStore->SaveVarData();
@@ -1251,7 +1259,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
 
   // find recycled and brand new files
   StringSet set1;
-  GetFiles(*package, set1);
+  GetFiles(package, set1);
   StringSet set2;
   GetFiles(newPackage, set2);
   vector<string> recycledFiles;
@@ -1292,10 +1300,10 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   packageDataStore->SaveVarData();
 
   // update package info table
-  *package = newPackage;
+  packageDataStore->SetPackage(newPackage);
 
   // increment file ref counts
-  packageManager->GetPackageDataStore()->IncrementFileRefCounts(packageId);
+  packageDataStore->IncrementFileRefCounts(packageId);
 
   // update progress info
   {
@@ -1357,13 +1365,15 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
   {
     if (!downloadOnly)
     {
-      PackageInfo* installCandidate = packageManager->TryGetPackageInfo(p);
-      if (installCandidate == nullptr)
+      bool knownPackage;
+      PackageInfo installCandidate;
+      tie(knownPackage, installCandidate) = packageDataStore->TryGetPackage(p);
+      if (!knownPackage)
       {
         MIKTEX_UNEXPECTED();
       }
-      package.cFilesInstallTotal += installCandidate->GetNumFiles();
-      package.cbInstallTotal += installCandidate->GetSize();
+      package.cFilesInstallTotal += installCandidate.GetNumFiles();
+      package.cbInstallTotal += installCandidate.GetSize();
     }
     if (repositoryType == RepositoryType::Remote)
     {
@@ -1396,12 +1406,14 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
 
     for (const string& p : toBeRemoved)
     {
-      PackageInfo* removeCandidate = packageManager->TryGetPackageInfo(p);
-      if (removeCandidate == nullptr)
+      bool knownPackage;
+      PackageInfo removeCandidate;
+      tie(knownPackage, removeCandidate) = packageDataStore->TryGetPackage(p);
+      if (!knownPackage)
       {
         MIKTEX_UNEXPECTED();
       }
-      package.cFilesRemoveTotal += removeCandidate->GetNumFiles();
+      package.cFilesRemoveTotal += removeCandidate.GetNumFiles();
     }
 
     ReportLine(fmt::format(T_("going to remove {0} file(s) ({1} package(s))"), package.cFilesRemoveTotal, package.cPackagesRemoveTotal));
@@ -1581,12 +1593,14 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
 {
   for (const string& p : packages)
   {
-    PackageInfo* package = packageManager->TryGetPackageInfo(p);
-    if (package == nullptr)
+    bool knownPackage;
+    PackageInfo package;
+    tie(knownPackage, package) = packageDataStore->TryGetPackage(p);
+    if (!knownPackage)
     {
       MIKTEX_UNEXPECTED();
     }
-    for (const string& f : package->runFiles)
+    for (const string& f : package.runFiles)
     {
       string fileName;
       if (!PackageManager::StripTeXMFPrefix(f, fileName))
@@ -1722,10 +1736,12 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
   {
     MIKTEX_UNEXPECTED();
   }
-  PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
-  if (package != nullptr)
+  bool knownPackage;
+  PackageInfo package;
+  tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
+  if (knownPackage)
   {
-    for (const string& p : package->requiredPackages)
+    for (const string& p : package.requiredPackages)
     {
       CheckDependencies(packages, p, force, level + 1);
     }

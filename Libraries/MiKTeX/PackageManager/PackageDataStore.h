@@ -28,6 +28,7 @@
 
 #include <memory>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 
 #include <miktex/Core/PathName>
@@ -77,7 +78,22 @@ public:
   void SaveVarData();
 
 public:
+  void LoadAllPackageManifests(const MiKTeX::Core::PathName& packageManifestsPath);
+
+public:
+  void LoadAllPackageManifests();
+
+public:
   void Clear();
+
+public:
+  std::tuple<bool, MiKTeX::Packages::PackageInfo> TryGetPackage(const std::string& packageId);
+
+public:
+  void SetPackage(const MiKTeX::Packages::PackageInfo& packageInfo);
+
+private:
+  MiKTeX::Packages::PackageInfo& operator[](const std::string& packageId);
 
 public:
   void SetTimeInstalled(const std::string& packageId, std::time_t timeInstalled);
@@ -144,12 +160,6 @@ public:
 
 public:
   InstalledFileInfo* GetInstalledFileInfo(const char* path);
-
-public:
-  void LoadAllPackageManifests(const MiKTeX::Core::PathName& packageManifestsPath);
-
-public:
-  void LoadAllPackageManifests();
 
 public:
   void NeedPackageManifestsIni();
