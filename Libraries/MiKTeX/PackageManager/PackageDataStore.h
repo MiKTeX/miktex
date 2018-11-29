@@ -61,10 +61,9 @@ struct equal_path
 public:
   bool operator()(const std::string& str1, const std::string& str2) const
   {
-    return MiKTeX::Core::PathName::Compare(str1.c_str(), str2.c_str()) == 0;
+    return MiKTeX::Core::PathName::Compare(str1, str2) == 0;
   }
 };
-
 
 class PackageDataStore
 {
