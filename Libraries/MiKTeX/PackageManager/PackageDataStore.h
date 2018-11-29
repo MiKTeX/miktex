@@ -80,7 +80,7 @@ public:
 public:
   void LoadAllPackageManifests(const MiKTeX::Core::PathName& packageManifestsPath);
 
-public:
+private:
   void LoadAllPackageManifests();
 
 public:
@@ -135,13 +135,54 @@ private:
   PackageDefinitionTable packageTable;
 
 public:
-  PackageDefinitionTable* GetPackageTable()
+  class iterator
   {
-    return &packageTable;
+  public:
+    iterator(PackageDefinitionTable::iterator it) :
+      it(it)
+    {
+    }
+  public:
+    MiKTeX::Packages::PackageInfo& operator*()
+    {
+      return it->second;
+    }
+  public:
+    iterator& operator++()
+    {
+      it++;
+      return *this;
+    }
+  public:
+    bool operator==(const iterator& rhs)
+    {
+      return it == rhs.it;
+    }
+  public:
+    bool operator!=(const iterator& rhs)
+    {
+      return it != rhs.it;
+    }
+  private:
+    PackageDefinitionTable::iterator it;
+  };
+
+public:
+  iterator begin()
+  {
+    LoadAllPackageManifests();
+    return iterator(packageTable.begin());
   }
 
 public:
-  MiKTeX::Packages::PackageInfo* DefinePackage(const std::string& packageId, const MiKTeX::Packages::PackageInfo& packageinfo);
+  iterator end()
+  {
+    LoadAllPackageManifests();
+    return iterator(packageTable.end());
+  }
+
+public:
+  void DefinePackage(const MiKTeX::Packages::PackageInfo& packageinfo);
 
 public:
   void IncrementFileRefCounts(const std::string& packageId);

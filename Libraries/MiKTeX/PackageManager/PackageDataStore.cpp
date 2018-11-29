@@ -104,14 +104,14 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
     count += 1;
 
     // insert into database
-    PackageInfo* insertedPackageInfo = DefinePackage(packageInfo.id, packageInfo);
+    DefinePackage(packageInfo);
 
     // increment file ref counts, if package is installed
-    if (IsValidTimeT(insertedPackageInfo->timeInstalled))
+    if (IsValidTimeT(packageInfo.timeInstalled))
     {
-      IncrementFileRefCounts(insertedPackageInfo->runFiles);
-      IncrementFileRefCounts(insertedPackageInfo->docFiles);
-      IncrementFileRefCounts(insertedPackageInfo->sourceFiles);
+      IncrementFileRefCounts(packageInfo.runFiles);
+      IncrementFileRefCounts(packageInfo.docFiles);
+      IncrementFileRefCounts(packageInfo.sourceFiles);
     }
   }
 
@@ -171,7 +171,7 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
   if (!piObsolete.requiredPackages.empty())
   {
     // insert "Obsolete" into the database
-    DefinePackage(piObsolete.id, piObsolete);
+    DefinePackage(piObsolete);
   }
 
   // create "Uncategorized" container
@@ -191,7 +191,7 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
   if (!piOther.requiredPackages.empty())
   {
     // insert "Other" into the database
-    DefinePackage(piOther.id, piOther);
+    DefinePackage(piOther);
   }
 
   loadedAllPackageManifests = true;
@@ -389,10 +389,9 @@ RepositoryReleaseState PackageDataStore::GetReleaseState(const string& packageId
   return RepositoryReleaseState::Unknown;
 }
 
-PackageInfo* PackageDataStore::DefinePackage(const string& packageId, const PackageInfo& packageInfo)
+void PackageDataStore::DefinePackage(const PackageInfo& packageInfo)
 {
-  pair<PackageDefinitionTable::iterator, bool> p = packageTable.insert(make_pair(packageId, packageInfo));
-  p.first->second.id = packageId;
+  pair<PackageDefinitionTable::iterator, bool> p = packageTable.insert(make_pair(packageInfo.id, packageInfo));
   if (session->IsMiKTeXDirect())
   {
     // installed from the start
@@ -402,15 +401,14 @@ PackageInfo* PackageDataStore::DefinePackage(const string& packageId, const Pack
   }
   else
   {
-    p.first->second.isRemovable = IsRemovable(packageId);
-    p.first->second.isObsolete = IsObsolete(packageId);
-    p.first->second.timeInstalled = GetTimeInstalled(packageId);
+    p.first->second.isRemovable = IsRemovable(p.first->second.id);
+    p.first->second.isObsolete = IsObsolete(p.first->second.id);
+    p.first->second.timeInstalled = GetTimeInstalled(p.first->second.id);
     if (p.first->second.IsInstalled())
     {
-      p.first->second.releaseState = GetReleaseState(packageId);
+      p.first->second.releaseState = GetReleaseState(p.first->second.id);
     }
   }
-  return &(p.first->second);
 }
 
 void PackageDataStore::IncrementFileRefCounts(const vector<string>& files)

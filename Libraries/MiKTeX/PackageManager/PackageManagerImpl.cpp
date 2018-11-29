@@ -465,12 +465,9 @@ bool PackageManagerImpl::OnProgress(unsigned level, const PathName& directory)
 
 void PackageManagerImpl::CreateMpmFndb()
 {
-  packageDataStore.LoadAllPackageManifests();
-
   // collect the file names
-  for (const auto& kv : *packageDataStore.GetPackageTable())
+  for (const PackageInfo& pi : packageDataStore)
   {
-    const PackageInfo& pi = kv.second;
     for (const string& file : pi.runFiles)
     {
       RememberFileNameInfo(file, pi.id);
@@ -490,15 +487,6 @@ void PackageManagerImpl::CreateMpmFndb()
 
   // free memory
   directoryInfoTable.clear();
-}
-
-void PackageManagerImpl::GetAllPackageDefinitions(vector<PackageInfo>& packages)
-{
-  packageDataStore.LoadAllPackageManifests();
-  for (const auto& kv : *packageDataStore.GetPackageTable())
-  {
-    packages.push_back(kv.second);
-  }
 }
 
 bool PackageManager::IsLocalPackageRepository(const PathName& path)

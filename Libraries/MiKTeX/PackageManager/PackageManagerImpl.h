@@ -141,9 +141,6 @@ public:
 public:
   void ClearAll();
 
-public:
-  void GetAllPackageDefinitions(std::vector<MiKTeX::Packages::PackageInfo>& packages);
-
 private:
   bool TryGetFileDigest(const MiKTeX::Core::PathName& prefix, const std::string& fileName, bool& haveDigest, MiKTeX::Core::MD5& digest);
 
