@@ -137,11 +137,7 @@ void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
     unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
     extractor->Extract(absPath, tempDir->GetPathName());
 
-#if defined(MIKTEX_USE_ZZDB3)
     packageManifestsPath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;
-#else
-    packageManifestsPath = tempDir->GetPathName();
-#endif
   }
 
   // read package manifest files
@@ -160,53 +156,9 @@ void PackageManagerImpl::UnloadDatabase()
 
 PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& packageId)
 {
-#if defined(MIKTEX_USE_ZZDB3)
   packageDataStore.LoadAllPackageManifests();
   auto it = packageDataStore.GetPackageTable()->find(packageId);
   return it == packageDataStore.GetPackageTable()->end() ? nullptr : &it->second;
-#else
-  auto it = packageDataStore.GetPackageTable()->find(packageId);
-  if (it != packageDataStore.GetPackageTable()->end())
-  {
-    return &it->second;
-  }
-  if (packageDataStore.LoadedAllPackageManifests())
-  {
-    return nullptr;
-  }
-  PathName pathPackageManifestFile;
-  bool havePackageInfoFile = false;
-  if (!session->IsAdminMode())
-  {
-    pathPackageManifestFile = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-    pathPackageManifestFile /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-    pathPackageManifestFile /= packageId;
-    pathPackageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
-    havePackageInfoFile = File::Exists(pathPackageManifestFile);
-  }
-  if (!havePackageInfoFile)
-  {
-    pathPackageManifestFile = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
-    pathPackageManifestFile /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-    pathPackageManifestFile /= packageId;
-    pathPackageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
-    havePackageInfoFile = File::Exists(pathPackageManifestFile);
-  }
-  if (!havePackageInfoFile)
-  {
-    return nullptr;
-  }
-  unique_ptr<TpmParser> tpmParser = TpmParser::Create();
-  tpmParser->Parse(pathPackageManifestFile);
-#if IGNORE_OTHER_SYSTEMS
-  string targetSystems = tpmParser->GetPackageInfo().targetSystem;
-  if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
-  {
-    return nullptr;
-  }
-#endif
-  return packageDataStore.DefinePackage(packageId, tpmParser->GetPackageInfo());
-#endif
 }
 
 bool PackageManagerImpl::TryGetPackageInfo(const string& packageId, PackageInfo& packageInfo)
@@ -570,11 +522,7 @@ bool PackageManager::IsLocalPackageRepository(const PathName& path)
 
   // local mirror of remote package repository?
   PathName file1 = PathName(path, MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
-#if defined(MIKTEX_USE_ZZDB3)
   PathName file2 = PathName(path, MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
-#else
-  PathName file2 = PathName(path, MIKTEX_TPM_ARCHIVE_FILE_NAME);
-#endif
   if (File::Exists(file1) && File::Exists(file2))
   {
     return true;

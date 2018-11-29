@@ -283,7 +283,6 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
 {
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("loading all package manifests ({0})"), Q_(packageManifestsPath)));
 
-#if defined(MIKTEX_USE_ZZDB3)
   if (!File::Exists(packageManifestsPath))
   {
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("file {0} does not exist"), Q_(packageManifestsPath)));
@@ -325,82 +324,6 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
       IncrementFileRefCounts(insertedPackageInfo->sourceFiles);
     }
   }
-#else
-  if (!Directory::Exists(packageManifestsPath))
-  {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("directory {0} does not exist"), Q_(packageManifestsPath)));
-    return;
-  }
-
-  unique_ptr<DirectoryLister> dirLister = DirectoryLister::Open(packageManifestsPath, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
-
-  vector<future<PackageInfo>> futurePackageInfoTable;
-
-  // parse package manifest files
-  if (((int)ASYNC_LAUNCH_POLICY & (int)launch::async) != 0)
-  {
-    const size_t maxPackageFiles = 4000;
-    File::SetMaxOpen(maxPackageFiles);
-  }
-  unsigned count = 0;
-  DirectoryEntry direntry;
-  while (dirLister->GetNext(direntry))
-  {
-    PathName name(direntry.name);
-
-    // get package ID
-    string packageId = name.GetFileNameWithoutExtension().ToString();
-
-    // ignore redefinition
-    if (packageTable.find(packageId) != packageTable.end())
-    {
-#if 0
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ignoring redefinition"), packageId));
-#endif
-      continue;
-    }
-
-    // parse package manifest file
-    futurePackageInfoTable.push_back(async(ASYNC_LAUNCH_POLICY, [](const PathName& path)
-    {
-      unique_ptr<TpmParser> tpmParser = TpmParser::Create();
-      tpmParser->Parse(path);
-      return tpmParser->GetPackageInfo();
-    }, PathName(packageManifestsPath, name)));
-  }
-  dirLister->Close();
-
-  for (future<PackageInfo>& fpi : futurePackageInfoTable)
-  {
-    PackageInfo packageInfo = fpi.get();
-
-#if IGNORE_OTHER_SYSTEMS
-    string targetSystems = packageInfo.targetSystem;
-    if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
-    {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ignoring {1} package"), packageInfo.id, targetSystems));
-      continue;
-    }
-#endif
-
-#if POLLUTE_THE_DEBUG_STREAM
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("  adding {0}"), packageInfo.id));
-#endif
-
-    count += 1;
-
-    // insert into database
-    PackageInfo* insertedPackageInfo = DefinePackage(packageInfo.id, packageInfo);
-
-    // increment file ref counts, if package is installed
-    if (IsValidTimeT(insertedPackageInfo->timeInstalled))
-    {
-      IncrementFileRefCounts(insertedPackageInfo->runFiles);
-      IncrementFileRefCounts(insertedPackageInfo->docFiles);
-      IncrementFileRefCounts(insertedPackageInfo->sourceFiles);
-    }
-  }
-#endif
 
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("found {0} package manifests"), count));
 
@@ -492,14 +415,9 @@ void PackageDataStore::LoadAllPackageManifests()
     // we do this once
     return;
   }
-#if defined(MIKTEX_USE_ZZDB3)
   NeedPackageManifestsIni();
   PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-#else
-  PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-  PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-#endif
   if (!session->IsAdminMode())
   {
     LoadAllPackageManifests(userPath);
@@ -511,7 +429,6 @@ void PackageDataStore::LoadAllPackageManifests()
   LoadAllPackageManifests(commonPath);
 }
 
-#if defined(MIKTEX_USE_ZZDB3)
 void PackageDataStore::NeedPackageManifestsIni()
 {
   PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
@@ -544,5 +461,3 @@ void PackageDataStore::NeedPackageManifestsIni()
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("successfully migrated {} package manifest files", count));
   }
 }
-#endif
-

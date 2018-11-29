@@ -882,20 +882,12 @@ void SetupServiceImpl::DoTheInstallation()
   if (options.Task == SetupTask::InstallFromCD)
   {
     isArchive = false;
-#if defined(MIKTEX_USE_ZZDB3)
     pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-#else
-    pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-#endif
   }
   else
   {
     isArchive = true;
-#if defined(MIKTEX_USE_ZZDB3)
     pathDB = options.LocalPackageRepository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
-#else
-    pathDB = options.LocalPackageRepository / MIKTEX_TPM_ARCHIVE_FILE_NAME;
-#endif
   }
   ReportLine(T_("Loading package database..."));
   packageManager->LoadDatabase(pathDB, isArchive);

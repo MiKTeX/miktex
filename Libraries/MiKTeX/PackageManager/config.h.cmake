@@ -55,8 +55,6 @@ namespace MiKTeX {                                      \
 #define MPMINTERNALFUNC(type) type
 #define MPMINTERNALVAR(type) type
 
-#cmakedefine MIKTEX_USE_ZZDB3 1
-
 #define ZZDB1_SIZE 182471
 #define ZZDB2_SIZE 1048881
 #define ZZDB3_SIZE 965504

@@ -151,10 +151,8 @@ public:
 public:
   void LoadAllPackageManifests();
 
-#if defined(MIKTEX_USE_ZZDB3)
 public:
   void NeedPackageManifestsIni();
-#endif
 
 private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mpm;
@@ -164,14 +162,6 @@ private:
 
 private:
   bool loadedAllPackageManifests = false;
-
-#if !defined(MIKTEX_USE_ZZDB3)
-public:
-  bool LoadedAllPackageManifests() const
-  {
-    return loadedAllPackageManifests;
-  }
-#endif
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();

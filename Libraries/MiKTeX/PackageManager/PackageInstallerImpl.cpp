@@ -1238,7 +1238,6 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   PackageInfo newPackage = tpmparser->GetPackageInfo();
   newPackage.id = packageId;
 
-#if defined(MIKTEX_USE_ZZDB3)
   // install new package manifest
   unique_ptr<Cfg> cfg = Cfg::Create();
   PathName packageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
@@ -1249,7 +1248,6 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
     cfg->Write(packageManifestsIni);
   }
   cfg = nullptr;
-#endif
 
   // find recycled and brand new files
   StringSet set1;
@@ -2093,7 +2091,6 @@ void PackageInstallerImpl::Download()
     progressInfo.cbPackageDownloadTotal = ZZDB1_SIZE;
   }
   Download(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
-#if defined(MIKTEX_USE_ZZDB3)
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
     progressInfo.packageId = MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
@@ -2102,16 +2099,6 @@ void PackageInstallerImpl::Download()
     progressInfo.cbPackageDownloadTotal = ZZDB3_SIZE;
   }
   Download(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
-#else
-  {
-    lock_guard<mutex> lockGuard(progressIndicatorMutex);
-    progressInfo.packageId = MIKTEX_TPM_ARCHIVE_FILE_NAME_NO_SUFFIX;
-    progressInfo.displayName = T_("Package manifest files");
-    progressInfo.cbPackageDownloadCompleted = 0;
-    progressInfo.cbPackageDownloadTotal = ZZDB2_SIZE;
-  }
-  Download(MIKTEX_TPM_ARCHIVE_FILE_NAME);
-#endif
 
   // download archive files
   for (const string& p : toBeInstalled)
@@ -2163,35 +2150,8 @@ void PackageInstallerImpl::DownloadThread()
 #endif
 }
 
-#if !defined(MIKTEX_USE_ZZDB3)
-void PackageInstallerImpl::SetUpPackageManifestFiles(const PathName& directory)
-{
-  // path to the database file
-  PathName pathDatabase;
-
-  NeedRepository();
-
-  if (repositoryType == RepositoryType::Remote)
-  {
-    // download the database file
-    pathDatabase = directory / MIKTEX_TPM_ARCHIVE_FILE_NAME;
-    Download(MakeUrl(MIKTEX_TPM_ARCHIVE_FILE_NAME), pathDatabase);
-  }
-  else
-  {
-    MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-    pathDatabase = repository / MIKTEX_TPM_ARCHIVE_FILE_NAME;
-  }
-
-  // extract files from archive
-  unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
-  extractor->Extract(pathDatabase, directory);
-}
-#endif
-
 void PackageInstallerImpl::CleanUpUserDatabase()
 {
-#if defined(MIKTEX_USE_ZZDB3)
   PathName userFile(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
   PathName commonFile(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
 
@@ -2241,64 +2201,8 @@ void PackageInstallerImpl::CleanUpUserDatabase()
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing redundant package manifest: {0}"), packageId));
     cfgUser->DeleteKey(packageId);
   }
-#else
-  PathName userDir(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-
-  PathName commonDir(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-
-  if (!Directory::Exists(userDir) || !Directory::Exists(commonDir))
-  {
-    return;
-  }
-
-  if (userDir.Canonicalize() == commonDir.Canonicalize())
-  {
-    return;
-  }
-
-  vector<PathName> toBeRemoved;
-
-  // check all package manifest files
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(userDir);
-  DirectoryEntry direntry;
-  while (lister->GetNext(direntry))
-  {
-    PathName name(direntry.name);
-
-    if (direntry.isDirectory
-      || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
-    {
-      continue;
-    }
-
-    // check to see whether the system-wide file exists
-    PathName commonPackageManifestFile(commonDir, name);
-    if (!File::Exists(commonPackageManifestFile))
-    {
-      continue;
-    }
-
-    // compare files
-    PathName userPackageManifestFile(userDir, name);
-    if (File::GetSize(userPackageManifestFile) == File::GetSize(commonPackageManifestFile)
-      && MD5::FromFile(userPackageManifestFile.GetData()) == MD5::FromFile(commonPackageManifestFile.GetData()))
-    {
-      // files are identical; remove user file later
-      toBeRemoved.push_back(userPackageManifestFile);
-    }
-  }
-  lister->Close();
-
-  // remove redundant user package manifest files
-  for (const PathName& p : toBeRemoved)
-  {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing redundant package manifest file: {0}"), Q_(p)));
-    File::Delete(p, { FileDeleteOption::TryHard });
-  }
-#endif
 }
 
-#if defined(MIKTEX_USE_ZZDB3)
 void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, const Cfg& cfgNew)
 {
   vector<string> toBeRemoved;
@@ -2336,60 +2240,6 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
 
   packageDataStore->SaveVarData();
 }
-#else
-void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& temporaryDirectory)
-{
-  PathName pathPackageDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-
-  if (!Directory::Exists(pathPackageDir))
-  {
-    return;
-  }
-
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(pathPackageDir);
-  DirectoryEntry direntry;
-  while (lister->GetNext(direntry))
-  {
-    PathName name(direntry.name);
-
-    if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
-    {
-      continue;
-    }
-
-    // it's not an obsolete package if the temporary directory
-    // contains a corresponding package manifest file
-    if (File::Exists(temporaryDirectory / name))
-    {
-      continue;
-    }
-
-    // now we know that the package is obsolete
-
-    MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX).GetExtension()));
-    string packageId = name.GetFileNameWithoutExtension().ToString();
-
-    // check to see whether the obsolete package is installed
-    if (packageDataStore->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
-    {
-      // not installed: remove the package manifest file
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete {0}"), Q_(name)));
-      File::Delete(pathPackageDir / name, { FileDeleteOption::TryHard });
-    }
-    else
-    {
-      // installed: declare the package as obsolete (we wont
-      // uninstall obsolete packages)
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("declaring {0} obsolete"), Q_(packageId)));
-      packageDataStore->DeclareObsolete(packageId, true);
-    }
-  }
-
-  lister->Close();
-
-  packageDataStore->SaveVarData();
-}
-#endif
 
 void PackageInstallerImpl::UpdateDb()
 {
@@ -2435,7 +2285,6 @@ void PackageInstallerImpl::UpdateDb()
   // we might need a temporary directory
   unique_ptr<TemporaryDirectory> tempDir;
 
-#if defined(MIKTEX_USE_ZZDB3)
   tempDir = TemporaryDirectory::Create();
 
   PathName pathDatabase;
@@ -2502,98 +2351,6 @@ void PackageInstallerImpl::UpdateDb()
 
   // write package-manifests.ini
   cfgExisting->Write(existingPackageManifestsIni);
-#else
-  // path to the directory containing package manifests
-  PathName pkgDir;
-
-  // copy the new package manifest files into a temporary directory
-  if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
-  {
-    tempDir = TemporaryDirectory::Create();
-    pkgDir = tempDir->GetPathName();
-    SetUpPackageManifestFiles(pkgDir);
-  }
-  else if (repositoryType == RepositoryType::MiKTeXDirect)
-  {
-    // installing from the CD
-    pkgDir = repository;
-    pkgDir /= MIKTEXDIRECT_PREFIX_DIR;
-    pkgDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-  }
-  else
-  {
-    MIKTEX_UNEXPECTED();
-  }
-
-  // handle obsolete package manifest files
-  HandleObsoletePackageManifestFiles(pkgDir);
-
-  // update the package manifest files
-  PathName packageManifestDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-  ReportLine(fmt::format(T_("updating package manifest files in {0}..."), Q_(packageManifestDir)));
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(pkgDir);
-  DirectoryEntry direntry;
-  unique_ptr<TpmParser> tpmparser = TpmParser::Create();
-  while (lister->GetNext(direntry))
-  {
-    Notify();
-
-    PathName name(direntry.name);
-
-    if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
-    {
-      continue;
-    }
-
-    // get package ID
-    MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX).GetExtension()));
-    string packageId = name.GetFileNameWithoutExtension().ToString();
-
-    // build name of current package manifest file
-    PathName currentPackageManifestFile(packageManifestDir, name);
-
-    // ignore package, if package is already installed
-    if (!IsPureContainer(packageId) && packageDataStore->IsInstalled(packageId))
-    {
-#if 0
-      if (File::Exists(currentPackageManifestFile))
-#endif
-        continue;
-    }
-
-    // parse new package manifest file
-    PathName newPackageManifestFile(pkgDir, name);
-    tpmparser->Parse(newPackageManifestFile);
-
-#if 0
-    PackageInfo currentPackageInfo;
-    if (!IsPureContainer(szpackageId)
-      && packageManager->TryGetPackageInfo(szpackageId, currentPackageInfo)
-      && tpmparser.GetPackageInfo().digest == currentPackageInfo.digest)
-    {
-      // nothing new
-      continue;
-    }
-#endif
-
-    // move the new package manifest file into the package
-    // manifest directory
-    Directory::Create(packageManifestDir);
-    if (File::Exists(currentPackageManifestFile))
-    {
-      // move the current file out of the way
-      File::Delete(currentPackageManifestFile, { FileDeleteOption::TryHard });
-    }
-    File::Copy(newPackageManifestFile, currentPackageManifestFile);
-
-    // update the database
-    packageManager->GetPackageDataStore()->DefinePackage(packageId, tpmparser->GetPackageInfo());
-
-    ++count;
-  }
-
-  lister->Close();
-#endif
 
   ReportLine(fmt::format(T_("installed {0} package manifests"), count));
 

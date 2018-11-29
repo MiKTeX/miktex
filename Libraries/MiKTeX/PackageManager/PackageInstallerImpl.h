@@ -368,18 +368,8 @@ private:
 private:
   void DoInstall();
 
-#if !defined(MIKTEX_USE_ZZDB3)
-private:
-  void SetUpPackageManifestFiles(const MiKTeX::Core::PathName& directory);
-#endif
-
-#if defined(MIKTEX_USE_ZZDB3)
 private:
   void HandleObsoletePackageManifests(MiKTeX::Core::Cfg& cfgExisting, const MiKTeX::Core::Cfg& cfgNew);
-#else
-private:
-  void HandleObsoletePackageManifestFiles(const MiKTeX::Core::PathName& temporaryDirectory);
-#endif
 
 private:
   void CleanUpUserDatabase();
