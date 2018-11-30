@@ -27,7 +27,6 @@
 
 #include "TpmParser.h"
 
-
 using namespace std;
 
 using namespace MiKTeX::Core;

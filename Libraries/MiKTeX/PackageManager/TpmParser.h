@@ -23,10 +23,12 @@
 #define F16B91F7E26E4BF69460B977B1C0BC5A
 
 #include <memory>
+#include <string>
 
 #include <miktex/Core/PathName>
+#include <miktex/Core/Session>
 
-#include "miktex/PackageManager/PackageManager"
+#include <miktex/PackageManager/PackageManager>
 
 BEGIN_INTERNAL_NAMESPACE;
 

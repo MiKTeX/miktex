@@ -30,7 +30,7 @@
 
 #include <miktex/Core/Session>
 
-#include "miktex/PackageManager/RepositoryInfo.h"
+#include <miktex/PackageManager/PackageManager>
 
 #include "ComboCfg.h"
 #include "WebSession.h"

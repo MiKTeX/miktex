@@ -24,7 +24,7 @@
 #include <memory>
 #include <string>
 
-#include "miktex/PackageManager/PackageManager.h"
+#include <miktex/PackageManager/PackageManager>
 
 #include "NoRemoteService.h"
 #include "RemoteService.h"

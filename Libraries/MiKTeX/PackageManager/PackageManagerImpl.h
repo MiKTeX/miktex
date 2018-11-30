@@ -23,10 +23,12 @@
 #define D76F495437014794AC4EF6832E8EEE52
 
 #include <map>
+#include <string>
 
 #include <miktex/Core/Fndb>
+#include <miktex/Core/MD5>
 
-#include "miktex/PackageManager/PackageManager.h"
+#include <miktex/PackageManager/PackageManager.h>
 
 #include "internal.h"
 

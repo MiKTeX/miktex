@@ -28,8 +28,9 @@
 #include <expat.h>
 
 #include <miktex/Core/PathName>
+#include <miktex/Util/CharBuffer>
 
-#include "miktex/PackageManager/PackageManager"
+#include <miktex/PackageManager/PackageManager>
 
 #include "TpmParser.h"
 

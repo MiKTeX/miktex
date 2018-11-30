@@ -167,16 +167,16 @@ public:
   void OnProgress() override;
 
 public:
-  void MIKTEXTHISCALL OnBeginFileExtraction(const std::string& fileName, size_t uncompressedSize) override;
+  void MIKTEXTHISCALL OnBeginFileExtraction(const std::string& fileName, std::size_t uncompressedSize) override;
 
 public:
-  void MIKTEXTHISCALL OnEndFileExtraction(const std::string& fileName, size_t uncompressedSize) override;
+  void MIKTEXTHISCALL OnEndFileExtraction(const std::string& fileName, std::size_t uncompressedSize) override;
 
 public:
   bool MIKTEXTHISCALL OnError(const std::string& message) override;
 
 public:
-  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n) override;
+  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, std::size_t n) override;
 
 private:
   void NeedRepository();
@@ -372,10 +372,10 @@ private:
   void CleanUpUserDatabase();
 
 private:
-  void Download(const std::string& url, const MiKTeX::Core::PathName& dest, size_t expectedSize = 0);
+  void Download(const std::string& url, const MiKTeX::Core::PathName& dest, std::size_t expectedSize = 0);
 
 private:
-  void Download(const MiKTeX::Core::PathName& fileName, size_t expectedSize = 0);
+  void Download(const MiKTeX::Core::PathName& fileName, std::size_t expectedSize = 0);
 
 private:
   void RemoveFiles(const std::vector<std::string>& toBeRemoved, bool silently = false);
@@ -402,7 +402,7 @@ private:
   void InstallPackage(const std::string& packageId, MiKTeX::Core::Cfg& packageManifests);
 
 private:
-  void MyCopyFile(const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& dest, size_t& size);
+  void MyCopyFile(const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& dest, std::size_t& size);
 
 private:
   void DownloadPackage(const std::string& packageId);

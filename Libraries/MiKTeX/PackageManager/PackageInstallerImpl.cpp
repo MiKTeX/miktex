@@ -33,6 +33,7 @@
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/TemporaryFile>
 #include <miktex/Extractor/Extractor>
+#include <miktex/Trace/StopWatch>
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/winAutoResource>
@@ -40,9 +41,7 @@
 #include <miktex/Core/win/HResult>
 #endif
 
-#include "miktex/PackageManager/PackageManager"
-
-#include "miktex/Trace/StopWatch"
+#include <miktex/PackageManager/PackageManager>
 
 #include "internal.h"
 #include "PackageInstallerImpl.h"
@@ -58,7 +57,7 @@ using namespace MiKTeX::Util;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
-#define LF "\n"
+constexpr const char* LF = "\n";
 
 inline double Divide(double a, double b)
 {

@@ -22,7 +22,13 @@
 #if !defined(A5D4990A62304F209D9688619234D364)
 #define A5D4990A62304F209D9688619234D364
 
+#include <string>
+#include <utility>
+#include <vector>
+
 #include <miktex/Core/Session>
+
+#include <miktex/PackageManager/PackageManager>
 
 #include "RemoteService.h"
 #include "text.h"
@@ -33,21 +39,21 @@ class NoRemoteService :
   public RemoteService
 {
 private:
-  std::vector<RepositoryInfo> repositories;
+  std::vector<MiKTeX::Packages::RepositoryInfo> repositories;
 
 public:
-  NoRemoteService(const std::vector<std::string> & wellKnownBaseUrls)
+  NoRemoteService(const std::vector<std::string>& wellKnownBaseUrls)
   {
-    for (const std::string & url : wellKnownBaseUrls)
+    for (const std::string& url : wellKnownBaseUrls)
     {
-      RepositoryInfo rep;
+      MiKTeX::Packages::RepositoryInfo rep;
       rep.url = url + "systems/win32/miktex/tm/packages/";
-      rep.packageLevel = PackageLevel::Complete;
-      rep.status = RepositoryStatus::Online;
-      rep.releaseState = RepositoryReleaseState::Stable;
+      rep.packageLevel = MiKTeX::Packages::PackageLevel::Complete;
+      rep.status = MiKTeX::Packages::RepositoryStatus::Online;
+      rep.releaseState = MiKTeX::Packages::RepositoryReleaseState::Stable;
       repositories.push_back(rep);
       rep.url += "next/";
-      rep.releaseState = RepositoryReleaseState::Next;
+      rep.releaseState = MiKTeX::Packages::RepositoryReleaseState::Next;
       repositories.push_back(rep);
     }
   }
@@ -55,8 +61,8 @@ public:
 public:
   std::vector<MiKTeX::Packages::RepositoryInfo> GetRepositories(MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState) override
   {
-    std::vector<RepositoryInfo> result;
-    for (const RepositoryInfo & rep : repositories)
+    std::vector<MiKTeX::Packages::RepositoryInfo> result;
+    for (const MiKTeX::Packages::RepositoryInfo& rep : repositories)
     {
       if (rep.releaseState == repositoryReleaseState)
       {
@@ -69,7 +75,7 @@ public:
 public:
   std::string PickRepositoryUrl(MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState) override
   {
-    for (const RepositoryInfo & rep : repositories)
+    for (const RepositoryInfo& rep : repositories)
     {
       if (rep.releaseState == repositoryReleaseState)
       {
@@ -80,22 +86,22 @@ public:
   }
   
 public:
-  std::pair<bool, MiKTeX::Packages::RepositoryInfo> TryGetRepositoryInfo(const std::string & repositoryUrl) override
+  std::pair<bool, MiKTeX::Packages::RepositoryInfo> TryGetRepositoryInfo(const std::string& repositoryUrl) override
   {
-    for (const RepositoryInfo & rep : repositories)
+    for (const MiKTeX::Packages::RepositoryInfo& rep : repositories)
     {
       if (rep.url == repositoryUrl)
       {
         return std::make_pair(true, rep);
       }
     }
-    return std::make_pair(false, RepositoryInfo());
+    return std::make_pair(false, MiKTeX::Packages::RepositoryInfo());
   }
 
 public:
-  MiKTeX::Packages::RepositoryInfo Verify(const std::string & repositoryUrl) override
+  MiKTeX::Packages::RepositoryInfo Verify(const std::string& repositoryUrl) override
   {
-    std::pair<bool, RepositoryInfo> p = TryGetRepositoryInfo(repositoryUrl);
+    std::pair<bool, MiKTeX::Packages::RepositoryInfo> p = TryGetRepositoryInfo(repositoryUrl);
     if (!p.first)
     {
       MIKTEX_FATAL_ERROR_2(T_("The remote package repository is not registered. You have to choose another repository."), "url", repositoryUrl);

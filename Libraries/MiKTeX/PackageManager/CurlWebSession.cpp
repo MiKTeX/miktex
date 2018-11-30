@@ -43,7 +43,7 @@
 #include <miktex/Core/tux/LinuxOsRelease>
 #endif
 
-#include "miktex/PackageManager/PackageManager.h"
+#include <miktex/PackageManager/PackageManager>
 
 #include "CurlWebSession.h"
 #include "CurlWebFile.h"

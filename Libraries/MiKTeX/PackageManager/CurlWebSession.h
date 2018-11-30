@@ -34,8 +34,8 @@
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
 
-#include "text.h"
 #include "WebSession.h"
+#include "text.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 
@@ -187,7 +187,7 @@ private:
   static int ProgressCallback(void* pv, double dltotal, double dlnow, double ultotal, double ulnow);
 
 private:
-  static int DebugCallback(CURL* pCurl, curl_infotype infoType, char* pData, size_t sizeData, void* pv);
+  static int DebugCallback(CURL* pCurl, curl_infotype infoType, char* pData, std::size_t sizeData, void* pv);
 
 private:
   std::string proxyPort;

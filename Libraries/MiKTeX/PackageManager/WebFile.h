@@ -22,6 +22,8 @@
 #if !defined(FDC3B537D4484567B7577B2803B60F36)
 #define FDC3B537D4484567B7577B2803B60F36
 
+#include <miktex/Core/Session>
+
 BEGIN_INTERNAL_NAMESPACE;
 
 class MIKTEXNOVTABLE WebFile
@@ -30,7 +32,7 @@ public:
   virtual ~WebFile() = 0;
 
 public:
-  virtual size_t Read(void* pBuffer, size_t n) = 0;
+  virtual std::size_t Read(void* buffer, std::size_t n) = 0;
 
 public:
   virtual void Close() = 0;

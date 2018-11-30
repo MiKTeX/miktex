@@ -34,8 +34,8 @@
 
 #include <miktex/Core/PathName>
 
-#include "definitions.h"
 #include "RepositoryInfo.h"
+#include "definitions.h"
 
 MPM_BEGIN_NAMESPACE;
 

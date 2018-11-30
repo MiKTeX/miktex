@@ -26,7 +26,7 @@
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 
-#include "miktex/PackageManager/PackageManager.h"
+#include <miktex/PackageManager/PackageManager>
 
 #include "exceptions.h"
 #include "internal.h"

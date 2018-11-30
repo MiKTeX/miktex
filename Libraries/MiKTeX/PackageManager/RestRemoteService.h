@@ -23,6 +23,11 @@
 #define A965AF9537944AFEA8EE4AB0D04F55B5
 
 #include <chrono>
+#include <string>
+
+#include <miktex/Core/Session>
+
+#include <miktex/PackageManager/PackageManager>
 
 #include "RemoteService.h"
 #include "WebSession.h"

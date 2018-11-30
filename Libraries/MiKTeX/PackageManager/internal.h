@@ -26,6 +26,7 @@
 
 #include <string>
 
+#include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
 
@@ -47,11 +48,10 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-const char* const MPM_AGENT = "MPM/" MIKTEX_COMPONENT_VERSION_STR;
+constexpr const char* MPM_AGENT = "MPM/" MIKTEX_COMPONENT_VERSION_STR;
 
 // the trailing slash should not be removed
-#define TEXMF_PREFIX_DIRECTORY \
-  "texmf" MIKTEX_PATH_DIRECTORY_DELIMITER_STRING
+constexpr const char* TEXMF_PREFIX_DIRECTORY = "texmf" MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
 
 struct hash_path
 {
@@ -80,7 +80,7 @@ inline void DbgView(const std::string& s)
 
 inline bool StripPrefix(const std::string& str, const char* lpszPrefix, std::string& result)
 {
-  size_t n = MiKTeX::Util::StrLen(lpszPrefix);
+  std::size_t n = MiKTeX::Util::StrLen(lpszPrefix);
   if (MiKTeX::Core::PathName::Compare(str.c_str(), lpszPrefix, n) != 0)
   {
     return false;
@@ -101,26 +101,6 @@ inline int StrCmp(const char* lpsz1, const char* lpsz2)
 inline int StrCmp(const wchar_t* lpsz1, const wchar_t* lpsz2)
 {
   return wcscmp(lpsz1, lpsz2);
-}
-
-inline int FPutS(const char* lpsz, FILE* stream)
-{
-  int n = fputs(lpsz, stream);
-  if (n < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fputs");
-  }
-  return n;
-  }
-
-inline int FPutC(int ch, FILE* stream)
-{
-  int chWritten = fputc(ch, stream);
-  if (chWritten == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fputc");
-  }
-  return chWritten;
 }
 
 bool IsUrl(const std::string& url);

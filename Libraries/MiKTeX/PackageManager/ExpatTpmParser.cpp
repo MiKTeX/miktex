@@ -83,7 +83,7 @@ void ExpatTpmParser::GetFiles(const XML_Char* text, vector<string>& files)
 #if defined(MIKTEX_UNIX)
     path.ConvertToUnix();
 #endif
-    if (texMFPrefix.length() == 0 || (PathName::Compare(texMFPrefix, path, texMFPrefix.length()) == 0))
+    if (texMFPrefix.empty() || (PathName::Compare(texMFPrefix, path, texMFPrefix.length()) == 0))
     {
       files.push_back(path.ToString());
     }

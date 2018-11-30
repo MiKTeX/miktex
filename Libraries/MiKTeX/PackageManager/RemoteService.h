@@ -22,6 +22,13 @@
 #if !defined(B24B3F8AAF90478B97B88D2695E620C2)
 #define B24B3F8AAF90478B97B88D2695E620C2
 
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <miktex/PackageManager/PackageManager>
+
 BEGIN_INTERNAL_NAMESPACE;
 
 class MIKTEXNOVTABLE RemoteService

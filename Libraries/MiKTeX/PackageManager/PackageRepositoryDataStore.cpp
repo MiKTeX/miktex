@@ -25,7 +25,7 @@
 #include <miktex/Core/Registry>
 #include <miktex/Core/Uri>
 
-#include "miktex/PackageManager/PackageManager.h"
+#include <miktex/PackageManager/PackageManager>
 
 #include "internal.h"
 #include "PackageRepositoryDataStore.h"

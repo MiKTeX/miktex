@@ -37,7 +37,6 @@
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/Uri>
 #include <miktex/Core/Utils>
-
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 
