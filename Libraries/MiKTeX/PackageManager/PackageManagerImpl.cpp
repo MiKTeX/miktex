@@ -113,10 +113,8 @@ unique_ptr<PackageIterator> PackageManagerImpl::CreateIterator()
   return make_unique<PackageIteratorImpl>(shared_from_this());
 }
 
-
 void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
 {
-  // get the full path name
   PathName absPath(path);
   absPath.MakeAbsolute();
 
@@ -124,23 +122,24 @@ void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
 
   PathName packageManifestsPath;
 
-  if (!isArchive)
-  {
-    packageManifestsPath = absPath;
-  }
-  else
+  if (isArchive)
   {
     // create temporary directory
     tempDir = TemporaryDirectory::Create();
 
-    // extract from archive
+    // extract "package-manifests.ini" from archive
     unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
     extractor->Extract(absPath, tempDir->GetPathName());
 
     packageManifestsPath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;
   }
+  else
+  {
+    packageManifestsPath = absPath;
+  }
 
-  // read package manifest files
+  // load "package-manifests.ini"
+  packageDataStore.Clear();
   packageDataStore.LoadAllPackageManifests(packageManifestsPath);
 }
 
@@ -163,19 +162,7 @@ bool PackageManagerImpl::TryGetPackageInfo(const string& packageId, PackageInfo&
 
 PackageInfo PackageManagerImpl::GetPackageInfo(const string& packageId)
 {
-  bool knownPackage;
-  PackageInfo packageInfo;
-  tie(knownPackage, packageInfo) = packageDataStore.TryGetPackage(packageId);
-  if (!knownPackage)
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The requested package is unknown."), "name", packageId);
-  }
-  return packageInfo;
-}
-
-unsigned long PackageManagerImpl::GetFileRefCount(const PathName& path)
-{
-  return packageDataStore.GetFileRefCount(path);
+  return packageDataStore.GetPackage(packageId);
 }
 
 bool PackageManager::TryGetRemotePackageRepository(string& url, RepositoryReleaseState& repositoryReleaseState)
@@ -746,7 +733,6 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
   xml.Text(packageInfo.digest.ToString());
   xml.EndElement();
 
-#if MIKTEX_EXTENDED_PACKAGEINFO
   if (!packageInfo.ctanPath.empty())
   {
     xml.StartElement("TPM:CTAN");
@@ -768,7 +754,6 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
     xml.AddAttribute("type", packageInfo.licenseType);
     xml.EndElement();
   }
-#endif
 
   xml.EndAllElements();
 
@@ -841,7 +826,6 @@ void PackageManager::PutPackageManifest(Cfg& cfg, const PackageInfo& packageInfo
     cfg.PutValue(packageInfo.id, "timePackaged", std::to_string(timePackaged));
   }
   cfg.PutValue(packageInfo.id, "digest", packageInfo.digest.ToString());
-#if MIKTEX_EXTENDED_PACKAGEINFO
   if (!packageInfo.ctanPath.empty())
   {
     cfg.PutValue(packageInfo.id, "ctanPath", packageInfo.ctanPath);
@@ -858,7 +842,6 @@ void PackageManager::PutPackageManifest(Cfg& cfg, const PackageInfo& packageInfo
   {
     cfg.PutValue(packageInfo.id, "licenseType", packageInfo.licenseType);
   }
-#endif
 }
 
 PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& packageId, const std::string& texmfPrefix)
@@ -962,7 +945,6 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     {
       packageInfo.digest = MD5::Parse(val->AsString());
     }
-#if MIKTEX_EXTENDED_PACKAGEINFO
     else if (val->GetName() == "ctanPath")
     {
       packageInfo.ctanPath = val->AsString();
@@ -979,7 +961,6 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     {
       packageInfo.licenseType = val->AsString();
     }
-#endif
   }
   return packageInfo;
 }
@@ -1156,7 +1137,7 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
 
   PathName prefix;
 
-  if (!session->IsAdminMode() && packageDataStore.GetUserTimeInstalled(packageId) != static_cast<time_t>(0))
+  if (!session->IsAdminMode() && IsValidTimeT(packageInfo.timeInstalledByUser))
   {
     prefix = session->GetSpecialPath(SpecialPath::UserInstallRoot);
   }

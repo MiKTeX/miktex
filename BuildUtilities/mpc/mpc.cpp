@@ -696,14 +696,11 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
     << "title=" << packageInfo.title << "\n"
     << "version=" << packageInfo.version << "\n"
     << "targetsystem=" << packageInfo.targetSystem << "\n"
-    << "md5=" << digest << "\n";
-#if defined(MIKTEX_EXTENDED_PACKAGEINFO)
-  stream
+    << "md5=" << digest << "\n"
     << "ctan_path=" << packageInfo.ctanPath << "\n"
     << "copyright_owner=" << packageInfo.copyrightOwner << "\n"
     << "copyright_year=" << packageInfo.copyrightYear << "\n"
     << "license_type=" << packageInfo.licenseType << "\n";
-#endif
   stream << "requires=" << StringUtil::Flatten(packageInfo.requiredPackages, ';') << "\n";
 #if defined(SUPPORT_LEGACY_EXTERNALNAME)
   stream
@@ -823,12 +820,10 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
     packageInfo.digest = MD5::Parse(str);
   }
 
-#if defined(MIKTEX_EXTENDED_PACKAGEINFO)
   cfg->TryGetValueAsString("", "ctan_path", packageInfo.ctanPath);
   cfg->TryGetValueAsString("", "copyright_owner", packageInfo.copyrightOwner);
   cfg->TryGetValueAsString("", "copyright_year", packageInfo.copyrightYear);
   cfg->TryGetValueAsString("", "license_type", packageInfo.licenseType);
-#endif
 
   // read extra description file
   ReadDescriptionFile(stagingDir, packageInfo.description);

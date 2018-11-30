@@ -504,7 +504,7 @@ void PackageInstallerImpl::FindUpdates()
     PackageInfo package;
     tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
 
-    if (!knownPackage || !packageDataStore->IsInstalled(packageId))
+    if (!knownPackage || !package.IsInstalled())
     {
       if (isEssential)
       {
@@ -518,8 +518,8 @@ void PackageInstallerImpl::FindUpdates()
     // clean the user-installation directory
     if (!session->IsAdminMode()
       && session->GetSpecialPath(SpecialPath::UserInstallRoot) != session->GetSpecialPath(SpecialPath::CommonInstallRoot)
-      && packageDataStore->GetUserTimeInstalled(packageId) != static_cast<time_t>(0)
-      && packageDataStore->GetCommonTimeInstalled(packageId) != static_cast<time_t>(0))
+      && IsValidTimeT(package.timeInstalledByUser)
+      && IsValidTimeT(package.timeInstalledByAdmin))
     {
       if (!package.isRemovable)
       {
@@ -685,7 +685,7 @@ void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
     bool knownPackage;
     PackageInfo package;
     tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
-    if (knownPackage && packageDataStore->IsInstalled(packageId))
+    if (knownPackage && package.IsInstalled())
     {
       continue;
     }
@@ -768,22 +768,21 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
 
     bool done = false;
 
-    // get information about the installed file
-    InstalledFileInfo* installedFileInfo = packageDataStore->GetInstalledFileInfo(f.c_str());
+    unsigned long refCount = packageDataStore->GetFileRefCount(f);
 
     // decrement the file reference counter
-    if (installedFileInfo != nullptr && installedFileInfo->refCount > 0)
+    if (refCount > 0)
     {
-      installedFileInfo->refCount -= 1;
+      refCount = packageDataStore->DecrementFileRefCount(f);
     }
 
     // make an absolute path name
     PathName path(session->GetSpecialPath(SpecialPath::InstallRoot), fileName);
 
     // only delete if the reference count reached zero
-    if (installedFileInfo != nullptr && installedFileInfo->refCount > 0)
+    if (refCount > 0)
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("will not delete {0} (ref count is {1})"), Q_(path), installedFileInfo->refCount));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("will not delete {0} (ref count is {1})"), Q_(path), refCount));
       done = true;
     }
     else if (File::Exists(path))
@@ -845,27 +844,21 @@ void PackageInstallerImpl::RemovePackage(const string& packageId)
   ReportLine(fmt::format(T_("removing package {0}..."), Q_(packageId)));
 
   // get package info
-  bool knownPackage;
-  PackageInfo package;
-  tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
-  if (!knownPackage)
-  {
-    MIKTEX_UNEXPECTED();
-  }
+  PackageInfo package = packageDataStore->GetPackage(packageId);
 
   // check to see whether it is installed
-  if (packageDataStore->GetTimeInstalled(packageId) == 0)
+  if (!package.IsInstalled())
   {
     MIKTEX_UNEXPECTED();
   }
 
   // clear the installTime value => package is not installed
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing {0} from the variable package table"), Q_(packageId)));
-  packageDataStore->SetTimeInstalled(packageId, 0);
+  packageDataStore->SetTimeInstalled(packageId, InvalidTimeT);
   packageDataStore->SaveVarData();
-  package.timeInstalled = 0;
+  package.timeInstalled = InvalidTimeT;
 
-  if (packageDataStore->IsObsolete(packageId))
+  if (package.isObsolete)
   {
     // it's an obsolete package: make sure that the package
     // definition file gets removed too
@@ -1134,13 +1127,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("installing package {0}"), Q_(packageId)));
 
   // search the package table
-  bool knownPackage;
-  PackageInfo package;
-  tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
-  if (!knownPackage)
-  {
-    MIKTEX_UNEXPECTED();
-  }
+  PackageInfo package = packageDataStore->GetPackage(packageId);
 
   NeedRepository();
 
@@ -1198,7 +1185,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
 
   // silently uninstall the package (this also decrements the file
   // reference counts)
-  if (packageDataStore->IsInstalled(packageId))
+  if (package.IsInstalled())
   {
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: removing old files"), packageId));
     // make sure that the package info file does not get removed
@@ -1207,7 +1194,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
     RemoveFiles(package.docFiles, true);
     RemoveFiles(package.sourceFiles, true);
     // temporarily set the status to "not installed"
-    packageDataStore->SetTimeInstalled(packageId, 0);
+    packageDataStore->SetTimeInstalled(packageId, InvalidTimeT);
     packageDataStore->SaveVarData();
   }
 
@@ -1365,13 +1352,7 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
   {
     if (!downloadOnly)
     {
-      bool knownPackage;
-      PackageInfo installCandidate;
-      tie(knownPackage, installCandidate) = packageDataStore->TryGetPackage(p);
-      if (!knownPackage)
-      {
-        MIKTEX_UNEXPECTED();
-      }
+      PackageInfo installCandidate = packageDataStore->GetPackage(p);
       package.cFilesInstallTotal += installCandidate.GetNumFiles();
       package.cbInstallTotal += installCandidate.GetSize();
     }
@@ -1406,13 +1387,7 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
 
     for (const string& p : toBeRemoved)
     {
-      bool knownPackage;
-      PackageInfo removeCandidate;
-      tie(knownPackage, removeCandidate) = packageDataStore->TryGetPackage(p);
-      if (!knownPackage)
-      {
-        MIKTEX_UNEXPECTED();
-      }
+      PackageInfo removeCandidate = packageDataStore->GetPackage(p);
       package.cFilesRemoveTotal += removeCandidate.GetNumFiles();
     }
 
@@ -1593,13 +1568,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
 {
   for (const string& p : packages)
   {
-    bool knownPackage;
-    PackageInfo package;
-    tie(knownPackage, package) = packageDataStore->TryGetPackage(p);
-    if (!knownPackage)
-    {
-      MIKTEX_UNEXPECTED();
-    }
+    PackageInfo package = packageDataStore->GetPackage(p);
     for (const string& f : package.runFiles)
     {
       string fileName;
@@ -1746,7 +1715,7 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
       CheckDependencies(packages, p, force, level + 1);
     }
   }
-  if (force || !packageDataStore->IsInstalled(packageId))
+  if (force || knownPackage && !package.IsInstalled())
   {
     packages.insert(packageId);
   }
@@ -2230,7 +2199,8 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
 
     // now we know that the package is obsolete
     // check to see whether the obsolete package is installed
-    if (packageDataStore->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
+    PackageInfo package = packageDataStore->GetPackage(packageId);
+    if (!package.IsInstalled() || IsPureContainer(packageId))
     {
       // not installed: remove the package manifest (later)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete package manifest '{0}'"), packageId));
@@ -2241,7 +2211,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
       // installed: declare the package as obsolete (we wont
       // uninstall obsolete packages)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("declaring '{0}' obsolete"), packageId));
-      packageDataStore->DeclareObsolete(packageId, true);
+      packageDataStore->DeclareObsolete(packageId);
     }
   }
   for (const auto& p : toBeRemoved)
@@ -2340,7 +2310,10 @@ void PackageInstallerImpl::UpdateDb()
     Notify();
 
     // ignore package, if package is already installed
-    if (!IsPureContainer(packageId) && packageDataStore->IsInstalled(packageId))
+    bool knownPackage;
+    PackageInfo existingPackage;
+    tie(knownPackage, existingPackage) = packageDataStore->TryGetPackage(packageId);
+    if (!IsPureContainer(packageId) && knownPackage && existingPackage.IsInstalled())
     {
       continue;
     }

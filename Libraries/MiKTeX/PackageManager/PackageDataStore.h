@@ -43,45 +43,16 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-struct InstalledFileInfo
-{
-  unsigned long refCount = 0;
-};
-
-struct hash_path
-{
-public:
-  std::size_t operator()(const std::string& str) const
-  {
-    return MiKTeX::Core::PathName(str).GetHash();
-  }
-};
-
-struct equal_path
-{
-public:
-  bool operator()(const std::string& str1, const std::string& str2) const
-  {
-    return MiKTeX::Core::PathName::Compare(str1, str2) == 0;
-  }
-};
-
 class PackageDataStore
 {
 public:
   PackageDataStore();
 
-private:
-  void LoadVarData();
-
-public:
-  void SaveVarData();
-
 public:
   void LoadAllPackageManifests(const MiKTeX::Core::PathName& packageManifestsPath);
 
-private:
-  void LoadAllPackageManifests();
+public:
+  void SaveVarData();
 
 public:
   void Clear();
@@ -90,49 +61,28 @@ public:
   std::tuple<bool, MiKTeX::Packages::PackageInfo> TryGetPackage(const std::string& packageId);
 
 public:
-  void SetPackage(const MiKTeX::Packages::PackageInfo& packageInfo);
+  MiKTeX::Packages::PackageInfo GetPackage(const std::string& packageId)
+  {
+    return (*this)[packageId];
+  }
 
-private:
-  MiKTeX::Packages::PackageInfo& operator[](const std::string& packageId);
+public:
+  void SetPackage(const MiKTeX::Packages::PackageInfo& packageInfo)
+  {
+    (*this)[packageInfo.id] = packageInfo;
+  }
 
 public:
   void SetTimeInstalled(const std::string& packageId, std::time_t timeInstalled);
 
 public:
-  std::time_t GetUserTimeInstalled(const std::string& packageId);
-
-public:
-  std::time_t GetCommonTimeInstalled(const std::string& packageId);
-
-public:
-  std::time_t GetTimeInstalled(const std::string& packageId);
-
-public:
-  bool IsInstalled(const std::string& packageId);
-
-public:
-  bool IsRemovable(const std::string& packageId);
-
-public:
-  void DeclareObsolete(const std::string& packageId, bool obsolete);
-
-public:
-  bool IsObsolete(const std::string& packageId);
+  void DeclareObsolete(const std::string& packageId);
 
 public:
   void SetReleaseState(const std::string& packageId, MiKTeX::Packages::RepositoryReleaseState releaseState);
 
-public:
-  MiKTeX::Packages::RepositoryReleaseState GetReleaseState(const std::string& packageId);
-
-private:
-  ComboCfg comboCfg;
-
 private:
   typedef std::unordered_map<std::string, MiKTeX::Packages::PackageInfo, MiKTeX::Core::hash_icase, MiKTeX::Core::equal_icase> PackageDefinitionTable;
-
-private:
-  PackageDefinitionTable packageTable;
 
 public:
   class iterator
@@ -168,18 +118,10 @@ public:
   };
 
 public:
-  iterator begin()
-  {
-    LoadAllPackageManifests();
-    return iterator(packageTable.begin());
-  }
+  iterator begin();
 
 public:
-  iterator end()
-  {
-    LoadAllPackageManifests();
-    return iterator(packageTable.end());
-  }
+  iterator end();
 
 public:
   void DefinePackage(const MiKTeX::Packages::PackageInfo& packageinfo);
@@ -187,8 +129,50 @@ public:
 public:
   void IncrementFileRefCounts(const std::string& packageId);
 
+public:
+  unsigned long GetFileRefCount(const MiKTeX::Core::PathName& path);
+
+public:
+  unsigned long DecrementFileRefCount(const MiKTeX::Core::PathName& path);
+
+public:
+  void NeedPackageManifestsIni();
+
+private:
+  void Load();
+
+private:
+  void LoadVarData();
+
+private:
+  MiKTeX::Packages::PackageInfo& operator[](const std::string& packageId);
+
+private:
+  std::time_t GetUserTimeInstalled(const std::string& packageId);
+
+private:
+  std::time_t GetCommonTimeInstalled(const std::string& packageId);
+
+private:
+  std::time_t GetTimeInstalled(const std::string& packageId);
+
+private:
+  bool IsRemovable(const std::string& packageId);
+
+private:
+  bool IsObsolete(const std::string& packageId);
+
+private:
+  MiKTeX::Packages::RepositoryReleaseState GetReleaseState(const std::string& packageId);
+
 private:
   void IncrementFileRefCounts(const std::vector<std::string>& files);
+
+private:
+  struct InstalledFileInfo
+  {
+    unsigned long refCount = 0;
+  };
 
 private:
   typedef std::unordered_map<std::string, InstalledFileInfo, hash_path, equal_path> InstalledFileInfoTable;
@@ -196,14 +180,11 @@ private:
 private:
   InstalledFileInfoTable installedFileInfoTable;
 
-public:
-  unsigned long GetFileRefCount(const MiKTeX::Core::PathName& path);
+private:
+  ComboCfg comboCfg;
 
-public:
-  InstalledFileInfo* GetInstalledFileInfo(const char* path);
-
-public:
-  void NeedPackageManifestsIni();
+private:
+  PackageDefinitionTable packageTable;
 
 private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mpm;

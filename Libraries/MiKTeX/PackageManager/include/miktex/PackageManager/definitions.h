@@ -1,4 +1,4 @@
-/* miktex/PackageManager/config.h:                      -*- C++ -*-
+/* miktex/PackageManager/definitions.h:                 -*- C++ -*-
 
    Copyright (C) 2001-2018 Christian Schenk
 
@@ -21,30 +21,18 @@
 
 #pragma once
 
-#if !defined(E69D9A4DE14E48CDA0E007AA28588BA6)
-#define E69D9A4DE14E48CDA0E007AA28588BA6
+#if !defined(C09DF2DF4A8A43C5B815850EFF9BEED9)
+#define C09DF2DF4A8A43C5B815850EFF9BEED9
 
-#include <miktex/First>
-#include <miktex/Definitions>
+MPM_BEGIN_NAMESPACE;
 
-// DLL import/export switch
-#if !defined(F927BA187CB94546AB9CA9099D989E81)
-#  if defined(MIKTEX_MPM_SHARED)
-#    define MIKTEXMPMEXPORT MIKTEXDLLIMPORT
-#  else
-#    define MIKTEXMPMEXPORT
-#  endif
-#endif
+constexpr std::time_t InvalidTimeT = static_cast<std::time_t>(0);
 
-// API decoration for exported member functions
-#define MIKTEXMPMCEEAPI(type) MIKTEXMPMEXPORT type MIKTEXCEECALL
+inline bool IsValidTimeT(std::time_t time)
+{
+  return time != static_cast<std::time_t>(0) && time != static_cast<std::time_t>(-1);
+}
 
-#define MPM_BEGIN_NAMESPACE                     \
-  namespace MiKTeX {                            \
-    namespace Packages {
-
-#define MPM_END_NAMESPACE                       \
-    }                                           \
-  }
+MPM_END_NAMESPACE;
 
 #endif

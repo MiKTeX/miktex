@@ -57,9 +57,6 @@ public:
   void MIKTEXTHISCALL CreateMpmFndb() override;
 
 public:
-  unsigned long MIKTEXTHISCALL GetFileRefCount(const MiKTeX::Core::PathName& path) override;
-
-public:
   MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& packageId) override;
 
 public:

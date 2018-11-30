@@ -54,21 +54,6 @@ PackageDataStore::PackageDataStore() :
 {
 }
 
-void PackageDataStore::LoadVarData()
-{
-  if (!comboCfg.Loaded())
-  {
-    comboCfg.Load(
-      session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGES_INI,
-      session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGES_INI);
-  }
-}
-
-void PackageDataStore::SaveVarData()
-{
-  comboCfg.Save();
-}
-
 void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsPath)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("loading all package manifests ({0})"), Q_(packageManifestsPath)));
@@ -107,7 +92,7 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
     DefinePackage(packageInfo);
 
     // increment file ref counts, if package is installed
-    if (IsValidTimeT(packageInfo.timeInstalled))
+    if (IsValidTimeT(packageInfo.IsInstalled()))
     {
       IncrementFileRefCounts(packageInfo.runFiles);
       IncrementFileRefCounts(packageInfo.docFiles);
@@ -197,14 +182,191 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
   loadedAllPackageManifests = true;
 }
 
-void PackageDataStore::LoadAllPackageManifests()
+void PackageDataStore::SaveVarData()
 {
-  unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "loading all package manifests");
+  comboCfg.Save();
+}
+
+void PackageDataStore::Clear()
+{
+  packageTable.clear();
+  installedFileInfoTable.clear();
+  loadedAllPackageManifests = false;
+  comboCfg.Clear();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tuple<bool, PackageInfo> PackageDataStore::TryGetPackage(const string& packageId)
+{
+  Load();
+  auto it = packageTable.find(packageId);
+  if (it == packageTable.end())
+  {
+    return make_tuple(false, PackageInfo());
+  }
+  else
+  {
+    return make_tuple(true, it->second);
+  }
+}
+
+void PackageDataStore::SetTimeInstalled(const string& packageId, time_t timeInstalled)
+{
+  (*this)[packageId].timeInstalled = timeInstalled;
+  if (session->IsAdminMode())
+  {
+    (*this)[packageId].timeInstalledByAdmin = timeInstalled;
+  }
+  else
+  {
+    (*this)[packageId].timeInstalledByUser = timeInstalled;
+  }
+  if (IsValidTimeT(timeInstalled))
+  {
+    comboCfg.PutValue(packageId, "TimeInstalled", std::to_string(timeInstalled));
+  }
+  else
+  {
+    comboCfg.DeleteKey(packageId);
+  }
+}
+
+void PackageDataStore::DeclareObsolete(const string& packageId)
+{
+  (*this)[packageId].isObsolete = true;
+  comboCfg.PutValue(packageId, "Obsolete", "1");
+}
+
+void PackageDataStore::SetReleaseState(const string& packageId, RepositoryReleaseState releaseState)
+{
+  (*this)[packageId].releaseState = releaseState;
+  comboCfg.PutValue(packageId, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
+}
+
+PackageDataStore::iterator PackageDataStore::begin()
+{
+  Load();
+  return iterator(packageTable.begin());
+}
+
+PackageDataStore::iterator PackageDataStore::end()
+{
+  Load();
+  return iterator(packageTable.end());
+}
+
+void PackageDataStore::DefinePackage(const PackageInfo& packageInfo)
+{
+  pair<PackageDefinitionTable::iterator, bool> p = packageTable.insert(make_pair(packageInfo.id, packageInfo));
+  if (session->IsMiKTeXDirect())
+  {
+    // installed from the start
+    p.first->second.isRemovable = false;
+    p.first->second.isObsolete = false;
+    p.first->second.timeInstalled = packageInfo.timePackaged;
+    p.first->second.timeInstalledByAdmin = packageInfo.timePackaged;
+    p.first->second.timeInstalledByUser = packageInfo.timePackaged;
+  }
+  else
+  {
+    p.first->second.isRemovable = IsRemovable(p.first->second.id);
+    p.first->second.isObsolete = IsObsolete(p.first->second.id);
+    p.first->second.timeInstalled = GetTimeInstalled(p.first->second.id);
+    p.first->second.timeInstalledByAdmin = GetCommonTimeInstalled(p.first->second.id);
+    p.first->second.timeInstalledByUser = GetUserTimeInstalled(p.first->second.id);
+    if (p.first->second.IsInstalled())
+    {
+      p.first->second.releaseState = GetReleaseState(p.first->second.id);
+    }
+  }
+}
+
+void PackageDataStore::IncrementFileRefCounts(const string& packageId)
+{
+  Load();
+  const PackageInfo& pi = packageTable[packageId];
+  IncrementFileRefCounts(pi.runFiles);
+  IncrementFileRefCounts(pi.docFiles);
+  IncrementFileRefCounts(pi.sourceFiles);
+}
+
+unsigned long PackageDataStore::GetFileRefCount(const PathName& path)
+{
+  Load();
+  InstalledFileInfoTable::const_iterator it = installedFileInfoTable.find(path.ToString());
+  if (it == installedFileInfoTable.end())
+  {
+    return 0;
+  }
+  return it->second.refCount;
+}
+
+unsigned long PackageDataStore::DecrementFileRefCount(const PathName& path)
+{
+  Load();
+  InstalledFileInfoTable::iterator it = installedFileInfoTable.find(path.ToString());
+  if (it == installedFileInfoTable.end() || it->second.refCount == 0)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  it->second.refCount--;
+  return it->second.refCount;
+}
+
+void PackageDataStore::NeedPackageManifestsIni()
+{
+  PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+  if (File::Exists(existingPackageManifestsIni))
+  {
+    return;
+  }
+  PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  if (Directory::Exists(tpmDir))
+  {
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("starting migration: {} -> {}", tpmDir, existingPackageManifestsIni));
+    unique_ptr<Cfg> cfgExisting = Cfg::Create();
+    unique_ptr<DirectoryLister> lister = DirectoryLister::Open(tpmDir);
+    DirectoryEntry direntry;
+    unique_ptr<TpmParser> tpmParser = TpmParser::Create();
+    int count = 0;
+    while (lister->GetNext(direntry))
+    {
+      PathName name(direntry.name);
+      if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
+      {
+        continue;
+      }
+      tpmParser->Parse(tpmDir / name);
+      PackageInfo packageInfo = tpmParser->GetPackageInfo();
+      PackageManager::PutPackageManifest(*cfgExisting, packageInfo, packageInfo.timePackaged);
+      count++;
+    }
+    cfgExisting->Write(existingPackageManifestsIni);
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("successfully migrated {} package manifest files", count));
+  }
+}
+
+void PackageDataStore::Load()
+{
   if (loadedAllPackageManifests)
   {
     // we do this once
     return;
   }
+  unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "loading all package manifests");
   NeedPackageManifestsIni();
   PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
@@ -219,55 +381,25 @@ void PackageDataStore::LoadAllPackageManifests()
   LoadAllPackageManifests(commonPath);
 }
 
-void PackageDataStore::Clear()
+void PackageDataStore::LoadVarData()
 {
-  packageTable.clear();
-  installedFileInfoTable.clear();
-  loadedAllPackageManifests = false;
-  comboCfg.Clear();
-}
-
-tuple<bool, PackageInfo> PackageDataStore::TryGetPackage(const string& packageId)
-{
-  LoadAllPackageManifests();
-  auto it = packageTable.find(packageId);
-  if (it == packageTable.end())
+  if (!comboCfg.Loaded())
   {
-    return make_tuple(false, PackageInfo());
+    comboCfg.Load(
+      session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGES_INI,
+      session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGES_INI);
   }
-  else
-  {
-    return make_tuple(true, it->second);
-  }
-}
-
-void PackageDataStore::SetPackage(const PackageInfo& packageInfo)
-{
-  (*this)[packageInfo.id] = packageInfo;
 }
 
 PackageInfo& PackageDataStore::operator[](const string& packageId)
 {
-  LoadAllPackageManifests();
+  Load();
   auto it = packageTable.find(packageId);
   if (it == packageTable.end())
   {
-    MIKTEX_UNEXPECTED();
+    MIKTEX_FATAL_ERROR_2(T_("The requested package is unknown."), "name", packageId);
   }
   return it->second;
-}
-
-void PackageDataStore::SetTimeInstalled(const string& packageId, time_t timeInstalled)
-{
-  (*this)[packageId].timeInstalled = timeInstalled;
-  if (IsValidTimeT(timeInstalled))
-  {
-    comboCfg.PutValue(packageId, "TimeInstalled", std::to_string(timeInstalled));
-  }
-  else
-  {
-    comboCfg.DeleteKey(packageId);
-  }
 }
 
 time_t PackageDataStore::GetUserTimeInstalled(const string& packageId)
@@ -313,12 +445,6 @@ time_t PackageDataStore::GetTimeInstalled(const string& packageId)
   }
 }
 
-bool PackageDataStore::IsInstalled(const string& packageId)
-{
-  LoadVarData();
-  return IsValidTimeT(GetTimeInstalled(packageId));
-}
-
 bool PackageDataStore::IsRemovable(const string& packageId)
 {
   LoadVarData();
@@ -344,12 +470,6 @@ bool PackageDataStore::IsRemovable(const string& packageId)
   return ret;
 }
 
-void PackageDataStore::DeclareObsolete(const string& packageId, bool obsolete)
-{
-  LoadVarData();
-  comboCfg.PutValue(packageId, "Obsolete", (obsolete ? "1" : "0"));
-}
-
 bool PackageDataStore::IsObsolete(const string& packageId)
 {
   LoadVarData();
@@ -363,12 +483,6 @@ bool PackageDataStore::IsObsolete(const string& packageId)
   {
     return false;
   }
-}
-
-void PackageDataStore::SetReleaseState(const string& packageId, RepositoryReleaseState releaseState)
-{
-  LoadVarData();
-  comboCfg.PutValue(packageId, "ReleaseState", releaseState == RepositoryReleaseState::Next ? "next" : releaseState == RepositoryReleaseState::Stable ? "stable" : "");
 }
 
 RepositoryReleaseState PackageDataStore::GetReleaseState(const string& packageId)
@@ -389,28 +503,6 @@ RepositoryReleaseState PackageDataStore::GetReleaseState(const string& packageId
   return RepositoryReleaseState::Unknown;
 }
 
-void PackageDataStore::DefinePackage(const PackageInfo& packageInfo)
-{
-  pair<PackageDefinitionTable::iterator, bool> p = packageTable.insert(make_pair(packageInfo.id, packageInfo));
-  if (session->IsMiKTeXDirect())
-  {
-    // installed from the start
-    p.first->second.isRemovable = false;
-    p.first->second.isObsolete = false;
-    p.first->second.timeInstalled = packageInfo.timePackaged;
-  }
-  else
-  {
-    p.first->second.isRemovable = IsRemovable(p.first->second.id);
-    p.first->second.isObsolete = IsObsolete(p.first->second.id);
-    p.first->second.timeInstalled = GetTimeInstalled(p.first->second.id);
-    if (p.first->second.IsInstalled())
-    {
-      p.first->second.releaseState = GetReleaseState(p.first->second.id);
-    }
-  }
-}
-
 void PackageDataStore::IncrementFileRefCounts(const vector<string>& files)
 {
   for (const string& file : files)
@@ -422,69 +514,5 @@ void PackageDataStore::IncrementFileRefCounts(const vector<string>& files)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ref count > 1"), Q_(file)));
     }
 #endif
-  }
-}
-
-void PackageDataStore::IncrementFileRefCounts(const string& packageId)
-{
-  LoadAllPackageManifests();
-  const PackageInfo& pi = packageTable[packageId];
-  IncrementFileRefCounts(pi.runFiles);
-  IncrementFileRefCounts(pi.docFiles);
-  IncrementFileRefCounts(pi.sourceFiles);
-}
-
-unsigned long PackageDataStore::GetFileRefCount(const PathName& path)
-{
-  LoadAllPackageManifests();
-  InstalledFileInfoTable::const_iterator it = installedFileInfoTable.find(path.GetData());
-  if (it == installedFileInfoTable.end())
-  {
-    return 0;
-  }
-  return it->second.refCount;
-}
-
-InstalledFileInfo* PackageDataStore::GetInstalledFileInfo(const char* lpszPath)
-{
-  LoadAllPackageManifests();
-  InstalledFileInfoTable::iterator it = installedFileInfoTable.find(lpszPath);
-  if (it == installedFileInfoTable.end())
-  {
-    return nullptr;
-  }
-  return &it->second;
-}
-
-void PackageDataStore::NeedPackageManifestsIni()
-{
-  PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-  if (File::Exists(existingPackageManifestsIni))
-  {
-    return;
-  }
-  PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-  if (Directory::Exists(tpmDir))
-  {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("starting migration: {} -> {}", tpmDir, existingPackageManifestsIni));
-    unique_ptr<Cfg> cfgExisting = Cfg::Create();
-    unique_ptr<DirectoryLister> lister = DirectoryLister::Open(tpmDir);
-    DirectoryEntry direntry;
-    unique_ptr<TpmParser> tpmParser = TpmParser::Create();
-    int count = 0;
-    while (lister->GetNext(direntry))
-    {
-      PathName name(direntry.name);
-      if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
-      {
-        continue;
-      }
-      tpmParser->Parse(tpmDir / name);
-      PackageInfo packageInfo = tpmParser->GetPackageInfo();
-      PackageManager::PutPackageManifest(*cfgExisting, packageInfo, packageInfo.timePackaged);
-      count++;
-    }
-    cfgExisting->Write(existingPackageManifestsIni);
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("successfully migrated {} package manifest files", count));
   }
 }

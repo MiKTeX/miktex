@@ -80,12 +80,6 @@ public:
 public:
   virtual void MIKTEXTHISCALL CreateMpmFndb() = 0;
 
-  /// Gets the reference count of a file.
-  /// @param path Path name of the file.
-  /// @returns Returns the number of packages this file is a member of.
-public:
-  virtual unsigned long MIKTEXTHISCALL GetFileRefCount(const MiKTeX::Core::PathName& path) = 0;
-
   /// Gets information about a specified package.
   /// @param packageId Package key.
   /// @param packageInfo Package info struct to be filled..

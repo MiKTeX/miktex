@@ -98,17 +98,10 @@ inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo2& left, const M
   }
   left.archiveFileSize = right.archiveFileSize;
   memcpy(&left.digest, &right.digest, sizeof(left.digest));
-#if MIKTEX_EXTENDED_PACKAGEINFO
   left.copyrightOwner = _bstr_t(UW_(right.copyrightOwner)).Detach();
   left.copyrightYear = _bstr_t(UW_(right.copyrightYear)).Detach();
   left.licenseType = _bstr_t(UW_(right.licenseType)).Detach();
   left.ctanPath = _bstr_t(UW_(right.ctanPath)).Detach();
-#else
-  left.copyrightOwner = _bstr_t("").Detach();
-  left.copyrightYear = _bstr_t("").Detach();
-  left.licenseType = _bstr_t("").Detach();
-  left.ctanPath = _bstr_t("").Detach();
-#endif
 }
 
 class ATL_NO_VTABLE comPackageIterator :

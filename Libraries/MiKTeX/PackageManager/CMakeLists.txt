@@ -62,6 +62,7 @@ set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/PackageManager.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/RepositoryInfo.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/config.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/definitions.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/vi/Version
 )
 

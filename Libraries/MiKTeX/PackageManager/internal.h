@@ -53,6 +53,24 @@ const char* const MPM_AGENT = "MPM/" MIKTEX_COMPONENT_VERSION_STR;
 #define TEXMF_PREFIX_DIRECTORY \
   "texmf" MIKTEX_PATH_DIRECTORY_DELIMITER_STRING
 
+struct hash_path
+{
+public:
+  std::size_t operator()(const std::string& str) const
+  {
+    return MiKTeX::Core::PathName(str).GetHash();
+  }
+};
+
+struct equal_path
+{
+public:
+  bool operator()(const std::string& str1, const std::string& str2) const
+  {
+    return MiKTeX::Core::PathName::Compare(str1, str2) == 0;
+  }
+};
+
 inline void DbgView(const std::string& s)
 {
 #if defined(_WIN32)
@@ -106,13 +124,6 @@ inline int FPutC(int ch, FILE* stream)
 }
 
 bool IsUrl(const std::string& url);
-
-constexpr std::time_t InvalidTimeT = 0;
-
-inline bool IsValidTimeT(time_t time)
-{
-  return time != static_cast<std::time_t>(0) && time != static_cast<std::time_t>(-1);
-}
 
 std::string MakeUrl(const std::string& base, const std::string& rel);
 
