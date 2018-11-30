@@ -405,10 +405,10 @@ private:
   bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName& directory) override;
 
 private:
-  void RemovePackage(const std::string& packageId);
+  void RemovePackage(const std::string& packageId, MiKTeX::Core::Cfg& packageManifests);
 
 private:
-  void InstallPackage(const std::string& packageId);
+  void InstallPackage(const std::string& packageId, MiKTeX::Core::Cfg& packageManifests);
 
 private:
   void MyCopyFile(const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& dest, size_t& size);

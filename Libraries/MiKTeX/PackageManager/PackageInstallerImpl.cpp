@@ -835,7 +835,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
   }
 }
 
-void PackageInstallerImpl::RemovePackage(const string& packageId)
+void PackageInstallerImpl::RemovePackage(const string& packageId, Cfg& packageManifests)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0}"), Q_(packageId)));
 
@@ -1122,7 +1122,7 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
   }
 }
 
-void PackageInstallerImpl::InstallPackage(const string& packageId)
+void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageManifests)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("installing package {0}"), Q_(packageId)));
 
@@ -1233,15 +1233,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   PackageInfo newPackage = tpmparser->GetPackageInfo();
 
   // install new package manifest
-  unique_ptr<Cfg> cfg = Cfg::Create();
-  PathName packageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-  if (File::Exists(packageManifestsIni))
-  {
-    cfg->Read(packageManifestsIni);
-    PackageManager::PutPackageManifest(*cfg, newPackage, newPackage.timePackaged);
-    cfg->Write(packageManifestsIni);
-  }
-  cfg = nullptr;
+  PackageManager::PutPackageManifest(packageManifests, newPackage, newPackage.timePackaged);
 
   // find recycled and brand new files
   StringSet set1;
@@ -1879,16 +1871,23 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
   RegisterComponents(false, toBeInstalled, toBeRemoved);
 
+  unique_ptr<Cfg> packageManifests = Cfg::Create();
+  PathName packageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+  if (File::Exists(packageManifestsIni))
+  {
+    packageManifests->Read(packageManifestsIni);
+  }
+
   // install packages
   for (const string& p : toBeInstalled)
   {
-    InstallPackage(p);
+    InstallPackage(p, *packageManifests);
   }
 
   // remove packages
   for (const string& p : toBeRemoved)
   {
-    RemovePackage(p);
+    RemovePackage(p, *packageManifests);
   }
 
   if (role == Role::Updater)
@@ -1907,8 +1906,15 @@ void PackageInstallerImpl::InstallRemove(Role role)
   }
   for (const string& p : tmp)
   {
-    InstallPackage(p);
+    InstallPackage(p, *packageManifests);
   }
+
+  if (File::Exists(packageManifestsIni))
+  {
+    packageManifests->Write(packageManifestsIni);
+  }
+
+  packageManifests = nullptr;
 
   if (!noPostProcessing)
   {
