@@ -1231,7 +1231,6 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
 
   // get new package info
   PackageInfo newPackage = tpmparser->GetPackageInfo();
-  newPackage.id = packageId;
 
   // install new package manifest
   unique_ptr<Cfg> cfg = Cfg::Create();
