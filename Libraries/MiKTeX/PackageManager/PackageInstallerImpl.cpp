@@ -84,15 +84,6 @@ MPMSTATICFUNC(bool) IsMiKTeXPackage(const string& packageId)
   return strncmp(packageId.c_str(), "miktex-", 7) == 0;
 }
 
-MPMSTATICFUNC(PathName) PrefixedPackageManifestFile(const string& packageId)
-{
-  PathName path(TEXMF_PREFIX_DIRECTORY);
-  path /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-  path /= packageId;
-  path.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
-  return path;
-}
-
 PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manager) :
   packageManager(manager),
   packageDataStore(manager->GetPackageDataStore()),
@@ -813,7 +804,6 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
       done = true;
     }
 
-
     // remove from MPM FNDB
 #if 0
     if (autoFndbSync
@@ -853,28 +843,11 @@ void PackageInstallerImpl::RemovePackage(const string& packageId, Cfg& packageMa
   }
 
   // clear the installTime value => package is not installed
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing {0} from the variable package table"), Q_(packageId)));
   packageDataStore->SetTimeInstalled(packageId, InvalidTimeT);
   packageDataStore->SaveVarData();
-  package.timeInstalled = InvalidTimeT;
-
-  if (package.isObsolete)
-  {
-    // it's an obsolete package: make sure that the package
-    // definition file gets removed too
-    AddToFileList(package.runFiles, PrefixedPackageManifestFile(packageId));
-  }
-  else
-  {
-    // make sure that the package manifest file does not get removed
-    RemoveFromFileList(package.runFiles, PrefixedPackageManifestFile(packageId));
-  }
 
   // remove the files
-  size_t nTotal = (package.runFiles.size()
-    + package.docFiles.size()
-    + package.sourceFiles.size());
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0} file(s)"), nTotal));
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0} file(s)"), package.runFiles.size() + package.docFiles.size() + package.sourceFiles.size()));
   RemoveFiles(package.runFiles);
   RemoveFiles(package.docFiles);
   RemoveFiles(package.sourceFiles);
@@ -1031,31 +1004,6 @@ void PackageInstallerImpl::CopyFiles(const PathName& pathSourceRoot, const vecto
   }
 }
 
-void PackageInstallerImpl::AddToFileList(vector<string>& fileList, const PathName& fileName) const
-{
-  // avoid duplicates
-  for (const string& f : fileList)
-  {
-    if (PathName::Compare(f, fileName.ToString()) == 0)
-    {
-      return;
-    }
-  }
-  fileList.push_back(fileName.GetData());
-}
-
-void PackageInstallerImpl::RemoveFromFileList(vector<string>& fileList, const PathName& fileName) const
-{
-  for (vector<string>::iterator it = fileList.begin(); it != fileList.end(); ++it)
-  {
-    if (PathName::Compare(*it, fileName.ToString()) == 0)
-    {
-      fileList.erase(it);
-      return;
-    }
-  }
-}
-
 void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const string& packageId)
 {
   // parse the package manifest file
@@ -1069,10 +1017,6 @@ void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const str
   // get the package info from the parser; set the package name
   PackageInfo package = tpmparser->GetPackageInfo();
   package.id = packageId;
-
-  // make sure that the package manifest file is included in the
-  // file list
-  AddToFileList(package.runFiles, PrefixedPackageManifestFile(packageId));
 
   // copy the files
   CopyFiles(pathSourceRoot, package.runFiles);
@@ -1189,7 +1133,6 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
   {
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: removing old files"), packageId));
     // make sure that the package info file does not get removed
-    RemoveFromFileList(package.runFiles, PrefixedPackageManifestFile(packageId));
     RemoveFiles(package.runFiles, true);
     RemoveFiles(package.docFiles, true);
     RemoveFiles(package.sourceFiles, true);
@@ -2223,7 +2166,6 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
   {
     cfgExisting.DeleteKey(p);
   }
-
   packageDataStore->SaveVarData();
 }
 

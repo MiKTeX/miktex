@@ -75,6 +75,7 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
     {
       continue;
     }
+
     PackageInfo packageInfo = PackageManager::GetPackageManifest(*cfg, key->GetName(), TEXMF_PREFIX_DIRECTORY);
 
 #if IGNORE_OTHER_SYSTEMS
@@ -92,7 +93,7 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
     DefinePackage(packageInfo);
 
     // increment file ref counts, if package is installed
-    if (IsValidTimeT(packageInfo.IsInstalled()))
+    if (packageInfo.IsInstalled())
     {
       IncrementFileRefCounts(packageInfo.runFiles);
       IncrementFileRefCounts(packageInfo.docFiles);
@@ -195,20 +196,6 @@ void PackageDataStore::Clear()
   comboCfg.Clear();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 tuple<bool, PackageInfo> PackageDataStore::TryGetPackage(const string& packageId)
 {
   Load();
@@ -296,11 +283,10 @@ void PackageDataStore::DefinePackage(const PackageInfo& packageInfo)
 
 void PackageDataStore::IncrementFileRefCounts(const string& packageId)
 {
-  Load();
-  const PackageInfo& pi = packageTable[packageId];
-  IncrementFileRefCounts(pi.runFiles);
-  IncrementFileRefCounts(pi.docFiles);
-  IncrementFileRefCounts(pi.sourceFiles);
+  const PackageInfo& package = (*this)[packageId];
+  IncrementFileRefCounts(package.runFiles);
+  IncrementFileRefCounts(package.docFiles);
+  IncrementFileRefCounts(package.sourceFiles);
 }
 
 unsigned long PackageDataStore::GetFileRefCount(const PathName& path)

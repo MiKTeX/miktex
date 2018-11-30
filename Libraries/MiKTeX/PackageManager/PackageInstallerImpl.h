@@ -128,7 +128,7 @@ public:
   void MIKTEXTHISCALL DownloadAsync() override;
 
 private:
-  void StartWorkerThread(void (PackageInstallerImpl::*method) ());
+  void StartWorkerThread(void (PackageInstallerImpl::*method)());
 
 public:
   ProgressInfo MIKTEXTHISCALL GetProgressInfo() override
@@ -366,9 +366,6 @@ private:
   void FindUpgradesThread();
 
 private:
-  void DoInstall();
-
-private:
   void HandleObsoletePackageManifests(MiKTeX::Core::Cfg& cfgExisting, const MiKTeX::Core::Cfg& cfgNew);
 
 private:
@@ -388,12 +385,6 @@ private:
 
 private:
   void CopyFiles(const MiKTeX::Core::PathName& pathSourceRoot, const std::vector<std::string>& fileList);
-
-private:
-  void AddToFileList(std::vector<std::string>& fileList, const MiKTeX::Core::PathName& fileName) const;
-
-private:
-  void RemoveFromFileList(std::vector<std::string>& fileList, const MiKTeX::Core::PathName& fileName) const;
 
 private:
   void CopyPackage(const MiKTeX::Core::PathName& pathSourceRoot, const std::string& packageId);

@@ -88,16 +88,16 @@ struct PackageInfo
   std::vector<std::string> requiredBy;
 
   /// Date/time when the package was created.
-  time_t timePackaged = InvalidTimeT;
+  std::time_t timePackaged = InvalidTimeT;
 
   /// Date/time when the package was installed.
-  time_t timeInstalled = InvalidTimeT;
+  std::time_t timeInstalled = InvalidTimeT;
 
   /// Date/time when the package was installed by the user.
-  time_t timeInstalledByUser = InvalidTimeT;
+  std::time_t timeInstalledByUser = InvalidTimeT;
 
   /// Date/time when the package was installed by the administrator (for all users).
-  time_t timeInstalledByAdmin = InvalidTimeT;
+  std::time_t timeInstalledByAdmin = InvalidTimeT;
 
   /// Size of the archive file.
   std::size_t archiveFileSize = 0;
@@ -105,10 +105,10 @@ struct PackageInfo
   /// MD5 of the package.
   MiKTeX::Core::MD5 digest;
 
-  /// True, if the packahe can be removed.
+  /// True, if the package can be removed.
   bool isRemovable = false;
 
-  /// True, if the package is removed.
+  /// True, if the package is obsolete.
   bool isObsolete = false;
 
   /// The release state of the package.

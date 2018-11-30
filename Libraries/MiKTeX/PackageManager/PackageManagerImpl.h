@@ -113,7 +113,6 @@ public:
     return repositories.TryGetRepositoryInfo(url, repositoryInfo);
   }
 
-
 public:
   MiKTeX::Packages::RepositoryInfo MIKTEXTHISCALL CheckPackageRepository(const std::string& url) override
   {
