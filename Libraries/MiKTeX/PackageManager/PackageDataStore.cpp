@@ -247,11 +247,11 @@ void PackageDataStore::Load()
   cfg->SetOptions({ Cfg::Option::IgnoreDuplicateKeys });
   PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-  if (!session->IsAdminMode())
+  if (!session->IsAdminMode() && File::Exists(userPath))
   {
     cfg->Read(userPath);
   }
-  if (session->IsAdminMode() || userPath.Canonicalize() != commonPath.Canonicalize())
+  if ((session->IsAdminMode() || userPath.Canonicalize() != commonPath.Canonicalize()) && File::Exists(commonPath))
   {
     cfg->Read(commonPath);
   }
