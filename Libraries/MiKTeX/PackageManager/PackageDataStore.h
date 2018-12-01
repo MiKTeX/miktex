@@ -142,6 +142,9 @@ private:
   void Load();
 
 private:
+  void Load(MiKTeX::Core::Cfg& cfg);
+
+private:
   void LoadVarData();
 
 private:

@@ -67,118 +67,7 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
   unique_ptr<Cfg> cfg = Cfg::Create();
   cfg->Read(packageManifestsPath);
 
-  unsigned count = 0;
-  for (auto key : *cfg)
-  {
-    // ignore redefinition
-    if (packageTable.find(key->GetName()) != packageTable.end())
-    {
-      continue;
-    }
-
-    PackageInfo packageInfo = PackageManager::GetPackageManifest(*cfg, key->GetName(), TEXMF_PREFIX_DIRECTORY);
-
-#if IGNORE_OTHER_SYSTEMS
-    string targetSystems = packageInfo.targetSystem;
-    if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
-    {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ignoring {1} package"), packageInfo.id, targetSystems));
-      continue;
-    }
-#endif
-
-    count += 1;
-
-    // insert into database
-    DefinePackage(packageInfo);
-
-    // increment file ref counts, if package is installed
-    if (packageInfo.IsInstalled())
-    {
-      IncrementFileRefCounts(packageInfo.runFiles);
-      IncrementFileRefCounts(packageInfo.docFiles);
-      IncrementFileRefCounts(packageInfo.sourceFiles);
-    }
-  }
-
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("found {0} package manifests"), count));
-
-  // determine dependencies
-  for (auto& kv : packageTable)
-  {
-    PackageInfo& pkg = kv.second;
-    // FIXME
-    time_t timeInstalledMin = static_cast<time_t>(0xffffffffffffffffULL);
-    time_t timeInstalledMax = 0;
-    for (const string& req : pkg.requiredPackages)
-    {
-      PackageDefinitionTable::iterator it3 = packageTable.find(req);
-      if (it3 == packageTable.end())
-      {
-        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.id));
-      }
-      else
-      {
-        it3->second.requiredBy.push_back(pkg.id);
-        if (it3->second.timeInstalled < timeInstalledMin)
-        {
-          timeInstalledMin = it3->second.timeInstalled;
-        }
-        if (it3->second.timeInstalled > timeInstalledMax)
-        {
-          timeInstalledMax = it3->second.timeInstalled;
-        }
-      }
-    }
-    if (timeInstalledMin > 0)
-    {
-      if (pkg.IsPureContainer() || (pkg.IsInstalled() && pkg.timeInstalled < timeInstalledMax))
-      {
-        pkg.timeInstalled = timeInstalledMax;
-      }
-    }
-  }
-
-  // create "Obsolete" container
-  PackageInfo piObsolete;
-  piObsolete.id = "_miktex-obsolete";
-  piObsolete.displayName = T_("Obsolete");
-  piObsolete.title = T_("Obsolete packages");
-  piObsolete.description = T_("Packages that were removed from the MiKTeX package repository.");
-  for (auto& kv : packageTable)
-  {
-    PackageInfo& pkg = kv.second;
-    if (!pkg.IsContained() && !pkg.IsContainer() && IsObsolete(pkg.id))
-    {
-      piObsolete.requiredPackages.push_back(pkg.id);
-      pkg.requiredBy.push_back(piObsolete.id);
-    }
-  }
-  if (!piObsolete.requiredPackages.empty())
-  {
-    // insert "Obsolete" into the database
-    DefinePackage(piObsolete);
-  }
-
-  // create "Uncategorized" container
-  PackageInfo piOther;
-  piOther.id = "_miktex-all-the-rest";
-  piOther.displayName = T_("Uncategorized");
-  piOther.title = T_("Uncategorized packages");
-  for (auto& kv : packageTable)
-  {
-    PackageInfo& pkg = kv.second;
-    if (!pkg.IsContained() && !pkg.IsContainer())
-    {
-      piOther.requiredPackages.push_back(pkg.id);
-      pkg.requiredBy.push_back(piOther.id);
-    }
-  }
-  if (!piOther.requiredPackages.empty())
-  {
-    // insert "Other" into the database
-    DefinePackage(piOther);
-  }
+  Load(*cfg);
 
   loadedAllPackageManifests = true;
 }
@@ -354,17 +243,136 @@ void PackageDataStore::Load()
   }
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "loading all package manifests");
   NeedPackageManifestsIni();
+  unique_ptr<Cfg> cfg = Cfg::Create();
+  cfg->SetOptions({ Cfg::Option::IgnoreDuplicateKeys });
   PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   if (!session->IsAdminMode())
   {
-    LoadAllPackageManifests(userPath);
-    if (userPath.Canonicalize() == commonPath.Canonicalize())
+    cfg->Read(userPath);
+  }
+  if (session->IsAdminMode() || userPath.Canonicalize() != commonPath.Canonicalize())
+  {
+    cfg->Read(commonPath);
+  }
+  Load(*cfg);
+  loadedAllPackageManifests = true;
+}
+
+void PackageDataStore::Load(Cfg& cfg)
+{
+  unsigned count = 0;
+  for (const auto& key : cfg)
+  {
+    // ignore redefinition
+    if (packageTable.find(key->GetName()) != packageTable.end())
     {
-      return;
+      continue;
+    }
+
+    PackageInfo packageInfo = PackageManager::GetPackageManifest(cfg, key->GetName(), TEXMF_PREFIX_DIRECTORY);
+
+#if IGNORE_OTHER_SYSTEMS
+    string targetSystems = packageInfo.targetSystem;
+    if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
+    {
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ignoring {1} package"), packageInfo.id, targetSystems));
+      continue;
+    }
+#endif
+
+    count += 1;
+
+    // insert into database
+    DefinePackage(packageInfo);
+
+    // increment file ref counts, if package is installed
+    if (packageInfo.IsInstalled())
+    {
+      IncrementFileRefCounts(packageInfo.runFiles);
+      IncrementFileRefCounts(packageInfo.docFiles);
+      IncrementFileRefCounts(packageInfo.sourceFiles);
     }
   }
-  LoadAllPackageManifests(commonPath);
+
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("found {0} package manifests"), count));
+
+  // determine dependencies
+  for (auto& kv : packageTable)
+  {
+    PackageInfo& pkg = kv.second;
+    // FIXME
+    time_t timeInstalledMin = static_cast<time_t>(0xffffffffffffffffULL);
+    time_t timeInstalledMax = 0;
+    for (const string& req : pkg.requiredPackages)
+    {
+      PackageDefinitionTable::iterator it3 = packageTable.find(req);
+      if (it3 == packageTable.end())
+      {
+        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.id));
+      }
+      else
+      {
+        it3->second.requiredBy.push_back(pkg.id);
+        if (it3->second.timeInstalled < timeInstalledMin)
+        {
+          timeInstalledMin = it3->second.timeInstalled;
+        }
+        if (it3->second.timeInstalled > timeInstalledMax)
+        {
+          timeInstalledMax = it3->second.timeInstalled;
+        }
+      }
+    }
+    if (timeInstalledMin > 0)
+    {
+      if (pkg.IsPureContainer() || (pkg.IsInstalled() && pkg.timeInstalled < timeInstalledMax))
+      {
+        pkg.timeInstalled = timeInstalledMax;
+      }
+    }
+  }
+
+  // create "Obsolete" container
+  PackageInfo piObsolete;
+  piObsolete.id = "_miktex-obsolete";
+  piObsolete.displayName = T_("Obsolete");
+  piObsolete.title = T_("Obsolete packages");
+  piObsolete.description = T_("Packages that were removed from the MiKTeX package repository.");
+  for (auto& kv : packageTable)
+  {
+    PackageInfo& pkg = kv.second;
+    if (!pkg.IsContained() && !pkg.IsContainer() && IsObsolete(pkg.id))
+    {
+      piObsolete.requiredPackages.push_back(pkg.id);
+      pkg.requiredBy.push_back(piObsolete.id);
+    }
+  }
+  if (!piObsolete.requiredPackages.empty())
+  {
+    // insert "Obsolete" into the database
+    DefinePackage(piObsolete);
+  }
+
+  // create "Uncategorized" container
+  PackageInfo piOther;
+  piOther.id = "_miktex-all-the-rest";
+  piOther.displayName = T_("Uncategorized");
+  piOther.title = T_("Uncategorized packages");
+  for (auto& kv : packageTable)
+  {
+    PackageInfo& pkg = kv.second;
+    if (!pkg.IsContained() && !pkg.IsContainer())
+    {
+      piOther.requiredPackages.push_back(pkg.id);
+      pkg.requiredBy.push_back(piOther.id);
+    }
+  }
+  if (!piOther.requiredPackages.empty())
+  {
+    // insert "Other" into the database
+    DefinePackage(piOther);
+  }
 }
 
 void PackageDataStore::LoadVarData()
