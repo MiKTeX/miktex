@@ -45,11 +45,11 @@ using namespace std;
 #define FATAL_CFG_ERROR(message) \
   MIKTEX_FATAL_ERROR_2(T_("A MiKTeX configuration file could not be loaded."), "file", currentFile.ToString(), "line", std::to_string(lineno), "error", message)
 
-const char COMMENT_CHAR = ';';
-const char* const COMMENT1 = ";";
-const char* const COMMENT2 = ";;";
-const char* const COMMENT3 = ";;;";
-const char* const COMMENT4 = ";;;;";
+constexpr const char COMMENT_CHAR = ';';
+constexpr const char* COMMENT1 = ";";
+constexpr const char* COMMENT2 = ";;";
+constexpr const char* COMMENT3 = ";;;";
+constexpr const char* COMMENT4 = ";;;;";
 
 MIKTEXSTATICFUNC(bool) EndsWith(const string& s, const string& suffix)
 {
@@ -59,18 +59,18 @@ MIKTEXSTATICFUNC(bool) EndsWith(const string& s, const string& suffix)
 
 MIKTEXSTATICFUNC(string&) Trim(string& str)
 {
-  const char* whitespace = " \t\r\n";
-  size_t pos = str.find_last_not_of(whitespace);
+  constexpr const char* WHITESPACE = " \t\r\n";
+  size_t pos = str.find_last_not_of(WHITESPACE);
   if (pos != string::npos)
   {
     str.erase(pos + 1);
   }
-  pos = str.find_first_not_of(whitespace);
+  pos = str.find_first_not_of(WHITESPACE);
   if (pos == string::npos)
   {
     str.erase();
   }
-  else
+  else if (pos != 0)
   {
     str.erase(0, pos);
   }
