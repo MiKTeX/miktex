@@ -34,6 +34,7 @@
 #include <vector>
 
 #include "MD5.h"
+#include "OptionSet.h"
 #include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
@@ -151,6 +152,22 @@ public:
 
 public:
   virtual MIKTEXTHISCALL ~Cfg() noexcept = 0;
+
+public:
+  enum class Option
+  {
+    IgnoreDuplicateKeys,
+    IgnoreDuplicateValues
+  };
+
+public:
+  typedef OptionSet<Option> Options;
+
+public:
+  virtual Options MIKTEXTHISCALL GetOptions();
+
+public:
+  virtual void MIKTEXTHISCALL SetOptions(Options options);
 
   /// Tests whether the Cfg object is empty.
 public:

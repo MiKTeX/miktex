@@ -457,6 +457,18 @@ class CfgImpl :
   public Cfg
 {
 public:
+  Options GetOptions() override
+  {
+    return options;
+  }
+
+public:
+  void SetOptions(Options options) override
+  {
+    this->options = options;
+  }
+
+public:
   bool MIKTEXTHISCALL Empty() const override;
 
 public:
@@ -647,6 +659,9 @@ private:
   bool ClearValue(const string& keyName, const string& valueName);
   
 private:
+  Options options;
+
+private:
   int lineno = 0;
 
 private:
@@ -810,12 +825,20 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, const st
     MIKTEX_UNEXPECTED();
   }
   string lookupKeyName = Utils::MakeLower(keyName);
+  if (options[Option::IgnoreDuplicateKeys] && keyMap.find(lookupKeyName) != keyMap.end())
+  {
+    return;
+  }
   pair<KeyMap::iterator, bool> pair1 = keyMap.insert(make_pair(lookupKeyName, make_shared<CfgKey>(keyName, lookupKeyName)));
 
   KeyMap::iterator itKey = pair1.first;
   MIKTEX_ASSERT(itKey != keyMap.end());
 
   string lookupValueName = Utils::MakeLower(valueName);
+  if (options[Option::IgnoreDuplicateValues] && itKey->second->valueMap.find(lookupValueName) != itKey->second->valueMap.end())
+  {
+    return;
+  }
   pair<ValueMap::iterator, bool> pair2 = itKey->second->valueMap.insert(make_pair(lookupValueName, make_shared<CfgValue>(valueName, lookupValueName, value, documentation, commentedOut)));
 
   if (!pair2.second)
