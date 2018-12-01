@@ -457,7 +457,7 @@ class CfgImpl :
   public Cfg
 {
 public:
-  Options GetOptions() override
+  Options GetOptions() const override
   {
     return options;
   }

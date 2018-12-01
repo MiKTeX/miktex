@@ -164,10 +164,10 @@ public:
   typedef OptionSet<Option> Options;
 
 public:
-  virtual Options MIKTEXTHISCALL GetOptions();
+  virtual Options MIKTEXTHISCALL GetOptions() const = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetOptions(Options options);
+  virtual void MIKTEXTHISCALL SetOptions(Options options) = 0;
 
   /// Tests whether the Cfg object is empty.
 public:
