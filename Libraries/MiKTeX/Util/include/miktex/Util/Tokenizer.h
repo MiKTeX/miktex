@@ -46,7 +46,7 @@ public:
   Tokenizer(Tokenizer&& other) = delete;
 
 public:
-  Tokenizer& operator= (Tokenizer&& other) = delete;
+  Tokenizer& operator=(Tokenizer&& other) = delete;
 
 public:
   virtual MIKTEXUTILEXPORT MIKTEXTHISCALL ~Tokenizer() noexcept;
