@@ -156,8 +156,8 @@ public:
 public:
   enum class Option
   {
-    IgnoreDuplicateKeys,
-    IgnoreDuplicateValues
+    NoOverwriteKeys,
+    NoOverwriteValues
   };
 
 public:

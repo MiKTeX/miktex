@@ -244,7 +244,6 @@ void PackageDataStore::Load()
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "loading all package manifests");
   NeedPackageManifestsIni();
   unique_ptr<Cfg> cfg = Cfg::Create();
-  cfg->SetOptions({ Cfg::Option::IgnoreDuplicateKeys });
   PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   if (!session->IsAdminMode() && File::Exists(userPath))
@@ -253,6 +252,7 @@ void PackageDataStore::Load()
   }
   if ((session->IsAdminMode() || userPath.Canonicalize() != commonPath.Canonicalize()) && File::Exists(commonPath))
   {
+    cfg->SetOptions({ Cfg::Option::NoOverwriteKeys });
     cfg->Read(commonPath);
   }
   Load(*cfg);

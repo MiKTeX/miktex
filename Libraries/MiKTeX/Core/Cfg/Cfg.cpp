@@ -825,17 +825,13 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, const st
     MIKTEX_UNEXPECTED();
   }
   string lookupKeyName = Utils::MakeLower(keyName);
-  if (options[Option::IgnoreDuplicateKeys] && keyMap.find(lookupKeyName) != keyMap.end())
-  {
-    return;
-  }
   pair<KeyMap::iterator, bool> pair1 = keyMap.insert(make_pair(lookupKeyName, make_shared<CfgKey>(keyName, lookupKeyName)));
 
   KeyMap::iterator itKey = pair1.first;
   MIKTEX_ASSERT(itKey != keyMap.end());
 
   string lookupValueName = Utils::MakeLower(valueName);
-  if (options[Option::IgnoreDuplicateValues] && itKey->second->valueMap.find(lookupValueName) != itKey->second->valueMap.end())
+  if (options[Option::NoOverwriteValues] && itKey->second->valueMap.find(lookupValueName) != itKey->second->valueMap.end())
   {
     return;
   }
@@ -945,6 +941,8 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
   bool wasEmpty = Empty();
 
   string keyName = defaultKeyName;
+  string lookupKeyName = Utils::MakeLower(keyName);
+  bool ignoreKey = false;
 
   lineno = 0;
   currentFile = path;
@@ -1003,6 +1001,8 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
         FATAL_CFG_ERROR(T_("incomplete secion name"));
       }
       keyName = *tok;
+      lookupKeyName = Utils::MakeLower(keyName);
+      ignoreKey = options[Option::NoOverwriteKeys] && keyMap.find(lookupKeyName) != keyMap.end();
     }
     else if (line.length() >= 3 && line[0] == COMMENT_CHAR && line[1] == COMMENT_CHAR && line[2] == ' ')
     {
@@ -1014,14 +1014,17 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
     }
     else if ((line.length() >= 2 && line[0] == COMMENT_CHAR && (IsAlNum(line[1]) || line[1] == '.')) || IsAlNum(line[0]) || line[0] == '.')
     {
-      string valueName;
-      string value;
-      PutMode putMode;
-      if (!ParseValueDefinition(line[0] == COMMENT_CHAR ? &line[1] : &line[0], valueName, value, putMode))
+      if (!ignoreKey)
       {
-        FATAL_CFG_ERROR(T_("invalid value definition"));
+        string valueName;
+        string value;
+        PutMode putMode;
+        if (!ParseValueDefinition(line[0] == COMMENT_CHAR ? &line[1] : &line[0], valueName, value, putMode))
+        {
+          FATAL_CFG_ERROR(T_("invalid value definition"));
+        }
+        PutValue(keyName, valueName, value, putMode, documentation, line[0] == COMMENT_CHAR);
       }
-      PutValue(keyName, valueName, value, putMode, documentation, line[0] == COMMENT_CHAR);
     }
     else if (line.length() >= 4 && line[0] == COMMENT_CHAR && line[1] == COMMENT_CHAR && line[2] == COMMENT_CHAR && line[3] == COMMENT_CHAR)
     {
