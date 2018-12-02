@@ -291,7 +291,7 @@ void MakeFmt::FindInputFile(const PathName& inputName, PathName& inputFile)
 {
   if (!session->FindFile(inputName.ToString(), FileType::TEX, inputFile))
   {
-    FatalError(T_("The input file could not be found."));
+    FatalError(fmt::format("The required TeX input file {0} could not be found.", Q_(inputName)));
   }
 
   LOG4CXX_INFO(logger, "found input file: " << inputFile);
