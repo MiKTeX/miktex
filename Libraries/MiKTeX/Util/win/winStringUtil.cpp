@@ -39,7 +39,7 @@ using namespace std;
 
 using namespace MiKTeX::Util;
 
-MIKTEXSTATICFUNC(wchar_t *) AnsiToWideChar(const char* source, wchar_t* dest, size_t destSize)
+MIKTEXSTATICFUNC(wchar_t*) AnsiToWideChar(const char* source, wchar_t* dest, size_t destSize)
 {
   if (*source == 0)
   {
