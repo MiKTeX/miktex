@@ -915,7 +915,7 @@ void CfgImpl::PutValue(const string& keyName, const string& valueName, const str
 
 void CfgImpl::PutValue(const string& keyName, const string& valueName, const string& value, const string& documentation, bool commentedOut)
 {
-  return PutValue(keyName, valueName, string(value), None, string(value), commentedOut);
+  return PutValue(keyName, valueName, string(value), None, string(documentation), commentedOut);
 }
 
 void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
