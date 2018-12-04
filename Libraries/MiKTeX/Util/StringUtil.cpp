@@ -19,20 +19,14 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <algorithm>
+
 #include "internal.h"
 
 string StringUtil::Flatten(const std::vector<std::string>& vec, char sep)
 {
-  string result;
-  for (const string& s : vec)
-  {
-    if (!result.empty())
-    {
-      result += sep;
-    }
-    result += s;
-  }
-  return result;
+  Flattener f = std::for_each(vec.begin(), vec.end(), Flattener(sep));
+  return f.result;
 }
 
 vector<string> StringUtil::Split(const std::string& s, char sep)

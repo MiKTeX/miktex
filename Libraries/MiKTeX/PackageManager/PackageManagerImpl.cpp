@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include <algorithm>
 #include <fstream>
 #include <locale>
 #include <stack>
@@ -876,7 +877,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "description[]")
     {
-      packageInfo.description = StringUtil::Flatten(val->AsStringVector(), '\n');
+      packageInfo.description = std::for_each(val->begin(), val->end(), Flattener('\n')).result;
     }
     else if (val->GetName() == "require[]")
     {

@@ -35,6 +35,33 @@
 
 MIKTEX_UTIL_BEGIN_NAMESPACE;
 
+class Flattener
+{
+public:
+  Flattener() :
+    Flattener('\n')
+  {
+  }
+public:
+  Flattener(char sep) :
+    sep(sep)
+  {
+  }
+public:
+  void operator()(const std::string& s)
+  {
+    if (!result.empty())
+    {
+      result += sep;
+    }
+    result += s;
+  }
+private:
+  char sep;
+public:
+  std::string result;
+};
+
 class MIKTEXNOVTABLE StringUtil
 {
 public:
