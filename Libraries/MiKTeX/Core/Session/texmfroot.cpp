@@ -1124,7 +1124,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriSta
 
   trace_fndb->WriteFormattedLine("core", T_("loading fndb%s: %s"), (readOnly ? T_(" read-only") : ""), fqFndbFileName.GetData());
 
-  shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName.GetData(), root.get_Path().GetData(), readOnly);
+  shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName, root.get_Path(), readOnly);
 
   root.SetFndb(pFndb);
 

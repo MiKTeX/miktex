@@ -52,7 +52,7 @@ void Fndb::Add(const PathName& path, const string& fileNameInfo)
     {
       MIKTEX_UNEXPECTED();
     }
-    fndb->AddFile(path.GetData(), fileNameInfo.c_str());
+    fndb->AddFile(path, fileNameInfo);
   }
   else
   {
@@ -92,7 +92,7 @@ void Fndb::Remove(const PathName& path)
   {
     MIKTEX_UNEXPECTED();
   }
-  fndb->RemoveFile(path.GetData());
+  fndb->RemoveFile(path);
 }
 
 bool Fndb::FileExists(const PathName& path)
@@ -116,5 +116,5 @@ bool Fndb::Search(const PathName& fileName, const string& pathPattern, bool firs
   {
     return false;
   }
-  return fndb->Search(fileName, pathPattern.c_str(), firstMatchOnly, result, fileNameInfo);
+  return fndb->Search(fileName, pathPattern, firstMatchOnly, result, fileNameInfo);
 }

@@ -147,7 +147,7 @@ void SessionImpl::RecordFileInfo(const PathName& path, FileAccess access)
       {
 	vector<PathName> paths;
 	vector<string> packageNames;
-	if (fndb->Search(pathRelPath.GetData(), MPM_ROOT_PATH, true, paths, packageNames))
+	if (fndb->Search(pathRelPath, MPM_ROOT_PATH, true, paths, packageNames))
 	{
 	  fir.packageName = packageNames[0];
 	}

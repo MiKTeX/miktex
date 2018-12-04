@@ -39,16 +39,16 @@ BEGIN_INTERNAL_NAMESPACE;
 class FileNameDatabase
 {
 public:
-  static std::shared_ptr<FileNameDatabase> Create(const char* lpszFndbPath, const char* lpszRoot, bool readOnly);
+  static std::shared_ptr<FileNameDatabase> Create(const MiKTeX::Core::PathName& fndbPath, const MiKTeX::Core::PathName& rootDirectory, bool readOnly);
 
 public:
-  bool Search(const MiKTeX::Core::PathName& relativePath, const char* lpszPathPattern, bool firstMatchOnly, std::vector<MiKTeX::Core::PathName>& result, std::vector<std::string>& fileNameInfo) const;
+  bool Search(const MiKTeX::Core::PathName& relativePath, const std::string& pathPattern, bool firstMatchOnly, std::vector<MiKTeX::Core::PathName>& result, std::vector<std::string>& fileNameInfo) const;
 
 public:
-  void AddFile(const char* lpszPath, const char* lpszFileNameInfo);
+  void AddFile(const MiKTeX::Core::PathName& path, const std::string& fileNameInfo);
 
 public:
-  void RemoveFile(const char* lpszPath);
+  void RemoveFile(const MiKTeX::Core::PathName& path);
 
 public:
   bool IsInvariable() const
@@ -157,7 +157,7 @@ private:
   }
 
 private:
-  void Initialize(const char* lpszFndbPath, const char* lpszRoot, bool readWrite = false);
+  void Initialize(const MiKTeX::Core::PathName& fndbPath, const MiKTeX::Core::PathName& rootDirectory, bool readWrite = false);
 
 private:
   void InsertDirectory(FileNameDatabaseDirectory* pDir, const FileNameDatabaseDirectory* pDirSub) const;
@@ -176,7 +176,7 @@ private:
   void MakePathName(const FileNameDatabaseDirectory* pDir, MiKTeX::Core::PathName& path) const;
 
 private:
-  void OpenFileNameDatabase(const char* lpszFndbPath, bool readWrite = false);
+  void OpenFileNameDatabase(const MiKTeX::Core::PathName& fndbPath, bool readWrite = false);
 
 private:
   FileNameDatabaseDirectory* RemoveFileName(FileNameDatabaseDirectory* pDir, const MiKTeX::Core::PathName& fileName) const;
