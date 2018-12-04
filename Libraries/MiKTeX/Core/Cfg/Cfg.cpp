@@ -1019,7 +1019,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
         string valueName;
         string value;
         PutMode putMode;
-        if (!ParseValueDefinition(line[0] == COMMENT_CHAR ? &line[1] : &line[0], valueName, value, putMode))
+        if (!ParseValueDefinition(line[0] == COMMENT_CHAR ? line.substr(1) : line, valueName, value, putMode))
         {
           FATAL_CFG_ERROR(T_("invalid value definition"));
         }
