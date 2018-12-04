@@ -25,8 +25,7 @@
 
 string StringUtil::Flatten(const std::vector<std::string>& vec, char sep)
 {
-  Flattener f = std::for_each(vec.begin(), vec.end(), Flattener(sep));
-  return f.result;
+  return std::for_each(vec.begin(), vec.end(), Flattener(sep)).result;
 }
 
 vector<string> StringUtil::Split(const std::string& s, char sep)
