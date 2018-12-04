@@ -19,30 +19,10 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(MIKTEX_UTIL_SHARED)
-#  define MIKTEXUTILEXPORT MIKTEXDLLEXPORT
-#else
-#  define MIKTEXUTILEXPORT
-#endif
-
-#define A7C88F5FBE5C45EB970B3796F331CD89
-#include "miktex/Util/CharBuffer.h"
-#include "miktex/Util/StringUtil.h"
-#include "miktex/Util/Tokenizer.h"
-
-#include <cstdarg>
-
-#include <bitset>
-#include <codecvt>
-#include <locale>
 #include <string>
 
-#if defined(MIKTEX_WINDOWS)
-#  include <Windows.h>
-#endif
-
-using namespace MiKTeX::Util;
-using namespace std;
+#define A7C88F5FBE5C45EB970B3796F331CD89
+#include "miktex/Util/config.h"
 
 #define MIKTEXSTATICFUNC(type) type
 #define MIKTEXSTATICFUNC2(type, callconv) type callconv
