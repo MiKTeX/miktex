@@ -653,7 +653,7 @@ private:
   void WriteKeys(ostream& stream);
 
 private:
-  void PutValue(const string& keyName, const string& valueName, const string& value, PutMode putMode, const string& documentation, bool commentedOut);
+  void PutValue(const string& keyName, const string& valueName, string&& value, PutMode putMode, string&& documentation, bool commentedOut);
 
 private:
   bool ClearValue(const string& keyName, const string& valueName);
@@ -817,7 +817,7 @@ bool CfgImpl::TryGetValueAsStringVector(const string& keyName, const string& val
   return true;
 }
 
-void CfgImpl::PutValue(const string& keyName_, const string& valueName, const string& value, CfgImpl::PutMode putMode, const string& documentation, bool commentedOut)
+void CfgImpl::PutValue(const string& keyName_, const string& valueName, string&& value, CfgImpl::PutMode putMode, string&& documentation, bool commentedOut)
 {
   string keyName = keyName_.empty() ? GetDefaultKeyName() : keyName_;
   if (keyName.empty())
@@ -845,13 +845,13 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, const st
     {
       MIKTEX_UNEXPECTED();
     }
-    itVal->second->documentation = documentation;
+    itVal->second->documentation = std::move(documentation);
     itVal->second->commentedOut = commentedOut;
     if (putMode == Append)
     {
       if (itVal->second->value.empty())
       {
-        itVal->second->value.push_back(value);
+        itVal->second->value.push_back(std::move(value));
       }
       else
       {
@@ -862,7 +862,7 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, const st
     {
       if (itVal->second->value.empty())
       {
-        itVal->second->value.push_back(value);
+        itVal->second->value.push_back(std::move(value));
       }
       else
       {
@@ -870,17 +870,17 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, const st
         {
           itVal->second->value.front() += PathName::PathNameDelimiter;
         }
-        itVal->second->value.front() += value;
+        itVal->second->value.front() += std::move(value);
       }
     }
     else if (itVal->second->IsMultiValue())
     {
-      itVal->second->value.push_back(value);
+      itVal->second->value.push_back(std::move(value));
     }
     else
     {
       itVal->second->value.clear();
-      itVal->second->value.push_back(value);
+      itVal->second->value.push_back(std::move(value));
     }
   }
 }
@@ -910,12 +910,12 @@ bool CfgImpl::ClearValue(const string& keyName_, const string& valueName)
 
 void CfgImpl::PutValue(const string& keyName, const string& valueName, const string& value)
 {
-  return PutValue(keyName, valueName, value, None, "", false);
+  return PutValue(keyName, valueName, string(value), None, "", false);
 }
 
 void CfgImpl::PutValue(const string& keyName, const string& valueName, const string& value, const string& documentation, bool commentedOut)
 {
-  return PutValue(keyName, valueName, value, None, value, commentedOut);
+  return PutValue(keyName, valueName, string(value), None, string(value), commentedOut);
 }
 
 void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
@@ -1023,7 +1023,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
         {
           FATAL_CFG_ERROR(T_("invalid value definition"));
         }
-        PutValue(keyName, valueName, value, putMode, documentation, line[0] == COMMENT_CHAR);
+        PutValue(keyName, valueName, std::move(value), putMode, std::move(documentation), line[0] == COMMENT_CHAR);
       }
     }
     else if (line.length() >= 4 && line[0] == COMMENT_CHAR && line[1] == COMMENT_CHAR && line[2] == COMMENT_CHAR && line[3] == COMMENT_CHAR)
