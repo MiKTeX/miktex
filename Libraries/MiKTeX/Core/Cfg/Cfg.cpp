@@ -855,7 +855,7 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, string&&
       }
       else
       {
-        itVal->second->value.front() += value.front();
+        itVal->second->value.front() += std::move(value);
       }
     }
     else if (putMode == SearchPathAppend)
