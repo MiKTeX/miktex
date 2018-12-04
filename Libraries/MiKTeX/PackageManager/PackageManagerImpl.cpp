@@ -793,7 +793,7 @@ void PackageManager::PutPackageManifest(Cfg& cfg, const PackageInfo& packageInfo
   {
     for (const string& pkg : packageInfo.requiredPackages)
     {
-      cfg.PutValue(packageInfo.id, "requiredPackages[]", pkg);
+      cfg.PutValue(packageInfo.id, "require[]", pkg);
     }
   }
   if (!packageInfo.runFiles.empty())
@@ -878,7 +878,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     {
       packageInfo.description = StringUtil::Flatten(val->AsStringVector(), '\n');
     }
-    else if (val->GetName() == "requiredPackages[]")
+    else if (val->GetName() == "require[]")
     {
       packageInfo.requiredPackages = val->AsStringVector();
     }
