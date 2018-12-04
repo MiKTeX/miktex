@@ -888,7 +888,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "run[]")
     {
-      for (const string& s : val->AsStringVector())
+      for (const string& s : *val)
       {
         PathName path(s);
 #if defined(MIKTEX_UNIX)
@@ -906,7 +906,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "doc[]")
     {
-      for (const string& s : val->AsStringVector())
+      for (const string& s : *val)
       {
         PathName path(s);
 #if defined(MIKTEX_UNIX)
@@ -924,7 +924,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
     }
     else if (val->GetName() == "source[]")
     {
-      for (const string& s : val->AsStringVector())
+      for (const string& s : *val)
       {
         PathName path(s);
 #if defined(MIKTEX_UNIX)

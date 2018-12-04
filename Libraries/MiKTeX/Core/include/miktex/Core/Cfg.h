@@ -61,6 +61,10 @@ public:
   public:
     virtual std::vector<std::string> AsStringVector() const = 0;
   public:
+    virtual std::vector<std::string>::const_iterator MIKTEXTHISCALL begin() const = 0;
+  public:
+    virtual std::vector<std::string>::const_iterator MIKTEXTHISCALL end() const = 0;
+  public:
     virtual std::string MIKTEXTHISCALL GetDocumentation() const = 0;
   public:
     virtual bool IsCommentedOut() const = 0;

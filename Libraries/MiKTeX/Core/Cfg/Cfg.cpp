@@ -149,6 +149,18 @@ public:
   }
 
 public:
+  vector<string>::const_iterator MIKTEXTHISCALL begin() const override
+  {
+    return value.begin();
+  }
+
+public:
+  vector<string>::const_iterator MIKTEXTHISCALL end() const override
+  {
+    return value.end();
+  }
+
+public:
   string MIKTEXTHISCALL GetDocumentation() const override
   {
     return documentation;
