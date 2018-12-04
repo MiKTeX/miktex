@@ -57,7 +57,7 @@ public:
   }
 
 public:
-  bool Enumerate(const char* lpszPath, MiKTeX::Core::IEnumerateFndbCallback* pCallback) const;
+  bool Enumerate(const MiKTeX::Core::PathName& fndbPath, MiKTeX::Core::IEnumerateFndbCallback* pCallback) const;
 
 public:
   bool FileExists(const MiKTeX::Core::PathName& path) const;
@@ -68,7 +68,7 @@ private:
 private:
   void ReadFileNames(FileNameDatabaseDirectory* pDir);
 
-#if 1 // experimental
+#if 0 // experimental
 public:
   std::unique_ptr<MiKTeX::Core::DirectoryLister> OpenDirectory(const char* lpszPath);
 #endif
@@ -86,13 +86,13 @@ private:
   void Finalize();
 
 private:
-  FileNameDatabaseDirectory* CreateFndbDirectory(FileNameDatabaseDirectory* pDir, const char* lpszName) const;
+  FileNameDatabaseDirectory* CreateFndbDirectory(FileNameDatabaseDirectory* pDir, const std::string& name) const;
 
 private:
-  FileNameDatabaseDirectory* CreateDirectoryPath(FileNameDatabaseDirectory* pDir, const char* lpszRelPath) const;
+  FileNameDatabaseDirectory* CreateDirectoryPath(FileNameDatabaseDirectory* pDir, const MiKTeX::Core::PathName& relPath) const;
 
 private:
-  FndbByteOffset CreateString(const char* lpszName) const;
+  FndbByteOffset CreateString(const std::string& name) const;
 
 private:
   FileNameDatabaseDirectory* ExtendDirectory(FileNameDatabaseDirectory* pDir) const;
@@ -101,10 +101,10 @@ private:
   FndbWord FindLowerBound(const FndbByteOffset& begin, FndbWord count, const char* lpszName, bool& isDuplicate) const;
 
 private:
-  FileNameDatabaseDirectory* FindSubDirectory(const FileNameDatabaseDirectory* pDir, const char* lpszRelPath) const;
+  FileNameDatabaseDirectory* FindSubDirectory(const FileNameDatabaseDirectory* pDir, const MiKTeX::Core::PathName& relPath) const;
 
 private:
-  FileNameDatabaseDirectory* TryGetParent(const char* lpszPath) const;
+  FileNameDatabaseDirectory* TryGetParent(const MiKTeX::Core::PathName& path) const;
 
 private:
   void Flush() const;

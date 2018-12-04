@@ -80,7 +80,7 @@ bool Fndb::Enumerate(const PathName& fndbPath, IEnumerateFndbCallback* callback)
   {
     MIKTEX_FATAL_ERROR_2(T_("The path is not covered by the file name database."), "path", fndbPath.ToString());
   }
-  return fndb->Enumerate(fndbPath.GetData(), callback);
+  return fndb->Enumerate(fndbPath, callback);
 }
 
 void Fndb::Remove(const PathName& path)

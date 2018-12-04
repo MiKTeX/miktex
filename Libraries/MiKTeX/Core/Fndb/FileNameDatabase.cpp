@@ -151,11 +151,11 @@ void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& root
   ReadFileNames();
 }
 
-FileNameDatabaseDirectory* FileNameDatabase::FindSubDirectory(const FileNameDatabaseDirectory* pDir, const char* lpszRelPath) const
+FileNameDatabaseDirectory* FileNameDatabase::FindSubDirectory(const FileNameDatabaseDirectory* pDir, const PathName& relPath) const
 {
   MIKTEX_ASSERT(pDir != nullptr);
   FndbByteOffset fo = 0;
-  for (PathNameParser dirName(lpszRelPath); dirName; ++dirName)
+  for (PathNameParser dirName(relPath); dirName; ++dirName)
   {
     if (PathName::Compare(*dirName, CURRENT_DIRECTORY) == 0)
     {
@@ -273,16 +273,16 @@ FileNameDatabaseDirectory* FileNameDatabase::ExtendDirectory(FileNameDatabaseDir
   return pDirExt;
 }
 
-FndbByteOffset FileNameDatabase::CreateString(const char* lpszName) const
+FndbByteOffset FileNameDatabase::CreateString(const string& name) const
 {
   FndbByteOffset foName;
-  size_t neededBytes = strlen(lpszName) + 1;
+  size_t neededBytes = name.length() + 1;
   foName = ROUND2(pHeader->size, 2);
   if (foName + neededBytes > foEnd)
   {
     MIKTEX_UNEXPECTED();
   }
-  memcpy(GetPointer(foName), lpszName, neededBytes);
+  memcpy(GetPointer(foName), name.c_str(), neededBytes);
   pHeader->size = foName + static_cast<FndbWord>(neededBytes);
   return foName;
 }
@@ -334,7 +334,7 @@ void FileNameDatabase::InsertDirectory(FileNameDatabaseDirectory* pDir, const Fi
   pHeader->numDirs += 1;
 }
 
-FileNameDatabaseDirectory* FileNameDatabase::CreateFndbDirectory(FileNameDatabaseDirectory* pDir, const char* lpszName) const
+FileNameDatabaseDirectory* FileNameDatabase::CreateFndbDirectory(FileNameDatabaseDirectory* pDir, const string& name) const
 {
   while (pDir->capacity < pDir->SizeOfTable(HasFileNameInfo()) + 2)
   {
@@ -349,7 +349,7 @@ FileNameDatabaseDirectory* FileNameDatabase::CreateFndbDirectory(FileNameDatabas
     MIKTEX_ASSERT(pDir != nullptr);
   }
 
-  FndbByteOffset foName = CreateString(lpszName);
+  FndbByteOffset foName = CreateString(name);
 
   MIKTEX_ASSERT(foName != 0);
 
@@ -384,16 +384,16 @@ FileNameDatabaseDirectory* FileNameDatabase::CreateFndbDirectory(FileNameDatabas
   return pDirSub;
 }
 
-FileNameDatabaseDirectory* FileNameDatabase::CreateDirectoryPath(FileNameDatabaseDirectory* pDir, const char* lpszRelPath) const
+FileNameDatabaseDirectory* FileNameDatabase::CreateDirectoryPath(FileNameDatabaseDirectory* pDir, const PathName& relPath) const
 {
   bool create = false;
   FndbWord level = 0;
-  for (PathNameParser dirName(lpszRelPath); dirName; ++dirName)
+  for (PathNameParser dirName(relPath); dirName; ++dirName)
   {
     FileNameDatabaseDirectory* pDirSub = nullptr;
     if (!create)
     {
-      pDirSub = FindSubDirectory(pDir, (*dirName).c_str());
+      pDirSub = FindSubDirectory(pDir, *dirName);
       if (pDirSub == nullptr)
       {
         create = true;
@@ -401,7 +401,7 @@ FileNameDatabaseDirectory* FileNameDatabase::CreateDirectoryPath(FileNameDatabas
     }
     if (create)
     {
-      pDirSub = CreateFndbDirectory(pDir, (*dirName).c_str());
+      pDirSub = CreateFndbDirectory(pDir, (*dirName));
       if (pDirSub == nullptr)
       {
         MIKTEX_UNEXPECTED();
@@ -623,7 +623,7 @@ void FileNameDatabase::AddFile(const PathName& path_, const string& fileNameInfo
   FileNameDatabaseDirectory* pDir;
   if (pathDirectory.GetLength() > 0)
   {
-    pDir = CreateDirectoryPath(GetTopDirectory(), pathDirectory.GetData());
+    pDir = CreateDirectoryPath(GetTopDirectory(), pathDirectory);
   }
   else
   {
@@ -656,7 +656,7 @@ void FileNameDatabase::AddFile(const PathName& path_, const string& fileNameInfo
   }
 
   // create a new table entry
-  InsertFileName(pDir, CreateString(pathFile.GetData()), CreateString(fileNameInfo.c_str()));
+  InsertFileName(pDir, CreateString(pathFile.GetData()), CreateString(fileNameInfo));
 
   // add the name to the hash table
   PathName comparableFileName(pathFile);
@@ -664,35 +664,35 @@ void FileNameDatabase::AddFile(const PathName& path_, const string& fileNameInfo
   fileNames.insert(pair<string, FileNameDatabaseDirectory *>(comparableFileName.ToString(), pDir));
 }
 
-bool FileNameDatabase::Enumerate(const char* lpszPath, IEnumerateFndbCallback* pCallback) const
+bool FileNameDatabase::Enumerate(const PathName& fndbPath_, IEnumerateFndbCallback* pCallback) const
 {
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszPath);
+  PathName fndbPath = fndbPath_;
 
-  if (lpszPath != nullptr && Utils::IsAbsolutePath(lpszPath))
+  if (!fndbPath.Empty() && Utils::IsAbsolutePath(fndbPath))
   {
-    if (PathName::Compare(lpszPath, rootDirectory.GetData()) == 0)
+    if (PathName::Compare(fndbPath, rootDirectory) == 0)
     {
-      lpszPath = nullptr;
+      fndbPath = "";
     }
     else
     {
-      const char* lpsz = Utils::GetRelativizedPath(lpszPath, rootDirectory.GetData());
+      const char* lpsz = Utils::GetRelativizedPath(fndbPath.GetData(), rootDirectory.GetData());
       if (lpsz == nullptr)
       {
-        MIKTEX_FATAL_ERROR_2(T_("Path is not covered by file name database."), "path", lpszPath);
+        MIKTEX_FATAL_ERROR_2(T_("Path is not covered by file name database."), "path", fndbPath.ToString());
       }
-      lpszPath = lpsz;
+      fndbPath = lpsz;
     }
   }
 
-  const FileNameDatabaseDirectory* pDir = lpszPath == nullptr || *lpszPath == 0 ? GetTopDirectory() : FindSubDirectory(GetTopDirectory(), lpszPath);
+  const FileNameDatabaseDirectory* pDir = fndbPath.Empty() ? GetTopDirectory() : FindSubDirectory(GetTopDirectory(), fndbPath);
 
   if (pDir == nullptr)
   {
-    MIKTEX_FATAL_ERROR_2(T_("Directory not found in file name database."), "path", lpszPath);
+    MIKTEX_FATAL_ERROR_2(T_("Directory not found in file name database."), "path", fndbPath.ToString());
   }
 
-  PathName path(rootDirectory, lpszPath);
+  PathName path(rootDirectory, fndbPath);
 
   for (const FileNameDatabaseDirectory* pDirIter = pDir; pDirIter != nullptr; pDirIter = GetDirectoryAt(pDirIter->foExtension))
   {
@@ -728,30 +728,30 @@ bool FileNameDatabase::Enumerate(const char* lpszPath, IEnumerateFndbCallback* p
   return true;
 }
 
-FileNameDatabaseDirectory* FileNameDatabase::TryGetParent(const char* lpszPath) const
+FileNameDatabaseDirectory* FileNameDatabase::TryGetParent(const PathName& path_) const
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
+  PathName path = path_;
 
   // make sure that the path is relative to the texmf root directory
-  if (Utils::IsAbsolutePath(lpszPath))
+  if (Utils::IsAbsolutePath(path))
   {
-    const char* lpsz = Utils::GetRelativizedPath(lpszPath, rootDirectory.GetData());
+    const char* lpsz = Utils::GetRelativizedPath(path.GetData(), rootDirectory.GetData());
     if (lpsz == nullptr)
     {
-      MIKTEX_FATAL_ERROR_2(T_("The path name is not covered by the file name database."), "path", lpszPath);
+      MIKTEX_FATAL_ERROR_2(T_("The path name is not covered by the file name database."), "path", path.ToString());
     }
-    lpszPath = lpsz;
+    path = lpsz;
   }
 
   // make a working copy; separate file name from directory name
-  PathName pathDirectory(lpszPath);
+  PathName pathDirectory(path);
   pathDirectory.RemoveFileSpec();
 
   // get the parent directory
   FileNameDatabaseDirectory* pDir;
   if (pathDirectory.GetLength() > 0)
   {
-    pDir = FindSubDirectory(GetTopDirectory(), pathDirectory.GetData());
+    pDir = FindSubDirectory(GetTopDirectory(), pathDirectory);
   }
   else
   {
@@ -773,7 +773,7 @@ void FileNameDatabase::RemoveFile(const MiKTeX::Core::PathName& path)
   PathName pathFile(path);
   pathFile.RemoveDirectorySpec();
 
-  FileNameDatabaseDirectory* pDir = TryGetParent(path.GetData());
+  FileNameDatabaseDirectory* pDir = TryGetParent(path);
 
   if (pDir == nullptr)
   {
@@ -809,7 +809,7 @@ void FileNameDatabase::RemoveFile(const MiKTeX::Core::PathName& path)
 
 bool FileNameDatabase::FileExists(const PathName& path) const
 {
-  FileNameDatabaseDirectory* pDir = TryGetParent(path.GetData());
+  FileNameDatabaseDirectory* pDir = TryGetParent(path);
   if (pDir != nullptr)
   {
     PathName fileName(path);
