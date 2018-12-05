@@ -84,7 +84,7 @@ private:
   FileNameDatabaseDirectory* CreateFndbDirectory(FileNameDatabaseDirectory* dir, const std::string& name) const;
 
 private:
-  FileNameDatabaseDirectory* CreateDirectoryPath(FileNameDatabaseDirectory* dir, const MiKTeX::Core::PathName& relPath) const;
+  FileNameDatabaseDirectory* CreateDirectoryPath(FileNameDatabaseDirectory* dir, const MiKTeX::Core::PathName& relativePath) const;
 
 private:
   FndbByteOffset CreateString(const std::string& name) const;
@@ -96,7 +96,7 @@ private:
   FndbWord FindLowerBound(const FndbByteOffset& begin, FndbWord count, const char* name, bool& isDuplicate) const;
 
 private:
-  FileNameDatabaseDirectory* FindSubDirectory(const FileNameDatabaseDirectory* dir, const MiKTeX::Core::PathName& relPath) const;
+  FileNameDatabaseDirectory* FindSubDirectory(const FileNameDatabaseDirectory* dir, const MiKTeX::Core::PathName& relativePath) const;
 
 private:
   FileNameDatabaseDirectory* TryGetParent(const MiKTeX::Core::PathName& path) const;

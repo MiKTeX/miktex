@@ -151,11 +151,11 @@ void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& root
   ReadFileNames();
 }
 
-FileNameDatabaseDirectory* FileNameDatabase::FindSubDirectory(const FileNameDatabaseDirectory* dir, const PathName& relPath) const
+FileNameDatabaseDirectory* FileNameDatabase::FindSubDirectory(const FileNameDatabaseDirectory* dir, const PathName& relativePath) const
 {
   MIKTEX_ASSERT(dir != nullptr);
   FndbByteOffset fo = 0;
-  for (PathNameParser dirName(relPath); dirName; ++dirName)
+  for (PathNameParser dirName(relativePath); dirName; ++dirName)
   {
     if (PathName::Compare(*dirName, CURRENT_DIRECTORY) == 0)
     {
@@ -384,11 +384,11 @@ FileNameDatabaseDirectory* FileNameDatabase::CreateFndbDirectory(FileNameDatabas
   return subDir;
 }
 
-FileNameDatabaseDirectory* FileNameDatabase::CreateDirectoryPath(FileNameDatabaseDirectory* dir, const PathName& relPath) const
+FileNameDatabaseDirectory* FileNameDatabase::CreateDirectoryPath(FileNameDatabaseDirectory* dir, const PathName& relativePath) const
 {
   bool create = false;
   FndbWord level = 0;
-  for (PathNameParser dirName(relPath); dirName; ++dirName)
+  for (PathNameParser dirName(relativePath); dirName; ++dirName)
   {
     FileNameDatabaseDirectory* subDir = nullptr;
     if (!create)
