@@ -68,11 +68,6 @@ private:
 private:
   void ReadFileNames(FileNameDatabaseDirectory* dir);
 
-#if 0 // experimental
-public:
-  std::unique_ptr<MiKTeX::Core::DirectoryLister> OpenDirectory(const char* path);
-#endif
-
 public:
   FileNameDatabase();
 
