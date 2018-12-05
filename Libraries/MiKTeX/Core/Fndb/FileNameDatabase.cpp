@@ -49,7 +49,7 @@ void FileNameDatabase::Finalize()
 {
   if (traceStream != nullptr)
   {
-    traceStream->WriteFormattedLine("core", T_("unloading fndb %p"), this);
+    traceStream->WriteLine("core", fmt::format(T_("unloading fndb {0}"), Q_(this->rootDirectory)));
   }
   if (mmap != nullptr)
   {
@@ -84,7 +84,7 @@ void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath, bool readW
   FileAttributeSet attributes = File::GetAttributes(fndbPath);
   if (attributes[FileAttribute::ReadOnly])
   {
-    traceStream->WriteFormattedLine("core", T_("file name database file is readonly"));
+    traceStream->WriteLine("core", T_("file name database file is readonly"));
     readWrite = false;
   }
 #endif
@@ -124,7 +124,7 @@ void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath, bool readW
     if (pHeader->size + 131072 > foEnd)
     {
       size_t newSize = ((pHeader->size + FNDB_EXTRA + 1) / FNDB_GRAN) * FNDB_GRAN;
-      traceStream->WriteFormattedLine("core", T_("enlarging fndb file %s (%u -> %u)..."), Q_(fndbPath), static_cast<unsigned>(foEnd), static_cast<unsigned>(newSize));
+      traceStream->WriteLine("core", fmt::format(T_("enlarging fndb file {0} ({1} -> {2})..."), Q_(fndbPath), foEnd, newSize));
       pHeader = reinterpret_cast<FileNameDatabaseHeader*>(mmap->Resize(newSize));
 #if defined(MIKTEX_WINDOWS) && REPORT_EVENTS
       ReportMiKTeXEvent(EVENTLOG_INFORMATION_TYPE, MIKTEX_EVENT_FNDB_ENLARGED, mmap->GetName(), std::to_string(foEnd), std::to_string(static_cast<unsigned>(newSize)), 0);
@@ -445,7 +445,7 @@ FileNameDatabaseDirectory* FileNameDatabase::RemoveFileName(FileNameDatabaseDire
 
 void FileNameDatabase::Flush() const
 {
-  traceStream->WriteFormattedLine("core", T_("flushing file name database"));
+  traceStream->WriteLine("core", T_("flushing file name database"));
   mmap->Flush();
 }
 
@@ -496,7 +496,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
 {
   string pathPattern = pathPattern_;
 
-  traceStream->WriteFormattedLine("core", T_("fndb search: rootDirectory=%s, relativePath=%s, pathpattern=%s"), Q_(rootDirectory), Q_(relativePath), Q_(pathPattern));
+  traceStream->WriteLine("core", fmt::format(T_("fndb search: rootDirectory={0}, relativePath={1}, pathpattern={2}"), Q_(rootDirectory), Q_(relativePath), Q_(pathPattern)));
 
   MIKTEX_ASSERT(result.size() == 0);
   MIKTEX_ASSERT(fileNameInfo.size() == 0);
@@ -566,12 +566,12 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
           MIKTEX_UNEXPECTED();
         }
         fileNameInfo.push_back(GetString(dir->GetFileNameInfo(idx)));
-        traceStream->WriteFormattedLine("core", T_("found: %s (%s)"), Q_(path), GetString(dir->GetFileNameInfo(idx)));
+        traceStream->WriteLine("core", fmt::format(T_("found: {0} ({1})"), Q_(path), GetString(dir->GetFileNameInfo(idx))));
       }
       else
       {
         fileNameInfo.push_back("");
-        traceStream->WriteFormattedLine("core", T_("found: %s"), Q_(path));
+        traceStream->WriteLine("core", fmt::format(T_("found: {0}"), Q_(path)));
       }
       if (firstMatchOnly)
       {
@@ -594,7 +594,7 @@ void FileNameDatabase::AddFile(const PathName& path_, const string& fileNameInfo
 {
   PathName path = path_;
 
-  traceStream->WriteFormattedLine("core", T_("adding %s to the file name database"), Q_(path));
+  traceStream->WriteLine("core", fmt::format(T_("adding {0} to the file name database"), Q_(path)));
 
   // make sure we can add files
   if (IsInvariable())
@@ -763,7 +763,7 @@ FileNameDatabaseDirectory* FileNameDatabase::TryGetParent(const PathName& path_)
 
 void FileNameDatabase::RemoveFile(const MiKTeX::Core::PathName& path)
 {
-  traceStream->WriteFormattedLine ("core", T_("removing %s from the file name database"), Q_(path));
+  traceStream->WriteLine("core", fmt::format(T_("removing {0} from the file name database"), Q_(path)));
 
   if (IsInvariable())
   {
