@@ -592,8 +592,8 @@ public:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mem;
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mmap;
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_process;
+  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_stopwatch;
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_tempfile;
-  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_time;
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_values;
 
 public:

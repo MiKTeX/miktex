@@ -31,7 +31,7 @@ class CoreStopWatch
 {
 public:
   CoreStopWatch(const std::string& message) :
-    stopWatch(MiKTeX::Trace::StopWatch::Start(SessionImpl::GetSession()->trace_time.get(), "core", message))
+    stopWatch(MiKTeX::Trace::StopWatch::Start(SessionImpl::GetSession()->trace_stopwatch.get(), "core", message))
   {
   }
 
