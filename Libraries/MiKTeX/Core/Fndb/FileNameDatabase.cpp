@@ -868,7 +868,12 @@ void FileNameDatabase::ReadFileNames(FileNameDatabaseDirectory* dir)
 #if defined(FNDB_EXPERIMENTAL)
       PathName directoryPath;
       MakePathName(dir, directoryPath);
-      fileNames.insert(pair<string, FileNameInfo>(PathName(GetString(dirIt->GetFileName(idx))).TransformForComparison().ToString(), { directoryPath.ToString(), GetString(dir->GetFileNameInfo(idx)) }));
+      string fileNameInfo;
+      if (HasFileNameInfo())
+      {
+        fileNameInfo = GetString(dir->GetFileNameInfo(idx));
+      }
+      fileNames.insert(pair<string, FileNameInfo>(PathName(GetString(dirIt->GetFileName(idx))).TransformForComparison().ToString(), { directoryPath.ToString(), fileNameInfo }));
 #else
       fileNames.insert(pair<string, FileNameInfo>(PathName(GetString(dirIt->GetFileName(idx))).TransformForComparison().ToString(), { dirIt }));
 #endif
