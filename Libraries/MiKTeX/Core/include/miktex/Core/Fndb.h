@@ -1,6 +1,6 @@
 /* miktex/Core/Fndb.h:                                  -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -42,12 +42,6 @@ public:
   virtual bool MIKTEXTHISCALL OnProgress(unsigned level, const PathName& directory) = 0;
 };
 
-class MIKTEXNOVTABLE IEnumerateFndbCallback
-{
-public:
-  virtual bool MIKTEXTHISCALL OnFndbItem(const PathName& path, const std::string& name, const std::string& info, bool isDirectory) = 0;
-};
-
 class MIKTEXNOVTABLE Fndb
 {
 public:
@@ -79,9 +73,6 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(bool) Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
-
-public:
-  static MIKTEXCORECEEAPI(bool) Enumerate(const PathName& fndbPath, IEnumerateFndbCallback* callback);
 
 public:
   static MIKTEXCORECEEAPI(bool) Refresh(const PathName& path, ICreateFndbCallback* callback);

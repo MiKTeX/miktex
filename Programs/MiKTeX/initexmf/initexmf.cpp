@@ -173,7 +173,6 @@ string Timestamp()
 class IniTeXMFApp :
   public IFindFileCallback,
   public ICreateFndbCallback,
-  public IEnumerateFndbCallback,
   public PackageInstallerCallback,
   public TraceCallback
 {
@@ -353,9 +352,6 @@ private:
 private:
   bool OnProgress(unsigned level, const PathName& directory) override;
 
-private:
-  bool OnFndbItem(const PathName& parent, const string& name, const string& info, bool isDirectory) override;
-
 public:
   void ReportLine(const string& str) override;
   
@@ -441,9 +437,6 @@ private:
       packageInstaller->SetNoPostProcessing(true);
     }
   }
-
-private:
-  PathName enumDir;
 
 private:
   bool csv = false;
@@ -532,7 +525,6 @@ enum Option
   OPT_CREATE_CONFIG_FILE,       // <experimental/>
   OPT_CSV,                      // <experimental/>
   OPT_FIND_OTHER_TEX,           // <experimental/>
-  OPT_LIST_DIRECTORY,           // <experimental/>
   OPT_LIST_FORMATS,             // <experimental/>
   OPT_MODIFY_PATH,              // <experimental/>
   OPT_RECURSIVE,                // <experimental/>
@@ -2169,49 +2161,6 @@ void IniTeXMFApp::WriteReport()
   SetupService::WriteReport(cout, { ReportOption::General, ReportOption::RootDirectories, ReportOption::BrokenPackages });
 }
 
-bool IniTeXMFApp::OnFndbItem(const PathName& parent, const string& name, const string& info, bool isDirectory)
-{
-  if (recursive)
-  {
-    PathName path(parent, name);
-    const char* lpszRel = Utils::GetRelativizedPath(path.GetData(), enumDir.GetData());
-    if (!isDirectory)
-    {
-      if (info.empty())
-      {
-        cout << lpszRel << endl;
-      }
-      else
-      {
-        if (csv)
-        {
-          cout << lpszRel << ";" << info << endl;
-        }
-        else
-        {
-          cout << lpszRel << " (\"" << info << "\")" << endl;
-        }
-      }
-    }
-    if (isDirectory)
-    {
-      Fndb::Enumerate(path, this);
-    }
-  }
-  else
-  {
-    if (info.empty())
-    {
-      cout << (isDirectory ? "D" : " ") << " " << name << endl;
-    }
-    else
-    {
-      cout << (isDirectory ? "D" : " ") << " " << name << " (\"" << info << "\")" << endl;
-    }
-  }
-  return true;
-}
-
 void IniTeXMFApp::Run(int argc, const char* argv[])
 {
   vector<string> addFiles;
@@ -2221,7 +2170,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   vector<string> editConfigFiles;
   vector<string> formats;
   vector<string> formatsByName;
-  vector<string> listDirectories;
   vector<string> removeFiles;
   vector<string> updateRoots;
   vector<PathName> registerRoots;
@@ -2352,11 +2300,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     case OPT_USER_INSTALL:
 
       startupConfig.userInstallRoot = optArg;
-      break;
-
-    case OPT_LIST_DIRECTORY:
-
-      listDirectories.push_back(optArg);
       break;
 
     case OPT_LIST_FORMATS:
@@ -2772,12 +2715,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
         UpdateFilenameDatabase(r);
       }
     }
-  }
-
-  for (const string& dir : listDirectories)
-  {
-    enumDir = dir;
-    Fndb::Enumerate(dir, this);
   }
 
   for (const string& fileName : createConfigFiles)

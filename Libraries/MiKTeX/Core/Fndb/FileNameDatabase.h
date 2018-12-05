@@ -57,9 +57,6 @@ public:
   }
 
 public:
-  bool Enumerate(const MiKTeX::Core::PathName& fndbPath, MiKTeX::Core::IEnumerateFndbCallback* callback) const;
-
-public:
   bool FileExists(const MiKTeX::Core::PathName& path) const;
 
 private:

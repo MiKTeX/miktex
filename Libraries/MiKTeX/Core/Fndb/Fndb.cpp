@@ -72,17 +72,6 @@ void Fndb::Add(const PathName& path, const string& fileNameInfo)
   }
 }
 
-bool Fndb::Enumerate(const PathName& fndbPath, IEnumerateFndbCallback* callback)
-{
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(fndbPath.GetData());
-  if (fndb == nullptr)
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The path is not covered by the file name database."), "path", fndbPath.ToString());
-  }
-  return fndb->Enumerate(fndbPath, callback);
-}
-
 void Fndb::Remove(const PathName& path)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
