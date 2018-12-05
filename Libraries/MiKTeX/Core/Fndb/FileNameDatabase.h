@@ -113,13 +113,13 @@ private:
 private:
   FndbWord GetHeaderFlags() const
   {
-    return pHeader->flags;
+    return fndbHeader->flags;
   }
 
 private:
   FndbByteOffset GetByteOffset(const void* p) const
   {
-    ptrdiff_t d = reinterpret_cast<const uint8_t*>(p) - reinterpret_cast<const uint8_t*>(pHeader);
+    ptrdiff_t d = reinterpret_cast<const uint8_t*>(p) - reinterpret_cast<const uint8_t*>(fndbHeader);
     MIKTEX_ASSERT(d == 0 || d >= sizeof(FileNameDatabaseHeader) && d < foEnd);
     return d;
   }
@@ -128,7 +128,7 @@ private:
   void* GetPointer(FndbByteOffset fo) const
   {
     MIKTEX_ASSERT(fo == 0 || fo >= sizeof(FileNameDatabaseHeader) && fo < foEnd);
-    return fo == 0 ? nullptr : reinterpret_cast<uint8_t*>(pHeader) + fo;
+    return fo == 0 ? nullptr : reinterpret_cast<uint8_t*>(fndbHeader) + fo;
   }
 
 private:
@@ -142,13 +142,13 @@ private:
 private:
   FileNameDatabaseDirectory* GetTopDirectory() const
   {
-    return GetDirectoryAt(pHeader->foTopDir);
+    return GetDirectoryAt(fndbHeader->foTopDir);
   }
 
 private:
   bool HasFileNameInfo() const
   {
-    return (pHeader->flags& FileNameDatabaseHeader::FndbFlags::FileNameInfo) != 0;
+    return (fndbHeader->flags& FileNameDatabaseHeader::FndbFlags::FileNameInfo) != 0;
   }
 
 private:
@@ -163,8 +163,8 @@ private:
 private:
   bool IsDirty() const
   {
-    MIKTEX_ASSERT(pHeader != nullptr);
-    return pHeader->timeStamp != timeStamp;
+    MIKTEX_ASSERT(fndbHeader != nullptr);
+    return fndbHeader->timeStamp != timeStamp;
   }
 
 private:
@@ -196,7 +196,7 @@ private:
 
   // pointer to the FNDB header
 private:
-  FileNameDatabaseHeader* pHeader = nullptr;
+  FileNameDatabaseHeader* fndbHeader = nullptr;
 
   // file-system path to root directory
 private:
@@ -209,7 +209,7 @@ private:
   FileNameHashTable fileNames;
 
 private:
-  std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
+  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_fndb;
 
 private:
   std::mutex thisMutex;

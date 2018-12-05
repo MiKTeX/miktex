@@ -41,15 +41,15 @@ using namespace std;
 
 FileNameDatabase::FileNameDatabase() :
   mmap(MemoryMappedFile::Create()),
-  traceStream(TraceStream::Open(MIKTEX_TRACE_FNDB))
+  trace_fndb(TraceStream::Open(MIKTEX_TRACE_FNDB))
 {
 }
 
 void FileNameDatabase::Finalize()
 {
-  if (traceStream != nullptr)
+  if (trace_fndb != nullptr)
   {
-    traceStream->WriteLine("core", fmt::format(T_("unloading fndb {0}"), Q_(this->rootDirectory)));
+    trace_fndb->WriteLine("core", fmt::format(T_("unloading fndb {0}"), Q_(this->rootDirectory)));
   }
   if (mmap != nullptr)
   {
@@ -59,10 +59,10 @@ void FileNameDatabase::Finalize()
     }
     mmap = nullptr;
   }
-  if (traceStream != nullptr)
+  if (trace_fndb != nullptr)
   {
-    traceStream->Close();
-    traceStream = nullptr;
+    trace_fndb->Close();
+    trace_fndb = nullptr;
   }
 }
 
@@ -84,35 +84,35 @@ void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath, bool readW
   FileAttributeSet attributes = File::GetAttributes(fndbPath);
   if (attributes[FileAttribute::ReadOnly])
   {
-    traceStream->WriteLine("core", T_("file name database file is readonly"));
+    trace_fndb->WriteLine("core", T_("file name database file is readonly"));
     readWrite = false;
   }
 #endif
 
   mmap->Open(fndbPath, readWrite);
 
-  if (mmap->GetSize() < sizeof(*pHeader))
+  if (mmap->GetSize() < sizeof(*fndbHeader))
   {
     MIKTEX_FATAL_ERROR_2(T_("Not a file name database file (wrong size)."), "path", fndbPath.ToString());
   }
 
-  pHeader = reinterpret_cast<FileNameDatabaseHeader*>(mmap->GetPtr());
+  fndbHeader = reinterpret_cast<FileNameDatabaseHeader*>(mmap->GetPtr());
 
   foEnd = static_cast<FndbByteOffset>(mmap->GetSize());
 
   // check signature
-  if (pHeader->signature != FileNameDatabaseHeader::Signature)
+  if (fndbHeader->signature != FileNameDatabaseHeader::Signature)
   {
     MIKTEX_FATAL_ERROR_2(T_("Not a file name database file (wrong signature)."), "path", fndbPath.ToString());
   }
 
   // check version number
-  if (pHeader->version != FileNameDatabaseHeader::Version)
+  if (fndbHeader->version != FileNameDatabaseHeader::Version)
   {
-    MIKTEX_FATAL_ERROR_2(T_("Unknown file name database file version."), "path", fndbPath.ToString(), "versionFound", std::to_string(pHeader->Version), "versionExpected", std::to_string(FileNameDatabaseHeader::Version));
+    MIKTEX_FATAL_ERROR_2(T_("Unknown file name database file version."), "path", fndbPath.ToString(), "versionFound", std::to_string(fndbHeader->Version), "versionExpected", std::to_string(FileNameDatabaseHeader::Version));
   }
 
-  if (!readWrite || (pHeader->flags & FileNameDatabaseHeader::FndbFlags::Frozen) != 0)
+  if (!readWrite || (fndbHeader->flags & FileNameDatabaseHeader::FndbFlags::Frozen) != 0)
   {
     isInvariable = true;
     readWrite = false;
@@ -121,11 +121,11 @@ void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath, bool readW
   if (!isInvariable)
   {
     // grow file-mapping object if necessary
-    if (pHeader->size + 131072 > foEnd)
+    if (fndbHeader->size + 131072 > foEnd)
     {
-      size_t newSize = ((pHeader->size + FNDB_EXTRA + 1) / FNDB_GRAN) * FNDB_GRAN;
-      traceStream->WriteLine("core", fmt::format(T_("enlarging fndb file {0} ({1} -> {2})..."), Q_(fndbPath), foEnd, newSize));
-      pHeader = reinterpret_cast<FileNameDatabaseHeader*>(mmap->Resize(newSize));
+      size_t newSize = ((fndbHeader->size + FNDB_EXTRA + 1) / FNDB_GRAN) * FNDB_GRAN;
+      trace_fndb->WriteLine("core", fmt::format(T_("enlarging fndb file {0} ({1} -> {2})..."), Q_(fndbPath), foEnd, newSize));
+      fndbHeader = reinterpret_cast<FileNameDatabaseHeader*>(mmap->Resize(newSize));
 #if defined(MIKTEX_WINDOWS) && REPORT_EVENTS
       ReportMiKTeXEvent(EVENTLOG_INFORMATION_TYPE, MIKTEX_EVENT_FNDB_ENLARGED, mmap->GetName(), std::to_string(foEnd), std::to_string(static_cast<unsigned>(newSize)), 0);
 #endif
@@ -133,7 +133,7 @@ void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath, bool readW
     }
   }
 
-  timeStamp = pHeader->timeStamp;
+  timeStamp = fndbHeader->timeStamp;
 }
 
 void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& rootDirectory, bool readWrite)
@@ -143,7 +143,7 @@ void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& root
 
   OpenFileNameDatabase(fndbPath, readWrite);
 
-  if ((pHeader->flags & FileNameDatabaseHeader::FndbFlags::Frozen) != 0)
+  if ((fndbHeader->flags & FileNameDatabaseHeader::FndbFlags::Frozen) != 0)
   {
     isInvariable = true;
   }
@@ -254,12 +254,12 @@ FileNameDatabaseDirectory* FileNameDatabase::ExtendDirectory(FileNameDatabaseDir
   neededSlots += 2;             // and 1 sub-directory
   FndbWord neededBytes = offsetof(FileNameDatabaseDirectory, table);
   neededBytes += neededSlots * sizeof(FndbByteOffset);
-  FndbByteOffset foExtension = ROUND2(pHeader->size, 16);
+  FndbByteOffset foExtension = ROUND2(fndbHeader->size, 16);
   if (foExtension + neededBytes > foEnd)
   {
     MIKTEX_UNEXPECTED();
   }
-  pHeader->size = foExtension + neededBytes;
+  fndbHeader->size = foExtension + neededBytes;
   FileNameDatabaseDirectory* extDir = reinterpret_cast<FileNameDatabaseDirectory*>(GetPointer(foExtension));
   extDir->Init();
   extDir->foName = dir->foName;
@@ -277,13 +277,13 @@ FndbByteOffset FileNameDatabase::CreateString(const string& name) const
 {
   FndbByteOffset foName;
   size_t neededBytes = name.length() + 1;
-  foName = ROUND2(pHeader->size, 2);
+  foName = ROUND2(fndbHeader->size, 2);
   if (foName + neededBytes > foEnd)
   {
     MIKTEX_UNEXPECTED();
   }
   memcpy(GetPointer(foName), name.c_str(), neededBytes);
-  pHeader->size = foName + static_cast<FndbWord>(neededBytes);
+  fndbHeader->size = foName + static_cast<FndbWord>(neededBytes);
   return foName;
 }
 
@@ -315,8 +315,8 @@ void FileNameDatabase::InsertFileName(FileNameDatabaseDirectory* dir, FndbByteOf
     dir->TableInsert(dir->numFiles + 1 + 2 * dir->numSubDirs + idx, foFileNameInfo);
   }
   dir->numFiles += 1;
-  pHeader->numFiles += 1;
-  pHeader->timeStamp = static_cast<FndbWord>(time(nullptr)); // <sixtyfourbit/>
+  fndbHeader->numFiles += 1;
+  fndbHeader->timeStamp = static_cast<FndbWord>(time(nullptr)); // <sixtyfourbit/>
 }
 
 void FileNameDatabase::InsertDirectory(FileNameDatabaseDirectory* dir, const FileNameDatabaseDirectory* subDir) const
@@ -331,7 +331,7 @@ void FileNameDatabase::InsertDirectory(FileNameDatabaseDirectory* dir, const Fil
   dir->TableInsert(dir->numFiles + idx, subDir->foName);
   dir->TableInsert(dir->numFiles + dir->numSubDirs + 1 + idx, GetByteOffset(subDir));
   dir->numSubDirs += 1;
-  pHeader->numDirs += 1;
+  fndbHeader->numDirs += 1;
 }
 
 FileNameDatabaseDirectory* FileNameDatabase::CreateFndbDirectory(FileNameDatabaseDirectory* dir, const string& name) const
@@ -364,12 +364,12 @@ FileNameDatabaseDirectory* FileNameDatabase::CreateFndbDirectory(FileNameDatabas
 
   FndbWord neededBytes = offsetof(FileNameDatabaseDirectory, table);
   neededBytes += neededSlots * sizeof(FndbByteOffset);
-  if (pHeader->size + neededBytes > foEnd)
+  if (fndbHeader->size + neededBytes > foEnd)
   {
     MIKTEX_UNEXPECTED();
   }
-  FndbByteOffset foSub = pHeader->size;
-  pHeader->size += neededBytes;
+  FndbByteOffset foSub = fndbHeader->size;
+  fndbHeader->size += neededBytes;
   FileNameDatabaseDirectory* subDir = reinterpret_cast<FileNameDatabaseDirectory*>(GetPointer(foSub));
   subDir->Init();
   subDir->foName = foName;
@@ -410,10 +410,10 @@ FileNameDatabaseDirectory* FileNameDatabase::CreateDirectoryPath(FileNameDatabas
     dir = subDir;
     ++level;
   }
-  if (level > pHeader->depth)
+  if (level > fndbHeader->depth)
   {
     MIKTEX_ASSERT(create);
-    pHeader->depth = level;
+    fndbHeader->depth = level;
   }
   return dir;
 }
@@ -437,15 +437,15 @@ FileNameDatabaseDirectory* FileNameDatabase::RemoveFileName(FileNameDatabaseDire
   }
 
   dir->numFiles -= 1;
-  pHeader->numFiles -= 1;
-  pHeader->timeStamp = static_cast<FndbWord>(time(nullptr)); // FIXME: 64-bit
+  fndbHeader->numFiles -= 1;
+  fndbHeader->timeStamp = static_cast<FndbWord>(time(nullptr)); // FIXME: 64-bit
 
   return dir;
 }
 
 void FileNameDatabase::Flush() const
 {
-  traceStream->WriteLine("core", T_("flushing file name database"));
+  trace_fndb->WriteLine("core", T_("flushing file name database"));
   mmap->Flush();
 }
 
@@ -496,7 +496,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
 {
   string pathPattern = pathPattern_;
 
-  traceStream->WriteLine("core", fmt::format(T_("fndb search: rootDirectory={0}, relativePath={1}, pathpattern={2}"), Q_(rootDirectory), Q_(relativePath), Q_(pathPattern)));
+  trace_fndb->WriteLine("core", fmt::format(T_("fndb search: rootDirectory={0}, relativePath={1}, pathpattern={2}"), Q_(rootDirectory), Q_(relativePath), Q_(pathPattern)));
 
   MIKTEX_ASSERT(result.size() == 0);
   MIKTEX_ASSERT(fileNameInfo.size() == 0);
@@ -566,12 +566,12 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
           MIKTEX_UNEXPECTED();
         }
         fileNameInfo.push_back(GetString(dir->GetFileNameInfo(idx)));
-        traceStream->WriteLine("core", fmt::format(T_("found: {0} ({1})"), Q_(path), GetString(dir->GetFileNameInfo(idx))));
+        trace_fndb->WriteLine("core", fmt::format(T_("found: {0} ({1})"), Q_(path), GetString(dir->GetFileNameInfo(idx))));
       }
       else
       {
         fileNameInfo.push_back("");
-        traceStream->WriteLine("core", fmt::format(T_("found: {0}"), Q_(path)));
+        trace_fndb->WriteLine("core", fmt::format(T_("found: {0}"), Q_(path)));
       }
       if (firstMatchOnly)
       {
@@ -594,7 +594,7 @@ void FileNameDatabase::AddFile(const PathName& path_, const string& fileNameInfo
 {
   PathName path = path_;
 
-  traceStream->WriteLine("core", fmt::format(T_("adding {0} to the file name database"), Q_(path)));
+  trace_fndb->WriteLine("core", fmt::format(T_("adding {0} to the file name database"), Q_(path)));
 
   // make sure we can add files
   if (IsInvariable())
@@ -763,7 +763,7 @@ FileNameDatabaseDirectory* FileNameDatabase::TryGetParent(const PathName& path_)
 
 void FileNameDatabase::RemoveFile(const MiKTeX::Core::PathName& path)
 {
-  traceStream->WriteLine("core", fmt::format(T_("removing {0} from the file name database"), Q_(path)));
+  trace_fndb->WriteLine("core", fmt::format(T_("removing {0} from the file name database"), Q_(path)));
 
   if (IsInvariable())
   {
@@ -823,7 +823,7 @@ bool FileNameDatabase::FileExists(const PathName& path) const
 void FileNameDatabase::ReadFileNames()
 {
   fileNames.clear();
-  fileNames.rehash(pHeader->numFiles);
+  fileNames.rehash(fndbHeader->numFiles);
   CoreStopWatch stopWatch(fmt::format("fndb read file names {}", Q_(rootDirectory)));
   ReadFileNames(GetTopDirectory());
 }
