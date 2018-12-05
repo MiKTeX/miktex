@@ -96,10 +96,23 @@ BEGIN_TEST_FUNCTION(2);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(3);
+{
+  vector<PathName> paths;
+  TEST(pSession->FindFile("xyz.txt", "%R/ab//;%R/jk//", paths));
+  TEST(!paths.empty());
+  for (const PathName& p : paths)
+  {
+    TEST(Fndb::FileExists(p));
+  }
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
   CALL_TEST_FUNCTION(2);
+  CALL_TEST_FUNCTION(3);
 }
 END_TEST_PROGRAM();
 
