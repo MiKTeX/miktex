@@ -203,7 +203,13 @@ private:
   MiKTeX::Core::PathName rootDirectory;
 
 private:
-  typedef std::unordered_multimap<std::string, FileNameDatabaseDirectory*> FileNameHashTable;
+  struct FileNameInfo
+  {
+    FileNameDatabaseDirectory* dir;
+  };
+
+private:
+  typedef std::unordered_multimap<std::string, FileNameInfo> FileNameHashTable;
 
 private:
   FileNameHashTable fileNames;

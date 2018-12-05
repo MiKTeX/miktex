@@ -549,7 +549,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
     PathName relativeDirectory;
-    MakePathName(it->second, relativeDirectory);
+    MakePathName(it->second.dir, relativeDirectory);
     if (Match(comparablePathPattern.GetData(), PathName(relativeDirectory).TransformForComparison().GetData()))
     {
       PathName path;
@@ -560,7 +560,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
       if (HasFileNameInfo())
       {
         FndbWord idx;
-        const FileNameDatabaseDirectory* dir = SearchFileName(it->second, fileName, idx);
+        const FileNameDatabaseDirectory* dir = SearchFileName(it->second.dir, fileName, idx);
         if (dir == nullptr)
         {
           MIKTEX_UNEXPECTED();
@@ -661,7 +661,7 @@ void FileNameDatabase::AddFile(const PathName& path_, const string& fileNameInfo
   // add the name to the hash table
   PathName comparableFileName(pathFile);
   comparableFileName.TransformForComparison();
-  fileNames.insert(pair<string, FileNameDatabaseDirectory*>(comparableFileName.ToString(), dir));
+  fileNames.insert(pair<string, FileNameInfo>(comparableFileName.ToString(), { dir }));
 }
 
 bool FileNameDatabase::Enumerate(const PathName& fndbPath_, IEnumerateFndbCallback* callback) const
@@ -794,7 +794,7 @@ void FileNameDatabase::RemoveFile(const MiKTeX::Core::PathName& path)
   bool removed = false;
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (it->second == dir)
+    if (it->second.dir == dir)
     {
       fileNames.erase(it);
       removed = true;
@@ -839,7 +839,7 @@ void FileNameDatabase::ReadFileNames(FileNameDatabaseDirectory* dir)
     }
     for (FndbWord i = 0; i < dirIt->numFiles; ++i)
     {
-      fileNames.insert(pair<string, FileNameDatabaseDirectory*>(PathName(GetString(dirIt->GetFileName(i))).TransformForComparison().ToString(), dirIt));
+      fileNames.insert(pair<string, FileNameInfo>(PathName(GetString(dirIt->GetFileName(i))).TransformForComparison().ToString(), { dirIt }));
     }
   }
 }
