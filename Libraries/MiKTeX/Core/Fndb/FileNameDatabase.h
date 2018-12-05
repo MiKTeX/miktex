@@ -202,10 +202,17 @@ private:
 private:
   MiKTeX::Core::PathName rootDirectory;
 
+#define FNDB_EXPERIMENTAL 1
+
 private:
   struct FileNameInfo
   {
+#if defined(FNDB_EXPERIMENTAL)
+    std::string directory;
+    std::string info;
+#else
     FileNameDatabaseDirectory* dir;
+#endif
   };
 
 private:

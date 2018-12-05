@@ -549,7 +549,11 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
     PathName relativeDirectory;
+#if defined(FNDB_EXPERIMENTAL)
+    relativeDirectory = it->second.directory;
+#else
     MakePathName(it->second.dir, relativeDirectory);
+#endif
     if (Match(comparablePathPattern.GetData(), PathName(relativeDirectory).TransformForComparison().GetData()))
     {
       PathName path;
@@ -559,6 +563,10 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
       result.push_back(path);
       if (HasFileNameInfo())
       {
+#if defined(FNDB_EXPERIMENTAL)
+        fileNameInfo.push_back(it->second.info);
+        trace_fndb->WriteLine("core", fmt::format(T_("found: {0} ({1})"), Q_(path), Q_(it->second.info)));
+#else
         FndbWord idx;
         const FileNameDatabaseDirectory* dir = SearchFileName(it->second.dir, fileName, idx);
         if (dir == nullptr)
@@ -567,6 +575,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
         }
         fileNameInfo.push_back(GetString(dir->GetFileNameInfo(idx)));
         trace_fndb->WriteLine("core", fmt::format(T_("found: {0} ({1})"), Q_(path), GetString(dir->GetFileNameInfo(idx))));
+#endif
       }
       else
       {
@@ -661,7 +670,13 @@ void FileNameDatabase::AddFile(const PathName& path_, const string& fileNameInfo
   // add the name to the hash table
   PathName comparableFileName(pathFile);
   comparableFileName.TransformForComparison();
+#if defined(FNDB_EXPERIMENTAL)
+  PathName directoryPath;
+  MakePathName(dir, directoryPath);
+  fileNames.insert(pair<string, FileNameInfo>(comparableFileName.ToString(), { directoryPath.ToString(), fileNameInfo }));
+#else
   fileNames.insert(pair<string, FileNameInfo>(comparableFileName.ToString(), { dir }));
+#endif
 }
 
 bool FileNameDatabase::Enumerate(const PathName& fndbPath_, IEnumerateFndbCallback* callback) const
@@ -794,12 +809,23 @@ void FileNameDatabase::RemoveFile(const MiKTeX::Core::PathName& path)
   bool removed = false;
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
+#if defined(FNDB_EXPERIMENTAL)
+    PathName directoryPath;
+    MakePathName(dir, directoryPath);
+    if (it->second.directory == directoryPath)
+    {
+      fileNames.erase(it);
+      removed = true;
+      break;
+    }
+#else
     if (it->second.dir == dir)
     {
       fileNames.erase(it);
       removed = true;
       break;
     }
+#endif
   }
   if (!removed)
   {
@@ -832,14 +858,20 @@ void FileNameDatabase::ReadFileNames(FileNameDatabaseDirectory* dir)
 {
   for (FileNameDatabaseDirectory* dirIt = dir; dirIt != nullptr; dirIt = GetDirectoryAt(dirIt->foExtension))
   {
-    for (FndbWord i = 0; i < dirIt->numSubDirs; ++i)
+    for (FndbWord idx = 0; idx < dirIt->numSubDirs; ++idx)
     {
       // RECURSION
-      ReadFileNames(GetDirectoryAt(dirIt->GetSubDir(i)));
+      ReadFileNames(GetDirectoryAt(dirIt->GetSubDir(idx)));
     }
-    for (FndbWord i = 0; i < dirIt->numFiles; ++i)
+    for (FndbWord idx = 0; idx < dirIt->numFiles; ++idx)
     {
-      fileNames.insert(pair<string, FileNameInfo>(PathName(GetString(dirIt->GetFileName(i))).TransformForComparison().ToString(), { dirIt }));
+#if defined(FNDB_EXPERIMENTAL)
+      PathName directoryPath;
+      MakePathName(dir, directoryPath);
+      fileNames.insert(pair<string, FileNameInfo>(PathName(GetString(dirIt->GetFileName(idx))).TransformForComparison().ToString(), { directoryPath.ToString(), GetString(dir->GetFileNameInfo(idx)) }));
+#else
+      fileNames.insert(pair<string, FileNameInfo>(PathName(GetString(dirIt->GetFileName(idx))).TransformForComparison().ToString(), { dirIt }));
+#endif
     }
   }
 }
