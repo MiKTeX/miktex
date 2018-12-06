@@ -121,12 +121,6 @@ struct FileNameDatabaseDirectory
     return table[idx];
   }
 
-  FndbByteOffset GetSubDirName(FndbWord idx) const
-  {
-    MIKTEX_ASSERT(idx < numSubDirs);
-    return table[numFiles + idx];
-  }
-
   FndbByteOffset GetSubDir(FndbWord idx) const
   {
     MIKTEX_ASSERT(idx < numSubDirs);
@@ -137,29 +131,6 @@ struct FileNameDatabaseDirectory
   {
     MIKTEX_ASSERT(idx < numFiles);
     return table[numFiles + (2 * numSubDirs) + idx];
-  }
-
-  FndbWord SizeOfTable(bool hasFileNameInfo) const
-  {
-    FndbWord size = numFiles + 2 * numSubDirs;
-    if (hasFileNameInfo)
-    {
-      size += numFiles;
-    }
-    return size;
-  }
-
-  void TableInsert(size_t idx, FndbByteOffset fo)
-  {
-    MIKTEX_ASSERT(idx < capacity);
-    memmove(&table[idx + 1], &table[idx], ((capacity - idx - 1) * sizeof(FndbByteOffset)));
-    table[idx] = fo;
-  }
-
-  void TableRemove(size_t idx)
-  {
-    MIKTEX_ASSERT(idx < capacity);
-    memmove(&table[idx], &table[idx + 1], ((capacity - idx - 1) * sizeof(FndbByteOffset)));
   }
 
   void Init()
