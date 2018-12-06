@@ -339,7 +339,7 @@ void MakeMf::Run(int argc, const char** argv)
     // add to file name database
     if (!Fndb::FileExists(pathDest))
     {
-      Fndb::Add(pathDest);
+      Fndb::Add({ {pathDest} });
     }
   }
 }

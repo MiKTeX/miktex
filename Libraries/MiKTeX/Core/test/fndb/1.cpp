@@ -99,6 +99,10 @@ BEGIN_TEST_FUNCTION(3);
   {
     TEST(Fndb::FileExists(p));
   }
+  PathName path = pSession->GetSpecialPath(SpecialPath::UserInstallRoot) / "abrakadabra" / "hi.txt";
+  TESTX(Fndb::Add({ {PathName(path)} }));
+  TESTX(pSession->UnloadFilenameDatabase());
+  TEST(Fndb::FileExists(path));
 }
 END_TEST_FUNCTION();
 

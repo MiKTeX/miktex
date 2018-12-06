@@ -470,7 +470,7 @@ BOOL InverseSearchOptionsPage::OnApply()
       pCfg = nullptr;
       if (!Fndb::FileExists(pathEditorsIni))
       {
-        Fndb::Add(pathEditorsIni);
+        Fndb::Add({ {pathEditorsIni} });
       }
     }
     if (commandLineIdx >= 0)

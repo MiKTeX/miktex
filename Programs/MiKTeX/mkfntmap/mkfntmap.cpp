@@ -906,7 +906,7 @@ void MakeFontMapApp::WriteDvipsMapFile(const PathName& fileName, const set<FontM
   writer.close();
   if (!Fndb::FileExists(path))
   {
-    Fndb::Add(path);
+    Fndb::Add({ {path} });
   }
 }
 
@@ -925,7 +925,7 @@ void MakeFontMapApp::WriteDvipdfmMapFile(const PathName& fileName, const set<Fon
   writer.close();
   if (!Fndb::FileExists(path))
   {
-    Fndb::Add(path);
+    Fndb::Add({ {path} });
   }
 }
 
@@ -944,7 +944,7 @@ void MakeFontMapApp::WritePdfTeXMapFile(const PathName& fileName, const set<Font
   writer.close();
   if (!Fndb::FileExists(path))
   {
-    Fndb::Add(path);
+    Fndb::Add({ {path} });
   }
 }
 
@@ -1102,7 +1102,7 @@ void MakeFontMapApp::CopyFile(const PathName& pathSrc, const PathName& pathDest)
   File::Copy(pathSrc, pathDest);
   if (!Fndb::FileExists(pathDest))
   {
-    Fndb::Add(pathDest);
+    Fndb::Add({ {pathDest} });
   }
 }
 

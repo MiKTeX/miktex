@@ -175,19 +175,18 @@ bool SessionImpl::FindFileInternal(const string& fileName, const vector<PathName
       if (fndb != nullptr)
       {
         // search fndb
-        vector<PathName> paths;
-        vector<string> fileNameInfo;
-        bool foundInFndb = fndb->Search(fileName, it->ToString(), firstMatchOnly, paths, fileNameInfo);
+        vector<Fndb::Record> records;
+        bool foundInFndb = fndb->Search(fileName, it->ToString(), firstMatchOnly, records);
         // we must release the FNDB handle since CheckCandidate() might request an unload of the FNDB
         fndb = nullptr;
         if (foundInFndb)
         {
-          for (int idx = 0; idx < paths.size(); ++idx)
+          for (int idx = 0; idx < records.size(); ++idx)
           {
-            if (CheckCandidate(paths[idx], fileNameInfo[idx].c_str()))
+            if (CheckCandidate(records[idx].path, records[idx].fileNameInfo.c_str()))
             {
               found = true;
-              result.push_back(paths[idx]);
+              result.push_back(records[idx].path);
             }
           }
         }

@@ -236,7 +236,7 @@ void SessionImpl::WriteFormatsIni()
 
   if (!Fndb::FileExists(pathLocalFormatsIni))
   {
-    Fndb::Add(pathLocalFormatsIni);
+    Fndb::Add({ { pathLocalFormatsIni } });
   }
 }
 

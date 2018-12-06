@@ -179,7 +179,7 @@ void SessionImpl::WriteLanguagesIni()
   cfgLanguages->Write(pathLocalLanguagesIni);
   if (!Fndb::FileExists(pathLocalLanguagesIni))
   {
-    Fndb::Add(pathLocalLanguagesIni);
+    Fndb::Add({ { pathLocalLanguagesIni } });
   }
 }
 

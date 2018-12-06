@@ -23,6 +23,11 @@
 #  include "config.h"
 #endif
 
+#include <mutex>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "internal.h"
 
 #include "miktex/Core/Environment.h"
@@ -38,9 +43,10 @@
 #include "Fndb/FileNameDatabase.h"
 #include "Session/SessionImpl.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 // index of the hidden MPM root
 #define MPM_ROOT static_cast<unsigned>(GetNumberOfTEXMFRoots())
@@ -1051,29 +1057,9 @@ PathName SessionImpl::GetRelativeFilenameDatabasePathName(unsigned r)
 
 shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r)
 {
-  return GetFileNameDatabase(r, TriState::Undetermined);
-}
-
-shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriState triReadOnly)
-{
   if (r != MPM_ROOT && r >= GetNumberOfTEXMFRoots())
   {
     INVALID_ARGUMENT("index", std::to_string(r));
-  }
-
-  bool readOnly;
-
-  if (triReadOnly == TriState::True)
-  {
-    readOnly = true;
-  }
-  else if (triReadOnly == TriState::False)
-  {
-    readOnly = false;
-  }
-  else                  // triReadOnly == TriState::Undetermined
-  {
-    readOnly = IsTeXMFReadOnly(r);
   }
 
   lock_guard<mutex> lockGuard(fndbMutex);
@@ -1083,20 +1069,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriSta
   shared_ptr<FileNameDatabase> fndb = root.GetFndb();
   if (fndb != nullptr)
   {
-    if (triReadOnly == TriState::False && fndb->IsInvariable())
-    {
-      // we say we indend to modify the fndb; but the fndb is opened readonly
-      // => we have to reload the database
-      fndb = nullptr;
-      if (!UnloadFilenameDatabaseInternal_nolock(r, false))
-      {
-        return nullptr;
-      }
-    }
-    else
-    {
-      return fndb;
-    }
+    return fndb;
   }
 
 #if 0
@@ -1122,9 +1095,9 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriSta
     return nullptr;
   }
 
-  trace_fndb->WriteFormattedLine("core", T_("loading fndb%s: %s"), (readOnly ? T_(" read-only") : ""), fqFndbFileName.GetData());
+  trace_fndb->WriteLine("core", fmt::format(T_("loading fndb: {0}"), fqFndbFileName));
 
-  shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName, root.get_Path(), readOnly);
+  shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName, root.get_Path());
 
   root.SetFndb(pFndb);
 
@@ -1138,7 +1111,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char* path)
   {
     return nullptr;
   }
-  return GetFileNameDatabase(root, TriState::Undetermined);
+  return GetFileNameDatabase(root);
 }
 
 unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
@@ -1223,6 +1196,13 @@ bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r, bool remove)
     if (File::Exists(path))
     {
       File::Delete(path, { FileDeleteOption::TryHard });
+    }
+    // remove the change file
+    PathName changeFile = path;
+    changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
+    if (File::Exists(changeFile))
+    {
+      File::Delete(changeFile, { FileDeleteOption::TryHard });
     }
   }
 

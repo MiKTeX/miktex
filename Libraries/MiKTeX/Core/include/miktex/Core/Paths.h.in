@@ -74,6 +74,9 @@
 /* suffix for file name database files */
 #define MIKTEX_FNDB_FILE_SUFFIX ".fndb"
 
+/* suffix for FNDB change files */
+#define MIKTEX_FNDB_CHANGE_FILE_SUFFIX ".fndb.log"
+
 #define MIKTEX_FORMAT_FILE_SUFFIX ".fmt"
 
 #define MIKTEX_POOL_FILE_SUFFIX ".pool"

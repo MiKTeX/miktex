@@ -403,7 +403,7 @@ public:
       File::Delete(bak);
       if (!Fndb::FileExists(path))
       {
-        Fndb::Add(path);
+        Fndb::Add({ {path} });
       }
     }
     catch (const exception&)
@@ -475,7 +475,7 @@ bool SessionImpl::TryCreateFromTemplate(const PathName& path)
     File::SetAttributes(path, attr);
     if (!Fndb::FileExists(path))
     {
-      Fndb::Add(path);
+      Fndb::Add({ {path} });
     }
     return true;
   }

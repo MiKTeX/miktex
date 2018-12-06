@@ -54,7 +54,7 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
     }
     if (session->IsTEXMFFile(path) && Fndb::FileExists(path))
     {
-      Fndb::Remove(path);
+      Fndb::Remove({ path });
     }
   }
 

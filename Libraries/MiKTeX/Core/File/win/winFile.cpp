@@ -348,11 +348,11 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
     MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(source) && Fndb::FileExists(source))
     {
-      Fndb::Remove(source);
+      Fndb::Remove({ source });
     }
     if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
     {
-      Fndb::Add(dest);
+      Fndb::Add({ {dest} });
     }
   }
 }
@@ -384,7 +384,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
     MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
     {
-      Fndb::Add(dest);
+      Fndb::Add({ {dest} });
     }
   }
 }
@@ -418,7 +418,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
     MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(newName) && !Fndb::FileExists(newName))
     {
-      Fndb::Add(newName);
+      Fndb::Add({ {newName} });
     }
   }
 }

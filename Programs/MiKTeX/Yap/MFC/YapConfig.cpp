@@ -336,7 +336,7 @@ void YapConfig::Save()
   pCfg->Write(fileName);
   if (firstTime)
   {
-    Fndb::Add(fileName);
+    Fndb::Add({ {fileName} });
   }
 }
 

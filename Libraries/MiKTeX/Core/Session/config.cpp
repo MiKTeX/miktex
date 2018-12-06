@@ -1257,7 +1257,7 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
   pCfg->Write(pathConfigFile);
   if (!Fndb::FileExists(pathConfigFile))
   {
-    Fndb::Add(pathConfigFile);
+    Fndb::Add({ { pathConfigFile } });
   }
   configurationSettings.clear();
 }
@@ -1438,7 +1438,7 @@ void SessionImpl::ConfigureFile(const PathName& pathIn, const PathName& pathOut,
   File::SetAttributes(pathOut, attr);
   if (!Fndb::FileExists(pathOut))
   {
-    Fndb::Add(pathOut);
+    Fndb::Add({ {pathOut} });
   }
 }
 

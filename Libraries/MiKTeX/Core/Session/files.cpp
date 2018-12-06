@@ -145,12 +145,11 @@ void SessionImpl::RecordFileInfo(const PathName& path, FileAccess access)
       shared_ptr<FileNameDatabase> fndb = GetFileNameDatabase(GetMpmRoot());
       if (fndb != nullptr)
       {
-	vector<PathName> paths;
-	vector<string> packageNames;
-	if (fndb->Search(pathRelPath, MPM_ROOT_PATH, true, paths, packageNames))
-	{
-	  fir.packageName = packageNames[0];
-	}
+        vector<Fndb::Record> records;
+        if (fndb->Search(pathRelPath, MPM_ROOT_PATH, true, records))
+        {
+          fir.packageName = records[0].fileNameInfo;
+        }
       }
     }
   }

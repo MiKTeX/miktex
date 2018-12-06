@@ -259,7 +259,7 @@ void PackageInstallerImpl::OnBeginFileExtraction(const string& fileName, size_t 
   {
     if (!Fndb::FileExists(fileName))
     {
-      Fndb::Add(fileName);
+      Fndb::Add({ { fileName } });
     }
   }
 
@@ -274,7 +274,7 @@ void PackageInstallerImpl::OnEndFileExtraction(const string& fileName, size_t un
   {
     if (!Fndb::FileExists(fileName))
     {
-      Fndb::Add(fileName);
+      Fndb::Add({ {fileName} });
     }
   }
 
@@ -940,7 +940,7 @@ void PackageInstallerImpl::MyCopyFile(const PathName& source, const PathName& de
   {
     if (!Fndb::FileExists(dest))
     {
-      Fndb::Add(dest);
+      Fndb::Add({ {dest} });
     }
   }
 }
@@ -1032,35 +1032,26 @@ MPMSTATICFUNC(void) GetFiles(const PackageInfo& package, StringSet& files)
 
 void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, const vector<string>& removedFiles, const char* lpszPackageName)
 {
-#if 0
-  ReportLine(T_("updating MPM file name database:"));
-  ReportLine(T_("  %u records to be added"), installedFiles.size());
-  ReportLine(T_("  %u records to be removed"), removedFiles.size());
-#endif
+  vector<Fndb::Record> records;
   for (const string& f : installedFiles)
   {
     PathName path(session->GetMpmRootPath(), f);
     if (!Fndb::FileExists(path))
     {
-      Fndb::Add(path, lpszPackageName);
-    }
-    else
-    {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0} already exists in mpm fndb"), Q_(path)));
+      records.push_back({ path, lpszPackageName });
     }
   }
+  Fndb::Add(records);
+  vector<PathName> paths;
   for (const string& f : removedFiles)
   {
     PathName path(session->GetMpmRootPath(), f);
     if (Fndb::FileExists(path))
     {
-      Fndb::Remove(path);
-    }
-    else
-    {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0} does not exist in mpm fndb"), Q_(path)));
+      paths.push_back(path);
     }
   }
+  Fndb::Remove(paths);
 }
 
 void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageManifests)

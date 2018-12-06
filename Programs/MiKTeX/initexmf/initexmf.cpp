@@ -964,8 +964,16 @@ void IniTeXMFApp::RemoveFndb()
     PrintOnly(fmt::format("rm {}", Q_(path)));
     if (!printOnly && File::Exists(path))
     {
-      Verbose(fmt::format(T_("Removing fndb ({0})..."), Q_(session->GetRootDirectoryPath(r))));
+      Verbose(fmt::format(T_("Removing fndb ({0})..."), Q_(path)));
       File::Delete(path, { FileDeleteOption::TryHard });
+    }
+    PathName changeFile = path;
+    changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
+    PrintOnly(fmt::format("rm {}", Q_(changeFile)));
+    if (!printOnly && File::Exists(changeFile))
+    {
+      Verbose(fmt::format(T_("Removing fndb change file ({0})..."), Q_(changeFile)));
+      File::Delete(changeFile, { FileDeleteOption::TryHard });
     }
   }
 }
@@ -1842,13 +1850,13 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
   languageDatLua << "}" << "\n";
 
   languageDatLua.close();
-  Fndb::Add(languageDatLuaPath);
+  Fndb::Add({ {languageDatLuaPath} });
 
   languageDef.close();
-  Fndb::Add(languageDefPath);
+  Fndb::Add({ {languageDefPath} });
 
   languageDat.close();
-  Fndb::Add(languageDatPath);
+  Fndb::Add({ {languageDatPath} });
 }
 
 void IniTeXMFApp::MakeMaps(bool force)
@@ -1924,7 +1932,7 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
     if (!session->TryCreateFromTemplate(configFile))
     {
       File::WriteBytes(configFile, {});
-      Fndb::Add(configFile);
+      Fndb::Add({ {configFile} });
     }
   }
   if (edit)
@@ -2610,6 +2618,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     MakeMaps(optForce);
   }
 
+  vector<Fndb::Record> records;
   for (const string& fileName : addFiles)
   {
     Verbose(fmt::format(T_("Adding {0} to the file name database..."), Q_(fileName)));
@@ -2618,7 +2627,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     {
       if (!Fndb::FileExists(fileName))
       {
-        Fndb::Add(fileName);
+        records.push_back({ fileName });
       }
       else
       {
@@ -2626,7 +2635,9 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       }
     }
   }
+  Fndb::Add(records);
 
+  vector<PathName> paths;
   for (const string& fileName : removeFiles)
   {
     Verbose(fmt::format(T_("Removing {0} from the file name database..."), Q_(fileName)));
@@ -2635,7 +2646,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     {
       if (Fndb::FileExists(fileName))
       {
-        Fndb::Remove(fileName);
+        paths.push_back(fileName);
       }
       else
       {
@@ -2643,6 +2654,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       }
     }
   }
+  Fndb::Remove(paths);
 
   if (removeFndb)
   {

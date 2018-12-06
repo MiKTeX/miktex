@@ -516,7 +516,7 @@ private:
   bool UnloadFilenameDatabaseInternal_nolock(unsigned r, bool remove);
 
 public:
-  std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r, MiKTeX::Core::TriState triReadOnly);
+  std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r);
 
 public:
   std::shared_ptr<FileNameDatabase> GetFileNameDatabase(const char* path);
@@ -848,9 +848,6 @@ private:
 
 private:
   bool IsTeXMFReadOnly(unsigned r);
-
-private:
-  std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r);
 
 private:
   std::pair<bool, MiKTeX::Core::PathName> TryGetBinDirectory(bool canonicalized);
