@@ -2635,7 +2635,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       }
     }
   }
-  Fndb::Add(records);
+  if (!records.empty())
+  {
+    Fndb::Add(records);
+  }
 
   vector<PathName> paths;
   for (const string& fileName : removeFiles)
@@ -2654,7 +2657,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       }
     }
   }
-  Fndb::Remove(paths);
+  if (!paths.empty())
+  {
+    Fndb::Remove(paths);
+  }
 
   if (removeFndb)
   {

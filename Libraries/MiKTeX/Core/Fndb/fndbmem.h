@@ -66,7 +66,7 @@ struct FileNameDatabaseHeader
   // number of directories
   FndbWord numDirs;
 
-  // number of files
+  // number of files (records)
   FndbWord numFiles;
 
   // time of last refresh
@@ -88,6 +88,14 @@ struct FileNameDatabaseHeader
   }
 };
 
+struct FileNameDatabaseRecord
+{
+  FndbByteOffset foFileName;
+  FndbByteOffset foDirectory;
+  FndbByteOffset foInfo;
+};
+
+// LEGACY
 struct FileNameDatabaseDirectory
 {
   // pointer to directory name
