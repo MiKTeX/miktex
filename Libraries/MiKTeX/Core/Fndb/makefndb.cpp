@@ -26,6 +26,9 @@
 #include <fstream>
 #include <thread>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Trace/Trace>
 
 #include "internal.h"
@@ -64,13 +67,13 @@ class FndbManager
 {
 public:
   FndbManager() :
-    traceStream(TraceStream::Open("fndb")),
-    traceError(TraceStream::Open(MIKTEX_TRACE_ERROR))
+    trace_fndb(TraceStream::Open(MIKTEX_TRACE_FNDB)),
+    trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR))
   {
   }
 
 public:
-  bool Create(const char* fndbPath, const char* rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
+  bool Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
 
 private:
   void* GetMemPointer()
@@ -129,13 +132,13 @@ private:
   void AlignMem(size_t align = 8);
 
 private:
-  static void GetIgnorableFiles(const char* dirPath, vector<string>& filesToBeIgnored);
+  static void GetIgnorableFiles(const PathName& dirPath, vector<string>& filesToBeIgnored);
 
 public:
-  void ReadDirectory(const char* dirPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp);
+  void ReadDirectory(const PathName& dirPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp);
 
 private:
-  FndbByteOffset ProcessFolder(FndbByteOffset foParent, const char* parentPath, const char* folderName, FndbByteOffset foFolderName);
+  FndbByteOffset ProcessFolder(FndbByteOffset foParent, const PathName& parentPath, const PathName& folderName, FndbByteOffset foFolderName);
 
 private:
   vector<uint8_t> byteArray;
@@ -168,10 +171,10 @@ private:
   bool storeFileNameInfo;
 
 private:
-  unique_ptr<TraceStream> traceStream;
+  unique_ptr<TraceStream> trace_fndb;
 
 private:
-  unique_ptr<TraceStream> traceError;
+  unique_ptr<TraceStream> trace_error;
 };
 
 FndbByteOffset FndbManager::ReserveMem(size_t size)
@@ -245,7 +248,7 @@ void FndbManager::AlignMem(size_t align)
   }
 }
 
-void FndbManager::GetIgnorableFiles(const char* dirPath, vector<string>& filesToBeIgnored)
+void FndbManager::GetIgnorableFiles(const PathName& dirPath, vector<string>& filesToBeIgnored)
 {
   PathName ignoreFile(dirPath, FN_MIKTEXIGNORE);
   if (!File::Exists(ignoreFile))
@@ -261,11 +264,11 @@ void FndbManager::GetIgnorableFiles(const char* dirPath, vector<string>& filesTo
   sort(filesToBeIgnored.begin(), filesToBeIgnored.end(), StringComparerIgnoringCase());
 }
 
-void FndbManager::ReadDirectory(const char* dirPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp)
+void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp)
 {
   if (!Directory::Exists(dirPath))
   {
-    traceStream->WriteFormattedLine("core", T_("the directory %s does not exist"), Q_(dirPath));
+    trace_fndb->WriteLine("core", fmt::format(T_("the directory {0} does not exist"), Q_(dirPath)));
     return;
   }
   vector<string> filesToBeIgnored;
@@ -317,7 +320,7 @@ void FndbManager::ReadDirectory(const char* dirPath, vector<string>& subDirector
   }
 }
 
-FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* parentPath, const char* folderName, FndbByteOffset foFolderName)
+FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const PathName& parentPath, const PathName& folderName, FndbByteOffset foFolderName)
 {
   const size_t cReservedEntries = 0;
 
@@ -364,7 +367,7 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* p
 
   if (!done)
   {
-    ReadDirectory(path.GetData(), subDirectoryNames, fileNames, true);
+    ReadDirectory(path, subDirectoryNames, fileNames, true);
   }
 
   numDirectories += subDirectoryNames.size();
@@ -423,7 +426,7 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* p
   for (const string& s : subDirectoryNames)
   {
     // RECURSION
-    vecfndboff[dirdata.numFiles + dirdata.numSubDirs + i] = ProcessFolder(foThis, pathFolder.GetData(), s.c_str(), vecfndboff[dirdata.numFiles + i]);
+    vecfndboff[dirdata.numFiles + dirdata.numSubDirs + i] = ProcessFolder(foThis, pathFolder, s, vecfndboff[dirdata.numFiles + i]);
     ++i;
   }
   --currentLevel;
@@ -434,9 +437,9 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* p
   return foThis;
 }
 
-bool FndbManager::Create(const char* fndbPath, const char* rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo)
+bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo)
 {
-  traceStream->WriteFormattedLine("core", T_("creating fndb file %s..."), Q_(fndbPath));
+  trace_fndb->WriteLine("core", fmt::format(T_("creating fndb file {0}..."), Q_(fndbPath)));
   unsigned rootIdx = SessionImpl::GetSession()->DeriveTEXMFRoot(rootPath);
   this->enableStringPooling = enableStringPooling;
   this->storeFileNameInfo = storeFileNameInfo;
@@ -446,7 +449,7 @@ bool FndbManager::Create(const char* fndbPath, const char* rootPath, ICreateFndb
     ReserveMem(sizeof(FileNameDatabaseHeader));
     FileNameDatabaseHeader fndb;
     fndb.Init();
-    if (callback == nullptr && FileIsOnROMedia(rootPath))
+    if (callback == nullptr && FileIsOnROMedia(rootPath.GetData()))
     {
       fndb.flags |= FileNameDatabaseHeader::FndbFlags::Frozen;
     }
@@ -455,7 +458,7 @@ bool FndbManager::Create(const char* fndbPath, const char* rootPath, ICreateFndb
       fndb.flags |= FileNameDatabaseHeader::FndbFlags::FileNameInfo;
     }
     AlignMem();
-    fndb.foPath = PushBack(rootPath);
+    fndb.foPath = PushBack(rootPath.GetData());
     numDirectories = 0;
     numFiles = 0;
     deepestLevel = 0;
@@ -485,13 +488,13 @@ bool FndbManager::Create(const char* fndbPath, const char* rootPath, ICreateFndb
       unloaded = SessionImpl::GetSession()->UnloadFilenameDatabaseInternal(rootIdx, true);
       if (!unloaded)
       {
-        traceStream->WriteFormattedLine("core", "sleep 1");
+        trace_fndb->WriteLine("core", "sleep 1");
         this_thread::sleep_for(chrono::milliseconds(1));
       }
     }
     if (!unloaded)
     {
-      traceError->WriteFormattedLine("core", T_("fndb cannot be unloaded"));
+      trace_error->WriteLine("core", T_("fndb cannot be unloaded"));
     }
     // </fixme>
     PathName directory = PathName(fndbPath).RemoveFileSpec();
@@ -501,13 +504,13 @@ bool FndbManager::Create(const char* fndbPath, const char* rootPath, ICreateFndb
     }
     ofstream streamFndb = File::CreateOutputStream(fndbPath, ios_base::binary);
     streamFndb.write((const char*)GetMemPointer(), GetMemTop());
-    traceStream->WriteFormattedLine("core", T_("fndb creation completed"));
+    trace_fndb->WriteLine("core", T_("fndb creation completed"));
     SessionImpl::GetSession()->RecordMaintenance();
     return true;
   }
   catch (const OperationCancelledException&)
   {
-    traceStream->WriteFormattedLine("core", T_("fndb creation cancelled"));
+    trace_fndb->WriteLine("core", T_("fndb creation cancelled"));
     return false;
   }
 }
@@ -521,7 +524,7 @@ bool Fndb::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFnd
 {
   FndbManager fndbmngr;
 
-  if (!fndbmngr.Create(fndbPath.GetData(), rootPath.GetData(), callback, enableStringPooling, storeFileNameInfo))
+  if (!fndbmngr.Create(fndbPath, rootPath, callback, enableStringPooling, storeFileNameInfo))
   {
     return false;
   }
@@ -537,7 +540,7 @@ bool Fndb::Refresh(const PathName& path, ICreateFndbCallback* callback)
 {
   unsigned root = SessionImpl::GetSession()->DeriveTEXMFRoot(path);
   PathName pathFndbPath = SessionImpl::GetSession()->GetFilenameDatabasePathName(root);
-  return Fndb::Create(pathFndbPath.GetData(), SessionImpl::GetSession()->GetRootDirectoryPath(root).GetData(), callback);
+  return Fndb::Create(pathFndbPath, SessionImpl::GetSession()->GetRootDirectoryPath(root), callback);
 }
 
 bool Fndb::Refresh(ICreateFndbCallback* callback)
