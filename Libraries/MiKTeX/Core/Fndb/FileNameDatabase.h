@@ -88,17 +88,26 @@ private:
 private:
   void ReadFileNames();
 
+#if MIKTEX_FNDB_VERSION == 5
 private:
-  void ReadFileNames(FileNameDatabaseDirectory* dir);
+  void ReadFileNames(const FileNameDatabaseRecord* table);
+#endif
+
+#if MIKTEX_FNDB_VERSION == 4
+private:
+  void ReadFileNames(const FileNameDatabaseDirectory* dir);
+#endif
 
 private:
   void Finalize();
 
+#if MIKTEX_FNDB_VERSION == 4
 private:
-  FileNameDatabaseDirectory* GetDirectoryAt(FndbByteOffset fo) const
+  const FileNameDatabaseDirectory* GetDirectoryAt(FndbByteOffset fo) const
   {
-    return reinterpret_cast<FileNameDatabaseDirectory*>(GetPointer(fo));
+    return reinterpret_cast<const FileNameDatabaseDirectory*>(GetPointer(fo));
   }
+#endif
 
 private:
   FndbWord GetHeaderFlags() const
@@ -115,25 +124,35 @@ private:
   }
 
 private:
-  void* GetPointer(FndbByteOffset fo) const
+  const void* GetPointer(FndbByteOffset fo) const
   {
     MIKTEX_ASSERT(fo == 0 || fo >= sizeof(FileNameDatabaseHeader) && fo < foEnd);
-    return fo == 0 ? nullptr : reinterpret_cast<uint8_t*>(fndbHeader) + fo;
+    return fo == 0 ? nullptr : reinterpret_cast<const uint8_t*>(fndbHeader) + fo;
   }
 
 private:
-  char* GetString(FndbByteOffset fo) const
+  const char* GetString(FndbByteOffset fo) const
   {
     MIKTEX_ASSERT(fo >= sizeof(FileNameDatabaseHeader) && fo < foEnd);
     MIKTEX_ASSERT_STRING(reinterpret_cast<const char*>(GetPointer(fo)));
-    return reinterpret_cast<char*>(GetPointer(fo));
+    return reinterpret_cast<const char*>(GetPointer(fo));
   }
 
+#if MIKTEX_FNDB_VERSION == 5
 private:
-  FileNameDatabaseDirectory* GetTopDirectory() const
+  const FileNameDatabaseRecord* GetTable() const
+  {
+    return reinterpret_cast<const FileNameDatabaseRecord*>(GetPointer(fndbHeader->foTable));
+  }
+#endif
+
+#if MIKTEX_FNDB_VERSION == 4
+private:
+  const FileNameDatabaseDirectory* GetTopDirectory() const
   {
     return GetDirectoryAt(fndbHeader->foTopDir);
   }
+#endif
 
 private:
   bool HasFileNameInfo() const
@@ -147,8 +166,10 @@ private:
 private:
   void ApplyChangeFile();
 
+#if MIKTEX_FNDB_VERSION == 4
 private:
   void MakePathName(const FileNameDatabaseDirectory* dir, MiKTeX::Core::PathName& path) const;
+#endif
 
 private:
   void OpenFileNameDatabase(const MiKTeX::Core::PathName& fndbPath);

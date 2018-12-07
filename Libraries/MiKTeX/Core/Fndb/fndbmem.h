@@ -28,8 +28,12 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
+#define MIKTEX_FNDB_VERSION 4
+
+#if MIKTEX_FNDB_VERSION == 4
 const size_t FNDB_GRAN = 1024 * 1024;
 const size_t FNDB_EXTRA = 5 * FNDB_GRAN;
+#endif
 
 typedef uint32_t FndbWord;
 typedef FndbWord FndbByteOffset;
@@ -37,7 +41,7 @@ typedef FndbWord FndbByteOffset;
 struct FileNameDatabaseHeader
 {
   static const FndbWord Signature = 0x42444e46; // 'FNDB' (the x86 way)
-  static const FndbWord Version = 4;
+  static const FndbWord Version = MIKTEX_FNDB_VERSION;
 
   class FndbFlags
   {
@@ -60,8 +64,15 @@ struct FileNameDatabaseHeader
   // pointer to path name
   FndbByteOffset foPath;
 
+#if MIKTEX_FNDB_VERSION == 5
+  // pointer to first record
+  FndbByteOffset foTable;
+#endif
+
+#if MIKTEX_FNDB_VERSION == 4
   // pointer to root directory
   FndbByteOffset foTopDir;
+#endif
 
   // number of directories
   FndbWord numDirs;
@@ -93,9 +104,10 @@ struct FileNameDatabaseRecord
   FndbByteOffset foFileName;
   FndbByteOffset foDirectory;
   FndbByteOffset foInfo;
+  FndbByteOffset reserved;
 };
 
-// LEGACY
+#if MIKTEX_FNDB_VERSION == 4
 struct FileNameDatabaseDirectory
 {
   // pointer to directory name
@@ -146,6 +158,7 @@ struct FileNameDatabaseDirectory
     foExtension = 0;
   }
 };
+#endif
 
 END_INTERNAL_NAMESPACE;
 

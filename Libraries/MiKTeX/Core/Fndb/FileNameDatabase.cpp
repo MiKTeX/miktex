@@ -322,12 +322,29 @@ void FileNameDatabase::ReadFileNames()
   fileNames.clear();
   fileNames.rehash(fndbHeader->numFiles);
   CoreStopWatch stopWatch(fmt::format("fndb read file names {}", Q_(rootDirectory)));
+#if MIKTEX_FNDB_VERSION == 5
+  ReadFileNames(GetTable());
+#endif
+#if MIKTEX_FNDB_VERSION == 4
   ReadFileNames(GetTopDirectory());
+#endif
 }
 
-void FileNameDatabase::ReadFileNames(FileNameDatabaseDirectory* dir)
+#if MIKTEX_FNDB_VERSION == 5
+void FileNameDatabase::ReadFileNames(const FileNameDatabaseRecord* table)
 {
-  for (FileNameDatabaseDirectory* dirIt = dir; dirIt != nullptr; dirIt = GetDirectoryAt(dirIt->foExtension))
+  for (size_t idx = 0; idx < fndbHeader->numFiles; ++idx)
+  {
+    const FileNameDatabaseRecord* rec = &table[idx];
+    InsertRecord({ PathName(GetString(rec->foFileName)).TransformForComparison().ToString(), GetString(rec->foDirectory), GetString(rec->foInfo) });
+  }
+}
+#endif
+
+#if MIKTEX_FNDB_VERSION == 4
+void FileNameDatabase::ReadFileNames(const FileNameDatabaseDirectory* dir)
+{
+  for (const FileNameDatabaseDirectory* dirIt = dir; dirIt != nullptr; dirIt = GetDirectoryAt(dirIt->foExtension))
   {
     for (FndbWord idx = 0; idx < dirIt->numSubDirs; ++idx)
     {
@@ -347,6 +364,7 @@ void FileNameDatabase::ReadFileNames(FileNameDatabaseDirectory* dir)
     }
   }
 }
+#endif
 
 void FileNameDatabase::Finalize()
 {
@@ -434,6 +452,7 @@ void FileNameDatabase::ApplyChangeFile()
   changeFileRecordCount = count;
 }
 
+#if MIKTEX_FNDB_VERSION == 4
 void FileNameDatabase::MakePathName(const FileNameDatabaseDirectory* dir, PathName& path) const
 {
   if (dir == nullptr || dir->foParent == 0)
@@ -444,6 +463,7 @@ void FileNameDatabase::MakePathName(const FileNameDatabaseDirectory* dir, PathNa
   MakePathName(GetDirectoryAt(dir->foParent), path);
   path /= GetString(dir->foName);
 }
+#endif
 
 void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath)
 {
