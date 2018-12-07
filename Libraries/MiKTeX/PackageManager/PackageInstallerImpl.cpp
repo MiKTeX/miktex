@@ -1041,7 +1041,10 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
       records.push_back({ path, lpszPackageName });
     }
   }
-  Fndb::Add(records);
+  if (!records.empty())
+  {
+    Fndb::Add(records);
+  }
   vector<PathName> paths;
   for (const string& f : removedFiles)
   {
@@ -1051,7 +1054,10 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
       paths.push_back(path);
     }
   }
-  Fndb::Remove(paths);
+  if (!paths.empty())
+  {
+    Fndb::Remove(paths);
+  }
 }
 
 void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageManifests)

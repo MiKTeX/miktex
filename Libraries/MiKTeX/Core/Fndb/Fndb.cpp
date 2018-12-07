@@ -46,6 +46,10 @@ bool Fndb::Search(const PathName& fileName, const string& pathPattern, bool firs
 
 void Fndb::Add(const vector<Fndb::Record>& records)
 {
+  if (records.empty())
+  {
+    MIKTEX_UNEXPECTED();
+  }
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   // TODO: parse/split records
   unsigned root = session->DeriveTEXMFRoot(records[0].path);
@@ -75,6 +79,10 @@ void Fndb::Add(const vector<Fndb::Record>& records)
 
 void Fndb::Remove(const vector<PathName>& paths)
 {
+  if (paths.empty())
+  {
+    MIKTEX_UNEXPECTED();
+  }
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   // TODO: parse/split records
   unsigned root = session->DeriveTEXMFRoot(paths[0]);
