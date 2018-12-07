@@ -199,6 +199,7 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
     if (InsertRecord({ fileName, directory, rec.fileNameInfo }))
     {
       writer << "+" << fileName << PathName::PathNameDelimiter << directory << PathName::PathNameDelimiter << rec.fileNameInfo << endl;
+      changeFileRecordCount++;
     }
   }
   writer.close();
@@ -215,6 +216,7 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
     std::tie(fileName, directory) = SplitPath(path);
     EraseRecord({ fileName, directory });
     writer << "-" << fileName << PathName::PathNameDelimiter << directory << endl;
+    changeFileRecordCount++;
   }
   writer.close();
 }
@@ -297,18 +299,21 @@ void FileNameDatabase::EraseRecord(const FileNameDatabase::Record& record)
   {
     MIKTEX_FATAL_ERROR_2(T_("The file name record could not be found in the hash table."), "fileName", record.fileName);
   }
-  int removed = 0;
+  vector<FileNameHashTable::const_iterator> toBeRemoved;
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
     if (it->second.directory == record.directory)
     {
-      fileNames.erase(it);
-      removed++;
+      toBeRemoved.push_back(it);
     }
   }
-  if (removed == 0)
+  if (toBeRemoved.empty())
   {
     MIKTEX_FATAL_ERROR_2(T_("The file name record could not be found in the hash table."), "fileName", record.fileName, "directory", record.directory);
+  }
+  for (const auto& it : toBeRemoved)
+  {
+    fileNames.erase(it);
   }
 }
 
