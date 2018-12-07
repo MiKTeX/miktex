@@ -27,6 +27,7 @@
 #include <fmt/ostream.h>
 
 #include <miktex/Core/FileStream>
+#include <miktex/Core/Paths>
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
@@ -266,6 +267,23 @@ void ExpatTpmParser::OnEndElement(void* pv, const XML_Char* name)
     {
       This->packageInfo.runFiles.reserve(1000);
       This->GetFiles(This->charBuffer.GetData(), This->packageInfo.runFiles);
+      PathName manifestFile(TEXMF_PREFIX_DIRECTORY);
+      manifestFile /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+      manifestFile /= This->packageInfo.id;
+      manifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
+      bool haveManifestFile = false;
+      for (const auto& file : This->packageInfo.runFiles)
+      {
+        if (PathName::Compare(file, manifestFile) == 0)
+        {
+          haveManifestFile = true;
+          break;
+        }
+      }
+      if (!haveManifestFile)
+      {
+        This->packageInfo.runFiles.push_back(manifestFile.ToString());
+      }
     }
     else if (StrCmp(name, X_("TPM:DocFiles")) == 0)
     {
