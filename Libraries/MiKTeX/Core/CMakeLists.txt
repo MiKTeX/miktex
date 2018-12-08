@@ -40,6 +40,7 @@ add_definitions(
 
 set(ADMIN_CONTROLS_USER_CONFIG TRUE)
 set(REPORT_EVENTS FALSE)
+set(MIKTEX_FNDB_VERSION 5)
 
 configure_file(
   include/miktex/Core/ConfigNames.h.cmake

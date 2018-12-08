@@ -336,7 +336,7 @@ void FileNameDatabase::ReadFileNames(const FileNameDatabaseRecord* table)
   for (size_t idx = 0; idx < fndbHeader->numFiles; ++idx)
   {
     const FileNameDatabaseRecord* rec = &table[idx];
-    InsertRecord({ PathName(GetString(rec->foFileName)).TransformForComparison().ToString(), GetString(rec->foDirectory), GetString(rec->foInfo) });
+    InsertRecord({ GetString(rec->foFileName), GetString(rec->foDirectory), GetString(rec->foInfo) });
   }
 }
 #endif
@@ -360,7 +360,7 @@ void FileNameDatabase::ReadFileNames(const FileNameDatabaseDirectory* dir)
       {
         fileNameInfo = GetString(dir->GetFileNameInfo(idx));
       }
-      InsertRecord({ PathName(GetString(dirIt->GetFileName(idx))).TransformForComparison().ToString(), directoryPath.ToString(), fileNameInfo });
+      InsertRecord({ GetString(dirIt->GetFileName(idx)), directoryPath.ToString(), fileNameInfo });
     }
   }
 }
@@ -392,8 +392,8 @@ void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& root
   this->rootDirectory = rootDirectory;
 
   OpenFileNameDatabase(fndbPath);
-
   ReadFileNames();
+  CloseFileNameDatabase();
 
   changeFile = fndbPath;
   changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
@@ -488,5 +488,17 @@ void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath)
   if (fndbHeader->version != FileNameDatabaseHeader::Version)
   {
     MIKTEX_FATAL_ERROR_2(T_("Unknown file name database file version."), "path", fndbPath.ToString(), "versionFound", std::to_string(fndbHeader->Version), "versionExpected", std::to_string(FileNameDatabaseHeader::Version));
+  }
+}
+
+void FileNameDatabase::CloseFileNameDatabase()
+{
+  if (mmap != nullptr)
+  {
+    if (mmap->GetPtr() != nullptr)
+    {
+      mmap->Close();
+    }
+    mmap = nullptr;
   }
 }

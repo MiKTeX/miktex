@@ -28,8 +28,6 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-#define MIKTEX_FNDB_VERSION 4
-
 #if MIKTEX_FNDB_VERSION == 4
 const size_t FNDB_GRAN = 1024 * 1024;
 const size_t FNDB_EXTRA = 5 * FNDB_GRAN;
@@ -43,6 +41,7 @@ struct FileNameDatabaseHeader
   static const FndbWord Signature = 0x42444e46; // 'FNDB' (the x86 way)
   static const FndbWord Version = MIKTEX_FNDB_VERSION;
 
+#if MIKTEX_FNDB_VERSION == 4
   class FndbFlags
   {
   public:
@@ -51,6 +50,7 @@ struct FileNameDatabaseHeader
       FileNameInfo = 2,         // extra file name info
     };
   };
+#endif
 
   // signature of fndb file
   FndbWord signature;
@@ -80,8 +80,15 @@ struct FileNameDatabaseHeader
   // number of files (records)
   FndbWord numFiles;
 
+#if MIKTEX_FNDB_VERSION == 5
+  // reserved
+  FndbWord reserved;
+#endif
+
+#if MIKTEX_FNDB_VERSION == 4
   // time of last refresh
   FndbWord timeStamp;
+#endif
 
   // max directory depth
   FndbWord depth;

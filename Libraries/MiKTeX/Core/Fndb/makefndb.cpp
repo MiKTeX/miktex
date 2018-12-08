@@ -100,7 +100,7 @@ private:
   }
 
 private:
-  void SetMem(FndbByteOffset fo, FndbWord data)
+  void SetMem(FndbByteOffset fo, FndbByteOffset data)
   {
     SetMem(fo, &data, sizeof(data));
   }
@@ -149,6 +149,9 @@ private:
 private:
   FndbByteOffset ProcessFolder(FndbByteOffset foParent, const PathName& parentPath, const PathName& folderName, FndbByteOffset foFolderName);
 #endif
+
+private:
+  PathName rootPath;
 
 private:
   vector<uint8_t> byteArray;
@@ -286,6 +289,10 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
   unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dirPath);
   DirectoryEntry entry;
   vector<DirectoryEntry> toBeDeleted;
+#if MIKTEX_FNDB_VERSION == 5
+  PathName directory = Utils::GetRelativizedPath(dirPath.GetData(), rootPath.GetData());
+  directory = directory.ToUnix();
+#endif
   while (lister->GetNext(entry))
   {
     if (binary_search(filesToBeIgnored.begin(), filesToBeIgnored.end(), entry.name, StringComparerIgnoringCase()))
@@ -305,8 +312,7 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
       FILENAMEINFO filenameinfo;
       filenameinfo.FileName = entry.name;
 #if MIKTEX_FNDB_VERSION == 5
-      // TODO: must be relative
-      filenameinfo.Directory = dirPath.ToString();
+      filenameinfo.Directory = directory.ToString();
 #endif
       fileNames.push_back(filenameinfo);
     }
@@ -348,8 +354,10 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
   bool done = false;
 
   PathName path(parentPath, folderName);
-
   path.MakeAbsolute();
+
+  PathName directory = Utils::GetRelativizedPath(path.GetData(), rootPath.GetData());
+  directory = directory.ToUnix();
 
   if (callback != nullptr)
   {
@@ -369,8 +377,7 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
       {
         FILENAMEINFO filenameinfo;
         filenameinfo.FileName = files[i];
-        // TODO: must be relative
-        filenameinfo.Directory = path.ToString();
+        filenameinfo.Directory = directory.ToString();
         filenameinfo.Info = infos[i];
         fileNames.push_back(filenameinfo);
       }
@@ -524,6 +531,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
 {
   trace_fndb->WriteLine("core", fmt::format(T_("creating fndb file {0}..."), Q_(fndbPath)));
   unsigned rootIdx = SessionImpl::GetSession()->DeriveTEXMFRoot(rootPath);
+  this->rootPath = rootPath;
   this->enableStringPooling = enableStringPooling;
   this->storeFileNameInfo = storeFileNameInfo;
   byteArray.reserve(2 * 1024 * 1024);
@@ -532,6 +540,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     ReserveMem(sizeof(FileNameDatabaseHeader));
     FileNameDatabaseHeader fndb;
     fndb.Init();
+#if MIKTEX_FNDB_VERSION == 4
     if (callback == nullptr && FileIsOnROMedia(rootPath.GetData()))
     {
       fndb.flags |= FileNameDatabaseHeader::FndbFlags::Frozen;
@@ -540,19 +549,22 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     {
       fndb.flags |= FileNameDatabaseHeader::FndbFlags::FileNameInfo;
     }
-    AlignMem();
-    fndb.foPath = PushBack(rootPath.GetData());
+#endif
     numDirectories = 0;
     numFiles = 0;
     deepestLevel = 0;
     currentLevel = 0;
     this->callback = callback;
 #if MIKTEX_FNDB_VERSION == 5
+    AlignMem();
+    fndb.foPath = ReserveMem(sizeof(FndbWord));
     vector<FILENAMEINFO> fileNames;
     CollectFiles(rootPath, CURRENT_DIRECTORY, fileNames);
     numFiles = fileNames.size();
     AlignMem();
     fndb.foTable = ReserveMem(fileNames.size() * sizeof(FileNameDatabaseRecord));
+    AlignMem();
+    SetMem(fndb.foPath, PushBack(rootPath.GetData()));
     for (size_t idx = 0; idx < fileNames.size(); ++idx)
     {
       FileNameDatabaseRecord rec;
@@ -564,12 +576,19 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     }
 #endif
 #if MIKTEX_FNDB_VERSION == 4
+    AlignMem();
+    fndb.foPath = PushBack(rootPath.GetData());
     fndb.foTopDir = ProcessFolder(0, rootPath, CURRENT_DIRECTORY, fndb.foPath);
 #endif
     fndb.numDirs = numDirectories;
     fndb.numFiles = numFiles;
     fndb.depth = deepestLevel;
+#if MIKTEX_FNDB_VERSION == 5
+    fndb.reserved = 0;
+#endif
+#if MIKTEX_FNDB_VERSION == 4
     fndb.timeStamp = static_cast<FndbWord>(time(nullptr)); // FIXME: 64-bit
+#endif
     fndb.size = GetMemTop();
 #if MIKTEX_FNDB_VERSION == 4
     if ((fndb.flags & FileNameDatabaseHeader::FndbFlags::Frozen) == 0)
@@ -616,7 +635,12 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
 
 bool Fndb::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback)
 {
+#if MIKTEX_FNDB_VERSION == 5
+  return Fndb::Create(fndbPath, rootPath, callback, true, false);
+#endif
+#if MIKTEX_FNDB_VERSION == 4
   return Fndb::Create(fndbPath, rootPath, callback, false, false);
+#endif
 }
 
 bool Fndb::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo)

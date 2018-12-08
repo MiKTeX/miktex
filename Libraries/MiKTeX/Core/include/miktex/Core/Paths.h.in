@@ -72,10 +72,10 @@
 #define MIKTEX_TO_BE_DELETED_FILE_SUFFIX ".(old)"
 
 /* suffix for file name database files */
-#define MIKTEX_FNDB_FILE_SUFFIX ".fndb"
+#define MIKTEX_FNDB_FILE_SUFFIX ".fndb-" "@MIKTEX_FNDB_VERSION@"
 
 /* suffix for FNDB change files */
-#define MIKTEX_FNDB_CHANGE_FILE_SUFFIX ".fndb.log"
+#define MIKTEX_FNDB_CHANGE_FILE_SUFFIX MIKTEX_FNDB_FILE_SUFFIX ".log"
 
 #define MIKTEX_FORMAT_FILE_SUFFIX ".fmt"
 

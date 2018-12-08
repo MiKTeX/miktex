@@ -154,11 +154,13 @@ private:
   }
 #endif
 
+#if MIKTEX_FNDB_VERSION == 4
 private:
   bool HasFileNameInfo() const
   {
     return (fndbHeader->flags& FileNameDatabaseHeader::FndbFlags::FileNameInfo) != 0;
   }
+#endif
 
 private:
   void Initialize(const MiKTeX::Core::PathName& fndbPath, const MiKTeX::Core::PathName& rootDirectory);
@@ -173,6 +175,9 @@ private:
 
 private:
   void OpenFileNameDatabase(const MiKTeX::Core::PathName& fndbPath);
+
+private:
+  void CloseFileNameDatabase();
 
   // size (in bytes) of the FNDB file
 private:
