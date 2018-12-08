@@ -391,9 +391,6 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
 
   numDirectories += subDirectoryNames.size();
 
-  sort(subDirectoryNames.begin(), subDirectoryNames.end(), StringComparerIgnoringCase());
-  sort(fileNames.begin(), fileNames.end(), COMPAREFILENAMEINFO());
-
   // recurse into sub-directories
   PathName pathFolder(parentPath, folderName);
   size_t i = 0;

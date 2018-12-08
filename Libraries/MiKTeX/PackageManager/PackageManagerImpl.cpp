@@ -379,7 +379,7 @@ namespace {
 
 }
 
-MPMSTATICFUNC(void) RememberFileNameInfo(const string& prefixedFileName, const string& packageName)
+MPMSTATICFUNC(void) RememberFileNameInfo(const string& prefixedFileName, const string& packageId)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -413,7 +413,7 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string& prefixedFileName, const s
   {
     string s2 = *pathtok;
     ++pathtok;
-    directoryInfoTable[path.GetData()].subDirectoryNames.insert(s1);
+    directoryInfoTable[path.ToString()].subDirectoryNames.insert(s1);
     name = s2;
 #if defined(MIKTEX_WINDOWS)
     // make sure the the rest of the path contains slashes (not
@@ -428,7 +428,7 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string& prefixedFileName, const s
 
   DirectoryInfo& directoryInfo = directoryInfoTable[path.ToString()];
   directoryInfo.fileNames.push_back(name);
-  directoryInfo.packageNames.push_back(packageName);
+  directoryInfo.packageNames.push_back(packageId);
 }
 
 bool PackageManagerImpl::ReadDirectory(const PathName& path, vector<string>& subDirNames, vector<string>& fileNames, vector<string>& fileNameInfos)
@@ -470,7 +470,7 @@ void PackageManagerImpl::CreateMpmFndb()
   }
 
   // create the database
-  Fndb::Create(session->GetMpmDatabasePathName().GetData(), session->GetMpmRootPath().GetData(), this, true, true);
+  Fndb::Create(session->GetMpmDatabasePathName(), session->GetMpmRootPath(), this, true, true);
 
   // free memory
   directoryInfoTable.clear();
