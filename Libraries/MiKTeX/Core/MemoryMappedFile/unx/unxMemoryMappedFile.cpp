@@ -97,6 +97,11 @@ void unxMemoryMappedFile::CreateMapping(size_t maximumFileSize)
     MIKTEX_FATAL_CRT_ERROR_2("fstat", "path", path.ToString());
   }
 
+  if (statbuf.st_size == 0)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("File is empty."), "path", path.ToString());
+  }
+
   if (maximumFileSize == 0)
   {
     maximumFileSize = statbuf.st_size;
@@ -108,7 +113,7 @@ void unxMemoryMappedFile::CreateMapping(size_t maximumFileSize)
 
   if (ptr == MAP_FAILED)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("mmap", "path", path.ToString());
+    MIKTEX_FATAL_CRT_ERROR_2("mmap", "path", path.ToString(), "size", std::to_string(size), "readWrite", std::to_string(readWrite));
   }
 }
 

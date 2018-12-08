@@ -622,6 +622,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     }
     ofstream streamFndb = File::CreateOutputStream(fndbPath, ios_base::binary);
     streamFndb.write((const char*)GetMemPointer(), GetMemTop());
+    streamFndb.close();
     trace_fndb->WriteLine("core", T_("fndb creation completed"));
     SessionImpl::GetSession()->RecordMaintenance();
     return true;
