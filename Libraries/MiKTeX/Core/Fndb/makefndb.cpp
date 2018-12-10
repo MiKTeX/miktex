@@ -553,15 +553,13 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     currentLevel = 0;
     this->callback = callback;
 #if MIKTEX_FNDB_VERSION == 5
-    AlignMem();
-    fndb.foPath = ReserveMem(sizeof(FndbWord));
     vector<FILENAMEINFO> fileNames;
     CollectFiles(rootPath, CURRENT_DIRECTORY, fileNames);
     numFiles = fileNames.size();
     AlignMem();
     fndb.foTable = ReserveMem(fileNames.size() * sizeof(FileNameDatabaseRecord));
     AlignMem();
-    SetMem(fndb.foPath, PushBack(rootPath.GetData()));
+    fndb.foStrings = GetMemTop();
     for (size_t idx = 0; idx < fileNames.size(); ++idx)
     {
       FileNameDatabaseRecord rec;
@@ -580,9 +578,6 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     fndb.numDirs = numDirectories;
     fndb.numFiles = numFiles;
     fndb.depth = deepestLevel;
-#if MIKTEX_FNDB_VERSION == 5
-    fndb.reserved = 0;
-#endif
 #if MIKTEX_FNDB_VERSION == 4
     fndb.timeStamp = static_cast<FndbWord>(time(nullptr)); // FIXME: 64-bit
 #endif

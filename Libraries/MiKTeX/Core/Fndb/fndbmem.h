@@ -61,8 +61,15 @@ struct FileNameDatabaseHeader
   // flag word (bits see above)
   FndbWord flags;
 
+#if MIKTEX_FNDB_VERSION == 5
+  // pointer to string pool
+  FndbByteOffset foStrings;
+#endif
+
+#if MIKTEX_FNDB_VERSION == 4
   // pointer to path name
   FndbByteOffset foPath;
+#endif
 
 #if MIKTEX_FNDB_VERSION == 5
   // pointer to first record
@@ -80,11 +87,6 @@ struct FileNameDatabaseHeader
   // number of files (records)
   FndbWord numFiles;
 
-#if MIKTEX_FNDB_VERSION == 5
-  // reserved
-  FndbWord reserved;
-#endif
-
 #if MIKTEX_FNDB_VERSION == 4
   // time of last refresh
   FndbWord timeStamp;
@@ -95,6 +97,10 @@ struct FileNameDatabaseHeader
 
   // size (in bytes) of fndb; includes header size
   FndbWord size;
+  
+#if MIKTEX_FNDB_VERSION == 5
+  FndbWord reserved;
+#endif
 
   void Init()
   {
