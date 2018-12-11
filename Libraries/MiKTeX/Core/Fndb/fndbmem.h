@@ -117,7 +117,7 @@ struct FileNameDatabaseRecord
   FndbByteOffset foFileName;
   FndbByteOffset foDirectory;
   FndbByteOffset foInfo;
-  FndbByteOffset reserved;
+  FndbByteOffset reserved = 0;
 };
 
 #if MIKTEX_FNDB_VERSION == 4

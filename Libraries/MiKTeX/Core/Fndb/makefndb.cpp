@@ -25,6 +25,8 @@
 
 #include <fstream>
 #include <thread>
+#include "unordered_map"
+#include "unordered_set"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -53,11 +55,15 @@ struct FILENAMEINFO
 {
   string FileName;
 #if MIKTEX_FNDB_VERSION == 5
-  string Directory;
+  const string* Directory = nullptr;
+  const string* Info = nullptr;
 #endif
+#if MIKTEX_FNDB_VERSION == 4
   string Info;
+#endif
 };
 
+#if MIKTEX_FNDB_VERSION == 4
 struct COMPAREFILENAMEINFO
 {
   bool operator()(const FILENAMEINFO& lhs, const FILENAMEINFO& rhs) const
@@ -65,6 +71,7 @@ struct COMPAREFILENAMEINFO
     return PathName::Compare(lhs.FileName, rhs.FileName) < 0;
   }
 };
+#endif
 
 class FndbManager
 {
@@ -171,6 +178,11 @@ private:
 private:
   ICreateFndbCallback* callback;
 
+#if MIKTEX_FNDB_VERSION == 5
+private:
+  unordered_set<string> stringPool;
+#endif
+  
 private:
   typedef unordered_map<string, FndbByteOffset> StringMap;
 
@@ -312,7 +324,7 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
       FILENAMEINFO filenameinfo;
       filenameinfo.FileName = entry.name;
 #if MIKTEX_FNDB_VERSION == 5
-      filenameinfo.Directory = directory.ToString();
+      filenameinfo.Directory = &*stringPool.insert(directory.ToString()).first;
 #endif
       fileNames.push_back(filenameinfo);
     }
@@ -377,8 +389,8 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
       {
         FILENAMEINFO filenameinfo;
         filenameinfo.FileName = files[i];
-        filenameinfo.Directory = directory.ToString();
-        filenameinfo.Info = infos[i];
+        filenameinfo.Directory = &*stringPool.insert(directory.ToString()).first;
+        filenameinfo.Info = &*stringPool.insert(infos[i]).first;
         fileNames.push_back(filenameinfo);
       }
     }
@@ -564,9 +576,8 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     {
       FileNameDatabaseRecord rec;
       rec.foFileName = PushBack(fileNames[idx].FileName.c_str());
-      rec.foDirectory = PushBack(fileNames[idx].Directory.c_str());
-      rec.foInfo = PushBack(fileNames[idx].Info.c_str());
-      rec.reserved = 0;
+      rec.foDirectory = PushBack(fileNames[idx].Directory->c_str());
+      rec.foInfo = PushBack(fileNames[idx].Info == nullptr ? "" : fileNames[idx].Info->c_str());
       SetMem(fndb.foTable + idx * sizeof(rec), &rec, sizeof(rec));
     }
 #endif
