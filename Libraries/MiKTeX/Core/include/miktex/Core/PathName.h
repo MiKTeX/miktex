@@ -647,6 +647,19 @@ public:
     return Compare(path1.GetData(), path2.GetData());
   }
 
+  /// Compares two path names.
+  /// @param path1 The first path name.
+  /// @param path1 The second path name.
+  /// @return Returns -1, if the first path name compares
+  /// lesser than the second.
+  /// Returns 0, if both path names compare equal.
+  /// Returns 1, if the first path name compares greater than the second.
+public:
+  static int Compare(const std::string& path1, const std::string& path2)
+  {
+    return Compare(path1.c_str(), path2.c_str());
+  }
+  
 public:
   static bool Equals(const PathName& path1, const PathName& path2)
   {
