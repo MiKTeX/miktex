@@ -168,15 +168,15 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
     PathName relativeDirectory;
-    relativeDirectory = it->second.directory;
+    relativeDirectory = it->second.GetDirectory();
     if (Match(comparablePathPattern.GetData(), PathName(relativeDirectory).TransformForComparison().GetData()))
     {
       PathName path;
       path = rootDirectory;
       path /= relativeDirectory;
       path /= fileName;
-      trace_fndb->WriteLine("core", fmt::format(T_("found: {0} ({1})"), Q_(path), Q_(it->second.info)));
-      result.push_back({ path, it->second.info });
+      trace_fndb->WriteLine("core", fmt::format(T_("found: {0} ({1})"), Q_(path), Q_(it->second.GetInfo())));
+      result.push_back({ path, it->second.GetInfo() });
       if (firstMatchOnly)
       {
         break;
@@ -196,7 +196,7 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
     string fileName;
     string directory;
     std::tie(fileName, directory) = SplitPath(rec.path);
-    if (InsertRecord({ fileName, directory, rec.fileNameInfo }))
+    if (InsertRecord(Record(fileName, directory, rec.fileNameInfo)))
     {
       writer << "+" << fileName << PathName::PathNameDelimiter << directory << PathName::PathNameDelimiter << rec.fileNameInfo << endl;
       changeFileRecordCount++;
@@ -214,7 +214,7 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
     string fileName;
     string directory;
     std::tie(fileName, directory) = SplitPath(path);
-    EraseRecord({ fileName, directory });
+    EraseRecord(Record(fileName, directory, ""));
     writer << "-" << fileName << PathName::PathNameDelimiter << directory << endl;
     changeFileRecordCount++;
   }
@@ -233,7 +233,7 @@ bool FileNameDatabase::FileExists(const PathName& path)
   pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(MakeKey(fileName));
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (PathName::Compare(it->second.directory, directory) == 0)
+    if (PathName::Compare(it->second.GetDirectory(), directory) == 0)
     {
       return true;
     }
@@ -271,7 +271,7 @@ bool FileNameDatabase::InsertRecord(const FileNameDatabase::Record& record)
   pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(MakeKey(record.fileName));
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (PathName::Compare(it->second.directory, record.directory) == 0)
+    if (PathName::Compare(it->second.GetDirectory(), record.GetDirectory()) == 0)
     {
       return false;
     }
@@ -302,14 +302,14 @@ void FileNameDatabase::EraseRecord(const FileNameDatabase::Record& record)
   vector<FileNameHashTable::const_iterator> toBeRemoved;
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (it->second.directory == record.directory)
+    if (it->second.GetDirectory() == record.GetDirectory())
     {
       toBeRemoved.push_back(it);
     }
   }
   if (toBeRemoved.empty())
   {
-    MIKTEX_FATAL_ERROR_2(T_("The file name record could not be found in the hash table."), "fileName", record.fileName, "directory", record.directory);
+    MIKTEX_FATAL_ERROR_2(T_("The file name record could not be found in the hash table."), "fileName", record.fileName, "directory", record.GetDirectory());
   }
   for (const auto& it : toBeRemoved)
   {
@@ -336,7 +336,7 @@ void FileNameDatabase::ReadFileNames(const FileNameDatabaseRecord* table)
   for (size_t idx = 0; idx < fndbHeader->numFiles; ++idx)
   {
     const FileNameDatabaseRecord* rec = &table[idx];
-    InsertRecord({ GetString(rec->foFileName), GetString(rec->foDirectory), GetString(rec->foInfo) });
+    InsertRecord(Record(this, GetString(rec->foFileName), rec->foDirectory, rec->foInfo));
   }
 }
 #endif
@@ -372,14 +372,7 @@ void FileNameDatabase::Finalize()
   {
     trace_fndb->WriteLine("core", fmt::format(T_("unloading fndb {0}"), Q_(this->rootDirectory)));
   }
-  if (mmap != nullptr)
-  {
-    if (mmap->GetPtr() != nullptr)
-    {
-      mmap->Close();
-    }
-    mmap = nullptr;
-  }
+  CloseFileNameDatabase();
   if (trace_fndb != nullptr)
   {
     trace_fndb->Close();
@@ -393,7 +386,6 @@ void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& root
 
   OpenFileNameDatabase(fndbPath);
   ReadFileNames();
-  CloseFileNameDatabase();
 
   changeFile = fndbPath;
   changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
@@ -432,11 +424,11 @@ void FileNameDatabase::ApplyChangeFile()
         MIKTEX_UNEXPECTED();
       }
       const string& fileNameInfo = data[2];
-      InsertRecord({ fileName, directory, fileNameInfo });
+      InsertRecord(Record(fileName, directory, fileNameInfo));
     }
     else if (op == "-")
     {
-      EraseRecord({ fileName, directory });
+      EraseRecord(Record(fileName, directory, ""));
     }
     else
     {

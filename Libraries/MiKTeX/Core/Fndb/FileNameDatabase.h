@@ -65,8 +65,58 @@ public:
 private:
   struct Record
   {
+  public:
+    Record(const FileNameDatabase* fndb, const std::string& fileName, FndbByteOffset foDirectory, FndbByteOffset foInfo) :
+      fndb(fndb),
+      fileName(fileName),
+      foDirectory(foDirectory),
+      foInfo(foInfo)
+    {
+    }
+  public:
+    Record(const std::string& fileName, const std::string& directory, const std::string& info) :
+      fileName(fileName),
+      directory(directory),
+      info(info)
+    {
+    }
+  public:
+    std::string GetDirectory() const
+    {
+      if (foDirectory != 0)
+      {
+        MIKTEX_ASSERT(fndb != nullptr);
+        return fndb->GetString(foDirectory);
+      }
+      else
+      {
+        return directory;
+      }
+    }
+  public:
+    std::string GetInfo() const
+    {
+      if (foInfo != 0)
+      {
+        MIKTEX_ASSERT(fndb != nullptr);
+        return fndb->GetString(foInfo);
+      }
+      else
+      {
+        return info;
+      }
+    }
+  private:
+    const FileNameDatabase* fndb = nullptr;
+  public:
     std::string fileName;
+  private:
+    FndbByteOffset foDirectory = 0;
+  private:
     std::string directory;
+  private:
+    FndbByteOffset foInfo = 0;
+  private:
     std::string info;
   };
 
