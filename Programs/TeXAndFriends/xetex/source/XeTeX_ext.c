@@ -2701,7 +2701,7 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
   if (nopdfoutput)
   {
     MiKTeX::Core::PathName outPath;
-    bool done = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(dviFile, MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
+    bool done = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(dviFile, MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), false, outPath);
     if (done)
     {
       MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath);

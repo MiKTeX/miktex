@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -54,7 +54,7 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
-  FileStream file(File::Open("delete.me", FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite, { FileOpenOption::DeleteOnClose }));
+  FileStream file(File::Open("delete.me", FileMode::Create, FileAccess::ReadWrite, false, { FileOpenOption::DeleteOnClose }));
   file.Close();
   TEST(!File::Exists("delete.me"));
 }

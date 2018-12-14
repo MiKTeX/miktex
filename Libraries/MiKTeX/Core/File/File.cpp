@@ -134,17 +134,12 @@ void File::WriteBytes(const PathName& path, const vector<unsigned char>& data)
 
 FILE* File::Open(const PathName& path, FileMode mode, FileAccess access)
 {
-  return Open(path, mode, access, true, FileShare::ReadWrite);
+  return Open(path, mode, access, true);
 }
 
 FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile)
 {
-  return Open(path, mode, access, isTextFile, FileShare::ReadWrite);
-}
-
-FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
-{
-  return File::Open(path, mode, access, isTextFile, share, {});
+  return File::Open(path, mode, access, isTextFile, {});
 }
 
 std::ifstream File::CreateInputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions)

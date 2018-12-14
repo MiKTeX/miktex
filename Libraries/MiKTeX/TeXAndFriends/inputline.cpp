@@ -288,7 +288,7 @@ bool WebAppInputLine::AllowFileName(const PathName& fileName, bool forInput)
   return Utils::IsSafeFileName(fileName, forInput);
 }
 
-bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName, FileShare share, bool text, PathName& outPath)
+bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName, bool text, PathName& outPath)
 {
   const char* lpszPath = fileName.GetData();
 #if defined(MIKTEX_WINDOWS)
@@ -363,7 +363,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
       path = pimpl->outputDirectory / lpszPath;
       lpszPath = path.GetData();
     }
-    file = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, text, share);
+    file = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, text);
     if (file != nullptr)
     {
       outPath = lpszPath;
@@ -485,8 +485,7 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
       }
       else
       {
-        FileShare share = FileShare::ReadWrite;
-        *ppFile = session->OpenFile(pimpl->foundFile.GetData(), FileMode::Open, FileAccess::Read, false, share);
+        *ppFile = session->OpenFile(pimpl->foundFile.GetData(), FileMode::Open, FileAccess::Read, false);
       }
     }
 #if defined(MIKTEX_WINDOWS)

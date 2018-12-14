@@ -68,7 +68,7 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
-  FILE* stream = MiKTeX::Core::File::Open("abc.def", MiKTeX::Core::FileMode::Create, MiKTeX::Core::FileAccess::Write, true, MiKTeX::Core::FileShare::None);
+  FILE* stream = MiKTeX::Core::File::Open("abc.def", MiKTeX::Core::FileMode::Create, MiKTeX::Core::FileAccess::Write, true);
   TEST(stream != nullptr);
   fprintf(stream, "hello, world!\n");
   fclose(stream);

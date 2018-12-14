@@ -66,19 +66,6 @@ enum class FileAccess
   ReadWrite
 };
 
-/// File share enum class.
-enum class FileShare
-{
-  /// No other stream can be opened on the file.
-  None,
-  /// Other streams can be opened for reading only.
-  Read,
-  /// Other streams can be opened for writing only.
-  Write,
-  /// Other streams can be opened for reading and writing.
-  ReadWrite
-};
-
 /// File attribute enum class.
 enum class FileAttribute
 {
@@ -240,11 +227,7 @@ public:
 
   /// Opens a stream on a file.
 public:
-  static MIKTEXCORECEEAPI(FILE*) Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share);
-
-  /// Opens a stream on a file.
-public:
-  static MIKTEXCORECEEAPI(FILE*) Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options);
+  static MIKTEXCORECEEAPI(FILE*) Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileOpenOptionSet options);
 
 public:
   static MIKTEXCORECEEAPI(std::ifstream) CreateInputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions);

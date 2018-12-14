@@ -234,12 +234,6 @@ public:
   FILE* TryOpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile) override;
 
 public:
-  FILE* OpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile, MiKTeX::Core::FileShare share) override;
-
-public:
-  FILE* TryOpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile, MiKTeX::Core::FileShare share) override;
-
-public:
   std::pair<bool, OpenFileInfo> TryGetOpenFileInfo(FILE* file) override;
 
 public:

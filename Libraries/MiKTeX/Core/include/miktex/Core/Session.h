@@ -890,12 +890,6 @@ public:
   virtual FILE* MIKTEXTHISCALL TryOpenFile(const PathName& path, FileMode mode, FileAccess access, bool isTextFile) = 0;
 
 public:
-  virtual FILE* MIKTEXTHISCALL OpenFile(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share) = 0;
-
-public:
-  virtual FILE* MIKTEXTHISCALL TryOpenFile(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share) = 0;
-
-public:
   virtual std::pair<bool, OpenFileInfo> MIKTEXTHISCALL TryGetOpenFileInfo(FILE* file) = 0;
 
 public:

@@ -164,7 +164,7 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
 {
   try
   {
-    return OpenFile(path, mode, access, text, FileShare::ReadWrite);
+    return OpenFile(path, mode, access, text);
   }
 #if defined(MIKTEX_WINDOWS)
   catch (const SharingViolationException&)
@@ -184,34 +184,7 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
 
 FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess access, bool text)
 {
-  return OpenFile(path, mode, access, text, FileShare::ReadWrite);
-}
-
-FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess access, bool text, FileShare share)
-{
-  try
-  {
-    return OpenFile(path, mode, access, text, share);
-  }
-#if defined(MIKTEX_WINDOWS)
-  catch (const SharingViolationException&)
-  {
-    return nullptr;
-  }
-#endif
-  catch (const UnauthorizedAccessException&)
-  {
-    return nullptr;
-  }
-  catch (const FileNotFoundException&)
-  {
-    return nullptr;
-  }
-}
-
-FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess access, bool text, FileShare share)
-{
-  trace_files->WriteFormattedLine("core", "OpenFile(\"%s\", %d, 0x%x, %d, %d)", path.ToString().c_str(), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(text), static_cast<int>(share));
+  trace_files->WriteFormattedLine("core", "OpenFile(\"%s\", %d, 0x%x, %d)", path.ToString().c_str(), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(text));
 
   FILE* pFile = nullptr;
 
@@ -223,7 +196,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
   }
   else
   {
-    pFile = File::Open(path, mode, access, text, share);
+    pFile = File::Open(path, mode, access, text);
   }
 
   try

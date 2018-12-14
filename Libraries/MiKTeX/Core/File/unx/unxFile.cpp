@@ -463,7 +463,7 @@ size_t File::SetMaxOpen(size_t newMax)
   return FOPEN_MAX;
 }
 
-FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options)
+FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileOpenOptionSet options)
 {
   UNUSED_ALWAYS(isTextFile);
 
@@ -471,7 +471,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
 
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d %d)"), Q_(path), (int)mode, (int)access, (int)share, (int)isTextFile);
+    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d %d %d)"), Q_(path), (int)mode, (int)access, (int)isTextFile);
   }
 
   int flags = 0;
@@ -537,18 +537,6 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
     MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString());
   }
   
-  if (share != FileShare::ReadWrite)
-  {
-    MIKTEX_ASSERT(share == FileShare::None || share == FileShare::Read);
-    int shflags = share == FileShare::None ? LOCK_EX : LOCK_SH;
-    if (flock(fd, shflags | LOCK_NB) != 0)
-    {
-      int err = errno;
-      close(fd);
-      MIKTEX_FATAL_CRT_RESULT("flock", err);
-    }
-  }
-
   try
   {
     if (options[FileOpenOption::DeleteOnClose])

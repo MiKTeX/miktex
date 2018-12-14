@@ -456,12 +456,12 @@ size_t File::SetMaxOpen(size_t newMax)
   return newMax;
 }
 
-FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options)
+FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileOpenOptionSet options)
 {
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d %d)"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(share), static_cast<int>(isTextFile));
+    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d)"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(isTextFile));
   }
 
   int flags = 0;
@@ -533,23 +533,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   int fd;
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
-  int shflags = 0;
-  if (share == FileShare::None)
-  {
-    shflags = SH_DENYRW;
-  }
-  else if (share == FileShare::Read)
-  {
-    shflags |= SH_DENYWR;
-  }
-  if (share == FileShare::Write)
-  {
-    shflags |= SH_DENYRD;
-  }
-  else if (share == FileShare::ReadWrite)
-  {
-    shflags |= SH_DENYNO;
-  }
+  int shflags = SH_DENYNO;
   if (mode == FileMode::Create)
   {
     PathName dir(path);
@@ -569,7 +553,6 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
     MIKTEX_FATAL_CRT_ERROR_2("_wsopen_s", "path", path.ToString());
   }
 #else
-  UNUSED_ALWAYS(shflags);
   fd = open(path.Get(), flags, (((flags & O_CREAT) == 0) ? 0 : S_IREAD | S_IWRITE));
   if (fd < 0)
   {
