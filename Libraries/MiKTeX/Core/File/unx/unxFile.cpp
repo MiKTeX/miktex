@@ -466,7 +466,6 @@ size_t File::SetMaxOpen(size_t newMax)
 FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options)
 {
   UNUSED_ALWAYS(isTextFile);
-  UNUSED_ALWAYS(share);
 
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
 
@@ -536,6 +535,18 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   if (fd < 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString());
+  }
+  
+  if (share != FileShare::ReadWrite)
+  {
+    MIKTEX_ASSERT(share == FileShare::None || share == FileShare::Read);
+    int shflags = share == FileShare::None ? LOCK_EX : LOCK_SH;
+    if (flock(fd, shflags | LOCK_NB) != 0)
+    {
+      int err = errno;
+      close(fd);
+      MIKTEX_FATAL_CRT_RESULT("flock", err);
+    }
   }
 
   try
