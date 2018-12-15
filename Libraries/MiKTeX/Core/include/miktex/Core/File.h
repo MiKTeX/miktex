@@ -48,6 +48,8 @@ enum class FileMode
   Append,
   /// The file will be created, if it doesn't already exist.
   Create,
+  /// The file will be created. Raise an error, if the file already exists.
+  CreateNew,
   /// Open an existing file.
   Open,
   /// Execute a command and create a pipe.

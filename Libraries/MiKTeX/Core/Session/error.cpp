@@ -132,6 +132,8 @@ void Session::FatalCrtError(const string& functionName, int errorCode, const MiK
   {
   case EACCES:
     throw UnauthorizedAccessException(programInvocationName, errorMessage, "", "", "", info, sourceLocation);
+  case EEXIST:
+    throw FileExistsException(programInvocationName, errorMessage, "", "", "", info, sourceLocation);
   case ENOENT:
     throw FileNotFoundException(programInvocationName, errorMessage, "", "", "", info, sourceLocation);
   case EPIPE:

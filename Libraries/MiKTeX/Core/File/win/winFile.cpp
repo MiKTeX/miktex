@@ -471,6 +471,10 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   {
     flags |= O_CREAT;
   }
+  else if (mode == FileMode::CreateNew)
+  {
+    flags |= O_CREAT | O_EXCL;
+  }
   else if (mode == FileMode::Append)
   {
     flags |= O_APPEND;

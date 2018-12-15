@@ -259,6 +259,15 @@ IOException::IOException(const std::string& programInvocationName, const string&
 {
 }
 
+FileExistsException::FileExistsException()
+{
+}
+
+FileExistsException::FileExistsException(const string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
+IOException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation)
+{
+}
+
 FileNotFoundException::FileNotFoundException()
 {
 }
