@@ -50,6 +50,7 @@
 #define MIKTEX_TRACE_FILESEARCH "filesearch"
 #define MIKTEX_TRACE_FNDB "fndb"
 #define MIKTEX_TRACE_FONTINFO "fontinfo"
+#define MIKTEX_TRACE_LOCKFILE "lockfile"
 #define MIKTEX_TRACE_MEM "mem"
 #define MIKTEX_TRACE_MMAP "mmap"
 #define MIKTEX_TRACE_MPM "mpm"

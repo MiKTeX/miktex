@@ -486,6 +486,12 @@ public:
   std::tuple<ExamineCommandLineResult, std::string, std::string> ExamineCommandLine(const std::string& commandLine) override;
 
 public:
+  InitInfo GetInitInfo() const
+  {
+    return initInfo;
+  }
+  
+public:
   bool IsTEXMFFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& relPath, unsigned& rootIndex);
 
 public:

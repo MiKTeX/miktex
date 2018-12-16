@@ -29,14 +29,18 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include "internal.h"
+#include <miktex/Core/LockFile>
+#include <miktex/Core/Process>
+#include <miktex/Core/StreamReader>
 
-#include "miktex/Core/LockFile.h"
-#include "miktex/Core/Process.h"
-#include "miktex/Core/StreamReader.h"
-#include "miktex/Core/StreamWriter.h"
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
+
+#include "internal.h"
+#include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 
 using namespace std;
 using namespace chrono_literals;
@@ -63,7 +67,8 @@ public:
       {
         Unlock();
       }
-    } catch (const exception&)
+    }
+    catch (const exception&)
     {
     }
   }
@@ -71,6 +76,9 @@ public:
   LockFileImpl(const PathName& path) :
     path(path)
   {
+    shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+    TraceCallback* callback = session == nullptr ? nullptr : session->GetInitInfo().GetTraceCallback();
+    trace_lockfile = TraceStream::Open(MIKTEX_TRACE_LOCKFILE, callback);
   }
 public:
   bool MIKTEXTHISCALL TryLock(chrono::milliseconds timeout) override;
@@ -82,6 +90,8 @@ private:
   PathName path;
 private:
   bool locked = false;
+private:
+  unique_ptr<TraceStream> trace_lockfile;
 };
 
 LockFile::~LockFile() noexcept
@@ -95,6 +105,7 @@ unique_ptr<LockFile> LockFile::Create(const PathName& path)
 
 bool LockFileImpl::TryLock(chrono::milliseconds timeout)
 {
+  trace_lockfile->WriteLine("core", fmt::format(T_("trying to create lock file {0}"), path));
   if (locked)
   {
     MIKTEX_UNEXPECTED();
@@ -107,6 +118,7 @@ bool LockFileImpl::TryLock(chrono::milliseconds timeout)
       unique_ptr<FILE, decltype(&fclose)> file(File::Open(path, FileMode::CreateNew, FileAccess::Write), fclose);
       fputs(fmt::format("{}\n", Process::GetCurrentProcess()->GetSystemId()).c_str(), file.get());
       fputs(fmt::format("{}\n", Process::GetCurrentProcess()->get_ProcessName()).c_str(), file.get());
+      trace_lockfile->WriteLine("core", fmt::format(T_("lock file {0} successfully created"), path));
       locked = true;
     }
     catch (const FileExistsException&)
@@ -116,6 +128,7 @@ bool LockFileImpl::TryLock(chrono::milliseconds timeout)
     {
       if (IsGarbage())
       {
+        trace_lockfile->WriteLine("core", fmt::format(T_("removing garbage lock file {0}"), path));
         File::Delete(path);
       }
       else
@@ -129,6 +142,7 @@ bool LockFileImpl::TryLock(chrono::milliseconds timeout)
 
 void MIKTEXTHISCALL LockFileImpl::Unlock()
 {
+  trace_lockfile->WriteLine("core", fmt::format(T_("removing lock file {0}"), path));
   if (!locked)
   {
     MIKTEX_UNEXPECTED();
