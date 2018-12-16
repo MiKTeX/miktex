@@ -76,7 +76,7 @@ BEGIN_TEST_FUNCTION(3);
   TESTX(Process::Start(pathExe));
   this_thread::sleep_for(2s);
   TEST(!lockFile->TryLock(0s));
-  TEST(lockFile->TryLock(10s));
+  TEST(lockFile->TryLock(30s));
 }
 END_TEST_FUNCTION();
 
