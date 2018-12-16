@@ -41,7 +41,7 @@ public:
   virtual MIKTEXTHISCALL ~LockFile() noexcept = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL Lock(std::chrono::milliseconds timeout) = 0;
+  virtual bool MIKTEXTHISCALL TryLock(std::chrono::milliseconds timeout) = 0;
 
 public:
   virtual void MIKTEXTHISCALL Unlock() = 0;

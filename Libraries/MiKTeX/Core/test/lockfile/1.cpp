@@ -23,35 +23,33 @@
 
 #include <miktex/Core/Test>
 
-#if defined(_WIN32)
-#  include <Windows.h>
-#endif
-
-#include <cstdio>
-
 #include <chrono>
+#include <memory>
 
+#include <miktex/Core/File>
 #include <miktex/Core/LockFile>
 #include <miktex/Core/PathName>
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
 
-using namespace std::chrono_literals;
 using namespace std;
+using namespace std::chrono_literals;
 
 BEGIN_TEST_SCRIPT("lockfile-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  PathName path;
   unique_ptr<LockFile> lockFile = LockFile::Create("lockfile-1");
-  TEST(lockFile->Lock(0s));
-  unique_ptr<LockFile> lockFile2 = LockFile::Create("lockfile-1");
-  TEST(!lockFile2->Lock(1s));
-  lockFile->Unlock();
-  TEST(lockFile2->Lock(1s));
-  lockFile2->Unlock();
+  TEST(lockFile->TryLock(0s));
+  {
+    unique_ptr<LockFile> lockFile2 = LockFile::Create("lockfile-1");
+    TEST(!lockFile2->TryLock(0s));
+    lockFile->Unlock();
+    TEST(lockFile2->TryLock(0s));
+    TEST(File::Exists("lockfile-1"));
+  }
+  TEST(!File::Exists("lockfile-1"));
 }
 END_TEST_FUNCTION();
 

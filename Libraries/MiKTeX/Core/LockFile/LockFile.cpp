@@ -73,7 +73,7 @@ public:
   {
   }
 public:
-  bool MIKTEXTHISCALL Lock(chrono::milliseconds timeout) override;
+  bool MIKTEXTHISCALL TryLock(chrono::milliseconds timeout) override;
 public:
   void MIKTEXTHISCALL Unlock() override;
 private:
@@ -93,7 +93,7 @@ unique_ptr<LockFile> LockFile::Create(const PathName& path)
   return make_unique<LockFileImpl>(path);
 }
 
-bool LockFileImpl::Lock(chrono::milliseconds timeout)
+bool LockFileImpl::TryLock(chrono::milliseconds timeout)
 {
   if (locked)
   {
