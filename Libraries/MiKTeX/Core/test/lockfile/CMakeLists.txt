@@ -17,7 +17,14 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(tests 1)
+set(tests
+  1
+)
+
+set(exes
+  1-1
+  1-2
+)
 
 foreach(t ${tests})
   add_executable(core_lockfile_test${t} ${t}.cpp ${test_sources})
@@ -36,3 +43,18 @@ foreach(t ${tests})
     COMMAND $<TARGET_FILE:core_lockfile_test${t}>
   )
 endforeach(t)
+
+foreach(x ${exes})
+  add_executable(core_lockfile_test${x} ${x}.cpp ${test_sources})
+  set_property(TARGET core_lockfile_test${x} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  if(USE_SYSTEM_LOG4CXX)
+    target_link_libraries(core_lockfile_test${x} MiKTeX::Imported::LOG4CXX)
+  else()
+    target_link_libraries(core_lockfile_test${x} ${log4cxx_dll_name})
+  endif()
+  target_link_libraries(core_lockfile_test${x}
+    ${core_dll_name}
+    Threads::Threads
+    miktex-popt-wrapper
+  )
+endforeach()
