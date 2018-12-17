@@ -597,7 +597,28 @@ unique_ptr<Process> unxProcess::get_Parent()
 
 string unxProcess::get_ProcessName()
 {
-  return GetProcessInfo().name;
+#if defined(__linux__)
+  string path = "/proc/" + std::to_string(pid) + "/comm";
+  if (!File::Exists(path))
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  StreamReader reader(path);
+  string line;
+  while (reader.ReadLine(line))
+  {
+    return line;
+  }
+#elif defined(__APPLE__)
+  char path[PROC_PIDPATHINFO_MAXSIZE];
+  if (proc_pidpath(pid, path, sizeof(path)) == 0)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  return PathName(path).GetFileName().ToString();
+#else
+  return "?";
+#endif
 }
 
 int unxProcess::GetSystemId()
@@ -608,6 +629,7 @@ int unxProcess::GetSystemId()
 ProcessInfo unxProcess::GetProcessInfo()
 {
   ProcessInfo processInfo;
+  processInfo.name = get_ProcessName();
 #if defined(__linux__)
   string path = "/proc/" + std::to_string(pid) + "/stat";
   if (!File::Exists(path))
@@ -621,9 +643,6 @@ ProcessInfo unxProcess::GetProcessInfo()
     Tokenizer tok(line, " ");
     MIKTEX_ASSERT(std::stoi(*tok) == pid);
     ++tok;
-    string comm = *tok;
-    MIKTEX_ASSERT(comm.length() > 2 && comm[0] == '(' && comm[comm.length() - 1] == ')');
-    processInfo.name = comm.substr(1, comm.length() - 2);
     ++tok;
     string state = *tok;
     MIKTEX_ASSERT(state.length() == 1);
@@ -650,12 +669,6 @@ ProcessInfo unxProcess::GetProcessInfo()
     processInfo.parent = std::stoi(*tok);
   }
 #elif defined(__APPLE__)
-  char path[PROC_PIDPATHINFO_MAXSIZE];
-  if (proc_pidpath(pid, path, sizeof(path)) == 0)
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  processInfo.name = PathName(path).GetFileName().ToString();
   struct proc_bsdinfo pbi;
   if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &pbi, PROC_PIDTBSDINFO_SIZE) == 0)
   {
