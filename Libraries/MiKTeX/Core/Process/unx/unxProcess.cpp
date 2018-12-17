@@ -573,7 +573,6 @@ unique_ptr<Process> Process::GetCurrentProcess()
 
 unique_ptr<Process> Process::GetProcess(int systemId)
 {
-  unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   if (kill(systemId, 0) != 0)
   {
     if (errno == ESRCH)
@@ -582,6 +581,26 @@ unique_ptr<Process> Process::GetProcess(int systemId)
     }
     MIKTEX_FATAL_CRT_ERROR("kill");
   }
+#if defined(__linux__)
+  string path = "/proc/" + std::to_string(systemId) + "/stat";
+  if (!File::Exists(path))
+  {
+    return nullptr;
+  }
+  StreamReader reader(path);
+  string line;
+  while (reader.ReadLine(line))
+  {
+    Tokenizer tok(line, " ");
+    ++tok;
+    ++tok;
+    if (*tok != "R")
+    {
+      return nullptr;
+    }
+  }
+#endif
+  unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   currentProcess->pid = systemId;
   return currentProcess;
 }
