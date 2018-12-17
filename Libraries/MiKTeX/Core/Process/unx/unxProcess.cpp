@@ -29,6 +29,7 @@
 
 #if defined(__APPLE__)
 #  include <libproc.h>
+#  include <sys/proc.h>
 #endif
 
 #include <thread>
@@ -674,13 +675,20 @@ ProcessInfo unxProcess::GetProcessInfo()
       switch (state[0])
       {
         case 'R':
-          processInfo.status = ProcessStatus::Running;
+          processInfo.status = ProcessStatus::Runnable;
+          break;
+        case 'S':
+        case 'D':
+          processInfo.status = ProcessStatus::Sleeping;
+          break;
+        case 'T':
+          processInfo.status = ProcessStatus::Stoped;
           break;
         case 'Z':
-          procvessInfo.status = ProcessStatus::Zombie;
+          processInfo.status = ProcessStatus::Zombie;
           break;
         default:
-          procvessInfo.status = ProcessStatus::Unkknown;
+          processInfo.status = ProcessStatus::Other;
           break;
       }
       ++tok;
@@ -688,6 +696,28 @@ ProcessInfo unxProcess::GetProcessInfo()
     }
   }
 #elif defined(__APPLE__)
+  struct proc_bsdinfo pbi;
+  if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &pbi, PROC_PIDTBSDINFO_SIZE) != 0)
+  {
+    switch (pbi.pbi_status)
+    {
+      case SRUN:
+        processInfo.status = ProcessStatus::Runnable;
+        break;
+      case SSLEEP:
+        processInfo.status = ProcessStatus::Sleeping;
+        break;
+      case SSTOP:
+        processInfo.status = ProcessStatus::Stoped;
+        break;
+      case SZOMB:
+        processInfo.status = ProcessStatus::Zombie;
+        break;
+      default:
+        processInfo.status = ProcessStatus::Other;
+        break;
+    }
+  }
 #endif
   return processInfo;
 }
