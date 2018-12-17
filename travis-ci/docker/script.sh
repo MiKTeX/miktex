@@ -23,6 +23,7 @@ docker run -t \
       -v ~/builds/$dist-$tag:/miktex/build:rw \
       -e USER_ID=`id -u` \
       -e GROUP_ID=`id -g` \
+      -e CTEST_OUTPUT_ON_FAILURE=1 \
       miktex/miktex-build-$dist:$tag
 if [ "$skip_tests" = "false" ]; then
     mkdir -p ~/tests/$dist-$tag/test
@@ -34,5 +35,6 @@ if [ "$skip_tests" = "false" ]; then
       -e USER_ID=`id -u` \
       -e GROUP_ID=`id -g` \
       -e MIKTEX_CHECK_REPOSITORIES="$MIKTEX_CHECK_REPOSITORIES" \
+      CTEST_OUTPUT_ON_FAILURE=1 \
       miktex/miktex-test-$dist:$tag
 fi

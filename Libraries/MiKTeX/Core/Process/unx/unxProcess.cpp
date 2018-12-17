@@ -569,10 +569,14 @@ unique_ptr<Process> Process::GetProcess(int systemId)
   unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   if (kill(systemId, 0) != 0)
   {
-    return nullptr;
+    if (errno == ESRCH)
+    {
+      return nullptr;
+    }
+    MIKTEX_FATAL_CRT_ERROR("kill");
   }
   currentProcess->pid = systemId;
-  return unique_ptr<Process>(currentProcess.release());
+  return currentProcess;
 }
 
 unique_ptr<Process> unxProcess::get_Parent()
