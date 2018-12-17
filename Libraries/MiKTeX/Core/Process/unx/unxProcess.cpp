@@ -308,6 +308,13 @@ void unxProcess::Create()
       {
         Directory::SetCurrent(startinfo.WorkingDirectory);
       }
+      if (startinfo.Daemonize)
+      {
+        if (setsid() == -1)
+        {
+          MIKTEX_FATAL_CRT_ERROR("setsid");
+        }
+      }
       execv(startinfo.FileName.c_str(), const_cast<char*const*>(argv.GetArgv()));
       perror("execv failed");
     }

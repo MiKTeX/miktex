@@ -142,6 +142,8 @@ struct ProcessStartInfo
 
   /// Working directory for the process.
   std::string WorkingDirectory;
+  
+  bool Daemonize = false;
 
   ProcessStartInfo()
   {
