@@ -167,7 +167,7 @@ enum class ProcessStatus
 struct ProcessInfo
 {
   std::string name;
-  ProcessStatus status = ProcessStatus::Other;
+  ProcessStatus status;
   int parent;
 };
 

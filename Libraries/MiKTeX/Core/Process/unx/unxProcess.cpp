@@ -589,62 +589,15 @@ unique_ptr<Process> Process::GetProcess(int systemId)
 
 unique_ptr<Process> unxProcess::get_Parent()
 {
-#if defined(__linux__)
-  string path = "/proc/" + std::to_string(pid) + "/stat";
-  if (!File::Exists(path))
-  {
-    return nullptr;
-  }
-  StreamReader reader(path);
-  string line;
-  while (reader.ReadLine(line))
-  {
-    Tokenizer tok(line, " ");
-    ++tok;
-    ++tok;
-    ++tok;
-    unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
-    parentProcess->pid = std::stoi(*tok);
-    return unique_ptr<Process>(parentProcess.release());
-  }
-#elif defined(__APPLE__)
-  struct proc_bsdinfo procinfo;
-  if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &procinfo, PROC_PIDTBSDINFO_SIZE) == 0)
-  {
-    return nullptr;
-  }
+  ProcessInfo processInfo = GetProcessInfo();
   unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
-  parentProcess->pid = procinfo.pbi_ppid;
-  return unique_ptr<Process>(parentProcess.release());
-#else
-  return nullptr;
-#endif
+  parentProcess->pid = processInfo.parent;
+  return parentProcess;
 }
 
 string unxProcess::get_ProcessName()
 {
-#if defined(__linux__)
-  string path = "/proc/" + std::to_string(pid) + "/comm";
-  if (!File::Exists(path))
-  {
-    return "?";
-  }
-  StreamReader reader(path);
-  string line;
-  while (reader.ReadLine(line))
-  {
-    return line;
-  }
-#elif defined(__APPLE__)
-  char path[PROC_PIDPATHINFO_MAXSIZE];
-  if (proc_pidpath(pid, path, sizeof(path)) == 0)
-  {
-    return "?";
-  }
-  return PathName(path).GetFileName().ToString();
-#else
-  return "?";
-#endif
+  return GetProcessInfo().name;
 }
 
 int unxProcess::GetSystemId()
@@ -657,69 +610,78 @@ ProcessInfo unxProcess::GetProcessInfo()
   ProcessInfo processInfo;
 #if defined(__linux__)
   string path = "/proc/" + std::to_string(pid) + "/stat";
-  if (File::Exists(path))
+  if (!File::Exists(path))
   {
-    StreamReader reader(path);
-    string line;
-    while (reader.ReadLine(line))
-    {
-      Tokenizer tok(line, " ");
-      MIKTEX_ASSERT(std::stoi(*tok) == pid);
-      ++tok;
-      string comm = *tok;
-      MIKTEX_ASSERT(comm.length() > 2 && comm[0] == '(' && comm[comm.length() - 1] == ')');
-      processInfo.name = comm.substr(1, comm.length() - 2);
-      ++tok;
-      string state = *tok;
-      MIKTEX_ASSERT(state.length() == 1);
-      switch (state[0])
-      {
-        case 'R':
-          processInfo.status = ProcessStatus::Runnable;
-          break;
-        case 'S':
-        case 'D':
-          processInfo.status = ProcessStatus::Sleeping;
-          break;
-        case 'T':
-          processInfo.status = ProcessStatus::Stoped;
-          break;
-        case 'Z':
-          processInfo.status = ProcessStatus::Zombie;
-          break;
-        default:
-          processInfo.status = ProcessStatus::Other;
-          break;
-      }
-      ++tok;
-      processInfo.parent = std::stoi(*tok);
-    }
+    MIKTEX_UNEXPECTED();
   }
-#elif defined(__APPLE__)
-  struct proc_bsdinfo pbi;
-  if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &pbi, PROC_PIDTBSDINFO_SIZE) != 0)
+  StreamReader reader(path);
+  string line;
+  while (reader.ReadLine(line))
   {
-    processInfo.name = pbi.pbi_comm;
-    switch (pbi.pbi_status)
+    Tokenizer tok(line, " ");
+    MIKTEX_ASSERT(std::stoi(*tok) == pid);
+    ++tok;
+    string comm = *tok;
+    MIKTEX_ASSERT(comm.length() > 2 && comm[0] == '(' && comm[comm.length() - 1] == ')');
+    processInfo.name = comm.substr(1, comm.length() - 2);
+    ++tok;
+    string state = *tok;
+    MIKTEX_ASSERT(state.length() == 1);
+    switch (state[0])
     {
-      case SRUN:
+      case 'R':
         processInfo.status = ProcessStatus::Runnable;
         break;
-      case SSLEEP:
+      case 'S':
+      case 'D':
         processInfo.status = ProcessStatus::Sleeping;
         break;
-      case SSTOP:
+      case 'T':
         processInfo.status = ProcessStatus::Stoped;
         break;
-      case SZOMB:
+      case 'Z':
         processInfo.status = ProcessStatus::Zombie;
         break;
       default:
         processInfo.status = ProcessStatus::Other;
         break;
     }
-    processInfo.parent = pbi.pbi_ppid;
+    ++tok;
+    processInfo.parent = std::stoi(*tok);
   }
+#elif defined(__APPLE__)
+  char path[PROC_PIDPATHINFO_MAXSIZE];
+  if (proc_pidpath(pid, path, sizeof(path)) == 0)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  processInfo.name = PathName(path).GetFileName().ToString();
+  struct proc_bsdinfo pbi;
+  if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &pbi, PROC_PIDTBSDINFO_SIZE) == 0)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  switch (pbi.pbi_status)
+  {
+    case SRUN:
+      processInfo.status = ProcessStatus::Runnable;
+      break;
+    case SSLEEP:
+      processInfo.status = ProcessStatus::Sleeping;
+      break;
+    case SSTOP:
+      processInfo.status = ProcessStatus::Stoped;
+      break;
+    case SZOMB:
+      processInfo.status = ProcessStatus::Zombie;
+      break;
+    default:
+      processInfo.status = ProcessStatus::Other;
+      break;
+  }
+  processInfo.parent = pbi.pbi_ppid;
+#else
+#error Unimplemented: unxProcess::GetProcessInfo()
 #endif
   return processInfo;
 }
