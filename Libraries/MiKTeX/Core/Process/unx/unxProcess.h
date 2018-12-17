@@ -68,6 +68,9 @@ public:
 
 public:
   std::string get_ProcessName() override;
+  
+public:
+  MiKTeX::Core::ProcessInfo GetProcessInfo() override;
 
 public:
   unxProcess()

@@ -155,6 +155,20 @@ struct ProcessStartInfo
   }
 };
 
+enum class ProcessStatus
+{
+  Unknown,
+  Running,
+  Zombie
+};
+
+struct ProcessInfo
+{
+  std::string name;
+  ProcessStatus status = ProcessStatus::Unknown;
+  int parent;
+};
+
 /// Process class.
 class MIKTEXNOVTABLE Process
 {
@@ -202,6 +216,9 @@ public:
 
 public:
   virtual std::string MIKTEXTHISCALL get_ProcessName() = 0;
+  
+public:
+  virtual ProcessInfo MIKTEXTHISCALL GetProcessInfo() = 0;
 
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Process>) GetCurrentProcess();

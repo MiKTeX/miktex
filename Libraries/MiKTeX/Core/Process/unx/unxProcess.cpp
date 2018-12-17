@@ -581,25 +581,6 @@ unique_ptr<Process> Process::GetProcess(int systemId)
     }
     MIKTEX_FATAL_CRT_ERROR("kill");
   }
-#if defined(__linux__)
-  string path = "/proc/" + std::to_string(systemId) + "/stat";
-  if (!File::Exists(path))
-  {
-    return nullptr;
-  }
-  StreamReader reader(path);
-  string line;
-  while (reader.ReadLine(line))
-  {
-    Tokenizer tok(line, " ");
-    ++tok;
-    ++tok;
-    if (*tok != "R")
-    {
-      return nullptr;
-    }
-  }
-#endif
   unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   currentProcess->pid = systemId;
   return currentProcess;
@@ -668,4 +649,45 @@ string unxProcess::get_ProcessName()
 int unxProcess::GetSystemId()
 {
   return this->pid;
+}
+
+ProcessInfo unxProcess::GetProcessInfo()
+{
+  ProcessInfo processInfo;
+#if defined(__linux__)
+  string path = "/proc/" + std::to_string(pid) + "/stat";
+  if (File::Exists(path))
+  {
+    StreamReader reader(path);
+    string line;
+    while (reader.ReadLine(line))
+    {
+      Tokenizer tok(line, " ");
+      MIKTEX_ASSERT(std::stoi(*tok) == pid);
+      ++tok;
+      string comm = *tok;
+      MIKTEX_ASSERT(comm.length() > 2 && comm[0] == '(' && comm[comm.length() - 1] == ')');
+      processInfo.name = comm.substr(1, comm.length() - 2);
+      ++tok;
+      string state = *tok;
+      MIKTEX_ASSERT(state.length() == 1);
+      switch (state[0])
+      {
+        case 'R':
+          processInfo.status = ProcessStatus::Running;
+          break;
+        case 'Z':
+          procvessInfo.status = ProcessStatus::Zombie;
+          break;
+        default:
+          procvessInfo.status = ProcessStatus::Unkknown;
+          break;
+      }
+      ++tok;
+      processInfo.parent = std::stoi(*tok);
+    }
+  }
+#elif defined(__APPLE__)
+#endif
+  return processInfo;
 }
