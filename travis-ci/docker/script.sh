@@ -24,6 +24,7 @@ docker run -t \
       -e USER_ID=`id -u` \
       -e GROUP_ID=`id -g` \
       -e CTEST_OUTPUT_ON_FAILURE=1 \
+      -e MIKTEX_TRACE="$MIKTEX_TRACE" \
       miktex/miktex-build-$dist:$tag
 if [ "$skip_tests" = "false" ]; then
     mkdir -p ~/tests/$dist-$tag/test

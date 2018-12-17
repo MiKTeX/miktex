@@ -8,5 +8,4 @@ cd build
 
 cmake -DMIKTEX_BINARY_DIR="$miktex_bin" ..
 
-#export MIKTEX_TRACE=error
 CTEST_OUTPUT_ON_FAILURE=1 make test
