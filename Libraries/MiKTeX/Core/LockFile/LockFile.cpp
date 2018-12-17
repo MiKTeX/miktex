@@ -163,6 +163,7 @@ bool LockFileImpl::IsGarbage()
   }
   catch (const IOException&)
   {
+    trace_lockfile->WriteLine("core", fmt::format(T_("could not read lock file {0}"), path));
     return false;
   }
   unique_ptr<Process> p = Process::GetProcess(std::stoi(pid));
