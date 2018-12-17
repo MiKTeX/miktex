@@ -180,5 +180,10 @@ bool LockFileImpl::IsGarbage()
     trace_lockfile->WriteLine("core", fmt::format(T_("owner ({0}) of lock file {0} does not exist"), processName, Q_(path)));
     return true;
   }
-  return p->GetProcessInfo().status == ProcessStatus::Zombie;
+  if (p->GetProcessInfo().status == ProcessStatus::Zombie)
+  {
+    trace_lockfile->WriteLine("core", fmt::format(T_("owner ({0}) of lock file {0} is a zombie"), processName, Q_(path)));
+    return true;
+  }
+  return false;
 }

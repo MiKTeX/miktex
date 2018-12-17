@@ -699,6 +699,7 @@ ProcessInfo unxProcess::GetProcessInfo()
   struct proc_bsdinfo pbi;
   if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &pbi, PROC_PIDTBSDINFO_SIZE) != 0)
   {
+    processInfo.name = pbi.pbi_comm;
     switch (pbi.pbi_status)
     {
       case SRUN:
@@ -717,6 +718,7 @@ ProcessInfo unxProcess::GetProcessInfo()
         processInfo.status = ProcessStatus::Other;
         break;
     }
+    processInfo.parent = pbi.pbi_ppid;
   }
 #endif
   return processInfo;
