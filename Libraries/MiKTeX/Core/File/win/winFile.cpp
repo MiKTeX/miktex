@@ -477,7 +477,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   }
   else if (mode == FileMode::Append)
   {
-    flags |= O_APPEND;
+    flags |= O_CREAT | O_APPEND;
   }
 
   if (access == FileAccess::ReadWrite)
