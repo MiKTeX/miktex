@@ -24,6 +24,7 @@
 #endif
 
 #include <fcntl.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <utime.h>
@@ -553,5 +554,29 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   {
     close(fd);
     throw;
+  }
+}
+
+
+bool File::TryLock(FILE *file, File::LockType lockType, chrono::milliseconds timeout)
+{
+  chrono::time_point<chrono::high_resolution_clock> tryUntil = chrono::high_resolution_clock::now() + timeout;
+  bool locked;
+  do
+  {
+    locked = flock(fileno(file), (lockType == LockType::Exclusive ? LOCK_EX : LOCK_SH) | LOCK_NB) == 0;
+    if (!locked && errno != EWOULDBLOCK)
+    {
+      MIKTEX_FATAL_CRT_ERROR("flock");
+    }
+  } while (!locked && chrono::high_resolution_clock::now() < tryUntil);
+  return locked;
+}
+
+void File::Unlock(FILE *file)
+{
+  if (flock(fileno(file), LOCK_UN) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("flock");
   }
 }

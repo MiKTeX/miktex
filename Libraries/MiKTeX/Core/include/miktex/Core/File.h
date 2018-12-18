@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <ctime>
 
+#include <chrono>
 #include <fstream>
 #include <vector>
 
@@ -294,6 +295,19 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(void) WriteBytes(const PathName& path, const std::vector<unsigned char>& data);
+  
+public:
+  enum class LockType
+  {
+    Shared,
+    Exclusive
+  };
+  
+public:
+  static MIKTEXCORECEEAPI(bool) TryLock(FILE* file, LockType lockType, std::chrono::milliseconds timeout);
+
+public:
+  static MIKTEXCORECEEAPI(void) Unlock(FILE* file);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

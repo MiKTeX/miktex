@@ -29,7 +29,10 @@
 #include <fmt/ostream.h>
 
 #include <miktex/Core/File>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/LockFile>
 #include <miktex/Core/Paths>
+#include <miktex/Core/Utils>
 #include <miktex/Trace/Trace>
 #include <miktex/Util/Tokenizer>
 
@@ -400,9 +403,9 @@ void FileNameDatabase::ApplyChangeFile()
     return;
   }
   trace_fndb->WriteLine("core", fmt::format(T_("applying change file {0}"), changeFile));
-  ifstream reader = File::CreateInputStream(changeFile);
+  FileStream reader(File::Open(changeFile, FileMode::Open, FileAccess::Read));
   int count = 0;
-  for (string line; std::getline(reader, line); )
+  for (string line; Utils::ReadLine(line, reader.GetFile(), false); )
   {
     count++;
     if (count <= changeFileRecordCount)
@@ -435,11 +438,7 @@ void FileNameDatabase::ApplyChangeFile()
       MIKTEX_UNEXPECTED();
     }
   }
-  if (reader.bad() || reader.fail() && !reader.eof())
-  {
-    MIKTEX_FATAL_ERROR(T_("An error occured while reading the change file."));
-  }
-  reader.close();
+  reader.Close();
   changeFileSize = File::GetSize(changeFile);
   changeFileRecordCount = count;
 }
