@@ -538,7 +538,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
   int shflags = SH_DENYNO;
-  if (mode == FileMode::Create)
+  if (mode == FileMode::Create || mode == FileMode::CreateNew || mode == FileMode::Append)
   {
     PathName dir(path);
     dir.MakeAbsolute();
