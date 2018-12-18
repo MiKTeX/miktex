@@ -252,7 +252,7 @@ private:
 
 private:
   MiKTeX::Core::PathName changeFile;
-
+  
 private:
   std::size_t changeFileSize = 0;
 

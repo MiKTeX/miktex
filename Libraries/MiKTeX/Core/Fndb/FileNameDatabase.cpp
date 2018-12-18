@@ -23,8 +23,6 @@
 #  include "config.h"
 #endif
 
-#include <fstream>
-
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
@@ -193,7 +191,11 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
 void FileNameDatabase::Add(const vector<Fndb::Record>& records)
 {
   ApplyChangeFile();
-  ofstream writer = File::CreateOutputStream(changeFile, std::ios_base::app);
+  FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write));
+  if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 100ms))
+  {
+    MIKTEX_FATAL_ERROR_2(T_("Could not get exclusive lock."), "path", changeFile.ToString());
+  }
   for (const auto& rec : records)
   {
     string fileName;
@@ -201,27 +203,35 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
     std::tie(fileName, directory) = SplitPath(rec.path);
     if (InsertRecord(Record(fileName, directory, rec.fileNameInfo)))
     {
-      writer << "+" << fileName << PathName::PathNameDelimiter << directory << PathName::PathNameDelimiter << rec.fileNameInfo << endl;
+      fputs(fmt::format("+{0}{1}{2}{1}{3}\n", fileName, char(PathName::PathNameDelimiter), directory, rec.fileNameInfo).c_str(), writer.GetFile());
       changeFileRecordCount++;
     }
   }
-  writer.close();
+  fflush(writer.GetFile());
+  File::Unlock(writer.GetFile());
+  writer.Close();
 }
 
 void FileNameDatabase::Remove(const vector<PathName>& paths)
 {
   ApplyChangeFile();
-  ofstream writer = File::CreateOutputStream(changeFile, std::ios_base::app);
+  FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write));
+  if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 100ms))
+  {
+    MIKTEX_FATAL_ERROR_2(T_("Could not get exclusive lock."), "path", changeFile.ToString());
+  }
   for (const auto& path : paths)
   {
     string fileName;
     string directory;
     std::tie(fileName, directory) = SplitPath(path);
     EraseRecord(Record(fileName, directory, ""));
-    writer << "-" << fileName << PathName::PathNameDelimiter << directory << endl;
+    fputs(fmt::format("- {}{}{}\n", fileName, char(PathName::PathNameDelimiter), directory).c_str(), writer.GetFile());
     changeFileRecordCount++;
   }
-  writer.close();
+  fflush(writer.GetFile());
+  File::Unlock(writer.GetFile());
+  writer.Close();
 }
 
 bool FileNameDatabase::FileExists(const PathName& path)
@@ -392,7 +402,7 @@ void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& root
 
   changeFile = fndbPath;
   changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
-
+  
   ApplyChangeFile();
 }
 
@@ -404,6 +414,10 @@ void FileNameDatabase::ApplyChangeFile()
   }
   trace_fndb->WriteLine("core", fmt::format(T_("applying change file {0}"), changeFile));
   FileStream reader(File::Open(changeFile, FileMode::Open, FileAccess::Read));
+  if (!File::TryLock(reader.GetFile(), File::LockType::Shared, 100ms))
+  {
+    return;
+  }
   int count = 0;
   for (string line; Utils::ReadLine(line, reader.GetFile(), false); )
   {
