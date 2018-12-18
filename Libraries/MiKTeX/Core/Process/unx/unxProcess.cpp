@@ -569,7 +569,7 @@ unique_ptr<Process> Process::GetCurrentProcess()
 {
   unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   currentProcess->pid = getpid();
-  return unique_ptr<Process>(currentProcess.release());
+  return currentProcess;
 }
 
 unique_ptr<Process> Process::GetProcess(int systemId)
@@ -582,9 +582,9 @@ unique_ptr<Process> Process::GetProcess(int systemId)
     }
     MIKTEX_FATAL_CRT_ERROR("kill");
   }
-  unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
-  currentProcess->pid = systemId;
-  return currentProcess;
+  unique_ptr<unxProcess> process = make_unique<unxProcess>();
+  process->pid = systemId;
+  return process;
 }
 
 unique_ptr<Process> unxProcess::get_Parent()
@@ -609,15 +609,16 @@ string unxProcess::get_ProcessName()
   {
     return line;
   }
+  MIKTEX_UNEXPECTED();
 #elif defined(__APPLE__)
   char path[PROC_PIDPATHINFO_MAXSIZE];
   if (proc_pidpath(pid, path, sizeof(path)) == 0)
   {
-    MIKTEX_UNEXPECTED();
+    MIKTEX_FATAL_CRT_ERROR("proc_pidpath");
   }
   return PathName(path).GetFileName().ToString();
 #else
-  return "?";
+#error Unimplemented: unxProcess::get_ProcessName()
 #endif
 }
 
@@ -672,7 +673,7 @@ ProcessInfo unxProcess::GetProcessInfo()
   struct proc_bsdinfo pbi;
   if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &pbi, PROC_PIDTBSDINFO_SIZE) == 0)
   {
-    MIKTEX_UNEXPECTED();
+    MIKTEX_FATAL_CRT_ERROR("proc_pidinfo");
   }
   switch (pbi.pbi_status)
   {
