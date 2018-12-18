@@ -609,7 +609,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
       unloaded = SessionImpl::GetSession()->UnloadFilenameDatabaseInternal(rootIdx, true);
       if (!unloaded)
       {
-        trace_fndb->WriteLine("core", "sleep 1");
+        trace_fndb->WriteLine("core", "sleep for 1ms");
         this_thread::sleep_for(chrono::milliseconds(1));
       }
     }
@@ -618,13 +618,27 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
       trace_error->WriteLine("core", T_("fndb cannot be unloaded"));
     }
     // </fixme>
+    
+    if (File::Exists(fndbPath))
+    {
+      File::Delete(fndbPath);
+    }
+    
+    PathName changeFile = fndbPath;
+    changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
+    if (File::Exists(changeFile))
+    {
+      File::Delete(changeFile);
+    }
+    
     PathName directory = PathName(fndbPath).RemoveFileSpec();
     if (!Directory::Exists(directory))
     {
       Directory::Create(directory);
     }
+    
     ofstream streamFndb = File::CreateOutputStream(fndbPath, ios_base::binary);
-    streamFndb.write((const char*)GetMemPointer(), GetMemTop());
+    streamFndb.write(reinterpret_cast<const char*>(GetMemPointer()), GetMemTop());
     streamFndb.close();
     trace_fndb->WriteLine("core", T_("fndb creation completed"));
     SessionImpl::GetSession()->RecordMaintenance();

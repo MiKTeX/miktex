@@ -888,17 +888,6 @@ void IniTeXMFApp::UpdateFilenameDatabase(const PathName& root)
 
   unsigned rootIdx = session->DeriveTEXMFRoot(root);
 
-  // remove the old FNDB file
-  PathName path = session->GetFilenameDatabasePathName(rootIdx);
-  if (File::Exists(path))
-  {
-    PrintOnly(fmt::format("rm {}", Q_(path)));
-    if (!printOnly)
-    {
-      File::Delete(path, { FileDeleteOption::TryHard });
-    }
-  }
-
   // create the FNDB file
   PathName fndbPath = session->GetFilenameDatabasePathName(rootIdx);
   if (session->IsCommonRootDirectory(rootIdx))

@@ -524,7 +524,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
     }
   }
 
-  if (mode == FileMode::Create)
+  if (mode == FileMode::Create || mode == FileMode::CreateNew || mode == FileMode::Append)
   {
     PathName dir(path);
     dir.MakeAbsolute();
