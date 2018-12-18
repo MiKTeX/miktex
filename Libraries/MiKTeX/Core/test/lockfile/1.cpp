@@ -28,6 +28,7 @@
 #include <thread>
 
 #include <miktex/Core/File>
+#include <miktex/Core/FileStream>
 #include <miktex/Core/LockFile>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
@@ -80,11 +81,27 @@ BEGIN_TEST_FUNCTION(3);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(4);
+{
+  PathName pathExe = pSession->GetMyLocation(false);
+  pathExe /= "core_lockfile_test1-3" MIKTEX_EXE_FILE_SUFFIX;
+  TESTX(Process::Start(pathExe));
+  this_thread::sleep_for(2s);
+  TEST(File::Exists("sharedfile-1"));
+  FileStream reader(File::Open("sharedfile-1", FileMode::Open, FileAccess::Read));
+  TEST(!File::TryLock(reader.GetFile(), File::LockType::Shared, 0ms));
+  TEST(File::TryLock(reader.GetFile(), File::LockType::Shared, 30s));
+  reader.Close();
+  TESTX(File::Delete("sharedfile-1"));
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
   CALL_TEST_FUNCTION(2);
   CALL_TEST_FUNCTION(3);
+  CALL_TEST_FUNCTION(4);
 }
 END_TEST_PROGRAM();
 

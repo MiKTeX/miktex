@@ -23,6 +23,8 @@
 #  include "config.h"
 #endif
 
+#include <thread>
+
 #include <fcntl.h>
 #include <sys/file.h>
 #include <sys/stat.h>
@@ -565,9 +567,13 @@ bool File::TryLock(FILE *file, File::LockType lockType, chrono::milliseconds tim
   do
   {
     locked = flock(fileno(file), (lockType == LockType::Exclusive ? LOCK_EX : LOCK_SH) | LOCK_NB) == 0;
-    if (!locked && errno != EWOULDBLOCK)
+    if (!locked)
     {
-      MIKTEX_FATAL_CRT_ERROR("flock");
+      if (errno != EWOULDBLOCK)
+      {
+        MIKTEX_FATAL_CRT_ERROR("flock");
+      }
+      this_thread::sleep_for(10ms);
     }
   } while (!locked && chrono::high_resolution_clock::now() < tryUntil);
   return locked;
