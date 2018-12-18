@@ -54,12 +54,12 @@ BEGIN_TEST_FUNCTION(1);
 
   unsigned localRootIdx = pSession->DeriveTEXMFRoot(localRoot);
   PathName fndbLocal = pSession->GetFilenameDatabasePathName(localRootIdx);
-  TEST(Fndb::Create(fndbLocal.GetData(), localRoot.GetData(), 0));
+  TEST(Fndb::Create(fndbLocal.GetData(), localRoot.GetData(), nullptr));
   TEST(File::Exists(fndbLocal));
 
   unsigned installRootIdx = pSession->DeriveTEXMFRoot(installRoot);
   PathName fndbInstall = pSession->GetFilenameDatabasePathName(installRootIdx);
-  TEST(Fndb::Create(fndbInstall.GetData(), installRoot.GetData(), 0));
+  TEST(Fndb::Create(fndbInstall.GetData(), installRoot.GetData(), nullptr));
   TEST(File::Exists(fndbInstall));
 }
 END_TEST_FUNCTION();

@@ -541,7 +541,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
 
   if (fd < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString());
+    MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString(), "mode", strFlags);
   }
   
   try
@@ -552,7 +552,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
     }
     return FdOpen(fd, strFlags.c_str());
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     close(fd);
     throw;
