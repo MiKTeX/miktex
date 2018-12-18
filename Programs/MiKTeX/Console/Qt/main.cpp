@@ -28,7 +28,6 @@
 #include <cstdlib>
 
 #include <QApplication>
-#include <QLockFile>
 #include <QtWidgets>
 #include <QSystemTrayIcon>
 
@@ -39,6 +38,7 @@
 #include "console-version.h"
 
 #include <miktex/Core/Exceptions>
+#include <miktex/Core/LockFile>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
 #include <miktex/UI/Qt/ErrorDialog>
@@ -214,8 +214,8 @@ int main(int argc, char* argv[])
 #if QT_VERSION >= 0x050000
   application.setApplicationDisplayName(displayName);
 #endif
-  QLockFile lockFile(QDir::temp().absoluteFilePath("miktex-console.lock"));
-  if (!lockFile.tryLock(100))
+  unique_ptr<LockFile> lockFile = LockFile::Create(PathName().SetToHomeDirectory() / "miktex-console.lock");
+  if (!lockFile->TryLock(100ms))
   {
     QMessageBox::warning(nullptr, displayName, "MiKTeX Console is already running.");
     return 1;

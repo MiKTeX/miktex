@@ -601,7 +601,8 @@ string unxProcess::get_ProcessName()
   string path = "/proc/" + std::to_string(pid) + "/comm";
   if (!File::Exists(path))
   {
-    MIKTEX_UNEXPECTED();
+    // process does not exist anymore
+    return "";
   }
   StreamReader reader(path);
   string line;
@@ -614,7 +615,11 @@ string unxProcess::get_ProcessName()
   char path[PROC_PIDPATHINFO_MAXSIZE];
   if (proc_pidpath(pid, path, sizeof(path)) == 0)
   {
-    MIKTEX_FATAL_CRT_ERROR("proc_pidpath");
+    if (errno == ESRCH)
+    {
+      return "";
+    }
+    MIKTEX_FATAL_CRT_ERROR("proc_pidpath")
   }
   return PathName(path).GetFileName().ToString();
 #else
@@ -635,7 +640,8 @@ ProcessInfo unxProcess::GetProcessInfo()
   string path = "/proc/" + std::to_string(pid) + "/stat";
   if (!File::Exists(path))
   {
-    MIKTEX_UNEXPECTED();
+    // process does not exist anymore
+    return processInfo;
   }
   StreamReader reader(path);
   string line;
@@ -673,7 +679,11 @@ ProcessInfo unxProcess::GetProcessInfo()
   struct proc_bsdinfo pbi;
   if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &pbi, PROC_PIDTBSDINFO_SIZE) == 0)
   {
-    MIKTEX_FATAL_CRT_ERROR("proc_pidinfo");
+    if (errno == ESRCH)
+    {
+      return processInfo;
+    }
+    MIKTEX_FATAL_CRT_ERROR("proc_pidpath")
   }
   switch (pbi.pbi_status)
   {

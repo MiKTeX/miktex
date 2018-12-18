@@ -407,3 +407,15 @@ string PathName::ToDisplayString(DisplayPathNameOptions options) const
   return ToString();
 #endif
 }
+
+PathName& PathName::SetToHomeDirectory()
+{
+  *this = GetHomeDirectory();
+  return *this;
+}
+
+PathName& PathName::SetToLockDirectory()
+{
+  *this = GetHomeDirectory();
+  return *this;
+}

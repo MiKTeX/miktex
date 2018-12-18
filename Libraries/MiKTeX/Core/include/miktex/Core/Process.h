@@ -157,18 +157,19 @@ struct ProcessStartInfo
 
 enum class ProcessStatus
 {
-  Other,
+  None,
   Runnable,
   Sleeping,
   Stoped,
-  Zombie
+  Zombie,
+  Other
 };
 
 struct ProcessInfo
 {
   std::string name;
-  ProcessStatus status;
-  int parent;
+  ProcessStatus status = ProcessStatus::None;
+  int parent = 0;
 };
 
 /// Process class.

@@ -287,6 +287,12 @@ public:
     Base::Set(GetFileName());
     return *this;
   }
+  
+public:
+  MIKTEXCORETHISAPI(PathName&) SetToHomeDirectory();
+  
+public:
+  MIKTEXCORETHISAPI(PathName&) SetToLockDirectory();
 
   /// Sets this PathName object equal to the current (working) directory.
   /// @return Returns a reference to this object.
