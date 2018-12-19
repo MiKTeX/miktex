@@ -560,13 +560,13 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
 }
 
 
-bool File::TryLock(FILE *file, File::LockType lockType, chrono::milliseconds timeout)
+bool File::TryLock(int fd, File::LockType lockType, chrono::milliseconds timeout)
 {
   chrono::time_point<chrono::high_resolution_clock> tryUntil = chrono::high_resolution_clock::now() + timeout;
   bool locked;
   do
   {
-    locked = flock(fileno(file), (lockType == LockType::Exclusive ? LOCK_EX : LOCK_SH) | LOCK_NB) == 0;
+    locked = flock(fd, (lockType == LockType::Exclusive ? LOCK_EX : LOCK_SH) | LOCK_NB) == 0;
     if (!locked)
     {
       if (errno != EWOULDBLOCK)
@@ -579,9 +579,9 @@ bool File::TryLock(FILE *file, File::LockType lockType, chrono::milliseconds tim
   return locked;
 }
 
-void File::Unlock(FILE *file)
+void File::Unlock(int fd)
 {
-  if (flock(fileno(file), LOCK_UN) != 0)
+  if (flock(fd, LOCK_UN) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR("flock");
   }

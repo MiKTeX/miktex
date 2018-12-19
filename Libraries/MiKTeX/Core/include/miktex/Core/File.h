@@ -304,10 +304,22 @@ public:
   };
   
 public:
-  static MIKTEXCORECEEAPI(bool) TryLock(FILE* file, LockType lockType, std::chrono::milliseconds timeout);
+  static MIKTEXCORECEEAPI(bool) TryLock(int fd, LockType lockType, std::chrono::milliseconds timeout);
 
 public:
-  static MIKTEXCORECEEAPI(void) Unlock(FILE* file);
+  static bool TryLock(FILE* file, LockType lockType, std::chrono::milliseconds timeout)
+  {
+    return TryLock(fileno(file), lockType, timeout);
+  }
+
+public:
+  static MIKTEXCORECEEAPI(void) Unlock(int fd);
+
+public:
+  static void Unlock(FILE* file)
+  {
+    Unlock(fileno(file));
+  }
 };
 
 MIKTEX_CORE_END_NAMESPACE;

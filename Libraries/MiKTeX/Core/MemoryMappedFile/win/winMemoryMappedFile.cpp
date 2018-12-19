@@ -141,6 +141,8 @@ void winMemoryMappedFile::OpenFile()
   unsigned long desiredAccess = GENERIC_READ;
   unsigned long shareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
 
+#error TODO: locking
+
   if (readWrite)
   {
     desiredAccess |= GENERIC_WRITE;

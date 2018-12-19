@@ -1164,13 +1164,13 @@ unsigned SessionImpl::DeriveTEXMFRoot(const PathName& path)
   return root;
 }
 
-bool SessionImpl::UnloadFilenameDatabaseInternal(unsigned r, bool remove)
+bool SessionImpl::UnloadFilenameDatabaseInternal(unsigned r)
 {
   lock_guard<mutex> lockGuard(fndbMutex);
-  return UnloadFilenameDatabaseInternal_nolock(r, remove);
+  return UnloadFilenameDatabaseInternal_nolock(r);
 }
 
-bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r, bool remove)
+bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r)
 {
   trace_fndb->WriteFormattedLine("core", T_("going to unload file name database %u"), r);
 
@@ -1189,23 +1189,6 @@ bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r, bool remove)
     rootDirectories[r].SetFndb(nullptr);
   }
 
-  if (remove && r < GetNumberOfTEXMFRoots())
-  {
-    // remove the database file
-    PathName path = GetFilenameDatabasePathName(r);
-    if (File::Exists(path))
-    {
-      File::Delete(path, { FileDeleteOption::TryHard });
-    }
-    // remove the change file
-    PathName changeFile = path;
-    changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
-    if (File::Exists(changeFile))
-    {
-      File::Delete(changeFile, { FileDeleteOption::TryHard });
-    }
-  }
-
   return true;
 }
 
@@ -1215,7 +1198,7 @@ bool SessionImpl::UnloadFilenameDatabase()
 
   for (unsigned r = 0; r < rootDirectories.size(); ++r)
   {
-    if (!UnloadFilenameDatabaseInternal(r, false))
+    if (!UnloadFilenameDatabaseInternal(r))
     {
       done = false;
     }

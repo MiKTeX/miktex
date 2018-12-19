@@ -37,6 +37,7 @@
 
 #include "miktex/Core/AutoResource.h"
 #include "miktex/Core/Directory.h"
+#include "miktex/Core/FileStream.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
 
@@ -602,11 +603,12 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
 #endif
     AlignMem(FNDB_PAGESIZE);
     SetMem(0, &fndb, sizeof(fndb));
+
     // <fixme>
     bool unloaded = false;
     for (size_t i = 0; !unloaded && i < 100; ++i)
     {
-      unloaded = SessionImpl::GetSession()->UnloadFilenameDatabaseInternal(rootIdx, true);
+      unloaded = SessionImpl::GetSession()->UnloadFilenameDatabaseInternal(rootIdx);
       if (!unloaded)
       {
         trace_fndb->WriteLine("core", "sleep for 1ms");
@@ -615,31 +617,24 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     }
     if (!unloaded)
     {
-      trace_error->WriteLine("core", T_("fndb cannot be unloaded"));
+      MIKTEX_FATAL_ERROR(T_("fndb cannot be unloaded"));
     }
     // </fixme>
     
-    if (File::Exists(fndbPath))
+    FileStream streamFndb(File::Open(fndbPath, FileMode::Create, FileAccess::Write, false));
+    if (!File::TryLock(streamFndb.GetFile(), File::LockType::Exclusive, 1s))
     {
-      File::Delete(fndbPath);
+      MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", fndbPath.ToString());
     }
-    
+    streamFndb.Write(reinterpret_cast<const char*>(GetMemPointer()), GetMemTop());
     PathName changeFile = fndbPath;
     changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
     if (File::Exists(changeFile))
     {
       File::Delete(changeFile);
     }
-    
-    PathName directory = PathName(fndbPath).RemoveFileSpec();
-    if (!Directory::Exists(directory))
-    {
-      Directory::Create(directory);
-    }
-    
-    ofstream streamFndb = File::CreateOutputStream(fndbPath, ios_base::binary);
-    streamFndb.write(reinterpret_cast<const char*>(GetMemPointer()), GetMemTop());
-    streamFndb.close();
+    File::Unlock(streamFndb.GetFile());
+    streamFndb.Close();
     trace_fndb->WriteLine("core", T_("fndb creation completed"));
     SessionImpl::GetSession()->RecordMaintenance();
     return true;

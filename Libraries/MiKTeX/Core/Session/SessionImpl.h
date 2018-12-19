@@ -510,10 +510,10 @@ public:
   }
 
 public:
-  bool UnloadFilenameDatabaseInternal(unsigned r, bool remove);
+  bool UnloadFilenameDatabaseInternal(unsigned r);
 
 private:
-  bool UnloadFilenameDatabaseInternal_nolock(unsigned r, bool remove);
+  bool UnloadFilenameDatabaseInternal_nolock(unsigned r);
 
 public:
   std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r);

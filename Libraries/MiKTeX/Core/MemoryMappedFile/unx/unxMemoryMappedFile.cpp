@@ -86,6 +86,11 @@ void unxMemoryMappedFile::OpenFile()
   {
     MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString(), "readWrite", readWrite ? "true" : "false");
   }
+  if (!File::TryLock(filedes, readWrite ? File::LockType::Exclusive : File::LockType::Shared , 10ms))
+  {
+    close(filedes);
+    MIKTEX_FATAL_ERROR_2(T_("Could not acquire lock."), "path", path.ToString());
+  }
 }
 
 void unxMemoryMappedFile::CreateMapping(size_t maximumFileSize)
@@ -125,6 +130,14 @@ void unxMemoryMappedFile::CloseFile()
   }
   int filedes = this->filedes;
   this->filedes = -1;
+  try
+  {
+    File::Unlock(filedes);
+  }
+  catch (const MiKTeXException&)
+  {
+    // TODO: logging
+  }
   if (close(filedes) < 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("close", "path", path.ToString());
