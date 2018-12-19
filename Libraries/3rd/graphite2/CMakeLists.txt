@@ -32,8 +32,6 @@ add_definitions(
   -D_UNICODE
 )
 
-ignore_warnings()
-
 set(GRAPHITE2_VM_TYPE auto)
 set(GRAPHITE2_NFILEFACE FALSE)
 set(GRAPHITE2_NTRACING TRUE)

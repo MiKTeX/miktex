@@ -24,7 +24,9 @@ prevent_all_warnings(${harfbuzz_lib_name})
 set_property(TARGET ${harfbuzz_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_include_directories(${harfbuzz_lib_name}
-  PUBLIC
+  PRIVATE
+    ${public_include_directories}
+  SYSTEM INTERFACE
     ${public_include_directories}
 )
 

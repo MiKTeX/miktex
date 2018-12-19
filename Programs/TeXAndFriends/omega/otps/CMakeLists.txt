@@ -29,8 +29,6 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/source
 )
 
-ignore_warnings()
-
 set(mkocp_sources
   mkocp.cpp
   mkocp-version.h

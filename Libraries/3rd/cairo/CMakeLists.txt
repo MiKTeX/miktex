@@ -134,6 +134,8 @@ endif()
 
 add_library(${cairo_dll_name} SHARED ${${cairo_dll_name}_sources})
 
+prevent_all_warnings(${cairo_dll_name})
+
 set_property(TARGET ${cairo_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_shared_library_version(

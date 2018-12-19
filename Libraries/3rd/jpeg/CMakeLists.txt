@@ -28,8 +28,6 @@ if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(-DIN_JPEG_DLL)
 endif()
 
-ignore_warnings()
-
 set(${jpeg_dll_name}_sources
 
   ${CMAKE_CURRENT_SOURCE_DIR}/source/jaricom.c

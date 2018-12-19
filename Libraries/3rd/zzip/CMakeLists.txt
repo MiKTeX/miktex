@@ -34,8 +34,6 @@ add_definitions(
   -DZZIP_EXPORTS=1
 )
 
-ignore_warnings()
-
 set(sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/dir.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/err.c

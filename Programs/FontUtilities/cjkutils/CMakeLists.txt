@@ -28,8 +28,6 @@ add_definitions(
   -DUSE_MIKTEX_EXIT
 )
 
-ignore_warnings()
-
 set(bg5conv_sources
   ${CMAKE_CURRENT_BINARY_DIR}/bg5conv.c
   bg5conv-version.h

@@ -26,8 +26,6 @@ include_directories(BEFORE
 
 add_definitions(-DBUILDING_LIBHUNSPELL)
 
-ignore_warnings()
-
 set(sources
   source/src/hunspell/affentry.cxx
   source/src/hunspell/affentry.hxx

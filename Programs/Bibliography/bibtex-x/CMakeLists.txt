@@ -44,8 +44,6 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-ignore_warnings()
-
 if(BIBTEX8_COMPILE_AS_CXX)
   set_source_files_properties(
     source/bibtex-1.c

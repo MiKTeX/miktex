@@ -39,8 +39,6 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-ignore_warnings()
-
 set(mplib_cweb_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mp.c
   ${CMAKE_CURRENT_BINARY_DIR}/mpmath.c

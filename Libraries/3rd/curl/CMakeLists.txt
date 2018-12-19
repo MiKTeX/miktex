@@ -30,8 +30,6 @@ set(public_include_directories
 
 add_definitions(-DBUILDING_LIBCURL)
 
-ignore_warnings()
-
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(-DUSE_SCHANNEL)
   add_definitions(-DUSE_WINDOWS_SSPI)

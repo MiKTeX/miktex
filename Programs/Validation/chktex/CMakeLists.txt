@@ -45,8 +45,6 @@ add_definitions(
   -Dmain=Main
 )
 
-ignore_warnings()
-
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
     -DUNICODE

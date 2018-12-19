@@ -17,16 +17,6 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-# DEPRECATED
-macro(ignore_warnings)
-  if(MSVC)
-    add_definitions(
-      -D_CRT_SECURE_NO_WARNINGS
-      -D_CRT_NONSTDC_NO_WARNINGS
-    )
-  endif()
-endmacro()
-
 function(prevent_all_warnings target)
   target_compile_options(${target}
     PRIVATE

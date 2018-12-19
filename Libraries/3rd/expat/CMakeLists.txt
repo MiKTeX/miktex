@@ -30,8 +30,6 @@ set(public_include_directories
 
 add_definitions(-DHAVE_EXPAT_CONFIG_H)
 
-ignore_warnings()
-
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(-DCOMPILED_FROM_DSP)
 endif()

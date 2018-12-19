@@ -414,8 +414,6 @@ list(APPEND log4cxx_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/log4cxx-version.h  
 )
 
-ignore_warnings()
-
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND system_libraries
     ODBC32.LIB

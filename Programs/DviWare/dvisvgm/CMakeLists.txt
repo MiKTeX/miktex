@@ -504,8 +504,6 @@ set(dvisvgm_sources
   dvisvgm-version.h
 )
 
-ignore_warnings()
-
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvisvgm_sources
     ${MIKTEX_COMPATIBILITY_MANIFEST}

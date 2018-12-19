@@ -41,8 +41,6 @@ if(NOT CMAKE_CL_64)
   add_definitions(-DUSE_X86_MMX)
 endif()
 
-ignore_warnings()
-
 set(pixman_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-access.c

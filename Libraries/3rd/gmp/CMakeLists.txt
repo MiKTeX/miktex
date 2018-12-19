@@ -45,8 +45,6 @@ set(VERSION "${MIKTEX_COMP_ORIG_VERSION_STR}")
 
 add_definitions(-DNO_ASM -D__GMP_WITHIN_GMP)
 
-ignore_warnings()
-
 # set to TRUE, if we build the complete GMP library
 set(gmp_complete FALSE)
 

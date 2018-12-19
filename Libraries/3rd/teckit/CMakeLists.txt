@@ -30,8 +30,6 @@ set(public_include_directories
   ${CMAKE_CURRENT_SOURCE_DIR}/source/source/Public-headers
 )
 
-ignore_warnings()
-
 configure_file(
   teckit-version.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/teckit-version.h

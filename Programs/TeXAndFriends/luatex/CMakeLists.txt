@@ -65,8 +65,6 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-ignore_warnings()
-
 if(WITH_CONTEXT_SUPPORT)
   add_definitions(-DWITH_CONTEXT_SUPPORT=1)
 endif()

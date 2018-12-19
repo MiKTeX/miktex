@@ -30,8 +30,6 @@ set(public_include_directories
   ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
-ignore_warnings()
-
 set(md5_sources
   ${CMAKE_CURRENT_BINARY_DIR}/md5-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/md5.c

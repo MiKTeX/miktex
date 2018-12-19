@@ -33,8 +33,6 @@ add_definitions(
   -Dmain=Main
 )
 
-ignore_warnings()
-
 set(psutils_lib_sources
   miktex.cpp
   source/psspec.c

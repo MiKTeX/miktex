@@ -37,8 +37,6 @@ add_definitions(
   -DPNG_NO_CONFIG_H
 )
 
-ignore_warnings()
-
 configure_file(
   source/scripts/pnglibconf.h.prebuilt
   ${CMAKE_CURRENT_BINARY_DIR}/include/pnglibconf.h

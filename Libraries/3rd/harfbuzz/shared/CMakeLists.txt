@@ -43,7 +43,12 @@ set_shared_library_version(
   ${MIKTEX_COMP_J2000_VERSION}
 )
 
-target_include_directories(${harfbuzz_dll_name} PUBLIC ${public_include_directories})
+target_include_directories(${harfbuzz_dll_name}
+  PRIVATE
+    ${public_include_directories}
+  SYSTEM INTERFACE
+    ${public_include_directories}
+)
 
 if(USE_SYSTEM_GRAPHITE2)
   target_link_libraries(${harfbuzz_dll_name} PUBLIC MiKTeX::Imported::GRAPHITE2)

@@ -25,8 +25,6 @@ include_directories(BEFORE
 
 set(public_include_directories ${CMAKE_CURRENT_BINARY_DIR}/include)
 
-ignore_warnings()
-
 set(sources
   ${CMAKE_CURRENT_SOURCE_DIR}/regex-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/posix/regex.c

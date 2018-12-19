@@ -54,8 +54,6 @@ set(interface_definitions
   -DHAVE_LIBFONTCONFIG
 )
 
-ignore_warnings()
-
 ###############################################################################
 ## fc-case
 
