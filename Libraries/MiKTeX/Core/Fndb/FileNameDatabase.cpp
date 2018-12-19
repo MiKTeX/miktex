@@ -194,7 +194,7 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
   FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write));
   if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 100ms))
   {
-    MIKTEX_FATAL_ERROR_2(T_("Could not get exclusive lock."), "path", changeFile.ToString());
+    MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", changeFile.ToString());
   }
   for (const auto& rec : records)
   {
@@ -218,7 +218,7 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
   FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write));
   if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 100ms))
   {
-    MIKTEX_FATAL_ERROR_2(T_("Could not get exclusive lock."), "path", changeFile.ToString());
+    MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", changeFile.ToString());
   }
   for (const auto& path : paths)
   {
@@ -226,7 +226,7 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
     string directory;
     std::tie(fileName, directory) = SplitPath(path);
     EraseRecord(Record(fileName, directory, ""));
-    fputs(fmt::format("- {}{}{}\n", fileName, char(PathName::PathNameDelimiter), directory).c_str(), writer.GetFile());
+    fputs(fmt::format("-{}{}{}\n", fileName, char(PathName::PathNameDelimiter), directory).c_str(), writer.GetFile());
     changeFileRecordCount++;
   }
   fflush(writer.GetFile());
@@ -416,7 +416,7 @@ void FileNameDatabase::ApplyChangeFile()
   FileStream reader(File::Open(changeFile, FileMode::Open, FileAccess::Read));
   if (!File::TryLock(reader.GetFile(), File::LockType::Shared, 100ms))
   {
-    return;
+    MIKTEX_FATAL_ERROR_2(T_("Could not acquire shared lock."), "path", changeFile.ToString());
   }
   int count = 0;
   for (string line; Utils::ReadLine(line, reader.GetFile(), false); )
@@ -452,6 +452,7 @@ void FileNameDatabase::ApplyChangeFile()
       MIKTEX_UNEXPECTED();
     }
   }
+  File::Unlock(reader.GetFile());
   reader.Close();
   changeFileSize = File::GetSize(changeFile);
   changeFileRecordCount = count;
