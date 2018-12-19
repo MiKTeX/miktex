@@ -1,6 +1,6 @@
 ## IgnoreWarnings.cmake
 ##
-## Copyright (C) 2015 Christian Schenk
+## Copyright (C) 2015-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,6 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+# DEPRECATED
 macro(ignore_warnings)
   if(MSVC)
     add_definitions(
@@ -25,3 +26,11 @@ macro(ignore_warnings)
     )
   endif()
 endmacro()
+
+function(prevent_all_warnings target)
+  target_compile_options(${target}
+    PRIVATE
+      $<$<OR:$<C_COMPILER_ID:Clang>,$<C_COMPILER_ID:AppleClang>,$<C_COMPILER_ID:GNU>>:-w>
+      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-w>
+  )
+endfunction()

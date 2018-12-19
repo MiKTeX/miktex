@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2017 Christian Schenk
+## Copyright (C) 2013-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -30,6 +30,8 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 add_library(${harfbuzz_dll_name} SHARED ${${harfbuzz_dll_name}_sources})
+
+prevent_all_warnings(${harfbuzz_dll_name})
 
 set_property(TARGET ${harfbuzz_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 

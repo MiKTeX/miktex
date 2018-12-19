@@ -39,8 +39,6 @@ add_definitions(
   -DHB_NO_UNICODE_FUNCS
 )
 
-ignore_warnings()
-
 set(HAVE_ROUND 1)
 
 set(HAVE_GRAPHITE2 1)
