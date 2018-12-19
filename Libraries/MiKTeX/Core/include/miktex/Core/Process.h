@@ -169,7 +169,7 @@ struct ProcessInfo
 {
   std::string name;
   ProcessStatus status = ProcessStatus::None;
-  int parent = 0;
+  int parent = -1;
 };
 
 /// Process class.

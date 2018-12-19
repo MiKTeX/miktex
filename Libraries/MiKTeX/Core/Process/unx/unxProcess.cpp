@@ -448,9 +448,12 @@ void unxProcess::WaitForExit()
     session->trace_process->WriteFormattedLine("core", "waiting for process %d", static_cast<int>(this->pid));
     pid_t pid = this->pid;
     this->pid = -1;
-    if (waitpid(pid, &status, 0) <= 0)
+    while (waitpid(pid, &status, 0) <= 0)
     {
-      MIKTEX_FATAL_CRT_ERROR("waitpid");
+      if (errno != EINTR)
+      {
+        MIKTEX_FATAL_CRT_ERROR("waitpid");
+      }
     }
     if (WIFEXITED(status) != 0)
     {
