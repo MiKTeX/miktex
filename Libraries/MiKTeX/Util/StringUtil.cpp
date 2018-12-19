@@ -252,7 +252,7 @@ string StringUtil::FormatString2(const string& message, const unordered_map<stri
   {
     if (inPlaceholder)
     {
-      if (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_')
+      if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_')
       {
         tmp += ch;
       }
