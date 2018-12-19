@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2017 Christian Schenk
+## Copyright (C) 2013-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -143,7 +143,10 @@ set_shared_library_version(
 )
 
 target_include_directories(${cairo_dll_name}
-  PUBLIC
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+  SYSTEM INTERFACE
     ${CMAKE_CURRENT_BINARY_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
