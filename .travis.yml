@@ -4,11 +4,34 @@ env:
   global:
     - MAKEFLAGS="-j 2"
 
+addons:
+  homebrew:
+    packages:
+      - ghostscript
+      - md5sha1sum
+      - icu4c
+      - freetype
+      - fribidi
+      - gmp
+      - graphite2
+      - hunspell
+      - jpeg
+      - libpng
+      - libtiff
+      - libzzip
+      - log4cxx
+      - mpfr
+      - openssl
+      - pixman
+      - popt
+      - qt
+      - uriparser
+      - xz
+
 matrix:
   include:
     - os: osx
-      osx_image: xcode9.3
-      before_install: ./travis-ci/osx/before_install.sh
+      osx_image: xcode10.1
       before_script: ./travis-ci/osx/before_script.sh
       script: ./travis-ci/osx/script.sh
       after_failure: ./travis-ci/osx/after_failure.sh
