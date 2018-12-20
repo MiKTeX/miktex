@@ -271,6 +271,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
   endif()
 
   add_library(${_lib_name} STATIC ${${_lib_name}_sources})
+  c4p_target_compile_options(${_lib_name})
   target_link_libraries(${_lib_name}
     PUBLIC
       ${app_dll_name}
