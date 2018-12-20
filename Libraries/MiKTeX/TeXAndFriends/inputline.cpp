@@ -614,6 +614,8 @@ void WebAppInputLine::EnableShellCommands(ShellCommandMode mode)
   case ShellCommandMode::Unrestricted:
     LogInfo("allowing all shell commands");
     break;
+  default:
+    break;
   }
   pimpl->shellCommandMode = mode;
 }

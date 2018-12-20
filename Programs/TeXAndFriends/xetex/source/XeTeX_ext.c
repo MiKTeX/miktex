@@ -2726,6 +2726,8 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
     case MiKTeX::Core::TriState::True:
       processStartInfo.Arguments.push_back("--miktex-enable-installer");
       break;
+    default:
+      break;
     }
     processStartInfo.Arguments.insert(processStartInfo.Arguments.end(), dvipdfmxArgs.begin(), dvipdfmxArgs.end());
     MiKTeX::Core::PathName outPath = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory() / MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile();

@@ -65,6 +65,8 @@ void SiteWizType::initializePage()
       case RepositoryType::MiKTeXDirect:
         rbCD->setChecked(true);
         break;
+      default:
+          break;
       }
     }
     chkMiKTeXNext->setChecked(repositoryReleaseState == RepositoryReleaseState::Next);

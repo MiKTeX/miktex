@@ -50,8 +50,8 @@ int MiKTeX::UI::Qt::ErrorDialog::DoModal(QWidget* parent, const exception& e)
 
 ErrorDialogImpl::ErrorDialogImpl(QWidget* parent, const MiKTeXException& e) :
   QDialog(parent),
-  isMiKTeXException(true),
-  miktexException(e)
+  miktexException(e),
+  isMiKTeXException(true)
 {
   setupUi(this);
   QString message;
@@ -80,8 +80,8 @@ ErrorDialogImpl::ErrorDialogImpl(QWidget* parent, const MiKTeXException& e) :
 
 ErrorDialogImpl::ErrorDialogImpl(QWidget* parent, const exception& e) :
   QDialog(parent),
-  isMiKTeXException(false),
-  stdException(e)
+  stdException(e),
+  isMiKTeXException(false)
 {
   setupUi(this);
   tbMessage->setText(QString::fromUtf8(e.what()));
