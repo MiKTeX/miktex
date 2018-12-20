@@ -446,6 +446,7 @@ set(luafontforge_sources
 )
 
 add_library(luatex-lua52fontforge-static STATIC ${luafontforge_sources})
+prevent_all_warnings_on_bad_code_target(luatex-lua52fontforge-static)
 set_property(TARGET luatex-lua52fontforge-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_compile_definitions(luatex-lua52fontforge-static
   PRIVATE

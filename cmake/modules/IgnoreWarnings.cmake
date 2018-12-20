@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-function(third_party_target_compile_options target)
+function(prevent_all_warnings_on_bad_code_target target)
   target_compile_options(${target}
     PRIVATE
       $<$<OR:$<C_COMPILER_ID:Clang>,$<C_COMPILER_ID:AppleClang>,$<C_COMPILER_ID:GNU>>:-w>

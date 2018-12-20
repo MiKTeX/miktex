@@ -277,6 +277,8 @@ list(APPEND libf2c_a_extra
 
 add_library(f2c STATIC ${libf2c_a_sources})
 
+prevent_all_warnings_on_bad_code_target(f2c)
+
 if(MIKTEX_UNIX_ALIKE)
   target_link_libraries(f2c
     PUBLIC
@@ -303,6 +305,7 @@ foreach(p ${programs})
     )
   endif()
   add_executable(${MIKTEX_PREFIX}${p} ${${p}_sources})
+  prevent_all_warnings_on_bad_code_target(${MIKTEX_PREFIX}${p})
   set_property(TARGET ${MIKTEX_PREFIX}${p} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   target_link_libraries(${MIKTEX_PREFIX}${p}
     f2c

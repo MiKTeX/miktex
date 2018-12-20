@@ -19,7 +19,7 @@
 
 add_library(${harfbuzz_lib_name} STATIC ${harfbuzz_sources})
 
-third_party_target_compile_options(${harfbuzz_lib_name})
+prevent_all_warnings_on_bad_code_target(${harfbuzz_lib_name})
 
 set_property(TARGET ${harfbuzz_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
