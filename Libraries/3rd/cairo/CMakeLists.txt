@@ -134,7 +134,7 @@ endif()
 
 add_library(${cairo_dll_name} SHARED ${${cairo_dll_name}_sources})
 
-prevent_all_warnings(${cairo_dll_name})
+third_party_target_compile_options(${cairo_dll_name})
 
 set_property(TARGET ${cairo_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 

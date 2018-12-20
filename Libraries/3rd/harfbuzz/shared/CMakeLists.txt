@@ -31,7 +31,7 @@ endif()
 
 add_library(${harfbuzz_dll_name} SHARED ${${harfbuzz_dll_name}_sources})
 
-prevent_all_warnings(${harfbuzz_dll_name})
+third_party_target_compile_options(${harfbuzz_dll_name})
 
 set_property(TARGET ${harfbuzz_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 

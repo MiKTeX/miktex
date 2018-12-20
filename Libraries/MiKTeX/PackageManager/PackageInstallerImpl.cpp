@@ -84,12 +84,12 @@ MPMSTATICFUNC(bool) IsMiKTeXPackage(const string& packageId)
 }
 
 PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manager) :
-  packageManager(manager),
-  packageDataStore(manager->GetPackageDataStore()),
   session(Session::Get()),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
-  trace_stopwatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH))
+  trace_stopwatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH)),
+  packageManager(manager),
+  packageDataStore(manager->GetPackageDataStore())
 {
   MIKTEX_ASSERT(
     PackageLevel::None < PackageLevel::Essential
@@ -1643,7 +1643,7 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
       CheckDependencies(packages, p, force, level + 1);
     }
   }
-  if (force || knownPackage && !package.IsInstalled())
+  if (force || (knownPackage && !package.IsInstalled()))
   {
     packages.insert(packageId);
   }

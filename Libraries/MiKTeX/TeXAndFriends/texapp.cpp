@@ -372,7 +372,7 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
   if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
   {
     LogError("command line syntax error: " + command);
-    Write18Result::QuotationError;
+    return Write18Result::QuotationError;
   }
   if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
   {

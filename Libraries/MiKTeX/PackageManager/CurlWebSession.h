@@ -108,9 +108,6 @@ private:
 private:
   int runningHandles = -1;
 
-private:
-  IProgressNotify_* callback;
-
 public:
   bool IsReady() const
   {

@@ -2042,7 +2042,7 @@ FcConfigGetPath (void)
     }
 
 #if defined(MIKTEX)
-    i += miktex_get_fontconfig_config_dirs(path, i);
+    i += miktex_get_fontconfig_config_dirs((char**)path, i);
 #endif
 #if !defined(MIKTEX_WINDOWS)
 #ifdef _WIN32

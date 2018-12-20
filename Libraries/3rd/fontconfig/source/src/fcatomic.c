@@ -212,7 +212,7 @@ FcAtomicReplaceOrig (FcAtomic *atomic)
 #endif
 #endif
 #if defined(MIKTEX)
-    if (rename(atomic->new, atomic->file) != 0)
+    if (rename((const char*)atomic->new, (const char*)atomic->file) != 0)
     {
       miktex_report_crt_error("cannot rename file '%s' to '%s", atomic->new, atomic->file);
       return FcFalse;
