@@ -21,18 +21,6 @@
 
 #pragma once
 
-#define EAD86981C92C904D808A5E6CEC64B90E
-#include <miktex/First>
-
-#if defined(MIKTEX_CORE_SHARED)
-#  define MIKTEXCOREEXPORT MIKTEXDLLEXPORT
-#else
-#  define MIKTEXCOREEXPORT
-#endif
-
-#define EAD86981C92C904D808A5E6CEC64B90E
-#include "miktex/Core/config.h"
-
 #if defined(ENABLE_OPENSSL)
 #include <openssl/err.h>
 #include <openssl/evp.h>

@@ -734,8 +734,8 @@ void SessionImpl::RegisterRootDirectory(const PathName& path)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
     bool skipit = root.IsOther();
-    skipit = skipit || IsAdminMode() && !root.IsCommon();
-    skipit = skipit || !IsAdminMode() && root.IsCommon();
+    skipit = skipit || (IsAdminMode() && !root.IsCommon());
+    skipit = skipit || (!IsAdminMode() && root.IsCommon());
     skipit = skipit || root.IsManaged();
     if (!skipit)
     {
@@ -754,8 +754,8 @@ void SessionImpl::UnregisterRootDirectory(const PathName& path)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
     bool skipit = root.IsOther();
-    skipit = skipit || IsAdminMode() && !root.IsCommon();
-    skipit = skipit || !IsAdminMode() && root.IsCommon();
+    skipit = skipit || (IsAdminMode() && !root.IsCommon());
+    skipit = skipit || (!IsAdminMode() && root.IsCommon());
     skipit = skipit || root.IsManaged();
     if (!skipit)
     {
@@ -882,7 +882,7 @@ void SessionImpl::MoveRootDirectory(unsigned r, int dir)
   for (unsigned r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
     const RootDirectoryInternals& root = newRoots[r];
-    if (!root.IsManaged() && (IsAdminMode() && root.IsCommon() || !IsAdminMode() && !root.IsCommon()))
+    if (!root.IsManaged() && ((IsAdminMode() && root.IsCommon()) || (!IsAdminMode() && !root.IsCommon())))
     {
       toBeRegistered.push_back(root.path.ToString());
     }

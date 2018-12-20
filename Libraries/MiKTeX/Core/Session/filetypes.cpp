@@ -199,6 +199,8 @@ void SessionImpl::RegisterFileType(FileType fileType)
   case FileType::TYPE1:
     searchPath2 = GetFontDirectories();
     break;
+  default:
+    break;
   }
   InternalFileTypeInfo fti;
   fti.fileType = fileType;

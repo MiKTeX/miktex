@@ -19,6 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <miktex/First>
+
 #cmakedefine HAVE_ATLBASE_H 1
 #cmakedefine HAVE_DIRENT_H 1
 #cmakedefine HAVE_INTTYPES_H 1
@@ -72,3 +74,11 @@
 #endif
 
 #cmakedefine MIKTEX_FNDB_VERSION @MIKTEX_FNDB_VERSION@
+
+#define EAD86981C92C904D808A5E6CEC64B90E
+
+#if defined(MIKTEX_CORE_SHARED)
+#  define MIKTEXCOREEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXCOREEXPORT
+#endif

@@ -43,12 +43,12 @@ MiKTeXException::MiKTeXException() :
 
 MiKTeXException::MiKTeXException(const string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
   info(info),
-  description(description),
   errorMessage(errorMessage),
-  programInvocationName(programInvocationName),
+  description(description),
   remedy(remedy),
-  sourceLocation(sourceLocation),
-  tag(tag)
+  tag(tag),
+  programInvocationName(programInvocationName),
+  sourceLocation(sourceLocation)
 {
 }
 

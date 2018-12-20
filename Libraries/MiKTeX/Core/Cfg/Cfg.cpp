@@ -77,6 +77,10 @@ MIKTEXSTATICFUNC(string&) Trim(string& str)
   return str;
 }
 
+Cfg::Value::~Value() noexcept
+{
+}
+
 class CfgValue :
   public Cfg::Value
 {
@@ -103,6 +107,11 @@ public:
 public:
   CfgValue(const string& name, const string& lookupName, const string& value, const string& documentation, bool isCommentedOut) :
     name(name), lookupName(lookupName), value{ value }, documentation(documentation), commentedOut(isCommentedOut)
+  {
+  }
+  
+public:
+  ~CfgValue() noexcept override
   {
   }
 
@@ -180,6 +189,10 @@ inline bool operator<(const CfgValue& lhs, const CfgValue& rhs)
 
 typedef unordered_map<string, shared_ptr<CfgValue>> ValueMap;
 
+Cfg::Key::~Key() noexcept
+{
+}
+
 class CfgKey :
   public Cfg::Key
 {
@@ -198,6 +211,11 @@ public:
   {
   }
 
+public:
+  ~CfgKey() noexcept override
+  {
+  }
+  
 private:
   string name;
 
@@ -1056,7 +1074,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
     }
   }
 
-  if (reader.bad() || reader.fail() && !reader.eof())
+  if (reader.bad() || (reader.fail() && !reader.eof()))
   {
     FATAL_CFG_ERROR(T_("error reading the configuration file"));
   }

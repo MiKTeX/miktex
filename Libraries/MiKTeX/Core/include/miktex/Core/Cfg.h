@@ -55,6 +55,8 @@ public:
   class MIKTEXNOVTABLE Value
   {
   public:
+    virtual MIKTEXTHISCALL ~Value() noexcept = 0;
+  public:
     virtual std::string MIKTEXTHISCALL GetName() const = 0;
   public:
     virtual std::string MIKTEXTHISCALL AsString() const = 0;
@@ -106,6 +108,8 @@ public:
 public:
   class MIKTEXNOVTABLE Key
   {
+  public:
+    virtual MIKTEXTHISCALL ~Key() noexcept = 0;
   public:
     virtual std::string MIKTEXTHISCALL GetName() const = 0;
   public:
