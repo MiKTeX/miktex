@@ -59,7 +59,6 @@ using namespace std;
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
 const char* const TheNameOfTheGame = T_("MiKTeX Find Utility");
-const char* const PROGNAME = "findtexmf";
 
 class FindTeXMF :
   public Application

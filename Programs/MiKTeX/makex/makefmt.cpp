@@ -263,13 +263,13 @@ namespace {
   const struct option aLongOptions[] =
   {
     COMMON_OPTIONS,
-    "dest-name",        required_argument,      nullptr,      OPT_DESTNAME,
-    "engine",           required_argument,      nullptr,      OPT_ENGINE,
-    "engine-option",    required_argument,      nullptr,      OPT_ENGINE_OPTION,
-    "job-time",         required_argument,      nullptr,      OPT_JOB_TIME,
-    "no-dump",          no_argument,            nullptr,      OPT_NO_DUMP,
-    "preload",          required_argument,      nullptr,      OPT_PRELOAD,
-    nullptr,            no_argument,            nullptr,      0,
+    {"dest-name",        required_argument,      nullptr,      OPT_DESTNAME},
+    {"engine",           required_argument,      nullptr,      OPT_ENGINE},
+    {"engine-option",    required_argument,      nullptr,      OPT_ENGINE_OPTION},
+    {"job-time",         required_argument,      nullptr,      OPT_JOB_TIME},
+    {"no-dump",          no_argument,            nullptr,      OPT_NO_DUMP},
+    {"preload",          required_argument,      nullptr,      OPT_PRELOAD},
+    {nullptr,            no_argument,            nullptr,      0}
   };
 }
 

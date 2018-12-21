@@ -156,10 +156,10 @@ static struct
   const char* lpszFile;
 }
 configShortcuts[] = {
-  "pdftex", MIKTEX_PATH_PDFTEX_CFG,
-  "dvips", MIKTEX_PATH_CONFIG_PS,
-  "dvipdfmx", MIKTEX_PATH_DVIPDFMX_CONFIG,
-  "updmap", MIKTEX_PATH_UPDMAP_CFG,
+  {"pdftex", MIKTEX_PATH_PDFTEX_CFG},
+  {"dvips", MIKTEX_PATH_CONFIG_PS},
+  {"dvipdfmx", MIKTEX_PATH_DVIPDFMX_CONFIG},
+  {"updmap", MIKTEX_PATH_UPDMAP_CFG},
 };
 
 string Timestamp()

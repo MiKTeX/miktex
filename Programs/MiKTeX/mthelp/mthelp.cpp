@@ -80,13 +80,10 @@ va_end(arglist);
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 const char* const TheNameOfTheGame = T_("MiKTeX Help Utility");
-const char* const PROGNAME = "mthelp";
 
 #if defined(MIKTEX_WINDOWS)
-const char PATH_DELIMITER = ';';
 #define PATH_DELIMITER_STRING ";"
 #else
-const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
 

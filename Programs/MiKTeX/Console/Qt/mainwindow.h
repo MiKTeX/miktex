@@ -688,6 +688,8 @@ private:
     case MiKTeX::Packages::Notification::InstallPackageEnd:
       status = Status::None;
       break;
+    default:
+      break;
     }
     progressInfo = packageInstaller->GetProgressInfo();
     emit OnUpgradeProgress();
@@ -845,6 +847,8 @@ private:
     case MiKTeX::Packages::Notification::DownloadPackageEnd:
     case MiKTeX::Packages::Notification::InstallPackageEnd:
       status = Status::None;
+      break;
+    default:
       break;
     }
     progressInfo = packageInstaller->GetProgressInfo();

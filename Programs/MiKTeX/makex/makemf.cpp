@@ -190,8 +190,8 @@ namespace {
   const struct option aLongOptions[] =
   {
     COMMON_OPTIONS,
-    "stdout",       no_argument, nullptr,      'c',
-    nullptr,        no_argument, nullptr,      0,
+    {"stdout",       no_argument, nullptr,      'c'},
+    {nullptr,        no_argument, nullptr,      0}
   };
 }
 

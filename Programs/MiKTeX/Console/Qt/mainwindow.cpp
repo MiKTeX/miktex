@@ -375,6 +375,8 @@ void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
   case QSystemTrayIcon::ActivationReason::DoubleClick:
     this->showNormal();
     break;
+  default:
+    break;
   }
 }
 
@@ -388,6 +390,8 @@ void MainWindow::TrayMessageClicked()
   {
   case TrayMessageContext::Updates:
     SetCurrentPage(Pages::Updates);
+    break;
+  default:
     break;
   }
 }
@@ -1158,6 +1162,8 @@ bool UpdateWorker::Run()
         break;
       case PackageInstaller::UpdateInfo::ForceRemove:
         toBeRemoved.push_back(update.packageId);
+        break;
+      default:
         break;
       }
     }

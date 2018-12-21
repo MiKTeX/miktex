@@ -137,9 +137,9 @@ namespace {
   const struct option aLongOptions[] =
   {
     COMMON_OPTIONS,
-    "force",                no_argument,            nullptr,      OPT_FORCE,
-    "map-file",             required_argument,      nullptr,      OPT_MAP_FILE,
-    nullptr,                no_argument,            nullptr,      0,
+    {"force",                no_argument,            nullptr,      OPT_FORCE},
+    {"map-file",             required_argument,      nullptr,      OPT_MAP_FILE},
+    {nullptr,                no_argument,            nullptr,      0}
   };
 }
 

@@ -513,7 +513,7 @@ public:
   void Run(int argc, const char** argv);
 
 public:
-  void Trace(const char* lpszFormat, ...);
+  void MyTrace(const char* lpszFormat, ...);
 
 public:
   void Verbose(const char* lpszFormat, ...);
@@ -545,7 +545,7 @@ void McdApp::Verbose(const char* lpszFormat, ...)
   }
 }
 
-void McdApp::Trace(const char* lpszFormat, ...)
+void McdApp::MyTrace(const char* lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
@@ -719,7 +719,7 @@ void Driver::Initialize(McdApp* pApplication, Options* pOptions, const char* lps
   this->pApplication = pApplication;
   this->pOptions = pOptions;
 
-  pApplication->Trace(T_("initializing driver..."));
+  pApplication->MyTrace(T_("initializing driver..."));
 
   givenFileName = lpszFileName;
 
@@ -730,7 +730,7 @@ void Driver::Initialize(McdApp* pApplication, Options* pOptions, const char* lps
   originalInputFile.MakeAbsolute();
   originalInputFile.ConvertToUnix();
 
-  pApplication->Trace(T_("input file: %s"), Q_(originalInputFile));
+  pApplication->MyTrace(T_("input file: %s"), Q_(originalInputFile));
 
   if (pOptions->jobName.empty())
   {
@@ -751,19 +751,19 @@ void Driver::Initialize(McdApp* pApplication, Options* pOptions, const char* lps
   workingDirectory = tempDirectory->GetPathName() / "_src";
   Directory::Create(workingDirectory);
   workingDirectory.ConvertToUnix();
-  pApplication->Trace(T_("working directory: %s"), Q_(workingDirectory));
+  pApplication->MyTrace(T_("working directory: %s"), Q_(workingDirectory));
 
   // create extra directory
   extraDirectory = tempDirectory->GetPathName() / "_xtr";
   Directory::Create(extraDirectory);
   extraDirectory.ConvertToUnix();
-  pApplication->Trace(T_("extra directory: %s"), Q_(extraDirectory));
+  pApplication->MyTrace(T_("extra directory: %s"), Q_(extraDirectory));
 
   // create aux directory
   auxDirectory = tempDirectory->GetPathName() / "_aux";
   Directory::Create(auxDirectory);
   auxDirectory.ConvertToUnix();
-  pApplication->Trace(T_("aux directory: %s"), Q_(auxDirectory));
+  pApplication->MyTrace(T_("aux directory: %s"), Q_(auxDirectory));
 
   // If the user explicitly specified the language, use that.
   // Otherwise, if the first line is \input texinfo, assume it's
@@ -1568,7 +1568,7 @@ void Driver::GetAuxFiles(const PathName& baseName, const char* lpszExtension, ve
   PathName curDir;
   curDir.SetToCurrentDirectory();
 
-  pApplication->Trace(T_("collecting %s in %s..."), Q_(pattern), Q_(curDir));
+  pApplication->MyTrace(T_("collecting %s in %s..."), Q_(pattern), Q_(curDir));
 
   unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(curDir, pattern.GetData());
 

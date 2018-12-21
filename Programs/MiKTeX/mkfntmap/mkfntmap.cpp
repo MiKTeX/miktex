@@ -131,7 +131,7 @@ class MakeFontMapApp :
   public IRunProcessCallback
 {
 public:
-  void Init(int argc, const char** argv);
+  void MyInit(int argc, const char** argv);
 
 public:
   void Run();
@@ -550,7 +550,7 @@ void MakeFontMapApp::ParseConfigFile(const PathName& path)
   reader.Close();
 }
 
-void MakeFontMapApp::Init(int argc, const char** argv)
+void MakeFontMapApp::MyInit(int argc, const char** argv)
 {
   Session::InitInfo initInfo(argv[0]);
   vector<const char*> newargv(&argv[0], &argv[argc + 1]);
@@ -1378,7 +1378,7 @@ int MAIN(int argc, MAINCHAR** argv)
       newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
-    app.Init(newargv.size() - 1, &newargv[0]);
+    app.MyInit(newargv.size() - 1, &newargv[0]);
     app.Run();
     app.Finalize2(0);
     logger = nullptr;

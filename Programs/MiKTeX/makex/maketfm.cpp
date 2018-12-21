@@ -83,7 +83,7 @@ namespace {
   const struct option aLongOptions[] =
   {
     COMMON_OPTIONS,
-    nullptr, no_argument, nullptr, 0,
+    {nullptr, no_argument, nullptr, 0}
   };
 }
 

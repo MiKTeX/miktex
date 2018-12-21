@@ -104,6 +104,8 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
         return tr("install");
       case PackageInstaller::UpdateInfo::ForceRemove:
         return tr("remove");
+      default:
+        break;
       }
       break;
     case 4:
@@ -124,6 +126,8 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
         return tr("to be repaired");
       case PackageInstaller::UpdateInfo::ReleaseStateChange:
         return tr("release state change");
+      default:
+        break;
       }
       break;
     }
