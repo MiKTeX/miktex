@@ -267,12 +267,7 @@ inline void DbgView(const std::string& s)
 inline bool AdminControlsUserConfig()
 {
 #if ADMIN_CONTROLS_USER_CONFIG
-#if 1
   return true;
-#else
-  const char* lpsz = getenv("MIKTEX_ADMIN_CONTROLS_USER_CONFIG");
-  return lpsz != 0 && strcmp(lpsz, "t") == 0;
-#endif
 #else
   return false;
 #endif

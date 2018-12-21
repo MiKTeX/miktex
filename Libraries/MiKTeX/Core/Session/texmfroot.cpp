@@ -269,31 +269,34 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   commonConfigRootIndex = INVALID_ROOT_INDEX;
   userConfigRootIndex = INVALID_ROOT_INDEX;
 
-  // UserConfig
-  if (!startupConfig.userConfigRoot.Empty())
+  if (!IsAdminMode() || AdminControlsUserConfig())
   {
-    userConfigRootIndex = RegisterRootDirectory(startupConfig.userConfigRoot, RootDirectoryInfo::Purpose::Config, false, false, review);
-  }
-
-  // UserData
-  if (!startupConfig.userDataRoot.Empty())
-  {
-    userDataRootIndex = RegisterRootDirectory(startupConfig.userDataRoot, RootDirectoryInfo::Purpose::Data, false, false, review);
-  }
-
-  // UserRoots
-  for (const string& root : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
-  {
-    if (!root.empty())
+    // UserConfig
+    if (!startupConfig.userConfigRoot.Empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false, false, review);
+      userConfigRootIndex = RegisterRootDirectory(startupConfig.userConfigRoot, RootDirectoryInfo::Purpose::Config, false, false, review);
     }
-  }
 
-  // UserInstall
-  if (!startupConfig.userInstallRoot.Empty())
-  {
-    userInstallRootIndex = RegisterRootDirectory(startupConfig.userInstallRoot, RootDirectoryInfo::Purpose::Install, false, false, review);
+    // UserData
+    if (!startupConfig.userDataRoot.Empty())
+    {
+      userDataRootIndex = RegisterRootDirectory(startupConfig.userDataRoot, RootDirectoryInfo::Purpose::Data, false, false, review);
+    }
+
+    // UserRoots
+    for (const string& root : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
+    {
+      if (!root.empty())
+      {
+        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false, false, review);
+      }
+    }
+
+    // UserInstall
+    if (!startupConfig.userInstallRoot.Empty())
+    {
+      userInstallRootIndex = RegisterRootDirectory(startupConfig.userInstallRoot, RootDirectoryInfo::Purpose::Install, false, false, review);
+    }
   }
 
   // CommonConfig
@@ -323,12 +326,15 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, RootDirectoryInfo::Purpose::Install, true, false, review);
   }
 
-  // OtherUserRoots
-  for (const string& root : StringUtil::Split(startupConfig.otherUserRoots, PathName::PathNameDelimiter))
+  if (!IsAdminMode() || AdminControlsUserConfig())
   {
-    if (!root.empty())
+    // OtherUserRoots
+    for (const string& root : StringUtil::Split(startupConfig.otherUserRoots, PathName::PathNameDelimiter))
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false , true, review);
+      if (!root.empty())
+      {
+        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false , true, review);
+      }
     }
   }
 
@@ -346,24 +352,30 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     MIKTEX_UNEXPECTED();
   }
 
+  if (!IsAdminMode() || AdminControlsUserConfig())
+  {
+    if (userDataRootIndex == INVALID_ROOT_INDEX)
+    {
+      userDataRootIndex = 0;
+    }
+    if (userConfigRootIndex == INVALID_ROOT_INDEX)
+    {
+      userConfigRootIndex = userDataRootIndex;
+    }
+    if (userInstallRootIndex == INVALID_ROOT_INDEX)
+    {
+      userInstallRootIndex = userConfigRootIndex;
+    }
+  }
+
   if (commonDataRootIndex == INVALID_ROOT_INDEX)
   {
     commonDataRootIndex = 0;
   }
-
-  if (userDataRootIndex == INVALID_ROOT_INDEX)
-  {
-    userDataRootIndex = 0;
-  }
-
+  
   if (commonConfigRootIndex == INVALID_ROOT_INDEX)
   {
     commonConfigRootIndex = commonDataRootIndex;
-  }
-
-  if (userConfigRootIndex == INVALID_ROOT_INDEX)
-  {
-    userConfigRootIndex = userDataRootIndex;
   }
 
   if (commonInstallRootIndex == INVALID_ROOT_INDEX)
@@ -371,23 +383,17 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     commonInstallRootIndex = commonConfigRootIndex;
   }
 
-  if (userInstallRootIndex == INVALID_ROOT_INDEX)
-  {
-    userInstallRootIndex = userConfigRootIndex;
-  }
-
   RegisterRootDirectory(MPM_ROOT_PATH, RootDirectoryInfo::Purpose::Generic, IsAdminMode(), false, false);
 
-  trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectoryPath(userDataRootIndex).GetData());
-
-  trace_config->WriteFormattedLine("core", "UserConfig: %s", GetRootDirectoryPath(userConfigRootIndex).GetData());
-
-  trace_config->WriteFormattedLine("core", "UserInstall: %s", GetRootDirectoryPath(userInstallRootIndex).GetData());
+  if (!IsAdminMode() || AdminControlsUserConfig())
+  {
+    trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectoryPath(userDataRootIndex).GetData());
+    trace_config->WriteFormattedLine("core", "UserConfig: %s", GetRootDirectoryPath(userConfigRootIndex).GetData());
+    trace_config->WriteFormattedLine("core", "UserInstall: %s", GetRootDirectoryPath(userInstallRootIndex).GetData());
+  }
 
   trace_config->WriteFormattedLine("core", "CommonData: %s", GetRootDirectoryPath(commonDataRootIndex).GetData());
-
   trace_config->WriteFormattedLine("core", "CommonConfig: %s", GetRootDirectoryPath(commonConfigRootIndex).GetData());
-
   trace_config->WriteFormattedLine("core", "CommonInstall: %s", GetRootDirectoryPath(commonInstallRootIndex).GetData());
 }
 
@@ -518,7 +524,7 @@ void SessionImpl::SaveRootDirectories(
 #endif
   )
 {
-#if ! defined(MIKTEX_WINDOWS)
+#if !defined(MIKTEX_WINDOWS)
   bool noRegistry = true;
 #endif
   MIKTEX_ASSERT(!IsMiKTeXDirect());
@@ -534,7 +540,7 @@ void SessionImpl::SaveRootDirectories(
   startupConfig.otherUserRoots.reserve(n * 30);
   for (unsigned idx = 0; idx < n; ++idx)
   {
-    const RootDirectoryInternals rootDirectory = this->rootDirectories[idx];
+    const RootDirectoryInternals& rootDirectory = this->rootDirectories[idx];
     if (rootDirectory.IsCommon())
     {
       if (idx == commonDataRootIndex
