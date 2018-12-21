@@ -476,7 +476,7 @@ int main(int argc, const char ** argv)
   {
     shared_ptr<Session> session = Session::Create(Session::InitInfo(argv[0]));
     Main(argc, argv);
-    exitCode = 0;
+    exitCode = SUCCESS;
   }
   catch (const MiKTeXException& e)
   {

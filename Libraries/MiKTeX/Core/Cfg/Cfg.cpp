@@ -614,6 +614,12 @@ public:
 
 public:
   KeyIterator end() override;
+  
+public:
+  size_t GetSize() const override
+  {
+    return keyMap.size();
+  }
 
 public:
   void MIKTEXTHISCALL DeleteKey(const string& keyName) override;

@@ -264,6 +264,9 @@ public:
 
 public:
   virtual KeyIterator MIKTEXTHISCALL end() = 0;
+  
+public:
+  virtual std::size_t GetSize() const = 0;
 };
 
 MIKTEX_CORE_END_NAMESPACE;

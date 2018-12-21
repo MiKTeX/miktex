@@ -1163,11 +1163,7 @@ void PackageCreator::RunArchiver(ArchiveFileType archiveFileType, const PathName
 
 void PackageCreator::CreateRepositoryInformationFile(const PathName& repository, Cfg& repositoryManifest, const map<string, MpcPackageInfo>& packageTable)
 {
-  int numberOfPackages = 0;
-  for (const shared_ptr<Cfg::Key>& key : repositoryManifest)
-  {
-    numberOfPackages += 1;
-  }
+  int numberOfPackages = repositoryManifest.GetSize();
   set<MpcPackageInfo, PackagedOnReversed> packagedOnReversed;
   for (const pair<string, MpcPackageInfo>& p: packageTable)
   {
