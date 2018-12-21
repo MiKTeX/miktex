@@ -2139,9 +2139,18 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& existingManifests
       continue;
     }
 
+    bool knownPackage;
+    PackageInfo packageInfo;
+    tie(knownPackage, packageInfo) = packageDataStore->TryGetPackage(packageId);
+    if (!knownPackage)
+    {
+      // might be a different architecture and hence not in the package store
+      continue;
+    }
+    
     // now we know that the package is obsolete
     // check to see whether the obsolete package is installed
-    if (!packageDataStore->GetPackage(packageId).IsInstalled() || IsPureContainer(packageId))
+    if (!packageInfo.IsInstalled() || IsPureContainer(packageId))
     {
       // not installed: remove the package manifest (later)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete package manifest '{0}'"), packageId));
