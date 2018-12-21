@@ -44,7 +44,8 @@ void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathN
     }
     for (unsigned idx = 0; idx < GetNumberOfTEXMFRoots(); ++idx)
     {
-      PathName path = GetRootDirectoryPath(idx);
+      const RootDirectoryInternals& root = rootDirectories[idx];
+      PathName path = root.get_Path();
       path.AppendDirectoryDelimiter();
       path.Append(suffix, false);
       paths.push_back(path);
