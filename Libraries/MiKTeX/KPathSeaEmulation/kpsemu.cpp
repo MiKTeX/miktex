@@ -740,7 +740,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
   }
   else if (varName == "TEXMFCONFIG")
   {
-    path = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+    path = session->GetSpecialPath(session->IsAdminMode() ? SpecialPath::CommonConfigRoot : SpecialPath::UserConfigRoot);
     varValue = path.ToUnix().ToString();
     result = true;
   }
