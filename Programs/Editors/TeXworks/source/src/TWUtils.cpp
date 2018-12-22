@@ -106,16 +106,16 @@ const QString TWUtils::getLibraryPath(const QString& subdir, const bool updateOn
 #else // defined(Q_OS_WIN)
 #if defined(MIKTEX)
 		{
-                  std::shared_ptr<MiKTeX::Core::Session> pSession = MiKTeX::Core::Session::Get();
+                  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 		  MiKTeX::Core::PathName dir;
-		  dir = pSession->GetSpecialPath(MiKTeX::Core::SpecialPath::UserDataRoot);
+		  dir = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot);
 		  dir /= TEXWORKS_NAME;
-		  std::string subdir (std::to_string(VER_MAJOR));
+		  std::string subdir(std::to_string(VER_MAJOR));
 		  subdir += ".";
 		  subdir += std::to_string(VER_MINOR);
 		  dir /= subdir;
 		  libRootPath = dir.GetData();
-                  if (!pSession->UnloadFilenameDatabase())
+                  if (!session->UnloadFilenameDatabase())
                   {
                     //TODO: log
                   }

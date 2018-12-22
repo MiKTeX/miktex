@@ -301,7 +301,7 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
       ret.commonConfigRoot = str;
     }
   }
-  if (!common || AdminControlsUserConfig())
+  if (!common)
   {
     if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_ROOTS, str))
     {
@@ -499,7 +499,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
     }
   }
 
-  if (!common || commonStartupConfigFile == userStartupConfigFile || AdminControlsUserConfig())
+  if (!common || commonStartupConfigFile == userStartupConfigFile)
   {
     if (startupConfig.userRoots != "" || showAllValues)
     {

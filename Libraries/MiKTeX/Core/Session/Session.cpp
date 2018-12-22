@@ -358,12 +358,12 @@ void SessionImpl::SetEnvironmentVariables()
   Utils::SetEnvironmentString("GSC", MIKTEX_GS_EXE);
   vector<string> gsDirectories;
   gsDirectories.push_back((GetSpecialPath(SpecialPath::CommonInstallRoot) / "ghostscript" / "base").ToString());
-  if ((!IsAdminMode() || AdminControlsUserConfig()) && GetUserInstallRoot() != GetCommonInstallRoot())
+  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
   {
     gsDirectories.push_back((GetSpecialPath(SpecialPath::UserInstallRoot) / "ghostscript" / "base").ToString());
   }
   gsDirectories.push_back((GetSpecialPath(SpecialPath::CommonInstallRoot) / "fonts").ToString());
-  if ((!IsAdminMode() || AdminControlsUserConfig()) && GetUserInstallRoot() != GetCommonInstallRoot())
+  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
   {
     gsDirectories.push_back((GetSpecialPath(SpecialPath::UserInstallRoot) / "fonts").ToString());
   }

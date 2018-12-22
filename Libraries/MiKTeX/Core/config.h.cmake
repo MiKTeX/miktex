@@ -51,7 +51,6 @@
 #  define HAVE_PTHREAD 1
 #endif
 
-#cmakedefine ADMIN_CONTROLS_USER_CONFIG 1
 #cmakedefine REPORT_EVENTS 1
 
 #cmakedefine USE_SYSTEM_OPENSSL_CRYPTO 1

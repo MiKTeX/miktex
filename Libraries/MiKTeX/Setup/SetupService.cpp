@@ -1133,17 +1133,20 @@ void SetupServiceImpl::DoCleanUp()
           RemoveEmptyDirectoryChain(parent);
         }
       }
-      parent = session->GetSpecialPath(SpecialPath::UserDataRoot);
-      parent.CutOffLastComponent();
-      if (Directory::Exists(parent))
+      if (!session->IsAdminMode())
       {
-        RemoveEmptyDirectoryChain(parent);
-      }
-      parent = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-      parent.CutOffLastComponent();
-      if (Directory::Exists(parent))
-      {
-        RemoveEmptyDirectoryChain(parent);
+        parent = session->GetSpecialPath(SpecialPath::UserDataRoot);
+        parent.CutOffLastComponent();
+        if (Directory::Exists(parent))
+        {
+          RemoveEmptyDirectoryChain(parent);
+        }
+        parent = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+        parent.CutOffLastComponent();
+        if (Directory::Exists(parent))
+        {
+          RemoveEmptyDirectoryChain(parent);
+        }
       }
       if (session->IsAdminMode())
       {
@@ -1217,15 +1220,18 @@ vector<PathName> SetupServiceImpl::GetRoots()
     PathName installRoot = session->GetSpecialPath(SpecialPath::InstallRoot);
     vec.push_back(installRoot);
   }
-  PathName userDataRoot = session->GetSpecialPath(SpecialPath::UserDataRoot);
-  if (!Contains(vec, userDataRoot))
+  if (!session->IsAdminMode())
   {
-    vec.push_back(userDataRoot);
-  }
-  PathName userConfigRoot = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-  if (!Contains(vec, userConfigRoot))
-  {
-    vec.push_back(userConfigRoot);
+    PathName userDataRoot = session->GetSpecialPath(SpecialPath::UserDataRoot);
+    if (!Contains(vec, userDataRoot))
+    {
+      vec.push_back(userDataRoot);
+    }
+    PathName userConfigRoot = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+    if (!Contains(vec, userConfigRoot))
+    {
+      vec.push_back(userConfigRoot);
+    }
   }
   if (session->IsAdminMode())
   {
@@ -1708,11 +1714,14 @@ void SetupServiceImpl::RemoveFormatFiles()
   {
     CollectFiles(toBeDeleted, pathFmt, MIKTEX_FORMAT_FILE_SUFFIX);
   }
-  PathName pathFmt2(session->GetSpecialPath(SpecialPath::UserDataRoot));
-  pathFmt2 /= MIKTEX_PATH_FMT_DIR;
-  if (pathFmt != pathFmt2 && Directory::Exists(pathFmt2))
+  if (!session->IsAdminMode())
   {
-    CollectFiles(toBeDeleted, pathFmt2, MIKTEX_FORMAT_FILE_SUFFIX);
+    PathName pathFmt2(session->GetSpecialPath(SpecialPath::UserDataRoot));
+    pathFmt2 /= MIKTEX_PATH_FMT_DIR;
+    if (pathFmt2 != pathFmt && Directory::Exists(pathFmt2))
+    {
+      CollectFiles(toBeDeleted, pathFmt2, MIKTEX_FORMAT_FILE_SUFFIX);
+    }
   }
   for (const PathName& f : toBeDeleted)
   {

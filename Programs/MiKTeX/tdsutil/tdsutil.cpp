@@ -209,6 +209,7 @@ void TdsUtility::Run(int argc, const char ** argv)
     }
     if (destDir.Empty())
     {
+      MIKTEX_ASSERT(!session->IsAdminMode());
       // TODO: home texmf
       destDir = session->GetSpecialPath(SpecialPath::UserDataRoot);
     }

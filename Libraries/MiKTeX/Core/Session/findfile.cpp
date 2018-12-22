@@ -329,7 +329,7 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
     {
       PathName pathPackagesIniC(GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
       bool renew = IsNewer(pathPackagesIniC, result[0]);
-      if (!renew && (!IsAdminMode() || AdminControlsUserConfig()) && GetUserConfigRoot() != GetUserConfigRoot())
+      if (!renew && !IsAdminMode() && GetUserConfigRoot() != GetCommonConfigRoot())
       {
         PathName pathPackagesIniU(GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
         renew = IsNewer(pathPackagesIniU, result[0]);

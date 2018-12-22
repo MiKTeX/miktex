@@ -264,15 +264,6 @@ inline void DbgView(const std::string& s)
 #endif
 }
 
-inline bool AdminControlsUserConfig()
-{
-#if ADMIN_CONTROLS_USER_CONFIG
-  return true;
-#else
-  return false;
-#endif
-}
-
 class memstreambuf :
   public std::streambuf
 {

@@ -269,7 +269,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   commonConfigRootIndex = INVALID_ROOT_INDEX;
   userConfigRootIndex = INVALID_ROOT_INDEX;
 
-  if (!IsAdminMode() || AdminControlsUserConfig())
+  if (!IsAdminMode())
   {
     // UserConfig
     if (!startupConfig.userConfigRoot.Empty())
@@ -326,7 +326,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, RootDirectoryInfo::Purpose::Install, true, false, review);
   }
 
-  if (!IsAdminMode() || AdminControlsUserConfig())
+  if (!IsAdminMode())
   {
     // OtherUserRoots
     for (const string& root : StringUtil::Split(startupConfig.otherUserRoots, PathName::PathNameDelimiter))
@@ -352,7 +352,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     MIKTEX_UNEXPECTED();
   }
 
-  if (!IsAdminMode() || AdminControlsUserConfig())
+  if (!IsAdminMode())
   {
     if (userDataRootIndex == INVALID_ROOT_INDEX)
     {
@@ -385,7 +385,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
 
   RegisterRootDirectory(MPM_ROOT_PATH, RootDirectoryInfo::Purpose::Generic, IsAdminMode(), false, false);
 
-  if (!IsAdminMode() || AdminControlsUserConfig())
+  if (!IsAdminMode())
   {
     trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectoryPath(userDataRootIndex).GetData());
     trace_config->WriteFormattedLine("core", "UserConfig: %s", GetRootDirectoryPath(userConfigRootIndex).GetData());

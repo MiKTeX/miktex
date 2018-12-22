@@ -143,7 +143,7 @@ void SessionImpl::RegisterFileType(FileType fileType)
     {
       searchPath.push_back(localBinDir.ToString());
     }
-    if (!IsAdminMode() || AdminControlsUserConfig())
+    if (!IsAdminMode())
     {
       PathName userBinDir = GetSpecialPath(SpecialPath::UserInstallRoot);
       userBinDir /= MIKTEX_PATH_BIN_DIR;

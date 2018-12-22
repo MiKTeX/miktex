@@ -42,7 +42,7 @@ BEGIN_TEST_SCRIPT("fndb-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  PathName localRoot = pSession->GetSpecialPath(SpecialPath::UserDataRoot);
+  PathName localRoot = pSession->GetSpecialPath(SpecialPath::DataRoot);
 
   PathName installRoot = pSession->GetSpecialPath(SpecialPath::InstallRoot);
 

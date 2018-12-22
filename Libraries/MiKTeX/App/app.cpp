@@ -292,11 +292,11 @@ void Application::AutoMaintenance()
 #endif
     throw 1;
   }
-  PathName lockdir = pimpl->session->GetSpecialPath(SpecialPath::UserDataRoot) / MIKTEX_PATH_MIKTEX_DIR / "locks";
+  PathName lockdir = pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_DIR / "locks";
   PathName lockfile = lockdir / "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lck";
   PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
   bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
-  PathName userLanguageDat = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
+  PathName userLanguageDat = pimpl->session->IsAdminMode() ? "" : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
   bool mustRefreshUserLanguageDat = !pimpl->session->IsAdminMode() && File::Exists(userLanguageDat) && lastAdminMaintenance + 30 > File::GetLastWriteTime(userLanguageDat);
   PathName initexmf;
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
@@ -837,17 +837,20 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
     defaultEditor = "notepad \"%f\"";
   }
 
-  // read information from yap.ini
-  // FIXME: use FindFile()
-  PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / MIKTEX_YAP_INI_FILENAME;
-  if (File::Exists(yapIni))
+  if (!pimpl->session->IsAdminMode())
   {
-    unique_ptr<Cfg> yapConfig(Cfg::Create());
-    yapConfig->Read(yapIni);
-    string yapEditor;
-    if (yapConfig->TryGetValueAsString("Settings", "Editor", yapEditor))
+    // read information from yap.ini
+    // FIXME: use FindFile()
+    PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / MIKTEX_YAP_INI_FILENAME;
+    if (File::Exists(yapIni))
     {
-      defaultEditor = yapEditor;
+      unique_ptr<Cfg> yapConfig(Cfg::Create());
+      yapConfig->Read(yapIni);
+      string yapEditor;
+      if (yapConfig->TryGetValueAsString("Settings", "Editor", yapEditor))
+      {
+        defaultEditor = yapEditor;
+      }
     }
   }
 

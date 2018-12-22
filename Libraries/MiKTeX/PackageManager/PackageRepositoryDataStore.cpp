@@ -44,7 +44,7 @@ PackageRepositoryDataStore::PackageRepositoryDataStore(std::shared_ptr<WebSessio
 {
   MIKTEX_ASSERT(webSession != nullptr);
   comboCfg.Load(
-    session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI,
+    session->IsAdminMode() ? "" : session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI,
     session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI);
 }
 
