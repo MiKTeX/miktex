@@ -630,9 +630,12 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
     options.Config.commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
     options.Config.commonConfigRoot = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
     options.Config.commonDataRoot = session->GetSpecialPath(SpecialPath::CommonDataRoot);
-    options.Config.userInstallRoot = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-    options.Config.userConfigRoot = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-    options.Config.userDataRoot = session->GetSpecialPath(SpecialPath::UserDataRoot);
+    if (!session->IsAdminMode())
+    {
+      options.Config.userInstallRoot = session->GetSpecialPath(SpecialPath::UserInstallRoot);
+      options.Config.userConfigRoot = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+      options.Config.userDataRoot = session->GetSpecialPath(SpecialPath::UserDataRoot);
+    }
     return;
   }
   if (options.Task == SetupTask::InstallFromLocalRepository)
@@ -1848,10 +1851,13 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       }
       s << fmt::format("Root{}: {}", idx, roots[idx].path) << "\n";
     }
-    s << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << "\n"
-      << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << "\n"
-      << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << "\n"
-      << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << "\n"
+    if (!session->IsAdminMode())
+    {
+      s << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << "\n"
+        << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << "\n"
+        << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << "\n";
+    }
+    s <<"CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << "\n"
       << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << "\n"
       << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << "\n";
   }

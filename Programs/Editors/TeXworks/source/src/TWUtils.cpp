@@ -295,28 +295,20 @@ void TWUtils::insertHelpMenuItems(QMenu* helpMenu)
 	QDir helpDir(QCoreApplication::applicationDirPath() + "/../texworks-help");
 #else
 #if defined(MIKTEX)
-	QDir helpDir;
-        std::shared_ptr<MiKTeX::Core::Session> pSession = MiKTeX::Core::Session::Get();
-	MiKTeX::Core::PathName path = pSession->GetSpecialPath(MiKTeX::Core::SpecialPath::UserInstallRoot);
-	path /= "doc/texworks/help";
-	if (MiKTeX::Core::Directory::Exists(path))
-	{
-	  helpDir = path.GetData();
-	}
-	else
-	{
-	  path = pSession->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot);
-	  path /= "doc/texworks/help";
-	  if (MiKTeX::Core::Directory::Exists(path))
-	  {
-	    helpDir = path.GetData();
-	  }
-	  else
-	  {
-	    helpDir = QCoreApplication::applicationDirPath() + "/texworks-help";
-	  }
-	}
-        if (!pSession->UnloadFilenameDatabase())
+        // TODO: code review
+        QDir helpDir;
+        std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+        MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DistRoot);
+        path /= "doc/texworks/help";
+        if (MiKTeX::Core::Directory::Exists(path))
+        {
+          helpDir = QString::fromUtf8(path.GetData());
+        }
+        else
+        {
+          helpDir = QCoreApplication::applicationDirPath() + "/texworks-help";
+        }
+        if (!session->UnloadFilenameDatabase())
         {
           //TODO: log
         }
