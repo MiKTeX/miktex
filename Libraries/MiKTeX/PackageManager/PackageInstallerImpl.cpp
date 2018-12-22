@@ -393,32 +393,8 @@ void PackageInstallerImpl::LoadRepositoryManifest(bool download)
 {
   repositoryManifest.Clear();
 
-#if 1
   // path to mpm.ini
   PathName pathMpmIni(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_MPM_INI);
-#else
-  PathName commonMpmIni(
-    session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_MPM_INI);
-
-  PathName userMpmIni(
-    session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_MPM_INI);
-
-  PathName pathMpmIni;
-
-  if (session->IsAdminMode()
-    || (
-      !download
-      && userMpmIni != commonMpmIni
-      && File::Exists(commonMpmIni)
-      && (!File::Exists(userMpmIni) || File::GetLastWriteTime(commonMpmIni) > File::GetLastWriteTime(userMpmIni))))
-  {
-    pathMpmIni = commonMpmIni;
-  }
-  else
-  {
-    pathMpmIni = commonMpmIni;
-  }
-#endif
 
   // install (if necessary)
   time_t ONE_DAY_IN_SECONDS = 86400;
@@ -2074,6 +2050,8 @@ void PackageInstallerImpl::DownloadThread()
 
 void PackageInstallerImpl::CleanUpUserDatabase()
 {
+  MIKTEX_ASSERT(!session->IsAdminMode());
+  
   PathName userManifestsPath(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
   PathName commonManifestsPath(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
 
