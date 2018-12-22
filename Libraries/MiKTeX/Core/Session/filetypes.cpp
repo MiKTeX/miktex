@@ -143,13 +143,16 @@ void SessionImpl::RegisterFileType(FileType fileType)
     {
       searchPath.push_back(localBinDir.ToString());
     }
-    PathName userBinDir = GetSpecialPath(SpecialPath::UserInstallRoot);
-    userBinDir /= MIKTEX_PATH_BIN_DIR;
-    userBinDir.Canonicalize();
-    // FIXME: case-senstive
-    if (!IsAdminMode() && std::find(searchPath.begin(), searchPath.end(), userBinDir.ToString()) == searchPath.end())
+    if (!IsAdminMode() || AdminControlsUserConfig())
     {
-      searchPath.push_back(userBinDir.ToString());
+      PathName userBinDir = GetSpecialPath(SpecialPath::UserInstallRoot);
+      userBinDir /= MIKTEX_PATH_BIN_DIR;
+      userBinDir.Canonicalize();
+      // FIXME: case-senstive
+      if (!IsAdminMode() && std::find(searchPath.begin(), searchPath.end(), userBinDir.ToString()) == searchPath.end())
+      {
+        searchPath.push_back(userBinDir.ToString());
+      }
     }
     PathName commonBinDir = GetSpecialPath(SpecialPath::CommonInstallRoot);
     commonBinDir /= MIKTEX_PATH_BIN_DIR;

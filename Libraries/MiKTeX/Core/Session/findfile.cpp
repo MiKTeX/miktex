@@ -24,6 +24,7 @@
 #endif
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "internal.h"
 
@@ -324,13 +325,19 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
         FindFileInternal(fileName, vec, firstMatchOnly, true, false, result);
       }
     }
-    else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && GetConfigValue(MIKTEX_REGKEY_TEXMF, MIKTEX_REGVAL_RENEW_FORMATS_ON_UPDATE, true).GetBool())
+    else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && findFileCallback != nullptr && GetConfigValue(MIKTEX_REGKEY_TEXMF, MIKTEX_REGVAL_RENEW_FORMATS_ON_UPDATE, true).GetBool())
     {
       PathName pathPackagesIniC(GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
-      PathName pathPackagesIniU(GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
-      if (IsNewer(pathPackagesIniC, result[0]) || (pathPackagesIniU != pathPackagesIniC && IsNewer(pathPackagesIniU, result[0])))
+      bool renew = IsNewer(pathPackagesIniC, result[0]);
+      if (!renew && (!IsAdminMode() || AdminControlsUserConfig()) && GetUserConfigRoot() != GetUserConfigRoot())
       {
-        if (findFileCallback != nullptr && findFileCallback->TryCreateFile(fileName, fileType))
+        PathName pathPackagesIniU(GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
+        renew = IsNewer(pathPackagesIniU, result[0]);
+      }
+      if (renew)
+      {
+        trace_filesearch->WriteLine("core", fmt::format(T_("going to renew {0} after update"), result[0]));
+        if (findFileCallback->TryCreateFile(fileName, fileType))
         {
           result.clear();
           FindFileInternal(fileName, vec, firstMatchOnly, true, false, result);
