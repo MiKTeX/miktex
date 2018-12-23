@@ -32,16 +32,15 @@
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/ConfigNames>
-#include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
+#include <miktex/Core/LockFile>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
-#include <miktex/Core/TemporaryFile>
 #include <miktex/Trace/Trace>
 #include <miktex/UI/UI>
 #include <miktex/Util/StringUtil>
@@ -292,8 +291,6 @@ void Application::AutoMaintenance()
 #endif
     throw 1;
   }
-  PathName lockdir = pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_DIR / "locks";
-  PathName lockfile = lockdir / "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lck";
   PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
   bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
   PathName userLanguageDat = pimpl->session->IsAdminMode() ? "" : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
@@ -301,14 +298,13 @@ void Application::AutoMaintenance()
   PathName initexmf;
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
-    if (File::Exists(lockfile))
+    PathName lockdir = pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_DIR / "locks";
+    unique_ptr<LockFile> lockFile = LockFile::Create(lockdir / "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lock");
+    if (!lockFile->TryLock(0ms))
     {
       return;
     }
     LOG4CXX_TRACE(logger, "running MIKTEX_HOOK_AUTO_MAINTENANCE")
-    Directory::Create(lockdir);
-    unique_ptr<TemporaryFile> tmpfile = TemporaryFile::Create(lockfile);
-    AutoFILE closeme (File::Open(tmpfile->GetPathName(), FileMode::Create, FileAccess::ReadWrite, false));
     vector<string> commonArgs{ initexmf.GetFileNameWithoutExtension().ToString() };
     switch (pimpl->enableInstaller)
     {

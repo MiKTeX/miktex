@@ -111,8 +111,10 @@ bool LockFileImpl::TryLock(chrono::milliseconds timeout)
     MIKTEX_UNEXPECTED();
   }
   chrono::time_point<chrono::high_resolution_clock> tryUntil = chrono::high_resolution_clock::now() + timeout;
+  bool tryAgain;
   do
   {
+    tryAgain = false;
     if (!File::Exists(path))
     {
       try
@@ -133,13 +135,14 @@ bool LockFileImpl::TryLock(chrono::milliseconds timeout)
       {
         trace_lockfile->WriteLine("core", fmt::format(T_("removing garbage lock file {0}"), Q_(path)));
         File::Delete(path);
+        tryAgain = true;
       }
       else
       {
         this_thread::sleep_for(10ms);
       }
     }
-  } while (!locked && chrono::high_resolution_clock::now() < tryUntil);
+  } while (!locked && (tryAgain || chrono::high_resolution_clock::now() < tryUntil));
   return locked;
 }
 
