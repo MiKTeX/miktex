@@ -814,7 +814,7 @@ file(MAKE_DIRECTORY
 )
 file(WRITE
   ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/locks/A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lock
-  "1\npermanently-locked\n"
+  "-1\npermanently-locked\n"
 )
 
 set(outdir "${MIKTEX_SANDBOX_BINARY_DIR}/${MIKTEX_REL_MIKTEX_BIN_DIR}")

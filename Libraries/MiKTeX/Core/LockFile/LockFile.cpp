@@ -172,6 +172,11 @@ bool LockFileImpl::IsGarbage()
     trace_lockfile->WriteLine("core", fmt::format(T_("could not read lock file {0}"), Q_(path)));
     return false;
   }
+  if (pid == "-1")
+  {
+    // permanently locked
+    return false;
+  }
   unique_ptr<Process> p = Process::GetProcess(std::stoi(pid));
   if (p == nullptr)
   {
