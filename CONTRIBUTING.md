@@ -6,8 +6,9 @@
 
 Before creating a bug report, please check this list:
 
-- check the [MiKTeX FAQ](https://miktex.org/faq)
-- search the issue tracker to see if the problem has already been reported
+1. check the [MiKTeX FAQ](https://miktex.org/faq)
+2. write down a one-liner which summarizes the problem
+3. perform an Internet search with the one-liner as the query
 
 Make sure that others will be able to reproduce the bug by providing:
 
@@ -21,16 +22,13 @@ Make sure that others will be able to reproduce the bug by providing:
 ### What happens next
 
 A MiKTeX developer will receive a notification. If the bug is
-reproducible, it will be a attached to milestone with an estimated fix
-date.
+reproducible, it will be a attached to a milestone with an estimated
+fix date.
 
 Unreproducible bugs usually lead to queries. So be prepared to make
 available additional information.
 
-Sloppy bug reports will be closed without comment. If this happens
-several times, the user will be blocked for a certain period of
-time. This cannot happen if you have read the contribution guidelines
-(this document).
+Sloppy bug reports will be closed (or deleted) without comment.
 
 ## Proposing a feature
 
