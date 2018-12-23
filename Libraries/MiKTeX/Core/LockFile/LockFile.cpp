@@ -175,7 +175,7 @@ bool LockFileImpl::IsGarbage()
   if (pid == "-1")
   {
     // permanently locked
-    return false;
+    return false;
   }
   unique_ptr<Process> p = Process::GetProcess(std::stoi(pid));
   if (p == nullptr)
