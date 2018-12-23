@@ -301,7 +301,8 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
       ret.commonConfigRoot = str;
     }
   }
-  if (!common)
+  
+  if (!IsAdminMode())
   {
     if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_ROOTS, str))
     {

@@ -234,7 +234,7 @@ void SessionImpl::DoStartupConfig()
     MergeStartupConfig(startupConfig, ReadStartupConfigFile(false, userStartupConfigFile));
   }
 
-#if ! NO_REGISTRY
+#if !NO_REGISTRY
   if (startupConfig.config != MiKTeXConfiguration::Portable)
   {
     // read the registry, if we don't have a startup config file
