@@ -27,7 +27,7 @@
 #  include <mach-o/dyld.h>
 #endif
 
-#include<"miktex/Core/File>
+#include <miktex/Core/File>
 #include <miktex/Core/Paths>
 
 #include "internal.h"
