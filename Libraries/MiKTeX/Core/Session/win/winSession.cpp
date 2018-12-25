@@ -666,7 +666,7 @@ bool SessionImpl::GetTTFDirs(string& ttfDirs)
   {
     flags.set((size_t)InternalFlag::CachedTtfDirs);
     PathName path;
-    if (GetWindowsFontsDirectory(path))
+    if (GetSystemFontDirectory(path))
     {
       if (!this->ttfDirs.empty())
       {
@@ -692,7 +692,7 @@ bool SessionImpl::GetOTFDirs(string& otfDirs)
   {
     flags.set((size_t)InternalFlag::CachedOtfDirs);
     PathName path;
-    if (GetWindowsFontsDirectory(path))
+    if (GetSystemFontDirectory(path))
     {
       if (!this->otfDirs.empty())
       {

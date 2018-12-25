@@ -390,7 +390,11 @@ vector<string> SessionImpl::GetFontDirectories()
     flags.set((size_t)InternalFlag::CachedSystemFontDirs);
 #if defined(MIKTEX_WINDOWS)
     PathName winFontDir;
-    if (GetWindowsFontsDirectory(winFontDir))
+    if (!IsAdminMode() && GetUserFontDirectory(winFontDir))
+    {
+      systemFontDirs.push_back(winFontDir.ToString());
+    }
+    if (GetSystemFontDirectory(winFontDir))
     {
       systemFontDirs.push_back(winFontDir.ToString());
     }

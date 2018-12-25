@@ -218,7 +218,11 @@ void SetTimesInternal(HANDLE handle, time_t creationTime, time_t lastAccessTime,
 #endif
 
 #if defined(MIKTEX_WINDOWS)
-bool GetWindowsFontsDirectory(MiKTeX::Core::PathName& path);
+bool GetSystemFontDirectory(MiKTeX::Core::PathName& path);
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+bool GetUserFontDirectory(MiKTeX::Core::PathName& path);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
