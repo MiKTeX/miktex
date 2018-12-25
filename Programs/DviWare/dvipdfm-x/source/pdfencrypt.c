@@ -87,33 +87,17 @@ static const unsigned char padding_bytes[32] = {
   0x2f, 0x0c, 0xa9, 0xfe, 0x64, 0x53, 0x69, 0x7a
 };
 
-void
-pdf_enc_compute_id_string (const char *producer,
-                           const char *dviname, const char *pdfname)
-{
-  struct pdf_sec *p = &sec_data;
-  char            datestr[32];
-  MD5_CONTEXT     md5;
-
-  MD5_init(&md5);
-  /* Don't use timezone for compatibility */
-  dpx_util_format_asn_date(datestr, 0);
-  MD5_write(&md5, (const unsigned char *)datestr, strlen(datestr));
-  if (producer)
-    MD5_write(&md5, (const unsigned char *)producer, strlen(producer));
-  if (dviname)
-    MD5_write(&md5, (const unsigned char *)dviname, strlen(dviname));
-  if (pdfname)
-    MD5_write(&md5, (const unsigned char *)pdfname, strlen(pdfname));
-  MD5_final(p->ID, &md5);
-}
-
 int
-pdf_init_encryption (struct pdf_enc_setting settings)
+pdf_init_encryption (struct pdf_enc_setting settings, const unsigned char *trailer_id)
 {
   time_t          current_time;
   struct pdf_sec *p = &sec_data;
 
+  if (trailer_id) {
+    memcpy(p->ID, trailer_id, 16);
+  } else {
+    memset(p->ID, 0, 16);
+  }
   current_time = dpx_util_get_unique_time_if_given();
   if (current_time == INVALID_EPOCH_VALUE)
     current_time = time(NULL);
@@ -746,17 +730,6 @@ pdf_encrypt_obj (void)
 #endif
 
   return doc_encrypt;
-}
-
-pdf_obj *pdf_enc_id_array (void)
-{
-  struct pdf_sec *p = &sec_data;
-  pdf_obj *id = pdf_new_array();
-
-  pdf_add_array(id, pdf_new_string(p->ID, 16));
-  pdf_add_array(id, pdf_new_string(p->ID, 16));
-
-  return id;
 }
 
 void pdf_enc_set_label (unsigned label)

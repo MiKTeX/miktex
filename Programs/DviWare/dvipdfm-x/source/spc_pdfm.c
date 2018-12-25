@@ -2061,6 +2061,7 @@ static struct spc_handler pdfm_handlers[] = {
   {"encrypt",      spc_handler_pdfm_do_nothing},
 
   {"pageresources", spc_handler_pdfm_pageresources},
+  {"trailerid", spc_handler_pdfm_do_nothing},
 };
 
 int

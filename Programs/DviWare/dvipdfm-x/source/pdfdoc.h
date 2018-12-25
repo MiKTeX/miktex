@@ -69,7 +69,9 @@ struct pdf_setting
     struct pdf_obj_setting object;
 };
 
-extern void pdf_open_document (const char *filename, const char **ids,
+extern void pdf_open_document (const char *filename,
+                               const char *creator,
+                               const unsigned char *id1, const unsigned char *id2,
                                struct pdf_setting settings);
 extern void pdf_close_document(void);
 

@@ -1553,7 +1553,7 @@ otl_gsub_apply_lig (otl_gsub *gsub_list,
   return retval;
 }
 
-int
+static int
 gsub_find (otl_gsub *gsub_list,
                  const char *script,
                  const char *language,

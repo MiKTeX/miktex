@@ -446,7 +446,8 @@ tfm_get_sizes (FILE *tfm_file, off_t tfm_file_size, struct tfm_font *tfm)
 }
 
 #ifndef WITHOUT_ASCII_PTEX
-unsigned int get_unsigned_triple_kanji(FILE *file)
+static unsigned int
+get_unsigned_triple_kanji(FILE *file)
 {
   unsigned int triple = get_unsigned_byte(file);
   triple = (triple << 8) | get_unsigned_byte(file);

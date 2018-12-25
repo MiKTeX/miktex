@@ -2313,17 +2313,52 @@ scan_special_encrypt (int *key_bits, int32_t *permission, char *opassword, char 
 }
 
 static int
+scan_special_trailerid (unsigned char *id1, unsigned char *id2,
+                        const char **curptr, const char *endptr)
+{
+  int         error = 0;
+  pdf_obj    *id_array;
+  const char *p = *curptr;
+
+  skip_white(&p, endptr);
+  id_array = parse_pdf_array(&p, endptr, NULL);
+  if (id_array) {
+    if (pdf_array_length(id_array) == 2) {
+      pdf_obj *tmp1, *tmp2;
+      tmp1 = pdf_get_array(id_array, 0);
+      tmp2 = pdf_get_array(id_array, 1);
+      if (PDF_OBJ_STRINGTYPE(tmp1) && pdf_string_length(tmp1) == 16 &&
+          PDF_OBJ_STRINGTYPE(tmp2) && pdf_string_length(tmp2) == 16) {
+        memcpy(id1, pdf_string_value(tmp1), 16);
+        memcpy(id2, pdf_string_value(tmp2), 16);
+      } else {
+        error = -1;
+      }
+    } else {
+      error = -1;
+    }
+    pdf_release_obj(id_array);
+  } else {
+    error = -1;
+  }
+  skip_white(&p, endptr);
+  *curptr = p;
+
+  return error;
+}
+
+static int
 scan_special (double *wd, double *ht, double *xo, double *yo, int *lm,
               int *majorversion, int *minorversion,
               int *enable_encryption, int *key_bits, int32_t *permission,
               char *opassword, char *upassword,
+              int *has_id, unsigned char *id1, unsigned char *id2,
               const char *buf, uint32_t size)
 {
   char  *q;
   const char *p = buf, *endptr;
   int    ns_pdf = 0, ns_dvipdfmx = 0, error = 0;
   double tmp;
-  double width = *wd, height = *ht; /* backup */
 
   endptr = p + size;
 
@@ -2444,11 +2479,19 @@ scan_special (double *wd, double *ht, double *xo, double *yo, int *lm,
         *majorversion = (int)strtol(kv, NULL, 10);
         RELEASE(kv);
       }
-    } else if (ns_pdf && !strcmp(q, "encrypt")) {
+    } else if (enable_encryption && ns_pdf && !strcmp(q, "encrypt")) {
       *enable_encryption = 1;
       error = scan_special_encrypt(key_bits, permission, opassword, upassword, &p, endptr);
     } else if (ns_dvipdfmx && !strcmp(q, "config")) {
       read_config_special(&p, endptr);
+    } else if (has_id && id1 && id2 && ns_pdf && !strcmp(q, "trailerid")) {
+      error = scan_special_trailerid(id1, id2, &p, endptr);
+      if (error) {
+        WARN("Invalid argument for pdf:trailerid special.");
+        *has_id = 0;
+      } else {
+        *has_id = 1;
+      } 
     }
     RELEASE(q);
   }
@@ -2463,7 +2506,8 @@ dvi_scan_specials (int page_no,
                    double *x_offset, double *y_offset, int *landscape,
                    int *majorversion, int *minorversion,
                    int *do_enc, int *key_bits, int32_t *permission,
-                   char *owner_pw, char *user_pw)
+                   char *owner_pw, char *user_pw,
+                   int *has_id, unsigned char *id1, unsigned char *id2)
 {
   FILE          *fp = dvi_file;
   int32_t        offset;
@@ -2510,6 +2554,7 @@ dvi_scan_specials (int page_no,
       if (scan_special(page_width, page_height, x_offset, y_offset, landscape,
                        majorversion, minorversion,
                        do_enc, key_bits, permission, owner_pw, user_pw,
+                       has_id, id1, id2,
                        buf, size))
         WARN("Reading special command failed: \"%.*s\"", size, buf);
 #undef buf
