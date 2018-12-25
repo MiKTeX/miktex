@@ -273,6 +273,7 @@ tuple<string, string> FileNameDatabase::SplitPath(const PathName& path_) const
   fileName.RemoveDirectorySpec();
   PathName directory = path;
   directory.RemoveFileSpec();
+  directory.ToUnix();
 
   return make_tuple(fileName.ToString(), directory.ToString());
 }

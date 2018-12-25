@@ -498,6 +498,8 @@ endif()
 
 add_library(${fontconfig_dll_name} SHARED ${${fontconfig_dll_name}_sources})
 
+prevent_all_warnings_on_bad_code_target(${fontconfig_dll_name})
+
 set_property(TARGET ${fontconfig_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_shared_library_version(

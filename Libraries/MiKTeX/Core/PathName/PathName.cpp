@@ -328,6 +328,7 @@ PathName& PathName::AppendDirectoryDelimiter()
   return *this;
 }
 
+// TODO: code review
 PathName& PathName::CutOffLastComponent(bool allowSelfCutting)
 {
   RemoveDirectoryDelimiter(GetData());
@@ -349,7 +350,11 @@ PathName& PathName::CutOffLastComponent(bool allowSelfCutting)
         }
         else
         {
-          Base::operator[](end - 1) = 0;
+          while (end > 0 && IsDirectoryDelimiter(Base::operator[](end - 1)))
+          {
+            --end;
+            Base::operator[](end) = 0;
+          }
         }
       noCut = false;
     }
