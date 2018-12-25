@@ -21,6 +21,8 @@ use_static_crt()
 
 add_library(${libressl_crypto_lib_name} STATIC ${crypto_sources})
 
+prevent_all_warnings_on_bad_code_target(${libressl_crypto_lib_name})
+
 set_property(TARGET ${libressl_crypto_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_include_directories(${libressl_crypto_lib_name}
