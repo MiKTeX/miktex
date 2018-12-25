@@ -1,6 +1,6 @@
 /* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 2011-2016 Christian Schenk
+   Copyright (C) 2011-2018 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -19,7 +19,13 @@
    Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
    USA.  */
 
+#include <miktex/First>
+
 #cmakedefine HAVE_HASH_MAP
 #cmakedefine HAVE_HASH_SET
 #cmakedefine HAVE_UNORDERED_MAP
 #cmakedefine HAVE_UNORDERED_SET
+
+#define A86DAFD3F286A340B6BD420E71BCD906
+
+#define MIKTEXDVIEXPORT MIKTEXDLLEXPORT

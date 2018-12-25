@@ -33,10 +33,11 @@
 
 #include "internal.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Graphics;
 using namespace MiKTeX::Trace;
-using namespace std;
 
 const COLORREF RGB_WHITE = RGB(255, 255, 255);
 const COLORREF RGB_BLACK = RGB(0, 0, 0);
@@ -188,7 +189,7 @@ void DibChunkerImpl::ReadBitmapInfo()
   }
   if (bitmapFileHeader.bfOffBits > numBytesRead)
   {
-    unsigned long n = bitmapFileHeader.bfOffBits - numBytesRead;
+    size_t n = bitmapFileHeader.bfOffBits - numBytesRead;
     void* p = malloc(n);
     if (p == nullptr)
     {

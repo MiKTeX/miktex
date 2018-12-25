@@ -19,19 +19,18 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/File>
+#include <miktex/Core/MD5>
+#include <miktex/Core/MemoryMappedFile>
+#include <miktex/Core/PathName>
 
 #include "internal.h"
 
-#include "miktex/Core/File.h"
-#include "miktex/Core/MD5.h"
-#include "miktex/Core/MemoryMappedFile.h"
-#include "miktex/Core/PathName.h"
+using namespace std;
 
 using namespace MiKTeX::Core;
-using namespace std;
 
 MD5 MD5::FromFile(const PathName& path)
 {

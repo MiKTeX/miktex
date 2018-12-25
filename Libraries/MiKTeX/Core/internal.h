@@ -30,8 +30,8 @@
 
 #include <miktex/Trace/TraceStream>
 
-#include "miktex/Core/Quoter.h"
-#include "miktex/Core/Session.h"
+#include <miktex/Core/Quoter>
+#include <miktex/Core/Session>
 
 #if MIKTEX_UNIX
 #  define NO_REGISTRY 1

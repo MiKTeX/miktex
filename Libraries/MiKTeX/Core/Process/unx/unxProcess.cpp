@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <signal.h>
 #include <sys/wait.h>
@@ -34,22 +32,23 @@
 
 #include <thread>
 
+#include <miktex/Core/Directory>
+#include <miktex/Core/Environment>
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/StreamReader>
+
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
-
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/CommandLineBuilder.h"
-#include "miktex/Core/StreamReader.h"
 
 #include "unxProcess.h"
 
 #include "Session/SessionImpl.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 const int filenoStdin = 0;
 const int filenoStdout = 1;

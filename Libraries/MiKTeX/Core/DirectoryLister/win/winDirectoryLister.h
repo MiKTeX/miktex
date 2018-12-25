@@ -24,8 +24,8 @@
 #if !defined(F05A2700545C4487889CF7A396F930A1)
 #define F05A2700545C4487889CF7A396F930A1
 
-#include "miktex/Core/DirectoryLister.h"
-#include "miktex/Core/PathName.h"
+#include <miktex/Core/DirectoryLister>
+#include <miktex/Core/PathName>
 
 BEGIN_INTERNAL_NAMESPACE;
 

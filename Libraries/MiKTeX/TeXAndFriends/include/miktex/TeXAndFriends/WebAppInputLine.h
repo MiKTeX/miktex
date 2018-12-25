@@ -153,7 +153,7 @@ public:
   {
     IInputOutput* inputOutput = GetInputOutput();
     MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
-    inputOutput->namelength() = fileName.GetLength();
+    inputOutput->namelength() = static_cast<C4P::C4P_signed16>(fileName.GetLength());
   }
 
 public:

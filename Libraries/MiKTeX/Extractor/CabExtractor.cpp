@@ -19,9 +19,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include <config.h>
-#endif
+#include "config.h"
 
 #if !defined(MIKTEX_WINDOWS)
 #include <fcntl.h>
@@ -38,10 +36,11 @@
 
 #include "CabExtractor.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Trace;
-using namespace std;
 
 struct mspack_file* CabExtractor::Open(struct mspack_system* self, const char* fileName, int mode)
 {

@@ -19,25 +19,26 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <thread>
 
 #include <fcntl.h>
 
 #include <io.h>
 
-#include "internal.h"
+#include <miktex/Core/Directory>
+#include <miktex/Core/File>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/win/winAutoResource>
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/File.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/win/winAutoResource.h"
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 static unsigned long GetFileAttributes_harmlessErrors[] = {
   ERROR_FILE_NOT_FOUND, // 2
@@ -448,7 +449,7 @@ size_t File::SetMaxOpen(size_t newMax)
     {
       session->trace_files->WriteFormattedLine("core", T_("increasing maximum number of simultaneously open files (oldmax=%d, newmax=%d)"), (int)oldMax, (int)newMax);
     }
-    if (_setmaxstdio(newMax) < 0)
+    if (_setmaxstdio(static_cast<int>(newMax)) < 0)
     {
       MIKTEX_FATAL_CRT_ERROR_2("_setmaxstdio", "newmax", std::to_string(newMax));
     }
@@ -565,4 +566,45 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
 #endif
 
   return FdOpen(path, fd, strFlags.c_str());
+}
+
+bool File::TryLock(HANDLE hFile, File::LockType lockType, chrono::milliseconds timeout)
+{
+  chrono::time_point<chrono::high_resolution_clock> tryUntil = chrono::high_resolution_clock::now() + timeout;
+  bool locked;
+  do
+  {
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
+    locked = LockFileEx(hFile, (lockType == LockType::Exclusive ? LOCKFILE_EXCLUSIVE_LOCK : 0) | LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &overlapped) ? true : false;
+    if (!locked)
+    {
+      if (GetLastError() != ERROR_LOCK_VIOLATION)
+      {
+        MIKTEX_FATAL_WINDOWS_ERROR("LockFileEx");
+      }
+      this_thread::sleep_for(10ms);
+    }
+  } while (!locked && chrono::high_resolution_clock::now() < tryUntil);
+  return locked;
+}
+
+bool File::TryLock(int fd, File::LockType lockType, chrono::milliseconds timeout)
+{
+  return TryLock(reinterpret_cast<HANDLE>(_get_osfhandle(fd)), lockType, timeout);
+}
+
+void File::Unlock(HANDLE hFile)
+{
+  OVERLAPPED overlapped;
+  memset(&overlapped, 0, sizeof(overlapped));
+  if (!UnlockFileEx(hFile, 0, MAXDWORD, MAXDWORD, &overlapped))
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("UnlockFileEx");
+  }
+}
+
+void File::Unlock(int fd)
+{
+  Unlock(reinterpret_cast<HANDLE>(_get_osfhandle(fd)));
 }

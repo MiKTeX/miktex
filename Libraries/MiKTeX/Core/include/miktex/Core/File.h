@@ -26,6 +26,10 @@
 
 #include <miktex/Core/config.h>
 
+#if defined(MIKTEX_WINDOWS)
+#include <Windows.h>
+#endif
+
 #include <cstddef>
 #include <cstdio>
 #include <ctime>
@@ -36,6 +40,12 @@
 
 #include "OptionSet.h"
 #include "PathName.h"
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+// "The compiler encountered a deprecated declaration."
+#pragma warning( disable : 4996 )
+#endif
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -312,6 +322,11 @@ public:
     return TryLock(fileno(file), lockType, timeout);
   }
 
+#if defined(MIKTEX_WINDOWS)
+public:
+  static MIKTEXCORECEEAPI(bool) TryLock(HANDLE hFile, LockType lockType, std::chrono::milliseconds timeout);
+#endif
+
 public:
   static MIKTEXCORECEEAPI(void) Unlock(int fd);
 
@@ -320,8 +335,16 @@ public:
   {
     Unlock(fileno(file));
   }
+
+#if defined(MIKTEX_WINDOWS)
+  static MIKTEXCORECEEAPI(void) Unlock(HANDLE hFile);
+#endif
 };
 
 MIKTEX_CORE_END_NAMESPACE;
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #endif

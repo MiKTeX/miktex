@@ -59,9 +59,9 @@ using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 constexpr const char* LF = "\n";
 
-inline double Divide(double a, double b)
+template<typename T1, typename T2> double Divide(T1 a, T2 b)
 {
-  return a / b;
+  return static_cast<double>(a) / static_cast<double>(b);
 }
 
 string PackageInstallerImpl::MakeUrl(const string& relPath)
@@ -1262,7 +1262,7 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
     }
     if (repositoryType == RepositoryType::Remote)
     {
-      int iSize = repositoryManifest.GetArchiveFileSize(p);
+      size_t iSize = repositoryManifest.GetArchiveFileSize(p);
       if (iSize == 0)
       {
         LoadRepositoryManifest(true);
@@ -1347,10 +1347,6 @@ bool PackageInstallerImpl::CheckArchiveFile(const std::string& packageId, const 
 void PackageInstallerImpl::ConnectToServer()
 {
   const char* MSG_CANNOT_START_SERVER = T_("Cannot start MiKTeX package manager.");
-  if (!session->UnloadFilenameDatabase())
-  {
-    // ignore for now
-  }
   if (localServer.pInstaller == nullptr)
   {
     if (localServer.pManager == nullptr)

@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <chrono>
 #include <thread>
@@ -39,11 +37,11 @@
 #include "internal.h"
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
-using namespace MiKTeX::Trace;
-
 using namespace std;
 using namespace chrono_literals;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 
 class LockFileImpl :
   public LockFile
@@ -98,7 +96,7 @@ LockFile::~LockFile() noexcept
 {
 }
 
-unique_ptr<LockFile> LockFile::Create(const PathName& path)
+unique_ptr<MiKTeX::Core::LockFile> LockFile::Create(const PathName& path)
 {
   return make_unique<LockFileImpl>(path);
 }

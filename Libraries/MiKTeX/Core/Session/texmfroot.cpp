@@ -19,21 +19,19 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <mutex>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include "internal.h"
+#include <miktex/Core/Environment>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
+#include <miktex/Core/RootDirectoryInfo>
 
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
-#include "miktex/Core/RootDirectoryInfo.h"
+#include "internal.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "miktex/Core/win/HResult.h"
@@ -831,7 +829,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, Re
   {
     InitializeRootDirectories(startupConfig_, options[RegisterRootDirectoriesOption::Review]);
   }
-  catch (const MiKTeXException& ex)
+  catch (const MiKTeXException&)
   {
     InitializeRootDirectories();
     throw;

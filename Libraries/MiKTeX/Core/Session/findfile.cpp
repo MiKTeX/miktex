@@ -19,25 +19,24 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include "internal.h"
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
 
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
+#include "internal.h"
 
 #include "Fndb/FileNameDatabase.h"
 #include "Session/SessionImpl.h"
 #include "Utils/CoreStopWatch.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 void SessionImpl::SetFindFileCallback(IFindFileCallback* callback)
 {
@@ -273,7 +272,7 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
 
   // get the file type information
   const InternalFileTypeInfo* fti = GetInternalFileTypeInfo(fileType);
-  MIKTEX_ASSERT(fileTypeInfo != nullptr);
+  MIKTEX_ASSERT(fti != nullptr);
 
   // check to see whether the file name has a registered file name extension
   PathName extension = PathName(fileName).GetExtension();

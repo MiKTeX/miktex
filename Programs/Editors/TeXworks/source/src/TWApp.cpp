@@ -175,10 +175,6 @@ void TWApp::init()
               MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::UserConfigRoot);
               QSettings::setPath (QSettings::IniFormat, QSettings::UserScope, path.GetData());
             }
-            if (!session->UnloadFilenameDatabase())
-            {
-              //TODO: log
-            }
           }
 	}
 #endif
@@ -897,10 +893,6 @@ void TWApp::setDefaultPaths()
 	    {
 	      binaryPaths->prepend(dir.GetData());
 	    }
-            if (!pSession->UnloadFilenameDatabase())
-            {
-              //TODO: log
-            }
         }
 #else
 		foreach (const QString& s, QString(DEFAULT_BIN_PATHS).split(PATH_LIST_SEP, QString::SkipEmptyParts)) {

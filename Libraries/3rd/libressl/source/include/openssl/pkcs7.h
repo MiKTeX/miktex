@@ -70,11 +70,13 @@ extern "C" {
 #endif
 
 #if defined(_WIN32) && defined(__WINCRYPT_H__)
+#if !defined(MIKTEX)
 #ifndef LIBRESSL_INTERNAL
 #ifdef _MSC_VER
 #pragma message("Warning, overriding WinCrypt defines")
 #else
 #warning overriding WinCrypt defines
+#endif
 #endif
 #endif
 #undef PKCS7_ISSUER_AND_SERIAL

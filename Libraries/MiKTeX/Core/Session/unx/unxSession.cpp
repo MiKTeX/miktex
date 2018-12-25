@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <unistd.h>
 
@@ -29,16 +27,17 @@
 #  include <mach-o/dyld.h>
 #endif
 
-#include "internal.h"
+#include<"miktex/Core/File>
+#include <miktex/Core/Paths>
 
-#include "miktex/Core/File.h"
-#include "miktex/Core/Paths.h"
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 PathName SessionImpl::GetMyProgramFile(bool canonicalized)
 {

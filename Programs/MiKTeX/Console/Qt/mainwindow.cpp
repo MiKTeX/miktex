@@ -296,7 +296,6 @@ void MainWindow::UpdateUi()
     UpdateUiPackages();
     UpdateUiDiagnose();
     UpdateUiCleanup();
-    session->UnloadFilenameDatabase();
   }
   catch (const MiKTeXException& e)
   {
@@ -324,7 +323,6 @@ void MainWindow::UpdateActions()
     UpdateActionsPackages();
     UpdateActionsDiagnose();
     UpdateActionsCleanup();
-    session->UnloadFilenameDatabase();
   }
   catch (const MiKTeXException& e)
   {
@@ -460,7 +458,6 @@ void MainWindow::StartTeXworks()
     PathName exePath;
     if (session->FindFile(MIKTEX_TEXWORKS_EXE, FileType::EXE, exePath))
     {
-      session->UnloadFilenameDatabase();
       Process::Start(exePath);
     }
   }
@@ -510,7 +507,6 @@ void MainWindow::StartTerminal()
       cmd = "xterm";
     }
 #endif
-    session->UnloadFilenameDatabase();
     Process::Start(cmd);
     if (haveOldPath)
     {
@@ -906,7 +902,6 @@ void BackgroundWorker::RunIniTeXMF(const std::vector<std::string>& args)
   allArgs.insert(allArgs.end(), args.begin(), args.end());
   ProcessOutput<4096> output;
   int exitCode;
-  session->UnloadFilenameDatabase();
   Process::Run(initexmf, allArgs, &output, &exitCode, nullptr);
   if (exitCode != 0)
   {

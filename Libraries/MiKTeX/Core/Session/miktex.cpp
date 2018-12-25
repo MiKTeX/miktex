@@ -19,26 +19,24 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
+// FIXME: must come first
+#include "core-version.h"
+
+#include <miktex/Core/Directory>
+#include <miktex/Core/Environment>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
+#include <miktex/Core/Urls>
 #include <miktex/Trace/Trace>
 
 #include "internal.h"
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
-#include "miktex/Core/Urls.h"
-
 #if defined(MIKTEX_WINDOWS)
 #  include "miktex/Core/win/WindowsVersion.h"
 #endif
-
-#include "core-version.h"
 
 #include "Session/SessionImpl.h"
 
@@ -46,10 +44,11 @@
 #  include "win/winRegistry.h"
 #endif
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
 
 MIKTEXSTATICFUNC(bool) IsGoodTempDirectory(const char* lpszPath)
 {
@@ -208,7 +207,7 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     }
 #if MIKTEX_WINDOWS
     // FIXME: ANSI
-    if (!GetVolumePathNameA(GetRootDirectoryPath(GetInstallRoot()).GetData(), path.GetData(), path.GetCapacity()))
+    if (!GetVolumePathNameA(GetRootDirectoryPath(GetInstallRoot()).GetData(), path.GetData(), static_cast<DWORD>(path.GetCapacity())))
     {
       MIKTEX_FATAL_WINDOWS_ERROR_2("GetVolumePathNameA", "path", GetRootDirectoryPath(GetInstallRoot()).ToString());
     }
@@ -468,6 +467,7 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo& info)
     }
     string str;
     int year, month, day;
+    // FIXME: don't use sscanf
     if (cfg->TryGetValueAsString("membership", "expirationdate", str) && sscanf(str.c_str(), "%d-%d-%d", &year, &month, &day) == 3 && year >= 1970 && month >= 1 && month <= 12 && day >= 1 && day <= 31)
     {
       struct tm date;

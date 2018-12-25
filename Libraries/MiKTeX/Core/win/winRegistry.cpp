@@ -19,22 +19,21 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/Registry>
+#include <miktex/Core/win/winAutoResource>
 
 #include "internal.h"
-
-#include "miktex/Core/Registry.h"
-#include "miktex/Core/win/winAutoResource.h"
 
 #include "Session/SessionImpl.h"
 #include "winRegistry.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
 
-bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring & path, const wstring & valueName, vector<BYTE> & value, DWORD & valueType)
+using namespace MiKTeX::Core;
+
+bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, vector<BYTE>& value, DWORD& valueType)
 {
   HKEY hkey;
   long result = RegOpenKeyExW(hkeyParent, path.c_str(), 0, KEY_READ, &hkey);
@@ -67,7 +66,7 @@ bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring & path, con
   return result == ERROR_SUCCESS;
 }
 
-bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring & path, const wstring & valueName, wstring & value, DWORD & valueType)
+bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, wstring& value, DWORD& valueType)
 {
   vector<BYTE> valueBytes;
   if (!TryGetRegistryValue(hkeyParent, path, valueName, valueBytes, valueType))
@@ -79,7 +78,7 @@ bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring & path, con
   case REG_SZ:
   case REG_EXPAND_SZ:
   {
-    const wchar_t * lpsz = reinterpret_cast<const wchar_t *>(valueBytes.data());
+    const wchar_t* lpsz = reinterpret_cast<const wchar_t *>(valueBytes.data());
     MIKTEX_ASSERT_STRING(lpsz);
     value = lpsz;
     return true;
@@ -90,7 +89,7 @@ bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring & path, con
   }
 }
 
-bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring & path, const wstring & valueName, wstring & value)
+bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, wstring& value)
 {
   DWORD valueType;
   if (!TryGetRegistryValue(hkeyParent, path, valueName, value, valueType))
@@ -117,7 +116,7 @@ bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring & path, con
   return true;
 }
 
-bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const string & path, const string & valueName, string & value)
+bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const string& path, const string& valueName, string& value)
 {
   wstring wideValue;
   bool result = TryGetRegistryValue(hkeyParent, UW_(path), UW_(valueName), wideValue);
@@ -128,7 +127,7 @@ bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const string & path, cons
   return result;
 }
 
-bool winRegistry::TryDeleteRegistryKey(HKEY hkeyParent, const wstring & path)
+bool winRegistry::TryDeleteRegistryKey(HKEY hkeyParent, const wstring& path)
 {
   long result = SHDeleteKeyW(hkeyParent, path.c_str());
   if (result != ERROR_SUCCESS)
@@ -142,12 +141,12 @@ bool winRegistry::TryDeleteRegistryKey(HKEY hkeyParent, const wstring & path)
   return true;
 }
 
-bool winRegistry::TryDeleteRegistryKey(HKEY hkeyParent, const string & path)
+bool winRegistry::TryDeleteRegistryKey(HKEY hkeyParent, const string& path)
 {
   return TryDeleteRegistryKey(hkeyParent, UW_(path));
 }
 
-bool winRegistry::TryDeleteRegistryValue(HKEY hkeyParent, const wstring & path, const wstring & valueName)
+bool winRegistry::TryDeleteRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName)
 {
   HKEY hkey;
   long result = RegOpenKeyExW(hkeyParent, path.c_str(), 0, KEY_ALL_ACCESS, &hkey);
@@ -172,12 +171,12 @@ bool winRegistry::TryDeleteRegistryValue(HKEY hkeyParent, const wstring & path, 
   return true;
 }
 
-bool winRegistry::TryDeleteRegistryValue(HKEY hkeyParent, const string & path, const string & valueName)
+bool winRegistry::TryDeleteRegistryValue(HKEY hkeyParent, const string& path, const string& valueName)
 {
   return TryDeleteRegistryValue(hkeyParent, UW_(path), UW_(valueName));
 }
 
-void winRegistry::SetRegistryValue(HKEY hkeyParent, const wstring & path, const wstring & valueName, const BYTE * value, size_t valueSize, DWORD valueType)
+void winRegistry::SetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, const BYTE* value, size_t valueSize, DWORD valueType)
 {
   SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", "RegCreateKeyExW (%p, \"%s\")", reinterpret_cast<void*>(hkeyParent), WU_(path));
   HKEY hkey;
@@ -188,24 +187,24 @@ void winRegistry::SetRegistryValue(HKEY hkeyParent, const wstring & path, const 
     MIKTEX_FATAL_WINDOWS_RESULT_2("RegCreateKeyExW", result, "path", WU_(path));
   }
   AutoHKEY autoClose(hkey);
-  result = RegSetValueExW(hkey, valueName.c_str(), 0, valueType, value, valueSize);
+  result = RegSetValueExW(hkey, valueName.c_str(), 0, valueType, value, static_cast<DWORD>(valueSize));
   if (result != ERROR_SUCCESS)
   {
     MIKTEX_FATAL_WINDOWS_RESULT_2("RegSetValueExW", result, "valueName", WU_(valueName));
   }
 }
 
-void winRegistry::SetRegistryValue(HKEY hkeyParent, const wstring & path, const wstring & valueName, const wstring & value, DWORD valueType)
+void winRegistry::SetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, const wstring& value, DWORD valueType)
 {
   SetRegistryValue(hkeyParent, path, valueName, reinterpret_cast<const BYTE *>(value.c_str()), sizeof(value[0]) * (value.length() + 1), valueType);
 }
 
-void winRegistry::SetRegistryValue(HKEY hkeyParent, const string & path, const string & valueName, const string & value)
+void winRegistry::SetRegistryValue(HKEY hkeyParent, const string& path, const string& valueName, const string& value)
 {
   SetRegistryValue(hkeyParent, UW_(path), UW_(valueName), UW_(value), REG_SZ);
 }
 
-bool winRegistry::TryGetRegistryValue(TriState shared, const wstring & keyName, const wstring & valueName, wstring & value)
+bool winRegistry::TryGetRegistryValue(TriState shared, const wstring& keyName, const wstring& valueName, wstring& value)
 {
   if (shared == TriState::Undetermined)
   {
@@ -233,7 +232,7 @@ bool winRegistry::TryGetRegistryValue(TriState shared, const wstring & keyName, 
   return TryGetRegistryValue(shared == TriState::False ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE, registryPath, valueName, value);
 }
 
-bool winRegistry::TryGetRegistryValue(TriState shared, const string & keyName, const string & valueName, string & value)
+bool winRegistry::TryGetRegistryValue(TriState shared, const string& keyName, const string& valueName, string& value)
 {
   wstring wideValue;
   bool result = TryGetRegistryValue(shared, UW_(keyName), UW_(valueName), wideValue);
@@ -244,7 +243,7 @@ bool winRegistry::TryGetRegistryValue(TriState shared, const string & keyName, c
   return result;
 }
 
-bool winRegistry::TryGetRegistryValue(TriState shared, const wstring & keyName, const wstring & valueName, PathName & path)
+bool winRegistry::TryGetRegistryValue(TriState shared, const wstring& keyName, const wstring& valueName, PathName& path)
 {
   wstring value;
   if (!TryGetRegistryValue(shared, keyName, valueName, value))
@@ -255,12 +254,12 @@ bool winRegistry::TryGetRegistryValue(TriState shared, const wstring & keyName, 
   return true;
 }
 
-bool winRegistry::TryGetRegistryValue(TriState shared, const string & keyName, const string & valueName, PathName & path)
+bool winRegistry::TryGetRegistryValue(TriState shared, const string& keyName, const string& valueName, PathName& path)
 {
   return TryGetRegistryValue(shared, UW_(keyName), UW_(valueName), path);
 }
 
-bool winRegistry::TryDeleteRegistryValue(TriState shared, const wstring & keyName, const wstring & valueName)
+bool winRegistry::TryDeleteRegistryValue(TriState shared, const wstring& keyName, const wstring& valueName)
 {
   if (shared == TriState::Undetermined)
   {
@@ -274,12 +273,12 @@ bool winRegistry::TryDeleteRegistryValue(TriState shared, const wstring & keyNam
   return TryDeleteRegistryValue((shared == TriState::False ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE), registryPath, valueName);
 }
 
-bool winRegistry::TryDeleteRegistryValue(TriState shared, const string & keyName, const string & valueName)
+bool winRegistry::TryDeleteRegistryValue(TriState shared, const string& keyName, const string& valueName)
 {
   return TryDeleteRegistryValue(shared, UW_(keyName), UW_(valueName));
 }
 
-void winRegistry::SetRegistryValue(TriState shared, const wstring & keyName, const wstring & valueName, const wstring & value)
+void winRegistry::SetRegistryValue(TriState shared, const wstring& keyName, const wstring& valueName, const wstring& value)
 {
   if (shared == TriState::Undetermined)
   {
@@ -300,7 +299,7 @@ void winRegistry::SetRegistryValue(TriState shared, const wstring & keyName, con
   }
 }
 
-void winRegistry::SetRegistryValue(TriState shared, const string & keyName, const string & valueName, const string & value)
+void winRegistry::SetRegistryValue(TriState shared, const string& keyName, const string& valueName, const string& value)
 {
   SetRegistryValue(shared, UW_(keyName), UW_(valueName), UW_(value));
 }

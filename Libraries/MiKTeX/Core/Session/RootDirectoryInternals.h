@@ -24,7 +24,8 @@
 #if !defined(FFCF19389D64414EBC1FB50A73140032)
 #define FFCF19389D64414EBC1FB50A73140032
 
-#include "miktex/Core/RootDirectoryInfo.h"
+#include <miktex/Core/RootDirectoryInfo>
+
 #include "Fndb/FileNameDatabase.h"
 
 BEGIN_INTERNAL_NAMESPACE;

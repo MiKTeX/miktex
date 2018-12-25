@@ -1477,6 +1477,7 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
     ULogClose(false);
+    // FIXME: only need to unload when building the FNDB
     session->UnloadFilenameDatabase();
     int exitCode;
     MiKTeXException miktexException;
@@ -1515,7 +1516,6 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
     ULogClose(false);
-    session->UnloadFilenameDatabase();
     Process::Run(exePath, allArgs, this);
     ULogOpen();
   }
@@ -1575,8 +1575,8 @@ SetupService::ProgressInfo SetupServiceImpl::GetProgressInfo()
   {
     LogFile::ProgressInfo pi = logFile.GetProgressInfo();
     progressInfo.fileName = pi.fileName;
-    progressInfo.cFilesRemoveTotal = pi.total;
-    progressInfo.cFilesRemoveCompleted = pi.completed;
+    progressInfo.cFilesRemoveTotal = static_cast<unsigned long>(pi.total);
+    progressInfo.cFilesRemoveCompleted = static_cast<unsigned long>(pi.completed);
   }
   else
   {

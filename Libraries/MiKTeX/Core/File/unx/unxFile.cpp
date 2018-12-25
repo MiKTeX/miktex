@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <thread>
 
@@ -35,16 +33,17 @@
 #  include <sys/time.h>
 #endif
 
-#include "internal.h"
+#include <miktex/Core/Directory>
+#include <miktex/Core/File>
+#include <miktex/Core/FileStream>
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/File.h"
-#include "miktex/Core/FileStream.h"
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 mode_t GetFileCreationMask()
 {
@@ -558,7 +557,6 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
     throw;
   }
 }
-
 
 bool File::TryLock(int fd, File::LockType lockType, chrono::milliseconds timeout)
 {

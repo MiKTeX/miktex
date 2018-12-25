@@ -1510,6 +1510,10 @@ void Application::Main(int argc, const char** argv)
   bool optVersion = false;
   int optMaxCount = INT_MAX;
   int optProxyPort = -1;
+#if defined(MIKTEX_WINDOWS)
+  bool optRegisterComponents = false;
+  bool optUnregisterComponents = false;
+#endif
   OutputFormat outputFormat(OutputFormat::Listing);
   string packageId;
   string optProxy;

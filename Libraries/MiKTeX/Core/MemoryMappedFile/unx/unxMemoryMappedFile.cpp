@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -32,8 +30,9 @@
 
 #include "unxMemoryMappedFile.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 MemoryMappedFile* MemoryMappedFile::Create()
 {
@@ -89,6 +88,7 @@ void unxMemoryMappedFile::OpenFile()
   if (!File::TryLock(filedes, readWrite ? File::LockType::Exclusive : File::LockType::Shared , 10ms))
   {
     close(filedes);
+    filedes = -1;
     MIKTEX_FATAL_ERROR_2(T_("Could not acquire lock."), "path", path.ToString());
   }
 }

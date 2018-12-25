@@ -19,28 +19,26 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fstream>
 
-#include "miktex/Core/FileStream.h"
+#include <miktex/Core/Cfg.h>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/Registry.h>
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
 
-#include "miktex/Core/Cfg.h"
-#include "miktex/Core/Registry.h"
-
 #include "Utils/inliners.h"
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
 
 #define FATAL_CFG_ERROR(message) \
   MIKTEX_FATAL_ERROR_2(T_("A MiKTeX configuration file could not be loaded."), "file", currentFile.ToString(), "line", std::to_string(lineno), "error", message)
@@ -1106,7 +1104,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
       {
         modifiableSignature.push_back(ch);
       }
-      BIO_ptr mem(BIO_new_mem_buf(&modifiableSignature[0], modifiableSignature.size()), BIO_free);
+      BIO_ptr mem(BIO_new_mem_buf(&modifiableSignature[0], static_cast<int>(modifiableSignature.size())), BIO_free);
       if (mem == nullptr)
       {
         FatalOpenSSLError();
@@ -1192,8 +1190,7 @@ extern "C" int OpenSSLPasswordCallback(char* buf, int size, int rwflag, void* us
   {
     MIKTEX_UNEXPECTED();
   }
-  strcpy(buf, passphrase.c_str());
-  return passphrase.length();
+  return static_cast<int>(StringUtil::CopyString(buf, size, passphrase.c_str()));
 }
 #endif
 
@@ -1212,7 +1209,7 @@ string ToBase64(const vector<unsigned char>& bytes)
   }
   BIO_set_flags(b64.get(), BIO_FLAGS_BASE64_NO_NL);
   BIO_push(b64.get(), mem.get());
-  if (BIO_write(b64.get(), &bytes[0], bytes.size()) != bytes.size())
+  if (BIO_write(b64.get(), &bytes[0], static_cast<int>(bytes.size())) != bytes.size())
   {
     FatalOpenSSLError();
   }

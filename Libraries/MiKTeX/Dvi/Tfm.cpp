@@ -21,11 +21,7 @@
 
    /* some tricks are borrowed from Dvips, TFtoPL and other celebrities */
 
-#include <miktex/First>
-
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Paths>

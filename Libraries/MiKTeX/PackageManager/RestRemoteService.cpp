@@ -259,7 +259,7 @@ pair<bool, RepositoryInfo> RestRemoteService::TryGetRepositoryInfo(const string&
       response.write(buf, n);
     }
   }
-  catch (const NotFoundException& ex)
+  catch (const NotFoundException&)
   {
     return make_pair(false, RepositoryInfo());
   }

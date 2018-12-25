@@ -19,9 +19,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include <config.h>
-#endif
+#include "config.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -34,11 +32,12 @@
 
 #include "TarExtractor.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
 
 const size_t BLOCKSIZE = 512;
 

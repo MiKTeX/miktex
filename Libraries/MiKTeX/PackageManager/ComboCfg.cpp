@@ -35,7 +35,10 @@ void ComboCfg::Load(const PathName& fileNameUser_, const PathName& fileNameCommo
 {
   fileNameUser = fileNameUser_;
   fileNameCommon = fileNameCommon_;
-  fileNameUser.Canonicalize();
+  if (!session->IsAdminMode())
+  {
+    fileNameUser.Canonicalize();
+  }
   fileNameCommon.Canonicalize();
   cfgCommon = Cfg::Create();
   if (File::Exists(fileNameCommon))
@@ -88,6 +91,8 @@ bool ComboCfg::TryGetValueAsString(ComboCfg::Scope scope, const string& keyName,
     return cfgUser != nullptr && cfgUser->TryGetValueAsString(keyName, valueName, value);
   case Scope::Common:
     return cfgCommon != nullptr && cfgCommon->TryGetValueAsString(keyName, valueName, value);
+  default:
+    MIKTEX_UNEXPECTED();
   }
 }
 

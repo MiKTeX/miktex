@@ -1,6 +1,6 @@
 /* Extractor.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -19,9 +19,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include <config.h>
-#endif
+#include "config.h"
 
 #include <memory>
 
@@ -35,8 +33,9 @@
 #  include "win/winCabExtractor.h"
 #endif
 
-using namespace MiKTeX::Extractor;
 using namespace std;
+
+using namespace MiKTeX::Extractor;
 
 Extractor::~Extractor() noexcept
 {

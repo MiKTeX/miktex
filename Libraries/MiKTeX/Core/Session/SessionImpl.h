@@ -38,13 +38,15 @@
 #  include <atlcom.h>
 #endif
 
-#include "miktex/Core/Cfg.h"
-#include "miktex/Core/Session.h"
-#include "miktex/Core/Stream.h"
-#include "miktex/Core/equal_icase.h"
-#include "miktex/Core/hash_icase.h"
-
+// FIXME: must come first
 #include "core-version.h"
+
+#include <miktex/Core/Cfg>
+#include <miktex/Core/Session>
+#include <miktex/Core/Stream>
+#include <miktex/Core/equal_icase>
+#include <miktex/Core/hash_icase>
+
 #include "Fndb/FileNameDatabase.h"
 #include "RootDirectoryInternals.h"
 
@@ -58,7 +60,8 @@ BEGIN_INTERNAL_NAMESPACE;
 namespace MiKTeXSessionLib = MAKE_CURVER_ID(MiKTeXSession);
 #endif
 
-struct FormatInfo_ : public MiKTeX::Core::FormatInfo
+struct FormatInfo_ :
+  public MiKTeX::Core::FormatInfo
 {
 public:
   FormatInfo_()
@@ -105,7 +108,8 @@ inline bool operator<(const LanguageInfo_& lhs, const LanguageInfo_& rhs)
   return lhs.key < rhs.key;
 }
 
-struct InternalFileTypeInfo : public MiKTeX::Core::FileTypeInfo
+struct InternalFileTypeInfo :
+  public MiKTeX::Core::FileTypeInfo
 {
 public:
   std::vector<MiKTeX::Core::PathName> searchVec;

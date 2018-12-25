@@ -22,6 +22,8 @@ function(prevent_all_warnings_on_bad_code_target target)
     PRIVATE
       $<$<OR:$<C_COMPILER_ID:Clang>,$<C_COMPILER_ID:AppleClang>,$<C_COMPILER_ID:GNU>>:-w>
       $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-w>
+      $<$<C_COMPILER_ID:MSVC>:/w>
+      $<$<CXX_COMPILER_ID:MSVC>:/w>
   )
 endfunction()
 

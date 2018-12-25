@@ -62,8 +62,8 @@ int CheckBom(FILE* file)
   }
   int val = 0;
   MIKTEX_ASSERT(Bom::UTF8_length >= Bom::UTF16_length);
-  int n = fread(&val, 1, Bom::UTF8_length, file);
-  if (n < 0)
+  size_t n = fread(&val, 1, Bom::UTF8_length, file);
+  if (ferror(file) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR("fread");
   }
@@ -153,17 +153,7 @@ void WebAppInputLine::AddOptions()
 
 bool WebAppInputLine::ProcessOption(int opt, const string& optArg)
 {
-  bool done = true;
-
-  switch (opt - FIRST_OPTION_VAL - pimpl->optBase)
-  {
-
-  default:
-    done = WebApp::ProcessOption(opt, optArg);
-    break;
-  }
-
-  return done;
+  return WebApp::ProcessOption(opt, optArg);
 }
 
 #if defined(WITH_OMEGA)

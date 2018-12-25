@@ -1,6 +1,6 @@
 /* files.cpp: file system operations
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fcntl.h>
 
@@ -36,20 +34,21 @@
 #  include <unistd.h>
 #endif
 
-#include "internal.h"
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/BZip2Stream>
+#include <miktex/Core/GzipStream>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/LzmaStream>
+#include <miktex/Core/PathName>
 
-#include "miktex/Core/CommandLineBuilder.h"
-#include "miktex/Core/BZip2Stream.h"
-#include "miktex/Core/GzipStream.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/LzmaStream.h"
-#include "miktex/Core/PathName.h"
+#include "internal.h"
 
 #include "Fndb/FileNameDatabase.h"
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 const size_t PIPE_SIZE = 4096;
 
@@ -261,7 +260,7 @@ MIKTEXSTATICFUNC(void) ReaderThread(unique_ptr<Stream> inStream, unique_ptr<Stre
   try
   {
     char buf[PIPE_SIZE];
-    int len;
+    size_t len;
     while ((len = inStream->Read(buf, PIPE_SIZE)) > 0)
     {
       outStream->Write(buf, len);

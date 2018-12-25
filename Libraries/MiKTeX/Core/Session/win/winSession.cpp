@@ -19,28 +19,27 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <Windows.h>
 #include <htmlhelp.h>
 #include <shlobj.h>
 
-#include "internal.h"
+#include <miktex/Core/Directory>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
+#include <miktex/Core/win/HResult>
+#include <miktex/Core/win/WindowsVersion>
+#include <miktex/Core/win/winAutoResource>
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
-#include "miktex/Core/win/HResult.h"
-#include "miktex/Core/win/WindowsVersion.h"
-#include "miktex/Core/win/winAutoResource.h"
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 #include "win/winRegistry.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 void SessionImpl::MyCoInitialize()
 {

@@ -19,6 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include "config.h"
+
 #include <csignal>
 #include <cstdlib>
 #include <ctime>
@@ -28,6 +30,12 @@
 #include <memory>
 #include <set>
 
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/rollingfileappender.h>
+#include <log4cxx/xml/domconfigurator.h>
+
+#include <miktex/App/Application>
 #include <miktex/Core/AutoResource>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
@@ -45,22 +53,18 @@
 #include <miktex/UI/UI>
 #include <miktex/Util/StringUtil>
 
-#include <log4cxx/basicconfigurator.h>
-#include <log4cxx/logger.h>
-#include <log4cxx/rollingfileappender.h>
-#include <log4cxx/xml/domconfigurator.h>
-
 #include "internal.h"
 
 #include "app-version.h"
+
+using namespace std;
+using namespace std::string_literals;
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
-using namespace std::string_literals;
 
 static log4cxx::LoggerPtr logger;
 
@@ -91,8 +95,7 @@ void Application::CheckCancel()
 {
   if (Cancelled())
   {
-    string programInvocationName = Utils::GetExeName();
-    throw MiKTeXException(programInvocationName.c_str(), T_("The current operation has been cancelled (Ctrl-C)."), MiKTeXException::KVMAP(), SourceLocation());
+    throw MiKTeXException(Utils::GetExeName(), T_("The current operation has been cancelled (Ctrl-C)."), MiKTeXException::KVMAP(), SourceLocation());
   }
 }
 
@@ -232,7 +235,7 @@ string Application::ExamineArgs(std::vector<char*>& args, MiKTeX::Core::Session:
 void Application::Init(const Session::InitInfo& initInfoArg, vector<const char*>& args)
 {
   Session::InitInfo initInfo(initInfoArg);
-  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
+  MIKTEX_ASSERT(!args.empty() && args.back() == nullptr);
   ::ExamineArgs(args, initInfo, pimpl.get());
   Init(initInfo);
 }
@@ -240,7 +243,7 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<const char*>
 void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args)
 {
   Session::InitInfo initInfo(initInfoArg);
-  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
+  MIKTEX_ASSERT(!args.empty() && args.back() == nullptr);
   ::ExamineArgs(args, initInfo, pimpl.get());
   Init(initInfo);
 }
@@ -299,7 +302,7 @@ void Application::AutoMaintenance()
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
     PathName lockdir = pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_DIR / "locks";
-    unique_ptr<LockFile> lockFile = LockFile::Create(lockdir / "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lock");
+    unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(lockdir / "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lock");
     if (!lockFile->TryLock(0ms))
     {
       return;
@@ -324,15 +327,14 @@ void Application::AutoMaintenance()
     commonArgs.push_back("--quiet");
     if (mustRefreshFndb)
     {
-      pimpl->session->UnloadFilenameDatabase();
       vector<string> args = commonArgs;
       args.push_back("--update-fndb");
       LOG4CXX_INFO(logger, "running 'initexmf' to refresh the file name database");
+      pimpl->session->UnloadFilenameDatabase();
       Process::Run(initexmf, args);
     }
     if (mustRefreshFndb)
     {
-      pimpl->session->UnloadFilenameDatabase();
       vector<string> args = commonArgs;
       args.push_back("--mkmaps");
       LOG4CXX_INFO(logger, "running 'initexmf' to create font map files");
@@ -390,13 +392,13 @@ void Application::Init(const Session::InitInfo& initInfoArg)
 
 void Application::Init(vector<const char*>& args)
 {
-  MIKTEX_ASSERT(!args.empty() && args.back() != nullptr);
+  MIKTEX_ASSERT(!args.empty() && args.back() == nullptr);
   Init(Session::InitInfo(args[0]), args);
 }
 
 void Application::Init(vector<char*>& args)
 {
-  MIKTEX_ASSERT(!args.empty() && args.back() != nullptr);
+  MIKTEX_ASSERT(!args.empty() && args.back() == nullptr);
   Init(Session::InitInfo(args[0]), args);
 }
 

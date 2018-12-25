@@ -19,23 +19,20 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/ConfigNames>
+#include <miktex/Core/CsvList>
+#include <miktex/Core/Directory>
+#include <miktex/Core/Environment>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/PathName>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
+#include <miktex/Util/Tokenizer>
 
 #include "internal.h"
-
-
-#include "miktex/Core/CommandLineBuilder.h"
-#include "miktex/Core/ConfigNames.h"
-#include "miktex/Core/CsvList.h"
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/PathName.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
-#include "miktex/Util/Tokenizer.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "win/winRegistry.h"
@@ -48,9 +45,10 @@ namespace {
 #include "miktex-config.ini.h"
 }
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 #if 0
 struct ConfigMapping

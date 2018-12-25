@@ -24,8 +24,8 @@
 #if !defined(D3F1FF54CD2C40CC99A6E4E4DB457FB4)
 #define D3F1FF54CD2C40CC99A6E4E4DB457FB4
 
-#include "miktex/Core/MemoryMappedFile.h"
-#include "miktex/Core/PathName.h"
+#include <miktex/Core/MemoryMappedFile>
+#include <miktex/Core/PathName>
 
 BEGIN_INTERNAL_NAMESPACE;
 

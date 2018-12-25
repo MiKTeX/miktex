@@ -19,18 +19,17 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/PathName>
 
 #include "internal.h"
 
-#include "miktex/Core/PathName.h"
-
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 PathName& PathName::SetToCurrentDirectory()
 {

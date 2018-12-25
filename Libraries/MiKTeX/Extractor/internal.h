@@ -22,15 +22,6 @@
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Text>
 
-#if defined(_MSC_VER) && defined(MIKTEX_EXTRACTOR_SHARED)
-#  define MIKTEXEXTRACTOREXPORT __declspec(dllexport)
-#else
-#  define MIKTEXEXTRACTOREXPORT
-#endif
-
-#define DAA6476494C144C8BED9A9E8810BAABA
-#include "miktex/Extractor/Extractor.h"
-
 #define BEGIN_INTERNAL_NAMESPACE                        \
 namespace MiKTeX {                                      \
   namespace Extractor {                                 \

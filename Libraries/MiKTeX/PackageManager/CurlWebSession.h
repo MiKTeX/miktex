@@ -168,7 +168,7 @@ public:
 public:
   std::string UrlEncode(const std::string& s) const
   {
-    char* encoded = curl_easy_escape(pCurl, s.c_str(), s.length());
+    char* encoded = curl_easy_escape(pCurl, s.c_str(), static_cast<int>(s.length()));
     std::string result = encoded;
     curl_free(encoded);
     return result;

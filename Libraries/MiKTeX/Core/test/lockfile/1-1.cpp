@@ -31,17 +31,17 @@
 #include <miktex/Core/LockFile>
 #include <miktex/Core/PathName>
 
-using namespace MiKTeX::Core;
-using namespace MiKTeX::Test;
-
 using namespace std;
 using namespace chrono_literals;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Test;
 
 BEGIN_TEST_SCRIPT("lockfile-1-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  unique_ptr<LockFile> lockFile = LockFile::Create("lockfile-1-1");
+  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create("lockfile-1-1");
   TEST(lockFile->TryLock(0s));
   this_thread::sleep_for(10s);
 }

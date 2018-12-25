@@ -1034,7 +1034,7 @@ int TeXMFApp::MakeTeXString(const char* lpsz) const
     CheckPoolPointer(stringHandler->poolptr(), len);
     memcpy(stringHandler->strpool() + stringHandler->poolptr(), lpsz, len * sizeof(char));
   }
-  stringHandler->poolptr() += len;
+  stringHandler->poolptr() += static_cast<C4P_signed32>(len);
   return stringHandler->makestring();
 }
 

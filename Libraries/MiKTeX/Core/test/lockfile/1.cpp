@@ -34,20 +34,20 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 
-using namespace MiKTeX::Core;
-using namespace MiKTeX::Test;
-
 using namespace std;
 using namespace std::chrono_literals;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Test;
 
 BEGIN_TEST_SCRIPT("lockfile-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  unique_ptr<LockFile> lockFile = LockFile::Create("lockfile-1");
+  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create("lockfile-1");
   TEST(lockFile->TryLock(0s));
   {
-    unique_ptr<LockFile> lockFile2 = LockFile::Create("lockfile-1");
+    unique_ptr<MiKTeX::Core::LockFile> lockFile2 = LockFile::Create("lockfile-1");
     TEST(!lockFile2->TryLock(0s));
     lockFile->Unlock();
     TEST(lockFile2->TryLock(0s));
@@ -59,7 +59,7 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
-  unique_ptr<LockFile> lockFile = LockFile::Create("lockfile-1-1");
+  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create("lockfile-1-1");
   PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_lockfile_test1-1" MIKTEX_EXE_FILE_SUFFIX;
   TESTX(Process::Start(pathExe));
@@ -71,7 +71,7 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(3);
 {
-  unique_ptr<LockFile> lockFile = LockFile::Create("lockfile-1-2");
+  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create("lockfile-1-2");
   PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_lockfile_test1-2" MIKTEX_EXE_FILE_SUFFIX;
   TESTX(Process::Start(pathExe));

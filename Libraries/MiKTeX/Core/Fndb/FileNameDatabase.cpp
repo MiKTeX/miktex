@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -75,7 +73,7 @@ FileNameDatabase::~FileNameDatabase()
 MIKTEXSTATICFUNC(bool) Match(const char* pathPattern, const char* path)
 {
   MIKTEX_ASSERT(PathName(pathPattern).IsComparable());
-  MIKTEX_ASSERT(PathName(lpszPath).IsComparable());
+  MIKTEX_ASSERT(PathName(path).IsComparable());
   int lastch = 0;
   for (; *pathPattern != 0 && *path != 0; ++pathPattern, ++path)
   {
@@ -335,15 +333,9 @@ void FileNameDatabase::ReadFileNames()
   fileNames.clear();
   fileNames.rehash(fndbHeader->numFiles);
   CoreStopWatch stopWatch(fmt::format("fndb read file names {}", Q_(rootDirectory)));
-#if MIKTEX_FNDB_VERSION == 5
   ReadFileNames(GetTable());
-#endif
-#if MIKTEX_FNDB_VERSION == 4
-  ReadFileNames(GetTopDirectory());
-#endif
 }
 
-#if MIKTEX_FNDB_VERSION == 5
 void FileNameDatabase::ReadFileNames(const FileNameDatabaseRecord* table)
 {
   for (size_t idx = 0; idx < fndbHeader->numFiles; ++idx)
@@ -352,32 +344,6 @@ void FileNameDatabase::ReadFileNames(const FileNameDatabaseRecord* table)
     InsertRecord(Record(this, GetString(rec->foFileName), rec->foDirectory, rec->foInfo));
   }
 }
-#endif
-
-#if MIKTEX_FNDB_VERSION == 4
-void FileNameDatabase::ReadFileNames(const FileNameDatabaseDirectory* dir)
-{
-  for (const FileNameDatabaseDirectory* dirIt = dir; dirIt != nullptr; dirIt = GetDirectoryAt(dirIt->foExtension))
-  {
-    for (FndbWord idx = 0; idx < dirIt->numSubDirs; ++idx)
-    {
-      // RECURSION
-      ReadFileNames(GetDirectoryAt(dirIt->GetSubDir(idx)));
-    }
-    for (FndbWord idx = 0; idx < dirIt->numFiles; ++idx)
-    {
-      PathName directoryPath;
-      MakePathName(dir, directoryPath);
-      string fileNameInfo;
-      if (HasFileNameInfo())
-      {
-        fileNameInfo = GetString(dir->GetFileNameInfo(idx));
-      }
-      InsertRecord({ GetString(dirIt->GetFileName(idx)), directoryPath.ToString(), fileNameInfo });
-    }
-  }
-}
-#endif
 
 void FileNameDatabase::Finalize()
 {
@@ -412,7 +378,7 @@ void FileNameDatabase::ApplyChangeFile()
   {
     return;
   }
-  trace_fndb->WriteLine("core", fmt::format(T_("applying change file {0}"), changeFile));
+  trace_fndb->WriteLine("core", fmt::format(T_("applying FNDB change file {0} starting at record #{1}"), changeFile, changeFileRecordCount));
   FileStream reader(File::Open(changeFile, FileMode::Open, FileAccess::Read));
   if (!File::TryLock(reader.GetFile(), File::LockType::Shared, 100ms))
   {
@@ -457,19 +423,6 @@ void FileNameDatabase::ApplyChangeFile()
   changeFileSize = File::GetSize(changeFile);
   changeFileRecordCount = count;
 }
-
-#if MIKTEX_FNDB_VERSION == 4
-void FileNameDatabase::MakePathName(const FileNameDatabaseDirectory* dir, PathName& path) const
-{
-  if (dir == nullptr || dir->foParent == 0)
-  {
-    return;
-  }
-  // RECURSION
-  MakePathName(GetDirectoryAt(dir->foParent), path);
-  path /= GetString(dir->foName);
-}
-#endif
 
 void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath)
 {

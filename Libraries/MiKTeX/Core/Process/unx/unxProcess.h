@@ -26,8 +26,8 @@
 
 #include <memory>
 
-#include "miktex/Core/Process.h"
-#include "miktex/Core/TemporaryFile.h"
+#include <miktex/Core/Process>
+#include <miktex/Core/TemporaryFile>
 
 #include "Utils/AutoEnv.h"
 

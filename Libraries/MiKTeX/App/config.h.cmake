@@ -1,4 +1,4 @@
-/* internal.h: internal definitions                     -*- C++ -*-
+/* config.h (created from config.h.cmake)               -*- C++ -*-
 
    Copyright (C) 2005-2018 Christian Schenk
 
@@ -19,12 +19,12 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#pragma once
+#include <miktex/First>
 
-#if !defined(UNUSED_ALWAYS)
-#  define UNUSED_ALWAYS(x) static_cast<void>(x)
+#define BDF6E2537F116547846406B5B2B65949
+
+#if defined(MIKTEX_APP_SHARED)
+#  define MIKTEXAPPEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXAPPEXPORT
 #endif
-
-#define T_(x) MIKTEXTEXT(x)
-
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()

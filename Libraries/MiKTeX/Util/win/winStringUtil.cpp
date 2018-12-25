@@ -47,7 +47,7 @@ MIKTEXSTATICFUNC(wchar_t*) AnsiToWideChar(const char* source, wchar_t* dest, siz
     *dest = 0;
     return dest;
   }
-  int n = MultiByteToWideChar(CP_ACP, 0, source, -1, dest, destSize);
+  int n = MultiByteToWideChar(CP_ACP, 0, source, -1, dest, static_cast<int>(destSize));
   if (n == 0)
   {
     throw exception("Conversion from narrow string (ANSI) to wide character string did not succeed.");

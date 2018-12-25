@@ -19,24 +19,23 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/BufferSizes>
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/Debug>
+#include <miktex/Core/PathName>
+#include <miktex/Core/Paths>
+#include <miktex/Core/c/api.h>
 
 #include "internal.h"
 
-#include "miktex/Core/BufferSizes.h"
-#include "miktex/Core/CommandLineBuilder.h"
-#include "miktex/Core/Debug.h"
-#include "miktex/Core/PathName.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/c/api.h"
-
 #include "Session/SessionImpl.h"
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 MIKTEXCORECEEAPI(void) miktex_create_temp_file_name(char* lpszFileName)
 {
@@ -125,7 +124,6 @@ MIKTEXCORECEEAPI(int) miktex_pathcmp(const char* lpszPath1, const char* lpszPath
   return PathName::Compare(lpszPath1, lpszPath2);
   C_FUNC_END();
 }
-
 
 MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_exit(int status)
 {

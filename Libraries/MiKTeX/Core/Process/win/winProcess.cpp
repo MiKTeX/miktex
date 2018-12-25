@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <Windows.h>
 #include <Tlhelp32.h>
@@ -30,18 +28,19 @@
 
 #include <io.h>
 
-#include "internal.h"
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/Environment>
+#include <miktex/Core/win/winAutoResource>
 
-#include "miktex/Core/CommandLineBuilder.h"
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/win/winAutoResource.h"
+#include "internal.h"
 
 #include "winProcess.h"
 #include "Session/SessionImpl.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 unique_ptr<Process> Process::Start(const ProcessStartInfo& startinfo)
 {
@@ -284,15 +283,6 @@ void winProcess::Create()
     {
       session->trace_process->WriteFormattedLine("core", "start process: %s", commandLine.ToString().c_str());
     }
-
-#if 1
-    // experimental
-    if (session != nullptr)
-    {
-      // FIXME
-      session->UnloadFilenameDatabase();
-    }
-#endif
 
     tmpFile = TemporaryFile::Create();
     tmpEnv.Set(MIKTEX_ENV_EXCEPTION_PATH, tmpFile->GetPathName().ToString());
@@ -678,4 +668,13 @@ string winProcess::get_ProcessName()
 int winProcess::GetSystemId()
 {
   return processInformation.dwProcessId;
+}
+
+ProcessInfo winProcess::GetProcessInfo()
+{
+  ProcessInfo processInfo;
+  processInfo.name = get_ProcessName();
+  processInfo.parent = get_Parent()->GetSystemId();
+  processInfo.status = ProcessStatus::Runnable;
+  return processInfo;
 }

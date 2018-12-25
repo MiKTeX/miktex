@@ -32,11 +32,11 @@
 #include <miktex/Core/LockFile>
 #include <miktex/Core/PathName>
 
-using namespace MiKTeX::Core;
-using namespace MiKTeX::Test;
-
 using namespace std;
 using namespace chrono_literals;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Test;
 
 BEGIN_TEST_SCRIPT("lockfile-1-3");
 

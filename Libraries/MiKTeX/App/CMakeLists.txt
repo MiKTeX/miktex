@@ -22,8 +22,8 @@ include(component.cmake)
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/app")
 
 include_directories(BEFORE
-  ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set(public_include_directories
@@ -59,12 +59,18 @@ configure_file(
 )
 
 configure_file(
+  config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
+configure_file(
   include/miktex/App/vi/Version.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/vi/Version.h
 )
 
 set(app_sources
   ${CMAKE_CURRENT_BINARY_DIR}/app-version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${CMAKE_CURRENT_SOURCE_DIR}/app.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp

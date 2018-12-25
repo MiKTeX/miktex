@@ -19,11 +19,7 @@
    Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
    USA.  */
 
-#include <miktex/First>
-
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Quoter>
@@ -41,9 +37,9 @@ Ghostscript::~Ghostscript()
   MIKTEX_ASSERT(process == nullptr);
   MIKTEX_ASSERT(!chunkerThread.joinable());
   MIKTEX_ASSERT(!stderrReaderThread.joinable());
-  MIKTEX_ASSERT(gsIn.Get() == nullptr);
-  MIKTEX_ASSERT(gsOut.Get() == nullptr);
-  MIKTEX_ASSERT(gsErr.Get() == nullptr);
+  MIKTEX_ASSERT(gsIn.GetFile() == nullptr);
+  MIKTEX_ASSERT(gsOut.GetFile() == nullptr);
+  MIKTEX_ASSERT(gsErr.GetFile() == nullptr);
 }
 
 void Ghostscript::Start()
@@ -219,7 +215,7 @@ void Ghostscript::Execute(const char* format, ...)
   va_start(argptr, format);
   string str = StringUtil::FormatStringVA(format, argptr);
   va_end(argptr);
-  Write(str.c_str(), str.length());
+  Write(str.c_str(), static_cast<unsigned>(str.length()));
 }
 
 void Ghostscript::Finalize()

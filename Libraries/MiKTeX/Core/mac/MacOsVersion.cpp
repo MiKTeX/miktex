@@ -19,19 +19,18 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/PathName>
+#include <miktex/Core/Process>
+#include <miktex/Core/Utils>
+#include <miktex/Core/mac/MacOsVersion>
 
 #include "internal.h"
 
-#include "miktex/Core/PathName.h"
-#include "miktex/Core/Process.h"
-#include "miktex/Core/Utils.h"
-#include "miktex/Core/mac/MacOsVersion.h"
+using namespace std;
 
 using namespace MiKTeX::Core;
-using namespace std;
 
 void rtrim(std::string& str)
 {

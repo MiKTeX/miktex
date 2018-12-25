@@ -19,34 +19,33 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fstream>
 #include <thread>
-#include "unordered_map"
-#include "unordered_set"
+#include <unordered_map>
+#include <unordered_set>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+
+#include <miktex/Core/AutoResource>
+#include <miktex/Core/Directory>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
 
 #include <miktex/Trace/Trace>
 
 #include "internal.h"
 
-#include "miktex/Core/AutoResource.h"
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
-
 #include "Session/SessionImpl.h"
 #include "fndbmem.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
-using namespace std;
 
 const uint8_t null_byte = 0;
 
@@ -55,24 +54,9 @@ const uint8_t null_byte = 0;
 struct FILENAMEINFO
 {
   string FileName;
-#if MIKTEX_FNDB_VERSION == 5
   const string* Directory = nullptr;
   const string* Info = nullptr;
-#endif
-#if MIKTEX_FNDB_VERSION == 4
-  string Info;
-#endif
 };
-
-#if MIKTEX_FNDB_VERSION == 4
-struct COMPAREFILENAMEINFO
-{
-  bool operator()(const FILENAMEINFO& lhs, const FILENAMEINFO& rhs) const
-  {
-    return PathName::Compare(lhs.FileName, rhs.FileName) < 0;
-  }
-};
-#endif
 
 class FndbManager
 {
@@ -148,15 +132,8 @@ private:
 public:
   void ReadDirectory(const PathName& dirPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp);
 
-#if MIKTEX_FNDB_VERSION == 5
 private:
   void CollectFiles(const PathName& parentPath, const PathName& folderName, vector<FILENAMEINFO>& fileNames);
-#endif
-
-#if MIKTEX_FNDB_VERSION == 4
-private:
-  FndbByteOffset ProcessFolder(FndbByteOffset foParent, const PathName& parentPath, const PathName& folderName, FndbByteOffset foFolderName);
-#endif
 
 private:
   PathName rootPath;
@@ -179,10 +156,8 @@ private:
 private:
   ICreateFndbCallback* callback;
 
-#if MIKTEX_FNDB_VERSION == 5
 private:
   unordered_set<string> stringPool;
-#endif
   
 private:
   typedef unordered_map<string, FndbByteOffset> StringMap;
@@ -302,10 +277,8 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
   unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dirPath);
   DirectoryEntry entry;
   vector<DirectoryEntry> toBeDeleted;
-#if MIKTEX_FNDB_VERSION == 5
   PathName directory = Utils::GetRelativizedPath(dirPath.GetData(), rootPath.GetData());
   directory = directory.ToUnix();
-#endif
   while (lister->GetNext(entry))
   {
     if (binary_search(filesToBeIgnored.begin(), filesToBeIgnored.end(), entry.name, StringComparerIgnoringCase()))
@@ -324,9 +297,7 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
     {
       FILENAMEINFO filenameinfo;
       filenameinfo.FileName = entry.name;
-#if MIKTEX_FNDB_VERSION == 5
       filenameinfo.Directory = &*stringPool.insert(directory.ToString()).first;
-#endif
       fileNames.push_back(filenameinfo);
     }
   }
@@ -353,7 +324,6 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
   }
 }
 
-#if MIKTEX_FNDB_VERSION == 5
 void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folderName, vector<FILENAMEINFO>& fileNames)
 {
   if (currentLevel > deepestLevel)
@@ -374,7 +344,7 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
 
   if (callback != nullptr)
   {
-    if (!callback->OnProgress(currentLevel, path))
+    if (!callback->OnProgress(static_cast<unsigned>(currentLevel), path))
     {
       throw OperationCancelledException();
     }
@@ -416,126 +386,6 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
   }
   --currentLevel;
 }
-#endif
-
-#if MIKTEX_FNDB_VERSION == 4
-FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const PathName& parentPath, const PathName& folderName, FndbByteOffset foFolderName)
-{
-  const size_t cReservedEntries = 0;
-
-  if (currentLevel > deepestLevel)
-  {
-    deepestLevel = currentLevel;
-  }
-
-  vector<string> subDirectoryNames;
-  subDirectoryNames.reserve(40);
-
-  vector<FILENAMEINFO> fileNames;
-  fileNames.reserve(100);
-
-  bool done = false;
-
-  PathName path(parentPath, folderName);
-
-  path.MakeAbsolute();
-
-  if (callback != nullptr)
-  {
-    if (!callback->OnProgress(currentLevel, path))
-    {
-      throw OperationCancelledException();
-    }
-    vector<string> subDirs;
-    vector<string> files;
-    vector<string> infos;
-    done = callback->ReadDirectory(path, subDirs, files, infos);
-    if (done)
-    {
-      subDirectoryNames = subDirs;
-      MIKTEX_ASSERT(files.size() == infos.size());
-      for (int i = 0; i < files.size(); ++i)
-      {
-        FILENAMEINFO filenameinfo;
-        filenameinfo.FileName = files[i];
-        filenameinfo.Info = infos[i];
-        fileNames.push_back(filenameinfo);
-      }
-    }
-  }
-
-  if (!done)
-  {
-    ReadDirectory(path, subDirectoryNames, fileNames, true);
-  }
-
-  numDirectories += subDirectoryNames.size();
-  numFiles += fileNames.size();
-
-  sort(subDirectoryNames.begin(), subDirectoryNames.end(), StringComparerIgnoringCase());
-  sort(fileNames.begin(), fileNames.end(), COMPAREFILENAMEINFO());
-
-  // store all names; build offset table
-  vector<FndbByteOffset> vecfndboff;
-  vecfndboff.reserve((storeFileNameInfo ? 2 : 1) * fileNames.size() + 2 * subDirectoryNames.size() + cReservedEntries);
-  for (const FILENAMEINFO& fi : fileNames)
-  {
-    vecfndboff.push_back(PushBack(fi.FileName.c_str()));
-  }
-  for (const string& s : subDirectoryNames)
-  {
-    vecfndboff.push_back(PushBack(s.c_str()));
-  }
-  for (int n = 0; n < subDirectoryNames.size(); ++n)
-  {
-    vecfndboff.push_back(null_byte);
-  }
-  if (storeFileNameInfo)
-  {
-    for (const FILENAMEINFO& fi : fileNames)
-    {
-      vecfndboff.push_back(PushBack(fi.Info.c_str()));
-    }
-  }
-  vecfndboff.insert(vecfndboff.end(), cReservedEntries, 0);
-
-  // store directory data (excluding offsets)
-  FileNameDatabaseDirectory dirdata;
-  dirdata.Init();
-  dirdata.foName = foFolderName;
-  dirdata.foParent = foParent;
-  dirdata.numSubDirs = subDirectoryNames.size();
-  dirdata.numFiles = fileNames.size();
-  dirdata.capacity = vecfndboff.size();
-  AlignMem(sizeof(FndbByteOffset));
-  FndbByteOffset foThis = PushBack(&dirdata, offsetof(FileNameDatabaseDirectory, table));
-
-  if (vecfndboff.empty())
-  {
-    return foThis;
-  }
-
-  // reserve memory for offset table
-  FndbByteOffset foOffsetTable = ReserveMem(vecfndboff.size() * sizeof(FndbByteOffset));
-
-  // recurse into sub-directories and remember offsets
-  PathName pathFolder(parentPath, folderName);
-  size_t i = 0;
-  ++currentLevel;
-  for (const string& s : subDirectoryNames)
-  {
-    // RECURSION
-    vecfndboff[dirdata.numFiles + dirdata.numSubDirs + i] = ProcessFolder(foThis, pathFolder, s, vecfndboff[dirdata.numFiles + i]);
-    ++i;
-  }
-  --currentLevel;
-
-  // store offset table
-  SetMem(foOffsetTable, &vecfndboff[0], vecfndboff.size() * sizeof(FndbByteOffset));
-
-  return foThis;
-}
-#endif
 
 bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo)
 {
@@ -550,22 +400,11 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     ReserveMem(sizeof(FileNameDatabaseHeader));
     FileNameDatabaseHeader fndb;
     fndb.Init();
-#if MIKTEX_FNDB_VERSION == 4
-    if (callback == nullptr && FileIsOnROMedia(rootPath.GetData()))
-    {
-      fndb.flags |= FileNameDatabaseHeader::FndbFlags::Frozen;
-    }
-    if (storeFileNameInfo)
-    {
-      fndb.flags |= FileNameDatabaseHeader::FndbFlags::FileNameInfo;
-    }
-#endif
     numDirectories = 0;
     numFiles = 0;
     deepestLevel = 0;
     currentLevel = 0;
     this->callback = callback;
-#if MIKTEX_FNDB_VERSION == 5
     vector<FILENAMEINFO> fileNames;
     CollectFiles(rootPath, CURRENT_DIRECTORY, fileNames);
     numFiles = fileNames.size();
@@ -579,28 +418,12 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
       rec.foFileName = PushBack(fileNames[idx].FileName.c_str());
       rec.foDirectory = PushBack(fileNames[idx].Directory->c_str());
       rec.foInfo = PushBack(fileNames[idx].Info == nullptr ? "" : fileNames[idx].Info->c_str());
-      SetMem(fndb.foTable + idx * sizeof(rec), &rec, sizeof(rec));
+      SetMem(static_cast<unsigned>(fndb.foTable + idx * sizeof(rec)), &rec, sizeof(rec));
     }
-#endif
-#if MIKTEX_FNDB_VERSION == 4
-    AlignMem();
-    fndb.foPath = PushBack(rootPath.GetData());
-    fndb.foTopDir = ProcessFolder(0, rootPath, CURRENT_DIRECTORY, fndb.foPath);
-#endif
-    fndb.numDirs = numDirectories;
-    fndb.numFiles = numFiles;
-    fndb.depth = deepestLevel;
-#if MIKTEX_FNDB_VERSION == 4
-    fndb.timeStamp = static_cast<FndbWord>(time(nullptr)); // FIXME: 64-bit
-#endif
+    fndb.numDirs = static_cast<unsigned>(numDirectories);
+    fndb.numFiles = static_cast<unsigned>(numFiles);
+    fndb.depth = static_cast<unsigned>(deepestLevel);
     fndb.size = GetMemTop();
-#if MIKTEX_FNDB_VERSION == 4
-    if ((fndb.flags & FileNameDatabaseHeader::FndbFlags::Frozen) == 0)
-    {
-      size_t n = ((GetMemTop() + FNDB_EXTRA + 1) / FNDB_GRAN * FNDB_GRAN) - GetMemTop();
-      ReserveMem(n);
-    }
-#endif
     AlignMem(FNDB_PAGESIZE);
     SetMem(0, &fndb, sizeof(fndb));
 
@@ -648,12 +471,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
 
 bool Fndb::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback)
 {
-#if MIKTEX_FNDB_VERSION == 5
   return Fndb::Create(fndbPath, rootPath, callback, true, false);
-#endif
-#if MIKTEX_FNDB_VERSION == 4
-  return Fndb::Create(fndbPath, rootPath, callback, false, false);
-#endif
 }
 
 bool Fndb::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo)

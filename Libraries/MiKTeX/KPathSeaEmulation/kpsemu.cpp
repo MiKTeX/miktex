@@ -20,6 +20,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include "config.h"
+
 #include <cstdarg>
 #include <cstdlib>
 
@@ -42,17 +44,19 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Registry>
+#include <miktex/KPSE/Emulation>
 #include <miktex/TeXAndFriends/Prototypes>
 #include <miktex/Util/CharBuffer>
 #include <miktex/Version>
 
 #include "internal.h"
 
+using namespace std;
+
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeX;
-using namespace std;
 
 namespace {
   unsigned kpse_baseResolution = 600;
@@ -424,7 +428,7 @@ MIKTEXKPSCEEAPI(int) miktex_xfseek(FILE* file, long offset, int where, const cha
 
 MIKTEXKPSCEEAPI(int) miktex_xfseeko(FILE* file, off_t offset, int where, const char* path)
 {
-  if (fseek(file, offset, where) != 0)
+  if (fseek(file, static_cast<long>(offset), where) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("fseek", "path", path);
   }
@@ -665,6 +669,7 @@ MIKTEXKPSCEEAPI(char*) miktex_remove_suffix(const char* path)
     MIKTEX_ASSERT(*ext == '.');
     size_t n = (ext - path);
     ret = reinterpret_cast<char*>(xmalloc((n + 1) * sizeof(*ret)));
+    // FIXME: don't use strncpy
     strncpy(ret, path, n);
     ret[n] = 0;
   }

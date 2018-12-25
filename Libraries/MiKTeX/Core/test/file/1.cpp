@@ -26,9 +26,10 @@
 #include <miktex/Core/File>
 #include <miktex/Core/FileStream>
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
-using namespace std;
 
 BEGIN_TEST_SCRIPT("file-1");
 

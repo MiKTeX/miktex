@@ -228,7 +228,7 @@ C4PCEEAPI(C4P::C4P_text *) C4P::GetStdFilePtr(unsigned idx)
 C4PCEEAPI(int) C4P::GetArgC()
 {
   MIKTEX_API_BEGIN("C4P::GetArgC");
-  return programData.argumentVector.size();
+  return static_cast<int>(programData.argumentVector.size());
   MIKTEX_API_END("C4P::GetArgC");
 }
 

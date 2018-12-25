@@ -19,21 +19,20 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <dirent.h>
 #include <sys/stat.h>
 
-#include "internal.h"
+#include <miktex/Core/DirectoryLister>
 
-#include "miktex/Core/DirectoryLister.h"
+#include "internal.h"
 
 #include "unxDirectoryLister.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 unique_ptr<DirectoryLister> DirectoryLister::Open(const PathName& directory)
 {
