@@ -515,10 +515,19 @@ private slots:
   void UpdateActionsCleanup();
 
 private slots:
+  void UserReset();
+
+private slots:
   void FactoryReset();
 
 private slots:
   void Uninstall();
+
+private slots:
+  void on_buttonUserReset_clicked()
+  {
+    UserReset();
+  }
 
 private slots:
   void on_buttonFactoryReset_clicked()
@@ -531,6 +540,9 @@ private slots:
   {
     Uninstall();
   }
+
+private:
+  bool IsUserResetPossible();
 
 private:
   bool IsFactoryResetPossible();
@@ -874,6 +886,16 @@ public:
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+
+protected:
+  bool Run() override;
+};
+
+class UserResetWorker :
+  public BackgroundWorker
+{
+private:
+  Q_OBJECT;
 
 protected:
   bool Run() override;

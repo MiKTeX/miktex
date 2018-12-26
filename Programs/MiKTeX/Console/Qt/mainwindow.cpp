@@ -2169,8 +2169,14 @@ void MainWindow::on_pushButtonOpenReport_clicked()
 
 void MainWindow::SetupUiCleanup()
 {
+  connect(ui->actionUserReset, SIGNAL(triggered()), this, SLOT(UserReset()));
   connect(ui->actionFactoryReset, SIGNAL(triggered()), this, SLOT(FactoryReset()));
   connect(ui->actionUninstall, SIGNAL(triggered()), this, SLOT(Uninstall()));
+}
+
+bool MainWindow::IsUserResetPossible()
+{
+  return session->IsSharedSetup() && !session->IsAdminMode();
 }
 
 bool MainWindow::IsFactoryResetPossible()
@@ -2193,14 +2199,86 @@ bool MainWindow::IsUninstallPossible()
 
 void MainWindow::UpdateUiCleanup()
 {
+  ui->buttonUserReset->setEnabled(IsUserResetPossible() && !IsBackgroundWorkerActive());
   ui->buttonFactoryReset->setEnabled(IsFactoryResetPossible() && !IsBackgroundWorkerActive());
   ui->buttonUninstall->setEnabled(IsUninstallPossible() && !IsBackgroundWorkerActive());
 }
 
 void MainWindow::UpdateActionsCleanup()
 {
+  ui->actionUserReset->setEnabled(IsUserResetPossible() && !IsBackgroundWorkerActive());
   ui->actionFactoryReset->setEnabled(IsFactoryResetPossible() && !IsBackgroundWorkerActive());
   ui->actionUninstall->setEnabled(IsUninstallPossible() && !IsBackgroundWorkerActive());
+}
+
+bool UserResetWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    shared_ptr<Session> session = Session::Get();
+    unique_ptr<SetupService> service = SetupService::Create();
+    SetupOptions options = service->GetOptions();
+    options.Task = SetupTask::CleanUp;
+    options.IsCommonSetup = session->IsAdminMode();
+    options.CleanupOptions = { CleanupOption::LogFiles, CleanupOption::Registry, CleanupOption::RootDirectories };
+    service->SetOptions(options);
+    service->Run();
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::UserReset()
+{
+  QString message = tr("<h3>Reset personal MiKTeX configuration</h3>");
+  message += tr("<p>You are about to reset your personal MiKTeX configuration. You will loose all personal MiKTeX configuration files, log files, data files and packages./p");
+  message += tr("Are you sure?");
+  if (QMessageBox::warning(this, tr("MiKTeX Console"), message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+  {
+    return;
+  }
+  try
+  {
+    QThread* thread = new QThread;
+    UserResetWorker* worker = new UserResetWorker;
+    backgroundWorkers++;
+    ui->labelBackgroundTask->setText(tr("Removing personal MiKTeX configuration..."));
+    worker->moveToThread(thread);
+    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    connect(worker, &UserResetWorker::OnFinish, this, [this]() {
+      UserResetWorker* worker = (UserResetWorker*)sender();
+      if (!worker->GetResult())
+      {
+        CriticalError(tr("Something went wrong while removing your personal MiKTeX configuration."), ((UserResetWorker*)sender())->GetMiKTeXException());
+      }
+      backgroundWorkers--;
+      UpdateUi();
+      UpdateActions();
+      worker->deleteLater();
+    });
+    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    UpdateUi();
+    UpdateActions();
+    thread->start();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
 }
 
 bool FactoryResetWorker::Run()

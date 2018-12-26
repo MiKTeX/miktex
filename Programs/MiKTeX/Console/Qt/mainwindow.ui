@@ -337,7 +337,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>5</number>
+          <number>6</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -915,7 +915,7 @@ Use this option, if you want to operate on the private configuration.</string>
            <item>
             <widget class="QTabWidget" name="tabWidgetSettings">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="settingsGeneral">
               <attribute name="title">
@@ -1776,6 +1776,16 @@ Use this option, if you want to operate on the private configuration.</string>
             </widget>
            </item>
            <item>
+            <widget class="QCommandLinkButton" name="buttonUserReset">
+             <property name="text">
+              <string>Reset personal MiKTeX configuration</string>
+             </property>
+             <property name="description">
+              <string>This resets (removes) your pesonal MiKTeX configuration.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QCommandLinkButton" name="buttonFactoryReset">
              <property name="text">
               <string>Reset the TeX installation to factory defaults</string>
@@ -1791,7 +1801,7 @@ Use this option, if you want to operate on the private configuration.</string>
               <string>Uninstall MiKTeX</string>
              </property>
              <property name="description">
-              <string>This removes MiKTeX from your computer.</string>
+              <string>This removes MiKTeX from your computer. To avoid leftovers, all MiKTeX users should first remove their MiKTeX data and configuration directories.</string>
              </property>
             </widget>
            </item>
@@ -2190,6 +2200,14 @@ Use this option, if you want to operate on the private configuration.</string>
   <action name="actionUninstall">
    <property name="text">
     <string>Uninstall MiKTeX</string>
+   </property>
+  </action>
+  <action name="actionUserReset">
+   <property name="text">
+    <string>Reset personal MiKTeX configuration</string>
+   </property>
+   <property name="toolTip">
+    <string>Removes MiKTeX data and configuration settings of the current user</string>
    </property>
   </action>
  </widget>
