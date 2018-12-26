@@ -430,18 +430,8 @@ public:
 public:
   bool TryCreateFromTemplate(const MiKTeX::Core::PathName& path) override;
 
-#if defined(MIKTEX_WINDOWS)
-public:
-  bool RunningAsPowerUser() override;
-#endif
-
 public:
   bool IsUserAnAdministrator() override;
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  bool IsUserAPowerUser() override;
-#endif
 
 public:
   void ConfigureFile(const MiKTeX::Core::PathName& pathIn, const MiKTeX::Core::PathName& pathOut, MiKTeX::Core::HasNamedValues* callback) override;
@@ -1011,16 +1001,6 @@ private:
 
 private:
   MiKTeX::Core::TriState isUserAnAdministrator = MiKTeX::Core::TriState::Undetermined;
-
-#if defined(MIKTEX_WINDOWS)
-private:
-  MiKTeX::Core::TriState runningAsPowerUser = MiKTeX::Core::TriState::Undetermined;
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-private:
-  MiKTeX::Core::TriState isUserAPowerUser = MiKTeX::Core::TriState::Undetermined;
-#endif
 
 private:
   MiKTeX::Core::TriState isSharedSetup = MiKTeX::Core::TriState::Undetermined;

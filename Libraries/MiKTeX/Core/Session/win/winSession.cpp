@@ -905,22 +905,6 @@ bool SessionImpl::IsUserAnAdministrator()
   return isUserAnAdministrator == TriState::True ? true : false;
 }
 
-bool SessionImpl::IsUserAPowerUser()
-{
-  if (isUserAPowerUser == TriState::Undetermined)
-  {
-    if (IsUserMemberOfGroup(DOMAIN_ALIAS_RID_POWER_USERS))
-    {
-      isUserAPowerUser = TriState::True;
-    }
-    else
-    {
-      isUserAPowerUser = TriState::False;
-    }
-  }
-  return isUserAPowerUser == TriState::True ? true : false;
-}
-
 bool SessionImpl::RunningElevated()
 {
   HANDLE hToken;
@@ -973,27 +957,4 @@ bool SessionImpl::RunningAsAdministrator()
     }
   }
   return runningAsAdministrator == TriState::True ? true : false;
-}
-
-bool SessionImpl::RunningAsPowerUser()
-{
-  if (runningAsPowerUser == TriState::Undetermined)
-  {
-    if (IsUserAPowerUser())
-    {
-      if (!RunningElevated())
-      {
-        runningAsPowerUser = TriState::False;
-      }
-      else
-      {
-        runningAsPowerUser = TriState::True;
-      }
-    }
-    else
-    {
-      runningAsPowerUser = TriState::False;
-    }
-  }
-  return runningAsPowerUser == TriState::True ? true : false;
 }

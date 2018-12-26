@@ -434,7 +434,6 @@ void SetupServiceImpl::LogHeader()
   shared_ptr<Session> session = Session::Get();
 #if defined(MIKTEX_WINDOWS)
   Log(fmt::format("SystemAdmin: {}\n", session->RunningAsAdministrator()));
-  Log(fmt::format("PowerUser: {}\n", session->RunningAsPowerUser()));
 #endif
   if (options.Task != SetupTask::Download)
   {
@@ -1051,11 +1050,7 @@ void SetupServiceImpl::DoCleanUp()
   {
     try
     {
-      if (session->RunningAsAdministrator()
-#if defined(MIKTEX_WINDOWS)
-        || session->RunningAsPowerUser()
-#endif
-        )
+      if (session->RunningAsAdministrator())
       {
         ReportLine("cleaning PATH...");
         UnregisterPath(true);
@@ -1252,11 +1247,7 @@ vector<PathName> SetupServiceImpl::GetRoots()
 void SetupServiceImpl::UnregisterComponents()
 {
   shared_ptr<Session> session = Session::Get();
-  if (session->RunningAsAdministrator()
-#if defined(MIKTEX_WINDOWS)
-      || session->RunningAsPowerUser()
-#endif
-      )
+  if (session->RunningAsAdministrator())
   {
     std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager(PackageManager::Create());
     shared_ptr<PackageInstaller> packageInstaller(packageManager->CreateInstaller());

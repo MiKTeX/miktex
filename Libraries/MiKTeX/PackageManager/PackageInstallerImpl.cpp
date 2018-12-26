@@ -1501,7 +1501,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
 #endif
       }
 #if defined(MIKTEX_WINDOWS)
-      if (!session->IsMiKTeXPortable() && (session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      if (!session->IsMiKTeXPortable() && session->RunningAsAdministrator())
       {
         for (const char* comp : components)
         {
@@ -1552,8 +1552,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
 #endif
   }
 #if defined(MIKTEX_WINDOWS)
-  if (!session->IsMiKTeXPortable()
-    && (session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+  if (!session->IsMiKTeXPortable() && session->RunningAsAdministrator())
   {
     for (const char* comp : components)
     {

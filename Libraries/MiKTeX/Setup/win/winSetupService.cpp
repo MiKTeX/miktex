@@ -23,11 +23,12 @@
 
 #include "setup-version.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::Util;
-using namespace std;
 
 PathName SetupService::GetDefaultCommonInstallDir()
 {
@@ -711,7 +712,7 @@ void winSetupServiceImpl::UnregisterShellFileTypes()
   {
     MIKTEX_UNEXPECTED();
   }
-  if (session->RunningAsAdministrator() || session->RunningAsPowerUser())
+  if (session->RunningAsAdministrator())
   {
     Process::Run(initexmfExe, { initexmfExe.GetFileNameWithoutExtension().ToString(), "--admin", "--unregister-shell-file-types" });
   }
@@ -820,14 +821,14 @@ bool winSetupServiceImpl::RemoveBinDirFromPath(string& path)
 void winSetupServiceImpl::RemoveRegistryKeys()
 {
   shared_ptr<Session> session = Session::Get();
-  bool shared = session->RunningAsAdministrator() || session->RunningAsPowerUser();
+  bool shared = session->RunningAsAdministrator();
 
   if (shared && Exists(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_SERIES))
   {
     RemoveRegistryKey(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_SERIES);
   }
 
-  if (Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES))
+  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES);
   }
@@ -846,19 +847,19 @@ void winSetupServiceImpl::RemoveRegistryKeys()
     RemoveRegistryKey(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_COMPANY);
   }
 
-  if (Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT)
+  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT)
     && IsEmpty(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT);
   }
 
-  if (Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY)
+  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY)
     && IsEmpty(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY);
   }
 
-  if (Exists(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT))
+  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT);
   }

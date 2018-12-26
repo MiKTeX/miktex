@@ -44,7 +44,7 @@ BOOL SharedInstallationPage::OnInitDialog()
 
   try
   {
-    if (!(session->IsUserAnAdministrator() || session->IsUserAPowerUser()))
+    if (!session->IsUserAnAdministrator())
     {
       CWnd* wnd = GetDlgItem(IDC_SHARED);
       if (wnd == nullptr)

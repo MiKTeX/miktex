@@ -1064,18 +1064,8 @@ public:
 public:
   virtual bool MIKTEXTHISCALL TryCreateFromTemplate(const PathName& path) = 0;
 
-#if defined(MIKTEX_WINDOWS)
-public:
-  virtual bool MIKTEXTHISCALL RunningAsPowerUser() = 0;
-#endif
-
 public:
   virtual bool MIKTEXTHISCALL IsUserAnAdministrator() = 0;
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  virtual bool MIKTEXTHISCALL IsUserAPowerUser() = 0;
-#endif
 
 public:
   virtual void MIKTEXTHISCALL ConfigureFile(const PathName& pathIn, const PathName& pathOut, HasNamedValues* callback = nullptr) = 0;
