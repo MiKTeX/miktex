@@ -273,7 +273,7 @@ tuple<string, string> FileNameDatabase::SplitPath(const PathName& path_) const
   fileName.RemoveDirectorySpec();
   PathName directory = path;
   directory.RemoveFileSpec();
-  directory.ToUnix();
+  directory = directory.ToUnix();
 
   return make_tuple(fileName.ToString(), directory.ToString());
 }
@@ -309,19 +309,19 @@ void FileNameDatabase::EraseRecord(const FileNameDatabase::Record& record)
   pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(MakeKey(record.fileName));
   if (range.first == range.second)
   {
-    MIKTEX_FATAL_ERROR_2(T_("The file name record could not be found in the hash table."), "fileName", record.fileName);
+    MIKTEX_FATAL_ERROR_2(T_("The file name record could not be found in the database."), "fileName", record.fileName);
   }
   vector<FileNameHashTable::const_iterator> toBeRemoved;
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (it->second.GetDirectory() == record.GetDirectory())
+    if (PathName::Compare(it->second.GetDirectory(), record.GetDirectory()) == 00)
     {
       toBeRemoved.push_back(it);
     }
   }
   if (toBeRemoved.empty())
   {
-    MIKTEX_FATAL_ERROR_2(T_("The file name record could not be found in the hash table."), "fileName", record.fileName, "directory", record.GetDirectory());
+    MIKTEX_FATAL_ERROR_2(T_("The file name record could not be found in the database."), "fileName", record.fileName, "directory", record.GetDirectory());
   }
   for (const auto& it : toBeRemoved)
   {

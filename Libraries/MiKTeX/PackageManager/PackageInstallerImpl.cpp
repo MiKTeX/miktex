@@ -777,15 +777,6 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
       done = true;
     }
 
-    // remove from MPM FNDB
-#if 0
-    if (autoFndbSync
-      && Fndb::Exists(PathName(session->GetMpmRootPath(), fileName)))
-    {
-      Fndb::Remove(PathName(session->GetMpmRootPath(), fileName));
-    }
-#endif
-
     // update progress info
     if (done && !silently)
     {
@@ -997,16 +988,25 @@ void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const str
   CopyFiles(pathSourceRoot, package.sourceFiles);
 }
 
-typedef unordered_set<string> StringSet;
+typedef unordered_set<string> FileNameSet;
 
-MPMSTATICFUNC(void) GetFiles(const PackageInfo& package, StringSet& files)
+MPMSTATICFUNC(void) GetFiles(const PackageInfo& package, FileNameSet& files)
 {
-  files.insert(package.runFiles.begin(), package.runFiles.end());
-  files.insert(package.docFiles.begin(), package.docFiles.end());
-  files.insert(package.sourceFiles.begin(), package.sourceFiles.end());
+  for (const string& s : package.runFiles)
+  {
+    files.insert(PathName(s).TransformForComparison().ToString());
+  }
+  for (const string& s : package.docFiles)
+  {
+    files.insert(PathName(s).TransformForComparison().ToString());
+  }
+  for (const string& s : package.sourceFiles)
+  {
+    files.insert(PathName(s).TransformForComparison().ToString());
+  }
 }
 
-void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, const vector<string>& removedFiles, const char* lpszPackageName)
+void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, const vector<string>& removedFiles, const string& packageId)
 {
   vector<Fndb::Record> records;
   for (const string& f : installedFiles)
@@ -1014,7 +1014,7 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
     PathName path(session->GetMpmRootPath(), f);
     if (!Fndb::FileExists(path))
     {
-      records.push_back({ path, lpszPackageName });
+      records.push_back({ path, packageId });
     }
   }
   if (!records.empty())
@@ -1102,7 +1102,6 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
   if (package.IsInstalled())
   {
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: removing old files"), packageId));
-    // make sure that the package info file does not get removed
     RemoveFiles(package.runFiles, true);
     RemoveFiles(package.docFiles, true);
     RemoveFiles(package.sourceFiles, true);
@@ -1148,40 +1147,39 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
   // install new package manifest
   PackageManager::PutPackageManifest(packageManifests, newPackage, newPackage.timePackaged);
 
-  // find recycled and brand new files
-  StringSet set1;
-  GetFiles(package, set1);
-  StringSet set2;
-  GetFiles(newPackage, set2);
-  vector<string> recycledFiles;
-  for (const string& s : set1)
-  {
-    if (set2.find(s) == set2.end())
-    {
-      string str;
-      if (PackageManager::StripTeXMFPrefix(s, str))
-      {
-        recycledFiles.push_back(str);
-      }
-    }
-  }
-  vector<string> newFiles;
-  for (const string& s : set2)
-  {
-    if (set1.find(s) == set1.end())
-    {
-      string str;
-      if (PackageManager::StripTeXMFPrefix(s, str))
-      {
-        newFiles.push_back(str);
-      }
-    }
-  }
-
   // update the MPM file name database
   if (autoFndbSync)
   {
-    UpdateMpmFndb(newFiles, recycledFiles, packageId.c_str());
+    // find recycled and brand new files
+    FileNameSet set1;
+    GetFiles(package, set1);
+    FileNameSet set2;
+    GetFiles(newPackage, set2);
+    vector<string> recycledFiles;
+    for (const string& s : set1)
+    {
+      if (set2.find(s) == set2.end())
+      {
+        string str;
+        if (PackageManager::StripTeXMFPrefix(s, str))
+        {
+          recycledFiles.push_back(str);
+        }
+      }
+    }
+    vector<string> newFiles;
+    for (const string& s : set2)
+    {
+      if (set1.find(s) == set1.end())
+      {
+        string str;
+        if (PackageManager::StripTeXMFPrefix(s, str))
+        {
+          newFiles.push_back(str);
+        }
+      }
+    }
+    UpdateMpmFndb(newFiles, recycledFiles, packageId);
   }
 
   // set the timeInstalled value => package is installed

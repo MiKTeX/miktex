@@ -182,7 +182,7 @@ private:
   void NeedRepository();
 
 private:
-  void UpdateMpmFndb(const std::vector<std::string>& installedFiles, const std::vector<std::string>& removedFiles, const char* lpszPackageName);
+  void UpdateMpmFndb(const std::vector<std::string>& installedFiles, const std::vector<std::string>& removedFiles, const std::string& packageId);
 
 private:
   void CalculateExpenditure(bool downloadOnly = false);
