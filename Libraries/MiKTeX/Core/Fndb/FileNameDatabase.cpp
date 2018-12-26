@@ -280,7 +280,8 @@ tuple<string, string> FileNameDatabase::SplitPath(const PathName& path_) const
 
 bool FileNameDatabase::InsertRecord(const FileNameDatabase::Record& record)
 {
-  pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(MakeKey(record.fileName));
+  string key = MakeKey(record.fileName);
+  pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(key);
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
     if (PathName::Compare(it->second.GetDirectory(), record.GetDirectory()) == 0)
@@ -288,7 +289,7 @@ bool FileNameDatabase::InsertRecord(const FileNameDatabase::Record& record)
       return false;
     }
   }
-  fileNames.insert(pair<string, Record>(record.fileName, record));
+  fileNames.insert(pair<string, Record>(key, record));
   return true;
 }
 
