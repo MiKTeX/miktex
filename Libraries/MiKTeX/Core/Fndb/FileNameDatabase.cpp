@@ -278,6 +278,11 @@ tuple<string, string> FileNameDatabase::SplitPath(const PathName& path_) const
   return make_tuple(fileName.ToString(), directory.ToString());
 }
 
+void FileNameDatabase::FastInsertRecord(const FileNameDatabase::Record& record)
+{
+  fileNames.insert(pair<string, Record>(MakeKey(record.fileName), record));
+}
+
 bool FileNameDatabase::InsertRecord(const FileNameDatabase::Record& record)
 {
   string key = MakeKey(record.fileName);
@@ -315,7 +320,7 @@ void FileNameDatabase::EraseRecord(const FileNameDatabase::Record& record)
   vector<FileNameHashTable::const_iterator> toBeRemoved;
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    if (PathName::Compare(it->second.GetDirectory(), record.GetDirectory()) == 00)
+    if (PathName::Compare(it->second.GetDirectory(), record.GetDirectory()) == 0)
     {
       toBeRemoved.push_back(it);
     }
@@ -343,7 +348,7 @@ void FileNameDatabase::ReadFileNames(const FileNameDatabaseRecord* table)
   for (size_t idx = 0; idx < fndbHeader->numFiles; ++idx)
   {
     const FileNameDatabaseRecord* rec = &table[idx];
-    InsertRecord(Record(this, GetString(rec->foFileName), rec->foDirectory, rec->foInfo));
+    FastInsertRecord(Record(this, GetString(rec->foFileName), rec->foDirectory, rec->foInfo));
   }
 }
 
@@ -409,7 +414,7 @@ void FileNameDatabase::ApplyChangeFile()
         MIKTEX_UNEXPECTED();
       }
       const string& fileNameInfo = data[2];
-      InsertRecord(Record(fileName, directory, fileNameInfo));
+      FastInsertRecord(Record(fileName, directory, fileNameInfo));
     }
     else if (op == "-")
     {

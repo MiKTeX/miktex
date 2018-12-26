@@ -130,6 +130,9 @@ private:
   std::string MakeKey(const MiKTeX::Core::PathName& fileName) const;
 
 private:
+  void FastInsertRecord(const Record& record);
+
+private:
   bool InsertRecord(const Record& record);
 
 private:
