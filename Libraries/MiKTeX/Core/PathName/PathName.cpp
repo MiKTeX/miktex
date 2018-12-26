@@ -114,6 +114,8 @@ int PathName::Compare(const char* lpszPath1, const char* lpszPath2, size_t count
   return 0;
 }
 
+// TODO: code review
+// TODO: performance
 PathName& PathName::Convert(ConvertPathNameOptions options)
 {
   bool toUnix = options[ConvertPathNameOption::ToUnix];

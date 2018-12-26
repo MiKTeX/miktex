@@ -385,7 +385,7 @@ void FileNameDatabase::ApplyChangeFile()
   {
     return;
   }
-  trace_fndb->WriteLine("core", fmt::format(T_("applying FNDB change file {0} starting at record #{1}"), changeFile, changeFileRecordCount));
+  CoreStopWatch stopWatch(fmt::format(T_("applying FNDB change file {0} starting at record #{1}"), Q_(changeFile), changeFileRecordCount));
   FileStream reader(File::Open(changeFile, FileMode::Open, FileAccess::Read));
   if (!File::TryLock(reader.GetFile(), File::LockType::Shared, 100ms))
   {
