@@ -555,7 +555,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   }
   if (fd < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("_wsopen_s", "path", path.ToString());
+    MIKTEX_FATAL_CRT_ERROR_2("_wsopen_s", "path", path.ToString(), "mode", strFlags);
   }
 #else
   fd = open(path.Get(), flags, (((flags & O_CREAT) == 0) ? 0 : S_IREAD | S_IWRITE));

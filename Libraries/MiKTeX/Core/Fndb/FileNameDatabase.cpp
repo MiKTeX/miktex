@@ -27,6 +27,7 @@
 #include <miktex/Core/File>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/LockFile>
+#include <miktex/Core/PathNameParser>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Utils>
 #include <miktex/Trace/Trace>
@@ -34,10 +35,9 @@
 
 #include "internal.h"
 
-#include "miktex/Core/PathNameParser.h"
-
 #include "FileNameDatabase.h"
 #include "Utils/CoreStopWatch.h"
+#include "Utils/inliners.h"
 
 using namespace std;
 
@@ -144,7 +144,6 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
 
   // check to see whether we have this file name
   pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(MakeKey(fileName));
-
   if (range.first == range.second)
   {
     return false;
@@ -235,12 +234,9 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
 bool FileNameDatabase::FileExists(const PathName& path)
 {
   ApplyChangeFile();
-
   string fileName;
   string directory;
-
   std::tie(fileName, directory) = SplitPath(path);
-
   pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(MakeKey(fileName));
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
@@ -249,7 +245,6 @@ bool FileNameDatabase::FileExists(const PathName& path)
       return true;
     }
   }
-
   return false;
 }
 
@@ -300,14 +295,19 @@ bool FileNameDatabase::InsertRecord(const FileNameDatabase::Record& record)
 
 string FileNameDatabase::MakeKey(const string& fileName) const
 {
-  PathName key = fileName;
-  return key.TransformForComparison().ToString();
+  string key = fileName;
+#if defined(MIKTEX_WINDOWS)
+  for (char& ch : key)
+  {
+    ch = ToLower(ch);
+  }
+#endif;
+  return key;
 }
 
 string FileNameDatabase::MakeKey(const PathName& fileName) const
 {
-  PathName key = fileName;
-  return key.TransformForComparison().ToString();
+  return MakeKey(fileName.ToString());
 }
 
 void FileNameDatabase::EraseRecord(const FileNameDatabase::Record& record)

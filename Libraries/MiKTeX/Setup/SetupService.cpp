@@ -27,14 +27,15 @@
 
 #include "setup-version.h"
 
+using namespace std;
+using namespace std::string_literals;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
-using namespace std::string_literals;
 
 #define LICENSE_FILE "LICENSE.TXT"
 #define DOWNLOAD_INFO_FILE "README.TXT"
@@ -122,7 +123,7 @@ SetupServiceImpl::~SetupServiceImpl()
   try
   {
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -540,7 +541,7 @@ void SetupServiceImpl::ULogClose(bool finalize)
       }
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     uninstStream.close();
     throw;
@@ -1452,7 +1453,7 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   {
     allArgs.push_back("--principal=setup");
   }
-  if (options.IsCommonSetup)
+  if (options.IsCommonSetup && session->IsAdminMode())
   {
     allArgs.push_back("--admin");
   }
@@ -1496,7 +1497,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
   allArgs.insert(allArgs.end(), args.begin(), args.end());
-  if (options.IsCommonSetup)
+  if (options.IsCommonSetup && session->IsAdminMode())
   {
     allArgs.push_back("--admin");
   }

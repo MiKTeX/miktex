@@ -2,14 +2,12 @@
 
 ## 2.9.6930 - not yet released
 
-### Administrator mode changes
-
-#### Resetting personal MiKTeX configuration
+### Resetting personal MiKTeX configuration
 
 MiKTeX Console learned to reset the personal MiKTeX configuration if
 MiKTeX was installed system-wide.
 
-#### Blinding out of personal MiKTEX configuration
+### Blinding out of personal MiKTEX configuration
 
 Prior to MiKTeX 2.9.6930, personal TEXMF root directories were visible
 (e.g., in MiKTeX Console) when running in administrator mode. This

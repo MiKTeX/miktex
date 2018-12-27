@@ -301,8 +301,7 @@ void Application::AutoMaintenance()
   PathName initexmf;
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
-    PathName lockdir = pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_DIR / "locks";
-    unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(lockdir / "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lock");
+    unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_AUTO_MAINTENANCE_LOCK);
     if (!lockFile->TryLock(0ms))
     {
       return;
