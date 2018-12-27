@@ -60,23 +60,21 @@ void Directory::Delete(const PathName& path, bool recursive)
     }
     dirLister->Close();
 
-    vector<PathName>::const_iterator it;
-
     // remove files
     // TODO: async?
     // TODO: range-based for loop
-    for (it = filesToBeDeleted.begin(); it != filesToBeDeleted.end(); ++it)
+    for (const PathName& f : filesToBeDeleted)
     {
-      File::Delete(*it, { FileDeleteOption::TryHard });
+      File::Delete(f, { FileDeleteOption::TryHard });
     }
 
     // remove directories recursively
     // TODO: async?
     // TODO: range-based for loop
-    for (it = directoriesToBeDeleted.begin(); it != directoriesToBeDeleted.end(); ++it)
+    for (const PathName& d : directoriesToBeDeleted)
     {
       // RECURSION
-      Delete(*it, true);
+      Delete(d, true);
     }
   }
 

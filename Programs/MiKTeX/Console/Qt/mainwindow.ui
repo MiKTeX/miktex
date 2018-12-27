@@ -1801,7 +1801,8 @@ Use this option, if you want to operate on the private configuration.</string>
               <string>Uninstall MiKTeX</string>
              </property>
              <property name="description">
-              <string>This removes MiKTeX from your computer. To avoid leftovers, all MiKTeX users should first remove their MiKTeX data and configuration directories.</string>
+              <string>This removes MiKTeX from your computer.
+To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX configuration.</string>
              </property>
             </widget>
            </item>

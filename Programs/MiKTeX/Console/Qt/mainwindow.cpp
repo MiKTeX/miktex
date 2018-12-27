@@ -25,6 +25,7 @@
 
 #include <fstream>
 #include <iomanip>
+#include <set>
 
 #include <log4cxx/logger.h>
 
@@ -51,6 +52,7 @@
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
+#include <miktex/Core/Quoter>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamWriter>
@@ -62,12 +64,15 @@
 #include <miktex/UI/Qt/UpdateDialog>
 #include <miktex/Util/StringUtil>
 
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
+
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
-using namespace std;
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("mainwindow"));
 
@@ -163,7 +168,10 @@ void MainWindow::closeEvent(QCloseEvent* event)
       return;
     }
   }
-  WriteSettings();
+  if (saveSettingsOnClose)
+  {
+    WriteSettings();
+  }
   event->accept();
 }
 
@@ -2221,7 +2229,7 @@ bool UserResetWorker::Run()
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::CleanUp;
     options.IsCommonSetup = session->IsAdminMode();
-    options.CleanupOptions = { CleanupOption::LogFiles, CleanupOption::Registry, CleanupOption::RootDirectories };
+    options.CleanupOptions = { CleanupOption::Registry, CleanupOption::RootDirectories };
     service->SetOptions(options);
     service->Run();
     result = true;
@@ -2240,8 +2248,25 @@ bool UserResetWorker::Run()
 void MainWindow::UserReset()
 {
   QString message = tr("<h3>Reset personal MiKTeX configuration</h3>");
-  message += tr("<p>You are about to reset your personal MiKTeX configuration. You will loose all personal MiKTeX configuration files, log files, data files and packages./p");
-  message += tr("Are you sure?");
+  message += tr("<p>You are about to remove:</p>");
+  message += "<ul>";
+#if defined(MIKTEX_WINDOWS)
+  message += tr("<li>MiKTeX registry keys in <tt>HKEY_CURRENT_USER</tt></li>");
+#endif
+  set<PathName> roots{
+    session->GetSpecialPath(SpecialPath::UserConfigRoot),
+    session->GetSpecialPath(SpecialPath::UserDataRoot),
+    session->GetSpecialPath(SpecialPath::UserInstallRoot)
+  };
+  for (const PathName& r : roots)
+  {
+    if (Directory::Exists(r))
+    {
+      message += tr("<li>Directory <tt>%1</tt></li>").arg(QString::fromUtf8(r.ToDisplayString().c_str()));
+    }
+  }
+  message += "</ul>";
+  message += tr("<p>Are you sure?</p>");
   if (QMessageBox::warning(this, tr("MiKTeX Console"), message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
   {
     return;
@@ -2251,19 +2276,25 @@ void MainWindow::UserReset()
     QThread* thread = new QThread;
     UserResetWorker* worker = new UserResetWorker;
     backgroundWorkers++;
-    ui->labelBackgroundTask->setText(tr("Removing personal MiKTeX configuration..."));
+    ui->labelBackgroundTask->setText(tr("Resetting personal MiKTeX configuration..."));
     worker->moveToThread(thread);
     connect(thread, SIGNAL(started()), worker, SLOT(Process()));
     connect(worker, &UserResetWorker::OnFinish, this, [this]() {
       UserResetWorker* worker = (UserResetWorker*)sender();
-      if (!worker->GetResult())
+      if (worker->GetResult())
       {
-        CriticalError(tr("Something went wrong while removing your personal MiKTeX configuration."), ((UserResetWorker*)sender())->GetMiKTeXException());
+        QMessageBox::information(this, tr("MiKTeX Console"), tr("The personal MiKTeX configuration has been resetted.\n\nThe application window will now be closed."));
+      }
+      else
+      {
+        QMessageBox::warning(this, tr("MiKTeX Console"), tr("Something went wrong while resetting your personal MiKTeX configuration.\n\nThe application window will now be closed."));
       }
       backgroundWorkers--;
-      UpdateUi();
-      UpdateActions();
+      session->UnloadFilenameDatabase();
       worker->deleteLater();
+      saveSettingsOnClose = false;
+      isCleaningUp = true;
+      this->close();
     });
     connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
@@ -2338,6 +2369,8 @@ void MainWindow::FactoryReset()
       backgroundWorkers--;
       session->UnloadFilenameDatabase();
       worker->deleteLater();
+      saveSettingsOnClose = false;
+      isCleaningUp = true;
       this->close();
     });
     connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));

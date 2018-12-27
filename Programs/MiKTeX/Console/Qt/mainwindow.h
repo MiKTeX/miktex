@@ -557,6 +557,18 @@ private:
   void WriteSettings();
 
 private:
+  bool saveSettingsOnClose = true;
+
+private:
+  bool isCleaningUp = false;
+
+public:
+  bool IsCleaningUp() const
+  {
+    return isCleaningUp;
+  }
+
+private:
   std::atomic_int backgroundWorkers{ 0 };
 
 private:

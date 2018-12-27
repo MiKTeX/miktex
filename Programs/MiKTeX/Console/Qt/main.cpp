@@ -353,6 +353,7 @@ int main(int argc, char* argv[])
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return 0;
     }
+    bool fastExit = false;
     {
       MainWindow mainWindow(nullptr, startPage);
       if (optHide)
@@ -376,13 +377,14 @@ int main(int argc, char* argv[])
         QTimer::singleShot(100, &mainWindow, SLOT(RefreshFontMaps()));
       }
       ret = application.exec();
+      fastExit = mainWindow.IsCleaningUp();
     }
-    if (session.use_count() > 1)
+    if (session.use_count() > 1 && !fastExit)
     {
       LOG4CXX_WARN(logger, "session.use_count() == " << session.use_count());
     }
     session = nullptr;
-    if (isLog4cxxConfigured)
+    if (isLog4cxxConfigured && !fastExit)
     {
       LOG4CXX_INFO(logger, "finishing with exit code " << ret);
     }

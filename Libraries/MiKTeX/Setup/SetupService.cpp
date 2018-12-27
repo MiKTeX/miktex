@@ -1196,7 +1196,7 @@ void SetupServiceImpl::DoCleanUp()
       PathName logDir = session->GetSpecialPath(SpecialPath::LogDirectory);
       if (Directory::Exists(logDir))
       {
-	Directory::Delete(logDir, true);
+        Directory::Delete(logDir, true);
       }
     }
     catch (const MiKTeXException& e)
