@@ -27,22 +27,17 @@
 #include "config.h"
 #include "internal.h"
 
+using namespace std;
+
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
-using namespace std;
 
 #define PROGRAM_NAME "mkfntmap"
 
 #if !defined(THE_NAME_OF_THE_GAME)
 #  define THE_NAME_OF_THE_GAME T_("MiKTeX Fontmap Maintenance Utility")
-#endif
-
-#if MIKTEX_MAJOR_MINOR_INT < 207
-#  define CREATE_DEPRECATED_MAP_FILES 1
-#else
-#  define CREATE_DEPRECATED_MAP_FILES 0
 #endif
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger(PROGRAM_NAME));
@@ -342,7 +337,7 @@ void MakeFontMapApp::ShowVersion()
 {
   cout
     << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-    << "Copyright (C) 2002-2017 Christian Schenk" << endl
+    << "Copyright (C) 2002-2018 Christian Schenk" << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
@@ -555,7 +550,7 @@ void MakeFontMapApp::MyInit(int argc, const char** argv)
   Session::InitInfo initInfo(argv[0]);
   vector<const char*> newargv(&argv[0], &argv[argc + 1]);
   ExamineArgs(newargv, initInfo);
-  ProcessOptions(newargv.size() - 1, &newargv[0]);
+  ProcessOptions(static_cast<int>(newargv.size() - 1), &newargv[0]);
   if (optAdminMode)
   {
     initInfo.AddOption(Session::InitOption::AdminMode);
@@ -1121,16 +1116,10 @@ void MakeFontMapApp::CopyFiles()
   pathSrc = dvipdfmxOutputDir / (dvipdfmDownloadBase14 ? "dvipdfm_dl14" : "dvipdfm_ndl14");
   pathSrc.AppendExtension(".map");
   CopyFile(pathSrc, PathName(dvipdfmxOutputDir, "dvipdfm.map"));
-#if CREATE_DEPRECATED_MAP_FILES
-  CopyFile(pathSrc, PathName(dvipdfmxOutputDir, "psfonts.map"));
-#endif
 
   pathSrc = pdftexOutputDir / (pdftexDownloadBase14 ? "pdftex_dl14" : "pdftex_ndl14");
   pathSrc.AppendExtension(".map");
   CopyFile(pathSrc, PathName(pdftexOutputDir, "pdftex.map"));
-#if CREATE_DEPRECATED_MAP_FILES
-  CopyFile(pathSrc, PathName(pdftexOutputDir, "psfonts.map"));
-#endif
 }
 
 static const char* const topDirs[] = {
@@ -1381,7 +1370,7 @@ int MAIN(int argc, MAINCHAR** argv)
       newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
-    app.MyInit(newargv.size() - 1, &newargv[0]);
+    app.MyInit(static_cast<int>(newargv.size() - 1), &newargv[0]);
     app.Run();
     app.Finalize2(0);
     logger = nullptr;
