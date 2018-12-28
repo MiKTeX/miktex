@@ -206,27 +206,18 @@ void winRegistry::SetRegistryValue(HKEY hkeyParent, const string& path, const st
 
 bool winRegistry::TryGetRegistryValue(TriState shared, const wstring& keyName, const wstring& valueName, wstring& value)
 {
+  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   if (shared == TriState::Undetermined)
   {
-#if 1
     // RECURSION
-    if (TryGetRegistryValue(TriState::False, keyName, valueName, value))
+    if (!session->IsAdminMode() && TryGetRegistryValue(TriState::False, keyName, valueName, value))
     {
       return true;
     }
     // RECURSION
     return TryGetRegistryValue(TriState::True, keyName, valueName, value);
-#else
-    shared = SessionImpl::GetSession()->IsSharedMiKTeXSetup();
-    if (shared == TriState::Undetermined)
-    {
-      shared = TriState::False;
-    }
-    // RECURSION
-    return TryGetRegistryValue(shared, keyName, valueName, value);
-#endif
   }
-  wstring registryPath = SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
+  wstring registryPath = session->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
   registryPath += L'\\';
   registryPath += keyName;
   return TryGetRegistryValue(shared == TriState::False ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE, registryPath, valueName, value);
@@ -261,10 +252,11 @@ bool winRegistry::TryGetRegistryValue(TriState shared, const string& keyName, co
 
 bool winRegistry::TryDeleteRegistryValue(TriState shared, const wstring& keyName, const wstring& valueName)
 {
+  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   if (shared == TriState::Undetermined)
   {
     // RECURSION
-    bool done = TryDeleteRegistryValue(TriState::False, keyName, valueName);
+    bool done = !session->IsAdminMode() || TryDeleteRegistryValue(TriState::False, keyName, valueName);
     return TryDeleteRegistryValue(TriState::True, keyName, valueName) || done;
   }
   wstring registryPath = SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
