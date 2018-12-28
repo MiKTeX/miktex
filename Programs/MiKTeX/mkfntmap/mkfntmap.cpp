@@ -1159,7 +1159,7 @@ void MakeFontMapApp::BuildFontconfigCache()
   {
     arguments.push_back("--force");
   }
-  if (verbosityLevel > 0)
+  for (int n = 0; n < verbosityLevel; ++n)
   {
     arguments.push_back("--verbose");
   }
