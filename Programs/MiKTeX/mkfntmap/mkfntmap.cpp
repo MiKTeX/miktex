@@ -1174,6 +1174,9 @@ void MakeFontMapApp::BuildFontconfigCache()
   {
     arguments.push_back("--verbose");
   }
+#if !defined(USE_SYSTEM_FONTCONFIG)
+  arguments.push_back("--miktex-disable-maintenance");
+#endif
   LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(arguments).ToString());
   Process::Run(fcCacheExe, arguments, this);
 }
