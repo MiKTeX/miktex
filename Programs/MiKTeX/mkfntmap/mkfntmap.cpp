@@ -99,7 +99,7 @@ const struct poptOption aoption[] = {
     "verbose", 0,
     POPT_ARG_NONE, nullptr,
     OPT_VERBOSE,
-    T_("Turn on verbose mode."),
+    T_("Increase verbosity level."),
     nullptr
   },
 
@@ -219,7 +219,13 @@ private:
   void CreateFontconfigLocalfontsConf();
 
 private:
-  void Verbose(const string& s);
+  void Verbose(int level, const string& s);
+
+private:
+  void Verbose(const string& s)
+  {
+    Verbose(1, s);
+  }
 
 private:
   MIKTEXNORETURN void CfgError(const string& s);
@@ -260,11 +266,7 @@ private:
   set<string> mixedMapFiles;
 
 private:
-#if defined(NDEBUG)
-  bool verbose = false;
-#else
-  bool verbose = true;
-#endif
+  int verbosityLevel = 0;
 
   // transform file names from URWkb (berry names) to URW (vendor
   // names)
@@ -368,7 +370,7 @@ void MakeFontMapApp::ProcessOptions(int argc, const char** argv)
       outputDirectory = popt.GetOptArg();
       break;
     case OPT_VERBOSE:
-      verbose = true;
+      verbosityLevel++;
       break;
     case OPT_VERSION:
       ShowVersion();
@@ -391,10 +393,10 @@ void MakeFontMapApp::ProcessOptions(int argc, const char** argv)
   }
 }
 
-void MakeFontMapApp::Verbose(const string& s)
+void MakeFontMapApp::Verbose(int level, const string& s)
 {
   LOG4CXX_INFO(logger, s);
-  if (verbose)
+  if (verbosityLevel >= level)
   {
     cout << s << endl;
   }
@@ -750,12 +752,10 @@ bool MakeFontMapApp::LocateMap(const string& fileName, PathName& path, bool must
   {
     FatalError(fmt::format(T_("Font map file {0} could not be found."), Q_(fileName)));
   }
-#if 0
   if (!found)
   {
-    Verbose(fmt::format(T_("Not using map file {0}"), Q_(fileName)));
+    Verbose(3, fmt::format(T_("Not using map file {0}"), Q_(fileName)));
   }
-#endif
   return found;
 }
 
@@ -945,7 +945,7 @@ void MakeFontMapApp::WritePdfTeXMapFile(const PathName& fileName, const set<Font
 
 void MakeFontMapApp::ParseDvipsMapFile(const PathName& mapFile, set<FontMapEntry>& fontMapEntries)
 {
-  Verbose(fmt::format(T_("Parsing {0}..."), Q_(mapFile)));
+  Verbose(2, fmt::format(T_("Parsing {0}..."), Q_(mapFile)));
 
   StreamReader reader(mapFile);
 
@@ -1159,7 +1159,7 @@ void MakeFontMapApp::BuildFontconfigCache()
   {
     arguments.push_back("--force");
   }
-  if (verbose)
+  if (verbosityLevel > 0)
   {
     arguments.push_back("--verbose");
   }
