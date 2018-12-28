@@ -213,6 +213,9 @@ protected:
     default:
       break;
     }
+
+    allArgs.push_back("--miktex-disable-maintenance");
+
     allArgs.insert(allArgs.end(), arguments.begin(), arguments.end());
 
     Message(fmt::format(T_("Running {0}..."), Q_(exeName)));
