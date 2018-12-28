@@ -567,7 +567,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
     }
   }
 
-  ULogAddFile(pathLink.GetData());
+  ULogAddFile(pathLink);
 }
 
 void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const char* lpszUrl)
@@ -712,11 +712,12 @@ void winSetupServiceImpl::UnregisterShellFileTypes()
   {
     MIKTEX_UNEXPECTED();
   }
-  if (session->RunningAsAdministrator())
+  vector<string> args{ initexmfExe.GetFileNameWithoutExtension().ToString(), "--unregister-shell-file-types" };
+  if (session->IsAdminMode())
   {
-    Process::Run(initexmfExe, { initexmfExe.GetFileNameWithoutExtension().ToString(), "--admin", "--unregister-shell-file-types" });
+    args.push_back("--admin");
   }
-  Process::Run(initexmfExe, { initexmfExe.GetFileNameWithoutExtension().ToString(), "--unregister-shell-file-types" });
+  Process::Run(initexmfExe, args);
 }
 
 void winSetupServiceImpl::UnregisterPath(bool shared)

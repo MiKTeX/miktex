@@ -4,10 +4,15 @@
 
 ### Resetting personal MiKTeX configuration
 
-MiKTeX Console learned to reset the personal MiKTeX configuration if
-MiKTeX was installed system-wide.
+In order to avoid leftovers, MiKTeX Console learned to reset the
+personal MiKTeX configuration if MiKTeX was installed system-wide:
 
-### Blinding out of personal MiKTEX configuration
+![](images/console-cleanup-reset-personal.png)
+
+This allows users to remove their MiKTeX related installation files
+before a system administrator completely uninstalls MiKTeX.
+
+### Admin mode: blinding out of personal MiKTEX configuration
 
 Prior to MiKTeX 2.9.6930, personal TEXMF root directories were visible
 (e.g., in MiKTeX Console) when running in administrator mode. This

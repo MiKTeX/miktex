@@ -2229,7 +2229,7 @@ bool UserResetWorker::Run()
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::CleanUp;
     options.IsCommonSetup = session->IsAdminMode();
-    options.CleanupOptions = { CleanupOption::Registry, CleanupOption::RootDirectories };
+    options.CleanupOptions = { CleanupOption::FileTypes, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
     service->SetOptions(options);
     service->Run();
     result = true;

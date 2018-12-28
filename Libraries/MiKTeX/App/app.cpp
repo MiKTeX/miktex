@@ -219,7 +219,6 @@ template<typename T> void ExamineArgs(vector<T>& args, Session::InitInfo& initIn
   pimpl->commandLine = commandLine.ToString();
 }
 
-
 string Application::ExamineArgs(std::vector<const char*>& args, MiKTeX::Core::Session::InitInfo& initInfo)
 {
   ::ExamineArgs(args, initInfo, pimpl.get());

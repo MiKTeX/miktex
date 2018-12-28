@@ -66,10 +66,10 @@ BEGIN_INTERNAL_NAMESPACE;
 
 void RemoveEmptyDirectoryChain(const PathName& directory)
 {
-  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory);
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(directory);
   DirectoryEntry dirEntry;
-  bool empty = !pLister->GetNext(dirEntry);
-  pLister->Close();
+  bool empty = !lister->GetNext(dirEntry);
+  lister->Close();
   if (!empty)
   {
     return;
@@ -87,6 +87,7 @@ void RemoveEmptyDirectoryChain(const PathName& directory)
   {
     return;
   }
+  // RECURSION
   RemoveEmptyDirectoryChain(parentDir);
 }
 
@@ -115,7 +116,6 @@ SetupServiceImpl::SetupServiceImpl()
   shared_ptr<Session> session = Session::Get();
   logFile.SetCallback(this);
   options.IsCommonSetup = session->RunningAsAdministrator();
-  logFile.SetLogFileName(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
 }
 
 SetupServiceImpl::~SetupServiceImpl()
@@ -498,7 +498,7 @@ void SetupServiceImpl::Log(const string& s)
 
 void SetupServiceImpl::ULogOpen()
 {
-  if (options.Task == SetupTask::Download || options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
+  if (options.Task == SetupTask::Download || options.Task == SetupTask::CleanUp)
   {
     return;
   }
@@ -509,18 +509,16 @@ void SetupServiceImpl::ULogOpen()
 
 PathName SetupServiceImpl::GetULogFileName()
 {
-  PathName ret;
+  PathName directory;
   if (options.IsDryRun || options.Task == SetupTask::PrepareMiKTeXDirect)
   {
-    ret.SetToTempDirectory();
+    directory.SetToTempDirectory();
   }
   else
   {
-    ret = GetInstallRoot() / MIKTEX_PATH_MIKTEX_CONFIG_DIR;
+    directory = GetInstallRoot() / MIKTEX_PATH_MIKTEX_CONFIG_DIR;
   }
-  Directory::Create(ret);
-  ret /= MIKTEX_UNINSTALL_LOG;
-  return ret;
+  return directory / MIKTEX_UNINSTALL_LOG;
 }
 
 void SetupServiceImpl::ULogClose(bool finalize)
@@ -822,10 +820,6 @@ void SetupServiceImpl::DoPrepareMiKTeXDirect()
 
   // open the uninstall script
   ULogOpen();
-#if 0
-  // FIXME
-  ULogAddFile(g_strLogFile);
-#endif
 
   // run IniTeXMF
   ConfigureMiKTeX();
@@ -900,10 +894,6 @@ void SetupServiceImpl::DoTheInstallation()
 
   // open the uninstall script
   ULogOpen();
-#if 0
-  // FIXME
-  ULogAddFile(g_strLogFile);
-#endif
 
   // run installer
   packageInstaller->InstallRemove(PackageInstaller::Role::Installer);
@@ -1000,14 +990,18 @@ void SetupServiceImpl::DoFinishSetup()
 void SetupServiceImpl::DoFinishUpdate()
 {
   ReportLine("finishing update...");
+  shared_ptr<Session> session = Session::Get();
   RemoveFormatFiles();
 #if defined(MIKTEX_WINDOWS)
   RunMpm({ "--register-components" });
 #endif
   RunIniTeXMF({ "--update-fndb" }, false);
-  RunIniTeXMF({ "--force", "--mklinks" }, false);
+  if (!session->IsSharedSetup() || session->IsAdminMode())
+  {
+    RunIniTeXMF({ "--force", "--mklinks" }, false);
+  }
   RunIniTeXMF({ "--mkmaps", "--mklangs" }, false);
-  if (!options.IsPortable)
+  if (!options.IsPortable && !session->IsSharedSetup() || session->IsAdminMode())
   {
 #if defined(MIKTEX_WINDOWS)
     RunIniTeXMF({ "--register-shell-file-types" }, false);
@@ -1082,9 +1076,8 @@ void SetupServiceImpl::DoCleanUp()
     try
     {
 #if defined(MIKTEX_WINDOWS)
-      ReportLine("processing uninstall log file...");
-      logFile.SetLogFileName(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
-      logFile.Process();
+      logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
+      logFile.RemoveStartMenu();
 #endif
     }
     catch (const MiKTeXException& e)
@@ -1173,6 +1166,9 @@ void SetupServiceImpl::DoCleanUp()
     {
 #if defined(MIKTEX_WINDOWS)
       RemoveRegistryKeys();
+      ReportLine("processing uninstall log file...");
+      logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
+      logFile.RemoveRegistrySettings();
 #else
       PathName fontConfig(MIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR);
       // FIXME: hard-coded file name
@@ -1565,10 +1561,7 @@ SetupService::ProgressInfo SetupServiceImpl::GetProgressInfo()
   ProgressInfo progressInfo;
   if (options.Task == SetupTask::CleanUp)
   {
-    LogFile::ProgressInfo pi = logFile.GetProgressInfo();
-    progressInfo.fileName = pi.fileName;
-    progressInfo.cFilesRemoveTotal = static_cast<unsigned long>(pi.total);
-    progressInfo.cFilesRemoveCompleted = static_cast<unsigned long>(pi.completed);
+    // TODO
   }
   else
   {

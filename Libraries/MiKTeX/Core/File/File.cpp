@@ -181,12 +181,12 @@ bool File::Equals(const PathName& path1, const PathName& path2)
   {
     return true;
   }
-  unique_ptr<MemoryMappedFile> pFile1(MemoryMappedFile::Create());
-  const void* ptr1 = pFile1->Open(path1, false);
-  unique_ptr<MemoryMappedFile> pFile2(MemoryMappedFile::Create());
-  const void* ptr2 = pFile2->Open(path2, false);
+  unique_ptr<MemoryMappedFile> file1(MemoryMappedFile::Create());
+  const void* ptr1 = file1->Open(path1, false);
+  unique_ptr<MemoryMappedFile> file2(MemoryMappedFile::Create());
+  const void* ptr2 = file2->Open(path2, false);
   bool ret = memcmp(ptr1, ptr2, size) == 0;
-  pFile1->Close();
-  pFile2->Close();
+  file1->Close();
+  file2->Close();
   return ret;
 }
