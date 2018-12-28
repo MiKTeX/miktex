@@ -66,9 +66,9 @@ private:
   struct Record
   {
   public:
-    Record(const FileNameDatabase* fndb, const std::string& fileName, FndbByteOffset foDirectory, FndbByteOffset foInfo) :
+    Record(const FileNameDatabase* fndb, std::string&& fileName, FndbByteOffset foDirectory, FndbByteOffset foInfo) :
       fndb(fndb),
-      fileName(fileName),
+      fileName(std::move(fileName)),
       foDirectory(foDirectory),
       foInfo(foInfo)
     {
@@ -130,10 +130,10 @@ private:
   std::string MakeKey(const MiKTeX::Core::PathName& fileName) const;
 
 private:
-  void FastInsertRecord(const Record& record);
+  void FastInsertRecord(Record&& record);
 
 private:
-  bool InsertRecord(const Record& record);
+  bool InsertRecord(Record&& record);
 
 private:
   void EraseRecord(const Record& record);

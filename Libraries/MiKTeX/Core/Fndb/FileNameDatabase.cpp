@@ -273,12 +273,12 @@ tuple<string, string> FileNameDatabase::SplitPath(const PathName& path_) const
   return make_tuple(fileName.ToString(), directory.ToString());
 }
 
-void FileNameDatabase::FastInsertRecord(const FileNameDatabase::Record& record)
+void FileNameDatabase::FastInsertRecord(FileNameDatabase::Record&& record)
 {
-  fileNames.insert(pair<string, Record>(MakeKey(record.fileName), record));
+  fileNames.insert(pair<string, Record>(MakeKey(record.fileName), std::move(record)));
 }
 
-bool FileNameDatabase::InsertRecord(const FileNameDatabase::Record& record)
+bool FileNameDatabase::InsertRecord(FileNameDatabase::Record&& record)
 {
   string key = MakeKey(record.fileName);
   pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(key);
@@ -289,7 +289,7 @@ bool FileNameDatabase::InsertRecord(const FileNameDatabase::Record& record)
       return false;
     }
   }
-  fileNames.insert(pair<string, Record>(key, record));
+  fileNames.insert(pair<string, Record>(std::move(key), std::move(record)));
   return true;
 }
 
