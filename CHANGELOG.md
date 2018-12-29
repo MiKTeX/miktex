@@ -22,7 +22,7 @@ mode.
 
 ### Update improvements
 
-The `Check for updates` operation is now much faster.
+The `Check for updates` operation is much faster now.
 
 ### Upgraded programs
 
