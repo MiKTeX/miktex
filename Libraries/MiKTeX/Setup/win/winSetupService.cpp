@@ -761,7 +761,7 @@ void winSetupServiceImpl::UnregisterPath(bool shared)
   else
   {
     string path = WU_(value.GetData());
-    if (RemoveBinDirFromPath(path))
+    if (RemoveBinDirectoriesFromPath(path))
     {
       CharBuffer<wchar_t> wpath(UW_(path.c_str()));
       result = RegSetValueExW(hkey, L"Path", 0, type, reinterpret_cast<const BYTE*>(wpath.GetData()), static_cast<DWORD>((StrLen(wpath.GetData()) + 1) * sizeof(wpath.GetData()[0])));
@@ -784,37 +784,39 @@ void winSetupServiceImpl::UnregisterPath(bool shared)
   }
 }
 
-bool winSetupServiceImpl::RemoveBinDirFromPath(string& path)
+bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(string& path)
 {
   shared_ptr<Session> session = Session::Get();
   bool removed = false;
-  string newPath;
-  PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-  userBinDir /= MIKTEX_PATH_BIN_DIR;
-  userBinDir.AppendDirectoryDelimiter();
+  vector<string> newPath;
+  vector<PathName> binDirectories;
+  if (!session->IsAdminMode())
+  {
+    PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot);
+    userBinDir /= MIKTEX_PATH_BIN_DIR;
+    userBinDir.AppendDirectoryDelimiter();
+    binDirectories.push_back(userBinDir);
+  }
   PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
   commonBinDir /= MIKTEX_PATH_BIN_DIR;
   commonBinDir.AppendDirectoryDelimiter();
+  binDirectories.push_back(commonBinDir);
   for (const string& entry : StringUtil::Split(path, PathName::PathNameDelimiter))
   {
     PathName dir(entry);
     dir.AppendDirectoryDelimiter();
-    if (userBinDir == dir || commonBinDir == dir)
+    if (std::find(binDirectories.begin(), binDirectories.end(), dir) != binDirectories.end())
     {
       removed = true;
     }
     else
     {
-      if (!newPath.empty())
-      {
-        newPath += PathName::PathNameDelimiter;
-      }
-      newPath += entry;
+      newPath.push_back(entry);
     }
   }
   if (removed)
   {
-    path = newPath;
+    path = StringUtil::Flatten(newPath, PathName::PathNameDelimiter);
   }
   return removed;
 }

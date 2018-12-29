@@ -1049,12 +1049,16 @@ void SetupServiceImpl::DoCleanUp()
   {
     try
     {
-      if (session->RunningAsAdministrator())
+      if (session->IsAdminMode())
       {
-        ReportLine("cleaning PATH...");
+        ReportLine("cleaning system PATH...");
         UnregisterPath(true);
       }
-      UnregisterPath(false);
+      else
+      {
+        ReportLine("cleaning user PATH...");
+        UnregisterPath(false);
+      }
     }
     catch (const MiKTeXException& e)
     {

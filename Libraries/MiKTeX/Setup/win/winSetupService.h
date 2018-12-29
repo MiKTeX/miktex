@@ -73,7 +73,7 @@ private:
   bool IsEmpty(HKEY hkeyRoot, const MiKTeX::Core::PathName& subKey);
 
 private:
-  bool winSetupServiceImpl::RemoveBinDirFromPath(std::string& path);
+  bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(std::string& path);
 
 private:
   void AddUninstallerRegValue(HKEY hkey, const char* valueName, const char* value);
