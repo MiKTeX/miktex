@@ -1001,7 +1001,7 @@ void SetupServiceImpl::DoFinishUpdate()
     RunIniTeXMF({ "--force", "--mklinks" }, false);
   }
   RunIniTeXMF({ "--mkmaps", "--mklangs" }, false);
-  if (!options.IsPortable && !session->IsSharedSetup() || session->IsAdminMode())
+  if (!options.IsPortable && (!session->IsSharedSetup() || session->IsAdminMode()))
   {
 #if defined(MIKTEX_WINDOWS)
     RunIniTeXMF({ "--register-shell-file-types" }, false);
