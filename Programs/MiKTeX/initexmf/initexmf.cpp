@@ -1371,27 +1371,28 @@ void IniTeXMFApp::RegisterShellFileTypes(bool reg)
       if (sft.lpszExecutable != nullptr && sft.lpszCommandArgs != nullptr)
       {
         command = '\"';
-        command += exe.GetData();
+        command += exe.ToDos().ToString();
         command += "\" ";
         command += sft.lpszCommandArgs;
       }
       string iconPath;
-      if (sft.lpszExecutable != 0 && sft.iconIndex != INT_MAX)
+      if (sft.lpszExecutable != nullptr && sft.iconIndex != INT_MAX)
       {
-        iconPath += exe.GetData();
+        iconPath += exe.ToDos().ToString();
         iconPath += ",";
         iconPath += std::to_string(sft.iconIndex);
       }
-      if (sft.lpszUserFriendlyName != 0 || !iconPath.empty())
+      if (sft.lpszUserFriendlyName != nullptr || !iconPath.empty())
       {
         Utils::RegisterShellFileType(progId, sft.lpszUserFriendlyName, iconPath);
       }
       if (sft.lpszVerb != nullptr && (!command.empty() || sft.lpszDdeArgs != nullptr))
       {
-        Utils::RegisterShellVerb(progId, sft.lpszVerb, command, sft.lpszDdeArgs == nullptr ? "" : sft.lpszDdeArgs);
+          Utils::RegisterShellVerb(progId, sft.lpszVerb, command, sft.lpszDdeArgs == nullptr ? "" : sft.lpszDdeArgs);
       }
       if (sft.lpszExtension != nullptr)
       {
+        LOG4CXX_INFO(logger, "registering file extension: " << sft.lpszExtension);
         Utils::RegisterShellFileAssoc(sft.lpszExtension, progId, sft.takeOwnership);
       }
     }
@@ -1400,6 +1401,7 @@ void IniTeXMFApp::RegisterShellFileTypes(bool reg)
       Utils::UnregisterShellFileType(progId);
       if (sft.lpszExtension != nullptr)
       {
+        LOG4CXX_INFO(logger, "unregistering file extension: " << sft.lpszExtension);
         Utils::UnregisterShellFileAssoc(sft.lpszExtension, progId);
       }
     }
