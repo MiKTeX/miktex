@@ -20,6 +20,10 @@ behaviour has been changed: in MiKTeX 2.9.6930 and higher, personal
 TEXMF root directories are blinded out when running in administrator
 mode.
 
+### Update improvements
+
+The `Check for updates` operation is now much faster.
+
 ### Upgraded programs
 
 * dvipdfmx 20181221
