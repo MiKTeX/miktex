@@ -1166,7 +1166,6 @@ void SetupServiceImpl::DoCleanUp()
     {
 #if defined(MIKTEX_WINDOWS)
       RemoveRegistryKeys();
-      ReportLine("processing uninstall log file...");
       logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
       logFile.RemoveRegistrySettings();
 #else
