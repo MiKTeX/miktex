@@ -405,20 +405,20 @@ void FileNameDatabase::ApplyChangeFile()
     {
       MIKTEX_UNEXPECTED();
     }
-    const string& fileName = data[0];
-    const string& directory = data[1];
+    string& fileName = data[0];
+    string& directory = data[1];
     if (op == "+")
     {
       if (data.size() < 3)
       {
         MIKTEX_UNEXPECTED();
       }
-      const string& fileNameInfo = data[2];
-      FastInsertRecord(Record(fileName, directory, fileNameInfo));
+      string& fileNameInfo = data[2];
+      FastInsertRecord(Record(std::move(fileName), std::move(directory), std::move(fileNameInfo)));
     }
     else if (op == "-")
     {
-      EraseRecord(Record(fileName, directory, ""));
+      EraseRecord(Record(std::move(fileName), std::move(directory), ""));
     }
     else
     {

@@ -81,6 +81,13 @@ private:
     {
     }
   public:
+    Record(std::string&& fileName, std::string&& directory, std::string&& info) :
+      fileName(std::move(fileName)),
+      directory(std::move(directory)),
+      info(std::move(info))
+    {
+    }
+  public:
     std::string GetDirectory() const
     {
       if (foDirectory != 0)
