@@ -2415,6 +2415,13 @@ bool UninstallWorker::Run()
   return result;
 }
 
+void UninstallWorker::ReportLine(const string& str)
+{
+#if defined(MIKTEX_WINDOWS)
+  OutputDebugStringW(StringUtil::UTF8ToWideChar(str.c_str()).c_str());
+#endif
+}
+
 void MainWindow::Uninstall()
 {
   QString message = tr("<h3>Uninstall MiKTeX</h3>");

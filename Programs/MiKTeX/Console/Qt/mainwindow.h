@@ -26,6 +26,7 @@
 
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
+#include <miktex/Setup/SetupService>
 
 #include <atomic>
 #include <memory>
@@ -924,13 +925,35 @@ protected:
 };
 
 class UninstallWorker :
-  public BackgroundWorker
+  public BackgroundWorker,
+  public MiKTeX::Setup::SetupServiceCallback
 {
 private:
   Q_OBJECT;
 
 protected:
   bool Run() override;
+
+private:
+  void ReportLine(const std::string& str) override;
+
+private:
+  bool OnRetryableError(const std::string& message) override
+  {
+    return false;
+  }
+
+private:
+  bool OnProgress(MiKTeX::Setup::Notification nf) override
+  {
+    return true;
+  }
+
+private:
+  bool OnProcessOutput(const void* output, size_t n) override
+  {
+    return true;
+  }
 };
 
 class BuildFormatsWorker :
