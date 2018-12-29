@@ -1015,6 +1015,10 @@ void SetupServiceImpl::DoCleanUp()
 {
   shared_ptr<Session> session = Session::Get();
 
+#if defined(MIKTEX_WINDOWS)
+  logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
+#endif
+
   if (options.CleanupOptions[CleanupOption::Links])
   {
     ReportLine("removing links...");
@@ -1076,7 +1080,6 @@ void SetupServiceImpl::DoCleanUp()
     try
     {
 #if defined(MIKTEX_WINDOWS)
-      logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
       logFile.RemoveStartMenu();
 #endif
     }
@@ -1166,7 +1169,6 @@ void SetupServiceImpl::DoCleanUp()
     {
 #if defined(MIKTEX_WINDOWS)
       RemoveRegistryKeys();
-      logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
       logFile.RemoveRegistrySettings();
 #else
       PathName fontConfig(MIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR);

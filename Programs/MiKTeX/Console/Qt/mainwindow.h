@@ -585,6 +585,50 @@ private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager = MiKTeX::Packages::PackageManager::Create();
 };
 
+class PackageInstallerCallbackImpl :
+  public MiKTeX::Packages::PackageInstallerCallback
+{
+private:
+  void ReportLine(const std::string& str) override;
+
+private:
+  bool OnRetryableError(const std::string& message) override
+  {
+    return false;
+  }
+
+private:
+  bool OnProgress(MiKTeX::Packages::Notification notification) override
+  {
+    return true;
+  }
+};
+
+class SetupServiceCallbackImpl :
+  public MiKTeX::Setup::SetupServiceCallback
+{
+protected:
+  void ReportLine(const std::string& str) override;
+
+protected:
+  bool OnRetryableError(const std::string& message) override
+  {
+    return false;
+  }
+
+protected:
+  bool OnProgress(MiKTeX::Setup::Notification nf) override
+  {
+    return true;
+  }
+
+protected:
+  bool OnProcessOutput(const void* output, size_t n) override
+  {
+    return true;
+  }
+};
+
 class BackgroundWorker :
   public QObject
 {
@@ -627,7 +671,8 @@ signals:
 };
 
 class FinishSetupWorker :
-  public BackgroundWorker
+  public BackgroundWorker,
+  public SetupServiceCallbackImpl
 {
 private:
   Q_OBJECT;
@@ -638,7 +683,7 @@ protected:
 
 class UpgradeWorker :
   public BackgroundWorker,
-  public MiKTeX::Packages::PackageInstallerCallback
+  public PackageInstallerCallbackImpl
 {
 private:
   Q_OBJECT;
@@ -686,17 +731,6 @@ protected:
 
 signals:
   void OnUpgradeProgress();
-
-private:
-  void ReportLine(const std::string& str) override
-  {
-  }
-
-private:
-  bool OnRetryableError(const std::string& message) override
-  {
-    return false;
-  }
 
 private:
   bool OnProgress(MiKTeX::Packages::Notification notification) override
@@ -797,7 +831,7 @@ public:
 
 class UpdateWorker :
   public BackgroundWorker,
-  public MiKTeX::Packages::PackageInstallerCallback
+  public PackageInstallerCallbackImpl
 {
 private:
   Q_OBJECT;
@@ -848,17 +882,6 @@ signals:
   void OnUpdateProgress();
 
 private:
-  void ReportLine(const std::string& str) override
-  {
-  }
-
-private:
-  bool OnRetryableError(const std::string& message) override
-  {
-    return false;
-  }
-
-private:
   bool OnProgress(MiKTeX::Packages::Notification notification) override
   {
     switch (notification)
@@ -905,7 +928,8 @@ protected:
 };
 
 class UserResetWorker :
-  public BackgroundWorker
+  public BackgroundWorker,
+  public SetupServiceCallbackImpl
 {
 private:
   Q_OBJECT;
@@ -915,7 +939,8 @@ protected:
 };
 
 class FactoryResetWorker :
-  public BackgroundWorker
+  public BackgroundWorker,
+  public SetupServiceCallbackImpl
 {
 private:
   Q_OBJECT;
@@ -926,34 +951,13 @@ protected:
 
 class UninstallWorker :
   public BackgroundWorker,
-  public MiKTeX::Setup::SetupServiceCallback
+  public SetupServiceCallbackImpl
 {
 private:
   Q_OBJECT;
 
 protected:
   bool Run() override;
-
-private:
-  void ReportLine(const std::string& str) override;
-
-private:
-  bool OnRetryableError(const std::string& message) override
-  {
-    return false;
-  }
-
-private:
-  bool OnProgress(MiKTeX::Setup::Notification nf) override
-  {
-    return true;
-  }
-
-private:
-  bool OnProcessOutput(const void* output, size_t n) override
-  {
-    return true;
-  }
 };
 
 class BuildFormatsWorker :

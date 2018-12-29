@@ -91,6 +91,18 @@ void OpenDirectoryInFileBrowser(const PathName& dir)
   OpenDirectoryInFileBrowser(QString::fromUtf8(dir.GetData()));
 }
 
+void PackageInstallerCallbackImpl::ReportLine(const string& str)
+{
+  LOG4CXX_INFO(logger, str);
+}
+
+void SetupServiceCallbackImpl::ReportLine(const string& str)
+{
+#if defined(MIKTEX_WINDOWS)
+  OutputDebugStringW(StringUtil::UTF8ToWideChar(str.c_str()).c_str());
+#endif
+}
+
 MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
@@ -671,6 +683,7 @@ bool FinishSetupWorker::Run()
     options.Task = SetupTask::FinishSetup;
     options.IsCommonSetup = session->IsAdminMode();
     service->SetOptions(options);
+    service->SetCallback(this);
     service->Run();
     result = true;
   }
@@ -2231,6 +2244,7 @@ bool UserResetWorker::Run()
     options.IsCommonSetup = session->IsAdminMode();
     options.CleanupOptions = { CleanupOption::FileTypes, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
     service->SetOptions(options);
+    service->SetCallback(this);
     service->Run();
     result = true;
   }
@@ -2324,6 +2338,7 @@ bool FactoryResetWorker::Run()
     options.IsCommonSetup = session->IsAdminMode();
     options.CleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
     service->SetOptions(options);
+    service->SetCallback(this);
     service->Run();
     result = true;
   }
@@ -2401,6 +2416,7 @@ bool UninstallWorker::Run()
     options.IsCommonSetup = session->IsAdminMode();
     options.CleanupOptions = { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
     service->SetOptions(options);
+    service->SetCallback(this);
     service->Run();
     result = true;
   }
@@ -2413,13 +2429,6 @@ bool UninstallWorker::Run()
     this->e = MiKTeXException(e.what());
   }
   return result;
-}
-
-void UninstallWorker::ReportLine(const string& str)
-{
-#if defined(MIKTEX_WINDOWS)
-  OutputDebugStringW(StringUtil::UTF8ToWideChar(str.c_str()).c_str());
-#endif
 }
 
 void MainWindow::Uninstall()
@@ -2469,16 +2478,6 @@ void MainWindow::Uninstall()
     CriticalError(e);
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 void MainWindow::ReadSettings()
 {

@@ -293,7 +293,7 @@ protected:
 protected:
   bool OnProcessOutput(const void* output, size_t n) override;
 
-protected:
+public:
   void ReportLine(const std::string& str) override;
 
 protected:

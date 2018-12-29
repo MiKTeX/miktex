@@ -29,6 +29,7 @@ using namespace MiKTeX::Util;
 
 void LogFile::Load(const PathName& logFileName)
 {
+  setupService->ReportLine(fmt::format(T_("loading {0}..."), logFileName));
   files.clear();
 #if defined(MIKTEX_WINDOWS)
   regValues.clear();
@@ -116,14 +117,16 @@ void LogFile::RemoveStartMenu()
   }
   shared_ptr<Session> session = Session::Get();
   int cidl = (session->IsAdminMode() ? CSIDL_COMMON_PROGRAMS : CSIDL_PROGRAMS);
-  RemoveFiles(Utils::GetFolderPath(cidl, cidl, true));
+  PathName prefix = Utils::GetFolderPath(cidl, cidl, true);
+  setupService->ReportLine(fmt::format(T_("removing {0}..."), prefix));
+  RemoveFiles(prefix);
 }
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 void LogFile::RemoveRegistrySettings()
 {
-  // <code>sort (regValues.begin(), regValues.end());</code>
+  setupService->ReportLine(fmt::format(T_("removing {0} registry values..."), regValues.size()));
   for (const RegValue& rv :regValues)
   {
     if (setupService->IsCancelled())
