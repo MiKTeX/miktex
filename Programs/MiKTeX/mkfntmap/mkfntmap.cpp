@@ -395,7 +395,18 @@ void MakeFontMapApp::ProcessOptions(int argc, const char** argv)
 
 void MakeFontMapApp::Verbose(int level, const string& s)
 {
-  LOG4CXX_INFO(logger, s);
+  if (level >= 4)
+  {
+    LOG4CXX_TRACE(logger, s);
+  }
+  else if (level >= 2)
+  {
+    LOG4CXX_DEBUG(logger, s);
+  }
+  else
+  {
+    LOG4CXX_INFO(logger, s);
+  }
   if (verbosityLevel >= level)
   {
     cout << s << endl;
