@@ -165,6 +165,11 @@ bool LockFileImpl::IsGarbage()
     reader.ReadLine(pid);
     reader.ReadLine(processName);
   }
+  catch (const UnauthorizedAccessException&)
+  {
+    trace_lockfile->WriteLine("core", fmt::format(T_("permission denied: {0}"), Q_(path)));
+    return false;
+  }
   catch (const IOException&)
   {
     trace_lockfile->WriteLine("core", fmt::format(T_("could not read lock file {0}"), Q_(path)));
