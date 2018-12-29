@@ -750,9 +750,10 @@ void Session::FatalWindowsError(const string& functionName, unsigned long errorC
   case ERROR_PATH_NOT_FOUND:
     throw FileNotFoundException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   case ERROR_SHARING_VIOLATION:
+  case ERROR_USER_MAPPED_FILE:
     if (description.empty() && info.find("path") != info.end())
     {
-      description = T_("MiKTeX cannot access file '{path}' because it is either blocked by another MiKTeX program or by the operating system.");
+      description = T_("MiKTeX cannot access file '{path}' because it is either locked by another MiKTeX program or by the operating system.");
     }
     if (remedy.empty())
     {

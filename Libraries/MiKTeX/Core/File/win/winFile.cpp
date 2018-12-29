@@ -535,10 +535,6 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
     strFlags += "b";
   }
 
-  int fd;
-
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  int shflags = SH_DENYNO;
   if (mode == FileMode::Create || mode == FileMode::CreateNew || mode == FileMode::Append)
   {
     PathName dir(path);
@@ -549,21 +545,19 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
       Directory::Create(dir);
     }
   }
-  if (_wsopen_s(&fd, path.ToWideCharString().c_str(), flags, shflags, (((flags & O_CREAT) == 0) ? 0 : S_IREAD | S_IWRITE)) != 0)
-  {
-    fd = -1;
-  }
+
+  int fd = _wopen(path.ToWideCharString().c_str(), flags, ((flags & O_CREAT) == 0) ? 0 : S_IREAD | S_IWRITE);
   if (fd < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("_wsopen_s", "path", path.ToString(), "mode", strFlags);
+    if (errno == EINVAL && ::GetLastError() == ERROR_USER_MAPPED_FILE)
+    {
+      MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", path.ToString(), "modeString", strFlags);
+    }
+    else
+    {
+      MIKTEX_FATAL_CRT_ERROR_2("_wopen", "path", path.ToString(), "modeString", strFlags);
+    }
   }
-#else
-  fd = open(path.Get(), flags, (((flags & O_CREAT) == 0) ? 0 : S_IREAD | S_IWRITE));
-  if (fd < 0)
-  {
-    FATAL_CRT_ERROR("open", path.Get());
-  }
-#endif
 
   return FdOpen(path, fd, strFlags.c_str());
 }
