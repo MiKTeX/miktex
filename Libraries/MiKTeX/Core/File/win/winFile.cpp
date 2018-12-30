@@ -21,11 +21,14 @@
 
 #include "config.h"
 
-#include <thread>
-
 #include <fcntl.h>
 
 #include <io.h>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#include <thread>
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
@@ -40,14 +43,15 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 
-static unsigned long GetFileAttributes_harmlessErrors[] = {
-  ERROR_FILE_NOT_FOUND, // 2
-  ERROR_PATH_NOT_FOUND, // 3
-  ERROR_NOT_READY, // 21
-  ERROR_BAD_NETPATH, // 53
-  ERROR_BAD_NET_NAME, // 67
-  ERROR_INVALID_NAME, // 123
-  ERROR_BAD_PATHNAME, // 161
+static std::unordered_map<DWORD, bool> expectedErrors = {
+  { ERROR_FILE_NOT_FOUND, false }, // 2
+  { ERROR_PATH_NOT_FOUND, false }, // 3
+  { ERROR_ACCESS_DENIED, true }, // 5
+  { ERROR_NOT_READY, false, }, // 21
+  { ERROR_BAD_NETPATH, false }, // 53
+  { ERROR_BAD_NET_NAME, false }, // 67
+  { ERROR_INVALID_NAME, false }, // 123
+  { ERROR_BAD_PATHNAME, false }, // 161
 };
 
 bool File::Exists(const PathName& path, FileExistsOptionSet options)
@@ -58,43 +62,36 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
     UNIMPLEMENTED();
   }
   unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
-  if (attributes != INVALID_FILE_ATTRIBUTES)
+  bool exists = attributes != INVALID_FILE_ATTRIBUTES;
+  if (exists)
   {
     if ((attributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
     {
+      exists = false;
       if (session != nullptr)
       {
-        session->trace_access->WriteFormattedLine("core", T_("%s is a directory"), Q_(path));
+        session->trace_access->WriteLine("core", fmt::format(T_("{0} is a directory"), Q_(path)));
       }
-      return false;
-    }
-    if (session != nullptr)
-    {
-      session->trace_access->WriteFormattedLine("core", T_("accessing file %s: OK"), Q_(path));
-    }
-    return true;
-  }
-  unsigned long error = ::GetLastError();
-  // TODO: range-based for loop
-  for (int idx = 0; idx < sizeof(GetFileAttributes_harmlessErrors) / sizeof(GetFileAttributes_harmlessErrors[0]); ++idx)
-  {
-    if (error == GetFileAttributes_harmlessErrors[idx])
-    {
-      error = ERROR_SUCCESS;
-      break;
     }
   }
-  if (error != ERROR_SUCCESS)
+  else
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_3("GetFileAttributesW",
-      T_("MiKTeX cannot retrieve attributes for the file '{path}'."),
-      "path", path.ToDisplayString());
+    DWORD error = ::GetLastError();
+    auto it = expectedErrors.find(error);
+    if (it != expectedErrors.end())
+    {
+      exists = it->second;
+    }
+    else
+    {
+      MIKTEX_FATAL_WINDOWS_RESULT_3("GetFileAttributesW", error, T_("MiKTeX cannot retrieve attributes for the file '{path}'."), "path", path.ToDisplayString());
+    }
   }
   if (session != nullptr)
   {
-    session->trace_access->WriteFormattedLine("core", T_("accessing file %s: NOK"), Q_(path));
+    session->trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: {1}"), Q_(path), exists ? "OK" : "NOK"));
   }
-  return false;
+  return exists;
 }
 
 FileAttributeSet File::GetAttributes(const PathName& path)
