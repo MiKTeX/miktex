@@ -126,6 +126,9 @@ bool LockFileImpl::TryLock(chrono::milliseconds timeout)
       catch (const FileExistsException&)
       {
       }
+      catch (const UnauthorizedAccessException&)
+      {
+      }
     }
     if (!locked)
     {
