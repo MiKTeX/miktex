@@ -188,7 +188,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
 void FileNameDatabase::Add(const vector<Fndb::Record>& records)
 {
   ApplyChangeFile();
-  FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write));
+  FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write, false));
   if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 100ms))
   {
     MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", changeFile.ToString());
@@ -200,8 +200,10 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
     std::tie(fileName, directory) = SplitPath(rec.path);
     if (InsertRecord(Record(fileName, directory, rec.fileNameInfo)))
     {
-      fputs(fmt::format("+{0}{1}{2}{1}{3}\n", fileName, char(PathName::PathNameDelimiter), directory, rec.fileNameInfo).c_str(), writer.GetFile());
+      string s = fmt::format("+{0}{1}{2}{1}{3}\n", fileName, char(PathName::PathNameDelimiter), directory, rec.fileNameInfo);
+      fputs(s.c_str(), writer.GetFile());
       changeFileRecordCount++;
+      changeFileSize += s.length();
     }
   }
   fflush(writer.GetFile());
@@ -212,7 +214,7 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
 void FileNameDatabase::Remove(const vector<PathName>& paths)
 {
   ApplyChangeFile();
-  FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write));
+  FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write, false));
   if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 100ms))
   {
     MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", changeFile.ToString());
@@ -223,8 +225,10 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
     string directory;
     std::tie(fileName, directory) = SplitPath(path);
     EraseRecord(Record(fileName, directory, ""));
-    fputs(fmt::format("-{}{}{}\n", fileName, char(PathName::PathNameDelimiter), directory).c_str(), writer.GetFile());
+    string s = fmt::format("-{}{}{}\n", fileName, char(PathName::PathNameDelimiter), directory);
+    fputs(s.c_str(), writer.GetFile());
     changeFileRecordCount++;
+    changeFileSize += s.length();
   }
   fflush(writer.GetFile());
   File::Unlock(writer.GetFile());
@@ -386,14 +390,16 @@ void FileNameDatabase::ApplyChangeFile()
     return;
   }
   CoreStopWatch stopWatch(fmt::format(T_("applying FNDB change file {0} starting at record #{1}"), Q_(changeFile), changeFileRecordCount));
-  FileStream reader(File::Open(changeFile, FileMode::Open, FileAccess::Read));
+  FileStream reader(File::Open(changeFile, FileMode::Open, FileAccess::Read, false));
   if (!File::TryLock(reader.GetFile(), File::LockType::Shared, 100ms))
   {
     MIKTEX_FATAL_ERROR_2(T_("Could not acquire shared lock."), "path", changeFile.ToString());
   }
   int count = 0;
+  changeFileSize = 0;
   for (string line; Utils::ReadLine(line, reader.GetFile(), false); )
   {
+    changeFileSize += line.length() + sizeof('\n');
     count++;
     if (count <= changeFileRecordCount)
     {
@@ -427,7 +433,6 @@ void FileNameDatabase::ApplyChangeFile()
   }
   File::Unlock(reader.GetFile());
   reader.Close();
-  changeFileSize = File::GetSize(changeFile);
   changeFileRecordCount = count;
 }
 
