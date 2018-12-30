@@ -189,7 +189,7 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
 {
   ApplyChangeFile();
   FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write, false));
-  if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 100ms))
+  if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 2s))
   {
     MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", changeFile.ToString());
   }
@@ -215,7 +215,7 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
 {
   ApplyChangeFile();
   FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write, false));
-  if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 100ms))
+  if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 2s))
   {
     MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", changeFile.ToString());
   }
@@ -385,26 +385,30 @@ void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& root
 
 void FileNameDatabase::ApplyChangeFile()
 {
-  if (!File::Exists(changeFile) || File::GetSize(changeFile) == changeFileSize)
+  if (!File::Exists(changeFile))
   {
     return;
   }
+  size_t newChangeFileSize = File::GetSize(changeFile);
+  if (newChangeFileSize == changeFileSize)
+  {
+    return;
+  }
+  MIKTEX_ASSERT(newChangeFileSize > changeFileSize);
   CoreStopWatch stopWatch(fmt::format(T_("applying FNDB change file {0} starting at record #{1}"), Q_(changeFile), changeFileRecordCount));
   FileStream reader(File::Open(changeFile, FileMode::Open, FileAccess::Read, false));
-  if (!File::TryLock(reader.GetFile(), File::LockType::Shared, 100ms))
+  if (!File::TryLock(reader.GetFile(), File::LockType::Shared, 2s))
   {
     MIKTEX_FATAL_ERROR_2(T_("Could not acquire shared lock."), "path", changeFile.ToString());
   }
-  int count = 0;
-  changeFileSize = 0;
+  if (changeFileSize > 0)
+  {
+    reader.Seek(changeFileSize, SeekOrigin::Begin);
+  }
   for (string line; Utils::ReadLine(line, reader.GetFile(), false); )
   {
+    changeFileRecordCount++;
     changeFileSize += line.length() + sizeof('\n');
-    count++;
-    if (count <= changeFileRecordCount)
-    {
-      continue;
-    }
     string op = line.substr(0, 1);
     vector<string> data = StringUtil::Split(line.substr(1), PathName::PathNameDelimiter);
     if (data.size() < 2)
@@ -433,7 +437,6 @@ void FileNameDatabase::ApplyChangeFile()
   }
   File::Unlock(reader.GetFile());
   reader.Close();
-  changeFileRecordCount = count;
 }
 
 void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath)

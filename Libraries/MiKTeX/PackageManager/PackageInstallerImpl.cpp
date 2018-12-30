@@ -254,13 +254,9 @@ void PackageInstallerImpl::OnBeginFileExtraction(const string& fileName, size_t 
     progressInfo.fileName = fileName;
   }
 
-  // update file name database
-  if (autoFndbSync)
+  if (!fileName.empty())
   {
-    if (!Fndb::FileExists(fileName))
-    {
-      Fndb::Add({ { fileName } });
-    }
+    installedFiles.insert(fileName);
   }
 
   // notify client: beginning of file extraction
@@ -269,13 +265,9 @@ void PackageInstallerImpl::OnBeginFileExtraction(const string& fileName, size_t 
 
 void PackageInstallerImpl::OnEndFileExtraction(const string& fileName, size_t uncompressedSize)
 {
-  // update file name database
-  if (autoFndbSync && !fileName.empty())
+  if (!fileName.empty())
   {
-    if (!Fndb::FileExists(fileName))
-    {
-      Fndb::Add({ {fileName} });
-    }
+    installedFiles.insert(fileName);
   }
 
   // update progress info
@@ -754,12 +746,8 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
       // remove the file
       try
       {
-        FileDeleteOptionSet deleteOptions = { FileDeleteOption::TryHard };
-        if (autoFndbSync)
-        {
-          deleteOptions += FileDeleteOption::UpdateFndb;
-        }
-        File::Delete(path, deleteOptions);
+        File::Delete(path, { FileDeleteOption::TryHard });
+        removedFiles.insert(path);
         done = true;
       }
       catch (const MiKTeXException& e)
@@ -903,13 +891,7 @@ void PackageInstallerImpl::MyCopyFile(const PathName& source, const PathName& de
   fromStream.Close();
   toStream.Close();
 
-  if (autoFndbSync)
-  {
-    if (!Fndb::FileExists(dest))
-    {
-      Fndb::Add({ {dest} });
-    }
-  }
+  installedFiles.insert(dest);
 }
 
 void PackageInstallerImpl::CopyFiles(const PathName& pathSourceRoot, const vector<string>& fileList)
@@ -988,51 +970,61 @@ void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const str
   CopyFiles(pathSourceRoot, package.sourceFiles);
 }
 
-typedef unordered_set<string> FileNameSet;
-
-MPMSTATICFUNC(void) GetFiles(const PackageInfo& package, FileNameSet& files)
+MPMSTATICFUNC(unordered_set<PathName>) GetFiles(const PathName& rootDir, const PackageInfo& package)
 {
+  unordered_set<PathName> files;
   for (const string& s : package.runFiles)
   {
-    files.insert(PathName(s).TransformForComparison().ToString());
+    string fileName;
+    if (PackageManager::StripTeXMFPrefix(s, fileName))
+    {
+      files.insert((rootDir / fileName));
+    }
   }
   for (const string& s : package.docFiles)
   {
-    files.insert(PathName(s).TransformForComparison().ToString());
+    string fileName;
+    if (PackageManager::StripTeXMFPrefix(s, fileName))
+    {
+      files.insert((rootDir / fileName));
+    }
   }
   for (const string& s : package.sourceFiles)
   {
-    files.insert(PathName(s).TransformForComparison().ToString());
+    string fileName;
+    if (PackageManager::StripTeXMFPrefix(s, fileName))
+    {
+      files.insert((rootDir / fileName));
+    }
   }
+  return files;
 }
 
-void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, const vector<string>& removedFiles, const string& packageId)
+void PackageInstallerImpl::UpdateFndb(const unordered_set<PathName>& installedFiles, const unordered_set<PathName>& removedFiles, const string& packageId)
 {
-  vector<Fndb::Record> records;
-  for (const string& f : installedFiles)
+  vector<PathName> toBeRemoved;
+  for (const PathName& f : removedFiles)
   {
-    PathName path(session->GetMpmRootPath(), f);
-    if (!Fndb::FileExists(path))
+    if (installedFiles.find(f) == installedFiles.end() && Fndb::FileExists(f))
     {
-      records.push_back({ path, packageId });
+      toBeRemoved.push_back(f);
     }
   }
-  if (!records.empty())
+  if (!toBeRemoved.empty())
   {
-    Fndb::Add(records);
+    Fndb::Remove(toBeRemoved);
   }
-  vector<PathName> paths;
-  for (const string& f : removedFiles)
+  vector<Fndb::Record> toBeAdded;
+  for (const PathName& f : installedFiles)
   {
-    PathName path(session->GetMpmRootPath(), f);
-    if (Fndb::FileExists(path))
+    if (!Fndb::FileExists(f))
     {
-      paths.push_back(path);
+      toBeAdded.push_back({ f, packageId });
     }
   }
-  if (!paths.empty())
+  if (!toBeAdded.empty())
   {
-    Fndb::Remove(paths);
+    Fndb::Add(toBeAdded);
   }
 }
 
@@ -1097,6 +1089,9 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
     }
   }
 
+  installedFiles.clear();
+  removedFiles.clear();
+
   // silently uninstall the package (this also decrements the file
   // reference counts)
   if (package.IsInstalled())
@@ -1147,40 +1142,9 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
   // install new package manifest
   PackageManager::PutPackageManifest(packageManifests, newPackage, newPackage.timePackaged);
 
-  // update the MPM file name database
-  if (autoFndbSync)
-  {
-    // find recycled and brand new files
-    FileNameSet set1;
-    GetFiles(package, set1);
-    FileNameSet set2;
-    GetFiles(newPackage, set2);
-    vector<string> recycledFiles;
-    for (const string& s : set1)
-    {
-      if (set2.find(s) == set2.end())
-      {
-        string str;
-        if (PackageManager::StripTeXMFPrefix(s, str))
-        {
-          recycledFiles.push_back(str);
-        }
-      }
-    }
-    vector<string> newFiles;
-    for (const string& s : set2)
-    {
-      if (set1.find(s) == set1.end())
-      {
-        string str;
-        if (PackageManager::StripTeXMFPrefix(s, str))
-        {
-          newFiles.push_back(str);
-        }
-      }
-    }
-    UpdateMpmFndb(newFiles, recycledFiles, packageId);
-  }
+  // update file name database
+  UpdateFndb(installedFiles, removedFiles, "");
+  UpdateFndb(GetFiles(session->GetMpmRootPath(), newPackage), GetFiles(session->GetMpmRootPath(), package), packageId);
 
   // set the timeInstalled value => package is installed
   newPackage.timeInstalled = time(nullptr);
@@ -1696,10 +1660,8 @@ void PackageInstallerImpl::InstallRemove(Role role)
     ReportLine(fmt::format(T_("package repository: {0}"), Q_(repository)));
   }
 
-  SetAutoFndbSync(true);
-
   // make sure that mpm.fndb exists
-  if (autoFndbSync && !File::Exists(session->GetMpmDatabasePathName()))
+  if (!File::Exists(session->GetMpmDatabasePathName()))
   {
     packageManager->CreateMpmFndb();
   }
@@ -1825,17 +1787,6 @@ void PackageInstallerImpl::InstallRemove(Role role)
   if (!noPostProcessing)
   {
     RegisterComponents(true, toBeInstalled);
-  }
-
-  if (!autoFndbSync)
-  {
-    // refresh file name database now
-    ReportLine(T_("refreshing file name database..."));
-    if (!Fndb::Refresh(session->GetSpecialPath(SpecialPath::InstallRoot), this))
-    {
-      throw OperationCancelledException();
-    }
-    packageManager->CreateMpmFndb();
   }
 
   if (!noPostProcessing)
@@ -2304,7 +2255,6 @@ void PackageInstallerImpl::StartWorkerThread(void (PackageInstallerImpl::*method
 {
   progressInfo = ProgressInfo();
   timeStarted = clock();
-  SetAutoFndbSync(false);
   workerThread = thread(method, this);
 }
 

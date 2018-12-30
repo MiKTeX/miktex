@@ -182,7 +182,7 @@ private:
   void NeedRepository();
 
 private:
-  void UpdateMpmFndb(const std::vector<std::string>& installedFiles, const std::vector<std::string>& removedFiles, const std::string& packageId);
+  void UpdateFndb(const std::unordered_set<MiKTeX::Core::PathName>& installedFiles, const std::unordered_set<MiKTeX::Core::PathName>& removedFiles, const std::string& packageId);
 
 private:
   void CalculateExpenditure(bool downloadOnly = false);
@@ -304,18 +304,10 @@ private:
   void RunIniTeXMF(const std::vector<std::string>& arguments);
 
 private:
-  bool autoFndbSync;
+  std::unordered_set<MiKTeX::Core::PathName> installedFiles;
 
 private:
-  void SetAutoFndbSync(bool autoFndbSync)
-  {
-    if (this->autoFndbSync == autoFndbSync)
-    {
-      return;
-    }
-    trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("turning %s autoFndbSync"), autoFndbSync ? "on" : "off");
-    this->autoFndbSync = autoFndbSync;
-  }
+  std::unordered_set<MiKTeX::Core::PathName> removedFiles;
 
 private:
   bool noPostProcessing = false;
