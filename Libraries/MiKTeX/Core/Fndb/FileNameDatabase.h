@@ -195,6 +195,9 @@ private:
   void ApplyChangeFile();
 
 private:
+  FILE* OpenChangeFileExclusively();
+
+private:
   void OpenFileNameDatabase(const MiKTeX::Core::PathName& fndbPath);
 
 private:

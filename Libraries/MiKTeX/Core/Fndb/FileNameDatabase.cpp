@@ -187,12 +187,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
 
 void FileNameDatabase::Add(const vector<Fndb::Record>& records)
 {
-  ApplyChangeFile();
-  FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write, false));
-  if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 2s))
-  {
-    MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", changeFile.ToString());
-  }
+  FileStream writer(OpenChangeFileExclusively());
   for (const auto& rec : records)
   {
     string fileName;
@@ -213,12 +208,7 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
 
 void FileNameDatabase::Remove(const vector<PathName>& paths)
 {
-  ApplyChangeFile();
-  FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write, false));
-  if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 2s))
-  {
-    MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", changeFile.ToString());
-  }
+  FileStream writer(OpenChangeFileExclusively());
   for (const auto& path : paths)
   {
     string fileName;
@@ -407,13 +397,17 @@ void FileNameDatabase::ApplyChangeFile()
   }
   for (string line; Utils::ReadLine(line, reader.GetFile(), false); )
   {
+    if (line.empty())
+    {
+      MIKTEX_FATAL_ERROR_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
+    }
     changeFileRecordCount++;
     changeFileSize += line.length() + sizeof('\n');
     string op = line.substr(0, 1);
     vector<string> data = StringUtil::Split(line.substr(1), PathName::PathNameDelimiter);
     if (data.size() < 2)
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
     }
     string& fileName = data[0];
     string& directory = data[1];
@@ -421,7 +415,7 @@ void FileNameDatabase::ApplyChangeFile()
     {
       if (data.size() < 3)
       {
-        MIKTEX_UNEXPECTED();
+        MIKTEX_FATAL_ERROR_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
       }
       string& fileNameInfo = data[2];
       FastInsertRecord(Record(std::move(fileName), std::move(directory), std::move(fileNameInfo)));
@@ -432,11 +426,22 @@ void FileNameDatabase::ApplyChangeFile()
     }
     else
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
     }
   }
   File::Unlock(reader.GetFile());
   reader.Close();
+}
+
+FILE* FileNameDatabase::OpenChangeFileExclusively()
+{
+  ApplyChangeFile();
+  FileStream writer(File::Open(changeFile, FileMode::Append, FileAccess::Write, false));
+  if (!File::TryLock(writer.GetFile(), File::LockType::Exclusive, 2s))
+  {
+    MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", changeFile.ToString());
+  }
+  return writer.Detach();
 }
 
 void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath)
