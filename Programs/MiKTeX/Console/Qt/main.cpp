@@ -1,6 +1,6 @@
 /* main.cpp:
 
-   Copyright (C) 2017-2018 Christian Schenk
+   Copyright (C) 2017-2019 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -337,7 +337,7 @@ int main(int argc, char* argv[])
       {
         logName += MIKTEX_ADMIN_SUFFIX;
       }
-      Utils::SetEnvironmentString("MIKTEX_LOG_DIR", session->GetSpecialPath(SpecialPath::DataRoot).AppendComponent(MIKTEX_PATH_MIKTEX_LOG_DIR).ToString());
+      Utils::SetEnvironmentString("MIKTEX_LOG_DIR", session->GetSpecialPath(SpecialPath::LogDirectory).ToString());
       Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
       log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
       isLog4cxxConfigured = true;
@@ -348,7 +348,7 @@ int main(int argc, char* argv[])
     {
       cout
         << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR) << endl
-        << "Copyright (C) 2018 Christian Schenk" << endl
+        << "Copyright (C) 2019 Christian Schenk" << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return 0;

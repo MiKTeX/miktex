@@ -1,6 +1,6 @@
 /* mainwindow.h:                                        -*- C++ -*-
 
-   Copyright (C) 2017-2018 Christian Schenk
+   Copyright (C) 2017-2019 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -786,7 +786,8 @@ protected:
 };
 
 class CkeckUpdatesWorker :
-  public BackgroundWorker
+  public BackgroundWorker,
+  public PackageInstallerCallbackImpl
 {
 private:
   Q_OBJECT;
@@ -909,7 +910,8 @@ private:
 };
 
 class UpdateDbWorker :
-  public BackgroundWorker
+  public BackgroundWorker,
+  public PackageInstallerCallbackImpl
 {
 private:
   Q_OBJECT;

@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017-2018 Christian Schenk
+   Copyright (C) 2017-2019 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -764,8 +764,10 @@ bool UpgradeWorker::Run()
     status = Status::Synchronize;
     packageInstaller = packageManager->CreateInstaller();
     packageInstaller->SetCallback(this);
+    LOG4CXX_INFO(logger, "checking for upgrades...");
     packageInstaller->FindUpgrades(PackageLevel::Basic);
     vector<PackageInstaller::UpgradeInfo> upgrades = packageInstaller->GetUpgrades();
+    LOG4CXX_INFO(logger, "found " << upgrades.size() << " upgrades");
     if (!upgrades.empty())
     {
       vector<string> toBeInstalled;
@@ -774,6 +776,7 @@ bool UpgradeWorker::Run()
         toBeInstalled.push_back(upg.packageId);
       }
       packageInstaller->SetFileLists(toBeInstalled, vector<string>());
+      LOG4CXX_INFO(logger, "installing upgrades...");
       packageInstaller->InstallRemove(PackageInstaller::Role::Installer);
     }
     result = true;
@@ -1068,8 +1071,11 @@ bool CkeckUpdatesWorker::Run()
   {
     status = Status::Checking;
     unique_ptr<PackageInstaller> packageInstaller = packageManager->CreateInstaller();
+    packageInstaller->SetCallback(this);
+    LOG4CXX_INFO(logger, "checking for updates...");
     packageInstaller->FindUpdates();
     updates = packageInstaller->GetUpdates();
+    LOG4CXX_INFO(logger, "found " << updates.size() << " updates");
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -1184,6 +1190,7 @@ bool UpdateWorker::Run()
       }
     }
     packageInstaller->SetFileLists(toBeUpdated, toBeRemoved);
+    LOG4CXX_INFO(logger, "installing updates...");
     packageInstaller->InstallRemove(PackageInstaller::Role::Updater);
     packageInstaller = nullptr;
     unique_ptr<SetupService> service = SetupService::Create();
@@ -2071,6 +2078,8 @@ bool UpdateDbWorker::Run()
   try
   {
     unique_ptr<PackageInstaller> installer = packageManager->CreateInstaller();
+    installer->SetCallback(this);
+    LOG4CXX_INFO(logger, "updating package database...");
     installer->UpdateDb();
     result = true;
   }

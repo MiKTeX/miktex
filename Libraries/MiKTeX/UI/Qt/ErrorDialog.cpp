@@ -1,6 +1,6 @@
 /* ErrorDialog.cpp:
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2019 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -146,7 +146,7 @@ string ErrorDialogImpl::CreateReport()
       string errorMessage = Trim(miktexException.GetErrorMessage());
       if (!errorMessage.empty())
       {
-        s << T_("Error: ") << errorMessage;
+        s << T_("Error: ") << errorMessage << "\n";
       }
       string description = Trim(miktexException.GetDescription());
       if (!description.empty())
