@@ -143,7 +143,7 @@ BOOL FileCopyPage::OnKillActive()
   {
     try
     {
-      SetupApp::Instance->Service->ULogClose(!sheet->GetErrorFlag());
+      SetupApp::Instance->Service->ULogClose();
     }
     catch (const MiKTeXException& e)
     {
@@ -266,7 +266,7 @@ LRESULT FileCopyPage::OnProgress(WPARAM wParam, LPARAM lParam)
       // close the wizard, if it is running unattended
       if (SetupApp::Instance->IsUnattended)
       {
-        SetupApp::Instance->Service->ULogClose(!sheet->GetErrorFlag());
+        SetupApp::Instance->Service->ULogClose();
         EndDialog(IDOK);
       }
 

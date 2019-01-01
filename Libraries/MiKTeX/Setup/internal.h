@@ -220,7 +220,7 @@ public:
   void ULogOpen() override;
 
 public:
-  void ULogClose(bool finalize) override;
+  void ULogClose() override;
 
 public:
   MiKTeX::Core::PathName GetULogFileName() override;

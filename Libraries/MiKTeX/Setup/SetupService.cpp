@@ -521,31 +521,12 @@ PathName SetupServiceImpl::GetULogFileName()
   return directory / MIKTEX_UNINSTALL_LOG;
 }
 
-void SetupServiceImpl::ULogClose(bool finalize)
+void SetupServiceImpl::ULogClose()
 {
-  if (!uninstStream.is_open())
-  {
-    return;
-  }
-
-  try
-  {
-    if (finalize)
-    {
-      ULogAddFile(GetULogFileName());
-      if (!options.IsPortable)
-      {
-        RegisterUninstaller();
-      }
-    }
-  }
-  catch (const exception&)
+  if (uninstStream.is_open())
   {
     uninstStream.close();
-    throw;
   }
-
-  uninstStream.close();
 }
 
 void SetupServiceImpl::ULogAddFile(const PathName& path)
@@ -611,7 +592,7 @@ void SetupServiceImpl::Run()
   default:
     MIKTEX_UNEXPECTED();
   }
-  ULogClose(true);
+  ULogClose();
 }
 
 void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
@@ -966,7 +947,14 @@ void SetupServiceImpl::DoTheInstallation()
     cmdScript.WriteLine(fmt::format("start \"\" \"%~d0%~p0{}\" --hide --mkmaps", console.ToDos()));
     cmdScript.Close();
   }
-}
+
+  if (!options.IsPortable)
+  {
+#if defined(MIKTEX_WINDOWS)
+    RegisterUninstaller();
+#endif
+  }
+  }
 
 void SetupServiceImpl::DoFinishSetup()
 {
@@ -1469,7 +1457,7 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
-    ULogClose(false);
+    ULogClose();
     // FIXME: only need to unload when building the FNDB
     session->UnloadFilenameDatabase();
     int exitCode;
@@ -1508,7 +1496,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
-    ULogClose(false);
+    ULogClose();
     Process::Run(exePath, allArgs, this);
     ULogOpen();
   }
@@ -1829,8 +1817,9 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   }
   if (options[ReportOption::CurrentUser])
   {
-    s << "SystemAdmin: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n"
-      << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n";
+    s << "SystemAdmin: " << (session->IsUserAnAdministrator() ? T_("yes") : T_("no")) << "\n"
+      << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n"
+      << "AdminMode: " << (session->IsAdminMode() ? T_("yes") : T_("no")) << "\n";
   }
   if (options[ReportOption::RootDirectories])
   {

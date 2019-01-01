@@ -249,7 +249,7 @@ public:
   virtual void MIKTEXTHISCALL ULogOpen() = 0;
 
 public:
-  virtual void MIKTEXTHISCALL ULogClose(bool finalize) = 0;
+  virtual void MIKTEXTHISCALL ULogClose() = 0;
 
 public:
   virtual MiKTeX::Core::PathName MIKTEXTHISCALL GetULogFileName() = 0;
