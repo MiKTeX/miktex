@@ -1,1 +1,1 @@
-Please fill out one of the templates on: https://github.com/MiKTeX/miktex/issues/new/choose
+- [x] I have read the [MiKTeX Contributing Guidelines](https://github.com/MiKTeX/miktex/blob/master/CONTRIBUTING.md)

@@ -47,6 +47,4 @@
     }                                           \
   }
 
-#define MIKTEX_EXTENDED_PACKAGEINFO 1
-
 #endif

@@ -62,8 +62,8 @@ int CheckBom(FILE* file)
   }
   int val = 0;
   MIKTEX_ASSERT(Bom::UTF8_length >= Bom::UTF16_length);
-  int n = fread(&val, 1, Bom::UTF8_length, file);
-  if (n < 0)
+  size_t n = fread(&val, 1, Bom::UTF8_length, file);
+  if (ferror(file) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR("fread");
   }
@@ -153,17 +153,7 @@ void WebAppInputLine::AddOptions()
 
 bool WebAppInputLine::ProcessOption(int opt, const string& optArg)
 {
-  bool done = true;
-
-  switch (opt - FIRST_OPTION_VAL - pimpl->optBase)
-  {
-
-  default:
-    done = WebApp::ProcessOption(opt, optArg);
-    break;
-  }
-
-  return done;
+  return WebApp::ProcessOption(opt, optArg);
 }
 
 #if defined(WITH_OMEGA)
@@ -288,7 +278,7 @@ bool WebAppInputLine::AllowFileName(const PathName& fileName, bool forInput)
   return Utils::IsSafeFileName(fileName, forInput);
 }
 
-bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName, FileShare share, bool text, PathName& outPath)
+bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName, bool text, PathName& outPath)
 {
   const char* lpszPath = fileName.GetData();
 #if defined(MIKTEX_WINDOWS)
@@ -363,7 +353,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
       path = pimpl->outputDirectory / lpszPath;
       lpszPath = path.GetData();
     }
-    file = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, text, share);
+    file = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, text);
     if (file != nullptr)
     {
       outPath = lpszPath;
@@ -485,8 +475,7 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
       }
       else
       {
-        FileShare share = FileShare::ReadWrite;
-        *ppFile = session->OpenFile(pimpl->foundFile.GetData(), FileMode::Open, FileAccess::Read, false, share);
+        *ppFile = session->OpenFile(pimpl->foundFile.GetData(), FileMode::Open, FileAccess::Read, false);
       }
     }
 #if defined(MIKTEX_WINDOWS)
@@ -614,6 +603,8 @@ void WebAppInputLine::EnableShellCommands(ShellCommandMode mode)
     break;
   case ShellCommandMode::Unrestricted:
     LogInfo("allowing all shell commands");
+    break;
+  default:
     break;
   }
   pimpl->shellCommandMode = mode;

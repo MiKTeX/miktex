@@ -25,6 +25,7 @@
 
 #include <fstream>
 #include <iomanip>
+#include <set>
 
 #include <log4cxx/logger.h>
 
@@ -51,6 +52,7 @@
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
+#include <miktex/Core/Quoter>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamWriter>
@@ -62,12 +64,15 @@
 #include <miktex/UI/Qt/UpdateDialog>
 #include <miktex/Util/StringUtil>
 
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
+
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
-using namespace std;
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("mainwindow"));
 
@@ -84,6 +89,18 @@ void OpenDirectoryInFileBrowser(const QString& path)
 void OpenDirectoryInFileBrowser(const PathName& dir)
 {
   OpenDirectoryInFileBrowser(QString::fromUtf8(dir.GetData()));
+}
+
+void PackageInstallerCallbackImpl::ReportLine(const string& str)
+{
+  LOG4CXX_INFO(logger, str);
+}
+
+void SetupServiceCallbackImpl::ReportLine(const string& str)
+{
+#if defined(MIKTEX_WINDOWS)
+  OutputDebugStringW(StringUtil::UTF8ToWideChar(str.c_str()).c_str());
+#endif
 }
 
 MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
@@ -163,7 +180,10 @@ void MainWindow::closeEvent(QCloseEvent* event)
       return;
     }
   }
-  WriteSettings();
+  if (saveSettingsOnClose)
+  {
+    WriteSettings();
+  }
   event->accept();
 }
 
@@ -296,7 +316,6 @@ void MainWindow::UpdateUi()
     UpdateUiPackages();
     UpdateUiDiagnose();
     UpdateUiCleanup();
-    session->UnloadFilenameDatabase();
   }
   catch (const MiKTeXException& e)
   {
@@ -324,7 +343,6 @@ void MainWindow::UpdateActions()
     UpdateActionsPackages();
     UpdateActionsDiagnose();
     UpdateActionsCleanup();
-    session->UnloadFilenameDatabase();
   }
   catch (const MiKTeXException& e)
   {
@@ -375,6 +393,8 @@ void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
   case QSystemTrayIcon::ActivationReason::DoubleClick:
     this->showNormal();
     break;
+  default:
+    break;
   }
 }
 
@@ -388,6 +408,8 @@ void MainWindow::TrayMessageClicked()
   {
   case TrayMessageContext::Updates:
     SetCurrentPage(Pages::Updates);
+    break;
+  default:
     break;
   }
 }
@@ -456,7 +478,6 @@ void MainWindow::StartTeXworks()
     PathName exePath;
     if (session->FindFile(MIKTEX_TEXWORKS_EXE, FileType::EXE, exePath))
     {
-      session->UnloadFilenameDatabase();
       Process::Start(exePath);
     }
   }
@@ -506,7 +527,6 @@ void MainWindow::StartTerminal()
       cmd = "xterm";
     }
 #endif
-    session->UnloadFilenameDatabase();
     Process::Start(cmd);
     if (haveOldPath)
     {
@@ -663,6 +683,7 @@ bool FinishSetupWorker::Run()
     options.Task = SetupTask::FinishSetup;
     options.IsCommonSetup = session->IsAdminMode();
     service->SetOptions(options);
+    service->SetCallback(this);
     service->Run();
     result = true;
   }
@@ -902,7 +923,6 @@ void BackgroundWorker::RunIniTeXMF(const std::vector<std::string>& args)
   allArgs.insert(allArgs.end(), args.begin(), args.end());
   ProcessOutput<4096> output;
   int exitCode;
-  session->UnloadFilenameDatabase();
   Process::Run(initexmf, allArgs, &output, &exitCode, nullptr);
   if (exitCode != 0)
   {
@@ -1158,6 +1178,8 @@ bool UpdateWorker::Run()
         break;
       case PackageInstaller::UpdateInfo::ForceRemove:
         toBeRemoved.push_back(update.packageId);
+        break;
+      default:
         break;
       }
     }
@@ -2168,8 +2190,14 @@ void MainWindow::on_pushButtonOpenReport_clicked()
 
 void MainWindow::SetupUiCleanup()
 {
+  connect(ui->actionUserReset, SIGNAL(triggered()), this, SLOT(UserReset()));
   connect(ui->actionFactoryReset, SIGNAL(triggered()), this, SLOT(FactoryReset()));
   connect(ui->actionUninstall, SIGNAL(triggered()), this, SLOT(Uninstall()));
+}
+
+bool MainWindow::IsUserResetPossible()
+{
+  return session->IsSharedSetup() && !session->IsAdminMode();
 }
 
 bool MainWindow::IsFactoryResetPossible()
@@ -2192,14 +2220,110 @@ bool MainWindow::IsUninstallPossible()
 
 void MainWindow::UpdateUiCleanup()
 {
+  ui->buttonUserReset->setEnabled(IsUserResetPossible() && !IsBackgroundWorkerActive());
   ui->buttonFactoryReset->setEnabled(IsFactoryResetPossible() && !IsBackgroundWorkerActive());
   ui->buttonUninstall->setEnabled(IsUninstallPossible() && !IsBackgroundWorkerActive());
 }
 
 void MainWindow::UpdateActionsCleanup()
 {
+  ui->actionUserReset->setEnabled(IsUserResetPossible() && !IsBackgroundWorkerActive());
   ui->actionFactoryReset->setEnabled(IsFactoryResetPossible() && !IsBackgroundWorkerActive());
   ui->actionUninstall->setEnabled(IsUninstallPossible() && !IsBackgroundWorkerActive());
+}
+
+bool UserResetWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    shared_ptr<Session> session = Session::Get();
+    unique_ptr<SetupService> service = SetupService::Create();
+    SetupOptions options = service->GetOptions();
+    options.Task = SetupTask::CleanUp;
+    options.IsCommonSetup = session->IsAdminMode();
+    options.CleanupOptions = { CleanupOption::FileTypes, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
+    service->SetOptions(options);
+    service->SetCallback(this);
+    service->Run();
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::UserReset()
+{
+  QString message = tr("<h3>Reset personal MiKTeX configuration</h3>");
+  message += tr("<p>You are about to remove:</p>");
+  message += "<ul>";
+#if defined(MIKTEX_WINDOWS)
+  message += tr("<li>MiKTeX registry keys in <tt>HKEY_CURRENT_USER</tt></li>");
+#endif
+  set<PathName> roots{
+    session->GetSpecialPath(SpecialPath::UserConfigRoot),
+    session->GetSpecialPath(SpecialPath::UserDataRoot),
+    session->GetSpecialPath(SpecialPath::UserInstallRoot)
+  };
+  for (const PathName& r : roots)
+  {
+    if (Directory::Exists(r))
+    {
+      message += tr("<li>Directory <tt>%1</tt></li>").arg(QString::fromUtf8(r.ToDisplayString().c_str()));
+    }
+  }
+  message += "</ul>";
+  message += tr("<p>Are you sure?</p>");
+  if (QMessageBox::warning(this, tr("MiKTeX Console"), message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+  {
+    return;
+  }
+  try
+  {
+    QThread* thread = new QThread;
+    UserResetWorker* worker = new UserResetWorker;
+    backgroundWorkers++;
+    ui->labelBackgroundTask->setText(tr("Resetting personal MiKTeX configuration..."));
+    worker->moveToThread(thread);
+    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    connect(worker, &UserResetWorker::OnFinish, this, [this]() {
+      UserResetWorker* worker = (UserResetWorker*)sender();
+      if (worker->GetResult())
+      {
+        QMessageBox::information(this, tr("MiKTeX Console"), tr("The personal MiKTeX configuration has been resetted.\n\nThe application window will now be closed."));
+      }
+      else
+      {
+        QMessageBox::warning(this, tr("MiKTeX Console"), tr("Something went wrong while resetting your personal MiKTeX configuration.\n\nThe application window will now be closed."));
+      }
+      backgroundWorkers--;
+      session->UnloadFilenameDatabase();
+      worker->deleteLater();
+      saveSettingsOnClose = false;
+      isCleaningUp = true;
+      this->close();
+    });
+    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    UpdateUi();
+    UpdateActions();
+    thread->start();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
 }
 
 bool FactoryResetWorker::Run()
@@ -2214,6 +2338,7 @@ bool FactoryResetWorker::Run()
     options.IsCommonSetup = session->IsAdminMode();
     options.CleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
     service->SetOptions(options);
+    service->SetCallback(this);
     service->Run();
     result = true;
   }
@@ -2259,6 +2384,8 @@ void MainWindow::FactoryReset()
       backgroundWorkers--;
       session->UnloadFilenameDatabase();
       worker->deleteLater();
+      saveSettingsOnClose = false;
+      isCleaningUp = true;
       this->close();
     });
     connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
@@ -2289,6 +2416,7 @@ bool UninstallWorker::Run()
     options.IsCommonSetup = session->IsAdminMode();
     options.CleanupOptions = { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
     service->SetOptions(options);
+    service->SetCallback(this);
     service->Run();
     result = true;
   }
@@ -2350,16 +2478,6 @@ void MainWindow::Uninstall()
     CriticalError(e);
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 void MainWindow::ReadSettings()
 {

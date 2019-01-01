@@ -19,27 +19,24 @@
    Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
    USA.  */
 
-#define MIKTEXDVIEXPORT MIKTEXDLLEXPORT
-
 #include <atomic>
 #include <mutex>
 #include <stack>
 
 #include <miktex/Core/FileStream>
 #include <miktex/Core/TemporaryFile>
+#include <miktex/DVI/Dvi>
 #include <miktex/Trace/TraceStream>
 #include <miktex/Trace/Trace>
 
-#define A86DAFD3F286A340B6BD420E71BCD906
-#include "miktex/DVI/Dvi.h"
+using namespace std;
+using namespace std::string_literals;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::DVI;
 using namespace MiKTeX::Graphics;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
-using namespace std::string_literals;
 
 class DviFont;
 class DviImpl;

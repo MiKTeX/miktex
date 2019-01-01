@@ -34,6 +34,7 @@
 #include <vector>
 
 #include "MD5.h"
+#include "OptionSet.h"
 #include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
@@ -54,11 +55,17 @@ public:
   class MIKTEXNOVTABLE Value
   {
   public:
+    virtual MIKTEXTHISCALL ~Value() noexcept = 0;
+  public:
     virtual std::string MIKTEXTHISCALL GetName() const = 0;
   public:
     virtual std::string MIKTEXTHISCALL AsString() const = 0;
   public:
     virtual std::vector<std::string> AsStringVector() const = 0;
+  public:
+    virtual std::vector<std::string>::const_iterator MIKTEXTHISCALL begin() const = 0;
+  public:
+    virtual std::vector<std::string>::const_iterator MIKTEXTHISCALL end() const = 0;
   public:
     virtual std::string MIKTEXTHISCALL GetDocumentation() const = 0;
   public:
@@ -101,6 +108,8 @@ public:
 public:
   class MIKTEXNOVTABLE Key
   {
+  public:
+    virtual MIKTEXTHISCALL ~Key() noexcept = 0;
   public:
     virtual std::string MIKTEXTHISCALL GetName() const = 0;
   public:
@@ -151,6 +160,22 @@ public:
 
 public:
   virtual MIKTEXTHISCALL ~Cfg() noexcept = 0;
+
+public:
+  enum class Option
+  {
+    NoOverwriteKeys,
+    NoOverwriteValues
+  };
+
+public:
+  typedef OptionSet<Option> Options;
+
+public:
+  virtual Options MIKTEXTHISCALL GetOptions() const = 0;
+
+public:
+  virtual void MIKTEXTHISCALL SetOptions(Options options) = 0;
 
   /// Tests whether the Cfg object is empty.
 public:
@@ -239,6 +264,9 @@ public:
 
 public:
   virtual KeyIterator MIKTEXTHISCALL end() = 0;
+  
+public:
+  virtual std::size_t GetSize() const = 0;
 };
 
 MIKTEX_CORE_END_NAMESPACE;

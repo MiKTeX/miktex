@@ -2753,12 +2753,6 @@ void TeXDocument::typeset()
 		if (pdfDoc && pdfDoc->widget())
 			pdfDoc->widget()->setWatchForDocumentChangesOnDisk(false);
 
-#if defined(MIKTEX)
-		if (!MiKTeX::Core::Session::Get()->UnloadFilenameDatabase())
-		{
-		  // TODO: log
-		}
-#endif
 		process->start(exeFilePath, args);
 	}
 	else {

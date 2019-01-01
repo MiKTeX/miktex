@@ -19,28 +19,26 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <iostream>
 
+#include <miktex/Core/CsvList>
+#include <miktex/Core/Directory>
+#include <miktex/Core/PathName>
+#include <miktex/Core/PathNameParser>
+#include <miktex/Core/Paths>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
 
-#include "miktex/Core/CsvList.h"
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/PathName.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/PathNameParser.h"
-
 #include "Session/SessionImpl.h"
 #include "inliners.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 string Utils::Hexify(const void* pv, size_t nBytes, bool lowerCase)
 {
@@ -721,7 +719,7 @@ inline int GetC(FILE* stream)
   int ch = getc(stream);
   if (ferror(stream) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR("getc");
+    throw IOException();
   }
   return ch;
 }
@@ -731,7 +729,7 @@ inline void UnGetC(int ch, FILE* stream)
   int ch2 = ungetc(ch, stream);
   if (ch2 == EOF)
   {
-    MIKTEX_FATAL_CRT_ERROR("ungetc");
+    throw IOException();
   }
 }
 

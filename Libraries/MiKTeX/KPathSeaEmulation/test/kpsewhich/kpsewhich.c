@@ -1,7 +1,7 @@
 /* kpsewhich -- standalone path lookup and variable expansion for Kpathsea.
    Ideas from Thomas Esser, Pierre MacKay, and many others.
 
-   Copyright 1995-2010 Karl Berry & Olaf Weber.
+   Copyright 1995-2018 Karl Berry & Olaf Weber.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -28,21 +28,20 @@
 #include <kpathsea/tex-file.h>
 #include <kpathsea/tex-glyph.h>
 #include <kpathsea/variable.h>
-#include <kpathsea/progname.h>
 #include <kpathsea/version.h>
-
 #if defined(MIKTEX)
 #include <assert.h>
 //#  define assert MIKTEX_ASSERT
 #endif
 
 /* For variable and path expansion.  (-expand-var, -expand-path,
-   -show-path) */
+   -show-path, etc.)  */
 string var_to_expand = NULL;
 string braces_to_expand = NULL;
 string path_to_expand = NULL;
 string path_to_show = NULL;
 string var_to_value = NULL;
+string var_to_brace_value = NULL;
 
 /* Base resolution. (-D, -dpi) */
 unsigned dpi = 600;
@@ -133,7 +132,7 @@ static unsigned
 find_dpi (string s)
 {
   unsigned dpi_number = 0;
-  string extension = find_suffix (s);
+  const_string extension = find_suffix (s);
 
   if (extension != NULL)
     sscanf (extension, "%u", &dpi_number);
@@ -143,11 +142,47 @@ find_dpi (string s)
 
 
 
+/* Return true if FTRY (the candidate suffix) matches NAME.  If
+   IS_FILENAME is true, the check is simply that FTRY is a suffix of
+   NAME.  If false (that is, NAME is a format), then FTRY and NAME must
+   be entirely equal.  */
+
+static boolean
+try_suffix (boolean is_filename, string name, unsigned name_len,
+            const_string ftry)
+{
+  unsigned try_len;
+  
+  if (!ftry || ! *ftry) {
+    return false;
+  }
+  
+  try_len = strlen (ftry);
+  if (try_len > name_len) {
+    /* Candidate is longer than what we're looking for.  */
+    return false;
+  }
+  if (!is_filename && try_len < name_len) {
+    /* We're doing format names, not file names, and candidate is
+       shorter than what we're looking for.  E.g., do not find `lua'
+       when looking for `clua'.  */
+    return false;
+  }
+  
+  if (FILESTRCASEEQ (name + name_len - try_len, ftry)) {
+    return true;
+  }
+  
+  return false;
+}
+
+
+
 /* Use the file type from -format if that was previously determined
    (i.e., the user_format global variable), else guess dynamically from
    NAME.  Return kpse_last_format if undeterminable.  This function is
-   also used to parse the -format string, a case which we distinguish by
-   setting is_filename to false.
+   also used to parse the -format string, a case we distinguish via
+   is_filename being false.
 
    A few filenames have been hard-coded for format types that
    differ from what would be inferred from their extensions. */
@@ -190,15 +225,7 @@ find_format (kpathsea kpse, string name, boolean is_filename)
       int f = 0;  /* kpse_file_format_type */
       unsigned name_len = strlen (name);
 
-/* Have to rely on `try_len' being declared here, since we can't assume
-   GNU C and statement expressions.  */
-#define TRY_SUFFIX(ftry) (\
-  try_len = (ftry) ? strlen (ftry) : 0, \
-  (ftry) && try_len <= name_len \
-     && FILESTRCASEEQ (ftry, name + name_len - try_len))
-
       while (f != kpse_last_format) {
-        unsigned try_len;
         const_string *ext;
         const_string ftry;
         boolean found = false;
@@ -206,8 +233,11 @@ find_format (kpathsea kpse, string name, boolean is_filename)
         if (!kpse->format_info[f].type)
           kpathsea_init_format (kpse, (kpse_file_format_type) f);
 
+/* Just to abbreviate this lengthy call.  */
+#define TRY_SUFFIX(ftry) try_suffix (is_filename, name, name_len, (ftry))
+
         if (!is_filename) {
-          /* Allow the long name, but only in the -format option.  We don't
+          /* Allow the long name, but only in the format options.  We don't
              want a filename confused with a format name.  */
           ftry = kpse->format_info[f].type;
           found = TRY_SUFFIX (ftry);
@@ -240,20 +270,31 @@ find_format (kpathsea kpse, string name, boolean is_filename)
    We don't reallocate the actual strings, just the list elements.
    Perhaps later we will implement wildcards or // or something.  */
 
+#if !defined(MIKTEX) && defined(WIN32)
 static string *
-subdir_match (str_list_type subdirs,  string *matches)
+kpathsea_subdir_match (kpathsea kpse, str_list_type subdirs,  string *matches)
 {
   string *ret = XTALLOC1 (string);
   unsigned len = 1;
+  unsigned e;
   unsigned m;
+  string p;
+
+  for (e = 0; e < STR_LIST_LENGTH (subdirs); e++) {
+    for (p = STR_LIST_ELT (subdirs, e); *p; p++) {
+      if (*p == '\\')
+        *p = '/';
+      else if (kpathsea_IS_KANJI(kpse, p))
+        p++;
+    }
+  }
 
   for (m = 0; matches[m]; m++) {
     unsigned loc;
-    unsigned e;
     string s = xstrdup (matches[m]);
-    for (loc = strlen (s); loc > 0 && !IS_DIR_SEP (s[loc-1]); loc--)
+    for (loc = strlen (s); loc > 0 && !IS_DIR_SEP_CH (s[loc-1]); loc--)
       ;
-    while (loc > 0 && IS_DIR_SEP (s[loc-1])) {
+    while (loc > 0 && IS_DIR_SEP_CH (s[loc-1])) {
       loc--;
     }
     s[loc] = 0;  /* wipe out basename */
@@ -261,7 +302,7 @@ subdir_match (str_list_type subdirs,  string *matches)
     for (e = 0; e < STR_LIST_LENGTH (subdirs); e++) {
       string subdir = STR_LIST_ELT (subdirs, e);
       unsigned subdir_len = strlen (subdir);
-      while (subdir_len > 0 && IS_DIR_SEP (subdir[subdir_len-1])) {
+      while (subdir_len > 0 && IS_DIR_SEP_CH (subdir[subdir_len-1])) {
         subdir_len--;
         subdir[subdir_len] = 0; /* remove trailing slashes from subdir spec */
       }
@@ -278,9 +319,50 @@ subdir_match (str_list_type subdirs,  string *matches)
   return ret;
 }
 
+#else /* WIN32 */
+static string *
+subdir_match (str_list_type subdirs,  string *matches)
+{
+  string *ret = XTALLOC1 (string);
+  unsigned len = 1;
+  unsigned e;
+  unsigned m;
+
+  for (m = 0; matches[m]; m++) {
+    unsigned loc;
+    string s = xstrdup (matches[m]);
+    for (loc = strlen (s); loc > 0 && !IS_DIR_SEP_CH (s[loc-1]); loc--)
+      ;
+    while (loc > 0 && IS_DIR_SEP_CH (s[loc-1])) {
+      loc--;
+    }
+    s[loc] = 0;  /* wipe out basename */
+
+    for (e = 0; e < STR_LIST_LENGTH (subdirs); e++) {
+      string subdir = STR_LIST_ELT (subdirs, e);
+      unsigned subdir_len = strlen (subdir);
+      while (subdir_len > 0 && IS_DIR_SEP_CH (subdir[subdir_len-1])) {
+        subdir_len--;
+        subdir[subdir_len] = 0; /* remove trailing slashes from subdir spec */
+      }
+      if (FILESTRCASEEQ (subdir, s + loc - subdir_len)) {
+        /* matched, save this one.  */
+        XRETALLOC (ret, len + 1, string);
+        ret[len-1] = matches[m];
+        len++;
+      }
+    }
+    free (s);
+  }
+  ret[len-1] = NULL;
+  return ret;
+}
+#endif /* WIN32 */
 
 
-/* Look up a single filename NAME.  Return 0 if success, 1 if failure.  */
+/* Look up a single filename NAME, filtering by given subdirectories if
+   -subdir was specified.  Print all matches if global `show_all' is
+   true, else just the first match.  Return 0 if success, 1 if failure.  */
 
 static unsigned
 lookup (kpathsea kpse, string name)
@@ -315,12 +397,22 @@ lookup (kpathsea kpse, string name)
       case kpse_any_glyph_format:
         {
           kpse_glyph_file_type glyph_ret;
+          string temp = remove_suffix (name);
           /* Try to extract the resolution from the name.  */
           unsigned local_dpi = find_dpi (name);
           if (!local_dpi)
             local_dpi = dpi;
-          ret = kpathsea_find_glyph (kpse, remove_suffix (name),
+          if (show_all) {
+            /* Because the whole glyph lookup thing is too complicated
+               to try all the alternatives (cmr10.600pk vs.
+               dpi600/cmr10.pk, just for starters).  Patches welcome :).  */
+            WARNING1 ("kpsewhich: Ignoring --all for bitmap font, sorry: %s",
+                      name);
+          }
+          ret = kpathsea_find_glyph (kpse, temp,
                                      local_dpi, fmt, &glyph_ret);
+          if (temp != name)
+            free (temp);
         }
         break;
 
@@ -347,8 +439,12 @@ lookup (kpathsea kpse, string name)
   }
 
   /* Filter by subdirectories, if specified.  */
-  if (STR_LIST_LENGTH (subdir_paths) > 0) {
+  if (!STR_LIST_EMPTY (subdir_paths)) {
+#if !defined(MIKTEX) && defined(WIN32)
+    string *new_list = kpathsea_subdir_match (kpse, subdir_paths, ret_list);
+#else
     string *new_list = subdir_match (subdir_paths, ret_list);
+#endif /* WIN32 */
     free (ret_list);
     ret_list = new_list;
   }
@@ -356,7 +452,17 @@ lookup (kpathsea kpse, string name)
   /* Print output.  */
   if (ret_list) {
     for (i = 0; ret_list[i]; i++)
+#if defined(MIKTEX)
+    {
+      puts(ret_list[i]);
+    }
+#else
+#ifdef WIN32
+      kpathsea_win32_puts (kpse, ret_list[i]);
+#else
       puts (ret_list[i]);
+#endif
+#endif
     /* Save whether we found anything */
     ret = ret_list[0];
     free (ret_list);
@@ -368,7 +474,7 @@ lookup (kpathsea kpse, string name)
 /* Help message.  */
 
 #define USAGE "\n\
-Standalone path lookup and expansion for Kpathsea.\n\
+Standalone path lookup and expansion for the Kpathsea library.\n\
 The default is to look up each FILENAME in turn and report its\n\
 first match (if any) to standard output.\n\
 \n\
@@ -376,15 +482,17 @@ When looking up format (.fmt/.base/.mem) files, it is usually necessary\n\
 to also use -engine, or nothing will be returned; in particular,\n\
 -engine=/ will return matching format files for any engine.\n\
 \n\
--all                   output all matches, one per line.\n\
+-all                   output all matches, one per line (no effect with pk/gf).\n\
+[-no]-casefold-search  fall back to case-insensitive search if no exact match.\n\
 -debug=NUM             set debugging flags.\n\
 -D, -dpi=NUM           use a base resolution of NUM; default 600.\n\
 -engine=STRING         set engine name to STRING.\n\
 -expand-braces=STRING  output variable and brace expansion of STRING.\n\
 -expand-path=STRING    output complete path expansion of STRING.\n\
 -expand-var=STRING     output variable expansion of STRING.\n\
--format=NAME           use file type NAME (see list below).\n\
--help                  print this message and exit.\n\
+-format=NAME           use file type NAME (list shown by -help-formats).\n\
+-help                  display this message and exit.\n\
+-help-formats          display information about all supported file formats.\n\
 -interactive           ask for additional filenames to look up.\n\
 [-no]-mktex=FMT        disable/enable mktexFMT generation (FMT=pk/mf/tex/tfm).\n\
 -mode=STRING           set device name for $MAKETEX_MODE to STRING; no default.\n\
@@ -393,29 +501,42 @@ to also use -engine, or nothing will be returned; in particular,\n\
 -progname=STRING       set program name to STRING.\n\
 -safe-in-name=STRING   check if STRING is ok to open for input.\n\
 -safe-out-name=STRING  check if STRING is ok to open for output.\n\
--show-path=NAME        output search path for file type NAME (list below).\n\
+-show-path=TYPE        output search path for file type TYPE\n\
+                         (list shown by -help-formats).\n\
 -subdir=STRING         only output matches whose directory ends with STRING.\n\
--var-value=STRING      output the value of variable $STRING.\n\
--version               print version number and exit.\n \
+-var-brace-value=STRING output brace-expanded value of variable $STRING.\n\
+-var-value=STRING       output variable-expanded value of variable $STRING.\n\
+-version               display version information number and exit.\n \
 "
 
 static void
 help_message (kpathsea kpse, string *argv)
 {
-  int f; /* kpse_file_format_type */
-
   printf ("Usage: %s [OPTION]... [FILENAME]...\n", argv[0]);
   fputs (USAGE, stdout);
   putchar ('\n');
   fputs (kpathsea_bug_address, stdout);
+  fputs ("Kpathsea home page: https://tug.org/kpathsea/\n", stdout);
+  exit (0);
+}
+
+static void
+help_formats (kpathsea kpse, string *argv)
+{
+  int f; /* kpse_file_format_type */
 
   /* Have to set this for init_format to work.  */
   kpathsea_set_program_name (kpse, argv[0], progname);
 
-  puts ("\nRecognized format names and their (abbreviations) and suffixes:");
+  puts (kpathsea_version_string); 
+  puts ("\nRecognized Kpathsea format names and their (abbreviations) and suffixes:");
   for (f = 0; f < kpse_last_format; f++) {
     const_string *ext;
-    kpathsea_init_format (kpse, (kpse_file_format_type)f);
+
+#if !defined(MIKTEX)
+    const_string envvar_list = 
+      kpathsea_init_format_return_varlist (kpse, (kpse_file_format_type) f);
+#endif
     printf ("%s", kpse->format_info[f].type);
 
     /* Show abbreviation if we accept one.  We repeatedly go through the
@@ -435,7 +556,15 @@ help_message (kpathsea kpse, string *argv)
     putchar (':');
     for (ext = kpse->format_info[f].suffix; ext && *ext; ext++) {
       putchar (' ');
+#if defined(MIKTEX)
+      fputs(*ext, stdout);
+#else
+#ifdef WIN32
+      kpathsea_win32_fputs (kpse, *ext, stdout);
+#else
       fputs (*ext, stdout);
+#endif
+#endif
     }
 
     if (kpse->format_info[f].alt_suffix) {
@@ -444,12 +573,29 @@ help_message (kpathsea kpse, string *argv)
     }
     for (ext = kpse->format_info[f].alt_suffix; ext && *ext; ext++) {
       putchar (' ');
+#if defined(MIKTEX)
+      fputs(*ext, stdout);
+#else
+#ifdef WIN32
+      kpathsea_win32_fputs (kpse, *ext, stdout);
+#else
       fputs (*ext, stdout);
+#endif
+#endif
     }
 
-    putchar ('\n');
+#if !defined(MIKTEX)
+    printf ("  [variables: %s]\n", envvar_list);
+#endif
+
+#if !defined(MIKTEX)
+    printf ("  [original path (from %s) = %s]\n",
+            kpse->format_info[f].path_source, kpse->format_info[f].raw_path);
+#endif
   }
 
+  fputs ("\nTo see paths after expansion, use --show-path=FMT.\n\n", stdout);
+  fputs (kpathsea_bug_address, stdout);
   exit (0);
 }
 
@@ -465,6 +611,7 @@ help_message (kpathsea kpse, string *argv)
 static struct option long_options[]
   = { { "D",                    1, 0, 0 },
       { "all",                  0, (int *) &show_all, 1 },
+      { "casefold-search",      0, 0, 0 },
       { "debug",                1, 0, 0 },
       { "dpi",                  1, 0, 0 },
       { "engine",               1, 0, 0 },
@@ -473,17 +620,20 @@ static struct option long_options[]
       { "expand-var",           1, 0, 0 },
       { "format",               1, 0, 0 },
       { "help",                 0, 0, 0 },
+      { "help-formats",         0, 0, 0 },
       { "interactive",          0, (int *) &interactive, 1 },
       { "mktex",                1, 0, 0 },
       { "mode",                 1, 0, 0 },
       { "must-exist",           0, (int *) &must_exist, 1 },
       { "path",                 1, 0, 0 },
+      { "no-casefold-search",   0, 0, 0 },
       { "no-mktex",             1, 0, 0 },
       { "progname",             1, 0, 0 },
       { "safe-in-name",         1, 0, 0 },
       { "safe-out-name",        1, 0, 0 },
       { "subdir",               1, 0, 0 },
       { "show-path",            1, 0, 0 },
+      { "var-brace-value",      1, 0, 0 },
       { "var-value",            1, 0, 0 },
       { "version",              0, 0, 0 },
       { 0, 0, 0, 0 } };
@@ -505,7 +655,13 @@ read_command_line (kpathsea kpse, int argc, string *argv)
 
     assert (g == 0); /* We have no short option names.  */
 
-    if (ARGUMENT_IS ("debug")) {
+    if (ARGUMENT_IS ("casefold-search")) {
+      /* We can't just a boolean for casefold-search because we want to
+         distinguish it being set with an option vs. leaving the default
+         (by default).  */
+      xputenv ("texmf_casefold_search", "1");      
+
+    } else if (ARGUMENT_IS ("debug")) {
       kpse->debug |= atoi (optarg);
 
     } else if (ARGUMENT_IS ("dpi") || ARGUMENT_IS ("D")) {
@@ -529,12 +685,18 @@ read_command_line (kpathsea kpse, int argc, string *argv)
     } else if (ARGUMENT_IS ("help")) {
       help_message (kpse, argv);
 
+    } else if (ARGUMENT_IS ("help-formats")) {
+      help_formats (kpse, argv);
+
     } else if (ARGUMENT_IS ("mktex")) {
       kpathsea_maketex_option (kpse, optarg, true);
       must_exist = 1;  /* otherwise it never gets called */
 
     } else if (ARGUMENT_IS ("mode")) {
       mode = optarg;
+
+    } else if (ARGUMENT_IS ("no-casefold-search")) {
+      xputenv ("texmf_casefold_search", "0");      
 
     } else if (ARGUMENT_IS ("no-mktex")) {
       kpathsea_maketex_option (kpse, optarg, false);
@@ -559,13 +721,16 @@ read_command_line (kpathsea kpse, int argc, string *argv)
     } else if (ARGUMENT_IS ("subdir")) {
       str_list_add (&subdir_paths, optarg);
 
+    } else if (ARGUMENT_IS ("var-brace-value")) {
+      var_to_brace_value = optarg;
+
     } else if (ARGUMENT_IS ("var-value")) {
       var_to_value = optarg;
 
     } else if (ARGUMENT_IS ("version")) {
       puts (kpathsea_version_string);
-      puts ("Copyright 2010 Karl Berry & Olaf Weber.\n\
-License LGPLv2.1+: GNU Lesser GPL version 2.1 or later <http://gnu.org/licenses/lgpl.html>\n\
+      puts ("Copyright 2018 Karl Berry & Olaf Weber.\n\
+License LGPLv2.1+: GNU Lesser GPL version 2.1 or later <https://gnu.org/licenses/lgpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n");
       exit (0);
@@ -583,7 +748,7 @@ There is NO WARRANTY, to the extent permitted by law.\n");
 
   if (optind == argc
       && !var_to_expand && !braces_to_expand && !path_to_expand
-      && !path_to_show && !var_to_value
+      && !path_to_show && !var_to_value && !var_to_brace_value
       && !safe_in_name && !safe_out_name) {
     fputs ("Missing argument. Try `kpsewhich --help' for more information.\n",
            stderr);
@@ -637,13 +802,42 @@ int
 main (int argc,  string *argv)
 #endif
 {
+#if !defined(MIKTEX)
+#ifdef WIN32
+#define puts(s) kpathsea_win32_puts(kpse, (s))
+  string *av, enc;
+  int ac;
+#endif /* WIN32 */
+#endif
   unsigned unfound = 0;
-  kpathsea kpse = kpathsea_new();
+  kpathsea kpse = kpathsea_new ();
 
   /* Read options, then dependent initializations.  */
   read_command_line (kpse, argc, argv);
 
   kpathsea_set_program_name (kpse, argv[0], progname);
+#if !defined(MIKTEX)
+#ifdef WIN32
+  if(strstr(kpse->program_name,"xetex") || strstr(kpse->program_name,"xelatex")
+     || strstr(kpse->program_name,"uptex") || strstr(kpse->program_name,"uplatex")
+     || strstr(kpse->program_name,"pdftex") || strstr(kpse->program_name,"pdflatex")
+     || strstr(kpse->program_name,"dvipdfm") || strstr(kpse->program_name,"extractbb")
+     || strstr(kpse->program_name,"xbb") || strstr(kpse->program_name,"ebb")
+     || strstr(kpse->program_name,"dvips") || strstr(kpse->program_name,"upmendex"))
+  {
+    if (strstr(kpse->program_name,"upmendex"))
+      enc = "utf-8";
+    else
+      enc = kpathsea_var_value (kpse, "command_line_encoding");
+    if (kpathsea_get_command_line_args_utf8(kpse, enc, &ac, &av)) {
+      optind = 0;
+      read_command_line (kpse, ac, av);
+      argv = av;
+      argc = ac;
+    }
+  }
+#endif /* WIN32 */
+#endif
   init_more (kpse);
 
 
@@ -664,20 +858,42 @@ main (int argc,  string *argv)
   /* Show a search path. */
   if (path_to_show) {
     if (user_format != kpse_last_format) {
-      if (!kpse->format_info[user_format].type) /* needed if arg was numeric */
+      if (!kpse->format_info[user_format].type) {
+        /* needed if arg was numeric */
         kpathsea_init_format (kpse, user_format);
+      }
       puts (kpse->format_info[user_format].path);
     } else {
-      WARNING ("kpsewhich: Cannot show path for unknown file type");
+      WARNING1 ("kpsewhich: Unknown file type, cannot show path: %s",
+                path_to_show);
     }
   }
 
-  /* Var to value. */
+  /* Var to value.  */
   if (var_to_value) {
     const_string value = kpathsea_var_value (kpse, var_to_value);
     if (!value) {
       unfound++;
       value = "";
+    }
+    puts (value);
+  }
+
+  /* Var to brace-expanded value. This is separate from --var-value for
+     compatibility; people use --var-value for non-path values, where
+     changing commas to colons, which brace expansion does, is not right.  */
+  if (var_to_brace_value) {
+    const_string value = kpathsea_var_value (kpse, var_to_brace_value);
+    if (!value) {
+      unfound++;
+      value = "";
+    } else {
+      /* Sometimes users want the fully-expanded (as a string, no
+         filesystem checks) value.  We can't call brace_expand as part of
+         kpathsea_var_value, though, because unfortunately it is not
+         reentrant.  We use var_value in lots of places in the source,
+         and it clobbers the static buffer in the kpse structure.  */
+      value = kpathsea_brace_expand (kpse, value);
     }
     puts (value);
   }
@@ -694,7 +910,7 @@ main (int argc,  string *argv)
 
   /* --subdir must imply --all, since we filter here after doing the
      search, rather than inside the search itself.  */
-  if (STR_LIST_LENGTH (subdir_paths) > 0) {
+  if (!STR_LIST_EMPTY (subdir_paths)) {
     show_all = 1;
   }
 

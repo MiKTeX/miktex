@@ -28,8 +28,6 @@ add_definitions(
   -DUSE_MIKTEX_EXIT
 )
 
-ignore_warnings()
-
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
     -DWIN32

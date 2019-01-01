@@ -37,8 +37,6 @@ add_definitions(
   -DHAVE_CONFIG_H
 )
 
-ignore_warnings()
-
 set(public_headers
   popt.h
 )

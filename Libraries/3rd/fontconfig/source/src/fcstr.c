@@ -26,7 +26,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-
+#if defined(MIKTEX_WINDOWS)
+static void FcConvertDosPath(char* str);
+#endif
 
 /* Objects MT-safe for readonly access. */
 
@@ -937,6 +939,9 @@ bail1:
 bail0:
     FcStrSetDestroy (sset);
 
+#if defined(MIKTEX_WINDOWS)
+    FcConvertDosPath(ret);
+#endif
     return ret;
 }
 
@@ -1115,7 +1120,8 @@ FcStrCanonFilename (const FcChar8 *s)
   wchar_t fullW[FC_MAX_FILE_LEN + 2];
   miktex_utf8_to_wide_char(s, FC_MAX_FILE_LEN + 2, sw);
   int size = GetFullPathNameW(sw, FC_MAX_FILE_LEN + 2, fullW, NULL);
-  if (size == 0) {
+  if (size == 0)
+  {
     perror("GetFullPathNameW");
   }
   miktex_wide_char_to_utf8(fullW, FC_MAX_FILE_LEN + 2, full);

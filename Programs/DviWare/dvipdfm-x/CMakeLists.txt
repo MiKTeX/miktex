@@ -56,8 +56,6 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-ignore_warnings()
-
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}

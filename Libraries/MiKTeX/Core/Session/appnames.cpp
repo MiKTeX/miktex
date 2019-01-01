@@ -19,17 +19,16 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include "internal.h"
 
 #include "Session/SessionImpl.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 inline void AppendTag(string& str, const string& tag)
 {

@@ -38,13 +38,15 @@
 #  include <atlcom.h>
 #endif
 
-#include "miktex/Core/Cfg.h"
-#include "miktex/Core/Session.h"
-#include "miktex/Core/Stream.h"
-#include "miktex/Core/equal_icase.h"
-#include "miktex/Core/hash_icase.h"
-
+// FIXME: must come first
 #include "core-version.h"
+
+#include <miktex/Core/Cfg>
+#include <miktex/Core/Session>
+#include <miktex/Core/Stream>
+#include <miktex/Core/equal_icase>
+#include <miktex/Core/hash_icase>
+
 #include "Fndb/FileNameDatabase.h"
 #include "RootDirectoryInternals.h"
 
@@ -58,7 +60,8 @@ BEGIN_INTERNAL_NAMESPACE;
 namespace MiKTeXSessionLib = MAKE_CURVER_ID(MiKTeXSession);
 #endif
 
-struct FormatInfo_ : public MiKTeX::Core::FormatInfo
+struct FormatInfo_ :
+  public MiKTeX::Core::FormatInfo
 {
 public:
   FormatInfo_()
@@ -105,7 +108,8 @@ inline bool operator<(const LanguageInfo_& lhs, const LanguageInfo_& rhs)
   return lhs.key < rhs.key;
 }
 
-struct InternalFileTypeInfo : public MiKTeX::Core::FileTypeInfo
+struct InternalFileTypeInfo :
+  public MiKTeX::Core::FileTypeInfo
 {
 public:
   std::vector<MiKTeX::Core::PathName> searchVec;
@@ -232,12 +236,6 @@ public:
 
 public:
   FILE* TryOpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile) override;
-
-public:
-  FILE* OpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile, MiKTeX::Core::FileShare share) override;
-
-public:
-  FILE* TryOpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile, MiKTeX::Core::FileShare share) override;
 
 public:
   std::pair<bool, OpenFileInfo> TryGetOpenFileInfo(FILE* file) override;
@@ -432,18 +430,8 @@ public:
 public:
   bool TryCreateFromTemplate(const MiKTeX::Core::PathName& path) override;
 
-#if defined(MIKTEX_WINDOWS)
-public:
-  bool RunningAsPowerUser() override;
-#endif
-
 public:
   bool IsUserAnAdministrator() override;
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  bool IsUserAPowerUser() override;
-#endif
 
 public:
   void ConfigureFile(const MiKTeX::Core::PathName& pathIn, const MiKTeX::Core::PathName& pathOut, MiKTeX::Core::HasNamedValues* callback) override;
@@ -492,6 +480,12 @@ public:
   std::tuple<ExamineCommandLineResult, std::string, std::string> ExamineCommandLine(const std::string& commandLine) override;
 
 public:
+  InitInfo GetInitInfo() const
+  {
+    return initInfo;
+  }
+  
+public:
   bool IsTEXMFFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& relPath, unsigned& rootIndex);
 
 public:
@@ -510,13 +504,13 @@ public:
   }
 
 public:
-  bool UnloadFilenameDatabaseInternal(unsigned r, bool remove);
+  bool UnloadFilenameDatabaseInternal(unsigned r);
 
 private:
-  bool UnloadFilenameDatabaseInternal_nolock(unsigned r, bool remove);
+  bool UnloadFilenameDatabaseInternal_nolock(unsigned r);
 
 public:
-  std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r, MiKTeX::Core::TriState triReadOnly);
+  std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r);
 
 public:
   std::shared_ptr<FileNameDatabase> GetFileNameDatabase(const char* path);
@@ -592,8 +586,8 @@ public:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mem;
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mmap;
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_process;
+  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_stopwatch;
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_tempfile;
-  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_time;
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_values;
 
 public:
@@ -850,9 +844,6 @@ private:
   bool IsTeXMFReadOnly(unsigned r);
 
 private:
-  std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r);
-
-private:
   std::pair<bool, MiKTeX::Core::PathName> TryGetBinDirectory(bool canonicalized);
 
 private:
@@ -1010,16 +1001,6 @@ private:
 
 private:
   MiKTeX::Core::TriState isUserAnAdministrator = MiKTeX::Core::TriState::Undetermined;
-
-#if defined(MIKTEX_WINDOWS)
-private:
-  MiKTeX::Core::TriState runningAsPowerUser = MiKTeX::Core::TriState::Undetermined;
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-private:
-  MiKTeX::Core::TriState isUserAPowerUser = MiKTeX::Core::TriState::Undetermined;
-#endif
 
 private:
   MiKTeX::Core::TriState isSharedSetup = MiKTeX::Core::TriState::Undetermined;

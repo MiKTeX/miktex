@@ -142,6 +142,8 @@ struct ProcessStartInfo
 
   /// Working directory for the process.
   std::string WorkingDirectory;
+  
+  bool Daemonize = false;
 
   ProcessStartInfo()
   {
@@ -151,6 +153,23 @@ struct ProcessStartInfo
     FileName(fileName.ToString())
   {
   }
+};
+
+enum class ProcessStatus
+{
+  None,
+  Runnable,
+  Sleeping,
+  Stoped,
+  Zombie,
+  Other
+};
+
+struct ProcessInfo
+{
+  std::string name;
+  ProcessStatus status = ProcessStatus::None;
+  int parent = -1;
 };
 
 /// Process class.
@@ -200,6 +219,9 @@ public:
 
 public:
   virtual std::string MIKTEXTHISCALL get_ProcessName() = 0;
+  
+public:
+  virtual ProcessInfo MIKTEXTHISCALL GetProcessInfo() = 0;
 
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Process>) GetCurrentProcess();

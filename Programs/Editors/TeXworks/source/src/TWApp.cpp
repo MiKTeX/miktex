@@ -166,16 +166,15 @@ void TWApp::init()
 #if defined(MIKTEX)
 	else
 	{
-          std::shared_ptr<MiKTeX::Core::Session> pSession = MiKTeX::Core::Session::Get();
-	  if (pSession->IsMiKTeXPortable())
-	  {
-	    setSettingsFormat (QSettings::IniFormat);
-	    MiKTeX::Core::PathName path = pSession->GetSpecialPath(MiKTeX::Core::SpecialPath::UserConfigRoot);
-	    QSettings::setPath (QSettings::IniFormat, QSettings::UserScope, path.GetData());
-	  }
-          if (!pSession->UnloadFilenameDatabase())
+          std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+          if (!session->IsAdminMode())
           {
-            //TODO: log
+            if (session->IsMiKTeXPortable())
+            {
+              setSettingsFormat(QSettings::IniFormat);
+              MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::UserConfigRoot);
+              QSettings::setPath (QSettings::IniFormat, QSettings::UserScope, path.GetData());
+            }
           }
 	}
 #endif
@@ -894,10 +893,6 @@ void TWApp::setDefaultPaths()
 	    {
 	      binaryPaths->prepend(dir.GetData());
 	    }
-            if (!pSession->UnloadFilenameDatabase())
-            {
-              //TODO: log
-            }
         }
 #else
 		foreach (const QString& s, QString(DEFAULT_BIN_PATHS).split(PATH_LIST_SEP, QString::SkipEmptyParts)) {

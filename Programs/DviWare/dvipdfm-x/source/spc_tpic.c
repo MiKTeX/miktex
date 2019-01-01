@@ -177,7 +177,7 @@ set_fillstyle (double g, double a, int f_ais)
 {
   pdf_obj *dict;
   char     resname[32];
-  char     buf[32];
+  char     buf[256];
   int      alp, len = 0;
 
   if (a > 0.0) {

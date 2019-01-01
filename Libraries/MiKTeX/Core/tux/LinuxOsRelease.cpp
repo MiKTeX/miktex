@@ -19,20 +19,18 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <iomanip>
 
+#include <miktex/Core/Cfg>
+#include <miktex/Core/tux/LinuxOsRelease>
+
 #include "internal.h"
 
-#include "miktex/Core/Cfg.h"
-#include "miktex/Core/tux/LinuxOsRelease.h"
-
-using namespace MiKTeX::Core;
 using namespace std;
 
+using namespace MiKTeX::Core;
 
 string Unquote(const string& s)
 {

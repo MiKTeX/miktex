@@ -19,20 +19,37 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <cstdarg>
+
+#include <algorithm>
+#include <codecvt>
+#include <locale>
+#include <string>
+#include <vector>
+
+#define A7C88F5FBE5C45EB970B3796F331CD89
+#include "miktex/Util/config.h"
+
+#if defined(MIKTEX_UTIL_SHARED)
+#  define MIKTEXUTILEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXUTILEXPORT
+#endif
+
+#include "miktex/Util/CharBuffer.h"
+#include "miktex/Util/StringUtil.h"
+#include "miktex/Util/Tokenizer.h"
+#include "miktex/Util/inliners.h"
+
 #include "internal.h"
+
+using namespace std;
+
+using namespace MiKTeX::Util;
 
 string StringUtil::Flatten(const std::vector<std::string>& vec, char sep)
 {
-  string result;
-  for (const string& s : vec)
-  {
-    if (!result.empty())
-    {
-      result += sep;
-    }
-    result += s;
-  }
-  return result;
+  return std::for_each(vec.begin(), vec.end(), Flattener(sep)).result;
 }
 
 vector<string> StringUtil::Split(const std::string& s, char sep)
@@ -235,7 +252,7 @@ string StringUtil::FormatString2(const string& message, const unordered_map<stri
   {
     if (inPlaceholder)
     {
-      if (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_')
+      if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_')
       {
         tmp += ch;
       }
@@ -282,7 +299,7 @@ u16string StringUtil::UTF8ToUTF16(const char* utf8Chars)
 {
   try
   {
-#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1915
+#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1916
     wstring_convert<codecvt_utf8_utf16<int16_t>, int16_t> conv;
     u16string result;
     for (auto& ch : conv.from_bytes(utf8Chars))
@@ -305,7 +322,7 @@ string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
 {
   try
   {
-#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1915
+#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1916
     // workround for VS2015 bug: 
     // http://stackoverflow.com/questions/32055357/visual-studio-c-2015-stdcodecvt-with-char16-t-or-char32-t
     wstring_convert<codecvt_utf8_utf16<int16_t>, int16_t> conv;
@@ -326,7 +343,7 @@ u32string StringUtil::UTF8ToUTF32(const char* utf8Chars)
 {
   try
   {
-#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1915
+#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1916
     wstring_convert<codecvt_utf8<int32_t>, int32_t> conv;
     u32string result;
     for (auto& ch : conv.from_bytes(utf8Chars))
@@ -349,7 +366,7 @@ string StringUtil::UTF32ToUTF8(const char32_t* utf32Chars)
 {
   try
   {
-#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1915
+#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1916
     wstring_convert<codecvt_utf8<int32_t>, int32_t> conv;
     const int32_t* p = (const int32_t*)utf32Chars;
     return conv.to_bytes(p, p + StrLen(utf32Chars));

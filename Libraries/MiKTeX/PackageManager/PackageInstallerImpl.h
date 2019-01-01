@@ -128,7 +128,7 @@ public:
   void MIKTEXTHISCALL DownloadAsync() override;
 
 private:
-  void StartWorkerThread(void (PackageInstallerImpl::*method) ());
+  void StartWorkerThread(void (PackageInstallerImpl::*method)());
 
 public:
   ProgressInfo MIKTEXTHISCALL GetProgressInfo() override
@@ -167,22 +167,22 @@ public:
   void OnProgress() override;
 
 public:
-  void MIKTEXTHISCALL OnBeginFileExtraction(const std::string& fileName, size_t uncompressedSize) override;
+  void MIKTEXTHISCALL OnBeginFileExtraction(const std::string& fileName, std::size_t uncompressedSize) override;
 
 public:
-  void MIKTEXTHISCALL OnEndFileExtraction(const std::string& fileName, size_t uncompressedSize) override;
+  void MIKTEXTHISCALL OnEndFileExtraction(const std::string& fileName, std::size_t uncompressedSize) override;
 
 public:
   bool MIKTEXTHISCALL OnError(const std::string& message) override;
 
 public:
-  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n) override;
+  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, std::size_t n) override;
 
 private:
   void NeedRepository();
 
 private:
-  void UpdateMpmFndb(const std::vector<std::string>& installedFiles, const std::vector<std::string>& removedFiles, const char* lpszPackageName);
+  void UpdateFndb(const std::unordered_set<MiKTeX::Core::PathName>& installedFiles, const std::unordered_set<MiKTeX::Core::PathName>& removedFiles, const std::string& packageId);
 
 private:
   void CalculateExpenditure(bool downloadOnly = false);
@@ -304,18 +304,10 @@ private:
   void RunIniTeXMF(const std::vector<std::string>& arguments);
 
 private:
-  bool autoFndbSync;
+  std::unordered_set<MiKTeX::Core::PathName> installedFiles;
 
 private:
-  void SetAutoFndbSync(bool autoFndbSync)
-  {
-    if (this->autoFndbSync == autoFndbSync)
-    {
-      return;
-    }
-    trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("turning %s autoFndbSync"), autoFndbSync ? "on" : "off");
-    this->autoFndbSync = autoFndbSync;
-  }
+  std::unordered_set<MiKTeX::Core::PathName> removedFiles;
 
 private:
   bool noPostProcessing = false;
@@ -366,29 +358,16 @@ private:
   void FindUpgradesThread();
 
 private:
-  void DoInstall();
-
-#if !defined(MIKTEX_USE_ZZDB3)
-private:
-  void SetUpPackageManifestFiles(const MiKTeX::Core::PathName& directory);
-#endif
-
-#if defined(MIKTEX_USE_ZZDB3)
-private:
   void HandleObsoletePackageManifests(MiKTeX::Core::Cfg& cfgExisting, const MiKTeX::Core::Cfg& cfgNew);
-#else
-private:
-  void HandleObsoletePackageManifestFiles(const MiKTeX::Core::PathName& temporaryDirectory);
-#endif
 
 private:
   void CleanUpUserDatabase();
 
 private:
-  void Download(const std::string& url, const MiKTeX::Core::PathName& dest, size_t expectedSize = 0);
+  void Download(const std::string& url, const MiKTeX::Core::PathName& dest, std::size_t expectedSize = 0);
 
 private:
-  void Download(const MiKTeX::Core::PathName& fileName, size_t expectedSize = 0);
+  void Download(const MiKTeX::Core::PathName& fileName, std::size_t expectedSize = 0);
 
 private:
   void RemoveFiles(const std::vector<std::string>& toBeRemoved, bool silently = false);
@@ -400,12 +379,6 @@ private:
   void CopyFiles(const MiKTeX::Core::PathName& pathSourceRoot, const std::vector<std::string>& fileList);
 
 private:
-  void AddToFileList(std::vector<std::string>& fileList, const MiKTeX::Core::PathName& fileName) const;
-
-private:
-  void RemoveFromFileList(std::vector<std::string>& fileList, const MiKTeX::Core::PathName& fileName) const;
-
-private:
   void CopyPackage(const MiKTeX::Core::PathName& pathSourceRoot, const std::string& packageId);
 
 private:
@@ -415,13 +388,13 @@ private:
   bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName& directory) override;
 
 private:
-  void RemovePackage(const std::string& packageId);
+  void RemovePackage(const std::string& packageId, MiKTeX::Core::Cfg& packageManifests);
 
 private:
-  void InstallPackage(const std::string& packageId);
+  void InstallPackage(const std::string& packageId, MiKTeX::Core::Cfg& packageManifests);
 
 private:
-  void MyCopyFile(const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& dest, size_t& size);
+  void MyCopyFile(const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& dest, std::size_t& size);
 
 private:
   void DownloadPackage(const std::string& packageId);
@@ -463,6 +436,9 @@ private:
 
 private:
   std::shared_ptr<PackageManagerImpl> packageManager;
+
+private:
+  PackageDataStore* packageDataStore = nullptr;
 
 private:
   MiKTeX::Packages::PackageInstallerCallback* callback = nullptr;

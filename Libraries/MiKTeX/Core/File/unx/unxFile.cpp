@@ -19,11 +19,12 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <thread>
 
 #include <fcntl.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <utime.h>
@@ -32,16 +33,17 @@
 #  include <sys/time.h>
 #endif
 
-#include "internal.h"
+#include <miktex/Core/Directory>
+#include <miktex/Core/File>
+#include <miktex/Core/FileStream>
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/File.h"
-#include "miktex/Core/FileStream.h"
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 mode_t GetFileCreationMask()
 {
@@ -319,11 +321,11 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
     MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(source) && Fndb::FileExists(source))
     {
-      Fndb::Remove(source);
+      Fndb::Remove({ source });
     }
     if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
     {
-      Fndb::Add(dest);
+      Fndb::Add({ { dest } });
     }
   }
 }
@@ -386,7 +388,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
     MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
     {
-      Fndb::Add(dest);
+      Fndb::Add({ { dest } });
     }
   }
 }
@@ -426,7 +428,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
     MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(newName) && !Fndb::FileExists(newName))
     {
-      Fndb::Add(newName);
+      Fndb::Add({ { newName } });
     }
   }
 }
@@ -463,16 +465,15 @@ size_t File::SetMaxOpen(size_t newMax)
   return FOPEN_MAX;
 }
 
-FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options)
+FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileOpenOptionSet options)
 {
   UNUSED_ALWAYS(isTextFile);
-  UNUSED_ALWAYS(share);
 
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
 
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d %d)"), Q_(path), (int)mode, (int)access, (int)share, (int)isTextFile);
+    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d %d %d)"), Q_(path), (int)mode, (int)access, (int)isTextFile);
   }
 
   int flags = 0;
@@ -482,9 +483,13 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   {
     flags |= O_CREAT;
   }
+  else if (mode == FileMode::CreateNew)
+  {
+    flags |= O_CREAT | O_EXCL;
+  }
   else if (mode == FileMode::Append)
   {
-    flags |= O_APPEND;
+    flags |= O_CREAT | O_APPEND;
   }
 
   if (access == FileAccess::ReadWrite)
@@ -518,7 +523,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
     }
   }
 
-  if (mode == FileMode::Create)
+  if (mode == FileMode::Create || mode == FileMode::CreateNew || mode == FileMode::Append)
   {
     PathName dir(path);
     dir.MakeAbsolute();
@@ -535,9 +540,9 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
 
   if (fd < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString());
+    MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString(), "mode", strFlags);
   }
-
+  
   try
   {
     if (options[FileOpenOption::DeleteOnClose])
@@ -546,9 +551,36 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
     }
     return FdOpen(fd, strFlags.c_str());
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     close(fd);
     throw;
+  }
+}
+
+bool File::TryLock(int fd, File::LockType lockType, chrono::milliseconds timeout)
+{
+  chrono::time_point<chrono::high_resolution_clock> tryUntil = chrono::high_resolution_clock::now() + timeout;
+  bool locked;
+  do
+  {
+    locked = flock(fd, (lockType == LockType::Exclusive ? LOCK_EX : LOCK_SH) | LOCK_NB) == 0;
+    if (!locked)
+    {
+      if (errno != EWOULDBLOCK)
+      {
+        MIKTEX_FATAL_CRT_ERROR("flock");
+      }
+      this_thread::sleep_for(10ms);
+    }
+  } while (!locked && chrono::high_resolution_clock::now() < tryUntil);
+  return locked;
+}
+
+void File::Unlock(int fd)
+{
+  if (flock(fd, LOCK_UN) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("flock");
   }
 }

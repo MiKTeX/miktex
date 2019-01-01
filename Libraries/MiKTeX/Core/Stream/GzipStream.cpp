@@ -19,22 +19,21 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <zlib.h>
 
-#include "internal.h"
+#include <miktex/Core/FileStream>
+#include <miktex/Core/GzipStream>
 
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/GzipStream.h"
+#include "internal.h"
 
 #include "CompressedStreamBase.h"
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 class GzipStreamImpl :
   public CompressedStreamBase<GzipStream>
@@ -95,7 +94,7 @@ protected:
       if (gzStream->avail_in == 0 && !eof)
       {
         gzStream->next_in = inbuf;
-        gzStream->avail_in = fileStream->Read(inbuf, BUFFER_SIZE);
+        gzStream->avail_in = static_cast<uInt>(fileStream->Read(inbuf, BUFFER_SIZE));
         eof = gzStream->avail_in == 0;
       }
       int ret = inflate(gzStream.get(), eof ? Z_FINISH : Z_NO_FLUSH);

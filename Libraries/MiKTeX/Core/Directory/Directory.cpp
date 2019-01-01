@@ -19,17 +19,16 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/Directory>
+#include <miktex/Core/DirectoryLister>
 
 #include "internal.h"
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/DirectoryLister.h"
+using namespace std;
 
 using namespace MiKTeX::Core;
-using namespace std;
 
 void Directory::Create(const PathName& path)
 {
@@ -61,23 +60,21 @@ void Directory::Delete(const PathName& path, bool recursive)
     }
     dirLister->Close();
 
-    vector<PathName>::const_iterator it;
-
     // remove files
     // TODO: async?
     // TODO: range-based for loop
-    for (it = filesToBeDeleted.begin(); it != filesToBeDeleted.end(); ++it)
+    for (const PathName& f : filesToBeDeleted)
     {
-      File::Delete(*it, { FileDeleteOption::TryHard });
+      File::Delete(f, { FileDeleteOption::TryHard });
     }
 
     // remove directories recursively
     // TODO: async?
     // TODO: range-based for loop
-    for (it = directoriesToBeDeleted.begin(); it != directoriesToBeDeleted.end(); ++it)
+    for (const PathName& d : directoriesToBeDeleted)
     {
       // RECURSION
-      Delete(*it, true);
+      Delete(d, true);
     }
   }
 

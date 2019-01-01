@@ -24,13 +24,13 @@
 #if !defined(BA15DC038D4549859111D4B075360D81)
 #define BA15DC038D4549859111D4B075360D81
 
-#include <mutex>
+#include <tuple>
 
-#include "miktex/Core/Debug.h"
-#include "miktex/Core/DirectoryLister.h"
-#include "miktex/Core/Fndb.h"
-#include "miktex/Core/MemoryMappedFile.h"
-#include "miktex/Core/PathName.h"
+#include <miktex/Core/Debug>
+#include <miktex/Core/DirectoryLister>
+#include <miktex/Core/Fndb>
+#include <miktex/Core/MemoryMappedFile>
+#include <miktex/Core/PathName>
 
 #include "fndbmem.h"
 
@@ -39,39 +39,7 @@ BEGIN_INTERNAL_NAMESPACE;
 class FileNameDatabase
 {
 public:
-  static std::shared_ptr<FileNameDatabase> Create(const char* lpszFndbPath, const char* lpszRoot, bool readOnly);
-
-public:
-  bool Search(const MiKTeX::Core::PathName& relativePath, const char* lpszPathPattern, bool firstMatchOnly, std::vector<MiKTeX::Core::PathName>& result, std::vector<std::string>& fileNameInfo) const;
-
-public:
-  void AddFile(const char* lpszPath, const char* lpszFileNameInfo);
-
-public:
-  void RemoveFile(const char* lpszPath);
-
-public:
-  bool IsInvariable() const
-  {
-    return isInvariable;
-  }
-
-public:
-  bool Enumerate(const char* lpszPath, MiKTeX::Core::IEnumerateFndbCallback* pCallback) const;
-
-public:
-  bool FileExists(const MiKTeX::Core::PathName& path) const;
-
-private:
-  void ReadFileNames();
-
-private:
-  void ReadFileNames(FileNameDatabaseDirectory* pDir);
-
-#if 1 // experimental
-public:
-  std::unique_ptr<MiKTeX::Core::DirectoryLister> OpenDirectory(const char* lpszPath);
-#endif
+  static std::shared_ptr<FileNameDatabase> Create(const MiKTeX::Core::PathName& fndbPath, const MiKTeX::Core::PathName& rootDirectory);
 
 public:
   FileNameDatabase();
@@ -82,115 +50,158 @@ public:
 public:
   virtual ~FileNameDatabase();
 
+public:
+  bool Search(const MiKTeX::Core::PathName& relativePath, const std::string& pathPattern, bool firstMatchOnly, std::vector<MiKTeX::Core::Fndb::Record>& result);
+
+public:
+  void Add(const std::vector<MiKTeX::Core::Fndb::Record>& records);
+
+public:
+  void Remove(const std::vector<MiKTeX::Core::PathName>& paths);
+
+public:
+  bool FileExists(const MiKTeX::Core::PathName& path);
+
+private:
+  struct Record
+  {
+  public:
+    Record(const FileNameDatabase* fndb, std::string&& fileName, FndbByteOffset foDirectory, FndbByteOffset foInfo) :
+      fndb(fndb),
+      fileName(std::move(fileName)),
+      foDirectory(foDirectory),
+      foInfo(foInfo)
+    {
+    }
+  public:
+    Record(const std::string& fileName, const std::string& directory, const std::string& info) :
+      fileName(fileName),
+      directory(directory),
+      info(info)
+    {
+    }
+  public:
+    Record(std::string&& fileName, std::string&& directory, std::string&& info) :
+      fileName(std::move(fileName)),
+      directory(std::move(directory)),
+      info(std::move(info))
+    {
+    }
+  public:
+    std::string GetDirectory() const
+    {
+      if (foDirectory != 0)
+      {
+        MIKTEX_ASSERT(fndb != nullptr);
+        return fndb->GetString(foDirectory);
+      }
+      else
+      {
+        return directory;
+      }
+    }
+  public:
+    std::string GetInfo() const
+    {
+      if (foInfo != 0)
+      {
+        MIKTEX_ASSERT(fndb != nullptr);
+        return fndb->GetString(foInfo);
+      }
+      else
+      {
+        return info;
+      }
+    }
+  private:
+    const FileNameDatabase* fndb = nullptr;
+  public:
+    std::string fileName;
+  private:
+    FndbByteOffset foDirectory = 0;
+  private:
+    std::string directory;
+  private:
+    FndbByteOffset foInfo = 0;
+  private:
+    std::string info;
+  };
+
+private:
+  std::tuple<std::string, std::string> SplitPath(const MiKTeX::Core::PathName& path) const;
+
+private:
+  std::string MakeKey(const std::string& fileName) const;
+
+private:
+  std::string MakeKey(const MiKTeX::Core::PathName& fileName) const;
+
+private:
+  void FastInsertRecord(Record&& record);
+
+private:
+  bool InsertRecord(Record&& record);
+
+private:
+  void EraseRecord(const Record& record);
+  
+private:
+  void ReadFileNames();
+
+private:
+  void ReadFileNames(const FileNameDatabaseRecord* table);
 private:
   void Finalize();
 
 private:
-  FileNameDatabaseDirectory* CreateFndbDirectory(FileNameDatabaseDirectory* pDir, const char* lpszName) const;
-
-private:
-  FileNameDatabaseDirectory* CreateDirectoryPath(FileNameDatabaseDirectory* pDir, const char* lpszRelPath) const;
-
-private:
-  FndbByteOffset CreateString(const char* lpszName) const;
-
-private:
-  FileNameDatabaseDirectory* ExtendDirectory(FileNameDatabaseDirectory* pDir) const;
-
-private:
-  FndbWord FindLowerBound(const FndbByteOffset& begin, FndbWord count, const char* lpszName, bool& isDuplicate) const;
-
-private:
-  FileNameDatabaseDirectory* FindSubDirectory(const FileNameDatabaseDirectory* pDir, const char* lpszRelPath) const;
-
-private:
-  FileNameDatabaseDirectory* TryGetParent(const char* lpszPath) const;
-
-private:
-  void Flush() const;
-
-private:
-  FileNameDatabaseDirectory* GetDirectoryAt(FndbByteOffset fo) const
-  {
-    return reinterpret_cast<FileNameDatabaseDirectory*>(GetPointer(fo));
-  }
-
-private:
   FndbWord GetHeaderFlags() const
   {
-    return pHeader->flags;
+    return fndbHeader->flags;
   }
 
 private:
   FndbByteOffset GetByteOffset(const void* p) const
   {
-    ptrdiff_t d = reinterpret_cast<const uint8_t *>(p) - reinterpret_cast<const uint8_t *>(pHeader);
+    ptrdiff_t d = reinterpret_cast<const uint8_t*>(p) - reinterpret_cast<const uint8_t*>(fndbHeader);
     MIKTEX_ASSERT(d == 0 || d >= sizeof(FileNameDatabaseHeader) && d < foEnd);
-    return d;
+    return static_cast<FndbByteOffset>(d);
   }
 
 private:
-  void* GetPointer(FndbByteOffset fo) const
+  const void* GetPointer(FndbByteOffset fo) const
   {
     MIKTEX_ASSERT(fo == 0 || fo >= sizeof(FileNameDatabaseHeader) && fo < foEnd);
-    return fo == 0 ? nullptr : reinterpret_cast<uint8_t*>(pHeader) + fo;
+    return fo == 0 ? nullptr : reinterpret_cast<const uint8_t*>(fndbHeader) + fo;
   }
 
 private:
-  char* GetString(FndbByteOffset fo) const
+  const char* GetString(FndbByteOffset fo) const
   {
     MIKTEX_ASSERT(fo >= sizeof(FileNameDatabaseHeader) && fo < foEnd);
-    MIKTEX_ASSERT_STRING(reinterpret_cast<const char *>(GetPointer(fo)));
-    return reinterpret_cast<char *>(GetPointer(fo));
+    MIKTEX_ASSERT_STRING(reinterpret_cast<const char*>(GetPointer(fo)));
+    return reinterpret_cast<const char*>(GetPointer(fo));
   }
 
 private:
-  FileNameDatabaseDirectory* GetTopDirectory() const
+  const FileNameDatabaseRecord* GetTable() const
   {
-    return GetDirectoryAt(pHeader->foTopDir);
+    return reinterpret_cast<const FileNameDatabaseRecord*>(GetPointer(fndbHeader->foTable));
   }
 
 private:
-  bool HasFileNameInfo() const
-  {
-    return (pHeader->flags& FileNameDatabaseHeader::FndbFlags::FileNameInfo) != 0;
-  }
+  void Initialize(const MiKTeX::Core::PathName& fndbPath, const MiKTeX::Core::PathName& rootDirectory);
 
 private:
-  void Initialize(const char* lpszFndbPath, const char* lpszRoot, bool readWrite = false);
+  void ApplyChangeFile();
 
 private:
-  void InsertDirectory(FileNameDatabaseDirectory* pDir, const FileNameDatabaseDirectory* pDirSub) const;
+  FILE* OpenChangeFileExclusively();
 
 private:
-  void InsertFileName(FileNameDatabaseDirectory* pDir, FndbByteOffset foFileName, FndbByteOffset foFileNameInfo) const;
+  void OpenFileNameDatabase(const MiKTeX::Core::PathName& fndbPath);
 
 private:
-  bool IsDirty() const
-  {
-    MIKTEX_ASSERT(pHeader != nullptr);
-    return pHeader->timeStamp != timeStamp;
-  }
-
-private:
-  void MakePathName(const FileNameDatabaseDirectory* pDir, MiKTeX::Core::PathName& path) const;
-
-private:
-  void OpenFileNameDatabase(const char* lpszFndbPath, bool readWrite = false);
-
-private:
-  FileNameDatabaseDirectory* RemoveFileName(FileNameDatabaseDirectory* pDir, const MiKTeX::Core::PathName& fileName) const;
-
-private:
-  FileNameDatabaseDirectory* SearchFileName(FileNameDatabaseDirectory* pDir, const MiKTeX::Core::PathName& fileName, FndbWord& index) const;
-
-  // true, if the FNDB is read-only
-private:
-  bool isInvariable = false;
-
-  // last modification time
-private:
-  FndbWord timeStamp = 0;
+  void CloseFileNameDatabase();
 
   // size (in bytes) of the FNDB file
 private:
@@ -201,23 +212,29 @@ private:
 
   // pointer to the FNDB header
 private:
-  FileNameDatabaseHeader* pHeader = nullptr;
+  FileNameDatabaseHeader* fndbHeader = nullptr;
 
   // file-system path to root directory
 private:
   MiKTeX::Core::PathName rootDirectory;
 
 private:
-  typedef std::unordered_multimap<std::string, FileNameDatabaseDirectory *> FileNameHashTable;
+  typedef std::unordered_multimap<std::string, Record> FileNameHashTable;
 
 private:
   FileNameHashTable fileNames;
 
 private:
-  std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
+  MiKTeX::Core::PathName changeFile;
+  
+private:
+  std::size_t changeFileSize = 0;
 
 private:
-  std::mutex thisMutex;
+  int changeFileRecordCount = 0;
+
+private:
+  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_fndb;
 };
 
 END_INTERNAL_NAMESPACE;

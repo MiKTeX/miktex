@@ -82,7 +82,7 @@ public:
   }
 
 public:
-  C4PTHISAPI(bool) Open(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileShare share, bool text, bool mustExist);
+  C4PTHISAPI(bool) Open(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool text, bool mustExist);
 
 public:
   void Close()
@@ -643,7 +643,6 @@ template<class T> inline bool c4pfopen(T& f, const char* lpszName, const char* l
     lpszName,
     (reading ? MiKTeX::Core::FileMode::Open : MiKTeX::Core::FileMode::Create),
     (reading ? MiKTeX::Core::FileAccess::Read : MiKTeX::Core::FileAccess::Write),
-    MiKTeX::Core::FileShare::ReadWrite,
     text,
     mustExist);
 }

@@ -19,17 +19,16 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/StreamWriter>
 
 #include "internal.h"
 
-#include "miktex/Core/StreamWriter.h"
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 StreamWriter::StreamWriter(const PathName& path) :
   stream(File::Open(path, FileMode::Create, FileAccess::Write))

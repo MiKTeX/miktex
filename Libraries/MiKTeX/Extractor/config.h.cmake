@@ -20,3 +20,11 @@
    USA. */
 
 #define TRACE_FACILITY "extractor"
+
+#if defined(_MSC_VER) && defined(MIKTEX_EXTRACTOR_SHARED)
+#  define MIKTEXEXTRACTOREXPORT __declspec(dllexport)
+#else
+#  define MIKTEXEXTRACTOREXPORT
+#endif
+
+#define DAA6476494C144C8BED9A9E8810BAABA

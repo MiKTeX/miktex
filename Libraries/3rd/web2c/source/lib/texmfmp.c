@@ -3042,6 +3042,9 @@ makesrcspecial (strnumber srcfilename, int lineno)
 #  define check_buf(size, buf_size)                         \
     if ((unsigned)(size) > (unsigned)(buf_size))            \
         pdftex_fail("buffer overflow at file %s, line %d", __FILE__,  __LINE__ )
+#if defined(MIKTEX)
+#undef xfree
+#endif
 #  define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
 #  define MAX_CSTRING_LEN     1024 * 1024
 

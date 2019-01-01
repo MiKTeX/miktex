@@ -1,6 +1,6 @@
 /* BZip2Stream.cpp: bzip2 stream
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,22 +19,21 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <bzlib.h>
 
-#include "internal.h"
+#include <miktex/Core/BZip2Stream>
+#include <miktex/Core/FileStream>
 
-#include "miktex/Core/BZip2Stream.h"
-#include "miktex/Core/FileStream.h"
+#include "internal.h"
 
 #include "CompressedStreamBase.h"
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 class BZip2StreamImpl :
   public CompressedStreamBase<BZip2Stream>
@@ -95,7 +94,7 @@ protected:
       if (bzStream->avail_in == 0 && !eof)
       {
         bzStream->next_in = inbuf;
-        bzStream->avail_in = fileStream->Read(inbuf, BUFFER_SIZE);
+        bzStream->avail_in = static_cast<unsigned int>(fileStream->Read(inbuf, BUFFER_SIZE));
         eof = bzStream->avail_in == 0;
       }
       int ret = BZ2_bzDecompress(bzStream.get());

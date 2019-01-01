@@ -19,37 +19,35 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fstream>
 
-#include "miktex/Core/FileStream.h"
+#include <miktex/Core/Cfg.h>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/Registry.h>
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
 
-#include "miktex/Core/Cfg.h"
-#include "miktex/Core/Registry.h"
-
 #include "Utils/inliners.h"
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
 
 #define FATAL_CFG_ERROR(message) \
   MIKTEX_FATAL_ERROR_2(T_("A MiKTeX configuration file could not be loaded."), "file", currentFile.ToString(), "line", std::to_string(lineno), "error", message)
 
-const char COMMENT_CHAR = ';';
-const char* const COMMENT1 = ";";
-const char* const COMMENT2 = ";;";
-const char* const COMMENT3 = ";;;";
-const char* const COMMENT4 = ";;;;";
+constexpr const char COMMENT_CHAR = ';';
+constexpr const char* COMMENT1 = ";";
+constexpr const char* COMMENT2 = ";;";
+constexpr const char* COMMENT3 = ";;;";
+constexpr const char* COMMENT4 = ";;;;";
 
 MIKTEXSTATICFUNC(bool) EndsWith(const string& s, const string& suffix)
 {
@@ -59,22 +57,26 @@ MIKTEXSTATICFUNC(bool) EndsWith(const string& s, const string& suffix)
 
 MIKTEXSTATICFUNC(string&) Trim(string& str)
 {
-  const char* whitespace = " \t\r\n";
-  size_t pos = str.find_last_not_of(whitespace);
+  constexpr const char* WHITESPACE = " \t\r\n";
+  size_t pos = str.find_last_not_of(WHITESPACE);
   if (pos != string::npos)
   {
     str.erase(pos + 1);
   }
-  pos = str.find_first_not_of(whitespace);
+  pos = str.find_first_not_of(WHITESPACE);
   if (pos == string::npos)
   {
     str.erase();
   }
-  else
+  else if (pos != 0)
   {
     str.erase(0, pos);
   }
   return str;
+}
+
+Cfg::Value::~Value() noexcept
+{
 }
 
 class CfgValue :
@@ -103,6 +105,11 @@ public:
 public:
   CfgValue(const string& name, const string& lookupName, const string& value, const string& documentation, bool isCommentedOut) :
     name(name), lookupName(lookupName), value{ value }, documentation(documentation), commentedOut(isCommentedOut)
+  {
+  }
+  
+public:
+  ~CfgValue() noexcept override
   {
   }
 
@@ -149,6 +156,18 @@ public:
   }
 
 public:
+  vector<string>::const_iterator MIKTEXTHISCALL begin() const override
+  {
+    return value.begin();
+  }
+
+public:
+  vector<string>::const_iterator MIKTEXTHISCALL end() const override
+  {
+    return value.end();
+  }
+
+public:
   string MIKTEXTHISCALL GetDocumentation() const override
   {
     return documentation;
@@ -168,6 +187,10 @@ inline bool operator<(const CfgValue& lhs, const CfgValue& rhs)
 
 typedef unordered_map<string, shared_ptr<CfgValue>> ValueMap;
 
+Cfg::Key::~Key() noexcept
+{
+}
+
 class CfgKey :
   public Cfg::Key
 {
@@ -186,6 +209,11 @@ public:
   {
   }
 
+public:
+  ~CfgKey() noexcept override
+  {
+  }
+  
 private:
   string name;
 
@@ -457,6 +485,18 @@ class CfgImpl :
   public Cfg
 {
 public:
+  Options GetOptions() const override
+  {
+    return options;
+  }
+
+public:
+  void SetOptions(Options options) override
+  {
+    this->options = options;
+  }
+
+public:
   bool MIKTEXTHISCALL Empty() const override;
 
 public:
@@ -572,6 +612,12 @@ public:
 
 public:
   KeyIterator end() override;
+  
+public:
+  size_t GetSize() const override
+  {
+    return keyMap.size();
+  }
 
 public:
   void MIKTEXTHISCALL DeleteKey(const string& keyName) override;
@@ -641,11 +687,14 @@ private:
   void WriteKeys(ostream& stream);
 
 private:
-  void PutValue(const string& keyName, const string& valueName, const string& value, PutMode putMode, const string& documentation, bool commentedOut);
+  void PutValue(const string& keyName, const string& valueName, string&& value, PutMode putMode, string&& documentation, bool commentedOut);
 
 private:
   bool ClearValue(const string& keyName, const string& valueName);
   
+private:
+  Options options;
+
 private:
   int lineno = 0;
 
@@ -802,7 +851,7 @@ bool CfgImpl::TryGetValueAsStringVector(const string& keyName, const string& val
   return true;
 }
 
-void CfgImpl::PutValue(const string& keyName_, const string& valueName, const string& value, CfgImpl::PutMode putMode, const string& documentation, bool commentedOut)
+void CfgImpl::PutValue(const string& keyName_, const string& valueName, string&& value, CfgImpl::PutMode putMode, string&& documentation, bool commentedOut)
 {
   string keyName = keyName_.empty() ? GetDefaultKeyName() : keyName_;
   if (keyName.empty())
@@ -816,6 +865,10 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, const st
   MIKTEX_ASSERT(itKey != keyMap.end());
 
   string lookupValueName = Utils::MakeLower(valueName);
+  if (options[Option::NoOverwriteValues] && itKey->second->valueMap.find(lookupValueName) != itKey->second->valueMap.end())
+  {
+    return;
+  }
   pair<ValueMap::iterator, bool> pair2 = itKey->second->valueMap.insert(make_pair(lookupValueName, make_shared<CfgValue>(valueName, lookupValueName, value, documentation, commentedOut)));
 
   if (!pair2.second)
@@ -826,24 +879,24 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, const st
     {
       MIKTEX_UNEXPECTED();
     }
-    itVal->second->documentation = documentation;
+    itVal->second->documentation = std::move(documentation);
     itVal->second->commentedOut = commentedOut;
     if (putMode == Append)
     {
       if (itVal->second->value.empty())
       {
-        itVal->second->value.push_back(value);
+        itVal->second->value.push_back(std::move(value));
       }
       else
       {
-        itVal->second->value.front() += value.front();
+        itVal->second->value.front() += std::move(value);
       }
     }
     else if (putMode == SearchPathAppend)
     {
       if (itVal->second->value.empty())
       {
-        itVal->second->value.push_back(value);
+        itVal->second->value.push_back(std::move(value));
       }
       else
       {
@@ -851,17 +904,17 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, const st
         {
           itVal->second->value.front() += PathName::PathNameDelimiter;
         }
-        itVal->second->value.front() += value;
+        itVal->second->value.front() += std::move(value);
       }
     }
     else if (itVal->second->IsMultiValue())
     {
-      itVal->second->value.push_back(value);
+      itVal->second->value.push_back(std::move(value));
     }
     else
     {
       itVal->second->value.clear();
-      itVal->second->value.push_back(value);
+      itVal->second->value.push_back(std::move(value));
     }
   }
 }
@@ -891,12 +944,12 @@ bool CfgImpl::ClearValue(const string& keyName_, const string& valueName)
 
 void CfgImpl::PutValue(const string& keyName, const string& valueName, const string& value)
 {
-  return PutValue(keyName, valueName, value, None, "", false);
+  return PutValue(keyName, valueName, string(value), None, "", false);
 }
 
 void CfgImpl::PutValue(const string& keyName, const string& valueName, const string& value, const string& documentation, bool commentedOut)
 {
-  return PutValue(keyName, valueName, value, None, value, commentedOut);
+  return PutValue(keyName, valueName, string(value), None, string(documentation), commentedOut);
 }
 
 void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
@@ -922,6 +975,8 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
   bool wasEmpty = Empty();
 
   string keyName = defaultKeyName;
+  string lookupKeyName = Utils::MakeLower(keyName);
+  bool ignoreKey = false;
 
   lineno = 0;
   currentFile = path;
@@ -980,6 +1035,8 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
         FATAL_CFG_ERROR(T_("incomplete secion name"));
       }
       keyName = *tok;
+      lookupKeyName = Utils::MakeLower(keyName);
+      ignoreKey = options[Option::NoOverwriteKeys] && keyMap.find(lookupKeyName) != keyMap.end();
     }
     else if (line.length() >= 3 && line[0] == COMMENT_CHAR && line[1] == COMMENT_CHAR && line[2] == ' ')
     {
@@ -991,14 +1048,17 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
     }
     else if ((line.length() >= 2 && line[0] == COMMENT_CHAR && (IsAlNum(line[1]) || line[1] == '.')) || IsAlNum(line[0]) || line[0] == '.')
     {
-      string valueName;
-      string value;
-      PutMode putMode;
-      if (!ParseValueDefinition(line[0] == COMMENT_CHAR ? &line[1] : &line[0], valueName, value, putMode))
+      if (!ignoreKey)
       {
-        FATAL_CFG_ERROR(T_("invalid value definition"));
+        string valueName;
+        string value;
+        PutMode putMode;
+        if (!ParseValueDefinition(line[0] == COMMENT_CHAR ? line.substr(1) : line, valueName, value, putMode))
+        {
+          FATAL_CFG_ERROR(T_("invalid value definition"));
+        }
+        PutValue(keyName, valueName, std::move(value), putMode, std::move(documentation), line[0] == COMMENT_CHAR);
       }
-      PutValue(keyName, valueName, value, putMode, documentation, line[0] == COMMENT_CHAR);
     }
     else if (line.length() >= 4 && line[0] == COMMENT_CHAR && line[1] == COMMENT_CHAR && line[2] == COMMENT_CHAR && line[3] == COMMENT_CHAR)
     {
@@ -1018,7 +1078,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
     }
   }
 
-  if (reader.bad() || reader.fail() && !reader.eof())
+  if (reader.bad() || (reader.fail() && !reader.eof()))
   {
     FATAL_CFG_ERROR(T_("error reading the configuration file"));
   }
@@ -1044,7 +1104,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
       {
         modifiableSignature.push_back(ch);
       }
-      BIO_ptr mem(BIO_new_mem_buf(&modifiableSignature[0], modifiableSignature.size()), BIO_free);
+      BIO_ptr mem(BIO_new_mem_buf(&modifiableSignature[0], static_cast<int>(modifiableSignature.size())), BIO_free);
       if (mem == nullptr)
       {
         FatalOpenSSLError();
@@ -1130,8 +1190,7 @@ extern "C" int OpenSSLPasswordCallback(char* buf, int size, int rwflag, void* us
   {
     MIKTEX_UNEXPECTED();
   }
-  strcpy(buf, passphrase.c_str());
-  return passphrase.length();
+  return static_cast<int>(StringUtil::CopyString(buf, size, passphrase.c_str()));
 }
 #endif
 
@@ -1150,7 +1209,7 @@ string ToBase64(const vector<unsigned char>& bytes)
   }
   BIO_set_flags(b64.get(), BIO_FLAGS_BASE64_NO_NL);
   BIO_push(b64.get(), mem.get());
-  if (BIO_write(b64.get(), &bytes[0], bytes.size()) != bytes.size())
+  if (BIO_write(b64.get(), &bytes[0], static_cast<int>(bytes.size())) != bytes.size())
   {
     FatalOpenSSLError();
   }

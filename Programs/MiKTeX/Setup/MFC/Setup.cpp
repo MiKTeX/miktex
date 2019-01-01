@@ -405,7 +405,7 @@ void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
 #endif
 
     case OPT_COMMON_CONFIG:
-      if (!(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      if (!session->RunningAsAdministrator())
       {
         MIKTEX_FATAL_ERROR(T_("You must have administrator privileges to set up a common configuration directory."));
       }
@@ -413,7 +413,7 @@ void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
       break;
 
     case OPT_COMMON_DATA:
-      if (!(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      if (!session->RunningAsAdministrator())
       {
         MIKTEX_FATAL_ERROR(T_("You must have administrator privileges to set up a common data directory."));
       }
@@ -421,7 +421,7 @@ void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
       break;
 
     case OPT_COMMON_INSTALL:
-      if (!(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      if (!session->RunningAsAdministrator())
       {
         MIKTEX_FATAL_ERROR(T_("You must have administrator privileges to set up a common installation directory."));
       }
@@ -429,7 +429,7 @@ void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
       break;
 
     case OPT_COMMON_ROOTS:
-      if (!(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      if (!session->RunningAsAdministrator())
       {
         MIKTEX_FATAL_ERROR(T_("You must have administrator privileges to set up common root directories."));
       }
@@ -526,7 +526,7 @@ void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
       break;
 
     case OPT_SHARED:
-      if (!(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      if (!session->RunningAsAdministrator())
       {
         MIKTEX_FATAL_ERROR(T_("You must have administrator privileges to set up a shared MiKTeX system."));
       }

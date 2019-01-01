@@ -21,26 +21,24 @@
 
 /* Algorithms are borrowed from the web2c mktex* shell scripts. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fstream>
 
+#include <miktex/Core/Directory>
+#include <miktex/Core/PathNameParser>
+#include <miktex/Core/Paths>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/PathNameParser.h"
-#include "miktex/Core/Paths.h"
-
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 const char* WHITESPACE = " \t\r\n";
 
@@ -392,7 +390,11 @@ vector<string> SessionImpl::GetFontDirectories()
     flags.set((size_t)InternalFlag::CachedSystemFontDirs);
 #if defined(MIKTEX_WINDOWS)
     PathName winFontDir;
-    if (GetWindowsFontsDirectory(winFontDir))
+    if (!IsAdminMode() && GetUserFontDirectory(winFontDir))
+    {
+      systemFontDirs.push_back(winFontDir.ToString());
+    }
+    if (GetSystemFontDirectory(winFontDir))
     {
       systemFontDirs.push_back(winFontDir.ToString());
     }

@@ -36,12 +36,12 @@ inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo& left, const Mi
   left.version = _bstr_t(UW_(right.version)).Detach();
   left.description = _bstr_t(UW_(right.description)).Detach();
   left.creator = _bstr_t(UW_(right.creator)).Detach();
-  left.sizeRunFiles = right.sizeRunFiles;
-  left.sizeDocFiles = right.sizeDocFiles;
-  left.sizeSourceFiles = right.sizeSourceFiles;
-  left.numRunFiles = right.runFiles.size();
-  left.numDocFiles = right.docFiles.size();
-  left.numSourceFiles = right.sourceFiles.size();
+  left.sizeRunFiles = static_cast<double>(right.sizeRunFiles);
+  left.sizeDocFiles = static_cast<double>(right.sizeDocFiles);
+  left.sizeSourceFiles = static_cast<double>(right.sizeSourceFiles);
+  left.numRunFiles = static_cast<long>(right.runFiles.size());
+  left.numDocFiles = static_cast<long>(right.docFiles.size());
+  left.numSourceFiles = static_cast<long>(right.sourceFiles.size());
   if (right.timePackaged == static_cast<time_t>(-1) || right.timePackaged == static_cast<time_t>(0))
   {
     left.timePackaged = ATL::COleDateTime();
@@ -60,7 +60,7 @@ inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo& left, const Mi
     left.timeInstalled = ATL::COleDateTime(right.timeInstalled);
     left.isInstalled = VARIANT_TRUE;
   }
-  left.archiveFileSize = right.archiveFileSize;
+  left.archiveFileSize = static_cast<long>(right.archiveFileSize);
   memcpy(&left.digest, &right.digest, sizeof(left.digest));
 }
 
@@ -72,12 +72,12 @@ inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo2& left, const M
   left.version = _bstr_t(UW_(right.version)).Detach();
   left.description = _bstr_t(UW_(right.description)).Detach();
   left.creator = _bstr_t(UW_(right.creator)).Detach();
-  left.sizeRunFiles = right.sizeRunFiles;
-  left.sizeDocFiles = right.sizeDocFiles;
-  left.sizeSourceFiles = right.sizeSourceFiles;
-  left.numRunFiles = right.runFiles.size();
-  left.numDocFiles = right.docFiles.size();
-  left.numSourceFiles = right.sourceFiles.size();
+  left.sizeRunFiles = static_cast<double>(right.sizeRunFiles);
+  left.sizeDocFiles = static_cast<double>(right.sizeDocFiles);
+  left.sizeSourceFiles = static_cast<double>(right.sizeSourceFiles);
+  left.numRunFiles = static_cast<long>(right.runFiles.size());
+  left.numDocFiles = static_cast<long>(right.docFiles.size());
+  left.numSourceFiles = static_cast<long>(right.sourceFiles.size());
   if (right.timePackaged == static_cast<time_t>(-1) || right.timePackaged == static_cast<time_t>(0))
   {
     left.timePackaged = ATL::COleDateTime();
@@ -96,19 +96,12 @@ inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo2& left, const M
     left.timeInstalled = ATL::COleDateTime(right.timeInstalled);
     left.isInstalled = VARIANT_TRUE;
   }
-  left.archiveFileSize = right.archiveFileSize;
+  left.archiveFileSize = static_cast<long>(right.archiveFileSize);
   memcpy(&left.digest, &right.digest, sizeof(left.digest));
-#if MIKTEX_EXTENDED_PACKAGEINFO
   left.copyrightOwner = _bstr_t(UW_(right.copyrightOwner)).Detach();
   left.copyrightYear = _bstr_t(UW_(right.copyrightYear)).Detach();
   left.licenseType = _bstr_t(UW_(right.licenseType)).Detach();
   left.ctanPath = _bstr_t(UW_(right.ctanPath)).Detach();
-#else
-  left.copyrightOwner = _bstr_t("").Detach();
-  left.copyrightYear = _bstr_t("").Detach();
-  left.licenseType = _bstr_t("").Detach();
-  left.ctanPath = _bstr_t("").Detach();
-#endif
 }
 
 class ATL_NO_VTABLE comPackageIterator :

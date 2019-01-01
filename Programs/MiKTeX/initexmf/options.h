@@ -145,14 +145,6 @@ const struct poptOption IniTeXMFApp::options[] = {
   },
 
   {
-    "list-directory", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
-    OPT_LIST_DIRECTORY,
-    T_("List the FNDB contents of a directory."),
-    T_("DIR")
-  },
-
-  {
     "list-formats", 0,
     POPT_ARG_NONE, nullptr,
     OPT_LIST_FORMATS,

@@ -153,7 +153,7 @@ public:
   {
     IInputOutput* inputOutput = GetInputOutput();
     MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
-    inputOutput->namelength() = fileName.GetLength();
+    inputOutput->namelength() = static_cast<C4P::C4P_signed16>(fileName.GetLength());
   }
 
 public:
@@ -178,7 +178,7 @@ public:
   MIKTEXMFTHISAPI(bool) OpenInputFile(C4P::FileRoot& f, const MiKTeX::Core::PathName& fileName);
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot& f, const MiKTeX::Core::PathName& fileName, MiKTeX::Core::FileShare share, bool text, MiKTeX::Core::PathName& outPath);
+  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot& f, const MiKTeX::Core::PathName& fileName, bool text, MiKTeX::Core::PathName& outPath);
 
 public:
   MIKTEXMFTHISAPI(bool) AllowFileName(const MiKTeX::Core::PathName& fileName, bool forInput);
@@ -249,9 +249,8 @@ template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_
 {
   // must open with read/write sharing flags
   // cf. bug 2006511
-  MiKTeX::Core::FileShare share = MiKTeX::Core::FileShare::ReadWrite;
   MiKTeX::Core::PathName outPath;
-  bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), share, text, outPath);
+  bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), text, outPath);
   if (done)
   {
 #if defined(MIKTEX_OMEGA)

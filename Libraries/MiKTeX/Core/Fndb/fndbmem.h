@@ -1,6 +1,6 @@
 /* fndbmem.h: fndb file format                          -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,12 +24,9 @@
 #if !defined(A0FEBF8A9A7A419BB1230D6A7C07C5FA)
 #define A0FEBF8A9A7A419BB1230D6A7C07C5FA
 
-#include "miktex/Core/Debug.h"
+#include <miktex/Core/Debug>
 
 BEGIN_INTERNAL_NAMESPACE;
-
-const size_t FNDB_GRAN = 1024 * 1024;
-const size_t FNDB_EXTRA = 5 * FNDB_GRAN;
 
 typedef uint32_t FndbWord;
 typedef FndbWord FndbByteOffset;
@@ -37,16 +34,7 @@ typedef FndbWord FndbByteOffset;
 struct FileNameDatabaseHeader
 {
   static const FndbWord Signature = 0x42444e46; // 'FNDB' (the x86 way)
-  static const FndbWord Version = 4;
-
-  class FndbFlags
-  {
-  public:
-    enum {
-      Frozen = 1,               // database cannot be modified
-      FileNameInfo = 2,         // extra file name info
-    };
-  };
+  static const FndbWord Version = MIKTEX_FNDB_VERSION;
 
   // signature of fndb file
   FndbWord signature;
@@ -57,26 +45,25 @@ struct FileNameDatabaseHeader
   // flag word (bits see above)
   FndbWord flags;
 
-  // pointer to path name
-  FndbByteOffset foPath;
+  // pointer to string pool
+  FndbByteOffset foStrings;
 
-  // pointer to root directory
-  FndbByteOffset foTopDir;
+  // pointer to first record
+  FndbByteOffset foTable;
 
   // number of directories
   FndbWord numDirs;
 
-  // number of files
+  // number of files (records)
   FndbWord numFiles;
-
-  // time of last refresh
-  FndbWord timeStamp;
 
   // max directory depth
   FndbWord depth;
 
   // size (in bytes) of fndb; includes header size
   FndbWord size;
+  
+  FndbWord reserved;
 
   void Init()
   {
@@ -88,84 +75,12 @@ struct FileNameDatabaseHeader
   }
 };
 
-struct FileNameDatabaseDirectory
+struct FileNameDatabaseRecord
 {
-  // pointer to directory name
-  FndbByteOffset foName;
-
-  // pointer to parent directory
-  FndbByteOffset foParent;
-
-  // number of files in this directory
-  FndbWord numFiles;
-
-  // number of sub-directories
-  FndbWord numSubDirs;
-
-  // pointer to directory extension
-  FndbByteOffset foExtension;
-
-  // capacity of pointer table
-  FndbWord capacity;
-
-  // table of pointers to
-  //     numFiles file names
-  //   + numSubDirs sub directory names
-  //   + numSubDirs sub directories
-  //   + numFiles file infos (if FNDB_FLAG_FILE_NAME_INFO is set)
-  FndbByteOffset table[1];
-
-  FndbByteOffset GetFileName(FndbWord idx) const
-  {
-    MIKTEX_ASSERT(idx < numFiles);
-    return table[idx];
-  }
-
-  FndbByteOffset GetSubDirName(FndbWord idx) const
-  {
-    MIKTEX_ASSERT(idx < numSubDirs);
-    return table[numFiles + idx];
-  }
-
-  FndbByteOffset GetSubDir(FndbWord idx) const
-  {
-    MIKTEX_ASSERT(idx < numSubDirs);
-    return table[numFiles + numSubDirs + idx];
-  }
-
-  FndbByteOffset GetFileNameInfo(FndbWord idx) const
-  {
-    MIKTEX_ASSERT(idx < numFiles);
-    return table[numFiles + (2 * numSubDirs) + idx];
-  }
-
-  FndbWord SizeOfTable(bool hasFileNameInfo) const
-  {
-    FndbWord size = numFiles + 2 * numSubDirs;
-    if (hasFileNameInfo)
-    {
-      size += numFiles;
-    }
-    return size;
-  }
-
-  void TableInsert(size_t idx, FndbByteOffset fo)
-  {
-    MIKTEX_ASSERT(idx < capacity);
-    memmove(&table[idx + 1], &table[idx], ((capacity - idx - 1) * sizeof(FndbByteOffset)));
-    table[idx] = fo;
-  }
-
-  void TableRemove(size_t idx)
-  {
-    MIKTEX_ASSERT(idx < capacity);
-    memmove(&table[idx], &table[idx + 1], ((capacity - idx - 1) * sizeof(FndbByteOffset)));
-  }
-
-  void Init()
-  {
-    foExtension = 0;
-  }
+  FndbByteOffset foFileName;
+  FndbByteOffset foDirectory;
+  FndbByteOffset foInfo;
+  FndbByteOffset reserved = 0;
 };
 
 END_INTERNAL_NAMESPACE;

@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -18,17 +18,6 @@
    along with the MiKTeX KPSEMU Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
-
-#if defined(MIKTEX_KPSEMU_SHARED)
-#  define MIKTEXKPSEXPORT MIKTEXDLLEXPORT
-#else
-#  define MIKTEXKPSEXPORT
-#endif
-
-#define D0A4167033297F40884B97769F47801C
-#include "miktex/KPSE/Emulation"
-
-#include "config.h"
 
 #define T_(x) MIKTEXTEXT(x)
 

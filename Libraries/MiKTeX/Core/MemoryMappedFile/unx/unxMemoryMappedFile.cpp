@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -32,8 +30,9 @@
 
 #include "unxMemoryMappedFile.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 MemoryMappedFile* MemoryMappedFile::Create()
 {
@@ -86,6 +85,12 @@ void unxMemoryMappedFile::OpenFile()
   {
     MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString(), "readWrite", readWrite ? "true" : "false");
   }
+  if (!File::TryLock(filedes, readWrite ? File::LockType::Exclusive : File::LockType::Shared , 10ms))
+  {
+    close(filedes);
+    filedes = -1;
+    MIKTEX_FATAL_ERROR_2(T_("Could not acquire lock."), "path", path.ToString());
+  }
 }
 
 void unxMemoryMappedFile::CreateMapping(size_t maximumFileSize)
@@ -95,6 +100,11 @@ void unxMemoryMappedFile::CreateMapping(size_t maximumFileSize)
   if (fstat(filedes, &statbuf) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("fstat", "path", path.ToString());
+  }
+
+  if (statbuf.st_size == 0)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("File is empty."), "path", path.ToString());
   }
 
   if (maximumFileSize == 0)
@@ -108,7 +118,7 @@ void unxMemoryMappedFile::CreateMapping(size_t maximumFileSize)
 
   if (ptr == MAP_FAILED)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("mmap", "path", path.ToString());
+    MIKTEX_FATAL_CRT_ERROR_2("mmap", "path", path.ToString(), "size", std::to_string(size), "readWrite", std::to_string(readWrite));
   }
 }
 
@@ -120,6 +130,14 @@ void unxMemoryMappedFile::CloseFile()
   }
   int filedes = this->filedes;
   this->filedes = -1;
+  try
+  {
+    File::Unlock(filedes);
+  }
+  catch (const MiKTeXException&)
+  {
+    // TODO: logging
+  }
   if (close(filedes) < 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("close", "path", path.ToString());

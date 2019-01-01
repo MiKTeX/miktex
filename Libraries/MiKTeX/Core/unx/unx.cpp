@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <sys/stat.h>
 
@@ -29,14 +27,15 @@
 #  include <sys/statvfs.h>
 #endif
 
-#include "internal.h"
+#include <miktex/Core/Directory>
 
-#include "miktex/Core/Directory.h"
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char* lpszPath)
 {

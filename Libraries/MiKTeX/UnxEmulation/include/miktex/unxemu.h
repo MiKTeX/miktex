@@ -46,6 +46,11 @@
 #include <sys/utime.h>
 #include <wchar.h>
 
+#if defined(__cplusplus)
+#include <chrono>
+#include <thread>
+#endif
+
 // DLL import/export switch
 #if !defined(D2A2BA842ACE40C6A8A17A9358F2147E)
 #  define MIKTEXUNXEXPORT MIKTEXDLLIMPORT
@@ -318,10 +323,10 @@ static inline int unlink(const char* path)
 }
 #endif
 
-#if !HAVE_USLEEP && !defined(usleep)
+#if !HAVE_USLEEP && !defined(usleep) && defined(__cplusplus)
 static inline int usleep(unsigned long useconds)
 {
-  _sleep(useconds);
+  std::this_thread::sleep_for(std::chrono::microseconds(useconds));
   return 0;
 }
 #endif

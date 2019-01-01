@@ -1084,7 +1084,7 @@ void Application::FindUpdates()
       case PackageInstaller::UpdateInfo::ForceUpdate:
         cout << upd.packageId << endl;
         break;
-      case PackageInstaller::UpdateInfo::ForceRemove:        
+      default:
         break;
       }      
     }
@@ -1114,6 +1114,8 @@ void Application::Update(const vector<string>& requestedUpdates)
       break;
     case PackageInstaller::UpdateInfo::ForceRemove:
       toBeRemoved.push_back(upd.packageId);
+      break;
+    default:
       break;
     }
   }
@@ -1496,10 +1498,8 @@ void Application::Main(int argc, const char** argv)
   PackageLevel optPackageLevel = PackageLevel::None;
   bool optPickRepositoryUrl = false;
   bool optPrintPackageInfo = false;
-  bool optRegisterComponents = false;
   bool optSetRepository = false;
   bool optSort = false;
-  bool optUnregisterComponents = false;
   bool optUpdate = false;
   bool optUpdateAll = false;
   bool optUpdateDb = false;
@@ -1510,6 +1510,10 @@ void Application::Main(int argc, const char** argv)
   bool optVersion = false;
   int optMaxCount = INT_MAX;
   int optProxyPort = -1;
+#if defined(MIKTEX_WINDOWS)
+  bool optRegisterComponents = false;
+  bool optUnregisterComponents = false;
+#endif
   OutputFormat outputFormat(OutputFormat::Listing);
   string packageId;
   string optProxy;

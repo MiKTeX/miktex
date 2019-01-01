@@ -19,9 +19,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include <config.h>
-#endif
+#include "config.h"
 
 #include <memory>
 
@@ -35,10 +33,11 @@
 
 #include "TarLzmaExtractor.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Trace;
-using namespace std;
 
 void TarLzmaExtractor::Extract(const PathName& path, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {

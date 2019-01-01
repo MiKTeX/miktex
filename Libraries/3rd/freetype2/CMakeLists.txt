@@ -47,8 +47,6 @@ add_definitions(
   -DFT2_BUILD_LIBRARY
 )
 
-ignore_warnings()
-
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/freetype/config)
 
 file(READ

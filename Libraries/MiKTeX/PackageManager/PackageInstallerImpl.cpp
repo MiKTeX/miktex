@@ -33,6 +33,7 @@
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/TemporaryFile>
 #include <miktex/Extractor/Extractor>
+#include <miktex/Trace/StopWatch>
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/winAutoResource>
@@ -40,9 +41,7 @@
 #include <miktex/Core/win/HResult>
 #endif
 
-#include "miktex/PackageManager/PackageManager"
-
-#include "miktex/Trace/StopWatch"
+#include <miktex/PackageManager/PackageManager>
 
 #include "internal.h"
 #include "PackageInstallerImpl.h"
@@ -58,11 +57,11 @@ using namespace MiKTeX::Util;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
-#define LF "\n"
+constexpr const char* LF = "\n";
 
-inline double Divide(double a, double b)
+template<typename T1, typename T2> double Divide(T1 a, T2 b)
 {
-  return a / b;
+  return static_cast<double>(a) / static_cast<double>(b);
 }
 
 string PackageInstallerImpl::MakeUrl(const string& relPath)
@@ -84,21 +83,13 @@ MPMSTATICFUNC(bool) IsMiKTeXPackage(const string& packageId)
   return strncmp(packageId.c_str(), "miktex-", 7) == 0;
 }
 
-MPMSTATICFUNC(PathName) PrefixedPackageManifestFile(const string& packageId)
-{
-  PathName path(TEXMF_PREFIX_DIRECTORY);
-  path /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-  path /= packageId;
-  path.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
-  return path;
-}
-
 PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manager) :
-  packageManager(manager),
   session(Session::Get()),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
-  trace_stopwatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH))
+  trace_stopwatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH)),
+  packageManager(manager),
+  packageDataStore(manager->GetPackageDataStore())
 {
   MIKTEX_ASSERT(
     PackageLevel::None < PackageLevel::Essential
@@ -263,13 +254,9 @@ void PackageInstallerImpl::OnBeginFileExtraction(const string& fileName, size_t 
     progressInfo.fileName = fileName;
   }
 
-  // update file name database
-  if (autoFndbSync)
+  if (!fileName.empty())
   {
-    if (!Fndb::FileExists(fileName))
-    {
-      Fndb::Add(fileName);
-    }
+    installedFiles.insert(fileName);
   }
 
   // notify client: beginning of file extraction
@@ -278,13 +265,9 @@ void PackageInstallerImpl::OnBeginFileExtraction(const string& fileName, size_t 
 
 void PackageInstallerImpl::OnEndFileExtraction(const string& fileName, size_t uncompressedSize)
 {
-  // update file name database
-  if (autoFndbSync && !fileName.empty())
+  if (!fileName.empty())
   {
-    if (!Fndb::FileExists(fileName))
-    {
-      Fndb::Add(fileName);
-    }
+    installedFiles.insert(fileName);
   }
 
   // update progress info
@@ -309,8 +292,7 @@ bool PackageInstallerImpl::OnError(const string& message)
 
 void PackageInstallerImpl::ExtractFiles(const PathName& archiveFileName, ArchiveFileType archiveFileType)
 {
-  unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(archiveFileType));
-  extractor->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
+  MiKTeX::Extractor::Extractor::CreateExtractor(archiveFileType)->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
 }
 
 void PackageInstallerImpl::InstallRepositoryManifest()
@@ -372,8 +354,7 @@ void PackageInstallerImpl::InstallRepositoryManifest()
     }
 
     // unpack database
-    unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
-    extractor->Extract(pathZzdb1, pathConfigDir);
+    MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(pathZzdb1, pathConfigDir);
   }
   else if (repositoryType == RepositoryType::MiKTeXDirect)
   {
@@ -404,32 +385,8 @@ void PackageInstallerImpl::LoadRepositoryManifest(bool download)
 {
   repositoryManifest.Clear();
 
-#if 1
   // path to mpm.ini
   PathName pathMpmIni(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_MPM_INI);
-#else
-  PathName commonMpmIni(
-    session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_MPM_INI);
-
-  PathName userMpmIni(
-    session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_MPM_INI);
-
-  PathName pathMpmIni;
-
-  if (session->IsAdminMode()
-    || (
-      !download
-      && userMpmIni != commonMpmIni
-      && File::Exists(commonMpmIni)
-      && (!File::Exists(userMpmIni) || File::GetLastWriteTime(commonMpmIni) > File::GetLastWriteTime(userMpmIni))))
-  {
-    pathMpmIni = commonMpmIni;
-  }
-  else
-  {
-    pathMpmIni = commonMpmIni;
-  }
-#endif
 
   // install (if necessary)
   time_t ONE_DAY_IN_SECONDS = 86400;
@@ -499,9 +456,11 @@ void PackageInstallerImpl::FindUpdates()
 
     bool isEssential = repositoryManifest.GetPackageLevel(packageId) <= PackageLevel::Essential;
 
-    const PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
+    bool knownPackage;
+    PackageInfo package;
+    tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
 
-    if (package == nullptr || !packageManager->IsPackageInstalled(packageId))
+    if (!knownPackage || !package.IsInstalled())
     {
       if (isEssential)
       {
@@ -515,10 +474,10 @@ void PackageInstallerImpl::FindUpdates()
     // clean the user-installation directory
     if (!session->IsAdminMode()
       && session->GetSpecialPath(SpecialPath::UserInstallRoot) != session->GetSpecialPath(SpecialPath::CommonInstallRoot)
-      && packageManager->GetUserTimeInstalled(packageId) != static_cast<time_t>(0)
-      && packageManager->GetCommonTimeInstalled(packageId) != static_cast<time_t>(0))
+      && IsValidTimeT(package.timeInstalledByUser)
+      && IsValidTimeT(package.timeInstalledByAdmin))
     {
-      if (!package->isRemovable)
+      if (!package.isRemovable)
       {
         MIKTEX_UNEXPECTED();
       }
@@ -531,7 +490,7 @@ void PackageInstallerImpl::FindUpdates()
     // check the integrity of installed MiKTeX packages
     if (IsMiKTeXPackage(packageId)
       && !packageManager->TryVerifyInstalledPackage(packageId)
-      && package->isRemovable)
+      && package.isRemovable)
     {
       // the package has been tampered with
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package is broken"), packageId));
@@ -543,16 +502,16 @@ void PackageInstallerImpl::FindUpdates()
 
     // compare digests, version numbers and time stamps
     MD5 md5 = repositoryManifest.GetPackageDigest(packageId);
-    if (md5 == package->digest)
+    if (md5 == package.digest)
     {
       // digests do match => no update necessary
       continue;
     }
 
     // check release state mismatch
-    bool isReleaseStateDiff = package->releaseState != RepositoryReleaseState::Unknown
+    bool isReleaseStateDiff = package.releaseState != RepositoryReleaseState::Unknown
       && repositoryReleaseState != RepositoryReleaseState::Unknown
-      && package->releaseState != repositoryReleaseState;
+      && package.releaseState != repositoryReleaseState;
     if (isReleaseStateDiff)
     {
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package release state changed"), packageId));
@@ -562,12 +521,12 @@ void PackageInstallerImpl::FindUpdates()
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: server has a different version"), packageId));
     }
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("server digest: {0}"), md5));;
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("local digest: {0}"), package->digest));
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("local digest: {0}"), package.digest));
     if (!isReleaseStateDiff)
     {
       // compare time stamps
       time_t timePackaged = repositoryManifest.GetTimePackaged(packageId);
-      if (timePackaged <= package->timePackaged)
+      if (timePackaged <= package.timePackaged)
       {
         // server has an older package => no update
         // necessary
@@ -577,7 +536,7 @@ void PackageInstallerImpl::FindUpdates()
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: server has new version"), packageId));
     }
 
-    if (!package->isRemovable)
+    if (!package.isRemovable)
     {
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: no permission to update package"), packageId));
       updateInfo.action = UpdateInfo::KeepAdmin;
@@ -679,8 +638,10 @@ void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
   for (string packageId = repositoryManifest.FirstPackage(); !packageId.empty(); packageId = repositoryManifest.NextPackage())
   {
     Notify();
-    const PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
-    if (package != nullptr && packageManager->IsPackageInstalled(packageId))
+    bool knownPackage;
+    PackageInfo package;
+    tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
+    if (knownPackage && package.IsInstalled())
     {
       continue;
     }
@@ -763,22 +724,21 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
 
     bool done = false;
 
-    // get information about the installed file
-    InstalledFileInfo* installedFileInfo = packageManager->GetInstalledFileInfo(f.c_str());
+    unsigned long refCount = packageDataStore->GetFileRefCount(f);
 
     // decrement the file reference counter
-    if (installedFileInfo != nullptr && installedFileInfo->refCount > 0)
+    if (refCount > 0)
     {
-      installedFileInfo->refCount -= 1;
+      refCount = packageDataStore->DecrementFileRefCount(f);
     }
 
     // make an absolute path name
     PathName path(session->GetSpecialPath(SpecialPath::InstallRoot), fileName);
 
     // only delete if the reference count reached zero
-    if (installedFileInfo != nullptr && installedFileInfo->refCount > 0)
+    if (refCount > 0)
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("will not delete {0} (ref count is {1})"), Q_(path), installedFileInfo->refCount));
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("will not delete {0} (ref count is {1})"), Q_(path), refCount));
       done = true;
     }
     else if (File::Exists(path))
@@ -786,12 +746,8 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
       // remove the file
       try
       {
-        FileDeleteOptionSet deleteOptions = { FileDeleteOption::TryHard };
-        if (autoFndbSync)
-        {
-          deleteOptions += FileDeleteOption::UpdateFndb;
-        }
-        File::Delete(path, deleteOptions);
+        File::Delete(path, { FileDeleteOption::TryHard });
+        removedFiles.insert(path);
         done = true;
       }
       catch (const MiKTeXException& e)
@@ -809,16 +765,6 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
       done = true;
     }
 
-
-    // remove from MPM FNDB
-#if 0
-    if (autoFndbSync
-      && Fndb::Exists(PathName(session->GetMpmRootPath(), fileName)))
-    {
-      Fndb::Remove(PathName(session->GetMpmRootPath(), fileName));
-    }
-#endif
-
     // update progress info
     if (done && !silently)
     {
@@ -831,7 +777,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
   }
 }
 
-void PackageInstallerImpl::RemovePackage(const string& packageId)
+void PackageInstallerImpl::RemovePackage(const string& packageId, Cfg& packageManifests)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0}"), Q_(packageId)));
 
@@ -840,44 +786,23 @@ void PackageInstallerImpl::RemovePackage(const string& packageId)
   ReportLine(fmt::format(T_("removing package {0}..."), Q_(packageId)));
 
   // get package info
-  PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
-  if (package == nullptr)
-  {
-    MIKTEX_UNEXPECTED();
-  }
+  PackageInfo package = packageDataStore->GetPackage(packageId);
 
   // check to see whether it is installed
-  if (packageManager->GetTimeInstalled(packageId) == 0)
+  if (!package.IsInstalled())
   {
     MIKTEX_UNEXPECTED();
   }
 
   // clear the installTime value => package is not installed
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing {0} from the variable package table"), Q_(packageId)));
-  packageManager->SetTimeInstalled(packageId, 0);
-  packageManager->FlushVariablePackageTable();
-  package->timeInstalled = 0;
-
-  if (packageManager->IsPackageObsolete(packageId))
-  {
-    // it's an obsolete package: make sure that the package
-    // definition file gets removed too
-    AddToFileList(package->runFiles, PrefixedPackageManifestFile(packageId));
-  }
-  else
-  {
-    // make sure that the package manifest file does not get removed
-    RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(packageId));
-  }
+  packageDataStore->SetTimeInstalled(packageId, InvalidTimeT);
+  packageDataStore->SaveVarData();
 
   // remove the files
-  size_t nTotal = (package->runFiles.size()
-    + package->docFiles.size()
-    + package->sourceFiles.size());
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0} file(s)"), nTotal));
-  RemoveFiles(package->runFiles);
-  RemoveFiles(package->docFiles);
-  RemoveFiles(package->sourceFiles);
+  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0} file(s)"), package.runFiles.size() + package.docFiles.size() + package.sourceFiles.size()));
+  RemoveFiles(package.runFiles);
+  RemoveFiles(package.docFiles);
+  RemoveFiles(package.sourceFiles);
 
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("package {0} successfully removed"), Q_(packageId)));
 
@@ -966,13 +891,7 @@ void PackageInstallerImpl::MyCopyFile(const PathName& source, const PathName& de
   fromStream.Close();
   toStream.Close();
 
-  if (autoFndbSync)
-  {
-    if (!Fndb::FileExists(dest))
-    {
-      Fndb::Add(dest);
-    }
-  }
+  installedFiles.insert(dest);
 }
 
 void PackageInstallerImpl::CopyFiles(const PathName& pathSourceRoot, const vector<string>& fileList)
@@ -1031,31 +950,6 @@ void PackageInstallerImpl::CopyFiles(const PathName& pathSourceRoot, const vecto
   }
 }
 
-void PackageInstallerImpl::AddToFileList(vector<string>& fileList, const PathName& fileName) const
-{
-  // avoid duplicates
-  for (const string& f : fileList)
-  {
-    if (PathName::Compare(f, fileName.ToString()) == 0)
-    {
-      return;
-    }
-  }
-  fileList.push_back(fileName.GetData());
-}
-
-void PackageInstallerImpl::RemoveFromFileList(vector<string>& fileList, const PathName& fileName) const
-{
-  for (vector<string>::iterator it = fileList.begin(); it != fileList.end(); ++it)
-  {
-    if (PathName::Compare(*it, fileName.ToString()) == 0)
-    {
-      fileList.erase(it);
-      return;
-    }
-  }
-}
-
 void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const string& packageId)
 {
   // parse the package manifest file
@@ -1070,68 +964,76 @@ void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const str
   PackageInfo package = tpmparser->GetPackageInfo();
   package.id = packageId;
 
-  // make sure that the package manifest file is included in the
-  // file list
-  AddToFileList(package.runFiles, PrefixedPackageManifestFile(packageId));
-
   // copy the files
   CopyFiles(pathSourceRoot, package.runFiles);
   CopyFiles(pathSourceRoot, package.docFiles);
   CopyFiles(pathSourceRoot, package.sourceFiles);
 }
 
-typedef unordered_set<string> StringSet;
-
-MPMSTATICFUNC(void) GetFiles(const PackageInfo& package, StringSet& files)
+MPMSTATICFUNC(unordered_set<PathName>) GetFiles(const PathName& rootDir, const PackageInfo& package)
 {
-  files.insert(package.runFiles.begin(), package.runFiles.end());
-  files.insert(package.docFiles.begin(), package.docFiles.end());
-  files.insert(package.sourceFiles.begin(), package.sourceFiles.end());
-}
-
-void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, const vector<string>& removedFiles, const char* lpszPackageName)
-{
-#if 0
-  ReportLine(T_("updating MPM file name database:"));
-  ReportLine(T_("  %u records to be added"), installedFiles.size());
-  ReportLine(T_("  %u records to be removed"), removedFiles.size());
-#endif
-  for (const string& f : installedFiles)
+  unordered_set<PathName> files;
+  for (const string& s : package.runFiles)
   {
-    PathName path(session->GetMpmRootPath(), f);
-    if (!Fndb::FileExists(path))
+    string fileName;
+    if (PackageManager::StripTeXMFPrefix(s, fileName))
     {
-      Fndb::Add(path, lpszPackageName);
-    }
-    else
-    {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0} already exists in mpm fndb"), Q_(path)));
+      files.insert((rootDir / fileName));
     }
   }
-  for (const string& f : removedFiles)
+  for (const string& s : package.docFiles)
   {
-    PathName path(session->GetMpmRootPath(), f);
-    if (Fndb::FileExists(path))
+    string fileName;
+    if (PackageManager::StripTeXMFPrefix(s, fileName))
     {
-      Fndb::Remove(path);
+      files.insert((rootDir / fileName));
     }
-    else
+  }
+  for (const string& s : package.sourceFiles)
+  {
+    string fileName;
+    if (PackageManager::StripTeXMFPrefix(s, fileName))
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0} does not exist in mpm fndb"), Q_(path)));
+      files.insert((rootDir / fileName));
     }
+  }
+  return files;
+}
+
+void PackageInstallerImpl::UpdateFndb(const unordered_set<PathName>& installedFiles, const unordered_set<PathName>& removedFiles, const string& packageId)
+{
+  vector<PathName> toBeRemoved;
+  for (const PathName& f : removedFiles)
+  {
+    if (installedFiles.find(f) == installedFiles.end() && Fndb::FileExists(f))
+    {
+      toBeRemoved.push_back(f);
+    }
+  }
+  if (!toBeRemoved.empty())
+  {
+    Fndb::Remove(toBeRemoved);
+  }
+  vector<Fndb::Record> toBeAdded;
+  for (const PathName& f : installedFiles)
+  {
+    if (!Fndb::FileExists(f))
+    {
+      toBeAdded.push_back({ f, packageId });
+    }
+  }
+  if (!toBeAdded.empty())
+  {
+    Fndb::Add(toBeAdded);
   }
 }
 
-void PackageInstallerImpl::InstallPackage(const string& packageId)
+void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageManifests)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("installing package {0}"), Q_(packageId)));
 
   // search the package table
-  PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
-  if (package == nullptr)
-  {
-    MIKTEX_UNEXPECTED();
-  }
+  PackageInfo package = packageDataStore->GetPackage(packageId);
 
   NeedRepository();
 
@@ -1139,11 +1041,11 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
     progressInfo.packageId = packageId;
-    progressInfo.displayName = package->displayName;
+    progressInfo.displayName = package.displayName;
     progressInfo.cFilesPackageInstallCompleted = 0;
-    progressInfo.cFilesPackageInstallTotal = package->GetNumFiles();
+    progressInfo.cFilesPackageInstallTotal = package.GetNumFiles();
     progressInfo.cbPackageInstallCompleted = 0;
-    progressInfo.cbPackageInstallTotal = package->GetSize();
+    progressInfo.cbPackageInstallTotal = package.GetSize();
     if (repositoryType == RepositoryType::Remote)
     {
       progressInfo.cbPackageDownloadCompleted = 0;
@@ -1187,19 +1089,20 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
     }
   }
 
+  installedFiles.clear();
+  removedFiles.clear();
+
   // silently uninstall the package (this also decrements the file
   // reference counts)
-  if (packageManager->IsPackageInstalled(packageId))
+  if (package.IsInstalled())
   {
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: removing old files"), packageId));
-    // make sure that the package info file does not get removed
-    RemoveFromFileList(package->runFiles, PrefixedPackageManifestFile(packageId));
-    RemoveFiles(package->runFiles, true);
-    RemoveFiles(package->docFiles, true);
-    RemoveFiles(package->sourceFiles, true);
+    RemoveFiles(package.runFiles, true);
+    RemoveFiles(package.docFiles, true);
+    RemoveFiles(package.sourceFiles, true);
     // temporarily set the status to "not installed"
-    packageManager->SetTimeInstalled(packageId, 0);
-    packageManager->FlushVariablePackageTable();
+    packageDataStore->SetTimeInstalled(packageId, InvalidTimeT);
+    packageDataStore->SaveVarData();
   }
 
   if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
@@ -1235,55 +1138,25 @@ void PackageInstallerImpl::InstallPackage(const string& packageId)
 
   // get new package info
   PackageInfo newPackage = tpmparser->GetPackageInfo();
-  newPackage.id = packageId;
 
-  // find recycled and brand new files
-  StringSet set1;
-  GetFiles(*package, set1);
-  StringSet set2;
-  GetFiles(newPackage, set2);
-  vector<string> recycledFiles;
-  for (const string& s : set1)
-  {
-    if (set2.find(s) == set2.end())
-    {
-      string str;
-      if (PackageManager::StripTeXMFPrefix(s, str))
-      {
-        recycledFiles.push_back(str);
-      }
-    }
-  }
-  vector<string> newFiles;
-  for (const string& s : set2)
-  {
-    if (set1.find(s) == set1.end())
-    {
-      string str;
-      if (PackageManager::StripTeXMFPrefix(s, str))
-      {
-        newFiles.push_back(str);
-      }
-    }
-  }
+  // install new package manifest
+  PackageManager::PutPackageManifest(packageManifests, newPackage, newPackage.timePackaged);
 
-  // update the MPM file name database
-  if (autoFndbSync)
-  {
-    UpdateMpmFndb(newFiles, recycledFiles, packageId.c_str());
-  }
+  // update file name database
+  UpdateFndb(installedFiles, removedFiles, "");
+  UpdateFndb(GetFiles(session->GetMpmRootPath(), newPackage), GetFiles(session->GetMpmRootPath(), package), packageId);
 
   // set the timeInstalled value => package is installed
   newPackage.timeInstalled = time(nullptr);
-  packageManager->SetTimeInstalled(packageId, newPackage.timeInstalled);
-  packageManager->SetReleaseState(packageId, repositoryReleaseState);
-  packageManager->FlushVariablePackageTable();
+  packageDataStore->SetTimeInstalled(packageId, newPackage.timeInstalled);
+  packageDataStore->SetReleaseState(packageId, repositoryReleaseState);
+  packageDataStore->SaveVarData();
 
   // update package info table
-  *package = newPackage;
+  packageDataStore->SetPackage(newPackage);
 
   // increment file ref counts
-  packageManager->IncrementFileRefCounts(packageId);
+  packageDataStore->IncrementFileRefCounts(packageId);
 
   // update progress info
   {
@@ -1345,17 +1218,13 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
   {
     if (!downloadOnly)
     {
-      PackageInfo* installCandidate = packageManager->TryGetPackageInfo(p);
-      if (installCandidate == nullptr)
-      {
-        MIKTEX_UNEXPECTED();
-      }
-      package.cFilesInstallTotal += installCandidate->GetNumFiles();
-      package.cbInstallTotal += installCandidate->GetSize();
+      PackageInfo installCandidate = packageDataStore->GetPackage(p);
+      package.cFilesInstallTotal += installCandidate.GetNumFiles();
+      package.cbInstallTotal += installCandidate.GetSize();
     }
     if (repositoryType == RepositoryType::Remote)
     {
-      int iSize = repositoryManifest.GetArchiveFileSize(p);
+      size_t iSize = repositoryManifest.GetArchiveFileSize(p);
       if (iSize == 0)
       {
         LoadRepositoryManifest(true);
@@ -1384,12 +1253,8 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
 
     for (const string& p : toBeRemoved)
     {
-      PackageInfo* removeCandidate = packageManager->TryGetPackageInfo(p);
-      if (removeCandidate == nullptr)
-      {
-        MIKTEX_UNEXPECTED();
-      }
-      package.cFilesRemoveTotal += removeCandidate->GetNumFiles();
+      PackageInfo removeCandidate = packageDataStore->GetPackage(p);
+      package.cFilesRemoveTotal += removeCandidate.GetNumFiles();
     }
 
     ReportLine(fmt::format(T_("going to remove {0} file(s) ({1} package(s))"), package.cFilesRemoveTotal, package.cPackagesRemoveTotal));
@@ -1444,10 +1309,6 @@ bool PackageInstallerImpl::CheckArchiveFile(const std::string& packageId, const 
 void PackageInstallerImpl::ConnectToServer()
 {
   const char* MSG_CANNOT_START_SERVER = T_("Cannot start MiKTeX package manager.");
-  if (!session->UnloadFilenameDatabase())
-  {
-    // ignore for now
-  }
   if (localServer.pInstaller == nullptr)
   {
     if (localServer.pManager == nullptr)
@@ -1569,12 +1430,8 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
 {
   for (const string& p : packages)
   {
-    PackageInfo* package = packageManager->TryGetPackageInfo(p);
-    if (package == nullptr)
-    {
-      MIKTEX_UNEXPECTED();
-    }
-    for (const string& f : package->runFiles)
+    PackageInfo package = packageDataStore->GetPackage(p);
+    for (const string& f : package.runFiles)
     {
       string fileName;
       if (!PackageManager::StripTeXMFPrefix(f, fileName))
@@ -1608,7 +1465,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
 #endif
       }
 #if defined(MIKTEX_WINDOWS)
-      if (!session->IsMiKTeXPortable() && (session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      if (!session->IsMiKTeXPortable() && session->RunningAsAdministrator())
       {
         for (const char* comp : components)
         {
@@ -1659,8 +1516,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
 #endif
   }
 #if defined(MIKTEX_WINDOWS)
-  if (!session->IsMiKTeXPortable()
-    && (session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+  if (!session->IsMiKTeXPortable() && session->RunningAsAdministrator())
   {
     for (const char* comp : components)
     {
@@ -1710,15 +1566,17 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
   {
     MIKTEX_UNEXPECTED();
   }
-  PackageInfo* package = packageManager->TryGetPackageInfo(packageId);
-  if (package != nullptr)
+  bool knownPackage;
+  PackageInfo package;
+  tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
+  if (knownPackage)
   {
-    for (const string& p : package->requiredPackages)
+    for (const string& p : package.requiredPackages)
     {
       CheckDependencies(packages, p, force, level + 1);
     }
   }
-  if (force || !packageManager->IsPackageInstalled(packageId))
+  if (force || (knownPackage && !package.IsInstalled()))
   {
     packages.insert(packageId);
   }
@@ -1802,17 +1660,10 @@ void PackageInstallerImpl::InstallRemove(Role role)
     ReportLine(fmt::format(T_("package repository: {0}"), Q_(repository)));
   }
 
-  SetAutoFndbSync(true);
-
   // make sure that mpm.fndb exists
-  if (autoFndbSync && !File::Exists(session->GetMpmDatabasePathName()))
+  if (!File::Exists(session->GetMpmDatabasePathName()))
   {
     packageManager->CreateMpmFndb();
-  }
-
-  if (toBeInstalled.size() > 1 || !toBeRemoved.empty())
-  {
-    packageManager->NeedInstalledFileInfoTable();
   }
 
   // collect all packages, if no packages were specified by the caller
@@ -1888,16 +1739,23 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
   RegisterComponents(false, toBeInstalled, toBeRemoved);
 
+  unique_ptr<Cfg> packageManifests = Cfg::Create();
+  PathName packageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+  if (File::Exists(packageManifestsIni))
+  {
+    packageManifests->Read(packageManifestsIni);
+  }
+
   // install packages
   for (const string& p : toBeInstalled)
   {
-    InstallPackage(p);
+    InstallPackage(p, *packageManifests);
   }
 
   // remove packages
   for (const string& p : toBeRemoved)
   {
-    RemovePackage(p);
+    RemovePackage(p, *packageManifests);
   }
 
   if (role == Role::Updater)
@@ -1916,23 +1774,19 @@ void PackageInstallerImpl::InstallRemove(Role role)
   }
   for (const string& p : tmp)
   {
-    InstallPackage(p);
+    InstallPackage(p, *packageManifests);
   }
+
+  if (File::Exists(packageManifestsIni))
+  {
+    packageManifests->Write(packageManifestsIni);
+  }
+
+  packageManifests = nullptr;
 
   if (!noPostProcessing)
   {
     RegisterComponents(true, toBeInstalled);
-  }
-
-  if (!autoFndbSync)
-  {
-    // refresh file name database now
-    ReportLine(T_("refreshing file name database..."));
-    if (!Fndb::Refresh(session->GetSpecialPath(SpecialPath::InstallRoot), this))
-    {
-      throw OperationCancelledException();
-    }
-    packageManager->CreateMpmFndb();
   }
 
   if (!noPostProcessing)
@@ -2079,7 +1933,6 @@ void PackageInstallerImpl::Download()
     progressInfo.cbPackageDownloadTotal = ZZDB1_SIZE;
   }
   Download(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
-#if defined(MIKTEX_USE_ZZDB3)
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
     progressInfo.packageId = MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
@@ -2088,16 +1941,6 @@ void PackageInstallerImpl::Download()
     progressInfo.cbPackageDownloadTotal = ZZDB3_SIZE;
   }
   Download(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
-#else
-  {
-    lock_guard<mutex> lockGuard(progressIndicatorMutex);
-    progressInfo.packageId = MIKTEX_TPM_ARCHIVE_FILE_NAME_NO_SUFFIX;
-    progressInfo.displayName = T_("Package manifest files");
-    progressInfo.cbPackageDownloadCompleted = 0;
-    progressInfo.cbPackageDownloadTotal = ZZDB2_SIZE;
-  }
-  Download(MIKTEX_TPM_ARCHIVE_FILE_NAME);
-#endif
 
   // download archive files
   for (const string& p : toBeInstalled)
@@ -2149,72 +1992,45 @@ void PackageInstallerImpl::DownloadThread()
 #endif
 }
 
-#if !defined(MIKTEX_USE_ZZDB3)
-void PackageInstallerImpl::SetUpPackageManifestFiles(const PathName& directory)
-{
-  // path to the database file
-  PathName pathDatabase;
-
-  NeedRepository();
-
-  if (repositoryType == RepositoryType::Remote)
-  {
-    // download the database file
-    pathDatabase = directory / MIKTEX_TPM_ARCHIVE_FILE_NAME;
-    Download(MakeUrl(MIKTEX_TPM_ARCHIVE_FILE_NAME), pathDatabase);
-  }
-  else
-  {
-    MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-    pathDatabase = repository / MIKTEX_TPM_ARCHIVE_FILE_NAME;
-  }
-
-  // extract files from archive
-  unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
-  extractor->Extract(pathDatabase, directory);
-}
-#endif
-
 void PackageInstallerImpl::CleanUpUserDatabase()
 {
-#if defined(MIKTEX_USE_ZZDB3)
-  PathName userFile(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
-  PathName commonFile(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
+  MIKTEX_ASSERT(!session->IsAdminMode());
+  
+  PathName userManifestsPath(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
+  PathName commonManifestsPath(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
 
-  if (!File::Exists(userFile) || !File::Exists(commonFile))
+  if (!File::Exists(userManifestsPath) || !File::Exists(commonManifestsPath))
   {
     return;
   }
 
-  if (userFile.Canonicalize() == commonFile.Canonicalize())
+  if (userManifestsPath.Canonicalize() == commonManifestsPath.Canonicalize())
   {
     return;
   }
 
   vector<string> toBeRemoved;
 
-  unique_ptr<Cfg> cfgUser = Cfg::Create();
-  cfgUser->Read(userFile);
+  unique_ptr<Cfg> userManifests = Cfg::Create();
+  userManifests->Read(userManifestsPath);
 
-  unique_ptr<Cfg> cfgCommon = Cfg::Create();
-  cfgCommon->Read(commonFile);
+  unique_ptr<Cfg> commonManifests = Cfg::Create();
+  commonManifests->Read(commonManifestsPath);
 
   // check all user package manifests
-  for (auto keyUser : *cfgUser)
+  for (auto keyUser : *userManifests)
   {
     string packageId = keyUser->GetName();
 
     // check to see whether the system-wide manifest exists
-    auto keyCommon = cfgCommon->GetKey(packageId);
+    auto keyCommon = commonManifests->GetKey(packageId);
     if (keyCommon == nullptr)
     {
       continue;
     }
 
     // compare manifests
-    PackageInfo packageInfoUser = PackageManager::GetPackageManifest(*cfgUser, packageId, TEXMF_PREFIX_DIRECTORY);
-    PackageInfo packageInfoCommon = PackageManager::GetPackageManifest(*cfgCommon, packageId, TEXMF_PREFIX_DIRECTORY);
-    if (packageInfoUser == packageInfoCommon)
+    if (PackageManager::GetPackageManifest(*userManifests, packageId, TEXMF_PREFIX_DIRECTORY) == PackageManager::GetPackageManifest(*commonManifests, packageId, TEXMF_PREFIX_DIRECTORY))
     {
       // manifests are identical; remove user manifest later
       toBeRemoved.push_back(packageId);
@@ -2225,83 +2041,38 @@ void PackageInstallerImpl::CleanUpUserDatabase()
   for (const string& packageId : toBeRemoved)
   {
     trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing redundant package manifest: {0}"), packageId));
-    cfgUser->DeleteKey(packageId);
-  }
-#else
-  PathName userDir(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-
-  PathName commonDir(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-
-  if (!Directory::Exists(userDir) || !Directory::Exists(commonDir))
-  {
-    return;
+    userManifests->DeleteKey(packageId);
   }
 
-  if (userDir.Canonicalize() == commonDir.Canonicalize())
-  {
-    return;
-  }
-
-  vector<PathName> toBeRemoved;
-
-  // check all package manifest files
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(userDir);
-  DirectoryEntry direntry;
-  while (lister->GetNext(direntry))
-  {
-    PathName name(direntry.name);
-
-    if (direntry.isDirectory
-      || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
-    {
-      continue;
-    }
-
-    // check to see whether the system-wide file exists
-    PathName commonPackageManifestFile(commonDir, name);
-    if (!File::Exists(commonPackageManifestFile))
-    {
-      continue;
-    }
-
-    // compare files
-    PathName userPackageManifestFile(userDir, name);
-    if (File::GetSize(userPackageManifestFile) == File::GetSize(commonPackageManifestFile)
-      && MD5::FromFile(userPackageManifestFile.GetData()) == MD5::FromFile(commonPackageManifestFile.GetData()))
-    {
-      // files are identical; remove user file later
-      toBeRemoved.push_back(userPackageManifestFile);
-    }
-  }
-  lister->Close();
-
-  // remove redundant user package manifest files
-  for (const PathName& p : toBeRemoved)
-  {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing redundant package manifest file: {0}"), Q_(p)));
-    File::Delete(p, { FileDeleteOption::TryHard });
-  }
-#endif
+  userManifests->Write(userManifestsPath);
 }
 
-#if defined(MIKTEX_USE_ZZDB3)
-void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, const Cfg& cfgNew)
+void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& existingManifests, const Cfg& newManifests)
 {
   vector<string> toBeRemoved;
-  for (auto keyExisting : cfgExisting)
+  for (auto keyExisting : existingManifests)
   {
     string packageId = keyExisting->GetName();
 
-    // it's not an obsolete package if cfgNew
+    // it's not an obsolete package if newManifests
     // contains a corresponding package manifest
-    if (cfgNew.GetKey(packageId) != nullptr)
+    if (newManifests.GetKey(packageId) != nullptr)
     {
       continue;
     }
 
+    bool knownPackage;
+    PackageInfo packageInfo;
+    tie(knownPackage, packageInfo) = packageDataStore->TryGetPackage(packageId);
+    if (!knownPackage)
+    {
+      // might be a different architecture and hence not in the package store
+      continue;
+    }
+    
     // now we know that the package is obsolete
     // check to see whether the obsolete package is installed
-    if (packageManager->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
+    if (!packageInfo.IsInstalled() || IsPureContainer(packageId))
     {
       // not installed: remove the package manifest (later)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete package manifest '{0}'"), packageId));
@@ -2312,78 +2083,21 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& cfgExisting, cons
       // installed: declare the package as obsolete (we wont
       // uninstall obsolete packages)
       trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("declaring '{0}' obsolete"), packageId));
-      packageManager->DeclarePackageObsolete(packageId, true);
+      packageDataStore->DeclareObsolete(packageId);
     }
   }
   for (const auto& p : toBeRemoved)
   {
-    cfgExisting.DeleteKey(p);
+    existingManifests.DeleteKey(p);
   }
-
-  packageManager->FlushVariablePackageTable();
+  packageDataStore->SaveVarData();
 }
-#else
-void PackageInstallerImpl::HandleObsoletePackageManifestFiles(const PathName& temporaryDirectory)
-{
-  PathName pathPackageDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-
-  if (!Directory::Exists(pathPackageDir))
-  {
-    return;
-  }
-
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(pathPackageDir);
-  DirectoryEntry direntry;
-  while (lister->GetNext(direntry))
-  {
-    PathName name(direntry.name);
-
-    if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
-    {
-      continue;
-    }
-
-    // it's not an obsolete package if the temporary directory
-    // contains a corresponding package manifest file
-    if (File::Exists(temporaryDirectory / name))
-    {
-      continue;
-    }
-
-    // now we know that the package is obsolete
-
-    MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX).GetExtension()));
-    string packageId = name.GetFileNameWithoutExtension().ToString();
-
-    // check to see whether the obsolete package is installed
-    if (packageManager->GetTimeInstalled(packageId) == 0 || IsPureContainer(packageId))
-    {
-      // not installed: remove the package manifest file
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing obsolete {0}"), Q_(name)));
-      File::Delete(pathPackageDir / name, { FileDeleteOption::TryHard });
-    }
-    else
-    {
-      // installed: declare the package as obsolete (we wont
-      // uninstall obsolete packages)
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("declaring {0} obsolete"), Q_(packageId)));
-      packageManager->DeclarePackageObsolete(packageId, true);
-    }
-  }
-
-  lister->Close();
-
-  packageManager->FlushVariablePackageTable();
-}
-#endif
 
 void PackageInstallerImpl::UpdateDb()
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "update package database");
 
   NeedRepository();
-
-  size_t count = 0;
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
   if (UseLocalServer())
@@ -2418,168 +2132,78 @@ void PackageInstallerImpl::UpdateDb()
     repositoryReleaseState = packageManager->VerifyPackageRepository(repository).releaseState;
   }
 
-  // we might need a temporary directory
+  // we need a temporary directory
   unique_ptr<TemporaryDirectory> tempDir;
-
-#if defined(MIKTEX_USE_ZZDB3)
   tempDir = TemporaryDirectory::Create();
 
-  PathName pathDatabase;
+  PathName archivePath;
 
   if (repositoryType == RepositoryType::Remote)
   {
-    // download the database file
-    pathDatabase = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
-    Download(MakeUrl(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME), pathDatabase);
+    // download the archive file
+    archivePath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
+    Download(MakeUrl(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME), archivePath);
   }
   else
   {
     MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-    pathDatabase = repository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
+    archivePath = repository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
   }
 
   // extract new package-manifests.ini
-  unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
-  extractor->Extract(pathDatabase, tempDir->GetPathName());
+  MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(archivePath, tempDir->GetPathName());
 
   // load new package-manifests.ini
-  unique_ptr<Cfg> cfgNew = Cfg::Create();
-  cfgNew->Read(tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
+  unique_ptr<Cfg> newManifests = Cfg::Create();
+  newManifests->Read(tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
 
   // load existing package-manifests.ini
-  packageManager->NeedPackageManifestsIni();
-  unique_ptr<Cfg> cfgExisting = Cfg::Create();
+  unique_ptr<Cfg> existingManifests = Cfg::Create();
+  packageDataStore->NeedPackageManifestsIni();
   PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
   if (File::Exists(existingPackageManifestsIni))
   {
-    cfgExisting->Read(existingPackageManifestsIni);
+    existingManifests->Read(existingPackageManifestsIni);
   }
 
-  HandleObsoletePackageManifests(*cfgExisting, *cfgNew);
+  HandleObsoletePackageManifests(*existingManifests, *newManifests);
 
   // update the package manifests
   ReportLine(fmt::format(T_("updating package manifests ({0})..."), Q_(existingPackageManifestsIni)));
-  for (auto key : *cfgNew)
+  size_t count = 0;
+  for (auto key : *newManifests)
   {
     string packageId = key->GetName();
 
     Notify();
 
-    // ignore package, if package is already installed
-    if (!IsPureContainer(packageId) && packageManager->IsPackageInstalled(packageId))
+    // ignore manifest, if package is already installed
+    bool knownPackage;
+    PackageInfo existingPackage;
+    tie(knownPackage, existingPackage) = packageDataStore->TryGetPackage(packageId);
+    if (!IsPureContainer(packageId) && knownPackage && existingPackage.IsInstalled())
     {
       continue;
     }
 
-    if (cfgExisting->GetKey(packageId) != nullptr)
+    if (existingManifests->GetKey(packageId) != nullptr)
     {
       // remove the existing manifest
-      cfgExisting->DeleteKey(packageId);
+      existingManifests->DeleteKey(packageId);
     }
+
     // install the new manifest
-    PackageInfo packageInfo = PackageManager::GetPackageManifest(*cfgNew, packageId, TEXMF_PREFIX_DIRECTORY);
-    PackageManager::PutPackageManifest(*cfgExisting, packageInfo, packageInfo.timePackaged);
+    PackageInfo packageInfo = PackageManager::GetPackageManifest(*newManifests, packageId, TEXMF_PREFIX_DIRECTORY);
+    PackageManager::PutPackageManifest(*existingManifests, packageInfo, packageInfo.timePackaged);
 
     // update the package table
-    packageManager->DefinePackage(packageId, packageInfo);
+    packageDataStore->DefinePackage(packageInfo);
 
     ++count;
   }
 
   // write package-manifests.ini
-  cfgExisting->Write(existingPackageManifestsIni);
-#else
-  // path to the directory containing package manifests
-  PathName pkgDir;
-
-  // copy the new package manifest files into a temporary directory
-  if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
-  {
-    tempDir = TemporaryDirectory::Create();
-    pkgDir = tempDir->GetPathName();
-    SetUpPackageManifestFiles(pkgDir);
-  }
-  else if (repositoryType == RepositoryType::MiKTeXDirect)
-  {
-    // installing from the CD
-    pkgDir = repository;
-    pkgDir /= MIKTEXDIRECT_PREFIX_DIR;
-    pkgDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-  }
-  else
-  {
-    MIKTEX_UNEXPECTED();
-  }
-
-  // handle obsolete package manifest files
-  HandleObsoletePackageManifestFiles(pkgDir);
-
-  // update the package manifest files
-  PathName packageManifestDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-  ReportLine(fmt::format(T_("updating package manifest files in {0}..."), Q_(packageManifestDir)));
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(pkgDir);
-  DirectoryEntry direntry;
-  unique_ptr<TpmParser> tpmparser = TpmParser::Create();
-  while (lister->GetNext(direntry))
-  {
-    Notify();
-
-    PathName name(direntry.name);
-
-    if (direntry.isDirectory || !name.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
-    {
-      continue;
-    }
-
-    // get package ID
-    MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX).GetExtension()));
-    string packageId = name.GetFileNameWithoutExtension().ToString();
-
-    // build name of current package manifest file
-    PathName currentPackageManifestFile(packageManifestDir, name);
-
-    // ignore package, if package is already installed
-    if (!IsPureContainer(packageId) && packageManager->IsPackageInstalled(packageId))
-    {
-#if 0
-      if (File::Exists(currentPackageManifestFile))
-#endif
-        continue;
-    }
-
-    // parse new package manifest file
-    PathName newPackageManifestFile(pkgDir, name);
-    tpmparser->Parse(newPackageManifestFile);
-
-#if 0
-    PackageInfo currentPackageInfo;
-    if (!IsPureContainer(szpackageId)
-      && packageManager->TryGetPackageInfo(szpackageId, currentPackageInfo)
-      && tpmparser.GetPackageInfo().digest == currentPackageInfo.digest)
-    {
-      // nothing new
-      continue;
-    }
-#endif
-
-    // move the new package manifest file into the package
-    // manifest directory
-    Directory::Create(packageManifestDir);
-    if (File::Exists(currentPackageManifestFile))
-    {
-      // move the current file out of the way
-      File::Delete(currentPackageManifestFile, { FileDeleteOption::TryHard });
-    }
-    File::Copy(newPackageManifestFile, currentPackageManifestFile);
-
-    // update the database
-    packageManager->DefinePackage(packageId, tpmparser->GetPackageInfo());
-
-    ++count;
-  }
-
-  lister->Close();
-#endif
+  existingManifests->Write(existingPackageManifestsIni);
 
   ReportLine(fmt::format(T_("installed {0} package manifests"), count));
 
@@ -2631,7 +2255,6 @@ void PackageInstallerImpl::StartWorkerThread(void (PackageInstallerImpl::*method
 {
   progressInfo = ProgressInfo();
   timeStarted = clock();
-  SetAutoFndbSync(false);
   workerThread = thread(method, this);
 }
 
@@ -2690,6 +2313,11 @@ void PackageInstallerImpl::Dispose()
   {
     trace_error->Close();
     trace_error.reset();
+  }
+  if (trace_stopwatch.get() != nullptr)
+  {
+    trace_stopwatch->Close();
+    trace_stopwatch.reset();
   }
 #if defined(MIKTEX_WINDOWS)
   while (numCoInitialize > 0)

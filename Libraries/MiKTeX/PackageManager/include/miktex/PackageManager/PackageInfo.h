@@ -34,6 +34,7 @@
 
 #include <miktex/Core/MD5>
 
+#include "definitions.h"
 #include "RepositoryInfo.h"
 
 MPM_BEGIN_NAMESPACE;
@@ -81,18 +82,22 @@ struct PackageInfo
   std::vector<std::string> sourceFiles;
 
   /// List of required packages.
-  // FIXME: (these should be <set>s; but <set>s cannot be
-  // exported from a DLL (see Q172396))
   std::vector<std::string> requiredPackages;
 
   /// List of dependants.
   std::vector<std::string> requiredBy;
 
   /// Date/time when the package was created.
-  time_t timePackaged = static_cast<time_t>(0);
+  std::time_t timePackaged = InvalidTimeT;
 
   /// Date/time when the package was installed.
-  time_t timeInstalled = static_cast<time_t>(0);
+  std::time_t timeInstalled = InvalidTimeT;
+
+  /// Date/time when the package was installed by the user.
+  std::time_t timeInstalledByUser = InvalidTimeT;
+
+  /// Date/time when the package was installed by the administrator (for all users).
+  std::time_t timeInstalledByAdmin = InvalidTimeT;
 
   /// Size of the archive file.
   std::size_t archiveFileSize = 0;
@@ -100,21 +105,29 @@ struct PackageInfo
   /// MD5 of the package.
   MiKTeX::Core::MD5 digest;
 
-  /// 
+  /// True, if the package can be removed.
   bool isRemovable = false;
 
-  /// 
+  /// True, if the package is obsolete.
   bool isObsolete = false;
 
+  /// The release state of the package.
   RepositoryReleaseState releaseState = RepositoryReleaseState::Unknown;
 
-#if MIKTEX_EXTENDED_PACKAGEINFO
+  /// Relative path to the package directory on a CTAN mirror.
   std::string ctanPath;
+
+  /// The license type of the package.
   std::string licenseType;
+
+  /// The copyright owner of the package.
   std::string copyrightOwner;
+
+  /// Copyright year
   std::string copyrightYear;
+
+  /// The version/date of the package.
   std::string versionDate;
-#endif
 
   /// Gets the total number of files in the package.
   /// @return Returns the number of files.
@@ -152,7 +165,7 @@ struct PackageInfo
   /// Checks to see whether the package is installed.
   bool IsInstalled() const
   {
-    return timeInstalled != static_cast<time_t>(0);
+    return IsValidTimeT(timeInstalled);
   }
 
   /// Gets the number of dependants.

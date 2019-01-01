@@ -354,7 +354,10 @@ FcDirCacheUnlink (const FcChar8 *dir, FcConfig *config)
         if (!cache_hashed)
 	    break;
 #if defined(MIKTEX_WINDOWS)
-        miktex_file_delete(cache_hashed);
+        if (access(cache_hashed, 0) == 0)
+        {
+          miktex_file_delete(cache_hashed);
+        }
 #else
 	(void) unlink ((char *) cache_hashed);
 #endif

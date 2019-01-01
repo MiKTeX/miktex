@@ -29,8 +29,6 @@ set(public_include_directories
   ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
-ignore_warnings()
-
 set(HAVE_STDARG 1)
 
 configure_file(

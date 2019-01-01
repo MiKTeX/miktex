@@ -26,15 +26,26 @@
 
 #include <miktex/Core/config.h>
 
+#if defined(MIKTEX_WINDOWS)
+#include <Windows.h>
+#endif
+
 #include <cstddef>
 #include <cstdio>
 #include <ctime>
 
+#include <chrono>
 #include <fstream>
 #include <vector>
 
 #include "OptionSet.h"
 #include "PathName.h"
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+// "The compiler encountered a deprecated declaration."
+#pragma warning( disable : 4996 )
+#endif
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -48,6 +59,8 @@ enum class FileMode
   Append,
   /// The file will be created, if it doesn't already exist.
   Create,
+  /// The file will be created. Raise an error, if the file already exists.
+  CreateNew,
   /// Open an existing file.
   Open,
   /// Execute a command and create a pipe.
@@ -63,19 +76,6 @@ enum class FileAccess
   /// Write access.
   Write,
   /// Read/Write access.
-  ReadWrite
-};
-
-/// File share enum class.
-enum class FileShare
-{
-  /// No other stream can be opened on the file.
-  None,
-  /// Other streams can be opened for reading only.
-  Read,
-  /// Other streams can be opened for writing only.
-  Write,
-  /// Other streams can be opened for reading and writing.
   ReadWrite
 };
 
@@ -240,11 +240,7 @@ public:
 
   /// Opens a stream on a file.
 public:
-  static MIKTEXCORECEEAPI(FILE*) Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share);
-
-  /// Opens a stream on a file.
-public:
-  static MIKTEXCORECEEAPI(FILE*) Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options);
+  static MIKTEXCORECEEAPI(FILE*) Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileOpenOptionSet options);
 
 public:
   static MIKTEXCORECEEAPI(std::ifstream) CreateInputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions);
@@ -309,8 +305,46 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(void) WriteBytes(const PathName& path, const std::vector<unsigned char>& data);
+  
+public:
+  enum class LockType
+  {
+    Shared,
+    Exclusive
+  };
+  
+public:
+  static MIKTEXCORECEEAPI(bool) TryLock(int fd, LockType lockType, std::chrono::milliseconds timeout);
+
+public:
+  static bool TryLock(FILE* file, LockType lockType, std::chrono::milliseconds timeout)
+  {
+    return TryLock(fileno(file), lockType, timeout);
+  }
+
+#if defined(MIKTEX_WINDOWS)
+public:
+  static MIKTEXCORECEEAPI(bool) TryLock(HANDLE hFile, LockType lockType, std::chrono::milliseconds timeout);
+#endif
+
+public:
+  static MIKTEXCORECEEAPI(void) Unlock(int fd);
+
+public:
+  static void Unlock(FILE* file)
+  {
+    Unlock(fileno(file));
+  }
+
+#if defined(MIKTEX_WINDOWS)
+  static MIKTEXCORECEEAPI(void) Unlock(HANDLE hFile);
+#endif
 };
 
 MIKTEX_CORE_END_NAMESPACE;
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #endif

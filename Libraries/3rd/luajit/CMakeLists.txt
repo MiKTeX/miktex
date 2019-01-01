@@ -33,8 +33,6 @@ set(public_include_directories
 
 add_definitions(-DLUA_BUILD_AS_DLL -DLUAJIT_ENABLE_LUA52COMPAT)
 
-ignore_warnings()
-
 set(generated_headers
   ${CMAKE_CURRENT_BINARY_DIR}/buildvm_arch.h
   ${CMAKE_CURRENT_BINARY_DIR}/lj_bcdef.h

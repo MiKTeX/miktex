@@ -263,13 +263,13 @@ namespace {
   const struct option aLongOptions[] =
   {
     COMMON_OPTIONS,
-    "dest-name",        required_argument,      nullptr,      OPT_DESTNAME,
-    "engine",           required_argument,      nullptr,      OPT_ENGINE,
-    "engine-option",    required_argument,      nullptr,      OPT_ENGINE_OPTION,
-    "job-time",         required_argument,      nullptr,      OPT_JOB_TIME,
-    "no-dump",          no_argument,            nullptr,      OPT_NO_DUMP,
-    "preload",          required_argument,      nullptr,      OPT_PRELOAD,
-    nullptr,            no_argument,            nullptr,      0,
+    {"dest-name",        required_argument,      nullptr,      OPT_DESTNAME},
+    {"engine",           required_argument,      nullptr,      OPT_ENGINE},
+    {"engine-option",    required_argument,      nullptr,      OPT_ENGINE_OPTION},
+    {"job-time",         required_argument,      nullptr,      OPT_JOB_TIME},
+    {"no-dump",          no_argument,            nullptr,      OPT_NO_DUMP},
+    {"preload",          required_argument,      nullptr,      OPT_PRELOAD},
+    {nullptr,            no_argument,            nullptr,      0}
   };
 }
 
@@ -291,7 +291,7 @@ void MakeFmt::FindInputFile(const PathName& inputName, PathName& inputFile)
 {
   if (!session->FindFile(inputName.ToString(), FileType::TEX, inputFile))
   {
-    FatalError(T_("The input file could not be found."));
+    FatalError(fmt::format("The required TeX input file {0} could not be found.", Q_(inputName)));
   }
 
   LOG4CXX_INFO(logger, "found input file: " << inputFile);

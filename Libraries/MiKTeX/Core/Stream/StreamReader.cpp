@@ -19,16 +19,15 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/StreamReader>
 
 #include "internal.h"
 
-#include "miktex/Core/StreamReader.h"
+using namespace std;
 
 using namespace MiKTeX::Core;
-using namespace std;
 
 StreamReader::StreamReader(const PathName& path) :
   stream(File::Open(path, FileMode::Open, FileAccess::Read))

@@ -89,8 +89,6 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-ignore_warnings()
-
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvipng_sources
     ${MIKTEX_COMPATIBILITY_MANIFEST}

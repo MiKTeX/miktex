@@ -19,21 +19,20 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/BZip2Stream>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/GzipStream>
+#include <miktex/Core/LzmaStream>
 
 #include "internal.h"
 
-#include "miktex/Core/BZip2Stream.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/GzipStream.h"
-#include "miktex/Core/LzmaStream.h"
-
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 void Utils::UncompressFile(const PathName& pathIn, PathName& pathOut)
 {

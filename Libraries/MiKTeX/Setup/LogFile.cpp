@@ -19,82 +19,27 @@
 
 #include "internal.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
 
-bool SkipPrefix(const string& str, const char* lpszPrefix, string& str2)
+void LogFile::Load(const PathName& logFileName)
 {
-  size_t n = StrLen(lpszPrefix);
-  if (str.compare(0, n, lpszPrefix) != 0)
+  setupService->ReportLine(fmt::format(T_("loading {0}..."), logFileName));
+  files.clear();
+#if defined(MIKTEX_WINDOWS)
+  regValues.clear();
+#endif
+
+  if (!File::Exists(logFileName))
   {
-    return false;
+    return;
   }
-  str2 = str.c_str() + n;
-  return true;
-}
 
-void LogFile::AddFile(const PathName& path)
-{
-  shared_ptr<Session> session = Session::Get();
-  string fileName;
-  if (SkipPrefix(path.GetData(), "texmf/", fileName)
-    || SkipPrefix(path.GetData(), "texmf\\", fileName)
-    || SkipPrefix(path.GetData(), "./texmf/", fileName)
-    || SkipPrefix(path.GetData(), ".\\texmf\\", fileName))
-  {
-    PathName absPath(session->GetSpecialPath(SpecialPath::InstallRoot));
-    absPath /= fileName;
-    files.insert(absPath);
-  }
-}
-
-void LogFile::AddPackages()
-{
-  // add packages.ini
-  AddFile(PathName("texmf", MIKTEX_PATH_PACKAGES_INI));
-
-  // iterate over all known packages
-  PackageInfo pi;
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pManager(PackageManager::Create());
-  unique_ptr<PackageIterator> pIter(pManager->CreateIterator());
-  while (pIter->GetNext(pi))
-  {
-    // add .tpm file
-    PathName tpmFile("texmf", MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-    tpmFile /= pi.id;
-    tpmFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
-    AddFile(tpmFile);
-
-    // check if the package is installed
-    if (!pi.IsInstalled())
-    {
-      continue;
-    }
-
-    // add files to the file set
-    vector<string>::const_iterator it;
-    for (it = pi.runFiles.begin(); it != pi.runFiles.end(); ++it)
-    {
-      AddFile(*it);
-    }
-    for (it = pi.docFiles.begin(); it != pi.docFiles.end(); ++it)
-    {
-      AddFile(*it);
-    }
-    for (it = pi.sourceFiles.begin(); it != pi.sourceFiles.end(); ++it)
-    {
-      AddFile(*it);
-    }
-  }
-  pIter->Dispose();
-}
-
-void LogFile::ReadLogFile()
-{
   // open the log file
   StreamReader stream(logFileName);
 
@@ -102,7 +47,7 @@ void LogFile::ReadLogFile()
   string line;
   enum Section { None, Files, HKCU, HKLM };
   Section section = None;
-  while (stream.ReadLine(line) && !pService->IsCancelled())
+  while (stream.ReadLine(line) && !setupService->IsCancelled())
   {
     size_t cchLine = line.length();
     if (cchLine == 0)
@@ -163,72 +108,37 @@ void LogFile::ReadLogFile()
   stream.Close();
 }
 
-void LogFile::Process()
-{
-  AddPackages();
-  ReadLogFile();
-  if (pService->IsCancelled())
-  {
-    return;
-  }
-  RemoveFiles();
-  if (pService->IsCancelled())
-  {
-    return;
-  }
 #if defined(MIKTEX_WINDOWS)
-  RemoveRegistrySettings();
-#endif
-  if (pService->IsCancelled())
+void LogFile::RemoveStartMenu()
+{
+  if (setupService->IsCancelled())
   {
     return;
   }
+  shared_ptr<Session> session = Session::Get();
+  int cidl = (session->IsAdminMode() ? CSIDL_COMMON_PROGRAMS : CSIDL_PROGRAMS);
+  PathName prefix = Utils::GetFolderPath(cidl, cidl, true);
+  setupService->ReportLine(fmt::format(T_("removing {0}..."), prefix));
+  RemoveFiles(prefix);
 }
-
-void LogFile::RemoveFiles()
-{
-  set<PathName> directories;
-  n = 0;
-  for (set<PathName>::const_iterator it = files.begin(); it != files.end() && !pService->IsCancelled(); ++it, ++n)
-  {
-    currentFile = *it;
-    if (!((PackageInstallerCallback*)pService)->OnProgress(MiKTeX::Packages::Notification::RemoveFileStart))
-    {
-      return;
-    }
-    PathName pathCurDir = *it;
-    pathCurDir.RemoveFileSpec();
-    directories.insert(pathCurDir);
-    if (File::Exists(*it))
-    {
-      File::Delete(*it, { FileDeleteOption::TryHard });
-    }
-    if (!((PackageInstallerCallback*)pService)->OnProgress(MiKTeX::Packages::Notification::RemoveFileEnd))
-    {
-      return;
-    }
-  }
-  for (set<PathName>::const_iterator it = directories.begin(); it != directories.end() && !pService->IsCancelled(); ++it)
-  {
-    if (Directory::Exists(*it))
-    {
-      RemoveEmptyDirectoryChain(*it);
-    }
-  }
-}
+#endif
 
 #if defined(MIKTEX_WINDOWS)
 void LogFile::RemoveRegistrySettings()
 {
-  // <code>sort (regValues.begin(), regValues.end());</code>
-  for (vector<RegValue>::const_iterator it = regValues.begin(); it != regValues.end() && !pService->IsCancelled(); ++it)
+  setupService->ReportLine(fmt::format(T_("removing {0} registry values..."), regValues.size()));
+  for (const RegValue& rv :regValues)
   {
+    if (setupService->IsCancelled())
+    {
+      break;
+    }
     HKEY hkeySub;
-    if (RegOpenKeyExW(it->hkey, UW_(it->strSubKey), 0, KEY_ALL_ACCESS, &hkeySub) != ERROR_SUCCESS)
+    if (RegOpenKeyExW(rv.hkey, UW_(rv.strSubKey), 0, KEY_ALL_ACCESS, &hkeySub) != ERROR_SUCCESS)
     {
       continue;
     }
-    RegDeleteValueW(hkeySub, UW_(it->strValueName));
+    RegDeleteValueW(hkeySub, UW_(rv.strValueName));
     wchar_t szName[BufferSizes::MaxPath];
     DWORD sizeName = BufferSizes::MaxPath;
     FILETIME fileTime;
@@ -236,8 +146,50 @@ void LogFile::RemoveRegistrySettings()
     RegCloseKey(hkeySub);
     if (del)
     {
-      RegDeleteKeyW(it->hkey, UW_(it->strSubKey));
+      RegDeleteKeyW(rv.hkey, UW_(rv.strSubKey));
     }
   }
 }
 #endif
+
+void LogFile::RemoveFiles(const PathName& prefix)
+{
+  set<PathName> directories;
+  for (const PathName& file : files)
+  {
+    if (setupService->IsCancelled())
+    {
+      break;
+    }
+    if (!prefix.Empty() && Utils::IsParentDirectoryOf(prefix, file))
+    {
+      continue;
+    }
+    if (!((PackageInstallerCallback*)setupService)->OnProgress(MiKTeX::Packages::Notification::RemoveFileStart))
+    {
+      return;
+    }
+    PathName pathCurDir = file;
+    pathCurDir.RemoveFileSpec();
+    directories.insert(pathCurDir);
+    if (File::Exists(file))
+    {
+      File::Delete(file, { FileDeleteOption::TryHard });
+    }
+    if (!((PackageInstallerCallback*)setupService)->OnProgress(MiKTeX::Packages::Notification::RemoveFileEnd))
+    {
+      return;
+    }
+  }
+  for (const PathName& dir : directories)
+  {
+    if (setupService->IsCancelled())
+    {
+      break;
+    }
+    if (Directory::Exists(dir))
+    {
+      RemoveEmptyDirectoryChain(dir);
+    }
+  }
+}

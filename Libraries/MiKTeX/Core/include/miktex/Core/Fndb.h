@@ -1,6 +1,6 @@
 /* miktex/Core/Fndb.h:                                  -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -42,12 +42,6 @@ public:
   virtual bool MIKTEXTHISCALL OnProgress(unsigned level, const PathName& directory) = 0;
 };
 
-class MIKTEXNOVTABLE IEnumerateFndbCallback
-{
-public:
-  virtual bool MIKTEXTHISCALL OnFndbItem(const PathName& path, const std::string& name, const std::string& info, bool isDirectory) = 0;
-};
-
 class MIKTEXNOVTABLE Fndb
 {
 public:
@@ -69,10 +63,11 @@ public:
   ~Fndb() = delete;
 
 public:
-  static MIKTEXCORECEEAPI(void) Add(const PathName& path);
-
-public:
-  static MIKTEXCORECEEAPI(void) Add(const PathName& path, const std::string& fileNameInfo);
+  struct Record
+  {
+    PathName path;
+    std::string fileNameInfo;
+  };
 
 public:
   static MIKTEXCORECEEAPI(bool) Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback);
@@ -81,7 +76,16 @@ public:
   static MIKTEXCORECEEAPI(bool) Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Enumerate(const PathName& fndbPath, IEnumerateFndbCallback* callback);
+  static MIKTEXCORECEEAPI(bool) Search(const PathName& fileName, const std::string& pathPattern, bool firstMatchOnly, std::vector<Record>& result);
+
+public:
+  static MIKTEXCORECEEAPI(void) Add(const std::vector<Record>& records);
+
+public:
+  static MIKTEXCORECEEAPI(void) Remove(const std::vector<PathName>& paths);
+
+public:
+  static MIKTEXCORECEEAPI(bool) FileExists(const PathName& path);
 
 public:
   static MIKTEXCORECEEAPI(bool) Refresh(const PathName& path, ICreateFndbCallback* callback);
@@ -89,14 +93,6 @@ public:
 public:
   static MIKTEXCORECEEAPI(bool) Refresh(ICreateFndbCallback* callback);
 
-public:
-  static MIKTEXCORECEEAPI(void) Remove(const PathName& path);
-
-public:
-  static MIKTEXCORECEEAPI(bool) FileExists(const PathName& path);
-
-public:
-  static MIKTEXCORECEEAPI(bool) Search(const PathName& fileName, const std::string& pathPattern, bool firstMatchOnly, std::vector<PathName>& result, std::vector<std::string>& fileNameInfo);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

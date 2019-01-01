@@ -24,8 +24,8 @@
 #if !defined(F2A2B73E1341485FAFAB1FC525782032)
 #define F2A2B73E1341485FAFAB1FC525782032
 
-#include "miktex/Core/DirectoryLister.h"
-#include "miktex/Core/PathName.h"
+#include <miktex/Core/DirectoryLister>
+#include <miktex/Core/PathName>
 
 BEGIN_INTERNAL_NAMESPACE;
 

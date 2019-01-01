@@ -25,7 +25,7 @@
 #include <miktex/Core/Registry>
 #include <miktex/Core/Uri>
 
-#include "miktex/PackageManager/PackageManager.h"
+#include <miktex/PackageManager/PackageManager>
 
 #include "internal.h"
 #include "PackageRepositoryDataStore.h"
@@ -39,88 +39,12 @@ using namespace MiKTeX::Packages;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
-void ComboCfg::Load(const PathName& fileNameUser_, const PathName& fileNameCommon_)
-{
-  fileNameUser = fileNameUser_;
-  fileNameCommon = fileNameCommon_;
-  fileNameUser.Canonicalize();
-  fileNameCommon.Canonicalize();
-  cfgCommon = Cfg::Create();
-  if (File::Exists(fileNameCommon))
-  {
-    cfgCommon->Read(fileNameCommon);
-  }
-  cfgCommon->SetModified(false);
-  if (!session->IsAdminMode() && fileNameCommon != fileNameUser)
-  {
-    cfgUser = Cfg::Create();
-    if (File::Exists(fileNameUser))
-    {
-      cfgUser->Read(fileNameUser);
-    }
-    cfgUser->SetModified(false);
-  }
-}
-
-void ComboCfg::Save()
-{
-  if (cfgCommon != nullptr && cfgCommon->IsModified())
-  {
-    cfgCommon->Write(fileNameCommon);
-  }
-  if (cfgUser != nullptr && cfgUser->IsModified())
-  {
-    cfgUser->Write(fileNameUser);
-  }
-}
-
-bool ComboCfg::TryGetValueAsString(const std::string& keyName, const std::string& valueName, std::string& value)
-{
-  return !session->IsAdminMode() && cfgUser != nullptr && cfgUser->TryGetValueAsString(keyName, valueName, value)
-    || cfgCommon->TryGetValueAsString(keyName, valueName, value);
-}
-
-bool ComboCfg::TryGetValueAsString(ComboCfg::Scope scope, const string& keyName, const string& valueName, string& value)
-{
-  switch (scope)
-  {
-  case Scope::User:
-    return cfgUser != nullptr && cfgUser->TryGetValueAsString(keyName, valueName, value);
-  case Scope::Common:
-    return cfgCommon != nullptr && cfgCommon->TryGetValueAsString(keyName, valueName, value);
-  }
-}
-
-void ComboCfg::PutValue(const string& keyName, const string& valueName, const string& value)
-{
-  if (session->IsAdminMode() || cfgUser == nullptr)
-  {
-    cfgCommon->PutValue(keyName, valueName, value);
-  }
-  else
-  {
-    cfgUser->PutValue(keyName, valueName, value);
-  }
-}
-
-void ComboCfg::DeleteKey(const string& keyName)
-{
-  if (session->IsAdminMode() || cfgUser == nullptr)
-  {
-    cfgCommon->DeleteKey(keyName);
-  }
-  else
-  {
-    cfgUser->DeleteKey(keyName);
-  }
-}
-
 PackageRepositoryDataStore::PackageRepositoryDataStore(std::shared_ptr<WebSession> webSession) :
   webSession(webSession)
 {
   MIKTEX_ASSERT(webSession != nullptr);
   comboCfg.Load(
-    session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI,
+    session->IsAdminMode() ? "" : session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI,
     session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI);
 }
 

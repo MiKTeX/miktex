@@ -19,14 +19,16 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include "config.h"
+
+#include <miktex/App/vi/Version>
 #include <miktex/Core/vi/Version>
 #include <miktex/PackageManager/vi/Version>
 
-#include "miktex/App/vi/Version.h"
+using namespace std;
 
 using namespace MiKTeX::App::vi;
 using namespace MiKTeX::Core;
-using namespace std;
 
 string Runtime::GetName()
 {

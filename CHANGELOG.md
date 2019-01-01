@@ -1,6 +1,42 @@
 # MiKTeX Change Log
 
-## 2.9.6880 - not yet released
+## 2.9.6930 - not yet released
+
+### Resetting personal MiKTeX configuration
+
+In order to avoid leftovers, MiKTeX Console learned to reset the
+personal MiKTeX configuration if MiKTeX was installed system-wide:
+
+![](images/console-cleanup-reset-personal.png)
+
+This allows users to remove their MiKTeX related installation files
+before a system administrator completely uninstalls MiKTeX.
+
+### Admin mode: blinding out of personal MiKTEX configuration
+
+Prior to MiKTeX 2.9.6930, personal TEXMF root directories were visible
+(e.g., in MiKTeX Console) when running in administrator mode. This
+behaviour has been changed: in MiKTeX 2.9.6930 and higher, personal
+TEXMF root directories are blinded out when running in administrator
+mode.
+
+### Update improvements
+
+The `Check for updates` operation is much faster now.
+
+### Upgraded programs
+
+* dvipdfmx 20181221
+
+### Fixed issues
+
+* [43](https://github.com/MiKTeX/miktex/issues/43): MPM (admin) cannot be run if TeXworks is running
+* [220](https://github.com/MiKTeX/miktex/issues/220): MikTex TexWorks on Mac not displaying any text.
+* [222](https://github.com/MiKTeX/miktex/issues/222): Running MiKTeX commands in parallel fails
+* [226](https://github.com/MiKTeX/miktex/issues/226): xetex does not look for local user's font folder
+* [235](https://github.com/MiKTeX/miktex/issues/235): Multithreading poppler utilities on windows yields errors
+
+## 2.9.6880 (intermediate) - 2018-11-12
 
 ### Upgraded programs
 

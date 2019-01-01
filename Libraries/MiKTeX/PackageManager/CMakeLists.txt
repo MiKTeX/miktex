@@ -62,6 +62,7 @@ set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/PackageManager.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/RepositoryInfo.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/config.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/definitions.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/vi/Version
 )
 
@@ -69,6 +70,8 @@ set(mpm_sources
   ${public_headers}
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${CMAKE_CURRENT_BINARY_DIR}/mpm-version.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/ComboCfg.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ComboCfg.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebFile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebSession.cpp
@@ -76,6 +79,8 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/ExpatTpmParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ExpatTpmParser.h
   ${CMAKE_CURRENT_SOURCE_DIR}/NoRemoteService.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageDataStore.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PackageDataStore.h
   ${CMAKE_CURRENT_SOURCE_DIR}/PackageInstallerImpl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/PackageInstallerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/PackageIteratorImpl.cpp

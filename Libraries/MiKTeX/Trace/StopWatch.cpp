@@ -36,7 +36,7 @@
 using namespace MiKTeX::Trace;
 using namespace std;
 
-StopWatch::~StopWatch()
+StopWatch::~StopWatch() noexcept
 {
 }
 

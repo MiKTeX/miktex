@@ -23,11 +23,12 @@
 
 #include "setup-version.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::Util;
-using namespace std;
 
 PathName SetupService::GetDefaultCommonInstallDir()
 {
@@ -566,7 +567,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
     }
   }
 
-  ULogAddFile(pathLink.GetData());
+  ULogAddFile(pathLink);
 }
 
 void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const char* lpszUrl)
@@ -711,11 +712,12 @@ void winSetupServiceImpl::UnregisterShellFileTypes()
   {
     MIKTEX_UNEXPECTED();
   }
-  if (session->RunningAsAdministrator() || session->RunningAsPowerUser())
+  vector<string> args{ initexmfExe.GetFileNameWithoutExtension().ToString(), "--unregister-shell-file-types" };
+  if (session->IsAdminMode())
   {
-    Process::Run(initexmfExe, { initexmfExe.GetFileNameWithoutExtension().ToString(), "--admin", "--unregister-shell-file-types" });
+    args.push_back("--admin");
   }
-  Process::Run(initexmfExe, { initexmfExe.GetFileNameWithoutExtension().ToString(), "--unregister-shell-file-types" });
+  Process::Run(initexmfExe, args);
 }
 
 void winSetupServiceImpl::UnregisterPath(bool shared)
@@ -759,7 +761,7 @@ void winSetupServiceImpl::UnregisterPath(bool shared)
   else
   {
     string path = WU_(value.GetData());
-    if (RemoveBinDirFromPath(path))
+    if (RemoveBinDirectoriesFromPath(path))
     {
       CharBuffer<wchar_t> wpath(UW_(path.c_str()));
       result = RegSetValueExW(hkey, L"Path", 0, type, reinterpret_cast<const BYTE*>(wpath.GetData()), static_cast<DWORD>((StrLen(wpath.GetData()) + 1) * sizeof(wpath.GetData()[0])));
@@ -782,37 +784,39 @@ void winSetupServiceImpl::UnregisterPath(bool shared)
   }
 }
 
-bool winSetupServiceImpl::RemoveBinDirFromPath(string& path)
+bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(string& path)
 {
   shared_ptr<Session> session = Session::Get();
   bool removed = false;
-  string newPath;
-  PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-  userBinDir /= MIKTEX_PATH_BIN_DIR;
-  userBinDir.AppendDirectoryDelimiter();
+  vector<string> newPath;
+  vector<PathName> binDirectories;
+  if (!session->IsAdminMode())
+  {
+    PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot);
+    userBinDir /= MIKTEX_PATH_BIN_DIR;
+    userBinDir.AppendDirectoryDelimiter();
+    binDirectories.push_back(userBinDir);
+  }
   PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
   commonBinDir /= MIKTEX_PATH_BIN_DIR;
   commonBinDir.AppendDirectoryDelimiter();
+  binDirectories.push_back(commonBinDir);
   for (const string& entry : StringUtil::Split(path, PathName::PathNameDelimiter))
   {
     PathName dir(entry);
     dir.AppendDirectoryDelimiter();
-    if (userBinDir == dir || commonBinDir == dir)
+    if (std::find(binDirectories.begin(), binDirectories.end(), dir) != binDirectories.end())
     {
       removed = true;
     }
     else
     {
-      if (!newPath.empty())
-      {
-        newPath += PathName::PathNameDelimiter;
-      }
-      newPath += entry;
+      newPath.push_back(entry);
     }
   }
   if (removed)
   {
-    path = newPath;
+    path = StringUtil::Flatten(newPath, PathName::PathNameDelimiter);
   }
   return removed;
 }
@@ -820,14 +824,14 @@ bool winSetupServiceImpl::RemoveBinDirFromPath(string& path)
 void winSetupServiceImpl::RemoveRegistryKeys()
 {
   shared_ptr<Session> session = Session::Get();
-  bool shared = session->RunningAsAdministrator() || session->RunningAsPowerUser();
+  bool shared = session->RunningAsAdministrator();
 
   if (shared && Exists(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_SERIES))
   {
     RemoveRegistryKey(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_SERIES);
   }
 
-  if (Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES))
+  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES);
   }
@@ -846,19 +850,19 @@ void winSetupServiceImpl::RemoveRegistryKeys()
     RemoveRegistryKey(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_COMPANY);
   }
 
-  if (Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT)
+  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT)
     && IsEmpty(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT);
   }
 
-  if (Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY)
+  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY)
     && IsEmpty(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY);
   }
 
-  if (Exists(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT))
+  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT);
   }

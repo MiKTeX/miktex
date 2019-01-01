@@ -106,19 +106,15 @@ const QString TWUtils::getLibraryPath(const QString& subdir, const bool updateOn
 #else // defined(Q_OS_WIN)
 #if defined(MIKTEX)
 		{
-                  std::shared_ptr<MiKTeX::Core::Session> pSession = MiKTeX::Core::Session::Get();
+                  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 		  MiKTeX::Core::PathName dir;
-		  dir = pSession->GetSpecialPath(MiKTeX::Core::SpecialPath::UserDataRoot);
+		  dir = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot);
 		  dir /= TEXWORKS_NAME;
-		  std::string subdir (std::to_string(VER_MAJOR));
+		  std::string subdir(std::to_string(VER_MAJOR));
 		  subdir += ".";
 		  subdir += std::to_string(VER_MINOR);
 		  dir /= subdir;
 		  libRootPath = dir.GetData();
-                  if (!pSession->UnloadFilenameDatabase())
-                  {
-                    //TODO: log
-                  }
 		}
 #else
 		libRootPath = QDir::homePath() + "/" + TEXWORKS_NAME + "/";
@@ -295,30 +291,18 @@ void TWUtils::insertHelpMenuItems(QMenu* helpMenu)
 	QDir helpDir(QCoreApplication::applicationDirPath() + "/../texworks-help");
 #else
 #if defined(MIKTEX)
-	QDir helpDir;
-        std::shared_ptr<MiKTeX::Core::Session> pSession = MiKTeX::Core::Session::Get();
-	MiKTeX::Core::PathName path = pSession->GetSpecialPath(MiKTeX::Core::SpecialPath::UserInstallRoot);
-	path /= "doc/texworks/help";
-	if (MiKTeX::Core::Directory::Exists(path))
-	{
-	  helpDir = path.GetData();
-	}
-	else
-	{
-	  path = pSession->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot);
-	  path /= "doc/texworks/help";
-	  if (MiKTeX::Core::Directory::Exists(path))
-	  {
-	    helpDir = path.GetData();
-	  }
-	  else
-	  {
-	    helpDir = QCoreApplication::applicationDirPath() + "/texworks-help";
-	  }
-	}
-        if (!pSession->UnloadFilenameDatabase())
+        // TODO: code review
+        QDir helpDir;
+        std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+        MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DistRoot);
+        path /= "doc/texworks/help";
+        if (MiKTeX::Core::Directory::Exists(path))
         {
-          //TODO: log
+          helpDir = QString::fromUtf8(path.GetData());
+        }
+        else
+        {
+          helpDir = QCoreApplication::applicationDirPath() + "/texworks-help";
         }
 #else
 	QDir helpDir(QCoreApplication::applicationDirPath() + "/texworks-help");
@@ -480,10 +464,6 @@ QHash<QString, QString>* TWUtils::getDictionaryList(const bool forceReload /* = 
 	    }
 	  }
 	}
-        if (!pSession->UnloadFilenameDatabase())
-        {
-          //TODO: log
-        }
 #endif
 	
 	TWApp::instance()->notifyDictionaryListChanged();
@@ -533,10 +513,6 @@ Hunhandle* TWUtils::getDictionary(const QString& language)
             (*dictionaries)[language] = h;
             break;
           }
-        }
-        if (!session->UnloadFilenameDatabase())
-        {
-          //TODO: log
         }
 #endif
 	return h;

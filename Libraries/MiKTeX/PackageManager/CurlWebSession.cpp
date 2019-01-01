@@ -43,7 +43,7 @@
 #include <miktex/Core/tux/LinuxOsRelease>
 #endif
 
-#include "miktex/PackageManager/PackageManager.h"
+#include <miktex/PackageManager/PackageManager>
 
 #include "CurlWebSession.h"
 #include "CurlWebFile.h"
@@ -65,9 +65,8 @@ const long DEFAULT_FTP_RESPONSE_TIMEOUT_SECONDS = 30;
 #define DEFAULT_MAX_REDIRECTS 20
 
 CurlWebSession::CurlWebSession(IProgressNotify_* callback) :
-  callback(callback),
-  trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
-  trace_curl(TraceStream::Open(MIKTEX_TRACE_CURL))
+  trace_curl(TraceStream::Open(MIKTEX_TRACE_CURL)),
+  trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM))
 {
 }
 
@@ -258,6 +257,8 @@ void CurlWebSession::FatalCurlError(CURLcode code, const char* effectiveUrl) con
     break;
   case CURLE_SSL_CACERT:
     tag = "ssl-cacert";
+    break;
+  default:
     break;
   }
   MIKTEX_FATAL_ERROR_5(message, description, remedy, tag, "code", std::to_string(code), "url", effectiveUrl == nullptr ? "" : effectiveUrl);

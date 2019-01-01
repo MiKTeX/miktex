@@ -1,6 +1,6 @@
 /* vi/Runtime.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -19,19 +19,17 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include <config.h>
-#endif
+#include "config.h"
 
 #include <miktex/Core/vi/Version>
+#include <miktex/Extractor/vi/Version>
 
 #include "internal.h"
 
-#include "miktex/Extractor/vi/Version.h"
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor::vi;
-using namespace std;
 
 string Runtime::GetName()
 {

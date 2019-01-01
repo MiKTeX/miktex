@@ -19,22 +19,21 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <bzlib.h>
 #include <lzma.h>
 #include <uriparser/Uri.h>
 #include <zlib.h>
 
+#include <miktex/Core/vi/Version>
+
 #include "internal.h"
 
-#include "miktex/Core/vi/Version.h"
+using namespace std;
 
 using namespace MiKTeX::Core::vi;
 using namespace MiKTeX::Core;
-using namespace std;
 
 string Runtime::GetName()
 {

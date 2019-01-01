@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <miktex/Trace/Trace>
 
@@ -154,6 +152,13 @@ void winMemoryMappedFile::OpenFile()
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", path.ToString());
   }
+
+  if (!File::TryLock(hFile, readWrite ? File::LockType::Exclusive : File::LockType::Shared, 10ms))
+  {
+    CloseHandle(hFile);
+    hFile = INVALID_HANDLE_VALUE;
+    MIKTEX_FATAL_ERROR_2(T_("Could not acquire lock."), "path", path.ToString());
+  }
 }
 
 void winMemoryMappedFile::CreateMapping(size_t maximumFileSize)
@@ -202,6 +207,14 @@ void winMemoryMappedFile::CloseFile()
   HANDLE hFile = this->hFile;
   this->hFile = INVALID_HANDLE_VALUE;
   traceStream->WriteFormattedLine("core", T_("closing memory-mapped file %s"), Q_(path));
+  try
+  {
+    File::Unlock(hFile);
+  }
+  catch (const MiKTeXException&)
+  {
+    // TODO: logging
+  }
   if (!CloseHandle(hFile))
   {
     MIKTEX_FATAL_WINDOWS_ERROR("CloseHandle");

@@ -23,8 +23,6 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-ignore_warnings()
-
 set(public_include_directories ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 set(public_headers

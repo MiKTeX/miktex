@@ -42,8 +42,6 @@ set(interface_definitions
     -DHAVE_ZLIB_H=1
 )
 
-ignore_warnings()
-
 set(public_headers
   zlib.h
   zconf.h

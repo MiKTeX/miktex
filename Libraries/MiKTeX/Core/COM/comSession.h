@@ -1,6 +1,6 @@
 /* comSession.h: MiKTeX session                         -*- C++ -*-
 
-   Copyright (C) 2006-2017 Christian Schenk
+   Copyright (C) 2006-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,6 +23,7 @@
 
 #include "Resource.h"
 
+// FIXME: must come first
 #include "core-version.h"
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER

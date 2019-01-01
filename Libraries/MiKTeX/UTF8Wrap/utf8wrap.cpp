@@ -148,7 +148,7 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__chdir(const char* path)
 MIKTEXUTF8WRAPCEEAPI(char*) miktex_utf8__getcwd(char* path, size_t maxSize)
 {
   unique_ptr<wchar_t[]> wideChar(new wchar_t[maxSize]);
-  if (_wgetcwd(wideChar.get(), maxSize) == nullptr)
+  if (_wgetcwd(wideChar.get(), static_cast<int>(maxSize)) == nullptr)
   {
     return nullptr;
   }

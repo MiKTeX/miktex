@@ -55,7 +55,7 @@ static inline void tmpfile_error (const char *msg) {
 extern "C" FILE* tmpfile2 () {
 #if defined(MIKTEX)
   std::unique_ptr<MiKTeX::Core::TemporaryFile> tmpfile = MiKTeX::Core::TemporaryFile::Create();
-  FILE* result = MiKTeX::Core::File::Open(tmpfile->GetPathName(), MiKTeX::Core::FileMode::Create, MiKTeX::Core::FileAccess::ReadWrite, false, MiKTeX::Core::FileShare::ReadWrite, { MiKTeX::Core::FileOpenOption::DeleteOnClose });
+  FILE* result = MiKTeX::Core::File::Open(tmpfile->GetPathName(), MiKTeX::Core::FileMode::Create, MiKTeX::Core::FileAccess::ReadWrite, false, { MiKTeX::Core::FileOpenOption::DeleteOnClose });
   tmpfile->Keep();
   return result;
 #else

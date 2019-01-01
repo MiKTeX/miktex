@@ -38,8 +38,6 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-ignore_warnings()
-
 set(makeindex_c_sources
   source/genind.c
   source/mkind.c

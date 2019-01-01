@@ -378,6 +378,45 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL BrokenPipeException(const std::string& programInvocationName, const std::string& errorMessage, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
+/// File exists exception class.
+/// An instance of this class is thrown when a file could not be created because it already exists.
+class FileExistsException :
+public IOException
+{
+public:
+  MIKTEXCOREEXPORT MIKTEXTHISCALL FileExistsException();
+  
+public:
+  FileExistsException(const FileExistsException& other) = default;
+  
+public:
+  FileExistsException& operator=(const FileExistsException& other) = default;
+  
+public:
+  FileExistsException(FileExistsException&& other) = default;
+  
+public:
+  FileExistsException& operator=(FileExistsException&& other) = default;
+  
+public:
+  virtual ~FileExistsException() = default;
+  
+  /// Initializes a new FileExistsException object.
+  /// @param programInvocationName Name of the program where the
+  /// exception was thrown.
+  /// @param errorMessage The error message to be presented to the user.
+  /// Can contain info placeholders.
+  /// @param description The detailed description to be presented to the user.
+  /// Can contain info placeholders.
+  /// @param remedy The remedy to be presented to the user.
+  /// Can contain info placeholders.
+  /// @param tag The tag of the knwlege base article which describes the issue.
+  /// @param info Additional info (e.g., a file name).
+  /// @param sourceLocation The source location where the exception was thrown.
+public:
+  MIKTEXCOREEXPORT MIKTEXTHISCALL FileExistsException(const std::string& programInvocationName, const std::string& errorMessage, const std::string& description, const std::string& remedy, const std::string& tag, const KVMAP& info, const SourceLocation& sourceLocation);
+};
+
 /// File not found exception class.
 /// An instance of this class is thrown when a file could not be found.
 class FileNotFoundException :

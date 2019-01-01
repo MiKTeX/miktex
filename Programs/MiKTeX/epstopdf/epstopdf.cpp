@@ -98,7 +98,7 @@ public:
   void Run(int argc, const char** argv);
 
 private:
-  void Trace(const char* format, ...);
+  void MyTrace(const char* format, ...);
 
 private:
   void Verbose(const char* format, ...);
@@ -420,7 +420,7 @@ struct poptOption EpsToPdfApp::aoption[] = {
   POPT_TABLEEND
 };
 
-void EpsToPdfApp::Trace(const char* format, ...)
+void EpsToPdfApp::MyTrace(const char* format, ...)
 {
   va_list arglist;
   VA_START(arglist, format);
@@ -509,7 +509,7 @@ void EpsToPdfApp::PutLine(const string& line)
 
 void EpsToPdfApp::CorrectBoundingBox(double llx, double lly, double urx, double ury)
 {
-  Trace(T_("Old BoundingBox: %f %f %f %f"), llx, lly, urx, ury);
+  MyTrace(T_("Old BoundingBox: %f %f %f %f"), llx, lly, urx, ury);
   llx -= enlarge;
   lly -= enlarge;
   urx += enlarge;
@@ -518,8 +518,8 @@ void EpsToPdfApp::CorrectBoundingBox(double llx, double lly, double urx, double 
   int height = static_cast<int>(ceil(ury - lly));
   int xoffset = static_cast<int>(-llx);
   int yoffset = static_cast<int>(-lly);
-  Trace(T_("New BoundingBox: 0 0 %d %d"), width, height);
-  Trace(T_("Offset: %d %d"), xoffset, yoffset);
+  MyTrace(T_("New BoundingBox: 0 0 %d %d"), width, height);
+  MyTrace(T_("Offset: %d %d"), xoffset, yoffset);
   PutFormattedLine("%%%%BoundingBox: 0 0 %d %d", width, height);
   PutFormattedLine("<< /PageSize [%d %d] >> setpagedevice", width, height);
   PutFormattedLine("gsave %d %d translate", xoffset, yoffset);
@@ -578,14 +578,14 @@ void EpsToPdfApp::ScanHeader()
 
     if (BoundingBoxWithAtEnd(line))
     {
-      Trace(T_("%s (atend)"), boundingBoxName.c_str());
+      MyTrace(T_("%s (atend)"), boundingBoxName.c_str());
       if (runAsFilter)
       {
         Warning(T_("Cannot look for BoundingBox in the trailer with option --filter."));
         break;
       }
       long pos = inStream.GetPosition();
-      Trace(T_("Current file position: %d"), pos);
+      MyTrace(T_("Current file position: %d"), pos);
       while (GetLine(line))
       {
         if (line.compare(0, 15, "%%BeginDocument") == 0)
@@ -862,7 +862,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     {
       FatalError(T_("Input file cannot be specified together with --filter option."));
     }
-    Trace(T_("Input file: standard input"));
+    MyTrace(T_("Input file: standard input"));
   }
   else
   {
@@ -878,7 +878,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     {
       FatalError(T_("The input file does not exist."));
     }
-    Trace(T_("Input filename: %s"), inputFile.GetData());
+    MyTrace(T_("Input filename: %s"), inputFile.GetData());
   }
 
   if (runAsFilter && verbose)

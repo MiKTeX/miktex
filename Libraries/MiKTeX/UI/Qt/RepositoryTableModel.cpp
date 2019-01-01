@@ -33,7 +33,7 @@ RepositoryTableModel::RepositoryTableModel(QObject* parent) :
 
 int RepositoryTableModel::rowCount(const QModelIndex& parent) const
 {
-  return parent.isValid() ? 0 : repositories.size();
+  return parent.isValid() ? 0 : static_cast<int>(repositories.size());
 }
 
 int RepositoryTableModel::columnCount(const QModelIndex& parent) const

@@ -11,6 +11,12 @@
 #include "format.h"
 #include <ctime>
 
+#if defined(MIKTEX) && defined(_MSC_VER)
+#pragma warning(push)
+// "The compiler encountered a deprecated declaration."
+#pragma warning( disable : 4996 )
+#endif
+
 FMT_BEGIN_NAMESPACE
 
 // Prevents expansion of a preceding token as a function-style macro.
@@ -152,5 +158,9 @@ struct formatter<std::tm, Char> {
   basic_memory_buffer<Char> tm_format;
 };
 FMT_END_NAMESPACE
+
+#if defined(MIKTEX) && defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #endif  // FMT_TIME_H_

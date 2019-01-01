@@ -55,8 +55,6 @@ if(MSVC)
   )
 endif()
 
-ignore_warnings()
-
 set(pdftex_ch_synctex
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-def.ch0
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-mem.ch0

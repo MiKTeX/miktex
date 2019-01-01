@@ -36,8 +36,6 @@ if(MIKTEX_NATIV_WINDOWS)
   )
 endif()
 
-ignore_warnings()
-
 set(dvips_c_sources
   source/bbox.c
   source/color.c

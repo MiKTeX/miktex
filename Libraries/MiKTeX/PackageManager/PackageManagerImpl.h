@@ -23,46 +23,22 @@
 #define D76F495437014794AC4EF6832E8EEE52
 
 #include <map>
-#include <unordered_map>
+#include <string>
 
-#include <miktex/Core/Cfg>
 #include <miktex/Core/Fndb>
-#include <miktex/Core/equal_icase>
-#include <miktex/Core/hash_icase>
-#include <miktex/Core/less_icase_dos>
+#include <miktex/Core/MD5>
 
-#include "miktex/PackageManager/PackageManager.h"
+#include <miktex/PackageManager/PackageManager.h>
 
 #include "internal.h"
+
+#include "PackageDataStore.h"
 #include "PackageRepositoryDataStore.h"
 #include "WebSession.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 
-struct InstalledFileInfo
-{
-  unsigned long refCount = 0;
-};
-
 typedef std::map<std::string, MiKTeX::Core::MD5, MiKTeX::Core::less_icase_dos> FileDigestTable;
-
-struct hash_path
-{
-public:
-  std::size_t operator()(const std::string& str) const
-  {
-    return MiKTeX::Core::PathName(str).GetHash();
-  }
-};
-
-struct equal_path
-{
-public:
-  bool operator()(const std::string& str1, const std::string& str2) const
-  {
-    return MiKTeX::Core::PathName::Compare(str1.c_str(), str2.c_str()) == 0;
-  }
-};
 
 class PackageManagerImpl :
   public std::enable_shared_from_this<PackageManagerImpl>,
@@ -81,9 +57,6 @@ public:
 
 public:
   void MIKTEXTHISCALL CreateMpmFndb() override;
-
-public:
-  unsigned long MIKTEXTHISCALL GetFileRefCount(const MiKTeX::Core::PathName& path) override;
 
 public:
   MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& packageId) override;
@@ -142,7 +115,6 @@ public:
     return repositories.TryGetRepositoryInfo(url, repositoryInfo);
   }
 
-
 public:
   MiKTeX::Packages::RepositoryInfo MIKTEXTHISCALL CheckPackageRepository(const std::string& url) override
   {
@@ -167,74 +139,6 @@ public:
 public:
   void ClearAll();
 
-public:
-  void IncrementFileRefCounts(const std::string& packageId);
-
-public:
-  void NeedInstalledFileInfoTable();
-
-#if defined(MIKTEX_USE_ZZDB3)
-public:
-  void NeedPackageManifestsIni();
-#endif
-
-public:
-  void FlushVariablePackageTable();
-
-public:
-  void GetAllPackageDefinitions(std::vector<MiKTeX::Packages::PackageInfo>& packages);
-
-public:
-  MiKTeX::Packages::PackageInfo* TryGetPackageInfo(const std::string& packageId);
-
-public:
-  InstalledFileInfo * GetInstalledFileInfo(const char* lpszPath);
-
-public:
-  bool IsRemovable(const std::string& packageId);
-
-public:
-  time_t GetUserTimeInstalled(const std::string& packageId);
-
-public:
-  time_t GetCommonTimeInstalled(const std::string& packageId);
-
-public:
-  time_t GetTimeInstalled(const std::string& packageId);
-
-public:
-  bool IsPackageInstalled(const std::string& packageId);
-
-public:
-  bool IsPackageObsolete(const std::string& packageId);
-
-public:
-  void DeclarePackageObsolete(const std::string& packageId, bool obsolete);
-
-public:
-  void SetTimeInstalled(const std::string& packageId, time_t timeInstalled);
-
-public:
-  void SetReleaseState(const std::string& packageId, MiKTeX::Packages::RepositoryReleaseState releaseState);
-
-public:
-  MiKTeX::Packages::RepositoryReleaseState GetReleaseState(const std::string& packageId);
-
-public:
-  MiKTeX::Packages::PackageInfo* DefinePackage(const std::string& packageId, const MiKTeX::Packages::PackageInfo& packageinfo);
-
-private:
-  void LoadVariablePackageTable();
-
-private:
-  void IncrementFileRefCounts(const std::vector<std::string>& files);
-
-private:
-  void LoadAllPackageManifests(const MiKTeX::Core::PathName& packageManifestsPath);
-
-private:
-  void LoadAllPackageManifests();
-
 private:
   bool TryGetFileDigest(const MiKTeX::Core::PathName& prefix, const std::string& fileName, bool& haveDigest, MiKTeX::Core::MD5& digest);
 
@@ -257,27 +161,6 @@ private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_stopwatch;
 
 private:
-  typedef std::unordered_map<std::string, MiKTeX::Packages::PackageInfo, MiKTeX::Core::hash_icase, MiKTeX::Core::equal_icase> PackageDefinitionTable;
-
-private:
-  PackageDefinitionTable packageTable;
-
-private:
-  typedef std::unordered_map<std::string, InstalledFileInfo, hash_path, equal_path> InstalledFileInfoTable;
-
-private:
-  InstalledFileInfoTable installedFileInfoTable;
-
-private:
-  bool loadedAllPackageManifests = false;
-
-private:
-  std::unique_ptr<MiKTeX::Core::Cfg> commonVariablePackageTable;
-
-private:
-  std::unique_ptr<MiKTeX::Core::Cfg> userVariablePackageTable;
-
-private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:
@@ -287,6 +170,15 @@ public:
   WebSession* GetWebSession() const
   {
     return webSession.get();
+  }
+
+private:
+  PackageDataStore packageDataStore;
+
+public:
+  PackageDataStore* GetPackageDataStore()
+  {
+    return &packageDataStore;
   }
 
 private:

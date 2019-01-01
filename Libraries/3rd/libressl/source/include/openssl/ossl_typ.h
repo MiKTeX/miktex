@@ -81,11 +81,13 @@ typedef struct ASN1_ITEM_st ASN1_ITEM;
 typedef struct asn1_pctx_st ASN1_PCTX;
 
 #if defined(_WIN32) && defined(__WINCRYPT_H__)
+#if !defined(MIKTEX)
 #ifndef LIBRESSL_INTERNAL
 #ifdef _MSC_VER
 #pragma message("Warning, overriding WinCrypt defines")
 #else
 #warning overriding WinCrypt defines
+#endif
 #endif
 #endif
 #undef X509_NAME

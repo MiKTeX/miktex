@@ -50,7 +50,7 @@ BOOL InfoListPage::OnSetActive()
     {
       CreateReport();
       oldNextText = sheet->SetNextText(T_(_T("&Start")));
-      if (SetupApp::Instance->IsCommonSetup() && !(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      if (SetupApp::Instance->IsCommonSetup() && !session->RunningAsAdministrator())
       {
         ((CButton*)sheet->GetDlgItem(ID_WIZNEXT))->SetShield(TRUE);
       }
@@ -83,7 +83,7 @@ BOOL InfoListPage::OnKillActive()
   {
     try
     {
-      if (SetupApp::Instance->IsCommonSetup() && !(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      if (SetupApp::Instance->IsCommonSetup() && !session->RunningAsAdministrator())
       {
         EndDialog(IDRETRY);
       }

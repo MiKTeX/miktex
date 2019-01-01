@@ -447,9 +447,13 @@ void img_free(void)
  */
 
 #if defined(MIKTEX)
+#  undef generic_dump
 #  define generic_dump(x) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Dump(PDFTEXPROG.fmtfile, (x))
+#  undef dumpthings
 #  define dumpthings(a, n) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Dump(PDFTEXPROG.fmtfile, (a), (n))
+#  undef generic_undump
 #  define generic_undump(x) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Undump(PDFTEXPROG.fmtfile, (x))
+#  undef undumpthings
 #  define undumpthings(a, n) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Undump(PDFTEXPROG.fmtfile, (a), (n))
 #endif
 /* #define dumpsizet   generic_dump */

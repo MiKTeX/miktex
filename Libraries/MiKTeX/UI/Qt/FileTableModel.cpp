@@ -32,7 +32,7 @@ FileTableModel::FileTableModel(QObject* parent, const vector<string>& files) :
 
 int FileTableModel::rowCount(const QModelIndex& parent) const
 {
-  return parent.isValid() ? 0 : files.size();
+  return parent.isValid() ? 0 : static_cast<int>(files.size());
 }
 
 int FileTableModel::columnCount(const QModelIndex& parent) const

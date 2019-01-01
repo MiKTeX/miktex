@@ -24,8 +24,6 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-ignore_warnings()
-
 set(miktex_changefiles
   ${CMAKE_CURRENT_SOURCE_DIR}/omega-miktex-fmt.ch
   ${CMAKE_CURRENT_SOURCE_DIR}/omega-miktex-misc.ch

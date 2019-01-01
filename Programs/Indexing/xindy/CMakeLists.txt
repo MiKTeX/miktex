@@ -31,8 +31,6 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-ignore_warnings()
-
 set(tex2xindy_sources
   ${CMAKE_CURRENT_BINARY_DIR}/tex2xindy.cpp
   ${MIKTEX_LIBRARY_WRAPPER}

@@ -37,8 +37,6 @@ add_definitions(
   -Dmain=Main
 )
 
-ignore_warnings()
-
 set(mag_sources
   ${MIKTEX_LIBRARY_WRAPPER}
   source/basics.c

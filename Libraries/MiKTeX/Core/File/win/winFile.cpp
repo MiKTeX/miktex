@@ -19,34 +19,39 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fcntl.h>
 
 #include <io.h>
 
-#include "internal.h"
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/File.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/win/winAutoResource.h"
+#include <thread>
+
+#include <miktex/Core/Directory>
+#include <miktex/Core/File>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/win/winAutoResource>
+
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
 
-static unsigned long GetFileAttributes_harmlessErrors[] = {
-  ERROR_FILE_NOT_FOUND, // 2
-  ERROR_PATH_NOT_FOUND, // 3
-  ERROR_NOT_READY, // 21
-  ERROR_BAD_NETPATH, // 53
-  ERROR_BAD_NET_NAME, // 67
-  ERROR_INVALID_NAME, // 123
-  ERROR_BAD_PATHNAME, // 161
+using namespace MiKTeX::Core;
+
+static std::unordered_map<DWORD, bool> expectedErrors = {
+  { ERROR_FILE_NOT_FOUND, false }, // 2
+  { ERROR_PATH_NOT_FOUND, false }, // 3
+  { ERROR_ACCESS_DENIED, true }, // 5
+  { ERROR_NOT_READY, false, }, // 21
+  { ERROR_BAD_NETPATH, false }, // 53
+  { ERROR_BAD_NET_NAME, false }, // 67
+  { ERROR_INVALID_NAME, false }, // 123
+  { ERROR_BAD_PATHNAME, false }, // 161
 };
 
 bool File::Exists(const PathName& path, FileExistsOptionSet options)
@@ -57,43 +62,36 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
     UNIMPLEMENTED();
   }
   unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
-  if (attributes != INVALID_FILE_ATTRIBUTES)
+  bool exists = attributes != INVALID_FILE_ATTRIBUTES;
+  if (exists)
   {
     if ((attributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
     {
+      exists = false;
       if (session != nullptr)
       {
-        session->trace_access->WriteFormattedLine("core", T_("%s is a directory"), Q_(path));
+        session->trace_access->WriteLine("core", fmt::format(T_("{0} is a directory"), Q_(path)));
       }
-      return false;
-    }
-    if (session != nullptr)
-    {
-      session->trace_access->WriteFormattedLine("core", T_("accessing file %s: OK"), Q_(path));
-    }
-    return true;
-  }
-  unsigned long error = ::GetLastError();
-  // TODO: range-based for loop
-  for (int idx = 0; idx < sizeof(GetFileAttributes_harmlessErrors) / sizeof(GetFileAttributes_harmlessErrors[0]); ++idx)
-  {
-    if (error == GetFileAttributes_harmlessErrors[idx])
-    {
-      error = ERROR_SUCCESS;
-      break;
     }
   }
-  if (error != ERROR_SUCCESS)
+  else
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_3("GetFileAttributesW",
-      T_("MiKTeX cannot retrieve attributes for the file '{path}'."),
-      "path", path.ToDisplayString());
+    DWORD error = ::GetLastError();
+    auto it = expectedErrors.find(error);
+    if (it != expectedErrors.end())
+    {
+      exists = it->second;
+    }
+    else
+    {
+      MIKTEX_FATAL_WINDOWS_RESULT_3("GetFileAttributesW", error, T_("MiKTeX cannot retrieve attributes for the file '{path}'."), "path", path.ToDisplayString());
+    }
   }
   if (session != nullptr)
   {
-    session->trace_access->WriteFormattedLine("core", T_("accessing file %s: NOK"), Q_(path));
+    session->trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: {1}"), Q_(path), exists ? "OK" : "NOK"));
   }
-  return false;
+  return exists;
 }
 
 FileAttributeSet File::GetAttributes(const PathName& path)
@@ -348,11 +346,11 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
     MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(source) && Fndb::FileExists(source))
     {
-      Fndb::Remove(source);
+      Fndb::Remove({ source });
     }
     if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
     {
-      Fndb::Add(dest);
+      Fndb::Add({ {dest} });
     }
   }
 }
@@ -384,7 +382,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
     MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
     {
-      Fndb::Add(dest);
+      Fndb::Add({ {dest} });
     }
   }
 }
@@ -418,7 +416,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
     MIKTEX_EXPECT(session != nullptr);
     if (session->IsTEXMFFile(newName) && !Fndb::FileExists(newName))
     {
-      Fndb::Add(newName);
+      Fndb::Add({ {newName} });
     }
   }
 }
@@ -448,7 +446,7 @@ size_t File::SetMaxOpen(size_t newMax)
     {
       session->trace_files->WriteFormattedLine("core", T_("increasing maximum number of simultaneously open files (oldmax=%d, newmax=%d)"), (int)oldMax, (int)newMax);
     }
-    if (_setmaxstdio(newMax) < 0)
+    if (_setmaxstdio(static_cast<int>(newMax)) < 0)
     {
       MIKTEX_FATAL_CRT_ERROR_2("_setmaxstdio", "newmax", std::to_string(newMax));
     }
@@ -456,12 +454,12 @@ size_t File::SetMaxOpen(size_t newMax)
   return newMax;
 }
 
-FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options)
+FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileOpenOptionSet options)
 {
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d %d)"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(share), static_cast<int>(isTextFile));
+    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d)"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(isTextFile));
   }
 
   int flags = 0;
@@ -471,9 +469,13 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   {
     flags |= O_CREAT;
   }
+  else if (mode == FileMode::CreateNew)
+  {
+    flags |= O_CREAT | O_EXCL;
+  }
   else if (mode == FileMode::Append)
   {
-    flags |= O_APPEND;
+    flags |= O_CREAT | O_APPEND;
   }
 
   if (access == FileAccess::ReadWrite)
@@ -530,27 +532,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
     strFlags += "b";
   }
 
-  int fd;
-
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  int shflags = 0;
-  if (share == FileShare::None)
-  {
-    shflags = SH_DENYRW;
-  }
-  else if (share == FileShare::Read)
-  {
-    shflags |= SH_DENYWR;
-  }
-  if (share == FileShare::Write)
-  {
-    shflags |= SH_DENYRD;
-  }
-  else if (share == FileShare::ReadWrite)
-  {
-    shflags |= SH_DENYNO;
-  }
-  if (mode == FileMode::Create)
+  if (mode == FileMode::Create || mode == FileMode::CreateNew || mode == FileMode::Append)
   {
     PathName dir(path);
     dir.MakeAbsolute();
@@ -560,22 +542,60 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
       Directory::Create(dir);
     }
   }
-  if (_wsopen_s(&fd, path.ToWideCharString().c_str(), flags, shflags, (((flags & O_CREAT) == 0) ? 0 : S_IREAD | S_IWRITE)) != 0)
-  {
-    fd = -1;
-  }
+
+  int fd = _wopen(path.ToWideCharString().c_str(), flags, ((flags & O_CREAT) == 0) ? 0 : S_IREAD | S_IWRITE);
   if (fd < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("_wsopen_s", "path", path.ToString());
+    if (errno == EINVAL && ::GetLastError() == ERROR_USER_MAPPED_FILE)
+    {
+      MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", path.ToString(), "modeString", strFlags);
+    }
+    else
+    {
+      MIKTEX_FATAL_CRT_ERROR_2("_wopen", "path", path.ToString(), "modeString", strFlags);
+    }
   }
-#else
-  UNUSED_ALWAYS(shflags);
-  fd = open(path.Get(), flags, (((flags & O_CREAT) == 0) ? 0 : S_IREAD | S_IWRITE));
-  if (fd < 0)
-  {
-    FATAL_CRT_ERROR("open", path.Get());
-  }
-#endif
 
   return FdOpen(path, fd, strFlags.c_str());
+}
+
+bool File::TryLock(HANDLE hFile, File::LockType lockType, chrono::milliseconds timeout)
+{
+  chrono::time_point<chrono::high_resolution_clock> tryUntil = chrono::high_resolution_clock::now() + timeout;
+  bool locked;
+  do
+  {
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
+    locked = LockFileEx(hFile, (lockType == LockType::Exclusive ? LOCKFILE_EXCLUSIVE_LOCK : 0) | LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &overlapped) ? true : false;
+    if (!locked)
+    {
+      if (GetLastError() != ERROR_LOCK_VIOLATION)
+      {
+        MIKTEX_FATAL_WINDOWS_ERROR("LockFileEx");
+      }
+      this_thread::sleep_for(10ms);
+    }
+  } while (!locked && chrono::high_resolution_clock::now() < tryUntil);
+  return locked;
+}
+
+bool File::TryLock(int fd, File::LockType lockType, chrono::milliseconds timeout)
+{
+  return TryLock(reinterpret_cast<HANDLE>(_get_osfhandle(fd)), lockType, timeout);
+}
+
+void File::Unlock(HANDLE hFile)
+{
+  OVERLAPPED overlapped;
+  memset(&overlapped, 0, sizeof(overlapped));
+  if (!UnlockFileEx(hFile, 0, MAXDWORD, MAXDWORD, &overlapped))
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("UnlockFileEx");
+  }
+}
+
+void File::Unlock(int fd)
+{
+  Unlock(reinterpret_cast<HANDLE>(_get_osfhandle(fd)));
 }

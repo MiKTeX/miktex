@@ -696,14 +696,11 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
     << "title=" << packageInfo.title << "\n"
     << "version=" << packageInfo.version << "\n"
     << "targetsystem=" << packageInfo.targetSystem << "\n"
-    << "md5=" << digest << "\n";
-#if defined(MIKTEX_EXTENDED_PACKAGEINFO)
-  stream
+    << "md5=" << digest << "\n"
     << "ctan_path=" << packageInfo.ctanPath << "\n"
     << "copyright_owner=" << packageInfo.copyrightOwner << "\n"
     << "copyright_year=" << packageInfo.copyrightYear << "\n"
     << "license_type=" << packageInfo.licenseType << "\n";
-#endif
   stream << "requires=" << StringUtil::Flatten(packageInfo.requiredPackages, ';') << "\n";
 #if defined(SUPPORT_LEGACY_EXTERNALNAME)
   stream
@@ -823,12 +820,10 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
     packageInfo.digest = MD5::Parse(str);
   }
 
-#if defined(MIKTEX_EXTENDED_PACKAGEINFO)
   cfg->TryGetValueAsString("", "ctan_path", packageInfo.ctanPath);
   cfg->TryGetValueAsString("", "copyright_owner", packageInfo.copyrightOwner);
   cfg->TryGetValueAsString("", "copyright_year", packageInfo.copyrightYear);
   cfg->TryGetValueAsString("", "license_type", packageInfo.licenseType);
-#endif
 
   // read extra description file
   ReadDescriptionFile(stagingDir, packageInfo.description);
@@ -1078,11 +1073,11 @@ void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>
     time_t timePackaged;
     if (repositoryManifest.TryGetValueAsString(p.second.id, "TimePackaged", str))
     {
-      timePackaged = std::stoi(str);
+      timePackaged = Utils::ToTimeT(str);
     }
     else
     {
-      timePackaged = 0;
+      timePackaged = InvalidTimeT;
     }
     PackageManager::WritePackageManifestFile(packageManifestFile, p.second, timePackaged);
   }
@@ -1099,10 +1094,10 @@ void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& pac
       continue;
     }
     string str;
-    time_t timePackaged = 0;
+    time_t timePackaged = InvalidTimeT;
     if (repositoryManifest.TryGetValueAsString(p.second.id, "TimePackaged", str))
     {
-      timePackaged = std::stoi(str);
+      timePackaged = Utils::ToTimeT(str);
     }
     PackageManager::PutPackageManifest(*cfg, p.second, timePackaged);
   }
@@ -1168,11 +1163,7 @@ void PackageCreator::RunArchiver(ArchiveFileType archiveFileType, const PathName
 
 void PackageCreator::CreateRepositoryInformationFile(const PathName& repository, Cfg& repositoryManifest, const map<string, MpcPackageInfo>& packageTable)
 {
-  int numberOfPackages = 0;
-  for (const shared_ptr<Cfg::Key>& key : repositoryManifest)
-  {
-    numberOfPackages += 1;
-  }
+  int numberOfPackages = repositoryManifest.GetSize();
   set<MpcPackageInfo, PackagedOnReversed> packagedOnReversed;
   for (const pair<string, MpcPackageInfo>& p: packageTable)
   {
@@ -1180,11 +1171,11 @@ void PackageCreator::CreateRepositoryInformationFile(const PathName& repository,
     string str;
     if (repositoryManifest.TryGetValueAsString(p.second.id, "TimePackaged", str))
     {
-      pi.timePackaged = std::stoi(str);
+      pi.timePackaged = Utils::ToTimeT(str);
     }
     else
     {
-      pi.timePackaged = 0;
+      pi.timePackaged = InvalidTimeT;
     }
     packagedOnReversed.insert(pi);
   }
@@ -1559,7 +1550,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
       && MD5::Parse(strMD5.c_str()) == packageInfo.digest
       && repositoryManifest.TryGetValueAsString(packageInfo.id, "TimePackaged", strTimePackaged))
     {
-      packageInfo.timePackaged = atoi(strTimePackaged.c_str());
+      packageInfo.timePackaged = Utils::ToTimeT(strTimePackaged);
       reuseExisting = true;
     }
 #if 1
@@ -1637,7 +1628,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
       && MD5::Parse(strMD5.c_str()) == packageInfo.digest
       && repositoryManifest.TryGetValueAsString(packageInfo.id, "TimePackaged", strTimePackaged))
     {
-      packageInfo.timePackaged = atoi(strTimePackaged.c_str());
+      packageInfo.timePackaged = Utils::ToTimeT(strTimePackaged);
     }
     else
     {
@@ -2069,7 +2060,7 @@ void PackageCreator::Run(int argc, const char** argv)
       texmfPrefix = optArg;
       break;
     case OPT_TIME_PACKAGED:
-      programStartTime = std::stoi(optArg);
+      programStartTime = Utils::ToTimeT(optArg);
       break;
     case OPT_TPM_DIR:
       tpmDir = optArg;

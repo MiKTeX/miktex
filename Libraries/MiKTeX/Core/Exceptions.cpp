@@ -19,22 +19,21 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fstream>
 
+#include <miktex/Core/Cfg>
+#include <miktex/Core/Environment>
+#include <miktex/Core/Exceptions>
+#include <miktex/Core/Urls>
+
 #include "internal.h"
 
-#include "miktex/Core/Cfg.h"
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/Exceptions.h"
-#include "miktex/Core/Urls.h"
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 MiKTeXException::MiKTeXException() :
   errorMessage(T_("Unknown MiKTeX exception."))
@@ -43,12 +42,12 @@ MiKTeXException::MiKTeXException() :
 
 MiKTeXException::MiKTeXException(const string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
   info(info),
-  description(description),
   errorMessage(errorMessage),
-  programInvocationName(programInvocationName),
+  description(description),
   remedy(remedy),
-  sourceLocation(sourceLocation),
-  tag(tag)
+  tag(tag),
+  programInvocationName(programInvocationName),
+  sourceLocation(sourceLocation)
 {
 }
 
@@ -256,6 +255,15 @@ IOException::IOException()
 
 IOException::IOException(const std::string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
   MiKTeXException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation)
+{
+}
+
+FileExistsException::FileExistsException()
+{
+}
+
+FileExistsException::FileExistsException(const string& programInvocationName, const string& errorMessage, const string& description, const string& remedy, const string& tag, const KVMAP& info, const SourceLocation& sourceLocation) :
+IOException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation)
 {
 }
 

@@ -221,10 +221,6 @@ string ErrorDialogImpl::CreateReport()
         ? T_("yes")
         : T_("no"))
         << endl;
-      s << "PowerUser: " << (pSession->RunningAsPowerUser()
-        ? T_("yes")
-        : T_("no"))
-        << endl;
       for (unsigned idx = 0; idx < pSession->GetNumberOfTEXMFRoots(); ++idx)
       {
         PathName absFileName;

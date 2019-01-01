@@ -197,8 +197,6 @@ set(apr_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/user/win32/userinfo.c
 )
 
-ignore_warnings()
-
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND system_libraries
     ws2_32

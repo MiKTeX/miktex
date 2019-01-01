@@ -50,8 +50,8 @@ int MiKTeX::UI::Qt::ErrorDialog::DoModal(QWidget* parent, const exception& e)
 
 ErrorDialogImpl::ErrorDialogImpl(QWidget* parent, const MiKTeXException& e) :
   QDialog(parent),
-  isMiKTeXException(true),
-  miktexException(e)
+  miktexException(e),
+  isMiKTeXException(true)
 {
   setupUi(this);
   QString message;
@@ -80,8 +80,8 @@ ErrorDialogImpl::ErrorDialogImpl(QWidget* parent, const MiKTeXException& e) :
 
 ErrorDialogImpl::ErrorDialogImpl(QWidget* parent, const exception& e) :
   QDialog(parent),
-  isMiKTeXException(false),
-  stdException(e)
+  stdException(e),
+  isMiKTeXException(false)
 {
   setupUi(this);
   tbMessage->setText(QString::fromUtf8(e.what()));
@@ -101,12 +101,77 @@ void ErrorDialogImpl::on_btnCopy_clicked()
   }
 }
 
+string Trim(const string& str_)
+{
+  string str = str_;
+  constexpr const char* WHITESPACE = " \t\r\n";
+  size_t pos = str.find_last_not_of(WHITESPACE);
+  if (pos != string::npos)
+  {
+    str.erase(pos + 1);
+  }
+  pos = str.find_first_not_of(WHITESPACE);
+  if (pos == string::npos)
+  {
+    str.erase();
+  }
+  else if (pos != 0)
+  {
+    str.erase(0, pos);
+  }
+  return str;
+}
+
 string ErrorDialogImpl::CreateReport()
 {
   ostringstream s;
   try
   {
+    s << T_("GENERAL MIKTEX INFORMATION") << "\n";
     SetupService::WriteReport(s, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser, ReportOption::Processes });
+    s << "\n";
+    s << T_("ERROR DETAILS") << "\n";
+    if (isMiKTeXException)
+    {
+      string programInvocationName = Trim(miktexException.GetProgramInvocationName());
+      if (!programInvocationName.empty())
+      {
+        s << T_("Program: ") << programInvocationName << "\n";
+      }
+      SourceLocation loc = miktexException.GetSourceLocation();
+      if (!loc.fileName.empty())
+      {
+        s << T_("Source: ") << loc << "\n";
+      }
+      string errorMessage = Trim(miktexException.GetErrorMessage());
+      if (!errorMessage.empty())
+      {
+        s << T_("Error: ") << errorMessage;
+      }
+      string description = Trim(miktexException.GetDescription());
+      if (!description.empty())
+      {
+        s << T_("Description: ") << description << "\n";
+      }
+      string remedy = Trim(miktexException.GetRemedy());
+      if (!remedy.empty())
+      {
+        s << T_("Remedy: ") << remedy << "\n";
+      }
+      auto info = miktexException.GetInfo();
+      if (!info.empty())
+      {
+        s << T_("Details: ") << "\n";
+        for (const auto& kv : info)
+        {
+          s << "  " << kv.first << ": " << kv.second << "\n";
+        }
+      }
+    }
+    else
+    {
+      s << T_("Error: ") << stdException.what() << "\n";
+    }
   }
   catch (const exception&)
   {

@@ -100,10 +100,10 @@ namespace
   const struct option aLongOptions[] =
   {
     COMMON_OPTIONS,
-    "dest-name", required_argument, nullptr, OPT_DESTNAME,
-    "engine-option", required_argument, nullptr, OPT_ENGINE_OPTION,
-    "no-dump", no_argument, nullptr, OPT_NO_DUMP,
-    nullptr, no_argument, nullptr, 0,
+    {"dest-name", required_argument, nullptr, OPT_DESTNAME},
+    {"engine-option", required_argument, nullptr, OPT_ENGINE_OPTION},
+    {"no-dump", no_argument, nullptr, OPT_NO_DUMP},
+    {nullptr, no_argument, nullptr, 0}
   };
 }
 

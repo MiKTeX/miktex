@@ -1,6 +1,6 @@
 /* TemporaryFile.cpp:
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,17 +19,16 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/File>
+#include <miktex/Core/TemporaryFile>
 
 #include "internal.h"
 
-#include "miktex/Core/File.h"
-#include "miktex/Core/TemporaryFile.h"
+using namespace std;
 
 using namespace MiKTeX::Core;
-using namespace std;
 
 TemporaryFile::~TemporaryFile() noexcept
 {

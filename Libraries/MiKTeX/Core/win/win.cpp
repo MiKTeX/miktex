@@ -19,36 +19,51 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <Windows.h>
-#include <aclapi.h>
+#include <AclAPI.h>
+#include <ShlObj.h>
+
+// FIXME: must come first
+#include "core-version.h"
+
+#include <miktex/Core/Directory>
+#include <miktex/Core/Exceptions>
+#include <miktex/Core/win/HResult>
+#include <miktex/Core/win/winAutoResource>
 
 #include "internal.h"
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/Exceptions.h"
-#include "miktex/Core/win/HResult.h"
-#include "miktex/Core/win/winAutoResource.h"
-
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
-#include "core-version.h"
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
-MIKTEXINTERNALFUNC(bool) GetWindowsFontsDirectory(PathName& path)
+MIKTEXINTERNALFUNC(bool) GetSystemFontDirectory(PathName& path)
 {
-  wchar_t szWinDir[BufferSizes::MaxPath];
-  if (GetWindowsDirectoryW(szWinDir, BufferSizes::MaxPath) == 0)
+  wchar_t szPath[BufferSizes::MaxPath];
+  if (SHGetFolderPathW(nullptr, CSIDL_FONTS, nullptr, SHGFP_TYPE_CURRENT, szPath) != S_OK)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR("GetWindowsDirectoryW");
+    return false;
   }
-  path = szWinDir;
+  path = szPath;
+  return Directory::Exists(path);
+}
+
+MIKTEXINTERNALFUNC(bool) GetUserFontDirectory(PathName& path)
+{
+  wchar_t szPath[BufferSizes::MaxPath];
+  if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, szPath) != S_OK)
+  {
+    return false;
+  }
+  path = szPath;
+  path /= "Microsoft";
+  path /= "Windows";
   path /= "Fonts";
   return Directory::Exists(path);
 }

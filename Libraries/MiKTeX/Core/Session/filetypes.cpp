@@ -19,21 +19,20 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/ConfigNames>
+#include <miktex/Core/Environment>
+#include <miktex/Core/Paths>
 
 #include "internal.h"
 
-#include "miktex/Core/ConfigNames.h"
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/Paths.h"
-
 #include "Session/SessionImpl.h"
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 namespace std {
   template <> struct hash<FileType>
@@ -143,13 +142,16 @@ void SessionImpl::RegisterFileType(FileType fileType)
     {
       searchPath.push_back(localBinDir.ToString());
     }
-    PathName userBinDir = GetSpecialPath(SpecialPath::UserInstallRoot);
-    userBinDir /= MIKTEX_PATH_BIN_DIR;
-    userBinDir.Canonicalize();
-    // FIXME: case-senstive
-    if (!IsAdminMode() && std::find(searchPath.begin(), searchPath.end(), userBinDir.ToString()) == searchPath.end())
+    if (!IsAdminMode())
     {
-      searchPath.push_back(userBinDir.ToString());
+      PathName userBinDir = GetSpecialPath(SpecialPath::UserInstallRoot);
+      userBinDir /= MIKTEX_PATH_BIN_DIR;
+      userBinDir.Canonicalize();
+      // FIXME: case-senstive
+      if (!IsAdminMode() && std::find(searchPath.begin(), searchPath.end(), userBinDir.ToString()) == searchPath.end())
+      {
+        searchPath.push_back(userBinDir.ToString());
+      }
     }
     PathName commonBinDir = GetSpecialPath(SpecialPath::CommonInstallRoot);
     commonBinDir /= MIKTEX_PATH_BIN_DIR;
@@ -198,6 +200,8 @@ void SessionImpl::RegisterFileType(FileType fileType)
   case FileType::TTF:
   case FileType::TYPE1:
     searchPath2 = GetFontDirectories();
+    break;
+  default:
     break;
   }
   InternalFileTypeInfo fti;

@@ -41,8 +41,6 @@ add_definitions(
   -D__SyncTeX__
 )
 
-ignore_warnings()
-
 set(C4P_FLAGS
   --auto-exit=10
   --chars-are-unsigned

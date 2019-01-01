@@ -141,11 +141,14 @@ vector<string> LanguageTableModel::WhichPackage(const string& texInputfile)
 {
   PathName directoryPattern(session->GetMpmRootPath());
   directoryPattern /= "tex//";
-  vector<PathName> paths;
+  vector<Fndb::Record> records;
   vector<string> result;
-  if (!Fndb::Search(texInputfile, directoryPattern.ToString(), false, paths, result))
+  if (Fndb::Search(texInputfile, directoryPattern.ToString(), false, records))
   {
-    result.clear();
+    for (const auto& r : records)
+    {
+      result.push_back(r.fileNameInfo);
+    }
   }
   return result;
 }

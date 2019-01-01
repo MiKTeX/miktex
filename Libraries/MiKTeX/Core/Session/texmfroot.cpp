@@ -19,16 +19,19 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <mutex>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#include <miktex/Core/Environment>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
+#include <miktex/Core/RootDirectoryInfo>
 
 #include "internal.h"
-
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
-#include "miktex/Core/RootDirectoryInfo.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "miktex/Core/win/HResult.h"
@@ -38,9 +41,10 @@
 #include "Fndb/FileNameDatabase.h"
 #include "Session/SessionImpl.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 // index of the hidden MPM root
 #define MPM_ROOT static_cast<unsigned>(GetNumberOfTEXMFRoots())
@@ -228,7 +232,7 @@ void SessionImpl::DoStartupConfig()
     MergeStartupConfig(startupConfig, ReadStartupConfigFile(false, userStartupConfigFile));
   }
 
-#if ! NO_REGISTRY
+#if !NO_REGISTRY
   if (startupConfig.config != MiKTeXConfiguration::Portable)
   {
     // read the registry, if we don't have a startup config file
@@ -263,31 +267,34 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   commonConfigRootIndex = INVALID_ROOT_INDEX;
   userConfigRootIndex = INVALID_ROOT_INDEX;
 
-  // UserConfig
-  if (!startupConfig.userConfigRoot.Empty())
+  if (!IsAdminMode())
   {
-    userConfigRootIndex = RegisterRootDirectory(startupConfig.userConfigRoot, RootDirectoryInfo::Purpose::Config, false, false, review);
-  }
-
-  // UserData
-  if (!startupConfig.userDataRoot.Empty())
-  {
-    userDataRootIndex = RegisterRootDirectory(startupConfig.userDataRoot, RootDirectoryInfo::Purpose::Data, false, false, review);
-  }
-
-  // UserRoots
-  for (const string& root : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
-  {
-    if (!root.empty())
+    // UserConfig
+    if (!startupConfig.userConfigRoot.Empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false, false, review);
+      userConfigRootIndex = RegisterRootDirectory(startupConfig.userConfigRoot, RootDirectoryInfo::Purpose::Config, false, false, review);
     }
-  }
 
-  // UserInstall
-  if (!startupConfig.userInstallRoot.Empty())
-  {
-    userInstallRootIndex = RegisterRootDirectory(startupConfig.userInstallRoot, RootDirectoryInfo::Purpose::Install, false, false, review);
+    // UserData
+    if (!startupConfig.userDataRoot.Empty())
+    {
+      userDataRootIndex = RegisterRootDirectory(startupConfig.userDataRoot, RootDirectoryInfo::Purpose::Data, false, false, review);
+    }
+
+    // UserRoots
+    for (const string& root : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
+    {
+      if (!root.empty())
+      {
+        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false, false, review);
+      }
+    }
+
+    // UserInstall
+    if (!startupConfig.userInstallRoot.Empty())
+    {
+      userInstallRootIndex = RegisterRootDirectory(startupConfig.userInstallRoot, RootDirectoryInfo::Purpose::Install, false, false, review);
+    }
   }
 
   // CommonConfig
@@ -317,12 +324,15 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, RootDirectoryInfo::Purpose::Install, true, false, review);
   }
 
-  // OtherUserRoots
-  for (const string& root : StringUtil::Split(startupConfig.otherUserRoots, PathName::PathNameDelimiter))
+  if (!IsAdminMode())
   {
-    if (!root.empty())
+    // OtherUserRoots
+    for (const string& root : StringUtil::Split(startupConfig.otherUserRoots, PathName::PathNameDelimiter))
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false , true, review);
+      if (!root.empty())
+      {
+        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false , true, review);
+      }
     }
   }
 
@@ -340,24 +350,30 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     MIKTEX_UNEXPECTED();
   }
 
+  if (!IsAdminMode())
+  {
+    if (userDataRootIndex == INVALID_ROOT_INDEX)
+    {
+      userDataRootIndex = 0;
+    }
+    if (userConfigRootIndex == INVALID_ROOT_INDEX)
+    {
+      userConfigRootIndex = userDataRootIndex;
+    }
+    if (userInstallRootIndex == INVALID_ROOT_INDEX)
+    {
+      userInstallRootIndex = userConfigRootIndex;
+    }
+  }
+
   if (commonDataRootIndex == INVALID_ROOT_INDEX)
   {
     commonDataRootIndex = 0;
   }
-
-  if (userDataRootIndex == INVALID_ROOT_INDEX)
-  {
-    userDataRootIndex = 0;
-  }
-
+  
   if (commonConfigRootIndex == INVALID_ROOT_INDEX)
   {
     commonConfigRootIndex = commonDataRootIndex;
-  }
-
-  if (userConfigRootIndex == INVALID_ROOT_INDEX)
-  {
-    userConfigRootIndex = userDataRootIndex;
   }
 
   if (commonInstallRootIndex == INVALID_ROOT_INDEX)
@@ -365,23 +381,17 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     commonInstallRootIndex = commonConfigRootIndex;
   }
 
-  if (userInstallRootIndex == INVALID_ROOT_INDEX)
-  {
-    userInstallRootIndex = userConfigRootIndex;
-  }
-
   RegisterRootDirectory(MPM_ROOT_PATH, RootDirectoryInfo::Purpose::Generic, IsAdminMode(), false, false);
 
-  trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectoryPath(userDataRootIndex).GetData());
-
-  trace_config->WriteFormattedLine("core", "UserConfig: %s", GetRootDirectoryPath(userConfigRootIndex).GetData());
-
-  trace_config->WriteFormattedLine("core", "UserInstall: %s", GetRootDirectoryPath(userInstallRootIndex).GetData());
+  if (!IsAdminMode())
+  {
+    trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectoryPath(userDataRootIndex).GetData());
+    trace_config->WriteFormattedLine("core", "UserConfig: %s", GetRootDirectoryPath(userConfigRootIndex).GetData());
+    trace_config->WriteFormattedLine("core", "UserInstall: %s", GetRootDirectoryPath(userInstallRootIndex).GetData());
+  }
 
   trace_config->WriteFormattedLine("core", "CommonData: %s", GetRootDirectoryPath(commonDataRootIndex).GetData());
-
   trace_config->WriteFormattedLine("core", "CommonConfig: %s", GetRootDirectoryPath(commonConfigRootIndex).GetData());
-
   trace_config->WriteFormattedLine("core", "CommonInstall: %s", GetRootDirectoryPath(commonInstallRootIndex).GetData());
 }
 
@@ -512,7 +522,7 @@ void SessionImpl::SaveRootDirectories(
 #endif
   )
 {
-#if ! defined(MIKTEX_WINDOWS)
+#if !defined(MIKTEX_WINDOWS)
   bool noRegistry = true;
 #endif
   MIKTEX_ASSERT(!IsMiKTeXDirect());
@@ -528,7 +538,7 @@ void SessionImpl::SaveRootDirectories(
   startupConfig.otherUserRoots.reserve(n * 30);
   for (unsigned idx = 0; idx < n; ++idx)
   {
-    const RootDirectoryInternals rootDirectory = this->rootDirectories[idx];
+    const RootDirectoryInternals& rootDirectory = this->rootDirectories[idx];
     if (rootDirectory.IsCommon())
     {
       if (idx == commonDataRootIndex
@@ -728,8 +738,8 @@ void SessionImpl::RegisterRootDirectory(const PathName& path)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
     bool skipit = root.IsOther();
-    skipit = skipit || IsAdminMode() && !root.IsCommon();
-    skipit = skipit || !IsAdminMode() && root.IsCommon();
+    skipit = skipit || (IsAdminMode() && !root.IsCommon());
+    skipit = skipit || (!IsAdminMode() && root.IsCommon());
     skipit = skipit || root.IsManaged();
     if (!skipit)
     {
@@ -748,8 +758,8 @@ void SessionImpl::UnregisterRootDirectory(const PathName& path)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
     bool skipit = root.IsOther();
-    skipit = skipit || IsAdminMode() && !root.IsCommon();
-    skipit = skipit || !IsAdminMode() && root.IsCommon();
+    skipit = skipit || (IsAdminMode() && !root.IsCommon());
+    skipit = skipit || (!IsAdminMode() && root.IsCommon());
     skipit = skipit || root.IsManaged();
     if (!skipit)
     {
@@ -819,7 +829,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, Re
   {
     InitializeRootDirectories(startupConfig_, options[RegisterRootDirectoriesOption::Review]);
   }
-  catch (const MiKTeXException& ex)
+  catch (const MiKTeXException&)
   {
     InitializeRootDirectories();
     throw;
@@ -876,7 +886,7 @@ void SessionImpl::MoveRootDirectory(unsigned r, int dir)
   for (unsigned r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
     const RootDirectoryInternals& root = newRoots[r];
-    if (!root.IsManaged() && (IsAdminMode() && root.IsCommon() || !IsAdminMode() && !root.IsCommon()))
+    if (!root.IsManaged() && ((IsAdminMode() && root.IsCommon()) || (!IsAdminMode() && !root.IsCommon())))
     {
       toBeRegistered.push_back(root.path.ToString());
     }
@@ -1051,29 +1061,9 @@ PathName SessionImpl::GetRelativeFilenameDatabasePathName(unsigned r)
 
 shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r)
 {
-  return GetFileNameDatabase(r, TriState::Undetermined);
-}
-
-shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriState triReadOnly)
-{
   if (r != MPM_ROOT && r >= GetNumberOfTEXMFRoots())
   {
     INVALID_ARGUMENT("index", std::to_string(r));
-  }
-
-  bool readOnly;
-
-  if (triReadOnly == TriState::True)
-  {
-    readOnly = true;
-  }
-  else if (triReadOnly == TriState::False)
-  {
-    readOnly = false;
-  }
-  else                  // triReadOnly == TriState::Undetermined
-  {
-    readOnly = IsTeXMFReadOnly(r);
   }
 
   lock_guard<mutex> lockGuard(fndbMutex);
@@ -1083,20 +1073,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriSta
   shared_ptr<FileNameDatabase> fndb = root.GetFndb();
   if (fndb != nullptr)
   {
-    if (triReadOnly == TriState::False && fndb->IsInvariable())
-    {
-      // we say we indend to modify the fndb; but the fndb is opened readonly
-      // => we have to reload the database
-      fndb = nullptr;
-      if (!UnloadFilenameDatabaseInternal_nolock(r, false))
-      {
-        return nullptr;
-      }
-    }
-    else
-    {
-      return fndb;
-    }
+    return fndb;
   }
 
 #if 0
@@ -1122,9 +1099,9 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriSta
     return nullptr;
   }
 
-  trace_fndb->WriteFormattedLine("core", T_("loading fndb%s: %s"), (readOnly ? T_(" read-only") : ""), fqFndbFileName.GetData());
+  trace_fndb->WriteLine("core", fmt::format(T_("loading fndb: {0}"), fqFndbFileName));
 
-  shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName.GetData(), root.get_Path().GetData(), readOnly);
+  shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName, root.get_Path());
 
   root.SetFndb(pFndb);
 
@@ -1138,7 +1115,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char* path)
   {
     return nullptr;
   }
-  return GetFileNameDatabase(root, TriState::Undetermined);
+  return GetFileNameDatabase(root);
 }
 
 unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
@@ -1191,13 +1168,13 @@ unsigned SessionImpl::DeriveTEXMFRoot(const PathName& path)
   return root;
 }
 
-bool SessionImpl::UnloadFilenameDatabaseInternal(unsigned r, bool remove)
+bool SessionImpl::UnloadFilenameDatabaseInternal(unsigned r)
 {
   lock_guard<mutex> lockGuard(fndbMutex);
-  return UnloadFilenameDatabaseInternal_nolock(r, remove);
+  return UnloadFilenameDatabaseInternal_nolock(r);
 }
 
-bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r, bool remove)
+bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r)
 {
   trace_fndb->WriteFormattedLine("core", T_("going to unload file name database %u"), r);
 
@@ -1216,16 +1193,6 @@ bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r, bool remove)
     rootDirectories[r].SetFndb(nullptr);
   }
 
-  if (remove && r < GetNumberOfTEXMFRoots())
-  {
-    // remove the database file
-    PathName path = GetFilenameDatabasePathName(r);
-    if (File::Exists(path))
-    {
-      File::Delete(path, { FileDeleteOption::TryHard });
-    }
-  }
-
   return true;
 }
 
@@ -1235,7 +1202,7 @@ bool SessionImpl::UnloadFilenameDatabase()
 
   for (unsigned r = 0; r < rootDirectories.size(); ++r)
   {
-    if (!UnloadFilenameDatabaseInternal(r, false))
+    if (!UnloadFilenameDatabaseInternal(r))
     {
       done = false;
     }

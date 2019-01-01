@@ -19,8 +19,6 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_PREPROCESSORS_FOLDER}/fribidixetex")
 
-ignore_warnings()
-
 set(fribidixetex_sources
   fribidixetex-version.h
   source/src/fribidixetex-bidi.c

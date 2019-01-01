@@ -19,29 +19,28 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <Windows.h>
 #include <shlobj.h>
 #include <strsafe.h>
 #include <wininet.h>
 
-#include "internal.h"
+#include <miktex/Core/Directory>
+#include <miktex/Core/PathName>
+#include <miktex/Core/Paths>
+#include <miktex/Core/win/WindowsVersion>
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/PathName.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/win/WindowsVersion.h"
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
 #include "win/winRegistry.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 MIKTEXSTATICFUNC(void) GetAlternate(const char* lpszPath, char* lpszAlternate)
 {
@@ -767,7 +766,7 @@ bool Utils::GetDefPrinter(string& printerName)
     if (osv.dwMajorVersion >= 5)
     {
       CharBuffer<wchar_t> printerNameBuf;
-      DWORD dwBufferSize = printerNameBuf.GetCapacity();
+      DWORD dwBufferSize = static_cast<DWORD>(printerNameBuf.GetCapacity());
       BOOL bDone = GetDefaultPrinterW(printerNameBuf.GetData(), &dwBufferSize);
       if (!bDone)
       {

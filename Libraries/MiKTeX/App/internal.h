@@ -21,15 +21,6 @@
 
 #pragma once
 
-#if defined(MIKTEX_APP_SHARED)
-#  define MIKTEXAPPEXPORT MIKTEXDLLEXPORT
-#else
-#  define MIKTEXAPPEXPORT
-#endif
-
-#define BDF6E2537F116547846406B5B2B65949
-#include "miktex/App/Application.h"
-
 #if !defined(UNUSED_ALWAYS)
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif

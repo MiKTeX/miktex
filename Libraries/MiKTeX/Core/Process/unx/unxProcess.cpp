@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <signal.h>
 #include <sys/wait.h>
@@ -29,26 +27,28 @@
 
 #if defined(__APPLE__)
 #  include <libproc.h>
+#  include <sys/proc.h>
 #endif
 
 #include <thread>
+
+#include <miktex/Core/Directory>
+#include <miktex/Core/Environment>
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/StreamReader>
 
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/CommandLineBuilder.h"
-#include "miktex/Core/StreamReader.h"
-
 #include "unxProcess.h"
 
 #include "Session/SessionImpl.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 const int filenoStdin = 0;
 const int filenoStdout = 1;
@@ -308,6 +308,13 @@ void unxProcess::Create()
       {
         Directory::SetCurrent(startinfo.WorkingDirectory);
       }
+      if (startinfo.Daemonize)
+      {
+        if (setsid() == -1)
+        {
+          MIKTEX_FATAL_CRT_ERROR("setsid");
+        }
+      }
       execv(startinfo.FileName.c_str(), const_cast<char*const*>(argv.GetArgv()));
       perror("execv failed");
     }
@@ -440,9 +447,12 @@ void unxProcess::WaitForExit()
     session->trace_process->WriteFormattedLine("core", "waiting for process %d", static_cast<int>(this->pid));
     pid_t pid = this->pid;
     this->pid = -1;
-    if (waitpid(pid, &status, 0) <= 0)
+    while (waitpid(pid, &status, 0) <= 0)
     {
-      MIKTEX_FATAL_CRT_ERROR("waitpid");
+      if (errno != EINTR)
+      {
+        MIKTEX_FATAL_CRT_ERROR("waitpid");
+      }
     }
     if (WIFEXITED(status) != 0)
     {
@@ -561,52 +571,30 @@ unique_ptr<Process> Process::GetCurrentProcess()
 {
   unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   currentProcess->pid = getpid();
-  return unique_ptr<Process>(currentProcess.release());
+  return currentProcess;
 }
 
 unique_ptr<Process> Process::GetProcess(int systemId)
 {
-  unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   if (kill(systemId, 0) != 0)
   {
-    return nullptr;
+    if (errno == ESRCH)
+    {
+      return nullptr;
+    }
+    MIKTEX_FATAL_CRT_ERROR("kill");
   }
-  currentProcess->pid = systemId;
-  return unique_ptr<Process>(currentProcess.release());
+  unique_ptr<unxProcess> process = make_unique<unxProcess>();
+  process->pid = systemId;
+  return process;
 }
 
 unique_ptr<Process> unxProcess::get_Parent()
 {
-#if defined(__linux__)
-  string path = "/proc/" + std::to_string(pid) + "/stat";
-  if (!File::Exists(path))
-  {
-    return nullptr;
-  }
-  StreamReader reader(path);
-  string line;
-  while (reader.ReadLine(line))
-  {
-    Tokenizer tok(line, " ");
-    ++tok;
-    ++tok;
-    ++tok;
-    unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
-    parentProcess->pid = std::stoi(*tok);
-    return unique_ptr<Process>(parentProcess.release());
-  }
-#elif defined(__APPLE__)
-  struct proc_bsdinfo procinfo;
-  if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &procinfo, PROC_PIDTBSDINFO_SIZE) == 0)
-  {
-    return nullptr;
-  }
+  ProcessInfo processInfo = GetProcessInfo();
   unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
-  parentProcess->pid = procinfo.pbi_ppid;
-  return unique_ptr<Process>(parentProcess.release());
-#else
-  return nullptr;
-#endif
+  parentProcess->pid = processInfo.parent;
+  return parentProcess;
 }
 
 string unxProcess::get_ProcessName()
@@ -615,7 +603,8 @@ string unxProcess::get_ProcessName()
   string path = "/proc/" + std::to_string(pid) + "/comm";
   if (!File::Exists(path))
   {
-    return "?";
+    // process does not exist anymore
+    return "";
   }
   StreamReader reader(path);
   string line;
@@ -623,19 +612,102 @@ string unxProcess::get_ProcessName()
   {
     return line;
   }
+  MIKTEX_UNEXPECTED();
 #elif defined(__APPLE__)
   char path[PROC_PIDPATHINFO_MAXSIZE];
   if (proc_pidpath(pid, path, sizeof(path)) == 0)
   {
-    return "?";
+    if (errno == ESRCH)
+    {
+      return "";
+    }
+    MIKTEX_FATAL_CRT_ERROR("proc_pidpath")
   }
   return PathName(path).GetFileName().ToString();
 #else
-  return "?";
+#error Unimplemented: unxProcess::get_ProcessName()
 #endif
 }
 
 int unxProcess::GetSystemId()
 {
   return this->pid;
+}
+
+ProcessInfo unxProcess::GetProcessInfo()
+{
+  ProcessInfo processInfo;
+  processInfo.name = get_ProcessName();
+#if defined(__linux__)
+  string path = "/proc/" + std::to_string(pid) + "/stat";
+  if (!File::Exists(path))
+  {
+    // process does not exist anymore
+    return processInfo;
+  }
+  StreamReader reader(path);
+  string line;
+  while (reader.ReadLine(line))
+  {
+    Tokenizer tok(line, " ");
+    MIKTEX_ASSERT(std::stoi(*tok) == pid);
+    ++tok;
+    ++tok;
+    string state = *tok;
+    MIKTEX_ASSERT(state.length() == 1);
+    switch (state[0])
+    {
+      case 'R':
+        processInfo.status = ProcessStatus::Runnable;
+        break;
+      case 'S':
+      case 'D':
+        processInfo.status = ProcessStatus::Sleeping;
+        break;
+      case 'T':
+        processInfo.status = ProcessStatus::Stoped;
+        break;
+      case 'Z':
+        processInfo.status = ProcessStatus::Zombie;
+        break;
+      default:
+        processInfo.status = ProcessStatus::Other;
+        break;
+    }
+    ++tok;
+    processInfo.parent = std::stoi(*tok);
+  }
+#elif defined(__APPLE__)
+  struct proc_bsdinfo pbi;
+  if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &pbi, PROC_PIDTBSDINFO_SIZE) == 0)
+  {
+    if (errno == ESRCH)
+    {
+      return processInfo;
+    }
+    MIKTEX_FATAL_CRT_ERROR("proc_pidpath")
+  }
+  switch (pbi.pbi_status)
+  {
+    case SRUN:
+      processInfo.status = ProcessStatus::Runnable;
+      break;
+    case SSLEEP:
+      processInfo.status = ProcessStatus::Sleeping;
+      break;
+    case SSTOP:
+      processInfo.status = ProcessStatus::Stoped;
+      break;
+    case SZOMB:
+      processInfo.status = ProcessStatus::Zombie;
+      break;
+    default:
+      processInfo.status = ProcessStatus::Other;
+      break;
+  }
+  processInfo.parent = pbi.pbi_ppid;
+#else
+#error Unimplemented: unxProcess::GetProcessInfo()
+#endif
+  return processInfo;
 }

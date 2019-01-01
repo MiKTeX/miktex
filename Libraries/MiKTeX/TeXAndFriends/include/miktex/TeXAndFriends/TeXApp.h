@@ -248,7 +248,7 @@ inline int miktexmakesrcspecial(int fileName, int lineNo)
 template<class FileType> inline bool miktexopendvifile(FileType& f)
 {
   MiKTeX::Core::PathName outPath;
-  bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
+  bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), false, outPath);
   if (done)
   {
 #if defined(MIKTEX_OMEGA)
@@ -263,7 +263,7 @@ template<class FileType> inline bool miktexopendvifile(FileType& f)
 template<class FileType> inline bool miktexopenpdffile(FileType& f)
 {
   MiKTeX::Core::PathName outPath;
-  bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
+  bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), false, outPath);
   if (done)
   {
 #if defined(MIKTEX_OMEGA)

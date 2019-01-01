@@ -19,22 +19,21 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <lzma.h>
 
-#include "internal.h"
+#include <miktex/Core/FileStream>
+#include <miktex/Core/LzmaStream>
 
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/LzmaStream.h"
+#include "internal.h"
 
 #include "CompressedStreamBase.h"
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 class LzmaStreamImpl :
   public CompressedStreamBase<LzmaStream>

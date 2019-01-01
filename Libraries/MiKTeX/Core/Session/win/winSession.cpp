@@ -19,28 +19,27 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <Windows.h>
 #include <htmlhelp.h>
 #include <shlobj.h>
 
-#include "internal.h"
+#include <miktex/Core/Directory>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
+#include <miktex/Core/win/HResult>
+#include <miktex/Core/win/WindowsVersion>
+#include <miktex/Core/win/winAutoResource>
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
-#include "miktex/Core/win/HResult.h"
-#include "miktex/Core/win/WindowsVersion.h"
-#include "miktex/Core/win/winAutoResource.h"
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 #include "win/winRegistry.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 void SessionImpl::MyCoInitialize()
 {
@@ -413,9 +412,9 @@ StartupConfig SessionImpl::ReadRegistry(bool common)
       ret.commonConfigRoot = str;
     }
   }
-  if (!common || AdminControlsUserConfig())
+  if (!common)
   {
-    TriState shared = AdminControlsUserConfig() ? TriState::Undetermined : TriState::False;
+    TriState shared = TriState::False;
     if (winRegistry::TryGetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_ROOTS, str))
     {
       ret.userRoots = str;
@@ -454,15 +453,6 @@ void SessionImpl::WriteRegistry(bool common, const StartupConfig& startupConfig)
     winRegistry::TryDeleteRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_INSTALL);
     winRegistry::TryDeleteRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_DATA);
     winRegistry::TryDeleteRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_CONFIG);
-#if ADMIN_CONTROLS_USER_CONFIG
-    if (AdminControlsUserConfig())
-    {
-      winRegistry::TryDeleteRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_ROOTS);
-      winRegistry::TryDeleteRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_INSTALL);
-      winRegistry::TryDeleteRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_DATA);
-      winRegistry::TryDeleteRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_CONFIG);
-    }
-#endif
   }
   else
   {
@@ -500,9 +490,9 @@ void SessionImpl::WriteRegistry(bool common, const StartupConfig& startupConfig)
       winRegistry::SetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_CONFIG, startupConfig.commonConfigRoot.GetData());
     }
   }
-  if (!common || AdminControlsUserConfig())
+  if (!common)
   {
-    TriState shared = AdminControlsUserConfig() ? TriState::Undetermined : TriState::False;
+    TriState shared = TriState::False;
     if (!startupConfig.userRoots.empty()
       && startupConfig.userRoots != defaultConfig.userRoots)
     {
@@ -676,7 +666,7 @@ bool SessionImpl::GetTTFDirs(string& ttfDirs)
   {
     flags.set((size_t)InternalFlag::CachedTtfDirs);
     PathName path;
-    if (GetWindowsFontsDirectory(path))
+    if (GetSystemFontDirectory(path))
     {
       if (!this->ttfDirs.empty())
       {
@@ -702,7 +692,7 @@ bool SessionImpl::GetOTFDirs(string& otfDirs)
   {
     flags.set((size_t)InternalFlag::CachedOtfDirs);
     PathName path;
-    if (GetWindowsFontsDirectory(path))
+    if (GetSystemFontDirectory(path))
     {
       if (!this->otfDirs.empty())
       {
@@ -760,9 +750,10 @@ void Session::FatalWindowsError(const string& functionName, unsigned long errorC
   case ERROR_PATH_NOT_FOUND:
     throw FileNotFoundException(programInvocationName, errorMessage, description, remedy, tag, info, sourceLocation);
   case ERROR_SHARING_VIOLATION:
+  case ERROR_USER_MAPPED_FILE:
     if (description.empty() && info.find("path") != info.end())
     {
-      description = T_("MiKTeX cannot access file '{path}' because it is either blocked by another MiKTeX program or by the operating system.");
+      description = T_("MiKTeX cannot access file '{path}' because it is either locked by another MiKTeX program or by the operating system.");
     }
     if (remedy.empty())
     {
@@ -915,22 +906,6 @@ bool SessionImpl::IsUserAnAdministrator()
   return isUserAnAdministrator == TriState::True ? true : false;
 }
 
-bool SessionImpl::IsUserAPowerUser()
-{
-  if (isUserAPowerUser == TriState::Undetermined)
-  {
-    if (IsUserMemberOfGroup(DOMAIN_ALIAS_RID_POWER_USERS))
-    {
-      isUserAPowerUser = TriState::True;
-    }
-    else
-    {
-      isUserAPowerUser = TriState::False;
-    }
-  }
-  return isUserAPowerUser == TriState::True ? true : false;
-}
-
 bool SessionImpl::RunningElevated()
 {
   HANDLE hToken;
@@ -983,27 +958,4 @@ bool SessionImpl::RunningAsAdministrator()
     }
   }
   return runningAsAdministrator == TriState::True ? true : false;
-}
-
-bool SessionImpl::RunningAsPowerUser()
-{
-  if (runningAsPowerUser == TriState::Undetermined)
-  {
-    if (IsUserAPowerUser())
-    {
-      if (!RunningElevated())
-      {
-        runningAsPowerUser = TriState::False;
-      }
-      else
-      {
-        runningAsPowerUser = TriState::True;
-      }
-    }
-    else
-    {
-      runningAsPowerUser = TriState::False;
-    }
-  }
-  return runningAsPowerUser == TriState::True ? true : false;
 }

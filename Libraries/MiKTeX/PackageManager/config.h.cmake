@@ -28,7 +28,6 @@
 #endif
 
 #define F927BA187CB94546AB9CA9099D989E81
-#include "miktex/PackageManager/config.h"
 
 #define BEGIN_INTERNAL_NAMESPACE                        \
 namespace MiKTeX {                                      \
@@ -54,8 +53,6 @@ namespace MiKTeX {                                      \
 #define MPMSTATICFUNC(type) static type
 #define MPMINTERNALFUNC(type) type
 #define MPMINTERNALVAR(type) type
-
-#cmakedefine MIKTEX_USE_ZZDB3 1
 
 #define ZZDB1_SIZE 182471
 #define ZZDB2_SIZE 1048881

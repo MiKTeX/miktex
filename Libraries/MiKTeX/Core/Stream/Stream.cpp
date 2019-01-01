@@ -19,13 +19,11 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/Stream>
 
 #include "internal.h"
-
-#include "miktex/Core/Stream.h"
 
 using namespace MiKTeX::Core;
 

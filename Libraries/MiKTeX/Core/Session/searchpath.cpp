@@ -19,19 +19,18 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/Directory>
 
 #include "internal.h"
 
-#include "miktex/Core/Directory.h"
-
 #include "Session/SessionImpl.h"
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathName>& paths)
 {
@@ -44,7 +43,8 @@ void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathN
     }
     for (unsigned idx = 0; idx < GetNumberOfTEXMFRoots(); ++idx)
     {
-      PathName path = GetRootDirectoryPath(idx);
+      const RootDirectoryInternals& root = rootDirectories[idx];
+      PathName path = root.get_Path();
       path.AppendDirectoryDelimiter();
       path.Append(suffix, false);
       paths.push_back(path);
@@ -247,7 +247,7 @@ void SessionImpl::ExpandPathPattern(const PathName& rootDirectory, const PathNam
 {
   MIKTEX_ASSERT(!pathPattern.Empty());
   const char* lpszRecursionIndicator = strstr(pathPattern.GetData(), RECURSION_INDICATOR);
-  if (lpszRecursionIndicator == nullptr || rootDirectory.Empty() && lpszRecursionIndicator == pathPattern.GetData())
+  if (lpszRecursionIndicator == nullptr || (rootDirectory.Empty() && lpszRecursionIndicator == pathPattern.GetData()))
   {
     // no recursion; check to see whether the path pattern specifies an
     // existing sub directory

@@ -19,23 +19,22 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <random>
 
-#include "internal.h"
+#include <miktex/Core/Directory>
+#include <miktex/Core/File>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/Paths>
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/File.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/Paths.h"
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 bool File::Exists(const PathName& path)
 {
@@ -54,7 +53,7 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
     }
     if (session->IsTEXMFFile(path) && Fndb::FileExists(path))
     {
-      Fndb::Remove(path);
+      Fndb::Remove({ path });
     }
   }
 
@@ -134,17 +133,12 @@ void File::WriteBytes(const PathName& path, const vector<unsigned char>& data)
 
 FILE* File::Open(const PathName& path, FileMode mode, FileAccess access)
 {
-  return Open(path, mode, access, true, FileShare::ReadWrite);
+  return Open(path, mode, access, true);
 }
 
 FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile)
 {
-  return Open(path, mode, access, isTextFile, FileShare::ReadWrite);
-}
-
-FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
-{
-  return File::Open(path, mode, access, isTextFile, share, {});
+  return File::Open(path, mode, access, isTextFile, {});
 }
 
 std::ifstream File::CreateInputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions)
@@ -187,12 +181,12 @@ bool File::Equals(const PathName& path1, const PathName& path2)
   {
     return true;
   }
-  unique_ptr<MemoryMappedFile> pFile1(MemoryMappedFile::Create());
-  const void* ptr1 = pFile1->Open(path1, false);
-  unique_ptr<MemoryMappedFile> pFile2(MemoryMappedFile::Create());
-  const void* ptr2 = pFile2->Open(path2, false);
+  unique_ptr<MemoryMappedFile> file1(MemoryMappedFile::Create());
+  const void* ptr1 = file1->Open(path1, false);
+  unique_ptr<MemoryMappedFile> file2(MemoryMappedFile::Create());
+  const void* ptr2 = file2->Open(path2, false);
   bool ret = memcmp(ptr1, ptr2, size) == 0;
-  pFile1->Close();
-  pFile2->Close();
+  file1->Close();
+  file2->Close();
   return ret;
 }

@@ -27,22 +27,17 @@
 #include "config.h"
 #include "internal.h"
 
+using namespace std;
+
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
-using namespace std;
 
 #define PROGRAM_NAME "mkfntmap"
 
 #if !defined(THE_NAME_OF_THE_GAME)
 #  define THE_NAME_OF_THE_GAME T_("MiKTeX Fontmap Maintenance Utility")
-#endif
-
-#if MIKTEX_MAJOR_MINOR_INT < 207
-#  define CREATE_DEPRECATED_MAP_FILES 1
-#else
-#  define CREATE_DEPRECATED_MAP_FILES 0
 #endif
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger(PROGRAM_NAME));
@@ -104,7 +99,7 @@ const struct poptOption aoption[] = {
     "verbose", 0,
     POPT_ARG_NONE, nullptr,
     OPT_VERBOSE,
-    T_("Turn on verbose mode."),
+    T_("Increase verbosity level."),
     nullptr
   },
 
@@ -131,7 +126,7 @@ class MakeFontMapApp :
   public IRunProcessCallback
 {
 public:
-  void Init(int argc, const char** argv);
+  void MyInit(int argc, const char** argv);
 
 public:
   void Run();
@@ -224,7 +219,13 @@ private:
   void CreateFontconfigLocalfontsConf();
 
 private:
-  void Verbose(const string& s);
+  void Verbose(int level, const string& s);
+
+private:
+  void Verbose(const string& s)
+  {
+    Verbose(1, s);
+  }
 
 private:
   MIKTEXNORETURN void CfgError(const string& s);
@@ -265,11 +266,7 @@ private:
   set<string> mixedMapFiles;
 
 private:
-#if defined(NDEBUG)
-  bool verbose = false;
-#else
-  bool verbose = true;
-#endif
+  int verbosityLevel = 0;
 
   // transform file names from URWkb (berry names) to URW (vendor
   // names)
@@ -342,7 +339,7 @@ void MakeFontMapApp::ShowVersion()
 {
   cout
     << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-    << "Copyright (C) 2002-2017 Christian Schenk" << endl
+    << "Copyright (C) 2002-2018 Christian Schenk" << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
@@ -373,7 +370,7 @@ void MakeFontMapApp::ProcessOptions(int argc, const char** argv)
       outputDirectory = popt.GetOptArg();
       break;
     case OPT_VERBOSE:
-      verbose = true;
+      verbosityLevel++;
       break;
     case OPT_VERSION:
       ShowVersion();
@@ -396,10 +393,21 @@ void MakeFontMapApp::ProcessOptions(int argc, const char** argv)
   }
 }
 
-void MakeFontMapApp::Verbose(const string& s)
+void MakeFontMapApp::Verbose(int level, const string& s)
 {
-  LOG4CXX_INFO(logger, s);
-  if (verbose)
+  if (level >= 4)
+  {
+    LOG4CXX_TRACE(logger, s);
+  }
+  else if (level >= 2)
+  {
+    LOG4CXX_DEBUG(logger, s);
+  }
+  else
+  {
+    LOG4CXX_INFO(logger, s);
+  }
+  if (verbosityLevel >= level)
   {
     cout << s << endl;
   }
@@ -550,12 +558,12 @@ void MakeFontMapApp::ParseConfigFile(const PathName& path)
   reader.Close();
 }
 
-void MakeFontMapApp::Init(int argc, const char** argv)
+void MakeFontMapApp::MyInit(int argc, const char** argv)
 {
   Session::InitInfo initInfo(argv[0]);
   vector<const char*> newargv(&argv[0], &argv[argc + 1]);
   ExamineArgs(newargv, initInfo);
-  ProcessOptions(newargv.size() - 1, &newargv[0]);
+  ProcessOptions(static_cast<int>(newargv.size() - 1), &newargv[0]);
   if (optAdminMode)
   {
     initInfo.AddOption(Session::InitOption::AdminMode);
@@ -755,12 +763,10 @@ bool MakeFontMapApp::LocateMap(const string& fileName, PathName& path, bool must
   {
     FatalError(fmt::format(T_("Font map file {0} could not be found."), Q_(fileName)));
   }
-#if 0
   if (!found)
   {
-    Verbose(fmt::format(T_("Not using map file {0}"), Q_(fileName)));
+    Verbose(3, fmt::format(T_("Not using map file {0}"), Q_(fileName)));
   }
-#endif
   return found;
 }
 
@@ -906,7 +912,7 @@ void MakeFontMapApp::WriteDvipsMapFile(const PathName& fileName, const set<FontM
   writer.close();
   if (!Fndb::FileExists(path))
   {
-    Fndb::Add(path);
+    Fndb::Add({ {path} });
   }
 }
 
@@ -925,7 +931,7 @@ void MakeFontMapApp::WriteDvipdfmMapFile(const PathName& fileName, const set<Fon
   writer.close();
   if (!Fndb::FileExists(path))
   {
-    Fndb::Add(path);
+    Fndb::Add({ {path} });
   }
 }
 
@@ -944,13 +950,13 @@ void MakeFontMapApp::WritePdfTeXMapFile(const PathName& fileName, const set<Font
   writer.close();
   if (!Fndb::FileExists(path))
   {
-    Fndb::Add(path);
+    Fndb::Add({ {path} });
   }
 }
 
 void MakeFontMapApp::ParseDvipsMapFile(const PathName& mapFile, set<FontMapEntry>& fontMapEntries)
 {
-  Verbose(fmt::format(T_("Parsing {0}..."), Q_(mapFile)));
+  Verbose(2, fmt::format(T_("Parsing {0}..."), Q_(mapFile)));
 
   StreamReader reader(mapFile);
 
@@ -1102,7 +1108,7 @@ void MakeFontMapApp::CopyFile(const PathName& pathSrc, const PathName& pathDest)
   File::Copy(pathSrc, pathDest);
   if (!Fndb::FileExists(pathDest))
   {
-    Fndb::Add(pathDest);
+    Fndb::Add({ {pathDest} });
   }
 }
 
@@ -1121,16 +1127,10 @@ void MakeFontMapApp::CopyFiles()
   pathSrc = dvipdfmxOutputDir / (dvipdfmDownloadBase14 ? "dvipdfm_dl14" : "dvipdfm_ndl14");
   pathSrc.AppendExtension(".map");
   CopyFile(pathSrc, PathName(dvipdfmxOutputDir, "dvipdfm.map"));
-#if CREATE_DEPRECATED_MAP_FILES
-  CopyFile(pathSrc, PathName(dvipdfmxOutputDir, "psfonts.map"));
-#endif
 
   pathSrc = pdftexOutputDir / (pdftexDownloadBase14 ? "pdftex_dl14" : "pdftex_ndl14");
   pathSrc.AppendExtension(".map");
   CopyFile(pathSrc, PathName(pdftexOutputDir, "pdftex.map"));
-#if CREATE_DEPRECATED_MAP_FILES
-  CopyFile(pathSrc, PathName(pdftexOutputDir, "psfonts.map"));
-#endif
 }
 
 static const char* const topDirs[] = {
@@ -1170,10 +1170,13 @@ void MakeFontMapApp::BuildFontconfigCache()
   {
     arguments.push_back("--force");
   }
-  if (verbose)
+  for (int n = 0; n < verbosityLevel; ++n)
   {
     arguments.push_back("--verbose");
   }
+#if !defined(USE_SYSTEM_FONTCONFIG)
+  arguments.push_back("--miktex-disable-maintenance");
+#endif
   LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(arguments).ToString());
   Process::Run(fcCacheExe, arguments, this);
 }
@@ -1378,7 +1381,7 @@ int MAIN(int argc, MAINCHAR** argv)
       newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
-    app.Init(newargv.size() - 1, &newargv[0]);
+    app.MyInit(static_cast<int>(newargv.size() - 1), &newargv[0]);
     app.Run();
     app.Finalize2(0);
     logger = nullptr;

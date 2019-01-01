@@ -212,9 +212,9 @@ FcAtomicReplaceOrig (FcAtomic *atomic)
 #endif
 #endif
 #if defined(MIKTEX)
-    if (rename(atomic->new, atomic->file) != 0)
+    if (rename((const char*)atomic->new, (const char*)atomic->file) != 0)
     {
-      miktex_report_crt_error("cannot rename file '%s' to '%s", atomic->new, atomic->file);
+      miktex_report_crt_error("could not rename file '%s' to '%s", atomic->new, atomic->file);
       return FcFalse;
     }
 #else
@@ -228,7 +228,10 @@ void
 FcAtomicDeleteNew (FcAtomic *atomic)
 {
 #if defined(MIKTEX_WINDOWS)
-  miktex_file_delete(atomic->new);
+  if (access(atomic->new, 0) == 0)
+  {
+    miktex_file_delete(atomic->new);
+  }
 #else
     unlink ((char *) atomic->new);
 #endif
@@ -244,7 +247,7 @@ FcAtomicUnlock (FcAtomic *atomic)
 #if defined(MIKTEX)
   if (rmdir(atomic->lck) != 0)
   {
-    miktex_report_crt_error("cannot remove lock directory '%s'", atomic->lck);
+    miktex_report_crt_error("could not remove lock directory '%s'", atomic->lck);
   }
 #else
     rmdir ((char *) atomic->lck);

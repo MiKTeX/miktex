@@ -24,6 +24,15 @@
 
 #if defined(HAVE_LIBCURL)
 
+#include <string>
+#include <memory>
+#include <unordered_map>
+
+#include <curl/curl.h>
+
+#include <miktex/Core/Session>
+#include <miktex/Trace/TraceStream>
+
 #include "CurlWebSession.h"
 #include "WebFile.h"
 
@@ -58,53 +67,53 @@ public:
   }
 
 public:
-  void Write(const void* data, size_t count)
+  void Write(const void* data, std::size_t count)
   {
     if (!CanWrite(count))
     {
       MIKTEX_UNEXPECTED();
     }
-    size_t num1 = std::min(count, capacity - tail);
-    size_t num2 = count - num1;
-    memcpy(buffer + tail, (unsigned char*)data, num1);
-    memcpy(buffer, (unsigned char*)data + num1, num2);
+    std::size_t num1 = std::min(count, capacity - tail);
+    std::size_t num2 = count - num1;
+    memcpy(buffer + tail, data, num1);
+    memcpy(buffer, reinterpret_cast<const unsigned char*>(data) + num1, num2);
     tail = (tail + count) % capacity;
     size += count;
   }
 
 public:
-  void Read(void* data, size_t count)
+  void Read(void* data, std::size_t count)
   {
     if (!CanRead(count))
     {
       MIKTEX_UNEXPECTED();
     }
-    size_t num1 = std::min(count, capacity - head);
-    size_t num2 = count - num1;
-    memcpy((unsigned char*)data, buffer + head, num1);
-    memcpy((unsigned char*)data + num1, buffer, num2);
+    std::size_t num1 = std::min(count, capacity - head);
+    std::size_t num2 = count - num1;
+    memcpy(data, buffer + head, num1);
+    memcpy(reinterpret_cast<unsigned char*>(data) + num1, buffer, num2);
     head = (head + count) % capacity;
     size -= count;
   }
 
 public:
-  bool CanWrite(size_t n) const
+  bool CanWrite(std::size_t n) const
   {
     return size + n <= capacity;
   }
 
 public:
-  size_t GetSize() const
+  std::size_t GetSize() const
   {
     return size;
   }
 
 public:
-  void Reserve(size_t newCapacity)
+  void Reserve(std::size_t newCapacity)
   {
     MIKTEX_ASSERT(newCapacity >= capacity);
     unsigned char* newBuffer = new unsigned char[newCapacity];
-    size_t oldSize = size;
+    std::size_t oldSize = size;
     Read(newBuffer, size);
     delete[] buffer;
     buffer = newBuffer;
@@ -115,22 +124,22 @@ public:
   }
 
 public:
-  size_t GetCapacity() const
+  std::size_t GetCapacity() const
   {
     return capacity;
   }
 
 private:
-  bool CanRead(size_t n) const
+  bool CanRead(std::size_t n) const
   {
     return size >= n;
   }
 
 private:
-  size_t capacity = 0;
-  size_t size = 0;
-  size_t head = 0;
-  size_t tail = 0;
+  std::size_t capacity = 0;
+  std::size_t size = 0;
+  std::size_t head = 0;
+  std::size_t tail = 0;
   unsigned char* buffer = nullptr;
 };
 
@@ -148,13 +157,13 @@ public:
   ~CurlWebFile() override;
 
 public:
-  size_t Read(void* data, size_t n) override;
+  std::size_t Read(void* data, std::size_t n) override;
 
 public:
   void Close() override;
 
 private:
-  static size_t WriteCallback(char* data, size_t elemSize, size_t numElements, void* pv);
+  static std::size_t WriteCallback(char* data, std::size_t elemSize, std::size_t numElements, void* pv);
 
 private:
   void Initialize();

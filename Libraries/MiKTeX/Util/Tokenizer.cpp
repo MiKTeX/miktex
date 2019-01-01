@@ -19,9 +19,25 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "internal.h"
+#include <bitset>
+
+#define A7C88F5FBE5C45EB970B3796F331CD89
+#include "miktex/Util/config.h"
+
+#if defined(MIKTEX_UTIL_SHARED)
+#  define MIKTEXUTILEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXUTILEXPORT
+#endif
 
 #include "miktex/Util/CharBuffer.h"
+#include "miktex/Util/Tokenizer.h"
+
+#include "internal.h"
+
+using namespace std;
+
+using namespace MiKTeX::Util;
 
 class Tokenizer::impl
 {

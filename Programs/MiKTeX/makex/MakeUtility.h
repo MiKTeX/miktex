@@ -213,6 +213,9 @@ protected:
     default:
       break;
     }
+
+    allArgs.push_back("--miktex-disable-maintenance");
+
     allArgs.insert(allArgs.end(), arguments.begin(), arguments.end());
 
     Message(fmt::format(T_("Running {0}..."), Q_(exeName)));
@@ -403,18 +406,18 @@ protected:
 };
 
 #define COMMON_OPTIONS                                          \
-    "admin",        no_argument,            0,      'A',        \
-    "debug",        no_argument,            0,      'd',        \
-    "disable-installer", no_argument,       0,      'D',        \
-    "enable-installer", no_argument,        0,      'E',        \
-    "help",         no_argument,            0,      'h',        \
-    "print-only",   no_argument,            0,      'n',        \
-    "quiet",        no_argument,            0,      'q',        \
-    "verbose",      no_argument,            0,      'v',        \
-    "version",      no_argument,            0,      'V'
+  {"admin",        no_argument,            0,      'A'},        \
+  {"debug",        no_argument,            0,      'd'},        \
+  {"disable-installer", no_argument,       0,      'D'},        \
+  {"enable-installer", no_argument,        0,      'E'},        \
+  {"help",         no_argument,            0,      'h'},        \
+  {"print-only",   no_argument,            0,      'n'},        \
+  {"quiet",        no_argument,            0,      'q'},        \
+  {"verbose",      no_argument,            0,      'v'},        \
+  {"version",      no_argument,            0,      'V'}
 
 #define BEGIN_OPTION_MAP(cls)                                           \
-void HandleOption(int ch, const char* optArg, bool& handled)            \
+void HandleOption(int ch, const char* optArg, bool& handled) override   \
 {                                                                       \
   UNUSED_ALWAYS(optArg);                                                \
   switch (ch)                                                           \

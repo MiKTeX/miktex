@@ -22,6 +22,10 @@
 #if !defined(F6B44E9392E34710903AB2F8D335A1FA)
 #define F6B44E9392E34710903AB2F8D335A1FA
 
+#include <memory>
+#include <string>
+#include <unordered_map>
+
 #include "WebFile.h"
 
 BEGIN_INTERNAL_NAMESPACE;

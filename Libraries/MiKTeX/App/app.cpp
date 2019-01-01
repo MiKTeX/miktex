@@ -19,6 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include "config.h"
+
 #include <csignal>
 #include <cstdlib>
 #include <ctime>
@@ -28,40 +30,41 @@
 #include <memory>
 #include <set>
 
-#include <miktex/Core/AutoResource>
-#include <miktex/Core/Cfg>
-#include <miktex/Core/CommandLineBuilder>
-#include <miktex/Core/ConfigNames>
-#include <miktex/Core/Directory>
-#include <miktex/Core/Exceptions>
-#include <miktex/Core/File>
-#include <miktex/Core/FileType>
-#include <miktex/Core/Paths>
-#include <miktex/Core/Process>
-#include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
-#include <miktex/Core/Session>
-#include <miktex/Core/TemporaryFile>
-#include <miktex/Trace/Trace>
-#include <miktex/UI/UI>
-#include <miktex/Util/StringUtil>
-
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/logger.h>
 #include <log4cxx/rollingfileappender.h>
 #include <log4cxx/xml/domconfigurator.h>
 
+#include <miktex/App/Application>
+#include <miktex/Core/AutoResource>
+#include <miktex/Core/Cfg>
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/ConfigNames>
+#include <miktex/Core/Exceptions>
+#include <miktex/Core/File>
+#include <miktex/Core/FileType>
+#include <miktex/Core/LockFile>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Process>
+#include <miktex/Core/Quoter>
+#include <miktex/Core/Registry>
+#include <miktex/Core/Session>
+#include <miktex/Trace/Trace>
+#include <miktex/UI/UI>
+#include <miktex/Util/StringUtil>
+
 #include "internal.h"
 
 #include "app-version.h"
+
+using namespace std;
+using namespace std::string_literals;
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
-using namespace std::string_literals;
 
 static log4cxx::LoggerPtr logger;
 
@@ -92,8 +95,7 @@ void Application::CheckCancel()
 {
   if (Cancelled())
   {
-    string programInvocationName = Utils::GetExeName();
-    throw MiKTeXException(programInvocationName.c_str(), T_("The current operation has been cancelled (Ctrl-C)."), MiKTeXException::KVMAP(), SourceLocation());
+    throw MiKTeXException(Utils::GetExeName(), T_("The current operation has been cancelled (Ctrl-C)."), MiKTeXException::KVMAP(), SourceLocation());
   }
 }
 
@@ -217,7 +219,6 @@ template<typename T> void ExamineArgs(vector<T>& args, Session::InitInfo& initIn
   pimpl->commandLine = commandLine.ToString();
 }
 
-
 string Application::ExamineArgs(std::vector<const char*>& args, MiKTeX::Core::Session::InitInfo& initInfo)
 {
   ::ExamineArgs(args, initInfo, pimpl.get());
@@ -233,7 +234,7 @@ string Application::ExamineArgs(std::vector<char*>& args, MiKTeX::Core::Session:
 void Application::Init(const Session::InitInfo& initInfoArg, vector<const char*>& args)
 {
   Session::InitInfo initInfo(initInfoArg);
-  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
+  MIKTEX_ASSERT(!args.empty() && args.back() == nullptr);
   ::ExamineArgs(args, initInfo, pimpl.get());
   Init(initInfo);
 }
@@ -241,7 +242,7 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<const char*>
 void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args)
 {
   Session::InitInfo initInfo(initInfoArg);
-  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
+  MIKTEX_ASSERT(!args.empty() && args.back() == nullptr);
   ::ExamineArgs(args, initInfo, pimpl.get());
   Init(initInfo);
 }
@@ -292,23 +293,19 @@ void Application::AutoMaintenance()
 #endif
     throw 1;
   }
-  PathName lockdir = pimpl->session->GetSpecialPath(SpecialPath::UserDataRoot) / MIKTEX_PATH_MIKTEX_DIR / "locks";
-  PathName lockfile = lockdir / "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lck";
   PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
   bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
-  PathName userLanguageDat = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
+  PathName userLanguageDat = pimpl->session->IsAdminMode() ? "" : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
   bool mustRefreshUserLanguageDat = !pimpl->session->IsAdminMode() && File::Exists(userLanguageDat) && lastAdminMaintenance + 30 > File::GetLastWriteTime(userLanguageDat);
   PathName initexmf;
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
-    if (File::Exists(lockfile))
+    unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_AUTO_MAINTENANCE_LOCK);
+    if (!lockFile->TryLock(0ms))
     {
       return;
     }
     LOG4CXX_TRACE(logger, "running MIKTEX_HOOK_AUTO_MAINTENANCE")
-    Directory::Create(lockdir);
-    unique_ptr<TemporaryFile> tmpfile = TemporaryFile::Create(lockfile);
-    AutoFILE closeme (File::Open(tmpfile->GetPathName(), FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite));
     vector<string> commonArgs{ initexmf.GetFileNameWithoutExtension().ToString() };
     switch (pimpl->enableInstaller)
     {
@@ -328,15 +325,14 @@ void Application::AutoMaintenance()
     commonArgs.push_back("--quiet");
     if (mustRefreshFndb)
     {
-      pimpl->session->UnloadFilenameDatabase();
       vector<string> args = commonArgs;
       args.push_back("--update-fndb");
       LOG4CXX_INFO(logger, "running 'initexmf' to refresh the file name database");
+      pimpl->session->UnloadFilenameDatabase();
       Process::Run(initexmf, args);
     }
     if (mustRefreshFndb)
     {
-      pimpl->session->UnloadFilenameDatabase();
       vector<string> args = commonArgs;
       args.push_back("--mkmaps");
       LOG4CXX_INFO(logger, "running 'initexmf' to create font map files");
@@ -394,13 +390,13 @@ void Application::Init(const Session::InitInfo& initInfoArg)
 
 void Application::Init(vector<const char*>& args)
 {
-  MIKTEX_ASSERT(!args.empty() && args.back() != nullptr);
+  MIKTEX_ASSERT(!args.empty() && args.back() == nullptr);
   Init(Session::InitInfo(args[0]), args);
 }
 
 void Application::Init(vector<char*>& args)
 {
-  MIKTEX_ASSERT(!args.empty() && args.back() != nullptr);
+  MIKTEX_ASSERT(!args.empty() && args.back() == nullptr);
   Init(Session::InitInfo(args[0]), args);
 }
 
@@ -837,17 +833,20 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
     defaultEditor = "notepad \"%f\"";
   }
 
-  // read information from yap.ini
-  // FIXME: use FindFile()
-  PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / MIKTEX_YAP_INI_FILENAME;
-  if (File::Exists(yapIni))
+  if (!pimpl->session->IsAdminMode())
   {
-    unique_ptr<Cfg> yapConfig(Cfg::Create());
-    yapConfig->Read(yapIni);
-    string yapEditor;
-    if (yapConfig->TryGetValueAsString("Settings", "Editor", yapEditor))
+    // read information from yap.ini
+    // FIXME: use FindFile()
+    PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / MIKTEX_YAP_INI_FILENAME;
+    if (File::Exists(yapIni))
     {
-      defaultEditor = yapEditor;
+      unique_ptr<Cfg> yapConfig(Cfg::Create());
+      yapConfig->Read(yapIni);
+      string yapEditor;
+      if (yapConfig->TryGetValueAsString("Settings", "Editor", yapEditor))
+      {
+        defaultEditor = yapEditor;
+      }
     }
   }
 

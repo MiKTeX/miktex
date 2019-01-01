@@ -19,18 +19,19 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Util/StringUtil>
 
 #include "internal.h"
 
-#include "miktex/Core/CommandLineBuilder.h"
-
 #include "ArgvImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 Argv::Argv() :
   pimpl(new impl{ {nullptr} })
@@ -119,8 +120,8 @@ char** Argv::CloneFreeable() const
   for (int idx = 0; idx < GetArgc(); ++idx)
   {
     result[idx] = pool;
-    strcpy(pool, pimpl->argv[idx]);
-    pool += strlen(pimpl->argv[idx]) + 1;
+    StringUtil::CopyString(pool, strlen(pimpl->argv[idx]) + 1, pimpl->argv[idx]);
+    pool += StringUtil::CopyString(pool, strlen(pimpl->argv[idx]) + 1, pimpl->argv[idx]) + 1;
   }
   result[GetArgc()] = nullptr;
   return result;

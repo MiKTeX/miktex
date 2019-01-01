@@ -35,6 +35,7 @@
 #include <miktex/Core/PathName>
 
 #include "RepositoryInfo.h"
+#include "definitions.h"
 
 MPM_BEGIN_NAMESPACE;
 
@@ -130,7 +131,7 @@ public:
     std::string packageId;
 
     /// Date/Time the package was created.
-    time_t timePackaged = static_cast<time_t>(0);
+    std::time_t timePackaged = InvalidTimeT;
 
     std::string version;
 
@@ -162,7 +163,7 @@ public:
   struct UpgradeInfo
   {
     std::string packageId;
-    time_t timePackaged = static_cast<time_t>(0);
+    std::time_t timePackaged = InvalidTimeT;
     std::string version;
   };
 

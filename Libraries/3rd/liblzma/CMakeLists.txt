@@ -77,8 +77,6 @@ endforeach()
 
 include(sources.cmake)
 
-ignore_warnings()
-
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)
 endif()

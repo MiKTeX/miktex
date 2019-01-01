@@ -19,9 +19,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include <config.h>
-#endif
+#include "config.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -34,11 +32,12 @@
 
 #include "TarExtractor.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
 
 const size_t BLOCKSIZE = 512;
 
@@ -122,10 +121,22 @@ public:
 
 private:
   char uid[8];
+  
+public:
+  unsigned GetUid() const
+  {
+    return GetOctal(uid);
+  }
 
 private:
   char gid[8];
 
+public:
+  unsigned GetGid() const
+  {
+    return GetOctal(gid);
+  }
+  
 private:
   char size[12];
 
@@ -185,6 +196,12 @@ public:
 
 private:
   char linkname[100];
+  
+public:
+  string GetLinkName() const
+  {
+    return GetString(linkname);
+  }
 
 private:
   char magic[6];
@@ -197,24 +214,54 @@ public:
 
 private:
   char version[2];
+  
+public:
+  unsigned GetVersion() const
+  {
+    return GetOctal(version);
+  }
 
 private:
   char uname[32];
+  
+public:
+  string GetOwner() const
+  {
+    return GetString(uname);
+  }
 
 private:
   char gname[32];
+  
+public:
+  string GetGroup() const
+  {
+    return GetString(gname);
+  }
 
 private:
   char devmajor[8];
+  
+public:
+  unsigned GetDevMajor() const
+  {
+    return GetOctal(devmajor);
+  }
 
 private:
   char devminor[8];
 
+public:
+  unsigned GetDevMinor() const
+  {
+    return GetOctal(devminor);
+  }
+  
 private:
   char prefix[155];
 
 private:
-  char reservered[12];
+  char reserved[12];
 };
 
 void TarExtractor::ReadBlock(void* data)

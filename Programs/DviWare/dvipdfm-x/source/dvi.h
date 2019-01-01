@@ -73,7 +73,7 @@ extern void  dvi_scan_specials (int page_no,
                                 double *x_offset, double *y_offset, int *landscape,
                                 int *majorversion, int *minorversion,
                                 int *do_enc, int *keybits, int32_t *perm,
-                                char *opasswd, char *upasswd);
+                                char *opasswd, char *upasswd, int *has_id, unsigned char *id1, unsigned char *id2);
 extern int   dvi_locate_font   (const char *name, spt_t ptsize);
 
 /* link or nolink:

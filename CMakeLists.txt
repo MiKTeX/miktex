@@ -778,17 +778,6 @@ include(UseStaticCRT)
 include(IgnoreWarnings)
 
 ###############################################################################
-## set options which depends on the release state
-
-if(MIKTEX_RELEASE_STATE EQUAL 0)
-  set(_use_zzdb3 FALSE)
-else()
-  set(_use_zzdb3 TRUE)
-endif()
-
-set(MIKTEX_USE_ZZDB3 ${_use_zzdb3} CACHE BOOL "Make use of the new zzdb3 package database file.")
-
-###############################################################################
 ## build sandbox
 
 set(MIKTEX_SANDBOX_SOURCE_DIR "${CMAKE_SOURCE_DIR}/sandbox")
@@ -820,12 +809,12 @@ configure_file(
   COPYONLY
 )
 
-file(MAKE_DIRECTORY
-  ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/locks
-)
+set(MIKTEX_AUTO_MAINTENANCE_LOCK "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lock")
+
+# disable maintenance tasks while building
 file(WRITE
-  ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/locks/A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lck
-  ""
+  ${MIKTEX_SANDBOX_BINARY_DIR}/${MIKTEX_REL_MIKTEX_LOCK_DIR}/${MIKTEX_AUTO_MAINTENANCE_LOCK}
+  "-1\npermanently-locked\n"
 )
 
 set(outdir "${MIKTEX_SANDBOX_BINARY_DIR}/${MIKTEX_REL_MIKTEX_BIN_DIR}")
@@ -2124,15 +2113,9 @@ if(WITH_BOOTSTRAPPING)
   list(APPEND bootstrapping_files
     miktex-zzdb1-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
   )
-  if(MIKTEX_USE_ZZDB3)
-    list(APPEND bootstrapping_files
-      miktex-zzdb3-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
-    )
-  else()
-    list(APPEND bootstrapping_files
-      miktex-zzdb2-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
-    )
-  endif()
+  list(APPEND bootstrapping_files
+    miktex-zzdb3-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
+  )
   foreach(p ${MIKTEX_BOOTSTRAPPING_PACKAGES})
     list(APPEND bootstrapping_files
       ${p}.tar.lzma

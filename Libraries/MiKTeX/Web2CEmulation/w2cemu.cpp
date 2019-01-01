@@ -40,11 +40,12 @@
 
 #include "internal.h"
 
+using namespace std;
+
 using namespace MiKTeX;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::TeXAndFriends;
 using namespace MiKTeX::Util;
-using namespace std;
 
 namespace {
   PathName outputDirectory;
@@ -205,7 +206,7 @@ void Web2C::GetSecondsAndMicros(int* seconds, int* micros)
   ularge.LowPart = fileTime.dwLowDateTime;
   ularge.HighPart = fileTime.dwHighDateTime;
   ULONGLONG epoch = 116444736000000000;
-  *seconds = (ularge.QuadPart - epoch) / 10000000;
+  *seconds = static_cast<int>((ularge.QuadPart - epoch) / 10000000);
   *micros = systemTime.wMilliseconds * 1000;
 #else
   struct timeval tv;
@@ -286,16 +287,18 @@ void miktex_usagehelp(const char** lines, const char* bugEmail)
 {
   for (; *lines != nullptr; ++lines)
   {
-    cout << *lines << endl;
+    cout << *lines << "\n";
   }
+  cout << "\n";
   if (bugEmail == nullptr)
   {
-    cout << endl << "Visit miktex.org for bug reports." << endl;
+    cout << "Visit https://miktex.org for bug reports." << "\n";
   }
   else
   {
-    cout << endl << StringUtil::FormatString("Email bug reports to %s.", bugEmail) << endl;
+    cout << StringUtil::FormatString("Email bug reports to %s.", bugEmail) << "\n";
   }
+  cout.flush();
   throw 0;
 }
 

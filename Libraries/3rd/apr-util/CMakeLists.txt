@@ -187,8 +187,6 @@ set(apu_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apu_version.h
 )
 
-ignore_warnings()
-
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)
 endif()

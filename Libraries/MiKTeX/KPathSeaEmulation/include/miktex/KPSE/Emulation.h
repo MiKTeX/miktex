@@ -166,6 +166,8 @@
 #  define IS_DIR_SEP(ch) ((ch) == '/')
 #endif
 
+#define IS_DIR_SEP_CH(ch) ((ch) == '/')
+
 #if defined(MIKTEX_WINDOWS)
 #  define IS_ENV_SEP(ch) ((ch) == ';')
 #else
@@ -278,8 +280,8 @@ typedef enum
 
 typedef struct
 {
-  const_string path;
   const_string type;
+  string path;
   const_string* suffix;
   const_string* alt_suffix;
   boolean program_enabled_p;
@@ -556,6 +558,7 @@ typedef struct
 } str_list_type;
 
 #define STR_LIST_LENGTH(l) ((l).length)
+#define STR_LIST_EMPTY(l) (STR_LIST_LENGTH(l) == 0)
 
 #define STR_LIST_ELT(l, n) ((l).list[(n)])
 

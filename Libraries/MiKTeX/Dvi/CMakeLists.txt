@@ -24,8 +24,6 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_definitions(-DHAVE_CONFIG_H)
-
 configure_file(
   config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h

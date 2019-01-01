@@ -1,7 +1,7 @@
 /****************************************************************************\
  Part of the XeTeX typesetting system
  Copyright (c) 1994-2008 by SIL International
- Copyright (c) 2009, 2017 by Jonathan Kew
+ Copyright (c) 2009-2018 by Jonathan Kew
 
  SIL Author(s): Jonathan Kew
 
@@ -71,7 +71,7 @@ pdf_get_rect(char* filename, int page_num, int pdf_box, realrect* box)
 		return -1;
 	}
 
-	int			pages = doc->getNumPages();
+	int	pages = doc->getNumPages();
 	if (page_num > pages)
 		page_num = pages;
 	if (page_num < 0)
@@ -81,23 +81,23 @@ pdf_get_rect(char* filename, int page_num, int pdf_box, realrect* box)
 
 	Page*		page = doc->getCatalog()->getPage(page_num);
 
-	PDFRectangle*	r;
+	const PDFRectangle*	r;
 	switch (pdf_box) {
 		default:
 		case pdfbox_crop:
-			r = (PDFRectangle *)page->getCropBox();
+			r = page->getCropBox();
 			break;
 		case pdfbox_media:
-			r = (PDFRectangle *)page->getMediaBox();
+			r = page->getMediaBox();
 			break;
 		case pdfbox_bleed:
-			r = (PDFRectangle *)page->getBleedBox();
+			r = page->getBleedBox();
 			break;
 		case pdfbox_trim:
-			r = (PDFRectangle *)page->getTrimBox();
+			r = page->getTrimBox();
 			break;
 		case pdfbox_art:
-			r = (PDFRectangle *)page->getArtBox();
+			r = page->getArtBox();
 			break;
 	}
 
@@ -106,27 +106,14 @@ pdf_get_rect(char* filename, int page_num, int pdf_box, realrect* box)
 	if (RotAngle < 0)
 		RotAngle += 360;
 	if (RotAngle == 90 || RotAngle == 270) {
-		double tmpvalue;
-		if (r->x1 > r->x2) {
-			tmpvalue = r->x1;
-			r->x1 = r->x2;
-			r->x2 = tmpvalue;
-		}
-		if (r->y1 > r->y2) {
-			tmpvalue = r->y1;
-			r->y1 = r->y2;
-			r->y2 = tmpvalue;
-		}
-
-		tmpvalue = r->x2;
-		r->x2 = r->x1 + r->y2 - r->y1;
-		r->y2 = r->y1 + tmpvalue - r->x1;
+		box->wd = 72.27 / 72 * fabs(r->y2 - r->y1);
+		box->ht = 72.27 / 72 * fabs(r->x2 - r->x1);
+	} else {
+		box->wd = 72.27 / 72 * fabs(r->x2 - r->x1);
+		box->ht = 72.27 / 72 * fabs(r->y2 - r->y1);
 	}
-
 	box->x  = 72.27 / 72 * my_fmin(r->x1, r->x2);
 	box->y  = 72.27 / 72 * my_fmin(r->y1, r->y2);
-	box->wd = 72.27 / 72 * fabs(r->x2 - r->x1);
-	box->ht = 72.27 / 72 * fabs(r->y2 - r->y1);
 
 	delete doc;
 

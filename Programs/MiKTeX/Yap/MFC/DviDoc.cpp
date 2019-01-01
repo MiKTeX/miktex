@@ -341,10 +341,6 @@ void DviDoc::OnIdle()
         }
       }
     }
-    else if (pDvi != nullptr)
-    {
-      pSession->UnloadFilenameDatabase(); // FIXME
-    }
   }
   catch (const exception&)
   {

@@ -190,8 +190,8 @@ namespace {
   const struct option aLongOptions[] =
   {
     COMMON_OPTIONS,
-    "stdout",       no_argument, nullptr,      'c',
-    nullptr,        no_argument, nullptr,      0,
+    {"stdout",       no_argument, nullptr,      'c'},
+    {nullptr,        no_argument, nullptr,      0}
   };
 }
 
@@ -339,7 +339,7 @@ void MakeMf::Run(int argc, const char** argv)
     // add to file name database
     if (!Fndb::FileExists(pathDest))
     {
-      Fndb::Add(pathDest);
+      Fndb::Add({ {pathDest} });
     }
   }
 }

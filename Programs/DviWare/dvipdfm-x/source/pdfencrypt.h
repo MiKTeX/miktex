@@ -28,10 +28,7 @@
 
 #define MAX_PWD_LEN 127
 
-extern void pdf_enc_compute_id_string (const char *producer,
-                                       const char *dviname, const char *pdfname);
-extern pdf_obj *pdf_enc_id_array (void);
-extern int  pdf_init_encryption  (struct pdf_enc_setting);
+extern int  pdf_init_encryption  (struct pdf_enc_setting, const unsigned char *trailer_id);
 extern void pdf_enc_set_label      (unsigned label);
 extern void pdf_enc_set_generation (unsigned generation);
 extern void pdf_encrypt_data (const unsigned char *plain, size_t plain_len,

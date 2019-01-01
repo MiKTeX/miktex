@@ -1,6 +1,6 @@
 /* session.h: MiKTeX session                            -*- C++ -*-
 
-   Copyright (C) 2006-2017 Christian Schenk
+   Copyright (C) 2006-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,6 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+// FIXME: must come first
 #include "core-version.h"
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER

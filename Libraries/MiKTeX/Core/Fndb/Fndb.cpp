@@ -19,40 +19,47 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include "internal.h"
 
 #include "Session/SessionImpl.h"
 #include "FileNameDatabase.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
 
-void Fndb::Add(const PathName& path)
+using namespace MiKTeX::Core;
+
+bool Fndb::Search(const PathName& fileName, const string& pathPattern, bool firstMatchOnly, vector<Fndb::Record>& result)
 {
-  Fndb::Add(path, "");
+  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  unsigned root = session->DeriveTEXMFRoot(pathPattern);
+  shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root);
+  if (fndb == nullptr)
+  {
+    return false;
+  }
+  return fndb->Search(fileName, pathPattern, firstMatchOnly, result);
 }
 
-void Fndb::Add(const PathName& path, const string& fileNameInfo)
+void Fndb::Add(const vector<Fndb::Record>& records)
 {
-#if 0
-  MIKTEX_ASSERT(File::Exists(path));
-#endif
-
+  if (records.empty())
+  {
+    MIKTEX_UNEXPECTED();
+  }
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  unsigned root = session->DeriveTEXMFRoot(path);
+  // TODO: parse/split records
+  unsigned root = session->DeriveTEXMFRoot(records[0].path);
   PathName pathFqFndbFileName;
   if (session->FindFilenameDatabase(root, pathFqFndbFileName))
   {
-    shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root, TriState::False);
+    shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root);
     if (fndb == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
-    fndb->AddFile(path.GetData(), fileNameInfo.c_str());
+    fndb->Add(records);
   }
   else
   {
@@ -63,58 +70,36 @@ void Fndb::Add(const PathName& path, const string& fileNameInfo)
     {
       MIKTEX_UNEXPECTED();
     }
-    if (!File::Exists(path))
-    {
-      // the file hasn't been added yet
-      // RECURSION
-      Add(path, fileNameInfo);
-    }
+    // RECURSION
+    Add(records);
   }
 }
 
-bool Fndb::Enumerate(const PathName& fndbPath, IEnumerateFndbCallback* callback)
+void Fndb::Remove(const vector<PathName>& paths)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(fndbPath.GetData());
-  if (fndb == nullptr)
+  if (paths.empty())
   {
-    MIKTEX_FATAL_ERROR_2(T_("The path is not covered by the file name database."), "path", fndbPath.ToString());
+    MIKTEX_UNEXPECTED();
   }
-  return fndb->Enumerate(fndbPath.GetData(), callback);
-}
-
-void Fndb::Remove(const PathName& path)
-{
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  unsigned root = session->DeriveTEXMFRoot(path.GetData());
-  shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root, TriState::False);
+  // TODO: parse/split records
+  unsigned root = session->DeriveTEXMFRoot(paths[0]);
+  shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root);
   if (fndb == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
-  fndb->RemoveFile(path.GetData());
+  fndb->Remove(paths);
 }
 
 bool Fndb::FileExists(const PathName& path)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   unsigned root = session->DeriveTEXMFRoot(path);
-  shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root, TriState::True);
+  shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root);
   if (fndb == nullptr)
   {
     return false;
   }
   return fndb->FileExists(path);
-}
-
-bool Fndb::Search(const PathName& fileName, const string& pathPattern, bool firstMatchOnly, vector<PathName>& result, vector<string>& fileNameInfo)
-{
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  unsigned root = session->DeriveTEXMFRoot(pathPattern);
-  shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root, TriState::True);
-  if (fndb == nullptr)
-  {
-    return false;
-  }
-  return fndb->Search(fileName, pathPattern.c_str(), firstMatchOnly, result, fileNameInfo);
 }

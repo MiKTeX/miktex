@@ -32,8 +32,6 @@ add_definitions(
   -DURI_NO_UNICODE
 )
 
-ignore_warnings()
-
 set(uriparser_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/uriparser-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriCommon.c

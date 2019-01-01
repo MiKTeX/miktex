@@ -21,18 +21,6 @@
 
 #pragma once
 
-#define EAD86981C92C904D808A5E6CEC64B90E
-#include <miktex/First>
-
-#if defined(MIKTEX_CORE_SHARED)
-#  define MIKTEXCOREEXPORT MIKTEXDLLEXPORT
-#else
-#  define MIKTEXCOREEXPORT
-#endif
-
-#define EAD86981C92C904D808A5E6CEC64B90E
-#include "miktex/Core/config.h"
-
 #if defined(ENABLE_OPENSSL)
 #include <openssl/err.h>
 #include <openssl/evp.h>
@@ -42,8 +30,8 @@
 
 #include <miktex/Trace/TraceStream>
 
-#include "miktex/Core/Quoter.h"
-#include "miktex/Core/Session.h"
+#include <miktex/Core/Quoter>
+#include <miktex/Core/Session>
 
 #if MIKTEX_UNIX
 #  define NO_REGISTRY 1
@@ -230,7 +218,11 @@ void SetTimesInternal(HANDLE handle, time_t creationTime, time_t lastAccessTime,
 #endif
 
 #if defined(MIKTEX_WINDOWS)
-bool GetWindowsFontsDirectory(MiKTeX::Core::PathName& path);
+bool GetSystemFontDirectory(MiKTeX::Core::PathName& path);
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+bool GetUserFontDirectory(MiKTeX::Core::PathName& path);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
@@ -273,20 +265,6 @@ inline void DbgView(const std::string& s)
 {
 #if defined(_WIN32)
   OutputDebugStringW(UW_("MiKTeX Core: " + s));
-#endif
-}
-
-inline bool AdminControlsUserConfig()
-{
-#if ADMIN_CONTROLS_USER_CONFIG
-#if 1
-  return true;
-#else
-  const char* lpsz = getenv("MIKTEX_ADMIN_CONTROLS_USER_CONFIG");
-  return lpsz != 0 && strcmp(lpsz, "t") == 0;
-#endif
-#else
-  return false;
 #endif
 }
 

@@ -19,23 +19,20 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/ConfigNames>
+#include <miktex/Core/CsvList>
+#include <miktex/Core/Directory>
+#include <miktex/Core/Environment>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/PathName>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
+#include <miktex/Util/Tokenizer>
 
 #include "internal.h"
-
-
-#include "miktex/Core/CommandLineBuilder.h"
-#include "miktex/Core/ConfigNames.h"
-#include "miktex/Core/CsvList.h"
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/PathName.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
-#include "miktex/Util/Tokenizer.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "win/winRegistry.h"
@@ -48,9 +45,10 @@ namespace {
 #include "miktex-config.ini.h"
 }
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 #if 0
 struct ConfigMapping
@@ -301,7 +299,8 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
       ret.commonConfigRoot = str;
     }
   }
-  if (!common || AdminControlsUserConfig())
+  
+  if (!IsAdminMode())
   {
     if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_ROOTS, str))
     {
@@ -499,7 +498,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
     }
   }
 
-  if (!common || commonStartupConfigFile == userStartupConfigFile || AdminControlsUserConfig())
+  if (!common || commonStartupConfigFile == userStartupConfigFile)
   {
     if (startupConfig.userRoots != "" || showAllValues)
     {
@@ -1257,7 +1256,7 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
   pCfg->Write(pathConfigFile);
   if (!Fndb::FileExists(pathConfigFile))
   {
-    Fndb::Add(pathConfigFile);
+    Fndb::Add({ { pathConfigFile } });
   }
   configurationSettings.clear();
 }
@@ -1273,14 +1272,15 @@ void SessionImpl::SetAdminMode(bool adminMode, bool force)
     MIKTEX_FATAL_ERROR(T_("Administrator mode cannot be enabled (makes no sense) because this is not a shared MiKTeX setup."));
   }
   trace_config->WriteFormattedLine("core", T_("turning %s administrator mode"), (adminMode ? "on" : "off"));
+  // reinitialize
   fileTypes.clear();
   UnloadFilenameDatabase();
   this->adminMode = adminMode;
   if (rootDirectories.size() > 0)
   {
-    // reinitialize
     InitializeRootDirectories();
   }
+  SetEnvironmentVariables();
 }
 
 bool SessionImpl::IsAdminMode()
@@ -1438,7 +1438,7 @@ void SessionImpl::ConfigureFile(const PathName& pathIn, const PathName& pathOut,
   File::SetAttributes(pathOut, attr);
   if (!Fndb::FileExists(pathOut))
   {
-    Fndb::Add(pathOut);
+    Fndb::Add({ {pathOut} });
   }
 }
 

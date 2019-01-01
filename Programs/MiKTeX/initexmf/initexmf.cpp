@@ -156,10 +156,10 @@ static struct
   const char* lpszFile;
 }
 configShortcuts[] = {
-  "pdftex", MIKTEX_PATH_PDFTEX_CFG,
-  "dvips", MIKTEX_PATH_CONFIG_PS,
-  "dvipdfmx", MIKTEX_PATH_DVIPDFMX_CONFIG,
-  "updmap", MIKTEX_PATH_UPDMAP_CFG,
+  {"pdftex", MIKTEX_PATH_PDFTEX_CFG},
+  {"dvips", MIKTEX_PATH_CONFIG_PS},
+  {"dvipdfmx", MIKTEX_PATH_DVIPDFMX_CONFIG},
+  {"updmap", MIKTEX_PATH_UPDMAP_CFG},
 };
 
 string Timestamp()
@@ -173,7 +173,6 @@ string Timestamp()
 class IniTeXMFApp :
   public IFindFileCallback,
   public ICreateFndbCallback,
-  public IEnumerateFndbCallback,
   public PackageInstallerCallback,
   public TraceCallback
 {
@@ -353,9 +352,6 @@ private:
 private:
   bool OnProgress(unsigned level, const PathName& directory) override;
 
-private:
-  bool OnFndbItem(const PathName& parent, const string& name, const string& info, bool isDirectory) override;
-
 public:
   void ReportLine(const string& str) override;
   
@@ -441,9 +437,6 @@ private:
       packageInstaller->SetNoPostProcessing(true);
     }
   }
-
-private:
-  PathName enumDir;
 
 private:
   bool csv = false;
@@ -532,7 +525,6 @@ enum Option
   OPT_CREATE_CONFIG_FILE,       // <experimental/>
   OPT_CSV,                      // <experimental/>
   OPT_FIND_OTHER_TEX,           // <experimental/>
-  OPT_LIST_DIRECTORY,           // <experimental/>
   OPT_LIST_FORMATS,             // <experimental/>
   OPT_MODIFY_PATH,              // <experimental/>
   OPT_RECURSIVE,                // <experimental/>
@@ -896,17 +888,6 @@ void IniTeXMFApp::UpdateFilenameDatabase(const PathName& root)
 
   unsigned rootIdx = session->DeriveTEXMFRoot(root);
 
-  // remove the old FNDB file
-  PathName path = session->GetFilenameDatabasePathName(rootIdx);
-  if (File::Exists(path))
-  {
-    PrintOnly(fmt::format("rm {}", Q_(path)));
-    if (!printOnly)
-    {
-      File::Delete(path, { FileDeleteOption::TryHard });
-    }
-  }
-
   // create the FNDB file
   PathName fndbPath = session->GetFilenameDatabasePathName(rootIdx);
   if (session->IsCommonRootDirectory(rootIdx))
@@ -972,8 +953,16 @@ void IniTeXMFApp::RemoveFndb()
     PrintOnly(fmt::format("rm {}", Q_(path)));
     if (!printOnly && File::Exists(path))
     {
-      Verbose(fmt::format(T_("Removing fndb ({0})..."), Q_(session->GetRootDirectoryPath(r))));
+      Verbose(fmt::format(T_("Removing fndb ({0})..."), Q_(path)));
       File::Delete(path, { FileDeleteOption::TryHard });
+    }
+    PathName changeFile = path;
+    changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
+    PrintOnly(fmt::format("rm {}", Q_(changeFile)));
+    if (!printOnly && File::Exists(changeFile))
+    {
+      Verbose(fmt::format(T_("Removing fndb change file ({0})..."), Q_(changeFile)));
+      File::Delete(changeFile, { FileDeleteOption::TryHard });
     }
   }
 }
@@ -1046,6 +1035,8 @@ void IniTeXMFApp::RunMakeTeX(const string& makeProg, const vector<string>& argum
   default:
     break;
   }
+
+  xArguments.push_back("--miktex-disable-maintenance");
 
   LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(xArguments));
   RunProcess(exe, xArguments);
@@ -1380,27 +1371,28 @@ void IniTeXMFApp::RegisterShellFileTypes(bool reg)
       if (sft.lpszExecutable != nullptr && sft.lpszCommandArgs != nullptr)
       {
         command = '\"';
-        command += exe.GetData();
+        command += exe.ToDos().ToString();
         command += "\" ";
         command += sft.lpszCommandArgs;
       }
       string iconPath;
-      if (sft.lpszExecutable != 0 && sft.iconIndex != INT_MAX)
+      if (sft.lpszExecutable != nullptr && sft.iconIndex != INT_MAX)
       {
-        iconPath += exe.GetData();
+        iconPath += exe.ToDos().ToString();
         iconPath += ",";
         iconPath += std::to_string(sft.iconIndex);
       }
-      if (sft.lpszUserFriendlyName != 0 || !iconPath.empty())
+      if (sft.lpszUserFriendlyName != nullptr || !iconPath.empty())
       {
         Utils::RegisterShellFileType(progId, sft.lpszUserFriendlyName, iconPath);
       }
       if (sft.lpszVerb != nullptr && (!command.empty() || sft.lpszDdeArgs != nullptr))
       {
-        Utils::RegisterShellVerb(progId, sft.lpszVerb, command, sft.lpszDdeArgs == nullptr ? "" : sft.lpszDdeArgs);
+          Utils::RegisterShellVerb(progId, sft.lpszVerb, command, sft.lpszDdeArgs == nullptr ? "" : sft.lpszDdeArgs);
       }
       if (sft.lpszExtension != nullptr)
       {
+        LOG4CXX_INFO(logger, "registering file extension: " << sft.lpszExtension);
         Utils::RegisterShellFileAssoc(sft.lpszExtension, progId, sft.takeOwnership);
       }
     }
@@ -1409,6 +1401,7 @@ void IniTeXMFApp::RegisterShellFileTypes(bool reg)
       Utils::UnregisterShellFileType(progId);
       if (sft.lpszExtension != nullptr)
       {
+        LOG4CXX_INFO(logger, "unregistering file extension: " << sft.lpszExtension);
         Utils::UnregisterShellFileAssoc(sft.lpszExtension, progId);
       }
     }
@@ -1850,13 +1843,13 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
   languageDatLua << "}" << "\n";
 
   languageDatLua.close();
-  Fndb::Add(languageDatLuaPath);
+  Fndb::Add({ {languageDatLuaPath} });
 
   languageDef.close();
-  Fndb::Add(languageDefPath);
+  Fndb::Add({ {languageDefPath} });
 
   languageDat.close();
-  Fndb::Add(languageDatPath);
+  Fndb::Add({ {languageDatPath} });
 }
 
 void IniTeXMFApp::MakeMaps(bool force)
@@ -1890,6 +1883,7 @@ void IniTeXMFApp::MakeMaps(bool force)
   default:
     break;
   }
+  arguments.push_back("--miktex-disable-maintenance");
   if (printOnly)
   {
     PrintOnly(CommandLineBuilder(arguments).ToString());
@@ -1932,7 +1926,7 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
     if (!session->TryCreateFromTemplate(configFile))
     {
       File::WriteBytes(configFile, {});
-      Fndb::Add(configFile);
+      Fndb::Add({ {configFile} });
     }
   }
   if (edit)
@@ -2169,49 +2163,6 @@ void IniTeXMFApp::WriteReport()
   SetupService::WriteReport(cout, { ReportOption::General, ReportOption::RootDirectories, ReportOption::BrokenPackages });
 }
 
-bool IniTeXMFApp::OnFndbItem(const PathName& parent, const string& name, const string& info, bool isDirectory)
-{
-  if (recursive)
-  {
-    PathName path(parent, name);
-    const char* lpszRel = Utils::GetRelativizedPath(path.GetData(), enumDir.GetData());
-    if (!isDirectory)
-    {
-      if (info.empty())
-      {
-        cout << lpszRel << endl;
-      }
-      else
-      {
-        if (csv)
-        {
-          cout << lpszRel << ";" << info << endl;
-        }
-        else
-        {
-          cout << lpszRel << " (\"" << info << "\")" << endl;
-        }
-      }
-    }
-    if (isDirectory)
-    {
-      Fndb::Enumerate(path, this);
-    }
-  }
-  else
-  {
-    if (info.empty())
-    {
-      cout << (isDirectory ? "D" : " ") << " " << name << endl;
-    }
-    else
-    {
-      cout << (isDirectory ? "D" : " ") << " " << name << " (\"" << info << "\")" << endl;
-    }
-  }
-  return true;
-}
-
 void IniTeXMFApp::Run(int argc, const char* argv[])
 {
   vector<string> addFiles;
@@ -2221,7 +2172,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   vector<string> editConfigFiles;
   vector<string> formats;
   vector<string> formatsByName;
-  vector<string> listDirectories;
   vector<string> removeFiles;
   vector<string> updateRoots;
   vector<PathName> registerRoots;
@@ -2352,11 +2302,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     case OPT_USER_INSTALL:
 
       startupConfig.userInstallRoot = optArg;
-      break;
-
-    case OPT_LIST_DIRECTORY:
-
-      listDirectories.push_back(optArg);
       break;
 
     case OPT_LIST_FORMATS:
@@ -2667,6 +2612,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     MakeMaps(optForce);
   }
 
+  vector<Fndb::Record> records;
   for (const string& fileName : addFiles)
   {
     Verbose(fmt::format(T_("Adding {0} to the file name database..."), Q_(fileName)));
@@ -2675,7 +2621,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     {
       if (!Fndb::FileExists(fileName))
       {
-        Fndb::Add(fileName);
+        records.push_back({ fileName });
       }
       else
       {
@@ -2683,7 +2629,12 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       }
     }
   }
+  if (!records.empty())
+  {
+    Fndb::Add(records);
+  }
 
+  vector<PathName> paths;
   for (const string& fileName : removeFiles)
   {
     Verbose(fmt::format(T_("Removing {0} from the file name database..."), Q_(fileName)));
@@ -2692,13 +2643,17 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     {
       if (Fndb::FileExists(fileName))
       {
-        Fndb::Remove(fileName);
+        paths.push_back(fileName);
       }
       else
       {
         Warning(fmt::format(T_("{0} is not recorded in the file name database"), Q_(fileName)));
       }
     }
+  }
+  if (!paths.empty())
+  {
+    Fndb::Remove(paths);
   }
 
   if (removeFndb)
@@ -2772,12 +2727,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
         UpdateFilenameDatabase(r);
       }
     }
-  }
-
-  for (const string& dir : listDirectories)
-  {
-    enumDir = dir;
-    Fndb::Enumerate(dir, this);
   }
 
   for (const string& fileName : createConfigFiles)

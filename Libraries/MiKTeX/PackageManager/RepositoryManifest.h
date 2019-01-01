@@ -26,6 +26,7 @@
 #include <string>
 
 #include <miktex/Core/Cfg>
+#include <miktex/Core/MD5>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Utils>
 
@@ -86,7 +87,7 @@ public:
   }
 
 public:
-  size_t GetArchiveFileSize(const std::string& packageId)
+  std::size_t GetArchiveFileSize(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "CabSize");
     if (val == nullptr)
@@ -119,14 +120,14 @@ public:
   }
 
 public:
-  time_t GetTimePackaged(const std::string& packageId)
+  std::time_t GetTimePackaged(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "TimePackaged");
     if (val == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown package time-stamp."), "package", packageId);
     }
-    time_t time = MiKTeX::Core::Utils::ToTimeT(val->AsString());
+    std::time_t time = MiKTeX::Core::Utils::ToTimeT(val->AsString());
     if (!IsValidTimeT(time))
     {
       MIKTEX_FATAL_ERROR_2(T_("Invalid package time-stamp."), "package", packageId, "timeStamp", val->AsString());
@@ -135,7 +136,7 @@ public:
   }
 
 public:
-  PackageLevel GetPackageLevel(const std::string& packageId)
+  MiKTeX::Packages::PackageLevel GetPackageLevel(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "Level");
     if (val == nullptr || val->AsString().empty())
@@ -182,14 +183,14 @@ public:
   }
 
 private:
-  static PackageLevel CharToPackageLevel(int ch)
+  static MiKTeX::Packages::PackageLevel CharToPackageLevel(int ch)
   {
     switch (toupper(ch))
     {
-    case 'S': return PackageLevel::Essential;
-    case 'M': return PackageLevel::Basic;
-    case 'L': return PackageLevel::Advanced;
-    case 'T': return PackageLevel::Complete;
+    case 'S': return MiKTeX::Packages::PackageLevel::Essential;
+    case 'M': return MiKTeX::Packages::PackageLevel::Basic;
+    case 'L': return MiKTeX::Packages::PackageLevel::Advanced;
+    case 'T': return MiKTeX::Packages::PackageLevel::Complete;
     default:
       MIKTEX_FATAL_ERROR_2(T_("Invalid package level."), "level", std::to_string(ch));
     }

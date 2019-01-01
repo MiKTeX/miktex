@@ -19,20 +19,19 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/Process>
 
 #include "internal.h"
 
-#include "miktex/Core/CommandLineBuilder.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/Process.h"
-
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 Process::~Process() noexcept
 {

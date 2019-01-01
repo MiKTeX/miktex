@@ -1,6 +1,6 @@
 /* files.cpp: file system operations
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fcntl.h>
 
@@ -36,20 +34,21 @@
 #  include <unistd.h>
 #endif
 
-#include "internal.h"
+#include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/BZip2Stream>
+#include <miktex/Core/GzipStream>
+#include <miktex/Core/FileStream>
+#include <miktex/Core/LzmaStream>
+#include <miktex/Core/PathName>
 
-#include "miktex/Core/CommandLineBuilder.h"
-#include "miktex/Core/BZip2Stream.h"
-#include "miktex/Core/GzipStream.h"
-#include "miktex/Core/FileStream.h"
-#include "miktex/Core/LzmaStream.h"
-#include "miktex/Core/PathName.h"
+#include "internal.h"
 
 #include "Fndb/FileNameDatabase.h"
 #include "Session/SessionImpl.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
 
 const size_t PIPE_SIZE = 4096;
 
@@ -145,12 +144,11 @@ void SessionImpl::RecordFileInfo(const PathName& path, FileAccess access)
       shared_ptr<FileNameDatabase> fndb = GetFileNameDatabase(GetMpmRoot());
       if (fndb != nullptr)
       {
-	vector<PathName> paths;
-	vector<string> packageNames;
-	if (fndb->Search(pathRelPath.GetData(), MPM_ROOT_PATH, true, paths, packageNames))
-	{
-	  fir.packageName = packageNames[0];
-	}
+        vector<Fndb::Record> records;
+        if (fndb->Search(pathRelPath, MPM_ROOT_PATH, true, records))
+        {
+          fir.packageName = records[0].fileNameInfo;
+        }
       }
     }
   }
@@ -165,7 +163,7 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
 {
   try
   {
-    return OpenFile(path, mode, access, text, FileShare::ReadWrite);
+    return OpenFile(path, mode, access, text);
   }
 #if defined(MIKTEX_WINDOWS)
   catch (const SharingViolationException&)
@@ -185,34 +183,7 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
 
 FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess access, bool text)
 {
-  return OpenFile(path, mode, access, text, FileShare::ReadWrite);
-}
-
-FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess access, bool text, FileShare share)
-{
-  try
-  {
-    return OpenFile(path, mode, access, text, share);
-  }
-#if defined(MIKTEX_WINDOWS)
-  catch (const SharingViolationException&)
-  {
-    return nullptr;
-  }
-#endif
-  catch (const UnauthorizedAccessException&)
-  {
-    return nullptr;
-  }
-  catch (const FileNotFoundException&)
-  {
-    return nullptr;
-  }
-}
-
-FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess access, bool text, FileShare share)
-{
-  trace_files->WriteFormattedLine("core", "OpenFile(\"%s\", %d, 0x%x, %d, %d)", path.ToString().c_str(), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(text), static_cast<int>(share));
+  trace_files->WriteFormattedLine("core", "OpenFile(\"%s\", %d, 0x%x, %d)", path.ToString().c_str(), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(text));
 
   FILE* pFile = nullptr;
 
@@ -224,7 +195,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
   }
   else
   {
-    pFile = File::Open(path, mode, access, text, share);
+    pFile = File::Open(path, mode, access, text);
   }
 
   try
@@ -289,7 +260,7 @@ MIKTEXSTATICFUNC(void) ReaderThread(unique_ptr<Stream> inStream, unique_ptr<Stre
   try
   {
     char buf[PIPE_SIZE];
-    int len;
+    size_t len;
     while ((len = inStream->Read(buf, PIPE_SIZE)) > 0)
     {
       outStream->Write(buf, len);

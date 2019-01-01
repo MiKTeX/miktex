@@ -34,12 +34,8 @@ set(public_include_directories
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_definitions(
-  -DHAVE_CONFIG_H
-)
-
-set(ADMIN_CONTROLS_USER_CONFIG TRUE)
 set(REPORT_EVENTS FALSE)
+set(MIKTEX_FNDB_VERSION 5)
 
 configure_file(
   include/miktex/Core/ConfigNames.h.cmake
@@ -106,6 +102,7 @@ set(headers_no_ext
   miktex/Core/Help
   miktex/Core/IntegerTypes
   miktex/Core/LibraryVersion
+  miktex/Core/LockFile
   miktex/Core/LzmaStream
   miktex/Core/MD5
   miktex/Core/MemoryMappedFile
@@ -194,6 +191,7 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/HasNamedValues.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Help.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/LibraryVersion.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/LockFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/LzmaStream.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/MD5.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/MemoryMappedFile.h
@@ -337,6 +335,10 @@ set(fndb_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Fndb/Fndb.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Fndb/fndbmem.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Fndb/makefndb.cpp
+)
+
+set(lockfile_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/LockFile/LockFile.cpp
 )
 
 set(md5_sources
@@ -522,6 +524,7 @@ set(core_sources
   ${directorylister_sources}
   ${file_sources}
   ${fndb_sources}
+  ${lockfile_sources}
   ${md5_sources}
   ${memorymappedfile_sources}
   ${misc_sources}

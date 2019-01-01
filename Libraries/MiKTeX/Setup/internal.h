@@ -148,60 +148,29 @@ class LogFile
 public:
   void SetCallback(class SetupServiceImpl* service)
   {
-    this->pService = service;
+    this->setupService = service;
   }
 
 public:
-  void SetLogFileName(const MiKTeX::Core::PathName& logFileName)
-  {
-    this->logFileName = logFileName;
-  }
+  void Load(const MiKTeX::Core::PathName& logFileName);
 
+#if defined(MIKTEX_WINDOWS)
 public:
-  struct ProgressInfo
-  {
-    MiKTeX::Core::PathName fileName;
-    size_t total;
-    size_t completed;
-  };
+  void RemoveRegistrySettings();
+#endif
 
+#if defined(MIKTEX_WINDOWS)
 public:
-  ProgressInfo GetProgressInfo()
-  {
-    ProgressInfo pi;
-    pi.completed = n;
-    pi.total = files.size();
-    return pi;
-  }
-
-public:
-  void Process();
+  void RemoveStartMenu();
+#endif
 
 private:
-  void RemoveFiles();
-
-private:
-  void ReadLogFile();
-
-private:
-  void AddPackages();
-
-private:
-  void AddFile(const MiKTeX::Core::PathName& path);
-
-private:
-  MiKTeX::Core::PathName currentFile;
+  void RemoveFiles(const MiKTeX::Core::PathName& prefix);
 
 private:
   std::set<MiKTeX::Core::PathName> files;
 
-private:
-  size_t n;
-
 #if defined(MIKTEX_WINDOWS)
-private:
-  void RemoveRegistrySettings();
-
 private:
   struct RegValue
   {
@@ -215,10 +184,7 @@ private:
 #endif
 
 private:
-  class SetupServiceImpl* pService = nullptr;
-
-private:
-  MiKTeX::Core::PathName logFileName;
+  class SetupServiceImpl* setupService = nullptr;
 };
 
 class SetupServiceImpl :
@@ -254,7 +220,7 @@ public:
   void ULogOpen() override;
 
 public:
-  void ULogClose(bool finalize) override;
+  void ULogClose() override;
 
 public:
   MiKTeX::Core::PathName GetULogFileName() override;
@@ -327,7 +293,7 @@ protected:
 protected:
   bool OnProcessOutput(const void* output, size_t n) override;
 
-protected:
+public:
   void ReportLine(const std::string& str) override;
 
 protected:

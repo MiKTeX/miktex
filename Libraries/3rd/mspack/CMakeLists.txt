@@ -34,8 +34,6 @@ add_definitions(
   -DHAVE_CONFIG_H
 )
 
-ignore_warnings()
-
 configure_file(
   config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h

@@ -19,18 +19,17 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
+
+#include <miktex/Core/win/DllProc>
 
 #include "internal.h"
 
-#include "miktex/Core/win/DllProc.h"
-
-using namespace MiKTeX::Core;
 using namespace std;
 
-DllProcBase::DllProcBase(const char * lpszDllName, const char * lpszProcName) :
+using namespace MiKTeX::Core;
+
+DllProcBase::DllProcBase(const char* lpszDllName, const char* lpszProcName) :
   dllName(lpszDllName),
   procName(lpszProcName)
 {
@@ -45,7 +44,7 @@ DllProcBase::~DllProcBase()
       MIKTEX_FATAL_WINDOWS_ERROR("FreeLibrary");
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }

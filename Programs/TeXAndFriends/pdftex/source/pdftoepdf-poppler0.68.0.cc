@@ -64,6 +64,7 @@ extern "C" {
 #error POPPLER_VERSION should be defined.
 #endif
 #if defined(MIKTEX)
+#undef assert
 #define assert MIKTEX_ASSERT
 #else
 #include <assert.h>

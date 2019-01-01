@@ -43,8 +43,6 @@ if(MIKTEX_UNIX_ALIKE)
   )
 endif()
 
-ignore_warnings()
-
 configure_file(
   liblua-version.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/liblua-version.h

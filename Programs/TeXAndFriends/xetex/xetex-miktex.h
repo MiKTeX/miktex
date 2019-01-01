@@ -80,7 +80,7 @@ public:
 #if 1
     for (int idx = 0; idx < nFonts; ++idx)
     {
-      program.fontmapping[idx] = 0;
+      program.fontmapping[idx] = nullptr;
     }
 #endif
     AllocateArray("fontlayoutengine", program.fontlayoutengine, nFonts);

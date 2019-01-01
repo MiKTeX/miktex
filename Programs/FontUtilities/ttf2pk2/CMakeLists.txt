@@ -30,8 +30,6 @@ add_definitions(
   -Dmain=Main
 )
 
-ignore_warnings()
-
 configure_file(
   config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h

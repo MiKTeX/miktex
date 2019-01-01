@@ -17,7 +17,7 @@ fi
    
 cd "${TRAVIS_BUILD_DIR}/build"
 make
-make test
+CTEST_OUTPUT_ON_FAILURE=1 make test
 
 if [ "$skip_tests" = "false" ]; then
     . "${TRAVIS_BUILD_DIR}/travis-ci/osx/_install.sh"

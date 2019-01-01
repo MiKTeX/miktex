@@ -19,9 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #if defined(MIKTEX_UNIX)
 #  include <unistd.h>
@@ -30,26 +28,28 @@
 #include <fstream>
 #include <iostream>
 
-#include "internal.h"
-
+// FIXME: must come first
 #include "core-version.h"
 
-#include "miktex/Core/ConfigNames.h"
-#include "miktex/Core/Environment.h"
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
-#include "miktex/Core/TemporaryDirectory.h"
+#include <miktex/Core/ConfigNames>
+#include <miktex/Core/Environment>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
+#include <miktex/Core/TemporaryDirectory>
+
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 
 #if defined(MIKTEX_WINDOWS)
-#include "win/winRegistry.h"
+#  include "win/winRegistry.h"
 #endif
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
 
 weak_ptr<SessionImpl> SessionImpl::theSession;
 
@@ -104,7 +104,6 @@ SessionImpl::~SessionImpl()
       s << "error: ~Session(): " << ex;
       OutputDebugStringW(StringUtil::UTF8ToWideChar(s.str()).c_str());
 #endif
-      cerr << "error: ~Session(): " << ex << endl;
     }
     catch (const exception&)
     {
@@ -119,7 +118,6 @@ SessionImpl::~SessionImpl()
       s << "error: ~Session(): " << ex.what();
       OutputDebugStringW(StringUtil::UTF8ToWideChar(s.str()).c_str());
 #endif
-      cerr << "error: ~Session(): " << ex.what() << endl;
     }
     catch (const exception&)
     {
@@ -351,39 +349,23 @@ void SessionImpl::Reset()
 void SessionImpl::SetEnvironmentVariables()
 {
 #if MIKTEX_WINDOWS
-  string str;
-
   // used in pdfcrop.pl
   Utils::SetEnvironmentString("TEXSYSTEM", "miktex");
 
   // Ghostscript
   Utils::SetEnvironmentString("GSC", MIKTEX_GS_EXE);
-  PathName root1 = GetSpecialPath(SpecialPath::CommonInstallRoot);
-  PathName root2 = GetSpecialPath(SpecialPath::UserInstallRoot);
-  PathName gsbase1 = root1;
-  gsbase1 /= "ghostscript";
-  gsbase1 /= "base";
-  PathName gsbase2 = root2;
-  gsbase2 /= "ghostscript";
-  gsbase2 /= "base";
-  str = gsbase1.GetData();
-  if (gsbase1 != gsbase2)
+  vector<string> gsDirectories;
+  gsDirectories.push_back((GetSpecialPath(SpecialPath::CommonInstallRoot) / "ghostscript" / "base").ToString());
+  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
   {
-    str += PATH_DELIMITER;
-    str += gsbase2.GetData();
+    gsDirectories.push_back((GetSpecialPath(SpecialPath::UserInstallRoot) / "ghostscript" / "base").ToString());
   }
-  PathName fonts1 = root1;
-  fonts1 /= "fonts";
-  PathName fonts2 = root2;
-  fonts2 /= "fonts";
-  str += PATH_DELIMITER;
-  str += fonts1.GetData();
-  if (fonts1 != fonts2)
+  gsDirectories.push_back((GetSpecialPath(SpecialPath::CommonInstallRoot) / "fonts").ToString());
+  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
   {
-    str += PATH_DELIMITER;
-    str += fonts2.GetData();
+    gsDirectories.push_back((GetSpecialPath(SpecialPath::UserInstallRoot) / "fonts").ToString());
   }
-  Utils::SetEnvironmentString("MIKTEX_GS_LIB", str);
+  Utils::SetEnvironmentString("MIKTEX_GS_LIB", StringUtil::Flatten(gsDirectories, PathName::PathNameDelimiter));
 #endif
 
   PathName path = GetTempDirectory();

@@ -26,7 +26,7 @@
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 
-#include "miktex/PackageManager/PackageManager.h"
+#include <miktex/PackageManager/PackageManager>
 
 #include "exceptions.h"
 #include "internal.h"
@@ -259,7 +259,7 @@ pair<bool, RepositoryInfo> RestRemoteService::TryGetRepositoryInfo(const string&
       response.write(buf, n);
     }
   }
-  catch (const NotFoundException& ex)
+  catch (const NotFoundException&)
   {
     return make_pair(false, RepositoryInfo());
   }

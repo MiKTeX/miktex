@@ -19,24 +19,24 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#include <miktex/Core/Paths>
+#include <miktex/Core/Registry>
 
 #include "internal.h"
-
-#include "miktex/Core/Paths.h"
-#include "miktex/Core/Registry.h"
 
 #include "Fndb/FileNameDatabase.h"
 #include "Session/SessionImpl.h"
 #include "Utils/CoreStopWatch.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 void SessionImpl::SetFindFileCallback(IFindFileCallback* callback)
 {
@@ -175,19 +175,18 @@ bool SessionImpl::FindFileInternal(const string& fileName, const vector<PathName
       if (fndb != nullptr)
       {
         // search fndb
-        vector<PathName> paths;
-        vector<string> fileNameInfo;
-        bool foundInFndb = fndb->Search(fileName, it->GetData(), firstMatchOnly, paths, fileNameInfo);
+        vector<Fndb::Record> records;
+        bool foundInFndb = fndb->Search(fileName, it->ToString(), firstMatchOnly, records);
         // we must release the FNDB handle since CheckCandidate() might request an unload of the FNDB
         fndb = nullptr;
         if (foundInFndb)
         {
-          for (int idx = 0; idx < paths.size(); ++idx)
+          for (int idx = 0; idx < records.size(); ++idx)
           {
-            if (CheckCandidate(paths[idx], fileNameInfo[idx].c_str()))
+            if (CheckCandidate(records[idx].path, records[idx].fileNameInfo.c_str()))
             {
               found = true;
-              result.push_back(paths[idx]);
+              result.push_back(records[idx].path);
             }
           }
         }
@@ -273,7 +272,7 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
 
   // get the file type information
   const InternalFileTypeInfo* fti = GetInternalFileTypeInfo(fileType);
-  MIKTEX_ASSERT(fileTypeInfo != nullptr);
+  MIKTEX_ASSERT(fti != nullptr);
 
   // check to see whether the file name has a registered file name extension
   PathName extension = PathName(fileName).GetExtension();
@@ -325,13 +324,19 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
         FindFileInternal(fileName, vec, firstMatchOnly, true, false, result);
       }
     }
-    else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && GetConfigValue(MIKTEX_REGKEY_TEXMF, MIKTEX_REGVAL_RENEW_FORMATS_ON_UPDATE, true).GetBool())
+    else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && findFileCallback != nullptr && GetConfigValue(MIKTEX_REGKEY_TEXMF, MIKTEX_REGVAL_RENEW_FORMATS_ON_UPDATE, true).GetBool())
     {
       PathName pathPackagesIniC(GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
-      PathName pathPackagesIniU(GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
-      if (IsNewer(pathPackagesIniC, result[0]) || (pathPackagesIniU != pathPackagesIniC && IsNewer(pathPackagesIniU, result[0])))
+      bool renew = IsNewer(pathPackagesIniC, result[0]);
+      if (!renew && !IsAdminMode() && GetUserConfigRoot() != GetCommonConfigRoot())
       {
-        if (findFileCallback != nullptr && findFileCallback->TryCreateFile(fileName, fileType))
+        PathName pathPackagesIniU(GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
+        renew = IsNewer(pathPackagesIniU, result[0]);
+      }
+      if (renew)
+      {
+        trace_filesearch->WriteLine("core", fmt::format(T_("going to renew {0} after update"), result[0]));
+        if (findFileCallback->TryCreateFile(fileName, fileType))
         {
           result.clear();
           FindFileInternal(fileName, vec, firstMatchOnly, true, false, result);

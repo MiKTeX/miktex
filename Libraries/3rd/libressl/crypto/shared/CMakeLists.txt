@@ -33,6 +33,8 @@ endif()
 
 add_library(${libressl_crypto_dll_name} SHARED ${${libressl_crypto_dll_name}_sources})
 
+prevent_all_warnings_on_bad_code_target(${libressl_crypto_dll_name})
+
 set_property(TARGET ${libressl_crypto_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_target_properties(${libressl_crypto_dll_name}

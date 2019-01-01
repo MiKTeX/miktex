@@ -1,6 +1,6 @@
 ## FindHUNSPELL.cmake
 ##
-## Copyright (C) 2016-2017 Christian Schenk
+## Copyright (C) 2016-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -30,6 +30,7 @@ find_library(HUNSPELL_LIBRARY
     hunspell-1.3
     hunspell-1.4
     hunspell-1.6
+    hunspell-1.7
 )
 
 find_package_handle_standard_args(HUNSPELL DEFAULT_MSG HUNSPELL_LIBRARY HUNSPELL_INCLUDE_DIR)

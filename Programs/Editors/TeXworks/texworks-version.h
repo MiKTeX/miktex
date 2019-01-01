@@ -1,6 +1,6 @@
 /* texworks-version.h: version number                   -*- C++ -*-
 
-   Copyright (C) 2009-2017 Christian Schenk
+   Copyright (C) 2009-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,7 +19,7 @@
 
 #include "source/src/TWVersion.h"
 
-#define MIKTEX_COMP_J2000_VERSION 6799
+#define MIKTEX_COMP_J2000_VERSION 6930
 
 #define MIKTEX_COMP_ORIG_VERSION_STR TEXWORKS_VERSION
 

@@ -30,6 +30,8 @@
 
 #include <string>
 
+#include "definitions.h"
+
 MPM_BEGIN_NAMESPACE;
 
 /// Package level enum class.
@@ -95,7 +97,7 @@ struct RepositoryInfo
   /// Version number.
   unsigned int version = 0;
   /// Time/Date of last update.
-  time_t timeDate = static_cast<time_t>(0);
+  std::time_t timeDate = InvalidTimeT;
   /// Status of the repository.
   RepositoryStatus status = RepositoryStatus::Unknown;
   /// Integrity of the repository.
@@ -111,9 +113,9 @@ struct RepositoryInfo
   /// Data transfer rate (bytes/sec).
   double dataTransferRate = 0.0;
   /// Last check time.
-  std::time_t lastCheckTime = static_cast<std::time_t>(0);
+  std::time_t lastCheckTime = InvalidTimeT;
   /// Last visit time.
-  std::time_t lastVisitTime = static_cast<std::time_t>(0);
+  std::time_t lastVisitTime = InvalidTimeT;
 };
 
 inline bool operator==(const RepositoryInfo& lhs, const RepositoryInfo& rhs)

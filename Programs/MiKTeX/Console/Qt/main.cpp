@@ -28,7 +28,6 @@
 #include <cstdlib>
 
 #include <QApplication>
-#include <QLockFile>
 #include <QtWidgets>
 #include <QSystemTrayIcon>
 
@@ -39,6 +38,7 @@
 #include "console-version.h"
 
 #include <miktex/Core/Exceptions>
+#include <miktex/Core/LockFile>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
 #include <miktex/UI/Qt/ErrorDialog>
@@ -214,8 +214,8 @@ int main(int argc, char* argv[])
 #if QT_VERSION >= 0x050000
   application.setApplicationDisplayName(displayName);
 #endif
-  QLockFile lockFile(QDir::temp().absoluteFilePath("miktex-console.lock"));
-  if (!lockFile.tryLock(100))
+  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(PathName().SetToHomeDirectory() / "miktex-console.lock");
+  if (!lockFile->TryLock(100ms))
   {
     QMessageBox::warning(nullptr, displayName, "MiKTeX Console is already running.");
     return 1;
@@ -353,6 +353,7 @@ int main(int argc, char* argv[])
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return 0;
     }
+    bool fastExit = false;
     {
       MainWindow mainWindow(nullptr, startPage);
       if (optHide)
@@ -376,13 +377,14 @@ int main(int argc, char* argv[])
         QTimer::singleShot(100, &mainWindow, SLOT(RefreshFontMaps()));
       }
       ret = application.exec();
+      fastExit = mainWindow.IsCleaningUp();
     }
-    if (session.use_count() > 1)
+    if (session.use_count() > 1 && !fastExit)
     {
       LOG4CXX_WARN(logger, "session.use_count() == " << session.use_count());
     }
     session = nullptr;
-    if (isLog4cxxConfigured)
+    if (isLog4cxxConfigured && !fastExit)
     {
       LOG4CXX_INFO(logger, "finishing with exit code " << ret);
     }

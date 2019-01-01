@@ -75,19 +75,14 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
       leInstallationSource->setText(T_("<Random package repository>"));
     }
     PathName commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
-    PathName userInstallRoot = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-    bool enableCommonInstall = (commonInstallRoot != userInstallRoot);
-    enableCommonInstall = (enableCommonInstall && Directory::Exists(commonInstallRoot));
-#if defined(MIKTEX_WINDOWS)
-    enableCommonInstall = enableCommonInstall && (session->IsUserAnAdministrator() || session->IsUserAPowerUser());
-#else
-    enableCommonInstall = enableCommonInstall && session->IsUserAnAdministrator();
-#endif
+    PathName userInstallRoot = session->IsAdminMode() ? "" : session->GetSpecialPath(SpecialPath::UserInstallRoot);
+    bool enableCommonInstall = session->IsSharedSetup() && (session->IsAdminMode() || session->IsUserAnAdministrator());
+    enableCommonInstall = enableCommonInstall && Directory::Exists(commonInstallRoot);
     if (enableCommonInstall)
     {
       cbInstallationDirectory->addItem(T_("Anyone who uses this computer (all users)"), true);
     }
-    if (!enableCommonInstall || commonInstallRoot != userInstallRoot)
+    if (!session->IsAdminMode())
     {
       QString currentUser;
 #if defined(MIKTEX_WINDOWS)

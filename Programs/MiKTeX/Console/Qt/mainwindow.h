@@ -26,6 +26,7 @@
 
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
+#include <miktex/Setup/SetupService>
 
 #include <atomic>
 #include <memory>
@@ -515,10 +516,19 @@ private slots:
   void UpdateActionsCleanup();
 
 private slots:
+  void UserReset();
+
+private slots:
   void FactoryReset();
 
 private slots:
   void Uninstall();
+
+private slots:
+  void on_buttonUserReset_clicked()
+  {
+    UserReset();
+  }
 
 private slots:
   void on_buttonFactoryReset_clicked()
@@ -533,6 +543,9 @@ private slots:
   }
 
 private:
+  bool IsUserResetPossible();
+
+private:
   bool IsFactoryResetPossible();
 
 private:
@@ -543,6 +556,18 @@ private:
 
 private:
   void WriteSettings();
+
+private:
+  bool saveSettingsOnClose = true;
+
+private:
+  bool isCleaningUp = false;
+
+public:
+  bool IsCleaningUp() const
+  {
+    return isCleaningUp;
+  }
 
 private:
   std::atomic_int backgroundWorkers{ 0 };
@@ -558,6 +583,50 @@ private:
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager = MiKTeX::Packages::PackageManager::Create();
+};
+
+class PackageInstallerCallbackImpl :
+  public MiKTeX::Packages::PackageInstallerCallback
+{
+private:
+  void ReportLine(const std::string& str) override;
+
+private:
+  bool OnRetryableError(const std::string& message) override
+  {
+    return false;
+  }
+
+private:
+  bool OnProgress(MiKTeX::Packages::Notification notification) override
+  {
+    return true;
+  }
+};
+
+class SetupServiceCallbackImpl :
+  public MiKTeX::Setup::SetupServiceCallback
+{
+protected:
+  void ReportLine(const std::string& str) override;
+
+protected:
+  bool OnRetryableError(const std::string& message) override
+  {
+    return false;
+  }
+
+protected:
+  bool OnProgress(MiKTeX::Setup::Notification nf) override
+  {
+    return true;
+  }
+
+protected:
+  bool OnProcessOutput(const void* output, size_t n) override
+  {
+    return true;
+  }
 };
 
 class BackgroundWorker :
@@ -602,7 +671,8 @@ signals:
 };
 
 class FinishSetupWorker :
-  public BackgroundWorker
+  public BackgroundWorker,
+  public SetupServiceCallbackImpl
 {
 private:
   Q_OBJECT;
@@ -613,7 +683,7 @@ protected:
 
 class UpgradeWorker :
   public BackgroundWorker,
-  public MiKTeX::Packages::PackageInstallerCallback
+  public PackageInstallerCallbackImpl
 {
 private:
   Q_OBJECT;
@@ -663,17 +733,6 @@ signals:
   void OnUpgradeProgress();
 
 private:
-  void ReportLine(const std::string& str) override
-  {
-  }
-
-private:
-  bool OnRetryableError(const std::string& message) override
-  {
-    return false;
-  }
-
-private:
   bool OnProgress(MiKTeX::Packages::Notification notification) override
   {
     switch (notification)
@@ -687,6 +746,8 @@ private:
     case MiKTeX::Packages::Notification::DownloadPackageEnd:
     case MiKTeX::Packages::Notification::InstallPackageEnd:
       status = Status::None;
+      break;
+    default:
       break;
     }
     progressInfo = packageInstaller->GetProgressInfo();
@@ -770,7 +831,7 @@ public:
 
 class UpdateWorker :
   public BackgroundWorker,
-  public MiKTeX::Packages::PackageInstallerCallback
+  public PackageInstallerCallbackImpl
 {
 private:
   Q_OBJECT;
@@ -821,17 +882,6 @@ signals:
   void OnUpdateProgress();
 
 private:
-  void ReportLine(const std::string& str) override
-  {
-  }
-
-private:
-  bool OnRetryableError(const std::string& message) override
-  {
-    return false;
-  }
-
-private:
   bool OnProgress(MiKTeX::Packages::Notification notification) override
   {
     switch (notification)
@@ -845,6 +895,8 @@ private:
     case MiKTeX::Packages::Notification::DownloadPackageEnd:
     case MiKTeX::Packages::Notification::InstallPackageEnd:
       status = Status::None;
+      break;
+    default:
       break;
     }
     progressInfo = packageInstaller->GetProgressInfo();
@@ -875,8 +927,20 @@ protected:
   bool Run() override;
 };
 
+class UserResetWorker :
+  public BackgroundWorker,
+  public SetupServiceCallbackImpl
+{
+private:
+  Q_OBJECT;
+
+protected:
+  bool Run() override;
+};
+
 class FactoryResetWorker :
-  public BackgroundWorker
+  public BackgroundWorker,
+  public SetupServiceCallbackImpl
 {
 private:
   Q_OBJECT;
@@ -886,7 +950,8 @@ protected:
 };
 
 class UninstallWorker :
-  public BackgroundWorker
+  public BackgroundWorker,
+  public SetupServiceCallbackImpl
 {
 private:
   Q_OBJECT;

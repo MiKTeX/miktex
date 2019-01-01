@@ -19,27 +19,26 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <fstream>
 
-#include "internal.h"
+#include <miktex/Core/Directory>
+#include <miktex/Core/Paths>
 
-#include "miktex/Core/Directory.h"
-#include "miktex/Core/Paths.h"
+#include "internal.h"
 
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 constexpr int inch2bp(double inch)
 {
-  return (inch * 72.0) + 0.5;
+  return static_cast<int>((inch * 72.0) + 0.5);
 }
 
 constexpr int mm2bp(int mm)
@@ -98,7 +97,7 @@ MIKTEXSTATICFUNC(int) CalculatePostScriptPoints(double value, const string& unit
   {
     if (u.unit == unit)
     {
-      return (value / u.factor) + 0.5;
+      return static_cast<int>((value / u.factor) + 0.5);
     }
   }
   MIKTEX_UNEXPECTED();
@@ -403,7 +402,7 @@ public:
       File::Delete(bak);
       if (!Fndb::FileExists(path))
       {
-        Fndb::Add(path);
+        Fndb::Add({ {path} });
       }
     }
     catch (const exception&)
@@ -475,7 +474,7 @@ bool SessionImpl::TryCreateFromTemplate(const PathName& path)
     File::SetAttributes(path, attr);
     if (!Fndb::FileExists(path))
     {
-      Fndb::Add(path);
+      Fndb::Add({ {path} });
     }
     return true;
   }

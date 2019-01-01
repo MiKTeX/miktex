@@ -21,11 +21,7 @@
 
    /* code is heavily borrowed from DVItype and other celebs */
 
-#include <miktex/First>
-
-#if defined(HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <miktex/Core/Quoter>
 

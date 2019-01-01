@@ -27,14 +27,15 @@
 
 #include "setup-version.h"
 
+using namespace std;
+using namespace std::string_literals;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
-using namespace std::string_literals;
 
 #define LICENSE_FILE "LICENSE.TXT"
 #define DOWNLOAD_INFO_FILE "README.TXT"
@@ -65,10 +66,10 @@ BEGIN_INTERNAL_NAMESPACE;
 
 void RemoveEmptyDirectoryChain(const PathName& directory)
 {
-  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory);
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(directory);
   DirectoryEntry dirEntry;
-  bool empty = !pLister->GetNext(dirEntry);
-  pLister->Close();
+  bool empty = !lister->GetNext(dirEntry);
+  lister->Close();
   if (!empty)
   {
     return;
@@ -86,6 +87,7 @@ void RemoveEmptyDirectoryChain(const PathName& directory)
   {
     return;
   }
+  // RECURSION
   RemoveEmptyDirectoryChain(parentDir);
 }
 
@@ -114,7 +116,6 @@ SetupServiceImpl::SetupServiceImpl()
   shared_ptr<Session> session = Session::Get();
   logFile.SetCallback(this);
   options.IsCommonSetup = session->RunningAsAdministrator();
-  logFile.SetLogFileName(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
 }
 
 SetupServiceImpl::~SetupServiceImpl()
@@ -122,7 +123,7 @@ SetupServiceImpl::~SetupServiceImpl()
   try
   {
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -434,7 +435,6 @@ void SetupServiceImpl::LogHeader()
   shared_ptr<Session> session = Session::Get();
 #if defined(MIKTEX_WINDOWS)
   Log(fmt::format("SystemAdmin: {}\n", session->RunningAsAdministrator()));
-  Log(fmt::format("PowerUser: {}\n", session->RunningAsPowerUser()));
 #endif
   if (options.Task != SetupTask::Download)
   {
@@ -498,7 +498,7 @@ void SetupServiceImpl::Log(const string& s)
 
 void SetupServiceImpl::ULogOpen()
 {
-  if (options.Task == SetupTask::Download || options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
+  if (options.Task == SetupTask::Download || options.Task == SetupTask::CleanUp)
   {
     return;
   }
@@ -509,45 +509,24 @@ void SetupServiceImpl::ULogOpen()
 
 PathName SetupServiceImpl::GetULogFileName()
 {
-  PathName ret;
+  PathName directory;
   if (options.IsDryRun || options.Task == SetupTask::PrepareMiKTeXDirect)
   {
-    ret.SetToTempDirectory();
+    directory.SetToTempDirectory();
   }
   else
   {
-    ret = GetInstallRoot() / MIKTEX_PATH_MIKTEX_CONFIG_DIR;
+    directory = GetInstallRoot() / MIKTEX_PATH_MIKTEX_CONFIG_DIR;
   }
-  Directory::Create(ret);
-  ret /= MIKTEX_UNINSTALL_LOG;
-  return ret;
+  return directory / MIKTEX_UNINSTALL_LOG;
 }
 
-void SetupServiceImpl::ULogClose(bool finalize)
+void SetupServiceImpl::ULogClose()
 {
-  if (!uninstStream.is_open())
-  {
-    return;
-  }
-
-  try
-  {
-    if (finalize)
-    {
-      ULogAddFile(GetULogFileName());
-      if (!options.IsPortable)
-      {
-        RegisterUninstaller();
-      }
-    }
-  }
-  catch (const exception &)
+  if (uninstStream.is_open())
   {
     uninstStream.close();
-    throw;
   }
-
-  uninstStream.close();
 }
 
 void SetupServiceImpl::ULogAddFile(const PathName& path)
@@ -613,7 +592,7 @@ void SetupServiceImpl::Run()
   default:
     MIKTEX_UNEXPECTED();
   }
-  ULogClose(true);
+  ULogClose();
 }
 
 void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
@@ -630,9 +609,12 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
     options.Config.commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
     options.Config.commonConfigRoot = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
     options.Config.commonDataRoot = session->GetSpecialPath(SpecialPath::CommonDataRoot);
-    options.Config.userInstallRoot = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-    options.Config.userConfigRoot = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-    options.Config.userDataRoot = session->GetSpecialPath(SpecialPath::UserDataRoot);
+    if (!session->IsAdminMode())
+    {
+      options.Config.userInstallRoot = session->GetSpecialPath(SpecialPath::UserInstallRoot);
+      options.Config.userConfigRoot = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+      options.Config.userDataRoot = session->GetSpecialPath(SpecialPath::UserDataRoot);
+    }
     return;
   }
   if (options.Task == SetupTask::InstallFromLocalRepository)
@@ -819,10 +801,6 @@ void SetupServiceImpl::DoPrepareMiKTeXDirect()
 
   // open the uninstall script
   ULogOpen();
-#if 0
-  // FIXME
-  ULogAddFile(g_strLogFile);
-#endif
 
   // run IniTeXMF
   ConfigureMiKTeX();
@@ -882,20 +860,12 @@ void SetupServiceImpl::DoTheInstallation()
   if (options.Task == SetupTask::InstallFromCD)
   {
     isArchive = false;
-#if defined(MIKTEX_USE_ZZDB3)
     pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-#else
-    pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-#endif
   }
   else
   {
     isArchive = true;
-#if defined(MIKTEX_USE_ZZDB3)
     pathDB = options.LocalPackageRepository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
-#else
-    pathDB = options.LocalPackageRepository / MIKTEX_TPM_ARCHIVE_FILE_NAME;
-#endif
   }
   ReportLine(T_("Loading package database..."));
   packageManager->LoadDatabase(pathDB, isArchive);
@@ -905,10 +875,6 @@ void SetupServiceImpl::DoTheInstallation()
 
   // open the uninstall script
   ULogOpen();
-#if 0
-  // FIXME
-  ULogAddFile(g_strLogFile);
-#endif
 
   // run installer
   packageInstaller->InstallRemove(PackageInstaller::Role::Installer);
@@ -981,7 +947,14 @@ void SetupServiceImpl::DoTheInstallation()
     cmdScript.WriteLine(fmt::format("start \"\" \"%~d0%~p0{}\" --hide --mkmaps", console.ToDos()));
     cmdScript.Close();
   }
-}
+
+  if (!options.IsPortable)
+  {
+#if defined(MIKTEX_WINDOWS)
+    RegisterUninstaller();
+#endif
+  }
+  }
 
 void SetupServiceImpl::DoFinishSetup()
 {
@@ -1005,14 +978,18 @@ void SetupServiceImpl::DoFinishSetup()
 void SetupServiceImpl::DoFinishUpdate()
 {
   ReportLine("finishing update...");
+  shared_ptr<Session> session = Session::Get();
   RemoveFormatFiles();
 #if defined(MIKTEX_WINDOWS)
   RunMpm({ "--register-components" });
 #endif
   RunIniTeXMF({ "--update-fndb" }, false);
-  RunIniTeXMF({ "--force", "--mklinks" }, false);
+  if (!session->IsSharedSetup() || session->IsAdminMode())
+  {
+    RunIniTeXMF({ "--force", "--mklinks" }, false);
+  }
   RunIniTeXMF({ "--mkmaps", "--mklangs" }, false);
-  if (!options.IsPortable)
+  if (!options.IsPortable && (!session->IsSharedSetup() || session->IsAdminMode()))
   {
 #if defined(MIKTEX_WINDOWS)
     RunIniTeXMF({ "--register-shell-file-types" }, false);
@@ -1025,6 +1002,10 @@ void SetupServiceImpl::DoFinishUpdate()
 void SetupServiceImpl::DoCleanUp()
 {
   shared_ptr<Session> session = Session::Get();
+
+#if defined(MIKTEX_WINDOWS)
+  logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
+#endif
 
   if (options.CleanupOptions[CleanupOption::Links])
   {
@@ -1056,16 +1037,16 @@ void SetupServiceImpl::DoCleanUp()
   {
     try
     {
-      if (session->RunningAsAdministrator()
-#if defined(MIKTEX_WINDOWS)
-        || session->RunningAsPowerUser()
-#endif
-        )
+      if (session->IsAdminMode())
       {
-        ReportLine("cleaning PATH...");
+        ReportLine("cleaning system PATH...");
         UnregisterPath(true);
       }
-      UnregisterPath(false);
+      else
+      {
+        ReportLine("cleaning user PATH...");
+        UnregisterPath(false);
+      }
     }
     catch (const MiKTeXException& e)
     {
@@ -1091,9 +1072,7 @@ void SetupServiceImpl::DoCleanUp()
     try
     {
 #if defined(MIKTEX_WINDOWS)
-      ReportLine("processing uninstall log file...");
-      logFile.SetLogFileName(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
-      logFile.Process();
+      logFile.RemoveStartMenu();
 #endif
     }
     catch (const MiKTeXException& e)
@@ -1138,17 +1117,20 @@ void SetupServiceImpl::DoCleanUp()
           RemoveEmptyDirectoryChain(parent);
         }
       }
-      parent = session->GetSpecialPath(SpecialPath::UserDataRoot);
-      parent.CutOffLastComponent();
-      if (Directory::Exists(parent))
+      if (!session->IsAdminMode())
       {
-        RemoveEmptyDirectoryChain(parent);
-      }
-      parent = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-      parent.CutOffLastComponent();
-      if (Directory::Exists(parent))
-      {
-        RemoveEmptyDirectoryChain(parent);
+        parent = session->GetSpecialPath(SpecialPath::UserDataRoot);
+        parent.CutOffLastComponent();
+        if (Directory::Exists(parent))
+        {
+          RemoveEmptyDirectoryChain(parent);
+        }
+        parent = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+        parent.CutOffLastComponent();
+        if (Directory::Exists(parent))
+        {
+          RemoveEmptyDirectoryChain(parent);
+        }
       }
       if (session->IsAdminMode())
       {
@@ -1179,6 +1161,7 @@ void SetupServiceImpl::DoCleanUp()
     {
 #if defined(MIKTEX_WINDOWS)
       RemoveRegistryKeys();
+      logFile.RemoveRegistrySettings();
 #else
       PathName fontConfig(MIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR);
       // FIXME: hard-coded file name
@@ -1203,7 +1186,7 @@ void SetupServiceImpl::DoCleanUp()
       PathName logDir = session->GetSpecialPath(SpecialPath::LogDirectory);
       if (Directory::Exists(logDir))
       {
-	Directory::Delete(logDir, true);
+        Directory::Delete(logDir, true);
       }
     }
     catch (const MiKTeXException& e)
@@ -1222,15 +1205,18 @@ vector<PathName> SetupServiceImpl::GetRoots()
     PathName installRoot = session->GetSpecialPath(SpecialPath::InstallRoot);
     vec.push_back(installRoot);
   }
-  PathName userDataRoot = session->GetSpecialPath(SpecialPath::UserDataRoot);
-  if (!Contains(vec, userDataRoot))
+  if (!session->IsAdminMode())
   {
-    vec.push_back(userDataRoot);
-  }
-  PathName userConfigRoot = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-  if (!Contains(vec, userConfigRoot))
-  {
-    vec.push_back(userConfigRoot);
+    PathName userDataRoot = session->GetSpecialPath(SpecialPath::UserDataRoot);
+    if (!Contains(vec, userDataRoot))
+    {
+      vec.push_back(userDataRoot);
+    }
+    PathName userConfigRoot = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+    if (!Contains(vec, userConfigRoot))
+    {
+      vec.push_back(userConfigRoot);
+    }
   }
   if (session->IsAdminMode())
   {
@@ -1251,11 +1237,7 @@ vector<PathName> SetupServiceImpl::GetRoots()
 void SetupServiceImpl::UnregisterComponents()
 {
   shared_ptr<Session> session = Session::Get();
-  if (session->RunningAsAdministrator()
-#if defined(MIKTEX_WINDOWS)
-      || session->RunningAsPowerUser()
-#endif
-      )
+  if (session->RunningAsAdministrator())
   {
     std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager(PackageManager::Create());
     shared_ptr<PackageInstaller> packageInstaller(packageManager->CreateInstaller());
@@ -1460,7 +1442,7 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   {
     allArgs.push_back("--principal=setup");
   }
-  if (options.IsCommonSetup)
+  if (options.IsCommonSetup && session->IsAdminMode())
   {
     allArgs.push_back("--admin");
   }
@@ -1475,7 +1457,8 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
-    ULogClose(false);
+    ULogClose();
+    // FIXME: only need to unload when building the FNDB
     session->UnloadFilenameDatabase();
     int exitCode;
     MiKTeXException miktexException;
@@ -1503,7 +1486,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
   allArgs.insert(allArgs.end(), args.begin(), args.end());
-  if (options.IsCommonSetup)
+  if (options.IsCommonSetup && session->IsAdminMode())
   {
     allArgs.push_back("--admin");
   }
@@ -1513,8 +1496,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
-    ULogClose(false);
-    session->UnloadFilenameDatabase();
+    ULogClose();
     Process::Run(exePath, allArgs, this);
     ULogOpen();
   }
@@ -1572,10 +1554,7 @@ SetupService::ProgressInfo SetupServiceImpl::GetProgressInfo()
   ProgressInfo progressInfo;
   if (options.Task == SetupTask::CleanUp)
   {
-    LogFile::ProgressInfo pi = logFile.GetProgressInfo();
-    progressInfo.fileName = pi.fileName;
-    progressInfo.cFilesRemoveTotal = pi.total;
-    progressInfo.cFilesRemoveCompleted = pi.completed;
+    // TODO
   }
   else
   {
@@ -1713,11 +1692,14 @@ void SetupServiceImpl::RemoveFormatFiles()
   {
     CollectFiles(toBeDeleted, pathFmt, MIKTEX_FORMAT_FILE_SUFFIX);
   }
-  PathName pathFmt2(session->GetSpecialPath(SpecialPath::UserDataRoot));
-  pathFmt2 /= MIKTEX_PATH_FMT_DIR;
-  if (pathFmt != pathFmt2 && Directory::Exists(pathFmt2))
+  if (!session->IsAdminMode())
   {
-    CollectFiles(toBeDeleted, pathFmt2, MIKTEX_FORMAT_FILE_SUFFIX);
+    PathName pathFmt2(session->GetSpecialPath(SpecialPath::UserDataRoot));
+    pathFmt2 /= MIKTEX_PATH_FMT_DIR;
+    if (pathFmt2 != pathFmt && Directory::Exists(pathFmt2))
+    {
+      CollectFiles(toBeDeleted, pathFmt2, MIKTEX_FORMAT_FILE_SUFFIX);
+    }
   }
   for (const PathName& f : toBeDeleted)
   {
@@ -1835,8 +1817,9 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   }
   if (options[ReportOption::CurrentUser])
   {
-    s << "SystemAdmin: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n"
-      << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n";
+    s << "SystemAdmin: " << (session->IsUserAnAdministrator() ? T_("yes") : T_("no")) << "\n"
+      << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n"
+      << "AdminMode: " << (session->IsAdminMode() ? T_("yes") : T_("no")) << "\n";
   }
   if (options[ReportOption::RootDirectories])
   {
@@ -1856,10 +1839,13 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       }
       s << fmt::format("Root{}: {}", idx, roots[idx].path) << "\n";
     }
-    s << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << "\n"
-      << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << "\n"
-      << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << "\n"
-      << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << "\n"
+    if (!session->IsAdminMode())
+    {
+      s << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << "\n"
+        << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << "\n"
+        << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << "\n";
+    }
+    s <<"CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << "\n"
       << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << "\n"
       << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << "\n";
   }

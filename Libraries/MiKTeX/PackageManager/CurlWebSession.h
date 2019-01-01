@@ -34,8 +34,8 @@
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
 
-#include "text.h"
 #include "WebSession.h"
+#include "text.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 
@@ -108,9 +108,6 @@ private:
 private:
   int runningHandles = -1;
 
-private:
-  IProgressNotify_* callback;
-
 public:
   bool IsReady() const
   {
@@ -171,7 +168,7 @@ public:
 public:
   std::string UrlEncode(const std::string& s) const
   {
-    char* encoded = curl_easy_escape(pCurl, s.c_str(), s.length());
+    char* encoded = curl_easy_escape(pCurl, s.c_str(), static_cast<int>(s.length()));
     std::string result = encoded;
     curl_free(encoded);
     return result;
@@ -187,7 +184,7 @@ private:
   static int ProgressCallback(void* pv, double dltotal, double dlnow, double ultotal, double ulnow);
 
 private:
-  static int DebugCallback(CURL* pCurl, curl_infotype infoType, char* pData, size_t sizeData, void* pv);
+  static int DebugCallback(CURL* pCurl, curl_infotype infoType, char* pData, std::size_t sizeData, void* pv);
 
 private:
   std::string proxyPort;

@@ -80,18 +80,18 @@ C4PCEEAPI(C4P_real) GetReal(C4P_text& /*textfile*/)
   MIKTEX_API_END("GetReal");
 }
 
-bool FileRoot::Open(const PathName& path, FileMode mode, FileAccess access, FileShare share, bool text, bool mustExist)
+bool FileRoot::Open(const PathName& path, FileMode mode, FileAccess access, bool text, bool mustExist)
 {
   MIKTEX_API_BEGIN("FileRoot::open");
   FILE* file;
   shared_ptr<Session> session = Session::Get();
   if (mustExist)
   {
-    file = session->OpenFile(path, mode, access, text, share);
+    file = session->OpenFile(path, mode, access, text);
   }
   else
   {
-    file = session->TryOpenFile(path, mode, access, text, share);
+    file = session->TryOpenFile(path, mode, access, text);
     if (file == nullptr)
     {
       return false;
