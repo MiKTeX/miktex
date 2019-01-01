@@ -579,6 +579,9 @@ private:
   }
 
 private:
+  void Restart();
+
+private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:

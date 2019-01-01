@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
   application.setApplicationDisplayName(displayName);
 #endif
   unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(PathName().SetToHomeDirectory() / "miktex-console.lock");
-  if (!lockFile->TryLock(100ms))
+  if (!lockFile->TryLock(500ms))
   {
     QMessageBox::warning(nullptr, displayName, "MiKTeX Console is already running.");
     return 1;

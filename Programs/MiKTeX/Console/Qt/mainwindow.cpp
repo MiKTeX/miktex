@@ -739,6 +739,7 @@ void MainWindow::FinishSetup()
       UpdateUi();
       UpdateActions();
       worker->deleteLater();
+      Restart();
     });
     connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
@@ -2510,4 +2511,11 @@ void MainWindow::WriteSettings()
   unique_ptr<Cfg> settings = Cfg::Create();
   settings->PutValue("MainWindow", "geometry", saveGeometry().toHex().constData());
   settings->Write(session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini");
+}
+
+void MainWindow::Restart()
+{
+  QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be restarted."));
+  Process::Start(session->GetMyProgramFile(true));
+  this->close();
 }
