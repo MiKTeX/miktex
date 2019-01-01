@@ -1222,9 +1222,19 @@ void MainWindow::Update()
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &UpdateWorker::OnFinish, this, [this]() {
     UpdateWorker* worker = (UpdateWorker*)sender();
+    bool restart = false;
     if (worker->GetResult())
     {
       ui->labelUpdateStatus->setText(tr("Done"));
+      for (const auto& u : updateModel->GetCheckedPackages())
+      {
+        // FIXME: logic must be in UpdateInfo
+        if (strncmp(u.packageId.c_str(), "miktex-", 7) == 0)
+        {
+          restart = true;
+          break;
+        }
+      }
     }
     else
     {
@@ -1238,6 +1248,10 @@ void MainWindow::Update()
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
+    if (restart)
+    {
+      Restart();
+    }
   });
   connect(worker, &UpdateWorker::OnUpdateProgress, this, [this]() {
     UpdateWorker* worker = (UpdateWorker*)sender();
@@ -2515,6 +2529,7 @@ void MainWindow::WriteSettings()
 
 void MainWindow::Restart()
 {
+  LOG4CXX_INFO(logger, "MiKTeX Console needs to be restarted");
   QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be restarted."));
   Process::Start(session->GetMyProgramFile(true));
   this->close();
