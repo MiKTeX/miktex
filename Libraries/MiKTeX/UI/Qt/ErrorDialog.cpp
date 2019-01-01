@@ -101,8 +101,9 @@ void ErrorDialogImpl::on_btnCopy_clicked()
   }
 }
 
-string& Trim(string& str)
+string Trim(const string& str_)
 {
+  string str = str_;
   constexpr const char* WHITESPACE = " \t\r\n";
   size_t pos = str.find_last_not_of(WHITESPACE);
   if (pos != string::npos)
