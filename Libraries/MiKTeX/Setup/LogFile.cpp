@@ -1,6 +1,6 @@
 /* LogFile.cpp:
 
-   Copyright (C) 2000-2017 Christian Schenk
+   Copyright (C) 2000-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -118,7 +118,6 @@ void LogFile::RemoveStartMenu()
   shared_ptr<Session> session = Session::Get();
   int cidl = (session->IsAdminMode() ? CSIDL_COMMON_PROGRAMS : CSIDL_PROGRAMS);
   PathName prefix = Utils::GetFolderPath(cidl, cidl, true);
-  setupService->ReportLine(fmt::format(T_("removing {0}..."), prefix));
   RemoveFiles(prefix);
 }
 #endif
@@ -154,6 +153,7 @@ void LogFile::RemoveRegistrySettings()
 
 void LogFile::RemoveFiles(const PathName& prefix)
 {
+  setupService->ReportLine(fmt::format(T_("removing MiKTeX files from {0}..."), prefix));
   set<PathName> directories;
   for (const PathName& file : files)
   {
@@ -161,7 +161,7 @@ void LogFile::RemoveFiles(const PathName& prefix)
     {
       break;
     }
-    if (!prefix.Empty() && Utils::IsParentDirectoryOf(prefix, file))
+    if (!prefix.Empty() && !Utils::IsParentDirectoryOf(prefix, file))
     {
       continue;
     }
