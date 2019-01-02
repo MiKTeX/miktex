@@ -1,6 +1,6 @@
 /* winSetupService.cpp:
 
-   Copyright (C) 2014-2018 Christian Schenk
+   Copyright (C) 2014-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -417,7 +417,10 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
   if (ld.lpszFolder != nullptr)
   {
     PathName pathSubFolder(pathFolder, ld.lpszFolder);
-    Directory::Create(pathSubFolder);
+    if (!ld.isObsolete)
+    {
+      Directory::Create(pathSubFolder);
+    }
     pathLink = pathSubFolder;
   }
   else
