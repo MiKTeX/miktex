@@ -183,21 +183,28 @@ bool LockFileImpl::IsGarbage()
     // permanently locked
     return false;
   }
-  unique_ptr<Process> p = Process::GetProcess(std::stoi(pid));
-  if (p == nullptr)
+  try
   {
-    trace_lockfile->WriteLine("core", fmt::format(T_("owner of lock file {0} does not exist"), Q_(path)));
-    return true;
+    unique_ptr<Process> p = Process::GetProcess(std::stoi(pid));
+    if (p == nullptr)
+    {
+      trace_lockfile->WriteLine("core", fmt::format(T_("owner of lock file {0} does not exist"), Q_(path)));
+      return true;
+    }
+    if (p->get_ProcessName() != processName)
+    {
+      trace_lockfile->WriteLine("core", fmt::format(T_("owner ({0}) of lock file {0} does not exist"), processName, Q_(path)));
+      return true;
+    }
+    if (p->GetProcessInfo().status == ProcessStatus::Zombie)
+    {
+      trace_lockfile->WriteLine("core", fmt::format(T_("owner ({0}) of lock file {0} is a zombie"), processName, Q_(path)));
+      return true;
+    }
   }
-  if (p->get_ProcessName() != processName)
+  catch (const UnauthorizedAccessException&)
   {
-    trace_lockfile->WriteLine("core", fmt::format(T_("owner ({0}) of lock file {0} does not exist"), processName, Q_(path)));
-    return true;
-  }
-  if (p->GetProcessInfo().status == ProcessStatus::Zombie)
-  {
-    trace_lockfile->WriteLine("core", fmt::format(T_("owner ({0}) of lock file {0} is a zombie"), processName, Q_(path)));
-    return true;
+    trace_lockfile->WriteLine("core", fmt::format(T_("permission denied: process {0} ({1})"), processName, pid));
   }
   return false;
 }

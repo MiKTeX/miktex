@@ -1,6 +1,6 @@
 /* winProcess.cpp: executing secondary processes
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -548,13 +548,13 @@ unique_ptr<Process> Process::GetCurrentProcess()
   {
     MIKTEX_FATAL_WINDOWS_ERROR("OpenProcess");
   }
-  unique_ptr<winProcess> pCurrentProcess = make_unique<winProcess>();
-  pCurrentProcess->processStarted = true;
-  pCurrentProcess->processInformation.hProcess = myHandle;
-  pCurrentProcess->processInformation.hThread = GetCurrentThread();
-  pCurrentProcess->processInformation.dwProcessId = GetCurrentProcessId();
-  pCurrentProcess->processInformation.dwThreadId = GetCurrentThreadId();
-  return unique_ptr<Process>(pCurrentProcess.release());
+  unique_ptr<winProcess> currentProcess = make_unique<winProcess>();
+  currentProcess->processStarted = true;
+  currentProcess->processInformation.hProcess = myHandle;
+  currentProcess->processInformation.hThread = GetCurrentThread();
+  currentProcess->processInformation.dwProcessId = GetCurrentProcessId();
+  currentProcess->processInformation.dwThreadId = GetCurrentThreadId();
+  return currentProcess;
 }
 
 unique_ptr<Process> Process::GetProcess(int systemId)
@@ -562,6 +562,10 @@ unique_ptr<Process> Process::GetProcess(int systemId)
   HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, systemId);
   if (handle == nullptr)
   {
+    if (GetLastError() == ERROR_ACCESS_DENIED)
+    {
+      throw UnauthorizedAccessException();
+    }
     return nullptr;
   }
   unique_ptr<winProcess> process = make_unique<winProcess>();
@@ -570,7 +574,7 @@ unique_ptr<Process> Process::GetProcess(int systemId)
   process->processInformation.hThread = nullptr;
   process->processInformation.dwProcessId = systemId;
   process->processInformation.dwThreadId = -1;
-  return unique_ptr<Process>(process.release());
+  return process;
 }
 
 bool winProcess::TryGetProcessEntry(DWORD processId, PROCESSENTRY32W& result)
@@ -619,11 +623,6 @@ PROCESSENTRY32W winProcess::GetProcessEntry(DWORD processId)
   PROCESSENTRY32W result;
   if (!TryGetProcessEntry(processId, result))
   {
-    shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-    if (session != nullptr)
-    {
-      session->trace_error->WriteFormattedLine("core", "error context: ID=%u", processId);
-    }
     MIKTEX_UNEXPECTED();
   }
   return result;
@@ -643,13 +642,13 @@ unique_ptr<Process> winProcess::get_Parent()
   {
     return nullptr;
   }
-  unique_ptr<winProcess> pParentProcess = make_unique<winProcess>();
-  pParentProcess->processStarted = true;
-  pParentProcess->processInformation.hProcess = parentProcessHandle;
-  pParentProcess->processInformation.dwProcessId = processEntry.th32ParentProcessID;
-  pParentProcess->processInformation.hThread = nullptr;
-  pParentProcess->processInformation.dwThreadId = 0;
-  return unique_ptr<Process>(pParentProcess.release());
+  unique_ptr<winProcess> parent = make_unique<winProcess>();
+  parent->processStarted = true;
+  parent->processInformation.hProcess = parentProcessHandle;
+  parent->processInformation.dwProcessId = processEntry.th32ParentProcessID;
+  parent->processInformation.hThread = nullptr;
+  parent->processInformation.dwThreadId = 0;
+  return parent;
 }
 
 string winProcess::get_ProcessName()
