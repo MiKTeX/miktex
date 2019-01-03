@@ -17,7 +17,7 @@ Make sure that others will be able to reproduce the bug by providing:
   as possible
 2. **input files which are necessary to reproduce the bug**
 3. **your observations**: command output, screenshots
-4. **contents of the MiKTeX log directory**: MiKTeX console tells
+4. **contents of the MiKTeX log directory**: MiKTeX Console tells
   you the location of log directory on the `Diagnose` page
 
 ### What happens next
