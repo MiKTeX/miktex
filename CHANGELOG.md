@@ -27,6 +27,7 @@ The `Check for updates` operation is much faster now.
 ### Upgraded programs
 
 * dvipdfmx 20181221
+* XeTeX 0.999991
 
 ### Fixed issues
 

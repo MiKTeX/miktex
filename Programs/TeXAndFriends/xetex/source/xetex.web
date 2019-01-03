@@ -315,8 +315,8 @@ known as `\eTeX'.
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
 @d XeTeX_version=0 { \.{\\XeTeXversion} }
-@d XeTeX_revision==".99999" { \.{\\XeTeXrevision} }
-@d XeTeX_version_string=='-0.99999' {current \XeTeX\ version}
+@d XeTeX_revision==".999991" { \.{\\XeTeXrevision} }
+@d XeTeX_version_string=='-0.999991' {current \XeTeX\ version}
 @#
 @d XeTeX_banner=='This is XeTeX, Version 3.14159265',eTeX_version_string,XeTeX_version_string
   {printed when \XeTeX\ starts}
