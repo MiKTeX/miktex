@@ -12,7 +12,7 @@ personal MiKTeX configuration if MiKTeX was installed system-wide:
 This allows users to remove their MiKTeX related installation files
 before a system administrator completely uninstalls MiKTeX.
 
-### Admin mode: blinding out of personal MiKTEX configuration
+### Admin mode: blinding out of personal MiKTeX configuration
 
 Prior to MiKTeX 2.9.6930, personal TEXMF root directories were visible
 (e.g., in MiKTeX Console) when running in administrator mode. This
