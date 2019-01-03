@@ -12,12 +12,13 @@ Before creating a bug report, please check this list:
 
 Make sure that others will be able to reproduce the bug by providing:
 
-- **step-by-step reproduction instructions**:
+1. **step-by-step reproduction instructions**:
   describe the exact steps which reproduce the problem in as many details
   as possible
-- **input files which are necessary to reproduce the bug**
-- **your observations**: command output, screenshots
-- **log files**
+2. **input files which are necessary to reproduce the bug**
+3. **your observations**: command output, screenshots
+4. **contents of the MiKTeX log directory**: MiKTeX console tells
+  you the location of log directory on the `Diagnose` page
 
 ### What happens next
 
