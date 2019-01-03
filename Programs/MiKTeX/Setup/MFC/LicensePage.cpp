@@ -1,6 +1,6 @@
 /* LicensePage.cpp:
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2019 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -120,14 +120,26 @@ void LicensePage::DoDataExchange(CDataExchange* pDX)
 LRESULT LicensePage::OnWizardNext()
 {
   sheet->PushPage(IDD);
-  UINT next =
-    (SetupApp::Instance->IsMiKTeXDirect
-      ? IDD_MD_TASK
-      : (SetupApp::Instance->Service->GetOptions().IsPrefabricated
-        ? (SetupApp::Instance->prefabricatedPackageLevel == PackageLevel::Complete
-          ? IDD_PACKAGE_SET_INSTALL
-          : IDD_SHARED)
-        : IDD_TASK));
+  UINT next;
+  if (SetupApp::Instance->IsMiKTeXDirect)
+  {
+    next = IDD_MD_TASK;
+  }
+  else if (SetupApp::Instance->Service->GetOptions().IsPrefabricated)
+  {
+    if (SetupApp::Instance->Service->GetOptions().IsPortable)
+    {
+      next = IDD_INSTALLDIR;
+    }
+    else
+    {
+      next = SetupApp::Instance->prefabricatedPackageLevel == PackageLevel::Complete ? IDD_PACKAGE_SET_INSTALL : IDD_SHARED;
+    }
+  }
+  else
+  {
+    next = IDD_TASK;
+  }
   return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(next));
 }
 

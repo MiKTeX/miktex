@@ -1,6 +1,6 @@
 /* Setup.cpp:
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2019 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -214,7 +214,7 @@ const struct option long_options[] =
 #if FEATURE_1874934
   { "paper-size", required_argument, 0, OPT_PAPER_SIZE },
 #endif
-  { "portable", required_argument, 0, OPT_PORTABLE },
+  { "portable", optional_argument, 0, OPT_PORTABLE },
   { "private", no_argument, 0, OPT_PRIVATE },
   { "program-folder", required_argument, 0, OPT_PROGRAM_FOLDER },
   { "remote-package-repository", required_argument, 0, OPT_REMOTE_PACKAGE_REPOSITORY },
@@ -257,7 +257,7 @@ void ShowHelpAndExit(int retCode = 0)
     << "  --paper-size=A4\n"
     << "  --paper-size=Letter\n"
 #endif
-    << "  --portable=DIR\n"
+    << "  --portable[=DIR]\n"
     << "  --private\n"
     << "  --program-folder=NAME\n"
     << "  --remote-package-repository=URL\n"
@@ -510,7 +510,10 @@ void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
 
     case OPT_PORTABLE:
       cmdinfo.optPortable = true;
-      cmdinfo.optPortableRoot = optarg;
+      if (optarg != nullptr)
+      {
+        cmdinfo.optPortableRoot = optarg;
+      }
       break;
 
     case OPT_PRIVATE:
@@ -870,6 +873,10 @@ BOOL SetupApp::InitInstance()
     char** argv;
     GetArguments(TU_(m_lpCmdLine), TU_(AfxGetAppName()), argc, argv);
     SetupCommandLineInfo cmdinfo;
+#if 1
+    string name = session->GetMyProgramFile(false).GetFileNameWithoutExtension().ToString();
+    cmdinfo.optPortable = name.substr(0, 15) == "miktex-portable";
+#endif
     ReadSetupWizIni(cmdinfo);
     ParseSetupCommandLine(argc, argv, cmdinfo);
     FreeArguments(argc, argv);
