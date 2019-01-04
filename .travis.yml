@@ -36,6 +36,7 @@ matrix:
       script: ./travis-ci/osx/script.sh
       after_failure: ./travis-ci/osx/after_failure.sh
     - os: linux
+      dist: xenial
       services: docker
       env:
       - MIKTEX_LINUX_DIST=debian
@@ -44,6 +45,7 @@ matrix:
       script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
+      dist: xenial
       services: docker
       env:
       - MIKTEX_LINUX_DIST=debian
@@ -52,6 +54,7 @@ matrix:
       script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
+      dist: xenial
       services: docker
       env:
       - MIKTEX_LINUX_DIST=ubuntu
@@ -60,6 +63,7 @@ matrix:
       script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
+      dist: xenial
       services: docker
       env:
       - MIKTEX_LINUX_DIST=ubuntu
@@ -68,6 +72,7 @@ matrix:
       script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
+      dist: xenial
       services: docker
       env:
       - MIKTEX_LINUX_DIST=fedora
@@ -75,6 +80,7 @@ matrix:
       script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
+      dist: xenial
       services: docker
       env:
       - MIKTEX_LINUX_DIST=opensuse
