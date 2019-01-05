@@ -1,6 +1,6 @@
 /* Lockfile.cpp: memory mapped files
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -135,7 +135,17 @@ bool LockFileImpl::TryLock(chrono::milliseconds timeout)
       if (IsGarbage())
       {
         trace_lockfile->WriteLine("core", fmt::format(T_("removing garbage lock file {0}"), Q_(path)));
-        File::Delete(path);
+        try
+        {
+          File::Delete(path);
+        }
+        catch (const FileNotFoundException&)
+        {
+        }
+        catch (const exception&)
+        {
+          throw;
+        }
         tryAgain = true;
       }
       else
