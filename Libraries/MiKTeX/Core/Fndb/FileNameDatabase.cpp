@@ -1,6 +1,6 @@
 /* FileNameDatabase.cpp: file name database
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -20,6 +20,10 @@
    02111-1307, USA. */
 
 #include "config.h"
+
+#if defined(MIKTEX_WINDOWS)
+#include <io.h>
+#endif
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -202,6 +206,20 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
     }
   }
   fflush(writer.GetFile());
+#if 1
+  // TODO: File::Sync API
+#if defined(MIKTEX_WINDOWS)
+  if (!FlushFileBuffers(reinterpret_cast<HANDLE>(_get_osfhandle(fileno(writer.GetFile())))))
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("FlushFileBuffers");
+  }
+#else
+  if (fsync(fileno(writer.GetFile())) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("fsync");
+  }
+#endif
+#endif
   File::Unlock(writer.GetFile());
   writer.Close();
 }
@@ -221,6 +239,20 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
     changeFileSize += s.length();
   }
   fflush(writer.GetFile());
+#if 1
+  // TODO: File::Sync API
+#if defined(MIKTEX_WINDOWS)
+  if (!FlushFileBuffers(reinterpret_cast<HANDLE>(_get_osfhandle(fileno(writer.GetFile())))))
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("FlushFileBuffers");
+  }
+#else
+  if (fsync(fileno(writer.GetFile())) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("fsync");
+  }
+#endif
+#endif
   File::Unlock(writer.GetFile());
   writer.Close();
 }
