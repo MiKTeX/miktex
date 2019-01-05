@@ -63,7 +63,7 @@ matrix:
       script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
-      dist: xenial
+      dist: trusty
       services: docker
       env:
       - MIKTEX_LINUX_DIST=ubuntu
