@@ -1,6 +1,6 @@
 /* makemf-version.h: version number                     -*- C++ -*-
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2019 Christian Schenk
 
    This file is part of MiKTeX MakeMF.
 
@@ -19,6 +19,6 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#define MIKTEX_COMP_J2000_VERSION 6936
+#define MIKTEX_COMP_J2000_VERSION 6944
 
 #include <miktex/Version>

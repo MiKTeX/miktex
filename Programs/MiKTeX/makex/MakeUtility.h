@@ -1,6 +1,6 @@
 /* MakeUtility.h:                                       -*- C++ -*-
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -300,6 +300,7 @@ protected:
     PrintOnly("initexmf --update-fndb");
     if (!printOnly)
     {
+      Verbose(fmt::format(T_("Installing {0}..."), Q_(dest)));
       MiKTeX::Core::File::Copy(source, dest, { MiKTeX::Core::FileCopyOption::ReplaceExisting, MiKTeX::Core::FileCopyOption::UpdateFndb });
     }
   }
@@ -337,7 +338,7 @@ protected:
   {
     OUT__
       << MiKTeX::Core::Utils::MakeProgramVersionString(MiKTeX::Core::Utils::GetExeName(), MiKTeX::Core::VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << "\n"
-      << "Copyright (C) 1998-2018 Christian Schenk" << "\n"
+      << "Copyright (C) 1998-2019 Christian Schenk" << "\n"
       << "This is free software; see the source for copying conditions.  There is NO" << "\n"
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << "\n";
   }

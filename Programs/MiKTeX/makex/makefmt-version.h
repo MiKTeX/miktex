@@ -1,6 +1,6 @@
 /* makefmt-version.h: version number                    -*- C++ -*-
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2019 Christian Schenk
 
    This file is part of MiKTeX MakeFMT.
 
