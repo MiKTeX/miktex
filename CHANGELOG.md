@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.6930 - not yet released
+## 2.9.6930 - 2019-01-96
 
 ### Resetting personal MiKTeX configuration
 
