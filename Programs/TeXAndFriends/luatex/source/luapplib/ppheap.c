@@ -7,7 +7,7 @@
 #define ppheap_head(heap) ((uint8_t *)((heap) + 1))
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if ARM_COMPLIANT
 # define PPHEAP_ARCH_ARM
 # define PPHEAP_NEED_ALIGNMENT
 #endif

@@ -2884,7 +2884,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     cff_add_string(cffont, "Identity");
     if (cffont->header_major == 2) {
         /*tex A crash. */
-    } else {
+    } else if (cffont->private && (cffont->private)[0]) {
         cff_dict_update(cffont->private[0], cffont);
     }
     cff_update_string(cffont);

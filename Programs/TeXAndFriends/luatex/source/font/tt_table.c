@@ -328,15 +328,23 @@ struct tt_os2__table *tt_read_os2__table(sfnt * sfont)
     table->sTypoLineGap = sfnt_get_short(sfont);
     table->usWinAscent = sfnt_get_ushort(sfont);
     table->usWinDescent = sfnt_get_ushort(sfont);
-    table->ulCodePageRange1 = sfnt_get_ulong(sfont);
-    table->ulCodePageRange2 = sfnt_get_ulong(sfont);
-    if (table->version == 0x0002) {
+    if (table->version >= 0x0001) {
+        table->ulCodePageRange1 = sfnt_get_ulong(sfont);
+        table->ulCodePageRange2 = sfnt_get_ulong(sfont);
+    }
+    if (table->version >= 0x0002) {
         table->sxHeight = sfnt_get_short(sfont);
         table->sCapHeight = sfnt_get_short(sfont);
         table->usDefaultChar = sfnt_get_ushort(sfont);
         table->usBreakChar = sfnt_get_ushort(sfont);
         table->usMaxContext = sfnt_get_ushort(sfont);
     }
+    /*
+        https://docs.microsoft.com/en-us/typography/opentype/spec/os2
+
+        There are now 5 versions but we don't read the few additional
+        fields as we don't use them. Some changes are cosmetical (names).
+    */
     return table;
 }
 

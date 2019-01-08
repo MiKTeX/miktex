@@ -280,31 +280,37 @@ PdfDocument *refMemStreamPdfDocument(char *docstream, unsigned long long streams
 typedef struct ObjMap ObjMap ;
 
 struct ObjMap {
-    ppref * in;
+ /* int version; */ /* not really needed */
+    int objnum;
     int out_num;
 };
 
 static int CompObjMap(const void *pa, const void *pb, void *p)
 {
-    const ppref *a = (((const ObjMap *) pa)->in);
-    const ppref *b = (((const ObjMap *) pb)->in);
-    if (a->number > b->number)
+    const ObjMap *a = (((const ObjMap *) pa));
+    const ObjMap *b = (((const ObjMap *) pb));
+    if (a->objnum > b->objnum)
         return 1;
-    else if (a->number < b->number)
+    else if (a->objnum < b->objnum)
         return -1;
+    /*
     else if (a->version == b->version)
         return 0;
     else if (a->version < b->version)
         return -1;
     return 1;
+    */
+    return 0;
 }
 
 static ObjMap *findObjMap(PdfDocument * pdf_doc, ppref * in)
 {
     ObjMap *obj_map, tmp;
-    if (pdf_doc->ObjMapTree == NULL)
+    if (pdf_doc->ObjMapTree == NULL) {
         return NULL;
-    tmp.in = in;
+    }
+    tmp.objnum = in->number;
+ /* tmp.version = in->version; */
     obj_map = (ObjMap *) avl_find(pdf_doc->ObjMapTree, &tmp);
     return obj_map;
 }
@@ -312,10 +318,12 @@ static ObjMap *findObjMap(PdfDocument * pdf_doc, ppref * in)
 static void addObjMap(PdfDocument * pdf_doc, ppref * in, int out_num)
 {
     ObjMap *obj_map = NULL;
-    if (pdf_doc->ObjMapTree == NULL)
+    if (pdf_doc->ObjMapTree == NULL) {
         pdf_doc->ObjMapTree = avl_create(CompObjMap, NULL, &avl_xallocator);
+    }
     obj_map = (ObjMap*)xmalloc(sizeof(ObjMap));
-    obj_map->in = in;
+ /* obj_map->version = in->version; */
+    obj_map->objnum = in->number;
     obj_map->out_num = out_num;
     avl_probe(pdf_doc->ObjMapTree, obj_map);
 }
@@ -342,7 +350,8 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, ppref * ref)
         return obj_map->out_num;
     }
     n = (InObj*)xmalloc(sizeof(InObj));
-    n->ref = ref;
+    n->objnum = ref->number;
+ /* n->version = ref->version; */
     n->next = NULL;
     n->num = pdf_create_obj(pdf, obj_type_others, 0);
     addObjMap(pdf_doc, ref, n->num);
@@ -545,12 +554,16 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
 {
     InObj *r, *n;
     ppobj * obj;
+    ppref * ref ;
+    ppxref * xref = ppdoc_xref (pdf_doc->pdfe);
     for (r = pdf_doc->inObjList; r != NULL;) {
-        obj = ppref_obj(r->ref);
-        if (obj->type == PPSTREAM)
+        ref = ppxref_find (xref, (ppuint) r->objnum);
+        obj = ppref_obj(ref);
+        if (obj->type == PPSTREAM) {
             pdf_begin_obj(pdf, r->num, OBJSTM_NEVER);
-        else
+        } else {
             pdf_begin_obj(pdf, r->num, 2);
+        }
         copyObject(pdf, pdf_doc, obj);
         pdf_end_obj(pdf);
         n = r->next;
@@ -559,6 +572,7 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
         pdf_doc->inObjList = n;
     }
 }
+
 
 /* get the pagebox coordinates according to the pagebox_spec */
 
@@ -617,11 +631,6 @@ static ppdict * get_pdf_page_dict(ppdoc *pdfe, int n)
     }
     return NULL;
 }
-
-// static ppdict * get_pdf_page_dict(ppdoc *pdfe, int n)
-// {
-//     return ppref_obj(ppdoc_page(pdfe,n))->dict;
-// }
 
 void read_pdf_info(image_dict * idict)
 {
@@ -918,7 +927,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
                     }
                     */
                 }
-               pdf_end_dict(pdf);
+                pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
                 copyStreamStream(pdf, stream, 0, 0);
             } else {

@@ -685,6 +685,7 @@ void close_files_and_terminate(void)
             print_ln();
         }
         lua_a_close_out(log_file);
+	log_opened_global = false;
     }
     callback_id = callback_defined(wrapup_run_callback);
     if (callback_id > 0) {

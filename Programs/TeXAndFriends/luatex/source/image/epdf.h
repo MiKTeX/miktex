@@ -151,7 +151,8 @@ int luaopen_epdf(lua_State * L);
 typedef struct InObj InObj;
 
 struct InObj {
-    ppref *ref;                 /* ref in original PDF */
+ /* int version; */             /* old object number in included PDF */
+    int objnum;                 /* old version number in included PDF, we can do without */
     int num;                    /* new object number in output PDF */
     InObj *next;                /* next entry in list of indirect objects */
 } ;

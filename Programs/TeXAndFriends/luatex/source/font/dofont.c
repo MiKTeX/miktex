@@ -86,8 +86,13 @@ static int do_define_font(int f, const char *cnom, scaled s, int natural_dir)
 
             The font name has to fit in the dvi file's single byte storage. There
             is no need to test area, as we are never using it.
+
+            If we have an error in DVI mode we just abort as the DVI file is unuseable
+            anyway then.
         */
-        res = 0;
+        if (get_o_mode() == OMODE_DVI) {
+            formatted_error("backend","font name too long for DVI: %s",font_name(f));
+        }
     }
     if (res) {
         if (font_type(f) != virtual_font_type) {

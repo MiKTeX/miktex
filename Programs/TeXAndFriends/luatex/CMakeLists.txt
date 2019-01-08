@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2018 Christian Schenk
+## Copyright (C) 2010-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -245,6 +245,7 @@ set(luapplib_sources
   source/luapplib/ppstream.h
   source/luapplib/ppxref.c
   source/luapplib/ppxref.h
+  source/luapplib/util/utilarm.h
   source/luapplib/util/utilbasexx.c
   source/luapplib/util/utilbasexx.h
   source/luapplib/util/utilcrypt.c

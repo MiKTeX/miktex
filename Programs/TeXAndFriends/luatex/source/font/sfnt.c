@@ -248,8 +248,9 @@ ULONG sfnt_locate_table(sfnt * sfont, const char *tag)
 {
     ULONG offset;
     offset = sfnt_find_table_pos(sfont, tag);
-    if (offset == 0)
-        normal_error("ttf","sfnt table not found");
+    if (offset == 0) {
+        formatted_error("ttf","%s table not found",tag);
+    }
     sfnt_seek_set(sfont, (long) offset);
     return offset;
 }

@@ -74,7 +74,7 @@ const char ppname_byte_lookup[] = {
   (ppname)(ghost + 1))
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__||( defined(__sun) && defined(__SVR4))
+#if ARM_COMPLIANT
 #define ppname_set_alter_ego(name, ghost, ego) do {\
     ppname temp;\
     ppname *temp1;\
@@ -86,7 +86,7 @@ const char ppname_byte_lookup[] = {
 #define ppname_set_alter_ego(name, ghost, ego) (*((ppname *)(name + (ghost)->size + 1)) = ego)
 #endif
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__||( defined(__sun) && defined(__SVR4))
+#if ARM_COMPLIANT
 #define ppname_get_alter_ego(name) (*((ppname *)( (void*)(name + ppname_size(name) + 1))))
 #else
 #define ppname_get_alter_ego(name) (*((ppname *)(name + ppname_size(name) + 1)))
@@ -229,14 +229,14 @@ ppname ppname_encoded (ppname name)
 
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__||( defined(__sun) && defined(__SVR4))
+#if ARM_COMPLIANT
 #define ppstring_set_alter_ego(string, ghost, ego) (*((ppstring *)((void *)(string + (ghost)->size + 1))) = ego)
 #else
 #define ppstring_set_alter_ego(string, ghost, ego) (*((ppstring *)(string + (ghost)->size + 1)) = ego)
 #endif
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__||( defined(__sun) && defined(__SVR4))
+#if ARM_COMPLIANT
 #define ppstring_get_alter_ego(string) (*((ppstring *)((void *)(string + ppstring_size(string) + 1))))
 #else
 #define ppstring_get_alter_ego(string) (*((ppstring *)(string + ppstring_size(string) + 1)))

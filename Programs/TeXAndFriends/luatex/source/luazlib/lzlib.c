@@ -481,21 +481,16 @@ static int lzlib_decompress(lua_State *L)
     {
         zs.next_out = (Bytef*)luaL_prepbuffer(&b);
         zs.avail_out = LUAL_BUFFERSIZE;
-
         /* bake some more */
-        ret = inflate(&zs, Z_FINISH);
-
+        ret = inflate(&zs, Z_NO_FLUSH);
         /* push gathered data */
         luaL_addsize(&b, LUAL_BUFFERSIZE - zs.avail_out);
-
         /* need dictionary? - no dictionary support here, so just quit */
         if (ret == Z_NEED_DICT)
             break;
-
         /* done processing? */
         if (ret == Z_STREAM_END)
             break;
-
         /* error condition? */
         if (ret != Z_OK)
             break;

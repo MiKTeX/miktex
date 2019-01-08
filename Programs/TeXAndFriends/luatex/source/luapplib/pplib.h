@@ -9,6 +9,7 @@
 
 #include "utiliof.h"
 #include "utillog.h"
+#include "utilarm.h"
 
 #include "ppapi.h"
 #include "ppheap.h"

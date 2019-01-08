@@ -1,11 +1,30 @@
-/*tex
+/* loslibext.c
 
-    This file will host the encapsulated \PDF\ support code used for inclusion
-    and access from \LUA.
+    This file is part of LuaTeX.
+
+    LuaTeX is free software; you can redistribute it and/or modify it under the
+    terms of the GNU General Public License as published by the Free Software
+    Foundation; either version 2 of the License, or (at your option) any later
+    version.
+
+    LuaTeX is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+    A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+    details.
+
+    You should have received a copy of the GNU General Public License along with
+    LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "ptexlib.h"
+/*tex
+
+    This file hosts the encapsulated \PDF\ support code used for inclusion and
+    access from \LUA.
+
+*/
+
+# include "ptexlib.h"
 
 /*tex
 
@@ -13,34 +32,34 @@
 
 */
 
-#undef lpdfelib_orig_input
-#undef lpdfelib_orig_output
+# undef lpdfelib_orig_input
+# undef lpdfelib_orig_output
 
-#ifdef input
-#define lpdfelib_orig_input input
-#undef input
-#endif
+# ifdef input
+# define lpdfelib_orig_input input
+# undef input
+# endif
 
-#ifdef output
-#define lpdfelib_orig_output output
-#undef output
-#endif
+# ifdef output
+# define lpdfelib_orig_output output
+# undef output
+# endif
 
-#include "luapplib/pplib.h"
+# include "luapplib/pplib.h"
 
-#include "image/epdf.h"
+# include "image/epdf.h"
 
-#ifdef lpdfelib_orig_input
-#define input  lpdfelib_orig_input
-#undef lpdfelib_orig_input
-#endif
+# ifdef lpdfelib_orig_input
+# define input  lpdfelib_orig_input
+# undef lpdfelib_orig_input
+# endif
 
-#ifdef lpdfelib_orig_output
-#define output  lpdfelib_orig_output
-#undef lpdfelib_orig_output
-#endif
+# ifdef lpdfelib_orig_output
+# define output  lpdfelib_orig_output
+# undef lpdfelib_orig_output
+# endif
 
-#include "lua/luatex-api.h"
+# include "lua/luatex-api.h"
 
 /*tex
 
@@ -50,11 +69,11 @@
 
 */
 
-#define PDFE_METATABLE            "luatex.pdfe"
-#define PDFE_METATABLE_DICTIONARY "luatex.pdfe.dictionary"
-#define PDFE_METATABLE_ARRAY      "luatex.pdfe.array"
-#define PDFE_METATABLE_STREAM     "luatex.pdfe.stream"
-#define PDFE_METATABLE_REFERENCE  "luatex.pdfe.reference"
+# define PDFE_METATABLE            "luatex.pdfe"
+# define PDFE_METATABLE_DICTIONARY "luatex.pdfe.dictionary"
+# define PDFE_METATABLE_ARRAY      "luatex.pdfe.array"
+# define PDFE_METATABLE_STREAM     "luatex.pdfe.stream"
+# define PDFE_METATABLE_REFERENCE  "luatex.pdfe.reference"
 
 typedef struct {
     ppdoc *document;
@@ -67,23 +86,22 @@ typedef struct {
 
 typedef struct {
     ppdict *dictionary;
-    ppref *ref;
 } pdfe_dictionary;
 
 typedef struct {
     pparray *array;
-    ppref *ref;
 } pdfe_array;
 
 typedef struct {
     ppstream *stream;
-    ppref *ref;
     int decode;
     int open;
 } pdfe_stream;
 
 typedef struct {
-    ppref *reference;
+ /* ppref *reference; */
+    ppxref *xref;
+    int onum;
 } pdfe_reference;
 
 /*tex
@@ -194,7 +212,7 @@ static pdfe_reference *check_isreference(lua_State * L, int n)
 
 */
 
-#define check_type(field,meta,name) do { \
+# define check_type(field,meta,name) do { \
     lua_get_metatablelua(luatex_##meta); \
     if (lua_rawequal(L, -1, -2)) { \
         lua_pushstring(L,name); \
@@ -223,7 +241,7 @@ static int pdfelib_type(lua_State * L)
 
 */
 
-#define define_to_string(field,what) \
+# define define_to_string(field,what) \
 static int pdfelib_tostring_##field(lua_State * L) { \
     pdfe_##field *p = check_is##field(L, 1); \
     if (p != NULL) { \
@@ -236,8 +254,16 @@ static int pdfelib_tostring_##field(lua_State * L) { \
 define_to_string(document,  "pdfe")
 define_to_string(dictionary,"pdfe.dictionary")
 define_to_string(array,     "pdfe.array")
-define_to_string(reference, "pdfe.reference")
 define_to_string(stream,    "pdfe.stream")
+
+static int pdfelib_tostring_reference(lua_State * L) { \
+    pdfe_reference *p = check_isreference(L, 1); \
+    if (p != NULL) { \
+        lua_pushfstring(L, "<pdfe.reference " "%i>", p->onum); \
+        return 1; \
+    } \
+    return 0; \
+}
 
 /*tex
 
@@ -246,7 +272,7 @@ define_to_string(stream,    "pdfe.stream")
 
 */
 
-#define pdfe_push_dictionary do { \
+# define pdfe_push_dictionary do { \
     pdfe_dictionary *d = (pdfe_dictionary *)lua_newuserdata(L, sizeof(pdfe_dictionary));	\
     luaL_getmetatable(L, PDFE_METATABLE_DICTIONARY); \
     lua_setmetatable(L, -2); \
@@ -272,7 +298,7 @@ static int pushdictionaryonly(lua_State * L, ppdict *dictionary)
     return 0;
 }
 
-#define pdfe_push_array do { \
+# define pdfe_push_array do { \
     pdfe_array *a = (pdfe_array *)lua_newuserdata(L, sizeof(pdfe_array));	\
     luaL_getmetatable(L, PDFE_METATABLE_ARRAY); \
     lua_setmetatable(L, -2); \
@@ -298,7 +324,7 @@ static int pusharrayonly(lua_State * L, pparray * array)
     return 0;
 }
 
-#define pdfe_push_stream do { \
+# define pdfe_push_stream do { \
     pdfe_stream *s = (pdfe_stream *)lua_newuserdata(L, sizeof(pdfe_stream));	\
     luaL_getmetatable(L, PDFE_METATABLE_STREAM); \
     lua_setmetatable(L, -2); \
@@ -331,11 +357,12 @@ static int pushstreamonly(lua_State * L, ppstream * stream)
     return 0;
 }
 
-#define pdfe_push_reference do { \
+# define pdfe_push_reference do { \
     pdfe_reference *r = (pdfe_reference *)lua_newuserdata(L, sizeof(pdfe_reference));	\
     luaL_getmetatable(L, PDFE_METATABLE_REFERENCE); \
     lua_setmetatable(L, -2); \
-    r->reference = reference; \
+    r->xref = reference->xref; \
+    r->onum = reference->number; \
   } while (0)
 
 static int pushreference(lua_State * L, ppref * reference)
@@ -709,9 +736,11 @@ static int pdfelib_readwholestream(lua_State * L)
 
     Alternatively streams can be fetched stepwise:
 
+    \starttyping
     okay = openstream(streamobject,[decode])
     string, n = readfromstream(streamobject)
     closestream(streamobject)
+    \stoptyping
 
 */
 
@@ -1130,7 +1159,7 @@ static int pdfelib_getfromreference(lua_State * L)
 {
     pdfe_reference *r = check_isreference(L, 1);
     if (r != NULL) {
-        ppobj *o = ppref_obj(r->reference);
+        ppobj *o = ppref_obj(ppxref_find(r->xref, (ppuint) r->onum));
         lua_pushinteger(L,o->type);
         return 1 + pushvalue(L,o);
     }
@@ -1158,7 +1187,7 @@ static int pdfelib_getfromreference(lua_State * L)
 
 */
 
-#define pdfelib_get_value_check_1 do { \
+# define pdfelib_get_value_check_1 do { \
     if (p == NULL) { \
         if (t == LUA_TSTRING) { \
             normal_warning("pdfe lib","lua <pdfe dictionary> expected"); \
@@ -1173,7 +1202,7 @@ static int pdfelib_getfromreference(lua_State * L)
     } \
 } while (0)
 
-#define pdfelib_get_value_check_2 \
+# define pdfelib_get_value_check_2 \
     normal_warning("pdfe lib","second argument should be integer or string");
 
 /*tex
@@ -1183,7 +1212,11 @@ static int pdfelib_getfromreference(lua_State * L)
 
 */
 
-#define pdfelib_get_value_direct(get_d,get_a) do {                      \
+# define pdfelib_get_indirect_o(p) \
+    ppref *r = ppxref_find(((pdfe_reference *) p)->xref, (ppuint) (((pdfe_reference *) p)->onum)); \
+    ppobj *o = ppref_obj(r);                                \
+
+# define pdfelib_get_value_direct(get_d,get_a) do {                      \
     int t = lua_type(L,2);                                              \
     void *p = lua_touserdata(L, 1);                                     \
     pdfelib_get_value_check_1;                                          \
@@ -1196,7 +1229,7 @@ static int pdfelib_getfromreference(lua_State * L)
             lua_pop(L,1);                                               \
             lua_get_metatablelua(luatex_pdfe_reference);                \
             if (lua_rawequal(L, -1, -2)) {                              \
-                ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
+                pdfelib_get_indirect_o(p);                              \
                 if (o != NULL && o->type == PPDICT) {                   \
                     value = get_d((ppdict *)o->dict, key);              \
                 }                                                       \
@@ -1211,7 +1244,7 @@ static int pdfelib_getfromreference(lua_State * L)
             lua_pop(L,1);                                               \
             lua_get_metatablelua(luatex_pdfe_reference);                \
             if (lua_rawequal(L, -1, -2)) {                              \
-                ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
+                pdfelib_get_indirect_o(p);                              \
                 if (o != NULL && o->type == PPARRAY) {                  \
                     value = get_a((pparray *) o->array, index);         \
                 }                                                       \
@@ -1229,7 +1262,7 @@ static int pdfelib_getfromreference(lua_State * L)
 
 */
 
-#define pdfelib_get_value_indirect(get_d,get_a) do {                        \
+# define pdfelib_get_value_indirect(get_d,get_a) do {                       \
     int t = lua_type(L,2);                                                  \
     void *p = lua_touserdata(L, 1);                                         \
     pdfelib_get_value_check_1;                                              \
@@ -1242,7 +1275,7 @@ static int pdfelib_getfromreference(lua_State * L)
             lua_pop(L,1);                                                   \
             lua_get_metatablelua(luatex_pdfe_reference);                    \
             if (lua_rawequal(L, -1, -2)) {                                  \
-                ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
+                pdfelib_get_indirect_o(p);                                  \
                 if (o != NULL && o->type == PPDICT)                         \
                     okay = get_d(o->dict, key, &value);                     \
             }                                                               \
@@ -1256,7 +1289,7 @@ static int pdfelib_getfromreference(lua_State * L)
             lua_pop(L,1);                                                   \
             lua_get_metatablelua(luatex_pdfe_reference);                    \
             if (lua_rawequal(L, -1, -2)) {                                  \
-                ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
+                pdfelib_get_indirect_o(p);                                  \
                 if (o != NULL && o->type == PPARRAY)                        \
                     okay = get_a(o->array, index, &value);                  \
             }                                                               \
@@ -1523,8 +1556,8 @@ static int pdfelib_stream_size(lua_State * L)
 
 /*tex
 
-    We now initialize the main interface. We might aa few more
-    informational helpers but this is it.
+    We now initialize the main interface. We might add few more informational
+    helpers but this is it.
 
 */
 

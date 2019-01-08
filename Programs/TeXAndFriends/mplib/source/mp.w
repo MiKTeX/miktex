@@ -4865,7 +4865,7 @@ mp_knot mp_get_path_value (MP mp, const char *s, size_t l) {
     char *ss = mp_xstrdup(mp,s);
     if (ss) {
         mp_sym sym = mp_id_lookup(mp,ss,l,false);
-        if (sym != NULL) {
+        if (sym != NULL && sym->v.data.node != NULL) {
             if (mp_type(sym->v.data.node) == mp_path_type) {
                 mp_xfree (ss);
                 return (mp_knot) sym->v.data.node->data.p;
@@ -15780,16 +15780,16 @@ static void mp_cubic_intersection (MP mp, mp_knot p, mp_knot pp) {
   mp_number x_two_t;     /* increment bit precision by x bit */
   mp->time_to_go = max_patience;
   set_number_from_scaled (mp->max_t, 2);
-  new_number (x_two_t); 
-  number_clone (x_two_t,two_t); 
-  number_double(x_two_t); number_double(x_two_t); /* add x=3 bit of precision */   
-  number_double(x_two_t); 
+  new_number (x_two_t);
+  number_clone (x_two_t,two_t);
+  number_double(x_two_t); number_double(x_two_t); /* add x=3 bit of precision */
+  number_double(x_two_t);
   @<Initialize for intersections at level zero@>;
 CONTINUE:
   while (1) {
     /* When we are in arbitrary precision math, low precisions can */
     /* lead to acces locations beyond the stack_size: in this case */
-    /* we say that there is no intersection.*/               
+    /* we say that there is no intersection.*/
     if ( ((x_packet (mp->xy))+4)>bistack_size ||
          ((u_packet (mp->uv))+4)>bistack_size ||
     	 ((y_packet (mp->xy))+4)>bistack_size ||

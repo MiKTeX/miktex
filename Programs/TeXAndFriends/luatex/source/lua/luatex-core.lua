@@ -54,7 +54,7 @@ local function luatex_io_open(name,how)
 end
 
 local function luatex_io_open_readonly(name,how)
-    if how then
+    if not how then
         how = 'r'
     else
         how = gsub(how,'[^rb]','')
@@ -152,7 +152,8 @@ if saferoption == 1 then
     local function installlimit(str,f)
         local reported = false
     end
-
+    
+    debug = nil  
     os.execute = installdummy("os.execute")
     os.spawn   = installdummy("os.spawn")
     os.exec    = installdummy("os.exec")

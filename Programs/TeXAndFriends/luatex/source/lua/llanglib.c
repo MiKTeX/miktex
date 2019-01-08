@@ -242,20 +242,22 @@ static int do_lang_clean(lua_State * L)
 
 static int do_lang_hyphenate(lua_State * L)
 {
-    halfword *h, *t, tt;
-    h = check_isnode(L, 1);
+    halfword t = null;
+    halfword h = *check_isnode(L, 1);
     if (lua_isuserdata(L, 2)) {
-        t = check_isnode(L, 2);
-        tt = *t;
-        lua_pop(L, 1);
-    } else {
-        tt = *h;
-        while (vlink(tt) != null)
-            tt = vlink(tt);
+        t = *check_isnode(L, 2);
     }
-    hnj_hyphenation(*h, tt);
+    if (t == null) {
+        t = h;
+        while (vlink(t) != null) {
+            t = vlink(t);
+        }
+    }
+    hnj_hyphenation(h, t);
+    lua_nodelib_push_fast(L, h);
+    lua_nodelib_push_fast(L, t);
     lua_pushboolean(L, 1);
-    return 1;
+    return 3;
 }
 
 static const struct luaL_Reg langlib_d[] = {

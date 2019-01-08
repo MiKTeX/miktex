@@ -4774,7 +4774,7 @@ halfword make_local_par_node(int mode)
 {
     int callback_id;
     halfword q;
-    halfword p = new_node(local_par_node,0);
+    halfword p = new_node(local_par_node,mode);
     local_pen_inter(p) = local_inter_line_penalty_par;
     local_pen_broken(p) = local_broken_penalty_par;
     if (local_left_box_par != null) {

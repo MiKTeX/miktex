@@ -8,7 +8,7 @@
 
 #include "ppconf.h"
 
-#define pplib_version "v1.02"
+#define pplib_version "v1.03"
 #define pplib_author "p.jackowski@gust.org.pl"
 
 /* types */
@@ -34,7 +34,7 @@ typedef struct ppobj ppobj;
 typedef struct ppref ppref;
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) && defined(__SVR4))
+#if ARM_COMPLIANT
 typedef struct {
   ppobj *data;
   size_t size;
@@ -48,7 +48,7 @@ typedef struct {
 #endif
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) && defined(__SVR4))
+#if ARM_COMPLIANT
 typedef struct {
   ppobj *data;
 	ppname *keys;
@@ -190,7 +190,7 @@ typedef struct ppdoc ppdoc;
 #define ppname_is(name, s) (memcmp(name, s, sizeof("" s) - 1) == 0)
 #define ppname_eq(name, n) (memcmp(name, s, ppname_size(name)) == 0)
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) && defined(__SVR4))
+#if ARM_COMPLIANT
 #define _ppname_ghost(name) (((const _ppname *)((void *)name)) - 1)
 #else
 #define _ppname_ghost(name) (((const _ppname *)(name)) - 1)
@@ -208,7 +208,7 @@ PPAPI ppname ppname_encoded (ppname name);
 
 /* string */
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) && defined(__SVR4))
+#if ARM_COMPLIANT
 #define _ppstring_ghost(string) (((const _ppstring *)((void *)string)) - 1)
 #else
 #define _ppstring_ghost(string) (((const _ppstring *)(string)) - 1)

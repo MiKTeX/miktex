@@ -470,7 +470,8 @@ void tprint(const char *sss)
 #else
         buffer = xmalloc(strlen(sss)*3);
 #endif
-        if (dolog) {
+        /*tex The |wrapup_run| callback acts when the log file is already closed.*/
+        if (dolog && log_opened_global) {
             const unsigned char *ss = (const unsigned char *) sss;
             while (*ss) {
                 int s = *ss++;
