@@ -174,7 +174,7 @@ begin
       and miktex_is_new_source(source_filename_stack[in_open], line)) then
   begin
     new_whatsit (special_node, write_node_size);
-    write_stream(tail) := null;
+    write_stream(tail) := 0;
     def_ref := get_avail;
     token_ref_count(def_ref) := null;
     str_toks (miktex_make_src_special(source_filename_stack[in_open], line));
