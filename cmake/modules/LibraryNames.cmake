@@ -1,6 +1,6 @@
 ## LibraryNames.cmake
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -77,7 +77,6 @@ define_library(libatomic_ops)
 define_library("libressl-crypto" libressl_crypto)
 define_library("libressl-ssl" libressl_ssl)
 define_library(log4cxx)
-define_library(lua52)
 define_library(lua53)
 define_library(luajit)
 define_library(lzma2 lzma)

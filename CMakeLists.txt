@@ -1,6 +1,6 @@
 ## CMakeLists.txt: top-level CMake file for building MiKTeX
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -465,9 +465,9 @@ option(
 )
 
 option(
-  WITH_LUA53TEX
-  "Enable LuaTeX linked to Lua 5.3."
-  TRUE
+  WITH_LUA54TEX
+  "Enable LuaTeX linked to Lua 5.4."
+  FALSE
 )
 
 option(
@@ -1971,7 +1971,6 @@ add_subdirectory(${MIKTEX_REL_KPSEMU_DIR})
 add_subdirectory(${MIKTEX_REL_KPSEWHICH_DIR})
 add_subdirectory(${MIKTEX_REL_LACHECK_DIR})
 add_subdirectory(${MIKTEX_REL_LUATEX_DIR})
-add_subdirectory(${MIKTEX_REL_LUA52_DIR})
 add_subdirectory(${MIKTEX_REL_LUA53_DIR})
 add_subdirectory(${MIKTEX_REL_M_TX_DIR})
 add_subdirectory(${MIKTEX_REL_MAKEINDEX_DIR})

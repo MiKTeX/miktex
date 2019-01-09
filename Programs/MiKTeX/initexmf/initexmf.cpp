@@ -1,6 +1,6 @@
 /* initexmf.cpp: MiKTeX configuration utility
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of IniTeXMF.
 
@@ -1561,10 +1561,10 @@ vector<FileLink> lua52texLinks =
   { MIKTEX_LUATEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
 };
 
-#if defined(WITH_LUA53TEX)
-vector<FileLink> lua53texLinks =
+#if defined(WITH_LUA54TEX)
+vector<FileLink> lua54texLinks =
 {
-  { MIKTEX_LUA53TEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
+  { MIKTEX_LUA54TEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
 };
 #endif
 
@@ -1574,26 +1574,26 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
   PathName pathLocalBinDir = session->GetSpecialPath(SpecialPath::LocalBinDirectory);
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
 
-#if defined(WITH_LUA53TEX)
-  bool useLua53 = false;
+#if defined(WITH_LUA54TEX)
+  bool useLua54 = false;
   string luaver;
   if (session->TryGetConfigValue("luatex", "luaver", luaver))
   {
-    if (luaver != "5.2" && luaver != "5.3")
+    if (luaver != "5.3" && luaver != "5.4")
     {
       MIKTEX_FATAL_ERROR_2(T_("Invalid configuration value."), "name", "luaver", "value", luaver);
     }
-    useLua53 = luaver == "5.3";
+    useLua54 = luaver == "5.4";
   }
 #endif
 
   if (linkCategories[LinkCategory::MiKTeX])
   {
     vector<FileLink> links = miktexFileLinks;
-#if defined(WITH_LUA53TEX)
-    if (useLua53)
+#if defined(WITH_LUA54TEX)
+    if (useLua54)
     {
-      links.insert(links.end(), lua53texLinks.begin(), lua53texLinks.end());
+      links.insert(links.end(), lua54texLinks.begin(), lua54texLinks.end());
     }
     else
     {
@@ -1652,10 +1652,10 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
         continue;
       }
       string engine = formatInfo.compiler;
-#if defined(WITH_LUA53TEX)
-      if (engine == "luatex" && useLua53)
+#if defined(WITH_LUA54TEX)
+      if (engine == "luatex" && useLua54)
       {
-        engine = "lua53tex";
+        engine = "lua54tex";
       }
 #endif
       PathName enginePath;
@@ -1692,10 +1692,10 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       wrapper.AppendDirectoryDelimiter();
       wrapper.Append("run", false);
       wrapper.Append(key->GetName(), false);
-#if defined(WITH_LUA53TEX)
-      if (useLua53 && key->GetName() == "texlua")
+#if defined(WITH_LUA54TEX)
+      if (useLua54 && key->GetName() == "texlua")
       {
-        wrapper.Append("53", false);
+        wrapper.Append("54", false);
       }
 #endif
       wrapper.Append(MIKTEX_EXE_FILE_SUFFIX, false);
@@ -2524,7 +2524,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     cout
       << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR) << endl
       << endl
-      << "Copyright (C) 1996-2018 Christian Schenk" << endl
+      << "Copyright (C) 1996-2019 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;

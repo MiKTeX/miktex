@@ -20,20 +20,20 @@
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/LuaTeX")
 
 # FIXME: this breaks luatex under xenial:
-# set(lua52_target_name ${lua52_dll_name})
+# set(lua53_target_name ${lua53_dll_name})
 if(MIKTEX_NATIVE_WINDOWS)
-  set(lua52_target_name ${lua52_dll_name})
+  set(lua53_target_name ${lua53_dll_name})
 else()
-  set(lua52_target_name ${lua52_lib_name})
+  set(lua53_target_name ${lua53_lib_name})
 endif()
 
-if(WITH_LUA53TEX)
+if(WITH_LUA54TEX)
   # FIXME: this breaks luatex under xenial:
-  # set(lua53_target_name ${lua53_dll_name})
+  # set(lua54_target_name ${lua54_dll_name})
   if(MIKTEX_NATIVE_WINDOWS)
-    set(lua53_target_name ${lua53_dll_name})
+    set(lua54_target_name ${lua54_dll_name})
   else()
-    set(lua53_target_name ${lua53_lib_name})
+    set(lua54_target_name ${lua54_lib_name})
   endif()
 endif()
 
@@ -127,27 +127,27 @@ set(luasocket_sources
   source/luasocket/src/usocket.h
 )
 
-add_library(luatex-lua52socket-static STATIC ${luasocket_sources})
-set_property(TARGET luatex-lua52socket-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-target_compile_definitions(luatex-lua52socket-static
+add_library(luatex-lua53socket-static STATIC ${luasocket_sources})
+set_property(TARGET luatex-lua53socket-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_compile_definitions(luatex-lua53socket-static
   PRIVATE
     -DLUASOCKET_DEBUG
 )
-target_link_libraries(luatex-lua52socket-static
+target_link_libraries(luatex-lua53socket-static
   PUBLIC
-    ${lua52_target_name}
+    ${lua53_target_name}
 )
 
-if(WITH_LUA53TEX)
-  add_library(luatex-lua53socket-static STATIC ${luasocket_sources})
-  set_property(TARGET luatex-lua53socket-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_compile_definitions(luatex-lua53socket-static
+if(WITH_LUA54TEX)
+  add_library(luatex-lua54socket-static STATIC ${luasocket_sources})
+  set_property(TARGET luatex-lua54socket-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  target_compile_definitions(luatex-lua54socket-static
     PRIVATE
       -DLUASOCKET_DEBUG
   )
-  target_link_libraries(luatex-lua53socket-static
+  target_link_libraries(luatex-lua54socket-static
     PUBLIC
-      ${lua53_target_name}
+      ${lua54_target_name}
   )
 endif()
 
@@ -170,51 +170,51 @@ set(luamisc_sources
   source/slnunicode/slnunico.c
 )
 
-add_library(luatex-lua52misc-static STATIC ${luamisc_sources})
-set_property(TARGET luatex-lua52misc-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+add_library(luatex-lua53misc-static STATIC ${luamisc_sources})
+set_property(TARGET luatex-lua53misc-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(luatex-lua52misc-static PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(luatex-lua53misc-static PUBLIC MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(luatex-lua52misc-static PUBLIC ${zlib_dll_name})
+  target_link_libraries(luatex-lua53misc-static PUBLIC ${zlib_dll_name})
 endif()
 if(USE_SYSTEM_ZZIP)
-  target_link_libraries(luatex-lua52misc-static PUBLIC MiKTeX::Imported::ZZIP)
+  target_link_libraries(luatex-lua53misc-static PUBLIC MiKTeX::Imported::ZZIP)
 else()
-  target_link_libraries(luatex-lua52misc-static PUBLIC ${zzip_dll_name})
+  target_link_libraries(luatex-lua53misc-static PUBLIC ${zzip_dll_name})
 endif()
-target_link_libraries(luatex-lua52misc-static
+target_link_libraries(luatex-lua53misc-static
   PUBLIC
     ${core_dll_name}
-    ${lua52_target_name}
+    ${lua53_target_name}
 )
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(luatex-lua52misc-static
+  target_link_libraries(luatex-lua53misc-static
     PUBLIC
       ${unxemu_dll_name}
       ${utf8wrap_dll_name}
   )
 endif()
 
-if(WITH_LUA53TEX)
-  add_library(luatex-lua53misc-static STATIC ${luamisc_sources})
-  set_property(TARGET luatex-lua53misc-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+if(WITH_LUA54TEX)
+  add_library(luatex-lua54misc-static STATIC ${luamisc_sources})
+  set_property(TARGET luatex-lua54misc-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   if(USE_SYSTEM_ZLIB)
-    target_link_libraries(luatex-lua53misc-static PUBLIC MiKTeX::Imported::ZLIB)
+    target_link_libraries(luatex-lua54misc-static PUBLIC MiKTeX::Imported::ZLIB)
   else()
-    target_link_libraries(luatex-lua53misc-static PUBLIC ${zlib_dll_name})
+    target_link_libraries(luatex-lua54misc-static PUBLIC ${zlib_dll_name})
   endif()
   if(USE_SYSTEM_ZZIP)
-    target_link_libraries(luatex-lua53misc-static PUBLIC MiKTeX::Imported::ZZIP)
+    target_link_libraries(luatex-lua54misc-static PUBLIC MiKTeX::Imported::ZZIP)
   else()
-    target_link_libraries(luatex-lua53misc-static PUBLIC ${zzip_dll_name})
+    target_link_libraries(luatex-lua54misc-static PUBLIC ${zzip_dll_name})
   endif()
-  target_link_libraries(luatex-lua53misc-static
+  target_link_libraries(luatex-lua54misc-static
     PUBLIC
       ${core_dll_name}
-      ${lua53_target_name}
+      ${lua54_target_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(luatex-lua53misc-static
+    target_link_libraries(luatex-lua54misc-static
       PUBLIC
         ${unxemu_dll_name}
         ${utf8wrap_dll_name}
@@ -273,51 +273,51 @@ set(luapplib_sources
   source/luapplib/util/utilsha.h
 )
 
-add_library(luatex-lua52pplib-static STATIC ${luapplib_sources})
-set_property(TARGET luatex-lua52pplib-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-target_include_directories(luatex-lua52pplib-static
+add_library(luatex-lua53pplib-static STATIC ${luapplib_sources})
+set_property(TARGET luatex-lua53pplib-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_include_directories(luatex-lua53pplib-static
   PUBLIC
     source/luapplib/util
     source/luapplib/zlib
 )
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(luatex-lua52pplib-static PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(luatex-lua53pplib-static PUBLIC MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(luatex-lua52pplib-static PUBLIC ${zlib_dll_name})
+  target_link_libraries(luatex-lua53pplib-static PUBLIC ${zlib_dll_name})
 endif()
-target_link_libraries(luatex-lua52pplib-static
+target_link_libraries(luatex-lua53pplib-static
   PUBLIC
     ${core_dll_name}
-    ${lua52_target_name}
+    ${lua53_target_name}
 )
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(luatex-lua52pplib-static
+  target_link_libraries(luatex-lua53pplib-static
     PUBLIC
       ${unxemu_dll_name}
       ${utf8wrap_dll_name}
   )
 endif()
 
-if(WITH_LUA53TEX)
-  add_library(luatex-lua53pplib-static STATIC ${luapplib_sources})
-  set_property(TARGET luatex-lua53pplib-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_include_directories(luatex-lua53pplib-static
+if(WITH_LUA54TEX)
+  add_library(luatex-lua54pplib-static STATIC ${luapplib_sources})
+  set_property(TARGET luatex-lua54pplib-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  target_include_directories(luatex-lua54pplib-static
     PUBLIC
       source/luapplib/util
       source/luapplib/zlib
   )
   if(USE_SYSTEM_ZLIB)
-    target_link_libraries(luatex-lua53pplib-static PUBLIC MiKTeX::Imported::ZLIB)
+    target_link_libraries(luatex-lua54pplib-static PUBLIC MiKTeX::Imported::ZLIB)
   else()
-    target_link_libraries(luatex-lua53pplib-static PUBLIC ${zlib_dll_name})
+    target_link_libraries(luatex-lua54pplib-static PUBLIC ${zlib_dll_name})
   endif()
-  target_link_libraries(luatex-lua53pplib-static
+  target_link_libraries(luatex-lua54pplib-static
     PUBLIC
       ${core_dll_name}
-      ${lua53_target_name}
+      ${lua54_target_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(luatex-lua53pplib-static
+    target_link_libraries(luatex-lua54pplib-static
       PUBLIC
         ${unxemu_dll_name}
         ${utf8wrap_dll_name}
@@ -446,61 +446,61 @@ set(luafontforge_sources
   source/luafontloader/src/luafflib.c
 )
 
-add_library(luatex-lua52fontforge-static STATIC ${luafontforge_sources})
-prevent_all_warnings_on_bad_code_target(luatex-lua52fontforge-static)
-set_property(TARGET luatex-lua52fontforge-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-target_compile_definitions(luatex-lua52fontforge-static
+add_library(luatex-lua53fontforge-static STATIC ${luafontforge_sources})
+prevent_all_warnings_on_bad_code_target(luatex-lua53fontforge-static)
+set_property(TARGET luatex-lua53fontforge-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_compile_definitions(luatex-lua53fontforge-static
   PRIVATE
     -DLUA_FF_LIB=1
     -DUSE_OUR_MEMORY=1
     -DX_DISPLAY_MISSING=1
     -D_NO_PYTHON=1
 )
-target_include_directories(luatex-lua52fontforge-static
+target_include_directories(luatex-lua53fontforge-static
   PRIVATE
     source/luafontloader/fontforge/fontforge
     source/luafontloader/fontforge/inc
 )
-target_link_libraries(luatex-lua52fontforge-static
+target_link_libraries(luatex-lua53fontforge-static
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
-    ${lua52_target_name}
+    ${lua53_target_name}
     ${w2cemu_dll_name}
     luatex-unilib-static
 )
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(luatex-lua52fontforge-static
+  target_link_libraries(luatex-lua53fontforge-static
     PUBLIC
       ${utf8wrap_dll_name}
   )
 endif()
 
-if(WITH_LUA53TEX)
-  add_library(luatex-lua53fontforge-static STATIC ${luafontforge_sources})
-  set_property(TARGET luatex-lua53fontforge-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_compile_definitions(luatex-lua53fontforge-static
+if(WITH_LUA54TEX)
+  add_library(luatex-lua54fontforge-static STATIC ${luafontforge_sources})
+  set_property(TARGET luatex-lua54fontforge-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  target_compile_definitions(luatex-lua54fontforge-static
     PRIVATE
       -DLUA_FF_LIB=1
       -DUSE_OUR_MEMORY=1
       -DX_DISPLAY_MISSING=1
       -D_NO_PYTHON=1
   )
-  target_include_directories(luatex-lua53fontforge-static
+  target_include_directories(luatex-lua54fontforge-static
     PRIVATE
       source/luafontloader/fontforge/fontforge
       source/luafontloader/fontforge/inc
   )
-  target_link_libraries(luatex-lua53fontforge-static
+  target_link_libraries(luatex-lua54fontforge-static
     PUBLIC
       ${core_dll_name}
       ${kpsemu_dll_name}
-      ${lua53_target_name}
+      ${lua54_target_name}
       ${w2cemu_dll_name}
       luatex-unilib-static
   )
   if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(luatex-lua53fontforge-static
+    target_link_libraries(luatex-lua54fontforge-static
       PUBLIC
         ${utf8wrap_dll_name}
     )
@@ -523,37 +523,37 @@ set(luaffi_sources
   source/luaffi/parser.c
 ) 
 
-add_library(luatex-lua52ffi-static STATIC ${luaffi_sources})
-set_property(TARGET luatex-lua52ffi-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-target_include_directories(luatex-lua52ffi-static
+add_library(luatex-lua53ffi-static STATIC ${luaffi_sources})
+set_property(TARGET luatex-lua53ffi-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_include_directories(luatex-lua53ffi-static
   PRIVATE
     source/luaffi/dynasm
 )
-target_link_libraries(luatex-lua52ffi-static
+target_link_libraries(luatex-lua53ffi-static
   PUBLIC
-    ${lua52_target_name}
+    ${lua53_target_name}
 )
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(luatex-lua52ffi-static PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(luatex-lua53ffi-static PUBLIC MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(luatex-lua52ffi-static PUBLIC ${zlib_dll_name})
+  target_link_libraries(luatex-lua53ffi-static PUBLIC ${zlib_dll_name})
 endif()
 
-if(WITH_LUA53TEX)
-  add_library(luatex-lua53ffi-static STATIC ${luaffi_sources})
-  set_property(TARGET luatex-lua53ffi-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_include_directories(luatex-lua53ffi-static
+if(WITH_LUA54TEX)
+  add_library(luatex-lua54ffi-static STATIC ${luaffi_sources})
+  set_property(TARGET luatex-lua54ffi-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  target_include_directories(luatex-lua54ffi-static
     PRIVATE
       source/luaffi/dynasm
   )
-  target_link_libraries(luatex-lua53ffi-static
+  target_link_libraries(luatex-lua54ffi-static
     PUBLIC
-      ${lua53_target_name}
+      ${lua54_target_name}
   )
   if(USE_SYSTEM_ZLIB)
-    target_link_libraries(luatex-lua53ffi-static PUBLIC MiKTeX::Imported::ZLIB)
+    target_link_libraries(luatex-lua54ffi-static PUBLIC MiKTeX::Imported::ZLIB)
   else()
-    target_link_libraries(luatex-lua53ffi-static PUBLIC ${zlib_dll_name})
+    target_link_libraries(luatex-lua54ffi-static PUBLIC ${zlib_dll_name})
   endif()
 endif()
 
@@ -768,77 +768,77 @@ set(luatexlib_sources
   source/utils/utils.h
 )
 
-add_library(lua52tex-static STATIC ${luatexlib_sources})
-set_property(TARGET lua52tex-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-target_compile_definitions(lua52tex-static
+add_library(lua53tex-static STATIC ${luatexlib_sources})
+set_property(TARGET lua53tex-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_compile_definitions(lua53tex-static
   PRIVATE
     -DLUA_FF_LIB=1
 )
 if(USE_SYSTEM_PNG)
-  target_link_libraries(lua52tex-static PUBLIC MiKTeX::Imported::PNG)
+  target_link_libraries(lua53tex-static PUBLIC MiKTeX::Imported::PNG)
 else()
-  target_link_libraries(lua52tex-static PUBLIC ${png_dll_name})
+  target_link_libraries(lua53tex-static PUBLIC ${png_dll_name})
 endif()
 if(USE_SYSTEM_POPPLER)
-  target_link_libraries(lua52tex-static PUBLIC MiKTeX::Imported::POPPLER)
+  target_link_libraries(lua53tex-static PUBLIC MiKTeX::Imported::POPPLER)
 else()
-  target_link_libraries(lua52tex-static PUBLIC ${poppler_dll_name})
+  target_link_libraries(lua53tex-static PUBLIC ${poppler_dll_name})
 endif()
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(lua52tex-static PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(lua53tex-static PUBLIC MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(lua52tex-static PUBLIC ${zlib_dll_name})
+  target_link_libraries(lua53tex-static PUBLIC ${zlib_dll_name})
 endif()
-target_link_libraries(lua52tex-static
+target_link_libraries(lua53tex-static
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
-    ${lua52_target_name}
+    ${lua53_target_name}
     ${metapost_dll_name}
     ${w2cemu_dll_name}
     luatex-miktex-static
-    luatex-lua52ffi-static
-    luatex-lua52misc-static
-    luatex-lua52pplib-static
-    luatex-lua52socket-static
-    luatex-lua52fontforge-static
+    luatex-lua53ffi-static
+    luatex-lua53misc-static
+    luatex-lua53pplib-static
+    luatex-lua53socket-static
+    luatex-lua53fontforge-static
 )
 
-if(WITH_LUA53TEX)
-  add_library(lua53tex-static STATIC ${luatexlib_sources})
-  set_property(TARGET lua53tex-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_compile_definitions(lua53tex-static
+if(WITH_LUA54TEX)
+  add_library(lua54tex-static STATIC ${luatexlib_sources})
+  set_property(TARGET lua54tex-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  target_compile_definitions(lua54tex-static
     PRIVATE
       -DLUA_FF_LIB=1
   )
   if(USE_SYSTEM_PNG)
-    target_link_libraries(lua53tex-static PUBLIC MiKTeX::Imported::PNG)
+    target_link_libraries(lua54tex-static PUBLIC MiKTeX::Imported::PNG)
   else()
-    target_link_libraries(lua53tex-static PUBLIC ${png_dll_name})
+    target_link_libraries(lua54tex-static PUBLIC ${png_dll_name})
   endif()
   if(USE_SYSTEM_POPPLER)
-    target_link_libraries(lua53tex-static PUBLIC MiKTeX::Imported::POPPLER)
+    target_link_libraries(lua54tex-static PUBLIC MiKTeX::Imported::POPPLER)
   else()
-    target_link_libraries(lua53tex-static PUBLIC ${poppler_dll_name})
+    target_link_libraries(lua54tex-static PUBLIC ${poppler_dll_name})
   endif()
   if(USE_SYSTEM_ZLIB)
-    target_link_libraries(lua53tex-static PUBLIC MiKTeX::Imported::ZLIB)
+    target_link_libraries(lua54tex-static PUBLIC MiKTeX::Imported::ZLIB)
   else()
-    target_link_libraries(lua53tex-static PUBLIC ${zlib_dll_name})
+    target_link_libraries(lua54tex-static PUBLIC ${zlib_dll_name})
   endif()
-  target_link_libraries(lua53tex-static
+  target_link_libraries(lua54tex-static
     PUBLIC
       ${core_dll_name}
       ${kpsemu_dll_name}
-      ${lua53_target_name}
+      ${lua54_target_name}
       ${metapost_dll_name}
       ${w2cemu_dll_name}
       luatex-miktex-static
-      luatex-lua53ffi-static
-      luatex-lua53misc-static
-      luatex-lua53pplib-static
-      luatex-lua53socket-static
-      luatex-lua53fontforge-static
+      luatex-lua54ffi-static
+      luatex-lua54misc-static
+      luatex-lua54pplib-static
+      luatex-lua54socket-static
+      luatex-lua54fontforge-static
   )
 endif()
 
@@ -853,13 +853,13 @@ set(luatex_program_sources
   luatex-version.h
 )
 
-set(lua52tex_program_sources ${luatex_program_sources})
+set(lua53tex_program_sources ${luatex_program_sources})
 if(MIKTEX_NATIVE_WINDOWS)
   configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/luatex.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
     )
-  list(APPEND lua52tex_program_sources
+  list(APPEND lua53tex_program_sources
     ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
     ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
@@ -911,79 +911,79 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-set(libs52 ${libs})
-list(APPEND libs52
-  ${lua52_target_name}
-  luatex-lua52fontforge-static
-  luatex-lua52ffi-static
-  luatex-lua52misc-static
-  luatex-lua52pplib-static
-  luatex-lua52socket-static
-  lua52tex-static
+set(libs53 ${libs})
+list(APPEND libs53
+  ${lua53_target_name}
+  luatex-lua53fontforge-static
+  luatex-lua53ffi-static
+  luatex-lua53misc-static
+  luatex-lua53pplib-static
+  luatex-lua53socket-static
+  lua53tex-static
 )
 
-if(WITH_LUA53TEX)
-  set(lua53tex_program_sources ${luatex_program_sources})
+if(WITH_LUA54TEX)
+  set(lua54tex_program_sources ${luatex_program_sources})
   if(MIKTEX_NATIVE_WINDOWS)
     configure_file(
-      ${CMAKE_CURRENT_SOURCE_DIR}/lua53tex.rc.in
-      ${CMAKE_CURRENT_BINARY_DIR}/lua53tex.rc
+      ${CMAKE_CURRENT_SOURCE_DIR}/lua54tex.rc.in
+      ${CMAKE_CURRENT_BINARY_DIR}/lua54tex.rc
     )
-    list(APPEND lua53tex_program_sources
-      ${CMAKE_CURRENT_BINARY_DIR}/lua53tex.rc
+    list(APPEND lua54tex_program_sources
+      ${CMAKE_CURRENT_BINARY_DIR}/lua54tex.rc
       ${MIKTEX_COMPATIBILITY_MANIFEST}
     )
   endif()
 endif()
 
-if(WITH_LUA53TEX)
-  set(libs53 ${libs})
-  list(APPEND libs53
-    ${lua53_target_name}
-    luatex-lua53fontforge-static
-    luatex-lua53ffi-static
-    luatex-lua53misc-static
-    luatex-lua53pplib-static
-    luatex-lua53socket-static
-    lua53tex-static
+if(WITH_LUA54TEX)
+  set(libs54 ${libs})
+  list(APPEND libs54
+    ${lua54_target_name}
+    luatex-lua54fontforge-static
+    luatex-lua54ffi-static
+    luatex-lua54misc-static
+    luatex-lua54pplib-static
+    luatex-lua54socket-static
+    lua54tex-static
   )
 endif()
 
-set(program_libs52 ${libs52})
+set(program_libs53 ${libs53})
 
-if(WITH_LUA53TEX)
-  set(program_libs53 ${libs53})
+if(WITH_LUA54TEX)
+  set(program_libs54 ${libs54})
 endif()
 
 ###############################################################################
 ## luatex
 ###############################################################################
 
-add_executable(${MIKTEX_PREFIX}luatex ${lua52tex_program_sources} ${MIKTEX_LIBRARY_WRAPPER})
+add_executable(${MIKTEX_PREFIX}luatex ${lua53tex_program_sources} ${MIKTEX_LIBRARY_WRAPPER})
 set_property(TARGET ${MIKTEX_PREFIX}luatex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(${MIKTEX_PREFIX}luatex
   ${app_dll_name}
   ${core_dll_name}
-  ${program_libs52}
+  ${program_libs53}
 )
 install(TARGETS ${MIKTEX_PREFIX}luatex DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
 
-if(WITH_LUA53TEX)
-  add_executable(${MIKTEX_PREFIX}lua53tex ${lua53tex_program_sources} ${MIKTEX_LIBRARY_WRAPPER})
-  set_property(TARGET ${MIKTEX_PREFIX}lua53tex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_link_libraries(${MIKTEX_PREFIX}lua53tex
+if(WITH_LUA54TEX)
+  add_executable(${MIKTEX_PREFIX}lua54tex ${lua54tex_program_sources} ${MIKTEX_LIBRARY_WRAPPER})
+  set_property(TARGET ${MIKTEX_PREFIX}lua54tex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  target_link_libraries(${MIKTEX_PREFIX}lua54tex
     ${app_dll_name}
     ${core_dll_name}
-    ${program_libs53}
+    ${program_libs54}
   )
-  install(TARGETS ${MIKTEX_PREFIX}lua53tex DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
+  install(TARGETS ${MIKTEX_PREFIX}lua54tex DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
 endif()
 
 ###############################################################################
 ## runtexlua
 ###############################################################################
 
-add_executable(runtexlua ${lua52tex_program_sources} runtexlua.cpp)
+add_executable(runtexlua ${lua53tex_program_sources} runtexlua.cpp)
 set_property(TARGET runtexlua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 if(MIKTEX_MACOS_BUNDLE)
   set_target_properties(runtexlua PROPERTIES INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
@@ -995,26 +995,26 @@ endif()
 target_link_libraries(runtexlua
   ${app_dll_name}
   ${core_dll_name}
-  ${program_libs52}
+  ${program_libs53}
 )
 install(TARGETS runtexlua DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
 
-if(WITH_LUA53TEX)
-  add_executable(runtexlua53 ${lua53tex_program_sources} runtexlua.cpp)
-  set_property(TARGET runtexlua53 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+if(WITH_LUA54TEX)
+  add_executable(runtexlua54 ${lua54tex_program_sources} runtexlua.cpp)
+  set_property(TARGET runtexlua54 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   if(MIKTEX_MACOS_BUNDLE)
-    set_target_properties(runtexlua53 PROPERTIES INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
+    set_target_properties(runtexlua54 PROPERTIES INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
   elseif(APPLE)
-    set_target_properties(runtexlua53 PROPERTIES INSTALL_RPATH "@loader_path/../../${CMAKE_INSTALL_LIBDIR}")
+    set_target_properties(runtexlua54 PROPERTIES INSTALL_RPATH "@loader_path/../../${CMAKE_INSTALL_LIBDIR}")
   else()
-    set_target_properties(runtexlua53 PROPERTIES INSTALL_RPATH "$ORIGIN/../../${CMAKE_INSTALL_LIBDIR}")
+    set_target_properties(runtexlua54 PROPERTIES INSTALL_RPATH "$ORIGIN/../../${CMAKE_INSTALL_LIBDIR}")
   endif()
-  target_link_libraries(runtexlua53
+  target_link_libraries(runtexlua54
     ${app_dll_name}
     ${core_dll_name}
-    ${program_libs53}
+    ${program_libs54}
   )
-  install(TARGETS runtexlua53 DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
+  install(TARGETS runtexlua54 DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
 endif()
 
 ###############################################################################
