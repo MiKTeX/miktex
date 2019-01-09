@@ -1,6 +1,6 @@
 /* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,4 +17,4 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#cmakedefine WITH_LUA53TEX 1
+#cmakedefine WITH_LUA54TEX 1

@@ -1,6 +1,6 @@
 /* makefmt.cpp: make TeX format files
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2019 Christian Schenk
 
    This file is part of MiKTeX MakeFMT.
 
@@ -169,8 +169,8 @@ private:
     switch (engine)
     {
     case Engine::LuaTeX:
-#if defined(WITH_LUA53TEX)
-      return useLua53 ? MIKTEX_LUA53TEX_EXE : MIKTEX_LUATEX_EXE;
+#if defined(WITH_LUA54TEX)
+      return useLua54 ? MIKTEX_LUA54TEX_EXE : MIKTEX_LUATEX_EXE;
 #else
       return MIKTEX_LUATEX_EXE;
 #endif
@@ -228,9 +228,9 @@ private:
 private:
   vector<string> engineOptions;
 
-#if defined(WITH_LUA53TEX)
+#if defined(WITH_LUA54TEX)
 private:
-  bool useLua53 = false;
+  bool useLua54 = false;
 #endif
 };
 
@@ -347,15 +347,15 @@ void MakeFmt::InstallPdftexConfigTeX() const
 
 void MakeFmt::Run(int argc, const char** argv)
 {
-#if defined(WITH_LUA53TEX)
+#if defined(WITH_LUA54TEX)
   string luaver;
   if (session->TryGetConfigValue("luatex", "luaver", luaver))
   {
-    if (luaver != "5.2" && luaver != "5.3")
+    if (luaver != "5.3" && luaver != "5.4")
     {
       MIKTEX_FATAL_ERROR_2(T_("Invalid configuration value."), "name", "luaver", "value", luaver);
     }
-    useLua53 = luaver == "5.3";
+    useLua54 = luaver == "5.4";
   }
 #endif
 
