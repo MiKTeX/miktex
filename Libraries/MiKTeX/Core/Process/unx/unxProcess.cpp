@@ -30,6 +30,17 @@
 #  include <sys/proc.h>
 #endif
 
+#if defined(__FreeBSD__)
+#   include <sys/param.h>
+#   include <sys/queue.h>
+#   include <sys/socket.h>
+#   include <sys/sysctl.h>
+#   include <sys/user.h>
+#   include <kvm.h>
+#   include <libprocstat.h>
+#   include <fcntl.h>
+#endif
+
 #include <thread>
 
 #include <miktex/Core/Directory>
@@ -624,6 +635,44 @@ string unxProcess::get_ProcessName()
     MIKTEX_FATAL_CRT_ERROR("proc_pidpath")
   }
   return PathName(path).GetFileName().ToString();
+#elif defined(__FreeBSD__)
+  std::string nameFromProcstat;
+  kvm_t *kvm = kvm_open(nullptr, "/dev/null", nullptr, O_RDONLY, "");
+  if (kvm)
+  {
+    int cnt;
+    struct kinfo_proc *kp = kvm_getprocs(kvm, KERN_PROC_PID, pid, &cnt);
+    if (kp)
+    {
+      struct procstat *ps = procstat_open_sysctl();
+      char **argv = procstat_getargv(ps, kp, 0);
+      if (argv != nullptr && argv[0] != nullptr)
+        nameFromProcstat = std::string(argv[0]);
+      procstat_close(ps);
+    }
+    kvm_close(kvm);
+  }
+
+  if (!nameFromProcstat.empty())
+  {
+    return std::string(std::find_if(nameFromProcstat.rbegin(), nameFromProcstat.rend(),
+            [](char c) {return c == '\\' || c == '/'; })
+        .base(), nameFromProcstat.end());
+  }
+
+  struct kinfo_proc kp;
+  int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, (int)pid };
+  size_t len = sizeof(kp);
+  u_int mib_len = sizeof(mib)/sizeof(u_int);
+
+  if (sysctl(mib, mib_len, &kp, &len, NULL, 0) < 0)
+    MIKTEX_FATAL_CRT_ERROR("get_ProcessName:sysctl");
+
+  if (kp.ki_pid != pid)
+    MIKTEX_FATAL_CRT_ERROR("get_ProcessName: ki_pid != pid");
+
+  return std::string(kp.ki_comm);
+
 #else
 #error Unimplemented: unxProcess::get_ProcessName()
 #endif
@@ -706,6 +755,37 @@ ProcessInfo unxProcess::GetProcessInfo()
       break;
   }
   processInfo.parent = pbi.pbi_ppid;
+#elif defined(__FreeBSD__)
+  processInfo.parent = getppid();
+
+  kvm_t *kvm = kvm_open(nullptr, "/dev/null", nullptr, O_RDONLY, "");
+  if (kvm)
+  {
+    int cnt;
+    struct kinfo_proc *kp = kvm_getprocs(kvm, KERN_PROC_PID, pid, &cnt);
+    if (kp)
+    {
+      switch (kp->ki_stat)
+      {
+        case SRUN:
+          processInfo.status = ProcessStatus::Runnable;
+          break;
+        case SSLEEP:
+          processInfo.status = ProcessStatus::Sleeping;
+          break;
+        case SSTOP:
+          processInfo.status = ProcessStatus::Stoped;
+          break;
+        case SZOMB:
+          processInfo.status = ProcessStatus::Zombie;
+          break;
+        default:
+          processInfo.status = ProcessStatus::Other;
+          break;
+      }
+    }
+    kvm_close(kvm);
+  }
 #else
 #error Unimplemented: unxProcess::GetProcessInfo()
 #endif
