@@ -2,7 +2,7 @@
 
 luainit.w
 
-Copyright 2006-2018 Taco Hoekwater <taco@@luatex.org>
+Copyright 2006-2019 Taco Hoekwater <taco@@luatex.org>
 
 This file is part of LuaTeX.
 
@@ -544,7 +544,7 @@ static void parse_options(int ac, char **av)
                  "the terms of the GNU General Public License, version 2 or (at your option)\n"
                  "any later version. For more information about these matters, see the file\n"
                  "named COPYING and the LuaTeX source.\n\n"
-                 "LuaTeX is Copyright 2018 Taco Hoekwater and the LuaTeX Team.\n");
+                 "LuaTeX is Copyright 2019 Taco Hoekwater and the LuaTeX Team.\n");
             /* *INDENT-ON* */
             uexit(0);
         } else if (ARGUMENT_IS("credits")) {
@@ -1084,8 +1084,11 @@ void lua_initialize(int ac, char **av)
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
     mk_suffixlist();
 #endif
-    /*tex Must be initialized before options are parsed.  */
+    /*tex Must be initialized before options are parsed and might get adapted by config table.  */
     interactionoption = 4;
+    filelineerrorstylep = false;
+    haltonerrorp = false;
+    tracefilenames = 1;
     dump_name = NULL;
     /*tex
         In the next option 0 means ``disable Synchronize TeXnology''. The
@@ -1233,7 +1236,6 @@ void lua_initialize(int ac, char **av)
         }
         kpse_init = -1;
         get_lua_boolean("texconfig", "kpse_init", &kpse_init);
-
         if (kpse_init != 0) {
             /*tex re-enable loading of texmf.cnf values, see luatex.ch */
             luainit = 0;
@@ -1241,14 +1243,16 @@ void lua_initialize(int ac, char **av)
             kpse_init = 1;
         }
         /*tex |prohibit_file_trace| (boolean) */
-        tracefilenames = 1;
         get_lua_boolean("texconfig", "trace_file_names", &tracefilenames);
         /*tex |file_line_error| */
-        filelineerrorstylep = false;
         get_lua_boolean("texconfig", "file_line_error", &filelineerrorstylep);
         /*tex |halt_on_error| */
-        haltonerrorp = false;
         get_lua_boolean("texconfig", "halt_on_error", &haltonerrorp);
+        /*tex |interactionoption| */
+        get_lua_number("texconfig", "interaction", &interactionoption);
+        if ((interactionoption < 0) || (interactionoption > 4)) {
+            interactionoption = 4;
+        }
         /*tex |restrictedshell| */
         v1 = NULL;
         get_lua_string("texconfig", "shell_escape", &v1);

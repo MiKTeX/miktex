@@ -58,7 +58,8 @@ that are permanently \0.
 
 #define MAX_COMPONENTS 8
 
-typedef struct predictor_state {
+/*typedef */
+struct predictor_state {
   int default_predictor;                      /* default predictor indicator */
   int current_predictor;                      /* current predictor, possibly taken from algorithm marker in PNG data */
   int rowsamples;                             /* number of pixels in a scanline (/DecodeParms << /Columns ... >>) */
@@ -90,7 +91,7 @@ typedef struct predictor_state {
   };
   int flush;
   int status;
-} predictor_state;
+} ; /*predictor_state;*/
 
 enum {
   STATUS_LAST = 0,

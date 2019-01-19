@@ -9,7 +9,6 @@
 #  define ARM_COMPLIANT 0
 #endif
 
-
 /*
 Aux flags:
   PPDLL -- indicates a part of a shared library

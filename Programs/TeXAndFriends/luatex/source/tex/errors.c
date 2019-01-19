@@ -971,7 +971,8 @@ void normal_warning(const char *t, const char *p)
         new_line_char_par = 10;
         report_id = callback_defined(show_lua_error_hook_callback);
         if (report_id == 0) {
-            tprint(p);
+	    if (p != NULL) 
+	      tprint(p);
             help2(
                 "The lua interpreter ran into a problem, so the",
                 "remainder of this lua chunk will be ignored."
