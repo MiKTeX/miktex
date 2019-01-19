@@ -2,7 +2,7 @@
 
 mplibstuff.w
 
-Copyright 2017 LuaTeX team <bugs@@luatex.org>
+Copyright 2019 LuaTeX team <bugs@@luatex.org>
 
 This file is part of LuaTeX.
 

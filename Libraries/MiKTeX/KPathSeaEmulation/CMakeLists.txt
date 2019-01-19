@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -74,6 +74,7 @@ set(kpathsea_includes
   progname.h
   readable.h
   recorder.h
+  simpletypes.h
   str-list.h
   systypes.h
   tex-file.h
