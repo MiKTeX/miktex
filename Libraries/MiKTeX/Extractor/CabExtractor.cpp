@@ -25,6 +25,10 @@
 #include <fcntl.h>
 #endif
 
+#ifdef __FreeBSD__
+#include <sys/stat.h>
+#endif
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
