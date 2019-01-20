@@ -3576,7 +3576,7 @@ int luaopen_ffi(lua_State *L)
 "\n"
 "The ARM processor is currently not supported. There are subtle\n"
 "differences between this module and the one in luajitTeX \n"
-"and we hope to be in sync around TeXLive 2018.\n"
+"and we hope to be in sync around TeXLive 2020.\n"
 "Different OS can have different interfaces,\n"
 "for instance OS_WIN has not 'complex.h'. If you want portable\n"
 "code, stick to the most common concepts.\n"
