@@ -1,5 +1,5 @@
 /*
-Copyright 2006-2017 Han The Thanh, <thanh@pdftex.org>
+Copyright 2006-2019 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -118,7 +118,7 @@ void deftounicode(strnumber glyph, strnumber unistr)
         i = sscanf(p, "%lX", &(gu->code));
         assert(i == 1);
         if (gu->code < 0 || gu->code > 0x10FFFF) {
-            pdftex_warn("ToUnicode: value out of range [0,10FFFF]: %X",
+            pdftex_warn("ToUnicode: value out of range [0,10FFFF]: %lX",
                         gu->code);
             gu->code = UNI_UNDEF;
         }

@@ -22,7 +22,7 @@ This is based on the patch texlive-poppler-0.59.patch <2017-09-19> at
 https://git.archlinux.org/svntogit/packages.git/plain/texlive-bin/trunk
 by Arch Linux. A little modifications are made to avoid a crash for
 some kind of pdf images, such as figure_missing.pdf in gnuplot.
-The poppler should be 0.69.0 or newer versions.
+The poppler should be 0.70.0 or 0.70.1.
 POPPLER_VERSION should be defined.
 */
 

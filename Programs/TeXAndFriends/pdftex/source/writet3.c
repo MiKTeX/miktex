@@ -1,5 +1,5 @@
 /* writet3.c: write a Type 3 (bitmap PK) font.
-Copyright 1996-2018 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2019 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -414,13 +414,14 @@ void writet3(fm_entry * fm, int objnum, internalfontnumber f)
     pdfenddict();
     pdfbegindict(cptr, 1);      /* CharProcs dictionary */
     for (i = first_char; i <= last_char; i++)
-        if (t3_char_procs[i] != 0)
+        if (t3_char_procs[i] != 0) {
             if (glyph_names && glyph_names[i] && glyph_names[i] != notdef)
                 pdf_printf("/%s %i 0 R\n", glyph_names[i],
                            (int) t3_char_procs[i]);
             else
                 pdf_printf("/a%i %i 0 R\n", (int) i,
                            (int) t3_char_procs[i]);
+        }
     pdfenddict();
     t3_close();
     tex_printf(">");
