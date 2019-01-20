@@ -1,6 +1,6 @@
 /* pdftex-version.h: version number                     -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,7 +19,7 @@
 
 #include "pdftex_version.h"
 
-#define MIKTEX_COMP_J2000_VERSION 6870
+#define MIKTEX_COMP_J2000_VERSION 6959
 #define MIKTEX_COMP_ORIG_VERSION_STR PDFTEX_VERSION
 
 #define MIKTEX_COMP_COPYRIGHT_STR "\
