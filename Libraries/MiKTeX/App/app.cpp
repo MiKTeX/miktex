@@ -1,6 +1,6 @@
 /* app.cpp:
 
-   Copyright (C) 2005-2018 Christian Schenk
+   Copyright (C) 2005-2019 Christian Schenk
  
    This file is part of the MiKTeX App Library.
 
@@ -323,20 +323,27 @@ void Application::AutoMaintenance()
       commonArgs.push_back("--admin");
     }
     commonArgs.push_back("--quiet");
+    int exitCode;
     if (mustRefreshFndb)
     {
       vector<string> args = commonArgs;
       args.push_back("--update-fndb");
       LOG4CXX_INFO(logger, "running 'initexmf' to refresh the file name database");
       pimpl->session->UnloadFilenameDatabase();
-      Process::Run(initexmf, args);
+      if (!Process::Run(initexmf, args, nullptr, &exitCode, nullptr))
+      {
+        LOG4CXX_ERROR(logger, "initexmf exited with code " << exitCode);
+      }
     }
     if (mustRefreshFndb)
     {
       vector<string> args = commonArgs;
       args.push_back("--mkmaps");
       LOG4CXX_INFO(logger, "running 'initexmf' to create font map files");
-      Process::Run(initexmf, args);
+      if (!Process::Run(initexmf, args, nullptr, &exitCode, nullptr))
+      {
+        LOG4CXX_ERROR(logger, "initexmf exited with code " << exitCode);
+      }
     }
     if (mustRefreshUserLanguageDat)
     {
@@ -344,7 +351,10 @@ void Application::AutoMaintenance()
       vector<string> args = commonArgs;
       args.push_back("--mklangs");
       LOG4CXX_INFO(logger, "running 'initexmf' to refresh language.dat");
-      Process::Run(initexmf, args);
+      if (!Process::Run(initexmf, args, nullptr, &exitCode, nullptr))
+      {
+        LOG4CXX_ERROR(logger, "initexmf exited with code " << exitCode);
+      }
     }
   }
 }
