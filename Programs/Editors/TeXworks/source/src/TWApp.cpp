@@ -155,7 +155,7 @@ void TWApp::init()
 		}
 	}
 #if defined(MIKTEX_WINDOWS)
-	QString envPath = QString::fromUtf8(getenv("TW_INIPATH"));
+        QString envPath = QString::fromUtf8(getenv("TW_INIPATH"));
 #else
 	QString envPath = QString::fromLocal8Bit(getenv("TW_INIPATH"));
 #endif
@@ -164,22 +164,22 @@ void TWApp::init()
 		QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, iniPath.absolutePath());
 	}
 #if defined(MIKTEX)
-	else
-	{
-          std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+        else
+        {
+          auto session = MiKTeX::Core::Session::Get();
           if (!session->IsAdminMode())
           {
             if (session->IsMiKTeXPortable())
             {
               setSettingsFormat(QSettings::IniFormat);
               MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::UserConfigRoot);
-              QSettings::setPath (QSettings::IniFormat, QSettings::UserScope, path.GetData());
+              QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, path.GetData());
             }
           }
-	}
+        }
 #endif
 #if defined(MIKTEX_WINDOWS)
-	envPath = QString::fromUtf8(getenv("TW_LIBPATH"));
+        envPath = QString::fromUtf8(getenv("TW_LIBPATH"));
 #else
 	envPath = QString::fromLocal8Bit(getenv("TW_LIBPATH"));
 #endif
@@ -285,6 +285,11 @@ void TWApp::init()
 
 	connect(this, SIGNAL(updatedTranslators()), this, SLOT(changeLanguage()));
 	changeLanguage();
+#endif
+#if defined(MIKTEX)
+        QTimer* timer = new QTimer(this);
+        connect(timer, SIGNAL(timeout()), this, SLOT(UnloadFileNameDatabase()));
+        timer->start(1000);
 #endif
 }
 
@@ -566,7 +571,7 @@ void TWApp::writeToMailingList()
 	body += "Operating system : ";
 #if defined(Q_OS_WIN)
 #if defined(MIKTEX)
-	body += QString(MiKTeX::Core::Utils::GetOSVersionString().c_str()) + "\n";
+        body += QString(MiKTeX::Core::Utils::GetOSVersionString().c_str()) + "\n";
 #else
 	body += "Windows " + GetWindowsVersionString() + "\n";
 #endif
@@ -706,10 +711,10 @@ QString TWApp::getOpenFileName(QString selectedFilter)
 	if (!selectedFilter.isNull() && !filters.contains(selectedFilter))
 		filters.prepend(selectedFilter);
 #if defined(MIKTEX_WINDOWS)
-	if (lastOpenDir.isEmpty())
-	{
-	  lastOpenDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
-	}
+        if (lastOpenDir.isEmpty())
+        {
+          lastOpenDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
+        }
 #endif
 	return QFileDialog::getOpenFileName(NULL, QString(tr("Open File")), lastOpenDir,
 										filters.join(";;"), &selectedFilter, options);
@@ -874,7 +879,7 @@ void TWApp::setDefaultPaths()
 		binaryPaths->append(appDir.absolutePath());
 #endif
 #if defined(MIKTEX_WINDOWS)
-	QString envPath = QString::fromUtf8(getenv("PATH"));
+        QString envPath = QString::fromUtf8(getenv("PATH"));
 #else
 	QString envPath = QString::fromLocal8Bit(getenv("PATH"));
 #endif
@@ -884,16 +889,16 @@ void TWApp::setDefaultPaths()
 			binaryPaths->append(s);
 	if (!defaultBinPaths) {
 #if defined(MIKTEX)
-	  {
-            std::shared_ptr<MiKTeX::Core::Session> pSession = MiKTeX::Core::Session::Get();
-	    MiKTeX::Core::PathName dir;
-	    dir = pSession->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot);
-	    dir /= MIKTEX_PATH_BIN_DIR;
-	    if (! binaryPaths->contains(dir.GetData()))
-	    {
-	      binaryPaths->prepend(dir.GetData());
-	    }
-        }
+          {
+            auto session = MiKTeX::Core::Session::Get();
+            MiKTeX::Core::PathName dir;
+            dir = session->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot);
+            dir /= MIKTEX_PATH_BIN_DIR;
+            if (!binaryPaths->contains(dir.GetData()))
+            {
+              binaryPaths->prepend(dir.GetData());
+            }
+          }
 #else
 		foreach (const QString& s, QString(DEFAULT_BIN_PATHS).split(PATH_LIST_SEP, QString::SkipEmptyParts)) {
 			if (!binaryPaths->contains(s))
@@ -943,25 +948,24 @@ void TWApp::setDefaultEngineList()
 	else
 		engineList->clear();
 #if defined(MIKTEX)
-	*engineList
-//		<< Engine("LaTeXmk", "latexmk" EXE, QStringList("-e") << 
-//				  "$pdflatex=q/pdflatex -synctex=1 %O %S/" << "-pdf" << "$fullname", true)
-		<< Engine("pdfTeX", MIKTEX_PDFTEX_EXE, QStringList("$synctexoption") << "$fullname", true)
-		<< Engine("pdfLaTeX", MIKTEX_PDFTEX_EXE, QStringList("$synctexoption") << "-undump=pdflatex" << "$fullname", true)
-		<< Engine("pdfLaTeX+MakeIndex+BibTeX", MIKTEX_TEXIFY_EXE, QStringList("--pdf") << "--synctex=1" << "--clean" << "$fullname", true)
-		<< Engine("LuaTeX", MIKTEX_LUATEX_EXE, QStringList("$synctexoption") << "$fullname", true)
-		<< Engine("LuaLaTeX", MIKTEX_LUATEX_EXE, QStringList("$synctexoption") << "--fmt=lualatex" << "$fullname", true)
-		<< Engine("LuaLaTeX+MakeIndex+BibTeX", MIKTEX_TEXIFY_EXE, QStringList("--pdf") << "--engine=luatex" << "--synctex=1" << "--clean" << "$fullname", true)
-		<< Engine("XeTeX", MIKTEX_XETEX_EXE, QStringList("$synctexoption") << "$fullname", true)
-		<< Engine("XeLaTeX", MIKTEX_XETEX_EXE, QStringList("$synctexoption") << "-undump=xelatex" << "$fullname", true)
-		<< Engine("XeLaTeX+MakeIndex+BibTeX", MIKTEX_TEXIFY_EXE, QStringList("--pdf") << "--engine=xetex" << "--synctex=1" << "--clean" << "$fullname", true)
-		<< Engine("ConTeXt (LuaTeX)", "context" EXE, QStringList("--synctex") << "$fullname", true)
-		<< Engine("ConTeXt (pdfTeX)", "texexec" EXE, QStringList("--synctex") << "$fullname", true)
-		<< Engine("ConTeXt (XeTeX)", "texexec" EXE, QStringList("--synctex") << "--xtx" << "$fullname", true)
-		<< Engine("BibTeX", MIKTEX_BIBTEX_EXE, QStringList("$basename"), false)
-		<< Engine("Biber", "biber" EXE, QStringList("$basename"), false)
-		<< Engine("MakeIndex", MIKTEX_MAKEINDEX_EXE, QStringList("$basename"), false);
-	defaultEngineIndex = 2;
+        *engineList
+          // << Engine("LaTeXmk", "latexmk" EXE, QStringList("-e") << "$pdflatex=q/pdflatex -synctex=1 %O %S/" << "-pdf" << "$fullname", true)
+          << Engine("pdfTeX", MIKTEX_PDFTEX_EXE, QStringList("$synctexoption") << "$fullname", true)
+          << Engine("pdfLaTeX", MIKTEX_PDFTEX_EXE, QStringList("$synctexoption") << "-undump=pdflatex" << "$fullname", true)
+          << Engine("pdfLaTeX+MakeIndex+BibTeX", MIKTEX_TEXIFY_EXE, QStringList("--pdf") << "--synctex=1" << "--clean" << "$fullname", true)
+          << Engine("LuaTeX", MIKTEX_LUATEX_EXE, QStringList("$synctexoption") << "$fullname", true)
+          << Engine("LuaLaTeX", MIKTEX_LUATEX_EXE, QStringList("$synctexoption") << "--fmt=lualatex" << "$fullname", true)
+          << Engine("LuaLaTeX+MakeIndex+BibTeX", MIKTEX_TEXIFY_EXE, QStringList("--pdf") << "--engine=luatex" << "--synctex=1" << "--clean" << "$fullname", true)
+          << Engine("XeTeX", MIKTEX_XETEX_EXE, QStringList("$synctexoption") << "$fullname", true)
+          << Engine("XeLaTeX", MIKTEX_XETEX_EXE, QStringList("$synctexoption") << "-undump=xelatex" << "$fullname", true)
+          << Engine("XeLaTeX+MakeIndex+BibTeX", MIKTEX_TEXIFY_EXE, QStringList("--pdf") << "--engine=xetex" << "--synctex=1" << "--clean" << "$fullname", true)
+          << Engine("ConTeXt (LuaTeX)", "context" EXE, QStringList("--synctex") << "$fullname", true)
+          << Engine("ConTeXt (pdfTeX)", "texexec" EXE, QStringList("--synctex") << "$fullname", true)
+          << Engine("ConTeXt (XeTeX)", "texexec" EXE, QStringList("--synctex") << "--xtx" << "$fullname", true)
+          << Engine("BibTeX", MIKTEX_BIBTEX_EXE, QStringList("$basename"), false)
+          << Engine("Biber", "biber" EXE, QStringList("$basename"), false)
+          << Engine("MakeIndex", MIKTEX_MAKEINDEX_EXE, QStringList("$basename"), false);
+        defaultEngineIndex = 2;
 #else
 	*engineList
 //		<< Engine("LaTeXmk", "latexmk" EXE, QStringList("-e") << 
@@ -1030,10 +1034,10 @@ const QList<Engine> TWApp::getEngineList()
 		if (!foundList)
 			setDefaultEngineList();
 #if defined(MIKTEX)
-		if (! settings.value("defaultEngine").toString().isEmpty())
-		{
-		  setDefaultEngine(settings.value("defaultEngine").toString());
-		}
+                if (!settings.value("defaultEngine").toString().isEmpty())
+                {
+                  setDefaultEngine(settings.value("defaultEngine").toString());
+                }
 #else
 		setDefaultEngine(settings.value("defaultEngine", DEFAULT_ENGINE_NAME).toString());
 #endif
@@ -1472,14 +1476,19 @@ void TWApp::reloadSpellchecker()
 }
 
 #if defined(MIKTEX)
-void
-TWApp::aboutMiKTeX ()
+void TWApp::aboutMiKTeX()
 {
   QIcon oldIcon = windowIcon();
-  setWindowIcon (QIcon(":/MiKTeX/miktex32x32.png"));
-  QString aboutText = tr("<p>MiKTeX %1 is a free TeX distribution for Windows maintained by Christian Schenk.</p>").arg(MIKTEX_MAJOR_MINOR_STR);
-  aboutText += tr("<p>Please visit the <a href=\"http://miktex.org/\">MiKTeX Project Page</a> to learn more about the MiKTeX project.</p>");
-  QMessageBox::about (0, tr("About MiKTeX"), aboutText);
-  setWindowIcon (oldIcon);
+  setWindowIcon(QIcon(":/MiKTeX/miktex32x32.png"));
+  QString aboutText = tr("<p>MiKTeX %1 is a modern TeX distribution.</p>").arg(MIKTEX_MAJOR_MINOR_STR);
+  aboutText += tr("<p>Please visit the <a href=\"https://miktex.org/\">MiKTeX Project Page</a>.</p>");
+  QMessageBox::about(nullptr, tr("About MiKTeX"), aboutText);
+  setWindowIcon(oldIcon);
+}
+
+void TWApp::UnloadFileNameDatabase()
+{
+  auto session = MiKTeX::Core::Session::Get();
+  session->UnloadFilenameDatabase(std::chrono::seconds(1));
 }
 #endif

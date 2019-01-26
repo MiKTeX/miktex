@@ -303,13 +303,13 @@ void PDFDocument::init()
 	TWUtils::installCustomShortcuts(this);
 #if defined(MIKTEX)
         actionAbout_MiKTeX = new QAction(this);
-	actionAbout_MiKTeX->setIcon(QIcon(":/MiKTeX/miktex32x32.png"));
-	actionAbout_MiKTeX->setObjectName(QString::fromUtf8("actionAbout_MiKTeX"));
-	actionAbout_MiKTeX->setText(QApplication::translate("PDFDocument", "About MiKTeX..."));
+        actionAbout_MiKTeX->setIcon(QIcon(":/MiKTeX/miktex32x32.png"));
+        actionAbout_MiKTeX->setObjectName(QString::fromUtf8("actionAbout_MiKTeX"));
+        actionAbout_MiKTeX->setText(QApplication::translate("PDFDocument", "About MiKTeX..."));
         actionAbout_MiKTeX->setMenuRole(QAction::AboutRole);
-	connect (actionAbout_MiKTeX, SIGNAL(triggered()), qApp, SLOT(aboutMiKTeX()));
-#if 0
-	menuHelp->addAction (actionAbout_MiKTeX);
+        connect(actionAbout_MiKTeX, SIGNAL(triggered()), qApp, SLOT(aboutMiKTeX()));
+#if 1
+        menuHelp->addAction(actionAbout_MiKTeX);
 #endif
 #endif
 }
@@ -878,204 +878,204 @@ void PDFDocument::maybeOpenPdf(QString filename, QtPDF::PDFDestination destinati
 void PDFDocument::print()
 {
 #if defined(MIKTEX_TODO_PRINT)
-// see http://code.google.com/p/texworks/issues/detail?id=78#c1
-	QPrinter printer(QPrinter::HighResolution);
-	QPrintDialog printDlg(&printer, this);
-	QPainter painter;
-	QProgressDialog progressDlg(this);
-	Poppler::Page * page;
-	QImage pageImage;
-	QRect viewport;
-	int dpiX, dpiY;
-	double dpiXScale = 1.0, dpiYScale = 1.0;
-	double scale;
-	unsigned int firstPage, lastPage, i;
-	bool success = false;
-	
-	// check if there's a pdf document to print
-	if(!document) return;
+  // see http://code.google.com/p/texworks/issues/detail?id=78#c1
+  QPrinter printer(QPrinter::HighResolution);
+  QPrintDialog printDlg(&printer, this);
+  QPainter painter;
+  QProgressDialog progressDlg(this);
+  Poppler::Page * page;
+  QImage pageImage;
+  QRect viewport;
+  int dpiX, dpiY;
+  double dpiXScale = 1.0, dpiYScale = 1.0;
+  double scale;
+  unsigned int firstPage, lastPage, i;
+  bool success = false;
 
-	// check if we have permission to print the document
-	if(!document->okToPrint()) {
-		QMessageBox::critical(this, tr("Printing denied"), tr("You are not permitted to print this document"));
-		return;
-	}
-	
-	// Set up some basic information about the document
-	printer.setCreator(TEXWORKS_NAME);
-	printer.setDocName(document->info("Title"));
-	if(printer.docName().isEmpty()) printer.setDocName(QFileInfo(curFile).baseName());
-	
-	// do some setup for the print dialog
-	printDlg.setMinMax(1, document->numPages());
-	printDlg.setOption(QAbstractPrintDialog::PrintToFile, true);
-	printDlg.setOption(QAbstractPrintDialog::PrintSelection, false);
-	printDlg.setOption(QAbstractPrintDialog::PrintPageRange, true);
-	printDlg.setOption(QAbstractPrintDialog::PrintCollateCopies, true);
-	printDlg.setWindowTitle(tr("Print %1").arg(QFileInfo(curFile).fileName()));
-	
-	// show the print dialog to the user
-	if(printDlg.exec() != QDialog::Accepted) return;
+  // check if there's a pdf document to print
+  if (!document) return;
 
-	// determine the print range
-	switch(printDlg.printRange()) {
-		case QAbstractPrintDialog::PageRange:
-			firstPage = printDlg.fromPage();
-			lastPage = printDlg.toPage();
-			break;
-		default:
-			firstPage = 1;
-			lastPage = document->numPages();
-	}
+  // check if we have permission to print the document
+  if (!document->okToPrint()) {
+    QMessageBox::critical(this, tr("Printing denied"), tr("You are not permitted to print this document"));
+    return;
+  }
 
-	// On *nix-like platforms, try using lp for printing
-	#if defined(Q_WS_X11) || defined(Q_WS_MAC)
-	// Catch empty printer names (e.g. used by CUPS for "printing to pdf")
-	if(!printer.printerName().isEmpty()) {
-		QStringList arguments;
-		
-		arguments << "lp";
-		
-		arguments << QString("-d %1").arg(printer.printerName());
-		arguments << QString("-n %1").arg(printer.numCopies());
-		arguments << QString("-t \"%1\"").arg(printer.docName());
-		arguments << QString("-P %1-%2").arg(firstPage).arg(lastPage);
+  // Set up some basic information about the document
+  printer.setCreator(TEXWORKS_NAME);
+  printer.setDocName(document->info("Title"));
+  if (printer.docName().isEmpty()) printer.setDocName(QFileInfo(curFile).baseName());
 
-		switch(printer.duplex()) {
-			case QPrinter::DuplexNone:
-				arguments << "-o sides=one-sided";
-				break;
-			case QPrinter::DuplexShortSide:
-				arguments << "-o sides=two-sided-short-edge";
-				break;
-			case QPrinter::DuplexLongSide:
-				arguments << "-o sides=two-sided-long-edge";
-				break;
-			default:
-				break;
-		}
-		arguments << "--";
+  // do some setup for the print dialog
+  printDlg.setMinMax(1, document->numPages());
+  printDlg.setOption(QAbstractPrintDialog::PrintToFile, true);
+  printDlg.setOption(QAbstractPrintDialog::PrintSelection, false);
+  printDlg.setOption(QAbstractPrintDialog::PrintPageRange, true);
+  printDlg.setOption(QAbstractPrintDialog::PrintCollateCopies, true);
+  printDlg.setWindowTitle(tr("Print %1").arg(QFileInfo(curFile).fileName()));
 
-		arguments << QString("\"%1\"").arg(curFile);
-		
-		// passing arguments as QStringList didn't work for me - probably
-		// because of improper quoting of spaces
-		if(QProcess::execute(arguments.join(" ")) == 0) return;
-	}
-	#endif // On *nix, try using lpr for printing
-	
-	// On Windows, try using OS native operation
-	#if defined(Q_WS_WIN)
-	{
-		// First try: directly passing postscript to the printer (if supported)
-		// I'm not sure if this is supported anywhere
-		// Note: QPrinter::getDC and QPrinter::releaseDC are undocumented
-		HDC dc;
-		Poppler::PSConverter * psConv;
-		
-		dc = printer.getDC();
-		
-		if(dc) {
-			int nEscapeCode = POSTSCRIPT_PASSTHROUGH;
-			if(ExtEscape(dc, QUERYESCSUPPORT, sizeof(int), (LPCSTR)&nEscapeCode, 0, NULL ) > 0 && (psConv = document->psConverter())) {
-				// Convert the pdf to postscript instructions
-				QBuffer buffer;
-				
-				buffer.open(QBuffer::ReadWrite);
-				psConv->setOutputDevice(&buffer);
-				psConv->convert();
-				
-				// and send them to the printer
-				success = (ExtEscape(dc, POSTSCRIPT_PASSTHROUGH, buffer.data().size(), buffer.data().data(), 0, NULL) > 0);
-				
-				buffer.close();
-			}
-			printer.releaseDC(dc);
-			if(success) return;
-		}
-		// Second try: print by calling the system's standard printing program for pdf
-		// Seems to only print to the default printer, hence disabled for now
+  // show the print dialog to the user
+  if (printDlg.exec() != QDialog::Accepted) return;
+
+  // determine the print range
+  switch (printDlg.printRange()) {
+  case QAbstractPrintDialog::PageRange:
+    firstPage = printDlg.fromPage();
+    lastPage = printDlg.toPage();
+    break;
+  default:
+    firstPage = 1;
+    lastPage = document->numPages();
+  }
+
+  // On *nix-like platforms, try using lp for printing
+#if defined(Q_WS_X11) || defined(Q_WS_MAC)
+// Catch empty printer names (e.g. used by CUPS for "printing to pdf")
+  if (!printer.printerName().isEmpty()) {
+    QStringList arguments;
+
+    arguments << "lp";
+
+    arguments << QString("-d %1").arg(printer.printerName());
+    arguments << QString("-n %1").arg(printer.numCopies());
+    arguments << QString("-t \"%1\"").arg(printer.docName());
+    arguments << QString("-P %1-%2").arg(firstPage).arg(lastPage);
+
+    switch (printer.duplex()) {
+    case QPrinter::DuplexNone:
+      arguments << "-o sides=one-sided";
+      break;
+    case QPrinter::DuplexShortSide:
+      arguments << "-o sides=two-sided-short-edge";
+      break;
+    case QPrinter::DuplexLongSide:
+      arguments << "-o sides=two-sided-long-edge";
+      break;
+    default:
+      break;
+    }
+    arguments << "--";
+
+    arguments << QString("\"%1\"").arg(curFile);
+
+    // passing arguments as QStringList didn't work for me - probably
+    // because of improper quoting of spaces
+    if (QProcess::execute(arguments.join(" ")) == 0) return;
+  }
+#endif // On *nix, try using lpr for printing
+
+  // On Windows, try using OS native operation
+#if defined(Q_WS_WIN)
+  {
+    // First try: directly passing postscript to the printer (if supported)
+    // I'm not sure if this is supported anywhere
+    // Note: QPrinter::getDC and QPrinter::releaseDC are undocumented
+    HDC dc;
+    Poppler::PSConverter * psConv;
+
+    dc = printer.getDC();
+
+    if (dc) {
+      int nEscapeCode = POSTSCRIPT_PASSTHROUGH;
+      if (ExtEscape(dc, QUERYESCSUPPORT, sizeof(int), (LPCSTR)&nEscapeCode, 0, NULL) > 0 && (psConv = document->psConverter())) {
+        // Convert the pdf to postscript instructions
+        QBuffer buffer;
+
+        buffer.open(QBuffer::ReadWrite);
+        psConv->setOutputDevice(&buffer);
+        psConv->convert();
+
+        // and send them to the printer
+        success = (ExtEscape(dc, POSTSCRIPT_PASSTHROUGH, buffer.data().size(), buffer.data().data(), 0, NULL) > 0);
+
+        buffer.close();
+      }
+      printer.releaseDC(dc);
+      if (success) return;
+    }
+    // Second try: print by calling the system's standard printing program for pdf
+    // Seems to only print to the default printer, hence disabled for now
 /*
-		wchar_t * filename;
-		HRESULT coInit;
-		filename = new wchar_t[curFile.size()];
+                wchar_t * filename;
+                HRESULT coInit;
+                filename = new wchar_t[curFile.size()];
 
-		curFile.toWCharArray(filename);
-		coInit = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-		if(coInit == S_OK || coInit == S_FALSE) {
-			success = ((int)ShellExecute(NULL, L"print", filename, NULL, NULL, SW_NORMAL) > 32);
-			CoUninitialize();
-		}
-		delete[] filename;
-		if(success) return;
+                curFile.toWCharArray(filename);
+                coInit = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+                if(coInit == S_OK || coInit == S_FALSE) {
+                        success = ((int)ShellExecute(NULL, L"print", filename, NULL, NULL, SW_NORMAL) > 32);
+                        CoUninitialize();
+                }
+                delete[] filename;
+                if(success) return;
 */
-	}
-	#endif // On Windows, try using OS native operation
-	
-	// Fallback: use Qt for printing
-	//
-	// This means rendering the pages as images via poppler and printing those
-	// To keep the rendering time and file size reasonable, resolution is
-	// clamped to a maximum of 300dpi. If you need more, use another program ;).
+  }
+#endif // On Windows, try using OS native operation
 
-	{
-		// ignore printer margins while painting - the margins are included in the
-		// pdf file
-		printer.setFullPage(true);
-	
-		painter.begin(&printer);
-		viewport = painter.viewport();
-	
-		dpiX = printer.printEngine()->metric(QPaintDevice::PdmDpiX);
-		dpiY = printer.printEngine()->metric(QPaintDevice::PdmDpiY);
-	
-		// clamp the resolution to 300 dpi (postscript devices return 1200 dpi to
-		// Qt by default) to reduce file size and render time
-		dpiXScale = qMax(1, dpiX / 300);
-		dpiYScale = qMax(1, dpiY / 300);
-		dpiX = qMin(300, dpiX);
-		dpiY = qMin(300, dpiY);
+  // Fallback: use Qt for printing
+  //
+  // This means rendering the pages as images via poppler and printing those
+  // To keep the rendering time and file size reasonable, resolution is
+  // clamped to a maximum of 300dpi. If you need more, use another program ;).
 
-		progressDlg.setAutoClose(true);
-		progressDlg.setRange(firstPage, lastPage + 1);
-		progressDlg.setWindowModality(Qt::WindowModal);
-		for(i = firstPage; i <= lastPage && !progressDlg.wasCanceled(); ++i) {
-			progressDlg.setValue(i - firstPage);
-			progressDlg.setLabelText(tr("Printing page %1 of %2").arg(i - firstPage + 1).arg(lastPage - firstPage + 1));
+  {
+    // ignore printer margins while painting - the margins are included in the
+    // pdf file
+    printer.setFullPage(true);
 
-			page = document->page(i - 1);
-			if(page) {
-				pageImage = page->renderToImage(dpiX, dpiY);
-				painter.save();
-			
-				// calculate the scale factor necessary to resize the page image to
-				// the real page while retaining the aspect ratio
-				scale = qMin((double)viewport.width() / (dpiXScale * pageImage.width()), (double)viewport.height() / (dpiYScale * pageImage.height()));
-			
-				// if we need to shrink the page, so be it
-				if(scale < 1) {
-					painter.scale(scale, scale);
-				}
-				// otherwise center the page image on the page
-				// TODO: handle landscape etc.
-				else {
-					painter.translate( (viewport.width() - dpiXScale * pageImage.width()) / 2, (viewport.height() - dpiYScale * pageImage.height()) / 2);
-				}
-				painter.scale(dpiXScale, dpiYScale);
-			
-				painter.drawImage(0, 0, pageImage);
-			
-				painter.restore();
-			}
-		
-			if(i != lastPage) printer.newPage();
-		}
-		
-		if(progressDlg.wasCanceled()) printer.abort();
-		else painter.end();
-		
-		progressDlg.reset();
-	}
+    painter.begin(&printer);
+    viewport = painter.viewport();
+
+    dpiX = printer.printEngine()->metric(QPaintDevice::PdmDpiX);
+    dpiY = printer.printEngine()->metric(QPaintDevice::PdmDpiY);
+
+    // clamp the resolution to 300 dpi (postscript devices return 1200 dpi to
+    // Qt by default) to reduce file size and render time
+    dpiXScale = qMax(1, dpiX / 300);
+    dpiYScale = qMax(1, dpiY / 300);
+    dpiX = qMin(300, dpiX);
+    dpiY = qMin(300, dpiY);
+
+    progressDlg.setAutoClose(true);
+    progressDlg.setRange(firstPage, lastPage + 1);
+    progressDlg.setWindowModality(Qt::WindowModal);
+    for (i = firstPage; i <= lastPage && !progressDlg.wasCanceled(); ++i) {
+      progressDlg.setValue(i - firstPage);
+      progressDlg.setLabelText(tr("Printing page %1 of %2").arg(i - firstPage + 1).arg(lastPage - firstPage + 1));
+
+      page = document->page(i - 1);
+      if (page) {
+        pageImage = page->renderToImage(dpiX, dpiY);
+        painter.save();
+
+        // calculate the scale factor necessary to resize the page image to
+        // the real page while retaining the aspect ratio
+        scale = qMin((double)viewport.width() / (dpiXScale * pageImage.width()), (double)viewport.height() / (dpiYScale * pageImage.height()));
+
+        // if we need to shrink the page, so be it
+        if (scale < 1) {
+          painter.scale(scale, scale);
+        }
+        // otherwise center the page image on the page
+        // TODO: handle landscape etc.
+        else {
+          painter.translate((viewport.width() - dpiXScale * pageImage.width()) / 2, (viewport.height() - dpiYScale * pageImage.height()) / 2);
+        }
+        painter.scale(dpiXScale, dpiYScale);
+
+        painter.drawImage(0, 0, pageImage);
+
+        painter.restore();
+      }
+
+      if (i != lastPage) printer.newPage();
+    }
+
+    if (progressDlg.wasCanceled()) printer.abort();
+    else painter.end();
+
+    progressDlg.reset();
+  }
 #else
 	// Currently, printing is not supported in a reliable, cross-platform way
 	// Instead, offer to open the document in the system's default viewer

@@ -404,24 +404,24 @@ void TeXDocument::init()
 #endif
 #if defined(MIKTEX)
         actionAbout_MiKTeX = new QAction(this);
-	actionAbout_MiKTeX->setIcon(QIcon(":/MiKTeX/miktex32x32.png"));
+        actionAbout_MiKTeX->setIcon(QIcon(":/MiKTeX/miktex32x32.png"));
         actionAbout_MiKTeX->setObjectName(QString::fromUtf8("actionAbout_MiKTeX"));
-	actionAbout_MiKTeX->setText(QApplication::translate("TeXDocument", "About MiKTeX..."));
+        actionAbout_MiKTeX->setText(QApplication::translate("TeXDocument", "About MiKTeX..."));
         actionAbout_MiKTeX->setMenuRole(QAction::AboutRole);
-	connect (actionAbout_MiKTeX, SIGNAL(triggered()), qApp, SLOT(aboutMiKTeX()));
-#if 0
-	menuHelp->addAction (actionAbout_MiKTeX);
+        connect(actionAbout_MiKTeX, SIGNAL(triggered()), qApp, SLOT(aboutMiKTeX()));
+#if 1
+        menuHelp->addAction(actionAbout_MiKTeX);
 #endif
 #if defined(MIKTEX_TODO_PRINT)
-	// see http://code.google.com/p/texworks/issues/detail?id=78#c1
-	actionPrintSource = new QAction(this);
-	actionPrintSource->setIcon(QIcon(":/images/tango/document-print.png"));
-	actionPrintSource->setObjectName(QString::fromUtf8("actionPrintPDF"));
-	actionPrintSource->setText(QApplication::translate("PDFDocument", "Print..."));
-	actionPrintSource->setShortcut (QKeySequence::Print);
-	connect (actionPrintSource, SIGNAL(triggered()), this, SLOT(print()));
-	menuFile->insertAction (actionClose, actionPrintSource);
-	menuFile->insertSeparator (actionClose);
+        // see http://code.google.com/p/texworks/issues/detail?id=78#c1
+        actionPrintSource = new QAction(this);
+        actionPrintSource->setIcon(QIcon(":/images/tango/document-print.png"));
+        actionPrintSource->setObjectName(QString::fromUtf8("actionPrintPDF"));
+        actionPrintSource->setText(QApplication::translate("PDFDocument", "Print..."));
+        actionPrintSource->setShortcut(QKeySequence::Print);
+        connect(actionPrintSource, SIGNAL(triggered()), this, SLOT(print()));
+        menuFile->insertAction(actionClose, actionPrintSource);
+        menuFile->insertSeparator(actionClose);
 #endif
 #endif
 }
@@ -622,7 +622,7 @@ void TeXDocument::open()
 	QString lastOpenDir = settings.value("openDialogDir").toString();
 	if (lastOpenDir.isEmpty())
 #if defined(MIKTEX_WINDOWS)
-	    lastOpenDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
+          lastOpenDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
 #else
 		lastOpenDir = QDir::homePath();
 #endif
@@ -817,7 +817,7 @@ bool TeXDocument::saveAs()
 	QString lastSaveDir = settings.value("saveDialogDir").toString();
 	if (lastSaveDir.isEmpty() || !QDir(lastSaveDir).exists())
 #if defined(MIKTEX_WINDOWS)
-	    lastSaveDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
+          lastSaveDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
 #else
 		lastSaveDir = QDir::homePath();
 #endif
@@ -2166,7 +2166,7 @@ void TeXDocument::setSyntaxColoringMode(const QString& mode)
 	
 	if (mode == "") {
 #if defined(MIKTEX)
-		Q_ASSERT(actionSyntaxColoring_None != NULL);
+          Q_ASSERT(actionSyntaxColoring_None != NULL);
 #else
 		Q_ASSERT(actionSyntaxColoring != NULL);
 #endif
@@ -3290,24 +3290,24 @@ void TeXDocument::detachPdf()
 // see http://code.google.com/p/texworks/issues/detail?id=78#c1
 void TeXDocument::print()
 {
-	QPrinter printer(QPrinter::HighResolution);
-	QPrintDialog printDlg(&printer, this);
+  QPrinter printer(QPrinter::HighResolution);
+  QPrintDialog printDlg(&printer, this);
 
-	// Set up some basic information about the document
-	printer.setCreator(TEXWORKS_NAME);
-	printer.setDocName(QFileInfo(curFile).baseName());
+  // Set up some basic information about the document
+  printer.setCreator(TEXWORKS_NAME);
+  printer.setDocName(QFileInfo(curFile).baseName());
 
-	// do some setup for the print dialog
-	// Note: no page range since we don't know how many pages this will be.
-	printDlg.setOption(QAbstractPrintDialog::PrintToFile, true);
-	printDlg.setOption(QAbstractPrintDialog::PrintSelection, true);
-	printDlg.setOption(QAbstractPrintDialog::PrintPageRange, false);
-	printDlg.setOption(QAbstractPrintDialog::PrintCollateCopies, true);
-	printDlg.setWindowTitle(tr("Print %1").arg(QFileInfo(curFile).fileName()));
+  // do some setup for the print dialog
+  // Note: no page range since we don't know how many pages this will be.
+  printDlg.setOption(QAbstractPrintDialog::PrintToFile, true);
+  printDlg.setOption(QAbstractPrintDialog::PrintSelection, true);
+  printDlg.setOption(QAbstractPrintDialog::PrintPageRange, false);
+  printDlg.setOption(QAbstractPrintDialog::PrintCollateCopies, true);
+  printDlg.setWindowTitle(tr("Print %1").arg(QFileInfo(curFile).fileName()));
 
-	// show the print dialog to the user
-	if(printDlg.exec() != QDialog::Accepted) return;
-	
-	textEdit->print(&printer);
+  // show the print dialog to the user
+  if (printDlg.exec() != QDialog::Accepted) return;
+
+  textEdit->print(&printer);
 }
 #endif

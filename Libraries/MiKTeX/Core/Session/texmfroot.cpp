@@ -1176,11 +1176,12 @@ bool SessionImpl::UnloadFilenameDatabaseInternal(unsigned r, chrono::duration<do
 
 bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r, chrono::duration<double> minIdleTime)
 {
-  trace_fndb->WriteLine("core", fmt::format(T_("going to unload file name database #{0}"), r));
-
   shared_ptr<FileNameDatabase> fndb = rootDirectories[r].GetFndb();
+
   if (fndb != nullptr)
   {
+    trace_fndb->WriteLine("core", fmt::format(T_("going to unload file name database #{0}"), r));
+
     // check the reference count
     if (fndb.use_count() > 2)
     {

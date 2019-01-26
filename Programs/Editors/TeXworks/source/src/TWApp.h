@@ -213,7 +213,8 @@ public slots:
 	QStringList getOpenFileNames(QString selectedFilter = QString());
 	QString getSaveFileName(const QString& defaultName);
 #if defined(MIKTEX)
-	void aboutMiKTeX();
+        void aboutMiKTeX();
+        void UnloadFileNameDatabase();
 #endif
 	
 signals:
