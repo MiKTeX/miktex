@@ -42,7 +42,7 @@ int SessionImpl::RunExe(int argc, const char** argv)
 #if !defined(MIKTEX_WINDOWS)
   if (!File::GetAttributes(executablePath)[FileAttribute::Executable])
   {
-    MIKTEX_FATAL_ERROR_2(T_("Cannot execute file."), "path", Q_(executablePath));
+    MIKTEX_FATAL_ERROR_2(T_("Cannot execute file '{path}'."), "path", Q_(executablePath));
   }
 #endif
 

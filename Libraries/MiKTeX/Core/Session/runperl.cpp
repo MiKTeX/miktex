@@ -37,20 +37,20 @@ tuple<PathName, vector<string>> SessionImpl::GetScript(const string& scriptEngin
   PathName scriptsIni;
   if (!FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
   {
-    MIKTEX_FATAL_ERROR(T_("The script configuration file cannot be found."));
+    MIKTEX_FATAL_ERROR_2(T_("The '{filename}' configuration file could not be found."), "filename", MIKTEX_SCRIPTS_INI_FILENAME);
   }
   unique_ptr<Cfg> config(Cfg::Create());
   config->Read(scriptsIni, true);
   string value;
   if (!config->TryGetValueAsString(scriptEngine, name, value))
   {
-    MIKTEX_FATAL_ERROR_2(T_("The script is not registered."), "scriptEngine", scriptEngine, "scriptName", name);
+    MIKTEX_FATAL_ERROR_2(T_("The '{filename}' configuration file contains no record for '{name}'."), "filename", MIKTEX_SCRIPTS_INI_FILENAME, "engine", scriptEngine, "name", name);
   }
   string relScriptPath = Expand(value);
   PathName scriptPath;
   if (!FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
   {
-    MIKTEX_FATAL_ERROR_2(T_("The script could not be found."), "scriptEngine", scriptEngine, "scriptName", name, "path", relScriptPath);
+    MIKTEX_FATAL_ERROR_2(T_("The program '{name}' could not be found."), "engine", scriptEngine, "name", name, "path", relScriptPath);
   }
   vector<string> args{ scriptEngine };
   vector<string> scriptEngineOptions;
