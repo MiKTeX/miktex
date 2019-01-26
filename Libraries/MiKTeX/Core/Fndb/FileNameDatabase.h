@@ -1,6 +1,6 @@
 /* FileNameDatabase.h: file name database                 -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,7 @@
 #if !defined(BA15DC038D4549859111D4B075360D81)
 #define BA15DC038D4549859111D4B075360D81
 
+#include <chrono>
 #include <tuple>
 
 #include <miktex/Core/Debug>
@@ -61,6 +62,12 @@ public:
 
 public:
   bool FileExists(const MiKTeX::Core::PathName& path);
+
+public:
+  std::chrono::time_point<std::chrono::high_resolution_clock> GetLastAccessTime() const
+  {
+    return lastAccessTime;
+  }
 
 private:
   struct Record
@@ -232,6 +239,9 @@ private:
 
 private:
   int changeFileRecordCount = 0;
+
+private:
+  std::chrono::time_point<std::chrono::high_resolution_clock> lastAccessTime = std::chrono::high_resolution_clock::now();
 
 private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_fndb;

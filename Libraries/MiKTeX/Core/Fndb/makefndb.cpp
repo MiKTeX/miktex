@@ -1,6 +1,6 @@
 /* makefndb.cpp: creating the file name database
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -431,7 +431,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     bool unloaded = false;
     for (size_t i = 0; !unloaded && i < 100; ++i)
     {
-      unloaded = SessionImpl::GetSession()->UnloadFilenameDatabaseInternal(rootIdx);
+      unloaded = SessionImpl::GetSession()->UnloadFilenameDatabaseInternal(rootIdx, chrono::seconds(0));
       if (!unloaded)
       {
         trace_fndb->WriteLine("core", "sleep for 1ms");

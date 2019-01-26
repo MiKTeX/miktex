@@ -411,6 +411,7 @@ void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& root
 
 void FileNameDatabase::ApplyChangeFile()
 {
+  lastAccessTime = chrono::high_resolution_clock::now();
   if (!File::Exists(changeFile))
   {
     return;

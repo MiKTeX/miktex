@@ -1,6 +1,6 @@
 /* texmfroot.cpp: managing TEXMF root directories
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -1168,15 +1168,15 @@ unsigned SessionImpl::DeriveTEXMFRoot(const PathName& path)
   return root;
 }
 
-bool SessionImpl::UnloadFilenameDatabaseInternal(unsigned r)
+bool SessionImpl::UnloadFilenameDatabaseInternal(unsigned r, chrono::duration<double> minIdleTime)
 {
   lock_guard<mutex> lockGuard(fndbMutex);
-  return UnloadFilenameDatabaseInternal_nolock(r);
+  return UnloadFilenameDatabaseInternal_nolock(r, minIdleTime);
 }
 
-bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r)
+bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r, chrono::duration<double> minIdleTime)
 {
-  trace_fndb->WriteFormattedLine("core", T_("going to unload file name database %u"), r);
+  trace_fndb->WriteLine("core", fmt::format(T_("going to unload file name database #{0}"), r));
 
   shared_ptr<FileNameDatabase> fndb = rootDirectories[r].GetFndb();
   if (fndb != nullptr)
@@ -1184,7 +1184,14 @@ bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r)
     // check the reference count
     if (fndb.use_count() > 2)
     {
-      trace_fndb->WriteFormattedLine("core", T_("cannot unload fndb #%u: still in use (%u)"), r, fndb.use_count());
+      trace_fndb->WriteLine("core", fmt::format(T_("cannot unload fndb #{0}: still in use (use_count={1})"), r, fndb.use_count()));
+      return false;
+    }
+
+    chrono::duration<double> idleTime = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - fndb->GetLastAccessTime());
+    if (idleTime < minIdleTime)
+    {
+      trace_fndb->WriteLine("core", fmt::format(T_("cannot unload fndb #{0}: still in use (idle for {1:.4f} seconds)"), r, idleTime.count()));
       return false;
     }
 
@@ -1196,13 +1203,13 @@ bool SessionImpl::UnloadFilenameDatabaseInternal_nolock(unsigned r)
   return true;
 }
 
-bool SessionImpl::UnloadFilenameDatabase()
+bool SessionImpl::UnloadFilenameDatabase(chrono::duration<double> minIdleTime)
 {
   bool done = true;
 
   for (unsigned r = 0; r < rootDirectories.size(); ++r)
   {
-    if (!UnloadFilenameDatabaseInternal(r))
+    if (!UnloadFilenameDatabaseInternal(r, minIdleTime))
     {
       done = false;
     }

@@ -32,6 +32,7 @@
 
 #include <cstddef>
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
@@ -829,6 +830,12 @@ public:
   /// Returns false, if the database is still in use.
 public:
   virtual bool MIKTEXTHISCALL UnloadFilenameDatabase() = 0;
+
+  /// Unloads the file name database.
+  /// @return Returns true, if the file name database could be unloaded.
+  /// Returns false, if the database is still in use.
+public:
+  virtual bool MIKTEXTHISCALL UnloadFilenameDatabase(std::chrono::duration<double> minIdleTime) = 0;
 
   /// Splits a TEXMF path name.
   /// @param path Path name to split.

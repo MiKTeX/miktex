@@ -184,7 +184,13 @@ public:
   MiKTeX::Core::PathName GetFilenameDatabasePathName(unsigned r) override;
 
 public:
-  bool UnloadFilenameDatabase() override;
+  bool UnloadFilenameDatabase() override
+  {
+    return UnloadFilenameDatabase(std::chrono::seconds(0));
+  }
+
+public:
+  bool UnloadFilenameDatabase(std::chrono::duration<double> minIdleTime) override;
 
 public:
   unsigned SplitTEXMFPath(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& root, MiKTeX::Core::PathName& relative) override;
@@ -507,10 +513,10 @@ public:
   }
 
 public:
-  bool UnloadFilenameDatabaseInternal(unsigned r);
+  bool UnloadFilenameDatabaseInternal(unsigned r, std::chrono::duration<double> minIdleTime);
 
 private:
-  bool UnloadFilenameDatabaseInternal_nolock(unsigned r);
+  bool UnloadFilenameDatabaseInternal_nolock(unsigned r, std::chrono::duration<double> minIdleTime);
 
 public:
   std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r);
