@@ -404,6 +404,7 @@ static complex_float mk_complex_float(double real, double imag) {
     complex_float ret = { real, imag };
     return ret;
 }
+//#if !defined(__MINGW64__)
 static double creal(complex_double c) {
     return c.real;
 }
@@ -417,6 +418,7 @@ static double cimag(complex_double c) {
 static float cimagf(complex_float c) {
     return c.imag;
 }
+//#endif
 #endif
 
 #define CALLBACK_FUNC_USR_IDX 1

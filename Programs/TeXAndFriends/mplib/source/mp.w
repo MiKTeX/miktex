@@ -756,7 +756,7 @@ defined.
 @<Glob...@>=
 integer bad;    /* is some ``constant'' wrong? */
 
-@ Later on we will say `|if ( int_packets+(17+3)*int_increment>bistack_size )mp->bad=19;|',
+@ Later on we will say `|if ( int_packets+(17+2)*int_increment>bistack_size )mp->bad=19;|',
 or something similar.
 
 In case you are wondering about the non-consequtive values of |bad|: most
@@ -1253,6 +1253,9 @@ to the input buffer.  The variable |command_line| will be filled by the
     mp->term_in = (mp->open_file)(mp,"terminal", "r", mp_filetype_terminal);
     if (mp->command_line!=NULL) {
       mp->last = strlen(mp->command_line);
+      if (mp->last > (mp->buf_size+1)) {
+      	 mp_reallocate_buffer(mp,mp->last);
+      }
       (void)memcpy((void *)mp->buffer,(void *)mp->command_line,mp->last);
       xfree(mp->command_line);
     } else {
@@ -15782,7 +15785,7 @@ static void mp_cubic_intersection (MP mp, mp_knot p, mp_knot pp) {
   set_number_from_scaled (mp->max_t, 2);
   new_number (x_two_t);
   number_clone (x_two_t,two_t);
-  number_double(x_two_t); number_double(x_two_t); /* add x=3 bit of precision */
+  number_double(x_two_t); number_double(x_two_t); /* add x=2 bit of precision */
   number_double(x_two_t);
   @<Initialize for intersections at level zero@>;
 CONTINUE:
