@@ -2,7 +2,7 @@
 ** XXHashFunction.hpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -32,21 +32,21 @@ struct XXHInterface {
 template<>
 struct XXHInterface<4> {
 	using State = XXH32_state_t;
-	static constexpr auto createState = XXH32_createState;
-	static constexpr auto freeState = XXH32_freeState;
-	static constexpr auto reset = XXH32_reset;
-	static constexpr auto update = XXH32_update;
-	static constexpr auto digest = XXH32_digest;
+	static constexpr auto createState = &XXH32_createState;
+	static constexpr auto freeState = &XXH32_freeState;
+	static constexpr auto reset = &XXH32_reset;
+	static constexpr auto update = &XXH32_update;
+	static constexpr auto digest = &XXH32_digest;
 };
 
 template<>
 struct XXHInterface<8> {
 	using State = XXH64_state_t;
-	static constexpr auto createState = XXH64_createState;
-	static constexpr auto freeState = XXH64_freeState;
-	static constexpr auto reset = XXH64_reset;
-	static constexpr auto update = XXH64_update;
-	static constexpr auto digest = XXH64_digest;
+	static constexpr auto createState = &XXH64_createState;
+	static constexpr auto freeState = &XXH64_freeState;
+	static constexpr auto reset = &XXH64_reset;
+	static constexpr auto update = &XXH64_update;
+	static constexpr auto digest = &XXH64_digest;
 };
 
 

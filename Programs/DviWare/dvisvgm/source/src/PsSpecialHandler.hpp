@@ -2,7 +2,7 @@
 ** PsSpecialHandler.hpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -49,25 +49,26 @@ class PsSpecialHandler : public SpecialHandler, protected PSActions {
 			ClippingStack () : _maxID(0) {}
 			void pushEmptyPath ();
 			void push (const Path &path, int saveID=-1);
-			void replace (const Path &path);
+			bool replace (const Path &path);
 			void dup (int saveID=-1);
 			void pop (int saveID=-1, bool grestore=false);
 			void clear ();
 			bool empty () const {return _stack.empty();}
-			bool clippathLoaded () const;
-			void setClippathLoaded (bool loaded);
-			const Path* top () const;
+			void setPrependedPath ();
+			const Path* path () const;
+			const Path* prependedPath () const;
+			void removePrependedPath ();
 			int topID () const {return _stack.empty() ? 0 : _stack.top().pathID;}
 
 		private:
 			struct Entry {
-				std::shared_ptr<Path> path;  // pointer to current clipping path
+				std::shared_ptr<Path> path;  ///< pointer to current clipping path
+				std::shared_ptr<Path> prependedPath=nullptr;
 				int pathID;        ///< ID of current clipping path
 				int saveID;        ///< if >=0, path was pushed by 'save', and saveID holds the ID of the PS memory object
-				bool cpathLoaded;  ///< true if clipping path was loaded into current path
 				Entry () : Entry(-1) {}
-				Entry (const Path &p, int pid, int sid) : path(std::make_shared<Path>(p)), pathID(pid), saveID(sid), cpathLoaded(false) {}
-				Entry (int sid) : path(nullptr), pathID(0), saveID(sid), cpathLoaded(false) {}
+				Entry (const Path &p, int pid, int sid) : path(std::make_shared<Path>(p)), pathID(pid), saveID(sid) {}
+				Entry (int sid) : path(nullptr), pathID(0), saveID(sid) {}
 				Entry (const Entry &entry) =default;
 				Entry (Entry &&entry) =default;
 			};
@@ -104,7 +105,7 @@ class PsSpecialHandler : public SpecialHandler, protected PSActions {
 		void processHeaderFile (const char *fname);
 		void imgfile (FileType type, const std::string &fname, const std::unordered_map<std::string,std::string> &attr);
 		void dviEndPage (unsigned pageno, SpecialActions &actions) override;
-		void clip (Path &path, bool evenodd);
+		void clip (Path path, bool evenodd);
 		void processSequentialPatchMesh (int shadingTypeID, ColorSpace cspace, VectorIterator<double> &it);
 		void processLatticeTriangularPatchMesh (ColorSpace colorSpace, VectorIterator<double> &it);
 
