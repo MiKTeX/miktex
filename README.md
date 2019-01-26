@@ -1,6 +1,6 @@
 # MiKTeX
 
-MiKTeX is both a modern C/C++ implemenentation of TeX & Friends and a
+MiKTeX is both a modern C/C++ implementation of TeX & Friends and a
 TeX distribution.
 
 The [MiKTeX Project Page](https://miktex.org) is the place to go, if
