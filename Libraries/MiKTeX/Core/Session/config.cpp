@@ -1,6 +1,6 @@
 /* config.cpp: MiKTeX configuration settings
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -1442,9 +1442,45 @@ void SessionImpl::ConfigureFile(const PathName& pathIn, const PathName& pathOut,
   }
 }
 
+class DefaultCallback :
+  public HasNamedValues
+{
+public:
+  DefaultCallback(SessionImpl* session) :
+    session(session)
+  {
+  }
+public:
+  bool TryGetValue(const string& valueName, string& value) override
+  {
+    if (valueName == "MIKTEX_SYSTEM_TAG")
+    {
+      value = MIKTEX_SYSTEM_TAG;
+      return true;
+    }
+    else if (valueName == "MIKTEX_EXE_FILE_SUFFIX")
+    {
+      value = MIKTEX_EXE_FILE_SUFFIX;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+public:
+  string GetValue(const string& valueName)
+  {
+    UNIMPLEMENTED();
+  }
+private:
+  SessionImpl* session;
+};
+
 std::string SessionImpl::Expand(const string& toBeExpanded)
 {
-  return Expand(toBeExpanded, { ExpandOption::Values }, nullptr);
+  DefaultCallback callback(this);
+  return Expand(toBeExpanded, &callback);
 }
 
 std::string SessionImpl::Expand(const string& toBeExpanded, HasNamedValues* callback)
@@ -1489,10 +1525,10 @@ std::string SessionImpl::ExpandValues(const string& toBeExpanded, HasNamedValues
         lpsz += 1;
         expansion += '$';
       }
-      else if (lpsz[1] == '(' || lpsz[1] == '{' || isalpha(lpsz[1]) || lpsz[1] == '_')
+      else if (lpsz[1] == '{' || isalpha(lpsz[1]) || lpsz[1] == '_')
       {
         const char* lpszBegin = lpsz;
-        char endChar = (lpsz[1] == '(' ? ')' : (lpsz[1] == '{' ? '}' : 0));
+        char endChar = lpsz[1] == '{' ? '}' : 0;
         valueName = "";
         if (endChar == 0)
         {

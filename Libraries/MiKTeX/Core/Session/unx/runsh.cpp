@@ -1,6 +1,6 @@
 /* runsh.cpp: running the shell
 
-   Copyright (C) 2017-2018 Christian Schenk
+   Copyright (C) 2017-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,9 +21,6 @@
 
 #include "config.h"
 
-#include <miktex/Core/CommandLineBuilder>
-#include <miktex/Core/Paths>
-
 #include "internal.h"
 
 #include "Session/SessionImpl.h"
@@ -36,38 +33,19 @@ int SessionImpl::RunSh(int argc, const char** argv)
 {
   MIKTEX_ASSERT(argc > 0);
 
-  // determine script name
   PathName name = PathName(argv[0]).GetFileName();
 
-  // get relative script path
-  PathName scriptsIni;
-  if (!FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
-  {
-    MIKTEX_FATAL_ERROR(T_("The script configuration file cannot be found."));
-  }
-  unique_ptr<Cfg> config(Cfg::Create());
-  config->Read(scriptsIni, true);
-  string relScriptPath;
-  if (!config->TryGetValueAsString("sh", name.ToString(), relScriptPath))
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The shell script is not registered."), "script", name.ToString());
-  }
-  config = nullptr;
-
-  // find script file
   PathName scriptPath;
-  if (!FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The shell script file could not be found."), "name", name.ToString(), "path", relScriptPath);
-  }
+  vector<string> scriptEngineOptions;
+  tie(scriptPath, scriptEngineOptions) = GetScript("sh", name.ToString());
 
   if (!File::GetAttributes(scriptPath)[FileAttribute::Executable])
   {
     MIKTEX_FATAL_ERROR_2(T_("Cannot execute script."), "path", Q_(scriptPath));
   }
   
-  // build command line
   vector<string> args{ name.ToString() };
+
   if (argc > 1)
   {
     args.insert(args.end(), &argv[1], &argv[argc]);

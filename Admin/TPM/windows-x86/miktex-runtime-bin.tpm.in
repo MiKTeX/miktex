@@ -30,6 +30,7 @@ texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${utf8wrap_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${util_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${w2cemu_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runbat.exe
+texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runexe.exe
 texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runjava.exe
 texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runperl.exe
 texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runpython.exe

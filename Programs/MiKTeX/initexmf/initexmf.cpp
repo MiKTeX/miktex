@@ -294,7 +294,7 @@ private:
 
 #if defined(MIKTEX_UNIX)
 private:
-  void MakeScriptsExecutable();
+  void MakeFilesExecutable();
 #endif
 
 private:
@@ -1744,7 +1744,7 @@ void IniTeXMFApp::ManageLinks(LinkCategoryOptions linkCategories, bool remove, b
 }
 
 #if defined(MIKTEX_UNIX)
-void IniTeXMFApp::MakeScriptsExecutable()
+void IniTeXMFApp::MakeFilesExecutable()
 {
   PathName scriptsIni;
   if (!session->FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
@@ -1757,14 +1757,14 @@ void IniTeXMFApp::MakeScriptsExecutable()
   enableInstaller = TriState::False;
   for (const shared_ptr<Cfg::Key>& key : *config)
   {
-    if (key->GetName() != "sh")
+    if (key->GetName() != "sh" && key->GetName() != "exe")
     {
       continue;
     }
     for (const shared_ptr<Cfg::Value>& val : *key)
     {
       PathName scriptPath;
-      if (!session->FindFile(val->AsString(), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
+      if (!session->FindFile(session->Expand(val->AsString()), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
       {
         continue;
       }
@@ -2602,7 +2602,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 #if defined(MIKTEX_UNIX)
     if (optMakeLinks)
     {
-      MakeScriptsExecutable();
+      MakeFilesExecutable();
     }
 #endif
   }

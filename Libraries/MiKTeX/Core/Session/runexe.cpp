@@ -1,6 +1,6 @@
-/* runbat.cpp: running Cmd scripts
+/* runexe.cpp: running executables
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#include <miktex/Core/CommandLineBuilder>
-
 #include "internal.h"
 
 #include "Session/SessionImpl.h"
@@ -31,27 +29,33 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 
-int SessionImpl::RunBatch(int argc, const char** argv)
+int SessionImpl::RunExe(int argc, const char** argv)
 {
   MIKTEX_ASSERT(argc > 0);
 
-  PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
+  PathName name = PathName(argv[0]).GetFileName();
 
-  PathName scriptPath;
-  vector<string> scriptEngineOptions;
-  tie(scriptPath, scriptEngineOptions) = GetScript("bat", name.ToString());
+  PathName executablePath;
+  vector<string> executableOptions;
+  tie(executablePath, executableOptions) = GetScript("exe", name.ToString());
 
-  CommandLineBuilder commandLine;
-  commandLine.SetQuotingConvention(QuotingConvention::Bat);
-  commandLine.AppendArgument(scriptPath);
+#if !defined(MIKTEX_WINDOWS)
+  if (!File::GetAttributes(executablePath)[FileAttribute::Executable])
+  {
+    MIKTEX_FATAL_ERROR_2(T_("Cannot execute file."), "path", Q_(executablePath));
+  }
+#endif
+
+  vector<string> args{ name.ToString() };
+
   if (argc > 1)
   {
-    commandLine.AppendArguments(argc - 1, &argv[1]);
+    args.insert(args.end(), &argv[1], &argv[argc]);
   }
 
   int exitCode;
 
-  Process::ExecuteSystemCommand(commandLine.ToString(), &exitCode);
+  Process::Run(executablePath, args, nullptr, &exitCode, nullptr);
 
   return exitCode;
 }

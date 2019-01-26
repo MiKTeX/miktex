@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -77,14 +77,15 @@ BEGIN_TEST_FUNCTION(1);
   TEST(pSession->Expand("$$") == "$");
   putenv("abc=def");
   TEST(pSession->Expand("$abc") == "def");
-  TEST(pSession->Expand("$(abc)") == "def");
   TEST(pSession->Expand("${abc}") == "def");
-  putenv("xyz=x$(abc)x");
+  putenv("xyz=x${abc}x");
   TEST(pSession->Expand("$xyz") == "xdefx");
   VarExpand expander(pSession);
   TEST(pSession->Expand("$xyz", &expander) == "xdefx");
   TEST(pSession->Expand("$jkl", &expander) == "mno");
   TEST(pSession->Expand("$rst", &expander) == "xdefx");
+  TEST(pSession->Expand("${lkjlj}") == "${lkjlj}");
+  TEST(pSession->Expand("$MIKTEX_SYSTEM_TAG") == MIKTEX_SYSTEM_TAG);
 }
 END_TEST_FUNCTION();
 

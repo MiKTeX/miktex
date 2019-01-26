@@ -1,6 +1,6 @@
 /* miktex/Core/Session.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -990,6 +990,9 @@ public:
 public:
   virtual int MIKTEXTHISCALL RunBatch(int argc, const char** argv) = 0;
 #endif
+
+public:
+  virtual int MIKTEXTHISCALL RunExe(int argc, const char** argv) = 0;
 
 #if !defined(MIKTEX_WINDOWS)
 public:

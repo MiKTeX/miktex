@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -455,6 +455,7 @@ set(session_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/mfmodes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/miktex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/papersize.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Session/runexe.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/runperl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/searchpath.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/texmfroot.cpp

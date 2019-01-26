@@ -1,6 +1,6 @@
 /* runperl.cpp: running scripts
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -32,14 +32,41 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 
+tuple<PathName, vector<string>> SessionImpl::GetScript(const string& scriptEngine, const string& name)
+{
+  PathName scriptsIni;
+  if (!FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
+  {
+    MIKTEX_FATAL_ERROR(T_("The script configuration file cannot be found."));
+  }
+  unique_ptr<Cfg> config(Cfg::Create());
+  config->Read(scriptsIni, true);
+  string value;
+  if (!config->TryGetValueAsString(scriptEngine, name, value))
+  {
+    MIKTEX_FATAL_ERROR_2(T_("The script is not registered."), "scriptEngine", scriptEngine, "scriptName", name);
+  }
+  string relScriptPath = Expand(value);
+  PathName scriptPath;
+  if (!FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
+  {
+    MIKTEX_FATAL_ERROR_2(T_("The script could not be found."), "scriptEngine", scriptEngine, "scriptName", name, "path", relScriptPath);
+  }
+  vector<string> args{ scriptEngine };
+  vector<string> scriptEngineOptions;
+  if (!config->TryGetValueAsStringVector(scriptEngine, name + "." + scriptEngine + "." + "options" + "[]", scriptEngineOptions))
+  {
+    scriptEngineOptions.clear();
+  }
+  return make_tuple(scriptPath, scriptEngineOptions);
+}
+
 int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngineArgument, int argc, const char** argv)
 {
   MIKTEX_ASSERT(argc > 0);
 
-  // determine script name
   PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
 
-  // find engine
   PathName engine;
   PathName scriptEngineWithExeSuffix = scriptEngine;
 #if defined(MIKTEX_WINDOWS)
@@ -56,41 +83,27 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
       "scriptName", name.ToString());
   }
 
-  // get relative script path
-  PathName scriptsIni;
-  if (!FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
-  {
-    MIKTEX_FATAL_ERROR(T_("The script configuration file cannot be found."));
-  }
-  unique_ptr<Cfg> config(Cfg::Create());
-  config->Read(scriptsIni, true);
-  string relScriptPath;
-  if (!config->TryGetValueAsString(scriptEngine, name.ToString(), relScriptPath))
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The script is not registered."), "scriptEngine", scriptEngine, "scriptName", name.ToString());
-  }
-
-  // find script
   PathName scriptPath;
-  if (!FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The script could not be found."), "scriptEngine", scriptEngine, "scriptName", name.ToString(), "path", relScriptPath);
-  }
+  vector<string> scriptEngineOptions;
+  tie(scriptPath, scriptEngineOptions) = GetScript(scriptEngine, name.ToString());
 
   vector<string> args{ scriptEngine };
-  vector<string> scriptEngineOptions;
-  if (config->TryGetValueAsStringVector(scriptEngine, name.ToString() + "." + scriptEngine + "." + "options" + "[]", scriptEngineOptions))
+
+  if (!scriptEngineOptions.empty())
   {
     args.insert(args.end(), scriptEngineOptions.begin(), scriptEngineOptions.end());
   }
+
   if (!scriptEngineArgument.empty())
   {
     args.push_back(scriptEngineArgument);
   }
+
   args.push_back(scriptPath.ToString());
-  for(int idx = 1; idx < argc; ++idx)
+
+  if (argc > 1)
   {
-    args.push_back(argv[idx]);
+    args.insert(args.end(), &argv[1], &argv[argc]);
   }
 
   int exitCode;
@@ -100,23 +113,17 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
   return exitCode;
 }
 
-#define PERL "perl"
-
 int SessionImpl::RunPerl(int argc, const char** argv)
 {
-  return RunScript(PERL, "", argc, argv);
+  return RunScript("perl", "", argc, argv);
 }
-
-#define PYTHON "python"
 
 int SessionImpl::RunPython(int argc, const char** argv)
 {
-  return RunScript(PYTHON, "", argc, argv);
+  return RunScript("python", "", argc, argv);
 }
-
-#define JAVA "java"
 
 int SessionImpl::RunJava(int argc, const char** argv)
 {
-  return RunScript(JAVA, "-jar", argc, argv);
+  return RunScript("java", "-jar", argc, argv);
 }

@@ -1,6 +1,6 @@
 /* SessionImpl.h: Session impl class                    -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -357,6 +357,9 @@ public:
   int RunBatch(int argc, const char** argv) override;
 #endif
 
+public:
+  int RunExe(int argc, const char** argv) override;
+
 #if !defined(MIKTEX_WINDOWS)
 public:
   int RunSh(int argc, const char** argv) override;
@@ -569,6 +572,9 @@ private:
 private:
   bool RunningElevated();
 #endif
+
+private:
+  std::tuple<MiKTeX::Core::PathName, std::vector<std::string>> GetScript(const std::string& scriptEngine, const std::string& name);
 
 private:
   int RunScript(const std::string& scriptEngine, const std::string& scriptEngineArgument, int argc, const char** argv);
