@@ -482,10 +482,11 @@ dump_xref_stream (void)
 }
 
 #if defined(LIBDPX)
+static long pdf_output_file_stats = 0;
 long
 pdf_output_stats (void)
 {
-  return pdf_output_file_position;
+  return pdf_output_file_stats;
 }
 #endif /* LIBDPX */
 
@@ -541,6 +542,8 @@ pdf_out_flush (void)
     }
 #if !defined(LIBDPX)
     MESG("%ld bytes written", pdf_output_file_position);
+#else
+    pdf_output_file_stats = pdf_output_file_position;
 #endif /* !LIBDPX */
 
     MFCLOSE(pdf_output_file);

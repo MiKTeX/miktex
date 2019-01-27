@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team" year="2002-2017"/>
     <TPM:Copyright owner="Mark Wicks" year="1998,1999"/>
     <TPM:License type="gpl"/>
-    <TPM:Version>20181221</TPM:Version>
+    <TPM:Version>20190127</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

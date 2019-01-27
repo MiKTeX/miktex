@@ -1190,6 +1190,7 @@ stored in the \MP\ instance, this will be taken as the first line of
 input.
 
 @d command_line_size 256
+@d max_commad_line_size 0xFFFFFFF /* should be the same of |max_halfword| (see |mp_reallocate_buffer|) */
 
 @<Copy the rest of the command line@>=
 {
@@ -1197,18 +1198,28 @@ input.
   options->command_line = mpost_xmalloc(command_line_size);
   strcpy(options->command_line,"");
   if (optind<argc) {
+    int optind_aux = optind;
+    size_t buflen = 0;
+    for(;optind_aux<argc;optind_aux++) {
+      buflen +=(strlen(argv[optind_aux])+1); /* reserve space for ' ' as separator */
+    }
+    /* Last char is ' ', no need to reserve space for final '\0' */
+    if (buflen > max_commad_line_size) {
+        fprintf(stderr,"length of command line too long!\n");
+    	exit(EXIT_FAILURE);
+    }
+    mpost_xfree(options->command_line);
+    options->command_line = mpost_xmalloc(buflen);
     k=0;
     for(;optind<argc;optind++) {
       char *c = argv[optind];
       while (*c != '\0') {
-	    if (k<(command_line_size-1)) {
-          options->command_line[k++] = *c;
-        }
+        options->command_line[k++] = *c;
         c++;
       }
       options->command_line[k++] = ' ';
     }
-	while (k>0) {
+    while (k>0) {
       if (options->command_line[(k-1)] == ' ') 
         k--; 
       else 
