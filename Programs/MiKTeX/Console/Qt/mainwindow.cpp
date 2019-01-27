@@ -160,6 +160,10 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   connect(ui->actionTeXworks, SIGNAL(triggered()), this, SLOT(StartTeXworks()));
   connect(ui->actionTerminal, SIGNAL(triggered()), this, SLOT(StartTerminal()));
 
+  QTimer* timer = new QTimer(this);
+  connect(timer, SIGNAL(timeout()), this, SLOT(UnloadFileNameDatabase()));
+  timer->start(5000);
+
   UpdateUi();
   UpdateActions();
 }
@@ -2533,4 +2537,9 @@ void MainWindow::Restart()
   QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be restarted."));
   Process::Start(session->GetMyProgramFile(true));
   this->close();
+}
+
+void MainWindow::UnloadFileNameDatabase()
+{
+  session->UnloadFilenameDatabase(std::chrono::seconds(1));
 }

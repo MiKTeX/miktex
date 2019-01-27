@@ -581,6 +581,9 @@ private:
 private:
   void Restart();
 
+private slots:
+  void UnloadFileNameDatabase();
+
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
