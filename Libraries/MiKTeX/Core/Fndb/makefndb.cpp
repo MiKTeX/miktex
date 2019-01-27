@@ -445,6 +445,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     // </fixme>
     
     FileStream streamFndb;
+#if defined(MIKTEX_WINDOWS)
     chrono::time_point<chrono::high_resolution_clock> tryUntil = chrono::high_resolution_clock::now() + chrono::seconds(10);
     do
     {
@@ -460,6 +461,9 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
         }
       }
     } while (streamFndb.GetFile() == nullptr);
+#else
+    streamFndb.Attach(File::Open(fndbPath, FileMode::Create, FileAccess::Write, false));
+#endif
     if (!File::TryLock(streamFndb.GetFile(), File::LockType::Exclusive, 1s))
     {
       MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", fndbPath.ToString());
