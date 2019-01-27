@@ -90,6 +90,12 @@ const char* const TheNameOfTheGame = T_("MiKTeX Configuration Utility");
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger(PROGNAME));
 static bool isLog4cxxConfigured = false;
 
+bool EndsWith(const string& s, const string& suffix)
+{
+  return s.length() >= suffix.length() &&
+    s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
+}
+
 template<class VALTYPE> class AutoRestore
 {
 public:
@@ -1705,7 +1711,12 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       }
       for (const shared_ptr<Cfg::Value>& v : *key)
       {
-        PathName pathExe(pathLocalBinDir, v->GetName());
+        string name = v->GetName();
+        if (EndsWith(name, "[]"))
+        {
+          continue;
+        }
+        PathName pathExe(pathLocalBinDir, name);
         if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
         {
           pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
@@ -1763,6 +1774,10 @@ void IniTeXMFApp::MakeFilesExecutable()
     }
     for (const shared_ptr<Cfg::Value>& val : *key)
     {
+      if (EndsWith(val->GetName(), "[]"))
+      {
+        continue;
+      }
       PathName scriptPath;
       if (!session->FindFile(session->Expand(val->AsString()), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
       {
