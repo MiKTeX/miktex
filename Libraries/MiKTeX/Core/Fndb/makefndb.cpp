@@ -459,6 +459,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
         {
           throw;
         }
+        this_thread::sleep_for(chrono::milliseconds(200));
       }
     } while (streamFndb.GetFile() == nullptr);
 #else
