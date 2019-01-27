@@ -404,7 +404,7 @@ void TeXDocument::init()
 #endif
 #if defined(MIKTEX)
         actionAbout_MiKTeX = new QAction(this);
-        actionAbout_MiKTeX->setIcon(QIcon(":/MiKTeX/miktex32x32.png"));
+        actionAbout_MiKTeX->setIcon(QIcon(":/MiKTeX/miktex16x16.png"));
         actionAbout_MiKTeX->setObjectName(QString::fromUtf8("actionAbout_MiKTeX"));
         actionAbout_MiKTeX->setText(QApplication::translate("TeXDocument", "About MiKTeX..."));
         actionAbout_MiKTeX->setMenuRole(QAction::AboutRole);
