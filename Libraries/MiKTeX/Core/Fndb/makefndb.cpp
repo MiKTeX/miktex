@@ -465,7 +465,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
 #else
     streamFndb.Attach(File::Open(fndbPath, FileMode::Create, FileAccess::Write, false));
 #endif
-    if (!File::TryLock(streamFndb.GetFile(), File::LockType::Exclusive, 1s))
+    if (!File::TryLock(streamFndb.GetFile(), File::LockType::Exclusive, 10s))
     {
       MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", fndbPath.ToString());
     }
