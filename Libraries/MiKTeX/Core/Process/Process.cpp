@@ -1,6 +1,6 @@
 /* process.cpp: executing secondary processes
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -98,6 +98,11 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
   if (workingDirectory != nullptr)
   {
     startinfo.WorkingDirectory = workingDirectory;
+  }
+
+  if (session != nullptr)
+  {
+    session->UnloadFilenameDatabase();
   }
 
   unique_ptr<Process> process(Process::Start(startinfo));
