@@ -33,7 +33,7 @@ int SessionImpl::RunExe(int argc, const char** argv)
 {
   MIKTEX_ASSERT(argc > 0);
 
-  PathName name = PathName(argv[0]).GetFileName();
+  PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
 
   PathName executablePath;
   vector<string> executableOptions;
