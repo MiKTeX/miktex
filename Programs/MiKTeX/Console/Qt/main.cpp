@@ -319,10 +319,6 @@ int main(int argc, char* argv[])
       }
       switchToAdmin = true;
     }
-    else
-    {
-      switchToAdmin = session->RunningAsAdministrator() && session->IsSharedSetup();
-    }
     if (switchToAdmin)
     {
       session->SetAdminMode(true);
