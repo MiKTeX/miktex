@@ -53,9 +53,21 @@ int SessionImpl::RunExe(int argc, const char** argv)
     args.insert(args.end(), &argv[1], &argv[argc]);
   }
 
+  // TODO: AutoRestoreEnv xxx("PATH")
+  string newPath = executablePath.GetDirectoryName().ToString();
+  string oldPath;
+  if (Utils::GetEnvironmentString("PATH", oldPath))
+  {
+    newPath += PathName::PathNameDelimiter;
+    newPath += oldPath;
+  }
+  Utils::SetEnvironmentString("PATH", newPath);
+
   int exitCode;
 
   Process::Run(executablePath, args, nullptr, &exitCode, nullptr);
+
+  Utils::SetEnvironmentString("PATH", oldPath);
 
   return exitCode;
 }

@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 2.9.6960 - 2019-02-06
+
+### Fixed issues
+
+* [254](https://github.com/MiKTeX/miktex/issues/254): biber: missing on Ubuntu and Mac
+
 ## 2.9.6960 - 2019-02-04
 
 ### Upgraded programs
@@ -11,7 +17,6 @@
 ### Fixed issues
 
 * [249](https://github.com/MiKTeX/miktex/issues/249): TeXworks blocks FNDB
-* [254](https://github.com/MiKTeX/miktex/issues/254): biber: missing on Ubuntu and Mac
 
 ## 2.9.6930 - 2019-01-06
 
