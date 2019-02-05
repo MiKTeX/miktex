@@ -1783,6 +1783,10 @@ void IniTeXMFApp::MakeFilesExecutable()
       {
         continue;
       }
+      if (session->GetRootDirectories()[session->DeriveTEXMFRoot(scriptPath)].IsCommon() && !session->IsAdminMode())
+      {
+        continue;
+      }
       File::SetAttributes(scriptPath, File::GetAttributes(scriptPath) + FileAttribute::Executable);
     }
   }
