@@ -1,6 +1,6 @@
 /* PackageInstaller.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -1792,12 +1792,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
   if (!noPostProcessing)
   {
     vector<string> args = { "--mkmaps" };
-#if defined(MIKTEX_WINDOWS)
-    bool mklinks = session->IsAdminMode();
-#else
-    bool mklinks = true;
-#endif
-    if (mklinks)
+    if (session->IsAdminMode())
     {
       args.push_back("--mklinks");
     }
