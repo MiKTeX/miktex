@@ -1582,6 +1582,13 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
   }
 }
 
+// FIXME: duplicate ocode
+bool EndsWith(const string& s, const string& suffix)
+{
+  return s.length() >= suffix.length() &&
+    s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
+}
+
 void PackageInstallerImpl::InstallRemove(Role role)
 {
   NeedRepository();
@@ -1795,6 +1802,43 @@ void PackageInstallerImpl::InstallRemove(Role role)
     if (session->IsAdminMode())
     {
       args.push_back("--mklinks");
+    }
+    else
+    {
+#if defined(MIKTEX_UNIX)
+      // FIXME: duplicate code (initexmf.cpp)
+      PathName scriptsIni;
+      if (!session->FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
+      {
+        MIKTEX_FATAL_ERROR(T_("Script configuration file not found."));
+      }
+      unique_ptr<Cfg> config(Cfg::Create());
+      config->Read(scriptsIni, true);
+      for (const shared_ptr<Cfg::Key>& key : *config)
+      {
+        if (key->GetName() != "sh" && key->GetName() != "exe")
+        {
+          continue;
+        }
+        for (const shared_ptr<Cfg::Value>& val : *key)
+        {
+          if (EndsWith(val->GetName(), "[]"))
+          {
+            continue;
+          }
+          PathName scriptPath;
+          if (!session->FindFile(session->Expand(val->AsString()), MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM, scriptPath))
+          {
+            continue;
+          }
+          if (session->GetRootDirectories()[session->DeriveTEXMFRoot(scriptPath)].IsCommon() && !session->IsAdminMode())
+          {
+            continue;
+          }
+          File::SetAttributes(scriptPath, File::GetAttributes(scriptPath) + FileAttribute::Executable);
+        }
+      }
+#endif
     }
     RunIniTeXMF(args);
   }
