@@ -1583,7 +1583,7 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
 }
 
 // FIXME: duplicate ocode
-bool EndsWith(const string& s, const string& suffix)
+MPMSTATICFUNC(bool) EndsWith(const string& s, const string& suffix)
 {
   return s.length() >= suffix.length() &&
     s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
