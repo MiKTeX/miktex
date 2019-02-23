@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -920,7 +920,7 @@ CIDFont_type0_open (CIDFont *font, const char *name,
       ERROR("Inconsistent CMap specified for this font.");
     }
     if (csi->supplement < cmap_csi->supplement) {
-      WARN("CMap have higher supplmement number.");
+      WARN("CMap have higher supplement number.");
       WARN("Some characters may not be displayed or printed.");
     }
   }

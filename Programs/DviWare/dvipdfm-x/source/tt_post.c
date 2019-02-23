@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -161,7 +161,7 @@ tt_lookup_post_table (struct tt_post_table *post, const char *glyphname)
 
   ASSERT(post && glyphname);
 
-  for (gid = 0; gid < post->count; gid++) {
+  for (gid = 0; gid < post->numberOfGlyphs; gid++) {
     if (post->glyphNamePtr[gid] &&
 	!strcmp(glyphname, post->glyphNamePtr[gid])) {
       return  gid;
