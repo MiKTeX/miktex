@@ -14,13 +14,25 @@
 \def\[#1]{#1.}
 \pdfoutput=1
 
+@s line normal
+
+@s MP int
+@s MPX int
+@s MP_options int
+@s boolean int
+@s const_string int
+@s mpx_options int
+@s option int
+@s string int
+@s timeb int
+@s timeval int
+
 @*\MP\ executable.
 
 Now that all of \MP\ is a library, a separate program is needed to 
 have our customary command-line interface. 
 
-@ First, here are the C includes. |avl.h| is needed because of an 
-|avl_allocator| that is defined in |mplib.h|
+@ First, here are the \CEE/ includes.
 
 @d true 1
 @d false 0
@@ -40,7 +52,7 @@ have our customary command-line interface.
 #elif defined (HAVE_SYS_TIMEB_H)
 #include <sys/timeb.h>
 #endif
-#include <time.h> /* For `struct tm'.  Moved here for Visual Studio 2005.  */
+#include <time.h> /* For `|struct tm|'.  Moved here for Visual Studio 2005.  */
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
@@ -51,7 +63,7 @@ have our customary command-line interface.
 #  include <miktex/unxemu.h>
 #endif
 @= /*@@null@@*/ @> static char *mpost_tex_program = NULL;
-static int debug = 0; /* debugging for makempx */
+static int debug = 0; /* debugging for \.{makempx} */
 static int nokpse = 0;
 #if defined(MIKTEX) && defined(recorder_enabled)
 #  undef recorder_enabled
@@ -63,11 +75,11 @@ static char *job_name = NULL;
 static char *job_area = NULL;
 static int dvitomp_only = 0;
 static int ini_version_test = false;
-string output_directory;     /* Defaults to NULL.  */
+string output_directory;     /* Defaults to |NULL|.  */
 static boolean restricted_mode = false;
 
-@<getopt structures@>;
-@<Declarations@>;
+@<Structures for |getopt|@>@;
+@<Declarations@>@;
 
 @ Allocating a bit of memory, with error detection:
 
@@ -190,7 +202,7 @@ static void mpost_run_editor (MP mp, char *fname, int fline) {
             break;
 	  case '\0':
             *temp++ = '%';
-            /* Back up to the null to force termination.  */
+            /* Back up to the |NULL| to force termination.  */
 	    edit_value--;
 	    break;
 	  default:
@@ -261,7 +273,7 @@ options->run_editor = mpost_run_editor;
 static string normalize_quotes (const char *name, const char *mesg) {
     boolean quoted = false;
     boolean must_quote = (strchr(name, ' ') != NULL);
-    /* Leave room for quotes and NUL. */
+    /* Leave room for quotes and |NULL|. */
     string ret = (string)mpost_xmalloc(strlen(name)+3);
     string p;
     const_string q;
@@ -349,8 +361,8 @@ void recorder_start(char *jobname) {
   return  kpse_find_file (nam, fmt, req);
 }
 
-@ Invoke {\tt makempx} (or {\tt troffmpx}) to make sure there is an
-   up-to-date {\tt .mpx} file for a given {\tt .mp} file.  (Original
+@ Invoke \.{makempx} (or \.{troffmpx}) to make sure there is an
+   up-to-date \.{.mpx} file for a given \.{.mp} file.  (Original
    from John Hobby 3/14/90)
 
 @d default_args " --parse-first-line --interaction=nonstopmode"
@@ -706,7 +718,7 @@ if (!nokpse)
   options->find_file = mpost_find_file;
 
 @ The |mpost| program supports setting of internal values
-via a |-s| commandline switch. Since this switch is repeatable,
+via a \.{-s} commandline switch. Since this switch is repeatable,
 a structure is needed to store the found values in, which is a
 simple linked list. 
 
@@ -718,7 +730,7 @@ typedef struct set_list_item {
    struct set_list_item *next;
 } set_list_item ;
 
-@ Here is the global value that is the head of the list of |-s| options.
+@ Here is the global value that is the head of the list of \.{-s} options.
 @c
 struct set_list_item *set_list = NULL;
 
@@ -828,9 +840,8 @@ static void *mpost_open_file(MP mp, const char *fname, const char *fmode, int ft
 if (!nokpse)
   options->open_file = mpost_open_file;
 
-@  
-@<getopt structures@>=
-#define ARGUMENT_IS(a) STREQ (mpost_options[optionid].name, a)
+@ @d ARGUMENT_IS(a) STREQ (mpost_options[optionid].name, a)
+@<Structures for |getopt|@>=
 
 /* SunOS cc can't initialize automatic structs, so make this static.  */
 static struct option mpost_options[]
@@ -884,7 +895,7 @@ static struct option mpost_options[]
 
 @<Read and set command line options@>=
 {
-  int g;   /* `getopt' return code.  */
+  int g;   /* `|getopt|' return code.  */
   int optionid;
   for (;;) {
     g = getopt_long_only (argc, argv, "+", mpost_options, &optionid);
@@ -1003,9 +1014,8 @@ static struct option mpost_options[]
   options->ini_version = (int)ini_version_test;
 }
 
-@  
-@<getopt structures@>=
-#define option_is(a) STREQ (dvitomp_options[optionid].name, a)
+@ @d option_is(a) STREQ (dvitomp_options[optionid].name, a)
+@<Structures for |getopt|@>=
 
 /* SunOS cc can't initialize automatic structs, so make this static.  */
 static struct option dvitomp_options[]
@@ -1019,9 +1029,9 @@ static struct option dvitomp_options[]
 
 
 @ 
-@<Read and set dvitomp command line options@>=
+@<Read and set \.{dvitomp} command line options@>=
 {
-  int g;   /* `getopt' return code.  */
+  int g;   /* `|getopt|' return code.  */
   int optionid;
   for (;;) {
     g = getopt_long_only (argc, argv, "+", dvitomp_options, &optionid);
@@ -1190,7 +1200,7 @@ stored in the \MP\ instance, this will be taken as the first line of
 input.
 
 @d command_line_size 256
-@d max_commad_line_size 0xFFFFFFF /* should be the same of |max_halfword| (see |mp_reallocate_buffer|) */
+@d max_command_line_size 0xFFFFFFF /* should be the same of |max_halfword| (see |mp_reallocate_buffer|) */
 
 @<Copy the rest of the command line@>=
 {
@@ -1201,10 +1211,10 @@ input.
     int optind_aux = optind;
     size_t buflen = 0;
     for(;optind_aux<argc;optind_aux++) {
-      buflen +=(strlen(argv[optind_aux])+1); /* reserve space for ' ' as separator */
+      buflen +=(strlen(argv[optind_aux])+1); /* reserve space for |' '| as separator */
     }
-    /* Last char is ' ', no need to reserve space for final '\0' */
-    if (buflen > max_commad_line_size) {
+    /* Last char is |' '|, no need to reserve space for final |'\0'| */
+    if (buflen > max_command_line_size) {
         fprintf(stderr,"length of command line too long!\n");
     	exit(EXIT_FAILURE);
     }
@@ -1229,7 +1239,7 @@ input.
   }
 }
 
-@ A simple function to get numerical |texmf.cnf| values
+@ A simple function to get numerical \.{texmf.cnf} values
 @c
 static int setup_var (int def, const char *var_name, boolean nokpse) {
   if (!nokpse) {
@@ -1436,15 +1446,16 @@ if (options->job_name != NULL) {
       }
     } else {
       job_name = tmp_job;
-      /* |job_area| stays NULL */
+      /* |job_area| stays |NULL| */
     }
   }
 }
 }
 options->job_name = job_name;
 
-@ We |#define DLLPROC dllmpostmain| in order to build \MP\ as DLL for
-W32\TeX.
+@ We |
+#define DLLPROC dllmpostmain
+| in order to build \MP\ as DLL for W32\TeX.
 
 @<Declarations@>=
 #define DLLPROC dllmpostmain
@@ -1478,12 +1489,13 @@ DLLPROC (int argc, char **argv)
 main (int argc, char **argv)
 #endif
 #endif
-{ /* |start_here| */
+@;
+{ @t\1@> /* |start_here| */
   int k; /* index into buffer */
   int history; /* the exit status */
   MP mp; /* a metapost instance */
   struct MP_options * options; /* instance options */
-  char *user_progname = NULL; /* If the user overrides |argv[0]| with {\tt -progname}.  */
+  char *user_progname = NULL; /* If the user overrides |argv[0]| with \.{-progname}. */
   options = mp_options();
   options->ini_version       = (int)false;
   options->print_found_names = (int)true;
@@ -1500,7 +1512,7 @@ main (int argc, char **argv)
       dvitomp_only=1;
   }
   if (dvitomp_only) {
-    @<Read and set dvitomp command line options@>;
+    @<Read and set \.{dvitomp} command line options@>;
   } else {
     @<Read and set command line options@>;
   }
@@ -1565,4 +1577,7 @@ main (int argc, char **argv)
 	exit(history);
   else
      exit(0);
+@t\8@>
 }
+
+@* Index.
