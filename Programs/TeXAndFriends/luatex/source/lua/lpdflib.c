@@ -808,6 +808,12 @@ static int getpdfomitcidset(lua_State * L)
     return 1 ;
 }
 
+static int getpdfomitcharset(lua_State * L)
+{
+    lua_pushinteger(L, (pdf_omit_charset));
+    return 1 ;
+}
+
 static int setpdfgentounicode(lua_State * L)
 {
     if (lua_type(L, 1) == LUA_TNUMBER) {
@@ -820,6 +826,14 @@ static int setpdfomitcidset(lua_State * L)
 {
     if (lua_type(L, 1) == LUA_TNUMBER) {
         set_pdf_omit_cidset(lua_tointeger(L, 1));
+    }
+    return 0 ;
+}
+
+static int setpdfomitcharset(lua_State * L)
+{
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        set_pdf_omit_charset(lua_tointeger(L, 1));
     }
     return 0 ;
 }
@@ -1335,10 +1349,12 @@ static const struct luaL_Reg pdflib[] = {
     { "getignoreunknownimages", getpdfignoreunknownimages },
     { "getgentounicode", getpdfgentounicode },
     { "getomitcidset", getpdfomitcidset },
+    { "getomitcharset", getpdfomitcharset },
     { "setinclusionerrorlevel", setpdfinclusionerrorlevel },
     { "setignoreunknownimages", setpdfignoreunknownimages },
     { "setgentounicode", setpdfgentounicode },
     { "setomitcidset", setpdfomitcidset },
+    { "setomitcharset", setpdfomitcharset },
     { "setforcefile", setforcefile },
     { "mapfile", l_mapfile },
     { "mapline", l_mapline },

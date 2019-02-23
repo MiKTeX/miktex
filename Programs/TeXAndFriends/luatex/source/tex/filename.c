@@ -223,8 +223,8 @@ void scan_file_name_toks(void)
         cur_name = maketexstring(n);
         cur_ext = get_nullstr();
     }
+    flush_list(def_ref);
     xfree(s);
-
 }
 
 /*tex

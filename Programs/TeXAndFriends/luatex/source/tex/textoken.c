@@ -2383,6 +2383,7 @@ void combine_the_toks(int how)
             target = toks(nt);
             if (target == null) {
                 set_toks_register(nt,source,global);
+                token_link(source) = null;
             } else {
                 s = token_link(source);
                 if (s != null) {
@@ -2390,6 +2391,7 @@ void combine_the_toks(int how)
                     if (t == null) {
                         /*tex Can this happen? */
                         set_token_link(target, s);
+                        token_link(source) = null;
                     } else if (append) {
                         /*tex Append. */
                         if (token_ref_count(target) == 0) {
@@ -2428,6 +2430,7 @@ void combine_the_toks(int how)
                     }
                 }
             }
+            flush_list(source);
         }
     } else {
         if (cur_cmd == assign_toks_cmd) {

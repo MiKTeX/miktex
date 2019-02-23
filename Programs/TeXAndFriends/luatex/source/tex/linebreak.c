@@ -1579,7 +1579,7 @@ static void ext_try_break(
                     shortfall -= (total_font_stretch + margin_kern_stretch);
             } else if ((shortfall < 0) && ((total_font_shrink + margin_kern_shrink) > 0)) {
                 if ((total_font_shrink + margin_kern_shrink) > -shortfall)
-                    shortfall -= ((total_font_shrink + margin_kern_shrink) / (max_shrink_ratio / cur_font_step)) / 2;
+                    shortfall = -((total_font_shrink + margin_kern_shrink) / (max_shrink_ratio / cur_font_step)) / 2;
                 else
                     shortfall += (total_font_shrink + margin_kern_shrink);
             }

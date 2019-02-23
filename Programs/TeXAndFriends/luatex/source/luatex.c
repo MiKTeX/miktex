@@ -32,9 +32,9 @@
     stick to "0" upto "9" so users can expect a number represented as string.
 */
 
-int luatex_version = 109;
-int luatex_revision = '2';
-const char *luatex_version_string = "1.09.2";
+int luatex_version = 110;
+int luatex_revision = '0';
+const char *luatex_version_string = "1.10.0";
 const char *engine_name = my_name;
 
 #include <kpathsea/c-ctype.h>
@@ -269,14 +269,14 @@ void init_shell_escape(void)
 
 #  if 0
 #  ifdef WIN32
-#    if !defined(MIKTEX)
+#if !defined(MIKTEX)
 static int char_needs_quote(int c)
 {
     /* special characters of cmd.exe */
     return (c == '&' || c == '|' || c == '%' || c == '<' ||
             c == '>' || c == ';' || c == ',' || c == '(' || c == ')');
 }
-#    endif
+#endif
 #  endif
 #  endif
 
@@ -418,10 +418,10 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
                         return -1;
 #  if 0
 #  ifdef WIN32
-#    if !defined(MIKTEX)
+#if !defined(MIKTEX)
                     if (char_needs_quote(*s))
                         *d++ = '^';
-#    endif
+#endif
 #  endif
 #  endif
                     *d++ = *s++;
@@ -445,10 +445,10 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
                 *d++ = QUOTE;
 #  if 0
 #  ifdef WIN32
-#    if !defined(MIKTEX)
+#if !defined(MIKTEX)
                 if (char_needs_quote(*s))
                     *d++ = '^';
-#    endif
+#endif
 #  endif
 #  endif
                 *d++ = *s++;
@@ -466,10 +466,10 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
                 */
 #  if 0
 #  ifdef WIN32
-#    if !defined(MIKTEX)
+#if !defined(MIKTEX)
                 if (char_needs_quote(*s))
                     *d++ = '^';
-#    endif
+#endif
 #  endif
 #  endif
                 *d++ = *s++;

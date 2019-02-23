@@ -580,9 +580,11 @@ static int run_scan_string(lua_State * L) /* HH */
         t = def_ref;
         def_ref = saved_defref;
         tokenlist_to_luastring(L,t);
+        flush_list(t);
     } else if (cur_cmd == call_cmd) {
         t = token_link(cur_chr);
         tokenlist_to_luastring(L,t);
+        flush_list(t);
     } else if (cur_cmd == 11 || cur_cmd == 12 ) {
         declare_buffer;
         while (1) {
@@ -617,6 +619,7 @@ static int run_scan_argument(lua_State * L) /* HH */
         t = def_ref;
         def_ref = saved_defref;
         tokenlist_to_luastring(L,t);
+        flush_list(t);
     } else if (cur_cmd == call_cmd) {
         halfword saved_cur_tok = cur_tok;
         cur_tok = right_brace_token + '}';
@@ -630,6 +633,7 @@ static int run_scan_argument(lua_State * L) /* HH */
         t = def_ref;
         def_ref = saved_defref;
         tokenlist_to_luastring(L,t);
+        flush_list(t);
     } else if (cur_cmd == 11 || cur_cmd == 12 ) {
         declare_buffer;
         while (1) {
