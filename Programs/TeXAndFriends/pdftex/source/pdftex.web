@@ -5692,7 +5692,8 @@ that will be defined later.
 @d pdf_suppress_warning_page_group_code  = pdftex_first_integer_code + 29 {suppress warning about multiple pdfs with page group}
 @d pdf_info_omit_date_code  = pdftex_first_integer_code + 30 {omit generating CreationDate and ModDate}
 @d pdf_suppress_ptex_info_code = pdftex_first_integer_code + 31 {suppress /PTEX.* entries in PDF dictionaries}
-@d pdf_int_pars=pdftex_first_integer_code + 32 {total number of \pdfTeX's integer parameters}
+@d pdf_omit_charset_code = pdftex_first_integer_code + 32 {suppress /PTEX.* entries in PDF dictionaries}
+@d pdf_int_pars=pdftex_first_integer_code + 33 {total number of \pdfTeX's integer parameters}
 @#
 @d etex_int_base=pdf_int_pars {base for \eTeX's integer parameters}
 @d tracing_assigns_code=etex_int_base {show assignments}
@@ -5803,6 +5804,7 @@ that will be defined later.
 @d pdf_suppress_warning_page_group == int_par(pdf_suppress_warning_page_group_code)
 @d pdf_info_omit_date == int_par(pdf_info_omit_date_code)
 @d pdf_suppress_ptex_info == int_par(pdf_suppress_ptex_info_code)
+@d pdf_omit_charset == int_par(pdf_omit_charset_code)
 @#
 @d tracing_assigns==int_par(tracing_assigns_code)
 @d tracing_groups==int_par(tracing_groups_code)
@@ -5910,6 +5912,7 @@ pdf_suppress_warning_dup_map_code:   print_esc("pdfsuppresswarningdupmap");
 pdf_suppress_warning_page_group_code:print_esc("pdfsuppresswarningpagegroup");
 pdf_info_omit_date_code:print_esc("pdfinfoomitdate");
 pdf_suppress_ptex_info_code: print_esc("pdfsuppressptexinfo");
+pdf_omit_charset_code: print_esc("pdfomitcharset");
 @/@<Cases for |print_param|@>@/
 othercases print("[unknown integer parameter!]")
 endcases;
@@ -6096,10 +6099,15 @@ primitive("pdfsuppresswarningdupmap",assign_int,int_base+pdf_suppress_warning_du
 
 primitive("pdfsuppresswarningpagegroup",assign_int,int_base+pdf_suppress_warning_page_group_code);@/
 @!@:pdf_suppress_warning_page_group_}{\.{\\pdfsuppresswarningpagegroup} primitive@>
+
 primitive("pdfinfoomitdate",assign_int,int_base+pdf_info_omit_date_code);@/
 @!@:pdf_info_omit_date_}{\.{\\pdfinfoomitdate} primitive@>
+
 primitive("pdfsuppressptexinfo",assign_int,int_base+pdf_suppress_ptex_info_code);@/
 @!@:pdf_suppress_ptex_info_}{\.{\\pdfsuppressptexinfo} primitive@>
+
+primitive("pdfomitcharset",assign_int,int_base+pdf_omit_charset_code);@/
+@!@:pdf_omit_charset}{\.{\\pdfomitcharset} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
 assign_int: if chr_code<count_base then print_param(chr_code-int_base)
@@ -15102,6 +15110,11 @@ end;
 function get_pdf_suppress_ptex_info: integer;
 begin
     get_pdf_suppress_ptex_info := pdf_suppress_ptex_info;
+end;
+
+function get_pdf_omit_charset: integer;
+begin
+    get_pdf_omit_charset := pdf_omit_charset;
 end;
 
 function get_nullfont: internal_font_number;

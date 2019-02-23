@@ -484,16 +484,22 @@ static void write_fontdescriptor(fd_entry * fd)
     pdf_printf("/Flags %i\n", fd_flags);
     write_fontmetrics(fd);
     if (fd->ff_found) {
-#ifdef ENABLE_PDF_CHARSET /* just in case a builder wants it */
-        if (is_subsetted(fd->fm) && is_type1(fd->fm)) {
-            /* CharSet is optional, but if it appears, it must be
-               correct. Unfortunately, there is no practical way we can
-               guarantee correctness with precomposed accent characters
-               in our usual fonts (EC, TX, etc.):
+        if (getpdfomitcharset() == 0 && is_subsetted(fd->fm) && is_type1(fd->fm)) {
+            /* We don't get CharSet right. For some PDF standards,
+               CharSet is optional, but if it appears, it must be
+               correct. Unfortunately, there seems to be no practical
+               way we can guarantee correctness with precomposed accent
+               characters in our usual fonts (EC, TX, etc.):
               https://mailman.ntg.nl/pipermail/ntg-pdftex/2018-June/004251.html
-               Therefore, we disable its output. The code is left in
-               just in case it turns out that something important was
-               relying on the (incorrect) CharSet. */
+              
+               But for PDF/A-1, apparently it is required, regardless:
+              https://mailman.ntg.nl/pipermail/ntg-pdftex/2019-January/004264.html
+               
+               Whereas for PDF/A-2 and PDF/A-3, it can be omitted:
+              https://github.com/veraPDF/veraPDF-validation-profiles/wiki/PDFA-Parts-2-and-3-rules#rule-62114-3
+
+               Therefore, whether it is output can be controlled by the
+               user at runtime via \pdfincludecharset. */
             assert(fd->gl_tree != NULL);
             avl_t_init(&t, fd->gl_tree);
             /* Names may appear in any order. */
@@ -503,7 +509,7 @@ static void write_fontdescriptor(fd_entry * fd)
                 pdf_printf("/%s", glyph);
             pdf_puts(")\n");
         }
-#endif /* ENABLE_PDF_CHARSET */
+
         if (is_type1(fd->fm))
             pdf_printf("/FontFile %i 0 R\n", (int) fd->ff_objnum);
         else if (is_truetype(fd->fm))

@@ -1,6 +1,6 @@
 /* pdftex-miktex.h:                                     -*- C++ -*-
    
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -453,6 +453,11 @@ inline auto getcharwidth(PDFTEXPROGCLASS::internalfontnumber f, PDFTEXPROGCLASS:
 inline auto getpdfcompresslevel()
 {
   return PDFTEXPROG.getpdfcompresslevel();
+}
+
+inline auto getpdfomitcharset()
+{
+  return PDFTEXPROG.getpdfomitcharset();
 }
 
 inline auto getquad(PDFTEXPROGCLASS::internalfontnumber f)
