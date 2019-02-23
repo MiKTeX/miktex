@@ -214,10 +214,22 @@ int main(int argc, char* argv[])
 #if QT_VERSION >= 0x050000
   application.setApplicationDisplayName(displayName);
 #endif
-  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(PathName().SetToHomeDirectory() / "miktex-console.lock");
-  if (!lockFile->TryLock(500ms))
+  unique_ptr<MiKTeX::Core::LockFile> lockFile;
+  try
   {
-    QMessageBox::warning(nullptr, displayName, "MiKTeX Console is already running.");
+    lockFile = LockFile::Create(PathName().SetToHomeDirectory() / "miktex-console.lock");
+    if (!lockFile->TryLock(500ms))
+    {
+      QMessageBox::warning(nullptr, displayName, "MiKTeX Console is already running.");
+      return 1;
+    }
+  }
+  catch (const exception& e)
+  {
+#if defined(MIKTEX_WINDOWS)
+    OutputDebugStringW(StringUtil::UTF8ToWideChar(e.what()).c_str());
+#endif
+    QMessageBox::critical(nullptr, displayName, "MiKTeX Console cannot be started.");
     return 1;
   }
   MainWindow::Pages startPage = MainWindow::Pages::Overview;
@@ -384,6 +396,7 @@ int main(int argc, char* argv[])
     {
       LOG4CXX_INFO(logger, "finishing with exit code " << ret);
     }
+    lockFile->Unlock();
   }
   catch (const MiKTeXException& e)
   {
