@@ -776,15 +776,27 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
       result = true;
     }
   }
-#if 0
-  // TODO
   else if (varName == "TEXMFLOCAL")
   {
-    path = session->GetSpecialPath(SpecialPath::LocalRoot);
-    varValue = path.ToUnix().ToString();
-    result = true;
+    vector<std::string> commonRoots;
+    for (const auto& r : session->GetRootDirectories())
+    {
+      if (r.IsCommon() && !r.IsManaged())
+      {
+        commonRoots.push_back(r.path.ToUnix().ToString());
+      }
+}
+    if (commonRoots.size() == 1)
+    {
+      varValue = commonRoots[0];
+      result = true;
+    }
+    else if (commonRoots.size() > 1)
+    {
+      varValue = "{" + StringUtil::Flatten(commonRoots, ',') + "}";
+      result = true;
+    }
   }
-#endif
   else if (varName == "TEXMFSYSCONFIG")
   {
     path = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
