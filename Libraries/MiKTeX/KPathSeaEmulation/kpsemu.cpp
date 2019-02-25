@@ -1,7 +1,7 @@
 /* kpsemu.cpp: kpathsea emulation
 
    Copyright (C) 1994, 95 Karl Berry
-   Copyright (C) 2000-2018 Christian Schenk
+   Copyright (C) 2000-2019 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -755,15 +755,27 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
     varValue = path.ToUnix().ToString();
     result = true;
   }
-#if 0
-  // TODO
   else if (varName == "TEXMFHOME")
   {
-    path = session->GetSpecialPath(SpecialPath::UserHomeRoot);
-    varValue = path.ToUnix().ToString();
-    result = true;
+    vector<std::string> userRoots;
+    for (const auto& r : session->GetRootDirectories())
+    {
+      if (!r.IsCommon() && !r.IsManaged())
+      {
+        userRoots.push_back(r.path.ToUnix().ToString());
+      }
+    }
+    if (userRoots.size() == 1)
+    {
+      varValue = userRoots[0];
+      result = true;
+    }
+    else if(userRoots.size() > 1)
+    {
+      varValue = "{" + StringUtil::Flatten(userRoots, ',') + "}";
+      result = true;
+    }
   }
-#endif
 #if 0
   // TODO
   else if (varName == "TEXMFLOCAL")
