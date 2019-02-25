@@ -731,16 +731,12 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
   }
   else if (varName == "TEXMF")
   {
-    varValue = "{";
-    for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
+    vector<std::string> roots;
+    for (const auto& r : session->GetRootDirectories())
     {
-      if (r > 0)
-      {
-        varValue += ',';
-      }
-      varValue += session->GetRootDirectoryPath(r).ToUnix().ToString();
+      roots.push_back(r.path.ToUnix().ToString());
     }
-    varValue += '}';
+    varValue = "{" + StringUtil::Flatten(roots, ',') + "}";
     result = true;
   }
   else if (varName == "TEXMFCONFIG")
