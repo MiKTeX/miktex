@@ -113,19 +113,19 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
       // already registered
       if (common && !rootDirectories[idx].IsCommon())
       {
-        trace_config->WriteFormattedLine("core", T_("now a common TEXMF root: %s"), root.GetData());
+        trace_config->WriteLine("core", fmt::format(T_("now a common TEXMF root: {0}"), root));
         rootDirectories[idx].set_Common(common);
       }
       if (other && !rootDirectories[idx].IsOther())
       {
-        trace_config->WriteFormattedLine("core", "now a foreign TEXMF root: %s", root.GetData());
+        trace_config->WriteLine("core", fmt::format(T_("now a foreign TEXMF root: {0}"), root));
         rootDirectories[idx].set_Common(common);
       }
       rootDirectories[idx].purposes += purpose;;
       return idx;
     }
   }
-  trace_config->WriteFormattedLine("core", T_("registering %s TEXMF root: %s"), common ? "common" : "user", root.GetData());
+  trace_config->WriteLine("core", fmt::format(T_("registering {0} TEXMF root: {1}"), common ? "common" : "user", root));
   RootDirectoryInternals rootDirectory(root, ExpandEnvironmentVariables(root.GetData()));
   rootDirectory.purposes += purpose;
   rootDirectory.set_Common(common);
@@ -385,14 +385,14 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
 
   if (!IsAdminMode())
   {
-    trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectoryPath(userDataRootIndex).GetData());
-    trace_config->WriteFormattedLine("core", "UserConfig: %s", GetRootDirectoryPath(userConfigRootIndex).GetData());
-    trace_config->WriteFormattedLine("core", "UserInstall: %s", GetRootDirectoryPath(userInstallRootIndex).GetData());
+    trace_config->WriteLine("core", fmt::format("UserData: {}", GetRootDirectoryPath(userDataRootIndex)));
+    trace_config->WriteLine("core", fmt::format("UserConfig: {}", GetRootDirectoryPath(userConfigRootIndex)));
+    trace_config->WriteLine("core", fmt::format("UserInstall: {}", GetRootDirectoryPath(userInstallRootIndex)));
   }
 
-  trace_config->WriteFormattedLine("core", "CommonData: %s", GetRootDirectoryPath(commonDataRootIndex).GetData());
-  trace_config->WriteFormattedLine("core", "CommonConfig: %s", GetRootDirectoryPath(commonConfigRootIndex).GetData());
-  trace_config->WriteFormattedLine("core", "CommonInstall: %s", GetRootDirectoryPath(commonInstallRootIndex).GetData());
+  trace_config->WriteLine("core", fmt::format("CommonData: {}", GetRootDirectoryPath(commonDataRootIndex)));
+  trace_config->WriteLine("core", fmt::format("CommonConfig: {}", GetRootDirectoryPath(commonConfigRootIndex)));
+  trace_config->WriteLine("core", fmt::format("CommonInstall: {}", GetRootDirectoryPath(commonInstallRootIndex)));
 }
 
 vector<RootDirectoryInfo> SessionImpl::GetRootDirectories()
