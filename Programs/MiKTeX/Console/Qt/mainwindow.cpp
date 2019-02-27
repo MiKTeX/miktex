@@ -289,7 +289,7 @@ void MainWindow::UpdateUi()
       {
         ui->groupPathIssue->show();
 #if defined(MIKTEX_WINDOWS)
-        ui->buttonFixPath->setEnabled(true);
+        ui->buttonFixPath->setEnabled(!IsUserModeBlocked());
 #else
         ui->buttonFixPath->setEnabled(false);
 #endif
@@ -772,14 +772,12 @@ void MainWindow::on_buttonFixPath_clicked()
   if (Utils::CheckPath(true))
   {
     QMessageBox::information(this, tr("MiKTeX Console"), tr("The PATH environment variable has been successfully modified."), QMessageBox::Ok);
+    ui->groupPathIssue->hide();
   }
   else
   {
     QMessageBox::warning(this, tr("MiKTeX Console"), tr("The PATH environment variable could not be modified."), QMessageBox::Ok);
   }
-  pathChecked = false;
-  UpdateUi();
-  UpdateActions();
 }
 #endif
 
