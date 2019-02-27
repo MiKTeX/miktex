@@ -244,6 +244,11 @@ private:
 public slots:
   void FinishSetup();
 
+#if defined(MIKTEX_WINDOWS)
+private slots:
+  void on_buttonFixPath_clicked();
+#endif
+
 private slots:
   void on_buttonUpgrade_clicked();
 

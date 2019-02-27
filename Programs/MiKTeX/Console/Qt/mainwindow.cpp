@@ -288,6 +288,11 @@ void MainWindow::UpdateUi()
       if (!Utils::CheckPath())
       {
         ui->groupPathIssue->show();
+#if defined(MIKTEX_WINDOWS)
+        ui->buttonFixPath->setEnabled(true);
+#else
+        ui->buttonFixPath->setEnabled(false);
+#endif
       }
       else
       {
@@ -760,6 +765,23 @@ void MainWindow::FinishSetup()
     CriticalError(e);
   }
 }
+
+#if defined(MIKTEX_WINDOWS)
+void MainWindow::on_buttonFixPath_clicked()
+{
+  if (Utils::CheckPath(true))
+  {
+    QMessageBox::information(this, tr("MiKTeX Console"), tr("The PATH environment variable has been successfully modified."), QMessageBox::Ok);
+  }
+  else
+  {
+    QMessageBox::warning(this, tr("MiKTeX Console"), tr("The PATH environment variable could not be modified."), QMessageBox::Ok);
+  }
+  pathChecked = false;
+  UpdateUi();
+  UpdateActions();
+}
+#endif
 
 bool UpgradeWorker::Run()
 {
