@@ -1,6 +1,6 @@
 /* winUtil.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -1148,9 +1148,8 @@ void Utils::CheckHeap()
 
 bool Utils::CheckPath(bool repair)
 {
-#define REGSTR_KEY_ENVIRONMENT_COMMON L"System\\CurrentControlSet\\Control\\Session Manager\\Environment"
-
-#define REGSTR_KEY_ENVIRONMENT_USER L"Environment"
+  constexpr wchar_t REGSTR_KEY_ENVIRONMENT_COMMON[] = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
+  constexpr wchar_t REGSTR_KEY_ENVIRONMENT_USER[] = L"Environment";
 
   shared_ptr<Session> session = Session::Get();
 
@@ -1175,17 +1174,13 @@ bool Utils::CheckPath(bool repair)
     }
   }
 
-  PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
-  commonBinDir /= MIKTEX_PATH_BIN_DIR;
+  PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_BIN_DIR;
 
   string repairedSystemPath;
-
   bool systemPathCompetition;
-
   bool systemPathOkay = !Directory::Exists(commonBinDir) || !FixProgramSearchPath(WU_(systemPath), commonBinDir, true, repairedSystemPath, systemPathCompetition);
 
   bool repaired = false;
-
   bool userPathOkay = true;
 
   if (session->IsAdminMode())
@@ -1198,7 +1193,7 @@ bool Utils::CheckPath(bool repair)
     else if (!systemPathOkay && repair)
     {
       SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new system PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", repairedSystemPath.c_str());
+      SessionImpl::GetSession()->trace_error->WriteLine("core", repairedSystemPath);
       systemPath = UW_(repairedSystemPath);
       winRegistry::SetRegistryValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType);
       systemPathOkay = true;
@@ -1215,22 +1210,21 @@ bool Utils::CheckPath(bool repair)
       if (!systemPathOkay && repair)
       {
         SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
-        SessionImpl::GetSession()->trace_error->WriteLine("core", repairedUserPath.c_str());
+        SessionImpl::GetSession()->trace_error->WriteLine("core", repairedUserPath);
         userPath = UW_(repairedUserPath);
         winRegistry::SetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
         systemPathOkay = true;
         repaired = true;
       }
     }
-    PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-    userBinDir /= MIKTEX_PATH_BIN_DIR;
+    PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_BIN_DIR;
     string repairedUserPath;
     bool userPathCompetition;
     userPathOkay = !Directory::Exists(userBinDir) || !FixProgramSearchPath(WU_(userPath), userBinDir, true, repairedUserPath, userPathCompetition);
     if (!userPathOkay && repair)
     {
       SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", repairedUserPath.c_str());
+      SessionImpl::GetSession()->trace_error->WriteLine("core", repairedUserPath);
       userPath = UW_(repairedUserPath);
       winRegistry::SetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
       userPathOkay = true;
