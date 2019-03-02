@@ -139,8 +139,8 @@ enum class SpecialPath
   /// The portable mount directory.
   PortableMount,
 
-  /// The effective directory for symbolic links to MiKTeX binaries.
-  LocalBinDirectory,
+  /// The directory in which to create symbolic links to the  MiKTeX executables.
+  LinkTargetDirectory,
 
   /// The effective directory for log files.
   LogDirectory,

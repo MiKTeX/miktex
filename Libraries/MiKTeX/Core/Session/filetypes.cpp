@@ -1,6 +1,6 @@
 /* filetypes.cpp: MiKTeX file type registry
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -136,7 +136,7 @@ void SessionImpl::RegisterFileType(FileType fileType)
 #elif defined(MIKTEX_EXE_FILE_SUFFIX)
     extensions.push_back(MIKTEX_EXE_FILE_SUFFIX);
 #endif
-    PathName localBinDir = GetSpecialPath(MiKTeX::Core::SpecialPath::LocalBinDirectory);
+    PathName localBinDir = GetSpecialPath(MiKTeX::Core::SpecialPath::LinkTargetDirectory);
     localBinDir.Canonicalize();
     if (std::find(searchPath.begin(), searchPath.end(), localBinDir.ToString()) == searchPath.end())
     {

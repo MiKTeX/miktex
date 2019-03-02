@@ -1,6 +1,6 @@
 ## RuntimePaths.cmake
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -29,7 +29,9 @@ endif()
 
 if(MIKTEX_UNIX_ALIKE)
   set(MIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR "/etc/fonts/conf.d" CACHE PATH "System-wide directory for font configuration data.")
+  set(MIKTEX_SYSTEM_LINK_TARGET_DIR "/usr/local/bin" CACHE PATH "System-wide directory in which to create symbolic links to MiKTeX binaries.")
   set(MIKTEX_SYSTEM_VAR_CACHE_DIR "/var/cache" CACHE PATH "Directory for application cache data.")
   set(MIKTEX_SYSTEM_VAR_LIB_DIR "/var/lib" CACHE PATH "Directory for state information.")
   set(MIKTEX_SYSTEM_VAR_LOG_DIR "/var/log" CACHE PATH "Directory for log files.")
+  set(MIKTEX_USER_LINK_TARGET_DIR "~/bin" CACHE STRING "Per-user directory in which to create symbolic links to MiKTeX binaries.")
 endif()

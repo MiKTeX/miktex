@@ -390,6 +390,19 @@ private:
 private slots:
   void OnContextMenuRootDirectories(const QPoint& pos);
 
+#if !defined(MIKTEX_WINDOWS)
+private:
+  void ChangeLinkTargetDirectory();
+#endif
+
+#if !defined(MIKTEX_WINDOWS)
+private slots:
+  void on_buttonChangeLinkTargetDirectory_clicked()
+  {
+    ChangeLinkTargetDirectory();
+  }
+#endif
+
 private:
   QToolBar* toolBarFormats = nullptr;
 
@@ -991,5 +1004,26 @@ private:
 protected:
   bool Run() override;
 };
+
+#if !defined(MIKTEX_WINDOWS)
+class ChangeLinkTargetDirectoryWorker :
+  public BackgroundWorker
+{
+private:
+  Q_OBJECT;
+
+public:
+  ChangeLinkTargetDirectoryWorker(const MiKTeX::Core::PathName& linkTargetDirectory) :
+    linkTargetDirectory(linkTargetDirectory)
+  {
+  }
+
+private:
+  MiKTeX::Core::PathName linkTargetDirectory;
+
+protected:
+  bool Run() override;
+};
+#endif
 
 #endif

@@ -1577,7 +1577,7 @@ vector<FileLink> lua54texLinks =
 vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
 {
   vector<FileLink> result;
-  PathName pathLocalBinDir = session->GetSpecialPath(SpecialPath::LocalBinDirectory);
+  PathName linkTargetDirectory = session->GetSpecialPath(SpecialPath::LinkTargetDirectory);
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
 
 #if defined(WITH_LUA54TEX)
@@ -1629,7 +1629,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
         vector<string> linkNames;
         for (const string& linkName : fileLink.linkNames)
         {
-          PathName linkPath = pathLocalBinDir / linkName;
+          PathName linkPath = linkTargetDirectory / linkName;
           if (linkPath == targetPath)
           {
             continue;
@@ -1670,7 +1670,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
         Warning(fmt::format(T_("The {0} executable could not be found."), engine));
         continue;
       }
-      PathName exePath(pathLocalBinDir, formatInfo.name);
+      PathName exePath(linkTargetDirectory, formatInfo.name);
       if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
       {
         exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
@@ -1716,7 +1716,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
         {
           continue;
         }
-        PathName pathExe(pathLocalBinDir, name);
+        PathName pathExe(linkTargetDirectory, name);
         if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
         {
           pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);

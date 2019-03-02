@@ -6,6 +6,10 @@
 
 * luatex 1.10.0
 
+### Fixed issues
+
+* [195](https://github.com/MiKTeX/miktex/issues/195): Add option to change directory for binaries (Linux)
+
 ## 2.9.6980 - 2019-02-11
 
 ### Fixed issues

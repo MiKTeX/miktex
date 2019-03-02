@@ -1,6 +1,6 @@
 /* miktex/Setup/SetupService.h:                         -*- C++ -*-
 
-   Copyright (C) 2013-2018 Christian Schenk
+   Copyright (C) 2013-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -158,6 +158,12 @@ public:
 
 public:
   std::string PaperSize = "A4";
+
+public:
+  MiKTeX::Core::PathName CommonLinkTargetDirectory;
+
+public:
+  MiKTeX::Core::PathName UserLinkTargetDirectory;
 };
 
 /// Notification enum class.

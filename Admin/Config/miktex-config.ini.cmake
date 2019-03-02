@@ -44,6 +44,14 @@
 	;; in a shared setup.
 	${MIKTEX_CONFIG_VALUE_AUTOADMIN} = ${Core_AutoAdmin}
 
+	;; System-wide directory in which to create symbolic links to
+        ;; MiKTeX executables.
+	${MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY} = ${MIKTEX_SYSTEM_LINK_TARGET_DIR}
+
+	;; Per-user directory in which to create symbolic links to
+        ;; MiKTeX executables.
+	${MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY} = ${MIKTEX_USER_LINK_TARGET_DIR}
+
 [${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.afm]
 
 	;; Search path for Adobe font metric (AFM) files.

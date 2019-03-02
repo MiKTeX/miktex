@@ -1,6 +1,6 @@
 /* miktex.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,7 @@
 // FIXME: must come first
 #include "core-version.h"
 
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Environment>
 #include <miktex/Core/FileStream>
@@ -134,18 +135,17 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     path = GetMyPrefix(true) / MIKTEX_INTERNAL_BINARY_DESTINATION_DIR;
 #endif
     break;
-  case SpecialPath::LocalBinDirectory:
+  case SpecialPath::LinkTargetDirectory:
 #if defined(MIKTEX_WINDOWS)
     path = GetSpecialPath(SpecialPath::BinDirectory);
 #else
-    // FIXME: hard-coded paths
     if (IsSharedSetup())
     {
-      path = "/usr/local/bin";
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, MIKTEX_SYSTEM_LINK_TARGET_DIR).GetString();
     }
     else
     {
-      path = GetHomeDirectory() / "bin";
+      path = Expand(GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, MIKTEX_USER_LINK_TARGET_DIR).GetString(), { ExpandOption::PathPatterns }, nullptr);
     }
 #endif
     break;

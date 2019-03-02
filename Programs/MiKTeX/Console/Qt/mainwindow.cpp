@@ -298,7 +298,7 @@ void MainWindow::UpdateUi()
       {
         ui->groupPathIssue->hide();
       }
-      ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).ToDisplayString().c_str()));
+      ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LinkTargetDirectory).ToDisplayString().c_str()));
     }
     if (!IsBackgroundWorkerActive())
     {
@@ -504,7 +504,7 @@ void MainWindow::StartTerminal()
 {
   try
   {
-    PathName localBinDir = session->GetSpecialPath(SpecialPath::LocalBinDirectory);
+    PathName localBinDir = session->GetSpecialPath(SpecialPath::LinkTargetDirectory);
     string newPath = localBinDir.ToString();
     string oldPath;
     bool haveOldPath = Utils::GetEnvironmentString("PATH", oldPath);
@@ -1510,7 +1510,7 @@ void MainWindow::UpdateUiDirectories()
   {
     rootDirectoryModel->Reload();
     ui->treeViewRootDirectories->resizeColumnToContents(0);
-    ui->lineEditBinDir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).ToDisplayString().c_str()));
+    ui->lineEditBinDir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LinkTargetDirectory).ToDisplayString().c_str()));
     ui->lineEditLogDir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LogDirectory).ToDisplayString().c_str()));
   }
 }
@@ -1532,6 +1532,11 @@ void MainWindow::UpdateActionsDirectories()
   ui->actionRootDirectoryOpen->setEnabled(selectedCount > 0);
   ui->actionRemoveRootDirectory->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableRemove);
   ui->actionAddRootDirectory->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+#if defined(MIKTEX_WINDOWS)
+  ui->buttonChangeLinkTargetDirectory->hide();
+#else
+  ui->buttonChangeLinkTargetDirectory->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && (!session->IsSharedSetup() || session->IsAdminMode()));
+#endif
 }
 
 string tdsDirs[] = {
@@ -1681,6 +1686,82 @@ void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
     contextMenuRootDirectoriesBackground->exec(ui->treeViewRootDirectories->mapToGlobal(pos));
   }
 }
+
+#if !defined(MIKTEX_WINDOWS)
+bool ChangeLinkTargetDirectoryWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    shared_ptr<Session> session = Session::Get();
+    RunIniTeXMF({ "--remove-links" });
+    if (session->IsSharedSetup())
+    {
+      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, linkTargetDirectory.ToString());
+    }
+    else
+    {
+      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, linkTargetDirectory.ToString());
+    }
+    RunIniTeXMF({ "--mklinks" });
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+#endif
+
+#if !defined(MIKTEX_WINDOWS)
+void MainWindow::ChangeLinkTargetDirectory()
+{
+  try
+  {
+    QString currentLinkTargetDirectory = QString::fromUtf8(session->GetSpecialPath(SpecialPath::LinkTargetDirectory).ToDisplayString().c_str());
+    QString directory = QFileDialog::getExistingDirectory(this, tr("Change Link Target Directory"), currentLinkTargetDirectory);
+    if (directory.isNull() || directory == currentLinkTargetDirectory)
+    {
+      return;
+    }
+    QThread* thread = new QThread;
+    ChangeLinkTargetDirectoryWorker* worker = new ChangeLinkTargetDirectoryWorker(directory.toUtf8().constData());
+    backgroundWorkers++;
+    ui->labelBackgroundTask->setText(tr("Changing link target directory..."));
+    worker->moveToThread(thread);
+    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    connect(worker, &ChangeLinkTargetDirectoryWorker::OnFinish, this, [this]() {
+      ChangeLinkTargetDirectoryWorker* worker = (ChangeLinkTargetDirectoryWorker*)sender();
+      if (!worker->GetResult())
+      {
+        CriticalError(tr("Something went wrong while changing the link target directory."), ((ChangeLinkTargetDirectoryWorker*)sender())->GetMiKTeXException());
+      }
+      backgroundWorkers--;
+      UpdateUi();
+      UpdateActions();
+      worker->deleteLater();
+    });
+    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    UpdateUi();
+    UpdateActions();
+    thread->start();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+#endif
 
 void MainWindow::SetupUiFormats()
 {

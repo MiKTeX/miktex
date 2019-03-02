@@ -168,6 +168,7 @@ enum Option
   OPT_COMMON_CONFIG,
   OPT_COMMON_DATA,
   OPT_COMMON_INSTALL,
+  OPT_COMMON_LINK_TARGET_DIRECTORY,
   OPT_COMMON_ROOTS,
   OPT_LIST_REPOSITORIES,
   OPT_LOCAL_PACKAGE_REPOSITORY,
@@ -189,6 +190,7 @@ enum Option
   OPT_USER_CONFIG,
   OPT_USER_DATA,
   OPT_USER_INSTALL,
+  OPT_USER_LINK_TARGET_DIRECTORY,
   OPT_USER_ROOTS,
   OPT_VERBOSE,
   OPT_VERSION,
@@ -211,6 +213,12 @@ const struct poptOption Application::aoption[] = {
   {
     "common-install", 0, POPT_ARG_STRING, nullptr, OPT_COMMON_INSTALL,
     T_("Set the location of the common installation directory. This option requires administrator privileges."),
+    T_("DIR")
+  },
+
+  {
+    "common-link-target-directory", 0, POPT_ARG_STRING, nullptr, OPT_COMMON_LINK_TARGET_DIRECTORY,
+    T_("Set the system-wide directory in which to create symbolic links to MiKTeX executables."),
     T_("DIR")
   },
 
@@ -317,6 +325,12 @@ const struct poptOption Application::aoption[] = {
   {
     "user-install", 0, POPT_ARG_STRING, nullptr, OPT_USER_INSTALL,
     T_("Set the location of the user installation directory."),
+    T_("DIR")
+  },
+
+  {
+    "user-link-target-directory", 0, POPT_ARG_STRING, nullptr, OPT_USER_LINK_TARGET_DIRECTORY,
+    T_("Set the per-user directory in which to create symbolic links to MiKTeX executables."),
     T_("DIR")
   },
 
@@ -550,10 +564,12 @@ void Application::Main(int argc, const char** argv)
   string optCommonConfigRoot;
   string optCommonDataRoot;
   string optCommonInstallRoot;
+  string optCommonLinkTargetDirectory;
   string optCommonRoots;
   string optUserConfigRoot;
   string optUserDataRoot;
   string optUserInstallRoot;
+  string optUserLinkTargetDirectory;
   string optUserRoots;
   string optPortableRoot;
 
@@ -575,6 +591,9 @@ void Application::Main(int argc, const char** argv)
       break;
     case OPT_COMMON_INSTALL:
       optCommonInstallRoot = optArg;
+      break;
+    case OPT_COMMON_LINK_TARGET_DIRECTORY:
+      optCommonLinkTargetDirectory = optArg;
       break;
     case OPT_COMMON_ROOTS:
       optCommonRoots = optArg;
@@ -669,6 +688,9 @@ void Application::Main(int argc, const char** argv)
       break;
     case OPT_USER_INSTALL:
       optUserInstallRoot = optArg;
+      break;
+    case OPT_USER_LINK_TARGET_DIRECTORY:
+      optUserLinkTargetDirectory = optArg;
       break;
     case OPT_USER_ROOTS:
       optUserRoots = optArg;
@@ -823,6 +845,11 @@ void Application::Main(int argc, const char** argv)
     setupOptions.Config.commonInstallRoot = optCommonInstallRoot;
   }
 
+  if (!optCommonLinkTargetDirectory.empty())
+  {
+    setupOptions.CommonLinkTargetDirectory = optCommonLinkTargetDirectory;
+  }
+
   if (!optCommonRoots.empty())
   {
     setupOptions.Config.commonRoots = optCommonRoots;
@@ -841,6 +868,11 @@ void Application::Main(int argc, const char** argv)
   if (!optUserInstallRoot.empty())
   {
     setupOptions.Config.userInstallRoot = optUserInstallRoot;
+  }
+
+  if (!optUserLinkTargetDirectory.empty())
+  {
+    setupOptions.UserLinkTargetDirectory = optUserLinkTargetDirectory;
   }
 
   if (!optUserRoots.empty())

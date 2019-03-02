@@ -1,6 +1,6 @@
 /* util.cpp: generi utilities
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -949,10 +949,10 @@ bool Utils::CheckPath()
   {
     return false;
   }
-  PathName localBinDir = session->GetSpecialPath(SpecialPath::LocalBinDirectory);
+  PathName linkTargetDirectory = session->GetSpecialPath(SpecialPath::LinkTargetDirectory);
   string repairedPath;
   bool pathCompetition;
-  bool pathOkay = !Directory::Exists(localBinDir) || !FixProgramSearchPath(envPath, localBinDir, true, repairedPath, pathCompetition);
+  bool pathOkay = !Directory::Exists(linkTargetDirectory) || !FixProgramSearchPath(envPath, linkTargetDirectory, true, repairedPath, pathCompetition);
   if (!pathOkay)
   {
     SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));

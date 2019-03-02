@@ -1,6 +1,6 @@
 ## ConfigNames.cmake
 ##
-## Copyright (C) 2017 Christian Schenk
+## Copyright (C) 2017-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -28,6 +28,7 @@ set(MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES "AllowUnsafeOutputFiles")
 set(MIKTEX_CONFIG_VALUE_ALTEXTENSIONS "AltExtensions[]")
 set(MIKTEX_CONFIG_VALUE_AUTOADMIN "AutoAdmin")
 set(MIKTEX_CONFIG_VALUE_AUTOINSTALL "AutoInstall")
+set(MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY "CommonLinkTargetDirectory")
 set(MIKTEX_CONFIG_VALUE_CREATEAUXDIRECTORY "CreateAuxDirectory")
 set(MIKTEX_CONFIG_VALUE_CREATEOUTPUTDIRECTORY "CreateOutputDirectory")
 set(MIKTEX_CONFIG_VALUE_CSTYLEERRORS "CStyleErrors")
@@ -35,3 +36,4 @@ set(MIKTEX_CONFIG_VALUE_ENVVARS "EnvVars[]")
 set(MIKTEX_CONFIG_VALUE_EXTENSIONS "Extensions[]")
 set(MIKTEX_CONFIG_VALUE_PATHS "Paths[]")
 set(MIKTEX_CONFIG_VALUE_SHELLCOMMANDMODE "ShellCommandMode")
+set(MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY "UserLinkTargetDirectory")

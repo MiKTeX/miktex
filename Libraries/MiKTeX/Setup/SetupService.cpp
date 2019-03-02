@@ -1,6 +1,6 @@
 /* SetupService.cpp:
 
-   Copyright (C) 2013-2018 Christian Schenk
+   Copyright (C) 2013-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -1309,6 +1309,14 @@ void SetupServiceImpl::ConfigureMiKTeX()
     if (!options.Config.userRoots.empty())
     {
       args.push_back("--user-roots=" + options.Config.userRoots);
+    }
+    if (!options.CommonLinkTargetDirectory.Empty())
+    {
+      args.push_back(fmt::format("--set-config-value=[{}]{}={}", MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, options.CommonLinkTargetDirectory));
+    }
+    if (!options.UserLinkTargetDirectory.Empty())
+    {
+      args.push_back(fmt::format("--set-config-value=[{}]{}={}", MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, options.UserLinkTargetDirectory));
     }
     if (!args.empty())
     {

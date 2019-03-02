@@ -96,6 +96,12 @@ This option requires administrator privileges.</para></listitem>
 </varlistentry>
 
 <varlistentry>
+<term><option>--common-link-target-directory=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the system-wide directory in which to create
+symbolic links to &MiKTeX; executables.</para></listitem>
+</varlistentry>
+
+<varlistentry>
 <term><option>--common-roots=<replaceable>dirs</replaceable></option></term>
 <listitem><para>Register additional directories for all users.
 <replaceable>dirs</replaceable> must be a semicolon-separated list of
@@ -214,6 +220,12 @@ the current user.</para>
 <term><option>--user-install=<replaceable>dir</replaceable></option></term>
 <listitem><para>Set the user installation directory.</para>
 <para>Environment variables (&lt;VARNAME&gt;) can be used. See the example below.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--user-link-target-directory=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the per-user directory in which to create symbolic
+links to &MiKTeX; executables.</para></listitem>
 </varlistentry>
 
 <varlistentry>
