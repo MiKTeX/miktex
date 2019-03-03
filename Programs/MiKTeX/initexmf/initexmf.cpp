@@ -1580,6 +1580,8 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
   PathName linkTargetDirectory = session->GetSpecialPath(SpecialPath::LinkTargetDirectory);
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
 
+  Verbose(fmt::format(T_("Creating links in target directory {0}..."), linkTargetDirectory));
+
 #if defined(WITH_LUA54TEX)
   bool useLua54 = false;
   string luaver;
