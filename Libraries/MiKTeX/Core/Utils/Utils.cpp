@@ -40,14 +40,14 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-string Utils::Hexify(const void* pv, size_t nBytes, bool lowerCase)
+string Utils::Hexify(const void* bytes, size_t nBytes, bool lowerCase)
 {
   string ret;
 #define TOHEX(x) ((x) < 10 ? '0' + (x) : (x) - 10 + 'A')
 #define tohex(x) ((x) < 10 ? '0' + (x) : (x) - 10 + 'a')
   for (size_t i = 0; i < nBytes; ++i)
   {
-    unsigned char XX = reinterpret_cast<const unsigned char*>(pv)[i];
+    unsigned char XX = reinterpret_cast<const unsigned char*>(bytes)[i];
     ret += (lowerCase ? tohex(XX >> 4) : TOHEX(XX >> 4));
     ret += (lowerCase ? tohex(XX & 15) : TOHEX(XX & 15));
   }
@@ -56,9 +56,9 @@ string Utils::Hexify(const void* pv, size_t nBytes, bool lowerCase)
   return ret;
 }
 
-string Utils::Hexify(const void* pv, size_t nBytes)
+string Utils::Hexify(const void* bytes, size_t nBytes)
 {
-  return Hexify(pv, nBytes, true);
+  return Hexify(bytes, nBytes, true);
 }
 
 bool Utils::IsUTF8(const char* lpsz, bool allowPureAscii)
@@ -555,8 +555,8 @@ string Utils::MakeProgramVersionString(const string& programName, const VersionN
 bool Utils::GetEnvironmentString(const string& name, string& str)
 {
   bool haveValue = ::GetEnvironmentString(name, str);
-  if (SessionImpl::TryGetSession() != 0
-    && SessionImpl::GetSession()->trace_env.get() != 0
+  if (SessionImpl::TryGetSession() != nullptr
+    && SessionImpl::GetSession()->trace_env.get() != nullptr
     && SessionImpl::GetSession()->trace_env->IsEnabled("core"))
   {
     SessionImpl::GetSession()->trace_env->WriteFormattedLine("core", "%s => %s", name.c_str(), (haveValue ? str.c_str() : "null"));
@@ -943,7 +943,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
 
 bool Utils::CheckPath()
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   string envPath;
   if (!Utils::GetEnvironmentString("PATH", envPath))
   {
@@ -955,8 +955,8 @@ bool Utils::CheckPath()
   bool pathOkay = !Directory::Exists(linkTargetDirectory) || !FixProgramSearchPath(envPath, linkTargetDirectory, true, repairedPath, pathCompetition);
   if (!pathOkay)
   {
-    SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));
-    SessionImpl::GetSession()->trace_error->WriteLine("core", envPath.c_str());
+    session->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));
+    session->trace_error->WriteLine("core", envPath);
   }
   return pathOkay;
 }
