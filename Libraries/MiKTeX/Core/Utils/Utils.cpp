@@ -1009,3 +1009,25 @@ time_t Utils::ToTimeT(const string& s)
 {
   return ToUnsignedLongLong(s);
 }
+
+pair<bool, PathName> Utils::ExpandTilde(const string& s)
+{
+  if (s[0] == '~' && (s[1] == 0 || IsDirectoryDelimiter(s[1])))
+  {
+    PathName pathFQ = GetHomeDirectory();
+    if (!Utils::IsAbsolutePath(pathFQ))
+    {
+      TraceError(T_("cannot expand ~: %s is not fully qualified"), Q_(pathFQ));
+      return make_pair(false , "");
+    }
+    if (s[1] != 0 && IsDirectoryDelimiter(s[1]) && s[2] != 0)
+    {
+      pathFQ /= &s[2];
+    }
+    return make_pair(true, pathFQ);
+  }
+  else
+  {
+    return make_pair(false, "");
+  }
+}

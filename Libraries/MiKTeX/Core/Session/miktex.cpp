@@ -145,7 +145,16 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     }
     else
     {
-      path = Expand(GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, MIKTEX_USER_LINK_TARGET_DIR).GetString(), { ExpandOption::PathPatterns }, nullptr);
+      string s = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, MIKTEX_USER_LINK_TARGET_DIR).GetString();
+      auto p = Utils::ExpandTilde(s);
+      if (p.first)
+      {
+        path = p.second;
+      }
+      else
+      {
+        path = s;
+      }
     }
 #endif
     break;

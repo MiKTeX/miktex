@@ -82,19 +82,13 @@ void SessionImpl::PushBackPath(vector<PathName>& vec, const PathName& path)
     // expand '~'
     if (path[0] == '~' && (path[1] == 0 || IsDirectoryDelimiter(path[1])))
     {
-      PathName pathFQ = GetHomeDirectory();
-      if (!Utils::IsAbsolutePath(pathFQ))
+      auto p = Utils::ExpandTilde(path.ToString());
+      if (p.first)
       {
-        TraceError(T_("cannot expand ~: %s is not fully qualified"), Q_(pathFQ));
-        continue;
-      }
-      if (path[1] != 0 && IsDirectoryDelimiter(path[1]) && path[2] != 0)
-      {
-        pathFQ /= &path[2];
-      }
-      if (find(vec.begin(), vec.end(), pathFQ) == vec.end())
-      {
-        vec.push_back(pathFQ);
+        if (find(vec.begin(), vec.end(), p.second) == vec.end())
+        {
+          vec.push_back(p.second);
+        }
       }
       continue;
     }

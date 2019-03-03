@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <exception>
 #include <string>
+#include <utility>
 
 #include "Debug.h"
 #include "Exceptions.h"
@@ -216,6 +217,9 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(bool) GetPathNamePrefix(const PathName& path, const PathName& suffix, PathName& prefix);
+
+public:
+  static MIKTEXCOREEXPORT std::pair<bool, PathName> MIKTEXCEECALL ExpandTilde(const std::string& s);
 
 public:
   static bool IsPureAscii(const char* lpsz)
