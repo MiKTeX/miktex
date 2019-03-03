@@ -36,6 +36,7 @@ if [ "$skip_tests" = "false" ]; then
       -e USER_ID=`id -u` \
       -e GROUP_ID=`id -g` \
       -e MIKTEX_CHECK_REPOSITORIES="$MIKTEX_CHECK_REPOSITORIES" \
+      -e MIKTEX_VERBOSE="$MIKTEX_VERBOSE" \
       -e CTEST_OUTPUT_ON_FAILURE=1 \
       miktex/miktex-test-$dist:$tag
 fi
