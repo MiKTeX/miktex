@@ -578,6 +578,11 @@ void Application::Main(int argc, const char** argv)
 
   int option;
 
+#if 1
+  string str;
+  verbose = (Utils::GetEnvironmentString("MIKTEX_VERBOSE", str) && str == "true");
+#endif
+
   while ((option = popt.GetNextOpt()) >= 0)
   {
     string optArg = popt.GetOptArg();
