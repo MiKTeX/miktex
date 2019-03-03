@@ -1819,6 +1819,7 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
       << "OS: " << Utils::GetOSVersionString() << "\n"
       << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
+      << "LinkTargetDirectory: " << session->GetSpecialPath(SpecialPath::LinkTargetDirectory) << "\n"
       << "PathOkay: " << (pathOkay ? T_("yes") : T_("no")) << "\n"
       << "LastUpdateCheck: " << lastUpdateCheckText << "\n"
       << "LastUpdate: " << lastUpdateText << "\n";
