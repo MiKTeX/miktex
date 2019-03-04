@@ -304,7 +304,8 @@ void MainWindow::UpdateUi()
     }
     if (!pathChecked)
     {
-      if (!Utils::CheckPath())
+      auto p = Utils::CheckPath();
+      if (!p.first && p.second)
       {
         ui->groupPathIssue->setStyleSheet(GetAlertStyleSheet());
         ui->groupPathIssue->show();

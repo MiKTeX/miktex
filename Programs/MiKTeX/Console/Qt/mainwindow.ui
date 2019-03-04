@@ -530,7 +530,7 @@
               <item>
                <widget class="QLabel" name="label_2">
                 <property name="text">
-                 <string>MiKTeX executables have been installed in:</string>
+                 <string>Links to the MiKTeX executables have been installed in:</string>
                 </property>
                </widget>
               </item>

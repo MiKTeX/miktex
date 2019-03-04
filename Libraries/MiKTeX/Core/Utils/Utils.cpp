@@ -941,13 +941,13 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
   return modified;
 }
 
-bool Utils::CheckPath()
+pair<bool, bool> Utils::CheckPath()
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   string envPath;
   if (!Utils::GetEnvironmentString("PATH", envPath))
   {
-    return false;
+    return make_pair(false, false);
   }
   PathName linkTargetDirectory = session->GetSpecialPath(SpecialPath::LinkTargetDirectory);
   string repairedPath;
@@ -958,7 +958,7 @@ bool Utils::CheckPath()
     session->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));
     session->trace_error->WriteLine("core", envPath);
   }
-  return pathOkay;
+  return make_pair(pathOkay, pathCompetition);
 }
 
 unsigned long long Utils::ToUnsignedLongLong(const string& s)

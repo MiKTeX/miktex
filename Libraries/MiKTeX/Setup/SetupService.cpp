@@ -1768,13 +1768,11 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   time_t now = time(nullptr);
   if (options[ReportOption::General])
   {
-    bool pathOkay = Utils::CheckPath();
-#if 0
-    if (!pathOkay)
+    auto p = Utils::CheckPath();
+    if (!p.first && p.second)
     {
       problems.push_back(T_("The PATH variable does not include the MiKTeX executables."));
     }
-#endif
     string lastUpdateCheckText;
     time_t lastUpdateCheck;
     if (session->TryGetConfigValue(
@@ -1820,7 +1818,7 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       << "OS: " << Utils::GetOSVersionString() << "\n"
       << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
       << "LinkTargetDirectory: " << session->GetSpecialPath(SpecialPath::LinkTargetDirectory) << "\n"
-      << "PathOkay: " << (pathOkay ? T_("yes") : T_("no")) << "\n"
+      << "PathOkay: " << (p.first ? T_("yes") : T_("no")) << "\n"
       << "LastUpdateCheck: " << lastUpdateCheckText << "\n"
       << "LastUpdate: " << lastUpdateText << "\n";
   }

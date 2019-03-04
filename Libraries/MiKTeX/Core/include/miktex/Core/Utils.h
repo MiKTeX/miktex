@@ -1,6 +1,6 @@
 /* miktex/Core/Utils.h:                                 -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -292,7 +292,7 @@ public:
   static MIKTEXCORECEEAPI(std::time_t) ToTimeT(const std::string& s);
 
 public:
-  static MIKTEXCORECEEAPI(bool) CheckPath();
+  static MIKTEXCOREEXPORT std::pair<bool, bool> MIKTEXCEECALL CheckPath();
 
 public:
   static MIKTEXCORECEEAPI(bool) CheckPath(bool repair);
