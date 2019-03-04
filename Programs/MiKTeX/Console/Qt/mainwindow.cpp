@@ -233,6 +233,25 @@ void MainWindow::CriticalError(const QString& shortText, const MiKTeXException& 
   }
 }
 
+QString GetAlertStyleSheet()
+{
+  QString styleSheet;
+  QTextStream s;
+  s.setString(&styleSheet);
+  s << "QGroupBox::title{\n"
+    << "  color: red;\n"
+    << "  padding: 0 3px;\n"
+    << "  subcontrol-origin: margin;\n"
+    << "}\n"
+    << "\n"
+    << "QGroupBox{\n"
+    << "  border: 1px solid red;\n"
+    << "  margin-top: 1ex;\n"
+    << "}\n";
+  s.flush();
+  return styleSheet;
+}
+
 void MainWindow::UpdateUi()
 {
   try
@@ -287,6 +306,7 @@ void MainWindow::UpdateUi()
     {
       if (!Utils::CheckPath())
       {
+        ui->groupPathIssue->setStyleSheet(GetAlertStyleSheet());
         ui->groupPathIssue->show();
 #if defined(MIKTEX_WINDOWS)
         ui->buttonFixPath->setEnabled(!IsUserModeBlocked());
