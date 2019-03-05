@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageIterator.h:             -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -30,7 +30,7 @@
 
 #include "PackageInfo.h"
 
-MPM_BEGIN_NAMESPACE;
+MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 
 /// Package filter enum class.
 enum class PackageFilter
@@ -68,6 +68,6 @@ public:
   virtual bool MIKTEXTHISCALL GetNext(PackageInfo& packageInfo) = 0;
 };
 
-MPM_END_NAMESPACE;
+MIKTEX_PACKAGES_END_NAMESPACE;
 
 #endif

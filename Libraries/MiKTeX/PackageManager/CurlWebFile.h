@@ -1,6 +1,6 @@
 /* CurlWebFile.h:                                       -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -36,7 +36,7 @@
 #include "CurlWebSession.h"
 #include "WebFile.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+MPM_INTERNAL_BEGIN_NAMESPACE;
 
 #if defined(_MSC_VER)
 #  pragma push_macro("min")
@@ -187,7 +187,7 @@ private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mpm;
 };
 
-END_INTERNAL_NAMESPACE;
+MPM_INTERNAL_END_NAMESPACE;
 
 #endif
 

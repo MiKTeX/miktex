@@ -1,6 +1,6 @@
 /* PackageManagerImpl.h:                                -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -36,7 +36,7 @@
 #include "PackageRepositoryDataStore.h"
 #include "WebSession.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+MPM_INTERNAL_BEGIN_NAMESPACE;
 
 typedef std::map<std::string, MiKTeX::Core::MD5, MiKTeX::Core::less_icase_dos> FileDigestTable;
 
@@ -196,6 +196,6 @@ public:
 #endif
 };
 
-END_INTERNAL_NAMESPACE;
+MPM_INTERNAL_END_NAMESPACE;
 
 #endif

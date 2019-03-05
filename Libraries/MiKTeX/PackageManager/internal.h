@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -46,7 +46,7 @@
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
-BEGIN_INTERNAL_NAMESPACE;
+MPM_INTERNAL_BEGIN_NAMESPACE;
 
 constexpr const char* MPM_AGENT = "MPM/" MIKTEX_COMPONENT_VERSION_STR;
 
@@ -107,6 +107,6 @@ bool IsUrl(const std::string& url);
 
 std::string MakeUrl(const std::string& base, const std::string& rel);
 
-END_INTERNAL_NAMESPACE;
+MPM_INTERNAL_END_NAMESPACE;
 
 #endif

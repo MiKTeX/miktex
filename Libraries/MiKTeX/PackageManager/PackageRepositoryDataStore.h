@@ -1,6 +1,6 @@
 /* PackageRepositoryDataStore.h:                        -*- C++ -*-
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -35,7 +35,7 @@
 #include "ComboCfg.h"
 #include "WebSession.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+MPM_INTERNAL_BEGIN_NAMESPACE;
 
 class PackageRepositoryDataStore
 {
@@ -110,6 +110,6 @@ private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 };
 
-END_INTERNAL_NAMESPACE;
+MPM_INTERNAL_END_NAMESPACE;
 
 #endif

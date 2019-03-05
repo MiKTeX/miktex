@@ -1,6 +1,6 @@
 /* RemoteService.h:                                     -*- C++ -*-
 
-   Copyright (C) 2016-2018 Christian Schenk
+   Copyright (C) 2016-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -29,7 +29,7 @@
 
 #include <miktex/PackageManager/PackageManager>
 
-BEGIN_INTERNAL_NAMESPACE;
+MPM_INTERNAL_BEGIN_NAMESPACE;
 
 class MIKTEXNOVTABLE RemoteService
 {
@@ -52,6 +52,6 @@ public:
   static std::unique_ptr<RemoteService> Create(const std::string& endpoint, const MiKTeX::Packages::ProxySettings& proxySettings);
 };
 
-END_INTERNAL_NAMESPACE;
+MPM_INTERNAL_END_NAMESPACE;
 
 #endif

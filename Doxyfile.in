@@ -31,9 +31,7 @@ INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
 STRIP_FROM_PATH        += @CMAKE_BINARY_DIR@
 STRIP_FROM_PATH        += @CMAKE_SOURCE_DIR@
-STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/COM
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include
-STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@/COM
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@/include
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@
 SHORT_NAMES            = NO
@@ -122,10 +120,8 @@ WARN_LOGFILE           =
 INPUT                  += @CMAKE_BINARY_DIR@/@MIKTEX_REL_CORE_DIR@/include/MiKTeX/Core
 INPUT                  += @CMAKE_BINARY_DIR@/@MIKTEX_REL_CORE_DIR@/include/MiKTeX/Core/win
 INPUT                  += @CMAKE_BINARY_DIR@/@MIKTEX_REL_MPMLIB_DIR@/include/MiKTeX/PackageManager
-INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/COM
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include/MiKTeX/Core
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include/MiKTeX/Core/win
-INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@/COM
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@/include/MiKTeX/PackageManager
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@
 INPUT_ENCODING         = UTF-8
@@ -342,19 +338,19 @@ EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           =
 INCLUDE_FILE_PATTERNS  =
-PREDEFINED             += "BEGIN_INTERNAL_NAMESPACE=namespace MiKTeX { namespace internal {"
-PREDEFINED             += "END_INTERNAL_NAMESPACE=} }"
 PREDEFINED             += "MIKTEXCEECALL= "
 PREDEFINED             += "MIKTEXCORECEEAPI(type)= "
-PREDEFINED             += "MIKTEXCORETHISAPI(type)= "
 PREDEFINED             += "MIKTEXCOREEXPORT= "
+PREDEFINED             += "MIKTEXCORETHISAPI(type)= "
 PREDEFINED             += "MIKTEXMPMCEEAPI(type)= "
 PREDEFINED             += "MIKTEXNORETURN= "
 PREDEFINED             += "MIKTEXTHISCALL= "
 PREDEFINED             += "MIKTEX_CORE_BEGIN_NAMESPACE=namespace MiKTeX { namespace Core {"
 PREDEFINED             += "MIKTEX_CORE_END_NAMESPACE=} }"
-PREDEFINED             += "MPM_BEGIN_NAMESPACE=namespace MiKTeX { namespace Packages {"
-PREDEFINED             += "MPM_END_NAMESPACE=} }"
+PREDEFINED             += "MIKTEX_PACKAGES_BEGIN_NAMESPACE=namespace MiKTeX { namespace Packages {"
+PREDEFINED             += "MIKTEX_PACKAGES_END_NAMESPACE=} }"
+PREDEFINED             += "MPM_INTERNAL_BEGIN_NAMESPACE=namespace MiKTeX { namespace Packages { namespace internal {"
+PREDEFINED             += "MPM_INTERNAL_END_NAMESPACE=} } }"
 EXPAND_AS_DEFINED      =
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------

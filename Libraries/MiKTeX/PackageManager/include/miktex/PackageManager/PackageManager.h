@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageManager.h:              -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -48,7 +48,7 @@
 
 /// @namespace MiKTeX::Packages
 /// @brief The package manager namespace.
-MPM_BEGIN_NAMESPACE;
+MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 
 struct ProxySettings
 {
@@ -262,6 +262,6 @@ public:
   static MIKTEXMPMCEEAPI(void) SetProxy(const ProxySettings& proxySettings);
 };
 
-MPM_END_NAMESPACE;
+MIKTEX_PACKAGES_END_NAMESPACE;
 
 #endif

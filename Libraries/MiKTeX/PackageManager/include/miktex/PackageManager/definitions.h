@@ -1,6 +1,6 @@
 /* miktex/PackageManager/definitions.h:                 -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -24,7 +24,7 @@
 #if !defined(C09DF2DF4A8A43C5B815850EFF9BEED9)
 #define C09DF2DF4A8A43C5B815850EFF9BEED9
 
-MPM_BEGIN_NAMESPACE;
+MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 
 constexpr std::time_t InvalidTimeT = static_cast<std::time_t>(0);
 
@@ -33,6 +33,6 @@ inline bool IsValidTimeT(std::time_t time)
   return time != static_cast<std::time_t>(0) && time != static_cast<std::time_t>(-1);
 }
 
-MPM_END_NAMESPACE;
+MIKTEX_PACKAGES_END_NAMESPACE;
 
 #endif

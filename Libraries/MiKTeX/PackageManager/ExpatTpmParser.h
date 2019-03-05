@@ -1,6 +1,6 @@
 /* ExpatTpmParser.h:                                    -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -34,7 +34,7 @@
 
 #include "TpmParser.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+MPM_INTERNAL_BEGIN_NAMESPACE;
 
 class ExpatTpmParser :
   public TpmParser
@@ -92,6 +92,6 @@ private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> traceStopWatch;
 };
 
-END_INTERNAL_NAMESPACE;
+MPM_INTERNAL_END_NAMESPACE;
 
 #endif

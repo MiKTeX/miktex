@@ -1,6 +1,6 @@
 /* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -29,12 +29,12 @@
 
 #define F927BA187CB94546AB9CA9099D989E81
 
-#define BEGIN_INTERNAL_NAMESPACE                        \
+#define MPM_INTERNAL_BEGIN_NAMESPACE                    \
 namespace MiKTeX {                                      \
   namespace Packages {                                  \
     namespace D6AAD62216146D44B580E92711724B78 {
 
-#define END_INTERNAL_NAMESPACE                  \
+#define MPM_INTERNAL_END_NAMESPACE              \
     }                                           \
   }                                             \
 }

@@ -1,6 +1,6 @@
 /* miktex/PackageManager/RepositoryInfo.h:              -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -32,7 +32,7 @@
 
 #include "definitions.h"
 
-MPM_BEGIN_NAMESPACE;
+MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 
 /// Package level enum class.
 enum class PackageLevel
@@ -128,6 +128,6 @@ inline bool operator!=(const RepositoryInfo& lhs, const RepositoryInfo& rhs)
   return !(lhs == rhs);
 }
 
-MPM_END_NAMESPACE;
+MIKTEX_PACKAGES_END_NAMESPACE;
 
 #endif

@@ -1,6 +1,6 @@
 /* WebSession.h:                                        -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -28,7 +28,7 @@
 
 #include "WebFile.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+MPM_INTERNAL_BEGIN_NAMESPACE;
 
 class MIKTEXNOVTABLE IProgressNotify_
 {
@@ -57,6 +57,6 @@ public:
   static std::shared_ptr<WebSession> Create(IProgressNotify_* pIProgressNotify);
 };
 
-END_INTERNAL_NAMESPACE;
+MPM_INTERNAL_END_NAMESPACE;
 
 #endif

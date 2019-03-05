@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageInstaller.h:            -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -37,7 +37,7 @@
 #include "RepositoryInfo.h"
 #include "definitions.h"
 
-MPM_BEGIN_NAMESPACE;
+MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 
 /// Notification enum class.
 enum class Notification
@@ -315,6 +315,6 @@ public:
   virtual void MIKTEXTHISCALL SetNoLocalServer(bool noLocalServer) = 0;
 };
 
-MPM_END_NAMESPACE;
+MIKTEX_PACKAGES_END_NAMESPACE;
 
 #endif

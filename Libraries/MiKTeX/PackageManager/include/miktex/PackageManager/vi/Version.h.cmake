@@ -1,6 +1,6 @@
 /* miktex/PackageManager/vi/Version.h: library version  -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -31,15 +31,15 @@
 
 #include <miktex/Core/LibraryVersion>
 
-#define MIKTEX_MPM_VI_BEGIN_NAMESPACE          \
-  MPM_BEGIN_NAMESPACE                          \
+#define MIKTEX_PACKAGES_VI_BEGIN_NAMESPACE     \
+  MIKTEX_PACKAGES_BEGIN_NAMESPACE              \
   namespace vi {
 
-#define MIKTEX_MPM_VI_END_NAMESPACE            \
+#define MIKTEX_PACKAGES_VI_END_NAMESPACE       \
   }                                            \
-  MPM_END_NAMESPACE
+  MIKTEX_PACKAGES_END_NAMESPACE
 
-MIKTEX_MPM_VI_BEGIN_NAMESPACE;
+MIKTEX_PACKAGES_VI_BEGIN_NAMESPACE;
 
 class MIKTEXNOVTABLE Runtime
 {
@@ -149,6 +149,6 @@ public:
   }
 };
 
-MIKTEX_MPM_VI_END_NAMESPACE;
+MIKTEX_PACKAGES_VI_END_NAMESPACE;
 
 #endif

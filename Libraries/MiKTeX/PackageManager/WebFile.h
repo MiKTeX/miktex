@@ -1,6 +1,6 @@
 /* WebFile.h:                                           -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -24,7 +24,7 @@
 
 #include <miktex/Core/Session>
 
-BEGIN_INTERNAL_NAMESPACE;
+MPM_INTERNAL_BEGIN_NAMESPACE;
 
 class MIKTEXNOVTABLE WebFile
 {
@@ -38,6 +38,6 @@ public:
   virtual void Close() = 0;
 };
 
-END_INTERNAL_NAMESPACE;
+MPM_INTERNAL_END_NAMESPACE;
 
 #endif

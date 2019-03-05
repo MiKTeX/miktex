@@ -1,6 +1,6 @@
 /* CurlWebSession.h:                                    -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -37,7 +37,7 @@
 #include "WebSession.h"
 #include "text.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+MPM_INTERNAL_BEGIN_NAMESPACE;
 
 class CurlWebSession :
   public std::enable_shared_from_this<CurlWebSession>,
@@ -208,7 +208,7 @@ private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 };
 
-END_INTERNAL_NAMESPACE;
+MPM_INTERNAL_END_NAMESPACE;
 
 #endif
 

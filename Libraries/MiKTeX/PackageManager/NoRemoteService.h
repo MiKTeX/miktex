@@ -1,6 +1,6 @@
 /* NoRemoteService.h:                                   -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -33,7 +33,7 @@
 #include "RemoteService.h"
 #include "text.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+MPM_INTERNAL_BEGIN_NAMESPACE;
 
 class NoRemoteService :
   public RemoteService
@@ -110,6 +110,6 @@ public:
   }
 };
 
-END_INTERNAL_NAMESPACE;
+MPM_INTERNAL_END_NAMESPACE;
 
 #endif

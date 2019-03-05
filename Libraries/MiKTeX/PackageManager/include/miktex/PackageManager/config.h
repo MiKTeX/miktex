@@ -1,6 +1,6 @@
 /* miktex/PackageManager/config.h:                      -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -39,11 +39,11 @@
 // API decoration for exported member functions
 #define MIKTEXMPMCEEAPI(type) MIKTEXMPMEXPORT type MIKTEXCEECALL
 
-#define MPM_BEGIN_NAMESPACE                     \
+#define MIKTEX_PACKAGES_BEGIN_NAMESPACE         \
   namespace MiKTeX {                            \
     namespace Packages {
 
-#define MPM_END_NAMESPACE                       \
+#define MIKTEX_PACKAGES_END_NAMESPACE           \
     }                                           \
   }
 
