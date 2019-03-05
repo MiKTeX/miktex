@@ -1347,7 +1347,7 @@ configure_file(
 
 configure_file(
   Doxyfile.in
-  ${CMAKE_CURRENT_BINARY_DIR}/DoxyFile
+  ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
 )
 
 configure_file(
