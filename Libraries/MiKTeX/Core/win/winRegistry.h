@@ -26,7 +26,7 @@
 
 #include <miktex/Core/TriState>
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class winRegistry
 {
@@ -94,6 +94,6 @@ public:
   static void SetRegistryValue(MiKTeX::Core::TriState shared, const std::string& keyName, const std::string& valueName, const std::string& value);
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;
 
 #endif

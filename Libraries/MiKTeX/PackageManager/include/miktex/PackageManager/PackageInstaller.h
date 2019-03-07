@@ -92,7 +92,6 @@ public:
 
 class MIKTEXNOVTABLE PackageInstaller
 {
-  /// Destructor.
 public:
   virtual MIKTEXTHISCALL ~PackageInstaller() noexcept = 0;
 

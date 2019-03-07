@@ -49,6 +49,8 @@
 #include "RootDirectoryInfo.h"
 #include "TriState.h"
 
+/// @namespace MiKTeX::Core
+/// @brief The core namespace.
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
 const unsigned INVALID_ROOT_INDEX = static_cast<unsigned>(-1);

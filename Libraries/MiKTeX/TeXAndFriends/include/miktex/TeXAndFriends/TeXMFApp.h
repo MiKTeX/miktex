@@ -45,7 +45,7 @@
 
 #include "WebAppInputLine.h"
 
-MIKTEXMF_BEGIN_NAMESPACE;
+MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 class IStringHandler
 {
@@ -495,6 +495,6 @@ inline void miktexcheckmemoryifdebug()
 #endif
 }
 
-MIKTEXMF_END_NAMESPACE;
+MIKTEX_TEXMF_END_NAMESPACE;
 
 #endif

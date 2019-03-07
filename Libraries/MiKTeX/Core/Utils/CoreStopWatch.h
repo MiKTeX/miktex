@@ -25,7 +25,7 @@
 
 #include "Session/SessionImpl.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class CoreStopWatch
 {
@@ -51,4 +51,4 @@ private:
   std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;

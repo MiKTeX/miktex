@@ -36,7 +36,7 @@ namespace MiKTeX
 
 class QWidget;
 
-MIKUI_QT_BEGIN_NAMESPACE;
+MIKTEX_UI_QT_BEGIN_NAMESPACE;
 
 class MIKTEXNOVTABLE PackageInfoDialog
 {
@@ -62,6 +62,6 @@ public:
   static MIKTEXUIQTCEEAPI(int) DoModal(QWidget* parent, const MiKTeX::Packages::PackageInfo& packageInfo);
 };
 
-MIKUI_QT_END_NAMESPACE;
+MIKTEX_UI_QT_END_NAMESPACE;
 
 #endif

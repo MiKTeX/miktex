@@ -21,7 +21,7 @@
 
 #pragma once
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class AutoEnv
 {
@@ -70,4 +70,4 @@ private:
   std::string oldValue;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;

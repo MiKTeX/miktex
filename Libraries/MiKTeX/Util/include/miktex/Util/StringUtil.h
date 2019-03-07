@@ -1,6 +1,6 @@
 /* miktex/Util/StringUtil.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -33,6 +33,8 @@
 #include <vector>
 #include <unordered_map>
 
+/// @namespace MiKTeX::Util
+/// @brief Generic utilities.
 MIKTEX_UTIL_BEGIN_NAMESPACE;
 
 class Flattener

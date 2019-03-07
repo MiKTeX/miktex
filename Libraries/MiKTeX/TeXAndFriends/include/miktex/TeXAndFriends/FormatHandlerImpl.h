@@ -26,7 +26,7 @@
 
 #include "TeXApp.h"
 
-MIKTEXMF_BEGIN_NAMESPACE;
+MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 template<class PROGRAM_CLASS> class FormatHandlerImpl :
   public IFormatHandler
@@ -45,6 +45,6 @@ public:
   }
 };
 
-MIKTEXMF_END_NAMESPACE;
+MIKTEX_TEXMF_END_NAMESPACE;
 
 #endif

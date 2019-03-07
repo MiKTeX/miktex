@@ -26,8 +26,12 @@
 
 MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 
+/// An invalid timestamp.
 constexpr std::time_t InvalidTimeT = static_cast<std::time_t>(0);
 
+/// Check a timestamp.
+/// @param time The timestamp to check.
+/// @return Returns `true`, if this is a valid timestamp.
 inline bool IsValidTimeT(std::time_t time)
 {
   return time != static_cast<std::time_t>(0) && time != static_cast<std::time_t>(-1);

@@ -53,7 +53,7 @@ class PackageDataStore
 public:
   PackageDataStore();
 
-  /// @brief Load package records into the data store.
+  /// @brief Loads package records into the data store.
   ///
   /// This method loads
   /// - mutable data from a given INI file
@@ -70,17 +70,17 @@ public:
 public:
   void SaveVarData();
 
-  /// Clear the contents of the data store.
+  /// Clears the contents of the data store.
 public:
   void Clear();
 
-  /// Try to retrieve a record from the data store.
+  /// Tries to retrieve a record from the data store.
   /// @param packageId The package ID.
   /// @return The first return value indicates whether the record (second return value) could be retrieved.
 public:
   std::tuple<bool, MiKTeX::Packages::PackageInfo> TryGetPackage(const std::string& packageId);
 
-  /// Retrieve a record from the data store.
+  /// Retrieves a record from the data store.
   /// @exception std::exception Record not found.
   /// @param packageId The package ID.
   /// @return Returns the requested record.
@@ -90,12 +90,12 @@ public:
     return (*this)[packageId];
   }
 
-  /// Add a record to the data store.
+  /// Adds a record to the data store.
   /// @param packageInfo The record to be added.
 public:
   void DefinePackage(const MiKTeX::Packages::PackageInfo& packageinfo);
 
-  /// Update a record in the data store.
+  /// Updatse a record in the data store.
   /// @param packageInfo The record to update.
 public:
   void SetPackage(const MiKTeX::Packages::PackageInfo& packageInfo)
@@ -103,22 +103,22 @@ public:
     (*this)[packageInfo.id] = packageInfo;
   }
 
-  /// @brief Set the package installation timestamp.
+  /// @brief Sets the package installation timestamp.
   ///
-  /// If the timestamp is zero, the mutable package data will cleared
-  /// (the package is not installed).
+  /// If the timestamp is zero (`InvalidTimeT`), the mutable package
+  /// data will cleared (the package is not installed).
   /// 
   /// @param packageId The package ID.
   /// @param timeInstalled The installation timestamp.
 public:
   void SetTimeInstalled(const std::string& packageId, std::time_t timeInstalled);
 
-  /// Declare a package as obsolete.
+  /// Declares a package as obsolete.
   /// @param packageId The package ID.
 public:
   void DeclareObsolete(const std::string& packageId);
 
-  /// Set the release state of an installed package.
+  /// Sets the release state of an installed package.
   /// @param packageId The package ID.
   /// @param releaseState The release state.
 public:
@@ -160,32 +160,32 @@ public:
     PackageDefinitionTable::iterator it;
   };
 
-  /// Get an iterator to the first record.
+  /// Gets an iterator to the first record.
 public:
   iterator begin();
 
-  /// Get an iterator referring to the past-the-end record.
+  /// Gets an iterator referring to the past-the-end record.
 public:
   iterator end();
 
-  /// Increment the reference counts of all files in a package.
+  /// Increments the reference counts of all files in a package.
   /// @param path The package ID.
 public:
   void IncrementFileRefCounts(const std::string& packageId);
 
-  /// Get the reference count of a file.
+  /// Gets the reference count of a file.
   /// @param path The path to the file.
   /// @return Returns reference count of the file.
 public:
   unsigned long GetFileRefCount(const MiKTeX::Core::PathName& path);
 
-  /// Decrement the reference count of an installed file.
+  /// Decrements the reference count of an installed file.
   /// @param path The path to the file.
   /// @return Returns the new (decremented) reference count.
 public:
   unsigned long DecrementFileRefCount(const MiKTeX::Core::PathName& path);
 
-  /// Migrate TPM files into a single INI file.
+  /// Migrates TPM files into a single INI file.
   ///
   /// If the INI file `miktex/config/package-manifests.ini` does not
   /// yet exists, it will be created by parsing all TPM files. This

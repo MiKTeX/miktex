@@ -27,7 +27,7 @@
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/PathName>
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class winDirectoryLister :
   public MiKTeX::Core::DirectoryLister
@@ -63,6 +63,6 @@ private:
   friend class MiKTeX::Core::DirectoryLister;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;
 
 #endif

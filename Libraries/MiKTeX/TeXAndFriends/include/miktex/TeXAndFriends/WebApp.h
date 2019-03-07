@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebApp.h:                       -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -45,6 +45,7 @@
 
 #include <miktex/Wrappers/PoptWrapper>
 
+/// @cond
 namespace C4P {
   class Exception31 {};        // aux_done
   class Exception32 {};        // bst_done
@@ -52,8 +53,9 @@ namespace C4P {
   class Exception9998 {};      // end_of_TEX
   class Exception9999 {};      // final_end
 }
+/// @endcond
 
-MIKTEXMF_BEGIN_NAMESPACE;
+MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 class ICharacterConverter
 {
@@ -337,6 +339,6 @@ extern "C" int MIKTEXCEECALL functionname(int argc, char* argv[])               
   return p.Run(programinstance, webappinstance, programName, argc, argv);                              \
 }
 
-MIKTEXMF_END_NAMESPACE;
+MIKTEX_TEXMF_END_NAMESPACE;
 
 #endif

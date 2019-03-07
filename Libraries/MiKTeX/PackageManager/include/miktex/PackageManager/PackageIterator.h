@@ -46,7 +46,6 @@ typedef MiKTeX::Core::OptionSet<PackageFilter> PackageFilterSet;
 /// Instances of this class can be used to browse the package database.
 class MIKTEXNOVTABLE PackageIterator
 {
-  /// Destructor.
 public:
   virtual MIKTEXTHISCALL ~PackageIterator() noexcept = 0;
 
@@ -62,8 +61,7 @@ public:
 
   /// Gets the next entry in the package database.
   /// @param[out] The package info struct to be filled.
-  /// @return Returns true, if the information could be retrieved.
-  /// Returns false, if there are no more entries in the database.
+  /// @return Returns `false`, if there are no more entries in the database.
 public:
   virtual bool MIKTEXTHISCALL GetNext(PackageInfo& packageInfo) = 0;
 };

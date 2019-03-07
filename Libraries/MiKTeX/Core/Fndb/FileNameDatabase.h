@@ -35,7 +35,7 @@
 
 #include "fndbmem.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class FileNameDatabase
 {
@@ -247,6 +247,6 @@ private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_fndb;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;
 
 #endif

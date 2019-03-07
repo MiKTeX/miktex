@@ -1,6 +1,6 @@
 /* miktex/UI/Qt/Prototypes.h:                           -*- C++ -*-
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2019 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -36,12 +36,12 @@
 #define MIKTEXUIQTTHISAPI(type) MIKTEXUIQTEXPORT type MIKTEXTHISCALL
 #define MIKTEXUIQTCEEAPI(type) MIKTEXUIQTEXPORT type MIKTEXCEECALL
 
-#define MIKUI_QT_BEGIN_NAMESPACE                \
+#define MIKTEX_UI_QT_BEGIN_NAMESPACE            \
   namespace MiKTeX {                            \
     namespace UI {                              \
       namespace Qt {
 
-#define MIKUI_QT_END_NAMESPACE                  \
+#define MIKTEX_UI_QT_END_NAMESPACE              \
       }                                         \
     }                                           \
   }
@@ -53,7 +53,9 @@
 
 class QWidget;
 
-MIKUI_QT_BEGIN_NAMESPACE;
+/// @namespace MiKTeX::UI::Qt
+/// @brief Qt extensions.
+MIKTEX_UI_QT_BEGIN_NAMESPACE;
 
 MIKTEXUIQTEXPORT void MIKTEXCEECALL InitializeFramework();
 
@@ -73,6 +75,6 @@ inline bool ProxyAuthenticationDialog()
   return ProxyAuthenticationDialog(nullptr);
 }
 
-MIKUI_QT_END_NAMESPACE;
+MIKTEX_UI_QT_END_NAMESPACE;
 
 #endif

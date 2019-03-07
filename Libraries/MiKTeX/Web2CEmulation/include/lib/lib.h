@@ -1,6 +1,6 @@
 /* lib/lib.h:                                           -*- C++ -*-
 
-   Copyright (C) 2013-2018 Christian Schenk
+   Copyright (C) 2013-2019 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -19,15 +19,25 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+/// @file lib/lib.h
+
+/// @addtogroup W2C
+
+/// @{
+
 #pragma once
 
 #if !defined(CD8636162364443B94377CDABD5ABD8F)
+/// @cond
 #define CD8636162364443B94377CDABD5ABD8F
+/// @endcond
 
 #include "../miktex/W2C/pre.h"
 
 #if defined(__cplusplus)
-MIKTEXWEB2C_BEGIN_NAMESPACE;
+/// @namespace MiKTeX::Web2C
+/// @brief MiKTeX Web2C emulation utilities.
+MIKTEX_WEB2C_BEGIN_NAMESPACE;
 
 MIKTEXW2CCEEAPI(void) ChangeRecorderFileName(const char* fileName);
 MIKTEXW2CCEEAPI(int) OpenInput(FILE** ppfile, kpse_file_format_type format, const char* modeString);
@@ -35,7 +45,7 @@ MIKTEXW2CCEEAPI(void) RecordFileName(const char* path, MiKTeX::Core::FileAccess 
 MIKTEXW2CCEEAPI(MiKTeX::Core::PathName) GetOutputDirectory();
 MIKTEXW2CCEEAPI(void) SetOutputDirectory(const MiKTeX::Core::PathName& path);
 
-MIKTEXWEB2C_END_NAMESPACE;
+MIKTEX_WEB2C_END_NAMESPACE;
 #endif
 
 MIKTEX_BEGIN_EXTERN_C_BLOCK
@@ -49,6 +59,10 @@ MIKTEXW2CCEEAPI(void) miktex_web2c_set_output_directory(const char* path);
 extern MIKTEXW2CDATA(boolean) miktex_web2c_recorder_enabled;
 extern MIKTEXW2CDATA(const_string) miktex_web2c_version_string;
 extern MIKTEXW2CDATA(string) miktex_web2c_fullnameoffile;
+
+/// @name lib.h
+/// Stuff from `lib.h`.
+/// @{
 
 MIKTEX_END_EXTERN_C_BLOCK
 
@@ -126,4 +140,8 @@ static inline integer zround(double r)
 #define fullnameoffile miktex_web2c_fullnameoffile
 #define versionstring miktex_web2c_version_string
 
+/// @}
+
 #endif
+
+/// @}

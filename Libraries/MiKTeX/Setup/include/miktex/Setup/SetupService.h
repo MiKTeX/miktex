@@ -34,11 +34,11 @@
 // API decoration for exported member functions
 #define MIKTEXSETUPCEEAPI(type) MIKTEXSETUPEXPORT type MIKTEXCEECALL
 
-#define SETUP_BEGIN_NAMESPACE                   \
+#define MIKTEX_SETUP_BEGIN_NAMESPACE            \
   namespace MiKTeX {                            \
     namespace Setup {
 
-#define SETUP_END_NAMESPACE                     \
+#define MIKTEX_SETUP_END_NAMESPACE              \
     }                                           \
   }
 
@@ -55,7 +55,9 @@
 
 #include <miktex/PackageManager/PackageManager>
 
-SETUP_BEGIN_NAMESPACE;
+/// @namespace MiKTeX::Setup
+/// @brief Setup utilities.
+MIKTEX_SETUP_BEGIN_NAMESPACE;
 
 enum class SetupTask
 {
@@ -404,9 +406,9 @@ public:
   static MIKTEXSETUPCEEAPI(void) WriteReport(std::ostream& s);
 };
 
-SETUP_END_NAMESPACE;
+MIKTEX_SETUP_END_NAMESPACE;
 
-#undef SETUP_BEGIN_NAMESPACE
-#undef SETUP_END_NAMESPACE
+#undef MIKTEX_SETUP_BEGIN_NAMESPACE
+#undef MIKTEX_SETUP_END_NAMESPACE
 
 #endif

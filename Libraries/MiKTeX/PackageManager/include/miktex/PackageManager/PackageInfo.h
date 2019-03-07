@@ -39,7 +39,7 @@
 
 MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 
-/// Package info struct.
+/// Package record.
 struct PackageInfo
 {
   /// Package ID.
@@ -105,10 +105,10 @@ struct PackageInfo
   /// MD5 of the package.
   MiKTeX::Core::MD5 digest;
 
-  /// True, if the package can be removed.
+  /// `true`, if the package can be removed.
   bool isRemovable = false;
 
-  /// True, if the package is obsolete.
+  /// `true`, if the package is obsolete.
   bool isObsolete = false;
 
   /// The release state of the package.

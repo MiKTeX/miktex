@@ -28,7 +28,14 @@
 
 #include <miktex/Core/PathName>
 
-MIKTEXMF_BEGIN_NAMESPACE;
+/// @namespace MiKTeX::TeXAndFriends
+///
+/// @brief The TeX&Friends namespace.
+///
+/// This namespace contains C++ classes to support the implementation
+/// of TeX (and derived engines), METAFONT, and other TeX releated
+/// utilities (e.g., BibTeX).
+MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 const unsigned long ICT_TCX = 1;
 const unsigned long ICT_8BIT = 2;
@@ -43,6 +50,6 @@ MIKTEXMFCEEAPI(int) OpenXFMFile(void* ptr, const MiKTeX::Core::PathName& fileNam
 
 MIKTEXMFCEEAPI(int) OpenXVFFile(void* ptr, const MiKTeX::Core::PathName& fileName);
 
-MIKTEXMF_END_NAMESPACE;
+MIKTEX_TEXMF_END_NAMESPACE;
 
 #endif

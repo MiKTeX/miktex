@@ -1,6 +1,6 @@
 /* miktex/W2C/pre.h:                                    -*- C++ -*-
 
-   Copyright (C) 2013-2018 Christian Schenk
+   Copyright (C) 2013-2019 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -44,11 +44,11 @@
 #define MIKTEXW2CCEEAPI(type) MIKTEXW2CEXPORT type MIKTEXCEECALL
 #define MIKTEXW2CDATA(type) MIKTEXW2CEXPORT type
 
-#define MIKTEXWEB2C_BEGIN_NAMESPACE             \
+#define MIKTEX_WEB2C_BEGIN_NAMESPACE            \
   namespace MiKTeX {                            \
     namespace Web2C {
 
-#define MIKTEXWEB2C_END_NAMESPACE               \
+#define MIKTEX_WEB2C_END_NAMESPACE              \
     }                                           \
   }
 

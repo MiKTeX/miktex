@@ -27,7 +27,7 @@
 #include <miktex/Core/MemoryMappedFile>
 #include <miktex/Core/PathName>
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class unxMemoryMappedFile :
   public MiKTeX::Core::MemoryMappedFile
@@ -96,6 +96,6 @@ private:
   int filedes = -1;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;
 
 #endif

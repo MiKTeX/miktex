@@ -31,7 +31,7 @@
 
 #include "TeXMFApp.h"
 
-MIKTEXMF_BEGIN_NAMESPACE;
+MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 class MIKTEXMFTYPEAPI(MetafontApp) :
   public TeXMFApp
@@ -89,6 +89,6 @@ private:
   std::unique_ptr<impl> pimpl;
 };
 
-MIKTEXMF_END_NAMESPACE;
+MIKTEX_TEXMF_END_NAMESPACE;
 
 #endif

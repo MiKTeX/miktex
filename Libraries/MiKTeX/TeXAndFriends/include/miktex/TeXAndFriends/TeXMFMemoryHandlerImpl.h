@@ -29,7 +29,7 @@
 
 #include "TeXMFApp.h"
 
-MIKTEXMF_BEGIN_NAMESPACE;
+MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 namespace texmfapp {
 #include <miktex/texmfapp.defaults.h>
@@ -289,6 +289,6 @@ public:
   }
 };
 
-MIKTEXMF_END_NAMESPACE;
+MIKTEX_TEXMF_END_NAMESPACE;
 
 #endif

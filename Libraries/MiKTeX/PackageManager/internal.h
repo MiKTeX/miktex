@@ -46,6 +46,8 @@
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
+/// @namespace MiKTeX::Packages::internal
+/// @brief Package manager internals.
 MPM_INTERNAL_BEGIN_NAMESPACE;
 
 constexpr const char* MPM_AGENT = "MPM/" MIKTEX_COMPONENT_VERSION_STR;

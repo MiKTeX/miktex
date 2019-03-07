@@ -57,11 +57,11 @@
 // API decoration for exported data
 #define MIKTEXMFDATA(type) MIKTEXMFEXPORT type
 
-#define MIKTEXMF_BEGIN_NAMESPACE                \
+#define MIKTEX_TEXMF_BEGIN_NAMESPACE            \
   namespace MiKTeX {                            \
     namespace TeXAndFriends {
 
-#define MIKTEXMF_END_NAMESPACE                  \
+#define MIKTEX_TEXMF_END_NAMESPACE              \
     }                                           \
   }
 

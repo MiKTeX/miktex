@@ -23,7 +23,7 @@
 
 #include "Utils/Pipe.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 template<typename Interface> class CompressedStreamBase :
   public Interface
@@ -140,4 +140,4 @@ protected:
   MiKTeX::Core::MiKTeXException threadMiKTeXException;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;

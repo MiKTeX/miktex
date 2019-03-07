@@ -26,7 +26,7 @@
 
 #include "miktex/Core/MemoryMappedFile.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class winMemoryMappedFile :
   public MiKTeX::Core::MemoryMappedFile
@@ -104,6 +104,6 @@ private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;
 
 #endif

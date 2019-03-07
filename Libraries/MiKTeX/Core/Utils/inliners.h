@@ -23,7 +23,7 @@
 
 #include "Session/SessionImpl.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 #define CTYPE_FACET \
   std::use_facet<std::ctype<char>>(SessionImpl::GetDefaultLocale())
@@ -151,4 +151,4 @@ inline size_t SkipNonDigit(const std::string& s, size_t pos = 0)
   return pos;
 }
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;

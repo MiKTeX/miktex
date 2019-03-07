@@ -1,4 +1,4 @@
-/* miktex/KPSE/Emulation.h: kpathsea emulation          -*- C++ -*-
+/* miktex/KPSE/Emulation.h:                             -*- C++ -*-
 
    Copyright 1993, 1995, 1996, 2005, 2008, 2009, 2010 Karl Berry
    Copyright (C) 2000-2018 Christian Schenk
@@ -20,10 +20,23 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+/// @file miktex/KPSE/Emulation.h
+
+/// @defgroup KPSE Kpathsea emulation
+/// 
+/// @brief Utilities for emulating the Kpathsea library.
+///
+/// MiKTeX has it's own file searching library. In order to support
+/// programs relying on Kpathsea, we implement an emulation library.
+
+/// @{
+
 #pragma once
 
 #if !defined(DF03C93E315147A6AEEE6CFC30D01E42)
+/// @cond
 #define DF03C93E315147A6AEEE6CFC30D01E42
+/// @endcond
 
 #include <miktex/First.h>
 #include <miktex/Version.h>
@@ -51,6 +64,8 @@
 #include <miktex/Core/Debug>
 #include <miktex/Core/IntegerTypes>
 
+/// @cond
+
 // DLL import/export switch
 #if !defined(D0A4167033297F40884B97769F47801C)
 #  if defined(MIKTEX_KPSEMU_SHARED)
@@ -70,11 +85,17 @@
 #  define off_t MIKTEX_INT64
 #endif
 
+/// @endcond
+
 /* _________________________________________________________________________
  *
  * config.h
  *
  */
+
+/// @name config.h
+/// Stuff from `config.h`.
+/// @{
 
 #if defined(MIKTEX_WINDOWS)
 #  define DEV_NULL "NUL"
@@ -82,13 +103,21 @@
 #  define DEV_NULL "/dev/null"
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * confdefs.h
  *
  */
 
+/// @name confdefs.h
+/// Stuff from `confdefs.h`.
+/// @{
+
 #define KPSEVERSION MIKTEX_BANNER_STR
+
+/// @}
 
 /* _________________________________________________________________________
  *
@@ -105,6 +134,10 @@
  * c-fopen.h
  *
  */
+
+/// @name c-fopen.h
+/// Stuff from `c-fopen.h`.
+/// @{
 
 #if !defined(FOPEN_R_MODE)
 #  define FOPEN_R_MODE "r"
@@ -132,11 +165,17 @@
 #  define SET_BINARY(f)
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * c-memstr.h
  *
  */
+
+/// @name c-memstr.h
+/// Stuff from `c-memstr.h`.
+/// @{
 
 #if !defined(HAVE_INDEX) && !defined(index)
 #  define index(s, c) strchr(s, c)
@@ -146,11 +185,17 @@
 #  define rindex(s, c) strrchr(s, c)
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * c-pathch.h
  *
  */
+
+/// @name c-patch.h
+/// Stuff from `c-pathch.h`.
+/// @{
 
 #if defined(MIKTEX_WINDOWS)
 #  define DIR_SEP '\\'
@@ -181,11 +226,17 @@
 #  define NAME_BEGINS_WITH_DEVICE(name) 0
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * types.h
  *
  */
+
+/// @name types.h
+/// Stuff from `types.h`.
+/// @{
 
 #define KPSE_COMPAT_API 1
 
@@ -345,11 +396,17 @@ extern MIKTEXKPSDATA(kpathsea_instance) miktex_kpse_def_inst;
 
 MIKTEX_END_EXTERN_C_BLOCK;
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * lib.h
  *
  */
+
+/// @name lib.h
+/// Stuff from `lib.h`.
+/// @{
 
 #define START_WARNING() do { fputs("warning: ", stderr)
 #define END_WARNING() fputs(".\n", stderr); fflush(stderr); } while (0)
@@ -494,19 +551,31 @@ inline int FILESTRCASEEQ(const char* s1, const char* s2)
 
 #define xgetcwd() miktex_xgetcwd()
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * concatn.h
  *
  */
 
+/// @name concatn.h
+/// Stuff from `concatn.h`.
+/// @{
+
 #define concatn miktex_concatn
+
+/// @}
 
 /* _________________________________________________________________________
  *
  * c-type.h
  *
  */
+
+/// @name c-type.h
+/// Stuff from `c-type.h`.
+/// @{
 
 #define ISALNUM(c) (isascii(c) && isalnum(c))
 
@@ -516,13 +585,21 @@ inline int FILESTRCASEEQ(const char* s1, const char* s2)
 
 #define ISBLANK(c) (isascii(c) && ((c) == ' ' || (c) == '\t'))
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * debug.h
  *
  */
 
+/// @name debug.h
+/// Stuff from `debug.h`.
+/// @{
+
 #define KPSE_DEBUG_SET(bit)
+
+/// @}
 
 /* _________________________________________________________________________
  *
@@ -530,11 +607,17 @@ inline int FILESTRCASEEQ(const char* s1, const char* s2)
  *
  */
 
+/// @name c-proto.h
+/// Stuff from `c-proto.h`.
+/// @{
+
 #if defined(MIKTEX_WINDOWS)
 #  define KPSEDLL MIKTEXDLLIMPORT
 #else
 #  define KPSEDLL
 #endif
+
+/// @}
 
 /* _________________________________________________________________________
  *
@@ -542,14 +625,24 @@ inline int FILESTRCASEEQ(const char* s1, const char* s2)
  *
  */
 
+/// @name c-auto.h
+/// Stuff from `c-auto.h`.
+/// @{
+
 #define MAKE_TEX_PK_BY_DEFAULT 1
 #define MAKE_TEX_FMT_BY_DEFAULT 1
+
+/// @}
 
 /* _________________________________________________________________________
  *
  * str-list.h
  *
  */
+
+/// @name str-list.h
+/// Stuff from `str-list.h`.
+/// @{
 
 typedef struct
 {
@@ -564,11 +657,17 @@ typedef struct
 
 #define str_list_add(l, s) miktex_str_list_add(l, s)
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * readable.h
  *
  */
+
+/// @name readable.h
+/// Stuff from `readable.h`.
+/// @{
 
 #define kpathsea_readable_file(kpse, name) \
   miktex_kpathsea_readable_file(kpse, name)
@@ -580,11 +679,17 @@ typedef struct
 
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * pathsearch.h
  *
  */
+
+/// @name pathsearch.h
+/// Stuff from `pathsearch.h`.
+/// @{
 
 #define kpathsea_path_search(kpse, path, name, must_exist) \
   miktex_kpathsea_path_search(kpse, path, name, must_exist)
@@ -592,11 +697,17 @@ typedef struct
 #define kpathsea_all_path_search(kpse, path, name) \
   miktex_kpathsea_all_path_search(kpse, path, name)
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * tex-file.h
  *
  */
+
+/// @name tex-file.h
+/// Stuff from `tex-file.h`.
+/// @{
 
 #define kpathsea_find_file(kpse, name, format, must_exist) \
   miktex_kpathsea_find_file(kpse, name, format, must_exist)
@@ -659,11 +770,17 @@ typedef struct
 
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * absolute.h
  *
  */
+
+/// @name absolute.h
+/// Stuff from `absolute.h`.
+/// @{
 
 #define kpathsea_absolute_p(kpse, filename, relative_ok)        \
   miktex_kpathsea_absolute_p(kpse, filename, relative_ok)
@@ -673,11 +790,17 @@ typedef struct
   kpathsea_absolute_p(kpse_def, filename, relative_ok)
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * variable.h
  *
  */
+
+/// @name variable.h
+/// Stuff from `variable.h`.
+/// @{
 
 #define kpathsea_var_expand(kpse, src) \
   miktex_kpathsea_var_expand(kpse, src)
@@ -693,11 +816,17 @@ typedef struct
 
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * expand.h
  *
  */
+
+/// @name expand.h
+/// Stuff from `expand.h`.
+/// @{
 
 #define kpathsea_path_expand(kpse, path) \
   miktex_kpathsea_path_expand(kpse, path)
@@ -710,21 +839,33 @@ typedef struct
 #  define kpse_path_expand(path) kpathsea_path_expand(kpse_def, path)
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * version.h
  *
  */
 
+/// @name version.h
+/// Stuff from `version.h`.
+/// @{
+
 #define kpathsea_version_string miktex_kpathsea_version_string
 
 #define kpathsea_bug_address miktex_kpathsea_bug_address
+
+/// @}
 
 /* _________________________________________________________________________
  *
  * tex-glyph.h
  *
  */
+
+/// @name tex-glyph.h
+/// Stuff from `tex-glyph.h`.
+/// @{
 
 MIKTEX_BEGIN_EXTERN_C_BLOCK;
 
@@ -767,21 +908,33 @@ MIKTEX_END_EXTERN_C_BLOCK;
 
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * tex-hush.h
  *
  */
 
+/// @name tex-hush.h
+/// Stuff from `tex-hush.h`.
+/// @{
+
 #if defined(KPSE_COMPAT_API)
 #  define kpse_tex_hush(what) 0
 #endif
+
+/// @}
 
 /* _________________________________________________________________________
  *
  * proginit.h
  *
  */
+
+/// @name proginit.h
+/// Stuff from `proginit.h`.
+/// @{
 
 #define kpathsea_init_prog(kpse, prefix, dpi, mode, fallback) \
   miktex_kpathsea_init_prog(kpse, prefix, dpi, mode, fallback)
@@ -793,11 +946,17 @@ MIKTEX_END_EXTERN_C_BLOCK;
 
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * magstep.h
  *
  */
+
+/// @name magstep.h
+/// Stuff from `magstep.h`.
+/// @{
 
 #define kpathsea_magstep_fix(kpse, dpi, bdpi, m_ret)    \
   miktex_kpathsea_magstep_fix(kpse, dpi, bdpi, m_ret)
@@ -807,11 +966,17 @@ MIKTEX_END_EXTERN_C_BLOCK;
   kpathsea_magstep_fix(kpse_def, dpi, bdpi, m_ret)
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * progname.h
  *
  */
+
+/// @name progname.h
+/// Stuff from `progname.h`.
+/// @{
 
 #define kpathsea_set_program_name(kpse, argv0, progname) \
   miktex_kpathsea_set_program_name(kpse, argv0, progname)
@@ -828,13 +993,21 @@ MIKTEX_END_EXTERN_C_BLOCK;
 
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * line.h
  *
  */
 
+/// @name line.h
+/// Stuff from `line.h`.
+/// @{
+
 #define read_line(f) miktex_read_line(f)
+
+/// @}
 
 /* _________________________________________________________________________ */
 
@@ -945,3 +1118,5 @@ extern MIKTEXKPSDATA(kpathsea) miktex_kpse_def;
 MIKTEX_END_EXTERN_C_BLOCK;
 
 #endif
+
+/// @}

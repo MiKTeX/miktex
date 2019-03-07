@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -44,18 +44,18 @@
 // experimental
 #define USE_CODECVT_UTF8 1
 
-#define BEGIN_INTERNAL_NAMESPACE                \
+#define CORE_INTERNAL_BEGIN_NAMESPACE           \
 namespace MiKTeX {                              \
   namespace ABF3880A6239B84E87DC7E727A8BBFD4 {
 
-#define END_INTERNAL_NAMESPACE                  \
+#define CORE_INTERNAL_END_NAMESPACE             \
   }                                             \
 }
 
 #define BEGIN_ANONYMOUS_NAMESPACE namespace {
 #define END_ANONYMOUS_NAMESPACE }
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 #define REPORT_EVENTS 0
 
@@ -383,7 +383,7 @@ inline FILE* FdOpen(int fd, const char* mode)
 
 /* _________________________________________________________________________ */
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;
 
 using namespace MiKTeX::ABF3880A6239B84E87DC7E727A8BBFD4;
 

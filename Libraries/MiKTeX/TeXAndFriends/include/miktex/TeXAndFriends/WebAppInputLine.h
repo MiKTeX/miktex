@@ -37,15 +37,15 @@
 
 #include "WebApp.h"
 
-#define MIKTEXMF_BEGIN_NAMESPACE                \
+#define MIKTEX_TEXMF_BEGIN_NAMESPACE                \
   namespace MiKTeX {                            \
     namespace TeXAndFriends {
 
-#define MIKTEXMF_END_NAMESPACE                  \
+#define MIKTEX_TEXMF_END_NAMESPACE                  \
     }                                           \
   }
 
-MIKTEXMF_BEGIN_NAMESPACE;
+MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 class IInputOutput
 {
@@ -262,6 +262,6 @@ template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_
   return done;
 }
 
-MIKTEXMF_END_NAMESPACE;
+MIKTEX_TEXMF_END_NAMESPACE;
 
 #endif

@@ -25,7 +25,7 @@
 #include <condition_variable>
 #include <mutex>
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 #if defined(_MSC_VER)
 #  pragma push_macro("min")
@@ -151,4 +151,4 @@ private:
 #  pragma pop_macro("min")
 #endif
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;

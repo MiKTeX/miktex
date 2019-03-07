@@ -28,7 +28,7 @@
 
 #include "Utils/AutoEnv.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class winProcess :
   public MiKTeX::Core::Process
@@ -119,4 +119,4 @@ private:
   friend class MiKTeX::Core::Process;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;

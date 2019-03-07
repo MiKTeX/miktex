@@ -28,7 +28,7 @@
 
 #include "Fndb/FileNameDatabase.h"
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 struct RootDirectoryInternals :
   MiKTeX::Core::RootDirectoryInfo
@@ -119,6 +119,6 @@ private:
   bool noFndb = false;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;
 
 #endif

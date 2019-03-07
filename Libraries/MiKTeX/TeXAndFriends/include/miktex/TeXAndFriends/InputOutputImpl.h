@@ -26,7 +26,7 @@
 
 #include "WebAppInputLine.h"
 
-MIKTEXMF_BEGIN_NAMESPACE;
+MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 template<class PROGRAM_CLASS> class InputOutputImpl :
   public IInputOutput
@@ -151,6 +151,6 @@ public:
   }
 };
 
-MIKTEXMF_END_NAMESPACE;
+MIKTEX_TEXMF_END_NAMESPACE;
 
 #endif

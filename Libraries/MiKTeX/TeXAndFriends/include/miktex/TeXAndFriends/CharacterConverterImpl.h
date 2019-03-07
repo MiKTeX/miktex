@@ -26,7 +26,7 @@
 
 #include "WebApp.h"
 
-MIKTEXMF_BEGIN_NAMESPACE;
+MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 template<class PROGRAM_CLASS> class CharacterConverterImpl :
   public ICharacterConverter
@@ -70,6 +70,6 @@ public:
   }
 };
 
-MIKTEXMF_END_NAMESPACE;
+MIKTEX_TEXMF_END_NAMESPACE;
 
 #endif

@@ -1,6 +1,6 @@
-/* miktex/W2C/Emulation.h: Web2C emulation              -*- C++ -*-
+/* miktex/W2C/Emulation.h:                              -*- C++ -*-
 
-   Copyright (C) 2010-2018 Christian Schenk
+   Copyright (C) 2010-2019 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -19,10 +19,23 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+/// @file miktex/W2c/Emulation.h
+
+/// @defgroup W2C Web2C emulation
+/// 
+/// @brief Utilities for emulating Web2c.
+///
+/// In order to support programs relying on Web2c, we implement an
+/// emulation library.
+
+/// @{
+
 #pragma once
 
 #if !defined(AA9CDF05506A4A07827B1144C4755C06)
+/// @cond
 #define AA9CDF05506A4A07827B1144C4755C06
+/// @endcond
 
 #if defined(__cplusplus)
 #else
@@ -37,13 +50,13 @@
 #include "pre.h"
 
 #if defined(__cplusplus)
-MIKTEXWEB2C_BEGIN_NAMESPACE;
+MIKTEX_WEB2C_BEGIN_NAMESPACE;
 
 MIKTEXW2CCEEAPI(char*) GetCurrentFileName();
 MIKTEXW2CCEEAPI(void) GetSecondsAndMicros(int* seconds, int* micros);
 MIKTEXW2CCEEAPI(int) RunSystemCommand(const char* cmd);
 
-MIKTEXWEB2C_END_NAMESPACE;
+MIKTEX_WEB2C_END_NAMESPACE;
 #endif
 
 
@@ -77,6 +90,10 @@ MIKTEXWEB2C_END_NAMESPACE;
  *
  */
 
+/// @name texmfmp.h
+/// Stuff from `texmfmp.h`.
+/// @{
+
 #if defined(__cplusplus) 
 inline char* generic_synctex_get_current_name()
 {
@@ -98,11 +115,17 @@ inline void secondsandmicros(integer& s, integer& m)
 }
 #endif
 
+/// @}
+
 /* _________________________________________________________________________
  *
  * cpascal.h
  *
  */
+
+/// @name cpascal.h
+/// Stuff from `cpascal.h`.
+/// @{
 
 #if defined(__cplusplus)
 template<class T> T* addressof(T& x)
@@ -173,6 +196,8 @@ typedef double real;
 #  define promptfilenamehelpmsg "(Press Enter to retry, or Control-D to exit"
 #endif
 
+/// @}
+
 /* _________________________________________________________________________ */
 
 #if defined(__cplusplus)
@@ -184,3 +209,5 @@ MIKTEXW2CCEEAPI(integer) miktex_zround(double r);
 MIKTEX_END_EXTERN_C_BLOCK
 
 #endif
+
+/// @}

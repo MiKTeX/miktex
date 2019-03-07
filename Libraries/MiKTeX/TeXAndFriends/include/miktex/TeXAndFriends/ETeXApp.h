@@ -26,7 +26,7 @@
 
 #include "TeXApp.h"
 
-MIKTEXMF_BEGIN_NAMESPACE;
+MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 class MIKTEXMFTYPEAPI(ETeXApp) :
   public TeXApp
@@ -84,4 +84,4 @@ inline bool miktexetexp()
   return ETeXApp::GetETeXApp()->ETeXP();
 }
 
-MIKTEXMF_END_NAMESPACE;
+MIKTEX_TEXMF_END_NAMESPACE;

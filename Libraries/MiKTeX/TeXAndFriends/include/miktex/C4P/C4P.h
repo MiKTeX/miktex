@@ -1,6 +1,6 @@
-/* miktex/C4P/C4P.h: Pascalish run-time support         -*- C++ -*-
+/* miktex/C4P/C4P.h:                                    -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -18,6 +18,9 @@
    along with the MiKTeX TeXMF Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
+
+/// @file miktex/C4P/C4P.h
+/// @brief Pascalish run-time support.
 
 #pragma once
 
@@ -47,6 +50,12 @@
 #include <miktex/Util/StringUtil>
 #include <miktex/Util/inliners.h>
 
+/// @namespace C4P
+///
+/// @brief The "C/C++ for Pascal" namespace.
+///
+/// This namespace contains C/C++ utilities to support the
+/// Pascal-to-C++ conversion.
 C4P_BEGIN_NAMESPACE;
 
 typedef MIKTEX_INT8 C4P_signed8;

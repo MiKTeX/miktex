@@ -26,7 +26,7 @@
 
 #include <miktex/Core/Debug>
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 typedef uint32_t FndbWord;
 typedef FndbWord FndbByteOffset;
@@ -83,6 +83,6 @@ struct FileNameDatabaseRecord
   FndbByteOffset reserved = 0;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;
 
 #endif

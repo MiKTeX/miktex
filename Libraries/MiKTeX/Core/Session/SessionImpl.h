@@ -54,7 +54,7 @@
 #  import MIKTEX_SESSION_TLB raw_interfaces_only
 #endif
 
-BEGIN_INTERNAL_NAMESPACE;
+CORE_INTERNAL_BEGIN_NAMESPACE;
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 namespace MiKTeXSessionLib = MAKE_CURVER_ID(MiKTeXSession);
@@ -1152,6 +1152,6 @@ private:
   friend class MiKTeX::Core::Session;
 };
 
-END_INTERNAL_NAMESPACE;
+CORE_INTERNAL_END_NAMESPACE;
 
 #endif

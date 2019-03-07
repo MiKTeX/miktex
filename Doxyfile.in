@@ -26,21 +26,29 @@ ABBREVIATE_BRIEF       = "The $name class" \
                          a \
                          an \
                          the
-ALWAYS_DETAILED_SEC    = NO
+ALWAYS_DETAILED_SEC    = YES
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
 STRIP_FROM_PATH        += @CMAKE_BINARY_DIR@
 STRIP_FROM_PATH        += @CMAKE_SOURCE_DIR@
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_APP_DIR@/include
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include
-STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@/include
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_EXTRACTOR_DIR@/include
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_KPSEMU_DIR@/include
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@/include
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_TEXMF_DIR@/include
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_TRACE_DIR@/include
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_UI_QT_DIR@/include
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_UTIL_DIR@/include
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_W2CEMU_DIR@/include
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = NO
 QT_AUTOBRIEF           = NO
 MULTILINE_CPP_IS_BRIEF = NO
 INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
-TAB_SIZE               = 4
+TAB_SIZE               = 8
 ALIASES                =
 TCL_SUBST              =
 OPTIMIZE_OUTPUT_FOR_C  = NO
@@ -117,13 +125,21 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  += @CMAKE_BINARY_DIR@/@MIKTEX_REL_CORE_DIR@/include/MiKTeX/Core
-INPUT                  += @CMAKE_BINARY_DIR@/@MIKTEX_REL_CORE_DIR@/include/MiKTeX/Core/win
-INPUT                  += @CMAKE_BINARY_DIR@/@MIKTEX_REL_MPMLIB_DIR@/include/MiKTeX/PackageManager
-INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include/MiKTeX/Core
-INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include/MiKTeX/Core/win
-INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@/include/MiKTeX/PackageManager
+INPUT                  += @CMAKE_SOURCE_DIR@/README.md
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_APP_DIR@/include/miktex/App
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include/miktex/Core
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_EXTRACTOR_DIR@/include/miktex/Extractor
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_KPSEMU_DIR@/include/miktex/KPSE
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_MPMLIB_DIR@/include/miktex/PackageManager
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_SETUPLIB_DIR@/include/miktex/Setup
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_TEXMF_DIR@/include/miktex/C4P
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_TEXMF_DIR@/include/miktex/TeXAndFriends
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_TRACE_DIR@/include/miktex/Trace
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_UI_QT_DIR@/include/miktex/UI/Qt
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_UTIL_DIR@/include/miktex/Util
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_W2CEMU_DIR@/include/miktex/W2C
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_W2CEMU_DIR@/include/lib
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.c \
                          *.cc \
@@ -183,7 +199,7 @@ INPUT_FILTER           =
 FILTER_PATTERNS        =
 FILTER_SOURCE_FILES    = NO
 FILTER_SOURCE_PATTERNS =
-USE_MDFILE_AS_MAINPAGE =
+USE_MDFILE_AS_MAINPAGE = @CMAKE_SOURCE_DIR@/README.md
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
 #---------------------------------------------------------------------------
@@ -338,19 +354,61 @@ EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           =
 INCLUDE_FILE_PATTERNS  =
+PREDEFINED             += "C4PCEEAPI(type)=type"
+PREDEFINED             += "C4PEXPORT= "
+PREDEFINED             += "C4PTHISAPI(type)=type"
+PREDEFINED             += "C4P_BEGIN_NAMESPACE=namespace C4P {"
+PREDEFINED             += "C4P_END_NAMESPACE=}"
+PREDEFINED             += "C4P_FILE_STRUCT(Bt)= C4P::BufferedFile<Bt>"
+PREDEFINED             += "MIKTEXAPPCEEAPI(type)=type"
+PREDEFINED             += "MIKTEXAPPEXPORT= "
+PREDEFINED             += "MIKTEXAPPTHISAPI(type)=type"
+PREDEFINED             += "MIKTEXAPPTYPEAPI(Application)=Application"
 PREDEFINED             += "MIKTEXCEECALL= "
-PREDEFINED             += "MIKTEXCORECEEAPI(type)= "
+PREDEFINED             += "MIKTEXCORECEEAPI(type)=type"
 PREDEFINED             += "MIKTEXCOREEXPORT= "
-PREDEFINED             += "MIKTEXCORETHISAPI(type)= "
-PREDEFINED             += "MIKTEXMPMCEEAPI(type)= "
+PREDEFINED             += "MIKTEXCORETHISAPI(type)=type"
+PREDEFINED             += "MIKTEXEXTRACTORCEEAPI(type)=type"
+PREDEFINED             += "MIKTEXKPSCEEAPI(type)=type"
+PREDEFINED             += "MIKTEXKPSDATA(type)=type "
+PREDEFINED             += "MIKTEXMFTHISAPI(type)=type"
+PREDEFINED             += "MIKTEXMFTYPEAPI(Application)=Application"
+PREDEFINED             += "MIKTEXMPMCEEAPI(type)=type"
 PREDEFINED             += "MIKTEXNORETURN= "
+PREDEFINED             += "MIKTEXNOVTABLE= "
+PREDEFINED             += "MIKTEXSETUPCEEAPI(type)=type"
 PREDEFINED             += "MIKTEXTHISCALL= "
+PREDEFINED             += "MIKTEXTRACECEEAPI(type)=type"
+PREDEFINED             += "MIKTEXUIQTCEEAPI(type)=type"
+PREDEFINED             += "MIKTEXUIQTEXPORT= "
+PREDEFINED             += "MIKTEXUTILCEEAPI(type)=type"
+PREDEFINED             += "MIKTEXW2CCEEAPI(type)=type"
+PREDEFINED             += "MIKTEXW2CDATA(type)=type "
+PREDEFINED             += "MIKTEX_APP_BEGIN_NAMESPACE=namespace MiKTeX { namespace App {"
+PREDEFINED             += "MIKTEX_APP_END_NAMESPACE=} }"
+PREDEFINED             += "MIKTEX_BEGIN_EXTERN_C_BLOCK= extern \"C\" {"
 PREDEFINED             += "MIKTEX_CORE_BEGIN_NAMESPACE=namespace MiKTeX { namespace Core {"
 PREDEFINED             += "MIKTEX_CORE_END_NAMESPACE=} }"
+PREDEFINED             += "MIKTEX_END_EXTERN_C_BLOCK=}"
+PREDEFINED             += "MIKTEX_EXTRACTOR_BEGIN_NAMESPACE=namespace MiKTeX { namespace Extractor {"
+PREDEFINED             += "MIKTEX_EXTRACTOR_END_NAMESPACE=} }"
 PREDEFINED             += "MIKTEX_PACKAGES_BEGIN_NAMESPACE=namespace MiKTeX { namespace Packages {"
 PREDEFINED             += "MIKTEX_PACKAGES_END_NAMESPACE=} }"
+PREDEFINED             += "MIKTEX_SETUP_BEGIN_NAMESPACE=namespace MiKTeX { namespace Setup {"
+PREDEFINED             += "MIKTEX_SETUP_END_NAMESPACE=} }"
+PREDEFINED             += "MIKTEX_TEXMF_BEGIN_NAMESPACE=namespace MiKTeX { namespace TeXAndFriends {"
+PREDEFINED             += "MIKTEX_TEXMF_END_NAMESPACE=} }"
+PREDEFINED             += "MIKTEX_TRACE_BEGIN_NAMESPACE=namespace MiKTeX { namespace Trace {"
+PREDEFINED             += "MIKTEX_TRACE_END_NAMESPACE=} }"
+PREDEFINED             += "MIKTEX_UI_QT_BEGIN_NAMESPACE=namespace MiKTeX { namespace UI { namespace Qt {"
+PREDEFINED             += "MIKTEX_UI_QT_END_NAMESPACE=} } }"
+PREDEFINED             += "MIKTEX_UTIL_BEGIN_NAMESPACE=namespace MiKTeX { namespace Util {"
+PREDEFINED             += "MIKTEX_UTIL_END_NAMESPACE=} }"
+PREDEFINED             += "MIKTEX_WEB2C_BEGIN_NAMESPACE=namespace MiKTeX { namespace Web2C {"
+PREDEFINED             += "MIKTEX_WEB2C_END_NAMESPACE=} }"
 PREDEFINED             += "MPM_INTERNAL_BEGIN_NAMESPACE=namespace MiKTeX { namespace Packages { namespace internal {"
 PREDEFINED             += "MPM_INTERNAL_END_NAMESPACE=} } }"
+PREDEFINED             += "__cplusplus= "
 EXPAND_AS_DEFINED      =
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------

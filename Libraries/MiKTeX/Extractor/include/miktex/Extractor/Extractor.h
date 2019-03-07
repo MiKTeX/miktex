@@ -1,6 +1,6 @@
 /* miktex/Extractor/Extractor.h:                        -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -39,6 +39,8 @@
 #include <miktex/Core/Session>
 #include <miktex/Core/Stream>
 
+/// @namespace MiKTeX::Extractor
+/// @brief Extracting files from compressed archives.
 MIKTEX_EXTRACTOR_BEGIN_NAMESPACE;
 
 enum class ArchiveFileType
