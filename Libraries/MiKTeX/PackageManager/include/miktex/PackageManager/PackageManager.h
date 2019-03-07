@@ -279,7 +279,7 @@ public:
   /// Configures the default package repository.
   /// @param repository The new default package repository.
   /// @see GetDefaultPackageRepository
-wpublic:
+public:
   static MIKTEXMPMCEEAPI(void) SetDefaultPackageRepository(const RepositoryInfo& repository);
 
   /// Configures the default package repository.
