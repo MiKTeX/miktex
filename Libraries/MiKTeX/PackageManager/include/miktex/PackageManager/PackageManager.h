@@ -117,6 +117,13 @@ public:
 public:
   virtual std::string MIKTEXTHISCALL PickRepositoryUrl() = 0;
 
+  /// Tries to get a record from the package database.
+  /// @param url Identifies the package.
+  /// @param[out] packageInfo The loaded record.
+  /// @return Returns `true`, if the record could be retrieved.
+public:
+  virtual bool MIKTEXTHISCALL TryGetPackageInfo(const std::string& packageId, PackageInfo& packageInfo) = 0;
+
   /// Tries to get a record from the repository data store.
   /// @param url Identifies the remote package repository.
   /// @param[out] repositoryInfo The loaded record.
