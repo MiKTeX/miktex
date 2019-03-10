@@ -34,7 +34,7 @@
 
 MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 
-/// Package level enum class.
+/// Package level.
 enum class PackageLevel
 {
   None = 0,
@@ -48,26 +48,35 @@ enum class PackageLevel
   Complete = 1000000000,
 };
 
+/// Repository type.
 enum class RepositoryType
 {
   Unknown,
   MiKTeXDirect,
+  /// Local (file system) directory.
   Local,
+  /// Remote (Internet) directory.
   Remote,
   MiKTeXInstallation
 };
   
+/// Repository status.
 enum class RepositoryStatus
 {
   Unknown,
+  /// Repository is known to be online.
   Online,
+  /// Remote repository is known to be offline.
   Offline,
 };
 
+/// Repository integrrity.
 enum class RepositoryIntegrity
 {
   Unknown,
+  /// The repository is known to be intact.
   Intact,
+  /// The repository is known to be corrupted.
   Corrupted,
 };
 
@@ -75,7 +84,9 @@ enum class RepositoryIntegrity
 enum class RepositoryReleaseState
 {
   Unknown,
+  /// Stable channel.
   Stable,
+  /// Experimental channel.
   Next,
 };
 

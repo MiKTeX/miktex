@@ -39,7 +39,7 @@
 
 MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 
-/// Notification enum class.
+/// Installer notifications.
 enum class Notification
 {
   None = 0,
@@ -100,29 +100,35 @@ public:
   virtual void MIKTEXTHISCALL Dispose() = 0;
 
   /// Sets the package repository for this package installer object.
-  /// @param The location of the package repository. Either an URL or
+  /// @param repository The location of the package repository. Either an URL or
   /// an absolute path name.
 public:
   virtual void MIKTEXTHISCALL SetRepository(const std::string& repository) = 0;
 
   /// Sets the download directory for this package installer.
+  /// @param directory The path to the download directory.
 public:
   virtual void MIKTEXTHISCALL SetDownloadDirectory(const MiKTeX::Core::PathName& directory) = 0;
 
+  /// Synchronizes the package database.
 public:
   virtual void MIKTEXTHISCALL UpdateDb() = 0;
 
   /// Starts the package database synchronization thread.
+  /// @see WaitForCompletion
 public:
   virtual void MIKTEXTHISCALL UpdateDbAsync() = 0;
 
+  /// Checks for updates.
 public:
   virtual void MIKTEXTHISCALL FindUpdates() = 0;
 
+  /// Checks for updates in a secondary thread.
+  /// @see WaitForCompletion
 public:
   virtual void MIKTEXTHISCALL FindUpdatesAsync() = 0;
 
-  /// Update info struct.
+  /// Update information record.
 public:
   struct UpdateInfo
   {
@@ -132,73 +138,112 @@ public:
     /// Date/Time the package was created.
     std::time_t timePackaged = InvalidTimeT;
 
+    /// Informal version informtion.
     std::string version;
 
+    /// Update actions.
     enum Action {
       None,
+      /// Unused
+      /// @todo: remove
       Keep,
+      /// No permission to remove.
       KeepAdmin,
+      /// Should be removed.
       KeepObsolete,
+      /// Optional update.
       Update,
+      /// Required update.
       ForceUpdate, 
+      /// Required deletion.
       ForceRemove,
+      /// Package has been tampered with.
       Repair,
+      /// Release channel has changed.
       ReleaseStateChange
     };
 
+    /// The action to take.
     Action action = None;
   };
 
+  /// Gets updateable packages.
+  /// @return Returns collected update information records.
 public:
   virtual std::vector<UpdateInfo> MIKTEXTHISCALL GetUpdates() = 0;
 
+  /// Checks for upgradeable packages.
+  /// @param packageLevel The requested package level.
 public:
   virtual void MIKTEXTHISCALL FindUpgrades(PackageLevel packageLevel) = 0;
 
+  /// Checks for upgrades in a secondary thread.
+  /// @see WaitForCompletion
 public:
   virtual void MIKTEXTHISCALL FindUpgradesAsync(PackageLevel packageLevel) = 0;
 
+  /// Upgrade information record.
 public:
   struct UpgradeInfo
   {
+    /// ID of an upgradaeble package.
     std::string packageId;
+    /// Packaging timestamp.
     std::time_t timePackaged = InvalidTimeT;
+    /// Informal version information.
     std::string version;
   };
 
+  /// Gets upgradeable packages.
+  /// @return Returns upgrade information records.
 public:
   virtual std::vector<UpgradeInfo> MIKTEXTHISCALL GetUpgrades() = 0;
 
+  /// Installation role.
 public:
   enum class Role
   {
+    /// Regular application.
     Application,
+    /// Installer (setup) program.
     Installer,
+    /// Updater.
     Updater
   };
 
+  /// Installs/removes packages.
+  /// @param role The installation role.
 public:
   virtual void MIKTEXTHISCALL InstallRemove(Role role) = 0;
 
-  /// Starts the installer background thread.
+  /// Installs/removes packages in a secondary thread.
+  /// @param role The installation role.
+  /// @see WaitForCompletion
 public:
   virtual void MIKTEXTHISCALL InstallRemoveAsync(Role role) = 0;
 
+  /// Waits for the started thread to complete.
 public:
   virtual void MIKTEXTHISCALL WaitForCompletion() = 0;
 
+  /// Downloads packages.
+  /// @see SetDownloadDirectory
+  /// @see SetPackageLevel
 public:
   virtual void MIKTEXTHISCALL Download() = 0;
 
-  /// Starts the downloader.
+  /// Downloads packages in a secondary thread.
+  /// @see SetDownloadDirectory
+  /// @see SetPackageLevel
+  /// @see WaitForCompletion
 public:
   virtual void MIKTEXTHISCALL DownloadAsync() = 0;
 
-  /// Progress info struct.
+  /// Progress information.
 public:
   struct ProgressInfo
   {
-    /// Package ID.
+    /// ID of the current package.
     std::string packageId;
 
     /// Display name of package.
@@ -273,15 +318,17 @@ public:
     /// Number of errors.
     unsigned numErrors = 0;
 
+    /// Indicates whether the current operation has been cancelled.
     bool cancelled = false;
   };
 
   /// Gets progress information.
+  /// @return Returns progress information.
 public:
   virtual ProgressInfo MIKTEXTHISCALL GetProgressInfo() = 0;
 
   /// Sets the callback interface.
-  /// @param callback Pointer to an interface.
+  /// @param callback Pointer to object implementing the interface.
 public:
   virtual void MIKTEXTHISCALL SetCallback(PackageInstallerCallback* callback) = 0;
 
@@ -292,26 +339,34 @@ public:
   virtual void MIKTEXTHISCALL SetFileLists(const std::vector<std::string>& toBeInstalled, const std::vector<std::string>& toBeRemoved) = 0;
 
   /// Sets the package level.
+  /// @param packageLevel The package level to set.
 public:
   virtual void MIKTEXTHISCALL SetPackageLevel(PackageLevel packageLevel) = 0;
 
-  /// Sets the file lists.
+  /// Sets the package lists.
   /// @param toBeInstalled Packages to be installed.
 public:
   virtual void MIKTEXTHISCALL SetFileList(const std::vector<std::string>& toBeInstalled) = 0;
 
-  /// Tests if the installer is running.
+  /// Tests if the secondary thread is running.
+  /// @return Returns `true`, if the installer is running.
 public:
   virtual bool MIKTEXTHISCALL IsRunning() const = 0;
 
+  /// Performs post-processing tasks.
+  /// @param postInstall Indicates whether this is post-install or post-uninstall.
 public:
-  virtual void MIKTEXTHISCALL RegisterComponents(bool doRegister) = 0;
+  virtual void MIKTEXTHISCALL RegisterComponents(bool postInstall) = 0;
 
+  /// Enables/Disables post-processing.
+  /// @param noPostProcessing Indicates whether post processing is disabled.
 public:
   virtual void MIKTEXTHISCALL SetNoPostProcessing(bool noPostProcessing) = 0;
 
+  /// Enables/Disables user elevation.
+  /// @param noUserElevation Indicates whether user elevation is disabled.
 public:
-  virtual void MIKTEXTHISCALL SetNoLocalServer(bool noLocalServer) = 0;
+  virtual void MIKTEXTHISCALL SetNoLocalServer(bool noUserElevation) = 0;
 };
 
 MIKTEX_PACKAGES_END_NAMESPACE;

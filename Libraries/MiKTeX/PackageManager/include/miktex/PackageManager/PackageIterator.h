@@ -32,7 +32,7 @@
 
 MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 
-/// Package filter enum class.
+/// Package filter.
 enum class PackageFilter
 {
   /// Top-level package filter.
@@ -59,9 +59,9 @@ public:
 public:
   virtual void MIKTEXTHISCALL AddFilter(PackageFilterSet filter) = 0;
 
-  /// Gets the next entry in the package database.
-  /// @param[out] The package info struct to be filled.
-  /// @return Returns `false`, if there are no more entries in the database.
+  /// Gets the next record in the package database.
+  /// @param[out] packageInfo The package record.
+  /// @return Returns `false`, if there are no more records in the database.
 public:
   virtual bool MIKTEXTHISCALL GetNext(PackageInfo& packageInfo) = 0;
 };

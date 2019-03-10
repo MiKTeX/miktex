@@ -63,13 +63,13 @@ struct PackageInfo
   /// Name of creator (packer).
   std::string creator;
 
-  /// Accumulated file sizes of the run file list.
+  /// Total size of all run files.
   std::size_t sizeRunFiles = 0;
 
-  /// Accumulated file sizes of the doc file list.
+  /// Total size of all doc files.
   std::size_t sizeDocFiles = 0;
 
-  /// Accumulated file sizes of the source file list.
+  /// Total size of all source files.
   std::size_t sizeSourceFiles = 0;
 
   /// The run file list.
