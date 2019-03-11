@@ -1,6 +1,6 @@
 /* miktex/Core/DirectoryLister.h:                       -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -34,7 +34,7 @@
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
-/// Contains information about a directory entry.
+/// Directory entry information.
 struct DirectoryEntry
 {
   /// Name of the entry.
@@ -43,11 +43,11 @@ struct DirectoryEntry
   /// Native (Unicode) name of the entry.
   std::wstring wname;
 #endif
-  /// Indicates whether the entry is a sub-directory.
+  /// Indicates whether the entry is a directory.
   bool isDirectory;
 };
 
-/// Contains detailed information about a directory entry.
+/// Extended directory entry information.
 struct DirectoryEntry2 :
   public DirectoryEntry
 {
@@ -55,63 +55,62 @@ struct DirectoryEntry2 :
   std::size_t size;
 };
 
-/// Instances of this class can be used to get the contents of a directory.
+/// An instances can be used to read entries of a file system directory.
 class MIKTEXNOVTABLE DirectoryLister
 {
+  /// Read options.
 public:
   enum class Options :
     int
   {
     None,
+    /// Read directory entries only.
     DirectoriesOnly = 1,
+    /// Read file entries only.
     FilesOnly = 2
   };
 
-  /// Destructor.
 public:
   virtual MIKTEXTHISCALL ~DirectoryLister() noexcept = 0;
 
-  /// Closes this DirectoryLister.
+  /// Dispose resources associated with this object.
 public:
   virtual void MIKTEXTHISCALL Close() = 0;
 
-  /// Gets the next directory entry.
-  /// @param[out] The directory entry to be filled.
-  /// @return Returns true, if an entry could be retrieved. Returns, if
-  /// there are no more directory entries.
+  /// Gets the next entry.
+  /// @param[out] The next entry.
+  /// @return Returns `true`, if the next entry could be retrieved. Returns `false`, if
+  /// there are no more entries.
 public:
   virtual bool MIKTEXTHISCALL GetNext(DirectoryEntry& direntry) = 0;
 
-  /// Gets the next directory entry.
-  /// @param[out] The directory entry to be filled.
-  /// @return Returns true, if an entry could be retrieved. Returns, if
-  /// there are no more directory entries.
+  /// Gets the next entry.
+  /// @param[out] The next entry.
+  /// @return Returns `true`, if the next entry could be retrieved. Returns `false`, if
+  /// there are no more entries.
 public:
   virtual bool MIKTEXTHISCALL GetNext(DirectoryEntry2& direntry2) = 0;
 
-  /// Creates a DirectoryLister object. The caller is responsible for deleting
-  /// the object.
-  /// @param directory Path to the directory.
-  /// @return Returns the DirectoryLister object.
+  /// Creates a new `DirectoryLister` instance.
+  /// @param directory File system path to the directory.
+  /// @return Returns a smart pointer to the `DirectoryLister` interface.
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory);
 
-  /// Creates a DirectoryLister object. The caller is responsible for deleting
-  /// the object.
-  /// @param directory Path to the directory.
-  /// @param lpszPattern A filter pattern (e.g. "*.txt").
-  /// @return Returns the DirectoryLister object.
+  /// Creates a new `DirectoryLister` instance.
+  /// @param directory File system path to the directory.
+  /// @param pattern The glob pattern to be used as the filter.
+  /// @return Returns a smart pointer to the `DirectoryLister` interface.
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory, const char* lpszPattern);
+  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory, const char* pattern);
 
-  /// Creates a DirectoryLister object. The caller is responsible for deleting
-  /// the object.
-  /// @param directory Path to the directory.
-  /// @param lpszPattern A filter pattern (e.g. "*.txt").
-  /// @param options Options.
-  /// @return Returns the DirectoryLister object.
+  /// Creates a new `DirectoryLister` instance.
+  /// @param directory File system path to the directory.
+  /// @param pattern The glob pattern to be used as the filter.
+  /// @param options Read options.
+  /// @return Returns a smart pointer to the `DirectoryLister` interface.
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory, const char* lpszPattern, int options);
+  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory, const char* pattern, int options);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

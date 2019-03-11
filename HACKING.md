@@ -1,45 +1,58 @@
 # MiKTeX Source Code
 
-## Build utilities
+## Directory structure
 
-### `c4p`
+### `BuildUtilities`
+
+#### `c4p`
 
 This is the Pascal-to-C translator for the MiKTeX project.
 
-## Libraries
+### `Libraries`
 
-### App
+#### `MiKTeX/App`
 
 The MiKTeX App library exports the [Application class](@ref MiKTeX::App::Application) which most programs are based on.
 
-### Core
+#### `MiKTeX/Core`
 
-### Extractor
+The MiKTeX Core Library provides basic utilities which help to implement programs in a portable way
 
-### Kpathsea emulation
+- [Cfg](@ref MiKTeX::Core::Cfg): Parse and write INI files.
+- [Directory](@ref MiKTeX::Core::Directory): Access and control file system directories.
+- [DirectoryLister](@ref MiKTeX::Core::DirectoryLister): Read the contents of a file system directory.
+- [File](@ref MiKTeX::Core::File): Access and control files.
+- [LockFile](@ref MiKTeX::Core::LockFile): Create lock files.
+- [MemoryMappedFile](@ref MiKTeX::Core::MemoryMappedFile): Access memory mapped files.
+- [Process](@ref MiKTeX::Core::Process): Create and control child processes.
+- [Session](@ref MiKTeX::Core::Session): An interface for searching files and managing the MiKTeX configuration.
 
-### Package manager
+#### `MiKTeX/Extractor`
 
-### Setup
+#### `MiKTeX/KPathSeaEmulation`
 
-### TeX & Friends
+#### `MiKTeX/PackageManager`
 
-### Trace
+#### `MiKTeX/Setup`
 
-### UI Qt
+#### `MiKTeX/TeXAndFriends`
 
-### Util
+#### `MiKTeX/Trace`
 
-### Web2C emulation
+#### `MiKTeX/UI/Qt`
 
-## Programs
+#### `MiKTeX/Util`
 
-### Console
+#### `MiKTeX/Web2CWmulation`
 
-### `initexmf`
+### `Programs`
 
-### `mkfntmap`
+#### `MiKTeX/Console`
 
-### `mpm`
+#### `MiKTeX/initexmf`
 
-### `miktexsetup`
+#### `MiKTeX/mkfntmap`
+
+#### `MiKTeX/PackageManager/mpm`
+
+#### `MiKTeX/Setup/miktexsetup`

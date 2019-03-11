@@ -1,6 +1,6 @@
 /* miktex/Core/LockFile.h:                              -*- C++ -*-
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,17 +35,25 @@
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
+/// An instance of this class provides an interface to a lock file.
 class MIKTEXNOVTABLE LockFile
 {
 public:
   virtual MIKTEXTHISCALL ~LockFile() noexcept = 0;
 
+  /// Tries to create the lock file.
+  /// @param time The maximum time waited for the operation to succeed.
+  /// @return Returns `true`, if the lock file has been created.
 public:
   virtual bool MIKTEXTHISCALL TryLock(std::chrono::milliseconds timeout) = 0;
 
+  /// Removes the lock file.
 public:
   virtual void MIKTEXTHISCALL Unlock() = 0;
 
+  /// Creates a new `LockFile` object.
+  /// @param path The file system path to the lock file.
+  /// @return Returns a smart pointer to the new `LockFile` object.
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<LockFile>) Create(const PathName& path);
 };

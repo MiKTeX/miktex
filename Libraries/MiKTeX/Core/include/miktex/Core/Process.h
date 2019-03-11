@@ -1,6 +1,6 @@
 /* miktex/Core/Process.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -45,11 +45,11 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 /// Run process callback interface.
 class MIKTEXNOVTABLE IRunProcessCallback
 {
-  /// Output function. Called by the Process object if new output text
+  /// Output function. Called by the `Process` object if new output text
   /// is available.
   /// @param output Output text bytes.
   /// @param n Number of output text bytes.
-  /// @return Returns true, of the Process object shall continue.
+  /// @return Returns `true`, if the `Process` object shall continue.
 public:
   virtual bool MIKTEXTHISCALL OnProcessOutput(const void* output, std::size_t n) = 0;
 
@@ -58,12 +58,13 @@ public:
   /// is available.
   /// @param error Error text bytes.
   /// @param n Number of error text bytes.
-  /// @return Returns true, of the Process object shall continue.
+  /// @return Returns `true`, if the `Process` object shall continue.
 public:
   virtual bool MIKTEXTHISCALL OnProcessError(const void* error, std::size_t n) = 0;
 #endif
 };
 
+/// A callback interface to save process output.
 template<std::size_t MaxStdoutSize_ = 1024> class ProcessOutput :
   public IRunProcessCallback
 {
@@ -86,12 +87,16 @@ public:
     return true;
   }
 
+  /// Gets the saved process output.
+  /// @return Returns the saved process output as a byte array.
 public:
   std::vector<uint8_t> GetStandardOutput() const
   {
     return std::vector<uint8_t>(stdoutBytes.data(), stdoutBytes.data() + stdoutOffset);
   }
 
+  /// Gets the saved process output.
+  /// @return Returns the saved process output as a string.
 public:
   std::string StdoutToString()
   {
@@ -109,25 +114,26 @@ private:
   std::size_t stdoutOffset = 0;
 };
 
+/// Process start options
 struct ProcessStartInfo
 {
   /// Arguments to be passed to the process.
-  /// Arguments[0] being the process name.
+  /// Thr first argument being the process name.
   std::vector<std::string> Arguments;
 
-  /// Path name to be executed.
+  /// File system path to the executable file.
   std::string FileName;
 
 #if defined(MIKTEX_WINDOWS)
-  /// Output file stream for stderr redirection.
+  /// Pointer to the output `FILE` for `stderr` redirection.
   FILE* StandardError = nullptr;
 #endif
 
-  /// Input file stream for stdin redirection.
+  /// Pointer to the input `FILE` stream for `stdin` redirection.
   FILE* StandardInput = nullptr;
 
 #if defined(MIKTEX_WINDOWS)
-  /// Output file stream for stdout redirection.
+  /// Pointer to the output `FILE` for `stdout` redirection.
   FILE* StandardOutput = nullptr;
 #endif
 
@@ -143,6 +149,7 @@ struct ProcessStartInfo
   /// Working directory for the process.
   std::string WorkingDirectory;
   
+  /// Indicates whether the process should be detached.
   bool Daemonize = false;
 
   ProcessStartInfo()
@@ -155,6 +162,7 @@ struct ProcessStartInfo
   }
 };
 
+/// Process status.
 enum class ProcessStatus
 {
   None,
@@ -165,6 +173,7 @@ enum class ProcessStatus
   Other
 };
 
+/// Process information.
 struct ProcessInfo
 {
   std::string name;
@@ -172,92 +181,116 @@ struct ProcessInfo
   int parent = -1;
 };
 
-/// Process class.
+/// An instance of this class manages a child process.
 class MIKTEXNOVTABLE Process
 {
 public:
   virtual MIKTEXTHISCALL ~Process() noexcept = 0;
 
+  /// Gets the redirected `stdin`.
+  /// @return Returns a pointer to an input `FILE` object. Returns `nullptr`, if
+  /// the input was not redirected.
 public:
   virtual FILE* MIKTEXTHISCALL get_StandardInput() = 0;
 
-  /// Gets the redirected output stream.
-  /// @return Returns the redirected output stream. Returns 0, if
+  /// Gets the redirected `stdout`.
+  /// @return Returns a pointer to an output `FILE` object. Returns `nullptr`, if
   /// the output was not redirected.
 public:
   virtual FILE* MIKTEXTHISCALL get_StandardOutput() = 0;
 
+  /// Gets the redirected `stderr`.
+  /// @return Returns a pointer to an output `FILE` object. Returns `nullptr`, if
+  /// the error output was not redirected.
 public:
   virtual FILE* MIKTEXTHISCALL get_StandardError() = 0;
 
-  /// Waits for the process.
+  /// Waits for the process to finish.
 public:
   virtual void MIKTEXTHISCALL WaitForExit() = 0;
 
-  /// Waits for the process.
+  /// Waits for the process to finish.
+  /// @param milliseconds The maximum time to wait.
+  /// @return Returns `true`, if the process has finished.
 public:
   virtual bool MIKTEXTHISCALL WaitForExit(int milliseconds) = 0;
 
   /// Gets the exit code of the process.
-  /// The process must have exited.
+  /// @return Returns the exit code.
 public:
   virtual int MIKTEXTHISCALL get_ExitCode() const = 0;
 
   /// Gets the MiKTeX exception thrown by the process.
-  /// The process must have exited.
+  /// @param[out] ex The MiKTeX exception.
 public:
   virtual bool MIKTEXTHISCALL get_Exception(MiKTeX::Core::MiKTeXException& ex) const = 0;
 
+  /// Frees all resources associated with this `Process` object.
 public:
   virtual void MIKTEXTHISCALL Close() = 0;
 
+  /// Gets the operating system identification of this process.
+  /// @return Returns the OS ID.
 public:
   virtual int MIKTEXTHISCALL GetSystemId() = 0;
 
+  /// Gets the parent process of this process.
+  /// @return Returns a smart pointer to the parent process.
 public:
   virtual std::unique_ptr<Process> MIKTEXTHISCALL get_Parent() = 0;
 
+  /// Gets the name of this process.
+  /// @return Returns the process name.
 public:
   virtual std::string MIKTEXTHISCALL get_ProcessName() = 0;
   
+  /// Gets information about this process.
+  /// @return Returns the process information.
 public:
   virtual ProcessInfo MIKTEXTHISCALL GetProcessInfo() = 0;
 
+  /// Gets the current process.
+  /// @return Returns s smart pointer to the current process.
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Process>) GetCurrentProcess();
 
+  /// Gets a process.
+  /// @param systemId Identifies the process.
+  /// @return Returns a smart pointer to the requested process.
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Process>) GetProcess(int systemId);
 
+  /// Gets the invoker chain for this process.
+  /// @return Returns the invoker chain (parent process names) for this process.
 public:
   static MIKTEXCORECEEAPI(std::vector<std::string>) GetInvokerNames();
 
-  /// Start the system shell to execute a command.
-  /// @param commandLine Command to be executed.
+  /// Starts the system shell to execute a command.
+  /// @param commandLine The command (and arguments) to be executed.
 public:
   static MIKTEXCORECEEAPI(void) StartSystemCommand(const std::string& commandLine);
 
-  /// Executes the system shell to execute a command.
-  /// @param commandLine Command to be executed.
-  /// @return Returns true, if the command exited successfully.
+  /// Runs the system shell to execute a command.
+  /// @param commandLine The command (and arguments) to be executed.
+  /// @return Returns true, if the command exited successfull.
 public:
   static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine);
 
-  /// Executes the system shell to execute a command.
-  /// @param commandLine Command to be executed.
-  /// @param exitCode To be filled with the exit code of the command.
-  /// @return Returns true, if the process exited successfully, or
-  /// if exitCode isn't null.
+  /// Runs the system shell to execute a command.
+  /// @param commandLine The command (and arguments) to be executed.
+  /// @param[out] exitCode The exit code of the command.
+  /// @return Returns `true`, if the process exited successfully, or
+  /// if `exitCode` isn't `nullptr`.
 public:
   static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* exitCode);
 
-  /// Executes the system shell to execute a command.
-  /// @param commandLine Command to be executed.
-  /// @param exitCode To be filled with the exit code of the command.
-  /// @param callback Callback interface.
+  /// Runs the system shell to execute a command.
+  /// @param commandLine The command (and arguments) to be executed.
+  /// @param[out] exitCode The exit code of the command.
+  /// @param callback The pointer to a callback interface.
   /// @param workingDirectory Working directory for the command.
-  /// @return Returns true, if the process exited successfully, or
-  /// if exitCode isn't null.
+  /// @return Returns `true`, if the process exited successfully, or
+  /// if `exitCode` isn't `nullptr`.
 public:
   static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* workingDirectory);
 
@@ -268,39 +301,93 @@ public:
 public:
   static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::vector<std::string>& arguments);
 
+  /// Executes a process.
+  /// @param fileName The name of an executable file to run in the process.
 public:
   static void Run(const PathName& fileName)
   {
     Run(fileName, std::vector<std::string>{ fileName.ToString() });
   }
 
+  /// Executes a process.
+  /// @param fileName The name of an executable file to run in the process.
+  /// @param arguments The command-line arguments to pass when starting
+  /// the process.
+  /// @param callback Pointer to a callback interface.
 public:
   static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback);
 
+  /// Executes a process.
+  /// @param fileName The name of an executable file to run in the process.
+  /// @param arguments The command-line arguments to pass when starting
+  /// the process.
+  /// @param callback The pointer to a callback interface.
+  /// @param[out] exitCode The exit code of the process.
+  /// @param[out] miktexException The MiKTeX exception thrown by the process.
+  /// @param workingDirectory Working directory for the command.
+  /// @return Returns `true`, if the process exited successfully, or
+  /// if `exitCode` isn't `nullptr`.
 public:
   static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, MiKTeXException* miktexException, const char* workingDirectory);
 
+  /// Executes a process.
+  /// @param fileName The name of an executable file to run in the process.
+  /// @param arguments The command-line arguments to pass when starting
+  /// the process.
+  /// @param callback The pointer to a callback interface.
+  /// @param[out] exitCode The exit code of the process.
+  /// @param[out] miktexException The MiKTeX exception thrown by the process.
+  /// @param workingDirectory Working directory for the command.
+  /// @return Returns `true`, if the process exited successfully, or
+  /// if `exitCode` isn't `nullptr`.
 public:
   static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, std::function<bool(const void*, std::size_t)> callback, int* exitCode, MiKTeXException* miktexException, const char* workingDirectory);
 
+  /// Executes a process.
+  /// @param fileName The name of an executable file to run in the process.
+  /// @param arguments The command-line arguments to pass when starting
+  /// the process.
+  /// @param callback The pointer to a callback interface.
+  /// @param[out] exitCode The exit code of the process.
+  /// @param workingDirectory Working directory for the command.
+  /// @return Returns `true`, if the process exited successfully, or
+  /// if `exitCode` isn't `nullptr`.
 public:
   static bool Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory)
   {
     return Run(fileName, arguments, callback, exitCode, nullptr, workingDirectory);
   }
 
+  /// Starts a process.
+  /// @param startInfo The process start options.
+  /// @return Returns a smart pointer to the process.
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Process>) Start(const ProcessStartInfo& startinfo);
 
+  /// Starts a process.
+  /// @param fileName The name of an executable file to run in the process.
+  /// @param arguments The command-line arguments to pass when starting
+  /// the process.
+  /// @param pFileStandardInput Optional pointer to the input `FILE` stream for `stdin` redirection.
+  /// @param[out] ppFileStandardInput An optional pointer to the input `FILE` stream for `stdin` redirection.
+  /// @param[out] ppFileStandardOutput An optional pointer to the output `FILE` for `stdout` redirection.
+  /// @param[out] ppFileStandardError An optional pointer to the error output `FILE` for `stderr` redirection.
+  /// @param workingDirectory Optional working directory for the command.
 public:
   static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::vector<std::string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory);
 
+  /// Starts a process.
+  /// @param fileName The name of an executable file to run in the process.
 public:
   static void Start(const PathName& fileName)
   {
     Start(fileName, std::vector<std::string>{ fileName.GetFileNameWithoutExtension().ToString() }, nullptr, nullptr, nullptr, nullptr, nullptr);
   }
 
+  /// Starts a process.
+  /// @param fileName The name of an executable file to run in the process.
+  /// @param arguments The command-line arguments to pass when starting
+  /// the process.
 public:
   static void Start(const PathName& fileName, const std::vector<std::string>& arguments)
   {

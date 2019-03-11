@@ -1,6 +1,6 @@
 /* miktex/Core/CommandLineBuilder.h:                    -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -38,6 +38,7 @@
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
+/// An `argv` wrapper class.
 class Argv
 {
 public:
@@ -47,13 +48,13 @@ public:
   Argv(const Argv& other) = delete;
 
 public:
-  Argv& operator= (const Argv& other) = delete;
+  Argv& operator=(const Argv& other) = delete;
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(Argv&& other);
 
 public:
-  Argv& operator= (Argv&& other) = delete;
+  Argv& operator=(Argv&& other) = delete;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Argv() noexcept;
@@ -87,6 +88,7 @@ private:
   std::unique_ptr<impl> pimpl;
 };
 
+/// Option parsing convention.
 enum class OptionConvention
 {
   None,
@@ -95,6 +97,7 @@ enum class OptionConvention
   DOS
 };
 
+/// Quoting convention.
 enum class QuotingConvention
 {
   None,
@@ -102,6 +105,7 @@ enum class QuotingConvention
   Bat
 };
 
+/// An instance of this class builds a command-line.
 class CommandLineBuilder
 {
 public:
@@ -111,13 +115,13 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const CommandLineBuilder& other);
 
 public:
-  MIKTEXCORETHISAPI(CommandLineBuilder&) operator= (const CommandLineBuilder& other);
+  MIKTEXCORETHISAPI(CommandLineBuilder&) operator=(const CommandLineBuilder& other);
 
 public:
   CommandLineBuilder(CommandLineBuilder&& other) = delete;
 
 public:
-  CommandLineBuilder& operator= (CommandLineBuilder&& other) = delete;
+  CommandLineBuilder& operator=(CommandLineBuilder&& other) = delete;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CommandLineBuilder() noexcept;

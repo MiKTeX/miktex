@@ -1,6 +1,6 @@
 /* miktex/Core/MemoryMappedFile.h:                      -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,19 +35,18 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 /// Instances of this class provide access to memory-mapped files.
 class MIKTEXNOVTABLE MemoryMappedFile
 {
-  /// Destructor.
 public:
   virtual MIKTEXTHISCALL ~MemoryMappedFile() noexcept = 0;
 
   /// Maps a file into memory.
-  /// @param path The file to be mapped.
+  /// @param path The file system path to the file to be mapped.
   /// @param readWrite Indicates whether the file should
-  /// be open for reading and writing.
+  /// be opened for reading and writing.
   /// @return Returns a pointer to the block of memory.
 public:
   virtual void* MIKTEXTHISCALL Open(const PathName& path, bool readWrite) = 0;
 
-  /// Closes a file mapping.
+  /// Closes the file mapping.
 public:
   virtual void MIKTEXTHISCALL Close() = 0;
 
@@ -57,11 +56,13 @@ public:
 public:
   virtual void* MIKTEXTHISCALL Resize(std::size_t newSize) = 0;
 
-  /// Gets a pointer to rhe block of memory.
+  /// Gets a pointer to the block of memory.
   /// @return Returns a pointer to the block of memory.
 public:
   virtual void* MIKTEXTHISCALL GetPtr() const = 0;
 
+  /// Gets the name of the file mapping.
+  /// @return Returns the name of the file mapping
 public:
   virtual std::string MIKTEXTHISCALL GetName() const = 0;
 
@@ -74,9 +75,9 @@ public:
 public:
   virtual void MIKTEXTHISCALL Flush() = 0;
 
-  /// Creates a new MemoryMappedFile object. The caller is responsible
+  /// Creates a new `MemoryMappedFile` object. The caller is responsible
   /// for deleting the object.
-  /// @return Returns the MemoryMappedFile object.
+  /// @return Returns the pointer to a new `MemoryMappedFile` object.
 public:
   static MIKTEXCORECEEAPI(MemoryMappedFile*) Create();
 };
