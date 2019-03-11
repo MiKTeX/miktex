@@ -1,6 +1,6 @@
 ## CMakeLists.txt:                                      -*- CMake -*-
 ##
-## Copyright (C) 2015-2018 Christian Schenk
+## Copyright (C) 2015-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -45,6 +45,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-asymptote-bin.tpm.in
     windows-x86/miktex-autosp-bin.tpm.in
     windows-x86/miktex-axohelp-bin.tpm.in
+    windows-x86/miktex-bibarts-bin.tpm.in
     windows-x86/miktex-bibtex-bin.tpm.in
     windows-x86/miktex-bibtex8bit-bin.tpm.in
     windows-x86/miktex-bzip2-bin.tpm.in
@@ -136,6 +137,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-asymptote-bin-x64.tpm.in
     windows-x64/miktex-autosp-bin-x64.tpm.in
     windows-x64/miktex-axohelp-bin-x64.tpm.in
+    windows-x64/miktex-bibarts-bin-x64.tpm.in
     windows-x64/miktex-bibtex-bin-x64.tpm.in
     windows-x64/miktex-bibtex8bit-bin-x64.tpm.in
     windows-x64/miktex-bzip2-bin-x64.tpm.in
