@@ -19,4 +19,4 @@
 
 include(version.cmake)
 
-set(MIKTEX_COMP_DESCRIPTION "bibsort - creates the bibliography without using MakeIndex or BibTEX"
+set(MIKTEX_COMP_DESCRIPTION "bibsort - creates the bibliography without using MakeIndex or BibTEX")
