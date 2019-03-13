@@ -16,7 +16,7 @@ The MiKTeX App library exports the [Application class](@ref MiKTeX::App::Applica
 
 #### `MiKTeX/Core`
 
-The MiKTeX Core Library provides basic utilities which help to implement programs in a portable way
+The MiKTeX Core Library provides basic utilities which help to implement programs in a portable way:
 
 - [Cfg](@ref MiKTeX::Core::Cfg): Parse and write INI files.
 - [Directory](@ref MiKTeX::Core::Directory): Access and control file system directories.
@@ -32,6 +32,9 @@ The MiKTeX Core Library provides basic utilities which help to implement program
 #### `MiKTeX/KPathSeaEmulation`
 
 #### `MiKTeX/PackageManager`
+
+The MiKTeX PackageManager library exports the [PackageManager class](@ref MiKTeX::Packages::PackageManager) which implements an interface for
+managing packages.
 
 #### `MiKTeX/Setup`
 

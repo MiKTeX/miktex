@@ -295,7 +295,7 @@ public:
 
   /// Opens a file.
   /// @param path The file system path to the file.
-  /// @param mode Specifies how the file is to be opened.
+  /// @param mode Specifies how the file is to open.
   /// @param access Specifies how the file will be accessed.
   /// @return Returns the pointer to a `FILE` object.
 public:
@@ -303,7 +303,7 @@ public:
 
   /// Opens a file.
   /// @param path The file system path to the file.
-  /// @param mode Specifies how the file is to be opened.
+  /// @param mode Specifies how the file is to open.
   /// @param access Specifies how the file will be accessed.
   /// @param isTextFile Specifies if the file should be opened in text mode.
   /// @return Returns the pointer to a `FILE` object.
@@ -312,7 +312,7 @@ public:
 
   /// Opens a file.
   /// @param path The file system path to the file.
-  /// @param mode Specifies how the file is to be opened.
+  /// @param mode Specifies how the file is to open.
   /// @param access Specifies how the file will be accessed.
   /// @param isTextFile Specifies if the file should be opened in text mode.
   /// @param options Options for opening the file.
@@ -322,7 +322,7 @@ public:
 
   /// Opens an input stream on a file.
   /// @param path The file system path to the file.
-  /// @param mode Specifies how the file is to be opened.
+  /// @param mode Specifies how the file is open.
   /// @param exceptions Specifies the exceptions to be thrown if an error occurs.
   /// @return Returns an `ifstream` object.
 public:
@@ -339,7 +339,7 @@ public:
 
   /// Opens an output stream on a file.
   /// @param path The file system path to the file.
-  /// @param mode Specifies how the file is to be opened.
+  /// @param mode Specifies how the file is to open.
   /// @param exceptions Specifies the exceptions to be thrown if an error occurs.
   /// @return Returns an `ofstream` object.
 public:
@@ -347,7 +347,7 @@ public:
 
   /// Opens an output stream on a file.
   /// @param path The file system path to the file.
-  /// @param mode Specifies how the file is to be opened.
+  /// @param mode Specifies how the file is to open.
   /// @return Returns an `ofstream` object.
 public:
   static std::ofstream CreateOutputStream(const PathName& path, std::ios_base::openmode mode)

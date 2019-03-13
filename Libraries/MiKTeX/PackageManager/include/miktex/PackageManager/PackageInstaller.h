@@ -309,7 +309,7 @@ public:
     /// Current transfer speed.
     unsigned long bytesPerSecond = 0;
 
-    /// estimated time of arrival (millisecs remaining).
+    /// Estimated time of arrival (millisecs remaining).
     unsigned long timeRemaining = 0;
     
     /// Ready flag.
