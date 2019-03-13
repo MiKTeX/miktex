@@ -124,3 +124,15 @@ bool ComboCfg::Loaded() const
 {
   return cfgUser != nullptr || cfgCommon != nullptr;
 }
+
+size_t ComboCfg::GetSize(ComboCfg::Scope scope) const
+{
+  if (scope == Scope::User)
+  {
+    return cfgUser == nullptr ? 0 : cfgUser->GetSize();
+  }
+  else
+  {
+    return cfgCommon == nullptr ? 0 : cfgCommon->GetSize();
+  }    
+}

@@ -59,6 +59,17 @@ struct ProxySettings
   std::string password;
 };
 
+/// Installation summary.
+struct InstallationSummary
+{
+  /// Time of last update check.
+  std::time_t lastUpdateCheck = InvalidTimeT;
+  /// Time of last update.
+  std::time_t lastUpdate = InvalidTimeT;
+  /// Number of installed packages.
+  std::size_t packageCount = 0;
+};
+
 /// The package manager interface.
 class MIKTEXNOVTABLE PackageManager
 {
@@ -161,6 +172,12 @@ public:
   /// @return Returns the container path of the package.
 public:
   virtual std::string MIKTEXTHISCALL GetContainerPath(const std::string& packageId, bool useDisplayNames) = 0;
+
+  /// Gets the installation summary.
+  /// @param common Indicates whether to retrieve a summary for the current user.
+  /// @return Returns the installation summary.
+public:
+  virtual InstallationSummary MIKTEXTHISCALL GetInstallationSummary(bool userScope) = 0;
 
 public:
   /// Initialization options.

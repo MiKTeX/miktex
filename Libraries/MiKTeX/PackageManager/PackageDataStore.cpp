@@ -513,3 +513,9 @@ void PackageDataStore::IncrementFileRefCounts(const vector<string>& files)
 #endif
   }
 }
+
+size_t PackageDataStore::GetNumberOfInstalledPackages(bool userScope)
+{
+  LoadVarData();
+  return comboCfg.GetSize(userScope ? ComboCfg::Scope::User : ComboCfg::Scope::Common);
+}

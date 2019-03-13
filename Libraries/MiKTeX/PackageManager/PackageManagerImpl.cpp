@@ -1205,6 +1205,27 @@ string PackageManagerImpl::GetContainerPath(const string& packageId, bool useDis
   return path;
 }
 
+InstallationSummary PackageManagerImpl::GetInstallationSummary(bool userScope)
+{
+  InstallationSummary result;
+  result.packageCount = packageDataStore.GetNumberOfInstalledPackages(userScope);
+  string lastUpdateCheckText;
+  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER,
+                                 userScope ? MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK : MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK,
+                                 lastUpdateCheckText))
+  {
+    result.lastUpdateCheck = std::stol(lastUpdateCheckText);
+  }
+  string lastUpdateText;
+  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER,
+                                 userScope ? MIKTEX_REGVAL_LAST_USER_UPDATE : MIKTEX_REGVAL_LAST_ADMIN_UPDATE,
+                                 lastUpdateText))
+  {
+      result.lastUpdate = std::stol(lastUpdateText);
+  }
+  return result;
+}
+
 MPM_INTERNAL_BEGIN_NAMESPACE;
 
 bool IsUrl(const string& url)

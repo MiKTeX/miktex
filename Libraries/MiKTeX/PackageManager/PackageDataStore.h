@@ -194,6 +194,12 @@ public:
 public:
   void NeedPackageManifestsIni();
 
+  /// Gets the number of installed packages.
+  /// @param common Indicates whether to retrieve the number of packages for the current user.
+  /// @return Returns the number of installed packages.
+public:
+  std::size_t GetNumberOfInstalledPackages(bool userScope);
+  
 private:
   void Load();
 

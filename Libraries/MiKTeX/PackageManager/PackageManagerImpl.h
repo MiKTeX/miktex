@@ -134,6 +134,9 @@ public:
   std::string MIKTEXTHISCALL GetContainerPath(const std::string& packageId, bool useDisplayNames) override;
 
 public:
+  InstallationSummary MIKTEXTHISCALL GetInstallationSummary(bool userScope) override;
+
+public:
   PackageManagerImpl(const MiKTeX::Packages::PackageManager::InitInfo& initInfo);
 
 public:

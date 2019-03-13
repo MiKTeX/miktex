@@ -65,6 +65,9 @@ public:
 public:
   bool Loaded() const;
 
+public:
+  std::size_t GetSize(Scope scope) const;
+
 private:
   MiKTeX::Core::PathName fileNameUser;
 
