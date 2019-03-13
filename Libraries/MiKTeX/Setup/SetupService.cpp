@@ -1761,66 +1761,37 @@ void SetupServiceImpl::Warning(const MiKTeX::Core::MiKTeXException& ex)
 
 constexpr time_t HALF_A_YEAR = 15768000;
 
+inline string FormatTimestamp(time_t t)
+{
+  return IsValidTimeT(t) ? fmt::format("{:%F %T}", *localtime(&t)) : T_("not yet");
+}
+
 void SetupService::WriteReport(ostream& s, ReportOptionSet options)
 {
   shared_ptr<Session> session = Session::Get();
-  vector<string> problems;
+  shared_ptr<PackageManager> packageManager = PackageManager::Create();
   time_t now = time(nullptr);
   if (options[ReportOption::General])
   {
     auto p = Utils::CheckPath();
-    if (!p.first && p.second)
-    {
-      problems.push_back(T_("The PATH variable does not include the MiKTeX executables."));
-    }
-    string lastUpdateCheckText;
-    time_t lastUpdateCheck;
-    if (session->TryGetConfigValue(
-      MIKTEX_REGKEY_PACKAGE_MANAGER,
-      session->IsSharedSetup() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
-      lastUpdateCheckText))
-    {
-      lastUpdateCheck = std::stol(lastUpdateCheckText);
-      lastUpdateCheckText = fmt::format("{:%F %T}", *localtime(&lastUpdateCheck));
-      if (now > lastUpdateCheck + HALF_A_YEAR)
-      {
-        problems.push_back(T_("it has been a long time since updates were checked"));
-      }
-    }
-    else
-    {
-      lastUpdateCheck = -1;
-      lastUpdateCheckText = T_("not yet");
-      problems.push_back(T_("not yet checked for updates"));
-    }
-    string lastUpdateText;
-    time_t lastUpdate;
-    if (session->TryGetConfigValue(
-      MIKTEX_REGKEY_PACKAGE_MANAGER,
-      session->IsSharedSetup() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE : MIKTEX_REGVAL_LAST_USER_UPDATE,
-      lastUpdateText))
-    {
-      lastUpdate = std::stol(lastUpdateText);
-      lastUpdateText = fmt::format("{:%F %T}", *localtime(&lastUpdate));
-      if (now > lastUpdate + HALF_A_YEAR)
-      {
-        problems.push_back(T_("installation is not up-to-date"));
-      }
-    }
-    else
-    {
-      lastUpdate = -1;
-      lastUpdateText = T_("not yet");
-      problems.push_back(T_("installation is not up-to-date"));
-    }
     s << "Date: " << fmt::format("{:%F %T}", *localtime(&now)) << "\n"
       << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
       << "OS: " << Utils::GetOSVersionString() << "\n"
       << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
       << "LinkTargetDirectory: " << session->GetSpecialPath(SpecialPath::LinkTargetDirectory) << "\n"
-      << "PathOkay: " << (p.first ? T_("yes") : T_("no")) << "\n"
-      << "LastUpdateCheck: " << lastUpdateCheckText << "\n"
-      << "LastUpdate: " << lastUpdateText << "\n";
+      << "PathOkay: " << (p.first ? T_("yes") : T_("no")) << "\n";
+    InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
+    s << (session->IsSharedSetup() ? "LastUpdateCheckAdmin: " : "LastUpdateCheck: ") << FormatTimestamp(commonInstallation.lastUpdateCheck) << "\n";
+    s << (session->IsSharedSetup() ? "LastUpdateAdmin: " : "LastUpdate: ") << FormatTimestamp(commonInstallation.lastUpdate) << "\n";
+    if (session->IsSharedSetup() && !session->IsAdminMode())
+    {
+      InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
+      if (userInstallation.packageCount > 0)
+      {
+        s << "LastUpdateCheckAdmin: " << FormatTimestamp(userInstallation.lastUpdateCheck) << "\n";
+        s << "LastUpdateAdmin: " << FormatTimestamp(userInstallation.lastUpdate) << "\n";
+      }
+    }
   }
   if (options[ReportOption::CurrentUser])
   {
@@ -1833,17 +1804,6 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
     vector<RootDirectoryInfo> roots = session->GetRootDirectories();
     for (int idx = 0; idx < roots.size(); ++idx)
     {
-      for (int idx2 = 0; idx2 < idx; ++idx2)
-      {
-        if (Utils::IsParentDirectoryOf(roots[idx2].path, roots[idx].path))
-        {
-          problems.push_back(fmt::format(T_("Root{0} is covered by Root{1}"), idx, idx2));
-        }
-        else if (Utils::IsParentDirectoryOf(roots[idx].path, roots[idx2].path))
-        {
-          problems.push_back(fmt::format(T_("Root{0} covers Root{1}"), idx, idx2));
-        }
-      }
       s << fmt::format("Root{}: {}", idx, roots[idx].path) << "\n";
     }
     if (!session->IsAdminMode())
@@ -1872,9 +1832,85 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       }
     }
   }
-  if (options[ReportOption::BrokenPackages])
+  vector<Issue> issues = FindIssues(options[ReportOption::General], options[ReportOption::BrokenPackages]);
+  if (!issues.empty())
   {
-    shared_ptr<PackageManager> packageManager = PackageManager::Create();
+    s << "\n" << "Warning: the following problems were detected:" << "\n";
+    int nr = 1;
+    for (const auto& iss : issues)
+    {
+      s << fmt::format("  {}: {}", nr, iss.message) << "\n";
+      nr++;
+    }
+  }
+}
+
+void SetupService::WriteReport(ostream& s)
+{
+  WriteReport(s, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser });
+}
+
+vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrity)
+{
+  vector<Issue> result;
+  shared_ptr<Session> session = Session::Get();
+  shared_ptr<PackageManager> packageManager = PackageManager::Create();
+  time_t now = time(nullptr);
+  if (checkPath)
+  {
+    auto p = Utils::CheckPath();
+    if (!p.first && p.second)
+    {
+      result.push_back({ IssueType::Path, T_("The PATH variable does not include the MiKTeX executables.")});
+    }
+  }
+  InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
+  if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
+  {
+    result.push_back({ IssueType::UpdatesNeverChecked,
+                       session->IsSharedSetup()
+                       ? T_("Never checked for system-wide updates.")
+                       : T_("Never checked for updates.")});
+  }
+  else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
+  {
+    result.push_back({ IssueType::UpdateCheckOverdue,
+                       session->IsSharedSetup()
+                       ? T_("It has been a long time since system-wide updates were checked.")
+                       : T_("It has been a long time since updates were checked.")});
+  }
+  if (session->IsSharedSetup() && !session->IsAdminMode())
+  {
+    InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
+    if (userInstallation.packageCount > 0)
+    {
+      if (!IsValidTimeT(userInstallation.lastUpdateCheck))
+      {
+        result.push_back({ IssueType::UserUpdatesNeverChecked, T_("Never checked for updates in user mode.")});
+      }
+      else if (now > userInstallation.lastUpdateCheck + HALF_A_YEAR)
+      {
+        result.push_back({ IssueType::UserUpdateCheckOverdue, T_("It has been a long time since updates were checked in user mode.")});
+      }
+    }
+  }
+  vector<RootDirectoryInfo> roots = session->GetRootDirectories();
+  for (int idx = 0; idx < roots.size(); ++idx)
+  {
+    for (int idx2 = 0; idx2 < idx; ++idx2)
+    {
+      if (Utils::IsParentDirectoryOf(roots[idx2].path, roots[idx].path))
+      {
+        result.push_back({ IssueType::RootDirectoryCoverage, fmt::format(T_("Root directory #{0} is covered by root directory #{1}."), idx, idx2)});
+      }
+      else if (Utils::IsParentDirectoryOf(roots[idx].path, roots[idx2].path))
+      {
+        result.push_back({ IssueType::RootDirectoryCoverage, fmt::format(T_("Root directory #{0} covers root directory #{1}."), idx, idx2)});
+      }
+    }
+  }
+  if (checkPackageIntegrity)
+  {
     unique_ptr<PackageIterator> pkgIter(packageManager->CreateIterator());
     PackageInfo packageInfo;
     for (int idx = 0; pkgIter->GetNext(packageInfo); ++idx)
@@ -1885,25 +1921,10 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       {
         if (!(packageManager->TryVerifyInstalledPackage(packageInfo.id)))
         {
-          problems.push_back(fmt::format(T_("package {0} has been tampered with"), packageInfo.id));
+          result.push_back({ IssueType::PackageDamaged, fmt::format(T_("package {0} has been tampered with"), packageInfo.id) });
         }
       }
     }
     pkgIter->Dispose();
   }
-  if (!problems.empty())
-  {
-    s << "\n" << "Warning: the following problems were detected:" << "\n";
-    int nr = 1;
-    for (const string& msg : problems)
-    {
-      s << fmt::format("  {}: {}", nr, msg) << "\n";
-      nr++;
-    }
-  }
-}
-
-void SetupService::WriteReport(ostream& s)
-{
-  WriteReport(s, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser });
 }

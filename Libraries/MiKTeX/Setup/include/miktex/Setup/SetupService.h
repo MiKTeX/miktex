@@ -46,6 +46,7 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include <vector>
 
 #include <miktex/Core/PathName>
 #include <miktex/Core/OptionSet>
@@ -97,6 +98,23 @@ enum class ReportOption
 };
 
 typedef MiKTeX::Core::OptionSet<ReportOption> ReportOptionSet;
+
+enum class IssueType
+{
+  Path,
+  UpdatesNeverChecked,
+  UpdateCheckOverdue,
+  UserUpdatesNeverChecked,
+  UserUpdateCheckOverdue,
+  RootDirectoryCoverage,
+  PackageDamaged
+};
+
+struct Issue
+{
+  IssueType type;
+  std::string message;
+};
 
 struct SetupOptions
 {
@@ -404,6 +422,9 @@ public:
 
 public:
   static MIKTEXSETUPCEEAPI(void) WriteReport(std::ostream& s);
+
+public:
+static MIKTEXSETUPCEEAPI(std::vector<Issue>) FindIssues(bool checkPath, bool checkPackageIntegrity);
 };
 
 MIKTEX_SETUP_END_NAMESPACE;
