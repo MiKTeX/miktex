@@ -1788,8 +1788,8 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
       if (userInstallation.packageCount > 0)
       {
-        s << "LastUpdateCheckAdmin: " << FormatTimestamp(userInstallation.lastUpdateCheck) << "\n";
-        s << "LastUpdateAdmin: " << FormatTimestamp(userInstallation.lastUpdate) << "\n";
+        s << "LastUpdateCheck: " << FormatTimestamp(userInstallation.lastUpdateCheck) << "\n";
+        s << "LastUpdate: " << FormatTimestamp(userInstallation.lastUpdate) << "\n";
       }
     }
   }
@@ -1921,10 +1921,11 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         if (!(packageManager->TryVerifyInstalledPackage(packageInfo.id)))
         {
-          result.push_back({ IssueType::PackageDamaged, fmt::format(T_("package {0} has been tampered with"), packageInfo.id) });
+          result.push_back({ IssueType::PackageDamaged, fmt::format(T_("Package {0} has been tampered with."), packageInfo.id) });
         }
       }
     }
     pkgIter->Dispose();
   }
+  return result;
 }
