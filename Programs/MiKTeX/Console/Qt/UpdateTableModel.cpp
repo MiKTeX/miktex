@@ -1,6 +1,6 @@
 /* UpdateTableModel.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -114,9 +114,9 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
       case PackageInstaller::UpdateInfo::Keep:
         return tr("update not possible");
       case PackageInstaller::UpdateInfo::KeepAdmin:
-        return tr("update not possible in user mode");
+        return tr("update only possible in admin mode");
       case PackageInstaller::UpdateInfo::KeepObsolete:
-        return tr("removal not possible in user mode");
+        return tr("removal only possible in admin mode");
       case PackageInstaller::UpdateInfo::Update:
         return tr("optional");
       case PackageInstaller::UpdateInfo::ForceUpdate:
@@ -203,9 +203,14 @@ void UpdateTableModel::SetData(const vector<PackageInstaller::UpdateInfo>& updat
 {
   beginResetModel();
   this->updates.clear();
+  this->pending = 0;
   for (const auto& u : updates)
   {
     this->updates.push_back(u);
+    if (this->updates.back().checked)
+    {
+      this->pending += 1;
+    }
   }
   endResetModel();
 }

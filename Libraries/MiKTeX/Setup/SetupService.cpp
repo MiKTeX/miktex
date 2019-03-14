@@ -1760,6 +1760,7 @@ void SetupServiceImpl::Warning(const MiKTeX::Core::MiKTeXException& ex)
 }
 
 constexpr time_t HALF_A_YEAR = 15768000;
+constexpr time_t ONE_DAY = 86400;
 
 inline string FormatTimestamp(time_t t)
 {
@@ -1867,7 +1868,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
   InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
   if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
   {
-    result.push_back({ IssueType::UpdatesNeverChecked,
+    result.push_back({ IssueType::UpdateCheckOverdue,
                        session->IsSharedSetup()
                        ? T_("Never checked for system-wide updates.")
                        : T_("Never checked for updates.")});
@@ -1886,7 +1887,11 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     {
       if (!IsValidTimeT(userInstallation.lastUpdateCheck))
       {
-        result.push_back({ IssueType::UserUpdatesNeverChecked, T_("Never checked for updates in user mode.")});
+        result.push_back({ IssueType::UserUpdateCheckOverdue, T_("Never checked for updates in user mode.")});
+      }
+      else if (commonInstallation.lastUpdateCheck > userInstallation.lastUpdateCheck + ONE_DAY)
+      {
+        result.push_back({ IssueType::UserUpdateCheckOverdue, T_("User mode update check lacks behind.")});
       }
       else if (now > userInstallation.lastUpdateCheck + HALF_A_YEAR)
       {

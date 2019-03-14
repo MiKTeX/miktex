@@ -105,7 +105,8 @@ void SetupServiceCallbackImpl::ReportLine(const string& str)
 
 MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   QMainWindow(parent),
-  ui(new Ui::MainWindow)
+  ui(new Ui::MainWindow),
+  okayUserMode(CheckIssue(IssueType::UserUpdateCheckOverdue).first)
 {
   if (IsUserModeBlocked())
   {
@@ -184,6 +185,15 @@ void MainWindow::closeEvent(QCloseEvent* event)
       return;
     }
   }
+  if (updateModel->Pending() > 0)
+  {
+    if (QMessageBox::question(this, tr("MiKTeX Console"), tr("There are pending updates. Are you sure you want to quit?"))
+      != QMessageBox::Yes)
+    {
+      event->ignore();
+      return;
+    }
+  }
   if (saveSettingsOnClose)
   {
     WriteSettings();
@@ -256,39 +266,14 @@ void MainWindow::UpdateUi()
 {
   try
   {
-    if (IsBackgroundWorkerActive())
-    {
-      ui->labelBackgroundTask->show();
-    }
-    else
-    {
-      ui->labelBackgroundTask->hide();
-    }
-    if (isSetupMode && IsBackgroundWorkerActive())
-    {
-      ui->labelSetupWait->show();
-    }
-    else
-    {
-      ui->labelSetupWait->hide();
-    }
+    ui->labelBackgroundTask->setVisible(IsBackgroundWorkerActive());
+    ui->labelSetupWait->setVisible(isSetupMode && IsBackgroundWorkerActive());
+    ui->adminMode->setVisible(session->IsAdminMode());
+    ui->userMode->setVisible(!session->IsAdminMode() && session->IsSharedSetup() && !CheckIssue(IssueType::UserUpdateCheckOverdue).first);
+    ui->privateMode->setVisible(!session->IsAdminMode() && !session->IsSharedSetup());
     if (session->IsAdminMode())
     {
-      ui->privateMode->hide();
-      ui->userMode->hide();
       ui->buttonAdminSetup->setText(tr("Finish shared setup"));
-    }
-    else
-    {
-      ui->adminMode->hide();
-      if (session->IsSharedSetup())
-      {
-        ui->privateMode->hide();
-      }
-      else
-      {
-        ui->userMode->hide();
-      }
     }
     ui->buttonOverview->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonSettings->setEnabled(!isSetupMode && !IsUserModeBlocked());
@@ -302,25 +287,24 @@ void MainWindow::UpdateUi()
     {
       return;
     }
-    if (!pathChecked)
+    if (CheckIssue(IssueType::UserUpdateCheckOverdue).first)
     {
-      auto p = Utils::CheckPath();
-      if (!p.first && p.second)
-      {
-        ui->groupPathIssue->setStyleSheet(GetAlertStyleSheet());
-        ui->groupPathIssue->show();
-#if defined(MIKTEX_WINDOWS)
-        ui->buttonFixPath->setEnabled(!IsUserModeBlocked());
-#else
-        ui->buttonFixPath->setEnabled(false);
-#endif
-      }
-      else
-      {
-        ui->groupPathIssue->hide();
-      }
-      ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LinkTargetDirectory).ToDisplayString().c_str()));
+      ui->labelLastUpdateCheck->setText(tr("It's a long time since you have checked for updates.\nPlease check for updates now."));
+      ui->groupCheckUpdates->setStyleSheet(GetAlertStyleSheet());
     }
+    else
+    {
+      ui->labelLastUpdateCheck->setText(tr("You can now check for package updates."));
+      ui->groupCheckUpdates->setStyleSheet("");
+    }
+    ui->groupPathIssue->setStyleSheet(GetAlertStyleSheet());
+#if defined(MIKTEX_WINDOWS)
+    ui->buttonFixPath->setEnabled(!IsUserModeBlocked());
+#else
+    ui->buttonFixPath->setEnabled(false);
+#endif
+    ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LinkTargetDirectory).ToDisplayString().c_str()));
+    ui->groupPathIssue->setVisible(CheckIssue(IssueType::Path).first);
     if (!IsBackgroundWorkerActive())
     {
       if (ui->labelUpgradeStatus->text().isEmpty())
@@ -361,7 +345,7 @@ void MainWindow::UpdateActions()
 {
   try
   {
-    ui->actionRestartAdmin->setEnabled(!IsBackgroundWorkerActive() && session->IsSharedSetup() && !session->IsAdminMode());
+    ui->actionRestartAdmin->setEnabled(!IsBackgroundWorkerActive() && session->IsSharedSetup() && !session->IsAdminMode() && !CheckIssue(IssueType::UserUpdateCheckOverdue).first);
     ui->actionRefreshFileNameDatabase->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     ui->actionRefreshFontMapFiles->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     ui->actionTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
@@ -794,6 +778,7 @@ void MainWindow::on_buttonFixPath_clicked()
   {
     QMessageBox::information(this, tr("MiKTeX Console"), tr("The PATH environment variable has been successfully modified."), QMessageBox::Ok);
     ui->groupPathIssue->hide();
+    issues.clear();
   }
   else
   {
@@ -1161,6 +1146,7 @@ void MainWindow::CheckUpdates()
       updateModel->SetData(updates);
       ui->labelUpdateStatus->setText("");
       ui->labelCheckUpdatesStatus->setText("");
+      issues.clear();
 #if !defined(QT_NO_SYSTEMTRAYICON)
       if (this->isHidden())
       {

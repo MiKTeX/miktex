@@ -102,9 +102,7 @@ typedef MiKTeX::Core::OptionSet<ReportOption> ReportOptionSet;
 enum class IssueType
 {
   Path,
-  UpdatesNeverChecked,
   UpdateCheckOverdue,
-  UserUpdatesNeverChecked,
   UserUpdateCheckOverdue,
   RootDirectoryCoverage,
   PackageDamaged

@@ -1,6 +1,6 @@
 /* UpdateTableModel.h:                                  -*- C++ -*-
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -79,6 +79,12 @@ public:
 public:
   bool IsCheckable(const QModelIndex& index) const;
 
+public:
+  std::size_t Pending() const
+  {
+    return pending;
+  }
+
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
@@ -99,6 +105,9 @@ private:
 
 private:
   std::vector<InternalUpdateInfo> updates;
+
+private:
+  std::size_t pending = 0;
 };
 
 #endif

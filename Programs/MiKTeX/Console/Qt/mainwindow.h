@@ -103,7 +103,28 @@ private:
   void UpdateUi();
 
 private:
-  bool pathChecked = false;
+  bool haveIssues = false;
+
+private:
+  std::vector<MiKTeX::Setup::Issue> issues;
+
+private:
+  std::pair<bool, MiKTeX::Setup::Issue> CheckIssue(MiKTeX::Setup::IssueType issueType)
+  {
+    if (!haveIssues)
+    {
+      issues = MiKTeX::Setup::SetupService::FindIssues(true, false);
+      haveIssues = true;
+    }
+    for (const auto& iss : issues)
+    {
+      if (iss.type == issueType)
+      {
+        return std::make_pair(true, iss);
+      }
+    }
+    return std::make_pair(false, MiKTeX::Setup::Issue());
+  }
 
 private slots:
   void UpdateActions();
