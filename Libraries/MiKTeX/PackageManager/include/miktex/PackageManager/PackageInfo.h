@@ -168,6 +168,18 @@ struct PackageInfo
     return IsValidTimeT(timeInstalled);
   }
 
+  /// Checks to see whether the package is installed by the current user.
+  bool IsInstalledByUser() const
+  {
+    return IsValidTimeT(timeInstalledByUser);
+  }
+
+  /// Checks to see whether the package is installed by the administrator.
+  bool IsInstalledByAdmin() const
+  {
+    return IsValidTimeT(timeInstalledByAdmin);
+  }
+
   /// Gets the number of dependants.
   unsigned long GetRefCount() const
   {

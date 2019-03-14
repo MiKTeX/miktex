@@ -2220,7 +2220,7 @@ void PackageInstallerImpl::UpdateDb()
     bool knownPackage;
     PackageInfo existingPackage;
     tie(knownPackage, existingPackage) = packageDataStore->TryGetPackage(packageId);
-    if (!IsPureContainer(packageId) && knownPackage && existingPackage.IsInstalled())
+    if (!IsPureContainer(packageId) && knownPackage && (session->IsAdminMode() ? existingPackage.IsInstalledByAdmin() : existingPackage.IsInstalledByUser()))
     {
       continue;
     }
