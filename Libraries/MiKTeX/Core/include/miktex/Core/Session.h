@@ -149,7 +149,7 @@ enum class SpecialPath
 #if defined(MIKTEX_MACOS_BUNDLE)
   /// The directory which contains the main application file.
   /// Example: `/Applications/MiKTeX\ Console.app/Contents/Macos`
-  MacOsDirectory
+  MacOsDirectory,
 #endif
 
   /// The effective configuration root directory.
