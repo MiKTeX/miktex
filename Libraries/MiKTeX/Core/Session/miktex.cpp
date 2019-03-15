@@ -247,40 +247,37 @@ PathName SessionImpl::GetMyLocation(bool canonicalized)
 
 MIKTEXINTERNALFUNC(PathName) GetHomeDirectory()
 {
+  PathName result;
 #if defined(MIKTEX_WINDOWS)
-  string homeDrive;
-  string homePath;
-  if (Utils::GetEnvironmentString("HOMEDRIVE", homeDrive)
-    && Utils::GetEnvironmentString("HOMEPATH", homePath))
+  if (!GetUserProfileDirectory(result))
   {
-    return homeDrive + homePath;
+    string homeDrive;
+    string homePath;
+    if (Utils::GetEnvironmentString("HOMEDRIVE", homeDrive)
+        && Utils::GetEnvironmentString("HOMEPATH", homePath))
+    {
+      result = homeDrive + homePath;
+    }
+    else
+    {
+      result = "";
+    }
   }
-#endif
-  PathName ret;
-  if (Utils::GetEnvironmentString("HOME", ret))
-  {
-    return ret;
-  }
-#if defined(MIKTEX_WINDOWS)
-  if (GetUserProfileDirectory(ret))
-  {
-    return ret;
-  }
-  wchar_t szWinDir[_MAX_PATH];
-  unsigned int n = GetWindowsDirectoryW(szWinDir, _MAX_PATH);
-  if (n == 0)
-  {
-    MIKTEX_FATAL_WINDOWS_ERROR("GetWindowsDirectoryW");
-  }
-  else if (n >= _MAX_PATH)
-  {
-    BUF_TOO_SMALL();
-  }
-  ret = szWinDir;
-  return ret;
 #else
-  MIKTEX_UNEXPECTED();
+  if (!Utils::GetEnvironmentString("HOME", result))
+  {
+    result = "";
+  }
 #endif
+  if (result.Empty())
+  {
+    MIKTEX_FATAL_ERROR(T_("Home directory is not defined."));
+  }
+  if (!Directory::Exists(result))
+  {
+    MIKTEX_FATAL_ERROR_2(T_("Home directory ({path}) does not exist."), "path", result.ToString());
+  }
+  return result;
 }
 
 MIKTEXSTATICFUNC(int) magstep(int n, int bdpi)
