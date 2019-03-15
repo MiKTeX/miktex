@@ -50,6 +50,9 @@ public:
   MIKTEXTHISCALL ~PackageManagerImpl() override;
 
 public:
+  std::unique_ptr<class PackageInstaller> MIKTEXTHISCALL CreateInstaller(const MiKTeX::Packages::PackageInstaller::InitInfo& initInfo) override;
+
+public:
   std::unique_ptr<MiKTeX::Packages::PackageInstaller> MIKTEXTHISCALL CreateInstaller() override;
 
 public:

@@ -83,12 +83,15 @@ MPMSTATICFUNC(bool) IsMiKTeXPackage(const string& packageId)
   return strncmp(packageId.c_str(), "miktex-", 7) == 0;
 }
 
-PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manager) :
+PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manager, const InitInfo& initInfo) :
+  enablePostProcessing(initInfo.enablePostProcessing),
+  unattended(initInfo.unattended),
   session(Session::Get()),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
   trace_stopwatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH)),
   packageManager(manager),
+  callback(initInfo.callback),
   packageDataStore(manager->GetPackageDataStore())
 {
   MIKTEX_ASSERT(
@@ -1791,12 +1794,12 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
   packageManifests = nullptr;
 
-  if (!noPostProcessing)
+  if (enablePostProcessing)
   {
     RegisterComponents(true, toBeInstalled);
   }
 
-  if (!noPostProcessing)
+  if (enablePostProcessing)
   {
     vector<string> args = { "--mkmaps" };
     if (session->IsAdminMode())
@@ -2375,7 +2378,7 @@ bool PackageInstallerImpl::UseLocalServer()
     // already running as local server
     return false;
   }
-  if (noLocalServer)
+  if (unattended)
   {
     return false;
   }

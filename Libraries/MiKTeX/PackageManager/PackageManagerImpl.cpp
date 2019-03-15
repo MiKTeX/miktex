@@ -103,9 +103,14 @@ void PackageManagerImpl::Dispose()
   }
 }
 
+unique_ptr<PackageInstaller> PackageManagerImpl::CreateInstaller(const PackageInstaller::InitInfo& initInfo)
+{
+  return make_unique<PackageInstallerImpl>(shared_from_this(), initInfo);
+}
+
 unique_ptr<PackageInstaller> PackageManagerImpl::CreateInstaller()
 {
-  return make_unique<PackageInstallerImpl>(shared_from_this());
+  return make_unique<PackageInstallerImpl>(shared_from_this(), PackageInstaller::InitInfo());
 }
 
 unique_ptr<PackageIterator> PackageManagerImpl::CreateIterator()

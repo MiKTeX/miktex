@@ -358,15 +358,25 @@ public:
 public:
   virtual void MIKTEXTHISCALL RegisterComponents(bool postInstall) = 0;
 
-  /// Enables/Disables post-processing.
-  /// @param noPostProcessing Indicates whether post processing is disabled.
+  /// Initialization options.
 public:
-  virtual void MIKTEXTHISCALL SetNoPostProcessing(bool noPostProcessing) = 0;
-
-  /// Enables/Disables user elevation.
-  /// @param noUserElevation Indicates whether user elevation is disabled.
-public:
-  virtual void MIKTEXTHISCALL SetNoLocalServer(bool noUserElevation) = 0;
+  struct InitInfo
+  {
+    InitInfo() = default;
+    InitInfo(const InitInfo& other) = default;
+    InitInfo& operator=(const InitInfo& other) = default;
+    InitInfo(InitInfo&& other) = default;
+    InitInfo& operator=(InitInfo&& other) = default;
+    ~InitInfo() = default;
+    /// Pointer to an object implementing the callback interface.
+    PackageInstallerCallback* callback = nullptr;
+    /// @brief Indicates whether to operate in unattended mode.
+    ///
+    /// Setting this value to `true` will disable the Windows elevation prompt (UAC).
+    bool unattended = false;
+    /// Indicates whether to enable or disable post-processing.
+    bool enablePostProcessing = true;
+  };
 };
 
 MIKTEX_PACKAGES_END_NAMESPACE;

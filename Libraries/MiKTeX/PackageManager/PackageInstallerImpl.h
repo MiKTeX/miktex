@@ -61,7 +61,7 @@ private:
   };
 
 public:
-  PackageInstallerImpl(std::shared_ptr<MiKTeX::Packages::D6AAD62216146D44B580E92711724B78::PackageManagerImpl> manager);
+  PackageInstallerImpl(std::shared_ptr<MiKTeX::Packages::D6AAD62216146D44B580E92711724B78::PackageManagerImpl> manager, const InitInfo& initInfo);
 
 public:
   MIKTEXTHISCALL ~PackageInstallerImpl() override;
@@ -206,18 +206,6 @@ public:
 public:
   void MIKTEXTHISCALL RegisterComponents(bool doRegister) override;
 
-public:
-  void MIKTEXTHISCALL SetNoPostProcessing(bool noPostProcessing) override
-  {
-    this->noPostProcessing = noPostProcessing;
-  }
-
-public:
-  void MIKTEXTHISCALL SetNoLocalServer(bool noLocalServer) override
-  {
-    this->noLocalServer = noLocalServer;
-  }
-
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 public:
   STDMETHOD(QueryInterface) (REFIID riid, LPVOID* ppvObj);
@@ -310,10 +298,10 @@ private:
   std::unordered_set<MiKTeX::Core::PathName> removedFiles;
 
 private:
-  bool noPostProcessing = false;
+  bool enablePostProcessing = true;
 
 private:
-  bool noLocalServer = false;
+  bool unattended = false;
 
 private:
   ProgressInfo progressInfo;

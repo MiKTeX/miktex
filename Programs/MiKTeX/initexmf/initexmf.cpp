@@ -438,9 +438,7 @@ private:
   {
     if (packageInstaller == nullptr)
     {
-      packageInstaller = packageManager->CreateInstaller();
-      packageInstaller->SetCallback(this);
-      packageInstaller->SetNoPostProcessing(true);
+      packageInstaller = packageManager->CreateInstaller({ this, true, false });
     }
   }
 
@@ -2181,7 +2179,7 @@ void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 
 void IniTeXMFApp::WriteReport()
 {
-  SetupService::WriteReport(cout, { ReportOption::General, ReportOption::RootDirectories, ReportOption::BrokenPackages });
+  SetupService::WriteReport(cout, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser });
 }
 
 void IniTeXMFApp::Run(int argc, const char* argv[])

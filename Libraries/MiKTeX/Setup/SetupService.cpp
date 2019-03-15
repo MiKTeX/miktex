@@ -696,9 +696,7 @@ void SetupServiceImpl::Initialize()
 
   ReportLine("initializing setup service...");
 
-  packageInstaller = packageManager->CreateInstaller();
-  packageInstaller->SetNoPostProcessing(true);
-  packageInstaller->SetNoLocalServer(true);
+  packageInstaller = packageManager->CreateInstaller({ nullptr, true, false });
   cancelled = false;
 
   packageInstaller->SetCallback(this);

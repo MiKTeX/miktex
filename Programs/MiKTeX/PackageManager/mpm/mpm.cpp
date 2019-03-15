@@ -1,6 +1,6 @@
 /* mpm.cpp: MiKTeX Package Manager (cli version)
 
-   Copyright (C) 2003-2018 Christian Schenk
+   Copyright (C) 2003-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -803,12 +803,11 @@ bool Application::OnProgress(MiKTeX::Packages::Notification nf)
 
 void Application::UpdateDb()
 {
-  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
   if (!repository.empty())
   {
     installer->SetRepository(repository);
   }
-  installer->SetCallback(this);
   installer->UpdateDb();
   installer->Dispose();
 }
@@ -833,14 +832,13 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
     }
   }
 
-  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
 
   if (!repository.empty())
   {
     installer->SetRepository(repository);
   }
 
-  installer->SetCallback(this);
   installer->SetFileLists(toBeInstalled, toBeRemoved);
   installer->InstallRemove(PackageInstaller::Role::Application);
   installer->Dispose();
@@ -866,8 +864,7 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
 
 void Application::RegisterComponents(bool doRegister)
 {
-  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
-  installer->SetCallback(this);
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
   installer->RegisterComponents(doRegister);
   installer->Dispose();
 }
@@ -1058,12 +1055,11 @@ void Application::ImportPackages(vector<string>& toBeinstalled)
 
 void Application::FindUpdates()
 {
-  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
   if (!repository.empty())
   {
     installer->SetRepository(repository);
   }
-  installer->SetCallback(this);
   installer->FindUpdates();
   vector<PackageInstaller::UpdateInfo> updates = installer->GetUpdates();
   installer->Dispose();
@@ -1093,12 +1089,11 @@ void Application::FindUpdates()
 
 void Application::Update(const vector<string>& requestedUpdates)
 {
-  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
   if (!repository.empty())
   {
     installer->SetRepository(repository);
   }
-  installer->SetCallback(this);
   installer->FindUpdates();
   vector<string> serverUpdates;
   vector<string> toBeRemoved;
@@ -1181,12 +1176,11 @@ void Application::FindUpgrades(PackageLevel packageLevel)
   {
     Error("No package level (--package-level) was specified.");
   }
-  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
   if (!repository.empty())
   {
     installer->SetRepository(repository);
   }
-  installer->SetCallback(this);
   installer->FindUpgrades(packageLevel);
   vector<PackageInstaller::UpgradeInfo> upgrades = installer->GetUpgrades();
   installer->Dispose();
@@ -1208,12 +1202,11 @@ void Application::Upgrade(PackageLevel packageLevel)
   {
     Error(T_("No package level (--package-level) was specified."));
   }
-  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
+  shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
   if (!repository.empty())
   {
     installer->SetRepository(repository);
   }
-  installer->SetCallback(this);
   installer->FindUpgrades(packageLevel);
   vector<PackageInstaller::UpgradeInfo> upgrades = installer->GetUpgrades();
   if (upgrades.empty())

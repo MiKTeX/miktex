@@ -77,6 +77,13 @@ public:
   virtual MIKTEXTHISCALL ~PackageManager() noexcept = 0;
 
   /// Creates a new package installer object.
+  /// @param initInfo Initialization options.
+  /// @return Returns a smart pointer to the new package installer object.
+public:
+  virtual std::unique_ptr<class PackageInstaller> MIKTEXTHISCALL CreateInstaller(const PackageInstaller::InitInfo& initInfo) = 0;
+
+  /// Creates a new package installer object.
+  /// @return Returns a smart pointer to the new package installer object.
 public:
   virtual std::unique_ptr<class PackageInstaller> MIKTEXTHISCALL CreateInstaller() = 0;
 
