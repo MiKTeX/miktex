@@ -1351,20 +1351,10 @@ configure_file(
 )
 
 configure_file(
-  Admin/Scripts/Doxyfile.sdk.in
-  ${CMAKE_CURRENT_BINARY_DIR}/Admin/Scripts/DoxyFile.sdk
-)
-
-configure_file(
   BuildUtilities/docbook/catalog.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/BuildUtilities/docbook/catalog
 )
 
-configure_file(
-  Admin/Scripts/makesdk.cmd.in
-  ${CMAKE_CURRENT_BINARY_DIR}/Admin/Scripts/makesdk.cmd
-)
-             
 configure_file(
   Admin/Scripts/makelocfile.cmd.in
   ${CMAKE_CURRENT_BINARY_DIR}/Admin/Scripts/makelocfile.cmd
@@ -1373,21 +1363,6 @@ configure_file(
 configure_file(
   Admin/Scripts/putj2000version.cmd.in
   ${CMAKE_CURRENT_BINARY_DIR}/Admin/Scripts/putj2000version.cmd
-)
-
-configure_file(
-  SDK/doc/mainpage.doxygen.in
-  ${CMAKE_CURRENT_BINARY_DIR}/SDK/doc/mainpage.doxygen
-)
-
-configure_file(
-  SDK/samples/c++/findfile/findfile.cpp.in
-  ${CMAKE_CURRENT_BINARY_DIR}/SDK/samples/c++/findfile/findfile.cpp
-)
-
-configure_file(
-  SDK/samples/c++/findpk/findpk.cpp.in
-  ${CMAKE_CURRENT_BINARY_DIR}/SDK/samples/c++/findpk/findpk.cpp
 )
 
 ###############################################################################
