@@ -1,4 +1,4 @@
-/*   $Id: afm2tfm.c 46759 2018-02-27 23:14:55Z karl $  */
+/*   $Id: afm2tfm.c 50140 2019-02-26 10:19:50Z hironobu $  */
 
 /*   Public domain, originally written by Tom Rokicki.
  *   This program converts AFM files to TeX TFM files, and optionally
@@ -210,8 +210,9 @@ struct pcc {
 };
 
 FILE *afmin, *vplout, *tfmout;
-char inname[200], outname[200]; /* names of input and output files */
-char tmpstr[200]; /* a buffer for one string */
+#define MAXNAME 256
+char inname[MAXNAME], outname[MAXNAME]; /* names of input and output files */
+char tmpstr[MAXNAME]; /* a buffer for one string */
 #define INBUFSIZE 1024
 char buffer[INBUFSIZE+10]; /* input buffer (modified while parsing) */
 char obuffer[INBUFSIZE+10]; /* unmodified copy of input buffer */
@@ -1561,9 +1562,9 @@ writevpl(void)
 static void
 version(FILE *f)
 {
-  fputs ("afm2tfm(k) (dvips(k) 5.998) 8.4\n", f);
+  fputs ("afm2tfm(k) (dvips(k) 5.999) 8.4\n", f);
   fprintf (f, "%s\n", kpathsea_version_string);
-  fputs ("Copyright 2018 Radical Eye Software.\n\
+  fputs ("Copyright 2019 Radical Eye Software.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the Dvips copyright.\n\
@@ -1645,6 +1646,8 @@ openfiles(int argc, char **argv)
    snprintf(titlebuf, sizeof(titlebuf), "%s %s", argv[0], argv[1]);
 #endif
 #endif
+   if(strlen(argv[1]) >= MAXNAME - 4)
+       error("! too long input file name");
    strcpy(inname, argv[1]);
 #ifdef KPATHSEA
    if (find_suffix(inname) == NULL)
@@ -1667,6 +1670,8 @@ openfiles(int argc, char **argv)
 case 'V': makevpl++;
 case 'v': makevpl++;
          CHECKARG3
+         if(strlen(argv[3]) >= MAXNAME - 4)
+            error("! too long output VPL file name");
          strcpy(outname, argv[3]);
 #ifdef KPATHSEA
          if (find_suffix(outname) == NULL)
