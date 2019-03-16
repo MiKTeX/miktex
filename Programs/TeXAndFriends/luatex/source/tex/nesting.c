@@ -273,8 +273,8 @@ halfword pop_tail(void)
             while (vlink(n) != cur_list.tail_field)
                 n = vlink(n);
         }
-        flush_node(cur_list.tail_field);
         cur_list.tail_field = n;
+        alink(r) = null;
         vlink(n) = null;
         return r;
     } else {

@@ -710,8 +710,8 @@ static int PickCFFFont(char **fontnames) {
     unichar_t **names;
     int cnt, i, choice;
 
-    for ( cnt=0; fontnames[cnt]!=NULL; ++cnt);
-        names = gcalloc(cnt+1,sizeof(unichar_t *));
+    for ( cnt=0; fontnames[cnt]!=NULL; ++cnt){;}
+    names = gcalloc(cnt+1,sizeof(unichar_t *));
     for ( i=0; i<cnt; ++i )
         names[i] = uc_copy(fontnames[i]);
     choice = 0;

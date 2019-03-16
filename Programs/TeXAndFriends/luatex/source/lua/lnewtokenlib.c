@@ -381,10 +381,10 @@ static int run_scan_int(lua_State * L)
 */
 
 # define add_to_buffer(chr) \
-    if (chr <= 255) { \
+    if (chr <= 127) { \
         luaL_addchar(&b,(unsigned) (char) chr); \
     } else { \
-        uindex = uni2string((char *)word,(unsigned) chr); \
+        uindex = uni2string((char *)word,(unsigned int) chr); \
         *uindex = '\0'; \
         luaL_addstring(&b,(char *) word); \
     }

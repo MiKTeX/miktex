@@ -947,7 +947,7 @@ static void init_pdf_outputparameters(PDF pdf)
     pdf->inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
     pdf->pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
     pdf->pk_fixed_dpi = fix_int(pdf_pk_fixed_dpi, 0, 1);
-    if ((pdf->minor_version >= 5) && (pdf->objcompresslevel > 0)) {
+    if (((pdf->major_version > 1) || (pdf->minor_version >= 5)) && (pdf->objcompresslevel > 0)) {
         pdf->os_enable = true;
     } else {
         if (pdf->objcompresslevel > 0) {
@@ -2485,7 +2485,7 @@ void scan_pdfcatalog(PDF pdf)
     appendix C.1 of the \PDF\ standard. The maximum value of ints is |+2^32|, the
     maximum value of reals is |+2^15| and the smallest values of reals is
     |1/(2^16)|. We are quite large on precision, because it could happen that a
-    pdf file imported as figure has real numbers with an unusual (and possibly useless) 
+    pdf file imported as figure has real numbers with an unusual (and possibly useless)
     high precision. Later the formatter will write the numbers in the correct format.
 
 */

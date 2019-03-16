@@ -39,6 +39,14 @@ typedef struct quartic {
     double a,b,c,d,e;
 } Quartic;
 
+
+#ifdef HAVE_FABS
+#define FABS(x) fabs((x))
+#else
+#define FABS(x) ((x)>=0?(x):(-(x)))
+#endif
+
+
 /* In an attempt to make allocation more efficient I just keep preallocated */
 /*  lists of certain common sizes. It doesn't seem to make much difference */
 /*  when allocating stuff, but does when freeing. If the extra complexity */
@@ -87,6 +95,8 @@ void chunktest(void) {
 	    }
 }
 #endif
+
+
 
 void *chunkalloc(int size) {
 # if ALLOC_CHUNK<=1
@@ -170,6 +180,9 @@ return;
 # endif
 }
 #endif
+
+
+
 
 char *strconcat(const char *str1,const char *str2) {
     int len1 = strlen(str1);
@@ -3109,18 +3122,21 @@ return( 0 );
 return( cnt );
 }
 
+
+
+
 static int Closer(const Spline *s1,const Spline *s2,extended t1,extended t2,extended t1p,extended t2p) {
+    double dx,dy;
     double x1 = ((s1->splines[0].a*t1+s1->splines[0].b)*t1+s1->splines[0].c)*t1+s1->splines[0].c;
     double y1 = ((s1->splines[1].a*t1+s1->splines[1].b)*t1+s1->splines[1].c)*t1+s1->splines[1].c;
     double x2 = ((s2->splines[0].a*t2+s2->splines[0].b)*t2+s2->splines[0].c)*t2+s2->splines[0].c;
     double y2 = ((s2->splines[1].a*t2+s2->splines[1].b)*t2+s2->splines[1].c)*t2+s2->splines[1].c;
-    double diff = abs(x1-x2) + abs(y1-y2);
+    double diff = FABS(x1-x2) + FABS(y1-y2);
     double x1p = ((s1->splines[0].a*t1p+s1->splines[0].b)*t1p+s1->splines[0].c)*t1p+s1->splines[0].c;
     double y1p = ((s1->splines[1].a*t1p+s1->splines[1].b)*t1p+s1->splines[1].c)*t1p+s1->splines[1].c;
     double x2p = ((s2->splines[0].a*t2p+s2->splines[0].b)*t2p+s2->splines[0].c)*t2p+s2->splines[0].c;
     double y2p = ((s2->splines[1].a*t2p+s2->splines[1].b)*t2p+s2->splines[1].c)*t2p+s2->splines[1].c;
-    double diffp = abs(x1p-x2p) + abs(y1p-y2p);
-
+    double diffp = FABS(x1p-x2p) + FABS(y1p-y2p);
     if ( diff<diffp )
 return( false );
 

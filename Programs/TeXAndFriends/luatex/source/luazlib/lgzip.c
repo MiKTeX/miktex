@@ -59,7 +59,7 @@ static int pushresult (lua_State *L, int i, const char *filename) {
       lua_pushfstring(L, "%s: %s", filename, strerror(errno));
     else
       lua_pushfstring(L, "%s", strerror(errno));
-    lua_pushnumber(L, errno);
+    lua_pushinteger(L, errno);
     return 3;
   }
 }
@@ -321,7 +321,7 @@ static int f_seek (lua_State *L) {
   if (op == -1)
     return pushresult(L, 0, NULL);  /* error */
   else {
-    lua_pushnumber(L, op);
+    lua_pushinteger(L, op);
     return 1;
   }
 }

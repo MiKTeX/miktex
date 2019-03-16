@@ -574,7 +574,7 @@ LUALIB_API int luaopen_zlib(lua_State *L)
     ** Stack:
     */
     lua_newtable(L);
-    luaL_openlib(L, NULL, zlib, 0);
+    luaL_openlib(L, "zlib", zlib, 1);
 
     /*
     ** Stack: zlib table

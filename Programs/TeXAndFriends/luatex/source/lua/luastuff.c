@@ -346,9 +346,7 @@ void luainterpreter(void)
         /*tex preload the pure \LUA\ modules */
         luatex_socketlua_open(L);
     }
-    /*tex |zlib|'s slightly odd calling convention */
     luaopen_zlib(L);
-    lua_setglobal(L, "zlib");
     luaopen_gzip(L);
     /*tex our own libraries register themselves */
     luaopen_fio(L);

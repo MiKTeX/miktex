@@ -29,7 +29,7 @@ static int pushresult (lua_State *L, int i, const char *filename) {
       lua_pushfstring(L, "%s: %s", filename, zzip_strerror(zzip_errno(errno)));
     else
       lua_pushfstring(L, "%s", zzip_strerror(zzip_errno(errno)));
-    lua_pushnumber(L, zzip_errno(errno));
+    lua_pushinteger(L, zzip_errno(errno));
     return 3;
   }
 }
@@ -150,7 +150,7 @@ static int zip_openfile (lua_State *L) {
     /* replaces the string by the table with the string inside */
     lua_replace(L, 2);
   }
-  
+
   if (lua_istable(L, 2))
   {
     int i, m, n;
@@ -248,9 +248,9 @@ static int zip_readfile (lua_State *L) {
     return 0;
 
   lua_newtable(L);
-  lua_pushstring(L, "compressed_size"); lua_pushnumber(L, ent->d_csize); lua_settable(L, -3);
-  lua_pushstring(L, "compression_method"); lua_pushnumber(L, ent->d_compr); lua_settable(L, -3);
-  lua_pushstring(L, "uncompressed_size"); lua_pushnumber(L, ent->st_size); lua_settable(L, -3);
+  lua_pushstring(L, "compressed_size"); lua_pushinteger(L, ent->d_csize); lua_settable(L, -3);
+  lua_pushstring(L, "compression_method"); lua_pushinteger(L, ent->d_compr); lua_settable(L, -3);
+  lua_pushstring(L, "uncompressed_size"); lua_pushinteger(L, ent->st_size); lua_settable(L, -3);
   lua_pushstring(L, "filename"); lua_pushstring(L, ent->d_name); lua_settable(L, -3);
 
   return 1;
@@ -321,7 +321,7 @@ static int zzip_fscanf (ZZIP_FILE *f, const char *format, ...)
 static int read_number (lua_State *L, ZZIP_FILE *f) {
   lua_Number d;
   if (zzip_fscanf(f, LUA_NUMBER_SCAN, &d) == 1) {
-    lua_pushnumber(L, d);
+    lua_pushinteger(L, d);
     return 1;
   }
   else return 0;  // read fails
@@ -462,7 +462,7 @@ static int ff_seek (lua_State *L) {
   if (op < 0)
     return pushresult(L, 0, NULL);  /* error */
   else {
-    lua_pushnumber(L, zzip_tell(f));
+    lua_pushinteger(L, zzip_tell(f));
     return 1;
   }
 }

@@ -298,9 +298,14 @@ int luac_main(int ac, char *av[])
 #define TSVALUE(o) tsvalue(o)
 #endif
 
+/* if ts is a const pointer, using Lua's getstr(ts) is not correct */
+#define getconststr(ts)  \
+  check_exp(sizeof((ts)->extra), cast(const char *, (ts)) + sizeof(UTString))
+
+
 static void PrintString(const TString* ts)
 {
-    const char* s=getstr(ts);
+    const char* s=getconststr(ts);
     size_t i,n;
 #if (defined(LuajitTeX)) || (LUA_VERSION_NUM == 502)
     n=ts->tsv.len;

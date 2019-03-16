@@ -927,9 +927,9 @@ static void SHA512_Update(SHA512_CTX* context, const uint8_t *data, size_t len) 
 	while (len >= SHA512_BLOCK_LENGTH) {
 		/* Process as many complete blocks as we can */
 #if ARM_COMPLIANT
-    SHA512_Transform(context, (uint64_t*)((void *)context->buffer));
+    SHA512_Transform(context, (uint64_t*)((void *)data));
 #else
-    SHA512_Transform(context, (uint64_t*)context->buffer);
+    SHA512_Transform(context, (uint64_t*)data);
 #endif
 		ADDINC128(context->bitcount, SHA512_BLOCK_LENGTH << 3);
 		len -= SHA512_BLOCK_LENGTH;

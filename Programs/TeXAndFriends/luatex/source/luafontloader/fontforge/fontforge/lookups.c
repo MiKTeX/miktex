@@ -1442,7 +1442,7 @@ void NameOTLookup(OTLookup *otl,SplineFont *sf) {
 		found = found2;
 	    if ( found!=NULL ) {
 		script_tag = found->script;
-		for ( j=0; localscripts[j].text!=NULL && script_tag!=localscripts[j].tag; ++j );
+		for ( j=0; localscripts[j].text!=NULL && script_tag!=localscripts[j].tag; ++j ) {;}
 #ifdef LUA_FF_LIB
             buf[0] = fl->scripts->script>>24;
             buf[1] = (fl->scripts->script>>16)&0xff;

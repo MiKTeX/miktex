@@ -267,7 +267,7 @@ following subroutine is usually called with a parameter in the range |0<=n<=99|.
 
 @c 
 static void mp_ps_print_dd (MP mp,integer n) { /* prints two least significant digits */
-  n=abs(n) % 100; 
+  n= MPOST_ABS(n) % 100; 
   mp_ps_print_char(mp, '0'+(n / 10));
   mp_ps_print_char(mp, '0'+(n % 10));
 }
@@ -559,6 +559,7 @@ avl_tree enc_tree;
 
 @<Static variables in the outer block@>=
 static char notdef[] = ".notdef";
+
 
 @ @<Set initial...@>=
 mp->ps->enc_tree = NULL;

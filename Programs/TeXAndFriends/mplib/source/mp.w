@@ -122,9 +122,24 @@ typedef struct pngout_data_struct *pngout_data;
 #ifndef HAVE_BOOLEAN
 typedef int boolean;
 #endif
+
 #ifndef INTEGER_TYPE
 typedef int integer;
+#define MPOST_ABS abs
+#else
+/* See source/texk/web2c/w2c/config.h */
+#if INTEGER_MAX == LONG_MAX /* this should mean INTEGER_TYPE == long */
+#ifdef HAVE_LABS
+#define MPOST_ABS labs
+#else
+#define MPOST_ABS abs
 #endif
+#else
+#define MPOST_ABS abs
+#endif /* if INTEGER_TYPE == long */
+#endif /* ifndef INTEGER_TYPE */
+
+
 @<Declare helpers@>;
 @<Enumeration types@>;
 @<Types in the outer block@>;
@@ -1783,7 +1798,7 @@ following subroutine is usually called with a parameter in the range |0<=n<=99|.
 
 @c
 static void mp_print_dd (MP mp, integer n) {                               /* prints two least significant digits */
-  n = abs (n) % 100;
+  n = MPOST_ABS (n) % 100;
   mp_print_char (mp, xord ('0' + (n / 10)));
   mp_print_char (mp, xord ('0' + (n % 10)));
 }
@@ -2943,10 +2958,14 @@ void *mp_xmalloc (MP mp, size_t nmem, size_t size) {
 }
 
 @ @<Internal library declarations@>=
+int mp_snprintf_res ;
+/* Some compilers (i.e. gcc 8.2.0 ) complained with the old */
+/* #define mp_snprintf (void)snprintf                       */
+/* about truncation. For the moment we store the result.    */
 #if defined(MIKTEX) && defined(_MSC_VER)
-#  define mp_snprintf (void)_snprintf
+#  define mp_snprintf mp_snprintf_res=_snprintf
 #else
-#  define mp_snprintf (void)snprintf
+#  define mp_snprintf mp_snprintf_res=snprintf
 #endif
 
 @* Dynamic memory allocation.
