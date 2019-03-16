@@ -14,6 +14,11 @@
 ### Fixed issues
 
 * [195](https://github.com/MiKTeX/miktex/issues/195): Add option to change directory for binaries (Linux)
+* [262](https://github.com/MiKTeX/miktex/issues/262): keeping user/admin updates in sync
+* [263](https://github.com/MiKTeX/miktex/issues/263): MPM crashes with --require=@
+* [264](https://github.com/MiKTeX/miktex/issues/264): MiKTeX failed to test file existence for /dev/null, on macOS and Linux
+* [272](https://github.com/MiKTeX/miktex/issues/272): TEXMFHOME is empty on Windows
+* [279](https://github.com/MiKTeX/miktex/issues/279): Latest GregorioTeX update did not include updated binary
 
 ## 2.9.6980 - 2019-02-11
 
