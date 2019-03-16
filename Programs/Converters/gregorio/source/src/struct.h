@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header defines the Gregorio data structures and functions.
  *
- * Copyright (C) 2006-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -102,6 +102,7 @@ ENUM(gregorio_clef, GREGORIO_CLEF);
     E(S_PUNCTUM) \
     E(S_PUNCTUM_END_OF_GLYPH) \
     E(S_PUNCTUM_INCLINATUM_ASCENDENS) \
+    E(S_PUNCTUM_INCLINATUM_STANS) \
     E(S_PUNCTUM_INCLINATUM_DESCENDENS) \
     E(S_PUNCTUM_INCLINATUM_DEMINUTUS) \
     E(S_PUNCTUM_INCLINATUM_AUCTUS) \
@@ -158,7 +159,9 @@ ENUM(gregorio_shape, GREGORIO_SHAPE);
     E(B_DIVISIO_MINOR_D8) \
     E(B_VIRGULA_HIGH) \
     E(B_DIVISIO_MINIMA_HIGH) \
-    L(B_DIVISIO_MAIOR_DOTTED)
+    E(B_DIVISIO_MAIOR_DOTTED) \
+    E(B_DIVISIO_MINIMIS) \
+    L(B_DIVISIO_MINIMIS_HIGH)
 ENUM(gregorio_bar, GREGORIO_BAR);
 
 /* definition of the signs. You can notice that the values are made so

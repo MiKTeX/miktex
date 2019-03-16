@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header provides a minimum of C11-like bool functionality.
  *
- * Copyright (C) 2015-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2015-2019 The Gregorio Project (see CONTRIBUTORS.md)
  * 
  * This file is part of Gregorio.
  *

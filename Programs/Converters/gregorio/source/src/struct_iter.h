@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header defines the Gregorio data structures and functions.
  *
- * Copyright (C) 2016-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2016-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -55,7 +55,7 @@ static __inline void gregorio_from_note_to_note(
         void (*const visit)(const gregorio_note_iter_position *, void *),
         void (*const end_item)(const gregorio_note_iter_position *,
             gregorio_note_iter_item_type, void *),
-        const gregorio_note_iter_item_type desired_iter_items, void *data)
+        const gregorio_note_iter_item_type desired_end_items, void *data)
 {
     /* Note: include_end is effectively ignored if end is NULL */
 
@@ -85,39 +85,52 @@ static __inline void gregorio_from_note_to_note(
 
                             if (at_end) {
                                 if (end_item) {
-                                    /* in 4.2.0, this code is never hit, as
-                                     * end_item will only be supplied from
-                                     * gregorio_for_each_note, which supplies
-                                     * NULL for end */
-                                    /* LCOV_EXCL_START */
-                                    /* to enable the real code, delete this
-                                     * assertion: */
                                     gregorio_fail(gregorio_from_note_to_note,
                                             "unused code path");
-                                    if (desired_iter_items & GRESTRUCT_NOTE) {
+                                    if (desired_end_items & GRESTRUCT_NOTE) {
+                                        /* currently unused */
+                                        /* LCOV_EXCL_START */
+                                        /* to enable the real code, delete this
+                                         * assertion: */
+                                        gregorio_fail(gregorio_from_note_to_note,
+                                                "unused code path");
                                         end_item(&p, GRESTRUCT_NOTE, data);
                                     }
-                                    if (desired_iter_items & GRESTRUCT_GLYPH) {
+                                    /* LCOV_EXCL_END */
+                                    if (desired_end_items & GRESTRUCT_GLYPH) {
+                                        /* currently unused */
+                                        /* LCOV_EXCL_START */
+                                        /* to enable the real code, delete this
+                                         * assertion: */
+                                        gregorio_fail(gregorio_from_note_to_note,
+                                                "unused code path");
                                         end_item(&p, GRESTRUCT_GLYPH, data);
                                     }
-                                    if (desired_iter_items
+                                    /* LCOV_EXCL_END */
+                                    if (desired_end_items
                                             & GRESTRUCT_ELEMENT) {
+                                        /* currently unused */
+                                        /* LCOV_EXCL_START */
+                                        /* to enable the real code, delete this
+                                         * assertion: */
+                                        gregorio_fail(gregorio_from_note_to_note,
+                                                "unused code path");
                                         end_item(&p, GRESTRUCT_ELEMENT, data);
                                     }
-                                    if (desired_iter_items
+                                    /* LCOV_EXCL_END */
+                                    if (desired_end_items
                                             & GRESTRUCT_SYLLABLE) {
                                         end_item(&p, GRESTRUCT_SYLLABLE, data);
                                     }
                                 }
-                                /* LCOV_EXCL_END */
                                 return;
                             }
 
                             if (end_item
-                                    && (desired_iter_items & GRESTRUCT_NOTE)) {
+                                    && (desired_end_items & GRESTRUCT_NOTE)) {
                                 /* in 4.2.0, this code is never hit, as the only
                                  * usage that gets through to here does not
-                                 * include GRESTRUCT_NOTE in desired_iter_items */
+                                 * include GRESTRUCT_NOTE in desired_end_items */
                                 /* LCOV_EXCL_START */
                                 /* to enable the real code, delete this
                                  * assertion: */
@@ -130,10 +143,10 @@ static __inline void gregorio_from_note_to_note(
                             p.note = p.note->next;
                         } /* note */
                     }
-                    if (end_item && (desired_iter_items & GRESTRUCT_GLYPH)) {
+                    if (end_item && (desired_end_items & GRESTRUCT_GLYPH)) {
                         /* in 4.2.0, this code is never hit, as the only usage
                          * that gets through to here does not include
-                         * GRESTRUCT_GLYPH in desired_iter_items */
+                         * GRESTRUCT_GLYPH in desired_end_items */
                         /* LCOV_EXCL_START */
                         /* to enable the real code, delete this assertion: */
                         gregorio_fail(gregorio_from_note_to_note,
@@ -144,21 +157,14 @@ static __inline void gregorio_from_note_to_note(
                     p.glyph = p.glyph->next;
                 } /* glyph */
             }
-            if (end_item && (desired_iter_items & GRESTRUCT_ELEMENT)) {
+            if (end_item && (desired_end_items & GRESTRUCT_ELEMENT)) {
                 end_item(&p, GRESTRUCT_ELEMENT, data);
             }
             p.element = p.element->next;
         } /* element */
-        if (end_item && (desired_iter_items & GRESTRUCT_SYLLABLE)) {
-            /* in 4.2.0, this code is never hit, as the only usage that gets
-             * through to here does not include GRESTRUCT_SYLLABLE in
-             * desired_iter_items */
-            /* LCOV_EXCL_START */
-            /* to enable the real code, delete this assertion: */
-            gregorio_fail(gregorio_from_note_to_note, "unused code path");
+        if (end_item && (desired_end_items & GRESTRUCT_SYLLABLE)) {
             end_item(&p, GRESTRUCT_SYLLABLE, data);
         }
-        /* LCOV_EXCL_STOP */
         p.syllable = p.syllable->next_syllable;
     } /* syllable */
 }
@@ -167,7 +173,7 @@ static __inline void gregorio_for_each_note(const gregorio_score *score,
         void (*const visit)(const gregorio_note_iter_position *, void *),
         void (*const end_item)(const gregorio_note_iter_position *,
             gregorio_note_iter_item_type, void *),
-        const gregorio_note_iter_item_type desired_iter_items, void *data)
+        const gregorio_note_iter_item_type desired_end_items, void *data)
 {
     gregorio_note_iter_position p = {
         /* .syllable = */ NULL,
@@ -179,7 +185,7 @@ static __inline void gregorio_for_each_note(const gregorio_score *score,
     p.syllable = score->first_syllable;
 
     gregorio_from_note_to_note(&p, NULL, true, visit, end_item,
-            desired_iter_items, data);
+            desired_end_items, data);
 }
 
 #endif

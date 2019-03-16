@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file provides functions for determining glyphs from notes.
  *
- * Copyright (C) 2006-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -45,6 +45,21 @@ static __inline bool is_normal_punctum(const gregorio_note *const note)
 {
     return note->u.note.shape == S_PUNCTUM
         && note->u.note.liquescentia != L_INITIO_DEBILIS;
+}
+
+static __inline bool is_punctum_inclinatum(const gregorio_shape shape,
+        const bool determined_only)
+{
+    switch (shape) {
+    case S_PUNCTUM_INCLINATUM_ASCENDENS:
+    case S_PUNCTUM_INCLINATUM_STANS:
+    case S_PUNCTUM_INCLINATUM_DESCENDENS:
+        return true;
+    case S_PUNCTUM_INCLINATUM_UNDETERMINED:
+        return !determined_only;
+    default:
+        return false;
+    }
 }
 
 /****************************
@@ -298,6 +313,7 @@ static char add_note_to_a_glyph(gregorio_glyph_type current_glyph_type,
         break;
     case S_PUNCTUM_INCLINATUM_UNDETERMINED:
     case S_PUNCTUM_INCLINATUM_ASCENDENS:
+    case S_PUNCTUM_INCLINATUM_STANS:
     case S_PUNCTUM_INCLINATUM_DESCENDENS:
         /*
          * Warning : this part of the code is specific to the
@@ -317,8 +333,7 @@ static char add_note_to_a_glyph(gregorio_glyph_type current_glyph_type,
             next_glyph_type = G_PUNCTUM_INCLINATUM;
             break;
         }
-        if ((shape == S_PUNCTUM_INCLINATUM_ASCENDENS
-                    || shape == S_PUNCTUM_INCLINATUM_DESCENDENS)
+        if (is_punctum_inclinatum(shape, true)
                 && *punctum_inclinatum_orientation != shape
                 && *punctum_inclinatum_orientation
                 != S_PUNCTUM_INCLINATUM_UNDETERMINED) {
@@ -471,6 +486,7 @@ static char add_note_to_a_glyph(gregorio_glyph_type current_glyph_type,
 
     switch (shape) {
     case S_PUNCTUM_INCLINATUM_ASCENDENS:
+    case S_PUNCTUM_INCLINATUM_STANS:
     case S_PUNCTUM_INCLINATUM_DESCENDENS:
         *punctum_inclinatum_orientation = shape;
         break;
@@ -1160,12 +1176,7 @@ gregorio_glyph *gabc_det_glyphs_from_notes(gregorio_note *current_note,
                     }
                     /* special cases of the punctum inclinatum deminutus and
                      * auctus */
-                    if (current_note->u.note.shape
-                            == S_PUNCTUM_INCLINATUM_ASCENDENS
-                            || current_note->u.note.shape
-                            == S_PUNCTUM_INCLINATUM_DESCENDENS
-                            || current_note->u.note.shape
-                            == S_PUNCTUM_INCLINATUM_UNDETERMINED) {
+                    if (is_punctum_inclinatum(current_note->u.note.shape, false)) {
                         if (current_note->u.note.liquescentia == L_DEMINUTUS) {
                             current_note->u.note.shape =
                                     S_PUNCTUM_INCLINATUM_DEMINUTUS;
@@ -1180,12 +1191,8 @@ gregorio_glyph *gabc_det_glyphs_from_notes(gregorio_note *current_note,
 
                         if (current_note->next
                                 && current_note->next->type == GRE_NOTE
-                                && (current_note->next->u.note.shape
-                                    == S_PUNCTUM_INCLINATUM_ASCENDENS
-                                    || current_note->next->u.note.shape
-                                    == S_PUNCTUM_INCLINATUM_DESCENDENS
-                                    || current_note->next->u.note.shape
-                                    == S_PUNCTUM_INCLINATUM_UNDETERMINED)
+                                && is_punctum_inclinatum(
+                                    current_note->next->u.note.shape, false)
                                 && current_note->next->u.note.liquescentia
                                 == L_DEMINUTUS) {
                             last_pitch = current_note->u.note.pitch;
@@ -1222,12 +1229,7 @@ gregorio_glyph *gabc_det_glyphs_from_notes(gregorio_note *current_note,
                 {
                     /* special cases of the punctum inclinatum deminutus and
                      * auctus */
-                    if (current_note->u.note.shape
-                            == S_PUNCTUM_INCLINATUM_ASCENDENS
-                            || current_note->u.note.shape
-                            == S_PUNCTUM_INCLINATUM_DESCENDENS
-                            || current_note->u.note.shape
-                            == S_PUNCTUM_INCLINATUM_UNDETERMINED) {
+                    if (is_punctum_inclinatum(current_note->u.note.shape, false)) {
                         if (current_note->u.note.liquescentia == L_DEMINUTUS) {
                             current_note->u.note.shape =
                                     S_PUNCTUM_INCLINATUM_DEMINUTUS;
@@ -1241,12 +1243,8 @@ gregorio_glyph *gabc_det_glyphs_from_notes(gregorio_note *current_note,
                         }
                         if (current_note->next
                                 && current_note->next->type == GRE_NOTE
-                                && (current_note->next->u.note.shape
-                                    == S_PUNCTUM_INCLINATUM_ASCENDENS
-                                    || current_note->next->u.note.shape
-                                    == S_PUNCTUM_INCLINATUM_DESCENDENS
-                                    || current_note->next->u.note.shape
-                                    == S_PUNCTUM_INCLINATUM_UNDETERMINED)
+                                && is_punctum_inclinatum(
+                                    current_note->next->u.note.shape, false)
                                 && current_note->next->u.note.liquescentia ==
                                 L_DEMINUTUS) {
                             current_note = next_note;

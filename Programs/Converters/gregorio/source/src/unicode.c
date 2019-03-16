@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file contains functions providing UTF-8 support.
  *
- * Copyright (C) 2008-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2008-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *

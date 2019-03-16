@@ -3,7 +3,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the note parser.
  *
- * Copyright (C) 2006-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -126,6 +126,9 @@ static gregorio_shape punctum_inclinatum(const char orientation)
     switch (orientation) {
     case '0':
         return S_PUNCTUM_INCLINATUM_DESCENDENS;
+
+    case '2':
+        return S_PUNCTUM_INCLINATUM_STANS;
 
     case '1':
         return S_PUNCTUM_INCLINATUM_ASCENDENS;
@@ -1208,6 +1211,12 @@ Z-  {
 `0  {
         add_bar_as_note(B_VIRGULA_HIGH);
     }
+\^  {
+        add_bar_as_note(B_DIVISIO_MINIMIS);
+    }
+\^0 {
+        add_bar_as_note(B_DIVISIO_MINIMIS_HIGH);
+    }
 ,   {
         add_bar_as_note(B_DIVISIO_MINIMA);
     }
@@ -1357,15 +1366,15 @@ y   {
 @[a-np] {
         lex_add_note(1, S_PUNCTUM, _NO_SIGN, L_FUSED);
     }
-[A-NP][01]? {
+[A-NP][012]? {
         lex_add_note(0, punctum_inclinatum(gabc_notes_determination_text[1]),
                 _NO_SIGN, L_NO_LIQUESCENTIA);
     }
--[A-NP][01]? {
+-[A-NP][012]? {
         lex_add_note(1, punctum_inclinatum(gabc_notes_determination_text[2]),
                 _NO_SIGN, L_INITIO_DEBILIS);
     }
-@[A-NP][01]? {
+@[A-NP][012]? {
         lex_add_note(1, punctum_inclinatum(gabc_notes_determination_text[2]),
                 _NO_SIGN, L_FUSED);
     }

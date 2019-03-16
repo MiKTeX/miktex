@@ -3,7 +3,7 @@
  * This file implements the score parser.
  *
  * Gregorio score determination from gabc utilities.
- * Copyright (C) 2016-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2016-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -305,6 +305,8 @@ typedef struct {
     gregorio_note_iter_position first, previous;
     gregorio_shape orientation;
     int running;
+    int count;
+    bool unison;
 } punctum_inclinatum_vars;
 
 /* data must be (gregorio_shape *) */
@@ -312,6 +314,39 @@ static void set_shape(const gregorio_note_iter_position *const p,
         void *const data)
 {
     p->note->u.note.shape = *((gregorio_shape *)data);
+}
+
+static __inline void set_punctum_inclinatum_orientation(
+        punctum_inclinatum_vars *const v)
+{
+    if (v->orientation == S_UNDETERMINED) {
+        if (v->unison && (v->count > 1 || (v->count == 1 && v->running == 0))) {
+            v->orientation = S_PUNCTUM_INCLINATUM_STANS;
+        } else if (v->running > 0) {
+            v->orientation = S_PUNCTUM_INCLINATUM_ASCENDENS;
+        } else {
+            v->orientation = S_PUNCTUM_INCLINATUM_DESCENDENS;
+        }
+    }
+}
+
+static __inline void finalize_punctum_inclinatum_orientation(
+        punctum_inclinatum_vars *const v)
+{
+    if (v->first.note) {
+        set_punctum_inclinatum_orientation(v);
+        gregorio_assert_only(v->orientation != S_UNDETERMINED,
+                punctum_inclinatum_orientation_end_item,
+                "orientation should not be S_UNDETERMINED");
+        gregorio_from_note_to_note(&v->first, &v->previous, true, set_shape,
+                NULL, GRESTRUCT_NONE, &v->orientation);
+    }
+
+    v->first.syllable = NULL;
+    v->first.element = NULL;
+    v->first.glyph = NULL;
+    v->first.note = NULL;
+    v->unison = true;
 }
 
 /* data must be (punctum_inclinatum_vars *) */
@@ -330,15 +365,22 @@ static void punctum_inclinatum_orientation_visit(
                 if (v->previous.note->u.note.pitch
                         < p->note->u.note.pitch) {
                     ++ v->running;
+                    if (v->count > 0) {
+                        v->unison = false;
+                    }
                 } else if (v->previous.note->u.note.pitch
                         > p->note->u.note.pitch) {
                     -- v->running;
+                    if (v->count > 0) {
+                        v->unison = false;
+                    }
                 }
             }
             if (!v->first.note) {
                 v->first = *p;
             }
         }
+        ++ v->count;
     } else { /* non-inclinatum or determined inclinatum */
         bool is_punctum_inclinatum;
 
@@ -348,9 +390,15 @@ static void punctum_inclinatum_orientation_visit(
             v->orientation = S_PUNCTUM_INCLINATUM_ASCENDENS;
             is_punctum_inclinatum = true;
             break;
-        case S_PUNCTUM_INCLINATUM_DESCENDENS:
+        case S_PUNCTUM_INCLINATUM_STANS:
+            v->orientation = S_PUNCTUM_INCLINATUM_STANS;
+            is_punctum_inclinatum = true;
+            break;
         case S_PUNCTUM_INCLINATUM_DEMINUTUS:
         case S_PUNCTUM_INCLINATUM_AUCTUS:
+            v->unison = false;
+            /* fall through */
+        case S_PUNCTUM_INCLINATUM_DESCENDENS:
             v->orientation = S_PUNCTUM_INCLINATUM_DESCENDENS;
             is_punctum_inclinatum = true;
             break;
@@ -371,25 +419,37 @@ static void punctum_inclinatum_orientation_visit(
                         > p->note->u.note.pitch) {
                     -- v->running;
                 }
-                v->orientation = (v->running > 0)
-                    ? S_PUNCTUM_INCLINATUM_ASCENDENS
-                    : S_PUNCTUM_INCLINATUM_DESCENDENS;
             }
-            gregorio_from_note_to_note(&v->first, &v->previous, true, set_shape,
-                    NULL, GRESTRUCT_NONE, &v->orientation);
-            v->first.syllable = NULL;
-            v->first.element = NULL;
-            v->first.glyph = NULL;
-            v->first.note = NULL;
-            v->running = 0;
+            finalize_punctum_inclinatum_orientation(v);
         }
 
-        if (!is_punctum_inclinatum) {
+        if (is_punctum_inclinatum) {
+            ++ v->count;
+            /* and leave orientation alone */
+        } else {
+            v->running = 0;
+            v->count = 0;
             v->orientation = S_UNDETERMINED;
-        } /* otherwise, leave orientation alone */
+        }
     }
 
     v->previous = *p;
+}
+
+/* data must be (punctum_inclinatum_vars *) */
+static void punctum_inclinatum_orientation_end_item(
+        const gregorio_note_iter_position *const p __attribute__((__unused__)),
+        const gregorio_note_iter_item_type item_type,
+        void *const data)
+{
+    punctum_inclinatum_vars *const v = (punctum_inclinatum_vars *)data;
+
+    gregorio_assert_only(item_type == GRESTRUCT_SYLLABLE,
+            punctum_inclinatum_orientation_end_item,
+            "item type should be GRESTRUCT_SYLLABLE");
+
+    finalize_punctum_inclinatum_orientation(v);
+    v->count = 0;
 }
 
 void gabc_determine_punctum_inclinatum_orientation(
@@ -410,15 +470,15 @@ void gabc_determine_punctum_inclinatum_orientation(
         },
         /* .orientation = */ S_UNDETERMINED, /* because it's 0 */
         /* .running = */ 0,
+        /* .count = */ 0,
+        /* .unison = */ true,
     };
 
-    gregorio_for_each_note(score, punctum_inclinatum_orientation_visit, NULL,
-            GRESTRUCT_NONE, &v);
+    gregorio_for_each_note(score, punctum_inclinatum_orientation_visit,
+            punctum_inclinatum_orientation_end_item, GRESTRUCT_SYLLABLE, &v);
 
     if (v.first.note) {
-        v.orientation = (v.running > 0)
-            ? S_PUNCTUM_INCLINATUM_ASCENDENS
-            : S_PUNCTUM_INCLINATUM_DESCENDENS;
+        set_punctum_inclinatum_orientation(&v);
         gregorio_from_note_to_note(&v.first, &v.previous, true, set_shape, NULL,
                 GRESTRUCT_NONE, &v.orientation);
     }

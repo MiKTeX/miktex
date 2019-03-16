@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* Gregorio 5.2.0
 * luatex 1.10.0
 
 ### Fixed issues

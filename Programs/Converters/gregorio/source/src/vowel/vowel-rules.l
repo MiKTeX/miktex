@@ -3,7 +3,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the vowel rule lexer.
  *
- * Copyright (C) 2015-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2015-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *

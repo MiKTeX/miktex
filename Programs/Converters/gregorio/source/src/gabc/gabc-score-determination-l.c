@@ -981,7 +981,7 @@ char *yytext;
  * This file implements the score lexer.
  *
  * Gregorio score determination in gabc input.
- * Copyright (C) 2006-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *

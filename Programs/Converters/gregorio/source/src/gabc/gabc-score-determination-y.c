@@ -1,8 +1,9 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.3.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2019 Free Software Foundation,
+   Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,11 +41,14 @@
    define necessary library symbols; they are noted "INFRINGES ON
    USER NAME SPACE" below.  */
 
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
+
 /* Identify Bison output.  */
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.3.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -70,15 +74,15 @@
 #define yychar          gabc_score_determination_char
 #define yylloc          gabc_score_determination_lloc
 
-/* Copy the first part of user declarations.  */
-#line 1 "gabc/gabc-score-determination.y" /* yacc.c:339  */
+/* First part of user prologue.  */
+#line 1 "gabc/gabc-score-determination.y" /* yacc.c:337  */
 
 /*
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the score parser.
  *
  * Gregorio score determination from gabc.
- * Copyright (C) 2006-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -725,13 +729,16 @@ static char *concatenate(char *first, char *const second) {
     return first;
 }
 
-#line 729 "gabc/gabc-score-determination-y.c" /* yacc.c:339  */
-
+#line 733 "gabc/gabc-score-determination-y.c" /* yacc.c:337  */
 # ifndef YY_NULLPTR
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULLPTR nullptr
+#  if defined __cplusplus
+#   if 201103L <= __cplusplus
+#    define YY_NULLPTR nullptr
+#   else
+#    define YY_NULLPTR 0
+#   endif
 #  else
-#   define YY_NULLPTR 0
+#   define YY_NULLPTR ((void*)0)
 #  endif
 # endif
 
@@ -912,9 +919,7 @@ int gabc_score_determination_parse (void);
 
 #endif /* !YY_GABC_SCORE_DETERMINATION_GABC_GABC_SCORE_DETERMINATION_Y_H_INCLUDED  */
 
-/* Copy the second part of user declarations.  */
 
-#line 918 "gabc/gabc-score-determination-y.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -935,13 +940,13 @@ typedef signed char yytype_int8;
 #ifdef YYTYPE_UINT16
 typedef YYTYPE_UINT16 yytype_uint16;
 #else
-typedef unsigned short int yytype_uint16;
+typedef unsigned short yytype_uint16;
 #endif
 
 #ifdef YYTYPE_INT16
 typedef YYTYPE_INT16 yytype_int16;
 #else
-typedef short int yytype_int16;
+typedef short yytype_int16;
 #endif
 
 #ifndef YYSIZE_T
@@ -953,7 +958,7 @@ typedef short int yytype_int16;
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
 #  define YYSIZE_T size_t
 # else
-#  define YYSIZE_T unsigned int
+#  define YYSIZE_T unsigned
 # endif
 #endif
 
@@ -989,15 +994,6 @@ typedef short int yytype_int16;
 # define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
 #endif
 
-#if !defined _Noreturn \
-     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
-# if defined _MSC_VER && 1200 <= _MSC_VER
-#  define _Noreturn __declspec (noreturn)
-# else
-#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
-# endif
-#endif
-
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
 # define YYUSE(E) ((void) (E))
@@ -1005,7 +1001,7 @@ typedef short int yytype_int16;
 # define YYUSE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
     _Pragma ("GCC diagnostic push") \
@@ -1169,16 +1165,16 @@ union yyalloc
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  145
 
-/* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
-   by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   317
 
+/* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
+   as returned by yylex, with out-of-bounds checking.  */
 #define YYTRANSLATE(YYX)                                                \
-  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+  ((unsigned) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
-   as returned by yylex, without out-of-bounds checking.  */
+   as returned by yylex.  */
 static const yytype_uint8 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -1472,22 +1468,22 @@ static const yytype_uint8 yyr2[] =
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
-#define YYBACKUP(Token, Value)                                  \
-do                                                              \
-  if (yychar == YYEMPTY)                                        \
-    {                                                           \
-      yychar = (Token);                                         \
-      yylval = (Value);                                         \
-      YYPOPSTACK (yylen);                                       \
-      yystate = *yyssp;                                         \
-      goto yybackup;                                            \
-    }                                                           \
-  else                                                          \
-    {                                                           \
-      yyerror (YY_("syntax error: cannot back up")); \
-      YYERROR;                                                  \
-    }                                                           \
-while (0)
+#define YYBACKUP(Token, Value)                                    \
+  do                                                              \
+    if (yychar == YYEMPTY)                                        \
+      {                                                           \
+        yychar = (Token);                                         \
+        yylval = (Value);                                         \
+        YYPOPSTACK (yylen);                                       \
+        yystate = *yyssp;                                         \
+        goto yybackup;                                            \
+      }                                                           \
+    else                                                          \
+      {                                                           \
+        yyerror (YY_("syntax error: cannot back up")); \
+        YYERROR;                                                  \
+      }                                                           \
+  while (0)
 
 /* Error token number */
 #define YYTERROR        1
@@ -1546,10 +1542,10 @@ do {                                            \
 /* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
 
 YY_ATTRIBUTE_UNUSED
-static unsigned
+static int
 yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
 {
-  unsigned res = 0;
+  int res = 0;
   int end_col = 0 != yylocp->last_column ? yylocp->last_column - 1 : 0;
   if (0 <= yylocp->first_line)
     {
@@ -1592,40 +1588,40 @@ do {                                                                      \
 } while (0)
 
 
-/*----------------------------------------.
-| Print this symbol's value on YYOUTPUT.  |
-`----------------------------------------*/
+/*-----------------------------------.
+| Print this symbol's value on YYO.  |
+`-----------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
+yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
 {
-  FILE *yyo = yyoutput;
-  YYUSE (yyo);
+  FILE *yyoutput = yyo;
+  YYUSE (yyoutput);
   YYUSE (yylocationp);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
-    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
+    YYPRINT (yyo, yytoknum[yytype], *yyvaluep);
 # endif
   YYUSE (yytype);
 }
 
 
-/*--------------------------------.
-| Print this symbol on YYOUTPUT.  |
-`--------------------------------*/
+/*---------------------------.
+| Print this symbol on YYO.  |
+`---------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
+yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
 {
-  YYFPRINTF (yyoutput, "%s %s (",
+  YYFPRINTF (yyo, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  YY_LOCATION_PRINT (yyoutput, *yylocationp);
-  YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp);
-  YYFPRINTF (yyoutput, ")");
+  YY_LOCATION_PRINT (yyo, *yylocationp);
+  YYFPRINTF (yyo, ": ");
+  yy_symbol_value_print (yyo, yytype, yyvaluep, yylocationp);
+  YYFPRINTF (yyo, ")");
 }
 
 /*------------------------------------------------------------------.
@@ -1659,7 +1655,7 @@ do {                                                            \
 static void
 yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule)
 {
-  unsigned long int yylno = yyrline[yyrule];
+  unsigned long yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
@@ -1670,7 +1666,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr,
                        yystos[yyssp[yyi + 1 - yynrhs]],
-                       &(yyvsp[(yyi + 1) - (yynrhs)])
+                       &yyvsp[(yyi + 1) - (yynrhs)]
                        , &(yylsp[(yyi + 1) - (yynrhs)])                       );
       YYFPRINTF (stderr, "\n");
     }
@@ -1774,7 +1770,10 @@ yytnamerr (char *yyres, const char *yystr)
           case '\\':
             if (*++yyp != '\\')
               goto do_not_strip_quotes;
-            /* Fall through.  */
+            else
+              goto append;
+
+          append:
           default:
             if (yyres)
               yyres[yyn] = *yyp;
@@ -1792,7 +1791,7 @@ yytnamerr (char *yyres, const char *yystr)
   if (! yyres)
     return yystrlen (yystr);
 
-  return yystpcpy (yyres, yystr) - yyres;
+  return (YYSIZE_T) (yystpcpy (yyres, yystr) - yyres);
 }
 # endif
 
@@ -1870,10 +1869,10 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                 yyarg[yycount++] = yytname[yyx];
                 {
                   YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
-                  if (! (yysize <= yysize1
-                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                  if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
+                    yysize = yysize1;
+                  else
                     return 2;
-                  yysize = yysize1;
                 }
               }
         }
@@ -1885,6 +1884,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
       case N:                               \
         yyformat = S;                       \
       break
+    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -1896,9 +1896,10 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 
   {
     YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
-    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+    if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
+      yysize = yysize1;
+    else
       return 2;
-    yysize = yysize1;
   }
 
   if (*yymsg_alloc < yysize)
@@ -2042,7 +2043,7 @@ yyparse (void)
   yychar = YYEMPTY; /* Cause a token to be read.  */
 
 /* User initialization code.  */
-#line 655 "gabc/gabc-score-determination.y" /* yacc.c:1429  */
+#line 655 "gabc/gabc-score-determination.y" /* yacc.c:1431  */
 {
     yylloc.first_line = 1;
     yylloc.first_column = 0;
@@ -2053,27 +2054,35 @@ yyparse (void)
     yylloc.generate_point_and_click = generate_point_and_click;
 }
 
-#line 2057 "gabc/gabc-score-determination-y.c" /* yacc.c:1429  */
+#line 2058 "gabc/gabc-score-determination-y.c" /* yacc.c:1431  */
   yylsp[0] = yylloc;
   goto yysetstate;
 
+
 /*------------------------------------------------------------.
-| yynewstate -- Push a new state, which is found in yystate.  |
+| yynewstate -- push a new state, which is found in yystate.  |
 `------------------------------------------------------------*/
- yynewstate:
+yynewstate:
   /* In all cases, when you get here, the value and location stacks
      have just been pushed.  So pushing a state here evens the stacks.  */
   yyssp++;
 
- yysetstate:
-  *yyssp = yystate;
+
+/*--------------------------------------------------------------------.
+| yynewstate -- set current state (the top of the stack) to yystate.  |
+`--------------------------------------------------------------------*/
+yysetstate:
+  *yyssp = (yytype_int16) yystate;
 
   if (yyss + yystacksize - 1 <= yyssp)
+#if !defined yyoverflow && !defined YYSTACK_RELOCATE
+    goto yyexhaustedlab;
+#else
     {
       /* Get the current used size of the three stacks, in elements.  */
-      YYSIZE_T yysize = yyssp - yyss + 1;
+      YYSIZE_T yysize = (YYSIZE_T) (yyssp - yyss + 1);
 
-#ifdef yyoverflow
+# if defined yyoverflow
       {
         /* Give user a chance to reallocate the stack.  Use copies of
            these so that the &'s don't force the real ones into
@@ -2091,15 +2100,11 @@ yyparse (void)
                     &yyvs1, yysize * sizeof (*yyvsp),
                     &yyls1, yysize * sizeof (*yylsp),
                     &yystacksize);
-
-        yyls = yyls1;
         yyss = yyss1;
         yyvs = yyvs1;
+        yyls = yyls1;
       }
-#else /* no yyoverflow */
-# ifndef YYSTACK_RELOCATE
-      goto yyexhaustedlab;
-# else
+# else /* defined YYSTACK_RELOCATE */
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
         goto yyexhaustedlab;
@@ -2116,23 +2121,23 @@ yyparse (void)
         YYSTACK_RELOCATE (yyss_alloc, yyss);
         YYSTACK_RELOCATE (yyvs_alloc, yyvs);
         YYSTACK_RELOCATE (yyls_alloc, yyls);
-#  undef YYSTACK_RELOCATE
+# undef YYSTACK_RELOCATE
         if (yyss1 != yyssa)
           YYSTACK_FREE (yyss1);
       }
 # endif
-#endif /* no yyoverflow */
 
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
       yylsp = yyls + yysize - 1;
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-                  (unsigned long int) yystacksize));
+                  (unsigned long) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
         YYABORT;
     }
+#endif /* !defined yyoverflow && !defined YYSTACK_RELOCATE */
 
   YYDPRINTF ((stderr, "Entering state %d\n", yystate));
 
@@ -2141,11 +2146,11 @@ yyparse (void)
 
   goto yybackup;
 
+
 /*-----------.
 | yybackup.  |
 `-----------*/
 yybackup:
-
   /* Do appropriate processing given the current state.  Read a
      lookahead token if we need one and don't already have one.  */
 
@@ -2218,7 +2223,7 @@ yydefault:
 
 
 /*-----------------------------.
-| yyreduce -- Do a reduction.  |
+| yyreduce -- do a reduction.  |
 `-----------------------------*/
 yyreduce:
   /* yyn is the number of a rule to reduce with.  */
@@ -2234,226 +2239,227 @@ yyreduce:
      GCC warning that YYVAL may be used uninitialized.  */
   yyval = yyvsp[1-yylen];
 
-  /* Default location.  */
+  /* Default location. */
   YYLLOC_DEFAULT (yyloc, (yylsp - yylen), yylen);
+  yyerror_range[1] = yyloc;
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
         case 3:
-#line 704 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 704 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_definitions();
     }
-#line 2248 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2254 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 6:
-#line 714 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 714 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        (yyval).text = (yyvsp[0]).text;
+        yyval.text = yyvsp[0].text;
     }
-#line 2256 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2262 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 7:
-#line 717 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 717 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        (yyval).text = concatenate((yyvsp[-1]).text, (yyvsp[0]).text);
+        yyval.text = concatenate(yyvsp[-1].text, yyvsp[0].text);
     }
-#line 2264 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2270 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 8:
-#line 723 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 723 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        (yyval).text = (yyvsp[-1]).text;
+        yyval.text = yyvsp[-1].text;
     }
-#line 2272 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2278 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 9:
-#line 726 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 726 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        (yyval).text = NULL;
+        yyval.text = NULL;
     }
-#line 2280 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2286 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 10:
-#line 732 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 732 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         /* these definitions are not passed through */
-        free(macros[(yyvsp[-1]).character - '0']);
-        macros[(yyvsp[-1]).character - '0'] = (yyvsp[0]).text;
+        free(macros[yyvsp[-1].character - '0']);
+        macros[yyvsp[-1].character - '0'] = yyvsp[0].text;
     }
-#line 2290 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2296 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 11:
-#line 737 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 737 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        if ((yyvsp[0]).text == NULL) {
+        if (yyvsp[0].text == NULL) {
             gregorio_message("name can't be empty","det_score",
                     VERBOSITY_WARNING, 0);
         }
         check_multiple("name", score->name != NULL);
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-        score->name = (yyvsp[0]).text;
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+        score->name = yyvsp[0].text;
     }
-#line 2304 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2310 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 12:
-#line 746 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 746 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         check_multiple("language", got_language);
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-        gregorio_set_centering_language((yyvsp[0]).text);
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+        gregorio_set_centering_language(yyvsp[0].text);
         got_language = true;
     }
-#line 2315 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2321 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 13:
-#line 752 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 752 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         check_multiple("gabc-copyright", score->gabc_copyright != NULL);
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-        score->gabc_copyright = (yyvsp[0]).text;
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+        score->gabc_copyright = yyvsp[0].text;
     }
-#line 2325 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2331 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 14:
-#line 757 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 757 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         check_multiple("score_copyright", score->score_copyright != NULL);
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-        score->score_copyright = (yyvsp[0]).text;
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+        score->score_copyright = yyvsp[0].text;
     }
-#line 2335 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2341 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 15:
-#line 762 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 762 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         check_multiple("mode", score->mode != 0);
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-        score->mode = (yyvsp[0]).text;
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+        score->mode = yyvsp[0].text;
     }
-#line 2345 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2351 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 16:
-#line 767 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 767 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         check_multiple("mode-modifier", score->mode_modifier != NULL);
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-        score->mode_modifier = (yyvsp[0]).text;
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+        score->mode_modifier = yyvsp[0].text;
     }
-#line 2355 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2361 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 17:
-#line 772 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 772 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         check_multiple("mode-differentia", score->mode_differentia != NULL);
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-        score->mode_differentia = (yyvsp[0]).text;
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+        score->mode_differentia = yyvsp[0].text;
     }
-#line 2365 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2371 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 18:
-#line 777 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 777 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         check_multiple("staff-lines", got_staff_lines);
-        if ((yyvsp[0]).text) {
-            gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-            gregorio_set_score_staff_lines(score, atoi((yyvsp[0]).text));
+        if (yyvsp[0].text) {
+            gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+            gregorio_set_score_staff_lines(score, atoi(yyvsp[0].text));
             got_staff_lines = true;
         }
     }
-#line 2378 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2384 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 19:
-#line 785 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 785 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         check_multiple("nabc lines", score->nabc_lines != 0);
-        if ((yyvsp[0]).text) {
-            gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-            nabc_lines=atoi((yyvsp[0]).text);
+        if (yyvsp[0].text) {
+            gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+            nabc_lines=atoi(yyvsp[0].text);
             score->nabc_lines=nabc_lines;
         }
     }
-#line 2391 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2397 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 20:
-#line 793 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 793 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         if (score->annotation [MAX_ANNOTATIONS - 1]) {
             gregorio_messagef("det_score", VERBOSITY_WARNING, 0,
                     _("too many definitions of annotation found, only the "
                     "first %d will be taken"), MAX_ANNOTATIONS);
         }
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-        gregorio_set_score_annotation(score, (yyvsp[0]).text);
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+        gregorio_set_score_annotation(score, yyvsp[0].text);
     }
-#line 2405 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2411 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 21:
-#line 802 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 802 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         check_multiple("author", score->author != NULL);
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-        score->author = (yyvsp[0]).text;
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+        score->author = yyvsp[0].text;
     }
-#line 2415 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2421 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 22:
-#line 807 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 807 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
-        score->legacy_oriscus_orientation = (strcmp((yyvsp[0]).text, "legacy") == 0);
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
+        score->legacy_oriscus_orientation = (strcmp(yyvsp[0].text, "legacy") == 0);
     }
-#line 2424 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2430 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 23:
-#line 811 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 811 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        gregorio_add_score_header(score, (yyvsp[-1]).text, (yyvsp[0]).text);
+        gregorio_add_score_header(score, yyvsp[-1].text, yyvsp[0].text);
     }
-#line 2432 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2438 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 26:
-#line 821 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 821 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        gabc_y_add_notes((yyvsp[-1]).text, (yylsp[-1]));
-        free((yyvsp[-1]).text);
+        gabc_y_add_notes(yyvsp[-1].text, (yylsp[-1]));
+        free(yyvsp[-1].text);
         nabc_state=0;
     }
-#line 2442 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2448 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 27:
-#line 826 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 826 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        gabc_y_add_notes((yyvsp[-1]).text, (yylsp[-1]));
-        free((yyvsp[-1]).text);
+        gabc_y_add_notes(yyvsp[-1].text, (yylsp[-1]));
+        free(yyvsp[-1].text);
         nabc_state=0;
         update_position_with_space();
     }
-#line 2453 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2459 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 28:
-#line 832 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 832 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         if (!nabc_lines) {
             gregorio_message(_("You used character \"|\" in gabc without "
@@ -2461,170 +2467,170 @@ yyreduce:
                                "set it in your gabc header."),
                              "det_score", VERBOSITY_FATAL, 0);
         }
-        gabc_y_add_notes((yyvsp[-1]).text, (yylsp[-1]));
-        free((yyvsp[-1]).text);
+        gabc_y_add_notes(yyvsp[-1].text, (yylsp[-1]));
+        free(yyvsp[-1].text);
         nabc_state = (nabc_state + 1) % (nabc_lines+1);
     }
-#line 2469 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2475 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 29:
-#line 843 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 843 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         elements[voice]=NULL;
         nabc_state=0;
     }
-#line 2478 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2484 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 30:
-#line 847 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 847 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         elements[voice]=NULL;
         nabc_state=0;
         update_position_with_space();
     }
-#line 2488 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2494 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 34:
-#line 861 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 861 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_ITALIC);
     }
-#line 2496 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2502 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 35:
-#line 864 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 864 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_TT);
     }
-#line 2504 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2510 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 36:
-#line 867 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 867 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_UNDERLINED);
     }
-#line 2512 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2518 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 37:
-#line 870 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 870 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_COLORED);
     }
-#line 2520 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2526 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 38:
-#line 873 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 873 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_BOLD);
     }
-#line 2528 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2534 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 39:
-#line 876 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 876 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_SMALL_CAPS);
     }
-#line 2536 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2542 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 40:
-#line 879 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 879 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_VERBATIM);
     }
-#line 2544 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2550 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 41:
-#line 882 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 882 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_SPECIAL_CHAR);
     }
-#line 2552 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2558 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 42:
-#line 888 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 888 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_style(ST_ITALIC);
     }
-#line 2560 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2566 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 43:
-#line 891 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 891 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_style(ST_TT);
     }
-#line 2568 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2574 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 44:
-#line 894 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 894 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_style(ST_UNDERLINED);
     }
-#line 2576 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2582 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 45:
-#line 897 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 897 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_style(ST_COLORED);
     }
-#line 2584 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2590 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 46:
-#line 900 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 900 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_style(ST_BOLD);
     }
-#line 2592 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2598 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 47:
-#line 903 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 903 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_style(ST_SMALL_CAPS);
     }
-#line 2600 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2606 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 48:
-#line 906 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 906 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_style(ST_VERBATIM);
     }
-#line 2608 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2614 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 49:
-#line 909 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 909 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_style(ST_SPECIAL_CHAR);
     }
-#line 2616 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2622 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 50:
-#line 915 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 915 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_ELISION);
     }
-#line 2624 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2630 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 51:
-#line 918 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 918 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         if (center_is_determined) {
             gregorio_message(
@@ -2639,19 +2645,19 @@ yyreduce:
             center_is_determined = CENTER_HALF_DETERMINED;
         }
     }
-#line 2643 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2649 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 52:
-#line 935 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 935 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_style(ST_ELISION);
     }
-#line 2651 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2657 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 53:
-#line 938 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 938 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         if (center_is_determined == CENTER_HALF_DETERMINED) {
             end_style(ST_FORCED_CENTER);
@@ -2662,165 +2668,165 @@ yyreduce:
                     "det_score", VERBOSITY_WARNING, 0);
         }
     }
-#line 2666 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2672 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 54:
-#line 951 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 951 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         euouae = EUOUAE_BEGINNING;
     }
-#line 2674 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2680 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 55:
-#line 954 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 954 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         euouae = EUOUAE_END;
     }
-#line 2682 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2688 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 56:
-#line 960 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 960 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         no_linebreak_area = NLBA_BEGINNING;
     }
-#line 2690 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2696 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 57:
-#line 963 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 963 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         no_linebreak_area = NLBA_END;
     }
-#line 2698 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2704 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 58:
-#line 969 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 969 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        add_protrusion((yyvsp[-1]).text);
+        add_protrusion(yyvsp[-1].text);
     }
-#line 2706 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2712 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 59:
-#line 972 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 972 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_protrusion(gregorio_strdup("d")); /* d = default */
     }
-#line 2714 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2720 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 61:
-#line 979 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 979 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        add_text((yyvsp[0]).text);
+        add_text(yyvsp[0].text);
     }
-#line 2722 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2728 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 68:
-#line 988 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 988 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         clear_syllable_text = true;
     }
-#line 2730 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2736 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 70:
-#line 992 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 992 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_text(gregorio_strdup("-"));
     }
-#line 2738 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2744 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 71:
-#line 995 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 995 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        add_text((yyvsp[0]).text);
+        add_text(yyvsp[0].text);
     }
-#line 2746 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2752 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 74:
-#line 1006 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1006 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        add_text((yyvsp[0]).text);
+        add_text(yyvsp[0].text);
     }
-#line 2754 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2760 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 77:
-#line 1011 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1011 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_text(gregorio_strdup("-"));
     }
-#line 2762 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2768 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 78:
-#line 1014 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1014 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        add_text((yyvsp[0]).text);
+        add_text(yyvsp[0].text);
     }
-#line 2770 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2776 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 81:
-#line 1025 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1025 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         start_translation(TR_NORMAL);
     }
-#line 2778 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2784 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 82:
-#line 1031 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1031 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_translation();
     }
-#line 2786 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2792 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 83:
-#line 1034 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1034 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         end_translation();
     }
-#line 2794 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2800 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 84:
-#line 1037 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1037 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         start_translation(TR_WITH_CENTER_END);
         end_translation();
     }
-#line 2803 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2809 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 85:
-#line 1044 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1044 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        abovelinestext = (yyvsp[-1]).text;
+        abovelinestext = yyvsp[-1].text;
     }
-#line 2811 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2817 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 86:
-#line 1050 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1050 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         save_text();
         close_syllable(&(yylsp[-2]));
     }
-#line 2820 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2826 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 87:
-#line 1054 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1054 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_VERBATIM);
         add_text(gregorio_strdup("\\GreForceHyphen"));
@@ -2828,11 +2834,11 @@ yyreduce:
         save_text();
         close_syllable(&(yylsp[-2]));
     }
-#line 2832 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2838 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 88:
-#line 1061 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1061 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_VERBATIM);
         add_text(gregorio_strdup("\\GreForceHyphen"));
@@ -2840,40 +2846,40 @@ yyreduce:
         save_text();
         close_syllable(&(yylsp[-3]));
     }
-#line 2844 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2850 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 89:
-#line 1068 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1068 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        add_auto_protrusion((yyvsp[-2]).text);
+        add_auto_protrusion(yyvsp[-2].text);
         save_text();
         close_syllable(&(yylsp[-2]));
     }
-#line 2854 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2860 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 90:
-#line 1073 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1073 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        add_auto_protrusion((yyvsp[-2]).text);
+        add_auto_protrusion(yyvsp[-2].text);
         save_text();
         close_syllable(&(yylsp[-3]));
     }
-#line 2864 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2870 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 91:
-#line 1078 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1078 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         save_text();
         close_syllable(&(yylsp[-3]));
     }
-#line 2873 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2879 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 92:
-#line 1082 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1082 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_VERBATIM);
         add_text(gregorio_strdup("\\GreForceHyphen"));
@@ -2881,11 +2887,11 @@ yyreduce:
         save_text();
         close_syllable(&(yylsp[-3]));
     }
-#line 2885 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2891 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 93:
-#line 1089 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1089 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         add_style(ST_VERBATIM);
         add_text(gregorio_strdup("\\GreForceHyphen"));
@@ -2893,47 +2899,47 @@ yyreduce:
         save_text();
         close_syllable(&(yylsp[-4]));
     }
-#line 2897 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2903 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 94:
-#line 1096 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1096 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        add_auto_protrusion((yyvsp[-3]).text);
+        add_auto_protrusion(yyvsp[-3].text);
         save_text();
         close_syllable(&(yylsp[-3]));
     }
-#line 2907 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2913 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 95:
-#line 1101 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1101 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
-        add_auto_protrusion((yyvsp[-3]).text);
+        add_auto_protrusion(yyvsp[-3].text);
         save_text();
         close_syllable(&(yylsp[-4]));
     }
-#line 2917 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2923 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 96:
-#line 1109 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1109 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         close_syllable(NULL);
     }
-#line 2925 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2931 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
   case 97:
-#line 1112 "gabc/gabc-score-determination.y" /* yacc.c:1646  */
+#line 1112 "gabc/gabc-score-determination.y" /* yacc.c:1652  */
     {
         close_syllable(NULL);
     }
-#line 2933 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2939 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
     break;
 
 
-#line 2937 "gabc/gabc-score-determination-y.c" /* yacc.c:1646  */
+#line 2943 "gabc/gabc-score-determination-y.c" /* yacc.c:1652  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2959,14 +2965,13 @@ yyreduce:
   /* Now 'shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
      number reduced by.  */
-
-  yyn = yyr1[yyn];
-
-  yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
-  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
-    yystate = yytable[yystate];
-  else
-    yystate = yydefgoto[yyn - YYNTOKENS];
+  {
+    const int yylhs = yyr1[yyn] - YYNTOKENS;
+    const int yyi = yypgoto[yylhs] + *yyssp;
+    yystate = (0 <= yyi && yyi <= YYLAST && yycheck[yyi] == *yyssp
+               ? yytable[yyi]
+               : yydefgoto[yylhs]);
+  }
 
   goto yynewstate;
 
@@ -3049,14 +3054,11 @@ yyerrlab:
 | yyerrorlab -- error raised explicitly by YYERROR.  |
 `---------------------------------------------------*/
 yyerrorlab:
+  /* Pacify compilers when the user code never invokes YYERROR and the
+     label yyerrorlab therefore never appears in user code.  */
+  if (0)
+    YYERROR;
 
-  /* Pacify compilers like GCC when the user code never invokes
-     YYERROR and the label yyerrorlab therefore never appears in user
-     code.  */
-  if (/*CONSTCOND*/ 0)
-     goto yyerrorlab;
-
-  yyerror_range[1] = yylsp[1-yylen];
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
   YYPOPSTACK (yylen);
@@ -3122,12 +3124,14 @@ yyacceptlab:
   yyresult = 0;
   goto yyreturn;
 
+
 /*-----------------------------------.
 | yyabortlab -- YYABORT comes here.  |
 `-----------------------------------*/
 yyabortlab:
   yyresult = 1;
   goto yyreturn;
+
 
 #if !defined yyoverflow || YYERROR_VERBOSE
 /*-------------------------------------------------.
@@ -3139,6 +3143,10 @@ yyexhaustedlab:
   /* Fall through.  */
 #endif
 
+
+/*-----------------------------------------------------.
+| yyreturn -- parsing is finished, return the result.  |
+`-----------------------------------------------------*/
 yyreturn:
   if (yychar != YYEMPTY)
     {

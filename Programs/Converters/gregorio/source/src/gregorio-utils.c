@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the command line interface of Gregorio.
  *
- * Copyright (C) 2006-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -21,7 +21,7 @@
  */
 
 static const char *copyright =
-"Copyright (C) 2006-2018 Gregorio Project authors (see CONTRIBUTORS.md)";
+"Copyright (C) 2006-2019 Gregorio Project authors (see CONTRIBUTORS.md)";
 
 #include "config.h"
 #include <stdio.h>

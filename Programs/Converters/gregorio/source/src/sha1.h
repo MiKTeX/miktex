@@ -2,7 +2,7 @@
  * Declarations of functions and data types used for SHA1 sum
  * library functions.
  *
- * Copyright (C) 2015-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2015-2019 The Gregorio Project (see CONTRIBUTORS.md)
  * Copyright (C) 2000-2001, 2003, 2005-2006, 2008-2014 Free Software
  * Foundation, Inc.
  *

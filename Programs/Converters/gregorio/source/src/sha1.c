@@ -2,7 +2,7 @@
  * sha1.c - Functions to compute SHA1 message digest of files or
  * memory blocks according to the NIST specification FIPS-180-1.
  *
- * Copyright (C) 2015-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2015-2019 The Gregorio Project (see CONTRIBUTORS.md)
  * Copyright (C) 2000-2001, 2003-2006, 2008-2014 Free Software Foundation, Inc.
  *
  * This file is part of Gregorio.

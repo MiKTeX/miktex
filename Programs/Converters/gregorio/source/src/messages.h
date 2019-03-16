@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header prototypes the message logging functions.
  *
- * Copyright (C) 2009-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2009-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *

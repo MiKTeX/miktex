@@ -1,7 +1,7 @@
 /*
  * Utility program to convert utf8strings.h.in into utf8strings.h
  *
- * Copyright (C) 2015-2018 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2015-2019 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
