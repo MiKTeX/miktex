@@ -1,6 +1,6 @@
 /* session.idl:                                         -*- IDL -*-
 
-   Copyright (C) 2006-2017 Christian Schenk
+   Copyright (C) 2006-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -66,7 +66,8 @@ typedef [uuid(A889D812-7E98-4E73-A453-30C9B69A32B1)] struct MiKTeXSetupInfo
   helpstring("ISession Interface"),
   pointer_default(unique)
 ]
-interface ISession : IDispatch
+interface ISession :
+  IDispatch
 {
   /// @brief Register MiKTeX root directories.
   /// @param[in] rootDirectories A semicolon-separated list of path names.
@@ -125,7 +126,8 @@ interface ISession : IDispatch
   helpstring("ISession2 Interface"),
   pointer_default(unique)
 ]
-interface ISession2 : ISession
+interface ISession2 :
+  ISession
 {
 
   /// @brief Find a file.

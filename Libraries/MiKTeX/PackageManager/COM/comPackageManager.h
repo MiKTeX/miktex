@@ -1,6 +1,6 @@
 /* PackageManager.h:                                    -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -83,13 +83,13 @@ public:
   STDMETHOD(CreateInstaller) (MiKTeXPackageManagerLib::IPackageInstaller** ppInstaller);
 
 public:
-  STDMETHOD(GetPackageInfo) (BSTR packageId, MiKTeXPackageManagerLib::PackageInfo* pPackageInfo);
+  STDMETHOD(GetPackageInfo) (BSTR packageId, MiKTeXPackageManagerLib::PackageInfo* outPackageInfo);
 
 public:
   STDMETHOD(CreatePackageIterator) (MiKTeXPackageManagerLib::IPackageIterator** ppIter);
 
 public:
-  STDMETHOD(GetPackageInfo2) (BSTR packageId, MiKTeXPackageManagerLib::PackageInfo2* pPackageInfo);
+  STDMETHOD(GetPackageInfo2) (BSTR packageId, MiKTeXPackageManagerLib::PackageInfo2* outPackageInfo);
 
 private:
   void CreateSession();

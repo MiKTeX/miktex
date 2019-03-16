@@ -1,6 +1,6 @@
 /* comPackageManager.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -122,7 +122,7 @@ STDMETHODIMP comPackageManager::CreateInstaller(IPackageInstaller** ppInstaller)
   }
 }
 
-STDMETHODIMP comPackageManager::GetPackageInfo(BSTR packageId, MiKTeXPackageManagerLib::PackageInfo* pPackageInfo)
+STDMETHODIMP comPackageManager::GetPackageInfo(BSTR packageId, MiKTeXPackageManagerLib::PackageInfo* outPackageInfo)
 {
   PackageManagerImpl::localServer = true;
   try
@@ -133,7 +133,7 @@ STDMETHODIMP comPackageManager::GetPackageInfo(BSTR packageId, MiKTeXPackageMana
       packageManager = MiKTeX::Packages::PackageManager::Create();
     }
     MiKTeX::Packages::PackageInfo packageInfo = packageManager->GetPackageInfo(WU_((packageId)));
-    CopyPackageInfo(*pPackageInfo, packageInfo);
+    CopyPackageInfo(*outPackageInfo, packageInfo);
     return S_OK;
   }
   catch (const _com_error& e)
@@ -178,7 +178,7 @@ STDMETHODIMP comPackageManager::CreatePackageIterator(IPackageIterator** ppIter)
   }
 }
 
-STDMETHODIMP comPackageManager::GetPackageInfo2(BSTR packageId, PackageInfo2* pPackageInfo)
+STDMETHODIMP comPackageManager::GetPackageInfo2(BSTR packageId, PackageInfo2* outPackageInfo)
 {
   PackageManagerImpl::localServer = true;
   try
@@ -189,7 +189,7 @@ STDMETHODIMP comPackageManager::GetPackageInfo2(BSTR packageId, PackageInfo2* pP
       packageManager = MiKTeX::Packages::PackageManager::Create();
     }
     MiKTeX::Packages::PackageInfo packageInfo = packageManager->GetPackageInfo(WU_(packageId));
-    CopyPackageInfo(*pPackageInfo, packageInfo);
+    CopyPackageInfo(*outPackageInfo, packageInfo);
     return S_OK;
   }
   catch (const _com_error& e)

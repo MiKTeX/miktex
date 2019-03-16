@@ -1,6 +1,6 @@
 /* listpackages.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -23,7 +23,7 @@
 
 using namespace std;
 
-int main(int argc, char ** argv)
+int main(int argc, char** argv)
 {
   if (FAILED(CoInitialize(nullptr)))
   {
@@ -48,7 +48,7 @@ int main(int argc, char ** argv)
       wcout << info.displayName << endl;
     }
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     cerr << hex << e.Error() << endl;
     retCode = 1;

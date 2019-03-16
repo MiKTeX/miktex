@@ -1,6 +1,6 @@
 /* comPackageIterator.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -15,8 +15,9 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with MiKTeX Package Manager; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
+   along with MiKTeX Package Manager; if not, write to the Free
+   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+   02111-1307, USA. */
 
 #include "config.h"
 
@@ -46,7 +47,7 @@ void comPackageIterator::Initialize()
   packageIterator = packageManager->CreateIterator();
 }
 
-STDMETHODIMP comPackageIterator::GetNextPackageInfo(MiKTeXPackageManagerLib::PackageInfo* pPackageInfo, VARIANT_BOOL* done)
+STDMETHODIMP comPackageIterator::GetNextPackageInfo(MiKTeXPackageManagerLib::PackageInfo* outPackageInfo, VARIANT_BOOL* done)
 {
   *done = VARIANT_FALSE;
   MiKTeX::Packages::PackageInfo packageInfo;
@@ -54,14 +55,14 @@ STDMETHODIMP comPackageIterator::GetNextPackageInfo(MiKTeXPackageManagerLib::Pac
   {
     if (!packageInfo.IsPureContainer())
     {
-      CopyPackageInfo(*pPackageInfo, packageInfo);
+      CopyPackageInfo(*outPackageInfo, packageInfo);
       *done = VARIANT_TRUE;
     }
   }
   return *done == VARIANT_FALSE ? S_FALSE : S_OK;
 }
 
-STDMETHODIMP comPackageIterator::GetNextPackageInfo2(MiKTeXPackageManagerLib::PackageInfo2* pPackageInfo, VARIANT_BOOL* done)
+STDMETHODIMP comPackageIterator::GetNextPackageInfo2(MiKTeXPackageManagerLib::PackageInfo2* outPackageInfo, VARIANT_BOOL* done)
 {
   *done = VARIANT_FALSE;
   MiKTeX::Packages::PackageInfo packageInfo;
@@ -69,7 +70,7 @@ STDMETHODIMP comPackageIterator::GetNextPackageInfo2(MiKTeXPackageManagerLib::Pa
   {
     if (!packageInfo.IsPureContainer())
     {
-      CopyPackageInfo(*pPackageInfo, packageInfo);
+      CopyPackageInfo(*outPackageInfo, packageInfo);
       *done = VARIANT_TRUE;
     }
   }

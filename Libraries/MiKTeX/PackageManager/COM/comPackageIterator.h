@@ -1,6 +1,6 @@
 /* comPackageIterator.h:                                -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -15,8 +15,9 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with MiKTeX Package Manager; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
+   along with MiKTeX Package Manager; if not, write to the Free
+   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+   02111-1307, USA. */
 
 #pragma once
 
@@ -143,10 +144,10 @@ public:
   void Initialize();
 
 public:
-  STDMETHOD(GetNextPackageInfo) (MiKTeXPackageManagerLib::PackageInfo* pPackageInfo, VARIANT_BOOL* done);
+  STDMETHOD(GetNextPackageInfo) (MiKTeXPackageManagerLib::PackageInfo* outPackageInfo, VARIANT_BOOL* done);
 
 public:
-  STDMETHOD(GetNextPackageInfo2) (MiKTeXPackageManagerLib::PackageInfo2* pPackageInfo, VARIANT_BOOL* done);
+  STDMETHOD(GetNextPackageInfo2) (MiKTeXPackageManagerLib::PackageInfo2* outPackageInfo, VARIANT_BOOL* done);
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;

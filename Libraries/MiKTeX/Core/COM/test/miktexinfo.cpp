@@ -1,6 +1,6 @@
 /* miktexinfo.cpp:
 
-   Copyright (C) 2006-2016 Christian Schenk
+   Copyright (C) 2006-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,7 +23,7 @@
 
 using namespace std;
 
-int main(int argc, char ** argv)
+int main(int argc, char** argv)
 {
   if (FAILED(CoInitialize(nullptr)))
   {
@@ -43,7 +43,7 @@ int main(int argc, char ** argv)
     }
     MiKTeXSetupInfo info = session->GetMiKTeXSetupInfo();
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     cerr << hex << e.Error() << endl;
     retCode = 1;

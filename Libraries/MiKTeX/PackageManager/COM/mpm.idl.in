@@ -1,6 +1,6 @@
-/* mpm.idl:							-*- IDL -*-
+/* mpm.idl:                                             -*- IDL -*-
 
-   Copyright (C) 2006-2016 Christian Schenk
+   Copyright (C) 2006-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -24,11 +24,6 @@ import "ocidl.idl";
 
 import "miktexidl.idl";
 
-/* _________________________________________________________________________
-   
-   MD5
-   _________________________________________________________________________ */
-
 /// @brief MD5 sum.
 ///
 /// This structure holds an MD5 hash code.
@@ -37,12 +32,6 @@ typedef [uuid(F92D6E8F-22CC-4585-8309-58440C5A0DFB)] struct MD5
   /// @brief 128 bits.
   BYTE bits[16];
 } MD5;
-
-
-/* _________________________________________________________________________
-   
-   PackageInfo
-   _________________________________________________________________________ */
 
 /// @brief Package information.
 typedef [uuid(22A5E6E6-04B3-4540-A122-6A612210F52E)] struct PackageInfo
@@ -82,11 +71,6 @@ typedef [uuid(22A5E6E6-04B3-4540-A122-6A612210F52E)] struct PackageInfo
   /// @brief Install flag.
   VARIANT_BOOL isInstalled;
 } PackageInfo;
-
-/* _________________________________________________________________________
-   
-   PackageInfo2
-   _________________________________________________________________________ */
 
 /// @brief Package information.
 typedef [uuid(EBFC451C-F457-4B26-9A70-4C61519B7F45)] struct PackageInfo2
@@ -135,15 +119,10 @@ typedef [uuid(EBFC451C-F457-4B26-9A70-4C61519B7F45)] struct PackageInfo2
   BSTR ctanPath;
 } PackageInfo2;
 
-/* _________________________________________________________________________
-   
-   IPackageInstallerCallback
-   _________________________________________________________________________ */
-
 /// @brief Package installer callback.
 ///
-/// This interface can be implemented by clients in order to get notified
-/// of certain events.
+/// This interface can be implemented by clients in order to get
+/// notified of certain events.
 [
   object,
   uuid(4B081787-2C08-4AFD-80E1-B4B3E23324B4),
@@ -151,39 +130,32 @@ typedef [uuid(EBFC451C-F457-4B26-9A70-4C61519B7F45)] struct PackageInfo2
   helpstring("IPackageInstallerCallback Interface"),
   pointer_default(unique)
 ]
-interface IPackageInstallerCallback : IUnknown
+interface IPackageInstallerCallback :
+  IUnknown
 {
   /// @brief Reports progress of the package installer.
   /// @param[in] line The message to be reported.
   [
     helpstring("method ReportLine")
   ]
-  HRESULT ReportLine ([in] BSTR line);
+  HRESULT ReportLine([in] BSTR line);
 
   /// @brief Reports an error.
   /// @param[in] message The error message to be reported.
-  /// @return Returns VARIANT_FALSE, if the installation can continue.
+  /// @return Returns `VARIANT_FALSE`, if the installation can continue.
   [
     helpstring("method OnRetryableError")
   ]
-  HRESULT
-  OnRetryableError ([in] BSTR			message,
-		    [out,retval] VARIANT_BOOL * doContinue);
+  HRESULT OnRetryableError([in] BSTR message, [out,retval] VARIANT_BOOL* doContinue);
 
   /// @brief Notifies the client.
   /// @param[in] nf The notification code.
-  /// @return Returns VARIANT_TRUE, if the installation can continue.
+  /// @return Returns `VARIANT_TRUE`, if the installation can continue.
   [
     helpstring("method OnProgress")
   ]
-  HRESULT
-  OnProgress ([in] LONG nf, [out,retval] VARIANT_BOOL * doContinue);
+  HRESULT OnProgress([in] LONG nf, [out,retval] VARIANT_BOOL* doContinue);
 };
-
-/* _________________________________________________________________________
-   
-   IPackageInstaller
-   _________________________________________________________________________ */
 
 /// @brief Package installer interface.
 [
@@ -194,36 +166,34 @@ interface IPackageInstallerCallback : IUnknown
   helpstring("IPackageInstaller Interface"),
   pointer_default(unique)
 ]
-interface IPackageInstaller : IDispatch
+interface IPackageInstaller :
+  IDispatch
 {
   /// @brief Adds a package to the installer queue.
   /// @param[in] packageName Name of the package to be installed/uninstalled.
   /// @param[in] toBeInstalled Boolean value that determines whether
-  ///   the package shall be installed or uninstalled.
+  /// the package shall be installed or uninstalled.
   [
     id(1),
     helpstring("method Add")
   ]
-  HRESULT
-  Add ([in] BSTR packageName, [in] VARIANT_BOOL toBeInstalled);
+  HRESULT Add([in] BSTR packageName, [in] VARIANT_BOOL toBeInstalled);
 
   /// @brief Sets the client callback interface.
   /// @param[in] callback Pointer to an interface. This interface will
-  ///   be queried for IPackageInstallerCallback.
+  /// be queried for IPackageInstallerCallback.
   [
     id(2),
     helpstring("method SetCallback")
   ]
-  HRESULT
-  SetCallback ([in] IUnknown * callback);
+  HRESULT SetCallback([in] IUnknown* callback);
 
   /// @brief Installs/Uninstalls packages.
   [
     id(3),
     helpstring("method InstallRemove")
   ]
-  HRESULT
-  InstallRemove ();
+  HRESULT InstallRemove();
 
   /// @brief Gets information about the last error
   /// @return Returns the error information.
@@ -231,16 +201,14 @@ interface IPackageInstaller : IDispatch
     id(4),
     helpstring("method GetLastError")
   ]
-  HRESULT
-  GetErrorInfo ([out,retval] ErrorInfo * errorInfo);
+  HRESULT GetErrorInfo([out,retval] ErrorInfo* errorInfo);
 
   /// @brief Updates the package database.
   [
     id(5),
     helpstring("method UpdateDb")
   ]
-  HRESULT
-  UpdateDb ();
+  HRESULT UpdateDb();
 
   /// @brief Set the package repository.
   /// @param[in] repository The repository to be used.
@@ -248,14 +216,8 @@ interface IPackageInstaller : IDispatch
     id(6),
     helpstring("method SetRepository")
   ]
-  HRESULT
-  SetRepository ([in] BSTR repository);
+  HRESULT SetRepository([in] BSTR repository);
 };
-
-/* _________________________________________________________________________
-   
-   IPackageManager
-   _________________________________________________________________________ */
 
 /// @brief Package manager interface.
 [
@@ -266,7 +228,8 @@ interface IPackageInstaller : IDispatch
   helpstring("IPackageManager Interface"),
   pointer_default(unique)
 ]
-interface IPackageManager : IDispatch
+interface IPackageManager :
+  IDispatch
 {
   /// @brief Get a package installer interface.
   /// @return Returns a pointer to the package installer interface.
@@ -274,8 +237,7 @@ interface IPackageManager : IDispatch
     id(1),
     helpstring("method CreateInstaller")
   ]
-  HRESULT
-  CreateInstaller ([out,retval] IPackageInstaller ** installer);
+  HRESULT CreateInstaller([out,retval] IPackageInstaller** installer);
 
   /// @brief Get information about a package.
   /// @param[in] packageName Name of the package.
@@ -284,15 +246,8 @@ interface IPackageManager : IDispatch
     id(2),
     helpstring("method GetPackageInfo")
   ]
-  HRESULT
-  GetPackageInfo ([in] BSTR			packageName,
-		  [out,retval] PackageInfo *	packageInfo);
+  HRESULT GetPackageInfo([in] BSTR packageName, [out,retval] PackageInfo* packageInfo);
 };
-
-/* _________________________________________________________________________
-   
-   IPackageIterator
-   _________________________________________________________________________ */
 
 /// @brief Package iterator interface.
 [
@@ -301,22 +256,16 @@ interface IPackageManager : IDispatch
   helpstring("IPackageIterator Interface"),
   pointer_default(unique)
 ]
-interface IPackageIterator : IUnknown
+interface IPackageIterator :
+  IUnknown
 {
   /// @brief Retrieve the next package info structure.
   /// @return Returns the next structure.
   [
     helpstring("method GetNextPackageInfo")
   ]
-  HRESULT
-  GetNextPackageInfo ([out] PackageInfo * packageInfo,
-		      [out,retval] VARIANT_BOOL * done);
+  HRESULT GetNextPackageInfo ([out] PackageInfo* packageInfo, [out,retval] VARIANT_BOOL* done);
 };
-
-/* _________________________________________________________________________
-   
-   IPackageManager2
-   _________________________________________________________________________ */
 
 /// @brief Package manager interface (version 2).
 [
@@ -327,7 +276,8 @@ interface IPackageIterator : IUnknown
   helpstring("IPackageManager2 Interface"),
   pointer_default(unique)
 ]
-interface IPackageManager2 : IPackageManager
+interface IPackageManager2 :
+  IPackageManager
 {
   /// @brief Obtains a package iterator.
   /// @return Returns the iterator.
@@ -335,14 +285,8 @@ interface IPackageManager2 : IPackageManager
     id(3),
     helpstring("method CreatePackageIterator")
   ]
-  HRESULT
-  CreatePackageIterator ([out,retval] IPackageIterator ** iter);
+  HRESULT CreatePackageIterator([out,retval] IPackageIterator** iter);
 };
-
-/* _________________________________________________________________________
-   
-   IPackageManager3
-   _________________________________________________________________________ */
 
 /// @brief Package manager interface (version 3).
 [
@@ -353,7 +297,8 @@ interface IPackageManager2 : IPackageManager
   helpstring("IPackageManager3 Interface"),
   pointer_default(unique)
 ]
-interface IPackageManager3 : IPackageManager2
+interface IPackageManager3 :
+  IPackageManager2
 {
   /// @brief Get information about a package.
   /// @param[in] packageName Name of the package.
@@ -362,39 +307,26 @@ interface IPackageManager3 : IPackageManager2
     id(4),
     helpstring("method GetPackageInfo2")
   ]
-  HRESULT
-  GetPackageInfo2 ([in] BSTR			packageName,
-		   [out,retval] PackageInfo2 *	packageInfo);
+  HRESULT GetPackageInfo2([in] BSTR packageName, [out,retval] PackageInfo2* packageInfo);
 };
 
-/* _________________________________________________________________________
-   
-   IPackageIterator2
-   _________________________________________________________________________ */
-
-/// @brief Package iterator interface.
+/// @brief Package iterator interface (version 2).
 [
   object,
   uuid(E29735B0-01A4-4903-910B-7AE1ECB01FF2),
   helpstring("IPackageIterator Interface"),
   pointer_default(unique)
 ]
-interface IPackageIterator2 : IPackageIterator
+interface IPackageIterator2 :
+  IPackageIterator
 {
   /// @brief Retrieve the next package info structure.
   /// @return Returns the next structure.
   [
     helpstring("method GetNextPackageInfo2")
   ]
-  HRESULT
-  GetNextPackageInfo2 ([out] PackageInfo2 * packageInfo,
-		       [out,retval] VARIANT_BOOL * done);
+  HRESULT GetNextPackageInfo2([out] PackageInfo2* packageInfo, [out,retval] VARIANT_BOOL* done);
 };
-
-/* _________________________________________________________________________
-   
-   MiKTeXPackageManager@MIKTEX_MAJOR_MINOR_ID_STR@
-   _________________________________________________________________________ */
 
 /// @brief Package manager type library.
 [
