@@ -91,6 +91,6 @@
 */
 #ifndef __VERSION_H__
 # define __VERSION_H__              1
-# define VERSION                    "3.71 (18 mar 2013)"
+# define VERSION                    "3.71 (04 mar 2019)"
 #endif                          /* __VERSION_H__ */
 

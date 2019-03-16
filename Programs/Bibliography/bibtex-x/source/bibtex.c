@@ -280,7 +280,17 @@ BEGIN
     if (log_file != NULL) {
         FPRINTF (log_file, "%s\n", BANNER);
         FPRINTF (log_file, "Implementation:  %s\n", IMPLEMENTATION);
-        FPRINTF (log_file, "Release version: %s\n\n", VERSION);
+        FPRINTF (log_file, "Release version: %s\n", VERSION);
+#ifdef UTF_8
+        {
+            UVersionInfo icuVersion;
+            char icu_version[U_MAX_VERSION_STRING_LENGTH] = "";
+            u_getVersion(icuVersion);
+            u_versionToString(icuVersion, icu_version);
+            FPRINTF (log_file, "Compiled with:   ICU version %s\n", icu_version);
+        }
+#endif
+        FPRINTF (log_file, "\n");
     }
 
 #ifdef SUPPORT_8BIT

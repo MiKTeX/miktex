@@ -990,7 +990,11 @@ void parse_cmd_line (int argc, char **argv)
     int                 no_files;
 
     Flag_7bit = FALSE;
+#ifdef UTF_8
+    Flag_8bit = TRUE;
+#else
     Flag_8bit = FALSE;
+#endif
     Flag_big = FALSE;
     Flag_debug = FALSE;
     Flag_huge = FALSE;
@@ -1084,6 +1088,16 @@ void parse_cmd_line (int argc, char **argv)
                 FPRINTF (TERM_OUT, "%s\n", BANNER);
                 FPRINTF (TERM_OUT, "Implementation:  %s\n", IMPLEMENTATION);
                 FPRINTF (TERM_OUT, "Release version: %s\n", VERSION);
+#ifdef UTF_8
+                {
+                    UVersionInfo icuVersion;
+                    char icu_version[U_MAX_VERSION_STRING_LENGTH] = "";
+                    u_getVersion(icuVersion);
+                    u_versionToString(icuVersion, icu_version);
+                    FPRINTF (TERM_OUT, "Compiled with:   ICU version %s\n", icu_version);
+                }
+#endif
+
                 debug_msg (DBG_MISC, 
                            "calling longjmp (Exit_Program_Flag) ... ");
                 longjmp (Exit_Program_Flag, 1);

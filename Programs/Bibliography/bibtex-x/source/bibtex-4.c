@@ -1825,10 +1825,20 @@ When we processe the character UTF-8, the length has been changed. This focntion
 quick_sort.                                                                   23/sep/2009
 */
               DO_UTF8(ex_buf[ex_buf_ptr],
-                ex_buf[ex_buf_xptr] = ex_buf[ex_buf_ptr++],
-                ex_buf[ex_buf_xptr] = ex_buf[ex_buf_ptr]; ex_buf_xptr += 2,
-                ex_buf[ex_buf_xptr] = ex_buf[ex_buf_ptr]; ex_buf_xptr += 3,
-                ex_buf[ex_buf_xptr] = ex_buf[ex_buf_ptr]; ex_buf_xptr += 4);
+                ex_buf[ex_buf_xptr] = ex_buf[ex_buf_ptr];
+                ex_buf_xptr += 1,
+                ex_buf[ex_buf_xptr] = ex_buf[ex_buf_ptr];
+                ex_buf[ex_buf_xptr+1] = ex_buf[ex_buf_ptr+1];
+                ex_buf_xptr += 2; ex_buf_ptr += 1,
+                ex_buf[ex_buf_xptr] = ex_buf[ex_buf_ptr];
+                ex_buf[ex_buf_xptr+1] = ex_buf[ex_buf_ptr+1];
+                ex_buf[ex_buf_xptr+2] = ex_buf[ex_buf_ptr+2];
+                ex_buf_xptr += 3; ex_buf_ptr += 2,
+                ex_buf[ex_buf_xptr] = ex_buf[ex_buf_ptr];
+                ex_buf[ex_buf_xptr+1] = ex_buf[ex_buf_ptr+1];
+                ex_buf[ex_buf_xptr+2] = ex_buf[ex_buf_ptr+2];
+                ex_buf[ex_buf_xptr+3] = ex_buf[ex_buf_ptr+3];
+                ex_buf_xptr += 4; ex_buf_ptr += 3);
 #else
               ex_buf[ex_buf_xptr] = ex_buf[ex_buf_ptr];
               INCR (ex_buf_xptr);
