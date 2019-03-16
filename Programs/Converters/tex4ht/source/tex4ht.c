@@ -1,7 +1,7 @@
 
-/* tex4ht.c (2012-07-25-19:36), generated from tex4ht-c.tex
-   Copyright (C) 2009-2016 TeX Users Group
-   Copyright (C) 1996-2009 Eitan M. Gurari
+/* tex4ht.c (2018-07-03-10:36), generated from tex4ht-c.tex
+   Copyright 2009-2018 TeX Users Group
+   Copyright 1996-2009 Eitan M. Gurari
 
 %
 % This work may be distributed and/or modified under the
@@ -1054,8 +1054,8 @@ static const U_CHAR *warn_err_mssg[]={
 "   [-f<path-separator-ch>]        remove path from the file name\n"
 "   [-F<ch-code>]        replacement for missing font characters; 0--255; default 0\n"
 "   [-g<bitmap-file-ext>]\n"
-"   [-h(e|f|F|g|s|v|V)]  trace: e-errors/warnings, f-htf, F-htf search\n"
-"                            g-groups, s-specials, v-env, V-env search\n"
+"   [-h[efFgsvVA]]       trace: e-errors/warnings, f-htf, F-htf search\n"
+"                           g-groups, s-specials, v-env, V-env search, A-all\n"
 "   [-i<htf-font-dir>]\n"
 "   [-l<bookkeeping-file>]\n"
 "   [-P(*|<filter>)]     permission for system calls: *-always, filter\n"
@@ -4159,7 +4159,7 @@ static FILE* search_file_ext
     HANDLE hnd;
     int proceed;
     (IGNORED) strcpy((char *) dirname, (char *) str);
-    strct(dirname, "/*.*");
+    strct(dirname, "/*.*");       
     hnd = FindFirstFile(dirname, &find_file_data);
     if (hnd != INVALID_HANDLE_VALUE) {
       
@@ -5996,23 +5996,23 @@ SetConsoleCtrlHandler((PHANDLER_ROUTINE)sigint_handler, TRUE);
 (IGNORED) printf("----------------------------\n");
 #ifndef KPATHSEA
 #ifdef PLATFORM
-   (IGNORED) printf("tex4ht.c (2012-07-25-19:36 %s)\n",PLATFORM);
+   (IGNORED) printf("tex4ht.c (2018-07-03-10:36 %s)\n",PLATFORM);
 #else
-   (IGNORED) printf("tex4ht.c (2012-07-25-19:36)\n");
+   (IGNORED) printf("tex4ht.c (2018-07-03-10:36)\n");
 #endif
 #else
 #ifdef PLATFORM
-#  if defined(MIKTEX)
-   (IGNORED) printf("tex4ht.c (2012-07-25-19:36 %s MiKTeX)\n",PLATFORM);
-#  else
-   (IGNORED) printf("tex4ht.c (2012-07-25-19:36 %s kpathsea)\n",PLATFORM);
-#  endif
+#if defined(MIKTEX)
+   (IGNORED) printf("tex4ht.c (2018-07-03-10:36 %s MiKTeX)\n",PLATFORM);
 #else
-#  if defined(MIKTEX)
-   (IGNORED) printf("tex4ht.c (2012-07-25-19:36 MiKTeX)\n");
-#  else
-   (IGNORED) printf("tex4ht.c (2012-07-25-19:36 kpathsea)\n");
-#  endif
+   (IGNORED) printf("tex4ht.c (2018-07-03-10:36 %s kpathsea)\n",PLATFORM);
+#endif
+#else
+#if defined(MIKTEX)
+   (IGNORED) printf("tex4ht.c (2018-07-03-10:36 MiKTeX)\n");
+#else
+   (IGNORED) printf("tex4ht.c (2018-07-03-10:36 kpathsea)\n");
+#endif
 #endif
 #endif
 for(i=0; i<argc; i++){
@@ -6163,24 +6163,25 @@ gif = p+2;
 
       break; }
   case 'h':{ 
-switch( *(p+2) ){
-  case 'e':{ 
+{
+  char trace = *(p+2);
+  if (trace == 'A' || trace == 'e') { 
 err_context = TRUE;
 
-  break; }
-  case 'f':{ 
+ }
+  if (trace == 'A' || trace == 'f') { 
 dump_htf_files = 1;
 
-  break; }
-  case 'F':{ 
+ }
+  if (trace == 'A' || trace == 'F') { 
 dump_htf_search = TRUE;
 
-  break; }
-  case 's':{ 
+ }
+  if (trace == 'A' || trace == 's') { 
 trace_special = TRUE;
 
-  break;}
-  case 'g':{ 
+ }
+  if (trace == 'A' || trace == 'g') { 
 trace_dvi_P++;
 if( !(   *trace_dvi_del_P || *end_trace_dvi_del_P
       || *trace_dvi_del_p || *end_trace_dvi_del_p
@@ -6204,16 +6205,16 @@ if( !(   *trace_dvi_del_P || *end_trace_dvi_del_P
    (IGNORED) strcpy((char *) end_trace_dvi_del_p, "]" );
 }
 
-  break;}
-  case 'v':{ 
+ }
+  if (trace == 'A' || trace == 'v') { 
 dump_env_files = TRUE;
 
-  break; }
-  case 'V':{ 
+ }
+  if (trace == 'A' || trace == 'V') { 
 dump_env_search = TRUE;
 
-  break; }
-   default:{ bad_arg; }
+ }
+  else { bad_arg; }
 }
 
   break; }
@@ -6520,6 +6521,7 @@ if( !dot_file && dos_env_file){
 #ifdef KPATHSEA
 if( !dot_file ) {                    U_CHAR * envfile;
                              char *arch, *p, str[256];
+  
 #if defined(MIKTEX_WINDOWS)
 p = arch = xstrdup("/win32");
 #elif defined(MIKTEX_UNIX)
@@ -6554,10 +6556,11 @@ envfile= kpse_find_file ("tex4ht.env", kpse_program_text_format, 0);
 
  }
   if ( !envfile ){ 
+#define KPSEWHICH_CMD "kpsewhich --progname=tex4ht --format=othertext tex4ht.env"
 if( dump_env_search ){
-  (IGNORED) printf("system(\"kpsewhich --progname=tex4ht tex4ht.env\")?\n");
+  (IGNORED) printf("system(" KPSEWHICH_CMD ")?\n"); /* cpp concatenation */
 }
-if( system("kpsewhich --progname=tex4ht tex4ht.env > tex4ht.tmp") == 0 ){
+if( system(KPSEWHICH_CMD ">tex4ht.tmp") == 0 ){
    
 char fileaddr [256];
 int loc = 0;
@@ -6574,7 +6577,7 @@ if( file ){
    envfile= kpse_find_file (fileaddr, kpse_program_text_format, 0);
    if( envfile ){
       warn_i_str( 50,
-          "search support for kpse_find_file--unsing system kpsewhich calls instead");
+          "search support for kpse_find_file--using kpsewhich calls instead");
 }  }
 
  }
@@ -6592,15 +6595,18 @@ if( file ){
 #endif
 
 
-   if( !dot_file ) warn_i_str( 1, 
+#if defined(MIKTEX)
+ if (!dot_file) { bad_in_file("tex4ht.env"); }
+#else
+   if( !dot_file ) { bad_in_file(
 #ifdef  DOS_WIN32
    "tex4ht.env"
-#endif
-#ifndef  DOS_WIN32
+#else
    "tex4ht.env | .tex4ht"
 #endif
 
-);
+); } /* give up if no tex4ht.env */
+#endif
 }
 
 
@@ -6837,7 +6843,7 @@ if( (i<4)
     ||
     ((ch != 
 2 
-) && (ch >
+) && (ch > 
 10
 
 ))
@@ -7320,7 +7326,7 @@ if( (font_tbl_size + 1) < MAXFONTS )
                            * sizeof(struct font_entry)))
             : m_alloc(struct font_entry, 1);
    if(       (version_id == 
-5
+10
 
 )
          &&  (ch == 
@@ -9096,7 +9102,7 @@ case
 
 :
    if(  version_id == 
-5
+10
 
  ){
      
@@ -9133,7 +9139,7 @@ case
 
 :
    if(  version_id == 
-5
+10
 
  ){
      
@@ -9147,7 +9153,7 @@ case
 
 :
    if(  version_id == 
-5
+10
 
  ){
      
@@ -10168,6 +10174,7 @@ p->prev_file = cur_o_file;
  }
 else           { 
 if( p == (struct files_rec *)  0 ) bad_special( name );
+else { /* if p is null, do nothing more */
 
 if( p->prev != (struct files_rec*) 0 ) (p->prev)->next = p->next;
 else                                   opened_files = p->next;
@@ -10179,6 +10186,7 @@ if( opened_files !=  (struct files_rec*) 0 )
 else out_file = (FILE *) 0;
 (IGNORED) fclose( p->file );   free((void *)  p->name );
 free((void *) p );
+}
 
  }
 cur_o_file = ( out_file == (FILE *) 0 )? root_file
@@ -12183,7 +12191,7 @@ default: {
 )   ){
      if( 
 (version_id == 
-5
+10
 
 )
 &&

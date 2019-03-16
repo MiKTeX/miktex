@@ -4,10 +4,10 @@
   <rdf:Description about="http://www.miktex.org/packages/tex4ht/">
     <TPM:Name>TeX4HT win32</TPM:Name>
     <TPM:Title>TeX4HT, Windows x86</TPM:Title>
-    <TPM:Copyright owner="TeX Users Group" year="2009-2012"/>
+    <TPM:Copyright owner="TeX Users Group" year="2009-2018"/>
     <TPM:Copyright owner="Eitan M. Gurari" year="1996-2009"/>
     <TPM:License type="lppl1.3c"/>
-    <TPM:Version>2012-07-25-19:36</TPM:Version>
+    <TPM:Version>2018-07-03-10:36</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

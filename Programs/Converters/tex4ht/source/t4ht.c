@@ -1,6 +1,6 @@
 
-/* t4ht.c (2012-07-25-19:28), generated from tex4ht-t4ht.tex
-   Copyright (C) 2009-2012 TeX Users Group
+/* t4ht.c (2018-07-04-14:25), generated from tex4ht-t4ht.tex
+   Copyright (C) 2009-2018 TeX Users Group
    Copyright (C) 1998-2009 Eitan M. Gurari
 
 %
@@ -674,11 +674,7 @@ static void execute_script
                                  const Q_CHAR *t;
   
 #ifdef KPATHSEA
-#if defined(MIKTEX)
-const char* texmf = kpse_var_value("TEXMFDIST");
-#else
-const char * texmf = kpse_var_value( "SELFAUTOPARENT" );
-#endif
+const char * texmf = kpse_var_value( "TEXMFDIST" );
 #endif
 
 
@@ -1518,22 +1514,22 @@ SetConsoleCtrlHandler((PHANDLER_ROUTINE)sigint_handler, TRUE);
 (IGNORED) printf("----------------------------\n");
 #ifndef KPATHSEA
 #ifdef PLATFORM
-   (IGNORED) printf("t4ht.c (2012-07-25-19:28 %s)\n",PLATFORM);
+   (IGNORED) printf("t4ht.c (2018-07-04-14:25 %s)\n",PLATFORM);
 #else
-   (IGNORED) printf("t4ht.c (2012-07-25-19:28)\n");
+   (IGNORED) printf("t4ht.c (2018-07-04-14:25)\n");
 #endif
 #else
 #ifdef PLATFORM
 #  if defined(MIKTEX)
-   (IGNORED) printf("t4ht.c (2012-07-25-19:28 %s MiKTeX)\n",PLATFORM);
+   (IGNORED) printf("t4ht.c (2018-07-04-14:25 %s MiKTeX)\n",PLATFORM);
 #  else
-   (IGNORED) printf("t4ht.c (2012-07-25-19:28 %s kpathsea)\n",PLATFORM);
+   (IGNORED) printf("t4ht.c (2018-07-04-14:25 %s kpathsea)\n",PLATFORM);
 #  endif
 #else
 #  if defined(MIKTEX)
-   (IGNORED) printf("t4ht.c (2012-07-25-19:28 MiKTeX)\n");
+   (IGNORED) printf("t4ht.c (2018-07-04-14:25 MiKTeX)\n");
 #  else
-   (IGNORED) printf("t4ht.c (2012-07-25-19:28 kpathsea)\n");
+   (IGNORED) printf("t4ht.c (2018-07-04-14:25 kpathsea)\n");
 #  endif
 #endif
 #endif
