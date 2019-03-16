@@ -850,8 +850,10 @@ handle_CIDFont (sfnt *sfont,
 
 static int is_PUA_or_presentation (unsigned int uni)
 {
-  /* KANGXI RADICALs are commonly double encoded. */
-  return  ((uni >= 0x2F00 && uni <= 0x2FD5) ||
+  /* Some of CJK Radicals Supplement and Kangxi Radicals
+   * are commonly double encoded, lower the priority.
+   */
+  return  ((uni >= 0x2E80 && uni <= 0x2EF3) || (uni >= 0x2F00 && uni <= 0x2FD5) ||
            (uni >= 0xE000 && uni <= 0xF8FF) || (uni >= 0xFB00 && uni <= 0xFB4F) ||
            (uni >= 0xF0000 && uni <= 0xFFFFD) || (uni >= 0x100000 && uni <= 0x10FFFD));
 }

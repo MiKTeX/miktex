@@ -47,28 +47,42 @@ read_v2_post_names (struct tt_post_table *post, sfnt *sfont)
 
   indices     = NEW(post->numberOfGlyphs, USHORT);
   maxidx = 257;
-  for (i = 0;
-       i < post->numberOfGlyphs; i++) {
+  for (i = 0; i < post->numberOfGlyphs; i++) {
     idx = sfnt_get_ushort(sfont);
     if (idx >= 258) {
       if (idx > maxidx)
         maxidx = idx;
+#if 0
+  /*
+   * Apple's TrueType spec. describes as,
+   *
+   *   Index numbers 32768 through 65535 are reserved for future use.
+   *   If you do not want to associate a PostScript name with a particular
+   *   glyph, use index number 0 which points to the name .notdef.
+   *
+   *   -- https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6post.html
+   *
+   * But there are no restriction in Microsoft's OpenType spec.
+
       if (idx > 32767) {
-	/* Although this is strictly speaking out of spec, it seems to work
-	   and there are real-life fonts that use it.
-           We show a warning only once, instead of thousands of times */
-	static char warning_issued = 0;
-	if (!warning_issued) {
-	  WARN("TrueType post table name index %u > 32767", idx);
-	  warning_issued = 1;
-	}
+        /* Although this is strictly speaking out of spec, it seems to work
+         * and there are real-life fonts that use it.
+         * We show a warning only once, instead of thousands of times
+         */
+        static char warning_issued = 0;
+        if (!warning_issued) {
+          WARN("TrueType post table name index %u > 32767", idx);
+          warning_issued = 1;
+        }
         /* In a real-life large font, (x)dvipdfmx crashes if we use
-           nonvanishing idx in the case of idx > 32767.
-           If we set idx = 0, (x)dvipdfmx works fine for the font and
-           created pdf seems fine. The post table may not be important
-           in such a case */
+         * nonvanishing idx in the case of idx > 32767.
+         * If we set idx = 0, (x)dvipdfmx works fine for the font and
+         * created pdf seems fine. The post table may not be important
+         * in such a case
+         */
         idx = 0;
       }
+#endif
     }
     indices[i] = idx;
   }
@@ -81,11 +95,11 @@ read_v2_post_names (struct tt_post_table *post, sfnt *sfont)
     for (i = 0; i < post->count; i++) { /* read Pascal strings */
       len = sfnt_get_byte(sfont);
       if (len > 0) {
-	post->names[i] = NEW(len + 1, char);
-	sfnt_read(post->names[i], len, sfont);
-	post->names[i][len] = 0;
+        post->names[i] = NEW(len + 1, char);
+        sfnt_read(post->names[i], len, sfont);
+        post->names[i][len] = 0;
       } else {
-	post->names[i] = NULL;
+        post->names[i] = NULL;
       }
     }
   }
@@ -163,7 +177,7 @@ tt_lookup_post_table (struct tt_post_table *post, const char *glyphname)
 
   for (gid = 0; gid < post->numberOfGlyphs; gid++) {
     if (post->glyphNamePtr[gid] &&
-	!strcmp(glyphname, post->glyphNamePtr[gid])) {
+        !strcmp(glyphname, post->glyphNamePtr[gid])) {
       return  gid;
     }
   }
@@ -174,7 +188,7 @@ tt_lookup_post_table (struct tt_post_table *post, const char *glyphname)
 char*
 tt_get_glyphname (struct tt_post_table *post, USHORT gid)
 {
-  if (gid < post->count && post->glyphNamePtr[gid])
+  if (gid < post->numberOfGlyphs && post->glyphNamePtr[gid])
     return xstrdup(post->glyphNamePtr[gid]);
   return NULL;
 }
@@ -191,7 +205,7 @@ tt_release_post_table (struct tt_post_table *post)
   if (post->names) {
     for (i = 0; i < post->count; i++) {
       if (post->names[i])
-	RELEASE(post->names[i]);
+        RELEASE(post->names[i]);
     }
     RELEASE(post->names);
   }

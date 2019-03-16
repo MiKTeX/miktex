@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* dvipdfmx 20190225
 * dvisvgm 2.6.3
 * Gregorio 5.2.0
 * luatex 1.10.0
