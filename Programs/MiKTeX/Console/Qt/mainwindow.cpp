@@ -573,6 +573,14 @@ void MainWindow::RestartAdmin()
 {
   try
   {
+    if (updateModel->Pending() > 0)
+    {
+      if (QMessageBox::question(this, tr("MiKTeX Console"), tr("There are pending updates. Are you sure you want to quit?"))
+        != QMessageBox::Yes)
+      {
+        return;
+      }
+    }
     RestartAdminWithArguments({ "--admin" });
   }
   catch (const MiKTeXException& e)
