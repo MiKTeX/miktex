@@ -22,18 +22,16 @@
 #define CALCULATOR_HPP
 
 #include <istream>
+#include <map>
 #include <string>
-#include <unordered_map>
 #include "MessageException.hpp"
 
 
-struct CalculatorException : public MessageException
-{
+struct CalculatorException : public MessageException {
 	CalculatorException (const std::string &msg) : MessageException(msg) {}
 };
 
-class Calculator
-{
+class Calculator {
 	public:
 		Calculator () : _numValue(0) {}
 		double eval (std::istream &is);
@@ -49,7 +47,7 @@ class Calculator
 		char lookAhead (std::istream &is);
 
 	private:
-		std::unordered_map<std::string,double> _variables;
+		std::map<std::string,double> _variables;
 		double _numValue;
 		std::string _strValue;
 };

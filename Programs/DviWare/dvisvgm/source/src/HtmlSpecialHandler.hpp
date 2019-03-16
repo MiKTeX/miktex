@@ -22,7 +22,6 @@
 #define HTMLSPECIALHANDLER_HPP
 
 #include <string>
-#include <unordered_map>
 #include "Color.hpp"
 #include "SpecialHandler.hpp"
 

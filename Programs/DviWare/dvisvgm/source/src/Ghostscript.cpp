@@ -193,7 +193,7 @@ bool Ghostscript::init (int argc, const char **argv, void *caller) {
 		if (status < 0)
 			_inst = 0;
 		else {
-			init_with_args(argc, (char**)argv);
+			init_with_args(argc, const_cast<char**>(argv));
 		}
 	}
 	return _inst != 0;

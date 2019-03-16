@@ -172,9 +172,11 @@ static void check_bbox (const string &bboxstr) {
 			throw MessageException("invalid bounding box format '" + bboxstr + "'");
 		}
 	}
-	// check if given bbox argument is valid, i.e. doesn't throw an exception
-	BoundingBox bbox;
-	bbox.set(bboxstr);
+	else {
+		// check if given bbox argument is valid, i.e. doesn't throw an exception
+		BoundingBox bbox;
+		bbox.set(bboxstr);
+	}
 }
 
 

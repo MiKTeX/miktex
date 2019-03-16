@@ -214,8 +214,8 @@ bool PsSpecialHandler::process (const string &prefix, istream &is, SpecialAction
 	else if (prefix == "psfile=" || prefix == "PSfile=" || prefix == "pdffile=") {
 		if (_actions) {
 			StreamInputReader in(is);
-			const string fname = in.getQuotedString(in.peek() == '"' ? '"' : 0);
-			unordered_map<string,string> attr;
+			const string fname = in.getQuotedString(in.peek() == '"' ? "\"" : nullptr);
+			map<string,string> attr;
 			in.parseAttributes(attr);
 			imgfile(prefix == "pdffile=" ? FileType::PDF : FileType::EPS, fname, attr);
 		}
@@ -281,20 +281,22 @@ bool PsSpecialHandler::process (const string &prefix, istream &is, SpecialAction
  *  @param[in] filetype type of file to process (EPS or PDF)
  *  @param[in] fname EPS/PDF file to be included
  *  @param[in] attr attributes given with psfile/pdffile special */
-void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const unordered_map<string,string> &attr) {
+void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const map<string,string> &attr) {
 	// prevent warning about missing image file "/dev/null" which is
 	// added by option "psfixbb" of the preview package
 	if (fname == "/dev/null")
 		return;
 
-	const char *filepath = FileFinder::instance().lookup(fname, false);
-	if (!filepath && FileSystem::exists(fname))
-		filepath = fname.c_str();
-	if (!filepath) {
+	string filepath;
+	if (const char *path = FileFinder::instance().lookup(fname, false))
+		filepath = FileSystem::adaptPathSeperators(path);
+	if ((filepath.empty() || !FileSystem::exists(filepath)) && FileSystem::exists(fname))
+		filepath = fname;
+	if (filepath.empty()) {
 		Message::wstream(true) << "file '" << fname << "' not found\n";
 		return;
 	}
-	unordered_map<string,string>::const_iterator it;
+	map<string,string>::const_iterator it;
 
 	// bounding box of EPS figure in PS point units (lower left and upper right corner)
 	double llx = (it = attr.find("llx")) != attr.end() ? stod(it->second) : 0;
@@ -348,26 +350,30 @@ void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const un
 	_actions->setY(0);
 	moveToDVIPos();
 
-	auto groupNode = util::make_unique<XMLElementNode>("g");  // append following elements to this group
+	auto groupNode = util::make_unique<XMLElementNode>("g"); // put SVG nodes created from the EPS/PDF file in this group
 	_xmlnode = groupNode.get();
 	_psi.execute(
 		"\n@beginspecial @setspecial"          // enter special environment
-		"/setpagedevice{@setpagedevice}def"    // activate processing of operator "setpagedevice"
-		"[1 0 0 -1 0 0] setmatrix"             // don't apply outer PS transformations
+		"/setpagedevice{@setpagedevice}def "   // activate processing of operator "setpagedevice"
+		"matrix setmatrix"                     // don't apply outer PS transformations
 		"/FirstPage "+to_string(pageno)+" def" // set number of fisrt page to convert (PDF only)
 		"/LastPage "+to_string(pageno)+" def"  // set number of last page to convert (PDF only)
-		"(" + string(filepath) + ")run "       // execute file content
+		"("+ filepath + ")run "                // execute file content
 		"@endspecial "                         // leave special environment
 	);
-	if (!groupNode->empty()) {       // has anything been drawn?
+	if (!groupNode->empty()) {  // has anything been drawn?
 		Matrix matrix(1);
-		if (filetype == FileType::PDF)
-			matrix.translate(-llx, -lly).scale(1, -1); //.translate(0, lly);  // flip vertically
-		else
-			matrix.translate(-llx, lly);
-		matrix.scale(sx, sy).rotate(-angle).scale(hscale/100, vscale/100);
-		matrix.translate(x+hoffset, y-voffset); // move image to current DVI position
+		matrix.scale(sx, -sy).rotate(-angle).scale(hscale/100, vscale/100);  // apply transformation attributes
+		matrix.translate(x+hoffset, y-voffset);     // move image to current DVI position
 		matrix.rmultiply(_actions->getMatrix());
+
+		// update bounding box
+		BoundingBox bbox(0, 0, urx-llx, ury-lly);
+		bbox.transform(matrix);
+		_actions->embed(bbox);
+
+		// insert group containing SVG nodes created from image
+		matrix.lmultiply(TranslationMatrix(-llx, -lly));  // move lower left corner of image to origin
 		if (!matrix.isIdentity())
 			groupNode->addAttribute("transform", matrix.getSVG());
 		_actions->appendToPage(std::move(groupNode));
@@ -378,15 +384,6 @@ void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const un
 	_actions->setX(x);
 	_actions->setY(y);
 	moveToDVIPos();
-
-	// update bounding box
-	BoundingBox bbox(0, 0, urx-llx, ury-lly);
-	Matrix matrix(1);
-	matrix.scale(sx, -sy).rotate(-angle).scale(hscale/100, vscale/100);
-	matrix.translate(x+hoffset, y-voffset);
-	matrix.rmultiply(_actions->getMatrix());
-	bbox.transform(matrix);
-	_actions->embed(bbox);
 }
 
 
@@ -1035,16 +1032,15 @@ void PsSpecialHandler::processSequentialPatchMesh (int shadingTypeID, ColorSpace
 }
 
 
-struct PatchVertex {
-	DPair point;
-	Color color;
-};
-
-
 void PsSpecialHandler::processLatticeTriangularPatchMesh (ColorSpace colorSpace, VectorIterator<double> &it) {
 	int verticesPerRow = static_cast<int>(*it++);
 	if (verticesPerRow < 2)
 		return;
+
+	struct PatchVertex {
+		DPair point;
+		Color color;
+	};
 
 	// hold two adjacent rows of vertices and colors
 	vector<PatchVertex> row1(verticesPerRow);

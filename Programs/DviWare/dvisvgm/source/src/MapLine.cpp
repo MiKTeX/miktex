@@ -132,7 +132,7 @@ void MapLine::parseDVIPSLine (InputReader &ir) {
 				_fontfname = name;
 		}
 		else {  // ir.peek() == '"' => list of PS font operators
-			string options = ir.getQuotedString('"');
+			string options = ir.getQuotedString("\"");
 			StringInputBuffer sib(options);
 			BufferInputReader sir(sib);
 			while (!sir.eof()) {

@@ -261,23 +261,23 @@ char InputReader::getPunct () {
 }
 
 
-/** Reads a string delimited by a given quotation character.
+/** Reads a string optionally delimited by a given quotation character.
  *  Before reading the string, all leading whitespace is skipped. Then, the function checks
- *  for the given quotation character. If it is found, all characters until the second
- *  appearance of the quotation char are appended to the result. Otherwise, an empty string
- *  is returned. If the quotation character is 0, the behavior of this function is identical to
- *  a call of getString().
- *  @param[in] quotechar the quotation character bounding the string to be read
+ *  for one of the the given quotation characters. If it is found, all characters until the
+ *  second appearance of the same quotation char are appended to the result. Otherwise, an
+ *  empty string is returned. If the quotation character is 0, the behavior of this function
+ *  is identical to a call of getString().
+ *  @param[in] quotechars recognized quotation characters bounding the string to be read
  *  @return the string read */
-string InputReader::getQuotedString (char quotechar) {
-	if (quotechar == 0)
+string InputReader::getQuotedString (const char *quotechars) {
+	if (!quotechars)
 		return getString();
 
 	string ret;
 	skipSpace();
-	if (peek() == quotechar) {
+	if (const char *quotechar = strchr(quotechars, peek())) {
 		get();
-		while (!eof() && peek() != quotechar)
+		while (!eof() && peek() != *quotechar)
 			ret += get();
 		get();
 	}
@@ -337,9 +337,9 @@ string InputReader::getLine () {
 
 /** Parses a sequence of key-value pairs of the form KEY=VALUE or KEY="VALUE"
  *  @param[out] attr the scanned atributes
- *  @param[in] quotechar quote character used to enclose the attribute values
+ *  @param[in] quotechars recognized quote characters used to enclose the attribute values
  *  @return number of attributes scanned */
-int InputReader::parseAttributes (unordered_map<string,string> &attr, char quotechar) {
+int InputReader::parseAttributes (map<string,string> &attr, const char *quotechars) {
 	bool ready=false;
 	while (!eof() && !ready) {
 		string key;
@@ -350,7 +350,7 @@ int InputReader::parseAttributes (unordered_map<string,string> &attr, char quote
 		if (peek() == '=') {
 			get();
 			skipSpace();
-			string val = getQuotedString(quotechar);
+			string val = getQuotedString(quotechars);
 			attr[key] = val;
 		}
 		else
