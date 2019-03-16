@@ -2176,10 +2176,20 @@ void build_local_box(void)
     p = vlink(head);
     pop_nest();
     if (p != null) {
-        /*tex Somehow |filtered_hpack| goes beyond the first node so we loose it. */
-        new_hyphenation(p, null);
+        /*tex
+            Somehow |filtered_hpack| goes beyond the first node so we loose it.
+        */
+        /*tex
+            There is no need for |new_hyphenation(p, null);| here as we're in
+            an |\hbox|.
+        */
         (void) new_ligkern(p, null);
         p = lua_hpack_filter(p, 0, additional, local_box_group, -1, null);
+        /*tex
+            We really need something packed so we play safe! This feature is inherited
+            but could have been delegated to a callback anyway.
+        */
+        p = hpack(p, 0, additional, -1);
     }
     if (kind == 0)
         eq_define(local_left_box_base, box_ref_cmd, p);

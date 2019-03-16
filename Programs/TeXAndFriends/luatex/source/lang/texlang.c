@@ -944,6 +944,9 @@ void hnj_hyphenation(halfword head, halfword tail)
     halfword s, r = head, wordstart = null, save_tail1 = null, left = null, right = null;
     halfword expstart = null;
     boolean compound_hyphen = compound_hyphen_mode_par;
+    /*tex Let's play safe: */
+    if (tail == null)
+        return;
     /*tex
         This first movement assures two things:
 
@@ -969,7 +972,8 @@ void hnj_hyphenation(halfword head, halfword tail)
     r = find_next_wordstart(r,first_language,strict_bound);
     if (r == null)
         return;
-    assert(tail != null);
+    if (tail == null)
+        return;
     save_tail1 = vlink(tail);
     s = new_penalty(0,word_penalty);
     couple_nodes(tail, s);
