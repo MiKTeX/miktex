@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012  Stefan Löffler
+ * Copyright (C) 2013-2018  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -197,14 +197,8 @@ void MagnifyingGlass::mouseReleaseEvent(QMouseEvent * event)
 
   if (!event || !_started)
     return;
-  if (event->buttons() == Qt::NoButton && event->button() == Qt::LeftButton) {
-    _magnifier->hide();
-    _started = false;
-    // Force an update of the viewport so that the drop shadow is hidden
-    QRect r(QPoint(0, 0), _magnifier->dropShadow().size());
-    r.moveCenter(_magnifier->geometry().center());
-    _parent->viewport()->update(r);
-  }
+  if (event->buttons() == Qt::NoButton && event->button() == Qt::LeftButton)
+    hide();
 }
 
 void MagnifyingGlass::paintEvent(QPaintEvent * event)
@@ -221,6 +215,18 @@ void MagnifyingGlass::paintEvent(QPaintEvent * event)
   QRect r(QPoint(0, 0), dropShadow.size());
   r.moveCenter(_magnifier->geometry().center());
   p.drawPixmap(r.topLeft(), dropShadow);
+}
+
+void MagnifyingGlass::hide()
+{
+  Q_ASSERT(_magnifier != NULL);
+
+  _magnifier->hide();
+  _started = false;
+  // Force an update of the viewport so that the drop shadow is hidden
+  QRect r(QPoint(0, 0), _magnifier->dropShadow().size());
+  r.moveCenter(_magnifier->geometry().center());
+  _parent->viewport()->update(r);
 }
 
 
@@ -922,6 +928,8 @@ void Select::mouseReleaseEvent(QMouseEvent * event)
   _mouseMode = MouseMode_None;
   if (_rubberBand)
     _rubberBand->hide();
+  if (_parent)
+    _parent->notifyTextSelectionChanged();
 }
 
 void Select::keyPressEvent(QKeyEvent *event)
@@ -948,7 +956,12 @@ void Select::keyPressEvent(QKeyEvent *event)
         Q_ASSERT(pageGraphicsItem != NULL);
       
         QTransform fromView = pageGraphicsItem->pointScale().inverted();
-        QString textToCopy = page->selectedText(_highlightPath->path().toFillPolygons(fromView), NULL, NULL, true);
+        // Get the selected text
+        // We use toSubpathPolygons() because it should be slightly faster, but
+        // more importantly, it keeps the original character bounding boxes.
+        // toFillPolygons(), for example, alters (removes) overlapping regions
+        // to ensure filling works properly. We don't need that here.
+        QString textToCopy = page->selectedText(_highlightPath->path().toSubpathPolygons(fromView), NULL, NULL, true);
         // If the text is empty (e.g., there is no valid selection or the backend
         // doesn't (properly) support selectedText()) we don't overwrite the
         // clipboard
@@ -1025,6 +1038,33 @@ void Select::pageDestroyed()
   _displayBoxes.clear();
 #endif
   resetBoxes(-1);
+}
+
+QString Select::selectedText() const
+{
+  Q_ASSERT(_parent != NULL);
+  if (!_highlightPath || _highlightPath->path().isEmpty())
+    return QString();
+
+  PDFDocumentScene * scene = static_cast<PDFDocumentScene*>(_parent->scene());
+  Q_ASSERT(scene != NULL);
+  QSharedPointer<Backend::Document> doc(scene->document().toStrongRef());
+  if (!doc)
+    return QString();
+  QSharedPointer<Backend::Page> page(doc->page(_pageNum).toStrongRef());
+  if (page.isNull())
+    return QString();
+
+  PDFPageGraphicsItem * pageGraphicsItem = static_cast<PDFPageGraphicsItem*>(scene->pageAt(_pageNum));
+  Q_ASSERT(pageGraphicsItem != NULL);
+
+  QTransform fromView = pageGraphicsItem->pointScale().inverted();
+  // Get the selected text
+  // We use toSubpathPolygons() because it should be slightly faster, but
+  // more importantly, it keeps the original character bounding boxes.
+  // toFillPolygons(), for example, alters (removes) overlapping regions
+  // to ensure filling works properly. We don't need that here.
+  return page->selectedText(_highlightPath->path().toSubpathPolygons(fromView), NULL, NULL, true);
 }
 
 void Select::setHighlightColor(const QColor & color)

@@ -30,7 +30,16 @@
     <bool>false</bool>
    </property>
    <layout class="QVBoxLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -67,7 +76,16 @@
          <string>Console output</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -217,6 +235,7 @@
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
     <addaction name="actionClear"/>
+    <addaction name="actionInsert_Citations"/>
     <addaction name="separator"/>
     <addaction name="actionSelect_All"/>
     <addaction name="actionBalance_Delimiters"/>
@@ -1109,6 +1128,14 @@
    </property>
    <property name="text">
     <string>Clear Recent Files</string>
+   </property>
+  </action>
+  <action name="actionInsert_Citations">
+   <property name="text">
+    <string>Insert Citations...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
    </property>
   </action>
  </widget>

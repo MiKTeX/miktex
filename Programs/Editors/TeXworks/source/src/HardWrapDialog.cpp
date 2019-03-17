@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2015  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,19 +33,19 @@ void
 HardWrapDialog::init()
 {
 	QSETTINGS_OBJECT(settings);
-	int	wrapWidth = settings.value("hardWrapWidth", kDefault_HardWrapWidth).toInt();
+	int	wrapWidth = settings.value(QString::fromLatin1("hardWrapWidth"), kDefault_HardWrapWidth).toInt();
 	spinbox_charCount->setMaximum(INT_MAX);
 	spinbox_charCount->setValue(wrapWidth);
 	spinbox_charCount->selectAll();
 	
 	connect(radio_Unwrap, SIGNAL(toggled(bool)), this, SLOT(unwrapModeToggled(bool)));
 
-	int wrapMode = settings.value("hardWrapMode", kHardWrapMode_Fixed).toInt();
+	int wrapMode = settings.value(QString::fromLatin1("hardWrapMode"), kHardWrapMode_Fixed).toInt();
 	radio_currentWidth->setChecked(wrapMode == kHardWrapMode_Window);
 	radio_fixedLineLength->setChecked(wrapMode == kHardWrapMode_Fixed);
 	radio_Unwrap->setChecked(wrapMode == kHardWrapMode_Unwrap);
 	
-	bool rewrapParagraphs = settings.value("hardWrapRewrap", false).toBool();
+	bool rewrapParagraphs = settings.value(QString::fromLatin1("hardWrapRewrap"), false).toBool();
 	checkbox_rewrap->setChecked(rewrapParagraphs);
 
 #if defined(Q_OS_DARWIN)
@@ -57,9 +57,9 @@ void
 HardWrapDialog::saveSettings()
 {
 	QSETTINGS_OBJECT(settings);
-	settings.setValue("hardWrapWidth", spinbox_charCount->value());
-	settings.setValue("hardWrapMode", mode());
-	settings.setValue("hardWrapRewrap", checkbox_rewrap->isChecked());
+	settings.setValue(QString::fromLatin1("hardWrapWidth"), spinbox_charCount->value());
+	settings.setValue(QString::fromLatin1("hardWrapMode"), mode());
+	settings.setValue(QString::fromLatin1("hardWrapRewrap"), checkbox_rewrap->isChecked());
 }
 
 int

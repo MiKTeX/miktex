@@ -1,0 +1,35 @@
+%%!TEX encoding = UTF-8 Unicode
+%%
+%% biblatex
+\addbibresource{#INS#}#RET#
+\printbibliography#RET#
+\printbibliography[#INS#]#RET#
+%% booktabs
+botr:=\bottomrule#RET#
+cmidr:=\cmidrule(#INS#){•}
+cmidro:=\cmidrule[#INS#](•){•}
+topr:=\toprule#RET#
+\bottomrule#RET#
+\cmidrule(#INS#){•}
+\cmidrule[#INS#](•){•}
+\midrule#RET#
+\toprule#RET#
+%% csquotes
+\enquote{#INS#}
+%% geometry
+geometry:=\geometry{•}
+\geometry{•}
+%% hyperref
+href:=\href{#INS#}{•}
+\href{#INS#}{•}
+%% natbib
+\citep{#INS#}
+\citet{#INS#}
+%% paralist
+{compactenum}#RET#\item#RET##INS##RET#\end{compactenum}•
+{compactenum}[#INS#]#RET#\item#RET#•#RET#\end{compactenum}•
+{compactitem}#RET#\item#RET##INS##RET#\end{compactitem}•
+{compactitem}[#INS#]#RET#\item#RET#•#RET#\end{compactitem}•
+%% TikZ
+{tikzpicture}#RET##INS##RET#\end{tikzpicture}•
+{tikzpicture}[#INS#]#RET#•#RET#\end{tikzpicture}•

@@ -1,6 +1,6 @@
 /* miktex-texworks.h:
 
-   Copyright (C) 2015-2016 Christian Schenk
+   Copyright (C) 2015-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,10 +20,6 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-#include <stdarg.h>
-
-void miktex_texworks_log_synctex_error(const char * lpszFormat, va_list arglist);
 
 #if defined(__cplusplus)
 }

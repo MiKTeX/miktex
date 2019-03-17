@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -134,7 +134,7 @@ void PrefsDialog::movePathDown()
 void PrefsDialog::addPath()
 {
 	QString dir = QFileDialog::getExistingDirectory(this, tr("Choose Directory"),
-					 "/usr", /*0*/ /*QFileDialog::DontUseNativeDialog*/
+	                 QString::fromLatin1("/usr"), /*0*/ /*QFileDialog::DontUseNativeDialog*/
 								QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 	// remove the trailing / (if any)
 	dir = QDir::fromNativeSeparators(dir);
@@ -143,9 +143,9 @@ void PrefsDialog::addPath()
 #else
 	if (dir.length() > 1)
 #endif
-		if (dir.at(dir.length() - 1) == '/')
+		if (dir.at(dir.length() - 1) == QChar::fromLatin1('/'))
 			dir.chop(1);
-	if (dir != "") {
+	if (!dir.isEmpty()) {
 		binPathList->addItem(dir);
 		binPathList->setCurrentItem(binPathList->item(binPathList->count() - 1));
 		pathsChanged = true;
@@ -257,7 +257,7 @@ void PrefsDialog::refreshDefaultTool()
 		defaultTool->addItem(e.name());
 		if (e.name() == val)
 			toolIndex = defaultTool->count() - 1;
-		if (e.name() == DEFAULT_ENGINE_NAME)
+		if (e.name() == QString::fromUtf8(DEFAULT_ENGINE_NAME))
 			defaultIndex = defaultTool->count() - 1;
 	}
 	
@@ -320,7 +320,7 @@ void PrefsDialog::restoreDefaults()
 			autoIndent->setCurrentIndex(kDefault_IndentMode);
 			smartQuotes->setCurrentIndex(kDefault_QuotesMode);
 			language->setCurrentIndex(kDefault_SpellcheckLanguage);
-			encoding->setCurrentIndex(encoding->findText("UTF-8"));
+			encoding->setCurrentIndex(encoding->findText(QString::fromLatin1("UTF-8")));
 			highlightCurrentLine->setChecked(kDefault_HighlightCurrentLine);
 			autocompleteEnabled->setChecked(kDefault_AutocompleteEnabled);
 			break;
@@ -356,7 +356,30 @@ void PrefsDialog::restoreDefaults()
 			}
 
 			resolution->setDpi(QApplication::desktop()->physicalDpiX());
-			
+
+			switch (TWSynchronizer::kDefault_Resolution_ToTeX) {
+				case TWSynchronizer::CharacterResolution:
+					cbSyncToTeX->setCurrentIndex(0);
+					break;
+				case TWSynchronizer::WordResolution:
+					cbSyncToTeX->setCurrentIndex(1);
+					break;
+				case TWSynchronizer::LineResolution:
+					cbSyncToTeX->setCurrentIndex(2);
+					break;
+			}
+			switch (TWSynchronizer::kDefault_Resolution_ToPDF) {
+				case TWSynchronizer::CharacterResolution:
+					cbSyncToPDF->setCurrentIndex(0);
+					break;
+				case TWSynchronizer::WordResolution:
+					cbSyncToPDF->setCurrentIndex(1);
+					break;
+				case TWSynchronizer::LineResolution:
+					cbSyncToPDF->setCurrentIndex(2);
+					break;
+			}
+
 			switch (kDefault_MagnifierSize) {
 				case 1:
 					smallMag->setChecked(true);
@@ -429,7 +452,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	
 	QStringList nameList;
 	foreach (QTextCodec *codec, *TWUtils::findCodecs())
-		nameList.append(codec->name());
+		nameList.append(QString::fromUtf8(codec->name().constData()));
 	dlg.encoding->addItems(nameList);
 	
 	QStringList syntaxOptions = TeXHighlighter::syntaxOptions();
@@ -454,11 +477,11 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		if (loc.language() == QLocale::C)
 			label = dict;
 		else {
-			label = QLocale::languageToString(loc.language());
 			QLocale::Country country = loc.country();
 			if (country != QLocale::AnyCountry)
-				label += " - " + QLocale::countryToString(country);
-			label += " (" + dict + ")";
+				label = QString::fromLatin1("%1 - %2 (%3)").arg(QLocale::languageToString(loc.language())).arg(QLocale::countryToString(country)).arg(dict);
+			else
+				label = QString::fromLatin1("%1 (%2)").arg(QLocale::languageToString(loc.language())).arg(dict);
 		}
 
 		dictList << qMakePair(label, dict);
@@ -471,7 +494,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	// initialize controls based on the current settings
 	
 	// General
-	int oldIconSize = settings.value("toolBarIconSize", kDefault_ToolBarIcons).toInt();
+	int oldIconSize = settings.value(QString::fromLatin1("toolBarIconSize"), kDefault_ToolBarIcons).toInt();
 	switch (oldIconSize) {
 		case 1:
 			dlg.smallIcons->setChecked(true);
@@ -483,10 +506,10 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			dlg.mediumIcons->setChecked(true);
 			break;
 	}
-	bool oldShowText = settings.value("toolBarShowText", kDefault_ToolBarText).toBool();
+	bool oldShowText = settings.value(QString::fromLatin1("toolBarShowText"), kDefault_ToolBarText).toBool();
 	dlg.showText->setChecked(oldShowText);
 
-	switch (settings.value("launchOption", kDefault_LaunchOption).toInt()) {
+	switch (settings.value(QString::fromLatin1("launchOption"), kDefault_LaunchOption).toInt()) {
 		default:
 			dlg.blankDocument->setChecked(true);
 			break;
@@ -497,9 +520,9 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			dlg.openDialog->setChecked(true);
 			break;
 	}
-	dlg.openPDFwithTeX->setChecked(settings.value("openPDFwithTeX", kDefault_OpenPDFwithTeX).toBool());
+	dlg.openPDFwithTeX->setChecked(settings.value(QString::fromLatin1("openPDFwithTeX"), kDefault_OpenPDFwithTeX).toBool());
 	
-	QString oldLocale = settings.value("locale").toString();
+	QString oldLocale = settings.value(QString::fromLatin1("locale")).toString();
 	// System and English are predefined at index 0 and 1 (see constants above)
 	dlg.localePopup->addItem(tr("System default [%1]").arg(QLocale::languageToString(QLocale(QLocale::system().name()).language())));
 	int oldLocaleIndex = oldLocale.isEmpty() ? kSystemLocaleIndex : kEnglishLocaleIndex;
@@ -513,10 +536,11 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			locName = *iter;
 		else {
 			locName = QLocale::languageToString(language);
-			if (iter->contains('_')) {
-				QLocale::Country	country  = loc.country();
+			if (iter->contains(QChar::fromLatin1('_'))) {
+				QLocale::Country country  = loc.country();
 				if (country != QLocale::AnyCountry)
-					locName += " (" + QLocale::countryToString(country) + ")";
+					//: Country suffix for TeXworks translations (ex. "Portuguese (Brazil)")
+					locName += tr(" (%1)").arg(QLocale::countryToString(country));
 			}
 		}
 		dlg.localePopup->addItem(locName);
@@ -526,37 +550,37 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	dlg.localePopup->setCurrentIndex(oldLocaleIndex);
 	
 	// Editor
-	dlg.syntaxColoring->setCurrentIndex(settings.contains("syntaxColoring")
-							? 1 + syntaxOptions.indexOf(settings.value("syntaxColoring").toString())
+	dlg.syntaxColoring->setCurrentIndex(settings.contains(QString::fromLatin1("syntaxColoring"))
+	                        ? 1 + syntaxOptions.indexOf(settings.value(QString::fromLatin1("syntaxColoring")).toString())
 							: 1 + kDefault_SyntaxColoring);
-	dlg.autoIndent->setCurrentIndex(settings.contains("autoIndent")
-							? 1 + indentModes.indexOf(settings.value("autoIndent").toString())
+	dlg.autoIndent->setCurrentIndex(settings.contains(QString::fromLatin1("autoIndent"))
+	                        ? 1 + indentModes.indexOf(settings.value(QString::fromLatin1("autoIndent")).toString())
 							: 1 + kDefault_IndentMode);
-	dlg.smartQuotes->setCurrentIndex(settings.contains("smartQuotes")
-							? 1 + quotesModes.indexOf(settings.value("smartQuotes").toString())
+	dlg.smartQuotes->setCurrentIndex(settings.contains(QString::fromLatin1("smartQuotes"))
+	                        ? 1 + quotesModes.indexOf(settings.value(QString::fromLatin1("smartQuotes")).toString())
 							: 1 + kDefault_QuotesMode);
-	dlg.lineNumbers->setChecked(settings.value("lineNumbers", kDefault_LineNumbers).toBool());
-	dlg.wrapLines->setChecked(settings.value("wrapLines", kDefault_WrapLines).toBool());
-	dlg.tabWidth->setValue(settings.value("tabWidth", kDefault_TabWidth).toInt());
+	dlg.lineNumbers->setChecked(settings.value(QString::fromLatin1("lineNumbers"), kDefault_LineNumbers).toBool());
+	dlg.wrapLines->setChecked(settings.value(QString::fromLatin1("wrapLines"), kDefault_WrapLines).toBool());
+	dlg.tabWidth->setValue(settings.value(QString::fromLatin1("tabWidth"), kDefault_TabWidth).toInt());
 	QFontDatabase fdb;
 	dlg.editorFont->addItems(fdb.families());
-	QString fontString = settings.value("font").toString();
+	QString fontString = settings.value(QString::fromLatin1("font")).toString();
 	QFont font;
-	if (fontString != "")
+	if (!fontString.isEmpty())
 		font.fromString(fontString);
 	dlg.editorFont->setCurrentIndex(fdb.families().indexOf(font.family()));
 	dlg.fontSize->setValue(font.pointSize());
-	dlg.encoding->setCurrentIndex(nameList.indexOf(TWApp::instance()->getDefaultCodec()->name()));
-	dlg.highlightCurrentLine->setChecked(settings.value("highlightCurrentLine", kDefault_HighlightCurrentLine).toBool());
-	dlg.autocompleteEnabled->setChecked(settings.value("autocompleteEnabled", kDefault_AutocompleteEnabled).toBool());
+	dlg.encoding->setCurrentIndex(nameList.indexOf(QString::fromUtf8(TWApp::instance()->getDefaultCodec()->name().constData())));
+	dlg.highlightCurrentLine->setChecked(settings.value(QString::fromLatin1("highlightCurrentLine"), kDefault_HighlightCurrentLine).toBool());
+	dlg.autocompleteEnabled->setChecked(settings.value(QString::fromLatin1("autocompleteEnabled"), kDefault_AutocompleteEnabled).toBool());
 
-	QString defDict = settings.value("language", "None").toString();
+	QString defDict = settings.value(QString::fromLatin1("language"), QString::fromLatin1("None")).toString();
 	int i = dlg.language->findData(defDict);
 	if (i >= 0)
 		dlg.language->setCurrentIndex(i);
 
 	// Preview
-	switch (settings.value("scaleOption", kDefault_PreviewScaleOption).toInt()) {
+	switch (settings.value(QString::fromLatin1("scaleOption"), kDefault_PreviewScaleOption).toInt()) {
 		default:
 			dlg.actualSize->setChecked(true);
 			break;
@@ -570,8 +594,8 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			dlg.fixedScale->setChecked(true);
 			break;
 	}
-	dlg.scale->setValue(settings.value("previewScale", kDefault_PreviewScale).toInt());
-	switch (settings.value("pdfPageMode", kDefault_PDFPageMode).toInt()) {
+	dlg.scale->setValue(settings.value(QString::fromLatin1("previewScale"), kDefault_PreviewScale).toInt());
+	switch (settings.value(QString::fromLatin1("pdfPageMode"), kDefault_PDFPageMode).toInt()) {
 		case QtPDF::PDFDocumentView::PageMode_SinglePage:
 			dlg.pdfPageMode->setCurrentIndex(0);
 			break;
@@ -584,10 +608,16 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			break;
 	}
 
-	double oldResolution = settings.value("previewResolution", QApplication::desktop()->physicalDpiX()).toDouble();
+	double oldResolution = settings.value(QString::fromLatin1("previewResolution"), QApplication::desktop()->physicalDpiX()).toDouble();
 	dlg.resolution->setDpi(oldResolution);
+
+	int oldSyncToTeX = settings.value(QString::fromLatin1("syncResolutionToTeX"), TWSynchronizer::kDefault_Resolution_ToTeX).toInt();
+	dlg.cbSyncToTeX->setCurrentIndex(oldSyncToTeX);
+
+	int oldSyncToPDF = settings.value(QString::fromLatin1("syncResolutionToPDF"), TWSynchronizer::kDefault_Resolution_ToPDF).toInt();
+	dlg.cbSyncToPDF->setCurrentIndex(oldSyncToPDF);
 	
-	int oldMagSize = settings.value("magnifierSize", kDefault_MagnifierSize).toInt();
+	int oldMagSize = settings.value(QString::fromLatin1("magnifierSize"), kDefault_MagnifierSize).toInt();
 	switch (oldMagSize) {
 		case 1:
 			dlg.smallMag->setChecked(true);
@@ -599,26 +629,26 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			dlg.largeMag->setChecked(true);
 			break;
 	}
-	bool oldCircular = settings.value("circularMagnifier", kDefault_CircularMagnifier).toBool();
+	bool oldCircular = settings.value(QString::fromLatin1("circularMagnifier"), kDefault_CircularMagnifier).toBool();
 	dlg.circularMag->setChecked(oldCircular);
 	
 	// Typesetting
 	dlg.initPathAndToolLists();
-	QVariant hideConsoleSetting = settings.value("autoHideConsole", kDefault_HideConsole);
+	QVariant hideConsoleSetting = settings.value(QString::fromLatin1("autoHideConsole"), kDefault_HideConsole);
 	// Backwards compatibility to Tw 0.4.0 and before
-	if (hideConsoleSetting.toString() == "true" || hideConsoleSetting.toString() == "false")
+	if (hideConsoleSetting.toString() == QLatin1String("true") || hideConsoleSetting.toString() == QLatin1String("false"))
 		hideConsoleSetting = (hideConsoleSetting.toBool() ? kDefault_HideConsole : 0);
 	dlg.autoHideOutput->setCurrentIndex(hideConsoleSetting.toInt());
 
 	// Scripts
-	dlg.allowScriptFileReading->setChecked(settings.value("allowScriptFileReading", kDefault_AllowScriptFileReading).toBool());
-	dlg.allowScriptFileWriting->setChecked(settings.value("allowScriptFileWriting", kDefault_AllowScriptFileWriting).toBool());
-	dlg.allowSystemCommands->setChecked(settings.value("allowSystemCommands", kDefault_AllowSystemCommands).toBool());
-	dlg.enableScriptingPlugins->setChecked(settings.value("enableScriptingPlugins", kDefault_EnableScriptingPlugins).toBool());
+	dlg.allowScriptFileReading->setChecked(settings.value(QString::fromLatin1("allowScriptFileReading"), kDefault_AllowScriptFileReading).toBool());
+	dlg.allowScriptFileWriting->setChecked(settings.value(QString::fromLatin1("allowScriptFileWriting"), kDefault_AllowScriptFileWriting).toBool());
+	dlg.allowSystemCommands->setChecked(settings.value(QString::fromLatin1("allowSystemCommands"), kDefault_AllowSystemCommands).toBool());
+	dlg.enableScriptingPlugins->setChecked(settings.value(QString::fromLatin1("enableScriptingPlugins"), kDefault_EnableScriptingPlugins).toBool());
 	// there is always at least JSScriptInterface
 	if (TWApp::instance()->getScriptManager()->languages().size() <= 1)
 		dlg.enableScriptingPlugins->setEnabled(false);
-	dlg.scriptDebugger->setChecked(settings.value("scriptDebugger", kDefault_ScriptDebugger).toBool());
+	dlg.scriptDebugger->setChecked(settings.value(QString::fromLatin1("scriptDebugger"), kDefault_ScriptDebugger).toBool());
 #if QT_VERSION < 0x040500
 	dlg.scriptDebugger->setEnabled(false);
 #endif
@@ -650,8 +680,8 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			iconSize = 3;
 		bool showText = dlg.showText->isChecked();
 		if (iconSize != oldIconSize || showText != oldShowText) {
-			settings.setValue("toolBarIconSize", iconSize);
-			settings.setValue("toolBarShowText", showText);
+			settings.setValue(QString::fromLatin1("toolBarIconSize"), iconSize);
+			settings.setValue(QString::fromLatin1("toolBarShowText"), showText);
 			foreach (QWidget *widget, qApp->topLevelWidgets()) {
 				QMainWindow *theWindow = qobject_cast<QMainWindow*>(widget);
 				if (theWindow != NULL)
@@ -664,9 +694,9 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			launchOption = 2;
 		else if (dlg.openDialog->isChecked())
 			launchOption = 3;
-		settings.setValue("launchOption", launchOption);
+		settings.setValue(QString::fromLatin1("launchOption"), launchOption);
 		
-		settings.setValue("openPDFwithTeX", dlg.openPDFwithTeX->isChecked());
+		settings.setValue(QString::fromLatin1("openPDFwithTeX"), dlg.openPDFwithTeX->isChecked());
 		
 		if (dlg.localePopup->currentIndex() != oldLocaleIndex) {
 			switch (dlg.localePopup->currentIndex()) {
@@ -674,45 +704,45 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 					{
 						QString locale = QLocale::system().name();
 						TWApp::instance()->applyTranslation(locale);
-						settings.remove("locale");
+						settings.remove(QString::fromLatin1("locale"));
 					}
 					break;
 				default:
 					{
 						QString locale = trList->at(dlg.localePopup->currentIndex() - kFirstTranslationIndex);
 						TWApp::instance()->applyTranslation(locale);
-						settings.setValue("locale", locale);
+						settings.setValue(QString::fromLatin1("locale"), locale);
 					}
 					break;
 			}
 		}
 		
 		// Editor
-		settings.setValue("syntaxColoring", dlg.syntaxColoring->currentText());
-		settings.setValue("autoIndent", dlg.autoIndent->currentText());
-		settings.setValue("smartQuotes", dlg.smartQuotes->currentText());
-		settings.setValue("lineNumbers", dlg.lineNumbers->isChecked());
-		settings.setValue("wrapLines", dlg.wrapLines->isChecked());
-		settings.setValue("tabWidth", dlg.tabWidth->value());
+		settings.setValue(QString::fromLatin1("syntaxColoring"), dlg.syntaxColoring->currentText());
+		settings.setValue(QString::fromLatin1("autoIndent"), dlg.autoIndent->currentText());
+		settings.setValue(QString::fromLatin1("smartQuotes"), dlg.smartQuotes->currentText());
+		settings.setValue(QString::fromLatin1("lineNumbers"), dlg.lineNumbers->isChecked());
+		settings.setValue(QString::fromLatin1("wrapLines"), dlg.wrapLines->isChecked());
+		settings.setValue(QString::fromLatin1("tabWidth"), dlg.tabWidth->value());
 		font = QFont(dlg.editorFont->currentText());
 		font.setPointSize(dlg.fontSize->value());
-		settings.setValue("font", font.toString());
+		settings.setValue(QString::fromLatin1("font"), font.toString());
 		TWApp::instance()->setDefaultCodec(QTextCodec::codecForName(dlg.encoding->currentText().toLatin1()));
 		if (dlg.language->currentIndex() >= 0) {
 			QVariant data = dlg.language->itemData(dlg.language->currentIndex());
 			if (data.isValid())
-				settings.setValue("language", data);
+				settings.setValue(QString::fromLatin1("language"), data);
 			else
-				settings.setValue("language", "None");
+				settings.setValue(QString::fromLatin1("language"), QString::fromLatin1("None"));
 		}
 		else
-			settings.setValue("language", "None");
+			settings.setValue(QString::fromLatin1("language"), QString::fromLatin1("None"));
 		bool highlightLine = dlg.highlightCurrentLine->isChecked();
-		settings.setValue("highlightCurrentLine", highlightLine);
+		settings.setValue(QString::fromLatin1("highlightCurrentLine"), highlightLine);
 		CompletingEdit::setHighlightCurrentLine(highlightLine);
 
 		bool autocompleteEnabled = dlg.autocompleteEnabled->isChecked();
-		settings.setValue("autocompleteEnabled", autocompleteEnabled);
+		settings.setValue(QString::fromLatin1("autocompleteEnabled"), autocompleteEnabled);
 		CompletingEdit::setAutocompleteEnabled(autocompleteEnabled);
 
 		// Since the tab width can't be set by any other means, forcibly update
@@ -732,38 +762,46 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		else if (dlg.fixedScale->isChecked())
 			scaleOption = 4;
 		int scale = dlg.scale->value();
-		settings.setValue("scaleOption", scaleOption);
-		settings.setValue("previewScale", scale);
+		settings.setValue(QString::fromLatin1("scaleOption"), scaleOption);
+		settings.setValue(QString::fromLatin1("previewScale"), scale);
 		switch (dlg.pdfPageMode->currentIndex()) {
 			case 0:
-				settings.setValue("pdfPageMode", QtPDF::PDFDocumentView::PageMode_SinglePage);
+			    settings.setValue(QString::fromLatin1("pdfPageMode"), QtPDF::PDFDocumentView::PageMode_SinglePage);
 				break;
 			case 1:
-				settings.setValue("pdfPageMode", QtPDF::PDFDocumentView::PageMode_OneColumnContinuous);
+			    settings.setValue(QString::fromLatin1("pdfPageMode"), QtPDF::PDFDocumentView::PageMode_OneColumnContinuous);
 				break;
 			case 2:
-				settings.setValue("pdfPageMode", QtPDF::PDFDocumentView::PageMode_TwoColumnContinuous);
+			    settings.setValue(QString::fromLatin1("pdfPageMode"), QtPDF::PDFDocumentView::PageMode_TwoColumnContinuous);
 				break;
 		}
 
 		double resolution = dlg.resolution->dpi();
 		if (resolution != oldResolution) {
-			settings.setValue("previewResolution", resolution);
+			settings.setValue(QString::fromLatin1("previewResolution"), resolution);
 			foreach (QWidget *widget, qApp->topLevelWidgets()) {
 				PDFDocument *thePdfDoc = qobject_cast<PDFDocument*>(widget);
 				if (thePdfDoc != NULL)
 					thePdfDoc->setResolution(resolution);
 			}
 		}
-		
+
+		int syncToTeX = dlg.cbSyncToTeX->currentIndex();
+		if (syncToTeX != oldSyncToTeX)
+			settings.setValue(QString::fromLatin1("syncResolutionToTeX"), syncToTeX);
+
+		int syncToPDF = dlg.cbSyncToPDF->currentIndex();
+		if (syncToPDF != oldSyncToPDF)
+			settings.setValue(QString::fromLatin1("syncResolutionToPDF"), syncToPDF);
+
 		int magSize = 2;
 		if (dlg.smallMag->isChecked())
 			magSize = 1;
 		else if (dlg.largeMag->isChecked())
 			magSize = 3;
-		settings.setValue("magnifierSize", magSize);
+		settings.setValue(QString::fromLatin1("magnifierSize"), magSize);
 		bool circular = dlg.circularMag->isChecked();
-		settings.setValue("circularMagnifier", circular);
+		settings.setValue(QString::fromLatin1("circularMagnifier"), circular);
 		if (oldMagSize != magSize || oldCircular != circular) {
 			foreach (QWidget *widget, qApp->topLevelWidgets()) {
 				PDFDocument *thePdfDoc = qobject_cast<PDFDocument*>(widget);
@@ -782,14 +820,14 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		if (dlg.toolsChanged)
 			TWApp::instance()->setEngineList(dlg.engineList);
 		TWApp::instance()->setDefaultEngine(dlg.defaultTool->currentText());
-		settings.setValue("autoHideConsole", dlg.autoHideOutput->currentIndex());
+		settings.setValue(QString::fromLatin1("autoHideConsole"), dlg.autoHideOutput->currentIndex());
 
 		// Scripts
-		settings.setValue("allowScriptFileReading", dlg.allowScriptFileReading->isChecked());
-		settings.setValue("allowScriptFileWriting", dlg.allowScriptFileWriting->isChecked());
-		settings.setValue("allowSystemCommands", dlg.allowSystemCommands->isChecked());
-		settings.setValue("enableScriptingPlugins", dlg.enableScriptingPlugins->isChecked());
-		settings.setValue("scriptDebugger", dlg.scriptDebugger->isChecked());
+		settings.setValue(QString::fromLatin1("allowScriptFileReading"), dlg.allowScriptFileReading->isChecked());
+		settings.setValue(QString::fromLatin1("allowScriptFileWriting"), dlg.allowScriptFileWriting->isChecked());
+		settings.setValue(QString::fromLatin1("allowSystemCommands"), dlg.allowSystemCommands->isChecked());
+		settings.setValue(QString::fromLatin1("enableScriptingPlugins"), dlg.enableScriptingPlugins->isChecked());
+		settings.setValue(QString::fromLatin1("scriptDebugger"), dlg.scriptDebugger->isChecked());
 		// with changed settings, the availability of scripts may have changed
 		// (e.g., because of enabling/disabling the use of scripting plugins)
 		TWApp::instance()->updateScriptsList();

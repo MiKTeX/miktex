@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2010  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ void TemplateDialog::init()
 {
 	setupUi(this);
 
-	QString templatePath = TWUtils::getLibraryPath("templates");
+	QString templatePath = TWUtils::getLibraryPath(QString::fromLatin1("templates"));
 		// do this before creating the model, as getLibraryPath might initialize a new dir
 		
 	model = new QDirModel(this);
@@ -61,7 +61,7 @@ void TemplateDialog::init()
 	connect(treeView, SIGNAL(activated(const QModelIndex&)), this, SLOT(itemActivated(const QModelIndex&)));
 
 	QSETTINGS_OBJECT(settings);
-	if (settings.value("syntaxColoring", true).toBool()) {
+	if (settings.value(QString::fromLatin1("syntaxColoring"), true).toBool()) {
 		new TeXHighlighter(textEdit->document());
 	}
 }

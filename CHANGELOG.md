@@ -10,6 +10,7 @@
 * Gregorio 5.2.0
 * luatex 1.10.0
 * tex4ht 2018-07-03-10:36
+* TeXworks 0.6.3
 
 ### Fixed issues
 

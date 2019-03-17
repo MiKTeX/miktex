@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ public:
 	JSScript(QObject * plugin, const QString& filename)
 		: TWScript(plugin, filename) { }
 		
-	virtual bool parseHeader() { return doParseHeader("", "", "//"); };
+	virtual bool parseHeader() { return doParseHeader(QString(), QString(), QString::fromLatin1("//")); };
 
 protected:
 	virtual bool execute(TWScriptAPI *tw) const;
@@ -87,9 +87,9 @@ public:
 
 	virtual TWScript* newScript(const QString& fileName);
 
-	virtual QString scriptLanguageName() const { return QString("QtScript"); }
-	virtual QString scriptLanguageURL() const { return QString("http://doc.qt.io/qt-5/qtscript-index.html"); }
-	virtual bool canHandleFile(const QFileInfo& fileInfo) const { return fileInfo.suffix() == QString("js"); }
+	virtual QString scriptLanguageName() const { return QString::fromLatin1("QtScript"); }
+	virtual QString scriptLanguageURL() const { return QString::fromLatin1("http://doc.qt.io/qt-5/qtscript-index.html"); }
+	virtual bool canHandleFile(const QFileInfo& fileInfo) const { return fileInfo.suffix() == QLatin1String("js"); }
 };
 
 class TWScriptManager

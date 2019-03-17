@@ -1,6 +1,6 @@
 /* miktex-texworks.hpp:
 
-   Copyright (C) 2015-2016 Christian Schenk
+   Copyright (C) 2015-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -26,7 +26,7 @@ class MiKTeX_TeXworks :
   public MiKTeX::Trace::TraceCallback
 {
 public:
-  int Run(int(*Main)(int argc, char *argv[]), int argc, char *argv[]);
+  int Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[]);
   
 private:
   bool isLog4cxxConfigured = false;
@@ -35,13 +35,13 @@ private:
   std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
 
 public:
-  void MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage & traceMessage) override;
+  void MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override;
 
 private:
   void FlushPendingTraceMessages();
 
 private:
-  void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage & traceMessage);
+  void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
 
 private:
   void Sorry()

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2017  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -72,6 +72,9 @@ public:
 	static void setHighlightCurrentLine(bool highlight);
 	static void setAutocompleteEnabled(bool autocomplete);
 
+	void prefixLines(const QString &prefix);
+	void unPrefixLines(const QString &prefix);
+
 public slots:
 	void setAutoIndentMode(int index);
 	void setSmartQuotesMode(int index);
@@ -102,6 +105,7 @@ protected:
 	virtual bool canInsertFromMimeData(const QMimeData *source) const;
 	virtual void insertFromMimeData(const QMimeData *source);
 	virtual void resizeEvent(QResizeEvent *event);
+	virtual void wheelEvent(QWheelEvent *event);
 	virtual bool event(QEvent *event);	
 	virtual void scrollContentsBy(int dx, int dy);
 	
@@ -153,6 +157,8 @@ private:
 	QBasicTimer clickTimer;
 	QPoint clickPos;
 	int clickCount;
+
+	int wheelDelta;  // used to accumulate small steps of high-resolution mice
 	
 	static void loadIndentModes();
 
@@ -164,7 +170,7 @@ private:
 	int autoIndentMode;
 	int prefixLength;
 
-    static void loadSmartQuotesModes();
+	static void loadSmartQuotesModes();
 	
 	typedef QPair<QString,QString> QuotePair;
 	typedef QHash<QChar,QuotePair> QuoteMapping;

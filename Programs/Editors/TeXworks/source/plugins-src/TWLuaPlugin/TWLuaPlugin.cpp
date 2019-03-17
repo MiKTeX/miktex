@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2013  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -223,7 +223,7 @@ int LuaScript::getProperty(lua_State * L)
 	obj = (QObject*)lua_topointer(L, lua_upvalueindex(1));
 	
 	// Get the parameters
-	propName = lua_tostring(L, 2);
+	propName = QString::fromUtf8(lua_tostring(L, 2));
 	
 	switch (doGetProperty(obj, propName, result)) {
 		case Property_DoesNotExist:
@@ -259,7 +259,7 @@ int LuaScript::callMethod(lua_State * L)
 	// Get the QObject* we operate on
 	obj = (QObject*)lua_topointer(L, lua_upvalueindex(1));
 
-	methodName = lua_tostring(L, lua_upvalueindex(2));
+	methodName = QString::fromUtf8(lua_tostring(L, lua_upvalueindex(2)));
 	
 	for (i = 1; i <= lua_gettop(L); ++i) {
 		args.append(getLuaStackValue(L, i));
@@ -302,7 +302,7 @@ int LuaScript::setProperty(lua_State * L)
 	obj = (QObject*)lua_topointer(L, lua_upvalueindex(1));
 
 	// Get the parameters
-	propName = lua_tostring(L, 2);
+	propName = QString::fromUtf8(lua_tostring(L, 2));
 
 	switch (doSetProperty(obj, propName, LuaScript::getLuaStackValue(L, 3))) {
 		case Property_DoesNotExist:
@@ -323,7 +323,7 @@ int LuaScript::setProperty(lua_State * L)
 /*static*/
 QVariant LuaScript::getLuaStackValue(lua_State * L, int idx, const bool throwError /* = true */)
 {
-	bool isArray = true, isMap = true, isQObject = false;
+	bool isArray = true, isMap = true;
 	QVariantList vl;
 	QVariantMap vm;
 	int i, n, iMax;
@@ -346,17 +346,18 @@ QVariant LuaScript::getLuaStackValue(lua_State * L, int idx, const bool throwErr
 			
 			// Check if we're dealing with a QObject* wrapper
 			if (lua_getmetatable(L, idx)) {
-
 				i = lua_gettop(L);
 				lua_pushnil(L);
+
 				// see if the metatable contains the key "__qobject"; if it
 				// doesn't, trying to get it later could result in an error
+				bool isQObject = false;
 				while (lua_next(L, i)) {
 					lua_pop(L, 1); // pop the value (we don't need it)
 					if (!lua_isstring(L, -1))
 						continue;
 					lua_pushvalue(L, -1); // duplicate the key so we don't disturb lua_next
-					if (QString(lua_tostring(L, -1)) == "__qobject")
+					if (QString::fromUtf8(lua_tostring(L, -1)) == QLatin1String("__qobject"))
 						isQObject = true;
 					lua_pop(L, 1); // pop the duplicate key
 				}
@@ -434,7 +435,7 @@ QVariant LuaScript::getLuaStackValue(lua_State * L, int idx, const bool throwErr
 					// duplicate the key. If we didn't, lua_tostring could
 					// convert it, thereby confusing lua_next later on
 					lua_pushvalue(L, -2);
-					vm.insert(lua_tostring(L, -2), LuaScript::getLuaStackValue(L, -1));
+					vm.insert(QString::fromUtf8(lua_tostring(L, -2)), LuaScript::getLuaStackValue(L, -1));
 					lua_pop(L, 2);
 				}
 				return vm;

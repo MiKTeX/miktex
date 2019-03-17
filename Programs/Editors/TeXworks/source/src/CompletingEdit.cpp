@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@
 CompletingEdit::CompletingEdit(QWidget *parent)
 	: QTextEdit(parent),
 	  clickCount(0),
+	  wheelDelta(0),
 	  autoIndentMode(-1), prefixLength(0),
 	  smartQuotesMode(-1),
 	  c(NULL), cmpCursor(QTextCursor()),
@@ -65,8 +66,8 @@ CompletingEdit::CompletingEdit(QWidget *parent)
 		currentLineFormat = new QTextCharFormat;
 
 		QSETTINGS_OBJECT(settings);
-		highlightCurrentLine = settings.value("highlightCurrentLine", true).toBool();
-		autocompleteEnabled = settings.value("autocompleteEnabled", true).toBool();
+		highlightCurrentLine = settings.value(QString::fromLatin1("highlightCurrentLine"), true).toBool();
+		autocompleteEnabled = settings.value(QString::fromLatin1("autocompleteEnabled"), true).toBool();
 	}
 		
 	loadIndentModes();
@@ -87,6 +88,80 @@ CompletingEdit::CompletingEdit(QWidget *parent)
 	updateLineNumberAreaWidth(0);
 	updateColors();
 }
+
+void CompletingEdit::prefixLines(const QString &prefix)
+{
+	QTextCursor cursor = textCursor();
+	cursor.beginEditBlock();
+	int selStart = cursor.selectionStart();
+	int selEnd = cursor.selectionEnd();
+	cursor.setPosition(selStart);
+	if (!cursor.atBlockStart()) {
+		cursor.movePosition(QTextCursor::StartOfBlock);
+		selStart = cursor.position();
+	}
+	cursor.setPosition(selEnd);
+	if (!cursor.atBlockStart() || selEnd == selStart) {
+		cursor.movePosition(QTextCursor::NextBlock);
+		selEnd = cursor.position();
+	}
+	if (selEnd == selStart)
+		goto handle_end_of_doc;	// special case - cursor in blank line at end of doc
+	if (!cursor.atBlockStart()) {
+		cursor.movePosition(QTextCursor::StartOfBlock);
+		goto handle_end_of_doc; // special case - unterminated last line
+	}
+	while (cursor.position() > selStart) {
+		cursor.movePosition(QTextCursor::PreviousBlock);
+	handle_end_of_doc:
+		cursor.insertText(prefix);
+		cursor.movePosition(QTextCursor::StartOfBlock);
+		selEnd += prefix.length();
+	}
+	cursor.setPosition(selStart);
+	cursor.setPosition(selEnd, QTextCursor::KeepAnchor);
+	setTextCursor(cursor);
+	cursor.endEditBlock();
+}
+
+void CompletingEdit::unPrefixLines(const QString &prefix)
+{
+	QTextCursor cursor = textCursor();
+	cursor.beginEditBlock();
+	int selStart = cursor.selectionStart();
+	int selEnd = cursor.selectionEnd();
+	cursor.setPosition(selStart);
+	if (!cursor.atBlockStart()) {
+		cursor.movePosition(QTextCursor::StartOfBlock);
+		selStart = cursor.position();
+	}
+	cursor.setPosition(selEnd);
+	if (!cursor.atBlockStart() || selEnd == selStart) {
+		cursor.movePosition(QTextCursor::NextBlock);
+		selEnd = cursor.position();
+	}
+	if (!cursor.atBlockStart()) {
+		cursor.movePosition(QTextCursor::StartOfBlock);
+		goto handle_end_of_doc; // special case - unterminated last line
+	}
+	while (cursor.position() > selStart) {
+		cursor.movePosition(QTextCursor::PreviousBlock);
+	handle_end_of_doc:
+		cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+		QString		str = cursor.selectedText();
+		if (str == prefix) {
+			cursor.removeSelectedText();
+			selEnd -= prefix.length();
+		}
+		else
+			cursor.movePosition(QTextCursor::PreviousCharacter);
+	}
+	cursor.setPosition(selStart);
+	cursor.setPosition(selEnd, QTextCursor::KeepAnchor);
+	setTextCursor(cursor);
+	cursor.endEditBlock();
+}
+
 
 void CompletingEdit::updateColors()
 {
@@ -382,7 +457,7 @@ QTextCursor CompletingEdit::wordSelectionForPos(const QPoint& mousePos)
 
 	cursor = QTextCursor(document());
 	cursor.setPosition(cursorPos);
-	cursor.setPosition(cursorPos + 1, QTextCursor::KeepAnchor);
+	cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
 
 	// check if click was within the char to the right of cursor; if so we select forwards
 	QRect r = cursorRect(cursor);
@@ -405,14 +480,14 @@ QTextCursor CompletingEdit::wordSelectionForPos(const QPoint& mousePos)
 		const QString plainText = toPlainText();
 		QChar curChr = plainText[cursorPos];
 		QChar c;
-		if ((c = TWUtils::closerMatching(curChr)) != 0) {
+		if (!(c = TWUtils::closerMatching(curChr)).isNull()) {
 			int balancePos = TWUtils::balanceDelim(plainText, cursorPos + 1, c, 1);
 			if (balancePos < 0)
 				QApplication::beep();
 			else
 				cursor.setPosition(balancePos + 1, QTextCursor::KeepAnchor);
-				}
-		else if ((c = TWUtils::openerMatching(curChr)) != 0) {
+		}
+		else if (!(c = TWUtils::openerMatching(curChr)).isNull()) {
 			int balancePos = TWUtils::balanceDelim(plainText, cursorPos - 1, c, -1);
 			if (balancePos < 0)
 				QApplication::beep();
@@ -446,7 +521,7 @@ CompletingEdit::setSelectionClipboard(const QTextCursor& curs)
 	QClipboard *c = QApplication::clipboard();
 	if (!c->supportsSelection())
 		return;
-	c->setText(curs.selectedText().replace(QChar(0x2019), QChar('\n')),
+	c->setText(curs.selectedText().replace(QChar(0x2019), QChar::fromLatin1('\n')),
 		QClipboard::Selection);
 }
 
@@ -494,7 +569,7 @@ void CompletingEdit::keyPressEvent(QKeyEvent *e)
 		return;
 	}
 
-	if (e->text() != "")
+	if (!e->text().isEmpty())
 		cmpCursor = QTextCursor();
 
 	switch (e->key()) {
@@ -557,6 +632,11 @@ void CompletingEdit::handleBackspace(QKeyEvent *e)
 	}
 	else
 		QTextEdit::keyPressEvent(e);
+
+	// Without the following, when pressing Up or Down immediately
+	// after Backspace the cursor ends up in the wrong column.
+	curs.setPosition(curs.position());
+	setTextCursor(curs);
 }
 
 void CompletingEdit::handleOtherKey(QKeyEvent *e)
@@ -589,9 +669,9 @@ void CompletingEdit::handleOtherKey(QKeyEvent *e)
 				const QString text = document()->toPlainText();
 				int match = -2;
 				QChar c;
-				if (pos > 0 && pos < text.length() && (c = TWUtils::openerMatching(text[pos])) != 0)
+				if (pos > 0 && pos < text.length() && !(c = TWUtils::openerMatching(text[pos])).isNull())
 					match = TWUtils::balanceDelim(text, pos - 1, c, -1);
-				else if (pos < text.length() - 1 && (c = TWUtils::closerMatching(text[pos])) != 0)
+				else if (pos < text.length() - 1 && !(c = TWUtils::closerMatching(text[pos])).isNull())
 					match = TWUtils::balanceDelim(text, pos + 1, c, 1);
 				if (match >= 0) {
 					QList<ExtraSelection> selList = extraSelections();
@@ -627,12 +707,12 @@ QStringList CompletingEdit::smartQuotesModes()
 void CompletingEdit::loadSmartQuotesModes()
 {
 	if (quotesModes == NULL) {
-		QDir configDir(TWUtils::getLibraryPath("configuration"));
+		QDir configDir(TWUtils::getLibraryPath(QString::fromLatin1("configuration")));
 		quotesModes = new QList<QuotesMode>;
-		QFile quotesModesFile(configDir.filePath("smart-quotes-modes.txt"));
+		QFile quotesModesFile(configDir.filePath(QString::fromLatin1("smart-quotes-modes.txt")));
 		if (quotesModesFile.open(QIODevice::ReadOnly)) {
-			QRegExp modeName("\\[([^]]+)\\]");
-			QRegExp quoteLine("([^ \\t])\\s+([^ \\t]+)\\s+([^ \\t]+)");
+			QRegExp modeName(QString::fromLatin1("\\[([^]]+)\\]"));
+			QRegExp quoteLine(QString::fromLatin1("([^ \\t])\\s+([^ \\t]+)\\s+([^ \\t]+)"));
 			QuotesMode newMode;
 			while (1) {
 				QByteArray ba = quotesModesFile.readLine();
@@ -693,7 +773,7 @@ void CompletingEdit::maybeSmartenQuote(int offset)
 			replacement = iter.value().first;
 		
 		// after opening brackets, also use opening quotes
-		if (text[offset - 1] == '{' || text[offset - 1] == '[' || text[offset - 1] == '(')
+		if (text[offset - 1] == QChar::fromLatin1('{') || text[offset - 1] == QChar::fromLatin1('[') || text[offset - 1] == QChar::fromLatin1('('))
 			replacement = iter.value().first;
 	}
 	
@@ -761,8 +841,11 @@ void CompletingEdit::handleCompletionShortcut(QKeyEvent *e)
 	// if we are at the beginning of the line (i.e., only whitespaces before a
 	// caret cursor), insert a tab (for indentation) instead of doing completion
 	bool atLineStart = false;
+
 	QTextCursor lineStartCursor = textCursor();
-	if (lineStartCursor.selectionEnd() == lineStartCursor.selectionStart()) {
+	bool noSelection = lineStartCursor.selectionEnd() == lineStartCursor.selectionStart();
+
+	if (noSelection) {
 		lineStartCursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
 		if(lineStartCursor.selectedText().trimmed().isEmpty())
 			atLineStart = true;
@@ -778,24 +861,24 @@ void CompletingEdit::handleCompletionShortcut(QKeyEvent *e)
 		int start = cmpCursor.selectionStart();
 		int end = cmpCursor.selectionEnd();
 		if (start > 0) { // special cases: possibly look back to include brace or hyphen(s)
-			if (cmpCursor.selectedText() == "-") {
+			if (cmpCursor.selectedText() == QLatin1String("-")) {
 				QTextCursor hyphCursor(cmpCursor);
 				int hyphPos = start;
 				while (hyphPos > 0) {
 					hyphCursor.setPosition(hyphPos - 1);
 					hyphCursor.setPosition(hyphPos, QTextCursor::KeepAnchor);
-					if (hyphCursor.selectedText() != "-")
+					if (hyphCursor.selectedText() != QLatin1String("-"))
 						break;
 					--hyphPos;
 				}
 				cmpCursor.setPosition(hyphPos);
 				cmpCursor.setPosition(end, QTextCursor::KeepAnchor);
 			}
-			else if (cmpCursor.selectedText() != "{") {
+			else if (cmpCursor.selectedText() != QLatin1String("{")) {
 				QTextCursor braceCursor(cmpCursor);
 				braceCursor.setPosition(start - 1);
 				braceCursor.setPosition(start, QTextCursor::KeepAnchor);
-				if (braceCursor.selectedText() == "{") {
+				if (braceCursor.selectedText() == QLatin1String("{")) {
 					cmpCursor.setPosition(start - 1);
 					cmpCursor.setPosition(end, QTextCursor::KeepAnchor);
 				}
@@ -804,7 +887,7 @@ void CompletingEdit::handleCompletionShortcut(QKeyEvent *e)
 		
 		while (1) {
 			QString completionPrefix = cmpCursor.selectedText();
-			if (completionPrefix != "") {
+			if (!completionPrefix.isEmpty()) {
 				setCompleter(sharedCompleter);
 				c->setCompletionPrefix(completionPrefix);
 				if (c->completionCount() == 0) {
@@ -851,7 +934,15 @@ void CompletingEdit::handleCompletionShortcut(QKeyEvent *e)
 		return;
 	}
 	
-	QTextEdit::keyPressEvent(e);
+	if(!noSelection) {
+		if(e->modifiers() == Qt::ShiftModifier) {
+			unPrefixLines(QString::fromLatin1("\t"));
+		} else {
+			prefixLines(QString::fromLatin1("\t"));
+		}
+	} else {
+		QTextEdit::keyPressEvent(e);
+	}
 }
 
 void CompletingEdit::showCompletion(const QString& completion, int insOffset)
@@ -912,9 +1003,9 @@ void CompletingEdit::showCurrentCompletion()
 
 	QString completion = model->item(items[itemIndex]->row(), 1)->text();
 	
-	int insOffset = completion.indexOf("#INS#");
+	int insOffset = completion.indexOf(QLatin1String("#INS#"));
 	if (insOffset != -1)
-		completion.replace("#INS#", "");
+		completion.replace(QLatin1String("#INS#"), QLatin1String(""));
 
 	showCompletion(completion, insOffset);
 }
@@ -931,15 +1022,15 @@ void CompletingEdit::loadCompletionsFromFile(QStandardItemModel *model, const QS
 			QString	line = in.readLine();
 			if (line.isNull())
 				break;
-			if (line[0] == '%')
+			if (line[0] == QChar::fromLatin1('%'))
 				continue;
-			line.replace("#RET#", "\n");
-			QStringList parts = line.split(":=");
+			line.replace(QLatin1String("#RET#"), QLatin1String("\n"));
+			QStringList parts = line.split(QString::fromLatin1(":="));
 			if (parts.count() > 2)
 				continue;
 			if (parts.count() == 1)
 				parts.append(parts[0]);
-			parts[0].replace("#INS#", "");
+			parts[0].replace(QLatin1String("#INS#"), QLatin1String(""));
 			row.append(new QStandardItem(parts[0]));
 			row.append(new QStandardItem(parts[1]));
 			model->appendRow(row);
@@ -953,7 +1044,7 @@ void CompletingEdit::loadCompletionFiles(QCompleter *theCompleter)
 {
 	QStandardItemModel *model = new QStandardItemModel(0, 2, theCompleter); // columns are abbrev, expansion
 
-	QDir completionDir(TWUtils::getLibraryPath("completion"));
+	QDir completionDir(TWUtils::getLibraryPath(QString::fromLatin1("completion")));
 	foreach (QFileInfo fileInfo, completionDir.entryInfoList(QDir::Files | QDir::Readable, QDir::Name)) {
 		loadCompletionsFromFile(model, fileInfo.canonicalFilePath());
 	}
@@ -1061,11 +1152,11 @@ void CompletingEdit::ignoreWord()
 void CompletingEdit::loadIndentModes()
 {
 	if (indentModes == NULL) {
-		QDir configDir(TWUtils::getLibraryPath("configuration"));
+		QDir configDir(TWUtils::getLibraryPath(QString::fromLatin1("configuration")));
 		indentModes = new QList<IndentMode>;
-		QFile indentPatternFile(configDir.filePath("auto-indent-patterns.txt"));
+		QFile indentPatternFile(configDir.filePath(QString::fromLatin1("auto-indent-patterns.txt")));
 		if (indentPatternFile.open(QIODevice::ReadOnly)) {
-			QRegExp re("\"([^\"]+)\"\\s+(.+)");
+			QRegExp re(QString::fromLatin1("\"([^\"]+)\"\\s+(.+)"));
 			while (1) {
 				QByteArray ba = indentPatternFile.readLine();
 				if (ba.size() == 0)
@@ -1151,7 +1242,7 @@ int CompletingEdit::lineNumberAreaWidth()
 		++digits;
 	}
 	
-	int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
+	int space = 3 + fontMetrics().width(QChar::fromLatin1('9')) * digits;
 	
 	return space;
 }
@@ -1189,6 +1280,28 @@ void CompletingEdit::resizeEvent(QResizeEvent *e)
 	
 	QRect cr = contentsRect();
 	lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+}
+
+void CompletingEdit::wheelEvent(QWheelEvent *e)
+{
+	if (e->modifiers() & Qt::ControlModifier)
+	{
+		wheelDelta += e->delta();  // accumulate wheelDelta for high-resolution mice, which might pass small values.
+		int sign = (wheelDelta < 0) ? -1 : 1;
+		const int stepSize = 120;  // according to Qt docs a standard wheel step corresponds to a delta of 120.
+		int steps = (sign * wheelDelta) / stepSize;  // abs value to guarantee rounding towards 0.
+		if (steps > 0) {
+			QFont ft = font();
+			const int minFontSize = 4;
+			ft.setPointSize(qMax(ft.pointSize() + sign * steps, minFontSize));
+			setFont(ft);
+			wheelDelta = 0;
+		}
+		e->accept();
+		return;
+	}
+
+	QTextEdit::wheelEvent(e);
 }
 
 void CompletingEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
@@ -1269,7 +1382,7 @@ void CompletingEdit::setHighlightCurrentLine(bool highlight)
 void CompletingEdit::setAutocompleteEnabled(bool autocomplete)
 {
 	if (autocomplete != autocompleteEnabled) {
-    autocompleteEnabled = autocomplete;
+		autocompleteEnabled = autocomplete;
 	}
 }
 

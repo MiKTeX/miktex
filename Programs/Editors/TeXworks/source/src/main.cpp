@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2017  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -57,21 +57,19 @@ int main(int argc, char *argv[])
 
 	CommandlineParser clp;
 	QList<fileToOpenStruct> filesToOpen;
-	fileToOpenStruct fileToOpen;
+	fileToOpenStruct fileToOpen = {QString(), -1};
 	
-	clp.registerSwitch("help", "Display this message", "?");
-	clp.registerOption("position", "Open the following file at the given position (line or page)", "p");
-	clp.registerSwitch("version", "Display version information", "v");
+	clp.registerSwitch(QString::fromLatin1("help"), TWApp::tr("Display this message"), QString::fromLatin1("?"));
+	clp.registerOption(QString::fromLatin1("position"), TWApp::tr("Open the following file at the given position (line or page)"), QString::fromLatin1("p"));
+	clp.registerSwitch(QString::fromLatin1("version"), TWApp::tr("Display version information"), QString::fromLatin1("v"));
 
-	int pos;
-	int numArgs = 0;
 	bool launchApp = true;
 	if (clp.parse()) {
-		int i, j;
+		int i, numArgs = 0;
 		while ((i = clp.getNextArgument()) >= 0) {
 			++numArgs;
-			pos = -1;
-			if ((j = clp.getPrevOption("position", i)) >= 0) {
+			int j, pos = -1;
+			if ((j = clp.getPrevOption(QString::fromLatin1("position"), i)) >= 0) {
 				pos = clp.at(j).value.toInt();
 				clp.at(j).processed = true;
 			}
@@ -82,23 +80,23 @@ int main(int argc, char *argv[])
 			fileToOpen.position = pos;
 			filesToOpen << fileToOpen;
 		}
-		if ((i = clp.getNextSwitch("version")) >= 0) {
+		if ((i = clp.getNextSwitch(QString::fromLatin1("version"))) >= 0) {
 			if (numArgs == 0)
 				launchApp = false;
 			clp.at(i).processed = true;
 			QTextStream strm(stdout);
 			if (TWUtils::isGitInfoAvailable())
-				strm << QString::fromUtf8("TeXworks %1 (%2) [r.%3, %4]\n\n").arg(TEXWORKS_VERSION).arg(TW_BUILD_ID_STR).arg(TWUtils::gitCommitHash()).arg(TWUtils::gitCommitDate().toLocalTime().toString(Qt::SystemLocaleShortDate));
+				strm << QString::fromUtf8("TeXworks %1 (%2) [r.%3, %4]\n\n").arg(QString::fromLatin1(TEXWORKS_VERSION)).arg(QString::fromLatin1(TW_BUILD_ID_STR)).arg(TWUtils::gitCommitHash()).arg(TWUtils::gitCommitDate().toLocalTime().toString(Qt::SystemLocaleShortDate));
 			else
-				strm << QString::fromUtf8("TeXworks %1 (%3)\n\n").arg(TEXWORKS_VERSION).arg(TW_BUILD_ID_STR);
+				strm << QString::fromUtf8("TeXworks %1 (%2)\n\n").arg(QString::fromLatin1(TEXWORKS_VERSION)).arg(QString::fromLatin1(TW_BUILD_ID_STR));
 			strm << QString::fromUtf8("\
 Copyright (C) %1  %2\n\
 License GPLv2+: GNU GPL (version 2 or later) <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
-There is NO WARRANTY, to the extent permitted by law.\n\n").arg("2007-2017", "Jonathan Kew, Stefan Löffler, Charlie Sharpsteen");
+There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2019"), QString::fromUtf8("Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"));
 			strm.flush();
 		}
-		if ((i = clp.getNextSwitch("help")) >= 0) {
+		if ((i = clp.getNextSwitch(QString::fromLatin1("help"))) >= 0) {
 			if (numArgs == 0)
 				launchApp = false;
 			clp.at(i).processed = true;
@@ -144,15 +142,15 @@ There is NO WARRANTY, to the extent permitted by law.\n\n").arg("2007-2017", "Jo
 #endif
 
 #ifdef QT_DBUS_LIB
-	if (QDBusConnection::sessionBus().registerService(TW_SERVICE_NAME) == false) {
-		QDBusInterface interface(TW_SERVICE_NAME, TW_APP_PATH, TW_INTERFACE_NAME);
+	if (QDBusConnection::sessionBus().registerService(QString::fromLatin1(TW_SERVICE_NAME)) == false) {
+		QDBusInterface interface(QString::fromLatin1(TW_SERVICE_NAME), QString::fromLatin1(TW_APP_PATH), QString::fromLatin1(TW_INTERFACE_NAME));
 		if (interface.isValid()) {
-			interface.call("bringToFront");
+			interface.call(QString::fromLatin1("bringToFront"));
 			foreach(fileToOpen, filesToOpen) {
 				QFileInfo fi(fileToOpen.filename);
 				if (!fi.exists())
 					continue;
-				interface.call("openFile", fi.absoluteFilePath(), fileToOpen.position);
+				interface.call(QString::fromLatin1("openFile"), fi.absoluteFilePath(), fileToOpen.position);
 			}
 			return 0;
 		}
@@ -166,10 +164,10 @@ There is NO WARRANTY, to the extent permitted by law.\n\n").arg("2007-2017", "Jo
 	}
 
 	new TWAdaptor(&app);
-	if (QDBusConnection::sessionBus().registerObject(TW_APP_PATH, &app) == false) {
+	if (QDBusConnection::sessionBus().registerObject(QString::fromLatin1(TW_APP_PATH), &app) == false) {
 		// failed to register the application object, so unregister our service
 		// and continue as a multiple-instance app instead
-		(void)QDBusConnection::sessionBus().unregisterService(TW_SERVICE_NAME);
+		(void)QDBusConnection::sessionBus().unregisterService(QString::fromLatin1(TW_SERVICE_NAME));
 	}
 #endif // defined(QT_DBUS_LIB)
 

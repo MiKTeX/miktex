@@ -33,7 +33,7 @@
 
 [LaTeX]
 # special characters
-darkred		N	[\$#\^_\{\}&]
+darkred		N	[$#^_{}&]
 
 # LaTeX environments
 darkgreen	N	\\(?:begin|end)\s*\{[^\}]*\}
@@ -45,22 +45,84 @@ darkblue	N	\\usepackage\s*(?:\[[^\]]*\]\s*)?\{[^\}]*\}
 blue		N	\\(?:[A-Za-z@]+|.)
 
 # comments
-red			Y	%.*
+red		Y	%.*
 
 [ConTeXt]
 # special characters
-darkred		N	[$#^_{}&]
+darkred		N	[$#{}&]
+
+# 'other' special characters
+darkblue	N	[=\[\]]
+
+# mathematical operations
+gray		N	[\-+/^_]
 
 # start/stop
-darkgreen	N	\\(?:start|stop)[A-Za-z]+
+darkgreen;B	N	\\(?:start|stop)[A-Za-z]+
 
 # control sequences
-blue		N	\\(?:[A-Za-z@]+|.)
+blue;B		N	\\(?:[A-Za-z@]+|.)
 
 # comments
-red			Y	%.*
+red		Y	%.*
+
+[BibTeX]
+
+# entries
+darkgreen	N	@[^{]+
+
+# comments
+red		Y	%.*
+
+# keys
+blue	N	[a-zA-Z]+(?=\s*=)
+
+[LaTeX DTX]
+
+# comments
+red		Y	\^\^A.*
+
+# Guards
+darkviolet		N	^%<@@=[^>]*>
+limegreen		N	^%<\*[^>]*>
+crimson		N	^%</[^>]*>
+brown		N	^%<<
+orange		N	^%<[^>]*>
+
+# special characters
+darkred		N	\^\^\^\^\^[0-9a-z]{5}
+darkred		N	\^\^\^\^[0-9a-z]{4}
+darkred		N	\^\^\^[0-9a-z]{3}
+darkred		N	\^\^[0-9a-z]{2}
+darkred		N	[$#^_{}&]
+gray		N	^%%.*
+gray		N	^%
+
+# Macrocode
+green		N	\\(?:begin|end)\{macrocode\}
+
+# LaTeX environments
+darkgreen	N	\\(?:begin|end)\s*\{[^}]*\}
+
+# control sequences
+blue		N	\\(?:[A-Za-z@:_]+|.)
+
+[Lua]
+
+# Comments (single line only)
+red		Y	--.*
+
+# Strings
+green		N	(?:\"(?:[^\"\\]|\\[\s\S])*(?:\"|$)|\'(?:[^\'\\]|\\[\s\S])*(?:\'|$))
+green		N	\[(=*)\[[\s\S]*(?:\]\1\]|$)
+
+# Keywords
+blue;B		N	
+\b(?:and|break|do|else|elseif|end|false|for|function|if|in|local|nil|not|or|repeat|return|then|true|until|while)\b
+
+# Numbers
+darkblue	N	[+-]?(?:0x[\da-f]+|(?:(?:\.\d+|\d+(?:\.\d*)?)(?:e[+\-]?\d+)?))
 
 # other possibilities to be added....
-# [BibTeX]
 # [Metapost]
 # etc

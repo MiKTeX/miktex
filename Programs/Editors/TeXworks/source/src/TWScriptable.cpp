@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -50,17 +50,13 @@ Q_IMPORT_PLUGIN(TWLuaPlugin)
 #include <QtPlugin>
 Q_IMPORT_PLUGIN(TWPythonPlugin)
 #endif
-#if defined(MIKTEX_WINDOWS)
-#define MIKTEX_UTF8_WRAP_ALL 1
-#include <miktex/utf8wrap.h>
-#endif
 
 static
 QVariant convertValue(const QScriptValue& value)
 {
 	if (value.isArray()) {
 		QVariantList lst;
-		int len = value.property("length").toUInt32();
+		int len = value.property(QString::fromLatin1("length")).toUInt32();
 		for (int i = 0; i < len; ++i) {
 			QScriptValue p = value.property(i);
 			lst.append(convertValue(p));
@@ -85,13 +81,13 @@ bool JSScript::execute(TWScriptAPI *tw) const
 	
 	QScriptEngine engine;
 	QScriptValue twObject = engine.newQObject(tw);
-	engine.globalObject().setProperty("TW", twObject);
+	engine.globalObject().setProperty(QString::fromLatin1("TW"), twObject);
 	
 	QScriptValue val;
 
 #if QT_VERSION >= 0x040500
 	QSETTINGS_OBJECT(settings);
-	if (settings.value("scriptDebugger", false).toBool()) {
+	if (settings.value(QString::fromLatin1("scriptDebugger"), false).toBool()) {
 		QScriptEngineDebugger debugger;
 		debugger.attachTo(&engine);
 		val = engine.evaluate(contents, m_Filename);
@@ -129,7 +125,7 @@ TWScriptManager::TWScriptManager()
 void
 TWScriptManager::saveDisabledList()
 {
-	QDir scriptRoot(TWUtils::getLibraryPath("scripts"));
+	QDir scriptRoot(TWUtils::getLibraryPath(QString::fromLatin1("scripts")));
 	QStringList disabled;
 
 	QList<QObject*> list = m_Scripts.findChildren<QObject*>();
@@ -148,7 +144,7 @@ TWScriptManager::saveDisabledList()
 	}
 	
 	QSETTINGS_OBJECT(settings);
-	settings.setValue("disabledScripts", disabled);
+	settings.setValue(QString::fromLatin1("disabledScripts"), disabled);
 }
 
 void TWScriptManager::loadPlugins()
@@ -164,22 +160,22 @@ void TWScriptManager::loadPlugins()
 
 #ifdef TW_PLUGINPATH
 	// allow a hard-coded path for distro packagers
-	QDir pluginsDir = QDir(TW_PLUGINPATH);
+	QDir pluginsDir = QDir(QString::fromLatin1(TW_PLUGINPATH));
 #else
 	// find the plugins directory, relative to the executable
 	QDir pluginsDir = QDir(qApp->applicationDirPath());
 #if defined(Q_OS_WIN)
-	if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
+	if (pluginsDir.dirName().toLower() == QLatin1String("debug") || pluginsDir.dirName().toLower() == QLatin1String("release"))
 		pluginsDir.cdUp();
 #elif defined(Q_OS_DARWIN) // "plugins" directory is alongside "MacOS" within the package's Contents dir
-	if (pluginsDir.dirName() == "MacOS")
+	if (pluginsDir.dirName() == QLatin1String("MacOS"))
 		pluginsDir.cdUp();
-	if (!pluginsDir.exists("plugins")) { // if not found, try for a dir alongside the .app package
+	if (!pluginsDir.exists(QString::fromLatin1("plugins"))) { // if not found, try for a dir alongside the .app package
 		pluginsDir.cdUp();
 		pluginsDir.cdUp();
 	}
 #endif
-	pluginsDir.cd("plugins");
+	pluginsDir.cd(QString::fromLatin1("plugins"));
 #endif
 
 	// allow an env var to override the default plugin path
@@ -208,11 +204,11 @@ void TWScriptManager::loadPlugins()
 void TWScriptManager::reloadScripts(bool forceAll /* = false */)
 {
 	QSETTINGS_OBJECT(settings);
-	QStringList disabled = settings.value("disabledScripts", QStringList()).toStringList();
+	QStringList disabled = settings.value(QString::fromLatin1("disabledScripts"), QStringList()).toStringList();
 	QStringList processed;
 	
 	// canonicalize the paths
-	QDir scriptsDir(TWUtils::getLibraryPath("scripts"));
+	QDir scriptsDir(TWUtils::getLibraryPath(QString::fromLatin1("scripts")));
 	for (int i = 0; i < disabled.size(); ++i)
 		disabled[i] = QFileInfo(scriptsDir.absoluteFilePath(disabled[i])).canonicalFilePath();
 
@@ -230,7 +226,7 @@ void TWScriptManager::reloadScripts(bool forceAll /* = false */)
 void TWScriptManager::reloadScriptsInList(TWScriptList * list, QStringList & processed)
 {
 	QSETTINGS_OBJECT(settings);
-	bool enableScriptsPlugins = settings.value("enableScriptingPlugins", false).toBool();
+	bool enableScriptsPlugins = settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool();
 	
 	foreach(QObject * item, list->children()) {
 		if (qobject_cast<TWScriptList*>(item))
@@ -309,7 +305,7 @@ void TWScriptManager::addScriptsInDirectory(TWScriptList *scriptList,
 {
 	QSETTINGS_OBJECT(settings);
 	QFileInfo info;
-	bool scriptingPluginsEnabled = settings.value("enableScriptingPlugins", false).toBool();
+	bool scriptingPluginsEnabled = settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool();
 	
 	foreach (const QFileInfo& constInfo,
 			 dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Readable, QDir::DirsLast)) {
@@ -458,7 +454,7 @@ TWScriptManager::runScript(QObject* script, QObject * context, QVariant & result
 	if (!s || s->getType() != scriptType)
 		return false;
 
-	if (!settings.value("enableScriptingPlugins", false).toBool() &&
+	if (!settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool() &&
 		!qobject_cast<const JSScriptInterface*>(s->getScriptLanguagePlugin())
 	) return false;
 
@@ -541,7 +537,7 @@ TWScriptable::addScriptsToMenu(QMenu *menu, TWScriptList *scripts)
 		if (script) {
 			if (!script->isEnabled())
 				continue;
-			if (script->getContext().isEmpty() || script->getContext() == metaObject()->className()) {
+			if (script->getContext().isEmpty() || script->getContext() == QString::fromUtf8(metaObject()->className())) {
 				QAction *a = menu->addAction(script->getTitle());
 				connect(script, SIGNAL(destroyed(QObject*)), this, SLOT(scriptDeleted(QObject*)));
 				if (!script->getKeySequence().isEmpty())
@@ -549,7 +545,7 @@ TWScriptable::addScriptsToMenu(QMenu *menu, TWScriptList *scripts)
 //				a->setEnabled(script->isEnabled());
 				// give the action an object name so it could possibly included in the
 				// customization process of keyboard shortcuts in the future
-				a->setObjectName(QString("Script: %1").arg(script->getTitle()));
+				a->setObjectName(QString::fromLatin1("Script: %1").arg(script->getTitle()));
 				a->setStatusTip(script->getDescription());
 				scriptMapper->setMapping(a, script);
 				connect(a, SIGNAL(triggered()), scriptMapper, SLOT(map()));
@@ -613,31 +609,27 @@ void
 TWScriptable::doAboutScripts()
 {
 	QSETTINGS_OBJECT(settings);
-	bool enableScriptsPlugins = settings.value("enableScriptingPlugins", false).toBool();
+	bool enableScriptsPlugins = settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool();
 
-	QString scriptingLink = QString("<a href=\"%1\">%1</a>").arg("https://github.com/TeXworks/texworks/wiki/ScriptingTeXworks");
-	QString aboutText = "<p>";
+	QString scriptingLink = QString::fromLatin1("<a href=\"%1\">%1</a>").arg(QString::fromLatin1("https://github.com/TeXworks/texworks/wiki/ScriptingTeXworks"));
+	QString aboutText = QLatin1String("<p>");
 	aboutText += tr("Scripts may be used to add new commands to %1, "
-					"and to extend or modify its behavior.").arg(TEXWORKS_NAME);
-	aboutText += "</p><p><small>";
+	                "and to extend or modify its behavior.").arg(QString::fromLatin1(TEXWORKS_NAME));
+	aboutText += QLatin1String("</p><p><small>");
 	aboutText += tr("For more information on creating and using scripts, see %1</p>").arg(scriptingLink);
-	aboutText += "</small></p><p>";
-	aboutText += tr("Scripting languages currently available in this copy of %1:").arg(TEXWORKS_NAME);
-	aboutText += "</p><ul>";
+	aboutText += QLatin1String("</small></p><p>");
+	aboutText += tr("Scripting languages currently available in this copy of %1:").arg(QString::fromLatin1(TEXWORKS_NAME));
+	aboutText += QLatin1String("</p><ul>");
 	foreach (const QObject * plugin,
 			 TWApp::instance()->getScriptManager()->languages()) {
 		const TWScriptLanguageInterface * i = qobject_cast<TWScriptLanguageInterface*>(plugin);
 		if(!i) continue;
-		aboutText += "<li><a href=\"";
-		aboutText += i->scriptLanguageURL();
-		aboutText += "\">";
-		aboutText += i->scriptLanguageName();
-		aboutText += "</a>";
+		aboutText += QString::fromLatin1("<li><a href=\"%1\">%2</a>").arg(i->scriptLanguageURL()).arg(i->scriptLanguageName());
 		if (!enableScriptsPlugins && !qobject_cast<const JSScriptInterface*>(plugin)) {
 			//: This string is appended to a script language name to indicate it is currently disabled
-			aboutText += " " + tr("(disabled in the preferences)");
+			aboutText += QChar::fromLatin1(' ') + tr("(disabled in the preferences)");
 		}
-		aboutText += "</li>";
+		aboutText += QLatin1String("</li>");
 	}
 	QMessageBox::about(NULL, tr("About Scripts"), aboutText);
 }

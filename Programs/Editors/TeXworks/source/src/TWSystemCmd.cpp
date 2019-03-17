@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2013  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2013-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ void TWSystemCmd::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
 #if defined(MIKTEX)
 				result += QString::fromUtf8(ba);
 #else
-				result += QString::fromLocal8Bit(ba);
+				result += QString::fromLocal8Bit(ba.constData());
 #endif
 			}
 		}
@@ -89,7 +89,7 @@ void TWSystemCmd::processOutput()
 #if defined(MIKTEX_WINDOWS)
 		result += QString::fromUtf8(ba);
 #else
-		result += QString::fromLocal8Bit(ba);
+		result += QString::fromLocal8Bit(ba.constData());
 #endif
 	}
 }

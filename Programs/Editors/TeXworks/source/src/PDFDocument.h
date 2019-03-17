@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -55,6 +55,43 @@ class QScrollArea;
 class TeXDocument;
 class QShortcut;
 
+class FullscreenManager : public QObject
+{
+	Q_OBJECT
+public:
+	FullscreenManager(QMainWindow * parent);
+	virtual ~FullscreenManager();
+
+	void setFullscreen(const bool fullscreen = true);
+	bool isFullscreen() const;
+	void toggleFullscreen();
+	void mouseMoveEvent(QMouseEvent * event);
+
+	void addShortcut(QAction * action, const char * member);
+	void addShortcut(const QKeySequence & key, const char * member, QAction * action = NULL);
+
+signals:
+	void fullscreenChanged(bool fullscreen);
+
+private slots:
+	void showMenuBar() { setMenuBarVisible(true); }
+	void hideMenuBar() { setMenuBarVisible(false); }
+	void actionDeleted(QObject * obj);
+
+protected:
+	void setMenuBarVisible(const bool visible = true);
+
+	struct shortcut_info {
+		QShortcut * shortcut;
+		QAction * action;
+	};
+
+	QList<shortcut_info> _shortcuts;
+	QMap<QWidget*, bool> _normalVisibility;
+	QMainWindow * _parent;
+	QTimer _menuBarTimer;
+};
+
 class PDFDocument : public TWScriptable, private Ui::PDFDocument
 {
 	Q_OBJECT
@@ -92,6 +129,7 @@ protected:
 	virtual void dragEnterEvent(QDragEnterEvent *event);
 	virtual void dropEvent(QDropEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *event);
+	virtual void mouseMoveEvent(QMouseEvent *event);
 
 public slots:
 	void texActivated(TeXDocument * texDoc);
@@ -110,13 +148,15 @@ public slots:
 	void setPageMode(const int newMode);
 	void clearSyncHighlight();
 	void clearSearchResultHighlight();
-	
+	void copySelectedTextToClipboard();
+
 private slots:
 	void changedDocument(const QWeakPointer<QtPDF::Backend::Document> newDoc);
 	void updateRecentFileActions();
 	void updateWindowMenu();
 	void enablePageActions(int);
 	void syncClick(int page, const QPointF& pos);
+	void syncRange(const int pageIndex, const QPointF & start, const QPointF & end, const TWSynchronizer::Resolution resolution);
 	void invalidateSyncHighlight();
 	void scaleLabelClick(QMouseEvent * event) { showScaleContextMenu(event->pos()); }
 	void showScaleContextMenu(const QPoint pos);
@@ -126,10 +166,12 @@ private slots:
 	void doPageDialog();
 	void doScaleDialog();
 	void jumpToSource();
-	void searchResultHighlighted(const int pageNum, const QList<QPolygonF> region);
+	void searchResultHighlighted(const int pageNum, const QList<QPolygonF> pdfRegion);
 	void setDefaultScale();
 	void maybeOpenUrl(const QUrl url);
 	void maybeOpenPdf(QString filename, QtPDF::PDFDestination destination, bool newWindow);
+	void maybeZoomToWindow(bool doZoom) { if (doZoom) pdfWidget->zoomFitWindow(); }
+	void maybeEnableCopyCommand(const bool isTextSelected);
 
 signals:
 	void reloaded();
@@ -153,7 +195,7 @@ private:
 	QLabel *pageLabel;
 	QLabel *scaleLabel;
 	QList<QAction*> recentFileActions;
-	QShortcut *exitFullscreen;
+	FullscreenManager * _fullScreenManager;
 	QSignalMapper pageModeSignalMapper;
 
 	QGraphicsItem * _syncHighlight;

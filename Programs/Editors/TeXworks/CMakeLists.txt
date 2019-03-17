@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2018 Christian Schenk
+## Copyright (C) 2009-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -75,6 +75,10 @@ add_definitions(
 #)
 
 set(texworks_sources
+  source/src/BibTeXFile.cpp
+  source/src/BibTeXFile.h
+  source/src/CitationSelectDialog.cpp
+  source/src/CitationSelectDialog.h
   source/src/ClickableLabel.cpp
   source/src/ClickableLabel.h
   source/src/ClosableTabWidget.cpp
@@ -89,6 +93,8 @@ set(texworks_sources
   source/src/ConfirmDelete.h
   source/src/DefaultBinaryPathsWin.h
   source/src/DefaultPrefs.h
+  source/src/Engine.cpp
+  source/src/Engine.h
   source/src/FindDialog.cpp
   source/src/FindDialog.h
   source/src/HardWrapDialog.cpp
@@ -129,10 +135,6 @@ set(texworks_sources
   source/src/TemplateDialog.cpp
   source/src/TemplateDialog.h
   source/src/main.cpp
-  source/src/synctex_parser.c
-  source/src/synctex_parser.h
-  source/src/synctex_parser_utils.c
-  source/src/synctex_parser_utils.h
 
   ${CMAKE_CURRENT_BINARY_DIR}/GitRev.h
 
@@ -150,6 +152,7 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 set(texworks_ui_files
+  source/src/CitationSelectDialog.ui
   source/src/ConfirmDelete.ui
   source/src/Find.ui
   source/src/HardWrapDialog.ui
@@ -165,21 +168,49 @@ set(texworks_ui_files
   source/src/ToolConfig.ui
 )
 
-set(texworks_rcs_files
-  TeXworks_trans.qrc
+qt5_wrap_ui(texworks_ui_headers ${texworks_ui_files})
+
+set(texworks_ts_files
+  source/trans/TeXworks_af.ts
+  source/trans/TeXworks_ar.ts
+  source/trans/TeXworks_ca.ts
+  source/trans/TeXworks_cs.ts
+  source/trans/TeXworks_de.ts
+  source/trans/TeXworks_es.ts
+  source/trans/TeXworks_fa.ts
+  source/trans/TeXworks_fo.ts
+  source/trans/TeXworks_fr.ts
+  source/trans/TeXworks_it.ts
+  source/trans/TeXworks_ja.ts
+  source/trans/TeXworks_ko.ts
+  source/trans/TeXworks_nl.ts
+  source/trans/TeXworks_nn.ts
+  source/trans/TeXworks_pl.ts
+  source/trans/TeXworks_pt_BR.ts
+  source/trans/TeXworks_ru.ts
+  source/trans/TeXworks_sl.ts
+  source/trans/TeXworks_tr.ts
+  source/trans/TeXworks_zh_CN.ts
+)
+
+qt5_add_translation(texworks_qm_sources ${texworks_ts_files})
+
+configure_file(TeXworks_trans.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/TeXworks_trans.qrc)
+
+set(texworks_qrc_files
+  ${CMAKE_CURRENT_BINARY_DIR}/TeXworks_trans.qrc
   miktex.qrc
   source/res/resfiles.qrc
   source/res/resources.qrc
 )
 
-qt5_wrap_ui(texworks_ui_headers ${texworks_ui_files})
-
-qt5_add_resources(texworks_rcc_sources ${texworks_rcs_files})
+qt5_add_resources(texworks_rcc_sources ${texworks_qrc_files})
 
 set(libs
   twluaplugin-static
   #twpythonplugin-static
   qtpdf-static
+  synctex-static
   ${core_dll_name}
   Qt5::Concurrent
   Qt5::Core
@@ -204,12 +235,6 @@ else()
   list(APPEND libs ${log4cxx_dll_name})
 endif()
 
-if(USE_SYSTEM_ZLIB)
-  list(APPEND libs MiKTeX::Imported::ZLIB)
-else()
-  list(APPEND libs ${zlib_dll_name})
-endif()
-
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND libs
     ${utf8wrap_dll_name}
@@ -227,6 +252,7 @@ add_executable(${MIKTEX_PREFIX}texworks WIN32
   ${texworks_sources}
   ${texworks_ui_headers}
   ${texworks_rcc_sources}
+  ${texworks_qm_files}
 )
 
 set_property(TARGET ${MIKTEX_PREFIX}texworks PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
@@ -239,3 +265,4 @@ add_subdirectory(plugins/lua)
 #add_subdirectory(plugins/python)
 
 add_subdirectory(modules/QtPDF)
+add_subdirectory(modules/synctex)

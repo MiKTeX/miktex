@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2015  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -58,13 +58,13 @@ int TWScriptAPI::strlen(const QString& str) const
 QString TWScriptAPI::platform() const
 {
 #if defined(Q_OS_DARWIN)
-	return QString("MacOSX");
+	return QString::fromLatin1("MacOSX");
 #elif defined(Q_OS_WIN)
-	return QString("Windows");
+	return QString::fromLatin1("Windows");
 #elif defined(Q_OS_UNIX) // && !defined(Q_OS_DARWIN)
-	return QString("X11");
+	return QString::fromLatin1("X11");
 #else
-	return QString("unknown");
+	return QString::fromLatin1("unknown");
 #endif
 }
 
@@ -198,8 +198,8 @@ QWidget * TWScriptAPI::findChildWidget(QWidget* parent, const QString& name)
 	
 bool TWScriptAPI::makeConnection(QObject* sender, const QString& signal, QObject* receiver, const QString& slot)
 {
-	return QObject::connect(sender, QString("2%1").arg(signal).toUtf8().data(),
-							receiver, QString("1%1").arg(slot).toUtf8().data());
+	return QObject::connect(sender, QString::fromLatin1("2%1").arg(signal).toUtf8().data(),
+	                        receiver, QString::fromLatin1("1%1").arg(slot).toUtf8().data());
 }
 
 
@@ -207,14 +207,14 @@ QMap<QString, QVariant> TWScriptAPI::system(const QString& cmdline, bool waitFor
 {
 	QMap<QString, QVariant> retVal;
 
-	retVal["status"] = SystemAccess_PermissionDenied;
-	retVal["result"] = QVariant();
-	retVal["message"] = QVariant();
-	retVal["output"] = QVariant();
+	retVal[QString::fromLatin1("status")] = SystemAccess_PermissionDenied;
+	retVal[QString::fromLatin1("result")] = QVariant();
+	retVal[QString::fromLatin1("message")] = QVariant();
+	retVal[QString::fromLatin1("output")] = QVariant();
 
 	// Paranoia
 	if (!m_script) {
-		retVal["message"] = tr("Internal error");
+		retVal[QString::fromLatin1("message")] = tr("Internal error");
 		return retVal;
 	}
 
@@ -228,34 +228,34 @@ QMap<QString, QVariant> TWScriptAPI::system(const QString& cmdline, bool waitFor
 			// call that possibly blocks for a considerable amount of time
 			QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents, 100);
 			if (!process->waitForStarted()) {
-				retVal["status"] = SystemAccess_Failed;
-				retVal["message"] = tr("Failed to execute system command: %1").arg(cmdline);
+				retVal[QString::fromLatin1("status")] = SystemAccess_Failed;
+				retVal[QString::fromLatin1("message")] = tr("Failed to execute system command: %1").arg(cmdline);
 				process->deleteLater();
 				return retVal;
 			}
 			QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents, 100);
 			if (!process->waitForFinished()) {
-				retVal["status"] = SystemAccess_Failed;
-				retVal["result"] = process->exitCode();
-				retVal["output"] = process->getResult();
-				retVal["message"] = tr("Error executing system command: %1").arg(cmdline);
+				retVal[QString::fromLatin1("status")] = SystemAccess_Failed;
+				retVal[QString::fromLatin1("result")] = process->exitCode();
+				retVal[QString::fromLatin1("output")] = process->getResult();
+				retVal[QString::fromLatin1("message")] = tr("Error executing system command: %1").arg(cmdline);
 				process->deleteLater();
 				return retVal;
 			}
-			retVal["status"] = SystemAccess_OK;
-			retVal["result"] = process->exitCode();
-			retVal["output"] = process->getResult();
+			retVal[QString::fromLatin1("status")] = SystemAccess_OK;
+			retVal[QString::fromLatin1("result")] = process->exitCode();
+			retVal[QString::fromLatin1("output")] = process->getResult();
 			process->deleteLater();
 		}
 		else {
 			process->closeReadChannel(QProcess::StandardOutput);
 			process->closeReadChannel(QProcess::StandardError);
 			process->start(cmdline);
-			retVal["status"] = SystemAccess_OK;
+			retVal[QString::fromLatin1("status")] = SystemAccess_OK;
 		}
 	}
 	else
-		retVal["message"] = tr("System command execution is disabled (see Preferences)");
+		retVal[QString::fromLatin1("message")] = tr("System command execution is disabled (see Preferences)");
 	return retVal;
 }
 
@@ -264,20 +264,20 @@ QMap<QString, QVariant> TWScriptAPI::launchFile(const QString& fileName) const
 	QFileInfo finfo(fileName);
 	QMap<QString, QVariant> retVal;
 	
-	retVal["status"] = SystemAccess_PermissionDenied;
-	retVal["message"] = QVariant();
+	retVal[QString::fromLatin1("status")] = SystemAccess_PermissionDenied;
+	retVal[QString::fromLatin1("message")] = QVariant();
 
 	// it's OK to "launch" a directory, as that doesn't normally execute anything
 	if (finfo.isDir() || (m_script && m_script->mayExecuteSystemCommand(fileName, m_target))) {
 		if (QDesktopServices::openUrl(QUrl::fromLocalFile(fileName)))
-			retVal["status"] = SystemAccess_OK;
+			retVal[QString::fromLatin1("status")] = SystemAccess_OK;
 		else {
-			retVal["status"] = SystemAccess_Failed;
-			retVal["message"] = tr("\"%1\" could not be opened.").arg(fileName);
+			retVal[QString::fromLatin1("status")] = SystemAccess_Failed;
+			retVal[QString::fromLatin1("message")] = tr("\"%1\" could not be opened.").arg(fileName);
 		}
 	}
 	else
-		retVal["message"] = tr("System command execution is disabled (see Preferences)");
+		retVal[QString::fromLatin1("message")] = tr("System command execution is disabled (see Preferences)");
 	return retVal;
 }
 
@@ -312,31 +312,31 @@ QMap<QString, QVariant> TWScriptAPI::readFile(const QString& filename) const
 	// executing script's file
 	QMap<QString, QVariant> retVal;
 	
-	retVal["status"] = SystemAccess_PermissionDenied;
-	retVal["result"] = QVariant();
-	retVal["message"] = QVariant();
+	retVal[QString::fromLatin1("status")] = SystemAccess_PermissionDenied;
+	retVal[QString::fromLatin1("result")] = QVariant();
+	retVal[QString::fromLatin1("message")] = QVariant();
 
 	QFileInfo fi(filename);
 	QDir scriptDir(QFileInfo(m_script->getFilename()).dir());
 	QString path = scriptDir.absoluteFilePath(filename);
 
 	if (!m_script->mayReadFile(path, m_target)) {
-		retVal["message"] = tr("Reading all files is disabled (see Preferences)");
-		retVal["status"] = TWScriptAPI::SystemAccess_PermissionDenied;
+		retVal[QString::fromLatin1("message")] = tr("Reading all files is disabled (see Preferences)");
+		retVal[QString::fromLatin1("status")] = TWScriptAPI::SystemAccess_PermissionDenied;
 		return retVal;
 	}
 	
 	QFile fin(path);
 	
 	if (!fin.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		retVal["message"] = tr("The file \"%1\" could not be opened for reading").arg(path);
-		retVal["status"] = TWScriptAPI::SystemAccess_Failed;
+		retVal[QString::fromLatin1("message")] = tr("The file \"%1\" could not be opened for reading").arg(path);
+		retVal[QString::fromLatin1("status")] = TWScriptAPI::SystemAccess_Failed;
 		return retVal;
 	}
 	
 	// with readAll, there's no way to detect an error during the actual read
-	retVal["result"] = QString::fromUtf8(fin.readAll().constData());
-	retVal["status"] = TWScriptAPI::SystemAccess_OK;
+	retVal[QString::fromLatin1("result")] = QString::fromUtf8(fin.readAll().constData());
+	retVal[QString::fromLatin1("status")] = TWScriptAPI::SystemAccess_OK;
 	fin.close();
 
 	return retVal;
@@ -380,7 +380,7 @@ QList<QVariant> TWScriptAPI::getEngineList() const
 
 	foreach (const Engine& e, engines) {
 		QMap<QString, QVariant> s;
-		s["name"] = e.name();
+		s[QString::fromLatin1("name")] = e.name();
 		retVal.append(s);
 	}
 

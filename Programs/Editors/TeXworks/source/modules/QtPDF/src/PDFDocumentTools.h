@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012  Stefan Löffler
+ * Copyright (C) 2013-2018  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -108,12 +108,14 @@ public:
 
 protected:
   virtual void arm() { AbstractTool::arm(); _started = false; }
-  virtual void disarm() { AbstractTool::disarm(); _started = false; }
+  virtual void disarm() { AbstractTool::disarm(); hide(); }
 
   virtual void mousePressEvent(QMouseEvent * event);
   virtual void mouseMoveEvent(QMouseEvent * event);
   virtual void mouseReleaseEvent(QMouseEvent * event);
   virtual void paintEvent(QPaintEvent * event);
+
+  virtual void hide();
 
   PDFDocumentMagnifierView * _magnifier;
   bool _started;
@@ -262,6 +264,9 @@ public:
   
   QColor highlightColor() const { return _highlightColor; }
   void setHighlightColor(const QColor & color);
+  bool isTextSelected() const { return (_highlightPath ? !_highlightPath->path().isEmpty() : false); }
+  QString selectedText() const;
+
 protected:
   virtual void disarm();
   virtual void mousePressEvent(QMouseEvent * event);

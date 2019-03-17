@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2013  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -64,17 +64,17 @@ public:
 	 *
 	 * \return	the name of the scripting language
 	 */
-	virtual QString scriptLanguageName() const { return QString("Lua"); }
+	virtual QString scriptLanguageName() const { return QString::fromLatin1("Lua"); }
 	
 	/** \brief	Get a URL for information on the supported script language
 	 *
 	 * \return	a string with a URL for information about the language
 	 */
-	virtual QString scriptLanguageURL() const { return QString("http://www.lua.org/"); }
+	virtual QString scriptLanguageURL() const { return QString::fromLatin1("http://www.lua.org/"); }
 	
     /** \brief  Return whether the given file is handled by this scripting language plugin
 	 */
-	virtual bool canHandleFile(const QFileInfo& fileInfo) const { return fileInfo.suffix() == QString("lua"); }
+	virtual bool canHandleFile(const QFileInfo& fileInfo) const { return fileInfo.suffix() == QLatin1String("lua"); }
 
 	lua_State * getLuaState() { return luaState; }
 	
@@ -101,7 +101,7 @@ public:
 	 * \return	\c true if successful, \c false if not (e.g. because the file
 	 * 			is no valid Tw lua script)
 	 */
-	virtual bool parseHeader() { return doParseHeader("--[[", "]]", ""); }
+	virtual bool parseHeader() { return doParseHeader(QString::fromLatin1("--[["), QString::fromLatin1("]]"), QString()); }
 
 protected:
 	/** \brief Run the lua script

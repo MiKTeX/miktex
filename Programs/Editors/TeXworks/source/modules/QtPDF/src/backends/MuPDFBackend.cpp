@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2012  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -594,6 +594,7 @@ void Document::loadMetaData()
       }
     }
   }
+  _meta_fileSize = QFileInfo(_fileName).size();
   // TODO: Implement metadata stream handling (which should probably override
   // the data in the `Info` dictionary
 }
@@ -879,7 +880,7 @@ Page::~Page()
 
 QSizeF Page::pageSizeF() const { QReadLocker pageLocker(_pageLock); return _size; }
 
-QImage Page::renderToImage(double xres, double yres, QRect render_box, bool cache)
+QImage Page::renderToImage(double xres, double yres, QRect render_box, bool cache) const
 {
   QReadLocker docLocker(_docLock.data());
   QReadLocker pageLocker(_pageLock);
@@ -1098,7 +1099,7 @@ QList<SearchResult> Page::search(QString searchText, SearchFlags flags)
   fz_device * dev;
   QString text;
   int i, j, spanStart;
-  Qt::CaseSensitivity caseSensitivity = (flags & Search_CaseInsensitive ? Qt::CaseInsensitive : Qt::CaseSensitive);
+  Qt::CaseSensitivity caseSensitivity = (flags.testFlag(Search_CaseInsensitive) ? Qt::CaseInsensitive : Qt::CaseSensitive);
 
   QReadLocker pageLocker(_pageLock);
 

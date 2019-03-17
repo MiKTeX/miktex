@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2012  Stefan Löffler
+ * Copyright (C) 2013-2019  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -155,7 +155,19 @@ public:
 
   Link() : AbstractAnnotation(), _highlightingMode(HighlightingNone), _actionOnActivation(NULL) { }
   virtual ~Link();
-  
+  Link(const Link & other) : AbstractAnnotation(other), _highlightingMode(other._highlightingMode), _quadPoints(other._quadPoints) {
+    _actionOnActivation = (other._actionOnActivation ? other._actionOnActivation->clone() : nullptr);
+  }
+  Link & operator =(const Link & other) {
+    if (&other == this) return *this;
+    AbstractAnnotation::operator =(other);
+    _highlightingMode = other._highlightingMode;
+    _quadPoints = other._quadPoints;
+    if (_actionOnActivation) delete _actionOnActivation;
+    _actionOnActivation = (other._actionOnActivation ? other._actionOnActivation->clone() : nullptr);
+    return *this;
+  }
+
   AnnotationType type() const { return AnnotationTypeLink; };
 
   HighlightingMode highlightingMode() const { return _highlightingMode; }

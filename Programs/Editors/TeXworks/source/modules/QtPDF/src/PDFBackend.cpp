@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2012  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -484,6 +484,7 @@ void PDFPageCache::markOutdated()
 Document::Document(QString fileName):
   _numPages(-1),
   _fileName(fileName),
+  _meta_fileSize(0),
   _meta_trapped(Trapped_Unknown),
   _docLock(new QReadWriteLock(QReadWriteLock::Recursive))
 {
@@ -520,8 +521,8 @@ QList<SearchResult> Document::search(QString searchText, SearchFlags flags, int 
   int i, start, end, step;
 
   start = startPage;
-  end = (flags & Search_Backwards ? -1 : _numPages);
-  step = (flags & Search_Backwards ? -1 : +1);
+  end = (flags.testFlag(Search_Backwards) ? -1 : _numPages);
+  step = (flags.testFlag(Search_Backwards) ? -1 : +1);
 
   for (i = start; i != end; i += step) {
     QSharedPointer<Page> page(_pages[i]);
@@ -530,7 +531,7 @@ QList<SearchResult> Document::search(QString searchText, SearchFlags flags, int 
     results << page->search(searchText, flags);
   }
 
-  if (flags & Search_WrapAround) {
+  if (flags.testFlag(Search_WrapAround)) {
     start = (flags & Search_Backwards ? _numPages - 1 : 0);
     end = startPage;
     for (i = start; i != end; i += step) {
@@ -574,6 +575,7 @@ void Document::clearMetaData()
   _meta_keywords = QString();
   _meta_creator = QString();
   _meta_producer = QString();
+  _meta_fileSize = 0;
 
   _meta_creationDate = QDateTime();
   _meta_modDate = QDateTime();
@@ -640,6 +642,54 @@ void Page::detachFromParent()
 {
   QWriteLocker pageLocker(_pageLock);
   _parent = NULL;
+}
+
+QRectF Page::getContentBoundingBox() const
+{
+  QSizeF pageSize(pageSizeF());
+  // render the page into a 100x100 px image (this should be fast and will allow
+  // estimating the content bounding box to about 1% of the page size)
+  QImage img = renderToImage(100. * 72 / pageSize.width(), 100. * 72 / pageSize.height());
+
+  // Make sure the image is in a format we can handle here
+  switch (img.format()) {
+    case QImage::Format_ARGB32:
+    case QImage::Format_ARGB32_Premultiplied:
+    case QImage::Format_RGB32:
+      break;
+    default:
+      img = img.convertToFormat(QImage::Format_ARGB32);
+      break;
+  }
+
+  // Get the background color (assumed to be the color of the top left pixel)
+  QRgb bg = img.pixel(0, 0);
+
+  // Make sure the same color is used in the other three corners (otherwise we
+  // can't be sure it's really the global background color; in that case we
+  // assume that everything is content)
+  if (bg != img.pixel(img.width() - 1, 0) || bg != img.pixel(0, img.height() - 1 || bg != img.pixel(img.width() - 1, img.height() - 1)))
+    return QRectF(QPointF(0, 0), pageSize);
+
+  // Find the bounding box (min/max values for x and y) of the content
+  int x0 = img.width(), x1 = 0, y0 = img.height(), y1 = 0;
+  for (int y = 0; y < img.height(); ++y) {
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+    QRgb * row = ((QRgb*)img.constScanLine(y));
+#else
+    QRgb * row = ((QRgb*)img.scanLine(y));
+#endif
+    for (int x = 0; x < img.width(); ++x) {
+      if (row[x] != bg) {
+        if (x0 > x) x0 = x;
+        if (x1 < x) x1 = x;
+        if (y0 > y) y0 = y;
+        if (y1 < y) y1 = y;
+      }
+    }
+  }
+
+  return QRectF(x0 * pageSize.width() / 100., y0 * pageSize.height() / 100., (x1 - x0 + 1) * pageSize.width() / 100., (y1 - y0 + 1) * pageSize.height() / 100.);
 }
 
 QSharedPointer<QImage> Page::getCachedImage(double xres, double yres, QRect render_box /* = QRect() */, PDFPageCache::TileStatus * status /* = NULL */)

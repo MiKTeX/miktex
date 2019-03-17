@@ -1,6 +1,6 @@
 /*
   This is part of TeXworks, an environment for working with TeX documents
-  Copyright (C) 2014  Stefan Löffler, Jonathan Kew
+  Copyright (C) 2014-2018  Stefan Löffler, Jonathan Kew
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,10 +34,16 @@ namespace SyncTeX {
 class TWSynchronizer
 {
 public:
+  enum Resolution { CharacterResolution, WordResolution, LineResolution };
+
+  static const Resolution kDefault_Resolution_ToTeX = CharacterResolution;
+  static const Resolution kDefault_Resolution_ToPDF = WordResolution;
+
   struct TeXSyncPoint {
     QString filename;
     int line;
     int col;
+    int len;
   };
   struct PDFSyncPoint {
     QString filename;
@@ -47,8 +53,8 @@ public:
 
   TWSynchronizer() { }
   virtual ~TWSynchronizer() { }
-  virtual PDFSyncPoint syncFromTeX(const TeXSyncPoint & src) const = 0;
-  virtual TeXSyncPoint syncFromPDF(const PDFSyncPoint & src) const = 0;
+  virtual PDFSyncPoint syncFromTeX(const TeXSyncPoint & src, const Resolution resolution) const = 0;
+  virtual TeXSyncPoint syncFromPDF(const PDFSyncPoint & src, const Resolution resolution) const = 0;
 };
 
 
@@ -63,16 +69,16 @@ public:
   QString syncTeXFilename() const;
   QString pdfFilename() const;
 
-  virtual PDFSyncPoint syncFromTeX(const TeXSyncPoint & src) const;
-  virtual TeXSyncPoint syncFromPDF(const PDFSyncPoint & src) const;
+  virtual PDFSyncPoint syncFromTeX(const TeXSyncPoint & src, const Resolution resolution) const;
+  virtual TeXSyncPoint syncFromPDF(const PDFSyncPoint & src, const Resolution resolution) const;
 
 protected:
-  void _syncFromTeXFine(const TeXSyncPoint & src, PDFSyncPoint & dest) const;
-  void _syncFromPDFFine(const PDFSyncPoint & src, TeXSyncPoint & dest) const;
+  void _syncFromTeXFine(const TeXSyncPoint & src, PDFSyncPoint & dest, const Resolution resolution) const;
+  void _syncFromPDFFine(const PDFSyncPoint & src, TeXSyncPoint & dest, const Resolution resolution) const;
 
   static int _findCorrespondingPosition(const QString & srcContext, const QString & destContext, const int col, bool & unique);
 
-  SyncTeX::synctex_scanner_t _scanner;
+  SyncTeX::synctex_scanner_p _scanner;
 };
 
 #endif // !defined(TW_SYNCHRONIZER_H)

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2012  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -12,6 +12,7 @@
  * more details.
  */
 #include "PDFDocumentView.h"
+#include "PaperSizes.h"
 
 #if QT_VERSION_MAJOR >= 5
   #include <QtConcurrent>
@@ -497,6 +498,21 @@ void PDFDocumentView::fitInView(const QRectF & rect, Qt::AspectRatioMode aspectR
   setVerticalScrollBarPolicy(oldVerticalPolicy);
 }
 
+const QWeakPointer<QtPDF::Backend::Document> PDFDocumentView::document() const
+{
+  return (_pdf_scene ? _pdf_scene->document() : QWeakPointer<QtPDF::Backend::Document>());
+}
+
+QString PDFDocumentView::selectedText() const
+{
+  QSharedPointer<Backend::Document> doc = document().toStrongRef();
+  if(!doc || !doc->permissions().testFlag(Backend::Document::Permission_Extract))
+    return QString();
+  if (!_armedTool || _armedTool->type() != DocumentTool::AbstractTool::Tool_Select)
+    return QString();
+  return static_cast<DocumentTool::Select*>(_armedTool)->selectedText();
+}
+
 // Public Slots
 // ------------
 
@@ -668,6 +684,34 @@ void PDFDocumentView::zoomFitWidth()
 
   zoomToRect(rect);
 }
+
+void PDFDocumentView::zoomFitContentWidth()
+{
+  if (!_pdf_scene)
+    return;
+
+  PDFPageGraphicsItem *currentPage = (PDFPageGraphicsItem*)(_pdf_scene->pageAt(_currentPage));
+  if (!currentPage)
+    return;
+
+  QSharedPointer<Backend::Page> page = currentPage->page().toStrongRef();
+  if (!page)
+    return;
+
+  QRectF rect(page->getContentBoundingBox());
+  rect = currentPage->mapRectToScene(QRectF(currentPage->mapFromPage(rect.topLeft()), currentPage->mapFromPage(rect.bottomRight())));
+
+  // Store current y position so we can center on it later.
+  qreal ypos = mapToScene(viewport()->rect()).boundingRect().center().y();
+
+  // Squash the rect to minimal height so its width will be limitting the zoom
+  // factor
+  rect.setTop(ypos - 1e-5);
+  rect.setBottom(ypos + 1e-5);
+
+  zoomToRect(rect);
+}
+
 
 void PDFDocumentView::zoom100()
 {
@@ -1272,6 +1316,12 @@ void PDFDocumentView::reinitializeFromScene()
   _searchString = QString();
 }
 
+void PDFDocumentView::notifyTextSelectionChanged()
+{
+  DocumentTool::Select * tool = static_cast<DocumentTool::Select *>(getToolByType(DocumentTool::AbstractTool::Tool_Select));
+  if (!tool) return;
+  emit textSelectionChanged(tool->isTextSelected());
+}
 
 void PDFDocumentView::registerTool(DocumentTool::AbstractTool * tool)
 {
@@ -1444,6 +1494,9 @@ void PDFDocumentView::mouseMoveEvent(QMouseEvent * event)
 {
   if(_armedTool)
     _armedTool->mouseMoveEvent(event);
+  // We only use the event for information purposes and don't actually "handle"
+  // it, therefore we ignore it so it can also be passed on to parent widgets
+  event->ignore();
   Super::mouseMoveEvent(event);
 }
 
@@ -1803,6 +1856,8 @@ PDFDocumentScene::PDFDocumentScene(QSharedPointer<Backend::Document> a_doc, QObj
     layout->setAlignment(_unlockWidgetUnlockButton, Qt::AlignHCenter);
   
     _unlockWidget->setLayout(layout);
+    _unlockProxy = new QGraphicsProxyWidget();
+    _unlockProxy->setWidget(_unlockWidget);
     retranslateUi();
   }
   
@@ -1819,6 +1874,16 @@ PDFDocumentScene::PDFDocumentScene(QSharedPointer<Backend::Document> a_doc, QObj
   setWatchForDocumentChangesOnDisk(true);
 
   reinitializeScene();
+}
+
+PDFDocumentScene::~PDFDocumentScene()
+{
+  // Destroy the _unlockProxy if it is not currently attached to the scene (in
+  // which case it is destroyed automatically)
+  if (!_unlockProxy->scene()) {
+    delete _unlockProxy;
+    _unlockProxy = nullptr;
+  }
 }
 
 void PDFDocumentScene::handleActionEvent(const PDFActionEvent * action_event)
@@ -1991,6 +2056,10 @@ void PDFDocumentScene::pageLayoutChanged(const QRectF& sceneRect)
 
 void PDFDocumentScene::reinitializeScene()
 {
+  // Remove the _unlockProxy from the scene (if applicable) to avoid it being
+  // destroyed automatically by the subsequent call to clear()
+  if (_unlockProxy->scene() == this)
+    removeItem(_unlockProxy);
   clear();
   _pages.clear();
   _pageLayout.clearPages();
@@ -2000,7 +2069,8 @@ void PDFDocumentScene::reinitializeScene()
     return;
   if (_doc->isLocked()) {
     // FIXME: Deactivate "normal" user interaction, e.g., zooming, panning, etc.
-    addWidget(_unlockWidget);
+    addItem(_unlockProxy);
+    setSceneRect(QRectF());
   }
   else {
     // Create a `PDFPageGraphicsItem` for each page in the PDF document and let
@@ -2898,7 +2968,17 @@ PDFMetaDataInfoWidget::PDFMetaDataInfoWidget(QWidget * parent) :
   _keywords = new QLabel(_documentGroup);
   _keywords->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
   layout->addRow(_keywordsLabel, _keywords);
-  
+
+  _pageSizeLabel = new QLabel(_documentGroup);
+  _pageSize = new QLabel(_documentGroup);
+  _pageSize->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+  layout->addRow(_pageSizeLabel, _pageSize);
+
+  _fileSizeLabel = new QLabel(_documentGroup);
+  _fileSize = new QLabel(_documentGroup);
+  _fileSize->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+  layout->addRow(_fileSizeLabel, _fileSize);
+
   _documentGroup->setLayout(layout);
   vLayout->addWidget(_documentGroup);
 
@@ -2939,7 +3019,6 @@ PDFMetaDataInfoWidget::PDFMetaDataInfoWidget(QWidget * parent) :
   layout = new QFormLayout(_otherGroup);
   // Hide the "Other" group box unless it has something to display
   _otherGroup->setVisible(false);
-
   // Note: Items are added to the "Other" box dynamically in
   // initFromDocument()
 
@@ -2958,6 +3037,18 @@ void PDFMetaDataInfoWidget::initFromDocument(const QWeakPointer<Backend::Documen
 
 void PDFMetaDataInfoWidget::reload()
 {
+  QStringList sizeUnits;
+  //: File size: bytes
+  sizeUnits << PDFDocumentView::trUtf8("B");
+  //: File size: kilobytes
+  sizeUnits << PDFDocumentView::trUtf8("kB");
+  //: File size: megabytes
+  sizeUnits << PDFDocumentView::trUtf8("MB");
+  //: File size: gigabytes
+  sizeUnits << PDFDocumentView::trUtf8("GB");
+  //: File size: terabytes
+  sizeUnits << PDFDocumentView::trUtf8("TB");
+
   QSharedPointer<Backend::Document> doc(_doc.toStrongRef());
   if (!doc) {
     clear();
@@ -2967,6 +3058,19 @@ void PDFMetaDataInfoWidget::reload()
   _author->setText(doc->author());
   _subject->setText(doc->subject());
   _keywords->setText(doc->keywords());
+
+  // Convert the file size to human-readable form
+  float fileSize = doc->fileSize();
+  int iUnit;
+  for (iUnit = 0; iUnit < sizeUnits.size() && fileSize >= 1000.; ++iUnit)
+    fileSize /= 1000.;
+  if (iUnit == 0)
+    _fileSize->setText(QString::fromLatin1("%1 %2").arg(doc->fileSize()).arg(sizeUnits[0]));
+  else
+    _fileSize->setText(QString::fromLatin1("%1 %2").arg(fileSize, 0, 'f', 1).arg(sizeUnits[iUnit]));
+
+  _pageSize->setText(PaperSize::findForPDFSize(doc->pageSize()).label());
+
   _creator->setText(doc->creator());
   _producer->setText(doc->producer());
   _creationDate->setText(doc->creationDate().toString(Qt::DefaultLocaleLongDate));
@@ -2994,6 +3098,7 @@ void PDFMetaDataInfoWidget::reload()
       delete child;
     }
   }
+
   QMap<QString, QString>::const_iterator it;
   for (it = doc->metaDataOther().constBegin(); it != doc->metaDataOther().constEnd(); ++it) {
     QLabel * l = new QLabel(it.value(), _otherGroup);
@@ -3010,6 +3115,7 @@ void PDFMetaDataInfoWidget::clear()
   _author->setText(QString());
   _subject->setText(QString());
   _keywords->setText(QString());
+  _fileSize->setText(QString());
   _creator->setText(QString());
   _producer->setText(QString());
   _creationDate->setText(QString());
@@ -3035,7 +3141,9 @@ void PDFMetaDataInfoWidget::retranslateUi()
   _authorLabel->setText(PDFDocumentView::trUtf8("Author:"));
   _subjectLabel->setText(PDFDocumentView::trUtf8("Subject:"));
   _keywordsLabel->setText(PDFDocumentView::trUtf8("Keywords:"));
-  
+  _pageSizeLabel->setText(PDFDocumentView::trUtf8("Page size:"));
+  _fileSizeLabel->setText(PDFDocumentView::trUtf8("File size:"));
+
   _processingGroup->setTitle(PDFDocumentView::trUtf8("Processing"));
   _creatorLabel->setText(PDFDocumentView::trUtf8("Creator:"));
   _producerLabel->setText(PDFDocumentView::trUtf8("Producer:"));

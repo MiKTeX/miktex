@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2013  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -71,7 +71,7 @@ bool TWScript::doParseHeader(const QString& beginComment, const QString& endComm
 	while (codecChanged) {
 		codec = m_Codec;
 		file.seek(0);
-		lines = codec->toUnicode(file.readAll()).split(QRegExp("\r\n|[\n\r]"));
+		lines = codec->toUnicode(file.readAll()).split(QRegExp(QLatin1String("\r\n|[\n\r]")));
 	
 		// skip any empty lines
 		if (skipEmpty) {
@@ -93,7 +93,7 @@ bool TWScript::doParseHeader(const QString& beginComment, const QString& endComm
 				break;
 			line = line.mid(Comment.size()).trimmed();
 		}
-		if (!line.startsWith("TeXworksScript"))
+		if (!line.startsWith(QLatin1String("TeXworksScript")))
 			break;
 	
 		// scan to find the extent of the header lines
@@ -142,22 +142,22 @@ TWScript::ParseHeaderResult TWScript::doParseHeader(const QStringList & lines)
 	m_LastModified = fi.lastModified();
 	
 	foreach (line, lines) {
-		key = line.section(':', 0, 0).trimmed();
-		value = line.section(':', 1).trimmed();
+		key = line.section(QChar::fromLatin1(':'), 0, 0).trimmed();
+		value = line.section(QChar::fromLatin1(':'), 1).trimmed();
 		
-		if (key == "Title") m_Title = value;
-		else if (key == "Description") m_Description = value;
-		else if (key == "Author") m_Author = value;
-		else if (key == "Version") m_Version = value;
-		else if (key == "Script-Type") {
-			if (value == "hook") m_Type = ScriptHook;
-			else if (value == "standalone") m_Type = ScriptStandalone;
+		if (key == QLatin1String("Title")) m_Title = value;
+		else if (key == QLatin1String("Description")) m_Description = value;
+		else if (key == QLatin1String("Author")) m_Author = value;
+		else if (key == QLatin1String("Version")) m_Version = value;
+		else if (key == QLatin1String("Script-Type")) {
+			if (value == QLatin1String("hook")) m_Type = ScriptHook;
+			else if (value == QLatin1String("standalone")) m_Type = ScriptStandalone;
 			else m_Type = ScriptUnknown;
 		}
-		else if (key == "Hook") m_Hook = value;
-		else if (key == "Context") m_Context = value;
-		else if (key == "Shortcut") m_KeySequence = QKeySequence(value);
-		else if (key == "Encoding") {
+		else if (key == QLatin1String("Hook")) m_Hook = value;
+		else if (key == QLatin1String("Context")) m_Context = value;
+		else if (key == QLatin1String("Shortcut")) m_KeySequence = QKeySequence(value);
+		else if (key == QLatin1String("Encoding")) {
 			QTextCodec * codec = QTextCodec::codecForName(value.toUtf8());
 			if (codec) {
 				if (!m_Codec || codec->name() != m_Codec->name()) {
@@ -176,7 +176,7 @@ TWScript::ParseHeaderResult TWScript::doParseHeader(const QStringList & lines)
 /*static*/
 TWScript::PropertyResult TWScript::doGetProperty(const QObject * obj, const QString& name, QVariant & value)
 {
-	int iProp, i;
+	int iProp;
 	QMetaProperty prop;
 	
 	if (!obj || !(obj->metaObject()))
@@ -187,12 +187,12 @@ TWScript::PropertyResult TWScript::doGetProperty(const QObject * obj, const QStr
 	
 	// if we didn't find a property maybe it's a method
 	if (iProp < 0) {
-		for (i = 0; i < obj->metaObject()->methodCount(); ++i) {
+		for (int i = 0; i < obj->metaObject()->methodCount(); ++i) {
 			#if QT_VERSION >= 0x050000
-			if (QString(obj->metaObject()->method(i).methodSignature()).startsWith(name + "("))
+			if (QString::fromUtf8(obj->metaObject()->method(i).methodSignature()).startsWith(name + QChar::fromLatin1('(')))
 				return Property_Method;
 			#else
-			if (QString(obj->metaObject()->method(i).signature()).startsWith(name + "("))
+			if (QString::fromUtf8(obj->metaObject()->method(i).signature()).startsWith(name + QChar::fromLatin1('(')))
 				return Property_Method;
 			#endif
 		}
@@ -259,10 +259,10 @@ TWScript::MethodResult TWScript::doCallMethod(QObject * obj, const QString& name
 		mm = mo->method(i);
 		// Check for the method name
 		#if QT_VERSION >= 0x050000
-		if (!QString(mm.methodSignature()).startsWith(name + "("))
+		if (!QString::fromUtf8(mm.methodSignature()).startsWith(name + QChar::fromLatin1('(')))
 			continue;
 		#else
-		if (!QString(mm.signature()).startsWith(name + "("))
+		if (!QString::fromUtf8(mm.signature()).startsWith(name + QChar::fromLatin1('(')))
 			continue;
 		#endif
 		// we can only call public methods
@@ -282,7 +282,7 @@ TWScript::MethodResult TWScript::doCallMethod(QObject * obj, const QString& name
 			if (mm.parameterTypes()[j] == "QVariant")
 				continue;
 			
-			type = QMetaType::type(mm.parameterTypes()[j]);
+			type = QMetaType::type(mm.parameterTypes()[j].constData());
 			typeOfArg = (int)arguments[j].type();
 			if (typeOfArg == (int)type)
 				continue;
@@ -308,7 +308,7 @@ TWScript::MethodResult TWScript::doCallMethod(QObject * obj, const QString& name
 		
 		// Convert the arguments into QGenericArgument structures
 		for (j = 0; j < arguments.count() && j < 10; ++j) {
-			typeName = mm.parameterTypes()[j];
+			typeName = QString::fromUtf8(mm.parameterTypes()[j].constData());
 			type = QMetaType::type(qPrintable(typeName));
 			typeOfArg = (int)arguments[j].type();
 			
@@ -316,7 +316,7 @@ TWScript::MethodResult TWScript::doCallMethod(QObject * obj, const QString& name
 			strTypeName = new char[typeName.size() + 1];
 			strcpy(strTypeName, qPrintable(typeName));
 			
-			if (typeName == "QVariant") {
+			if (typeName == QString::fromLatin1("QVariant")) {
 				genericArgs.append(QGenericArgument(strTypeName, &arguments[j]));
 				continue;
 			}
@@ -350,12 +350,12 @@ TWScript::MethodResult TWScript::doCallMethod(QObject * obj, const QString& name
 		for (; j < 10; ++j)
 			genericArgs.append(QGenericArgument());
 		
-		typeName = mm.typeName();
+		typeName = QString::fromUtf8(mm.typeName());
 		if (typeName.isEmpty()) {
 			// no return type
 			retValArg = QGenericReturnArgument();
 		}
-		else if (typeName == "QVariant") {
+		else if (typeName == QString::fromLatin1("QVariant")) {
 			// QMetaType can't construct QVariant objects
 			retValArg = Q_RETURN_ARG(QVariant, result);
 		}
@@ -387,7 +387,7 @@ TWScript::MethodResult TWScript::doCallMethod(QObject * obj, const QString& name
 		   ) {
 			if (retValBuffer)
 				result = QVariant(QMetaType::type(mm.typeName()), retValBuffer);
-			else if (typeName == "QVariant")
+			else if (typeName == QString::fromLatin1("QVariant"))
 				; // don't do anything here; the return valus is already in result
 			else
 				result = QVariant();
@@ -470,7 +470,7 @@ bool TWScript::mayExecuteSystemCommand(const QString& cmd, QObject * context) co
 	
 	// cmd may be a true command line, or a single file/directory to run or open
 	QSETTINGS_OBJECT(settings);
-	return settings.value("allowSystemCommands", false).toBool();
+	return settings.value(QString::fromLatin1("allowSystemCommands"), false).toBool();
 }
 
 bool TWScript::mayWriteFile(const QString& filename, QObject * context) const
@@ -479,7 +479,7 @@ bool TWScript::mayWriteFile(const QString& filename, QObject * context) const
 	Q_UNUSED(context)
 	
 	QSETTINGS_OBJECT(settings);
-	return settings.value("allowScriptFileWriting", false).toBool();
+	return settings.value(QString::fromLatin1("allowScriptFileWriting"), false).toBool();
 }
 
 bool TWScript::mayReadFile(const QString& filename, QObject * context) const
@@ -489,14 +489,14 @@ bool TWScript::mayReadFile(const QString& filename, QObject * context) const
 	QVariant targetFile;
 	QDir targetDir;
 	
-	if (settings.value("allowScriptFileReading", kDefault_AllowScriptFileReading).toBool())
+	if (settings.value(QString::fromLatin1("allowScriptFileReading"), kDefault_AllowScriptFileReading).toBool())
 		return true;
 	
 	// even if global reading is disallowed, some exceptions may apply
 	QFileInfo fi(QDir::cleanPath(filename));
 
 	// reading in subdirectories of the script file's directory is always allowed
-	if (!scriptDir.relativeFilePath(fi.absolutePath()).startsWith(".."))
+	if (!scriptDir.relativeFilePath(fi.absolutePath()).startsWith(QLatin1String("..")))
 		return true;
 
 	if (context) {
@@ -504,14 +504,14 @@ bool TWScript::mayReadFile(const QString& filename, QObject * context) const
 		targetFile = context->property("fileName");
 		if (targetFile.isValid() && !targetFile.toString().isEmpty()) {
 			targetDir = QFileInfo(targetFile.toString()).absoluteDir();
-			if (!targetDir.relativeFilePath(fi.absolutePath()).startsWith(".."))
+			if (!targetDir.relativeFilePath(fi.absolutePath()).startsWith(QLatin1String("..")))
 				return true;
 		}
 		// reading subdirectories of the root file is always allowed
 		targetFile = context->property("rootFileName");
 		if (targetFile.isValid() && !targetFile.toString().isEmpty()) {
 			targetDir = QFileInfo(targetFile.toString()).absoluteDir();
-			if (!targetDir.relativeFilePath(fi.absolutePath()).startsWith(".."))
+			if (!targetDir.relativeFilePath(fi.absolutePath()).startsWith(QLatin1String("..")))
 				return true;
 		}
 	}

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2011  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,10 +24,8 @@
 
 bool CommandlineParser::parse()
 {
-	bool found;
-	
 	foreach (const QString& rawItem, m_rawItems) {
-		found = false;
+		bool found = false;
 		
 		foreach (const CommandlineItemSpec& spec, m_specs) {
 			CommandlineItem item;
@@ -35,16 +33,16 @@ bool CommandlineParser::parse()
 			item.longName = spec.longName;
 			item.processed = false;
 
-			QString strLong = "--" + spec.longName;
-			QString strShort = "-" + spec.shortName;
+			QString strLong = QLatin1String("--") + spec.longName;
+			QString strShort = QLatin1String("-") + spec.shortName;
 			
 			switch (spec.type) {
 				case Commandline_Option:
-					if (!spec.longName.isEmpty() && rawItem.startsWith(strLong + "=")) {
+				    if (!spec.longName.isEmpty() && rawItem.startsWith(strLong + QLatin1String("="))) {
 						item.value = rawItem.mid(strLong.length() + 1);
 						found = true;
 					}
-					else if (!spec.shortName.isEmpty() && rawItem.startsWith(strShort + "=")) {
+					else if (!spec.shortName.isEmpty() && rawItem.startsWith(strShort + QLatin1String("="))) {
 						item.value = rawItem.mid(strShort.length() + 1);
 						found = true;
 					}

@@ -1,0 +1,25 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_af.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_ar.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_ca.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_cs.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_de.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_es.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_fa.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_fo.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_fr.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_it.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_ja.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_ko.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_nl.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_nn.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_pl.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_pt_BR.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_ru.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_sl.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_tr.qm</file>
+    <file>${CMAKE_CURRENT_BINARY_DIR}/QtPDF_zh_CN.qm</file>
+  </qresource>
+</RCC>

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2011-2015  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2011-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ QString ResourcesDialog::pathToLink(const QString & path)
 {
 	QFileInfo fi(path);
 	QString absPath = fi.absoluteFilePath();
-	return QString("<a href=\"%1\">%2</a>").arg(QUrl::fromLocalFile(absPath).toString()).arg(absPath);
+	return QString::fromLatin1("<a href=\"%1\">%2</a>").arg(QUrl::fromLocalFile(absPath).toString()).arg(absPath);
 }
 
 /*

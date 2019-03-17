@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -172,7 +172,7 @@ void ScriptManager::treeItemActivated(QTreeWidgetItem * item, int /*column*/)
 
 void ScriptManager::treeSelectionChanged()
 {
-	details->setPlainText("");
+	details->setPlainText(QString());
 
 	QTreeWidget * tree = scriptTabs->currentWidget() == standaloneTab ? standaloneTree : hookTree;
 	QList<QTreeWidgetItem*> selection = tree->selectedItems();
@@ -200,19 +200,19 @@ void ScriptManager::treeSelectionChanged()
 		QString url = sli->scriptLanguageURL();
 		QString str = sli->scriptLanguageName();
 		if (!url.isEmpty())
-			str = "<a href=\"" + url + "\">" + str + "</a>";
+			str = QString::fromLatin1("<a href=\"%1\">%2</a>").arg(url).arg(str);
 		addDetailsRow(rows, tr("Language: "), str);
 	}
 
 	if (s->getType() == TWScript::ScriptHook)
 		addDetailsRow(rows, tr("Hook: "), s->getHook());
 
-	details->setHtml("<table>" + rows + "</table>");
+	details->setHtml(QString::fromLatin1("<table>%1</table").arg(rows));
 }
 
 void ScriptManager::addDetailsRow(QString& html, const QString label, const QString value)
 {
 	if (!value.isEmpty())
-		html += "<tr><td>" + label + "</td><td>" + value + "</td></tr>";
+		html += QString::fromLatin1("<tr><td>%1</td><td>%2</td></tr>").arg(label).arg(value);
 }
 

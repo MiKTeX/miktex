@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2016 Christian Schenk
+## Copyright (C) 2008-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,13 +22,15 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_EDITORS_FOLDER}/TeXworks/QtPDF")
 hide_symbols()
 
 set(qtpdf_sources
-  ${projdir}/source/modules/QtPDF/src/PDFDocumentView.cpp
-  ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.cpp
-  ${projdir}/source/modules/QtPDF/src/PDFDocumentTools.cpp
-  ${projdir}/source/modules/QtPDF/src/PDFBackend.cpp
-  ${projdir}/source/modules/QtPDF/src/PDFTransitions.cpp
   ${projdir}/source/modules/QtPDF/src/PDFActions.cpp
   ${projdir}/source/modules/QtPDF/src/PDFAnnotations.cpp
+  ${projdir}/source/modules/QtPDF/src/PDFBackend.cpp
+  ${projdir}/source/modules/QtPDF/src/PDFDocumentTools.cpp
+  ${projdir}/source/modules/QtPDF/src/PDFDocumentView.cpp
+  ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.cpp
+  ${projdir}/source/modules/QtPDF/src/PDFTransitions.cpp
+  ${projdir}/source/modules/QtPDF/src/PaperSizes.cpp
+  ${projdir}/source/modules/QtPDF/src/PaperSizes.h
 
   ${projdir}/source/modules/QtPDF/src/backends/PopplerQtBackend.cpp
 )
@@ -45,17 +47,44 @@ set(qtpdf_headers
   ${projdir}/source/modules/QtPDF/src/backends/PopplerQtBackend.h
 )
 
-set(qtpdf_rcs_files
-  ${projdir}/source/modules/QtPDF/QtPDF_icons.qrc
-  ${projdir}/modules/QtPDF/QtPDF_trans.qrc
+set(qtpdf_ts_files
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_af.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_ar.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_ca.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_cs.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_de.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_es.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_fa.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_fo.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_fr.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_it.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_ja.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_ko.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_nl.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_nn.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_pl.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_pt_BR.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_ru.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_sl.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_tr.ts
+  ${projdir}/source/modules/QtPDF/trans/QtPDF_zh_CN.ts
 )
 
-qt5_add_resources(qtpdf_rcc_sources ${qtpdf_rcs_files})
+qt5_add_translation(qtpdf_qm_sources ${qtpdf_ts_files})
+  
+configure_file(QtPDF_trans.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/QtPDF_trans.qrc)
+
+set(qtpdf_qrc_files
+  ${CMAKE_CURRENT_BINARY_DIR}/QtPDF_trans.qrc
+  ${projdir}/source/modules/QtPDF/QtPDF_icons.qrc
+)
+
+qt5_add_resources(qtpdf_rcc_sources ${qtpdf_qrc_files})
 
 add_library(qtpdf-static STATIC
-  ${qtpdf_sources}
   ${qtpdf_headers}
   ${qtpdf_rcc_sources}
+  ${qtpdf_sources}
 )
 
 set_property(TARGET qtpdf-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})

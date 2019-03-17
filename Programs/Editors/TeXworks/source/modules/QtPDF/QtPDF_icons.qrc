@@ -13,8 +13,10 @@
     <file>icons/pagemode-present.png</file>
     <file>icons/select-text.png</file>
     <file>icons/zoom.png</file>
+    <file>icons/zoom100.png</file>
     <file>icons/zoom-fitwidth.png</file>
     <file>icons/zoom-fitwindow.png</file>
+    <file>icons/zoom-fitcontentwidth.png</file>
     <file>icons/zoomin.png</file>
     <file>icons/zoomout.png</file>
     <file>icons/zoom-select.png</file>

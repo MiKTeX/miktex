@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2017  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -171,13 +171,13 @@ void TeXHighlighter::loadPatterns()
 	if (syntaxRules != NULL)
 		return;
 
-	QDir configDir(TWUtils::getLibraryPath("configuration"));
-	QRegExp whitespace("\\s+");
+	QDir configDir(TWUtils::getLibraryPath(QString::fromLatin1("configuration")));
+	QRegExp whitespace(QString::fromLatin1("\\s+"));
 
 	if (syntaxRules == NULL) {
 		syntaxRules = new QList<HighlightingSpec>;
-		QFile syntaxFile(configDir.filePath("syntax-patterns.txt"));
-		QRegExp sectionRE("^\\[([^\\]]+)\\]");
+		QFile syntaxFile(configDir.filePath(QString::fromLatin1("syntax-patterns.txt")));
+		QRegExp sectionRE(QString::fromLatin1("^\\[([^\\]]+)\\]"));
 		if (syntaxFile.open(QIODevice::ReadOnly)) {
 			HighlightingSpec spec;
 			spec.name = tr("default");
@@ -198,8 +198,8 @@ void TeXHighlighter::loadPatterns()
 				QStringList parts = line.split(whitespace, QString::SkipEmptyParts);
 				if (parts.size() != 3)
 					continue;
-				QStringList styles = parts[0].split(QChar(';'));
-				QStringList colors = styles[0].split(QChar('/'));
+				QStringList styles = parts[0].split(QChar::fromLatin1(';'));
+				QStringList colors = styles[0].split(QChar::fromLatin1('/'));
 				QColor fg, bg;
 				if (colors.size() <= 2) {
 					if (colors.size() == 2)
@@ -212,17 +212,20 @@ void TeXHighlighter::loadPatterns()
 				if (bg.isValid())
 					rule.format.setBackground(bg);
 				if (styles.size() > 1) {
-					if (styles[1].contains('B'))
+					if (styles[1].contains(QChar::fromLatin1('B')))
 						rule.format.setFontWeight(QFont::Bold);
-					if (styles[1].contains('I'))
+					if (styles[1].contains(QChar::fromLatin1('I')))
 						rule.format.setFontItalic(true);
-					if (styles[1].contains('U'))
+					if (styles[1].contains(QChar::fromLatin1('U')))
 						rule.format.setFontUnderline(true);
 				}
-				if (parts[1].compare("Y", Qt::CaseInsensitive) == 0) {
+				if (parts[1].compare(QChar::fromLatin1('Y'), Qt::CaseInsensitive) == 0) {
 					rule.spellCheck = true;
 					rule.spellFormat = rule.format;
-					rule.spellFormat.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
+					// TODO: We should use QTextCharFormat::SpellCheckUnderline here, but that
+					// causes problems for some fonts/font sizes in Qt 5 (QTBUG-50499)
+					rule.spellFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+					rule.spellFormat.setUnderlineColor(Qt::red);
 				}
 				else
 					rule.spellCheck = false;
@@ -238,7 +241,7 @@ void TeXHighlighter::loadPatterns()
 	if (tagPatterns == NULL) {
 		// read tag-recognition patterns
 		tagPatterns = new QList<TagPattern>;
-		QFile tagPatternFile(configDir.filePath("tag-patterns.txt"));
+		QFile tagPatternFile(configDir.filePath(QString::fromLatin1("tag-patterns.txt")));
 		if (tagPatternFile.open(QIODevice::ReadOnly)) {
 			while (1) {
 				QByteArray ba = tagPatternFile.readLine();
@@ -339,20 +342,27 @@ void NonblockingSyntaxHighlighter::maybeRehighlightText(int position, int charsR
 
 void NonblockingSyntaxHighlighter::sanitizeHighlightRanges()
 {
-	// 1) remove any invalid ranges
+	// 1) clip ranges
+	int n = (_parent ? _parent->characterCount() : 0);
+	for (int i = 0; i < _highlightRanges.size(); ++i) {
+		if (_highlightRanges[i].from < 0) _highlightRanges[i].from = 0;
+		if (_highlightRanges[i].to > n) _highlightRanges[i].to = n;
+	}
+
+	// 2) remove any invalid ranges
 	for (int i = _highlightRanges.size() - 1; i >= 0; --i) {
 		if (_highlightRanges[i].to <= _highlightRanges[i].from)
 			_highlightRanges.remove(i);
 	}
-	// 2) merge adjacent (or overlapping) ranges
+	// 3) merge adjacent (or overlapping) ranges
 	// NB: There must not be any invalid ranges in here for this or else the
 	// merging algorithm would fail
 	for (int i = _highlightRanges.size() - 1; i >= 1; --i) {
 		if (_highlightRanges[i].from <= _highlightRanges[i - 1].to) {
 			if (_highlightRanges[i - 1].from > _highlightRanges[i].from)
-				_highlightRanges[i - 1].from > _highlightRanges[i].from;
+				_highlightRanges[i - 1].from = _highlightRanges[i].from;
 			if (_highlightRanges[i - 1].to < _highlightRanges[i].to)
-				_highlightRanges[i - 1].to > _highlightRanges[i].to;
+				_highlightRanges[i - 1].to = _highlightRanges[i].to;
 			_highlightRanges.remove(i);
 		}
 	}

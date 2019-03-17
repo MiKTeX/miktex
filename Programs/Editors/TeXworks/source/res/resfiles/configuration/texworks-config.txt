@@ -19,6 +19,8 @@ cleanup-patterns:	$jobname.lg $jobname.lof $jobname.log $jobname.lot
 cleanup-patterns:	$jobname.mte $jobname.mlf $jobname.out $jobname.pdfsync
 cleanup-patterns:	$jobname.toc $jobname.ttt $jobname.wrm $jobname.xref
 cleanup-patterns:	$jobname.4ct $jobname.4tc
+# beamer
+cleanup-patterns:	$jobname.nav $jobname.snm
 # biblatex / biber
 cleanup-patterns:	$jobname.run.xml
 

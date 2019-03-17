@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2012  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -54,6 +54,7 @@ class PDFDocumentView : public QGraphicsView {
   bool _useGrayScale;
 
   friend class DocumentTool::AbstractTool;
+  friend class DocumentTool::Select;
 
 public:
   enum PageMode { PageMode_SinglePage, PageMode_OneColumnContinuous, PageMode_TwoColumnContinuous, PageMode_Presentation };
@@ -69,6 +70,8 @@ public:
   qreal zoomLevel() const { return _zoomLevel; }
   bool useGrayScale() const { return _useGrayScale; }
   void fitInView(const QRectF & rect, Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio);
+  const QWeakPointer<QtPDF::Backend::Document> document() const;
+  QString selectedText() const;
 
   // The ownership of the returned pointers is transferred to the caller (i.e.,
   // he has to destroy them, unless the `parent` widget does that automatically)
@@ -134,6 +137,7 @@ public slots:
   void zoomToRect(QRectF a_rect);
   void zoomFitWindow();
   void zoomFitWidth();
+  void zoomFitContentWidth();
   void zoom100();
   void setZoomLevel(const qreal zoomLevel, const QGraphicsView::ViewportAnchor anchor = QGraphicsView::AnchorViewCenter);
 
@@ -141,6 +145,9 @@ public slots:
   void nextSearchResult();
   void previousSearchResult();
   void clearSearchResults();
+
+  void armTool(const DocumentTool::AbstractTool::Type toolType);
+  void disarmTool();
 
 signals:
   void changedPage(int pageNum);
@@ -152,6 +159,7 @@ signals:
 
   void searchProgressChanged(int percent, int occurrences);
   void searchResultHighlighted(const int pageNum, const QList<QPolygonF> region);
+  void textSelectionChanged(const bool isTextSelected);
 
   void requestOpenUrl(const QUrl url);
   void requestExecuteCommand(QString command);
@@ -175,9 +183,7 @@ protected:
 
   DocumentTool::AbstractTool * getToolByType(const DocumentTool::AbstractTool::Type type);
 
-  void armTool(const DocumentTool::AbstractTool::Type toolType);
   void armTool(DocumentTool::AbstractTool * tool);
-  void disarmTool();
 
 protected slots:
   void maybeUpdateSceneRect();
@@ -192,6 +198,7 @@ protected slots:
   void searchProgressValueChanged(int progressValue);
   void switchInterfaceLocale(const QLocale & newLocale);
   void reinitializeFromScene();
+  void notifyTextSelectionChanged();
 
 private:
   PageMode _pageMode;
@@ -310,6 +317,8 @@ private:
   QLabel * _author, * _authorLabel;
   QLabel * _subject, * _subjectLabel;
   QLabel * _keywords, * _keywordsLabel;
+  QLabel * _pageSize, * _pageSizeLabel;
+  QLabel * _fileSize, * _fileSizeLabel;
   QGroupBox * _processingGroup;
   QLabel * _creator, * _creatorLabel;
   QLabel * _producer, * _producerLabel;
@@ -448,6 +457,7 @@ class PDFDocumentScene : public QGraphicsScene
 
 public:
   PDFDocumentScene(QSharedPointer<Backend::Document> a_doc, QObject *parent = 0, const double dpiX = -1, const double dpiY = -1);
+  ~PDFDocumentScene();
 
   QWeakPointer<Backend::Document> document();
   QList<QGraphicsItem*> pages();
@@ -497,6 +507,7 @@ protected:
   QWidget * _unlockWidget;
   QLabel * _unlockWidgetLockText, * _unlockWidgetLockIcon;
   QPushButton * _unlockWidgetUnlockButton;
+  QGraphicsProxyWidget * _unlockProxy;
 
 private:
   // Parent has no copy constructor, so this class shouldn't either. Also, we

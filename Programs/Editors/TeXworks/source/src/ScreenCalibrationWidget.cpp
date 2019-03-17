@@ -100,6 +100,8 @@ void ScreenCalibrationWidget::repositionSpinBox()
 			_sbDPI->move(width() - _sbDPI->width(), 0);
 			_rulerRect = QRect(QPoint(0, 0), QPoint(width() - _sbDPI->width() - _hSpace - 2, height() - 2));
 			break;
+		// FIXME: Qt::LayoutDirectionAuto: go up the widget hierarchy until we
+		// find a valid layout direction, or use QApplication's layout direction
 	}
 }
 
@@ -227,6 +229,8 @@ void ScreenCalibrationWidget::changeEvent(QEvent * event)
 		case QEvent::LanguageChange:
 			retranslate();
 			repaint();
+			break;
+		default:
 			break;
 	}
 }

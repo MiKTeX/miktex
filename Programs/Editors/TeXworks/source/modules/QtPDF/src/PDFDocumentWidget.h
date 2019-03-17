@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012  Stefan Löffler
+ * Copyright (C) 2013-2018  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -29,7 +29,10 @@ public:
 
   QWeakPointer<Backend::Document> document() const;
 
-  bool watchForDocumentChangesOnDisk() const { if (_scene) return _scene->watchForDocumentChangesOnDisk(); }
+  bool watchForDocumentChangesOnDisk() const {
+    if (_scene) return _scene->watchForDocumentChangesOnDisk();
+    else return false;
+  }
   void setWatchForDocumentChangesOnDisk(const bool doWatch = true) { if (_scene) _scene->setWatchForDocumentChangesOnDisk(doWatch); }
 
   QStringList backends() const;

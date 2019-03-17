@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2013  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,6 +14,15 @@
 
 // NOTE: `PopplerQtBackend.h` is included via `PDFBackend.h`
 #include <PDFBackend.h>
+#include <QBitArray>
+
+// Comparison operator for QSizeF needed to use QSizeF as keys in a QMap
+// NB: Must be in the global namespace
+inline bool operator<(const QSizeF & a, const QSizeF & b) {
+    float areaA = a.width() * a.height();
+    float areaB = b.width() * b.height();
+    return (areaA < areaB || (areaA == areaB && a.width() < b.width()));
+}
 
 namespace QtPDF {
 
@@ -173,6 +182,9 @@ void Document::parseDocument()
 {
   QWriteLocker docLocker(_docLock.data());
 
+  clearMetaData();
+  _numPages = -1;
+
   if (!_poppler_doc || _isLocked())
     return;
 
@@ -208,7 +220,6 @@ void Document::parseDocument()
   _poppler_doc->setRenderHint(::Poppler::Document::TextAntialiasing);
 
   // Load meta data
-  clearMetaData();
   QStringList metaKeys = _poppler_doc->infoKeys();
   if (metaKeys.contains(QString::fromUtf8("Title"))) {
     _meta_title = _poppler_doc->info(QString::fromUtf8("Title"));
@@ -241,6 +252,23 @@ void Document::parseDocument()
   if (metaKeys.contains(QString::fromUtf8("ModDate"))) {
     _meta_modDate = fromPDFDate(_poppler_doc->info(QString::fromUtf8("ModDate")));
     metaKeys.removeAll(QString::fromUtf8("ModDate"));
+  }
+  _meta_fileSize = QFileInfo(_fileName).size();
+
+  // Get the most often used page size
+  QMap<QSizeF, int> pageSizes;
+  for (int i = 0; i < _numPages; ++i) {
+    QSizeF ps = _poppler_doc->page(i)->pageSizeF();
+    if (pageSizes.contains(ps)) ++pageSizes[ps];
+    else pageSizes[ps] = 1;
+  }
+  int occurrences = -1;
+  _meta_pageSize = QSizeF();
+  Q_FOREACH(QSizeF ps, pageSizes.keys()) {
+      if (occurrences < pageSizes[ps]) {
+          _meta_pageSize = ps;
+          occurrences = pageSizes[ps];
+      }
   }
 
   // Note: Poppler doesn't handle the meta data key "Trapped" correctly, as that
@@ -504,7 +532,7 @@ QSizeF Page::pageSizeF() const
   return _poppler_page->pageSizeF();
 }
 
-QImage Page::renderToImage(double xres, double yres, QRect render_box, bool cache)
+QImage Page::renderToImage(double xres, double yres, QRect render_box, bool cache) const
 {
   QReadLocker docLocker(_docLock.data());
   QReadLocker pageLocker(_pageLock);
@@ -754,8 +782,12 @@ QList<SearchResult> Page::search(QString searchText, SearchFlags flags)
   QList<SearchResult> results;
   SearchResult result;
   double left, right, top, bottom;
-  ::Poppler::Page::SearchDirection searchDir = (flags & Search_Backwards ? ::Poppler::Page::PreviousResult : ::Poppler::Page::NextResult);
-  ::Poppler::Page::SearchMode searchMode = (flags & Search_CaseInsensitive ? ::Poppler::Page::CaseInsensitive : ::Poppler::Page::CaseSensitive);
+  ::Poppler::Page::SearchDirection searchDir = (flags.testFlag(Search_Backwards) ? ::Poppler::Page::PreviousResult : ::Poppler::Page::NextResult);
+#if POPPLER_HAS_SEARCH_FLAGS
+  ::Poppler::Page::SearchFlags searchFlags = (flags.testFlag(Search_CaseInsensitive) ? ::Poppler::Page::IgnoreCase : ::Poppler::Page::SearchFlags());
+#else
+  ::Poppler::Page::SearchMode searchFlags = (flags.testFlag(Search_CaseInsensitive) ? ::Poppler::Page::CaseInsensitive : ::Poppler::Page::CaseSensitive);
+#endif
 
   QReadLocker docLocker(_docLock.data());
   QReadLocker pageLocker(_pageLock);
@@ -778,7 +810,7 @@ QList<SearchResult> Page::search(QString searchText, SearchFlags flags)
   // depreciated---something to do with float <-> double conversion causing
   // infinite loops on some architectures. So, we explicitly use doubles and
   // avoid the depreciated function.
-  while ( _poppler_page->search(searchText, left, top, right, bottom, searchDir, searchMode) ) {
+  while ( _poppler_page->search(searchText, left, top, right, bottom, searchDir, searchFlags) ) {
     result.bbox = QRectF(qreal(left), qreal(top), qAbs(qreal(right) - qreal(left)), qAbs(qreal(bottom) - qreal(top)));
     results << result;
   }
@@ -856,7 +888,11 @@ void Page::loadTransitionData()
       break;
     }
     if (_transition) {
+#if POPPLER_HAS_DURATION_REAL
+      _transition->setDuration(poppler_trans->durationReal());
+#else
       _transition->setDuration(poppler_trans->duration());
+#endif
       switch (poppler_trans->direction()) {
       case ::Poppler::PageTransition::Inward:
       default:
@@ -901,90 +937,101 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
   // list of words. Hence, by iterating over them, we get a list of words with
   // no whitespace inbetween
   QString retVal;
+  bool insertSpace = false;
 
-	// Get a list of all boxes
-	QList<Poppler::TextBox*> poppler_boxes = _poppler_page->textList();
-	Poppler::TextBox * lastPopplerBox = NULL;
+  // Get a list of all boxes
+  QList<Poppler::TextBox*> poppler_boxes = _poppler_page->textList();
+  Poppler::TextBox * lastPopplerBox = NULL;
 
-	// Filter boxes by selection
-	foreach (Poppler::TextBox * poppler_box, poppler_boxes) {
-		if (!poppler_box)
-			continue;
-		bool include = false;
-		bool includeEntirely = false;
-		foreach (const QPolygonF & p, selection) {
-			if (!p.intersected(poppler_box->boundingBox()).empty()) {
-				include = true;
-				includeEntirely = QPolygonF(poppler_box->boundingBox()).subtracted(p).empty();
-				break;
-			}
-		}
-		if (!include)
-			continue;
-		// If we get here, we found a box in the selection, so we append its text
+  // Filter boxes by selection
+  foreach (Poppler::TextBox * poppler_box, poppler_boxes) {
+    if (!poppler_box)
+      continue;
 
-		// Guess ends of line: if the new box is entirely below the old box, we
-		// assume it's a new line. This should work reasonably well for normal text
-		// (including RTL text), but may fail in some less common cases (e.g.,
-		// subscripts after superscripts, formulas, etc.).
-		if (lastPopplerBox && lastPopplerBox->boundingBox().bottom() < poppler_box->boundingBox().top()) {
-			retVal += QString::fromLatin1("\n");
+    // Determine which characters to include (if any)
+    QBitArray include(poppler_box->text().length());
+    for (int i = 0; i < poppler_box->text().length(); ++i) {
+      QPolygonF remainder(poppler_box->charBoundingBox(i));
+      foreach (const QPolygonF & p, selection) {
+        // Include characters if they are entirely inside the selection area or
+        // onlyFullyEnclosed == false; using "intersection only" can cause
+        // problems for overlapping char boxes (if the selection is made of
+        // entire char boxes, it would return characters that are not actually
+        // inside the selection but are just "edge cases") but is necessary if
+        // the selection comes from external sources, such as SyncTeX
+        if (p.intersected(poppler_box->charBoundingBox(i)).empty())
+          continue;
+        if (!onlyFullyEnclosed) {
+          include.setBit(i);
+          break;
+        }
+        else {
+          remainder = remainder.subtracted(p);
+          if (remainder.empty()) {
+            include.setBit(i);
+            break;
+          }
+        }
+      }
+    }
+    if (include.count(true) == 0) continue;
 
-			if (wordBoxes)
-				(*wordBoxes)[wordBoxes->count()] = lastPopplerBox->boundingBox();
-			if (charBoxes)
-				(*charBoxes)[charBoxes->count()] = lastPopplerBox->boundingBox();
-		}
+    // If we get here, we found a box that is at least partially selected, so we
+    // append the appropriate text
 
-		bool appendSpace = false;
-		if (includeEntirely) {
-			retVal += poppler_box->text();
-			if (wordBoxes) {
-				for (int i = 0; i < poppler_box->text().length(); ++i)
-					(*wordBoxes)[wordBoxes->count()] = poppler_box->boundingBox();
-			}
-			if (charBoxes) {
-				for (int i = 0; i < poppler_box->text().length(); ++i)
-					(*charBoxes)[charBoxes->count()] = poppler_box->charBoundingBox(i);
-			}
-			appendSpace = poppler_box->hasSpaceAfter();
-		}
-		else {
-			for (int i = 0; i < poppler_box->text().length(); ++i) {
-				foreach (const QPolygonF & p, selection) {
-					// Append text for char boxes if they are entirely inside the
-					// selection area or onlyFullyEnclosed == false; using "intersection
-					// only" can cause problems for overlapping char boxes (if selection
-					// is made of entire char boxes, it would return characters that are
-					// not actually inside the selection but are just "edge cases") but is
-					// necessary if selection comes from external sources, such as SyncTeX
-					if (p.intersected(poppler_box->charBoundingBox(i)).empty())
-						continue;
-					if (!onlyFullyEnclosed || QPolygonF(poppler_box->charBoundingBox(i)).subtracted(p).empty()) {
-						retVal += poppler_box->text()[i];
+    // Guess ends of lines: if the new box is mostly below the old box (with the
+    // overlap being less than 20% of the height of the larger box), we assume
+    // it's a new line. This should work reasonably well for normal text
+    // (including RTL text), but may fail in some less common cases (e.g.,
+    // subscripts after superscripts, formulas, etc.).
+    if (lastPopplerBox && lastPopplerBox->boundingBox().bottom() - poppler_box->boundingBox().top() < 0.2 * qMax(lastPopplerBox->boundingBox().height(), poppler_box->boundingBox().height())) {
+      retVal += QString::fromLatin1("\n");
 
-						if (wordBoxes)
-							(*wordBoxes)[wordBoxes->count()] = poppler_box->boundingBox();
-						if (charBoxes)
-							(*charBoxes)[charBoxes->count()] = poppler_box->charBoundingBox(i);
+      if (wordBoxes)
+        (*wordBoxes)[wordBoxes->count()] = lastPopplerBox->boundingBox();
+      if (charBoxes)
+        (*charBoxes)[charBoxes->count()] = lastPopplerBox->boundingBox();
+      // If we queued a space to be inserted, ignore that as we inserted a
+      // newline instead anyway
+      insertSpace = false;
+    }
 
-						if (i == poppler_box->text().length() - 1)
-							appendSpace = poppler_box->hasSpaceAfter();
-						break;
-					}
-				}
-			}
-		}
-		if (appendSpace) {
-			retVal += QString::fromLatin1(" ");
+    if (insertSpace && lastPopplerBox) {
+      retVal += QString::fromLatin1(" ");
 
-			if (wordBoxes)
-				(*wordBoxes)[wordBoxes->count()] = poppler_box->boundingBox();
-			if (charBoxes)
-				(*charBoxes)[charBoxes->count()] = poppler_box->boundingBox();
-		}
-		lastPopplerBox = poppler_box;
-	}
+      // As word and char Boxes, insert those of the lastPopplerBox since that
+      // was the one causing insertSpace to be true
+      if (wordBoxes)
+        (*wordBoxes)[wordBoxes->count()] = lastPopplerBox->boundingBox();
+      if (charBoxes)
+        (*charBoxes)[charBoxes->count()] = lastPopplerBox->boundingBox();
+    }
+
+    // Default to not inserting a space after this word
+    insertSpace = false;
+
+    // Insert the actual characters
+    for (int i = 0; i < poppler_box->text().length(); ++i) {
+      if (!include.testBit(i)) continue;
+
+      retVal += poppler_box->text()[i];
+
+      if (wordBoxes)
+        (*wordBoxes)[wordBoxes->count()] = poppler_box->boundingBox();
+      if (charBoxes)
+        (*charBoxes)[charBoxes->count()] = poppler_box->charBoundingBox(i);
+
+      // If we reached the end of the word, possibly queue a space to be
+      // inserted. By queuing this until the next word is processed, we ensure
+      // that spaces are not inserted at the end of the string or before
+      // newlines
+      if (i == poppler_box->text().length() - 1)
+        insertSpace = poppler_box->hasSpaceAfter();
+    }
+    // Remember the last processed box (required for detecting newlines and
+    // inserting spaces)
+    lastPopplerBox = poppler_box;
+  }
 
   return retVal;
 }

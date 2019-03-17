@@ -1,6 +1,6 @@
 /* miktex-texworks.cpp:
 
-   Copyright (C) 2015-2016 Christian Schenk
+   Copyright (C) 2015-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -36,14 +36,15 @@
 #include "miktex-texworks.hpp"
 #include "miktex-texworks.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace std;
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("texworks"));
 static log4cxx::LoggerPtr synctexLogger(log4cxx::Logger::getLogger("synctex"));
 
-int MiKTeX_TeXworks::Run(int(*Main)(int argc, char *argv[]), int argc, char *argv[])
+int MiKTeX_TeXworks::Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[])
 {
   try
   {
@@ -101,7 +102,7 @@ int MiKTeX_TeXworks::Run(int(*Main)(int argc, char *argv[]), int argc, char *arg
     }
     return exitCode;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     LOG4CXX_FATAL(logger, "MiKTeX exception: " << e.GetErrorMessage());
     LOG4CXX_FATAL(logger, "   Info: " << e.GetInfo());
@@ -110,7 +111,7 @@ int MiKTeX_TeXworks::Run(int(*Main)(int argc, char *argv[]), int argc, char *arg
     Sorry();
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     LOG4CXX_FATAL(logger, "std exception: " << e.what());
     Sorry();
@@ -118,7 +119,7 @@ int MiKTeX_TeXworks::Run(int(*Main)(int argc, char *argv[]), int argc, char *arg
   }
 }
 
-void MiKTeX_TeXworks::Trace(const TraceCallback::TraceMessage & traceMessage)
+void MiKTeX_TeXworks::Trace(const TraceCallback::TraceMessage& traceMessage)
 {
   if (isLog4cxxConfigured)
   {
@@ -132,14 +133,14 @@ void MiKTeX_TeXworks::Trace(const TraceCallback::TraceMessage & traceMessage)
 
 void MiKTeX_TeXworks::FlushPendingTraceMessages()
 {
-  for (const TraceCallback::TraceMessage & msg : pendingTraceMessages)
+  for (const TraceCallback::TraceMessage& msg : pendingTraceMessages)
   {
     TraceInternal(msg);
   }
   pendingTraceMessages.clear();
 }
 
-void MiKTeX_TeXworks::TraceInternal(const TraceCallback::TraceMessage & traceMessage)
+void MiKTeX_TeXworks::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
 {
   log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.texworks.") + traceMessage.facility);
 
@@ -157,17 +158,17 @@ void MiKTeX_TeXworks::Sorry(string reason)
 {
   stringstream serr;
   serr
-    << endl
+    << "\n"
     << "Sorry, but something went wrong";
   if (reason.empty())
   {
-    serr << "." << endl;
+    serr << "." << "\n";
   }
   else
   {
     serr
-      << " for the following reason:" << endl << endl
-      << "  " << reason << endl;
+      << " for the following reason:" << "\n" << "\n"
+      << "  " << reason << "\n";
   }
   log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
   if (appender != nullptr)
@@ -180,15 +181,10 @@ void MiKTeX_TeXworks::Sorry(string reason)
   }
   serr
     << endl
-    << "You may want to visit the MiKTeX project page (http://miktex.org), if you need help." << endl;
+    << "You may want to visit the MiKTeX project page (https://miktex.org), if you need help." << endl;
 #if defined(MIKTEX_WINDOWS)
   MessageBoxW(nullptr, StringUtil::UTF8ToWideChar(serr.str()).c_str(), L"MiKTeX TeXworks", MB_ICONERROR);
 #else
   // TODO: cerr << serrstr() << endl;
 #endif
-}
-
-void miktex_texworks_log_synctex_error(const char * lpszFormat, va_list arglist)
-{
-  LOG4CXX_ERROR(synctexLogger, StringUtil::FormatStringVA(lpszFormat, arglist));
 }

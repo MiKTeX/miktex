@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2013  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -512,6 +512,8 @@ public:
   QString producer() const { QReadLocker docLocker(_docLock.data()); return _meta_producer; }
   QDateTime creationDate() const { QReadLocker docLocker(_docLock.data()); return _meta_creationDate; }
   QDateTime modDate() const { QReadLocker docLocker(_docLock.data()); return _meta_modDate; }
+  QSizeF pageSize() const { QReadLocker docLocker(_docLock.data()); return _meta_pageSize; }
+  qint64 fileSize() const { QReadLocker docLocker(_docLock.data()); return _meta_fileSize; }
   TrappedState trapped() const { QReadLocker docLocker(_docLock.data()); return _meta_trapped; }
   QMap<QString, QString> metaDataOther() const { QReadLocker docLocker(_docLock.data()); return _meta_other; }
   // </metadata>
@@ -543,10 +545,12 @@ protected:
   QString _meta_author;
   QString _meta_subject;
   QString _meta_keywords;
+  QSizeF _meta_pageSize;
   QString _meta_creator;
   QString _meta_producer;
   QDateTime _meta_creationDate;
   QDateTime _meta_modDate;
+  qint64 _meta_fileSize;
   TrappedState _meta_trapped;
   QMap<QString, QString> _meta_other;
   QSharedPointer<QReadWriteLock> _docLock;
@@ -590,6 +594,7 @@ public:
   Document * document() { QReadLocker pageLocker(_pageLock); return _parent; }
   int pageNum();
   virtual QSizeF pageSizeF() const = 0;
+  virtual QRectF getContentBoundingBox() const;
   Transition::AbstractTransition * transition() { QReadLocker pageLocker(_pageLock); return _transition; }
 
   virtual QList< QSharedPointer<Annotation::Link> > loadLinks() = 0;
@@ -617,7 +622,7 @@ public:
   }
 
   // Uses page-read-lock and doc-read-lock.
-  virtual QImage renderToImage(double xres, double yres, QRect render_box = QRect(), bool cache = false) = 0;
+  virtual QImage renderToImage(double xres, double yres, QRect render_box = QRect(), bool cache = false) const = 0;
 
   // Returns either a cached image (if it exists), or triggers a render request.
   // If listener != NULL, this is an asynchronous render request and the method

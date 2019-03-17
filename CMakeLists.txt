@@ -945,6 +945,7 @@ if(WITH_UI_QT)
     Concurrent
     Core
     Gui
+    LinguistTools
     PrintSupport
     Script
     ScriptTools

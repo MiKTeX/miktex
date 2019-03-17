@@ -617,50 +617,18 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QGroupBox" name="groupBox_8">
-         <property name="title">
-          <string>Magnifying glass</string>
-         </property>
-         <layout class="QVBoxLayout">
-          <item>
-           <layout class="QVBoxLayout">
-            <item>
-             <widget class="QRadioButton" name="smallMag">
-              <property name="text">
-               <string>Small</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="mediumMag">
-              <property name="text">
-               <string>Medium</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="largeMag">
-              <property name="text">
-               <string>Large</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="circularMag">
-            <property name="text">
-             <string>Circular magnifier</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="1" column="0" colspan="2">
         <layout class="QFormLayout">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>3</number>
+         </property>
+         <property name="topMargin">
+          <number>3</number>
+         </property>
+         <property name="rightMargin">
+          <number>3</number>
+         </property>
+         <property name="bottomMargin">
           <number>3</number>
          </property>
          <item row="0" column="0">
@@ -707,7 +675,7 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <spacer>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -719,6 +687,120 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="title">
+          <string>Magnifying glass</string>
+         </property>
+         <layout class="QVBoxLayout">
+          <item>
+           <layout class="QVBoxLayout">
+            <item>
+             <widget class="QRadioButton" name="smallMag">
+              <property name="text">
+               <string>Small</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="mediumMag">
+              <property name="text">
+               <string>Medium</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="largeMag">
+              <property name="text">
+               <string>Large</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="circularMag">
+            <property name="text">
+             <string>Circular magnifier</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Synchronization Resolution</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_1">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>Source &gt; Preview:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="cbSyncToPDF">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>Highlight Character</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Highlight Word</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Highlight Line</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Preview &gt; Source :</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="cbSyncToTeX">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>Highlight Character</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Highlight Word</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Highlight Line</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>

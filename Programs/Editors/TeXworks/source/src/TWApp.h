@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,15 +31,16 @@
 #include <QHash>
 
 #include "TWUtils.h"
+#include "Engine.h"
 #include "TWScriptable.h"
 #include "ConfigurableApp.h"
 #include "TWScriptAPI.h"
 
 #if defined(Q_OS_WIN)
-#define PATH_LIST_SEP   ';'
+#define PATH_LIST_SEP   ";"
 #define EXE             ".exe"
 #else
-#define PATH_LIST_SEP   ':'
+#define PATH_LIST_SEP   ":"
 #define EXE
 #endif
 
