@@ -557,15 +557,23 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
     ppref * ref ;
     ppxref * xref = ppdoc_xref (pdf_doc->pdfe);
     for (r = pdf_doc->inObjList; r != NULL;) {
-        ref = ppxref_find (xref, (ppuint) r->objnum);
-        obj = ppref_obj(ref);
-        if (obj->type == PPSTREAM) {
-            pdf_begin_obj(pdf, r->num, OBJSTM_NEVER);
+        if (xref != NULL) {
+            ref = ppxref_find(xref, (ppuint) r->objnum);
+            if (ref != NULL) {
+                obj = ppref_obj(ref);
+                if (obj->type == PPSTREAM) {
+                    pdf_begin_obj(pdf, r->num, OBJSTM_NEVER);
+                } else {
+                    pdf_begin_obj(pdf, r->num, 2);
+                }
+                copyObject(pdf, pdf_doc, obj);
+                pdf_end_obj(pdf);
+            } else {
+                formatted_warning("pdf inclusion","ignoring missing object %i, case 1\n",(int) r->objnum);
+            }
         } else {
-            pdf_begin_obj(pdf, r->num, 2);
+            formatted_warning("pdf inclusion","ignoring missing object %i, case 2\n",(int) r->objnum);
         }
-        copyObject(pdf, pdf_doc, obj);
-        pdf_end_obj(pdf);
         n = r->next;
         free(r);
         r = n;
@@ -1000,19 +1008,25 @@ int write_epdf_object(PDF pdf, image_dict * idict, int n)
     } else {
         PdfDocument * pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL, img_userpassword(idict), img_ownerpassword(idict));
         ppdoc * pdfe = pdf_doc->pdfe;
-        ppref * ref = ppxref_find(ppdoc_xref(pdfe), (ppuint) n);
-        if (ref != NULL) {
-            ppobj *obj;
-            num = pdf->obj_count++;
-            obj = ppref_obj(ref);
-            if (obj->type == PPSTREAM) {
-                pdf_begin_obj(pdf, num, OBJSTM_NEVER);
+        if (ppdoc_xref(pdfe)) {
+            ppref * ref = ppxref_find(ppdoc_xref(pdfe), (ppuint) n);
+            if (ref != NULL) {
+                ppobj *obj;
+                num = pdf->obj_count++;
+                obj = ppref_obj(ref);
+                if (obj->type == PPSTREAM) {
+                    pdf_begin_obj(pdf, num, OBJSTM_NEVER);
+                } else {
+                    pdf_begin_obj(pdf, num, 2);
+                }
+                copyObject(pdf, pdf_doc, obj);
+                pdf_end_obj(pdf);
+                writeRefs(pdf, pdf_doc);
             } else {
-                pdf_begin_obj(pdf, num, 2);
+                formatted_warning("pdf inclusion","ignoring missing image %i, case 1\n",(int) n);
             }
-            copyObject(pdf, pdf_doc, obj);
-            pdf_end_obj(pdf);
-            writeRefs(pdf, pdf_doc);
+        } else {
+            formatted_warning("pdf inclusion","ignoring missing image %i, case 2\n",(int) n);
         }
         if (! img_keepopen(idict)) {
             unrefPdfDocument(img_filepath(idict));

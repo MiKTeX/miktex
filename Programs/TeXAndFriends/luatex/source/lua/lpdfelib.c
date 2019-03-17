@@ -367,7 +367,7 @@ static int pushstreamonly(lua_State * L, ppstream * stream)
 
 static int pushreference(lua_State * L, ppref * reference)
 {
-    if (reference != NULL) {
+    if (reference != NULL && reference->number != 0) {
         pdfe_push_reference;
         lua_pushinteger(L,reference->number);
         return 2;
@@ -502,8 +502,10 @@ static int pdfelib_getfromarray(lua_State * L)
         int index = luaL_checkint(L, 2) - 1;
         if (index < a->array->size) {
             ppobj *object = pparray_at(a->array,index);
-            lua_pushinteger(L,(int) object->type);
-            return 1 + pushvalue(L,object);
+            if (object != NULL) {
+                lua_pushinteger(L,(int) object->type);
+                return 1 + pushvalue(L,object);
+            }
         }
     }
     return 0;
@@ -524,10 +526,12 @@ static int pdfelib_getfromdictionary(lua_State * L)
             int index = luaL_checkint(L, 2) - 1;
             if (index < d->dictionary->size) {
                 ppobj *object = ppdict_at(d->dictionary,index);
-                ppname key = ppdict_key(d->dictionary,index);
-                lua_pushstring(L,(const char *) key);
-                lua_pushinteger(L,(int) object->type);
-                return 2 + pushvalue(L,object);
+                if (object != NULL) {
+                    ppname key = ppdict_key(d->dictionary,index);
+                    lua_pushstring(L,(const char *) key);
+                    lua_pushinteger(L,(int) object->type);
+                    return 2 + pushvalue(L,object);
+                }
             }
         }
     }
@@ -550,10 +554,12 @@ static int pdfelib_getfromstream(lua_State * L)
             int index = luaL_checkint(L, 2) - 1;
             if (index < d->size) {
                 ppobj *object = ppdict_at(d,index);
-                ppname key = ppdict_key(d,index);
-                lua_pushstring(L,(const char *) key);
-                lua_pushinteger(L,(int) object->type);
-                return 2 + pushvalue(L,object);
+                if (object != NULL) {
+                    ppname key = ppdict_key(d,index);
+                    lua_pushstring(L,(const char *) key);
+                    lua_pushinteger(L,(int) object->type);
+                    return 2 + pushvalue(L,object);
+                }
             }
         }
     }
@@ -622,14 +628,17 @@ static int pdfelib_arraytotable(lua_State * L)
     if (a != NULL) {
         int flat = lua_isboolean(L,2);
         int i = 0;
+        int j = 0;
         lua_createtable(L,i,0);
         /* table */
         for (i=0;i<a->array->size;i++) {
             ppobj *object = pparray_at(a->array,i);
-            pdfelib_totable(L,object,flat);
-            /* table { type, [value], [extra], [more] } */
-            lua_rawseti(L,-2,i+1);
-            /* table[i] = { type, [value], [extra], [more] } */
+            if (object != NULL) {
+                pdfelib_totable(L,object,flat);
+                /* table { type, [value], [extra], [more] } */
+                lua_rawseti(L,-2,++j);
+                /* table[i] = { type, [value], [extra], [more] } */
+            }
         }
         return 1;
     }
@@ -646,13 +655,15 @@ static int pdfelib_dictionarytotable(lua_State * L)
         /* table */
         for (i=0;i<d->dictionary->size;i++) {
             ppobj *object = ppdict_at(d->dictionary,i);
-            ppname key = ppdict_key(d->dictionary,i);
-            lua_pushstring(L,(const char *) key);
-            /* table key */
-            pdfelib_totable(L,object,flat);
-            /* table key { type, [value], [extra], [more] } */
-            lua_rawset(L,-3);
-            /* table[key] = { type, [value], [extra] } */
+            if (object != NULL) {
+                ppname key = ppdict_key(d->dictionary,i);
+                lua_pushstring(L,(const char *) key);
+                /* table key */
+                pdfelib_totable(L,object,flat);
+                /* table key { type, [value], [extra], [more] } */
+                lua_rawset(L,-3);
+                /* table[key] = { type, [value], [extra] } */
+            }
         }
         return 1;
     }
@@ -676,22 +687,25 @@ static int pdfelib_pagestotable(lua_State * L)
         ppdoc *d = p->document;
         ppref *r = NULL;
         int i = 0;
+        int j = 0;
         lua_createtable(L,ppdoc_page_count(d),0);
         /* pages[1..n] */
         for (r = ppdoc_first_page(d), i = 1; r != NULL; r = ppdoc_next_page(d), ++i) {
             lua_createtable(L,3,0);
-            pushdictionary(L,ppref_obj(r)->dict);
-            /* table dictionary n */
-            lua_rawseti(L,-3,2);
-            /* table dictionary */
-            lua_rawseti(L,-2,1);
-            /* table */
-            lua_pushinteger(L,r->number);
-            /* table reference */
-            lua_rawseti(L,-2,3);
-            /* table */
-            lua_rawseti(L,-2,i);
-            /* pages[i] = { dictionary, size, objnum } */
+            if (ppref_obj(r) != NULL) {
+                pushdictionary(L,ppref_obj(r)->dict);
+                /* table dictionary n */
+                lua_rawseti(L,-3,2);
+                /* table dictionary */
+                lua_rawseti(L,-2,1);
+                /* table */
+                lua_pushinteger(L,r->number);
+                /* table reference */
+                lua_rawseti(L,-2,3);
+                /* table */
+                lua_rawseti(L,-2,++j);
+                /* pages[i] = { dictionary, size, objnum } */
+            }
         }
         return 1;
     }
@@ -1158,10 +1172,15 @@ static int pdfelib_getbox(lua_State * L)
 static int pdfelib_getfromreference(lua_State * L)
 {
     pdfe_reference *r = check_isreference(L, 1);
-    if (r != NULL) {
-        ppobj *o = ppref_obj(ppxref_find(r->xref, (ppuint) r->onum));
-        lua_pushinteger(L,o->type);
-        return 1 + pushvalue(L,o);
+    if (r != NULL && r->xref != NULL) {
+        ppref *rr = ppxref_find(r->xref, (ppuint) r->onum);
+        if (rr != NULL) {
+            ppobj *o = ppref_obj(rr);
+            if (o != NULL) {
+                lua_pushinteger(L,o->type);
+                return 1 + pushvalue(L,o);
+            }
+        }
     }
     return 0;
 }
@@ -1213,8 +1232,8 @@ static int pdfelib_getfromreference(lua_State * L)
 */
 
 # define pdfelib_get_indirect_o(p) \
-    ppref *r = ppxref_find(((pdfe_reference *) p)->xref, (ppuint) (((pdfe_reference *) p)->onum)); \
-    ppobj *o = ppref_obj(r);                                \
+    ppref *r = (((pdfe_reference *) p)->xref != NULL) ? ppxref_find(((pdfe_reference *) p)->xref, (ppuint) (((pdfe_reference *) p)->onum)) : NULL; \
+    ppobj *o = (r != NULL) ? ppref_obj(r) : NULL; \
 
 # define pdfelib_get_value_direct(get_d,get_a) do {                      \
     int t = lua_type(L,2);                                              \
