@@ -118,6 +118,7 @@ QProcess * Engine::run(QFileInfo input, QObject * parent /* = nullptr */)
 
 	QStringList args = arguments();
 
+#if !defined(MIKTEX)
 	// for old MikTeX versions: delete $synctexoption if it causes an error
 	static bool checkedForSynctex = false;
 	static bool synctexSupported = true;
@@ -131,6 +132,7 @@ QProcess * Engine::run(QFileInfo input, QObject * parent /* = nullptr */)
 	}
 	if (!synctexSupported)
 		args.removeAll(QString::fromLatin1("$synctexoption"));
+#endif
 
 	args.replaceInStrings(QString::fromLatin1("$synctexoption"), QString::fromLatin1("-synctex=1"));
 	args.replaceInStrings(QString::fromLatin1("$fullname"), input.fileName());

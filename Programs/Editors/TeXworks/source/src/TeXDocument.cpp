@@ -622,9 +622,9 @@ void TeXDocument::open()
 #endif
 	QSETTINGS_OBJECT(settings);
 	QString lastOpenDir = settings.value(QString::fromLatin1("openDialogDir")).toString();
-	if (lastOpenDir.isEmpty())
+        if (lastOpenDir.isEmpty())
 #if defined(MIKTEX_WINDOWS)
-          lastOpenDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
+          lastOpenDir = QString::fromUtf8(MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData());
 #else
 		lastOpenDir = QDir::homePath();
 #endif
@@ -819,7 +819,7 @@ bool TeXDocument::saveAs()
 	QString lastSaveDir = settings.value(QString::fromLatin1("saveDialogDir")).toString();
 	if (lastSaveDir.isEmpty() || !QDir(lastSaveDir).exists())
 #if defined(MIKTEX_WINDOWS)
-          lastSaveDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
+          lastSaveDir = QString::fromUtf8(MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData());
 #else
 		lastSaveDir = QDir::homePath();
 #endif
@@ -2771,12 +2771,16 @@ void TeXDocument::typeset()
 
 		QMessageBox msgBox(QMessageBox::Critical, tr("Unable to execute %1").arg(e.name()),
 		                      QLatin1String("<p>") + tr("The program \"%1\" was not found.").arg(e.program()) + QLatin1String("</p>") +
+#if defined(MIKTEX)
+                  QLatin1String("<p>") + tr("You need <a href=\"https://miktex.org/\">MiKTeX</a> installed on your system to typeset your document.") + QLatin1String("</p>") +
+#else
 #if defined(Q_OS_WIN)
 		                      QLatin1String("<p>") + tr("You need a <b>TeX distribution</b> like <a href=\"http://tug.org/texlive/\">TeX Live</a> or <a href=\"http://miktex.org/\">MiKTeX</a> installed on your system to typeset your document.") + QLatin1String("</p>") +
 #elif defined(Q_OS_DARWIN)
 		                      QLatin1String("<p>") + tr("You need a <b>TeX distribution</b> like <a href=\"http://www.tug.org/mactex/\">MacTeX</a> installed on your system to typeset your document.") + QLatin1String("</p>") +
 #else // defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
 		                      QLatin1String("<p>") + tr("You need a <b>TeX distribution</b> like <a href=\"http://tug.org/texlive/\">TeX Live</a> installed on your system to typeset your document. On most systems such a TeX distribution is available as prebuilt package.") + QLatin1String("</p>") +
+#endif
 #endif
 		                      QLatin1String("<p>") + tr("When a TeX distribution is installed you may need to tell TeXworks where to find it in Edit -> Preferences -> Typesetting.") + QLatin1String("</p>"),
 							  QMessageBox::Cancel, this);

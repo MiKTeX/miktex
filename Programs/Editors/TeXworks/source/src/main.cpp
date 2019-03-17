@@ -192,7 +192,7 @@ There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLat
 }
 #if defined(MIKTEX)
 #undef main
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   MiKTeX_TeXworks wrapper;
   return wrapper.Run(Main, argc, argv);

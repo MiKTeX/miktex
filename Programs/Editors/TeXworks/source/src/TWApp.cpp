@@ -178,7 +178,7 @@ void TWApp::init()
           }
         }
 #endif
-#if defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX)
         envPath = QString::fromUtf8(getenv("TW_LIBPATH"));
 #else
 	envPath = QString::fromLocal8Bit(getenv("TW_LIBPATH"));
@@ -573,12 +573,11 @@ void TWApp::writeToMailingList()
 	body += QLatin1String("pdfTeX location  : ") + pdftex + QChar::fromLatin1('\n');
 	
 	body += QLatin1String("Operating system : ");
-#if defined(Q_OS_WIN)
 #if defined(MIKTEX)
-        body += QString(MiKTeX::Core::Utils::GetOSVersionString().c_str()) + "\n";
+        body += QString::fromUtf8(MiKTeX::Core::Utils::GetOSVersionString().c_str()) + "\n";
 #else
+#if defined(Q_OS_WIN)
 	body += QLatin1String("Windows ") + GetWindowsVersionString() + QChar::fromLatin1('\n');
-#endif
 #else
 #if defined(Q_OS_DARWIN)
 #define UNAME_CMDLINE "uname -v"
@@ -602,6 +601,7 @@ void TWApp::writeToMailingList()
 	body += unameResult + QChar::fromLatin1('\n');
 #endif
 #endif
+#endif
 
 	body += QLatin1String("Qt version       : " QT_VERSION_STR " (build) / ");
 	body += QLatin1String(qVersion());
@@ -613,7 +613,7 @@ void TWApp::writeToMailingList()
 #endif
 
 #if defined(MIKTEX)
-        openUrl(QUrl(QString("mailto:%1?body=%2").arg(address).arg(QString(QUrl::toPercentEncoding(body)))));
+        openUrl(QUrl(QString::fromUtf8("mailto:%1?body=%2").arg(address).arg(QString(QUrl::toPercentEncoding(body)))));
 #else
 	openUrl(QUrl(QString::fromLatin1("mailto:%1?subject=&body=%2").arg(address).arg(QString::fromLatin1(QUrl::toPercentEncoding(body).constData()))));
 #endif
@@ -717,7 +717,7 @@ QString TWApp::getOpenFileName(QString selectedFilter)
 #if defined(MIKTEX_WINDOWS)
         if (lastOpenDir.isEmpty())
         {
-          lastOpenDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
+          lastOpenDir = QString::fromUtf8(MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData());
         }
 #endif
 	return QFileDialog::getOpenFileName(NULL, QString(tr("Open File")), lastOpenDir,
@@ -898,9 +898,9 @@ void TWApp::setDefaultPaths()
             MiKTeX::Core::PathName dir;
             dir = session->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot);
             dir /= MIKTEX_PATH_BIN_DIR;
-            if (!binaryPaths->contains(dir.GetData()))
+            if (!binaryPaths->contains(QString::fromUtf8(dir.GetData())))
             {
-              binaryPaths->prepend(dir.GetData());
+              binaryPaths->prepend(QString::fromUtf8(dir.GetData()));
             }
           }
 #else
