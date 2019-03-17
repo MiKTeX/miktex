@@ -638,11 +638,11 @@
               <item>
                <widget class="QCommandLinkButton" name="buttonRestartAdmin">
                 <property name="text">
-                 <string>Restart as administrator</string>
+                 <string>Switch to administrator mode</string>
                 </property>
                 <property name="description">
-                 <string>Restart MiKTeX Console with elevated privileges and switch to admin mode.
-Use this option, if you want to operate on the shared (system-wide) configuration.</string>
+                 <string>Restart MiKTeX Console with elevated privileges and switch to administrator mode.
+Use this option, if you want to operate on the shared (system-wide) MiKTeX configuration.</string>
                 </property>
                </widget>
               </item>
@@ -653,7 +653,7 @@ Use this option, if you want to operate on the shared (system-wide) configuratio
                 </property>
                 <property name="description">
                  <string>Continue to work with MiKTeX Console in user mode.
-Use this option, if you want to operate on the private configuration.</string>
+Use this option, if you want to operate on the  MiKTeX configuration.</string>
                 </property>
                </widget>
               </item>
@@ -1914,13 +1914,13 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionRestartAdmin">
    <property name="text">
-    <string>Restart as &amp;administrator</string>
+    <string>Switch to &amp;administrator mode</string>
    </property>
    <property name="toolTip">
-    <string>Restart this program as administrator</string>
+    <string>Switch to administrator mode</string>
    </property>
    <property name="statusTip">
-    <string>Restarts this application as administrator.</string>
+    <string>Restarts this application with elevated privileges and switches to administrator mode.</string>
    </property>
   </action>
   <action name="actionExit">
