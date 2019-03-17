@@ -1439,6 +1439,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_AUTOSP_EXE, { "autosp" } },
   { MIKTEX_AXOHELP_EXE,{ "axohelp" } },
   { MIKTEX_BG5CONV_EXE, { "bg5conv" } },
+  { MIKTEX_BIBSORT_EXE, { "bibsort" } },
   { MIKTEX_BIBTEX8_EXE, { "bibtex8" } },
   { MIKTEX_BIBTEXU_EXE, { "bibtexu" } },
   { MIKTEX_BIBTEX_EXE, { "bibtex" } },
