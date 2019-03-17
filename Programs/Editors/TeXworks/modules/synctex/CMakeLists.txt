@@ -40,7 +40,9 @@ else()
   target_link_libraries(synctex-static PUBLIC ${zlib_dll_name})
 endif()
 
-target_link_libraries(synctex-static PUBLIC ${utf8wrap_dll_name})
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(synctex-static PUBLIC ${utf8wrap_dll_name})
+endif()
 
 set_property(TARGET synctex-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 

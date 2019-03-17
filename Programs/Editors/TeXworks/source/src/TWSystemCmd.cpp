@@ -68,7 +68,7 @@ void TWSystemCmd::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
 			if (bytesAvailable() > 0) {
 				QByteArray ba = readAllStandardOutput();
 #if defined(MIKTEX)
-				result += QString::fromUtf8(ba);
+                                result += QString::fromUtf8(ba.constData());
 #else
 				result += QString::fromLocal8Bit(ba.constData());
 #endif
@@ -87,7 +87,7 @@ void TWSystemCmd::processOutput()
 	if (wantOutput && bytesAvailable() > 0) {
 		QByteArray ba = readAllStandardOutput();
 #if defined(MIKTEX_WINDOWS)
-		result += QString::fromUtf8(ba);
+		result += QString::fromUtf8(ba.constData());
 #else
 		result += QString::fromLocal8Bit(ba.constData());
 #endif
