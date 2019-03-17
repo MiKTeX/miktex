@@ -653,7 +653,7 @@ Use this option, if you want to operate on the shared (system-wide) MiKTeX confi
                 </property>
                 <property name="description">
                  <string>Continue to work with MiKTeX Console in user mode.
-Use this option, if you want to operate on the  MiKTeX configuration.</string>
+Use this option, if you want to operate on your private MiKTeX configuration.</string>
                 </property>
                </widget>
               </item>
