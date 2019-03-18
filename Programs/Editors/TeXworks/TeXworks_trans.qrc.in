@@ -1,42 +1,87 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
   <qresource>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_af.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_ar.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_ca.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_cs.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_de.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_es.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_fa.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_fo.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_fr.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_it.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_ja.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_ko.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_nl.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_nn.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_pl.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_pt_BR.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_ru.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_sl.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_tr.qm</file>
-    <file>${CMAKE_CURRENT_BINARY_DIR}/TeXworks_zh_CN.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_ar.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_ca.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_cs.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_de.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_es.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_fa.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_fr.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_it.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_ja.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_ko.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_nl.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_pl.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_pt_BR.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_ru.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_sl.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_tr.qm</file>
-    <file>${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_zh_CN.qm</file>
+    <file alias="resfiles/translations/TeXworks_af.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_af.qm</file>
+    <file alias="resfiles/translations/TeXworks_ar.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_ar.qm</file>
+    <file alias="resfiles/translations/TeXworks_ca.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_ca.qm</file>
+    <file alias="resfiles/translations/TeXworks_cs.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_cs.qm</file>
+    <file alias="resfiles/translations/TeXworks_de.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_de.qm</file>
+    <file alias="resfiles/translations/TeXworks_es.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_es.qm</file>
+    <file alias="resfiles/translations/TeXworks_fa.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_fa.qm</file>
+    <file alias="resfiles/translations/TeXworks_fo.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_fo.qm</file>
+    <file alias="resfiles/translations/TeXworks_fr.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_fr.qm</file>
+    <file alias="resfiles/translations/TeXworks_it.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_it.qm</file>
+    <file alias="resfiles/translations/TeXworks_ja.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_ja.qm</file>
+    <file alias="resfiles/translations/TeXworks_ko.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_ko.qm</file>
+    <file alias="resfiles/translations/TeXworks_nl.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_nl.qm</file>
+    <file alias="resfiles/translations/TeXworks_nn.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_nn.qm</file>
+    <file alias="resfiles/translations/TeXworks_pl.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_pl.qm</file>
+    <file alias="resfiles/translations/TeXworks_pt_BR.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_pt_BR.qm</file>
+    <file alias="resfiles/translations/TeXworks_ru.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_ru.qm</file>
+    <file alias="resfiles/translations/TeXworks_sl.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_sl.qm</file>
+    <file alias="resfiles/translations/TeXworks_tr.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_tr.qm</file>
+    <file alias="resfiles/translations/TeXworks_zh_CN.qm">${CMAKE_CURRENT_BINARY_DIR}/TeXworks_zh_CN.qm</file>
+    <file alias="resfiles/translations/qt_ar.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_ar.qm</file>
+    <file alias="resfiles/translations/qt_ca.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_ca.qm</file>
+    <file alias="resfiles/translations/qt_cs.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_cs.qm</file>
+    <file alias="resfiles/translations/qt_de.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_de.qm</file>
+    <file alias="resfiles/translations/qt_es.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_es.qm</file>
+    <file alias="resfiles/translations/qt_fa.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_fa.qm</file>
+    <file alias="resfiles/translations/qt_fr.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_fr.qm</file>
+    <file alias="resfiles/translations/qt_it.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_it.qm</file>
+    <file alias="resfiles/translations/qt_ja.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_ja.qm</file>
+    <file alias="resfiles/translations/qt_ko.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_ko.qm</file>
+    <file alias="resfiles/translations/qt_nl.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_nl.qm</file>
+    <file alias="resfiles/translations/qt_pl.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_pl.qm</file>
+    <file alias="resfiles/translations/qt_pt_BR.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_pt_BR.qm</file>
+    <file alias="resfiles/translations/qt_ru.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_ru.qm</file>
+    <file alias="resfiles/translations/qt_sl.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_sl.qm</file>
+    <file alias="resfiles/translations/qt_tr.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_tr.qm</file>
+    <file alias="resfiles/translations/qt_zh_CN.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qt_zh_CN.qm</file>
+    <file alias="resfiles/translations/qtbase_ca.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtbase_ca.qm</file>
+    <file alias="resfiles/translations/qtbase_cs.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtbase_cs.qm</file>
+    <file alias="resfiles/translations/qtbase_de.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtbase_de.qm</file>
+    <file alias="resfiles/translations/qtbase_fr.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtbase_fr.qm</file>
+    <file alias="resfiles/translations/qtbase_it.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtbase_it.qm</file>
+    <file alias="resfiles/translations/qtbase_ja.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtbase_ja.qm</file>
+    <file alias="resfiles/translations/qtbase_ko.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtbase_ko.qm</file>
+    <file alias="resfiles/translations/qtbase_pl.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtbase_pl.qm</file>
+    <file alias="resfiles/translations/qtbase_ru.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtbase_ru.qm</file>
+    <file alias="resfiles/translations/qtmultimedia_ca.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtmultimedia_ca.qm</file>
+    <file alias="resfiles/translations/qtmultimedia_cs.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtmultimedia_cs.qm</file>
+    <file alias="resfiles/translations/qtmultimedia_de.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtmultimedia_de.qm</file>
+    <file alias="resfiles/translations/qtmultimedia_fr.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtmultimedia_fr.qm</file>
+    <file alias="resfiles/translations/qtmultimedia_it.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtmultimedia_it.qm</file>
+    <file alias="resfiles/translations/qtmultimedia_ja.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtmultimedia_ja.qm</file>
+    <file alias="resfiles/translations/qtmultimedia_ko.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtmultimedia_ko.qm</file>
+    <file alias="resfiles/translations/qtmultimedia_pl.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtmultimedia_pl.qm</file>
+    <file alias="resfiles/translations/qtmultimedia_ru.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtmultimedia_ru.qm</file>
+    <file alias="resfiles/translations/qtquick1_ca.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtquick1_ca.qm</file>
+    <file alias="resfiles/translations/qtquick1_cs.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtquick1_cs.qm</file>
+    <file alias="resfiles/translations/qtquick1_de.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtquick1_de.qm</file>
+    <file alias="resfiles/translations/qtquick1_fr.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtquick1_fr.qm</file>
+    <file alias="resfiles/translations/qtquick1_it.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtquick1_it.qm</file>
+    <file alias="resfiles/translations/qtquick1_ja.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtquick1_ja.qm</file>
+    <file alias="resfiles/translations/qtquick1_ko.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtquick1_ko.qm</file>
+    <file alias="resfiles/translations/qtquick1_pl.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtquick1_pl.qm</file>
+    <file alias="resfiles/translations/qtquick1_ru.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtquick1_ru.qm</file>
+    <file alias="resfiles/translations/qtscript_ca.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtscript_ca.qm</file>
+    <file alias="resfiles/translations/qtscript_cs.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtscript_cs.qm</file>
+    <file alias="resfiles/translations/qtscript_de.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtscript_de.qm</file>
+    <file alias="resfiles/translations/qtscript_fr.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtscript_fr.qm</file>
+    <file alias="resfiles/translations/qtscript_it.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtscript_it.qm</file>
+    <file alias="resfiles/translations/qtscript_ja.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtscript_ja.qm</file>
+    <file alias="resfiles/translations/qtscript_ko.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtscript_ko.qm</file>
+    <file alias="resfiles/translations/qtscript_pl.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtscript_pl.qm</file>
+    <file alias="resfiles/translations/qtscript_ru.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtscript_ru.qm</file>
+    <file alias="resfiles/translations/qtxmlpatterns_ca.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtxmlpatterns_ca.qm</file>
+    <file alias="resfiles/translations/qtxmlpatterns_cs.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtxmlpatterns_cs.qm</file>
+    <file alias="resfiles/translations/qtxmlpatterns_de.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtxmlpatterns_de.qm</file>
+    <file alias="resfiles/translations/qtxmlpatterns_fr.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtxmlpatterns_fr.qm</file>
+    <file alias="resfiles/translations/qtxmlpatterns_it.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtxmlpatterns_it.qm</file>
+    <file alias="resfiles/translations/qtxmlpatterns_ja.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtxmlpatterns_ja.qm</file>
+    <file alias="resfiles/translations/qtxmlpatterns_ko.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtxmlpatterns_ko.qm</file>
+    <file alias="resfiles/translations/qtxmlpatterns_pl.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtxmlpatterns_pl.qm</file>
+    <file alias="resfiles/translations/qtxmlpatterns_ru.qm">${CMAKE_CURRENT_SOURCE_DIR}/source/trans/qt/qtxmlpatterns_ru.qm</file>
   </qresource>
 </RCC>
