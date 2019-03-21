@@ -1863,38 +1863,49 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       result.push_back({ IssueType::Path, T_("The PATH variable does not include the MiKTeX executables.")});
     }
   }
-  InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
-  if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
+  if (session->IsSharedSetup())
   {
-    result.push_back({ IssueType::UpdateCheckOverdue,
-                       session->IsSharedSetup()
-                       ? T_("Never checked for system-wide updates.")
-                       : T_("Never checked for updates.")});
-  }
-  else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
-  {
-    result.push_back({ IssueType::UpdateCheckOverdue,
-                       session->IsSharedSetup()
-                       ? T_("It has been a long time since system-wide updates were checked.")
-                       : T_("It has been a long time since updates were checked.")});
-  }
-  if (session->IsSharedSetup() && !session->IsAdminMode())
-  {
-    InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
-    if (userInstallation.packageCount > 0)
+    InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
+    if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
     {
-      if (!IsValidTimeT(userInstallation.lastUpdateCheck))
+      result.push_back({ IssueType::UpdateCheckOverdue, T_("Never checked for system-wide updates.") });
+    }
+    else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
+    {
+      result.push_back({ IssueType::UpdateCheckOverdue, T_("It has been a long time since system-wide updates were checked.") });
+    }
+    if (!session->IsAdminMode())
+    {
+      InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
+      if (userInstallation.packageCount > 0)
       {
-        result.push_back({ IssueType::UserUpdateCheckOverdue, T_("Never checked for updates in user mode.")});
+        if (!IsValidTimeT(userInstallation.lastUpdateCheck))
+        {
+          result.push_back({ IssueType::UserUpdateCheckOverdue, T_("Never checked for updates in user mode.") });
+        }
+        else if (IsValidTimeT(commonInstallation.lastUpdateCheck) &&commonInstallation.lastUpdateCheck > userInstallation.lastUpdateCheck + ONE_DAY)
+        {
+          result.push_back({ IssueType::UserUpdateCheckOverdue, T_("User mode updates and system-wide updates are out-of-sync.") });
+        }
+        else if (now > userInstallation.lastUpdateCheck + HALF_A_YEAR)
+        {
+          result.push_back({ IssueType::UserUpdateCheckOverdue, T_("It has been a long time since updates were checked in user mode.") });
+        }
       }
-      else if (commonInstallation.lastUpdateCheck > userInstallation.lastUpdateCheck + ONE_DAY)
-      {
-        result.push_back({ IssueType::UserUpdateCheckOverdue, T_("User mode update check lacks behind.")});
-      }
-      else if (now > userInstallation.lastUpdateCheck + HALF_A_YEAR)
-      {
-        result.push_back({ IssueType::UserUpdateCheckOverdue, T_("It has been a long time since updates were checked in user mode.")});
-      }
+    }
+  }
+  else
+  {
+    MIKTEX_ASSERT(!session->IsAdminMode());
+    InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
+    MIKTEX_ASSERT(userInstallation.packageCount > 0);
+    if (!IsValidTimeT(userInstallation.lastUpdateCheck))
+    {
+      result.push_back({ IssueType::UserUpdateCheckOverdue, T_("Never checked for updates.") });
+    }
+    else if (now > userInstallation.lastUpdateCheck + HALF_A_YEAR)
+    {
+      result.push_back({ IssueType::UserUpdateCheckOverdue, T_("It has been a long time since updates were checked.") });
     }
   }
   vector<RootDirectoryInfo> roots = session->GetRootDirectories();
@@ -1904,11 +1915,11 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     {
       if (Utils::IsParentDirectoryOf(roots[idx2].path, roots[idx].path))
       {
-        result.push_back({ IssueType::RootDirectoryCoverage, fmt::format(T_("Root directory #{0} is covered by root directory #{1}."), idx, idx2)});
+        result.push_back({ IssueType::RootDirectoryCoverage, fmt::format(T_("Root directory #{0} is covered by root directory #{1}."), idx, idx2) });
       }
       else if (Utils::IsParentDirectoryOf(roots[idx].path, roots[idx2].path))
       {
-        result.push_back({ IssueType::RootDirectoryCoverage, fmt::format(T_("Root directory #{0} covers root directory #{1}."), idx, idx2)});
+        result.push_back({ IssueType::RootDirectoryCoverage, fmt::format(T_("Root directory #{0} covers root directory #{1}."), idx, idx2) });
       }
     }
   }
