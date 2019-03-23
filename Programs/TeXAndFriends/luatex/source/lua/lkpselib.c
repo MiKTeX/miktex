@@ -825,6 +825,24 @@ static int lua_kpathsea_new(lua_State * L)
     return 1;
 }
 
+static int lua_record_input_file(lua_State * L)
+{
+    const char *name = lua_tostring(L, 1);
+    if (name != NULL) {
+        recorder_record_input(name);
+    }
+    return 0;
+}
+
+static int lua_record_output_file(lua_State * L)
+{
+    const char *name = lua_tostring(L, 1);
+    if (name != NULL) {
+        recorder_record_output(name);
+    }
+    return 0;
+}
+
 static const struct luaL_Reg kpselib_m[] = {
     {"__gc", lua_kpathsea_finish},
     {"init_prog", lua_kpathsea_init_prog},
@@ -838,6 +856,8 @@ static const struct luaL_Reg kpselib_m[] = {
     {"lookup", lua_kpathsea_lookup},
     {"version", lua_kpse_version},
     {"default_texmfcnf", show_texmfcnf},
+    {"record_input_file", lua_record_input_file},
+    {"record_output_file", lua_record_output_file},
     {NULL, NULL}                /* sentinel */
 };
 

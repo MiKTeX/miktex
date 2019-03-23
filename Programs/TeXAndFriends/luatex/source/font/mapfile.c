@@ -519,6 +519,7 @@ static void fm_read_info(void)
                                  &file_opened, &fm_buffer, &fm_size)) {
                     if (file_opened) {
                         if (fm_size > 0) {
+recorder_record_input(cur_file_name);
                             report_start_file(filetype_map,cur_file_name);
                             while (!fm_eof()) {
                                 fm_scan_line();
@@ -539,6 +540,7 @@ static void fm_read_info(void)
                 } else {
                     fm_read_file();
                     report_start_file(filetype_map,cur_file_name);
+recorder_record_input(cur_file_name);
                     while (!fm_eof()) {
                         fm_scan_line();
                         mitem->lineno++;

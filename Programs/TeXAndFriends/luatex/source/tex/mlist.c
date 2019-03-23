@@ -3159,6 +3159,7 @@ static scaled make_op(pointer q, int cur_style)
                         make_scripts(q, p, 0, cur_style,
                              round_xn_over_d(delta, nolimit_sup_factor(cur_style), 1000),
                             -round_xn_over_d(delta, nolimit_sub_factor(cur_style), 1000));
+                        break ;
                     case 2 :
                         /*tex no correction */
                         make_scripts(q, p, 0, cur_style, 0, 0);
