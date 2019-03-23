@@ -3,7 +3,7 @@
  *  This file is part of
  *	MakeIndex - A formatter and format independent index processor
  *
- *  Copyright (C) 1998-2012 by the TeX Live project.
+ *  Copyright (C) 1998-2019 by the TeX Live project.
  *  Copyright (C) 1989 by Chen & Harrison International Systems, Inc.
  *  Copyright (C) 1988 by Olivetti Research Center
  *  Copyright (C) 1987 by Regents of the University of California
@@ -318,19 +318,13 @@ comments.  However, no run-time check is made to ensure that these are
 consistent, or reasonable!  Therefore, change them only with great
 care.
 
-The array sizes should be made generously large: there are a great
-many uses of strings in MakeIndex with the strxxx() and sprintf()
-functions where no checking is done for adequate target storage sizes.
-Although some input checking is done to avoid this possibility, it is
-highly likely that there are still several places where storage
-violations are possible, with core dumps, or worse, incorrect output,
-ensuing.
+If any array overflows, please report to tex-k@tug.org.
 ======================================================================*/
 
 #define ARABIC_MAX    99	/* maximum digits in an Arabic page */
 				/* number field */
 
-#define ARGUMENT_MAX  1024	/* maximum length of sort or actual key */
+#define ARGUMENT_MAX  10240	/* maximum length of sort or actual key */
 				/* in index entry */
 
 #define ARRAY_MAX     1024	/* maximum length of constant values in */
