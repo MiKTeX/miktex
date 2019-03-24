@@ -2948,7 +2948,7 @@ void *mp_xmalloc (MP mp, size_t nmem, size_t size) {
     mp_jump_out (mp);
   }
 #endif
-  w = malloc (nmem * size);
+  w = calloc(nmem, size); /* TODO: check an un-initialize use of w and replace calloc with malloc. */
   if (w == NULL) {
     mp_fputs ("Out of memory!\n", mp->err_out);
     mp->history = mp_system_error_stop;
