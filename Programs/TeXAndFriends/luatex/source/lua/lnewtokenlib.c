@@ -1271,7 +1271,7 @@ static int set_char(lua_State * L)
     if (n < 2)
         return 0;
     name = lua_tolstring(L, 1, &lname);
-    if (name == null)
+    if (name == NULL)
         return 0;
     value = lua_tointeger(L, 2);
     if (value < 0)

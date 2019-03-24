@@ -259,7 +259,7 @@ define_to_string(stream,    "pdfe.stream")
 static int pdfelib_tostring_reference(lua_State * L) { \
     pdfe_reference *p = check_isreference(L, 1); \
     if (p != NULL) { \
-        lua_pushfstring(L, "<pdfe.reference " "%i>", (int) p->onum); \
+        lua_pushfstring(L, "<pdfe.reference " "%d>",  p->onum); \
         return 1; \
     } \
     return 0; \
