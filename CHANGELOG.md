@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.7000 - not yet released
+## 2.9.7000 - 2019-03-31
 
 ### Upgraded programs
 
