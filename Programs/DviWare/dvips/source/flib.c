@@ -243,7 +243,7 @@ flisearch(char *n, halfword dpi)
                              fli_cache[i] = fli_cache[i-1];
                         /* put this font library at front */
                         if ( (pkfile=search(flipath,lib->name,READBIN)) == (FILE *)NULL ) {
-                           sprintf(errbuf,"Can't reopen font library %s", lib->name);
+                           sprintf(errbuf,"Can't reopen font library %.500s", lib->name);
                            error(errbuf);
                            return((FILE *)NULL);
 			}
@@ -253,7 +253,7 @@ flisearch(char *n, halfword dpi)
                      }
                      flib = 1;  /* tell loadfont() not to close it */
                      /* then seek font within library */
-                     sprintf(name,"%s %s %ddpi",lib->name, n, dpi1);
+                     sprintf(name,"%.500s %.500s %ddpi",lib->name, n, dpi1);
                      if (fseek(pkfile,entry->offset,0) )
                            badpk("couldn't seek font");
                         /* make sure it is a PK font */
@@ -263,7 +263,7 @@ flisearch(char *n, halfword dpi)
                                  badpk("couldn't seek font");
                               return(pkfile); /* found it */
                            }
-                        sprintf(errbuf,"%s %s %ddpi isn't PK format, ignoring",
+                        sprintf(errbuf,"%.500s %.500s %ddpi isn't PK format, ignoring",
                               lib->name, n, dpi1);
                         error(errbuf);
                } /* end if name correct */

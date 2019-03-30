@@ -40,7 +40,7 @@ dosection(sectiontype *s, int c)
    doubleout(mag);
    numout((integer)DPI);
    numout((integer)VDPI);
-   snprintf(buf, sizeof(buf), "(%.99s)", fulliname);
+   snprintf(buf, sizeof(buf), "(%.500s)", fulliname);
    cmdout(buf);
    newline();
    cmdout("@start");

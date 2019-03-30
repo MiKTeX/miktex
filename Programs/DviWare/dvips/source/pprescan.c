@@ -113,7 +113,8 @@ dochar:
          if (curfnt==NULL)
             error("! Bad DVI file: no font selected");
          if (mychar>=curfnt->maxchars) {
-            sprintf(errbuf,"! invalid char %d from font %s", mychar, curfnt->name);
+            sprintf(errbuf,"! invalid char %d from font %.500s",
+                    mychar, curfnt->name);
             error(errbuf);
          }
          if (curfnt->loaded == 2) { /* scanning a virtual font character */

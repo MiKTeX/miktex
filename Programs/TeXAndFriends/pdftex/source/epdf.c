@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2014 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2019 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -77,8 +77,16 @@ void epdf_mark_glyphs(fd_entry * fd, char *charset)
     if (charset == NULL)
         return;
     assert(fd != NULL);
+    while (*charset == ' ' || *charset == '\t')
+        charset++;
     for (s = charset + 1, q = charset + strlen(charset); s < q; s = p + 1) {
-        for (p = s; *p != '\0' && *p != '/'; p++);
+        for (p = s; *p != '\0' && *p != '/' && *p != ' ' && *p != '\t'; p++);
+        if (*p == ' ' || *p == '\t') {
+            *p = '\0';
+            p++;
+            while (*p == ' ' || *p == '\t')
+                p++;
+        }
         *p = '\0';
         if ((char *) avl_find(fd->gl_tree, s) == NULL) {
             glyph = xstrdup(s);

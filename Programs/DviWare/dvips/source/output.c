@@ -178,7 +178,7 @@ copyfile_general(const char *s, struct header_list *cur_header)
       }
 #endif /* VMCMS */
 #else /* VMCMS || MVSXA */
-      sprintf(errbuf, "Could not find figure file %s; continuing.", s);
+      sprintf(errbuf, "Could not find figure file %.500s; continuing.", s);
       if (secure == 2) {
          strcat(errbuf, "\nNote that an absolute path or a relative path with .. are denied in -R2 mode.");
       }
@@ -192,19 +192,20 @@ copyfile_general(const char *s, struct header_list *cur_header)
 #ifndef __THINK__
    case 2:
 #ifdef SECURE
-      sprintf(errbuf, "<%s>: Tick filename execution disabled", s);
+      sprintf(errbuf, "<%.500s>: Tick filename execution disabled", s);
 #else
 #ifdef OS2
       if (_osmode == OS2_MODE) {
 #endif
       if (secure == 0) {
-         sprintf(errbuf, "Execution of  <%s> failed ", s);
+         sprintf(errbuf, "Execution of <%.500s> failed ", s);
          f = popen(s, "r");
          if (f != 0)
             SET_BINARY(fileno(f));
 	}
 	else {
-      sprintf(errbuf,"Secure mode is %d so execute <%s> will not run", secure,s);
+      sprintf(errbuf,"Secure mode is %d so execute <%.500s> will not run",
+              secure, s);
 	}
 #ifdef OS2
       }
@@ -223,7 +224,7 @@ copyfile_general(const char *s, struct header_list *cur_header)
 	 if(f==NULL)
 	    f = search(figpath, s, READBIN);
       }
-      sprintf(errbuf, "! Could not find header file %s.", s);
+      sprintf(errbuf, "! Could not find header file %.500s.", s);
       if (secure == 2) {
          strcat(errbuf, "\nNote that an absolute path or a relative path with .. are denied in -R2 mode.");
       }

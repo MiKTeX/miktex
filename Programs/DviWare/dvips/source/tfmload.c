@@ -73,7 +73,7 @@ tfmopen(register fontdesctype *fd)
 #endif
    if ((tfmfile=search(d, name, READBIN))!=NULL)
       return;
-   sprintf(errbuf, "Can't open font metric file %s%s",
+   sprintf(errbuf, "Can't open font metric file %.500s%.500s",
           fd->area, name);
    error(errbuf);
    error("I will use cmr10.tfm instead, so expect bad output.");

@@ -27,7 +27,7 @@
  */
 #include "protos_add.h"
 
-char errbuf[1000];
+char errbuf[1500];
 int lastresortsizes[40];
 /*
  *   Now we have some routines to get stuff from the PK file.

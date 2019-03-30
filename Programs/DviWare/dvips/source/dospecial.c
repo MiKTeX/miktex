@@ -1,4 +1,4 @@
-/*
+/* $Id: dospecial.c 50650 2019-03-30 01:50:10Z karl $
  *   This routine handles special commands;
  *   predospecial() is for the prescan, dospecial() for the real thing.
  */
@@ -129,7 +129,7 @@ fgetboundingbox(char *f, float *llx_p, float *lly_p, float *urx_p, float *ury_p)
       }
       fclose(fp);
    }
-   sprintf(errbuf, "Couldn't get BoundingBox of %s: assuming full A4 size", f);
+   sprintf(errbuf, "Couldn't get BoundingBox of %.500s: assuming full A4 size", f);
    specerror(errbuf);
    *llx_p = 0.0;
    *lly_p = 0.0;
@@ -329,7 +329,7 @@ found: *tno = i;
    switch (KeyTab[i].Type) {
  case Integer:
       if(sscanf(ValStr,"%ld",&ValInt)!=1) {
-          sprintf(errbuf,"Non-integer value (%s) given for keyword %s",
+          sprintf(errbuf,"Non-integer value (%.500s) given for keyword %.500s",
               ValStr, KeyStr);
           specerror(errbuf);
           ValInt = 0;
@@ -338,7 +338,7 @@ found: *tno = i;
  case Number:
  case Dimension:
       if(sscanf(ValStr,"%f",&ValNum)!=1) {
-          sprintf(errbuf,"Non-numeric value (%s) given for keyword %s",
+          sprintf(errbuf,"Non-numeric value (%.500s) given for keyword %.500s",
               ValStr, KeyStr);
           specerror(errbuf);
           ValNum = 0.0;
@@ -580,18 +580,22 @@ default:
       scanfontcomments(ValStr);
 }
 
+/* Return 1 if S is readable along figpath, 0 if not. */
 static int
 maccess(char *s)
 {
    FILE *f = search(figpath, s, "r");
-   if (f)
+   int found = (f != 0);
+   if (found)
       (*close_file) (f);
-   return (f != 0);
+   return found;
 }
 
 const char *tasks[] = { 0, "iff2ps", "tek2ps" };
 
-static char psfile[511];
+#define PSFILESIZ 511
+static char psfile[PSFILESIZ];
+
 void
 dospecial(integer numbytes)
 {
@@ -652,14 +656,31 @@ case 'e':
 /* added for dvi2ps special */
    if (strncmp(p, "epsfile=", 8)==0) {  /* epsf.sty for dvi2ps-j */
       float llx, lly, urx, ury;
+      unsigned psfilelen = 0;
 
       p += 8;
-      sscanf(p, "%s", psfile);
+      while (*p && !isspace((unsigned char)*p)) {
+        if (psfilelen < PSFILESIZ) {
+          psfile[psfilelen] = *p;
+          psfilelen++;
+          p++;
+        } else {
+          psfile[psfilelen] = 0; /* should not strictly be necessary */
+          sprintf(errbuf,
+                  "! epsfile=%.20s... argument longer than %d characters",
+                  psfile, PSFILESIZ);
+          error(errbuf);
+        }
+      }
+      if (psfilelen == 0) {
+        error ("! epsfile= argument empty");
+      }
+      psfile[psfilelen] = 0;
 #if defined(MIKTEX_WINDOWS)
       // fixes #2336 dvips chokes on graphic files with accents
       // https://sourceforge.net/p/miktex/bugs/2336/
       std::string utf8FileName;
-      if (! Utils::IsUTF8(psfile))
+      if (!Utils::IsUTF8(psfile))
       {
         utf8FileName = MiKTeX::Util::StringUtil::AnsiToUTF8(psfile);
         strcpy_s(psfile, utf8FileName.c_str());
@@ -697,7 +718,8 @@ case 'e':
                cmdout("@rhi");
                break;
             default:
-               sprintf(errbuf, "Unknown keyword `%s' in \\special{epsfile=%s...} will be ignored\n", KeyStr, psfile);
+               sprintf(errbuf, "Unknown keyword `%.500s' in \\special{epsfile=%.500s...} will be ignored\n",
+               KeyStr, psfile);
                specerror(errbuf);
                break;
          }
@@ -768,6 +790,16 @@ case 'p':
    if (strncmp(p, "postscriptbox", 13)==0) { /* epsbox.sty for jdvi2kps */
       float w, h;
       float llx, lly, urx, ury;
+      if (strlen(p)-13-6 >= PSFILESIZ) { /* -6 for the braces */
+         /* We're not allowing as long a name as we could, since however
+            many characters the two {%fpt} arguments consume is not
+            taken into account. But parsing it all so we know the
+            character length is too much work for this obscure special. */
+         sprintf(errbuf,
+                 "! postscriptbox{} arguments longer than %d characters",
+                 PSFILESIZ);
+         error(errbuf);
+      }
       if (sscanf(p+13, "{%fpt}{%fpt}{%[^}]}", &w, &h, psfile) != 3)
          break;
 #if defined(MIKTEX_WINDOWS)
@@ -939,9 +971,14 @@ default:
 
    while( (p=GetKeyVal(p,&j)) != NULL )
       switch (j) {
- case -1: /* for compatability with old conventions, we allow a file name
+ case -1: /* for compatibility with old conventions, we allow a file name
            * to be given without the 'psfile=' keyword */
-         if (!psfile[0] && maccess(KeyStr)==0) /* yes we can read it */
+         if (!psfile[0] && maccess(KeyStr)==1) { /* yes we can read it */
+             if (strlen(KeyStr) >= PSFILESIZ) {
+               sprintf(errbuf, 
+           "! Bare filename (%.20s...) in \\special longer than %d characters",
+                       KeyStr, PSFILESIZ);
+             }
 #if defined(MIKTEX_WINDOWS)
            // fixes #2336 dvips chokes on graphic files with accents
            // https://sourceforge.net/p/miktex/bugs/2336/
@@ -956,14 +993,14 @@ default:
 #else
              strcpy(psfile,KeyStr);
 #endif
-         else {
+         } else {
            if (strlen(KeyStr) < 40) {
               sprintf(errbuf,
                       "Unknown keyword (%s) in \\special will be ignored",
                               KeyStr);
            } else {
               sprintf(errbuf,
-                      "Unknown keyword (%.40s...) in \\special will be ignored",
+                     "Unknown keyword (%.40s...) in \\special will be ignored",
                               KeyStr);
            }
            specerror(errbuf);
@@ -971,29 +1008,35 @@ default:
          break;
  case 0: case 1: case 2: /* psfile */
          if (psfile[0]) {
-           sprintf(errbuf, "More than one \\special %s given; %s ignored",
-                    "psfile",  ValStr);
+           sprintf(errbuf, "More than one \\special %s given; %.40s ignored",
+                    "psfile", ValStr);
            specerror(errbuf);
-         }
+         } else {
+           if (strlen(ValStr) >= PSFILESIZ) {
+               sprintf(errbuf, 
+           "! PS filename (%.20s...) in \\special longer than %d characters",
+                       ValStr, PSFILESIZ);
+	       error(errbuf);
+           }
 #if defined(MIKTEX_WINDOWS)
-         else
            // fixes #2336 dvips chokes on graphic files with accents
            // https://sourceforge.net/p/miktex/bugs/2336/
-         {
-           std::string utf8FileName;
-           if (! Utils::IsUTF8(ValStr))
            {
-             utf8FileName = MiKTeX::Util::StringUtil::AnsiToUTF8(ValStr);
-             strcpy_s(psfile, utf8FileName.c_str());
+             std::string utf8FileName;
+             if (! Utils::IsUTF8(ValStr))
+             {
+               utf8FileName = MiKTeX::Util::StringUtil::AnsiToUTF8(ValStr);
+               strcpy_s(psfile, utf8FileName.c_str());
+             }
+             else
+             {
+               strcpy_s(psfile, ValStr);
+             }
            }
-	   else
-	   {
-	     strcpy_s(psfile, ValStr);
-	   }
-         }
 #else
-         else strcpy(psfile,ValStr);
+           strcpy(psfile, ValStr);
 #endif
+         }
          task = tasks[j];
          break;
  default: /* most keywords are output as PostScript procedure calls */

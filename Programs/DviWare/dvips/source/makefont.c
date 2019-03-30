@@ -174,7 +174,7 @@ case 'b' : case 'B' :
             sprintf(q, "%d", bdpi);
             break;
 case 'o' : case 'O' :
-            sprintf(q, "%s", mfmode ? mfmode : "default");
+            sprintf(q, "%.99s", mfmode ? mfmode : "default");
             modegiven = 1;
             break;
 case 'm' : case 'M' :

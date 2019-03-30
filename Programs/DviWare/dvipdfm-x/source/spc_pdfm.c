@@ -1764,15 +1764,17 @@ spc_handler_pdfm_bgcolor (struct spc_env *spe, struct spc_arg *args)
   return  error;
 }
 
+#define THEBUFFLENGTH 1024
 static int
 spc_handler_pdfm_mapline (struct spc_env *spe, struct spc_arg *ap)
 {
   fontmap_rec *mrec;
   char        *map_name, opchr;
   int          error = 0;
-  static char  buffer[1024];
+  static char  buffer[THEBUFFLENGTH];
   const char  *p;
   char        *q;
+  int         count;
 
   skip_white(&ap->curptr, ap->endptr);
   if (ap->curptr >= ap->endptr) {
@@ -1800,8 +1802,16 @@ spc_handler_pdfm_mapline (struct spc_env *spe, struct spc_arg *ap)
   default:
     p = ap->curptr;
     q = buffer;
-    while (p < ap->endptr)
+    count = 0;
+    while (p < ap->endptr && count < THEBUFFLENGTH - 1) {
       *q++ = *p++;
+      count++;
+    }
+    if (count == THEBUFFLENGTH - 1) {
+      spc_warn(spe, "Invalid fontmap line: Too long a line.");
+      *q = 0;
+      return -1;
+    }
     *q = '\0';
     mrec = NEW(1, fontmap_rec);
     pdf_init_fontmap_record(mrec);

@@ -19,7 +19,7 @@
 
 set(MIKTEX_COMP_ORIG_VERSION_STR "20190225")
 
-set(MIKTEX_COMP_J2000_VERSION 7014)
+set(MIKTEX_COMP_J2000_VERSION 7028)
 
 set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1998,1999 Mark Wicks, Copyright (C) 2002-2019 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team")
 set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1998,1999 Mark Wicks, @ 2002-2019 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team")

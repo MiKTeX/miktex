@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -53,15 +53,16 @@
 
 #include "specials.h"
 
+#define THEBUFFLENGTH 1024
 void
 spc_warn (struct spc_env *spe, const char *fmt, ...)
 {
   va_list  ap;
-  static char buf[1024];
+  static char buf[THEBUFFLENGTH];
 
   va_start(ap, fmt);
 
-  vsprintf(buf, fmt, ap);
+  vsnprintf(buf, THEBUFFLENGTH, fmt, ap);
   WARN(buf);
 
   va_end(ap);
