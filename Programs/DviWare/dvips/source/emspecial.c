@@ -1,4 +1,4 @@
-/*
+/* $Id: emspecial.c 50670 2019-03-30 22:42:24Z karl $
  *   emspecial.c
  *   This routine handles the emTeX special commands.
  */
@@ -1142,7 +1142,8 @@ bmpgraph(FILE *f, char *filename, float emwidth, float emheight)
 	struct bitmapfileheader bmfh;
 	struct bitmapinfoheader bmih;
 
-	unsigned char isblack[256];
+	#define ISBLACKSIZ 256
+	unsigned char isblack[ISBLACKSIZ];
 	unsigned char rr;
 	unsigned char gg;
 	unsigned char bb;
@@ -1251,6 +1252,17 @@ bmpgraph(FILE *f, char *filename, float emwidth, float emheight)
         else
 		clrtablesize = bmih.clrused;
 
+	if (clrtablesize > ISBLACKSIZ) {
+		/* This is wrong, since we won't read the whole file below.
+		   But we can't give correct output without more work,
+		   and it's unlikely these specials are still in use.  */
+		sprintf(errbuf,
+		   "em color table size (%d) larger than %d; output incorrect",
+		        clrtablesize, ISBLACKSIZ);
+   		specerror(errbuf);
+		clrtablesize = ISBLACKSIZ;
+	}
+	
 	/* read in the color table */
 	for (i = 0; i < clrtablesize; i++) {
 		bb = fgetc(f);

@@ -66,8 +66,12 @@ int get_fn_objnum(fd_entry * fd)
  * 2. mark glyphs directly there
  *
  * Input charset from xpdf is a string of glyph names including
- * leading slashes, but without blanks between them, like: /a/b/c
+ * leading slashes, with optional generic spaces, including tabs,
+ * \n, \r, and \f, preceding or between them:
+   /a/b/c or /a /b /c or /a/b   /c, etc.
 ***********************************************************************/
+
+#define Isgenericspace(c) (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f')
 
 void epdf_mark_glyphs(fd_entry * fd, char *charset)
 {
@@ -77,14 +81,14 @@ void epdf_mark_glyphs(fd_entry * fd, char *charset)
     if (charset == NULL)
         return;
     assert(fd != NULL);
-    while (*charset == ' ' || *charset == '\t')
+    while (Isgenericspace(*charset))
         charset++;
     for (s = charset + 1, q = charset + strlen(charset); s < q; s = p + 1) {
-        for (p = s; *p != '\0' && *p != '/' && *p != ' ' && *p != '\t'; p++);
-        if (*p == ' ' || *p == '\t') {
+        for (p = s; *p != '\0' && *p != '/' && !Isgenericspace(*p); p++);
+        if (Isgenericspace(*p)) {
             *p = '\0';
             p++;
-            while (*p == ' ' || *p == '\t')
+            while (Isgenericspace(*p))
                 p++;
         }
         *p = '\0';
