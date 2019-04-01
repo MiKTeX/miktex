@@ -645,7 +645,17 @@ public:
 public:
   static std::locale& GetDefaultLocale()
   {
-    return GetSession()->defaultLocale;
+    auto session = TryGetSession();
+    if (session != nullptr)
+    {
+      return session->defaultLocale;
+    }
+    else
+    {
+      // FIXME
+      static std::locale defaultLocale;
+      return defaultLocale;
+    }
   }
 
 public:
