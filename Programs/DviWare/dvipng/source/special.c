@@ -33,11 +33,8 @@
 #ifndef WIN32
 #include <sys/wait.h>
 #else /* WIN32 */
-#include <fcntl.h>
-#include <io.h>
-#include <process.h>
+#undef pipe
 #define pipe(p) _pipe(p, 65536, O_BINARY | _O_NOINHERIT)
-#define snprintf _snprintf
 #endif /* WIN32 */
 #endif
 
@@ -49,9 +46,9 @@
 struct pscode {
   struct pscode*  next;
   char*           special;  /* complete special */
-  char*           code;     /* PS string, null if a file */
+  const char*     code;     /* PS string, null if a file */
   char*           filename; /* file name, null if a string */
-  char*           postcode; /* post PS string */
+  const char*     postcode; /* post PS string */
   struct filemmap fmmap;    /* file mmap */
 };
 
@@ -228,7 +225,7 @@ ps2png(struct pscode* pscodep, const char *device, int hresolution, int vresolut
   savestdout = _dup(fileno(stdout));
   _dup2(pngpipe[WRITE_END], fileno(stdout));
   if ((hchild=
-       (HANDLE)spawnlp(_P_NOWAIT, GS_PATH, GS_PATH, device, resolution,
+       (HANDLE)_spawnlp(_P_NOWAIT, GS_PATH, GS_PATH, device, resolution,
 		       "-dBATCH", "-dNOPAUSE", "-q", "-sOutputFile=-",
 		       "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4",
 		       (option_flags & NO_GSSAFER) ? "-": "-dSAFER",

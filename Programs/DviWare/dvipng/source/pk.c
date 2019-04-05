@@ -347,22 +347,31 @@ void InitPK(struct font_entry * tfontp)
   position = skip_specials(position);
   while (*position != PK_POST) {
     DEBUG_PRINT(DEBUG_PK,("\n  @%ld PK CHAR:\t%d",
-			  (long)position - (long)tfontp->fmmap.data, *position));
+			  (long)((char *)position - tfontp->fmmap.data), *position));
     if ((tcharptr = malloc(sizeof(struct char_entry))) == NULL)
       Fatal("cannot allocate space for char_entry");
     tcharptr->flag_byte = *position;
     tcharptr->data = NULL;
     tcharptr->tfmw = 0;
     if ((*position & 7) == 7) {
+      if (tfontp->fmmap.size < (char *)position-tfontp->fmmap.data + 9) {
+        Fatal("file too short (%u) for 9-byte packet_length",tfontp->fmmap.size);
+      }
       packet_length = UNumRead(position+1,4);
       c = UNumRead(position+5, 4);
       position += 9;
     } else if (*position & 4) {
+      if (tfontp->fmmap.size < (char *)position-tfontp->fmmap.data + 4) {
+        Fatal("file too short (%u) for 4-byte packet_length",tfontp->fmmap.size);
+      }
       packet_length = (*position & 3) * 65536l +
 	UNumRead(position+1, 2);
       c = UNumRead(position+3, 1);
       position += 4;
     } else {
+      if (tfontp->fmmap.size < (char *)position-tfontp->fmmap.data + 3) {
+        Fatal("file too short (%u) for 3-byte packet_length",tfontp->fmmap.size);
+      }
       packet_length = (*position & 3) * 256 +
 	UNumRead(position+1, 1);
       c = UNumRead(position+2, 1);
@@ -374,6 +383,11 @@ void InitPK(struct font_entry * tfontp)
   tcharptr->length = packet_length;
   tcharptr->pkdata = position;
   tfontp->chr[c]=tcharptr;
+  if (tfontp->fmmap.size
+      < (char *)position-tfontp->fmmap.data + packet_length) {
+    Fatal("file too short (%u) to read past packet_length %u",
+          tfontp->fmmap.size, packet_length);
+  }
   position += packet_length;
   position = skip_specials(position);
   }

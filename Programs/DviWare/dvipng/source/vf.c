@@ -80,7 +80,7 @@ void InitVF(struct font_entry * tfontp)
   position += 8;
   while(*position >= FNT_DEF1 && *position <= FNT_DEF4) {
     DEBUG_PRINT(DEBUG_VF,("\n  @%ld VF:\t%s",
-			  (long)position - (long)tfontp->fmmap.data,
+			  (long)((char *)position - tfontp->fmmap.data),
 			  dvi_commands[*position]));
     FontDef(position,tfontp);
     length = dvi_commandlength[*position];
@@ -95,7 +95,7 @@ void InitVF(struct font_entry * tfontp)
   /* Read char definitions */
   while(*position < FNT_DEF1) {
     DEBUG_PRINT(DEBUG_VF,("\n@%ld VF CHAR:\t",
-			  (long)position - (long)tfontp->fmmap.data));
+			  (long)((char *)position - tfontp->fmmap.data)));
     if ((tcharptr=malloc(sizeof(struct char_entry)))==NULL)
       Fatal("cannot allocate memory for VF char entry");
     switch (*position) {

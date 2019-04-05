@@ -1,4 +1,4 @@
-/* $Id: dospecial.c 50650 2019-03-30 01:50:10Z karl $
+/* $Id: dospecial.c 50765 2019-04-04 22:03:56Z karl $
  *   This routine handles special commands;
  *   predospecial() is for the prescan, dospecial() for the real thing.
  */
@@ -660,7 +660,7 @@ case 'e':
 
       p += 8;
       while (*p && !isspace((unsigned char)*p)) {
-        if (psfilelen < PSFILESIZ) {
+        if (psfilelen < PSFILESIZ - 1) {
           psfile[psfilelen] = *p;
           psfilelen++;
           p++;

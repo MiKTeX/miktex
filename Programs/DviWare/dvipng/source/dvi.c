@@ -208,6 +208,12 @@ unsigned char* DVIGetCommand(struct dvi_data* dvi)
     break;
   }
   if (strlength > 0) { /* Read string */
+    if (strlength == UINT32_MAX
+        || strlength+1 > UINT32_MAX - (uint32_t)length) {
+      /* Have to check else we might not realloc buffer. */
+      Fatal("strlength %u + 1 + length %u would overflow",
+            strlength, (uint32_t)length);
+    }
     if (strlength+1 + (uint32_t)length > commlen) {
       /* string + command length exceeds that of buffer */
       commlen=strlength+1 + (uint32_t)length;
