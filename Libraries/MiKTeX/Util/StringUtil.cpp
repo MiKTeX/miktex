@@ -312,7 +312,7 @@ u16string StringUtil::UTF8ToUTF16(const char* utf8Chars)
     return conv.from_bytes(utf8Chars);
 #endif
   }
-  catch (const range_error &)
+  catch (const range_error&)
   {
     throw UtilException("Conversion from UTF-8 byte sequence to UTF-16 string did not succeed.");
   }
@@ -333,7 +333,7 @@ string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
     return conv.to_bytes(utf16Chars);
 #endif
   }
-  catch (const range_error &)
+  catch (const range_error&)
   {
     throw UtilException("Conversion from UFT-16 string to UTF-8 byte sequence did not succeed.");
   }
@@ -356,7 +356,7 @@ u32string StringUtil::UTF8ToUTF32(const char* utf8Chars)
     return conv.from_bytes(utf8Chars);
 #endif
   }
-  catch (const range_error &)
+  catch (const range_error&)
   {
     throw UtilException("Conversion from UTF-8 byte sequence to UTF-32 string did not succeed.");
   }
@@ -375,7 +375,7 @@ string StringUtil::UTF32ToUTF8(const char32_t* utf32Chars)
     return conv.to_bytes(utf32Chars);
 #endif
   }
-  catch (const range_error &)
+  catch (const range_error&)
   {
     throw UtilException("Conversion from UFT-32 string to UTF-8 byte sequence did not succeed.");
   }
@@ -388,7 +388,7 @@ wstring StringUtil::UTF8ToWideChar(const char* utf8Chars)
     wstring_convert<codecvt_utf8<wchar_t>> conv;
     return conv.from_bytes(utf8Chars);
   }
-  catch (const range_error &)
+  catch (const range_error&)
   {
     throw UtilException("Conversion from UTF-8 byte sequence to wide character string did not succeed.");
   }
@@ -401,7 +401,7 @@ string StringUtil::WideCharToUTF8(const wchar_t* wideChars)
     wstring_convert<codecvt_utf8<wchar_t>> conv;
     return conv.to_bytes(wideChars);
   }
-  catch (const range_error &)
+  catch (const range_error&)
   {
     throw UtilException("Conversion from wide character string to UTF-8 byte sequence did not succeed.");
   }
