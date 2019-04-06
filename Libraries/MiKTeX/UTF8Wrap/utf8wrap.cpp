@@ -1,6 +1,6 @@
 /* utf8wrap.cpp:
 
-   Copyright (C) 2011-2018 Christian Schenk
+   Copyright (C) 2011-2019 Christian Schenk
 
    This file is part of the MiKTeX UTF8Wrap Library.
 
@@ -21,8 +21,8 @@
 
 #include <Windows.h>
 #include <cstdarg>
-#include <exception>
 #include <memory>
+#include <stdexcept>
 #include <unordered_map>
 #include <vector>
 #include <fcntl.h>

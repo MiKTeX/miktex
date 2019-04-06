@@ -1,6 +1,6 @@
 /* StringUtil.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -299,7 +299,7 @@ u16string StringUtil::UTF8ToUTF16(const char* utf8Chars)
 {
   try
   {
-#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1916
+#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1920
     wstring_convert<codecvt_utf8_utf16<int16_t>, int16_t> conv;
     u16string result;
     for (auto& ch : conv.from_bytes(utf8Chars))
@@ -322,7 +322,7 @@ string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
 {
   try
   {
-#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1916
+#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1920
     // workround for VS2015 bug: 
     // http://stackoverflow.com/questions/32055357/visual-studio-c-2015-stdcodecvt-with-char16-t-or-char32-t
     wstring_convert<codecvt_utf8_utf16<int16_t>, int16_t> conv;
@@ -343,7 +343,7 @@ u32string StringUtil::UTF8ToUTF32(const char* utf8Chars)
 {
   try
   {
-#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1916
+#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1920
     wstring_convert<codecvt_utf8<int32_t>, int32_t> conv;
     u32string result;
     for (auto& ch : conv.from_bytes(utf8Chars))
@@ -366,7 +366,7 @@ string StringUtil::UTF32ToUTF8(const char32_t* utf32Chars)
 {
   try
   {
-#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1916
+#if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1920
     wstring_convert<codecvt_utf8<int32_t>, int32_t> conv;
     const int32_t* p = (const int32_t*)utf32Chars;
     return conv.to_bytes(p, p + StrLen(utf32Chars));
