@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -40,8 +40,8 @@ set(HAVE_LIBZ)
 set(HAVE_PNG_H 1)
 
 set(PACKAGE_NAME "dvipng")
-set(PACKAGE_STRING "dvipng 1.15")
-set(PACKAGE_VERSION "1.15")
+set(PACKAGE_STRING "dvipng 1.16")
+set(PACKAGE_VERSION "1.16")
 
 configure_file(
   config.h.cmake

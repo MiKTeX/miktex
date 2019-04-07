@@ -1,10 +1,11 @@
 # MiKTeX Change Log
 
-## 2.9.7000 - 2019-04-07
+## 2.9.7000 - 2019-04-08
 
 ### Upgraded programs
 
 * dvipdfmx 20190225
+* dvipng 1.16
 * dvips 5.999
 * dvisvgm 2.6.3
 * Gregorio 5.2.0
