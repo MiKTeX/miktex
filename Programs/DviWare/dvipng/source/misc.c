@@ -18,21 +18,28 @@
   License along with this program. If not, see
   <http://www.gnu.org/licenses/>.
 
-  Copyright (C) 2002-2015 Jan-Åke Larsson
+  Copyright (C) 2002-2015, 2019 Jan-Åke Larsson
 
 ************************************************************************/
 
 #include "dvipng.h"
 #ifdef HAVE_LIBGEN_H
 # include <libgen.h>
-#else
-#define basename xbasename
 #endif
 #include <fcntl.h> /* open/close */
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
 #endif
 #include <sys/stat.h>
+
+#if defined _WIN32 && !defined __CYGWIN__ && !defined __CYGWIN32__
+   /* Use Windows separators on all _WIN32 defining
+      environments, except Cygwin. */
+#  define DIR_SEPARATOR_CHAR    '\\'
+#endif
+#ifndef DIR_SEPARATOR_CHAR
+#  define DIR_SEPARATOR_CHAR    '/'
+#endif /* !DIR_SEPARATOR_CHAR */
 
 static char *programname;
 
@@ -47,43 +54,25 @@ bool DecodeArgs(int argc, char ** argv)
   int32_t number;            /* Temporary storage for numeric parameter */
   char *dviname=NULL;        /* Name of dvi file               */
   char *outname=NULL;        /* Name of output file            */
-  char *base;                /* basename of argv[0]            */
 
-#ifdef HAVE_LIBKPATHSEA
-  /* we certainly don't want to modify argv[0].  */
-  programname = xstrdup (argv[0] ? argv[0] : PACKAGE_NAME);
-# ifdef HAVE_KPSE_PROGRAM_BASENAME
-  base = kpse_program_basename (programname);
-# else
-  base = xstrdup (xbasename (programname));
-  {
-    char *dot = strrchr (base, '.');
-    if (dot && FILESTRCASEEQ (dot, ".exe"))
-      *dot = 0;
-  }
-# endif
-#else
-  /* we certainly don't want to modify argv[0].  */
-  programname = strdup (argv[0] ? argv[0] : PACKAGE_NAME);
-  base = strrchr (programname, '/');
-  if (base)
-    base++;
-  else
-    base = programname;
-#endif
+  programname=PACKAGE_NAME;
+  if (argv[0]) {
 #ifdef HAVE_GDIMAGEGIF
-# ifdef HAVE_LIBKPATHSEA
-  if (FILESTRCASEEQ (base, "dvigif"))
-# else
-  if (strncmp(programname,"dvigif",6)==0)
-# endif
-    option_flags |= GIF_OUTPUT;
+    programname=strrchr(argv[0],DIR_SEPARATOR_CHAR);
+    if (programname!=NULL)
+      programname++;
+    else
+      programname=argv[0];
+    if (strncasecmp(programname,"dvigif",6)==0)
+      option_flags |= GIF_OUTPUT;
 #endif
+    programname=argv[0];
+  }
   Message(BE_NONQUIET,"This is %s",programname);
-  if (strcmp(base,PACKAGE_NAME)!=0)
+  if (option_flags & GIF_OUTPUT)
     Message(BE_NONQUIET," (%s)", PACKAGE_NAME);
-  Message(BE_NONQUIET," %s Copyright 2002-2015 Jan-Ake Larsson\n",
-	  PACKAGE_VERSION);
+  Message(BE_NONQUIET," %s Copyright 2002-2015, 2019 Jan-Ake Larsson\n",
+          PACKAGE_VERSION);
 
   for (i=1; i<argc; i++) {
     if (*argv[i]=='-') {
@@ -501,12 +490,8 @@ bool DecodeArgs(int argc, char ** argv)
 	}
         break;
       case 'v':    /* verbatim mode */
-	if (strcmp(p, "ersion")==0) {
-	  if (strcmp(basename(programname),PACKAGE_NAME)!=0)
-	    printf("%s (%s) %s\n",basename(programname),
-		   PACKAGE_NAME,PACKAGE_VERSION);
-	  else
-	    puts(PACKAGE_STRING);
+        if (strcmp(p, "ersion")==0) {
+          puts(PACKAGE_STRING);
 #ifdef HAVE_LIBKPATHSEA
 	  puts (KPSEVERSION);
 #endif
@@ -525,7 +510,7 @@ bool DecodeArgs(int argc, char ** argv)
 	  }
 #  endif
 #endif
-	  puts ("Copyright (C) 2002-2015 Jan-Ake Larsson.\n\
+	  puts ("Copyright (C) 2002-2015, 2019 Jan-Ake Larsson.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU Lesser General Public License\n\
 version 3, see the COPYING file in the dvipng distribution\n\

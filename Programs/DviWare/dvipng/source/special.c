@@ -33,8 +33,15 @@
 #ifndef WIN32
 #include <sys/wait.h>
 #else /* WIN32 */
-#undef pipe
+#include <fcntl.h>
+#include <io.h>
+#include <process.h>
+#ifndef pipe
 #define pipe(p) _pipe(p, 65536, O_BINARY | _O_NOINHERIT)
+#endif
+#ifndef snprintf
+#define snprintf _snprintf
+#endif
 #endif /* WIN32 */
 #endif
 

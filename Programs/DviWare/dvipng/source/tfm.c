@@ -18,7 +18,7 @@
   License along with this program. If not, see
   <http://www.gnu.org/licenses/>.
 
-  Copyright (C) 2002-2009 Jan-Åke Larsson
+  Copyright (C) 2002-2009, 2019 Jan-Åke Larsson
 
 ************************************************************************/
 
@@ -36,34 +36,29 @@ bool ReadTFM(struct font_entry * tfontp, char* tfmname)
 	      ("\n  OPEN METRICS:\t'%s'", tfmname));
   if (MmapFile(tfmname,&fmmap)) return(false);
   position=(unsigned char*)fmmap.data;
-  if (fmmap.size < 10) {
-    Fatal("tfm file %s much too short (%u)", tfmname,fmmap.size);
-  }
+  if (fmmap.size<10) Fatal("TFM file %s ends prematurely",tfmname);
   lh = UNumRead(position+2,2);
   bc = UNumRead(position+4,2);
   ec = UNumRead(position+6,2);
   nw = UNumRead(position+8,2);
   DEBUG_PRINT(DEBUG_TFM,(" %d %d %d %d",lh,bc,ec,nw));
   if (nw>0) {
+    unsigned char *end=(unsigned char *) fmmap.data+fmmap.size;
     if ((width=malloc(nw*sizeof(dviunits)))==NULL)
       Fatal("cannot allocate memory for TFM widths");
     c=0;
-    if (fmmap.size < 24+(lh+ec-bc+1)*4) {
-      Fatal("tfm file %s ends in width table (size %u)", tfmname,fmmap.size);
-    }
     position=position+24+(lh+ec-bc+1)*4;
     while( c < nw ) {
+      if (position >= end - 4) Fatal("TFM file %s ends prematurely",tfmname);
       width[c] = SNumRead(position,4);
       c++;
       position += 4;
     }
     /* Read char widths */
     c=bc;
-    if (fmmap.size < 24+lh*4) {
-      Fatal("tfm file %s ends in widths (size %u)", tfmname,fmmap.size);
-    }
     position=(unsigned char*)fmmap.data+24+lh*4;
     while(c <= ec) {
+      if (position >= end) Fatal("TFM file %s ends prematurely",tfmname);
       DEBUG_PRINT(DEBUG_TFM,("\n@%ld TFM METRICS:\t",
 			     (long)((char *)position - fmmap.data)));
       if ((tcharptr=malloc(sizeof(struct char_entry)))==NULL)
@@ -72,7 +67,7 @@ bool ReadTFM(struct font_entry * tfontp, char* tfmname)
       if (*position < nw) {
         tcharptr->tfmw=width[*position];
       } else {
-        Fatal("position out of bounds for width %u, char %u",*position,c);
+        Fatal("TFM file %s lacks width for char %u", tfmname, *position);
       }
       DEBUG_PRINT(DEBUG_TFM,("%d [%d] %d",c,*position,tcharptr->tfmw));
       tcharptr->tfmw = (dviunits)

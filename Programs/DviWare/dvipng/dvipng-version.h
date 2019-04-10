@@ -17,11 +17,11 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 7034
+#define MIKTEX_COMP_J2000_VERSION 7036
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.15"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2002-2015 Jan-Ake Larsson"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2002-2015 Jan-Åke Larsson"
+#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2002-2019 Jan-Ake Larsson"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2002-2019 Jan-Åke Larsson"
 
 #include <miktex/Version>

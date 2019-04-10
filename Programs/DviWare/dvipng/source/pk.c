@@ -18,7 +18,7 @@
   License along with this program. If not, see
   <http://www.gnu.org/licenses/>.
 
-  Copyright (C) 2002-2009 Jan-Åke Larsson
+  Copyright (C) 2002-2009, 2019 Jan-Åke Larsson
 
 ************************************************************************/
 
@@ -74,20 +74,23 @@ static uint32_t pk_packed_num(unsigned char** pos)
   }
 }
 
-static unsigned char* skip_specials(unsigned char* pos)
+static unsigned char* skip_specials(unsigned char* pos, unsigned char* end)
 {
   uint32_t    i;
 
-  while (*pos >= 240 && *pos != PK_POST) {
+  while (pos < end && *pos >= 240 && *pos != PK_POST) {
     i=0;
     switch (*pos++) {
     case 243:
       i = *pos++;
     case 242:
+      if (pos >= end) break;
       i = 256 * i + *pos++;
     case 241:
+      if (pos >= end) break;
       i = 256 * i + *pos++;
     case 240:
+      if (pos >= end) break;
       i = 256 * i + *pos++;
       DEBUG_PRINT(DEBUG_PK,("\n  PK SPECIAL\t'%.*s' ",(int)i,pos));
       pos += i;
@@ -308,7 +311,7 @@ void LoadPK(int32_t c, register struct char_entry * ptr)
 
 void InitPK(struct font_entry * tfontp)
 {
-  unsigned char* position;
+  unsigned char* position, *end;
   struct char_entry *tcharptr; /* temporary char_entry pointer  */
   uint32_t    hppp, vppp, packet_length;
   uint32_t    c;
@@ -318,7 +321,7 @@ void InitPK(struct font_entry * tfontp)
   if (MmapFile(tfontp->name,&(tfontp->fmmap)))
     Fatal("font file %s unusable", tfontp->name);
   position=(unsigned char*)tfontp->fmmap.data;
-  if (tfontp->fmmap.size < 2 || tfontp->fmmap.size < 3+*(position+2)+16)
+  if (tfontp->fmmap.size < 3 || tfontp->fmmap.size < 3+*(position+2)+16)
     Fatal("PK file %s ends prematurely",tfontp->name);
   if (*position++ != PK_PRE)
     Fatal("unknown font format in file %s",tfontp->name);
@@ -344,8 +347,9 @@ void InitPK(struct font_entry * tfontp)
   tfontp->magnification = (uint32_t)((uint64_t)hppp * 7227 * 5 / 65536l + 50)/100;
   position+=16;
   /* Read char definitions */
-  position = skip_specials(position);
-  while (*position != PK_POST) {
+  end=(unsigned char *) tfontp->fmmap.data+tfontp->fmmap.size;
+  position = skip_specials(position,end);
+  while (position < end && *position != PK_POST) {
     DEBUG_PRINT(DEBUG_PK,("\n  @%ld PK CHAR:\t%d",
 			  (long)((char *)position - tfontp->fmmap.data), *position));
     if ((tcharptr = malloc(sizeof(struct char_entry))) == NULL)
@@ -354,24 +358,18 @@ void InitPK(struct font_entry * tfontp)
     tcharptr->data = NULL;
     tcharptr->tfmw = 0;
     if ((*position & 7) == 7) {
-      if (tfontp->fmmap.size < (char *)position-tfontp->fmmap.data + 9) {
-        Fatal("file too short (%u) for 9-byte packet_length",tfontp->fmmap.size);
-      }
+      if (position < end - 9) Fatal("PK file %s ends prematurely",tfontp->name);
       packet_length = UNumRead(position+1,4);
       c = UNumRead(position+5, 4);
       position += 9;
     } else if (*position & 4) {
-      if (tfontp->fmmap.size < (char *)position-tfontp->fmmap.data + 4) {
-        Fatal("file too short (%u) for 4-byte packet_length",tfontp->fmmap.size);
-      }
+      if (position < end - 4) Fatal("PK file %s ends prematurely",tfontp->name);
       packet_length = (*position & 3) * 65536l +
 	UNumRead(position+1, 2);
       c = UNumRead(position+3, 1);
       position += 4;
     } else {
-      if (tfontp->fmmap.size < (char *)position-tfontp->fmmap.data + 3) {
-        Fatal("file too short (%u) for 3-byte packet_length",tfontp->fmmap.size);
-      }
+      if (position < end - 3) Fatal("PK file %s ends prematurely",tfontp->name);
       packet_length = (*position & 3) * 256 +
 	UNumRead(position+1, 1);
       c = UNumRead(position+2, 1);
@@ -383,14 +381,10 @@ void InitPK(struct font_entry * tfontp)
   tcharptr->length = packet_length;
   tcharptr->pkdata = position;
   tfontp->chr[c]=tcharptr;
-  if (tfontp->fmmap.size
-      < (char *)position-tfontp->fmmap.data + packet_length) {
-    Fatal("file too short (%u) to read past packet_length %u",
-          tfontp->fmmap.size, packet_length);
-  }
   position += packet_length;
-  position = skip_specials(position);
+  position = skip_specials(position, end);
   }
+  if (position >= end) Fatal("PK file %s ends prematurely",tfontp->name);
 }
 
 static void UnLoadPK(struct char_entry *ptr)
