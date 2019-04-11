@@ -193,7 +193,7 @@ string StringUtil::FormatStringVA(const char* format, va_list arglist)
   {
     FATAL_ERROR();
   }
-  autoBuffer.Reserve(n + 1);
+  autoBuffer.Reserve(static_cast<size_t>(n) + 1);
   n = vsprintf_s(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
   if (n < 0)
   {
@@ -211,7 +211,7 @@ string StringUtil::FormatStringVA(const char* format, va_list arglist)
   }
   else if (static_cast<size_t>(n) >= autoBuffer.GetCapacity())
   {
-    autoBuffer.Reserve(n + 1);
+    autoBuffer.Reserve(static_cast<size_t>(n) + 1);
     n = vsnprintf(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
     if (n < 0)
     {
@@ -304,7 +304,7 @@ u16string StringUtil::UTF8ToUTF16(const char* utf8Chars)
     u16string result;
     for (auto& ch : conv.from_bytes(utf8Chars))
     {
-      result += (char16_t)ch;
+      result += static_cast<char16_t>(ch);
     }
     return result;
 #else
@@ -326,7 +326,7 @@ string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
     // workround for VS2015 bug: 
     // http://stackoverflow.com/questions/32055357/visual-studio-c-2015-stdcodecvt-with-char16-t-or-char32-t
     wstring_convert<codecvt_utf8_utf16<int16_t>, int16_t> conv;
-    const int16_t* p = (const int16_t*)utf16Chars;
+    const int16_t* p = reinterpret_cast<const int16_t*>(utf16Chars);
     return conv.to_bytes(p, p + StrLen(utf16Chars));
 #else
     wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t> conv;
@@ -348,7 +348,7 @@ u32string StringUtil::UTF8ToUTF32(const char* utf8Chars)
     u32string result;
     for (auto& ch : conv.from_bytes(utf8Chars))
     {
-      result += (char32_t)ch;
+      result += static_cast<char32_t>(ch);
     }
     return result;
 #else
@@ -368,7 +368,7 @@ string StringUtil::UTF32ToUTF8(const char32_t* utf32Chars)
   {
 #if _MSC_VER == 1900 || _MSC_VER >= 1910 && _MSC_VER <= 1920
     wstring_convert<codecvt_utf8<int32_t>, int32_t> conv;
-    const int32_t* p = (const int32_t*)utf32Chars;
+    const int32_t* p = reinterpret_cast<const int32_t*>(utf32Chars);
     return conv.to_bytes(p, p + StrLen(utf32Chars));
 #else
     wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
