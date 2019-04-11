@@ -192,29 +192,8 @@ PathName GetExecutableDir()
 }
 #endif
 
-#if defined(MIKTEX_WINDOWS)
-#  define ENABLE_TRACE_MAIN
-#endif
-
-#define TRACE_MAIN() TraceMain(__FILE__, __LINE__)
-
-#if defined(ENABLE_TRACE_MAIN)
-inline void TraceMain(const char* file, int line)
-{
-#if defined(MIKTEX_WINDOWS)
-  string outputString = "MiKTeX Console: reached line "s + std::to_string(line);
-  OutputDebugStringA(outputString.c_str());
-#endif
-}
-#else
-inline void TraceMain(const char* file, int line)
-{
-}
-#endif
-
 int main(int argc, char* argv[])
 {
-  TRACE_MAIN();
   int ret = 0;
   bool optAdmin = false;
   bool optCheckUpdates = false;
@@ -229,32 +208,21 @@ int main(int argc, char* argv[])
   QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
 #endif
 #if QT_VERSION >= 0x050600
-  TRACE_MAIN();
   QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  TRACE_MAIN();
 #endif
-  TRACE_MAIN();
   QApplication application(argc, argv);
-  TRACE_MAIN();
 #if QT_VERSION >= 0x050000
-  TRACE_MAIN();
   application.setApplicationDisplayName(displayName);
-  TRACE_MAIN();
 #endif
-  TRACE_MAIN();
   unique_ptr<MiKTeX::Core::LockFile> lockFile;
-  TRACE_MAIN();
   try
   {
-    TRACE_MAIN();
     lockFile = LockFile::Create(PathName().SetToHomeDirectory() / "miktex-console.lock");
-    TRACE_MAIN();
     if (!lockFile->TryLock(500ms))
     {
       QMessageBox::warning(nullptr, displayName, "MiKTeX Console is already running.");
       return 1;
     }
-    TRACE_MAIN();
   }
   catch (const exception& e)
   {
@@ -267,9 +235,7 @@ int main(int argc, char* argv[])
   MainWindow::Pages startPage = MainWindow::Pages::Overview;
   if (argc > 0)
   {
-    TRACE_MAIN();
     PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
-    TRACE_MAIN();
     name += MIKTEX_EXE_FILE_SUFFIX;
 #if defined(MIKTEX_WINDOWS)
     if (name == MIKTEX_TASKBAR_ICON_EXE)
@@ -283,9 +249,7 @@ int main(int argc, char* argv[])
     }
 #endif
   }
-  TRACE_MAIN();
   TraceSink traceSink;
-  TRACE_MAIN();
   try
   {
     Session::InitInfo initInfo;
@@ -352,13 +316,10 @@ int main(int argc, char* argv[])
       }
     }
     initInfo.SetProgramInvocationName(argv[0]);
-    TRACE_MAIN();
     shared_ptr<Session> session = Session::Create(initInfo);
-    TRACE_MAIN();
     bool switchToAdmin = false;
     if (optAdmin)
     {
-      TRACE_MAIN();
       if (!session->RunningAsAdministrator())
       {
 #if defined(MIKTEX_WINDOWS)
@@ -368,42 +329,29 @@ int main(int argc, char* argv[])
 #endif
         return 1;
       }
-      TRACE_MAIN();
       switchToAdmin = true;
     }
     if (switchToAdmin)
     {
-      TRACE_MAIN();
       session->SetAdminMode(true);
-      TRACE_MAIN();
       displayName += " (Admin)";
     }
     PathName xmlFileName;
-    TRACE_MAIN();
     if (session->FindFile("console." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
       || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
     {
-      TRACE_MAIN();
       string logName = "miktex-console";
-      TRACE_MAIN();
       if (session->IsAdminMode())
       {
         logName += MIKTEX_ADMIN_SUFFIX;
       }
-      TRACE_MAIN();
       Utils::SetEnvironmentString("MIKTEX_LOG_DIR", session->GetSpecialPath(SpecialPath::LogDirectory).ToString());
-      TRACE_MAIN();
       Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
-      TRACE_MAIN();
       log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
       isLog4cxxConfigured = true;
-      TRACE_MAIN();
       traceSink.FlushPendingTraceMessages();
-      TRACE_MAIN();
       LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR));
-      TRACE_MAIN();
     }
-    TRACE_MAIN();
     if (optVersion)
     {
       cout
@@ -415,18 +363,14 @@ int main(int argc, char* argv[])
     }
     bool fastExit = false;
     {
-      TRACE_MAIN();
       MainWindow mainWindow(nullptr, startPage);
-      TRACE_MAIN();
       if (optHide)
       {
         mainWindow.hide();
       }
       else
       {
-        TRACE_MAIN();
         mainWindow.show();
-        TRACE_MAIN();
       }
       if (optFinishSetup)
       {
@@ -440,25 +384,19 @@ int main(int argc, char* argv[])
       {
         QTimer::singleShot(100, &mainWindow, SLOT(RefreshFontMaps()));
       }
-      TRACE_MAIN();
       ret = application.exec();
-      TRACE_MAIN();
       fastExit = mainWindow.IsCleaningUp();
     }
     if (session.use_count() > 1 && !fastExit)
     {
       LOG4CXX_WARN(logger, "session.use_count() == " << session.use_count());
     }
-    TRACE_MAIN();
     session = nullptr;
-    TRACE_MAIN();
     if (isLog4cxxConfigured && !fastExit)
     {
       LOG4CXX_INFO(logger, "finishing with exit code " << ret);
     }
-    TRACE_MAIN();
     lockFile->Unlock();
-    TRACE_MAIN();
   }
   catch (const MiKTeXException& e)
   {
