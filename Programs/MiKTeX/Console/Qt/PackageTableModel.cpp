@@ -26,9 +26,10 @@
 
 #include "PackageTableModel.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
-using namespace std;
 
 PackageTableModel::PackageTableModel(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, QObject* parent) :
   QAbstractTableModel(parent),
