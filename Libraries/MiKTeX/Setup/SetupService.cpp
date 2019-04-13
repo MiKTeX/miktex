@@ -1679,7 +1679,8 @@ bool SetupServiceImpl::FindFile(const PathName& fileName, PathName& result)
   }
 
   // try the current directory
-  result.SetToCurrentDirectory() / fileName;
+  result.SetToCurrentDirectory();
+  result /= fileName;
   if (File::Exists(result))
   {
     return true;
