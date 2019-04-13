@@ -1,6 +1,6 @@
 /* PackageTableModel.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -21,6 +21,7 @@
 
 #include <memory>
 
+#include <QColor>
 #include <QDateTime>
 
 #include "PackageTableModel.h"
@@ -42,7 +43,7 @@ int PackageTableModel::rowCount(const QModelIndex& parent) const
 
 int PackageTableModel::columnCount(const QModelIndex& parent) const
 {
-  return parent.isValid() ? 0 : 7;
+  return parent.isValid() ? 0 : 8;
 }
 
 QVariant PackageTableModel::data(const QModelIndex& index, int role) const
@@ -68,22 +69,42 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
       case 3:
         return QDateTime::fromTime_t(packageInfo.timePackaged).date();
       case 4:
-        if (packageInfo.timeInstalled == static_cast<time_t>(0))
-        {
-          return "";
-        }
-        else
+        if (IsValidTimeT(packageInfo.timeInstalled))
         {
           return QDateTime::fromTime_t(packageInfo.timeInstalled).date();
         }
+        break;
       case 5:
-        return QString::fromUtf8(packageInfo.title.c_str());
+        if (IsValidTimeT(packageInfo.timeInstalledByAdmin) && IsValidTimeT(packageInfo.timeInstalledByUser))
+        {
+          return "Admin, User";
+        }
+        else if (IsValidTimeT(packageInfo.timeInstalledByAdmin))
+        {
+          return "Admin";
+        }
+        else if (IsValidTimeT(packageInfo.timeInstalledByUser))
+        {
+          return "User";
+        }
+        break;
       case 6:
+        return QString::fromUtf8(packageInfo.title.c_str());
+      case 7:
         if (!packageInfo.runFiles.empty())
         {
           return QString("%1 +%2").arg(QString::fromUtf8(PathName(packageInfo.runFiles[0]).GetFileName().GetData())).arg(packageInfo.runFiles.size());
         }
+        break;
       }
+    }
+  }
+  else if (role == Qt::ForegroundRole)
+  {
+    PackageInfo packageInfo;
+    if (TryGetPackageInfo(index, packageInfo) && IsValidTimeT(packageInfo.timeInstalledByAdmin) && IsValidTimeT(packageInfo.timeInstalledByUser))
+    {
+      return QColor("red");
     }
   }
 
@@ -107,8 +128,10 @@ QVariant PackageTableModel::headerData(int section, Qt::Orientation orientation,
     case 4:
       return tr("Installed on");
     case 5:
-      return tr("Title");
+      return tr("Installed by");
     case 6:
+      return tr("Title");
+    case 7:
       return tr("Files");
     }
   }
