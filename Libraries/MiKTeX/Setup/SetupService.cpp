@@ -1780,10 +1780,14 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
       << "LinkTargetDirectory: " << session->GetSpecialPath(SpecialPath::LinkTargetDirectory) << "\n"
       << "PathOkay: " << (p.first ? T_("yes") : T_("no")) << "\n";
-    InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
-    s << (session->IsSharedSetup() ? "LastUpdateCheckAdmin: " : "LastUpdateCheck: ") << FormatTimestamp(commonInstallation.lastUpdateCheck) << "\n";
-    s << (session->IsSharedSetup() ? "LastUpdateAdmin: " : "LastUpdate: ") << FormatTimestamp(commonInstallation.lastUpdate) << "\n";
-    if (session->IsSharedSetup() && !session->IsAdminMode())
+    if (session->IsSharedSetup())
+    {
+      InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
+      s << "LastUpdateCheckAdmin: " << FormatTimestamp(commonInstallation.lastUpdateCheck) << "\n";
+      s << "LastUpdateAdmin: " << FormatTimestamp(commonInstallation.lastUpdate) << "\n";
+
+    }
+    if (!session->IsAdminMode())
     {
       InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
       if (userInstallation.packageCount > 0)
