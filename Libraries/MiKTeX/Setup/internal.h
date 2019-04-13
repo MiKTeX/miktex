@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2013-2018 Christian Schenk
+   Copyright (C) 2013-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -309,7 +309,7 @@ protected:
   enum Section { None, Files, HKLM, HKCU };
 
 protected:
-  Section section;
+  Section section = None;
 
 protected:
   std::ofstream logStream;
@@ -372,7 +372,7 @@ protected:
   bool logging = false;
 
 protected:
-  bool cancelled;
+  bool cancelled = false;
 
 protected:
   bool initialized = false;
