@@ -23,6 +23,7 @@
 
 #include <QColor>
 #include <QDateTime>
+#include <QLocale>
 
 #include "PackageTableModel.h"
 
@@ -66,7 +67,7 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
       case 1:
         return QString::fromUtf8(packageManager->GetContainerPath(packageInfo.id, true).c_str());
       case 2:
-        return (qlonglong)packageInfo.GetSize();
+        return QLocale::system().formattedDataSize(packageInfo.GetSize());
       case 3:
         return QDateTime::fromTime_t(packageInfo.timePackaged).date();
       case 4:

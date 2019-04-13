@@ -1,6 +1,6 @@
 /* PackageProxyModel.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -25,9 +25,10 @@
 #include "PackageProxyModel.h"
 #include "PackageTableModel.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
-using namespace std;
 
 PackageProxyModel::PackageProxyModel(QObject* parent) :
   QSortFilterProxyModel(parent)
@@ -74,4 +75,25 @@ bool PackageProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourc
     }
   }
   return accept;
+}
+
+bool PackageProxyModel::lessThan(const QModelIndex& left, const QModelIndex& right) const
+{
+  MIKTEX_ASSERT(left.column() == right.column());
+  PackageTableModel* packageTableModel = dynamic_cast<PackageTableModel*>(sourceModel());
+  MIKTEX_ASSERT(packageTableModel != nullptr);
+  PackageInfo packageInfoLeft;
+  PackageInfo packageInfoRight;
+  if (packageTableModel->TryGetPackageInfo(sourceModel()->index(left.row(), 0, left.parent()), packageInfoLeft)
+    && packageTableModel->TryGetPackageInfo(sourceModel()->index(right.row(), 0, right.parent()), packageInfoRight))
+  {
+    switch (left.column())
+    {
+    case 2:
+      return packageInfoLeft.GetSize() < packageInfoRight.GetSize();
+    default:
+      break;
+    }
+  }
+  return QSortFilterProxyModel::lessThan(left, right);
 }
