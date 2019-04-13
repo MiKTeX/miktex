@@ -1338,7 +1338,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
     }
 #endif
 
-    // create filename database files
+    // create file name database files
     RunIniTeXMF({ "--update-fndb" }, false);
     if (cancelled)
     {
