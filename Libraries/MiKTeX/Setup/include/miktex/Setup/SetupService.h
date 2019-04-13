@@ -48,8 +48,8 @@
 #include <string>
 #include <vector>
 
-#include <miktex/Core/PathName>
 #include <miktex/Core/OptionSet>
+#include <miktex/Core/PathName>
 #include <miktex/Core/Session>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/TriState>
@@ -422,7 +422,7 @@ public:
   static MIKTEXSETUPCEEAPI(void) WriteReport(std::ostream& s);
 
 public:
-static MIKTEXSETUPCEEAPI(std::vector<Issue>) FindIssues(bool checkPath, bool checkPackageIntegrity);
+  static MIKTEXSETUPCEEAPI(std::vector<Issue>) FindIssues(bool checkPath, bool checkPackageIntegrity);
 };
 
 MIKTEX_SETUP_END_NAMESPACE;
