@@ -66,16 +66,15 @@
 #include <log4cxx/rollingfileappender.h>
 #include <log4cxx/xml/domconfigurator.h>
 
+using namespace std;
+using namespace std::string_literals;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
-using namespace std;
-using namespace std::string_literals;
-
-#define UNUSED_ALWAYS(x)
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
@@ -860,10 +859,6 @@ bool IniTeXMFApp::TryCreateFile(const MiKTeX::Core::PathName& fileName, MiKTeX::
 
 bool IniTeXMFApp::ReadDirectory(const PathName& path, vector<string>& subDirNames, vector<string>& fileNames, vector<string>& fileNameInfos)
 {
-  UNUSED_ALWAYS(path);
-  UNUSED_ALWAYS(subDirNames);
-  UNUSED_ALWAYS(fileNames);
-  UNUSED_ALWAYS(fileNameInfos);
   return false;
 }
 
@@ -1334,7 +1329,6 @@ void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool other, bool 
 }
 
 #if defined(MIKTEX_WINDOWS)
-
 struct ShellFileType {
   const char* lpszComponent;
   const char* lpszExtension;
@@ -2042,7 +2036,6 @@ bool IniTeXMFApp::OnRetryableError(const string& message)
 
 bool IniTeXMFApp::OnProgress(MiKTeX::Packages::Notification nf)
 {
-  UNUSED_ALWAYS(nf);
   return true;
 }
 
@@ -2822,7 +2815,7 @@ int MAIN(int argc, MAINCHAR* argv[])
     vector<string> utf8args;
     utf8args.reserve(argc);
     vector<const char*> newargv;
-    newargv.reserve(argc + 1);
+    newargv.reserve(static_cast<size_t>(argc) + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
 #if defined(_UNICODE)
