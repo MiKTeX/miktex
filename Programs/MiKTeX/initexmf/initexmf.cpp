@@ -1388,7 +1388,7 @@ void IniTeXMFApp::RegisterShellFileTypes(bool reg)
       }
       if (sft.lpszUserFriendlyName != nullptr || !iconPath.empty())
       {
-        Utils::RegisterShellFileType(progId, sft.lpszUserFriendlyName, iconPath);
+        Utils::RegisterShellFileType(progId, sft.lpszUserFriendlyName == nullptr ? "" : sft.lpszUserFriendlyName, iconPath);
       }
       if (sft.lpszVerb != nullptr && (!command.empty() || sft.lpszDdeArgs != nullptr))
       {
