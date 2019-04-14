@@ -18,12 +18,21 @@ Make sure that others will be able to reproduce the bug by providing:
 2. **input files which are necessary to reproduce the bug**
 3. **your observations**: command output, screenshots
 
-Also include information about your MiKTeX setup:
+**Most importantly**: include information about your MiKTeX setup:
 
 1. **installation report**: let MiKTeX Console create
   an installation report (on the `Diagnose` page)
 2. **contents of the MiKTeX log directory**: MiKTeX Console tells
   you the location of log directory on the `Diagnose` page
+
+### Check list
+
+Please review this check list, before you click the `Submit` button:
+
+1. the bug report is self-contained: it does not contain links to questions/reports on external sites (e.g., Stack Exchange Network)
+2. step-by-step reproduction instructions
+3. input files attached
+4. log files attached
 
 ### What happens next
 
