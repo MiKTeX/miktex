@@ -704,7 +704,7 @@ bool FinishSetupWorker::Run()
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::FinishSetup;
     options.IsCommonSetup = session->IsAdminMode();
-    service->SetOptions(options);
+    options = service->SetOptions(options);
     service->SetCallback(this);
     service->Run();
     result = true;
@@ -1236,7 +1236,7 @@ bool UpdateWorker::Run()
     unique_ptr<SetupService> service = SetupService::Create();
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::FinishUpdate;
-    service->SetOptions(options);
+    options = service->SetOptions(options);
     service->Run();
     result = true;
   }
@@ -2387,7 +2387,7 @@ bool UserResetWorker::Run()
     options.Task = SetupTask::CleanUp;
     options.IsCommonSetup = session->IsAdminMode();
     options.CleanupOptions = { CleanupOption::FileTypes, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
-    service->SetOptions(options);
+    options = service->SetOptions(options);
     service->SetCallback(this);
     service->Run();
     result = true;
@@ -2481,7 +2481,7 @@ bool FactoryResetWorker::Run()
     options.Task = SetupTask::CleanUp;
     options.IsCommonSetup = session->IsAdminMode();
     options.CleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
-    service->SetOptions(options);
+    options = service->SetOptions(options);
     service->SetCallback(this);
     service->Run();
     result = true;
@@ -2559,7 +2559,7 @@ bool UninstallWorker::Run()
     options.Task = SetupTask::CleanUp;
     options.IsCommonSetup = session->IsAdminMode();
     options.CleanupOptions = { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
-    service->SetOptions(options);
+    options = service->SetOptions(options);
     service->SetCallback(this);
     service->Run();
     result = true;

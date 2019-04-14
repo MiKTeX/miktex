@@ -474,10 +474,10 @@ private:
   LanguageTableModel* languageModel = nullptr;
 
 private:
-  PackageTableModel* packageModel;
+  PackageTableModel* packageModel = nullptr;
 
 private:
-  PackageProxyModel* packageProxyModel;
+  PackageProxyModel* packageProxyModel = nullptr;
 
 private:
   QToolBar* toolBarPackages = nullptr;
