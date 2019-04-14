@@ -1157,7 +1157,7 @@ void Application::Update(const vector<string>& requestedUpdates)
   unique_ptr<SetupService> service = SetupService::Create();
   SetupOptions options = service->GetOptions();
   options.Task = SetupTask::FinishUpdate;
-  service->SetOptions(options);
+  options = service->SetOptions(options);
   service->Run();
   service = nullptr;
   if (toBeInstalled.size() == 1)
@@ -1436,7 +1436,7 @@ void Application::RestartWindowed()
   Process::Start(miktexConsole, options);
 }
 
-vector<string> ReadNames(const PathName& path, vector<string>& list)
+void ReadNames(const PathName& path, vector<string>& list)
 {
   StreamReader reader(path);
   string line;
@@ -1458,14 +1458,13 @@ vector<string> ReadNames(const PathName& path, vector<string>& list)
     }
   }
   reader.Close();
-  return list;
 }
 
-vector<string> ParseList(const string& s, vector<string>& list)
+void ParseList(const string& s, vector<string>& list)
 {
   if (s.length() > 0 && s[0] == '@')
   {
-    return ReadNames(&s[1], list);
+    ReadNames(&s[1], list);
   }
   else
   {
@@ -1474,7 +1473,6 @@ vector<string> ParseList(const string& s, vector<string>& list)
       list.push_back(*tok);
     }
   }
-  return list;
 }
 
 void Application::Main(int argc, const char** argv)
@@ -2099,7 +2097,7 @@ int MAIN(int argc, MAINCHAR* argv[])
     vector<string> utf8args;
     utf8args.reserve(argc);
     vector<const char*> newargv;
-    newargv.reserve(argc + 1);
+    newargv.reserve(static_cast<size_t>(argc) + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
 #if defined(_UNICODE)
