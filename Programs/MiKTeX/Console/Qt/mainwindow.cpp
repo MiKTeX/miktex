@@ -154,15 +154,15 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
     setWindowTitle(windowTitle() + " (Admin)");
   }
 
-  connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(AboutDialog()));
-  connect(ui->actionRestartAdmin, SIGNAL(triggered()), this, SLOT(RestartAdmin()));
-  connect(ui->actionRefreshFileNameDatabase, SIGNAL(triggered()), this, SLOT(RefreshFndb()));
-  connect(ui->actionRefreshFontMapFiles, SIGNAL(triggered()), this, SLOT(RefreshFontMaps()));
-  connect(ui->actionTeXworks, SIGNAL(triggered()), this, SLOT(StartTeXworks()));
-  connect(ui->actionTerminal, SIGNAL(triggered()), this, SLOT(StartTerminal()));
+  (void)connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(AboutDialog()));
+  (void)connect(ui->actionRestartAdmin, SIGNAL(triggered()), this, SLOT(RestartAdmin()));
+  (void)connect(ui->actionRefreshFileNameDatabase, SIGNAL(triggered()), this, SLOT(RefreshFndb()));
+  (void)connect(ui->actionRefreshFontMapFiles, SIGNAL(triggered()), this, SLOT(RefreshFontMaps()));
+  (void)connect(ui->actionTeXworks, SIGNAL(triggered()), this, SLOT(StartTeXworks()));
+  (void)connect(ui->actionTerminal, SIGNAL(triggered()), this, SLOT(StartTerminal()));
 
   QTimer* timer = new QTimer(this);
-  connect(timer, SIGNAL(timeout()), this, SLOT(UnloadFileNameDatabase()));
+  (void)connect(timer, SIGNAL(timeout()), this, SLOT(UnloadFileNameDatabase()));
   timer->start(5000);
 
   UpdateUi();
@@ -396,8 +396,8 @@ void MainWindow::CreateTrayIcon()
   trayIcon->setToolTip(tr("MiKTeX Console"));
   trayIcon->show();
 
-  connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::TrayIconActivated);
-  connect(trayIcon, &QSystemTrayIcon::messageClicked, this, &MainWindow::TrayMessageClicked);
+  (void)connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::TrayIconActivated);
+  (void)connect(trayIcon, &QSystemTrayIcon::messageClicked, this, &MainWindow::TrayMessageClicked);
 }
 
 void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -731,8 +731,8 @@ void MainWindow::FinishSetup()
     backgroundWorkers++;
     ui->labelBackgroundTask->setText(tr("Finishing the MiKTeX setup..."));
     worker->moveToThread(thread);
-    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-    connect(worker, &FinishSetupWorker::OnFinish, this, [this]() {
+    (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    (void)connect(worker, &FinishSetupWorker::OnFinish, this, [this]() {
       FinishSetupWorker* worker = (FinishSetupWorker*)sender();
       if (worker->GetResult())
       {
@@ -763,8 +763,8 @@ void MainWindow::FinishSetup()
       worker->deleteLater();
       Restart();
     });
-    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     UpdateUi();
     UpdateActions();
     thread->start();
@@ -839,8 +839,8 @@ void MainWindow::on_buttonUpgrade_clicked()
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Installing packages..."));
   worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &UpgradeWorker::OnFinish, this, [this]() {
+  (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  (void)connect(worker, &UpgradeWorker::OnFinish, this, [this]() {
     UpgradeWorker* worker = (UpgradeWorker*)sender();
     if (worker->GetResult())
     {
@@ -858,7 +858,7 @@ void MainWindow::on_buttonUpgrade_clicked()
     UpdateActions();
     worker->deleteLater();
   });
-  connect(worker, &UpgradeWorker::OnUpgradeProgress, this, [this]() {
+  (void)connect(worker, &UpgradeWorker::OnUpgradeProgress, this, [this]() {
     PackageInstaller::ProgressInfo progressInfo = ((UpgradeWorker*)sender())->GetProgressInfo();
     UpgradeWorker::Status status = ((UpgradeWorker*)sender())->GetStatus();
     if (progressInfo.cbDownloadTotal > 0)
@@ -883,8 +883,8 @@ void MainWindow::on_buttonUpgrade_clicked()
       ui->labelUpgradeDetails->setText("");
     }
   });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   ui->labelUpgradeStatus->setText(tr("Upgrade in progress..."));
   ui->labelUpgradePercent->setText("0%");
   ui->labelUpgradeDetails->setText(tr("(initializing)"));
@@ -920,8 +920,8 @@ void MainWindow::RefreshFndb()
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Refreshing file name database..."));
   worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &RefreshFndbWorker::OnFinish, this, [this]() {
+  (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  (void)connect(worker, &RefreshFndbWorker::OnFinish, this, [this]() {
     RefreshFndbWorker* worker = (RefreshFndbWorker*)sender();
     if (!worker->GetResult())
     {
@@ -932,8 +932,8 @@ void MainWindow::RefreshFndb()
     UpdateActions();
     worker->deleteLater();
   });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   UpdateUi();
   UpdateActions();
   thread->start();
@@ -1007,8 +1007,8 @@ void MainWindow::RefreshFontMaps()
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Refreshing font map files..."));  
   worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &RefreshFontMapsWorker::OnFinish, this, [this]() {
+  (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  (void)connect(worker, &RefreshFontMapsWorker::OnFinish, this, [this]() {
     RefreshFontMapsWorker* worker = (RefreshFontMapsWorker*)sender();
     if (!worker->GetResult())
     {
@@ -1019,8 +1019,8 @@ void MainWindow::RefreshFontMaps()
     UpdateActions();
     worker->deleteLater();
   });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   UpdateUi();
   UpdateActions();
   thread->start();
@@ -1029,8 +1029,8 @@ void MainWindow::RefreshFontMaps()
 void MainWindow::SetupUiUpdates()
 {
   ui->comboRepository3->setModel(repositoryModel);
-  connect(ui->comboRepository3, SIGNAL(currentIndexChanged(int)), this, SLOT(OnRepositorySelected(int)));
-  connect(ui->actionCheckUpdates, SIGNAL(triggered()), this, SLOT(CheckUpdates()));
+  (void)connect(ui->comboRepository3, SIGNAL(currentIndexChanged(int)), this, SLOT(OnRepositorySelected(int)));
+  (void)connect(ui->actionCheckUpdates, SIGNAL(triggered()), this, SLOT(CheckUpdates()));
   updateModel = new UpdateTableModel(packageManager, this);
   string lastUpdateCheck;
   if (session->TryGetConfigValue(
@@ -1044,7 +1044,7 @@ void MainWindow::SetupUiUpdates()
   {
     ui->labelUpdateSummary->setText(tr("You have not yet checked for updates."));
   }
-  connect(updateModel, &UpdateTableModel::modelReset, this, [this]() {
+  (void)connect(updateModel, &UpdateTableModel::modelReset, this, [this]() {
     int n = updateModel->rowCount();
     if (n == 0)
     {
@@ -1061,7 +1061,7 @@ void MainWindow::SetupUiUpdates()
     ui->buttonUpdates->setText(tr("Updates (%1)").arg(n));
   });
   ui->treeViewUpdates->setModel(updateModel);
-  connect(ui->treeViewUpdates->selectionModel(),
+  (void)connect(ui->treeViewUpdates->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
     SLOT(UpdateActionsUpdates()));
@@ -1074,12 +1074,12 @@ void MainWindow::SetupUiUpdates()
   contextMenuUpdate = new QMenu(ui->treeViewUpdates);
   // TODO
   ui->treeViewUpdates->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(ui->treeViewUpdates, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuUpdates(const QPoint&)));
-  connect(ui->treeViewUpdates->selectionModel(),
+  (void)connect(ui->treeViewUpdates, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuUpdates(const QPoint&)));
+  (void)connect(ui->treeViewUpdates->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
     SLOT(UpdateActionsUpdates()));
-  connect(updateModel,
+  (void)connect(updateModel,
     SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&, const QVector<int>&)),
     this,
     SLOT(UpdateUiUpdates()));
@@ -1145,8 +1145,8 @@ void MainWindow::CheckUpdates()
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Checking for updates..."));
   worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &CkeckUpdatesWorker::OnFinish, this, [this]() {
+  (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  (void)connect(worker, &CkeckUpdatesWorker::OnFinish, this, [this]() {
     CkeckUpdatesWorker* worker = (CkeckUpdatesWorker*)sender();
     if (worker->GetResult())
     {
@@ -1191,8 +1191,8 @@ void MainWindow::CheckUpdates()
     UpdateActions();
     worker->deleteLater();
   });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   ui->labelUpdateStatus->setText(tr("Checking..."));
   ui->labelCheckUpdatesStatus->setText(tr("Checking..."));
   ui->labelUpdatePercent->setText("");
@@ -1258,8 +1258,8 @@ void MainWindow::Update()
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Installing package updates..."));
   worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &UpdateWorker::OnFinish, this, [this]() {
+  (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  (void)connect(worker, &UpdateWorker::OnFinish, this, [this]() {
     UpdateWorker* worker = (UpdateWorker*)sender();
     bool restart = false;
     if (worker->GetResult())
@@ -1292,7 +1292,7 @@ void MainWindow::Update()
       Restart();
     }
   });
-  connect(worker, &UpdateWorker::OnUpdateProgress, this, [this]() {
+  (void)connect(worker, &UpdateWorker::OnUpdateProgress, this, [this]() {
     UpdateWorker* worker = (UpdateWorker*)sender();
     PackageInstaller::ProgressInfo progressInfo = worker->GetProgressInfo();
     UpdateWorker::Status status = ((UpdateWorker*)sender())->GetStatus();
@@ -1318,8 +1318,8 @@ void MainWindow::Update()
       ui->labelUpdateDetails->setText("");
     }
   });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   ui->labelUpdateStatus->setText(tr("Update in progress..."));
   ui->labelUpdatePercent->setText("0%");
   ui->labelUpdateDetails->setText(tr("(initializing)"));
@@ -1340,7 +1340,7 @@ void MainWindow::OnContextMenuUpdates(const QPoint& pos)
 void MainWindow::SetupUiPackageInstallation()
 {
   ui->comboRepository2->setModel(repositoryModel);
-  connect(ui->comboRepository2, SIGNAL(currentIndexChanged(int)), this, SLOT(OnRepositorySelected(int)));
+  (void)connect(ui->comboRepository2, SIGNAL(currentIndexChanged(int)), this, SLOT(OnRepositorySelected(int)));
 }
 
 void MainWindow::UpdateUiPackageInstallation()
@@ -1507,13 +1507,13 @@ void MainWindow::SetupUiDirectories()
   contextMenuRootDirectory->addSeparator();
   contextMenuRootDirectory->addAction(ui->actionAddRootDirectory);
   ui->treeViewRootDirectories->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(ui->treeViewRootDirectories, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuRootDirectories(const QPoint&)));
-  connect(ui->actionRootDirectoryMoveUp, SIGNAL(triggered()), this, SLOT(MoveRootDirectoryUp()));
-  connect(ui->actionRootDirectoryMoveDown, SIGNAL(triggered()), this, SLOT(MoveRootDirectoryDown()));
-  connect(ui->actionRootDirectoryOpen, SIGNAL(triggered()), this, SLOT(OpenRootDirectory()));
-  connect(ui->actionRemoveRootDirectory, SIGNAL(triggered()), this, SLOT(RemoveRootDirectory()));
-  connect(ui->actionAddRootDirectory, SIGNAL(triggered()), this, SLOT(AddRootDirectory()));
-  connect(ui->treeViewRootDirectories->selectionModel(),
+  (void)connect(ui->treeViewRootDirectories, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuRootDirectories(const QPoint&)));
+  (void)connect(ui->actionRootDirectoryMoveUp, SIGNAL(triggered()), this, SLOT(MoveRootDirectoryUp()));
+  (void)connect(ui->actionRootDirectoryMoveDown, SIGNAL(triggered()), this, SLOT(MoveRootDirectoryDown()));
+  (void)connect(ui->actionRootDirectoryOpen, SIGNAL(triggered()), this, SLOT(OpenRootDirectory()));
+  (void)connect(ui->actionRemoveRootDirectory, SIGNAL(triggered()), this, SLOT(RemoveRootDirectory()));
+  (void)connect(ui->actionAddRootDirectory, SIGNAL(triggered()), this, SLOT(AddRootDirectory()));
+  (void)connect(ui->treeViewRootDirectories->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
     SLOT(UpdateActionsDirectories()));
@@ -1749,8 +1749,8 @@ void MainWindow::ChangeLinkTargetDirectory()
     backgroundWorkers++;
     ui->labelBackgroundTask->setText(tr("Changing link target directory..."));
     worker->moveToThread(thread);
-    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-    connect(worker, &ChangeLinkTargetDirectoryWorker::OnFinish, this, [this]() {
+    (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    (void)connect(worker, &ChangeLinkTargetDirectoryWorker::OnFinish, this, [this]() {
       ChangeLinkTargetDirectoryWorker* worker = (ChangeLinkTargetDirectoryWorker*)sender();
       if (!worker->GetResult())
       {
@@ -1761,8 +1761,8 @@ void MainWindow::ChangeLinkTargetDirectory()
       UpdateActions();
       worker->deleteLater();
     });
-    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     UpdateUi();
     UpdateActions();
     thread->start();
@@ -1801,12 +1801,12 @@ void MainWindow::SetupUiFormats()
   contextMenuFormat->addSeparator();
   contextMenuFormat->addAction(ui->actionFormatProperties);
   ui->treeViewFormats->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(ui->treeViewFormats, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuFormats(const QPoint&)));
-  connect(ui->actionAddFormat, SIGNAL(triggered()), this, SLOT(AddFormat()));
-  connect(ui->actionRemoveFormat, SIGNAL(triggered()), this, SLOT(RemoveFormat()));
-  connect(ui->actionFormatProperties, SIGNAL(triggered()), this, SLOT(FormatPropertyDialog()));
-  connect(ui->actionBuildFormat, SIGNAL(triggered()), this, SLOT(BuildFormat()));
-  connect(ui->treeViewFormats->selectionModel(),
+  (void)connect(ui->treeViewFormats, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuFormats(const QPoint&)));
+  (void)connect(ui->actionAddFormat, SIGNAL(triggered()), this, SLOT(AddFormat()));
+  (void)connect(ui->actionRemoveFormat, SIGNAL(triggered()), this, SLOT(RemoveFormat()));
+  (void)connect(ui->actionFormatProperties, SIGNAL(triggered()), this, SLOT(FormatPropertyDialog()));
+  (void)connect(ui->actionBuildFormat, SIGNAL(triggered()), this, SLOT(BuildFormat()));
+  (void)connect(ui->treeViewFormats->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
     SLOT(UpdateActionsFormats()));
@@ -1945,8 +1945,8 @@ void MainWindow::BuildFormat()
     backgroundWorkers++;
     ui->labelBackgroundTask->setText(formats.size() == 1 ? tr("Building format %1...").arg(QString::fromUtf8(formats[0].c_str())) : tr("Building formats..."));
     worker->moveToThread(thread);
-    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-    connect(worker, &BuildFormatsWorker::OnFinish, this, [this]() {
+    (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    (void)connect(worker, &BuildFormatsWorker::OnFinish, this, [this]() {
       BuildFormatsWorker* worker = (BuildFormatsWorker*)sender();
       if (!worker->GetResult())
       {
@@ -1957,8 +1957,8 @@ void MainWindow::BuildFormat()
       UpdateActions();
       worker->deleteLater();
     });
-    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     UpdateUi();
     UpdateActions();
     thread->start();
@@ -1990,7 +1990,7 @@ void MainWindow::SetupUiLanguages()
 {
   languageModel = new LanguageTableModel(this);
   ui->treeViewLanguages->setModel(languageModel);
-  connect(ui->treeViewLanguages->selectionModel(),
+  (void)connect(ui->treeViewLanguages->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
     SLOT(UpdateActionsLanguages()));
@@ -2024,7 +2024,7 @@ void MainWindow::SetupUiPackages()
   lineEditPackageFilter->setClearButtonEnabled(true);
   toolBarPackages->addWidget(lineEditPackageFilter);
   toolBarPackages->addAction(ui->actionFilterPackages);
-  connect(lineEditPackageFilter, SIGNAL(returnPressed()), this, SLOT(FilterPackages()));
+  (void)connect(lineEditPackageFilter, SIGNAL(returnPressed()), this, SLOT(FilterPackages()));
   ui->hboxPackageToolBar->addWidget(toolBarPackages);
   ui->hboxPackageToolBar->addStretch();
   packageModel = new PackageTableModel(packageManager, this);
@@ -2044,29 +2044,29 @@ void MainWindow::SetupUiPackages()
   contextMenuPackage->addAction(ui->actionPackageInfo);
   ui->treeViewPackages->setContextMenuPolicy(Qt::CustomContextMenu);
   ui->comboRepository->setModel(repositoryModel);
-  connect(ui->comboRepository, SIGNAL(currentIndexChanged(int)), this, SLOT(OnRepositorySelected(int)));
-  connect(ui->treeViewPackages, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuPackages(const QPoint&)));
-  connect(ui->treeViewPackages->selectionModel(),
+  (void)connect(ui->comboRepository, SIGNAL(currentIndexChanged(int)), this, SLOT(OnRepositorySelected(int)));
+  (void)connect(ui->treeViewPackages, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuPackages(const QPoint&)));
+  (void)connect(ui->treeViewPackages->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
     SLOT(UpdateActionsPackages()));
-  connect(ui->actionPackageInfo,
+  (void)connect(ui->actionPackageInfo,
     SIGNAL(triggered()),
     this,
     SLOT(PackageInfoDialog()));
-  connect(ui->actionInstallPackage,
+  (void)connect(ui->actionInstallPackage,
     SIGNAL(triggered()),
     this,
     SLOT(InstallPackage()));
-  connect(ui->actionUninstallPackage,
+  (void)connect(ui->actionUninstallPackage,
     SIGNAL(triggered()),
     this,
     SLOT(UninstallPackage()));
-  connect(ui->actionUpdatePackageDatabase,
+  (void)connect(ui->actionUpdatePackageDatabase,
     SIGNAL(triggered()),
     this,
     SLOT(UpdatePackageDatabase()));
-  connect(ui->actionFilterPackages,
+  (void)connect(ui->actionFilterPackages,
     SIGNAL(triggered()),
     this,
     SLOT(FilterPackages()));
@@ -2236,8 +2236,8 @@ void MainWindow::UpdatePackageDatabase()
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Updating the package database..."));
   worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &UpdateDbWorker::OnFinish, this, [this]() {
+  (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  (void)connect(worker, &UpdateDbWorker::OnFinish, this, [this]() {
     UpdateDbWorker* worker = (UpdateDbWorker*)sender();
     if (!worker->GetResult())
     {
@@ -2250,8 +2250,8 @@ void MainWindow::UpdatePackageDatabase()
     UpdateActions();
     worker->deleteLater();
   });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   UpdateUi();
   UpdateActions();
   thread->start();
@@ -2334,9 +2334,9 @@ void MainWindow::on_pushButtonOpenReport_clicked()
 
 void MainWindow::SetupUiCleanup()
 {
-  connect(ui->actionUserReset, SIGNAL(triggered()), this, SLOT(UserReset()));
-  connect(ui->actionFactoryReset, SIGNAL(triggered()), this, SLOT(FactoryReset()));
-  connect(ui->actionUninstall, SIGNAL(triggered()), this, SLOT(Uninstall()));
+  (void)connect(ui->actionUserReset, SIGNAL(triggered()), this, SLOT(UserReset()));
+  (void)connect(ui->actionFactoryReset, SIGNAL(triggered()), this, SLOT(FactoryReset()));
+  (void)connect(ui->actionUninstall, SIGNAL(triggered()), this, SLOT(Uninstall()));
 }
 
 bool MainWindow::IsUserResetPossible()
@@ -2436,8 +2436,8 @@ void MainWindow::UserReset()
     backgroundWorkers++;
     ui->labelBackgroundTask->setText(tr("Resetting personal MiKTeX configuration..."));
     worker->moveToThread(thread);
-    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-    connect(worker, &UserResetWorker::OnFinish, this, [this]() {
+    (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    (void)connect(worker, &UserResetWorker::OnFinish, this, [this]() {
       UserResetWorker* worker = (UserResetWorker*)sender();
       if (worker->GetResult())
       {
@@ -2454,8 +2454,8 @@ void MainWindow::UserReset()
       isCleaningUp = true;
       this->close();
     });
-    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     UpdateUi();
     UpdateActions();
     thread->start();
@@ -2514,8 +2514,8 @@ void MainWindow::FactoryReset()
     backgroundWorkers++;
     ui->labelBackgroundTask->setText(tr("Resetting the TeX installation..."));
     worker->moveToThread(thread);
-    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-    connect(worker, &FactoryResetWorker::OnFinish, this, [this]() {
+    (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    (void)connect(worker, &FactoryResetWorker::OnFinish, this, [this]() {
       FactoryResetWorker* worker = (FactoryResetWorker*)sender();
       if (worker->GetResult())
       {
@@ -2532,8 +2532,8 @@ void MainWindow::FactoryReset()
       isCleaningUp = true;
       this->close();
     });
-    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     UpdateUi();
     UpdateActions();
     thread->start();
@@ -2591,8 +2591,8 @@ void MainWindow::Uninstall()
     backgroundWorkers++;
     ui->labelBackgroundTask->setText(tr("Uninstalling MiKTeX..."));
     worker->moveToThread(thread);
-    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-    connect(worker, &UninstallWorker::OnFinish, this, [this]() {
+    (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    (void)connect(worker, &UninstallWorker::OnFinish, this, [this]() {
       UninstallWorker* worker = (UninstallWorker*)sender();
       if (worker->GetResult())
       {
@@ -2607,8 +2607,8 @@ void MainWindow::Uninstall()
       worker->deleteLater();
       this->close();
     });
-    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     UpdateUi();
     UpdateActions();
     thread->start();
