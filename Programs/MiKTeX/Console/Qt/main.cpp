@@ -356,7 +356,7 @@ int main(int argc, char* argv[])
     {
       cout
         << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR) << endl
-        << "Copyright (C) 2019 Christian Schenk" << endl
+        << "Copyright (C) 2018-2019 Christian Schenk" << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return 0;
