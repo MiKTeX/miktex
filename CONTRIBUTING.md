@@ -2,6 +2,16 @@
 
 ## Reporting a bug
 
+### Check list
+
+Please review this check list, before you click the `Submit` button:
+
+1. the bug report is self-contained: it does not contain links to questions/reports on external sites (e.g., Stack Exchange Network)
+2. step-by-step reproduction instructions
+3. configuration report (`initexmf --report`) attached
+4. input files attached
+5. log files attached
+
 ### How to write a good bug report
 
 Before creating a bug report, please check this list:
@@ -18,7 +28,7 @@ Make sure that others will be able to reproduce the bug by providing:
 2. **input files which are necessary to reproduce the bug**
 3. **your observations**: command output, screenshots
 
-Also include information about your MiKTeX setup:
+**Most importantly**: include information about your MiKTeX setup:
 
 1. **installation report**: let MiKTeX Console create
   an installation report (on the `Diagnose` page)
