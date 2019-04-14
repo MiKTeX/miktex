@@ -1,6 +1,6 @@
 /* PackageInfoDialog.cpp:
 
-   Copyright (C) 2017-2018 Christian Schenk
+   Copyright (C) 2017-2019 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #include <QDateTime>
+#include <QLocale>
 #include <QSortFilterProxyModel>
 #include <QtWidgets>
 
@@ -50,7 +51,7 @@ PackageInfoDialogImpl::PackageInfoDialogImpl(QWidget* parent, const PackageInfo&
   ui->leMaintainer->setText(QString::fromUtf8(packageInfo.copyrightOwner.c_str()));
   ui->pteTitle->setPlainText(QString::fromUtf8(packageInfo.title.c_str()));
   ui->pteDescription->setPlainText(QString::fromUtf8(packageInfo.description.c_str()));
-  ui->leSize->setText(QString("%1 Bytes").arg(packageInfo.GetSize()));
+  ui->leSize->setText(QLocale::system().formattedDataSize(packageInfo.GetSize()));
 
   FileTableModel* runFiles = new FileTableModel(parent, packageInfo.runFiles);
   QSortFilterProxyModel* runProxyModel = new QSortFilterProxyModel(this);
