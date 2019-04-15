@@ -30,6 +30,7 @@
 
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Session>
+#include <miktex/Core/TemporaryFile>
 #include <miktex/Extractor/Extractor>
 #include <miktex/Trace/Trace>
 

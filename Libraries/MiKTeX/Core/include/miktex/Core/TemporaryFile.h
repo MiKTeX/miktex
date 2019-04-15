@@ -1,6 +1,6 @@
 /* miktex/Core/TemporaryFile.h:                         -*- C++ -*-
 
-   Copyright (C) 2016-2018 Christian Schenk
+   Copyright (C) 2016-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -41,7 +41,7 @@ public:
   virtual void MIKTEXTHISCALL Delete() = 0;
 
 public:
-  virtual PathName MIKTEXTHISCALL GetPathName() = 0;
+  virtual PathName MIKTEXTHISCALL GetPathName() const = 0;
 
 public:
   virtual void MIKTEXTHISCALL Keep() = 0;

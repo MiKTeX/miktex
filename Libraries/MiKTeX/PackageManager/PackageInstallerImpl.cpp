@@ -178,7 +178,6 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
 
   // open the local file
   FileStream destStream(File::Open(dest, FileMode::Create, FileAccess::Write, false));
-  unique_ptr<TemporaryFile> downloadedFile = TemporaryFile::Create(dest);
 
   // receive the data
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("start writing on {0}"), Q_(dest)));
@@ -242,9 +241,6 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
   {
     MIKTEX_FATAL_ERROR_2(FatalError(ERROR_SIZE_MISMATCH), "dest", dest.ToString(), "expectecSize", std::to_string(expectedSize), "received", std::to_string(received));
   }
-
-  // keep the downloaded file
-  downloadedFile->Keep();
 }
 
 void PackageInstallerImpl::OnBeginFileExtraction(const string& fileName, size_t uncompressedSize)
@@ -323,7 +319,7 @@ void PackageInstallerImpl::InstallRepositoryManifest()
   if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
   {
     // we need a temporary file when we download from the Internet
-    unique_ptr<TemporaryFile> tempFile;
+    unique_ptr<TemporaryFile> temporaryFile;
 
     ReportLine(T_("loading package repository manifest..."));
 
@@ -334,9 +330,9 @@ void PackageInstallerImpl::InstallRepositoryManifest()
     if (repositoryType == RepositoryType::Remote)
     {
       // create a temporary file
-      tempFile = TemporaryFile::Create();
+      temporaryFile = TemporaryFile::Create();
 
-      pathZzdb1 = tempFile->GetPathName();
+      pathZzdb1 = temporaryFile->GetPathName();
 
       // update progress indicator
       {
@@ -348,7 +344,7 @@ void PackageInstallerImpl::InstallRepositoryManifest()
       }
 
       // download the database file
-      Download(MakeUrl(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME), pathZzdb1);
+      Download(MakeUrl(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME), temporaryFile->GetPathName());
     }
     else
     {
@@ -1075,7 +1071,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
       // take hold of the package
       temporaryFile = TemporaryFile::Create();
       pathArchiveFile = temporaryFile->GetPathName();
-      Download(MakeUrl(packageFileName.ToString()), pathArchiveFile);
+      Download(MakeUrl(packageFileName.ToString()), temporaryFile->GetPathName());
     }
     else
     {
@@ -1893,7 +1889,9 @@ void PackageInstallerImpl::InstallRemoveThread()
 
 void PackageInstallerImpl::Download(const PathName& fileName, size_t expectedSize)
 {
-  Download(MakeUrl(fileName.ToString()), downloadDirectory / fileName, expectedSize);
+  unique_ptr<TemporaryFile> temporaryFile = TemporaryFile::Create(downloadDirectory / fileName);
+  Download(MakeUrl(fileName.ToString()), temporaryFile->GetPathName(), expectedSize);
+  temporaryFile->Keep();
 }
 
 void PackageInstallerImpl::Download()
@@ -2184,7 +2182,9 @@ void PackageInstallerImpl::UpdateDb()
   {
     // download the archive file
     archivePath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
-    Download(MakeUrl(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME), archivePath);
+    unique_ptr<TemporaryFile> temporaryFile = TemporaryFile::Create(archivePath);
+    Download(MakeUrl(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME), temporaryFile->GetPathName());
+    temporaryFile->Keep();
   }
   else
   {
