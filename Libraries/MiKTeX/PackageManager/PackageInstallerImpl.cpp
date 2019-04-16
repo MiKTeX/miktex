@@ -1619,12 +1619,12 @@ void PackageInstallerImpl::InstallRemove(Role role)
       hr = localServer.pInstaller->SetRepository(_bstr_t(repository.c_str()));
       if (hr.Failed())
       {
-        localServer.pInstaller->SetCallback(0);
+        localServer.pInstaller->SetCallback(nullptr);
         MIKTEX_FATAL_ERROR_2(T_("mpmsvc failed for some reason."), "hr", hr.GetText());
       }
     }
     hr = localServer.pInstaller->InstallRemove();
-    localServer.pInstaller->SetCallback(0);
+    localServer.pInstaller->SetCallback(nullptr);
     if (hr.Failed())
     {
       MiKTeXPackageManagerLib::ErrorInfo errorInfo;
