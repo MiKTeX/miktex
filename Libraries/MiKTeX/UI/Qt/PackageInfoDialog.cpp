@@ -51,7 +51,11 @@ PackageInfoDialogImpl::PackageInfoDialogImpl(QWidget* parent, const PackageInfo&
   ui->leMaintainer->setText(QString::fromUtf8(packageInfo.copyrightOwner.c_str()));
   ui->pteTitle->setPlainText(QString::fromUtf8(packageInfo.title.c_str()));
   ui->pteDescription->setPlainText(QString::fromUtf8(packageInfo.description.c_str()));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
   ui->leSize->setText(QLocale::system().formattedDataSize(packageInfo.GetSize()));
+#else
+  ui->leSize->setText(QString("%1 bytes").arg(packageInfo.GetSize()));
+#endif
 
   FileTableModel* runFiles = new FileTableModel(parent, packageInfo.runFiles);
   QSortFilterProxyModel* runProxyModel = new QSortFilterProxyModel(this);

@@ -67,7 +67,11 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
       case 1:
         return QString::fromUtf8(packageManager->GetContainerPath(packageInfo.id, true).c_str());
       case 2:
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
         return QLocale::system().formattedDataSize(packageInfo.GetSize());
+#else
+        return static_cast<qlonglong>(packageInfo.GetSize());
+#endif
       case 3:
         return QDateTime::fromTime_t(packageInfo.timePackaged).date();
       case 4:
