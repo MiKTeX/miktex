@@ -438,10 +438,7 @@ set(temporaryfile_sources
 )
 
 set(session_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/Session/FormatInfo.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/Session/LanguageInfo.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/RootDirectoryInternals.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/Session/Session.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/SessionImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/appnames.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/config.cpp
@@ -450,8 +447,11 @@ set(session_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/filetypes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/findfile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/fontinfo.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Session/formats.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/graphics.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/gsinfo.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Session/init.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Session/languages.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/mfmodes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/miktex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/papersize.cpp
