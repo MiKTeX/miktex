@@ -47,33 +47,27 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
 // index of the hidden MPM root
-#define MPM_ROOT static_cast<unsigned>(GetNumberOfTEXMFRoots())
+#define MPM_ROOT GetNumberOfTEXMFRoots()
 
 namespace {
   mutex fndbMutex;
 }
 
-static string ExpandEnvironmentVariables(const char* toBeExpanded)
+static PathName ExpandEnvironmentVariables(const PathName& toBeExpanded)
 {
-  const char* lpsz = toBeExpanded;
-  string valueName;
+  const char BEGIN = '<';
+  const char END = '>';
   string expansion;
-  expansion.reserve(strlen(lpsz));
-  for (; *lpsz != 0; ++lpsz)
+  for (const char* lpsz = toBeExpanded.GetData(); *lpsz != 0; ++lpsz)
   {
-    if (lpsz[0] == '<')
+    if (lpsz[0] == BEGIN)
     {
-      const char endChar = '>';
-      valueName = "";
-      for (lpsz += 1; *lpsz != 0 && *lpsz != endChar; ++lpsz)
+      string valueName;
+      for (lpsz += 1; *lpsz != 0 && *lpsz != END; ++lpsz)
       {
         valueName += *lpsz;
       }
-      if (*lpsz != endChar)
-      {
-        MIKTEX_UNEXPECTED();
-      }
-      if (valueName.empty())
+      if (*lpsz != END || valueName.empty())
       {
         MIKTEX_UNEXPECTED();
       }
@@ -126,7 +120,7 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
     }
   }
   trace_config->WriteLine("core", fmt::format(T_("registering {0} TEXMF root: {1}"), common ? "common" : "user", root));
-  RootDirectoryInternals rootDirectory(root, ExpandEnvironmentVariables(root.GetData()));
+  RootDirectoryInternals rootDirectory(root, ExpandEnvironmentVariables(root));
   rootDirectory.purposes += purpose;
   rootDirectory.set_Common(common);
   rootDirectory.set_Other(other);
@@ -531,7 +525,7 @@ void SessionImpl::SaveRootDirectories(
     (IsMiKTeXPortable()
       ? MiKTeXConfiguration::Portable
       : MiKTeXConfiguration::Regular);
-  unsigned n = GetNumberOfTEXMFRoots();
+  size_t n = GetNumberOfTEXMFRoots();
   startupConfig.commonRoots.reserve(n * 30);
   startupConfig.userRoots.reserve(n * 30);
   startupConfig.otherCommonRoots.reserve(n * 30);
@@ -867,7 +861,7 @@ void SessionImpl::MoveRootDirectory(unsigned r, int dir)
   else
   {
     canMove = canMove && r < n - 1;
-    canMove = canMove && !rootDirectories[r + 1].IsManaged();
+    canMove = canMove && !rootDirectories[static_cast<size_t>(r) + 1].IsManaged();
   }  
   if (!canMove)
   {
@@ -880,7 +874,7 @@ void SessionImpl::MoveRootDirectory(unsigned r, int dir)
   }
   else
   {
-    swap(newRoots[r], newRoots[r + 1]);
+    swap(newRoots[r], newRoots[static_cast<size_t>(r) + 1]);
   }
   vector<string> toBeRegistered;
   for (unsigned r = 0; r < GetNumberOfTEXMFRoots(); ++r)
