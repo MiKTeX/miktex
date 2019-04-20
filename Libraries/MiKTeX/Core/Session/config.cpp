@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/CsvList>
@@ -916,11 +918,11 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   {
     if (!sectionName.empty())
     {
-      trace_values->WriteFormattedLine("core", "[%s]%s => %s", sectionName.c_str(), valueName.c_str(), haveValue ? value.c_str() : "null");
+      trace_values->WriteLine("core", fmt::format("[{}]{} => {}", sectionName, valueName, haveValue ? value : "null"));
     }
     else
     {
-      trace_values->WriteFormattedLine("core", "%s => %s", valueName.c_str(), haveValue ? value.c_str() : "null");
+      trace_values->WriteLine("core", fmt::format("{} => {}", valueName, haveValue ? value : "null"));
     }
   }
 
@@ -1271,7 +1273,7 @@ void SessionImpl::SetAdminMode(bool adminMode, bool force)
   {
     MIKTEX_FATAL_ERROR(T_("Administrator mode cannot be enabled (makes no sense) because this is not a shared MiKTeX setup."));
   }
-  trace_config->WriteFormattedLine("core", T_("turning %s administrator mode"), (adminMode ? "on" : "off"));
+  trace_config->WriteLine("core", fmt::format(T_("turning {0} administrator mode"), (adminMode ? "on" : "off")));
   // reinitialize
   fileTypes.clear();
   UnloadFilenameDatabase();
