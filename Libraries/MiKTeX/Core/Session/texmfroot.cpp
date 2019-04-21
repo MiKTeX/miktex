@@ -691,7 +691,7 @@ void SessionImpl::RegisterRootDirectories(const string& roots, bool other)
 #endif
 
   StartupConfig startupConfig;
-  if (IsAdminMode())
+  if (IsAdminMode() || IsMiKTeXPortable())
   {
     if (other)
     {
