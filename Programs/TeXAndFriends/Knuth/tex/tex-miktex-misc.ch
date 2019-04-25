@@ -623,9 +623,7 @@ begin goto_end_of_TEX; {\MiKTeX: throw a \Cplusplus\ exception}
 @x
 print_char("."); show_context;
 @y
-if not miktex_c_style_error_messages_p then begin
-  print_char("."); show_context
-end;
+print_char("."); show_context;
 if (miktex_halt_on_error_p) then begin
   history:=fatal_error_stop; jump_out;
 end;
