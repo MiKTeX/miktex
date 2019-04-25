@@ -1,6 +1,6 @@
 /* texmfapp.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -719,11 +719,6 @@ void TeXMFApp::ProcessCommandLineOptions()
   {
     pimpl->showFileLineErrorMessages = true;
     pimpl->interactionMode = 0;      // batch_mode
-  }
-
-  if (pimpl->showFileLineErrorMessages && pimpl->interactionMode < 0)
-  {
-    pimpl->interactionMode = 2;      // scrollmode
   }
 
   if (pimpl->parseFirstLine

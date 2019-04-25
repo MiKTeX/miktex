@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 2.9.7050 - not yet released
+
+### Fixed issues
+
+* [181](https://github.com/MiKTeX/miktex/issues/181): Make file-line-error more talkative
+
 ## 2.9.7000 - 2019-04-10
 
 ### Upgraded programs

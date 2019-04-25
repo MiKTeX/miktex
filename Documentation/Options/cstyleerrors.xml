@@ -22,6 +22,5 @@ easier to parse for some editors.
 <primary>error messages</primary>
 <secondary>C/C++ style</secondary>
 </indexterm>
-This option implies <markup
-role="tex">\scrollmode</markup>.</para></listitem>
+</para></listitem>
 </varlistentry>
