@@ -15,6 +15,7 @@ pdflatex --c-style-errors --interaction=scrollmode document.tex
 ### Fixed issues
 
 * [181](https://github.com/MiKTeX/miktex/issues/181): Make file-line-error more talkative
+* [294](https://github.com/MiKTeX/miktex/issues/294): kpsewhich not in PATH in MacOS
 
 ## 2.9.7000 - 2019-04-10
 

@@ -532,8 +532,8 @@ option(
 
 option(
   WITH_KPSEWHICH
-  ""
-  ${WIN32}
+  "Create kpsewhich, a symbolic link to the miktex-kpsewhich executable."
+  TRUE
 )
 
 option(
