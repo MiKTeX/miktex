@@ -2,6 +2,16 @@
 
 ## 2.9.7050 - not yet released
 
+### Breaking changes
+
+####  `--c-style-errors` does not imply `\scrollmode` anymore
+
+You can use the `--interaction=scrollmode` option, if you depend on the old behaviour:
+
+```
+pdflatex --c-style-errors --interaction=scrollmode document.tex
+```
+
 ### Fixed issues
 
 * [181](https://github.com/MiKTeX/miktex/issues/181): Make file-line-error more talkative
