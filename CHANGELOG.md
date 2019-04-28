@@ -12,9 +12,14 @@ You can use the `--interaction=scrollmode` option, if you depend on the old beha
 pdflatex --c-style-errors --interaction=scrollmode document.tex
 ```
 
+### Upgraded libraries
+
+* uriparser 0.9.2
+
 ### Fixed issues
 
 * [181](https://github.com/MiKTeX/miktex/issues/181): Make file-line-error more talkative
+* [293](https://github.com/MiKTeX/miktex/issues/293): Bundles old vulnerable copy of uriparser 0.8.6, please update
 * [294](https://github.com/MiKTeX/miktex/issues/294): kpsewhich not in PATH in MacOS
 
 ## 2.9.7000 - 2019-04-10

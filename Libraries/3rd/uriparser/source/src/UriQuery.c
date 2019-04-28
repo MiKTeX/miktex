@@ -64,7 +64,12 @@
 #ifndef URI_DOXYGEN
 # include <uriparser/Uri.h>
 # include "UriCommon.h"
+# include "UriMemory.h"
 #endif
+
+
+
+#include <limits.h>
 
 
 
@@ -76,7 +81,8 @@ static int URI_FUNC(ComposeQueryEngine)(URI_CHAR * dest,
 static UriBool URI_FUNC(AppendQueryItem)(URI_TYPE(QueryList) ** prevNext,
 		int * itemCount, const URI_CHAR * keyFirst, const URI_CHAR * keyAfter,
 		const URI_CHAR * valueFirst, const URI_CHAR * valueAfter,
-		UriBool plusToSpace, UriBreakConversion breakConversion);
+		UriBool plusToSpace, UriBreakConversion breakConversion,
+		UriMemoryManager * memory);
 
 
 
@@ -104,7 +110,7 @@ int URI_FUNC(ComposeQueryCharsRequiredEx)(const URI_TYPE(QueryList) * queryList,
 
 
 int URI_FUNC(ComposeQuery)(URI_CHAR * dest,
-						   const URI_TYPE(QueryList) * queryList, int maxChars, int * charsWritten) {
+		const URI_TYPE(QueryList) * queryList, int maxChars, int * charsWritten) {
 	const UriBool spaceToPlus = URI_TRUE;
 	const UriBool normalizeBreaks = URI_TRUE;
 
@@ -145,6 +151,16 @@ int URI_FUNC(ComposeQueryMalloc)(URI_CHAR ** dest,
 int URI_FUNC(ComposeQueryMallocEx)(URI_CHAR ** dest,
 		const URI_TYPE(QueryList) * queryList,
 		UriBool spaceToPlus, UriBool normalizeBreaks) {
+	return URI_FUNC(ComposeQueryMallocExMm)(dest, queryList, spaceToPlus,
+			normalizeBreaks, NULL);
+}
+
+
+
+int URI_FUNC(ComposeQueryMallocExMm)(URI_CHAR ** dest,
+		const URI_TYPE(QueryList) * queryList,
+		UriBool spaceToPlus, UriBool normalizeBreaks,
+		UriMemoryManager * memory) {
 	int charsRequired;
 	int res;
 	URI_CHAR * queryString;
@@ -152,6 +168,8 @@ int URI_FUNC(ComposeQueryMallocEx)(URI_CHAR ** dest,
 	if (dest == NULL) {
 		return URI_ERROR_NULL;
 	}
+
+	URI_CHECK_MEMORY_MANAGER(memory);  /* may return */
 
 	/* Calculate space */
 	res = URI_FUNC(ComposeQueryCharsRequiredEx)(queryList, &charsRequired,
@@ -162,7 +180,7 @@ int URI_FUNC(ComposeQueryMallocEx)(URI_CHAR ** dest,
 	charsRequired++;
 
 	/* Allocate space */
-	queryString = malloc(charsRequired * sizeof(URI_CHAR));
+	queryString = memory->malloc(memory, charsRequired * sizeof(URI_CHAR));
 	if (queryString == NULL) {
 		return URI_ERROR_MALLOC;
 	}
@@ -171,7 +189,7 @@ int URI_FUNC(ComposeQueryMallocEx)(URI_CHAR ** dest,
 	res = URI_FUNC(ComposeQueryEx)(queryString, queryList, charsRequired,
 			NULL, spaceToPlus, normalizeBreaks);
 	if (res != URI_SUCCESS) {
-		free(queryString);
+		memory->free(memory, queryString);
 		return res;
 	}
 
@@ -186,7 +204,7 @@ int URI_FUNC(ComposeQueryEngine)(URI_CHAR * dest,
 		int maxChars, int * charsWritten, int * charsRequired,
 		UriBool spaceToPlus, UriBool normalizeBreaks) {
 	UriBool firstItem = URI_TRUE;
-	int ampersandLen = 0;
+	int ampersandLen = 0;  /* increased to 1 from second item on */
 	URI_CHAR * write = dest;
 
 	/* Subtract terminator */
@@ -195,46 +213,48 @@ int URI_FUNC(ComposeQueryEngine)(URI_CHAR * dest,
 	} else {
 		maxChars--;
 	}
-			
+
 	while (queryList != NULL) {
 		const URI_CHAR * const key = queryList->key;
 		const URI_CHAR * const value = queryList->value;
 		const int worstCase = (normalizeBreaks == URI_TRUE ? 6 : 3);
 		const int keyLen = (key == NULL) ? 0 : (int)URI_STRLEN(key);
-		const int keyRequiredChars = worstCase * keyLen;
+		int keyRequiredChars;
 		const int valueLen = (value == NULL) ? 0 : (int)URI_STRLEN(value);
-		const int valueRequiredChars = worstCase * valueLen;
+		int valueRequiredChars;
+
+		if ((keyLen >= INT_MAX / worstCase) || (valueLen >= INT_MAX / worstCase)) {
+			return URI_ERROR_OUTPUT_TOO_LARGE;
+		}
+		keyRequiredChars = worstCase * keyLen;
+		valueRequiredChars = worstCase * valueLen;
 
 		if (dest == NULL) {
+			(*charsRequired) += ampersandLen + keyRequiredChars + ((value == NULL)
+						? 0
+						: 1 + valueRequiredChars);
+
 			if (firstItem == URI_TRUE) {
 				ampersandLen = 1;
 				firstItem = URI_FALSE;
 			}
-
-			(*charsRequired) += ampersandLen + keyRequiredChars + ((value == NULL)
-						? 0
-						: 1 + valueRequiredChars);
 		} else {
-			URI_CHAR * afterKey;
-
 			if ((write - dest) + ampersandLen + keyRequiredChars > maxChars) {
 				return URI_ERROR_OUTPUT_TOO_LARGE;
 			}
 
 			/* Copy key */
 			if (firstItem == URI_TRUE) {
+				ampersandLen = 1;
 				firstItem = URI_FALSE;
 			} else {
 				write[0] = _UT('&');
 				write++;
 			}
-			afterKey = URI_FUNC(EscapeEx)(key, key + keyLen,
+			write = URI_FUNC(EscapeEx)(key, key + keyLen,
 					write, spaceToPlus, normalizeBreaks);
-			write += (afterKey - write);
 
 			if (value != NULL) {
-				URI_CHAR * afterValue;
-
 				if ((write - dest) + 1 + valueRequiredChars > maxChars) {
 					return URI_ERROR_OUTPUT_TOO_LARGE;
 				}
@@ -242,9 +262,8 @@ int URI_FUNC(ComposeQueryEngine)(URI_CHAR * dest,
 				/* Copy value */
 				write[0] = _UT('=');
 				write++;
-				afterValue = URI_FUNC(EscapeEx)(value, value + valueLen,
+				write = URI_FUNC(EscapeEx)(value, value + valueLen,
 						write, spaceToPlus, normalizeBreaks);
-				write += (afterValue - write);
 			}
 		}
 
@@ -266,7 +285,8 @@ int URI_FUNC(ComposeQueryEngine)(URI_CHAR * dest,
 UriBool URI_FUNC(AppendQueryItem)(URI_TYPE(QueryList) ** prevNext,
 		int * itemCount, const URI_CHAR * keyFirst, const URI_CHAR * keyAfter,
 		const URI_CHAR * valueFirst, const URI_CHAR * valueAfter,
-		UriBool plusToSpace, UriBreakConversion breakConversion) {
+		UriBool plusToSpace, UriBreakConversion breakConversion,
+		UriMemoryManager * memory) {
 	const int keyLen = (int)(keyAfter - keyFirst);
 	const int valueLen = (int)(valueAfter - valueFirst);
 	URI_CHAR * key;
@@ -281,7 +301,7 @@ UriBool URI_FUNC(AppendQueryItem)(URI_TYPE(QueryList) ** prevNext,
 	}
 
 	/* Append new empty item */
-	*prevNext = malloc(1 * sizeof(URI_TYPE(QueryList)));
+	*prevNext = memory->malloc(memory, 1 * sizeof(URI_TYPE(QueryList)));
 	if (*prevNext == NULL) {
 		return URI_FALSE; /* Raises malloc error */
 	}
@@ -289,9 +309,9 @@ UriBool URI_FUNC(AppendQueryItem)(URI_TYPE(QueryList) ** prevNext,
 
 
 	/* Fill key */
-	key = malloc((keyLen + 1) * sizeof(URI_CHAR));
+	key = memory->malloc(memory, (keyLen + 1) * sizeof(URI_CHAR));
 	if (key == NULL) {
-		free(*prevNext);
+		memory->free(memory, *prevNext);
 		*prevNext = NULL;
 		return URI_FALSE; /* Raises malloc error */
 	}
@@ -309,10 +329,10 @@ UriBool URI_FUNC(AppendQueryItem)(URI_TYPE(QueryList) ** prevNext,
 
 	/* Fill value */
 	if (valueFirst != NULL) {
-		value = malloc((valueLen + 1) * sizeof(URI_CHAR));
+		value = memory->malloc(memory, (valueLen + 1) * sizeof(URI_CHAR));
 		if (value == NULL) {
-			free(key);
-			free(*prevNext);
+			memory->free(memory, key);
+			memory->free(memory, *prevNext);
 			*prevNext = NULL;
 			return URI_FALSE; /* Raises malloc error */
 		}
@@ -338,13 +358,22 @@ UriBool URI_FUNC(AppendQueryItem)(URI_TYPE(QueryList) ** prevNext,
 
 
 void URI_FUNC(FreeQueryList)(URI_TYPE(QueryList) * queryList) {
+	URI_FUNC(FreeQueryListMm)(queryList, NULL);
+}
+
+
+
+int URI_FUNC(FreeQueryListMm)(URI_TYPE(QueryList) * queryList,
+		UriMemoryManager * memory) {
+	URI_CHECK_MEMORY_MANAGER(memory);  /* may return */
 	while (queryList != NULL) {
 		URI_TYPE(QueryList) * nextBackup = queryList->next;
-		free((URI_CHAR *)queryList->key); /* const cast */
-		free((URI_CHAR *)queryList->value); /* const cast */
-		free(queryList);
+		memory->free(memory, (URI_CHAR *)queryList->key); /* const cast */
+		memory->free(memory, (URI_CHAR *)queryList->value); /* const cast */
+		memory->free(memory, queryList);
 		queryList = nextBackup;
 	}
+	return URI_SUCCESS;
 }
 
 
@@ -363,6 +392,16 @@ int URI_FUNC(DissectQueryMalloc)(URI_TYPE(QueryList) ** dest, int * itemCount,
 int URI_FUNC(DissectQueryMallocEx)(URI_TYPE(QueryList) ** dest, int * itemCount,
 		const URI_CHAR * first, const URI_CHAR * afterLast,
 		UriBool plusToSpace, UriBreakConversion breakConversion) {
+	return URI_FUNC(DissectQueryMallocExMm)(dest, itemCount, first, afterLast,
+			plusToSpace, breakConversion, NULL);
+}
+
+
+
+int URI_FUNC(DissectQueryMallocExMm)(URI_TYPE(QueryList) ** dest, int * itemCount,
+		const URI_CHAR * first, const URI_CHAR * afterLast,
+		UriBool plusToSpace, UriBreakConversion breakConversion,
+		UriMemoryManager * memory) {
 	const URI_CHAR * walk = first;
 	const URI_CHAR * keyFirst = first;
 	const URI_CHAR * keyAfter = NULL;
@@ -380,6 +419,8 @@ int URI_FUNC(DissectQueryMallocEx)(URI_TYPE(QueryList) ** dest, int * itemCount,
 		return URI_ERROR_RANGE_INVALID;
 	}
 
+	URI_CHECK_MEMORY_MANAGER(memory);  /* may return */
+
 	*dest = NULL;
 	*itemsAppended = 0;
 
@@ -395,11 +436,11 @@ int URI_FUNC(DissectQueryMallocEx)(URI_TYPE(QueryList) ** dest, int * itemCount,
 
 			if (URI_FUNC(AppendQueryItem)(prevNext, itemsAppended,
 					keyFirst, keyAfter, valueFirst, valueAfter,
-					plusToSpace, breakConversion)
+					plusToSpace, breakConversion, memory)
 					== URI_FALSE) {
 				/* Free list we built */
 				*itemsAppended = 0;
-				URI_FUNC(FreeQueryList)(*dest);
+				URI_FUNC(FreeQueryListMm)(*dest, memory);
 				return URI_ERROR_MALLOC;
 			}
 
@@ -444,11 +485,11 @@ int URI_FUNC(DissectQueryMallocEx)(URI_TYPE(QueryList) ** dest, int * itemCount,
 	}
 
 	if (URI_FUNC(AppendQueryItem)(prevNext, itemsAppended, keyFirst, keyAfter,
-			valueFirst, valueAfter, plusToSpace, breakConversion)
+			valueFirst, valueAfter, plusToSpace, breakConversion, memory)
 			== URI_FALSE) {
 		/* Free list we built */
 		*itemsAppended = 0;
-		URI_FUNC(FreeQueryList)(*dest);
+		URI_FUNC(FreeQueryListMm)(*dest, memory);
 		return URI_ERROR_MALLOC;
 	}
 

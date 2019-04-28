@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2018 Christian Schenk
+## Copyright (C) 2008-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -20,6 +20,7 @@
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/uriparser")
 
 include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -32,8 +33,19 @@ add_definitions(
   -DURI_NO_UNICODE
 )
 
+configure_file(
+  source/src/UriConfig.h.in
+  config.h
+)
+
 set(uriparser_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/uriparser-version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/uriparser/Uri.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/uriparser/UriBase.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/uriparser/UriDefsAnsi.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/uriparser/UriDefsConfig.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/uriparser/UriDefsUnicode.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/uriparser/UriIp4.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriCommon.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriCommon.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriCompare.c
@@ -42,6 +54,8 @@ set(uriparser_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriIp4.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriIp4Base.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriIp4Base.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriMemory.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriMemory.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriNormalize.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriNormalizeBase.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriNormalizeBase.h
@@ -52,6 +66,7 @@ set(uriparser_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriRecompose.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriResolve.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/UriShorten.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/uriparser-version.h
 )
 
 if(NOT LINK_EVERYTHING_STATICALLY)

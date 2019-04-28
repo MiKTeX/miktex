@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2018 Christian Schenk
+## Copyright (C) 2008-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,6 +22,11 @@ use_static_crt()
 add_library(${uriparser_lib_name} STATIC ${uriparser_sources})
 
 set_property(TARGET ${uriparser_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_compile_definitions(${uriparser_lib_name}
+  PUBLIC
+    -DURI_STATIC_BUILD
+)
 
 target_include_directories(${uriparser_lib_name}
   PUBLIC
