@@ -53,6 +53,14 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
+#define FNDB_DAMAGED_2(description, ...) \
+  ThrowFndbDamaged(description, MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
+
+void MIKTEXNORETURN ThrowFndbDamaged(const string& description, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
+{
+  Session::FatalMiKTeXError(T_("The file name database is damaged."), description, T_("Delete the file name database files. Then run 'initexmf -u' to recreate the FNDB."), "fndb-damaged", info, sourceLocation);
+}
+
 shared_ptr<FileNameDatabase> FileNameDatabase::Create(const PathName& fndbPath, const PathName& rootDirectory)
 {
   shared_ptr<FileNameDatabase> fndb = make_shared<FileNameDatabase>();
@@ -345,7 +353,7 @@ void FileNameDatabase::EraseRecord(const FileNameDatabase::Record& record)
   pair<FileNameHashTable::const_iterator, FileNameHashTable::const_iterator> range = fileNames.equal_range(MakeKey(record.fileName));
   if (range.first == range.second)
   {
-    MIKTEX_FATAL_ERROR_2(T_("The file name record could not be found in the database."), "fileName", record.fileName);
+    FNDB_DAMAGED_2(T_("The file name record could not be found in the database."), "fileName", record.fileName);
   }
   vector<FileNameHashTable::const_iterator> toBeRemoved;
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
@@ -357,7 +365,7 @@ void FileNameDatabase::EraseRecord(const FileNameDatabase::Record& record)
   }
   if (toBeRemoved.empty())
   {
-    MIKTEX_FATAL_ERROR_2(T_("The file name record could not be found in the database."), "fileName", record.fileName, "directory", record.GetDirectory());
+    FNDB_DAMAGED_2(T_("The file name record could not be found in the database."), "fileName", record.fileName, "directory", record.GetDirectory());
   }
   for (const auto& it : toBeRemoved)
   {
@@ -436,7 +444,7 @@ void FileNameDatabase::ApplyChangeFile()
   {
     if (line.empty())
     {
-      MIKTEX_FATAL_ERROR_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
+      FNDB_DAMAGED_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
     }
     changeFileRecordCount++;
     changeFileSize += line.length() + sizeof('\n');
@@ -444,7 +452,7 @@ void FileNameDatabase::ApplyChangeFile()
     vector<string> data = StringUtil::Split(line.substr(1), PathName::PathNameDelimiter);
     if (data.size() < 2)
     {
-      MIKTEX_FATAL_ERROR_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
+      FNDB_DAMAGED_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
     }
     string& fileName = data[0];
     string& directory = data[1];
@@ -452,7 +460,7 @@ void FileNameDatabase::ApplyChangeFile()
     {
       if (data.size() < 3)
       {
-        MIKTEX_FATAL_ERROR_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
+        FNDB_DAMAGED_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
       }
       string& fileNameInfo = data[2];
       FastInsertRecord(Record(std::move(fileName), std::move(directory), std::move(fileNameInfo)));
@@ -463,7 +471,7 @@ void FileNameDatabase::ApplyChangeFile()
     }
     else
     {
-      MIKTEX_FATAL_ERROR_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
+      FNDB_DAMAGED_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());
     }
   }
   File::Unlock(reader.GetFile());
@@ -487,7 +495,7 @@ void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath)
 
   if (mmap->GetSize() < sizeof(*fndbHeader))
   {
-    MIKTEX_FATAL_ERROR_2(T_("Not a file name database file (wrong size)."), "path", fndbPath.ToString());
+    FNDB_DAMAGED_2(T_("Not a file name database file (wrong size)."), "path", fndbPath.ToString());
   }
 
   fndbHeader = reinterpret_cast<FileNameDatabaseHeader*>(mmap->GetPtr());
@@ -497,13 +505,13 @@ void FileNameDatabase::OpenFileNameDatabase(const PathName& fndbPath)
   // check signature
   if (fndbHeader->signature != FileNameDatabaseHeader::Signature)
   {
-    MIKTEX_FATAL_ERROR_2(T_("Not a file name database file (wrong signature)."), "path", fndbPath.ToString());
+    FNDB_DAMAGED_2(T_("Not a file name database file (wrong signature)."), "path", fndbPath.ToString());
   }
 
   // check version number
   if (fndbHeader->version != FileNameDatabaseHeader::Version)
   {
-    MIKTEX_FATAL_ERROR_2(T_("Unknown file name database file version."), "path", fndbPath.ToString(), "versionFound", std::to_string(fndbHeader->Version), "versionExpected", std::to_string(FileNameDatabaseHeader::Version));
+    FNDB_DAMAGED_2(T_("Unknown file name database file version."), "path", fndbPath.ToString(), "versionFound", std::to_string(fndbHeader->Version), "versionExpected", std::to_string(FileNameDatabaseHeader::Version));
   }
 }
 
