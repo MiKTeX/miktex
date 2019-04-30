@@ -339,7 +339,7 @@ string FileNameDatabase::MakeKey(const string& fileName) const
   {
     ch = ToLower(ch);
   }
-#endif;
+#endif
   return key;
 }
 
