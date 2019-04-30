@@ -1,3 +1,4 @@
+% Uncopyrightable trivial changes, 2018 Karl Berry (karl@@freefriends.org)
 % Copyright (C) 1990--2014 Peter Breitenlohner (peb@@mppmu.mpg.de)
 %
 % This program is free software; you can redistribute it and/or modify
@@ -20,6 +21,7 @@
 %             diagnose impossible cases (September 2009).
 %             bug fix (not for Web2C) and some typos (May 2014)
 %               from Udo Wermuth (u.wermuth@@icloud.com).
+% 17 July 2018, still version 1.6: typos corrected, no code changes.
 
 % Here is TeX material that gets inserted after \input webmac
 \def\hang{\hangindent 3em\indent\ignorespaces}
@@ -71,13 +73,13 @@ and (2)~it serves as an example of a program that reads \.{DVI} and
 \.{DVI}-related software.
 
 Goal number (1) is important since quite a few existing programs have
-to be adapted to the extened capabilities of Version~3 of \TeX\ which
+to be adapted to the extended capabilities of Version~3 of \TeX\ which
 will require some time. Moreover some existing programs are `as is' and
 the source code is, unfortunately, not available.
 Goal number (2) needs perhaps a bit more explanation. Programs for
 typesetting need to be especially careful about how they do arithmetic; if
 rounding errors accumulate, margins won't be straight, vertical rules
-won't line up, and so on (see the documentaion of \.{DVItype} for more
+won't line up, and so on (see the documentation of \.{DVItype} for more
 details). This program is written as if it were a \.{DVI}-driver for a
 hypothetical typesetting device |out_file|, the output file receiving
 the copy of the input |dvi_file|. In addition all code related to
@@ -200,7 +202,7 @@ mostly by using several \.{WEB} coding tricks, such as not to make the
 resulting \PASCAL\ program inefficient in any way.
 
 Parts of the program that are needed in \.{DVIprint} but not in
-\.{DVIcopy} are delimited by the codewords `$|device|\ldots|ecived|$';
+\.{DVIcopy} are delimited by the code words `$|device|\ldots|ecived|$';
 these are mostly the pixel rounding algorithms used to convert the
 \.{DVI} units of a \.{DVI} file to the raster units of a real output
 device and have been copied more or less verbatim from \.{DVItype}.
@@ -563,7 +565,7 @@ of systems that might want to use such information.
 the whole process must be aborted; \.{\title} will give up, after issuing
 an error message about what caused the error. These messages will, however,
 in most cases just indicate which input file caused the error. One of the
-programs \.{DVItype}, \.{TFtoPL} or \.{VFtoVP} should then be used to
+programs \.{DVItype}, \.{TFtoPL}, or \.{VFtoVP} should then be used to
 diagnose the error in full detail.
 
 Such errors might be discovered inside of subroutines inside of subroutines,
@@ -3064,7 +3066,7 @@ Thus we introduce a slight extension of \.{DVItype}'s pixel rounding
 algorithm and hope that this extension will become part of the standard
 \.{DVItype} program in the near future: If a \.{DVI} file contains a
 |set_rule| command for a rule with the negative height |width_dimen|,
-then this rule shall be treated in exactly the same way as a ficticious
+then this rule shall be treated in exactly the same way as a fictitious
 character whose width is the width of that rule; as value of |width_dimen|
 we choose $-2^{31}$, the smallest signed 32-bit integer.
 
@@ -3089,7 +3091,7 @@ difficult to introduce them; furthermore they are similar to those in
 
 It may be desirable to (optionally) specify all the options in the
 command line and skip the dialog with the user, provided the operating
-system permits this. Here we just define the system-indepent part of the
+system permits this. Here we just define the system-independent part of the
 code required for this possibility. Since a complete option (a keyword
 possibly followed by one or several parameters) may have embedded blanks
 it might be necessary to replace these blanks by some other separator,
@@ -3285,7 +3287,7 @@ important, in this example. The number of pages is recorded in
 @!select_there:array[0..max_select-1,0..9] of boolean;
 @!select_vals:array[0..max_select-1] of 0..9;
 @!select_max:array[0..max_select-1] of int_32;
-@!out_mag:int_32; {output maginfication}
+@!out_mag:int_32; {output magnification}
 @!count:array[0..9] of int_32; {the count values on the current page}
 @!num_select:0..max_select; {number of page selection ranges specified}
 @!cur_select:0..max_select; {current page selection range}
@@ -3339,12 +3341,12 @@ else if scan_keyword(str_select,3) then
 id3("m")("a")("g")(str_mag);
 id6("s")("e")("l")("e")("c")("t")(str_select);
 
-@ A stack is used to keep track of the current horizonal and vertical
+@ A stack is used to keep track of the current horizontal and vertical
 position, |h| and |v|, and the four registers |w|, |x|, |y|, and |z|;
 the register pairs |(w,x)| and |(y,z)| are maintained as arrays.
 
 @<Types...@>=
-@!device @<Declare device dependend types@>@; @+ ecived @; @/
+@!device @<Declare device dependent types@>@; @+ ecived @; @/
 @!stack_pointer=0..stack_size;@/
 @!stack_index=1..stack_size;@/
 @!pair_32=array[0..1] of int_32; {a pair of |int_32| variables}
@@ -3408,7 +3410,7 @@ The horizontal escapement of character~|c| in font~|f| is given by
 @d max_pix_value==@"7FFF {largest allowed pixel value; this range may not
   suffice for high resolution output devices}
 
-@<Declare device dependend types@>=
+@<Declare device dependent types@>=
 @!pix_value=-max_pix_value..max_pix_value; {a pixel coordinate or displacement}
 
 @ @<Glob...@>=
