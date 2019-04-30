@@ -23,9 +23,9 @@
 % Version 2.3 was slightly modified to be processed with the
 %		cweb by Levy&Knuth.
 %		also repaired loop control for end of changes test (92-09-24)
-% Version 2.4 included <stdlib.h> instead of <malloc.h> when 
+% Version 2.4 included <stdlib.h> instead of <malloc.h> when
 %		used with ANSI-C				   (92-12-17)
-%
+% See ChangeLog for further changes.
 
 % Here is TeX material that gets inserted after \input cwebmac
 
@@ -91,7 +91,7 @@ for each input file.  Thus the storage requirement of
 \.{TIE} does not depend on the input data.
 
 The program is written in \Cl\ and uses only few features of a
-particular environment that may need to be changed in other 
+particular environment that may need to be changed in other
 installations.
 E.g.\ it will not use the |enum| type declarations.
 The changes needed may refer to the access of the command line
@@ -103,7 +103,7 @@ domain.  Nevertheless the copyright notice must not be
 replaced or modified.
 
 @d banner  "This is TIE, CWEB Version 2.4."
-@d copyright 
+@d copyright
     "Copyright (c) 1989,1992 by THD/ITI. All rights reserved."
 
 
@@ -176,7 +176,7 @@ internal seven-bit code that is essentially standard \ASCII{}, the
 is done immediately when each character is read in.  Conversely,
 characters are converted from \ASCII{} to the user's external
 representation just before they are output.  But the algorithm is
-prepared for the usage of eight-bit data. 
+prepared for the usage of eight-bit data.
 
 \noindent Here is a table of the standard visible \ASCII{} codes:
 $$\def\:{\char\count255\global\advance\count255 by 1}
@@ -223,7 +223,7 @@ should define |ASCII_Code| as \&{short}.
 
 @<Global types@>=
 #define max_ASCII (@'~'+1)
-typedef unsigned char ASCII_Code; 
+typedef unsigned char ASCII_Code;
          /* eight-bit numbers, a subrange of the integers */
 
 
@@ -458,17 +458,17 @@ for terminating an output line and writing strings to the user.
 
 @^system dependencies@>
 @d term_out  stdout
-@d print(a)  fprintf(term_out,a) /* `|print|' means write on the terminal */
+@d print(a)  fprintf(term_out,"%s",a) /* `|print|' means write on the terminal */
 @d print2(a,b)  fprintf(term_out,a,b) /* same with two arguments */
 @d print3(a,b,c)  fprintf(term_out,a,b,c) /* same with three arguments */
 @d print_c(v)  fputc(v,term_out); /* print a single character */
 @d new_line(v)  fputc('\n',v) /* start new line */
 @d term_new_line  new_line(term_out)
 	/* start new line of the terminal */
-@d print_ln(v)  {fprintf(term_out,v);term_new_line;}
+@d print_ln(v)  {fprintf(term_out,"%s",v);term_new_line;}
 	/* `|print|' and then start new line */
 @d print2_ln(a,b)  {print2(a,b);term_new_line;} /* same with two arguments */
-@d print3_ln(a,b,c)  {print3(a,b,c);term_new_line;} 
+@d print3_ln(a,b,c)  {print3(a,b,c);term_new_line;}
 	/* same with three arguments */
 @d print_nl(v) 	 {term_new_line; print(v);}
 	/* print information starting on a new line */
@@ -561,7 +561,7 @@ typedef int file_index;  /* |-1..max_file_index+1| */
 
 @ The following data structure joins all informations needed to use
 these input files.
-%`line' is a normal identifier throughout this program 
+%`line' is a normal identifier throughout this program
 @f line dummy	
 @<Global types@>=
 typedef struct _idsc{
@@ -607,7 +607,7 @@ end of the file is reached |mode| is set to |ignore|.  On some systems
 it might be useful to replace tab characters by a proper number of
 spaces since several editors used to create change files insert tab
 characters into a source file not under control of the user.  So it
-might be a problem to create a matching change file. 
+might be a problem to create a matching change file.
 @^tab character expansion@>
 
 We define |get_line| to read a line from a file specified by
@@ -736,7 +736,7 @@ message because it is appended by |err_print|.
 
 This function is implemented as a macro.  It gives a message and an
 indication of the offending file.  The actions to determine the error
-location are provided by a function called |err_loc|. 
+location are provided by a function called |err_loc|.
 
 @d error_loc(m)  err_loc(m); history=troublesome; @+ }
 @d err_print(m)  { @+ print_nl(m); error_loc
@@ -755,7 +755,7 @@ void err_loc(i) /* prints location of error */
 outputs a message and then calls `|jump_out|'.  |err_print| will print
 the error message followed by an indication of where the error was
 spotted in the source files.  |fatal_error| cannot state any files
-because the problem is usually to access these. 
+because the problem is usually to access these.
 
 @d fatal_error(m) {
          print(m); print_c('.'); history=fatal;
@@ -766,7 +766,7 @@ because the problem is usually to access these.
 @ |jump_out| just cuts across all active procedure levels and jumps
 out of the program.  It is used when no recovery from a particular
 error has been provided.  The return code from this program should be
-regarded by the caller. 
+regarded by the caller.
 
 @d jump_out() exit(1)
 
@@ -848,7 +848,7 @@ This is done by |init_change_file|.
 are different.
 
 @<Internal functions@>=
-boolean lines_dont_match(i,j) 
+boolean lines_dont_match(i,j)
 	file_index i,j;
 {
    buffer_index k,lmt;
@@ -1038,7 +1038,7 @@ while (test_input==none && test_file<no_ch-1){
 file or a new master file.  The change file creation needs some closer
 inspection because we may be before a change, in the pattern part or
 in the replacement part.  For a master file we have to write the line
-from the current actual input. 
+from the current actual input.
 
 @<Handle output@>=
 if (prod_chf==chf) {
@@ -1152,7 +1152,7 @@ for (i=1;i<no_ch;i++) {/* all change files */
 
 @ We want to tell the user about our command line options.  This is
 done by the |usage()| function.  It contains merely the necessary
-print statement and exits afterwards. 
+print statement and exits afterwards.
 
 @<Intern...@>=
 void usage()
@@ -1172,7 +1172,7 @@ indicates the output file.  When we allow flags at any position, we
 must find out which name is for what purpose.  The master file is
 already part of the |input_organization| structure (index~0).  As long
 as the number of files found (counted in |no_ch|) is |-1| we have not
-yet found the output file name. 
+yet found the output file name.
 
 @<Scan the parameters@>=
 {int act_arg;
@@ -1200,7 +1200,7 @@ else
       case 'C': prod_chf=chf;  break;
       case 'm':
       case 'M':	prod_chf=master;  break;
-      default:  usage(); 
+      default:  usage();
       }
 
 
@@ -1252,10 +1252,10 @@ main(argc,argv)
 }
 
 @ We want to pass the |history| value to the operating system so that
-it can be used to govern whether or not other programs are started. 
+it can be used to govern whether or not other programs are started.
 Additionaly we report the history to the user, although this may not
 be ``{\mc UNIX}'' style---but we are in best companion: \.{WEB} and
-\TeX{} do the same. 
+\TeX{} do the same.
 @^system dependencies@>
 
 @<Print the job |history|@>=
