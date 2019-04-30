@@ -31,7 +31,6 @@
 #include <cstdio>
 
 #include <algorithm>
-#include <array>
 #include <functional>
 #include <memory>
 #include <string>
@@ -65,9 +64,15 @@ public:
 };
 
 /// A callback interface to save process output.
-template<std::size_t MaxStdoutSize_ = 1024> class ProcessOutput :
+template<std::size_t MaxStdoutSize_ = 1024, std::size_t ExpectedStdoutSize_ = 1024> class ProcessOutput :
   public IRunProcessCallback
 {
+public:
+  ProcessOutput() :
+    stdoutBytes(ExpectedStdoutSize_)
+  {
+  }
+
 public:
   bool MIKTEXTHISCALL OnProcessOutput(const void* bytes, std::size_t nBytes) override
   {
@@ -81,6 +86,7 @@ public:
 #endif
     if (n > 0)
     {
+      stdoutBytes.reserve(stdoutOffset + n);
       std::copy(reinterpret_cast<const uint8_t*>(bytes), reinterpret_cast<const uint8_t*>(bytes) + n, stdoutBytes.data() + stdoutOffset);
       stdoutOffset += n;
     }
@@ -92,13 +98,13 @@ public:
 public:
   std::vector<uint8_t> GetStandardOutput() const
   {
-    return std::vector<uint8_t>(stdoutBytes.data(), stdoutBytes.data() + stdoutOffset);
+    return stdoutBytes;
   }
 
   /// Gets the saved process output.
   /// @return Returns the saved process output as a string.
 public:
-  std::string StdoutToString()
+  std::string StdoutToString() const
   {
     // FIXME: assume UTF-8
     std::string result;
@@ -108,7 +114,7 @@ public:
   }
 
 private:
-  std::array<uint8_t, MaxStdoutSize_> stdoutBytes;
+  std::vector<uint8_t> stdoutBytes;
 
 private:
   std::size_t stdoutOffset = 0;
