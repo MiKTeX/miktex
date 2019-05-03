@@ -11,14 +11,11 @@ fi
 
 app_dir=$1
 
-find "$app_dir"/Contents/Frameworks -type f -exec codesign --force --verbose --sign "$code_sign_identity" {} \;
-find "$app_dir"/Contents/bin -type f -exec codesign --force --verbose --sign "$code_sign_identity" {} \;
-find "$app_dir"/Contents/libexec -type f -exec codesign --force --verbose --sign "$code_sign_identity" {} \;
-find "$app_dir"/Contents/MacOS -type f -exec codesign --force --verbose --sign "$code_sign_identity" {} \;
+for d in Frameworks MacOS PlugIns bin libexec miktex-lib; do
+    find "$app_dir/Contents/$d" -type f -exec codesign --verbose --force --options runtime --sign "$code_sign_identity" {} \;
+done
 
-find "$app_dir"/Contents/PlugIns -name "*.dylib" -exec codesign --force --verbose --sign "$code_sign_identity" {} \;
-
-codesign --force --verbose --sign "$code_sign_identity" "$app_dir"
+codesign --verbose --force --options runtime --sign "$code_sign_identity" "$app_dir"
 
 echo "Verifying..."
 spctl -a -t exec -vv "$app_dir"
