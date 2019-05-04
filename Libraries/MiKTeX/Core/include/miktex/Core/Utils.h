@@ -143,7 +143,7 @@ public:
   static MIKTEXCORECEEAPI(bool) IsAbsolutePath(const PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsSafeFileName(const PathName& path, bool forInput);
+  static MIKTEXCORECEEAPI(bool) IsSafeFileName(const PathName& path);
 
 public:
   static MIKTEXCORECEEAPI(bool) IsParentDirectoryOf(const PathName& parentDir, const PathName& fileName);

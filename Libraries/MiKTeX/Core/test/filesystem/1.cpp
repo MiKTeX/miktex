@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -114,8 +114,30 @@ BEGIN_TEST_FUNCTION(4);
 }
 END_TEST_FUNCTION();
 
-#if defined(MIKTEX_WINDOWS)
 BEGIN_TEST_FUNCTION(5);
+{
+  TEST(Utils::IsSafeFileName("sample.tex"));
+  TEST(Utils::IsSafeFileName("./sample.tex"));
+  TEST(Utils::IsSafeFileName(".tex"));
+  TEST(Utils::IsSafeFileName("sub/dir/sample.tex"));
+  TEST(Utils::IsSafeFileName("sub/dir/.tex"));
+  TEST(!Utils::IsSafeFileName(".bashrc"));
+  TEST(!Utils::IsSafeFileName("sub/dir/.bashrc"));
+  TEST(!Utils::IsSafeFileName("/fully/qualified/dir/sample.tex"));
+  TEST(!Utils::IsSafeFileName("/fully/qualified/dir/.bashrc"));
+  TEST(!Utils::IsSafeFileName("../sample.tex"));
+  TEST(!Utils::IsSafeFileName("../.bashrc"));
+  TEST(!Utils::IsSafeFileName("sub/dir/../../../sample.tex"));
+  TEST(!Utils::IsSafeFileName("sub/dir/../../../.bashrc"));
+#if 0
+  // TODO
+  TEST(Utils::IsSafeFileName("sub/dir/../../sample.tex"));
+#endif
+}
+END_TEST_FUNCTION();
+
+#if defined(MIKTEX_WINDOWS)
+BEGIN_TEST_FUNCTION(6);
 {
   wchar_t szPath[BufferSizes::MaxPath];
   DWORD n = GetModuleFileNameW(nullptr, szPath, BufferSizes::MaxPath);
@@ -152,8 +174,9 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(2);
   CALL_TEST_FUNCTION(3);
   CALL_TEST_FUNCTION(4);
-#if defined(MIKTEX_WINDOWS)
   CALL_TEST_FUNCTION(5);
+#if defined(MIKTEX_WINDOWS)
+  CALL_TEST_FUNCTION(6);
 #endif
 }
 END_TEST_PROGRAM();

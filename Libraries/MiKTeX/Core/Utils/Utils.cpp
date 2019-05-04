@@ -214,7 +214,7 @@ static vector<string> allowedFileNames = {
   ".tex"
 };
 
-bool Utils::IsSafeFileName(const PathName& path, bool forInput)
+bool Utils::IsSafeFileName(const PathName& path)
 {
   if (IsAbsolutePath(path))
   {
@@ -224,7 +224,7 @@ bool Utils::IsSafeFileName(const PathName& path, bool forInput)
   for (PathNameParser comp(path); comp; ++comp)
   {
     fileName = *comp;
-    if (fileName.GetLength() > 1 && fileName[0] == '.' && fileName != ".tex")
+    if (fileName.GetLength() > 1 && fileName[0] == '.' && std::find(allowedFileNames.begin(), allowedFileNames.end(), fileName) == allowedFileNames.end())
     {
       return false;
     }    

@@ -1,6 +1,6 @@
 /* inputline.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -275,7 +275,7 @@ bool WebAppInputLine::AllowFileName(const PathName& fileName, bool forInput)
   {
     return true;
   }
-  return Utils::IsSafeFileName(fileName, forInput);
+  return Utils::IsSafeFileName(fileName);
 }
 
 bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName, bool text, PathName& outPath)
