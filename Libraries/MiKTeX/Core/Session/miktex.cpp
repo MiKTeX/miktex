@@ -159,17 +159,18 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
 #endif
     break;
   case SpecialPath::LogDirectory:
-#if defined(MIKTEX_UNIX)
     if (IsAdminMode())
     {
-      path = MIKTEX_SYSTEM_VAR_LOG_DIR;
+#if defined(MIKTEX_UNIX)
       // FIXME: hard-coded sub-directory
-      path /= "miktex";
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, (PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / "miktex").ToString()).GetString();
+#else
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, (GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString()).GetString();
+#endif
     }
     else
-#endif
     {
-      path = GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR;
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLOGDIRECTORY, (GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString()).GetString();
     }
     break;
   case SpecialPath::CommonInstallRoot:
