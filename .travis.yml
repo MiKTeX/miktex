@@ -30,6 +30,14 @@ addons:
 
 matrix:
   include:
+    - os: linux
+      dist: trusty
+      services: docker
+      env:
+      - MIKTEX_LINUX_DIST=fedora
+      - MIKTEX_LINUX_DIST_VERSION=30
+      script: ./travis-ci/docker/script.sh
+      after_failure: ./travis-ci/docker/after_failure.sh
     - os: osx
       osx_image: xcode10.1
       before_script: ./travis-ci/osx/before_script.sh
@@ -69,14 +77,6 @@ matrix:
       - MIKTEX_LINUX_DIST=ubuntu
       - MIKTEX_LINUX_DIST_VERSION=16.04
       - MIKTEX_LINUX_DIST_CODE_NAME=xenial
-      script: ./travis-ci/docker/script.sh
-      after_failure: ./travis-ci/docker/after_failure.sh
-    - os: linux
-      dist: trusty
-      services: docker
-      env:
-      - MIKTEX_LINUX_DIST=fedora
-      - MIKTEX_LINUX_DIST_VERSION=30
       script: ./travis-ci/docker/script.sh
       after_failure: ./travis-ci/docker/after_failure.sh
     - os: linux
