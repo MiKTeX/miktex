@@ -67,19 +67,17 @@
 % _____________________________________________________________________________
 
 @x
-@ @<Set init...@>=
 reset(vpl_file);
 @y
-@ @<Set init...@>=
 if (c4pargc <> 4) then begin
-  print_ln ('Usage: vptovf VPLFILE VFFILE TFMFILE');
-  c4p_exit (1);
+  print_ln('Usage: vptovf VPLFILE VFFILE TFMFILE');
+  c4p_exit(1);
 end;
 if (not c4p_fopen(vpl_file, c4p_argv[1], c4p_r_mode, false)) then begin
-  print_ln ('The VPL file could not be found.');
-  c4p_exit (1);
+  print_ln('The VPL file could not be found.');
+  c4p_exit(1);
 end;
-reset (vpl_file);
+reset(vpl_file);
 @z
 
 % _____________________________________________________________________________
@@ -101,10 +99,8 @@ reset (vpl_file);
 % _____________________________________________________________________________
 
 @x
-@<Set init...@>=
 rewrite(vf_file); rewrite(tfm_file);
 @y
-@<Set init...@>=
 if (c4pargc <> 4) then begin
   print_ln('Usage: vptovf VPLFILE VFFILE TFMFILE');
   c4p_exit(1);
@@ -123,7 +119,7 @@ rewrite(tfm_file);
 
 % _____________________________________________________________________________
 %
-% [3.23] Basic input routines
+% [3.23]
 % _____________________________________________________________________________
 
 @x
@@ -131,17 +127,4 @@ rewrite(tfm_file);
 @y
 @!byte=0..255; {unsigned eight-bit quantity}
 @!byte_file=packed file of byte;
-@z
-
-% _____________________________________________________________________________
-%
-% [3.24]
-% _____________________________________________________________________________
-
-@x
-@d first_ord=0 {ordinal number of the smallest element of |char|}
-@d last_ord=127 {ordinal number of the largest element of |char|}
-@y
-@d first_ord=0 {ordinal number of the smallest element of |char|}
-@d last_ord=127 {ordinal number of the largest element of |char|}
 @z
