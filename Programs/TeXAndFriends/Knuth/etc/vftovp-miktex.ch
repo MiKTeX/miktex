@@ -70,10 +70,8 @@
 % _____________________________________________________________________________
 
 @x
-@<Set init...@>=
 reset(tfm_file); reset(vf_file);
 @y
-@<Set init...@>=
 if (c4pargc <> 4) then begin
   print_ln('Usage: vftovp VFFILE TFMFILE VPLFILE');
   c4p_exit(1);
@@ -96,10 +94,8 @@ reset(vf_file);
 % _____________________________________________________________________________
 
 @x
-@ @<Set init...@>=
 rewrite(vpl_file);
 @y
-@ @<Set init...@>=
 if (c4pargc <> 4) then begin
   print_ln('Usage: vftovp VFFILE TFMFILE VPLFILE');
   c4p_exit(1);
@@ -116,27 +112,19 @@ rewrite(vpl_file);
 % _____________________________________________________________________________
 
 @x
-@d abort(#)==begin print_ln(#);
   print_ln('Sorry, but I can''t go on; are you sure this is a TFM?');
   goto final_end;
 @y
-@d abort(#)==begin print_ln(#);
   print_ln('Sorry, but I can''t go on; are you sure this is a TFM?');
   c4p_exit(1);
 @z
 
 @x
-@d vf_abort(#)==
-  begin print_ln(#);
   print_ln('Sorry, but I can''t go on; are you sure this is a VF?');
   goto final_end;
-  end
 @y
-@d vf_abort(#)==
-  begin print_ln(#);
   print_ln('Sorry, but I can''t go on; are you sure this is a VF?');
   c4p_exit(1);
-  end
 @z
 
 % _____________________________________________________________________________
@@ -162,21 +150,15 @@ reset(tfm_file);
 @x
 @d default_directory_name=='TeXfonts:' {change this to the correct name}
 @d default_directory_name_length=9 {change this to the correct length}
+@y
+@d default_directory_name=='./'
+@d default_directory_name_length=2
+@z
 
-@<Glob...@>=
-@!default_directory:packed array[1..default_directory_name_length] of char;
-
-@ @<Set init...@>=
+@x
 default_directory:=default_directory_name;
 @y
-@d default_directory_name=='./' {change this to the correct name}
-@d default_directory_name_length=2 {change this to the correct length}
-
-@<Glob...@>=
-@!default_directory:packed array[1..default_directory_name_length] of char;
-
-@ @<Set init...@>=
-c4p_arrcpy(default_directory,default_directory_name);
+c4p_arrcpy(default_directory, default_directory_name);
 @z
 
 % _____________________________________________________________________________
@@ -207,15 +189,15 @@ ASCII_04:=' !"#$%&''()*+,-./0123456789:;<=>?';@/
 ASCII_10:='@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_';@/
 ASCII_14:='`abcdefghijklmnopqrstuvwxyz{|}~?';@/
 @y
-c4p_arrcpy(ASCII_04,' !"#$%&''()*+,-./0123456789:;<=>?');@/
-c4p_arrcpy(ASCII_10,'@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_');@/
-c4p_arrcpy(ASCII_14,'`abcdefghijklmnopqrstuvwxyz{|}~?');@/
+c4p_arrcpy(ASCII_04, ' !"#$%&''()*+,-./0123456789:;<=>?');@/
+c4p_arrcpy(ASCII_10, '@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_');@/
+c4p_arrcpy(ASCII_14, '`abcdefghijklmnopqrstuvwxyz{|}~?');@/
 @z
 
 @x
 MBL_string:='MBL'; RI_string:='RI '; RCE_string:='RCE';
 @y
-c4p_arrcpy(MBL_string,'MBL');
-c4p_arrcpy(RI_string,'RI ');
-c4p_arrcpy(RCE_string,'RCE');
+c4p_arrcpy(MBL_string, 'MBL');
+c4p_arrcpy(RI_string, 'RI ');
+c4p_arrcpy(RCE_string, 'RCE');
 @z

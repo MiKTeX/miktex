@@ -1,20 +1,21 @@
 %% vptovf-miktex.ch: WEB change file for VPtoVF
 %% 
-%% Copyright (C) 1991-2016 Christian Schenk
+%% Copyright (C) 1991-2019 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
 %% Free Software Foundation; either version 2, or (at your option) any
 %% later version.
-%% 
+%%
 %% This file is distributed in the hope that it will be useful, but
 %% WITHOUT ANY WARRANTY; without even the implied warranty of
 %% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 %% General Public License for more details.
 %% 
 %% You should have received a copy of the GNU General Public License
-%% along with This file; if not, write to the Free Software Foundation,
-%% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+%% along with This file; if not, write to the Free Software
+%% Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+%% USA.
 
 % _____________________________________________________________________________
 %
@@ -24,8 +25,8 @@
 @x
   begin print_ln(banner);@/
 @y
-  begin print (banner);
-  miktex_print_miktex_banner (output);
+  begin print(banner);
+  miktex_print_miktex_banner(output);
   write_ln;@/
 @z
 
@@ -105,19 +106,19 @@ rewrite(vf_file); rewrite(tfm_file);
 @y
 @<Set init...@>=
 if (c4pargc <> 4) then begin
-  print_ln ('Usage: vptovf VPLFILE VFFILE TFMFILE');
-  c4p_exit (1);
+  print_ln('Usage: vptovf VPLFILE VFFILE TFMFILE');
+  c4p_exit(1);
 end;
 if (not c4p_fopen(vf_file, c4p_argv[2], c4p_wb_mode, false)) then begin
-  print_ln ('The VF file could not be written.');
-  c4p_exit (1);
+  print_ln('The VF file could not be written.');
+  c4p_exit(1);
 end;
 if (not c4p_fopen(tfm_file, c4p_argv[3], c4p_wb_mode, false)) then begin
-  print_ln ('The TFM file could not be written.');
-  c4p_exit (1);
+  print_ln('The TFM file could not be written.');
+  c4p_exit(1);
 end;
-rewrite (vf_file);
-rewrite (tfm_file);
+rewrite(vf_file);
+rewrite(tfm_file);
 @z
 
 % _____________________________________________________________________________
