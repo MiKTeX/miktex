@@ -203,28 +203,18 @@ cur_name[r+5]:=chr(0);
 % _____________________________________________________________________________
 
 @x
-@ @<Set init...@>=
 ASCII_04:=' !"#$%&''()*+,-./0123456789:;<=>?';@/
 ASCII_10:='@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_';@/
 ASCII_14:='`abcdefghijklmnopqrstuvwxyz{|}~?';@/
-for k:=0 to 255 do xchr[k]:='?';
-for k:=0 to @'37 do
-  begin xchr[k+@'40]:=ASCII_04[k+1];
-  xchr[k+@'100]:=ASCII_10[k+1];
-  xchr[k+@'140]:=ASCII_14[k+1];
-  end;
-MBL_string:='MBL'; RI_string:='RI '; RCE_string:='RCE';
 @y
-@ @<Set init...@>=
 c4p_arrcpy(ASCII_04,' !"#$%&''()*+,-./0123456789:;<=>?');@/
 c4p_arrcpy(ASCII_10,'@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_');@/
 c4p_arrcpy(ASCII_14,'`abcdefghijklmnopqrstuvwxyz{|}~?');@/
-for k:=0 to 255 do xchr[k]:='?';
-for k:=0 to @'37 do
-  begin xchr[k+@'40]:=ASCII_04[k+1];
-  xchr[k+@'100]:=ASCII_10[k+1];
-  xchr[k+@'140]:=ASCII_14[k+1];
-  end;
+@z
+
+@x
+MBL_string:='MBL'; RI_string:='RI '; RCE_string:='RCE';
+@y
 c4p_arrcpy(MBL_string,'MBL');
 c4p_arrcpy(RI_string,'RI ');
 c4p_arrcpy(RCE_string,'RCE');
