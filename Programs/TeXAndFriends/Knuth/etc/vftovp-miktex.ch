@@ -185,56 +185,16 @@ c4p_arrcpy(default_directory,default_directory_name);
 % _____________________________________________________________________________
 
 @x
-@ The string |cur_name| is supposed to be set to the external name of the
-\.{TFM} file for the current font. This usually means that we need to
-prepend the name of the default directory, and
-to append the suffix `\.{.TFM}'. Furthermore, we change lower case letters
-to upper case, since |cur_name| is a \PASCAL\ string.
-@^system dependencies@>
-
-@<Move font name into the |cur_name| string@>=
-for k:=1 to name_length do cur_name[k]:=' ';
-if a=0 then
-  begin for k:=1 to default_directory_name_length do
-    cur_name[k]:=default_directory[k];
-  r:=default_directory_name_length;
-  end
-else r:=0;
-for k:=font_start[font_ptr]+14 to vf_ptr-1 do
-  begin incr(r);
   if r+4>name_length then vf_abort('Font name too long for me!');
-@.Font name too long for me@>
-  if (vf[k]>="a")and(vf[k]<="z") then
-      cur_name[r]:=xchr[vf[k]-@'40]
-  else cur_name[r]:=xchr[vf[k]];
-  end;
+@y
+  if r+5>name_length then vf_abort('Font name too long for me!');
+@z
+
+@x
 cur_name[r+1]:='.'; cur_name[r+2]:='T'; cur_name[r+3]:='F'; cur_name[r+4]:='M'
 @y
-@ The string |cur_name| is supposed to be set to the external name of the
-\.{TFM} file for the current font. This usually means that we need to
-prepend the name of the default directory, and
-to append the suffix `\.{.TFM}'. Furthermore, we change lower case letters
-to upper case, since |cur_name| is a \PASCAL\ string.
-@^system dependencies@>
-
-@<Move font name into the |cur_name| string@>=
-for k:=1 to name_length do cur_name[k]:=' ';
-if a=0 then
-  begin for k:=1 to default_directory_name_length do
-    cur_name[k]:=default_directory[k];
-  r:=default_directory_name_length;
-  end
-else r:=0;
-for k:=font_start[font_ptr]+14 to vf_ptr-1 do
-  begin incr(r);
-  if r+5>name_length then vf_abort('Font name too long for me!');
-@.Font name too long for me@>
-  if (vf[k]>="a")and(vf[k]<="z") then
-      cur_name[r]:=xchr[vf[k]-@'40]
-  else cur_name[r]:=xchr[vf[k]];
-  end;
 cur_name[r+1]:='.'; cur_name[r+2]:='T'; cur_name[r+3]:='F'; cur_name[r+4]:='M';
-cur_name[r+5]:= chr (0);
+cur_name[r+5]:=chr(0);
 @z
 
 % _____________________________________________________________________________
