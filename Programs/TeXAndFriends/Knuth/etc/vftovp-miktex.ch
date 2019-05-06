@@ -141,27 +141,6 @@ rewrite(vpl_file);
 
 % _____________________________________________________________________________
 %
-% [5.36]
-% _____________________________________________________________________________
-
-@x
-@<Print the name...@>=
-print('MAPFONT ',font_ptr:1,': ');
-for k:=font_start[font_ptr]+14 to vf_ptr-1 do print(xchr[vf[k]]);
-k:=font_start[font_ptr]+5;
-print_ln(' at ',(((vf[k]*256+vf[k+1])*256+vf[k+2])/@'4000000)*real_dsize:2:2,
-  'pt')
-@y
-@<Print the name...@>=
-print('MAPFONT ',font_ptr:1,': ');
-for k:=font_start[font_ptr]+14 to vf_ptr-1 do print(xchr[vf[k]]);
-k:=font_start[font_ptr]+5;
-print_ln(' at ',(((vf[k]*256+vf[k+1])*256+vf[k+2])/@'4000000)*real_dsize:2:2,
-  'pt')
-@z
-
-% _____________________________________________________________________________
-%
 % [5.39]
 % _____________________________________________________________________________
 
