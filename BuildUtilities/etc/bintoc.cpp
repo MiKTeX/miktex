@@ -1,6 +1,6 @@
 /* bintoc.cpp: make a C char array from a binary file
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2019 Christian Schenk
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -20,6 +20,10 @@
 #include <cstdio>
 #include <fcntl.h>
 
+#include <iomanip>
+#include <iostream>
+#include <string>
+
 #if (defined(_MSC_VER) && defined(_WIN32)) || defined(__CYGWIN__)
 #  include <io.h>
 #endif
@@ -27,21 +31,23 @@
 size_t totalBytes;
 size_t remainingBytesOnLine;
 
-void OpenArray(const char * lpszArrayName)
+using namespace std;
+
+void OpenArray(const string& arrayName)
 {
-  printf("unsigned char const %s[] = {", lpszArrayName);
+  cout << "unsigned char const " << arrayName << "[] = {";
   totalBytes = 0;
   remainingBytesOnLine = 0;
 }
 
 void CloseArray()
 {
-  puts("\n};");
+  cout << "\n};\n";
 }
 
 void CloseLine()
 {
-  putchar('\n');
+  cout << "\n";
 }
 
 void AddByte(unsigned char byt)
@@ -50,21 +56,23 @@ void AddByte(unsigned char byt)
   {
     CloseLine();
     remainingBytesOnLine = 8;
-    putchar(' ');
+    cout << " ";
   }
-  printf(" 0x%02x,", byt);
+  cout << " 0x" << setw(2) << setfill('0') << hex << static_cast<unsigned>(byt) << ",";
   ++totalBytes;
   --remainingBytesOnLine;
 }
 
 unsigned char buf[4096 * 16];
 
-int main(int argc, char ** argv)
+int main(int argc, char** argv)
 {
-  if (argc != 2)
+  if (argc < 2 || argc > 3)
   {
     return 1;
   }
+
+  bool appendNul = argc > 2 && strcmp(argv[2], "true") == 0;
 
 #if defined(_MSC_VER) && defined(_WIN32)
   if (_setmode(_fileno(stdin), _O_BINARY) == -1)
@@ -88,6 +96,11 @@ int main(int argc, char ** argv)
     {
       AddByte(buf[i]);
     }
+  }
+
+  if (appendNul)
+  {
+    AddByte(0);
   }
 
   CloseArray();
