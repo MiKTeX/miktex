@@ -6,7 +6,7 @@
     <TPM:Title>Lua 5.3 runtime library, Windows x86</TPM:Title>
     <TPM:Copyright owner="Lua.org, PUC-Rio" year="1994-2017"/>
     <TPM:License type="mit"/>
-    <TPM:Version>5.3.4</TPM:Version>
+    <TPM:Version>5.3.5</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
