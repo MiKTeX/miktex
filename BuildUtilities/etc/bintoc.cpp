@@ -18,6 +18,7 @@
    USA. */
 
 #include <cstdio>
+#include <cstring>
 #include <fcntl.h>
 
 #include <iomanip>
