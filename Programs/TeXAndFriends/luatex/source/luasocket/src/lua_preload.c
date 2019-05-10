@@ -28,11 +28,21 @@ extern void luatex_socketlua_open (lua_State *) ;
 #include "url_lua.c"        
 
 
+#if defined(MIKTEX)
+#define TEST(expr)							\
+  if ((expr) != 0)							\
+  {									\
+    fputs("FATAL error while preloading lua module " #expr, stderr);	\
+    fprintf(stderr, "\n%s\n", lua_tostring(L, -1));			\
+    exit(1);								\
+  }
+#else
 #define TEST(A) do { if (A) {						\
     fprintf(stderr,"FATAL error while preloading lua module " #A);	\
     exit(1);								\
 	}								\
 } while (0)
+#endif
 
 void
 luatex_socketlua_open (lua_State *L) {

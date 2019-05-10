@@ -127,8 +127,55 @@ set(luasocket_sources
   source/luasocket/src/usocket.h
 )
 
+set(luasocket_lua_sources
+  ftp.lua
+  headers.lua
+  http.lua
+  ltn12.lua
+  mbox.lua
+  mime.lua
+  smtp.lua
+  socket.lua
+  tp.lua
+  url.lua
+)
+
+foreach(f ${luasocket_lua_sources})
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/luasocket-${f}.h
+    COMMAND
+      bintoc B true
+        < ${CMAKE_CURRENT_SOURCE_DIR}/source/luasocket/src/${f}
+        > ${CMAKE_CURRENT_BINARY_DIR}/luasocket-${f}.h.tmp
+    COMMAND
+      ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_BINARY_DIR}/luasocket-${f}.h.tmp
+        ${CMAKE_CURRENT_BINARY_DIR}/luasocket-${f}.h
+    COMMAND
+      ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/luasocket-${f}.h.tmp
+    DEPENDS
+      bintoc
+      ${CMAKE_CURRENT_SOURCE_DIR}/source/luasocket/src/${f}
+    VERBATIM
+  )
+  list(APPEND generated_luasocket_sources ${CMAKE_CURRENT_BINARY_DIR}/luasocket-${f}.h)
+endforeach()
+
+add_custom_target(gen-luasocket-sources DEPENDS
+  ${generated_luasocket_sources}
+)
+
+list(APPEND luasocket_sources ${generated_luasocket_sources})
+
 add_library(luatex-lua53socket-static STATIC ${luasocket_sources})
 set_property(TARGET luatex-lua53socket-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+add_dependencies(luatex-lua53socket-static gen-luasocket-sources)
+set_source_files_properties(
+  ${generated_luasocket_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
 target_compile_definitions(luatex-lua53socket-static
   PRIVATE
     -DLUASOCKET_DEBUG
@@ -141,6 +188,7 @@ target_link_libraries(luatex-lua53socket-static
 if(WITH_LUA54TEX)
   add_library(luatex-lua54socket-static STATIC ${luasocket_sources})
   set_property(TARGET luatex-lua54socket-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  add_dependencies(luatex-lua54socket-static gen-luasocket-sources)
   target_compile_definitions(luatex-lua54socket-static
     PRIVATE
       -DLUASOCKET_DEBUG
