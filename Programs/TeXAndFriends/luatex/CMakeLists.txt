@@ -24,7 +24,7 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/LuaTeX")
 if(MIKTEX_NATIVE_WINDOWS)
   set(lua53_target_name ${lua53_dll_name})
 else()
-  set(lua53_target_name ${lua53_dll_name})
+  set(lua53_target_name ${lua53_lib_name})
 endif()
 
 if(WITH_LUA54TEX)
