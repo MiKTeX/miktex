@@ -1,6 +1,6 @@
 /* CabExtractor.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -25,9 +25,7 @@
 #include <fcntl.h>
 #endif
 
-#ifdef __FreeBSD__
 #include <sys/stat.h>
-#endif
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
