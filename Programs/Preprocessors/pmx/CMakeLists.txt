@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016-2017 Christian Schenk
+## Copyright (C) 2016-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -281,8 +281,8 @@ prevent_all_warnings_on_bad_code_target(f2c)
 
 if(MIKTEX_UNIX_ALIKE)
   target_link_libraries(f2c
-    PUBLIC
-      ${MATH_LIBRARY}
+    PRIVATE
+      m
   )
 endif()
 

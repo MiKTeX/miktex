@@ -936,10 +936,6 @@ find_package(FLEX REQUIRED)
 #not needed: find_package(PythonInterp REQUIRED)
 find_package(Threads REQUIRED)
 
-if(MIKTEX_UNIX_ALIKE)
-  find_library(MATH_LIBRARY m)
-endif()
-
 if(WITH_UI_QT)
   set(required_qt5_components
     Concurrent
