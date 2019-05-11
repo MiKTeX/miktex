@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ##
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -131,7 +131,7 @@ endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL FreeBSD)
   target_link_libraries(${core_dll_name}
-    PUBLIC
+    PRIVATE
       kvm
       procstat
   )
