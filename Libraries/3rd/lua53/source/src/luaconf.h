@@ -244,6 +244,11 @@
 ** the libraries, you may want to use the following definition (define
 ** LUA_BUILD_AS_DLL to get it).
 */
+#if defined(MIKTEX)
+#define LUA_API MIKTEX_LUA_EXPORT
+#define LUALIB_API MIKTEX_LUA_EXPORT
+#define LUAMOD_API MIKTEX_LUA_EXPORT
+#else
 #if defined(LUA_BUILD_AS_DLL)	/* { */
 
 #if defined(LUA_CORE) || defined(LUA_LIB)	/* { */
@@ -262,6 +267,7 @@
 /* more often than not the libs go together with the core */
 #define LUALIB_API	LUA_API
 #define LUAMOD_API	LUALIB_API
+#endif
 
 
 /*
@@ -278,6 +284,11 @@
 ** give a warning about it. To avoid these warnings, change to the
 ** default definition.
 */
+#if defined(MIKTEX)
+#define LUAI_FUNC extern MIKTEX_LUA_NO_EXPORT
+#define LUAI_DDEC extern MIKTEX_LUA_NO_EXPORT
+#define LUAI_DDEF MIKTEX_LUA_NO_EXPORT
+#else
 #if defined(__GNUC__) && ((__GNUC__*100 + __GNUC_MINOR__) >= 302) && \
     defined(__ELF__)		/* { */
 #define LUAI_FUNC	__attribute__((visibility("hidden"))) extern
@@ -287,6 +298,7 @@
 
 #define LUAI_DDEC	LUAI_FUNC
 #define LUAI_DDEF	/* empty */
+#endif
 
 /* }================================================================== */
 

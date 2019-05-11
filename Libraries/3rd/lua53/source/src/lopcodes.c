@@ -75,7 +75,7 @@ LUAI_DDEF const char *const luaP_opnames[NUM_OPCODES+1] = {
 
 #define opmode(t,a,b,c,m) (((t)<<7) | ((a)<<6) | ((b)<<4) | ((c)<<2) | (m))
 
-#if defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX)
 MIKTEX_LUA_EXPORT const lu_byte luaP_opmodes[NUM_OPCODES] = {
 #else
 LUAI_DDEF const lu_byte luaP_opmodes[NUM_OPCODES] = {
