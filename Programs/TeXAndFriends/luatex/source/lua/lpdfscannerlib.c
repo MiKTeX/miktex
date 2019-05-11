@@ -1098,7 +1098,11 @@ static const luaL_Reg scannerlib[] = {
     { NULL,   NULL }
 };
 
+#if defined(MIKTEX)
+int luaopen_pdfscanner(lua_State * L)
+#else
 LUALIB_API int luaopen_pdfscanner(lua_State * L)
+#endif
 {
     luaL_newmetatable(L, SCANNER);
     luaL_openlib(L, 0, scannerlib_meta, 0);

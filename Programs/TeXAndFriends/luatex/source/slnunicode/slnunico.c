@@ -1365,7 +1365,11 @@ static void createmetatable (lua_State *L) {
 /*
 ** Open string library
 */
+#if defined(MIKTEX)
+int luaopen_unicode (lua_State *L) {
+#else
 LUALIB_API int luaopen_unicode (lua_State *L) {
+#endif
 	/* register unicode itself so require("unicode") works */
 	luaL_openlib(L, SLN_UNICODENAME,
 		uniclib + (sizeof uniclib/sizeof uniclib[0] - 1), 0); /* empty func list */

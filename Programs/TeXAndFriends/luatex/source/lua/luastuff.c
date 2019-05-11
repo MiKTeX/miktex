@@ -729,14 +729,22 @@ void preset_environment(lua_State * L, const parm_struct * p, const char *s)
 
 #ifdef LuajitTeX
 
+#if defined(MIKTEX)
+char *luaL_prepbuffsize (luaL_Buffer *B, size_t sz) {
+#else
 LUALIB_API char *luaL_prepbuffsize (luaL_Buffer *B, size_t sz) {
+#endif
     lua_State *L = B->L;
     if (sz > LUAL_BUFFERSIZE )
         luaL_error(L, "buffer too large");
     return luaL_prepbuffer(B) ;
 }
 
+#if defined(MIKTEX)
+int lua_compare (lua_State *L, int o1, int o2, int op) {
+#else
 LUA_API int lua_compare (lua_State *L, int o1, int o2, int op) {
+#endif
     /*StkId o1, o2;*/
     int i = 0;
     lua_lock(L);  /* may call tag method */

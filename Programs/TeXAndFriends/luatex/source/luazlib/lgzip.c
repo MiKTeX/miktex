@@ -367,7 +367,11 @@ static void createmeta (lua_State *L) {
 
 
 
+#if defined(MIKTEX)
+int luaopen_gzip (lua_State *L) {
+#else
 LUALIB_API int luaopen_gzip (lua_State *L) {
+#endif
   createmeta(L);
   lua_pushvalue(L, -1);
   luaL_openlib(L, "gzip", iolib, 1);

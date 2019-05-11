@@ -25,10 +25,17 @@
 
 
 
+#if defined(MIKTEX)
+void *(luaL_testudata) (lua_State *L, int ud, const char *tname);
+void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup); 
+char *luaL_prepbuffsize (luaL_Buffer *B, size_t sz) ;
+int lua_compare (lua_State *L, int index1, int index2, int op);
+#else
 LUALIB_API void *(luaL_testudata) (lua_State *L, int ud, const char *tname);
 LUALIB_API void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup); 
 LUALIB_API char *luaL_prepbuffsize (luaL_Buffer *B, size_t sz) ;
 LUA_API int lua_compare (lua_State *L, int index1, int index2, int op);
+#endif
 
 #if !defined(lua_lock)
 #define lua_lock(L)     ((void) 0)

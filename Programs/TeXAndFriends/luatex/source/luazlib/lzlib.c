@@ -512,7 +512,11 @@ static int lzlib_decompress(lua_State *L)
 */
 
 
+#if defined(MIKTEX)
+int luaopen_zlib(lua_State *L)
+#else
 LUALIB_API int luaopen_zlib(lua_State *L)
+#endif
 {
     const luaL_Reg zstreamm[] =
     {
