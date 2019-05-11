@@ -53,10 +53,6 @@ add_definitions(
   -DpdfTeX
 )
 
-if(MIKTEX_UNIX_ALIKE)
-  add_definitions(-DLUA_USE_POSIX)
-endif()
-
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
     -DUNICODE
@@ -162,8 +158,10 @@ foreach(f ${luasocket_lua_sources})
   list(APPEND generated_luasocket_sources ${CMAKE_CURRENT_BINARY_DIR}/luasocket-${f}.h)
 endforeach()
 
-add_custom_target(gen-luasocket-sources DEPENDS
-  ${generated_luasocket_sources}
+add_custom_target(
+  gen-luasocket-sources
+  DEPENDS
+    ${generated_luasocket_sources}
 )
 
 list(APPEND luasocket_sources ${generated_luasocket_sources})
@@ -827,11 +825,6 @@ if(USE_SYSTEM_PNG)
 else()
   target_link_libraries(lua53tex-static PUBLIC ${png_dll_name})
 endif()
-if(USE_SYSTEM_POPPLER)
-  target_link_libraries(lua53tex-static PUBLIC MiKTeX::Imported::POPPLER)
-else()
-  target_link_libraries(lua53tex-static PUBLIC ${poppler_dll_name})
-endif()
 if(USE_SYSTEM_ZLIB)
   target_link_libraries(lua53tex-static PUBLIC MiKTeX::Imported::ZLIB)
 else()
@@ -863,11 +856,6 @@ if(WITH_LUA54TEX)
     target_link_libraries(lua54tex-static PUBLIC MiKTeX::Imported::PNG)
   else()
     target_link_libraries(lua54tex-static PUBLIC ${png_dll_name})
-  endif()
-  if(USE_SYSTEM_POPPLER)
-    target_link_libraries(lua54tex-static PUBLIC MiKTeX::Imported::POPPLER)
-  else()
-    target_link_libraries(lua54tex-static PUBLIC ${poppler_dll_name})
   endif()
   if(USE_SYSTEM_ZLIB)
     target_link_libraries(lua54tex-static PUBLIC MiKTeX::Imported::ZLIB)
@@ -929,12 +917,6 @@ if(USE_SYSTEM_PNG)
   list(APPEND libs MiKTeX::Imported::PNG)
 else()
   list(APPEND libs ${png_dll_name})
-endif()
-
-if(USE_SYSTEM_POPPLER)
-  list(APPEND libs MiKTeX::Imported::POPPLER)
-else()
-  list(APPEND libs ${poppler_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
