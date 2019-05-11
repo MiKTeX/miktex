@@ -129,7 +129,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   endif()
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL FreeBSD)
+if(MIKTEX_FREEBSD)
   target_link_libraries(${core_dll_name}
     PRIVATE
       kvm
