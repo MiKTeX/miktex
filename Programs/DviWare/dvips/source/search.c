@@ -25,7 +25,8 @@
 #undef fopen
 #undef popen
 #undef pclose
-#define fopen(file, fmode)  fsyscp_fopen(file, fmode)
+extern FILE *generic_fsyscp_fopen(const char *name, const char *mode);
+#define fopen(file, fmode)  generic_fsyscp_fopen(file, fmode)
 #define popen(pcmd, pmode)  fsyscp_popen(pcmd, pmode)
 #define pclose(pstream) _pclose(pstream)
 #endif

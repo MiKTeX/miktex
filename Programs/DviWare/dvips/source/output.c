@@ -21,7 +21,8 @@
 #undef fopen
 #undef popen
 #undef pclose
-#define fopen(file, fmode)  fsyscp_fopen(file, fmode)
+extern FILE *generic_fsyscp_fopen(const char *name, const char *mode);
+#define fopen(file, fmode)  generic_fsyscp_fopen(file, fmode)
 #define popen(pcmd, pmode)  fsyscp_popen(pcmd, pmode)
 #define pclose(pstream) _pclose(pstream)
 #endif
@@ -159,6 +160,16 @@ copyfile_general(const char *s, struct header_list *cur_header)
  *   or figure files to be installed in the .../ps directory.
  */
       f = search(figpath, s, READBIN);
+#if !defined(MIKTEX)
+#if defined(WIN32)
+      if (f == 0 && file_system_codepage != win32_codepage) {
+         int tmpcp = file_system_codepage;
+         file_system_codepage = win32_codepage;
+         f = search(figpath, s, READBIN);
+         file_system_codepage = tmpcp;
+      }
+#endif
+#endif
       if (f == 0)
          f = search(headerpath, s, READBIN);
 #if defined(VMCMS) || defined (MVSXA)

@@ -50,8 +50,23 @@ extern char *strtok(); /* some systems don't have this in strings.h */
 
 #if !defined(MIKTEX)
 #if defined(WIN32) && defined(KPATHSEA)
+FILE *generic_fsyscp_fopen(const char *filename, const char *mode)
+{
+  FILE *f;
+
+  f = fsyscp_fopen (filename, mode);
+
+  if (f == NULL && file_system_codepage != win32_codepage) {
+    int tmpcp = file_system_codepage;
+    file_system_codepage = win32_codepage;
+    f = fsyscp_fopen (filename, mode);
+    file_system_codepage = tmpcp;
+  }
+
+  return f;
+}
 #undef fopen
-#define fopen(file, fmode)  fsyscp_fopen(file, fmode)
+#define fopen(file, fmode)  generic_fsyscp_fopen(file, fmode)
 #endif
 #endif
 
