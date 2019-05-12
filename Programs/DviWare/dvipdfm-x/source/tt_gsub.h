@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 
 #include "sfnt.h"
 #include "otl_opt.h"
+#include "cmap.h"
 
 typedef struct otl_gsub otl_gsub;
 
@@ -59,11 +60,7 @@ extern int  otl_gsub_add_feat_list (otl_gsub *gsub_list,
 extern int  otl_gsub_set_chain   (otl_gsub *gsub_list, const char *otl_tags);
 extern int  otl_gsub_apply_chain (otl_gsub *gsub_list, USHORT *gid);
 
-#if  0  
-extern int  otl_gsub_dump      (otl_gsub *gsub_list,
-                                const char *script,
-                                const char *language,
-                                const char *feature);
-#endif
-
+extern int  otl_gsub_add_ToUnicode (CMap *cmap, char *used_chars,
+                                    int32_t *map_base, int32_t *map_sub, USHORT num_glyphs,
+                                    uint16_t *GIDToCIDMap, sfnt *sfont);
 #endif /* _TT_GSUB_H_ */

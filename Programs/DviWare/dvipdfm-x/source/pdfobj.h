@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -152,11 +152,6 @@ extern pdf_obj    *pdf_new_stream        (int flags);
 extern void        pdf_add_stream        (pdf_obj *stream,
                                           const void *stream_data_ptr,
                                           int stream_data_len);
-#if HAVE_ZLIB
-extern int         pdf_add_stream_flate  (pdf_obj *stream,
-                                          const void *stream_data_ptr,
-                                          int stream_data_len);
-#endif
 extern int         pdf_concat_stream     (pdf_obj *dst, pdf_obj *src);
 extern pdf_obj    *pdf_stream_dict       (pdf_obj *stream);
 extern int         pdf_stream_length     (pdf_obj *stream);

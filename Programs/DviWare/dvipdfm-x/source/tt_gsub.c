@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -977,10 +977,11 @@ otl_gsub_read_feat (struct otl_gsub_tab *gsub, sfnt *sfont)
 
       sfnt_seek_set(sfont, offset);
       clt_read_feature_table(&feature_table, sfont);
+#if 0
       if (feature_table.FeatureParams != 0) {
         ERROR("unrecognized FeatureParams");
       }
-
+#endif
       /* Lookup table */
       for (i = 0; i < feature_table.LookupListIndex.count; i++) {
         struct clt_lookup_table lookup_table;
@@ -1680,98 +1681,303 @@ otl_gsub_apply_chain (otl_gsub *gsub_list, USHORT *gid) {
   return retval;
 }
 
-#if  0
+#if  1
+#include "unicode.h"
+
+#ifndef is_used_char2
+#define is_used_char2(b,c) (((b)[(c)/8]) & (1 << (7-((c)%8))))
+#endif
+
 static int
-otl_gsub_dump_single (struct otl_gsub_subtab *subtab)
+add_glyph_if_valid (CMap *cmap, char *used_chars,
+                    int32_t *map_base, int32_t *map_sub, USHORT num_glyphs,
+                    uint16_t *GIDToCIDMap, USHORT gid, USHORT gid_sub)
 {
-  int  gid, idx;
+  int            count = 0;
+  unsigned char  src[2], dst[4];
+  unsigned char *p = dst, *endptr = dst + 4;
+  size_t         len;
+  uint16_t       cid_sub;
+
+  if (gid_sub >= num_glyphs || gid >= num_glyphs)
+    return 0;
+
+  cid_sub = GIDToCIDMap[gid_sub];
+  if (is_used_char2(used_chars, cid_sub)) {
+    int32_t ch = map_base[gid];
+    if (UC_is_valid(ch)) {
+      src[0] = (cid_sub >> 8) & 0xff;
+      src[1] = cid_sub & 0xff;
+      len = UC_UTF16BE_encode_char(ch, &p, endptr);
+      CMap_add_bfchar(cmap, src, 2, dst, len);
+      used_chars[cid_sub / 8] &= ~(1 << (7 - (cid_sub % 8)));
+      count = 1;
+    } else {
+      ch = map_sub[gid];
+      if (UC_is_valid(ch)) {
+        src[0] = (cid_sub >> 8) & 0xff;
+        src[1] = cid_sub & 0xff;
+        len = UC_UTF16BE_encode_char(ch, &p, endptr);
+        CMap_add_bfchar(cmap, src, 2, dst, len);
+        used_chars[cid_sub / 8] &= ~(1 << (7 - (cid_sub % 8)));
+        count = 1;
+      }
+    }
+  }
+  return count;
+}
+
+static int
+add_ToUnicode_single (CMap *cmap, char *used_chars,
+                      struct otl_gsub_subtab *subtab,
+                      int32_t *map_base, int32_t *map_sub, USHORT num_glyphs,
+                      uint16_t *GIDToCIDMap)
+{
+  int     count = 0;
+  USHORT  i, idx, gid;
+  USHORT  gid_sub;
 
   ASSERT(subtab);
 
   if (subtab->SubstFormat == 1) {
     struct otl_gsub_single1 *data;
+    struct clt_coverage      *cov;
 
     data = (subtab->table).single1;
-    for (gid = 0; gid < 0x10000; gid++) {
-      idx  = clt_lookup_coverage(&data->coverage, gid);
-      if (idx >= 0) {
-        fprintf(stdout, "substitute \\%u by \\%u;\n",
-                (USHORT) gid, (USHORT) (gid + data->DeltaGlyphID));
+    cov  = &data->coverage;
+    switch (cov->format) {
+    case 1: /* list */
+      for (idx = 0; idx < cov->count; idx++) {
+        gid = cov->list[idx];
+        gid_sub = gid + data->DeltaGlyphID;
+        count += add_glyph_if_valid(cmap, used_chars,
+                                    map_base, map_sub, num_glyphs,
+                                    GIDToCIDMap, gid, gid_sub);
       }
+      break;
+    case 2: /* range */
+      for (i = 0; i < cov->count; i++) {
+        for (gid = cov->range[i].Start;
+             gid <= cov->range[i].End && gid < num_glyphs; gid++) {
+          idx = cov->range[i].StartCoverageIndex + gid - cov->range[i].Start;
+          gid_sub = gid + data->DeltaGlyphID;
+          count += add_glyph_if_valid(cmap, used_chars,
+                                      map_base, map_sub, num_glyphs,
+                                      GIDToCIDMap, gid, gid_sub);     
+        }
+      }
+      break;
     }
   } else if (subtab->SubstFormat == 2) {
     struct otl_gsub_single2 *data;
+    struct clt_coverage      *cov;
 
     data = (subtab->table).single2;
-    for (gid = 0; gid < 0x10000; gid++) {
-      idx  = clt_lookup_coverage(&data->coverage, gid);
-      if (idx >= 0 &&
-          idx < data->GlyphCount) {
-        fprintf(stdout, "substitute \\%u by \\%u;\n",
-                (USHORT) gid, (data->Substitute)[idx]);
+    cov  = &data->coverage;
+    switch (cov->format) {
+    case 1: /* list */
+      for (idx = 0; idx < cov->count; idx++) {
+        gid = cov->list[idx];
+        if (idx >= 0 && idx < data->GlyphCount) {
+          gid_sub = (data->Substitute)[idx];
+          count += add_glyph_if_valid(cmap, used_chars,
+                                      map_base, map_sub, num_glyphs,
+                                      GIDToCIDMap, gid, gid_sub);
+        }
       }
+      break;
+    case 2: /* range */
+      for (i = 0; i < cov->count; i++) {
+        for (gid = cov->range[i].Start;
+             gid <= cov->range[i].End && gid < num_glyphs; gid++) {
+          idx = cov->range[i].StartCoverageIndex + gid - cov->range[i].Start;
+          if (idx >= 0 && idx < data->GlyphCount) {
+            gid_sub = (data->Substitute)[idx];
+            count += add_glyph_if_valid(cmap, used_chars,
+                                        map_base, map_sub, num_glyphs,
+                                        GIDToCIDMap, gid, gid_sub);
+          }
+        }
+      }
+      break;
     }
   }
 
-  return  0;
+  return count;
 }
 
-static int
-otl_gsub_dump_alternate (struct otl_gsub_subtab *subtab)
+static int32_t  
+add_alternate1_inverse_map (CMap *cmap, char *used_chars,
+                            int32_t *map_base, int32_t *map_sub, USHORT num_glyphs,
+                            uint16_t *GIDToCIDMap, USHORT gid, int idx,
+                            struct otl_gsub_alternate1 *data)
 {
-  int  gid, idx;
+  int32_t count = 0;
+
+  if (idx >= 0 && idx < data->AlternateSetCount) {
+    struct otl_gsub_altset *altset;
+    USHORT i;
+
+    altset = &(data->AlternateSet[idx]);
+    if (altset->GlyphCount == 0)
+      return count;
+    for (i = 0; i < altset->GlyphCount; i++) {
+      USHORT gid_alt = altset->Alternate[i];
+      count += add_glyph_if_valid(cmap, used_chars,
+                                  map_base, map_sub, num_glyphs,
+                                  GIDToCIDMap, gid, gid_alt);
+    }
+  }
+  return count;
+}
+
+static int32_t
+add_ToUnicode_alternate (CMap *cmap, char *used_chars,
+                         struct otl_gsub_subtab *subtab,
+                         int32_t *map_base, int32_t *map_sub, USHORT num_glyphs,
+                         uint16_t *GIDToCIDMap)
+{
+  int32_t count = 0;
+  USHORT  i, gid, idx;
 
   ASSERT(subtab);
 
   if (subtab->SubstFormat == 1) {
     struct otl_gsub_alternate1 *data;
-
+    struct clt_coverage        *cov;
     data = subtab->table.alternate1;
-    for (gid = 0; gid < 0x10000; gid++) {
-      idx  = clt_lookup_coverage(&data->coverage, gid);
-      if (idx >= 0 && idx < data->AlternateSetCount) {
-        struct otl_gsub_altset *altset;
-        USHORT i;
-        altset = &(data->AlternateSet[idx]);
-        if (altset->GlyphCount == 0)
-          continue;
-        fprintf(stdout, "substitute \\%u from [", (USHORT) gid);
-        for (i = 0; i < altset->GlyphCount; i++) {
-          fprintf(stdout, " \\%u", altset->Alternate[i]);
+    cov  = &data->coverage;
+    switch (cov->format) {
+    case 1: /* list */
+      for (idx = 0; idx < cov->count; idx++) {
+        gid = cov->list[idx];
+        if (gid < num_glyphs) {
+          count += add_alternate1_inverse_map(cmap, used_chars,
+                                              map_base, map_sub, num_glyphs,
+                                              GIDToCIDMap, gid, idx, data);
         }
-        fprintf(stdout, " ];\n");
+      }
+      break;
+    case 2: /* range */
+      for (i = 0; i < cov->count; i++) {
+        for (gid = cov->range[i].Start;
+             gid <= cov->range[i].End && gid < num_glyphs; gid++) {
+          idx = cov->range[i].StartCoverageIndex + gid - cov->range[i].Start;
+          count += add_alternate1_inverse_map(cmap, used_chars,
+                                              map_base, map_sub, num_glyphs,
+                                              GIDToCIDMap, gid, idx, data);
+        }
+      }
+      break;
+    }
+  }
+  return count;
+}
+
+static int32_t  
+add_ligature1_inverse_map (CMap *cmap, char *used_chars,
+                           int32_t *map_base, int32_t *map_sub, USHORT num_glyphs,
+                           uint16_t *GIDToCIDMap, USHORT gid_1, int idx,
+                           struct otl_gsub_ligature1 *data)
+{
+  int32_t count = 0;
+
+  if (idx >= 0 && idx < data->LigSetCount) {
+    struct otl_gsub_ligset *ligset;
+    USHORT                  i, j;
+
+    ligset = &(data->LigatureSet[idx]); 
+    for (j = 0; j < ligset->LigatureCount; j++) {
+      USHORT gid_sub = ligset->Ligature[j].LigGlyph;
+      if (gid_sub < num_glyphs) {
+        uint16_t cid = GIDToCIDMap[gid_sub];
+        if (is_used_char2(used_chars, cid)) {
+          int32_t ch, *ucv;
+          USHORT  comp_count = ligset->Ligature[j].CompCount;
+          int     fail_count = 0;
+
+          ucv         = NEW(comp_count, int32_t);
+          ch          = UC_is_valid(map_base[gid_1]) ? map_base[gid_1] : map_sub[gid_1];
+          ucv[0]      = ch;
+          fail_count += UC_is_valid(ch) ? 0 : 1; 
+          for (i = 0; i < ligset->Ligature[j].CompCount - 1; i++) {
+            USHORT gid = ligset->Ligature[j].Component[i];
+            if (gid < num_glyphs) {
+              ch          = UC_is_valid(map_base[gid]) ? map_base[gid] : map_sub[gid];
+              ucv[i+1]    = ch;
+              fail_count += UC_is_valid(ch) ? 0 : 1;
+           } else {
+              fail_count += 1;
+            } 
+          }
+          if (fail_count == 0) {
+            unsigned char  src[2], *dst;
+            unsigned char *p, *endptr;
+            size_t         len = 0;
+
+            src[0] = (cid >> 8) & 0xff;
+            src[1] =  cid & 0xff;
+            dst    = NEW(comp_count*4, unsigned char);
+            p      = dst;
+            endptr = dst + comp_count * 4;
+            for (i = 0; i < comp_count; i++) {
+              len += UC_UTF16BE_encode_char(ucv[i], &p, endptr);
+            }
+            CMap_add_bfchar(cmap, src, 2, dst, len);
+            used_chars[cid / 8] &= ~(1 << (7 - (cid % 8)));
+            count++;
+            RELEASE(dst);
+          }
+          RELEASE(ucv);
+        }
       }
     }
   }
 
-  return  0;
+  return count;
 }
 
-static int
-otl_gsub_dump_ligature (struct otl_gsub_subtab *subtab)
+static int32_t
+add_ToUnicode_ligature (CMap *cmap, char *used_chars,
+                        struct otl_gsub_subtab *subtab,
+                        int32_t *map_base, int32_t *map_sub, USHORT num_glyphs,
+                        uint16_t *GIDToCIDMap)
 {
-  int  gid, idx;
+  int32_t count = 0;
+  USHORT  i, idx, gid;
 
   ASSERT(subtab);
 
   if (subtab->SubstFormat == 1) {
     struct otl_gsub_ligature1 *data;
+    struct clt_coverage        *cov;
 
     data = subtab->table.ligature1;
-    for (gid = 0; gid < 0x10000; gid++) {
-      idx  = clt_lookup_coverage(&data->coverage, gid);
-      if (idx >= 0 && idx < data->LigSetCount) {
-        struct otl_gsub_ligset *ligset;
-        USHORT  i, j;
-        ligset = &(data->LigatureSet[idx]); 
-        for (j = 0; j < ligset->LigatureCount; j++) {
-          fprintf(stdout, "substitute \\%u", (USHORT) gid);
-          for (i = 0; i < ligset->Ligature[j].CompCount - 1; i++) {
-            fprintf(stdout, " \\%u", ligset->Ligature[j].Component[i]);
-          }
-          fprintf(stdout, " by \\%u;\n", ligset->Ligature[j].LigGlyph);
+    cov  = &data->coverage;
+    switch (cov->format) {
+    case 1: /* list */
+      for (idx = 0; idx < cov->count; idx++) {
+        gid = cov->list[idx];
+        if (gid < num_glyphs) {
+          count += add_ligature1_inverse_map(cmap, used_chars,
+                                             map_base, map_sub, num_glyphs,
+                                             GIDToCIDMap, gid, idx, data);
         }
       }
+      break;
+    case 2: /* range */
+      for (i = 0; i < cov->count; i++) {
+        for (gid = cov->range[i].Start;
+             gid <= cov->range[i].End && gid < num_glyphs; gid++) {
+          idx = cov->range[i].StartCoverageIndex + gid - cov->range[i].Start;
+          if (gid < num_glyphs) {
+            count += add_ligature1_inverse_map(cmap, used_chars,
+                                               map_base, map_sub, num_glyphs,
+                                               GIDToCIDMap, gid, idx, data); 
+          }
+        }
+      }
+      break;
     }
   }
 
@@ -1779,48 +1985,44 @@ otl_gsub_dump_ligature (struct otl_gsub_subtab *subtab)
 }
 
 int
-otl_gsub_dump (otl_gsub *gsub_list,
-               const char *script, const char *language, const char *feature)
+otl_gsub_add_ToUnicode (CMap *cmap, char *used_chars,
+                        int32_t *map_base, int32_t *map_sub, USHORT num_glyphs,
+                        uint16_t *GIDToCIDMap, sfnt *sfont)
 {
-  int    error = -1;
+  int       count = 0;
+  otl_gsub *gsub_list;
   struct otl_gsub_tab    *gsub;
   struct otl_gsub_subtab *subtab;
-  int    sel, i, j;
+  int       i, j;
 
-  if (!gsub_list)
-    return  -1;
+  gsub_list = otl_gsub_new();
+  otl_gsub_add_feat(gsub_list, "*", "*", "*", sfont);
 
-  sel   = gsub_list->select;
-  error = otl_gsub_select(gsub_list, script, language, feature);
-  if (error < 0) {
-    ERROR("GSUB feature %s.%s.%s not found.", script, language, feature);
-  }
-
-  i = gsub_list->select;
-  if (i < 0 || i >= gsub_list->num_gsubs) {
-    ERROR("GSUB not selected...");
-    return -1;
-  }
-  gsub = &(gsub_list->gsubs[i]);
-
-  for (j = 0;
-       !error &&
-       j < gsub->num_subtables; j++) {
-    subtab = &(gsub->subtables[j]);
-    switch ((int) subtab->LookupType){
-    case OTL_GSUB_TYPE_SINGLE:
-      error = otl_gsub_dump_single(subtab);
-      break;
-    case OTL_GSUB_TYPE_ALTERNATE:
-      error = otl_gsub_dump_alternate(subtab);
-      break;
-    case OTL_GSUB_TYPE_LIGATURE:
-      error = otl_gsub_dump_ligature(subtab);
-      break;
+  for (i = 0; i < gsub_list->num_gsubs; i++) {
+    gsub = &(gsub_list->gsubs[i]);
+    for (j = 0; j < gsub->num_subtables; j++) {
+      subtab = &(gsub->subtables[j]);
+      switch ((int) subtab->LookupType){
+      case OTL_GSUB_TYPE_SINGLE:
+        count += add_ToUnicode_single(cmap, used_chars, subtab,
+                                      map_base, map_sub, num_glyphs,
+                                      GIDToCIDMap);
+        break;
+      case OTL_GSUB_TYPE_ALTERNATE:
+        count += add_ToUnicode_alternate(cmap, used_chars, subtab,
+                                         map_base, map_sub, num_glyphs,
+                                         GIDToCIDMap);
+        break;
+      case OTL_GSUB_TYPE_LIGATURE:
+        count += add_ToUnicode_ligature(cmap, used_chars, subtab,
+                                        map_base, map_sub, num_glyphs,
+                                        GIDToCIDMap);
+        break;
+      }
     }
   }
-  gsub_list->select = sel;
+  otl_gsub_release(gsub_list);
 
-  return  error;
+  return count;
 }
 #endif

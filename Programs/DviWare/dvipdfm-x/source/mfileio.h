@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -43,7 +43,8 @@ int mfclose (FILE *file, const char *function, int line);
 #define MFOPEN(name,mode) fopen((name),(mode))
 #else
 #if defined(WIN32)
-#define MFOPEN(name,mode) fsyscp_fopen((name),(mode))
+extern FILE *generic_fsyscp_fopen(const char *fname, const char *mode);
+#define MFOPEN(name,mode) generic_fsyscp_fopen((name),(mode))
 #else
 #define MFOPEN(name,mode) fopen((name),(mode))
 #endif

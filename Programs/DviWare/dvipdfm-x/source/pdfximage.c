@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -363,6 +363,12 @@ load_image (const char *ident, const char *fullname, int format, FILE  *fp,
 #define dpx_fopen(n,m) (MFOPEN((n),(m)))
 #define dpx_fclose(f)  (MFCLOSE((f)))
 
+#if !defined(MIKTEX)
+#if defined(WIN32)
+int utf8name_failed = 0;
+#endif /* WIN32 */
+#endif
+
 int
 pdf_ximage_findresource (const char *ident, load_options options)
 {
@@ -394,8 +400,29 @@ pdf_ximage_findresource (const char *ident, load_options options)
     strcpy(fullname, f);
   } else {
     /* try loading image */
+#if !defined(MIKTEX)
+#if defined(WIN32)
+    utf8name_failed = 0;
+#endif /* WIN32 */
+#endif
     fullname = dpx_find_file(ident, "_pic_", "");
+#if !defined(MIKTEX)
+#if defined(WIN32)
+    if (!fullname && file_system_codepage != win32_codepage) {
+      int tmpcp = file_system_codepage;
+      utf8name_failed = 1;
+      file_system_codepage = win32_codepage;
+      fullname = dpx_find_file(ident, "_pic_", "");
+      file_system_codepage = tmpcp;
+    }
+#endif /* WIN32 */
+#endif
     if (!fullname) {
+#if !defined(MIKTEX)
+#if defined(WIN32)
+      utf8name_failed = 0;
+#endif /* WIN32 */
+#endif
       WARN("Error locating image file \"%s\"", ident);
       return  -1;
     }

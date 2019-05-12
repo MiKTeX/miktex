@@ -597,6 +597,7 @@ parse_pdf_dict_with_tounicode (const char **pp, const char *endptr, struct touni
   return  dict;
 }
 
+#define SPC_PDFM_SUPPORT_ANNOT_TRANS 1
 static int
 spc_handler_pdfm_annot (struct spc_env *spe, struct spc_arg *args)
 {
@@ -604,7 +605,6 @@ spc_handler_pdfm_annot (struct spc_env *spe, struct spc_arg *args)
   pdf_obj       *annot_dict;
   pdf_rect       rect;
   char          *ident = NULL;
-  pdf_coord      cp;
   transform_info ti;
 
   skip_white(&args->curptr, args->endptr);
@@ -642,19 +642,96 @@ spc_handler_pdfm_annot (struct spc_env *spe, struct spc_arg *args)
     return  -1;
   }
 
-  cp.x = spe->x_user; cp.y = spe->y_user;
-  pdf_dev_transform(&cp, NULL);
-  if (ti.flags & INFO_HAS_USER_BBOX) {
-    rect.llx = ti.bbox.llx + cp.x;
-    rect.lly = ti.bbox.lly + cp.y;
-    rect.urx = ti.bbox.urx + cp.x;
-    rect.ury = ti.bbox.ury + cp.y;
-  } else {
-    rect.llx = cp.x;
-    rect.lly = cp.y - spe->mag * ti.depth;
-    rect.urx = cp.x + spe->mag * ti.width;
-    rect.ury = cp.y + spe->mag * ti.height;
+#ifdef SPC_PDFM_SUPPORT_ANNOT_TRANS
+  {
+    pdf_coord cp1, cp2, cp3, cp4;
+    /* QuadPoints not working? */
+#ifdef USE_QUADPOINTS
+    pdf_obj  *qpoints;
+#endif
+    if (ti.flags & INFO_HAS_USER_BBOX) {
+      cp1.x = spe->x_user + ti.bbox.llx;
+      cp1.y = spe->y_user + ti.bbox.lly;
+      cp2.x = spe->x_user + ti.bbox.urx;
+      cp2.y = spe->y_user + ti.bbox.lly;
+      cp3.x = spe->x_user + ti.bbox.urx;
+      cp3.y = spe->y_user + ti.bbox.ury;
+      cp4.x = spe->x_user + ti.bbox.llx;
+      cp4.y = spe->y_user + ti.bbox.ury;
+    } else {
+      cp1.x = spe->x_user;
+      cp1.y = spe->y_user - spe->mag * ti.depth;
+      cp2.x = spe->x_user + spe->mag * ti.width;
+      cp2.y = spe->y_user - spe->mag * ti.depth;
+      cp3.x = spe->x_user + spe->mag * ti.width;
+      cp3.y = spe->y_user + spe->mag * ti.height;
+      cp4.x = spe->x_user;
+      cp4.y = spe->y_user + spe->mag * ti.height;
+    }
+    pdf_dev_transform(&cp1, NULL);
+    pdf_dev_transform(&cp2, NULL);
+    pdf_dev_transform(&cp3, NULL);
+    pdf_dev_transform(&cp4, NULL);
+    rect.llx = cp1.x;
+    if (cp2.x < rect.llx)
+      rect.llx = cp2.x;
+    if (cp3.x < rect.llx)
+      rect.llx = cp3.x;
+    if (cp4.x < rect.llx)
+      rect.llx = cp4.x;
+    rect.urx = cp1.x;
+    if (cp2.x > rect.urx)
+      rect.urx = cp2.x;
+    if (cp3.x > rect.urx)
+      rect.urx = cp3.x;
+    if (cp4.x > rect.urx)
+      rect.urx = cp4.x;
+    rect.lly = cp1.y;
+    if (cp2.y < rect.lly)
+      rect.lly = cp2.y;
+    if (cp3.y < rect.lly)
+      rect.lly = cp3.y;
+    if (cp4.y < rect.lly)
+      rect.lly = cp4.y;
+    rect.ury = cp1.y;
+    if (cp2.y > rect.ury)
+      rect.ury = cp2.y;
+    if (cp3.y > rect.ury)
+      rect.ury = cp3.y;
+    if (cp4.y > rect.ury)
+      rect.ury = cp4.y;
+#ifdef USE_QUADPOINTS
+    qpoints = pdf_new_array();
+    pdf_add_array(qpoints, pdf_new_number(ROUND(cp1.x, 0.01)));
+    pdf_add_array(qpoints, pdf_new_number(ROUND(cp1.y, 0.01)));
+    pdf_add_array(qpoints, pdf_new_number(ROUND(cp2.x, 0.01)));
+    pdf_add_array(qpoints, pdf_new_number(ROUND(cp2.y, 0.01)));
+    pdf_add_array(qpoints, pdf_new_number(ROUND(cp3.x, 0.01)));
+    pdf_add_array(qpoints, pdf_new_number(ROUND(cp3.y, 0.01)));
+    pdf_add_array(qpoints, pdf_new_number(ROUND(cp4.x, 0.01)));
+    pdf_add_array(qpoints, pdf_new_number(ROUND(cp4.y, 0.01)));
+    pdf_add_dict(annot_dict, pdf_new_name("QuadPoints"), qpoints);
+#endif    
   }
+#else
+  {
+    pdf_coord cp;
+
+    cp.x = spe->x_user; cp.y = spe->y_user;
+    pdf_dev_transform(&cp, NULL);
+    if (ti.flags & INFO_HAS_USER_BBOX) {
+      rect.llx = ti.bbox.llx + cp.x;
+      rect.lly = ti.bbox.lly + cp.y;
+      rect.urx = ti.bbox.urx + cp.x;
+      rect.ury = ti.bbox.ury + cp.y;
+    } else {
+      rect.llx = cp.x;
+      rect.lly = cp.y - spe->mag * ti.depth;
+      rect.urx = cp.x + spe->mag * ti.width;
+      rect.ury = cp.y + spe->mag * ti.height;
+    }
+  }
+#endif
 
   /* Order is important... */
   if (ident)

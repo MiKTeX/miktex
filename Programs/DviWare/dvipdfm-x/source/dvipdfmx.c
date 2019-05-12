@@ -245,7 +245,7 @@ show_usage (void)
   printf ("Papersize is specified by paper format (e.g., \"a4\")\n");
   printf ("\tor by w<unit>,h<unit> (e.g., \"20cm,30cm\").\n");
   printf ("\n");
-  printf ("Email bug reports to tex-k@tug.org.\n");
+  printf ("Email bug reports to dvipdfmx@tug.org.\n");
 }
 
 static void
@@ -1062,9 +1062,11 @@ main (int argc, char *argv[])
   unsigned char      id1[16], id2[16];
   int                has_id = 0;
 
+#if !defined(MIKTEX)
 #ifdef WIN32
   int ac;
   char **av, *enc;
+#endif
 #endif
 
 #if defined(MIKTEX)

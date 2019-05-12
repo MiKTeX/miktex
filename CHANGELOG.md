@@ -12,6 +12,10 @@ You can use the `--interaction=scrollmode` option, if you depend on the old beha
 pdflatex --c-style-errors --interaction=scrollmode document.tex
 ```
 
+### Upgraded programs
+
+* dvipdfmx 20190305
+
 ### Upgraded libraries
 
 * uriparser 0.9.2

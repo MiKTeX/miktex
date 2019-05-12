@@ -169,12 +169,12 @@ spc_lookup_reference (const char *key)
   switch (k) {
   /* xpos and ypos must be position in device space here. */
   case  K_OBJ__XPOS:
-    cp.x = dvi_dev_xpos(); cp.y = 0.0;
+    cp.x = dvi_dev_xpos(); cp.y = dvi_dev_ypos();
     pdf_dev_transform(&cp, NULL);
     value = pdf_new_number(ROUND(cp.x, .01));
     break;
   case  K_OBJ__YPOS:
-    cp.x = 0.0; cp.y = dvi_dev_ypos();
+    cp.x = dvi_dev_xpos(); cp.y = dvi_dev_ypos();
     pdf_dev_transform(&cp, NULL);
     value = pdf_new_number(ROUND(cp.y, .01));
     break;
@@ -233,12 +233,12 @@ spc_lookup_object (const char *key)
   for (k = 0; _rkeys[k] && strcmp(key, _rkeys[k]); k++);
   switch (k) {
   case  K_OBJ__XPOS:
-    cp.x = dvi_dev_xpos(); cp.y = 0.0;
+    cp.x = dvi_dev_xpos(); cp.y = dvi_dev_ypos();
     pdf_dev_transform(&cp, NULL);
     value = pdf_new_number(ROUND(cp.x, .01));
     break;
   case  K_OBJ__YPOS:
-    cp.x = 0.0; cp.y = dvi_dev_ypos();
+    cp.x = dvi_dev_xpos(); cp.y = dvi_dev_ypos();
     pdf_dev_transform(&cp, NULL);
     value = pdf_new_number(ROUND(cp.y, .01));
     break;
