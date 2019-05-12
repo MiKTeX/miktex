@@ -305,12 +305,19 @@ integer readimage(strnumber s, integer page_num, strnumber page_name,
        already used by cur_file_name */
     if (page_name != 0)
         dest = xstrdup(makecstring(page_name));
+#if defined(MIKTEX)
     cur_file_name = makecfilename(s);
     img_name(img) = kpse_find_file(cur_file_name, kpse_tex_format, true);
+#else
+    cur_file_name = find_input_file(s);
+    img_name(img) = cur_file_name;
+#endif
     if (img_name(img) == NULL)
         pdftex_fail("cannot find image file");
+#if defined(MIKTEX)
     /* kpse_find_file perhaps changed the file name */
     cur_file_name = img_name(img);
+#endif
     recorder_record_input(cur_file_name);
     /* type checks */
     checktypebyheader(img);
