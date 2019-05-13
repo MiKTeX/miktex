@@ -1,6 +1,6 @@
 /* CurlWebSession.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -104,6 +104,8 @@ string BuildUserAgentString()
   {
     str << " " << linuxOsRelease.id << "/" << linuxOsRelease.version_id;
   }
+#elif defined(MIKTEX_FREEBSD)
+  str << " (FreeBSD amd64)";
 #endif
   return str.str();
 }

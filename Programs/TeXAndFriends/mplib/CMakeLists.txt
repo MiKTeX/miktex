@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2018 Christian Schenk
+## Copyright (C) 2010-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -39,35 +39,144 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-set(mplib_cweb_sources
-  ${CMAKE_CURRENT_BINARY_DIR}/mp.c
-  ${CMAKE_CURRENT_BINARY_DIR}/mpmath.c
-  ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.c
-  ${CMAKE_CURRENT_BINARY_DIR}/mpmathdecimal.c
-  ${CMAKE_CURRENT_BINARY_DIR}/mpmathdouble.c
-  ${CMAKE_CURRENT_BINARY_DIR}/mpstrings.c
-  ${CMAKE_CURRENT_BINARY_DIR}/pngout.c
-  ${CMAKE_CURRENT_BINARY_DIR}/psout.c
-  ${CMAKE_CURRENT_BINARY_DIR}/svgout.c
-  ${CMAKE_CURRENT_BINARY_DIR}/tfmin.c
+configure_file(
+  metapost-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
+)
 
-  ${CMAKE_CURRENT_BINARY_DIR}/mplib.h
-  ${CMAKE_CURRENT_BINARY_DIR}/mpmp.h
-  ${CMAKE_CURRENT_BINARY_DIR}/mpmath.h
-  ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.h
-  ${CMAKE_CURRENT_BINARY_DIR}/mpmathdecimal.h
-  ${CMAKE_CURRENT_BINARY_DIR}/mpmathdouble.h
-  ${CMAKE_CURRENT_BINARY_DIR}/mpstrings.h
-  ${CMAKE_CURRENT_BINARY_DIR}/mppngout.h
+###############################################################################
+## metapost-backends
+###############################################################################
+
+set(metapost_backends_cweb_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mplibpng.h
-  ${CMAKE_CURRENT_BINARY_DIR}/mppsout.h
-  ${CMAKE_CURRENT_BINARY_DIR}/mplibps.h
-  ${CMAKE_CURRENT_BINARY_DIR}/mpsvgout.h
   ${CMAKE_CURRENT_BINARY_DIR}/mplibsvg.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mppngout.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mpsvgout.h
+  ${CMAKE_CURRENT_BINARY_DIR}/pngout.c
+  ${CMAKE_CURRENT_BINARY_DIR}/pngout.c
+  ${CMAKE_CURRENT_BINARY_DIR}/svgout.c
 )
 
 set_source_files_properties(
-  ${mplib_cweb_sources}
+  ${metapost_backends_cweb_sources}
+  PROPERTIES GENERATED TRUE
+)
+
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/mppngout.h
+    ${CMAKE_CURRENT_BINARY_DIR}/mplibpng.h
+  COMMAND
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/pngout
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+  MAIN_DEPENDENCY
+    source/pngout.w
+  DEPENDS
+    ${MIKTEX_PREFIX}ctangle
+  VERBATIM
+)
+
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/svgout.c
+    ${CMAKE_CURRENT_BINARY_DIR}/mpsvgout.h
+    ${CMAKE_CURRENT_BINARY_DIR}/mplibsvg.h
+  COMMAND
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/svgout
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+  MAIN_DEPENDENCY
+    source/svgout.w
+  DEPENDS
+    ${MIKTEX_PREFIX}ctangle
+  VERBATIM
+)
+
+set(metapost_backends_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
+  ${metapost_backends_cweb_sources}
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  configure_file(
+    metapost-backends.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/metapost-backends.rc
+  )
+  list(APPEND metapost_backends_sources metapost-backends.rc)
+endif()
+
+add_library(${metapost_backends_lib_name} STATIC ${metapost_backends_sources})
+
+set_property(TARGET ${metapost_backends_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_include_directories(${metapost_backends_lib_name}
+  PUBLIC
+    ${CMAKE_BINARY_DIR}/${MIKTEX_REL_MP_DIR}
+)
+
+target_link_libraries(${metapost_backends_lib_name}
+  PRIVATE
+    ${core_dll_name}
+    ${kpsemu_dll_name}
+    ${w2cemu_dll_name}
+)
+
+if(USE_SYSTEM_CAIRO)
+  target_link_libraries(${metapost_backends_lib_name} PRIVATE MiKTeX::Imported::CAIRO)
+else()
+  target_link_libraries(${metapost_backends_lib_name} PRIVATE ${cairo_dll_name})
+endif()
+
+if(USE_SYSTEM_GMP)
+  target_link_libraries(${metapost_backends_lib_name} PRIVATE MiKTeX::Imported::GMP)
+else()
+  target_link_libraries(${metapost_backends_lib_name} PRIVATE ${gmp_lib_name})
+endif()
+
+if(USE_SYSTEM_PNG)
+  target_link_libraries(${metapost_backends_lib_name} PRIVATE MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${metapost_backends_lib_name} PRIVATE ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${metapost_backends_lib_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${metapost_backends_lib_name} PRIVATE ${zlib_dll_name})
+endif()
+
+install(TARGETS ${metapost_backends_lib_name}
+  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+)
+
+###############################################################################
+## metapost-core
+###############################################################################
+
+set(metapost_core_cweb_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/mp.c
+  ${CMAKE_CURRENT_BINARY_DIR}/mplib.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mplibps.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mpmath.c
+  ${CMAKE_CURRENT_BINARY_DIR}/mpmath.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mpmathdecimal.c
+  ${CMAKE_CURRENT_BINARY_DIR}/mpmathdecimal.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mpmathdouble.c
+  ${CMAKE_CURRENT_BINARY_DIR}/mpmathdouble.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mpmp.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mppsout.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mpstrings.c
+  ${CMAKE_CURRENT_BINARY_DIR}/mpstrings.h
+  ${CMAKE_CURRENT_BINARY_DIR}/psout.c
+  ${CMAKE_CURRENT_BINARY_DIR}/tfmin.c
+)
+
+set_source_files_properties(
+  ${metapost_core_cweb_sources}
   PROPERTIES GENERATED TRUE
 )
 
@@ -97,21 +206,6 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/mpmath.w
-  DEPENDS
-    ${MIKTEX_PREFIX}ctangle
-  VERBATIM
-)
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.c
-    ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.h
-  COMMAND
-    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmathbinary
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  MAIN_DEPENDENCY
-    source/mpmathbinary.w
   DEPENDS
     ${MIKTEX_PREFIX}ctangle
   VERBATIM
@@ -164,22 +258,6 @@ add_custom_command(
 
 add_custom_command(
   OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/pngout.c
-    ${CMAKE_CURRENT_BINARY_DIR}/mppngout.h
-    ${CMAKE_CURRENT_BINARY_DIR}/mplibpng.h
-  COMMAND
-    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/pngout
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  MAIN_DEPENDENCY
-    source/pngout.w
-  DEPENDS
-    ${MIKTEX_PREFIX}ctangle
-  VERBATIM
-)
-
-add_custom_command(
-  OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/psout.c
     ${CMAKE_CURRENT_BINARY_DIR}/mppsout.h
     ${CMAKE_CURRENT_BINARY_DIR}/mplibps.h
@@ -189,22 +267,6 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/psout.w
-  DEPENDS
-    ${MIKTEX_PREFIX}ctangle
-  VERBATIM
-)
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/svgout.c
-    ${CMAKE_CURRENT_BINARY_DIR}/mpsvgout.h
-    ${CMAKE_CURRENT_BINARY_DIR}/mplibsvg.h
-  COMMAND
-    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/svgout
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  MAIN_DEPENDENCY
-    source/svgout.w
   DEPENDS
     ${MIKTEX_PREFIX}ctangle
   VERBATIM
@@ -224,14 +286,130 @@ add_custom_command(
   VERBATIM
 )
 
-configure_file(
-  metapost-version.h.cmake
+set(metapost_core_sources
   ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
+  ${metapost_core_cweb_sources}
 )
 
-set(mplib_sources
+if(MIKTEX_NATIVE_WINDOWS)
+  configure_file(
+    metapost-core.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/metapost-core.rc
+  )
+  list(APPEND metapost_core_sources metapost-core.rc)
+endif()
+
+add_library(${metapost_core_lib_name} STATIC ${metapost_core_sources})
+
+set_property(TARGET ${metapost_core_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_include_directories(${metapost_core_lib_name}
+  PUBLIC
+    ${CMAKE_BINARY_DIR}/${MIKTEX_REL_MP_DIR}
+)
+
+target_link_libraries(${metapost_core_lib_name}
+  PRIVATE
+    ${core_dll_name}
+    ${kpsemu_dll_name}
+    ${metapost_backends_lib_name}
+    ${metapost_util_lib_name}
+    ${w2cemu_dll_name}
+)
+
+if(USE_SYSTEM_PNG)
+  target_link_libraries(${metapost_core_lib_name} PRIVATE MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${metapost_core_lib_name} PRIVATE ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${metapost_core_lib_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${metapost_core_lib_name} PRIVATE ${zlib_dll_name})
+endif()
+
+install(TARGETS ${metapost_core_lib_name}
+  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+)
+
+###############################################################################
+## metapost-extramath
+###############################################################################
+
+set(metapost_extramath_cweb_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.c
+  ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.h
+)
+
+set_source_files_properties(
+  ${metapost_extramath_cweb_sources}
+  PROPERTIES GENERATED TRUE
+)
+
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.c
+    ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.h
+  COMMAND
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmathbinary
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+  MAIN_DEPENDENCY
+    source/mpmathbinary.w
+  DEPENDS
+    ${MIKTEX_PREFIX}ctangle
+  VERBATIM
+)
+
+set(metapost_extramath_sources
   ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
-  ${mplib_cweb_sources}
+  ${metapost_extramath_cweb_sources}
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  configure_file(
+    metapost-extramath.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/metapost-extramath.rc
+  )
+  list(APPEND metapost_extramath_sources metapost-extramath.rc)
+endif()
+
+add_library(${metapost_extramath_lib_name} STATIC ${metapost_extramath_sources})
+
+set_property(TARGET ${metapost_extramath_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_include_directories(${metapost_extramath_lib_name}
+  PUBLIC
+    ${CMAKE_BINARY_DIR}/${MIKTEX_REL_MP_DIR}
+)
+
+target_link_libraries(${metapost_extramath_lib_name}
+  PRIVATE
+    ${core_dll_name}
+    ${kpsemu_dll_name}
+    ${w2cemu_dll_name}
+)
+
+if(USE_SYSTEM_MPFR)
+  target_link_libraries(${metapost_extramath_lib_name} PRIVATE MiKTeX::Imported::MPFR)
+else()
+  target_link_libraries(${metapost_extramath_lib_name} PRIVATE ${mpfr_dll_name})
+endif()
+
+install(TARGETS ${metapost_extramath_lib_name}
+  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+)
+
+###############################################################################
+## metapost-util
+###############################################################################
+
+set(metapost_util_sources
   source/avl.c
   source/avl.h
   source/decContext.c
@@ -241,67 +419,37 @@ set(mplib_sources
   source/decNumberLocal.h
 )
 
+list(APPEND metapost_util_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
+)
+
 if(MIKTEX_NATIVE_WINDOWS)
   configure_file(
-    mplib.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/mplib.rc
+    metapost-util.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/metapost-util.rc
   )
-  list(APPEND mplib_sources mplib.rc)
+  list(APPEND metapost_util_sources metapost-util.rc)
 endif()
 
-add_library(${metapost_dll_name} SHARED ${mplib_sources})
+add_library(${metapost_util_lib_name} STATIC ${metapost_util_sources})
 
-set_property(TARGET ${metapost_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${metapost_util_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_property(TARGET ${metapost_dll_name} PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-  
-target_include_directories(${metapost_dll_name}
+target_include_directories(${metapost_util_lib_name}
   PUBLIC
     ${CMAKE_BINARY_DIR}/${MIKTEX_REL_MP_DIR}
 )
 
-if(USE_SYSTEM_CAIRO)
-  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::CAIRO)
-else()
-  target_link_libraries(${metapost_dll_name} PRIVATE ${cairo_dll_name})
-endif()
-
-if(USE_SYSTEM_GMP)
-  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::GMP)
-else()
-  target_link_libraries(${metapost_dll_name} PRIVATE ${gmp_lib_name})
-endif()
-
-if(USE_SYSTEM_MPFR)
-  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::MPFR)
-else()
-  target_link_libraries(${metapost_dll_name} PRIVATE ${mpfr_dll_name})
-endif()
-
-if(USE_SYSTEM_PNG)
-  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::PNG)
-else()
-  target_link_libraries(${metapost_dll_name} PRIVATE ${png_dll_name})
-endif()
-
-if(USE_SYSTEM_ZLIB)
-  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
-else()
-  target_link_libraries(${metapost_dll_name} PRIVATE ${zlib_dll_name})
-endif()
-
-target_link_libraries(${metapost_dll_name}
+target_link_libraries(${metapost_util_lib_name}
   PRIVATE
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
 )
 
-install(TARGETS ${metapost_dll_name}
-  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
-  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-)
+###############################################################################
+## mpost
+###############################################################################
 
 set(mpost_cweb_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mpost.c
@@ -370,7 +518,10 @@ target_link_libraries(${MIKTEX_PREFIX}mpost
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
-  ${metapost_dll_name}
+  ${metapost_backends_lib_name}
+  ${metapost_core_lib_name}
+  ${metapost_extramath_lib_name}
+  ${metapost_util_lib_name}
   ${w2cemu_dll_name}
 )
 

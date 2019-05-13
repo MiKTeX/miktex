@@ -19,8 +19,6 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_EDITORS_FOLDER}/TeXworks/QtPDF")
 
-hide_symbols()
-
 set(qtpdf_sources
   ${projdir}/source/modules/QtPDF/src/PDFActions.cpp
   ${projdir}/source/modules/QtPDF/src/PDFAnnotations.cpp

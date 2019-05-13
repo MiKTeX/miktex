@@ -1088,11 +1088,6 @@ if(USE_SYSTEM_ZZIP)
   find_package(ZZIP REQUIRED)
 endif()
 
-if(NOT MSVC)
-  check_c_compiler_flag(-fvisibility=hidden HAVE_C_VISIBILITY_OPTION)
-  check_cxx_compiler_flag(-fvisibility=hidden HAVE_CXX_VISIBILITY_OPTION)
-endif()
-
 if(MSVC)
   set(HAVE_PRAGMA_ONCE TRUE)
 endif()

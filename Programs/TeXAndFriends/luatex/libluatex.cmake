@@ -224,23 +224,27 @@ set(libluatex_sources
 )
 
 add_library(lua53tex-objects OBJECT ${libluatex_sources})
+
 set_property(TARGET lua53tex-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
 if(USE_SYSTEM_PNG)
   target_link_libraries(lua53tex-objects PUBLIC MiKTeX::Imported::PNG)
 else()
   target_link_libraries(lua53tex-objects PUBLIC ${png_dll_name})
 endif()
+
 if(USE_SYSTEM_ZLIB)
   target_link_libraries(lua53tex-objects PUBLIC MiKTeX::Imported::ZLIB)
 else()
   target_link_libraries(lua53tex-objects PUBLIC ${zlib_dll_name})
 endif()
+
 target_link_libraries(lua53tex-objects
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${lua53_target_name}
-    ${metapost_dll_name}
+    ${metapost_core_lib_name}
     ${w2cemu_dll_name}
     luatex-lua53ffi-objects
     luatex-lua53fontforge-objects

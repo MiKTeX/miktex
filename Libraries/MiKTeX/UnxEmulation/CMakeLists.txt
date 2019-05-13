@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,8 +18,6 @@
 ## USA.
 
 include(component.cmake)
-
-hide_symbols()
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/unxemu")
 
@@ -88,6 +86,10 @@ foreach(inc ${unx_includes})
     ${MIKTEX_HEADER_DESTINATION_DIR}
   )
 endforeach()
+
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
 add_subdirectory(shared)
 add_subdirectory(static)

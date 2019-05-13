@@ -1,6 +1,6 @@
 ## UseStaticCRT.cmake
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -71,18 +71,6 @@ macro(remove_c_flag _flag_regex)
         CMAKE_C_FLAGS${c}
         "${CMAKE_C_FLAGS${c}}")
   endforeach()
-endmacro()
-
-###############################################################################
-# hide_symbols
-###############################################################################
-
-macro(hide_symbols)
-  if(HAVE_CXX_VISIBILITY_OPTION)
-#    add_c_flag(-fvisibility=hidden)
-#    add_cxx_flag(-fvisibility=hidden)
-#    add_cxx_flag(-fvisibility-inlines-hidden)
-  endif()
 endmacro()
 
 ###############################################################################

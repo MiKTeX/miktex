@@ -1,6 +1,6 @@
 /* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -19,10 +19,13 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
+#include <miktex/First>
+#include <miktex/Definitions>
+
 #define TRACE_FACILITY "extractor"
 
-#if defined(_MSC_VER) && defined(MIKTEX_EXTRACTOR_SHARED)
-#  define MIKTEXEXTRACTOREXPORT __declspec(dllexport)
+#if defined(MIKTEX_EXTRACTOR_SHARED)
+#  define MIKTEXEXTRACTOREXPORT MIKTEXDLLEXPORT
 #else
 #  define MIKTEXEXTRACTOREXPORT
 #endif

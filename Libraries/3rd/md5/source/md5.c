@@ -52,13 +52,14 @@
  */
 
 #if defined(MIKTEX)
-#  if defined(MIKTEX_MD5_SHARED) && defined(_MSC_VER)
-#    define MIKTEXMD5API(type) __declspec(dllexport) type __cdecl
-#  elif defined(_MSC_VER)
-#    define MIKTEXMD5API(type) type __cdecl
-#  else
-#    define MIKTEXMD5API(type) type
-#  endif
+#include <miktex/First.h>
+#include <miktex/Definitions.h>
+#define BA362A59E56E47E09E7656E816A73C4F
+#if defined(MIKTEX_MD5_SHARED)
+#  define MIKTEXMD5EXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMD5EXPORT
+#endif
 #endif
 
 #include "md5.h"

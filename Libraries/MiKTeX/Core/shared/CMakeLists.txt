@@ -17,8 +17,6 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-hide_symbols()
-
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
 )

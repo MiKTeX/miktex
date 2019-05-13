@@ -19,8 +19,6 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_EDITORS_FOLDER}/TeXworks/synctex")
 
-hide_symbols()
-
 set(synctex_sources
   ${projdir}/source/modules/synctex/synctex_parser.c
   ${projdir}/source/modules/synctex/synctex_parser_utils.c

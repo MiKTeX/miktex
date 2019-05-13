@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -113,6 +113,10 @@ if(INSTALL_MIKTEX_HEADERS)
       ${MIKTEX_HEADER_DESTINATION_DIR}/miktex/PackageManager
   )
 endif()
+
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)

@@ -115,6 +115,10 @@ set(kpsemu_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/kpsemu.cpp
 )
 
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
+
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)
 endif()

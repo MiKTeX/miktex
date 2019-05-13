@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2007-2018 Christian Schenk
+## Copyright (C) 2007-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -70,6 +70,10 @@ set(extractor_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
   ${public_headers}
 )
+
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)

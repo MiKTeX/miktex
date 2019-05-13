@@ -1,6 +1,6 @@
 ## CreateWebApp.cmake
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,8 +18,6 @@
 ## USA.
 
 macro(create_web_app _name)
-
-  hide_symbols()
 
   string(TOLOWER "${_name}" _name_l)
   string(TOUPPER "${_name}" _name_u)

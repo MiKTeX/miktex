@@ -24,7 +24,7 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/LuaTeX")
 if(MIKTEX_NATIVE_WINDOWS)
   set(lua53_target_name ${lua53_dll_name})
 else()
-  set(lua53_target_name ${lua53_lib_name})
+  set(lua53_target_name ${lua53_dll_name})
 endif()
 
 if(WITH_LUA54TEX)
@@ -104,7 +104,7 @@ set(libs
   ${core_dll_name}
   ${kpsemu_dll_name}
   ${md5_dll_name}
-  ${metapost_dll_name}
+  ${metapost_core_lib_name}
   ${w2cemu_dll_name}
   luatex-miktex-objects
   luatex-unilib-objects

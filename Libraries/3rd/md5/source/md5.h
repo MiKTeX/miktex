@@ -50,6 +50,19 @@
 #ifndef md5_INCLUDED
 #  define md5_INCLUDED
 
+#if defined(MIKTEX)
+#include <miktex/First.h>
+#include <miktex/Definitions.h>
+#if !defined(BA362A59E56E47E09E7656E816A73C4F)
+#  if defined(MIKTEX_MD5_SHARED)
+#    define MIKTEXMD5EXPORT MIKTEXDLLIMPORT
+#  else
+#    define MIKTEXMD5EXPORT
+#  endif
+#endif
+#define MIKTEXMD5API(type) MIKTEXMD5EXPORT type MIKTEXCEECALL
+#endif
+
 /*
  * This package supports both compile-time and run-time determination of CPU
  * byte order.  If ARCH_IS_BIG_ENDIAN is defined as 0, the code will be
@@ -73,18 +86,6 @@ typedef struct md5_state_s {
 #ifdef __cplusplus
 extern "C" 
 {
-#endif
-
-#if defined(MIKTEX)
-#  if ! defined(MIKTEXMD5API)
-#    if defined(MIKTEX_MD5_SHARED) && defined(_MSC_VER)
-#      define MIKTEXMD5API(type) __declspec(dllimport) type __cdecl
-#    elif defined(_MSC_VER)
-#      define MIKTEXMD5API(type) type __cdecl
-#    else
-#      define MIKTEXMD5API(type) type
-#    endif
-#  endif
 #endif
 
 /* Initialize the algorithm. */
