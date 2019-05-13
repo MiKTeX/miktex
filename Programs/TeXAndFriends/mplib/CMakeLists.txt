@@ -96,6 +96,9 @@ add_custom_command(
 
 set(metapost_backends_sources
   ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mplib.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mplibps.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mpmath.h
   ${metapost_backends_cweb_sources}
 )
 
