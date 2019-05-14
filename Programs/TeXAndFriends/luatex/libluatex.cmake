@@ -17,13 +17,31 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(libluatex_sources
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-common.h
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-luatex.h
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.c
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.h
+list(APPEND libluatex_sources
+  source/lua/lstrlibext.c
+  source/lua/helpers.c
+  source/lua/texluac.c 
+)
+
+list(APPEND libluatex_sources
+  source/luatex-common.h
+  source/luatex.h
+  source/luatexcallbackids.h
+  source/ptexlib.h
+)
+
+list(APPEND libluatex_sources
+  source/luafontloader/src/ffdummies.c
+  source/luafontloader/src/ffdummies.h
+  source/luafontloader/src/luafflib.c
+)
+
+list(APPEND libluatex_sources
   source/dvi/dvigen.c
   source/dvi/dvigen.h
+)
+
+list(APPEND libluatex_sources
   source/font/dofont.c
   source/font/luafont.c
   source/font/luatexfont.h
@@ -52,6 +70,9 @@ set(libluatex_sources
   source/font/writettf.h
   source/font/writetype0.c
   source/font/writetype2.c 
+)
+
+list(APPEND libluatex_sources
   source/image/epdf.h
   source/image/image.h
   source/image/pdftoepdf.c
@@ -66,40 +87,45 @@ set(libluatex_sources
   source/image/writejpg.h
   source/image/writepng.c
   source/image/writepng.h
+)
+
+list(APPEND libluatex_sources
   source/lang/hnjalloc.c
   source/lang/hnjalloc.h
   source/lang/hyphen.c
   source/lang/hyphen.h
   source/lang/texlang.c
   source/lang/texlang.h
-  source/lua/lstrlibext.c
+)
+
+list(APPEND libluatex_sources
   source/lua/helpers.c
-  source/lua/texluac.c 
   source/lua/lcallbacklib.c
   source/lua/lfontlib.c
   source/lua/limglib.c
-  source/lua/lpdfelib.c
-  source/lua/lpdfscannerlib.c
+  source/lua/liolibext.c
   source/lua/lkpselib.c
   source/lua/llanglib.c
   source/lua/llualib.c
+  source/lua/lnewtokenlib.c
   source/lua/lnodelib.c
-  source/lua/liolibext.c
   source/lua/loslibext.c
+  source/lua/lpdfelib.c
   source/lua/lpdflib.c
+  source/lua/lpdfscannerlib.c
   source/lua/lstatslib.c
   source/lua/ltexiolib.c
   source/lua/ltexlib.c
-  source/lua/lnewtokenlib.c
-  source/lua/luatex-api.h
-  source/lua/luatex-core.c
-  source/lua/helpers.c
   source/lua/luainit.c
   source/lua/luanode.c
   source/lua/luastuff.c
+  source/lua/luatex-api.h
+  source/lua/luatex-core.c
   source/lua/luatoken.c
   source/lua/mplibstuff.c 
-  source/luatex.h
+)
+
+list(APPEND libluatex_sources
   source/pdf/pdfaction.c
   source/pdf/pdfaction.h
   source/pdf/pdfannot.c
@@ -143,8 +169,11 @@ set(libluatex_sources
   source/pdf/pdfthread.c
   source/pdf/pdfthread.h
   source/pdf/pdftypes.h
-  source/pdf/pdfxform.c
+  source/pdf/pdfxform.c 
   source/pdf/pdfxform.h
+)
+
+list(APPEND libluatex_sources
   source/tex/align.c
   source/tex/align.h
   source/tex/arithmetic.c
@@ -209,8 +238,11 @@ set(libluatex_sources
   source/tex/texnodes.h
   source/tex/textcodes.c
   source/tex/textcodes.h
-  source/tex/textoken.c
+  source/tex/textoken.c 
   source/tex/textoken.h
+)
+
+list(APPEND libluatex_sources
   source/utils/avl.c
   source/utils/avl.h
   source/utils/avlstuff.c
@@ -223,61 +255,75 @@ set(libluatex_sources
   source/utils/utils.h
 )
 
-add_library(lua53tex-objects OBJECT ${libluatex_sources})
+list(APPEND libluatex_sources
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-common.h
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-luatex.h
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.c
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.h
+)
 
-set_property(TARGET lua53tex-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+add_library(luatex-lua53tex-objects OBJECT ${libluatex_sources})
+
+set_property(TARGET luatex-lua53tex-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_include_directories(luatex-lua53tex-objects
+  PRIVATE
+    source/luafontloader/fontforge/fontforge
+    source/luafontloader/fontforge/inc
+    source/utils
+)
 
 if(USE_SYSTEM_PNG)
-  target_link_libraries(lua53tex-objects PUBLIC MiKTeX::Imported::PNG)
+  target_link_libraries(luatex-lua53tex-objects PUBLIC MiKTeX::Imported::PNG)
 else()
-  target_link_libraries(lua53tex-objects PUBLIC ${png_dll_name})
+  target_link_libraries(luatex-lua53tex-objects PUBLIC ${png_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(lua53tex-objects PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(luatex-lua53tex-objects PUBLIC MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(lua53tex-objects PUBLIC ${zlib_dll_name})
+  target_link_libraries(luatex-lua53tex-objects PUBLIC ${zlib_dll_name})
 endif()
 
-target_link_libraries(lua53tex-objects
+target_link_libraries(luatex-lua53tex-objects
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${lua53_target_name}
     ${metapost_core_lib_name}
     ${w2cemu_dll_name}
-    luatex-lua53ffi-objects
     luatex-lua53fontforge-objects
     luatex-lua53misc-objects
     luatex-lua53pplib-objects
-    luatex-lua53socket-objects
-    luatex-miktex-objects
 )
 
 if(WITH_LUA54TEX)
-  add_library(lua54tex-objects OBJECT ${libluatex_sources})
-  set_property(TARGET lua54tex-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  add_library(luatex-lua54tex-objects OBJECT ${libluatex_sources})
+  set_property(TARGET luatex-lua54tex-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  target_include_directories(luatex-lua54tex-objects
+    PRIVATE
+      source/luafontloader/fontforge/fontforge
+      source/luafontloader/fontforge/inc
+  )
   if(USE_SYSTEM_PNG)
-    target_link_libraries(lua54tex-objects PUBLIC MiKTeX::Imported::PNG)
+    target_link_libraries(luatex-lua54tex-objects PUBLIC MiKTeX::Imported::PNG)
   else()
-    target_link_libraries(lua54tex-objects PUBLIC ${png_dll_name})
+    target_link_libraries(luatex-lua54tex-objects PUBLIC ${png_dll_name})
   endif()
   if(USE_SYSTEM_ZLIB)
-    target_link_libraries(lua54tex-objects PUBLIC MiKTeX::Imported::ZLIB)
+    target_link_libraries(luatex-lua54tex-objects PUBLIC MiKTeX::Imported::ZLIB)
   else()
-    target_link_libraries(lua54tex-objects PUBLIC ${zlib_dll_name})
+    target_link_libraries(luatex-lua54tex-objects PUBLIC ${zlib_dll_name})
   endif()
-  target_link_libraries(lua54tex-objects
+  target_link_libraries(luatex-lua54tex-objects
     PUBLIC
       ${core_dll_name}
       ${kpsemu_dll_name}
       ${lua54_target_name}
+      ${metapost_core_lib_name}
       ${w2cemu_dll_name}
-      luatex-miktex-objects
-      luatex-lua54ffi-objects
+      luatex-lua54fontforge-objects
       luatex-lua54misc-objects
       luatex-lua54pplib-objects
-      luatex-lua54socket-objects
-      luatex-lua54fontforge-objects
   )
 endif()

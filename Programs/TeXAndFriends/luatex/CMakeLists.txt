@@ -19,21 +19,17 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/LuaTeX")
 
-# FIXME: this breaks luatex under xenial:
-# set(lua53_target_name ${lua53_dll_name})
-if(MIKTEX_NATIVE_WINDOWS)
-  set(lua53_target_name ${lua53_dll_name})
+if(MIKTEX_LINUX_DIST_CODE_NAME STREQUAL "xenial")
+  set(lua53_target_name ${lua53_lib_name})
 else()
   set(lua53_target_name ${lua53_dll_name})
 endif()
 
 if(WITH_LUA54TEX)
-  # FIXME: this breaks luatex under xenial:
-  # set(lua54_target_name ${lua54_dll_name})
-  if(MIKTEX_NATIVE_WINDOWS)
-    set(lua54_target_name ${lua54_dll_name})
-  else()
+  if(MIKTEX_LINUX_DIST_CODE_NAME STREQUAL "xenial")
     set(lua54_target_name ${lua54_lib_name})
+  else()
+    set(lua54_target_name ${lua54_dll_name})
   endif()
 endif()
 
@@ -100,33 +96,9 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 set(libs
-  ${app_dll_name}
-  ${core_dll_name}
-  ${kpsemu_dll_name}
-  ${md5_dll_name}
-  ${metapost_core_lib_name}
-  ${w2cemu_dll_name}
   luatex-miktex-objects
   luatex-unilib-objects
 )
-
-if(USE_SYSTEM_PNG)
-  list(APPEND libs MiKTeX::Imported::PNG)
-else()
-  list(APPEND libs ${png_dll_name})
-endif()
-
-if(USE_SYSTEM_ZLIB)
-  list(APPEND libs MiKTeX::Imported::ZLIB)
-else()
-  list(APPEND libs ${zlib_dll_name})
-endif()
-
-if(USE_SYSTEM_ZZIP)
-  list(APPEND libs MiKTeX::Imported::ZZIP)
-else()
-  list(APPEND libs ${zzip_dll_name})
-endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND libs
@@ -146,7 +118,7 @@ list(APPEND libs53
   luatex-lua53misc-objects
   luatex-lua53pplib-objects
   luatex-lua53socket-objects
-  lua53tex-objects
+  luatex-lua53tex-objects
 )
 
 if(WITH_LUA54TEX)
@@ -172,7 +144,7 @@ if(WITH_LUA54TEX)
     luatex-lua54misc-objects
     luatex-lua54pplib-objects
     luatex-lua54socket-objects
-    lua54tex-objects
+    luatex-lua54tex-objects
   )
 endif()
 
@@ -183,10 +155,10 @@ if(WITH_LUA54TEX)
 endif()
 
 add_executable(${MIKTEX_PREFIX}luatex ${lua53tex_program_sources} ${MIKTEX_LIBRARY_WRAPPER})
+
 set_property(TARGET ${MIKTEX_PREFIX}luatex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
 target_link_libraries(${MIKTEX_PREFIX}luatex
-  ${app_dll_name}
-  ${core_dll_name}
   ${program_libs53}
 )
 install(TARGETS ${MIKTEX_PREFIX}luatex DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
@@ -195,8 +167,6 @@ if(WITH_LUA54TEX)
   add_executable(${MIKTEX_PREFIX}lua54tex ${lua54tex_program_sources} ${MIKTEX_LIBRARY_WRAPPER})
   set_property(TARGET ${MIKTEX_PREFIX}lua54tex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   target_link_libraries(${MIKTEX_PREFIX}lua54tex
-    ${app_dll_name}
-    ${core_dll_name}
     ${program_libs54}
   )
   install(TARGETS ${MIKTEX_PREFIX}lua54tex DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
@@ -207,7 +177,9 @@ endif()
 ###############################################################################
 
 add_executable(runtexlua ${lua53tex_program_sources} runtexlua.cpp)
+
 set_property(TARGET runtexlua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
 if(MIKTEX_MACOS_BUNDLE)
   set_target_properties(runtexlua PROPERTIES INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
 elseif(APPLE)
@@ -215,11 +187,11 @@ elseif(APPLE)
 else()
   set_target_properties(runtexlua PROPERTIES INSTALL_RPATH "$ORIGIN/../../${CMAKE_INSTALL_LIBDIR}")
 endif()
+
 target_link_libraries(runtexlua
-  ${app_dll_name}
-  ${core_dll_name}
   ${program_libs53}
 )
+
 install(TARGETS runtexlua DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
 
 if(WITH_LUA54TEX)
@@ -233,8 +205,6 @@ if(WITH_LUA54TEX)
     set_target_properties(runtexlua54 PROPERTIES INSTALL_RPATH "$ORIGIN/../../${CMAKE_INSTALL_LIBDIR}")
   endif()
   target_link_libraries(runtexlua54
-    ${app_dll_name}
-    ${core_dll_name}
     ${program_libs54}
   )
   install(TARGETS runtexlua54 DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
@@ -248,8 +218,6 @@ if(WITH_CONTEXT_SUPPORT)
   add_executable(runmtxrun ${luatex_sources} runmtxrun.cpp)
   set_property(TARGET runmtxrun PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   target_link_libraries(runmtxrun
-    ${app_dll_name}
-    ${core_dll_name}
     ${program_libs}
   )
   install(TARGETS runmtxrun DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")

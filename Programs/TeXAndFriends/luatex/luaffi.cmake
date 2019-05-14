@@ -30,11 +30,14 @@ set(luaffi_sources
 ) 
 
 add_library(luatex-lua53ffi-objects OBJECT ${luaffi_sources})
+
 set_property(TARGET luatex-lua53ffi-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
 target_include_directories(luatex-lua53ffi-objects
   PRIVATE
     source/luaffi/dynasm
 )
+
 target_link_libraries(luatex-lua53ffi-objects
   PUBLIC
     ${CMAKE_DL_LIBS}

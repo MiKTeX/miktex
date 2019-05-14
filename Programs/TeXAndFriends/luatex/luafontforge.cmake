@@ -89,14 +89,14 @@ set(luafontforge_sources
   source/luafontloader/fontforge/inc/gfile.h
   source/luafontloader/fontforge/inc/gimage.h
   source/luafontloader/fontforge/inc/intl.h
-  source/luafontloader/src/ffdummies.c
-  source/luafontloader/src/ffdummies.h
-  source/luafontloader/src/luafflib.c
 )
 
 add_library(luatex-lua53fontforge-objects OBJECT ${luafontforge_sources})
+
 prevent_all_warnings_on_bad_code_target(luatex-lua53fontforge-objects)
+
 set_property(TARGET luatex-lua53fontforge-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
 target_compile_definitions(luatex-lua53fontforge-objects
   PRIVATE
     -DUSE_OUR_MEMORY=1
@@ -105,11 +105,13 @@ target_compile_definitions(luatex-lua53fontforge-objects
   PUBLIC  
     -DLUA_FF_LIB=1
 )
+
 target_include_directories(luatex-lua53fontforge-objects
   PRIVATE
     source/luafontloader/fontforge/fontforge
     source/luafontloader/fontforge/inc
 )
+
 target_link_libraries(luatex-lua53fontforge-objects
   PUBLIC
     ${core_dll_name}
@@ -118,6 +120,7 @@ target_link_libraries(luatex-lua53fontforge-objects
     ${w2cemu_dll_name}
     luatex-unilib-objects
 )
+
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(luatex-lua53fontforge-objects
     PUBLIC

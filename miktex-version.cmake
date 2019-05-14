@@ -32,7 +32,7 @@ set(MIKTEX_PACKAGE_REVISION
   "The MiKTeX package revision."
 )
 
-if(UNIX AND NOT APPLE)
+if(MIKTEX_LINUX)
   set(MIKTEX_LINUX_DIST
     "ubuntu"
     CACHE STRING
