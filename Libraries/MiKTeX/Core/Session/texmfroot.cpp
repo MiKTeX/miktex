@@ -628,10 +628,10 @@ void SessionImpl::SaveRootDirectories(
 #endif
     }
   }
-  else
+  if (!IsMiKTeXPortable())
   {
     PathName userStartupConfigFile;
-    bool haveUserStartupConfigFile = FindStartupConfigFile(false, userStartupConfigFile);
+    bool haveUserStartupConfigFile = IsAdminMode() ? false : FindStartupConfigFile(false, userStartupConfigFile);
     if (haveUserStartupConfigFile || noRegistry)
     {
       WriteStartupConfigFile(false, startupConfig);
