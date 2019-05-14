@@ -343,6 +343,7 @@ install(TARGETS ${metapost_core_lib_name}
 ###############################################################################
 
 set(metapost_extramath_cweb_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/mplib.h
   ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.c
   ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.h
 )
