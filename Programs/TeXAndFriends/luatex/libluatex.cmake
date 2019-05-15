@@ -290,7 +290,7 @@ target_link_libraries(luatex-lua53tex-objects
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${lua53_target_name}
-    ${metapost_core_lib_name}
+    ${metapost_dll_name}
     ${w2cemu_dll_name}
     luatex-lua53fontforge-objects
     luatex-lua53misc-objects
@@ -320,7 +320,7 @@ if(WITH_LUA54TEX)
       ${core_dll_name}
       ${kpsemu_dll_name}
       ${lua54_target_name}
-      ${metapost_core_lib_name}
+      ${metapost_dll_name}
       ${w2cemu_dll_name}
       luatex-lua54fontforge-objects
       luatex-lua54misc-objects

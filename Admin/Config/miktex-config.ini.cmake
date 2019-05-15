@@ -1,3 +1,10 @@
+[miktex]
+
+	;; This variable specifies the external program called for
+	;; TeX's interactive `e' option.  %l is replaced by the line
+	;; number and %f by the current file name.
+	;Editor = miktex-texworks -p=%l "%f"
+
 [${MIKTEX_CONFIG_SECTION_CORE}]
 
 	;; Shell command mode.

@@ -107,7 +107,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     metapost-backends.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/metapost-backends.rc
   )
-  list(APPEND metapost_backends_sources metapost-backends.rc)
+#  list(APPEND metapost_backends_sources metapost-backends.rc)
 endif()
 
 add_library(${metapost_backends_lib_name} STATIC ${metapost_backends_sources})
@@ -299,7 +299,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     metapost-core.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/metapost-core.rc
   )
-  list(APPEND metapost_core_sources metapost-core.rc)
+#  list(APPEND metapost_core_sources metapost-core.rc)
 endif()
 
 add_library(${metapost_core_lib_name} STATIC ${metapost_core_sources})
@@ -378,7 +378,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     metapost-extramath.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/metapost-extramath.rc
   )
-  list(APPEND metapost_extramath_sources metapost-extramath.rc)
+#  list(APPEND metapost_extramath_sources metapost-extramath.rc)
 endif()
 
 add_library(${metapost_extramath_lib_name} STATIC ${metapost_extramath_sources})
@@ -432,7 +432,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     metapost-util.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/metapost-util.rc
   )
-  list(APPEND metapost_util_sources metapost-util.rc)
+#  list(APPEND metapost_util_sources metapost-util.rc)
 endif()
 
 add_library(${metapost_util_lib_name} STATIC ${metapost_util_sources})
@@ -445,6 +445,49 @@ target_include_directories(${metapost_util_lib_name}
 )
 
 target_link_libraries(${metapost_util_lib_name}
+  PRIVATE
+    ${core_dll_name}
+    ${kpsemu_dll_name}
+    ${w2cemu_dll_name}
+)
+
+###############################################################################
+## metapost
+###############################################################################
+
+set(metapost_sources
+  ${metapost_backends_sources}
+  ${metapost_core_sources}
+  ${metapost_extramath_sources}
+  ${metapost_util_sources}
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  configure_file(
+    metapost.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/metapost.rc
+  )
+  list(APPEND metapost_sources metapost.rc)
+endif()
+
+add_library(${metapost_dll_name} SHARED ${metapost_sources})
+
+set_property(TARGET ${metapost_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+set_property(TARGET ${metapost_dll_name} PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+
+target_include_directories(${metapost_dll_name}
+  PUBLIC
+    ${CMAKE_BINARY_DIR}/${MIKTEX_REL_MP_DIR}
+)
+
+if(USE_SYSTEM_CAIRO)
+  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::CAIRO)
+else()
+  target_link_libraries(${metapost_dll_name} PRIVATE ${cairo_dll_name})
+endif()
+
+target_link_libraries(${metapost_dll_name}
   PRIVATE
     ${core_dll_name}
     ${kpsemu_dll_name}
@@ -522,10 +565,7 @@ target_link_libraries(${MIKTEX_PREFIX}mpost
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
-  ${metapost_backends_lib_name}
-  ${metapost_core_lib_name}
-  ${metapost_extramath_lib_name}
-  ${metapost_util_lib_name}
+  ${metapost_dll_name}
   ${w2cemu_dll_name}
 )
 
