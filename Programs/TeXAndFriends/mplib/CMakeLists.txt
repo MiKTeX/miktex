@@ -451,6 +451,12 @@ target_link_libraries(${metapost_util_lib_name}
     ${w2cemu_dll_name}
 )
 
+install(TARGETS ${metapost_util_lib_name}
+  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+)
+
 ###############################################################################
 ## metapost
 ###############################################################################
@@ -516,6 +522,12 @@ target_link_libraries(${metapost_dll_name}
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
+)
+
+install(TARGETS ${metapost_dll_name}
+  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
 )
 
 ###############################################################################
