@@ -1,6 +1,6 @@
-/* Session.cpp: session initialization
+/* init.cpp: session initialization
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -28,7 +28,10 @@
 #include <fstream>
 #include <iostream>
 
-// FIXME: must come first
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+// FIXME: must be the first MiKTeX header
 #include "core-version.h"
 
 #include <miktex/Core/ConfigNames>
@@ -127,23 +130,20 @@ SessionImpl::~SessionImpl()
 
 void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 {
-  string val;
-
-  PathName programInvocationName = initInfo.GetProgramInvocationName();
-  programInvocationName = programInvocationName.GetFileNameWithoutExtension();
-  const char* lpsz = strstr(programInvocationName.GetData(), MIKTEX_ADMIN_SUFFIX);
-  bool forceAdminMode = lpsz != nullptr && strlen(lpsz) == strlen(MIKTEX_ADMIN_SUFFIX);
-
-#if defined(MIKTEX_WINDOWS)
-  if (!forceAdminMode)
+  adminMode = initInfo.GetOptions()[InitOption::AdminMode];
+  if (!adminMode)
   {
-    programInvocationName = GetMyProgramFile(false).TransformForComparison().GetFileNameWithoutExtension().GetData();
-    lpsz = strstr(programInvocationName.GetData(), MIKTEX_ADMIN_SUFFIX);
-    forceAdminMode = lpsz != nullptr && strlen(lpsz) == strlen(MIKTEX_ADMIN_SUFFIX);
-  }
+    // program name ends with "-admin"?
+    PathName programInvocationName = PathName(initInfo.GetProgramInvocationName()).GetFileNameWithoutExtension();
+    adminMode = EndsWith(programInvocationName.ToString(), MIKTEX_ADMIN_SUFFIX);
+#if defined(MIKTEX_WINDOWS)
+    if (!adminMode)
+    {
+      programInvocationName = GetMyProgramFile(false).TransformForComparison().GetFileNameWithoutExtension();
+      adminMode = EndsWith(programInvocationName.ToString(), MIKTEX_ADMIN_SUFFIX);
+    }
 #endif
-
-  adminMode = forceAdminMode || initInfo.GetOptions()[InitOption::AdminMode];
+  }
 
 #if defined(MIKTEX_WINDOWS)
   if (initInfo.GetOptions()[InitOption::InitializeCOM])
@@ -202,22 +202,22 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 
   SetEnvironmentVariables();
 
-  trace_core->WriteFormattedLine("core", T_("initializing MiKTeX Core version %s"), MIKTEX_COMPONENT_VERSION_STR);
+  trace_core->WriteLine("core", fmt::format(T_("initializing MiKTeX Core version {0}"), MIKTEX_COMPONENT_VERSION_STR));
 
 #if defined(MIKTEX_WINDOWS) && defined(MIKTEX_CORE_SHARED)
   if (dynamicLoad == TriState::True)
   {
-    trace_core->WriteFormattedLine("core", T_("dynamic load"));
+    trace_core->WriteLine("core", T_("dynamic load"));
   }
 #endif
 
-  trace_core->WriteFormattedLine("core", T_("operating system: %s"), Q_(Utils::GetOSVersionString()));
-  trace_core->WriteFormattedLine("core", T_("program file: %s"), Q_(GetMyProgramFile(true)));
-  trace_core->WriteFormattedLine("core", T_("current directory: %s"), Q_(PathName().SetToCurrentDirectory()));
-  trace_config->WriteFormattedLine("core", T_("admin mode: %s"), IsAdminMode() ? T_("yes") : T_("no"));
-  trace_config->WriteFormattedLine("core", T_("shared setup: %s"), IsSharedSetup() ? T_("yes") : T_("no"));
+  trace_core->WriteLine("core", fmt::format(T_("operating system: {0}"), Q_(Utils::GetOSVersionString())));
+  trace_core->WriteLine("core", fmt::format(T_("program file: {0}"), Q_(GetMyProgramFile(true))));
+  trace_core->WriteLine("core", fmt::format(T_("current directory: {0}"), Q_(PathName().SetToCurrentDirectory())));
+  trace_config->WriteLine("core", fmt::format(T_("admin mode: {0}"), IsAdminMode() ? T_("yes") : T_("no")));
+  trace_config->WriteLine("core", fmt::format(T_("shared setup: {0}"), IsSharedSetup() ? T_("yes") : T_("no")));
 
-  trace_config->WriteFormattedLine("core", T_("session locale: %s"), Q_(defaultLocale.name()));
+  trace_config->WriteLine("core", fmt::format(T_("session locale: {0}"), Q_(defaultLocale.name())));
 
   if (IsAdminMode() && !IsSharedSetup())
   {
@@ -245,7 +245,7 @@ void SessionImpl::Uninitialize()
   {
     StartFinishScript(10);
     initialized = false;
-    trace_core->WriteFormattedLine("core", T_("uninitializing core library"));
+    trace_core->WriteLine("core", T_("uninitializing core library"));
     CheckOpenFiles();
     WritePackageHistory();
     inputDirectories.clear();
@@ -281,29 +281,29 @@ void SessionImpl::StartFinishScript(int delay)
   {
     return;
   }
-  trace_core->WriteFormattedLine("core", T_("finish script: %u commands to execute"), (unsigned)onFinishScript.size());
+  trace_core->WriteLine("core", fmt::format(T_("finish script: {0} commands to execute"), onFinishScript.size()));
   unique_ptr<TemporaryDirectory> tmpdir = TemporaryDirectory::Create();
-  trace_core->WriteFormattedLine("core", T_("finish script: tmpdir=%s"), tmpdir->GetPathName().GetData());
+  trace_core->WriteLine("core", fmt::format(T_("finish script: tmpdir={0}"), tmpdir->GetPathName()));
   vector<string> pre = {
 #if defined(MIKTEX_WINDOWS)
-    "ping localhost -n " + std::to_string(delay) + " >nul",
-    "pushd "s + Q_(tmpdir->GetPathName().ToDos()),
+    fmt::format("ping localhost -n {} >nul", delay),
+    fmt::format("pushd {}", Q_(tmpdir->GetPathName().ToDos())),
 #else
     "#!/bin/sh",
-    "wait " + std::to_string(getpid()),
-    "pushd "s + Q_(tmpdir->GetPathName()),
+    fmt::format("wait {}", getpid()),
+    fmt::format("pushd {}", Q_(tmpdir->GetPathName())),
 #endif
   };
   vector<string> post = {
 #if defined(MIKTEX_WINDOWS)
     "popd",
 #if !MIKTEX_KEEP_FINISH_SCRIPT
-    "start \"\" /B cmd /C rmdir /S /Q "s + Q_(tmpdir->GetPathName().ToDos()),
+    fmt::format("start \"\" /B cmd /C rmdir /S /Q {}", Q_(tmpdir->GetPathName().ToDos())),
 #endif
 #else
     "popd",
 #if !MIKTEX_KEEP_FINISH_SCRIPT
-    "rm -fr "s + Q_(tmpdir->GetPathName()),
+    fmt::format("rm -fr {}", Q_(tmpdir->GetPathName())),
 #endif
 #endif
   };
@@ -326,7 +326,7 @@ void SessionImpl::StartFinishScript(int delay)
     writer << cmd << "\n";
   }
   writer.close();
-  trace_core->WriteFormattedLine("core", T_("starting finish script"));
+  trace_core->WriteLine("core", T_("starting finish script"));
 #if defined(MIKTEX_UNIX)
   File::SetAttributes(script, { FileAttribute::Executable });
   Process::Start(script);
@@ -349,7 +349,6 @@ void SessionImpl::Reset()
 void SessionImpl::SetEnvironmentVariables()
 {
 #if MIKTEX_WINDOWS
-  // used in pdfcrop.pl
   Utils::SetEnvironmentString("TEXSYSTEM", "miktex");
 
   // Ghostscript

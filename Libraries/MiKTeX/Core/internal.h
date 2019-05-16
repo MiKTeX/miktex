@@ -381,6 +381,12 @@ inline FILE* FdOpen(int fd, const char* mode)
   return stream;
 }
 
+inline bool EndsWith(const std::string& s, const std::string& suffix)
+{
+  return s.length() >= suffix.length() &&
+    s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
+}
+
 /* _________________________________________________________________________ */
 
 CORE_INTERNAL_END_NAMESPACE;

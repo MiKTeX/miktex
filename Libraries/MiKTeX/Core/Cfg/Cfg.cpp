@@ -1,6 +1,6 @@
 /* cfg.cpp: configuration files
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -48,12 +48,6 @@ constexpr const char* COMMENT1 = ";";
 constexpr const char* COMMENT2 = ";;";
 constexpr const char* COMMENT3 = ";;;";
 constexpr const char* COMMENT4 = ";;;;";
-
-MIKTEXSTATICFUNC(bool) EndsWith(const string& s, const string& suffix)
-{
-  return s.length() >= suffix.length() &&
-    s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
-}
 
 MIKTEXSTATICFUNC(string&) Trim(string& str)
 {
