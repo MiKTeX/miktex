@@ -847,7 +847,10 @@ private:
   }
 
 private:
-  void DoStartupConfig();
+  void BuildStartupConfig();
+
+private:
+  void MergeStartupConfig(MiKTeX::Core::StartupConfig& startupConfig, const MiKTeX::Core::StartupConfig& defaults);
 
 private:
   void InitializeRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig, bool review);
