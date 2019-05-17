@@ -196,16 +196,13 @@ public:
   unsigned SplitTEXMFPath(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& root, MiKTeX::Core::PathName& relative) override;
 
 public:
-  void RegisterRootDirectories(const std::string& roots, bool other) override;
-
-public:
   void RegisterRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options) override;
 
 public:
-  void RegisterRootDirectory(const MiKTeX::Core::PathName& path) override;
+  void RegisterRootDirectory(const MiKTeX::Core::PathName& path, bool other) override;
 
 public:
-  void UnregisterRootDirectory(const MiKTeX::Core::PathName& path) override;
+  void UnregisterRootDirectory(const MiKTeX::Core::PathName& path, bool other) override;
 
 public:
   void MoveRootDirectoryUp(unsigned r) override;
@@ -813,6 +810,9 @@ private:
   void MoveRootDirectory(unsigned r, int dir);
 
 private:
+  void ReregisterRootDirectories(const std::string& roots, bool other);
+
+private:
   unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, MiKTeX::Core::RootDirectoryInfo::Purpose purpose, bool common, bool other, bool review);
 
 private:
@@ -859,11 +859,7 @@ private:
   void InitializeRootDirectories();
 
 private:
-#if defined(MIKTEX_WINDOWS)
-  void SaveRootDirectories(bool noRegistry);
-#else
-  void SaveRootDirectories();
-#endif
+  void SaveRootDirectories(MiKTeX::Core::RegisterRootDirectoriesOptionSet options);
 
 private:
   bool IsTeXMFReadOnly(unsigned r);

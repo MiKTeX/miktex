@@ -1,6 +1,6 @@
 /* comSession.cpp: MiKTeX session
 
-   Copyright (C) 2006-2018 Christian Schenk
+   Copyright (C) 2006-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -89,7 +89,10 @@ STDMETHODIMP comSession::RegisterRootDirectories(BSTR rootDirectories)
   try
   {
     CreateSession();
-    session->RegisterRootDirectories(WU_(rootDirectories), false);
+    for (const auto& root : StringUtil::Split(WU_(rootDirectories), PathName::PathNameDelimiter))
+    {
+      session->RegisterRootDirectory(root, false);
+    }
   }
   catch (const _com_error& e)
   {

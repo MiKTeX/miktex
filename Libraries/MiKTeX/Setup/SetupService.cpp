@@ -846,11 +846,11 @@ void SetupServiceImpl::DoTheInstallation()
     startupConfig.userInstallRoot = options.Config.userInstallRoot;
   }
   shared_ptr<Session> session = Session::Get();
+  RegisterRootDirectoriesOptionSet regOptions = { RegisterRootDirectoriesOption::Temporary };
 #if defined(MIKTEX_WINDOWS)
-  session->RegisterRootDirectories(startupConfig, { RegisterRootDirectoriesOption::Temporary, RegisterRootDirectoriesOption::NoRegistry });
-#else
-  session->RegisterRootDirectories(startupConfig, { RegisterRootDirectoriesOption::Temporary });
+  regOptions += RegisterRootDirectoriesOption::NoRegistry;
 #endif
+  session->RegisterRootDirectories(startupConfig, regOptions);
   
   // load package manifests
   PathName pathDB;

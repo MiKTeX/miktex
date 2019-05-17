@@ -291,14 +291,11 @@ vector<RootDirectoryInfo> SessionImpl::GetRootDirectories()
 unsigned SessionImpl::GetNumberOfTEXMFRoots()
 {
   unsigned n = static_cast<unsigned>(rootDirectories.size());
-
   MIKTEX_ASSERT(n > 1);
-
   if (n <= 1)
   {
     MIKTEX_UNEXPECTED();
   }
-
   // the MPM root directory doesn't count
   return n - 1;
 }
@@ -394,13 +391,11 @@ PathName SessionImpl::GetDistRootDirectory()
   return result.second;
 }
 
-void SessionImpl::SaveRootDirectories(
-#if defined(MIKTEX_WINDOWS)
-  bool noRegistry
-#endif
-  )
+void SessionImpl::SaveRootDirectories(RegisterRootDirectoriesOptionSet options)
 {
-#if !defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_WINDOWS)
+  bool noRegistry = options[RegisterRootDirectoriesOption::NoRegistry];
+#else
   bool noRegistry = true;
 #endif
   MIKTEX_ASSERT(!IsMiKTeXDirect());
@@ -546,7 +541,7 @@ void SessionImpl::RecordMaintenance()
   }
 }
 
-void SessionImpl::RegisterRootDirectories(const string& roots, bool other)
+void SessionImpl::ReregisterRootDirectories(const string& roots, bool other)
 {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
   if (UseLocalServer())
@@ -609,13 +604,13 @@ void SessionImpl::RegisterRootDirectories(const string& roots, bool other)
   RegisterRootDirectories(startupConfig, options);
 }
 
-void SessionImpl::RegisterRootDirectory(const PathName& path)
+void SessionImpl::RegisterRootDirectory(const PathName& path, bool other)
 {
   vector<string> toBeRegistered;
   for (size_t r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
-    bool skipit = root.IsOther();
+    bool skipit = other && !root.IsOther() || !other && root.IsOther();
     skipit = skipit || (IsAdminMode() && !root.IsCommon());
     skipit = skipit || (!IsAdminMode() && root.IsCommon());
     skipit = skipit || root.IsManaged();
@@ -625,17 +620,17 @@ void SessionImpl::RegisterRootDirectory(const PathName& path)
     }
   }
   toBeRegistered.push_back(path.ToString());
-  RegisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), false);
+  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), other);
 }
 
-void SessionImpl::UnregisterRootDirectory(const PathName& path)
+void SessionImpl::UnregisterRootDirectory(const PathName& path, bool other)
 {
   vector<string> toBeRegistered;
   bool found = false;
   for (size_t r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
-    bool skipit = root.IsOther();
+    bool skipit = other && !root.IsOther() || !other && root.IsOther();
     skipit = skipit || (IsAdminMode() && !root.IsCommon());
     skipit = skipit || (!IsAdminMode() && root.IsCommon());
     skipit = skipit || root.IsManaged();
@@ -656,7 +651,7 @@ void SessionImpl::UnregisterRootDirectory(const PathName& path)
   {
     MIKTEX_UNEXPECTED();
   }
-  RegisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), false);
+  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), other);
 }
 
 void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
@@ -716,11 +711,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, Re
   if (!options[RegisterRootDirectoriesOption::Temporary])
   {
     // save the information
-#if defined(MIKTEX_WINDOWS)
-    SaveRootDirectories(options[RegisterRootDirectoriesOption::NoRegistry]);
-#else
-    SaveRootDirectories();
-#endif
+    SaveRootDirectories(options);
   }
 }
 
@@ -769,7 +760,7 @@ void SessionImpl::MoveRootDirectory(unsigned r, int dir)
       toBeRegistered.push_back(root.path.ToString());
     }
   }
-  RegisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), false);
+  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), false);
 }
 
 void SessionImpl::MoveRootDirectoryUp(unsigned r)

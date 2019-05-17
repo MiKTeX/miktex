@@ -534,64 +534,6 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
   cfg->Write(common ? commonStartupConfigFile : userStartupConfigFile, T_("MiKTeX startup information"));
 }
 
-StartupConfig SessionImpl::ReadEnvironment(bool common)
-{
-  MIKTEX_ASSERT(!IsMiKTeXDirect());
-
-  StartupConfig ret;
-
-  string str;
-
-  if (common)
-  {
-    if (Utils::GetEnvironmentString(MIKTEX_ENV_COMMON_ROOTS, str))
-    {
-      ret.commonRoots = str;
-    }
-    if (Utils::GetEnvironmentString(MIKTEX_ENV_OTHER_COMMON_ROOTS, str))
-    {
-      ret.otherCommonRoots = str;
-    }
-    if (Utils::GetEnvironmentString(MIKTEX_ENV_COMMON_INSTALL, str))
-    {
-      ret.commonInstallRoot = str;
-    }
-    if (Utils::GetEnvironmentString(MIKTEX_ENV_COMMON_DATA, str))
-    {
-      ret.commonDataRoot = str;
-    }
-    if (Utils::GetEnvironmentString(MIKTEX_ENV_COMMON_CONFIG, str))
-    {
-      ret.commonConfigRoot = str;
-    }
-  }
-  else
-  {
-    if (Utils::GetEnvironmentString(MIKTEX_ENV_USER_ROOTS, str))
-    {
-      ret.userRoots = str;
-    }
-    if (Utils::GetEnvironmentString(MIKTEX_ENV_OTHER_USER_ROOTS, str))
-    {
-      ret.otherUserRoots = str;
-    }
-    if (Utils::GetEnvironmentString(MIKTEX_ENV_USER_INSTALL, str))
-    {
-      ret.userInstallRoot = str;
-    }
-    if (Utils::GetEnvironmentString(MIKTEX_ENV_USER_DATA, str))
-    {
-      ret.userDataRoot = str;
-    }
-    if (Utils::GetEnvironmentString(MIKTEX_ENV_USER_CONFIG, str))
-    {
-      ret.userConfigRoot = str;
-    }
-  }
-
-  return ret;
-}
-
 bool SessionImpl::IsMiKTeXDirect()
 {
   return startupConfig.config == MiKTeXConfiguration::Direct;

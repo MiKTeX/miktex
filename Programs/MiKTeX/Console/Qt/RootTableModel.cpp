@@ -1,6 +1,6 @@
 /* RootTableModel.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -173,5 +173,5 @@ bool RootTableModel::CanRemove(const QModelIndex& index)
 
 void RootTableModel::Remove(const QModelIndex& index)
 {
-  session->UnregisterRootDirectory(roots[index.row()].path);
+  session->UnregisterRootDirectory(roots[index.row()].path, false);
 }

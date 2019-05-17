@@ -1244,81 +1244,17 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
 
 void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool other, bool reg)
 {
-  string newRoots;
-
-  PathName userInstallRoot;
-  PathName userConfigRoot;
-  PathName userDataRoot;
-
-  if (!session->IsAdminMode())
+  for (const auto& root : roots)
   {
-    userInstallRoot = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-    userConfigRoot = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-    userDataRoot = session->GetSpecialPath(SpecialPath::UserDataRoot);
-  }
-
-  PathName commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
-  PathName commonConfigRoot = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
-  PathName commonDataRoot = session->GetSpecialPath(SpecialPath::CommonDataRoot);
-
-  for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
-  {
-    PathName root = session->GetRootDirectoryPath(r);
-    int rootOrdinal = session->DeriveTEXMFRoot(root);
-    if (session->IsAdminMode() && !session->IsCommonRootDirectory(rootOrdinal))
+    if (reg)
     {
-      continue;
+      session->RegisterRootDirectory(root, other);
     }
-    if (!session->IsAdminMode()
-      && (session->IsCommonRootDirectory(rootOrdinal)
-        || root == userInstallRoot
-        || root == userConfigRoot
-        || root == userDataRoot))
+    else
     {
-      continue;
-    }
-    if (root == commonInstallRoot
-      || root == commonConfigRoot
-      || root == commonDataRoot)
-    {
-      continue;
-    }
-    if (!reg)
-    {
-      bool toBeUnregistered = false;
-      for (vector<PathName>::const_iterator it = roots.begin(); it != roots.end() && !toBeUnregistered; ++it)
-      {
-        if (*it == root)
-        {
-          toBeUnregistered = true;
-        }
-      }
-      if (toBeUnregistered)
-      {
-        continue;
-      }
-    }
-    if (!newRoots.empty())
-    {
-      newRoots += PathName::PathNameDelimiter;
-    }
-    newRoots += root.GetData();
-  }
-
-  if (reg)
-  {
-    for (const PathName r : roots)
-    {
-      if (!newRoots.empty())
-      {
-        newRoots += PathName::PathNameDelimiter;
-      }
-      newRoots += r.ToString();
+      session->UnregisterRootDirectory(root, other);
     }
   }
-
-  session->RegisterRootDirectories(newRoots, other);
-
   if (reg)
   {
     for (const PathName& r : roots)

@@ -1604,7 +1604,7 @@ void MainWindow::AddRootDirectory()
         return;
       }
     }
-    session->RegisterRootDirectory(root);
+    session->RegisterRootDirectory(root, false);
     UpdateUi();
     UpdateActions();
   }

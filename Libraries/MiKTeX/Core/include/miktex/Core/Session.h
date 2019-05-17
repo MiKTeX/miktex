@@ -975,27 +975,23 @@ public:
 public:
   virtual unsigned MIKTEXTHISCALL SplitTEXMFPath(const PathName& path, PathName& root, PathName& relative) = 0;
 
-  /// Reregister additional TEXMF root directories.
-  /// @param roots Root directories to register.
-  /// @param other Indicates wheter the root directories are from another TeX system.
-public:
-  virtual void MIKTEXTHISCALL RegisterRootDirectories(const std::string& roots, bool other) = 0;
-
   /// Registers TEXMF root directories.
   /// @param startupConfig Specifies the root directories to register.
   /// @param options Registration options.
 public:
   virtual void MIKTEXTHISCALL RegisterRootDirectories(const StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options) = 0;
 
-  /// Register an additional root directory.
+  /// Registers an additional root directory.
   /// @param path The file system path to the root directory.
+  /// @param other Indicates wheter the root directory is from another TeX system.
 public:
-  virtual void MIKTEXTHISCALL RegisterRootDirectory(const PathName& path) = 0;
+virtual void MIKTEXTHISCALL RegisterRootDirectory(const PathName& path, bool other) = 0;
 
-  /// Unregister an additional root directory.
+  /// Unregisters an additional root directory.
   /// @param path The file system path to the root directory.
+  /// @param other Indicates wheter the root directory is from another TeX system.
 public:
-  virtual void MIKTEXTHISCALL UnregisterRootDirectory(const PathName& path) = 0;
+virtual void MIKTEXTHISCALL UnregisterRootDirectory(const PathName& path, bool other) = 0;
 
   /// Moves a root directory up in the list.
   /// @param r Identifies the root directory.
