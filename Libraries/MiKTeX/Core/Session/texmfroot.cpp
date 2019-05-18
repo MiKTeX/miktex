@@ -86,7 +86,7 @@ static PathName ExpandEnvironmentVariables(const PathName& toBeExpanded)
   return expansion;
 }
 
-unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryInfo::Purpose purpose, bool common, bool other, bool review)
+unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryInfo::Purpose purpose, ConfigurationScope scope, bool other, bool review)
 {
   unsigned idx;
   for (idx = 0; idx < rootDirectories.size(); ++idx)
@@ -105,33 +105,28 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
     if (root == rootDirectories[idx].get_UnexpandedPath())
     {
       // already registered
-      if (common && !rootDirectories[idx].IsCommon())
+      if (scope == ConfigurationScope::Common && !rootDirectories[idx].IsCommon())
       {
         trace_config->WriteLine("core", fmt::format(T_("now a common TEXMF root: {0}"), root));
-        rootDirectories[idx].set_Common(common);
+        rootDirectories[idx].set_Common(scope == ConfigurationScope::Common);
       }
       if (other && !rootDirectories[idx].IsOther())
       {
         trace_config->WriteLine("core", fmt::format(T_("now a foreign TEXMF root: {0}"), root));
-        rootDirectories[idx].set_Common(common);
+        rootDirectories[idx].set_Common(scope == ConfigurationScope::Common);
       }
       rootDirectories[idx].purposes += purpose;;
       return idx;
     }
   }
-  trace_config->WriteLine("core", fmt::format(T_("registering {0} TEXMF root: {1}"), common ? "common" : "user", root));
+  trace_config->WriteLine("core", fmt::format(T_("registering {0} TEXMF root: {1}"), scope == ConfigurationScope::Common ? "common" : "user", root));
   RootDirectoryInternals rootDirectory(root, ExpandEnvironmentVariables(root));
   rootDirectory.purposes += purpose;
-  rootDirectory.set_Common(common);
+  rootDirectory.set_Common(scope == ConfigurationScope::Common);
   rootDirectory.set_Other(other);
   rootDirectories.reserve(10);
   rootDirectories.push_back(rootDirectory);
   return idx;
-}
-
-void SessionImpl::InitializeRootDirectories()
-{
-  InitializeRootDirectories(startupConfig, false);
 }
 
 void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, bool review)
@@ -150,13 +145,13 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     // UserConfig
     if (!startupConfig.userConfigRoot.Empty())
     {
-      userConfigRootIndex = RegisterRootDirectory(startupConfig.userConfigRoot, RootDirectoryInfo::Purpose::Config, false, false, review);
+      userConfigRootIndex = RegisterRootDirectory(startupConfig.userConfigRoot, RootDirectoryInfo::Purpose::Config, ConfigurationScope::User, false, review);
     }
 
     // UserData
     if (!startupConfig.userDataRoot.Empty())
     {
-      userDataRootIndex = RegisterRootDirectory(startupConfig.userDataRoot, RootDirectoryInfo::Purpose::Data, false, false, review);
+      userDataRootIndex = RegisterRootDirectory(startupConfig.userDataRoot, RootDirectoryInfo::Purpose::Data, ConfigurationScope::User, false, review);
     }
 
     // UserRoots
@@ -164,27 +159,27 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     {
       if (!root.empty())
       {
-        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false, false, review);
+        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::User, false, review);
       }
     }
 
     // UserInstall
     if (!startupConfig.userInstallRoot.Empty())
     {
-      userInstallRootIndex = RegisterRootDirectory(startupConfig.userInstallRoot, RootDirectoryInfo::Purpose::Install, false, false, review);
+      userInstallRootIndex = RegisterRootDirectory(startupConfig.userInstallRoot, RootDirectoryInfo::Purpose::Install, ConfigurationScope::User, false, review);
     }
   }
 
   // CommonConfig
   if (!startupConfig.commonConfigRoot.Empty())
   {
-    commonConfigRootIndex = RegisterRootDirectory(startupConfig.commonConfigRoot, RootDirectoryInfo::Purpose::Config, true, false, review);
+    commonConfigRootIndex = RegisterRootDirectory(startupConfig.commonConfigRoot, RootDirectoryInfo::Purpose::Config, ConfigurationScope::Common, false, review);
   }
 
   // CommonData
   if (!startupConfig.commonDataRoot.Empty())
   {
-    commonDataRootIndex = RegisterRootDirectory(startupConfig.commonDataRoot, RootDirectoryInfo::Purpose::Data, true, false, review);
+    commonDataRootIndex = RegisterRootDirectory(startupConfig.commonDataRoot, RootDirectoryInfo::Purpose::Data, ConfigurationScope::Common, false, review);
   }
 
   // CommonRoots
@@ -192,14 +187,14 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   {
     if (!root.empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, true, false, review);
+      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, false, review);
     }
   }
 
   // CommonInstall
   if (!startupConfig.commonInstallRoot.Empty())
   {
-    commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, RootDirectoryInfo::Purpose::Install, true, false, review);
+    commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, RootDirectoryInfo::Purpose::Install, ConfigurationScope::Common, false, review);
   }
 
   if (!IsAdminMode())
@@ -209,7 +204,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     {
       if (!root.empty())
       {
-        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, false , true, review);
+        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::User, true, review);
       }
     }
   }
@@ -219,7 +214,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   {
     if (!root.empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, true, true, review);
+      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, true, review);
     }
   }
 
@@ -259,7 +254,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     commonInstallRootIndex = commonConfigRootIndex;
   }
 
-  RegisterRootDirectory(MPM_ROOT_PATH, RootDirectoryInfo::Purpose::Generic, IsAdminMode(), false, false);
+  RegisterRootDirectory(MPM_ROOT_PATH, RootDirectoryInfo::Purpose::Generic, IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, false, false);
 
   if (!IsAdminMode())
   {
@@ -391,156 +386,6 @@ PathName SessionImpl::GetDistRootDirectory()
   return result.second;
 }
 
-void SessionImpl::SaveRootDirectories(RegisterRootDirectoriesOptionSet options)
-{
-#if defined(MIKTEX_WINDOWS)
-  bool noRegistry = options[RegisterRootDirectoriesOption::NoRegistry];
-#else
-  bool noRegistry = true;
-#endif
-  MIKTEX_ASSERT(!IsMiKTeXDirect());
-  StartupConfig startupConfig;
-  startupConfig.config =
-    (IsMiKTeXPortable()
-      ? MiKTeXConfiguration::Portable
-      : MiKTeXConfiguration::Regular);
-  size_t n = GetNumberOfTEXMFRoots();
-  startupConfig.commonRoots.reserve(n * 30);
-  startupConfig.userRoots.reserve(n * 30);
-  startupConfig.otherCommonRoots.reserve(n * 30);
-  startupConfig.otherUserRoots.reserve(n * 30);
-  for (unsigned idx = 0; idx < n; ++idx)
-  {
-    const RootDirectoryInternals& rootDirectory = this->rootDirectories[idx];
-    if (rootDirectory.IsCommon())
-    {
-      if (idx == commonDataRootIndex
-        || idx == commonConfigRootIndex
-        || idx == commonInstallRootIndex)
-      {
-        // implicitly defined
-        continue;
-      }
-      if (rootDirectory.IsOther())
-      {
-        if (!startupConfig.otherCommonRoots.empty())
-        {
-          startupConfig.otherCommonRoots += PATH_DELIMITER;
-        }
-        startupConfig.otherCommonRoots += rootDirectory.get_UnexpandedPath().GetData();
-      }
-      else
-      {
-        if (!startupConfig.commonRoots.empty())
-        {
-          startupConfig.commonRoots += PATH_DELIMITER;
-        }
-        startupConfig.commonRoots += rootDirectory.get_UnexpandedPath().GetData();
-      }
-    }
-    else
-    {
-      if (idx == userDataRootIndex
-        || idx == userConfigRootIndex
-        || idx == userInstallRootIndex)
-      {
-        // implicitly defined
-        continue;
-      }
-      if (rootDirectory.IsOther())
-      {
-        if (!startupConfig.otherUserRoots.empty())
-        {
-          startupConfig.otherUserRoots += PATH_DELIMITER;
-        }
-        startupConfig.otherUserRoots += rootDirectory.get_UnexpandedPath().GetData();
-      }
-      else
-      {
-        if (!startupConfig.userRoots.empty())
-        {
-          startupConfig.userRoots += PATH_DELIMITER;
-        }
-        startupConfig.userRoots += rootDirectory.get_UnexpandedPath().GetData();
-      }
-    }
-  }
-  if (commonInstallRootIndex != INVALID_ROOT_INDEX)
-  {
-    startupConfig.commonInstallRoot =
-      this->rootDirectories[commonInstallRootIndex].get_UnexpandedPath();
-  }
-  if (userInstallRootIndex != INVALID_ROOT_INDEX)
-  {
-    startupConfig.userInstallRoot = this->rootDirectories[userInstallRootIndex].get_UnexpandedPath();
-  }
-  if (commonDataRootIndex != INVALID_ROOT_INDEX)
-  {
-    startupConfig.commonDataRoot = this->rootDirectories[commonDataRootIndex].get_UnexpandedPath();
-  }
-  if (userDataRootIndex != INVALID_ROOT_INDEX)
-  {
-    startupConfig.userDataRoot = this->rootDirectories[userDataRootIndex].get_UnexpandedPath();
-  }
-  if (commonConfigRootIndex != INVALID_ROOT_INDEX)
-  {
-    startupConfig.commonConfigRoot = this->rootDirectories[commonConfigRootIndex].get_UnexpandedPath();
-  }
-  if (userConfigRootIndex != INVALID_ROOT_INDEX)
-  {
-    startupConfig.userConfigRoot = this->rootDirectories[userConfigRootIndex].get_UnexpandedPath();
-  }
-  if (IsAdminMode() || IsMiKTeXPortable())
-  {
-    PathName commonStartupConfigFile;
-    bool haveCommonStartupConfigFile = FindStartupConfigFile(true, commonStartupConfigFile);
-    if (haveCommonStartupConfigFile || noRegistry)
-    {
-      WriteStartupConfigFile(true, startupConfig);
-    }
-    else
-    {
-#if defined(MIKTEX_WINDOWS)
-      WriteRegistry(true, startupConfig);
-#else
-      UNIMPLEMENTED();
-#endif
-    }
-  }
-  if (!IsMiKTeXPortable())
-  {
-    PathName userStartupConfigFile;
-    bool haveUserStartupConfigFile = IsAdminMode() ? false : FindStartupConfigFile(false, userStartupConfigFile);
-    if (haveUserStartupConfigFile || noRegistry)
-    {
-      WriteStartupConfigFile(false, startupConfig);
-    }
-    else
-    {
-#if defined(MIKTEX_WINDOWS)
-      WriteRegistry(false, startupConfig);
-#else
-      UNIMPLEMENTED();
-#endif
-    }
-  }
-  RecordMaintenance();
-}
-
-void SessionImpl::RecordMaintenance()
-{
-  time_t now = time(nullptr);
-  string nowStr = std::to_string(now);
-  if (IsAdminMode())
-  {
-    SetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, nowStr);
-  }
-  else
-  {
-    SetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, nowStr);
-  }
-}
-
 void SessionImpl::ReregisterRootDirectories(const string& roots, bool other)
 {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
@@ -654,7 +499,7 @@ void SessionImpl::UnregisterRootDirectory(const PathName& path, bool other)
   ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), other);
 }
 
-void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
+void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupConfig, RegisterRootDirectoriesOptionSet options)
 {
   if (IsMiKTeXDirect())
   {
@@ -664,54 +509,54 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, Re
   // clear the search path cache
   ClearSearchVectors();
 
-  triMiKTeXDirect = TriState::Undetermined;
+  StartupConfig newStartupConfig = partialStartupConfig;
+  newStartupConfig.config = initStartupConfig.config;
 
-  StartupConfig startupConfig_ = startupConfig;
-
-  if (startupConfig_.commonInstallRoot.Empty() && commonInstallRootIndex != INVALID_ROOT_INDEX)
+  if (newStartupConfig.commonInstallRoot.Empty() && commonInstallRootIndex != INVALID_ROOT_INDEX)
   {
-    startupConfig_.commonInstallRoot = GetRootDirectoryPath(commonInstallRootIndex);
-  }
-  if (startupConfig_.commonDataRoot.Empty() && commonDataRootIndex != INVALID_ROOT_INDEX)
-  {
-    startupConfig_.commonDataRoot = GetRootDirectoryPath(commonDataRootIndex);
-  }
-  if (startupConfig_.commonConfigRoot.Empty() && commonConfigRootIndex != INVALID_ROOT_INDEX)
-  {
-    startupConfig_.commonConfigRoot = GetRootDirectoryPath(commonConfigRootIndex);
+    newStartupConfig.commonInstallRoot = GetRootDirectoryPath(commonInstallRootIndex);
   }
 
-  if (startupConfig_.userInstallRoot.Empty() && userInstallRootIndex != INVALID_ROOT_INDEX)
+  if (newStartupConfig.commonDataRoot.Empty() && commonDataRootIndex != INVALID_ROOT_INDEX)
   {
-    startupConfig_.userInstallRoot = GetRootDirectoryPath(userInstallRootIndex);
+    newStartupConfig.commonDataRoot = GetRootDirectoryPath(commonDataRootIndex);
   }
 
-  if (startupConfig_.userDataRoot.Empty() && userDataRootIndex != INVALID_ROOT_INDEX)
+  if (newStartupConfig.commonConfigRoot.Empty() && commonConfigRootIndex != INVALID_ROOT_INDEX)
   {
-    startupConfig_.userDataRoot = GetRootDirectoryPath(userDataRootIndex);
+    newStartupConfig.commonConfigRoot = GetRootDirectoryPath(commonConfigRootIndex);
   }
 
-  if (startupConfig_.userConfigRoot.Empty() && userConfigRootIndex != INVALID_ROOT_INDEX)
+  if (newStartupConfig.userInstallRoot.Empty() && userInstallRootIndex != INVALID_ROOT_INDEX)
   {
-    startupConfig_.userConfigRoot = GetRootDirectoryPath(userConfigRootIndex);
+    newStartupConfig.userInstallRoot = GetRootDirectoryPath(userInstallRootIndex);
   }
 
-  MergeStartupConfig(startupConfig_, DefaultConfig());
+  if (newStartupConfig.userDataRoot.Empty() && userDataRootIndex != INVALID_ROOT_INDEX)
+  {
+    newStartupConfig.userDataRoot = GetRootDirectoryPath(userDataRootIndex);
+  }
+
+  if (newStartupConfig.userConfigRoot.Empty() && userConfigRootIndex != INVALID_ROOT_INDEX)
+  {
+    newStartupConfig.userConfigRoot = GetRootDirectoryPath(userConfigRootIndex);
+  }
+
+  MergeStartupConfig(newStartupConfig, DefaultConfig());
 
   try
   {
-    InitializeRootDirectories(startupConfig_, options[RegisterRootDirectoriesOption::Review]);
+    InitializeRootDirectories(newStartupConfig, options[RegisterRootDirectoriesOption::Review]);
   }
   catch (const MiKTeXException&)
   {
-    InitializeRootDirectories();
+    InitializeRootDirectories(initStartupConfig, false);
     throw;
   }
 
   if (!options[RegisterRootDirectoriesOption::Temporary])
   {
-    // save the information
-    SaveRootDirectories(options);
+    SaveStartupConfig(newStartupConfig, options);
   }
 }
 

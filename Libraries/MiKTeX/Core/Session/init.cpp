@@ -181,9 +181,9 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
     TraceStream::SetOptions(traceOptions);
   }
 
-  BuildStartupConfig();
+  InitializeStartupConfig();
 
-  InitializeRootDirectories();
+  InitializeRootDirectories(initStartupConfig, false);
 
   Utils::GetEnvironmentString(MIKTEX_ENV_PACKAGE_LIST_FILE, packageHistoryFile);
 
@@ -235,20 +235,20 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 #endif
 }
 
-void SessionImpl::BuildStartupConfig()
+void SessionImpl::InitializeStartupConfig()
 {
   // evaluate init info
-  MergeStartupConfig(startupConfig, initInfo.GetStartupConfig());
+  MergeStartupConfig(initStartupConfig, initInfo.GetStartupConfig());
 
   // read common environment variables
-  MergeStartupConfig(startupConfig, ReadEnvironment(true));
+  MergeStartupConfig(initStartupConfig, ReadEnvironment(ConfigurationScope::Common));
 
   // read user environment variables
-  MergeStartupConfig(startupConfig, ReadEnvironment(false));
+  MergeStartupConfig(initStartupConfig, ReadEnvironment(ConfigurationScope::User));
 
   PathName commonStartupConfigFile;
 
-  bool haveCommonStartupConfigFile = FindStartupConfigFile(true, commonStartupConfigFile);
+  bool haveCommonStartupConfigFile = FindStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile);
 
   PathName commonPrefix;
 
@@ -261,7 +261,7 @@ void SessionImpl::BuildStartupConfig()
 
   PathName userStartupConfigFile;
 
-  bool haveUserStartupConfigFile = FindStartupConfigFile(false, userStartupConfigFile);
+  bool haveUserStartupConfigFile = FindStartupConfigFile(ConfigurationScope::User, userStartupConfigFile);
 
   PathName userPrefix;
 
@@ -275,35 +275,35 @@ void SessionImpl::BuildStartupConfig()
   // read common startup config file
   if (haveCommonStartupConfigFile)
   {
-    MergeStartupConfig(startupConfig, ReadStartupConfigFile(true, commonStartupConfigFile));
+    MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile));
   }
 
   // read user startup config file
   if (haveUserStartupConfigFile)
   {
-    MergeStartupConfig(startupConfig, ReadStartupConfigFile(false, userStartupConfigFile));
+    MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, userStartupConfigFile));
   }
 
 #if !NO_REGISTRY
-  if (startupConfig.config != MiKTeXConfiguration::Portable)
+  if (initStartupConfig.config != MiKTeXConfiguration::Portable)
   {
     // read the registry, if we don't have a startup config file
     if (!haveCommonStartupConfigFile)
     {
-      MergeStartupConfig(startupConfig, ReadRegistry(true));
+      MergeStartupConfig(initStartupConfig, ReadRegistry(ConfigurationScope::Common));
     }
     if (!haveUserStartupConfigFile)
     {
-      MergeStartupConfig(startupConfig, ReadRegistry(false));
+      MergeStartupConfig(initStartupConfig, ReadRegistry(ConfigurationScope::User));
     }
   }
 #endif
 
   // merge in the default settings
-  MergeStartupConfig(startupConfig, DefaultConfig(startupConfig.config, commonPrefix, userPrefix));
+  MergeStartupConfig(initStartupConfig, DefaultConfig(initStartupConfig.config, commonPrefix, userPrefix));
 }
 
-StartupConfig SessionImpl::ReadEnvironment(bool common)
+StartupConfig SessionImpl::ReadEnvironment(ConfigurationScope scope)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
@@ -311,7 +311,7 @@ StartupConfig SessionImpl::ReadEnvironment(bool common)
 
   string str;
 
-  if (common)
+  if (scope == ConfigurationScope::Common)
   {
     if (Utils::GetEnvironmentString(MIKTEX_ENV_COMMON_ROOTS, str))
     {
@@ -359,6 +359,64 @@ StartupConfig SessionImpl::ReadEnvironment(bool common)
   }
 
   return ret;
+}
+
+void SessionImpl::SaveStartupConfig(const MiKTeX::Core::StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
+{
+#if defined(MIKTEX_WINDOWS)
+  bool noRegistry = options[RegisterRootDirectoriesOption::NoRegistry];
+#else
+  bool noRegistry = true;
+#endif
+  if (IsAdminMode() || startupConfig.config == MiKTeXConfiguration::Portable)
+  {
+    PathName commonStartupConfigFile;
+    bool haveCommonStartupConfigFile = FindStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile);
+    if (haveCommonStartupConfigFile || noRegistry)
+    {
+      WriteStartupConfigFile(ConfigurationScope::Common, startupConfig);
+    }
+    else
+    {
+#if defined(MIKTEX_WINDOWS)
+      WriteRegistry(ConfigurationScope::Common, startupConfig);
+#else
+      UNIMPLEMENTED();
+#endif
+    }
+  }
+  if (startupConfig.config != MiKTeXConfiguration::Portable)
+  {
+    PathName userStartupConfigFile;
+    bool haveUserStartupConfigFile = IsAdminMode() ? false : FindStartupConfigFile(ConfigurationScope::User, userStartupConfigFile);
+    if (haveUserStartupConfigFile || noRegistry)
+    {
+      WriteStartupConfigFile(ConfigurationScope::User, startupConfig);
+    }
+    else
+    {
+#if defined(MIKTEX_WINDOWS)
+      WriteRegistry(ConfigurationScope::User, startupConfig);
+#else
+      UNIMPLEMENTED();
+#endif
+    }
+  }
+  RecordMaintenance();
+}
+
+void SessionImpl::RecordMaintenance()
+{
+  time_t now = time(nullptr);
+  string nowStr = std::to_string(now);
+  if (IsAdminMode())
+  {
+    SetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, nowStr);
+  }
+  else
+  {
+    SetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, nowStr);
+  }
 }
 
 void SessionImpl::MergeStartupConfig(StartupConfig& startupConfig, const StartupConfig& defaults)

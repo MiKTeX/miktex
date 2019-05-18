@@ -68,6 +68,15 @@ enum class MiKTeXConfiguration
   Portable,
 };
 
+/// MiKTeX configuration scope.
+enum class ConfigurationScope
+{
+  /// User configuration.
+  User,
+  /// Common (system-wide) configuration.
+  Common
+};
+
 /// Startup configuration.
 struct StartupConfig
 {

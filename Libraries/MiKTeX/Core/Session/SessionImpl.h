@@ -813,28 +813,28 @@ private:
   void ReregisterRootDirectories(const std::string& roots, bool other);
 
 private:
-  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, MiKTeX::Core::RootDirectoryInfo::Purpose purpose, bool common, bool other, bool review);
+  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, MiKTeX::Core::RootDirectoryInfo::Purpose purpose, MiKTeX::Core::ConfigurationScope scope, bool other, bool review);
 
 private:
-  bool FindStartupConfigFile(bool common, MiKTeX::Core::PathName& path);
+  bool FindStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::PathName& path);
 
 private:
-  MiKTeX::Core::StartupConfig ReadStartupConfigFile(bool common, const MiKTeX::Core::PathName& path);
+  MiKTeX::Core::StartupConfig ReadStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::PathName& path);
 
 private:
-  void WriteStartupConfigFile(bool common, const MiKTeX::Core::StartupConfig& startupConfig);
+  void WriteStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::StartupConfig& startupConfig);
 
 private:
-  MiKTeX::Core::StartupConfig ReadEnvironment(bool common);
+  MiKTeX::Core::StartupConfig ReadEnvironment(MiKTeX::Core::ConfigurationScope scope);
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  MiKTeX::Core::StartupConfig ReadRegistry(bool common);
+  MiKTeX::Core::StartupConfig ReadRegistry(MiKTeX::Core::ConfigurationScope scope);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  void WriteRegistry(bool common, const MiKTeX::Core::StartupConfig& startupConfig);
+  void WriteRegistry(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::StartupConfig& startupConfig);
 #endif
 
 private:
@@ -843,11 +843,11 @@ private:
 private:
   MiKTeX::Core::StartupConfig DefaultConfig()
   {
-    return DefaultConfig(startupConfig.config, "", "");
+    return DefaultConfig(initStartupConfig.config, "", "");
   }
 
 private:
-  void BuildStartupConfig();
+  void InitializeStartupConfig();
 
 private:
   void MergeStartupConfig(MiKTeX::Core::StartupConfig& startupConfig, const MiKTeX::Core::StartupConfig& defaults);
@@ -856,10 +856,7 @@ private:
   void InitializeRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig, bool review);
 
 private:
-  void InitializeRootDirectories();
-
-private:
-  void SaveRootDirectories(MiKTeX::Core::RegisterRootDirectoriesOptionSet options);
+  void SaveStartupConfig(const MiKTeX::Core::StartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options);
 
 private:
   bool IsTeXMFReadOnly(unsigned r);
@@ -1009,7 +1006,7 @@ private:
   std::vector<LanguageInfo_> languages;
 
 private:
-  MiKTeX::Core::StartupConfig startupConfig;
+  MiKTeX::Core::StartupConfig initStartupConfig;
 
 private:
   MiKTeX::Core::Session::InitInfo initInfo;

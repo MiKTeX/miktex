@@ -58,9 +58,9 @@ public:
   }
 
 public:
-  void set_NoFndb(bool noFndb)
+  void set_NoFndb(bool f)
   {
-    this->noFndb = noFndb;
+    this->noFndb = f;
   }
 
 public:
@@ -70,9 +70,9 @@ public:
   }
 
 public:
-  void set_Common(bool common)
+  void set_Common(bool f)
   {
-    if (common)
+    if (f)
     {
       this->attributes += Attribute::Common;
     }
@@ -83,9 +83,9 @@ public:
   }
 
 public:
-  void set_Other(bool other)
+  void set_Other(bool f)
   {
-    if (other)
+    if (f)
     {
       this->attributes += Attribute::Other;
     }

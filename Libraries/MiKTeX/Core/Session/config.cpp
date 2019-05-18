@@ -115,7 +115,7 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
   MIKTEX_FATAL_ERROR_2("Cannot derive the path prefix of the running executable.", "bindir", bindir.ToString(), "canonicalized", canonicalized ? "true" : "false");
 }
 
-bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
+bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path)
 {
   if (initInfo.GetOptions()[InitOption::NoConfigFiles])
   {
@@ -124,7 +124,7 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
 
   string str;
 
-  if (Utils::GetEnvironmentString(common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, str))
+  if (Utils::GetEnvironmentString(scope == ConfigurationScope::Common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, str))
   {
     path = str;
     // don't check for existence; it's a fatal error (detected later)
@@ -133,7 +133,7 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
   }
 
 #if !NO_REGISTRY
-  if (winRegistry::TryGetRegistryValue(common ? TriState::True : TriState::False, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
+  if (winRegistry::TryGetRegistryValue(scope == ConfigurationScope::Common ? TriState::True : TriState::False, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
   {
     // don't check for existence; it's a fatal error (detected later)
     // if the registry value is incorrect
@@ -144,7 +144,7 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
 
   StartupConfig defaultStartupConfig = DefaultConfig();
 
-  if (common)
+  if (scope == ConfigurationScope::Common)
   {
     // try the prefix of the internal bin directory
     PathName myloc = GetMyLocation(true);
@@ -187,7 +187,8 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
     }
 #endif
   }
-  else
+
+  if (scope == ConfigurationScope::User)
   {
     // try $HOME/.miktex/miktex/config/miktexstartup.ini
     path = defaultStartupConfig.userConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
@@ -230,7 +231,7 @@ void Absolutize(string& paths, const PathName& relativeFrom)
   paths = StringUtil::Flatten(result, PathName::PathNameDelimiter);
 }
 
-StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& path)
+StartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const PathName& path)
 {
   StartupConfig ret;
 
@@ -263,7 +264,7 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
   PathName relativeFrom(path);
   relativeFrom.RemoveFileSpec();
 
-  if (common)
+  if (scope == ConfigurationScope::Common)
   {
     if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_COMMON_ROOTS, str))
     {
@@ -324,7 +325,7 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
   cfg = nullptr;
 
   // inherit to child processes
-  Utils::SetEnvironmentString(common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, path.ToString());
+  Utils::SetEnvironmentString(scope == ConfigurationScope::Common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, path.ToString());
 
   return ret;
 }
@@ -351,7 +352,7 @@ void Relativize(string& paths, const PathName& relativeFrom)
 #endif
 }
 
-void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& startupConfig)
+void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const StartupConfig& startupConfig)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
@@ -433,7 +434,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
     }
   }
 
-  if (common || commonStartupConfigFile == userStartupConfigFile)
+  if (scope == ConfigurationScope::Common || commonStartupConfigFile == userStartupConfigFile)
   {
     if (!startupConfig.commonRoots.empty() || showAllValues)
     {
@@ -482,7 +483,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
     }
   }
 
-  if (!common || commonStartupConfigFile == userStartupConfigFile)
+  if (scope == ConfigurationScope::User || commonStartupConfigFile == userStartupConfigFile)
   {
     if (!startupConfig.userRoots.empty() || showAllValues)
     {
@@ -531,17 +532,17 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
     }
   }
 
-  cfg->Write(common ? commonStartupConfigFile : userStartupConfigFile, T_("MiKTeX startup information"));
+  cfg->Write(scope == ConfigurationScope::Common ? commonStartupConfigFile : userStartupConfigFile, T_("MiKTeX startup information"));
 }
 
 bool SessionImpl::IsMiKTeXDirect()
 {
-  return startupConfig.config == MiKTeXConfiguration::Direct;
+  return initStartupConfig.config == MiKTeXConfiguration::Direct;
 }
 
 bool SessionImpl::IsMiKTeXPortable()
 {
-  return startupConfig.config == MiKTeXConfiguration::Portable;
+  return initStartupConfig.config == MiKTeXConfiguration::Portable;
 }
 
 pair<bool, PathName> SessionImpl::TryGetBinDirectory(bool canonicalized)
@@ -1186,9 +1187,10 @@ void SessionImpl::SetAdminMode(bool adminMode, bool force)
   fileTypes.clear();
   UnloadFilenameDatabase();
   this->adminMode = adminMode;
-  if (rootDirectories.size() > 0)
+  if (!rootDirectories.empty())
   {
-    InitializeRootDirectories();
+    // reinitialize root directories
+    InitializeRootDirectories(initStartupConfig, false);
   }
   SetEnvironmentVariables();
 }
