@@ -1,6 +1,6 @@
 /* winRegistry.cpp: Windows registry operations
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Registry>
 #include <miktex/Core/win/winAutoResource>
 
@@ -32,6 +35,17 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+
+wstring MakeRegistryPath(const wstring& keyName)
+{
+
+  return fmt::format(L"{}\\{}", SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES), keyName);
+}
+
+HKEY ToHkey(ConfigurationScope scope)
+{
+  return scope == ConfigurationScope::User ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
+}
 
 bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, vector<BYTE>& value, DWORD& valueType)
 {
@@ -204,29 +218,29 @@ void winRegistry::SetRegistryValue(HKEY hkeyParent, const string& path, const st
   SetRegistryValue(hkeyParent, UW_(path), UW_(valueName), UW_(value), REG_SZ);
 }
 
-bool winRegistry::TryGetRegistryValue(TriState shared, const wstring& keyName, const wstring& valueName, wstring& value)
+bool winRegistry::TryGetRegistryValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, wstring& value)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  if (shared == TriState::Undetermined)
+  if (scope == ConfigurationScope::None)
   {
     // RECURSION
-    if (!session->IsAdminMode() && TryGetRegistryValue(TriState::False, keyName, valueName, value))
+    if (!session->IsAdminMode() && TryGetRegistryValue(ConfigurationScope::User, keyName, valueName, value))
     {
       return true;
     }
     // RECURSION
-    return TryGetRegistryValue(TriState::True, keyName, valueName, value);
+    return TryGetRegistryValue(ConfigurationScope::Common, keyName, valueName, value);
   }
-  wstring registryPath = session->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
-  registryPath += L'\\';
-  registryPath += keyName;
-  return TryGetRegistryValue(shared == TriState::False ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE, registryPath, valueName, value);
+  else
+  {
+    return TryGetRegistryValue(ToHkey(scope), MakeRegistryPath(keyName), valueName, value);
+  }
 }
 
-bool winRegistry::TryGetRegistryValue(TriState shared, const string& keyName, const string& valueName, string& value)
+bool winRegistry::TryGetRegistryValue(ConfigurationScope scope, const string& keyName, const string& valueName, string& value)
 {
   wstring wideValue;
-  bool result = TryGetRegistryValue(shared, UW_(keyName), UW_(valueName), wideValue);
+  bool result = TryGetRegistryValue(scope, UW_(keyName), UW_(valueName), wideValue);
   if (result)
   {
     value = WU_(wideValue);
@@ -234,10 +248,10 @@ bool winRegistry::TryGetRegistryValue(TriState shared, const string& keyName, co
   return result;
 }
 
-bool winRegistry::TryGetRegistryValue(TriState shared, const wstring& keyName, const wstring& valueName, PathName& path)
+bool winRegistry::TryGetRegistryValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, PathName& path)
 {
   wstring value;
-  if (!TryGetRegistryValue(shared, keyName, valueName, value))
+  if (!TryGetRegistryValue(scope, keyName, valueName, value))
   {
     return false;
   }
@@ -245,53 +259,51 @@ bool winRegistry::TryGetRegistryValue(TriState shared, const wstring& keyName, c
   return true;
 }
 
-bool winRegistry::TryGetRegistryValue(TriState shared, const string& keyName, const string& valueName, PathName& path)
+bool winRegistry::TryGetRegistryValue(ConfigurationScope scope, const string& keyName, const string& valueName, PathName& path)
 {
-  return TryGetRegistryValue(shared, UW_(keyName), UW_(valueName), path);
+  return TryGetRegistryValue(scope, UW_(keyName), UW_(valueName), path);
 }
 
-bool winRegistry::TryDeleteRegistryValue(TriState shared, const wstring& keyName, const wstring& valueName)
+bool winRegistry::TryDeleteRegistryValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  if (shared == TriState::Undetermined)
+  if (scope == ConfigurationScope::None)
   {
     // RECURSION
-    bool done = !session->IsAdminMode() || TryDeleteRegistryValue(TriState::False, keyName, valueName);
-    return TryDeleteRegistryValue(TriState::True, keyName, valueName) || done;
+    bool done = !session->IsAdminMode() || TryDeleteRegistryValue(ConfigurationScope::User, keyName, valueName);
+    return TryDeleteRegistryValue(ConfigurationScope::Common, keyName, valueName) || done;
   }
-  wstring registryPath = SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
-  registryPath += L'\\';
-  registryPath += keyName;
-  return TryDeleteRegistryValue((shared == TriState::False ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE), registryPath, valueName);
-}
-
-bool winRegistry::TryDeleteRegistryValue(TriState shared, const string& keyName, const string& valueName)
-{
-  return TryDeleteRegistryValue(shared, UW_(keyName), UW_(valueName));
-}
-
-void winRegistry::SetRegistryValue(TriState shared, const wstring& keyName, const wstring& valueName, const wstring& value)
-{
-  if (shared == TriState::Undetermined)
+  else
   {
-    shared = SessionImpl::GetSession()->IsAdminMode() ? TriState::True : TriState::False;
+    return TryDeleteRegistryValue(ToHkey(scope), MakeRegistryPath(keyName), valueName);
+  }
+}
+
+bool winRegistry::TryDeleteRegistryValue(ConfigurationScope scope, const string& keyName, const string& valueName)
+{
+  return TryDeleteRegistryValue(scope, UW_(keyName), UW_(valueName));
+}
+
+void winRegistry::SetRegistryValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, const wstring& value)
+{
+  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  if (scope == ConfigurationScope::None)
+  {
     // RECURSION
-    SetRegistryValue(shared, keyName, valueName, value);
-    return;
+    SetRegistryValue(session->IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, keyName, valueName, value);
   }
-  wstring registryPath = SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
-  registryPath += L'\\';
-  registryPath += keyName;
-  HKEY hkeyParent = shared == TriState::False ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
-  SetRegistryValue(hkeyParent, registryPath, valueName, value);
-  wstring value2;
-  if (hkeyParent == HKEY_LOCAL_MACHINE && TryGetRegistryValue(TriState::False, keyName, valueName, value2))
+  else
   {
-    TryDeleteRegistryValue(TriState::False, keyName, valueName);
+    SetRegistryValue(ToHkey(scope), MakeRegistryPath(keyName), valueName, value);
+    wstring value2;
+    if (scope == ConfigurationScope::Common && TryGetRegistryValue(ConfigurationScope::User, keyName, valueName, value2))
+    {
+      TryDeleteRegistryValue(ConfigurationScope::User, keyName, valueName);
+    }
   }
 }
 
-void winRegistry::SetRegistryValue(TriState shared, const string& keyName, const string& valueName, const string& value)
+void winRegistry::SetRegistryValue(ConfigurationScope scope, const string& keyName, const string& valueName, const string& value)
 {
-  SetRegistryValue(shared, UW_(keyName), UW_(valueName), UW_(value));
+  SetRegistryValue(scope, UW_(keyName), UW_(valueName), UW_(value));
 }

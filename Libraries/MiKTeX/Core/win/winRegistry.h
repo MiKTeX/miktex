@@ -1,6 +1,6 @@
 /* winRegistry.h: Windows registry operations           -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -70,28 +70,28 @@ public:
   static void SetRegistryValue(HKEY hkeyParent, const std::string& path, const std::string& valueName, const std::string& value);
 
 public:
-  static bool TryGetRegistryValue(MiKTeX::Core::TriState shared, const std::wstring& keyName, const std::wstring& valueName, std::wstring& value);
+  static bool TryGetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, std::wstring& value);
 
 public:
-  static bool TryGetRegistryValue(MiKTeX::Core::TriState shared, const std::string& keyName, const std::string& valueName, std::string& value);
+  static bool TryGetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, std::string& value);
 
 public:
-  static bool TryGetRegistryValue(MiKTeX::Core::TriState shared, const std::wstring& keyName, const std::wstring& valueName, MiKTeX::Core::PathName& path);
+  static bool TryGetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, MiKTeX::Core::PathName& path);
 
 public:
-  static bool TryGetRegistryValue(MiKTeX::Core::TriState shared, const std::string& keyName, const std::string& valueName, MiKTeX::Core::PathName& path);
+  static bool TryGetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, MiKTeX::Core::PathName& path);
 
 public:
-  static bool TryDeleteRegistryValue(MiKTeX::Core::TriState shared, const std::wstring& keyName, const std::wstring& valueName);
+  static bool TryDeleteRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName);
 
 public:
-  static bool TryDeleteRegistryValue(MiKTeX::Core::TriState shared, const std::string& keyName, const std::string& valueName);
+  static bool TryDeleteRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName);
 
 public:
-  static void SetRegistryValue(MiKTeX::Core::TriState shared, const std::wstring& keyName, const std::wstring& valueName, const std::wstring& value);
+  static void SetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, const std::wstring& value);
 
 public:
-  static void SetRegistryValue(MiKTeX::Core::TriState shared, const std::string& keyName, const std::string& valueName, const std::string& value);
+  static void SetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, const std::string& value);
 };
 
 CORE_INTERNAL_END_NAMESPACE;

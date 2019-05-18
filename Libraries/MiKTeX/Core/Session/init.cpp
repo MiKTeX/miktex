@@ -170,7 +170,7 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 #if defined(MIKTEX_WINDOWS)
   if (traceOptions.empty() && (!initInfo.GetOptions()[InitOption::NoConfigFiles]))
   {
-    if (!winRegistry::TryGetRegistryValue(TriState::False, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_TRACE, traceOptions))
+    if (!winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_TRACE, traceOptions))
     {
       traceOptions = "";
     }

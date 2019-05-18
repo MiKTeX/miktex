@@ -133,7 +133,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
   }
 
 #if !NO_REGISTRY
-  if (winRegistry::TryGetRegistryValue(scope == ConfigurationScope::Common ? TriState::True : TriState::False, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
+  if (winRegistry::TryGetRegistryValue(scope, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
   {
     // don't check for existence; it's a fatal error (detected later)
     // if the registry value is incorrect
@@ -367,7 +367,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
     userStartupConfigFile = str;
   }
 #if !NO_REGISTRY
-  else if (winRegistry::TryGetRegistryValue(TriState::False, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
+  else if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
   {
     userStartupConfigFile = str;
   }
@@ -384,7 +384,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
     commonStartupConfigFile = str;
   }
 #if !NO_REGISTRY
-  else if (winRegistry::TryGetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
+  else if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
   {
     commonStartupConfigFile = str;
   }
@@ -671,7 +671,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 
 #if defined(MIKTEX_WINDOWS)
     // try registry value
-    if (!IsMiKTeXPortable() && winRegistry::TryGetRegistryValue(TriState::Undetermined, defaultSectionName, valueName, value))
+    if (!IsMiKTeXPortable() && winRegistry::TryGetRegistryValue(ConfigurationScope::None, defaultSectionName, valueName, value))
     {
       haveValue = true;
       break;
@@ -724,7 +724,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 
 #if defined(MIKTEX_WINDOWS)
   // try registry value
-  if (!haveValue && !IsMiKTeXPortable() && !sectionName.empty() && winRegistry::TryGetRegistryValue(TriState::Undetermined, sectionName, valueName, value))
+  if (!haveValue && !IsMiKTeXPortable() && !sectionName.empty() && winRegistry::TryGetRegistryValue(ConfigurationScope::None, sectionName, valueName, value))
   {
     haveValue = true;
   }
@@ -1150,7 +1150,7 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
     && !IsMiKTeXPortable()
     && !GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
   {
-    winRegistry::SetRegistryValue(IsAdminMode() ? TriState::True : TriState::False, sectionName, valueName, value.GetString());
+    winRegistry::SetRegistryValue(IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, sectionName, valueName, value.GetString());
     string newValue;
     if (GetSessionValue(sectionName, valueName, newValue))
     {

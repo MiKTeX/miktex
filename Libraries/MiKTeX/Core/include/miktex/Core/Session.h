@@ -34,6 +34,7 @@
 
 #include <chrono>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -68,14 +69,38 @@ enum class MiKTeXConfiguration
   Portable,
 };
 
+inline std::ostream& operator<<(std::ostream& os, const MiKTeXConfiguration& miktexConfiguration)
+{
+  switch (miktexConfiguration)
+  {
+  case MiKTeXConfiguration::None: os << "None"; break;
+  case MiKTeXConfiguration::Regular: os << "Regular"; break;
+  case MiKTeXConfiguration::Direct: os << "Direct"; break;
+  case MiKTeXConfiguration::Portable: os << "Portable"; break;
+  }
+  return os;
+}
+
 /// MiKTeX configuration scope.
 enum class ConfigurationScope
 {
+  None,
   /// User configuration.
   User,
   /// Common (system-wide) configuration.
   Common
 };
+
+inline std::ostream& operator<<(std::ostream& os, const ConfigurationScope& scope)
+{
+  switch (scope)
+  {
+  case ConfigurationScope::None: os << "None"; break;
+  case ConfigurationScope::User: os << "User"; break;
+  case ConfigurationScope::Common: os << "Common"; break;
+  }
+  return os;
+}
 
 /// Startup configuration.
 struct StartupConfig
@@ -124,6 +149,52 @@ public:
 public:
   MiKTeXConfiguration config = MiKTeXConfiguration::None;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const StartupConfig& startupConfig)
+{
+  if (!startupConfig.userConfigRoot.Empty())
+  {
+    os << "UserConfig=" << startupConfig.userConfigRoot << ",";
+  }
+  if (!startupConfig.userDataRoot.Empty())
+  {
+    os << "UserData=" << startupConfig.userDataRoot << ",";
+  }
+  if (!startupConfig.userInstallRoot.Empty())
+  {
+    os << "UserInstall=" << startupConfig.userInstallRoot << ",";
+  }
+  if (!startupConfig.userRoots.empty())
+  {
+    os << "UserRoots=" << startupConfig.userRoots << ",";
+  }
+  if (!startupConfig.otherUserRoots.empty())
+  {
+    os << "OtherUserRoots=" << startupConfig.otherUserRoots << ",";
+  }
+  if (!startupConfig.commonConfigRoot.Empty())
+  {
+    os << "CommonConfig=" << startupConfig.commonConfigRoot << ",";
+  }
+  if (!startupConfig.commonDataRoot.Empty())
+  {
+    os << "CommonData=" << startupConfig.commonDataRoot << ",";
+  }
+  if (!startupConfig.commonInstallRoot.Empty())
+  {
+    os << "CommonInstall=" << startupConfig.commonInstallRoot << ",";
+  }
+  if (!startupConfig.commonRoots.empty())
+  {
+    os << "CommonRoots=" << startupConfig.commonRoots << ",";
+  }
+  if (!startupConfig.otherCommonRoots.empty())
+  {
+    os << "OtherCommonRoots=" << startupConfig.otherCommonRoots << ",";
+  }
+  os << "MiKTeXConfiguration=" << startupConfig.config;
+  return os;
+}
 
 /// Special path names.
 enum class SpecialPath
