@@ -25,6 +25,7 @@ pdflatex --c-style-errors --interaction=scrollmode document.tex
 * [181](https://github.com/MiKTeX/miktex/issues/181): Make file-line-error more talkative
 * [293](https://github.com/MiKTeX/miktex/issues/293): Bundles old vulnerable copy of uriparser 0.8.6, please update
 * [294](https://github.com/MiKTeX/miktex/issues/294): kpsewhich not in PATH in MacOS
+* [312](https://github.com/MiKTeX/miktex/issues/312): MiKTeX Setup Wizard ignores --user-install in Windows 10
 
 ## 2.9.7000 - 2019-04-10
 
