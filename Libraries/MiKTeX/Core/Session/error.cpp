@@ -1,6 +1,6 @@
 /* error.cpp: error handling
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,17 +30,13 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-MIKTEXINTERNALFUNC(void) TraceError(const char* lpszFormat, ...)
+MIKTEXINTERNALFUNC(void) TraceError(const string& msg)
 {
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session == nullptr)
+  if (session != nullptr)
   {
-    return;
+    session->trace_error->WriteLine("core", msg);
   }
-  va_list marker;
-  va_start(marker, lpszFormat);
-  session->trace_error->VTrace("core", lpszFormat, marker);
-  va_end(marker);
 }
 
 SourceLocation::SourceLocation(const string& functionName, const string& fileName, int lineNo) :

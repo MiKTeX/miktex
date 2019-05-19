@@ -822,6 +822,9 @@ private:
   MiKTeX::Core::StartupConfig ReadStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::PathName& path);
 
 private:
+  MiKTeX::Core::PathName GetStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::MiKTeXConfiguration config);
+
+private:
   void WriteStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::StartupConfig& startupConfig);
 
 private:

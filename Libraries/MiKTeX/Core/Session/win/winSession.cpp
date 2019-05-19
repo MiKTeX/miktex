@@ -417,23 +417,23 @@ StartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
   }
   else if (scope == ConfigurationScope::User)
   {
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_ROOTS, str))
+    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_ROOTS, str))
     {
       ret.userRoots = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_OTHER_USER_ROOTS, str))
+    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_OTHER_USER_ROOTS, str))
     {
       ret.otherUserRoots = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_INSTALL, str))
+    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_INSTALL, str))
     {
       ret.userInstallRoot = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_DATA, str))
+    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_DATA, str))
     {
       ret.userDataRoot = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_CONFIG, str))
+    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_CONFIG, str))
     {
       ret.userConfigRoot = str;
     }
@@ -445,8 +445,6 @@ StartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
 void SessionImpl::WriteRegistry(ConfigurationScope scope, const StartupConfig& startupConfig)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
-
-  trace_config->WriteLine("core", fmt::format(T_("writing registry: {0}: {1}"), scope, startupConfig));
 
   StartupConfig defaultConfig = DefaultConfig();
 

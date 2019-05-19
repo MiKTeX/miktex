@@ -98,7 +98,7 @@ bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, cons
     return true;
   }
   default:
-    TraceError(T_("ignoring value %s of type %u"), Q_(WU_(valueName)), static_cast<unsigned>(valueType));
+    TraceError(fmt::format(T_("ignoring value {0} of type {1}"), Q_(WU_(valueName)), valueType));
     return false;
   }
 }

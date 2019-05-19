@@ -1,6 +1,6 @@
 /* searchpath.cpp: managing search paths
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -20,6 +20,9 @@
    02111-1307, USA. */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
 
@@ -109,7 +112,7 @@ void SessionImpl::PushBackPath(vector<PathName>& vec, const PathName& path)
     {
       if (!Utils::IsAbsolutePath(pathFQ))
       {
-        TraceError(T_("%s is not fully qualified"), Q_(pathFQ));
+        TraceError(fmt::format(T_("{0} is not fully qualified"), Q_(pathFQ)));
         continue;
       }
       if (PathName::Compare(path, CURRENT_DIRECTORY) != 0)

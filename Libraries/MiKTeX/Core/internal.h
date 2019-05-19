@@ -253,7 +253,7 @@ void RemoveDirectoryDelimiter(char* path);
 bool ReportMiKTeXEvent(unsigned short eventType, unsigned long eventId, ...);
 #endif
 
-void TraceError(const char* format, ...);
+void TraceError(const std::string& msg);
 
 #if defined(MIKTEX_WINDOWS)
 void TraceWindowsError(const char* windowsFunction, unsigned long functionResult, const char* info, const char* sourceFileName, int sourceLine);

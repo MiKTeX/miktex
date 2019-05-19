@@ -23,6 +23,9 @@
 
 #include <iostream>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/CsvList>
 #include <miktex/Core/Directory>
 #include <miktex/Core/PathName>
@@ -1017,7 +1020,7 @@ pair<bool, PathName> Utils::ExpandTilde(const string& s)
     PathName pathFQ = GetHomeDirectory();
     if (!Utils::IsAbsolutePath(pathFQ))
     {
-      TraceError(T_("cannot expand ~: %s is not fully qualified"), Q_(pathFQ));
+      TraceError(fmt::format(T_("cannot expand ~: {0} is not fully qualified"), Q_(pathFQ)));
       return make_pair(false , "");
     }
     if (s[1] != 0 && IsDirectoryDelimiter(s[1]) && s[2] != 0)
