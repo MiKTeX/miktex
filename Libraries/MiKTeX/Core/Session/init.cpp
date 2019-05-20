@@ -328,6 +328,10 @@ void SessionImpl::InitializeStartupConfig()
   if (haveCommonStartupConfigFile)
   {
     MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile));
+    if (!IsAdminMode())
+    {
+      MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, commonStartupConfigFile));
+    }
   }
 
   // read user startup config file
