@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.7050 - not yet released
+## 2.9.7050 - 2019-05-27
 
 ### Breaking changes
 
