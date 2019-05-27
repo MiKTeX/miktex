@@ -27,5 +27,5 @@ In addition, you can try one of the Dockerized build environments to build MiKTe
 
 * [Ubuntu 16.04, 18.04](https://github.com/MiKTeX/docker-miktex-build-ubuntu)
 * [Debian 9](https://github.com/MiKTeX/docker-miktex-build-debian)
-* [Fedora 28](https://github.com/MiKTeX/docker-miktex-build-fedora)
+* [Fedora 28, 30](https://github.com/MiKTeX/docker-miktex-build-fedora)
 * [openSUSE Leap 15](https://github.com/MiKTeX/docker-miktex-build-opensuse)
