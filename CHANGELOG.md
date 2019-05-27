@@ -1,10 +1,10 @@
 # MiKTeX Change Log
 
-## 2.9.7050 - 2019-05-27
+## 2.9.7050 - 2019-05-30
 
 ### Breaking changes
 
-####  `--c-style-errors` does not imply `\scrollmode` anymore
+#### `--c-style-errors` does not imply `\scrollmode` anymore
 
 You can use the `--interaction=scrollmode` option, if you depend on the old behaviour:
 
