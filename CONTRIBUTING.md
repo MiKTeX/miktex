@@ -25,7 +25,7 @@ Make sure that others will be able to reproduce the bug by providing:
 1. **step-by-step reproduction instructions**:
   describe the exact steps which reproduce the problem in as many details
   as possible
-2. **input files which are necessary to reproduce the bug**
+2. **input files which are necessary to reproduce the bug**: aka a [minimal working example](https://en.wikipedia.org/wiki/Minimal_working_example)
 3. **your observations**: command output, screenshots
 
 **Most importantly**: include information about your MiKTeX setup:
