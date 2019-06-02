@@ -728,7 +728,7 @@ public:
     /// Return all files.
     All,
     /// Search the file system.
-    TryHard
+    SearchFileSystem
   };
 
 public:

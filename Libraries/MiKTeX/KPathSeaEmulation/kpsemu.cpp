@@ -256,7 +256,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_file(kpathsea kpseInstance, const ch
   if (mustExist)
   {
     options += Session::FindFileOption::Create;
-    options += Session::FindFileOption::TryHard;
+    options += Session::FindFileOption::SearchFileSystem;
   }
   found = session->FindFile(fileName, ft, options, result);
   if (!found)
@@ -282,7 +282,7 @@ MIKTEXKPSCEEAPI(char**) miktex_kpathsea_find_file_generic(kpathsea kpseInstance,
   if (mustExist)
   {
     options += Session::FindFileOption::Create;
-    options += Session::FindFileOption::TryHard;
+    options += Session::FindFileOption::SearchFileSystem;
   }
   shared_ptr<Session> session = Session::Get();
   found = session->FindFile(fileName, fileType, options, result);
@@ -1013,7 +1013,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_search(kpathsea kpseInstance, const 
   if (mustExist)
   {
     options += Session::FindFileOption::Create;
-    options += Session::FindFileOption::TryHard;
+    options += Session::FindFileOption::SearchFileSystem;
   }
   if (!session->FindFile(fileName, path, options, result))
   {
@@ -1029,7 +1029,7 @@ MIKTEXKPSCEEAPI(char**) miktex_kpathsea_all_path_search(kpathsea kpseInstance, c
   Session::FindFileOptionSet options;
   options += Session::FindFileOption::All;
   options += Session::FindFileOption::Create;
-  options += Session::FindFileOption::TryHard;
+  options += Session::FindFileOption::SearchFileSystem;
   if (!session->FindFile(fileName, path, options, result))
   {
     return nullptr;

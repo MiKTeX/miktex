@@ -738,13 +738,13 @@ private:
   bool MakePkFileName(MiKTeX::Core::PathName& pkFileName, const char* fontName, int dpi);
 
 private:
-  bool FindFileInternal(const std::string& fileName, const std::vector<MiKTeX::Core::PathName>& vec, bool firstMatchOnly, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Core::PathName>& result);
+  bool FindFileInternal(const std::string& fileName, const std::vector<MiKTeX::Core::PathName>& vec, bool all, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Core::PathName>& result);
 
 private:
-  bool FindFileInternal(const std::string& fileName, MiKTeX::Core::FileType fileType, bool firstMatchOnly, bool tryHard, bool create, bool renew, std::vector<MiKTeX::Core::PathName>& result);
+  bool FindFileInternal(const std::string& fileName, MiKTeX::Core::FileType fileType, bool all, bool tryHard, bool create, bool renew, std::vector<MiKTeX::Core::PathName>& result);
 
 private:
-  bool SearchFileSystem(const std::string& fileName, const char* dirPath, bool firstMatchOnly, std::vector<MiKTeX::Core::PathName>& result);
+  bool SearchFileSystem(const std::string& fileName, const char* dirPath, bool all, std::vector<MiKTeX::Core::PathName>& result);
 
 private:
   bool CheckCandidate(MiKTeX::Core::PathName& path, const char* fileInfo);

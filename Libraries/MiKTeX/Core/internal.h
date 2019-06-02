@@ -40,6 +40,7 @@
 #endif
 
 #define FIND_FILE_PREFER_RELATIVE_PATH_NAMES 1
+#define FIND_FILE_DONT_TRIGGER_INSTALLER_IF_ALL 1
 
 // experimental
 #define USE_CODECVT_UTF8 1
