@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -1963,7 +1963,7 @@ pdf_dev_begin_actualtext (uint16_t *unicodes, int count)
 }
 
 void
-pdf_dev_end_actualtext ()
+pdf_dev_end_actualtext (void)
 {
   graphics_mode();
 

@@ -453,12 +453,12 @@ reencodestring (CMap *cmap, pdf_obj *instring)
 static int
 maybe_reencode_utf8(pdf_obj *instring)
 {
-  unsigned char* inbuf;
-  int            inlen;
-  int            non_ascii = 0;
-  unsigned char* cp;
-  unsigned char* op;
-  unsigned char  wbuf[WBUF_SIZE];
+  unsigned char       *inbuf;
+  int                  inlen;
+  int                  non_ascii = 0;
+  const unsigned char *cp;
+  unsigned char       *op;
+  unsigned char        wbuf[WBUF_SIZE];
 
   if (!instring)
     return 0;

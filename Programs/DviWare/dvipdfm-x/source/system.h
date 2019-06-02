@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -41,7 +41,9 @@
 #endif
 
 #ifdef WIN32
+#ifdef _MSC_VER
 #  pragma warning(disable : 4101 4018)
+#endif /* _MSC_VER */
 #endif /* WIN32 */
 
 #endif /* _SYSTEM_H_ */

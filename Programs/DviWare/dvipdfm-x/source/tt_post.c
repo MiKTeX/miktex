@@ -63,6 +63,7 @@ read_v2_post_names (struct tt_post_table *post, sfnt *sfont)
    *   -- https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6post.html
    *
    * But there are no restriction in Microsoft's OpenType spec.
+   */
 
       if (idx > 32767) {
         /* Although this is strictly speaking out of spec, it seems to work

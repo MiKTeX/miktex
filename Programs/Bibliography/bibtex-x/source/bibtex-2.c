@@ -2973,16 +2973,25 @@ If err1 != U_ZERO_ERROR, the original functions are used. (06/mar/2019)
   uchlen1 = icu_toUChars(entry_strs, (ptr1 * (ENT_STR_SIZE+1)), lenk1, uch1, ucap);
   uchlen2 = icu_toUChars(entry_strs, (ptr2 * (ENT_STR_SIZE+1)), lenk2, uch2, ucap);
 */
-  u_strFromUTF8WithSub(uch1, ucap, &uchlen1, (char *)&ENTRY_STRS(ptr1, 0), lenk1, 0xfffd, NULL, &err1);
 
+  u_strFromUTF8WithSub(uch1, ucap, &uchlen1, (char *)&ENTRY_STRS(ptr1, 0), lenk1, 0xfffd, NULL, &err1);
   if (!U_SUCCESS(err1)) {
+    printf("Error in u_strFromUTF8WithSub 1.\n");
+#ifdef TRACE
+    if (Flag_trace)
+      TRACE_PR_LN ("Error in u_strFromUTF8WithSub 1");
+#endif                      			/* TRACE */
     uchlen1 = icu_toUChars(entry_strs, (ptr1 * (ENT_STR_SIZE+1)), lenk1, uch1, ucap);
     err1 = U_ZERO_ERROR;
   }
 
   u_strFromUTF8WithSub(uch2, ucap, &uchlen2, (char *)&ENTRY_STRS(ptr2, 0), lenk2, 0xfffd, NULL, &err1);
-
   if (!U_SUCCESS(err1)) {
+    printf("Error in u_strFromUTF8WithSub 2.\n");
+#ifdef TRACE
+    if (Flag_trace)
+      TRACE_PR_LN ("Error in u_strFromUTF8WithSub 2");
+#endif                      			/* TRACE */
     uchlen2 = icu_toUChars(entry_strs, (ptr2 * (ENT_STR_SIZE+1)), lenk2, uch2, ucap);
     err1 = U_ZERO_ERROR;
   }
@@ -2992,7 +3001,7 @@ If err1 != U_ZERO_ERROR, the original functions are used. (06/mar/2019)
   else
     ucol1 = ucol_open(NULL, &err1);
   if (!U_SUCCESS(err1))
-    printf("there is a error: U_ZERO_ERROR, open a ucol.");
+    printf("Error in opening a ucol in less_than.\n");
   u_less = !ucol_greaterOrEqual(ucol1, uch1, uchlen1, uch2, uchlen2);
 #ifdef TRACE
   if (Flag_trace)
@@ -3156,12 +3165,16 @@ BEGIN
 	ucon1 = ucnv_open(NULL, &err1);
 	if (!U_SUCCESS(err1))
 	BEGIN
-		printf("1there is a error: U_ZERO_ERROR");
+		printf("Error in opening a ucnv in icu_toUChars.\n");
 	END
 	ucnv_toUChars(ucon1, target, tarcap, (char *)&buf[bf_ptr], len, &err1);
 	if (!U_SUCCESS(err1))
 	BEGIN
-		printf("2there is a error: U_ZERO_ERROR");
+		printf("Error in icu_toUChars.\n");
+#ifdef TRACE
+		if (Flag_trace)
+			TRACE_PR_LN ("Error in icu_toUChars");
+#endif                      			/* TRACE */
 	END
 	ucnv_close(ucon1);
 	
@@ -3177,7 +3190,7 @@ BEGIN
 	UErrorCode err1 = U_ZERO_ERROR;
 	if (!U_SUCCESS(err1))
 	BEGIN
-		printf("3there is a error: U_ZERO_ERROR");
+		printf("Error in icu_strToLower?\n");
 	END
 	if (Flag_language)
 	{
@@ -3190,7 +3203,11 @@ BEGIN
 	if (!U_SUCCESS(err1))
 	BEGIN
 		int16_t i=0;
-		printf("4there is a error: U_ZERO_ERROR");
+		printf("Error in icu_strToLower.\n");
+#ifdef TRACE
+		if (Flag_trace)
+			TRACE_PR_LN ("Error in icu_strToLower");
+#endif                      			/* TRACE */
 		for (i=0;i<tarlen;i++)
 		BEGIN
 			printf("%X", target[i]);
@@ -3218,12 +3235,16 @@ BEGIN
 	ucon2 = ucnv_open(NULL, &err2);
 	if (!U_SUCCESS(err2))
 	BEGIN
-		printf("5there is a error: U_ZERO_ERROR");
+		printf("Error in opening a ucnv in icu_fromUChars.\n");
 	END
 	tblen=ucnv_fromUChars(ucon2, (char *)dest, destcap, src, srclen, &err2);
 	if (!U_SUCCESS(err2))
 	BEGIN
-		printf("6there is a error: U_ZERO_ERROR");
+		printf("Error in icu_fromUChars.\n");
+#ifdef TRACE
+		if (Flag_trace)
+			TRACE_PR_LN ("Error in icu_fromUChars");
+#endif                      			/* TRACE */
 	END
 	
 	return tblen;

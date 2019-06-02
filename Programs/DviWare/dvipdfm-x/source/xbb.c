@@ -111,8 +111,8 @@ static int xbb_to_file = 1;
 
 static char *make_xbb_filename(const char *name)
 {
-  int i;
   char *result;
+  int   i;
 
   for (i = 0; i < sizeof(extensions) / sizeof(extensions[0]); i++) {
     if (strlen(extensions[i]) < strlen(name) &&
@@ -121,12 +121,14 @@ static char *make_xbb_filename(const char *name)
   }
   if (i == sizeof(extensions) / sizeof(extensions[0])) {
     WARN("%s: Filename does not end in a recognizable extension.\n", name);
-    result = NEW(strlen(name)+5, char);  /* 5 = ".xbb" + trailing 0 */
+    result = NEW(strlen(name)+strlen(".xbb")+1, char);
     strcpy(result, name);
   } else { /* Remove extension */
-    result = NEW(strlen(name)-strlen(extensions[i])+5, char);  /* 5 = ".xbb" + trailing 0 */
-    strncpy(result, name, strlen(name)-strlen(extensions[i]));
-    result[strlen(name)-strlen(extensions[i])] = 0;
+    size_t len;
+    len    = strlen(name) - strlen(extensions[i]);
+    result = NEW(len+strlen(".xbb")+1, char);
+    strncpy(result, name, len);
+    result[len] = 0;
   }
   strcat(result, ((dpx_conf.compat_mode == dpx_mode_compat_mode) ? ".bb" : ".xbb"));
   return result;

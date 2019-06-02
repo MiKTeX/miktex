@@ -78,7 +78,7 @@ UC_UTF16BE_is_valid_string (const unsigned char *p, const unsigned char *endptr)
 int
 UC_UTF8_is_valid_string (const unsigned char *p, const unsigned char *endptr)
 {
-  if (p + 1 >= endptr)
+  if (p >= endptr)
    return 0;
   while (p < endptr) {
     int32_t ucv = UC_UTF8_decode_char(&p, endptr);

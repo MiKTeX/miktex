@@ -598,7 +598,7 @@ otl_gsub_read_alternate (struct otl_gsub_subtab *subtab, sfnt *sfont)
     len += 2;
     if (altset->GlyphCount == 0) {
       altset->Alternate = NULL;
-      break;
+      continue;
     }
     altset->Alternate = NEW(altset->GlyphCount, GlyphID);
     for (j = 0; j < altset->GlyphCount; j++) {
@@ -668,7 +668,7 @@ otl_gsub_read_ligature (struct otl_gsub_subtab *subtab, sfnt *sfont)
     ligset->LigatureCount = ligset_tab.count;
     if (ligset_tab.count == 0) {
       ligset->Ligature = NULL;
-      break;
+      continue;
     }
     ligset->Ligature = NEW(ligset_tab.count,
                            struct otl_gsub_ligtab);
@@ -678,7 +678,7 @@ otl_gsub_read_ligature (struct otl_gsub_subtab *subtab, sfnt *sfont)
       ligset->Ligature[j].CompCount = sfnt_get_ushort(sfont);
       if (ligset->Ligature[j].CompCount == 0) {
         ligset->Ligature[j].Component = NULL;
-        break;
+        continue;
       }
       ligset->Ligature[j].Component =
         NEW(ligset->Ligature[j].CompCount - 1, GlyphID);

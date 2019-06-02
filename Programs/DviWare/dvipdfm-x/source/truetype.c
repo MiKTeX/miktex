@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -129,7 +129,7 @@ pdf_font_open_truetype (pdf_font *font)
     length = tt_get_ps_fontname(sfont, fontname, 255);
     if (length < 1) {
       length = MIN(strlen(ident), 255);
-      strncpy(fontname, ident, length);
+      memcpy(fontname, ident, length);
     }
     fontname[length] = '\0';
     for (n = 0; n < length; n++) {

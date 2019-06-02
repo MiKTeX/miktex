@@ -2550,9 +2550,10 @@ pdf_open_document (const char *filename,
   if (manual_thumb_enabled) {
     if (strlen(filename) > 4 &&
         !strncmp(".pdf", filename + strlen(filename) - 4, 4)) {
-      thumb_basename = NEW(strlen(filename)-4+1, char);
-      strncpy(thumb_basename, filename, strlen(filename)-4);
-      thumb_basename[strlen(filename)-4] = 0;
+      size_t len = strlen(filename) - strlen(".pdf");
+      thumb_basename = NEW(len+1, char);
+      strncpy(thumb_basename, filename, len);
+      thumb_basename[len] = 0;
     } else {
       thumb_basename = NEW(strlen(filename)+1, char);
       strcpy(thumb_basename, filename);
