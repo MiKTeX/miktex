@@ -1,6 +1,6 @@
 /* FileNameDatabase.cpp: file name database (public)
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,7 +30,7 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 
-bool Fndb::Search(const PathName& fileName, const string& pathPattern, bool firstMatchOnly, vector<Fndb::Record>& result)
+bool Fndb::Search(const PathName& fileName, const string& pathPattern, bool all, vector<Fndb::Record>& result)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   unsigned root = session->DeriveTEXMFRoot(pathPattern);
@@ -39,7 +39,7 @@ bool Fndb::Search(const PathName& fileName, const string& pathPattern, bool firs
   {
     return false;
   }
-  return fndb->Search(fileName, pathPattern, firstMatchOnly, result);
+  return fndb->Search(fileName, pathPattern, all, result);
 }
 
 void Fndb::Add(const vector<Fndb::Record>& records)

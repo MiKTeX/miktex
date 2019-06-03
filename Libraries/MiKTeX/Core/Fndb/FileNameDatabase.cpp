@@ -128,7 +128,7 @@ MIKTEXSTATICFUNC(bool) Match(const char* pathPattern, const char* path)
   return (*pathPattern == 0 || strcmp(pathPattern, RECURSION_INDICATOR) == 0 || strcmp(pathPattern, "/") == 0) && *path == 0;
 }
 
-bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPattern_, bool firstMatchOnly, vector<Fndb::Record>& result)
+bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPattern_, bool all, vector<Fndb::Record>& result)
 {
   string pathPattern = pathPattern_;
 
@@ -191,7 +191,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
       path /= fileName;
       trace_fndb->WriteLine("core", fmt::format(T_("found: {0} ({1})"), Q_(path), Q_(it->second.GetInfo())));
       result.push_back({ path, it->second.GetInfo() });
-      if (firstMatchOnly)
+      if (!all)
       {
         break;
       }

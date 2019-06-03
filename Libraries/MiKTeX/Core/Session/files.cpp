@@ -1,6 +1,6 @@
 /* files.cpp: file system operations
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -145,7 +145,7 @@ void SessionImpl::RecordFileInfo(const PathName& path, FileAccess access)
       if (fndb != nullptr)
       {
         vector<Fndb::Record> records;
-        if (fndb->Search(pathRelPath, MPM_ROOT_PATH, true, records))
+        if (fndb->Search(pathRelPath, MPM_ROOT_PATH, false, records))
         {
           fir.packageName = records[0].fileNameInfo;
         }

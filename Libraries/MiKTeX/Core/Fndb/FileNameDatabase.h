@@ -52,7 +52,7 @@ public:
   virtual ~FileNameDatabase();
 
 public:
-  bool Search(const MiKTeX::Core::PathName& relativePath, const std::string& pathPattern, bool firstMatchOnly, std::vector<MiKTeX::Core::Fndb::Record>& result);
+  bool Search(const MiKTeX::Core::PathName& relativePath, const std::string& pathPattern, bool all, std::vector<MiKTeX::Core::Fndb::Record>& result);
 
 public:
   void Add(const std::vector<MiKTeX::Core::Fndb::Record>& records);

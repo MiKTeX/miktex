@@ -1,6 +1,6 @@
 /* miktex/Core/Fndb.h:                                  -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -76,7 +76,7 @@ public:
   static MIKTEXCORECEEAPI(bool) Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Search(const PathName& fileName, const std::string& pathPattern, bool firstMatchOnly, std::vector<Record>& result);
+  static MIKTEXCORECEEAPI(bool) Search(const PathName& fileName, const std::string& pathPattern, bool all, std::vector<Record>& result);
 
 public:
   static MIKTEXCORECEEAPI(void) Add(const std::vector<Record>& records);
