@@ -735,7 +735,7 @@ private:
 
 
 private:
-  bool MakePkFileName(MiKTeX::Core::PathName& pkFileName, const char* fontName, int dpi);
+  bool MakePkFileName(MiKTeX::Core::PathName& pkFileName, const std::string& fontName, int dpi);
 
 private:
   bool FindFileInternal(const std::string& fileName, const std::vector<MiKTeX::Core::PathName>& vec, bool all, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Core::PathName>& result);
