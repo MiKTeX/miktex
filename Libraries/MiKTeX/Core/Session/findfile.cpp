@@ -352,35 +352,29 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
 
 bool SessionImpl::FindFile(const string& fileName, const string& pathList, FindFileOptionSet options, vector<PathName>& result)
 {
-  bool found = FindFileInternal(fileName, SplitSearchPath(pathList), !options[FindFileOption::All], true, false, result);
-
+  bool found = FindFileInternal(fileName, SplitSearchPath(pathList), options[FindFileOption::All], true, false, result);
   if (!found && options[FindFileOption::SearchFileSystem])
   {
-    found = FindFileInternal(fileName, SplitSearchPath(pathList), !options[FindFileOption::All], false, true, result);
+    found = FindFileInternal(fileName, SplitSearchPath(pathList), options[FindFileOption::All], false, true, result);
   }
-
   return found;
 }
 
 bool SessionImpl::FindFile(const string& fileName, const string& pathList, FindFileOptionSet options, PathName& result)
 {
   MIKTEX_ASSERT(!options[FindFileOption::All]);
-
   vector<PathName> paths;
-
   bool found = FindFile(fileName, pathList, options, paths);
-
   if (found)
   {
     result = paths[0];
   }
-
   return found;
 }
 
 bool SessionImpl::FindFile(const string& fileName, FileType fileType, FindFileOptionSet options, vector<PathName>& result)
 {
-  return FindFileInternal(fileName, fileType, !options[FindFileOption::All], options[FindFileOption::SearchFileSystem], options[FindFileOption::Create], options[FindFileOption::Renew], result);
+  return FindFileInternal(fileName, fileType, options[FindFileOption::All], options[FindFileOption::SearchFileSystem], options[FindFileOption::Create], options[FindFileOption::Renew], result);
 }
 
 bool SessionImpl::FindFile(const string& fileName, FileType fileType, FindFileOptionSet options, PathName& result)
@@ -397,7 +391,7 @@ bool SessionImpl::FindFile(const string& fileName, FileType fileType, FindFileOp
 
 static const string DEFAULT_PK_NAME_TEMPLATE = "%f.pk";
 
-bool SessionImpl::MakePkFileName(PathName& pkFileName, const char* lpszFontName, int dpi)
+bool SessionImpl::MakePkFileName(PathName& pkFileName, const string& fontName, int dpi)
 {
   string nameTemplate;
 
@@ -428,7 +422,7 @@ bool SessionImpl::MakePkFileName(PathName& pkFileName, const char* lpszFontName,
         str += std::to_string(dpi);
         break;
       case 'f':
-        str += lpszFontName;
+        str += fontName;
         break;
       default:
         MIKTEX_UNEXPECTED();
@@ -455,7 +449,7 @@ bool SessionImpl::FindPkFile(const string& fontName, const string& mfMode, int d
 {
   PathName pkFileName;
 
-  if (!MakePkFileName(pkFileName, fontName.c_str(), dpi))
+  if (!MakePkFileName(pkFileName, fontName, dpi))
   {
     return false;
   }
