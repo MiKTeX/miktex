@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 2.9.7100 - not yet released
+
+### Upgraded programs
+
+* luatex 1.10.1
+
 ## 2.9.7050 - 2019-05-30
 
 ### Breaking changes

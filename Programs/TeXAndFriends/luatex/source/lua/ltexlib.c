@@ -1781,7 +1781,7 @@ static int getdelcodes(lua_State * L)
 static int settex(lua_State * L)
 {
     const char *st;
-    int texstr;
+    int texstr, isprim;
     size_t k;
     int cur_cs1, cur_cmd1;
     int isglobal = 0;
@@ -1814,7 +1814,9 @@ static int settex(lua_State * L)
             return 0;
         }
         texstr = maketexlstring(st, k);
-        if (is_primitive(texstr)) {
+        isprim = is_primitive(texstr);
+        flush_str(texstr);
+        if (isprim) {
             if (i == 3 && (lua_type(L,1) == LUA_TSTRING)) {
                 const char *s = lua_tostring(L, 1);
                 if (lua_key_eq(s,global))
@@ -2545,7 +2547,7 @@ static int tex_definefont(lua_State * L)
 {
     const char *csname;
     int f, u;
-    str_number t;
+    str_number t, d;
     size_t l;
     int i = 1;
     int a = 0;
@@ -2559,7 +2561,6 @@ static int tex_definefont(lua_State * L)
     }
     csname = luaL_checklstring(L, i, &l);
     f = luaL_checkinteger(L, (i + 1));
-    t = maketexlstring(csname, l);
     no_new_control_sequence = 0;
     u = string_lookup(csname, l);
     no_new_control_sequence = 1;
@@ -2568,7 +2569,32 @@ static int tex_definefont(lua_State * L)
     else
         eq_define(u, set_font_cmd, f);
     eqtb[font_id_base + f] = eqtb[u];
-    hash_text(font_id_base + f) = t;
+    /*tex
+
+        This is tricky: when we redefine a string we loose the old one. So this
+        will change as it's only used to display the |\fontname| so we can store
+        that with the font.
+
+    */
+    d = cs_text(font_id_base + f);
+    t = maketexlstring(csname, l); /* the csname */
+    if (!d) {
+        /*tex We have a new string. */
+        cs_text(font_id_base + f) = t;
+    } else if (str_eq_str(d,t)){
+        /*tex We have the same string. */
+        flush_str(t);
+    } else {
+        d = search_string(t);
+        if (d) {
+            /*tex We have already such a string. */
+            cs_text(font_id_base + f) = d;
+            flush_str(t);
+        } else {
+            /*tex The old value is lost but still in the pool. */
+            cs_text(font_id_base + f) = t;
+        }
+    }
     return 0;
 }
 
