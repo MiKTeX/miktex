@@ -1,6 +1,6 @@
 /* PackageDataStore.cpp
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -161,8 +161,8 @@ void PackageDataStore::DefinePackage(const PackageInfo& packageInfo)
     p.first->second.isRemovable = IsRemovable(p.first->second.id);
     p.first->second.isObsolete = IsObsolete(p.first->second.id);
     p.first->second.timeInstalled = GetTimeInstalled(p.first->second.id);
-    p.first->second.timeInstalledByAdmin = GetCommonTimeInstalled(p.first->second.id);
-    p.first->second.timeInstalledByUser = GetUserTimeInstalled(p.first->second.id);
+    p.first->second.timeInstalledByAdmin = GetTimeInstalled(p.first->second.id, ConfigurationScope::Common);
+    p.first->second.timeInstalledByUser = GetTimeInstalled(p.first->second.id, ConfigurationScope::User);
     if (p.first->second.IsInstalled())
     {
       p.first->second.releaseState = GetReleaseState(p.first->second.id);
@@ -399,25 +399,11 @@ PackageInfo& PackageDataStore::operator[](const string& packageId)
   return it->second;
 }
 
-time_t PackageDataStore::GetUserTimeInstalled(const string& packageId)
+time_t PackageDataStore::GetTimeInstalled(const string& packageId, ConfigurationScope scope)
 {
   LoadVarData();
   string str;
-  if (comboCfg.TryGetValueAsString(ComboCfg::Scope::User, packageId, "TimeInstalled", str))
-  {
-    return Utils::ToTimeT(str);
-  }
-  else
-  {
-    return InvalidTimeT;
-  }
-}
-
-time_t PackageDataStore::GetCommonTimeInstalled(const std::string& packageId)
-{
-  LoadVarData();
-  string str;
-  if (comboCfg.TryGetValueAsString(ComboCfg::Scope::Common, packageId, "TimeInstalled", str))
+  if (comboCfg.TryGetValueAsString(scope, packageId, "TimeInstalled", str))
   {
     return Utils::ToTimeT(str);
   }
@@ -431,8 +417,8 @@ time_t PackageDataStore::GetTimeInstalled(const string& packageId)
 {
   LoadVarData();
   string str;
-  if ((!session->IsAdminMode() && comboCfg.TryGetValueAsString(ComboCfg::Scope::User, packageId, "TimeInstalled", str))
-    || comboCfg.TryGetValueAsString(ComboCfg::Scope::Common, packageId, "TimeInstalled", str))
+  if ((!session->IsAdminMode() && comboCfg.TryGetValueAsString(ConfigurationScope::User, packageId, "TimeInstalled", str))
+    || comboCfg.TryGetValueAsString(ConfigurationScope::Common, packageId, "TimeInstalled", str))
   {
     return Utils::ToTimeT(str);
   }
@@ -450,7 +436,7 @@ bool PackageDataStore::IsRemovable(const string& packageId)
   if (session->IsAdminMode())
   {
     // administrator can remove system-wide packages
-    ret = IsValidTimeT(GetCommonTimeInstalled(packageId));
+    ret = IsValidTimeT(GetTimeInstalled(packageId, ConfigurationScope::Common));
   }
   else
   {
@@ -461,7 +447,7 @@ bool PackageDataStore::IsRemovable(const string& packageId)
     }
     else
     {
-      ret = IsValidTimeT(GetUserTimeInstalled(packageId));
+      ret = IsValidTimeT(GetTimeInstalled(packageId, ConfigurationScope::User));
     }
   }
   return ret;
@@ -471,8 +457,8 @@ bool PackageDataStore::IsObsolete(const string& packageId)
 {
   LoadVarData();
   string str;
-  if ((!session->IsAdminMode() && comboCfg.TryGetValueAsString(ComboCfg::Scope::User, packageId, "Obsolete", str))
-    || comboCfg.TryGetValueAsString(ComboCfg::Scope::Common, packageId, "Obsolete", str))
+  if ((!session->IsAdminMode() && comboCfg.TryGetValueAsString(ConfigurationScope::User, packageId, "Obsolete", str))
+    || comboCfg.TryGetValueAsString(ConfigurationScope::Common, packageId, "Obsolete", str))
   {
     return std::stoi(str) != 0;
   }
@@ -517,5 +503,5 @@ void PackageDataStore::IncrementFileRefCounts(const vector<string>& files)
 size_t PackageDataStore::GetNumberOfInstalledPackages(bool userScope)
 {
   LoadVarData();
-  return comboCfg.GetSize(userScope ? ComboCfg::Scope::User : ComboCfg::Scope::Common);
+  return comboCfg.GetSize(userScope ? ConfigurationScope::User : ConfigurationScope::Common);
 }

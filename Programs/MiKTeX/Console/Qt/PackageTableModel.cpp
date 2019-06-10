@@ -87,7 +87,7 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
         }
         else if (IsValidTimeT(packageInfo.timeInstalledByAdmin))
         {
-          return "Admin";
+          return session->IsSharedSetup() ? "Admin" : "User";
         }
         else if (IsValidTimeT(packageInfo.timeInstalledByUser))
         {

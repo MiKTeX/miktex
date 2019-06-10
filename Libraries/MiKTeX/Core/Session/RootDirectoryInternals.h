@@ -1,6 +1,6 @@
 /* RootDirectoryInternals.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -92,6 +92,19 @@ public:
     else
     {
       this->attributes -= Attribute::Other;
+    }
+  }
+
+public:
+  void set_User(bool f)
+  {
+    if (f)
+    {
+      this->attributes += Attribute::User;
+    }
+    else
+    {
+      this->attributes -= Attribute::User;
     }
   }
 

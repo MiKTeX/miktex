@@ -1,6 +1,6 @@
 /* PackageTableModel.h:                                 -*- C++ -*-
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -24,8 +24,10 @@
 #if !defined(A767D31C530F42158B96C0AF14BBF92B)
 #define A767D31C530F42158B96C0AF14BBF92B
 
-#include <miktex/PackageManager/PackageManager>
 #include <QAbstractTableModel>
+
+#include <miktex/PackageManager/PackageManager>
+#include <miktex/Core/Session>
 
 class PackageTableModel :
   public QAbstractTableModel
@@ -65,6 +67,9 @@ public:
   {
     return packages;
   }
+
+private:
+  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 };
 
 #endif

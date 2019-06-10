@@ -35,13 +35,6 @@ MPM_INTERNAL_BEGIN_NAMESPACE;
 class ComboCfg
 {
 public:
-  enum class Scope
-  {
-    User,
-    Common
-  };
-
-public:
   void Load(const MiKTeX::Core::PathName& fileNameUser, const MiKTeX::Core::PathName& fileNameCommon);
 
 public:
@@ -54,7 +47,7 @@ public:
   bool TryGetValueAsString(const std::string& keyName, const std::string& valueName, std::string& value);
 
 public:
-  bool TryGetValueAsString(Scope scope, const std::string& keyName, const std::string& valueName, std::string& value);
+  bool TryGetValueAsString(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, std::string& value);
 
 public:
   void PutValue(const std::string& keyName, const std::string& valueName, const std::string& value);
@@ -66,7 +59,7 @@ public:
   bool Loaded() const;
 
 public:
-  std::size_t GetSize(Scope scope) const;
+  std::size_t GetSize(MiKTeX::Core::ConfigurationScope scope) const;
 
 private:
   MiKTeX::Core::PathName fileNameUser;

@@ -1,6 +1,6 @@
 /* RootDirectoryInfo.h:                                 -*- C++ -*-
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -49,7 +49,8 @@ public:
   enum class Attribute
   {
     Common,
-    Other
+    Other,
+    User
   };
 
 public:
@@ -74,6 +75,12 @@ public:
   bool IsOther() const
   {
     return attributes[Attribute::Other];
+  }
+
+public:
+  bool IsUser() const
+  {
+    return attributes[Attribute::User];
   }
 
 public:

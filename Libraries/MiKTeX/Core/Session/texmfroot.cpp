@@ -108,12 +108,17 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
       if (scope == ConfigurationScope::Common && !rootDirectories[idx].IsCommon())
       {
         trace_config->WriteLine("core", fmt::format(T_("now a common TEXMF root: {0}"), root));
-        rootDirectories[idx].set_Common(scope == ConfigurationScope::Common);
+        rootDirectories[idx].set_Common(true);
       }
       if (other && !rootDirectories[idx].IsOther())
       {
         trace_config->WriteLine("core", fmt::format(T_("now a foreign TEXMF root: {0}"), root));
-        rootDirectories[idx].set_Common(scope == ConfigurationScope::Common);
+        rootDirectories[idx].set_Other(true);
+      }
+      if (scope == ConfigurationScope::User && !rootDirectories[idx].IsUser())
+      {
+        trace_config->WriteLine("core", fmt::format(T_("now a user TEXMF root: {0}"), root));
+        rootDirectories[idx].set_User(true);
       }
       rootDirectories[idx].purposes += purpose;;
       return idx;
@@ -124,6 +129,7 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
   rootDirectory.purposes += purpose;
   rootDirectory.set_Common(scope == ConfigurationScope::Common);
   rootDirectory.set_Other(other);
+  rootDirectory.set_User(scope == ConfigurationScope::User);
   rootDirectories.reserve(10);
   rootDirectories.push_back(rootDirectory);
   return idx;

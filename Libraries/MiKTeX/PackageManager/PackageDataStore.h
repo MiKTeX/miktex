@@ -213,10 +213,7 @@ private:
   MiKTeX::Packages::PackageInfo& operator[](const std::string& packageId);
 
 private:
-  std::time_t GetUserTimeInstalled(const std::string& packageId);
-
-private:
-  std::time_t GetCommonTimeInstalled(const std::string& packageId);
+  std::time_t GetTimeInstalled(const std::string& packageId, MiKTeX::Core::ConfigurationScope scope);
 
 private:
   std::time_t GetTimeInstalled(const std::string& packageId);

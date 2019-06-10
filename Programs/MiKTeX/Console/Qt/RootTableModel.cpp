@@ -79,6 +79,10 @@ vector<string> GetAttributesString(RootDirectoryInfo::Attributes attributes)
   {
     result.push_back("Other");
   }
+  if (attributes[RootDirectoryInfo::Attribute::User])
+  {
+    result.push_back("User");
+  }
   return result;
 }
 

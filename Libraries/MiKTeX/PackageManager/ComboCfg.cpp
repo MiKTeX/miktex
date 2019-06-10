@@ -1,6 +1,6 @@
 /* ComboCfg.cpp
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -83,13 +83,13 @@ bool ComboCfg::TryGetValueAsString(const string& keyName, const string& valueNam
     || cfgCommon->TryGetValueAsString(keyName, valueName, value);
 }
 
-bool ComboCfg::TryGetValueAsString(ComboCfg::Scope scope, const string& keyName, const string& valueName, string& value)
+bool ComboCfg::TryGetValueAsString(ConfigurationScope scope, const string& keyName, const string& valueName, string& value)
 {
   switch (scope)
   {
-  case Scope::User:
+  case ConfigurationScope::User:
     return cfgUser != nullptr && cfgUser->TryGetValueAsString(keyName, valueName, value);
-  case Scope::Common:
+  case ConfigurationScope::Common:
     return cfgCommon != nullptr && cfgCommon->TryGetValueAsString(keyName, valueName, value);
   default:
     MIKTEX_UNEXPECTED();
@@ -125,9 +125,9 @@ bool ComboCfg::Loaded() const
   return cfgUser != nullptr || cfgCommon != nullptr;
 }
 
-size_t ComboCfg::GetSize(ComboCfg::Scope scope) const
+size_t ComboCfg::GetSize(ConfigurationScope scope) const
 {
-  if (scope == Scope::User)
+  if (scope == ConfigurationScope::User)
   {
     return cfgUser == nullptr ? 0 : cfgUser->GetSize();
   }
