@@ -2223,7 +2223,7 @@ void PackageInstallerImpl::UpdateDb()
     bool knownPackage;
     PackageInfo existingPackage;
     tie(knownPackage, existingPackage) = packageDataStore->TryGetPackage(packageId);
-    if (!IsPureContainer(packageId) && knownPackage && (session->IsAdminMode() ? existingPackage.IsInstalledByAdmin() : existingPackage.IsInstalledByUser()))
+    if (!IsPureContainer(packageId) && knownPackage && (session->IsAdminMode() || session->GetSpecialPath(SpecialPath::CommonInstallRoot) == session->GetSpecialPath(SpecialPath::UserInstallRoot) ? existingPackage.IsInstalledByAdmin() : existingPackage.IsInstalledByUser()))
     {
       continue;
     }
