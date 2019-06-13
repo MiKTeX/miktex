@@ -2103,7 +2103,7 @@ void MainWindow::UpdateActionsPackages()
       {
         MIKTEX_UNEXPECTED();
       }
-      if (packageInfo.timeInstalled > 0)
+      if (packageInfo.IsInstalled())
       {
         enableInstall = false;
         enableUninstall = (enableUninstall && packageInfo.isRemovable);
@@ -2163,7 +2163,7 @@ void MainWindow::InstallPackage()
       {
         MIKTEX_UNEXPECTED();
       }
-      else if (packageInfo.timeInstalled == 0)
+      else if (!packageInfo.IsInstalled())
       {
         toBeInstalled.push_back(packageInfo.id);
       }

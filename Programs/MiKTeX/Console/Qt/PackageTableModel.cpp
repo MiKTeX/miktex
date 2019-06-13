@@ -75,21 +75,21 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
       case 3:
         return QDateTime::fromTime_t(packageInfo.timePackaged).date();
       case 4:
-        if (IsValidTimeT(packageInfo.timeInstalled))
+        if (packageInfo.IsInstalled())
         {
-          return QDateTime::fromTime_t(packageInfo.timeInstalled).date();
+          return QDateTime::fromTime_t(packageInfo.GetTimeInstalled()).date();
         }
         break;
       case 5:
-        if (IsValidTimeT(packageInfo.timeInstalledByAdmin) && IsValidTimeT(packageInfo.timeInstalledByUser))
+        if (packageInfo.IsInstalled(ConfigurationScope::Common) && packageInfo.IsInstalled(ConfigurationScope::User))
         {
           return "Admin, User";
         }
-        else if (IsValidTimeT(packageInfo.timeInstalledByAdmin))
+        else if (packageInfo.IsInstalled(ConfigurationScope::Common))
         {
           return session->IsSharedSetup() ? "Admin" : "User";
         }
-        else if (IsValidTimeT(packageInfo.timeInstalledByUser))
+        else if (packageInfo.IsInstalled(ConfigurationScope::User))
         {
           return "User";
         }
@@ -108,7 +108,7 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
   else if (role == Qt::ForegroundRole)
   {
     PackageInfo packageInfo;
-    if (TryGetPackageInfo(index, packageInfo) && IsValidTimeT(packageInfo.timeInstalledByAdmin) && IsValidTimeT(packageInfo.timeInstalledByUser))
+    if (TryGetPackageInfo(index, packageInfo) && packageInfo.IsInstalled(ConfigurationScope::Common) && packageInfo.IsInstalled(ConfigurationScope::User))
     {
       return QColor("red");
     }

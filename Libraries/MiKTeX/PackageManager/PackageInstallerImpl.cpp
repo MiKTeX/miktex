@@ -473,8 +473,8 @@ void PackageInstallerImpl::FindUpdates()
     // clean the user-installation directory
     if (!session->IsAdminMode()
       && session->GetSpecialPath(SpecialPath::UserInstallRoot) != session->GetSpecialPath(SpecialPath::CommonInstallRoot)
-      && IsValidTimeT(package.timeInstalledByUser)
-      && IsValidTimeT(package.timeInstalledByAdmin))
+      && package.IsInstalled(ConfigurationScope::User)
+      && package.IsInstalled(ConfigurationScope::Common))
     {
       if (!package.isRemovable)
       {
@@ -1146,8 +1146,17 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
   UpdateFndb(GetFiles(session->GetMpmRootPath(), newPackage), GetFiles(session->GetMpmRootPath(), package), packageId);
 
   // set the timeInstalled value => package is installed
-  newPackage.timeInstalled = time(nullptr);
-  packageDataStore->SetTimeInstalled(packageId, newPackage.timeInstalled);
+  time_t now = time(nullptr);
+  newPackage.timeInstalled = now;
+  if (session->IsAdminMode())
+  {
+    newPackage.timeInstalledCommon = now;
+  }
+  else
+  {
+    newPackage.timeInstalledUser = now;
+  }
+  packageDataStore->SetTimeInstalled(packageId, now);
   packageDataStore->SetReleaseState(packageId, repositoryReleaseState);
   packageDataStore->SaveVarData();
 
@@ -2223,7 +2232,7 @@ void PackageInstallerImpl::UpdateDb()
     bool knownPackage;
     PackageInfo existingPackage;
     tie(knownPackage, existingPackage) = packageDataStore->TryGetPackage(packageId);
-    if (!IsPureContainer(packageId) && knownPackage && (session->IsAdminMode() || session->GetSpecialPath(SpecialPath::CommonInstallRoot) == session->GetSpecialPath(SpecialPath::UserInstallRoot) ? existingPackage.IsInstalledByAdmin() : existingPackage.IsInstalledByUser()))
+    if (!IsPureContainer(packageId) && knownPackage && (session->IsAdminMode() || session->GetSpecialPath(SpecialPath::CommonInstallRoot) == session->GetSpecialPath(SpecialPath::UserInstallRoot) ? existingPackage.IsInstalled(ConfigurationScope::Common) : existingPackage.IsInstalled(ConfigurationScope::User)))
     {
       continue;
     }

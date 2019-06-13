@@ -134,7 +134,7 @@ public:
       cmp = (PathName::Compare(pi1.id, pi2.id) < 0);
       break;
     case SortKey::InstalledOn:
-      cmp = (pi1.timeInstalled < pi2.timeInstalled);
+      cmp = (pi1.GetTimeInstalled() < pi2.GetTimeInstalled());
       break;
     case SortKey::PackagedOn:
       cmp = (pi1.timePackaged < pi2.timePackaged);

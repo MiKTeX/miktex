@@ -104,11 +104,11 @@ void PackageDataStore::SetTimeInstalled(const string& packageId, time_t timeInst
   (*this)[packageId].timeInstalled = timeInstalled;
   if (session->IsAdminMode())
   {
-    (*this)[packageId].timeInstalledByAdmin = timeInstalled;
+    (*this)[packageId].timeInstalledCommon = timeInstalled;
   }
   else
   {
-    (*this)[packageId].timeInstalledByUser = timeInstalled;
+    (*this)[packageId].timeInstalledUser = timeInstalled;
   }
   if (IsValidTimeT(timeInstalled))
   {
@@ -153,16 +153,16 @@ void PackageDataStore::DefinePackage(const PackageInfo& packageInfo)
     p.first->second.isRemovable = false;
     p.first->second.isObsolete = false;
     p.first->second.timeInstalled = packageInfo.timePackaged;
-    p.first->second.timeInstalledByAdmin = packageInfo.timePackaged;
-    p.first->second.timeInstalledByUser = packageInfo.timePackaged;
+    p.first->second.timeInstalledCommon = packageInfo.timePackaged;
+    p.first->second.timeInstalledUser = packageInfo.timePackaged;
   }
   else
   {
     p.first->second.isRemovable = IsRemovable(p.first->second.id);
     p.first->second.isObsolete = IsObsolete(p.first->second.id);
     p.first->second.timeInstalled = GetTimeInstalled(p.first->second.id);
-    p.first->second.timeInstalledByAdmin = GetTimeInstalled(p.first->second.id, ConfigurationScope::Common);
-    p.first->second.timeInstalledByUser = GetTimeInstalled(p.first->second.id, ConfigurationScope::User);
+    p.first->second.timeInstalledCommon = GetTimeInstalled(p.first->second.id, ConfigurationScope::Common);
+    p.first->second.timeInstalledUser = GetTimeInstalled(p.first->second.id, ConfigurationScope::User);
     if (p.first->second.IsInstalled())
     {
       p.first->second.releaseState = GetReleaseState(p.first->second.id);

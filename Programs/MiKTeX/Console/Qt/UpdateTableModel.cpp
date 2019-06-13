@@ -76,7 +76,7 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
     case 1:
     {
       PackageInfo oldPackageInfo;
-      if (packageManager->TryGetPackageInfo(update.packageId, oldPackageInfo) && oldPackageInfo.timeInstalled > 0)
+      if (packageManager->TryGetPackageInfo(update.packageId, oldPackageInfo) && oldPackageInfo.IsInstalled())
       {
         return FormatPackageVersion(oldPackageInfo);
       }

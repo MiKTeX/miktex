@@ -51,14 +51,14 @@ inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo& left, const Mi
   {
     left.timePackaged = ATL::COleDateTime(right.timePackaged);
   }
-  if (right.timeInstalled == static_cast<time_t>(-1) || right.timeInstalled == static_cast<time_t>(0))
+  if (!right.IsInstalled())
   {
     left.timeInstalled = ATL::COleDateTime();
     left.isInstalled = VARIANT_FALSE;
   }
   else
   {
-    left.timeInstalled = ATL::COleDateTime(right.timeInstalled);
+    left.timeInstalled = ATL::COleDateTime(right.GetTimeInstalled());
     left.isInstalled = VARIANT_TRUE;
   }
   left.archiveFileSize = static_cast<long>(right.archiveFileSize);
@@ -87,14 +87,14 @@ inline void CopyPackageInfo(MiKTeXPackageManagerLib::PackageInfo2& left, const M
   {
     left.timePackaged = ATL::COleDateTime(right.timePackaged);
   }
-  if (right.timeInstalled == static_cast<time_t>(-1) || right.timeInstalled == static_cast<time_t>(0))
+  if (!right.IsInstalled())
   {
     left.timeInstalled = ATL::COleDateTime();
     left.isInstalled = VARIANT_FALSE;
   }
   else
   {
-    left.timeInstalled = ATL::COleDateTime(right.timeInstalled);
+    left.timeInstalled = ATL::COleDateTime(right.GetTimeInstalled());
     left.isInstalled = VARIANT_TRUE;
   }
   left.archiveFileSize = static_cast<long>(right.archiveFileSize);

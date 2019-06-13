@@ -1142,7 +1142,7 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
 
   PathName prefix;
 
-  if (!session->IsAdminMode() && IsValidTimeT(packageInfo.timeInstalledByUser))
+  if (!session->IsAdminMode() && packageInfo.IsInstalled(ConfigurationScope::User))
   {
     prefix = session->GetSpecialPath(SpecialPath::UserInstallRoot);
   }

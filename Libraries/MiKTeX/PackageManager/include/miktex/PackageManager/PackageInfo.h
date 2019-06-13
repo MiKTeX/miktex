@@ -33,6 +33,7 @@
 #include <vector>
 
 #include <miktex/Core/MD5>
+#include <miktex/Core/Session>
 
 #include "definitions.h"
 #include "RepositoryInfo.h"
@@ -93,11 +94,11 @@ struct PackageInfo
   /// Date/time when the package was installed.
   std::time_t timeInstalled = InvalidTimeT;
 
-  /// Date/time when the package was installed by the user.
-  std::time_t timeInstalledByUser = InvalidTimeT;
+  /// Date/time when the package was installed in the user scope..
+  std::time_t timeInstalledUser = InvalidTimeT;
 
-  /// Date/time when the package was installed by the administrator (for all users).
-  std::time_t timeInstalledByAdmin = InvalidTimeT;
+  /// Date/time when the package was installed in the common scope.
+  std::time_t timeInstalledCommon = InvalidTimeT;
 
   /// Size of the archive file.
   std::size_t archiveFileSize = 0;
@@ -165,19 +166,27 @@ struct PackageInfo
   /// Checks to see whether the package is installed.
   bool IsInstalled() const
   {
-    return IsValidTimeT(timeInstalled);
+    return IsValidTimeT(timeInstalledUser) || IsValidTimeT(timeInstalledCommon);
   }
 
-  /// Checks to see whether the package is installed by the current user.
-  bool IsInstalledByUser() const
+  /// Gets the time, the package was installed.
+  std::time_t GetTimeInstalled() const
   {
-    return IsValidTimeT(timeInstalledByUser);
+    return IsValidTimeT(timeInstalledUser) ? timeInstalledUser : timeInstalledCommon;
   }
 
-  /// Checks to see whether the package is installed by the administrator.
-  bool IsInstalledByAdmin() const
+  /// Checks to see whether the package is installed in the specified scope.
+  bool IsInstalled(MiKTeX::Core::ConfigurationScope scope) const
   {
-    return IsValidTimeT(timeInstalledByAdmin);
+    switch (scope)
+    {
+    case MiKTeX::Core::ConfigurationScope::User:
+      return IsValidTimeT(timeInstalledUser);
+    case MiKTeX::Core::ConfigurationScope::Common:
+      return IsValidTimeT(timeInstalledCommon);
+    default:
+      MIKTEX_UNEXPECTED();
+    }
   }
 
   /// Gets the number of dependants.
