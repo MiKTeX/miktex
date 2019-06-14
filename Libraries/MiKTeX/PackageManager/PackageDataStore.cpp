@@ -101,7 +101,6 @@ tuple<bool, PackageInfo> PackageDataStore::TryGetPackage(const string& packageId
 
 void PackageDataStore::SetTimeInstalled(const string& packageId, time_t timeInstalled)
 {
-  (*this)[packageId].timeInstalled = timeInstalled;
   if (session->IsAdminMode())
   {
     (*this)[packageId].timeInstalledCommon = timeInstalled;
@@ -152,7 +151,6 @@ void PackageDataStore::DefinePackage(const PackageInfo& packageInfo)
     // installed from the start
     p.first->second.isRemovable = false;
     p.first->second.isObsolete = false;
-    p.first->second.timeInstalled = packageInfo.timePackaged;
     p.first->second.timeInstalledCommon = packageInfo.timePackaged;
     p.first->second.timeInstalledUser = packageInfo.timePackaged;
   }
@@ -160,7 +158,6 @@ void PackageDataStore::DefinePackage(const PackageInfo& packageInfo)
   {
     p.first->second.isRemovable = IsRemovable(p.first->second.id);
     p.first->second.isObsolete = IsObsolete(p.first->second.id);
-    p.first->second.timeInstalled = GetTimeInstalled(p.first->second.id);
     p.first->second.timeInstalledCommon = GetTimeInstalled(p.first->second.id, ConfigurationScope::Common);
     p.first->second.timeInstalledUser = GetTimeInstalled(p.first->second.id, ConfigurationScope::User);
     if (p.first->second.IsInstalled())
@@ -317,21 +314,28 @@ void PackageDataStore::Load(Cfg& cfg)
       else
       {
         it3->second.requiredBy.push_back(pkg.id);
-        if (it3->second.timeInstalled < timeInstalledMin)
+        if (it3->second.GetTimeInstalled() < timeInstalledMin)
         {
-          timeInstalledMin = it3->second.timeInstalled;
+          timeInstalledMin = it3->second.GetTimeInstalled();
         }
-        if (it3->second.timeInstalled > timeInstalledMax)
+        if (it3->second.GetTimeInstalled() > timeInstalledMax)
         {
-          timeInstalledMax = it3->second.timeInstalled;
+          timeInstalledMax = it3->second.GetTimeInstalled();
         }
       }
     }
     if (timeInstalledMin > 0)
     {
-      if (pkg.IsPureContainer() || (pkg.IsInstalled() && pkg.timeInstalled < timeInstalledMax))
+      if (pkg.IsPureContainer() || (pkg.IsInstalled() && pkg.GetTimeInstalled() < timeInstalledMax))
       {
-        pkg.timeInstalled = timeInstalledMax;
+        if (session->IsAdminMode())
+        {
+          pkg.timeInstalledCommon = timeInstalledMax;
+        }
+        else
+        {
+          pkg.timeInstalledUser = timeInstalledMax;
+        }
       }
     }
   }

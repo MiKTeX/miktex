@@ -91,9 +91,6 @@ struct PackageInfo
   /// Date/time when the package was created.
   std::time_t timePackaged = InvalidTimeT;
 
-  /// Date/time when the package was installed.
-  std::time_t timeInstalled = InvalidTimeT;
-
   /// Date/time when the package was installed in the user scope..
   std::time_t timeInstalledUser = InvalidTimeT;
 
@@ -169,12 +166,6 @@ struct PackageInfo
     return IsValidTimeT(timeInstalledUser) || IsValidTimeT(timeInstalledCommon);
   }
 
-  /// Gets the time, the package was installed.
-  std::time_t GetTimeInstalled() const
-  {
-    return IsValidTimeT(timeInstalledUser) ? timeInstalledUser : timeInstalledCommon;
-  }
-
   /// Checks to see whether the package is installed in the specified scope.
   bool IsInstalled(MiKTeX::Core::ConfigurationScope scope) const
   {
@@ -184,6 +175,26 @@ struct PackageInfo
       return IsValidTimeT(timeInstalledUser);
     case MiKTeX::Core::ConfigurationScope::Common:
       return IsValidTimeT(timeInstalledCommon);
+    default:
+      MIKTEX_UNEXPECTED();
+    }
+  }
+
+  /// Gets the time, the package was installed.
+  std::time_t GetTimeInstalled() const
+  {
+    return IsValidTimeT(timeInstalledUser) ? timeInstalledUser : timeInstalledCommon;
+  }
+
+  /// Gets the time, the package was installed.
+  void SetTimeInstalled(std::time_t timeInstalled, MiKTeX::Core::ConfigurationScope scope)
+  {
+    switch (scope)
+    {
+    case MiKTeX::Core::ConfigurationScope::User:
+      timeInstalledUser = timeInstalled;
+    case MiKTeX::Core::ConfigurationScope::Common:
+      timeInstalledCommon = timeInstalled;
     default:
       MIKTEX_UNEXPECTED();
     }

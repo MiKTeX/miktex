@@ -1147,15 +1147,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
 
   // set the timeInstalled value => package is installed
   time_t now = time(nullptr);
-  newPackage.timeInstalled = now;
-  if (session->IsAdminMode())
-  {
-    newPackage.timeInstalledCommon = now;
-  }
-  else
-  {
-    newPackage.timeInstalledUser = now;
-  }
+  newPackage.SetTimeInstalled(now, session->IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User);
   packageDataStore->SetTimeInstalled(packageId, now);
   packageDataStore->SetReleaseState(packageId, repositoryReleaseState);
   packageDataStore->SaveVarData();
