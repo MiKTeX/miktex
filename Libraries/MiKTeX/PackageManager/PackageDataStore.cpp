@@ -101,14 +101,7 @@ tuple<bool, PackageInfo> PackageDataStore::TryGetPackage(const string& packageId
 
 void PackageDataStore::SetTimeInstalled(const string& packageId, time_t timeInstalled)
 {
-  if (session->IsAdminMode())
-  {
-    (*this)[packageId].timeInstalledCommon = timeInstalled;
-  }
-  else
-  {
-    (*this)[packageId].timeInstalledUser = timeInstalled;
-  }
+  (*this)[packageId].SetTimeInstalled(timeInstalled, session->IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User);
   if (IsValidTimeT(timeInstalled))
   {
     comboCfg.PutValue(packageId, "TimeInstalled", std::to_string(timeInstalled));
