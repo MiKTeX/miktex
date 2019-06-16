@@ -422,7 +422,7 @@ option(
 option(
   WITH_HARFTEX
   "Build HarfTeX."
-  FALSE
+  TRUE
 )
 
 option(
