@@ -193,8 +193,10 @@ struct PackageInfo
     {
     case MiKTeX::Core::ConfigurationScope::User:
       timeInstalledUser = timeInstalled;
+      break;
     case MiKTeX::Core::ConfigurationScope::Common:
       timeInstalledCommon = timeInstalled;
+      break;
     default:
       MIKTEX_UNEXPECTED();
     }
