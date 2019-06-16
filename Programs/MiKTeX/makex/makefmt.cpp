@@ -51,6 +51,9 @@ enum class Engine
   TeX,
   pdfTeX,
   XeTeX,
+#if defined(WITH_HARFTEX)
+  HarfTeX,
+#endif
   Omega,
 };
 
@@ -128,6 +131,12 @@ private:
     {
       this->engine = Engine::XeTeX;
     }
+#if defined(WITH_HARFTEX)
+    else if (Utils::EqualsIgnoreCase(engine, "harftex"))
+    {
+      this->engine = Engine::HarfTeX;
+    }
+#endif
     else if (Utils::EqualsIgnoreCase(engine, "omega"))
     {
       this->engine = Engine::Omega;
@@ -157,6 +166,10 @@ private:
       return "pdftex";
     case Engine::XeTeX:
       return "xetex";
+#if defined(WITH_HARFTEX)
+    case Engine::HarfTeX:
+      return "harftex";
+#endif
     case Engine::Omega:
       return "omega";
     }
@@ -180,6 +193,10 @@ private:
       return MIKTEX_PDFTEX_EXE;
     case Engine::XeTeX:
       return MIKTEX_XETEX_EXE;
+#if defined(WITH_HARFTEX)
+    case Engine::HarfTeX:
+      return MIKTEX_HARFTEX_EXE;
+#endif
     case Engine::Omega:
       return MIKTEX_OMEGA_EXE;
     }
@@ -198,7 +215,11 @@ private:
 private:
   bool IsExtended() const
   {
-    return engine == Engine::LuaTeX || engine == Engine::pdfTeX || engine == Engine::XeTeX;
+    bool result = engine == Engine::LuaTeX || engine == Engine::pdfTeX || engine == Engine::XeTeX;
+#if defined(WITH_HARFTEX)
+    result = result || engine == Engine::HarfTeX;
+#endif
+    return result;
   }
 
 private:

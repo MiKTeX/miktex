@@ -1395,6 +1395,9 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_GFTOPK_EXE, { "gftopk" } },
   { MIKTEX_GFTYPE_EXE, { "gftype" } },
   { MIKTEX_GREGORIO_EXE, { "gregorio" } },
+#if defined(WITH_HARFTEX)
+  { MIKTEX_HARFTEX_EXE, { "harftex", MIKTEX_HARFLATEX_EXE } },
+#endif
   { MIKTEX_HBF2GF_EXE, { "hbf2gf" } },
   { MIKTEX_LACHECK_EXE, { "lacheck" } },
   { MIKTEX_MAKEBASE_EXE, { "makebase" } },
