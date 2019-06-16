@@ -88,6 +88,24 @@ compiler=pdftex
 description=plain e-TeX
 input=etex.ini
 
+[harflatex-dev]
+
+  compiler = harftex
+  description = HarfLaTeX dev
+  input = lualatex.ini
+
+[harflatex]
+
+  compiler = harftex
+  description = HarfLaTeX
+  input = lualatex.ini
+
+[harftex]
+
+  compiler = harftex
+  description = HarfTeX
+  input = luatex.ini
+
 [jadetex]
 
 attributes=exclude

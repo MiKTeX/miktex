@@ -57,6 +57,9 @@ set(main_ini_names
   frlatex
   frtex
   ftex
+  harflatex
+  harflatex-dev
+  harftex
   jadetex
   lambda
   latex-dev
