@@ -1,0 +1,535 @@
+-----------
+-- Lua bindings to Harfbuzz.
+-- * [Wiki](http://github.com/deepakjois/luaharfbuzz/wiki)
+-- * [Source on Github](https://github.com/deepakjois/luaharfbuzz)
+-- * [API Coverage Status](https://github.com/deepakjois/luaharfbuzz/blob/master/status/done.txt)
+--
+-- @author Deepak Jois <<deepak.jois@gmail.com>>
+-- @copyright 2016
+-- @license MIT
+-- @module harfbuzz
+
+--- Wraps `hb_version`
+-- @function version
+
+--- Wraps `hb_shape`.
+--  @param font `Font` to use for shaping
+--
+--  @param buffer `Buffer` to shape
+--
+--  @param[opt] options table containing one or more supported options:
+--
+--  * `direction`: A `Direction` object representing the object.
+--  * `script`: A `Script` object representing the script.
+--  * `language`: A `Language` object representing the language.
+--  * `features`: features to enable, specified as either of the following.
+--    - comma-separated list of features. See [feature string syntax reference](https://github.com/deepakjois/luaharfbuzz/wiki/Feature-Strings)
+--    - table of `Feature` objects
+--  @function shape
+
+--- Lua wrapper for `hb_blob_t` type
+--  @type Blob
+
+--- Wraps `hb_blob_create`.
+--  Initializes a new `hb_blob_t`.
+--  @param data lua string containing binary or character data.
+--  @function Blob.new
+
+--- Wraps `hb_blob_create_from_file`.
+--  Initializes a new `hb_blob_t`.
+--  @param filename lua string.
+--  @function Blob.new_from_file
+
+--- Wraps `hb_blob_get_length`.
+--  @function Blob:get_length
+
+--- Wraps `hb_blob_get_data`.
+--  @function Blob:get_data
+
+--- Lua wrapper for `hb_face_t` type
+--  @type Face
+
+--- Wraps `hb_face_create`.
+--  Initializes a new `hb_face_t` from a `Blob` object.
+--  @param blob `Blob` to read the font from.
+--  @param[opt=0] font_index index of font to read.
+--  @function Face.new_from_blob
+
+--- Create a new `Face` from a file.
+--  Makes a call to `Face:new_from_blob` after creating a `Blob` from the
+--  file contents.
+--  @param file path to font file.
+--  @param[opt=0] font_index index of font to read.
+--  @function Face.new
+
+--- Wraps `hb_face_collect_unicodes`.
+--  @return table of codepoints supported by the face.
+--  @function Face:collect_unicodes
+
+--- Wraps `hb_face_get_glyph_count`.
+--  @function Face:get_glyph_count
+
+--- Wraps `hb_face_reference_table`.
+--  @param tag `Tag` object of the table.
+--  @return `Blob` object for the face table of `tag`.
+--  @function Face:get_table
+
+--- Wraps `hb_face_get_table_tags`.
+--  @return table of `Tag`s representing face table tags.
+--  @function Face:get_table_tags
+
+--- Wraps `hb_face_get_upem`.
+--  @function Face:get_upem
+
+--- Wraps `hb_ot_color_has_palettes`.
+--  @function Face:ot_color_has_palettes
+
+--- Wraps `hb_ot_color_palette_get_count`.
+--  @function Face:ot_color_palette_get_count
+
+--- Wraps `hb_ot_color_palette_get_colors`.
+--  @function Face:ot_color_palette_get_colors
+
+--- Wraps `hb_ot_color_has_layers`.
+--  @function Face:ot_color_has_layers
+
+--- Wraps `hb_ot_color_glyph_get_layers`.
+--  @function Face:ot_color_glyph_get_layers
+
+--- Wraps `hb_ot_color_has_png`.
+--  @function Face:ot_color_has_png
+
+--- Wraps `hb_ot_layout_table_get_script_tags`.
+--  @function Face:ot_layout_get_script_tags
+
+--- Wraps `hb_ot_layout_script_get_language_tags`.
+--  @function Face:ot_layout_get_language_tags
+
+--- Wraps `hb_ot_layout_language_get_feature_tags`.
+--  @function Face:ot_layout_get_feature_tags
+
+--- Wraps `hb_ot_layout_table_find_script`.
+--  @function Face:ot_layout_find_script
+
+--- Wraps `hb_ot_layout_script_find_language`.
+--  @function Face:ot_layout_find_language
+
+--- Wraps `hb_ot_layout_language_find_feature`.
+--  @function Face:ot_layout_find_feature
+
+
+--- Lua wrapper for `hb_font_t` type
+--  @type Font
+
+--- Wraps `hb_font_create`, and sets up some defaults for scale and shaping functions.
+--  Initializes a new `hb_font_t` from a `Face` object. Sets the default scale
+--  to the face’s upem value, and sets the font shaping functions by
+--  calling `hb_ot_font_set_funcs` on it.
+--  @param face `Face` object.
+--  @function Font.new
+
+--- Wraps `hb_font_get_scale`.
+--  @return two values for the x-scale and y-scale of the font.
+--  @function Font:get_scale
+
+--- Wraps `hb_font_set_scale`.
+--  @param x_scale desired x-scale of font.
+--  @param y_scale desired y-scale of font.
+--  @function Font:set_scale
+
+--- Wraps `hb_font_get_h_extents`.
+--  @return font extents table for horizontal direction, contains the following
+--  or `nil` if HarfBuzz fails to load font extents:
+--
+--  * `ascender`: typographic ascender.
+--  * `descender`: typographic descender.
+--  * `line_gap`: line spacing gap.
+--  @function Font:get_h_extents
+
+--- Wraps `hb_font_get_v_extents`.
+--  @return font extents table for vertical direction, similar to
+--  `Font:get_h_extents`, or `nil` if HarfBuzz fails to load font extents:
+--  @function Font:get_v_extents
+
+--- Wraps `hb_font_get_glyph_extents`.
+--  @param glyph index inside the font.
+--  @return extents table contains the following or `nil` if HarfBuzz fails to
+--  load glyph extents:
+--
+--  * `x_bearing`: left side of glyph from origin.
+--  * `y_bearing`: top side of glyph from origin.
+--  * `width`: distance from left to right side.
+--  * `height`: distance from top to bottom side.
+--  @function Font:get_glyph_extents
+
+--- Wraps `hb_font_get_glyph_name`.
+--  @param glyph index inside the font.
+--  @return name of the glyph or nil.
+--  @function Font:get_glyph_name
+
+--- Wraps `hb_font_get_glyph_from_name`.
+--  @param name of the glyph.
+--  @return glyph index inside the font or nil.
+--  @function Font:get_glyph_from_name
+
+--- Wraps `hb_font_get_glyph_h_advance`.
+--  @param glyph index inside the font.
+--  @return advance glyph advance of the glyph in horizontal direction.
+--  @function Font:get_glyph_h_advance
+
+--- Wraps `hb_font_get_glyph_v_advance`.
+--  @param glyph index inside the font.
+--  @return advance glyph advance of the glyph in vertical direction.
+--  @function Font:get_glyph_v_advance
+
+--- Wraps `hb_font_get_nominal_glyph`.
+--  @param codepoint.
+--  @return glyph index or `nil` if `codepoint` is not supported by the font.
+--  @function Font:get_nominal_glyph
+
+--- Wraps `hb_ot_color_glyph_get_png`.
+--  @function Font:ot_color_glyph_get_png
+
+--- Lua wrapper for `hb_buffer_t` type.
+--  @type Buffer
+
+--- Wraps `hb_buffer_create`.
+--  @function Buffer.new
+
+--- Wraps `hb_buffer_add_utf8`.
+--  @param text UTF8 encoded string.
+--  @param[opt=0] item_offset 0-indexed offset in `text`, from where to start adding.
+--  @param[opt=-1] item_length length to add from `item_offset`. `-1` adds till end of `text`.
+--  @function Buffer:add_utf8
+
+--- Wraps `hb_buffer_add_codepoints`.
+--  @param text table with codepoints as lua numbers.
+--  @param[opt=0] item_offset 0-indexed offset in `text`, from where to start adding.
+--  @param[opt=-1] item_length length to add from `item_offset`. `-1` adds till end of&nbsp;`text`.
+--  @function Buffer:add_codepoints
+
+--- Wraps `hb_buffer_set_direction`.
+--  @param dir  A `Direction` object.
+--  @function Buffer:set_direction
+
+--- Wraps `hb_buffer_get_direction`.
+-- @return A `Direction` object.
+--  @function Buffer:get_direction
+
+--- Wraps `hb_buffer_set_script`.
+--  @param script  A `Script` object.
+--  @function Buffer:set_script
+
+--- Wraps `hb_buffer_get_script`.
+-- @return A `Script` object.
+--  @function Buffer:get_script
+
+--- Wraps `hb_buffer_set_language`.
+--  @param lang A `Language` object
+--  @function Buffer:set_language
+
+--- Wraps `hb_buffer_get_language`.
+-- @return A `Language` object
+--  @function Buffer:get_language
+
+--- Wraps `hb_buffer_reverse`.
+--  @function Buffer:reverse
+
+--- Wraps `hb_buffer_get_length`.
+--  @function Buffer:get_length
+
+--- Wraps `hb_buffer_get_cluster_level`.
+--  @return see [Cluster Levels](#Cluster_Levels)
+--  @function Buffer:get_cluster_level
+
+--- Wraps `hb_buffer_set_cluster_level`.
+--  @param level see [Cluster Levels](#Cluster_Levels)
+--  @function Buffer:set_cluster_level
+
+--- Wraps `hb_buffer_guess_segment_properties`.
+--  @function Buffer:guess_segment_properties
+
+--- Helper method to get shaped glyph data.
+--  Calls `hb_buffer_get_glyph_infos`, `hb_buffer_get_glyph_positions` and
+-- `hb_glyph_info_get_glyph_flags`, and assembles the data into a Lua table.
+--  @return table containing data for each glyph, in a nested table. Each nested
+--  table contains the following:
+--
+--  * `x_advance`: horizontal advance.
+--  * `y_advance`: vertical advance.
+--  * `x_offset`: horizontal displacement.
+--  * `y_offset`: vertical displacement.
+--  * `cluster`: glyph cluster index within input.
+--  * `codepoint`: glyph index inside the font _(this field name is a bit misleading, but that’s what Harfbuzz uses)_.
+--  * `flags`: glyph flags
+--  @function Buffer:get_glyphs
+
+--- Cluster Levels.
+-- See [Harfbuzz docs](http://behdad.github.io/harfbuzz/clusters.html) for more details
+-- about what each of these levels mean.
+--  @section
+
+--- Wraps `HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES`.
+--  @field Buffer.CLUSTER_LEVEL_MONOTONE_GRAPHEMES
+
+--- Wraps `HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS`.
+--  @field Buffer.CLUSTER_LEVEL_MONOTONE_CHARACTERS
+
+--- Wraps `HB_BUFFER_CLUSTER_LEVEL_CHARACTERS`.
+--  @field Buffer.CLUSTER_LEVEL_CHARACTERS
+
+--- Wraps `HB_BUFFER_CLUSTER_LEVEL_DEFAULT`.
+--  @field Buffer.CLUSTER_LEVEL_DEFAULT
+
+--- Wraps `HB_GLYPH_FLAG_UNSAFE_TO_BREAK`.
+-- @field Buffer.GLYPH_FLAG_UNSAFE_TO_BREAK
+
+--- Wraps `HB_GLYPH_FLAG_DEFINED`.
+-- @field Buffer.GLYPH_FLAG_DEFINED
+
+--- Lua wrapper for `hb_feature_t` type
+--  @type Feature
+
+--- Wraps `hb_feature_from_string`
+--  @param feature_string See [feature string syntax reference](https://github.com/deepakjois/luaharfbuzz/wiki/Feature-Strings)
+--  @function Feature.new
+
+--- Wraps `hb_feature_to_string`.
+--  Enables nice output with `tostring(…)`.
+--  @function Feature:__tostring
+
+--- Lua wrapper for `hb_tag_t` type.
+--  @type Tag
+
+--- Wraps `hb_tag_from_string`.
+-- @param string to be converted to a `Tag` object.
+-- @return a `Tag` object.
+-- @function Tag.new
+
+--- Wraps `hb_tag_to_string`. Enable nice output with `tostring(…)`.
+-- @return Returns a string representation for the tag object.
+-- @function Tag:__to_string
+
+--- Enables equality comparisions with `==` between two tags.
+-- @return `true` or `false` depending on whether the two tags are equal.
+-- @function Tag:__eq
+
+
+--- Lua wrapper for `hb_script_t` type.
+--  @type Script
+
+--- Wraps `hb_script_from_string`.
+-- @param script 4-letter script code according to the [ISO 15924 standard](http://www.unicode.org/iso15924/iso15924-num.html).
+-- @return a `Script` object.
+-- @function Script.new
+
+--- Wraps `hb_script_from_iso15924_tag`
+-- @param tag a `Tag` object representing a [ISO 15924 script](http://www.unicode.org/iso15924/iso15924-num.html).
+-- @function Script.from_iso15924_tag
+
+--- Wraps `hb_script_to_iso15924_tag`.
+-- @return a `Tag` object representing the script.
+-- @function Script:to_iso15924_tag
+
+--- Enable nice output with `tostring(…)`
+-- @return Returns a 4-letter [ISO 15924 script code](http://www.unicode.org/iso15924/iso15924-num.html) for the script object.
+-- @function Script:__to_string
+
+--- Enables equality comparisions with `==` between two scripts.
+-- @return `true` or `false` depending on whether the two scripts are equal.
+-- @function Script:__eq
+
+--- Predefined Script Codes.
+-- Predefined directions that correspond to their original definitions in Harfbuzz.
+-- @section
+
+--- Wraps `HB_SCRIPT_COMMON`.
+-- @field Script.COMMON
+
+--- Wraps `HB_SCRIPT_INHERITED`.
+-- @field Script.INHERITED
+
+--- Wraps `HB_SCRIPT_UNKNOWN`.
+-- @field Script.UNKNOWN
+
+--- Wraps `HB_SCRIPT_INVALID`.
+-- @field Script.INVALID
+
+--- Lua wrapper for `hb_direction_t` type.
+-- @type Direction
+
+--- Wraps `hb_direction_from_string`.
+-- @param dir can be one of `ltr`, `rtl`, `ttb`, `btt` or `invalid`.
+-- @return a `Direction` object.
+-- @function Direction.new
+
+--- Wraps `hb_direction_to_string`. Enable nice output with `tostring(…)`.
+-- @return Returns a string representation for direction.
+-- @function Direction:__to_string
+
+--- Enables equality comparisions with `==` between two directions.
+-- @return `true` or `false` depending on whether the two tags are equal.
+-- @function Direction:__eq
+
+--- Wraps `HB_DIRECTION_IS_VALID`.
+-- @return a boolean value
+-- @function Direction:is_valid
+
+--- Wraps `HB_DIRECTION_IS_HORIZONTAL`.
+-- @return a boolean value
+-- @function Direction:is_horizontal
+
+--- Wraps `HB_DIRECTION_IS_VERTICAL`.
+-- @return a boolean value
+-- @function Direction:is_vertical
+
+--- Wraps `HB_DIRECTION_IS_FORWARD`.
+-- @return a boolean value
+-- @function Direction:is_forward
+
+--- Wraps `HB_DIRECTION_IS_BACKWARD`.
+-- @return a boolean value
+-- @function Direction:is_backward
+
+--- Predefined directions.
+-- Predefined directions that correspond to their original definitions in Harfbuzz.
+-- @section
+
+--- Wraps `HB_DIRECTION_LTR`.
+-- @field Direction.LTR
+
+--- Wraps `HB_DIRECTION_RTL`.
+-- @field Direction.RTL
+
+--- Wraps `HB_DIRECTION_TTB`.
+-- @field Direction.TTB
+
+--- Wraps `HB_DIRECTION_LTR`.
+-- @field Direction.BTT
+
+--- Lua wrapper for `hb_language_t` type.
+--  @type Language
+
+--- Wraps `hb_language_from_string`.
+-- @param lang [three-letter language tag](http://www.microsoft.com/typography/otspec/languagetags.htm) to be converted to a `Language` object.
+-- @return a `Language` object.
+-- @function Language.new
+
+--- Wraps `hb_language_to_string`. Enable nice output with `tostring(…)`.
+-- @return Returns a string representation for the language object.
+-- @function Language:__to_string
+
+--- Enables equality comparisions with `==` between two languages.
+-- @return `true` or `false` depending on whether the two languages are equal.
+-- @function Language:__eq
+
+--- Predefined languages.
+-- Predefined languages that correspond to their original definitions in Harfbuzz.
+-- @section
+
+--- Wraps `HB_LANGUAGE_INVALID`.
+-- @field Language.INVALID
+
+
+--- Unicode functions.
+-- @section
+
+--- Wraps `hb_unicode_script`
+-- @param char Unicode codepoint
+-- @return a `Script` object.
+-- @function unicode.script
+
+
+--- Predefined Name IDs.
+-- Predefined OpenType 'name' table name identifier.
+-- @section
+
+--- Wraps `HB_OT_NAME_ID_COPYRIGHT`
+-- @field ot.NAME_ID_COPYRIGHT
+
+--- Wraps `HB_OT_NAME_ID_FONT_FAMILY`
+-- @field ot.NAME_ID_FONT_FAMILY
+
+--- Wraps `HB_OT_NAME_ID_FONT_SUBFAMILY`
+-- @field ot.NAME_ID_FONT_SUBFAMILY
+
+--- Wraps `HB_OT_NAME_ID_UNIQUE_ID`
+-- @field ot.NAME_ID_UNIQUE_ID
+
+--- Wraps `HB_OT_NAME_ID_FULL_NAME`
+-- @field ot.NAME_ID_FULL_NAME
+
+--- Wraps `HB_OT_NAME_ID_VERSION_STRING`
+-- @field ot.NAME_ID_VERSION_STRING
+
+--- Wraps `HB_OT_NAME_ID_POSTSCRIPT_NAME`
+-- @field ot.NAME_ID_POSTSCRIPT_NAME
+
+--- Wraps `HB_OT_NAME_ID_TRADEMARK`
+-- @field ot.NAME_ID_TRADEMARK
+
+--- Wraps `HB_OT_NAME_ID_MANUFACTURER`
+-- @field ot.NAME_ID_MANUFACTURER
+
+--- Wraps `HB_OT_NAME_ID_DESIGNER`
+-- @field ot.NAME_ID_DESIGNER
+
+--- Wraps `HB_OT_NAME_ID_DESCRIPTION`
+-- @field ot.NAME_ID_DESCRIPTION
+
+--- Wraps `HB_OT_NAME_ID_VENDOR_URL`
+-- @field ot.NAME_ID_VENDOR_URL
+
+--- Wraps `HB_OT_NAME_ID_DESIGNER_URL`
+-- @field ot.NAME_ID_DESIGNER_URL
+
+--- Wraps `HB_OT_NAME_ID_LICENSE`
+-- @field ot.NAME_ID_LICENSE
+
+--- Wraps `HB_OT_NAME_ID_LICENSE_URL`
+-- @field ot.NAME_ID_LICENSE_URL
+
+--- Wraps `HB_OT_NAME_ID_TYPOGRAPHIC_FAMILY`
+-- @field ot.NAME_ID_TYPOGRAPHIC_FAMILY
+
+--- Wraps `HB_OT_NAME_ID_TYPOGRAPHIC_SUBFAMILY`
+-- @field ot.NAME_ID_TYPOGRAPHIC_SUBFAMILY
+
+--- Wraps `HB_OT_NAME_ID_MAC_FULL_NAME`
+-- @field ot.NAME_ID_MAC_FULL_NAME
+
+--- Wraps `HB_OT_NAME_ID_SAMPLE_TEXT`
+-- @field ot.NAME_ID_SAMPLE_TEXT
+
+--- Wraps `HB_OT_NAME_ID_CID_FINDFONT_NAME`
+-- @field ot.NAME_ID_CID_FINDFONT_NAME
+
+--- Wraps `HB_OT_NAME_ID_WWS_FAMILY`
+-- @field ot.NAME_ID_WWS_FAMILY
+
+--- Wraps `HB_OT_NAME_ID_WWS_SUBFAMILY`
+-- @field ot.NAME_ID_WWS_SUBFAMILY
+
+--- Wraps `HB_OT_NAME_ID_LIGHT_BACKGROUND`
+-- @field ot.NAME_ID_LIGHT_BACKGROUND
+
+--- Wraps `HB_OT_NAME_ID_DARK_BACKGROUND`
+-- @field ot.NAME_ID_DARK_BACKGROUND
+
+--- Wraps `HB_OT_NAME_ID_VARIATIONS_PS_PREFIX`
+-- @field ot.NAME_ID_VARIATIONS_PS_PREFIX
+
+--- Wraps `HB_OT_NAME_ID_INVALID`
+-- @field ot.NAME_ID_INVALID
+
+--- Wraps `HB_OT_LAYOUT_NO_SCRIPT_INDEX`
+-- @field ot.LAYOUT_NO_SCRIPT_INDEX
+
+--- Wraps `HB_OT_LAYOUT_NO_FEATURE_INDEX`
+-- @field ot.LAYOUT_NO_FEATURE_INDEX
+
+--- Wraps `HB_OT_LAYOUT_DEFAULT_LANGUAGE_INDEX`
+-- @field ot.LAYOUT_DEFAULT_LANGUAGE_INDEX
+
+--- Wraps `HB_OT_LAYOUT_NO_VARIATIONS_INDEX`
+-- @field ot.LAYOUT_NO_VARIATIONS_INDEX

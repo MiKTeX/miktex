@@ -420,6 +420,12 @@ option(
 )
 
 option(
+  WITH_HARFTEX
+  "Build HarfTeX."
+  FALSE
+)
+
+option(
   WITH_LIBRESSL_CRYPTO
   "Use the LibreSSL crypto library supplied with MiKTeX."
   ${WIN32}
@@ -1993,6 +1999,10 @@ endif()
 
 if(WITH_CONFIG_FILES)
   add_subdirectory(${MIKTEX_REL_CONFIGFILES_DIR})
+endif()
+
+if(WITH_HARFTEX)
+  add_subdirectory(${MIKTEX_REL_HARFTEX_DIR})
 endif()
 
 if(WITH_TPMS)
