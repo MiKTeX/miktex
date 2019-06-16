@@ -60,6 +60,13 @@ compiler=pdftex
 description=PDF CSPlain
 input=csplain-utf8.ini
 
+[dvilualatex-dev]
+
+	attributes = exclude
+	compiler = luatex
+	description = LuaLaTeX (DVI) dev
+	input = dvilualatex.ini
+
 [dvilualatex]
 
 attributes=exclude
@@ -96,12 +103,25 @@ compiler=omega
 description=Lambda
 input=lambda.ini
 
+[latex-dev]
+
+	arguments = -tcx=cp227.tcx
+	compiler = pdftex
+	description = LaTeX2e (DVI) dev
+	input = latex.ini
+
 [latex]
 
 arguments=-tcx=cp227.tcx
 compiler=pdftex
 description=LaTeX2e
 input=latex.ini
+
+[lualatex-dev]
+
+	compiler = luatex
+	description = LuaLaTeX dev
+	input = lualatex.ini
 
 [lualatex]
 
@@ -176,6 +196,13 @@ description=pdfjadeTeX
 input=pdfjadetex.ini
 preloaded=pdflatex
 
+[pdflatex-dev]
+
+	arguments = -tcx=cp227.tcx
+	compiler = pdftex
+	description = pdfLaTeX dev
+	input = pdflatex.ini
+
 [pdflatex]
 
 arguments=-tcx=cp227.tcx
@@ -225,6 +252,12 @@ preloaded=pdflatex
 compiler=xetex
 description=xetex
 input=xetex.ini
+
+[xelatex-dev]
+
+	compiler = xetex
+	description = XeLaTeX dev
+	input = xelatex.ini
 
 [xelatex]
 
