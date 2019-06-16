@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2018 Christian Schenk
+## Copyright (C) 2013-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -45,6 +45,8 @@ set(HAVE_GRAPHITE2 1)
 set(HAVE_ICU 1)
 set(HAVE_OT 1)
 
+set(HAVE_CXX11 1)
+
 if(MIKTEX_NATIVE_WINDOWS)
   set(HAVE_WINDOWS_H 1)
 endif()
@@ -72,11 +74,8 @@ list(APPEND harfbuzz_sources
   ${HB_BASE_RAGEL_GENERATED_sources}
 
   ${HB_FALLBACK_sources}
-  ${HB_OT_sources}
-  ${HB_OT_RAGEL_GENERATED_sources}
 
   ${HB_BASE_headers}
-  ${HB_OT_headers}
 
   ${HB_GRAPHITE2_sources}
   ${HB_GRAPHITE2_headers}

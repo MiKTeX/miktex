@@ -40,6 +40,17 @@
 #include FT_TRUETYPE_TABLES_H
 
 
+/**
+ * SECTION:hb-ft
+ * @title: hb-ft
+ * @short_description: FreeType integration
+ * @include: hb-ft.h
+ *
+ * Functions for using HarfBuzz with the FreeType library to provide face and
+ * font data.
+ **/
+
+
 /* TODO:
  *
  * In general, this file does a fine job of what it's supposed to do.
@@ -85,7 +96,7 @@ _hb_ft_font_create (FT_Face ft_face, bool symbol, bool unref)
 
   ft_font->load_flags = FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING;
 
-  ft_font->cached_x_scale.set (0);
+  ft_font->cached_x_scale.set_relaxed (0);
   ft_font->advance_cache.init ();
 
   return ft_font;
@@ -124,7 +135,7 @@ _hb_ft_font_destroy (void *data)
 void
 hb_ft_font_set_load_flags (hb_font_t *font, int load_flags)
 {
-  if (font->immutable)
+  if (hb_object_is_immutable (font))
     return;
 
   if (font->destroy != (hb_destroy_func_t) _hb_ft_font_destroy)
@@ -217,8 +228,8 @@ hb_ft_get_nominal_glyphs (hb_font_t *font HB_UNUSED,
        done < count && (*first_glyph = FT_Get_Char_Index (ft_font->ft_face, *first_unicode));
        done++)
   {
-    first_unicode = &StructAtOffset<hb_codepoint_t> (first_unicode, unicode_stride);
-    first_glyph = &StructAtOffset<hb_codepoint_t> (first_glyph, glyph_stride);
+    first_unicode = &StructAtOffsetUnaligned<hb_codepoint_t> (first_unicode, unicode_stride);
+    first_glyph = &StructAtOffsetUnaligned<hb_codepoint_t> (first_glyph, glyph_stride);
   }
   /* We don't need to do ft_font->symbol dance here, since HB calls the singular
    * nominal_glyph() for what we don't handle here. */
@@ -281,8 +292,8 @@ hb_ft_get_glyph_h_advances (hb_font_t* font, void* font_data,
     }
 
     *first_advance = (v * mult + (1<<9)) >> 10;
-    first_glyph = &StructAtOffset<hb_codepoint_t> (first_glyph, glyph_stride);
-    first_advance = &StructAtOffset<hb_position_t> (first_advance, advance_stride);
+    first_glyph = &StructAtOffsetUnaligned<hb_codepoint_t> (first_glyph, glyph_stride);
+    first_advance = &StructAtOffsetUnaligned<hb_position_t> (first_advance, advance_stride);
   }
 }
 
@@ -428,7 +439,7 @@ hb_ft_get_glyph_from_name (hb_font_t *font HB_UNUSED,
   else {
     /* Make a nul-terminated version. */
     char buf[128];
-    len = MIN (len, (int) sizeof (buf) - 1);
+    len = hb_min (len, (int) sizeof (buf) - 1);
     strncpy (buf, name, len);
     buf[len] = '\0';
     *glyph = FT_Get_Name_Index (ft_face, buf);
@@ -455,9 +466,9 @@ hb_ft_get_font_h_extents (hb_font_t *font HB_UNUSED,
   const hb_ft_font_t *ft_font = (const hb_ft_font_t *) font_data;
   hb_lock_t lock (ft_font->lock);
   FT_Face ft_face = ft_font->ft_face;
-  metrics->ascender = ft_face->size->metrics.ascender;
-  metrics->descender = ft_face->size->metrics.descender;
-  metrics->line_gap = ft_face->size->metrics.height - (ft_face->size->metrics.ascender - ft_face->size->metrics.descender);
+  metrics->ascender = FT_MulFix(ft_face->ascender, ft_face->size->metrics.y_scale);
+  metrics->descender = FT_MulFix(ft_face->descender, ft_face->size->metrics.y_scale);
+  metrics->line_gap = FT_MulFix( ft_face->height, ft_face->size->metrics.y_scale ) - (metrics->ascender - metrics->descender);
   if (font->y_scale < 0)
   {
     metrics->ascender = -metrics->ascender;
@@ -467,13 +478,13 @@ hb_ft_get_font_h_extents (hb_font_t *font HB_UNUSED,
   return true;
 }
 
-#ifdef HB_USE_ATEXIT
-static void free_static_ft_funcs (void);
+#if HB_USE_ATEXIT
+static void free_static_ft_funcs ();
 #endif
 
 static struct hb_ft_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ft_font_funcs_lazy_loader_t>
 {
-  static inline hb_font_funcs_t *create (void)
+  static hb_font_funcs_t *create ()
   {
     hb_font_funcs_t *funcs = hb_font_funcs_create ();
 
@@ -493,7 +504,7 @@ static struct hb_ft_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ft
 
     hb_font_funcs_make_immutable (funcs);
 
-#ifdef HB_USE_ATEXIT
+#if HB_USE_ATEXIT
     atexit (free_static_ft_funcs);
 #endif
 
@@ -501,16 +512,16 @@ static struct hb_ft_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ft
   }
 } static_ft_funcs;
 
-#ifdef HB_USE_ATEXIT
+#if HB_USE_ATEXIT
 static
-void free_static_ft_funcs (void)
+void free_static_ft_funcs ()
 {
   static_ft_funcs.free_instance ();
 }
 #endif
 
 static hb_font_funcs_t *
-_hb_ft_get_font_funcs (void)
+_hb_ft_get_font_funcs ()
 {
   return static_ft_funcs.get_unconst ();
 }
@@ -733,45 +744,45 @@ hb_ft_font_create_referenced (FT_Face ft_face)
   return hb_ft_font_create (ft_face, _hb_ft_face_destroy);
 }
 
-#ifdef HB_USE_ATEXIT
-static void free_static_ft_library (void);
+#if HB_USE_ATEXIT
+static void free_static_ft_library ();
 #endif
 
-static struct hb_ft_library_lazy_loader_t : hb_lazy_loader_t<hb_remove_ptr_t<FT_Library>::value,
+static struct hb_ft_library_lazy_loader_t : hb_lazy_loader_t<hb_remove_pointer<FT_Library>,
 							     hb_ft_library_lazy_loader_t>
 {
-  static inline FT_Library create (void)
+  static FT_Library create ()
   {
     FT_Library l;
     if (FT_Init_FreeType (&l))
       return nullptr;
 
-#ifdef HB_USE_ATEXIT
+#if HB_USE_ATEXIT
     atexit (free_static_ft_library);
 #endif
 
     return l;
   }
-  static inline void destroy (FT_Library l)
+  static void destroy (FT_Library l)
   {
     FT_Done_FreeType (l);
   }
-  static inline FT_Library get_null (void)
+  static FT_Library get_null ()
   {
     return nullptr;
   }
 } static_ft_library;
 
-#ifdef HB_USE_ATEXIT
+#if HB_USE_ATEXIT
 static
-void free_static_ft_library (void)
+void free_static_ft_library ()
 {
   static_ft_library.free_instance ();
 }
 #endif
 
 static FT_Library
-get_ft_library (void)
+get_ft_library ()
 {
   return static_ft_library.get_unconst ();
 }

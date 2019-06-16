@@ -70,8 +70,6 @@ override_features_hangul (hb_ot_shape_planner_t *plan)
 
 struct hangul_shape_plan_t
 {
-  ASSERT_POD ();
-
   hb_mask_t mask_array[HANGUL_FEATURE_COUNT];
 };
 
@@ -128,7 +126,7 @@ is_zero_width_char (hb_font_t *font,
 }
 
 static void
-preprocess_text_hangul (const hb_ot_shape_plan_t *plan,
+preprocess_text_hangul (const hb_ot_shape_plan_t *plan HB_UNUSED,
 			hb_buffer_t              *buffer,
 			hb_font_t                *font)
 {
@@ -216,7 +214,8 @@ preprocess_text_hangul (const hb_ot_shape_plan_t *plan,
       else
       {
 	/* No valid syllable as base for tone mark; try to insert dotted circle. */
-	if (font->has_glyph (0x25CCu))
+      if (!(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE) &&
+	  font->has_glyph (0x25CCu))
 	{
 	  hb_codepoint_t chars[2];
 	  if (!is_zero_width_char (font, u)) {

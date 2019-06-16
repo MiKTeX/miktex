@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Mozilla Foundation" year="2015"/>
     <TPM:Copyright owner="Google, Inc." year="2015"/>
     <TPM:License type="mit"/>
-    <TPM:Version>2.0.2</TPM:Version>
+    <TPM:Version>2.5.1</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

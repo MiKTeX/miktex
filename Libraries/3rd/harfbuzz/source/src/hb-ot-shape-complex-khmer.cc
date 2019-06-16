@@ -46,7 +46,7 @@ khmer_features[] =
   {HB_TAG('c','f','a','r'), F_MANUAL_JOINERS},
   /*
    * Other features.
-   * These features are applied all at once.
+   * These features are applied all at once after clearing syllables.
    */
   {HB_TAG('p','r','e','s'), F_GLOBAL_MANUAL_JOINERS},
   {HB_TAG('a','b','v','s'), F_GLOBAL_MANUAL_JOINERS},
@@ -127,28 +127,31 @@ collect_features_khmer (hb_ot_shape_planner_t *plan)
 
   for (; i < KHMER_NUM_FEATURES; i++)
     map->add_feature (khmer_features[i]);
-
-  map->enable_feature (HB_TAG('c','a','l','t'));
-  map->enable_feature (HB_TAG('c','l','i','g'));
-
 }
 
 static void
 override_features_khmer (hb_ot_shape_planner_t *plan)
 {
+  hb_ot_map_builder_t *map = &plan->map;
+
+  /* Khmer spec has 'clig' as part of required shaping features:
+   * "Apply feature 'clig' to form ligatures that are desired for
+   * typographical correctness.", hence in overrides... */
+  map->enable_feature (HB_TAG('c','l','i','g'));
+
   /* Uniscribe does not apply 'kern' in Khmer. */
   if (hb_options ().uniscribe_bug_compatible)
   {
-    plan->map.disable_feature (HB_TAG('k','e','r','n'));
+    map->disable_feature (HB_TAG('k','e','r','n'));
   }
 
-  plan->map.disable_feature (HB_TAG('l','i','g','a'));
+  map->disable_feature (HB_TAG('l','i','g','a'));
 }
 
 
 struct would_substitute_feature_t
 {
-  inline void init (const hb_ot_map_t *map, hb_tag_t feature_tag, bool zero_context_)
+  void init (const hb_ot_map_t *map, hb_tag_t feature_tag, bool zero_context_)
   {
     zero_context = zero_context_;
     map->get_stage_lookups (0/*GSUB*/,
@@ -156,12 +159,12 @@ struct would_substitute_feature_t
 			    &lookups, &count);
   }
 
-  inline bool would_substitute (const hb_codepoint_t *glyphs,
-				unsigned int          glyphs_count,
-				hb_face_t            *face) const
+  bool would_substitute (const hb_codepoint_t *glyphs,
+			 unsigned int          glyphs_count,
+			 hb_face_t            *face) const
   {
     for (unsigned int i = 0; i < count; i++)
-      if (hb_ot_layout_lookup_would_substitute_fast (face, lookups[i].index, glyphs, glyphs_count, zero_context))
+      if (hb_ot_layout_lookup_would_substitute (face, lookups[i].index, glyphs, glyphs_count, zero_context))
 	return true;
     return false;
   }
@@ -174,9 +177,7 @@ struct would_substitute_feature_t
 
 struct khmer_shape_plan_t
 {
-  ASSERT_POD ();
-
-  inline bool get_virama_glyph (hb_font_t *font, hb_codepoint_t *pglyph) const
+  bool get_virama_glyph (hb_font_t *font, hb_codepoint_t *pglyph) const
   {
     hb_codepoint_t glyph = virama_glyph;
     if (unlikely (virama_glyph == (hb_codepoint_t) -1))
@@ -267,7 +268,7 @@ setup_syllables (const hb_ot_shape_plan_t *plan HB_UNUSED,
 
 static void
 reorder_consonant_syllable (const hb_ot_shape_plan_t *plan,
-			    hb_face_t *face,
+			    hb_face_t *face HB_UNUSED,
 			    hb_buffer_t *buffer,
 			    unsigned int start, unsigned int end)
 {
@@ -364,7 +365,11 @@ insert_dotted_circles (const hb_ot_shape_plan_t *plan HB_UNUSED,
 		       hb_font_t *font,
 		       hb_buffer_t *buffer)
 {
-  /* Note: This loop is extra overhead, but should not be measurable. */
+  if (unlikely (buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
+    return;
+
+  /* Note: This loop is extra overhead, but should not be measurable.
+   * TODO Use a buffer scratch flag to remove the loop. */
   bool has_broken_syllables = false;
   unsigned int count = buffer->len;
   hb_glyph_info_t *info = buffer->info;
@@ -403,7 +408,6 @@ insert_dotted_circles (const hb_ot_shape_plan_t *plan HB_UNUSED,
       ginfo.cluster = buffer->cur().cluster;
       ginfo.mask = buffer->cur().mask;
       ginfo.syllable() = buffer->cur().syllable();
-      /* TODO Set glyph_props? */
 
       /* Insert dottedcircle after possible Repha. */
       while (buffer->idx < buffer->len && buffer->successful &&
@@ -416,7 +420,6 @@ insert_dotted_circles (const hb_ot_shape_plan_t *plan HB_UNUSED,
     else
       buffer->next_glyph ();
   }
-
   buffer->swap_buffers ();
 }
 
@@ -438,8 +441,6 @@ clear_syllables (const hb_ot_shape_plan_t *plan HB_UNUSED,
 		 hb_font_t *font HB_UNUSED,
 		 hb_buffer_t *buffer)
 {
-  /* TODO: In USE, we clear syllables right after reorder.  Figure out
-   * what Uniscribe does. */
   hb_glyph_info_t *info = buffer->info;
   unsigned int count = buffer->len;
   for (unsigned int i = 0; i < count; i++)

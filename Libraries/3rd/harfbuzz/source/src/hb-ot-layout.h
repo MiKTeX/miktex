@@ -33,7 +33,6 @@
 
 #include "hb.h"
 
-#include "hb-ot-tag.h"
 #include "hb-ot-name.h"
 
 HB_BEGIN_DECLS
@@ -47,12 +46,64 @@ HB_BEGIN_DECLS
 
 
 /*
+ * Script & Language tags.
+ */
+
+#define HB_OT_TAG_DEFAULT_SCRIPT	HB_TAG ('D', 'F', 'L', 'T')
+#define HB_OT_TAG_DEFAULT_LANGUAGE	HB_TAG ('d', 'f', 'l', 't')
+
+/**
+ * HB_OT_MAX_TAGS_PER_SCRIPT:
+ *
+ * Since: 2.0.0
+ **/
+#define HB_OT_MAX_TAGS_PER_SCRIPT	3u
+/**
+ * HB_OT_MAX_TAGS_PER_LANGUAGE:
+ *
+ * Since: 2.0.0
+ **/
+#define HB_OT_MAX_TAGS_PER_LANGUAGE	3u
+
+HB_EXTERN void
+hb_ot_tags_from_script_and_language (hb_script_t   script,
+				     hb_language_t language,
+				     unsigned int *script_count /* IN/OUT */,
+				     hb_tag_t     *script_tags /* OUT */,
+				     unsigned int *language_count /* IN/OUT */,
+				     hb_tag_t     *language_tags /* OUT */);
+
+HB_EXTERN hb_script_t
+hb_ot_tag_to_script (hb_tag_t tag);
+
+HB_EXTERN hb_language_t
+hb_ot_tag_to_language (hb_tag_t tag);
+
+HB_EXTERN void
+hb_ot_tags_to_script_and_language (hb_tag_t       script_tag,
+				   hb_tag_t       language_tag,
+				   hb_script_t   *script /* OUT */,
+				   hb_language_t *language /* OUT */);
+
+
+/*
  * GDEF
  */
 
 HB_EXTERN hb_bool_t
 hb_ot_layout_has_glyph_classes (hb_face_t *face);
 
+/**
+ * hb_ot_layout_glyph_class_t:
+ * @HB_OT_LAYOUT_GLYPH_CLASS_UNCLASSIFIED: Glyphs not matching the other classifications
+ * @HB_OT_LAYOUT_GLYPH_CLASS_BASE_GLYPH: Spacing, single characters, capable of accepting marks
+ * @HB_OT_LAYOUT_GLYPH_CLASS_LIGATURE: Glyphs that represent ligation of multiple characters
+ * @HB_OT_LAYOUT_GLYPH_CLASS_MARK: Non-spacing, combining glyphs that represent marks
+ * @HB_OT_LAYOUT_GLYPH_CLASS_COMPONENT: Spacing glyphs that represent part of a single character
+ *
+ * The GDEF classes defined for glyphs.
+ *
+ **/
 typedef enum {
   HB_OT_LAYOUT_GLYPH_CLASS_UNCLASSIFIED	= 0,
   HB_OT_LAYOUT_GLYPH_CLASS_BASE_GLYPH	= 1,
@@ -324,23 +375,23 @@ Xhb_ot_layout_lookup_position (hb_font_t            *font,
 /* Optical 'size' feature info.  Returns true if found.
  * https://docs.microsoft.com/en-us/typography/opentype/spec/features_pt#size */
 HB_EXTERN hb_bool_t
-hb_ot_layout_get_size_params (hb_face_t    *face,
-			      unsigned int *design_size,       /* OUT.  May be NULL */
-			      unsigned int *subfamily_id,      /* OUT.  May be NULL */
-			      hb_name_id_t *subfamily_name_id, /* OUT.  May be NULL */
-			      unsigned int *range_start,       /* OUT.  May be NULL */
-			      unsigned int *range_end          /* OUT.  May be NULL */);
+hb_ot_layout_get_size_params (hb_face_t       *face,
+			      unsigned int    *design_size,       /* OUT.  May be NULL */
+			      unsigned int    *subfamily_id,      /* OUT.  May be NULL */
+			      hb_ot_name_id_t *subfamily_name_id, /* OUT.  May be NULL */
+			      unsigned int    *range_start,       /* OUT.  May be NULL */
+			      unsigned int    *range_end          /* OUT.  May be NULL */);
 
 
 HB_EXTERN hb_bool_t
-hb_ot_layout_feature_get_name_ids (hb_face_t    *face,
-				   hb_tag_t      table_tag,
-				   unsigned int  feature_index,
-				   hb_name_id_t *label_id             /* OUT.  May be NULL */,
-				   hb_name_id_t *tooltip_id           /* OUT.  May be NULL */,
-				   hb_name_id_t *sample_id            /* OUT.  May be NULL */,
-				   unsigned int *num_named_parameters /* OUT.  May be NULL */,
-				   hb_name_id_t *first_param_id       /* OUT.  May be NULL */);
+hb_ot_layout_feature_get_name_ids (hb_face_t       *face,
+				   hb_tag_t         table_tag,
+				   unsigned int     feature_index,
+				   hb_ot_name_id_t *label_id             /* OUT.  May be NULL */,
+				   hb_ot_name_id_t *tooltip_id           /* OUT.  May be NULL */,
+				   hb_ot_name_id_t *sample_id            /* OUT.  May be NULL */,
+				   unsigned int    *num_named_parameters /* OUT.  May be NULL */,
+				   hb_ot_name_id_t *first_param_id       /* OUT.  May be NULL */);
 
 
 HB_EXTERN unsigned int
@@ -350,22 +401,6 @@ hb_ot_layout_feature_get_characters (hb_face_t      *face,
 				     unsigned int    start_offset,
 				     unsigned int   *char_count    /* IN/OUT.  May be NULL */,
 				     hb_codepoint_t *characters    /* OUT.     May be NULL */);
-
-/*
- * BASE
- */
-#if 0
-
-#define HB_OT_TAG_BASE_HANG HB_TAG('h','a','n','g')
-#define HB_OT_TAG_BASE_ICFB HB_TAG('i','c','f','b')
-#define HB_OT_TAG_BASE_ICFT HB_TAG('i','c','f','t')
-#define HB_OT_TAG_BASE_IDEO HB_TAG('i','d','e','o')
-#define HB_OT_TAG_BASE_IDTB HB_TAG('i','d','t','b')
-#define HB_OT_TAG_BASE_MATH HB_TAG('m','a','t','h')
-#define HB_OT_TAG_BASE_ROMN HB_TAG('r','o','m','n')
-
-#endif
-
 
 HB_END_DECLS
 

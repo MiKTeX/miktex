@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * dvipdfmx 20190522
+* harfbuzz 2.5.1
 * luatex 1.10.1
 
 ## 2.9.7050 - 2019-05-30

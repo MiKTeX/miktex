@@ -48,7 +48,18 @@
 /* Defined externally, i.e. in config.h; must have typedef'ed hb_mutex_impl_t as well. */
 
 
-#elif !defined(HB_NO_MT) && (defined(_WIN32) || defined(__CYGWIN__))
+#elif !defined(HB_NO_MT) && (defined(HAVE_PTHREAD) || defined(__APPLE__))
+
+#include <pthread.h>
+typedef pthread_mutex_t hb_mutex_impl_t;
+#define HB_MUTEX_IMPL_INIT	PTHREAD_MUTEX_INITIALIZER
+#define hb_mutex_impl_init(M)	pthread_mutex_init (M, nullptr)
+#define hb_mutex_impl_lock(M)	pthread_mutex_lock (M)
+#define hb_mutex_impl_unlock(M)	pthread_mutex_unlock (M)
+#define hb_mutex_impl_finish(M)	pthread_mutex_destroy (M)
+
+
+#elif !defined(HB_NO_MT) && defined(_WIN32)
 
 #include <windows.h>
 typedef CRITICAL_SECTION hb_mutex_impl_t;
@@ -61,17 +72,6 @@ typedef CRITICAL_SECTION hb_mutex_impl_t;
 #define hb_mutex_impl_lock(M)	EnterCriticalSection (M)
 #define hb_mutex_impl_unlock(M)	LeaveCriticalSection (M)
 #define hb_mutex_impl_finish(M)	DeleteCriticalSection (M)
-
-
-#elif !defined(HB_NO_MT) && (defined(HAVE_PTHREAD) || defined(__APPLE__))
-
-#include <pthread.h>
-typedef pthread_mutex_t hb_mutex_impl_t;
-#define HB_MUTEX_IMPL_INIT	PTHREAD_MUTEX_INITIALIZER
-#define hb_mutex_impl_init(M)	pthread_mutex_init (M, nullptr)
-#define hb_mutex_impl_lock(M)	pthread_mutex_lock (M)
-#define hb_mutex_impl_unlock(M)	pthread_mutex_unlock (M)
-#define hb_mutex_impl_finish(M)	pthread_mutex_destroy (M)
 
 
 #elif !defined(HB_NO_MT) && defined(HAVE_INTEL_ATOMIC_PRIMITIVES)
@@ -127,20 +127,18 @@ typedef int hb_mutex_impl_t;
 
 struct hb_mutex_t
 {
-  /* TODO Add tracing. */
-
   hb_mutex_impl_t m;
 
-  inline void init   (void) { hb_mutex_impl_init   (&m); }
-  inline void lock   (void) { hb_mutex_impl_lock   (&m); }
-  inline void unlock (void) { hb_mutex_impl_unlock (&m); }
-  inline void fini (void) { hb_mutex_impl_finish (&m); }
+  void init   () { hb_mutex_impl_init   (&m); }
+  void lock   () { hb_mutex_impl_lock   (&m); }
+  void unlock () { hb_mutex_impl_unlock (&m); }
+  void fini ()   { hb_mutex_impl_finish (&m); }
 };
 
 struct hb_lock_t
 {
-  inline hb_lock_t (hb_mutex_t &mutex_) : mutex (mutex_) { mutex.lock (); }
-  inline ~hb_lock_t (void) { mutex.unlock (); }
+  hb_lock_t (hb_mutex_t &mutex_) : mutex (mutex_) { mutex.lock (); }
+  ~hb_lock_t () { mutex.unlock (); }
   private:
   hb_mutex_t &mutex;
 };

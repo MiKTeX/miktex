@@ -15,6 +15,9 @@
 /* Have Core Text backend */
 #cmakedefine HAVE_CORETEXT 1
 
+/* define if the compiler supports basic C++11 syntax */
+#cmakedefine HAVE_CXX11 11
+
 /* Define to 1 if you have the declaration of `round', and to 0 if you don't.
    */
 #cmakedefine HAVE_DECL_ROUND 1
@@ -136,9 +139,6 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #cmakedefine HAVE_SYS_TYPES_H 1
 
-/* Have UCDN Unicode functions */
-#cmakedefine HAVE_UCDN 1
-
 /* Have Uniscribe library */
 #cmakedefine HAVE_UNISCRIBE 1
 
@@ -182,28 +182,6 @@
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS 1
 
-/* Enable extensions on AIX 3, Interix.  */
-#ifndef _ALL_SOURCE
-# undef _ALL_SOURCE
-#endif
-/* Enable GNU extensions on systems that have them.  */
-#ifndef _GNU_SOURCE
-# undef _GNU_SOURCE
-#endif
-/* Enable threading extensions on Solaris.  */
-#ifndef _POSIX_PTHREAD_SEMANTICS
-# undef _POSIX_PTHREAD_SEMANTICS
-#endif
-/* Enable extensions on HP NonStop.  */
-#ifndef _TANDEM_SOURCE
-# undef _TANDEM_SOURCE
-#endif
-/* Enable general extensions on Solaris.  */
-#ifndef __EXTENSIONS__
-# undef __EXTENSIONS__
-#endif
-
-
 /* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE
 # define _DARWIN_USE_64_BIT_INODE 1
@@ -214,13 +192,3 @@
 
 /* Define for large files, on AIX-style hosts. */
 #undef _LARGE_FILES
-
-/* Define to 1 if on MINIX. */
-#cmakedefine _MINIX 1
-
-/* Define to 2 if the system does not provide POSIX.1 features except with
-   this defined. */
-#cmakedefine _POSIX_1_SOURCE 2
-
-/* Define to 1 if you need to in order for `stat' and other things to work. */
-#cmakedefine _POSIX_SOURCE 1

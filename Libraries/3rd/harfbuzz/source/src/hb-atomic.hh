@@ -33,6 +33,7 @@
 #define HB_ATOMIC_HH
 
 #include "hb.hh"
+#include "hb-meta.hh"
 
 
 /*
@@ -85,11 +86,11 @@ _hb_atomic_ptr_impl_cmplexch (const void **P, const void *O_, const void *N)
 #define hb_atomic_int_impl_add(AI, V)		(reinterpret_cast<std::atomic<int> *> (AI)->fetch_add ((V), std::memory_order_acq_rel))
 #define hb_atomic_int_impl_set_relaxed(AI, V)	(reinterpret_cast<std::atomic<int> *> (AI)->store ((V), std::memory_order_relaxed))
 #define hb_atomic_int_impl_set(AI, V)		(reinterpret_cast<std::atomic<int> *> (AI)->store ((V), std::memory_order_release))
-#define hb_atomic_int_impl_get_relaxed(AI)	(reinterpret_cast<std::atomic<int> *> (AI)->load (std::memory_order_relaxed))
-#define hb_atomic_int_impl_get(AI)		(reinterpret_cast<std::atomic<int> *> (AI)->load (std::memory_order_acquire))
+#define hb_atomic_int_impl_get_relaxed(AI)	(reinterpret_cast<std::atomic<int> const *> (AI)->load (std::memory_order_relaxed))
+#define hb_atomic_int_impl_get(AI)		(reinterpret_cast<std::atomic<int> const *> (AI)->load (std::memory_order_acquire))
 
 #define hb_atomic_ptr_impl_set_relaxed(P, V)	(reinterpret_cast<std::atomic<void*> *> (P)->store ((V), std::memory_order_relaxed))
-#define hb_atomic_ptr_impl_get_relaxed(P)	(reinterpret_cast<std::atomic<void*> *> (P)->load (std::memory_order_relaxed))
+#define hb_atomic_ptr_impl_get_relaxed(P)	(reinterpret_cast<std::atomic<void*> const *> (P)->load (std::memory_order_relaxed))
 #define hb_atomic_ptr_impl_get(P)		(reinterpret_cast<std::atomic<void*> *> (P)->load (std::memory_order_acquire))
 static inline bool
 _hb_atomic_ptr_impl_cmplexch (const void **P, const void *O_, const void *N)
@@ -100,13 +101,13 @@ _hb_atomic_ptr_impl_cmplexch (const void **P, const void *O_, const void *N)
 #define hb_atomic_ptr_impl_cmpexch(P,O,N)	_hb_atomic_ptr_impl_cmplexch ((const void **) (P), (O), (N))
 
 
-#elif !defined(HB_NO_MT) && (defined(_WIN32) || defined(__CYGWIN__))
+#elif !defined(HB_NO_MT) && defined(_WIN32)
 
 #include <windows.h>
 
-static inline void _hb_memory_barrier (void)
+static inline void _hb_memory_barrier ()
 {
-#if !defined(MemoryBarrier)
+#ifndef MemoryBarrier
   /* MinGW has a convoluted history of supporting MemoryBarrier. */
   LONG dummy = 0;
   InterlockedExchange (&dummy, 1);
@@ -143,7 +144,7 @@ static_assert ((sizeof (LONG) == sizeof (int)), "");
 static inline int _hb_fetch_and_add (int *AI, int V)
 {
   _hb_memory_w_barrier ();
-  int result = atomic_add_int_nv ((uint_t *) AI, V);
+  int result = atomic_add_int_nv ((uint_t *) AI, V) - V;
   _hb_memory_r_barrier ();
   return result;
 }
@@ -184,7 +185,7 @@ static inline bool _hb_compare_and_swap_ptr (void **P, void *O, void *N)
 #endif
 
 
-#elif !defined(HB_NO_MT) && defined(_AIX) && defined(__IBMCPP__)
+#elif !defined(HB_NO_MT) && defined(_AIX) && (defined(__IBMCPP__) || defined(__ibmxl__))
 
 #include <builtins.h>
 
@@ -215,7 +216,7 @@ static_assert ((sizeof (long) == sizeof (void *)), "");
 
 #define HB_ATOMIC_INT_NIL 1 /* Warn that fallback implementation is in use. */
 
-#define _hb_memory_barrier()
+#define _hb_memory_barrier()			do {} while (0)
 
 #define hb_atomic_int_impl_add(AI, V)		((*(AI) += (V)) - (V))
 
@@ -226,7 +227,7 @@ static_assert ((sizeof (long) == sizeof (void *)), "");
 
 #define hb_atomic_int_impl_add(AI, V)		((*(AI) += (V)) - (V))
 
-#define _hb_memory_barrier()
+#define _hb_memory_barrier()			do {} while (0)
 
 #define hb_atomic_ptr_impl_cmpexch(P,O,N)	(* (void **) (P) == (void *) (O) ? (* (void **) (P) = (void *) (N), true) : false)
 
@@ -257,43 +258,43 @@ static_assert ((sizeof (long) == sizeof (void *)), "");
 inline void hb_atomic_int_impl_set (int *AI, int v)	{ _hb_memory_w_barrier (); *AI = v; }
 #endif
 #ifndef hb_atomic_int_impl_get
-inline int hb_atomic_int_impl_get (int *AI)	{ int v = *AI; _hb_memory_r_barrier (); return v; }
+inline int hb_atomic_int_impl_get (const int *AI)	{ int v = *AI; _hb_memory_r_barrier (); return v; }
 #endif
 #ifndef hb_atomic_ptr_impl_get
-inline void *hb_atomic_ptr_impl_get (void **P)	{ void *v = *P; _hb_memory_r_barrier (); return v; }
+inline void *hb_atomic_ptr_impl_get (void ** const P)	{ void *v = *P; _hb_memory_r_barrier (); return v; }
 #endif
 
 
 #define HB_ATOMIC_INT_INIT(V)          {V}
 struct hb_atomic_int_t
 {
-  inline void set_relaxed (int v_) const { hb_atomic_int_impl_set_relaxed (&v, v_); }
-  inline void set (int v_) const { hb_atomic_int_impl_set (&v, v_); }
-  inline int get_relaxed (void) const { return hb_atomic_int_impl_get_relaxed (&v); }
-  inline int get (void) const { return hb_atomic_int_impl_get (&v); }
-  inline int inc (void) { return hb_atomic_int_impl_add (&v,  1); }
-  inline int dec (void) { return hb_atomic_int_impl_add (&v, -1); }
+  void set_relaxed (int v_) { hb_atomic_int_impl_set_relaxed (&v, v_); }
+  void set (int v_) { hb_atomic_int_impl_set (&v, v_); }
+  int get_relaxed () const { return hb_atomic_int_impl_get_relaxed (&v); }
+  int get () const { return hb_atomic_int_impl_get (&v); }
+  int inc () { return hb_atomic_int_impl_add (&v,  1); }
+  int dec () { return hb_atomic_int_impl_add (&v, -1); }
 
-  mutable int v;
+  int v;
 };
 
-
-template <typename T> struct hb_remove_ptr_t { typedef T value; };
-template <typename T> struct hb_remove_ptr_t<T *> { typedef T value; };
 
 #define HB_ATOMIC_PTR_INIT(V)          {V}
 template <typename P>
 struct hb_atomic_ptr_t
 {
-  typedef typename hb_remove_ptr_t<P>::value T;
+  typedef hb_remove_pointer<P> T;
 
-  inline void init (T* v_ = nullptr) { set_relaxed (v_); }
-  inline void set_relaxed (T* v_) const { hb_atomic_ptr_impl_set_relaxed (&v, v_); }
-  inline T *get_relaxed (void) const { return (T *) hb_atomic_ptr_impl_get_relaxed (&v); }
-  inline T *get (void) const { return (T *) hb_atomic_ptr_impl_get ((void **) &v); }
-  inline bool cmpexch (const T *old, T *new_) const { return hb_atomic_ptr_impl_cmpexch ((void **) &v, (void *) old, (void *) new_); }
+  void init (T* v_ = nullptr) { set_relaxed (v_); }
+  void set_relaxed (T* v_) { hb_atomic_ptr_impl_set_relaxed (&v, v_); }
+  T *get_relaxed () const { return (T *) hb_atomic_ptr_impl_get_relaxed (&v); }
+  T *get () const { return (T *) hb_atomic_ptr_impl_get ((void **) &v); }
+  bool cmpexch (const T *old, T *new_) const { return hb_atomic_ptr_impl_cmpexch ((void **) &v, (void *) old, (void *) new_); }
 
-  mutable T *v;
+  T * operator -> () const                    { return get (); }
+  template <typename C> operator C * () const { return get (); }
+
+  T *v;
 };
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018  Google, Inc.
+ * Copyright © 2018 Adobe Inc.
  *
  *  This is part of HarfBuzz, a text shaping library.
  *
@@ -21,20 +21,18 @@
  * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *
- * Google Author(s): Garret Rieger
+ * Adobe Author(s): Michiharu Ariza
  */
 
-#ifndef HB_SUBSET_GLYF_HH
-#define HB_SUBSET_GLYF_HH
+#ifndef HB_SUBSET_CFF1_HH
+#define HB_SUBSET_CFF1_HH
 
 #include "hb.hh"
 
-#include "hb-subset.hh"
+#include "hb-subset-plan.hh"
 
 HB_INTERNAL bool
-hb_subset_glyf_and_loca (hb_subset_plan_t *plan,
-                         bool             *use_short_loca, /* OUT */
-                         hb_blob_t       **glyf_prime /* OUT */,
-                         hb_blob_t       **loca_prime /* OUT */);
+hb_subset_cff1 (hb_subset_plan_t *plan,
+	       hb_blob_t	**cff_prime /* OUT */);
 
-#endif /* HB_SUBSET_GLYF_HH */
+#endif /* HB_SUBSET_CFF1_HH */
