@@ -19,7 +19,7 @@
 
 #pragma once
 
-#if 0
+#if 1
 
 #define _hb_fallback_shape miktex__hb_fallback_shape
 #define _hb_fallback_shaper_face_data_create miktex__hb_fallback_shaper_face_data_create

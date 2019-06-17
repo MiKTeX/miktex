@@ -1,6 +1,7 @@
+
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2018 Christian Schenk
+## Copyright (C) 2013-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -35,9 +36,3 @@ if(USE_SYSTEM_GRAPHITE2)
 else()
   target_link_libraries(${harfbuzz_lib_name} PUBLIC ${graphite2_dll_name})
 endif()
-
-target_link_libraries(${harfbuzz_lib_name}
-  PUBLIC
-    ICU::i18n
-    ICU::uc
-)

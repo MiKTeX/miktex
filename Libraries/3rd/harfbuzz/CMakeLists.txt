@@ -36,13 +36,11 @@ add_definitions(
   -DHAVE_CONFIG_H
   -DHAVE_FALLBACK
   -DHB_NO_MT
-  -DHB_NO_UNICODE_FUNCS
 )
 
 set(HAVE_ROUND 1)
 
 set(HAVE_GRAPHITE2 1)
-set(HAVE_ICU 1)
 set(HAVE_OT 1)
 
 set(HAVE_CXX11 1)
@@ -79,9 +77,6 @@ list(APPEND harfbuzz_sources
 
   ${HB_GRAPHITE2_sources}
   ${HB_GRAPHITE2_headers}
-
-  ${HB_ICU_sources}
-  ${HB_ICU_headers}
 )
 
 set(CMAKE_C_VISIBILITY_PRESET protected)
