@@ -1,6 +1,6 @@
 /* miktex/harfbuzz.rename-symbols.h:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -16,6 +16,10 @@
    along with this file; if not, write to the Free Software
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
+
+#pragma once
+
+#if 0
 
 #define _hb_fallback_shape miktex__hb_fallback_shape
 #define _hb_fallback_shaper_face_data_create miktex__hb_fallback_shaper_face_data_create
@@ -380,3 +384,5 @@
 #define hb_version miktex_hb_version
 #define hb_version_atleast miktex_hb_version_atleast
 #define hb_version_string miktex_hb_version_string
+
+#endif
