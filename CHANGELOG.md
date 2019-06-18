@@ -2,11 +2,18 @@
 
 ## 2.9.7100 - not yet released
 
+### New programs
+
+* [harftex](https://github.com/khaledhosny/harftex): new TeX enginge with embedded HarfBuzz and Lua
+
 ### Upgraded programs
 
 * dvipdfmx 20190522
-* harfbuzz 2.5.1
 * luatex 1.10.1
+
+### Upgraded libraries
+
+* harfbuzz 2.5.1
 
 ## 2.9.7050 - 2019-05-30
 
