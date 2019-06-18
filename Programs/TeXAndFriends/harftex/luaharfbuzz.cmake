@@ -39,16 +39,16 @@ add_library(harftex-lua53harfbuzz-objects OBJECT ${luaharfbuzz_sources})
 set_property(TARGET harftex-lua53harfbuzz-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if(USE_SYSTEM_GRAPHITE2)
-  target_link_libraries(harftex-lua53harfbuzz-objects PRIVATE MiKTeX::Imported::GRAPHITE2)
+  target_link_libraries(harftex-lua53harfbuzz-objects PUBLIC MiKTeX::Imported::GRAPHITE2)
 else()
-  target_link_libraries(harftex-lua53harfbuzz-objects PRIVATE ${graphite2_dll_name})
+  target_link_libraries(harftex-lua53harfbuzz-objects PUBLIC ${graphite2_dll_name})
 endif()
 
 if(USE_SYSTEM_HARFBUZZ_ICU)
-  target_link_libraries(harftex-lua53harfbuzz-objects PRIVATE MiKTeX::Imported::HARFBUZZ_ICU)
-  target_link_libraries(harftex-lua53harfbuzz-objects PRIVATE MiKTeX::Imported::HARFBUZZ)
+  target_link_libraries(harftex-lua53harfbuzz-objects PUBLIC MiKTeX::Imported::HARFBUZZ_ICU)
+  target_link_libraries(harftex-lua53harfbuzz-objects PUBLIC MiKTeX::Imported::HARFBUZZ)
 else()
-  target_link_libraries(harftex-lua53harfbuzz-objects PRIVATE ${harfbuzz_dll_name})
+  target_link_libraries(harftex-lua53harfbuzz-objects PUBLIC ${harfbuzz_dll_name})
 endif()
 
 target_link_libraries(harftex-lua53harfbuzz-objects
