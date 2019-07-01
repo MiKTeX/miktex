@@ -13,7 +13,7 @@
 
 ### Upgraded libraries
 
-* harfbuzz 2.5.1
+* harfbuzz 2.5.3
 
 ## 2.9.7050 - 2019-05-30
 

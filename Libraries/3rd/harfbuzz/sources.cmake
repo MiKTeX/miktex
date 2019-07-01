@@ -38,6 +38,7 @@ set(HB_BASE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-algs.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-array.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-atomic.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-bimap.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-blob.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-blob.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-serialize.cc
@@ -80,6 +81,7 @@ set(HB_BASE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-sbix-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-svg-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-face-table-list.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-face.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-face.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-font.cc
