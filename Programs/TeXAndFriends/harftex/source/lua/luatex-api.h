@@ -245,7 +245,6 @@ extern int luainit;
 
 extern char *luanames[];
 
-extern int ff_get_ttc_index(char *ffname, char *psname);        /* luafontloader/src/luafflib.c */
 extern int ff_createcff(char *, unsigned char **, int *);       /* luafontloader/src/luafflib.c */
 
 extern char charsetstr[];       /* from mpdir/psout.w */

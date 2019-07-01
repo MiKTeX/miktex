@@ -251,7 +251,7 @@ static int face_ot_layout_find_feature(lua_State *L) {
   Face *face = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
   Tag *table = (Tag *)luaL_checkudata(L, 2, "harfbuzz.Tag");
   unsigned int script_index = (unsigned int) luaL_checkinteger(L, 3);
-  unsigned int language_index = (unsigned int) luaL_checkinteger(L, 3);
+  unsigned int language_index = (unsigned int) luaL_checkinteger(L, 4);
   Tag *feature = (Tag *)luaL_checkudata(L, 5, "harfbuzz.Tag");
   unsigned int index = 0;
 
