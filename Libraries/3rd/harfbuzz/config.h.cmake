@@ -18,10 +18,6 @@
 /* define if the compiler supports basic C++11 syntax */
 #cmakedefine HAVE_CXX11 11
 
-/* Define to 1 if you have the declaration of `round', and to 0 if you don't.
-   */
-#cmakedefine HAVE_DECL_ROUND 1
-
 /* Have DirectWrite library */
 #cmakedefine HAVE_DIRECTWRITE 1
 
@@ -30,9 +26,6 @@
 
 /* Define to 1 if you have the <dwrite.h> header file. */
 #cmakedefine HAVE_DWRITE_H 1
-
-/* Have simple TrueType Layout backend */
-#cmakedefine HAVE_FALLBACK
 
 /* Have fontconfig library */
 #cmakedefine HAVE_FONTCONFIG
@@ -88,17 +81,11 @@
 /* Define to 1 if you have the `newlocale' function. */
 #cmakedefine HAVE_NEWLOCALE 1
 
-/* Have native OpenType Layout backend */
-#cmakedefine HAVE_OT 1
-
 /* Have POSIX threads */
 #cmakedefine HAVE_PTHREAD 1
 
 /* Have PTHREAD_PRIO_INHERIT. */
 #cmakedefine HAVE_PTHREAD_PRIO_INHERIT 1
-
-/* Define to 1 if you have the `round' function. */
-#cmakedefine HAVE_ROUND 1
 
 /* Define to 1 if you have the <sched.h> header file. */
 #cmakedefine HAVE_SCHED_H 1
