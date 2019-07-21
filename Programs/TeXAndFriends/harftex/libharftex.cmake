@@ -19,7 +19,6 @@
 
 list(APPEND libharftex_sources
   source/lua/lstrlibext.c
-  source/lua/helpers.c
   source/lua/texluac.c 
 )
 
@@ -99,7 +98,6 @@ list(APPEND libharftex_sources
 )
 
 list(APPEND libharftex_sources
-  source/lua/helpers.c
   source/lua/lcallbacklib.c
   source/lua/lfontlib.c
   source/lua/limglib.c

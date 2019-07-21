@@ -56,7 +56,7 @@ static int face_get_name(lua_State *L) {
   hb_ot_name_id_t name_id = (hb_ot_name_id_t) luaL_checkinteger(L, 2);
   hb_language_t lang = HB_LANGUAGE_INVALID;
   char name[STATIC_ARRAY_SIZE];
-  int text_size = STATIC_ARRAY_SIZE, len;
+  unsigned int text_size = STATIC_ARRAY_SIZE, len;
 
   if (lua_gettop(L) > 2)
     lang = *((Language*)luaL_checkudata(L, 3, "harfbuzz.Language"));
@@ -241,7 +241,7 @@ static int face_ot_layout_find_language(lua_State *L) {
   Tag *language = (Tag *)luaL_checkudata(L, 4, "harfbuzz.Tag");
   unsigned int index = 0;
 
-  int found = hb_ot_layout_script_find_language(*face, *table, script_index, *language, &index);
+  int found = hb_ot_layout_script_select_language(*face, *table, script_index, 1, &(*language), &index);
   lua_pushboolean(L, found);
   lua_pushinteger(L, index);
   return 2;

@@ -6,7 +6,7 @@
     <TPM:Title>HarfTeX, Windows x64</TPM:Title>
     <TPM:Copyright owner="Taco Hoekwater and the LuaTeX Team, Khaled Hosny" year="2019"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>0.1.2</TPM:Version>
+    <TPM:Version>0.3.1</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

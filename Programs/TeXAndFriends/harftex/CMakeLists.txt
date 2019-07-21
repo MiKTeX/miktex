@@ -60,6 +60,7 @@ if(WITH_CONTEXT_SUPPORT)
 endif()
 
 include(libharftex.cmake)
+include(luafontforge.cmake)
 include(luaharfbuzz.cmake)
 
 ###############################################################################
@@ -88,7 +89,6 @@ endif()
 
 set(libs
   luatex-miktex-objects
-  luatex-unilib-objects
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -104,13 +104,13 @@ endif()
 set(libs53 ${libs})
 list(APPEND libs53
   ${lua53_target_name}
-  luatex-lua53fontforge-objects
+  harftex-lua53fontforge-objects
+  harftex-lua53harfbuzz-objects
+  harftex-lua53tex-objects
   luatex-lua53ffi-objects
   luatex-lua53misc-objects
   luatex-lua53pplib-objects
   luatex-lua53socket-objects
-  harftex-lua53harfbuzz-objects
-  harftex-lua53tex-objects
 )
 
 set(program_libs53 ${libs53})

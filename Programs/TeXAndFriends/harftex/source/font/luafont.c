@@ -1548,7 +1548,7 @@ int font_from_lua(lua_State * L, int f)
     if (font_encodingbytes(f) == 0 && (font_format(f) == opentype_format || font_format(f) == truetype_format)) {
         set_font_encodingbytes(f, 2);
     }
-    i = lua_numeric_field_by_index(L,lua_key_index(index), -1);
+    i = lua_numeric_field_by_index(L,lua_key_index(index), 0);
     set_font_index(f, i);
     /*tex Now fetch the base fonts, if needed. */
     count_hash_items(L, fonts, n);
