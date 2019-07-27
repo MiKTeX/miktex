@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.7100 - not yet released
+## 2.9.7140 - 2019-07-28
 
 ### New programs
 

@@ -209,7 +209,11 @@ private:
 private:
   bool IsPdf() const
   {
-    return engine == Engine::LuaTeX || engine == Engine::pdfTeX;
+    bool result = engine == Engine::LuaTeX || engine == Engine::pdfTeX;
+#if defined(WITH_HARFTEX)
+    result = result || engine == Engine::HarfTeX;
+#endif
+    return result;
   }
 
 private:
@@ -441,7 +445,11 @@ void MakeFmt::Run(int argc, const char** argv)
   {
     arguments.push_back("&"s + preloadedFormat);
   }
-  if (engine != Engine::LuaTeX && IsExtended() && preloadedFormat.empty())
+  bool isLuaTeX = engine == Engine::LuaTeX;
+#if defined(WITH_HARFTEX)
+  isLuaTeX = isLuaTeX || engine == Engine::HarfTeX;
+#endif
+  if (!isLuaTeX && IsExtended() && preloadedFormat.empty())
   {
     arguments.push_back("--enable-etex");
   }
