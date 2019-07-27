@@ -3,7 +3,3 @@
 	!clear ${MIKTEX_CONFIG_VALUE_PATHS}
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/dvipdfm//
-
-;; DEPRECATED
-[ft.other text files]
-path=%R/dvipdfm//

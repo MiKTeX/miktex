@@ -2,7 +2,6 @@
 
 	!clear ${MIKTEX_CONFIG_VALUE_PATHS}
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/lualatex-dev//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/latex-dev//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/lualatex//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/latex//

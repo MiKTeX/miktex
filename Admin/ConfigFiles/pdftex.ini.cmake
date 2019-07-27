@@ -8,10 +8,3 @@
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/plain//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/generic//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex//
-
-;; DEPRECATED
-[ft.tex]
-path=.
-path;=%R/tex/plain//
-path;=%R/tex/generic//
-path;=%R/tex//

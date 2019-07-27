@@ -2,7 +2,6 @@
 
 	!clear ${MIKTEX_CONFIG_VALUE_PATHS}
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/harflatex-dev//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/latex-dev//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/harflatex//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/harftex//

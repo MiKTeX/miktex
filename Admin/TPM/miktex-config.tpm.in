@@ -20,6 +20,7 @@ texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/bibtex8.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/bibtexu.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/cslatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/csplain.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/dvilualatex-dev.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/dvilualatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/dviluatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/dvipdfm.ini
@@ -32,10 +33,15 @@ texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/formats.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/frlatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/frtex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/ftex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/harflatex-dev.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/harflatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/harftex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/jadetex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lambda.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex-dev.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex209.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lualatex-dev.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lualatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/luatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/mex.ini
@@ -48,6 +54,7 @@ texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfcslatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfcsplain.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfelatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfjadetex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdflatex-dev.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdflatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfmex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfplatex.ini
@@ -68,6 +75,7 @@ texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/ttf2pk.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/ttf2tfm.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/utf8mex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/xdvipdfmx.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/xelatex-dev.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/xelatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/xeplain.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/xetex.ini

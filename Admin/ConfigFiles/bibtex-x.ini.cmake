@@ -3,8 +3,3 @@
 	ent_str_size = 250
 	glob_str_size = 20000
 	max_strings = 35307
-
-;; DEPRECATED
-ent_str_size=250
-glob_str_size=20000
-max_strings=35307

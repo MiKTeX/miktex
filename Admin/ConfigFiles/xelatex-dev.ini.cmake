@@ -2,9 +2,10 @@
 
 	!clear ${MIKTEX_CONFIG_VALUE_PATHS}
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/xelatex-dev//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/latex-dev//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/xelatex//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/latex//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/xetex//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/generic//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex//
 
