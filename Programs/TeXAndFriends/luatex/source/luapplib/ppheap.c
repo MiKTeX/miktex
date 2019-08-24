@@ -179,9 +179,7 @@ static void align_free_set(void){
 	for(p=1;p<align_set->bucket_pos;p++){
 	  if (align_set->align_data_set[p]) {
 	    free(align_set->align_data_set[p]);
-#if defined(MIKTEX)
             align_set->align_data_set[p] = NULL;
-#endif
 	  }
 	}
 	free(align_set->align_data_set);
