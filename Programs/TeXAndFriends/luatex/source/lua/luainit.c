@@ -582,18 +582,6 @@ static void parse_options(int ac, char **av)
     } else if (argv[optind] && argv[optind][0] == '&') {
         dump_name = xstrdup(argv[optind] + 1);
     } else if (argv[optind] && argv[optind][0] != '\\') {
-#if defined(MIKTEX_WINDOWS)
-        {
-          char* lpsz;
-          for (lpsz = argv[optind]; *lpsz != 0; ++lpsz)
-          {
-            if (*lpsz == '\\')
-            {
-              *lpsz = '/';
-            }
-          }
-        }
-#endif
         if (argv[optind][0] == '*') {
             input_name = xstrdup(argv[optind] + 1);
         } else {

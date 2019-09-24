@@ -1,6 +1,6 @@
 %% tftopl-miktex.ch: WEB change file for TFtoPL
 %%
-%% Copyright (C) 1991-2016 Christian Schenk
+%% Copyright (C) 1991-2019 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -29,7 +29,27 @@
   write_ln;@/
 @z
 
-%% **     7  ******************************************************************
+% _____________________________________________________________________________
+%
+% [1.4]
+% _____________________________________________________________________________
+
+@x
+@!tfm_size=30000; {maximum length of |tfm| data, in bytes}
+@!lig_size=5000; {maximum length of |lig_kern| program, in words}
+@!hash_size=5003; {preferably a prime number, a bit larger than the number
+  of character pairs in lig/kern steps}
+@y
+@!tfm_size=100000; {maximum length of |tfm| data, in bytes}
+@!lig_size=32510; {maximum length of |lig_kern| program, in words ($<2^{15}$)}
+@!hash_size=32579; {preferably a prime number, a bit larger than the number
+  of character pairs in lig/kern steps}
+@z
+
+% _____________________________________________________________________________
+%
+% [2.7]
+% _____________________________________________________________________________
 
 @x
 reset(tfm_file);

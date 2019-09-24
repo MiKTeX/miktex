@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebAppInputLine.h:              -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -178,7 +178,7 @@ public:
   MIKTEXMFTHISAPI(bool) OpenInputFile(C4P::FileRoot& f, const MiKTeX::Core::PathName& fileName);
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot& f, const MiKTeX::Core::PathName& fileName, bool text, MiKTeX::Core::PathName& outPath);
+  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot& f, const MiKTeX::Core::PathName& fileName, bool isTextFile_deprecated, MiKTeX::Core::PathName& outPath);
 
 public:
   MIKTEXMFTHISAPI(bool) AllowFileName(const MiKTeX::Core::PathName& fileName, bool forInput);
@@ -245,12 +245,12 @@ inline bool miktexallownameoffile(C4P::C4P_boolean forInput)
   return WebAppInputLine::GetWebAppInputLine()->AllowFileName(WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), forInput);
 }
 
-template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_boolean text)
+template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_boolean isTextFile_deprecated)
 {
   // must open with read/write sharing flags
   // cf. bug 2006511
   MiKTeX::Core::PathName outPath;
-  bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), text, outPath);
+  bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), isTextFile_deprecated, outPath);
   if (done)
   {
 #if defined(MIKTEX_OMEGA)

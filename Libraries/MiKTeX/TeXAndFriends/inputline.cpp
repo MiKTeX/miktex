@@ -278,7 +278,7 @@ bool WebAppInputLine::AllowFileName(const PathName& fileName, bool forInput)
   return Utils::IsSafeFileName(fileName);
 }
 
-bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName, bool text, PathName& outPath)
+bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName, bool isTextFile_deprecated, PathName& outPath)
 {
   const char* lpszPath = fileName.GetData();
 #if defined(MIKTEX_WINDOWS)
@@ -353,7 +353,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
       path = pimpl->outputDirectory / lpszPath;
       lpszPath = path.GetData();
     }
-    file = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, text);
+    file = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, false);
     if (file != nullptr)
     {
       outPath = lpszPath;
