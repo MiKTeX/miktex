@@ -4,7 +4,7 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>SyncTeX parser win32</TPM:Name>
     <TPM:Title>SyncTeX parser, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Jérôme Laurens" year="2008-2017"/>
+    <TPM:Copyright owner="JÃ©rÃ´me Laurens" year="2008-2017"/>
     <TPM:License type="free"/>
     <TPM:Version>1.5</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
