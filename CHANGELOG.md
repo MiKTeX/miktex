@@ -8,6 +8,10 @@
 
 All TeX engines now write text output files with UNIX line endings.
 
+### New programs
+
+* synctex 1.5
+
 ### Downgraded programs
 
 * luatex 1.10.0
@@ -15,9 +19,10 @@ All TeX engines now write text output files with UNIX line endings.
 ### Fixed issues
 
 * [353](https://github.com/MiKTeX/miktex/issues/353): luatex 1.10.1 has a bug affecting font usage
-* [373](https://github.com/MiKTeX/miktex/issues/373): tftopl failed with large .tfm file
+* [363](https://github.com/MiKTeX/miktex/issues/363): SyncTeX binaries?
 * [369](https://github.com/MiKTeX/miktex/issues/369): luatex doesn't handle commands in the name of the main file correctly
 * [370](https://github.com/MiKTeX/miktex/issues/370): line endings
+* [373](https://github.com/MiKTeX/miktex/issues/373): tftopl failed with large .tfm file
 
 ## 2.9.7140 - 2019-07-31
 

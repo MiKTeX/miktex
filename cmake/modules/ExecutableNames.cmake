@@ -1,6 +1,6 @@
 ## ExecutableNames.cmake
 ##
-## Copyright (C) 2018 Christian Schenk
+## Copyright (C) 2018-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -54,6 +54,7 @@ define_executable(mpm mpm)
 define_executable(mthelp mthelp)
 define_executable(mtprint mtprint)
 define_executable(setup miktexsetup)
+define_executable(synctex)
 define_executable(tdsutil tdsutil)
 define_executable(texify texify)
 define_executable(yap yap)

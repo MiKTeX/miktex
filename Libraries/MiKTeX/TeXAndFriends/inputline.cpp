@@ -533,7 +533,7 @@ bool WebAppInputLine::OpenInputFile(C4P::FileRoot& f, const PathName& fileName)
 
   f.Attach(pFile, true);
 
-#ifdef PASCAL_TEXT_IO
+#if defined(PASCAL_TEXT_IO)
   not_implemented();
   get(f);
 #endif
@@ -683,11 +683,6 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
   MIKTEX_UNEXPECTED();
 #endif
 
-  if (feof(f) != 0)
-  {
-    return false;
-  }
-
   IInputOutput* inputOutput = GetInputOutput();
 
   const C4P_signed32 first = inputOutput->first();
@@ -716,6 +711,11 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
   }
 
   last = first;
+
+  if (feof(f) != 0)
+  {
+    return false;
+  }
 
   int ch = GetCharacter(f);
   if (ch == EOF)

@@ -1433,6 +1433,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_REBAR_EXE, { "rebar" } },
   { MIKTEX_SCOR2PRT_EXE, { "scor2prt" } },
   { MIKTEX_SJISCONV_EXE, { "sjisconv" } },
+  { MIKTEX_SYNCTEX_EXE, { "synctex" } },
   { MIKTEX_T4HT_EXE, { "t4ht" } },
   { MIKTEX_TANGLE_EXE, { "tangle" } },
   { MIKTEX_TEX4HT_EXE, { "tex4ht" } },

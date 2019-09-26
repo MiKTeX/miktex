@@ -83,6 +83,10 @@
  *  First level objects are sheets and forms, containing boxes, glues, kerns...
  *  The third tree allows to browse leaves according to tag and line.
  */
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #   if defined(SYNCTEX_USE_LOCAL_HEADER)
 #       include "synctex_parser_local.h"
 #   else

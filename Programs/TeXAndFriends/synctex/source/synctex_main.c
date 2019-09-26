@@ -60,6 +60,10 @@
  This is the command line interface to the synctex_parser.c.
  */
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #   ifdef __linux__
 #       define _ISOC99_SOURCE /* to get the fmax() prototype */
 #   endif
@@ -110,6 +114,9 @@ inline static double my_fmax(double x, double y) { return (x < y) ? y : x; }
 #   endif
 #endif
 
+#if defined(MIKTEX)
+#  define main MIKTEXCEECALL Main
+#endif
 int main(int argc, char *argv[]);
 
 void synctex_help(const char * error,...);

@@ -40,6 +40,10 @@
 
 /*  In this file, we find all the functions that may depend on the operating system. */
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include <synctex_parser_utils.h>
 #include <stdlib.h>
 #include <string.h>
@@ -164,7 +168,7 @@ void _synctex_strip_last_path_extension(char * string) {
 	if(NULL != string){
 		char * last_component = NULL;
 		char * last_extension = NULL;
-#       if defined(SYNCTEX_WINDOWS)
+#       if !defined(MIKTEX) && defined(SYNCTEX_WINDOWS)
 		last_component = PathFindFileName(string);
 		last_extension = PathFindExtension(string);
 		if(last_extension == NULL)return;
@@ -183,7 +187,7 @@ void _synctex_strip_last_path_extension(char * string) {
 				last_component = next+1;
 			}
 		}
-#               if defined(SYNCTEX_OS2)
+#               if defined(MIKTEX_WINDOWS) || defined(SYNCTEX_OS2)
 		/*  On OS2, the '\' is also a path separator. */
 		while((next = strstr(last_component,"\\"))){
 			last_component = next+1;
