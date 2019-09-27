@@ -23,6 +23,8 @@ All TeX engines now write text output files with UNIX line endings.
 * [369](https://github.com/MiKTeX/miktex/issues/369): luatex doesn't handle commands in the name of the main file correctly
 * [370](https://github.com/MiKTeX/miktex/issues/370): line endings
 * [373](https://github.com/MiKTeX/miktex/issues/373): tftopl failed with large .tfm file
+* [376](https://github.com/MiKTeX/miktex/issues/376): Miktex Update removes essential packages
+* [377](https://github.com/MiKTeX/miktex/issues/377): pdfcrop: The script engine could not be found.
 
 ## 2.9.7140 - 2019-07-31
 
