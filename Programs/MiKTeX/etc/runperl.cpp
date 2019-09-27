@@ -1,6 +1,6 @@
 /* runperl.cpp: the MiKTeX Perl runner
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2019 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -36,6 +36,7 @@ int wmain(int argc, wchar_t** argv)
 int main(int argc, char** argv)
 #endif
 {
+  string programName = "runperl";
   Application app;
   try
   {
@@ -56,6 +57,7 @@ int main(int argc, char** argv)
       newargv.push_back(const_cast<char*>(utf8args[idx].c_str()));
     }
     newargv.push_back(nullptr);
+    programName = PathName(newargv[0]).GetFileName().ToString();
     app.Init(newargv);
     int exitCode = app.GetSession()->RunPerl(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
     app.Finalize2(exitCode);
@@ -63,13 +65,13 @@ int main(int argc, char** argv)
   }
   catch (const MiKTeXException& e)
   {
-    Utils::PrintException(e);
+    Application::Sorry(programName, e);
     e.Save();
     return 1;
   }
   catch (const std::exception& e)
   {
-    Utils::PrintException(e);
+    Application::Sorry(programName, e);
     return 1;
   }
 }
