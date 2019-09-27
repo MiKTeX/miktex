@@ -472,6 +472,7 @@ void PackageInstallerImpl::FindUpdates()
 
     // clean the user-installation directory
     if (!session->IsAdminMode()
+      && session->IsSharedSetup()
       && session->GetSpecialPath(SpecialPath::UserInstallRoot) != session->GetSpecialPath(SpecialPath::CommonInstallRoot)
       && package.IsInstalled(ConfigurationScope::User)
       && package.IsInstalled(ConfigurationScope::Common))
