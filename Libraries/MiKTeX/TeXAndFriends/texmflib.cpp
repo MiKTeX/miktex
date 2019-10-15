@@ -1,6 +1,6 @@
 /* texmflib.cpp: TeX'n'Friends helpers
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -27,37 +27,37 @@
 typedef C4P_FILE_STRUCT(unsigned char) bytefile;
 typedef C4P_text alphafile;
 
-STATICFUNC(bool) OpenFontFile(bytefile* pByteFile, const char* lpszFontName, FileType filetype, const char* lpszMakeFontCommand)
+STATICFUNC(bool) OpenFontFile(bytefile* file, const string& fontName, FileType filetype, const char* generator)
 {
   shared_ptr<Session> session = Session::Get();
   PathName pathFont;
-  if (!session->FindFile(lpszFontName, filetype, pathFont))
+  if (!session->FindFile(fontName, filetype, pathFont))
   {
-    if (lpszMakeFontCommand == nullptr || !session->GetMakeFontsFlag())
+    if (generator == nullptr || !session->GetMakeFontsFlag())
     {
       return false;
     }
-    PathName exe;
-    if (!session->FindFile(lpszMakeFontCommand, FileType::EXE, exe))
+    PathName generatorExecutable;
+    if (!session->FindFile(generator, FileType::EXE, generatorExecutable))
     {
       MIKTEX_UNEXPECTED();
     }
-    PathName baseName = PathName(lpszFontName).GetFileNameWithoutExtension();
-    vector<string> arguments{ exe.GetFileNameWithoutExtension().ToString() };
-    arguments.push_back("-v");
+    PathName baseName = PathName(fontName).GetFileNameWithoutExtension();
+    vector<string> arguments{ generatorExecutable.GetFileNameWithoutExtension().ToString() };
+    arguments.push_back("--verbose");
     arguments.push_back(baseName.ToString());
     int exitCode;
-    if (!(Process::Run(exe, arguments, nullptr, &exitCode, nullptr) && exitCode == 0))
+    if (!(Process::Run(generatorExecutable, arguments, nullptr, &exitCode, nullptr) && exitCode == 0))
     {
       return false;
     }
-    if (!session->FindFile(lpszFontName, filetype, pathFont))
+    if (!session->FindFile(fontName, filetype, pathFont))
     {
-      MIKTEX_FATAL_ERROR_2(T_("The font file could not be found."), "fileName", lpszFontName);
+      MIKTEX_FATAL_ERROR_2(T_("The font file could not be found."), "fileName", fontName);
     }
   }
-  pByteFile->Attach(session->OpenFile(pathFont.GetData(), FileMode::Open, FileAccess::Read, false), true);
-  pByteFile->Read();
+  file->Attach(session->OpenFile(pathFont, FileMode::Open, FileAccess::Read, false), true);
+  file->Read();
   return true;
 }
 
