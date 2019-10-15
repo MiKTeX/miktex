@@ -44,6 +44,10 @@ STATICFUNC(bool) OpenFontFile(bytefile* file, const string& fontName, FileType f
     }
     PathName baseName = PathName(fontName).GetFileNameWithoutExtension();
     vector<string> arguments{ generatorExecutable.GetFileNameWithoutExtension().ToString() };
+    if (session->IsAdminMode())
+    {
+      arguments.push_back("--miktex-admin");
+    }
     arguments.push_back("--verbose");
     arguments.push_back(baseName.ToString());
     int exitCode;

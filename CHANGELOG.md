@@ -25,6 +25,7 @@ All TeX engines now write text output files with UNIX line endings.
 * [373](https://github.com/MiKTeX/miktex/issues/373): tftopl failed with large .tfm file
 * [376](https://github.com/MiKTeX/miktex/issues/376): Miktex Update removes essential packages
 * [377](https://github.com/MiKTeX/miktex/issues/377): pdfcrop: The script engine could not be found.
+* [391](https://github.com/MiKTeX/miktex/issues/391): miktex-console_admin building format fails
 
 ## 2.9.7140 - 2019-07-31
 
