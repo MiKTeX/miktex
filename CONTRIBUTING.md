@@ -6,11 +6,12 @@
 
 Please review this check list, before you click the `Submit` button:
 
-1. the bug report is self-contained: it does not contain links to questions/reports on external sites (e.g., Stack Exchange Network)
-2. step-by-step reproduction instructions
-3. configuration report (`initexmf --report`) attached
-4. input files attached
-5. log files attached
+1. you have installed the latest MiKTeX updates
+2. the bug report is self-contained: it does not contain links to questions/reports on external sites (e.g., Stack Exchange Network)
+3. step-by-step reproduction instructions
+4. configuration report (`initexmf --report`) attached
+5. input files attached
+6. log files attached
 
 ### How to write a good bug report
 
