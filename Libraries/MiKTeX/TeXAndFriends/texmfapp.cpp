@@ -689,6 +689,25 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void
     MIKTEX_FATAL_ERROR_2(T_("The memory dump file could not be found."), "fileName", fileName.ToString());
   }
 
+#if 1
+  if (!renew)
+  {
+    time_t modificationTime = File::GetLastWriteTime(path);
+    time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
+    renew = lastAdminMaintenance + 30 > modificationTime;
+    if (!renew && !session->IsAdminMode())
+    {
+      time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
+      renew = lastUserMaintenance + 30 > modificationTime;
+    }
+    if (renew)
+    {
+      // RECURSION
+      return OpenMemoryDumpFile(fileName_, ppFile, pBuf, size, true);
+    }
+  }
+#endif
+
   FileStream stream(session->OpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false));
 
   if (pBuf != nullptr)
