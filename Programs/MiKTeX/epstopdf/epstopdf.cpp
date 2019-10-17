@@ -689,7 +689,7 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
     gsOptions.push_back("-dAutoRotatePages="s + "/None");
 #endif
 #if 1                           // https://github.com/MiKTeX/miktex/issues/393
-    gsOptions.push_back("-dPDFSETTINGS="s + "prepress");
+    gsOptions.push_back("-dPDFSETTINGS="s + "/prepress");
     gsOptions.push_back("-dMaxSubsetPct="s + "100");
     gsOptions.push_back("-dSubsetFonts="s + "true");
     gsOptions.push_back("-dEmbedAllFonts="s + "true");
