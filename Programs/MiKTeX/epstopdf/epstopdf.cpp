@@ -1,6 +1,6 @@
 /* epstopdf.cpp: epstopdf
 
-   Copyright (C) 2000-2018 Christian Schenk
+   Copyright (C) 2000-2019 Christian Schenk
    Copyright (C) 1998-2001 by Sebastian Rahtz et al.
 
    This file is part of EPStoPDF.
@@ -688,6 +688,12 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
 #if 1                           // 642845
     gsOptions.push_back("-dAutoRotatePages="s + "/None");
 #endif
+#if 1                           // https://github.com/MiKTeX/miktex/issues/393
+    gsOptions.push_back("-dPDFSETTINGS="s + "prepress");
+    gsOptions.push_back("-dMaxSubsetPct="s + "100");
+    gsOptions.push_back("-dSubsetFonts="s + "true");
+    gsOptions.push_back("-dEmbedAllFonts="s + "true");
+#endif
     if (!pdfVersion.empty())
     {
       gsOptions.push_back("-dCompatibilityLevel="s + pdfVersion);
@@ -833,7 +839,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     case OPT_VERSION:
       cout
         << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2000-2018 Christian Schenk" << endl
+        << "Copyright (C) 2000-2019 Christian Schenk" << endl
         << "Copyright (C) 1998-2001 by Sebastian Rahtz et al." << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;

@@ -8,6 +8,10 @@
 
 All TeX engines now write text output files with UNIX line endings.
 
+#### EPS-to-PDF converter embeds all fonts
+
+The `miktex-epstopdf` utility now creates a PDF with embedded fonts.
+
 ### New programs
 
 * synctex 1.5
