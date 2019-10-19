@@ -35,6 +35,7 @@
 #include "core-version.h"
 
 #include <miktex/Core/ConfigNames>
+#include <miktex/Core/Directory>
 #include <miktex/Core/Environment>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Registry>
@@ -924,16 +925,27 @@ void SessionImpl::SetEnvironmentVariables()
   // Ghostscript
   Utils::SetEnvironmentString("GSC", MIKTEX_GS_EXE);
   vector<string> gsDirectories;
-  gsDirectories.push_back((GetSpecialPath(SpecialPath::CommonInstallRoot) / "ghostscript" / "base").ToString());
-  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
+  PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / "ghostscript" / "base";
+  if (Directory::Exists(gsDir))
   {
-    gsDirectories.push_back((GetSpecialPath(SpecialPath::UserInstallRoot) / "ghostscript" / "base").ToString());
+    gsDirectories.push_back(gsDir.ToString());
   }
-  gsDirectories.push_back((GetSpecialPath(SpecialPath::CommonInstallRoot) / "fonts").ToString());
-  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
+  gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / "ghostscript" / "base";
+  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot() && Directory::Exists(gsDir))
   {
-    gsDirectories.push_back((GetSpecialPath(SpecialPath::UserInstallRoot) / "fonts").ToString());
+    gsDirectories.push_back(gsDir.ToString());
   }
+  gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / "fonts";
+  if (Directory::Exists(gsDir))
+  {
+    gsDirectories.push_back(gsDir.ToString());
+  }
+  gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / "fonts";
+  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot() && Directory::Exists(gsDir))
+  {
+    gsDirectories.push_back(gsDir.ToString());
+  }
+  MIKTEX_ASSERT(!gsDirectories.Empty());
   Utils::SetEnvironmentString("MIKTEX_GS_LIB", StringUtil::Flatten(gsDirectories, PathName::PathNameDelimiter));
 #endif
 
