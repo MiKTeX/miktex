@@ -930,20 +930,26 @@ void SessionImpl::SetEnvironmentVariables()
   {
     gsDirectories.push_back(gsDir.ToString());
   }
-  gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / "ghostscript" / "base";
-  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot() && Directory::Exists(gsDir))
+  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
   {
-    gsDirectories.push_back(gsDir.ToString());
+    gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / "ghostscript" / "base";
+    if (Directory::Exists(gsDir))
+    {
+      gsDirectories.push_back(gsDir.ToString());
+    }
   }
   gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / "fonts";
   if (Directory::Exists(gsDir))
   {
     gsDirectories.push_back(gsDir.ToString());
   }
-  gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / "fonts";
-  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot() && Directory::Exists(gsDir))
+  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
   {
-    gsDirectories.push_back(gsDir.ToString());
+    gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / "fonts";
+    if (Directory::Exists(gsDir))
+    {
+      gsDirectories.push_back(gsDir.ToString());
+    }
   }
   MIKTEX_ASSERT(!gsDirectories.Empty());
   Utils::SetEnvironmentString("MIKTEX_GS_LIB", StringUtil::Flatten(gsDirectories, PathName::PathNameDelimiter));
