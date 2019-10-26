@@ -1,7 +1,7 @@
 /* miktex/KPSE/Emulation.h:                             -*- C++ -*-
 
    Copyright 1993, 1995, 1996, 2005, 2008, 2009, 2010 Karl Berry
-   Copyright (C) 2000-2018 Christian Schenk
+   Copyright (C) 2000-2019 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -86,6 +86,14 @@
 #endif
 
 /// @endcond
+
+/* _________________________________________________________________________ */
+
+MIKTEX_BEGIN_EXTERN_C_BLOCK;
+
+MIKTEXKPSCEEAPI(char*) miktex_concatn(const char* s1, ...);
+
+MIKTEX_END_EXTERN_C_BLOCK;
 
 /* _________________________________________________________________________
  *
@@ -493,7 +501,15 @@ inline int FILESTRCASEEQ(const char* s1, const char* s2)
 
 #define XTALLOC1(t) XTALLOC(1, t)
 
+#if defined(__cplusplus)
+inline char* concat(const char* s1, const char* s2)
+{
+  return miktex_concatn(s1, s2, nullptr);
+}
+#else
 #define concat(s1, s2) concatn(s1, s2, 0)
+#endif
+
 #define concat3(s1, s2, s3) concatn(s1, s2, s3, 0)
 
 #define find_suffix(name) miktex_find_suffix(name)
@@ -1068,8 +1084,6 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpseInstance, const char*
 #if WITH_CONTEXT_SUPPORT
 MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf();
 #endif
-
-MIKTEXKPSCEEAPI(char*) miktex_concatn(const char* s1, ...);
 
 MIKTEXKPSCEEAPI(char*) miktex_find_suffix(const char* path);
 

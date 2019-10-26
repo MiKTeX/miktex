@@ -1,5 +1,9 @@
 # MiKTeX Change Log
 
+## 2.9.7230 - 2019-10-28
+
+Fixed macOS build issues.
+
 ## 2.9.7200 - 2019-10-22
 
 ### Breaking changes
