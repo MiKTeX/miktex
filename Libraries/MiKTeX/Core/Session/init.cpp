@@ -955,13 +955,14 @@ void SessionImpl::SetEnvironmentVariables()
   }
   MIKTEX_ASSERT(!gsDirectories.Empty());
 
-#if MIKTEX_WINDOWS
+#if defined(MIKTEX_WINDOWS)
   Utils::SetEnvironmentString("MIKTEX_GS_LIB", StringUtil::Flatten(gsDirectories, PathName::PathNameDelimiter));
 #else
-  string origGsDirs;
-  if (Utils::GetEnvironmentString("GS_LIB", origGsDirs))
+  string origGsLib;
+  if (Utils::GetEnvironmentString("GS_LIB", origGsLib))
   {
-    gsDirectories.push_back(origGsDirs);
+    vector<string> origGsLibDirectories = StringUtil::Split(origGsLib, PathName::PathNameDelimiter);
+    gsDirectories.insert(gsDirectories.end(), origGsLibDirectories.begin(), origGsLibDirectories.end());
   }
   Utils::SetEnvironmentString("GS_LIB", StringUtil::Flatten(gsDirectories, PathName::PathNameDelimiter));
 #endif
