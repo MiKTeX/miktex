@@ -924,6 +924,8 @@ void SessionImpl::SetEnvironmentVariables()
 
   // Ghostscript
   Utils::SetEnvironmentString("GSC", MIKTEX_GS_EXE);
+#endif
+
   vector<string> gsDirectories;
   PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / "ghostscript" / "base";
   if (Directory::Exists(gsDir))
@@ -952,7 +954,16 @@ void SessionImpl::SetEnvironmentVariables()
     }
   }
   MIKTEX_ASSERT(!gsDirectories.Empty());
+
+#if MIKTEX_WINDOWS
   Utils::SetEnvironmentString("MIKTEX_GS_LIB", StringUtil::Flatten(gsDirectories, PathName::PathNameDelimiter));
+#else
+  string origGsDirs;
+  if (Utils::GetEnvironmentString("GS_LIB", origGsDirs))
+  {
+    gsDirectories.push_back(origGsDirs);
+  }
+  Utils::SetEnvironmentString("GS_LIB", StringUtil::Flatten(gsDirectories, PathName::PathNameDelimiter));
 #endif
 
   PathName path = GetTempDirectory();
