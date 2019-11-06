@@ -270,8 +270,7 @@ bool winRegistry::TryDeleteRegistryValue(ConfigurationScope scope, const wstring
   if (scope == ConfigurationScope::None)
   {
     // RECURSION
-    bool done = !session->IsAdminMode() || TryDeleteRegistryValue(ConfigurationScope::User, keyName, valueName);
-    return TryDeleteRegistryValue(ConfigurationScope::Common, keyName, valueName) || done;
+    return TryDeleteRegistryValue(session->IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, keyName, valueName);
   }
   else
   {
