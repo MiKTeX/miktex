@@ -180,6 +180,7 @@ vector<char> ReadFile(const PathName& fileName)
   FileStream stream(File::Open(fileName, FileMode::Open, FileAccess::Read));
   fileSize = stream.Read(&vec[0], fileSize);
   stream.Close();
+  std::replace(vec.begin(), vec.end(), '\0', '\t');
   vec[fileSize] = 0;
   return vec;
 }
