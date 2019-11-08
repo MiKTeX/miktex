@@ -478,6 +478,7 @@ int font_to_lua(lua_State * L, int f)
     dump_intfield(L,width,font_width(f));
     dump_intfield(L,direction,font_natural_dir(f));
     dump_intfield(L,encodingbytes,font_encodingbytes(f));
+    dump_intfield(L,subfont,font_subfont(f));
     dump_booleanfield(L,oldmath,font_oldmath(f));
     dump_intfield(L,tounicode,font_tounicode(f));
     /*tex The next one is read only: */
@@ -500,7 +501,7 @@ int font_to_lua(lua_State * L, int f)
     write_lua_math_parameters(L, f);
     /*tex Characters: */
     lua_push_string_by_name(L,characters);
-    lua_createtable(L, font_tables[f]->charinfo_size, 0);
+    lua_createtable(L, charinfo_size(f), 0);
     if (has_left_boundary(f)) {
         co = get_charinfo(f, left_boundarychar);
         lua_push_string_by_name(L,left_boundary);
@@ -1554,6 +1555,8 @@ int font_from_lua(lua_State * L, int f)
     if (font_encodingbytes(f) == 0 && (font_format(f) == opentype_format || font_format(f) == truetype_format)) {
         set_font_encodingbytes(f, 2);
     }
+    i = lua_numeric_field_by_index(L,lua_key_index(subfont), 0);
+    set_font_subfont(f,i);
     /*tex Now fetch the base fonts, if needed. */
     count_hash_items(L, fonts, n);
     if (n > 0) {

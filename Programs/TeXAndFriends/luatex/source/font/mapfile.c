@@ -80,6 +80,7 @@ fm_entry *new_fm_entry(void)
     fm->fd_flags = FD_FLAGS_NOT_SET_IN_MAPLINE;
     fm->ff_name = NULL;
     fm->encname = NULL;
+    fm->subfont = 0;
     fm->type = 0;
     fm->slant = 0;
     fm->extend = 1000;

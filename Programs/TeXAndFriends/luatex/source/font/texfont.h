@@ -129,67 +129,60 @@ extern extinfo *new_variant(int glyph, int startconnect, int endconnect, int adv
 extern scaled_whd get_charinfo_whd(internal_font_number f, int c);
 
 typedef struct texfont {
-    int _font_size;
-    int _font_dsize;
-    int _font_units_per_em;
-    char *_font_name;
-    char *_font_area;
-    char *_font_filename;
-    char *_font_fullname;
-    char *_font_psname;
-    char *_font_encodingname;
-    char *_font_cidregistry;
-    char *_font_cidordering;
-    int _font_cidversion;
-    int _font_cidsupplement;
-
-    int _font_ec;
-    unsigned _font_checksum;    /* internal information */
-    char _font_used;            /* internal information */
-    char _font_touched;         /* internal information */
-    int _font_cache_id;         /* internal information */
-    char _font_encodingbytes;   /* 1 or 2 bytes */
-    boolean _font_oldmath;      /* default to false when MathConstants seen */
-    int _font_slant;            /* a slant in ppt */
-    int _font_extend;           /* an extension in ppt, or 1000 */
-    int _font_squeeze;          /* an extension in ppt, or 1000 */
-    int _font_width;
-    int _font_mode;
-    int font_max_shrink;
-    int font_max_stretch;
-    int _font_step;             /* amount of one step of expansion */
-
-    char _font_tounicode;       /* 1 if info is present */
-    fm_entry *_font_map;
-    int _font_type;
-    int _font_format;
-    int _font_writingmode;
-    int _font_identity;
-    int _font_embedding;
-    int _font_streamprovider;
-    int _font_bc;
-    int _hyphen_char;
-    int _skew_char;
-    int _font_natural_dir;
-
-    charinfo *_left_boundary;
-    charinfo *_right_boundary;
-
-    int _font_params;
-    scaled *_param_base;
-
-    int _font_math_params;
-    scaled *_math_param_base;
-
-    sa_tree characters;
-    int charinfo_count;
-    int charinfo_size;
-    charinfo *charinfo;
-    int *charinfo_cache;
-    int ligatures_disabled;
-
-    int _pdf_font_num;          /* maps to a PDF resource ID */
-    str_number _pdf_font_attr;  /* pointer to additional attributes */
+    int         _font_size;
+    int         _font_dsize;
+    int         _font_units_per_em;
+    char       *_font_name;
+    char       *_font_area;
+    char       *_font_filename;
+    char       *_font_fullname;
+    char       *_font_psname;
+    char       *_font_encodingname;
+    char       *_font_cidregistry;
+    char       *_font_cidordering;
+    int         _font_cidversion;
+    int         _font_cidsupplement;
+    int         _font_ec;
+    unsigned    _font_checksum;       /* internal information */
+    char        _font_used;           /* internal information */
+    char        _font_touched;        /* internal information */
+    int         _font_cache_id;       /* internal information */
+    char        _font_encodingbytes;  /* 1 or 2 bytes */
+    int         _font_subfont;
+    boolean     _font_oldmath;        /* default to false when MathConstants seen */
+    int         _font_slant;          /* a slant in ppt */
+    int         _font_extend;         /* an extension in ppt, or 1000 */
+    int         _font_squeeze;        /* an extension in ppt, or 1000 */
+    int         _font_width;
+    int         _font_mode;
+    int         _font_max_shrink;
+    int         _font_max_stretch;
+    int         _font_step;           /* amount of one step of expansion */
+    char        _font_tounicode;      /* 1 if info is present */
+    fm_entry   *_font_map;
+    int         _font_type;
+    int         _font_format;
+    int         _font_writingmode;
+    int         _font_identity;
+    int         _font_embedding;
+    int         _font_streamprovider;
+    int         _font_bc;
+    int         _hyphen_char;
+    int         _skew_char;
+    int         _font_natural_dir;
+    charinfo   *_left_boundary;
+    charinfo   *_right_boundary;
+    int         _font_params;
+    scaled     *_param_base;
+    int         _font_math_params;
+    scaled     *_math_param_base;
+    sa_tree     _characters;
+    int         _charinfo_count;
+    int         _charinfo_size;
+    charinfo   *_charinfo;
+    int         _ligatures_disabled;
+    int         _pdf_font_num;        /* maps to a PDF resource ID */
+    str_number  _pdf_font_attr;       /* pointer to additional attributes */
 } texfont;
 
 typedef enum {
@@ -330,6 +323,9 @@ boolean cmp_font_area(int, str_number);
 #  define font_encodingbytes(a)          font_tables[a]->_font_encodingbytes
 #  define set_font_encodingbytes(a,b)    font_encodingbytes(a) = b
 
+#  define font_subfont(a)                font_tables[a]->_font_subfont
+#  define set_font_subfont(a,b)          font_subfont(a) = b
+
 #  define font_streamprovider(a)         font_tables[a]->_font_streamprovider
 #  define set_font_streamprovider(a,b)   font_streamprovider(a) = b
 
@@ -358,10 +354,10 @@ boolean cmp_font_area(int, str_number);
 #  define font_stretch(a)                font_tables[a]->_font_stretch
 #  define set_font_stretch(a,b)          font_stretch(a) = b
 
-#  define font_max_shrink(a)             font_tables[a]->font_max_shrink
+#  define font_max_shrink(a)             font_tables[a]->_font_max_shrink
 #  define set_font_max_shrink(a,b)       font_max_shrink(a) = b
 
-#  define font_max_stretch(a)            font_tables[a]->font_max_stretch
+#  define font_max_stretch(a)            font_tables[a]->_font_max_stretch
 #  define set_font_max_stretch(a,b)      font_max_stretch(a) = b
 
 #  define font_step(a)                   font_tables[a]->_font_step
@@ -384,6 +380,8 @@ boolean cmp_font_area(int, str_number);
 
 #  define pdf_font_attr(a)               font_tables[a]->_pdf_font_attr
 #  define set_pdf_font_attr(a,b)         pdf_font_attr(a) = b
+
+#  define charinfo_size(a)               font_tables[a]->_charinfo_size
 
 #  define left_boundarychar  -1
 #  define right_boundarychar -2
@@ -467,7 +465,7 @@ extern charinfo *char_info(internal_font_number f, int c);
     glyph id, not one of the two special boundary objects.
 */
 
-#  define quick_char_exists(f,c) (get_sa_item(font_tables[f]->characters,c).int_value)
+#  define quick_char_exists(f,c) (get_sa_item(font_tables[f]->_characters,c).int_value)
 
 extern void set_charinfo_width(charinfo * ci, scaled val);
 extern void set_charinfo_height(charinfo * ci, scaled val);

@@ -81,19 +81,20 @@ typedef enum { MAPFILE, MAPLINE } maptype;
 
 typedef struct {
     /* parameters scanned from the map file: */
-    char *tfm_name;             /* TFM file name (1st field in map line) */
-    char *ps_name;              /* PostScript name (optional 2nd field in map line) */
-    int fd_flags;               /* font descriptor /Flags (PDF Ref. section 5.7.1) */
-    int slant;                  /* SlantFont */
-    int extend;                 /* ExtendFont */
-    char *encname;              /* encoding file name */
-    char *ff_name;              /* font file name */
-    unsigned short type;        /* various flags */
+    char *tfm_name;       /* TFM file name (1st field in map line) */
+    char *ps_name;        /* PostScript name (optional 2nd field in map line) */
+    int   fd_flags;       /* font descriptor /Flags (PDF Ref. section 5.7.1) */
+    int   slant;          /* SlantFont */
+    int   extend;         /* ExtendFont */
+    char *encname;        /* encoding file name */
+    int   subfont;        /* specific index in a ttc file */
+    char *ff_name;        /* font file name */
+    unsigned short type;  /* various flags */
 } fm_entry;
 
 typedef struct {
-    char *ff_name;              /* base name of font file */
-    char *ff_path;              /* full path to font file */
+    char *ff_name;        /* base name of font file */
+    char *ff_path;        /* full path to font file */
 } ff_entry;
 
 /**********************************************************************/
