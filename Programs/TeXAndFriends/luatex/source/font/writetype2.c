@@ -334,6 +334,7 @@ boolean make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buff, int buflen)
                 size_t l = (last_cid / 8) + 1;
                 char *stream = xmalloc(l);
                 memset(stream, 0, l);
+                stream[0] |= 1 << 7; /*tex Force |.notdef| into the map. */
                 for (cid = 1; cid <= (long) last_cid; cid++) {
                     if (used_chars[cid]) {
                         stream[(cid / 8)] |= (1 << (7 - (cid % 8)));

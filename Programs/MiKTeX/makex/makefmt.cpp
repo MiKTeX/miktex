@@ -51,9 +51,7 @@ enum class Engine
   TeX,
   pdfTeX,
   XeTeX,
-#if defined(WITH_HARFTEX)
-  HarfTeX,
-#endif
+  LuaHBTeX,
   Omega,
 };
 
@@ -131,12 +129,10 @@ private:
     {
       this->engine = Engine::XeTeX;
     }
-#if defined(WITH_HARFTEX)
-    else if (Utils::EqualsIgnoreCase(engine, "harftex"))
+    else if (Utils::EqualsIgnoreCase(engine, "luahbtex"))
     {
-      this->engine = Engine::HarfTeX;
+      this->engine = Engine::LuaHBTeX;
     }
-#endif
     else if (Utils::EqualsIgnoreCase(engine, "omega"))
     {
       this->engine = Engine::Omega;
@@ -166,10 +162,8 @@ private:
       return "pdftex";
     case Engine::XeTeX:
       return "xetex";
-#if defined(WITH_HARFTEX)
-    case Engine::HarfTeX:
-      return "harftex";
-#endif
+    case Engine::LuaHBTeX:
+      return "luahbtex";
     case Engine::Omega:
       return "omega";
     }
@@ -193,10 +187,8 @@ private:
       return MIKTEX_PDFTEX_EXE;
     case Engine::XeTeX:
       return MIKTEX_XETEX_EXE;
-#if defined(WITH_HARFTEX)
-    case Engine::HarfTeX:
-      return MIKTEX_HARFTEX_EXE;
-#endif
+    case Engine::LuaHBTeX:
+      return MIKTEX_LUAHBTEX_EXE;
     case Engine::Omega:
       return MIKTEX_OMEGA_EXE;
     }
@@ -210,9 +202,7 @@ private:
   bool IsPdf() const
   {
     bool result = engine == Engine::LuaTeX || engine == Engine::pdfTeX;
-#if defined(WITH_HARFTEX)
-    result = result || engine == Engine::HarfTeX;
-#endif
+    result = result || engine == Engine::LuaHBTeX;
     return result;
   }
 
@@ -220,9 +210,7 @@ private:
   bool IsExtended() const
   {
     bool result = engine == Engine::LuaTeX || engine == Engine::pdfTeX || engine == Engine::XeTeX;
-#if defined(WITH_HARFTEX)
-    result = result || engine == Engine::HarfTeX;
-#endif
+    result = result || engine == Engine::LuaHBTeX;
     return result;
   }
 
@@ -446,9 +434,7 @@ void MakeFmt::Run(int argc, const char** argv)
     arguments.push_back("&"s + preloadedFormat);
   }
   bool isLuaTeX = engine == Engine::LuaTeX;
-#if defined(WITH_HARFTEX)
-  isLuaTeX = isLuaTeX || engine == Engine::HarfTeX;
-#endif
+  isLuaTeX = isLuaTeX || engine == Engine::LuaHBTeX;
   if (!isLuaTeX && IsExtended() && preloadedFormat.empty())
   {
     arguments.push_back("--enable-etex");

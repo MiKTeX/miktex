@@ -1781,7 +1781,7 @@ static int getdelcodes(lua_State * L)
 static int settex(lua_State * L)
 {
     const char *st;
-    int texstr;
+    int texstr, isprim;
     size_t k;
     int cur_cs1, cur_cmd1;
     int isglobal = 0;
@@ -1814,7 +1814,9 @@ static int settex(lua_State * L)
             return 0;
         }
         texstr = maketexlstring(st, k);
-        if (is_primitive(texstr)) {
+        isprim = is_primitive(texstr);
+        flush_str(texstr);
+        if (isprim) {
             if (i == 3 && (lua_type(L,1) == LUA_TSTRING)) {
                 const char *s = lua_tostring(L, 1);
                 if (lua_key_eq(s,global))
@@ -2064,7 +2066,7 @@ static int tex_setmathparm(lua_State * L)
         }
         i = luaL_checkoption(L, (n - 2), NULL, math_param_names);
         j = luaL_checkoption(L, (n - 1), NULL, math_style_names);
-        if (i<0 && i>=math_param_last) {
+        if (i < 0 || j < 0) {
             /* invalid spec, just ignore it  */
         } else if (i>=math_param_first_mu_glue) {
             p = lua_touserdata(L, n);
@@ -2082,20 +2084,24 @@ static int tex_setmathparm(lua_State * L)
 
 static int tex_getmathparm(lua_State * L)
 {
-    if ((lua_gettop(L) == 2)) {
+    if (lua_gettop(L) == 2) {
         int i = luaL_checkoption(L, 1, NULL, math_param_names);
         int j = luaL_checkoption(L, 2, NULL, math_style_names);
-        scaled k = get_math_param(i, j);
-        if (i<0 && i>=math_param_last) {
+        if (i < 0 || j < 0) {
             lua_pushnil(L);
-        } else if (i>=math_param_first_mu_glue) {
-            if (k <= thick_mu_skip_code) {
-                k = glue_par(k);
-            }
-            lua_nodelib_push_fast(L, k);
         } else {
-            lua_pushinteger(L, k);
+            scaled k = get_math_param(i, j);
+            if (i >= math_param_first_mu_glue) {
+                if (k <= thick_mu_skip_code) {
+                    k = glue_par(k);
+                }
+                lua_nodelib_push_fast(L, k);
+            } else {
+                lua_pushinteger(L, k);
+            }
         }
+    } else {
+        lua_pushnil(L);
     }
     return 1;
 }
@@ -2545,7 +2551,7 @@ static int tex_definefont(lua_State * L)
 {
     const char *csname;
     int f, u;
-    str_number t;
+    str_number t, d;
     size_t l;
     int i = 1;
     int a = 0;
@@ -2559,7 +2565,6 @@ static int tex_definefont(lua_State * L)
     }
     csname = luaL_checklstring(L, i, &l);
     f = luaL_checkinteger(L, (i + 1));
-    t = maketexlstring(csname, l);
     no_new_control_sequence = 0;
     u = string_lookup(csname, l);
     no_new_control_sequence = 1;
@@ -2568,7 +2573,32 @@ static int tex_definefont(lua_State * L)
     else
         eq_define(u, set_font_cmd, f);
     eqtb[font_id_base + f] = eqtb[u];
-    hash_text(font_id_base + f) = t;
+    /*tex
+
+        This is tricky: when we redefine a string we loose the old one. So this
+        will change as it's only used to display the |\fontname| so we can store
+        that with the font.
+
+    */
+    d = cs_text(font_id_base + f);
+    t = maketexlstring(csname, l); /* the csname */
+    if (!d) {
+        /*tex We have a new string. */
+        cs_text(font_id_base + f) = t;
+    } else if ((d!=t) && str_eq_str(d,t)){
+        /*tex We have a duplicate string. */
+        flush_str(t);
+    } else if(d!=t){
+        d = search_string(t);
+        if (d) {
+            /*tex We have already such a string. */
+            cs_text(font_id_base + f) = d;
+            flush_str(t);
+        } else {
+            /*tex The old value is lost but still in the pool. */
+            cs_text(font_id_base + f) = t;
+        }
+    }
     return 0;
 }
 
@@ -3476,8 +3506,8 @@ static int runtoks(lua_State * L)
     if (lua_type(L,1) == LUA_TFUNCTION) {
         int old_mode = mode;
         int ref;
-        pointer r = get_avail();
-        pointer t = get_avail();
+        halfword r = get_avail();
+        halfword t = get_avail();
         token_info(r) = token_val(extension_cmd,end_local_code);
         lua_pushvalue(L, 1);
         ref = luaL_ref(L,LUA_REGISTRYINDEX);
@@ -3495,16 +3525,31 @@ static int runtoks(lua_State * L)
         mode = old_mode;
         luaL_unref(L,LUA_REGISTRYINDEX,ref);
     } else {
-        int k = get_item_index(L, lua_gettop(L), toks_base);
-        halfword t = toks(k);
+        halfword t;
+        int k = get_item_index(L, 1, toks_base);
         check_index_range(k, "gettoks");
-        if (t != null) {
+        t = toks(k);
+        if (! t) {
+            /* nothing to do */
+        } else if ((scanner_status != defining) || (lua_toboolean(L,2))) {
+            int grouped = lua_toboolean(L,3);
             int old_mode = mode;
-            pointer r = get_avail();
-            token_info(r) = token_val(extension_cmd,end_local_code);
-            begin_token_list(r,inserted);
-            /* new_save_level(semi_simple_group); */
+            if (grouped) {
+                halfword r = get_avail();
+                token_info(r) = token_val(right_brace_cmd,0);
+                begin_token_list(r,inserted);
+            }
+            {
+                halfword r = get_avail();
+                token_info(r) = token_val(extension_cmd,end_local_code);
+                begin_token_list(r,inserted);
+            }
             begin_token_list(t,local_text);
+            if (grouped) {
+                halfword r = get_avail();
+                token_info(r) = token_val(left_brace_cmd,0);
+                begin_token_list(r,inserted);
+            }
             if (luacstrings > 0) {
                 lua_string_start();
             }
@@ -3515,9 +3560,49 @@ static int runtoks(lua_State * L)
             local_control();
             mode = old_mode;
             /* unsave(); */
+        } else {
+            halfword q;
+            halfword p = temp_token_head;
+            halfword r = token_link(t);
+            set_token_link(p, null);
+            while (r) {
+                fast_store_new_token(token_info(r));
+                r = token_link(r);
+            }
+            ins_list(token_link(temp_token_head));
         }
     }
     return 0;
+}
+
+static int quittoks(lua_State * L)
+{
+    (void) L;
+    if (tracing_nesting_par > 2) {
+        local_control_message("quitting token scanner");
+    }
+    end_local_control();
+    return 0;
+}
+
+/*tex Negative values are internal and inline. */
+
+static int tex_getmodevalues(lua_State * L)
+{
+    lua_newtable(L);
+    lua_pushinteger(L,0);
+    lua_push_string_by_name(L,unset);      /* 0 */
+    lua_rawset(L, -3);
+    lua_pushinteger(L,vmode);
+    lua_push_string_by_name(L,vertical);   /* 1 */
+    lua_rawset(L, -3);
+    lua_pushinteger(L,hmode);
+    lua_push_string_by_name(L,horizontal); /* 127 */
+    lua_rawset(L, -3);
+    lua_pushinteger(L,mmode);
+    lua_push_string_by_name(L,math);       /* 253 */
+    lua_rawset(L, -3);
+    return 1;
 }
 
 /* till here */
@@ -3643,7 +3728,9 @@ static const struct luaL_Reg texlib[] = {
     { "get_synctex_line", lua_get_synctex_line },
     /* test */
     { "runtoks", runtoks },
+    { "quittoks", quittoks },
     { "forcehmode", forcehmode },
+    { "getmodevalues", tex_getmodevalues },
     /* sentinel */
     { NULL, NULL }
 };

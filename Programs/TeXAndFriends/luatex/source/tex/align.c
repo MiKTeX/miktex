@@ -1095,7 +1095,9 @@ void fin_align(void)
                 glue_set(q) = glue_set(p);
                 shift_amount(q) = o;
                 r = vlink(list_ptr(q));
-                assert (type(r) == unset_node);
+                if (type(r) != unset_node) {
+                    formatted_error("alignment","bad box");
+                }
                 s = vlink(list_ptr(p));
                 do {
                     /*tex

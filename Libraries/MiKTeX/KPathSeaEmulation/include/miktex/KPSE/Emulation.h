@@ -1025,6 +1025,21 @@ MIKTEX_END_EXTERN_C_BLOCK;
 
 /// @}
 
+/* _________________________________________________________________________
+ *
+ * cnf.h
+ *
+ */
+
+ /// @name cnf.h
+ /// Stuff from `cnf.h`.
+ /// @{
+
+// FIXME
+#define kpathsea_cnf_line_env_progname(kpse, l)
+
+/// @}
+
 /* _________________________________________________________________________ */
 
 MIKTEX_BEGIN_EXTERN_C_BLOCK;

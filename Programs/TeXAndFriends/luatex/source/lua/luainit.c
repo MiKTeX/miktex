@@ -24,6 +24,7 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 #include "ptexlib.h"
 
 #include <kpathsea/c-stat.h>
+#include <kpathsea/cnf.h>
 
 #include "lua/luatex-api.h"
 
@@ -243,6 +244,16 @@ static void prepare_cmdline(lua_State * L, char **av, int ac, int zero_offset)
 
 int kpse_init = -1;
 
+/*tex
+
+Array and count of values given with --cnf-line.
+
+*/
+static string *user_cnf_lines = NULL;
+static unsigned user_cnf_nlines = 0;
+
+
+
 string input_name = NULL;
 
 static string user_progname = NULL;
@@ -306,6 +317,7 @@ static struct option long_options[] = {
     {"interaction", 1, 0, 0},
     {"halt-on-error", 0, &haltonerrorp, 1},
     {"kpathsea-debug", 1, 0, 0},
+    {"cnf-line", 1,0 ,0},
     {"progname", 1, 0, 0},
     {"version", 0, 0, 0},
     {"credits", 0, 0, 0},
@@ -440,6 +452,16 @@ static void parse_options(int ac, char **av)
             show_luahashchars = 1;
         } else if (ARGUMENT_IS("kpathsea-debug")) {
             kpathsea_debug |= atoi(optarg);
+        } else if (ARGUMENT_IS ("cnf-line")) {
+	  if (user_cnf_lines == NULL) {
+	    user_cnf_nlines = 1;
+	    user_cnf_lines = xmalloc (sizeof (const_string));
+	  } else {
+	    user_cnf_nlines++;
+	    user_cnf_lines = xrealloc (user_cnf_lines,
+				       user_cnf_nlines * sizeof (const_string));
+	  }
+	  user_cnf_lines[user_cnf_nlines-1] = xstrdup (optarg);
 #if defined(MIKTEX)
         } else if (ARGUMENT_IS("alias") || ARGUMENT_IS("progname")) {
 #else
@@ -1144,6 +1166,15 @@ void lua_initialize(int ac, char **av)
     putenv(LC_NUMERIC_C);
     /*tex this is sometimes needed */
     putenv(engine_luatex);
+    /*tex add user's cnf values*/
+    if (user_cnf_lines) {
+     unsigned i;
+     for (i = 0; i < user_cnf_nlines; i++) {
+      /* debug printf ("ucnf%d: %s\n", i, user_cnf_lines[i]); */
+      kpathsea_cnf_line_env_progname (kpse_def, user_cnf_lines[i]);
+      free (user_cnf_lines[i]);
+     }
+    }
     luainterpreter();
     /*tex init internalized strings */
     set_init_keys;

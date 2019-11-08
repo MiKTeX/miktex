@@ -1009,9 +1009,33 @@ void print_font_identifier(internal_font_number f)
 }
 
 /*tex
+    We could do this much nicer but then we need to also adapt short_display a
+    bit and we have to be as compatible as possible in the log for some macro
+    packages.
 
-This prints highlights of list |p|.
+    The callback is also responsible for either or not reporting the character
+    number itself.
+*/
 
+void print_character_info(halfword p)
+{
+    int callback_id = callback_defined(glyph_info_callback);
+    if (callback_id) {
+        char* str = NULL;
+        run_callback(callback_id, "N->R", p, &str);
+        if (str == NULL) {
+            print_qhex(character(p));
+        } else {
+            tprint(str);
+            free(str);
+        }
+    } else {
+        print(character(p));
+    }
+}
+
+/*tex
+    This prints highlights of list |p|.
 */
 
 void short_display(int p)
@@ -1022,14 +1046,15 @@ void short_display(int p)
                 short_display(lig_ptr(p));
             } else {
                 if (font(p) != font_in_short_display) {
-                    if (!is_valid_font(font(p)))
+                    if (!is_valid_font(font(p))) {
                         print_char('*');
-                    else
+                    } else {
                         print_font_identifier(font(p));
+                    }
                     print_char(' ');
                     font_in_short_display = font(p);
                 }
-                print(character(p));
+                print_character_info(p);
             }
         } else {
             /*tex Print a short indication of the contents of node |p| */
@@ -1060,7 +1085,7 @@ void print_font_and_char(int p)
     else
         print_font_identifier(font(p));
     print_char(' ');
-    print(character(p));
+    print_character_info(p);
 }
 
 /*tex
@@ -1158,7 +1183,7 @@ void short_display_n(int p, int m)
                     print_char(' ');
                     font_in_short_display = font(p);
                 }
-                print(character(p));
+                print_character_info(p);
             }
         } else {
             if ( (type(p) == glue_node) ||

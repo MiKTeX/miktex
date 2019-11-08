@@ -32,12 +32,12 @@ typedef struct in_state_record {
     halfword loc_field;
     halfword limit_field;
     halfword name_field;
-    int synctex_tag_field;      /* stack the tag of the current file */
-    signed int cattable_field:16;       /* category table used by the current line (see textoken.c) */
-    quarterword state_field:8;
-    quarterword index_field:8;
-    boolean partial_field:8;    /* is the current line partial? (see textoken.c) */
-    boolean nofilter_field:8;   /* used by token filtering */
+    int synctex_tag_field;          /* stack the tag of the current file */
+    unsigned short state_field:16;
+    unsigned short index_field:16;
+    signed short cattable_field:16; /* category table used by the current line (see textoken.c) */
+    boolean partial_field:8;        /* is the current line partial? (see textoken.c) */
+    boolean nofilter_field:8;       /* used by token filtering */
 } in_state_record;
 
 extern in_state_record *input_stack;

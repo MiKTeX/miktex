@@ -261,9 +261,6 @@ void expand(void)
             case the_cmd:
                 ins_the_toks();
                 break;
-            case combine_toks_cmd:
-                combine_the_toks(cur_chr);
-                break;
             case if_test_cmd:
                 /*tex An experiment. */
                 if (cur_chr == if_condition_code) {

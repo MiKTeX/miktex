@@ -88,24 +88,6 @@
 	description = plain e-TeX
 	input = etex.ini
 
-[harflatex-dev]
-
-	compiler = harftex
-	description = HarfLaTeX dev
-	input = lualatex.ini
-
-[harflatex]
-
-	compiler = harftex
-	description = HarfLaTeX
-	input = lualatex.ini
-
-[harftex]
-
-	compiler = harftex
-	description = HarfTeX
-	input = luatex.ini
-
 [jadetex]
 
 	attributes = exclude
@@ -134,6 +116,24 @@
 	compiler = pdftex
 	description = LaTeX2e
 	input = latex.ini
+
+[luahblatex-dev]
+
+	compiler = luahbtex
+	description = luahbtex dev
+	input = lualatex.ini
+
+[luahblatex]
+
+	compiler = luahbtex
+	description = luahbtex
+	input = lualatex.ini
+
+[luahbtex]
+
+	compiler = luahbtex
+	description = luahbtex
+	input = luatex.ini
 
 [lualatex-dev]
 

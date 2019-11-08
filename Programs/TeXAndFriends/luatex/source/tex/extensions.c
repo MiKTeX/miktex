@@ -370,7 +370,17 @@ void do_extension(int immediate)
                 p = tail;
                 new_write_whatsit(open_node_size,1);
                 scan_optional_equals();
-                scan_file_name();
+                /* scan_file_name(); */
+                do {
+                    get_x_token();
+                } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+                back_input();
+                if (cur_cmd != left_brace_cmd) {
+                    scan_file_name();
+                } else {
+                    scan_file_name_toks();
+                }
+                /* */
                 open_name(tail) = cur_name;
                 open_area(tail) = cur_area;
                 open_ext(tail) = cur_ext;

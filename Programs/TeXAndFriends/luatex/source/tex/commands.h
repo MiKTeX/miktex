@@ -187,6 +187,7 @@ typedef enum {
     assign_box_dir_cmd,                   /* (\.{\\boxdir}) */
     assign_direction_cmd,                 /* (\.{\\pagedirection}, \.{\\textdirection}) */
     assign_dir_cmd,                       /* (\.{\\pagedir}, \.{\\textdir}) */
+    combine_toks_cmd,
 # define max_internal_cmd assign_dir_cmd  /* the largest code that can follow \.{\\the} */
     advance_cmd,                          /* advance a register or parameter ( \.{\\advance} ) */
     multiply_cmd,                         /* multiply a register or parameter ( \.{\\multiply} ) */
@@ -217,7 +218,6 @@ typedef enum {
     variable_cmd,
     feedback_cmd,
     the_cmd,                              /* expand an internal quantity ( \.{\\the} or \.{\\unexpanded}, \.{\\detokenize} ) */
-    combine_toks_cmd,
     top_bot_mark_cmd,                     /* inserted mark ( \.{\\topmark}, etc.~) */
     call_cmd,                             /* non-long, non-outer control sequence */
     long_call_cmd,                        /* long, non-outer control sequence */
@@ -307,6 +307,8 @@ typedef enum {
     current_if_branch_code,               /* code for \.{\\currentifbranch} */
     glue_stretch_order_code,              /* code for \.{\\gluestretchorder} */
     glue_shrink_order_code,               /* code for \.{\\glueshrinkorder} */
+    eTeX_glue_stretch_order_code,         /* code for \.{\\eTeXgluestretchorder} */
+    eTeX_glue_shrink_order_code,          /* code for \.{\\eTeXglueshrinkorder} */
     font_char_wd_code,                    /* code for \.{\\fontcharwd} */
 #  define eTeX_dim font_char_wd_code      /* first of \eTeX\ codes for dimensions */
     font_char_ht_code,                    /* code for \.{\\fontcharht} */
