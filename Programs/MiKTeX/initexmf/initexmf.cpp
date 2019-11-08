@@ -1446,6 +1446,9 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
   { MIKTEX_XETEX_EXE, { "xetex", MIKTEX_XELATEX_EXE } },
+#if defined(WITH_RUNGS)
+  { MIKTEX_RUNGS_EXE, { "rungs" } },
+#endif
 #if defined(WITH_KPSEWHICH)
   { MIKTEX_KPSEWHICH_EXE, { "kpsewhich" } },
 #endif

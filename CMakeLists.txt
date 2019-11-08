@@ -528,6 +528,12 @@ option(
 )
 
 option(
+  WITH_RUNGS
+  "Create rungs, a symbolic link to the miktex-rungs executable."
+  TRUE
+)
+
+option(
   WITH_KPSEWHICH
   "Create kpsewhich, a symbolic link to the miktex-kpsewhich executable."
   TRUE
