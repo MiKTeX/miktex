@@ -468,12 +468,6 @@ option(
 )
 
 option(
-  WITH_LUA54TEX
-  "Enable LuaTeX linked to Lua 5.4."
-  FALSE
-)
-
-option(
   LINK_EVERYTHING_STATICALLY
   "Don't build and use shared libraries."
   FALSE

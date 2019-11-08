@@ -300,37 +300,6 @@ target_link_libraries(luatex-lua53tex-objects
     luatex-lua53pplib-objects
 )
 
-if(WITH_LUA54TEX)
-  add_library(luatex-lua54tex-objects OBJECT ${libluatex_common_sources} ${libluatex_luatex_sources})
-  set_property(TARGET luatex-lua54tex-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_include_directories(luatex-lua54tex-objects
-    PRIVATE
-      source/luafontloader/fontforge/fontforge
-      source/luafontloader/fontforge/inc
-  )
-  if(USE_SYSTEM_PNG)
-    target_link_libraries(luatex-lua54tex-objects PUBLIC MiKTeX::Imported::PNG)
-  else()
-    target_link_libraries(luatex-lua54tex-objects PUBLIC ${png_dll_name})
-  endif()
-  if(USE_SYSTEM_ZLIB)
-    target_link_libraries(luatex-lua54tex-objects PUBLIC MiKTeX::Imported::ZLIB)
-  else()
-    target_link_libraries(luatex-lua54tex-objects PUBLIC ${zlib_dll_name})
-  endif()
-  target_link_libraries(luatex-lua54tex-objects
-    PUBLIC
-      ${core_dll_name}
-      ${kpsemu_dll_name}
-      ${lua54_target_name}
-      ${metapost_dll_name}
-      ${w2cemu_dll_name}
-      luatex-lua54fontforge-objects
-      luatex-lua54misc-objects
-      luatex-lua54pplib-objects
-  )
-endif()
-
 ###############################################################################
 ## luahbtex-lua53tex-objects
 ###############################################################################
@@ -421,38 +390,3 @@ target_link_libraries(luahbtex-lua53tex-objects
     luatex-lua53misc-objects
     luatex-lua53pplib-objects
 )
-
-if(WITH_LUA54TEX)
-  add_library(luahbtex-lua54tex-objects OBJECT ${libluatex_common_sources} ${libluatex_luahbtex_sources})
-  set_property(TARGET luahbtex-lua54tex-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_compile_definitions(luahbtex-lua54tex-objects
-    PRIVATE
-      -DLUATEX_HARFBUZZ_ENABLED
-  )
-  target_include_directories(luahbtex-lua54tex-objects
-    PRIVATE
-      source/luafontloader/fontforge/fontforge
-      source/luafontloader/fontforge/inc
-  )
-  if(USE_SYSTEM_PNG)
-    target_link_libraries(luahbtex-lua54tex-objects PUBLIC MiKTeX::Imported::PNG)
-  else()
-    target_link_libraries(luahbtex-lua54tex-objects PUBLIC ${png_dll_name})
-  endif()
-  if(USE_SYSTEM_ZLIB)
-    target_link_libraries(luahbtex-lua54tex-objects PUBLIC MiKTeX::Imported::ZLIB)
-  else()
-    target_link_libraries(luahbtex-lua54tex-objects PUBLIC ${zlib_dll_name})
-  endif()
-  target_link_libraries(luahbtex-lua54tex-objects
-    PUBLIC
-      ${core_dll_name}
-      ${kpsemu_dll_name}
-      ${lua54_target_name}
-      ${metapost_dll_name}
-      ${w2cemu_dll_name}
-      luatex-lua54fontforge-objects
-      luatex-lua54misc-objects
-      luatex-lua54pplib-objects
-  )
-endif()
