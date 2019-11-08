@@ -32,7 +32,7 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#define FORMAT_ID (907+51)
+#define FORMAT_ID (907+52)
 #if ((FORMAT_ID>=0) && (FORMAT_ID<=256))
 #error Wrong value for FORMAT_ID.
 #endif

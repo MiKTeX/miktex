@@ -50,9 +50,9 @@ extern void fix_o_mode(void);
 #  include "lualib.h"
 #ifdef LuajitTeX
 #  include "luajit.h"
-#endif 
+#endif
 
-/* Names */ 
+/* Names */
 #ifndef LUATEX_HARFBUZZ_ENABLED
 #ifdef LuajitTeX
 #  define MyName "LuajitTeX"
@@ -1139,6 +1139,7 @@ make_lua_key(stretch_order);\
 make_lua_key(string);\
 make_lua_key(style);\
 make_lua_key(sub);\
+make_lua_key(subfont);\
 make_lua_key(sub_box);\
 make_lua_key(sub_mark);\
 make_lua_key(sub_mlist);\
@@ -1832,6 +1833,7 @@ init_lua_key(stretch_order);\
 init_lua_key(string);\
 init_lua_key(style);\
 init_lua_key(sub);\
+init_lua_key(subfont);\
 init_lua_key(sub_box);\
 init_lua_key(sub_mark);\
 init_lua_key(sub_mlist);\
@@ -2600,6 +2602,7 @@ use_lua_key(stretch_order);
 use_lua_key(string);
 use_lua_key(style);
 use_lua_key(sub);
+use_lua_key(subfont);
 use_lua_key(sub_box);
 use_lua_key(sub_mark);
 use_lua_key(sub_mlist);

@@ -814,6 +814,7 @@ void do_pdf_font(PDF pdf, internal_font_number f)
         }
         /*tex Needed for the CIDSystemInfo: */
         fm->encname = font_encodingname(f);
+        fm->subfont = font_subfont(f);
         fm->slant = font_slant(f);
         set_slantset(fm);
         fm->extend = font_extend(f);
