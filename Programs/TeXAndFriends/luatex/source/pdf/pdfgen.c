@@ -1779,7 +1779,12 @@ void pdf_end_page(PDF pdf)
     if (callback_id > 0)
       run_callback(callback_id, "b->",(global_shipping_mode == SHIPPING_PAGE));
     if (global_shipping_mode == SHIPPING_PAGE) {
-        pdf->last_pages = pdf_do_page_divert(pdf, pdf->last_page, 0);
+        int location = 0;
+        int callback_id = callback_defined(page_order_index_callback);
+        if (callback_id) {
+            run_callback(callback_id, "d->d", total_pages, &location);
+        }
+        pdf->last_pages = pdf_do_page_divert(pdf, pdf->last_page, location);
         /*tex  Write out the |/Page| object. */
         pdf_begin_obj(pdf, pdf->last_page, OBJSTM_ALWAYS);
         pdf_begin_dict(pdf);

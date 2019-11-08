@@ -150,7 +150,7 @@ extern void get_token(void);
 extern halfword str_toks(lstring b);
 extern halfword str_scan_toks(int c, lstring b);
 extern void ins_the_toks(void);
-extern void combine_the_toks(int how);
+extern void combine_the_toks(void);
 
 extern int scan_lua_state(void);
 

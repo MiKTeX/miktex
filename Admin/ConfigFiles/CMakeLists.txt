@@ -44,8 +44,8 @@ set(main_ini_names
   bibtexu
   cslatex
   csplain
-  dvilualatex-dev
   dvilualatex
+  dvilualatex-dev
   dviluatex
   dvipdfm
   dvipdfmx
@@ -57,16 +57,16 @@ set(main_ini_names
   frlatex
   frtex
   ftex
-  harflatex
-  harflatex-dev
-  harftex
   jadetex
   lambda
-  latex-dev
   latex
+  latex-dev
   latex209
-  lualatex-dev
+  luahblatex
+  luahblatex-dev
+  luahbtex
   lualatex
+  lualatex-dev
   luatex
   mex
   mllatex
@@ -78,8 +78,8 @@ set(main_ini_names
   pdfcsplain
   pdfelatex
   pdfjadetex
-  pdflatex-dev
   pdflatex
+  pdflatex-dev
   pdfmex
   pdfplatex
   pdftex

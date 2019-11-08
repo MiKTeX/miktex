@@ -140,6 +140,7 @@ command_item command_names[] = {
     { assign_box_dir_cmd,       NULL, 0},
     { assign_direction_cmd,     NULL, 0},
     { assign_dir_cmd,           NULL, 0},
+    { combine_toks_cmd,         NULL, 0},
     { advance_cmd,              NULL, 0},
     { multiply_cmd,             NULL, 0},
     { divide_cmd,               NULL, 0},
@@ -169,7 +170,6 @@ command_item command_names[] = {
     { variable_cmd,             NULL, 0},
     { feedback_cmd,             NULL, 0},
     { the_cmd,                  NULL, 0},
-    { combine_toks_cmd,         NULL, 0},
     { top_bot_mark_cmd,         NULL, 0},
     { call_cmd,                 NULL, 0},
     { long_call_cmd,            NULL, 0},
@@ -306,6 +306,7 @@ void l_set_token_data(void)
     init_token_key(command_names, assign_box_dir_cmd,       assign_box_dir);
     init_token_key(command_names, assign_direction_cmd,     assign_direction);
     init_token_key(command_names, assign_dir_cmd,           assign_dir);
+    init_token_key(command_names, combine_toks_cmd,         combinetoks);
     init_token_key(command_names, advance_cmd,              advance);
     init_token_key(command_names, multiply_cmd,             multiply);
     init_token_key(command_names, divide_cmd,               divide);
@@ -334,7 +335,6 @@ void l_set_token_data(void)
     init_token_key(command_names, variable_cmd,             variable);
     init_token_key(command_names, feedback_cmd,             feedback);
     init_token_key(command_names, the_cmd,                  the);
-    init_token_key(command_names, combine_toks_cmd,         combinetoks);
     init_token_key(command_names, top_bot_mark_cmd,         top_bot_mark);
     init_token_key(command_names, call_cmd,                 call);
     init_token_key(command_names, long_call_cmd,            long_call);

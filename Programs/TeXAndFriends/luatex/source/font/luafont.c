@@ -950,8 +950,16 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                         lua_rawgeti(L, -2, 2);
                         if (lua_istable(L, -1)) {
                             lua_getglobal(L, "img");
+                            /*tex Just in case one accidentely wipes |img|: */
+                            if (lua_type(L,-1) != LUA_TTABLE) {
+                                normal_error("vf command","no img table found");
+                            }
                             lua_pushstring(L, "new");
                             lua_gettable(L, -2);
+                            /*tex or the |new| entry: */
+                            if (lua_type(L,-1) != LUA_TFUNCTION) {
+                                normal_error("vf command","no img.new function found");
+                            }
                             lua_insert(L, -3);
                             lua_pop(L, 1);
                             lua_call(L, 1, 1);

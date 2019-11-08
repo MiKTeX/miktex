@@ -661,7 +661,7 @@ void begin_file_reading(void)
         check_buffer_overflow(first);
     incr(in_open);
     push_input();
-    iindex = (unsigned char) in_open;
+    iindex = (unsigned short)(in_open);
     source_filename_stack[iindex] = 0;
     full_source_filename_stack[iindex] = NULL;
     eof_seen[iindex] = false;
@@ -696,6 +696,11 @@ void end_file_reading(void)
     } else if (iname > 17) {
         /*tex Forget it. */
         lua_a_close_in(cur_file, 0);
+        source_filename_stack[iindex] = 0;
+        if (full_source_filename_stack[iindex] != NULL) {
+            free(full_source_filename_stack[iindex]);
+            full_source_filename_stack[iindex] = NULL;
+        }
     }
     pop_input();
     decr(in_open);

@@ -812,34 +812,40 @@ inline static int lua_tokenlib_get_command(lua_State * L)
 
 inline static int lua_tokenlib_get_index(lua_State * L)
 {
+    int cmd, chr;
     lua_token *n = check_istoken(L, 1);
     halfword t = token_info(n->token);
-    int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
-    halfword e = equiv(t - cs_token_flag);
+    if (t >= cs_token_flag) {
+        cmd = eq_type(t - cs_token_flag);
+        chr = equiv(t - cs_token_flag);
+    } else {
+        cmd = token_cmd(t);
+        chr = token_chr(t);
+    }
     switch (cmd) {
         case assign_int_cmd:
-            e -= count_base;
+            chr -= count_base;
             break;
         case assign_attr_cmd:
-            e -= attribute_base;
+            chr -= attribute_base;
             break;
         case assign_dimen_cmd:
-            e -= dimen_base;
+            chr -= scaled_base;
             break;
         case assign_glue_cmd:
-            e -= skip_base;
+            chr -= skip_base;
             break;
         case assign_mu_glue_cmd:
-            e -= mu_skip_base;
+            chr -= mu_skip_base;
             break;
         case assign_toks_cmd:
-            e -= toks_base;
+            chr -= toks_base;
             break;
         default:
             break;
     }
-    if ((e >= 0) && (e <= 65535)) {
-        lua_pushinteger(L, e);
+    if (chr >= 0 && chr <= 65535) {
+        lua_pushinteger(L, chr);
     } else {
         lua_pushnil(L);
     }

@@ -127,4 +127,6 @@ extern void begin_diagnostic(void);
 extern void end_diagnostic(boolean blank_line);
 extern int global_old_setting;
 
+extern void print_character_info(halfword p);
+
 #endif

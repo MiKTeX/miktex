@@ -250,7 +250,7 @@ enum class MacroLanguage
 
 enum class Engine
 {
-  NotSet, TeX, pdfTeX, XeTeX, LuaTeX,
+  NotSet, TeX, pdfTeX, XeTeX, LuaTeX, LuaHBTeX,
 };
 
 enum class OutputType {
@@ -364,6 +364,9 @@ public:
   string lualatexProgram;
 
 public:
+  string luahblatexProgram;
+
+public:
   string makeindexProgram;
 
 public:
@@ -380,6 +383,9 @@ public:
 
 public:
   string luatexProgram;
+
+public:
+  string luahbtexProgram;
 
 public:
   string texindexProgram;
@@ -428,6 +434,10 @@ public:
     else if (Utils::EqualsIgnoreCase(engineName, "luatex"))
     {
       engine = Engine::LuaTeX;
+    }
+    else if (Utils::EqualsIgnoreCase(engineName, "luahbtex"))
+    {
+      engine = Engine::LuaHBTeX;
     }
     else
     {
@@ -491,8 +501,10 @@ Options::Options()
   texindexProgram = SetProgramName("TEXINDEX", "texindex");
   xelatexProgram = SetProgramName("XELATEX", "xelatex");
   lualatexProgram = SetProgramName("LUALATEX", "lualatex");
+  luahblatexProgram = SetProgramName("LUAHBLATEX", "luahblatex");
   xetexProgram = SetProgramName("XETEX", MIKTEX_XETEX_EXE);
   luatexProgram = SetProgramName("LUATEX", MIKTEX_LUATEX_EXE);
+  luahbtexProgram = SetProgramName("LUAHBTEX", MIKTEX_LUAHBTEX_EXE);
 }
 
 Options::~Options()
@@ -1442,6 +1454,10 @@ PathName Driver::GetTeXEnginePath(string& exeName)
       else if (options->engine == Engine::LuaTeX)
       {
         exeName = options->lualatexProgram;
+      }
+      else if (options->engine == Engine::LuaHBTeX)
+      {
+        exeName = options->luahblatexProgram;
       }
       else
       {

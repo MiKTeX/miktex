@@ -56,7 +56,7 @@ static const char *const callbacknames[] = {
     "pre_output_filter",
     "buildpage_filter",
     "hpack_filter", "vpack_filter",
-    "glyph_not_found",
+    "glyph_not_found", "glyph_info",
     "hyphenate",
     "ligaturing",
     "kerning",
@@ -81,7 +81,7 @@ static const char *const callbacknames[] = {
     "finish_synctex",
     "wrapup_run",
     "new_graf",
-    "page_objnum_provider",
+    "page_order_index",
     "make_extensible",
     "process_pdf_image_content",
     NULL
