@@ -48,21 +48,3 @@ if(USE_SYSTEM_ZLIB)
 else()
   target_link_libraries(luatex-lua53ffi-objects PUBLIC ${zlib_dll_name})
 endif()
-
-if(WITH_LUA54TEX)
-  add_library(luatex-lua54ffi-objects OBJECT ${luaffi_sources})
-  set_property(TARGET luatex-lua54ffi-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_include_directories(luatex-lua54ffi-objects
-    PRIVATE
-      source/luaffi/dynasm
-  )
-  target_link_libraries(luatex-lua54ffi-objects
-    PUBLIC
-      ${lua54_target_name}
-  )
-  if(USE_SYSTEM_ZLIB)
-    target_link_libraries(luatex-lua54ffi-objects PUBLIC MiKTeX::Imported::ZLIB)
-  else()
-    target_link_libraries(luatex-lua54ffi-objects PUBLIC ${zlib_dll_name})
-  endif()
-endif()

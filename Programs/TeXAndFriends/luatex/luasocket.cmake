@@ -115,17 +115,3 @@ target_link_libraries(luatex-lua53socket-objects
   PUBLIC
     ${lua53_target_name}
 )
-
-if(WITH_LUA54TEX)
-  add_library(luatex-lua54socket-objects OBJECT ${luasocket_sources})
-  set_property(TARGET luatex-lua54socket-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  add_dependencies(luatex-lua54socket-objects gen-luasocket-sources)
-  target_compile_definitions(luatex-lua54socket-objects
-    PRIVATE
-      -DLUASOCKET_DEBUG
-  )
-  target_link_libraries(luatex-lua54socket-objects
-    PUBLIC
-      ${lua54_target_name}
-  )
-endif()

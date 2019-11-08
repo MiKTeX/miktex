@@ -92,29 +92,3 @@ if(MIKTEX_NATIVE_WINDOWS)
       ${utf8wrap_dll_name}
   )
 endif()
-
-if(WITH_LUA54TEX)
-  add_library(luatex-lua54pplib-objects OBJECT ${luapplib_sources})
-  set_property(TARGET luatex-lua54pplib-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_include_directories(luatex-lua54pplib-objects
-    PUBLIC
-      source/luapplib/util
-  )
-  if(USE_SYSTEM_ZLIB)
-    target_link_libraries(luatex-lua54pplib-objects PUBLIC MiKTeX::Imported::ZLIB)
-  else()
-    target_link_libraries(luatex-lua54pplib-objects PUBLIC ${zlib_dll_name})
-  endif()
-  target_link_libraries(luatex-lua54pplib-objects
-    PUBLIC
-      ${core_dll_name}
-      ${lua54_target_name}
-  )
-  if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(luatex-lua54pplib-objects
-      PUBLIC
-        ${unxemu_dll_name}
-        ${utf8wrap_dll_name}
-    )
-  endif()
-endif()
