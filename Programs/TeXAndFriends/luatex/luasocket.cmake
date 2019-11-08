@@ -94,11 +94,11 @@ add_custom_target(
 
 list(APPEND luasocket_sources ${generated_luasocket_sources})
 
-add_library(luatex-lua53socket-objects OBJECT ${luasocket_sources})
+add_library(luatex-luasocket-objects OBJECT ${luasocket_sources})
 
-set_property(TARGET luatex-lua53socket-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET luatex-luasocket-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-add_dependencies(luatex-lua53socket-objects gen-luasocket-sources)
+add_dependencies(luatex-luasocket-objects gen-luasocket-sources)
 
 set_source_files_properties(
   ${generated_luasocket_sources}
@@ -106,12 +106,12 @@ set_source_files_properties(
     GENERATED TRUE
 )
 
-target_compile_definitions(luatex-lua53socket-objects
+target_compile_definitions(luatex-luasocket-objects
   PRIVATE
     -DLUASOCKET_DEBUG
 )
 
-target_link_libraries(luatex-lua53socket-objects
+target_link_libraries(luatex-luasocket-objects
   PUBLIC
     ${lua53_target_name}
 )
