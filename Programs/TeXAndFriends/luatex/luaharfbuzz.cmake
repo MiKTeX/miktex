@@ -34,31 +34,31 @@ set(luaharfbuzz_sources
   source/luaharfbuzz/src/luaharfbuzz/unicode.c
 )
 
-add_library(luahbtex-lua53harfbuzz-objects OBJECT ${luaharfbuzz_sources})
+add_library(luahbtex-luaharfbuzz-objects OBJECT ${luaharfbuzz_sources})
 
-set_property(TARGET luahbtex-lua53harfbuzz-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET luahbtex-luaharfbuzz-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if(USE_SYSTEM_GRAPHITE2)
-  target_link_libraries(luahbtex-lua53harfbuzz-objects PUBLIC MiKTeX::Imported::GRAPHITE2)
+  target_link_libraries(luahbtex-luaharfbuzz-objects PUBLIC MiKTeX::Imported::GRAPHITE2)
 else()
-  target_link_libraries(luahbtex-lua53harfbuzz-objects PUBLIC ${graphite2_dll_name})
+  target_link_libraries(luahbtex-luaharfbuzz-objects PUBLIC ${graphite2_dll_name})
 endif()
 
 if(USE_SYSTEM_HARFBUZZ_ICU)
-  target_link_libraries(luahbtex-lua53harfbuzz-objects PUBLIC MiKTeX::Imported::HARFBUZZ_ICU)
-  target_link_libraries(luahbtex-lua53harfbuzz-objects PUBLIC MiKTeX::Imported::HARFBUZZ)
+  target_link_libraries(luahbtex-luaharfbuzz-objects PUBLIC MiKTeX::Imported::HARFBUZZ_ICU)
+  target_link_libraries(luahbtex-luaharfbuzz-objects PUBLIC MiKTeX::Imported::HARFBUZZ)
 else()
-  target_link_libraries(luahbtex-lua53harfbuzz-objects PUBLIC ${harfbuzz_dll_name})
+  target_link_libraries(luahbtex-luaharfbuzz-objects PUBLIC ${harfbuzz_dll_name})
 endif()
 
-target_link_libraries(luahbtex-lua53harfbuzz-objects
+target_link_libraries(luahbtex-luaharfbuzz-objects
   PUBLIC
     ${core_dll_name}
     ${lua53_target_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(luahbtex-lua53harfbuzz-objects
+  target_link_libraries(luahbtex-luaharfbuzz-objects
     PUBLIC
       ${unxemu_dll_name}
       ${utf8wrap_dll_name}

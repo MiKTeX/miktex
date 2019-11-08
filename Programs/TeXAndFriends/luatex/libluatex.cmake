@@ -17,31 +17,31 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/lua/lstrlibext.c
   source/lua/helpers.c
   source/lua/texluac.c 
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/luatex-common.h
   source/luatex.h
   source/luatexcallbackids.h
   source/ptexlib.h
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/luafontloader/src/ffdummies.c
   source/luafontloader/src/ffdummies.h
   source/luafontloader/src/luafflib.c
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/dvi/dvigen.c
   source/dvi/dvigen.h
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/font/dofont.c
   source/font/luafont.c
   source/font/luatexfont.h
@@ -72,7 +72,7 @@ list(APPEND libluatex_common_sources
   source/font/writetype2.c 
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/image/epdf.h
   source/image/image.h
   source/image/pdftoepdf.c
@@ -89,7 +89,7 @@ list(APPEND libluatex_common_sources
   source/image/writepng.h
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/lang/hnjalloc.c
   source/lang/hnjalloc.h
   source/lang/hyphen.c
@@ -98,7 +98,7 @@ list(APPEND libluatex_common_sources
   source/lang/texlang.h
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/lua/helpers.c
   source/lua/lcallbacklib.c
   source/lua/lfontlib.c
@@ -122,7 +122,7 @@ list(APPEND libluatex_common_sources
   source/lua/mplibstuff.c 
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/pdf/pdfaction.c
   source/pdf/pdfaction.h
   source/pdf/pdfannot.c
@@ -170,7 +170,7 @@ list(APPEND libluatex_common_sources
   source/pdf/pdfxform.h
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/tex/align.c
   source/tex/align.h
   source/tex/arithmetic.c
@@ -237,7 +237,7 @@ list(APPEND libluatex_common_sources
   source/tex/textoken.h
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   source/utils/avl.c
   source/utils/avl.h
   source/utils/avlstuff.c
@@ -248,28 +248,18 @@ list(APPEND libluatex_common_sources
   source/utils/unistring.h
 )
 
-list(APPEND libluatex_common_sources
+list(APPEND luatex_common_engine_sources
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-common.h
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-luatex.h
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.c
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.h
 )
 
-list(APPEND libluatex_luatex_sources
-  source/lua/luainit.c
-  source/lua/luastuff.c
-  source/lua/luatex-api.h
-  source/tex/printing.c
-  source/tex/printing.h
-  source/utils/utils.c
-  source/utils/utils.h
-)
+add_library(luatex-common-engine-objects OBJECT ${luatex_common_engine_sources})
 
-add_library(luatex-lua53tex-objects OBJECT ${libluatex_common_sources} ${libluatex_luatex_sources})
+set_property(TARGET luatex-common-engine-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_property(TARGET luatex-lua53tex-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-target_include_directories(luatex-lua53tex-objects
+target_include_directories(luatex-common-engine-objects
   PRIVATE
     source/luafontloader/fontforge/fontforge
     source/luafontloader/fontforge/inc
@@ -277,31 +267,58 @@ target_include_directories(luatex-lua53tex-objects
 )
 
 if(USE_SYSTEM_PNG)
-  target_link_libraries(luatex-lua53tex-objects PUBLIC MiKTeX::Imported::PNG)
+  target_link_libraries(luatex-common-engine-objects PUBLIC MiKTeX::Imported::PNG)
 else()
-  target_link_libraries(luatex-lua53tex-objects PUBLIC ${png_dll_name})
+  target_link_libraries(luatex-common-engine-objects PUBLIC ${png_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(luatex-lua53tex-objects PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(luatex-common-engine-objects PUBLIC MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(luatex-lua53tex-objects PUBLIC ${zlib_dll_name})
+  target_link_libraries(luatex-common-engine-objects PUBLIC ${zlib_dll_name})
 endif()
 
-target_link_libraries(luatex-lua53tex-objects
+target_link_libraries(luatex-common-engine-objects
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${lua53_target_name}
     ${metapost_dll_name}
+    ${utf8wrap_dll_name}
     ${w2cemu_dll_name}
-    luatex-lua53fontforge-objects
-    luatex-lua53misc-objects
-    luatex-lua53pplib-objects
+    luatex-luafontforge-objects
+    luatex-luamisc-objects
+    luatex-luapplib-objects
+)
+
+set(luatex_engine_sources
+  source/lua/luainit.c
+  source/lua/luastuff.c
+  source/lua/luatex-api.h
+  source/tex/printing.c
+  source/tex/printing.h
+  source/utils/utils.c
+  source/utils/utils.h
+)
+
+add_library(luatex-engine-objects OBJECT ${luatex_engine_sources})
+
+set_property(TARGET luatex-engine-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_include_directories(luatex-engine-objects
+  PRIVATE
+    source/luafontloader/fontforge/fontforge
+    source/luafontloader/fontforge/inc
+    source/utils
+)
+
+target_link_libraries(luatex-engine-objects
+  PUBLIC
+    luatex-common-engine-objects
 )
 
 ###############################################################################
-## luahbtex-lua53tex-objects
+## luahbtex-engine-objects
 ###############################################################################
 
 configure_file(
@@ -334,7 +351,7 @@ configure_file(
   COPYONLY
 )
 
-list(APPEND libluatex_luahbtex_sources
+set(luahbtex_engine_sources
   ${CMAKE_CURRENT_BINARY_DIR}/luainit-hb.c
   ${CMAKE_CURRENT_BINARY_DIR}/luastuff-hb.c
   ${CMAKE_CURRENT_BINARY_DIR}/luatex-api-hb.h
@@ -344,49 +361,30 @@ list(APPEND libluatex_luahbtex_sources
   source/utils/utils.h
 )
 
-add_library(luahbtex-lua53tex-objects OBJECT ${libluatex_common_sources} ${libluatex_luahbtex_sources})
+add_library(luahbtex-engine-objects OBJECT ${luahbtex_engine_sources})
 
-set_property(TARGET luahbtex-lua53tex-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET luahbtex-engine-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_compile_definitions(luahbtex-lua53tex-objects
+target_compile_definitions(luahbtex-engine-objects
   PRIVATE
     -DLUATEX_HARFBUZZ_ENABLED
 )
 
-target_include_directories(luahbtex-lua53tex-objects
+target_include_directories(luahbtex-engine-objects
   PRIVATE
     source/luafontloader/fontforge/fontforge
     source/luafontloader/fontforge/inc
     source/utils
 )
 
-if(USE_SYSTEM_PNG)
-  target_link_libraries(luahbtex-lua53tex-objects PUBLIC MiKTeX::Imported::PNG)
-else()
-  target_link_libraries(luahbtex-lua53tex-objects PUBLIC ${png_dll_name})
-endif()
-
-if(USE_SYSTEM_ZLIB)
-  target_link_libraries(luahbtex-lua53tex-objects PUBLIC MiKTeX::Imported::ZLIB)
-else()
-  target_link_libraries(luahbtex-lua53tex-objects PUBLIC ${zlib_dll_name})
-endif()
+target_link_libraries(luahbtex-engine-objects
+  PUBLIC
+    luatex-common-engine-objects
+)
 
 if(USE_SYSTEM_HARFBUZZ_ICU)
-  target_link_libraries(luahbtex-lua53tex-objects PUBLIC MiKTeX::Imported::HARFBUZZ_ICU)
-  target_link_libraries(luahbtex-lua53tex-objects PUBLIC MiKTeX::Imported::HARFBUZZ)
+  target_link_libraries(luahbtex-engine-objects PUBLIC MiKTeX::Imported::HARFBUZZ_ICU)
+  target_link_libraries(luahbtex-engine-objects PUBLIC MiKTeX::Imported::HARFBUZZ)
 else()
-  target_link_libraries(luahbtex-lua53tex-objects PUBLIC ${harfbuzz_dll_name})
+  target_link_libraries(luahbtex-engine-objects PUBLIC ${harfbuzz_dll_name})
 endif()
-
-target_link_libraries(luahbtex-lua53tex-objects
-  PUBLIC
-    ${core_dll_name}
-    ${kpsemu_dll_name}
-    ${lua53_target_name}
-    ${metapost_dll_name}
-    ${w2cemu_dll_name}
-    luatex-lua53fontforge-objects
-    luatex-lua53misc-objects
-    luatex-lua53pplib-objects
-)

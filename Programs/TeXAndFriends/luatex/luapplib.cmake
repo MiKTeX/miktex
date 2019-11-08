@@ -64,29 +64,29 @@ set(luapplib_sources
   source/luapplib/util/utilsha.h
 )
 
-add_library(luatex-lua53pplib-objects OBJECT ${luapplib_sources})
+add_library(luatex-luapplib-objects OBJECT ${luapplib_sources})
 
-set_property(TARGET luatex-lua53pplib-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET luatex-luapplib-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_include_directories(luatex-lua53pplib-objects
+target_include_directories(luatex-luapplib-objects
   PUBLIC
     source/luapplib/util
 )
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(luatex-lua53pplib-objects PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(luatex-luapplib-objects PUBLIC MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(luatex-lua53pplib-objects PUBLIC ${zlib_dll_name})
+  target_link_libraries(luatex-luapplib-objects PUBLIC ${zlib_dll_name})
 endif()
 
-target_link_libraries(luatex-lua53pplib-objects
+target_link_libraries(luatex-luapplib-objects
   PUBLIC
     ${core_dll_name}
     ${lua53_target_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(luatex-lua53pplib-objects
+  target_link_libraries(luatex-luapplib-objects
     PUBLIC
       ${unxemu_dll_name}
       ${utf8wrap_dll_name}
