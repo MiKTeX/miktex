@@ -118,7 +118,7 @@ endif()
 
 foreach(i ${main_ini_names} ${inc_ini_names})
   configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/${i}.ini.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/${i}.ini.in
     ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini.body
     NEWLINE_STYLE UNIX
   )
