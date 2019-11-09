@@ -1,6 +1,6 @@
 /* gsinfo.cpp: getting Ghostscript information
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2019 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -84,7 +84,7 @@ PathName SessionImpl::GetGhostscript(unsigned long* versionNumber)
   {
     int exitCode;
     ProcessOutput<1024> gsOut;
-    if (!Process::Run(pathGsExe, vector<string>{ pathGsExe.GetFileNameWithoutExtension().ToString(), "--version"}, &gsOut, &exitCode, nullptr))
+    if (!Process::Run(pathGsExe, vector<string>{ pathGsExe.GetFileNameWithoutExtension().ToString(), "--version" }, &gsOut, &exitCode, nullptr))
     {
       MIKTEX_UNEXPECTED();
     }
