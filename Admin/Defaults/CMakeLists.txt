@@ -1,6 +1,6 @@
 ## CMakeLists.txt:                                      -*- CMake -*-
 ##
-## Copyright (C) 2015-2017 Christian Schenk
+## Copyright (C) 2015-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -20,16 +20,16 @@
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_ADMIN_FOLDER}/Defaults")
 
 set(all_defaults_cmake
-  mf.defaults.cmake
-  mfapp.defaults.cmake
-  mpost.defaults.cmake
-  pdftex.defaults.cmake
-  texapp.defaults.cmake
-  texmfapp.defaults.cmake
+  mf.defaults.in
+  mfapp.defaults.in
+  mpost.defaults.in
+  pdftex.defaults.in
+  texapp.defaults.in
+  texmfapp.defaults.in
 )
 
 if(WITH_OMEGA)
-  list(APPEND all_defaults_cmake omega.defaults.cmake)
+  list(APPEND all_defaults_cmake omega.defaults.in)
 endif()
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/include/miktex)
