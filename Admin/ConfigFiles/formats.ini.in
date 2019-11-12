@@ -63,7 +63,7 @@
 [dvilualatex-dev]
 
 	attributes = exclude
-	compiler = luatex
+	compiler = luahbtex
 	description = LuaLaTeX (DVI) dev
 	input = dvilualatex.ini
 
@@ -137,7 +137,7 @@
 
 [lualatex-dev]
 
-	compiler = luatex
+	compiler = luahbtex
 	description = LuaLaTeX dev
 	input = lualatex.ini
 
