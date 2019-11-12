@@ -284,12 +284,18 @@ target_link_libraries(luatex-common-engine-objects
     ${kpsemu_dll_name}
     ${lua53_target_name}
     ${metapost_dll_name}
-    ${utf8wrap_dll_name}
     ${w2cemu_dll_name}
     luatex-luafontforge-objects
     luatex-luamisc-objects
     luatex-luapplib-objects
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(luatex-common-engine-objects
+    PUBLIC
+      ${utf8wrap_dll_name}
+  )
+endif()
 
 set(luatex_engine_sources
   source/lua/luainit.c
