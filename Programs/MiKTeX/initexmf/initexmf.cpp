@@ -1171,7 +1171,8 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
       if (File::IsSymbolicLink(linkName))
       {
         PathName linkTarget = File::ReadSymbolicLink(linkName);
-        bool isMiKTeXSymlinked = linkTarget.GetFileName() == PathName(fileLink.target).GetFileName();
+	string linkTargetFileName = linkTarget.GetFileName().ToString();
+        bool isMiKTeXSymlinked = linkTargetFileName.find(MIKTEX_PREFIX) == 0 || linkTargetFileName == PathName(fileLink.target).GetFileName();
         if (!isMiKTeXSymlinked)
         {
           if (File::Exists(linkTarget))
