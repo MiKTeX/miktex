@@ -520,10 +520,9 @@ std::string ConfigValue::GetString() const
     return std::string(1, this->c);
   case Type::StringArray:
     return StringUtil::Flatten(this->sa, PathName::PathNameDelimiter);
-  case Type::None:
-    break;
+  default:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to string."), "type", std::to_string(static_cast<int>(this->type)));
   }
-  MIKTEX_UNEXPECTED();
 }
 
 int ConfigValue::GetInt() const
@@ -540,11 +539,9 @@ int ConfigValue::GetInt() const
     return (int)this->t;
   case Type::Char:
     return (int)this->c;
-  case Type::None:
-  case Type::StringArray:
-    break;
+  default:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to integer."), "type", std::to_string(static_cast<int>(this->type)));
   }
-  MIKTEX_UNEXPECTED();
 }
 
 bool ConfigValue::GetBool() const
@@ -574,7 +571,7 @@ bool ConfigValue::GetBool() const
     }
     else
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{s}' to boolean."), "s", this->s);
     }
   case Type::Int:
     if (this->i == 0)
@@ -587,7 +584,7 @@ bool ConfigValue::GetBool() const
     }
     else
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {i} to boolean."), "i", std::to_string(this->i));
     }
   case Type::Bool:
     return this->b;
@@ -602,7 +599,7 @@ bool ConfigValue::GetBool() const
     }
     else
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {t} to boolean."), "t", std::to_string(static_cast<int>(this->t)));
     }
   case Type::Char:
     if (this->c == '0'
@@ -619,13 +616,11 @@ bool ConfigValue::GetBool() const
     }
     else
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{c}' to boolean."), "c", string(1, this->c));
     }
-  case Type::None:
-  case Type::StringArray:
-    break;
+  default:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to boolean."), "type", std::to_string(static_cast<int>(this->type)));
   }
-  MIKTEX_UNEXPECTED();
 }
 
 TriState ConfigValue::GetTriState() const
@@ -662,7 +657,7 @@ TriState ConfigValue::GetTriState() const
     }
     else
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{s}' to tri-state."), "s", this->s);
     }
   case Type::Int:
     if (this->i == 0)
@@ -679,7 +674,7 @@ TriState ConfigValue::GetTriState() const
     }
     else
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {i} to tri-state."), "i", std::to_string(this->i));
     }
   case Type::Bool:
     return this->b ? TriState::True : TriState::False;
@@ -705,13 +700,11 @@ TriState ConfigValue::GetTriState() const
     }
     else
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{c}' to tri-state."), "c", string(1, this->c));
     }
-  case Type::None:
-  case Type::StringArray:
-    break;
+  default:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to tri-state."), "type", std::to_string(static_cast<int>(this->type)));
   }
-  MIKTEX_UNEXPECTED();
 }
 
 char ConfigValue::GetChar() const
@@ -721,13 +714,13 @@ char ConfigValue::GetChar() const
   case Type::String:
     if (this->s.length() != 1)
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{s}' to character."), "s", this->s);
     }
     return this->s[0];
   case Type::Int:
     if (this->i < CHAR_MIN || this->i > CHAR_MAX)
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {i} to character."), "i", std::to_string(this->i));
     }
     return (char)this->i;
   case Type::Bool:
@@ -736,11 +729,9 @@ char ConfigValue::GetChar() const
     return this->t == TriState::Undetermined ? '?' : this->t == TriState::False ? 'f' : 't';
   case Type::Char:
     return this->c;
-  case Type::None:
-  case Type::StringArray:
-    break;
+  default:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to character."), "type", std::to_string(static_cast<int>(this->type)));
   }
-  MIKTEX_UNEXPECTED();
 }
 
 vector<string> ConfigValue::GetStringArray() const
@@ -751,14 +742,9 @@ vector<string> ConfigValue::GetStringArray() const
     return StringUtil::Split(this->s, PathName::PathNameDelimiter);
   case Type::StringArray:
     return this->sa;
-  case Type::None:
-  case Type::Int:
-  case Type::Bool:
-  case Type::Tri:
-  case Type::Char:
-    break;
+  default:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to string array."), "type", std::to_string(static_cast<int>(this->type)));
   }
-  MIKTEX_UNEXPECTED();
 }
 
 bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string& valueName, string& value)
