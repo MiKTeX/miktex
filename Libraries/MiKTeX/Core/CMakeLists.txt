@@ -456,6 +456,7 @@ set(session_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/miktex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/papersize.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/runexe.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Session/rungs.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/runperl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/searchpath.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/texmfroot.cpp

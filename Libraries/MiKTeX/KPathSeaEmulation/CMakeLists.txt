@@ -58,6 +58,7 @@ set(kpathsea_includes
   c-std.h
   c-unistd.h
   c-vararg.h
+  cnf.h
   concatn.h
   config.h
   debug.h

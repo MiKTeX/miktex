@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2019 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -38,7 +38,7 @@ else()
 endif()
 
 configure_file(
-  entities.ent.cmake
+  entities.ent.in
   ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
 )
 

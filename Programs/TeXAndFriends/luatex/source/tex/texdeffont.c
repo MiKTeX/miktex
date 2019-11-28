@@ -99,7 +99,7 @@ void tex_def_font(small_number a)
     /*tex This runs through existing fonts. */
     internal_font_number f;
     /*tex The name for the frozen font identifier. */
-    str_number t;
+    str_number t, d;
     /*tex Thos holds the |selector| setting. */
     int old_setting;
     /*tex Stated `at' size, or negative of scaled magnification. */
@@ -113,10 +113,6 @@ void tex_def_font(small_number a)
     }
     get_r_token();
     u = cur_cs;
-    if (u >= null_cs)
-        t = cs_text(u);
-    else
-        t = maketexstring("FONT");
     if (a >= 4) {
         geq_define(u, set_font_cmd, null_font);
     } else {
@@ -140,17 +136,20 @@ void tex_def_font(small_number a)
             selector = new_string;
             if (cur_area != get_nullstr()) {
                 print(cur_area);
+                flush_str(cur_area);
             }
             if (cur_name != get_nullstr()) {
                 print(cur_name);
+                flush_str(cur_name);
             }
             if (cur_ext != get_nullstr()) {
                 print(cur_ext);
+                flush_str(cur_ext);
             }
             selector = old_setting;
+            cur_area = get_nullstr();
             cur_name = make_string();
             cur_ext = get_nullstr();
-            cur_area = get_nullstr();
         }
     } else {
         back_input();
@@ -160,9 +159,9 @@ void tex_def_font(small_number a)
         token_show(def_ref);
         selector = old_setting;
         flush_list(def_ref);
+        cur_area = get_nullstr();
         cur_name = make_string();
         cur_ext = get_nullstr();
-        cur_area = get_nullstr();
     }
     /*tex
         Scan the font size specification. The next variable keeps |cur_name| from
@@ -215,5 +214,34 @@ void tex_def_font(small_number a)
     xfree(fn);
     equiv(u) = f;
     eqtb[font_id_base + f] = eqtb[u];
-    cs_text(font_id_base + f) = t;
+    /*tex
+
+        This is tricky: when we redefine a string we loose the old one. So this
+        will change as it's only used to display the |\fontname| so we can store
+        that with the font.
+
+    */
+    d = cs_text(font_id_base + f);
+    t = (u >= null_cs) ? cs_text(u) : maketexstring("FONT");
+    if (!d) {
+        /*tex We have a new string. */
+        cs_text(font_id_base + f) = t;
+    } else if ((d!=t)  && str_eq_str(d,t)){
+        /*tex We have a duplicate string. */
+        flush_str(t);
+    } else if (d!=t){
+        d = search_string(t);
+        if (d) {
+            /*tex We have already such a string. */
+            cs_text(font_id_base + f) = d;
+            flush_str(t);
+        } else {
+            /*tex The old value is lost but still in the pool. */
+            cs_text(font_id_base + f) = t;
+        }
+    }
+    if (cur_name == str_ptr-1) {
+        flush_str(cur_name);
+        cur_name = get_nullstr();
+    }
 }

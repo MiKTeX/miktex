@@ -505,12 +505,18 @@ static boolean short_scan_something_internal(int cmd, int chr, int level, boolea
                             break;
                         case glue_stretch_order_code:
                         case glue_shrink_order_code:
+                        case eTeX_glue_stretch_order_code:
+                        case eTeX_glue_shrink_order_code:
                             scan_normal_glue();
                             q = cur_val;
-                            if (m == glue_stretch_order_code)
+                            if (m == glue_stretch_order_code || m == eTeX_glue_stretch_order_code) {
                                 cur_val = stretch_order(q);
-                            else
+                            } else {
                                 cur_val = shrink_order(q);
+                            }
+                            if (cur_val && (m == eTeX_glue_stretch_order_code || m == eTeX_glue_shrink_order_code)) {
+                                cur_val = (cur_val == 1) ? - 1 : cur_val - 1;
+                            }
                             flush_node(q);
                             break;
                     }

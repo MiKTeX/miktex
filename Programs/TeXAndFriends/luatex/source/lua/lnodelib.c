@@ -7581,6 +7581,7 @@ static int lua_nodelib_direct_uses_font(lua_State * L)
     halfword p;
     if (type(n) == glyph_node) {
         lua_pushboolean(L,font(n) == f);
+        return 1;
     } else if (type(n) == disc_node) {
         uses_font_disc(pre_break,p,n);
         uses_font_disc(post_break,p,n);
@@ -7598,6 +7599,7 @@ static int lua_nodelib_uses_font(lua_State * L)
     halfword p;
     if (type(n) == glyph_node) {
         lua_pushboolean(L,font(n) == f);
+        return 1;
     } else if (type(n) == disc_node) {
         uses_font_disc(pre_break,p,n);
         uses_font_disc(post_break,p,n);

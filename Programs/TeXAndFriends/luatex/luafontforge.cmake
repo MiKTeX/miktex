@@ -91,13 +91,13 @@ set(luafontforge_sources
   source/luafontloader/fontforge/inc/intl.h
 )
 
-add_library(luatex-lua53fontforge-objects OBJECT ${luafontforge_sources})
+add_library(luatex-luafontforge-objects OBJECT ${luafontforge_sources})
 
-prevent_all_warnings_on_bad_code_target(luatex-lua53fontforge-objects)
+prevent_all_warnings_on_bad_code_target(luatex-luafontforge-objects)
 
-set_property(TARGET luatex-lua53fontforge-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET luatex-luafontforge-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_compile_definitions(luatex-lua53fontforge-objects
+target_compile_definitions(luatex-luafontforge-objects
   PRIVATE
     -DUSE_OUR_MEMORY=1
     -DX_DISPLAY_MISSING=1
@@ -106,13 +106,13 @@ target_compile_definitions(luatex-lua53fontforge-objects
     -DLUA_FF_LIB=1
 )
 
-target_include_directories(luatex-lua53fontforge-objects
+target_include_directories(luatex-luafontforge-objects
   PRIVATE
     source/luafontloader/fontforge/fontforge
     source/luafontloader/fontforge/inc
 )
 
-target_link_libraries(luatex-lua53fontforge-objects
+target_link_libraries(luatex-luafontforge-objects
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
@@ -122,38 +122,8 @@ target_link_libraries(luatex-lua53fontforge-objects
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(luatex-lua53fontforge-objects
+  target_link_libraries(luatex-luafontforge-objects
     PUBLIC
       ${utf8wrap_dll_name}
   )
-endif()
-
-if(WITH_LUA54TEX)
-  add_library(luatex-lua54fontforge-objects OBJECT ${luafontforge_sources})
-  set_property(TARGET luatex-lua54fontforge-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_compile_definitions(luatex-lua54fontforge-objects
-    PRIVATE
-      -DUSE_OUR_MEMORY=1
-      -DX_DISPLAY_MISSING=1
-      -D_NO_PYTHON=1
-  )
-  target_include_directories(luatex-lua54fontforge-objects
-    PRIVATE
-      source/luafontloader/fontforge/fontforge
-      source/luafontloader/fontforge/inc
-  )
-  target_link_libraries(luatex-lua54fontforge-objects
-    PUBLIC
-      ${core_dll_name}
-      ${kpsemu_dll_name}
-      ${lua54_target_name}
-      ${w2cemu_dll_name}
-      luatex-unilib-objects
-  )
-  if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(luatex-lua54fontforge-objects
-      PUBLIC
-        ${utf8wrap_dll_name}
-    )
-  endif()
 endif()

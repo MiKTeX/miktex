@@ -1,5 +1,21 @@
 # MiKTeX Change Log
 
+## 2.9.7250 - 2019-11-12
+
+### New programs
+
+* LuaHBTeX 1.11.2
+
+### Upgraded programs
+
+* LuaTeX 1.11.2
+
+### Fixed issues
+
+* [25](https://github.com/MiKTeX/miktex/issues/25): tex4ht support
+* [328](https://github.com/MiKTeX/miktex/issues/328): initexmf: access denied error
+* [411](https://github.com/MiKTeX/miktex/issues/411): texify does not run bibtex
+
 ## 2.9.7230 - 2019-10-28
 
 Fixed macOS build issues.

@@ -379,16 +379,29 @@ static int get_call_level(lua_State * L) /* hh */
     return 1;
 }
 
+static int get_code_page(lua_State *L)
+{
+# ifdef _WIN32
+    lua_pushinteger(L,(int) GetOEMCP());
+    lua_pushinteger(L,(int) GetACP());
+# else
+    lua_pushboolean(L,0);
+    lua_pushboolean(L,0);
+# endif
+    return 2;
+}
+
 static const struct luaL_Reg lualib[] = {
     /* *INDENT-OFF* */
-    {"getluaname",  get_luaname},
-    {"setluaname",  set_luaname},
+    {"getluaname", get_luaname},
+    {"setluaname", set_luaname},
     {"getbytecode", get_bytecode},
     {"setbytecode", set_bytecode},
-    {"newtable",    new_table},
+    {"newtable", new_table},
     {"get_functions_table",lua_functions_get_table},
-    {"getstacktop",get_stack_top},
+    {"getstacktop", get_stack_top},
     {"getcalllevel", get_call_level},
+    {"getcodepage", get_code_page },
     /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */
 };

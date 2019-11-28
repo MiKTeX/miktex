@@ -27,6 +27,10 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 set(executables
+  rungs
+)
+
+set(internal_executables
   runexe
   runjava
   runperl
@@ -34,16 +38,32 @@ set(executables
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND executables
+  list(APPEND internal_executables
     runbat
   )
 else()
-  list(APPEND executables
+  list(APPEND internal_executables
     runsh
   )
 endif()
 
 foreach(t ${executables})
+  set(${t}_sources ${t}.cpp)
+  if(MIKTEX_NATIVE_WINDOWS)
+    list(APPEND ${t}_sources
+      ${MIKTEX_COMPATIBILITY_MANIFEST}
+    )
+  endif()
+  add_executable(${MIKTEX_PREFIX}${t} ${${t}_sources})
+  set_property(TARGET ${MIKTEX_PREFIX}${t} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  target_link_libraries(${MIKTEX_PREFIX}${t}
+    ${app_dll_name}
+    ${core_dll_name}
+  )
+  install(TARGETS ${MIKTEX_PREFIX}${t} DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
+endforeach()
+
+foreach(t ${internal_executables})
   set(${t}_sources ${t}.cpp)
   if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND ${t}_sources

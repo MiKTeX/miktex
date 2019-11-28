@@ -237,7 +237,7 @@ boolean make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buff, int buflen)
     cidtogidmap = NULL;
     sfont = sfnt_open(buff, buflen);
     if (sfont->type == SFNT_TYPE_TTC) {
-        i = ff_get_ttc_index(fd->fm->ff_name, fd->fm->ps_name);
+        i = fd->fm->subfont > 0 ? (fd->fm->subfont - 1) : ff_get_ttc_index(fd->fm->ff_name, fd->fm->ps_name);
         error = sfnt_read_table_directory(sfont, ttc_read_offset(sfont, (int) i, fd));
     } else {
         error = sfnt_read_table_directory(sfont, 0);
@@ -306,6 +306,7 @@ boolean make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buff, int buflen)
     fontfile = sfnt_create_FontFile_stream(sfont);
     /*tex The |cidgidmap|: */
     if (cidtogidmap != NULL) {
+        /* never seen when ndef NO_GHOSTSCRIPT_BUG */
         cidtogid_obj = (unsigned long) pdf_create_obj(pdf, obj_type_others, 0);
         pdf_begin_obj(pdf, (int) cidtogid_obj, OBJSTM_NEVER);
         pdf_begin_dict(pdf);
@@ -334,6 +335,7 @@ boolean make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buff, int buflen)
                 size_t l = (last_cid / 8) + 1;
                 char *stream = xmalloc(l);
                 memset(stream, 0, l);
+                stream[0] |= 1 << 7; /*tex Force |.notdef| into the map. */
                 for (cid = 1; cid <= (long) last_cid; cid++) {
                     if (used_chars[cid]) {
                         stream[(cid / 8)] |= (1 << (7 - (cid % 8)));

@@ -44,8 +44,8 @@ set(main_ini_names
   bibtexu
   cslatex
   csplain
-  dvilualatex-dev
   dvilualatex
+  dvilualatex-dev
   dviluatex
   dvipdfm
   dvipdfmx
@@ -57,16 +57,16 @@ set(main_ini_names
   frlatex
   frtex
   ftex
-  harflatex
-  harflatex-dev
-  harftex
   jadetex
   lambda
-  latex-dev
   latex
+  latex-dev
   latex209
-  lualatex-dev
+  luahblatex
+  luahblatex-dev
+  luahbtex
   lualatex
+  lualatex-dev
   luatex
   mex
   mllatex
@@ -78,8 +78,8 @@ set(main_ini_names
   pdfcsplain
   pdfelatex
   pdfjadetex
-  pdflatex-dev
   pdflatex
+  pdflatex-dev
   pdfmex
   pdfplatex
   pdftex
@@ -118,7 +118,7 @@ endif()
 
 foreach(i ${main_ini_names} ${inc_ini_names})
   configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/${i}.ini.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/${i}.ini.in
     ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini.body
     NEWLINE_STYLE UNIX
   )

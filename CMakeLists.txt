@@ -420,12 +420,6 @@ option(
 )
 
 option(
-  WITH_HARFTEX
-  "Build HarfTeX."
-  TRUE
-)
-
-option(
   WITH_LIBRESSL_CRYPTO
   "Use the LibreSSL crypto library supplied with MiKTeX."
   ${WIN32}
@@ -471,12 +465,6 @@ option(
   WITH_SYNCTEX
   "Enable SyncTeX extensions."
   TRUE
-)
-
-option(
-  WITH_LUA54TEX
-  "Enable LuaTeX linked to Lua 5.4."
-  FALSE
 )
 
 option(
@@ -537,6 +525,12 @@ option(
   WITH_MAN_PAGES
   "Build man pages."
   ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  WITH_RUNGS
+  "Create rungs, a symbolic link to the miktex-rungs executable."
+  TRUE
 )
 
 option(
@@ -797,12 +791,12 @@ set(MIKTEX_SANDBOX_USER_INSTALL_DIR "${MIKTEX_SANDBOX_BINARY_DIR}" CACHE PATH "M
 set(MIKTEX_SANDBOX_USER_ROOTS "" CACHE PATH  "MiKTeX user roots")
 
 configure_file(
-  sandbox/miktex/config/miktexstartup.ini.cmake
+  sandbox/miktex/config/miktexstartup.ini.in
   ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/config/miktexstartup.ini
 )
 
 configure_file(
-  sandbox/miktex/config/miktex.ini.cmake
+  sandbox/miktex/config/miktex.ini.in
   ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/config/miktex.ini
 )
 
@@ -1353,7 +1347,7 @@ configure_file(
 )
 
 configure_file(
-  BuildUtilities/docbook/catalog.cmake
+  BuildUtilities/docbook/catalog.in
   ${CMAKE_CURRENT_BINARY_DIR}/BuildUtilities/docbook/catalog
 )
 
@@ -2002,10 +1996,6 @@ if(WITH_CONFIG_FILES)
   add_subdirectory(${MIKTEX_REL_CONFIGFILES_DIR})
 endif()
 
-if(WITH_HARFTEX)
-  add_subdirectory(${MIKTEX_REL_HARFTEX_DIR})
-endif()
-
 if(WITH_TPMS)
   add_subdirectory(${MIKTEX_REL_TPM_DIR})
 endif()
@@ -2217,7 +2207,7 @@ set(CPACK_DEBIAN_PACKAGE_SECTION
 )
 
 #configure_file(
-#  "${CMAKE_SOURCE_DIR}/Packaging/deb/config.cmake"
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/config.in"
 #  "${CMAKE_BINARY_DIR}/Packaging/deb/config"
 #)
 
@@ -2226,7 +2216,7 @@ set(CPACK_DEBIAN_PACKAGE_SECTION
 #)
 
 #configure_file(
-#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst.cmake"
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst.in"
 #  "${CMAKE_BINARY_DIR}/Packaging/deb/postinst"
 #)
 
@@ -2235,7 +2225,7 @@ set(CPACK_DEBIAN_PACKAGE_SECTION
 #)
 
 configure_file(
-  "${CMAKE_SOURCE_DIR}/Packaging/deb/prerm.cmake"
+  "${CMAKE_SOURCE_DIR}/Packaging/deb/prerm.in"
   "${CMAKE_BINARY_DIR}/Packaging/deb/prerm"
 )
 
@@ -2244,7 +2234,7 @@ list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
 )
 
 #configure_file(
-#  "${CMAKE_SOURCE_DIR}/Packaging/deb/templates.cmake"
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/templates.in"
 #  "${CMAKE_BINARY_DIR}/Packaging/deb/templates"
 #)
 
@@ -2280,7 +2270,7 @@ set(CPACK_RPM_PACKAGE_URL "${MIKTEX_HQ_BASE_URL_NO_SLASH}")
 set(CPACK_RPM_PACKAGE_AUTOREQ 1)
 
 configure_file(
-  "${CMAKE_SOURCE_DIR}/Packaging/rpm/post-install.sh.cmake"
+  "${CMAKE_SOURCE_DIR}/Packaging/rpm/post-install.sh.in"
   "${CMAKE_BINARY_DIR}/Packaging/rpm/post-install.sh"
 )
 set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE
@@ -2288,7 +2278,7 @@ set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE
 )
 
 configure_file(
-  "${CMAKE_SOURCE_DIR}/Packaging/rpm/pre-uninstall.sh.cmake"
+  "${CMAKE_SOURCE_DIR}/Packaging/rpm/pre-uninstall.sh.in"
   "${CMAKE_BINARY_DIR}/Packaging/rpm/pre-uninstall.sh"
 )
 

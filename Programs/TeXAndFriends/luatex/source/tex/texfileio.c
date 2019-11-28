@@ -353,14 +353,13 @@ boolean lua_a_open_in(alpha_file * f, char *fn, int n)
 boolean lua_a_open_out(alpha_file * f, char *fn, int n)
 {
     boolean test;
-    str_number fnam;
+    char *fnam = NULL;
     int callback_id;
     boolean ret = false;
     callback_id = callback_defined(find_write_file_callback);
     if (callback_id > 0) {
-        fnam = 0;
-        test = run_callback(callback_id, "dS->s", n, fn, &fnam);
-        if ((test) && (fnam != 0) && (str_length(fnam) > 0)) {
+        test = run_callback(callback_id, "dS->R", n, fn, &fnam);
+        if ((test) && (fnam != NULL) && (strlen(fnam) > 0)) {
             /*tex
 
                 There is no message here because if that is needed the macro
@@ -368,7 +367,8 @@ boolean lua_a_open_out(alpha_file * f, char *fn, int n)
                 messaging is left to \LUA\ then.
 
             */
-            ret = open_outfile(f, fn, FOPEN_W_MODE);
+            ret = open_outfile(f, fnam, FOPEN_W_MODE);
+            free(fnam);
         }
     } else {
         if (openoutnameok(fn)) {
@@ -392,15 +392,15 @@ boolean lua_a_open_out(alpha_file * f, char *fn, int n)
 boolean lua_b_open_out(alpha_file * f, char *fn)
 {
     boolean test;
-    str_number fnam;
+    char *fnam = NULL;
     int callback_id;
     boolean ret = false;
     callback_id = callback_defined(find_output_file_callback);
     if (callback_id > 0) {
-        fnam = 0;
-        test = run_callback(callback_id, "S->s", fn, &fnam);
-        if ((test) && (fnam != 0) && (str_length(fnam) > 0)) {
-            ret = open_outfile(f, fn, FOPEN_WBIN_MODE);
+        test = run_callback(callback_id, "S->R", fn, &fnam);
+        if ((test) && (fnam != NULL) && (strlen(fnam) > 0)) {
+            ret = open_outfile(f, fnam, FOPEN_WBIN_MODE);
+            free(fnam);
         }
     } else {
         if (openoutnameok(fn)) {
@@ -958,7 +958,7 @@ void open_log_file(void)
     /*tex should be done always */
     flush_loggable_info();
     /*tex should be done always */
-    selector = old_setting + 2; 
+    selector = old_setting + 2;
 }
 
 /*tex

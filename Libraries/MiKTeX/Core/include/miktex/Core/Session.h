@@ -1402,6 +1402,13 @@ public:
 public:
   virtual int MIKTEXTHISCALL RunExe(int argc, const char** argv) = 0;
 
+  /// Runs Ghostscript.
+  /// @param argc Number of command-line arguments.
+  /// @param argv Pointers to command-line arguments. Must be terminated with `nullptr`.
+  /// @return Returns the exit code.
+public:
+  virtual int MIKTEXTHISCALL RunGhostscript(int argc, const char** argv) = 0;
+
 #if !defined(MIKTEX_WINDOWS)
   /// Executes a shell script.
   /// @param argc Number of command-line arguments.

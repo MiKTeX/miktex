@@ -363,6 +363,9 @@ public:
 public:
   int RunExe(int argc, const char** argv) override;
 
+public:
+  int RunGhostscript(int argc, const char** argv) override;
+
 #if !defined(MIKTEX_WINDOWS)
 public:
   int RunSh(int argc, const char** argv) override;

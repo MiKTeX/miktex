@@ -12,7 +12,7 @@
 # define PPHEAP_NEED_ALIGNMENT
 #endif
 
-#if defined(__sun) && defined(__SVR4)
+#if defined(__sparc)
 # define PPHEAP_NEED_ALIGNMENT
 #endif
  

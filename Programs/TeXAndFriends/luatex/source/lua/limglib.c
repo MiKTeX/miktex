@@ -729,7 +729,8 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
             img_type(d) = IMG_TYPE_PDFSTREAM;
         }
     } else {
-        luaL_error(L, "img.%s can not be set", s);
+        /*tex Let's be a bit more tolerant to adding private keys. */
+     /* luaL_error(L, "img.%s can not be set", s); */
     }
 }
 
