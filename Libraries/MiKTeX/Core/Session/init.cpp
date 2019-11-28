@@ -962,24 +962,14 @@ void SessionImpl::SetEnvironmentVariables()
   if (Utils::GetEnvironmentString("GS_LIB", origGsLib))
   {
     vector<string> origGsLibDirectories = StringUtil::Split(origGsLib, PathName::PathNameDelimiter);
-    vector<string> toBeAdded;
     for (const string& d1 : origGsLibDirectories)
     {
-      bool duplicate = false;
-      for (const string& d2 : gsDirectories)
+      auto it = find_if(gsDirectories.begin(), gsDirectories.end(), [d1](const string& d2) { return PathName::Compare(d1, d2) == 0; });
+      if (it == gsDirectories.end())
       {
-        if (PathName::Compare(d1, d2) == 0)
-        {
-          duplicate = true;
-          break;
-        }
-      }
-      if (!duplicate)
-      {
-        toBeAdded.push_back(d1);
+        gsDirectories.push_back(d1);
       }
     }
-    gsDirectories.insert(gsDirectories.end(), toBeAdded.begin(), toBeAdded.end());
   }
   Utils::SetEnvironmentString("GS_LIB", StringUtil::Flatten(gsDirectories, PathName::PathNameDelimiter));
 #endif
