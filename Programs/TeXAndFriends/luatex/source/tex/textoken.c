@@ -2352,8 +2352,9 @@ void ins_the_toks(void)
 
 */
 
-void combine_the_toks(int how)
+void combine_the_toks(void)
 {
+    halfword how = cur_chr;
     halfword source = null;
     halfword target = null;
     halfword append = (how == 0) || (how == 1) || (how == 4) || (how == 5);

@@ -1171,7 +1171,8 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
       if (File::IsSymbolicLink(linkName))
       {
         PathName linkTarget = File::ReadSymbolicLink(linkName);
-        bool isMiKTeXSymlinked = linkTarget.GetFileName() == PathName(fileLink.target).GetFileName();
+	string linkTargetFileName = linkTarget.GetFileName().ToString();
+        bool isMiKTeXSymlinked = linkTargetFileName.find(MIKTEX_PREFIX) == 0 || linkTargetFileName == PathName(fileLink.target).GetFileName();
         if (!isMiKTeXSymlinked)
         {
           if (File::Exists(linkTarget))
@@ -1395,9 +1396,6 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_GFTOPK_EXE, { "gftopk" } },
   { MIKTEX_GFTYPE_EXE, { "gftype" } },
   { MIKTEX_GREGORIO_EXE, { "gregorio" } },
-#if defined(WITH_HARFTEX)
-  { MIKTEX_HARFTEX_EXE, { "harftex", MIKTEX_HARFLATEX_EXE } },
-#endif
   { MIKTEX_HBF2GF_EXE, { "hbf2gf" } },
   { MIKTEX_LACHECK_EXE, { "lacheck" } },
   { MIKTEX_MAKEBASE_EXE, { "makebase" } },
@@ -1449,6 +1447,9 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
   { MIKTEX_XETEX_EXE, { "xetex", MIKTEX_XELATEX_EXE } },
+#if defined(WITH_RUNGS)
+  { MIKTEX_RUNGS_EXE, { "rungs" } },
+#endif
 #if defined(WITH_KPSEWHICH)
   { MIKTEX_KPSEWHICH_EXE, { "kpsewhich" } },
 #endif
@@ -1497,15 +1498,9 @@ vector<FileLink> miktexFileLinks =
 
 vector<FileLink> lua52texLinks =
 {
+  { MIKTEX_LUAHBTEX_EXE, { "luahbtex", MIKTEX_LUAHBLATEX_EXE } },
   { MIKTEX_LUATEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
 };
-
-#if defined(WITH_LUA54TEX)
-vector<FileLink> lua54texLinks =
-{
-  { MIKTEX_LUA54TEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
-};
-#endif
 
 vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
 {
@@ -1515,34 +1510,10 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
 
   Verbose(fmt::format(T_("Creating links in target directory {0}..."), linkTargetDirectory));
 
-#if defined(WITH_LUA54TEX)
-  bool useLua54 = false;
-  string luaver;
-  if (session->TryGetConfigValue("luatex", "luaver", luaver))
-  {
-    if (luaver != "5.3" && luaver != "5.4")
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Invalid configuration value."), "name", "luaver", "value", luaver);
-    }
-    useLua54 = luaver == "5.4";
-  }
-#endif
-
   if (linkCategories[LinkCategory::MiKTeX])
   {
     vector<FileLink> links = miktexFileLinks;
-#if defined(WITH_LUA54TEX)
-    if (useLua54)
-    {
-      links.insert(links.end(), lua54texLinks.begin(), lua54texLinks.end());
-    }
-    else
-    {
-      links.insert(links.end(), lua52texLinks.begin(), lua52texLinks.end());
-    }
-#else
     links.insert(links.end(), lua52texLinks.begin(), lua52texLinks.end());
-#endif
 #if defined(MIKTEX_MACOS_BUNDLE)
     PathName console(session->GetSpecialPath(SpecialPath::MacOsDirectory) / MIKTEX_MACOS_BUNDLE_NAME);
     links.push_back(FileLink(console.ToString(), { MIKTEX_CONSOLE_EXE }, LinkType::Symbolic));
@@ -1593,12 +1564,6 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
         continue;
       }
       string engine = formatInfo.compiler;
-#if defined(WITH_LUA54TEX)
-      if (engine == "luatex" && useLua54)
-      {
-        engine = "lua54tex";
-      }
-#endif
       PathName enginePath;
       if (!session->FindFile(string(MIKTEX_PREFIX) + engine, FileType::EXE, enginePath))
       {
@@ -1633,12 +1598,6 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       wrapper.AppendDirectoryDelimiter();
       wrapper.Append("run", false);
       wrapper.Append(key->GetName(), false);
-#if defined(WITH_LUA54TEX)
-      if (useLua54 && key->GetName() == "texlua")
-      {
-        wrapper.Append("54", false);
-      }
-#endif
       wrapper.Append(MIKTEX_EXE_FILE_SUFFIX, false);
       if (!File::Exists(wrapper))
       {

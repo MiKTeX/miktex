@@ -25,14 +25,6 @@ else()
   set(lua53_target_name ${lua53_dll_name})
 endif()
 
-if(WITH_LUA54TEX)
-  if(MIKTEX_LINUX_DIST_CODE_NAME STREQUAL "xenial")
-    set(lua54_target_name ${lua54_lib_name})
-  else()
-    set(lua54_target_name ${lua54_dll_name})
-  endif()
-endif()
-
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -61,20 +53,17 @@ if(WITH_CONTEXT_SUPPORT)
   add_definitions(-DWITH_CONTEXT_SUPPORT=1)
 endif()
 
-include(miktex.cmake)
-include(luasocket.cmake)
+include(libluatex.cmake)
+include(libunilib.cmake)
+include(luaffi.cmake)
+include(luafontforge.cmake)
+include(luaharfbuzz.cmake)
 include(luamisc.cmake)
 include(luapplib.cmake)
-include(libunilib.cmake)
-include(luafontforge.cmake)
-include(luaffi.cmake)
-include(libluatex.cmake)
+include(luasocket.cmake)
+include(miktex.cmake)
 
-###############################################################################
-## luatex
-###############################################################################
-
-set(luatex_sources
+set(common_engine_sources
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_MP_DIR}/source/lmplib.c
   luatex-version.h
   source/luatex.c
@@ -82,26 +71,13 @@ set(luatex_sources
   source/luatex_svnversion.h
 )
 
-set(lua53tex_program_sources ${luatex_sources})
-
-if(MIKTEX_NATIVE_WINDOWS)
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/luatex.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
-    )
-  list(APPEND lua53tex_program_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
-  )
-endif()
-
-set(libs
+set(common_engine_libs
   luatex-miktex-objects
   luatex-unilib-objects
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND libs
+  list(APPEND common_engine_libs
     ${getopt_dll_name}
     ${unxemu_dll_name}
     ${utf8wrap_dll_name}
@@ -110,73 +86,91 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-set(libs53 ${libs})
-list(APPEND libs53
+list(APPEND common_engine_libs
   ${lua53_target_name}
-  luatex-lua53fontforge-objects
-  luatex-lua53ffi-objects
-  luatex-lua53misc-objects
-  luatex-lua53pplib-objects
-  luatex-lua53socket-objects
-  luatex-lua53tex-objects
+  luatex-common-engine-objects
+  luatex-luafontforge-objects
+  luatex-luaffi-objects
+  luatex-luamisc-objects
+  luatex-luapplib-objects
+  luatex-luasocket-objects
 )
 
-if(WITH_LUA54TEX)
-  set(lua54tex_program_sources ${luatex_sources})
-  if(MIKTEX_NATIVE_WINDOWS)
-    configure_file(
-      ${CMAKE_CURRENT_SOURCE_DIR}/lua54tex.rc.in
-      ${CMAKE_CURRENT_BINARY_DIR}/lua54tex.rc
-    )
-    list(APPEND lua54tex_program_sources
-      ${CMAKE_CURRENT_BINARY_DIR}/lua54tex.rc
-      ${MIKTEX_COMPATIBILITY_MANIFEST}
-    )
-  endif()
-endif()
+###############################################################################
+## luatex
+###############################################################################
 
-if(WITH_LUA54TEX)
-  set(libs54 ${libs})
-  list(APPEND libs54
-    ${lua54_target_name}
-    luatex-lua54fontforge-objects
-    luatex-lua54ffi-objects
-    luatex-lua54misc-objects
-    luatex-lua54pplib-objects
-    luatex-lua54socket-objects
-    luatex-lua54tex-objects
+set(luatex_sources ${common_engine_sources})
+
+if(MIKTEX_NATIVE_WINDOWS)
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/luatex.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
+    )
+  list(APPEND luatex_sources
+    ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
 endif()
 
-set(program_libs53 ${libs53})
+set(luatex_libs
+  ${common_engine_libs}
+  luatex-engine-objects
+)
 
-if(WITH_LUA54TEX)
-  set(program_libs54 ${libs54})
-endif()
-
-add_executable(${MIKTEX_PREFIX}luatex ${lua53tex_program_sources} ${MIKTEX_LIBRARY_WRAPPER})
+add_executable(${MIKTEX_PREFIX}luatex ${luatex_sources} ${MIKTEX_LIBRARY_WRAPPER})
 
 set_property(TARGET ${MIKTEX_PREFIX}luatex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(${MIKTEX_PREFIX}luatex
-  ${program_libs53}
+  ${luatex_libs}
 )
+
 install(TARGETS ${MIKTEX_PREFIX}luatex DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
 
-if(WITH_LUA54TEX)
-  add_executable(${MIKTEX_PREFIX}lua54tex ${lua54tex_program_sources} ${MIKTEX_LIBRARY_WRAPPER})
-  set_property(TARGET ${MIKTEX_PREFIX}lua54tex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_link_libraries(${MIKTEX_PREFIX}lua54tex
-    ${program_libs54}
+###############################################################################
+## luahbtex
+###############################################################################
+
+set(luahbtex_sources ${common_engine_sources})
+
+if(MIKTEX_NATIVE_WINDOWS)
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/luahbtex.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/luahbtex.rc
+    )
+  list(APPEND luahbtex_sources
+    ${CMAKE_CURRENT_BINARY_DIR}/luahbtex.rc
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
-  install(TARGETS ${MIKTEX_PREFIX}lua54tex DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
 endif()
+
+set(luahbtex_libs
+  ${common_engine_libs}
+  luahbtex-engine-objects
+  luahbtex-luaharfbuzz-objects
+)
+
+add_executable(${MIKTEX_PREFIX}luahbtex ${luahbtex_sources} ${MIKTEX_LIBRARY_WRAPPER})
+
+set_property(TARGET ${MIKTEX_PREFIX}luahbtex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_compile_definitions(${MIKTEX_PREFIX}luahbtex
+  PRIVATE
+    -DLUATEX_HARFBUZZ_ENABLED
+)
+
+target_link_libraries(${MIKTEX_PREFIX}luahbtex
+  ${luahbtex_libs}
+)
+
+install(TARGETS ${MIKTEX_PREFIX}luahbtex DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
 
 ###############################################################################
 ## runtexlua
 ###############################################################################
 
-add_executable(runtexlua ${lua53tex_program_sources} runtexlua.cpp)
+add_executable(runtexlua ${luatex_sources} runtexlua.cpp)
 
 set_property(TARGET runtexlua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
@@ -189,36 +183,20 @@ else()
 endif()
 
 target_link_libraries(runtexlua
-  ${program_libs53}
+  ${luatex_libs}
 )
 
 install(TARGETS runtexlua DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
-
-if(WITH_LUA54TEX)
-  add_executable(runtexlua54 ${lua54tex_program_sources} runtexlua.cpp)
-  set_property(TARGET runtexlua54 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  if(MIKTEX_MACOS_BUNDLE)
-    set_target_properties(runtexlua54 PROPERTIES INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
-  elseif(APPLE)
-    set_target_properties(runtexlua54 PROPERTIES INSTALL_RPATH "@loader_path/../../${CMAKE_INSTALL_LIBDIR}")
-  else()
-    set_target_properties(runtexlua54 PROPERTIES INSTALL_RPATH "$ORIGIN/../../${CMAKE_INSTALL_LIBDIR}")
-  endif()
-  target_link_libraries(runtexlua54
-    ${program_libs54}
-  )
-  install(TARGETS runtexlua54 DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
-endif()
 
 ###############################################################################
 ## runmtxrun
 ###############################################################################
 
 if(WITH_CONTEXT_SUPPORT)
-  add_executable(runmtxrun ${luatex_sources} runmtxrun.cpp)
+  add_executable(runmtxrun ${common_engine_sources} runmtxrun.cpp)
   set_property(TARGET runmtxrun PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   target_link_libraries(runmtxrun
-    ${program_libs}
+    ${luatex_libs}
   )
   install(TARGETS runmtxrun DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
 endif()

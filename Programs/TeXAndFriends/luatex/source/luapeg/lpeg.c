@@ -390,10 +390,27 @@ static int removedyncap (lua_State *L, Capture *capture,
 
 
 /*
-** Opcode interpreter
+** Opcode interpreter luajit aarch64
 */
+/* luajit aarch64  */
+/* https://github.com/LuaJIT/LuaJIT/pull/230#issuecomment-260205661 */
+/* We play safe on arm64  assuming a virtual address bits VA_BITS >47, 
+/* even if a  Linux kernel  can be configured with VA_BITS < 47 */
+/* and lightuserdata is ok then.  Anyway, */
+/* replacing lightuserdata with full userdata seems ok wrt performance. */
+/* No need to free a userdata, it's GC */
 const char *match (lua_State *L, const char *o, const char *s, const char *e,
                    Instruction *op, Capture *capture, int ptop) {
+#if defined(__aarch64__) && defined(LuajitTeX) 
+  Stack *stackbase = (Stack*)lua_newuserdata(L,sizeof(Stack)*INITBACK);
+  Stack *stacklimit = stackbase + INITBACK;
+  Stack *stack = stackbase;  /* point to first empty slot in stack */
+  int capsize = INITCAPSIZE;
+  int captop = 0;  /* point to first empty slot in captures */
+  int ndyncap = 0;  /* number of dynamic captures (in Lua stack) */
+  const Instruction *p = op;  /* current instruction */
+  stack->p = &giveup; stack->s = s; stack->caplevel = 0; stack++;
+#else
   Stack stackbase[INITBACK];
   Stack *stacklimit = stackbase + INITBACK;
   Stack *stack = stackbase;  /* point to first empty slot in stack */
@@ -403,6 +420,7 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
   const Instruction *p = op;  /* current instruction */
   stack->p = &giveup; stack->s = s; stack->caplevel = 0; stack++;
   lua_pushlightuserdata(L, stackbase);
+#endif  
   for (;;) {
 #if defined(DEBUG)
       printf("-------------------------------------\n");
@@ -3315,16 +3333,25 @@ static size_t initposition (lua_State *L, size_t len) {
 ** Main match function
 */
 static int lp_match (lua_State *L) {
+#if defined(__aarch64__) && defined(LuajitTeX)
+  Capture *capture; 
+#else
   Capture capture[INITCAPSIZE];
+#endif
   const char *r;
   size_t l;
+  int ret_val;
   Pattern *p = (getpatt(L, 1, NULL), getpattern(L, 1));
   Instruction *code = (p->code != NULL) ? p->code : prepcompile(L, p, 1);
   const char *s = luaL_checklstring(L, SUBJIDX, &l);
   size_t i = initposition(L, l);
   int ptop = lua_gettop(L);
   lua_pushnil(L);  /* initialize subscache */
+#if defined(__aarch64__) && defined(LuajitTeX)
+  capture = (Capture *)lua_newuserdata(L, sizeof(Capture)*INITCAPSIZE);
+#else
   lua_pushlightuserdata(L, capture);  /* initialize caplistidx */
+#endif
   lua_getuservalue(L, 1);  /* initialize penvidx */
   r = match(L, s, s + i, s + l, code, capture, ptop);
   if (r == NULL) {

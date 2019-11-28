@@ -140,13 +140,18 @@ int lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_hea
         luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
         return ret;
     }
-    lua_settop(Luas, s_top);
+    /*tex This should prevent a stack overflow (see r6689), */
+    /*tex but as side effect it discards the ouput */
+    /*tex of the linebreak_filter, see [Dev-luatex] linebreak_filter */
+    /*tex lua_settop(Luas, s_top);*/
     p = lua_touserdata(Luas, -1);
     if (p != NULL) {
         a = nodelist_from_lua(Luas,-1);
         try_couple_nodes(*new_head,a);
         ret = 1;
     }
+    /*tex re-inserted this line */
+    lua_settop(Luas, s_top);
     return ret;
 }
 

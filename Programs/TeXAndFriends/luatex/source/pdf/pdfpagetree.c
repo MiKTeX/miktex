@@ -162,7 +162,7 @@ void pdf_do_page_undivert(int divnum, int curdivnum)
 
 /*tex Write a |/Pages| object. */
 
-static void write_pages(PDF pdf, pages_entry * p, int parent, int callback_id)
+static void write_pages(PDF pdf, pages_entry * p, int parent)
 {
     int i;
     int pages_attributes ;
@@ -185,19 +185,7 @@ static void write_pages(PDF pdf, pages_entry * p, int parent, int callback_id)
     pdf_add_name(pdf, "Kids");
     pdf_begin_array(pdf);
     for (i = 0; i < p->number_of_kids; i++) {
-        if (callback_id) {
-            /* new */
-            int objnum = (int) p->kids[i];
-            if (obj_type(pdf, objnum) == obj_type_page) {
-                run_callback(callback_id, "d->d", objnum, &objnum);
-                check_obj_exists(pdf, objnum);
-                pdf_add_ref(pdf, (int) objnum);
-            } else {
-                pdf_add_ref(pdf, (int) p->kids[i]);
-            }
-        } else {
-            pdf_add_ref(pdf, (int) p->kids[i]);
-        }
+        pdf_add_ref(pdf, (int) p->kids[i]);
     }
     pdf_end_array(pdf);
     pdf_end_dict(pdf);
@@ -211,12 +199,12 @@ static void write_pages(PDF pdf, pages_entry * p, int parent, int callback_id)
 
 */
 
-static int output_pages_list(PDF pdf, pages_entry * pe, int callback_id)
+static int output_pages_list(PDF pdf, pages_entry * pe)
 {
     pages_entry *p, *q, *r;
     if (pe->next == NULL) {
         /*tex Everything fits into one |pages_entry|. */
-        write_pages(pdf, pe, 0, callback_id);
+        write_pages(pdf, pe, 0);
         return pe->objnum;
     }
     /*tex One level higher needed. */
@@ -228,19 +216,18 @@ static int output_pages_list(PDF pdf, pages_entry * pe, int callback_id)
         }
         q->kids[q->number_of_kids++] = p->objnum;
         q->number_of_pages += p->number_of_pages;
-        write_pages(pdf, p, q->objnum, callback_id);
+        write_pages(pdf, p, q->objnum);
     }
     /*tex Recurse through next higher level. */
-    return output_pages_list(pdf, r, callback_id);
+    return output_pages_list(pdf, r);
 }
 
 int output_pages_tree(PDF pdf)
 {
-    int callback_id = callback_defined(page_objnum_provider_callback);
     divert_list_entry *d;
     /*tex Concatenate all diversions into diversion 0. */
     pdf_do_page_undivert(0, 0);
     /*tex Get diversion 0. */
     d = get_divert_list(0);
-    return output_pages_list(pdf, d->first, callback_id);
+    return output_pages_list(pdf, d->first);
 }

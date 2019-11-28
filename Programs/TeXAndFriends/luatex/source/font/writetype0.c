@@ -48,8 +48,7 @@ void writetype0(PDF pdf, fd_entry * fd)
     assert(is_included(fd_cur->fm));
     ttf_curbyte = 0;
     ttf_size = 0;
-    cur_file_name =
-        luatex_find_file(fd_cur->fm->ff_name, find_opentype_file_callback);
+    cur_file_name = luatex_find_file(fd_cur->fm->ff_name, find_opentype_file_callback);
     if (cur_file_name == NULL) {
         cur_file_name =
             luatex_find_file(fd_cur->fm->ff_name, find_truetype_file_callback);
@@ -75,18 +74,15 @@ void writetype0(PDF pdf, fd_entry * fd)
     fd_cur->ff_found = true;
     sfont = sfnt_open(ttf_buffer, ttf_size);
     if (sfont->type == SFNT_TYPE_TTC)
-        i = ff_get_ttc_index(fd->fm->ff_name, fd->fm->ps_name);
-
+        i = fd->fm->subfont > 0 ? (fd->fm->subfont - 1): ff_get_ttc_index(fd->fm->ff_name, fd->fm->ps_name);
     if (is_subsetted(fd_cur->fm)) {
         report_start_file(filetype_subset, cur_file_name);
     } else {
         report_start_file(filetype_font, cur_file_name);
     }
-
     if (sfont->type == SFNT_TYPE_TTC) otc_read_tabdir(i);
     else ttf_read_tabdir();
     sfnt_close(sfont);
-
     /*tex Read font parameters: */
     if (ttf_name_lookup("head", false) != NULL)
         ttf_read_head();

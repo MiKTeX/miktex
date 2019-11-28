@@ -189,6 +189,9 @@ static const luaL_Reg lualibs[] = {
 #endif
     { "ffi",       luaopen_ffi },
     /*tex more libraries will be loaded later */
+#ifdef LUATEX_HARFBUZZ_ENABLED
+    { "luaharfbuzz", luaopen_luaharfbuzz },
+#endif
     { NULL,        NULL }
 };
 

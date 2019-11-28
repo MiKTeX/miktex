@@ -29,40 +29,22 @@ set(luaffi_sources
   source/luaffi/parser.c
 ) 
 
-add_library(luatex-lua53ffi-objects OBJECT ${luaffi_sources})
+add_library(luatex-luaffi-objects OBJECT ${luaffi_sources})
 
-set_property(TARGET luatex-lua53ffi-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET luatex-luaffi-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_include_directories(luatex-lua53ffi-objects
+target_include_directories(luatex-luaffi-objects
   PRIVATE
     source/luaffi/dynasm
 )
 
-target_link_libraries(luatex-lua53ffi-objects
+target_link_libraries(luatex-luaffi-objects
   PUBLIC
     ${CMAKE_DL_LIBS}
     ${lua53_target_name}
 )
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(luatex-lua53ffi-objects PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(luatex-luaffi-objects PUBLIC MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(luatex-lua53ffi-objects PUBLIC ${zlib_dll_name})
-endif()
-
-if(WITH_LUA54TEX)
-  add_library(luatex-lua54ffi-objects OBJECT ${luaffi_sources})
-  set_property(TARGET luatex-lua54ffi-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_include_directories(luatex-lua54ffi-objects
-    PRIVATE
-      source/luaffi/dynasm
-  )
-  target_link_libraries(luatex-lua54ffi-objects
-    PUBLIC
-      ${lua54_target_name}
-  )
-  if(USE_SYSTEM_ZLIB)
-    target_link_libraries(luatex-lua54ffi-objects PUBLIC MiKTeX::Imported::ZLIB)
-  else()
-    target_link_libraries(luatex-lua54ffi-objects PUBLIC ${zlib_dll_name})
-  endif()
+  target_link_libraries(luatex-luaffi-objects PUBLIC ${zlib_dll_name})
 endif()

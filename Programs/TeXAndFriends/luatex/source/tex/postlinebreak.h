@@ -1,5 +1,5 @@
 /* postlinebreak.h
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -21,13 +21,10 @@
 #ifndef POSTLINEBREAK_H
 #  define POSTLINEBREAK_H
 
-/* todo: check this macro, especially  values of alink() */
-
-#  define append_list(A,B)  do {                                          \
-     vlink(cur_list.tail_field) = vlink((A));                           \
-     cur_list.tail_field = (B);                                         \
-   } while (0)
-
+# define append_list(A,B) do { \
+    couple_nodes(cur_list.tail_field,vlink((A))); \
+    cur_list.tail_field = (B); \
+} while (0)
 
 void ext_post_line_break(int paragraph_dir,
                          int right_skip,

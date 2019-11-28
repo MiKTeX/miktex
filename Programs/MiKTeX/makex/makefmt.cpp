@@ -51,9 +51,7 @@ enum class Engine
   TeX,
   pdfTeX,
   XeTeX,
-#if defined(WITH_HARFTEX)
-  HarfTeX,
-#endif
+  LuaHBTeX,
   Omega,
 };
 
@@ -131,12 +129,10 @@ private:
     {
       this->engine = Engine::XeTeX;
     }
-#if defined(WITH_HARFTEX)
-    else if (Utils::EqualsIgnoreCase(engine, "harftex"))
+    else if (Utils::EqualsIgnoreCase(engine, "luahbtex"))
     {
-      this->engine = Engine::HarfTeX;
+      this->engine = Engine::LuaHBTeX;
     }
-#endif
     else if (Utils::EqualsIgnoreCase(engine, "omega"))
     {
       this->engine = Engine::Omega;
@@ -166,10 +162,8 @@ private:
       return "pdftex";
     case Engine::XeTeX:
       return "xetex";
-#if defined(WITH_HARFTEX)
-    case Engine::HarfTeX:
-      return "harftex";
-#endif
+    case Engine::LuaHBTeX:
+      return "luahbtex";
     case Engine::Omega:
       return "omega";
     }
@@ -182,21 +176,15 @@ private:
     switch (engine)
     {
     case Engine::LuaTeX:
-#if defined(WITH_LUA54TEX)
-      return useLua54 ? MIKTEX_LUA54TEX_EXE : MIKTEX_LUATEX_EXE;
-#else
       return MIKTEX_LUATEX_EXE;
-#endif
     case Engine::TeX:
       return MIKTEX_TEX_EXE;
     case Engine::pdfTeX:
       return MIKTEX_PDFTEX_EXE;
     case Engine::XeTeX:
       return MIKTEX_XETEX_EXE;
-#if defined(WITH_HARFTEX)
-    case Engine::HarfTeX:
-      return MIKTEX_HARFTEX_EXE;
-#endif
+    case Engine::LuaHBTeX:
+      return MIKTEX_LUAHBTEX_EXE;
     case Engine::Omega:
       return MIKTEX_OMEGA_EXE;
     }
@@ -210,9 +198,7 @@ private:
   bool IsPdf() const
   {
     bool result = engine == Engine::LuaTeX || engine == Engine::pdfTeX;
-#if defined(WITH_HARFTEX)
-    result = result || engine == Engine::HarfTeX;
-#endif
+    result = result || engine == Engine::LuaHBTeX;
     return result;
   }
 
@@ -220,9 +206,7 @@ private:
   bool IsExtended() const
   {
     bool result = engine == Engine::LuaTeX || engine == Engine::pdfTeX || engine == Engine::XeTeX;
-#if defined(WITH_HARFTEX)
-    result = result || engine == Engine::HarfTeX;
-#endif
+    result = result || engine == Engine::LuaHBTeX;
     return result;
   }
 
@@ -252,11 +236,6 @@ private:
 
 private:
   vector<string> engineOptions;
-
-#if defined(WITH_LUA54TEX)
-private:
-  bool useLua54 = false;
-#endif
 };
 
 void MakeFmt::Usage()
@@ -372,18 +351,6 @@ void MakeFmt::InstallPdftexConfigTeX() const
 
 void MakeFmt::Run(int argc, const char** argv)
 {
-#if defined(WITH_LUA54TEX)
-  string luaver;
-  if (session->TryGetConfigValue("luatex", "luaver", luaver))
-  {
-    if (luaver != "5.3" && luaver != "5.4")
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Invalid configuration value."), "name", "luaver", "value", luaver);
-    }
-    useLua54 = luaver == "5.4";
-  }
-#endif
-
   // get options and file name
   int optionIndex = 0;
   GetOptions(argc, argv, aLongOptions, optionIndex);
@@ -446,9 +413,7 @@ void MakeFmt::Run(int argc, const char** argv)
     arguments.push_back("&"s + preloadedFormat);
   }
   bool isLuaTeX = engine == Engine::LuaTeX;
-#if defined(WITH_HARFTEX)
-  isLuaTeX = isLuaTeX || engine == Engine::HarfTeX;
-#endif
+  isLuaTeX = isLuaTeX || engine == Engine::LuaHBTeX;
   if (!isLuaTeX && IsExtended() && preloadedFormat.empty())
   {
     arguments.push_back("--enable-etex");

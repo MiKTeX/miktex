@@ -32,68 +32,37 @@ set(luamisc_sources
   source/slnunicode/slnunico.c
 )
 
-add_library(luatex-lua53misc-objects OBJECT ${luamisc_sources})
+add_library(luatex-luamisc-objects OBJECT ${luamisc_sources})
 
-set_property(TARGET luatex-lua53misc-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET luatex-luamisc-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_compile_definitions(luatex-lua53misc-objects
+target_compile_definitions(luatex-luamisc-objects
   PRIVATE
     -DLUAZIP_API=
 )
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(luatex-lua53misc-objects PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(luatex-luamisc-objects PUBLIC MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(luatex-lua53misc-objects PUBLIC ${zlib_dll_name})
+  target_link_libraries(luatex-luamisc-objects PUBLIC ${zlib_dll_name})
 endif()
 
 if(USE_SYSTEM_ZZIP)
-  target_link_libraries(luatex-lua53misc-objects PUBLIC MiKTeX::Imported::ZZIP)
+  target_link_libraries(luatex-luamisc-objects PUBLIC MiKTeX::Imported::ZZIP)
 else()
-  target_link_libraries(luatex-lua53misc-objects PUBLIC ${zzip_dll_name})
+  target_link_libraries(luatex-luamisc-objects PUBLIC ${zzip_dll_name})
 endif()
 
-target_link_libraries(luatex-lua53misc-objects
+target_link_libraries(luatex-luamisc-objects
   PUBLIC
     ${core_dll_name}
     ${lua53_target_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(luatex-lua53misc-objects
+  target_link_libraries(luatex-luamisc-objects
     PUBLIC
       ${unxemu_dll_name}
       ${utf8wrap_dll_name}
   )
-endif()
-
-if(WITH_LUA54TEX)
-  add_library(luatex-lua54misc-objects OBJECT ${luamisc_sources})
-  set_property(TARGET luatex-lua54misc-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_compile_definitions(luatex-lua53misc-objects
-    PRIVATE
-      -DLUAZIP_API=
-  )
-  if(USE_SYSTEM_ZLIB)
-    target_link_libraries(luatex-lua54misc-objects PUBLIC MiKTeX::Imported::ZLIB)
-  else()
-    target_link_libraries(luatex-lua54misc-objects PUBLIC ${zlib_dll_name})
-  endif()
-  if(USE_SYSTEM_ZZIP)
-    target_link_libraries(luatex-lua54misc-objects PUBLIC MiKTeX::Imported::ZZIP)
-  else()
-    target_link_libraries(luatex-lua54misc-objects PUBLIC ${zzip_dll_name})
-  endif()
-  target_link_libraries(luatex-lua54misc-objects
-    PUBLIC
-      ${core_dll_name}
-      ${lua54_target_name}
-  )
-  if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(luatex-lua54misc-objects
-      PUBLIC
-        ${unxemu_dll_name}
-        ${utf8wrap_dll_name}
-    )
-  endif()
 endif()

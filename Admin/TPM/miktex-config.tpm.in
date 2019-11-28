@@ -33,14 +33,14 @@ texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/formats.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/frlatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/frtex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/ftex.ini
-texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/harflatex-dev.ini
-texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/harflatex.ini
-texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/harftex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/jadetex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lambda.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex-dev.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex209.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/luahblatex-dev.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/luahblatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/luahbtex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lualatex-dev.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lualatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/luatex.ini

@@ -1,13 +1,13 @@
--- luatex-core security and io overloads ...........
+-- luatex-core security and io overloads ..
 
 -- if not modules then modules = { } end modules ['luatex-core'] = {
---     version   = 1.080,
+--     version   = 1.112,
 --     comment   = 'companion to luatex',
 --     author    = 'Hans Hagen & Luigi Scarso',
 --     copyright = 'LuaTeX Development Team',
 -- }
 
-LUATEXCOREVERSION = 1.080 -- we reflect the luatex version where changes happened
+LUATEXCOREVERSION = 1.112 -- we reflect the luatex version where changes happened
 
 -- This file overloads some Lua functions. The readline variants provide the same
 -- functionality as LuaTeX <= 1.04 and doing it this way permits us to keep the
@@ -16,124 +16,134 @@ LUATEXCOREVERSION = 1.080 -- we reflect the luatex version where changes happene
 -- We test for functions already being defined so that we don't overload ones that
 -- are provided in the startup script.
 
-local type, next, getmetatable, require = type, next, getmetatable, require
-local find, gsub, format = string.find, string.gsub, string.format
-
-local io_open             = io.open
-local io_popen            = io.popen
-local io_lines            = io.lines
-
-local fio_readline        = fio.readline
-local fio_checkpermission = fio.checkpermission
-local fio_recordfilename  = fio.recordfilename
-
-local mt                  = getmetatable(io.stderr)
-local mt_lines            = mt.lines
-local saferoption         = status.safer_option
-local shellescape         = status.shell_escape -- 0 (disabled) 1 (anything) 2 (restricted)
-local kpseused            = status.kpse_used    -- 0 1
-
-local write_nl            = texio.write_nl
-
-io.saved_lines            = io_lines -- always readonly
-mt.saved_lines            = mt_lines -- always readonly
-
-local function luatex_io_open(name,how)
-    if not how then
-        how = 'r'
-    end
-    local f = io_open(name,how)
-    if f then
-        if type(how) == 'string' and find(how,'w') then
-            fio_recordfilename(name,'w')
-        else
-            fio_recordfilename(name,'r')
-        end
-    end
-    return f
-end
-
-local function luatex_io_open_readonly(name,how)
-    if not how then
-        how = 'r'
-    else
-        how = gsub(how,'[^rb]','')
-        if how == '' then
-            how = 'r'
-        end
-    end
-    local f = io_open(name,how)
-    if f then
-        fio_recordfilename(name,'r')
-    end
-    return f
-end
-
-local function luatex_io_popen(name,...)
-    local okay, found = fio_checkpermission(name)
-    if okay and found then
-        return io_popen(found,...)
-    end
-end
-
--- local function luatex_io_lines(name,how)
---     if name then
---         local f = io_open(name,how or 'r')
---         if f then
---             return function()
---                 return fio_readline(f)
---             end
---         end
---     else
---         return io_lines()
---     end
--- end
-
--- For some reason the gc doesn't kick in so we need to close explitly
--- so that the handle is flushed.
-
-local error, type = error, type
-
-local function luatex_io_lines(name,how)
-    if type(name) == "string" then
-        local f = io_open(name,how or 'r')
-        if f then
-            return function()
-                local l = fio_readline(f)
-                if not l then
-                    f:close()
-                end
-                return l
-            end
-        else
-            -- for those who like it this way:
-            error("patched 'io.lines' can't open '" .. name .. "'")
-        end
-    else
-        return io_lines()
-    end
-end
-
-local function luatex_io_readline(f)
-    return function()
-        return fio_readline(f)
-    end
-end
-
-io.lines = luatex_io_lines
-mt.lines = luatex_io_readline
-
--- We assume management to be provided by the replacement of kpse. This is the
--- case in ConTeXt.
+local saferoption = status.safer_option
+local shellescape = status.shell_escape -- 0 (disabled) 1 (anything) 2 (restricted)
+local kpseused    = status.kpse_used    -- 0 1
 
 if kpseused == 1 then
+
+    local type = type
+    local gsub = string.gsub
+    local find = string.find
+
+    local mt                    = getmetatable(io.stderr)
+    local mt_lines              = mt.lines
+
+    local kpse_checkpermission  = kpse.check_permission
+    local kpse_recordinputfile  = kpse.record_input_file
+    local kpse_recordoutputfile = kpse.record_output_file
+
+    local io_open               = io.open
+    local io_popen              = io.popen
+    local io_lines              = io.lines
+
+    local fio_readline          = fio.readline
+
+    local write_nl              = texio.write_nl
+
+    io.saved_lines              = io_lines -- always readonly
+    mt.saved_lines              = mt_lines -- always readonly
+
+    local function luatex_io_open(name,how)
+        if not how then
+            how = 'r'
+        end
+        local f = io_open(name,how)
+        if f then
+            if type(how) == 'string' and find(how,'w') then
+                kpse_recordoutputfile(name,'w')
+            else
+                kpse_recordinputfile(name,'r')
+            end
+        end
+        return f
+    end
+
+    local function luatex_io_open_readonly(name,how)
+        if not how then
+            how = 'r'
+        else
+            how = gsub(how,'[^rb]','')
+            if how == '' then
+                how = 'r'
+            end
+        end
+        local f = io_open(name,how)
+        if f then
+            fio_recordfilename(name,'r')
+        end
+        return f
+    end
+
+    local function luatex_io_popen(name,...)
+        local okay, found = kpse_checkpermission(name)
+        if okay and found then
+            return io_popen(found,...)
+        end
+    end
+
+    -- local function luatex_io_lines(name,how)
+    --     if name then
+    --         local f = io_open(name,how or 'r')
+    --         if f then
+    --             return function()
+    --                 return fio_readline(f)
+    --             end
+    --         end
+    --     else
+    --         return io_lines()
+    --     end
+    -- end
+
+    -- For some reason the gc doesn't kick in so we need to close explicitly
+    -- so that the handle is flushed.
+
+    local error, type = error, type
+
+    local function luatex_io_lines(name,how)
+        if type(name) == "string" then
+            local f = io_open(name,how or 'r')
+            if f then
+                return function()
+                    local l = fio_readline(f)
+                    if not l then
+                        f:close()
+                    end
+                    return l
+                end
+            else
+                -- for those who like it this way:
+                error("patched 'io.lines' can't open '" .. name .. "'")
+            end
+        else
+            return io_lines()
+        end
+    end
+
+    local function luatex_io_readline(f)
+        return function()
+            return fio_readline(f)
+        end
+    end
+
+    io.lines = luatex_io_lines
+    mt.lines = luatex_io_readline
 
     io.open  = luatex_io_open
     io.popen = luatex_io_popen
 
+else
+
+    -- we assume management elsewhere
+
 end
 
+-- maybe also only when in kpse mode
+
 if saferoption == 1 then
+
+    local write_nl = texio.write_nl
+    local format   = string.format
 
     local function installdummy(str,f)
         local reported = false
@@ -152,8 +162,7 @@ if saferoption == 1 then
     local function installlimit(str,f)
         local reported = false
     end
-    
-    debug = nil  
+
     os.execute = installdummy("os.execute")
     os.spawn   = installdummy("os.spawn")
     os.exec    = installdummy("os.exec")
@@ -175,7 +184,13 @@ if saferoption == 1 then
     lfs.rmdir  = installdummy("lfs.rmdir")
     lfs.mkdir  = installdummy("lfs.mkdir")
 
+    debug = nil
+
+    -- os.[execute|os.spawn|os.exec] already are shellescape aware)
+
 end
+
+-- maybe also only when in kpse mode
 
 if saferoption == 1 or shellescape ~= 1 then
 
@@ -188,9 +203,6 @@ if saferoption == 1 or shellescape ~= 1 then
     ffi = nil
 
 end
-
--- os.[execute|os.spawn|os.exec] already are shellescape aware)
-
 
 if md5 then
 
@@ -375,6 +387,8 @@ do
     if not loaded.socket then loaded.socket = loaded["socket.core"] end
     if not loaded.mime   then loaded.mime   = loaded["mime.core"]   end
 
+    if not loaded.lfs then loaded.lfs = lfs end
+
 end
 
 do
@@ -416,25 +430,25 @@ do
 
 end
 
--- so far
+-- start omit
 
 if utilities and utilities.merger and utilities.merger.compact then
 
-    local byte, format, gmatch = string.byte, string.format, string.gmatch
+    local byte, format, gmatch, gsub = string.byte, string.format, string.gmatch, string.gsub
     local concat = table.concat
 
-    local data = gsub(io.loaddata('luatex-core.lua'),'if%s+utilities.*','')
+    local data = io.loaddata('luatex-core.lua')
+
+    data = gsub(data,'%-%-%s*start%s*omit.-%-%-%s*stop%s*omit%s*','')
+    data = gsub(data,'\r\n','\n')
 
     local t = { }
     local r = { }
     local n = 0
-    local d = gsub(data,'\r\n','\n')      -- be nice for unix
-    local s = utilities.merger.compact(d) -- no comments and less spaces
+    local s = utilities.merger.compact(data) -- no comments and less spaces
 
     t[#t+1] = '/* generated from and by luatex-core.lua */'
     t[#t+1] = ''
- -- t[#t+1] = format('/*\n\n%s\n\n*/',d)
- -- t[#t+1] = ''
     t[#t+1] = '#include "lua.h"'
     t[#t+1] = '#include "lauxlib.h"'
     t[#t+1] = ''
@@ -443,7 +457,7 @@ if utilities and utilities.merger and utilities.merger.compact then
     t[#t+1] = 'int load_luatex_core_lua (lua_State * L)'
     t[#t+1] = '{'
     t[#t+1] = '  static unsigned char luatex_core_lua[] = {'
-    for c in gmatch(d,'.') do
+    for c in gmatch(data,'.') do
         if n == 16 then
             n = 1
             t[#t+1] = '    ' .. concat(r,', ') .. ','
@@ -464,3 +478,5 @@ if utilities and utilities.merger and utilities.merger.compact then
     io.savedata('luatex-core-stripped.lua',s)
 
 end
+
+-- stop omit

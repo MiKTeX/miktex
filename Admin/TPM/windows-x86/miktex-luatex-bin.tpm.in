@@ -2,11 +2,11 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	 xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/luatex/">
-    <TPM:Name>LuaTeX win32</TPM:Name>
-    <TPM:Title>LuaTeX, Windows x86</TPM:Title>
+    <TPM:Name>LuaTeX LuaHBTeX win32</TPM:Name>
+    <TPM:Title>LuaTeX and LuaHBTeX, Windows x86</TPM:Title>
     <TPM:Copyright owner="Taco Hoekwater and the LuaTeX Team" year="2019"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>1.10.0</TPM:Version>
+    <TPM:Version>1.11.2</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
@@ -14,15 +14,14 @@
     use modern (Open Type) fonts, and whose operation is supported by
     the ability to call up a built-in Lua interpreter.
 
-    While the present release is believed to represent the final
-    functionality of LuaTeX, this cannot be guaranteed, and users
-    should assume that it is unstable.
+    LuaHBTeX is a TeX engine based on LuaTeX and aims to combine the
+    flexibility of LuaTeX with comprehensive support world languages
+    and writing systems more-or-less out of box (à la XeTeX).
     </TPM:Description>
     <TPM:RunFiles>
-<!--texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}lua54tex.exe-->
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}luahbtex.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}luatex.exe
 texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runtexlua.exe
-<!--texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runtexlua54.exe-->
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

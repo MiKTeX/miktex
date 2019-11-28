@@ -836,67 +836,6 @@ static int readbytes_s(lua_State *L) {
     }
 }
 
-static int recordfilename(lua_State *L)
-{
-    const char *fname = luaL_checkstring(L, 1);
-    const char *ftype = lua_tostring(L, 2);
-    if (fname != NULL && ftype != NULL) {
-        switch (ftype[1]) {
-            case 'r':
-                recorder_record_input(fname);
-                break;
-            case 'w':
-                recorder_record_output(fname);
-                break;
-            default:
-                /* silently ignore */
-                break;
-        }
-    } else {
-        /* silently ignore */
-    }
-    return 0;
-}
-
-static int checkpermission(lua_State *L)
-{
-    const char *filename = luaL_checkstring(L, 1);
-    if (filename == NULL) {
-        lua_pushboolean(L,0);
-        lua_pushliteral(L,"no command name given");
-    } else if (shellenabledp <= 0) {
-        lua_pushboolean(L,0);
-        lua_pushliteral(L,"all command execution is disabled");
-    } else if (restrictedshell == 0) {
-        lua_pushboolean(L,1);
-        lua_pushstring(L,filename);
-    } else {
-        char *safecmd = NULL;
-        char *cmdname = NULL;
-        switch (shell_cmd_is_allowed(filename, &safecmd, &cmdname)) {
-            case 0:
-                lua_pushboolean(L,0);
-                lua_pushliteral(L, "specific command execution disabled");
-                break;
-            case 1:
-                /* doesn't happen */
-                lua_pushboolean(L,1);
-                lua_pushstring(L,filename);
-                break;
-            case 2:
-                lua_pushboolean(L,1);
-                lua_pushstring(L,safecmd);
-                break;
-            default:
-                /* -1 */
-                lua_pushboolean(L,0);
-                lua_pushliteral(L, "bad command line quoting");
-                break;
-        }
-    }
-    return 2;
-}
-
 static int readline(lua_State *L)
 {
     luaL_Buffer buf;
@@ -949,11 +888,8 @@ static const luaL_Reg fiolib[] = {
     { "readbytes",         readbytes },
     { "readbytetable",     readbytetable },
     { "readline",          readline },
-    /* extras */
-    { "recordfilename",    recordfilename },
-    { "checkpermission",   checkpermission },
     /* done */
-    {NULL, NULL}
+    { NULL, NULL }
 };
 
 static const luaL_Reg siolib[] = {
@@ -973,7 +909,7 @@ static const luaL_Reg siolib[] = {
     { "readbytes",         readbytes_s },
     { "readbytetable",     readbytetable_s },
     /* done */
-    {NULL, NULL}
+    { NULL, NULL }
 };
 
 /*
