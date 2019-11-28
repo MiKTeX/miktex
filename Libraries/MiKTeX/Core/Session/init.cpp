@@ -964,10 +964,9 @@ void SessionImpl::SetEnvironmentVariables()
     vector<string> origGsLibDirectories = StringUtil::Split(origGsLib, PathName::PathNameDelimiter);
     for (const string& d1 : origGsLibDirectories)
     {
-      auto it = find_if(gsDirectories.begin(), gsDirectories.end(), [d1](const string& d2) {
-        return PathName::Compare(d1, d2) == 0;
-      });
-      if (it == gsDirectories.end()) {
+      auto it = find_if(gsDirectories.begin(), gsDirectories.end(), [d1](const string& d2) { return PathName::Compare(d1, d2) == 0; });
+      if (it == gsDirectories.end())
+      {
         gsDirectories.push_back(d1);
       }
     }
