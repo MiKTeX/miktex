@@ -1878,9 +1878,9 @@
 /GFSNeohellenic-Regular (type1/public/gfsneohellenic/GFSNeohellenic-Regular.pfb) ;
 /GFSPorson-Regular (type1/public/gfsporson/GFSPorson-Regular.pfb) ;
 /GFSSolomos-Regular (type1/public/gfssolomos/GFSSolomos-Regular.pfb) ;
-/yfrak-Regular (type1/public/gothict1/yfrak.pfb) ;
-/ygoth-Regular (type1/public/gothict1/ygoth.pfb) ;
-/yswab-Regular (type1/public/gothict1/yswab.pfb) ;
+/yfrak-Regular (type1/public/yfonts-t1/yfrak.pfb) ;
+/ygoth-Regular (type1/public/yfonts-t1/ygoth.pfb) ;
+/yswab-Regular (type1/public/yfonts-t1/yswab.pfb) ;
 /Archaic-Greek-6th-Century-BC (type1/public/greek6cbc/gvibc10.pfb) ;
 /Greek-CourierPlain (type1/public/grverb/grkcurp.pfb) ;
 /HFBR10 (type1/public/hfbright/hfbr10.pfb) ;
