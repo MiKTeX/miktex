@@ -1807,7 +1807,7 @@
 /Epigrafica-SmallCaps (type1/public/epigrafica/Epigrafica-Pezokefalaia.pfb) ;
 /Epigrafica-Italic (type1/public/epigrafica/Epigrafica-Reonta.pfb) ;
 /Epi-Olmec (type1/public/epiolmec/Epi-Olmec.pfb) ;
-/esint10 (type1/public/esint/esint10.pfb) ;
+/esint10 (type1/public/esint-type1/esint10.pfb) ;
 /TeX-vect10 (type1/public/esvect/vect10.pfb) ;
 /TeX-vect5 (type1/public/esvect/vect5.pfb) ;
 /TeX-vect6 (type1/public/esvect/vect6.pfb) ;
