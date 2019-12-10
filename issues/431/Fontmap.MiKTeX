@@ -2453,11 +2453,11 @@
 /TeXXSLZ20-Regular (type1/public/musixtex-fonts/xslz20.pfb) ;
 /TeXXSLZ20D-Regular (type1/public/musixtex-fonts/xslz20d.pfb) ;
 /TeXXTIE20-Regular (type1/public/musixtex-fonts/xtie20.pfb) ;
-/bbding (type1/public/niceframe/bbding10.pfb) ;
-/dingbat (type1/public/niceframe/dingbat.pfb) ;
-/karta (type1/public/niceframe/karta15.pfb) ;
-/umranda (type1/public/niceframe/umranda.pfb) ;
-/umrandb (type1/public/niceframe/umrandb.pfb) ;
+/bbding (type1/public/niceframe-type1/bbding10.pfb) ;
+/dingbat (type1/public/niceframe-type1/dingbat.pfb) ;
+/karta (type1/public/niceframe-type1/karta15.pfb) ;
+/umranda (type1/public/niceframe-type1/umranda.pfb) ;
+/umrandb (type1/public/niceframe-type1/umrandb.pfb) ;
 /Norasi-Bold (type1/public/norasi/norasib.pfb) ;
 /Norasi-BoldItalic (type1/public/norasi/norasibi.pfb) ;
 /Norasi-Italic (type1/public/norasi/norasii.pfb) ;
