@@ -678,9 +678,9 @@
 /LOGOSL8 (type1/public/mflogo-font/logosl8.pfb) ;
 /LOGOSL9 (type1/public/mflogo-font/logosl9.pfb) ;
 /manfnt (type1/hoekwater/misc/manfnt.pfb) ;
-/rsfs10 (type1/hoekwater/rsfs/rsfs10.pfb) ;
-/rsfs5 (type1/hoekwater/rsfs/rsfs5.pfb) ;
-/rsfs7 (type1/hoekwater/rsfs/rsfs7.pfb) ;
+/rsfs10 (type1/public/rsfs/rsfs10.pfb) ;
+/rsfs5 (type1/public/rsfs/rsfs5.pfb) ;
+/rsfs7 (type1/public/rsfs/rsfs7.pfb) ;
 /stmary10 (type1/public/hoekwater/stmary10.pfb) ;
 /stmary5 (type1/public/hoekwater/stmary5.pfb) ;
 /stmary6 (type1/public/hoekwater/stmary6.pfb) ;
