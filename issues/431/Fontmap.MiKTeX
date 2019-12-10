@@ -663,8 +663,8 @@
 /TallPaul (type1/emerald/ftpmw.pfb) ;
 /Teenspirit (type1/emerald/ftsmdw.pfb) ;
 /Webster (type1/emerald/fwbmr.pfb) ;
-/FIBB84 (type1/greek/ibycus/fibb84.pfb) ;
-/IbycusHTG-Regular (type1/greek/ibycus/fibr84.pfb) ;
+/FIBB84 (type1/public/ibycus4/fibb84.pfb) ;
+/IbycusHTG-Regular (type1/public/ibycus4/fibr84.pfb) ;
 /IbycusHTG-Regular (type1/greek/ibycus/IbycusHTG-Regular.pfb) ;
 /lfb10 (type1/greek/lfb/lfb10.pfb) ;
 /bgbt (type1/greek/teubner/bgbt.pfb) ;
