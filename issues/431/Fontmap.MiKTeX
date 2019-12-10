@@ -666,8 +666,6 @@
 /FIBB84 (type1/greek/ibycus/fibb84.pfb) ;
 /IbycusHTG-Regular (type1/greek/ibycus/fibr84.pfb) ;
 /IbycusHTG-Regular (type1/greek/ibycus/IbycusHTG-Regular.pfb) ;
-/grbl1000 (type1/public/cbgreek/grbl1000.pfb) ;
-/grbl1200 (type1/public/cbgreek/grbl1200.pfb) ;
 /lfb10 (type1/greek/lfb/lfb10.pfb) ;
 /bgbt (type1/greek/teubner/bgbt.pfb) ;
 /Teubner (type1/greek/teubner/Teubner.pfb) ;
@@ -1151,6 +1149,7 @@
 /goxo1000 (type1/public/cbgreek/goxo1000.pfb) ;
 /goxu1000 (type1/public/cbgreek/goxu1000.pfb) ;
 /grbl1000 (type1/public/cbgreek/grbl1000.pfb) ;
+/grbl1200 (type1/public/cbgreek/grbl1200.pfb) ;
 /grmc1000 (type1/public/cbgreek/grmc1000.pfb) ;
 /grmi1000 (type1/public/cbgreek/grmi1000.pfb) ;
 /grmn1000 (type1/public/cbgreek/grmn1000.pfb) ;
