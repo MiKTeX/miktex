@@ -45,9 +45,9 @@
 /Nazli (type1/arabi/farsiweb/nazli.pfb) ;
 /Nazli-Bold (type1/arabi/farsiweb/nazlib.pfb) ;
 /Titr-Bold (type1/arabi/farsiweb/titr.pfb) ;
-/OrnementsADF (type1/arkandis/adforn/OrnementsADF.pfb) ;
-/ArrowsADF (type1/arkandis/adfsymbols/ArrowsADF.pfb) ;
-/BulletsADF (type1/arkandis/adfsymbols/BulletsADF.pfb) ;
+/OrnementsADF (type1/public/adforn/OrnementsADF.pfb) ;
+/ArrowsADF (type1/public/adfsymbols/ArrowsADF.pfb) ;
+/BulletsADF (type1/public/adfsymbols/BulletsADF.pfb) ;
 /BaskervaldADFStd-Bold (type1/arkandis/baskervald/ybvb8a.pfb) ;
 /BaskervaldADFStd-BoldItalic (type1/arkandis/baskervald/ybvbi8a.pfb) ;
 /BaskervaldADFStd-Heavy (type1/arkandis/baskervald/ybvh8a.pfb) ;
