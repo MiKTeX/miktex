@@ -677,7 +677,7 @@
 /LOGOSL10 (type1/public/mflogo-font/logosl10.pfb) ;
 /LOGOSL8 (type1/public/mflogo-font/logosl8.pfb) ;
 /LOGOSL9 (type1/public/mflogo-font/logosl9.pfb) ;
-/manfnt (type1/hoekwater/misc/manfnt.pfb) ;
+/manfnt (type1/hoekwater/manfnt-type1/manfnt.pfb) ;
 /rsfs10 (type1/public/rsfs/rsfs10.pfb) ;
 /rsfs5 (type1/public/rsfs/rsfs5.pfb) ;
 /rsfs7 (type1/public/rsfs/rsfs7.pfb) ;
