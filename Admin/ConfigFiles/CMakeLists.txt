@@ -83,7 +83,6 @@ set(main_ini_names
   pdftex
   pdftexinfo
   pdfxlatex
-  pdfxmex
   pdfxmltex
   pdfxtex
   platex
