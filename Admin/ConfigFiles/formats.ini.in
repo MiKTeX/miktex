@@ -153,14 +153,6 @@
 	description = LuaTeX
 	input = luatex.ini
 
-[mex]
-
-	arguments = -tcx=cp227.tcx
-	attributes = exclude
-	compiler = pdftex
-	description = MeX
-	input = mex.ini
-
 [mf]
 
 	arguments = -tcx=cp227.tcx
@@ -227,14 +219,6 @@
 	compiler = pdftex
 	description = pdfLaTeX
 	input = pdflatex.ini
-
-[pdfmex]
-
-	arguments = -tcx=cp227.tcx
-	attributes = exclude
-	compiler = pdftex
-	description = pdfMeX
-	input = pdfmex.ini
 
 [pdftex]
 

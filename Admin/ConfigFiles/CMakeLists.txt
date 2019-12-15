@@ -68,7 +68,6 @@ set(main_ini_names
   lualatex
   lualatex-dev
   luatex
-  mex
   mllatex
   mltex
   olatex
@@ -80,7 +79,6 @@ set(main_ini_names
   pdfjadetex
   pdflatex
   pdflatex-dev
-  pdfmex
   pdfplatex
   pdftex
   pdftexinfo
