@@ -302,9 +302,6 @@ private:
   bool enablePostProcessing = true;
 
 private:
-  bool unattended = false;
-
-private:
   ProgressInfo progressInfo;
 
 private:
