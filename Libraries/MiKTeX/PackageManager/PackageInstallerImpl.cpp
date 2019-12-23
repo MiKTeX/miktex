@@ -91,8 +91,8 @@ PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manage
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
   trace_stopwatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH)),
   packageManager(manager),
-  callback(initInfo.callback),
-  packageDataStore(manager->GetPackageDataStore())
+  packageDataStore(manager->GetPackageDataStore()),
+  callback(initInfo.callback)
 {
   MIKTEX_ASSERT(
     PackageLevel::None < PackageLevel::Essential
