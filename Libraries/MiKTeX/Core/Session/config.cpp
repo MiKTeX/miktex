@@ -1010,8 +1010,7 @@ class DefaultCallback :
   public HasNamedValues
 {
 public:
-  DefaultCallback(SessionImpl* session) :
-    session(session)
+  DefaultCallback(SessionImpl* session)
   {
   }
 public:
@@ -1037,8 +1036,6 @@ public:
   {
     UNIMPLEMENTED();
   }
-private:
-  SessionImpl* session;
 };
 
 std::string SessionImpl::Expand(const string& toBeExpanded)
