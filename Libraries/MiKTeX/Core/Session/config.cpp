@@ -1032,7 +1032,7 @@ public:
     }
   }
 public:
-  string GetValue(const string& valueName)
+  string GetValue(const string& valueName) override
   {
     UNIMPLEMENTED();
   }
