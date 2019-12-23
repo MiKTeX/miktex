@@ -461,7 +461,7 @@ void SessionImpl::RegisterRootDirectory(const PathName& path, bool other)
   for (size_t r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
-    bool skipit = other && !root.IsOther() || !other && root.IsOther();
+    bool skipit = (other && !root.IsOther()) || (!other && root.IsOther());
     skipit = skipit || (IsAdminMode() && !root.IsCommon());
     skipit = skipit || (!IsAdminMode() && root.IsCommon());
     skipit = skipit || root.IsManaged();
@@ -481,7 +481,7 @@ void SessionImpl::UnregisterRootDirectory(const PathName& path, bool other)
   for (size_t r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
-    bool skipit = other && !root.IsOther() || !other && root.IsOther();
+    bool skipit = (other && !root.IsOther()) || (!other && root.IsOther());
     skipit = skipit || (IsAdminMode() && !root.IsCommon());
     skipit = skipit || (!IsAdminMode() && root.IsCommon());
     skipit = skipit || root.IsManaged();
