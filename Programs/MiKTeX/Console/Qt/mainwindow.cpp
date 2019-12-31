@@ -287,9 +287,10 @@ void MainWindow::UpdateUi()
     {
       return;
     }
-    if (CheckIssue(IssueType::UserUpdateCheckOverdue).first)
+    auto issue = CheckIssue(IssueType::UserUpdateCheckOverdue);
+    if (issue.first)
     {
-      ui->labelLastUpdateCheck->setText(tr("It's a long time since you have checked for updates.\nPlease check for updates now."));
+      ui->labelLastUpdateCheck->setText(QString::fromUtf8(issue.second.message.c_str()));
       ui->groupCheckUpdates->setStyleSheet(GetAlertStyleSheet());
     }
     else

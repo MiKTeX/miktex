@@ -112,6 +112,7 @@ struct Issue
 {
   IssueType type;
   std::string message;
+  std::string remedy;
 };
 
 struct SetupOptions
