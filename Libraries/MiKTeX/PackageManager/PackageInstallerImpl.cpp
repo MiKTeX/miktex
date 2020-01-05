@@ -2379,10 +2379,6 @@ bool PackageInstallerImpl::UseLocalServer()
     // already running as local server
     return false;
   }
-  if (unattended)
-  {
-    return false;
-  }
   if (!session->IsAdminMode())
   {
     return false;
