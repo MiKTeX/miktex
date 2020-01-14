@@ -1,6 +1,6 @@
 /* mpc.cpp: creating MiKTeX packages
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MPC.
 
@@ -1867,8 +1867,15 @@ void PackageCreator::ReadList(const PathName& path, map<string, PackageSpec>& ma
       continue;
     }
     Tokenizer tok(lpsz, ";");
+    string packageId = *tok;
+    auto it = mapPackageList.find(packageId);
+    if (it != mapPackageList.end())
+    {
+      Warning(fmt::format(T_("ignoring '{0} {1}': already marked as '{2}'"), ch, Q_(packageId), it->second.level));
+      continue;
+    }
     PackageSpec pkgspec;
-    pkgspec.id = *tok;
+    pkgspec.id = packageId;
     pkgspec.level = ch;
     ArchiveFileType archiveFileType = defaultArchiveFileType;
     ++tok;
