@@ -2286,6 +2286,15 @@ set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE
   "${CMAKE_BINARY_DIR}/Packaging/rpm/pre-uninstall.sh"
 )
 
+set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
+  "/usr/libexec"
+  "/usr/share/applications"
+  "/usr/share/man"
+  "/usr/share/man/man1"
+  "/usr/share/man/man5"
+  "/usr/share/pixmaps"
+)
+
 set(CPACK_STRIP_SYMBOLS TRUE)
 
 include(CPack)
