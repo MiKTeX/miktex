@@ -1,6 +1,6 @@
 /* initexmf.cpp: MiKTeX configuration utility
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of IniTeXMF.
 
@@ -694,7 +694,6 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   }
   Bootstrap();
   enableInstaller = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
-  verbose = session->GetConfigValue("", "Verbose", verbose).GetBool();
   PathName xmlFileName;
   if (session->FindFile("initexmf." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))

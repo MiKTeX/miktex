@@ -1,6 +1,6 @@
 /* PackageManagerImpl.cpp: MiKTeX Package Manager
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -536,7 +536,23 @@ public:
 public:
   void AddAttribute(const string& name, const string& value)
   {
-    stream << fmt::format(" {}=\"{}\"", name, value);
+    string encodedValue;
+    for (const char& ch : value)
+    {
+      switch (ch)
+      {
+      case '&':
+        encodedValue += "&amp;";
+        break;
+      case '"':
+        encodedValue += "&quot;";
+        break;
+      default:
+        encodedValue += ch;
+        break;
+      }
+    }
+    stream << fmt::format(" {}=\"{}\"", name, encodedValue);
   }
 
 public:
