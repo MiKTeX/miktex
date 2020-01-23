@@ -1,6 +1,6 @@
 /* app.cpp:
 
-   Copyright (C) 2005-2019 Christian Schenk
+   Copyright (C) 2005-2020 Christian Schenk
  
    This file is part of the MiKTeX App Library.
 
@@ -272,6 +272,11 @@ void Application::ConfigureLogging()
   logger = log4cxx::Logger::getLogger(myName);
 }
 
+inline bool IsNewer(const PathName& path1, const PathName& path2)
+{
+  return File::Exists(path1) && File::Exists(path2) && File::GetLastWriteTime(path1) > File::GetLastWriteTime(path2);
+}
+
 void Application::AutoMaintenance()
 {
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
@@ -293,10 +298,21 @@ void Application::AutoMaintenance()
 #endif
     throw 1;
   }
+
+  // must refresh FNDB if:
+  //   (1) it doesn't exist
+  //   (2) in user mode and an admin just modified the MiKTeX configuration
   PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
   bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
+
+  // must build language.dat if:
+  //   (1) in user mode and an admin just modified the MiKTeX configuration
+  //   (2) in user mode and languages.ini is newer than languages.dat
   PathName userLanguageDat = pimpl->session->IsAdminMode() ? "" : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
   bool mustRefreshUserLanguageDat = !pimpl->session->IsAdminMode() && File::Exists(userLanguageDat) && lastAdminMaintenance + 30 > File::GetLastWriteTime(userLanguageDat);
+  PathName userLanguagesIni = pimpl->session->IsAdminMode() ? "" : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGES_INI;
+  mustRefreshUserLanguageDat = mustRefreshUserLanguageDat || (!pimpl->session->IsAdminMode() && IsNewer(userLanguagesIni, userLanguageDat));
+
   PathName initexmf;
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
