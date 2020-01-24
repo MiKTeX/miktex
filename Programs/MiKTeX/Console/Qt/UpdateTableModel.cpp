@@ -1,6 +1,6 @@
 /* UpdateTableModel.cpp:
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -189,7 +189,7 @@ QVariant UpdateTableModel::headerData(int section, Qt::Orientation orientation, 
     case 1:
       return tr("Installed");
     case 2:
-      return tr("Source");
+      return tr("Available");
     case 3:
       return tr("Action");
     case 4:
