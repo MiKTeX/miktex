@@ -1489,6 +1489,17 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PDFTOTEXT_EXE, { "pdftotext" } },
   { MIKTEX_PDFUNITE_EXE, { "pdfunite" } },
 #endif
+#if defined(WITH_FONTCONFIG_UTILS)
+  { MIKTEX_FC_CACHE_EXE, { "fc-cache" } },
+  { MIKTEX_PREFIX "fc-cat" MIKTEX_EXE_FILE_SUFFIX, { "fc-cat" } },
+  { MIKTEX_PREFIX "fc-conflist" MIKTEX_EXE_FILE_SUFFIX, { "fc-conflist" } },
+  { MIKTEX_PREFIX "fc-list" MIKTEX_EXE_FILE_SUFFIX, { "fc-list" } },
+  { MIKTEX_PREFIX "fc-match" MIKTEX_EXE_FILE_SUFFIX, { "fc-match" } },
+  { MIKTEX_PREFIX "fc-pattern" MIKTEX_EXE_FILE_SUFFIX, { "fc-pattern" } },
+  { MIKTEX_PREFIX "fc-query" MIKTEX_EXE_FILE_SUFFIX, { "fc-query" } },
+  { MIKTEX_PREFIX "fc-scan" MIKTEX_EXE_FILE_SUFFIX, { "fc-scan" } },
+  { MIKTEX_PREFIX "fc-validate" MIKTEX_EXE_FILE_SUFFIX, { "fc-validate" } },
+#endif
 #if defined(MIKTEX_WINDOWS)
   { MIKTEX_CONSOLE_EXE, { MIKTEX_TASKBAR_ICON_EXE, MIKTEX_UPDATE_EXE } },
   { MIKTEX_CONSOLE_ADMIN_EXE,{ MIKTEX_UPDATE_ADMIN_EXE } },

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -35,6 +35,12 @@ add_definitions(
 if(NOT USE_SYSTEM_POPPLER)
   add_definitions(
     -DWITH_POPPLER_UTILS=1
+  )
+endif()
+
+if(NOT USE_SYSTEM_FONTCONFIG)
+  add_definitions(
+    -DWITH_FONTCONFIG_UTILS=1
   )
 endif()
 
