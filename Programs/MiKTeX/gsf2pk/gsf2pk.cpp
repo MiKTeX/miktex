@@ -1411,7 +1411,11 @@ void Converter::Convert(const char* texFontName, const char* fontName, const cha
 
 void Converter::Main(int argc, const char** argv)
 {
-  PoptWrapper popt(argc, argv, aoption);
+  Session::InitInfo initInfo(argv[0]);
+  vector<const char*> newargv(&argv[0], &argv[argc + 1]);
+  auto ignored = ExamineArgs(newargv, initInfo);
+
+  PoptWrapper popt(newargv.size() - 1, &newargv[0], aoption);
 
   // process command-line options
   int option;
@@ -1459,8 +1463,7 @@ void Converter::Main(int argc, const char** argv)
     Error(T_("Wrong number of command-line arguments."));
   }
 
-  // MIKTEX-TODO: pass argc/argv
-  Init(argv[0]);
+  Init(initInfo);
   session = GetSession();
 
   Convert(leftovers[0].c_str(),  // "utmr8r"
