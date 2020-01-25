@@ -1,6 +1,6 @@
 /* MakeUtility.h:                                       -*- C++ -*-
 
-   Copyright (C) 1998-2019 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -266,7 +266,7 @@ protected:
       return true;
     }
     Verbose(T_("METAFONT failed for some reason"));
-    MiKTeX::Core::PathName pathLogFile = name;
+    MiKTeX::Core::PathName pathLogFile = workingDirectory / name;
     pathLogFile.AppendExtension(".log");
     bool noError = true;
     size_t nStrangePaths = 0;
