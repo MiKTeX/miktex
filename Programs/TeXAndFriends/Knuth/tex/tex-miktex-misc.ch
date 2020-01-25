@@ -170,7 +170,7 @@ versions of the program.
 @!font_mem_size=20000; {number of words of |font_info| for all fonts}
 @y
 @!inf_font_mem_size=20000;
-@!sup_font_mem_size=4000000;
+@!sup_font_mem_size=147483647;
 @z
 
 @x
