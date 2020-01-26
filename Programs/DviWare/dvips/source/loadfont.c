@@ -333,6 +333,10 @@ loadfont(register fontdesctype *curfnt)
       }
    }
    curfnt->maxchars = 256; /* just in case we return before the end */
+   curfnt->llx = 0 ;
+   curfnt->lly = 0 ;
+   curfnt->urx = 0 ;
+   curfnt->ury = 0 ;
    if (!pkopen(curfnt)) {
       tfmload(curfnt);
       return;
@@ -455,6 +459,21 @@ case 7:
             *tempr++ = cmd;
             for (length--; length>0; length--)
                *tempr++ = pkbyte();
+            {
+               // update the global font bounding box
+               // this is only used to set font sizes for type 3 bitmap
+               // encoding.
+               integer cwidth, cheight, xoff, yoff ;
+               unpack_bb(cd, &cwidth, &cheight, &xoff, &yoff) ;
+               if (-xoff < curfnt->llx)
+                  curfnt->llx = -xoff ;
+               if (cwidth - xoff > curfnt->urx)
+                  curfnt->urx = cwidth - xoff ;
+               if (yoff - cheight < curfnt->lly)
+                  curfnt->lly = yoff - cheight ;
+               if (yoff > curfnt->ury)
+                  curfnt->ury = yoff ;
+            }
          }
          cd->flags2 |= EXISTS;
       } else {

@@ -764,6 +764,9 @@ case 'i' :
 case 'I':
          noenv = (was_inline[1] != '0');
          break;
+case 'J':
+         bitmapencopt(was_inline[1] > ' ' ? was_inline[1]-'0' : 1) ;
+         break ;
 case 'N' :
          disablecomments = (was_inline[1] != '0');
          break;

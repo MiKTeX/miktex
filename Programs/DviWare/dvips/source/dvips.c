@@ -304,7 +304,7 @@ static const char *helparr[] = {
 #endif
 "-h f Add header file",
 "-i*  Separate file per section",
-"-j*  Download fonts partially",
+"-j*  Download fonts partially        -J*  Include encodings for bitmap fonts",
 "-k*  Print crop marks                -K*  Pull comments from inclusions",
 "-l # Last page                       -L*  Last special papersize wins",
 "-m*  Manual feed                     -M*  Don't make fonts",
@@ -774,7 +774,7 @@ main(int argc, char **argv)
                 strcmp (argv[i] + 1, "-version") == 0) {
                puts (BANNER);
                puts (kpathsea_version_string);
-               puts ("Copyright 2019 Radical Eye Software.\n\
+               puts ("Copyright 2020 Radical Eye Software.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the Dvips copyright.\n\
@@ -872,6 +872,9 @@ case 'i':
 case 'j':
                partialdownload = (*p != '0');
                break;
+case 'J':
+               bitmapencopt(*p > ' ' ? (*p - '0') : 0) ;
+               break ;
 case 'k':
                cropmarks = (*p != '0');
                break;

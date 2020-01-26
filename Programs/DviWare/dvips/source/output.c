@@ -880,6 +880,17 @@ cmdout(const char *s)
    lastspecial = 0;
 }
 
+void psnameout(const char *s) {
+   // we lead with a special, so we don't need the space.
+   lastspecial = 1 ;
+   cmdout(s) ;
+}
+
+void pslineout(const char *s) {
+   fputs(s, bitfile) ;
+   fprintf(bitfile, "\n");
+   linepos = 0;
+}
 
 static void
 chrcmd(char c)
