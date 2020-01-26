@@ -1,5 +1,27 @@
 # MiKTeX Change Log
 
+## 2.9.7300 - not yet released
+
+### CentOS 8
+
+MiKTeX is now available for CentOS 8.
+
+### LCDF Typetools
+
+The MiKTeX distribution now includes [LCDF Typetools](https://ctan.org/pkg/lcdf-typetools),
+a bundle of outline font manipulation tools.
+
+### Fixed issues
+
+* [420](https://github.com/MiKTeX/miktex/issues/420): miktexsetup fails -- how to advance?
+* [422](https://github.com/MiKTeX/miktex/issues/422): Increase font_mem_size upper limit
+* [428](https://github.com/MiKTeX/miktex/issues/428): GSF2PK failed on postscript font
+* [435](https://github.com/MiKTeX/miktex/issues/435): language patterns in the format can not be changed manually
+* [438](https://github.com/MiKTeX/miktex/issues/438): Create "fc-cache.exe" as alias
+* [441](https://github.com/MiKTeX/miktex/issues/441): Cannot build new format
+* [448](https://github.com/MiKTeX/miktex/issues/448): miktex-makepk fails if the transcript file does not exist
+* [451](https://github.com/MiKTeX/miktex/issues/451): Clicking Close button vs pressing Esc key upon finished package installation
+
 ## 2.9.7250 - 2019-11-12
 
 ### New programs
