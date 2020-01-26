@@ -241,10 +241,7 @@ PsresDatabase::add_psres_file(Filename &filename, bool override)
   return add_one_psres_file(slurpy, override);
 }
 
-#if defined(MIKTEX_WINDOWS)
-#undef WIN32
-#endif
-#ifndef WIN32
+#if !defined(WIN32) || defined(MIKTEX)
 
 void
 PsresDatabase::add_psres_directory(PermString directory)

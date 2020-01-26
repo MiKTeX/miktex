@@ -1,6 +1,6 @@
 ## CMakeLists.txt: top-level CMake file for building MiKTeX
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -1106,6 +1106,7 @@ check_function_exists(chmod HAVE_CHMOD)
 check_function_exists(chown HAVE_CHOWN)
 check_function_exists(closedir HAVE_CLOSEDIR)
 check_function_exists(confstr HAVE_CONFSTR)
+check_function_exists(ctime HAVE_CTIME)
 check_function_exists(finite HAVE_FINITE)
 check_function_exists(fork HAVE_FORK)
 check_function_exists(fseeko64 HAVE_FSEEKO64)
@@ -1152,6 +1153,7 @@ check_function_exists(sched_yield HAVE_SCHED_YIELD)
 check_function_exists(setenv HAVE_SETENV)
 check_function_exists(setreuid HAVE_SETREUID)
 check_function_exists(setuid HAVE_SETUID)
+check_function_exists(sigaction HAVE_SIGACTION)
 check_function_exists(spawnvp HAVE_SPAWNVP)
 check_function_exists(stat HAVE_STAT)
 check_function_exists(statvfs HAVE_STATVFS)
@@ -1180,6 +1182,9 @@ if(WITH_COM)
 endif()
 
 check_include_files(alloca.h HAVE_ALLOCA_H)
+check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
+check_include_files(assert.h HAVE_ASSERT_H)
+check_include_files(byteorder.h HAVE_BYTEORDER_H)
 check_include_files(dirent.h HAVE_DIRENT_H)
 check_include_files(errno.h HAVE_ERRNO_H)
 check_include_files(fcntl.h HAVE_FCNTL_H)

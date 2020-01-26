@@ -13,7 +13,7 @@
 #cmakedefine HAVE_ADDRESSABLE_VA_LIST
 
 /* Define to incldue Adobe code in output fonts. */
-#cmakedefine HAVE_ADOBE_CODE
+#cmakedefine HAVE_ADOBE_CODE 1
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #cmakedefine HAVE_ARPA_INET_H 1
@@ -22,16 +22,16 @@
 #cmakedefine HAVE_ASSERT_H 1
 
 /* Define to run cfftot1 from otftotfm. */
-#cmakedefine HAVE_AUTO_CFFTOT1
+#cmakedefine HAVE_AUTO_CFFTOT1 1
 
 /* Define to run t1dotlessj from otftotfm. */
-#cmakedefine HAVE_AUTO_T1DOTLESSJ
+#cmakedefine HAVE_AUTO_T1DOTLESSJ 1
 
 /* Define to run ttftotype42 from otftotfm. */
-#cmakedefine HAVE_AUTO_TTFTOTYPE42
+#cmakedefine HAVE_AUTO_TTFTOTYPE42 1
 
 /* Define to run updmap from otftotfm. */
-#cmakedefine HAVE_AUTO_UPDMAP
+#cmakedefine HAVE_AUTO_UPDMAP 1
 
 /* Define if strnlen is broken. */
 #cmakedefine HAVE_BROKEN_STRNLEN
