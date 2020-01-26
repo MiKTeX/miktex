@@ -1500,6 +1500,9 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PREFIX "fc-scan" MIKTEX_EXE_FILE_SUFFIX, { "fc-scan" } },
   { MIKTEX_PREFIX "fc-validate" MIKTEX_EXE_FILE_SUFFIX, { "fc-validate" } },
 #endif
+#if defined(WITH_LCDF_TYPETOOLS)
+  { MIKTEX_PREFIX "otfinfo" MIKTEX_EXE_FILE_SUFFIX, { "otfinfo" } },
+#endif
 #if defined(MIKTEX_WINDOWS)
   { MIKTEX_CONSOLE_EXE, { MIKTEX_TASKBAR_ICON_EXE, MIKTEX_UPDATE_EXE } },
   { MIKTEX_CONSOLE_ADMIN_EXE,{ MIKTEX_UPDATE_ADMIN_EXE } },

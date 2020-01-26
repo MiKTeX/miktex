@@ -1,6 +1,6 @@
 ## CMakeLists.txt:                                      -*- CMake -*-
 ##
-## Copyright (C) 2015-2019 Christian Schenk
+## Copyright (C) 2015-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -79,6 +79,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-jpeg-bin.tpm.in
     windows-x86/miktex-kpathsea-bin.tpm.in
     windows-x86/miktex-lacheck-bin.tpm.in
+    windows-x86/miktex-lcdf-typetools-bin.tpm.in
     windows-x86/miktex-libressl-bin.tpm.in
     windows-x86/miktex-log4cxx-bin.tpm.in
     windows-x86/miktex-lua53-bin.tpm.in
@@ -172,6 +173,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-jpeg-bin-x64.tpm.in
     windows-x64/miktex-kpathsea-bin-x64.tpm.in
     windows-x64/miktex-lacheck-bin-x64.tpm.in
+    windows-x64/miktex-lcdf-typetools-bin-x64.tpm.in
     windows-x64/miktex-libressl-bin-x64.tpm.in
     windows-x64/miktex-log4cxx-bin-x64.tpm.in
     windows-x64/miktex-lua53-bin-x64.tpm.in

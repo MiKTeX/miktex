@@ -1,6 +1,6 @@
 ## SourcePaths.cmake
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -82,6 +82,7 @@ set(MIKTEX_REL_KPSEWHICH_DIR            "${MIKTEX_REL_KPSEMU_DIR}/test/kpsewhich
 set(MIKTEX_REL_LACHECK_DIR              "Programs/Validation/lacheck")
 set(MIKTEX_REL_LIBATOMIC_OPS_DIR        "Libraries/3rd/libatomic_ops")
 set(MIKTEX_REL_LIBRESSL_DIR             "Libraries/3rd/libressl")
+set(MIKTEX_REL_LCDF_TYPETOOLS_DIR       "Programs/FontUtilities/lcdf-typetools")
 set(MIKTEX_REL_LOG4CXX_DIR              "Libraries/3rd/log4cxx")
 set(MIKTEX_REL_LUA52_DIR                "Libraries/3rd/lua52")
 set(MIKTEX_REL_LUA53_DIR                "Libraries/3rd/lua53")
