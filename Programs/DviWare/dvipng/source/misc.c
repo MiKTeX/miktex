@@ -351,7 +351,7 @@ bool DecodeArgs(int argc, char ** argv)
 	    gamma=DEFAULT_GAMMA;
 	  }
 	  Gamma(gamma);
-	  Message(PARSE_STDIN,"Gamma value is %s\n", gamma);
+	  Message(PARSE_STDIN,"Gamma value is %f\n", gamma);
 	  break;
 #ifdef HAVE_GDIMAGEGIF
 	} else if (strncmp(p,"if",2)==0) { /* --gif output */

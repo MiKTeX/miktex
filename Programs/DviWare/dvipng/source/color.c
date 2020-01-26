@@ -18,7 +18,7 @@
   License along with this program. If not, see
   <http://www.gnu.org/licenses/>.
 
-  Copyright (C) 2002-2015 Jan-Åke Larsson
+  Copyright (C) 2002-2015,2019 Jan-Åke Larsson
 
 ************************************************************************/
 
@@ -355,7 +355,7 @@ void stringrgb(const char* color,int *r,int *g,int *b)
         tmp=tmp->next;
       }
     }
-    if (strcmp(color,tmp->name)==0) {
+    if (tmp!=NULL) {
       /* Found: one-level recursion */
       DEBUG_PRINT(DEBUG_COLOR,("\n    ---RECURSION--- "))
       stringrgb(tmp->color,r,g,b);

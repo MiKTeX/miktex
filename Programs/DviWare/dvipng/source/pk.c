@@ -358,20 +358,18 @@ void InitPK(struct font_entry * tfontp)
     tcharptr->data = NULL;
     tcharptr->tfmw = 0;
     if ((*position & 7) == 7) {
-      if (position < end - 9) Fatal("PK file %s ends prematurely",tfontp->name);
+      if (position >= end - 9) Fatal("PK file %s ends prematurely",tfontp->name);
       packet_length = UNumRead(position+1,4);
       c = UNumRead(position+5, 4);
       position += 9;
     } else if (*position & 4) {
-      if (position < end - 4) Fatal("PK file %s ends prematurely",tfontp->name);
-      packet_length = (*position & 3) * 65536l +
-	UNumRead(position+1, 2);
+      if (position >= end - 4) Fatal("PK file %s ends prematurely",tfontp->name);
+      packet_length = (*position & 3) * 65536l + UNumRead(position+1, 2);
       c = UNumRead(position+3, 1);
       position += 4;
     } else {
-      if (position < end - 3) Fatal("PK file %s ends prematurely",tfontp->name);
-      packet_length = (*position & 3) * 256 +
-	UNumRead(position+1, 1);
+      if (position >= end - 3) Fatal("PK file %s ends prematurely",tfontp->name);
+      packet_length = (*position & 3) * 256 +	UNumRead(position+1, 1);
       c = UNumRead(position+2, 1);
       position += 3;
     }

@@ -18,7 +18,7 @@
   License along with this program. If not, see
   <http://www.gnu.org/licenses/>.
 
-  Copyright (C) 2002-2015 Jan-Åke Larsson
+  Copyright (C) 2002-2015,2019 Jan-Åke Larsson
 
 ************************************************************************/
 
@@ -107,7 +107,7 @@ int main(int argc, char ** argv)
   InitPSFontMap();
 #endif
 
-  DrawPages();
+  if (dvi!=NULL) DrawPages();
 
   if (parsestdin) {
     char    line[STRSIZE];
