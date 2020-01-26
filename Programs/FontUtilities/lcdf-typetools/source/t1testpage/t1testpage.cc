@@ -39,6 +39,9 @@
 # include <fcntl.h>
 # include <io.h>
 #endif
+#if defined(MIKTEX)
+#define exit(x) throw(x)
+#endif
 
 using namespace Efont;
 
@@ -579,7 +582,11 @@ glyph_matches(const String& glyph_name, const String* pattern_begin, const Strin
 }
 
 int
+#if defined(MIKTEX)
+Main(int argc, char** argv)
+#else
 main(int argc, char *argv[])
+#endif
 {
     PsresDatabase *psres = new PsresDatabase;
     psres->add_psres_path(getenv("PSRESOURCEPATH"), 0, false);

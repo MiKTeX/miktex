@@ -29,6 +29,9 @@
 #ifdef HAVE_CTIME
 # include <time.h>
 #endif
+#if defined(MIKTEX)
+#define exit(x) throw(x)
+#endif
 
 #define WEIGHT_OPT	300
 #define WIDTH_OPT	301
@@ -251,7 +254,11 @@ Report bugs to <ekohler@gmail.com>.\n", program_name);
 
 
 int
+#if defined(MIKTEX)
+Main(int argc, char** argv)
+#else
 main(int argc, char *argv[])
+#endif
 {
   MetricsFinder *finder = new CacheMetricsFinder;
 

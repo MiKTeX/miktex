@@ -9,6 +9,7 @@
 
 /* Allow compilation on Windows (thanks, Fabrice Popineau). */
 #if defined(MIKTEX_WINDOWS)
+# define CDECL
 #else
 #ifdef WIN32
 # ifdef __MINGW32__

@@ -1,4 +1,4 @@
-/* otfinfo.rc: version number                           -*- C++ -*-
+/* ttftotype42.rc: version number                       -*- C++ -*-
 
    Copyright (C) 2020 Christian Schenk
 
@@ -19,8 +19,8 @@
 
 #include "lcdf-typetools-version.h"
 
-#define VER_FILEDESCRIPTION_STR "Reports information about the named OpenType font"
-#define VER_INTERNALNAME_STR "otfinfo"
-#define VER_ORIGINALFILENAME_STR "miktex-otfinfo.exe"
+#define VER_FILEDESCRIPTION_STR "Translates a TrueType or TrueType-flavored OpenType font into PostScript Type 42 format"
+#define VER_INTERNALNAME_STR "ttftotype42"
+#define VER_ORIGINALFILENAME_STR "miktex-ttftotype42.exe"
 
 #include "miktex/win/version.rc"

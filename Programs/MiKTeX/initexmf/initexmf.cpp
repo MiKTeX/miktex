@@ -1501,7 +1501,17 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PREFIX "fc-validate" MIKTEX_EXE_FILE_SUFFIX, { "fc-validate" } },
 #endif
 #if defined(WITH_LCDF_TYPETOOLS)
+  { MIKTEX_PREFIX "cfftot1" MIKTEX_EXE_FILE_SUFFIX, { "cfftot1" } },
+  { MIKTEX_PREFIX "mmafm" MIKTEX_EXE_FILE_SUFFIX, { "mmafm" } },
+  { MIKTEX_PREFIX "mmpfb" MIKTEX_EXE_FILE_SUFFIX, { "mmpfb" } },
   { MIKTEX_PREFIX "otfinfo" MIKTEX_EXE_FILE_SUFFIX, { "otfinfo" } },
+  { MIKTEX_PREFIX "otftotfm" MIKTEX_EXE_FILE_SUFFIX, { "otftotfm" } },
+  { MIKTEX_PREFIX "t1dotlessj" MIKTEX_EXE_FILE_SUFFIX, { "t1dotlessj" } },
+  { MIKTEX_PREFIX "t1lint" MIKTEX_EXE_FILE_SUFFIX, { "t1lint" } },
+  { MIKTEX_PREFIX "t1rawafm" MIKTEX_EXE_FILE_SUFFIX, { "t1rawafm" } },
+  { MIKTEX_PREFIX "t1reencode" MIKTEX_EXE_FILE_SUFFIX, { "t1reencode" } },
+  { MIKTEX_PREFIX "t1testpage" MIKTEX_EXE_FILE_SUFFIX, { "t1testpage" } },
+  { MIKTEX_PREFIX "ttftotype42" MIKTEX_EXE_FILE_SUFFIX, { "ttftotype42" } },
 #endif
 #if defined(MIKTEX_WINDOWS)
   { MIKTEX_CONSOLE_EXE, { MIKTEX_TASKBAR_ICON_EXE, MIKTEX_UPDATE_EXE } },

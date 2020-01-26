@@ -1,4 +1,4 @@
-/* otfinfo.rc: version number                           -*- C++ -*-
+/* t1testpage.rc: version number                        -*- C++ -*-
 
    Copyright (C) 2020 Christian Schenk
 
@@ -19,8 +19,8 @@
 
 #include "lcdf-typetools-version.h"
 
-#define VER_FILEDESCRIPTION_STR "Reports information about the named OpenType font"
-#define VER_INTERNALNAME_STR "otfinfo"
-#define VER_ORIGINALFILENAME_STR "miktex-otfinfo.exe"
+#define VER_FILEDESCRIPTION_STR "Creates a PostScript proof document"
+#define VER_INTERNALNAME_STR "t1testpage"
+#define VER_ORIGINALFILENAME_STR "miktex-t1testpage.exe"
 
 #include "miktex/win/version.rc"

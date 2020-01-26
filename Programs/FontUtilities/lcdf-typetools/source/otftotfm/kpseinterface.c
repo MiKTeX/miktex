@@ -11,6 +11,10 @@
  * Public License for more details.
  */
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include <kpathsea/config.h>
 #ifdef HAVE_CONFIG_H
 # include <config.h>

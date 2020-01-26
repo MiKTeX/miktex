@@ -7,7 +7,7 @@
 #cmakedefine CLOSEDIR_VOID 1
 
 /* Directory for glyphlist.txt files. */
-#cmakedefine GLYPHLISTDIR
+#define GLYPHLISTDIR "/GLYPHLISTDIR"
 
 /* Define if the va_list type is addressable. */
 #cmakedefine HAVE_ADDRESSABLE_VA_LIST

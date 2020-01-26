@@ -222,6 +222,14 @@ MIKTEX_END_EXTERN_C_BLOCK;
 #define IS_DIR_SEP_CH(ch) ((ch) == '/')
 
 #if defined(MIKTEX_WINDOWS)
+#  define ENV_SEP ';'
+#  define ENV_SEP_STRING ";"
+#else
+#  define ENV_SEP ':'
+#  define ENV_SEP_STRING ":"
+#endif
+
+#if defined(MIKTEX_WINDOWS)
 #  define IS_ENV_SEP(ch) ((ch) == ';')
 #else
 #  define IS_ENV_SEP(ch) ((ch) == ':')

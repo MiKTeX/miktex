@@ -35,6 +35,9 @@
 # include <fcntl.h>
 # include <io.h>
 #endif
+#if defined(MIKTEX)
+#define exit(x) throw(x)
+#endif
 
 #define WEIGHT_OPT	300
 #define WIDTH_OPT	301
@@ -254,7 +257,11 @@ print_amcp_info(MultipleMasterSpace *mmspace, FILE *f)
 
 
 int
+#if defined(MIKTEX)
+Main(int argc, char** argv)
+#else
 main(int argc, char *argv[])
+#endif
 {
   PsresDatabase *psres = new PsresDatabase;
   psres->add_psres_path(getenv("PSRESOURCEPATH"), 0, false);

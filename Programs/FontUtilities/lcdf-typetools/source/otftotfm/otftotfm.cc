@@ -63,6 +63,9 @@
 #ifdef HAVE_FCNTL_H
 # include <fcntl.h>
 #endif
+#if defined(MIKTEX)
+#define exit(x) throw(x)
+#endif
 
 using namespace Efont;
 
@@ -1839,7 +1842,11 @@ parse_base_encodings(const String &filename, ErrorHandler *errh)
 }
 
 int
+#if defined(MIKTEX)
+Main(int argc, char** argv)
+#else
 main(int argc, char *argv[])
+#endif
 {
 #ifndef WIN32
     handle_sigchld();

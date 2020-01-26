@@ -47,11 +47,16 @@ configure_file(
 add_definitions(
   -DCPLUSPLUSMAIN
   -DHAVE_CONFIG_H
+  -DHAVE_DECL_KPSE_ENC_FORMAT
+  -DHAVE_DECL_KPSE_OPENTYPE_FORMAT
+  -DHAVE_KPATHSEA
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
-    -D_UNICODE -DUNICODE
+    -DNOMINMAX
+    -DUNICODE
+    -D_UNICODE
   )
 endif()
 
@@ -192,6 +197,124 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 ###############################################################################
+## cfftot1
+
+set(cfftot1_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/lcdf-typetools-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
+  source/cfftot1/cfftot1.cc
+  source/cfftot1/maket1font.cc
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND cfftot1_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    cfftot1.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}cfftot1 ${cfftot1_sources} ${headers})
+
+set_property(TARGET ${MIKTEX_PREFIX}cfftot1 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}cfftot1
+  ${app_dll_name}
+  ${core_dll_name}
+  libefont
+  liblcdf
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}cfftot1
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+    ws2_32
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}cfftot1 DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
+## mmafm
+
+set(mmafm_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/lcdf-typetools-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
+  source/mmafm/main.cc
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND mmafm_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    mmafm.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}mmafm ${mmafm_sources} ${headers})
+
+set_property(TARGET ${MIKTEX_PREFIX}mmafm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}mmafm
+  ${app_dll_name}
+  ${core_dll_name}
+  libefont
+  liblcdf
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}mmafm
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+    ws2_32
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}mmafm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
+## mmpfb
+
+set(mmpfb_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/lcdf-typetools-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
+  source/mmpfb/main.cc
+  source/mmpfb/myfont.cc
+  source/mmpfb/myfont.hh
+  source/mmpfb/t1minimize.cc
+  source/mmpfb/t1minimize.hh
+  source/mmpfb/t1rewrit.cc
+  source/mmpfb/t1rewrit.hh
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND mmpfb_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    mmpfb.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}mmpfb ${mmpfb_sources} ${headers})
+
+set_property(TARGET ${MIKTEX_PREFIX}mmpfb PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}mmpfb
+  ${app_dll_name}
+  ${core_dll_name}
+  libefont
+  liblcdf
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}mmpfb
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+    ws2_32
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}mmpfb DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
 ## otfinfo
 
 set(otfinfo_sources
@@ -227,3 +350,286 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 install(TARGETS ${MIKTEX_PREFIX}otfinfo DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
+## otftotfm
+
+set(otftotfm_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/lcdf-typetools-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
+  source/otftotfm/automatic.cc
+  source/otftotfm/automatic.hh
+  source/otftotfm/dvipsencoding.cc
+  source/otftotfm/dvipsencoding.hh
+  source/otftotfm/glyphfilter.cc
+  source/otftotfm/glyphfilter.hh
+  source/otftotfm/kpseinterface.c
+  source/otftotfm/kpseinterface.h
+  source/otftotfm/metrics.cc
+  source/otftotfm/metrics.hh
+  source/otftotfm/otftotfm.cc
+  source/otftotfm/otftotfm.hh
+  source/otftotfm/secondary.cc
+  source/otftotfm/secondary.hh
+  source/otftotfm/setting.hh
+  source/otftotfm/uniprop.cc
+  source/otftotfm/uniprop.hh
+  source/otftotfm/util.cc
+  source/otftotfm/util.hh
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND otftotfm_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    otftotfm.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}otftotfm ${otftotfm_sources} ${headers})
+
+set_property(TARGET ${MIKTEX_PREFIX}otftotfm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}otftotfm
+  ${app_dll_name}
+  ${core_dll_name}
+  ${kpsemu_dll_name}
+  libefont
+  liblcdf
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}otftotfm
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+    ws2_32
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}otftotfm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
+## t1dotlessj
+
+set(t1dotlessj_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/lcdf-typetools-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
+  source/t1dotlessj/t1dotlessj.cc
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND t1dotlessj_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    t1dotlessj.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}t1dotlessj ${t1dotlessj_sources} ${headers})
+
+set_property(TARGET ${MIKTEX_PREFIX}t1dotlessj PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}t1dotlessj
+  ${app_dll_name}
+  ${core_dll_name}
+  libefont
+  liblcdf
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}t1dotlessj
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+    ws2_32
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}t1dotlessj DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
+## t1lint
+
+set(t1lint_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/lcdf-typetools-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
+  source/t1lint/cscheck.cc
+  source/t1lint/cscheck.hh
+  source/t1lint/t1lint.cc
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND t1lint_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    t1lint.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}t1lint ${t1lint_sources} ${headers})
+
+set_property(TARGET ${MIKTEX_PREFIX}t1lint PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}t1lint
+  ${app_dll_name}
+  ${core_dll_name}
+  libefont
+  liblcdf
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}t1lint
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+    ws2_32
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}t1lint DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
+## t1rawafm
+
+set(t1rawafm_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/lcdf-typetools-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
+  source/t1rawafm/t1rawafm.cc
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND t1rawafm_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    t1rawafm.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}t1rawafm ${t1rawafm_sources} ${headers})
+
+set_property(TARGET ${MIKTEX_PREFIX}t1rawafm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}t1rawafm
+  ${app_dll_name}
+  ${core_dll_name}
+  libefont
+  liblcdf
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}t1rawafm
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+    ws2_32
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}t1rawafm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
+## t1reencode
+
+set(t1reencode_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/lcdf-typetools-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
+  source/t1reencode/t1reencode.cc
+  source/t1reencode/util.cc
+  source/t1reencode/util.hh
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND t1reencode_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    t1reencode.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}t1reencode ${t1reencode_sources} ${headers})
+
+set_property(TARGET ${MIKTEX_PREFIX}t1reencode PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}t1reencode
+  ${app_dll_name}
+  ${core_dll_name}
+  libefont
+  liblcdf
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}t1reencode
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+    ws2_32
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}t1reencode DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
+## t1testpage
+
+set(t1testpage_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/lcdf-typetools-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
+  source/t1testpage/t1testpage.cc
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND t1testpage_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    t1testpage.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}t1testpage ${t1testpage_sources} ${headers})
+
+set_property(TARGET ${MIKTEX_PREFIX}t1testpage PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}t1testpage
+  ${app_dll_name}
+  ${core_dll_name}
+  libefont
+  liblcdf
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}t1testpage
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+    ws2_32
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}t1testpage DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+###############################################################################
+## ttftotype42
+
+set(ttftotype42_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/lcdf-typetools-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
+  source/ttftotype42/ttftotype42.cc
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND ttftotype42_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ttftotype42.rc
+  )
+endif()
+
+add_executable(${MIKTEX_PREFIX}ttftotype42 ${ttftotype42_sources} ${headers})
+
+set_property(TARGET ${MIKTEX_PREFIX}ttftotype42 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(${MIKTEX_PREFIX}ttftotype42
+  ${app_dll_name}
+  ${core_dll_name}
+  libefont
+  liblcdf
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}ttftotype42
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+    ws2_32
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}ttftotype42 DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+

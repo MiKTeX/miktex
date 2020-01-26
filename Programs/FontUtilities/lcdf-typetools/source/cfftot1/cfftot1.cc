@@ -35,6 +35,9 @@
 # include <fcntl.h>
 # include <io.h>
 #endif
+#if defined(MIKTEX)
+#define exit(x) throw(x)
+#endif
 
 using namespace Efont;
 
@@ -183,7 +186,11 @@ do_file(const char *infn, const char *outfn, PermString name, ErrorHandler *errh
 }
 
 int
+#if defined(MIKTEX)
+Main(int argc, char** argv)
+#else
 main(int argc, char *argv[])
+#endif
 {
     Clp_Parser *clp =
 	Clp_NewParser(argc, (const char * const *)argv, sizeof(options) / sizeof(options[0]), options);

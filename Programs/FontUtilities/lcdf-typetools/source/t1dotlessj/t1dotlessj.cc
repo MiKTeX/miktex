@@ -36,6 +36,9 @@
 # include <fcntl.h>
 # include <io.h>
 #endif
+#if defined(MIKTEX)
+#define exit(x) throw(x)
+#endif
 
 // also see otftotfm/automatic.cc
 enum { EXIT_NORMAL = 0, EXIT_DOTLESSJ_EXISTS = 1, EXIT_J_NODOT = 2,
@@ -266,7 +269,11 @@ do_file(const char *filename, PsresDatabase *psres, ErrorHandler *errh)
 }
 
 int
+#if defined(MIKTEX)
+Main(int argc, char** argv)
+#else
 main(int argc, char *argv[])
+#endif
 {
     PsresDatabase *psres = new PsresDatabase;
     psres->add_psres_path(getenv("PSRESOURCEPATH"), 0, false);
