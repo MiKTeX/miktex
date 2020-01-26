@@ -2497,10 +2497,13 @@ filter_stream_decode_FlateDecode (const void *data, size_t len, struct decode_pa
   for (;;) {
     int status;
     status = inflate(&z, Z_NO_FLUSH);
-    if (status == Z_STREAM_END)
+    if (status == Z_STREAM_END) {
       break;
-    else if (status != Z_OK) {
-      WARN("inflate() failed. Broken PDF file?");
+    } else if (status == Z_DATA_ERROR && z.avail_in == 0) {
+      WARN("Ignoring zlib error: status=%d, message=\"%s\"", status, z.msg);
+      break;
+    } else if (status != Z_OK) {
+      WARN("inflate() failed (status=%d, message=\"%s\").", status, z.msg);
       inflateEnd(&z);
       pdf_release_obj(tmp);
       return NULL;

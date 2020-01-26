@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -120,6 +120,7 @@ set(dvipdfm_x_sources
   source/mfileio.h
   source/mpost.c
   source/mpost.h
+  source/mt19937ar.c
   source/numbers.c
   source/numbers.h
   source/otl_opt.c

@@ -571,7 +571,7 @@ reset_text_state (void)
   /*
    * We need to reset the line matrix to handle slanted fonts.
    */
-  pdf_doc_add_page_content(" BT", 3);  /* op: BT */
+  pdf_doc_add_page_content(" q BT", 5);  /* op: BT */
   /*
    * text_state.matrix is identity at top of page.
    * This sometimes write unnecessary "Tm"s when transition from
@@ -619,7 +619,7 @@ graphics_mode (void)
     pdf_doc_add_page_content(text_state.is_mb ? ">]TJ" : ")]TJ", 4);  /* op: TJ */
     /* continue */
   case TEXT_MODE:
-    pdf_doc_add_page_content(" ET", 3);  /* op: ET */
+    pdf_doc_add_page_content(" ET Q", 5);  /* op: ET */
     text_state.force_reset =  0;
     text_state.font_id     = -1;
     break;

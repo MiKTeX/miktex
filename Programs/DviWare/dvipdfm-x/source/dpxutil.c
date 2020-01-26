@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -163,6 +163,9 @@ dpx_util_format_asn_date (char *date_string, int need_timezone)
     tz_offset = 0;
   }
   if (need_timezone) {
+    if (bd_time->tm_isdst > 0) {
+      tz_offset += 3600;
+    }
     sprintf(date_string, "D:%04d%02d%02d%02d%02d%02d%c%02d'%02d'",
             bd_time->tm_year + 1900, bd_time->tm_mon + 1, bd_time->tm_mday,
             bd_time->tm_hour, bd_time->tm_min, bd_time->tm_sec,

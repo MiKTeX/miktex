@@ -11,6 +11,10 @@ MiKTeX is now available for CentOS 8.
 The MiKTeX distribution now includes [LCDF Typetools](https://ctan.org/pkg/lcdf-typetools),
 a bundle of outline font manipulation tools.
 
+### Upgraded programs
+
+* dvipdfmx 20200116
+
 ### Fixed issues
 
 * [420](https://github.com/MiKTeX/miktex/issues/420): miktexsetup fails -- how to advance?

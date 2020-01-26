@@ -579,35 +579,31 @@ otl_gsub_read_alternate (struct otl_gsub_subtab *subtab, sfnt *sfont)
   data->AlternateSetCount = altset_offsets.count;
   if (data->AlternateSetCount == 0) {
     data->AlternateSet    = NULL;
-    data->coverage.count  = 0;
-    data->coverage.format = 0;
-    data->coverage.list   = NULL;
-    return  len;
-  }
-  data->AlternateSet = NEW(data->AlternateSetCount,
-                           struct otl_gsub_altset);
-  for (i = 0; i < data->AlternateSetCount; i++) {
-    struct otl_gsub_altset *altset;
-    ULONG  altset_offset;
+  } else {
+    data->AlternateSet = NEW(data->AlternateSetCount,
+                             struct otl_gsub_altset);
+    for (i = 0; i < data->AlternateSetCount; i++) {
+      struct otl_gsub_altset *altset;
+      ULONG  altset_offset;
 
-    altset = &(data->AlternateSet[i]);
+      altset = &(data->AlternateSet[i]);
 
-    altset_offset = offset + altset_offsets.value[i];
-    sfnt_seek_set(sfont, altset_offset);
-    altset->GlyphCount = sfnt_get_ushort(sfont);
-    len += 2;
-    if (altset->GlyphCount == 0) {
-      altset->Alternate = NULL;
-      continue;
-    }
-    altset->Alternate = NEW(altset->GlyphCount, GlyphID);
-    for (j = 0; j < altset->GlyphCount; j++) {
-      altset->Alternate[j] = sfnt_get_ushort(sfont);
+      altset_offset = offset + altset_offsets.value[i];
+      sfnt_seek_set(sfont, altset_offset);
+      altset->GlyphCount = sfnt_get_ushort(sfont);
       len += 2;
+      if (altset->GlyphCount == 0) {
+        altset->Alternate = NULL;
+        continue;
+      }
+      altset->Alternate = NEW(altset->GlyphCount, GlyphID);
+      for (j = 0; j < altset->GlyphCount; j++) {
+        altset->Alternate[j] = sfnt_get_ushort(sfont);
+        len += 2;
+      }
     }
+    clt_release_number_list(&altset_offsets);
   }
-  clt_release_number_list(&altset_offsets);
-
   sfnt_seek_set(sfont, offset + cov_offset);
   len += clt_read_coverage(&data->coverage, sfont);
 
@@ -646,49 +642,46 @@ otl_gsub_read_ligature (struct otl_gsub_subtab *subtab, sfnt *sfont)
   data->LigSetCount = ligset_offsets.count;
   if (data->LigSetCount == 0) {
     data->LigatureSet    = NULL;
-    data->coverage.count  = 0;
-    data->coverage.format = 0;
-    data->coverage.list   = NULL;
-    return len;
-  }
-  data->LigatureSet = NEW(data->LigSetCount,
-                          struct otl_gsub_ligset);
-  for (i = 0; i < data->LigSetCount; i++) {
-    struct clt_number_list  ligset_tab;
-    struct otl_gsub_ligset *ligset;
-    ULONG  ligset_offset;
-    USHORT count;
+  } else {
+    data->LigatureSet = NEW(data->LigSetCount,
+                            struct otl_gsub_ligset);
+    for (i = 0; i < data->LigSetCount; i++) {
+      struct clt_number_list  ligset_tab;
+      struct otl_gsub_ligset *ligset;
+      ULONG  ligset_offset;
+      USHORT count;
 
-    ligset = &(data->LigatureSet[i]);
+      ligset = &(data->LigatureSet[i]);
 
-    ligset_offset = offset + ligset_offsets.value[i];
-    sfnt_seek_set(sfont, ligset_offset);
-    len += clt_read_number_list(&ligset_tab, sfont);
+      ligset_offset = offset + ligset_offsets.value[i];
+      sfnt_seek_set(sfont, ligset_offset);
+      len += clt_read_number_list(&ligset_tab, sfont);
 
-    ligset->LigatureCount = ligset_tab.count;
-    if (ligset_tab.count == 0) {
-      ligset->Ligature = NULL;
-      continue;
-    }
-    ligset->Ligature = NEW(ligset_tab.count,
-                           struct otl_gsub_ligtab);
-    for (j = 0; j < ligset_tab.count; j++) {
-      sfnt_seek_set(sfont, ligset_offset + ligset_tab.value[j]);
-      ligset->Ligature[j].LigGlyph = sfnt_get_ushort(sfont);
-      ligset->Ligature[j].CompCount = sfnt_get_ushort(sfont);
-      if (ligset->Ligature[j].CompCount == 0) {
-        ligset->Ligature[j].Component = NULL;
+      ligset->LigatureCount = ligset_tab.count;
+      if (ligset_tab.count == 0) {
+        ligset->Ligature = NULL;
         continue;
       }
-      ligset->Ligature[j].Component =
-        NEW(ligset->Ligature[j].CompCount - 1, GlyphID);
-      for (count = 0;
-           count < ligset->Ligature[j].CompCount - 1; count++) {
-        ligset->Ligature[j].Component[count] = sfnt_get_ushort(sfont);
+      ligset->Ligature = NEW(ligset_tab.count,
+                             struct otl_gsub_ligtab);
+      for (j = 0; j < ligset_tab.count; j++) {
+        sfnt_seek_set(sfont, ligset_offset + ligset_tab.value[j]);
+        ligset->Ligature[j].LigGlyph = sfnt_get_ushort(sfont);
+        ligset->Ligature[j].CompCount = sfnt_get_ushort(sfont);
+        if (ligset->Ligature[j].CompCount == 0) {
+          ligset->Ligature[j].Component = NULL;
+          continue;
+        }
+        ligset->Ligature[j].Component =
+          NEW(ligset->Ligature[j].CompCount - 1, GlyphID);
+        for (count = 0;
+            count < ligset->Ligature[j].CompCount - 1; count++) {
+          ligset->Ligature[j].Component[count] = sfnt_get_ushort(sfont);
+        }
+        len += 4 + count * 2;
       }
-      len += 4 + count * 2;
+      clt_release_number_list(&ligset_tab);
     }
-    clt_release_number_list(&ligset_tab);
   }
   clt_release_number_list(&ligset_offsets);
 
