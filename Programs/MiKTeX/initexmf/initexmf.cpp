@@ -509,6 +509,7 @@ enum Option
   OPT_ENGINE,
   OPT_FORCE,
   OPT_LIST_MODES,
+  OPT_MKLANGS,
   OPT_MKLINKS,
   OPT_MKMAPS,
   OPT_PRINCIPAL,
@@ -542,7 +543,6 @@ enum Option
   OPT_COMMON_DATA,              // <internal/>
   OPT_COMMON_INSTALL,           // <internal/>
   OPT_COMMON_ROOTS,             // <internal/>
-  OPT_MKLANGS,                  // <internal/>
   OPT_LOG_FILE,                 // <internal/>
   OPT_DEFAULT_PAPER_SIZE,       // <internal/>
 #if defined(MIKTEX_WINDOWS)

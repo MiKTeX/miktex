@@ -170,7 +170,7 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "mklangs", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_MKLANGS,
     T_("Create language.dat, language.dat.lua and language.def."),
     nullptr
