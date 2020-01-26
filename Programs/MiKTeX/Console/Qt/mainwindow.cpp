@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017-2019 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -2181,12 +2181,9 @@ void MainWindow::InstallPackage()
     {
       return;
     }
-    int ret = UpdateDialog::DoModal(this, packageManager, toBeInstalled, toBeRemoved);
-    if (ret == QDialog::Accepted)
-    {
-      packageModel->Reload();
-      ui->treeViewPackages->update();
-    }
+    UpdateDialog::DoModal(this, packageManager, toBeInstalled, toBeRemoved);
+    packageModel->Reload();
+    ui->treeViewPackages->update();
   }
   catch (const MiKTeXException& e)
   {
