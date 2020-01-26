@@ -1174,6 +1174,7 @@ check_function_exists(unlink HAVE_UNLINK)
 check_function_exists(utime HAVE_UTIME)
 check_function_exists(vfork HAVE_VFORK)
 check_function_exists(vprintf HAVE_VPRINTF)
+check_function_exists(waitpid HAVE_WAITPID)
 
 if(WITH_UI_MFC)
   set(HAVE_AFXWIN_H "YES")
