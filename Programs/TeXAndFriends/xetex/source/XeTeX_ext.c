@@ -41,7 +41,10 @@ authorization from the copyright holders.
 #endif
 #include <w2c/config.h>
 
+#ifndef POPPLER_VERSION
 #include <poppler-config.h>
+#endif
+
 #include <png.h>
 #include <zlib.h>
 #include <graphite2/Font.h>
