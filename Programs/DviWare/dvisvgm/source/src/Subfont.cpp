@@ -38,13 +38,13 @@ using namespace std;
 // helper functions
 
 static int skip_mapping_data (istream &is);
-static bool scan_line (const char *line, int lineno, vector<uint16_t> &mapping, const string &fname, long &pos);
+static bool scan_line (const char *line, int lineno, vector<uint16_t> &mapping, const string &fname, long &offset);
 
 
 /** Constructs a new SubfontDefinition object.
  *  @param[in] name name of subfont definition
  *  @param[in] fpath path to corresponding .sfd file*/
-SubfontDefinition::SubfontDefinition (const string &name, const char *fpath) : _sfname(name) {
+SubfontDefinition::SubfontDefinition (string name, const char *fpath) : _sfname(std::move(name)) {
 	// read all subfont IDs from the .sfd file but skip the mapping data
 #if defined(MIKTEX_WINDOWS)
         ifstream is(UW_(fpath));
@@ -59,7 +59,7 @@ SubfontDefinition::SubfontDefinition (const string &name, const char *fpath) : _
 		else {
 			string id;
 			while (is && !isspace(is.peek()))
-				id += is.get();
+				id += char(is.get());
 			if (!id.empty()) {
 				auto state = _subfonts.emplace(pair<string,unique_ptr<Subfont>>(id, unique_ptr<Subfont>()));
 				if (state.second) // id was not present in map already
@@ -148,7 +148,7 @@ bool Subfont::read () {
 			else {
 				string id;
 				while (is && !isspace(is.peek()))
-					id += is.get();
+					id += char(is.get());
 				if (id != _id)
 					lineno += skip_mapping_data(is);
 				else {

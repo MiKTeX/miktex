@@ -95,7 +95,7 @@ static char prepare_mode (InputReader &ir) {
 void PdfSpecialHandler::preprocessPagesize (StreamInputReader &ir, SpecialActions &actions) {
 	// add page sizes to collection of paper sizes in order to handle them equally
 	SpecialHandler *handler = SpecialManager::instance().findHandlerByName("papersize");
-	if (auto *papersizeHandler = dynamic_cast<PapersizeSpecialHandler*>(handler)) {
+	if (auto papersizeHandler = dynamic_cast<PapersizeSpecialHandler*>(handler)) {
 		try {
 			Length width, height;
 			// parse parameter sequence of the form (name length)+
@@ -152,8 +152,8 @@ void PdfSpecialHandler::preprocessDest (StreamInputReader &ir, SpecialActions &a
 	});
 	if (objects.size() < 2)
 		return;
-	auto *name = objects[0].get<string>();
-	auto *dest = objects[1].get<PDFArray>();
+	auto name = objects[0].get<string>();
+	auto dest = objects[1].get<PDFArray>();
 	// get target info from array [pageno /XYZ xpos ypos zpos]
 	if (name && dest && dest->size() >= 4 && dest->at(0).get<int>()) {
 		int pageno = *dest->at(0).get<int>();
@@ -210,7 +210,7 @@ static Color to_color (const PDFObject &obj) {
 	Color color;
 	if (obj.get<int>() || obj.get<double>())
 		color.setGray(double(obj));
-	else if (auto *colorArray = obj.get<PDFArray>()) {
+	else if (auto colorArray = obj.get<PDFArray>()) {
 		size_t size = min(size_t(4), colorArray->size());
 		valarray<double> colorComps(size);
 		for (size_t i=0; i < size; i++)
@@ -262,7 +262,7 @@ void PdfSpecialHandler::processDest (StreamInputReader &ir, SpecialActions &acti
 	PDFParser parser;
 	vector<PDFObject> objects = parser.parse(ir);
 	if (!objects.empty()) {
-		if (auto *name = objects[0].get<string>())
+		if (auto name = objects[0].get<string>())
 			HyperlinkManager::instance().setActiveNameAnchor(*name, actions);
 	}
 }

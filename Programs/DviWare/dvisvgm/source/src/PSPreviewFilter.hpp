@@ -30,7 +30,7 @@ class SpecialActions;
 
 class PSPreviewFilter : public PSFilter {
 	public:
-		PSPreviewFilter (PSInterpreter &psi);
+		explicit PSPreviewFilter (PSInterpreter &psi) : PSFilter(psi) {}
 		void activate ();
 		void execute (const char *code, size_t len) override;
 		bool active () const override          {return _active;}
@@ -44,11 +44,11 @@ class PSPreviewFilter : public PSFilter {
 		double width () const;
 
 	private:
-		std::string _version;  ///< version string of preview package
-		bool _active;          ///< true if filter is active
-		bool _tightpage;       ///< true if tightpage option was given
-		double _dvi2bp;        ///< factor to convert dvi units to PS points
-		std::vector<int> _boxExtents;  ///< bounding box data set by the preview package (in DVI units)
+		std::string _version;         ///< version string of preview package
+		bool _active=false;           ///< true if filter is active
+		bool _tightpage=false;        ///< true if tightpage option was given
+		double _dvi2bp=1.0/65536.0;   ///< factor to convert dvi units to PS points
+		std::vector<int> _boxExtents; ///< bounding box data set by the preview package (in DVI units)
 };
 
 #endif

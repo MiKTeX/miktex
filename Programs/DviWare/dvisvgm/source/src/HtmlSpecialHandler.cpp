@@ -31,7 +31,7 @@ void HtmlSpecialHandler::preprocess (const string&, istream &is, SpecialActions 
 	ir.skipSpace();
 	// collect page number and ID of named anchors
 	map<string,string> attribs;
-	if (ir.check("<a ") && ir.parseAttributes(attribs, "\"") > 0) {
+	if (ir.check("<a ") && ir.parseAttributes(attribs, true, "\"") > 0) {
 		map<string,string>::iterator it;
 		if ((it = attribs.find("name")) != attribs.end())
 			HyperlinkManager::instance().addNameAchor(it->second, actions.getCurrentPageNumber());
@@ -47,7 +47,7 @@ bool HtmlSpecialHandler::process (const string&, istream &is, SpecialActions &ac
 	ir.skipSpace();
 	map<string,string> attribs;
 	map<string,string>::iterator it;
-	if (ir.check("<a ") && ir.parseAttributes(attribs, "\"") > 0) {
+	if (ir.check("<a ") && ir.parseAttributes(attribs, true, "\"") > 0) {
 		if ((it = attribs.find("href")) != attribs.end())   // <a href="URI">
 			HyperlinkManager::instance().createLink(it->second, actions);
 		else if ((it = attribs.find("name")) != attribs.end())  // <a name="ID">
@@ -59,7 +59,7 @@ bool HtmlSpecialHandler::process (const string&, istream &is, SpecialActions &ac
 		HyperlinkManager::instance().closeAnchor(actions);
 	else if (ir.check("<img src=")) {
 	}
-	else if (ir.check("<base ") && ir.parseAttributes(attribs, "\"") > 0 && (it = attribs.find("href")) != attribs.end())
+	else if (ir.check("<base ") && ir.parseAttributes(attribs, true, "\"") > 0 && (it = attribs.find("href")) != attribs.end())
 		HyperlinkManager::instance().setBaseUrl(it->second);
 	return true;
 }

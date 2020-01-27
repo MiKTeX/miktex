@@ -25,14 +25,14 @@
 
 class FixWord {
 	public:
-		FixWord () : _value(0) {}
+		FixWord () =default;
 		FixWord (int32_t fw) : _value(fw) {}
 		explicit operator double () const {return double(_value)/(1 << 20);}
 		bool operator < (FixWord fw) const {return _value < fw._value;}
 		bool operator == (FixWord fw) const {return _value == fw._value;}
 
 	private:
-		int32_t _value;
+		int32_t _value=0;
 };
 
 #endif

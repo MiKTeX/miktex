@@ -39,7 +39,7 @@ string PSPattern::svgID () const {
 /** Appends the definition of this pattern to the "def" section of the SVG tree. */
 void PSPattern::apply (SpecialActions &actions) {
 	if (auto pattern = createPatternNode())
-		actions.appendToDefs(std::move(pattern));
+		actions.svgTree().appendToDefs(std::move(pattern));
 }
 
 
@@ -54,18 +54,18 @@ PSTilingPattern::PSTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, dou
 
 
 /** Assigns a new group element. */
-void PSTilingPattern::setGroupNode (unique_ptr<XMLElementNode> &&node) {
+void PSTilingPattern::setGroupNode (unique_ptr<XMLElement> node) {
 	_groupNode = std::move(node);
 	_groupNodePtr = _groupNode.get();
 }
 
 
 /** Creates a new pattern element representing the pattern defined in the PS code. */
-unique_ptr<XMLElementNode> PSTilingPattern::createPatternNode () const {
+unique_ptr<XMLElement> PSTilingPattern::createPatternNode () const {
 	if (!_groupNode)
 		return nullptr;
 	BoundingBox box(_bbox.minX(), _bbox.minY(), _bbox.minX()+_xstep, _bbox.minY()+_ystep);
-	auto pattern = util::make_unique<XMLElementNode>("pattern");
+	auto pattern = util::make_unique<XMLElement>("pattern");
 	pattern->addAttribute("id", svgID());
 	pattern->addAttribute("x", box.minX());
 	pattern->addAttribute("y", box.minY());
@@ -74,7 +74,7 @@ unique_ptr<XMLElementNode> PSTilingPattern::createPatternNode () const {
 	pattern->addAttribute("viewBox", box.toSVGViewBox());
 	pattern->addAttribute("patternUnits", "userSpaceOnUse");
 	if (!_matrix.isIdentity())
-		pattern->addAttribute("patternTransform", _matrix.getSVG());
+		pattern->addAttribute("patternTransform", _matrix.toSVG());
 	if (_xstep < _bbox.width() || _ystep < _bbox.height()) {  // overlapping tiles?
 		// disable clipping at the tile borders => tiles become "transparent"
 		pattern->addAttribute("overflow", "visible");
@@ -89,10 +89,10 @@ unique_ptr<XMLElementNode> PSTilingPattern::createPatternNode () const {
 
 /** Creates a new clip element restricting the drawing area to the
  *  dimensions given in the definition of the pattern. */
-unique_ptr<XMLElementNode> PSTilingPattern::createClipNode() const {
-	auto clip = util::make_unique<XMLElementNode>("clipPath");
+unique_ptr<XMLElement> PSTilingPattern::createClipNode() const {
+	auto clip = util::make_unique<XMLElement>("clipPath");
 	clip->addAttribute("id", "pc"+XMLString(psID()));
-	auto rect = util::make_unique<XMLElementNode>("rect");
+	auto rect = util::make_unique<XMLElement>("rect");
 	rect->addAttribute("x", _bbox.minX());
 	rect->addAttribute("y", _bbox.minY());
 	rect->addAttribute("width", _bbox.width());
@@ -104,9 +104,9 @@ unique_ptr<XMLElementNode> PSTilingPattern::createClipNode() const {
 
 /** Creates a new group element that contains all "drawing" elements that
  *  define the pattern graphic. */
-unique_ptr<XMLElementNode> PSTilingPattern::createGroupNode () const {
+unique_ptr<XMLElement> PSTilingPattern::createGroupNode () const {
 	// add all succeeding path elements to this group
-	auto group = util::make_unique<XMLElementNode>("g");
+	auto group = util::make_unique<XMLElement>("g");
 	group->addAttribute("clip-path", XMLString("url(#pc")+XMLString(psID())+")");
 	return group;
 }
@@ -145,16 +145,16 @@ string PSUncoloredTilingPattern::svgID () const {
 /** Appends the definition of this pattern with the current color applied
  *  to the "def" section of the SVG tree. */
 void PSUncoloredTilingPattern::apply (SpecialActions &actions) {
-	set<Color>::iterator it=_colors.find(_currentColor);
+	auto it=_colors.find(_currentColor);
 	if (it == _colors.end()) {
 		if (_applied)
-			setGroupNode(util::static_unique_ptr_cast<XMLElementNode>(getGroupNode()->clone()));
+			setGroupNode(util::static_unique_ptr_cast<XMLElement>(getGroupNode()->clone()));
 		// assign current color to the pattern graphic
-		vector<XMLElementNode*> colored_elems;
+		vector<XMLElement*> colored_elems;
 		const array<const char*, 2> attribs = {{"fill", "stroke"}};
 		for (const char *attrib : attribs) {
 			getGroupNode()->getDescendants(nullptr, attrib, colored_elems);
-			for (XMLElementNode *elem : colored_elems) {
+			for (XMLElement *elem : colored_elems) {
 				if (string(elem->getAttributeValue(attrib)) != "none")
 					elem->addAttribute(attrib, _currentColor.svgColorString());
 			}
@@ -167,7 +167,7 @@ void PSUncoloredTilingPattern::apply (SpecialActions &actions) {
 }
 
 
-unique_ptr<XMLElementNode> PSUncoloredTilingPattern::createClipNode() const {
+unique_ptr<XMLElement> PSUncoloredTilingPattern::createClipNode() const {
 	// only the first instance of this patterns get a clip element
 	if (_colors.empty())
 		return PSTilingPattern::createClipNode();

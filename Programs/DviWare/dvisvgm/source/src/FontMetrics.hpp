@@ -67,7 +67,7 @@ struct NullFontMetric : public FontMetrics {
 
 
 struct FontMetricException : public MessageException {
-	FontMetricException (const std::string &msg) : MessageException(msg) {}
+	explicit FontMetricException (const std::string &msg) : MessageException(msg) {}
 };
 
 #endif

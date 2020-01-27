@@ -25,11 +25,10 @@
 #include "Pair.hpp"
 #include "ShadingPatch.hpp"
 
-class TriangularPatch : public ShadingPatch
-{
+class TriangularPatch : public ShadingPatch {
 	public:
 		TriangularPatch ();
-		TriangularPatch (Color::ColorSpace cspace) : ShadingPatch(cspace) {}
+		explicit TriangularPatch (Color::ColorSpace cspace) : ShadingPatch(cspace) {}
 		TriangularPatch (const PointVec &points, const ColorVec &colors, Color::ColorSpace cspace, int edgeflag, TriangularPatch *patch);
 		int psShadingType() const override {return 4;}
 		DPair valueAt (double u, double v) const;
@@ -40,8 +39,8 @@ class TriangularPatch : public ShadingPatch
 		void setColors (const ColorVec &colors, int edgeflag, ShadingPatch *patch) override;
 		void setColors (const Color &c1, const Color &c2, const Color &c3);
 		void approximate (int gridsize, bool overlap, double delta, Callback &listener) const override;
-		void getBBox (BoundingBox &bbox) const override;
-		void getBoundaryPath(GraphicsPath<double> &path) const override;
+		BoundingBox getBBox () const override;
+		GraphicsPath<double> getBoundaryPath () const override;
 		int numPoints (int edgeflag) const override {return edgeflag == 0 ? 3 : 1;}
 		int numColors (int edgeflag) const override {return edgeflag == 0 ? 3 : 1;}
 
@@ -54,10 +53,9 @@ class TriangularPatch : public ShadingPatch
 };
 
 
-class LatticeTriangularPatch : public TriangularPatch
-{
+class LatticeTriangularPatch : public TriangularPatch {
 	public:
-		LatticeTriangularPatch (Color::ColorSpace cspace) : TriangularPatch(cspace) {}
+		explicit LatticeTriangularPatch (Color::ColorSpace cspace) : TriangularPatch(cspace) {}
 		int psShadingType() const override {return 5;}
 };
 

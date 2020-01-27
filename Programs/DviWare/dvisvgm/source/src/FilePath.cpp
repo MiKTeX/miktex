@@ -87,10 +87,28 @@ FilePath::FilePath (const string &path, bool isfile, const string &current_dir) 
 }
 
 
-/** Assigns a new path. Relative paths are relative to the current working directory.
+/** Assigns a new path of a file or directory that already exists.
+ *  Relative paths are relative to the current working directory.
  *  @param[in] path absolute or relative path to a file or directory */
-void FilePath::set(const string &path) {
-	init(path, !FileSystem::isDirectory(path), FileSystem::getcwd());
+void FilePath::set (const string &path) {
+	set(path, !FileSystem::isDirectory(path));
+}
+
+
+/** Assigns a new path. Relative paths are relative to the current working directory.
+ *  @param[in] path absolute or relative path to a file or directory
+ *  @param[in] isfile true if 'path' references a file, false if a directory is referenced */
+void FilePath::set (const string &path, bool isfile) {
+	init(path, isfile, FileSystem::getcwd());
+}
+
+
+/** Assigns a new path. Relative paths are relative to the current working directory.
+ *  @param[in] path absolute or relative path to a file or directory
+ *  @param[in] isfile true if 'path' references a file, false if a directory is referenced
+ *  @param[in] current_dir if 'path' is a relative path expression it will be related to 'current_dir' */
+void FilePath::set (const string &path, bool isfile, const string &current_dir) {
+	init(path, isfile, current_dir);
 }
 
 
@@ -104,7 +122,7 @@ void FilePath::init (string path, bool isfile, string current_dir) {
 	single_slashes(path);
 	single_slashes(current_dir);
 #ifdef _WIN32
-	path = FileSystem::adaptPathSeperators(path);
+	path = FileSystem::ensureForwardSlashes(path);
 	_drive = strip_drive_letter(path);
 #endif
 	if (isfile) {
@@ -152,7 +170,7 @@ void FilePath::add (const string &dir) {
 	if (dir == ".." && !_dirs.empty())
 		_dirs.pop_back();
 	else if (dir.length() > 0 && dir != ".")
-		_dirs.push_back(dir);
+		_dirs.emplace_back(dir);
 }
 
 
@@ -256,4 +274,38 @@ string FilePath::relative (string reldir, bool with_filename) const {
 	if (path.empty())
 		path = ".";
 	return single_slashes(path);
+}
+
+
+string FilePath::relative (const FilePath &filepath, bool with_filename) const {
+	return relative(filepath.absolute(false), with_filename);
+}
+
+
+/** Return the absolute or relative path whichever is shorter.
+*  @param[in] reldir absolute path to a directory
+*  @param[in] with_filename if false, the filename is omitted */
+string FilePath::shorterAbsoluteOrRelative (string reldir, bool with_filename) const {
+	string abs = absolute(with_filename);
+	string rel = relative(reldir, with_filename);
+	return abs.length() < rel.length() ? abs : rel;
+}
+
+
+bool FilePath::exists () const {
+	return empty() ? false : FileSystem::exists(absolute());
+}
+
+
+/** Checks if a given path is absolute or relative.
+ *  @param[in] path path string to check
+ *  @return true if path is absolute */
+bool FilePath::isAbsolute (string path) {
+	path = util::trim(path);
+#ifdef _WIN32
+	path = FileSystem::ensureForwardSlashes(path);
+	if (path.length() >= 2 && path[1] == ':' && isalpha(path[0]))
+		path.erase(0, 2);  // remove drive letter and colon
+#endif
+	return !path.empty() && path[0] == '/';
 }

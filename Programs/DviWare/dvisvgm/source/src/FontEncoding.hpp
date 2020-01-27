@@ -32,7 +32,7 @@ struct FontEncoding {
 	virtual ~FontEncoding () =default;
 	virtual Character decode (uint32_t c) const =0;
 	virtual bool mapsToCharIndex () const =0;
-	virtual const FontEncoding* findCompatibleBaseFontMap (const PhysicalFont *font, CharMapID &charmapID) const {return 0;}
+	virtual const FontEncoding* findCompatibleBaseFontMap (const PhysicalFont *font, CharMapID &charmapID) const {return nullptr;}
 	static FontEncoding* encoding (const std::string &encname);
 };
 
@@ -45,7 +45,7 @@ struct NamedFontEncoding : public FontEncoding {
 
 class FontEncodingPair : public FontEncoding {
 	public:
-		FontEncodingPair (const FontEncoding *enc1) : _enc1(enc1), _enc2(0) {}
+		explicit FontEncodingPair (const FontEncoding *enc1) : _enc1(enc1), _enc2(nullptr) {}
 		FontEncodingPair (const FontEncoding *enc1, const FontEncoding *enc2) : _enc1(enc1), _enc2(enc2) {}
 		Character decode (uint32_t c) const override;
 		bool mapsToCharIndex () const override;

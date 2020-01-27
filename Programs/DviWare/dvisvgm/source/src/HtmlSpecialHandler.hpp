@@ -29,7 +29,6 @@ class SpecialActions;
 
 class HtmlSpecialHandler : public SpecialHandler {
 	public:
-		HtmlSpecialHandler () : _active(false) {}
 		void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		const char* name () const override {return "html";}
@@ -41,7 +40,7 @@ class HtmlSpecialHandler : public SpecialHandler {
 		void dviMovedTo (double x, double y, SpecialActions &actions) override;
 
 	private:
-		bool _active;
+		bool _active=false;
 };
 
 #endif

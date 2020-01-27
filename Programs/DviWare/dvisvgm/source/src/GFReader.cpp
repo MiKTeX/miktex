@@ -40,16 +40,6 @@ static inline double scaled2double (int32_t scaled) {
 }
 
 
-GFReader::GFReader (istream &is) : _in(is), _insideCharDef(false), _penDown(false)
-{
-	_minX = _maxX = _minY = _maxY = _x = _y = 0;
-	_currentChar = 0;
-	_designSize = 0;
-	_hppp = _vppp = 0;
-	_checksum = 0;
-}
-
-
 uint32_t GFReader::readUnsigned (int bytes) {
 	uint32_t ret = 0;
 	for (int i=bytes-1; i >= 0 && !_in.eof(); i--) {
@@ -106,11 +96,8 @@ int GFReader::executeCommand () {
 		cmdPaint0(opcode);
 	else if (opcode >= 74 && opcode <= 238)
 		cmdNewRow(opcode-74);
-	else if (opcode >= 250) {
-		ostringstream oss;
-		oss << "undefined GF command (opcode " << opcode << ")";
-		throw GFException(oss.str());
-	}
+	else if (opcode >= 250)
+		throw GFException("undefined GF command (opcode " + std::to_string(opcode) + ")");
 	else {
 		int offset = opcode <= 73 ? 64 : 239-(73-64+1);
 		const GFCommand &cmd = commands[opcode-offset];

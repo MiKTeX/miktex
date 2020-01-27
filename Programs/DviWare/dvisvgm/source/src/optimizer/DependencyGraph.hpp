@@ -25,12 +25,12 @@
 #include <memory>
 #include <set>
 #include <vector>
-#include "utility.hpp"
+#include "../utility.hpp"
 
 template <typename T>
 class DependencyGraph {
 	struct GraphNode {
-		GraphNode (const T &k) : key(k), dependent() {}
+		explicit GraphNode (const T &k) : key(k), dependent() {}
 
 		void addDependee (GraphNode *node) {
 			if (node) {

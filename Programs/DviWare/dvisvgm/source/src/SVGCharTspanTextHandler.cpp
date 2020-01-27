@@ -41,20 +41,20 @@ void SVGCharTspanTextHandler::appendChar (uint32_t c, double x, double y) {
 	if (_tspanNode && (_xchanged || _ychanged || _color.changed())) {
 		// if drawing position or color was explicitly changed, finish current tspan element
 		popContextNode();
-		_tspanNode = 0;
+		_tspanNode = nullptr;
 	}
 	// Apply text color changes only if the color of the entire font is black.
 	// Glyphs of non-black fonts (e.g. defined in a XeTeX document) can't change their color.
 	bool applyColor = _color.get() != Color::BLACK && _font.get()->color() == Color::BLACK;
 	if (_xchanged || _ychanged || (_color.changed() && applyColor)) {
-		_tspanNode = pushContextNode(util::make_unique<XMLElementNode>("tspan"));
+		_tspanNode = pushContextNode(util::make_unique<XMLElement>("tspan"));
 		if (applyColor)
 			_tspanNode->addAttribute("fill", _color.get().svgColorString());
 		_color.changed(false);
 		if (_xchanged) {
 			if (_vertical) {
 				// align glyphs designed for horizontal layout properly
-				if (const PhysicalFont *pf = dynamic_cast<const PhysicalFont*>(_font.get()))
+				if (auto pf = dynamic_cast<const PhysicalFont*>(_font.get()))
 					if (!pf->getMetrics()->verticalLayout())
 						x += pf->scaledAscent()/2.5; // move vertical baseline to the right by strikethrough offset
 			}
@@ -70,16 +70,16 @@ void SVGCharTspanTextHandler::appendChar (uint32_t c, double x, double y) {
 }
 
 
-void SVGCharTspanTextHandler::setInitialContextNode (XMLElementNode *node) {
+void SVGCharTspanTextHandler::setInitialContextNode (XMLElement *node) {
 	SVGCharHandler::setInitialContextNode(node);
-	_textNode = _tspanNode = 0;
+	_textNode = _tspanNode = nullptr;
 	_xchanged = _ychanged = false;
 }
 
 
 void SVGCharTspanTextHandler::resetContextNode () {
 	SVGCharHandler::resetContextNode();
-	_textNode = _tspanNode = 0;
+	_textNode = _tspanNode = nullptr;
 	_xchanged = _ychanged = false;
 	_font.changed(false);
 	_matrix.changed(false);

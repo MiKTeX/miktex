@@ -28,7 +28,7 @@
 
 class EPSFile {
 	public:
-		EPSFile (const std::string &fname);
+		explicit EPSFile (const std::string &fname);
 		std::istream& istream () const;
 		bool hasValidHeader () const {return _headerValid;}
 		BoundingBox bbox () const;

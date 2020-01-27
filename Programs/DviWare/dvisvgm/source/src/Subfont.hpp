@@ -37,6 +37,7 @@ class Subfont;
 class SubfontDefinition {
 	using Subfonts = std::map<std::string, std::unique_ptr<Subfont>>;
 	public:
+		SubfontDefinition (const SubfontDefinition &sfd) =delete;
 		static SubfontDefinition* lookup (const std::string &name);
 //		int getIDs (std::vector<std::string> &ids) const;
 		const std::string& name() const {return _sfname;}
@@ -46,8 +47,7 @@ class SubfontDefinition {
 		const char* path () const;
 
 	protected:
-		SubfontDefinition (const std::string &name, const char *fpath);
-		SubfontDefinition (const SubfontDefinition &sfd) =delete;
+		SubfontDefinition (std::string name, const char *fpath);
 
 	private:
 		std::string _sfname; ///< name of subfont
@@ -59,12 +59,12 @@ class SubfontDefinition {
 class Subfont {
 	friend class SubfontDefinition;
 	public:
+		Subfont (const Subfont &sf) =delete;
 		const std::string& id () const {return _id;}
 		uint16_t decode (unsigned char c);
 
 	protected:
 		Subfont (SubfontDefinition &sfd, const std::string &id) : _sfd(sfd), _id(id), _mapping(0) {}
-		Subfont (const Subfont &sf) =delete;
 		bool read ();
 
 	private:
@@ -76,8 +76,8 @@ class Subfont {
 
 class SubfontException : public MessageException {
 	public:
-		SubfontException (const std::string &msg, const std::string &fname, int lineno=0)
-			: MessageException(msg), _fname(fname), _lineno(lineno) {}
+		SubfontException (const std::string &msg, std::string fname, int lineno=0)
+			: MessageException(msg), _fname(std::move(fname)), _lineno(lineno) {}
 
 		const char* filename () const {return _fname.c_str();}
 		int lineno () const           {return _lineno;}

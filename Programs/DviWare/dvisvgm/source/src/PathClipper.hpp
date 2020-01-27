@@ -31,25 +31,22 @@
 
 using ClipperLib::IntPoint;
 
-class PathClipper
-{
+class PathClipper {
 	public:
 		using CurvedPath = GraphicsPath<double>;
 
 	public:
-		PathClipper () : _numLines(0) {}
 		void intersect (const CurvedPath &p1, const CurvedPath &p2, CurvedPath &result);
 
 	protected:
 		void flatten (const CurvedPath &gp, ClipperLib::Paths &polygons);
-//		void divide (IntPoint &p1, IntPoint &p2, IntPoint &ip);
 		void reconstruct (const ClipperLib::Path &polygon, CurvedPath &path);
 		void reconstruct (const ClipperLib::Paths &polygons, CurvedPath &path);
 		static void callback (IntPoint &e1bot, IntPoint &e1top, IntPoint &e2bot, IntPoint &e2top, IntPoint &ip);
 
 	private:
 		std::vector<Bezier> _curves;
-		int _numLines;  ///< negative number of straight line segments in path been processed
+		int _numLines=0;  ///< negative number of straight line segments in path been processed
 };
 
 #endif

@@ -43,7 +43,7 @@ class TemporaryFile {
 
 class SourceInput {
 	public:
-		SourceInput (const std::string &fname) : _fname(fname) {}
+		explicit SourceInput (const std::string &fname) : _fname(fname) {}
 		std::istream& getInputStream (bool showMessages=false);
 		std::string getFileName () const;
 		std::string getMessageFileName () const;

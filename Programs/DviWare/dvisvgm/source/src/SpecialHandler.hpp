@@ -32,7 +32,7 @@ class SpecialManager;
 
 
 struct SpecialException : public MessageException {
-	SpecialException (const std::string &msg) : MessageException(msg) {}
+	explicit SpecialException (const std::string &msg) : MessageException(msg) {}
 };
 
 

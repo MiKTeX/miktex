@@ -49,7 +49,7 @@ class SignalHandler::Impl {
 
 
 SignalHandler::SignalHandler ()
-	: _active(false), _impl(util::make_unique<SignalHandler::Impl>())
+	: _impl(util::make_unique<SignalHandler::Impl>())
 {
 }
 
@@ -89,7 +89,7 @@ void SignalHandler::stop () {
 
 /** Checks for incoming signals and throws an exception if CTRL-C was caught.
  *  @throw SignalException */
-void SignalHandler::check() {
+void SignalHandler::check () {
 	if (_break)
 		throw SignalException();
 }
@@ -129,7 +129,7 @@ bool SignalHandler::Impl::setSigintHandler (HandlerFunc handler) {
 bool SignalHandler::Impl::restoreSigintHandler () {
 	if (_origSigaction.sa_handler == nullptr)
 		return false;
-	return (sigaction(SIGINT, &_origSigaction, 0) == 0);
+	return (sigaction(SIGINT, &_origSigaction, nullptr) == 0);
 }
 
 #else  // !HAVE_SIGACTION

@@ -25,6 +25,7 @@
 #include <string>
 #include <utility>
 #include "DVIReader.hpp"
+#include "FilePath.hpp"
 #include "SVGTree.hpp"
 
 struct DVIActions;
@@ -50,7 +51,8 @@ class DVIToSVG : public DVIReader {
 
 	public:
 		explicit DVIToSVG (std::istream &is, SVGOutputBase &out);
-		void convert (const std::string &range, std::pair<int,int> *pageinfo=0);
+		DVIToSVG (const DVIToSVG&) =delete;
+		void convert (const std::string &range, std::pair<int,int> *pageinfo=nullptr);
 		void setPageSize (const std::string &format)         {_bboxFormatString = format;}
 		void setPageTransformation (const std::string &cmds) {_transCmds = cmds;}
 		Matrix getPageTransformation () const override;
@@ -61,9 +63,9 @@ class DVIToSVG : public DVIReader {
 		void finishLine () override           {_prevYPos = std::numeric_limits<double>::min();}
 		void listHashes (const std::string &rangestr, std::ostream &os);
 
-		std::string getSVGFilename (unsigned pageno) const;
+		FilePath getSVGFilePath (unsigned pageno) const;
 		std::string getUserBBoxString () const  {return _bboxFormatString;}
-		static void setProcessSpecials (const char *ignorelist=0, bool pswarning=false);
+		static void setProcessSpecials (const char *ignorelist=nullptr, bool pswarning=false);
 
 	public:
 		static bool COMPUTE_PROGRESS;  ///< if true, an action to handle the progress ratio of a page is triggered
@@ -71,12 +73,11 @@ class DVIToSVG : public DVIReader {
 		static HashSettings PAGE_HASH_SETTINGS;
 
 	protected:
-		DVIToSVG (const DVIToSVG&) =delete;
 		void convert (unsigned firstPage, unsigned lastPage, HashFunction *hashFunc);
 		int executeCommand () override;
 		void enterBeginPage (unsigned pageno, const std::vector<int32_t> &c);
 		void leaveEndPage (unsigned pageno);
-		void embedFonts (XMLElementNode *svgElement);
+		void embedFonts (XMLElement *svgElement);
 		void moveRight (double dx, MoveMode mode) override;
 		void moveDown (double dy, MoveMode mode) override;
 

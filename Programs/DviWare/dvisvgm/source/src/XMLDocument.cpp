@@ -22,7 +22,7 @@
 
 using namespace std;
 
-XMLDocument::XMLDocument (unique_ptr<XMLElementNode> &&root)
+XMLDocument::XMLDocument (unique_ptr<XMLElement> root)
 	: _rootElement(std::move(root))
 {
 }
@@ -34,17 +34,17 @@ void XMLDocument::clear () {
 }
 
 
-void XMLDocument::append (unique_ptr<XMLNode> &&node) {
+void XMLDocument::append (unique_ptr<XMLNode> node) {
 	if (node) {
-		if (dynamic_cast<XMLElementNode*>(node.get()))
-			_rootElement = util::static_unique_ptr_cast<XMLElementNode>(std::move(node));
+		if (node->toElement())
+			_rootElement = util::static_unique_ptr_cast<XMLElement>(std::move(node));
 		else
 			_nodes.emplace_back(std::move(node));
 	}
 }
 
 
-void XMLDocument::setRootNode (unique_ptr<XMLElementNode> &&root) {
+void XMLDocument::setRootNode (unique_ptr<XMLElement> root) {
 	_rootElement = std::move(root);
 }
 

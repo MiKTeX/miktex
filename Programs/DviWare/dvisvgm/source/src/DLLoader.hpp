@@ -33,7 +33,7 @@
 class DLLoader {
 	public:
 		DLLoader () =delete;
-		DLLoader (const std::string &dlname);
+		explicit DLLoader (const std::string &dlname);
 		DLLoader (DLLoader &&loader) =default;
 		virtual ~DLLoader () {closeLibrary();}
 		bool loaded () const {return _handle != nullptr;}

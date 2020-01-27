@@ -25,13 +25,10 @@
 #include <vector>
 
 template <typename T>
-class VectorStreamBuffer : public std::streambuf
-{
+class VectorStreamBuffer : public std::streambuf {
 	public:
-		VectorStreamBuffer (const std::vector<T> &v) {
-			if (v.empty())
-				_begin = _end = _curr = nullptr;
-			else {
+		explicit VectorStreamBuffer (const std::vector<T> &v) {
+			if (!v.empty()) {
 				_begin = _curr = &v[0];
 				_end = &v[0]+v.size();
 			}
@@ -69,17 +66,16 @@ class VectorStreamBuffer : public std::streambuf
 		}
 
 	private:
-		const T *_begin;
-		const T *_end;
-		const T *_curr;
+		const T *_begin=nullptr;
+		const T *_end=nullptr;
+		const T *_curr=nullptr;
 };
 
 
 template <typename T>
-class VectorInputStream : public std::istream
-{
+class VectorInputStream : public std::istream {
 	public:
-		VectorInputStream (const std::vector<T> &source) : std::istream(&_buf), _buf(source) {}
+		explicit VectorInputStream (const std::vector<T> &source) : std::istream(&_buf), _buf(source) {}
 
 	private:
 		VectorStreamBuffer<T> _buf;

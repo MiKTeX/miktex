@@ -46,17 +46,18 @@ class SVGTree {
 		void reset ();
 		bool write (std::ostream &os) const {return bool(_doc.write(os));}
 		void newPage (int pageno);
-		void appendToDefs (std::unique_ptr<XMLNode> &&node);
-		void appendToPage (std::unique_ptr<XMLNode> &&node);
-		void prependToPage (std::unique_ptr<XMLNode> &&node);
-		void appendToDoc (std::unique_ptr<XMLNode> &&node)  {_doc.append(std::move(node));}
-		void appendToRoot (std::unique_ptr<XMLNode> &&node) {_root->append(std::move(node));}
+		void appendToDefs (std::unique_ptr<XMLNode> node);
+		void appendToPage (std::unique_ptr<XMLNode> node);
+		void prependToPage (std::unique_ptr<XMLNode> node);
+		void appendToDoc (std::unique_ptr<XMLNode> node)  {_doc.append(std::move(node));}
+		void appendToRoot (std::unique_ptr<XMLNode> node) {_root->append(std::move(node));}
 		void appendChar (int c, double x, double y) {_charHandler->appendChar(c, x, y);}
 		void appendFontStyles (const std::unordered_set<const Font*> &fonts);
-		void append (const PhysicalFont &font, const std::set<int> &chars, GFGlyphTracer::Callback *callback=0);
-		void pushContextElement (std::unique_ptr<XMLElementNode> &&node);
-		void popContextElement ();
-		void removeRedundantElements ();
+		void append (const PhysicalFont &font, const std::set<int> &chars, GFGlyphTracer::Callback *callback=nullptr);
+		void pushDefsContext (std::unique_ptr<XMLElement> node);
+		void popDefsContext ();
+		void pushPageContext (std::unique_ptr<XMLElement> node);
+		void popPageContext ();
 		void setBBox (const BoundingBox &bbox);
 		void setFont (int id, const Font &font);
 		static bool setFontFormat (std::string formatstr);
@@ -68,10 +69,12 @@ class SVGTree {
 		void transformPage (const Matrix &m);
 		Color getColor () const           {return _charHandler->getColor();}
 		const Matrix& getMatrix () const  {return _charHandler->getMatrix();}
-		XMLElementNode* rootNode () const {return _root;}
+		XMLElement* rootNode () const     {return _root;}
+		XMLElement* defsNode () const     {return _defs;}
+		XMLElement* pageNode () const     {return _page;}
 
 	protected:
-		XMLCDataNode* styleCDataNode ();
+		XMLCData* styleCDataNode ();
 
 	public:
 		static bool USE_FONTS;           ///< if true, create font references and don't draw paths directly
@@ -85,10 +88,11 @@ class SVGTree {
 
 	private:
 		XMLDocument _doc;
-		XMLElementNode *_root, *_page, *_defs;
-		XMLCDataNode *_styleCDataNode;
+		XMLElement *_root, *_page, *_defs;
+		XMLCData *_styleCDataNode;
 		std::unique_ptr<SVGCharHandler> _charHandler;
-		std::stack<XMLElementNode*> _contextElementStack;
+		std::stack<XMLElement*> _defsContextStack;
+		std::stack<XMLElement*> _pageContextStack;
 };
 
 #endif

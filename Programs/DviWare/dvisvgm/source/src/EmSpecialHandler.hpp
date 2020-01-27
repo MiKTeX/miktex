@@ -38,7 +38,6 @@ class EmSpecialHandler : public SpecialHandler {
 	};
 
 	public:
-		EmSpecialHandler ();
 		const char* name () const override {return "em";}
 		const char* info () const override {return "line drawing statements of the emTeX special set";}
 		std::vector<const char*> prefixes() const override;
@@ -54,9 +53,9 @@ class EmSpecialHandler : public SpecialHandler {
 
 	private:
 		std::unordered_map<int, DPair> _points; ///< points defined by special em:point
-		std::vector<Line> _lines;  ///< list of lines with undefined end points
-		double _linewidth;       ///< global line width
-		DPair _pos;              ///< current position of "graphic cursor"
+		std::vector<Line> _lines;       ///< list of lines with undefined end points
+		double _linewidth=0.4*72/72.27; ///< global line width
+		DPair _pos;                     ///< current position of "graphic cursor"
 };
 
 #endif

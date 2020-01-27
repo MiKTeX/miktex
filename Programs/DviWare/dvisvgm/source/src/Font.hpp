@@ -69,7 +69,7 @@ class Font {
 		virtual const char* path () const =0;
 		virtual const char* filename () const;
 		virtual const FontEncoding* encoding () const;
-		virtual bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *callback=0) const =0;
+		virtual bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *callback=nullptr) const =0;
 		virtual void getGlyphMetrics (int c, bool vertical, GlyphMetrics &metrics) const;
 		virtual uint32_t unicode (uint32_t c) const;
 		virtual void tidy () const {}
@@ -88,7 +88,7 @@ class Font {
  *  The metric values returned by the member functions are based on cmr10. */
 class EmptyFont : public Font {
 	public:
-		EmptyFont (const std::string &name) : _fontname(name) {}
+		explicit EmptyFont (std::string name) : _fontname(std::move(name)) {}
 		std::unique_ptr<Font> clone (double ds, double sc) const override  {return util::make_unique<EmptyFont>(*this);}
 		const Font* uniqueFont () const override           {return this;}
 		std::string name () const override                 {return _fontname;}
@@ -100,7 +100,7 @@ class EmptyFont : public Font {
 		double italicCorr (int c) const override           {return 0;}
 		const FontMetrics* getMetrics () const override    {return nullptr;}
 		const char* path () const override                 {return nullptr;}
-		bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=0) const override {return false;}
+		bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=nullptr) const override {return false;}
 
 	private:
 		std::string _fontname;
@@ -115,7 +115,7 @@ class PhysicalFont : public virtual Font {
 		static std::unique_ptr<Font> create (const std::string &name, uint32_t checksum, double dsize, double ssize, PhysicalFont::Type type);
 		static std::unique_ptr<Font> create (const std::string &name, int fontindex, uint32_t checksum, double dsize, double ssize);
 		virtual Type type () const =0;
-		virtual bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=nullptr) const override;
+		bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=nullptr) const override;
 		virtual bool getExactGlyphBox (int c, BoundingBox &bbox, GFGlyphTracer::Callback *cb=nullptr) const;
 		virtual bool getExactGlyphBox (int c, GlyphMetrics &metrics, bool vertical, GFGlyphTracer::Callback *cb=nullptr) const;
 		virtual bool isCIDFont () const;
@@ -142,7 +142,7 @@ class PhysicalFont : public virtual Font {
 	public:
 		static bool EXACT_BBOX;
 		static bool KEEP_TEMP_FILES;
-		static const char *CACHE_PATH; ///< path to cache directory (0 if caching is disabled)
+		static std::string CACHE_PATH; ///< path to cache directory ("" if caching is disabled)
 		static double METAFONT_MAG;    ///< magnification factor for Metafont calls
 
 	protected:
@@ -168,7 +168,7 @@ class VirtualFont : public virtual Font {
 
 class TFMFont : public virtual Font {
 	public:
-		TFMFont (const std::string &name, uint32_t checksum, double dsize, double ssize);
+		TFMFont (std::string name, uint32_t cs, double ds, double ss);
 		const FontMetrics* getMetrics () const override;
 		std::string name () const override  {return _fontname;}
 		double designSize () const override {return _dsize;}
@@ -227,7 +227,7 @@ class PhysicalFontProxy : public PhysicalFont {
 class PhysicalFontImpl : public PhysicalFont, public TFMFont {
 	friend class PhysicalFont;
 	public:
-		~PhysicalFontImpl();
+		~PhysicalFontImpl () override;
 
 		std::unique_ptr<Font> clone (double ds, double ss) const override {
 			return std::unique_ptr<PhysicalFontProxy>(new PhysicalFontProxy(this, ds, ss));
@@ -258,7 +258,7 @@ class PhysicalFontImpl : public PhysicalFont, public TFMFont {
 class NativeFont : public PhysicalFont {
 	public:
 		virtual std::unique_ptr<NativeFont> clone (double ptsize, const FontStyle &style, Color color) const =0;
-		virtual std::unique_ptr<Font> clone (double ds, double sc) const override =0;
+		std::unique_ptr<Font> clone (double ds, double sc) const override =0;
 		std::string name () const override;
 		Type type () const override;
 		double designSize () const override  {return _ptsize;}
@@ -312,8 +312,8 @@ class NativeFontProxy : public NativeFont {
 
 class NativeFontImpl : public NativeFont {
 	public:
-		NativeFontImpl (const std::string &fname, int fontIndex, double ptsize, const FontStyle &style, Color color)
-			: NativeFont(ptsize, style, color), _path(fname), _fontIndex(fontIndex) {}
+		NativeFontImpl (std::string fname, int fontIndex, double ptsize, const FontStyle &style, Color color)
+			: NativeFont(ptsize, style, color), _path(std::move(fname)), _fontIndex(fontIndex) {}
 
 		std::unique_ptr<NativeFont> clone (double ptsize, const FontStyle &style, Color color) const override {
 			return std::unique_ptr<NativeFontProxy>(new NativeFontProxy(this, ptsize, style, color));
@@ -391,7 +391,7 @@ class VirtualFontImpl : public VirtualFont, public TFMFont {
 
 
 struct FontException : public MessageException {
-	FontException (const std::string &msg) : MessageException(msg) {}
+	explicit FontException (const std::string &msg) : MessageException(msg) {}
 };
 
 #endif

@@ -24,15 +24,14 @@
 #include <string>
 #include <vector>
 
-class FileSystem
-{
+class FileSystem {
 	public:
 		~FileSystem ();
 		static bool remove (const std::string &fname);
 		static bool rename (const std::string &oldname, const std::string &newname);
 		static bool copy (const std::string &src, const std::string &dest, bool remove_src=false);
 		static uint64_t filesize (const std::string &fname);
-		static std::string adaptPathSeperators (std::string path);
+		static std::string ensureForwardSlashes (std::string path);
 		static std::string getcwd ();
 		static std::string tmpdir ();
 		static bool chdir (const std::string &dir);
@@ -51,9 +50,6 @@ class FileSystem
 		FileSystem () =default;
 		bool system_tmpdir_available ();
 		static const char* TMPSUBDIR; ///< subdirectory of the system's temporary folder
-
-	private:
-		static FileSystem _fs;
 };
 
 #endif

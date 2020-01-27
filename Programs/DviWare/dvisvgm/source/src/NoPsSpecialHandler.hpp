@@ -25,17 +25,16 @@
 
 class NoPsSpecialHandler : public SpecialHandler {
 	public:
-		NoPsSpecialHandler () : _count(0) {}
 		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
-		const char* name () const override {return 0;}
-		const char* info () const override {return 0;}
+		const char* name () const override {return nullptr;}
+		const char* info () const override {return nullptr;}
 		std::vector<const char*> prefixes() const override;
 
 	protected:
 		void dviEndPage (unsigned pageno, SpecialActions &actions) override;
 
 	private:
-		unsigned _count;  // number of PS specials skipped
+		size_t _count=0;  // number of PS specials skipped
 };
 
 #endif

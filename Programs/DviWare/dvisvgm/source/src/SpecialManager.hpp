@@ -36,8 +36,9 @@ class SpecialManager {
 		using HandlerMap = std::unordered_map<std::string,SpecialHandler*>;
 
 	public:
+		SpecialManager (const SpecialManager &) =delete;
 		static SpecialManager& instance ();
-		void registerHandler (std::unique_ptr<SpecialHandler> &&handler);
+		void registerHandler (std::unique_ptr<SpecialHandler> handler);
 		void registerHandlers (std::vector<std::unique_ptr<SpecialHandler>> &handlers, const char *ignorelist);
 		void unregisterHandlers ();
 		void preprocess (const std::string &special, SpecialActions &actions) const;
@@ -51,7 +52,6 @@ class SpecialManager {
 
 	protected:
 		SpecialManager () =default;
-		SpecialManager (const SpecialManager &) =delete;
 		SpecialHandler* findHandlerByPrefix (const std::string &prefix) const;
 
 	private:

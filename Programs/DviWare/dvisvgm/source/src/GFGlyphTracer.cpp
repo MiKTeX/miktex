@@ -19,22 +19,26 @@
 *************************************************************************/
 
 #include "GFGlyphTracer.hpp"
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 
 using namespace std;
-
-GFGlyphTracer::GFGlyphTracer () : GFTracer(_ifs, 0), _glyph(0), _callback(0)
-{
-}
 
 /** Constructs a new glyph tracer.
  *  @param[in] is GF input stream
  *  @param[in] upp target units per PS point */
 GFGlyphTracer::GFGlyphTracer (string &fname, double upp, Callback *cb)
-	: GFTracer(_ifs, upp), _glyph(0), _callback(cb)
+	: GFTracer(_ifs, upp), _callback(cb)
 {
 	if (_callback)
 		_callback->setFont(fname);
+#if defined(MIKTEX_WINDOWS)
+	_ifs.open(UW_(fname), ios::binary);
+#else
 	_ifs.open(fname, ios::binary);
+#endif
 }
 
 
@@ -44,7 +48,11 @@ void GFGlyphTracer::reset (string &fname, double upp) {
 	if (_ifs.is_open())
 		_ifs.close();
 	unitsPerPoint(upp);
+#if defined(MIKTEX_WINDOWS)
+	_ifs.open(UW_(fname), ios::binary);
+#else
 	_ifs.open(fname, ios::binary);
+#endif
 }
 
 

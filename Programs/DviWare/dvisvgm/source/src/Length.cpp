@@ -60,9 +60,7 @@ void Length::set (double val, Unit unit) {
 		case Unit::SP: _pt = val/pt2sp; break;
 		default:
 			// this isn't supposed to happen
-			ostringstream oss;
-			oss << "invalid length unit: (" << static_cast<int>(unit) << ")";
-			throw UnitException(oss.str());
+			throw UnitException("invalid length unit: (" + std::to_string(static_cast<int>(unit)) + ")");
 	}
 }
 
@@ -80,9 +78,7 @@ double Length::get (Unit unit) const {
 		case Unit::SP: return sp();
 	}
 	// this isn't supposed to happen
-	ostringstream oss;
-	oss << "invalid length unit: (" << static_cast<int>(unit) << ")";
-	throw UnitException(oss.str());
+	throw UnitException("invalid length unit: (" + std::to_string(static_cast<int>(unit)) + ")");
 }
 
 
@@ -111,7 +107,7 @@ Length::Unit Length::stringToUnit (const std::string &unitstr) {
 			case unit_id('s','p'): return Unit::SP;
 		}
 	}
-	throw UnitException(string("invalid length unit: ")+unitstr);
+	throw UnitException(string("invalid length unit: ") + unitstr);
 }
 
 
@@ -136,7 +132,7 @@ void Length::set (double val, string unitstr) {
 	if (unitstr.empty())
 		unitstr = "pt";
 	else if (unitstr.length() != 2)
-		throw UnitException(string("invalid length unit: ")+unitstr);
+		throw UnitException(string("invalid length unit: ") + unitstr);
 	set(val, stringToUnit(unitstr));
 }
 

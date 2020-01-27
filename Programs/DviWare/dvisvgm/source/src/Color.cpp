@@ -40,7 +40,7 @@ const Color Color::TRANSPARENT(uint32_t(0xff000000));
 
 static inline uint8_t double_to_byte (double v) {
 	v = max(0.0, min(1.0, v));
-	return uint8_t(floor(255*v+0.5));
+	return uint8_t(round(255.0*v));
 }
 
 
@@ -61,7 +61,7 @@ void Color::setRGB (double r, double g, double b) {
  *  @return true if color name could be applied properly */
 bool Color::setPSName (string name, bool case_sensitive) {
 	if (name[0] == '#') {
-		char *p=0;
+		char *p=nullptr;
 		_rgb = uint32_t(strtol(name.c_str()+1, &p, 16));
 		while (isspace(*p))
 			p++;
@@ -213,7 +213,7 @@ Color Color::operator *= (double c) {
 	else if (abs(c-trunc(c)) < 0.999) {
 		uint32_t rgb=0;
 		for (int i=0; i < 3; i++) {
-			rgb |= uint32_t((_rgb & 0xff)*c+0.5) << (8*i);
+			rgb |= lround((_rgb & 0xff)*c) << (8*i);
 			_rgb >>= 8;
 		}
 		_rgb = rgb;
@@ -394,7 +394,7 @@ string Color::svgColorString (bool rgbonly) const {
 			{0xfffff0, "ivory"},
 			{0xffffff, "white"}
 		}};
-		ColorName cmppair = {_rgb, 0};
+		ColorName cmppair = {_rgb, nullptr};
 		auto it = lower_bound(colornames.begin(), colornames.end(), cmppair, [](const ColorName &c1, const ColorName &c2) {
 			return c1.rgb < c2.rgb;
 		});
@@ -632,14 +632,14 @@ double Color::deltaE (const Color &c) const {
 	c.getLab(l2, a2, b2);
 	const double deltaL = l2-l1;
 	const double lBar = (l1+l2)/2;
-	const double c1 = sqrt(a1*a1 + b1*b1);
-	const double c2 = sqrt(a2*a2 + b2*b2);
+	const double c1 = hypot(a1, b1);
+	const double c2 = hypot(a2, b2);
 	const double cBar = (c1+c2)/2.0;
 	const double g = (1.0-sqrt(pow(cBar, 7.0)/(pow(cBar, 7.0)+6103515625.0)))/2.0;
 	const double aa1 = a1*(1.0+g);
 	const double aa2 = a2*(1.0+g);
-	const double cc1 = sqrt(aa1*aa1 + b1*b1);
-	const double cc2 = sqrt(aa2*aa2 + b2*b2);
+	const double cc1 = hypot(aa1, b1);
+	const double cc2 = hypot(aa2, b2);
 	const double ccBar = (cc1+cc2)/2.0;
 	const double deltaCC = cc2-cc1;
 	double hh1 = atan2(b1, aa1);

@@ -19,7 +19,6 @@
 *************************************************************************/
 
 #include <algorithm>
-#include <sstream>
 #include "BasicDVIReader.hpp"
 
 using namespace std;
@@ -100,11 +99,8 @@ int BasicDVIReader::evalCommand (CommandHandler &handler, int &param) {
 		handler = &BasicDVIReader::cmdDir;
 		num_param_bytes = 1;
 	}
-	else if (opcode > OP_POSTPOST) {
-		ostringstream oss;
-		oss << "undefined DVI command (opcode " << opcode << ')';
-		throw DVIException(oss.str());
-	}
+	else if (opcode > OP_POSTPOST)
+		throw DVIException("undefined DVI command (opcode " + to_string(opcode) + ")");
 	else {
 		const int offset = opcode < OP_FNTNUM0 ? OP_SET1 : (OP_FNTNUM63+1)-(OP_FNTNUM0-OP_SET1);
 		handler = commands[opcode-offset].handler;
@@ -194,9 +190,7 @@ void BasicDVIReader::setDVIVersion (DVIVersion version) {
 		case DVI_XDV7:
 			break;
 		default:
-			ostringstream oss;
-			oss << "DVI version " << _dviVersion << " not supported";
-			throw DVIException(oss.str());
+			throw DVIException("DVI version " + to_string(_dviVersion) + " not supported");
 	}
 }
 

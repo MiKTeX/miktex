@@ -350,7 +350,7 @@ bool StoreGlyph(const Glyph& glyph, uint8_t* dst, size_t* dst_size) {
     }
   } else if (glyph.contours.size() > 0) {
     // Simple glyph.
-    if (glyph.contours.size() > std::numeric_limits<int16_t>::max()) {
+    if (glyph.contours.size() > size_t(std::numeric_limits<int16_t>::max())) {
       return FONT_COMPRESSION_FAILURE();
     }
     if (*dst_size < ((12ULL + 2 * glyph.contours.size()) +

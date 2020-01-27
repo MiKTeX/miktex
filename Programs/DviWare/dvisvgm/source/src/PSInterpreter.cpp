@@ -27,6 +27,7 @@
 #include <sstream>
 #include <unordered_map>
 #include "FileFinder.hpp"
+#include "FileSystem.hpp"
 #include "InputReader.hpp"
 #include "Message.hpp"
 #include "PSFilter.hpp"
@@ -54,8 +55,15 @@ void PSInterpreter::init () {
 			"-dWRITESYSTEMDICT", // leave systemdict writable as some operators must be replaced
 			"-dNOPROMPT"
 		};
-		if (int gsrev = _gs.revision())
+		if (int gsrev = _gs.revision()) {
 			gsargs.emplace_back(gsrev == 922 ? "-dREALLYDELAYBIND" : "-dDELAYBIND");
+			// As of GS 9.50, -dSAFER is active by default which leads to warnings
+			// in conjunction with -dDELAYBIND and -dWRITESYSTEMDICT.
+			// Thus, -dDELAYSAFER (or -dNOSAFER) must be added.
+			// https://www.ghostscript.com/doc/9.50/Use.htm#Safer
+			if (gsrev >= 950)
+				gsargs.emplace_back("-dDELAYSAFER");
+		}
 		_gs.init(gsargs.size(), gsargs.data(), this);
 		_gs.set_stdio(input, output, error);
 		_initialized = true;
@@ -114,7 +122,7 @@ bool PSInterpreter::execute (const char *str, size_t len, bool flush) {
 
 	if (_filter && _filter->active()) {
 		PSFilter *filter = _filter;
-		_filter = 0;             // prevent recursion when filter calls execute()
+		_filter = nullptr;       // prevent recursion when filter calls execute()
 		filter->execute(str, len);
 		if (filter->active())    // filter still active after execution?
 			_filter = filter;
@@ -192,7 +200,7 @@ int GSDLLCALL PSInterpreter::input (void *inst, char *buf, int len) {
  *  @param[in] len number of characters in buf
  *  @return number of processed characters (equals 'len') */
 int GSDLLCALL PSInterpreter::output (void *inst, const char *buf, int len) {
-	PSInterpreter *self = static_cast<PSInterpreter*>(inst);
+	auto self = static_cast<PSInterpreter*>(inst);
 	if (self && self->_actions) {
 		const size_t MAXLEN = 512;    // maximal line length (longer lines are of no interest)
 		const char *end = buf+len-1;  // last position of buf
@@ -207,7 +215,7 @@ int GSDLLCALL PSInterpreter::output (void *inst, const char *buf, int len) {
 			vector<char> &linebuf = self->_linebuf;  // just a shorter name...
 			if ((*last == '\n' || !self->active()) || self->_inError) {
 				if (linelength + linebuf.size() > 1) {  // prefix "dvi." plus final newline
-					SplittedCharInputBuffer ib(linebuf.empty() ? 0 : &linebuf[0], linebuf.size(), first, linelength);
+					SplittedCharInputBuffer ib(linebuf.empty() ? nullptr : &linebuf[0], linebuf.size(), first, linelength);
 					BufferInputReader in(ib);
 					if (self->_inError)
 						self->_errorMessage += string(first, linelength);
@@ -216,7 +224,7 @@ int GSDLLCALL PSInterpreter::output (void *inst, const char *buf, int len) {
 						if (in.check("Unrecoverable error: ")) {
 							self->_errorMessage.clear();
 							while (!in.eof())
-								self->_errorMessage += in.get();
+								self->_errorMessage += char(in.get());
 							self->_inError = true;
 						}
 						else if (in.check("dvi."))
@@ -282,6 +290,7 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"setlinewidth",   { 1, &PSActions::setlinewidth}},
 		{"setmatrix",      { 6, &PSActions::setmatrix}},
 		{"setmiterlimit",  { 1, &PSActions::setmiterlimit}},
+		{"setnulldevice",  { 1, &PSActions::setnulldevice}},
 		{"setopacityalpha",{ 1, &PSActions::setopacityalpha}},
 		{"setshapealpha",  { 1, &PSActions::setshapealpha}},
 		{"setpagedevice",  { 0, &PSActions::setpagedevice}},
@@ -347,7 +356,7 @@ int GSDLLCALL PSInterpreter::error (void *inst, const char *buf, int len) {
 /** Returns the total number of pages of a PDF file.
  *  @param[in] fname name/path of the PDF file */
 int PSInterpreter::pdfPageCount (const string &fname) {
-	executeRaw("\n("+fname+")@pdfpagecount ", 1);
+	executeRaw("\n("+FileSystem::ensureForwardSlashes(fname)+")@pdfpagecount ", 1);
 	if (!_rawData.empty()) {
 		size_t index;
 		int ret = stoi(_rawData[0], &index, 10);
@@ -365,7 +374,7 @@ int PSInterpreter::pdfPageCount (const string &fname) {
  *  @return the bounding box of the given page */
 BoundingBox PSInterpreter::pdfPageBox (const string &fname, int pageno) {
 	BoundingBox pagebox;
-	executeRaw("\n"+to_string(pageno)+"("+fname+")@pdfpagebox ", 4);
+	executeRaw("\n"+to_string(pageno)+"("+FileSystem::ensureForwardSlashes(fname)+")@pdfpagebox ", 4);
 	if (_rawData.size() < 4)
 		pagebox.invalidate();
 	else

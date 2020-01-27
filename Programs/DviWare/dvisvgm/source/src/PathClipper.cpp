@@ -18,6 +18,7 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#include <cmath>
 #include "Bezier.hpp"
 #include "PathClipper.hpp"
 
@@ -31,9 +32,7 @@ using CurvedPath = PathClipper::CurvedPath;
 const int SCALE_FACTOR = 1000;
 
 inline cInt to_cInt (double x) {
-	if (x < 0)
-		return static_cast<cInt>(x*SCALE_FACTOR - 0.5);
-	return static_cast<cInt>(x*SCALE_FACTOR + 0.5);
+	return static_cast<cInt>(lround(x*SCALE_FACTOR));
 }
 
 
@@ -50,7 +49,7 @@ inline DPair to_DPair (const IntPoint &p) {
 /** In order to flatten a curved path, all path segements are processed sequentially.
  *  Depending on the type of the segment, one of the methods provided by this class
  *  is called. */
-class FlattenActions : public CurvedPath::Actions {
+class FlattenActions : public CurvedPath::IterationActions {
 	public:
 		FlattenActions (vector<Bezier> &curves, Polygons &polygons, int &numLines)
 			: _polygons(polygons), _curves(curves), _numLines(numLines) {}
@@ -74,7 +73,7 @@ class FlattenActions : public CurvedPath::Actions {
 			_currentPoint = p;
 		}
 
-		void conicto (const CurvedPath::Point &p1, const CurvedPath::Point &p2) override {
+		void quadto (const CurvedPath::Point &p1, const CurvedPath::Point &p2) override {
 			Bezier bezier(_currentPoint, p1, p2);
 			addCurvePoints(bezier);
 		}
@@ -130,9 +129,9 @@ class FlattenActions : public CurvedPath::Actions {
 
 /** Removes adjacent polygon vertices that equal their predecessor. */
 static void remove_redundant_vertices (Polygon &polygon) {
-	Polygon::iterator it1=polygon.begin();
+	auto it1=polygon.begin();
 	while (it1 != polygon.end()) {
-		Polygon::iterator it2 = it1+1;
+		auto it2 = it1+1;
 		if (it2 == polygon.end())
 			it2 = polygon.begin();
 		if (it1 == it2)
@@ -159,8 +158,8 @@ static void remove_redundant_vertices (Polygon &polygon) {
 void PathClipper::flatten (const CurvedPath &curvedPath, Polygons &polygons) {
 	FlattenActions flattenActions(_curves, polygons, _numLines);
 	curvedPath.iterate(flattenActions, false);
-	for (size_t i=0; i < polygons.size(); i++)
-		remove_redundant_vertices(polygons[i]);
+	for (Polygon &poly : polygons)
+		remove_redundant_vertices(poly);
 }
 
 
@@ -207,7 +206,7 @@ static double division_ratio (const IntPoint &p1, const IntPoint &p2, const IntP
 
 /** Returns the label of point q that lies on the line between points p1 and p2. */
 inline ZLabel division_label (const IntPoint &p1, const IntPoint &p2, const IntPoint &q) {
-	double t1, t2;
+	double t1=0, t2=0;
 	double s=0;
 	int32_t id = segment_id(p1, p2, t1, t2);
 	if (id > 0)
@@ -237,7 +236,7 @@ void PathClipper::callback (IntPoint &e1bot, IntPoint &e1top, IntPoint &e2bot, I
  *  @param[out] label if not 0, retrieves the label of the endpoint
  *  @param[in] startLabel if true, the found endpoint is treated as start point and
  *             parameter 'label' gets the corresponding value */
-static size_t find_segment_endpoint (const Polygon &polygon, size_t start, ZLabel *label=0, bool startLabel=false) {
+static size_t find_segment_endpoint (const Polygon &polygon, size_t start, ZLabel *label=nullptr, bool startLabel=false) {
 	if (polygon.empty())
 		return 0;
 

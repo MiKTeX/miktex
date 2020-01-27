@@ -27,12 +27,6 @@
 using namespace std;
 
 
-GFTracer::GFTracer (istream &is)
-	: GFReader(is), _unitsPerPoint(0.0)
-{
-}
-
-
 /** Constructs a new GFTracer.
  *  @param[in] is GF file is read from this stream
  *  @param[in] upp target units per PS point */

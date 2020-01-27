@@ -31,8 +31,8 @@ struct SVGOutputBase {
 	class HashTriple {
 		public:
 			HashTriple () =default;
-			HashTriple (const std::string &dviHash, const std::string &optHash, const std::string &cmbHash)
-				: _dviHash(dviHash), _optHash(optHash), _cmbHash(cmbHash) {}
+			HashTriple (std::string dviHash, std::string optHash, std::string cmbHash)
+				: _dviHash(std::move(dviHash)), _optHash(std::move(optHash)), _cmbHash(std::move(cmbHash)) {}
 			std::string dviHash () const {return _dviHash;}
 			std::string optHash () const {return _optHash;}
 			std::string cmbHash () const {return _cmbHash;}
@@ -46,19 +46,19 @@ struct SVGOutputBase {
 
 	virtual ~SVGOutputBase () =default;
 	virtual std::ostream& getPageStream (int page, int numPages, const HashTriple &hashes=HashTriple()) const =0;
-	virtual std::string filename (int page, int numPages, const HashTriple &hashes=HashTriple()) const =0;
+	virtual FilePath filepath (int page, int numPages, const HashTriple &hashes= HashTriple()) const =0;
 	virtual bool ignoresHashes () const {return true;}
 };
 
 
 class SVGOutput : public SVGOutputBase {
 	public:
-		SVGOutput () : SVGOutput("", "", 0) {}
-		SVGOutput (const std::string &base) : SVGOutput(base, "", 0) {}
+		SVGOutput () =default;
+		explicit SVGOutput (const std::string &base) : SVGOutput(base, "", 0) {}
 		SVGOutput (const std::string &base, const std::string &pattern) : SVGOutput(base, pattern, 0) {}
-		SVGOutput (const std::string &base, const std::string &pattern, int zipLevel);
+		SVGOutput (const std::string &base, std::string pattern, int zipLevel);
 		std::ostream& getPageStream (int page, int numPages, const HashTriple &hash=HashTriple()) const override;
-		std::string filename (int page, int numPages, const HashTriple &hash=HashTriple()) const override;
+		FilePath filepath (int page, int numPages, const HashTriple &hash=HashTriple()) const override;
 		bool ignoresHashes () const override;
 
 	protected:
@@ -67,9 +67,9 @@ class SVGOutput : public SVGOutputBase {
 	private:
 		FilePath _path;
 		std::string _pattern;
-		bool _stdout;      ///< write to STDOUT?
-		int _zipLevel;     ///< compression level
-		mutable int _page; ///< number of current page being written
+		bool _stdout=true;    ///< write to STDOUT?
+		int _zipLevel=0;      ///< compression level
+		mutable int _page=-1; ///< number of current page being written
 		mutable std::unique_ptr<std::ostream> _osptr;
 };
 

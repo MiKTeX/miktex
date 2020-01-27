@@ -46,7 +46,7 @@ void SpecialManager::unregisterHandlers () {
 /** Registers a single special handler. This method doesn't check if a
  *  handler of the same class is already registered.
  *  @param[in] handler pointer to handler to be registered */
-void SpecialManager::registerHandler (unique_ptr<SpecialHandler> &&handler) {
+void SpecialManager::registerHandler (unique_ptr<SpecialHandler> handler) {
 	if (handler) {
 		// get array of prefixes this handler is responsible for
 		for (const char *prefix : handler->prefixes())
@@ -104,11 +104,11 @@ static string extract_prefix (istream &is) {
 	int c;
 	string prefix;
 	while (isalnum(c=is.get()))
-		prefix += c;
+		prefix += char(c);
 	if (ispunct(c)) // also add separation character to identifying prefix
-		prefix += c;
+		prefix += char(c);
 	if (prefix == "ps:" && is.peek() == ':')
-		prefix += is.get();
+		prefix += char(is.get());
 	return prefix;
 }
 

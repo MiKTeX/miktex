@@ -18,8 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include "CRC32.hpp"
+#include "HashFunction.hpp"
 #include "StreamWriter.hpp"
+#include "utility.hpp"
 
 using namespace std;
 
@@ -37,7 +38,7 @@ void StreamWriter::writeUnsigned (uint32_t val, int n) {
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered */
 void StreamWriter::writeSigned (int32_t val, int n) {
-	writeUnsigned((uint32_t)val, n);
+	writeUnsigned(uint32_t(val), n);
 }
 
 
@@ -71,27 +72,27 @@ void StreamWriter::writeString (const string &str, bool finalZero) {
 /** Writes an unsigned integer to the output stream.
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered
- *  @param[in,out] crc32 checksum to be updated */
-void StreamWriter::writeUnsigned (uint32_t val, int n, CRC32 &crc32) {
+ *  @param[in,out] hashfunc hash to update */
+void StreamWriter::writeUnsigned (uint32_t val, int n, HashFunction &hashfunc) {
 	writeUnsigned(val, n);
-	crc32.update(val, n);
+	hashfunc.update(util::bytes(val, n));
 }
 
 
-/** Writes a signed integer to the output stream and updates the CRC32 checksum.
+/** Writes a signed integer to the output stream and updates the hash value.
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered
- *  @param[in,out] crc32 checksum to be updated */
-void StreamWriter::writeSigned (int32_t val, int n, CRC32 &crc32) {
-	writeUnsigned((uint32_t)val, n, crc32);
+ *  @param[in,out] hashfunc hash to update */
+void StreamWriter::writeSigned (int32_t val, int n, HashFunction &hashfunc) {
+	writeUnsigned(uint32_t(val), n, hashfunc);
 }
 
 
-/** Writes a string to the output stream and updates the CRC32 checksum.
+/** Writes a string to the output stream and updates the hash value.
  *  @param[in] str the string to write
- *  @param[in,out] crc32 checksum to be updated
+ *  @param[in,out] hashfunc hash to update
  *  @param[in] finalZero if true, a final 0-byte is appended */
-void StreamWriter::writeString (const std::string &str, CRC32 &crc32, bool finalZero) {
+void StreamWriter::writeString (const std::string &str, HashFunction &hashfunc, bool finalZero) {
 	writeString(str, finalZero);
-	crc32.update((const uint8_t*)str.c_str(), str.length() + (finalZero ? 1 : 0));
+	hashfunc.update(str.data(), str.length() + (finalZero ? 1 : 0));
 }

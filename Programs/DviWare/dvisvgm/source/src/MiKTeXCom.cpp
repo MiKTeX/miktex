@@ -92,8 +92,7 @@ const char* MiKTeXCom::findFile (const char *fname) {
 		_bstr_t path;
 		static string ret;
 #ifdef _MSC_VER
-		HRESULT hres = _session->FindFile(fname, path.GetAddress());
-		bool found = (hres != 0);
+		bool found = (_session->FindFile(fname, path.GetAddress()) == VARIANT_TRUE);
 #else
 		VARIANT_BOOL found_var;
 		_session->FindFile(_bstr_t(fname), path.GetAddress(), &found_var);

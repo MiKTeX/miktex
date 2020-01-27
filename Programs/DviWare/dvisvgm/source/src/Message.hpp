@@ -31,13 +31,12 @@
 
 class Message;
 
-class MessageStream
-{
+class MessageStream {
 	friend class Message;
 
 	public:
-		MessageStream ();
-		MessageStream (std::ostream &os);
+		MessageStream () =default;
+		explicit MessageStream (std::ostream &os) noexcept;
 		~MessageStream ();
 
 		template <typename T>
@@ -58,26 +57,25 @@ class MessageStream
 		void clearline ();
 
 	protected:
-		void putChar (const char c, std::ostream &os);
+		void putChar (char c, std::ostream &os);
 		std::ostream* os () {return _os;}
 
 	private:
-		std::ostream *_os;
-		bool _nl;     ///< true if previous character was a newline
-		int _col;     ///< current terminal column
-		int _indent;  ///< indentation width (number of columns/characters)
+		std::ostream *_os=nullptr;
+		bool _nl=false;     ///< true if previous character was a newline
+		int _col=1;         ///< current terminal column
+		int _indent=0;      ///< indentation width (number of columns/characters)
 };
 
 
-class Message
-{
+class Message {
 	struct Color {
-		Color () : foreground(-1), background(-1) {}
-		Color (int8_t fgcolor) : foreground(fgcolor), background(-1) {}
-		Color (int8_t fgcolor, bool light) : foreground(fgcolor + (light ? 8 : 0)), background(-1) {}
-		Color (int8_t fgcolor, int8_t bgcolor) : foreground(fgcolor), background(bgcolor) {}
-		int8_t foreground;
-		int8_t background;
+		Color () =default;
+		explicit Color (int8_t fgcolor) noexcept : foreground(fgcolor) {}
+		Color (int8_t fgcolor, bool light) noexcept: foreground(fgcolor + (light ? 8 : 0)) {}
+		Color (int8_t fgcolor, int8_t bgcolor) noexcept : foreground(fgcolor), background(bgcolor) {}
+		int8_t foreground = -1;
+		int8_t background = -1;
 	};
 
 	public:

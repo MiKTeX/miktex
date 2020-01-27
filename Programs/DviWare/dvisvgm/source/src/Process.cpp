@@ -24,9 +24,10 @@
 #ifdef _WIN32
 	#include "windows.hpp"
 #else
+	#include <csignal>
+	#include <cstring>
 	#include <fcntl.h>
 	#include <sys/wait.h>
-	#include <signal.h>
 	#include <unistd.h>
 #endif
 #if defined(MIKTEX_WINDOWS)
@@ -49,7 +50,7 @@ class Subprocess {
 		enum class State {RUNNING, FINISHED, FAILED};
 
 	public:
-		Subprocess ();
+		Subprocess () =default;
 		Subprocess (const Subprocess&) =delete;
 		Subprocess (Subprocess&&) =delete;
 		~Subprocess ();
@@ -59,17 +60,17 @@ class Subprocess {
 
 	private:
 #ifdef _WIN32
-		HANDLE _pipeReadHandle;   ///< handle of read end of pipe
-		HANDLE _childProcHandle;  ///< handle of child process
+		HANDLE _pipeReadHandle=NULL;   ///< handle of read end of pipe
+		HANDLE _childProcHandle=NULL;  ///< handle of child process
 #else
-		int _readfd; ///< file descriptor of read end of pipe
-		pid_t _pid;  ///< PID of the subprocess
+		int _readfd=-1; ///< file descriptor of read end of pipe
+		pid_t _pid=-1;  ///< PID of the subprocess
 #endif
 };
 
 
-Process::Process (const string &cmd, const string &paramstr)
-	: _cmd(cmd), _paramstr(paramstr)
+Process::Process (string cmd, string paramstr)
+	: _cmd(std::move(cmd)), _paramstr(std::move(paramstr))
 {
 }
 
@@ -117,10 +118,6 @@ bool Process::run (const string &dir, string *out) {
 static inline void close_and_zero_handle (HANDLE &handle) {
 	CloseHandle(handle);
 	handle = NULL;
-}
-
-
-Subprocess::Subprocess() : _pipeReadHandle(NULL), _childProcHandle(NULL) {
 }
 
 
@@ -229,10 +226,6 @@ Subprocess::State Subprocess::state () {
 
 #else  // !_WIN32
 
-Subprocess::Subprocess () : _readfd(-1), _pid(-1) {
-}
-
-
 Subprocess::~Subprocess () {
 	if (_readfd >= 0)
 		close(_readfd);
@@ -291,12 +284,12 @@ static void split_paramstr (string &paramstr, vector<const char*> &params) {
 
 
 /** Starts a child process.
- *  @param[in] cmd name of command to execute
- *  @param[in] paramstr parameters required by command
+ *  @param[in] cmd name of command to execute or absolute path to executable
+ *  @param[in] paramstr parameters required by the command
  *  @returns true if child process started properly */
 bool Subprocess::run (const string &cmd, string paramstr) {
 	int pipefd[2];
-	if (pipe(pipefd) < 0)
+	if (cmd.empty() || pipe(pipefd) < 0)
 		return false;
 
 	_pid = fork();
@@ -314,9 +307,11 @@ bool Subprocess::run (const string &cmd, string paramstr) {
 		vector<const char*> params;
 		params.push_back(cmd.c_str());
 		split_paramstr(paramstr, params);
-		params.push_back(nullptr); // trailing null pointer marks end of parameter list
-		signal(SIGINT, SIG_IGN);   // child process is supposed to ignore ctrl-c events
-		execvp(cmd.c_str(), const_cast<char* const*>(&params[0]));
+		params.push_back(nullptr);  // trailing null pointer marks end of parameter list
+		signal(SIGINT, SIG_IGN);    // child process is supposed to ignore ctrl-c events
+		if (params[0][0] == '/')    // absolute path to executable?
+			params[0] = strrchr(params[0], '/')+1;  // filename of executable
+		execvp(cmd.c_str(), const_cast<char* const*>(params.data()));
 		exit(1);
 	}
 	_readfd = pipefd[0];

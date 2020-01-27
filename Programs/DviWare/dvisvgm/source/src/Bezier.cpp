@@ -21,11 +21,12 @@
 #include <algorithm>
 #include <utility>
 #include "Bezier.hpp"
+#include "Matrix.hpp"
 
 using namespace std;
 
 Bezier::Bezier () {
-	_points[0] = _points[1] = _points[2] = _points[3] = 0;
+	_points[0] = _points[1] = _points[2] = _points[3] = DPair(0);
 }
 
 
@@ -51,13 +52,13 @@ Bezier::Bezier (const Bezier &source, double t0, double t1) {
 		if (t0 > t1)
 			swap(t0, t1);
 		if (t0 == 0)
-			source.subdivide(t1, this, 0);
+			source.subdivide(t1, this, nullptr);
 		else if (t1 == 1)
-			source.subdivide(t0, 0, this);
+			source.subdivide(t0, nullptr, this);
 		else {
 			Bezier subcurve;
-			source.subdivide(t0, 0, &subcurve);
-			subcurve.subdivide((t1-t0)/(1-t0), this, 0);
+			source.subdivide(t0, nullptr, &subcurve);
+			subcurve.subdivide((t1-t0)/(1-t0), this, nullptr);
 		}
 	}
 }
@@ -230,8 +231,8 @@ static bool solve_quadratic_equation (double a, double b, double c, double &x1, 
 
 
 /** Returns a tight bounding box parallel to the x- and y-axis. */
-void Bezier::getBBox (BoundingBox &bbox) const {
-	bbox.invalidate();
+BoundingBox Bezier::getBBox () const {
+	BoundingBox bbox;
 	// coefficients of the derivative
 	DPair pa = _points[3] - _points[2]*3.0 + _points[1]*3.0 - _points[0];
 	DPair pb = (_points[2]-_points[1]*2.0+_points[0])*2.0;
@@ -253,4 +254,12 @@ void Bezier::getBBox (BoundingBox &bbox) const {
 	}
 	bbox.embed(_points[0]);
 	bbox.embed(_points[3]);
+	return bbox;
+}
+
+
+Bezier& Bezier::transform (const Matrix &matrix) {
+	for (int i=0; i < 4; i++)
+		_points[i] = matrix*_points[i];
+	return *this;
 }

@@ -102,8 +102,8 @@ const char* Font::filename () const {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-TFMFont::TFMFont (const string &name, uint32_t cs, double ds, double ss)
-	: _fontname(name), _checksum(cs), _dsize(ds), _ssize(ss)
+TFMFont::TFMFont (string name, uint32_t cs, double ds, double ss)
+	: _fontname(std::move(name)), _checksum(cs), _dsize(ds), _ssize(ss)
 {
 }
 
@@ -162,7 +162,7 @@ bool TFMFont::verifyChecksums () const {
 // static class variables
 bool PhysicalFont::EXACT_BBOX = false;
 bool PhysicalFont::KEEP_TEMP_FILES = false;
-const char *PhysicalFont::CACHE_PATH = 0;
+string PhysicalFont::CACHE_PATH;
 double PhysicalFont::METAFONT_MAG = 4;
 FontCache PhysicalFont::_cache;
 
@@ -178,14 +178,14 @@ unique_ptr<Font> PhysicalFont::create (const string &name, int fontindex, uint32
 
 
 const char* PhysicalFont::path () const {
-	const char *ext=0;
+	const char *ext=nullptr;
 	switch (type()) {
 		case Type::OTF: ext = "otf"; break;
 		case Type::PFB: ext = "pfb"; break;
 		case Type::TTC: ext = "ttc"; break;
 		case Type::TTF: ext = "ttf"; break;
 		case Type::MF : ext = "mf";  break;
-		default : ext = 0;
+		default : ext = nullptr;
 	}
 	if (ext)
 		return FileFinder::instance().lookup(name()+"."+ext);
@@ -326,8 +326,8 @@ std::string PhysicalFont::styleName () const {
  *  @return true if outline could be computed */
 bool PhysicalFont::getGlyph (int c, GraphicsPath<int32_t> &glyph, GFGlyphTracer::Callback *callback) const {
 	if (type() == Type::MF) {
-		const Glyph *cached_glyph=0;
-		if (CACHE_PATH) {
+		const Glyph *cached_glyph=nullptr;
+		if (!CACHE_PATH.empty()) {
 			_cache.write(CACHE_PATH);
 			_cache.read(name(), CACHE_PATH);
 			cached_glyph = _cache.getGlyph(c);
@@ -345,7 +345,7 @@ bool PhysicalFont::getGlyph (int c, GraphicsPath<int32_t> &glyph, GFGlyphTracer:
 					tracer.setGlyph(glyph);
 					tracer.executeChar(c);
 					glyph.closeOpenSubPaths();
-					if (CACHE_PATH)
+					if (!CACHE_PATH.empty())
 						_cache.setGlyph(c, glyph);
 					return true;
 				}
@@ -395,7 +395,7 @@ bool PhysicalFont::createGF (string &gfname) const {
  *  @return number of glyphs traced */
 int PhysicalFont::traceAllGlyphs (bool includeCached, GFGlyphTracer::Callback *cb) const {
 	int count = 0;
-	if (type() == Type::MF && CACHE_PATH) {
+	if (type() == Type::MF && !CACHE_PATH.empty()) {
 		if (const FontMetrics *metrics = getMetrics()) {
 			int fchar = metrics->firstChar();
 			int lchar = metrics->lastChar();
@@ -482,7 +482,7 @@ PhysicalFontImpl::PhysicalFontImpl (const string &name, int fontindex, uint32_t 
 
 
 PhysicalFontImpl::~PhysicalFontImpl () {
-	if (CACHE_PATH)
+	if (!CACHE_PATH.empty())
 		_cache.write(CACHE_PATH);
 	if (!KEEP_TEMP_FILES)
 		tidy();
@@ -551,7 +551,7 @@ uint32_t PhysicalFontImpl::unicode (uint32_t c) const {
 
 
 const FontStyle* PhysicalFontImpl::style () const {
-	if (auto *entry = fontMapEntry())
+	if (auto entry = fontMapEntry())
 		return &entry->style;
 	return nullptr;
 }
@@ -674,6 +674,6 @@ void VirtualFontImpl::assignChar (uint32_t c, DVIVector &&dvi) {
  *  @return pointer to vector of DVI commands, or 0 if character doesn't exist */
 const vector<uint8_t>* VirtualFontImpl::getDVI (int c) const {
 	auto it = _charDefs.find(c);
-	return (it == _charDefs.end() ? 0 : &it->second);
+	return (it == _charDefs.end() ? nullptr : &it->second);
 }
 

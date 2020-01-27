@@ -32,11 +32,9 @@ JFM::JFM (istream &is) {
 	is.seekg(0);
 	StreamReader reader(is);
 	uint16_t id = uint16_t(reader.readUnsigned(2)); // JFM ID (9 or 11)
-	if (id != 9 && id != 11) {
-		ostringstream oss;
-		oss << "invalid JFM identifier " << id << " (9 or 11 expected)";
-		throw FontMetricException(oss.str());
-	}
+	if (id != 9 && id != 11)
+		throw FontMetricException("invalid JFM identifier " + std::to_string(id) + " (9 or 11 expected)");
+
 	_vertical = (id == 9);
 	uint16_t nt = uint16_t(reader.readUnsigned(2));  // length of character type table
 	uint16_t lf = uint16_t(reader.readUnsigned(2));  // length of entire file in 4 byte words

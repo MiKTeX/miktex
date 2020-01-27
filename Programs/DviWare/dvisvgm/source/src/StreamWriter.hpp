@@ -24,21 +24,20 @@
 #include <ostream>
 #include <vector>
 
-class CRC32;
+class HashFunction;
 
 class StreamWriter {
 	public:
-		StreamWriter (std::ostream &os) : _os(os) {}
-		virtual ~StreamWriter () =default;
+		explicit StreamWriter (std::ostream &os) : _os(os) {}
 		void writeUnsigned (uint32_t val, int n);
 		void writeSigned (int32_t val, int n);
 		void writeBytes (const std::vector<uint8_t> &bytes);
 		void writeBytes (const uint8_t *buf, size_t bufsize);
 		void writeBytes (int byte, size_t count);
 		void writeString (const std::string &str, bool finalZero=false);
-		void writeUnsigned (uint32_t val, int n, CRC32 &crc32);
-		void writeSigned (int32_t val, int n, CRC32 &crc32);
-		void writeString (const std::string &str, CRC32 &crc32, bool finalZero=false);
+		void writeUnsigned (uint32_t val, int n, HashFunction &hashfunc);
+		void writeSigned (int32_t val, int n, HashFunction &hashfunc);
+		void writeString (const std::string &str, HashFunction &hashfunc, bool finalZero=false);
 
 	private:
 		std::ostream &_os;

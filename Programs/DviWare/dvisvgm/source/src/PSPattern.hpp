@@ -32,7 +32,7 @@
 
 class SpecialActions;
 class SVGTree;
-class XMLElementNode;
+class XMLElement;
 
 class PSPattern {
 	public:
@@ -42,8 +42,8 @@ class PSPattern {
 		virtual void apply (SpecialActions &actions);
 
 	protected:
-		PSPattern (int id) : _id(id) {}
-		virtual std::unique_ptr<XMLElementNode> createPatternNode () const =0;
+		explicit PSPattern (int id) : _id(id) {}
+		virtual std::unique_ptr<XMLElement> createPatternNode () const =0;
 
 	private:
 		int _id;  ///< PostSCript ID of this pattern
@@ -52,23 +52,23 @@ class PSPattern {
 
 class PSTilingPattern : public PSPattern {
 	public:
-		virtual XMLElementNode* getContainerNode ()     {return _groupNode.get();}
+		virtual XMLElement* getContainerNode ()     {return _groupNode.get();}
 		void apply (SpecialActions &actions) override;
 
 	protected:
 		PSTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
-		std::unique_ptr<XMLElementNode> createPatternNode () const override;
-		virtual std::unique_ptr<XMLElementNode> createClipNode () const;
-		virtual std::unique_ptr<XMLElementNode> createGroupNode () const;
-		virtual XMLElementNode* getGroupNode () const    {return _groupNodePtr;}
-		virtual void setGroupNode (std::unique_ptr<XMLElementNode> &&node);
+		std::unique_ptr<XMLElement> createPatternNode () const override;
+		virtual std::unique_ptr<XMLElement> createClipNode () const;
+		virtual std::unique_ptr<XMLElement> createGroupNode () const;
+		virtual XMLElement* getGroupNode () const    {return _groupNodePtr;}
+		virtual void setGroupNode (std::unique_ptr<XMLElement> node);
 
 	private:
 		BoundingBox _bbox;           ///< bounding box of the tile graphics
 		Matrix _matrix;              ///< tile transformation
 		double _xstep, _ystep;       ///< horizontal and vertical distance between neighboured tiles
-		mutable std::unique_ptr<XMLElementNode> _groupNode;  ///< group containing the drawing elements
-		XMLElementNode *_groupNodePtr; ///< keeps a pointer to the group node even after moving _groupNode to the SVGTree
+		mutable std::unique_ptr<XMLElement> _groupNode;  ///< group containing the drawing elements
+		XMLElement *_groupNodePtr; ///< keeps a pointer to the group node even after moving _groupNode to the SVGTree
 };
 
 
@@ -86,7 +86,7 @@ class PSUncoloredTilingPattern final : public PSTilingPattern {
 		void apply (SpecialActions &actions) override;
 
 	protected:
-		std::unique_ptr<XMLElementNode> createClipNode () const override;
+		std::unique_ptr<XMLElement> createClipNode () const override;
 
 	private:
 		std::set<Color> _colors;  ///< colors this pattern has already been drawn with

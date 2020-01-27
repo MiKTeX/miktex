@@ -38,12 +38,12 @@ class ShadingPatch {
 		using ColorVec = std::vector<Color>;
 
 	public:
-		ShadingPatch (Color::ColorSpace colorSpace) : _colorspace(colorSpace) {}
+		explicit ShadingPatch (Color::ColorSpace colorSpace) : _colorspace(colorSpace) {}
 		virtual ~ShadingPatch () =default;
 		virtual int psShadingType () const =0;
 		virtual void approximate (int gridsize, bool overlap, double delta, Callback &callback) const =0;
-		virtual void getBBox (BoundingBox &bbox) const =0;
-		virtual void getBoundaryPath (GraphicsPath<double> &path) const =0;
+		virtual BoundingBox getBBox () const =0;
+		virtual GraphicsPath<double> getBoundaryPath () const =0;
 		virtual void setPoints (const PointVec &points, int edgeflag, ShadingPatch *patch) =0;
 		virtual void setColors (const ColorVec &colors, int edgeflag, ShadingPatch *patch) =0;
 		virtual int numPoints (int edgeflag) const =0;
@@ -63,7 +63,7 @@ class ShadingPatch {
 
 
 struct ShadingException : public MessageException {
-	ShadingException (const std::string &msg) : MessageException(msg) {}
+	explicit ShadingException (const std::string &msg) : MessageException(msg) {}
 };
 
 #endif

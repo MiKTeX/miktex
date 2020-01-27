@@ -21,6 +21,7 @@
 #ifndef HASHFUNCTION_HPP
 #define HASHFUNCTION_HPP
 
+#include <istream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -35,6 +36,7 @@ class HashFunction {
 		virtual void update (const std::string &data) =0;
 		virtual void update (const std::vector<uint8_t> &data) =0;
 		virtual std::vector<uint8_t> digestValue () const =0;
+		void update (std::istream &is);
 		std::string digestString () const;
 		static std::vector<std::string> supportedAlgorithms ();
 		static bool isSupportedAlgorithm (const std::string &algo);

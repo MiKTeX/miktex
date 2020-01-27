@@ -23,7 +23,11 @@
 
 #include <xxhash.h>
 #include "HashFunction.hpp"
+#include "utility.hpp"
 
+#if (XXH_VERSION_NUMBER >= 701) && defined(XXH3_SECRET_SIZE_MIN)
+#define ENABLE_XXH128
+#endif
 
 template <int HASH_SIZE>
 struct XXHInterface {
@@ -49,6 +53,17 @@ struct XXHInterface<8> {
 	static constexpr auto digest = &XXH64_digest;
 };
 
+#ifdef ENABLE_XXH128
+template<>
+struct XXHInterface<16> {
+	using State = XXH3_state_t;
+	static constexpr auto createState = &XXH3_createState;
+	static constexpr auto freeState = &XXH3_freeState;
+	static constexpr auto reset = &XXH3_128bits_reset_withSeed;
+	static constexpr auto update = &XXH3_128bits_update;
+	static constexpr auto digest = &XXH3_128bits_digest;
+};
+#endif
 
 /** Implements the HashFunction class for the xxHash algorithms. */
 template <int HASH_BYTES>
@@ -57,23 +72,19 @@ class XXHashFunction : public HashFunction {
 	public:
 		XXHashFunction () : _state(Interface::createState()) {Interface::reset(_state, 0);}
 		XXHashFunction(const char *data, size_t length) : XXHashFunction() {update(data, length);}
-		XXHashFunction(const std::string &data) : XXHashFunction() {update(data);}
-		XXHashFunction(const std::vector<uint8_t> &data) : XXHashFunction() {update(data);}
-		~XXHashFunction () {Interface::freeState(_state);}
+		explicit XXHashFunction(const std::string &data) : XXHashFunction() {update(data);}
+		explicit XXHashFunction(const std::vector<uint8_t> &data) : XXHashFunction() {update(data);}
+		~XXHashFunction () override {Interface::freeState(_state);}
 		int digestSize () const override {return HASH_BYTES;}
 		void reset () override {Interface::reset(_state, 0);}
 		void update (const char *data, size_t length) override {Interface::update(_state, data, length);}
 		void update (const std::string &data) override {update(data.data(), data.length());}
 		void update (const std::vector<uint8_t> &data) override {update(reinterpret_cast<const char*>(data.data()), data.size());}
 
+		using HashFunction::update;  // unhide update(istream &is) defined in base class
+
 		std::vector<uint8_t> digestValue () const override {
-			std::vector<uint8_t> hash(HASH_BYTES);
-			auto digest = Interface::digest(_state);
-			for (int i=HASH_BYTES-1; i >= 0; i--) {
-				hash[i] = digest & 0xff;
-				digest >>= 8;
-			}
-			return hash;
+			return util::bytes(Interface::digest(_state), HASH_BYTES);
 		}
 
 		static unsigned version () {return XXH_versionNumber();}
@@ -84,5 +95,20 @@ class XXHashFunction : public HashFunction {
 
 using XXH32HashFunction = XXHashFunction<4>;
 using XXH64HashFunction = XXHashFunction<8>;
+
+#ifdef ENABLE_XXH128
+using XXH128HashFunction = XXHashFunction<16>;
+
+template<>
+inline std::vector<uint8_t> XXHashFunction<16>::digestValue () const {
+	std::vector<uint8_t> hash;
+	auto digest = Interface::digest(_state);
+	for (auto chunk : {digest.high64, digest.low64}) {
+		auto bytes = util::bytes(chunk);
+		hash.insert(hash.end(), bytes.begin(), bytes.end());
+	}
+	return hash;
+}
+#endif
 
 #endif

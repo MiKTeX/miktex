@@ -30,7 +30,7 @@
 
 
 struct ParserException : public MessageException {
-	ParserException (const std::string &msg) : MessageException(msg) {}
+	explicit ParserException (const std::string &msg) : MessageException(msg) {}
 };
 
 class Calculator;
@@ -42,20 +42,18 @@ class Matrix {
 	public:
 		Matrix (const std::string &cmds, Calculator &calc);
 		Matrix (double d=0);
-		Matrix (double v[], unsigned size=9);
-		Matrix (const std::vector<double> &v, int start=0);
+		explicit Matrix (const double *v, unsigned size=9);
+		explicit Matrix (const std::vector<double> &v, int start=0);
 		Matrix (std::initializer_list<double> initlist);
 		Matrix& set (double d);
-		Matrix& set (double v[], unsigned size);
+		Matrix& set (const double *v, unsigned size);
 		Matrix& set (const std::vector<double> &v, int start=0);
 		Matrix& set (const std::string &cmds, Calculator &calc);
 		double get (int row, int col) const {return _values[row][col];}
 		Matrix& transpose ();
 		Matrix& invert ();
-		Matrix& parse (std::istream &is, Calculator &c);
-		Matrix& parse (const std::string &cmds, Calculator &c);
-		Matrix& lmultiply (const Matrix &tm);
 		Matrix& rmultiply (const Matrix &tm);
+		Matrix& lmultiply (const Matrix &tm);
 		Matrix& translate (double tx, double ty);
 		Matrix& translate (const DPair &p)   {return translate(p.x(), p.y());}
 		Matrix& scale (double sx, double sy);
@@ -72,8 +70,12 @@ class Matrix {
 		bool operator != (const Matrix &m) const;
 		bool isIdentity() const;
 		bool isTranslation (double &tx, double &ty) const;
-		std::string getSVG () const;
+		std::string toSVG () const;
 		std::ostream& write (std::ostream &os) const;
+
+		static Matrix parse (std::istream &is, Calculator &c);
+		static Matrix parse (const std::string &cmds, Calculator &c);
+		static Matrix parseSVGTransform (const std::string &transform);
 
 	private:
 		double _values[3][3];  // row x col
@@ -91,7 +93,17 @@ struct ScalingMatrix : public Matrix {
 
 
 struct RotationMatrix : public Matrix {
-	RotationMatrix (double deg);
+	explicit RotationMatrix (double deg);
+};
+
+
+struct XSkewingMatrix : public Matrix {
+	explicit XSkewingMatrix (double deg);
+};
+
+
+struct YSkewingMatrix : public Matrix {
+	explicit YSkewingMatrix (double deg);
 };
 
 

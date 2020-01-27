@@ -31,12 +31,6 @@
 
 using namespace std;
 
-PSPreviewFilter::PSPreviewFilter (PSInterpreter &psi)
-	: PSFilter(psi), _active(false), _tightpage(false), _dvi2bp(1.0/65536.0)
-{
-}
-
-
 /** Activates this filter so that the PS code will be redirected through it if
  *  it's hooked into the PSInterpreter. */
 void PSPreviewFilter::activate () {

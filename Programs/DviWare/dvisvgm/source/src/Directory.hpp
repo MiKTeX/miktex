@@ -39,7 +39,7 @@ class Directory {
 
 	public:
 		Directory ();
-		Directory (const std::string &path);
+		explicit Directory (const std::string &path);
 		~Directory ();
 		bool open (std::string path);
 		void close ();
@@ -52,12 +52,12 @@ class Directory {
                 std::unique_ptr<MiKTeX::Core::DirectoryLister> directoryLister;
 #else
 #ifdef _WIN32
-		bool _firstread;
-		HANDLE _handle;
+		bool _firstread=true;
+		HANDLE _handle=INVALID_HANDLE_VALUE;
 		WIN32_FIND_DATA _fileData;
 #else
-		DIR *_dir;
-		struct dirent *_dirent;
+		DIR *_dir=nullptr;
+		struct dirent *_dirent=nullptr;
 #endif
 #endif
 };

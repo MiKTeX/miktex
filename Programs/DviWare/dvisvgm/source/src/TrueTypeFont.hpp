@@ -53,7 +53,7 @@ class TrueTypeFont {
 
 	public:
 		TrueTypeFont () : _version(0) {}
-		TrueTypeFont (const std::string &fname) {read(fname);}
+		explicit TrueTypeFont (const std::string &fname) {read(fname);}
 		bool read (const std::string &fname);
 		void writeWOFF (std::ostream &os) const;
 		void writeWOFF (const std::string &fname) const;
@@ -68,7 +68,7 @@ class TrueTypeFont {
 
 
 struct TrueTypeFontException : public MessageException {
-	TrueTypeFontException (const std::string &msg) : MessageException(msg) {}
+	explicit TrueTypeFontException (const std::string &msg) : MessageException(msg) {}
 };
 
 #endif

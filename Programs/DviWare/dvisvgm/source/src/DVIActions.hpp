@@ -40,7 +40,7 @@ struct DVIActions {
 	virtual void beginPage (unsigned pageno, const std::vector<int32_t> &c) {}
 	virtual void endPage (unsigned pageno) {}
 	virtual BoundingBox& bbox () =0;
-	virtual void progress (size_t current, size_t total, const char *id=0) {}
+	virtual void progress (size_t current, size_t total, const char *id=nullptr) {}
 };
 
 #endif

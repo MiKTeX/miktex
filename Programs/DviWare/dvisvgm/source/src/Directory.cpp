@@ -26,10 +26,8 @@ using namespace std;
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #else
-#ifdef _WIN32
-	#include "windows.hpp"
-#else
-	#include <errno.h>
+#ifndef _WIN32
+	#include <cerrno>
 	#include <sys/stat.h>
 #endif
 #endif
@@ -37,30 +35,14 @@ using namespace std;
 Directory::Directory () {
 #if defined(MIKTEX)
 #else
-#if _WIN32
-	_handle = INVALID_HANDLE_VALUE;
-	_firstread = true;
+#ifdef _WIN32
 	memset(&_fileData, 0, sizeof(WIN32_FIND_DATA));
-#else
-	_dir = nullptr;
-	_dirent = nullptr;
 #endif
 #endif
 }
 
 
-Directory::Directory (const string &dirname) {
-#if defined(MIKTEX)
-#else
-#if _WIN32
-	_handle = INVALID_HANDLE_VALUE;
-	_firstread = true;
-	memset(&_fileData, 0, sizeof(WIN32_FIND_DATA));
-#else
-	_dir = nullptr;
-	_dirent = nullptr;
-#endif
-#endif
+Directory::Directory (const string &dirname) : Directory() {
 	open(dirname);
 }
 

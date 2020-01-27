@@ -34,7 +34,12 @@ using namespace std;
 
 /** Returns a vector containing the names of the currently supported hash algorithms. */
 vector<string> HashFunction::supportedAlgorithms () {
-	return vector<string> {"md5", "xxh32", "xxh64"};
+	return vector<string> {
+		"md5", "xxh32", "xxh64",
+#ifdef ENABLE_XXH128
+		"xxh128"
+#endif
+	};
 }
 
 
@@ -55,6 +60,10 @@ unique_ptr<HashFunction> HashFunction::create (const string &name) {
 		return util::make_unique<XXH32HashFunction>();
 	if (lowerName == "xxh64")
 		return util::make_unique<XXH64HashFunction>();
+#ifdef ENABLE_XXH128
+	if (lowerName == "xxh128")
+		return util::make_unique<XXH128HashFunction>();
+#endif
 	return nullptr;
 }
 
@@ -74,6 +83,15 @@ std::unique_ptr<HashFunction> HashFunction::create (const string &name, const st
 
 std::unique_ptr<HashFunction> HashFunction::create (const string &name, const vector<uint8_t> &data) {
 	return create(name, reinterpret_cast<const char*>(data.data()), data.size());
+}
+
+
+void HashFunction::update (istream &is) {
+	char buf[4096];
+	while (is) {
+		is.read(buf, 4096);
+		update(buf, is.gcount());
+	}
 }
 
 

@@ -79,12 +79,12 @@ struct PDFObjectRef {
 };
 
 struct PDFOperator {
-	PDFOperator (const std::string &name) : opname(name) {}
+	explicit PDFOperator (std::string name) : opname(std::move(name)) {}
 	std::string opname;
 };
 
 struct PDFName {
-	PDFName (const std::string &val) : str(val) {}
+	explicit PDFName (std::string val) : str(std::move(val)) {}
 	bool operator == (const PDFName &name) const {return str == name.str;}
 	std::string str;
 };
@@ -134,14 +134,14 @@ class PDFObject {
 
 
 template<> inline const PDFArray* PDFObject::get() const {
-	if (auto *p = mpark::get_if<std::unique_ptr<PDFArray>>(&_value))
+	if (auto p = mpark::get_if<std::unique_ptr<PDFArray>>(&_value))
 		return &(**p);
 	return nullptr;
 }
 
 
 template<> inline const PDFDict* PDFObject::get() const {
-	if (auto *p = mpark::get_if<std::unique_ptr<PDFDict>>(&_value))
+	if (auto p = mpark::get_if<std::unique_ptr<PDFDict>>(&_value))
 		return &(**p);
 	return nullptr;
 }
@@ -179,7 +179,7 @@ class PDFParser {
 
 /** If errors occur while parsing a sequence of PDF objects, an instance of this exception is thrown. */
 struct PDFException : public MessageException {
-	PDFException (const std::string &msg) : MessageException(msg) {}
+	explicit PDFException (const std::string &msg) : MessageException(msg) {}
 };
 
 #endif

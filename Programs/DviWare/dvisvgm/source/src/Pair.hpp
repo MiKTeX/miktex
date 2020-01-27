@@ -26,17 +26,21 @@
 #include "macros.hpp"
 
 template <typename T>
-class Pair
-{
+class Pair {
 	public:
-		Pair (T x=0, T y=0) : _x(x), _y(y) {}
+		explicit Pair (T x=0, T y=0) : _x(x), _y(y) {}
+		template <typename U> Pair (const Pair<U> &p) : _x(U(p.x())), _y(U(p.y())) {}
+		Pair (const Pair &p) =default;
+		Pair (Pair &&p) =default;
+		Pair& operator = (const Pair &p) =default;
+		Pair& operator = (Pair &&p) =default;
 		Pair operator += (const Pair &p)       {_x += p._x; _y += p._y; return *this;}
 		Pair operator -= (const Pair &p)       {_x -= p._x; _y -= p._y; return *this;}
 		Pair operator *= (T c)                 {_x *= c; _y *= c; return *this;}
 		Pair operator /= (T c)                 {_x /= c; _y /= c; return *this;}
 		Pair operator - () const               {return Pair(-_x, -_y);}
 		Pair ortho () const                    {return Pair(-_y, _x);}
-		double length () const                 {return std::sqrt(_x*_x + _y*_y);}
+		double length () const                 {return std::hypot(_x, _y);}
 		bool operator == (const Pair &p) const {return _x == p._x && _y == p._y;}
 		bool operator != (const Pair &p) const {return _x != p._x || _y != p._y;}
 		T x () const                           {return _x;}
@@ -54,14 +58,29 @@ inline Pair<T> abs (const Pair<T> &p) {
 	return Pair<T>(std::abs(p.x()), std::abs(p.y()));
 }
 
-struct Pair32 : public Pair<int32_t>
-{
-	Pair32 (int32_t x=0, int32_t y=0) : Pair<int32_t>(x, y) {}
-	explicit Pair32 (double x, double y) : Pair<int32_t>(int32_t(x+0.5), int32_t(y+0.5)) {}
+/** Returns the dot product of two 2D vectors. */
+template <typename T>
+inline T dot (const Pair<T> &p1, const Pair<T> &p2) {
+	return p1.x()*p1.y() + p1.y()*p2.y();
+}
+
+/** Returns the determinant of two 2D vectors. */
+template <typename T>
+inline T det (const Pair<T> &p1, const Pair<T> &p2) {
+	return p1.x()*p2.y() - p1.y()*p2.x();
+}
+
+struct Pair32 : public Pair<int32_t> {
+	explicit Pair32 (int32_t x=0, int32_t y=0) : Pair<int32_t>(x, y) {}
+	explicit Pair32 (double x, double y) : Pair<int32_t>(lround(x), lround(y)) {}
 	Pair32 (const Pair<int32_t> &p) : Pair<int32_t>(p) {}
 };
 
 typedef Pair<double> DPair;
+
+inline DPair round (const DPair &p) {
+	return DPair(std::lround(p.x()), std::lround(p.y()));
+}
 
 template <typename T>
 IMPLEMENT_ARITHMETIC_OPERATOR(Pair<T>, +)

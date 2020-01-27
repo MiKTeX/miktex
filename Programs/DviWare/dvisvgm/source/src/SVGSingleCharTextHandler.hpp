@@ -26,7 +26,7 @@
 
 class SVGSingleCharTextHandler : public SVGCharTextHandler {
 	public:
-		SVGSingleCharTextHandler (bool createStyleElements) : SVGCharTextHandler(createStyleElements) {}
+		explicit SVGSingleCharTextHandler (bool createStyleElements) : SVGCharTextHandler(createStyleElements) {}
 		void appendChar (uint32_t c, double x, double y) override;
 };
 

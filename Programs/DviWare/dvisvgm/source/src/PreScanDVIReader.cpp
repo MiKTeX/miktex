@@ -25,7 +25,7 @@ using namespace std;
 
 
 PreScanDVIReader::PreScanDVIReader (std::istream &is, DVIActions *actions)
-	: BasicDVIReader(is), _actions(actions), _currentPageNumber(0)
+	: BasicDVIReader(is), _actions(actions)
 {
 }
 

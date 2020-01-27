@@ -30,7 +30,7 @@
 #endif
 
 struct UnitException : MessageException {
-	UnitException (const std::string &msg) : MessageException(msg) {}
+	explicit UnitException (const std::string &msg) : MessageException(msg) {}
 };
 
 
@@ -39,11 +39,11 @@ class Length {
 		enum class Unit {PT, BP, CM, MM, IN, PC, DD, CC, SP};
 
 	public:
-		constexpr Length () : _pt(0) {}
-		constexpr Length (long double pt) : _pt(static_cast<double>(pt)) {}
+		constexpr Length () =default;
+		explicit constexpr Length (long double pt) : _pt(static_cast<double>(pt)) {}
 		Length (double val, Unit unit)                  {set(val, unit);}
 		Length (double val, const std::string &unitstr) {set(val, unitstr);}
-		Length (const std::string &lenstr)              {set(lenstr);}
+		explicit Length (const std::string &lenstr)     {set(lenstr);}
 		void set (double val, Unit unit);
 		void set (double val, std::string unit);
 		void set (const std::string &lenstr);
@@ -76,7 +76,7 @@ class Length {
 		static constexpr double pt2sp = 65536.0;
 
 	private:
-		double _pt;  // length in TeX point units (72.27pt = 1in)
+		double _pt=0;  // length in TeX point units (72.27pt = 1in)
 };
 
 

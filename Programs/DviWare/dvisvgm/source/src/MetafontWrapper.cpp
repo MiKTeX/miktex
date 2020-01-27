@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <cstdlib>
 #include <cctype>
 #include <fstream>
 #include <sstream>
@@ -36,12 +35,13 @@
 using namespace std;
 
 
-MetafontWrapper::MetafontWrapper (const string &fname, const string &dir) : _fontname(fname), _dir(dir)
+MetafontWrapper::MetafontWrapper (string fname, string dir)
+	: _fontname(std::move(fname)), _dir(std::move(dir))
 {
 	// ensure that folder paths ends with slash
 	if (_dir.empty())
 		_dir = "./";
-	else if (_dir != "/" && dir[dir.length()-1] != '/')
+	else if (_dir != "/" && _dir.back() != '/')
 		_dir += '/';
 }
 
@@ -57,19 +57,19 @@ bool MetafontWrapper::call (const string &mode, double mag) {
 		return false;     // mf file not available => no need to call the "slow" Metafont
 	FileSystem::remove(_fontname+".gf");
 
-#ifdef _WIN32
-#ifdef TEXLIVEWIN32
-	const char *mfname = "mf-nowin.exe";
-#else
-	const char *mfname = "mf.exe";
+	string mfName = "mf";  // file name of Metafont executable
+#ifndef MIKTEX
+	if (const char *mfnowinPath = FileFinder::instance().lookupExecutable("mf-nowin", true))
+		mfName = mfnowinPath;
+	else
 #endif
-	const char *cmd = FileFinder::instance().lookup(mfname, false);
-	if (!cmd) {
-		Message::estream(true) << "can't run Metafont (" << mfname << " not found)\n";
-		return false;
-	}
-#else
-	const char *cmd = "mf";
+		if (const char *mfPath = FileFinder::instance().lookupExecutable(mfName, true))
+			mfName = mfPath;
+#ifdef _WIN32
+		else {
+			Message::estream(true) << "can't run Metafont (mf.exe and mf-nowin.exe not found)\n";
+			return false;
+		}
 #endif
 	ostringstream oss;
 	oss << "\"\\mode=" << mode  << ";"  // set MF mode, e.g. 'proof', 'ljfour' or 'localfont'
@@ -79,7 +79,7 @@ bool MetafontWrapper::call (const string &mode, double mag) {
 		"batchmode;"                     // don't halt on errors and don't print informational messages
 		"input " << _fontname << "\"";   // load font description
 	Message::mstream(false, Message::MC_STATE) << "\nrunning Metafont for " << _fontname << '\n';
-	Process mf_process(cmd, oss.str());
+	Process mf_process(mfName, oss.str());
 	string mf_messages;
 	mf_process.run(_dir, &mf_messages);
 
@@ -91,7 +91,7 @@ bool MetafontWrapper::call (const string &mode, double mag) {
 		iss.getline(buf, sizeof(buf));
 		string line = buf;
 		if (line.substr(0, 3) == ">> ") {
-			resolution = atoi(line.substr(3).c_str());
+			resolution = stoi(line.substr(3));
 			break;
 		}
 	}

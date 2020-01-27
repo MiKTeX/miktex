@@ -25,8 +25,7 @@
 #include <vector>
 
 
-class Bitmap
-{
+class Bitmap {
 	public:
 		struct Callback {
 			virtual ~Callback() =default;
@@ -36,7 +35,7 @@ class Bitmap
 		};
 
 	public:
-		Bitmap ();
+		Bitmap () =default;
 		Bitmap (int minx, int maxx, int miny , int maxy);
 		void resize (int minx, int maxx, int miny , int maxy);
 		void setBits(int row, int col, int n);
@@ -60,9 +59,9 @@ class Bitmap
 //		std::ostream& write (std::ostream &os) const;
 
 	private:
-		int _rows, _cols;     ///< number of rows, columns
-		int _xshift, _yshift; ///< horizontal/vertical shift
-		int _bpr;             ///< number of bytes per row
+		int _rows=0, _cols=0;     ///< number of rows, columns
+		int _xshift=0, _yshift=0; ///< horizontal/vertical shift
+		int _bpr=0;               ///< number of bytes per row
 		std::vector<uint8_t> _bytes;
 };
 
@@ -81,7 +80,7 @@ int Bitmap::copy (std::vector<T> &target, bool vflip) const {
 		int targetrow = vflip ? _rows-r-1 : r;
 		for (int b=0; b < _bpr; b++) {
 			T &t = target[targetrow*tpr + b/s];
-			T chunk = (T)_bytes[r*_bpr+b] << (8*(s-1-b%s));
+			T chunk = static_cast<T>(_bytes[r*_bpr+b]) << (8*(s-1-b%s));
 			if (b % s == 0)
 				t = chunk;
 			else
@@ -106,6 +105,5 @@ void Bitmap::write (std::ostream &os, const std::vector<T> &v) const {
 		os << std::endl;
 	}
 }*/
-
 
 #endif

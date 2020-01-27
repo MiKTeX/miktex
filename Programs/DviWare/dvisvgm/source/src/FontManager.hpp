@@ -66,7 +66,7 @@ class FontManager
 		void enterVF (VirtualFont *vf);
 		void leaveVF ();
 		void assignVFChar (int c, std::vector<uint8_t> &&dvi);
-		std::ostream& write (std::ostream &os, Font *font=0, int level=0);
+		std::ostream& write (std::ostream &os, Font *font=nullptr, int level=0);
 
 	protected:
 		FontManager () =default;

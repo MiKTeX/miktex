@@ -92,21 +92,21 @@ string Unicode::utf8 (int32_t cp) {
 	string utf8;
 	if (cp >= 0) {
 		if (cp < 0x80)
-			utf8 += cp;
+			utf8 += char(cp);
 		else if (cp < 0x800) {
-			utf8 += 0xC0 + (cp >> 6);
-			utf8 += 0x80 + (cp & 0x3F);
+			utf8 += char(0xC0 + (cp >> 6));
+			utf8 += char(0x80 + (cp & 0x3F));
 		}
 		else if (cp < 0x10000) {
-			utf8 += 0xE0 + (cp >> 12);
-			utf8 += 0x80 + ((cp >> 6) & 0x3F);
-			utf8 += 0x80 + (cp & 0x3F);
+			utf8 += char(0xE0 + (cp >> 12));
+			utf8 += char(0x80 + ((cp >> 6) & 0x3F));
+			utf8 += char(0x80 + (cp & 0x3F));
 		}
 		else if (cp < 0x110000) {
-			utf8 += 0xF0 + (cp >> 18);
-			utf8 += 0x80 + ((cp >> 12) & 0x3F);
-			utf8 += 0x80 + ((cp >> 6) & 0x3F);
-			utf8 += 0x80 + (cp & 0x3F);
+			utf8 += char(0xF0 + (cp >> 18));
+			utf8 += char(0x80 + ((cp >> 12) & 0x3F));
+			utf8 += char(0x80 + ((cp >> 6) & 0x3F));
+			utf8 += char(0x80 + (cp & 0x3F));
 		}
 		// UTF-8 does not support codepoints >= 0x110000
 	}

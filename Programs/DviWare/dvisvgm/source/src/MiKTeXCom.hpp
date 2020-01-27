@@ -25,10 +25,10 @@
 #include "windows.hpp"
 
 #ifdef _MSC_VER
-#import <MiKTeX209-session.tlb>
+#import <miktex-session.tlb>
 using namespace MiKTeXSession2_9;
 #else
-#include "miktex209-session.h"
+#include "miktex-session.h"
 #endif
 
 class MiKTeXCom {

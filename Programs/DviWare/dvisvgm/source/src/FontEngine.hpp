@@ -73,10 +73,10 @@ class FontEngine {
 		int charIndex (const Character &c) const;
 
 	private:
-		mutable unsigned int _currentChar, _currentGlyphIndex;
-		FT_Face _currentFace;
+		mutable unsigned int _currentChar=0, _currentGlyphIndex=0;
+		FT_Face _currentFace = nullptr;
 		FT_Library _library;
-		const Font *_currentFont;
+		const Font *_currentFont = nullptr;
 };
 
 #endif

@@ -73,10 +73,10 @@ class Ghostscript
 
 	public:
 		Ghostscript ();
-		Ghostscript (int argc, const char **argv, void *caller=0);
+		Ghostscript (int argc, const char **argv, void *caller=nullptr);
 		Ghostscript (const Ghostscript &gs) =delete;
 		~Ghostscript ();
-		bool init (int argc, const char **argv, void *caller=0);
+		bool init (int argc, const char **argv, void *caller=nullptr);
 		bool available ();
 		bool revision (gsapi_revision_t *r);
 		int revision ();
@@ -96,7 +96,7 @@ class Ghostscript
 		void delete_instance ();
 
 	private:
-		void *_inst; ///< Ghostscript handle needed to call the gsapi_foo functions
+		void *_inst = nullptr; ///< Ghostscript handle needed to call the gsapi_foo functions
 };
 
 #endif  // DISABLE_GS

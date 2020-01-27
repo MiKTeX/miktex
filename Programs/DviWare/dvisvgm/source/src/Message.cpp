@@ -28,12 +28,8 @@
 
 using namespace std;
 
-MessageStream::MessageStream () : _os(0), _nl(false), _col(1), _indent(0) {
-}
-
-
-MessageStream::MessageStream (std::ostream &os)
-	: _os(&os), _nl(true), _col(1), _indent(0)
+MessageStream::MessageStream (std::ostream &os) noexcept
+	: _os(&os), _nl(true)
 {
 	Terminal::init(os);
 }
@@ -45,7 +41,7 @@ MessageStream::~MessageStream () {
 }
 
 
-void MessageStream::putChar (const char c, ostream &os) {
+void MessageStream::putChar (char c, ostream &os) {
 	switch (c) {
 		case '\r':
 			os << '\r';

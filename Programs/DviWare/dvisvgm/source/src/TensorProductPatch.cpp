@@ -63,7 +63,7 @@ void TensorProductPatch::setFirstMatrixColumn (DPair source[4][4], int col, bool
  *  @param[in] edgeflag defines how to connect this patch with another one
  *  @param[in] patch reference patch required if edgeflag > 0 */
 void TensorProductPatch::setPoints (const PointVec &points, int edgeflag, ShadingPatch *patch) {
-	TensorProductPatch *tpPatch = dynamic_cast<TensorProductPatch*>(patch);
+	auto tpPatch = dynamic_cast<TensorProductPatch*>(patch);
 	if (edgeflag > 0 && !tpPatch)
 		throw ShadingException("missing preceding data in definition of tensor-product patch");
 	if ((edgeflag == 0 && points.size() != 16) || (edgeflag > 0 && points.size() != 12))
@@ -107,7 +107,7 @@ void TensorProductPatch::setPoints (const PointVec &points, int edgeflag, Shadin
  *  @param[in] edgeflag defines how to connect this patch with another one
  *  @param[in] patch reference patch required if edgeflag > 0 */
 void TensorProductPatch::setColors(const ColorVec &colors, int edgeflag, ShadingPatch* patch) {
-	TensorProductPatch *tpPatch = dynamic_cast<TensorProductPatch*>(patch);
+	auto tpPatch = dynamic_cast<TensorProductPatch*>(patch);
 	if (edgeflag > 0 && !tpPatch)
 		throw ShadingException("missing preceding data in definition of tensor-product patch");
 	if ((edgeflag == 0 && colors.size() != 4) || (edgeflag > 0 && colors.size() != 2))
@@ -201,16 +201,18 @@ Color TensorProductPatch::averageColor (const Color &c1, const Color &c2, const 
 }
 
 
-void TensorProductPatch::getBoundaryPath (GraphicsPath<double> &path) const {
+GraphicsPath<double> TensorProductPatch::getBoundaryPath () const {
 	// Simple approach: Use the outer curves as boundary path. This doesn't always lead
 	// to correct results since, depending on the control points, P(u,v) might exceed
 	// the simple boundary.
+	GraphicsPath<double> path;
 	path.moveto(_points[0][0]);
 	path.cubicto(_points[0][1], _points[0][2], _points[0][3]);
 	path.cubicto(_points[1][3], _points[2][3], _points[3][3]);
 	path.cubicto(_points[3][2], _points[3][1], _points[3][0]);
 	path.cubicto(_points[2][0], _points[1][0], _points[0][0]);
 	path.closepath();
+	return path;
 }
 
 
@@ -354,8 +356,7 @@ void TensorProductPatch::approximateRow (double v1, double inc, bool overlap, do
 void TensorProductPatch::approximate (int gridsize, bool overlap, double delta, Callback &callback) const {
 	if (_colors[0] == _colors[1] && _colors[1] == _colors[2] && _colors[2] == _colors[3]) {
 		// simple case: monochromatic patch
-		GraphicsPath<double> path;
-		getBoundaryPath(path);
+		GraphicsPath<double> path = getBoundaryPath();
 		callback.patchSegment(path, _colors[0]);
 	}
 	else {
@@ -377,17 +378,16 @@ void TensorProductPatch::approximate (int gridsize, bool overlap, double delta, 
 }
 
 
-void TensorProductPatch::getBBox (BoundingBox &bbox) const {
+BoundingBox TensorProductPatch::getBBox () const {
+	BoundingBox bbox;
 	Bezier bezier;
-	BoundingBox bezierBox;
 	for (int i=0; i <= 1; i++) {
 		horizontalCurve(i, bezier);
-		bezier.getBBox(bezierBox);
-		bbox.embed(bezierBox);
+		bbox.embed(bezier.getBBox());
 		verticalCurve(i, bezier);
-		bezier.getBBox(bezierBox);
-		bbox.embed(bezierBox);
+		bbox.embed(bezier.getBBox());
 	}
+	return bbox;
 }
 
 
@@ -492,7 +492,7 @@ DPair CoonsPatch::valueAt (double u, double v) const {
  *  @param[in] edgeflag defines how to connect this patch to another one
  *  @param[in] patch reference patch required if edgeflag > 0 */
 void CoonsPatch::setPoints (const PointVec &points, int edgeflag, ShadingPatch *patch) {
-	CoonsPatch *coonsPatch = dynamic_cast<CoonsPatch*>(patch);
+	auto coonsPatch = dynamic_cast<CoonsPatch*>(patch);
 	if (edgeflag > 0 && !coonsPatch)
 		throw ShadingException("missing preceding data in definition of relative Coons patch");
 	if ((edgeflag == 0 && points.size() != 12) || (edgeflag > 0 && points.size() != 8))
@@ -529,7 +529,7 @@ void CoonsPatch::setPoints (const PointVec &points, int edgeflag, ShadingPatch *
 
 
 void CoonsPatch::setColors (const ColorVec &colors, int edgeflag, ShadingPatch *patch) {
-	CoonsPatch *coonsPatch = dynamic_cast<CoonsPatch*>(patch);
+	auto coonsPatch = dynamic_cast<CoonsPatch*>(patch);
 	if (edgeflag > 0 && !coonsPatch)
 		throw ShadingException("missing preceding data in definition of relative Coons patch");
 	if ((edgeflag == 0 && colors.size() != 4) || (edgeflag > 0 && colors.size() != 2))

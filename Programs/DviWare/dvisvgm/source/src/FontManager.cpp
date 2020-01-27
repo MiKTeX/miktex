@@ -187,11 +187,11 @@ int FontManager::registerFont (uint32_t fontnum, const string &name, uint32_t ch
 			fontindex = map_entry->fontindex;
 		}
 		// try to find font file with the exact given name
-		if (filename.rfind(".") != string::npos)
+		if (filename.rfind('.') != string::npos)
 			newfont = create_font(filename, name, fontindex, checksum, dsize, ssize);
 		else {
 			// try various font file formats if the given file has no extension
-			const char *exts[] = {"pfb", "otf", "ttc", "ttf", "vf", "mf", 0};
+			const char *exts[] = {"pfb", "otf", "ttc", "ttf", "vf", "mf", nullptr};
 			for (const char **p = exts; *p && !newfont; ++p)
 				newfont = create_font(filename+"."+*p, name, fontindex, checksum, dsize, ssize);
 		}
@@ -204,7 +204,7 @@ int FontManager::registerFont (uint32_t fontnum, const string &name, uint32_t ch
 		else {
 			// create dummy font as a placeholder if the proper font is not available
 			newfont = util::make_unique<EmptyFont>(name);
-			if (filename.rfind(".") == string::npos)
+			if (filename.rfind('.') == string::npos)
 				filename += ".mf";
 			// print warning message about missing font file (only once for each filename)
 			static set<string> missing_fonts;
@@ -263,7 +263,7 @@ int FontManager::registerFont (uint32_t fontnum, string filename, int fontIndex,
 	const int newid = _fonts.size();   // the new font gets this ID
 	auto it = _name2id.find(fontname);
 	if (it != _name2id.end()) {  // font with same name already registered?
-		if (NativeFont *font = dynamic_cast<NativeFont*>(_fonts[it->second].get()))
+		if (auto font = dynamic_cast<NativeFont*>(_fonts[it->second].get()))
 			newfont = font->clone(ptsize, style, color);
 	}
 	else {

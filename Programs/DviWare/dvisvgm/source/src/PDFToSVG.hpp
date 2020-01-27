@@ -23,6 +23,10 @@
 
 #include <fstream>
 #include "ImageToSVG.hpp"
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 
 class PsSpecialHandler;
 
@@ -43,7 +47,11 @@ class PDFToSVG : public ImageToSVG {
 
 	protected:
 		bool imageIsValid () const override {
+#if defined(MIKTEX_WINDOWS)
+			std::ifstream ifs(UW_(filename()));
+#else
 			std::ifstream ifs(filename());
+#endif
 			if (ifs) {
 				char buf[16];
 				ifs.getline(buf, 16);
@@ -60,4 +68,3 @@ class PDFToSVG : public ImageToSVG {
 };
 
 #endif
-

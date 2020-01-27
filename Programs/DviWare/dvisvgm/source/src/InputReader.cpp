@@ -19,6 +19,7 @@
 *************************************************************************/
 
 #include <cmath>
+#include <cstring>
 #include <functional>
 #include "InputReader.hpp"
 
@@ -41,11 +42,15 @@ void StringMatcher::setPattern (const string &pattern) {
 }
 
 
+/** Reads characters from an input stream until the pattern string or EOF is reached.
+ *  The matching string is read too if found. An empty pattern matches any character, i.e.
+ *  reading stops after the first character.
+ *  @return true if the pattern was found */
 bool StringMatcher::match (InputReader &ir) {
-	_charsRead = 0;
 	int c;
 	int i=0;
 	const int len = static_cast<int>(_pattern.length());
+	_charsRead = 0;
 	while ((c = ir.get()) >= 0) {
 		_charsRead++;
 		while (i >= 0 && c != _pattern[i])
@@ -54,6 +59,25 @@ bool StringMatcher::match (InputReader &ir) {
 			return true;
 	}
 	return false;
+}
+
+
+/** Reads characters from an input stream until the pattern string or EOF is reached
+ *  and returns them as a string. The matching string is also appended to the returned string. */
+string StringMatcher::read (InputReader &ir) {
+	string ret;
+	int c;
+	int i=0;
+	const int len = static_cast<int>(_pattern.length());
+	while ((c = ir.get()) >= 0) {
+		ret += char(c);
+		while (i >= 0 && c != _pattern[i])
+			i = _borders[i];
+		if (++i == len)
+			break;
+	}
+	_charsRead = ret.length();
+	return ret;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -73,12 +97,23 @@ void InputReader::skipSpace () {
 }
 
 
-/** Tries to find a given string and skips all characters preceding that string.
+/** Tries to find a given string and skips all characters preceding that string. If
+ *  the string can't be found, all characters until EOF are skipped.
  *  @param[in] str string to look for (must not be longer than the maximal buffer size)
- *  @return true if s was found */
+ *  @return true if str was found */
 bool InputReader::skipUntil (const char *str) {
 	StringMatcher matcher(str);
 	return matcher.match(*this);
+}
+
+
+/** Tries to find a given string and returns all characters including that string. If
+ *  the string can't be found, all characters until EOF are read.
+ *  @param[in] str string to look for (must not be longer than the maximal buffer size)
+ *  @return the read characters */
+string InputReader::readUntil (const char *str) {
+	StringMatcher matcher(str);
+	return matcher.read(*this);
 }
 
 
@@ -246,7 +281,7 @@ string InputReader::getWord () {
 	string ret;
 	skipSpace();
 	while (isalpha(peek()))
-		ret += get();
+		ret += char(get());
 	return ret;
 }
 
@@ -261,7 +296,7 @@ char InputReader::getPunct () {
 }
 
 
-/** Reads a string optionally delimited by a given quotation character.
+/** Reads a string optionally enclosed by a given quotation character.
  *  Before reading the string, all leading whitespace is skipped. Then, the function checks
  *  for one of the the given quotation characters. If it is found, all characters until the
  *  second appearance of the same quotation char are appended to the result. Otherwise, an
@@ -278,7 +313,7 @@ string InputReader::getQuotedString (const char *quotechars) {
 	if (const char *quotechar = strchr(quotechars, peek())) {
 		get();
 		while (!eof() && peek() != *quotechar)
-			ret += get();
+			ret += char(get());
 		get();
 	}
 	return ret;
@@ -294,7 +329,7 @@ string InputReader::getString () {
 	string ret;
 	skipSpace();
 	while (!eof() && !isspace(peek()) && isprint(peek()))
-		ret += get();
+		ret += char(get());
 	return ret;
 }
 
@@ -305,7 +340,7 @@ string InputReader::getString () {
 string InputReader::getString (size_t n) {
 	string ret;
 	while (n-- > 0)
-		ret += get();
+		ret += char(get());
 	return ret;
 }
 
@@ -319,7 +354,7 @@ string InputReader::getString (const char *delim) {
 	string ret;
 	skipSpace();
 	while (!eof() && peek() > 0 && !strchr(delim, peek()))
-		ret += get();
+		ret += char(get());
 	return ret;
 }
 
@@ -328,33 +363,37 @@ string InputReader::getLine () {
 	string ret;
 	skipSpace();
 	while (!eof() && peek() > 0 && peek() != '\n')
-		ret += get();
+		ret += char(get());
 	// trim trailing whitespace
 	ret.erase(std::find_if(ret.rbegin(), ret.rend(), not1(ptr_fun<int, int>(isspace))).base(), ret.end());
 	return ret;
 }
 
 
-/** Parses a sequence of key-value pairs of the form KEY=VALUE or KEY="VALUE"
+/** Parses a sequence of key-value pairs of the form KEY=VALUE or KEY="VALUE".
+ *  If parameter 'requireValues' is false, attributes may also consist of a key only.
  *  @param[out] attr the scanned atributes
+ *  @param[in] requireValues true if all attributes require a value
  *  @param[in] quotechars recognized quote characters used to enclose the attribute values
  *  @return number of attributes scanned */
-int InputReader::parseAttributes (map<string,string> &attr, const char *quotechars) {
-	bool ready=false;
-	while (!eof() && !ready) {
+int InputReader::parseAttributes (map<string,string> &attr, bool requireValues, const char *quotechars) {
+	while (!eof()) {
 		string key;
 		skipSpace();
-		while (isalnum(peek()))
-			key += get();
+		if (!isalpha(peek()))  // first character of attribute name must be a letter
+			break;
+		key += char(get());
+		while (isalnum(peek()) || strchr("-:._", peek()))
+			key += char(get());
 		skipSpace();
 		if (peek() == '=') {
 			get();
 			skipSpace();
 			string val = getQuotedString(quotechars);
-			attr[key] = val;
+			attr.emplace(std::move(key), std::move(val));
 		}
-		else
-			ready = true;
+		else if (!requireValues)
+			attr.emplace(std::move(key), "");
 	}
 	return attr.size();
 }

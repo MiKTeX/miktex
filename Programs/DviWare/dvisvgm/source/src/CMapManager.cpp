@@ -44,9 +44,7 @@ CMap* CMapManager::lookup (const string &name) {
 
 	if (_includedCMaps.find(name) != _includedCMaps.end()) {
 		_level = 0;
-		ostringstream oss;
-		oss << "circular reference of CMap " << name;
-		throw CMapReaderException(oss.str());
+		throw CMapReaderException("circular reference of CMap " + name);
 	}
 
 	unique_ptr<CMap> cmap_ptr;
@@ -124,8 +122,8 @@ const CMap* CMapManager::findCompatibleBaseFontMap (const PhysicalFont *font, co
 	const bool is_unicode_map = bool(dynamic_cast<const UnicodeCMap*>(cmap));
 	const string ro = cmap->getROString();
 	for (const CharMapIDToEncName &enc : encodings) {
-		for (size_t i=0; i < charmapIDs.size(); i++) {
-			if (enc.id == charmapIDs[i]) {
+		for (const CharMapID &id : charmapIDs) {
+			if (enc.id == id) {
 				string cmapname = ro+"-"+enc.encname;
 				if (is_unicode_map || FileFinder::instance().lookup(cmapname, "cmap", false)) {
 					charmapID = enc.id;

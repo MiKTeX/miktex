@@ -24,14 +24,13 @@
 #include <string>
 
 
-class XMLString : public std::string
-{
+class XMLString : public std::string {
 	public:
 		XMLString () : std::string() {}
-		XMLString (const char *str, bool plain=false);
-		XMLString (const std::string &str, bool plain=false);
-		XMLString (int n, bool cast=true);
-		XMLString (double x);
+		explicit XMLString (const char *str, bool plain=false);
+		explicit XMLString (const std::string &str, bool plain=false);
+		explicit XMLString (int n, bool cast=true);
+		explicit XMLString (double x);
 
 		static int DECIMAL_PLACES;  ///< number of decimal places applied to floating point values (0-6)
 };

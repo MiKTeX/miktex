@@ -31,7 +31,7 @@ using namespace std;
  *  @param[in] createUseElements determines whether to create "use" elements to reference previous paths or not
  *  @param[in] relativePathCommands determines whether to create relative or absolute SVG path commands */
 SVGCharPathHandler::SVGCharPathHandler (bool createUseElements, bool relativePathCommands)
-	: _relativePathCommands(relativePathCommands), _groupNode(0), _fontColor(Color::BLACK)
+	: _relativePathCommands(relativePathCommands)
 {
 	if (createUseElements)
 		_appendChar = &SVGCharPathHandler::appendUseElement;
@@ -42,7 +42,7 @@ SVGCharPathHandler::SVGCharPathHandler (bool createUseElements, bool relativePat
 
 void SVGCharPathHandler::resetContextNode () {
 	SVGCharHandler::resetContextNode();
-	_groupNode = 0;
+	_groupNode = nullptr;
 }
 
 
@@ -69,11 +69,11 @@ void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 	if (color.changed() || _matrix.changed()) {
 		resetContextNode();
 		if (applyColor || applyMatrix) {
-			_groupNode = pushContextNode(util::make_unique<XMLElementNode>("g"));
+			_groupNode = pushContextNode(util::make_unique<XMLElement>("g"));
 			if (applyColor)
 				contextNode()->addAttribute("fill", color.get().svgColorString());
 			if (applyMatrix)
-				contextNode()->addAttribute("transform", _matrix.get().getSVG());
+				contextNode()->addAttribute("transform", _matrix.get().toSVG());
 		}
 		color.changed(false);
 		_matrix.changed(false);
@@ -84,7 +84,7 @@ void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 		GlyphMetrics metrics;
 		font->getGlyphMetrics(c, _vertical, metrics);
 		x -= metrics.wl;
-		if (const PhysicalFont *pf = dynamic_cast<const PhysicalFont*>(font)) {
+		if (auto pf = dynamic_cast<const PhysicalFont*>(font)) {
 			// Center glyph between top and bottom border of the TFM box.
 			// This is just an approximation used until I find a way to compute
 			// the exact location in vertical mode.
@@ -109,28 +109,28 @@ void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 
 void SVGCharPathHandler::appendUseElement (uint32_t c, double x, double y, const Matrix &matrix) {
 	string id = "#g" + to_string(FontManager::instance().fontID(_font)) + "-" + to_string(c);
-	auto useNode = util::make_unique<XMLElementNode>("use");
+	auto useNode = util::make_unique<XMLElement>("use");
 	useNode->addAttribute("x", XMLString(x));
 	useNode->addAttribute("y", XMLString(y));
 	useNode->addAttribute("xlink:href", id);
 	if (!matrix.isIdentity())
-		useNode->addAttribute("transform", matrix.getSVG());
+		useNode->addAttribute("transform", matrix.toSVG());
 	contextNode()->append(std::move(useNode));
 }
 
 
 void SVGCharPathHandler::appendPathElement (uint32_t c, double x, double y, const Matrix &matrix) {
 	Glyph glyph;
-	const PhysicalFont *pf = dynamic_cast<const PhysicalFont*>(_font.get());
+	auto pf = dynamic_cast<const PhysicalFont*>(_font.get());
 	if (pf && pf->getGlyph(c, glyph)) {
 		double sx = pf->scaledSize()/pf->unitsPerEm();
 		double sy = -sx;
 		ostringstream oss;
 		glyph.writeSVG(oss, _relativePathCommands, sx, sy, x, y);
-		auto glyphNode = util::make_unique<XMLElementNode>("path");
+		auto glyphNode = util::make_unique<XMLElement>("path");
 		glyphNode->addAttribute("d", oss.str());
 		if (!matrix.isIdentity())
-			glyphNode->addAttribute("transform", matrix.getSVG());
+			glyphNode->addAttribute("transform", matrix.toSVG());
 		contextNode()->append(std::move(glyphNode));
 	}
 }

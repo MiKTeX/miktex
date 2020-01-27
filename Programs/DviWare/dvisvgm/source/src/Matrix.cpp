@@ -70,7 +70,7 @@ Matrix::Matrix (double d) {
  *  remaining matrix components will be set to those of the identity matrix.
  *  @param[in] v array containing the matrix components
  *  @param[in] size size of array v */
-Matrix::Matrix (double v[], unsigned size) {
+Matrix::Matrix (const double *v, unsigned size) {
 	set(v, size);
 }
 
@@ -86,7 +86,7 @@ Matrix::Matrix (const std::vector<double> &v, int start) {
 
 
 Matrix::Matrix (const string &cmds, Calculator &calc) {
-	parse(cmds, calc);
+	*this = parse(cmds, calc);
 }
 
 
@@ -109,7 +109,7 @@ Matrix& Matrix::set (double d) {
 }
 
 
-Matrix& Matrix::set (double v[], unsigned size) {
+Matrix& Matrix::set (const double *v, unsigned size) {
 	size = min(size, 9u);
 	for (unsigned i=0; i < size; i++)
 		_values[i/3][i%3] = v[i];
@@ -134,8 +134,8 @@ Matrix& Matrix::set (const vector<double> &v, int start) {
 }
 
 
-Matrix& Matrix::set(const string &cmds, Calculator &calc) {
-	parse(cmds, calc);
+Matrix& Matrix::set (const string &cmds, Calculator &calc) {
+	*this = parse(cmds, calc);
 	return *this;
 }
 
@@ -143,7 +143,7 @@ Matrix& Matrix::set(const string &cmds, Calculator &calc) {
 Matrix& Matrix::translate (double tx, double ty) {
 	if (tx != 0 || ty != 0) {
 		TranslationMatrix t(tx, ty);
-		rmultiply(t);
+		lmultiply(t);
 	}
 	return *this;
 }
@@ -152,7 +152,7 @@ Matrix& Matrix::translate (double tx, double ty) {
 Matrix& Matrix::scale (double sx, double sy) {
 	if (sx != 1 || sy != 1) {
 		ScalingMatrix s(sx, sy);
-		rmultiply(s);
+		lmultiply(s);
 	}
 	return *this;
 }
@@ -163,7 +163,7 @@ Matrix& Matrix::scale (double sx, double sy) {
  *  @param[in] deg rotation angle in degrees */
 Matrix& Matrix::rotate (double deg) {
 	RotationMatrix r(deg);
-	rmultiply(r);
+	lmultiply(r);
 	return *this;
 }
 
@@ -179,7 +179,7 @@ Matrix& Matrix::xskewByRatio (double xyratio) {
 	if (xyratio != 0) {
 		double v[] = {1, xyratio};
 		Matrix t(v, 2);
-		rmultiply(t);
+		lmultiply(t);
 	}
 	return *this;
 }
@@ -196,7 +196,7 @@ Matrix& Matrix::yskewByRatio (double xyratio) {
 	if (xyratio != 0) {
 		double v[] = {1, 0, 0, xyratio};
 		Matrix t(v, 4);
-		rmultiply(t);
+		lmultiply(t);
 	}
 	return *this;
 }
@@ -208,7 +208,7 @@ Matrix& Matrix::flip (bool haxis, double a) {
 		s = -1;
 	double v[] = {-s, 0, (haxis ? 0 : 2*a), 0, s, (haxis ? 2*a : 0), 0, 0, 1};
 	Matrix t(v);
-	rmultiply(t);
+	lmultiply(t);
 	return *this;
 }
 
@@ -222,8 +222,8 @@ Matrix& Matrix::transpose () {
 }
 
 
-/** Multiplies this matrix M with matrix tm (tm is the factor on the left side): M := tm * M */
-Matrix& Matrix::lmultiply (const Matrix &tm) {
+/** Multiplies this matrix M with matrix tm (tm is the factor on the right side): M := M * tm */
+Matrix& Matrix::rmultiply (const Matrix &tm) {
 	Matrix ret;
 	for (int i=0; i < 3; i++)
 		for (int j=0; j < 3; j++)
@@ -233,8 +233,8 @@ Matrix& Matrix::lmultiply (const Matrix &tm) {
 }
 
 
-/** Multiplies this matrix M with matrix tm (tm is the factor on the right side): M := M * tm */
-Matrix& Matrix::rmultiply (const Matrix &tm) {
+/** Multiplies this matrix M with matrix tm (tm is the factor on the left side): M := tm * M */
+Matrix& Matrix::lmultiply (const Matrix &tm) {
 	Matrix ret;
 	for (int i=0; i < 3; i++)
 		for (int j=0; j < 3; j++)
@@ -356,8 +356,8 @@ static double getArgument (istream &is, Calculator &calc, double def, bool optio
 }
 
 
-Matrix& Matrix::parse (istream &is, Calculator &calc) {
-	*this = Matrix(1);
+Matrix Matrix::parse (istream &is, Calculator &calc) {
+	Matrix ret(1);
 	while (is) {
 		is >> ws;
 		int cmd = is.get();
@@ -365,22 +365,22 @@ Matrix& Matrix::parse (istream &is, Calculator &calc) {
 			case 'T': {
 				double tx = getArgument(is, calc, 0, false, false);
 				double ty = getArgument(is, calc, 0, true, true);
-				translate(tx, ty);
+				ret.translate(tx, ty);
 				break;
 			}
 			case 'S': {
 				double sx = getArgument(is, calc, 1, false, false);
 				double sy = getArgument(is, calc, sx, true, true );
-				scale(sx, sy);
+				ret.scale(sx, sy);
 				break;
 			}
 			case 'R': {
 				double a = getArgument(is, calc, 0, false, false);
 				double x = getArgument(is, calc, calc.getVariable("ux")+calc.getVariable("w")/2, true, true);
 				double y = getArgument(is, calc, calc.getVariable("uy")+calc.getVariable("h")/2, true, true);
-				translate(-x, -y);
-				rotate(a);
-				translate(x, y);
+				ret.translate(-x, -y);
+				ret.rotate(a);
+				ret.translate(x, y);
 				break;
 			}
 			case 'F': {
@@ -388,7 +388,7 @@ Matrix& Matrix::parse (istream &is, Calculator &calc) {
 				if (c != 'H' && c != 'V')
 					throw ParserException("'H' or 'V' expected");
 				double a = getArgument(is, calc, 0, false, false);
-				flip(c == 'H', a);
+				ret.flip(c == 'H', a);
 				break;
 			}
 			case 'K': {
@@ -396,15 +396,12 @@ Matrix& Matrix::parse (istream &is, Calculator &calc) {
 				if (c != 'X' && c != 'Y')
 					throw ParserException("transformation command 'K' must be followed by 'X' or 'Y'");
 				double a = getArgument(is, calc, 0, false, false);
-				if (std::abs(cos(deg2rad(a))) < numeric_limits<double>::epsilon()) {
-					ostringstream oss;
-					oss << "illegal skewing angle: " << a << " degrees";
-					throw ParserException(oss.str());
-				}
+				if (std::abs(cos(deg2rad(a))) < numeric_limits<double>::epsilon())
+					throw ParserException("illegal skewing angle: " + util::to_string(a) + " degrees");
 				if (c == 'X')
-					xskewByAngle(a);
+					ret.xskewByAngle(a);
 				else
-					yskewByAngle(a);
+					ret.yskewByAngle(a);
 				break;
 			}
 			case 'M': {
@@ -415,20 +412,18 @@ Matrix& Matrix::parse (istream &is, Calculator &calc) {
 				v[6] = v[7] = 0;
 				v[8] = 1;
 				Matrix tm(v);
-				rmultiply(tm);
+				ret.lmultiply(tm);
 				break;
 			}
 			default:
-				ostringstream oss;
-				oss << "transformation command expected (found '" << char(cmd) << "' instead)";
-				throw ParserException(oss.str());
+				throw ParserException("transformation command expected (found '" + string(1, cmd) + "' instead)");
 		}
 	}
-	return *this;
+	return ret;
 }
 
 
-Matrix& Matrix::parse (const string &cmds, Calculator &calc) {
+Matrix Matrix::parse (const string &cmds, Calculator &calc) {
 	istringstream iss;
 	iss.str(cmds);
 	return parse(iss, calc);
@@ -437,17 +432,14 @@ Matrix& Matrix::parse (const string &cmds, Calculator &calc) {
 
 /** Returns an SVG matrix expression that can be used in transform attributes.
  *  ((a,b,c),(d,e,f),(0,0,1)) => matrix(a d b e c f) */
-string Matrix::getSVG () const {
+string Matrix::toSVG () const {
 	ostringstream oss;
 	oss << "matrix(";
 	for (int i=0; i < 3; i++) {
-		for (int j=0; j < 2; j++) {
-			if (i > 0 || j > 0)
-				oss << ' ';
-			oss << XMLString(_values[j][i]);
-		}
+		for (int j=0; j < 2; j++)
+			oss << XMLString(_values[j][i]) << ' ';
 	}
-	oss << ')';
+	oss.seekp(-1, ios::cur) << ')';  // overwrite trailing space character
 	return oss.str();
 }
 
@@ -467,8 +459,117 @@ ostream& Matrix::write (ostream &os) const {
 }
 
 
-//////////////////////////////////////////////////////////////////
+static const char* ord_suffix (int n) {
+	static const char *suffixes[] = {"th", "st", "nd", "rd"};
+	if (abs(n) < 4)
+		return suffixes[n];
+	return suffixes[0];
+}
 
+
+static void skip_comma_wsp (istream &is) {
+	is >> ws;
+	if (is.peek() == ',') is.ignore(1);
+	is >> ws;
+}
+
+
+static size_t parse_transform_cmd (istream &is, string cmd, size_t minparams, size_t maxparams, vector<double> &params) {
+	for (int i=0; i < int(cmd.length()); i++) {
+		if (is.get() != cmd[i]) {
+			is.seekg(-i-1, ios::cur);
+			return 0;
+		}
+	}
+	params.clear();
+	is >> ws;
+	if (is.get() != '(')
+		throw ParserException("missing '(' after command '"+cmd+"'");
+	for (size_t i=1; i <= maxparams; i++) {
+		is >> ws;
+		double val;
+		if (is.fail())
+			throw ParserException(to_string(i)+ord_suffix(i)+" parameter of '"+cmd+"' must be a number");
+		is >> val;
+		params.push_back(val);
+		is >> ws;
+		if (i == minparams && is.peek() == ')') {
+			is.ignore(1);
+			return i;
+		}
+		if (i == maxparams) {
+			if (is.peek() != ')')
+				throw ParserException("missing ')' at end of command '"+cmd+"'");
+			is.ignore(1);
+		}
+		skip_comma_wsp(is);
+	}
+	return maxparams;
+}
+
+
+static bool ne (double x, double y) {return abs(x-y) >= 1e-6;}
+static bool ne_angle (double x, double y) {return abs(x-y) >= 1e-3;}
+
+
+Matrix Matrix::parseSVGTransform (const string &transform) {
+	istringstream iss(transform);
+	Matrix matrix(1);
+	iss >> ws;
+	while (iss) {
+		vector<double> params;
+		if (parse_transform_cmd(iss, "matrix", 6, 6, params)) {
+			if (ne(params[0], 1) || ne(params[1], 0) || ne(params[2], 0) || ne(params[3], 1) || ne(params[4], 0) || ne(params[5], 0))
+				matrix.rmultiply({params[0], params[2], params[4], params[1], params[3], params[5]});
+		}
+		else if (parse_transform_cmd(iss, "rotate", 1, 3, params)) {
+			if (params.size() == 1) {
+				params.push_back(0);
+				params.push_back(0);
+			}
+			if (ne_angle(fmod(params[0], 360), 0)) {
+				bool translate = ne(params[1], 0) || ne(params[2], 0);
+				if (translate)
+					matrix.rmultiply(TranslationMatrix(params[1], params[2]));
+				matrix.rmultiply(RotationMatrix(params[0]));
+				if (translate)
+					matrix.rmultiply(TranslationMatrix(-params[1], -params[2]));
+			}
+		}
+		else if (parse_transform_cmd(iss, "scale", 1, 2, params)) {
+			if (params.size() == 1)
+				params.push_back(1);
+			if (ne(params[0], 1) || ne(params[1], 1))
+				matrix.rmultiply(ScalingMatrix(params[0], params[1]));
+		}
+		else if (parse_transform_cmd(iss, "skewX", 1, 1, params)) {
+			if (ne_angle(fmod(abs(params[0])-90, 180), 0))
+				matrix.rmultiply(XSkewingMatrix(params[0]));
+		}
+		else if (parse_transform_cmd(iss, "skewY", 1, 1, params)) {
+			if (ne_angle(fmod(abs(params[0])-90, 180), 0))
+				matrix.rmultiply(YSkewingMatrix(params[0]));
+		}
+		else if (parse_transform_cmd(iss, "translate", 1, 2, params)) {
+			if (params.size() == 1)
+				params.push_back(0);
+			if (ne(params[0], 0) || ne(params[1], 0))
+				matrix.rmultiply(TranslationMatrix(params[0], params[1]));
+		}
+		else {  // invalid command
+			string cmd;
+			while (isalpha(iss.peek()))
+				cmd += char(iss.get());
+			if (cmd.empty())
+				throw ParserException("unexpected character in transform attribute: "+to_string(char(iss.get())));
+			throw ParserException("invalid command in transform attribute: "+cmd);
+		}
+		skip_comma_wsp(iss);
+	}
+	return matrix;
+}
+
+//////////////////////////////////////////////////////////////////
 
 TranslationMatrix::TranslationMatrix (double tx, double ty) {
 	double v[] = {1, 0, tx, 0, 1, ty};
@@ -490,3 +591,14 @@ RotationMatrix::RotationMatrix (double deg) {
 	set(v, 5);
 }
 
+
+XSkewingMatrix::XSkewingMatrix (double deg) {
+	double xyratio = tan(deg2rad(deg));
+	lmultiply(Matrix({1, xyratio}));
+}
+
+
+YSkewingMatrix::YSkewingMatrix (double deg) {
+	double xyratio = tan(deg2rad(deg));
+	lmultiply(Matrix({1, 0, 0, xyratio}));
+}

@@ -37,7 +37,8 @@ class InputReader {
 		virtual bool check (char c) const {return peek() == c;}
 		virtual bool check (const char *s, bool consume=true);
 		virtual void skip (size_t n);
-		virtual bool skipUntil (const char *s);
+		virtual bool skipUntil (const char *str);
+		virtual std::string readUntil (const char *str);
 		virtual int find (char c) const;
 		virtual void skipSpace ();
 		virtual int getInt ();
@@ -53,14 +54,14 @@ class InputReader {
 		virtual std::string getString (size_t n);
 		virtual std::string getString (const char *delim);
 		virtual std::string getLine ();
-		virtual int parseAttributes (std::map<std::string,std::string> &attr, const char *quotechars=nullptr);
+		virtual int parseAttributes (std::map<std::string,std::string> &attr, bool requireValues, const char *quotechars=nullptr);
 		virtual operator bool () const {return !eof();}
 };
 
 
 class StreamInputReader : public InputReader {
 	public:
-		StreamInputReader (std::istream &is) : _is(is) {}
+		explicit StreamInputReader (std::istream &is) : _is(is) {}
 		int get () override        {return _is.get();}
 		int peek () const override {return _is.peek();}
 		int peek (size_t n) const override;
@@ -74,7 +75,7 @@ class StreamInputReader : public InputReader {
 
 class BufferInputReader : public InputReader {
 	public:
-		BufferInputReader (InputBuffer &ib) : _ib(&ib) {}
+		explicit BufferInputReader (InputBuffer &ib) : _ib(&ib) {}
 		void assign (InputBuffer &ib) {_ib = &ib;}
 		int get () override                {return _ib->get();}
 		int peek () const override         {return _ib->peek();}
@@ -91,9 +92,10 @@ class BufferInputReader : public InputReader {
 class StringMatcher {
 	public:
 		StringMatcher () : _charsRead(0) {}
-		StringMatcher (const std::string &pattern) : _charsRead(0) {setPattern(pattern);}
+		explicit StringMatcher (const std::string &pattern) : _charsRead(0) {setPattern(pattern);}
 		void setPattern (const std::string &pattern);
 		bool match (InputReader &ir);
+		std::string read (InputReader &ir);
 		size_t charsRead () const {return _charsRead;}
 
 	private:

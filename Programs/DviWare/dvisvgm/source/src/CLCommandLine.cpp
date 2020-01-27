@@ -39,7 +39,7 @@ void CommandLine::parse (int argc, char **argv) {
 	for (int i=1; i < argc; i++) {
 		istringstream iss(argv[i]);
 		if (filesOnly || iss.peek() != '-')
-			_files.push_back(argv[i]);
+			_files.emplace_back(argv[i]);
 		else {
 			iss.get();  // skip dash
 			if (iss.peek() < 0)

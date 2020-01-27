@@ -32,7 +32,7 @@
 
 
 struct PSException : public MessageException {
-	PSException (const std::string &msg) : MessageException(msg) {}
+	explicit PSException (const std::string &msg) : MessageException(msg) {}
 };
 
 
@@ -71,6 +71,7 @@ struct PSActions {
 	virtual void setlinewidth (std::vector<double> &p) =0;
 	virtual void setmatrix (std::vector<double> &p) =0;
 	virtual void setmiterlimit (std::vector<double> &p) =0;
+	virtual void setnulldevice (std::vector<double> &p) =0;
 	virtual void setopacityalpha (std::vector<double> &p) =0;
 	virtual void setshapealpha (std::vector<double> &p) =0;
 	virtual void setpagedevice (std::vector<double> &p) =0;
@@ -90,7 +91,7 @@ class PSInterpreter {
 	enum Mode {PS_NONE, PS_RUNNING, PS_QUIT};
 
 	public:
-		explicit PSInterpreter (PSActions *actions=0);
+		explicit PSInterpreter (PSActions *actions=nullptr);
 		PSInterpreter (const PSInterpreter &psi) =delete;
 		bool execute (const char *str, size_t len, bool flush=true);
 		bool execute (const char *str, bool flush=true)        {return execute(str, std::strlen(str), flush);}

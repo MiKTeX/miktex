@@ -88,7 +88,7 @@ void HyperlinkManager::createLink (string uri, SpecialActions &actions) {
 	string name;
 	if (uri[0] == '#') {  // reference to named anchor?
 		name = uri.substr(1);
-		NamedAnchors::iterator it = _namedAnchors.find(name);
+		auto it = _namedAnchors.find(name);
 		if (it == _namedAnchors.end() || it->second.id < 0)
 			Message::wstream(true) << "reference to undefined anchor '" << name << "'\n";
 		else {
@@ -96,7 +96,7 @@ void HyperlinkManager::createLink (string uri, SpecialActions &actions) {
 			uri = "#loc"+XMLString(id);
 			if (actions.getCurrentPageNumber() != it->second.pageno) {
 				ostringstream oss;
-				oss << actions.getSVGFilename(it->second.pageno) << uri;
+				oss << actions.getSVGFilePath(it->second.pageno).relative() << uri;
 				uri = oss.str();
 			}
 		}
@@ -106,10 +106,10 @@ void HyperlinkManager::createLink (string uri, SpecialActions &actions) {
 			uri = "/" + uri;
 		uri = _base + uri;
 	}
-	auto anchorNode = util::make_unique<XMLElementNode>("a");
+	auto anchorNode = util::make_unique<XMLElement>("a");
 	anchorNode->addAttribute("xlink:href", uri);
 	anchorNode->addAttribute("xlink:title", XMLString(name.empty() ? uri : name, false));
-	actions.pushContextElement(std::move(anchorNode));
+	actions.svgTree().pushPageContext(std::move(anchorNode));
 	actions.bbox("{anchor}", true);  // start computing the bounding box of the linked area
 	_depthThreshold = actions.getDVIStackDepth();
 	_anchorType = AnchorType::HREF;
@@ -119,7 +119,7 @@ void HyperlinkManager::createLink (string uri, SpecialActions &actions) {
 void HyperlinkManager::closeAnchor (SpecialActions &actions) {
 	if (_anchorType == AnchorType::HREF) {
 		markLinkedBox(actions);
-		actions.popContextElement();
+		actions.svgTree().popPageContext();
 		_depthThreshold = 0;
 	}
 	_anchorType = AnchorType::NONE;
@@ -148,7 +148,7 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 	if (bbox.width() > 0 && bbox.height() > 0) {  // does the bounding box extend in both dimensions?
 		if (MARKER_TYPE != MarkerType::NONE) {
 			const double linewidth = _linewidth >= 0 ? _linewidth : min(0.5, bbox.height()/15);
-			auto rect = util::make_unique<XMLElementNode>("rect");
+			auto rect = util::make_unique<XMLElement>("rect");
 			double x = bbox.minX();
 			double y = bbox.maxY()+linewidth;
 			double w = bbox.width();
@@ -179,7 +179,7 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 			rect->addAttribute("y", y);
 			rect->addAttribute("width", w);
 			rect->addAttribute("height", h);
-			actions.prependToPage(std::move(rect));
+			actions.svgTree().prependToPage(std::move(rect));
 			if (MARKER_TYPE == MarkerType::BOX || MARKER_TYPE == MarkerType::BGCOLOR) {
 				// slightly enlarge the boxed area
 				x -= linewidth/2;
@@ -192,14 +192,14 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 		// Create an invisible rectangle around the linked area so that it's easier to access.
 		// This is only necessary when using paths rather than real text elements together with fonts.
 		if (!SVGTree::USE_FONTS) {
-			auto rect = util::make_unique<XMLElementNode>("rect");
+			auto rect = util::make_unique<XMLElement>("rect");
 			rect->addAttribute("x", bbox.minX());
 			rect->addAttribute("y", bbox.minY());
 			rect->addAttribute("width", bbox.width());
 			rect->addAttribute("height", bbox.height());
 			rect->addAttribute("fill", "white");
 			rect->addAttribute("fill-opacity", 0);
-			actions.appendToPage(std::move(rect));
+			actions.svgTree().appendToPage(std::move(rect));
 		}
 	}
 }
@@ -213,10 +213,10 @@ void HyperlinkManager::createViews (unsigned pageno, SpecialActions &actions) {
 			ostringstream oss;
 			oss << pagebox.minX() << ' ' << stranchorpair.second.pos << ' '
 				 << pagebox.width() << ' ' << pagebox.height();
-			auto view = util::make_unique<XMLElementNode>("view");
+			auto view = util::make_unique<XMLElement>("view");
 			view->addAttribute("id", "loc"+XMLString(stranchorpair.second.id));
 			view->addAttribute("viewBox", oss.str());
-			actions.appendToDefs(std::move(view));
+			actions.svgTree().appendToDefs(std::move(view));
 		}
 	}
 	closeAnchor(actions);
@@ -229,7 +229,7 @@ void HyperlinkManager::createViews (unsigned pageno, SpecialActions &actions) {
 bool HyperlinkManager::setLinkMarker (const string &marker) {
 	string type;  // "none", "box", "line", or a background color specifier
 	string color; // optional line color specifier
-	size_t seppos = marker.find(":");
+	size_t seppos = marker.find(':');
 	if (seppos == string::npos)
 		type = marker;
 	else {

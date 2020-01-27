@@ -45,7 +45,7 @@ class SignalHandler {
 		static void callback (int signal);
 
 	private:
-		bool _active;       ///< true if listening for signals
+		bool _active=false;          ///< true if listening for signals
 		static volatile bool _break; ///< true if signal has been caught
 		class Impl;
 		std::unique_ptr<Impl> _impl; ///< system-specific data/functions

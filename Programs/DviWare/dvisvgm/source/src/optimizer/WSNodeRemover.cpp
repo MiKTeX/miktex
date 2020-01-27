@@ -1,5 +1,5 @@
 /*************************************************************************
-** version.hpp                                                          **
+** WSNodeRemover.cpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
 ** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
@@ -18,11 +18,28 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#ifndef VERSION_HPP
-#define VERSION_HPP
+#include "WSNodeRemover.hpp"
+#include "../XMLNode.hpp"
 
-constexpr const char *PROGRAM_NAME = "dvisvgm";
-constexpr const char *PROGRAM_VERSION = "2.6.3";
+const char* WSNodeRemover::info () const {
+	return "remove redundant whitespace nodes";
+}
 
-#endif
 
+void WSNodeRemover::execute (XMLElement *context) {
+	if (!context)
+		return;
+	bool removeWS = context->name() != "text" && context->name() != "tspan";
+	XMLNode *child = context->firstChild();
+	while (child) {
+		if (removeWS && child->toWSNode()) {
+			XMLNode *next = child->next();
+			XMLElement::remove(child);
+			child = next;
+			continue;
+		}
+		if (XMLElement *elem = child->toElement())
+			execute(elem);
+		child = child->next();
+	}
+}

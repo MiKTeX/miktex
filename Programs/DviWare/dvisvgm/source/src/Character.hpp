@@ -22,11 +22,10 @@
 #define CHARACTER_HPP
 
 
-class Character
-{
+class Character {
 	public:
 		enum Type {CHRCODE, INDEX, NAME};
-		Character (const char *name) : _type(NAME), _name(name) {}
+		explicit Character (const char *name) : _type(NAME), _name(name) {}
 		Character (Type type, uint32_t val) : _type(type), _number(val) {}
 		Character (Type type, const Character &c) : _type(type), _number(c.type() != NAME ? c._number : 0) {}
 		Type type () const {return _type;}

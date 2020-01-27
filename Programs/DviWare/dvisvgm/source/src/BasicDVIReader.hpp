@@ -51,7 +51,6 @@ class BasicDVIReader : public StreamReader {
 
 	public:
 		explicit BasicDVIReader (std::istream &is);
-		virtual ~BasicDVIReader () =default;
 		virtual void executeAllPages ();
 		virtual double getXPos () const      {return 0;}
 		virtual double getYPos () const      {return 0;}

@@ -24,14 +24,11 @@
 #include "InputReader.hpp"
 #include "Length.hpp"
 #include "SpecialActions.hpp"
+#include "SVGTree.hpp"
 #include "XMLNode.hpp"
 #include "XMLString.hpp"
 
 using namespace std;
-
-
-EmSpecialHandler::EmSpecialHandler () : _linewidth(0.4*72/72.27) {
-}
 
 
 /** Computes the "cut vector" that is used to compute the line shape.
@@ -78,11 +75,13 @@ static DPair cut_vector (char cuttype, const DPair &linedir, double linewidth) {
  * @param[in] lw line width in PS point units
  * @param[in] actions object providing the actions that can be performed by the SpecialHandler */
 static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, double lw, SpecialActions &actions) {
-	unique_ptr<XMLElementNode> node;
+	if (actions.outputLocked())
+		return;
+	unique_ptr<XMLElement> node;
 	DPair dir = p2-p1;
 	if (dir.x() == 0 || dir.y() == 0 || (c1 == 'p' && c2 == 'p')) {
 		// draw regular line
-		node = util::make_unique<XMLElementNode>("line");
+		node = util::make_unique<XMLElement>("line");
 		node->addAttribute("x1", p1.x());
 		node->addAttribute("y1", p1.y());
 		node->addAttribute("x2", p2.x());
@@ -107,7 +106,7 @@ static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, dou
 			 << XMLString(q12.x()) << ',' << XMLString(q12.y()) << ' '
 			 << XMLString(q22.x()) << ',' << XMLString(q22.y()) << ' '
 			 << XMLString(q21.x()) << ',' << XMLString(q21.y());
-		node = util::make_unique<XMLElementNode>("polygon");
+		node = util::make_unique<XMLElement>("polygon");
 		node->addAttribute("points", oss.str());
 		if (actions.getColor() != Color::BLACK)
 			node->addAttribute("fill", actions.getColor().svgColorString());
@@ -117,7 +116,7 @@ static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, dou
 		actions.embed(q21);
 		actions.embed(q22);
 	}
-	actions.appendToPage(std::move(node));
+	actions.svgTree().appendToPage(std::move(node));
 }
 
 
@@ -126,8 +125,8 @@ static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, dou
 static double read_length (InputReader &in) {
 	double val = in.getDouble();
 	string unitstr;
-	if (isalpha(in.peek())) unitstr += in.get();
-	if (isalpha(in.peek())) unitstr += in.get();
+	if (isalpha(in.peek())) unitstr += char(in.get());
+	if (isalpha(in.peek())) unitstr += char(in.get());
 	Length::Unit unit = Length::Unit::PT;
 	try {
 		unit = Length::stringToUnit(unitstr);
@@ -163,7 +162,7 @@ bool EmSpecialHandler::process (const string &prefix, istream &is, SpecialAction
 		{"moveto",    &EmSpecialHandler::moveto},
 		{"lineto",    &EmSpecialHandler::lineto},
 		{"linewidth", &EmSpecialHandler::linewidth},
-		{0, 0}
+		{nullptr, nullptr}
 	};
 
 	StreamInputReader ir(is);

@@ -78,7 +78,7 @@ bool PageRanges::parse (const string &str, int max_page) {
 /** Returns the number of pages. */
 size_t PageRanges::numberOfPages () const {
 	size_t sum=0;
-	for (NumericRanges<int>::ConstIterator it=begin(); it != end(); ++it)
-		sum += it->second - it->first + 1;
+	for (const auto &entry : *this)
+		sum += entry.second - entry.first + 1;
 	return sum;
 }

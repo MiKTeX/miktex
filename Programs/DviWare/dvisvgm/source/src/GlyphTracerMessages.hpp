@@ -25,12 +25,12 @@
 #include "GFGlyphTracer.hpp"
 #include "Message.hpp"
 
-class GlyphTracerMessages : public GFGlyphTracer::Callback
-{
+class GlyphTracerMessages : public GFGlyphTracer::Callback {
 	public:
-		GlyphTracerMessages (bool sfmsg=true, bool autonl=true) : _sfmsg(sfmsg), _autonl(autonl), _traced(false) {}
+		GlyphTracerMessages () =default;
+		explicit GlyphTracerMessages (bool sfmsg, bool autonl) : _sfmsg(sfmsg), _autonl(autonl) {}
 
-		~GlyphTracerMessages () {
+		~GlyphTracerMessages () override {
 			if (_autonl)
 				Message::mstream() << '\n';
 		}
@@ -72,8 +72,8 @@ class GlyphTracerMessages : public GFGlyphTracer::Callback
 
 	private:
 		std::string _fname;
-		bool _sfmsg, _autonl;
-		bool _traced;  ///< true if a glyph of the current font has already been traced?
+		bool _sfmsg=true, _autonl=true;
+		bool _traced=false;  ///< true if a glyph of the current font has already been traced?
 };
 
 #endif

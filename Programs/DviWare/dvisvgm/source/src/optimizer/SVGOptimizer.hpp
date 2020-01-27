@@ -1,5 +1,5 @@
 /*************************************************************************
-** CRC32.hpp                                                            **
+** SVGOptimizer.hpp                                                     **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
 ** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
@@ -18,30 +18,42 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#ifndef CRC32_HPP
-#define CRC32_HPP
+#pragma once
 
-#include <cstdlib>
-#include <istream>
+#include <memory>
+#include <ostream>
+#include <set>
+#include <vector>
+#include "OptimizerModule.hpp"
+#include "../XMLNode.hpp"
 
-class CRC32 {
+class SVGTree;
+
+class SVGOptimizer {
+	struct ModuleEntry {
+		ModuleEntry (std::string name, std::unique_ptr<OptimizerModule> mod)
+			: modname(std::move(name)), module(std::move(mod)) {}
+
+		std::string modname;
+		std::unique_ptr<OptimizerModule> module;
+	};
 	public:
-		CRC32 ();
-		CRC32 (const CRC32 &crc32) =delete;
-		void update (const uint8_t *bytes, size_t len);
-		void update (uint32_t n, int bytes=4);
-		void update (const char *str);
-		void update (std::istream &is);
-		uint32_t get () const;
-		void reset ();
-		static uint32_t compute (const uint8_t *bytes, size_t len);
-		static uint32_t compute (const char *str);
-		static uint32_t compute (std::istream &is);
+		explicit SVGOptimizer (SVGTree *svg=nullptr);
+		explicit SVGOptimizer (SVGTree &svg) : SVGOptimizer(&svg) {}
+		void execute ();
+		void listModules (std::ostream &os) const;
+		bool checkModuleString (std::string &namestr, std::vector<std::string> &unknownNames) const;
+
+		static std::string MODULE_SEQUENCE;
+
+	protected:
+		OptimizerModule* getModule (const std::string &name) const;
 
 	private:
-		uint32_t _crc32;
-		uint32_t _tab[256];
+		SVGTree *_svg;
+		std::vector<ModuleEntry> _moduleEntries;
 };
 
 
-#endif
+
+

@@ -36,9 +36,9 @@ class FontWriter {
 		static bool AUTOHINT_FONTS;
 
 	public:
-		FontWriter (const PhysicalFont &font);
-		std::string createFontFile (FontFormat format, const std::set<int> &charcodes, GFGlyphTracer::Callback *cb=0) const;
-		bool writeCSSFontFace (FontFormat format, const std::set<int> &charcodes, std::ostream &os, GFGlyphTracer::Callback *cb=0) const;
+		explicit FontWriter (const PhysicalFont &font);
+		std::string createFontFile (FontFormat format, const std::set<int> &charcodes, GFGlyphTracer::Callback *cb=nullptr) const;
+		bool writeCSSFontFace (FontFormat format, const std::set<int> &charcodes, std::ostream &os, GFGlyphTracer::Callback *cb=nullptr) const;
 		static FontFormat toFontFormat (std::string formatstr);
 		static std::vector<std::string> supportedFormats ();
 
@@ -59,7 +59,7 @@ class FontWriter {
 
 
 struct FontWriterException : MessageException {
-	FontWriterException (const std::string &msg) : MessageException(msg) {}
+	explicit FontWriterException (const std::string &msg) : MessageException(msg) {}
 };
 
 #endif

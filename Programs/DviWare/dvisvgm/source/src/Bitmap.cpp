@@ -25,10 +25,6 @@
 
 using namespace std;
 
-Bitmap::Bitmap () : _rows(0), _cols(0), _xshift(0), _yshift(0), _bpr(0), _bytes(0)
-{
-}
-
 
 /** Constructs a Bitmap */
 Bitmap::Bitmap (int minx, int maxx, int miny , int maxy) {
@@ -48,8 +44,7 @@ void Bitmap::resize (int minx, int maxx, int miny , int maxy) {
 	_yshift = miny;
 	_bpr  = _cols/8 + (_cols % 8 ? 1 : 0);  // bytes per row
 	_bytes.resize(_rows*_bpr);
-	for (uint8_t &byte : _bytes)
-		byte = 0;
+	std::fill(_bytes.begin(), _bytes.end(), 0);
 }
 
 
@@ -69,7 +64,7 @@ void Bitmap::setBits (int row, int col, int n) {
 		int m = min(n, b+1);        // number of bits to be set in current byte
 		int bitseq = (1 << m)-1;    // sequence of n set bits (bits 0..n-1 are set)
 		bitseq <<= b-m+1;           // move bit sequence so that bit b is the leftmost set bit
-		*byte |= uint8_t(bitseq);     // apply bit sequence to current byte
+		*byte |= uint8_t(bitseq);   // apply bit sequence to current byte
 		byte++;
 		n -= m;
 		col += m;
@@ -90,10 +85,8 @@ void Bitmap::forAllPixels (Callback &data) const {
 }
 
 
-class BBoxCallback : public Bitmap::Callback
-{
+class BBoxCallback : public Bitmap::Callback {
 	public:
-		BBoxCallback () : _changed(false), _minx(numeric_limits<int>::max()), _miny(_minx), _maxx(0), _maxy(0) {}
 		int minx () const   {return _minx;}
 		int miny () const   {return _miny;}
 		int maxx () const   {return _maxx;}
@@ -116,8 +109,9 @@ class BBoxCallback : public Bitmap::Callback
 		}
 
 	private:
-		bool _changed;
-		int _minx, _miny, _maxx, _maxy;
+		bool _changed = false;
+		int _minx = numeric_limits<int>::max(), _miny=_minx;
+		int _maxx = 0, _maxy = 0;
 };
 
 

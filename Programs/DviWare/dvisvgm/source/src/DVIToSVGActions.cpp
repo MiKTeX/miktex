@@ -32,14 +32,6 @@
 using namespace std;
 
 
-DVIToSVGActions::DVIToSVGActions (DVIToSVG &dvisvg, SVGTree &svg)
-	: _svg(svg), _dvireader(&dvisvg), _bgcolor(Color::TRANSPARENT)
-{
-	_currentFontNum = -1;
-	_pageCount = 0;
-}
-
-
 void DVIToSVGActions::reset() {
 	_usedChars.clear();
 	_usedFonts.clear();
@@ -69,17 +61,19 @@ void DVIToSVGActions::moveToY (double y, bool forceSVGMove) {
 }
 
 
-string DVIToSVGActions::getSVGFilename (unsigned pageno) const {
-	if (DVIToSVG *dvi2svg = dynamic_cast<DVIToSVG*>(_dvireader))
-		return dvi2svg->getSVGFilename(pageno);
-	return "";
+FilePath DVIToSVGActions::getSVGFilePath (unsigned pageno) const {
+	FilePath path;
+	if (auto dvi2svg = dynamic_cast<DVIToSVG*>(_dvireader))
+		path = dvi2svg->getSVGFilePath(pageno);
+	return path;
 }
 
 
 string DVIToSVGActions::getBBoxFormatString () const {
-	if (DVIToSVG *dvi2svg = dynamic_cast<DVIToSVG*>(_dvireader))
-		return dvi2svg->getUserBBoxString();
-	return "";
+	string boxstr;
+	if (auto dvi2svg = dynamic_cast<DVIToSVG*>(_dvireader))
+		boxstr = dvi2svg->getUserBBoxString();
+	return boxstr;
 }
 
 
@@ -91,6 +85,9 @@ string DVIToSVGActions::getBBoxFormatString () const {
  *  @param[in] vertical true if we're in vertical mode
  *  @param[in] font font to be used */
 void DVIToSVGActions::setChar (double x, double y, unsigned c, bool vertical, const Font &font) {
+	if (_outputLocked)
+		return;
+
 	// If we use SVG fonts there is no need to record all font name/char/size combinations
 	// because the SVG font mechanism handles this automatically. It's sufficient to
 	// record font names and chars. The various font sizes can be ignored here.
@@ -108,7 +105,7 @@ void DVIToSVGActions::setChar (double x, double y, unsigned c, bool vertical, co
 
 	GlyphMetrics metrics;
 	font.getGlyphMetrics(c, vertical, metrics);
-	const PhysicalFont* pf = dynamic_cast<const PhysicalFont*>(&font);
+	auto pf = dynamic_cast<const PhysicalFont*>(&font);
 	if (PhysicalFont::EXACT_BBOX && pf) {
 		GlyphMetrics exact_metrics;
 		pf->getExactGlyphBox(c, exact_metrics, vertical, &callback);
@@ -125,7 +122,7 @@ void DVIToSVGActions::setChar (double x, double y, unsigned c, bool vertical, co
 		bbox.transform(getMatrix());
 	embed(bbox);
 #if 0
-	XMLElementNode *rect = new XMLElementNode("rect");
+	XMLElement *rect = new XMLElement("rect");
 	rect->addAttribute("x", x-metrics.wl);
 	rect->addAttribute("y", y-metrics.h);
 	rect->addAttribute("width", metrics.wl+metrics.wr);
@@ -135,7 +132,7 @@ void DVIToSVGActions::setChar (double x, double y, unsigned c, bool vertical, co
 	rect->addAttribute("stroke-width", "0.5");
 	_svg.appendToPage(rect);
 	if (metrics.d > 0) {
-		XMLElementNode *line = new XMLElementNode("line");
+		XMLElement *line = new XMLElement("line");
 		line->addAttribute("x1", x-metrics.wl);
 		line->addAttribute("y1", y);
 		line->addAttribute("x2", x+metrics.wr);
@@ -145,7 +142,7 @@ void DVIToSVGActions::setChar (double x, double y, unsigned c, bool vertical, co
 		_svg.appendToPage(line);
 	}
 	if (metrics.wl > 0) {
-		XMLElementNode *line = new XMLElementNode("line");
+		XMLElement *line = new XMLElement("line");
 		line->addAttribute("x1", x);
 		line->addAttribute("y1", y-metrics.h);
 		line->addAttribute("x2", x);
@@ -165,14 +162,17 @@ void DVIToSVGActions::setChar (double x, double y, unsigned c, bool vertical, co
  *  @param[in] height length of the vertical edges
  *  @param[in] width length of the horizontal edges */
 void DVIToSVGActions::setRule (double x, double y, double height, double width) {
+	if (_outputLocked)
+		return;
+
 	// (x,y) is the lower left corner of the rectangle
-	auto rect = util::make_unique<XMLElementNode>("rect");
+	auto rect = util::make_unique<XMLElement>("rect");
 	rect->addAttribute("x", x);
 	rect->addAttribute("y", y-height);
 	rect->addAttribute("height", height);
 	rect->addAttribute("width", width);
 	if (!getMatrix().isIdentity())
-		rect->addAttribute("transform", getMatrix().getSVG());
+		rect->addAttribute("transform", getMatrix().toSVG());
 	if (getColor() != Color::BLACK)
 		rect->addAttribute("fill", _svg.getColor().svgColorString());
 	_svg.appendToPage(std::move(rect));
@@ -232,7 +232,7 @@ void DVIToSVGActions::endPage (unsigned pageno) {
 	_svg.transformPage(matrix);
 	if (_bgcolor != Color::TRANSPARENT) {
 		// create a rectangle filled with the background color
-		auto rect = util::make_unique<XMLElementNode>("rect");
+		auto rect = util::make_unique<XMLElement>("rect");
 		rect->addAttribute("x", _bbox.minX());
 		rect->addAttribute("y", _bbox.minY());
 		rect->addAttribute("width", _bbox.width());
@@ -306,7 +306,7 @@ static int digits (int n) {
 void DVIToSVGActions::progress (size_t current, size_t total, const char *id) {
 	static double time=0;
 	static bool draw=false; // show progress indicator?
-	static const char *prev_id=0;
+	static const char *prev_id=nullptr;
 	if (current == 0 && total > 0) {
 		time = System::time();
 		draw = false;

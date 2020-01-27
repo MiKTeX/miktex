@@ -20,8 +20,9 @@
 
 #include <algorithm>
 #include <vector>
-#include "CRC32.hpp"
+#include "HashFunction.hpp"
 #include "StreamReader.hpp"
+#include "utility.hpp"
 
 using namespace std;
 
@@ -46,13 +47,13 @@ uint32_t StreamReader::readUnsigned (int bytes) {
 }
 
 
-/** Reads an unsigned integer from assigned input stream and updates the CRC32 checksum.
- *  @param[in] bytes number of bytes to read (max. 4)
- *  @param[in,out] crc32 checksum to be updated
+/** Reads an unsigned integer from assigned input stream and updates the hash value.
+ *  @param[in] n number of bytes to read (max. 4)
+ *  @param[in,out] hashfunc hash to update
  *  @return read integer */
-uint32_t StreamReader::readUnsigned (int bytes, CRC32 &crc32) {
-	uint32_t ret = readUnsigned(bytes);
-	crc32.update(ret, bytes);
+uint32_t StreamReader::readUnsigned (int n, HashFunction &hashfunc) {
+	uint32_t ret = readUnsigned(n);
+	hashfunc.update(util::bytes(ret, n));
 	return ret;
 }
 
@@ -70,13 +71,13 @@ int32_t StreamReader::readSigned (int bytes) {
 }
 
 
-/** Reads an signed integer from assigned input stream and updates the CRC32 checksum.
+/** Reads an signed integer from assigned input stream and updates the hash value.
  *  @param[in] bytes number of bytes to read (max. 4)
- *  @param[in,out] crc32 checksum to be updated
+ *  @param[in,out] hashfunc hash to update
  *  @return read integer */
-int32_t StreamReader::readSigned (int bytes, CRC32 &crc32) {
-	int32_t ret = readSigned(bytes);
-	crc32.update(uint32_t(ret), bytes);
+int32_t StreamReader::readSigned (int n, HashFunction &hashfunc) {
+	int32_t ret = readSigned(n);
+	hashfunc.update(util::bytes(ret, n));
 	return ret;
 }
 
@@ -87,21 +88,21 @@ string StreamReader::readString () {
 		throw StreamReaderException("no stream assigned");
 	string ret;
 	while (!_is->eof() && _is->peek() > 0)
-		ret += _is->get();
+		ret += char(_is->get());
 	_is->get();  // skip 0-byte
 	return ret;
 }
 
 
-/** Reads a string terminated by a 0-byte and updates the CRC32 checksum.
- *  @param[in,out] crc32 checksum to be updated
+/** Reads a string terminated by a 0-byte and updates the hash value.
+ *  @param[in,out] hashfunc hash to update
  *  @param[in] finalZero consider final 0-byte in checksum
  *  @return the string read */
-string StreamReader::readString (CRC32 &crc32, bool finalZero) {
+string StreamReader::readString (HashFunction &hashfunc, bool finalZero) {
 	string ret = readString();
-	crc32.update(reinterpret_cast<const uint8_t*>(ret.data()), ret.length());
+	hashfunc.update(ret.data(), ret.length());
 	if (finalZero)
-		crc32.update(0, 1);
+		hashfunc.update(0, 1);
 	return ret;
 }
 
@@ -119,36 +120,37 @@ string StreamReader::readString (int length) {
 }
 
 
-/** Reads a string of a given length and updates the CRC32 checksum.
+/** Reads a string of a given length and updates the hash value.
  *  @param[in] length number of characters to read
- *  @param[in,out] crc32 checksum to be updated
+ *  @param[in,out] hashfunc hash to update
  *  @return the string read */
-string StreamReader::readString (int length, CRC32 &crc32) {
+string StreamReader::readString (int length, HashFunction &hashfunc) {
 	string ret = readString(length);
-	crc32.update(reinterpret_cast<const uint8_t*>(ret.data()), length);
+	hashfunc.update(ret.data(), length);
 	return ret;
 }
 
 
-vector<uint8_t>& StreamReader::readBytes (int n, vector<uint8_t> &bytes) {
+vector<uint8_t> StreamReader::readBytes (int n) {
+	vector<uint8_t> bytes(n);
 	if (n > 0)
-		_is->read((char*)&bytes[0], n);
+		_is->read(reinterpret_cast<char*>(bytes.data()), n);
 	return bytes;
 }
 
 
-vector<uint8_t>& StreamReader::readBytes (int n, vector<uint8_t> &bytes, CRC32 &crc32) {
-	readBytes(n, bytes);
-	crc32.update(&bytes[0], bytes.size());
+vector<uint8_t> StreamReader::readBytes (int n, HashFunction &hashfunc) {
+	vector<uint8_t> bytes = readBytes(n);
+	hashfunc.update(bytes);
 	return bytes;
 }
 
 
-int StreamReader::readByte (CRC32 &crc32) {
+int StreamReader::readByte (HashFunction &hashfunc) {
 	int ret = readByte();
 	if (ret >= 0) {
-		const uint8_t c = uint8_t(ret & 0xff);
-		crc32.update(&c, 1);
+		char c = ret & 0xff;
+		hashfunc.update(&c, 1);
 	}
 	return ret;
 }

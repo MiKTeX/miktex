@@ -28,10 +28,9 @@
 #include "FontEncoding.hpp"
 
 
-class EncFile : public NamedFontEncoding
-{
+class EncFile : public NamedFontEncoding {
 	public:
-		EncFile (const std::string &name);
+		explicit EncFile (std::string encname);
 		void read ();
 		void read (std::istream &is);
 		int size () const {return _table.size();}

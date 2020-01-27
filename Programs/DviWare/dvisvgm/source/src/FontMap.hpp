@@ -34,7 +34,7 @@ class Subfont;
 class FontMap {
 	public:
 		struct Entry {
-			Entry (const MapLine &mapline, Subfont *subfont=nullptr);
+			explicit Entry (const MapLine &mapline, Subfont *subfont=nullptr);
 			Entry (const Entry &entry) =delete;
 			Entry (Entry &&entry) =default;
 			Entry& operator = (Entry &&entry) =default;

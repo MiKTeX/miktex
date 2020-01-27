@@ -36,7 +36,7 @@ static string read_entry (InputReader &in);
 static bool valid_name_char (int c);
 
 
-EncFile::EncFile (const string &encname) : _encname(encname)
+EncFile::EncFile (string encname) : _encname(std::move(encname))
 {
 	read();
 }
@@ -109,7 +109,7 @@ static string read_entry (InputReader &in) {
 	while (!in.eof() && ((in.peek() == '/' && accept_slashes) || valid_name_char(in.peek()))) {
 		if (in.peek() != '/')
 			accept_slashes = false;
-		entry += in.get();
+		entry += char(in.get());
 	}
 	if (entry.length() > 1) {
 		// strip leading slashes
@@ -135,6 +135,6 @@ static bool valid_name_char (int c) {
  * @return character name assigned to character code c*/
 const char* EncFile::charName (uint32_t c) const {
 	if (c < _table.size())
-		return !_table[c].empty() ? _table[c].c_str() : 0;
-	return 0;
+		return !_table[c].empty() ? _table[c].c_str() : nullptr;
+	return nullptr;
 }

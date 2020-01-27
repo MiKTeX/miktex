@@ -25,12 +25,10 @@
 #include <string>
 
 
-class MessageException : public std::exception
-{
+class MessageException : public std::exception {
 	public:
-		MessageException (const std::string &msg) : _message(msg) {}
-		virtual ~MessageException () throw() =default;
-		const char* what () const throw() override {return _message.c_str();}
+		explicit MessageException (std::string msg) : _message(std::move(msg)) {}
+		const char* what () const noexcept override {return _message.c_str();}
 
 	private:
 		std::string _message;

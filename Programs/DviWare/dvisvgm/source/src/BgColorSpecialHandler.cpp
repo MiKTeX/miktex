@@ -54,7 +54,7 @@ void BgColorSpecialHandler::dviBeginPage (unsigned pageno, SpecialActions &actio
 	if (_pageColors.empty())
 		return;
 	// find number of page with bg color change not lower than the current one
-	vector<PageColor>::iterator it = lower_bound(_pageColors.begin(), _pageColors.end(), PageColor(pageno, Color::BLACK));
+	auto it = lower_bound(_pageColors.begin(), _pageColors.end(), PageColor(pageno, Color::BLACK));
 	if (it != _pageColors.end() && it->first == pageno)
 		actions.setBgColor(it->second);
 	else if (it != _pageColors.begin())

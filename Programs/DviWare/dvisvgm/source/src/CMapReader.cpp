@@ -28,12 +28,12 @@
 #include "FileFinder.hpp"
 #include "InputReader.hpp"
 #include "utility.hpp"
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 
 using namespace std;
-
-
-CMapReader::CMapReader () : _inCMap(false) {
-}
 
 
 /** Reads a cmap file and returns the corresponding CMap object.
@@ -41,7 +41,11 @@ CMapReader::CMapReader () : _inCMap(false) {
  *  @return CMap object representing the read data, or 0 if file could not be read */
 unique_ptr<CMap> CMapReader::read (const string &fname) {
 	if (const char *path = FileFinder::instance().lookup(fname, "cmap", false)) {
+#if defined(MIKTEX_WINDOWS)
+		ifstream ifs(UW_(path));
+#else
 		ifstream ifs(path);
+#endif
 		if (ifs)
 			return read(ifs, fname);
 	}
@@ -74,7 +78,7 @@ unique_ptr<CMap> CMapReader::read (std::istream& is, const string &name) {
 		}
 	}
 	catch (CMapReaderException &e) {
-		_cmap.release();
+		_cmap.reset();
 		throw;
 	}
 	return std::move(_cmap);
@@ -89,9 +93,10 @@ void CMapReader::executeOperator (const string &opname, InputReader &ir) {
 		const char *name;
 		void (CMapReader::*handler)(InputReader&);
 	};
-	constexpr array<Operator, 6> operators {{
+	constexpr array<Operator, 7> operators {{
 		{"beginbfchar",   &CMapReader::op_beginbfchar},
 		{"beginbfrange",  &CMapReader::op_beginbfrange},
+		{"begincidchar",  &CMapReader::op_begincidchar},
 		{"begincidrange", &CMapReader::op_begincidrange},
 		{"def",           &CMapReader::op_def},
 		{"endcmap",       &CMapReader::op_endcmap},
@@ -135,7 +140,7 @@ void CMapReader::op_usecmap (InputReader &) {
 		throw CMapReaderException("stack underflow while processing usecmap");
 	else {
 		const string name = popToken().strvalue();
-		if ((_cmap->_basemap = CMapManager::instance().lookup(name)) == 0)
+		if ((_cmap->_basemap = CMapManager::instance().lookup(name)) == nullptr)
 			throw CMapReaderException("CMap file '"+name+"' not found");
 	}
 }
@@ -154,21 +159,33 @@ static uint32_t parse_hexentry (InputReader &ir) {
 }
 
 
-void CMapReader::op_begincidrange (InputReader &ir) {
+void CMapReader::parseCIDChars (InputReader &ir, bool isRange) {
 	if (!_tokens.empty() && _tokens.back().type() == Token::Type::NUMBER) {
 		ir.skipSpace();
 		int num_entries = static_cast<int>(popToken().numvalue());
 		while (num_entries > 0 && ir.peek() == '<') {
 			uint32_t first = parse_hexentry(ir);
-			uint32_t last = parse_hexentry(ir);
-			uint32_t cid;
+			uint32_t last = first;
+			if (isRange)
+				last = parse_hexentry(ir);
 			ir.skipSpace();
+			uint32_t cid;
 			if (!ir.parseUInt(cid))
-				throw CMapReaderException("invalid range entry (decimal value expected)");
+				throw CMapReaderException("invalid char entry (decimal value expected)");
 			_cmap->addCIDRange(first, last, cid);
 			ir.skipSpace();
 		}
 	}
+}
+
+
+void CMapReader::op_begincidchar (InputReader &ir) {
+	parseCIDChars(ir, false);
+}
+
+
+void CMapReader::op_begincidrange (InputReader &ir) {
+	parseCIDChars(ir, true);
 }
 
 
@@ -249,9 +266,7 @@ void CMapReader::Token::scan (InputReader &ir) {
 	else if (isdigit(ir.peek())) {  // number?
 		double val;
 		if (ir.parseDouble(val)) {
-			ostringstream oss;
-			oss << val;
-			_value = oss.str();
+			_value = util::to_string(val);
 			_type = Type::NUMBER;
 		}
 	}

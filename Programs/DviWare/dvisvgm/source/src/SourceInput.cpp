@@ -128,7 +128,11 @@ bool TemporaryFile::close () {
 istream& SourceInput::getInputStream (bool showMessages) {
 	if (!_ifs.is_open()) {
 		if (!_fname.empty())
+#if defined(MIKTEX_WINDOWS)
+			_ifs.open(UW_(_fname), ios::binary);
+#else
 			_ifs.open(_fname, ios::binary);
+#endif
 		else {
 #ifdef _WIN32
 			if (_setmode(_fileno(stdin), _O_BINARY) == -1)
@@ -145,7 +149,11 @@ istream& SourceInput::getInputStream (bool showMessages) {
 				if (!_tmpfile.write(buf, count))
 					throw MessageException("failed to write data to temporary file");
 			}
+#if defined(MIKTEX_WINDOWS)
+			_ifs.open(UW_(_tmpfile.path()), ios::binary);
+#else
 			_ifs.open(_tmpfile.path(), ios::binary);
+#endif
 		}
 	}
 	return _ifs;

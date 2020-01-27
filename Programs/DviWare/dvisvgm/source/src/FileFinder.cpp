@@ -46,6 +46,7 @@
 
 std::string FileFinder::_argv0;
 std::string FileFinder::_progname;
+std::string FileFinder::_pathbuf;
 bool FileFinder::_enableMktex = false;
 
 
@@ -69,7 +70,7 @@ FileFinder::FileFinder () {
 
 void FileFinder::init (const std::string &argv0, const std::string &progname, bool enable_mktexmf) {
 	_argv0 = argv0;
-	_progname = progname.c_str();
+	_progname = progname;
 	_enableMktex = enable_mktexmf;
 }
 
@@ -109,12 +110,11 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 	if (fname.empty())
 		return nullptr;
 
-	static std::string buf;
 	// try to lookup the file in the additionally specified directories
 	for (const std::string &dir : _additionalDirs) {
-		buf = dir + "/" + fname;
-		if (FileSystem::exists(buf))
-			return buf.c_str();
+		_pathbuf = dir+"/"+fname;
+		if (FileSystem::exists(_pathbuf))
+			return _pathbuf.c_str();
 	}
 	std::string ext;
 	if (ftype)
@@ -126,21 +126,18 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		ext = fname.substr(pos+1);
 	}
 
+#ifdef _WIN32
+	if (ext == "dll" || ext == "exe")
+		return lookupExecutable(fname);
 #ifdef MIKTEX_COM
-	if (ext == "dll" || ext == "exe") {
-		// lookup dll and exe files in the MiKTeX bin directory first
-		buf = _miktex->getBinDir() + "/" + fname;
-		if (FileSystem::exists(buf))
-			return buf.c_str();
-	}
 	else if (ext == "cmap") {
 		// The MiKTeX SDK doesn't support the lookup of files without suffix (yet), thus
 		// it's not possible to find cmap files which usually don't have a suffix. In order
 		// to work around this, we try to lookup the files by calling kpsewhich.
 		Process process("kpsewhich", "-format=cmap "+fname);
-		process.run(&buf);
-		buf = util::trim(buf);
-		return buf.empty() ? nullptr : buf.c_str();
+		process.run(&_pathbuf);
+		_pathbuf = util::trim(_pathbuf);
+		return _pathbuf.empty() ? nullptr : _pathbuf.c_str();
 	}
 	try {
 		return _miktex->findFile(fname.c_str());
@@ -148,29 +145,9 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 	catch (const MessageException &e) {
 		return nullptr;
 	}
-#else
-#if defined(MIKTEX)
-        if (ext == "dll" || ext == "exe")
-        {
-          const char * path = kpse_var_value("SELFAUTOLOC");
-          if (path != nullptr)
-          {
-            buf = std::string(path) + "/" + fname;
-            return FileSystem::exists(buf.c_str()) ? buf.c_str() : nullptr;
-          }
-          return nullptr;
-        }
-#endif
-#ifdef TEXLIVEWIN32
-	if (ext == "exe") {
-		// lookup exe files in directory where dvisvgm is located
-		if (const char *path = kpse_var_value("SELFAUTOLOC")) {
-			buf = std::string(path) + "/" + fname;
-			return FileSystem::exists(buf) ? buf.c_str() : nullptr;
-		}
-		return nullptr;
-	}
-#endif
+#endif  // MIKTEX
+#endif  // _WIN32
+#ifndef MIKTEX_COM
 	static std::map<std::string, kpse_file_format_type> types = {
 		{"tfm",  kpse_tfm_format},
 		{"pfb",  kpse_type1_format},
@@ -186,6 +163,11 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		{"pro",  kpse_tex_ps_header_format},
 		{"sfd",  kpse_sfd_format},
 		{"eps",  kpse_pict_format},
+		{"png",  kpse_pict_format},
+		{"jpg",  kpse_pict_format},
+		{"jpeg", kpse_pict_format},
+		{"svg",  kpse_pict_format},
+		{"pdf",  kpse_tex_format},
 	};
 	auto it = types.find(ext);
 	if (it == types.end())
@@ -195,12 +177,12 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		// In the current version of libkpathsea, each call of kpse_find_file produces
 		// a memory leak since the path buffer is not freed. I don't think we can do
 		// anything against it here...
-		buf = path;
+		_pathbuf = path;
 		std::free(path);
-		return buf.c_str();
+		return _pathbuf.c_str();
 	}
 	return nullptr;
-#endif
+#endif  // !MIKTEX
 }
 
 
@@ -217,10 +199,10 @@ const char* FileFinder::findMappedFile (std::string fname) const {
 	if (const FontMap::Entry *entry = FontMap::instance().lookup(base)) {
 		const char *path=nullptr;
 		if (entry->fontname.find('.') != std::string::npos)  // does the mapped filename has an extension?
-			path = findFile(entry->fontname, 0);             // look for that file
+			path = findFile(entry->fontname, nullptr);        // look for that file
 		else {                             // otherwise, use extension of unmapped file
 			fname = entry->fontname + "." + ext;
-			(path = findFile(fname, 0)) || (path = mktex(fname));
+			(path = findFile(fname, nullptr)) || (path = mktex(fname));
 		}
 		return path;
 	}
@@ -245,7 +227,7 @@ const char* FileFinder::mktex (const std::string &fname) const {
 	// maketfm and makemf are located in miktex/bin which is in the search PATH
 	std::string toolname = (ext == "tfm" ? "miktex-maketfm" : "miktex-makemf");
 	system((toolname+".exe "+fname).c_str());
-	path = findFile(fname, 0);
+	path = findFile(fname, nullptr);
 #else
 	kpse_file_format_type type = (ext == "tfm" ? kpse_tfm_format : kpse_mf_format);
 	path = kpse_make_tex(type, fname.c_str());
@@ -269,5 +251,40 @@ const char* FileFinder::lookup (const std::string &fname, const char *ftype, boo
 	const char *path;
 	if ((path = findFile(fname, ftype)) || (extended  && ((path = findMappedFile(fname)) || (path = mktex(fname)))))
 		return path;
+	return nullptr;
+}
+
+
+/** Looks up the location of an executable file.
+ *  @param[in] fname name of file to look up
+ *  @param[in] addSuffix if true, ".exe" is appended to the given filename (Windows only)
+ *  @return absolute path of file or nullptr if not found */
+const char* FileFinder::lookupExecutable (const std::string &fname, bool addSuffix) const {
+#ifdef MIKTEX_COM
+	_pathbuf = _miktex->getBinDir() + "/" + fname;
+	if (addSuffix)
+		_pathbuf += ".exe";
+	if (FileSystem::exists(_pathbuf))
+		return _pathbuf.c_str();
+	try {
+		return _miktex->findFile(fname.c_str());
+	}
+	catch (...) {
+	}
+#else
+	// lookup executables in directory where dvisvgm is located
+	if (const char *path = kpse_var_value("SELFAUTOLOC")) {
+		_pathbuf = std::string(path) + "/" + fname;
+#if defined(MIKTEX)
+		free((void*)path); path = nullptr;
+#endif
+#ifdef _WIN32
+		if (addSuffix)
+			_pathbuf += ".exe";
+#endif
+		if (FileSystem::exists(_pathbuf))
+			return _pathbuf.c_str();
+	}
+#endif  // !MIKTEX
 	return nullptr;
 }

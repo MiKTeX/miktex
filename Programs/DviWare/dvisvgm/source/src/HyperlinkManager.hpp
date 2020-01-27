@@ -59,7 +59,7 @@ class HyperlinkManager {
 		static void setDefaultLinkColor (Color color);
 
 	protected:
-		HyperlinkManager () : _anchorType(AnchorType::NONE), _depthThreshold(0), _linewidth(-1) {}
+		HyperlinkManager () =default;
 		void markLinkedBox (SpecialActions &actions);
 
 		enum class MarkerType {NONE, LINE, BOX, BGCOLOR};
@@ -69,9 +69,9 @@ class HyperlinkManager {
 		static ColorSource COLORSOURCE; ///< if true, LINK_LINECOLOR is applied
 
    private:
-		AnchorType _anchorType;     ///< type of active anchor
-		int _depthThreshold;        ///< break anchor box if the DVI stack depth underruns this threshold
-		double _linewidth;          ///< line width of link marker (-1 => compute individual value per link)
+		AnchorType _anchorType=AnchorType::NONE;  ///< type of active anchor
+		int _depthThreshold=0;      ///< break anchor box if the DVI stack depth underruns this threshold
+		double _linewidth=-1;       ///< line width of link marker (-1 => compute individual value per link)
 		std::string _base;          ///< base URL that is prepended to all relative targets
 		NamedAnchors _namedAnchors; ///< information about all named anchors processed
 };

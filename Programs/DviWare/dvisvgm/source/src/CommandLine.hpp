@@ -35,7 +35,7 @@ class CommandLine : public CL::CommandLine {
 		Option colornamesOpt {"colornames", '\0', "prefer color names to RGB values if possible"};
 		Option commentsOpt {"comments", '\0', "add comments with additional information"};
 		Option epsOpt {"eps", 'E', "convert EPS file to SVG"};
-		Option exactOpt {"exact", 'e', "compute exact glyph boxes"};
+		Option exactBboxOpt {"exact-bbox", 'e', "compute exact glyph bounding boxes"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> fontFormatOpt {"font-format", 'f', "format", "svg", "select file format of embedded fonts"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> fontmapOpt {"fontmap", 'm', "filenames", "evaluate (additional) font map files"};
 		Option gradOverlapOpt {"grad-overlap", '\0', "create overlapping color gradient segments"};
@@ -52,6 +52,7 @@ class CommandLine : public CL::CommandLine {
 		Option noMktexmfOpt {"no-mktexmf", '\0', "don't try to create missing fonts"};
 		TypedOption<std::string, Option::ArgMode::OPTIONAL> noSpecialsOpt {"no-specials", 'S', "prefixes", "don't process [selected] specials"};
 		Option noStylesOpt {"no-styles", '\0', "don't use CSS styles to reference fonts"};
+		TypedOption<std::string, Option::ArgMode::OPTIONAL> optimizeOpt {"optimize", 'O', "modules", "all", "perform several SVG optimizations"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> outputOpt {"output", 'o', "pattern", "set name pattern of output files"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> pageOpt {"page", 'p', "ranges", "1", "choose page(s) to convert"};
 		TypedOption<std::string, Option::ArgMode::OPTIONAL> pageHashesOpt {"page-hashes", 'H', "params", "xxh64", "activate usage of page hashes"};
@@ -114,6 +115,7 @@ class CommandLine : public CL::CommandLine {
 			{&gradSimplifyOpt, 1},
 #endif
 			{&linkmarkOpt, 1},
+			{&optimizeOpt, 1},
 			{&outputOpt, 1},
 			{&precisionOpt, 1},
 			{&relativeOpt, 1},
@@ -129,7 +131,7 @@ class CommandLine : public CL::CommandLine {
 			{&transformOpt, 2},
 			{&zoomOpt, 2},
 			{&cacheOpt, 3},
-			{&exactOpt, 3},
+			{&exactBboxOpt, 3},
 			{&keepOpt, 3},
 #if !defined(HAVE_LIBGS) && !defined(DISABLE_GS)
 			{&libgsOpt, 3},

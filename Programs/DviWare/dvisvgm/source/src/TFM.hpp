@@ -30,10 +30,9 @@
 
 class StreamReader;
 
-class TFM : public FontMetrics
-{
+class TFM : public FontMetrics {
 	public:
-		TFM (std::istream &is);
+		explicit TFM (std::istream &is);
 		double getCharWidth (int c) const override;
 		double getCharHeight (int c) const override;
 		double getCharDepth (int c) const override;
@@ -51,7 +50,7 @@ class TFM : public FontMetrics
 		uint16_t lastChar () const override    {return _lastChar;}
 
 	protected:
-		TFM () : _checksum(0), _firstChar(0), _lastChar(0), _designSize(0), _params(7) {}
+		TFM () : _params(7) {}
 		void readHeader (StreamReader &reader);
 		void readTables (StreamReader &reader, int nw, int nh, int nd, int ni);
 		void readParameters (StreamReader &reader, int np);
@@ -59,9 +58,9 @@ class TFM : public FontMetrics
 		void setCharRange (int firstchar, int lastchar) {_firstChar=firstchar; _lastChar=lastchar;}
 
 	private:
-		uint32_t _checksum;
-		uint16_t _firstChar, _lastChar;
-		double _designSize;  ///< design size of the font in PS points (72bp = 1in)
+		uint32_t _checksum=0;
+		uint16_t _firstChar=0, _lastChar=0;
+		double _designSize=0;  ///< design size of the font in PS points (72bp = 1in)
 		std::vector<uint32_t>  _charInfoTable;
 		std::vector<FixWord> _widthTable;    ///< character widths in design size units
 		std::vector<FixWord> _heightTable;   ///< character height in design size units

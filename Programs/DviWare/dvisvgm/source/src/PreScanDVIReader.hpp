@@ -25,8 +25,7 @@
 
 struct DVIActions;
 
-class PreScanDVIReader : public BasicDVIReader
-{
+class PreScanDVIReader : public BasicDVIReader {
 	public:
 		PreScanDVIReader (std::istream &is, DVIActions *actions);
 		unsigned currentPageNumber () const override {return _currentPageNumber;}
@@ -37,7 +36,7 @@ class PreScanDVIReader : public BasicDVIReader
 
 	private:
 		DVIActions *_actions;
-		unsigned _currentPageNumber;
+		unsigned _currentPageNumber=0;
 };
 
 #endif

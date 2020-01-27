@@ -28,11 +28,6 @@
 using namespace std;
 
 
-MapLine::MapLine () : _sfd(0), _fontindex(0), _slant(0), _bold(0), _extend(1)
-{
-}
-
-
 /** Constructs a MapLine object by parsing a single map line from the given stream. */
 MapLine::MapLine (istream &is) : MapLine() {
 	char buf[256];
@@ -226,9 +221,7 @@ void MapLine::parseDVIPDFMLine (InputReader &ir) {
 					throw_number_expected('w', true);
 				break;
 			default:
-				ostringstream oss;
-				oss << "invalid option: -" << option;
-				throw MapLineException(oss.str());
+				throw MapLineException("invalid option: -" + string(1, option));
 		}
 		ir.skipSpace();
 	}

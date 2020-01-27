@@ -96,7 +96,7 @@ void PageSize::resize (string name) {
 
 	name = util::tolower(name);
 	// extract optional suffix
-	size_t pos = name.rfind("-");
+	size_t pos = name.rfind('-');
 	bool landscape = false;
 	if (pos != string::npos) {
 		string suffix = name.substr(pos);
@@ -117,14 +117,14 @@ void PageSize::resize (string name) {
 	}
 	else if (name == "legal") {
 		_width = 216_mm;
-		_height = 356_mm;;
+		_height = 356_mm;
 	}
 	else if (name == "letter") {
 		_width = 216_mm;
 		_height = 279_mm;
 	}
 	else if (name == "ledger") {
-		_width = 279_mm;;
+		_width = 279_mm;
 		_height = 432_mm;
 	}
 	else if (isdigit(name[1]) && name.length() < 5) {  // limit length of number to prevent arithmetic errors

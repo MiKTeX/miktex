@@ -81,6 +81,10 @@
 				<arg type="string" name="style" default="box"/>
 				<description>select how to mark hyperlinked areas</description>
 			</option>
+			<option long="optimize" short="O">
+				<arg name="modules" type="string" default="all" optional="yes"/>
+				<description>perform several SVG optimizations</description>
+			</option>
 			<option long="output" short="o">
 				<arg type="string" name="pattern"/>
 				<description>set name pattern of output files</description>
@@ -141,8 +145,8 @@
 				<arg type="string" name="dir" optional="yes"/>
 				<description>set/print path of cache directory</description>
 			</option>
-			<option long="exact" short="e">
-				<description>compute exact glyph boxes</description>
+			<option long="exact-bbox" short="e">
+				<description>compute exact glyph bounding boxes</description>
 			</option>
 			<option long="keep">
 				<description>keep temporary files</description>

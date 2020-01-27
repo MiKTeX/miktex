@@ -36,7 +36,7 @@ using namespace std;
 double System::time () {
 #if defined (HAVE_SYS_TIME_H)
 	struct timeval tv;
-	gettimeofday(&tv, NULL);
+	gettimeofday(&tv, nullptr);
 	return tv.tv_sec + tv.tv_usec/1000000.0;
 #elif defined (HAVE_SYS_TIMEB_H)
 	struct timeb tb;

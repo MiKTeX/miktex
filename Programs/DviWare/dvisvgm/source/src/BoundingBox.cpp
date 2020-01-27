@@ -74,7 +74,7 @@ vector<Length> BoundingBox::extractLengths (string boxstr) {
 	boxstr = util::replace(boxstr, ",", " ");
 	boxstr = util::normalize_space(boxstr);
 	vector<string> lengthStrings = util::split(boxstr, " ");
-	for (string lenstr : lengthStrings) {
+	for (const string &lenstr : lengthStrings) {
 		if (!lenstr.empty())
 			lengths.emplace_back(Length(lenstr));
 	}
@@ -263,8 +263,8 @@ ostream& BoundingBox::write (ostream &os) const {
 }
 
 
-unique_ptr<XMLElementNode> BoundingBox::createSVGRect () const {
-	auto rect = util::make_unique<XMLElementNode>("rect");
+unique_ptr<XMLElement> BoundingBox::createSVGRect () const {
+	auto rect = util::make_unique<XMLElement>("rect");
 	rect->addAttribute("x", minX());
 	rect->addAttribute("y", minY());
 	rect->addAttribute("width", width());

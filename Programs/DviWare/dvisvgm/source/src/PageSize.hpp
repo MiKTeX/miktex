@@ -25,14 +25,14 @@
 #include "MessageException.hpp"
 
 struct PageSizeException : public MessageException {
-	PageSizeException (const std::string &msg) : MessageException(msg) {}
+	explicit PageSizeException (const std::string &msg) : MessageException(msg) {}
 };
 
 class PageSize {
 	public:
 		PageSize () =default;
 		PageSize (Length w, Length h) : _width(w), _height(h) {}
-		PageSize (const std::string &name);
+		explicit PageSize (const std::string &name);
 		void resize (std:: string name);
 		void resize (Length w, Length h);
 		Length width () const  {return _width;}

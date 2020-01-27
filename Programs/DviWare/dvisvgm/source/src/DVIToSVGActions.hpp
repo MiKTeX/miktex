@@ -42,7 +42,7 @@ class DVIToSVGActions : public DVIActions, public SpecialActions {
 	using BoxMap = std::unordered_map<std::string,BoundingBox>;
 
 	public:
-		DVIToSVGActions (DVIToSVG &dvisvg, SVGTree &svg);
+		DVIToSVGActions (DVIToSVG &dvisvg, SVGTree &svg) : _svg(svg), _dvireader(&dvisvg) {}
 		void reset () override;
 		void setChar (double x, double y, unsigned c, bool vertical, const Font &f) override;
 		void setRule (double x, double y, double height, double width) override;
@@ -52,32 +52,31 @@ class DVIToSVGActions : public DVIActions, public SpecialActions {
 		const Matrix& getMatrix () const override               {return _svg.getMatrix();}
 		Matrix getPageTransformation () const override          {return _dvireader->getPageTransformation();}
 		Color getColor () const override                        {return _svg.getColor();}
-		int getDVIStackDepth() const override                   {return _dvireader->stackDepth();}
-		unsigned getCurrentPageNumber() const override          {return _dvireader->currentPageNumber();}
-		void appendToPage(std::unique_ptr<XMLNode> &&node) override  {_svg.appendToPage(std::move(node));}
-		void appendToDefs(std::unique_ptr<XMLNode> &&node) override  {_svg.appendToDefs(std::move(node));}
-		void prependToPage(std::unique_ptr<XMLNode> &&node) override {_svg.prependToPage(std::move(node));}
-		void pushContextElement (std::unique_ptr<XMLElementNode> &&node) override {_svg.pushContextElement(std::move(node));}
-		void popContextElement () override                      {_svg.popContextElement();}
-		void setTextOrientation(bool vertical) override         {_svg.setVertical(vertical);}
+		int getDVIStackDepth () const override                  {return _dvireader->stackDepth();}
+		unsigned getCurrentPageNumber () const override         {return _dvireader->currentPageNumber();}
+		void setTextOrientation (bool vertical) override        {_svg.setVertical(vertical);}
 		void moveToX (double x, bool forceSVGMove) override;
 		void moveToY (double y, bool forceSVGMove) override;
 		void setFont (int num, const Font &font) override;
 		void special (const std::string &spc, double dvi2bp, bool preprocessing=false) override;
 		void beginPage (unsigned pageno, const std::vector<int32_t> &c) override;
 		void endPage (unsigned pageno) override;
-		void progress (size_t current, size_t total, const char *id=0) override;
+		void progress (size_t current, size_t total, const char *id=nullptr) override;
 		void progress (const char *id) override;
 		double getX() const override  {return _dvireader->getXPos();}
 		double getY() const override  {return _dvireader->getYPos();}
 		void setX (double x) override {_dvireader->translateToX(x); _svg.setX(x);}
 		void setY (double y) override {_dvireader->translateToY(y); _svg.setY(y);}
 		void finishLine () override   {_dvireader->finishLine();}
+		void lockOutput () override   {_outputLocked = true;}
+		void unlockOutput () override {_outputLocked = false;}
+		bool outputLocked () const override       {return _outputLocked;}
+		const SVGTree& svgTree () const override  {return _svg;}
 		BoundingBox& bbox () override {return _bbox;}
 		BoundingBox& bbox (const std::string &name, bool reset=false) override;
 		void embed (const BoundingBox &bbox) override;
 		void embed (const DPair &p, double r=0) override;
-		std::string getSVGFilename (unsigned pageno) const override;
+		FilePath getSVGFilePath (unsigned pageno) const override;
 		std::string getBBoxFormatString () const override;
 		CharMap& getUsedChars () const        {return _usedChars;}
 		const FontSet& getUsedFonts () const  {return _usedFonts;}
@@ -87,12 +86,13 @@ class DVIToSVGActions : public DVIActions, public SpecialActions {
 		SVGTree &_svg;
 		BasicDVIReader *_dvireader;
 		BoundingBox _bbox;
-		int _pageCount;
-		int _currentFontNum;
+		int _pageCount=0;
+		int _currentFontNum=-1;
 		mutable CharMap _usedChars;
 		FontSet _usedFonts;
-		Color _bgcolor;
+		Color _bgcolor=Color::TRANSPARENT;
 		BoxMap _boxes;
+		bool _outputLocked=false;
 };
 
 

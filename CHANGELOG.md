@@ -16,6 +16,7 @@ a bundle of outline font manipulation tools.
 * dvipdfmx 20200116
 * dvipng 1.17
 * dvips 2020.1
+* dvisvgm 2.8.2
 
 ### Fixed issues
 

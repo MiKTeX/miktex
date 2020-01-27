@@ -23,6 +23,7 @@
 #include <sstream>
 #include <string>
 #include "Color.hpp"
+#include "EllipticalArc.hpp"
 #include "InputBuffer.hpp"
 #include "InputReader.hpp"
 #include "GraphicsPath.hpp"
@@ -69,7 +70,7 @@ Color TpicSpecialHandler::fillColor (bool grayOnly) const {
  *  @param[in] penwidth pen with used to compute the stroke parameters
  *  @param[in] pencolor the drawing color
  *  @param[in] ddist dash/dot distance of line in PS point units (0:solid line, >0:dashed line, <0:dotted line) */
-static void add_stroke_attribs (XMLElementNode *elem, double penwidth, Color pencolor, double ddist) {
+static void add_stroke_attribs (XMLElement *elem, double penwidth, Color pencolor, double ddist) {
 	if (penwidth > 0) {  // attributes actually required?
 		elem->addAttribute("stroke", pencolor.svgColorString());
 		elem->addAttribute("stroke-width", XMLString(penwidth));
@@ -81,9 +82,9 @@ static void add_stroke_attribs (XMLElementNode *elem, double penwidth, Color pen
 }
 
 
-static unique_ptr<XMLElementNode> create_ellipse_element (double cx, double cy, double rx, double ry) {
+static unique_ptr<XMLElement> create_ellipse_element (double cx, double cy, double rx, double ry) {
 	bool is_circle = (rx == ry);
-	auto elem = util::make_unique<XMLElementNode>(is_circle ? "circle" : "ellipse");
+	auto elem = util::make_unique<XMLElement>(is_circle ? "circle" : "ellipse");
 	elem->addAttribute("cx", XMLString(cx));
 	elem->addAttribute("cy", XMLString(cy));
 	if (is_circle)
@@ -100,8 +101,8 @@ static unique_ptr<XMLElementNode> create_ellipse_element (double cx, double cy, 
  *  @param[in] ddist dash/dot distance of line in PS point units (0:solid line, >0:dashed line, <0:dotted line)
  *  @param[in] actions object providing the actions that can be performed by the SpecialHandler */
 void TpicSpecialHandler::drawLines (double ddist, SpecialActions &actions) {
-	if (!_points.empty() && (_penwidth > 0 || _grayLevel >= 0)) {
-		unique_ptr<XMLElementNode> elem;
+	if (!_points.empty() && (_penwidth > 0 || _grayLevel >= 0) && !actions.outputLocked()) {
+		unique_ptr<XMLElement> elem;
 		if (_points.size() == 1) {
 			const DPair &p = _points.back();
 			elem = create_ellipse_element(p.x()+actions.getX(), p.y()+actions.getY(), _penwidth/2.0, _penwidth/2.0);
@@ -109,14 +110,14 @@ void TpicSpecialHandler::drawLines (double ddist, SpecialActions &actions) {
 		}
 		else {
 			if (_points.size() == 2 || (_grayLevel < 0 && _points.front() != _points.back())) {
-				elem = util::make_unique<XMLElementNode>("polyline");
+				elem = util::make_unique<XMLElement>("polyline");
 				elem->addAttribute("fill", "none");
 				elem->addAttribute("stroke-linecap", "round");
 			}
 			else {
 				while (_points.front() == _points.back())
 					_points.pop_back();
-				elem = util::make_unique<XMLElementNode>("polygon");
+				elem = util::make_unique<XMLElement>("polygon");
 				elem->addAttribute("fill", _grayLevel < 0 ? "none" : fillColor(false).svgColorString());
 			}
 			ostringstream oss;
@@ -131,7 +132,7 @@ void TpicSpecialHandler::drawLines (double ddist, SpecialActions &actions) {
 			elem->addAttribute("points", oss.str());
 			add_stroke_attribs(elem.get(), _penwidth, Color::BLACK, ddist);
 		}
-		actions.appendToPage(std::move(elem));
+		actions.svgTree().appendToPage(std::move(elem));
 	}
 	reset();
 }
@@ -146,7 +147,7 @@ void TpicSpecialHandler::drawLines (double ddist, SpecialActions &actions) {
  *  @param[in] ddist length of dashes and gaps
  *  @param[in] actions object providing the actions that can be performed by the SpecialHandler */
 void TpicSpecialHandler::drawSplines (double ddist, SpecialActions &actions) {
-	if (!_points.empty() && _penwidth > 0) {
+	if (!_points.empty() && _penwidth > 0 && !actions.outputLocked()) {
 		const size_t numPoints = _points.size();
 		if (numPoints < 3) {
 			_grayLevel = -1;
@@ -164,7 +165,7 @@ void TpicSpecialHandler::drawSplines (double ddist, SpecialActions &actions) {
 				const DPair p1 = p+_points[i];
 				const DPair p2 = p+_points[i+1];
 				mid = p1+(p2-p1)/2.0;
-				path.conicto(p1, mid);
+				path.quadto(p1, mid);
 				actions.embed(mid);
 				actions.embed((p0+p1*6.0+p2)/8.0, _penwidth);
 			}
@@ -174,24 +175,16 @@ void TpicSpecialHandler::drawSplines (double ddist, SpecialActions &actions) {
 				path.lineto(p+_points[numPoints-1]);
 				actions.embed(p+_points[numPoints-1]);
 			}
-			auto pathElem = util::make_unique<XMLElementNode>("path");
+			auto pathElem = util::make_unique<XMLElement>("path");
 			pathElem->addAttribute("fill", "none");
 			ostringstream oss;
 			path.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
 			pathElem->addAttribute("d", oss.str());
 			add_stroke_attribs(pathElem.get(), _penwidth, _dviColor, ddist);
-			actions.appendToPage(std::move(pathElem));
+			actions.svgTree().appendToPage(std::move(pathElem));
 		}
 	}
 	reset();
-}
-
-
-static double normalized_angle (double rad) {
-	rad = fmod(rad, math::TWO_PI);
-	if (rad < 0)
-		rad += math::TWO_PI;
-	return rad;
 }
 
 
@@ -204,31 +197,25 @@ static double normalized_angle (double rad) {
  *  @param[in] angle2 ending angle (clockwise) relative to x-axis
  *  @param[in] actions object providing the actions that can be performed by the SpecialHandler */
 void TpicSpecialHandler::drawArc (double cx, double cy, double rx, double ry, double angle1, double angle2, SpecialActions &actions) {
-	if (_penwidth > 0 || _grayLevel >= 0) {
-		angle1 = -angle1;
-		angle2 = -angle2;
+	if ((_penwidth > 0 || _grayLevel >= 0) && !actions.outputLocked()) {
 		cx += actions.getX();
 		cy += actions.getY();
-		unique_ptr<XMLElementNode> elem;
+		unique_ptr<XMLElement> elem;
 		bool closed=true;
 		if (abs(angle2-angle1) >= math::TWO_PI) // closed ellipse?
 			elem = create_ellipse_element(cx, cy, rx, ry);
 		else {
-			angle1 = normalized_angle(angle1);
-			angle2 = normalized_angle(angle2);
-			double delta = normalized_angle(angle2-angle1);
-			int large_arg = (delta < math::PI) ? 1 : 0;
-			ostringstream oss;
-			oss << 'M' << XMLString(cx+rx*cos(angle1)) << ' ' << XMLString(cy+ry*sin(-angle1))
-				 << 'A' << XMLString(rx) << ' ' << XMLString(ry)
-				 << " 0 "                 // no rotation of x-axis
-				 << large_arg << " 1 "    // always draw arc clockwise (sweep flag == 1)
-				 << XMLString(cx+rx*cos(angle2)) << ' ' << XMLString(cy-ry*sin(angle2));
+			EllipticalArc arc(DPair(cx, cy), rx, ry, 0, -angle1, math::normalize_0_2pi(angle2-angle1));
+			GraphicsPath<double> path;
+			path.moveto(arc.startPoint());
+			path.arcto(rx, ry, 0, arc.largeArc(), arc.sweepPositive(), arc.endPoint());
 			if (_grayLevel >= 0)
-				oss << 'Z';
+				path.closepath();
 			else
 				closed = false;
-			elem = util::make_unique<XMLElementNode>("path");
+			elem = util::make_unique<XMLElement>("path");
+			ostringstream oss;
+			path.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
 			elem->addAttribute("d", oss.str());
 		}
 		if (_penwidth > 0) {
@@ -238,7 +225,7 @@ void TpicSpecialHandler::drawArc (double cx, double cy, double rx, double ry, do
 				elem->addAttribute("stroke-linecap", "round");
 		}
 		elem->addAttribute("fill", _grayLevel < 0 ? "none" : fillColor(true).svgColorString());
-		actions.appendToPage(std::move(elem));
+		actions.svgTree().appendToPage(std::move(elem));
 		double pw = _penwidth/2.0;
 		actions.embed(BoundingBox(cx-rx-pw, cy-ry-pw, cx+rx+pw, cy+ry+pw));
 	}
