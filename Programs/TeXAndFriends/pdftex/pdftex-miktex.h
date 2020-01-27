@@ -1,6 +1,6 @@
 /* pdftex-miktex.h:                                     -*- C++ -*-
    
-   Copyright (C) 1998-2019 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -360,6 +360,7 @@ extern C4P::C4P_integer& fixedimagegamma;
 extern C4P::C4P_boolean& fixedimagehicolor;
 extern C4P::C4P_integer& fixedinclusioncopyfont;
 extern C4P::C4P_integer& fixedpdfdraftmode;
+extern C4P::C4P_integer& fixedpdfmajorversion;
 extern C4P::C4P_integer& fixedpdfminorversion;
 extern C4P::C4P_integer& fixedpkresolution;
 extern PDFTEXPROGCLASS::eightbits*& fontbc;

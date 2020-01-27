@@ -1,1 +1,1 @@
-#define PDFTEX_VERSION "1.40.20"
+#define PDFTEX_VERSION "1.40.21"

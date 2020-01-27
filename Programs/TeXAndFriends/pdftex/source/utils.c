@@ -40,7 +40,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <poppler-config.h>
 #endif
 #ifdef POPPLER_VERSION
-#include <poppler-config.h>
+/* POPPLER_VERSION should be a proper version string */
 #define xpdfVersion POPPLER_VERSION
 #define xpdfString "poppler"
 #else

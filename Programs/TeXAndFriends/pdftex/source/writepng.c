@@ -71,7 +71,7 @@ void read_png_info(integer img)
         pdftex_fail("unsupported type of color_type <%i>",
                     png_get_color_type(png_ptr(img), png_info(img)));
     }
-    if (fixedpdfminorversion >= 4
+    if (fixedpdfmajorversion > 1 || fixedpdfminorversion >= 4
         && (png_get_color_type(png_ptr(img), png_info(img)) == PNG_COLOR_TYPE_GRAY_ALPHA
             || png_get_color_type(png_ptr(img), png_info(img)) == PNG_COLOR_TYPE_RGB_ALPHA)) {
         /* png with alpha channel in device colours; we have to add a Page
@@ -520,7 +520,7 @@ void write_png(integer img)
 
     png_get_PLTE(png_ptr(img), png_info(img), &palette, &num_palette);
 
-    if (fixedpdfminorversion < 5)
+    if (fixedpdfmajorversion == 1 && fixedpdfminorversion < 5)
         fixedimagehicolor = 0;
 
     pdf_puts("/Type /XObject\n/Subtype /Image\n");
@@ -530,13 +530,13 @@ void write_png(integer img)
         png_copy = false;
     }
     /* alpha channel support */
-    if (fixedpdfminorversion < 4
+    if (fixedpdfmajorversion == 1 && fixedpdfminorversion < 4
         && png_get_color_type(png_ptr(img), png_info(img)) | PNG_COLOR_MASK_ALPHA) {
         png_set_strip_alpha(png_ptr(img));
         png_copy = false;
     }
     /* 16 bit depth support */
-    if (fixedpdfminorversion < 5)
+    if (fixedpdfmajorversion == 1 && fixedpdfminorversion < 5)
         fixedimagehicolor = 0;
     if ((png_get_bit_depth(png_ptr(img), png_info(img)) == 16) && (fixedimagehicolor == 0)) {
         png_set_strip_16(png_ptr(img));
@@ -564,7 +564,7 @@ void write_png(integer img)
                (int) png_get_image_height(png_ptr(img), png_info(img)),
                (int) png_get_bit_depth(png_ptr(img), png_info(img)));
     pdf_puts("/ColorSpace ");
-    if (png_copy && fixedpdfminorversion > 1
+    if (png_copy && (fixedpdfmajorversion > 1 || fixedpdfminorversion > 1)
         && png_get_interlace_type(png_ptr(img), png_info(img)) == PNG_INTERLACE_NONE
         && (png_get_color_type(png_ptr(img), png_info(img)) == PNG_COLOR_TYPE_GRAY
             || png_get_color_type(png_ptr(img), png_info(img)) == PNG_COLOR_TYPE_RGB)
@@ -611,8 +611,9 @@ void write_png(integer img)
             tex_printf(" *** PNG copy skipped because:");
             if (!png_copy)
                 tex_printf(" !png_copy");
-            if (fixedpdfminorversion <= 1)
-                tex_printf(" minorversion=%d", (int) fixedpdfminorversion);
+            if (fixedpdfmajorversion == 1 && fixedpdfminorversion <= 1)
+                tex_printf(" minorversion=%d (and majorversion=1)",
+                           (int) fixedpdfminorversion);
             if (png_get_interlace_type(png_ptr(img), png_info(img)) != PNG_INTERLACE_NONE)
                 tex_printf(" interlaced");
             if (!((png_get_color_type(png_ptr(img), png_info(img)) == PNG_COLOR_TYPE_GRAY)
@@ -648,7 +649,7 @@ void write_png(integer img)
             write_png_gray(img);
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
-            if (fixedpdfminorversion >= 4) {
+            if (fixedpdfminorversion >= 4 || fixedpdfmajorversion > 1) {
                 write_png_gray_alpha(img);
                 last_png_needs_page_group = true;
             } else
@@ -658,7 +659,7 @@ void write_png(integer img)
             write_png_rgb(img);
             break;
         case PNG_COLOR_TYPE_RGB_ALPHA:
-            if (fixedpdfminorversion >= 4) {
+            if (fixedpdfminorversion >= 4 || fixedpdfmajorversion > 1) {
                 write_png_rgb_alpha(img);
                 last_png_needs_page_group = true;
             } else
