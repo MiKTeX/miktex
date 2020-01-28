@@ -44,7 +44,6 @@ texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/luahbtex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lualatex-dev.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lualatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/luatex.ini
-texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/mex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/mllatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/mltex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/olatex.ini
@@ -56,12 +55,10 @@ texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfelatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfjadetex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdflatex-dev.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdflatex.ini
-texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfmex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfplatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdftex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdftexinfo.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxlatex.ini
-texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxmex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxmltex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxtex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/platex.ini
