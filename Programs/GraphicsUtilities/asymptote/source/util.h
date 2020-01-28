@@ -97,7 +97,7 @@ extern "C" double atanh(double x);
 extern "C" double cbrt(double x);
 extern "C" double erf(double x);
 extern "C" double erfc(double x);
-extern "C" double tgamma(double x);
+extern "C" double lgamma(double x);
 extern "C" double remainder(double x, double y);
 extern "C" double hypot(double x, double y) throw();
 extern "C" double jn(Int n, double x);

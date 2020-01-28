@@ -1600,6 +1600,22 @@ if(WITH_GC)
   add_subdirectory(${MIKTEX_REL_GC_DIR})
 endif()
 
+if(USE_SYSTEM_GLM)
+  get_filename_component(suffix ${GLM_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::GLM SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::GLM STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::GLM
+    PROPERTIES
+      IMPORTED_LOCATION "${GLM_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${GLM_INCLUDE_DIRS}"
+  )
+else()
+  add_subdirectory(${MIKTEX_REL_GLM_DIR})
+endif()
+
 if(USE_SYSTEM_JPEG)
   get_filename_component(suffix ${JPEG_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)

@@ -615,12 +615,11 @@ types::ty *vardec::singleGetType(coenv &e)
 // environment.  Instead, we explicitly tell it what types::record it is
 // returning for each use.
 class loadModuleExp : public exp {
-  record *imp;
   function *ft;
 
 public:
   loadModuleExp(position pos, record *imp)
-    : exp(pos), imp(imp), ft(new function(imp,primString())) {}
+    : exp(pos) {ft=new function(imp,primString());}
 
   void prettyprint(ostream &out, Int indent) {
     prettyname(out, "loadModuleExp", indent);

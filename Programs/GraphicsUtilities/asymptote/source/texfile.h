@@ -40,11 +40,14 @@ void texdocumentclass(T& out, bool pipe=false)
   
 template<class T>
 void texuserpreamble(T& out,
-                     mem::list<string>& preamble=processData().TeXpreamble)
+                     mem::list<string>& preamble=processData().TeXpreamble,
+                     bool pipe=false)
 {
-  for(mem::list<string>::iterator p=preamble.begin();
-      p != preamble.end(); ++p)
+  for(mem::list<string>::iterator p=preamble.begin(); p != preamble.end();
+      ++p) {
     out << stripblanklines(*p);
+    if(pipe) out << newl << newl;
+  }
 }
   
 template<class T>
@@ -60,9 +63,9 @@ void latexfontencoding(T& out)
 
 template<class T>
 void texpreamble(T& out, mem::list<string>& preamble=processData().TeXpreamble,
-                 bool ASYalign=true, bool ASYbox=true)
+                 bool pipe=false, bool ASYbox=true)
 {
-  texuserpreamble(out,preamble);
+  texuserpreamble(out,preamble,pipe);
   string texengine=settings::getSetting<string>("tex");
   if(settings::context(texengine))
     out << "\\disabledirectives[system.errorcontext]%" << newl;
@@ -73,7 +76,7 @@ void texpreamble(T& out, mem::list<string>& preamble=processData().TeXpreamble,
       << "\\long\\def\\ASYbase#1#2{\\leavevmode\\setbox\\ASYbox=\\hbox{#1}%"
       << "\\ASYdimen=\\ht\\ASYbox%" << newl
       << "\\setbox\\ASYbox=\\hbox{#2}\\lower\\ASYdimen\\box\\ASYbox}" << newl;
-  if(ASYalign)
+  if(!pipe)
     out << "\\long\\def\\ASYaligned(#1,#2)(#3,#4)#5#6#7{\\leavevmode%" << newl
         << "\\setbox\\ASYbox=\\hbox{#7}%" << newl
         << "\\setbox\\ASYbox\\hbox{\\ASYdimen=\\ht\\ASYbox%" << newl
@@ -125,7 +128,7 @@ void texdefines(T& out, mem::list<string>& preamble=processData().TeXpreamble,
                 bool pipe=false)
 {
   if(pipe || !settings::getSetting<bool>("inlinetex"))
-    texpreamble(out,preamble,!pipe);
+    texpreamble(out,preamble,pipe);
 
   if(pipe) {
     // Make tex pipe aware of a previously generated aux file.
@@ -181,8 +184,8 @@ template<class T>
 bool setlatexfont(T& out, const pen& p, const pen& lastpen)
 {
   if(p.size() != lastpen.size() || p.Lineskip() != lastpen.Lineskip()) {
-    out <<  "\\fontsize{" << p.size()*ps2tex << "}{" << p.Lineskip()*ps2tex
-        << "}\\selectfont\n";
+    out <<  "\\fontsize{" << p.size()*settings::ps2tex << "}{" 
+        << p.Lineskip()*settings::ps2tex << "}\\selectfont%" << newl;
     return true;
   }
   return false;
@@ -286,7 +289,7 @@ public:
   void dot(path p, pen, bool newPath=true);
   
   void writeshifted(pair z) {
-    write(conj(z)*ps2tex);
+    write(conj(z)*settings::ps2tex);
   }
   
   void translate(pair z) {}

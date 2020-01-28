@@ -16,11 +16,26 @@
 
 #include <cassert>
 #include <cmath>
+#include <iostream>
+#include <fstream>
 
 #include "common.h"
 #include "angle.h"
 
 namespace camp {
+
+class jsofstream : public std::ofstream {
+public:
+  jsofstream() {}
+  jsofstream(const string& name) : std::ofstream(name.c_str()) {}
+  void open(const string& name) {std::ofstream::open(name.c_str());}
+  
+  template<class T>
+  jsofstream& operator << (const T& x) {
+    (std::ofstream&)(*this) << x;
+  return *this;
+  }
+};
 
 class pair : public gc {
   double x;
@@ -204,6 +219,12 @@ public:
   friend ostream& operator << (ostream& out, const pair& z)
   {
     out << "(" << z.x << "," << z.y << ")";
+    return out;
+  }
+  
+  friend jsofstream& operator << (jsofstream& out, const pair& z)
+  {
+    out << "[" << z.x << "," << z.y << "]";
     return out;
   }
   

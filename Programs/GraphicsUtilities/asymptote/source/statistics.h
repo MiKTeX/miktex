@@ -1,6 +1,8 @@
 #ifndef __statistics_h__
 #define __statistics_h__ 1
 
+#include <math.h>
+
 namespace utils {
 
 class statistics {

@@ -18,9 +18,6 @@
 
 namespace camp {
 
-extern const double tex2ps;
-extern const double ps2tex;
-  
 class LineType
 {
 public:  
@@ -139,14 +136,14 @@ inline bool operator == (const Transparency& a, const Transparency& b) {
 extern const char* BlendMode[];
 extern const Int nBlendMode;
 
+const double bytescale=256.0*(1.0-DBL_EPSILON);
+
 // Map [0,1] to [0,255]
 inline unsigned int byte(double r) 
 {
   if(r < 0.0) r=0.0;
   else if(r > 1.0) r=1.0;
-  int a=(int)(256.0*r);
-  if(a == 256) a=255;
-  return a;
+  return (int)(bytescale*r);
 }
 
 class pen;
@@ -405,7 +402,7 @@ public:
   
   static pen initialpen() {
     return pen(LineType(vm::array(0),0.0,true,true),0.5,nullpath,"",
-               12.0*tex2ps,12.0*1.2*tex2ps,GRAYSCALE,
+               12.0*settings::tex2ps,12.0*1.2*settings::tex2ps,GRAYSCALE,
                0.0,0.0,0.0,0.0,"",ZEROWINDING,NOBASEALIGN,
                Transparency(),1,1,10.0,ALLOW,identity);
   }
@@ -443,11 +440,11 @@ public:
   // Work around misalignment in ConTeXt switchtobodyfont if font is not found.
           if(texengine == "context")
             buf << "\\switchtobodyfont[" 
-                << DEFCONTEXTFONT << "," << size()*ps2tex 
+                << DEFCONTEXTFONT << "," << size()*settings::ps2tex 
                 << "pt]\\removeunwantedspaces%" << newl;
           else
             buf << "\\font\\ASYfont=" << DEFTEXFONT
-              << " at " << size()*ps2tex << "pt\\ASYfont";
+                << " at " << size()*settings::ps2tex << "pt\\ASYfont";
           return buf.str();
         }
       }

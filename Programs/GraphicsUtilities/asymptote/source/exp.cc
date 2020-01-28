@@ -22,7 +22,10 @@
 #include "stm.h"
 #include "inst.h"
 #include "opsymbols.h"
+#include "process.h"
 
+//void runCode(absyntax::block *code);
+  
 namespace absyntax {
 
 using namespace types;
@@ -61,7 +64,7 @@ void exp::transToType(coenv &e, types::ty *target)
     access *a = e.e.fastLookupCast(target, ct);
     if (a) {
       transAsType(e, ct);
-      a->encode(CALL, getPos(), e.c);
+      a->encode(trans::CALL, getPos(), e.c);
       return;
     }
   }
@@ -71,6 +74,7 @@ void exp::transToType(coenv &e, types::ty *target)
     if (target->kind != ty_error) {
       types::ty *sources=cgetType(e);
       em.error(getPos());
+
       em << "cannot cast ";
       if (sources->kind==ty_overloaded)
         em << "expression";
@@ -171,7 +175,7 @@ void varEntryExp::transWrite(coenv &e, types::ty *target, exp *value) {
   transAct(WRITE, e, target);
 }
 void varEntryExp::transCall(coenv &e, types::ty *target) {
-  transAct(CALL, e, target);
+  transAct(trans::CALL, e, target);
 }
 
 
@@ -736,7 +740,19 @@ signature *callExp::argTypes(coenv &e, bool *searchable)
   *searchable = true;
 
   size_t n = args->size();
+  
   for (size_t i = 0; i < n; i++) {
+    if(string(args->args[i].name) == "KEY") {
+      stringExp *s=dynamic_cast<stringExp*>(args->args[i].val);
+      if(s) {
+        if(getPos().filename() == processData().fileName)
+          processData().xkey[getPos().LineColumn()]=Strdup(s->getString());
+        args->args.erase(args->args.begin()+i);
+        --n;
+        if(i == n) break;
+      }
+    }
+
     argument a=(*args)[i];
     types::ty *t = a.val->cgetType(e);
     if (t->kind == types::ty_error)
@@ -962,7 +978,7 @@ types::ty *callExp::transPerfectMatch(coenv &e) {
     args->rest.val->trans(e);
 
   // Call the function.
-  ve->encode(CALL, getPos(), e.c);
+  ve->encode(trans::CALL, getPos(), e.c);
 
   // That's it.  Return the return type of the function.
   return ct ? ct : dynamic_cast<function *>(ve->getType())->getResult();
@@ -1110,7 +1126,7 @@ types::ty *castExp::tryCast(coenv &e, types::ty *t, types::ty *s,
 
     access *a=e.e.lookupCast(t, ss, csym);
     assert(a);
-    a->encode(CALL, getPos(), e.c);
+    a->encode(trans::CALL, getPos(), e.c);
     return ss;
   }
 }

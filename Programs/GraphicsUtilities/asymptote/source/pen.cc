@@ -9,9 +9,6 @@
 
 namespace camp {
 
-const double tex2ps=72.0/72.27;
-const double ps2tex=1.0/tex2ps;
-
 const char* DEFPAT="<default>";
 const char* DEFLATEXFONT="\\usefont{\\ASYencoding}{\\ASYfamily}{\\ASYseries}{\\ASYshape}";
 const char* DEFCONTEXTFONT="modern";

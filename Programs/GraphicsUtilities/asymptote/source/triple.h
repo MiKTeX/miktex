@@ -11,6 +11,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <cstring>
 
@@ -20,11 +21,6 @@
 #if defined(MIKTEX)
 #  include <algorithm>
 #endif
-
-namespace run {
-void transpose(double *a, size_t n);
-void inverse(double *a, size_t n);
-}
 
 namespace camp {
 
@@ -58,36 +54,58 @@ public:
   double getz() const { return z; }
 
   // transform by row-major matrix
-  friend triple operator* (const double* t, const triple& v)
-  {
+  friend triple operator* (const double* t, const triple& v) {
     if(t == NULL)
       return v;
 
     double f=t[12]*v.x+t[13]*v.y+t[14]*v.z+t[15];
-    if(f == 0.0)
-      reportError("division by 0 in transform of a triple");
-    
-    f=1.0/f;
-    
-    return triple((t[0]*v.x+t[1]*v.y+t[2]*v.z+t[3])*f,
-                  (t[4]*v.x+t[5]*v.y+t[6]*v.z+t[7])*f,
-                  (t[8]*v.x+t[9]*v.y+t[10]*v.z+t[11])*f);
+    if(f != 0.0) {
+      f=1.0/f;
+      
+      return triple((t[0]*v.x+t[1]*v.y+t[2]*v.z+t[3])*f,
+                    (t[4]*v.x+t[5]*v.y+t[6]*v.z+t[7])*f,
+                    (t[8]*v.x+t[9]*v.y+t[10]*v.z+t[11])*f);
+    }
+    reportError("division by 0 in transform of a triple");
+    return 0.0;
   }
   
-  friend triple transformNormal(const double* t, const triple& v)
-  {
+  friend triple operator* (const triple& v, const double* t) {
     if(t == NULL)
       return v;
-
-    double T[16];
-    memcpy(T,t,sizeof(double)*16);
-    T[3]=T[7]=T[11]=0.0;
-    run::inverse(T,4);
-    run::transpose(T,4);
-    triple V=T*v;
-    return unit(V);
+    
+    double f=t[3]*v.x+t[7]*v.y+t[11]*v.z+t[15];
+    if(f != 0.0) {
+      f=1.0/f;
+      return triple((v.x*t[0]+v.y*t[4]+v.z*t[8]+t[12])*f,
+                    (v.x*t[1]+v.y*t[5]+v.z*t[9]+t[13])*f,
+                    (v.x*t[2]+v.y*t[6]+v.z*t[10]+t[14])*f);
+    }
+    reportError("division by 0 in transform of a triple");
+    return 0.0;
   }
-
+  
+  friend triple Transform3(const triple& v, const double* t) {
+    return triple((t[0]*v.x+t[1]*v.y+t[2]*v.z),
+                  (t[3]*v.x+t[4]*v.y+t[5]*v.z),
+                  (t[6]*v.x+t[7]*v.y+t[8]*v.z));
+  }
+  
+  friend triple Transform3(const double* t, const triple& v) {
+    return triple(v.x*t[0]+v.y*t[3]+v.z*t[6],
+                  v.x*t[1]+v.y*t[4]+v.z*t[7],
+                  v.x*t[2]+v.y*t[5]+v.z*t[8]);
+  }
+  
+  // return x and y components of v*t.
+  friend pair Transform2T(const double* t, const triple& v)
+  {
+    double f=t[3]*v.x+t[7]*v.y+t[11]*v.z+t[15];
+    f=1.0/f;
+    return pair((t[0]*v.x+t[4]*v.y+t[8]*v.z+t[12])*f,
+                (t[1]*v.x+t[5]*v.y+t[9]*v.z+t[13])*f);
+  }
+  
   friend void transformtriples(const double* t, size_t n, triple* d,
                                const triple* s)
   {
@@ -290,9 +308,15 @@ public:
     return s;
   }
 
-  friend ostream& operator << (ostream& out, const triple& z)
+  friend ostream& operator << (ostream& out, const triple& v)
   {
-    out << "(" << z.x << "," << z.y << "," << z.z << ")";
+    out << "(" << v.x << "," << v.y << "," << v.z << ")";
+    return out;
+  }
+  
+  friend jsofstream& operator << (jsofstream& out, const triple& v)
+  {
+    out << "[" << v.x << "," << v.y << "," << v.z << "]";
     return out;
   }
   
@@ -340,17 +364,6 @@ inline double Straightness(const triple& z0, const triple& c0,
 {
   triple v=third*(z1-z0);
   return std::max(abs2(c0-v-z0),abs2(z1-v-c1));
-}
-
-// return the maximum perpendicular distance squared of points c0 and c1
-// from z0--z1.
-inline double Distance1(const triple& z0, const triple& c0,
-                        const triple& c1, const triple& z1)
-{
-  triple Z0=c0-z0;
-  triple Q=unit(z1-z0);
-  triple Z1=c1-z0;
-  return std::max(abs2(Z0-dot(Z0,Q)*Q),abs2(Z1-dot(Z1,Q)*Q));
 }
 
 // return the perpendicular distance squared of a point z from the plane

@@ -157,9 +157,9 @@ bool drawPath::draw(psfile *out)
   return true;
 }
 
-drawElement *drawPath::transformed(const transform& t)
+drawElement *drawPath::transformed(const transform& t) 
 {
-  return new drawPath(transpath(t), transpen(t));
+  return new drawPath(transpath(t),transpen(t),KEY);
 }
 
 } //namespace camp

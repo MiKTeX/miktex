@@ -637,7 +637,8 @@ void addArrayOps(venv &ve, types::array *t)
   
   addFunc(ve, run::arraySort,
           t, SYM(sort), formal(t, SYM(a)),
-          formal(new function(primBoolean(), ct, ct), SYM(less)));
+          formal(new function(primBoolean(), ct, ct), SYM(less)),
+          formal(primBoolean(), SYM(stable), true));
       
   switch (depth) {
     case 1:

@@ -9,9 +9,6 @@
 /* System directory for global .asy files */
 #cmakedefine ASYMPTOTE_SYSDIR
 
-/* Define if gluNurbsCallback expects a variadic function. */
-#cmakedefine GLU_TESS_CALLBACK_TRIPLEDOT
-
 /* Define to 1 if you have the <curses.h> header file. */
 #cmakedefine HAVE_CURSES_H 1
 
@@ -36,35 +33,44 @@
 /* Define to 1 if fseeko (and presumably ftello) exists and is declared. */
 #cmakedefine HAVE_FSEEKO 1
 
-/* Define if getopt.h is the GNU version */
+/* Define to 1 if you have GNU <getopt.h>. */
 #cmakedefine HAVE_GNU_GETOPT_H 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
 
-/* Define to 1 if you have the `curses' library (-lcurses). */
+/* Define to 1 if you have the `lgamma' function. */
+#cmakedefine HAVE_LGAMMA 1
+
+/* Define to 1 if you have the `ncurses' library (-lncurses). */
 #cmakedefine HAVE_LIBCURSES 1
 
 /* Define to 1 if you have the `fftw3' library (-lfftw3). */
 #cmakedefine HAVE_LIBFFTW3 1
 
+/* Define to 1 if you have the `gccpp' library (-lgccpp). */
+#cmakedefine HAVE_LIBGCCPP 1
+
 /* Define to 1 if you have the `GL' library (-lGL). */
 #cmakedefine HAVE_LIBGL 1
 
-/* Define to 1 if you have the `GLU' library (-lGLU). */
-#cmakedefine HAVE_LIBGLU 1
+/* Define to 1 if you have the <glm/glm.hpp> header. */
+#cmakedefine HAVE_LIBGLM 1
 
 /* Define to 1 if you have the `glut' library (-lglut). */
 #cmakedefine HAVE_LIBGLUT 1
 
-/* Define to 1 if you have the `gsl' library (-lgsl). */
+/* Define to 1 if you have the `' library (-l). gsl */
 #cmakedefine HAVE_LIBGSL 1
 
 /* Define to 1 if you have the <libintl.h> header file. */
 #cmakedefine HAVE_LIBINTL_H 1
 
-/* Define to 1 if you have the `m' library (-lm). */
+/* Define to 1 if you have the `ncurses' library (-lncurses). */
 #cmakedefine HAVE_LIBM 1
+
+/* Define to 1 if you have the `OpenImageIO' library (-lOpenImageIO). */
+#cmakedefine HAVE_LIBOPENIMAGEIO 1
 
 /* Define to 1 if you have the `OSMesa' library (-lOSMesa). */
 #cmakedefine HAVE_LIBOSMESA 1
@@ -77,6 +83,9 @@
 
 /* Define to 1 if you have the `sigsegv' library (-lsigsegv). */
 #cmakedefine HAVE_LIBSIGSEGV 1
+
+/* Define to 1 if you have the `tinfo' library (-ltinfo). */
+#cmakedefine HAVE_LIBTINFO 1
 
 /* Define to 1 if you have the `z' library (-lz). */
 #cmakedefine HAVE_LIBZ 1
@@ -102,9 +111,6 @@
 /* Define to 1 if you have the <ncurses.h> header file. */
 #cmakedefine HAVE_NCURSES_H 1
 
-/* Define to 1 if you have the `pow' function. */
-#cmakedefine HAVE_POW 1
-
 /* Define if you have POSIX threads libraries and header files. */
 #cmakedefine HAVE_PTHREAD
 
@@ -114,11 +120,8 @@
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #cmakedefine HAVE_PTRDIFF_T 1
 
-/* Define if you have a working <rpc/rpc.h> header file */
-#cmakedefine HAVE_RPC_RPC_H
-
-/* Define to 1 if you have the `sqrt' function. */
-#cmakedefine HAVE_SQRT 1
+/* Define to 1 if you have a working <tirpc/rpc/rpc.h> header. */
+#cmakedefine HAVE_RPC_RPC_H 1
 
 /* Define to 1 if you have the <stddef.h> header file. */
 #cmakedefine HAVE_STDDEF_H 1
@@ -156,13 +159,13 @@
 /* Define to 1 if you have the `tgamma' function. */
 #cmakedefine HAVE_TGAMMA 1
 
-/* Define to 1 if you have tr1/unordered_map */
+/* Define to 1 if you have <tr1/unordered_map>. */
 #cmakedefine HAVE_TR1_UNORDERED_MAP 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
 
-/* Define to 1 if you have unordered_map */
+/* Define to 1 if you have <unordered_map>. */
 #cmakedefine HAVE_UNORDERED_MAP 1
 
 /* Define to 1 if you have the `vfork' function. */

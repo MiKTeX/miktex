@@ -1,6 +1,6 @@
 ## LibraryNames.cmake
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -67,6 +67,7 @@ define_library(fribidi)
 define_library(gc)
 define_library(gd)
 define_library(getopt)
+define_library(glm)
 define_library(gmp)
 define_library(graphite2)
 define_library(harfbuzz)

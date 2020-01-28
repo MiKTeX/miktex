@@ -11,22 +11,23 @@
 #include <vector>
 #include <stack>
 #include <map>
+#include <deque>
 #include <string>
 #include <sstream>
 
 #ifndef NOHASH
 
-#ifdef HAVE_UNORDERED_MAP
+#ifdef HAVE_TR1_UNORDERED_MAP
 
 #include <memory>
-#include <unordered_map>
-#define EXT std
+#include <tr1/unordered_map>
+#define EXT std::tr1
 
 #else
 
-#ifdef HAVE_TR1_UNORDERED_MAP
-#include <tr1/unordered_map>
-#define EXT std::tr1
+#ifdef HAVE_UNORDERED_MAP
+#include <unordered_map>
+#define EXT std
 #else
 #define EXT __gnu_cxx
 #include <ext/hash_map>
@@ -47,6 +48,9 @@
 #ifdef USEGC
 
 #define GC_THREADS
+#ifdef __clang__
+#define GC_ATTR_EXPLICIT
+#endif
 #include <gc.h>
 
 #ifdef GC_DEBUG
@@ -86,6 +90,8 @@ inline void *asy_malloc_atomic(size_t n)
 #include <gc_allocator.h>
 #include <gc_cpp.h>
 
+#define gc_allocator gc_allocator_ignore_off_page
+
 #else // USEGC
 
 using std::allocator;
@@ -124,6 +130,7 @@ namespace mem {
 
 GC_CONTAINER(list);
 GC_CONTAINER(vector);
+GC_CONTAINER(deque);
 
 template <typename T, typename Container = vector<T> >
 struct stack : public std::stack<T, Container>, public gc {
@@ -179,11 +186,7 @@ typedef std::basic_ostringstream<char,std::char_traits<char>,
                                  gc_allocator<char> > ostringstream;
 typedef std::basic_stringbuf<char,std::char_traits<char>,
                              gc_allocator<char> > stringbuf;
-#if GC_TMP_VERSION_MAJOR >= 7 && GC_TMP_VERSION_MINOR > 1
 inline void compact(int x) {GC_set_dont_expand(x);}
-#else
-inline void compact(int x) {GC_dont_expand=x;}
-#endif    
 #else
 inline void compact(int x) {}
 typedef std::string string;

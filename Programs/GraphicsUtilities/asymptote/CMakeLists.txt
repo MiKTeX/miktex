@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2017-2018 Christian Schenk
+## Copyright (C) 2017-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -37,6 +37,7 @@ endif()
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/symbol-headers
 )
 
 set(use_gc FALSE)
@@ -55,7 +56,7 @@ endif()
 
 set(HAVE_GNU_GETOPT_H TRUE)
 set(HAVE_LIBGL TRUE)
-set(HAVE_LIBGLU TRUE)
+set(HAVE_LIBGLM TRUE)
 set(HAVE_LIBGLUT TRUE)
 set(HAVE_TGAMMA TRUE)
 set(HAVE_UNORDERED_MAP TRUE)
@@ -140,9 +141,7 @@ set(corefiles
   source/Delaunay.cc
   source/absyn.cc
   source/access.cc
-  source/algebra3.cc
   source/application.cc
-  source/arcball.cc
   source/array.cc
   source/callable.cc
   source/camp.tab.cc
@@ -170,7 +169,6 @@ set(corefiles
   source/predicates.cc
   source/process.cc
   source/program.cc
-  source/quaternion.cc
   source/record.cc
   source/refaccess.cc
   source/simpson.cc
@@ -185,12 +183,9 @@ set(corefiles
 set(header_files
   source/absyn.h
   source/access.h
-  source/algebra3.h
   source/align.h
-  source/allsymbols.h
   source/angle.h
   source/application.h
-  source/arcball.h
   source/array.h
   source/arrayop.h
   source/bbox.h
@@ -198,7 +193,6 @@ set(header_files
   source/beziercurve.h
   source/bezierpatch.h
   source/builtin.h
-  source/builtin.symbols.h
   source/callable.h
   source/camp.tab.h
   source/camperror.h
@@ -235,7 +229,6 @@ set(header_files
   source/fundec.h
   source/genv.h
   source/glrender.h
-  source/gsl.symbols.h
   source/guide.h
   source/guideflags.h
   source/inst.h
@@ -251,7 +244,6 @@ set(header_files
   source/name.h
   source/newexp.h
   source/opcodes.h
-  source/opsymbols.h
   source/pair.h
   source/parser.h
   source/path.h
@@ -272,38 +264,23 @@ set(header_files
   source/profiler.h
   source/program.h
   source/psfile.h
-  source/quaternion.h
   source/record.h
   source/refaccess.h
   source/rounding.h
   source/runarray.h
-  source/runarray.symbols.h
   source/runbacktrace.h
-  source/runbacktrace.symbols.h
   source/runfile.h
-  source/runfile.symbols.h
   source/runhistory.h
-  source/runhistory.symbols.h
   source/runlabel.h
-  source/runlabel.symbols.h
   source/runmath.h
-  source/runmath.symbols.h
   source/runpair.h
-  source/runpair.symbols.h
   source/runpath.h
-  source/runpath.symbols.h
   source/runpath3d.h
-  source/runpath3d.symbols.h
   source/runpicture.h
-  source/runpicture.symbols.h
   source/runstring.h
-  source/runstring.symbols.h
   source/runsystem.h
-  source/runsystem.symbols.h
   source/runtime.h
-  source/runtime.symbols.h
   source/runtriple.h
-  source/runtriple.symbols.h
   source/seconds.h
   source/settings.h
   source/stack.h
@@ -316,12 +293,33 @@ set(header_files
   source/transform.h
   source/triple.h
   source/types.h
-  source/types.symbols.h
   source/util.h
   source/varinit.h
   source/virtualfieldaccess.h
   source/vm.h
   source/xstream.h
+)
+
+set(symbol_header_files
+  symbol-headers/allsymbols.h
+  symbol-headers/builtin.symbols.h
+  symbol-headers/gsl.symbols.h
+  symbol-headers/opsymbols.h
+  symbol-headers/runarray.symbols.h
+  symbol-headers/runbacktrace.symbols.h
+  symbol-headers/runfile.symbols.h
+  symbol-headers/runhistory.symbols.h
+  symbol-headers/runlabel.symbols.h
+  symbol-headers/runmath.symbols.h
+  symbol-headers/runpair.symbols.h
+  symbol-headers/runpath.symbols.h
+  symbol-headers/runpath3d.symbols.h
+  symbol-headers/runpicture.symbols.h
+  symbol-headers/runstring.symbols.h
+  symbol-headers/runsystem.symbols.h
+  symbol-headers/runtime.symbols.h
+  symbol-headers/runtriple.symbols.h
+  symbol-headers/types.symbols.h
 )
 
 set(miktex_sources
@@ -338,6 +336,7 @@ set(miktex_sources
 set(asy_sources
   ${corefiles}
   ${header_files}
+  ${symbol_header_files}
   ${miktex_sources}
   source/main.cc
   source/revision.cc

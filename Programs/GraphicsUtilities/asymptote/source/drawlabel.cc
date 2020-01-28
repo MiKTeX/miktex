@@ -45,7 +45,7 @@ void texdim(iopipestream& tex, double& dest, const string command,
   if (dim1 != string::npos && dim2 != string::npos) {
     string n=buffer.substr(dim1+start.size(),dim2-dim1-start.size());
     try {
-      dest=lexical::cast<double>(n,true)*camp::tex2ps;
+      dest=lexical::cast<double>(n,true)*tex2ps;
     } catch(lexical::bad_cast&) {
       camp::reportError(cannotread);
     }
@@ -202,7 +202,7 @@ bool drawLabel::write(texfile *out, const bbox&)
 drawElement *drawLabel::transformed(const transform& t)
 {
   return new drawLabel(label,size,t*T,t*position,
-                       length(align)*unit(shiftless(t)*align),pentype);
+                       length(align)*unit(shiftless(t)*align),pentype,KEY);
 }
 
 void drawLabelPath::bounds(bbox& b, iopipestream& tex, boxvector&, bboxlist&)
@@ -271,7 +271,7 @@ bool drawLabelPath::write(texfile *out, const bbox&)
 drawElement *drawLabelPath::transformed(const transform& t)
 {
   return new drawLabelPath(label,size,transpath(t),justify,shift,
-                           transpen(t));
+                           transpen(t),KEY);
 }
 
 } //namespace camp
