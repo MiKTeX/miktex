@@ -29,6 +29,7 @@ a bundle of outline font manipulation tools.
 * [441](https://github.com/MiKTeX/miktex/issues/441): Cannot build new format
 * [448](https://github.com/MiKTeX/miktex/issues/448): miktex-makepk fails if the transcript file does not exist
 * [451](https://github.com/MiKTeX/miktex/issues/451): Clicking Close button vs pressing Esc key upon finished package installation
+* [459](https://github.com/MiKTeX/miktex/issues/459): dvipng 1.16 with pk fonts error on Win32
 
 ## 2.9.7250 - 2019-11-12
 
