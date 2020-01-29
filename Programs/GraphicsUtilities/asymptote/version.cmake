@@ -1,6 +1,6 @@
 ## version.cmake:
 ##
-## Copyright (C) 2017-2018 Christian Schenk
+## Copyright (C) 2017-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,9 +17,9 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_COMP_ORIG_VERSION_STR "2.44")
+set(MIKTEX_COMP_ORIG_VERSION_STR "2.62")
 
-set(MIKTEX_COMP_J2000_VERSION 6679)
+set(MIKTEX_COMP_J2000_VERSION 7332)
 
 set(MIKTEX_COMP_COPYRIGHT_STR "(C) 2004 Andy Hammerlindl, John C. Bowman, Tom Prince")
 set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2004 Andy Hammerlindl, John C. Bowman, Tom Prince")

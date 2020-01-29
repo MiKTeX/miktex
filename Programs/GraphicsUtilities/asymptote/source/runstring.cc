@@ -522,7 +522,7 @@ void gen_runstring13(stack *Stack)
   Int value;
   if(is && is >> value && ((is >> std::ws).eof())) {Stack->push<Int>(value); return;}
   ostringstream buf;
-  buf << "invalid hexidecimal cast from string \"" << s << "\"";
+  buf << "invalid hexadecimal cast from string \"" << s << "\"";
   error(buf);
 }
 

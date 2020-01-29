@@ -69,9 +69,10 @@ struct solvedKnot : public gc {
 };
 
 extern const double Fuzz;
-extern const double BigFuzz;
 extern const double Fuzz2;
+extern const double Fuzz4;
 extern const double sqrtFuzz;
+extern const double BigFuzz;
 extern const double fuzzFactor;
   
 class path : public gc {

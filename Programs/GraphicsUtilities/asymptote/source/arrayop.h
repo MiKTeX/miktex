@@ -355,7 +355,7 @@ void writeArray(vm::stack *s)
   vm::item it=pop(s);
   bool defaultfile=isdefault(it);
   camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
-  if(!f->enabled()) return;
+  if(!f->isOpen() || !f->enabled()) return;
   
   size_t asize=checkArray(a);
   size_t Asize=checkArray(A);
@@ -407,11 +407,13 @@ template<class T>
 void writeArray2(vm::stack *s)
 {
   array *a=pop<array*>(s);
-  camp::file *f=pop<camp::file*>(s,&camp::Stdout);
+  vm::item it=pop(s);
+  bool defaultfile=isdefault(it);
+  camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
+  if(!f->isOpen() || !f->enabled()) return;
   
   size_t size=checkArray(a);
   if(f->Standard()) interact::lines=0;
-  else if(!f->isOpen()) return;
   
   try {
     for(size_t i=0; i < size; i++) {
@@ -437,11 +439,13 @@ template<class T>
 void writeArray3(vm::stack *s)
 {
   array *a=pop<array*>(s);
-  camp::file *f=pop<camp::file*>(s,&camp::Stdout);
+  vm::item it=pop(s);
+  bool defaultfile=isdefault(it);
+  camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
+  if(!f->isOpen() || !f->enabled()) return;
   
   size_t size=checkArray(a);
   if(f->Standard()) interact::lines=0;
-  else if(!f->isOpen()) return;
   
   try {
     for(size_t i=0; i < size;) {
