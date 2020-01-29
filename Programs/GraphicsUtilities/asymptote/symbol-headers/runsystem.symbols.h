@@ -24,6 +24,7 @@ ADDSYMBOL(divisor);
 ADDSYMBOL(f);
 ADDSYMBOL(file);
 ADDSYMBOL(format);
+ADDSYMBOL(full);
 ADDSYMBOL(line);
 ADDSYMBOL(locatefile);
 ADDSYMBOL(nowarn);

@@ -118,21 +118,17 @@ const char pathSeparator = MiKTeX::Core::PathName::PathNameDelimiter;
 string docdir=ASYMPTOTE_DOCDIR;
 const char pathSeparator=':';
 #endif
-#if defined(MIKTEX_WINDOWS)
-string defaultPSViewer = "cmd";
-#else
-string defaultPSViewer="gv";
-#endif
 #ifdef __APPLE__
 string defaultPSViewer="open";
 string defaultPDFViewer="open";
 string defaultHTMLViewer="open";
 #else  
-string defaultPSViewer="gv";
 #if defined(MIKTEX_WINDOWS)
+string defaultPSViewer = "cmd";
 string defaultPDFViewer = "cmd";
 string defaultHTMLViewer = "cmd";
 #else
+string defaultPSViewer="gv";
 string defaultPDFViewer="acroread";
 string defaultHTMLViewer="google-chrome";
 #endif

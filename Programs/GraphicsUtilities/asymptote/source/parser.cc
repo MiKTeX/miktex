@@ -60,11 +60,17 @@ size_t stream_input(char *buf, size_t max_size)
 
 int fpeek(int fd) 
 {
+#if defined(MIKTEX_WINDOWS)
+  // TODO: non-blocking
+  char c = fgetc(fin);
+  ungetc(c, fin);
+#else
   int flags=fcntl(fd,F_GETFL,0);
   fcntl(fd,F_SETFL,flags | O_NONBLOCK);
   char c=fgetc(fin);
   ungetc(c,fin);
   fcntl(fd,F_SETFL,flags & ~O_NONBLOCK);
+#endif
   return c;
 }
 

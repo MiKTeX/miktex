@@ -22,6 +22,11 @@ include(component.cmake)
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_GRAPHICS_UTILITIES_FOLDER}/asymptote")
 
 add_definitions(
+  -DFFTWPP_SINGLE_THREAD
+  -DGLEW_STATIC
+)
+
+add_definitions(
   -DCPLUSPLUSMAIN
   -Dmain=Main
 )
@@ -54,6 +59,7 @@ if(MIKTEX_NATIVE_WINDOWS AND FALSE)
   )
 endif()
 
+#set(HAVE_LIBFFTW3 TRUE)
 set(HAVE_GNU_GETOPT_H TRUE)
 set(HAVE_LIBGL TRUE)
 set(HAVE_LIBGLM TRUE)
@@ -80,7 +86,7 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/asy.rc
 )
 
-set(camp
+set(camp_sources
   source/beziercurve.cc
   source/bezierpatch.cc
   source/camperror.cc
@@ -103,7 +109,7 @@ set(camp
   source/util.cc
 )
 
-set(runtime_files
+set(runtime_source_files
   source/runarray.cc
   source/runbacktrace.cc
   source/runfile.cc
@@ -120,24 +126,24 @@ set(runtime_files
   source/runtriple.cc
 )
 
-set(symbol_files
-  ${runtime_files}
+set(symbol_source_files
+  ${runtime_source_files}
   source/builtin.cc
   source/gsl.cc
   source/types.cc
 )
 
-set(prc
+set(prc_sources
   source/prc/PRCbitStream.cc
-  source/prc/oPRCFile.cc
   source/prc/PRCdouble.cc
+  source/prc/oPRCFile.cc
   source/prc/writePRC.cc
 )
 
-set(corefiles
-  ${camp}
-  ${prc}
-  ${symbol_files}
+set(core_sources
+  ${camp_sources}
+  ${prc_sources}
+  ${symbol_source_files}
   source/Delaunay.cc
   source/absyn.cc
   source/access.cc
@@ -161,6 +167,7 @@ set(corefiles
   source/glrender.cc
   source/impdatum.cc
   source/interact.cc
+  source/jsfile.cc
   source/lex.yy.cc
   source/locate.cc
   source/name.cc
@@ -171,6 +178,7 @@ set(corefiles
   source/program.cc
   source/record.cc
   source/refaccess.cc
+  source/shaders.cc
   source/simpson.cc
   source/stack.cc
   source/stm.cc
@@ -180,7 +188,8 @@ set(corefiles
   source/virtualfieldaccess.cc
 )
 
-set(header_files
+set(core_headers
+  source/Delaunay.h
   source/absyn.h
   source/access.h
   source/align.h
@@ -201,7 +210,6 @@ set(header_files
   source/coenv.h
   source/common.h
   source/dec.h
-  source/Delaunay.h
   source/drawclipbegin.h
   source/drawclipend.h
   source/drawelement.h
@@ -234,9 +242,11 @@ set(header_files
   source/inst.h
   source/interact.h
   source/item.h
+  source/jsfile.h
   source/knot.h
   source/lexical.h
   source/locate.h
+  source/material.h
   source/mathop.h
   source/memory.h
   source/mod.h
@@ -252,11 +262,6 @@ set(header_files
   source/picture.h
   source/pipestream.h
   source/policy.h
-  source/prc/oPRCFile.h
-  source/prc/PRC.h
-  source/prc/PRCbitStream.h
-  source/prc/PRCdouble.h
-  source/prc/writePRC.h
   source/prcfile.h
   source/predicates.h
   source/primitives.h
@@ -283,6 +288,7 @@ set(header_files
   source/runtriple.h
   source/seconds.h
   source/settings.h
+  source/shaders.h
   source/stack.h
   source/statistics.h
   source/stm.h
@@ -300,7 +306,7 @@ set(header_files
   source/xstream.h
 )
 
-set(symbol_header_files
+set(symbol_headers
   symbol-headers/allsymbols.h
   symbol-headers/builtin.symbols.h
   symbol-headers/gsl.symbols.h
@@ -334,12 +340,19 @@ set(miktex_sources
 )
 
 set(asy_sources
-  ${corefiles}
-  ${header_files}
-  ${symbol_header_files}
+  ${core_headers}
+  ${core_sources}
   ${miktex_sources}
+  ${symbol_headers}
+  source/glew.c
   source/main.cc
   source/revision.cc
+)
+
+set_source_files_properties(source/glew.c
+  PROPERTIES
+    COMPILE_DEFINITIONS "GLEW_NO_GLU"
+    INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/source"
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -357,6 +370,7 @@ target_link_libraries(${MIKTEX_PREFIX}asy
   PUBLIC
     ${app_dll_name}
     ${core_dll_name}
+    ${glm_lib_name}
 )
 
 if(use_gc)

@@ -81,6 +81,9 @@
 #ifdef __MSDOS__
 #include </usr/include/w32api/GL/gl.h>
 #else
+#if defined(MIKTEX_WINDOWS)
+#include <windows.h>
+#endif
 #include <GL/gl.h>
 #endif
 #endif

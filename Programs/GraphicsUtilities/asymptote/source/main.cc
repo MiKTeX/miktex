@@ -155,7 +155,10 @@ void *asymain(void *A)
     if(n == 0) {
       int inpipe=intcast(settings::getSetting<Int>("inpipe"));
       if(inpipe >= 0) {
+#if !defined(MIKTEX_WINDOWS)
+        // TODO
         Signal(SIGHUP,hangup_handler);
+#endif
         camp::openpipeout();
         fprintf(camp::pipeout,"\n");
         fflush(camp::pipeout);
@@ -235,7 +238,7 @@ void exitHandler(int)
 #if defined(MIKTEX)
 int main(int argc, char** argv)
 #else
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 #endif
 {
 #if defined(MIKTEX)
@@ -314,6 +317,7 @@ int main(int argc, char *argv[])
 GC_API void GC_CALL GC_throw_bad_alloc() {
   std::bad_alloc();
 }
+#endif
 #if defined(MIKTEX)
 #include "types.h"
 const types::signature::OPEN_t types::signature::OPEN;
