@@ -108,7 +108,7 @@ enum class IssueType
   PackageDamaged
 };
 
-enum class IssueLevel
+enum class IssueSeverity
 {
   Critical,
   Warning,
@@ -118,7 +118,7 @@ enum class IssueLevel
 struct Issue
 {
   IssueType type;
-  IssueLevel level;
+  IssueSeverity severity;
   std::string message;
   std::string remedy;
 };
