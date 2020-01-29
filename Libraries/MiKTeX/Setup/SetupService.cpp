@@ -1,6 +1,6 @@
 /* SetupService.cpp:
 
-   Copyright (C) 2013-2019 Christian Schenk
+   Copyright (C) 2013-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -101,6 +101,22 @@ bool Contains(const vector<PathName>& vec, const PathName& pathName)
     }
   }
   return false;
+}
+
+string IssueLevelString(IssueLevel level)
+{
+  switch (level)
+  {
+  case IssueLevel::Critical: return T_("critical");
+  case IssueLevel::Warning: return T_("warning");
+  case IssueLevel::Info: return T_("info");
+  default: MIKTEX_UNEXPECTED();
+  }
+}
+
+inline std::ostream& operator<<(std::ostream& os, const IssueLevel& level)
+{
+  return os << IssueLevelString(level);
 }
 
 END_INTERNAL_NAMESPACE;
@@ -1839,11 +1855,11 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   vector<Issue> issues = FindIssues(options[ReportOption::General], options[ReportOption::BrokenPackages]);
   if (!issues.empty())
   {
-    s << "\n" << "Warning: the following problems were detected:" << "\n";
+    s << "\n" << "The following issues were detected:" << "\n";
     int nr = 1;
     for (const auto& iss : issues)
     {
-      s << fmt::format("  {}: {}", nr, iss.message) << "\n";
+      s << fmt::format("  {}: {}: {}", nr, iss.level, iss.message) << "\n";
       nr++;
     }
   }
@@ -1867,57 +1883,77 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     {
       result.push_back({
         IssueType::Path,
+        IssueLevel::Warning,
         T_("The PATH variable does not include the MiKTeX executables."),
-        T_("Find the directory which contains the MiKTeX executables and add it to to PATH.")
+        T_("Find the directory which contains the MiKTeX executables and add it to the environment variable PATH.")
       });
     }
   }
   if (session->IsSharedSetup())
   {
     InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
-    if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
+    if (session->IsAdminMode())
     {
-      result.push_back({
-        IssueType::UpdateCheckOverdue,
-        T_("Never checked for system-wide updates."),
-        T_("Check for MiKTeX updates in administrator mode.")
-      });
+      if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
+      {
+        result.push_back({
+          IssueType::UpdateCheckOverdue,
+          IssueLevel::Warning,
+          T_("Never checked for system-wide updates."),
+          T_("Check for MiKTeX updates now.")
+        });
+      }
+      else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
+      {
+        result.push_back({
+          IssueType::UpdateCheckOverdue,
+          IssueLevel::Warning,
+          T_("It has been a long time since system-wide updates were checked."),
+          T_("Check for MiKTeX updates now.")
+        });
+      }
     }
-    else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
-    {
-      result.push_back({
-        IssueType::UpdateCheckOverdue,
-        T_("It has been a long time since system-wide updates were checked."),
-        T_("Check for MiKTeX updates in administrator mode.")
-      });
-    }
-    if (!session->IsAdminMode())
+    else
     {
       InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
-      if (userInstallation.packageCount > 0)
+      time_t adminCheckGracePeriod = commonInstallation.packageCount > 0 ? ONE_DAY : HALF_A_YEAR;
+      if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
+      {
+        result.push_back({
+          IssueType::UpdateCheckOverdue,
+          userInstallation.packageCount > 0 ? IssueLevel::Critical : IssueLevel::Warning,
+          T_("Never checked for system-wide updates."),
+          T_("Switch to administrator mode and check for MiKTeX updates.")
+        });
+      }
+      else if (now > commonInstallation.lastUpdateCheck + adminCheckGracePeriod)
+      {
+        result.push_back({
+          IssueType::UpdateCheckOverdue,
+          userInstallation.packageCount > 0 ? IssueLevel::Critical : IssueLevel::Warning,
+          T_("It has been a long time since system-wide updates were checked."),
+          T_("Switch to administrator mode and check for MiKTeX updates.")
+        });
+      }
+      else if (userInstallation.packageCount > 0)
       {
         if (!IsValidTimeT(userInstallation.lastUpdateCheck))
         {
           result.push_back({
             IssueType::UserUpdateCheckOverdue,
+            IssueLevel::Warning,
             T_("Never checked for updates in user mode."),
-            T_("Check for MiKTeX updates.")
-          });
-        }
-        else if (IsValidTimeT(commonInstallation.lastUpdateCheck) && commonInstallation.lastUpdateCheck > userInstallation.lastUpdateCheck + ONE_DAY)
-        {
-          result.push_back({ IssueType::UserUpdateCheckOverdue,
-            T_("User mode updates and system-wide updates are out-of-sync."),
-            T_("Check for MiKTeX updates.")
+            T_("Check for MiKTeX updates now.")
           });
         }
         else if (now > userInstallation.lastUpdateCheck + HALF_A_YEAR)
         {
           result.push_back({
             IssueType::UserUpdateCheckOverdue,
+            IssueLevel::Warning,
             T_("It has been a long time since updates were checked in user mode."),
-            T_("Check for MiKTeX updates.")
-          });
+            T_("Check for MiKTeX updates now.")
+            });
         }
       }
     }
@@ -1931,6 +1967,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     {
       result.push_back({
         IssueType::UserUpdateCheckOverdue,
+        IssueLevel::Warning,
         T_("Never checked for updates."),
         T_("Check for MiKTeX updates.")
       });
@@ -1939,6 +1976,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     {
       result.push_back({
         IssueType::UserUpdateCheckOverdue,
+        IssueLevel::Warning,
         T_("It has been a long time since updates were checked."),
         T_("Check for MiKTeX updates.")
       });
@@ -1953,6 +1991,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         result.push_back({
           IssueType::RootDirectoryCoverage,
+          IssueLevel::Critical,
           fmt::format(T_("Root directory #{0} is covered by root directory #{1}."), idx, idx2),
           T_("") // TODO
         });
@@ -1961,6 +2000,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         result.push_back({
           IssueType::RootDirectoryCoverage,
+          IssueLevel::Critical,
           fmt::format(T_("Root directory #{0} covers root directory #{1}."), idx, idx2),
           T_("") // TODO
         });
@@ -1981,6 +2021,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
         {
           result.push_back({
             IssueType::PackageDamaged,
+            IssueLevel::Critical,
             fmt::format(T_("Package {0} has been tampered with."), packageInfo.id),
             T_("") // TODO
           });

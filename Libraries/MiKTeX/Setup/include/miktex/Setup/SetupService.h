@@ -1,6 +1,6 @@
 /* miktex/Setup/SetupService.h:                         -*- C++ -*-
 
-   Copyright (C) 2013-2019 Christian Schenk
+   Copyright (C) 2013-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -108,9 +108,17 @@ enum class IssueType
   PackageDamaged
 };
 
+enum class IssueLevel
+{
+  Critical,
+  Warning,
+  Info
+};
+
 struct Issue
 {
   IssueType type;
+  IssueLevel level;
   std::string message;
   std::string remedy;
 };
