@@ -468,6 +468,22 @@ case 'a' :
          dopprescan = (was_inline[1] != '0');
          break;
 case 'b':
+         if (strncmp(was_inline, "bitmapfontenc", 13) == 0) {
+            char *p = was_inline + 13 ;
+            while (*p && *p <= ' ')
+               p++ ;
+            if (strncmp(p, "off", 3) == 0) {
+               bitmapencopt(0) ; // disable bitmap font enc feature
+            } else if (strncmp(p, "on", 2) == 0) {
+               bitmapencopt(1) ; // try to include bitmap font encs
+            } else if (strncmp(p, "strict", 6) == 0) {
+               bitmapencopt(2) ; // issue warnings for missing encs
+            } else {
+               error(
+   "! bitmapfontenc config file option only supports on, off, and strict") ;
+            }
+            break ;
+         }
 #ifdef SHORTINT
          if (sscanf(was_inline+1, "%ld", &pagecopies) != 1)
 	   bad_config("missing pagecopies to b");
@@ -764,9 +780,6 @@ case 'i' :
 case 'I':
          noenv = (was_inline[1] != '0');
          break;
-case 'J':
-         bitmapencopt(was_inline[1] > ' ' ? was_inline[1]-'0' : 1) ;
-         break ;
 case 'N' :
          disablecomments = (was_inline[1] != '0');
          break;

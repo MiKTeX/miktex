@@ -304,8 +304,7 @@ download(charusetype *p, int psfont)
    scale = fontscale * DPI / 72.0 ;
    seq = -1 ;
    if (encodetype3)
-      seq = downloadbmencoding(curfnt->name, scale,
-                         curfnt->llx, curfnt->lly, curfnt->urx, curfnt->ury) ;
+      seq = downloadbmencoding(curfnt->name, scale, curfnt) ;
    cmdout(name);
    numout((integer)numcc);
    numout((integer)maxcc + 1);

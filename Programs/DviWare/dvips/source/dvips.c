@@ -295,6 +295,7 @@ static const char *helparr[] = {
 "Options:",
 "-a*  Conserve memory, not time       -A   Print only odd (TeX) pages",
 "-b # Page copies, for posters e.g.   -B   Print only even (TeX) pages",
+"-bitmapfontenc [on,off,strict] control bitmap font encoding",
 "-c # Uncollated copies               -C # Collated copies",
 "-d # Debugging                       -D # Resolution",
 "-e # Maxdrift value                  -E*  Try to create EPSF",
@@ -304,7 +305,7 @@ static const char *helparr[] = {
 #endif
 "-h f Add header file",
 "-i*  Separate file per section",
-"-j*  Download fonts partially        -J*  Include encodings for bitmap fonts",
+"-j*  Download fonts partially",
 "-k*  Print crop marks                -K*  Pull comments from inclusions",
 "-l # Last page                       -L*  Last special papersize wins",
 "-m*  Manual feed                     -M*  Don't make fonts",
@@ -792,6 +793,20 @@ case 'a':
                dopprescan = (*p != '0');
                break;
 case 'b':
+               if (strcmp(p, "itmapfontenc") == 0) {
+                  p = argv[++i] ;
+                  if (strcmp(p, "off") == 0) {
+                     bitmapencopt(0) ; // disable bitmap font enc feature
+                  } else if (strcmp(p, "on") == 0) {
+                     bitmapencopt(1) ; // try to include bitmap font encs
+                  } else if (strcmp(p, "strict") == 0) {
+                     bitmapencopt(2) ; // issue warnings for missing encs
+                  } else {
+                     error(
+               "! -bitmapfontenc option only supports off, on, and strict") ;
+                  }
+                  break ;
+               }
                if (*p == 0 && argv[i+1])
                   p = argv[++i];
                if (sscanf(p, "%d", &pagecopies)==0)
@@ -872,9 +887,6 @@ case 'i':
 case 'j':
                partialdownload = (*p != '0');
                break;
-case 'J':
-               bitmapencopt(*p > ' ' ? (*p - '0') : 0) ;
-               break ;
 case 'k':
                cropmarks = (*p != '0');
                break;
