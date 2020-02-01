@@ -1,6 +1,6 @@
 /* mainwindow.h:                                        -*- C++ -*-
 
-   Copyright (C) 2017-2019 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -97,24 +97,33 @@ private:
   }
 
 private:
+  void ShowMajorIssue();
+
+private:
   RepositoryTableModel* repositoryModel = nullptr;
 
 private:
   void UpdateUi();
 
 private:
-  bool haveIssues = false;
+  bool checkedIssues = false;
 
 private:
   std::vector<MiKTeX::Setup::Issue> issues;
 
 private:
+  void FindIssues(bool checkPath, bool checkPackageIntegrity)
+  {
+    issues = MiKTeX::Setup::SetupService::FindIssues(checkPath, checkPackageIntegrity);
+    checkedIssues = true;
+  }
+
+private:
   std::pair<bool, MiKTeX::Setup::Issue> CheckIssue(MiKTeX::Setup::IssueType issueType)
   {
-    if (!haveIssues)
+    if (!checkedIssues)
     {
-      issues = MiKTeX::Setup::SetupService::FindIssues(true, false);
-      haveIssues = true;
+      FindIssues(true, false);
     }
     for (const auto& iss : issues)
     {

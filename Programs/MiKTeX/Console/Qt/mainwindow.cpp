@@ -167,6 +167,46 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
 
   UpdateUi();
   UpdateActions();
+
+  ShowMajorIssue();
+}
+
+void MainWindow::ShowMajorIssue()
+{
+  if (!checkedIssues)
+  {
+    FindIssues(true, false);
+  }
+  for (const Issue& issue : issues)
+  {
+    if (issue.severity == IssueSeverity::Critical || issue.severity == IssueSeverity::Major)
+    {
+      QString text = tr("A MiKTeX setup issue has been detected.");
+      text += "<p>" + QString::fromUtf8(issue.message.c_str()) + "</p>";
+      QString remedy = QString::fromUtf8(issue.remedy.c_str());
+      if (!remedy.isEmpty())
+      {
+        text += "<p>" + tr("Remedy:") + " " + remedy + "</p>";
+      }
+#if 0
+      // TODO
+      QString url = QString::fromUtf8(issue.url.c_str());
+      if (!url.isEmpty())
+      {
+        text += "<p>" + tr("For more information, visit <a href='%1'>%2</a>").arg(url).arg(url) + "</p>";
+      }
+#endif
+      if (this->isHidden())
+      {
+        ShowTrayMessage(TrayMessageContext::Error, text);
+      }
+      else
+      {
+        QMessageBox::critical(this, tr("MiKTeX Console"), text);
+      }
+      return;
+    }
+  }
 }
 
 MainWindow::~MainWindow()
