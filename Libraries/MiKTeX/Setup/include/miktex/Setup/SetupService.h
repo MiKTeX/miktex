@@ -122,6 +122,8 @@ struct Issue
   IssueSeverity severity;
   std::string message;
   std::string remedy;
+  std::string tag;
+  MIKTEXSETUPCEEAPI(std::string) GetUrl() const;
   MIKTEXSETUPCEEAPI(std::string) ToString() const;
 };
 

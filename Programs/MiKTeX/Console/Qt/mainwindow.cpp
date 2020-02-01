@@ -188,14 +188,11 @@ void MainWindow::ShowMajorIssue()
       {
         text += "<p>" + tr("Remedy:") + " " + remedy + "</p>";
       }
-#if 0
-      // TODO
-      QString url = QString::fromUtf8(issue.url.c_str());
+      QString url = QString::fromUtf8(issue.GetUrl().c_str());
       if (!url.isEmpty())
       {
         text += "<p>" + tr("For more information, visit <a href='%1'>%2</a>").arg(url).arg(url) + "</p>";
       }
-#endif
       if (this->isHidden())
       {
         ShowTrayMessage(TrayMessageContext::Error, text);
