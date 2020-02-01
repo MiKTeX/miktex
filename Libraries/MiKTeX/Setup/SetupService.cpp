@@ -1920,7 +1920,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
       {
         result.push_back({
-          IssueType::UpdateCheckOverdue,
+          IssueType::AdminUpdateCheckOverdue,
           IssueSeverity::Major,
           T_("Never checked for system-wide updates."),
           T_("Stay in MiKTeX administrator mode and check for updates.")
@@ -1929,7 +1929,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
       {
         result.push_back({
-          IssueType::UpdateCheckOverdue,
+          IssueType::AdminUpdateCheckOverdue,
           IssueSeverity::Minor,
           T_("It has been a long time since system-wide updates were checked."),
           T_("Stay in MiKTeX administrator mode and check for updates.")
@@ -1942,7 +1942,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       if (IsValidTimeT(userInstallation.lastUpdate) && (!IsValidTimeT(commonInstallation.lastUpdateCheck) || userInstallation.lastUpdate > commonInstallation.lastUpdateCheck))
       {
         result.push_back({
-          IssueType::UpdateCheckOverdue,
+          IssueType::AdminUpdateCheckOverdue,
           IssueSeverity::Major,
           T_("User mode updates and system-wide updates are out-of-sync."),
           T_("Switch to MiKTeX administrator mode and check for updates.")
@@ -1951,7 +1951,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       else if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
       {
         result.push_back({
-          IssueType::UpdateCheckOverdue,
+          IssueType::AdminUpdateCheckOverdue,
           IssueSeverity::Major,
           T_("Never checked for system-wide updates."),
           T_("Switch to MiKTeX administrator mode and check for updates.")
@@ -1960,7 +1960,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
       {
         result.push_back({
-          IssueType::UpdateCheckOverdue,
+          IssueType::AdminUpdateCheckOverdue,
           IssueSeverity::Minor,
           T_("It has been a long time since system-wide updates were checked."),
           T_("Switch to MiKTeX administrator mode and check for updates.")
