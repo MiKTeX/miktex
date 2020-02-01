@@ -110,9 +110,10 @@ enum class IssueType
 
 enum class IssueSeverity
 {
-  Critical,
-  Warning,
-  Info
+  Critical = 1,
+  Major = 6,
+  Minor = 15,
+  Trivial = 43
 };
 
 struct Issue

@@ -109,9 +109,10 @@ string IssueSeverityString(IssueSeverity severity)
 {
   switch (severity)
   {
-  case IssueSeverity::Critical: return T_("critical");
-  case IssueSeverity::Warning: return T_("warning");
-  case IssueSeverity::Info: return T_("info");
+  case IssueSeverity::Critical: return T_("critical issue");
+  case IssueSeverity::Major: return T_("major issue");
+  case IssueSeverity::Minor: return T_("minor issue");
+  case IssueSeverity::Trivial: return T_("trivial issue");
   default: MIKTEX_UNEXPECTED();
   }
 }
@@ -1905,7 +1906,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     {
       result.push_back({
         IssueType::Path,
-        IssueSeverity::Warning,
+        IssueSeverity::Minor,
         T_("The PATH variable does not include the MiKTeX executables."),
         T_("Find the directory which contains the MiKTeX executables and add it to the environment variable PATH.")
       });
@@ -1920,7 +1921,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         result.push_back({
           IssueType::UpdateCheckOverdue,
-          IssueSeverity::Warning,
+          IssueSeverity::Major,
           T_("Never checked for system-wide updates."),
           T_("Stay in MiKTeX administrator mode and check for updates.")
         });
@@ -1929,7 +1930,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         result.push_back({
           IssueType::UpdateCheckOverdue,
-          IssueSeverity::Warning,
+          IssueSeverity::Minor,
           T_("It has been a long time since system-wide updates were checked."),
           T_("Stay in MiKTeX administrator mode and check for updates.")
         });
@@ -1942,7 +1943,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         result.push_back({
           IssueType::UpdateCheckOverdue,
-          IssueSeverity::Critical,
+          IssueSeverity::Major,
           T_("User mode updates and system-wide updates are out-of-sync."),
           T_("Switch to MiKTeX administrator mode and check for updates.")
         });
@@ -1951,7 +1952,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         result.push_back({
           IssueType::UpdateCheckOverdue,
-          IssueSeverity::Warning,
+          IssueSeverity::Major,
           T_("Never checked for system-wide updates."),
           T_("Switch to MiKTeX administrator mode and check for updates.")
         });
@@ -1960,7 +1961,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         result.push_back({
           IssueType::UpdateCheckOverdue,
-          IssueSeverity::Warning,
+          IssueSeverity::Minor,
           T_("It has been a long time since system-wide updates were checked."),
           T_("Switch to MiKTeX administrator mode and check for updates.")
         });
@@ -1971,7 +1972,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
         {
           result.push_back({
             IssueType::UserUpdateCheckOverdue,
-            IssueSeverity::Warning,
+            IssueSeverity::Major,
             T_("Never checked for updates in user mode."),
             T_("Stay in MiKTeX user mode and check for updates.")
           });
@@ -1980,7 +1981,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
         {
           result.push_back({
             IssueType::UserUpdateCheckOverdue,
-            IssueSeverity::Warning,
+            IssueSeverity::Minor,
             T_("It has been a long time since updates were checked in user mode."),
             T_("Stay in MiKTeX user mode and check for updates.")
           });
@@ -1997,7 +1998,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     {
       result.push_back({
         IssueType::UserUpdateCheckOverdue,
-        IssueSeverity::Warning,
+        IssueSeverity::Major,
         T_("Never checked for updates."),
         T_("Check for MiKTeX updates.")
       });
@@ -2006,7 +2007,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     {
       result.push_back({
         IssueType::UserUpdateCheckOverdue,
-        IssueSeverity::Warning,
+        IssueSeverity::Minor,
         T_("It has been a long time since updates were checked."),
         T_("Check for MiKTeX updates.")
       });
@@ -2021,7 +2022,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         result.push_back({
           IssueType::RootDirectoryCoverage,
-          IssueSeverity::Critical,
+          IssueSeverity::Major,
           fmt::format(T_("Root directory #{0} is covered by root directory #{1}."), idx, idx2),
           T_("") // TODO
         });
@@ -2030,7 +2031,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         result.push_back({
           IssueType::RootDirectoryCoverage,
-          IssueSeverity::Critical,
+          IssueSeverity::Major,
           fmt::format(T_("Root directory #{0} covers root directory #{1}."), idx, idx2),
           T_("") // TODO
         });
@@ -2089,7 +2090,7 @@ vector<Issue> SetupService::GetIssues()
         }
       }
     }
-    catch (const nlohmann::json::exception & ex)
+    catch (const nlohmann::json::exception& ex)
     {
       // TODO: logging
     }

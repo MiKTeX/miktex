@@ -407,16 +407,21 @@ void Application::AutoDiagnose()
     switch (issue.severity)
     {
     case Setup::IssueSeverity::Critical:
-      LOG4CXX_ERROR(logger, issue);
-      cerr << issue << "\n";
+      if (pimpl->isLog4cxxConfigured)
+      {
+        LOG4CXX_ERROR(logger, issue);
+      }
+      cerr << Utils::GetExeName() << ": " << issue << "\n";
       break;
-    case Setup::IssueSeverity::Warning:
-      LOG4CXX_WARN(logger, issue);
-      cerr << issue << "\n";
-      break;
-    case Setup::IssueSeverity::Info:
-      LOG4CXX_INFO(logger, issue);
-      cout << issue << "\n";
+    default:
+      if (pimpl->isLog4cxxConfigured)
+      {
+        LOG4CXX_WARN(logger, issue);
+      }
+      if (!GetQuietFlag())
+      {
+        cerr << Utils::GetExeName() << ": " << issue << "\n";
+      }
       break;
     }
   }
