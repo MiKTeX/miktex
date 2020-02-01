@@ -1,6 +1,6 @@
 /* Exceptions.cpp: MiKTeX exceptions
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <fstream>
+#include <iostream>
 
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Environment>
@@ -185,6 +186,11 @@ bool MiKTeXException::Save() const noexcept
 {
   try
   {
+    string str;
+    if (Utils::GetEnvironmentString("MIKTEX_PRINT_EXCEPTIONS", str) && str == "cerr")
+    {
+      cerr << *this << endl;
+    }
     string path;
     if (GetLastMiKTeXExceptionPath(path))
     {
