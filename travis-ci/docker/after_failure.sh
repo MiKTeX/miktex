@@ -7,6 +7,10 @@ if [ -d "${HOME}/builds/$dist-$tag/sandbox/miktex/log" ]; then
     (cd "${HOME}/builds/$dist-$tag/sandbox/miktex/log"; grep FATAL *)
 fi
 
+if [ -d "${HOME}/texmfs/data/miktex/log" ]; then
+    (cd "${HOME}/texmfs/data/miktex/log"; grep FATAL *)
+fi
+
 if [ -f "${HOME}/builds/$dist-$tag/Testing/Temporary/LastTest.log" ]; then
     cat "${HOME}/builds/$dist-$tag/Testing/Temporary/LastTest.log"
 fi
