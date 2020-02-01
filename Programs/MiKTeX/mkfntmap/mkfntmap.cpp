@@ -1,6 +1,6 @@
 /* mkfntmap.cpp:
 
-   Copyright (C) 2002-2018 Christian Schenk
+   Copyright (C) 2002-2020 Christian Schenk
 
    This file is part of MkFntMap.
 
@@ -1176,8 +1176,8 @@ void MakeFontMapApp::BuildFontconfigCache()
   }
 #if !defined(USE_SYSTEM_FONTCONFIG)
   arguments.push_back("--miktex-disable-maintenance");
-#endif
   arguments.push_back("--miktex-disable-diagnose");
+#endif
   LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(arguments).ToString());
   Process::Run(fcCacheExe, arguments, this);
 }
