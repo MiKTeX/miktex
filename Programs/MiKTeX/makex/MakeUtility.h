@@ -215,6 +215,7 @@ protected:
     }
 
     allArgs.push_back("--miktex-disable-maintenance");
+    allArgs.push_back("--miktex-disable-diagnose");
 
     allArgs.insert(allArgs.end(), arguments.begin(), arguments.end());
 

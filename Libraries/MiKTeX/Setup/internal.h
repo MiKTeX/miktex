@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2013-2019 Christian Schenk
+   Copyright (C) 2013-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -71,6 +71,8 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <fmt/time.h>
+
+#include <nlohmann/json.hpp>
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 

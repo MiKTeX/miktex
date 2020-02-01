@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2017 Christian Schenk
+## Copyright (C) 2009-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -43,6 +43,7 @@ target_link_libraries(${app_lib_name}
   PUBLIC
     ${core_lib_name}
     ${mpm_lib_name}
+    ${setup_lib_name}
 )
 
 if(INSTALL_STATIC_LIBRARIES)

@@ -37,6 +37,7 @@ target_link_libraries(${setup_lib_name}
   PUBLIC 
     ${core_lib_name}
     ${mpm_lib_name}
+    ${nlohmann_json_lib_name}
 )
 
 if(USE_SYSTEM_FMT)

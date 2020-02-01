@@ -1,6 +1,6 @@
 /* util.cpp: generi utilities
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -897,7 +897,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
         int exitCode;
         ProcessOutput<80> pdfTeXOutput;
         bool isOtherPdfTeX = true;
-        vector<string> args{ "pdftex", "--miktex-disable-installer", "--miktex-disable-maintenance", "--version" };
+        vector<string> args{ "pdftex", "--miktex-disable-installer", "--miktex-disable-maintenance", "--miktex-disable-diagnose", "--version" };
         shared_ptr<Session> session = Session::Get();
         if (session->IsAdminMode())
         {

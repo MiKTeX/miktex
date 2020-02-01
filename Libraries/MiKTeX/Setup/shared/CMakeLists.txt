@@ -53,6 +53,7 @@ target_link_libraries(${setup_dll_name}
   PUBLIC
     ${core_dll_name}
     ${mpm_dll_name}
+    ${nlohmann_json_dll_name}
 )
 
 if(USE_SYSTEM_FMT)

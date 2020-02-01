@@ -30,6 +30,8 @@
 using namespace std;
 using namespace std::string_literals;
 
+using namespace nlohmann;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Packages;
@@ -116,14 +118,29 @@ string IssueSeverityString(IssueSeverity severity)
 
 END_INTERNAL_NAMESPACE;
 
-
 namespace MiKTeX {
   namespace Setup {
     inline std::ostream& operator<<(std::ostream& os, const IssueSeverity& severity)
     {
       return os << IssueSeverityString(severity);
     }
+    void to_json(json& j, const Issue& issue)
+    {
+      j = json{ {"type", issue.type}, {"severity", issue.severity}, {"message", issue.message}, {"remedy", issue.remedy} };
+    }
+    void from_json(const json& j, Issue& issue)
+    {
+      j.at("type").get_to(issue.type);
+      j.at("severity").get_to(issue.severity);
+      j.at("message").get_to(issue.message);
+      j.at("remedy").get_to(issue.remedy);
+    }
   }
+}
+
+string Issue::ToString() const
+{
+  return fmt::format("{}: {}", severity, message);
 }
 
 SetupService::~SetupService() noexcept
@@ -2043,5 +2060,40 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     }
     pkgIter->Dispose();
   }
+  PathName issuesJson = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_ISSUES_JSON;
+  Directory::Create(issuesJson.GetDirectoryName());
+  File::CreateOutputStream(issuesJson) << json(result);
+  session->SetConfigValue(
+    MIKTEX_REGKEY_SETUP,
+    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_DIAGNOSE : MIKTEX_REGVAL_LAST_USER_DIAGNOSE,
+    std::to_string(time(nullptr)));
   return result;
+}
+
+vector<Issue> SetupService::GetIssues()
+{
+  vector<Setup::Issue> issues;
+  shared_ptr<Session> session = Session::Get();
+  PathName issuesJson = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_ISSUES_JSON;
+  if (File::Exists(issuesJson))
+  {
+    try
+    {
+      const json j_array = json::parse(File::CreateInputStream(issuesJson));
+      if (j_array.is_array())
+      {
+        for (json::const_iterator it = j_array.begin(); it != j_array.end(); ++it)
+        {
+          Setup::Issue issue = it->get<Setup::Issue>();
+          issues.push_back(issue);
+        }
+      }
+    }
+    catch (const nlohmann::json::exception & ex)
+    {
+      // TODO: logging
+    }
+
+  }
+  return issues;
 }

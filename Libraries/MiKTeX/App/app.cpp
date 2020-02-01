@@ -49,6 +49,7 @@
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
+#include <miktex/Setup/SetupService>
 #include <miktex/Trace/Trace>
 #include <miktex/UI/UI>
 #include <miktex/Util/StringUtil>
@@ -124,6 +125,8 @@ public:
   bool beQuiet = false;
 public:
   TriState enableMaintenance = TriState::Undetermined;
+public:
+  TriState enableDiagnose = TriState::Undetermined;
 public:
   shared_ptr<Session> session;
 public:
@@ -202,6 +205,14 @@ template<typename T> void ExamineArgs(vector<T>& args, Session::InitInfo& initIn
     else if (strcmp(*it, "--miktex-enable-maintenance") == 0)
     {
       pimpl->enableMaintenance = TriState::True;
+    }
+    else if (strcmp(*it, "--miktex-disable-diagnose") == 0)
+    {
+      pimpl->enableDiagnose = TriState::False;
+    }
+    else if (strcmp(*it, "--miktex-enable-diagnose") == 0)
+    {
+      pimpl->enableDiagnose = TriState::True;
     }
     else
     {
@@ -375,6 +386,42 @@ void Application::AutoMaintenance()
   }
 }
 
+constexpr time_t ONE_DAY = 86400;
+constexpr time_t ONE_WEEK = 7 * ONE_DAY;
+
+void Application::AutoDiagnose()
+{
+  time_t now = time(nullptr);
+  PathName issuesJson = pimpl->session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_ISSUES_JSON;
+  vector<Setup::Issue> issues;
+  if (!File::Exists(issuesJson) || now > File::GetLastWriteTime(issuesJson) + ONE_WEEK)
+  {
+    issues = MiKTeX::Setup::SetupService::FindIssues(false, false);
+  }
+  else
+  {
+    issues = MiKTeX::Setup::SetupService::GetIssues();
+  }
+  for (const Setup::Issue& issue : issues)
+  {
+    switch (issue.severity)
+    {
+    case Setup::IssueSeverity::Critical:
+      LOG4CXX_ERROR(logger, issue);
+      cerr << issue << "\n";
+      break;
+    case Setup::IssueSeverity::Warning:
+      LOG4CXX_WARN(logger, issue);
+      cerr << issue << "\n";
+      break;
+    case Setup::IssueSeverity::Info:
+      LOG4CXX_INFO(logger, issue);
+      cout << issue << "\n";
+      break;
+    }
+  }
+}
+
 void Application::Init(const Session::InitInfo& initInfoArg)
 {
   instance = this;
@@ -404,6 +451,10 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   {
     pimpl->enableMaintenance = TriState::True;
   }
+  if (pimpl->enableDiagnose == TriState::Undetermined)
+  {
+    pimpl->enableDiagnose = TriState::True;
+  }
   if (pimpl->session->RunningAsAdministrator() && !pimpl->session->IsAdminMode())
   {
     Warning(T_("running with administrator privileges"));
@@ -411,6 +462,10 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   if (pimpl->enableMaintenance == TriState::True)
   {
     AutoMaintenance();
+  }
+  if (pimpl->enableDiagnose == TriState::True)
+  {
+    AutoDiagnose();
   }
 }
 

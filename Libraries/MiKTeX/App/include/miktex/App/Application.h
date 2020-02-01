@@ -1,6 +1,6 @@
 /* miktex/App/Application.h:                            -*- C++ -*-
 
-   Copyright (C) 2005-2019 Christian Schenk
+   Copyright (C) 2005-2020 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -310,6 +310,9 @@ private:
 
 private:
   void AutoMaintenance();
+
+private:
+  void AutoDiagnose();
 
 private:
   class impl;

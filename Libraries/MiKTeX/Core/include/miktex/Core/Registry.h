@@ -1,6 +1,6 @@
 /* miktex/Core/Registry.h: MiKTeX settings              -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -53,6 +53,7 @@
 #define MIKTEX_REGKEY_MIGRATE "Migrate"
 #define MIKTEX_REGKEY_PACKAGE_MANAGER "MPM"
 #define MIKTEX_REGKEY_SETTINGS "Settings"
+#define MIKTEX_REGKEY_SETUP "Setup"
 #define MIKTEX_REGKEY_TEXMF "TeXMF"
 #define MIKTEX_REGKEY_YAP "Yap"
 #define MIKTEX_REGKEY_YAP_SETTINGS \
@@ -76,6 +77,8 @@
 #define MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK "LastUserUpdateCheck"
 #define MIKTEX_REGVAL_LAST_ADMIN_UPDATE "LastAdminUpdate"
 #define MIKTEX_REGVAL_LAST_USER_UPDATE "LastUserUpdate"
+#define MIKTEX_REGVAL_LAST_ADMIN_DIAGNOSE "LastAdminDiagnose"
+#define MIKTEX_REGVAL_LAST_USER_DIAGNOSE "LastUserDiagnose"
 #define MIKTEX_REGVAL_USERINFO_FILE "UserInfoFile"
 #define MIKTEX_REGVAL_LOCAL_REPOSITORY "LocalRepository"
 #define MIKTEX_REGVAL_MAX_REDIRECTS "MaxRedirects"

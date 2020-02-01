@@ -121,7 +121,14 @@ struct Issue
   IssueSeverity severity;
   std::string message;
   std::string remedy;
+  MIKTEXSETUPCEEAPI(std::string) ToString() const;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Issue& issue)
+{
+  return os << issue.ToString();
+}
+
 
 struct SetupOptions
 {
@@ -432,6 +439,9 @@ public:
 
 public:
   static MIKTEXSETUPCEEAPI(std::vector<Issue>) FindIssues(bool checkPath, bool checkPackageIntegrity);
+
+public:
+  static MIKTEXSETUPCEEAPI(std::vector<Issue>) GetIssues();
 };
 
 MIKTEX_SETUP_END_NAMESPACE;

@@ -1035,6 +1035,7 @@ void IniTeXMFApp::RunMakeTeX(const string& makeProg, const vector<string>& argum
   }
 
   xArguments.push_back("--miktex-disable-maintenance");
+  xArguments.push_back("--miktex-disable-diagnose");
 
   LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(xArguments));
   RunProcess(exe, xArguments);
@@ -1820,6 +1821,7 @@ void IniTeXMFApp::MakeMaps(bool force)
     break;
   }
   arguments.push_back("--miktex-disable-maintenance");
+  arguments.push_back("--miktex-disable-diagnose");
   if (printOnly)
   {
     PrintOnly(CommandLineBuilder(arguments).ToString());
