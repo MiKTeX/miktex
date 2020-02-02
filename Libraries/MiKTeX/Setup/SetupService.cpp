@@ -1934,8 +1934,8 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
         result.push_back({
           IssueType::AdminUpdateCheckOverdue,
           IssueSeverity::Major,
-          T_("Never checked for updates as MiKTeX administrator."),
-          T_("Stay in MiKTeX administrator mode and check for updates.")
+          T_("So far, no MiKTeX administrator has checked for updates."),
+          T_("Switch to MiKTeX administrator mode and check for updates.")
         });
       }
       else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
@@ -1944,7 +1944,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
           IssueType::AdminUpdateCheckOverdue,
           IssueSeverity::Minor,
           T_("It has been a long time since a MiKTeX administrator has checked for updates."),
-          T_("Stay in MiKTeX administrator mode and check for updates.")
+          T_("Switch to MiKTeX administrator mode and check for updates.")
         });
       }
     }
@@ -1966,7 +1966,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
         result.push_back({
           IssueType::AdminUpdateCheckOverdue,
           IssueSeverity::Major,
-          T_("Never checked for updates as MiKTeX administrator."),
+          T_("So far, no MiKTeX administrator has checked for updates."),
           T_("Switch to MiKTeX administrator mode and check for updates.")
         });
       }
@@ -1986,7 +1986,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
           result.push_back({
             IssueType::UserUpdateCheckOverdue,
             IssueSeverity::Major,
-            T_("Never checked for updates as MiKTeX user."),
+            T_("So far, you have not checked for updates as a MiKTeX user."),
             T_("Stay in MiKTeX user mode and check for updates.")
           });
         }
@@ -1995,7 +1995,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
           result.push_back({
             IssueType::UserUpdateCheckOverdue,
             IssueSeverity::Minor,
-            T_("It has been a long time since you have checked for updates as MiKTeX user."),
+            T_("It has been a long time since you have checked for updates as a MiKTeX user."),
             T_("Stay in MiKTeX user mode and check for updates.")
           });
         }
@@ -2012,8 +2012,8 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       result.push_back({
         IssueType::UserUpdateCheckOverdue,
         IssueSeverity::Major,
-        T_("Never checked for updates."),
-        T_("Check for updates.")
+        T_("So far, you have not checked for MiKTeX updates."),
+        T_("Check for MiKTeX updates.")
       });
     }
     else if (now > userInstallation.lastUpdateCheck + HALF_A_YEAR)
@@ -2021,8 +2021,8 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       result.push_back({
         IssueType::UserUpdateCheckOverdue,
         IssueSeverity::Minor,
-        T_("It has been a long time since updates were checked."),
-        T_("Check for updates.")
+        T_("It has been a long time since you have checked for MiKTeX updates."),
+        T_("Check for MiKTeX updates.")
       });
     }
   }
