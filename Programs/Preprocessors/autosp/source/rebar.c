@@ -1,6 +1,6 @@
-char version[12] = "2016-01-30";
+char version[12] = "2019-01-08";
 
-/*  Copyright (C) 2015-16 R. D. Tennent School of Computing,
+/*  Copyright (C) 2015-19 R. D. Tennent School of Computing,
  *  Queen's University, rdt@cs.queensu.ca
  *
  *  This program is free software; you can redistribute it
@@ -178,8 +178,10 @@ process_score (void)
   {
     ungetc (c, infile);
     lineno++;
-    if ( fgets(line, LINE_LEN, infile) == NULL) error_at("IO error");
-    if (strlen (line) == LINE_LEN-1) error_at("Line too long.");
+    if ( fgets(line, LINE_LEN, infile) == NULL) 
+      error_at("Unexpected EOF.");
+    if (strlen (line) == LINE_LEN-1) 
+      error_at("Line too long.");
     process_line (); 
   }     /* c == EOF  */
 }     

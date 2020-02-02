@@ -1,27 +1,26 @@
-/* autosp-version.h: version number                     -*- C++ -*-
+/* tex2aspc.rc: version number                          -*- C++ -*-
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
    by the Free Software Foundation; either version 2, or (at your
    option) any later version.
-   
+
    This file is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this file; if not, write to the Free Software
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA.  */
+   USA. */
 
-#define MIKTEX_COMP_J2000_VERSION 7337
+#include "tex2aspc-version.h"
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2019-12-22"
+#define VER_FILEDESCRIPTION_STR "tex2aspc - converts conventional MusiXTeX code to autosp-compatible format"
+#define VER_INTERNALNAME_STR "tex2aspc"
+#define VER_ORIGINALFILENAME_STR "miktex-tex2aspc.exe"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 2014-2019 R. D. Tennent School of Computing, Queen's University"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2014-2019 R. D. Tennent School of Computing, Queen's University"
-
-#include <miktex/Version>
+#include "miktex/win/version.rc"

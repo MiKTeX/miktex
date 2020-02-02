@@ -1434,6 +1434,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_SYNCTEX_EXE, { "synctex" } },
   { MIKTEX_T4HT_EXE, { "t4ht" } },
   { MIKTEX_TANGLE_EXE, { "tangle" } },
+  { MIKTEX_TEX2ASPC_EXE, { "tex2aspc" } },
   { MIKTEX_TEX4HT_EXE, { "tex4ht" } },
 #if defined(MIKTEX_QT)
   { MIKTEX_TEXWORKS_EXE, { "texworks" } },
