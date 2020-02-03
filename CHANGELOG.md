@@ -2,6 +2,16 @@
 
 ## 2.9.7300 - not yet released
 
+### Grouped-delimited \input argument
+
+MiKTeX adopted the forthcoming TL 2020 \input enhancement. To quote Karl Berry:
+
+> For TL 2020, I think we're going to be able to extend
+> \input so that it can take a grouped argument (\input{...}), and thus
+> allow any character in the name -- except that " characters will still
+> be eliminated, at LaTeX's request.  This won't affect the standard
+> space/token-delimited use of \input in any way.
+
 ### CentOS 8
 
 MiKTeX is now available for CentOS 8.
