@@ -21,6 +21,10 @@ a bundle of outline font manipulation tools.
 * dvisvgm 2.8.2
 * pdftex 1.40.21
 
+### Upgraded programs
+
+* libpng 1.6.37
+
 ### Fixed issues
 
 * [420](https://github.com/MiKTeX/miktex/issues/420): miktexsetup fails -- how to advance?
