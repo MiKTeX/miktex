@@ -402,27 +402,28 @@ void Application::AutoDiagnose()
   {
     issues = MiKTeX::Setup::SetupService::GetIssues();
   }
+
   for (const Setup::Issue& issue : issues)
   {
-    switch (issue.severity)
+    if (pimpl->isLog4cxxConfigured)
     {
-    case Setup::IssueSeverity::Critical:
-      if (pimpl->isLog4cxxConfigured)
+      if (issue.severity == Setup::IssueSeverity::Critical || issue.severity == Setup::IssueSeverity::Major)
+      {
+        LOG4CXX_FATAL(logger, issue);
+      }
+      else if (issue.severity == Setup::IssueSeverity::Major)
       {
         LOG4CXX_ERROR(logger, issue);
       }
+      else
+      {
+        LOG4CXX_ERROR(logger, issue);
+      }
+    }
+    if (issue.severity == Setup::IssueSeverity::Critical
+      || issue.severity == Setup::IssueSeverity::Major && !GetQuietFlag())
+    {
       cerr << Utils::GetExeName() << ": " << issue << "\n";
-      break;
-    default:
-      if (pimpl->isLog4cxxConfigured)
-      {
-        LOG4CXX_WARN(logger, issue);
-      }
-      if (!GetQuietFlag())
-      {
-        cerr << Utils::GetExeName() << ": " << issue << "\n";
-      }
-      break;
     }
   }
 }
@@ -462,15 +463,11 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   }
   if (pimpl->session->RunningAsAdministrator() && !pimpl->session->IsAdminMode())
   {
-    Warning(T_("running with administrator privileges"));
+    Warning(T_("running with elevated privileges"));
   }
   if (pimpl->enableMaintenance == TriState::True)
   {
     AutoMaintenance();
-  }
-  if (pimpl->enableDiagnose == TriState::True)
-  {
-    AutoDiagnose();
   }
 }
 
@@ -513,6 +510,10 @@ void Application::Finalize2(int exitCode)
   
 void Application::Finalize()
 {
+  if (pimpl->enableDiagnose == TriState::True)
+  {
+    AutoDiagnose();
+  }
   if (pimpl->installer != nullptr)
   {
     pimpl->installer->Dispose();
