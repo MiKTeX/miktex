@@ -14,7 +14,17 @@ MiKTeX adopted the forthcoming TL 2020 \input enhancement. To quote Karl Berry:
 
 ### CentOS 8
 
-MiKTeX is now available for CentOS 8.
+MiKTeX is now available for CentOS 8. Quick installation instructions:
+
+```
+sudo rpm --import "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xD6BC243565B2087BC3F897C9277A7293F59E4889"
+sudo curl -L -o /etc/yum.repos.d/miktex.repo https://miktex.org/download/centos/8/miktex.repo
+sudo dnf update
+sudo dnf install miktex
+```
+
+Please read this [HOWTO](https://miktex.org/howto/install-miktex-unx),
+if this is the first time you install MiKTeX for Linux.
 
 ### LCDF Typetools
 
@@ -31,7 +41,7 @@ a bundle of outline font manipulation tools.
 * dvisvgm 2.8.2
 * pdftex 1.40.21
 
-### Upgraded programs
+### Upgraded libraries
 
 * libpng 1.6.37
 
