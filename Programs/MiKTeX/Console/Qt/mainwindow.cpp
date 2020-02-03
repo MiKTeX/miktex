@@ -167,15 +167,15 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
 
   UpdateUi();
   UpdateActions();
-
-  ShowMajorIssue();
+  
+  QTimer::singleShot(0, this, SLOT(ShowMajorIssue()));
 }
 
 void MainWindow::ShowMajorIssue()
 {
   if (!checkedIssues)
   {
-    FindIssues(true, false);
+    FindIssues();
   }
   for (const Issue& issue : issues)
   {
@@ -824,7 +824,7 @@ void MainWindow::on_buttonFixPath_clicked()
   {
     QMessageBox::information(this, tr("MiKTeX Console"), tr("The PATH environment variable has been successfully modified."), QMessageBox::Ok);
     ui->groupPathIssue->hide();
-    issues.clear();
+    FindIssues();
   }
   else
   {
@@ -1192,7 +1192,7 @@ void MainWindow::CheckUpdates()
       updateModel->SetData(updates);
       ui->labelUpdateStatus->setText("");
       ui->labelCheckUpdatesStatus->setText("");
-      issues.clear();
+      FindIssues();
 #if !defined(QT_NO_SYSTEMTRAYICON)
       if (this->isHidden())
       {
@@ -1302,6 +1302,7 @@ void MainWindow::Update()
     bool restart = false;
     if (worker->GetResult())
     {
+      FindIssues();
       ui->labelUpdateStatus->setText(tr("Done"));
       for (const auto& u : updateModel->GetCheckedPackages())
       {

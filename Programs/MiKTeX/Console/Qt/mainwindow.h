@@ -96,7 +96,7 @@ private:
     CriticalError(MiKTeX::Core::MiKTeXException(e.what()));
   }
 
-private:
+private slots:
   void ShowMajorIssue();
 
 private:
@@ -112,9 +112,9 @@ private:
   std::vector<MiKTeX::Setup::Issue> issues;
 
 private:
-  void FindIssues(bool checkPath, bool checkPackageIntegrity)
+  void FindIssues()
   {
-    issues = MiKTeX::Setup::SetupService::FindIssues(checkPath, checkPackageIntegrity);
+    issues = MiKTeX::Setup::SetupService::FindIssues(true, false);
     checkedIssues = true;
   }
 
@@ -123,7 +123,7 @@ private:
   {
     if (!checkedIssues)
     {
-      FindIssues(true, false);
+      FindIssues();
     }
     for (const auto& iss : issues)
     {
