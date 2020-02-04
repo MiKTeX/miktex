@@ -1,6 +1,6 @@
 /* mcd.cpp: MiKTeX compiler driver
 
-   Copyright (C) 1998-2019 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001,
    2002, 2003, 2004, 2005 Free Software Foundation, Inc.
@@ -104,7 +104,7 @@ using namespace MiKTeX::Wrappers;
 
 #define SF464378__CHAPTERBIB
 
-//#define WITH_TEXINFO
+#define WITH_TEXINFO
 
 #define PROGRAM_NAME "texify"
 
