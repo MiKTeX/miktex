@@ -863,11 +863,7 @@ void Application::Sorry(const string& name, const MiKTeXException& ex)
   }
   else
   {
-    cerr
-      << "ERROR: " << ex.GetErrorMessage() << "\n"
-      << "ERROR: Info: " << ex.GetInfo() << "\n"
-      << "ERROR: Source: " << ex.GetSourceFile() << "\n"
-      << "ERROR: Line: " << ex.GetSourceLine() << "\n";
+    Utils::PrintException(ex);
   }
   Sorry(name, ex.GetDescription(), ex.GetRemedy(), ex.GetUrl());
 }
