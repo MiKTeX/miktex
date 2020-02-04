@@ -4,7 +4,15 @@
 
 ### Grouped-delimited \input argument
 
-MiKTeX adopted the forthcoming TL 2020 \input enhancement. To quote Karl Berry:
+MiKTeX adopted the forthcoming TL 2020 \input enhancement which allows
+you to specify file names with spaces:
+
+```
+\input{my stuff}
+\input{"my stuff"}
+```
+
+To quote Karl Berry:
 
 > For TL 2020, I think we're going to be able to extend
 > \input so that it can take a grouped argument (\input{...}), and thus
