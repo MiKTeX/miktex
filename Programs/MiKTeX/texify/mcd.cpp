@@ -2220,7 +2220,7 @@ void McdApp::Run(int argc, const char** argv)
     driver.Run();
   }
 
-  Finalize();
+  Finalize2(0);
 }
 
 #if defined(_UNICODE)
@@ -2253,7 +2253,6 @@ int MAIN(int argc, MAINCHAR* argv[])
     }
     newargv.push_back(nullptr);
     app.Run(argc, &newargv[0]);
-    app.Finalize2(0);
     return 0;
   }
 
