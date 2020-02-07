@@ -1,11 +1,11 @@
 # MiKTeX Change Log
 
-## 2.9.7300 - not yet released
+## 2.9.7300 - 2020-02-09
 
-### Grouped-delimited \input argument
+### Group-delimited \input argument
 
 MiKTeX adopted the forthcoming TL 2020 \input enhancement which allows
-you to specify file names with spaces:
+you to specify file with spaces in the name:
 
 ```
 \input{my stuff}
