@@ -1,6 +1,6 @@
 /* popt-version.h: version number                       -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,7 +17,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 6865
+#define MIKTEX_COMP_J2000_VERSION 7342
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.16"
 

@@ -13,6 +13,7 @@
 #define        POPT_USE_TIOCGWINSZ
 #if defined(MIKTEX_WINDOWS)
 #undef POPT_USE_TIOCGWINSZ
+#include <Windows.h>
 #endif
 #ifdef POPT_USE_TIOCGWINSZ
 #include <sys/ioctl.h>
@@ -125,6 +126,24 @@ static size_t maxColumnWidth(FILE *fp)
 	size_t ws_col = (size_t)ws.ws_col;
 	if (ws_col > maxcols && ws_col < (size_t)256)
 	    maxcols = ws_col - 1;
+    }
+#else if defined(MIKTEX_WINDOWS)
+    HANDLE stdHandle = INVALID_HANDLE_VALUE;
+    if (fp == stdout)
+    {
+      stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    }
+    else if (fp == stderr)
+    {
+      stdHandle = GetStdHandle(STD_ERROR_HANDLE);
+    }
+    if (stdHandle != INVALID_HANDLE_VALUE)
+    {
+      CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
+      if (GetConsoleScreenBufferInfo(stdHandle, &consoleScreenBufferInfo))
+      {
+	maxcols = consoleScreenBufferInfo.dwSize.X;
+      }
     }
 #endif
     return maxcols;
