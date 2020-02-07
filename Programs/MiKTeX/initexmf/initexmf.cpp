@@ -1516,6 +1516,9 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PREFIX "ttftotype42" MIKTEX_EXE_FILE_SUFFIX, { "ttftotype42" } },
 #endif
 #if defined(MIKTEX_WINDOWS)
+  { MIKTEX_PREFIX "zip" MIKTEX_EXE_FILE_SUFFIX, {"zip"} },
+#endif
+#if defined(MIKTEX_WINDOWS)
   { MIKTEX_CONSOLE_EXE, { MIKTEX_TASKBAR_ICON_EXE, MIKTEX_UPDATE_EXE } },
   { MIKTEX_CONSOLE_ADMIN_EXE,{ MIKTEX_UPDATE_ADMIN_EXE } },
 #endif
