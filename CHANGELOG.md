@@ -48,6 +48,7 @@ a bundle of outline font manipulation tools.
 * dvips 2020.1
 * dvisvgm 2.8.2
 * pdftex 1.40.21
+* pmxab 2.9.4
 
 ### Upgraded libraries
 
