@@ -25,16 +25,16 @@
 
 # define SHORT_LEN 256
 
-bool debug;
-bool dottedbeamnotes;          /* dotted beam notes ignored?        */
+extern bool debug;
+extern bool dottedbeamnotes;          /* dotted beam notes ignored?        */
 
-char infilename[SHORT_LEN];
-char *infilename_n;
-char outfilename[SHORT_LEN];
-char *outfilename_n;
-char logfilename[SHORT_LEN];
-char *logfilename_n;
-FILE *infile, *outfile, *logfile;
+extern char infilename[SHORT_LEN];
+extern char *infilename_n;
+extern char outfilename[SHORT_LEN];
+extern char *outfilename_n;
+extern char logfilename[SHORT_LEN];
+extern char *logfilename_n;
+extern FILE *infile, *outfile, *logfile;
 
 
-void process_score ();
+extern void process_score ();

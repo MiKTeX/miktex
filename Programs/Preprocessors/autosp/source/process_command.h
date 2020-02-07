@@ -8,56 +8,57 @@
 # define NOTEsp  "\\vnotes9.52\\elemskip"
 # define APPOGG_NOTES "\\vnotes1.45\\elemskip"
 
-char terminator[MAX_STAFFS];    /* one of '&' "|', '$'                */
+extern char terminator[MAX_STAFFS];    /* one of '&' "|', '$'                */
 
-char *notes[MAX_STAFFS];        /* note segment for ith staff         */
-char *current[MAX_STAFFS];
+extern char *notes[MAX_STAFFS];        /* note segment for ith staff         */
+extern char *current[MAX_STAFFS];
 
-int spacings[MAX_STAFFS];       /* spacing for ith staff              */
+extern int spacings[MAX_STAFFS];       /* spacing for ith staff              */
 
-int vspacing[MAX_STAFFS];       /* virtual-note (skip) spacing        */
-bool vspacing_active[MAX_STAFFS]; /* virtual-note spacing active?       */
+extern int vspacing[MAX_STAFFS];       /* virtual-note (skip) spacing        */
+extern bool vspacing_active[MAX_STAFFS]; /* virtual-note spacing active?       */
                       /* used to preclude unnecessary pre-accidental skips    */
 
-bool nonvirtual_notes;          /* used to preclude output of *only* virtual notes */
+extern bool nonvirtual_notes;          /* used to preclude output of *only* virtual notes */
 
-int cspacing[MAX_STAFFS];       /* nominal collective-note spacing    */
-char collective[MAX_STAFFS][SHORT_LEN];
+extern int cspacing[MAX_STAFFS];       /* nominal collective-note spacing    */
+extern char collective[MAX_STAFFS][SHORT_LEN];
                                     /* prefixes for collective note sequences */
-bool first_collective[MAX_STAFFS];
+extern bool first_collective[MAX_STAFFS];
 
-char deferred_bar[SHORT_LEN];   /* deferred \bar (or \endpiece etc.)  */
+extern char deferred_bar[SHORT_LEN];   /* deferred \bar (or \endpiece etc.)  */
 
-int beaming[MAX_STAFFS];        /* spacing for beamed notes           */
-int new_beaming;
-int semiauto_beam_notes[MAX_STAFFS]; /* semi-automatic beam notes     */
+extern int beaming[MAX_STAFFS];        /* spacing for beamed notes           */
+extern int new_beaming;
+extern int semiauto_beam_notes[MAX_STAFFS]; /* semi-automatic beam notes     */
 
-int spacing_staff;              /* staff that determines current spacing  */
+extern int spacing_staff;              /* staff that determines current spacing  */
 
 /* save-restore state for a staff; used in process_xtuplet */
-int beamingi;  
-char *currenti;
-int cspacingi;
-int vspacingi;
-char collectivei[SHORT_LEN];
-bool first_collectivei;
+extern int beamingi;  
+extern char *currenti;
+extern int cspacingi;
+extern int vspacingi;
+extern char collectivei[SHORT_LEN];
+extern bool first_collectivei;
 
-int xtuplet[MAX_STAFFS];        /* x for xtuplet in staff i          */
+extern int xtuplet[MAX_STAFFS];        /* x for xtuplet in staff i          */
 
-bool appoggiatura;
+extern bool appoggiatura;
 
-char outstrings[MAX_STAFFS][LINE_LEN];  
+extern char outstrings[MAX_STAFFS][LINE_LEN];  
                                      /* accumulate commands to be output    */
-char *n_outstrings[MAX_STAFFS];
+extern char *n_outstrings[MAX_STAFFS];
 
-int global_skip;  
+extern int global_skip;  
    /* = 1, 2, 3, or 4 for (non-standard) commands \QQsk \HQsk \TQsk \Qsk    */
    /* = 5 for five commas and double-flat accidental spacing                */
    /* = 6 for six commas                                                    */
 
 
-char s[SHORT_LEN];  /* string for ps()  */
-char *s_n;
+extern char s[SHORT_LEN];  /* string for ps()  */
+extern char *s_n;
+
 char *ps(int spacing);
 void note_segment (char *s);
 void status (int i);

@@ -42,7 +42,7 @@ a bundle of outline font manipulation tools.
 ### Upgraded programs
 
 * asymptote 2.62
-* autosp 2019-12-22
+* autosp 2020-02-06
 * dvipdfmx 20200116
 * dvipng 1.17
 * dvips 2020.1

@@ -17,11 +17,11 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 7337
+#define MIKTEX_COMP_J2000_VERSION 7342
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2019-12-22"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2020-02-06"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 2014-2019 R. D. Tennent School of Computing, Queen's University"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2014-2019 R. D. Tennent School of Computing, Queen's University"
+#define MIKTEX_COMP_COPYRIGHT_STR "(C) 2014-2020 R. D. Tennent School of Computing, Queen's University"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2014-2020 R. D. Tennent School of Computing, Queen's University"
 
 #include <miktex/Version>
