@@ -921,7 +921,7 @@ void IniTeXMFApp::ListMetafontModes()
   MIKTEXMFMODE mode;
   for (unsigned i = 0; session->GetMETAFONTMode(i, mode); ++i)
   {
-    cout << fmt::format("{<8}  {>5}x{<5}  {}", mode.mnemonic, mode.horizontalResolution, mode.verticalResolution, mode.description) << endl;
+    cout << fmt::format("{:<8}  {:>5}x{:<5}  {}", mode.mnemonic, mode.horizontalResolution, mode.verticalResolution, mode.description) << endl;
   }
 }
 
