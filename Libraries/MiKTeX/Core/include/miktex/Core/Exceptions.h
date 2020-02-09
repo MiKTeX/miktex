@@ -1,6 +1,6 @@
 /* miktex/Core/Exceptions.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -59,7 +59,7 @@ struct SourceLocation
 #endif
 
 /// The MiKTeX exception base class.
-class MiKTeXException :
+class MIKTEXCOREEXPORT MiKTeXException :
   public std::exception
 {
 public:
