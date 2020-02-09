@@ -59,7 +59,7 @@ struct SourceLocation
 #endif
 
 /// The MiKTeX exception base class.
-class MIKTEXCOREEXPORT MiKTeXException :
+class MiKTeXException :
   public std::exception
 {
 public:
@@ -125,7 +125,7 @@ public:
   MiKTeXException& operator=(MiKTeXException&& other) = default;
 
 public:
-  virtual ~MiKTeXException() = default;
+  virtual MIKTEXCOREEXPORT ~MiKTeXException() = default;
 
   /// Initializes a new MiKTeXException object.
   /// @param programInvocationName Name of the program where the
