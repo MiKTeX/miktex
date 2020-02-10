@@ -2691,7 +2691,12 @@ void MainWindow::Restart()
 {
   LOG4CXX_INFO(logger, "MiKTeX Console needs to be restarted");
   QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be restarted."));
-  Process::Start(session->GetMyProgramFile(true));
+  vector<string> args{ MIKTEX_CONSOLE_EXE };
+  if (session->IsAdminMode())
+  {
+    args.push_back("--admin");
+  }
+  Process::Start(session->GetMyProgramFile(true), args);
   this->close();
 }
 

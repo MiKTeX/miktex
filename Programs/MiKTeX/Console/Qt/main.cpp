@@ -71,7 +71,7 @@ namespace {
   struct poptOption const aoption[] = {
     {
       "admin", 0, POPT_ARG_NONE, nullptr, OPT_ADMIN,
-      "Run in administrator mode.", nullptr
+      "Run in MiKTeX administrator mode.", nullptr
     },
     {
       "check-updates", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CHECK_UPDATES,
