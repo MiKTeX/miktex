@@ -1,6 +1,6 @@
 /* winSetupService.cpp:
 
-   Copyright (C) 2014-2019 Christian Schenk
+   Copyright (C) 2014-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -827,45 +827,44 @@ bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(string& path)
 void winSetupServiceImpl::RemoveRegistryKeys()
 {
   shared_ptr<Session> session = Session::Get();
-  bool shared = session->RunningAsAdministrator();
 
-  if (shared && Exists(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_SERIES))
+  if (session->IsAdminMode() && Exists(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_SERIES))
   {
     RemoveRegistryKey(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_SERIES);
   }
 
-  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES))
+  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES);
   }
 
-  if (shared
+  if (session->IsAdminMode()
     && Exists(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_PRODUCT)
     && IsEmpty(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_PRODUCT))
   {
     RemoveRegistryKey(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_PRODUCT);
   }
 
-  if (shared
+  if (session->IsAdminMode()
     && Exists(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_COMPANY)
     && IsEmpty(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_COMPANY))
   {
     RemoveRegistryKey(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_COMPANY);
   }
 
-  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT)
+  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT)
     && IsEmpty(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT);
   }
 
-  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY)
+  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY)
     && IsEmpty(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY);
   }
 
-  if (!shared && Exists(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT))
+  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT))
   {
     RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT);
   }

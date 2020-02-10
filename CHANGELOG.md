@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.7300 - 2020-02-09
+## 2.9.7300 - 2020-02-12
 
 ### Group-delimited \input argument
 
@@ -56,6 +56,7 @@ a bundle of outline font manipulation tools.
 
 ### Fixed issues
 
+* [419](https://github.com/MiKTeX/miktex/issues/419): Admin mode required but not accessible
 * [420](https://github.com/MiKTeX/miktex/issues/420): miktexsetup fails -- how to advance?
 * [422](https://github.com/MiKTeX/miktex/issues/422): Increase font_mem_size upper limit
 * [428](https://github.com/MiKTeX/miktex/issues/428): GSF2PK failed on postscript font

@@ -1214,7 +1214,7 @@ void SetupServiceImpl::DoCleanUp()
       PathName fontConfig(MIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR);
       // FIXME: hard-coded file name
       fontConfig /= "09-miktex.conf";
-      if (session->RunningAsAdministrator() && File::Exists(fontConfig))
+      if (session->IsAdminMode() && File::Exists(fontConfig))
       {
         File::Delete(fontConfig);
       }
@@ -1285,7 +1285,7 @@ vector<PathName> SetupServiceImpl::GetRoots()
 void SetupServiceImpl::UnregisterComponents()
 {
   shared_ptr<Session> session = Session::Get();
-  if (session->RunningAsAdministrator())
+  if (session->IsAdminMode())
   {
     std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager(PackageManager::Create());
     shared_ptr<PackageInstaller> packageInstaller(packageManager->CreateInstaller());
