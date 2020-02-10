@@ -1,6 +1,6 @@
 /* mpm.cpp: MiKTeX Package Manager (cli version)
 
-   Copyright (C) 2003-2019 Christian Schenk
+   Copyright (C) 2003-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -219,6 +219,9 @@ private:
 
 private:
   void Warn(const string& s);
+
+private:
+  void SecurityRisk(const string& s);
 
 private:
   void Message(const string& s);
@@ -723,6 +726,15 @@ void Application::Warn(const string& s)
     LOG4CXX_WARN(logger, s);
   }
   cerr << T_("Warning:") << " " << s << endl;
+}
+
+void Application::SecurityRisk(const string& s)
+{
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_WARN(logger, T_("security risk:") << " " << s);
+  }
+  cerr << T_("security risk:") << " " << s << endl;
 }
 
 void Application::Sorry(const string& description, const string& remedy, const string& url)
@@ -1848,7 +1860,7 @@ void Application::Main(int argc, const char** argv)
 
   if (session->RunningAsAdministrator() && !session->IsAdminMode())
   {
-    Warn(T_("Option --admin should be specified when running this program with administrator privileges"));
+    SecurityRisk(T_("running with elevated privileges"));
   }
 
   PathName xmlFileName;

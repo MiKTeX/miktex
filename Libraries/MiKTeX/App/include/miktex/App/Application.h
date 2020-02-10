@@ -212,6 +212,11 @@ public:
 public:
   MIKTEXAPPCEEAPI(void) Warning(const std::string& message);
 
+  /// Print a security warning nessage.
+  /// @param message The security warning message.
+public:
+  MIKTEXAPPCEEAPI(void) SecurityRisk(const std::string& message);
+
   /// Starts a text editor.
   /// @param editFileName Path to the file to be edited.
   /// @param editLineNumber The line where the edit cursor should be moved to.

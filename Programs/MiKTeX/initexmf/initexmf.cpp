@@ -220,6 +220,9 @@ private:
   void Warning(const string& s);
 
 private:
+  void SecurityRisk(const string& s);
+
+private:
   MIKTEXNORETURN void FatalError(const string& s);
 
 private:
@@ -690,7 +693,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   }
   if (session->RunningAsAdministrator() && !session->IsAdminMode())
   {
-    Warning(T_("Option --admin should be specified when running this program with administrator privileges"));
+    SecurityRisk(T_("running with elevated privileges"));
   }
   Bootstrap();
   enableInstaller = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
@@ -768,6 +771,18 @@ void IniTeXMFApp::Warning(const string& s)
   if (!quiet)
   {
     cerr << PROGNAME << ": " << T_("warning") << ": " << s << endl;
+  }
+}
+
+void IniTeXMFApp::SecurityRisk(const string& s)
+{
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_WARN(logger, T_("security risk") << ": " << s);
+  }
+  if (!quiet)
+  {
+    cerr << PROGNAME << ": " << T_("security risk") << ": " << s << endl;
   }
 }
 

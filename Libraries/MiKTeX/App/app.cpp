@@ -463,7 +463,7 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   }
   if (pimpl->session->RunningAsAdministrator() && !pimpl->session->IsAdminMode())
   {
-    Warning(T_("running with elevated privileges"));
+    SecurityRisk(T_("running with elevated privileges"));
   }
   if (pimpl->enableMaintenance == TriState::True)
   {
@@ -898,6 +898,15 @@ void Application::Warning(const string& s)
   if (!pimpl->beQuiet)
   {
     cerr << Utils::GetExeName() << ": " << T_("warning") << ": " << s << endl;
+  }
+}
+
+void Application::SecurityRisk(const string& s)
+{
+  LogWarn(T_("security risk") + ": "s + s);
+  if (!pimpl->beQuiet)
+  {
+    cerr << Utils::GetExeName() << ": " << T_("security risk") << ": " << s << endl;
   }
 }
 
