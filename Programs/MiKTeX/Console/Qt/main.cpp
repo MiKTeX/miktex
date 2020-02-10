@@ -1,6 +1,6 @@
 /* main.cpp:
 
-   Copyright (C) 2017-2019 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -366,7 +366,7 @@ int main(int argc, char* argv[])
     }
     bool fastExit = false;
     {
-      MainWindow mainWindow(nullptr, startPage);
+      MainWindow mainWindow(nullptr, startPage, optFinishSetup || optCheckUpdates);
       if (optHide)
       {
         mainWindow.hide();

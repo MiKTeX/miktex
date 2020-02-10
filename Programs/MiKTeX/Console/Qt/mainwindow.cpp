@@ -103,11 +103,16 @@ void SetupServiceCallbackImpl::ReportLine(const string& str)
 #endif
 }
 
-MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
+MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage, bool dontFindIssues) :
   QMainWindow(parent),
-  ui(new Ui::MainWindow),
-  okayUserMode(CheckIssue(IssueType::UserUpdateCheckOverdue).first)
+  ui(new Ui::MainWindow)
 {
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
+  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
+  isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !session->IsMiKTeXPortable();
+  this->dontFindIssues = isSetupMode || dontFindIssues;
+  okayUserMode = isSetupMode || CheckIssue(IssueType::UserUpdateCheckOverdue).first;
+
   if (IsUserModeBlocked())
   {
     startPage = Pages::Overview;
@@ -128,10 +133,6 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   SetupUiPackages();
   SetupUiDiagnose();
   SetupUiCleanup();
-
-  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
-  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
-  isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !session->IsMiKTeXPortable();
 
 #if defined(MIKTEX_WINDOWS)
   bool withTrayIcon = true; // session->IsMiKTeXPortable();
@@ -168,7 +169,10 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   UpdateUi();
   UpdateActions();
   
-  QTimer::singleShot(0, this, SLOT(ShowMajorIssue()));
+  if (!this->isSetupMode)
+  {
+    QTimer::singleShot(0, this, SLOT(ShowMajorIssue()));
+  }
 }
 
 void MainWindow::ShowMajorIssue()

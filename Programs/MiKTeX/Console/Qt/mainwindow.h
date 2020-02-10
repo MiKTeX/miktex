@@ -70,7 +70,7 @@ public:
   };
 
 public:
-  explicit MainWindow(QWidget* parent = nullptr, Pages startPage = Pages::Overview);
+  explicit MainWindow(QWidget* parent = nullptr, Pages startPage = Pages::Overview, bool dontFindIssues = false);
 
 public:
   ~MainWindow() override;
@@ -114,7 +114,7 @@ private:
 private:
   void FindIssues()
   {
-    issues = MiKTeX::Setup::SetupService::FindIssues(true, false);
+    issues = isSetupMode || dontFindIssues ? std::vector<MiKTeX::Setup::Issue>() : MiKTeX::Setup::SetupService::FindIssues(true, false);
     checkedIssues = true;
   }
 
@@ -270,6 +270,9 @@ private slots:
 
 private:
   bool isSetupMode = false;
+
+private:
+  bool dontFindIssues = false;
 
 public slots:
   void FinishSetup();
