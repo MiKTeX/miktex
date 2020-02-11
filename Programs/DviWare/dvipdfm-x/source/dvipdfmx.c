@@ -143,7 +143,18 @@ set_default_pdf_filename(void)
   size_t      len = 0;
 
   dvi_base = xbasename(dvi_filename);
+#if defined(MIKTEX)
+  /* fix potential buffer overflow
+     (we are back in the Eighties) */ 
+  suffix = strrchr(dvi_base, '.');
+  if (suffix == NULL)
+  {
+    suffix = dvi_base + strlen(dvi_base);
+  }
+  len = strlen(dvi_base) - strlen(suffix);
+#else
   len      = strlen(dvi_base) - strlen(".dvi");
+#endif
   suffix   = dvi_base + len;
   if (dpx_conf.compat_mode == dpx_mode_mpost_mode && len > 0 &&
       FILESTRCASEEQ(".mps", suffix)) {
