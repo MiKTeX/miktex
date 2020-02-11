@@ -125,7 +125,7 @@ public:
   MiKTeXException& operator=(MiKTeXException&& other) = default;
 
 public:
-  virtual MIKTEXCOREEXPORT ~MiKTeXException() = default;
+  MIKTEXCOREEXPORT ~MiKTeXException() = default;
 
   /// Initializes a new MiKTeXException object.
   /// @param programInvocationName Name of the program where the
