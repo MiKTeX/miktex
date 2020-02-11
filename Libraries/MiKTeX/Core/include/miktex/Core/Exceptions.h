@@ -59,7 +59,7 @@ struct SourceLocation
 #endif
 
 /// The MiKTeX exception base class.
-class MiKTeXException :
+class MIKTEXCORETYPEAPI(MiKTeXException) :
   public std::exception
 {
 public:
@@ -282,7 +282,7 @@ inline std::string MiKTeXException::KVMAP::ToString() const
   return oss.str();
 }
 
-class OperationCancelledException :
+class MIKTEXCORETYPEAPI(OperationCancelledException) :
   public MiKTeXException
 {
 public:
@@ -308,7 +308,7 @@ public:
 };
 
 /// Instances of this class represent I/O exceptions.
-class IOException :
+class MIKTEXCORETYPEAPI(IOException) :
   public MiKTeXException
 {
 public:
@@ -347,7 +347,7 @@ public:
 
 /// File not found exception class.
 /// An instance of this class is thrown when a file could not be found.
-class BrokenPipeException :
+class MIKTEXCORETYPEAPI(BrokenPipeException) :
   public IOException
 {
 public:
@@ -380,7 +380,7 @@ public:
 
 /// File exists exception class.
 /// An instance of this class is thrown when a file could not be created because it already exists.
-class FileExistsException :
+class MIKTEXCORETYPEAPI(FileExistsException) :
 public IOException
 {
 public:
@@ -419,7 +419,7 @@ public:
 
 /// File not found exception class.
 /// An instance of this class is thrown when a file could not be found.
-class FileNotFoundException :
+class MIKTEXCORETYPEAPI(FileNotFoundException) :
   public IOException
 {
 public:
@@ -456,7 +456,7 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL FileNotFoundException(const std::string& programInvocationName, const std::string& errorMessage, const std::string& description, const std::string& remedy, const std::string& tag, const KVMAP& info, const SourceLocation& sourceLocation);
 };
 
-class DirectoryNotEmptyException :
+class MIKTEXCORETYPEAPI(DirectoryNotEmptyException) :
   public IOException
 {
 public:
@@ -485,7 +485,7 @@ public:
 /// Unauthorized access exception class.
 /// An instance of this class is thrown when the operating system denies
 /// access.
-class UnauthorizedAccessException :
+class MIKTEXCORETYPEAPI(UnauthorizedAccessException) :
   public MiKTeXException
 {
 public:
@@ -524,7 +524,7 @@ public:
 
 #if defined(MIKTEX_WINDOWS)
 /// Sharing violation exception class.
-class SharingViolationException :
+class MIKTEXCORETYPEAPI(SharingViolationException) :
   public IOException
 {
 public:
