@@ -329,12 +329,12 @@ void Application::AutoMaintenance()
   bool mustUpdateDb = false;
   if (!pimpl->session->IsAdminMode())
   {
-    PathName downloadedPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::CommonDataRoot)
-      / "miktex" / "packages"
+    PathName cachedCommonPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::CommonDataRoot)
+      / "miktex" / "cache" / "packages" // TODO: #define
       / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX
       / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;
     PathName userPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-    mustUpdateDb = IsNewer(downloadedPackageManifestsIni, userPackageManifestsIni);
+    mustUpdateDb = IsNewer(cachedCommonPackageManifestsIni, userPackageManifestsIni);
   }
 
   PathName initexmf;
@@ -346,6 +346,19 @@ void Application::AutoMaintenance()
       return;
     }
     LOG4CXX_TRACE(logger, "running MIKTEX_HOOK_AUTO_MAINTENANCE")
+    if (mustUpdateDb)
+    {
+      if (pimpl->packageManager == nullptr)
+      {
+        pimpl->packageManager = PackageManager::Create();
+      }
+      if (pimpl->installer == nullptr)
+      {
+        pimpl->installer = pimpl->packageManager->CreateInstaller();
+      }
+      pimpl->installer->SetCallback(this);
+      pimpl->installer->UpdateDb({ UpdateDbOption::FromCache });
+    }
     vector<string> commonArgs{ initexmf.GetFileNameWithoutExtension().ToString() };
     switch (pimpl->enableInstaller)
     {
@@ -364,11 +377,6 @@ void Application::AutoMaintenance()
     }
     commonArgs.push_back("--quiet");
     int exitCode;
-    if (mustUpdateDb)
-    {
-      // TODO
-      LOG4CXX_WARN(logger, "package db is not up-to-date");
-    }
     if (mustRefreshFndb)
     {
       vector<string> args = commonArgs;

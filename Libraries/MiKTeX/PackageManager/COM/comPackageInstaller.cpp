@@ -239,7 +239,7 @@ STDMETHODIMP comPackageInstaller::UpdateDb()
       }
       packageInstaller = packageManager->CreateInstaller();
     }
-    packageInstaller->UpdateDb();
+    packageInstaller->UpdateDb({});
   }
   catch (const MiKTeXException& e)
   {

@@ -1,6 +1,6 @@
 /* PackageInstallerImpl.h:                              -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -84,7 +84,7 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL UpdateDb() override;
+  void MIKTEXTHISCALL UpdateDb(UpdateDbOptionSet options) override;
 
 public:
   void MIKTEXTHISCALL UpdateDbAsync() override;

@@ -428,7 +428,7 @@ void PackageInstallerImpl::FindUpdates()
 
   trace_mpm->WriteLine(TRACE_FACILITY, T_("searching for updateable packages"));
 
-  UpdateDb();
+  UpdateDb({});
 
   LoadRepositoryManifest(false);
 
@@ -631,7 +631,7 @@ void PackageInstallerImpl::FindUpdatesThread()
 void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, T_("searching for upgrades"));
-  UpdateDb();
+  UpdateDb({});
   LoadRepositoryManifest(false);
   upgrades.clear();
   for (string packageId = repositoryManifest.FirstPackage(); !packageId.empty(); packageId = repositoryManifest.NextPackage())
@@ -2134,7 +2134,12 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& existingManifests
   packageDataStore->SaveVarData();
 }
 
-void PackageInstallerImpl::UpdateDb()
+inline bool IsNewer(const PathName& path1, const PathName& path2)
+{
+  return File::Exists(path1) && File::Exists(path2) && File::GetLastWriteTime(path1) > File::GetLastWriteTime(path2);
+}
+
+void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "update package database");
 
@@ -2173,38 +2178,65 @@ void PackageInstallerImpl::UpdateDb()
     repositoryReleaseState = packageManager->VerifyPackageRepository(repository).releaseState;
   }
 
-  // we need a temporary file if we download the archive file
-  unique_ptr<TemporaryFile> temporaryFile;
+  PathName cacheDirectory;
 
-  // prepare archive directory
-  PathName archiveDirectory = session->GetSpecialPath(SpecialPath::DataRoot) / "miktex" / "packages" / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
-  if (Directory::Exists(archiveDirectory))
+  if (options[UpdateDbOption::FromCache] && !session->IsAdminMode())
   {
-    Directory::Delete(archiveDirectory, true);
-  }
-  Directory::Create(archiveDirectory);
-
-  PathName archivePath;
-
-  if (repositoryType == RepositoryType::Remote)
-  {
-    // download the archive file
-    temporaryFile = TemporaryFile::Create();
-    archivePath = temporaryFile->GetPathName();
-    Download(MakeUrl(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME), archivePath);
+    // find the newest package-manifests.ini
+    PathName commonCacheDirectory = session->GetSpecialPath(SpecialPath::CommonDataRoot)
+      / "miktex" / "cache" / "packages" // TODO: #define
+      / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
+    PathName userCacheDirectory = session->GetSpecialPath(SpecialPath::UserDataRoot)
+      / "miktex" / "cache" / "packages" // TODO: #define
+      / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
+    cacheDirectory = IsNewer(commonCacheDirectory / MIKTEX_PATH_PACKAGE_MANIFESTS_INI, userCacheDirectory / MIKTEX_PATH_PACKAGE_MANIFESTS_INI)
+      ? commonCacheDirectory
+      : userCacheDirectory;
   }
   else
   {
-    MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-    archivePath = repository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
+    cacheDirectory = session->GetSpecialPath(SpecialPath::DataRoot)
+      / "miktex" / "cache" / "packages" // TODO: #define
+      / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
   }
 
-  // extract new package-manifests.ini
-  MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(archivePath, archiveDirectory);
+  // prepare the cache directory
+  if (!options[UpdateDbOption::FromCache])
+  {
+    if (Directory::Exists(cacheDirectory))
+    {
+      Directory::Delete(cacheDirectory, true);
+    }
+    Directory::Create(cacheDirectory);
+  }
 
-  // load new package-manifests.ini
+  if (!options[UpdateDbOption::FromCache])
+  {
+    // we need a temporary file if we download the archive file
+    unique_ptr<TemporaryFile> temporaryFile;
+
+    PathName archivePath;
+
+    if (repositoryType == RepositoryType::Remote)
+    {
+      // download the archive file
+      temporaryFile = TemporaryFile::Create();
+      archivePath = temporaryFile->GetPathName();
+      Download(MakeUrl(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME), archivePath);
+    }
+    else
+    {
+      MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
+      archivePath = repository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
+    }
+
+    // extract package-manifests.ini into cache directory
+    MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(archivePath, cacheDirectory);
+  }
+
+  // load cached package-manifests.ini
   unique_ptr<Cfg> newManifests = Cfg::Create();
-  newManifests->Read(archiveDirectory / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
+  newManifests->Read(cacheDirectory / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
 
   // load existing package-manifests.ini
   unique_ptr<Cfg> existingManifests = Cfg::Create();
@@ -2282,7 +2314,7 @@ void PackageInstallerImpl::UpdateDbThread()
 {
   try
   {
-    UpdateDb();
+    UpdateDb({});
     progressInfo.ready = true;
     Notify();
   }

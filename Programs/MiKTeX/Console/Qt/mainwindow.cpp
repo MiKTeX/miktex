@@ -2255,7 +2255,7 @@ bool UpdateDbWorker::Run()
     unique_ptr<PackageInstaller> installer = packageManager->CreateInstaller();
     installer->SetCallback(this);
     LOG4CXX_INFO(logger, "updating package database...");
-    installer->UpdateDb();
+    installer->UpdateDb({});
     result = true;
   }
   catch (const MiKTeXException& e)

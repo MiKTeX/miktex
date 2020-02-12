@@ -934,7 +934,7 @@ void SetupServiceImpl::DoTheInstallation()
 
   // install package manifest files
   packageManager->UnloadDatabase();
-  packageInstaller->UpdateDb();
+  packageInstaller->UpdateDb({});
 
   if (cancelled)
   {

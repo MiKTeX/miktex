@@ -820,7 +820,7 @@ void Application::UpdateDb()
   {
     installer->SetRepository(repository);
   }
-  installer->UpdateDb();
+  installer->UpdateDb({});
   installer->Dispose();
 }
 

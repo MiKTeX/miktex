@@ -2002,7 +2002,7 @@ void IniTeXMFApp::Bootstrap()
       PushTraceMessage("running MIKTEX_HOOK_BOOTSTRAPPING");
       EnsureInstaller();
       packageInstaller->SetRepository(bootstrappingDir.ToString());
-      packageInstaller->UpdateDb();
+      packageInstaller->UpdateDb({});
       packageInstaller->SetFileList(neededPackages);
       packageInstaller->InstallRemove(PackageInstaller::Role::Application);
       packageInstaller = nullptr;
@@ -2664,7 +2664,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
         if (enableInstaller == TriState::True)
         {
           EnsureInstaller();
-          packageInstaller->UpdateDb();
+          packageInstaller->UpdateDb({});
         }
         else
         {
