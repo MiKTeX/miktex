@@ -143,26 +143,21 @@ set_default_pdf_filename(void)
   size_t      len = 0;
 
   dvi_base = xbasename(dvi_filename);
-#if defined(MIKTEX)
-  /* fix potential buffer overflow
-     (we are back in the Eighties) */ 
+
   suffix = strrchr(dvi_base, '.');
-  if (suffix == NULL)
-  {
+  /* suffix can be dvi_base if dvi_base is like ".abcde" */
+
+  if (suffix == NULL || suffix == dvi_base) {
     suffix = dvi_base + strlen(dvi_base);
   }
   len = strlen(dvi_base) - strlen(suffix);
-#else
-  len      = strlen(dvi_base) - strlen(".dvi");
-#endif
-  suffix   = dvi_base + len;
-  if (dpx_conf.compat_mode == dpx_mode_mpost_mode && len > 0 &&
+
+  if (dpx_conf.compat_mode == dpx_mode_mpost_mode &&
       FILESTRCASEEQ(".mps", suffix)) {
     pdf_filename = NEW(len+strlen(".pdf")+1, char);
     strncpy(pdf_filename, dvi_base, len);
     pdf_filename[len] = '\0';
-  } else if (len > 0 &&
-             (FILESTRCASEEQ(".dvi", suffix) ||
+  } else if ((FILESTRCASEEQ(".dvi", suffix) ||
               FILESTRCASEEQ(".xdv", suffix))) {
     pdf_filename = NEW(len+strlen(".pdf")+1, char);
     strncpy(pdf_filename, dvi_base, len);
