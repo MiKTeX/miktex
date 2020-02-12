@@ -2673,6 +2673,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       }
       else
       {
+        Verbose(T_("Creating fndb for MPM..."));
         packageManager->CreateMpmFndb();
       }
     }
