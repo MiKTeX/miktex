@@ -1,6 +1,6 @@
 /* comPackageInstaller.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -93,7 +93,7 @@ void comPackageInstaller::ReportLine(const string& str)
   {
     return;
   }
-  HRESULT hr = installerCallback->ReportLine(_bstr_t(StringUtil::UTF8ToWideChar(str).c_str()));
+  HRESULT hr = installerCallback->ReportLine(_bstr_t(StringUtil::UTF8ToWideChar("mpmsvc: "s + str).c_str()));
   if (FAILED(hr))
   {
     // FIXME
