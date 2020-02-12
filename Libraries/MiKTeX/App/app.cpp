@@ -324,8 +324,21 @@ void Application::AutoMaintenance()
   PathName userLanguagesIni = pimpl->session->IsAdminMode() ? "" : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGES_INI;
   mustRefreshUserLanguageDat = mustRefreshUserLanguageDat || (!pimpl->session->IsAdminMode() && IsNewer(userLanguagesIni, userLanguageDat));
 
+  // must update package db if:
+  //   (1) in user mode and an admin just updated the system-wide package db
+  bool mustUpdateDb = false;
+  if (!pimpl->session->IsAdminMode())
+  {
+    PathName downloadedPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::CommonDataRoot)
+      / "miktex" / "packages"
+      / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX
+      / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;
+    PathName userPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+    mustUpdateDb = IsNewer(downloadedPackageManifestsIni, userPackageManifestsIni);
+  }
+
   PathName initexmf;
-  if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
+  if ((mustRefreshFndb || mustRefreshUserLanguageDat || mustUpdateDb) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
     unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_AUTO_MAINTENANCE_LOCK);
     if (!lockFile->TryLock(0ms))
@@ -351,6 +364,11 @@ void Application::AutoMaintenance()
     }
     commonArgs.push_back("--quiet");
     int exitCode;
+    if (mustUpdateDb)
+    {
+      // TODO
+      LOG4CXX_WARN(logger, "package db is not up-to-date");
+    }
     if (mustRefreshFndb)
     {
       vector<string> args = commonArgs;

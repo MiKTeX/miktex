@@ -1,6 +1,6 @@
 /* PackageInstaller.cpp:
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -2173,19 +2173,25 @@ void PackageInstallerImpl::UpdateDb()
     repositoryReleaseState = packageManager->VerifyPackageRepository(repository).releaseState;
   }
 
-  // we need a temporary directory
-  unique_ptr<TemporaryDirectory> tempDir;
-  tempDir = TemporaryDirectory::Create();
+  // we need a temporary file if we download the archive file
+  unique_ptr<TemporaryFile> temporaryFile;
+
+  // prepare archive directory
+  PathName archiveDirectory = session->GetSpecialPath(SpecialPath::DataRoot) / "miktex" / "packages" / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
+  if (Directory::Exists(archiveDirectory))
+  {
+    Directory::Delete(archiveDirectory, true);
+  }
+  Directory::Create(archiveDirectory);
 
   PathName archivePath;
 
   if (repositoryType == RepositoryType::Remote)
   {
     // download the archive file
-    archivePath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
-    unique_ptr<TemporaryFile> temporaryFile = TemporaryFile::Create(archivePath);
-    Download(MakeUrl(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME), temporaryFile->GetPathName());
-    temporaryFile->Keep();
+    temporaryFile = TemporaryFile::Create();
+    archivePath = temporaryFile->GetPathName();
+    Download(MakeUrl(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME), archivePath);
   }
   else
   {
@@ -2194,11 +2200,11 @@ void PackageInstallerImpl::UpdateDb()
   }
 
   // extract new package-manifests.ini
-  MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(archivePath, tempDir->GetPathName());
+  MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(archivePath, archiveDirectory);
 
   // load new package-manifests.ini
   unique_ptr<Cfg> newManifests = Cfg::Create();
-  newManifests->Read(tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
+  newManifests->Read(archiveDirectory / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
 
   // load existing package-manifests.ini
   unique_ptr<Cfg> existingManifests = Cfg::Create();
