@@ -314,13 +314,13 @@ void Application::AutoMaintenance()
   //   (1) it doesn't exist
   //   (2) in user mode and an admin just modified the MiKTeX configuration
   PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
-  bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
+  bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance > File::GetLastWriteTime(mpmDatabasePath));
 
   // must build language.dat if:
   //   (1) in user mode and an admin just modified the MiKTeX configuration
   //   (2) in user mode and languages.ini is newer than languages.dat
   PathName userLanguageDat = pimpl->session->IsAdminMode() ? "" : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
-  bool mustRefreshUserLanguageDat = !pimpl->session->IsAdminMode() && File::Exists(userLanguageDat) && lastAdminMaintenance + 30 > File::GetLastWriteTime(userLanguageDat);
+  bool mustRefreshUserLanguageDat = !pimpl->session->IsAdminMode() && File::Exists(userLanguageDat) && lastAdminMaintenance > File::GetLastWriteTime(userLanguageDat);
   PathName userLanguagesIni = pimpl->session->IsAdminMode() ? "" : pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGES_INI;
   mustRefreshUserLanguageDat = mustRefreshUserLanguageDat || (!pimpl->session->IsAdminMode() && IsNewer(userLanguagesIni, userLanguageDat));
 
