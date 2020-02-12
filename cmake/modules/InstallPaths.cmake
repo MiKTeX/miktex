@@ -1,6 +1,6 @@
 ## InstallPaths.cmake
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -96,6 +96,8 @@ set(MIKTEX_DOC_DESTINATION_DIR "${MIKTEX_DIST_DIR}/${MIKTEX_REL_MIKTEX_DOC_DIR}"
 set(MIKTEX_REL_MIKTEX_BOOTSTRAPPING_DIR "miktex/bootstrapping")
 
 set(MIKTEX_BOOTSTRAPPING_DESTINATION_DIR "${MIKTEX_DIST_DIR}/${MIKTEX_REL_MIKTEX_BOOTSTRAPPING_DIR}")
+
+set(MIKTEX_REL_MIKTEX_CACHE_DIR "miktex/cache")
 
 set(MIKTEX_REL_MIKTEX_CONFIG_DIR "miktex/config")
 
