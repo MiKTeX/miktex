@@ -2070,6 +2070,15 @@ void PackageInstallerImpl::CleanUpUserDatabase()
       continue;
     }
 
+    // check to see whether the package is installed for the user
+    bool knownPackage;
+    PackageInfo package;
+    tie(knownPackage, package) = packageDataStore->TryGetPackage(packageId);
+    if (knownPackage && package.IsInstalled(ConfigurationScope::User))
+    {
+      continue;
+    }
+
     // compare manifests
     if (PackageManager::GetPackageManifest(*userManifests, packageId, TEXMF_PREFIX_DIRECTORY) == PackageManager::GetPackageManifest(*commonManifests, packageId, TEXMF_PREFIX_DIRECTORY))
     {
