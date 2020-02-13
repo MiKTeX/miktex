@@ -2143,10 +2143,13 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "update package database");
 
-  NeedRepository();
+  if (!options[UpdateDbOption::FromCache])
+  {
+    NeedRepository();
+  }
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-  if (UseLocalServer())
+  if (!options[UpdateDbOption::FromCache] && UseLocalServer())
   {
     ConnectToServer();
     localServer.pInstaller->SetRepository(_bstr_t(repository.c_str()));
@@ -2168,14 +2171,17 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
   }
 #endif
 
-  if (repositoryType == RepositoryType::Unknown)
+  if (!options[UpdateDbOption::FromCache])
   {
-    repository = packageManager->PickRepositoryUrl();
-    repositoryType = RepositoryType::Remote;
-  }
-  else if (repositoryType == RepositoryType::Remote)
-  {
-    repositoryReleaseState = packageManager->VerifyPackageRepository(repository).releaseState;
+    if (repositoryType == RepositoryType::Unknown)
+    {
+      repository = packageManager->PickRepositoryUrl();
+      repositoryType = RepositoryType::Remote;
+    }
+    else if (repositoryType == RepositoryType::Remote)
+    {
+      repositoryReleaseState = packageManager->VerifyPackageRepository(repository).releaseState;
+    }
   }
 
   PathName cacheDirectory;
@@ -2200,7 +2206,7 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
       / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
   }
 
-  // prepare the cache directory
+  // prepare the cache directory for writing
   if (!options[UpdateDbOption::FromCache])
   {
     if (Directory::Exists(cacheDirectory))
