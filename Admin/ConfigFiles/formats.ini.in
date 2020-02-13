@@ -297,6 +297,13 @@
 	description = lualollipop
 	input = lualollipop.ini
 
+[optex]
+
+	attributes = exclude
+	compiler = luatex
+	description = optex
+	input = optex.ini
+
 [utf8mex]
 
 	arguments = -enable-enctex
