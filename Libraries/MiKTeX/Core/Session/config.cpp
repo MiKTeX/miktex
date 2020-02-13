@@ -1,6 +1,6 @@
 /* config.cpp: MiKTeX configuration settings
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -541,6 +541,19 @@ int ConfigValue::GetInt() const
     return (int)this->c;
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to integer."), "type", std::to_string(static_cast<int>(this->type)));
+  }
+}
+
+std::time_t ConfigValue::GetTimeT() const
+{
+  switch (type)
+  {
+  case Type::String:
+    return std::stoll(this->s);
+  case Type::Int:
+    return (std::time_t)this->i;
+  default:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to time_t."), "type", std::to_string(static_cast<int>(this->type)));
   }
 }
 

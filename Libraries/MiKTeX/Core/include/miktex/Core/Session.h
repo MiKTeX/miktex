@@ -1,6 +1,6 @@
 /* miktex/Core/Session.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -582,6 +582,11 @@ public:
   /// @return Returns the configuration value.
 public:
   MIKTEXCORETHISAPI(char) GetChar() const;
+
+  /// Gets the configuration value as a time_t.
+  /// @return Returns the configuration value.
+public:
+  MIKTEXCORETHISAPI(std::time_t) GetTimeT() const;
 
   /// Gets the configuration value as a string list.
   /// @return Returns the configuration value.

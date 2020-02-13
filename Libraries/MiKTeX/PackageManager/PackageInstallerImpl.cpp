@@ -2184,10 +2184,10 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
   {
     // find the newest package-manifests.ini
     PathName commonCacheDirectory = session->GetSpecialPath(SpecialPath::CommonDataRoot)
-      / "miktex" / "cache" / "packages" // TODO: #define
+      / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
       / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
     PathName userCacheDirectory = session->GetSpecialPath(SpecialPath::UserDataRoot)
-      / "miktex" / "cache" / "packages" // TODO: #define
+      / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
       / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
     cacheDirectory = IsNewer(commonCacheDirectory / MIKTEX_PATH_PACKAGE_MANIFESTS_INI, userCacheDirectory / MIKTEX_PATH_PACKAGE_MANIFESTS_INI)
       ? commonCacheDirectory
@@ -2196,7 +2196,7 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
   else
   {
     cacheDirectory = session->GetSpecialPath(SpecialPath::DataRoot)
-      / "miktex" / "cache" / "packages" // TODO: #define
+      / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
       / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
   }
 
@@ -2303,6 +2303,14 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
 
   // create the MPM file name database
   packageManager->CreateMpmFndb();
+
+  if (!options[UpdateDbOption::FromCache])
+  {
+    session->SetConfigValue(
+      MIKTEX_REGKEY_PACKAGE_MANAGER,
+      session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_DB : MIKTEX_REGVAL_LAST_USER_UPDATE_DB,
+      std::to_string(time(nullptr)));
+  }
 }
 
 void PackageInstallerImpl::UpdateDbAsync()

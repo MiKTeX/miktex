@@ -290,8 +290,8 @@ inline bool IsNewer(const PathName& path1, const PathName& path2)
 
 void Application::AutoMaintenance()
 {
-  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
-  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
+  time_t lastAdminMaintenance = pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetTimeT();
+  time_t lastUserMaintenance = pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetTimeT();
   bool isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !pimpl->session->IsMiKTeXPortable();
   if (isSetupMode)
   {
@@ -325,16 +325,13 @@ void Application::AutoMaintenance()
   mustRefreshUserLanguageDat = mustRefreshUserLanguageDat || (!pimpl->session->IsAdminMode() && IsNewer(userLanguagesIni, userLanguageDat));
 
   // must update package db if:
-  //   (1) in user mode and an admin just updated the system-wide package db
+  //   (1) in user mode and the system-wide package db is newer than the user package db
   bool mustUpdateDb = false;
   if (!pimpl->session->IsAdminMode())
   {
-    PathName cachedCommonPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::CommonDataRoot)
-      / "miktex" / "cache" / "packages" // TODO: #define
-      / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX
-      / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;
+    time_t lastAdminUpdateDb = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LAST_ADMIN_UPDATE_DB, "0").GetTimeT();
     PathName userPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-    mustUpdateDb = IsNewer(cachedCommonPackageManifestsIni, userPackageManifestsIni);
+    mustUpdateDb = File::Exists(userPackageManifestsIni) && lastAdminUpdateDb > File::GetLastWriteTime(userPackageManifestsIni);
   }
 
   PathName initexmf;
