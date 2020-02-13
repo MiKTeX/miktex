@@ -66,6 +66,7 @@ a bundle of outline font manipulation tools.
 * [448](https://github.com/MiKTeX/miktex/issues/448): miktex-makepk fails if the transcript file does not exist
 * [451](https://github.com/MiKTeX/miktex/issues/451): Clicking Close button vs pressing Esc key upon finished package installation
 * [459](https://github.com/MiKTeX/miktex/issues/459): dvipng 1.16 with pk fonts error on Win32
+* [471](https://github.com/MiKTeX/miktex/issues/471): BibTeX max_glob_strs = 10 or 20 much too small; could we have 100, please?
 
 ## 2.9.7250 - 2019-11-12
 

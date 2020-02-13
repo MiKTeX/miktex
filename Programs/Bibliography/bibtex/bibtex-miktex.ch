@@ -1,6 +1,6 @@
 %% bibtex-miktex.ch: WEB change file for BibTeX
 %% 
-%% Copyright (C) 1996-2016 Christian Schenk
+%% Copyright (C) 1996-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -236,7 +236,7 @@ end;
 @x
 @d max_glob_strs=10     {maximum number of |str_global_var| names}
 @y
-@d max_glob_strs=20     {maximum number of |str_global_var| names}
+@d max_glob_strs=100    {maximum number of |str_global_var| names}
 @z
 
 % _____________________________________________________________________________
