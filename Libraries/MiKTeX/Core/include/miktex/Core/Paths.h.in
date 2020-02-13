@@ -1,6 +1,6 @@
 /* miktex/Core/Paths.h: hard-coded path names           -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -307,9 +307,17 @@
 
 #define MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR "@MIKTEX_REL_MIKTEX_BOOTSTRAPPING_DIR@"
 
+#define MIKTEX_PATH_MIKTEX_CACHE_DIR "@MIKTEX_REL_MIKTEX_CACHE_DIR@"
+
 #define MIKTEX_PATH_MIKTEX_CONFIG_DIR "@MIKTEX_REL_MIKTEX_CONFIG_DIR@"
 
 #define MIKTEX_PATH_MIKTEX_LOCK_DIR "@MIKTEX_REL_MIKTEX_LOCK_DIR@"
+
+#define MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR    \
+  MIKTEX_PATH_MIKTEX_CACHE_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "packages"
+
 
 #define MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR  \
   MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
