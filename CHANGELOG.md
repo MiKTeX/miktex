@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.7300 - 2020-02-12
+## 2.9.7300 - 2020-02-16
 
 ### Group-delimited \input argument
 
@@ -61,6 +61,7 @@ a bundle of outline font manipulation tools.
 * [422](https://github.com/MiKTeX/miktex/issues/422): Increase font_mem_size upper limit
 * [428](https://github.com/MiKTeX/miktex/issues/428): GSF2PK failed on postscript font
 * [435](https://github.com/MiKTeX/miktex/issues/435): language patterns in the format can not be changed manually
+* [436](https://github.com/MiKTeX/miktex/issues/436): Problems with the oberdiek package
 * [438](https://github.com/MiKTeX/miktex/issues/438): Create "fc-cache.exe" as alias
 * [441](https://github.com/MiKTeX/miktex/issues/441): Cannot build new format
 * [448](https://github.com/MiKTeX/miktex/issues/448): miktex-makepk fails if the transcript file does not exist
