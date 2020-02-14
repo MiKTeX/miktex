@@ -2118,7 +2118,6 @@ void PackageInstallerImpl::CleanUpUserDatabase()
   // remove redundant user package manifests
   for (const string& packageId : toBeRemoved)
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("removing redundant package manifest: {0}"), packageId));
     userManifests->DeleteKey(packageId);
   }
 

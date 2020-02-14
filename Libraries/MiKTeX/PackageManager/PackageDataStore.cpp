@@ -1,6 +1,6 @@
 /* PackageDataStore.cpp
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -269,7 +269,6 @@ void PackageDataStore::Load(Cfg& cfg)
     string targetSystems = packageInfo.targetSystem;
     if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ignoring {1} package"), packageInfo.id, targetSystems));
       continue;
     }
 #endif
