@@ -2204,7 +2204,7 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
     PathName userCacheDirectory = session->GetSpecialPath(SpecialPath::UserDataRoot)
       / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
       / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
-    cacheDirectory = IsNewer(commonCacheDirectory / MIKTEX_PATH_PACKAGE_MANIFESTS_INI, userCacheDirectory / MIKTEX_PATH_PACKAGE_MANIFESTS_INI)
+    cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / MIKTEX_PATH_PACKAGE_MANIFESTS_INI, userCacheDirectory / MIKTEX_PATH_PACKAGE_MANIFESTS_INI)
       ? commonCacheDirectory
       : userCacheDirectory;
   }
