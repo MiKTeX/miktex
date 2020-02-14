@@ -293,29 +293,64 @@ void PackageInstallerImpl::ExtractFiles(const PathName& archiveFileName, Archive
   MiKTeX::Extractor::Extractor::CreateExtractor(archiveFileType)->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
 }
 
-void PackageInstallerImpl::InstallRepositoryManifest()
+void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
 {
-  // we must have a package repository
-  NeedRepository();
-  if (repositoryType == RepositoryType::Unknown)
+  if (!fromCache)
   {
-    repository = packageManager->PickRepositoryUrl();
-    repositoryType = RepositoryType::Remote;
+    // we must have a package repository
+    NeedRepository();
+    if (repositoryType == RepositoryType::Unknown)
+    {
+      repository = packageManager->PickRepositoryUrl();
+      repositoryType = RepositoryType::Remote;
+    }
+
+    ReportLine(fmt::format(T_("visiting repository {0}..."), Q_(repository)));
+    ReportLine(fmt::format(T_("repository type: {0}"), (repositoryType == RepositoryType::Remote
+      ? T_("remote package repository")
+      : (repositoryType == RepositoryType::Local
+        ? T_("local package repository")
+        : (repositoryType == RepositoryType::MiKTeXInstallation
+          ? "other MiKTeX installation"
+          : "MiKTeXDirect")))));
   }
 
-  ReportLine(fmt::format(T_("visiting repository {0}..."), Q_(repository)));
-  ReportLine(fmt::format(T_("repository type: {0}"), (repositoryType == RepositoryType::Remote
-    ? T_("remote package repository")
-    : (repositoryType == RepositoryType::Local
-      ? T_("local package repository")
-      : (repositoryType == RepositoryType::MiKTeXInstallation
-        ? "other MiKTeX installation"
-        : "MiKTeXDirect")))));
+  PathName cacheDirectory;
 
-  // path to config dir
-  PathName pathConfigDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_MIKTEX_CONFIG_DIR);
+  if (fromCache && !session->IsAdminMode())
+  {
+    // find the newest mpm.ini
+    PathName commonCacheDirectory = session->GetSpecialPath(SpecialPath::CommonDataRoot)
+      / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
+      / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
+    PathName userCacheDirectory = session->GetSpecialPath(SpecialPath::UserDataRoot)
+      / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
+      / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
+    cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / MIKTEX_MPM_INI_FILENAME, userCacheDirectory / MIKTEX_MPM_INI_FILENAME)
+      ? commonCacheDirectory
+      : userCacheDirectory;
+  }
+  else
+  {
+    cacheDirectory = session->GetSpecialPath(SpecialPath::DataRoot)
+      / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
+      / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX;
+  }
 
-  if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
+  // prepare the cache directory for writing
+  if (!fromCache)
+  {
+    if (Directory::Exists(cacheDirectory))
+    {
+      Directory::Delete(cacheDirectory, true);
+    }
+    Directory::Create(cacheDirectory);
+  }
+
+  if (fromCache)
+  {
+  }
+  else if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
   {
     // we need a temporary file when we download from the Internet
     unique_ptr<TemporaryFile> temporaryFile;
@@ -351,32 +386,25 @@ void PackageInstallerImpl::InstallRepositoryManifest()
       pathZzdb1 = repository / MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME;
     }
 
-    // unpack database
-    MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(pathZzdb1, pathConfigDir);
+    MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE)->Extract(pathZzdb1, cacheDirectory);
   }
   else if (repositoryType == RepositoryType::MiKTeXDirect)
   {
-    PathName pathMpmIniSrc(repository);
-    pathMpmIniSrc /= MIKTEXDIRECT_PREFIX_DIR;
-    pathMpmIniSrc /= MIKTEX_PATH_MPM_INI;
-    PathName pathMpmIniDst = session->GetSpecialPath(SpecialPath::InstallRoot);
-    pathMpmIniDst /= MIKTEX_PATH_MPM_INI;
     size_t size;
-    MyCopyFile(pathMpmIniSrc, pathMpmIniDst, size);
+    MyCopyFile(repository / MIKTEXDIRECT_PREFIX_DIR / MIKTEX_PATH_MPM_INI, cacheDirectory / MIKTEX_MPM_INI_FILENAME, size);
   }
   else if (repositoryType == RepositoryType::MiKTeXInstallation)
   {
-    PathName pathMpmIniSrc(repository);
-    pathMpmIniSrc /= MIKTEX_PATH_MPM_INI;
-    PathName pathMpmIniDst = session->GetSpecialPath(SpecialPath::InstallRoot);
-    pathMpmIniDst /= MIKTEX_PATH_MPM_INI;
     size_t size;
-    MyCopyFile(pathMpmIniSrc, pathMpmIniDst, size);
+    MyCopyFile(repository / MIKTEX_PATH_MPM_INI, cacheDirectory / MIKTEX_MPM_INI_FILENAME, size);
   }
   else
   {
     MIKTEX_UNEXPECTED();
   }
+
+  size_t size;
+  MyCopyFile(cacheDirectory / MIKTEX_MPM_INI_FILENAME, session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_MPM_INI, size);
 }
 
 void PackageInstallerImpl::LoadRepositoryManifest(bool download)
@@ -390,7 +418,7 @@ void PackageInstallerImpl::LoadRepositoryManifest(bool download)
   time_t ONE_DAY_IN_SECONDS = 86400;
   if (download || !File::Exists(pathMpmIni) || File::GetLastWriteTime(pathMpmIni) + ONE_DAY_IN_SECONDS < time(nullptr))
   {
-    InstallRepositoryManifest();
+    InstallRepositoryManifest(false);
   }
 
   // load mpm.ini
@@ -2143,11 +2171,6 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& existingManifests
   packageDataStore->SaveVarData();
 }
 
-inline bool IsNewer(const PathName& path1, const PathName& path2)
-{
-  return File::Exists(path1) && File::Exists(path2) && File::GetLastWriteTime(path1) > File::GetLastWriteTime(path2);
-}
-
 void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "update package database");
@@ -2204,7 +2227,7 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
     PathName userCacheDirectory = session->GetSpecialPath(SpecialPath::UserDataRoot)
       / MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR
       / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX;
-    cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / MIKTEX_PATH_PACKAGE_MANIFESTS_INI, userCacheDirectory / MIKTEX_PATH_PACKAGE_MANIFESTS_INI)
+    cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME, userCacheDirectory / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME)
       ? commonCacheDirectory
       : userCacheDirectory;
   }
@@ -2310,7 +2333,7 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
   }
 
   // install mpm.ini
-  InstallRepositoryManifest();
+  InstallRepositoryManifest(options[UpdateDbOption::FromCache]);
 
   // force a reload of the database
   repositoryManifest.Clear();

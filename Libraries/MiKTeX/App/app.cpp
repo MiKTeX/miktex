@@ -353,6 +353,8 @@ void Application::AutoMaintenance()
       {
         pimpl->installer = pimpl->packageManager->CreateInstaller();
       }
+      AutoRestore<bool> restore(pimpl->beQuiet);
+      pimpl->beQuiet = true;
       pimpl->installer->SetCallback(this);
       pimpl->installer->UpdateDb({ UpdateDbOption::FromCache });
     }

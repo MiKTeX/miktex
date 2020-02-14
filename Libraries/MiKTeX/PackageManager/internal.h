@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -103,6 +103,11 @@ inline int StrCmp(const char* lpsz1, const char* lpsz2)
 inline int StrCmp(const wchar_t* lpsz1, const wchar_t* lpsz2)
 {
   return wcscmp(lpsz1, lpsz2);
+}
+
+inline bool IsNewer(const MiKTeX::Core::PathName& path1, const MiKTeX::Core::PathName& path2)
+{
+  return MiKTeX::Core::File::Exists(path1) && MiKTeX::Core::File::Exists(path2) && MiKTeX::Core::File::GetLastWriteTime(path1) > MiKTeX::Core::File::GetLastWriteTime(path2);
 }
 
 bool IsUrl(const std::string& url);

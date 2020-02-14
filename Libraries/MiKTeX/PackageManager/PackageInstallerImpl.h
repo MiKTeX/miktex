@@ -240,7 +240,7 @@ private:
   RepositoryManifest repositoryManifest;
 
 private:
-  void InstallRepositoryManifest();
+  void InstallRepositoryManifest(bool fromCache);
 
 private:
   void LoadRepositoryManifest(bool download);
