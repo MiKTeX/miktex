@@ -345,6 +345,7 @@ void Application::AutoMaintenance()
     LOG4CXX_TRACE(logger, "running MIKTEX_HOOK_AUTO_MAINTENANCE")
     if (mustUpdateDb)
     {
+      LOG4CXX_INFO(logger, "refreshing user's package database from cache");
       if (pimpl->packageManager == nullptr)
       {
         pimpl->packageManager = PackageManager::Create();
