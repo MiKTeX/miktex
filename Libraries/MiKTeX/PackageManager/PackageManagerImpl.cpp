@@ -1244,6 +1244,13 @@ InstallationSummary PackageManagerImpl::GetInstallationSummary(bool userScope)
   {
       result.lastUpdate = std::stol(lastUpdateText);
   }
+  string lastUpdateDbText;
+  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER,
+                                 userScope ? MIKTEX_REGVAL_LAST_USER_UPDATE_DB : MIKTEX_REGVAL_LAST_ADMIN_UPDATE_DB,
+                                 lastUpdateDbText))
+  {
+    result.lastUpdateDb = std::stol(lastUpdateDbText);
+  }
   return result;
 }
 

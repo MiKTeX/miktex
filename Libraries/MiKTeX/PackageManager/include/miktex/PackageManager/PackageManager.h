@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageManager.h:              -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -66,6 +66,8 @@ struct InstallationSummary
   std::time_t lastUpdateCheck = InvalidTimeT;
   /// Time of last update.
   std::time_t lastUpdate = InvalidTimeT;
+  /// Time of last DB update.
+  std::time_t lastUpdateDb = InvalidTimeT;
   /// Number of installed packages.
   std::size_t packageCount = 0;
 };

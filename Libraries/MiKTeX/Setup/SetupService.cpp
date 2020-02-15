@@ -1835,6 +1835,7 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
       s << "LastUpdateCheckAdmin: " << FormatTimestamp(commonInstallation.lastUpdateCheck) << "\n";
       s << "LastUpdateAdmin: " << FormatTimestamp(commonInstallation.lastUpdate) << "\n";
+      s << "LastUpdateDbAdmin: " << FormatTimestamp(commonInstallation.lastUpdateDb) << "n";
 
     }
     if (!session->IsAdminMode())
@@ -1844,6 +1845,7 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       {
         s << "LastUpdateCheck: " << FormatTimestamp(userInstallation.lastUpdateCheck) << "\n";
         s << "LastUpdate: " << FormatTimestamp(userInstallation.lastUpdate) << "\n";
+        s << "LastUpdateDb: " << FormatTimestamp(userInstallation.lastUpdateDb) << "\n";
       }
     }
   }
