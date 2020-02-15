@@ -1,6 +1,6 @@
 /* texmfapp.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -693,12 +693,12 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void
   if (!renew)
   {
     time_t modificationTime = File::GetLastWriteTime(path);
-    time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
-    renew = lastAdminMaintenance + 30 > modificationTime;
+    time_t lastAdminMaintenance = session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetTimeT();
+    renew = lastAdminMaintenance > modificationTime;
     if (!renew && !session->IsAdminMode())
     {
-      time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
-      renew = lastUserMaintenance + 30 > modificationTime;
+      time_t lastUserMaintenance = session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetTimeT();
+      renew = lastUserMaintenance > modificationTime;
     }
     if (renew)
     {
