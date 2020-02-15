@@ -29,6 +29,9 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 */
 
+int packet_cur_s;
+int packet_stack_ptr;
+
 #define packet_number(fw) {    \
     fw = *(vfp++);             \
     fw = fw * 256 + *(vfp++);  \

@@ -162,7 +162,7 @@ static int decrypt (lua_State *L) {
 
 /* not now .. doesn't compile anyway
 
-#include "../luapplib/util/utilmd5.h"
+#include "../luapplib/src/util/utilmd5.h"
 
 static int pdfelib_md_5(lua_State * L)
 {
@@ -194,7 +194,7 @@ int luaopen_md5(lua_State *L) {
 
 /* We could use a different file but this is as easy. */
 
-#include "../luapplib/util/utilsha.h"
+#include "../luapplib/src/util/utilsha.h"
 
 static int sha2_256(lua_State * L)
 {
@@ -202,7 +202,7 @@ static int sha2_256(lua_State * L)
         uint8_t result[SHA256_DIGEST_LENGTH];
         size_t size = 0;
         const char *data = lua_tolstring(L,1,&size);
-        sha256(data,size,result);
+        sha256_digest(data,size,result,SHA_BYTES);
         lua_pushlstring(L,(const char *)result,SHA256_DIGEST_LENGTH);
         return 1;
     }
@@ -215,7 +215,7 @@ static int sha2_384(lua_State * L)
         size_t size = 0;
         uint8_t result[SHA384_DIGEST_LENGTH];
         const char *data = lua_tolstring(L,1,&size);
-        sha384(data,size,result);
+        sha384_digest(data,size,result,SHA_BYTES);
         lua_pushlstring(L,(const char *)result,SHA384_DIGEST_LENGTH);
         return 1;
     }
@@ -228,7 +228,7 @@ static int sha2_512(lua_State * L)
         uint8_t result[SHA512_DIGEST_LENGTH];
         size_t size = 0;
         const char *data = lua_tolstring(L,1,&size);
-        sha512(data,size,result);
+        sha512_digest(data,size,result,SHA_BYTES);
         lua_pushlstring(L,(const char *)result,SHA512_DIGEST_LENGTH);
         return 1;
     }

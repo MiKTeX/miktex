@@ -37,3 +37,6 @@ int register_direction(lua_State *L);
 int register_language(lua_State *L);
 int register_ot(lua_State *L);
 int register_unicode(lua_State *L);
+
+// Missed declaration
+int luaopen_luaharfbuzz (lua_State *L);

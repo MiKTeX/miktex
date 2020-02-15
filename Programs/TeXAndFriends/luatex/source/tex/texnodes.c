@@ -2220,7 +2220,7 @@ static void flush_node_wrapup_core(halfword p)
             case 'd':
                 break;
             case 'l':
-                free_user_lua(user_node_value(p));
+                free_user_lua(p);
                 break;
             case 'n':
                 flush_node_list(user_node_value(p));
@@ -2499,6 +2499,7 @@ static void check_node_wrapup_core(halfword p)
                     break;
                 case 's':
                 case 'd':
+                case 'l':
                     break;
                 default:
                     confusion("unknown user node type");

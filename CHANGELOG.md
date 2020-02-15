@@ -47,6 +47,7 @@ a bundle of outline font manipulation tools.
 * dvipng 1.17
 * dvips 2020.1
 * dvisvgm 2.8.2
+* LuaTeX 1.12.0
 * pdftex 1.40.21
 * pmxab 2.9.4
 

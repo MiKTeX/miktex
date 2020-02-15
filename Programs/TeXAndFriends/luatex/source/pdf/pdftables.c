@@ -31,7 +31,6 @@ int pdf_last_annot;
 int pdf_last_link;
 int pdf_last_obj;
 int pdf_retval;
-int pdf_cur_form;
 
 /*tex
 

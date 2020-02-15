@@ -84,6 +84,7 @@ static const char *const callbacknames[] = {
     "page_order_index",
     "make_extensible",
     "process_pdf_image_content",
+    "provide_charproc_data",
     NULL
 };
 
@@ -195,6 +196,7 @@ void get_saved_lua_string(int r, const char *name, char **target)
 
 #define CALLBACK_BOOLEAN        'b'
 #define CALLBACK_INTEGER        'd'
+#define CALLBACK_FLOAT          'f'
 #define CALLBACK_LINE           'l'
 #define CALLBACK_STRNUMBER      's'
 #define CALLBACK_STRING         'S'
@@ -302,6 +304,9 @@ int do_run_callback(int special, const char *values, va_list vl)
             case CALLBACK_INTEGER: /* int */
                 lua_pushinteger(Luas, va_arg(vl, int));
                 break;
+            case CALLBACK_FLOAT: /* double */
+                lua_pushnumber(Luas, va_arg(vl, double));
+                break;
             case CALLBACK_STRNUMBER:       /* TeX string */
                 s = makeclstring(va_arg(vl, int), &len);
                 lua_pushlstring(Luas, s, len);
@@ -361,6 +366,7 @@ int do_run_callback(int special, const char *values, va_list vl)
     nres = -nres;
     while (*values) {
         int b, t;
+        double d;
         halfword p;
         t = lua_type(Luas, nres);
         switch (*values++) {
@@ -382,6 +388,14 @@ int do_run_callback(int special, const char *values, va_list vl)
                 }
                 b = lua_tointeger(Luas, nres);
                 *va_arg(vl, int *) = b;
+                break;
+            case CALLBACK_FLOAT:
+                if (t != LUA_TNUMBER) {
+                    fprintf(stderr, "callback should return a number, not: %s\n", lua_typename(Luas, t));
+                    goto EXIT;
+                }
+                d = lua_tonumber(Luas, nres);
+                *va_arg(vl, double *) = d;
                 break;
             case CALLBACK_LINE:    /* TeX line ... happens frequently when we have a plug-in */
                 if (t == LUA_TNIL) {

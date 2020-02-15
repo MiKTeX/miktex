@@ -184,7 +184,7 @@ static int font_ot_color_glyph_get_png(lua_State *L) {
     luaL_getmetatable(L, "harfbuzz.Blob");
     lua_setmetatable(L, -2);
 
-    *b = hb_ot_color_glyph_reference_png(*f, gid);
+    *b = blob;
   } else {
     lua_pushnil(L);
   }

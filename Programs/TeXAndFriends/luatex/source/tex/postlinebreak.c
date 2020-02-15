@@ -437,6 +437,8 @@ void ext_post_line_break(int paragraph_dir,
         } else {
             cur_indent = varmem[(par_shape_ptr + 2 * cur_line)].cint;
             cur_width = varmem[(par_shape_ptr + 2 * cur_line + 1)].cint;
+            /* needs checking */
+            cur_indent = swap_parshape_indent(cur_indent,cur_width);
         }
         adjust_tail = adjust_head;
         pre_adjust_tail = pre_adjust_head;

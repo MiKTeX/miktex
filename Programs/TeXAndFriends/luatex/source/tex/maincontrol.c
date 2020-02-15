@@ -3824,8 +3824,6 @@ void open_or_close_in(void)
         if (cur_cmd != left_brace_cmd) {
             /*tex Set |cur_name| to desired file name. */
             scan_file_name();
-            if (cur_ext == get_nullstr())
-                cur_ext = maketexstring(".tex");
         } else {
             scan_file_name_toks();
         }

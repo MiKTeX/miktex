@@ -74,6 +74,7 @@ const_string LUATEX_IHELP[] = {
     "   --alias=NAME                  pretend to be program NAME; this affects the format file used and the search path",
     "   --aux-directory=DIR           use DIR as the directory to write auxiliary files to",
     "   --c-style-errors              enable file:line:error style messages",
+    "   --cnf-line =STRING            parse STRING as a configuration file line",
     "   --credits                     display credits and exit",
     "   --debug-format                enable format debugging",
     "   --disable-installer           disable the package installer (do not automatically install missing files)",
@@ -126,6 +127,7 @@ const_string LUATEX_IHELP[] = {
     "",
     "See the reference manual for more information about the startup process.",
 #else
+    "   --cnf-line =STRING            parse STRING as a configuration file line",
     "   --credits                     display credits and exit",
     "   --debug-format                enable format debugging",
     "   --draftmode                   switch on draft mode (generates no output PDF)",
@@ -806,6 +808,7 @@ static int luatex_kpse_lua_find(lua_State * L)
         /*tex library not found in this path */
         return 1;
     }
+    recorder_record_input(filename);
     if (luaL_loadfile(L, filename) != 0) {
         luaL_error(L, "error loading module %s from file %s:\n\t%s",
             lua_tostring(L, 1), filename, lua_tostring(L, -1));
@@ -843,6 +846,7 @@ static int luatex_kpse_clua_find(lua_State * L)
             /*tex library not found in this path */
             return 1;
         }
+        recorder_record_input(filename);
         extensionless = strdup(filename);
         if (!extensionless) {
             /*tex allocation failure */

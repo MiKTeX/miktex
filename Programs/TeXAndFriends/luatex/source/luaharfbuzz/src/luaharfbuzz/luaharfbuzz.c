@@ -1,30 +1,42 @@
 #include "luaharfbuzz.h"
+#ifdef LuajitTeX
+static int lua_absindex (lua_State *L, int i) {
+  if (i < 0 && i > LUA_REGISTRYINDEX)
+    i += lua_gettop(L) + 1;
+  return i;
+}
+static int lua_geti (lua_State *L, int index, lua_Integer i) {
+  index = lua_absindex(L, index);
+  lua_pushinteger(L, i);
+  lua_gettable(L, index);
+  return lua_type(L, -1);
+}
+#endif
 
-int shape_full (lua_State *L) {
-  int i = 0;
+static int shape_full (lua_State *L) {
   Font *font = (Font *)luaL_checkudata(L, 1, "harfbuzz.Font");
   Buffer *buf = (Buffer *)luaL_checkudata(L, 2, "harfbuzz.Buffer");
+  unsigned int i;
   luaL_checktype(L, 3, LUA_TTABLE);
   luaL_checktype(L, 4, LUA_TTABLE);
 
   unsigned int num_features = lua_rawlen(L, 3);
   Feature *features = (Feature *) malloc (num_features * sizeof(hb_feature_t));
 
-  lua_pushnil(L);
-  while (lua_next(L, 3) != 0) {
+  for (i = 0; i != num_features; ++i) {
+    lua_geti(L, 3, i + 1);
     Feature* f = (Feature *)luaL_checkudata(L, -1, "harfbuzz.Feature");
-    features[i++] = *f;
+    features[i] = *f;
     lua_pop(L, 1);
   }
 
   const char **shapers = NULL;
   size_t num_shapers = lua_rawlen(L, 4);
   if (num_shapers) {
-    i = 0;
     shapers = (const char**) calloc (num_shapers + 1, sizeof(char*));
-    lua_pushnil(L);
-    while (lua_next(L, 4) != 0) {
-      shapers[i++] = luaL_checkstring(L, -1);
+    for (i = 0; i != num_shapers; ++i) {
+      lua_geti(L, 4, i + 1);
+      shapers[i] = luaL_checkstring(L, -1);
       lua_pop(L, 1);
     }
   }
@@ -38,12 +50,12 @@ int shape_full (lua_State *L) {
   return 1;
 }
 
-int version (lua_State *L) {
+static int version (lua_State *L) {
   lua_pushstring(L, hb_version_string());
   return 1;
 }
 
-int list_shapers (lua_State *L) {
+static int list_shapers (lua_State *L) {
   const char **shaper_list = hb_shape_list_shapers ();
   int i = 0;
 
