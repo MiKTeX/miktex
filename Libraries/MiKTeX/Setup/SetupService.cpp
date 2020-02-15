@@ -1990,6 +1990,16 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
             T_("Stay in MiKTeX user mode and check for updates.")
           });
         }
+        else if (IsValidTimeT(commonInstallation.lastUpdate) && (!IsValidTimeT(userInstallation.lastUpdateCheck) || commonInstallation.lastUpdate > userInstallation.lastUpdateCheck))
+        {
+          result.push_back({
+            IssueType::UserUpdateCheckOverdue,
+            IssueSeverity::Major,
+            T_("User/administrator updates are out-of-sync."),
+            T_("Stay in MiKTeX user mode and check for updates."),
+            "user-admin-updates-out-of-sync"
+            });
+        }
         else if (now > userInstallation.lastUpdateCheck + HALF_A_YEAR)
         {
           result.push_back({
