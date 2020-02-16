@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.7300 - 2020-02-16
+## 2.9.7300 - 2020-02-17
 
 ### Group-delimited \input argument
 
