@@ -1,6 +1,6 @@
 /* bibtex-miktex.h:                                     -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,6 +20,8 @@
 #pragma once
 
 #include "bibtex-miktex-config.h"
+
+#include "bibtex-version.h"
 
 #define IMPLEMENT_TCX 1
 
