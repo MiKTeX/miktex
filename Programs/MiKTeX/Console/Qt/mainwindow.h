@@ -372,6 +372,9 @@ private slots:
 private slots:
   void on_radioAutoInstallNo_clicked();
 
+private slots:
+  void on_chkAllUsers_clicked();
+
 private:
   void UpdateUiPaper();
 

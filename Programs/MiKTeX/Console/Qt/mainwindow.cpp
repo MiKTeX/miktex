@@ -1388,7 +1388,9 @@ void MainWindow::SetupUiPackageInstallation()
 
 void MainWindow::UpdateUiPackageInstallation()
 {
-  switch (session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState())
+  TriState autoInstall = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
+  TriState autoAdmin = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState();
+  switch (autoInstall)
   {
   case TriState::True:
     ui->radioAutoInstallYes->setChecked(true);
@@ -1400,6 +1402,7 @@ void MainWindow::UpdateUiPackageInstallation()
     ui->radioAutoInstallAsk->setChecked(true);
     break;
   }
+  ui->chkAllUsers->setChecked(autoAdmin == TriState::True);
   ui->comboRepository2->setEnabled(!IsBackgroundWorkerActive());
   ui->comboRepository2->blockSignals(true);
   ui->comboRepository2->setCurrentIndex(repositoryModel->GetDefaultIndex());
@@ -1407,6 +1410,7 @@ void MainWindow::UpdateUiPackageInstallation()
   ui->radioAutoInstallAsk->setEnabled(!IsBackgroundWorkerActive());
   ui->radioAutoInstallYes->setEnabled(!IsBackgroundWorkerActive());
   ui->radioAutoInstallNo->setEnabled(!IsBackgroundWorkerActive());
+  ui->chkAllUsers->setEnabled(!IsBackgroundWorkerActive() && autoInstall == TriState::True && session->IsSharedSetup());
 }
 
 void MainWindow::ChangeRepository()
@@ -1451,16 +1455,24 @@ void MainWindow::OnRepositorySelected(int index)
 void MainWindow::on_radioAutoInstallAsk_clicked()
 {
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::Undetermined);
+  ui->chkAllUsers->setEnabled(false);
 }
 
 void MainWindow::on_radioAutoInstallYes_clicked()
 {
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::True);
+  ui->chkAllUsers->setEnabled(true);
 }
 
 void MainWindow::on_radioAutoInstallNo_clicked()
 {
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::False);
+  ui->chkAllUsers->setEnabled(false);
+}
+
+void MainWindow::on_chkAllUsers_clicked()
+{
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, (int)(ui->chkAllUsers->isChecked() ? TriState::True : TriState::False));
 }
 
 void MainWindow::UpdateUiPaper()
