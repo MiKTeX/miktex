@@ -417,22 +417,8 @@ public:
 public:
   static MIKTEXMPMCEEAPI(bool) TryGetProxy(ProxySettings& proxySettings);
 
-  /// Gets the configured proxy server.
-  /// @param url Identifies the scheme the proxy must support.
-  /// @exception MiKTeXException No proxy is configured.
-  /// @see SetProxy
-public:
-  static MIKTEXMPMCEEAPI(ProxySettings) GetProxy(const std::string& url);
-
-  /// Gets the configured proxy server.
-  /// @exception MiKTeXException No proxy is configured.
-  /// @see SetProxy
-public:
-  static MIKTEXMPMCEEAPI(ProxySettings) GetProxy();
-
   /// Configures a proxy server.
   /// @param proxySettings The proxy settings.
-  /// @see GetProxy
 public:
   static MIKTEXMPMCEEAPI(void) SetProxy(const ProxySettings& proxySettings);
 };

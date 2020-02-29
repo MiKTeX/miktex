@@ -1028,21 +1028,6 @@ bool PackageManager::TryGetProxy(ProxySettings& proxySettings)
   return TryGetProxy("", proxySettings);
 }
 
-ProxySettings PackageManager::GetProxy(const string& url)
-{
-  ProxySettings proxySettings;
-  if (!TryGetProxy(url, proxySettings))
-  {
-    MIKTEX_FATAL_ERROR(T_("No proxy host is configured."));
-  }
-  return proxySettings;
-}
-
-ProxySettings PackageManager::GetProxy()
-{
-  return GetProxy("");
-}
-
 void PackageManagerImpl::OnProgress()
 {
 }
