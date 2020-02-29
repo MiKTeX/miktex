@@ -1012,75 +1012,14 @@ bool PackageManager::TryGetProxy(const string& url, ProxySettings& proxySettings
 {
   shared_ptr<Session> session = Session::Get(); 
   proxySettings.useProxy = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_USE_PROXY, false).GetBool();
-  if (proxySettings.useProxy)
-  {
-    if (!session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_HOST, proxySettings.proxy))
-    {
-      return false;
-    }
-    proxySettings.port = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_PORT, 8080).GetInt();
-    proxySettings.authenticationRequired = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_AUTH_REQ, false).GetBool();
-    proxySettings.user = PackageManagerImpl::proxyUser;
-    proxySettings.password = PackageManagerImpl::proxyPassword;
-    return true;
-  }
-  string proxyEnv;
-  if (!url.empty())
-  {
-    Uri uri(url.c_str());
-    string scheme = uri.GetScheme();
-    string envName;
-    if (scheme == "https")
-    {
-      envName = "https_proxy";
-    }
-    else if (scheme == "http")
-    {
-      envName = "http_proxy";
-    }
-    else if (scheme == "ftp")
-    {
-      envName = "FTP_PROXY";
-    }
-    else
-    {
-      MIKTEX_UNEXPECTED();
-    }
-    Utils::GetEnvironmentString(envName, proxyEnv);
-  }
-  if (proxyEnv.empty())
-  {
-    Utils::GetEnvironmentString("ALL_PROXY", proxyEnv);
-  }
-  if (proxyEnv.empty())
+  if (!proxySettings.useProxy || !session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_HOST, proxySettings.proxy))
   {
     return false;
   }
-  Uri uri(proxyEnv);
-  proxySettings.useProxy = true;
-  proxySettings.proxy = uri.GetHost();
-  proxySettings.port = uri.GetPort();
-  string userInfo = uri.GetUserInfo();
-  proxySettings.authenticationRequired = !userInfo.empty();
-  if (proxySettings.authenticationRequired)
-  {
-    string::size_type idx = userInfo.find_first_of(":");
-    if (idx == string::npos)
-    {
-      proxySettings.user = userInfo;
-      proxySettings.password = "";
-    }
-    else
-    {
-      proxySettings.user = userInfo.substr(0, idx);
-      proxySettings.password = userInfo.substr(idx + 1);
-    }
-  }
-  else
-  {
-    proxySettings.user = "";
-    proxySettings.password = "";
-  }
+  proxySettings.port = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_PORT, 8080).GetInt();
+  proxySettings.authenticationRequired = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_AUTH_REQ, false).GetBool();
+  proxySettings.user = PackageManagerImpl::proxyUser;
+  proxySettings.password = PackageManagerImpl::proxyPassword;
   return true;
 }
 
