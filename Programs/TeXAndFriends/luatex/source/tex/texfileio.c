@@ -837,7 +837,7 @@ char *open_fmt_file(void)
         if (!(strstr(fmt, DUMP_EXT) == fmt + dist))
             fmt = concat(fmt, DUMP_EXT);
 #if defined(MIKTEX)
-        if (miktex_open_format_file(fmt, &fmt_file, renew))
+        if (zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE, renew))
 #else
         if (zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE))
 #endif
@@ -850,7 +850,7 @@ char *open_fmt_file(void)
     /*tex Now pull out all the stops: try for the system \.{plain} file. */
     fmt = TEX_format_default;
 #if defined(MIKTEX)
-    if (!miktex_open_format_file(fmt, &fmt_file, renew)) {
+    if (!zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE, renew)) {
 #else
     if (!zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
 #endif
@@ -1289,7 +1289,11 @@ void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
 
 #define COMPRESSION "R3"
 
+#if defined(MIKTEX)
+boolean zopen_w_input(FILE** f, const char* fname, int format, const_string fopen_mode, int renew)
+#else
 boolean zopen_w_input(FILE ** f, const char *fname, int format, const_string fopen_mode)
+#endif
 {
     int callbackid;
     int res;
@@ -1306,6 +1310,13 @@ boolean zopen_w_input(FILE ** f, const char *fname, int format, const_string fop
             return 0;
         }
     } else {
+#if defined(MIKTEX)
+      if (format == DUMP_FORMAT)
+      {
+        res = miktex_open_format_file(fname, f, renew);
+      }
+      else
+#endif
         res = luatex_open_input(f, fname, format, fopen_mode, true);
     }
     if (res) {

@@ -123,8 +123,12 @@ extern void start_input(void);
 
 extern int open_outfile(FILE ** f, const char *name, const char *mode);
 
+#if defined(MIKTEX)
+extern boolean zopen_w_input(FILE**, const char*, int, const_string fopen_mode, int renew);
+#else
 extern boolean zopen_w_input(FILE **, const char *, int,
                              const_string fopen_mode);
+#endif
 extern boolean zopen_w_output(FILE **, const char *, const_string fopen_mode);
 extern void zwclose(FILE *);
 

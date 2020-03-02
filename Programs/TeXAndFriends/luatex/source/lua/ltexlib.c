@@ -3112,7 +3112,7 @@ static int tex_run_boot(lua_State * L)
     }
     if (format) {
 #if defined(MIKTEX)
-        if (!miktex_open_format_file(format, &fmt_file, false))
+        if (!zopen_w_input(&fmt_file, format, DUMP_FORMAT, FOPEN_RBIN_MODE, false))
         {
             lua_pushboolean(L, 0);
             return 1;
@@ -3120,7 +3120,7 @@ static int tex_run_boot(lua_State * L)
         if (!load_fmt_file(format, true))
         {
           zwclose(fmt_file);
-          if (!miktex_open_format_file(format, &fmt_file, true))
+          if (!zopen_w_input(&fmt_file, format, DUMP_FORMAT, FOPEN_RBIN_MODE, true))
           {
             lua_pushboolean(L, 0);
             return 1;
