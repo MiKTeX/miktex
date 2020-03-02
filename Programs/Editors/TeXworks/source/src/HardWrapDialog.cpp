@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 */
 
 #include "HardWrapDialog.h"
-#include "TWApp.h"
+#include "Settings.h"
 
 HardWrapDialog::HardWrapDialog(QWidget *parent)
 	: QDialog(parent)
@@ -32,7 +32,7 @@ HardWrapDialog::HardWrapDialog(QWidget *parent)
 void
 HardWrapDialog::init()
 {
-	QSETTINGS_OBJECT(settings);
+	Tw::Settings settings;
 	int	wrapWidth = settings.value(QString::fromLatin1("hardWrapWidth"), kDefault_HardWrapWidth).toInt();
 	spinbox_charCount->setMaximum(INT_MAX);
 	spinbox_charCount->setValue(wrapWidth);
@@ -56,7 +56,7 @@ HardWrapDialog::init()
 void
 HardWrapDialog::saveSettings()
 {
-	QSETTINGS_OBJECT(settings);
+	Tw::Settings settings;
 	settings.setValue(QString::fromLatin1("hardWrapWidth"), spinbox_charCount->value());
 	settings.setValue(QString::fromLatin1("hardWrapMode"), mode());
 	settings.setValue(QString::fromLatin1("hardWrapRewrap"), checkbox_rewrap->isChecked());
@@ -67,9 +67,9 @@ HardWrapDialog::mode() const
 {
 	if (radio_currentWidth->isChecked())
 		return kHardWrapMode_Window;
-	else if (radio_fixedLineLength->isChecked())
+	if (radio_fixedLineLength->isChecked())
 		return kHardWrapMode_Fixed;
-	else if (radio_Unwrap->isChecked())
+	if (radio_Unwrap->isChecked())
 		return kHardWrapMode_Unwrap;
 	
 	return kHardWrapMode_Fixed;

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2017  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,9 +31,9 @@
 #include "ui_SearchResults.h"
 #include "ui_PDFFind.h"
 
-class TeXDocument;
+class TeXDocumentWindow;
 class QTextEdit;
-class PDFDocument;
+class PDFDocumentWindow;
 
 class RecentStringsKeyFilter : public QObject
 {
@@ -44,11 +44,10 @@ public:
 		: QObject(parent), strings(stringList)
 			{}
 	
-	virtual ~RecentStringsKeyFilter()
-			{}
+	~RecentStringsKeyFilter() override = default;
 	
 protected:
-	bool eventFilter(QObject *obj, QEvent *event);
+	bool eventFilter(QObject *obj, QEvent *event) override;
 	void setRecentString(QObject *obj, int dir);
 
 	QStringList strings;
@@ -59,7 +58,7 @@ class FindDialog : public QDialog, private Ui::FindDialog
 	Q_OBJECT
 
 public:
-	FindDialog(QTextEdit *document);
+	explicit FindDialog(QTextEdit * document);
 
 	static DialogCode doFindDialog(QTextEdit *document);
 
@@ -80,16 +79,16 @@ class PDFFindDialog : public QDialog, private Ui::PDFFindDialog
 	Q_OBJECT
 
 public:
-	PDFFindDialog(PDFDocument *document);
+	explicit PDFFindDialog(PDFDocumentWindow * document);
 
-	static DialogCode doFindDialog(PDFDocument *document);
+	static DialogCode doFindDialog(PDFDocumentWindow *document);
 
 private slots:
 //	void toggledFindAllOption(bool checked);
 	void setSearchText();
 
 private:
-	void init(PDFDocument *document);
+	void init(PDFDocumentWindow *document);
 };
 
 
@@ -98,7 +97,7 @@ class ReplaceDialog : public QDialog, private Ui::ReplaceDialog
 	Q_OBJECT
 
 public:
-	ReplaceDialog(QTextEdit *parent);
+	explicit ReplaceDialog(QTextEdit * parent);
 	
 	typedef enum {
 		Cancel,
@@ -125,11 +124,11 @@ private:
 
 class SearchResult {
 public:
-	SearchResult(const TeXDocument* texdoc, int line, int start, int end)
+	SearchResult(const TeXDocumentWindow* texdoc, int line, int start, int end)
 		: doc(texdoc), lineNo(line), selStart(start), selEnd(end)
 		{ }
 
-	const TeXDocument* doc;
+	const TeXDocumentWindow* doc;
 	int lineNo;
 	int selStart;
 	int selEnd;
@@ -137,11 +136,11 @@ public:
 
 class PDFSearchResult {
 public:
-	PDFSearchResult(const PDFDocument* pdfdoc = NULL, int page = -1, QRectF rect = QRectF())
+	PDFSearchResult(const PDFDocumentWindow* pdfdoc = nullptr, int page = -1, QRectF rect = QRectF())
 		: doc(pdfdoc), pageIdx(page), selRect(rect)
 		{ }
 		
-	const PDFDocument* doc;
+	const PDFDocumentWindow* doc;
 	int pageIdx;
 	QRectF selRect;
 };
@@ -154,10 +153,7 @@ public:
 	static void presentResults(const QString& searchText, const QList<SearchResult>& results,
 							   QMainWindow* parent, bool singleFile);
 	
-	SearchResults(QWidget* parent);
-
-protected slots:
-	void focusChanged(QWidget * old, QWidget * now);
+	explicit SearchResults(QWidget * parent);
 
 private slots:
 	void showSelectedEntry();

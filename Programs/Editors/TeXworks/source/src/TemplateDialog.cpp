@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,8 @@
 #include "TemplateDialog.h"
 #include "TeXHighlighter.h"
 #include "TWUtils.h"
-#include "TWApp.h"
+#include "Settings.h"
+#include "document/TeXDocument.h"
 
 #include <QDirModel>
 #include <QFile>
@@ -30,19 +31,16 @@
 #include <QTextStream>
 
 TemplateDialog::TemplateDialog()
-	: QDialog(NULL)
-	, model(NULL)
+	: QDialog(nullptr)
 {
 	init();
-}
-
-TemplateDialog::~TemplateDialog()
-{
 }
 
 void TemplateDialog::init()
 {
 	setupUi(this);
+	Tw::Document::TeXDocument * texDoc = new Tw::Document::TeXDocument(textEdit);
+	textEdit->setDocument(texDoc);
 
 	QString templatePath = TWUtils::getLibraryPath(QString::fromLatin1("templates"));
 		// do this before creating the model, as getLibraryPath might initialize a new dir
@@ -60,9 +58,14 @@ void TemplateDialog::init()
 	
 	connect(treeView, SIGNAL(activated(const QModelIndex&)), this, SLOT(itemActivated(const QModelIndex&)));
 
-	QSETTINGS_OBJECT(settings);
+	Tw::Settings settings;
 	if (settings.value(QString::fromLatin1("syntaxColoring"), true).toBool()) {
-		new TeXHighlighter(textEdit->document());
+		TeXHighlighter * highlighter = new TeXHighlighter(texDoc);
+		// For now, we use "LaTeX" highlighting for all files (which is probably
+		// reasonable in most/typical cases)
+		int idx = TeXHighlighter::syntaxOptions().indexOf(QStringLiteral("LaTeX"));
+		if (idx >= 0)
+			highlighter->setActiveIndex(idx);
 	}
 }
 
@@ -95,7 +98,7 @@ QString TemplateDialog::doTemplateDialog()
 
 	TemplateDialog dlg;
 	dlg.show();
-	DialogCode	result = (DialogCode)dlg.exec();
+	DialogCode result = static_cast<DialogCode>(dlg.exec());
 
 	if (result == Accepted) {
 		QModelIndexList selection = dlg.treeView->selectionModel()->selectedRows();

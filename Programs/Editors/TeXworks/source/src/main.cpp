@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 #include "TWApp.h"
 #include "TWVersion.h"
 #include "CommandlineParser.h"
+#include "TWUtils.h"
+#include "InterProcessCommunicator.h"
 
 #include <QTimer>
 #include <QTextCodec>
@@ -32,15 +34,6 @@
 #if defined(STATIC_QT5) && defined(Q_OS_WIN)
   #include <QtPlugin>
   Q_IMPORT_PLUGIN (QWindowsIntegrationPlugin);
-#endif
-
-#if defined(Q_OS_WIN)
-BOOL CALLBACK enumThreadWindowProc(HWND hWnd, LPARAM /*lParam*/)
-{
-	if (IsWindowVisible(hWnd))
-		SetForegroundWindow(hWnd);
-	return true;
-}
 #endif
 
 struct fileToOpenStruct{
@@ -54,6 +47,7 @@ struct fileToOpenStruct{
 int main(int argc, char *argv[])
 {
 	TWApp app(argc, argv);
+	Tw::InterProcessCommunicator IPC;
 
 	CommandlineParser clp;
 	QList<fileToOpenStruct> filesToOpen;
@@ -86,14 +80,14 @@ int main(int argc, char *argv[])
 			clp.at(i).processed = true;
 			QTextStream strm(stdout);
 			if (TWUtils::isGitInfoAvailable())
-				strm << QString::fromUtf8("TeXworks %1 (%2) [r.%3, %4]\n\n").arg(QString::fromLatin1(TEXWORKS_VERSION)).arg(QString::fromLatin1(TW_BUILD_ID_STR)).arg(TWUtils::gitCommitHash()).arg(TWUtils::gitCommitDate().toLocalTime().toString(Qt::SystemLocaleShortDate));
+				strm << QString::fromUtf8("TeXworks %1 (%2) [r.%3, %4]\n\n").arg(QString::fromLatin1(TEXWORKS_VERSION), QString::fromLatin1(TW_BUILD_ID_STR), TWUtils::gitCommitHash(), TWUtils::gitCommitDate().toLocalTime().toString(Qt::SystemLocaleShortDate));
 			else
-				strm << QString::fromUtf8("TeXworks %1 (%2)\n\n").arg(QString::fromLatin1(TEXWORKS_VERSION)).arg(QString::fromLatin1(TW_BUILD_ID_STR));
+				strm << QString::fromUtf8("TeXworks %1 (%2)\n\n").arg(QString::fromLatin1(TEXWORKS_VERSION), QString::fromLatin1(TW_BUILD_ID_STR));
 			strm << QString::fromUtf8("\
 Copyright (C) %1  %2\n\
 License GPLv2+: GNU GPL (version 2 or later) <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
-There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2019"), QString::fromUtf8("Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"));
+There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2020"), QString::fromUtf8("Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"));
 			strm.flush();
 		}
 		if ((i = clp.getNextSwitch(QString::fromLatin1("help"))) >= 0) {
@@ -105,71 +99,20 @@ There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLat
 		}
 	}
 
-#if defined(Q_OS_WIN) // single-instance code for Windows
-#define TW_MUTEX_NAME		"org.tug.texworks-" TEXWORKS_VERSION
-	HANDLE hMutex = CreateMutexA(NULL, FALSE, TW_MUTEX_NAME);
-	if (hMutex == NULL)
-		return 0;	// failure
-	if (GetLastError() == ERROR_ALREADY_EXISTS) {
-		// this is a second instance: bring the original instance to the top
-		for (int retry = 0; retry < 100; ++retry) {
-			HWND hWnd = FindWindowExA(HWND_MESSAGE, NULL, TW_HIDDEN_WINDOW_CLASS, NULL);
-			if (hWnd) {
-				// pull the app's (visible) windows to the foreground
-				DWORD thread = GetWindowThreadProcessId(hWnd, NULL);
-				(void)EnumThreadWindows(thread, &enumThreadWindowProc, 0);
-				// send each cmd-line arg as a WM_COPYDATA message to load a file
-				foreach(fileToOpen, filesToOpen) {
-					QFileInfo fi(fileToOpen.filename);
-					if (!fi.exists())
-						continue;
-					QByteArray ba = fi.absoluteFilePath().toUtf8() + "\n" + QByteArray::number(fileToOpen.position);
-					COPYDATASTRUCT cds;
-					cds.dwData = TW_OPEN_FILE_MSG;
-					cds.cbData = ba.length();
-					cds.lpData = ba.data();
-					SendMessageA(hWnd, WM_COPYDATA, 0, (LPARAM)&cds);
-				}
-				break;
-			}
-			// couldn't find the other instance; not ready yet?
-			// sleep for 50ms and then retry
-			Sleep(50);
+	if (IPC.isFirstInstance()) {
+		QObject::connect(&IPC, SIGNAL(receivedBringToFront()), &app, SLOT(bringToFront()));
+		QObject::connect(&IPC, SIGNAL(receivedOpenFile(const QString&, const int)), &app, SLOT(openFile(const QString &, const int)));
+	}
+	else {
+		IPC.sendBringToFront();
+		foreach(fileToOpen, filesToOpen) {
+			QFileInfo fi(fileToOpen.filename);
+			if (!fi.exists())
+				continue;
+			IPC.sendOpenFile(fi.absoluteFilePath(), fileToOpen.position);
 		}
-		CloseHandle(hMutex);	// close our handle to the mutex
 		return 0;
 	}
-#endif
-
-#ifdef QT_DBUS_LIB
-	if (QDBusConnection::sessionBus().registerService(QString::fromLatin1(TW_SERVICE_NAME)) == false) {
-		QDBusInterface interface(QString::fromLatin1(TW_SERVICE_NAME), QString::fromLatin1(TW_APP_PATH), QString::fromLatin1(TW_INTERFACE_NAME));
-		if (interface.isValid()) {
-			interface.call(QString::fromLatin1("bringToFront"));
-			foreach(fileToOpen, filesToOpen) {
-				QFileInfo fi(fileToOpen.filename);
-				if (!fi.exists())
-					continue;
-				interface.call(QString::fromLatin1("openFile"), fi.absoluteFilePath(), fileToOpen.position);
-			}
-			return 0;
-		}
-		else {
-			// We could not register the service, but couldn't connect to an
-			// already registered one, either. This can mean that something is
-			// seriously wrong, we've met some race condition, or the dbus
-			// service is not running. Let's assume the best (dbus not running)
-			// and continue as a multiple-instance app instead
-		}
-	}
-
-	new TWAdaptor(&app);
-	if (QDBusConnection::sessionBus().registerObject(QString::fromLatin1(TW_APP_PATH), &app) == false) {
-		// failed to register the application object, so unregister our service
-		// and continue as a multiple-instance app instead
-		(void)QDBusConnection::sessionBus().unregisterService(QString::fromLatin1(TW_SERVICE_NAME));
-	}
-#endif // defined(QT_DBUS_LIB)
 
 	int rval = 0;
 	if (launchApp) {
@@ -181,13 +124,8 @@ There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLat
 		}
 
 		QTimer::singleShot(1, &app, SLOT(launchAction()));
-		rval = app.exec();
+		rval = TWApp::exec();
 	}
-
-#if defined(Q_OS_WIN)
-	CloseHandle(hMutex);
-#endif
-
 	return rval;
 }
 #if defined(MIKTEX)

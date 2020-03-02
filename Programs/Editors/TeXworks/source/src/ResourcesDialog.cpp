@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2011-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2011-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 */
 
 #include "ResourcesDialog.h"
-#include "ConfigurableApp.h"
+#include "Settings.h"
 #include "TWUtils.h"
 
 ResourcesDialog::ResourcesDialog(QWidget *parent)
@@ -31,12 +31,12 @@ ResourcesDialog::ResourcesDialog(QWidget *parent)
 
 void ResourcesDialog::init()
 {
-	QSETTINGS_OBJECT(s);
+	Tw::Settings s;
 
 	setupUi(this);
 	
 #if defined(Q_OS_WIN)
-	if(ConfigurableApp::instance()->getSettingsFormat() == QSettings::NativeFormat)
+	if(Tw::Settings::defaultFormat() == QSettings::NativeFormat)
 		locationOfSettings->setText(tr("Registry (%1)").arg(s.fileName()));
 	else
 		locationOfSettings->setText(pathToLink(s.fileName()));
@@ -61,7 +61,7 @@ QString ResourcesDialog::pathToLink(const QString & path)
 {
 	QFileInfo fi(path);
 	QString absPath = fi.absoluteFilePath();
-	return QString::fromLatin1("<a href=\"%1\">%2</a>").arg(QUrl::fromLocalFile(absPath).toString()).arg(absPath);
+	return QString::fromLatin1("<a href=\"%1\">%2</a>").arg(QUrl::fromLocalFile(absPath).toString(), absPath);
 }
 
 /*
@@ -86,7 +86,7 @@ QDialog::DialogCode ResourcesDialog::doResourcesDialog(QWidget *parent)
 
 	dlg.show();
 
-	QDialog::DialogCode result = (DialogCode)dlg.exec();
+	QDialog::DialogCode result = static_cast<DialogCode>(dlg.exec());
 	return result;
 }
 

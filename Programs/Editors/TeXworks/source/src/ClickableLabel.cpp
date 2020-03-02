@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2013-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2013-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,12 +21,12 @@
 
 #include "ClickableLabel.h"
 
-ClickableLabel::ClickableLabel(QWidget * parent /* = 0 */, Qt::WindowFlags f /* = 0 */)
+ClickableLabel::ClickableLabel(QWidget * parent, Qt::WindowFlags f)
 : QLabel(parent, f)
 {
 }
 
-ClickableLabel::ClickableLabel(const QString & text, QWidget * parent /* = 0 */, Qt::WindowFlags f /* = 0 */)
+ClickableLabel::ClickableLabel(const QString & text, QWidget * parent, Qt::WindowFlags f)
 : QLabel(text, parent, f)
 {
 }

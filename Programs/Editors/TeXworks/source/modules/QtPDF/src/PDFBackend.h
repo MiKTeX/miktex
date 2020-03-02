@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2020  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -59,8 +59,8 @@ public:
               Flag_ForceBold = 0x40000 };
   Q_DECLARE_FLAGS(Flags, Flag)
 
-  PDFFontDescriptor(const QString fontName = QString());
-  virtual ~PDFFontDescriptor() { }
+  PDFFontDescriptor(const QString & fontName = QString());
+  virtual ~PDFFontDescriptor() = default;
 
   bool isSubset() const;
 
@@ -75,21 +75,21 @@ protected:
   // From pdf specs
   QString _name;
   QString _family;
-  enum FontStretch _stretch;
-  int _weight;
+  enum FontStretch _stretch{FontStretch_Normal};
+  int _weight{400};
   Flags _flags;
   QRectF _bbox;
-  float _italicAngle;
-  float _ascent;
-  float _descent;
-  float _leading;
-  float _capHeight;
-  float _xHeight;
-  float _stemV;
-  float _stemH;
-  float _avgWidth;
-  float _maxWidth;
-  float _missingWidth;
+  float _italicAngle{0};
+  float _ascent{0};
+  float _descent{0};
+  float _leading{0};
+  float _capHeight{0};
+  float _xHeight{0};
+  float _stemV{0};
+  float _stemH{0};
+  float _avgWidth{0};
+  float _maxWidth{0};
+  float _missingWidth{0};
   QString _charSet;
 
   // From pdf specs for CID fonts only
@@ -114,8 +114,8 @@ public:
                          ProgramType_CIDCFF, ProgramType_OpenType };
   enum FontSource { Source_Embedded, Source_File, Source_Builtin };
   
-  PDFFontInfo() : _source(Source_Builtin), _fontType(FontType_Type1), _CIDType(CIDFont_None), _fontProgramType(ProgramType_None) { };
-  virtual ~PDFFontInfo() { };
+  PDFFontInfo() = default;
+  virtual ~PDFFontInfo() = default;
   
   FontType fontType() const { return _fontType; }
   CIDFontType CIDType() const { return _CIDType; }
@@ -138,12 +138,12 @@ public:
   void setSource(const FontSource source) { _source = source; }
 
 protected:
-  FontSource _source;
+  FontSource _source{Source_Builtin};
   PDFFontDescriptor _descriptor;
   QFileInfo _substitutionFile;
-  FontType _fontType;
-  CIDFontType _CIDType;
-  FontProgramType _fontProgramType;
+  FontType _fontType{FontType_Type1};
+  CIDFontType _CIDType{CIDFont_None};
+  FontProgramType _fontProgramType{ProgramType_None};
 };
 
 class PDFPageTile;
@@ -191,14 +191,14 @@ class PDFPageCache : protected QCache<PDFPageTile, QSharedPointer<QImage> >
 public:
   enum TileStatus { UNKNOWN, PLACEHOLDER, CURRENT, OUTDATED };
 
-  PDFPageCache() { }
-  virtual ~PDFPageCache() { }
+  PDFPageCache() = default;
+  virtual ~PDFPageCache() = default;
 
   // Note: Each image has a cost of 1
   int maxSize() const { return maxCost(); }
   void setMaxSize(const int num) { setMaxCost(num); }
 
-  // Returns the image under the key `tile` or NULL if it doesn't exist
+  // Returns the image under the key `tile` or nullptr if it doesn't exist
   QSharedPointer<QImage> getImage(const PDFPageTile & tile) const;
   TileStatus getStatus(const PDFPageTile & tile) const;
   // Returns the pointer to the image in the cache under they key `tile` after
@@ -238,7 +238,7 @@ protected:
 public:
   enum Type { PageRendering, LoadLinks };
 
-  virtual ~PageProcessingRequest() { }
+  ~PageProcessingRequest() override = default;
   virtual Type type() const = 0;
 
   Page *page;
@@ -262,15 +262,15 @@ public:
     render_box(render_box),
     cache(cache)
   {}
-  Type type() const { return PageRendering; }
+  Type type() const override { return PageRendering; }
 
-  virtual bool operator==(const PageProcessingRequest & r) const;
+  bool operator==(const PageProcessingRequest & r) const override;
 #ifdef DEBUG
-  virtual operator QString() const;
+  operator QString() const override;
 #endif
 
 protected:
-  bool execute();
+  bool execute() override;
 
   double xres, yres;
   QRect render_box;
@@ -305,14 +305,14 @@ class PageProcessingLoadLinksRequest : public PageProcessingRequest
 
 public:
   PageProcessingLoadLinksRequest(Page *page, QObject *listener) : PageProcessingRequest(page, listener) { }
-  Type type() const { return LoadLinks; }
+  Type type() const override { return LoadLinks; }
 
 #ifdef DEBUG
-  virtual operator QString() const;
+  operator QString() const override;
 #endif
 
 protected:
-  bool execute();
+  bool execute() override;
 };
 
 
@@ -335,13 +335,17 @@ public:
 // Class to perform (possibly) lengthy operations on pages in the background
 // Modelled after the "Blocking Fortune Client Example" in the Qt docs
 // (http://doc.qt.nokia.com/stable/network-blockingfortuneclient.html)
+
+// The `PDFPageProcessingThread` is a thread that processes background jobs.
+// Each job is represented by a subclass of `PageProcessingRequest` and
+// contains an `execute` method that performs the actual work.
 class PDFPageProcessingThread : public QThread
 {
   Q_OBJECT
 
 public:
-  PDFPageProcessingThread();
-  virtual ~PDFPageProcessingThread();
+  PDFPageProcessingThread() = default;
+  ~PDFPageProcessingThread() override;
 
   // add a processing request to the work stack
   // Note: request must have been created on the heap and must be in the scope
@@ -358,15 +362,15 @@ public:
   void clearWorkStack();
 
 protected:
-  virtual void run();
+  void run() override;
 
 private:
   QStack<PageProcessingRequest*> _workStack;
   QMutex _mutex;
   QWaitCondition _waitCondition;
-  bool _idle;
+  bool _idle{true};
   QWaitCondition _idleCondition;
-  bool _quit;
+  bool _quit{false};
 #ifdef DEBUG
   QTime _renderTimer;
   static void dumpWorkStack(const QStack<PageProcessingRequest*> & ws);
@@ -380,9 +384,9 @@ public:
   enum PDFToCItemFlag { Flag_Italic = 0x1, Flag_Bold = 0x2 };
   Q_DECLARE_FLAGS(PDFToCItemFlags, PDFToCItemFlag)
 
-  PDFToCItem(const QString label = QString()) : _label(label), _isOpen(false), _action(NULL) { }
+  PDFToCItem(const QString label = QString()) : _label(label) { }
   PDFToCItem(const PDFToCItem & o) : _label(o._label), _isOpen(o._isOpen), _color(o._color), _children(o._children), _flags(o._flags) {
-    _action = (o._action ? o._action->clone() : NULL);
+    _action = (o._action ? o._action->clone() : nullptr);
   }
   virtual ~PDFToCItem() { if (_action) delete _action; }
 
@@ -406,8 +410,8 @@ public:
 
 protected:
   QString _label;
-  bool _isOpen; // derived from the sign of the `Count` member of the outline item dictionary
-  PDFAction * _action; // if the `Dest` member of the outline item dictionary is set, it must be converted to a PDFGotoAction
+  bool _isOpen{false}; // derived from the sign of the `Count` member of the outline item dictionary
+  PDFAction * _action{nullptr}; // if the `Dest` member of the outline item dictionary is set, it must be converted to a PDFGotoAction
   QColor _color;
   QList<PDFToCItem> _children;
   PDFToCItemFlags _flags;
@@ -429,7 +433,7 @@ struct SearchRequest
 
 struct SearchResult
 {
-  int pageNum;
+  unsigned int pageNum;
   QRectF bbox;
 };
 
@@ -527,13 +531,13 @@ public:
   //     return the search results one at a time rather than all at once.
   //
   //   - See TODO list in `Page::search`
-  virtual QList<SearchResult> search(QString searchText, SearchFlags flags, int startPage = 0);
+  virtual QList<SearchResult> search(const QString & searchText, const SearchFlags & flags, const int startPage = 0);
 
 protected:
-  virtual void clearPages();
+  void clearPages();
   virtual void clearMetaData();
 
-  int _numPages;
+  int _numPages{-1};
   PDFPageProcessingThread _processingThread;
   PDFPageCache _pageCache;
   QVector< QSharedPointer<Page> > _pages;
@@ -550,10 +554,10 @@ protected:
   QString _meta_producer;
   QDateTime _meta_creationDate;
   QDateTime _meta_modDate;
-  qint64 _meta_fileSize;
-  TrappedState _meta_trapped;
+  qint64 _meta_fileSize{0};
+  TrappedState _meta_trapped{Trapped_Unknown};
   QMap<QString, QString> _meta_other;
-  QSharedPointer<QReadWriteLock> _docLock;
+  QSharedPointer<QReadWriteLock> _docLock{new QReadWriteLock(QReadWriteLock::Recursive)};
 };
 
 // This class is thread-safe. See implementation for internals.
@@ -562,10 +566,10 @@ class Page
   friend class Document;
 
 protected:
-  Document *_parent;
-  const int _n;
-  Transition::AbstractTransition * _transition;
-  QReadWriteLock * _pageLock;
+  Document *_parent{nullptr};
+  const int _n{-1};
+  Transition::AbstractTransition * _transition{nullptr};
+  QReadWriteLock * _pageLock{new QReadWriteLock(QReadWriteLock::Recursive)};
   const QSharedPointer<QReadWriteLock> _docLock;
 
   // Getter for derived classes (that are not friends of Document)
@@ -576,7 +580,7 @@ protected:
   Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock);
 
   // Uses doc-read-lock and page-read-lock.
-  QSharedPointer<QImage> getCachedImage(double xres, double yres, QRect render_box = QRect(), PDFPageCache::TileStatus * status = NULL);
+  QSharedPointer<QImage> getCachedImage(double xres, double yres, QRect render_box = QRect(), PDFPageCache::TileStatus * status = nullptr);
 
   // Uses doc-read-lock and page-read-lock.
   virtual void asyncRenderToImage(QObject *listener, double xres, double yres, QRect render_box = QRect(), bool cache = false);
@@ -589,7 +593,7 @@ public:
     QList<Box> subBoxes;
   };
   
-  virtual ~Page();
+  virtual ~Page() = default;
 
   Document * document() { QReadLocker pageLocker(_pageLock); return _parent; }
   int pageNum();
@@ -615,7 +619,9 @@ public:
   // Optionally, the function can also return wordBoxes and/or charBoxes for
   // each character (i.e., a rect enclosing the word the character is part of
   // and/or a rect enclosing the actual character)
-  virtual QString selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes = NULL, QMap<int, QRectF> * charBoxes = NULL, const bool onlyFullyEnclosed = false) {
+  virtual QString selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes = nullptr, QMap<int, QRectF> * charBoxes = nullptr, const bool onlyFullyEnclosed = false) {
+    Q_UNUSED(selection)
+    Q_UNUSED(onlyFullyEnclosed)
     if (wordBoxes) wordBoxes->clear();
     if (charBoxes) charBoxes->clear();
     return QString();
@@ -625,7 +631,7 @@ public:
   virtual QImage renderToImage(double xres, double yres, QRect render_box = QRect(), bool cache = false) const = 0;
 
   // Returns either a cached image (if it exists), or triggers a render request.
-  // If listener != NULL, this is an asynchronous render request and the method
+  // If listener != nullptr, this is an asynchronous render request and the method
   // returns a dummy image (which is added to the cache to speed up future
   // requests). Otherwise, the method renders the page synchronously and returns
   // the result.
@@ -647,7 +653,7 @@ public:
   //
   // This is very tricky to do in C++. God I miss Python and its `itertools`
   // library.
-  virtual QList<SearchResult> search(QString searchText, SearchFlags flags) = 0;
+  virtual QList<SearchResult> search(const QString & searchText, const SearchFlags & flags) = 0;
   static QList<SearchResult> executeSearch(SearchRequest request);
 };
 
@@ -657,7 +663,7 @@ class BackendInterface : public QObject
 {
   Q_OBJECT
 public:
-  virtual ~BackendInterface() { }
+  ~BackendInterface() override = default;
   virtual QSharedPointer<Backend::Document> newDocument(const QString & fileName) = 0;
   virtual QString name() const = 0;
   virtual bool canHandleFile(const QString & fileName) = 0;

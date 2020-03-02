@@ -1,3 +1,16 @@
+/**
+ * Copyright (C) 2017-2020  Stefan Löffler
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ */
 #include "PaperSizes.h"
 #include <QList>
 
@@ -152,8 +165,8 @@ public:
     append(PaperSize(PaperSize::tr("Arch E2"), QSizeF(26, 38), PaperSize::Inches));
     append(PaperSize(PaperSize::tr("Arch E3"), QSizeF(27, 39), PaperSize::Inches));
   }
-} standardPaperSizes;
-
+};
+static StandardPaperSizes standardPaperSizes;
 
 PaperSize::PaperSize(const QString & name, const QSizeF & size, const LengthUnit lengthUnit, const bool rotatable /* = true */, const QSizeF & tolerances /* = QSizeF() */)
   : _name(name)
@@ -180,8 +193,8 @@ PaperSize::PaperSize(const QString & name, const QSizeF & size, const LengthUnit
 
 QString PaperSize::label() const
 {
-  float w = _size.width();
-  float h = _size.height();
+  qreal w = _size.width();
+  qreal h = _size.height();
   //: Length unit: millimeters
   QString unit = tr("mm");
 
@@ -197,15 +210,14 @@ QString PaperSize::label() const
 
   if (_name.isEmpty())
     return QString::fromUtf8("%1 × %2 %3").arg(w).arg(h).arg(unit);
-  else
-    return QString::fromUtf8("%1 [%2 × %3 %4]").arg(_name).arg(w).arg(h).arg(unit);
+  return QString::fromUtf8("%1 [%2 × %3 %4]").arg(_name).arg(w).arg(h).arg(unit);
 }
 
 //static
 PaperSize PaperSize::findForMillimeter(const QSizeF & paperSize)
 {
-  float w = paperSize.width();
-  float h = paperSize.height();
+  qreal w = paperSize.width();
+  qreal h = paperSize.height();
   bool ls = false;
 
   if (w > h) {
@@ -226,9 +238,9 @@ PaperSize PaperSize::findForMillimeter(const QSizeF & paperSize)
 
 bool PaperSize::operator ==(const PaperSize & other) const
 {
-  float wdiff = qAbs(_size.width() - other._size.width());
-  float hdiff = qAbs(_size.height() - other._size.height());
-  float dw = 1e-3, dh = 1e-3;
+  qreal wdiff = qAbs(_size.width() - other._size.width());
+  qreal hdiff = qAbs(_size.height() - other._size.height());
+  qreal dw = 1e-3, dh = 1e-3;
   if (_tolerances.isValid()) {
     if (other._tolerances.isValid()) {
       dw = qMin(_tolerances.width(), other._tolerances.width());
@@ -249,7 +261,8 @@ bool PaperSize::operator ==(const PaperSize & other) const
   if (_rotatable || other._rotatable) {
     wdiff = qAbs(_size.height() - other._size.width());
     hdiff = qAbs(_size.width() - other._size.height());
-    dw = 1e-3, dh = 1e-3;
+    dw = 1e-3;
+    dh = 1e-3;
     if (_tolerances.isValid()) {
       if (other._tolerances.isValid()) {
         dw = qMin(_tolerances.height(), other._tolerances.width());

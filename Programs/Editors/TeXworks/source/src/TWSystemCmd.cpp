@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2013-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2013-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,16 +38,14 @@ bool TWSystemCmd::waitForStarted(int msecs /* = 30000 */)
 {
 	if (finished)
 		return finishedSuccessfully;
-	else
-		return QProcess::waitForStarted(msecs);
+	return QProcess::waitForStarted(msecs);
 }
 
 bool TWSystemCmd::waitForFinished(int msecs /* = 30000 */)
 {
 	if (finished)
 		return finishedSuccessfully;
-	else
-		return QProcess::waitForFinished(msecs);
+	return QProcess::waitForFinished(msecs);
 }
 
 void TWSystemCmd::processError(QProcess::ProcessError error)

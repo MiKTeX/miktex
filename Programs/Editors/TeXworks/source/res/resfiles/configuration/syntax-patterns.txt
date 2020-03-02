@@ -13,7 +13,7 @@
 #
 # The color fields <fgcolor> and <bgcolor> are either:
 # *) a color name from the list defined in the SVG standard;
-#    see http://www.w3.org/TR/SVG/types.html#ColorKeywords
+#    see https://www.w3.org/TR/SVG11/types.html#ColorKeywords
 # *) a hexadecimal color value of the form #rrggbb; note that if this is used at
 #    the beginning of a line, a space " " must be added in front of it so the
 #    line is not interpreted as a comment (e.g., " #aabbcc" instead of "#aabbcc")
@@ -42,7 +42,7 @@ darkgreen	N	\\(?:begin|end)\s*\{[^\}]*\}
 darkblue	N	\\usepackage\s*(?:\[[^\]]*\]\s*)?\{[^\}]*\}
 
 # control sequences
-blue		N	\\(?:[A-Za-z@]+|.)
+blue		N	\\(?:[\p{L}@]+|.)
 
 # comments
 red		Y	%.*
@@ -61,7 +61,7 @@ gray		N	[\-+/^_]
 darkgreen;B	N	\\(?:start|stop)[A-Za-z]+
 
 # control sequences
-blue;B		N	\\(?:[A-Za-z@]+|.)
+blue;B		N	\\(?:[\p{L}@]+|.)
 
 # comments
 red		Y	%.*
@@ -105,7 +105,7 @@ green		N	\\(?:begin|end)\{macrocode\}
 darkgreen	N	\\(?:begin|end)\s*\{[^}]*\}
 
 # control sequences
-blue		N	\\(?:[A-Za-z@:_]+|.)
+blue		N	\\(?:[\p{L}@:_]+|.)
 
 [Lua]
 

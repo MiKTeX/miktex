@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,20 +21,16 @@
 
 #include "TeXDocks.h"
 
-#include "TeXDocument.h"
+#include "TeXDocumentWindow.h"
 
 #include <QTreeWidget>
 #include <QHeaderView>
 #include <QScrollBar>
 
-TeXDock::TeXDock(const QString& title, TeXDocument *doc)
+TeXDock::TeXDock(const QString & title, TeXDocumentWindow * doc)
 	: QDockWidget(title, doc), document(doc), filled(false)
 {
 	connect(this, SIGNAL(visibilityChanged(bool)), SLOT(myVisibilityChanged(bool)));
-}
-
-TeXDock::~TeXDock()
-{
 }
 
 void TeXDock::myVisibilityChanged(bool visible)
@@ -47,7 +43,7 @@ void TeXDock::myVisibilityChanged(bool visible)
 
 //////////////// TAGS ////////////////
 
-TagsDock::TagsDock(TeXDocument *doc)
+TagsDock::TagsDock(TeXDocumentWindow * doc)
 	: TeXDock(tr("Tags"), doc)
 {
 	setObjectName(QString::fromLatin1("tags"));
@@ -56,12 +52,8 @@ TagsDock::TagsDock(TeXDocument *doc)
 	tree->header()->hide();
 	tree->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 	setWidget(tree);
-	connect(doc, SIGNAL(tagListUpdated()), this, SLOT(listChanged()));
+	connect(doc->textDoc(), SIGNAL(tagsChanged()), this, SLOT(listChanged()));
 	saveScrollValue = 0;
-}
-
-TagsDock::~TagsDock()
-{
 }
 
 void TagsDock::fillInfo()
@@ -70,9 +62,9 @@ void TagsDock::fillInfo()
 	disconnect(tree, SIGNAL(itemActivated(QTreeWidgetItem*, int)), this, SLOT(followTagSelection()));
 	disconnect(tree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(followTagSelection()));
 	tree->clear();
-	const QList<TeXDocument::Tag>& tags = document->getTags();
-	if (tags.size() > 0) {
-		QTreeWidgetItem *item = 0, *bmItem = 0;
+	const QList<Tw::Document::TextDocument::Tag> & tags = document->textDoc()->getTags();
+	if (!tags.empty()) {
+		QTreeWidgetItem *item = nullptr, *bmItem = nullptr;
 		QTreeWidgetItem *bookmarks = new QTreeWidgetItem(tree);
 		bookmarks->setText(0, tr("Bookmarks"));
 		bookmarks->setFlags(Qt::ItemIsEnabled);
@@ -84,19 +76,19 @@ void TagsDock::fillInfo()
 		outline->setForeground(0, Qt::blue);
 		tree->expandItem(outline);
 		for (int index = 0; index < tags.size(); ++index) {
-			const TeXDocument::Tag& bm = tags[index];
+			const Tw::Document::TextDocument::Tag & bm = tags[index];
 			if (bm.level < 1) {
 				bmItem = new QTreeWidgetItem(bookmarks, QTreeWidgetItem::UserType);
 				bmItem->setText(0, bm.text);
 				bmItem->setText(1, QString::number(index));
 			}
 			else  {
-				while (item != 0 && item->type() >= QTreeWidgetItem::UserType + bm.level)
+				while (item && item->type() >= QTreeWidgetItem::UserType + static_cast<int>(bm.level))
 					item = item->parent();
-				if (item == 0)
-					item = new QTreeWidgetItem(outline, QTreeWidgetItem::UserType + bm.level);
+				if (!item)
+					item = new QTreeWidgetItem(outline, QTreeWidgetItem::UserType + static_cast<int>(bm.level));
 				else
-					item = new QTreeWidgetItem(item, QTreeWidgetItem::UserType + bm.level);
+					item = new QTreeWidgetItem(item, QTreeWidgetItem::UserType + static_cast<int>(bm.level));
 				item->setText(0, bm.text);
 				item->setText(1, QString::number(index));
 				tree->expandItem(item);
@@ -145,10 +137,6 @@ TeXDockTreeWidget::TeXDockTreeWidget(QWidget* parent)
 	: QTreeWidget(parent)
 {
 	setIndentation(10);
-}
-
-TeXDockTreeWidget::~TeXDockTreeWidget()
-{
 }
 
 QSize TeXDockTreeWidget::sizeHint() const

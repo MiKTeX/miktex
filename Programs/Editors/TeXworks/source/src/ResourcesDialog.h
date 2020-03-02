@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2011  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ class ResourcesDialog : public QDialog, private Ui::ResourcesDialog
 	Q_OBJECT
 
 public:
-	ResourcesDialog(QWidget *parent);
+	explicit ResourcesDialog(QWidget * parent);
 	static DialogCode doResourcesDialog(QWidget *parent);
 
 public slots:

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2017  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,35 +22,32 @@
 #ifndef COMPLETING_EDIT_H
 #define COMPLETING_EDIT_H
 
+#include "document/SpellChecker.h"
+#include "ui/LineNumberWidget.h"
+#include "ui_CompletingEdit.h"
+
 #include <QTextEdit>
 #include <QHash>
 #include <QTimer>
 #include <QDrag>
 #include <QMimeData>
-
-#include <hunspell.h>
+#include <QRegularExpression>
 
 class QCompleter;
 class QStandardItemModel;
 class QTextCodec;
-class LineNumberArea;
 
-class CompletingEdit : public QTextEdit
+class CompletingEdit : public QTextEdit, private Ui::CompletingEdit
 {
 	Q_OBJECT
 
 public:
-	CompletingEdit(QWidget *parent = 0);
-	~CompletingEdit();
-
-	void setSpellChecker(Hunhandle *h, QTextCodec *codec);
+	CompletingEdit(QWidget *parent = nullptr);
+	~CompletingEdit() override;
 
 	bool selectWord(QTextCursor& cursor);
 
 	void setLineNumberDisplay(bool displayNumbers);
-	void lineNumberAreaPaintEvent(QPaintEvent *event);
-	int lineNumberAreaWidth();
-
 	bool getLineNumbersVisible() const;
 
 	QString getIndentMode() const {
@@ -65,6 +62,9 @@ public:
 	// Override of QTextEdit's method to properly handle scrolling for multiline
 	// cursors
 	void setTextCursor(const QTextCursor & cursor);
+
+	// Override of QTextEdit's method to reconnect signals
+	void setDocument(QTextDocument * document);
 	
 	static QStringList autoIndentModes();
 	static QStringList smartQuotesModes();
@@ -92,30 +92,33 @@ signals:
 	void updateRequest(const QRect& rect, int dy);
 
 protected:
-	virtual void keyPressEvent(QKeyEvent *e);
-	virtual void focusInEvent(QFocusEvent *e);
-	virtual void mousePressEvent(QMouseEvent *e);
-	virtual void mouseReleaseEvent(QMouseEvent *e);
-	virtual void mouseMoveEvent(QMouseEvent *e);
-	virtual void mouseDoubleClickEvent(QMouseEvent *e);
-	virtual void contextMenuEvent(QContextMenuEvent *e);
-	virtual void dragEnterEvent(QDragEnterEvent *e);
-	virtual void dropEvent(QDropEvent *e);
-	virtual void timerEvent(QTimerEvent *e);
-	virtual bool canInsertFromMimeData(const QMimeData *source) const;
-	virtual void insertFromMimeData(const QMimeData *source);
-	virtual void resizeEvent(QResizeEvent *event);
-	virtual void wheelEvent(QWheelEvent *event);
-	virtual bool event(QEvent *event);	
-	virtual void scrollContentsBy(int dx, int dy);
-	
+	void keyPressEvent(QKeyEvent *e) override;
+	void focusInEvent(QFocusEvent *e) override;
+	void mousePressEvent(QMouseEvent *e) override;
+	void mouseReleaseEvent(QMouseEvent *e) override;
+	void mouseMoveEvent(QMouseEvent *e) override;
+	void mouseDoubleClickEvent(QMouseEvent *e) override;
+	void contextMenuEvent(QContextMenuEvent *e) override;
+	void dragEnterEvent(QDragEnterEvent *e) override;
+	void dropEvent(QDropEvent *e) override;
+	void timerEvent(QTimerEvent *e) override;
+	bool canInsertFromMimeData(const QMimeData *source) const override;
+	void insertFromMimeData(const QMimeData *source) override;
+	void resizeEvent(QResizeEvent *event) override;
+	void wheelEvent(QWheelEvent *event) override;
+	bool event(QEvent *event) override;
+	void scrollContentsBy(int dx, int dy) override;
+
+	Tw::Document::SpellChecker::Dictionary * getSpellChecker() const;
+
 private slots:
 	void cursorPositionChangedSlot();
 	void correction(const QString& suggestion);
 	void addToDictionary();
 	void ignoreWord();
 	void resetExtraSelections();
-	void jumpToPdf();
+	void jumpToPdf(QTextCursor pos = {});
+	void jumpToPdfFromContextMenu();
 	void updateLineNumberArea(const QRect&, int);
 	
 private:
@@ -129,9 +132,10 @@ private:
 	void loadCompletionsFromFile(QStandardItemModel *model, const QString& filename);
 	void loadCompletionFiles(QCompleter *theCompleter);
 
-	void handleCompletionShortcut(QKeyEvent *e);
+	bool handleCompletionShortcut(QKeyEvent *e);
 	void handleReturn(QKeyEvent *e);
 	void handleBackspace(QKeyEvent *e);
+	void handleTab(QKeyEvent * e);
 	void handleOtherKey(QKeyEvent *e);
 	void maybeSmartenQuote(int offset);
 
@@ -148,27 +152,27 @@ private:
 		extendingSelection,
 		dragSelecting
 	};
-	MouseMode mouseMode;
+	MouseMode mouseMode{none};
 	
 	QTextCursor dragStartCursor;
 
-	int droppedOffset, droppedLength;
+	int droppedOffset{-1}, droppedLength{0};
 	
 	QBasicTimer clickTimer;
 	QPoint clickPos;
-	int clickCount;
+	int clickCount{0};
 
-	int wheelDelta;  // used to accumulate small steps of high-resolution mice
+	int wheelDelta{0};  // used to accumulate small steps of high-resolution mice
 	
 	static void loadIndentModes();
 
 	struct IndentMode {
-		QString	name;
-		QRegExp	regex;
+		QString name;
+		QRegularExpression regex;
 	};
 	static QList<IndentMode> *indentModes;
-	int autoIndentMode;
-	int prefixLength;
+	int autoIndentMode{-1};
+	int prefixLength{0};
 
 	static void loadSmartQuotesModes();
 	
@@ -180,22 +184,20 @@ private:
 	};
 	static QList<QuotesMode> *quotesModes;
 	
-	int smartQuotesMode;
+	int smartQuotesMode{-1};
 
-	QCompleter *c;
+	QCompleter * c{nullptr};
 	QTextCursor cmpCursor;
 
 	QString prevCompletion; // used with multiple entries for the same key (e.g., "--")
-	int itemIndex;
-	int prevRow;
+	int itemIndex{0};
+	int prevRow{-1};
 
 	QTextCursor currentWord;
-	Hunhandle *pHunspell;
-	QTextCodec *spellingCodec;
 
 	QTextCursor	currentCompletionRange;
 
-	LineNumberArea *lineNumberArea;
+	Tw::UI::LineNumberWidget * lineNumberArea;
 
 	static QTextCharFormat	*currentCompletionFormat;
 	static QTextCharFormat	*braceMatchingFormat;
@@ -205,32 +207,6 @@ private:
 	
 	static bool highlightCurrentLine;
 	static bool autocompleteEnabled;
-};
-
-class LineNumberArea : public QWidget
-{
-public:
-	LineNumberArea(CompletingEdit *e)
-		: QWidget(e)
-	{
-		editor = e;
-	}
-	
-	QSize sizeHint() const {
-		return QSize(editor->lineNumberAreaWidth(), 0);
-	}
-	
-	QColor bgColor() const { return _bgColor; }
-	void setBgColor(const QColor color) { _bgColor = color; }
-	
-protected:
-	void paintEvent(QPaintEvent *event) {
-		editor->lineNumberAreaPaintEvent(event);
-	}
-	
-private:
-	CompletingEdit *editor;
-	QColor _bgColor;
 };
 
 #endif // COMPLETING_EDIT_H

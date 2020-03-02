@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2018  Stefan Löffler
+ * Copyright (C) 2013-2019  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -43,7 +43,7 @@ class AbstractTool
 public:
   enum Type { Tool_None, Tool_MagnifyingGlass, Tool_ZoomIn, Tool_ZoomOut, Tool_MarqueeZoom, Tool_Move, Tool_ContextMenu, Tool_ContextClick, Tool_Measure, Tool_Select };
   AbstractTool(PDFDocumentView * parent) : _parent(parent), _cursor(QCursor(Qt::ArrowCursor)) { }
-  virtual ~AbstractTool() { }
+  virtual ~AbstractTool() = default;
   
   virtual Type type() const { return Tool_None; }
   virtual bool operator==(const AbstractTool & o) { return (type() == o.type()); }
@@ -54,12 +54,12 @@ protected:
   // By default, key events will call the parent view's maybeArmTool(). Derived
   // classes that rely on key events can override this behavior to handle
   // certain key events itself.
-  virtual void keyPressEvent(QKeyEvent *event);
-  virtual void keyReleaseEvent(QKeyEvent *event);
+  virtual void keyPressEvent(QKeyEvent * event);
+  virtual void keyReleaseEvent(QKeyEvent * event);
   virtual void mousePressEvent(QMouseEvent * event);
-  virtual void mouseMoveEvent(QMouseEvent * event) { }
+  virtual void mouseMoveEvent(QMouseEvent * event) { Q_UNUSED(event) }
   virtual void mouseReleaseEvent(QMouseEvent * event);
-  virtual void paintEvent(QPaintEvent * event) { }
+  virtual void paintEvent(QPaintEvent * event) { Q_UNUSED(event) }
 
   PDFDocumentView * _parent;
   QCursor _cursor;
@@ -69,13 +69,13 @@ class ZoomIn : public AbstractTool
 {
 public:
   ZoomIn(PDFDocumentView * parent);
-  virtual Type type() const { return Tool_ZoomIn; }
+  Type type() const override { return Tool_ZoomIn; }
 protected:
-  virtual void arm() { AbstractTool::arm(); _started = false; }
-  virtual void disarm() { AbstractTool::disarm(); _started = false; }
+  void arm() override { AbstractTool::arm(); _started = false; }
+  void disarm() override { AbstractTool::disarm(); _started = false; }
 
-  virtual void mousePressEvent(QMouseEvent * event);
-  virtual void mouseReleaseEvent(QMouseEvent * event);
+  void mousePressEvent(QMouseEvent * event) override;
+  void mouseReleaseEvent(QMouseEvent * event) override;
   QPoint _startPos;
   bool _started;
 };
@@ -84,13 +84,13 @@ class ZoomOut : public AbstractTool
 {
 public:
   ZoomOut(PDFDocumentView * parent);
-  virtual Type type() const { return Tool_ZoomOut; }
+  Type type() const override { return Tool_ZoomOut; }
 protected:
-  virtual void arm() { AbstractTool::arm(); _started = false; }
-  virtual void disarm() { AbstractTool::disarm(); _started = false; }
+  void arm() override { AbstractTool::arm(); _started = false; }
+  void disarm() override { AbstractTool::disarm(); _started = false; }
 
-  virtual void mousePressEvent(QMouseEvent * event);
-  virtual void mouseReleaseEvent(QMouseEvent * event);
+  void mousePressEvent(QMouseEvent * event) override;
+  void mouseReleaseEvent(QMouseEvent * event) override;
   QPoint _startPos;
   bool _started;
 };
@@ -100,20 +100,20 @@ class MagnifyingGlass : public AbstractTool
 public:
   enum MagnifierShape { Magnifier_Rectangle, Magnifier_Circle };
   MagnifyingGlass(PDFDocumentView * parent);
-  virtual Type type() const { return Tool_MagnifyingGlass; }
+  Type type() const override { return Tool_MagnifyingGlass; }
   PDFDocumentMagnifierView * magnifier() { return _magnifier; }
 
   void setMagnifierShape(const MagnifierShape shape);
   void setMagnifierSize(const int size);
 
 protected:
-  virtual void arm() { AbstractTool::arm(); _started = false; }
-  virtual void disarm() { AbstractTool::disarm(); hide(); }
+  void arm() override { AbstractTool::arm(); _started = false; }
+  void disarm() override { AbstractTool::disarm(); hide(); }
 
-  virtual void mousePressEvent(QMouseEvent * event);
-  virtual void mouseMoveEvent(QMouseEvent * event);
-  virtual void mouseReleaseEvent(QMouseEvent * event);
-  virtual void paintEvent(QPaintEvent * event);
+  void mousePressEvent(QMouseEvent * event) override;
+  void mouseMoveEvent(QMouseEvent * event) override;
+  void mouseReleaseEvent(QMouseEvent * event) override;
+  void paintEvent(QPaintEvent * event) override;
 
   virtual void hide();
 
@@ -125,14 +125,14 @@ class MarqueeZoom : public AbstractTool
 {
 public:
   MarqueeZoom(PDFDocumentView * parent);
-  virtual Type type() const { return Tool_MarqueeZoom; }
+  Type type() const override { return Tool_MarqueeZoom; }
 protected:
-  virtual void arm() { AbstractTool::arm(); _started = false; }
-  virtual void disarm() { AbstractTool::disarm(); _started = false; }
+  void arm() override { AbstractTool::arm(); _started = false; }
+  void disarm() override { AbstractTool::disarm(); _started = false; }
 
-  virtual void mousePressEvent(QMouseEvent * event);
-  virtual void mouseMoveEvent(QMouseEvent * event);
-  virtual void mouseReleaseEvent(QMouseEvent * event);
+  void mousePressEvent(QMouseEvent * event) override;
+  void mouseMoveEvent(QMouseEvent * event) override;
+  void mouseReleaseEvent(QMouseEvent * event) override;
 
   bool _started;
   QPoint _startPos;
@@ -143,14 +143,14 @@ class Move : public AbstractTool
 {
 public:
   Move(PDFDocumentView * parent);
-  virtual Type type() const { return Tool_Move; }
+  Type type() const override { return Tool_Move; }
 protected:
-  virtual void arm() { AbstractTool::arm(); _started = false; }
-  virtual void disarm() { AbstractTool::disarm(); _started = false; }
+  void arm() override { AbstractTool::arm(); _started = false; }
+  void disarm() override { AbstractTool::disarm(); _started = false; }
 
-  virtual void mousePressEvent(QMouseEvent * event);
-  virtual void mouseMoveEvent(QMouseEvent * event);
-  virtual void mouseReleaseEvent(QMouseEvent * event);
+  void mousePressEvent(QMouseEvent * event) override;
+  void mouseMoveEvent(QMouseEvent * event) override;
+  void mouseReleaseEvent(QMouseEvent * event) override;
 
   bool _started;
   QPoint _oldPos;
@@ -161,10 +161,10 @@ class ContextClick : public AbstractTool
 {
 public:
   ContextClick(PDFDocumentView * parent) : AbstractTool(parent), _started(false) { }
-  virtual Type type() const { return Tool_ContextClick; }
+  Type type() const override { return Tool_ContextClick; }
 protected:
-  virtual void mousePressEvent(QMouseEvent * event);
-  virtual void mouseReleaseEvent(QMouseEvent * event);
+  void mousePressEvent(QMouseEvent * event) override;
+  void mouseReleaseEvent(QMouseEvent * event) override;
   bool _started;
 };
 
@@ -178,11 +178,11 @@ public:
   // pt should be 1 for the first handle, 2 for the second handle
   MeasureLineGrip(MeasureLine * parent, const int pt);
 protected:
-  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-  
+  void hoverEnterEvent(QGraphicsSceneHoverEvent * event) override;
+  void hoverLeaveEvent(QGraphicsSceneHoverEvent * event) override;
+  void mousePressEvent(QGraphicsSceneMouseEvent * event) override;
+  void mouseMoveEvent(QGraphicsSceneMouseEvent * event) override;
+
   // to be called from friend class Measure during creation of the MeasureLine
   void mouseMove(const QPointF scenePos, const Qt::KeyboardModifiers modifiers);
   
@@ -194,22 +194,22 @@ class MeasureLine : public QGraphicsLineItem
 {
   friend class Measure;
 public:
-  MeasureLine(QGraphicsView * primaryView, QGraphicsItem * parent = NULL);
-  virtual ~MeasureLine() { }
+  MeasureLine(QGraphicsView * primaryView, QGraphicsItem * parent = nullptr);
+  ~MeasureLine() override = default;
 
   void setLine(qreal x1, qreal y1, qreal x2, qreal y2) { setLine(QLineF(x1, y1, x2, y2)); }
   void setLine(QPointF p1, QPointF p2) { setLine(QLineF(p1, p2)); }
   void setLine(QLineF line);
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget) override;
 protected:
   void updateMeasurement();
   void updateMeasureBoxPos();
-  
-  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-  
+
+  void hoverEnterEvent(QGraphicsSceneHoverEvent * event) override;
+  void hoverLeaveEvent(QGraphicsSceneHoverEvent * event) override;
+  void mousePressEvent(QGraphicsSceneMouseEvent * event) override;
+  void mouseMoveEvent(QGraphicsSceneMouseEvent * event) override;
+
   QComboBox * _measureBox;
   QGraphicsProxyWidget * _measureBoxProxy;
   MeasureLineGrip * _grip1, * _grip2;
@@ -222,14 +222,14 @@ class Measure : public AbstractTool
 {
 public:
   Measure(PDFDocumentView * parent);
-  virtual Type type() const { return Tool_Measure; }
+  Type type() const override { return Tool_Measure; }
 protected:
-  virtual void mousePressEvent(QMouseEvent * event);
-  virtual void mouseMoveEvent(QMouseEvent *event);
-  virtual void mouseReleaseEvent(QMouseEvent * event);
-  virtual void keyPressEvent(QKeyEvent *event);
-  virtual void keyReleaseEvent(QKeyEvent *event);
-  
+  void mousePressEvent(QMouseEvent * event) override;
+  void mouseMoveEvent(QMouseEvent * event) override;
+  void mouseReleaseEvent(QMouseEvent * event) override;
+  void keyPressEvent(QKeyEvent * event) override;
+  void keyReleaseEvent(QKeyEvent * event) override;
+
   MeasureLine * _measureLine;
   bool _started;
   QPoint _startPos;
@@ -259,20 +259,20 @@ class Select : public AbstractTool
   friend class QtPDF::PDFDocumentView;
 public:
   Select(PDFDocumentView * parent);
-  virtual ~Select();
-  virtual Type type() const { return Tool_Select; }
-  
+  ~Select() override;
+  Type type() const override { return Tool_Select; }
+
   QColor highlightColor() const { return _highlightColor; }
   void setHighlightColor(const QColor & color);
   bool isTextSelected() const { return (_highlightPath ? !_highlightPath->path().isEmpty() : false); }
   QString selectedText() const;
 
 protected:
-  virtual void disarm();
-  virtual void mousePressEvent(QMouseEvent * event);
-  virtual void mouseMoveEvent(QMouseEvent *event);
-  virtual void mouseReleaseEvent(QMouseEvent * event);
-  virtual void keyPressEvent(QKeyEvent *event);
+  void disarm() override;
+  void mousePressEvent(QMouseEvent * event) override;
+  void mouseMoveEvent(QMouseEvent * event) override;
+  void mouseReleaseEvent(QMouseEvent * event) override;
+  void keyPressEvent(QKeyEvent * event) override;
 
   void resetBoxes(const int pageNum = -1);
   // Call this to notify Select that the page graphics item it has been working 

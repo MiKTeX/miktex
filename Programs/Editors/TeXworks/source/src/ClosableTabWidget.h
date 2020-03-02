@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2012  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,14 +33,14 @@ class ClosableTabWidget : public QTabWidget
 {
 	Q_OBJECT
 public:
-	ClosableTabWidget(QWidget * parent = NULL);
-	virtual ~ClosableTabWidget() { }
+	ClosableTabWidget(QWidget * parent = nullptr);
+	~ClosableTabWidget() override = default;
 
 signals:
 	void requestClose();
 
 protected:
-	void resizeEvent(QResizeEvent * e);
+	void resizeEvent(QResizeEvent * e) override;
 
 	QToolButton * _closeButton;
 };
