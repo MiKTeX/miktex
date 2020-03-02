@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2019 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -2092,6 +2092,20 @@ spc_handler_pdfm_pageresources (struct spc_env *spe, struct spc_arg *args)
   return 0;
 }
 
+static int
+spc_handler_pdft_compat_page (struct spc_env *spe, struct spc_arg *args)
+{
+  skip_white(&args->curptr, args->endptr);
+  if (args->curptr < args->endptr) {
+    pdf_doc_add_page_content(" ", 1);  /* op: */
+    pdf_doc_add_page_content(args->curptr, (int) (args->endptr - args->curptr));  /* op: ANY */
+  }
+
+  args->curptr = args->endptr;
+
+  return 0;
+}
+
 static struct spc_handler pdfm_handlers[] = {
   {"annotation", spc_handler_pdfm_annot},
   {"annotate",   spc_handler_pdfm_annot},
@@ -2207,6 +2221,15 @@ static struct spc_handler pdfm_handlers[] = {
   {"trailerid", spc_handler_pdfm_do_nothing},
 };
 
+static struct spc_handler pdft_compat_handlers[] = {
+  /* Text supplied to "direct" command should go inside of BT/ET block
+   * but dvipdfmx currently can't be implemented so.
+   * Here, "direct" is for the moment just an alias of "page".
+   */
+  {"direct", spc_handler_pdft_compat_page},
+  {"page", spc_handler_pdft_compat_page},
+};
+
 int
 spc_pdfm_check_special (const char *buf, int len)
 {
@@ -2245,15 +2268,34 @@ spc_pdfm_setup_handler (struct spc_handler *sph,
   skip_white(&ap->curptr, ap->endptr);
   q = parse_c_ident(&ap->curptr, ap->endptr);
   if (q) {
-    for (i = 0;
-         i < sizeof(pdfm_handlers) / sizeof(struct spc_handler); i++) {
-      if (!strcmp(q, pdfm_handlers[i].key)) {
-        ap->command = pdfm_handlers[i].key;
-        sph->key   = "pdf:";
-        sph->exec  = pdfm_handlers[i].exec;
-        skip_white(&ap->curptr, ap->endptr);
-        error = 0;
-        break;
+    int is_pdft_compat = 0;
+    if (ap->curptr < ap->endptr) {
+      if (ap->curptr[0] == ':') {
+        is_pdft_compat = 1;
+        ap->curptr++;
+      }
+    }
+    if (is_pdft_compat) {
+      for (i = 0; i < sizeof(pdft_compat_handlers) / sizeof(struct spc_handler); i++) {
+        if (!strcmp(q, pdft_compat_handlers[i].key)) {
+          ap->command = pdft_compat_handlers[i].key;
+          sph->key   = "pdf:";
+          sph->exec  = pdft_compat_handlers[i].exec;
+          skip_white(&ap->curptr, ap->endptr);
+          error = 0;
+          break;
+        }
+      }
+    } else {
+      for (i = 0; i < sizeof(pdfm_handlers) / sizeof(struct spc_handler); i++) {
+        if (!strcmp(q, pdfm_handlers[i].key)) {
+          ap->command = pdfm_handlers[i].key;
+          sph->key   = "pdf:";
+          sph->exec  = pdfm_handlers[i].exec;
+          skip_white(&ap->curptr, ap->endptr);
+          error = 0;
+          break;
+        }
       }
     }
     RELEASE(q);
