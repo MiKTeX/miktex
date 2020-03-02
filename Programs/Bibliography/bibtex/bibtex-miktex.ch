@@ -169,13 +169,13 @@ end;
 @x
 @!wiz_fn_space=3000; {maximum amount of |wiz_defined|-function space}
 @y
-@!wiz_fn_space_max=1000000; {maximum amount of |wiz_defined|-function space}
+@!wiz_fn_space_max=30000; {maximum amount of |wiz_defined|-function space}
 @z
 
 @x
 @!single_fn_space=100; {maximum amount for a single |wiz_defined|-function}
 @y
-@!single_fn_space=100; {maximum amount for a single |wiz_defined|-function}
+@!single_fn_space=1000; {maximum amount for a single |wiz_defined|-function}
 @z
 
 @x
