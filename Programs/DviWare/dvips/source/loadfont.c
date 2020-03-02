@@ -29,6 +29,7 @@
 
 char errbuf[1500];
 int lastresortsizes[40];
+int bitmapfontseen = 0 ;
 /*
  *   Now we have some routines to get stuff from the PK file.
  *   Subroutine pkbyte returns the next byte.
@@ -341,6 +342,7 @@ loadfont(register fontdesctype *curfnt)
       tfmload(curfnt);
       return;
    }
+   bitmapfontseen = 1 ;
    curfnt->dir = 0;
    if (!quiet) {
       if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {

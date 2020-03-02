@@ -430,4 +430,7 @@ extern char realnameoffile[];
 /* global variables from tfmload.c */
 extern FILE *tfmfile;
 
+/* global variables from loadfont.c */
+extern int bitmapfontseen ;
+
 #endif
