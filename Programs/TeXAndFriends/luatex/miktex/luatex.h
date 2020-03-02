@@ -1,6 +1,6 @@
 /* luatex/miktex/luatex.h:
 
-   Copyright (C) 2016-2017 Christian Schenk
+   Copyright (C) 2016-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -24,7 +24,6 @@ extern "C" {
 #endif
 
 void miktex_enable_installer(int onOff);
-int miktex_luatex_renew_format_file(const char* name);
 char* miktex_program_basename(const char* argv0);
 int miktex_is_output_file(const char* path);
 void miktex_set_aux_directory(const char* path);
@@ -32,6 +31,7 @@ const char* miktex_get_aux_directory();
 void miktex_invoke_editor(const char* filename, int lineno);
 void miktex_show_library_versions();
 void miktex_add_include_directory(const char* path);
+int miktex_open_format_file(const char* fileName, FILE** ppFile, int renew);
 
 #if defined(__cplusplus)
 }

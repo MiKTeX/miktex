@@ -3111,16 +3111,16 @@ static int tex_run_boot(lua_State * L)
         return 1;
     }
     if (format) {
-        if (!zopen_w_input(&fmt_file, format, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
-            lua_pushboolean(L, 0);      /* false */
+#if defined(MIKTEX)
+        if (!miktex_open_format_file(format, &fmt_file, false))
+        {
+            lua_pushboolean(L, 0);
             return 1;
         }
-#if defined(MIKTEX)
         if (!load_fmt_file(format, true))
         {
           zwclose(fmt_file);
-          miktex_luatex_renew_format_file(format);
-          if (!zopen_w_input(&fmt_file, format, DUMP_FORMAT, FOPEN_RBIN_MODE))
+          if (!miktex_open_format_file(format, &fmt_file, true))
           {
             lua_pushboolean(L, 0);
             return 1;
@@ -3133,6 +3133,10 @@ static int tex_run_boot(lua_State * L)
           }
         }
 #else
+        if (!zopen_w_input(&fmt_file, format, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
+            lua_pushboolean(L, 0);      /* false */
+            return 1;
+        }
         if (!load_fmt_file(format)) {
             zwclose(fmt_file);
             lua_pushboolean(L, 0);      /* false */

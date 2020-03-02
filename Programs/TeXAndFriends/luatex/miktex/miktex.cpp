@@ -1,6 +1,6 @@
 /* luatex/miktex/miktex.cpp:
 
-   Copyright (C) 2016-2017 Christian Schenk
+   Copyright (C) 2016-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -42,11 +42,62 @@ void miktex_enable_installer(int onOff)
   Application::GetApplication()->EnableInstaller(onOff ? TriState::True : TriState::False);
 }
 
-int miktex_luatex_renew_format_file(const char* name)
+int miktex_open_format_file(const char* fileName_, FILE** ppFile, int renew)
 {
+  MIKTEX_ASSERT_STRING(fileName_);
+  MIKTEX_ASSERT(ppFile != nullptr);
+
   shared_ptr<Session> session = Session::Get();
+
+  PathName fileName(fileName_);
+
+  if (!fileName.HasExtension())
+  {
+    fileName.SetExtension(".fmt");
+  }
+
   PathName path;
-  return session->FindFile(name, FileType::FMT, { Session::FindFileOption::Renew }, path) ? 1 : 0;
+
+  std::string dumpName = fileName.GetFileNameWithoutExtension().ToString();
+
+  Session::FindFileOptionSet findFileOptions;
+
+  findFileOptions += Session::FindFileOption::Create;
+
+  if (renew)
+  {
+    findFileOptions += Session::FindFileOption::Renew;
+  }
+
+  if (!session->FindFile(fileName.ToString(), FileType::FMT, findFileOptions, path))
+  {
+    MIKTEX_FATAL_ERROR_2(T_("The memory dump file could not be found."), "fileName", fileName.ToString());
+  }
+
+#if 1
+  if (!renew)
+  {
+    time_t modificationTime = File::GetLastWriteTime(path);
+    time_t lastAdminMaintenance = session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetTimeT();
+    renew = lastAdminMaintenance > modificationTime;
+    if (!renew && !session->IsAdminMode())
+    {
+      time_t lastUserMaintenance = session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetTimeT();
+      renew = lastUserMaintenance > modificationTime;
+    }
+    if (renew)
+    {
+      // RECURSION
+      return miktex_open_format_file(fileName_, ppFile, true);
+    }
+  }
+#endif
+
+  *ppFile = session->OpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false);
+
+  session->PushAppName(dumpName);
+
+  return true;
 }
 
 char* miktex_program_basename(const char* lpszArgv0)

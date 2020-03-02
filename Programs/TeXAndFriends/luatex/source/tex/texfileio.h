@@ -105,7 +105,11 @@ extern char *pack_file_name(str_number n, str_number a, str_number e);
 
 extern char *TEX_format_default;
 
+#if defined(MIKTEX)
+extern char* open_fmt_file(int renew); 
+#else
 extern char *open_fmt_file(void);
+#endif
 
 extern boolean name_in_progress;        /* is a file name being scanned? */
 extern str_number job_name;     /* principal file name */

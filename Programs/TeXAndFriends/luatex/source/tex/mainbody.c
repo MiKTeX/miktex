@@ -525,17 +525,14 @@ void main_body(void)
             /*tex Erase preloaded format. */
             initialize();
         }
-        if ((fname = open_fmt_file()) == NULL)
-            goto FINAL_END;
 #if defined(MIKTEX)
+        if ((fname = open_fmt_file(false)) == NULL)
+          goto FINAL_END;
         if (!load_fmt_file(fname, true))
         {
           zwclose(fmt_file);
-          miktex_luatex_renew_format_file(fname);
-          if ((fname = open_fmt_file()) == 0)
-          {
+          if ((fname = open_fmt_file(true)) == NULL)
             goto FINAL_END;
-          }
           if (!load_fmt_file(fname, false))
           {
             zwclose(fmt_file);
@@ -543,6 +540,8 @@ void main_body(void)
           }
         }
 #else
+        if ((fname = open_fmt_file()) == NULL)
+            goto FINAL_END;
         if (!load_fmt_file(fname)) {
             zwclose(fmt_file);
             goto FINAL_END;

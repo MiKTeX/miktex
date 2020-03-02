@@ -813,7 +813,11 @@ char *TEX_format_default;
 
 */
 
+#if defined(MIKTEX)
+char* open_fmt_file(int renew)
+#else
 char *open_fmt_file(void)
+#endif
 {
     /*tex The first space after the format file name: */
     int j;
@@ -832,8 +836,12 @@ char *open_fmt_file(void)
         dist = (int) (strlen(fmt) - strlen(DUMP_EXT));
         if (!(strstr(fmt, DUMP_EXT) == fmt + dist))
             fmt = concat(fmt, DUMP_EXT);
+#if defined(MIKTEX)
+        if (miktex_open_format_file(fmt, &fmt_file, renew))
+#else
         if (zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE))
-            goto FOUND;
+#endif
+          goto FOUND;
         wake_up_terminal();
         fprintf(stdout, "Sorry, I can't find the format `%s'; will try `%s'.\n",
                 fmt, TEX_format_default);
@@ -841,7 +849,11 @@ char *open_fmt_file(void)
     }
     /*tex Now pull out all the stops: try for the system \.{plain} file. */
     fmt = TEX_format_default;
+#if defined(MIKTEX)
+    if (!miktex_open_format_file(fmt, &fmt_file, renew)) {
+#else
     if (!zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
+#endif
         wake_up_terminal();
         fprintf(stdout, "I can't find the format file `%s'!\n",
                 TEX_format_default);
