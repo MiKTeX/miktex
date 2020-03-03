@@ -530,7 +530,11 @@ void TWApp::writeToMailingList()
 	QString address(QLatin1String("texworks@tug.org"));
 	QString body(QLatin1String("Thank you for taking the time to write an email to the TeXworks mailing list. Please read the instructions below carefully as following them will greatly facilitate the communication.\n\nInstructions:\n-) Please write your message in English (it's in your own best interest; otherwise, many people will not be able to understand it and therefore will not answer).\n\n-) Please type something meaningful in the subject line.\n\n-) If you are having a problem, please describe it step-by-step in detail.\n\n-) After reading, please delete these instructions (up to the \"configuration info\" below which we may need to find the source of problems).\n\n\n\n----- configuration info -----\n"));
 
+#if defined(MIKTEX)
+	body += QLatin1String("TeXworks version : " TEXWORKS_VERSION " (" TW_BUILD_ID_STR ")\n");
+#else
 	body += QLatin1String("TeXworks version : " TEXWORKS_VERSION "r.") + TWUtils::gitCommitHash() + QLatin1String(" (" TW_BUILD_ID_STR ")\n");
+#endif
 #if defined(Q_OS_DARWIN)
 	body += QLatin1String("Install location : ") + QDir(applicationDirPath() + QLatin1String("/../..")).absolutePath() + QChar::fromLatin1('\n');
 #else

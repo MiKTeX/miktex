@@ -65,7 +65,7 @@ void TWSystemCmd::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
 		if (exitStatus == QProcess::NormalExit) {
 			if (bytesAvailable() > 0) {
 				QByteArray ba = readAllStandardOutput();
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
                                 result += QString::fromUtf8(ba.constData());
 #else
 				result += QString::fromLocal8Bit(ba.constData());

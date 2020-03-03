@@ -19,6 +19,10 @@
 	see <http://www.tug.org/texworks/>.
 */
 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include "TWUtils.h"
 #include "TWApp.h"
 #include "TeXDocumentWindow.h"
@@ -107,11 +111,8 @@ const QString TWUtils::getLibraryPath(const QString& subdir, const bool updateOn
                   MiKTeX::Core::PathName dir;
                   dir = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot);
                   dir /= TEXWORKS_NAME;
-                  std::string subdir(std::to_string(VER_MAJOR));
-                  subdir += ".";
-                  subdir += std::to_string(VER_MINOR);
-                  dir /= subdir;
-                  libRootPath = dir.GetData();
+		  dir /= std::to_string(VER_MAJOR) + "." + std::to_string(VER_MINOR);
+                  libRootPath = QString::fromUtf8(dir.GetData());
                 }
 #else
 		libRootPath = QDir::homePath() + QLatin1String("/" TEXWORKS_NAME "/");
@@ -1174,7 +1175,7 @@ bool TWUtils::isGitInfoAvailable()
 QString TWUtils::gitCommitHash()
 {
 #if defined(MIKTEX)
-  MIKTEX_UNEXPECTED();
+  return "deadbeaf";
 #else
 	if(QString::fromLatin1(GIT_COMMIT_HASH).startsWith(QString::fromLatin1("$Format:")))
 		return QString();
