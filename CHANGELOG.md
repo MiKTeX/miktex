@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 2.9.7350 - not yet released
+
+### lualatex: switching engine from LuaTeX to LuaHBTeX
+
+`lualatex` now uses the LuaHBTeX engine.
+
 ## 2.9.7300 - 2020-02-17
 
 ### Group-delimited \input argument
