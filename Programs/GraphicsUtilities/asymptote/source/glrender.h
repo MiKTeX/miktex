@@ -11,6 +11,7 @@
 #endif
 #include "common.h"
 #include "triple.h"
+#include "pen.h"
 
 #ifdef HAVE_LIBGLM
 #define GLM_ENABLE_EXPERIMENTAL
@@ -37,25 +38,36 @@
 #ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
+
 #ifdef HAVE_LIBGLUT
 #include <GLUT/glut.h>
+#ifndef GLUT_3_2_CORE_PROFILE
+#undef HAVE_GL
 #endif
+
+#endif
+
 #ifdef HAVE_LIBOSMESA
 #include <GL/osmesa.h>
 #endif
+
 #else
+
 #ifdef __MSDOS__
 #undef _WIN32
 #include <GL/gl.h>
 #include <GL/wglew.h>
 #include <GL/wglext.h>
 #endif
+
 #ifdef HAVE_LIBGLUT
 #include <GL/glut.h>
 #endif
+
 #ifdef HAVE_LIBOSMESA
 #include <GL/osmesa.h>
 #endif
+
 #endif
 
 #else
@@ -244,19 +256,6 @@ public:
   }
 };
 
-class vertexData1 {
-public:
-  GLfloat position[3];
-  GLint material;
-  vertexData1() {};
-  vertexData1(const triple& v) {
-    position[0]=v.getx();
-    position[1]=v.gety();
-    position[2]=v.getz();
-    material=MaterialIndex;
-  }
-};
-
 class vertexData0 {
 public:
   GLfloat position[3];
@@ -273,19 +272,20 @@ public:
 
 class vertexBuffer {
 public:  
+  GLint type;
   std::vector<vertexData> vertices;
   std::vector<VertexData> Vertices;
-  std::vector<vertexData1> vertices1;
   std::vector<vertexData0> vertices0;
   std::vector<GLuint> indices;
 
   std::vector<Material> materials;
   std::vector<GLint> materialTable;
 
+  vertexBuffer(GLint type=GL_TRIANGLES) : type(type) {}
+
   void clear() {
     vertices.clear();
     Vertices.clear();
-    vertices1.clear();
     vertices0.clear();
     indices.clear();
     materials.clear();
@@ -294,10 +294,6 @@ public:
 
   void reserve0() {
     vertices0.reserve(nbuffer);
-  }
-
-  void reserve1() {
-    vertices1.reserve(nbuffer);
   }
 
  void reserve() {
@@ -331,13 +327,6 @@ public:
     return nvertices;
   }     
 
-// Store the vertex v.
-  GLuint vertex1(const triple &v) {
-    size_t nvertices=vertices1.size();
-    vertices1.push_back(vertexData1(v));
-    return nvertices;
-  }     
-
 // Store the pixel v and its width.
   GLuint vertex0(const triple &v, double width) {
     size_t nvertices=vertices0.size();
@@ -364,11 +353,6 @@ public:
   void Append(const vertexBuffer& b) {
     appendOffset(indices,b.indices,Vertices.size());
     Vertices.insert(Vertices.end(),b.Vertices.begin(),b.Vertices.end());
-  }
-
-  void append1(const vertexBuffer& b) {
-    appendOffset(indices,b.indices,vertices1.size());
-    vertices1.insert(vertices1.end(),b.vertices1.begin(),b.vertices1.end());
   }
 
   void append0(const vertexBuffer& b) {

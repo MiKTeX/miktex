@@ -30,7 +30,7 @@ bool drawPath3::write(prcfile *out, unsigned int *, double, groupsmap&)
     for(Int i=0; i <= n; ++i)
       controls[i]=g.point(i);
     
-    out->addLine(n+1,controls,color);
+    out->addLine(n+1,controls,diffuse);
   } else {
     int m=3*n+1;
     triple *controls=new(UseGC) triple[m];
@@ -44,7 +44,7 @@ bool drawPath3::write(prcfile *out, unsigned int *, double, groupsmap&)
     }
     controls[++k]=g.precontrol(n);
     controls[++k]=g.point(n);
-    out->addBezierCurve(m,controls,color);
+    out->addBezierCurve(m,controls,diffuse);
   }
   
   return true;
@@ -62,8 +62,7 @@ bool drawPath3::write(jsfile *out)
     drawElement::centerIndex=centerIndex;
   } else drawElement::centerIndex=0;
   
-  RGBAColour Black(0.0,0.0,0.0,color.A);
-  setcolors(false,Black,color,Black,1.0,0.0,0.04,out);
+  setcolors(false,diffuse,emissive,specular,shininess,metallic,fresnel0,out);
   
   for(Int i=0; i < n; ++i) {
     if(g.straight(i)) {
@@ -83,8 +82,7 @@ void drawPath3::render(double size2, const triple& b, const triple& B,
   Int n=g.length();
   if(n == 0 || invisible) return;
 
-  RGBAColour Black(0.0,0.0,0.0,color.A);
-  setcolors(false,Black,color,Black,1.0,0.0,0.04);
+  setcolors(false,diffuse,emissive,specular,shininess,metallic,fresnel0);
 
   setMaterial(material1Data,drawMaterial1);
   

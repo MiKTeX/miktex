@@ -29,10 +29,14 @@ inline double degrees(double theta)
 }
 
 // Wrapper for atan2 with sensible (lexical) argument order and (0,0) check
-inline double angle(double x, double y)
+inline double angle(double x, double y, bool warn=true)
 {
-  if(x == 0.0 && y == 0.0)
-    reportError("taking angle of (0,0)");
+  if(x == 0.0 && y == 0.0) {
+    if(warn)
+      reportError("taking angle of (0,0)");
+    else
+      return 0;
+  }
   return atan2(y,x);
 }
   

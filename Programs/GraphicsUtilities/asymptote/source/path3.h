@@ -329,6 +329,9 @@ public:
   Int windingnumber(const triple& z) const;
 };
 
+double arcLength(const triple& z0, const triple& c0, const triple& c1,
+                 const triple& z1);
+  
 path3 transformed(const vm::array& t, const path3& p);
 path3 transformed(const double* t, const path3& p);
   

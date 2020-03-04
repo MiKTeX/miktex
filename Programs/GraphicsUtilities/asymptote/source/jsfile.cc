@@ -232,8 +232,52 @@ void jsfile::addTriangles(size_t nP, const triple* P, size_t nN,
   }
   out << "P.push(new Triangles("
       << materialIndex << "," << newl
-      << Min << "," << Max << "));" << newl;
-  out << newl;
+      << Min << "," << Max << "));" << newl << newl;
+}
+
+void jsfile::addSphere(const triple& center, double radius, bool half,
+                       const double& polar, const double& azimuth)
+{
+  out << "sphere(" << center << "," << radius << ","
+      << drawElement::centerIndex << "," << materialIndex;
+  if(half)
+    out << "," << newl << "[" << polar << "," << azimuth << "]";
+  out << ");" << newl << newl;
+}
+
+// core signifies whether to also draw a central line for better small-scale
+// rendering.
+void jsfile::addCylinder(const triple& center, double radius, double height,
+                         const double& polar, const double& azimuth,
+                         bool core)
+{
+  out << "cylinder(" << center << "," << radius << "," << height << ","
+      << drawElement::centerIndex << "," << materialIndex
+      << "," << newl << "[" << polar << "," << azimuth << "]," << core
+      << ");" << newl << newl;
+}
+
+void jsfile::addDisk(const triple& center, double radius,
+                     const double& polar, const double& azimuth)
+{
+  out << "disk(" << center << "," << radius << ","
+      << drawElement::centerIndex << "," << materialIndex
+      << "," << newl << "[" << polar << "," << azimuth << "]"
+      << ");" << newl << newl;
+}
+
+void jsfile::addTube(const triple *g, double width,
+                     const triple& Min, const triple& Max, bool core)
+
+{
+  out << "tube(["
+      << g[0] << "," << newl
+      << g[1] << "," << newl
+      << g[2] << "," << newl
+      << g[3] << newl << "],"
+      << width << "," 
+      << drawElement::centerIndex << "," << materialIndex << ","
+      << Min << "," << Max << "," << core <<");" << newl << newl;
 }
 
 }

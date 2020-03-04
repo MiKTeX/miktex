@@ -17,6 +17,8 @@ namespace run {
 void inverse(double *a, size_t n);
 }
 
+const string need3pens="array of 3 pens required";
+
 namespace camp {
 
 #ifdef HAVE_LIBGLM
@@ -37,14 +39,13 @@ protected:
   double shininess;
   double metallic;
   double fresnel0;
-  double PRCshininess;
   bool invisible;
   Interaction interaction;
   bool billboard;
   size_t centerIndex;  
   
   triple Min,Max;
-  bool prc;
+  bool primitive;
   
 public:
 #ifdef HAVE_GL
@@ -66,12 +67,11 @@ public:
   drawSurface(const vm::array& g, size_t ncontrols, triple center,
               bool straight, const vm::array&p, double opacity,
               double shininess, double metallic, double fresnel0,
-              double PRCshininess, const vm::array &pens,
-              Interaction interaction, bool prc, const string& key="") :
+              const vm::array &pens, Interaction interaction,
+              bool primitive=true, const string& key="") :
     drawElement(key), ncontrols(ncontrols), center(center), straight(straight),
     opacity(opacity), shininess(shininess), metallic(metallic),
-    fresnel0(fresnel0), PRCshininess(PRCshininess), interaction(interaction),
-    prc(prc) {
+    fresnel0(fresnel0), interaction(interaction), primitive(primitive) {
     init();
     if(checkArray(&g) != 4 || checkArray(&p) != 3)
       reportError(wrongsize());
@@ -106,12 +106,10 @@ public:
   
   drawSurface(const double* t, const drawSurface *s) :
     drawElement(s->KEY), ncontrols(s->ncontrols), straight(s->straight),
-    diffuse(s->diffuse), emissive(s->emissive),
-    specular(s->specular), colors(s->colors), opacity(s->opacity),
-    shininess(s->shininess),  metallic(s->metallic), fresnel0(s->fresnel0),
-    PRCshininess(s->PRCshininess), invisible(s->invisible),
-    interaction(s->interaction), prc(s->prc) { 
-    
+    diffuse(s->diffuse), emissive(s->emissive), specular(s->specular),
+    colors(s->colors), opacity(s->opacity), shininess(s->shininess),
+    metallic(s->metallic), fresnel0(s->fresnel0), invisible(s->invisible),
+    interaction(s->interaction), primitive(s->primitive) {
     init();
     if(s->controls) {
       controls=new(UseGC) triple[ncontrols];
@@ -135,11 +133,10 @@ public:
   
   drawBezierPatch(const vm::array& g, triple center, bool straight,
               const vm::array&p, double opacity, double shininess,
-              double metallic, double fresnel0,
-              double PRCshininess, const vm::array &pens,
-              Interaction interaction, bool prc) : 
-    drawSurface(g,16,center,straight,p,opacity,
-                shininess,metallic,fresnel0,PRCshininess,pens,interaction,prc)  {}
+              double metallic, double fresnel0, const vm::array &pens,
+                  Interaction interaction, bool primitive) :
+    drawSurface(g,16,center,straight,p,opacity,shininess,metallic,fresnel0,
+                pens,interaction,primitive) {}
 
   drawBezierPatch(const double* t, const drawBezierPatch *s) :
     drawSurface(t,s) {}
@@ -169,12 +166,11 @@ public:
 #endif  
   
   drawBezierTriangle(const vm::array& g, triple center, bool straight,
-              const vm::array&p, double opacity, double shininess,
-              double metallic, double fresnel0,
-              double PRCshininess, const vm::array &pens,
-              Interaction interaction, bool prc) : 
+                     const vm::array&p, double opacity, double shininess,
+                     double metallic, double fresnel0, const vm::array &pens,
+                     Interaction interaction, bool primitive) :
     drawSurface(g,10,center,straight,p,opacity,shininess,metallic,fresnel0,
-                PRCshininess,pens,interaction,prc) {}
+                pens,interaction,primitive) {}
   
   drawBezierTriangle(const double* t, const drawBezierTriangle *s) :
     drawSurface(t,s) {}
@@ -211,7 +207,6 @@ protected:
   double shininess;
   double metallic;
   double fresnel0;
-  double PRCshininess;
   triple normal;
   bool invisible;
   
@@ -227,10 +222,10 @@ protected:
 public:
   drawNurbs(const vm::array& g, const vm::array* uknot, const vm::array* vknot,
             const vm::array* weight, const vm::array&p, double opacity,
-            double shininess, double metallic, double fresnel0, double PRCshininess, const vm::array &pens,
-            const string& key="") 
+            double shininess, double metallic, double fresnel0,
+            const vm::array &pens, const string& key="")
     : drawElement(key), opacity(opacity), shininess(shininess),
-    metallic(metallic), fresnel0(fresnel0), PRCshininess(PRCshininess) {
+      metallic(metallic), fresnel0(fresnel0) {
     size_t weightsize=checkArray(weight);
     
     const string wrongsize="Inconsistent NURBS data";
@@ -304,8 +299,7 @@ public:
     nv(s->nv), weights(s->weights), uknots(s->uknots), vknots(s->vknots),
     diffuse(s->diffuse),
     emissive(s->emissive), specular(s->specular), opacity(s->opacity),
-    shininess(s->shininess), PRCshininess(s->PRCshininess), 
-    invisible(s->invisible) {
+    shininess(s->shininess), invisible(s->invisible) {
     
     const size_t n=nu*nv;
     controls=new(UseGC) triple[n];
@@ -344,15 +338,13 @@ protected:
   prc::RGBAColour specular;
   double opacity;
   double shininess;
+  double metallic;
+  double fresnel0;
   bool invisible;
 public:
-  drawPRC(const vm::array& t, const vm::array&p, double opacity,
-          double shininess) : 
-    drawElementLC(t), opacity(opacity), shininess(shininess) {
-
-    string needthreepens="array of 3 pens required";
+  void init(const vm::array&p) {
     if(checkArray(&p) != 3)
-      reportError(needthreepens);
+      reportError(need3pens);
     
     pen surfacepen=vm::read<camp::pen>(p,0);
     invisible=surfacepen.invisible();
@@ -362,29 +354,49 @@ public:
     specular=rgba(vm::read<camp::pen>(p,2));
   }
   
+  drawPRC(const vm::array& t, const vm::array&p, double opacity,
+          double shininess, double metallic, double fresnel0) :
+    drawElementLC(t), opacity(opacity), shininess(shininess),
+    metallic(metallic), fresnel0(fresnel0) {
+    init(p);
+  }
+  
+  drawPRC(const vm::array&p, double opacity,
+          double shininess, double metallic, double fresnel0) :
+    drawElementLC(NULL), opacity(opacity), shininess(shininess),
+    metallic(metallic), fresnel0(fresnel0) {
+    init(p);
+  }
+  
   drawPRC(const double* t, const drawPRC *s) :
     drawElementLC(t,s), diffuse(s->diffuse),
     emissive(s->emissive), specular(s->specular), opacity(s->opacity),
-    shininess(s->shininess), invisible(s->invisible) {
+    shininess(s->shininess), metallic(s->metallic), fresnel0(s->fresnel0),
+    invisible(s->invisible) {
   }
   
-  bool write(prcfile *out, unsigned int *, double, groupsmap&) {
+  virtual void P(triple& t, double x, double y, double z);
+
+  virtual bool write(prcfile *out, unsigned int *, double, groupsmap&) {
     return true;
   }
+
+  virtual bool write(jsfile *out) {return true;}
+
   virtual void transformedbounds(const double*, bbox3&) {}
   virtual void transformedratio(const double*, pair&,
                                 double (*)(double, double), double, bool&) {}
 
 };
   
-// Draw a PRC unit sphere.
+// Output a unit sphere primitive.
 class drawSphere : public drawPRC {
   bool half;
   int type;
 public:
   drawSphere(const vm::array& t, bool half, const vm::array&p, double opacity,
-             double shininess, int type) :
-    drawPRC(t,p,opacity,shininess), half(half), type(type) {}
+             double shininess, double metallic, double fresnel0, int type) :
+    drawPRC(t,p,opacity,shininess,metallic,fresnel0), half(half), type(type) {}
 
   drawSphere(const double* t, const drawSphere *s) :
     drawElement(s->KEY), drawPRC(t,s), half(s->half), type(s->type) {}
@@ -392,83 +404,82 @@ public:
   void P(triple& t, double x, double y, double z);
   
   bool write(prcfile *out, unsigned int *, double, groupsmap&);
+  bool write(jsfile *out);
   
   drawElement *transformed(const double* t) {
     return new drawSphere(t,this);
   }
 };
   
-// Draw a PRC unit cylinder.
+// Output a unit cylinder primitive.
 class drawCylinder : public drawPRC {
+  bool core;
 public:
-  drawCylinder(const vm::array& t, const vm::array&p, double opacity,
-               double shininess) :
-    drawPRC(t,p,opacity,shininess) {}
+  drawCylinder(const vm::array& t, const vm::array&p,
+               double opacity, double shininess, double metallic,
+               double fresnel0, bool core=false) :
+    drawPRC(t,p,opacity,shininess,metallic,fresnel0), core(core) {}
 
   drawCylinder(const double* t, const drawCylinder *s) :
-    drawPRC(t,s) {}
+    drawPRC(t,s), core(s->core) {}
     
   bool write(prcfile *out, unsigned int *, double, groupsmap&);
+  bool write(jsfile *out);
   
   drawElement *transformed(const double* t) {
     return new drawCylinder(t,this);
   }
 };
   
-// Draw a PRC unit disk.
+// Draw a unit disk.
 class drawDisk : public drawPRC {
 public:
   drawDisk(const vm::array& t, const vm::array&p, double opacity,
-           double shininess) :
-    drawPRC(t,p,opacity,shininess) {}
+           double shininess, double metallic, double fresnel0) :
+    drawPRC(t,p,opacity,shininess,metallic,fresnel0) {}
 
   drawDisk(const double* t, const drawDisk *s) :
     drawPRC(t,s) {}
     
   bool write(prcfile *out, unsigned int *, double, groupsmap&);
+  bool write(jsfile *out);
   
   drawElement *transformed(const double* t) {
     return new drawDisk(t,this);
   }
 };
   
-// Draw a PRC tube.
-class drawTube : public drawElement {
+// Draw a tube.
+class drawTube : public drawPRC {
 protected:
-  path3 center;
-  path3 g;
-  prc::RGBAColour diffuse;
-  prc::RGBAColour emissive;
-  prc::RGBAColour specular;
-  double opacity;
-  double shininess;
-  bool invisible;
+  triple *g;
+  double width;
+  triple m,M;
+  bool core;
 public:
-  drawTube(path3 center, path3 g, const vm::array&p, double opacity,
-           double shininess) : 
-    center(center), g(g), opacity(opacity), shininess(shininess) {
-    string needthreepens="array of 3 pens required";
-    if(checkArray(&p) != 3)
-      reportError(needthreepens);
-    
-    pen surfacepen=vm::read<camp::pen>(p,0);
-    invisible=surfacepen.invisible();
-    
-    diffuse=rgba(surfacepen);
-    emissive=rgba(vm::read<camp::pen>(p,1));
-    specular=rgba(vm::read<camp::pen>(p,2));
+  drawTube(const vm::array&G, double width, const vm::array&p, double opacity,
+           double shininess, double metallic, double fresnel0,
+           const triple& m, const triple& M, bool core) :
+    drawPRC(p,opacity,shininess,metallic,fresnel0), width(width), m(m), M(M),
+    core(core) {
+    if(vm::checkArray(&G) != 4)
+      reportError("array of 4 triples required");
+
+    g=new(UseGC) triple[4];
+    for(size_t i=0; i < 4; ++i)
+      g[i]=vm::read<triple>(G,i);
   }
   
   drawTube(const double* t, const drawTube *s) :
-    drawElement(s->KEY), center(camp::transformed(t,s->center)),
-    g(camp::transformed(t,s->g)), 
-    diffuse(s->diffuse), emissive(s->emissive),
-    specular(s->specular), opacity(s->opacity),
-    shininess(s->shininess), invisible(s->invisible) {
+    drawElement(s->KEY), drawPRC(t,s), width(s->width), m(s->m), M(s->M),
+    core(s->core) {
+    g=new(UseGC) triple[4];
+    for(size_t i=0; i < 4; ++i)
+      g[i]=t*s->g[i];
   }
   
-  bool write(prcfile *out, unsigned int *, double, groupsmap&);
-                        
+  bool write(jsfile *out);
+
   drawElement *transformed(const double* t) {
     return new drawTube(t,this);
   }
@@ -614,7 +625,6 @@ class drawTriangles : public drawBaseTriangles {
   double shininess;
   double metallic;
   double fresnel0;
-  double PRCshininess;
   bool invisible;
    
 public:
@@ -622,14 +632,12 @@ public:
                 const vm::array& n, const vm::array& ni,
                 const vm::array&p, double opacity, double shininess,
                 double metallic, double fresnel0,
-                double PRCshininess, const vm::array& c, const vm::array& ci) :
-    drawBaseTriangles(v,vi,n,ni),
-    opacity(opacity),shininess(shininess),metallic(metallic),
-    fresnel0(fresnel0),PRCshininess(PRCshininess) {
+                const vm::array& c, const vm::array& ci) :
+    drawBaseTriangles(v,vi,n,ni), opacity(opacity), shininess(shininess),
+    metallic(metallic), fresnel0(fresnel0) {
 
-    const string needthreepens="array of 3 pens required";
     if(checkArray(&p) != 3)
-      reportError(needthreepens);
+      reportError(need3pens);
       
     const pen surfacepen=vm::read<camp::pen>(p,0);
     invisible=surfacepen.invisible();
@@ -671,8 +679,7 @@ public:
     drawBaseTriangles(t,s), nC(s->nC),
     diffuse(s->diffuse), emissive(s->emissive),
     specular(s->specular), opacity(s->opacity), shininess(s->shininess), 
-    metallic(s->metallic), fresnel0(s->fresnel0),
-    PRCshininess(s->PRCshininess), invisible(s->invisible) {
+    metallic(s->metallic), fresnel0(s->fresnel0), invisible(s->invisible) {
     
     if(nC) {
       C=new(UseGC) prc::RGBAColour[nC];

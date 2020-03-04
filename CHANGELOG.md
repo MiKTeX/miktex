@@ -6,6 +6,10 @@
 
 `lualatex` now uses the LuaHBTeX engine.
 
+### Upgraded programs
+
+* asymptote 2.64
+
 ## 2.9.7300 - 2020-02-17
 
 ### Group-delimited \input argument

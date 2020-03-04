@@ -187,6 +187,8 @@ bool application::matchAtSpot(size_t spot, env &e, formal &source,
                               varinit *a, size_t evalIndex)
 {
   formal &target=sig->getFormal(spot);
+  if(target.t->kind == types::ty_error) return false;
+  
   score s=castScore(e, target, source);
 
   if (s == FAIL)

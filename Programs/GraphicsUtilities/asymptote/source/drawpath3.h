@@ -18,7 +18,13 @@ protected:
   const path3 g;
   triple center;
   bool straight;
-  prc::RGBAColour color;
+  prc::RGBAColour diffuse;
+  prc::RGBAColour emissive;
+  prc::RGBAColour specular;
+  double opacity;
+  double shininess;
+  double metallic;
+  double fresnel0;
   bool invisible;
   Interaction interaction;
   triple Min,Max;
@@ -34,17 +40,28 @@ public:
     centerIndex=0;
   }
   
-  drawPath3(path3 g, triple center, const pen& p, Interaction interaction,
-            const string& key="") :
-    drawElement(key), g(g), center(center), straight(g.piecewisestraight()),
-    color(rgba(p)), invisible(p.invisible()), interaction(interaction),
-    Min(g.min()), Max(g.max()) {
+  drawPath3(path3 g, triple center, const vm::array& p, double opacity,
+            double shininess, double metallic, double fresnel0,
+            Interaction interaction, const string& key="") :
+    drawElement(key), g(g), center(center),
+    straight(g.piecewisestraight()), opacity(opacity),
+    shininess(shininess), metallic(metallic), fresnel0(fresnel0),
+    interaction(interaction), Min(g.min()), Max(g.max()) {
     init();
+
+    pen Pen=vm::read<camp::pen>(p,0);
+    invisible=Pen.invisible();
+    diffuse=rgba(Pen);
+    emissive=rgba(vm::read<camp::pen>(p,1));
+    specular=rgba(vm::read<camp::pen>(p,2));
   }
     
   drawPath3(const double* t, const drawPath3 *s) :
     drawElement(s->KEY), g(camp::transformed(t,s->g)), straight(s->straight),
-    color(s->color), invisible(s->invisible), interaction(s->interaction),
+    diffuse(s->diffuse), emissive(s->emissive), specular(s->specular),
+    opacity(s->opacity), shininess(s->shininess),
+    metallic(s->metallic), fresnel0(s->fresnel0),
+    invisible(s->invisible), interaction(s->interaction),
     Min(g.min()), Max(g.max()) {
     init();
     center=t*s->center;

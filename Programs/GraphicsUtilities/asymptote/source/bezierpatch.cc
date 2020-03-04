@@ -1,5 +1,5 @@
 /*****
- * drawbezierpatch.cc
+ * bezierpatch.cc
  * Authors: John C. Bowman and Jesse Frohlich
  *
  * Render Bezier patches and triangles.
@@ -53,7 +53,6 @@ struct iz {
 std::vector<iz> IZ;
 
 const double FillFactor=0.1;
-const double BezierFactor=0.4;
 
 inline int sgn1(double x) 
 {
@@ -160,20 +159,6 @@ inline void interp(GLfloat *dest,
 inline triple interp(const triple& a, const triple& b, double t)
 {
   return a+(b-a)*t;
-}
-
-inline void cross(double *dest, const double *u, const double *v,
-                  const double *w)
-{
-  double u0=u[0]-w[0];
-  double u1=u[1]-w[1];
-  double u2=u[2]-w[2];
-  double v0=v[0]-w[0];
-  double v1=v[1]-w[1];
-  double v2=v[2]-w[2];
-  dest[0]=u1*v2-u2*v1;
-  dest[1]=u2*v0-u0*v2;
-  dest[2]=u0*v1-u1*v0;
 }
 
 unsigned n;
@@ -285,7 +270,6 @@ void split(unsigned i3, GLuint ia, GLuint ib, GLuint ic,
 void BezierPatch::init(double res)
 {
   res2=res*res;
-  Res2=BezierFactor*BezierFactor*res2;
   Epsilon=FillFactor*res;
 
   MaterialIndex=transparent ?
@@ -300,34 +284,34 @@ void BezierPatch::render(const triple *p, bool straight, GLfloat *c0)
   epsilon=0;
   for(unsigned i=1; i < 16; ++i)
     epsilon=max(epsilon,abs2(p[i]-p0));
-  epsilon *= Fuzz4;
+  epsilon *= DBL_EPSILON;
     
   triple p3=p[3];
   triple p12=p[12];
   triple p15=p[15];
 
   triple n0=normal(p3,p[2],p[1],p0,p[4],p[8],p12);
-  if(n0 == 0.0) {
+  if(abs2(n0) <= epsilon) {
     n0=normal(p3,p[2],p[1],p0,p[13],p[14],p15);
-    if(n0 == 0.0) n0=normal(p15,p[11],p[7],p3,p[4],p[8],p12);
+    if(abs2(n0) <= epsilon) n0=normal(p15,p[11],p[7],p3,p[4],p[8],p12);
   }
   
   triple n1=normal(p0,p[4],p[8],p12,p[13],p[14],p15);
-  if(n1 == 0.0) {
+  if(abs2(n1) <= epsilon) {
     n1=normal(p0,p[4],p[8],p12,p[11],p[7],p3);
-    if(n1 == 0.0) n1=normal(p3,p[2],p[1],p0,p[13],p[14],p15);
+    if(abs2(n1) <= epsilon) n1=normal(p3,p[2],p[1],p0,p[13],p[14],p15);
   }
     
   triple n2=normal(p12,p[13],p[14],p15,p[11],p[7],p3);
-  if(n2 == 0.0) {
+  if(abs2(n2) <= epsilon) {
     n2=normal(p12,p[13],p[14],p15,p[2],p[1],p0);
-    if(n2 == 0.0) n2=normal(p0,p[4],p[8],p12,p[11],p[7],p3);
+    if(abs2(n2) <= epsilon) n2=normal(p0,p[4],p[8],p12,p[11],p[7],p3);
   }
     
   triple n3=normal(p15,p[11],p[7],p3,p[2],p[1],p0);
-  if(n3 == 0.0) {
+  if(abs2(n3) <= epsilon) {
     n3=normal(p15,p[11],p[7],p3,p[4],p[8],p12);
-    if(n3 == 0.0) n3=normal(p12,p[13],p[14],p15,p[2],p[1],p0);
+    if(abs2(n3) <= epsilon) n3=normal(p12,p[13],p[14],p15,p[2],p[1],p0);
   }
     
   GLuint i0,i1,i2,i3;
@@ -382,7 +366,8 @@ void BezierPatch::render(const triple *p,
                          bool flat0, bool flat1, bool flat2, bool flat3,
                          GLfloat *C0, GLfloat *C1, GLfloat *C2, GLfloat *C3)
 {
-  if(Distance(p) < res2) { // Bezier patch is flat
+  pair d=Distance(p);
+  if(d.getx() < res2 && d.gety() < res2) { // Bezier patch is flat
     triple Pa[]={P0,P1,P2};
     std::vector<GLuint> &q=data.indices;
     if(!offscreen(3,Pa)) {
@@ -398,14 +383,14 @@ void BezierPatch::render(const triple *p,
     }
   } else { // Patch is not flat
    if(offscreen(16,p)) return;
-    /* Control points are indexed as follows:
-         
+
+   /* Control points are indexed as follows:
+
        Coordinate
        +-----
         Index
          
-
-       03    13    23    33
+        03    13    23    33
        +-----+-----+-----+
        |3    |7    |11   |15
        |     |     |     |
@@ -419,22 +404,209 @@ void BezierPatch::render(const triple *p,
        |     |     |     |
        |00   |10   |20   |30
        +-----+-----+-----+
-       0     4     8     12
-         
+        0     4     8     12
 
-       Subdivision:
+   */
+
+    triple p0=p[0];
+    triple p3=p[3];
+    triple p12=p[12];
+    triple p15=p[15];
+
+   if(d.getx() < res2) { // flat in horizontal direction; split vertically
+     /*
+       P refers to a corner
+       m refers to a midpoint
+       s refers to a subpatch
+
+       +--------+--------+
+       |P3             P2|
+       |                 |
+       |       s1        |
+       |                 |
+       |                 |
+    m1 +-----------------+ m0
+       |                 |
+       |                 |
+       |       s0        |
+       |                 |
+       |P0             P1|
+       +-----------------+
+
+     */
+
+     Split3 c0(p0,p[1],p[2],p3);
+     Split3 c1(p[4],p[5],p[6],p[7]);
+     Split3 c2(p[8],p[9],p[10],p[11]);
+     Split3 c3(p12,p[13],p[14],p15);
+
+     triple s0[]={p0  ,c0.m0,c0.m3,c0.m5,
+                  p[4],c1.m0,c1.m3,c1.m5,
+                  p[8],c2.m0,c2.m3,c2.m5,
+                  p12 ,c3.m0,c3.m3,c3.m5};
+
+     triple s1[]={c0.m5,c0.m4,c0.m2,p3,
+                  c1.m5,c1.m4,c1.m2,p[7],
+                  c2.m5,c2.m4,c2.m2,p[11],
+                  c3.m5,c3.m4,c3.m2,p15};
+
+     triple n0=normal(s0[12],s0[13],s0[14],s0[15],s0[11],s0[7],s0[3]);
+     if(abs2(n0) <= epsilon) {
+       n0=normal(s0[12],s0[13],s0[14],s0[15],s0[2],s0[1],s0[0]);
+       if(abs2(n0) <= epsilon)
+         n0=normal(s0[0],s0[4],s0[8],s0[12],s0[11],s0[7],s0[3]);
+     }
+
+     triple n1=normal(s1[3],s1[2],s1[1],s1[0],s1[4],s1[8],s1[12]);
+     if(abs2(n1) <= epsilon) {
+       n1=normal(s1[3],s1[2],s1[1],s1[0],s1[13],s1[14],s1[15]);
+       if(abs2(n1) <= epsilon)
+         n1=normal(s1[15],s1[11],s1[7],s1[3],s1[4],s1[8],s1[12]);
+     }
+
+     // A kludge to remove subdivision cracks, only applied the first time
+     // an edge is found to be flat before the rest of the subpatch is.
+
+     triple m0=0.5*(P1+P2);
+     if(!flat1) {
+       if((flat1=Straightness(p12,p[13],p[14],p15) < res2))
+         m0 -= Epsilon*unit(differential(s1[12],s1[8],s1[4],s1[0]));
+       else m0=s0[15];
+     }
+
+     triple m1=0.5*(P3+P0);
+     if(!flat3) {
+       if((flat3=Straightness(p0,p[1],p[2],p3) < res2))
+         m1 -= Epsilon*unit(differential(s0[3],s0[7],s0[11],s0[15]));
+       else m1=s1[0];
+     }
+
+     if(color) {
+       GLfloat c0[4],c1[4];
+       for(size_t i=0; i < 4; ++i) {
+         c0[i]=0.5*(C1[i]+C2[i]);
+         c1[i]=0.5*(C3[i]+C0[i]);
+       }
+
+       GLuint i0=data.Vertex(m0,n0,c0);
+       GLuint i1=data.Vertex(m1,n1,c1);
+
+       render(s0,I0,I1,i0,i1,P0,P1,m0,m1,flat0,flat1,false,flat3,C0,C1,c0,c1);
+       render(s1,i1,i0,I2,I3,m1,m0,P2,P3,false,flat1,flat2,flat3,c1,c0,C2,C3);
+     } else {
+       GLuint i0=(data.*pvertex)(m0,n0);
+       GLuint i1=(data.*pvertex)(m1,n1);
+
+       render(s0,I0,I1,i0,i1,P0,P1,m0,m1,flat0,flat1,false,flat3);
+       render(s1,i1,i0,I2,I3,m1,m0,P2,P3,false,flat1,flat2,flat3);
+     }
+     return;
+   }
+   if(d.gety() < res2) { // flat in vertical direction; split horizontally
+     /*
        P refers to a corner
        m refers to a midpoint
        s refers to a subpatch
          
+                m1
+       +--------+--------+
+       |P3      |      P2|
+       |        |        |
+       |        |        |
+       |        |        |
+       |        |        |
+       |   s0   |   s1   |
+       |        |        |
+       |        |        |
+       |        |        |
+       |        |        |
+       |P0      |      P1|
+       +--------+--------+
+                m0
+
+     */
+
+     Split3 c0(p0,p[4],p[8],p12);
+     Split3 c1(p[1],p[5],p[9],p[13]);
+     Split3 c2(p[2],p[6],p[10],p[14]);
+     Split3 c3(p3,p[7],p[11],p15);
+
+     triple s0[]={p0,p[1],p[2],p3,
+                  c0.m0,c1.m0,c2.m0,c3.m0,
+                  c0.m3,c1.m3,c2.m3,c3.m3,
+                  c0.m5,c1.m5,c2.m5,c3.m5};
+
+     triple s1[]={c0.m5,c1.m5,c2.m5,c3.m5,
+                  c0.m4,c1.m4,c2.m4,c3.m4,
+                  c0.m2,c1.m2,c2.m2,c3.m2,
+                  p12,p[13],p[14],p15};
+
+     triple n0=normal(s0[0],s0[4],s0[8],s0[12],s0[13],s0[14],s0[15]);
+     if(abs2(n0) <= epsilon) {
+       n0=normal(s0[0],s0[4],s0[8],s0[12],s0[11],s0[7],s0[3]);
+       if(abs2(n0) <= epsilon)
+         n0=normal(s0[3],s0[2],s0[1],s0[0],s0[13],s0[14],s0[15]);
+     }
+
+     triple n1=normal(s1[15],s1[11],s1[7],s1[3],s1[2],s1[1],s1[0]);
+     if(abs2(n1) <= epsilon) {
+       n1=normal(s1[15],s1[11],s1[7],s1[3],s1[4],s1[8],s1[12]);
+       if(abs2(n1) <= epsilon)
+         n1=normal(s1[12],s1[13],s1[14],s1[15],s1[2],s1[1],s1[0]);
+     }
+
+     // A kludge to remove subdivision cracks, only applied the first time
+     // an edge is found to be flat before the rest of the subpatch is.
+
+     triple m0=0.5*(P0+P1);
+     if(!flat0) {
+       if((flat0=Straightness(p0,p[4],p[8],p12) < res2))
+         m0 -= Epsilon*unit(differential(s1[0],s1[1],s1[2],s1[3]));
+       else m0=s0[12];
+     }
+
+     triple m1=0.5*(P2+P3);
+     if(!flat2) {
+       if((flat2=Straightness(p15,p[11],p[7],p3) < res2))
+         m1 -= Epsilon*unit(differential(s0[15],s0[14],s0[13],s0[12]));
+       else m1=s1[3];
+     }
+
+     if(color) {
+       GLfloat c0[4],c1[4];
+       for(size_t i=0; i < 4; ++i) {
+         c0[i]=0.5*(C0[i]+C1[i]);
+         c1[i]=0.5*(C2[i]+C3[i]);
+       }
+
+       GLuint i0=data.Vertex(m0,n0,c0);
+       GLuint i1=data.Vertex(m1,n1,c1);
+
+       render(s0,I0,i0,i1,I3,P0,m0,m1,P3,flat0,false,flat2,flat3,C0,c0,c1,C3);
+       render(s1,i0,I1,I2,i1,m0,P1,P2,m1,flat0,flat1,flat2,false,c0,C1,C2,c1);
+     } else {
+       GLuint i0=(data.*pvertex)(m0,n0);
+       GLuint i1=(data.*pvertex)(m1,n1);
+
+       render(s0,I0,i0,i1,I3,P0,m0,m1,P3,flat0,false,flat2,flat3);
+       render(s1,i0,I1,I2,i1,m0,P1,P2,m1,flat0,flat1,flat2,false);
+     }
+     return;
+   }
+   /*
+       Horizontal and vertical subdivision:
+       P refers to a corner
+       m refers to a midpoint
+       s refers to a subpatch
+
                 m2
        +--------+--------+
        |P3      |      P2|
        |        |        |
        |   s3   |   s2   |
        |        |        |
-       |        |m4      |
-     m3+--------+--------+m1
+       |        | m4     |
+    m3 +--------+--------+ m1
        |        |        |
        |        |        |
        |   s0   |   s1   |
@@ -445,11 +617,6 @@ void BezierPatch::render(const triple *p,
     */
     
     // Subdivide patch:
-    triple p0=p[0];
-    triple p3=p[3];
-    triple p12=p[12];
-    triple p15=p[15];
-      
     Split3 c0(p0,p[1],p[2],p3);
     Split3 c1(p[4],p[5],p[6],p[7]);
     Split3 c2(p[8],p[9],p[10],p[11]);
@@ -475,27 +642,31 @@ void BezierPatch::render(const triple *p,
     triple m4=s0[15];
       
     triple n0=normal(s0[0],s0[4],s0[8],s0[12],s0[13],s0[14],s0[15]);
-    if(n0 == 0.0) {
+    if(abs2(n0) <= epsilon) {
       n0=normal(s0[0],s0[4],s0[8],s0[12],s0[11],s0[7],s0[3]);
-      if(n0 == 0.0) n0=normal(s0[3],s0[2],s0[1],s0[0],s0[13],s0[14],s0[15]);
+      if(abs2(n0) <= epsilon)
+        n0=normal(s0[3],s0[2],s0[1],s0[0],s0[13],s0[14],s0[15]);
     }
       
     triple n1=normal(s1[12],s1[13],s1[14],s1[15],s1[11],s1[7],s1[3]);
-    if(n1 == 0.0) {
+    if(abs2(n1) <= epsilon) {
       n1=normal(s1[12],s1[13],s1[14],s1[15],s1[2],s1[1],s1[0]);
-      if(n1 == 0.0) n1=normal(s1[0],s1[4],s1[8],s1[12],s1[11],s1[7],s1[3]);
+      if(abs2(n1) <= epsilon)
+        n1=normal(s1[0],s1[4],s1[8],s1[12],s1[11],s1[7],s1[3]);
     }
       
     triple n2=normal(s2[15],s2[11],s2[7],s2[3],s2[2],s2[1],s2[0]);
-    if(n2 == 0.0) {
+    if(abs2(n2) <= epsilon) {
       n2=normal(s2[15],s2[11],s2[7],s2[3],s2[4],s2[8],s2[12]);
-      if(n2 == 0.0) n2=normal(s2[12],s2[13],s2[14],s2[15],s2[2],s2[1],s2[0]);
+      if(abs2(n2) <= epsilon)
+        n2=normal(s2[12],s2[13],s2[14],s2[15],s2[2],s2[1],s2[0]);
     }
       
     triple n3=normal(s3[3],s3[2],s3[1],s3[0],s3[4],s3[8],s3[12]);
-    if(n3 == 0.0) {
+    if(abs2(n3) <= epsilon) {
       n3=normal(s3[3],s3[2],s3[1],s3[0],s3[13],s3[14],s3[15]);
-      if(n3 == 0.0) n3=normal(s3[15],s3[11],s3[7],s3[3],s3[4],s3[8],s3[12]);
+      if(abs2(n3) <= epsilon)
+        n3=normal(s3[15],s3[11],s3[7],s3[3],s3[4],s3[8],s3[12]);
     }
       
     triple n4=normal(s2[3],s2[2],s2[1],m4,s2[4],s2[8],s2[12]);
@@ -506,28 +677,28 @@ void BezierPatch::render(const triple *p,
     triple m0=0.5*(P0+P1);
     if(!flat0) {
       if((flat0=Straightness(p0,p[4],p[8],p12) < res2))
-        m0 -= Epsilon*unit(derivative(s1[0],s1[1],s1[2],s1[3]));
+        m0 -= Epsilon*unit(differential(s1[0],s1[1],s1[2],s1[3]));
       else m0=s0[12];
     }
       
     triple m1=0.5*(P1+P2);
     if(!flat1) {
       if((flat1=Straightness(p12,p[13],p[14],p15) < res2))
-        m1 -= Epsilon*unit(derivative(s2[12],s2[8],s2[4],s2[0]));
+        m1 -= Epsilon*unit(differential(s2[12],s2[8],s2[4],s2[0]));
       else m1=s1[15];
     }
       
     triple m2=0.5*(P2+P3);
     if(!flat2) {
       if((flat2=Straightness(p15,p[11],p[7],p3) < res2))
-        m2 -= Epsilon*unit(derivative(s3[15],s2[14],s2[13],s1[12]));
+        m2 -= Epsilon*unit(differential(s3[15],s3[14],s3[13],s3[12]));
       else m2=s2[3];
     }
       
     triple m3=0.5*(P3+P0);
     if(!flat3) {
       if((flat3=Straightness(p0,p[1],p[2],p3) < res2))
-        m3 -= Epsilon*unit(derivative(s0[3],s0[7],s0[11],s0[15]));
+        m3 -= Epsilon*unit(differential(s0[3],s0[7],s0[11],s0[15]));
       else m3=s3[0];
     }
       
@@ -547,14 +718,10 @@ void BezierPatch::render(const triple *p,
       GLuint i3=data.Vertex(m3,n3,c3);
       GLuint i4=data.Vertex(m4,n4,c4);
       
-      render(s0,I0,i0,i4,i3,P0,m0,m4,m3,flat0,false,false,flat3,
-             C0,c0,c4,c3);
-      render(s1,i0,I1,i1,i4,m0,P1,m1,m4,flat0,flat1,false,false,
-             c0,C1,c1,c4);
-      render(s2,i4,i1,I2,i2,m4,m1,P2,m2,false,flat1,flat2,false,
-             c4,c1,C2,c2);
-      render(s3,i3,i4,i2,I3,m3,m4,m2,P3,false,false,flat2,flat3,
-             c3,c4,c2,C3);
+      render(s0,I0,i0,i4,i3,P0,m0,m4,m3,flat0,false,false,flat3,C0,c0,c4,c3);
+      render(s1,i0,I1,i1,i4,m0,P1,m1,m4,flat0,flat1,false,false,c0,C1,c1,c4);
+      render(s2,i4,i1,I2,i2,m4,m1,P2,m2,false,flat1,flat2,false,c4,c1,C2,c2);
+      render(s3,i3,i4,i2,I3,m3,m4,m2,P3,false,false,flat2,flat3,c3,c4,c2,C3);
     } else {
       GLuint i0=(data.*pvertex)(m0,n0);
       GLuint i1=(data.*pvertex)(m1,n1);
@@ -577,7 +744,7 @@ void BezierTriangle::render(const triple *p, bool straight, GLfloat *c0)
   for(int i=1; i < 10; ++i)
     epsilon=max(epsilon,abs2(p[i]-p0));
   
-  epsilon *= Fuzz4;
+  epsilon *= DBL_EPSILON;
     
   triple p6=p[6];
   triple p9=p[9];
@@ -628,7 +795,7 @@ void BezierTriangle::render(const triple *p,
                             bool flat0, bool flat1, bool flat2,
                             GLfloat *C0, GLfloat *C1, GLfloat *C2)
 {
-  if(Distance(p) < Res2) { // Bezier triangle is flat
+  if(Distance(p) < res2) { // Bezier triangle is flat
     triple P[]={P0,P1,P2};
     if(!offscreen(3,P)) {
       std::vector<GLuint> &q=data.indices;
@@ -763,24 +930,24 @@ void BezierTriangle::render(const triple *p,
     triple m0=0.5*(P1+P2);
     if(!flat0) {
       if((flat0=Straightness(r300,p210,p120,u030) < res2))
-        m0 -= Epsilon*unit(derivative(c[0],c[2],c[5],c[9])+
-                           derivative(c[0],c[1],c[3],c[6]));
+        m0 -= Epsilon*unit(differential(c[0],c[2],c[5],c[9])+
+                           differential(c[0],c[1],c[3],c[6]));
       else m0=r030;
     }
 
     triple m1=0.5*(P2+P0);
     if(!flat1) {
       if((flat1=Straightness(l003,p012,p021,u030) < res2))
-        m1 -= Epsilon*unit(derivative(c[6],c[3],c[1],c[0])+
-                           derivative(c[6],c[7],c[8],c[9]));
+        m1 -= Epsilon*unit(differential(c[6],c[3],c[1],c[0])+
+                           differential(c[6],c[7],c[8],c[9]));
       else m1=l030;
     }
 
     triple m2=0.5*(P0+P1);
     if(!flat2) {
       if((flat2=Straightness(l003,p102,p201,r300) < res2))
-        m2 -= Epsilon*unit(derivative(c[9],c[8],c[7],c[6])+
-                           derivative(c[9],c[5],c[2],c[0]));
+        m2 -= Epsilon*unit(differential(c[9],c[8],c[7],c[6])+
+                           differential(c[9],c[5],c[2],c[0]));
       else m2=l300;
     }
 

@@ -249,17 +249,21 @@ public:
     return v.length();
   }
 
-  double polar() const /* theta */
+  double polar(bool warn=true) const /* theta */
   {
     double r=length();
-    if (r == 0.0)
-      reportError("taking polar angle of (0,0,0)");
+    if(r == 0.0) {
+      if(warn)
+        reportError("taking polar angle of (0,0,0)");
+      else
+        return 0.0;
+    }
     return acos(z/r);
   }
   
-  double azimuth() const /* phi */
+  double azimuth(bool warn=true) const /* phi */
   {
-    return angle(x,y);
+    return angle(x,y,warn);
   }
   
   friend triple unit(const triple& v)
@@ -297,9 +301,15 @@ public:
     if(paren) s >> c;
     s >> z.x >> std::ws;
     if(s.peek() == ',') s >> c >> z.y;
-    else z.y=0.0;
+    else {
+      if(paren) s >> z.y;
+      else z.y=0.0;
+    }
     if(s.peek() == ',') s >> c >> z.z;
-    else z.z=0.0;
+    else {
+      if(paren) s >> z.z;
+      else z.z=0.0;
+    }
     if(paren) {
       s >> std::ws;
       if(s.peek() == ')') s >> c;
@@ -366,14 +376,43 @@ inline double Straightness(const triple& z0, const triple& c0,
   return std::max(abs2(c0-v-z0),abs2(z1-v-c1));
 }
 
-// return the perpendicular distance squared of a point z from the plane
-// through u with unit normal n.
-inline double Distance2(const triple& z, const triple& u, const triple& n)
+// Return one ninth of the relative flatness squared of a--b and c--d.
+inline double Flatness(const triple& a, const triple& b, const triple& c,
+                       const triple& d)
 {
-  double d=dot(z-u,n);
-  return d*d;
+  static double ninth=1.0/9.0;
+  triple u=b-a;
+  triple v=d-c;
+  return ninth*std::max(abs2(cross(u,unit(v))),abs2(cross(v,unit(u))));
 }
-  
+
+// Return one-half of the second derivative of the Bezier curve defined by
+// a,b,c,d at t=0.
+inline triple bezierPP(const triple& a, const triple& b, const triple& c) {
+  return 3.0*(a+c)-6.0*b;
+}
+
+// Return one-sixth of the third derivative of the Bezier curve defined by
+// a,b,c,d at t=0.
+inline triple bezierPPP(const triple& a, const triple& b, const triple& c,
+                        const triple& d) {
+  return d-a+3.0*(b-c);
+}
+
+// Return four-thirds of the first derivative of the Bezier curve defined by
+// a,b,c,d at t=1/2.
+inline triple bezierPh(triple a, triple b, triple c, triple d)
+{
+  return c+d-a-b;
+}
+
+// Return two-thirds of the second derivative of the Bezier curve defined by
+// a,b,c,d at t=1/2.
+inline triple bezierPPh(triple a, triple b, triple c, triple d)
+{
+  return 3.0*a-5.0*b+c+d;
+}
+
 } //namespace camp
 
 GC_DECLARE_PTRFREE(camp::triple);

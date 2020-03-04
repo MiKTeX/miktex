@@ -20,7 +20,7 @@
 #ifndef __fftwpp_h__
 #define __fftwpp_h__ 1
 
-#define __FFTWPP_H_VERSION__ 2.07
+#define __FFTWPP_H_VERSION__ 2.08
 
 #if defined(MIKTEX)
 #include <miktex/ExitThrows>
@@ -90,6 +90,11 @@ namespace fftwpp {
 #define FFTWComplex ComplexAlign
 #define FFTWdouble doubleAlign
 #define FFTWdelete deleteAlign
+
+// Return the memory alignment used by FFTW.
+// Use of this function requires applying patches/fftw-3.3.8-alignment.patch
+// to the FFTW source, recompiling, and reinstalling the FFW library.
+extern "C" size_t fftw_alignment();
 
 class fftw;
 
@@ -499,56 +504,33 @@ public:
 
 class Transpose {
   fftw_plan plan;
-  fftw_plan plan2;
-  unsigned int a,b;
-  unsigned int nlength,mlength;
-  unsigned int ilast,jlast;
-  unsigned int rows,cols;
-  unsigned int threads;
   bool inplace;
-  unsigned int size;
 public:
   template<class T>
   Transpose(unsigned int rows, unsigned int cols, unsigned int length,
-            T *in, T *out=NULL, unsigned int threads=fftw::maxthreads) :
-    rows(rows), cols(cols), threads(threads) {
-    size=sizeof(T);
+            T *in, T *out=NULL, unsigned int threads=fftw::maxthreads) {
+    unsigned int size=sizeof(T);
     if(size % sizeof(double) != 0) {
       std::cerr << "ERROR: Transpose is not implemented for type of size " 
                 << size;
       exit(1);
     }
-    plan=plan2=NULL;
+    plan=NULL;
     if(rows == 0 || cols == 0) return;
     size /= sizeof(double);
     length *= size;
 
     if(!out) out=in;
     inplace=(out==in);
-    if(inplace) {
-      fftw::planThreads(threads);
-      threads=1;
-    } else fftw::planThreads(1);
+    fftw::planThreads(threads);
     
     fftw_iodim dims[3];
 
-    a=std::min(rows,threads);
-    b=std::min(cols,threads/a);
-
-    unsigned int n=utils::ceilquotient(rows,a);
-    unsigned int m=utils::ceilquotient(cols,b);
-    
-    // If rows <= threads then a=rows and n=1.
-    // If rows >= threads then b=1 and m=cols.
-    
-    nlength=n*length;
-    mlength=m*length;
-    
-    dims[0].n=n; 
+    dims[0].n=rows; 
     dims[0].is=cols*length;
     dims[0].os=length;
     
-    dims[1].n=m; 
+    dims[1].n=cols; 
     dims[1].is=length;
     dims[1].os=rows*length;
 
@@ -559,74 +541,21 @@ public:
     // A plan with rank=0 is a transpose.
     plan=fftw_plan_guru_r2r(0,NULL,3,dims,(double *) in,(double *) out,
                             NULL,fftw::effort);
-    ilast=a;
-    jlast=b;
-    
-    if(n*a > rows) { // Only happens when rows > threads.
-      a=utils::ceilquotient(rows,n);
-      ilast=a-1;
-      dims[0].n=rows-n*ilast;
-      plan2=fftw_plan_guru_r2r(0,NULL,3,dims,(double *) in,(double *) out,
-                               NULL,fftw::effort);
-    } else { // Only happens when rows < threads.
-      if(m*b > cols) {
-        b=utils::ceilquotient(cols,m);
-        jlast=b-1;
-        dims[1].n=cols-m*jlast;
-        plan2=fftw_plan_guru_r2r(0,NULL,3,dims,(double *) in,(double *) out,
-                                 NULL,fftw::effort);
-      }
-    }
   }
 
   ~Transpose() {
     if(plan) fftw_destroy_plan(plan);
-    if(plan2) fftw_destroy_plan(plan2);
   }
   
   template<class T>
   void transpose(T *in, T *out=NULL) {
-    if(rows == 0 || cols == 0) return;
+    if(!plan) return;
     if(!out) out=in;
     if(inplace ^ (out == in)) {
       std::cerr << "ERROR: Transpose " << inout << std::endl;
       exit(1);
     }
-#ifndef FFTWPP_SINGLE_THREAD
-    if(a > 1) {
-      if(b > 1) {
-        int A=a, B=b;
-#pragma omp parallel for num_threads(A)
-        for(unsigned int i=0; i < a; ++i) {
-          unsigned int I=i*nlength;
-#pragma omp parallel for num_threads(B)
-          for(unsigned int j=0; j < b; ++j) {
-            unsigned int J=j*mlength;
-            fftw_execute_r2r((i < ilast && j < jlast) ? plan : plan2,
-                             (double *) in+cols*I+J,
-                             (double *) out+rows*J+I);
-          }
-        }
-      } else {
-        int A=a;
-#pragma omp parallel for num_threads(A)
-        for(unsigned int i=0; i < a; ++i) {
-          unsigned int I=i*nlength;
-          fftw_execute_r2r(i < ilast ? plan : plan2,
-                           (double *) in+cols*I,(double *) out+I);
-        }
-      }
-    } else if(b > 1) {
-      int B=b;
-#pragma omp parallel for num_threads(B)
-      for(unsigned int j=0; j < b; ++j) {
-        unsigned int J=j*mlength;
-        fftw_execute_r2r(j < jlast ? plan : plan2,
-                         (double *) in+J,(double *) out+rows*J);
-      }
-    } else
-#endif
-      fftw_execute_r2r(plan,(double *) in,(double*) out);
+    fftw_execute_r2r(plan,(double *) in,(double*) out);
   }
 };
 

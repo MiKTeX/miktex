@@ -38,7 +38,7 @@ struct BezierCurve
   void render(const triple *p, GLuint I0, GLuint I1);
   
   void append() {
-    material1Data.append1(data);
+    material1Data.append(data);
   }
   
   void queue(const triple *g, bool straight, double ratio) {

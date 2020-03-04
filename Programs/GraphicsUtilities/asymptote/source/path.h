@@ -385,6 +385,9 @@ public:
   
 };
 
+double arcLength(const pair& z0, const pair& c0, const pair& c1,
+                 const pair& z1);
+
 extern path nullpath;
 extern const unsigned maxdepth;
 extern const unsigned mindepth;

@@ -389,7 +389,19 @@ static double ds(double t)
   return sqrt(dx*dx+dy*dy+dz*dz);
 }
 
-// Calculates arclength of a cubic using adaptive simpson integration.
+// Calculates arclength of a cubic Bezier curve using adaptive Simpson
+// integration.
+double arcLength(const triple& z0, const triple& c0, const triple& c1,
+                 const triple& z1)
+{
+  double integral;
+  derivative(a,b,c,z0,c0,c1,z1);
+  
+  if(!simpson(integral,ds,0.0,1.0,DBL_EPSILON,1.0))
+    reportError("nesting capacity exceeded in computing arclength");
+  return integral;
+}
+
 double path3::cubiclength(Int i, double goal) const
 {
   const triple& z0=point(i);
@@ -399,14 +411,9 @@ double path3::cubiclength(Int i, double goal) const
     L=(z1-z0).length();
     return (goal < 0 || goal >= L) ? L : -goal/L;
   }
-  const triple& c0=postcontrol(i);
-  const triple& c1=precontrol(i+1);
   
-  double integral;
-  derivative(a,b,c,z0,c0,c1,z1);
+  double integral=arcLength(z0,postcontrol(i),precontrol(i+1),z1);
   
-  if(!simpson(integral,ds,0.0,1.0,DBL_EPSILON,1.0))
-    reportError("nesting capacity exceeded in computing arclength");
   L=3.0*integral;
   if(goal < 0 || goal >= L) return L;
   
