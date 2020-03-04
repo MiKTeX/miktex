@@ -10,6 +10,10 @@
 
 * asymptote 2.64
 
+### Fixed issues
+
+* [486](https://github.com/MiKTeX/miktex/issues/486): Luatex cannot find input file when using texify on windows
+
 ## 2.9.7300 - 2020-02-17
 
 ### Group-delimited \input argument

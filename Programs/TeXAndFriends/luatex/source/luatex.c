@@ -619,7 +619,11 @@ main (int ac, string *av)
 #  ifdef WIN32
     if (ac > 1) {
         char *pp;
+#if defined(MIKTEX_WINDOWS)
+        if ((strlen(av[ac - 1]) > 2) && isalpha(av[ac - 1][0]) && (av[ac - 1][1] == ':') && (av[ac - 1][2] == '\\' || av[ac - 1][2] == '/')) {
+#else
         if ((strlen(av[ac-1]) > 2) && isalpha(av[ac-1][0]) && (av[ac-1][1] == ':') && (av[ac-1][2] == '\\')) {
+#endif
             for (pp=av[ac-1]+2; *pp; pp++) {
 #if !defined(MIKTEX)
             if (IS_KANJI(pp)) {
