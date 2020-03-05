@@ -1,6 +1,6 @@
 /* miktex-texworks.hpp:
 
-   Copyright (C) 2015-2019 Christian Schenk
+   Copyright (C) 2015-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,11 +20,32 @@
 #include <string>
 #include <vector>
 
+#include <miktex/Trace/TraceStream>
 #include <miktex/Trace/TraceCallback>
 
-class MiKTeX_TeXworks :
+namespace MiKTeX { namespace TeXworks {
+
+class Wrapper :
   public MiKTeX::Trace::TraceCallback
 {
+public:
+  Wrapper();
+
+public:
+  Wrapper(const Wrapper& other) = delete;
+
+public:
+  Wrapper& operator=(const Wrapper& other) = delete;
+
+public:
+  Wrapper(Wrapper&& other) = delete;
+
+public:
+  Wrapper& operator=(Wrapper&& other) = delete;
+
+public:
+  ~Wrapper() = default;
+
 public:
   int Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[]);
   
@@ -51,4 +72,24 @@ private:
 
 private:
   void Sorry(std::string reason);
+
+private:
+  std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
+
+public:
+  MiKTeX::Trace::TraceStream* GetTraceStream() const
+  {
+    return traceStream.get();
+  }
+
+private:
+  static Wrapper* instance;
+
+public:
+  static Wrapper* GetInstance()
+  {
+    return instance;
+  }
 };
+
+}}

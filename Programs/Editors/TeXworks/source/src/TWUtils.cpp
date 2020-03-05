@@ -22,6 +22,8 @@
 #if defined(MIKTEX_WINDOWS)
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
+#include <miktex/miktex-texworks.hpp>
+#include <miktex/Trace/StopWatch>
 #endif
 #include "TWUtils.h"
 #include "TWApp.h"
@@ -149,6 +151,9 @@ void TWUtils::updateLibraryResources(const QDir& srcRootDir, const QDir& destRoo
 	if (subdir == QString::fromLatin1("translations")) // don't copy the built-in translations
 		return;
 	
+#if defined(MIKTEX)
+	std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch = MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "tracestream", "updateLibraryResources");
+#endif
 	Tw::Utils::FileVersionDatabase fvdb = Tw::Utils::FileVersionDatabase::load(destRootDir.absoluteFilePath(QString::fromLatin1("TwFileVersions.db")));
 	
 	QDirIterator iter(srcDir, QDirIterator::Subdirectories);

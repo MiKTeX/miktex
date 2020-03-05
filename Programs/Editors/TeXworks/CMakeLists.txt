@@ -144,7 +144,6 @@ set(texworks_sources
   source/src/utils/FileVersionDatabase.h
 
   miktex/miktex-texworks.cpp
-  miktex/miktex-texworks.h
   miktex/miktex-texworks.hpp
   texworks-version.h
 )
