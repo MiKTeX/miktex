@@ -132,7 +132,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
     return true;
   }
 
-#if !NO_REGISTRY
+#if USE_WINDOWS_REGISTRY
   if (winRegistry::TryGetRegistryValue(scope, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
   {
     // don't check for existence; it's a fatal error (detected later)
@@ -813,7 +813,7 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
 #if defined(MIKTEX_WINDOWS)
   if (!haveConfigFile
     && !IsMiKTeXPortable()
-    && !GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
+    && !GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, USE_WINDOWS_REGISTRY ? false : true).GetBool())
   {
     winRegistry::SetRegistryValue(IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, sectionName, valueName, value.GetString());
     string newValue;

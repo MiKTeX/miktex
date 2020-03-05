@@ -1,6 +1,6 @@
 /* texmfroot.cpp: managing TEXMF root directories
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -446,8 +446,7 @@ void SessionImpl::ReregisterRootDirectories(const string& roots, bool other)
   RegisterRootDirectoriesOptionSet options;
   options += RegisterRootDirectoriesOption::Review;
 #if defined(MIKTEX_WINDOWS)
-  // FIXME: should be: NO_REGISTRY ? false : true
-  if (IsMiKTeXPortable() || GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
+  if (IsMiKTeXPortable() || GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, USE_WINDOWS_REGISTRY ? false : true).GetBool())
   {
     options += RegisterRootDirectoriesOption::NoRegistry;
   }

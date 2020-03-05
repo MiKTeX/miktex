@@ -341,7 +341,7 @@ void SessionImpl::InitializeStartupConfig()
     MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, userStartupConfigFile));
   }
 
-#if !NO_REGISTRY
+#if USE_WINDOWS_REGISTRY
   if (initStartupConfig.config != MiKTeXConfiguration::Portable)
   {
     // read the registry, if we don't have a startup config file
@@ -584,7 +584,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
     {
       return str;
     }
-#if !NO_REGISTRY
+#if USE_WINDOWS_REGISTRY
     else if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
     {
       return str;
@@ -602,7 +602,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
     {
       return str;
     }
-#if !NO_REGISTRY
+#if USE_WINDOWS_REGISTRY
     else if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
     {
       return str;
