@@ -1,6 +1,6 @@
 /* init.cpp: session initialization
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -540,10 +540,10 @@ void SessionImpl::SaveStartupConfig(const MiKTeX::Core::StartupConfig& startupCo
 #endif
     }
   }
-  if (startupConfig.config != MiKTeXConfiguration::Portable)
+  if (!IsAdminMode() && startupConfig.config != MiKTeXConfiguration::Portable)
   {
     PathName userStartupConfigFile;
-    bool haveUserStartupConfigFile = IsAdminMode() ? false : FindStartupConfigFile(ConfigurationScope::User, userStartupConfigFile);
+    bool haveUserStartupConfigFile = FindStartupConfigFile(ConfigurationScope::User, userStartupConfigFile);
     if (haveUserStartupConfigFile || noRegistry)
     {
       WriteStartupConfigFile(ConfigurationScope::User, startupConfig);
