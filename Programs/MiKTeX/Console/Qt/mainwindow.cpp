@@ -637,6 +637,7 @@ void MainWindow::RestartAdmin()
 
 void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 {
+  LOG4CXX_INFO(logger, "switching to MiKTeX admin mode");
   PathName me = session->GetMyProgramFile(true);
 #if defined(MIKTEX_WINDOWS)
   PathName meAdmin(me);
@@ -764,6 +765,7 @@ bool FinishSetupWorker::Run()
 
 void MainWindow::FinishSetup()
 {
+  LOG4CXX_INFO(logger, "finishing MiKTeX setup");
   try
   {
     ui->buttonAdminSetup->setEnabled(false);
@@ -824,6 +826,7 @@ void MainWindow::FinishSetup()
 #if defined(MIKTEX_WINDOWS)
 void MainWindow::on_buttonFixPath_clicked()
 {
+  LOG4CXX_INFO(logger, "fixing PATH");
   if (Utils::CheckPath(true))
   {
     QMessageBox::information(this, tr("MiKTeX Console"), tr("The PATH environment variable has been successfully modified."), QMessageBox::Ok);
@@ -875,6 +878,7 @@ bool UpgradeWorker::Run()
 
 void MainWindow::on_buttonUpgrade_clicked()
 {
+  LOG4CXX_INFO(logger, "upgrading MiKTeX");
   ui->buttonUpgrade->setEnabled(false);
   QThread* thread = new QThread;
   UpgradeWorker* worker = new UpgradeWorker(packageManager);
@@ -1454,24 +1458,28 @@ void MainWindow::OnRepositorySelected(int index)
 
 void MainWindow::on_radioAutoInstallAsk_clicked()
 {
+  LOG4CXX_INFO(logger, "setting AutoInstall: ask");
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::Undetermined);
   ui->chkAllUsers->setEnabled(false);
 }
 
 void MainWindow::on_radioAutoInstallYes_clicked()
 {
+  LOG4CXX_INFO(logger, "setting AutoInstall: yes");
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::True);
   ui->chkAllUsers->setEnabled(true);
 }
 
 void MainWindow::on_radioAutoInstallNo_clicked()
 {
+  LOG4CXX_INFO(logger, "setting AutoInstall: no");
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::False);
   ui->chkAllUsers->setEnabled(false);
 }
 
 void MainWindow::on_chkAllUsers_clicked()
 {
+  LOG4CXX_INFO(logger, "setting AutoAdmin: " << ui->chkAllUsers->isChecked());
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, (int)(ui->chkAllUsers->isChecked() ? TriState::True : TriState::False));
 }
 
@@ -1659,6 +1667,7 @@ void MainWindow::AddRootDirectory()
         return;
       }
     }
+    LOG4CXX_INFO(logger, "registering TEXMF root directory: " << Q_(root));
     session->RegisterRootDirectory(root, false);
     UpdateUi();
     UpdateActions();
@@ -1679,6 +1688,7 @@ void MainWindow::RemoveRootDirectory()
   {
     for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
     {
+      LOG4CXX_INFO(logger, "unregistering TEXMF root directory: " << Q_(rootDirectoryModel->data(index, Qt::DisplayRole).toString().toUtf8().constData()));
       rootDirectoryModel->Remove(index);
     }
     UpdateUi();
@@ -1700,6 +1710,7 @@ void MainWindow::MoveRootDirectoryUp()
   {
     for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
     {
+      LOG4CXX_INFO(logger, "moving TEXMF root directory up: " << Q_(rootDirectoryModel->data(index, Qt::DisplayRole).toString().toUtf8().constData()));
       rootDirectoryModel->MoveUp(index);
     }
     UpdateUi();
@@ -1721,6 +1732,7 @@ void MainWindow::MoveRootDirectoryDown()
   {
     for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
     {
+      LOG4CXX_INFO(logger, "moving TEXMF root directory down: " << Q_(rootDirectoryModel->data(index, Qt::DisplayRole).toString().toUtf8().constData()));
       rootDirectoryModel->MoveDown(index);
     }
     UpdateUi();
