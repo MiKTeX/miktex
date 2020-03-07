@@ -1,6 +1,6 @@
 /* webapp.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -96,6 +96,8 @@ public:
   bool isTeXProgram;
 public:
   bool isMETAFONTProgram;
+public:
+  bool verbose;
 };
 
 WebApp::WebApp() :
@@ -234,7 +236,7 @@ void WebApp::AddOptions()
   AddOption(T_("kpathsea-debug\0"), OPT_UNSUPPORTED, POPT_ARG_STRING);
   AddOption(T_("record-package-usages\0Enable the package usage recorder.  Output is written to FILE."), FIRST_OPTION_VAL + pimpl->optBase + OPT_RECORD_PACKAGE_USAGES, POPT_ARG_STRING, T_("FILE"));
   AddOption(T_("trace\0Turn tracing on.  OPTIONS must be a comma-separated list of trace options.   See the manual, for more information."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TRACE, POPT_ARG_STRING, T_("OPTIONS"));
-  AddOption("verbose\0", OPT_UNSUPPORTED);
+  AddOption(T_("verbose\0Turn on verbose mode."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERBOSE);
   AddOption(T_("version\0Print version information and exit."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERSION);
 #if defined(MIKTEX_WINDOWS)
   if (GetHelpId() > 0)
@@ -291,6 +293,8 @@ bool WebApp::ProcessOption(int opt, const string& optArg)
   case OPT_TRACE:
     MiKTeX::Trace::TraceStream::SetTraceFlags(optArg);
     break;
+  case OPT_VERBOSE:
+    pimpl->verbose = true;
   case OPT_VERSION:
     ShowProgramVersion();
     throw 0;
@@ -471,4 +475,9 @@ bool WebApp::AmITeX() const
 bool WebApp::AmIMETAFONT() const
 {
   return pimpl->isMETAFONTProgram;
+}
+
+bool WebApp::GetVerboseFlag() const
+{
+  return pimpl->verbose;
 }

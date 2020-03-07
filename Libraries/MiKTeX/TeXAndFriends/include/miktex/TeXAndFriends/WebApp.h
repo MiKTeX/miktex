@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebApp.h:                       -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -254,10 +254,18 @@ public:
 public:
   MIKTEXMFTHISAPI(IInitFinalize*) GetInitFinalize() const;
 
+public:
+  MIKTEXMFTHISAPI(bool) GetVerboseFlag() const;
+
 private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
+
+inline bool miktexgetverboseflag()
+{
+  return WebApp::GetWebApp()->GetVerboseFlag();
+}
 
 inline bool miktexgetquietflag()
 {

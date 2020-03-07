@@ -1,6 +1,6 @@
 ## CMakeLists.txt:                                      -*- CMake -*-
 ##
-## Copyright (C) 2015-2019 Christian Schenk
+## Copyright (C) 2015-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -20,6 +20,7 @@
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_ADMIN_FOLDER}/Defaults")
 
 set(all_defaults_cmake
+  bibtex.defaults.in
   mf.defaults.in
   mfapp.defaults.in
   mpost.defaults.in

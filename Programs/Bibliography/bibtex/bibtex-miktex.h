@@ -38,6 +38,10 @@
 
 #include "bibtex.h"
 
+namespace bibtex {
+#include <miktex/bibtex.defaults.h>
+}
+
 extern BIBTEXPROGCLASS BIBTEXPROG;
 
 class BIBTEXAPPCLASS :
@@ -47,22 +51,35 @@ public:
   template<typename T> T* Reallocate(T*& p, size_t n)
   {
     size_t amount = n * sizeof(T);
-    p = reinterpret_cast<T*>(realloc(p, amount));
-    if (p == nullptr && amount > 0)
+    T* p2 = reinterpret_cast<T*>(realloc(p, amount));
+    if (p2 == nullptr && amount > 0)
     {
       FatalError(MIKTEXTEXT("Virtual memory exhausted."));
     }
+    p = p2;
     return p;
   }
   
-private:
+public:
+  template<typename T> T* PascalReallocate(T*& p, size_t n)
+  {
+    return Reallocate(p, n + 1);
+  }
+
+public:
   template<typename T> T* Allocate(T*&  p, size_t n)
   {
     p = nullptr;
     return Reallocate(p, n);
   }
 
-private:
+public:
+  template<typename T> T* PascalAllocate(T*& p, size_t n)
+  {
+    return Reallocate(p, n + 1);
+  }
+
+public:
   template<typename T> T* Free(T*& p)
   {
     return Reallocate(p, 0);
@@ -91,21 +108,57 @@ public:
 #if defined(IMPLEMENT_TCX)
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
 #endif
-    BIBTEXPROG.mincrossrefs = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "min_crossrefs", 2).GetInt();
-    BIBTEXPROG.maxbibfiles = 20;
-    BIBTEXPROG.maxentints = 3000;
-    BIBTEXPROG.maxentstrs = 3000;
-    BIBTEXPROG.maxfields = 100000; //5000;
-    BIBTEXPROG.poolsize = 65000;
-    BIBTEXPROG.wizfnspace = 3000;
-    Allocate(BIBTEXPROG.bibfile, BIBTEXPROG.maxbibfiles);
-    Allocate(BIBTEXPROG.biblist, BIBTEXPROG.maxbibfiles);
-    Allocate(BIBTEXPROG.entryints, BIBTEXPROG.maxentints);
-    Allocate(BIBTEXPROG.entrystrs, BIBTEXPROG.maxentstrs);
-    Allocate(BIBTEXPROG.fieldinfo, BIBTEXPROG.maxfields);
-    Allocate(BIBTEXPROG.spreamble, BIBTEXPROG.maxbibfiles);
-    Allocate(BIBTEXPROG.strpool, BIBTEXPROG.poolsize);
-    Allocate(BIBTEXPROG.wizfunctions, BIBTEXPROG.wizfnspace);
+    BIBTEXPROG.entstrsize = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "ent_str_size", bibtex::bibtex::ent_str_size()).GetInt();
+    BIBTEXPROG.globstrsize = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "glob_str_size", bibtex::bibtex::glob_str_size()).GetInt();
+    BIBTEXPROG.maxstrings = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "max_strings", bibtex::bibtex::max_strings()).GetInt();
+    BIBTEXPROG.mincrossrefs = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "min_crossrefs", bibtex::bibtex::min_crossrefs()).GetInt();
+    BIBTEXPROG.hashsize = BIBTEXPROG.maxstrings;
+    const int HASH_SIZE_MIN = 5000;
+    if (BIBTEXPROG.hashsize < HASH_SIZE_MIN)
+    {
+      BIBTEXPROG.hashsize = HASH_SIZE_MIN;
+    }
+    BIBTEXPROG.hashmax = BIBTEXPROG.hashsize + BIBTEXPROG.hashbase - 1;
+    BIBTEXPROG.endofdef = BIBTEXPROG.hashmax + 1;
+    BIBTEXPROG.undefined = BIBTEXPROG.hashmax + 1;
+    BIBTEXPROG.bufsize = BIBTEXPROG.bufsizedef;
+    BIBTEXPROG.maxbibfiles = BIBTEXPROG.maxbibfilesdef;
+    BIBTEXPROG.maxglobstrs = BIBTEXPROG.maxglobstrsdef;
+    BIBTEXPROG.maxcites = BIBTEXPROG.maxcitesdef;
+    BIBTEXPROG.maxentints = BIBTEXPROG.maxentintsdef;
+    BIBTEXPROG.maxentstrs = BIBTEXPROG.maxentstrsdef;
+    BIBTEXPROG.maxfields = BIBTEXPROG.maxfieldsdef;
+    BIBTEXPROG.poolsize = BIBTEXPROG.poolsizedef;
+    BIBTEXPROG.singlefnspace = BIBTEXPROG.singlefnspacedef;
+    BIBTEXPROG.wizfnspace = BIBTEXPROG.wizfnspacedef;
+    PascalAllocate(BIBTEXPROG.buffer, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.svbuffer, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.exbuf, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.outbuf, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.nametok, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.namesepchar, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.bibfile, BIBTEXPROG.maxbibfiles);
+    PascalAllocate(BIBTEXPROG.biblist, BIBTEXPROG.maxbibfiles);
+    // BIBTEXPROG.entryints = nullptr;
+    // BIBTEXPROG.entrystrs = nullptr;
+    PascalAllocate(BIBTEXPROG.fieldinfo, BIBTEXPROG.maxfields);
+    PascalAllocate(BIBTEXPROG.spreamble, BIBTEXPROG.maxbibfiles);
+    PascalAllocate(BIBTEXPROG.strpool, BIBTEXPROG.poolsize);
+    PascalAllocate(BIBTEXPROG.wizfunctions, BIBTEXPROG.wizfnspace);
+    PascalAllocate(BIBTEXPROG.glbstrptr, BIBTEXPROG.maxglobstrs);
+    PascalAllocate(BIBTEXPROG.globalstrs, static_cast<size_t>(BIBTEXPROG.maxglobstrs) * BIBTEXPROG.globstrsize);
+    PascalAllocate(BIBTEXPROG.glbstrend, BIBTEXPROG.maxglobstrs);
+    PascalAllocate(BIBTEXPROG.citelist, BIBTEXPROG.maxcites);
+    PascalAllocate(BIBTEXPROG.typelist, BIBTEXPROG.maxcites);
+    PascalAllocate(BIBTEXPROG.entryexists, BIBTEXPROG.maxcites);
+    PascalAllocate(BIBTEXPROG.citeinfo, BIBTEXPROG.maxcites);
+    PascalAllocate(BIBTEXPROG.strstart, BIBTEXPROG.maxstrings);
+    PascalAllocate(BIBTEXPROG.hashnext, BIBTEXPROG.hashmax);
+    PascalAllocate(BIBTEXPROG.hashtext, BIBTEXPROG.hashmax);
+    PascalAllocate(BIBTEXPROG.hashilk, BIBTEXPROG.hashmax);
+    PascalAllocate(BIBTEXPROG.ilkinfo, BIBTEXPROG.hashmax);
+    PascalAllocate(BIBTEXPROG.fntype, BIBTEXPROG.hashmax);
+    BIBTEXPROG.computehashprime();
   }
   
 public:
@@ -113,11 +166,30 @@ public:
   {
     Free(BIBTEXPROG.bibfile);
     Free(BIBTEXPROG.biblist);
+    Free(BIBTEXPROG.buffer);
+    Free(BIBTEXPROG.citeinfo);
+    Free(BIBTEXPROG.citelist);
+    Free(BIBTEXPROG.entryexists);
     Free(BIBTEXPROG.entryints);
     Free(BIBTEXPROG.entrystrs);
+    Free(BIBTEXPROG.exbuf);
     Free(BIBTEXPROG.fieldinfo);
+    Free(BIBTEXPROG.fntype);
+    Free(BIBTEXPROG.glbstrend);
+    Free(BIBTEXPROG.glbstrptr);
+    Free(BIBTEXPROG.globalstrs);
+    Free(BIBTEXPROG.hashilk);
+    Free(BIBTEXPROG.hashnext);
+    Free(BIBTEXPROG.hashtext);
+    Free(BIBTEXPROG.ilkinfo);
+    Free(BIBTEXPROG.namesepchar);
+    Free(BIBTEXPROG.nametok);
+    Free(BIBTEXPROG.outbuf);
     Free(BIBTEXPROG.spreamble);
     Free(BIBTEXPROG.strpool);
+    Free(BIBTEXPROG.strstart);
+    Free(BIBTEXPROG.svbuffer);
+    Free(BIBTEXPROG.typelist);
     Free(BIBTEXPROG.wizfunctions);
     WebAppInputLine::Finalize();
   }
@@ -214,7 +286,17 @@ extern BIBTEXAPPCLASS BIBTEXAPP;
 
 template<class T> inline void miktexbibtexrealloc(const char* varName, T*& p, size_t n)
 {
-  p = BIBTEXAPP.Reallocate(p, n + 1);
+  if (BIBTEXPROG.logfile != nullptr)
+  {
+    fprintf(BIBTEXPROG.logfile, "Reallocating '%s' (item size: %d) to %d items.\n",
+      varName, static_cast<int>(sizeof(T)), static_cast<int>(n));
+  }
+  p = BIBTEXAPP.PascalReallocate(p, n);
+}
+
+template<class T> inline void miktexbibtexfree(T*& p)
+{
+  p = BIBTEXAPP.Free(p);
 }
 
 template<class T> inline bool miktexopenbstfile(T& f)

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -184,6 +184,7 @@ set(manual_xml_files
 set(manual_listings
   ${CMAKE_CURRENT_BINARY_DIR}/filetypes
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_CONFIG_DIR}/miktex-config.ini
+  ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/bibtex.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mf.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mfapp.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mpost.defaults
