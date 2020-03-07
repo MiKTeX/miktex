@@ -76,7 +76,7 @@ initialize;
 if miktex_get_verbose_flag then begin
   print(banner);
   miktex_print_miktex_banner(output);
-  write_ln;
+  print_newline;
 end else begin
   log_pr(banner);
   miktex_print_miktex_banner(log_file);
@@ -1063,7 +1063,7 @@ eat_bst_white_and_eof_check ('function');
 @y
 begin
 single_fn_space := single_fn_space_def;
-miktex_bibtex_realloc('singl_funcion', singl_function, single_fn_space);
+miktex_bibtex_alloc(singl_function, single_fn_space);
 eat_bst_white_and_eof_check ('function');
 @z
 

@@ -122,6 +122,7 @@ public:
     BIBTEXPROG.endofdef = BIBTEXPROG.hashmax + 1;
     BIBTEXPROG.undefined = BIBTEXPROG.hashmax + 1;
     BIBTEXPROG.bufsize = BIBTEXPROG.bufsizedef;
+    BIBTEXPROG.litstksize = BIBTEXPROG.litstksizedef;
     BIBTEXPROG.maxbibfiles = BIBTEXPROG.maxbibfilesdef;
     BIBTEXPROG.maxglobstrs = BIBTEXPROG.maxglobstrsdef;
     BIBTEXPROG.maxcites = BIBTEXPROG.maxcitesdef;
@@ -131,33 +132,35 @@ public:
     BIBTEXPROG.poolsize = BIBTEXPROG.poolsizedef;
     BIBTEXPROG.singlefnspace = BIBTEXPROG.singlefnspacedef;
     BIBTEXPROG.wizfnspace = BIBTEXPROG.wizfnspacedef;
-    PascalAllocate(BIBTEXPROG.buffer, BIBTEXPROG.bufsize);
-    PascalAllocate(BIBTEXPROG.svbuffer, BIBTEXPROG.bufsize);
-    PascalAllocate(BIBTEXPROG.exbuf, BIBTEXPROG.bufsize);
-    PascalAllocate(BIBTEXPROG.outbuf, BIBTEXPROG.bufsize);
-    PascalAllocate(BIBTEXPROG.nametok, BIBTEXPROG.bufsize);
-    PascalAllocate(BIBTEXPROG.namesepchar, BIBTEXPROG.bufsize);
-    PascalAllocate(BIBTEXPROG.bibfile, BIBTEXPROG.maxbibfiles);
-    PascalAllocate(BIBTEXPROG.biblist, BIBTEXPROG.maxbibfiles);
     // BIBTEXPROG.entryints = nullptr;
     // BIBTEXPROG.entrystrs = nullptr;
+    PascalAllocate(BIBTEXPROG.bibfile, BIBTEXPROG.maxbibfiles);
+    PascalAllocate(BIBTEXPROG.biblist, BIBTEXPROG.maxbibfiles);
+    PascalAllocate(BIBTEXPROG.buffer, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.citeinfo, BIBTEXPROG.maxcites);
+    PascalAllocate(BIBTEXPROG.citelist, BIBTEXPROG.maxcites);
+    PascalAllocate(BIBTEXPROG.entryexists, BIBTEXPROG.maxcites);
+    PascalAllocate(BIBTEXPROG.exbuf, BIBTEXPROG.bufsize);
     PascalAllocate(BIBTEXPROG.fieldinfo, BIBTEXPROG.maxfields);
-    PascalAllocate(BIBTEXPROG.spreamble, BIBTEXPROG.maxbibfiles);
-    PascalAllocate(BIBTEXPROG.strpool, BIBTEXPROG.poolsize);
-    PascalAllocate(BIBTEXPROG.wizfunctions, BIBTEXPROG.wizfnspace);
+    PascalAllocate(BIBTEXPROG.fntype, BIBTEXPROG.hashmax);
+    PascalAllocate(BIBTEXPROG.glbstrend, BIBTEXPROG.maxglobstrs);
     PascalAllocate(BIBTEXPROG.glbstrptr, BIBTEXPROG.maxglobstrs);
     PascalAllocate(BIBTEXPROG.globalstrs, static_cast<size_t>(BIBTEXPROG.maxglobstrs) * BIBTEXPROG.globstrsize);
-    PascalAllocate(BIBTEXPROG.glbstrend, BIBTEXPROG.maxglobstrs);
-    PascalAllocate(BIBTEXPROG.citelist, BIBTEXPROG.maxcites);
-    PascalAllocate(BIBTEXPROG.typelist, BIBTEXPROG.maxcites);
-    PascalAllocate(BIBTEXPROG.entryexists, BIBTEXPROG.maxcites);
-    PascalAllocate(BIBTEXPROG.citeinfo, BIBTEXPROG.maxcites);
-    PascalAllocate(BIBTEXPROG.strstart, BIBTEXPROG.maxstrings);
+    PascalAllocate(BIBTEXPROG.hashilk, BIBTEXPROG.hashmax);
     PascalAllocate(BIBTEXPROG.hashnext, BIBTEXPROG.hashmax);
     PascalAllocate(BIBTEXPROG.hashtext, BIBTEXPROG.hashmax);
-    PascalAllocate(BIBTEXPROG.hashilk, BIBTEXPROG.hashmax);
     PascalAllocate(BIBTEXPROG.ilkinfo, BIBTEXPROG.hashmax);
-    PascalAllocate(BIBTEXPROG.fntype, BIBTEXPROG.hashmax);
+    PascalAllocate(BIBTEXPROG.litstack, BIBTEXPROG.litstksize);
+    PascalAllocate(BIBTEXPROG.litstktype, BIBTEXPROG.litstksize);
+    PascalAllocate(BIBTEXPROG.namesepchar, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.nametok, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.outbuf, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.spreamble, BIBTEXPROG.maxbibfiles);
+    PascalAllocate(BIBTEXPROG.strpool, BIBTEXPROG.poolsize);
+    PascalAllocate(BIBTEXPROG.strstart, BIBTEXPROG.maxstrings);
+    PascalAllocate(BIBTEXPROG.svbuffer, BIBTEXPROG.bufsize);
+    PascalAllocate(BIBTEXPROG.typelist, BIBTEXPROG.maxcites);
+    PascalAllocate(BIBTEXPROG.wizfunctions, BIBTEXPROG.wizfnspace);
     BIBTEXPROG.computehashprime();
   }
   
@@ -253,9 +256,7 @@ public:
 public:
   void BufferSizeExceeded() const override
   {
-    std::cout << "Sorry---you've exceeded BibTeX's buffer size";
-    GetInitFinalize()->history() = 3;
-    c4pthrow(9998);
+    BIBTEXPROG.bufferoverflow();
   }
 
 public:
@@ -283,6 +284,12 @@ public:
 };
 
 extern BIBTEXAPPCLASS BIBTEXAPP;
+
+template<class T> inline void miktexbibtexalloc(T*& p, size_t n)
+{
+  p = nullptr;
+  p = BIBTEXAPP.PascalReallocate(p, n);
+}
 
 template<class T> inline void miktexbibtexrealloc(const char* varName, T*& p, size_t n)
 {

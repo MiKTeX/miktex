@@ -1,6 +1,6 @@
 /* inputline.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -687,7 +687,7 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
 
   const C4P_signed32 first = inputOutput->first();
   C4P_signed32& last = inputOutput->last();
-  const C4P_signed32 bufsize = inputOutput->bufsize();
+  C4P_signed32 bufsize = inputOutput->bufsize();
 
   const char* xord = nullptr;
 #if defined(WITH_OMEGA)
@@ -753,8 +753,13 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
   }
   last += 1;
 
-  while ((ch = GetCharacter(f)) != EOF && last < bufsize)
+  while ((ch = GetCharacter(f)) != EOF)
   {
+    if (last >= bufsize)
+    {
+      BufferSizeExceeded();
+      bufsize = inputOutput->bufsize();
+    }
     if (ch == '\r')
     {
       ch = GetCharacter(f);
@@ -785,17 +790,13 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     last += 1;
   }
 
-  if (ch != '\n' && ch != EOF)
-  {
-    BufferSizeExceeded();
-  }
-
   if (!AmI("bibtex") && last >= inputOutput->maxbufstack())
   {
     inputOutput->maxbufstack() = last + 1;
     if (inputOutput->maxbufstack() >= bufsize)
     {
       BufferSizeExceeded();
+      bufsize = inputOutput->bufsize();
     }
   }
 
