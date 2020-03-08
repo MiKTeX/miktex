@@ -229,14 +229,14 @@ end;
 @y
 @!max_glob_strs_def=10;
 @!max_fields_def=5000;
-@!max_fields_max=1000000; {maximum number of fields (entries $\times$ fields,
+@!max_fields_max=9999999; {maximum number of fields (entries $\times$ fields,
 @z
 
 @x
 @!lit_stk_size=100; {maximum number of literal functions on the stack}
 @y
 @!lit_stk_size_def=50;
-@!lit_stk_size_max=100; {maximum number of literal functions on the stack}
+@!lit_stk_size_max=9999999; {maximum number of literal functions on the stack}
 @z
 
 % _____________________________________________________________________________

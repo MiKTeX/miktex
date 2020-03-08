@@ -48,41 +48,41 @@ class BIBTEXAPPCLASS :
   public MiKTeX::TeXAndFriends::WebAppInputLine
 {
 public:
-  template<typename T> T* Reallocate(T*& p, size_t n)
+  template<typename T> void Reallocate(T*& p, size_t n)
   {
     size_t amount = n * sizeof(T);
-    T* p2 = reinterpret_cast<T*>(realloc(p, amount));
+    void* p2 = realloc(p, amount);
     if (p2 == nullptr && amount > 0)
     {
       FatalError(MIKTEXTEXT("Virtual memory exhausted."));
     }
-    p = p2;
-    return p;
+    p = reinterpret_cast<T*>(p2);
   }
   
 public:
-  template<typename T> T* PascalReallocate(T*& p, size_t n)
+  template<typename T> void PascalReallocate(T*& p, size_t n)
   {
     return Reallocate(p, n + 1);
   }
 
 public:
-  template<typename T> T* Allocate(T*&  p, size_t n)
+  template<typename T> void Allocate(T*&  p, size_t n)
   {
     p = nullptr;
-    return Reallocate(p, n);
+    Reallocate(p, n);
   }
 
 public:
-  template<typename T> T* PascalAllocate(T*& p, size_t n)
+  template<typename T> void PascalAllocate(T*& p, size_t n)
   {
-    return Allocate(p, n + 1);
+    Allocate(p, n + 1);
   }
 
 public:
-  template<typename T> T* Free(T*& p)
+  template<typename T> void Free(T*& p)
   {
-    return Reallocate(p, 0);
+    free(p);
+    p = nullptr;
   }
 
 private:
@@ -289,22 +289,24 @@ extern BIBTEXAPPCLASS BIBTEXAPP;
 
 template<class T> inline void miktexbibtexalloc(T*& p, size_t n)
 {
-  p = BIBTEXAPP.PascalAllocate(p, n);
+  BIBTEXAPP.PascalAllocate(p, n);
 }
 
 template<class T> inline void miktexbibtexrealloc(const char* varName, T*& p, size_t n)
 {
+#if 0
   if (BIBTEXPROG.logfile != nullptr)
   {
     fprintf(BIBTEXPROG.logfile, "Reallocating '%s' (item size: %d) to %d items.\n",
       varName, static_cast<int>(sizeof(T)), static_cast<int>(n));
   }
-  p = BIBTEXAPP.PascalReallocate(p, n);
+#endif
+  BIBTEXAPP.PascalReallocate(p, n);
 }
 
 template<class T> inline void miktexbibtexfree(T*& p)
 {
-  p = BIBTEXAPP.Free(p);
+  BIBTEXAPP.Free(p);
 }
 
 template<class T> inline bool miktexopenbstfile(T& f)

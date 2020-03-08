@@ -759,6 +759,10 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     {
       BufferSizeExceeded();
       bufsize = inputOutput->bufsize();
+#if defined(WITH_OMEGA)
+      if (!AmI("omega"))
+#endif
+      buffer = inputOutput->buffer();
     }
     if (ch == '\r')
     {
