@@ -294,13 +294,11 @@ template<class T> inline void miktexbibtexalloc(T*& p, size_t n)
 
 template<class T> inline void miktexbibtexrealloc(const char* varName, T*& p, size_t n)
 {
-#if 0
   if (BIBTEXPROG.logfile != nullptr)
   {
     fprintf(BIBTEXPROG.logfile, "Reallocating '%s' (item size: %d) to %d items.\n",
       varName, static_cast<int>(sizeof(T)), static_cast<int>(n));
   }
-#endif
   BIBTEXAPP.PascalReallocate(p, n);
 }
 
