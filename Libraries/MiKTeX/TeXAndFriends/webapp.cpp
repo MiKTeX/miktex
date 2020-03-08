@@ -295,6 +295,7 @@ bool WebApp::ProcessOption(int opt, const string& optArg)
     break;
   case OPT_VERBOSE:
     pimpl->verbose = true;
+    break;
   case OPT_VERSION:
     ShowProgramVersion();
     throw 0;

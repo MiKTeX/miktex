@@ -654,8 +654,7 @@ aux_ptr := 0;                           {initialize the \.{.aux} file stack}
 if (not a_open_in(cur_aux_file)) then
     sam_you_made_the_file_name_wrong;
 @y
-if (not miktex_has_extension(name_of_file, '.aux'))
-then
+if (not miktex_has_extension(name_of_file, '.aux')) then
   add_extension(s_aux_extension)        {this also sets |name_length|}
 else
   aux_name_length := aux_name_length - 4; {set to length without \.{.aux}}
@@ -1321,7 +1320,7 @@ if (num_ent_ints*num_cites > max_ent_ints) then
     overflow('total number of integer entry-variables ',max_ent_ints);
     end;
 @y
-miktex_bibtex_realloc('entry_ints', entry_ints, (num_ent_ints + 1) * (num_cites + 1));
+miktex_bibtex_alloc(entry_ints, (num_ent_ints + 1) * (num_cites + 1));
 @z
 
 % _____________________________________________________________________________
@@ -1336,7 +1335,7 @@ if (num_ent_strs*num_cites > max_ent_strs) then
     overflow('total number of string entry-variables ',max_ent_strs);
     end;
 @y
-miktex_bibtex_realloc('entry_strs', entry_strs, (num_ent_strs + 1) * (num_cites + 1) * (ent_str_size + 1));
+miktex_bibtex_alloc(entry_strs, (num_ent_strs + 1) * (num_cites + 1) * (ent_str_size + 1));
 @z
 
 @x

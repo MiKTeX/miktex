@@ -76,7 +76,7 @@ public:
 public:
   template<typename T> T* PascalAllocate(T*& p, size_t n)
   {
-    return Reallocate(p, n + 1);
+    return Allocate(p, n + 1);
   }
 
 public:
@@ -132,8 +132,8 @@ public:
     BIBTEXPROG.poolsize = BIBTEXPROG.poolsizedef;
     BIBTEXPROG.singlefnspace = BIBTEXPROG.singlefnspacedef;
     BIBTEXPROG.wizfnspace = BIBTEXPROG.wizfnspacedef;
-    // BIBTEXPROG.entryints = nullptr;
-    // BIBTEXPROG.entrystrs = nullptr;
+    BIBTEXPROG.entryints = nullptr;
+    BIBTEXPROG.entrystrs = nullptr;
     PascalAllocate(BIBTEXPROG.bibfile, BIBTEXPROG.maxbibfiles);
     PascalAllocate(BIBTEXPROG.biblist, BIBTEXPROG.maxbibfiles);
     PascalAllocate(BIBTEXPROG.buffer, BIBTEXPROG.bufsize);
@@ -145,7 +145,7 @@ public:
     PascalAllocate(BIBTEXPROG.fntype, BIBTEXPROG.hashmax);
     PascalAllocate(BIBTEXPROG.glbstrend, BIBTEXPROG.maxglobstrs);
     PascalAllocate(BIBTEXPROG.glbstrptr, BIBTEXPROG.maxglobstrs);
-    PascalAllocate(BIBTEXPROG.globalstrs, static_cast<size_t>(BIBTEXPROG.maxglobstrs) * BIBTEXPROG.globstrsize);
+    PascalAllocate(BIBTEXPROG.globalstrs, static_cast<size_t>(BIBTEXPROG.maxglobstrs) * (static_cast<size_t>(BIBTEXPROG.globstrsize) + 1));
     PascalAllocate(BIBTEXPROG.hashilk, BIBTEXPROG.hashmax);
     PascalAllocate(BIBTEXPROG.hashnext, BIBTEXPROG.hashmax);
     PascalAllocate(BIBTEXPROG.hashtext, BIBTEXPROG.hashmax);
@@ -185,6 +185,8 @@ public:
     Free(BIBTEXPROG.hashnext);
     Free(BIBTEXPROG.hashtext);
     Free(BIBTEXPROG.ilkinfo);
+    Free(BIBTEXPROG.litstack);
+    Free(BIBTEXPROG.litstktype);
     Free(BIBTEXPROG.namesepchar);
     Free(BIBTEXPROG.nametok);
     Free(BIBTEXPROG.outbuf);
@@ -262,9 +264,9 @@ public:
 public:
   template<class T> bool OpenBstFile(T& f) const
   {
-    const char* lpszFileName = GetInputOutput()->nameoffile();
-    MIKTEX_ASSERT_STRING(lpszFileName);
-    MiKTeX::Core::PathName bstFileName(lpszFileName);
+    const char* fileName = GetInputOutput()->nameoffile();
+    MIKTEX_ASSERT_STRING(fileName);
+    MiKTeX::Core::PathName bstFileName(fileName);
     if (!bstFileName.HasExtension())
     {
       bstFileName.SetExtension(".bst");
@@ -287,8 +289,7 @@ extern BIBTEXAPPCLASS BIBTEXAPP;
 
 template<class T> inline void miktexbibtexalloc(T*& p, size_t n)
 {
-  p = nullptr;
-  p = BIBTEXAPP.PascalReallocate(p, n);
+  p = BIBTEXAPP.PascalAllocate(p, n);
 }
 
 template<class T> inline void miktexbibtexrealloc(const char* varName, T*& p, size_t n)
