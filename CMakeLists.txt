@@ -961,7 +961,7 @@ if(WITH_UI_QT)
     list(APPEND required_qt5_components
       DBus
     )
-  endif
+  endif()
   find_package(Qt5 REQUIRED ${required_qt5_components})
 endif()
 
