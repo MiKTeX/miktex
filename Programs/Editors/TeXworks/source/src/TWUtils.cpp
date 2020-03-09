@@ -19,9 +19,11 @@
 	see <http://www.tug.org/texworks/>.
 */
 
+#if defined(MIKTEX)
 #if defined(MIKTEX_WINDOWS)
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
+#endif
 #include <miktex/miktex-texworks.hpp>
 #include <miktex/Trace/StopWatch>
 #endif
