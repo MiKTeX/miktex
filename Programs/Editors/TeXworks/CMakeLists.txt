@@ -150,17 +150,14 @@ set(texworks_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND texworks_sources
-    source/src/DefaultBinaryPathsWin.h
     source/src/InterProcessCommunicatorWin.cpp
   )
 elseif(APPLE)
   list(APPEND texworks_sources
-    source/src/DefaultBinaryPaths.h
     source/src/InterProcessCommunicatorDummy.cpp
   )
 else()
   list(APPEND texworks_sources
-    source/src/DefaultBinaryPaths.h
     source/src/InterProcessCommunicatorDBus.cpp
   )
 endif()
