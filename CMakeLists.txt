@@ -957,6 +957,11 @@ if(WITH_UI_QT)
       WinExtras
     )
   endif()
+  if(MIKTEX_UNIX_ALIKE AND NOT MIKTEX_MACOS_BUNDLE)
+    list(APPEND required_qt5_components
+      DBus
+    )
+  endif()
   find_package(Qt5 REQUIRED ${required_qt5_components})
 endif()
 

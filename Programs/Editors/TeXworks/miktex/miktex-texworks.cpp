@@ -1,6 +1,6 @@
 /* miktex-texworks.cpp:
 
-   Copyright (C) 2015-2019 Christian Schenk
+   Copyright (C) 2015-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -34,17 +34,26 @@
 #include <log4cxx/rollingfileappender.h>
 
 #include "miktex-texworks.hpp"
-#include "miktex-texworks.h"
 
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
+
+using namespace MiKTeX::TeXworks;
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("texworks"));
 static log4cxx::LoggerPtr synctexLogger(log4cxx::Logger::getLogger("synctex"));
 
-int MiKTeX_TeXworks::Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[])
+Wrapper* Wrapper::instance;
+
+Wrapper::Wrapper() :
+  traceStream(TraceStream::Open("texworks"))
+{
+}
+
+int Wrapper::Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[])
 {
   try
   {
@@ -119,7 +128,7 @@ int MiKTeX_TeXworks::Run(int(*Main)(int argc, char* argv[]), int argc, char* arg
   }
 }
 
-void MiKTeX_TeXworks::Trace(const TraceCallback::TraceMessage& traceMessage)
+void Wrapper::Trace(const TraceCallback::TraceMessage& traceMessage)
 {
   if (isLog4cxxConfigured)
   {
@@ -131,7 +140,7 @@ void MiKTeX_TeXworks::Trace(const TraceCallback::TraceMessage& traceMessage)
   }
 }
 
-void MiKTeX_TeXworks::FlushPendingTraceMessages()
+void Wrapper::FlushPendingTraceMessages()
 {
   for (const TraceCallback::TraceMessage& msg : pendingTraceMessages)
   {
@@ -140,7 +149,7 @@ void MiKTeX_TeXworks::FlushPendingTraceMessages()
   pendingTraceMessages.clear();
 }
 
-void MiKTeX_TeXworks::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
+void Wrapper::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
 {
   log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.texworks.") + traceMessage.facility);
 
@@ -154,7 +163,7 @@ void MiKTeX_TeXworks::TraceInternal(const TraceCallback::TraceMessage& traceMess
   }
 }
 
-void MiKTeX_TeXworks::Sorry(string reason)
+void Wrapper::Sorry(string reason)
 {
   stringstream serr;
   serr

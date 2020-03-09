@@ -1,6 +1,6 @@
 /*
   This is part of TeXworks, an environment for working with TeX documents
-  Copyright (C) 2014-2018  Stefan Löffler, Jonathan Kew
+  Copyright (C) 2014-2019  Stefan Löffler, Jonathan Kew
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,8 +21,9 @@
 
 #include "TWSynchronizer.h"
 #include "TWApp.h"
-#include "TeXDocument.h"
-#include "PDFDocument.h"
+#include "TWUtils.h"
+#include "TeXDocumentWindow.h"
+#include "PDFDocumentWindow.h"
 
 #include <QFileInfo>
 #include <QDir>
@@ -38,21 +39,21 @@
 TWSyncTeXSynchronizer::TWSyncTeXSynchronizer(const QString & filename)
 {
 #if defined(MIKTEX_WINDOWS)
-  _scanner = SyncTeX::synctex_scanner_new_with_output_file(filename.toUtf8().data(), NULL, 1);
+  _scanner = SyncTeX::synctex_scanner_new_with_output_file(filename.toUtf8().data(), nullptr, 1);
 #else
-  _scanner = SyncTeX::synctex_scanner_new_with_output_file(filename.toLocal8Bit().data(), NULL, 1);
+  _scanner = SyncTeX::synctex_scanner_new_with_output_file(filename.toLocal8Bit().data(), nullptr, 1);
 #endif
 }
 
 TWSyncTeXSynchronizer::~TWSyncTeXSynchronizer()
 {
-  if (_scanner != NULL)
+  if (_scanner)
     synctex_scanner_free(_scanner);
 }
 
 bool TWSyncTeXSynchronizer::isValid() const
 {
-  return (_scanner != NULL);
+  return (_scanner != nullptr);
 }
 
 
@@ -114,7 +115,7 @@ TWSynchronizer::PDFSyncPoint TWSyncTeXSynchronizer::syncFromTeX(const TWSynchron
 #else
   if (SyncTeX::synctex_display_query(_scanner, name.toLocal8Bit().data(), src.line, src.col, -1) > 0) {
 #endif
-    while ((node = SyncTeX::synctex_scanner_next_result(_scanner)) != NULL) {
+	while ((node = SyncTeX::synctex_scanner_next_result(_scanner))) {
       if (retVal.page < 0)
         retVal.page = SyncTeX::synctex_node_page(node);
       if (SyncTeX::synctex_node_page(node) != retVal.page)
@@ -145,9 +146,9 @@ TWSynchronizer::TeXSyncPoint TWSyncTeXSynchronizer::syncFromPDF(const TWSynchron
   if (src.rects.length() != 1)
     return retVal;
 
-  if (SyncTeX::synctex_edit_query(_scanner, src.page, src.rects[0].left(), src.rects[0].top()) > 0) {
+  if (SyncTeX::synctex_edit_query(_scanner, src.page, static_cast<float>(src.rects[0].left()), static_cast<float>(src.rects[0].top())) > 0) {
     SyncTeX::synctex_node_p node;
-    while ((node = SyncTeX::synctex_scanner_next_result(_scanner)) != NULL) {
+	while ((node = SyncTeX::synctex_scanner_next_result(_scanner))) {
 #if defined(MIKTEX_WINDOWS)
       retVal.filename = QString::fromUtf8(SyncTeX::synctex_scanner_get_name(_scanner, SyncTeX::synctex_node_tag(node)));
 #else
@@ -183,8 +184,8 @@ void TWSyncTeXSynchronizer::_syncFromTeXFine(const TWSynchronizer::TeXSyncPoint 
     return;
 
   QDir curDir(QFileInfo(src.filename).canonicalPath());
-  TeXDocument * tex = TeXDocument::findDocument(src.filename);
-  PDFDocument * pdf = PDFDocument::findDocument(QFileInfo(curDir, dest.filename).canonicalFilePath());
+  TeXDocumentWindow * tex = TeXDocumentWindow::findDocument(src.filename);
+  PDFDocumentWindow * pdf = PDFDocumentWindow::findDocument(QFileInfo(curDir, dest.filename).canonicalFilePath());
   if (!tex || !pdf || !pdf->widget())
     return;
   QSharedPointer<QtPDF::Backend::Document> pdfDoc = pdf->widget()->document().toStrongRef();
@@ -244,8 +245,8 @@ void TWSyncTeXSynchronizer::_syncFromPDFFine(const TWSynchronizer::PDFSyncPoint 
   if (dest.filename.isEmpty())
     return;
   QDir curDir(QFileInfo(src.filename).canonicalPath());
-  TeXDocument * tex = TeXDocument::openDocument(QFileInfo(curDir, dest.filename).canonicalFilePath(), false, false, dest.line);
-  PDFDocument * pdf = PDFDocument::findDocument(src.filename);
+  TeXDocumentWindow * tex = TeXDocumentWindow::openDocument(QFileInfo(curDir, dest.filename).canonicalFilePath(), false, false, dest.line);
+  PDFDocumentWindow * pdf = PDFDocumentWindow::findDocument(src.filename);
   if (!tex || !pdf || !pdf->widget())
     return;
   QSharedPointer<QtPDF::Backend::Document> pdfDoc = pdf->widget()->document().toStrongRef();
@@ -268,7 +269,7 @@ void TWSyncTeXSynchronizer::_syncFromPDFFine(const TWSynchronizer::PDFSyncPoint 
   if (SyncTeX::synctex_display_query(_scanner, dest.filename.toLocal8Bit().data(), dest.line, -1, src.page) > 0) {
 #endif
 	SyncTeX::synctex_node_p node;
-	while ((node = SyncTeX::synctex_scanner_next_result(_scanner)) != NULL) {
+	while ((node = SyncTeX::synctex_scanner_next_result(_scanner))) {
       if (SyncTeX::synctex_node_page(node) != src.page)
         continue;
       QRectF nodeRect(synctex_node_box_visible_h(node),
@@ -280,7 +281,7 @@ void TWSyncTeXSynchronizer::_syncFromPDFFine(const TWSynchronizer::PDFSyncPoint 
   }
   // Find the box the user clicked on
   QMap<int, QRectF> boxes;
-  QString srcContext = pdfPage->selectedText(selection, NULL, &boxes);
+  QString srcContext = pdfPage->selectedText(selection, nullptr, &boxes);
   // Normalize the srcContext. selectedText() returns newline chars between
   // separate (output) lines that all correspond to the same input line
   // (different input lines are handled by SyncTeX). Here we replace those \n
@@ -346,7 +347,7 @@ int TWSyncTeXSynchronizer::_findCorrespondingPosition(const QString & srcContext
   // Search to the right
   // FIXME: Possibly use some form of bisectioning
   for (deltaBack = 1; col + deltaBack <= srcContext.length(); ++deltaBack) {
-    int c = destContext.count(srcContext.mid(col - deltaFront, deltaBack + deltaFront));
+    int c = destContext.count(srcContext.midRef(col - deltaFront, deltaBack + deltaFront));
     found = (c > 0);
     unique = (c == 1);
     if (!found || unique)
@@ -364,7 +365,7 @@ int TWSyncTeXSynchronizer::_findCorrespondingPosition(const QString & srcContext
     // Search to the left
     // FIXME: Possibly use some form of bisectioning
     for (deltaFront = 1; deltaFront <= col; ++deltaFront) {
-      int c = destContext.count(srcContext.mid(col - deltaFront, deltaBack + deltaFront));
+      int c = destContext.count(srcContext.midRef(col - deltaFront, deltaBack + deltaFront));
       found = (c > 0);
       unique = (c == 1);
       if (!found || unique)
@@ -382,5 +383,5 @@ int TWSyncTeXSynchronizer::_findCorrespondingPosition(const QString & srcContext
   // If we did not find any match return -1
   if (!found || (deltaBack == 0 && deltaFront == 0))
     return -1;
-  return destContext.indexOf(srcContext.mid(col - deltaFront, deltaBack + deltaFront)) + deltaFront;
+  return destContext.indexOf(srcContext.midRef(col - deltaFront, deltaBack + deltaFront)) + deltaFront;
 }

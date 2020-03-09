@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,8 +24,7 @@
 
 #include <QDialog>
 #include <QStringList>
-
-#include "TWUtils.h"
+#include <QDir>
 
 #include "ui_ConfirmDelete.h"
 
@@ -34,8 +33,8 @@ class ConfirmDelete : public QDialog, private Ui::ConfirmDelete
 	Q_OBJECT
 
 public:
-	ConfirmDelete(QWidget *parent = NULL);
-	virtual ~ConfirmDelete();
+	ConfirmDelete(QWidget *parent = nullptr);
+	~ConfirmDelete() override = default;
 
 	static void doConfirmDelete(const QDir& dir, const QStringList& fileList);
 

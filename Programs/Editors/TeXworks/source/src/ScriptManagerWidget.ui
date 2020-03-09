@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ScriptManagerWidget</class>
+ <widget class="QWidget" name="ScriptManagerWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>496</width>
+    <height>619</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Manage Scripts</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <widget class="QTabWidget" name="scriptTabs">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="standaloneTab">
+       <attribute name="title">
+        <string>Standalone Scripts</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QTreeWidget" name="standaloneTree">
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="hookTab">
+       <attribute name="title">
+        <string>Hook Scripts</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QTreeWidget" name="hookTree">
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QTextBrowser" name="details">
+      <property name="openExternalLinks">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

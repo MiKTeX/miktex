@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2010  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,8 +26,6 @@
 #include <QString>
 #include <QItemSelection>
 
-#include "TWUtils.h"
-
 #include "ui_TemplateDialog.h"
 
 class QDirModel;
@@ -38,7 +36,7 @@ class TemplateDialog : public QDialog, private Ui::TemplateDialog
 
 public:
 	TemplateDialog();
-	virtual ~TemplateDialog();
+	~TemplateDialog() override = default;
 
 	static QString doTemplateDialog();
 
@@ -49,7 +47,7 @@ private slots:
 private:
 	void init();
 
-	QDirModel *model;
+	QDirModel * model{nullptr};
 };
 
 #endif

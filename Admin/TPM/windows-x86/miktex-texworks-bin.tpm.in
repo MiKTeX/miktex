@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>TeXworks win32</TPM:Name>
     <TPM:Title>TeXworks, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Jonathan Kew, Stefan Loeffler, Charlie Sharpsteen" year="2007-2019"/>
+    <TPM:Copyright owner="Jonathan Kew, Stefan Loeffler, Charlie Sharpsteen" year="2007-2020"/>
     <TPM:License type="gpl2"/>    
-    <TPM:Version>0.6.3</TPM:Version>
+    <TPM:Version>0.7</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

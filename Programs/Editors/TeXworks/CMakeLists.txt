@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2019 Christian Schenk
+## Copyright (C) 2009-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -28,18 +28,6 @@ string(REGEX MATCH "([0-9]+)" TeXworks_VER_MINOR ${TeXworks_VER_MINOR})
 file(STRINGS source/src/TWVersion.h TeXworks_VER_PATCH REGEX "VER_BUGFIX")
 string(REGEX MATCH "([0-9]+)" TeXworks_VER_PATCH ${TeXworks_VER_PATCH})
 set(TeXworks_VERSION ${TeXworks_VER_MAJOR}.${TeXworks_VER_MINOR}.${TeXworks_VER_PATCH})
-
-configure_file(
-  source/GitArchiveInfo.txt
-  ${CMAKE_CURRENT_BINARY_DIR}/GitRev.h
-  COPYONLY
-)
-
-file(STRINGS ${CMAKE_CURRENT_BINARY_DIR}/GitRev.h TeXworks_GIT_INFO)
-list(GET TeXworks_GIT_INFO 1 TeXworks_GIT_COMMIT)
-string(REGEX REPLACE "#define GIT_COMMIT_HASH \"([a-f0-9]+)\"" "\\1" TeXworks_GIT_HASH "${TeXworks_GIT_COMMIT}")
-list(GET TeXworks_GIT_INFO 2 TeXworks_GIT_COMMIT)
-string(REGEX REPLACE "#define GIT_COMMIT_DATE \"([-:0-9 Z]+)\"" "\\1" TeXworks_GIT_DATE "${TeXworks_GIT_COMMIT}")
 
 set(TW_BUILD_ID "MiKTeX")
 
@@ -87,11 +75,8 @@ set(texworks_sources
   source/src/CommandlineParser.h
   source/src/CompletingEdit.cpp
   source/src/CompletingEdit.h
-  source/src/ConfigurableApp.cpp
-  source/src/ConfigurableApp.h
   source/src/ConfirmDelete.cpp
   source/src/ConfirmDelete.h
-  source/src/DefaultBinaryPathsWin.h
   source/src/DefaultPrefs.h
   source/src/Engine.cpp
   source/src/Engine.h
@@ -99,24 +84,25 @@ set(texworks_sources
   source/src/FindDialog.h
   source/src/HardWrapDialog.cpp
   source/src/HardWrapDialog.h
-  source/src/PDFDocument.cpp
-  source/src/PDFDocument.h
+  source/src/InterProcessCommunicator.h
+  source/src/PDFDocumentWindow.cpp
+  source/src/PDFDocumentWindow.h
   source/src/PrefsDialog.cpp
   source/src/PrefsDialog.h
   source/src/ResourcesDialog.cpp
   source/src/ResourcesDialog.h
   source/src/ScreenCalibrationWidget.cpp
   source/src/ScreenCalibrationWidget.h
-  source/src/ScriptManager.cpp
-  source/src/ScriptManager.h
+  source/src/ScriptManagerWidget.cpp
+  source/src/ScriptManagerWidget.h
+  source/src/Settings.cpp
+  source/src/Settings.h
   source/src/TWApp.cpp
   source/src/TWApp.h
-  source/src/TWScript.cpp
-  source/src/TWScript.h
-  source/src/TWScriptAPI.cpp
-  source/src/TWScriptAPI.h
-  source/src/TWScriptable.cpp
-  source/src/TWScriptable.h
+  source/src/TWScriptManager.cpp
+  source/src/TWScriptManager.h
+  source/src/TWScriptableWindow.cpp
+  source/src/TWScriptableWindow.h
   source/src/TWSynchronizer.cpp
   source/src/TWSynchronizer.h
   source/src/TWSystemCmd.cpp
@@ -128,21 +114,53 @@ set(texworks_sources
   source/src/TWVersion.h
   source/src/TeXDocks.cpp
   source/src/TeXDocks.h
-  source/src/TeXDocument.cpp
-  source/src/TeXDocument.h
+  source/src/TeXDocumentWindow.cpp
+  source/src/TeXDocumentWindow.h
   source/src/TeXHighlighter.cpp
   source/src/TeXHighlighter.h
   source/src/TemplateDialog.cpp
   source/src/TemplateDialog.h
+  source/src/document/Document.h
+  source/src/document/SpellChecker.cpp
+  source/src/document/SpellChecker.h
+  source/src/document/TeXDocument.cpp
+  source/src/document/TeXDocument.h
+  source/src/document/TextDocument.cpp
+  source/src/document/TextDocument.h
   source/src/main.cpp
-
-  ${CMAKE_CURRENT_BINARY_DIR}/GitRev.h
+  source/src/scripting/JSScript.cpp
+  source/src/scripting/JSScript.h
+  source/src/scripting/JSScriptInterface.cpp
+  source/src/scripting/JSScriptInterface.h
+  source/src/scripting/Script.cpp
+  source/src/scripting/Script.h
+  source/src/scripting/ScriptAPI.cpp
+  source/src/scripting/ScriptAPI.h
+  source/src/scripting/ScriptAPIInterface.h
+  source/src/scripting/ScriptLanguageInterface.h
+  source/src/ui/LineNumberWidget.cpp
+  source/src/ui/LineNumberWidget.h
+  source/src/utils/FileVersionDatabase.cpp
+  source/src/utils/FileVersionDatabase.h
 
   miktex/miktex-texworks.cpp
-  miktex/miktex-texworks.h
   miktex/miktex-texworks.hpp
   texworks-version.h
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND texworks_sources
+    source/src/InterProcessCommunicatorWin.cpp
+  )
+elseif(APPLE)
+  list(APPEND texworks_sources
+    source/src/InterProcessCommunicatorDummy.cpp
+  )
+else()
+  list(APPEND texworks_sources
+    source/src/InterProcessCommunicatorDBus.cpp
+  )
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND texworks_sources
@@ -153,17 +171,18 @@ endif()
 
 set(texworks_ui_files
   source/src/CitationSelectDialog.ui
+  source/src/CompletingEdit.ui
   source/src/ConfirmDelete.ui
   source/src/Find.ui
   source/src/HardWrapDialog.ui
-  source/src/PDFDocument.ui
+  source/src/PDFDocumentWindow.ui
   source/src/PDFFind.ui
   source/src/PrefsDialog.ui
   source/src/Replace.ui
   source/src/ResourcesDialog.ui
-  source/src/ScriptManager.ui
+  source/src/ScriptManagerWidget.ui
   source/src/SearchResults.ui
-  source/src/TeXDocument.ui
+  source/src/TeXDocumentWindow.ui
   source/src/TemplateDialog.ui
   source/src/ToolConfig.ui
 )
@@ -222,6 +241,10 @@ set(libs
   Qt5::ScriptTools
   Qt5::Xml
 )
+
+if(MIKTEX_UNIX_ALIKE AND NOT MIKTEX_MACOS_BUNDLE)
+  list(APPEND libs Qt5::DBus)
+endif()
 
 if(USE_SYSTEM_HUNSPELL)
   list(APPEND libs MiKTeX::Imported::HUNSPELL)

@@ -66,8 +66,8 @@ public:
     AnnotationType3D
   };
   
-  AbstractAnnotation() { }
-  virtual ~AbstractAnnotation() { }
+  AbstractAnnotation() = default;
+  virtual ~AbstractAnnotation() = default;
 
   virtual AnnotationType type() const = 0;
   virtual bool isMarkup() const { return false; }
@@ -113,10 +113,10 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractAnnotation::AnnotationFlags)
 class Markup : public AbstractAnnotation
 {
 public:
-  Markup() : AbstractAnnotation(), _popup(NULL) { }
-  virtual ~Markup();
+  Markup() : AbstractAnnotation() { }
+  ~Markup() override;
 
-  virtual bool isMarkup() const { return true; }
+  bool isMarkup() const override { return true; }
 
   virtual QString title() const { return _title; }
   // Synonym for title(), but easier to read
@@ -137,7 +137,7 @@ public:
 
 protected:
   QString _title; // optional; since PDF 1.1; by convention identifies the annotation author
-  Popup * _popup;
+  Popup * _popup{nullptr};
   // float _opacity;
   QString _richContents; // optional; since PDF 1.5; may contain some HTML tags
   QDateTime _creationDate; // optional; since PDF 1.5
@@ -153,8 +153,8 @@ class Link : public AbstractAnnotation
 public:
   enum HighlightingMode { HighlightingNone, HighlightingInvert, HighlightingOutline, HighlightingPush };
 
-  Link() : AbstractAnnotation(), _highlightingMode(HighlightingNone), _actionOnActivation(NULL) { }
-  virtual ~Link();
+  Link() : AbstractAnnotation() { }
+  ~Link() override;
   Link(const Link & other) : AbstractAnnotation(other), _highlightingMode(other._highlightingMode), _quadPoints(other._quadPoints) {
     _actionOnActivation = (other._actionOnActivation ? other._actionOnActivation->clone() : nullptr);
   }
@@ -168,7 +168,7 @@ public:
     return *this;
   }
 
-  AnnotationType type() const { return AnnotationTypeLink; };
+  AnnotationType type() const override { return AnnotationTypeLink; }
 
   HighlightingMode highlightingMode() const { return _highlightingMode; }
   QPolygonF quadPoints() const;
@@ -184,17 +184,17 @@ private:
   // because we don't support WebCapture at the moment
   // Note: The PDF specs include a "destination" field for LinkAnnotations;
   // In this implementation this case should be handled by a PDFGoToAction
-  HighlightingMode _highlightingMode;
+  HighlightingMode _highlightingMode{HighlightingNone};
   QPolygonF _quadPoints;
-  PDFAction * _actionOnActivation;
+  PDFAction * _actionOnActivation{nullptr};
 };
 
 class Text : public Markup
 {
 public:
-  AnnotationType type() const { return AnnotationTypeText; }
+  AnnotationType type() const override { return AnnotationTypeText; }
 private:
-  bool _open;
+  //bool _open;
   QString _iconName;
   QString _state;
   QString _stateModel;
@@ -203,14 +203,14 @@ private:
 class FreeText : public Markup
 {
 public:
-  AnnotationType type() const { return AnnotationTypeFreeText; }
+  AnnotationType type() const override { return AnnotationTypeFreeText; }
   // TODO: members
 };
 
 class Caret : public Markup
 {
 public:
-  AnnotationType type() const { return AnnotationTypeCaret; }
+  AnnotationType type() const override { return AnnotationTypeCaret; }
 private:
   QRectF _rectDiff;
   // enum _symbol;
@@ -219,14 +219,14 @@ private:
 class Popup : public AbstractAnnotation
 {
 public:
-  AnnotationType type() const { return AnnotationTypePopup; }
-  
+  AnnotationType type() const override { return AnnotationTypePopup; }
+
   Markup * parent() { return _parent; }
   bool isOpen() const { return _open; }
-  
+
   void setParent(Markup * parent) { _parent = parent; }
   void setOpen(const bool open = true) { _open = open; }
-  
+
 private:
   Markup * _parent;
   bool _open;
@@ -235,28 +235,28 @@ private:
 class Highlight : public Markup
 {
 public:
-  AnnotationType type() const { return AnnotationTypeHighlight; }
+  AnnotationType type() const override { return AnnotationTypeHighlight; }
   // TODO: members
 };
 
 class Underline: public Markup
 {
 public:
-  AnnotationType type() const { return AnnotationTypeUnderline; }
+  AnnotationType type() const override { return AnnotationTypeUnderline; }
   // TODO: members
 };
 
 class Squiggly: public Markup
 {
 public:
-  AnnotationType type() const { return AnnotationTypeSquiggly; }
+  AnnotationType type() const override { return AnnotationTypeSquiggly; }
   // TODO: members
 };
 
 class StrikeOut: public Markup
 {
 public:
-  AnnotationType type() const { return AnnotationTypeStrikeOut; }
+  AnnotationType type() const override { return AnnotationTypeStrikeOut; }
   // TODO: members
 };
 
