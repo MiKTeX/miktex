@@ -9,6 +9,7 @@
 ### Upgraded programs
 
 * asymptote 2.64
+* texworks 0.7
 
 ### Fixed issues
 
