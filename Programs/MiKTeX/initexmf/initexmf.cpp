@@ -1541,8 +1541,8 @@ vector<FileLink> miktexFileLinks =
 
 vector<FileLink> lua52texLinks =
 {
-  { MIKTEX_LUAHBTEX_EXE, { "luahbtex", MIKTEX_LUAHBLATEX_EXE } },
-  { MIKTEX_LUATEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
+  { MIKTEX_LUAHBTEX_EXE, { "luahbtex", MIKTEX_LUALATEX_EXE } },
+  { MIKTEX_LUATEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac" } },
 };
 
 vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
