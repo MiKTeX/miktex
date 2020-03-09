@@ -32,9 +32,7 @@
 #include "TeXDocumentWindow.h"
 #include "PDFDocumentWindow.h"
 #include "TWVersion.h"
-#if !defined(MIKTEX)
 #include "GitRev.h"
-#endif
 #include "Settings.h"
 #include "utils/FileVersionDatabase.h"
 
@@ -1171,35 +1169,23 @@ void TWUtils::installCustomShortcuts(QWidget * widget, bool recursive /* = true 
 // static
 bool TWUtils::isGitInfoAvailable()
 {
-#if defined(MIKTEX)
-  return false;
-#else
 	return (!QString::fromLatin1(GIT_COMMIT_HASH).startsWith(QString::fromLatin1("$Format:")) && !QString::fromLatin1(GIT_COMMIT_DATE).startsWith(QString::fromLatin1("$Format:")));
-#endif
 }
 
 // static
 QString TWUtils::gitCommitHash()
 {
-#if defined(MIKTEX)
-  return "deadbeaf";
-#else
 	if(QString::fromLatin1(GIT_COMMIT_HASH).startsWith(QString::fromLatin1("$Format:")))
 		return QString();
 	return QString::fromLatin1(GIT_COMMIT_HASH);
-#endif
 }
 
 // static
 QDateTime TWUtils::gitCommitDate()
 {
-#if defined(MIKTEX)
-  MIKTEX_UNEXPECTED();
-#else
   if (QString::fromLatin1(GIT_COMMIT_DATE).startsWith(QString::fromLatin1("$Format:")))
 		return QDateTime();
 	return QDateTime::fromString(QString::fromLatin1(GIT_COMMIT_DATE), Qt::ISODate).toUTC();
-#endif
 }
 
 // action subclass used for dynamic window-selection items in the Window menu
