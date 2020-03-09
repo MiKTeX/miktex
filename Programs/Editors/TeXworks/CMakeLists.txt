@@ -242,6 +242,10 @@ set(libs
   Qt5::Xml
 )
 
+if(MIKTEX_UNIX_ALIKE AND NOT MIKTEX_MACOS_BUNDLE)
+  list(APPEND Qt5::DBus)
+endif()
+
 if(USE_SYSTEM_HUNSPELL)
   list(APPEND libs MiKTeX::Imported::HUNSPELL)
 else()
