@@ -1,6 +1,6 @@
 /* miktex/Core/Utils.h:                                 -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -32,7 +32,9 @@
 #include <ctime>
 
 #include <algorithm>
+#include <chrono>
 #include <exception>
+#include <ostream>
 #include <string>
 #include <utility>
 
@@ -66,6 +68,17 @@ inline bool operator<(const FontMapEntry& lhs, const FontMapEntry& rhs)
   return lhs.texName < rhs.texName;
 }
 
+struct GitInfo
+{
+  std::string commit;
+  std::string commitAbbrev;
+  std::chrono::time_point<std::chrono::system_clock> authorDate;
+};
+
+inline std::ostream& operator<<(std::ostream& os, const GitInfo& gitInfo)
+{
+  return os << gitInfo.commitAbbrev;
+}
 
 /// MiKTeX utility class.
 class MIKTEXNOVTABLE Utils
@@ -125,6 +138,9 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(std::string) GetOSVersionString();
+
+public:
+  static MIKTEXCORECEEAPI(GitInfo) GetGitInfo();
 
 public:
   static MIKTEXCORECEEAPI(bool) RunningOnAServer();

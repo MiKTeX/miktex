@@ -549,6 +549,15 @@ string Utils::GetMiKTeXBannerString()
   return MIKTEX_BANNER_STR;
 }
 
+GitInfo Utils::GetGitInfo()
+{
+  GitInfo result;
+  result.commit = MIKTEX_GIT_COMMIT_STR;
+  result.commitAbbrev = MIKTEX_GIT_COMMIT_ABBREV_STR;
+  result.authorDate = chrono::system_clock::from_time_t(MIKTEX_GIT_AUTHOR_DATE);
+  return result;
+}
+
 string Utils::MakeProgramVersionString(const string& programName, const VersionNumber& programVersionNumber)
 {
   string str = programName;
