@@ -947,8 +947,11 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
     int pc = count_char_packet_bytes(L);
     if (pc <= 0)
         return;
-    while (l_fonts[(max_f + 1)] != 0)
-        max_f++;
+    if (l_fonts != NULL) {
+        while (l_fonts[(max_f + 1)] != 0) {
+            max_f++;
+        }
+    }
     cp = cpackets = xmalloc((unsigned) (pc + 1));
     for (i = 1; i <= (int) lua_rawlen(L, -1); i++) {
         lua_rawgeti(L, -1, i);
@@ -959,8 +962,14 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                 s = lua_tostring(L, -1);
                 cmd = 0;
                 if (lua_key_eq(s, font)) {
+                    if (l_fonts == NULL) {
+                        normal_error("vf command","no font table found");
+                    }
                     cmd = packet_font_code;
                 } else if (lua_key_eq(s, char)) {
+                    if (l_fonts == NULL) {
+                        normal_error("vf command","no font table found");
+                    }
                     cmd = packet_char_code;
                     if (ff == 0) {
                         append_packet(packet_font_code);
@@ -968,6 +977,9 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                         do_store_four(ff);
                     }
                 } else if (lua_key_eq(s, slot)) {
+                    if (l_fonts == NULL) {
+                        normal_error("vf command","no font table found");
+                    }
                     /*tex we could be sparse but no real reason */
                     cmd = packet_nop_code;
                     lua_rawgeti(L, -2, 2);
@@ -2600,13 +2612,12 @@ halfword handle_kerning(halfword head, halfword tail)
 
 /*tex The ligaturing and kerning \LUA\ interface: */
 
-static halfword run_lua_ligkern_callback(halfword head, halfword tail, int callback_id)
+static void run_lua_ligkern_callback(halfword head, halfword tail, int callback_id)
 {
     int i;
     int top = lua_gettop(Luas);
     if (!get_callback(Luas, callback_id)) {
         lua_settop(Luas, top);
-        return tail;
     }
     nodelist_to_lua(Luas, head);
     nodelist_to_lua(Luas, tail);
@@ -2614,34 +2625,40 @@ static halfword run_lua_ligkern_callback(halfword head, halfword tail, int callb
         formatted_warning("ligkern","error: %s",lua_tostring(Luas, -1));
         lua_settop(Luas, top);
         luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
-        return tail;
     }
     if (fix_node_lists) {
         fix_node_list(head);
     }
     lua_settop(Luas, top);
-    return tail;
 }
 
 halfword new_ligkern(halfword head, halfword tail)
 {
     int callback_id = 0;
+    if (! head)
+        return null;
     if (vlink(head) == null)
         return tail;
     callback_id = callback_defined(ligaturing_callback);
     if (callback_id > 0) {
-        tail = run_lua_ligkern_callback(head, tail, callback_id);
-        if (tail == null)
-            tail = tail_of_list(head);
+        halfword save_tail = null;
+        if (tail) {
+            save_tail = vlink(tail);
+            vlink(tail) = null;
+        }
+        run_lua_ligkern_callback(head, tail, callback_id);
+        tail = tail_of_list(head);
+        if (save_tail) {
+            try_couple_nodes(tail, save_tail);
+        }
+        tail = tail_of_list(head);
     } else if (callback_id == 0) {
         tail = handle_ligaturing(head, tail);
     }
     callback_id = callback_defined(kerning_callback);
     if (callback_id > 0) {
-        tail = run_lua_ligkern_callback(head, tail, callback_id);
-        if (tail == null) {
-            tail = tail_of_list(head);
-        }
+        run_lua_ligkern_callback(head, tail, callback_id);
+        tail = tail_of_list(head);
     } else if (callback_id == 0) {
         halfword nest1 = new_node(nesting_node, 1);
         halfword cur = vlink(head);

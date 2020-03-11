@@ -138,6 +138,17 @@ static int buffer_set_replacement_codepoint(lua_State *L) {
   return 0;
 }
 
+static int buffer_add(lua_State *L) {
+  Buffer *b = (Buffer *)luaL_checkudata(L, 1, "harfbuzz.Buffer");
+
+  hb_codepoint_t c = (hb_codepoint_t) luaL_checkinteger(L, 2);
+  unsigned int cluster = luaL_checkinteger(L, 3);
+
+  hb_buffer_add(*b, c, cluster);
+
+  return 0;
+}
+
 static int buffer_add_codepoints(lua_State *L) {
   Buffer *b = (Buffer *)luaL_checkudata(L, 1, "harfbuzz.Buffer");
   unsigned int item_offset;
@@ -290,6 +301,7 @@ static int buffer_pre_allocate(lua_State *L) {
 
 static const struct luaL_Reg buffer_methods[] = {
   { "__gc", buffer_destroy },
+  { "add", buffer_add },
   { "add_utf8", buffer_add_utf8 },
   { "add_codepoints", buffer_add_codepoints },
   { "clear_contents", buffer_clear_contents },

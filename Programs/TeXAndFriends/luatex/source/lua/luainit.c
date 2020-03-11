@@ -2,7 +2,7 @@
 
 luainit.w
 
-Copyright 2006-2019 Taco Hoekwater <taco@@luatex.org>
+Copyright 2006-2020 Taco Hoekwater <taco@@luatex.org>
 
 This file is part of LuaTeX.
 
@@ -396,10 +396,12 @@ static void parse_options(int ac, char **av)
     opterr = 0;
 #ifdef LuajitTeX
     if ((strstr(argv[0], "luajittexlua") != NULL) ||
-        (strstr(argv[0], "texluajit") != NULL)) {
+        (strstr(argv[0], "texluajit") != NULL) ||
+        (strstr(argv[0], "texluahbjit") != NULL) ) {
 #else
     if ((strstr(argv[0], "luatexlua") != NULL) ||
-        (strstr(argv[0], "texlua") != NULL)) {
+        (strstr(argv[0], "texlua") != NULL) ||
+        (strstr(argv[0], "texluahb") != NULL)) {
 #endif
         lua_only = 1;
         luainit = 1;
@@ -568,7 +570,7 @@ static void parse_options(int ac, char **av)
                  "the terms of the GNU General Public License, version 2 or (at your option)\n"
                  "any later version. For more information about these matters, see the file\n"
                  "named COPYING and the LuaTeX source.\n\n"
-                 "LuaTeX is Copyright 2019 Taco Hoekwater and the LuaTeX Team.\n");
+                 "LuaTeX is Copyright 2020 Taco Hoekwater and the LuaTeX Team.\n");
             /* *INDENT-ON* */
             uexit(0);
         } else if (ARGUMENT_IS("credits")) {

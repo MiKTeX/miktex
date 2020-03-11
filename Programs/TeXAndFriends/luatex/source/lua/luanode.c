@@ -180,16 +180,17 @@ int lua_appendtovlist_callback(halfword box, int location, halfword prev_depth,
         luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
         return 0;
     }
-    if (lua_type(Luas,-1) == LUA_TNUMBER) {
-        *next_depth = lua_roundnumber(Luas,-1);
-        *prev_set = true;
-        if (lua_type(Luas, -2) != LUA_TNIL) {
-            p = check_isnode(Luas, -2);
-            *result = *p;
-        }
-    } else if (lua_type(Luas, -1) != LUA_TNIL) {
-        p = check_isnode(Luas, -1);
+    if (lua_type(Luas, -2) == LUA_TUSERDATA) {
+        p = check_isnode(Luas, -2);
         *result = *p;
+    } else if (lua_type(Luas, -2) == LUA_TNIL) {
+        *result = null;
+    } else {
+        normal_warning("append to vlist","error: node or nil expected");
+    }
+    if (lua_type(Luas, -1) == LUA_TNUMBER) {
+        *next_depth = lua_roundnumber(Luas, -1);
+        *prev_set = 1;
     }
     return 1;
 }

@@ -264,6 +264,7 @@ inline static int run_put_next(lua_State * L)
                             token_link(t) = x;
                         }
                         t = x;
+                        lua_pop(L, 1);
                     }
                     lua_pop(L, 1);
                 }
