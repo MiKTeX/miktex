@@ -1,6 +1,6 @@
 /* miktex/Version.h: MiKTeX version information         -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -31,6 +31,9 @@
 #define MIKTEX_MINOR_VERSION @MIKTEX_MINOR_VERSION@
 #define MIKTEX_J2000_VERSION @MIKTEX_J2000_VERSION@
 #define MIKTEX_YEAR_VERSION @MIKTEX_YEAR_VERSION@
+
+#define MIKTEX_GIT_COMMIT "@MIKTEX_GIT_COMMIT@"
+#define MIKTEX_GIT_AUTHOR_DATE "@MIKTEX_GIT_AUTHOR_DATE@"
 
 #define MIKTEX_RELEASE_STATE @MIKTEX_RELEASE_STATE@
 #define MIKTEX_RELEASE_NUMBER @MIKTEX_RELEASE_NUMBER@
