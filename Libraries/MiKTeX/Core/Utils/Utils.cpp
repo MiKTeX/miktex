@@ -25,6 +25,7 @@
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <fmt/time.h>
 
 #include <miktex/Core/CsvList>
 #include <miktex/Core/Directory>
@@ -556,6 +557,16 @@ GitInfo Utils::GetGitInfo()
   result.commitAbbrev = MIKTEX_GIT_COMMIT_ABBREV_STR;
   result.authorDate = chrono::system_clock::from_time_t(MIKTEX_GIT_AUTHOR_DATE);
   return result;
+}
+
+bool Utils::HaveGetGitInfo()
+{
+  return MIKTEX_GIT_COMMIT_STR[0] != 0;
+}
+
+string GitInfo::ToString() const
+{
+  return fmt::format("{} / {:%Y-%m-%d %H:%M:%S}", this->commitAbbrev, fmt::gmtime(chrono::system_clock::to_time_t(this->authorDate)));
 }
 
 string Utils::MakeProgramVersionString(const string& programName, const VersionNumber& programVersionNumber)

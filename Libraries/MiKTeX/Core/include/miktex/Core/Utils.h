@@ -73,11 +73,12 @@ struct GitInfo
   std::string commit;
   std::string commitAbbrev;
   std::chrono::time_point<std::chrono::system_clock> authorDate;
+  MIKTEXCORETHISAPI(std::string) ToString() const;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const GitInfo& gitInfo)
 {
-  return os << gitInfo.commitAbbrev;
+  return os << gitInfo.ToString();
 }
 
 /// MiKTeX utility class.
@@ -141,6 +142,9 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(GitInfo) GetGitInfo();
+
+public:
+  static MIKTEXCORECEEAPI(bool) HaveGetGitInfo();
 
 public:
   static MIKTEXCORECEEAPI(bool) RunningOnAServer();

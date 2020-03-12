@@ -1825,9 +1825,12 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   {
     auto p = Utils::CheckPath();
     s << "Date: " << fmt::format("{:%F %T}", *localtime(&now)) << "\n"
-      << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
-      << "GitInfo:" << Utils::GetGitInfo() << "\n"
-      << "OS: " << Utils::GetOSVersionString() << "\n"
+      << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n";
+    if (Utils::HaveGetGitInfo())
+    {
+      s << "GitInfo: " << Utils::GetGitInfo() << "\n";
+    }
+    s << "OS: " << Utils::GetOSVersionString() << "\n"
       << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
       << "LinkTargetDirectory: " << session->GetSpecialPath(SpecialPath::LinkTargetDirectory) << "\n"
       << "PathOkay: " << (p.first ? T_("yes") : T_("no")) << "\n";
