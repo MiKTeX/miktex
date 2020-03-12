@@ -22,7 +22,7 @@
 
 #define ppbytes_take(heap, size) _heap16_take(&(heap)->bytesheap, size)
 #define ppbytes_buffer_init(heap) heap16_buffer_init(&(heap)->bytesheap, &(heap)->bytesbuffer)
-#define ppbytes_buffer(heap, atleast) heap16_buffer_some(&(heap)->bytesheap, &(heap)->bytesbuffer, atleast)
+#define ppbytes_buffer(heap, atleast) _heap16_buffer_some(&(heap)->bytesheap, &(heap)->bytesbuffer, atleast)
 
 #define ppstruct_heap heap64
 #define ppstruct_heap_init(heap, space, large, flags) (heap64_init(&(heap)->structheap, space, large, flags), heap64_head(&(heap)->structheap))

@@ -437,6 +437,26 @@ void * _heap64_take (heap64 *heap, size_t size)
   return data;
 }
 
+void * _heap8_take0 (heap8 *heap, size_t size)
+{
+  return memset(_heap8_take(heap, size), 0, size);
+}
+
+void * _heap16_take0 (heap16 *heap, size_t size)
+{
+  return memset(_heap16_take(heap, size), 0, size);
+}
+
+void * _heap32_take0 (heap32 *heap, size_t size)
+{
+  return memset(_heap32_take(heap, size), 0, size);
+}
+
+void * _heap64_take0 (heap64 *heap, size_t size)
+{
+  return memset(_heap64_take(heap, size), 0, size);
+}
+
 /* pop last heap chunk */
 
 #define taken_from_head(taken, head) (byte_data(taken) == head->data)
@@ -462,6 +482,10 @@ void heap8_pop (heap8 *heap, void *taken, size_t size)
     head->prev = pyre->prev;
     pyre_free(pyre);
   }
+  else
+  {
+    ASSERT8(0);
+  }
 }
 
 void heap16_pop (heap16 *heap, void *taken, size_t size)
@@ -480,6 +504,10 @@ void heap16_pop (heap16 *heap, void *taken, size_t size)
   {
     head->prev = pyre->prev;
     pyre_free(pyre);
+  }
+  else
+  {
+    ASSERT16(0);
   }
 }
 
@@ -500,6 +528,10 @@ void heap32_pop (heap32 *heap, void *taken, size_t size)
     head->prev = pyre->prev;
     pyre_free(pyre);
   }
+  else
+  {
+    ASSERT32(0);
+  }
 }
 
 void heap64_pop (heap64 *heap, void *taken, size_t size)
@@ -518,6 +550,10 @@ void heap64_pop (heap64 *heap, void *taken, size_t size)
   {
     head->prev = pyre->prev;
     pyre_free(pyre);
+  }
+  else
+  {
+    ASSERT64(0);
   }
 }
 
@@ -611,7 +647,7 @@ void * _heap64_some (heap64 *heap, size_t size, size_t *pspace)
   return void_data(pyre->data);
 }
 
-void * heap8_more (heap8 *heap, void *taken, size_t written, size_t size)
+void * heap8_more (heap8 *heap, void *taken, size_t written, size_t size, size_t *pspace)
 {
   pyre8 *pyre, *prev;
   pyre = heap->head;
@@ -619,32 +655,40 @@ void * heap8_more (heap8 *heap, void *taken, size_t written, size_t size)
   if (taken_from_head(taken, pyre))
   {
     if (size <= pyre->left)
-    { // unlikely
+    {
+      *pspace = pyre->left;
     }
     else if (take_new_block8(heap, pyre8, pyre, size))
     {
       pyre = heap8_new(heap);
       memcpy(pyre->data, taken, written);
+      *pspace = pyre->left;
     }
     else
     {
       pyre = heap8_sole(heap, size);
       memcpy(pyre->data, taken, written);
+      *pspace = size;
     }
   }
   else if (taken_from_sole(taken, pyre, prev))
   {
     pyre = heap8_sole(heap, size);
-    pyre->prev = prev->prev;
     memcpy(pyre->data, taken, written);
+    *pspace = size;
+    pyre->prev = prev->prev;
     pyre_free(prev);
   }
   else
+  {
+    ASSERT8(0);
+    *pspace = 0;
     return NULL;
+  }
   return void_data(pyre->data);
 }
 
-void * heap16_more (heap16 *heap, void *taken, size_t written, size_t size)
+void * heap16_more (heap16 *heap, void *taken, size_t written, size_t size, size_t *pspace)
 {
   pyre16 *pyre, *prev;
   pyre = heap->head;
@@ -653,31 +697,39 @@ void * heap16_more (heap16 *heap, void *taken, size_t written, size_t size)
   {
     if (size <= pyre->left)
     {
+      *pspace = pyre->left;
     }
     else if (take_new_block16(heap, pyre16, pyre, size))
     {
       pyre = heap16_new(heap);
       memcpy(pyre->data, taken, written);
+      *pspace = pyre->left;
     }
     else
     {
       pyre = heap16_sole(heap, size);
       memcpy(pyre->data, taken, written);
+      *pspace = size;
     }
   }
   else if (taken_from_sole(taken, pyre, prev))
   {
     pyre = heap16_sole(heap, size);
-    pyre->prev = prev->prev;
     memcpy(pyre->data, taken, written);
+    *pspace = size;
+    pyre->prev = prev->prev;
     pyre_free(prev);
   }
   else
+  {
+    ASSERT16(0);
+    *pspace = 0;
     return NULL;
+  }
   return void_data(pyre->data);
 }
 
-void * heap32_more (heap32 *heap, void *taken, size_t written, size_t size)
+void * heap32_more (heap32 *heap, void *taken, size_t written, size_t size, size_t *pspace)
 {
   pyre32 *pyre, *prev;
   pyre = heap->head;
@@ -686,31 +738,39 @@ void * heap32_more (heap32 *heap, void *taken, size_t written, size_t size)
   {
     if (size <= pyre->left)
     {
+      *pspace = pyre->left;
     }
     else if (take_new_block32(heap, pyre32, pyre, size))
     {
       pyre = heap32_new(heap);
       memcpy(pyre->data, taken, written);
+      *pspace = pyre->left;
     }
     else
     {
       pyre = heap32_sole(heap, size);
       memcpy(pyre->data, taken, written);
+      *pspace = size;
     }
   }
   else if (taken_from_sole(taken, pyre, prev))
   {
     pyre = heap32_sole(heap, size);
-    pyre->prev = prev->prev;
     memcpy(pyre->data, taken, written);
+    *pspace = size;
+    pyre->prev = prev->prev;
     pyre_free(prev);
   }
   else
+  {
+    ASSERT32(0);
+    *pspace = 0;
     return NULL;
+  }
   return void_data(pyre->data);
 }
 
-void * heap64_more (heap64 *heap, void *taken, size_t written, size_t size)
+void * heap64_more (heap64 *heap, void *taken, size_t written, size_t size, size_t *pspace)
 {
   pyre64 *pyre, *prev;
   pyre = heap->head;
@@ -719,27 +779,35 @@ void * heap64_more (heap64 *heap, void *taken, size_t written, size_t size)
   {
     if (size <= pyre->left)
     {
+      *pspace = pyre->left;
     }
     else if (take_new_block64(heap, pyre64, pyre, size))
     {
       pyre = heap64_new(heap);
       memcpy(pyre->data, taken, written);
+      *pspace = pyre->left;
     }
     else
     {
       pyre = heap64_sole(heap, size);
       memcpy(pyre->data, taken, written);
+      *pspace = size;
     }
   }
   else if (taken_from_sole(taken, pyre, prev))
   {
     pyre = heap64_sole(heap, size);
-    pyre->prev = prev->prev;
     memcpy(pyre->data, taken, written);
+    *pspace = size;
+    pyre->prev = prev->prev;
     pyre_free(prev);
   }
   else
+  {
+    ASSERT64(0);
+    *pspace = 0;
     return NULL;
+  }
   return void_data(pyre->data);
 }
 
@@ -759,6 +827,10 @@ void heap8_done (heap8 *heap, void *taken, size_t written)
     pyre->data += written;
     pyre->chunks = 1;
   }
+  else
+  {
+    ASSERT8(0);
+  }
 }
 
 void heap16_done (heap16 *heap, void *taken, size_t written)
@@ -776,6 +848,10 @@ void heap16_done (heap16 *heap, void *taken, size_t written)
   {
     pyre->data += written;
     pyre->chunks = 1;
+  }
+  else
+  {
+    ASSERT16(0);  
   }
 }
 
@@ -795,6 +871,10 @@ void heap32_done (heap32 *heap, void *taken, size_t written)
     pyre->data += written;
     pyre->chunks = 1;
   }
+  else
+  {
+    ASSERT32(0);  
+  }
 }
 
 void heap64_done (heap64 *heap, void *taken, size_t written)
@@ -812,6 +892,10 @@ void heap64_done (heap64 *heap, void *taken, size_t written)
   {
     pyre->data += written;
     pyre->chunks = 1;
+  }
+  else
+  {
+    ASSERT64(0);
   }
 }
 

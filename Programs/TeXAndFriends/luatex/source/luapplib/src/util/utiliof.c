@@ -950,10 +950,10 @@ static size_t stderr_writer (iof *O, iof_mode mode)
 }
 
 static uint8_t iof_stdout_buffer[BUFSIZ];
-iof iof_stdout = IOF_WRITER_STRUCT(stdout_writer, NULL, iof_stdout_buffer, BUFSIZ, 0);
+iof iof_stdout = IOF_WRITER_INIT(stdout_writer, NULL, iof_stdout_buffer, BUFSIZ, 0);
 
 static uint8_t iof_stderr_buffer[BUFSIZ];
-iof iof_stderr = IOF_WRITER_STRUCT(stderr_writer, NULL, iof_stderr_buffer, BUFSIZ, 0);
+iof iof_stderr = IOF_WRITER_INIT(stderr_writer, NULL, iof_stderr_buffer, BUFSIZ, 0);
 
 /* read from somewhere */
 

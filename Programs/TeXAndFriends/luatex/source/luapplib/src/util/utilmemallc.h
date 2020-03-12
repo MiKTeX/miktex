@@ -114,45 +114,38 @@ is that if the chunk has already been allocated from a sole chunk, the space req
 iof interface
 =============
 
-iof is an independent interface for buffers written/read byte-by-byte. If used together with allocators, the provides a convenient
-way to write byte data to the heap or stock, without a need for intermediate buffers. The idea is to have iof buffer always ready
-for writing into the heap or stock. The buffer is setup just once, with
+iof is an independent interface for buffers written/read byte-by-byte. When used together with allocators, it provides 
+a convenient way to write byte data to the heap or stock, without a need for intermediate buffers. The buffer is setup with
 
-  iof *output = buffer_init(heap, iof) // calls some(heap, 0)
+  iof output, *O
+  O = buffer_init(heap, &output); // doesn't allocate anything
 
-Then one can write to iof with
+or 
 
-  iof_put(output, char);
-  iof_write(output, string);
-  iof_ensure(output, bytes);
-  ....
+  output = BUFFER_INIT(heap); // doesn't allocate anything
+  O = &output;
 
-iof keeps pointers to the beginning of buffer, end of buffer, and current position. Once the position reaches the end, the iof
-internal handler updates the buffer providing more space to write. In that case, updating the buffer means settings buf/pos/end
-pointers according to a data pointer and space returned by more(). From the user perspective, this pretends a countinuous space
-for writing, without bothering about buffer boundaries.
+iof keeps pointers to the beginning of the buffer, end of buffer, and current position. Once the position reaches the end, 
+the iof internal handler updates the buffer providing more space to write. When used in conjunction with heap or stock,
+the space to write is the space provided by the heap or stock. To start the buffer session:
+
+  O = buffer_some(heap, O, atleast) // ensure iof *O to have atleast bytes to be written
 
 Once you are done with writing some chunk
 
-  iof_flush() // calls done() and some() again
-  
-updates the underlying heap or stock, and makes the iof ready for a new chunk. iof it self does not allocate a memory, so it
-doesn't need finalizer, iof_close(output) does nothing. So the cycle looks as follows:
+  buffer_done(heap, O)
 
-  buffer_init(heap, iof)
-  <write to iof> ... iof_flush(iof)
-  <write to iof> ... iof_flush(iof)
-  ...
+instead of buffer_done(), one may also use
+
+  iof_flush(O) // calls buffer_done() and buffer_some() again
+  
+which updates the underlying heap or stock, and makes the iof ready for a new chunk. iof itself does not allocate a memory, 
+so it doesn't need finalizer. iof_close(output) does nothing. To drop the buffer use:
+
+  buffer_giveup(heap, O) // restore the from before buffer_some()
 
 More often then not, we need to specify a minimal space for buffer each time, eg. for memcpy() or so. The actual space left
-can be checked with iof_left(iof), the space for recent chunk is iof->space.
-
-We can also work as follows:
-
-  buffer_init(heap, iof)
-  buffer_some(heap, iof) ... <write to iof> ... data = iof_writer_result(iof, &size)
-  buffer_some(heap, iof) ... <write to iof> ... data = iof_writer_result(iof, &size)
-  ...
+can be checked with iof_left(O). The entire space of recent chunk is O->space (eq. O->end - O->buf).
 
 Identical interface for heap and stock.
 
@@ -328,6 +321,17 @@ Each allocator has 4 variants for 1, 2, 4, 8 bytes alignment respectively. Eg. s
 to 4 bytes, heap64_take() returns a pointer aligned to 8 bytes. You can ask for any data length, but in practise you'll always
 obtain 1N, 2N, 4N or 8N. Alignment implies data padding unless the user requests for "aligned" sizes. In statistics the padding
 is not considered a waste.
+
+Zeroing
+=======
+
+All heap, stock and pool may return zeroed memory chunks, depending on initial flags:
+
+  HEAP_ZERO
+  STOCK_ZERO
+  POOL_ZERO
+
+There are also take0() variants that simply return memset(take(), 0, size), regardless the flag.
 */
 
 #ifndef UTIL_MEM_ALLC_C
@@ -346,18 +350,18 @@ Common internals for allocators suite. A selection or all of the following defin
 #include <stdio.h> // printf()
 
 #include "utilmem.h"
-//#include "utilmemallh.h"
 
-#if 0 // for a while
-#  define ASSERT8(cond) (void)0
-#  define ASSERT16(cond) (void)0
-#  define ASSERT32(cond) (void)0
-#  define ASSERT64(cond) (void)0
-#else
+//#if defined(DEBUG) && debug != 0
+#if 1
 #  define ASSERT8(cond) ((void)((cond) || (printf("8bit allocator assertion, %s:%d: %s\n", __FILE__, __LINE__, #cond), 0)))
 #  define ASSERT16(cond) ((void)((cond) || (printf("16bit allocator assertion, %s:%d: %s\n", __FILE__, __LINE__, #cond), 0)))
 #  define ASSERT32(cond) ((void)((cond) || (printf("32bit allocator assertion, %s:%d: %s\n", __FILE__, __LINE__, #cond), 0)))
 #  define ASSERT64(cond) ((void)((cond) || (printf("64bit allocator assertion, %s:%d: %s\n", __FILE__, __LINE__, #cond), 0)))
+#else
+#  define ASSERT8(cond) (void)0
+#  define ASSERT16(cond) (void)0
+#  define ASSERT32(cond) (void)0
+#  define ASSERT64(cond) (void)0
 #endif
 
 #if defined(UTIL_MEM_STOCK_H) || defined(UTIL_MEM_POOL_H)
@@ -474,9 +478,9 @@ otherwise it needs 4 bytes offset.
 /* align requested size to keep ream->data / pyre->data always aligned. size is always size_t, no insane overflow checks */
 
 #define align_size8(size) ((void)size)
-#define align_size16(size) ((void)((size & 1) ? (size += 1) : 0))
-#define align_size32(size) ((void)((size & 3) ? (size += 4 - (size & 3)) : 0))
-#define align_size64(size) ((void)((size & 7) ? (size += 8 - (size & 7)) : 0))
+#define align_size16(size) (size = aligned_size16(size))
+#define align_size32(size) (size = aligned_size32(size))
+#define align_size64(size) (size = aligned_size64(size))
 
 /*
 done() and pop() operations decrements block->left space by an aligned size; block->left -= alignedwritten. Lets have 8-bytes aligned
@@ -486,9 +490,9 @@ is different than for size (size_t), we cannot cross 0xff/0xffff,... bondaries.
 */
 
 #define align_space8(space) ((void)space)
-#define align_space16(space) ((void)((space & 1) ? (space < 0xFFFF ? (space += 1) : (space -= 1)) : 0))
-#define align_space32(space) ((void)((space & 3) ? (space < 0xFFFFFFFD ? (space += 4 - (space & 3)) : (space -= (space & 3))) : 0))
-#define align_space64(space) ((void)((space & 7) ? (space < 0xFFFFFFFFFFFFFFF8ULL ? (space += 8 - (space & 7)) : (space -= (space & 7))) : 0))
+#define align_space16(space) (space = aligned_space16(space))
+#define align_space32(space) (space = aligned_space32(space))
+#define align_space64(space) (space = aligned_space64(space))
 
 /* handling ghost structure (stock and pool) */
 

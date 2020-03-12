@@ -64,7 +64,7 @@ typedef size_t (*iof_handler) (iof *I, iof_mode mode);
   }; \
   size_t space; \
   iof_handler more; \
-  union { iof *next; FILE *file; iof_file *iofile; void *link; }; \
+  union { void *link; iof *next; FILE *file; iof_file *iofile; }; \
   int flags; \
   int refcount
 
@@ -135,16 +135,16 @@ is way larger the sizeof(iof)
 
 /* initializers */
 
-#define IOF_READER_STRUCT(handler, file, buffer, size, flags) \
-  { {{ (uint8_t *)(buffer), (uint8_t *)(buffer), (uint8_t *)(buffer) }}, size, handler, { file }, flags|IOF_READER, 0 }
+#define IOF_READER_INIT(handler, file, buffer, size, flags) \
+  { {{ (uint8_t *)(buffer), (uint8_t *)(buffer), (uint8_t *)(buffer) }}, size, handler, { file }, (flags)|IOF_READER, 0 }
 
-#define IOF_WRITER_STRUCT(handler, file, buffer, size, flags) \
-  { {{ (uint8_t *)(buffer), (uint8_t *)(buffer), (uint8_t *)(buffer) + size }}, size, handler, { file }, flags|IOF_WRITER, 0 }
+#define IOF_WRITER_INIT(handler, file, buffer, size, flags) \
+  { {{ (uint8_t *)(buffer), (uint8_t *)(buffer), (uint8_t *)(buffer) + size }}, size, handler, { file }, (flags)|IOF_WRITER, 0 }
 
-#define IOF_STRING_STRUCT(buffer, size) \
+#define IOF_STRING_INIT(buffer, size) \
   { {{ (uint8_t *)(buffer), (uint8_t *)(buffer), (uint8_t *)(buffer) + size }}, size, NULL, { NULL }, 0|IOF_READER|IOF_DATA, 0 }
 
-#define IOF_STRING() IOF_STRING_STRUCT(0, 0)
+#define IOF_STRING() IOF_STRING_INIT(0, 0)
 
 /* refcount */
 

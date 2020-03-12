@@ -37,7 +37,7 @@ typedef union { basexx_state *basexxstate; runlength_state *runlengthstate; void
 
 #define basexx_nl '\x0A'
 //#define put_nl(O, line, maxline, n) ((void)((line += n) > maxline && ((line = n), iof_set(O, basexx_nl)))) // assignment in conditional warning
-#define put_nl(O, line, maxline, n) do { line += n; if (line > maxline) line = n; iof_set(O, basexx_nl); } while (0)
+#define put_nl(O, line, maxline, n) do { line += n; if (line > maxline) { line = n; iof_set(O, basexx_nl); }} while (0)
 
 /* tail macros */
 

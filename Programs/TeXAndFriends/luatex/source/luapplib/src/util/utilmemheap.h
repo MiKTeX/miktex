@@ -93,13 +93,12 @@ struct heap64 {
 };
 
 #define HEAP_ZERO (1 << 0)
-//#define HEAP_KEEP (1 << 1)
 #define HEAP_DEFAULTS 0
 
-#define HEAP8_INIT(space, large, flags) { NULL, space, large, flags }
-#define HEAP16_INIT(space, large, flags) { NULL, space, large, flags }
-#define HEAP32_INIT(space, large, flags) { NULL, space, large, flags }
-#define HEAP64_INIT(space, large, flags) { NULL, space, large, flags }
+#define HEAP8_INIT(space, large, flags) { NULL, aligned_space8(space), large, flags }
+#define HEAP16_INIT(space, large, flags) { NULL, aligned_space16(space), large, flags }
+#define HEAP32_INIT(space, large, flags) { NULL, aligned_space32(space), large, flags }
+#define HEAP64_INIT(space, large, flags) { NULL, aligned_space64(space), large, flags }
 
 UTILAPI heap8 * heap8_init (heap8 *heap, uint8_t space, uint8_t large, uint8_t flags);
 UTILAPI heap16 * heap16_init (heap16 *heap, uint16_t space, uint16_t large, uint8_t flags);
@@ -131,10 +130,20 @@ UTILAPI void * _heap16_take (heap16 *heap, size_t size);
 UTILAPI void * _heap32_take (heap32 *heap, size_t size);
 UTILAPI void * _heap64_take (heap64 *heap, size_t size);
 
+UTILAPI void * _heap8_take0 (heap8 *heap, size_t size);
+UTILAPI void * _heap16_take0 (heap16 *heap, size_t size);
+UTILAPI void * _heap32_take0 (heap32 *heap, size_t size);
+UTILAPI void * _heap64_take0 (heap64 *heap, size_t size);
+
 #define heap8_take(heap, size) (heap8_ensure_head(heap), _heap8_take(heap, size))
 #define heap16_take(heap, size) (heap16_ensure_head(heap), _heap16_take(heap, size))
 #define heap32_take(heap, size) (heap32_ensure_head(heap), _heap32_take(heap, size))
 #define heap64_take(heap, size) (heap64_ensure_head(heap), _heap64_take(heap, size))
+
+#define heap8_take0(heap, size) (heap8_ensure_head(heap), _heap8_take0(heap, size))
+#define heap16_take0(heap, size) (heap16_ensure_head(heap), _heap16_take0(heap, size))
+#define heap32_take0(heap, size) (heap32_ensure_head(heap), _heap32_take0(heap, size))
+#define heap64_take0(heap, size) (heap64_ensure_head(heap), _heap64_take0(heap, size))
 
 UTILAPI void heap8_pop (heap8 *heap, void *taken, size_t size);
 UTILAPI void heap16_pop (heap16 *heap, void *taken, size_t size);
@@ -151,10 +160,10 @@ UTILAPI void * _heap64_some (heap64 *heap, size_t size, size_t *pspace);
 #define heap32_some(heap, size, pspace) (heap32_ensure_head(heap), _heap32_some(heap, size, pspace))
 #define heap64_some(heap, size, pspace) (heap64_ensure_head(heap), _heap64_some(heap, size, pspace))
 
-UTILAPI void * heap8_more (heap8 *heap, void *taken, size_t written, size_t size);
-UTILAPI void * heap16_more (heap16 *heap, void *taken, size_t written, size_t size);
-UTILAPI void * heap32_more (heap32 *heap, void *taken, size_t written, size_t size);
-UTILAPI void * heap64_more (heap64 *heap, void *taken, size_t written, size_t size);
+UTILAPI void * heap8_more (heap8 *heap, void *taken, size_t written, size_t size, size_t *pspace);
+UTILAPI void * heap16_more (heap16 *heap, void *taken, size_t written, size_t size, size_t *pspace);
+UTILAPI void * heap32_more (heap32 *heap, void *taken, size_t written, size_t size, size_t *pspace);
+UTILAPI void * heap64_more (heap64 *heap, void *taken, size_t written, size_t size, size_t *pspace);
 
 UTILAPI void heap8_done (heap8 *heap, void *taken, size_t written);
 UTILAPI void heap16_done (heap16 *heap, void *taken, size_t written);

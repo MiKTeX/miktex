@@ -294,6 +294,7 @@ typedef enum {
     P_MAKE_TEXT,
     P_SCRIPT_ERROR,
     P_EXTENSIONS,
+    P_UTF8_MODE,
     P__SENTINEL
 } mplib_parm_idx;
 
@@ -316,6 +317,7 @@ static mplib_parm_struct mplib_parms[] = {
     {"script_error", P_SCRIPT_ERROR },
     {"extensions",   P_EXTENSIONS   },
     {"math_mode",    P_MATH_MODE    },
+    {"utf8_mode",    P_UTF8_MODE    },
     {NULL,           P__SENTINEL    }
 };
 
@@ -544,6 +546,7 @@ static int mplib_new(lua_State * L)
     /*  options->script_error = mplib_script_error; */
         options->print_found_names = 1;
         options->ini_version = 1;
+        options->utf8_mode = 0;
         if (lua_type(L, 1) == LUA_TTABLE) {
             for (i = 0; mplib_parms[i].name != NULL; i++) {
                 lua_getfield(L, 1, mplib_parms[i].name);
@@ -599,6 +602,9 @@ static int mplib_new(lua_State * L)
                         break;
                     case P_EXTENSIONS:
                         options->extensions = (int)lua_tointeger(L, -1);
+                        break;
+                    case P_UTF8_MODE:
+                        options->utf8_mode = (int)lua_toboolean(L, -1);
                         break;
                     default:
                         break;
