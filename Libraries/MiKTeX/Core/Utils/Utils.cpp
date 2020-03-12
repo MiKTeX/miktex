@@ -27,6 +27,8 @@
 #include <fmt/ostream.h>
 #include <fmt/time.h>
 
+#include <miktex/GitInfo>
+
 #include <miktex/Core/CsvList>
 #include <miktex/Core/Directory>
 #include <miktex/Core/PathName>
@@ -552,16 +554,20 @@ string Utils::GetMiKTeXBannerString()
 
 GitInfo Utils::GetGitInfo()
 {
+#if MIKTEX_HAVE_GIT_INFO
   GitInfo result;
   result.commit = MIKTEX_GIT_COMMIT_STR;
   result.commitAbbrev = MIKTEX_GIT_COMMIT_ABBREV_STR;
   result.authorDate = chrono::system_clock::from_time_t(MIKTEX_GIT_AUTHOR_DATE);
   return result;
+#else
+  MIKTEX_UNEXPECTED();
+#endif
 }
 
 bool Utils::HaveGetGitInfo()
 {
-  return MIKTEX_GIT_COMMIT_STR[0] != 0;
+  return MIKTEX_HAVE_GIT_INFO != 0;
 }
 
 string GitInfo::ToString() const

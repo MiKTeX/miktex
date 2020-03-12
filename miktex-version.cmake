@@ -80,9 +80,10 @@ else()
       FORCE)
 endif()
 
-##
-find_package(git)
+find_package(Git)
+
 if(GIT_FOUND)
+  set(MIKTEX_HAVE_GIT_INFO 1)
   execute_process(
     COMMAND ${GIT_EXECUTABLE} show --no-patch --pretty=%H
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
@@ -104,4 +105,6 @@ if(GIT_FOUND)
     ERROR_QUIET
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
+else()
+  set(MIKTEX_HAVE_GIT_INFO 0)
 endif()

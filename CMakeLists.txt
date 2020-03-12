@@ -1346,6 +1346,11 @@ file(TO_NATIVE_PATH ${CMAKE_SOURCE_DIR} CMAKE_SOURCE_DIR_NATIVE)
 file(TO_NATIVE_PATH ${CMAKE_BINARY_DIR} CMAKE_BINARY_DIR_NATIVE)
 
 configure_file(
+  include/miktex/GitInfo.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/GitInfo.h
+)
+
+configure_file(
   include/miktex/Version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Version.h
 )
