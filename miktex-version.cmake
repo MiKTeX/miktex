@@ -80,9 +80,7 @@ else()
       FORCE)
 endif()
 
-find_package(Git)
-
-if(GIT_FOUND)
+if(GIT_EXECUTABLE)
   set(MIKTEX_HAVE_GIT_INFO 1)
   execute_process(
     COMMAND ${GIT_EXECUTABLE} show --no-patch --pretty=%H

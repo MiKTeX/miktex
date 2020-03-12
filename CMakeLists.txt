@@ -654,6 +654,8 @@ endif()
 ###############################################################################
 ## version information
 
+find_package(Git)
+
 include(miktex-version.cmake)
 include(miktex-local-version.cmake OPTIONAL)
 
