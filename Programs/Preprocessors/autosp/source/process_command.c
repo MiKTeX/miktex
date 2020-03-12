@@ -1009,15 +1009,24 @@ void process_command (char **ln)
     else if (atnextbar)
     {
       fprintf (outfile, "\\def\\atnextbar{\\znotes");
-      for (i=1; i <= nstaffs; i++)
+      t = TransformNotes2;
+      while (true)
       {
+        s = strchr (t, '#');
+        if (s == NULL) 
+          break;
+        while (t < s)  /* output any initial \transpose etc. */
+        { putc (*t, outfile); t++; }
+        t++; /* skip # */
+        i = atoi (t) -1; t++;
         if (active[i])
         {
           if (bar_rest[i])
             fprintf (outfile, "\\centerpause");
           bar_rest[i] = false;
         }
-        if ( terminator[i] != '$') putc (terminator[i], outfile);
+        if (*t != '\0') 
+        { putc (*t, outfile); t++; }  /* terminator */
       }
       fprintf (outfile, "\\en}%%\n");
       if (Changeclefs) /* \Changeclefs has to be output after \def\atnextbar...  */

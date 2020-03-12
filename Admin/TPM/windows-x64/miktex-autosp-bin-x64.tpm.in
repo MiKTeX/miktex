@@ -6,7 +6,7 @@
     <TPM:Title>autosp and rebar, Windows x64</TPM:Title>
     <TPM:Copyright owner="D. Tennent School of Computing, Queen's University" year="2014-2020"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>2020-02-06</TPM:Version>
+    <TPM:Version>2020-03-11</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
