@@ -79,30 +79,3 @@ else()
       "MiKTeX release state; one of 0 (stable), 1 (next), 4 (debug)."
       FORCE)
 endif()
-
-if(GIT_EXECUTABLE)
-  set(MIKTEX_HAVE_GIT_INFO 1)
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} show --no-patch --pretty=%H
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE MIKTEX_GIT_COMMIT
-    ERROR_QUIET
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} show --no-patch --pretty=%h
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE MIKTEX_GIT_COMMIT_ABBREV
-    ERROR_QUIET
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} show --no-patch --pretty=%at
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE MIKTEX_GIT_AUTHOR_DATE
-    ERROR_QUIET
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-else()
-  set(MIKTEX_HAVE_GIT_INFO 0)
-endif()

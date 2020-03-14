@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -613,6 +613,8 @@ add_custom_target(gen-core-sources DEPENDS
 )
 
 set_property(TARGET gen-core-sources PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
+
+list(APPEND core_sources ${MIKTEX_GITINFO_H})
 
 if(INSTALL_MIKTEX_HEADERS)
   install(

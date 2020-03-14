@@ -233,6 +233,9 @@ if(MIKTEX_NATIVE_WINDOWS)
   set(HHC_EXECUTABLE_WRAPPER "${CMAKE_BINARY_DIR}/${MIKTEX_REL_BUILD_TOOLS_ETC_DIR}/hhc.cmd")
 endif()
 
+# generated Git info
+set(MIKTEX_GITINFO_H "${CMAKE_BINARY_DIR}/include/miktex/GitInfo.h")
+
 # IDE folders
 set(MIKTEX_IDE_ADMIN_FOLDER                     "Admin")
 set(MIKTEX_IDE_BUILD_UTILITIES_FOLDER           "Build Utilities")

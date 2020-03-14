@@ -654,10 +654,20 @@ endif()
 ###############################################################################
 ## version information
 
-find_package(Git)
-
 include(miktex-version.cmake)
 include(miktex-local-version.cmake OPTIONAL)
+
+find_package(Git)
+
+add_custom_target(gen-git-info
+  COMMAND ${CMAKE_COMMAND}
+    -D GIT_FOUND=${Git_FOUND}
+    -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+    -D SOURCE_DIR=${CMAKE_SOURCE_DIR}
+    -D GITINFO_H_IN=${CMAKE_SOURCE_DIR}/include/miktex/GitInfo.h.in
+    -D GITINFO_H=${CMAKE_BINARY_DIR}/include/miktex/GitInfo.h
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/gen-git-info.cmake
+)
 
 set(MIKTEX_MAJOR_MINOR_STR
   "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}"
@@ -1346,11 +1356,6 @@ include_directories(BEFORE
 
 file(TO_NATIVE_PATH ${CMAKE_SOURCE_DIR} CMAKE_SOURCE_DIR_NATIVE)
 file(TO_NATIVE_PATH ${CMAKE_BINARY_DIR} CMAKE_BINARY_DIR_NATIVE)
-
-configure_file(
-  include/miktex/GitInfo.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/GitInfo.h
-)
 
 configure_file(
   include/miktex/Version.h.in
