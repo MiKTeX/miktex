@@ -51,6 +51,11 @@ Wrapper* Wrapper::instance;
 Wrapper::Wrapper() :
   traceStream(TraceStream::Open("texworks"))
 {
+  if (instance != nullptr)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  instance = this;
 }
 
 int Wrapper::Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[])

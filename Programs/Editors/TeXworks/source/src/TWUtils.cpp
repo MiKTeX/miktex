@@ -152,7 +152,7 @@ void TWUtils::updateLibraryResources(const QDir& srcRootDir, const QDir& destRoo
 		return;
 	
 #if defined(MIKTEX)
-	std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch = MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "tracestream", "updateLibraryResources");
+	std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch = MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", "updateLibraryResources");
 #endif
 	Tw::Utils::FileVersionDatabase fvdb = Tw::Utils::FileVersionDatabase::load(destRootDir.absoluteFilePath(QString::fromLatin1("TwFileVersions.db")));
 	
