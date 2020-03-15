@@ -144,7 +144,7 @@ TWScriptableWindow::runScript(QObject* script, Tw::Scripting::Script::ScriptType
 #if defined(MIKTEX_WINDOWS)
 #  define and &&
 #endif
-	  if (!result.isNull() and !result.toString().isEmpty()) {
+		if (!result.isNull() and !result.toString().isEmpty()) {
 			if (scriptType == Tw::Scripting::Script::ScriptHook)
 				statusBar()->showMessage(tr("Script \"%1\": %2").arg(s->getTitle(), result.toString()), kStatusMessageDuration);
 			else

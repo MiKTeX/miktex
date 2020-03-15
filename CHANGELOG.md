@@ -10,7 +10,7 @@
 
 * asymptote 2.64
 * autosp 2020-03-11
-* texworks 0.7
+* texworks 0.6.4
 
 ### Fixed issues
 

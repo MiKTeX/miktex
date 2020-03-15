@@ -113,7 +113,7 @@ const QString TWUtils::getLibraryPath(const QString& subdir, const bool updateOn
                   MiKTeX::Core::PathName dir;
                   dir = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot);
                   dir /= TEXWORKS_NAME;
-		  dir /= std::to_string(VER_MAJOR) + "." + std::to_string(VER_MINOR);
+                  dir /= std::to_string(VER_MAJOR) + "." + std::to_string(VER_MINOR);
                   libRootPath = QString::fromUtf8(dir.GetData());
                 }
 #else
@@ -1183,7 +1183,7 @@ QString TWUtils::gitCommitHash()
 // static
 QDateTime TWUtils::gitCommitDate()
 {
-  if (QString::fromLatin1(GIT_COMMIT_DATE).startsWith(QString::fromLatin1("$Format:")))
+	if (QString::fromLatin1(GIT_COMMIT_DATE).startsWith(QString::fromLatin1("$Format:")))
 		return QDateTime();
 	return QDateTime::fromString(QString::fromLatin1(GIT_COMMIT_DATE), Qt::ISODate).toUTC();
 }

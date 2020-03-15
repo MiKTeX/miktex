@@ -145,6 +145,7 @@ set(texworks_sources
 
   miktex/miktex-texworks.cpp
   miktex/miktex-texworks.hpp
+  GitRev.h
   texworks-version.h
 )
 

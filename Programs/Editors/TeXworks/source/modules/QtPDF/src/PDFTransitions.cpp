@@ -13,11 +13,6 @@
  */
 #include <PDFTransitions.h>
 
-// DEBUG
-#include <QDebug>
-#include <QPixmap>
-// DEBUG
-
 #include <cstdlib>
 #include <ctime>
 
