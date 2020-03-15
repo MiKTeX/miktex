@@ -1209,6 +1209,22 @@ tfm_is_vert (int font_id)
 #endif /* !WITHOUT_ASCII_PTEX */
 #endif
 
+#ifndef WITHOUT_ASCII_PTEX
+int
+tfm_is_jfm (int font_id)
+{
+  CHECK_ID(font_id);
+
+  return (fms[font_id].source == SOURCE_TYPE_JFM) ? 1 : 0;
+}
+#else /* WITHOUT_ASCII_PTEX */
+int
+tfm_is_jfm (int font_id)
+{
+  return 0;
+}
+#endif /* !WITHOUT_ASCII_PTEX */
+
 int
 tfm_exists (const char *tfm_name)
 {

@@ -10,6 +10,7 @@
 
 * asymptote 2.64
 * autosp 2020-03-11
+* dvipdfmx 20200315
 * texworks 0.6.4
 
 ### Fixed issues
