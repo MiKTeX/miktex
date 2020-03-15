@@ -19,6 +19,14 @@
 	see <http://www.tug.org/texworks/>.
 */
 
+#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
+#include <miktex/miktex-texworks.hpp>
+#include <miktex/Trace/StopWatch>
+#endif
 #include "Settings.h"
 #include "ScriptManagerWidget.h"
 #include "TWScriptManager.h"
@@ -227,6 +235,10 @@ void TWScriptManager::addScriptsInDirectory(TWScriptList *scriptList,
 											const QStringList& disabled,
 											const QStringList& ignore)
 {
+#if defined(MIKTEX)
+  std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch =
+    MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", dir.absolutePath().toUtf8().data());
+#endif
 	Tw::Settings settings;
 	QFileInfo info;
 	bool scriptingPluginsEnabled = settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool();
@@ -386,6 +398,10 @@ TWScriptManager::runScript(QObject* script, QObject * context, QVariant & result
 		return false;
 
 	Tw::Scripting::ScriptAPI api(s, qApp, context, result);
+#if defined(MIKTEX)
+	std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch =
+	  MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", s->getFilename().toUtf8().data());
+#endif
 	return s->run(api);
 }
 
