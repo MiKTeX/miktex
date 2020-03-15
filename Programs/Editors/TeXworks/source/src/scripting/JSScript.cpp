@@ -64,6 +64,9 @@ bool JSScript::execute(ScriptAPIInterface * tw) const
 	stream.setCodec(m_Codec);
 	QString contents = stream.readAll();
 	scriptFile.close();
+#if defined(MIKTEX)
+	MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteFormattedLine("texworks", "loaded '%s' (%d bytes)", m_Filename.toUtf8().data(), contents.length());
+#endif
 
 	QScriptEngine engine;
 	QScriptValue twObject = engine.newQObject(tw->self());
@@ -73,7 +76,7 @@ bool JSScript::execute(ScriptAPIInterface * tw) const
 
 	Tw::Settings settings;
 #if defined(MIKTEX)
-	MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteFormattedLine("texworks", "evaluating '%s' (%d bytes)...", m_Filename.toUtf8().data(), contents.length());
+	MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteFormattedLine("texworks", "evaluating '%s'...", m_Filename.toUtf8().data());
 #endif
 	if (settings.value(QString::fromLatin1("scriptDebugger"), false).toBool()) {
 		QScriptEngineDebugger debugger;
