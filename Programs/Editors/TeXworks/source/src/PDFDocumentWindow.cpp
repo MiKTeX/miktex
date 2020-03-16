@@ -299,14 +299,14 @@ void PDFDocumentWindow::init()
 	
 	TWUtils::insertHelpMenuItems(menuHelp);
 #if defined(MIKTEX)
-	actionAbout_MiKTeX = new QAction(this);
-	actionAbout_MiKTeX->setIcon(QIcon(":/MiKTeX/miktex16x16.png"));
-	actionAbout_MiKTeX->setObjectName(QString::fromUtf8("actionAbout_MiKTeX"));
-	actionAbout_MiKTeX->setText(QApplication::translate("PDFDocument", "About MiKTeX..."));
-	actionAbout_MiKTeX->setMenuRole(QAction::AboutRole);
-	connect(actionAbout_MiKTeX, SIGNAL(triggered()), qApp, SLOT(aboutMiKTeX()));
+        actionAbout_MiKTeX = new QAction(this);
+        actionAbout_MiKTeX->setIcon(QIcon(QStringLiteral(":/MiKTeX/miktex16x16.png")));
+        actionAbout_MiKTeX->setObjectName(QStringLiteral("actionAbout_MiKTeX"));
+        actionAbout_MiKTeX->setText(QApplication::translate("PDFDocument", "About MiKTeX..."));
+        actionAbout_MiKTeX->setMenuRole(QAction::AboutRole);
+        connect(actionAbout_MiKTeX, SIGNAL(triggered()), qApp, SLOT(aboutMiKTeX()));
 #if 1
-	menuHelp->addAction(actionAbout_MiKTeX);
+        menuHelp->addAction(actionAbout_MiKTeX);
 #endif
 #endif
 	TWUtils::installCustomShortcuts(this);

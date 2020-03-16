@@ -50,23 +50,23 @@ QHash<QString, QString> * SpellChecker::getDictionaryList(const bool forceReload
 		}
 	}
 #if defined(MIKTEX)
-	std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
-	for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
-	{
-	  MiKTeX::Core::PathName dicPath = session->GetRootDirectoryPath(r);
-	  dicPath /= MIKTEX_PATH_HUNSPELL_DICT_DIR;
-	  QDir dicDir(dicPath.GetData());
-	  foreach(QFileInfo affFileInfo, dicDir.entryInfoList(QStringList("*.aff"),
-	    QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase))
-	  {
-	    QFileInfo dicFileInfo(affFileInfo.dir(), affFileInfo.completeBaseName() + ".dic");
-	    QString lang = dicFileInfo.completeBaseName();
-	    if (dicFileInfo.isReadable() && !dictionaryList->contains(lang))
-	    {
-	      dictionaryList->insertMulti(affFileInfo.canonicalFilePath(), affFileInfo.completeBaseName());
-	    }
-	  }
-	}
+        {
+          std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+          for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
+          {
+            MiKTeX::Core::PathName dicPath = session->GetRootDirectoryPath(r) / MIKTEX_PATH_HUNSPELL_DICT_DIR;
+            QDir dicDir(QString::fromUtf8(dicPath.GetData()));
+            foreach(QFileInfo dicFileInfo, dicDir.entryInfoList(QStringList(QStringLiteral("*.dic")),
+              QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase))
+            {
+              QFileInfo affFileInfo(dicFileInfo.dir(), dicFileInfo.completeBaseName() + QStringLiteral(".aff"));
+              if (affFileInfo.isReadable())
+              {
+                dictionaryList->insertMulti(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
+              }
+            }
+          }
+        }
 #endif
 
 	emit SpellChecker::instance()->dictionaryListChanged();
@@ -91,7 +91,7 @@ SpellChecker::Dictionary * SpellChecker::getDictionary(const QString& language)
 		QFileInfo dicFile(dicDir, language + QLatin1String(".dic"));
 		if (affFile.isReadable() && dicFile.isReadable()) {
 #if defined(MIKTEX_WINDOWS)
-		  Hunhandle* h = Hunspell_create(affFile.canonicalFilePath().toUtf8().data(), dicFile.canonicalFilePath().toUtf8().data());
+                  Hunhandle* h = Hunspell_create(affFile.canonicalFilePath().toUtf8().data(), dicFile.canonicalFilePath().toUtf8().data());
 #else
 			Hunhandle * h = Hunspell_create(affFile.canonicalFilePath().toLocal8Bit().data(),
 								dicFile.canonicalFilePath().toLocal8Bit().data());

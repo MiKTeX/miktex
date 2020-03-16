@@ -110,10 +110,9 @@ const QString TWUtils::getLibraryPath(const QString& subdir, const bool updateOn
 #if defined(MIKTEX)
                 {
                   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
-                  MiKTeX::Core::PathName dir;
-                  dir = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot);
-                  dir /= TEXWORKS_NAME;
-                  dir /= std::to_string(VER_MAJOR) + "." + std::to_string(VER_MINOR);
+                  MiKTeX::Core::PathName dir =session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot) /
+                  TEXWORKS_NAME /
+                  (std::to_string(VER_MAJOR) + "." + std::to_string(VER_MINOR));
                   libRootPath = QString::fromUtf8(dir.GetData());
                 }
 #else
@@ -152,7 +151,7 @@ void TWUtils::updateLibraryResources(const QDir& srcRootDir, const QDir& destRoo
 		return;
 	
 #if defined(MIKTEX)
-	std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch = MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", "updateLibraryResources");
+        std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch = MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", "updateLibraryResources");
 #endif
 	Tw::Utils::FileVersionDatabase fvdb = Tw::Utils::FileVersionDatabase::load(destRootDir.absoluteFilePath(QString::fromLatin1("TwFileVersions.db")));
 	
@@ -302,15 +301,14 @@ void TWUtils::insertHelpMenuItems(QMenu* helpMenu)
         // TODO: code review
         QDir helpDir;
         std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
-        MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DistRoot);
-        path /= "doc/texworks/help";
+        MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DistRoot) / "doc/texworks/help";
         if (MiKTeX::Core::Directory::Exists(path))
         {
           helpDir = QString::fromUtf8(path.GetData());
         }
         else
         {
-          helpDir = QCoreApplication::applicationDirPath() + "/texworks-help";
+          helpDir = QCoreApplication::applicationDirPath() + QStringLiteral("/texworks-help");
         }
 #else
 	QDir helpDir(QCoreApplication::applicationDirPath() + QLatin1String("/texworks-help"));

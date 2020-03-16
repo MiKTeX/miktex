@@ -167,9 +167,9 @@ void TWApp::init()
           {
             if (session->IsMiKTeXPortable())
             {
-	      Tw::Settings::setDefaultFormat(QSettings::IniFormat);
+              Tw::Settings::setDefaultFormat(QSettings::IniFormat);
               MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::UserConfigRoot);
-	      Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, path.GetData());
+              Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, QString::fromUtf8(path.GetData()));
             }
           }
         }
@@ -531,7 +531,7 @@ void TWApp::writeToMailingList()
 	QString body(QLatin1String("Thank you for taking the time to write an email to the TeXworks mailing list. Please read the instructions below carefully as following them will greatly facilitate the communication.\n\nInstructions:\n-) Please write your message in English (it's in your own best interest; otherwise, many people will not be able to understand it and therefore will not answer).\n\n-) Please type something meaningful in the subject line.\n\n-) If you are having a problem, please describe it step-by-step in detail.\n\n-) After reading, please delete these instructions (up to the \"configuration info\" below which we may need to find the source of problems).\n\n\n\n----- configuration info -----\n"));
 
 #if defined(MIKTEX)
-	body += QLatin1String("TeXworks version : " TEXWORKS_VERSION " (" TW_BUILD_ID_STR ")\n");
+        body += QStringLiteral("TeXworks version : " TEXWORKS_VERSION " (" TW_BUILD_ID_STR ")\n");
 #else
 	body += QLatin1String("TeXworks version : " TEXWORKS_VERSION "r.") + TWUtils::gitCommitHash() + QLatin1String(" (" TW_BUILD_ID_STR ")\n");
 #endif
@@ -556,7 +556,7 @@ void TWApp::writeToMailingList()
 	
 	body += QLatin1String("Operating system : ");
 #if defined(MIKTEX)
-        body += QString::fromUtf8(MiKTeX::Core::Utils::GetOSVersionString().c_str()) + "\n";
+        body += QString::fromUtf8(MiKTeX::Core::Utils::GetOSVersionString().c_str()) + QStringLiteral("\n");
 #else
 #if defined(Q_OS_WIN)
 	body += QLatin1String("Windows ") + GetWindowsVersionString() + QChar::fromLatin1('\n');
@@ -595,7 +595,7 @@ void TWApp::writeToMailingList()
 #endif
 
 #if defined(MIKTEX)
-        openUrl(QUrl(QString::fromUtf8("mailto:%1?body=%2").arg(address).arg(QString(QUrl::toPercentEncoding(body)))));
+        openUrl(QUrl(QStringLiteral("mailto:%1?body=%2").arg(address).arg(QString(QUrl::toPercentEncoding(body)))));
 #else
 	openUrl(QUrl(QString::fromLatin1("mailto:%1?subject=&body=%2").arg(address, QString::fromLatin1(QUrl::toPercentEncoding(body).constData()))));
 #endif
@@ -851,12 +851,11 @@ void TWApp::setDefaultPaths()
 #if defined(MIKTEX)
           {
             auto session = MiKTeX::Core::Session::Get();
-            MiKTeX::Core::PathName dir;
-            dir = session->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot);
-            dir /= MIKTEX_PATH_BIN_DIR;
-            if (!binaryPaths->contains(QString::fromUtf8(dir.GetData())))
+            MiKTeX::Core::PathName d = session->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot) / MIKTEX_PATH_BIN_DIR;
+            QString dir = QString::fromUtf8(d.GetData());
+            if (!binaryPaths->contains(dir))
             {
-              binaryPaths->prepend(QString::fromUtf8(dir.GetData()));
+              binaryPaths->prepend(dir);
             }
           }
 #else
@@ -909,22 +908,21 @@ void TWApp::setDefaultEngineList()
 		engineList->clear();
 #if defined(MIKTEX)
         *engineList
-          // << Engine("LaTeXmk", "latexmk" EXE, QStringList("-e") << "$pdflatex=q/pdflatex -synctex=1 %O %S/" << "-pdf" << "$fullname", true)
-          << Engine("pdfTeX", MIKTEX_PDFTEX_EXE, QStringList("$synctexoption") << "$fullname", true)
-          << Engine("pdfLaTeX", MIKTEX_PDFTEX_EXE, QStringList("$synctexoption") << "-undump=pdflatex" << "$fullname", true)
-          << Engine("pdfLaTeX+MakeIndex+BibTeX", MIKTEX_TEXIFY_EXE, QStringList("--pdf") << "--synctex=1" << "--clean" << "$fullname", true)
-          << Engine("LuaTeX", MIKTEX_LUATEX_EXE, QStringList("$synctexoption") << "$fullname", true)
-          << Engine("LuaLaTeX", MIKTEX_LUATEX_EXE, QStringList("$synctexoption") << "--fmt=lualatex" << "$fullname", true)
-          << Engine("LuaLaTeX+MakeIndex+BibTeX", MIKTEX_TEXIFY_EXE, QStringList("--pdf") << "--engine=luatex" << "--synctex=1" << "--clean" << "$fullname", true)
-          << Engine("XeTeX", MIKTEX_XETEX_EXE, QStringList("$synctexoption") << "$fullname", true)
-          << Engine("XeLaTeX", MIKTEX_XETEX_EXE, QStringList("$synctexoption") << "-undump=xelatex" << "$fullname", true)
-          << Engine("XeLaTeX+MakeIndex+BibTeX", MIKTEX_TEXIFY_EXE, QStringList("--pdf") << "--engine=xetex" << "--synctex=1" << "--clean" << "$fullname", true)
-          << Engine("ConTeXt (LuaTeX)", "context" MIKTEX_EXE_FILE_SUFFIX, QStringList("--synctex") << "$fullname", true)
-          << Engine("ConTeXt (pdfTeX)", "texexec" MIKTEX_EXE_FILE_SUFFIX, QStringList("--synctex") << "$fullname", true)
-          << Engine("ConTeXt (XeTeX)", "texexec" MIKTEX_EXE_FILE_SUFFIX, QStringList("--synctex") << "--xtx" << "$fullname", true)
-          << Engine("BibTeX", MIKTEX_BIBTEX_EXE, QStringList("$basename"), false)
-          << Engine("Biber", "biber" MIKTEX_EXE_FILE_SUFFIX, QStringList("$basename"), false)
-          << Engine("MakeIndex", MIKTEX_MAKEINDEX_EXE, QStringList("$basename"), false);
+          << Engine(QStringLiteral("pdfTeX"), QStringLiteral(MIKTEX_PDFTEX_EXE), QStringList(QStringLiteral("$synctexoption")) << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("pdfLaTeX"), QStringLiteral(MIKTEX_PDFTEX_EXE), QStringList(QStringLiteral("$synctexoption")) << QStringLiteral("-undump=pdflatex") << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("pdfLaTeX+MakeIndex+BibTeX"), QStringLiteral(MIKTEX_TEXIFY_EXE), QStringList(QStringLiteral("--pdf")) << QStringLiteral("--synctex=1") << QStringLiteral("--clean") << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("LuaTeX"), QStringLiteral(MIKTEX_LUATEX_EXE), QStringList(QStringLiteral("$synctexoption")) << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("LuaLaTeX"), QStringLiteral(MIKTEX_LUATEX_EXE), QStringList(QStringLiteral("$synctexoption")) << QStringLiteral("--fmt=lualatex") << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("LuaLaTeX+MakeIndex+BibTeX"), QStringLiteral(MIKTEX_TEXIFY_EXE), QStringList(QStringLiteral("--pdf")) << QStringLiteral("--engine=luatex") << QStringLiteral("--synctex=1") << QStringLiteral("--clean") << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("XeTeX"), QStringLiteral(MIKTEX_XETEX_EXE), QStringList(QStringLiteral("$synctexoption")) << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("XeLaTeX"), QStringLiteral(MIKTEX_XETEX_EXE), QStringList(QStringLiteral("$synctexoption")) << QStringLiteral("-undump=xelatex") << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("XeLaTeX+MakeIndex+BibTeX"), QStringLiteral(MIKTEX_TEXIFY_EXE), QStringList(QStringLiteral("--pdf")) << QStringLiteral("--engine=xetex") << QStringLiteral("--synctex=1") << QStringLiteral("--clean") << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("ConTeXt (LuaTeX)"), QStringLiteral("context" MIKTEX_EXE_FILE_SUFFIX), QStringList(QStringLiteral("--synctex")) << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("ConTeXt (pdfTeX)"), QStringLiteral("texexec" MIKTEX_EXE_FILE_SUFFIX), QStringList(QStringLiteral("--synctex")) << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("ConTeXt (XeTeX)"), QStringLiteral("texexec" MIKTEX_EXE_FILE_SUFFIX), QStringList(QStringLiteral("--synctex")) << QStringLiteral("--xtx") << QStringLiteral("$fullname"), true)
+          << Engine(QStringLiteral("BibTeX"), QStringLiteral(MIKTEX_BIBTEX_EXE), QStringList(QStringLiteral("$basename")), false)
+          << Engine(QStringLiteral("Biber"), QStringLiteral("biber" MIKTEX_EXE_FILE_SUFFIX), QStringList(QStringLiteral("$basename")), false)
+          << Engine(QStringLiteral("MakeIndex"), QStringLiteral(MIKTEX_MAKEINDEX_EXE), QStringList(QStringLiteral("$basename")), false);
         defaultEngineIndex = 2;
 #else
 	*engineList
@@ -996,7 +994,7 @@ const QList<Engine> TWApp::getEngineList()
 #if defined(MIKTEX)
                 if (!settings.value("defaultEngine").toString().isEmpty())
                 {
-                  setDefaultEngine(settings.value("defaultEngine").toString());
+                  setDefaultEngine(settings.value(QStringLiteral("defaultEngine")).toString());
                 }
 #else
 		setDefaultEngine(settings.value(QString::fromLatin1("defaultEngine"), QString::fromUtf8(DEFAULT_ENGINE_NAME)).toString());
@@ -1359,8 +1357,8 @@ void TWApp::reloadSpellchecker()
 void TWApp::aboutMiKTeX()
 {
   QIcon oldIcon = windowIcon();
-  setWindowIcon(QIcon(":/MiKTeX/miktex32x32.png"));
-  QString aboutText = tr("<p>MiKTeX %1 is a modern TeX distribution.</p>").arg(MIKTEX_MAJOR_MINOR_STR);
+  setWindowIcon(QIcon(QStringLiteral(":/MiKTeX/miktex32x32.png")));
+  QString aboutText = tr("<p>MiKTeX %1 is a modern TeX distribution.</p>").arg(QStringLiteral(MIKTEX_MAJOR_MINOR_STR));
   aboutText += tr("<p>Please visit the <a href=\"https://miktex.org/\">MiKTeX Project Page</a>.</p>");
   QMessageBox::about(nullptr, tr("About MiKTeX"), aboutText);
   setWindowIcon(oldIcon);

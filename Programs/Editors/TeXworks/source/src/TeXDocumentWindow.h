@@ -290,7 +290,7 @@ private:
 
 	static QList<TeXDocumentWindow*> docList;
 #if defined(MIKTEX)
-	QAction* actionAbout_MiKTeX;
+        QAction* actionAbout_MiKTeX;
 #endif
 };
 

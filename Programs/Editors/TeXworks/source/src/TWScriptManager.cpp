@@ -114,7 +114,7 @@ void TWScriptManager::loadPlugins()
 
 	// allow an env var to override the default plugin path
 #if defined(MIKTEX_WINDOWS)
-	QString pluginPath = QString::fromUtf8(getenv("TW_PLUGINPATH"));
+        QString pluginPath = QString::fromUtf8(getenv("TW_PLUGINPATH"));
 #else
 	QString pluginPath = QString::fromLocal8Bit(getenv("TW_PLUGINPATH"));
 #endif
@@ -236,8 +236,8 @@ void TWScriptManager::addScriptsInDirectory(TWScriptList *scriptList,
 											const QStringList& ignore)
 {
 #if defined(MIKTEX)
-  std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch =
-    MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", dir.absolutePath().toUtf8().data());
+        std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch =
+          MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", dir.absolutePath().toUtf8().data());
 #endif
 	Tw::Settings settings;
 	QFileInfo info;
@@ -399,8 +399,8 @@ TWScriptManager::runScript(QObject* script, QObject * context, QVariant & result
 
 	Tw::Scripting::ScriptAPI api(s, qApp, context, result);
 #if defined(MIKTEX)
-	std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch =
-	  MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", s->getFilename().toUtf8().data());
+        std::unique_ptr<MiKTeX::Trace::StopWatch> stopWatch =
+          MiKTeX::Trace::StopWatch::Start(MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream(), "texworks", s->getFilename().toUtf8().data());
 #endif
 	return s->run(api);
 }

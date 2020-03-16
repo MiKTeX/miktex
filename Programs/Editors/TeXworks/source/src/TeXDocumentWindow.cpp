@@ -390,14 +390,14 @@ void TeXDocumentWindow::init()
 
 	TWUtils::insertHelpMenuItems(menuHelp);
 #if defined(MIKTEX)
-	actionAbout_MiKTeX = new QAction(this);
-	actionAbout_MiKTeX->setIcon(QIcon(":/MiKTeX/miktex16x16.png"));
-	actionAbout_MiKTeX->setObjectName(QString::fromUtf8("actionAbout_MiKTeX"));
-	actionAbout_MiKTeX->setText(QApplication::translate("TeXDocument", "About MiKTeX..."));
-	actionAbout_MiKTeX->setMenuRole(QAction::AboutRole);
-	connect(actionAbout_MiKTeX, SIGNAL(triggered()), qApp, SLOT(aboutMiKTeX()));
+        actionAbout_MiKTeX = new QAction(this);
+        actionAbout_MiKTeX->setIcon(QIcon(QStringLiteral(":/MiKTeX/miktex16x16.png")));
+        actionAbout_MiKTeX->setObjectName(QStringLiteral("actionAbout_MiKTeX"));
+        actionAbout_MiKTeX->setText(QApplication::translate("TeXDocument", "About MiKTeX..."));
+        actionAbout_MiKTeX->setMenuRole(QAction::AboutRole);
+        connect(actionAbout_MiKTeX, SIGNAL(triggered()), qApp, SLOT(aboutMiKTeX()));
 #if 1
-	menuHelp->addAction(actionAbout_MiKTeX);
+        menuHelp->addAction(actionAbout_MiKTeX);
 #endif
 #endif
 	TWUtils::installCustomShortcuts(this);
@@ -2774,7 +2774,7 @@ void TeXDocumentWindow::typeset()
 		QMessageBox msgBox(QMessageBox::Critical, tr("Unable to execute %1").arg(e.name()),
 		                      QLatin1String("<p>") + tr("The program \"%1\" was not found.").arg(e.program()) + QLatin1String("</p>") +
 #if defined(MIKTEX)
-		  QLatin1String("<p>") + tr("You need <a href=\"https://miktex.org/\">MiKTeX</a> installed on your system to typeset your document.") + QLatin1String("</p>") +
+                  QStringLiteral("<p>") + tr("You need <a href=\"https://miktex.org/\">MiKTeX</a> installed on your system to typeset your document.") + QStringLiteral("</p>") +
 #else
 #if defined(Q_OS_WIN)
 		                      QLatin1String("<p>") + tr("You need a <b>TeX distribution</b> like <a href=\"http://tug.org/texlive/\">TeX Live</a> or <a href=\"http://miktex.org/\">MiKTeX</a> installed on your system to typeset your document.") + QLatin1String("</p>") +

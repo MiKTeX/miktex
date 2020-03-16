@@ -211,7 +211,7 @@ private:
 
 	TWSyncTeXSynchronizer * _synchronizer;
 #if defined(MIKTEX)
-	QAction* actionAbout_MiKTeX;
+        QAction* actionAbout_MiKTeX;
 #endif
 };
 
