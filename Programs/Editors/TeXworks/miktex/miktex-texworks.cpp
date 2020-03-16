@@ -70,7 +70,7 @@ int Wrapper::Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[])
     for (int idx = 0; idx < argc; ++idx)
     {
       utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
-      args.push_back(const_cast<char *>(utf8args[idx].c_str()));
+      args.push_back(const_cast<char*>(utf8args[idx].c_str()));
     }
 #else
     for (int idx = 0; idx < argc; ++idx)
@@ -104,12 +104,7 @@ int Wrapper::Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[])
         LOG4CXX_INFO(logger, "  argument(s):" << cmdline);
       }
     }
-    int exitCode;
-#if LOCAL8BIT_IS_UTF8
-    exitCode = Main(argc, &args[0]);
-#else
-    exitCode = Main(argc, argv);
-#endif
+    int exitCode = Main(argc, argv);
     if (exitCode != 0)
     {
       LOG4CXX_INFO(logger, "exit code: " << exitCode);
