@@ -394,7 +394,6 @@ void TeXDocumentWindow::init()
         actionAbout_MiKTeX->setIcon(QIcon(QStringLiteral(":/MiKTeX/miktex16x16.png")));
         actionAbout_MiKTeX->setObjectName(QStringLiteral("actionAbout_MiKTeX"));
         actionAbout_MiKTeX->setText(QApplication::translate("TeXDocument", "Apropos MiKTeX..."));
-        actionAbout_MiKTeX->setMenuRole(QAction::AboutRole);
         connect(actionAbout_MiKTeX, SIGNAL(triggered()), qApp, SLOT(aboutMiKTeX()));
 #if 1
         menuHelp->addAction(actionAbout_MiKTeX);
