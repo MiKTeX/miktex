@@ -33,7 +33,7 @@ set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
 
 if(APPLE)
   set(CMAKE_OSX_DEPLOYMENT_TARGET
-    "10.11"
+    "10.12"
     CACHE STRING
     "The earliest version of MacOS X that MiKTeX will run on."
   )
