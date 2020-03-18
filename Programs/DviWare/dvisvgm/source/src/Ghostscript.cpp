@@ -2,7 +2,7 @@
 ** Ghostscript.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -142,6 +142,9 @@ static string get_libgs (const string &fname) {
 			return dlname;
 #if defined(__APPLE__)
 		dlname = "libgs." + to_string(i) + ".dylib";
+		if (loader.loadLibrary(dlname))
+			return dlname;
+		dlname = "libgs.dylib." + to_string(i);
 		if (loader.loadLibrary(dlname))
 			return dlname;
 #endif

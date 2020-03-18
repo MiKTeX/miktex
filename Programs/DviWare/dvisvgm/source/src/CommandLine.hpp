@@ -2,7 +2,7 @@
 // It is part of the dvisvgm package and published under the terms
 // of the GNU General Public License version 3, or (at your option) any later version.
 // See file COPYING for further details.
-// Copyright (C) 2016-2019 Martin Gieseking <martin.gieseking@uos.de>
+// Copyright (C) 2016-2020 Martin Gieseking <martin.gieseking@uos.de>
 
 #ifndef COMMANDLINE_HPP
 #define COMMANDLINE_HPP
@@ -20,7 +20,7 @@ class CommandLine : public CL::CommandLine {
 		CommandLine () : CL::CommandLine(
 			"This program converts DVI files, as created by TeX/LaTeX, as well as\nEPS and PDF files to the XML-based scalable vector graphics format SVG.",
 			"[options] dvifile\n--eps [options] epsfile\n--pdf [options] pdffile",
-			"Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>"
+			"Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>"
 		) {}
 
 		CommandLine (int argc, char **argv) : CommandLine() {
@@ -29,6 +29,7 @@ class CommandLine : public CL::CommandLine {
 
 		// option variables
 		TypedOption<std::string, Option::ArgMode::REQUIRED> bboxOpt {"bbox", 'b', "size", "min", "set size of bounding box"};
+		TypedOption<std::string, Option::ArgMode::REQUIRED> bitmapFormatOpt {"bitmap-format", 'B', "fmt", "jpeg", "set format used to embed PS/EPS bitmaps"};
 		TypedOption<std::string, Option::ArgMode::OPTIONAL> cacheOpt {"cache", 'C', "dir", "set/print path of cache directory"};
 		Option clipjoinOpt {"clipjoin", 'j', "compute intersection of clipping paths"};
 		Option colorOpt {"color", '\0', "colorize messages"};
@@ -36,7 +37,7 @@ class CommandLine : public CL::CommandLine {
 		Option commentsOpt {"comments", '\0', "add comments with additional information"};
 		Option epsOpt {"eps", 'E', "convert EPS file to SVG"};
 		Option exactBboxOpt {"exact-bbox", 'e', "compute exact glyph bounding boxes"};
-		TypedOption<std::string, Option::ArgMode::REQUIRED> fontFormatOpt {"font-format", 'f', "format", "svg", "select file format of embedded fonts"};
+		TypedOption<std::string, Option::ArgMode::REQUIRED> fontFormatOpt {"font-format", 'f', "format", "svg", "set file format of embedded fonts"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> fontmapOpt {"fontmap", 'm', "filenames", "evaluate (additional) font map files"};
 		Option gradOverlapOpt {"grad-overlap", '\0', "create overlapping color gradient segments"};
 		TypedOption<int, Option::ArgMode::REQUIRED> gradSegmentsOpt {"grad-segments", '\0', "number", 20, "number of color gradient segments per row"};
@@ -97,6 +98,9 @@ class CommandLine : public CL::CommandLine {
 #endif
 			{&stdinOpt, 0},
 			{&bboxOpt, 1},
+#if !defined(DISABLE_GS)
+			{&bitmapFormatOpt, 1},
+#endif
 #if !defined(DISABLE_GS)
 			{&clipjoinOpt, 1},
 #endif

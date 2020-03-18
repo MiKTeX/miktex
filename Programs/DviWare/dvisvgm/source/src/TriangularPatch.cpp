@@ -2,7 +2,7 @@
 ** TriangularPatch.cpp                                                  **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -142,9 +142,9 @@ Color TriangularPatch::averageColor (const Color &c1, const Color &c2, const Col
 /** Snaps value x to the interval [0,1]. Values lesser than or near 0 are mapped to 0, values
  *  greater than or near 1 are mapped to 1. */
 static inline double snap (double x) {
-	if (fabs(x) < 0.001)
+	if (abs(x) < 0.001)
 		return 0;
-	if (fabs(1-x) < 0.001)
+	if (abs(1-x) < 0.001)
 		return 1;
 	return x;
 }

@@ -2,7 +2,7 @@
 ** PsSpecialHandler.cpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,7 +26,6 @@
 #include <fstream>
 #include <memory>
 #include <sstream>
-#include "EPSFile.hpp"
 #include "FileFinder.hpp"
 #include "FilePath.hpp"
 #include "FileSystem.hpp"
@@ -39,6 +38,7 @@
 #include "SVGTree.hpp"
 #include "TensorProductPatch.hpp"
 #include "TriangularPatch.hpp"
+#include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
@@ -51,10 +51,12 @@ bool PsSpecialHandler::COMPUTE_CLIPPATHS_INTERSECTIONS = false;
 bool PsSpecialHandler::SHADING_SEGMENT_OVERLAP = false;
 int PsSpecialHandler::SHADING_SEGMENT_SIZE = 20;
 double PsSpecialHandler::SHADING_SIMPLIFY_DELTA = 0.01;
+string PsSpecialHandler::BITMAP_FORMAT;
 
 
-PsSpecialHandler::PsSpecialHandler () : _psi(this), _actions(), _previewFilter(_psi), _xmlnode(), _savenode()
+PsSpecialHandler::PsSpecialHandler () : _psi(this), _previewFilter(_psi)
 {
+	_psi.setImageDevice(BITMAP_FORMAT);
 }
 
 
@@ -90,6 +92,7 @@ void PsSpecialHandler::initgraphics () {
 	_blendmode = 0; // "normal" mode (no blending)
 	_sx = _sy = _cos = 1.0;
 	_pattern = nullptr;
+	_patternEnabled = false;
 	_currentcolor = Color::BLACK;
 	_dashoffset = 0;
 	_dashpattern.clear();
@@ -396,6 +399,13 @@ void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const ma
 }
 
 
+/** Returns path + basename of temporary bitmap images. */
+static string image_base_path (SpecialActions &actions) {
+	FilePath imgpath = actions.getSVGFilePath(actions.getCurrentPageNumber());
+	return FileSystem::tmpdir() + "/" + imgpath.basename() + "-tmp-";
+}
+
+
 /** Creates an XML element containing the image data depending on the file type.
  *  @param[in] type file type of the image
  *  @param[in] fname file name/path of image file
@@ -436,14 +446,15 @@ unique_ptr<XMLElement> PsSpecialHandler::createImageNode (FileType type, const s
 		node = util::make_unique<XMLElement>("g"); // put SVG nodes created from the EPS/PDF file in this group
 		_xmlnode = node.get();
 		_psi.execute(
-			"\n@beginspecial @setspecial"          // enter special environment
-			"/setpagedevice{@setpagedevice}def "   // activate processing of operator "setpagedevice"
-			"matrix setmatrix"                     // don't apply outer PS transformations
-			"/FirstPage "+to_string(pageno)+" def" // set number of first page to convert (PDF only)
-			"/LastPage "+to_string(pageno)+" def " // set number of last page to convert (PDF only)
-			+rectclip+                             // clip to bounding box (if requexted by attribute 'clip')
-			"(" + pathstr + ")run "                // execute file content
-			"@endspecial "                         // leave special environment
+			"\n@beginspecial @setspecial"            // enter special environment
+			"/setpagedevice{@setpagedevice}def "     // activate processing of operator "setpagedevice"
+			"/@imgbase("+image_base_path(*_actions)+")store " // path and basename of image files
+			"matrix setmatrix"                       // don't apply outer PS transformations
+			"/FirstPage "+to_string(pageno)+" def"   // set number of first page to convert (PDF only)
+			"/LastPage "+to_string(pageno)+" def "   // set number of last page to convert (PDF only)
+			+rectclip+                               // clip to bounding box (if requexted by attribute 'clip')
+			"(" + pathstr + ")run "                  // execute file content
+			"@endspecial\n"                          // leave special environment
 		);
 		if (node->empty())
 			node.reset(nullptr);
@@ -480,6 +491,11 @@ static bool transform_box_extents (const Matrix &matrix, double &w, double &h, d
 		}
 	}
 	return true;
+}
+
+
+void PsSpecialHandler::dviBeginPage (unsigned int pageno, SpecialActions &actions) {
+	_psi.execute("/@imgbase("+image_base_path(actions)+")store\n"); // path and basename of image files
 }
 
 
@@ -653,7 +669,7 @@ void PsSpecialHandler::stroke (vector<double> &p) {
 	}
 	else {
 		// compute bounding box
-		_path.computeBBox(bbox);
+		bbox = _path.computeBBox();
 		bbox.expand(_linewidth/2);
 
 		ostringstream oss;
@@ -684,12 +700,10 @@ void PsSpecialHandler::stroke (vector<double> &p) {
 				path->addAttribute("stroke-dashoffset", _dashoffset);
 		}
 	}
-	if (path && _clipStack.path()) {
+	if (path && _clipStack.path() && !_savenode) {
 		// assign clipping path and clip bounding box
 		path->addAttribute("clip-path", XMLString("url(#clip")+XMLString(_clipStack.topID())+")");
-		BoundingBox clipbox;
-		_clipStack.path()->computeBBox(clipbox);
-		bbox.intersect(clipbox);
+		bbox.intersect(_clipStack.path()->computeBBox());
 		_clipStack.removePrependedPath();
 	}
 	if (_xmlnode)
@@ -711,8 +725,7 @@ void PsSpecialHandler::fill (vector<double> &p, bool evenodd) {
 		return;
 
 	// compute bounding box
-	BoundingBox bbox;
-	_path.computeBBox(bbox);
+	BoundingBox bbox = _path.computeBBox();
 	if (!_actions->getMatrix().isIdentity()) {
 		_path.transform(_actions->getMatrix());
 		if (!_xmlnode)
@@ -729,12 +742,10 @@ void PsSpecialHandler::fill (vector<double> &p, bool evenodd) {
 		path->addAttribute("fill", XMLString("url(#")+_pattern->svgID()+")");
 	else if (_actions->getColor() != Color::BLACK || _savenode)
 		path->addAttribute("fill", _actions->getColor().svgColorString());
-	if (_clipStack.path()) {
+	if (_clipStack.path() && !_savenode) {  // clip path active and not inside pattern definition?
 		// assign clipping path and clip bounding box
 		path->addAttribute("clip-path", XMLString("url(#clip")+XMLString(_clipStack.topID())+")");
-		BoundingBox clipbox;
-		_clipStack.path()->computeBBox(clipbox);
-		bbox.intersect(clipbox);
+		bbox.intersect(_clipStack.path()->computeBBox());
 		_clipStack.removePrependedPath();
 	}
 	if (evenodd)  // SVG default fill rule is "nonzero" algorithm
@@ -750,6 +761,66 @@ void PsSpecialHandler::fill (vector<double> &p, bool evenodd) {
 		_actions->embed(bbox);
 	}
 	_path.clear();
+}
+
+
+/** Postprocesses the 'image' operation performed by the PS interpreter. If
+ *  the PS image operator succeeded, there's now a PNG file that must be embedded
+ *  into the SVG file. */
+void PsSpecialHandler::image (std::vector<double> &p) {
+	int imgID = static_cast<int>(p[0]);   // ID of PNG file written
+	if (imgID < 0)  // no bitmap file written?
+		return;
+
+	double width = p[1];
+	double height = p[2];
+	string suffix = (BITMAP_FORMAT.substr(0, 3) == "png" ? ".png" : ".jpg");
+	string fname = image_base_path(*_actions)+to_string(imgID)+suffix;
+#if defined(MIKTEX_WINDOWS)
+	ifstream ifs(UW_(fname), ios::binary);
+#else
+	ifstream ifs(fname, ios::binary);
+#endif
+	if (ifs) {
+		ifs.close();
+		auto image = util::make_unique<XMLElement>("image");
+		double x = _actions->getX();
+		double y = _actions->getY();
+		image->addAttribute("x", x);
+		image->addAttribute("y", y);
+		image->addAttribute("width", util::to_string(width));
+		image->addAttribute("height", util::to_string(height));
+
+		// The current transformation matrix (CTM) maps the unit square to the rectangular region
+		// of the target canvas showing the bitmap (see PS Reference Manual, 4.10.3). Therefore,
+		// the local pixel coordinates of the original bitmap must be transformed by CTM*inv(M) to
+		// get the target coordinates. M is the matrix that maps the unit square to the bitmap rectangle.
+		Matrix matrix{width, 0, 0, 0, -height, height};  // maps unit square to bitmap rectangle
+		matrix = matrix.invert().lmultiply(_actions->getMatrix());
+		image->addAttribute("transform", matrix.toSVG());
+
+		// To prevent memory issues, only add the filename to the href attribute and tag it by '@'
+		// for later base64 encoding.
+		image->addAttribute("@xlink:href", string("data:image/")+(suffix == ".png" ? "png" : "jpeg")+";base64,"+fname);
+
+		// if set, assign clipping path to image
+		if (_clipStack.path()) {
+			auto group = util::make_unique<XMLElement>("g");
+			group->addAttribute("clip-path", XMLString("url(#clip")+XMLString(_clipStack.topID())+")");
+			group->append(std::move(image));
+			image = std::move(group);  // handle the entire group as image to add
+		}
+		if (_xmlnode)
+			_xmlnode->append(std::move(image));
+		else {
+			_actions->svgTree().appendToPage(std::move(image));
+			BoundingBox bbox(x, y, x+width, y+height);
+			bbox.transform(matrix);
+			if (_clipStack.path())
+				bbox.intersect(_clipStack.path()->computeBBox());
+			_actions->embed(bbox);
+		}
+	}
 }
 
 
@@ -789,7 +860,6 @@ static void create_matrix (vector<double> &v, int startindex, Matrix &matrix) {
  *  9-14: pattern matrix */
 void PsSpecialHandler::makepattern (vector<double> &p) {
 	int pattern_type = static_cast<int>(p[0]);
-	int id = static_cast<int>(p[1]);
 	switch (pattern_type) {
 		case 0:
 			// pattern definition completed
@@ -799,6 +869,7 @@ void PsSpecialHandler::makepattern (vector<double> &p) {
 			}
 			break;
 		case 1: {  // tiling pattern
+			int id = static_cast<int>(p[1]);
 			BoundingBox bbox(p[2], p[3], p[4], p[5]);
 			const double &xstep=p[6], &ystep=p[7]; // horizontal and vertical distance of adjacent tiles
 			int paint_type = static_cast<int>(p[8]);
@@ -1199,7 +1270,8 @@ void PsSpecialHandler::rotate (vector<double> &p) {
 
 
 void PsSpecialHandler::setgray (vector<double> &p) {
-	_pattern = nullptr;
+	if (!_patternEnabled)
+		_pattern = nullptr;
 	_currentcolor.setGray(p[0]);
 	if (_actions)
 		_actions->setColor(_currentcolor);
@@ -1207,7 +1279,8 @@ void PsSpecialHandler::setgray (vector<double> &p) {
 
 
 void PsSpecialHandler::setrgbcolor (vector<double> &p) {
-	_pattern= nullptr;
+	if (!_patternEnabled)
+		_pattern= nullptr;
 	_currentcolor.setRGB(p[0], p[1], p[2]);
 	if (_actions)
 		_actions->setColor(_currentcolor);
@@ -1215,7 +1288,8 @@ void PsSpecialHandler::setrgbcolor (vector<double> &p) {
 
 
 void PsSpecialHandler::setcmykcolor (vector<double> &p) {
-	_pattern = nullptr;
+	if (!_patternEnabled)
+		_pattern = nullptr;
 	_currentcolor.setCMYK(p[0], p[1], p[2], p[3]);
 	if (_actions)
 		_actions->setColor(_currentcolor);
@@ -1223,7 +1297,8 @@ void PsSpecialHandler::setcmykcolor (vector<double> &p) {
 
 
 void PsSpecialHandler::sethsbcolor (vector<double> &p) {
-	_pattern = nullptr;
+	if (!_patternEnabled)
+		_pattern = nullptr;
 	_currentcolor.setHSB(p[0], p[1], p[2]);
 	if (_actions)
 		_actions->setColor(_currentcolor);

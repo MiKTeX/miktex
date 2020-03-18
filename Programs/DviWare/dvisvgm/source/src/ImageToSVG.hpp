@@ -2,7 +2,7 @@
 ** ImageToSVG.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -39,9 +39,9 @@ class ImageToSVG : protected SpecialActions {
 		void setPageTransformation (const std::string &transCmds) {_transCmds = transCmds;}
 //		void setPageSize (const std::string &name);
 		std::string filename () const {return _fname;}
-		PSInterpreter& psInterpreter () {return _psHandler.psInterpreter();}
+		PSInterpreter& psInterpreter () const {return _psHandler.psInterpreter();}
 		virtual bool isSinglePageFormat () const =0;
-		virtual int totalPageCount () =0;
+		virtual int totalPageCount () const =0;
 
 	protected:
 		void checkGSAndFileFormat ();
@@ -65,7 +65,7 @@ class ImageToSVG : protected SpecialActions {
 		void embed (const BoundingBox &bbox) override           {_bbox.embed(bbox);}
 		void embed (const DPair &p, double r=0) override        {if (r==0) _bbox.embed(p); else _bbox.embed(p, r);}
 		void progress (const char *id) override;
-		unsigned getCurrentPageNumber() const override          {return 0;}
+		unsigned getCurrentPageNumber() const override          {return _currentPageNumber;}
 		BoundingBox& bbox () override                           {return _bbox;}
 		BoundingBox& bbox (const std::string &name, bool reset=false) override {return _bbox;}
 		FilePath getSVGFilePath (unsigned pageno) const override;
@@ -76,8 +76,9 @@ class ImageToSVG : protected SpecialActions {
 		SVGTree _svg;
 		SVGOutputBase &_out;
 		double _x=0, _y=0;
+		unsigned _currentPageNumber=0;
 		BoundingBox _bbox;
-		PsSpecialHandler _psHandler;
+		mutable PsSpecialHandler _psHandler;
 		bool _haveGS=false;      ///< true if Ghostscript is available
 		std::string _transCmds;  ///< transformation commands
 };

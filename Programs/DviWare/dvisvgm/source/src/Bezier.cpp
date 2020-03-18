@@ -2,7 +2,7 @@
 ** Bezier.cpp                                                           **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -168,7 +168,7 @@ static inline double dot_prod (const DPair &p1, const DPair &p2) {
 static bool between (const DPair &p1, const DPair &p2, const DPair &p3, double delta) {
 	double sqr_dist = dot_prod(p2-p1, p2-p1);
 	double factor = sqr_dist == 0.0 ? 1.0 : sqr_dist;
-	double area2 = fabs(signed_area(p1, p2, p3));
+	double area2 = abs(signed_area(p1, p2, p3));
 	return area2*area2/factor < delta    // does p3 lay almost on the line through p1 and p2...
 		&& min(p1.x(), p2.x()) <= p3.x()  // ...and on or inside the rectangle spanned by p1 and p2?
 		&& max(p1.x(), p2.x()) >= p3.x()
@@ -179,7 +179,7 @@ static bool between (const DPair &p1, const DPair &p2, const DPair &p3, double d
 
 static inline bool near (const DPair &p1, const DPair &p2, double delta) {
 	DPair diff = p2-p1;
-	return fabs(diff.x()) < delta && fabs(diff.y()) < delta;
+	return abs(diff.x()) < delta && abs(diff.y()) < delta;
 }
 
 

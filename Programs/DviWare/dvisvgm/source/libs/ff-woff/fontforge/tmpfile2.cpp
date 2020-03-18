@@ -3,7 +3,7 @@
 * works on POSIX and Windows systems.
 * License: Revised BSD license used by FontForge
 * https://github.com/fontforge/fontforge/blob/master/LICENSE
-* (C) 2017-2019 Martin Gieseking <martin.gieseking@uos.de> */
+* (C) 2017-2020 Martin Gieseking <martin.gieseking@uos.de> */
 
 #include <cstdio>
 #include <cstdlib>

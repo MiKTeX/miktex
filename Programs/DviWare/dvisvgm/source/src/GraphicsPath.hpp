@@ -2,7 +2,7 @@
 ** GraphicsPath.hpp                                                     **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -540,7 +540,7 @@ class GraphicsPath {
 			}
 		}
 
-		void arcto (double rx, double ry, double angle, bool laf, bool sweep, const Point &p) {
+		void arcto (T rx, T ry, double angle, bool laf, bool sweep, const Point &p) {
 			_commands.emplace_back(ArcTo{rx, ry, angle, laf, sweep, p});
 			_finalPoint = p;
 		}
@@ -597,7 +597,8 @@ class GraphicsPath {
 
 		/** Computes the bounding box of the current path.
 		 *  @param[out] bbox the computed bounding box */
-		void computeBBox (BoundingBox &bbox) const {
+		BoundingBox computeBBox () const {
+			BoundingBox bbox;
 			struct BBoxActions : IterationActions {
 				explicit BBoxActions (BoundingBox &bb) : bbox(bb) {}
 				void moveto (const Point &p) override {bbox.embed(p);}
@@ -610,6 +611,7 @@ class GraphicsPath {
 				BoundingBox &bbox;
 			} actions(bbox);
 			iterate(actions, false);
+			return bbox;
 		}
 
 		/** Checks whether the current path describes a dot/point only (with no extent).

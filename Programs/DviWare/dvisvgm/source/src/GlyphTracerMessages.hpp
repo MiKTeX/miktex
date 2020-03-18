@@ -2,7 +2,7 @@
 ** GlyphTracerMessages.hpp                                              **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -37,17 +37,18 @@ class GlyphTracerMessages : public GFGlyphTracer::Callback {
 
 		void beginChar (uint8_t c) override {
 			if (!_traced) {
-				if (!_fname.empty())
+				if (!_fname.empty()) {
 					Message::mstream() << '\n';
-				// extract font name from file path
-				std::string fontname = _fname;
-				size_t pos;
-				if ((pos = fontname.rfind('/')) != std::string::npos)
-					fontname = fontname.substr(pos+1);
-				if ((pos = fontname.rfind('.')) != std::string::npos)
-					fontname = fontname.substr(0, pos);
-				Message::mstream(false, Message::MC_STATE)
-					<< "tracing glyphs of " << fontname << '\n';
+					// extract font name from file path
+					std::string fontname = _fname;
+					size_t pos;
+					if ((pos = fontname.rfind('/')) != std::string::npos)
+						fontname = fontname.substr(pos+1);
+					if ((pos = fontname.rfind('.')) != std::string::npos)
+						fontname = fontname.substr(0, pos);
+					Message::mstream(false, Message::MC_STATE)
+						<< "tracing glyphs of " << fontname << '\n';
+				}
 				_traced = true;
 			}
 		}

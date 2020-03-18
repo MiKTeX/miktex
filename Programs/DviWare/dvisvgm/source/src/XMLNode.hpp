@@ -2,7 +2,7 @@
 ** XMLNode.hpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -62,6 +62,8 @@ class XMLNode {
 		XMLNode* parent () const  {return _parent;}
 		XMLNode* prev () const    {return _prev;}
 		XMLNode* next () const    {return _next.get();}
+
+		static bool KEEP_ENCODED_FILES;
 
 	protected:
 		XMLNode* insertNext (std::unique_ptr<XMLNode> node);
@@ -126,6 +128,7 @@ class XMLElement : public XMLNode {
 		explicit XMLElement (std::string name);
 		XMLElement (const XMLElement &node);
 		XMLElement (XMLElement &&node) noexcept;
+		~XMLElement ();
 		std::unique_ptr<XMLNode> clone () const override {return util::make_unique<XMLElement>(*this);}
 		void clear () override;
 		void addAttribute (const std::string &name, const std::string &value);

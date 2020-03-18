@@ -2,7 +2,7 @@
 ** TransformSimplifier.cpp                                              **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -61,7 +61,7 @@ void TransformSimplifier::execute (XMLElement *context) {
 
 /** Tries to incorporate the translation and scaling components of the 'transform' attribute
  *  of a given element into the positional and/or size attributes of that element. If successful,
- *  the 'transform' attribute is removed.
+ *  the 'transform' attribute is either removed or simplified to a scale() matrix.
  *  Currently, only 'image' and 'rect' elements are considered.
  *  @param[in] elem element to check
  *  @param[in] matrix matrix representing the 'transform' attribute of the element
@@ -72,17 +72,30 @@ bool TransformSimplifier::incorporateTransform (XMLElement *elem, const Matrix &
 		double ty = matrix.get(1, 2);
 		double sx = matrix.get(0, 0);
 		double sy = matrix.get(1, 1);
+		double x=0, y=0;
+
 		if (const char *xstr = elem->getAttributeValue("x"))
-			tx += sx*strtod(xstr, nullptr);
+			x = strtod(xstr, nullptr);
 		if (const char *ystr = elem->getAttributeValue("y"))
-			ty += sy*strtod(ystr, nullptr);
-		if (const char *wstr = elem->getAttributeValue("width"))
-			elem->addAttribute("width", sx*strtod(wstr, nullptr));
-		if (const char *hstr = elem->getAttributeValue("height"))
-			elem->addAttribute("height", sy*strtod(hstr, nullptr));
-		elem->addAttribute("x", tx);  // update x attribute
-		elem->addAttribute("y", ty);  // update x attribute
-		elem->removeAttribute("transform");
+			y = strtod(ystr, nullptr);
+		// width and height attributes must not become negative. Hence, only apply the scaling
+		// values if they are non-negative. Otherwise, keep a scaling matrix
+		if (sx < 0 || sy < 0) {
+			x += (sx == 0 ? 0 : tx/sx);
+			y += (sy == 0 ? 0 : ty/sy);
+			elem->addAttribute("transform", "scale("+XMLString(sx)+","+XMLString(sy)+")");
+		}
+		else {
+			x = x*sx + tx;
+			y = y*sy + ty;
+			if (const char *wstr = elem->getAttributeValue("width"))
+				elem->addAttribute("width", sx*strtod(wstr, nullptr));
+			if (const char *hstr = elem->getAttributeValue("height"))
+				elem->addAttribute("height", sy*strtod(hstr, nullptr));
+			elem->removeAttribute("transform");
+		}
+		elem->addAttribute("x", x);  // update x attribute
+		elem->addAttribute("y", y);  // update y attribute
 		return true;
 	}
 	return false;

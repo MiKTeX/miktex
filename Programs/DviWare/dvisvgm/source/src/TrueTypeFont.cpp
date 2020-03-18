@@ -2,7 +2,7 @@
 ** TrueTypeFont.cpp                                                     **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -132,7 +132,7 @@ void TrueTypeFont::writeWOFF (ostream &os) const {
 
 void TrueTypeFont::writeWOFF (const string &fname) const {
 #if defined(MIKTEX_WINDOWS)
-	ofstream ofs(UW_(fname), ios::binary);
+        ofstream ofs(UW_(fname), ios::binary);
 #else
 	ofstream ofs(fname, ios::binary);
 #endif
@@ -160,7 +160,7 @@ bool TrueTypeFont::writeWOFF2 (ostream &os) const {
 
 bool TrueTypeFont::writeWOFF2 (const string &fname) const {
 #if defined(MIKTEX_WINDOWS)
-	ofstream ofs(UW_(fname), ios::binary);
+        ofstream ofs(UW_(fname), ios::binary);
 #else
 	ofstream ofs(fname, ios::binary);
 #endif

@@ -2,7 +2,7 @@
 ** Font.cpp                                                             **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -428,10 +428,10 @@ int PhysicalFont::traceAllGlyphs (bool includeCached, GFGlyphTracer::Callback *c
  *  @param[out] bbox the computed bounding box
  *  @param[in]  cb optional calback object forwarded to the tracer
  *  @return true if the box could be computed successfully */
-bool PhysicalFont::getExactGlyphBox(int c, BoundingBox& bbox, GFGlyphTracer::Callback* cb) const {
+bool PhysicalFont::getExactGlyphBox (int c, BoundingBox& bbox, GFGlyphTracer::Callback* cb) const {
 	Glyph glyph;
 	if (getGlyph(c, glyph, cb)) {
-		glyph.computeBBox(bbox);
+		bbox = glyph.computeBBox();
 		double s = scaledSize()/unitsPerEm();
 		bbox.scale(s, s);
 		return true;
@@ -611,7 +611,7 @@ double NativeFont::charWidth (int c) const {
 	FontEngine::instance().setFont(*this);
 	int upem = FontEngine::instance().getUnitsPerEM();
 	double w = upem ? (scaledSize()*FontEngine::instance().getAdvance(c)/upem*_style.extend) : 0;
-	w += fabs(_style.slant*charHeight(c));
+	w += abs(_style.slant*charHeight(c));
 	return w;
 }
 

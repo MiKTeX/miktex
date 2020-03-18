@@ -2,7 +2,7 @@
 ** FontWriter.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -112,7 +112,7 @@ struct SFDActions : Glyph::IterationActions {
 	void closepath () override {write('m', startPoint());}
 
 	void quadto (const Point &p1, const Point &p2) override {
-		// convert quadratic BÃ©zier curve to cubic one
+		// convert quadratic Bézier curve to cubic one
 		DPair pt0(currentPoint().x(), currentPoint().y());
 		DPair pt1(p1.x(), p1.y());
 		DPair pt2(p2.x(), p2.y());
@@ -143,7 +143,7 @@ struct SFDActions : Glyph::IterationActions {
  *  https://fontforge.github.io/sfdformat.html */
 static void writeSFD (const string &sfdname, const PhysicalFont &font, const set<int> &charcodes, GFGlyphTracer::Callback *cb) {
 #if defined(MIKTEX_WINDOWS)
-	ofstream sfd(UW_(sfdname));
+        ofstream sfd(UW_(sfdname));
 #else
 	ofstream sfd(sfdname);
 #endif
@@ -156,7 +156,7 @@ static void writeSFD (const string &sfdname, const PhysicalFont &font, const set
 
 	// ensure that the sum of the SFD's Ascent and Descent values equals the font's units per EM
 	double yext = font.ascent()+font.descent();
-	double scale = double(font.unitsPerEm())/(yext != 0 ? yext : fabs(font.ascent()));
+	double scale = double(font.unitsPerEm())/(yext != 0 ? yext : abs(font.ascent()));
 	sfd <<
 		"Ascent: " << font.ascent()*scale << "\n"
 		"Descent: " << font.descent()*scale << "\n"
@@ -267,7 +267,7 @@ bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes,
 	if (const FontFormatInfo *info = fontFormatInfo(format)) {
 		string filename = createFontFile(format, charcodes, cb);
 #if defined(MIKTEX_WINDOWS)
-		ifstream ifs(UW_(filename), ios::binary);
+                ifstream ifs(UW_(filename), ios::binary);
 #else
 		ifstream ifs(filename, ios::binary);
 #endif
@@ -275,7 +275,7 @@ bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes,
 			os << "@font-face{"
 				<< "font-family:" << _font.name() << ';'
 				<< "src:url(data:" << info->mimetype << ";base64,";
-			util::base64_copy(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os));
+			util::base64_copy(ifs, os);
 			os << ") format('" << info->formatstr_long << "');}\n";
 			ifs.close();
 			if (!PhysicalFont::KEEP_TEMP_FILES)

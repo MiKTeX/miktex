@@ -2,7 +2,7 @@
 ** MetafontWrapper.hpp                                                  **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,13 +26,15 @@
 
 class FileFinder;
 
-class MetafontWrapper
-{
+class MetafontWrapper {
 	public:
 		MetafontWrapper (std::string fname, std::string dir);
 		bool call (const std::string &mode, double mag);
 		bool make (const std::string &mode, double mag);
 		bool success () const;
+
+	protected:
+		int getResolution (const std::string &mfMessage) const;
 
 	private:
 		std::string _fontname;

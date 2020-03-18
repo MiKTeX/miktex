@@ -3,7 +3,7 @@
 ** options.xml                                                          **
 **                                                                      **
 ** This file is part of dvisvgm - a fast DVI to SVG converter           **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,7 +26,7 @@
 		<usage>--eps [options] epsfile</usage>
 		<usage>--pdf [options] pdffile</usage>
 		<description>This program converts DVI files, as created by TeX/LaTeX, as well as\nEPS and PDF files to the XML-based scalable vector graphics format SVG.</description>
-		<copyright>Copyright (C) 2005-2019 Martin Gieseking &lt;martin.gieseking@uos.de></copyright>
+		<copyright>Copyright (C) 2005-2020 Martin Gieseking &lt;martin.gieseking@uos.de></copyright>
 	</program>
 	<options>
 		<section title="Input options">
@@ -53,6 +53,10 @@
 				<arg type="string" name="size" default="min"/>
 				<description>set size of bounding box</description>
 			</option>
+			<option long="bitmap-format" short="B" if="!defined(DISABLE_GS)">
+				<arg type="string" name="fmt" default="jpeg"/>
+				<description>set format used to embed PS/EPS bitmaps</description>
+			</option>
 			<option long="clipjoin" short="j" if="!defined(DISABLE_GS)">
 				<description>compute intersection of clipping paths</description>
 			</option>
@@ -64,7 +68,7 @@
 			</option>
 			<option long="font-format" short="f" if="!defined(DISABLE_WOFF)">
 				<arg type="string" name="format" default="svg"/>
-				<description>select file format of embedded fonts</description>
+				<description>set file format of embedded fonts</description>
 			</option>
 			<option long="grad-overlap" if="!defined(DISABLE_GS)">
 				<description>create overlapping color gradient segments</description>

@@ -2,7 +2,7 @@
 ** FilePath.hpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -52,7 +52,7 @@ class FilePath {
 		std::string shorterAbsoluteOrRelative (std::string reldir="", bool with_filename=true) const;
 		std::string basename () const;
 		std::string suffix () const;
-		void suffix (const std::string &s);
+		void suffix (const std::string &newSuffix);
 		size_t depth () const                    {return _dirs.size();}
 		bool isFile () const                     {return !_fname.empty();}
 		bool empty () const                      {return _dirs.empty() && _fname.empty();}

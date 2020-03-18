@@ -2,7 +2,7 @@
 ** SourceInput.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -129,7 +129,7 @@ istream& SourceInput::getInputStream (bool showMessages) {
 	if (!_ifs.is_open()) {
 		if (!_fname.empty())
 #if defined(MIKTEX_WINDOWS)
-			_ifs.open(UW_(_fname), ios::binary);
+                        _ifs.open(UW_(_fname), ios::binary);
 #else
 			_ifs.open(_fname, ios::binary);
 #endif
@@ -150,7 +150,7 @@ istream& SourceInput::getInputStream (bool showMessages) {
 					throw MessageException("failed to write data to temporary file");
 			}
 #if defined(MIKTEX_WINDOWS)
-			_ifs.open(UW_(_tmpfile.path()), ios::binary);
+                        _ifs.open(UW_(_tmpfile.path()), ios::binary);
 #else
 			_ifs.open(_tmpfile.path(), ios::binary);
 #endif

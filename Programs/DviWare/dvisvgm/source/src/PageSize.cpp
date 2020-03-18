@@ -2,7 +2,7 @@
 ** PageSize.cpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -33,8 +33,8 @@ using namespace std;
  *  @param[out] width contains the page width when function returns
  *  @param[out] height contains the page height when function returns */
 static void computeASize (int n, Length &width, Length &height) {
-	height.set(floor(1189.0/pow(math::SQRT2, n)+0.5), Length::Unit::MM);
-	width.set(floor(height.mm()/math::SQRT2+0.5), Length::Unit::MM);
+	height.set(round(1189.0/pow(math::SQRT2, n)), Length::Unit::MM);
+	width.set(round(height.mm()/math::SQRT2), Length::Unit::MM);
 }
 
 
@@ -46,8 +46,8 @@ static void computeBSize (int n, Length &width, Length &height) {
 	Length w, h;
 	computeASize(n, width, height);
 	computeASize(n-1, w, h);
-	width.set(floor(sqrt(width.mm() * w.mm())+0.5), Length::Unit::MM);
-	height.set(floor(sqrt(height.mm() * h.mm())+0.5), Length::Unit::MM);
+	width.set(round(sqrt(width.mm() * w.mm())), Length::Unit::MM);
+	height.set(round(sqrt(height.mm() * h.mm())), Length::Unit::MM);
 }
 
 
@@ -59,8 +59,8 @@ static void computeCSize (int n, Length &width, Length &height) {
 	Length w, h;
 	computeASize(n, width, height);
 	computeBSize(n, w, h);
-	width.set(floor(sqrt(width.mm() * w.mm())+0.5), Length::Unit::MM);
-	height.set(floor(sqrt(height.mm() * h.mm())+0.5), Length::Unit::MM);
+	width.set(round(sqrt(width.mm() * w.mm())), Length::Unit::MM);
+	height.set(round(sqrt(height.mm() * h.mm())), Length::Unit::MM);
 }
 
 
@@ -72,8 +72,8 @@ static void computeDSize (int n, Length &width, Length &height) {
 	Length w, h;
 	computeASize(n, width, height);
 	computeBSize(n+1, w, h);
-	width.set(floor(sqrt(width.mm() * w.mm())+0.5), Length::Unit::MM);
-	height.set(floor(sqrt(height.mm() * h.mm())+0.5), Length::Unit::MM);
+	width.set(round(sqrt(width.mm() * w.mm())), Length::Unit::MM);
+	height.set(round(sqrt(height.mm() * h.mm())), Length::Unit::MM);
 }
 
 

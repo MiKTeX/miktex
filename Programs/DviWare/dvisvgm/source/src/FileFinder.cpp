@@ -2,7 +2,7 @@
 ** FileFinder.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -276,7 +276,7 @@ const char* FileFinder::lookupExecutable (const std::string &fname, bool addSuff
 	if (const char *path = kpse_var_value("SELFAUTOLOC")) {
 		_pathbuf = std::string(path) + "/" + fname;
 #if defined(MIKTEX)
-		free((void*)path); path = nullptr;
+                free((void*)path); path = nullptr;
 #endif
 #ifdef _WIN32
 		if (addSuffix)

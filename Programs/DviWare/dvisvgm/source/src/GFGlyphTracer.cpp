@@ -2,7 +2,7 @@
 ** GFGlyphTracer.cpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -35,7 +35,7 @@ GFGlyphTracer::GFGlyphTracer (string &fname, double upp, Callback *cb)
 	if (_callback)
 		_callback->setFont(fname);
 #if defined(MIKTEX_WINDOWS)
-	_ifs.open(UW_(fname), ios::binary);
+        _ifs.open(UW_(fname), ios::binary);
 #else
 	_ifs.open(fname, ios::binary);
 #endif
@@ -49,7 +49,7 @@ void GFGlyphTracer::reset (string &fname, double upp) {
 		_ifs.close();
 	unitsPerPoint(upp);
 #if defined(MIKTEX_WINDOWS)
-	_ifs.open(UW_(fname), ios::binary);
+        _ifs.open(UW_(fname), ios::binary);
 #else
 	_ifs.open(fname, ios::binary);
 #endif
