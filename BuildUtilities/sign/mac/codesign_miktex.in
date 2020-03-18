@@ -2,20 +2,18 @@
 
 # stibizt: https://cmake.org/Bug/view.php?id=15507
 
-code_sign_identity="Developer ID"
-
 if [ -z $1 ]; then
     echo "Usage: codesign_miktex /path/MiKTeX\ Console.app"
     exit 1
 fi
 
-app_dir=$1
+app_dir="$1"
 
 for d in Frameworks MacOS PlugIns bin libexec miktex-lib; do
-    find "$app_dir/Contents/$d" -type f -exec codesign --verbose --force --options runtime --sign "$code_sign_identity" {} \;
+    find "$app_dir/Contents/$d" -type f -exec "@CMAKE_BINARY_DIR@/BuildUtilities/sign/mac/codesign_executable" {} \;
 done
 
-codesign --verbose --force --options runtime --sign "$code_sign_identity" "$app_dir"
+codesign --verbose --force --options runtime --sign "@MIKTEX_CODESIGN_IDENTITY@" "$app_dir"
 
 echo "Verifying..."
 spctl -a -t exec -vv "$app_dir"

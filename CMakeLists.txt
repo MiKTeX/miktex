@@ -598,6 +598,10 @@ else()
   set(MIKTEX_DEV_NULL "/dev/null")
 endif()
 
+if(MIKTEX_MACOS_BUNDLE)
+  set(MIKTEX_CODESIGN_IDENTITY "Developer ID")
+endif()
+
 ###############################################################################
 ## get today into cache
 
@@ -2349,7 +2353,7 @@ if(MIKTEX_MACOS_BUNDLE AND WITH_CODE_SIGNING)
     COMMAND
       "${CMAKE_CPACK_COMMAND}" --config "${CMAKE_BINARY_DIR}/CPackConfig.cmake"
     COMMAND
-      codesign -s "Developer ID" *.dmg
+      codesign -s "${MIKTEX_CODESIGN_IDENTITY}" *.dmg
   )
 endif()
 
