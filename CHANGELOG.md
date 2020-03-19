@@ -1,10 +1,10 @@
 # MiKTeX Change Log
 
-## 2.9.7350 - not yet released
+## 2.9.7350 - 2020-03-21
 
 ### lualatex: switching engine from LuaTeX to LuaHBTeX
 
-`lualatex` now uses the LuaHBTeX engine.
+`lualatex` now uses LuaHBTeX as the underlying engine.
 
 ### Upgraded programs
 
@@ -16,6 +16,8 @@
 
 ### Fixed issues
 
+* [445](https://github.com/MiKTeX/miktex/issues/445): Autoinstall packages on the fly (without asking): give option to install for all users
+* [475](https://github.com/MiKTeX/miktex/issues/475): BibTeX single_fn_space = 100 is too small; could we have 1000, please?
 * [486](https://github.com/MiKTeX/miktex/issues/486): Luatex cannot find input file when using texify on windows
 
 ## 2.9.7300 - 2020-02-17
