@@ -56,8 +56,7 @@ QHash<QString, QString> * SpellChecker::getDictionaryList(const bool forceReload
           {
             MiKTeX::Core::PathName dicPath = session->GetRootDirectoryPath(r) / MIKTEX_PATH_HUNSPELL_DICT_DIR;
             QDir dicDir(QString::fromUtf8(dicPath.GetData()));
-            foreach(QFileInfo dicFileInfo, dicDir.entryInfoList(QStringList(QStringLiteral("*.dic")),
-              QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase))
+            for(const auto& dicFileInfo : dicDir.entryInfoList({ QStringLiteral("*.dic") }, QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase))
             {
               QFileInfo affFileInfo(dicFileInfo.dir(), dicFileInfo.completeBaseName() + QStringLiteral(".aff"));
               if (affFileInfo.isReadable())
