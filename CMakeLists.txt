@@ -2116,8 +2116,13 @@ endif()
 ## bootstrapping
 
 if(WITH_BOOTSTRAPPING)
+  if(DEFINED ENV{MIKTEX_REPOSITORY})
+    set(default_repository $ENV{MIKTEX_REPOSITORY})
+  else()
+    set(default_repository "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/")
+  endif()
   set(MIKTEX_DEFAULT_REPOSITORY
-    "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/"
+    ${default_repository}
     CACHE STRING "MiKTeX package repository"
   )
   if(MIKTEX_RELEASE_STATE EQUAL 1)
