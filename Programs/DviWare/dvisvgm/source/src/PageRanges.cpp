@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <sstream>
 #include "InputBuffer.hpp"
 #include "InputReader.hpp"
 #include "PageRanges.hpp"

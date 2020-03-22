@@ -538,7 +538,7 @@ Matrix Matrix::parseSVGTransform (const string &transform) {
 		}
 		else if (parse_transform_cmd(iss, "scale", 1, 2, params)) {
 			if (params.size() == 1)
-				params.push_back(1);
+				params.push_back(params[0]);
 			if (ne(params[0], 1) || ne(params[1], 1))
 				matrix.rmultiply(ScalingMatrix(params[0], params[1]));
 		}

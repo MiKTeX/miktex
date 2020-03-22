@@ -21,13 +21,10 @@
 #ifndef PAGERANGES_HPP
 #define PAGERANGES_HPP
 
-#include <list>
 #include <string>
-#include <utility>
 #include "NumericRanges.hpp"
 
-class PageRanges : public NumericRanges<int>
-{
+class PageRanges : public NumericRanges<int> {
 	public:
 		bool parse (const std::string &str, int max_page=0);
 		size_t numberOfPages () const;

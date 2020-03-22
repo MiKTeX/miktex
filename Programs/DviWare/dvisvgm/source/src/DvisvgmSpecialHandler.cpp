@@ -21,6 +21,7 @@
 #include <array>
 #include <cstring>
 #include <utility>
+#include "Calculator.hpp"
 #include "DvisvgmSpecialHandler.hpp"
 #include "InputBuffer.hpp"
 #include "InputReader.hpp"
@@ -190,6 +191,35 @@ static void expand_constants (string &str, SpecialActions &actions) {
 }
 
 
+/** Evaluates substrings of the form {?(expr)} where 'expr' is a math expression,
+ *  and replaces the substring by the computed value.
+ *  @param[in,out] str string to scan for expressions */
+static void evaluate_expressions (string &str, SpecialActions &actions) {
+	size_t left = str.find("{?(");             // start position of expression macro
+	while (left != string::npos) {
+		size_t right = str.find(")}", left+2);  // end position of expression macro
+		if (right == string::npos)
+			break;
+		Calculator calc;
+		calc.setVariable("x", actions.getX());
+		calc.setVariable("y", actions.getY());
+		string expr = str.substr(left+3, right-left-3);  // math expression to evaluate
+		if (util::normalize_space(expr).empty())         // no expression given, e.g. {?( )}
+			str.erase(left, right-left+2);                // => replace with empty string
+		else {
+			try {
+				double val = calc.eval(expr);
+				str.replace(left, right-left+2, XMLString(val));
+			}
+			catch (CalculatorException &e) {
+				throw SpecialException(string(e.what())+" in '{?("+expr+")}'");
+			}
+		}
+		left = str.find("{?(", right+1);  // find next expression macro
+	}
+}
+
+
 /** Processes raw SVG fragments from the input stream. The SVG data must represent
  *  a single or multiple syntactically complete XML parts, like opening/closing tags,
  *  comments, or CDATA blocks. These must not be split and distributed over several
@@ -199,6 +229,7 @@ void DvisvgmSpecialHandler::processRaw (InputReader &ir, SpecialActions &actions
 	if (_nestingLevel == 0) {
 		string xml = ir.getLine();
 		if (!xml.empty()) {
+			evaluate_expressions(xml, actions);
 			expand_constants(xml, actions);
 			_pageParser.parse(xml, actions);
 		}

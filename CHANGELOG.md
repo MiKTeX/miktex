@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.7350 - 2020-03-21
+## 2.9.7350 - 2020-03-22
 
 ### lualatex: switching engine from LuaTeX to LuaHBTeX
 
@@ -11,7 +11,7 @@
 * asymptote 2.64
 * autosp 2020-03-11
 * dvipdfmx 20200315
-* dvisvgm 2.9
+* dvisvgm 2.9.1
 * texworks 0.6.4
 
 ### Fixed issues
