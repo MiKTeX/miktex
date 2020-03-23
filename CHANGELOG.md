@@ -1,5 +1,7 @@
 # MiKTeX Change Log
 
+## 2.9.7400 - not yet released
+
 ## 2.9.7350 - 2020-03-22
 
 ### lualatex: switching engine from LuaTeX to LuaHBTeX
