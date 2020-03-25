@@ -409,9 +409,11 @@ void CompletingEdit::mouseReleaseEvent(QMouseEvent *e)
 			QTextEdit::mouseReleaseEvent(e);
 			return;
 		case ignoring:
+			mouseMode = none;
 			e->accept();
 			return;
 		case synctexClick:
+			mouseMode = none;
 			{
 				QTextCursor curs = cursorForPosition(e->pos());
 				emit syncClick(curs.blockNumber() + 1, curs.positionInBlock());
@@ -419,14 +421,17 @@ void CompletingEdit::mouseReleaseEvent(QMouseEvent *e)
 			e->accept();
 			return;
 		case dragSelecting:
+			mouseMode = none;
 			e->accept();
 			return;
 		case normalSelection:
+			mouseMode = none;
 			setTextCursor(dragStartCursor);
 			setSelectionClipboard(dragStartCursor);
 			e->accept();
 			return;
 		case extendingSelection:
+			mouseMode = none;
 			QTextEdit::mouseReleaseEvent(e);
 			return;
 	}

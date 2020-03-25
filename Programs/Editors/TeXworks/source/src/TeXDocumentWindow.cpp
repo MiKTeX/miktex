@@ -1222,7 +1222,11 @@ void TeXDocumentWindow::reloadIfChangedOnDisk()
 	if (untitled() || !lastModified.isValid())
 		return;
 
-	QDateTime fileModified = textDoc()->getFileInfo().lastModified();
+	// Get the file info and force-refresh it to make sure we have the current
+	// modification datetime (and not some cached value)
+	QFileInfo fi{textDoc()->getFileInfo()};
+	fi.refresh();
+	QDateTime fileModified{fi.lastModified()};
 	if (!fileModified.isValid() || fileModified == lastModified)
 		return;
 

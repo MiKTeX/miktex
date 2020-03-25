@@ -53,6 +53,7 @@
 #else
 #define TW_BUILD_ID_STR STRINGIFY(TW_BUILD_ID)
 #endif
+
 #define DEFAULT_ENGINE_NAME "pdfLaTeX"
 
 class QString;
