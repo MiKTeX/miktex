@@ -6,37 +6,37 @@
     <message>
         <location filename="../src/CitationSelectDialog.ui" line="14"/>
         <source>Select Citations</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar Citações</translation>
     </message>
     <message>
         <location filename="../src/CitationSelectDialog.ui" line="20"/>
         <source>Filter...</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtrar...</translation>
     </message>
     <message>
         <location filename="../src/CitationSelectDialog.cpp" line="201"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <location filename="../src/CitationSelectDialog.cpp" line="202"/>
         <source>Author</source>
-        <translation type="unfinished"></translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <location filename="../src/CitationSelectDialog.cpp" line="203"/>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Título</translation>
     </message>
     <message>
         <location filename="../src/CitationSelectDialog.cpp" line="204"/>
         <source>Year</source>
-        <translation type="unfinished"></translation>
+        <translation>Ano</translation>
     </message>
     <message>
         <location filename="../src/CitationSelectDialog.cpp" line="205"/>
         <source>Journal</source>
-        <translation type="unfinished"></translation>
+        <translation>Periódico</translation>
     </message>
 </context>
 <context>
@@ -44,46 +44,47 @@
     <message>
         <location filename="../src/CompletingEdit.ui" line="15"/>
         <source>Next Completion</source>
-        <translation type="unfinished"></translation>
+        <translation>Próxima Sugestão</translation>
     </message>
     <message>
         <location filename="../src/CompletingEdit.ui" line="18"/>
         <source>Tab</source>
         <extracomment>This is a keyboard shortcut. Please leave it untranslated unless this particular key combination is typically inaccessible or used with a different meaning in your language.</extracomment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Este é um atalho de teclado. Favor deixar sem tradução a menos que esta combinação de teclas em especial esteja inacessível ou seja usada com sentido diferente em sua língua.</translatorcomment>
+        <translation>Tab</translation>
     </message>
     <message>
         <location filename="../src/CompletingEdit.ui" line="23"/>
         <source>Previous Completion</source>
-        <translation type="unfinished"></translation>
+        <translation>Sugestão Anterior</translation>
     </message>
     <message>
         <location filename="../src/CompletingEdit.ui" line="26"/>
         <source>Shift+Backtab</source>
         <extracomment>This is a keyboard shortcut. Please leave it untranslated unless this particular key combination is typically inaccessible or used with a different meaning in your language.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Backtab</translation>
     </message>
     <message>
         <location filename="../src/CompletingEdit.ui" line="31"/>
         <source>Next Completion Placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>Dica da Próxima Sugestão</translation>
     </message>
     <message>
         <location filename="../src/CompletingEdit.ui" line="34"/>
         <source>Ctrl+Tab</source>
         <extracomment>This is a keyboard shortcut. Please leave it untranslated unless this particular key combination is typically inaccessible or used with a different meaning in your language.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Tab</translation>
     </message>
     <message>
         <location filename="../src/CompletingEdit.ui" line="39"/>
         <source>Previous Completion Placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>Diga da Sugestão Anterior</translation>
     </message>
     <message>
         <location filename="../src/CompletingEdit.ui" line="42"/>
         <source>Ctrl+Shift+Backtab</source>
         <extracomment>This is a keyboard shortcut. Please leave it untranslated unless this particular key combination is typically inaccessible or used with a different meaning in your language.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+Backtab</translation>
     </message>
     <message>
         <location filename="../src/CompletingEdit.ui" line="47"/>
@@ -95,7 +96,7 @@
         <location filename="../src/CompletingEdit.ui" line="50"/>
         <source>Ctrl+Shift+J</source>
         <extracomment>This is a keyboard shortcut. Please leave it untranslated unless this particular key combination is typically inaccessible or used with a different meaning in your language.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+J</translation>
     </message>
     <message>
         <location filename="../src/CompletingEdit.cpp" line="1108"/>
@@ -724,7 +725,7 @@
     <message>
         <location filename="../src/PDFDocumentWindow.cpp" line="1028"/>
         <source> (remember to close it again to avoid access problems)</source>
-        <translation>(lembre-se de fechá-lo novamente para evitar problemas de acesso)</translation>
+        <translation> (lembre-se de fechá-lo novamente para evitar problemas de acesso)</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.ui" line="740"/>
@@ -812,42 +813,42 @@ Você quer continuar?</translation>
         <location filename="../src/PDFDocumentWindow.ui" line="771"/>
         <location filename="../src/PDFDocumentWindow.ui" line="774"/>
         <source>Fit to Content Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar à Largura do Conteúdo</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.ui" line="777"/>
         <source>Ctrl+4</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+4</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.cpp" line="212"/>
         <source>Ctrl+=</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+=</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.cpp" line="1054"/>
         <source>200%</source>
-        <translation type="unfinished"></translation>
+        <translation>200%</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.cpp" line="1057"/>
         <source>150%</source>
-        <translation type="unfinished"></translation>
+        <translation>150%</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.cpp" line="1062"/>
         <source>100%</source>
-        <translation type="unfinished"></translation>
+        <translation>100%</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.cpp" line="1066"/>
         <source>75%</source>
-        <translation type="unfinished"></translation>
+        <translation>75%</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.cpp" line="1069"/>
         <source>50%</source>
-        <translation type="unfinished"></translation>
+        <translation>50%</translation>
     </message>
 </context>
 <context>
@@ -996,7 +997,7 @@ Você quer continuar?</translation>
     <message>
         <location filename="../src/PrefsDialog.ui" line="261"/>
         <source>Line Spacing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrelinhas:</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="304"/>
@@ -1041,7 +1042,7 @@ Você quer continuar?</translation>
     <message>
         <location filename="../src/PrefsDialog.ui" line="548"/>
         <source>Enable auto-follow focus</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilitar foco automático</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="582"/>
@@ -1223,9 +1224,9 @@ Você quer continuar?</translation>
 &lt;p&gt;&lt;strong&gt;Automatically:&lt;/strong&gt; Hide the console output panel after successful typesetting, but only if it was hidden before.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;On Success:&lt;/strong&gt; Hide the console output panel after successful typesetting, regardless of its previous state.&lt;/p&gt;
 </source>
-        <translation>&lt;p&gt;&lt;strong&gt;Nunca:&lt;/strong&gt; Nunca ocultar a painel de saída do console depois da compilação.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Automaticamente:&lt;/strong&gt; Ocultar o painel de saída do console depois de uma compilação bem sucedida, mas somente se estava oculto antes.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Se Bem Sucedido:&lt;/strong&gt; Ocultar o painel de saída do console depois de uma compilação bem sucedida, desconsiderando o estado anterior.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;&lt;strong&gt;Nunca:&lt;/strong&gt; Nunca ocultar painel de saída do console depois da compilação.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Automaticamente:&lt;/strong&gt; Ocultar painel de saída do console depois da compilação bem sucedida, mas somente se oculto antes.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Bem Sucedido:&lt;/strong&gt; Ocultar painel de saída do console depois da compilação bem sucedida, desconsiderando o estado anterior.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="46"/>
@@ -1270,41 +1271,42 @@ Você quer continuar?</translation>
     <message>
         <location filename="../src/PrefsDialog.ui" line="764"/>
         <source>Synchronization Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resolução da sincronização</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="770"/>
         <source>Source &gt; Preview:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fonte &gt; Visualização:</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="784"/>
         <location filename="../src/PrefsDialog.ui" line="816"/>
         <source>Highlight Character</source>
-        <translation type="unfinished"></translation>
+        <translation>Texto em Destaque</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="789"/>
         <location filename="../src/PrefsDialog.ui" line="821"/>
         <source>Highlight Word</source>
-        <translation type="unfinished"></translation>
+        <translation>Palavra em Destaque</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="794"/>
         <location filename="../src/PrefsDialog.ui" line="826"/>
         <source>Highlight Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Linha em Destaque</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="802"/>
         <source>Preview &gt; Source :</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualização &gt; Fonte :</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.cpp" line="550"/>
+        <location filename="../src/PrefsDialog.cpp" line="551"/>
         <source> (%1)</source>
         <extracomment>Country suffix for TeXworks translations (ex. &quot;Portuguese (Brazil)&quot;)</extracomment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Sufixo de país para traduções do TeXworkds (ex. &quot;Portuguese (Brazil)&quot;)</translatorcomment>
+        <translation> (%1)</translation>
     </message>
 </context>
 <context>
@@ -1520,38 +1522,38 @@ Use o menu de contexto para mudar as unidades.</translation>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="226"/>
         <source>Internal error</source>
-        <translation type="unfinished">Erro interno</translation>
+        <translation>Erro interno</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="241"/>
         <source>Failed to execute system command: %1</source>
-        <translation type="unfinished">Falhou ao executar o comando de sistema %1</translation>
+        <translation>Falhou ao executar o comando de sistema %1</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="250"/>
         <source>Error executing system command: %1</source>
-        <translation type="unfinished">Erro ao executar o comando de sistema %1</translation>
+        <translation>Erro ao executar o comando de sistema %1</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="267"/>
         <location filename="../src/scripting/ScriptAPI.cpp" line="289"/>
         <source>System command execution is disabled (see Preferences)</source>
-        <translation type="unfinished">Desabilitada a execução de comandos de sistema (ver Preferências)</translation>
+        <translation>Desabilitada a execução de comandos de sistema (ver Preferências)</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="285"/>
         <source>&quot;%1&quot; could not be opened.</source>
-        <translation type="unfinished">&quot;%1&quot; não pôde ser aberto.</translation>
+        <translation>&quot;%1&quot; não pôde ser aberto.</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="331"/>
         <source>Reading all files is disabled (see Preferences)</source>
-        <translation type="unfinished">Desabilitada a leitura de qualquer arquivo (ver Preferências)</translation>
+        <translation>Desabilitada a leitura de qualquer arquivo (ver Preferências)</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="339"/>
         <source>The file &quot;%1&quot; could not be opened for reading</source>
-        <translation type="unfinished">O arquivo &quot;%1&quot; não pôde ser aberto para leitura</translation>
+        <translation>O arquivo &quot;%1&quot; não pôde ser aberto para leitura</translation>
     </message>
 </context>
 <context>
@@ -1559,62 +1561,63 @@ Use o menu de contexto para mudar as unidades.</translation>
     <message>
         <location filename="../src/ScriptManagerWidget.ui" line="14"/>
         <source>Manage Scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerenciar Scripts</translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.ui" line="34"/>
         <source>Standalone Scripts</source>
-        <translation type="unfinished">Scripts Isolados</translation>
+        <translation>Scripts Individuais</translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.ui" line="53"/>
         <source>Hook Scripts</source>
-        <translation type="unfinished">Vincular Scripts</translation>
+        <translation>Vincular Scripts</translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.cpp" line="192"/>
         <source>Name: </source>
-        <translation type="unfinished">Nome:</translation>
+        <translation>Nome: </translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.cpp" line="193"/>
         <source>Context: </source>
-        <translation type="unfinished">Contexto:</translation>
+        <translation>Contexto: </translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.cpp" line="194"/>
         <source>Description: </source>
-        <translation type="unfinished">Descrição:</translation>
+        <translation>Descrição: </translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.cpp" line="195"/>
         <source>Author: </source>
-        <translation type="unfinished">Autor:</translation>
+        <translation>Autor: </translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.cpp" line="196"/>
         <source>Version: </source>
-        <translation type="unfinished">Versão:</translation>
+        <translation>Versão: </translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.cpp" line="197"/>
         <source>Shortcut: </source>
-        <translation type="unfinished">Atalho:</translation>
+        <translation>Atalho: </translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.cpp" line="198"/>
         <source>File: </source>
-        <translation type="unfinished">Arquivo:</translation>
+        <translation>Arquivo: </translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.cpp" line="206"/>
         <source>Language: </source>
-        <translation type="unfinished">Língua:</translation>
+        <translation>Língua: </translation>
     </message>
     <message>
         <location filename="../src/ScriptManagerWidget.cpp" line="210"/>
         <source>Hook: </source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>This translation is quite fuzzy, I&apos;ll have to use TeXworks carefully to find out where this applies</translatorcomment>
+        <translation type="unfinished">Gancho: </translation>
     </message>
 </context>
 <context>
@@ -1867,17 +1870,17 @@ Use o menu de contexto para mudar as unidades.</translation>
     <message>
         <location filename="../src/main.cpp" line="50"/>
         <source>Display this message</source>
-        <translation type="unfinished"></translation>
+        <translation>Exibir esta mensagem</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="51"/>
         <source>Open the following file at the given position (line or page)</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir o arquivo seguinte na posição indicada (linha ou página)</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="52"/>
         <source>Display version information</source>
-        <translation type="unfinished"></translation>
+        <translation>Exibir informações da versão</translation>
     </message>
 </context>
 <context>
@@ -1886,48 +1889,49 @@ Use o menu de contexto para mudar as unidades.</translation>
         <location filename="../src/TWScriptableWindow.cpp" line="142"/>
         <location filename="../src/TWScriptableWindow.cpp" line="150"/>
         <source>Script &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Script &quot;%1&quot;: %2</translation>
+        <translation>Script &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <location filename="../src/TWScriptableWindow.cpp" line="144"/>
         <source>Script result</source>
-        <translation type="unfinished">Resultado do script</translation>
+        <translation>Resultado do script</translation>
     </message>
     <message>
         <location filename="../src/TWScriptableWindow.cpp" line="149"/>
         <source>unknown error</source>
-        <translation type="unfinished">erro desconhecido</translation>
+        <translation>erro desconhecido</translation>
     </message>
     <message>
         <location filename="../src/TWScriptableWindow.cpp" line="150"/>
         <source>Script error</source>
-        <translation type="unfinished">Erro de script</translation>
+        <translation>Erro de script</translation>
     </message>
     <message>
         <location filename="../src/TWScriptableWindow.cpp" line="171"/>
         <source>Scripts may be used to add new commands to %1, and to extend or modify its behavior.</source>
-        <translation type="unfinished">Scripts podem ser usados para adicionar novos comandos ao %1 e para extender ou modificar seu comportamento.</translation>
+        <translation>Scripts podem ser usados para adicionar novos comandos ao %1 e para extender ou modificar seu comportamento.</translation>
     </message>
     <message>
         <location filename="../src/TWScriptableWindow.cpp" line="174"/>
         <source>For more information on creating and using scripts, see %1&lt;/p&gt;</source>
-        <translation type="unfinished">Para mais informações sobre a criação e uso de scripts, veja %1&lt;/p&gt;</translation>
+        <translation>Para mais informações sobre a criação e uso de scripts, veja %1&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/TWScriptableWindow.cpp" line="176"/>
         <source>Scripting languages currently available in this copy of %1:</source>
-        <translation type="unfinished">Linguagens de script atualmente disponíveis nesta cópia do %1:</translation>
+        <translation>Linguagens de script atualmente disponíveis nesta cópia do %1:</translation>
     </message>
     <message>
         <location filename="../src/TWScriptableWindow.cpp" line="185"/>
         <source>(disabled in the preferences)</source>
         <extracomment>This string is appended to a script language name to indicate it is currently disabled</extracomment>
-        <translation type="unfinished">(desabilitado pelas preferências)</translation>
+        <translatorcomment>Esta string é acrescentada a uma linguagem de script para indicar que está agora desabilitada</translatorcomment>
+        <translation>(desabilitado pelas preferências)</translation>
     </message>
     <message>
         <location filename="../src/TWScriptableWindow.cpp" line="189"/>
         <source>About Scripts</source>
-        <translation type="unfinished">Sobre os Scripts</translation>
+        <translation>Sobre os Scripts</translation>
     </message>
 </context>
 <context>
@@ -2099,20 +2103,20 @@ Se você continuar, eles serão substituídos por códigos-padrão. Em vez disso
         <translation>Número da linha:</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2248"/>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2360"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2258"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2370"/>
         <source>Invalid regular expression</source>
         <translation>Expressão regular inválida</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2294"/>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2331"/>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2448"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2304"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2341"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2458"/>
         <source>Not found</source>
         <translation>Não encontrado</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/TeXDocumentWindow.cpp" line="2298"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2308"/>
         <source>Found %n occurrence(s)</source>
         <translation>
             <numerusform>Encontrada %n ocorrência</numerusform>
@@ -2120,7 +2124,7 @@ Se você continuar, eles serão substituídos por códigos-padrão. Em vez disso
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/TeXDocumentWindow.cpp" line="2467"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2477"/>
         <source>%n occurrence(s)</source>
         <translation>
             <numerusform>%n ocorrência</numerusform>
@@ -2128,7 +2132,7 @@ Se você continuar, eles serão substituídos por códigos-padrão. Em vez disso
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/TeXDocumentWindow.cpp" line="2468"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2478"/>
         <source>%n documents</source>
         <translation>
             <numerusform>%n documento</numerusform>
@@ -2136,12 +2140,12 @@ Se você continuar, eles serão substituídos por códigos-padrão. Em vez disso
         </translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2469"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2479"/>
         <source>Replaced %1 in %2</source>
         <translation>Substituído %1 em %2</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/TeXDocumentWindow.cpp" line="2481"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2491"/>
         <source>Replaced %n occurrence(s)</source>
         <translation>
             <numerusform>Substituída %n ocorrência</numerusform>
@@ -2149,57 +2153,57 @@ Se você continuar, eles serão substituídos por códigos-padrão. Em vez disso
         </translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2682"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2692"/>
         <source>Cannot process unsaved document</source>
         <translation>Impossível processar documento não salvo</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2693"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2703"/>
         <source>Root document %1 is not readable</source>
         <translation>Documento principal %1 não pode ser lido</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2699"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2709"/>
         <source>%1 is not properly configured</source>
         <translation>%1 não está configurado corretamente</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2745"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2755"/>
         <source>Unable to execute %1</source>
         <translation>Impossível executar %1</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2746"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2756"/>
         <source>The program &quot;%1&quot; was not found.</source>
         <translation>O programa &quot;%1&quot; não foi encontrado.</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2757"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2767"/>
         <source>Searched in directories:</source>
         <translation>Procurado nas pastas:</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2809"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2819"/>
         <source>Process interrupted by user</source>
         <translation>Processo interrompido pelo usuário</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="3022"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="3032"/>
         <source>Set engine to &quot;%1&quot;</source>
         <translation>Compilar com &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="3026"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="3036"/>
         <source>Engine &quot;%1&quot; not defined</source>
         <translation>Comando &quot;%1&quot; não definido</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="3100"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="3110"/>
         <source>No files found</source>
         <translation>Nenhum arquivo encontrado</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="3101"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="3111"/>
         <source>No auxiliary files associated with this document at the moment.</source>
         <translation>Nenhum arquivo auxiliar associado a esse documento atualmente.</translation>
     </message>
@@ -2396,7 +2400,7 @@ Se você continuar, eles serão substituídos por códigos-padrão. Em vez disso
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="622"/>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2781"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2791"/>
         <source>Typeset</source>
         <translation>Compilar</translation>
     </message>
@@ -2787,7 +2791,7 @@ Por favor use &quot;Arquivo &gt; Reverter para o Salvo&quot; manualmente quando 
         <translation>Arquivo &quot;%1&quot; salvo</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2789"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2799"/>
         <source>Abort typesetting</source>
         <translation>Abortar preparação</translation>
     </message>
@@ -2844,33 +2848,33 @@ Do you want to stop it now?</source>
 Você quer interrompê-lo agora?</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2748"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2758"/>
         <source>You need a &lt;b&gt;TeX distribution&lt;/b&gt; like &lt;a href=&quot;http://tug.org/texlive/&quot;&gt;TeX Live&lt;/a&gt; or &lt;a href=&quot;http://miktex.org/&quot;&gt;MiKTeX&lt;/a&gt; installed on your system to typeset your document.</source>
         <translation>Você precisa que uma &lt;b&gt;distribuição do TeX&lt;/b&gt; &amp;mdash; tal como a &lt;a href=&quot;http://tug.org/texlive/&quot;&gt;TeX Live&lt;/a&gt; ou a &lt;a href=&quot;http://miktex.org/&quot;&gt;MiKTeX&lt;/a&gt; &amp;mdash; esteja instalada em seu sistema para poder compilar seu documento.</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2750"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2760"/>
         <source>You need a &lt;b&gt;TeX distribution&lt;/b&gt; like &lt;a href=&quot;http://www.tug.org/mactex/&quot;&gt;MacTeX&lt;/a&gt; installed on your system to typeset your document.</source>
         <translation>Você precisa que uma &lt;b&gt;distribuição do TeX&lt;/b&gt; &amp;mdash; tal como a &lt;a href=&quot;http://www.tug.org/mactex/&quot;&gt;MacTeX&lt;/a&gt; &amp;mdash; esteja instalada em seu sistema para poder compilar seu documento.</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2752"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2762"/>
         <source>You need a &lt;b&gt;TeX distribution&lt;/b&gt; like &lt;a href=&quot;http://tug.org/texlive/&quot;&gt;TeX Live&lt;/a&gt; installed on your system to typeset your document. On most systems such a TeX distribution is available as prebuilt package.</source>
         <translation>Você precisa que uma &lt;b&gt;distribuição do TeX&lt;/b&gt; &amp;mdash; tal como a &lt;a href=&quot;http://tug.org/texlive/&quot;&gt;TeX Live&lt;/a&gt; &amp;mdash; esteja instalada em seu sistema para poder compilar seu documento. Na maior parte dos sistemas operações ela estará disponível como um pacote precompilado.</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2754"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2764"/>
         <source>When a TeX distribution is installed you may need to tell TeXworks where to find it in Edit -&gt; Preferences -&gt; Typesetting.</source>
         <translation>Quando uma distribuição TeX for instalada, você pode ter que informar ao TeXworks onde encontrá-la em Editar -&gt; Preferências -&gt; Compilação.</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2759"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2769"/>
         <source>Check the configuration of the %1 tool and the path settings in the Preferences dialog.</source>
         <translation>Verifique a configuração da ferramenta %1 e as configurações de caminhos no diálogo de Preferências.</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="867"/>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2942"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2952"/>
         <source>Hide Console Output</source>
         <translation>Ocultar a Saída do Console</translation>
     </message>
@@ -2896,7 +2900,7 @@ We are sorry for the inconvenience.</source>
 Lamentamos a inconveniência.</translation>
     </message>
     <message>
-        <location filename="../src/TeXDocumentWindow.cpp" line="2949"/>
+        <location filename="../src/TeXDocumentWindow.cpp" line="2959"/>
         <source>Show Console Output</source>
         <translation>Exibir Saída do Console</translation>
     </message>
@@ -2908,64 +2912,66 @@ Lamentamos a inconveniência.</translation>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1138"/>
         <source>Insert Citations...</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserir Citações...</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1141"/>
         <source>Ctrl+Shift+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="515"/>
         <source>%1 - %2 (%3)</source>
         <extracomment>Format to display spell-checking dictionaries (ex. &quot;English - UnitedStates (en_US)&quot;)</extracomment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Formato para exibição dos dicionários ortográficos (ex. &quot;Português - Brasil (pt_BR)&quot;)</translatorcomment>
+        <translation>%1 - %2 (%3)</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="518"/>
         <source>%1 (%2)</source>
         <extracomment>Format to display spell-checking dictionaries (ex. &quot;English (en_US)&quot;)</extracomment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Formato para exibição de dicionários ortográficos (ex. &quot;Português (pt_BR&quot;)</translatorcomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="1618"/>
         <source>LF</source>
-        <translation type="unfinished"></translation>
+        <translation>LF</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="1621"/>
         <source>CRLF</source>
-        <translation type="unfinished"></translation>
+        <translation>CRLF</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="1624"/>
         <source>CR</source>
-        <translation type="unfinished"></translation>
+        <translation>CR</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="1628"/>
         <source>*</source>
-        <translation type="unfinished"></translation>
+        <translation>*</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="1636"/>
         <source>LF (Unix, Mac OS X)</source>
-        <translation type="unfinished"></translation>
+        <translation>LF (Unix, Mac OS X)</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="1637"/>
         <source>CRLF (Windows)</source>
-        <translation type="unfinished"></translation>
+        <translation>CRLF (Windows)</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="1638"/>
         <source>CR (Mac Classic)</source>
-        <translation type="unfinished"></translation>
+        <translation>CR (Mac Classic)</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.cpp" line="1946"/>
         <source>No &apos;%!TEX bibfile&apos; modline found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhuma entrada &apos;%!TEX bibfile&apos; encontrada</translation>
     </message>
 </context>
 <context>
@@ -2992,22 +2998,22 @@ Lamentamos a inconveniência.</translation>
 <context>
     <name>ToolConfig</name>
     <message>
-        <location filename="../src/PrefsDialog.cpp" line="920"/>
+        <location filename="../src/PrefsDialog.cpp" line="926"/>
         <source>NewArgument</source>
         <translation>Novo Argumento</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.cpp" line="871"/>
+        <location filename="../src/PrefsDialog.cpp" line="877"/>
         <source>Select program file</source>
         <translation>Escolher arquivo de programa</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.cpp" line="876"/>
+        <location filename="../src/PrefsDialog.cpp" line="882"/>
         <source>Invalid program</source>
         <translation>Programa inválido</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.cpp" line="877"/>
+        <location filename="../src/PrefsDialog.cpp" line="883"/>
         <source>The file &apos;%1&apos; is not executable!</source>
         <translation>O arquvo &apos;%1&apos; não é executável!</translation>
     </message>
