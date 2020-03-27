@@ -1556,7 +1556,7 @@ void gen_runtime115(stack *Stack)
   (*t)[3] = 0;
   {Stack->push<realarray*>(t); return; }
 #else
-#line 1040 "runtime.in"
+#line 1033 "runtime.in"
   static const real ticktime=1.0/sysconf(_SC_CLK_TCK);
   struct tms buf;
 

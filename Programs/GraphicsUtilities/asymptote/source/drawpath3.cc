@@ -87,7 +87,9 @@ void drawPath3::render(double size2, const triple& b, const triple& B,
   setMaterial(material1Data,drawMaterial1);
   
   bool offscreen;
-  if(billboard) {
+  if(gl::exporting)
+    offscreen=false;
+  else if(billboard) {
     drawElement::centerIndex=centerIndex;
     BB.init(center);
     offscreen=bbox2(Min,Max,BB).offscreen();
@@ -263,7 +265,7 @@ void drawPixel::render(double size2, const triple& b, const triple& B,
 
   setMaterial(material0Data,drawMaterial0);
 
-  if(bbox2(Min,Max).offscreen()) { // Fully offscreen
+  if(!gl::exporting && bbox2(Min,Max).offscreen()) { // Fully offscreen
     R.data.clear();
     return;
   }

@@ -281,10 +281,12 @@ bbox picture::bounds()
   if(havelabels()) texinit();
   
   nodelist::iterator p=nodes.begin();
+  processDataStruct& pd=processData();
+
   for(size_t i=0; i < lastnumber; ++i) ++p;
   for(; p != nodes.end(); ++p) {
     assert(*p);
-    (*p)->bounds(b_cached,processData().tex,labelbounds,bboxstack);
+    (*p)->bounds(b_cached,pd.tex,labelbounds,bboxstack);
     
     // Optimization for interpreters with fixed stack limits.
     if((*p)->endclip()) {
@@ -373,18 +375,21 @@ void texinit()
   
   mem::vector<string> cmd;
   cmd.push_back(texprogram());
+  string texfatal;
   if(context) {
     cmd.push_back("--pipe");
   } else {
     if(!dir.empty()) 
       cmd.push_back("-output-directory="+dir.substr(0,dir.length()-1));
+    string jobname="texput";
     if(getSetting<bool>("inlineimage") || getSetting<bool>("inlinetex")) {
       string name=stripDir(stripExt((outname())));
       size_t pos=name.rfind("-");
       if(pos < string::npos) {
         name=stripExt(name).substr(0,pos);
         unlink((name+".aux").c_str());
-        cmd.push_back("-jobname="+name.substr(0,pos));
+        jobname=name.substr(0,pos);
+        cmd.push_back("-jobname="+jobname);
 #if defined(MIKTEX_WINDOWS) && !defined(__MSDOS__)
         cmd.push_back("nul");
 #endif
@@ -394,9 +399,10 @@ void texinit()
       }
     }
     cmd.push_back("\\scrollmode");
+    texfatal="Transcript written on "+jobname+".log.\n";
   }
   
-  pd.tex.open(cmd,"texpath",texpathmessage());
+  pd.tex.open(cmd,"texpath",texpathmessage(),Strdup(texfatal));
   pd.tex.wait("\n*");
   pd.tex << "\n";
   texdocumentclass(pd.tex,true);
@@ -1069,6 +1075,8 @@ bool picture::shipout(picture *preamble, const string& Prefix,
       for(nodelist::const_iterator r=begin.begin(); r != begin.end(); ++r)
         (*r)->draw(&out);
     
+    processDataStruct &pd=processData();
+    
     for(; p != nodes.end(); ++p) {
       assert(*p);
       if(Labels && (*p)->islayer()) break;
@@ -1132,7 +1140,7 @@ bool picture::shipout(picture *preamble, const string& Prefix,
           static pair zero;
           L=new drawLabel(cmd.str(),"",identity,pair(m.getx(),M.gety()),zero,P);
           texinit();
-          L->bounds(b_cached,processData().tex,labelbounds,bboxstack);
+          L->bounds(b_cached,pd.tex,labelbounds,bboxstack);
           postscript=true;
         }
         break;
