@@ -262,13 +262,15 @@ void drawBezierPatch::render(double size2, const triple& b, const triple& B,
   }
   
   bool offscreen;
-  if(billboard) {
+  if(gl::exporting)
+    offscreen=false;
+  else if(billboard) {
     drawElement::centerIndex=centerIndex;
     BB.init(center);
     offscreen=bbox2(Min,Max,BB).offscreen();
   } else
     offscreen=bbox2(Min,Max).offscreen();
-  
+
   if(offscreen) { // Fully offscreen
     S.Onscreen=false;
     S.data.clear();
@@ -503,7 +505,9 @@ void drawBezierTriangle::render(double size2, const triple& b, const triple& B,
   }
 
   bool offscreen;
-  if(billboard) {
+  if(gl::exporting)
+    offscreen=false;
+  else if(billboard) {
     drawElement::centerIndex=centerIndex;
     BB.init(center);
     offscreen=bbox2(Min,Max,BB).offscreen();
@@ -970,7 +974,7 @@ void drawTriangles::render(double size2, const triple& b,
   
   transparent=diffuse.A < 1.0;
 
-  if(bbox2(Min,Max).offscreen()) { // Fully offscreen
+  if(!gl::exporting && bbox2(Min,Max).offscreen()) { // Fully offscreen
     R.Onscreen=false;
     R.data.clear();
     return;

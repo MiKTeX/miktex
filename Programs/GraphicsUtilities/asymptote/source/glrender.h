@@ -112,6 +112,7 @@ namespace gl {
 
 extern bool outlinemode;
 extern bool wireframeMode;
+extern bool exporting;
 
 extern bool orthographic;
 extern double xmin,xmax;
