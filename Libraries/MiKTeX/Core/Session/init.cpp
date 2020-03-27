@@ -38,7 +38,6 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/Environment>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 #include <miktex/Core/TemporaryDirectory>
 
 #include "internal.h"
@@ -223,7 +222,7 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 #if defined(MIKTEX_WINDOWS)
   if (traceOptions.empty() && (!initInfo.GetOptions()[InitOption::NoConfigFiles]))
   {
-    if (!winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_TRACE, traceOptions))
+    if (!winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TRACE, traceOptions))
     {
       traceOptions = "";
     }
@@ -453,27 +452,27 @@ StartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const
 
   if (scope == ConfigurationScope::Common)
   {
-    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_COMMON_ROOTS, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_CONFIG_VALUE_COMMON_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonRoots = str;
     }
-    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_OTHER_COMMON_ROOTS, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.otherCommonRoots = str;
     }
-    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_COMMON_INSTALL, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_CONFIG_VALUE_COMMON_INSTALL, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonInstallRoot = str;
     }
-    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_COMMON_DATA, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_CONFIG_VALUE_COMMON_DATA, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonDataRoot = str;
     }
-    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_COMMON_CONFIG, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_CONFIG_VALUE_COMMON_CONFIG, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonConfigRoot = str;
@@ -481,27 +480,27 @@ StartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const
   }
   else if (scope == ConfigurationScope::User)
   {
-    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_ROOTS, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_CONFIG_VALUE_USER_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.userRoots = str;
     }
-    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_OTHER_USER_ROOTS, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.otherUserRoots = str;
     }
-    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_INSTALL, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_CONFIG_VALUE_USER_INSTALL, str))
     {
       Absolutize(str, relativeFrom);
       ret.userInstallRoot = str;
     }
-    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_DATA, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_CONFIG_VALUE_USER_DATA, str))
     {
       Absolutize(str, relativeFrom);
       ret.userDataRoot = str;
     }
-    if (cfg->TryGetValueAsString("Paths", MIKTEX_REGVAL_USER_CONFIG, str))
+    if (cfg->TryGetValueAsString("Paths", MIKTEX_CONFIG_VALUE_USER_CONFIG, str))
     {
       Absolutize(str, relativeFrom);
       ret.userConfigRoot = str;
@@ -566,11 +565,11 @@ void SessionImpl::RecordMaintenance()
   string nowStr = std::to_string(now);
   if (IsAdminMode())
   {
-    SetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, nowStr);
+    SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, nowStr);
   }
   else
   {
-    SetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, nowStr);
+    SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, nowStr);
   }
 }
 
@@ -585,7 +584,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
       return str;
     }
 #if USE_WINDOWS_REGISTRY
-    else if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
+    else if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
     {
       return str;
     }
@@ -603,7 +602,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
       return str;
     }
 #if USE_WINDOWS_REGISTRY
-    else if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
+    else if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
     {
       return str;
     }
@@ -666,7 +665,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       {
         Relativize(val, relativeFrom);
       };
-      cfg->PutValue("Paths", MIKTEX_REGVAL_COMMON_ROOTS, val, T_("common TEXMF root directories"), startupConfig.commonRoots.empty());
+      cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_COMMON_ROOTS, val, T_("common TEXMF root directories"), startupConfig.commonRoots.empty());
     }
     if (!startupConfig.otherCommonRoots.empty() || showAllValues)
     {
@@ -675,7 +674,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       {
         Relativize(val, relativeFrom);
       };
-      cfg->PutValue("Paths", MIKTEX_REGVAL_OTHER_COMMON_ROOTS, val, T_("other common TEXMF root directories"), startupConfig.otherCommonRoots.empty());
+      cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS, val, T_("other common TEXMF root directories"), startupConfig.otherCommonRoots.empty());
     }
     if (!startupConfig.commonInstallRoot.Empty() && (startupConfig.commonInstallRoot != defaultConfig.commonInstallRoot || showAllValues))
     {
@@ -684,7 +683,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       {
         Relativize(val, relativeFrom);
       };
-      cfg->PutValue("Paths", MIKTEX_REGVAL_COMMON_INSTALL, val, T_("common install root"), startupConfig.commonInstallRoot == defaultConfig.commonInstallRoot);
+      cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_COMMON_INSTALL, val, T_("common install root"), startupConfig.commonInstallRoot == defaultConfig.commonInstallRoot);
     }
     if (!startupConfig.commonDataRoot.Empty() && (startupConfig.commonDataRoot != defaultConfig.commonDataRoot || showAllValues))
     {
@@ -693,7 +692,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       {
         Relativize(val, relativeFrom);
       };
-      cfg->PutValue("Paths", MIKTEX_REGVAL_COMMON_DATA, val, T_("common data root"), startupConfig.commonDataRoot == defaultConfig.commonDataRoot);
+      cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_COMMON_DATA, val, T_("common data root"), startupConfig.commonDataRoot == defaultConfig.commonDataRoot);
     }
     if (!startupConfig.commonConfigRoot.Empty() && (startupConfig.commonConfigRoot != defaultConfig.commonConfigRoot || showAllValues))
     {
@@ -702,7 +701,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       {
         Relativize(val, relativeFrom);
       };
-      cfg->PutValue("Paths", MIKTEX_REGVAL_COMMON_CONFIG, val, T_("common config root"), startupConfig.commonConfigRoot == defaultConfig.commonConfigRoot);
+      cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_COMMON_CONFIG, val, T_("common config root"), startupConfig.commonConfigRoot == defaultConfig.commonConfigRoot);
     }
   }
 
@@ -715,7 +714,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       {
         Relativize(val, relativeFrom);
       };
-      cfg->PutValue("Paths", MIKTEX_REGVAL_USER_ROOTS, val, T_("user TEXMF root directories"), startupConfig.userRoots.empty());
+      cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_USER_ROOTS, val, T_("user TEXMF root directories"), startupConfig.userRoots.empty());
     }
     if (!startupConfig.otherUserRoots.empty() || showAllValues)
     {
@@ -724,7 +723,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       {
         Relativize(val, relativeFrom);
       };
-      cfg->PutValue("Paths", MIKTEX_REGVAL_USER_ROOTS, val, T_("other user TEXMF root directories"), startupConfig.otherUserRoots.empty());
+      cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_USER_ROOTS, val, T_("other user TEXMF root directories"), startupConfig.otherUserRoots.empty());
     }
     if (!startupConfig.userInstallRoot.Empty() && (startupConfig.userInstallRoot != defaultConfig.userInstallRoot || showAllValues))
     {
@@ -733,7 +732,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       {
         Relativize(val, relativeFrom);
       };
-      cfg->PutValue("Paths", MIKTEX_REGVAL_USER_INSTALL, val, T_("user install root"), startupConfig.userInstallRoot == defaultConfig.userInstallRoot);
+      cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_USER_INSTALL, val, T_("user install root"), startupConfig.userInstallRoot == defaultConfig.userInstallRoot);
     }
     if (!startupConfig.userDataRoot.Empty() && (startupConfig.userDataRoot != defaultConfig.userDataRoot || showAllValues))
     {
@@ -742,7 +741,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       {
         Relativize(val, relativeFrom);
       };
-      cfg->PutValue("Paths", MIKTEX_REGVAL_USER_DATA, val, T_("user data root"), startupConfig.userDataRoot == defaultConfig.userDataRoot);
+      cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_USER_DATA, val, T_("user data root"), startupConfig.userDataRoot == defaultConfig.userDataRoot);
     }
     if (!startupConfig.userConfigRoot.Empty() && (startupConfig.userConfigRoot != defaultConfig.userConfigRoot || showAllValues))
     {
@@ -751,7 +750,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       {
         Relativize(val, relativeFrom);
       };
-      cfg->PutValue("Paths", MIKTEX_REGVAL_USER_CONFIG, val, T_("user config root"), startupConfig.userConfigRoot == defaultConfig.userConfigRoot);
+      cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_USER_CONFIG, val, T_("user config root"), startupConfig.userConfigRoot == defaultConfig.userConfigRoot);
     }
   }
 

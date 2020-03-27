@@ -1,6 +1,6 @@
 /* CurlWebSession.cpp:
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -27,7 +27,7 @@
 #include <sstream>
 #include <thread>
 
-#include <miktex/Core/Registry>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Uri>
 #include <miktex/Util/StringUtil>
 
@@ -132,7 +132,7 @@ void CurlWebSession::Initialize()
 
   SetOption(CURLOPT_USERAGENT, BuildUserAgentString().c_str());
 
-  string ftpMode = session->GetConfigValue("", MIKTEX_REGVAL_FTP_MODE, "default").GetString();
+  string ftpMode = session->GetConfigValue("", MIKTEX_CONFIG_VALUE_FTP_MODE, "default").GetString();
 
   if (ftpMode == "default")
   {
@@ -181,7 +181,7 @@ void CurlWebSession::Initialize()
 
   // SF 2855025
 #if ALLOW_REDIRECTS
-  int maxRedirects = session->GetConfigValue("", MIKTEX_REGVAL_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS).GetInt();
+  int maxRedirects = session->GetConfigValue("", MIKTEX_CONFIG_VALUE_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS).GetInt();
   SetOption(CURLOPT_FOLLOWLOCATION, static_cast<long>(true));
   SetOption(CURLOPT_MAXREDIRS, static_cast<long>(maxRedirects));
 #endif

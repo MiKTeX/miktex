@@ -755,6 +755,13 @@ if(NOT MIKTEX_FULL_VERSION_STR)
   )
 endif()
 
+if(MIKTEX_RELEASE_STATE EQUAL 1)
+  set(MIKTEX_DEFAULT_PACKAGE_STREAM "next")
+else()
+  set(MIKTEX_DEFAULT_PACKAGE_STREAM "stable")
+endif()
+
+
 ###############################################################################
 ## Endianess
 

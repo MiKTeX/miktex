@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/TeXMFApp.h:                     -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -35,7 +35,6 @@
 #include <miktex/Core/FileType>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 
 #include <miktex/Trace/TraceStream>
 

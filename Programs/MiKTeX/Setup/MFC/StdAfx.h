@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2020 Christian Schenk
 
    This file is part of MiKTeX Setup Wizard.
 
@@ -75,7 +75,6 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 #include <miktex/Core/StreamReader>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/Urls>

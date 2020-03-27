@@ -1,6 +1,6 @@
 /* RestRemoteService.cpp
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -23,7 +23,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include <miktex/Core/Registry>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Session>
 
 #include <miktex/PackageManager/PackageManager>
@@ -199,8 +199,8 @@ void RestRemoteService::Initialize()
 {
   string configAuthToken;
   string configAuthTokenNotValidAfter;
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthToken", configAuthToken) &&
-      session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthTokenNotValidAfter", configAuthTokenNotValidAfter))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, "AuthToken", configAuthToken) &&
+      session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, "AuthTokenNotValidAfter", configAuthTokenNotValidAfter))
   {
     token = configAuthToken;
     tokenNotValidAfter = system_clock::from_time_t(Utils::ToTimeT(configAuthTokenNotValidAfter));
@@ -334,8 +334,8 @@ void RestRemoteService::SayHello()
   }
   else
   {
-    session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthToken", token);
-    session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthTokenNotValidAfter", (int)system_clock::to_time_t(tokenNotValidAfter));
+    session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, "AuthToken", token);
+    session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, "AuthTokenNotValidAfter", (int)system_clock::to_time_t(tokenNotValidAfter));
   }
   SetAuthHeader(token);
 }

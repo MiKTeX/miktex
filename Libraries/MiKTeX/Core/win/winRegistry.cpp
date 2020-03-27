@@ -1,6 +1,6 @@
 /* winRegistry.cpp: Windows registry operations
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,7 +24,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <miktex/Core/Registry>
+#include <miktex/Core/win/Registry>
 #include <miktex/Core/win/winAutoResource>
 
 #include "internal.h"

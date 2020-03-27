@@ -25,8 +25,8 @@
 
 #define IMPLEMENT_TCX 1
 
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/FileType>
-#include <miktex/Core/Registry>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
@@ -108,10 +108,10 @@ public:
 #if defined(IMPLEMENT_TCX)
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
 #endif
-    BIBTEXPROG.entstrsize = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "ent_str_size", bibtex::bibtex::ent_str_size()).GetInt();
-    BIBTEXPROG.globstrsize = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "glob_str_size", bibtex::bibtex::glob_str_size()).GetInt();
-    BIBTEXPROG.maxstrings = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "max_strings", bibtex::bibtex::max_strings()).GetInt();
-    BIBTEXPROG.mincrossrefs = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "min_crossrefs", bibtex::bibtex::min_crossrefs()).GetInt();
+    BIBTEXPROG.entstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "ent_str_size", bibtex::bibtex::ent_str_size()).GetInt();
+    BIBTEXPROG.globstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "glob_str_size", bibtex::bibtex::glob_str_size()).GetInt();
+    BIBTEXPROG.maxstrings = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "max_strings", bibtex::bibtex::max_strings()).GetInt();
+    BIBTEXPROG.mincrossrefs = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "min_crossrefs", bibtex::bibtex::min_crossrefs()).GetInt();
     BIBTEXPROG.hashsize = BIBTEXPROG.maxstrings;
     const int HASH_SIZE_MIN = 5000;
     if (BIBTEXPROG.hashsize < HASH_SIZE_MIN)

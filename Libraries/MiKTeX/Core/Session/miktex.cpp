@@ -1,6 +1,6 @@
 /* miktex.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,7 +29,6 @@
 #include <miktex/Core/Environment>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 #include <miktex/Core/Urls>
 #include <miktex/Trace/Trace>
 
@@ -61,7 +60,7 @@ PathName SessionImpl::GetTempDirectory()
   // 1: try MiKTeX temp directory
   {
     string tempDirectory;
-    if (GetSessionValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_TEMPDIR, tempDirectory) && IsGoodTempDirectory(tempDirectory.c_str()))
+    if (GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TEMPDIR, tempDirectory) && IsGoodTempDirectory(tempDirectory.c_str()))
     {
       return tempDirectory;
     }
@@ -446,7 +445,7 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo& info)
   {
     haveResult = TriState::False;
     string userInfoFile;
-    if (!TryGetConfigValue("", MIKTEX_REGVAL_USERINFO_FILE, userInfoFile))
+    if (!TryGetConfigValue("", MIKTEX_CONFIG_VALUE_USERINFO_FILE, userInfoFile))
     {
       return false;
     }

@@ -48,7 +48,6 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Setup/SetupService>

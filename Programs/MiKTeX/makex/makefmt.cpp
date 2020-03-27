@@ -1,6 +1,6 @@
 /* makefmt.cpp: make TeX format files
 
-   Copyright (C) 1998-2019 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is part of MiKTeX MakeFMT.
 
@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include <miktex/Core/Registry>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Util/Tokenizer>
 
@@ -288,7 +288,7 @@ void MakeFmt::CreateDestinationDirectory()
   defDestDir = MIKTEX_PATH_TEXMF_PLACEHOLDER;
   defDestDir /= MIKTEX_PATH_FMT_DIR;
   defDestDir /= GetEngineName();
-  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEFMT, MIKTEX_REGVAL_DESTDIR, defDestDir.GetData()).GetString());
+  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKEFMT, MIKTEX_CONFIG_VALUE_DESTDIR, defDestDir.GetData()).GetString());
 }
 
 void MakeFmt::FindInputFile(const PathName& inputName, PathName& inputFile)

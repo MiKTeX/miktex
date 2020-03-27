@@ -1,6 +1,6 @@
 /* miktex/UI/UI.h:                                      -*- C++ -*-
 
-   Copyright (C) 2000-2018 Christian Schenk
+   Copyright (C) 2000-2020 Christian Schenk
 
    This file is part of MiKTeX UI Library.
 
@@ -28,7 +28,7 @@
 #  include <miktex/UI/Qt/Prototypes>
 #endif
 
-#include <miktex/Core/Registry>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Session>
 
 #include <miktex/PackageManager/PackageManager>
@@ -65,7 +65,7 @@ inline int defaultFramework()
       defaultGUIFramework = (int)Framework::Qt;
     }
 #endif
-    cached = MiKTeX::Core::Session::Get()->GetConfigValue("", MIKTEX_REGVAL_GUI_FRAMEWORK, defaultGUIFramework).GetInt();
+    cached = MiKTeX::Core::Session::Get()->GetConfigValue("", MIKTEX_CONFIG_VALUE_GUI_FRAMEWORK, defaultGUIFramework).GetInt();
   }
   return cached;
 }

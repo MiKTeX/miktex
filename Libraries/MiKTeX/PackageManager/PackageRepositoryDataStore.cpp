@@ -1,6 +1,6 @@
 /* PackageRepositoryDataStore.cpp
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -22,7 +22,7 @@
 #include "config.h"
 
 #include <miktex/Core/Cfg>
-#include <miktex/Core/Registry>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Uri>
 
 #include <miktex/PackageManager/PackageManager>
@@ -69,7 +69,7 @@ string PackageRepositoryDataStore::GetRemoteServiceBaseUrl()
 {
   if (remoteServiceBaseUrl.empty())
   {
-    remoteServiceBaseUrl = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_SERVICE, DEFAULT_REMOTE_SERVICE).GetString();
+    remoteServiceBaseUrl = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_SERVICE, DEFAULT_REMOTE_SERVICE).GetString();
   }
   return remoteServiceBaseUrl;
 }

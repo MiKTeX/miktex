@@ -31,7 +31,6 @@
 #include <miktex/Core/FileStream>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
@@ -69,7 +68,7 @@ struct ConfigMapping
 namespace {
   const ConfigMapping configMappings[] = {
     {
-      MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_REPOSITORY, MIKTEX_ENV_REPOSITORY,
+      MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_REPOSITORY, MIKTEX_ENV_REPOSITORY,
     },
   };
 }
@@ -133,7 +132,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
   }
 
 #if USE_WINDOWS_REGISTRY
-  if (winRegistry::TryGetRegistryValue(scope, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
+  if (winRegistry::TryGetRegistryValue(scope, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
   {
     // don't check for existence; it's a fatal error (detected later)
     // if the registry value is incorrect
@@ -813,7 +812,7 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
 #if defined(MIKTEX_WINDOWS)
   if (!haveConfigFile
     && !IsMiKTeXPortable()
-    && !GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, USE_WINDOWS_REGISTRY ? false : true).GetBool())
+    && !GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, USE_WINDOWS_REGISTRY ? false : true).GetBool())
   {
     winRegistry::SetRegistryValue(IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, sectionName, valueName, value.GetString());
     string newValue;
@@ -869,11 +868,11 @@ bool SessionImpl::IsSharedSetup()
 {
   if (isSharedSetup == TriState::Undetermined)
   {
-    isSharedSetup = GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_SHARED_SETUP, TriState::Undetermined).GetTriState();
+    isSharedSetup = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_SHARED_SETUP, TriState::Undetermined).GetTriState();
     if (isSharedSetup == TriState::Undetermined)
     {
       string value;
-      isSharedSetup = TryGetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, value) ? TriState::True : TriState::Undetermined;
+      isSharedSetup = TryGetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, value) ? TriState::True : TriState::Undetermined;
       if (isSharedSetup == TriState::Undetermined)
       {
 #if defined(MIKTEX_WINDOWS)

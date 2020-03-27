@@ -1,6 +1,6 @@
 /* makefndb.cpp: creating the file name database
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -33,7 +33,6 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 
 #include <miktex/Trace/Trace>
 

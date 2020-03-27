@@ -53,7 +53,6 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamWriter>
 #include <miktex/Core/TemporaryFile>
@@ -107,8 +106,8 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage, bool dontFi
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
-  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
-  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, "0").GetString()));
+  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, "0").GetString()));
   isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !session->IsMiKTeXPortable();
   this->dontFindIssues = isSetupMode || dontFindIssues;
   okayUserMode = isSetupMode || CheckIssue(IssueType::UserUpdateCheckOverdue).first;
@@ -1080,8 +1079,8 @@ void MainWindow::SetupUiUpdates()
   updateModel = new UpdateTableModel(packageManager, this);
   string lastUpdateCheck;
   if (session->TryGetConfigValue(
-    MIKTEX_REGKEY_PACKAGE_MANAGER,
-    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
+    MIKTEX_CONFIG_SECTION_MPM,
+    session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK,
     lastUpdateCheck))
   {
     ui->labelUpdateSummary->setText(tr("Last checked: %1").arg(QDateTime::fromTime_t(std::stoi(lastUpdateCheck)).date().toString()));

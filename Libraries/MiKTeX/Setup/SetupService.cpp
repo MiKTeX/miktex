@@ -192,7 +192,7 @@ PathName SetupService::GetDefaultLocalRepository()
   PathName ret;
   string val;
   shared_ptr<Session> session = Session::Get();
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, val))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, val))
   {
     ret = val;
   }
@@ -787,7 +787,7 @@ void SetupServiceImpl::DoTheDownload()
   shared_ptr<Session> session = Session::Get();
 
   // remember local repository folder
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, options.LocalPackageRepository.ToString());
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, options.LocalPackageRepository.ToString());
 
   // create the local repository directory
   Directory::Create(options.LocalPackageRepository);
@@ -1343,12 +1343,12 @@ void SetupServiceImpl::ConfigureMiKTeX()
       {
         args.push_back("--no-registry");
         args.push_back("--create-config-file="s + MIKTEX_PATH_MIKTEX_INI);
-        args.push_back("--set-config-value="s + "[" + MIKTEX_REGKEY_CORE + "]" + MIKTEX_REGVAL_NO_REGISTRY + "=1");
+        args.push_back("--set-config-value="s + "[" + MIKTEX_CONFIG_SECTION_CORE + "]" + MIKTEX_CONFIG_VALUE_NO_REGISTRY + "=1");
       }
 #else
       args.push_back("--create-config-file="s + MIKTEX_PATH_MIKTEX_INI);
 #endif
-      args.push_back("--set-config-value="s + "[" + MIKTEX_REGKEY_CORE + "]" + MIKTEX_REGVAL_SHARED_SETUP + "=" + (options.IsCommonSetup ? "1" : "0"));
+      args.push_back("--set-config-value="s + "[" + MIKTEX_CONFIG_SECTION_CORE + "]" + MIKTEX_CONFIG_VALUE_SHARED_SETUP + "=" + (options.IsCommonSetup ? "1" : "0"));
     }
     if (!options.Config.commonRoots.empty())
     {
@@ -2094,8 +2094,8 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
   Directory::Create(issuesJson.GetDirectoryName());
   File::CreateOutputStream(issuesJson) << json(result);
   session->SetConfigValue(
-    MIKTEX_REGKEY_SETUP,
-    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_DIAGNOSE : MIKTEX_REGVAL_LAST_USER_DIAGNOSE,
+    MIKTEX_CONFIG_SECTION_SETUP,
+    session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_DIAGNOSE : MIKTEX_CONFIG_VALUE_LAST_USER_DIAGNOSE,
     std::to_string(time(nullptr)));
   return result;
 }

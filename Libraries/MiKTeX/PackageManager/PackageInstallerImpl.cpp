@@ -26,10 +26,10 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/FileStream>
-#include <miktex/Core/Registry>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/TemporaryFile>
 #include <miktex/Extractor/Extractor>
@@ -608,8 +608,8 @@ void PackageInstallerImpl::FindUpdates()
   }
 
   session->SetConfigValue(
-    MIKTEX_REGKEY_PACKAGE_MANAGER,
-    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
+    MIKTEX_CONFIG_SECTION_MPM,
+    session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK,
     std::to_string(time(nullptr)));
 }
 
@@ -1796,8 +1796,8 @@ void PackageInstallerImpl::InstallRemove(Role role)
   if (role == Role::Updater)
   {
     session->SetConfigValue(
-      MIKTEX_REGKEY_PACKAGE_MANAGER,
-      session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE : MIKTEX_REGVAL_LAST_USER_UPDATE,
+      MIKTEX_CONFIG_SECTION_MPM,
+      session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE,
       std::to_string(time(nullptr)));
   }
 
@@ -2344,8 +2344,8 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
   if (!options[UpdateDbOption::FromCache])
   {
     session->SetConfigValue(
-      MIKTEX_REGKEY_PACKAGE_MANAGER,
-      session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_DB : MIKTEX_REGVAL_LAST_USER_UPDATE_DB,
+      MIKTEX_CONFIG_SECTION_MPM,
+      session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_DB : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_DB,
       std::to_string(time(nullptr)));
   }
 }
@@ -2468,7 +2468,7 @@ bool PackageInstallerImpl::UseLocalServer()
   }
 #if defined(MIKTEX_WINDOWS)
   bool elevationRequired = !session->RunningAsAdministrator();
-  bool forceLocalServer = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_FORCE_LOCAL_SERVER, false).GetBool();
+  bool forceLocalServer = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_FORCE_LOCAL_SERVER, false).GetBool();
   return elevationRequired || forceLocalServer;
 #else
   return false;
