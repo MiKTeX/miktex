@@ -777,6 +777,7 @@ ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const st
   }
   else
   {
+    /*DELETE*/fprintf(stderr, "*** no config value: [%s]%s\n", sectionName.c_str(), valueName.c_str());
     return ConfigValue();
   }
 }
@@ -790,6 +791,7 @@ ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const st
   }
   else
   {
+    /*DELETE*/fprintf(stderr, "*** no config value: [%s]%s\n", sectionName.c_str(), valueName.c_str());
     return ConfigValue();
   }
 }
