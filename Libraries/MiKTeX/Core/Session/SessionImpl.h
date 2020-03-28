@@ -1,6 +1,6 @@
 /* SessionImpl.h: Session impl class                    -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -223,13 +223,31 @@ public:
   bool DetermineMETAFONTMode(unsigned dpi, MiKTeX::Core::MIKTEXMFMODE& mode) override;
 
 public:
-  bool TryGetConfigValue(const std::string& sectionName, const std::string& valueName, std::string& value) override;
+  bool TryGetConfigValue(const std::string& sectionName, const std::string& valueName, MiKTeX::Core::HasNamedValues* callback, std::string& value) override;
 
 public:
-  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue) override;
+  bool TryGetConfigValue(const std::string& sectionName, const std::string& valueName, std::string& value) override
+  {
+    return TryGetConfigValue(sectionName, valueName, nullptr, value);
+  }
 
 public:
-  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName) override;
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue, MiKTeX::Core::HasNamedValues* callback) override;
+
+public:
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue) override
+  {
+    return GetConfigValue(sectionName, valueName, defaultValue, nullptr);
+  }
+
+public:
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, MiKTeX::Core::HasNamedValues* callback) override;
+
+public:
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName) override
+  {
+    return GetConfigValue(sectionName, valueName, nullptr);
+  }
 
 public:
   void SetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& value) override;
@@ -753,7 +771,7 @@ private:
   bool CheckCandidate(MiKTeX::Core::PathName& path, const char* fileInfo);
 
 private:
-  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value);
+  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value, MiKTeX::Core::HasNamedValues* callback);
 
 private:
   void ReadAllConfigFiles(const std::string& baseName, MiKTeX::Core::Cfg& cfg);

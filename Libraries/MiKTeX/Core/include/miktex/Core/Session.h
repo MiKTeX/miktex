@@ -1115,6 +1115,15 @@ public:
   /// Tries to get a configuration value.
   /// @param sectionName Identifies the configuration section.
   /// @param valueName Identifies the value within the section.
+  /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
+  /// @param[out] value The configuration value as a string.
+  /// @return Returns `true`, if the value was found.
+public:
+  virtual bool MIKTEXTHISCALL TryGetConfigValue(const std::string& sectionName, const std::string& valueName, HasNamedValues* callback, std::string& value) = 0;
+
+  /// Tries to get a configuration value.
+  /// @param sectionName Identifies the configuration section.
+  /// @param valueName Identifies the value within the section.
   /// @param[out] value The configuration value as a string.
   /// @return Returns `true`, if the value was found.
 public:
@@ -1124,10 +1133,29 @@ public:
   /// @param sectionName Identifies the configuration section.
   /// @param valueName Identifies the value within the section.
   /// @param defaultValue Value to be returned if the requested value was not found.
+  /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
+  /// @return Returns the configuration value.
+  /// @see SetConfigValue
+public:
+  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& defaultValue, HasNamedValues* callback) = 0;
+
+  /// Gets a configuration value.
+  /// @param sectionName Identifies the configuration section.
+  /// @param valueName Identifies the value within the section.
+  /// @param defaultValue Value to be returned if the requested value was not found.
   /// @return Returns the configuration value.
   /// @see SetConfigValue
 public:
   virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& defaultValue) = 0;
+
+  /// Gets a configuration value.
+  /// @param sectionName Identifies the configuration section.
+  /// @param valueName Identifies the value within the section.
+  /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
+  /// @return Returns the configuration value.
+  /// @see SetConfigValue
+public:
+  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, HasNamedValues* callback) = 0;
 
   /// Gets a configuration value.
   /// @param sectionName Identifies the configuration section.

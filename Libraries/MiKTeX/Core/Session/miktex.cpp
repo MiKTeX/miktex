@@ -60,7 +60,7 @@ PathName SessionImpl::GetTempDirectory()
   // 1: try MiKTeX temp directory
   {
     string tempDirectory;
-    if (GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TEMPDIR, tempDirectory) && IsGoodTempDirectory(tempDirectory.c_str()))
+    if (GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TEMPDIR, tempDirectory, nullptr) && IsGoodTempDirectory(tempDirectory.c_str()))
     {
       return tempDirectory;
     }

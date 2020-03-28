@@ -276,7 +276,7 @@ MIKTEXSTATICFUNC(void) AppendToEnvVarName(string& name, const string& part)
   }
 }
 
-bool SessionImpl::GetSessionValue(const string& sectionName, const string& valueName, string& value)
+bool SessionImpl::GetSessionValue(const string& sectionName, const string& valueName, string& value, HasNamedValues* callback)
 {
   bool haveValue = false;
 
@@ -483,7 +483,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   // expand the value
   if (haveValue)
   {
-    string expandedValue = Expand(value, nullptr);
+    string expandedValue = Expand(value, callback);
     value = expandedValue;
   }
 #endif
@@ -759,21 +759,21 @@ vector<string> ConfigValue::GetStringArray() const
   }
 }
 
-bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string& valueName, string& value)
+bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string& valueName, HasNamedValues* callback, string& value)
 {
-  return GetSessionValue(sectionName, valueName, value);
+  return GetSessionValue(sectionName, valueName, value, callback);
 }
 
-ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& defaultValue)
+ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& defaultValue, HasNamedValues* callback)
 {
   string value;
-  if (GetSessionValue(sectionName, valueName, value))
+  if (GetSessionValue(sectionName, valueName, value, callback))
   {
     return value;
   }
   else if (defaultValue.GetType() != ConfigValue::Type::None)
   {
-    return Expand(defaultValue.GetString(), nullptr);
+    return Expand(defaultValue.GetString(), callback);
   }
   else
   {
@@ -781,10 +781,10 @@ ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const st
   }
 }
 
-ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName)
+ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, HasNamedValues* callback)
 {
   string value;
-  if (GetSessionValue(sectionName, valueName, value))
+  if (GetSessionValue(sectionName, valueName, value, callback))
   {
     return value;
   }
@@ -816,7 +816,7 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
   {
     winRegistry::SetRegistryValue(IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, sectionName, valueName, value.GetString());
     string newValue;
-    if (GetSessionValue(sectionName, valueName, newValue))
+    if (GetSessionValue(sectionName, valueName, newValue, nullptr))
     {
       if (newValue != value.GetString())
       {

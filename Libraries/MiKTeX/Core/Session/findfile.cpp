@@ -395,7 +395,7 @@ bool SessionImpl::MakePkFileName(PathName& pkFileName, const string& fontName, i
 {
   string nameTemplate;
 
-  if (!GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_PK_FN_TEMPLATE, nameTemplate))
+  if (!GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_PK_FN_TEMPLATE, nameTemplate, nullptr))
   {
     nameTemplate = DEFAULT_PK_NAME_TEMPLATE;
   }
@@ -456,7 +456,7 @@ bool SessionImpl::FindPkFile(const string& fontName, const string& mfMode, int d
 
   string searchPathTemplate;
 
-  if (!GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, "PKPath", searchPathTemplate))
+  if (!GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, "PKPath", searchPathTemplate, nullptr))
   {
     searchPathTemplate = DEFAULT_PK_SEARCH_PATH;
   }

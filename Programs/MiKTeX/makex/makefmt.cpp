@@ -149,7 +149,7 @@ private:
     engineOptions.push_back(option);
   }
 
-private:
+public:
   const char* GetEngineName()
   {
     switch (engine)
@@ -277,18 +277,45 @@ namespace {
   };
 }
 
-#define DEFAULT_DESTDIR                         \
-  MIKTEX_PATH_TEXMF_PLACEHOLDER                 \
-  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
-  MIKTEX_PATH_FMT_DIR
+class CreateDestinationDirectoryCallback : public HasNamedValues
+{
+public:
+  bool TryGetValue(const string& valueName, string& value)
+  {
+    if (valueName == "engine")
+    {
+      value = parent->GetEngineName();
+    }
+    else
+    {
+      return false;
+    }
+    return true;
+  }
+public:
+  string GetValue(const string& valueName)
+  {
+    string value;
+    if (!TryGetValue(valueName, value))
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    return value;
+  }
+public:
+  CreateDestinationDirectoryCallback() = delete;
+public:
+  CreateDestinationDirectoryCallback(MakeFmt* parent) :
+    parent(parent)
+  {
+  }
+private:
+  MakeFmt* parent;
+};
 
 void MakeFmt::CreateDestinationDirectory()
 {
-  PathName defDestDir;
-  defDestDir = MIKTEX_PATH_TEXMF_PLACEHOLDER;
-  defDestDir /= MIKTEX_PATH_FMT_DIR;
-  defDestDir /= GetEngineName();
-  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKEFMT, MIKTEX_CONFIG_VALUE_DESTDIR, defDestDir.GetData()).GetString());
+  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKEFMT, MIKTEX_CONFIG_VALUE_DESTDIR, &CreateDestinationDirectoryCallback(this)).GetString());
 }
 
 void MakeFmt::FindInputFile(const PathName& inputName, PathName& inputFile)
