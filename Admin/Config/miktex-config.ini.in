@@ -943,8 +943,8 @@
 	;; Remote package repository URL. Pick a random URL, if empty.
 	${MIKTEX_CONFIG_VALUE_REMOTE_REPOSITORY} = 
 
-	;; The MiKTeX API host address.
-	${MIKTEX_CONFIG_VALUE_REMOTE_SERVICE} = api2.miktex.org
+	;; The MiKTeX API endpoint.
+	${MIKTEX_CONFIG_VALUE_REMOTE_SERVICE} = https://api2.miktex.org/
 	
 	;; Package stream. One of: stable, next.
 	${MIKTEX_CONFIG_VALUE_REPOSITORY_RELEASE_STATE} = ${MIKTEX_DEFAULT_PACKAGE_STREAM}
