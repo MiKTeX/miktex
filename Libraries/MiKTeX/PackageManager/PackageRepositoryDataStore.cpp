@@ -63,13 +63,11 @@ void PackageRepositoryDataStore::Download()
   }
 }
 
-const char* DEFAULT_REMOTE_SERVICE = "https://api2.miktex.org/";
-
 string PackageRepositoryDataStore::GetRemoteServiceBaseUrl()
 {
   if (remoteServiceBaseUrl.empty())
   {
-    remoteServiceBaseUrl = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_SERVICE, DEFAULT_REMOTE_SERVICE).GetString();
+    remoteServiceBaseUrl = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_SERVICE).GetString();
   }
   return remoteServiceBaseUrl;
 }

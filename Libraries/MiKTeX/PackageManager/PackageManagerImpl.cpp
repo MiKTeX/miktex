@@ -1016,7 +1016,7 @@ bool PackageManager::TryGetProxy(const string& url, ProxySettings& proxySettings
   {
     return false;
   }
-  proxySettings.port = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_PORT, 8080).GetInt();
+  proxySettings.port = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_PORT).GetInt();
   proxySettings.authenticationRequired = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_AUTH_REQ, false).GetBool();
   proxySettings.user = PackageManagerImpl::proxyUser;
   proxySettings.password = PackageManagerImpl::proxyPassword;

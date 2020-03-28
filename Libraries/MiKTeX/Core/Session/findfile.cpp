@@ -326,7 +326,7 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
         FindFileInternal(fileName, vec, all, true, false, result);
       }
     }
-    else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && findFileCallback != nullptr && GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_RENEW_FORMATS_ON_UPDATE, true).GetBool())
+    else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && findFileCallback != nullptr && GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_RENEW_FORMATS_ON_UPDATE).GetBool())
     {
       PathName pathPackagesIniC(GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
       bool renew = IsNewer(pathPackagesIniC, result[0]);

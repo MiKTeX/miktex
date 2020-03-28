@@ -164,7 +164,7 @@ void MakePk::CreateDestinationDirectory()
   }
 
   // get destination path template
-  string templ1 = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKEPK, MIKTEX_CONFIG_VALUE_DESTDIR, "%R/fonts/pk/%m/%s/%t/dpi%d").GetString();
+  string templ1 = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKEPK, MIKTEX_CONFIG_VALUE_DESTDIR).GetString();
 
   string templ2;
   for (const char* lpsz = templ1.c_str(); *lpsz != 0; ++lpsz)
@@ -211,7 +211,7 @@ void MakePk::CreateDestinationDirectory()
 
 void MakePk::MakePKFilename(const char* name, int bdpi, int dpi, PathName& result)
 {
-  string templ = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_PK_FN_TEMPLATE, "%f.pk").GetString();
+  string templ = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_PK_FN_TEMPLATE).GetString();
   string temp;
   for (const char* lpsz = templ.c_str(); *lpsz != 0; ++lpsz)
   {

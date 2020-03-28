@@ -2468,7 +2468,7 @@ bool PackageInstallerImpl::UseLocalServer()
   }
 #if defined(MIKTEX_WINDOWS)
   bool elevationRequired = !session->RunningAsAdministrator();
-  bool forceLocalServer = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_FORCE_LOCAL_SERVER, false).GetBool();
+  bool forceLocalServer = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_FORCE_LOCAL_SERVER).GetBool();
   return elevationRequired || forceLocalServer;
 #else
   return false;

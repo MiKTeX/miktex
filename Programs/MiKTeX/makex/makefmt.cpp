@@ -315,7 +315,8 @@ private:
 
 void MakeFmt::CreateDestinationDirectory()
 {
-  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKEFMT, MIKTEX_CONFIG_VALUE_DESTDIR, &CreateDestinationDirectoryCallback(this)).GetString());
+  CreateDestinationDirectoryCallback callback(this);
+  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKEFMT, MIKTEX_CONFIG_VALUE_DESTDIR, &callback).GetString());
 }
 
 void MakeFmt::FindInputFile(const PathName& inputName, PathName& inputFile)
