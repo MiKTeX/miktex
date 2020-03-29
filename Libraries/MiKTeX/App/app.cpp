@@ -967,7 +967,7 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
     }
   }
 
-  string templ = pimpl->session->GetConfigValue("", MIKTEX_CONFIG_VALUE_EDITOR, defaultEditor).GetString();
+  string templ = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_GENERAL, MIKTEX_CONFIG_VALUE_EDITOR, defaultEditor).GetString();
 
   const char* lpszCommandLineTemplate = templ.c_str();
 

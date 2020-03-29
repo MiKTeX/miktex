@@ -445,7 +445,7 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo& info)
   {
     haveResult = TriState::False;
     string userInfoFile;
-    if (!TryGetConfigValue("", MIKTEX_CONFIG_VALUE_USERINFO_FILE, userInfoFile))
+    if (!TryGetConfigValue(MIKTEX_CONFIG_SECTION_GENERAL, MIKTEX_CONFIG_VALUE_USERINFO_FILE, userInfoFile))
     {
       return false;
     }

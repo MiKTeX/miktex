@@ -57,8 +57,10 @@ endforeach()
 ###############################################################################
 ## the name of the game
 
-project(miktex)
 set(MIKTEX_PRODUCT_NAME "MiKTeX")
+string(TOLOWER ${MIKTEX_PRODUCT_NAME} MIKTEX_PRODUCT_TAG)
+
+project(${MIKTEX_PRODUCT_TAG})
 
 ###############################################################################
 ## global C/C++ options

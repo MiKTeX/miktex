@@ -74,7 +74,7 @@ void TeXApp::OnTeXMFStartJob()
   shared_ptr<Session> session = GetSession();
   ShellCommandMode shellCommandMode = session->GetShellCommandMode();
   EnableShellCommands(shellCommandMode);
-  EnablePipes(session->GetConfigValue("", MIKTEX_CONFIG_VALUE_ENABLE_PIPES, shellCommandMode == ShellCommandMode::Restricted || shellCommandMode == ShellCommandMode::Unrestricted).GetBool());
+  EnablePipes(shellCommandMode == ShellCommandMode::Restricted || shellCommandMode == ShellCommandMode::Unrestricted);
 }
 
 void TeXApp::Finalize()

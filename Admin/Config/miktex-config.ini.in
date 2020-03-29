@@ -1,25 +1,13 @@
-[miktex]
+[${MIKTEX_CONFIG_SECTION_GENERAL}]
 
 	;; This variable specifies the external program called for
 	;; TeX's interactive `e' option.  %l is replaced by the line
 	;; number and %f by the current file name.
 	;; If left unspecified, A platform dependent value is chosen.
-	;Editor = miktex-texworks -p=%l "%f"
-
-	;; Enable input (output) from (to) processes.
-	;${MIKTEX_CONFIG_VALUE_ENABLE_PIPES} =
-
-	;; Mode for FTP data transfers. Must be one of: default, epsv, pasv, port.
-	${MIKTEX_CONFIG_VALUE_FTP_MODE} = default
+	;${MIKTEX_CONFIG_VALUE_EDITOR} = miktex-texworks -p=%l "%f"
 
 	;; Deprecated.
 	;${MIKTEX_CONFIG_VALUE_GUI_FRAMEWORK} = 1
-
-	;; Maximum number of redirects.
-	;${MIKTEX_CONFIG_VALUE_MAX_REDIRECTS} = 20
-
-	;; Deprecated.
-	;${MIKTEX_CONFIG_VALUE_PARSE_FIRST_LINE} =
 
 	;; Deprecated.
 	;${MIKTEX_CONFIG_VALUE_USERINFO_FILE} = 
@@ -1000,6 +988,9 @@
 
 	;; Enable file:line:error style messages.
 	${MIKTEX_CONFIG_VALUE_CSTYLEERRORS} = f
+
+	;; Deprecated.
+	;${MIKTEX_CONFIG_VALUE_PARSE_FIRST_LINE} =
 
 	;; Indicates whether format files (*.fmt) will be automatically renewed.
 	${MIKTEX_CONFIG_VALUE_RENEW_FORMATS_ON_UPDATE} = t

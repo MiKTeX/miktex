@@ -131,28 +131,6 @@ void CurlWebSession::Initialize()
 
   SetOption(CURLOPT_USERAGENT, BuildUserAgentString().c_str());
 
-  string ftpMode = session->GetConfigValue("", MIKTEX_CONFIG_VALUE_FTP_MODE).GetString();
-
-  if (ftpMode == "default")
-  {
-  }
-  else if (ftpMode == "port")
-  {
-    SetOption(CURLOPT_FTPPORT, "-");
-  }
-  else if (ftpMode == "pasv")
-  {
-    SetOption(CURLOPT_FTP_USE_EPSV, static_cast<long>(false));
-  }
-  else if (ftpMode == "epsv")
-  {
-    SetOption(CURLOPT_FTP_USE_EPSV, static_cast<long>(true));
-  }
-  else
-  {
-    MIKTEX_UNEXPECTED();
-  }
-
   SetOption(CURLOPT_PROGRESSDATA, reinterpret_cast<void*>(this));
   curl_progress_callback progressCallback = ProgressCallback;
   SetOption(CURLOPT_PROGRESSFUNCTION, progressCallback);
@@ -180,9 +158,8 @@ void CurlWebSession::Initialize()
 
   // SF 2855025
 #if ALLOW_REDIRECTS
-  int maxRedirects = session->GetConfigValue("", MIKTEX_CONFIG_VALUE_MAX_REDIRECTS).GetInt();
   SetOption(CURLOPT_FOLLOWLOCATION, static_cast<long>(true));
-  SetOption(CURLOPT_MAXREDIRS, static_cast<long>(maxRedirects));
+  SetOption(CURLOPT_MAXREDIRS, 20);
 #endif
 
   // SF #2548

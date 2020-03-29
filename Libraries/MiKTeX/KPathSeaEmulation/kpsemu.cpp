@@ -838,7 +838,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
     result = true;
   }
   // configuration files and environment
-  else if (session->TryGetConfigValue("", varName, varValue))
+  else if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_NONE, varName, varValue))
   {
     result = true;
   }
