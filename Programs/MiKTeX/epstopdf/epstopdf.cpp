@@ -24,7 +24,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -32,6 +31,9 @@
 #include <iostream>
 #include <memory>
 #include <string>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/App/Application>
 #include <miktex/Core/BufferSizes>
@@ -65,20 +67,6 @@ using namespace std::string_literals;
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-#define VA_START(arglist, format   )            \
-va_start(arglist, format);                      \
-try                                             \
-{
-
-#define VA_END(arglist)                         \
-}                                               \
-catch(...)                                      \
-{                                               \
-  va_end(arglist);                              \
-  throw;                                        \
-}                                               \
-va_end(arglist);
-
 vector<string> DEFAULT_TRACE_STREAMS = {
   MIKTEX_TRACE_ERROR,
   MIKTEX_TRACE_PROCESS,
@@ -98,22 +86,19 @@ public:
   void Run(int argc, const char** argv);
 
 private:
-  void MyTrace(const char* format, ...);
+  void MyTrace(const string& line);
 
 private:
-  void Verbose(const char* format, ...);
+  void Verbose(const string& line);
 
 private:
-  void PrintOnly(const char* format, ...);
+  void PrintOnly(const string& line);
 
 private:
-  void Warning(const char* format, ...);
+  void Warning(const string& line);
 
 private:
   bool GetLine(string& line);
-
-private:
-  void PutFormattedLine(const char* format, ...);
 
 private:
   void PutLine(const string& line);
@@ -420,44 +405,32 @@ struct poptOption EpsToPdfApp::aoption[] = {
   POPT_TABLEEND
 };
 
-void EpsToPdfApp::MyTrace(const char* format, ...)
+void EpsToPdfApp::MyTrace(const string& line)
 {
-  va_list arglist;
-  VA_START(arglist, format);
-  traceStream->WriteLine(PROGRAM_NAME, StringUtil::FormatStringVA(format, arglist).c_str());
-  VA_END(arglist);
+  traceStream->WriteLine(PROGRAM_NAME, line);
 }
 
-void EpsToPdfApp::Verbose(const char* format, ...)
+void EpsToPdfApp::Verbose(const string& line)
 {
   if (!verbose || printOnly)
   {
     return;
   }
-  va_list arglist;
-  VA_START(arglist, format);
-  cout << StringUtil::FormatStringVA(format, arglist) << endl;
-  VA_END(arglist);
+  cout << line << endl;
 }
 
-void EpsToPdfApp::PrintOnly(const char* format, ...)
+void EpsToPdfApp::PrintOnly(const string& line)
 {
   if (!printOnly)
   {
     return;
   }
-  va_list arglist;
-  VA_START(arglist, format);
-  cout << StringUtil::FormatStringVA(format, arglist) << endl;
-  VA_END(arglist);
+  cout << line << endl;
 }
 
-void EpsToPdfApp::Warning(const char* format, ...)
+void EpsToPdfApp::Warning(const string& line)
 {
-  va_list arglist;
-  VA_START(arglist, format);
-  cerr << T_("warning") << ": " << StringUtil::FormatStringVA(format, arglist) << endl;
-  VA_END(arglist);
+  cerr << T_("warning") << ": " << line << endl;
 }
 
 bool EpsToPdfApp::GetLine(string& line)
@@ -487,18 +460,6 @@ bool EpsToPdfApp::GetLine(string& line)
   return done;
 }
 
-void EpsToPdfApp::PutFormattedLine(const char* format, ...)
-{
-  if (!printOnly)
-  {
-    va_list marker;
-    VA_START(marker, format);
-    vfprintf(outStream.GetFile(), format, marker);
-    VA_END(marker);
-    fputc('\n', outStream.GetFile());
-  }
-}
-
 void EpsToPdfApp::PutLine(const string& line)
 {
   if (!printOnly)
@@ -509,7 +470,7 @@ void EpsToPdfApp::PutLine(const string& line)
 
 void EpsToPdfApp::CorrectBoundingBox(double llx, double lly, double urx, double ury)
 {
-  MyTrace(T_("Old BoundingBox: %f %f %f %f"), llx, lly, urx, ury);
+  MyTrace(fmt::format(T_("Old BoundingBox: {0} {1} {2} {3}"), llx, lly, urx, ury));
   llx -= enlarge;
   lly -= enlarge;
   urx += enlarge;
@@ -518,11 +479,11 @@ void EpsToPdfApp::CorrectBoundingBox(double llx, double lly, double urx, double 
   int height = static_cast<int>(ceil(ury - lly));
   int xoffset = static_cast<int>(-llx);
   int yoffset = static_cast<int>(-lly);
-  MyTrace(T_("New BoundingBox: 0 0 %d %d"), width, height);
-  MyTrace(T_("Offset: %d %d"), xoffset, yoffset);
-  PutFormattedLine("%%%%BoundingBox: 0 0 %d %d", width, height);
-  PutFormattedLine("<< /PageSize [%d %d] >> setpagedevice", width, height);
-  PutFormattedLine("gsave %d %d translate", xoffset, yoffset);
+  MyTrace(fmt::format(T_("New BoundingBox: 0 0 {0} {1}"), width, height));
+  MyTrace(fmt::format(T_("Offset: {0} {1}"), xoffset, yoffset));
+  PutLine(fmt::format("%%%%BoundingBox: 0 0 {0} {1}", width, height));
+  PutLine(fmt::format("<< /PageSize [{0} {1}] >> setpagedevice", width, height));
+  PutLine(fmt::format("gsave {0} {1} translate", xoffset, yoffset));
 }
 
 bool EpsToPdfApp::BoundingBoxWithValues(const string& line, double& llx, double& lly, double& urx, double& ury)
@@ -578,14 +539,14 @@ void EpsToPdfApp::ScanHeader()
 
     if (BoundingBoxWithAtEnd(line))
     {
-      MyTrace(T_("%s (atend)"), boundingBoxName.c_str());
+      MyTrace(fmt::format(T_("{0} (atend)"), boundingBoxName));
       if (runAsFilter)
       {
         Warning(T_("Cannot look for BoundingBox in the trailer with option --filter."));
         break;
       }
       long pos = inStream.GetPosition();
-      MyTrace(T_("Current file position: %d"), pos);
+      MyTrace(fmt::format(T_("Current file position: {0}"), pos));
       while (GetLine(line))
       {
         if (line.compare(0, 15, "%%BeginDocument") == 0)
@@ -709,7 +670,7 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
     gsOptions.push_back("-");
     gsOptions.push_back("-c");
     gsOptions.push_back("quit");
-    PrintOnly("%s\n", CommandLineBuilder(gsOptions).ToString().c_str());
+    PrintOnly(CommandLineBuilder(gsOptions).ToString());
     if (!printOnly)
     {
       ProcessStartInfo processStartInfo;
@@ -839,7 +800,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     case OPT_VERSION:
       cout
         << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2000-2019 Christian Schenk" << endl
+        << "Copyright (C) 2000-2020 Christian Schenk" << endl
         << "Copyright (C) 1998-2001 by Sebastian Rahtz et al." << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
@@ -884,7 +845,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     {
       FatalError(T_("The input file does not exist."));
     }
-    MyTrace(T_("Input filename: %s"), inputFile.GetData());
+    MyTrace(fmt::format(T_("Input filename: {0}"), inputFile.GetData()));
   }
 
   if (runAsFilter && verbose)
@@ -939,7 +900,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
   if (!runAsFilter)
   {
-    Verbose(T_("Making %s from %s..."), Q_(outFile), Q_(inputFile));
+    Verbose(fmt::format(T_("Making {0} from {1}..."), Q_(outFile), Q_(inputFile)));
   }
 
   PathName gsExe;
