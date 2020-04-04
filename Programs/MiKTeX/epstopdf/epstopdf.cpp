@@ -1,6 +1,6 @@
 /* epstopdf.cpp: epstopdf
 
-   Copyright (C) 2000-2019 Christian Schenk
+   Copyright (C) 2000-2020 Christian Schenk
    Copyright (C) 1998-2001 by Sebastian Rahtz et al.
 
    This file is part of EPStoPDF.
@@ -164,7 +164,7 @@ private:
   FileStream inStream;
 
 private:
-  long stopReadingAt;
+  long stopReadingAt = 0;
 
 private:
   FileStream outStream;
