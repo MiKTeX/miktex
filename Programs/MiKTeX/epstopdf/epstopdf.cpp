@@ -29,7 +29,9 @@
 #include <cstring>
 
 #include <iostream>
+#include <map>
 #include <memory>
+#include <regex>
 #include <string>
 
 #include <fmt/format.h>
@@ -104,6 +106,15 @@ private:
   void PutLine(const string& line);
 
 private:
+  void ExamineLine(const string& line);
+
+private:
+  void EnsureFontIsAvailable(const string& fontName);
+
+private:
+  void ReadFontMapFile(const PathName& path);
+
+private:
   void CorrectBoundingBox(double llx, double lly, double urx, double ury);
 
 private:
@@ -156,6 +167,15 @@ private:
 
 private:
   bool boundingBoxCorrected = false;
+
+private:
+  map<string, string> fontMap;
+
+private:
+  const regex findfont_regex{ "/([A-Za-z0-9_\\-]+)\\sfindfont" };
+
+private:
+  const regex fontmap_regex{ "/([A-Za-z0-9_\\-]+)\\s([\\(/A-Za-z0-9_\\-\\)]+)\\s;" };
 
 private:
   unique_ptr<TraceStream> traceStream;
@@ -466,6 +486,67 @@ void EpsToPdfApp::PutLine(const string& line)
   {
     fprintf(outStream.GetFile(), "%s\n", line.c_str());
   }
+}
+
+void EpsToPdfApp::ExamineLine(const string& line)
+{
+  smatch m;
+  string s = line;
+  while (regex_search(s, m, findfont_regex))
+  {
+    EnsureFontIsAvailable(m[1]);
+    s = m.suffix();
+  }
+}
+
+void EpsToPdfApp::EnsureFontIsAvailable(const string& fontName)
+{
+  map<string, string>::const_iterator it = fontMap.find(fontName);
+  if (it == fontMap.end())
+  {
+    Warning(fmt::format(T_("required font {0} not found in font map"), fontName));
+    return;
+  }
+  const string& s = it->second;
+  MIKTEX_ASSERT(!s.empty());
+  if (s[0] == '(' && s[s.length() - 1] == ')')
+  {
+    string fileName = s.substr(1, s.length() - 2);
+    PathName result;
+    if (session->FindFile(fileName, "%R/fonts//", result))
+    {
+      MyTrace(fmt::format(T_("found required font {0}: {1}"), fontName, result));
+    }
+    else
+    {
+      Warning(fmt::format(T_("required font not found: {0} ({1})"), fontName, fileName));
+    }
+  }
+  else if (s[0] == '/')
+  {
+    MIKTEX_ASSERT(s.length() > 1);
+    EnsureFontIsAvailable(s.substr(1));
+  }
+  else
+  {
+    MIKTEX_UNEXPECTED();
+  }
+}
+
+void EpsToPdfApp::ReadFontMapFile(const PathName& path)
+{
+  std::ifstream reader = File::CreateInputStream(path);
+  size_t n = 0;
+  for (string line; std::getline(reader, line); )
+  {
+    smatch m;
+    if (regex_match(line, m, fontmap_regex))
+    {
+      fontMap[m[1]] = m[2];
+      n++;
+    }
+  }
+  MyTrace(fmt::format(T_("read font map file {0} with {1} matches"), Q_(path), n));
 }
 
 void EpsToPdfApp::CorrectBoundingBox(double llx, double lly, double urx, double ury)
@@ -823,6 +904,18 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
   vector<string> leftovers = popt.GetLeftovers();
 
+  for (const string& fileName : { "Fontmap.aliases"s, "Fontmap.MiKTeX"s })
+  {
+    vector<PathName> fontMapFiles;
+    if (session->FindFile(fileName, "%R/ghostscript/base", fontMapFiles))
+    {
+      for (const PathName& fontMapFile : fontMapFiles)
+      {
+        ReadFontMapFile(fontMapFile);
+      }
+    }
+  }
+
   if (runAsFilter)
   {
     if (!leftovers.empty())
@@ -923,6 +1016,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
   while (GetLine(line))
   {
+    ExamineLine(line);
     PutLine(line);
   }
 
