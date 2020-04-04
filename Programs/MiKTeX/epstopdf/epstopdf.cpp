@@ -470,7 +470,7 @@ void EpsToPdfApp::PutLine(const string& line)
 
 void EpsToPdfApp::CorrectBoundingBox(double llx, double lly, double urx, double ury)
 {
-  MyTrace(fmt::format(T_("Old BoundingBox: {0} {1} {2} {3}"), llx, lly, urx, ury));
+  MyTrace(fmt::format(T_("Old BoundingBox: {0:.2f} {1:.2f} {2:.2f} {3:.2f}"), llx, lly, urx, ury));
   llx -= enlarge;
   lly -= enlarge;
   urx += enlarge;
