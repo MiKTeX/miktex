@@ -113,6 +113,7 @@ namespace gl {
 bool outlinemode=false;
 bool glthread=false;
 bool initialize=true;
+bool exporting=false;
 
 using camp::picture;
 using camp::drawRawImage;
@@ -410,7 +411,6 @@ unsigned char *osmesa_buffer;
 #endif
 
 #ifdef HAVE_PTHREAD
-pthread_t mainthread;
 
 pthread_cond_t initSignal=PTHREAD_COND_INITIALIZER;
 pthread_mutex_t initLock=PTHREAD_MUTEX_INITIALIZER;
@@ -589,13 +589,17 @@ void Export()
       (orthographic ? trOrtho : trFrustum)(tr,xmin,xmax,ymin,ymax,-zmax,-zmin);
    
       size_t count=0;
+      exporting=true;
       do {
         trBeginTile(tr);
         drawscene(fullWidth,fullHeight);
         ++count;
       } while (trEndTile(tr));
+      exporting=false;
+
       if(settings::verbose > 1)
-        cout << count << " tile" << (count != 1 ? "s" : "") << " drawn" << endl;
+        cout << count << " tile" << (count != 1 ? "s" : "") << " drawn"
+             << endl;
       trDelete(tr);
 
       picture pic;
