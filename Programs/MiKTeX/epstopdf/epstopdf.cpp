@@ -463,7 +463,7 @@ bool EpsToPdfApp::GetLine(string& line)
       return false;
     }
   }
-  bool done = Utils::ReadUntilDelim(line, '\n', inStream.GetFile());
+  bool done = Utils::ReadLine(line, inStream.GetFile(), true);
   if (done)
   {
     string::size_type l = line.length();

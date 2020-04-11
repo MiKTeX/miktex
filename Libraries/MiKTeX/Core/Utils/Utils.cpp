@@ -768,33 +768,6 @@ inline void UnGetC(int ch, FILE* stream)
   }
 }
 
-bool Utils::ReadUntilDelim(string& str, int delim, FILE* stream)
-{
-  if (delim == '\n')
-  {
-    // special case
-    return ReadLine(str, stream, true);
-  }
-  else
-  {
-    str = "";
-    if (feof(stream) != 0)
-    {
-      return false;
-    }
-    int ch;
-    while ((ch = GetC(stream)) != EOF)
-    {
-      str += static_cast<char>(ch);
-      if (ch == delim)
-      {
-        return true;
-      }
-    }
-    return ch == EOF ? !str.empty() : true;
-  }
-}
-
 bool Utils::ReadLine(string& str, FILE* stream, bool keepLineEnding)
 {
   str = "";
