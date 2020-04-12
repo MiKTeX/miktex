@@ -1,6 +1,6 @@
 /* miktex/Trace/TraceStream.h:                           -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Trace Library.
 
@@ -48,8 +48,16 @@ public:
   virtual bool MIKTEXTHISCALL IsEnabled(const std::string& facility) = 0;
 
 public:
+  virtual void MIKTEXTHISCALL WriteLine(const std::string& facility, const std::string& text) = 0;
+
+  // DEPRECATED
+public:
+  virtual void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) = 0;
+
+public:
   static MIKTEXTRACECEEAPI(std::unique_ptr<TraceStream>) Open(const std::string& name, TraceCallback* callback);
 
+  // DEPRECATED
 public:
   static std::unique_ptr<TraceStream> Open(const std::string& name)
   {
@@ -61,25 +69,6 @@ public:
 
 public:
   static MIKTEXTRACECEEAPI(void) SetOptions(const std::string& options);
-
-public:
-  // DEPRECATED
-  static void SetTraceFlags(const std::string& options)
-  {
-    SetOptions(options);
-  }
-
-public:
-  virtual void MIKTEXTHISCALL Write(const std::string& facility, const std::string& text) = 0;
-
-public:
-  virtual void MIKTEXTHISCALL WriteLine(const std::string& facility, const std::string& text) = 0;
-
-public:
-  virtual void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) = 0;
-
-public:
-  virtual void MIKTEXTHISCALL VTrace(const std::string& facility, const std::string& format, va_list arglist) = 0;
 };
 
 MIKTEX_TRACE_END_NAMESPACE;

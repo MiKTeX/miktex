@@ -1,6 +1,6 @@
 /* yap.cpp: Yet Another Previewer
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -314,10 +314,10 @@ BOOL YapApplication::InitInstance()
     {
       tracing = true;
       traceFlags = cmdInfo.traceFlags;
-      TraceStream::SetTraceFlags(cmdInfo.traceFlags);
+      TraceStream::SetOptions(cmdInfo.traceFlags);
     }
 
-    YapLog(T_("Yap arguments: %s"), TU_(m_lpCmdLine));
+    YapLog(fmt::format(T_("Yap arguments: {0}"), TU_(m_lpCmdLine)));
 
     // return, if another application instance was found
     if (cmdInfo.singleInstance && ActivateFirstInstance(cmdInfo))
@@ -682,7 +682,7 @@ typedef AutoResource<HCONV, DdeDisconnect_> AutoDdeDisconnect;
 
 void DdeExecute(const char* lpszServer, const char* lpszTopic, const char* lpszCommand)
 {
-  YapLog("DdeExecute(\"%s\", \"%s\", \"%s\")", lpszServer, lpszTopic, lpszCommand);
+  YapLog(fmt::format("DdeExecute(\"{0}\", \"{1}\", \"{2}\")", lpszServer, lpszTopic, lpszCommand));
   unsigned long inst = 0;
   UINT result = DdeInitialize(&inst, YapClientDDECallback, APPCMD_CLIENTONLY, 0);
   if (result != DMLERR_NO_ERROR)
@@ -738,7 +738,7 @@ BOOL YapApplication::OnDDECommand(LPTSTR lpszCommand)
 
   try
   {
-    YapLog("OnDDECommand(\"%s\")", static_cast<const char *>(TU_(lpszCommand)));
+    YapLog(fmt::format("OnDDECommand(\"{0}\")", TU_(lpszCommand)));
 
     done = CWinApp::OnDDECommand(lpszCommand);
 
@@ -948,33 +948,19 @@ void StartEditor(const char* lpszFileName, const char* lpszDocDir, int line)
   CloseHandle(processInfo.hProcess);
 }
 
-void VYapLog(const char* lpszFormat, va_list argptr)
+void YapLog(const string& line)
 {
   if (theApp.trace_yap != nullptr)
   {
-    theApp.trace_yap->VTrace("yap", lpszFormat, argptr);
+    theApp.trace_yap->WriteLine("yap", line);
   }
 }
 
-void YapLog(const char* lpszFormat, ...)
-{
-  if (theApp.trace_yap != nullptr && theApp.trace_yap->IsEnabled("yap"))
-  {
-    va_list argptr;
-    va_start(argptr, lpszFormat);
-    VYapLog(lpszFormat, argptr);
-    va_end(argptr);
-  }
-}
-
-void TraceError(const char* lpszFormat, ...)
+void TraceError(const string& line)
 {
   if (theApp.trace_error != nullptr)
   {
-    va_list argptr;
-    va_start(argptr, lpszFormat);
-    theApp.trace_error->VTrace("yap", lpszFormat, argptr);
-    va_end(argptr);
+    theApp.trace_error->WriteLine("yap", line);
   }
 }
 
@@ -1053,7 +1039,7 @@ void YapApplication::OnViewTrace()
         traceFlags = YAP_TRACE_FLAGS_LVL_3;
       }
     }
-    TraceStream::SetTraceFlags(tracing ? traceFlags : "");
+    TraceStream::SetOptions(tracing ? traceFlags : "");
   }
   catch (const MiKTeXException& e)
   {

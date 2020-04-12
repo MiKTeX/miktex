@@ -52,7 +52,6 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <cstdarg>
 #include <cmath>
 
 #include <algorithm>
@@ -61,6 +60,9 @@
 #include <memory>
 #include <vector>
 #include <string>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <malloc.h>
 #include <direct.h>

@@ -291,7 +291,7 @@ bool WebApp::ProcessOption(int opt, const string& optArg)
     pimpl->packageListFileName = optArg;
     break;
   case OPT_TRACE:
-    MiKTeX::Trace::TraceStream::SetTraceFlags(optArg);
+    MiKTeX::Trace::TraceStream::SetOptions(optArg);
     break;
   case OPT_VERBOSE:
     pimpl->verbose = true;

@@ -1,6 +1,6 @@
 /* DviDoc.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -361,7 +361,7 @@ DviDoc::DviFileStatus DviDoc::GetDviFileStatus()
       modificationTime = File::GetLastWriteTime(PathName(GetPathName()));
       if (timeMod != modificationTime)
       {
-        YapLog(T_("%s has been modified"), Q_(TU_(GetPathName())));
+        YapLog(fmt::format(T_("{0} has been modified"), Q_(TU_(GetPathName()))));
         modificationTime = timeMod;
         fileStatus = DVIFILE_MODIFIED;
       }

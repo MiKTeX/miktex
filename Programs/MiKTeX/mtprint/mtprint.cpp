@@ -1,6 +1,6 @@
 /* mtprint.cpp: MiKTeX Print Utility
 
-   Copyright (C) 2003-2018 Christian Schenk
+   Copyright (C) 2003-2020 Christian Schenk
 
    This file is part of MiKTeX Print Utility.
 
@@ -611,7 +611,7 @@ void PrintUtility::Run(int argc, const char** argv)
     dvipsOpts.runAsFilter = true;
   }
 
-  TraceStream::SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
+  TraceStream::SetOptions(DEFAULT_TRACE_STREAMS);
 
   for (const string& fileName : leftovers)
   {

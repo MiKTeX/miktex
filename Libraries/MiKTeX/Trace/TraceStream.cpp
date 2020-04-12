@@ -1,6 +1,6 @@
 /* TaceStream.cpp: tracing
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Trace Library.
 
@@ -95,13 +95,7 @@ public:
   void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) override;
 
 public:
-  void MIKTEXTHISCALL Write(const std::string& facility, const std::string& text) override;
-
-public:
   void MIKTEXTHISCALL WriteLine(const std::string& facility, const std::string& text) override;
-
-public:
-  void MIKTEXTHISCALL VTrace(const std::string& facility, const std::string& format, va_list arglist) override;
 
 public:
   TraceStreamImpl(shared_ptr<TraceStreamInfo> info, TraceCallback* callback) :
@@ -133,15 +127,12 @@ private:
   TraceCallback* callback;
 
 private:
-  void Logger(const string& facility, const string& message, bool appendNewline);
+  void Logger(const string& facility, const string& message);
 
 #if ENABLE_LEGACY_TRACING
 private:
-  void LegacyLogger(const string& facility, const string& message, bool appendNewline);
+  void LegacyLogger(const string& facility, const string& message);
 #endif
-
-private:
-  void FormatV(const string& facility, bool appendNewline, const string& format, va_list arglist);
 
 private:
   friend class TraceStream;
@@ -163,12 +154,12 @@ mutex TraceStreamImpl::traceStreamsMutex;
 TraceStreamImpl::TraceStreamTable TraceStreamImpl::traceStreams;
 vector<string> TraceStreamImpl::options;
 
-void TraceStreamImpl::Logger(const string& facility, const string& message, bool appendNewline)
+void TraceStreamImpl::Logger(const string& facility, const string& message)
 {
 #if ENABLE_LEGACY_TRACING
   if (info->callbacks.size() == 0)
   {
-    LegacyLogger(facility, message, appendNewline);
+    LegacyLogger(facility, message);
     return;
   }
 #endif
@@ -180,7 +171,7 @@ void TraceStreamImpl::Logger(const string& facility, const string& message, bool
 
 #if ENABLE_LEGACY_TRACING
 
-void TraceStreamImpl::LegacyLogger(const string& facility, const string& message, bool appendNewline)
+void TraceStreamImpl::LegacyLogger(const string& facility, const string& message)
 {
   string str;
   str.reserve(256);
@@ -206,10 +197,7 @@ void TraceStreamImpl::LegacyLogger(const string& facility, const string& message
   }
   str += "]: ";
   str += message;
-  if (appendNewline)
-  {
-    str += '\n';
-  }
+  str += '\n';
 #if defined(MIKTEX_WINDOWS)
   wstring debstr;
   try
@@ -230,11 +218,6 @@ void TraceStreamImpl::LegacyLogger(const string& facility, const string& message
 #endif
 }
 #endif
-
-void TraceStreamImpl::FormatV(const string& facility, bool appendNewline, const string& format, va_list arglist)
-{
-  Logger(facility, StringUtil::FormatStringVA(format.c_str(), arglist), appendNewline);
-}
 
 void TraceStream::SetOptions(const string& optionsString)
 {
@@ -291,7 +274,7 @@ void TraceStreamImpl::WriteFormattedLine(const string& facility, const char* for
   }
   va_list marker;
   va_start(marker, format);
-  FormatV(facility, true, format, marker);
+  Logger(facility, StringUtil::FormatStringVA(format, marker));
   va_end(marker);
 }
 
@@ -301,25 +284,7 @@ void TraceStreamImpl::WriteLine(const string& facility, const string& text)
   {
     return;
   }
-  Logger(facility, text, true);
-}
-
-void TraceStreamImpl::Write(const string& facility, const string& text)
-{
-  if (!IsEnabled(facility))
-  {
-    return;
-  }
-  Logger(facility, text, false);
-}
-
-void TraceStreamImpl::VTrace(const string& facility, const string& format, va_list arglist)
-{
-  if (!IsEnabled(facility))
-  {
-    return;
-  }
-  FormatV(facility, true, format, arglist);
+  Logger(facility, text);
 }
 
 unique_ptr<TraceStream> TraceStream::Open(const string& name, TraceCallback* callback)

@@ -499,7 +499,15 @@ int CurlWebSession::DebugCallback(CURL* pCurl, curl_infotype infoType, char* pDa
     {
       MIKTEX_ASSERT(pData != nullptr);
       string text(pData, sizeData);
-      This->trace_curl->Write(TRACE_FACILITY, text.c_str());
+      static string buffer;
+      if (text.length() > 0 && text[text.length() - 1] == '\n')
+      {
+        This->trace_curl->WriteLine(TRACE_FACILITY, buffer + text.substr(0, text.length() - 1));
+      }
+      else
+      {
+        buffer += text;
+      }
     }
   }
   catch (const exception&)

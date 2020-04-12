@@ -1,6 +1,6 @@
 /* Setup.cpp:
 
-   Copyright (C) 1999-2019 Christian Schenk
+   Copyright (C) 1999-2020 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -850,7 +850,7 @@ BOOL SetupApp::InitInstance()
    
     // set trace options
     traceStream = TraceStream::Open("setupwiz");
-    TraceStream::SetTraceFlags("error,extractor,mpm,process,config,setupwiz,setup");
+    TraceStream::SetOptions("error,extractor,mpm,process,config,setupwiz,setup");
 
     // extract package archive files
     unique_ptr<TemporaryDirectory> sfxDir = SetupService::ExtractFiles();

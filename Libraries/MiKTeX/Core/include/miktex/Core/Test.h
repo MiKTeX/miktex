@@ -1,6 +1,6 @@
 /* miktex/Core/test.h: test framework                   -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -250,7 +250,7 @@ public:
       LOG4CXX_INFO(logger, "starting tests");
       if (!traceFlags.empty())
       {
-        MiKTeX::Trace::TraceStream::SetTraceFlags(traceFlags);
+        MiKTeX::Trace::TraceStream::SetOptions(traceFlags);
       }
       Run();
       pSession = nullptr;
