@@ -60,7 +60,7 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
 
   if (!File::Exists(packageManifestsPath))
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("file {0} does not exist"), Q_(packageManifestsPath)));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("file {0} does not exist"), Q_(packageManifestsPath)));
     return;
   }
 
@@ -201,7 +201,7 @@ void PackageDataStore::NeedPackageManifestsIni()
   PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
   if (Directory::Exists(tpmDir))
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("starting migration: {} -> {}", tpmDir, existingPackageManifestsIni));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format("starting migration: {} -> {}", tpmDir, existingPackageManifestsIni));
     unique_ptr<Cfg> cfgExisting = Cfg::Create();
     unique_ptr<DirectoryLister> lister = DirectoryLister::Open(tpmDir);
     DirectoryEntry direntry;
@@ -220,7 +220,7 @@ void PackageDataStore::NeedPackageManifestsIni()
       count++;
     }
     cfgExisting->Write(existingPackageManifestsIni);
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("successfully migrated {} package manifest files", count));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format("successfully migrated {} package manifest files", count));
   }
 }
 
@@ -301,7 +301,7 @@ void PackageDataStore::Load(Cfg& cfg)
       PackageDefinitionTable::iterator it3 = packageTable.find(req);
       if (it3 == packageTable.end())
       {
-        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.id));
+        trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.id));
       }
       else
       {
@@ -490,7 +490,7 @@ void PackageDataStore::IncrementFileRefCounts(const vector<string>& files)
 #if POLLUTE_THE_DEBUG_STREAM
     if (installedFileInfoTable[file].refCount >= 2)
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ref count > 1"), Q_(file)));
+      trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Debug, fmt::format(T_("{0}: ref count > 1"), Q_(file)));
     }
 #endif
   }

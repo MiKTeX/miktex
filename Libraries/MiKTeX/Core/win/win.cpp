@@ -1,6 +1,6 @@
 /* win.cpp: Windows specials
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,6 +25,10 @@
 #include <AclAPI.h>
 #include <ShlObj.h>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+
 // FIXME: must come first
 #include "core-version.h"
 
@@ -41,6 +45,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 MIKTEXINTERNALFUNC(bool) GetSystemFontDirectory(PathName& path)
@@ -125,14 +130,14 @@ MIKTEXINTERNALFUNC(void) TraceWindowsError(const char* windowsFunction, unsigned
   {
     return;
   }
-  pSession->trace_error->WriteLine("core", errorMessage.c_str());
-  pSession->trace_error->WriteFormattedLine("core", "Function: %s", windowsFunction);
-  pSession->trace_error->WriteFormattedLine("core", "Result: %u", static_cast<unsigned>(functionResult));
+  pSession->trace_error->WriteLine("core", TraceLevel::Error, errorMessage);
+  pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Function: {0}", windowsFunction));
+  pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Result: {0}", functionResult));
   if (info != nullptr)
   {
-    pSession->trace_error->WriteFormattedLine("core", "Data: %s", info);
+    pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Data: {0}", info));
   }
-  pSession->trace_error->WriteFormattedLine("core", "Source: %s:%d", GetShortSourceFile(sourceFile), sourceLine);
+  pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Source: {0}:{1}", GetShortSourceFile(sourceFile), sourceLine));
 }
 
 MIKTEXSTATICFUNC(unsigned int) GetMediaType(const char* path)

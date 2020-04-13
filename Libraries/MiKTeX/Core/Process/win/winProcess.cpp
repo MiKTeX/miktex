@@ -1,6 +1,6 @@
 /* winProcess.cpp: executing secondary processes
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,9 @@
 #include <Windows.h>
 #include <Tlhelp32.h>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <fcntl.h>
 
 #include <io.h>
@@ -40,6 +43,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 unique_ptr<Process> Process::Start(const ProcessStartInfo& startinfo)
@@ -281,7 +285,7 @@ void winProcess::Create()
     // start child process
     if (session != nullptr)
     {
-      session->trace_process->WriteFormattedLine("core", "start process: %s", commandLine.ToString().c_str());
+      session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("start process: {0}", commandLine));
     }
 
     tmpFile = TemporaryFile::Create();

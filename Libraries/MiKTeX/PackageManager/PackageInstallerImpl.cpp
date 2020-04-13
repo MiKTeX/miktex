@@ -454,7 +454,7 @@ void PackageInstallerImpl::FindUpdates()
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "checking for updates");
 
-  trace_mpm->WriteLine(TRACE_FACILITY, T_("searching for updateable packages"));
+  trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, T_("searching for updateable packages"));
 
   UpdateDb({});
 
@@ -490,7 +490,7 @@ void PackageInstallerImpl::FindUpdates()
     {
       if (isEssential)
       {
-        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: new essential package"), packageId));
+        trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format(T_("{0}: new essential package"), packageId));
         updateInfo.action = UpdateInfo::ForceUpdate;
         updates.push_back(updateInfo);
       }
@@ -508,7 +508,7 @@ void PackageInstallerImpl::FindUpdates()
       {
         MIKTEX_UNEXPECTED();
       }
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: double installed"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("{0}: double installed"), packageId));
       updateInfo.action = UpdateInfo::ForceRemove;
       updates.push_back(updateInfo);
       continue;
@@ -520,7 +520,7 @@ void PackageInstallerImpl::FindUpdates()
       && package.isRemovable)
     {
       // the package has been tampered with
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package is broken"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("{0}: package is broken"), packageId));
       updateInfo.timePackaged = static_cast<time_t>(-1);
       updateInfo.action = UpdateInfo::Repair;
       updates.push_back(updateInfo);
@@ -565,7 +565,7 @@ void PackageInstallerImpl::FindUpdates()
 
     if (!package.isRemovable)
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: no permission to update package"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("{0}: no permission to update package"), packageId));
       updateInfo.action = UpdateInfo::KeepAdmin;
     }
     else
@@ -592,7 +592,7 @@ void PackageInstallerImpl::FindUpdates()
   PackageInfo package;
   while (iter->GetNext(package))
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package is obsolete"), package.id));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format(T_("{0}: package is obsolete"), package.id));
     UpdateInfo updateInfo;
     updateInfo.packageId = package.id;
     updateInfo.timePackaged = package.timePackaged;
@@ -658,7 +658,7 @@ void PackageInstallerImpl::FindUpdatesThread()
 
 void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
 {
-  trace_mpm->WriteLine(TRACE_FACILITY, T_("searching for upgrades"));
+  trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, T_("searching for upgrades"));
   UpdateDb({});
   LoadRepositoryManifest(false);
   upgrades.clear();
@@ -806,7 +806,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
 
 void PackageInstallerImpl::RemovePackage(const string& packageId, Cfg& packageManifests)
 {
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0}"), Q_(packageId)));
+  trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format(T_("going to remove {0}"), Q_(packageId)));
 
   // notify client
   Notify(Notification::RemovePackageStart);
@@ -1057,7 +1057,7 @@ void PackageInstallerImpl::UpdateFndb(const unordered_set<PathName>& installedFi
 
 void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageManifests)
 {
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("installing package {0}"), Q_(packageId)));
+  trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format(T_("installing package {0}"), Q_(packageId)));
 
   // search the package table
   PackageInfo package = packageDataStore->GetPackage(packageId);
@@ -1396,7 +1396,7 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& pa
     }
     else
     {
-      trace_error->WriteLine(TRACE_FACILITY, fmt::format(T_("registration/unregistration of {0} did not succeed; hr={1}"), Q_(path), hr));
+      trace_error->WriteLine(TRACE_FACILITY, TraceLevel::Error, fmt::format(T_("registration/unregistration of {0} did not succeed; hr={1}"), Q_(path), hr));
     }
   }
 #else
@@ -1430,7 +1430,7 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& pa
     }
     else
     {
-      trace_error->WriteLine(TRACE_FACILITY, fmt::format(T_("{0} {1} did not succeed (exit code: {2})"), regExe, cmdLine, exitCode));
+      trace_error->WriteLine(TRACE_FACILITY, TraceLevel::Error, fmt::format(T_("{0} {1} did not succeed (exit code: {2})"), regExe, cmdLine, exitCode));
     }
   }
 #endif
@@ -2482,12 +2482,12 @@ bool PackageInstallerImpl::UseLocalServer()
 HRESULT PackageInstallerImpl::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
   using namespace MiKTeXPackageManagerLib;
-  if (trace_mpm->IsEnabled(TRACE_FACILITY))
+  if (trace_mpm->IsEnabled(TRACE_FACILITY, MiKTeX::Trace::TraceLevel::Trace))
   {
     WCHAR szRiid[100];
     if (StringFromGUID2(riid, szRiid, 100) > 0)
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("QI {0}", StringUtil::WideCharToUTF8(szRiid)));
+      trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Trace, fmt::format("QI {0}", StringUtil::WideCharToUTF8(szRiid)));
     }
   }
   if (riid == __uuidof(IUnknown))

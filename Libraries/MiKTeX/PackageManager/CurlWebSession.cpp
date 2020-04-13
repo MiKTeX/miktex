@@ -27,6 +27,9 @@
 #include <sstream>
 #include <thread>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Uri>
 #include <miktex/Util/StringUtil>
@@ -135,7 +138,7 @@ void CurlWebSession::Initialize()
   curl_progress_callback progressCallback = ProgressCallback;
   SetOption(CURLOPT_PROGRESSFUNCTION, progressCallback);
 
-  if (trace_curl->IsEnabled(TRACE_FACILITY))
+  if (trace_curl->IsEnabled(TRACE_FACILITY, MiKTeX::Trace::TraceLevel::Trace))
   {
     SetOption(CURLOPT_VERBOSE, static_cast<long>(true));
     curl_debug_callback debugCallback = DebugCallback;
@@ -249,7 +252,7 @@ unique_ptr<WebFile> CurlWebSession::OpenUrl(const string& url, const std::unorde
   {
     Initialize();
   }
-  trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("going to download %s"), Q_(url));
+  trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format(T_("going to download {0}"), Q_(url)));
   return make_unique<CurlWebFile>(shared_from_this(), url, formData);
 }
 

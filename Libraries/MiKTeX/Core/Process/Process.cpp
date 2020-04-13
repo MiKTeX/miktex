@@ -1,6 +1,6 @@
 /* process.cpp: executing secondary processes
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Process>
@@ -32,6 +35,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 
 Process::~Process() noexcept
 {
@@ -176,7 +180,7 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
   {
     if (session != nullptr)
     {
-      session->trace_error->WriteFormattedLine("core", "%s returned with exit code %d", Q_(fileName), static_cast<int>(processExitCode));
+      session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} returned with exit code {1}", Q_(fileName), processExitCode));
     }
     return false;
   }

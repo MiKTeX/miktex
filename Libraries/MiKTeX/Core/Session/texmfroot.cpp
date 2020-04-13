@@ -44,6 +44,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 // index of the hidden MPM root
@@ -107,24 +108,24 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
       // already registered
       if (scope == ConfigurationScope::Common && !rootDirectories[idx].IsCommon())
       {
-        trace_config->WriteLine("core", fmt::format(T_("now a common TEXMF root: {0}"), root));
+        trace_config->WriteLine("core", TraceLevel::Info, fmt::format(T_("now a common TEXMF root: {0}"), root));
         rootDirectories[idx].set_Common(true);
       }
       if (other && !rootDirectories[idx].IsOther())
       {
-        trace_config->WriteLine("core", fmt::format(T_("now a foreign TEXMF root: {0}"), root));
+        trace_config->WriteLine("core", TraceLevel::Info, fmt::format(T_("now a foreign TEXMF root: {0}"), root));
         rootDirectories[idx].set_Other(true);
       }
       if (scope == ConfigurationScope::User && !rootDirectories[idx].IsUser())
       {
-        trace_config->WriteLine("core", fmt::format(T_("now a user TEXMF root: {0}"), root));
+        trace_config->WriteLine("core", TraceLevel::Info, fmt::format(T_("now a user TEXMF root: {0}"), root));
         rootDirectories[idx].set_User(true);
       }
       rootDirectories[idx].purposes += purpose;;
       return idx;
     }
   }
-  trace_config->WriteLine("core", fmt::format(T_("registering {0} TEXMF root: {1}"), scope == ConfigurationScope::Common ? "common" : "user", root));
+  trace_config->WriteLine("core", TraceLevel::Info, fmt::format(T_("registering {0} TEXMF root: {1}"), scope == ConfigurationScope::Common ? "common" : "user", root));
   RootDirectoryInternals rootDirectory(root, ExpandEnvironmentVariables(root));
   rootDirectory.purposes += purpose;
   rootDirectory.set_Common(scope == ConfigurationScope::Common);

@@ -82,7 +82,7 @@ protected:
     {
       result = it->second;
     }
-    if (trace_mem->IsEnabled("libtexmf"))
+    if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
       trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), result);
     }
@@ -106,7 +106,7 @@ protected:
     {
       MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Bad parameter value."), "parameterName", parameterName);
     }
-    if (trace_mem->IsEnabled("libtexmf"))
+    if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
       trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), result);
     }
@@ -278,12 +278,12 @@ public:
       // one extra element because Pascal arrays are 1-based
       amount = (numElem + 1) * elemSize;
     }
-    if (trace_mem->IsEnabled("libtexmf"))
+    if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
       trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate %s: p == %p, elementSize == %u, nElements == %u, bytes == %u"), arrayName.empty() ? "array" : arrayName.c_str(), ptr, (unsigned)elemSize, (unsigned)numElem, (unsigned)amount);
     }
     ptr = MiKTeX::Debug::Realloc(ptr, amount, sourceLocation);
-    if (trace_mem->IsEnabled("libtexmf"))
+    if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
       trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate: return %p"), ptr);
     }

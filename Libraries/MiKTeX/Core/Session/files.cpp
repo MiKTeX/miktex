@@ -1,6 +1,6 @@
 /* files.cpp: file system operations
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,6 +26,9 @@
 #include <fstream>
 #include <thread>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #  include <io.h>
 #endif
@@ -49,6 +52,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 
 const size_t PIPE_SIZE = 4096;
 
@@ -208,7 +212,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
     openFilesMap.insert(pair<FILE*, OpenFileInfo>(pFile, info));
     if (setvbuf(pFile, 0, _IOFBF, 1024 * 4) != 0)
     {
-      trace_error->WriteFormattedLine("core", "setvbuf() failed for some reason");
+      trace_error->WriteLine("core", TraceLevel::Error, "setvbuf() failed for some reason");
     }
     RecordFileInfo(path, access);
     trace_files->WriteFormattedLine("core", "  => %p", pFile);
@@ -373,7 +377,7 @@ void SessionImpl::CheckOpenFiles()
 {
   for (map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.begin(); it != openFilesMap.end(); ++it)
   {
-    trace_error->WriteFormattedLine("core", "still open: %s", Q_(it->second.fileName));
+    trace_error->WriteLine("core", TraceLevel::Error, fmt::format("still open: {0}", Q_(it->second.fileName)));
   }
 }
 

@@ -53,21 +53,57 @@ using namespace std;
 
 #define ENABLE_LEGACY_TRACING 1
 
-pair<string, string> ParseOption(const string& option)
+const TraceLevel defaultLevel = TraceLevel::Info;
+const string defaultOption = "::info";
+const vector<string> defaultOptions = { defaultOption };
+
+// option spec: stream[:facility[:level]]
+tuple<string, string, TraceLevel> ParseOption(const string& option)
 {
+  vector<string> spec = StringUtil::Split(option, ':');
+  string streamName;
   string facility;
-  string name;
-  size_t pos = option.find(':');
-  if (pos == string::npos)
+  TraceLevel level = defaultLevel;
+  if (spec.size() > 0)
   {
-    name = option;
+    streamName = spec[0];
   }
-  else
+  if (spec.size() > 1)
   {
-    facility = option.substr(0, pos);
-    name = option.substr(pos + 1);
+    facility = spec[1];
   }
-  return make_pair(facility, name);
+  if (spec.size() > 2)
+  {
+    if (spec[2] == "fatal")
+    {
+      level = TraceLevel::Fatal;
+    }
+    else if (spec[2] == "error")
+    {
+      level = TraceLevel::Error;
+    }
+    else if (spec[2] == "warning")
+    {
+      level = TraceLevel::Warning;
+    }
+    else if (spec[2] == "info")
+    {
+      level = TraceLevel::Info;
+    }
+    else if (spec[2] == "trace")
+    {
+      level = TraceLevel::Trace;
+    }
+    else if (spec[2] == "debug")
+    {
+      level = TraceLevel::Error;
+    }
+    else
+    {
+      // TODO
+    }
+  }
+  return make_tuple(streamName, facility, level);
 }
 
 TraceStream::~TraceStream() noexcept
@@ -77,8 +113,8 @@ TraceStream::~TraceStream() noexcept
 struct TraceStreamInfo
 {
   string name;
-  bool isEnabled;
   vector<string> enabledFor;
+  TraceLevel level;
   vector<TraceCallback*> callbacks;
 };
 
@@ -89,10 +125,13 @@ public:
   void MIKTEXTHISCALL Close() override;
 
 public:
-  bool MIKTEXTHISCALL IsEnabled(const std::string& facility) override;
+  bool MIKTEXTHISCALL IsEnabled(const std::string& facility, TraceLevel level) override;
 
 public:
   void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) override;
+
+public:
+  void MIKTEXTHISCALL WriteLine(const std::string& facility, TraceLevel level, const std::string& text) override;
 
 public:
   void MIKTEXTHISCALL WriteLine(const std::string& facility, const std::string& text) override;
@@ -127,11 +166,11 @@ private:
   TraceCallback* callback;
 
 private:
-  void Logger(const string& facility, const string& message);
+  void Logger(const string& facility, TraceLevel level, const string& message);
 
 #if ENABLE_LEGACY_TRACING
 private:
-  void LegacyLogger(const string& facility, const string& message);
+  void LegacyLogger(const string& facility, TraceLevel level, const string& message);
 #endif
 
 private:
@@ -152,26 +191,30 @@ private:
 
 mutex TraceStreamImpl::traceStreamsMutex;
 TraceStreamImpl::TraceStreamTable TraceStreamImpl::traceStreams;
-vector<string> TraceStreamImpl::options;
+vector<string> TraceStreamImpl::options = defaultOptions;
 
-void TraceStreamImpl::Logger(const string& facility, const string& message)
+void TraceStreamImpl::Logger(const string& facility, TraceLevel level, const string& message)
 {
+  if (!IsEnabled(facility, level))
+  {
+    return;
+  }
 #if ENABLE_LEGACY_TRACING
   if (info->callbacks.size() == 0)
   {
-    LegacyLogger(facility, message);
+    LegacyLogger(facility, level, message);
     return;
   }
 #endif
   for (TraceCallback* callback : info->callbacks)
   {
-    callback->Trace(TraceCallback::TraceMessage(info->name, facility, message));
+    callback->Trace(TraceCallback::TraceMessage(info->name, facility, level, message));
   }
 }
 
 #if ENABLE_LEGACY_TRACING
 
-void TraceStreamImpl::LegacyLogger(const string& facility, const string& message)
+void TraceStreamImpl::LegacyLogger(const string& facility, TraceLevel level, const string& message)
 {
   string str;
   str.reserve(256);
@@ -235,7 +278,7 @@ void TraceStream::SetOptions(const vector<string>& options)
 
   if (options.empty())
   {
-    TraceStreamImpl::options = { "error" };
+    TraceStreamImpl::options = defaultOptions;
   }
   else
   {
@@ -244,50 +287,65 @@ void TraceStream::SetOptions(const vector<string>& options)
 
   for (auto& kv : TraceStreamImpl::traceStreams)
   {
-    kv.second->isEnabled = false;
+    kv.second->level = defaultLevel;
     kv.second->enabledFor.clear();
   }
 
   for (const string& opt : TraceStreamImpl::options)
   {
-    auto p = ParseOption(opt);
-    TraceStreamImpl::TraceStreamTable::iterator it = TraceStreamImpl::traceStreams.equal_range(p.second).first;
-    if (it != TraceStreamImpl::traceStreams.end() && it->second != nullptr)
+    string optStreamName;
+    string optFacility;
+    TraceLevel optLevel;
+    std::tie(optStreamName, optFacility, optLevel) = ParseOption(opt);
+    if (optStreamName.empty())
     {
-      if (p.first.empty())
+      for (auto& kv : TraceStreamImpl::traceStreams)
       {
-        it->second->isEnabled = true;
+        kv.second->level = optLevel;
+        if (!optFacility.empty())
+        {
+          kv.second->enabledFor.push_back(optFacility);
+        }
       }
-      else
+    }
+    else
+    {
+      TraceStreamImpl::TraceStreamTable::iterator it = TraceStreamImpl::traceStreams.equal_range(optStreamName).first;
+      if (it != TraceStreamImpl::traceStreams.end() && it->second != nullptr)
       {
-        it->second->enabledFor.push_back(p.first);
+        it->second->level = optLevel;
+        if (!optFacility.empty())
+        {
+          it->second->enabledFor.push_back(optFacility);
+        }
       }
     }
   }
 }
 
+void TraceStreamImpl::WriteLine(const string& facility, TraceLevel level, const string& text)
+{
+  Logger(facility, level, text);
+}
+
+void TraceStreamImpl::WriteLine(const string& facility, const string& text)
+{
+  WriteLine(facility, TraceLevel::Trace, text);
+}
+
 void TraceStreamImpl::WriteFormattedLine(const string& facility, const char* format, ...)
 {
-  if (!IsEnabled(facility))
+  if (!IsEnabled(facility, TraceLevel::Trace))
   {
     return;
   }
   va_list marker;
   va_start(marker, format);
-  Logger(facility, StringUtil::FormatStringVA(format, marker));
+  Logger(facility, TraceLevel::Trace, StringUtil::FormatStringVA(format, marker));
   va_end(marker);
 }
 
-void TraceStreamImpl::WriteLine(const string& facility, const string& text)
-{
-  if (!IsEnabled(facility))
-  {
-    return;
-  }
-  Logger(facility, text);
-}
-
-unique_ptr<TraceStream> TraceStream::Open(const string& name, TraceCallback* callback)
+unique_ptr<TraceStream> TraceStream::Open(const string& name, TraceLevel level, TraceCallback* callback)
 {
   lock_guard<mutex> lockGuard(TraceStreamImpl::traceStreamsMutex);
   shared_ptr<TraceStreamInfo> traceStreamInfo = TraceStreamImpl::traceStreams[name];
@@ -295,25 +353,30 @@ unique_ptr<TraceStream> TraceStream::Open(const string& name, TraceCallback* cal
   {
     traceStreamInfo = make_shared<TraceStreamInfo>();
     traceStreamInfo->name = name;
-    traceStreamInfo->isEnabled = false;
+    traceStreamInfo->level = level;
     for (const string& opt : TraceStreamImpl::options)
     {
-      auto p = ParseOption(opt);
-      if (name == p.second)
+      string optName;
+      string optFacility;
+      TraceLevel optLevel;
+      tie(optName, optFacility, optLevel) = ParseOption(opt);
+      if (optName.empty() || name == optName)
       {
-        if (p.first.empty())
+        if (!optFacility.empty())
         {
-          traceStreamInfo->isEnabled = true;
+          traceStreamInfo->enabledFor.push_back(optFacility);
         }
-        else
-        {
-          traceStreamInfo->enabledFor.push_back(p.first);
-        }
+        traceStreamInfo->level = optLevel;
       }
     }
     TraceStreamImpl::traceStreams[name] = traceStreamInfo;
   }
   return make_unique<TraceStreamImpl>(traceStreamInfo, callback);
+}
+
+unique_ptr<TraceStream> TraceStream::Open(const string& name, TraceCallback* callback)
+{
+  return Open(name, defaultLevel, callback);
 }
 
 void TraceStreamImpl::Close()
@@ -329,7 +392,38 @@ void TraceStreamImpl::Close()
   }
 }
 
-bool TraceStreamImpl::IsEnabled(const string& facility)
+bool TraceStreamImpl::IsEnabled(const string& facility, TraceLevel level)
 {
-  return this->info->isEnabled || find(this->info->enabledFor.begin(), this->info->enabledFor.end(), facility) != this->info->enabledFor.end();
+  return (this->info->enabledFor.empty() || find(this->info->enabledFor.begin(), this->info->enabledFor.end(), facility) != this->info->enabledFor.end())
+    && level <= this->info->level;
+}
+
+string TraceCallback::TraceMessage::ToString() const
+{
+  string result;
+  switch (this->level)
+  {
+  case TraceLevel::Fatal:
+    result = "FATAL";
+    break;
+  case TraceLevel::Error:
+    result = "ERROR";
+    break;
+  case TraceLevel::Warning:
+    result = "WARNING";
+    break;
+  case TraceLevel::Info:
+    result = "INFO";
+    break;
+  case TraceLevel::Trace:
+    result = "TRACE";
+    break;
+  case TraceLevel::Debug:
+  default:
+    result = "DEBUG";
+    break;
+  }
+  result += ": ";
+  result += this->message;
+  return result;
 }

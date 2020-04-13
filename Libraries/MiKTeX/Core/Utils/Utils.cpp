@@ -44,6 +44,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 string Utils::Hexify(const void* bytes, size_t nBytes, bool lowerCase)
@@ -592,9 +593,9 @@ bool Utils::GetEnvironmentString(const string& name, string& str)
   bool haveValue = ::GetEnvironmentString(name, str);
   if (SessionImpl::TryGetSession() != nullptr
     && SessionImpl::GetSession()->trace_env.get() != nullptr
-    && SessionImpl::GetSession()->trace_env->IsEnabled("core"))
+    && SessionImpl::GetSession()->trace_env->IsEnabled("core", TraceLevel::Trace))
   {
-    SessionImpl::GetSession()->trace_env->WriteFormattedLine("core", "%s => %s", name.c_str(), (haveValue ? str.c_str() : "null"));
+    SessionImpl::GetSession()->trace_env->WriteLine("core", TraceLevel::Trace, fmt::format("{0} => {1}", name, (haveValue ? str : "null")));
   }
   return haveValue;
 }
@@ -963,8 +964,8 @@ pair<bool, bool> Utils::CheckPath()
   bool pathOkay = !Directory::Exists(linkTargetDirectory) || !FixProgramSearchPath(envPath, linkTargetDirectory, true, repairedPath, pathCompetition);
   if (!pathOkay)
   {
-    session->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));
-    session->trace_error->WriteLine("core", envPath);
+    session->trace_error->WriteLine("core", TraceLevel::Error, T_("Something is wrong with the PATH:"));
+    session->trace_error->WriteLine("core", TraceLevel::Error, envPath);
   }
   return make_pair(pathOkay, pathCompetition);
 }

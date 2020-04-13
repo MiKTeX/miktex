@@ -152,14 +152,27 @@ void Wrapper::FlushPendingTraceMessages()
 void Wrapper::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
 {
   log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.texworks.") + traceMessage.facility);
-
-  if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
+  switch (traceMessage.level)
   {
+  case TraceLevel::Fatal:
+    LOG4CXX_FATAL(logger, traceMessage.message);
+    break;
+  case TraceLevel::Error:
     LOG4CXX_ERROR(logger, traceMessage.message);
-  }
-  else
-  {
+    break;
+  case TraceLevel::Warning:
+    LOG4CXX_WARN(logger, traceMessage.message);
+    break;
+  case TraceLevel::Info:
+    LOG4CXX_INFO(logger, traceMessage.message);
+    break;
+  case TraceLevel::Trace:
     LOG4CXX_TRACE(logger, traceMessage.message);
+    break;
+  case TraceLevel::Debug:
+  default:
+    LOG4CXX_DEBUG(logger, traceMessage.message);
+    break;
   }
 }
 

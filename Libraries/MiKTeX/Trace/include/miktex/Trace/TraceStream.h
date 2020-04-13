@@ -45,7 +45,10 @@ public:
   virtual void MIKTEXTHISCALL Close() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL IsEnabled(const std::string& facility) = 0;
+  virtual bool MIKTEXTHISCALL IsEnabled(const std::string& facility, TraceLevel level) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL WriteLine(const std::string& facility, TraceLevel level, const std::string& text) = 0;
 
 public:
   virtual void MIKTEXTHISCALL WriteLine(const std::string& facility, const std::string& text) = 0;
@@ -53,6 +56,9 @@ public:
   // DEPRECATED
 public:
   virtual void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) = 0;
+
+public:
+  static MIKTEXTRACECEEAPI(std::unique_ptr<TraceStream>) Open(const std::string& name, TraceLevel level, TraceCallback* callback);
 
 public:
   static MIKTEXTRACECEEAPI(std::unique_ptr<TraceStream>) Open(const std::string& name, TraceCallback* callback);

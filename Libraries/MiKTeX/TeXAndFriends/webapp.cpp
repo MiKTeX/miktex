@@ -21,6 +21,9 @@
 
 #include <set>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileStream>
 
@@ -374,6 +377,7 @@ void WebApp::SetProgramInfo(const string& programName, const string& version, co
   pimpl->version = version;
   pimpl->copyright = copyright;
   pimpl->trademarks = trademarks;
+  LogInfo(fmt::format(T_("this is MiKTeX-{0} {1} ({2})"), programName, version, Utils::GetMiKTeXBannerString()));
 }
 
 bool WebApp::IsFeatureEnabled(Feature f) const

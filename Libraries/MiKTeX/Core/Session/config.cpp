@@ -49,6 +49,7 @@ namespace {
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 #if 0
@@ -488,15 +489,15 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   }
 #endif
 
-  if (trace_values->IsEnabled("core"))
+  if (trace_values->IsEnabled("core", TraceLevel::Trace))
   {
     if (!sectionName.empty())
     {
-      trace_values->WriteLine("core", fmt::format("[{}]{} => {}", sectionName, valueName, haveValue ? value : "null"));
+      trace_values->WriteLine("core", TraceLevel::Trace, fmt::format("[{}]{} => {}", sectionName, valueName, haveValue ? value : "null"));
     }
     else
     {
-      trace_values->WriteLine("core", fmt::format("{} => {}", valueName, haveValue ? value : "null"));
+      trace_values->WriteLine("core", TraceLevel::Trace, fmt::format("{} => {}", valueName, haveValue ? value : "null"));
     }
   }
 
@@ -846,7 +847,7 @@ void SessionImpl::SetAdminMode(bool adminMode, bool force)
   {
     MIKTEX_FATAL_ERROR(T_("Administrator mode cannot be enabled (makes no sense) because this is not a shared MiKTeX setup."));
   }
-  trace_config->WriteLine("core", fmt::format(T_("turning {0} administrator mode"), (adminMode ? "on" : "off")));
+  trace_config->WriteLine("core", TraceLevel::Info, fmt::format(T_("turning {0} administrator mode"), (adminMode ? "on" : "off")));
   // reinitialize
   fileTypes.clear();
   UnloadFilenameDatabase();

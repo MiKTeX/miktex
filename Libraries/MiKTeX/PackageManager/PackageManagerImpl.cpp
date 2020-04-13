@@ -1043,7 +1043,7 @@ bool PackageManagerImpl::TryGetFileDigest(const PathName& prefix, const string& 
   path /= unprefixed;
   if (!File::Exists(path))
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("package verification failed: file {0} does not exist"), Q_(path)));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("package verification failed: file {0} does not exist"), Q_(path)));
     return false;
   }
   if (path.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
@@ -1116,9 +1116,9 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
 
   if (!ok)
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("package {0} verification failed: some files have been modified"), Q_(packageId)));
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("expected digest: {0}"), packageInfo.digest));
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("computed digest: {0}"), md5Builder.GetMD5()));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("package {0} verification failed: some files have been modified"), Q_(packageId)));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("expected digest: {0}"), packageInfo.digest));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("computed digest: {0}"), md5Builder.GetMD5()));
   }
 
   return ok;
