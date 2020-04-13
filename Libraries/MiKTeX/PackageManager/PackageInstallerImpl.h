@@ -86,15 +86,31 @@ public:
 public:
   void MIKTEXTHISCALL UpdateDb(UpdateDbOptionSet options) override
   {
-    MPM_AUTO_LOCK(this->packageManager);
-    UpdateDbNoLock(options);
+    MPM_LOCK_BEGIN(this->packageManager)
+    {
+      UpdateDbNoLock(options);
+    }
+    MPM_LOCK_END();
   }
+
+private:
+  void UpdateDbNoLock(UpdateDbOptionSet options);
 
 public:
   void MIKTEXTHISCALL UpdateDbAsync() override;
 
 public:
-  void MIKTEXTHISCALL FindUpdates() override;
+  void MIKTEXTHISCALL FindUpdates() override
+  {
+    MPM_LOCK_BEGIN(this->packageManager)
+    {
+      FindUpdatesNoLock();
+    }
+    MPM_LOCK_END();
+  }
+
+private:
+  void FindUpdatesNoLock();
 
 public:
   void MIKTEXTHISCALL FindUpdatesAsync() override;
@@ -106,7 +122,13 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL FindUpgrades(PackageLevel packageLevel) override;
+  void MIKTEXTHISCALL FindUpgrades(PackageLevel packageLevel) override
+  {
+    FindUpgradesNoLock(packageLevel);
+  }
+
+private:
+  void FindUpgradesNoLock(PackageLevel packageLevel);
 
 public:
   void MIKTEXTHISCALL FindUpgradesAsync(PackageLevel packageLevel) override;
@@ -131,9 +153,6 @@ public:
 
 public:
   void MIKTEXTHISCALL DownloadAsync() override;
-
-private:
-  void UpdateDbNoLock(UpdateDbOptionSet options);
 
 private:
   void StartWorkerThread(void (PackageInstallerImpl::*method)());

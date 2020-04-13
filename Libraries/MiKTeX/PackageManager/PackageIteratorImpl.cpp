@@ -32,11 +32,14 @@ using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 PackageIteratorImpl::PackageIteratorImpl(shared_ptr<PackageManagerImpl> packageManager) :
   packageManager(packageManager)
 {
-  MPM_AUTO_LOCK(this->packageManager);
-  for (const auto& p : *packageManager->GetPackageDataStore())
+  MPM_LOCK_BEGIN(this->packageManager)
   {
-    snapshot.push_back(p);
+    for (const auto& p : *packageManager->GetPackageDataStore())
+    {
+      snapshot.push_back(p);
+    }
   }
+  MPM_LOCK_END();
   iter = snapshot.begin();
 }
 

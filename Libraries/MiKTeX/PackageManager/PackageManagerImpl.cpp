@@ -104,14 +104,21 @@ void PackageManagerImpl::Dispose()
   }
 }
 
-bool PackageManagerImpl::TryLock(chrono::milliseconds timeout)
+void PackageManagerImpl::Lock(chrono::milliseconds timeout)
 {
   if (isLocked)
   {
     MIKTEX_UNEXPECTED();
   }
   isLocked = lockFile->TryLock(timeout);
-  return isLocked;
+  if (!isLocked)
+  {
+      MIKTEX_FATAL_ERROR_5(
+        T_("The package database could not be locked."),
+        T_("Another process has locked the package database."),
+        T_("Wait a few minutes, then try again."),
+        "package-database-locked");
+  }
 }
 
 void PackageManagerImpl::Unlock()

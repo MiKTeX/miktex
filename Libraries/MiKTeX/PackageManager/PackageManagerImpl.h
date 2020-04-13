@@ -145,7 +145,7 @@ public:
   PackageManagerImpl(const MiKTeX::Packages::PackageManager::InitInfo& initInfo);
 
 public:
-  bool TryLock(std::chrono::milliseconds timeout);
+  void Lock(std::chrono::milliseconds timeout);
 
 public:
   void Unlock();
@@ -222,22 +222,13 @@ public:
 #endif
 };
 
-#define MPM_LOCK_BEGIN(packageManager)                                    \
-  if (!packageManager->TryLock(std::chrono::seconds(10)))                 \
-  {                                                                       \
-    MIKTEX_FATAL_ERROR_5(                                                 \
-      T_("The package database could not be locked."),                    \
-      T_("Another process has locked the package database."),             \
-      T_("Wait a few minutes, then try again."),                          \
-      "package-database-locked");                                         \
+#define MPM_LOCK_BEGIN(packageManager)                                      \
+  {                                                                         \
+    packageManager->Lock(std::chrono::seconds(10));                         \
+    MIKTEX_AUTO(packageManager->Unlock());
+
+#define MPM_LOCK_END()                                                      \
   }
-
-#define MPM_LOCK_END(packageManager)                                      \
-  packageManager->Unlock();
-
-#define MPM_AUTO_LOCK(packageManager)                                     \
-  MPM_LOCK_BEGIN(packageManager);                                         \
-  MIKTEX_AUTO(MPM_LOCK_END(packageManager));
 
 MPM_INTERNAL_END_NAMESPACE;
 
