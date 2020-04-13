@@ -25,6 +25,9 @@
 #  define MIKTEXTRACEEXPORT
 #endif
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Util/StringUtil>
 #include <miktex/Util/Tokenizer>
 
@@ -126,13 +129,13 @@ public:
   bool MIKTEXTHISCALL IsEnabled(const std::string& facility, TraceLevel level) override;
 
 public:
-  void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) override;
-
-public:
   void MIKTEXTHISCALL WriteLine(const std::string& facility, TraceLevel level, const std::string& text) override;
 
 public:
   void MIKTEXTHISCALL WriteLine(const std::string& facility, const std::string& text) override;
+
+public:
+  void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) override;
 
 public:
   TraceStreamImpl(shared_ptr<TraceStreamInfo> info, TraceCallback* callback) :
@@ -302,7 +305,10 @@ unique_ptr<TraceStream> TraceStream::Open(const string& name, TraceLevel level, 
         {
           traceStreamInfo->enabledFor.push_back(optFacility);
         }
-        traceStreamInfo->level = optLevel;
+        if (optLevel > level)
+        {
+          traceStreamInfo->level = optLevel;
+        }
       }
     }
     TraceStreamImpl::traceStreams[name] = traceStreamInfo;
@@ -362,4 +368,32 @@ string TraceCallback::TraceMessage::ToString() const
   result += ": ";
   result += this->message;
   return result;
+}
+
+string TraceStream::MakeOption(const string& name, const string& facility, TraceLevel level)
+{
+  string levelString;
+  switch (level)
+  {
+  case TraceLevel::Fatal:
+    levelString = "fatal";
+    break;
+  case TraceLevel::Error:
+    levelString = "debug";
+    break;
+  case TraceLevel::Warning:
+    levelString = "warning";
+    break;
+  case TraceLevel::Info:
+    levelString = "info";
+    break;
+  case TraceLevel::Trace:
+    levelString = "trace";
+    break;
+  case TraceLevel::Debug:
+  default:
+    levelString = "debug";
+    break;
+  }
+  return fmt::format("{0}:{1}:{2}", name, facility, levelString);
 }

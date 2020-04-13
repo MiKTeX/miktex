@@ -115,10 +115,9 @@ using namespace MiKTeX::Wrappers;
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-vector<string> DEFAULT_TRACE_STREAMS = {
-  MIKTEX_TRACE_ERROR,
-  MIKTEX_TRACE_PROCESS,
-  PROGRAM_NAME
+vector<string> DEFAULT_TRACE_OPTIONS = {
+  TraceStream::MakeOption("", "", TraceLevel::Info),
+  TraceStream::MakeOption(PROGRAM_NAME, "", TraceLevel::Trace),
 };
 
 class ProcessOutputTrash :
@@ -2052,7 +2051,7 @@ void McdApp::Run(int argc, const char** argv)
       options.clean = true;
       break;
     case OPT_DEBUG:
-      options.traceStreams = StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ',');
+      options.traceStreams = StringUtil::Flatten(DEFAULT_TRACE_OPTIONS, ',');
       break;
     case OPT_ENGINE:
       if (!options.SetEngine(optArg))
@@ -2171,7 +2170,7 @@ void McdApp::Run(int argc, const char** argv)
     case OPT_TRACE:
       if (optArg.empty())
       {
-        options.traceStreams = StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ',');
+        options.traceStreams = StringUtil::Flatten(DEFAULT_TRACE_OPTIONS, ',');
       }
       else
       {

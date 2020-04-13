@@ -75,6 +75,9 @@ public:
 
 public:
   static MIKTEXTRACECEEAPI(void) SetOptions(const std::string& options);
+
+public:
+  static MIKTEXTRACECEEAPI(std::string) MakeOption(const std::string& name, const std::string& facility, TraceLevel level);
 };
 
 MIKTEX_TRACE_END_NAMESPACE;

@@ -69,10 +69,9 @@ using namespace std::string_literals;
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-vector<string> DEFAULT_TRACE_STREAMS = {
-  MIKTEX_TRACE_ERROR,
-  MIKTEX_TRACE_PROCESS,
-  PROGRAM_NAME
+vector<string> DEFAULT_TRACE_OPTIONS = {
+  TraceStream::MakeOption("", "", TraceLevel::Info),
+  TraceStream::MakeOption(PROGRAM_NAME, "", TraceLevel::Trace),
 };
 
 class EpsToPdfApp :
@@ -812,7 +811,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
       doCompress = true;
       break;
     case OPT_DEBUG:
-      initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
+      initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_OPTIONS, ','));
       break;
     case OPT_ENLARGE:
       enlarge = std::stoi(optArg);
@@ -868,7 +867,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     case OPT_TRACE:
       if (optArg.empty())
       {
-        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
+        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_OPTIONS, ','));
       }
       else
       {
