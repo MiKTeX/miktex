@@ -36,6 +36,7 @@
 #include "internal.h"
 
 #include "PackageDataStore.h"
+#include "PackageManagerImpl.h"
 #include "TpmParser.h"
 
 using namespace std;

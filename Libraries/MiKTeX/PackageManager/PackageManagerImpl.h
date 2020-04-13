@@ -30,7 +30,7 @@
 #include <miktex/Core/LockFile>
 #include <miktex/Core/MD5>
 
-#include <miktex/PackageManager/PackageManager.h>
+#include <miktex/PackageManager/PackageManager>
 
 #include "internal.h"
 

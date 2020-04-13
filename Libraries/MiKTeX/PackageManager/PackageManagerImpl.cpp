@@ -75,7 +75,6 @@ PackageManagerImpl::PackageManagerImpl(const PackageManager::InitInfo& initInfo)
   repositories(webSession)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("initializing MPM library version {0}"), MIKTEX_COMPONENT_VERSION_STR));
-  lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_PACKAGE_MANAGER_LOCK);
 }
 
 PackageManagerImpl::~PackageManagerImpl()
@@ -109,6 +108,10 @@ void PackageManagerImpl::Lock(chrono::milliseconds timeout)
   if (isLocked)
   {
     MIKTEX_UNEXPECTED();
+  }
+  if (lockFile == nullptr)
+  {
+    lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_PACKAGE_MANAGER_LOCK);
   }
   isLocked = lockFile->TryLock(timeout);
   if (!isLocked)

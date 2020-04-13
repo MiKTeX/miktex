@@ -1,6 +1,6 @@
 /* PackageDataStore.h:                                  -*- C++ -*-
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
