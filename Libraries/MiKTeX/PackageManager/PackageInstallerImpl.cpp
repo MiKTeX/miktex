@@ -1619,6 +1619,8 @@ MPMSTATICFUNC(bool) EndsWith(const string& s, const string& suffix)
 
 void PackageInstallerImpl::InstallRemove(Role role)
 {
+  MPM_AUTO_LOCK(this->packageManager);
+
   NeedRepository();
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
@@ -2170,7 +2172,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& existingManifests
   packageDataStore->SaveVarData();
 }
 
-void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
+void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "update package database");
 

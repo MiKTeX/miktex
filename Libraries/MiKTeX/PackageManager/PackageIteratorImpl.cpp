@@ -1,6 +1,6 @@
 /* PackageIterator.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -32,6 +32,7 @@ using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 PackageIteratorImpl::PackageIteratorImpl(shared_ptr<PackageManagerImpl> packageManager) :
   packageManager(packageManager)
 {
+  MPM_AUTO_LOCK(this->packageManager);
   for (const auto& p : *packageManager->GetPackageDataStore())
   {
     snapshot.push_back(p);

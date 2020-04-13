@@ -84,7 +84,11 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL UpdateDb(UpdateDbOptionSet options) override;
+  void MIKTEXTHISCALL UpdateDb(UpdateDbOptionSet options) override
+  {
+    MPM_AUTO_LOCK(this->packageManager);
+    UpdateDbNoLock(options);
+  }
 
 public:
   void MIKTEXTHISCALL UpdateDbAsync() override;
@@ -127,6 +131,9 @@ public:
 
 public:
   void MIKTEXTHISCALL DownloadAsync() override;
+
+private:
+  void UpdateDbNoLock(UpdateDbOptionSet options);
 
 private:
   void StartWorkerThread(void (PackageInstallerImpl::*method)());

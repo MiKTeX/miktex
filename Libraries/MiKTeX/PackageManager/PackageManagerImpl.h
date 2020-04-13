@@ -1,6 +1,6 @@
 /* PackageManagerImpl.h:                                -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -25,7 +25,9 @@
 #include <map>
 #include <string>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Fndb>
+#include <miktex/Core/LockFile>
 #include <miktex/Core/MD5>
 
 #include <miktex/PackageManager/PackageManager.h>
@@ -143,6 +145,18 @@ public:
   PackageManagerImpl(const MiKTeX::Packages::PackageManager::InitInfo& initInfo);
 
 public:
+  bool TryLock(std::chrono::milliseconds timeout);
+
+public:
+  void Unlock();
+
+public:
+  bool IsLocked() const
+  {
+    return isLocked;
+  }
+
+public:
   void ClearAll();
 
 private:
@@ -153,6 +167,12 @@ private:
 
 private:
   void Dispose();
+
+private:
+  std::unique_ptr<MiKTeX::Core::LockFile> lockFile;
+
+private:
+  bool isLocked = false;
 
 private:
   std::string remoteServiceBaseUrl;
@@ -201,6 +221,23 @@ public:
   static bool localServer;
 #endif
 };
+
+#define MPM_LOCK_BEGIN(packageManager)                                    \
+  if (!packageManager->TryLock(std::chrono::seconds(10)))                 \
+  {                                                                       \
+    MIKTEX_FATAL_ERROR_5(                                                 \
+      T_("The package database could not be locked."),                    \
+      T_("Another process has locked the package database."),             \
+      T_("Wait a few minutes, then try again."),                          \
+      "package-database-locked");                                         \
+  }
+
+#define MPM_LOCK_END(packageManager)                                      \
+  packageManager->Unlock();
+
+#define MPM_AUTO_LOCK(packageManager)                                     \
+  MPM_LOCK_BEGIN(packageManager);                                         \
+  MIKTEX_AUTO(MPM_LOCK_END(packageManager));
 
 MPM_INTERNAL_END_NAMESPACE;
 
