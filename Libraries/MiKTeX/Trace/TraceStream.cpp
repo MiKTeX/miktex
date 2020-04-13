@@ -188,6 +188,10 @@ vector<string> TraceStreamImpl::options = defaultOptions;
 
 void TraceStreamImpl::Logger(const string& facility, TraceLevel level, const string& message)
 {
+  if (!IsEnabled(facility, level))
+  {
+    return;
+  }
   for (TraceCallback* callback : info->callbacks)
   {
     callback->Trace(TraceCallback::TraceMessage(info->name, facility, level, message));
