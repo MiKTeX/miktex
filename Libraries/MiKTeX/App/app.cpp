@@ -462,13 +462,24 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   pimpl->session = Session::Create(initInfo);
   pimpl->session->SetFindFileCallback(this);
   ConfigureLogging();
+  auto thisProcess = Process::GetCurrentProcess();
+  auto parentProcess = thisProcess->get_Parent();
+  string invokerName;
+  if (parentProcess != nullptr)
+  {
+    invokerName = parentProcess->get_ProcessName();
+  }
+  if (invokerName.empty())
+  {
+    invokerName = "unknown process";
+  }
   if (pimpl->commandLine.empty())
   {
     // TODO
   }
   else
   {
-    LOG4CXX_INFO(logger, "starting with command line: " << pimpl->commandLine);
+    LOG4CXX_INFO(logger, "started #" << thisProcess->GetSystemId() << " by " << invokerName << " with command line: " << pimpl->commandLine);
   }
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
@@ -528,7 +539,8 @@ void Application::Finalize2(int exitCode)
 {
   if (logger != nullptr)
   {
-    LOG4CXX_INFO(logger, "finishing with exit code " << exitCode);
+    auto thisProcess = Process::GetCurrentProcess();
+    LOG4CXX_INFO(logger, "#" << thisProcess->GetSystemId() << " finishes with exit code " << exitCode);
   }
   Finalize();
 }
