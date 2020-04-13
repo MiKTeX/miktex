@@ -175,7 +175,7 @@ private:
   const regex findfont_regex{ "/([A-Za-z0-9_\\-]+)\\s+findfont" };
 
 private:
-  const regex fontmap_regex{ "/([A-Za-z0-9_\\-]+)\\s+([\\(/A-Za-z0-9_\\-\\.\\)]+)\\s*;" };
+  const regex fontmap_regex{ "/([A-Za-z0-9_\\-]+)\\s+([\\(/A-Za-z0-9_\\.\\)\\-]+)\\s*;" };
 
 private:
   unique_ptr<TraceStream> traceStream;
