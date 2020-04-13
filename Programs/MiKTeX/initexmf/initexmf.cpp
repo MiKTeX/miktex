@@ -384,7 +384,7 @@ private:
 private:
   void PushTraceMessage(const string& message)
   {
-    PushTraceMessage(TraceCallback::TraceMessage("initexmf", "initexmf", message));
+    PushTraceMessage(TraceCallback::TraceMessage("initexmf", "initexmf", TraceLevel::Trace, message));
   }
   
 public:
