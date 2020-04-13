@@ -51,8 +51,6 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace std;
 
-#define ENABLE_LEGACY_TRACING 1
-
 const TraceLevel defaultLevel = TraceLevel::Info;
 const string defaultOption = "::info";
 const vector<string> defaultOptions = { defaultOption };
@@ -168,11 +166,6 @@ private:
 private:
   void Logger(const string& facility, TraceLevel level, const string& message);
 
-#if ENABLE_LEGACY_TRACING
-private:
-  void LegacyLogger(const string& facility, TraceLevel level, const string& message);
-#endif
-
 private:
   friend class TraceStream;
 
@@ -195,72 +188,11 @@ vector<string> TraceStreamImpl::options = defaultOptions;
 
 void TraceStreamImpl::Logger(const string& facility, TraceLevel level, const string& message)
 {
-  if (!IsEnabled(facility, level))
-  {
-    return;
-  }
-#if ENABLE_LEGACY_TRACING
-  if (info->callbacks.size() == 0)
-  {
-    LegacyLogger(facility, level, message);
-    return;
-  }
-#endif
   for (TraceCallback* callback : info->callbacks)
   {
     callback->Trace(TraceCallback::TraceMessage(info->name, facility, level, message));
   }
 }
-
-#if ENABLE_LEGACY_TRACING
-
-void TraceStreamImpl::LegacyLogger(const string& facility, TraceLevel level, const string& message)
-{
-  string str;
-  str.reserve(256);
-  str += std::to_string(clock());
-  str += " [";
-#if defined(MIKTEX_WINDOWS)
-  wchar_t szPath[_MAX_PATH];
-  if (GetModuleFileNameW(nullptr, szPath, _MAX_PATH) != 0)
-  {
-    wchar_t szName[_MAX_PATH];
-#if 0
-    PathName(szPath).GetFileNameWithoutExtension(szName);
-#else
-    _wsplitpath_s(szPath, nullptr, 0, nullptr, 0, szName, _MAX_PATH, nullptr, 0);
-#endif
-    str += StringUtil::WideCharToUTF8(szName);
-  }
-#endif
-  str += '.';
-  if (!facility.empty())
-  {
-    str += facility;
-  }
-  str += "]: ";
-  str += message;
-  str += '\n';
-#if defined(MIKTEX_WINDOWS)
-  wstring debstr;
-  try
-  {
-    debstr = StringUtil::UTF8ToWideChar(str);
-  }
-  catch (const exception&)
-  {
-    debstr = L"???";
-  }
-  OutputDebugStringW(debstr.c_str());
-#else
-  if (stderr != nullptr)
-  {
-    fputs(str.c_str(), stderr);
-    fflush(stderr);
-  }
-#endif
-}
-#endif
 
 void TraceStream::SetOptions(const string& optionsString)
 {
