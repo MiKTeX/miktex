@@ -105,16 +105,11 @@ void PackageManagerImpl::Dispose()
 
 void PackageManagerImpl::Lock(chrono::milliseconds timeout)
 {
-  if (isLocked)
-  {
-    MIKTEX_UNEXPECTED();
-  }
   if (lockFile == nullptr)
   {
     lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_PACKAGE_MANAGER_LOCK);
   }
-  isLocked = lockFile->TryLock(timeout);
-  if (!isLocked)
+  if (lockFile->TryLock(timeout))
   {
       MIKTEX_FATAL_ERROR_5(
         T_("The package database could not be locked."),
@@ -126,12 +121,7 @@ void PackageManagerImpl::Lock(chrono::milliseconds timeout)
 
 void PackageManagerImpl::Unlock()
 {
-  if (!isLocked)
-  {
-    MIKTEX_UNEXPECTED();
-  }
   lockFile->Unlock();
-  isLocked = false;
 }
 
 unique_ptr<PackageInstaller> PackageManagerImpl::CreateInstaller(const PackageInstaller::InitInfo& initInfo)

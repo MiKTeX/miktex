@@ -151,12 +151,6 @@ public:
   void Unlock();
 
 public:
-  bool IsLocked() const
-  {
-    return isLocked;
-  }
-
-public:
   void ClearAll();
 
 private:
@@ -170,9 +164,6 @@ private:
 
 private:
   std::unique_ptr<MiKTeX::Core::LockFile> lockFile;
-
-private:
-  bool isLocked = false;
 
 private:
   std::string remoteServiceBaseUrl;
