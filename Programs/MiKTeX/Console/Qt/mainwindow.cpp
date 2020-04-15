@@ -1778,11 +1778,11 @@ bool ChangeLinkTargetDirectoryWorker::Run()
     RunIniTeXMF({ "--remove-links" });
     if (session->IsSharedSetup())
     {
-      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, linkTargetDirectory.ToString());
+      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, ConfigValue(linkTargetDirectory.ToString()));
     }
     else
     {
-      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, linkTargetDirectory.ToString());
+      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, ConfigValue(linkTargetDirectory.ToString()));
     }
     RunIniTeXMF({ "--mklinks" });
     result = true;
