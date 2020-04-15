@@ -896,7 +896,7 @@ void SessionImpl::StartFinishScript(int delay)
     writer << cmd << "\n";
   }
   writer.close();
-  trace_core->WriteLine("core", T_("starting finish script"));
+  trace_core->WriteLine("core", TraceLevel::Info, T_("starting finish script"));
 #if defined(MIKTEX_UNIX)
   File::SetAttributes(script, { FileAttribute::Executable });
   Process::Start(script);
