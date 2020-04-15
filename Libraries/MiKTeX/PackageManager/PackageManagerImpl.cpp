@@ -112,9 +112,9 @@ void PackageManagerImpl::Lock(chrono::milliseconds timeout)
   if (!lockFile->TryLock(timeout))
   {
       MIKTEX_FATAL_ERROR_5(
-        T_("The package database could not be locked."),
-        T_("Another process has locked the package database."),
-        T_("Wait a few minutes, then try again."),
+        T_("The package database is locked and cannot be accessed."),
+        T_("Another MiKTeX program has exclusevily locked the package database."),
+        T_("Close running MiKTeX programs and try again."),
         "package-database-locked");
   }
 }
