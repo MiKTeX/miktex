@@ -397,6 +397,11 @@ vector<string> SessionImpl::MakeMakePkCommandLine(const string& fontName, int dp
 
   vector<string> args{ fileName.GetFileNameWithoutExtension().ToString() };
 
+  if (IsAdminMode())
+  {
+    args.push_back("--miktex-admin");
+  }
+
   switch (enableInstaller)
   {
   case TriState::False:
