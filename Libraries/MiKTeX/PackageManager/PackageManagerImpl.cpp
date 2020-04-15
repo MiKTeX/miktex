@@ -109,7 +109,7 @@ void PackageManagerImpl::Lock(chrono::milliseconds timeout)
   {
     lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_PACKAGE_MANAGER_LOCK);
   }
-  if (lockFile->TryLock(timeout))
+  if (!lockFile->TryLock(timeout))
   {
       MIKTEX_FATAL_ERROR_5(
         T_("The package database could not be locked."),
