@@ -106,8 +106,8 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage, bool dontFi
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
-  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, "0").GetString()));
-  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, "0").GetString()));
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetString()));
+  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetString()));
   isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !session->IsMiKTeXPortable();
   this->dontFindIssues = isSetupMode || dontFindIssues;
   okayUserMode = isSetupMode || CheckIssue(IssueType::UserUpdateCheckOverdue).first;
@@ -1458,28 +1458,28 @@ void MainWindow::OnRepositorySelected(int index)
 void MainWindow::on_radioAutoInstallAsk_clicked()
 {
   LOG4CXX_INFO(logger, "setting AutoInstall: ask");
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::Undetermined);
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::Undetermined)));
   ui->chkAllUsers->setEnabled(false);
 }
 
 void MainWindow::on_radioAutoInstallYes_clicked()
 {
   LOG4CXX_INFO(logger, "setting AutoInstall: yes");
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::True);
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::True)));
   ui->chkAllUsers->setEnabled(true);
 }
 
 void MainWindow::on_radioAutoInstallNo_clicked()
 {
   LOG4CXX_INFO(logger, "setting AutoInstall: no");
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::False);
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::False)));
   ui->chkAllUsers->setEnabled(false);
 }
 
 void MainWindow::on_chkAllUsers_clicked()
 {
   LOG4CXX_INFO(logger, "setting AutoAdmin: " << ui->chkAllUsers->isChecked());
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, (int)(ui->chkAllUsers->isChecked() ? TriState::True : TriState::False));
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, ConfigValue(static_cast<int>(ui->chkAllUsers->isChecked() ? TriState::True : TriState::False)));
 }
 
 void MainWindow::UpdateUiPaper()

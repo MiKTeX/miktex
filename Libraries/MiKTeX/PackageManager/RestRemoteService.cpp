@@ -334,8 +334,8 @@ void RestRemoteService::SayHello()
   }
   else
   {
-    session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, "AuthToken", token);
-    session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, "AuthTokenNotValidAfter", (int)system_clock::to_time_t(tokenNotValidAfter));
+    session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, "AuthToken", ConfigValue(token));
+    session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, "AuthTokenNotValidAfter", ConfigValue(static_cast<int>(system_clock::to_time_t(tokenNotValidAfter))));
   }
   SetAuthHeader(token);
 }

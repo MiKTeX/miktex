@@ -61,10 +61,10 @@ protected:
   int GetConfigValue(const std::string& valueName, int defaultValue) const
   {
     std::shared_ptr<MiKTeX::Core::Session> session = texmfapp.GetSession();
-    int value = session->GetConfigValue(MIKTEX_CONFIG_SECTION_NONE, valueName, -1).GetInt();
+    int value = session->GetConfigValue(MIKTEX_CONFIG_SECTION_NONE, valueName, MiKTeX::Core::ConfigValue(-1)).GetInt();
     if (value < 0)
     {
-      value = session->GetConfigValue(texmfapp.GetProgramName(), valueName, defaultValue).GetInt();
+      value = session->GetConfigValue(texmfapp.GetProgramName(), valueName, MiKTeX::Core::ConfigValue(defaultValue)).GetInt();
     }
     return value;
   }

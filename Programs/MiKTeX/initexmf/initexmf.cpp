@@ -1937,7 +1937,7 @@ void IniTeXMFApp::SetConfigValue(const string& valueSpec)
   ++lpsz;
   string value = lpsz;
   Verbose(fmt::format(T_("Setting config value: [{0}]{1}={2}"), section, valueName, value));
-  session->SetConfigValue(section, valueName, value);
+  session->SetConfigValue(section, valueName, ConfigValue(value));
 }
 
 void IniTeXMFApp::ShowConfigValue(const string& valueSpec)

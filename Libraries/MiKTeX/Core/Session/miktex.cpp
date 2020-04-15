@@ -140,11 +140,11 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
 #else
     if (IsSharedSetup())
     {
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, MIKTEX_SYSTEM_LINK_TARGET_DIR).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, ConfigValue(MIKTEX_SYSTEM_LINK_TARGET_DIR)).GetString();
     }
     else
     {
-      string s = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, MIKTEX_USER_LINK_TARGET_DIR).GetString();
+      string s = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, ConfigValue(MIKTEX_USER_LINK_TARGET_DIR)).GetString();
       auto p = Utils::ExpandTilde(s);
       if (p.first)
       {
@@ -162,14 +162,14 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     {
 #if defined(MIKTEX_UNIX)
       // FIXME: hard-coded sub-directory
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, (PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / "miktex").ToString()).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / "miktex").ToString())).GetString();
 #else
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, (GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString()).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
 #endif
     }
     else
     {
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLOGDIRECTORY, (GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString()).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
     }
     break;
   case SpecialPath::CommonInstallRoot:

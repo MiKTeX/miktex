@@ -380,7 +380,7 @@ class ConfigValue
 public:
   ConfigValue()
   {
-  }
+  };
 
 public:
   ConfigValue(const ConfigValue& other)
@@ -417,7 +417,7 @@ public:
   ConfigValue& operator=(const ConfigValue& other) = delete;
 
 public:
-  ConfigValue(ConfigValue&& other)
+  ConfigValue(ConfigValue&& other) noexcept
   {
     switch (other.type)
     {
@@ -449,7 +449,7 @@ public:
   }
 
 public:
-  ConfigValue& operator=(ConfigValue&& other)
+  ConfigValue& operator=(ConfigValue&& other) noexcept
   {
     if (this->type == Type::String && other.type != Type::String)
     {
@@ -510,49 +510,49 @@ public:
   }
 
 public:
-  ConfigValue(const std::string& s)
+  explicit ConfigValue(const std::string& s)
   {
     new(&this->s) std::string(s);
     type = Type::String;
   }
 
 public:
-  ConfigValue(const char* lpsz)
+  explicit ConfigValue(const char* lpsz)
   {
     new(&this->s) std::string(lpsz == nullptr ? "" : lpsz);
     type = Type::String;
   }
 
 public:
-  ConfigValue(int i)
+  explicit ConfigValue(int i)
   {
     this->i = i;
     type = Type::Int;
   }
 
 public:
-  ConfigValue(bool b)
+  explicit ConfigValue(bool b)
   {
     this->b = b;
     type = Type::Bool;
   }
 
 public:
-  ConfigValue(TriState t)
+  explicit ConfigValue(TriState t)
   {
     this->t = t;
     type = Type::Tri;
   }
 
 public:
-  ConfigValue(char c)
+  explicit ConfigValue(char c)
   {
     this->c = c;
     type = Type::Char;
   }
 
 public:
-  ConfigValue(const std::vector<std::string>& sa)
+  explicit ConfigValue(const std::vector<std::string>& sa)
   {
     new(&this->sa) std::vector<std::string>(sa);
     type = Type::StringArray;

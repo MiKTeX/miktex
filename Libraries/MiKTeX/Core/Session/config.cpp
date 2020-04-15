@@ -784,11 +784,11 @@ ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const st
   string value;
   if (GetSessionValue(sectionName, valueName, value, callback))
   {
-    return value;
+    return ConfigValue(value);
   }
   else if (defaultValue.GetType() != ConfigValue::Type::None)
   {
-    return Expand(defaultValue.GetString(), callback);
+    return ConfigValue(Expand(defaultValue.GetString(), callback));
   }
   else
   {
@@ -802,7 +802,7 @@ ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const st
   string value;
   if (GetSessionValue(sectionName, valueName, value, callback))
   {
-    return value;
+    return ConfigValue(value);
   }
   else
   {
@@ -828,7 +828,7 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
 #if defined(MIKTEX_WINDOWS)
   if (!haveConfigFile
     && !IsMiKTeXPortable()
-    && !GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, USE_WINDOWS_REGISTRY ? false : true).GetBool())
+    && !GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, ConfigValue(USE_WINDOWS_REGISTRY ? false : true)).GetBool())
   {
     winRegistry::SetRegistryValue(IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, sectionName, valueName, value.GetString());
     string newValue;
@@ -884,7 +884,7 @@ bool SessionImpl::IsSharedSetup()
 {
   if (isSharedSetup == TriState::Undetermined)
   {
-    isSharedSetup = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_SHARED_SETUP, TriState::Undetermined).GetTriState();
+    isSharedSetup = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_SHARED_SETUP, ConfigValue(TriState::Undetermined)).GetTriState();
     if (isSharedSetup == TriState::Undetermined)
     {
       string value;

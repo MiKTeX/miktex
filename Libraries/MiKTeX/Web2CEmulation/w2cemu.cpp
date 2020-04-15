@@ -275,7 +275,7 @@ void miktex_uexit(int status)
 void miktex_setupboundvariable(integer* var, const char* varName, integer dflt)
 {
   shared_ptr<Session> session = Session::Get();
-  int ret = session->GetConfigValue(MIKTEX_CONFIG_SECTION_NONE, varName, dflt).GetInt();
+  int ret = session->GetConfigValue(MIKTEX_CONFIG_SECTION_NONE, varName, ConfigValue(dflt)).GetInt();
   if (ret >= 0)
   {
     *var = ret;

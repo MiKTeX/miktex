@@ -611,7 +611,7 @@ void PackageInstallerImpl::FindUpdatesNoLock()
   session->SetConfigValue(
     MIKTEX_CONFIG_SECTION_MPM,
     session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK,
-    std::to_string(time(nullptr)));
+    ConfigValue(std::to_string(time(nullptr))));
 }
 
 void PackageInstallerImpl::FindUpdatesAsync()
@@ -1801,7 +1801,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
       session->SetConfigValue(
         MIKTEX_CONFIG_SECTION_MPM,
         session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE,
-        std::to_string(time(nullptr)));
+        ConfigValue(std::to_string(time(nullptr))));
     }
 
     // check dependencies (install missing required packages)
@@ -2351,7 +2351,7 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
     session->SetConfigValue(
       MIKTEX_CONFIG_SECTION_MPM,
       session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_DB : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_DB,
-      std::to_string(time(nullptr)));
+      ConfigValue(std::to_string(time(nullptr))));
   }
 }
 

@@ -287,8 +287,8 @@ inline bool IsNewer(const PathName& path1, const PathName& path2)
 
 void Application::AutoMaintenance()
 {
-  time_t lastAdminMaintenance = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, "0").GetTimeT();
-  time_t lastUserMaintenance = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, "0").GetTimeT();
+  time_t lastAdminMaintenance = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetTimeT();
+  time_t lastUserMaintenance = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetTimeT();
   bool isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !pimpl->session->IsMiKTeXPortable();
   if (isSetupMode)
   {
@@ -326,7 +326,7 @@ void Application::AutoMaintenance()
   bool mustUpdateDb = false;
   if (!pimpl->session->IsAdminMode())
   {
-    time_t lastAdminUpdateDb = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_DB, "0").GetTimeT();
+    time_t lastAdminUpdateDb = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_DB, ConfigValue("0")).GetTimeT();
     PathName userPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
     mustUpdateDb = File::Exists(userPackageManifestsIni) && lastAdminUpdateDb > File::GetLastWriteTime(userPackageManifestsIni);
   }
@@ -997,7 +997,7 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
     }
   }
 
-  string templ = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_GENERAL, MIKTEX_CONFIG_VALUE_EDITOR, defaultEditor).GetString();
+  string templ = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_GENERAL, MIKTEX_CONFIG_VALUE_EDITOR, ConfigValue(defaultEditor)).GetString();
 
   const char* lpszCommandLineTemplate = templ.c_str();
 

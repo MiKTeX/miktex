@@ -787,7 +787,7 @@ void SetupServiceImpl::DoTheDownload()
   shared_ptr<Session> session = Session::Get();
 
   // remember local repository folder
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, options.LocalPackageRepository.ToString());
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, ConfigValue(options.LocalPackageRepository.ToString()));
 
   // create the local repository directory
   Directory::Create(options.LocalPackageRepository);
@@ -2096,7 +2096,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
   session->SetConfigValue(
     MIKTEX_CONFIG_SECTION_SETUP,
     session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_DIAGNOSE : MIKTEX_CONFIG_VALUE_LAST_USER_DIAGNOSE,
-    std::to_string(time(nullptr)));
+    ConfigValue(std::to_string(time(nullptr))));
   return result;
 }
 

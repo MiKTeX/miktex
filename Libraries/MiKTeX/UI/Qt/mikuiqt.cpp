@@ -142,14 +142,14 @@ MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessag
       }
       if (dialogCode == QDialog::Accepted && autoAdmin != dlg.GetAdminMode())
       {
-        session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, dlg.GetAdminMode());
+        session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, ConfigValue(dlg.GetAdminMode()));
       }
       if (!dlg.GetAlwaysAsk())
       {
         ret |= DONTASKAGAIN;
         if (dialogCode == QDialog::Accepted)
         {
-          session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, "1");
+          session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue("1"));
         }
       }
     }
