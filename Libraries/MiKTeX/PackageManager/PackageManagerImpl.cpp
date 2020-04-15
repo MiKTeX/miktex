@@ -1032,7 +1032,7 @@ void PackageManager::SetProxy(const ProxySettings& proxySettings)
 bool PackageManager::TryGetProxy(const string& url, ProxySettings& proxySettings)
 {
   shared_ptr<Session> session = Session::Get(); 
-  proxySettings.useProxy = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_USE_PROXY, false).GetBool();
+  proxySettings.useProxy = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_USE_PROXY, ConfigValue(false)).GetBool();
   if (!proxySettings.useProxy || !session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_HOST, proxySettings.proxy))
   {
     return false;
