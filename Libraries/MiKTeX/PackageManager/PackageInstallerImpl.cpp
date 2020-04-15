@@ -45,6 +45,7 @@
 
 #include "internal.h"
 #include "PackageInstallerImpl.h"
+#include "PackageIteratorImpl.h"
 #include "TpmParser.h"
 
 using namespace std;
@@ -587,7 +588,7 @@ void PackageInstallerImpl::FindUpdatesNoLock()
     updates.push_back(updateInfo);
   }
 
-  shared_ptr<PackageIterator> iter(packageManager->CreateIterator());
+  auto iter = make_unique<PackageIteratorImpl>(packageManager, true);
   iter->AddFilter({ PackageFilter::Obsolete });
   PackageInfo package;
   while (iter->GetNext(package))

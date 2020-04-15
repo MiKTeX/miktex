@@ -51,6 +51,12 @@ public:
 public:
   PackageIteratorImpl(std::shared_ptr<PackageManagerImpl> packageManager);
 
+public:
+  PackageIteratorImpl(std::shared_ptr<PackageManagerImpl> packageManager, bool noLock);
+
+private:
+  void Init();
+
 private:
   std::shared_ptr<PackageManagerImpl> packageManager;
 

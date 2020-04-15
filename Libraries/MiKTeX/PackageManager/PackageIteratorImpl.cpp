@@ -29,17 +29,29 @@ using namespace MiKTeX::Packages;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
-PackageIteratorImpl::PackageIteratorImpl(shared_ptr<PackageManagerImpl> packageManager) :
+PackageIteratorImpl::PackageIteratorImpl(shared_ptr<PackageManagerImpl> packageManager, bool noLock) :
   packageManager(packageManager)
 {
-  MPM_LOCK_BEGIN(this->packageManager)
+  if (noLock)
   {
-    for (const auto& p : *packageManager->GetPackageDataStore())
-    {
-      snapshot.push_back(p);
-    }
+    Init();
   }
-  MPM_LOCK_END();
+  else
+  {
+    MPM_LOCK_BEGIN(this->packageManager)
+    {
+      Init();
+    }
+    MPM_LOCK_END();
+  }
+}
+
+void PackageIteratorImpl::Init()
+{
+  for (const auto& p : *packageManager->GetPackageDataStore())
+  {
+    snapshot.push_back(p);
+  }
   iter = snapshot.begin();
 }
 
