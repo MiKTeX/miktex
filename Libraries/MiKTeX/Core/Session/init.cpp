@@ -703,6 +703,47 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       };
       cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_COMMON_CONFIG, val, T_("common config root"), startupConfig.commonConfigRoot == defaultConfig.commonConfigRoot);
     }
+#if 1
+    if (!allInOne)
+    {
+      if (!startupConfig.otherUserRoots.empty() || showAllValues)
+      {
+        string val = startupConfig.otherUserRoots;
+        if (!relativeFrom.Empty())
+        {
+          Relativize(val, relativeFrom);
+        };
+        cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_USER_ROOTS, val, T_("other user TEXMF root directories"), startupConfig.otherUserRoots.empty());
+      }
+      if (!startupConfig.userInstallRoot.Empty() && (startupConfig.userInstallRoot != defaultConfig.userInstallRoot || showAllValues))
+      {
+        string val = startupConfig.userInstallRoot.ToString();
+        if (!relativeFrom.Empty())
+        {
+          Relativize(val, relativeFrom);
+        };
+        cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_USER_INSTALL, val, T_("user install root"), startupConfig.userInstallRoot == defaultConfig.userInstallRoot);
+      }
+      if (!startupConfig.userDataRoot.Empty() && (startupConfig.userDataRoot != defaultConfig.userDataRoot || showAllValues))
+      {
+        string val = startupConfig.userDataRoot.ToString();
+        if (!relativeFrom.Empty())
+        {
+          Relativize(val, relativeFrom);
+        };
+        cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_USER_DATA, val, T_("user data root"), startupConfig.userDataRoot == defaultConfig.userDataRoot);
+      }
+      if (!startupConfig.userConfigRoot.Empty() && (startupConfig.userConfigRoot != defaultConfig.userConfigRoot || showAllValues))
+      {
+        string val = startupConfig.userConfigRoot.ToString();
+        if (!relativeFrom.Empty())
+        {
+          Relativize(val, relativeFrom);
+        };
+        cfg->PutValue("Paths", MIKTEX_CONFIG_VALUE_USER_CONFIG, val, T_("user config root"), startupConfig.userConfigRoot == defaultConfig.userConfigRoot);
+      }
+    }
+#endif
   }
 
   if (scope == ConfigurationScope::User || allInOne)

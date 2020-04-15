@@ -562,6 +562,27 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
 
   if (!options[RegisterRootDirectoriesOption::Temporary])
   {
+#if 1
+    if (IsAdminMode())
+    {
+      if (newStartupConfig.otherUserRoots != partialStartupConfig.otherUserRoots)
+      {
+        newStartupConfig.otherUserRoots = "";
+      }
+      if (newStartupConfig.userConfigRoot != partialStartupConfig.userConfigRoot)
+      {
+        newStartupConfig.userConfigRoot = "";
+      }
+      if (newStartupConfig.userDataRoot != partialStartupConfig.userDataRoot)
+      {
+        newStartupConfig.userDataRoot = "";
+      }
+      if (newStartupConfig.userInstallRoot != partialStartupConfig.userInstallRoot)
+      {
+        newStartupConfig.userInstallRoot = "";
+      }
+    }
+#endif
     SaveStartupConfig(newStartupConfig, options);
   }
 }
