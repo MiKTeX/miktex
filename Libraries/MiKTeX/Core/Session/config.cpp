@@ -806,7 +806,6 @@ ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const st
   }
   else
   {
-    trace_config->WriteLine("core", TraceLevel::Warning, fmt::format(T_("undefined configuration value: [{0}]{1}"), sectionName, valueName));
     return ConfigValue();
   }
 }
