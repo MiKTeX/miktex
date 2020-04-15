@@ -210,6 +210,10 @@ tuple<bool, int, string> LockFileImpl::CheckLockFile()
     // permanently locked
     return make_tuple(false, pid, processName);
   }
+  if (pid == Process::GetCurrentProcess()->GetSystemId())
+  {
+    MIKTEX_UNEXPECTED();
+  }
   try
   {
     unique_ptr<Process> p = Process::GetProcess(pid);
