@@ -1,6 +1,6 @@
 /* unxFile.cpp: file operations
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -346,9 +346,15 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
     }
   }
   FileStream sourceStream(File::Open(source, FileMode::Open, FileAccess::Read, false));
+  bool writing = false;
   try
   {
     FileStream destStream(File::Open(dest, FileMode::Create, FileAccess::Write, false));
+    if (!File::TryLock(destStream.GetFile(), File::LockType::Exclusive, 10s))
+    {
+      MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", dest.ToString());
+    }
+    writing = true;
     char buffer[4096];
     size_t n;
     while ((n = sourceStream.Read(buffer, 4096)) > 0)
@@ -356,6 +362,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
       destStream.Write(buffer, n);
     }
     sourceStream.Close();
+    File::Unlock(destStream.GetFile());
     destStream.Close();
     if (options[FileCopyOption::PreserveAttributes])
     {
@@ -369,16 +376,16 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
       SetTimes(dest.GetData(), sourceStat.st_ctime, sourceStat.st_atime, sourceStat.st_mtime);
     }
   }
-  catch (const MiKTeXException &)
+  catch (const MiKTeXException&)
   {
     try
     {
-      if (Exists(dest))
+      if (writing && Exists(dest))
       {
         Delete(dest, { FileDeleteOption::TryHard });
       }
     }
-    catch (const MiKTeXException &)
+    catch (const MiKTeXException&)
     {
     }
     throw;
