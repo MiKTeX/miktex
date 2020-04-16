@@ -50,6 +50,7 @@
 #include "mpm-version.h"
 
 #include <miktex/Core/Cfg>
+#include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
@@ -1849,7 +1850,7 @@ void Application::Main(int argc, const char** argv)
   {
     cout
       << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 2005-2019 Christian Schenk" << endl
+      << "Copyright (C) 2005-2020 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
@@ -1887,7 +1888,19 @@ void Application::Main(int argc, const char** argv)
     Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
     isLog4cxxConfigured = true;
-    LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("mpmcli", MIKTEX_COMPONENT_VERSION_STR));
+    auto thisProcess = Process::GetCurrentProcess();
+    auto parentProcess = thisProcess->get_Parent();
+    string invokerName;
+    if (parentProcess != nullptr)
+    {
+      invokerName = parentProcess->get_ProcessName();
+    }
+    if (invokerName.empty())
+    {
+      invokerName = "unknown process";
+    }
+    LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString("mpmcli", MIKTEX_COMPONENT_VERSION_STR));
+    LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(argc, argv));
   }
 
   if (session->IsAdminMode())
@@ -2164,6 +2177,10 @@ int MAIN(int argc, MAINCHAR* argv[])
 #if defined(MIKTEX_WINDOWS)
   CoUninitialize();
 #endif
-  logger = nullptr;
+  if (logger != nullptr)
+  {
+    LOG4CXX_INFO(logger, "this process (" << Process::GetCurrentProcess()->GetSystemId() << ") finishes with exit code " << retCode);
+    logger = nullptr;
+  }
   return retCode;
 }

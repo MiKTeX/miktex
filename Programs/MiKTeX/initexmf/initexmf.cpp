@@ -723,7 +723,19 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     log4cxx::BasicConfigurator::configure();
   }
   isLog4cxxConfigured = true;
-  LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR));
+  auto thisProcess = Process::GetCurrentProcess();
+  auto parentProcess = thisProcess->get_Parent();
+  string invokerName;
+  if (parentProcess != nullptr)
+  {
+    invokerName = parentProcess->get_ProcessName();
+  }
+  if (invokerName.empty())
+  {
+    invokerName = "unknown process";
+  }
+  LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR));
+  LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(argc, argv));
   FlushPendingTraceMessages();
   if (session->IsAdminMode())
   {
@@ -2767,6 +2779,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
 int MAIN(int argc, MAINCHAR* argv[])
 {
+  int retCode = 0;
   try
   {
     vector<string> utf8args;
@@ -2787,15 +2800,8 @@ int MAIN(int argc, MAINCHAR* argv[])
     newargv.push_back(nullptr);
     IniTeXMFApp app;
     app.Init(argc, &newargv[0]);
-    LOG4CXX_INFO(logger, "starting with command line: " << CommandLineBuilder(utf8args));
     app.Run(argc, &newargv[0]);
     app.Finalize(false);
-    if (logger != nullptr && isLog4cxxConfigured)
-    {
-      LOG4CXX_INFO(logger, "finishing with exit code 0");
-      logger = nullptr;
-    }
-    return 0;
   }
   catch (const MiKTeXException& e)
   {
@@ -2814,9 +2820,8 @@ int MAIN(int argc, MAINCHAR* argv[])
            << "Line: " << e.GetSourceLine() << endl;
     }
     Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
-    logger = nullptr;
     e.Save();
-    return 1;
+    retCode = 1;
   }
   catch (const exception& e)
   {
@@ -2829,12 +2834,17 @@ int MAIN(int argc, MAINCHAR* argv[])
       cerr <<  e.what() << endl;
     }
     Sorry();
-    logger = nullptr;
-    return 1;
+    retCode = 1;
   }
   catch (int exitCode)
   {
     logger = nullptr;
-    return exitCode;
+    retCode = 1;
   }
+  if (logger != nullptr)
+  {
+    LOG4CXX_INFO(logger, "this process (" << Process::GetCurrentProcess()->GetSystemId() << ") finishes with exit code " << retCode);
+    logger = nullptr;
+  }
+  return retCode;
 }

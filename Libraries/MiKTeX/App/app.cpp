@@ -477,7 +477,7 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   }
   else
   {
-    LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by " << invokerName << " with command line: " << pimpl->commandLine);
+    LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << pimpl->commandLine);
   }
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
