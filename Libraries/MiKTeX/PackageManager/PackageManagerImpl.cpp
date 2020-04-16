@@ -136,7 +136,7 @@ unique_ptr<PackageInstaller> PackageManagerImpl::CreateInstaller()
 
 unique_ptr<PackageIterator> PackageManagerImpl::CreateIterator()
 {
-  return make_unique<PackageIteratorImpl>(shared_from_this(), true);
+  return make_unique<PackageIteratorImpl>(shared_from_this(), false);
 }
 
 void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)

@@ -49,9 +49,6 @@ public:
   bool MIKTEXTHISCALL GetNext(MiKTeX::Packages::PackageInfo& packageInfo) override;
 
 public:
-  PackageIteratorImpl(std::shared_ptr<PackageManagerImpl> packageManager);
-
-public:
   PackageIteratorImpl(std::shared_ptr<PackageManagerImpl> packageManager, bool noLock);
 
 private:

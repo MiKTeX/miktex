@@ -1,6 +1,6 @@
 /* RootTableModel.cpp:
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -23,6 +23,7 @@
 
 #include <QDateTime>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Util/StringUtil>
 
 #include "RootTableModel.h"
@@ -130,8 +131,8 @@ QVariant RootTableModel::headerData(int section, Qt::Orientation orientation, in
 void RootTableModel::Reload()
 {
   beginResetModel();
+  MIKTEX_AUTO(endResetModel());
   roots = session->GetRootDirectories();
-  endResetModel();
 }
 
 bool RootTableModel::CanMoveUp(const QModelIndex& index)

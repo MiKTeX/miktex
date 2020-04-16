@@ -1,6 +1,6 @@
 /* LanguageTableModel.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -21,6 +21,7 @@
 
 #include <memory>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Fndb>
 #include <miktex/Util/StringUtil>
 
@@ -168,6 +169,6 @@ void LanguageTableModel::ReadLanguageDat()
 void LanguageTableModel::Reload()
 {
   beginResetModel();
+  MIKTEX_AUTO(endResetModel());
   ReadLanguageDat();
-  endResetModel();
 }

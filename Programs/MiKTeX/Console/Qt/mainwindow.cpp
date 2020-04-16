@@ -42,6 +42,7 @@
 
 #include "console-version.h"
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/CommandLineBuilder>
@@ -513,7 +514,18 @@ void MainWindow::SetCurrentPage(MainWindow::Pages p)
     ui->buttonPackages->setChecked(true);
     if (packageModel->rowCount() == 0)
     {
-      packageModel->Reload();
+      try
+      {
+        packageModel->Reload();
+      }
+      catch (const MiKTeXException& e)
+      {
+        CriticalError(e);
+      }
+      catch (const exception& e)
+      {
+        CriticalError(e);
+      }
     }
     break;
   case Pages::Diagnose:
@@ -2246,9 +2258,9 @@ void MainWindow::InstallPackage()
     {
       return;
     }
+    MIKTEX_AUTO(ui->treeViewPackages->update());
     UpdateDialog::DoModal(this, packageManager, toBeInstalled, toBeRemoved);
     packageModel->Reload();
-    ui->treeViewPackages->update();
   }
   catch (const MiKTeXException& e)
   {
@@ -2306,7 +2318,18 @@ void MainWindow::UpdatePackageDatabase()
     {
       CriticalError(tr("Something went wrong while updating the package database."), worker->GetMiKTeXException());
     }
-    packageModel->Reload();
+    try
+    {
+      packageModel->Reload();
+    }
+    catch (const MiKTeXException& e)
+    {
+      CriticalError(e);
+    }
+    catch (const exception& e)
+    {
+      CriticalError(e);
+    }
     ui->treeViewPackages->update();
     backgroundWorkers--;
     UpdateUi();
