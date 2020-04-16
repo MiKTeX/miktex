@@ -107,7 +107,7 @@ void PackageManagerImpl::Lock(chrono::milliseconds timeout)
 {
   if (lockFile == nullptr)
   {
-    lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_PACKAGE_MANAGER_LOCK);
+    lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANAGER_LOCK);
   }
   if (!lockFile->TryLock(timeout))
   {
