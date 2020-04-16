@@ -319,7 +319,7 @@ void MainWindow::UpdateUi()
     ui->buttonOverview->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonSettings->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonUpdates->setEnabled(!isSetupMode && !IsUserModeBlocked());
-    ui->buttonPackages->setEnabled(!isSetupMode && !IsUserModeBlocked());
+    ui->buttonPackages->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     ui->buttonDiagnose->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonCleanup->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
