@@ -1,6 +1,16 @@
 # MiKTeX Change Log
 
-## 2.9.7400 - not yet released
+## 2.9.7400 - 2020-09-19
+
+### Fixed issues
+
+* [312](https://github.com/MiKTeX/miktex/issues/312): MiKTeX Setup Wizard ignores --user-install in Windows 10
+* [429](https://github.com/MiKTeX/miktex/issues/429): Suggested feature: epstopdf - alert on missing font packages
+
+### Upgraded programs
+
+* asymptote 2.65
+* texworks 0.6.5
 
 ## 2.9.7350 - 2020-03-22
 
