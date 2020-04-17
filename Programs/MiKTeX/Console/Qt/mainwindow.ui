@@ -1249,7 +1249,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                   <item>
                    <widget class="QLabel" name="label_19">
                     <property name="text">
-                     <string>Log files will be wriiten to:</string>
+                     <string>Log files will be written to:</string>
                     </property>
                    </widget>
                   </item>

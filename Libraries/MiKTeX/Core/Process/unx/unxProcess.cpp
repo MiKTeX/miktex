@@ -1,6 +1,6 @@
 /* unxProcess.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -20,6 +20,9 @@
    02111-1307, USA. */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <signal.h>
 #include <sys/wait.h>
@@ -59,6 +62,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 const int filenoStdin = 0;
@@ -257,7 +261,7 @@ void unxProcess::Create()
   // fork
   if (session != nullptr)
   {
-    session->trace_process->WriteFormattedLine("core", "forking...");
+    session->trace_process->WriteLine("core", TraceLevel::Info, "forking...");
   }
   if (pipeStdout.GetReadEnd() >= 0
     || pipeStderr.GetReadEnd() >= 0
@@ -309,10 +313,10 @@ void unxProcess::Create()
       if (session != nullptr)
       {
         session->SetEnvironmentVariables();
-        session->trace_process->WriteFormattedLine("core", "execv: %s", startinfo.FileName.c_str());
+        session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: {0}", startinfo.FileName));
         for (int idx = 0; argv[idx] != nullptr; ++idx)
         {
-          session->trace_process->WriteFormattedLine("core", " argv[%d]: %s", idx, argv[idx]);
+          session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));
         }
       }
       if (!startinfo.WorkingDirectory.empty())

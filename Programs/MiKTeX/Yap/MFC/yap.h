@@ -1,6 +1,6 @@
 /* yap.h: main header file for the Yap application      -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -509,13 +509,11 @@ void RGBtoHLS(DWORD, WORD&, WORD&, WORD&);
 
 void StartEditor(const char* lpszFileName, const char* lpszDocDir, int line);
 
-void VYapLog(const char *, va_list);
-
 void UpdateAllDviViews(bool reread = false);
 
-void YapLog(const char *, ...);
+void YapLog(const std::string& line);
 
-void TraceError(const char* lpszFormat, ...);
+void TraceError(const std::string& line);
 
 enum {
   WM_DVIPROGRESS = WM_APP + 1, WM_MAKEFONTS

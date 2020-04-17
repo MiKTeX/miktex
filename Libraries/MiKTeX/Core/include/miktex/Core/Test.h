@@ -1,6 +1,6 @@
 /* miktex/Core/test.h: test framework                   -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -145,17 +145,29 @@ private:
   void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage)
   {
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(std::string("trace.test.") + traceMessage.facility);
-
-    if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
+    switch (traceMessage.level)
     {
+    case MiKTeX::Trace::TraceLevel::Fatal:
+      LOG4CXX_FATAL(logger, traceMessage.message);
+      break;
+    case MiKTeX::Trace::TraceLevel::Error:
       LOG4CXX_ERROR(logger, traceMessage.message);
-    }
-    else
-    {
+      break;
+    case MiKTeX::Trace::TraceLevel::Warning:
+      LOG4CXX_WARN(logger, traceMessage.message);
+      break;
+    case MiKTeX::Trace::TraceLevel::Info:
+      LOG4CXX_INFO(logger, traceMessage.message);
+      break;
+    case MiKTeX::Trace::TraceLevel::Trace:
       LOG4CXX_TRACE(logger, traceMessage.message);
+      break;
+    case MiKTeX::Trace::TraceLevel::Debug:
+    default:
+      LOG4CXX_DEBUG(logger, traceMessage.message);
+      break;
     }
   }
-
 
 public:
   virtual ~TestScript()
@@ -250,7 +262,7 @@ public:
       LOG4CXX_INFO(logger, "starting tests");
       if (!traceFlags.empty())
       {
-        MiKTeX::Trace::TraceStream::SetTraceFlags(traceFlags);
+        MiKTeX::Trace::TraceStream::SetOptions(traceFlags);
       }
       Run();
       pSession = nullptr;

@@ -1,6 +1,6 @@
 /* graphics.cpp: graphics utilities
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -32,7 +32,7 @@ using namespace MiKTeX::Util;
 
 bool SessionImpl::FindGraphicsRule(const string& fromExt, const string& toExt, string& rule)
 {
-  return GetSessionValue("Graphics", fromExt + toExt, rule);
+  return GetSessionValue("Graphics", fromExt + toExt, rule, nullptr);
 }
 
 bool SessionImpl::ConvertToBitmapFile(const PathName& sourceFileName, PathName& destFileName, IRunProcessCallback* callback)

@@ -1,9 +1,16 @@
-[miktex]
+[${MIKTEX_CONFIG_SECTION_GENERAL}]
 
 	;; This variable specifies the external program called for
 	;; TeX's interactive `e' option.  %l is replaced by the line
 	;; number and %f by the current file name.
-	;Editor = miktex-texworks -p=%l "%f"
+	;; If left unspecified, A platform dependent value is chosen.
+	;${MIKTEX_CONFIG_VALUE_EDITOR} = miktex-texworks -p=%l "%f"
+
+	;; Deprecated.
+	;${MIKTEX_CONFIG_VALUE_GUI_FRAMEWORK} = 1
+
+	;; Deprecated.
+	;${MIKTEX_CONFIG_VALUE_USERINFO_FILE} = 
 
 [${MIKTEX_CONFIG_SECTION_CORE}]
 
@@ -51,13 +58,73 @@
 	;; in a shared setup.
 	${MIKTEX_CONFIG_VALUE_AUTOADMIN} = ${Core_AutoAdmin}
 
+	;; Root of the system-wide MiKTeX configuration tree.
+	;; A platform dependent location, if left unspecified.
+	;${MIKTEX_CONFIG_VALUE_COMMON_CONFIG} = 
+
+	;; Root of the system-wide MiKTeX data tree.
+	;; A platform dependent location, if left unspecified.
+	;${MIKTEX_CONFIG_VALUE_COMMON_DATA} = 
+
+	;; Root of the system-wide MiKTeX installation tree.
+	;; A platform dependent location, if left unspecified.
+	;${MIKTEX_CONFIG_VALUE_COMMON_INSTALL} = 
+
+	;; Extra system-wide MiKTeX trees.
+	;${MIKTEX_CONFIG_VALUE_COMMON_ROOTS} = 
+
 	;; System-wide directory in which to create symbolic links to
         ;; MiKTeX executables.
 	${MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY} = ${MIKTEX_SYSTEM_LINK_TARGET_DIR}
 
+	;; System-wide log directory. A platform dependent location, if left unspecified.
+	;${MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY} = 
+
+	;; Deprecated.
+	;${MIKTEX_CONFIG_VALUE_NO_REGISTRY} =
+
+	;; Other unmanaged system-wide trees.
+	;${MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS} = 
+
+	;; Other unmanaged per-user trees.
+	;${MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS} = 
+
+	;; PK file name template.
+	${MIKTEX_CONFIG_VALUE_PK_FN_TEMPLATE} = %f.pk
+
+	;; Indicates whether MiKTeX is installed system-wide.
+	${MIKTEX_CONFIG_VALUE_SHARED_SETUP} = ?
+
+	;; Path to the MiKTeX startup configuration file.
+	;${MIKTEX_CONFIG_VALUE_STARTUP_FILE} = 
+
+	;; Path to the directory for temporary files.
+	;${MIKTEX_CONFIG_VALUE_TEMPDIR} =
+
+	;; Trace flags.
+	${MIKTEX_CONFIG_VALUE_TRACE} =
+
+	;; Root of the per-user MiKTeX configuration tree.
+	;; A platform dependent location, if left unspecified.
+	;${MIKTEX_CONFIG_VALUE_USER_CONFIG} = 
+
+	;; Root of the per-user MiKTeX data tree.
+	;; A platform dependent location, if left unspecified.
+	;${MIKTEX_CONFIG_VALUE_USER_DATA} = 
+
+	;; Root of the per-user MiKTeX installation tree.
+	;; A platform dependent location, if left unspecified.
+	;${MIKTEX_CONFIG_VALUE_USER_INSTALL} = 
+
 	;; Per-user directory in which to create symbolic links to
         ;; MiKTeX executables.
 	${MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY} = ${MIKTEX_USER_LINK_TARGET_DIR}
+
+	;; Per-user log directory. A platform dependent location, if left unspecified.
+	;${MIKTEX_CONFIG_VALUE_USERLOGDIRECTORY} = 
+
+	;; Extra per-user MiKTeX trees.
+	;${MIKTEX_CONFIG_VALUE_USER_ROOTS} = 
 
 [${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.afm]
 
@@ -815,6 +882,26 @@
 	;; CWeb file name extensions.
 	${MIKTEX_CONFIG_VALUE_EXTENSIONS} = .web
 
+[${MIKTEX_CONFIG_SECTION_MAKEBASE}]
+
+	;; Directory where METAFONT stores *.base files.
+	${MIKTEX_CONFIG_VALUE_DESTDIR} = %R/${MIKTEX_REL_MIKTEX_BASE_DIR}
+
+[${MIKTEX_CONFIG_SECTION_MAKEFMT}]
+
+	;; Directory where TeX engines store *.fmt files.
+	${MIKTEX_CONFIG_VALUE_DESTDIR} = %R/${MIKTEX_REL_MIKTEX_FMT_DIR}/$engine
+
+[${MIKTEX_CONFIG_SECTION_MAKEPK}]
+
+	;; Directory where makepk stores *.pk files.
+	${MIKTEX_CONFIG_VALUE_DESTDIR} = %R/fonts/pk/%m/%s/%t/dpi%d
+
+[${MIKTEX_CONFIG_SECTION_MAKETFM}]
+
+	;; Directory where maketfm stores *.tfm files.
+	${MIKTEX_CONFIG_VALUE_DESTDIR} = %R/fonts/tfm/%s/%t
+
 [${MIKTEX_CONFIG_SECTION_MPM}]
 
 	;; Install packages for all users.
@@ -822,6 +909,72 @@
 
 	;; Install missing packages automatically (on-the-fly).
 	${MIKTEX_CONFIG_VALUE_AUTOINSTALL} = ${MPM_AutoInstall}
+
+	;; Deprecated.
+	${MIKTEX_CONFIG_VALUE_FORCE_LOCAL_SERVER} = f
+
+	;; Local package repository path.
+	${MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY} = 
+
+	;; Deprecated.
+	;${MIKTEX_CONFIG_VALUE_MIKTEXDIRECT_ROOT} =
+
+	;; Indicates whether proxy authentication is required.
+	${MIKTEX_CONFIG_VALUE_PROXY_AUTH_REQ} = f
+
+	;; Proxy host address.
+	${MIKTEX_CONFIG_VALUE_PROXY_HOST} =
+
+	;; Proxy host port.
+	${MIKTEX_CONFIG_VALUE_PROXY_PORT} = 8080
+
+	;; Remote package repository URL. Pick a random URL, if empty.
+	${MIKTEX_CONFIG_VALUE_REMOTE_REPOSITORY} = 
+
+	;; The MiKTeX API endpoint.
+	${MIKTEX_CONFIG_VALUE_REMOTE_SERVICE} = https://api2.miktex.org/
+	
+	;; Package stream. One of: stable, next.
+	${MIKTEX_CONFIG_VALUE_REPOSITORY_RELEASE_STATE} = ${MIKTEX_DEFAULT_PACKAGE_STREAM}
+
+	;; Type of the package repository. One of: remote, local.
+	${MIKTEX_CONFIG_VALUE_REPOSITORY_TYPE} = remote
+
+	;; Indicates whether a proxy is configured.
+	${MIKTEX_CONFIG_VALUE_USE_PROXY} = f
+
+[${MIKTEX_CONFIG_SECTION_SETUP}]
+
+	;; Last time (a time_t value) a MiKTeX administrator has checked for system-wide issues.
+	;${MIKTEX_CONFIG_VALUE_LAST_ADMIN_DIAGNOSE} =
+
+	;; Last time (a time_t value) a MiKTeX administrator changed the system-wide configuration.
+	;${MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE} =
+
+	;; Last time (a time_t value) a MiKTeX administrator has installed system-wide updates.
+	;${MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE} =
+
+	;; Last time (a time_t value) a MiKTeX administrator has checked for system-wide updates.
+	;${MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK} =
+
+	;; Last time (a time_t value) a MiKTeX administrator has updated the system-wide package database.
+	;${MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_DB} =
+
+	;; Last time (a time_t value) the current MiKTeX user has checked for issues.
+	;${MIKTEX_CONFIG_VALUE_LAST_USER_DIAGNOSE} =
+
+	;; Last time (a time_t value) the current MiKTeX user changed the configuration.
+	;${MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE} =
+
+	;; Last time (a time_t value) the current MiKTeX user has installed updates.
+	;${MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE} =
+
+	;; Last time (a time_t value) the current MiKTeX user has checked for updates.
+	;${MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK} =
+
+	;; Last time (a time_t value) the current MiKTeX user has updated the package database.
+	;${MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_DB} =
+
 
 [${MIKTEX_CONFIG_SECTION_TEXANDFRIENDS}]
 
@@ -835,3 +988,9 @@
 
 	;; Enable file:line:error style messages.
 	${MIKTEX_CONFIG_VALUE_CSTYLEERRORS} = f
+
+	;; Deprecated.
+	;${MIKTEX_CONFIG_VALUE_PARSE_FIRST_LINE} =
+
+	;; Indicates whether format files (*.fmt) will be automatically renewed.
+	${MIKTEX_CONFIG_VALUE_RENEW_FORMATS_ON_UPDATE} = t

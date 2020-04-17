@@ -1,6 +1,6 @@
 /* PackageManagerImpl.h:                                -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -25,10 +25,12 @@
 #include <map>
 #include <string>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Fndb>
+#include <miktex/Core/LockFile>
 #include <miktex/Core/MD5>
 
-#include <miktex/PackageManager/PackageManager.h>
+#include <miktex/PackageManager/PackageManager>
 
 #include "internal.h"
 
@@ -143,6 +145,12 @@ public:
   PackageManagerImpl(const MiKTeX::Packages::PackageManager::InitInfo& initInfo);
 
 public:
+  void Lock(std::chrono::milliseconds timeout);
+
+public:
+  void Unlock();
+
+public:
   void ClearAll();
 
 private:
@@ -153,6 +161,9 @@ private:
 
 private:
   void Dispose();
+
+private:
+  std::unique_ptr<MiKTeX::Core::LockFile> lockFile;
 
 private:
   std::string remoteServiceBaseUrl;
@@ -201,6 +212,14 @@ public:
   static bool localServer;
 #endif
 };
+
+#define MPM_LOCK_BEGIN(packageManager)                                      \
+  {                                                                         \
+    packageManager->Lock(std::chrono::seconds(10));                         \
+    MIKTEX_AUTO(packageManager->Unlock());
+
+#define MPM_LOCK_END()                                                      \
+  }
 
 MPM_INTERNAL_END_NAMESPACE;
 

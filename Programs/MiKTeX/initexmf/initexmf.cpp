@@ -48,7 +48,6 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Setup/SetupService>
@@ -385,7 +384,7 @@ private:
 private:
   void PushTraceMessage(const string& message)
   {
-    PushTraceMessage(TraceCallback::TraceMessage("initexmf", "initexmf", message));
+    PushTraceMessage(TraceCallback::TraceMessage("initexmf", "initexmf", TraceLevel::Trace, message));
   }
   
 public:
@@ -425,13 +424,27 @@ private:
   {
     MIKTEX_ASSERT(isLog4cxxConfigured);
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.initexmf.") + traceMessage.facility);
-    if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
+    switch (traceMessage.level)
     {
+    case TraceLevel::Fatal:
+      LOG4CXX_FATAL(logger, traceMessage.message);
+      break;
+    case TraceLevel::Error:
       LOG4CXX_ERROR(logger, traceMessage.message);
-    }
-    else
-    {
+      break;
+    case TraceLevel::Warning:
+      LOG4CXX_WARN(logger, traceMessage.message);
+      break;
+    case TraceLevel::Info:
+      LOG4CXX_INFO(logger, traceMessage.message);
+      break;
+    case TraceLevel::Trace:
       LOG4CXX_TRACE(logger, traceMessage.message);
+      break;
+    case TraceLevel::Debug:
+    default:
+      LOG4CXX_DEBUG(logger, traceMessage.message);
+      break;
     }
   }
 
@@ -710,7 +723,19 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     log4cxx::BasicConfigurator::configure();
   }
   isLog4cxxConfigured = true;
-  LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR));
+  auto thisProcess = Process::GetCurrentProcess();
+  auto parentProcess = thisProcess->get_Parent();
+  string invokerName;
+  if (parentProcess != nullptr)
+  {
+    invokerName = parentProcess->get_ProcessName();
+  }
+  if (invokerName.empty())
+  {
+    invokerName = "unknown process";
+  }
+  LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR));
+  LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(argc, argv));
   FlushPendingTraceMessages();
   if (session->IsAdminMode())
   {
@@ -1938,7 +1963,7 @@ void IniTeXMFApp::SetConfigValue(const string& valueSpec)
   ++lpsz;
   string value = lpsz;
   Verbose(fmt::format(T_("Setting config value: [{0}]{1}={2}"), section, valueName, value));
-  session->SetConfigValue(section, valueName, value);
+  session->SetConfigValue(section, valueName, ConfigValue(value));
 }
 
 void IniTeXMFApp::ShowConfigValue(const string& valueSpec)
@@ -2754,6 +2779,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
 int MAIN(int argc, MAINCHAR* argv[])
 {
+  int retCode = 0;
   try
   {
     vector<string> utf8args;
@@ -2774,15 +2800,8 @@ int MAIN(int argc, MAINCHAR* argv[])
     newargv.push_back(nullptr);
     IniTeXMFApp app;
     app.Init(argc, &newargv[0]);
-    LOG4CXX_INFO(logger, "starting with command line: " << CommandLineBuilder(utf8args));
     app.Run(argc, &newargv[0]);
     app.Finalize(false);
-    if (logger != nullptr && isLog4cxxConfigured)
-    {
-      LOG4CXX_INFO(logger, "finishing with exit code 0");
-      logger = nullptr;
-    }
-    return 0;
   }
   catch (const MiKTeXException& e)
   {
@@ -2801,9 +2820,8 @@ int MAIN(int argc, MAINCHAR* argv[])
            << "Line: " << e.GetSourceLine() << endl;
     }
     Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
-    logger = nullptr;
     e.Save();
-    return 1;
+    retCode = 1;
   }
   catch (const exception& e)
   {
@@ -2816,12 +2834,17 @@ int MAIN(int argc, MAINCHAR* argv[])
       cerr <<  e.what() << endl;
     }
     Sorry();
-    logger = nullptr;
-    return 1;
+    retCode = 1;
   }
   catch (int exitCode)
   {
     logger = nullptr;
-    return exitCode;
+    retCode = 1;
   }
+  if (logger != nullptr)
+  {
+    LOG4CXX_INFO(logger, "this process (" << Process::GetCurrentProcess()->GetSystemId() << ") finishes with exit code " << retCode);
+    logger = nullptr;
+  }
+  return retCode;
 }

@@ -1,7 +1,7 @@
 /* kpsemu.cpp: kpathsea emulation
 
    Copyright (C) 1994, 95 Karl Berry
-   Copyright (C) 2000-2019 Christian Schenk
+   Copyright (C) 2000-2020 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -43,7 +43,6 @@
 #include <miktex/Core/Fndb>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
-#include <miktex/Core/Registry>
 #include <miktex/KPSE/Emulation>
 #include <miktex/TeXAndFriends/Prototypes>
 #include <miktex/Util/CharBuffer>
@@ -839,7 +838,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
     result = true;
   }
   // configuration files and environment
-  else if (session->TryGetConfigValue("", varName, varValue))
+  else if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_NONE, varName, varValue))
   {
     result = true;
   }
@@ -1101,7 +1100,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
   texmfcnf += "texmf.cnf";
   time_t lastMaintenance = static_cast<time_t>(0);
   std::string value;
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, value))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, value))
   {
     long long intValue = _atoi64(value.c_str()); // fixme
     if (static_cast<time_t>(intValue) > lastMaintenance)
@@ -1109,7 +1108,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
       lastMaintenance = static_cast<time_t>(intValue);
     }
   }
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, value))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, value))
   {
     long long intValue = _atoi64(value.c_str()); // fixme
     if (static_cast<time_t>(intValue) > lastMaintenance)

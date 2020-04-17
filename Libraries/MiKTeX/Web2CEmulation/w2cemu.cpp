@@ -1,6 +1,6 @@
 /* w2cemu.cpp: web2c compatibility functions
 
-   Copyright (C) 2010-2018 Christian Schenk
+   Copyright (C) 2010-2020 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -30,7 +30,6 @@
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
-#include <miktex/Core/Registry>
 #include <miktex/TeXAndFriends/TeXApp>
 #include <miktex/TeXAndFriends/WebAppInputLine>
 #include <miktex/Util/StringUtil>
@@ -276,7 +275,7 @@ void miktex_uexit(int status)
 void miktex_setupboundvariable(integer* var, const char* varName, integer dflt)
 {
   shared_ptr<Session> session = Session::Get();
-  int ret = session->GetConfigValue("", varName, dflt).GetInt();
+  int ret = session->GetConfigValue(MIKTEX_CONFIG_SECTION_NONE, varName, ConfigValue(dflt)).GetInt();
   if (ret >= 0)
   {
     *var = ret;

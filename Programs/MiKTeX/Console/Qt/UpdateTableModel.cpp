@@ -23,6 +23,7 @@
 
 #include <QDateTime>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Util/StringUtil>
 
 #include "UpdateTableModel.h"
@@ -202,6 +203,7 @@ QVariant UpdateTableModel::headerData(int section, Qt::Orientation orientation, 
 void UpdateTableModel::SetData(const vector<PackageInstaller::UpdateInfo>& updates)
 {
   beginResetModel();
+  MIKTEX_AUTO(endResetModel());
   this->updates.clear();
   this->pending = 0;
   for (const auto& u : updates)
@@ -212,7 +214,6 @@ void UpdateTableModel::SetData(const vector<PackageInstaller::UpdateInfo>& updat
       this->pending += 1;
     }
   }
-  endResetModel();
 }
 
 bool UpdateTableModel::IsCheckable(const QModelIndex& index) const

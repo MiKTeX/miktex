@@ -1,6 +1,6 @@
 /* texapp.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -19,6 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <miktex/Core/ConfigNames>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
@@ -73,7 +74,7 @@ void TeXApp::OnTeXMFStartJob()
   shared_ptr<Session> session = GetSession();
   ShellCommandMode shellCommandMode = session->GetShellCommandMode();
   EnableShellCommands(shellCommandMode);
-  EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, shellCommandMode == ShellCommandMode::Restricted || shellCommandMode == ShellCommandMode::Unrestricted).GetBool());
+  EnablePipes(shellCommandMode == ShellCommandMode::Restricted || shellCommandMode == ShellCommandMode::Unrestricted);
 }
 
 void TeXApp::Finalize()

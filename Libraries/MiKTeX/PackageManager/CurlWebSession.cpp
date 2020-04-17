@@ -1,6 +1,6 @@
 /* CurlWebSession.cpp:
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -27,7 +27,10 @@
 #include <sstream>
 #include <thread>
 
-#include <miktex/Core/Registry>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Uri>
 #include <miktex/Util/StringUtil>
 
@@ -62,7 +65,6 @@ const long DEFAULT_CONNECTION_TIMEOUT_SECONDS = 30;
 const long DEFAULT_FTP_RESPONSE_TIMEOUT_SECONDS = 30;
 
 #define ALLOW_REDIRECTS 1
-#define DEFAULT_MAX_REDIRECTS 20
 
 CurlWebSession::CurlWebSession(IProgressNotify_* callback) :
   trace_curl(TraceStream::Open(MIKTEX_TRACE_CURL)),
@@ -132,33 +134,11 @@ void CurlWebSession::Initialize()
 
   SetOption(CURLOPT_USERAGENT, BuildUserAgentString().c_str());
 
-  string ftpMode = session->GetConfigValue("", MIKTEX_REGVAL_FTP_MODE, "default").GetString();
-
-  if (ftpMode == "default")
-  {
-  }
-  else if (ftpMode == "port")
-  {
-    SetOption(CURLOPT_FTPPORT, "-");
-  }
-  else if (ftpMode == "pasv")
-  {
-    SetOption(CURLOPT_FTP_USE_EPSV, static_cast<long>(false));
-  }
-  else if (ftpMode == "epsv")
-  {
-    SetOption(CURLOPT_FTP_USE_EPSV, static_cast<long>(true));
-  }
-  else
-  {
-    MIKTEX_UNEXPECTED();
-  }
-
   SetOption(CURLOPT_PROGRESSDATA, reinterpret_cast<void*>(this));
   curl_progress_callback progressCallback = ProgressCallback;
   SetOption(CURLOPT_PROGRESSFUNCTION, progressCallback);
 
-  if (trace_curl->IsEnabled(TRACE_FACILITY))
+  if (trace_curl->IsEnabled(TRACE_FACILITY, MiKTeX::Trace::TraceLevel::Trace))
   {
     SetOption(CURLOPT_VERBOSE, static_cast<long>(true));
     curl_debug_callback debugCallback = DebugCallback;
@@ -181,9 +161,8 @@ void CurlWebSession::Initialize()
 
   // SF 2855025
 #if ALLOW_REDIRECTS
-  int maxRedirects = session->GetConfigValue("", MIKTEX_REGVAL_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS).GetInt();
   SetOption(CURLOPT_FOLLOWLOCATION, static_cast<long>(true));
-  SetOption(CURLOPT_MAXREDIRS, static_cast<long>(maxRedirects));
+  SetOption(CURLOPT_MAXREDIRS, 20);
 #endif
 
   // SF #2548
@@ -273,7 +252,7 @@ unique_ptr<WebFile> CurlWebSession::OpenUrl(const string& url, const std::unorde
   {
     Initialize();
   }
-  trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("going to download %s"), Q_(url));
+  trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format(T_("going to download {0}"), Q_(url)));
   return make_unique<CurlWebFile>(shared_from_this(), url, formData);
 }
 
@@ -523,7 +502,15 @@ int CurlWebSession::DebugCallback(CURL* pCurl, curl_infotype infoType, char* pDa
     {
       MIKTEX_ASSERT(pData != nullptr);
       string text(pData, sizeData);
-      This->trace_curl->Write(TRACE_FACILITY, text.c_str());
+      static string buffer;
+      if (text.length() > 0 && text[text.length() - 1] == '\n')
+      {
+        This->trace_curl->WriteLine(TRACE_FACILITY, buffer + text.substr(0, text.length() - 1));
+      }
+      else
+      {
+        buffer += text;
+      }
     }
   }
   catch (const exception&)

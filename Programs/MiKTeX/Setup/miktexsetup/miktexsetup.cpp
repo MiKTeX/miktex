@@ -1,6 +1,6 @@
 /* miktexsetup.cpp:
 
-   Copyright (C) 2014-2019 Christian Schenk
+   Copyright (C) 2014-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -56,6 +56,7 @@
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
@@ -69,14 +70,9 @@ const string THE_NAME_OF_THE_GAME = T_("MiKTeX Setup Utility (Standalone)");
 const string THE_NAME_OF_THE_GAME = T_("MiKTeX Setup Utility");
 #endif
 
-vector<string> DEFAULT_TRACE_STREAMS = {
-  MIKTEX_TRACE_CONFIG,
-  MIKTEX_TRACE_CURL,
-  MIKTEX_TRACE_ERROR,
-  MIKTEX_TRACE_EXTRACTOR,
-  MIKTEX_TRACE_MPM,
-  MIKTEX_TRACE_PROCESS,
-  MIKTEX_TRACE_SETUP
+vector<string> DEFAULT_TRACE_OPTIONS = {
+  TraceStream::MakeOption("", "", TraceLevel::Info),
+  TraceStream::MakeOption(MIKTEX_TRACE_SETUP, "", TraceLevel::Trace),
 };
 
 class Application :
@@ -673,7 +669,7 @@ void Application::Main(int argc, const char** argv)
     case OPT_TRACE:
       if (optArg.empty())
       {
-        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
+        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_OPTIONS, ','));
       }
       else
       {

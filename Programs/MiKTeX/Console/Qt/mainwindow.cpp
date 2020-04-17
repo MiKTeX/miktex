@@ -42,6 +42,7 @@
 
 #include "console-version.h"
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/CommandLineBuilder>
@@ -53,7 +54,6 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamWriter>
 #include <miktex/Core/TemporaryFile>
@@ -107,8 +107,8 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage, bool dontFi
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
-  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
-  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetString()));
+  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetString()));
   isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !session->IsMiKTeXPortable();
   this->dontFindIssues = isSetupMode || dontFindIssues;
   okayUserMode = isSetupMode || CheckIssue(IssueType::UserUpdateCheckOverdue).first;
@@ -319,7 +319,7 @@ void MainWindow::UpdateUi()
     ui->buttonOverview->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonSettings->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonUpdates->setEnabled(!isSetupMode && !IsUserModeBlocked());
-    ui->buttonPackages->setEnabled(!isSetupMode && !IsUserModeBlocked());
+    ui->buttonPackages->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     ui->buttonDiagnose->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonCleanup->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
@@ -514,7 +514,18 @@ void MainWindow::SetCurrentPage(MainWindow::Pages p)
     ui->buttonPackages->setChecked(true);
     if (packageModel->rowCount() == 0)
     {
-      packageModel->Reload();
+      try
+      {
+        packageModel->Reload();
+      }
+      catch (const MiKTeXException& e)
+      {
+        CriticalError(e);
+      }
+      catch (const exception& e)
+      {
+        CriticalError(e);
+      }
     }
     break;
   case Pages::Diagnose:
@@ -1080,8 +1091,8 @@ void MainWindow::SetupUiUpdates()
   updateModel = new UpdateTableModel(packageManager, this);
   string lastUpdateCheck;
   if (session->TryGetConfigValue(
-    MIKTEX_REGKEY_PACKAGE_MANAGER,
-    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
+    MIKTEX_CONFIG_SECTION_MPM,
+    session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK,
     lastUpdateCheck))
   {
     ui->labelUpdateSummary->setText(tr("Last checked: %1").arg(QDateTime::fromTime_t(std::stoi(lastUpdateCheck)).date().toString()));
@@ -1459,28 +1470,28 @@ void MainWindow::OnRepositorySelected(int index)
 void MainWindow::on_radioAutoInstallAsk_clicked()
 {
   LOG4CXX_INFO(logger, "setting AutoInstall: ask");
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::Undetermined);
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::Undetermined)));
   ui->chkAllUsers->setEnabled(false);
 }
 
 void MainWindow::on_radioAutoInstallYes_clicked()
 {
   LOG4CXX_INFO(logger, "setting AutoInstall: yes");
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::True);
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::True)));
   ui->chkAllUsers->setEnabled(true);
 }
 
 void MainWindow::on_radioAutoInstallNo_clicked()
 {
   LOG4CXX_INFO(logger, "setting AutoInstall: no");
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::False);
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::False)));
   ui->chkAllUsers->setEnabled(false);
 }
 
 void MainWindow::on_chkAllUsers_clicked()
 {
   LOG4CXX_INFO(logger, "setting AutoAdmin: " << ui->chkAllUsers->isChecked());
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, (int)(ui->chkAllUsers->isChecked() ? TriState::True : TriState::False));
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, ConfigValue(static_cast<int>(ui->chkAllUsers->isChecked() ? TriState::True : TriState::False)));
 }
 
 void MainWindow::UpdateUiPaper()
@@ -1779,11 +1790,11 @@ bool ChangeLinkTargetDirectoryWorker::Run()
     RunIniTeXMF({ "--remove-links" });
     if (session->IsSharedSetup())
     {
-      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, linkTargetDirectory.ToString());
+      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, ConfigValue(linkTargetDirectory.ToString()));
     }
     else
     {
-      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, linkTargetDirectory.ToString());
+      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, ConfigValue(linkTargetDirectory.ToString()));
     }
     RunIniTeXMF({ "--mklinks" });
     result = true;
@@ -2247,9 +2258,9 @@ void MainWindow::InstallPackage()
     {
       return;
     }
+    MIKTEX_AUTO(ui->treeViewPackages->update());
     UpdateDialog::DoModal(this, packageManager, toBeInstalled, toBeRemoved);
     packageModel->Reload();
-    ui->treeViewPackages->update();
   }
   catch (const MiKTeXException& e)
   {
@@ -2307,7 +2318,18 @@ void MainWindow::UpdatePackageDatabase()
     {
       CriticalError(tr("Something went wrong while updating the package database."), worker->GetMiKTeXException());
     }
-    packageModel->Reload();
+    try
+    {
+      packageModel->Reload();
+    }
+    catch (const MiKTeXException& e)
+    {
+      CriticalError(e);
+    }
+    catch (const exception& e)
+    {
+      CriticalError(e);
+    }
     ui->treeViewPackages->update();
     backgroundWorkers--;
     UpdateUi();

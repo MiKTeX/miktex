@@ -1,6 +1,6 @@
 /* miktex.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,7 +29,6 @@
 #include <miktex/Core/Environment>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 #include <miktex/Core/Urls>
 #include <miktex/Trace/Trace>
 
@@ -61,7 +60,7 @@ PathName SessionImpl::GetTempDirectory()
   // 1: try MiKTeX temp directory
   {
     string tempDirectory;
-    if (GetSessionValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_TEMPDIR, tempDirectory) && IsGoodTempDirectory(tempDirectory.c_str()))
+    if (GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TEMPDIR, tempDirectory, nullptr) && IsGoodTempDirectory(tempDirectory.c_str()))
     {
       return tempDirectory;
     }
@@ -141,11 +140,11 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
 #else
     if (IsSharedSetup())
     {
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, MIKTEX_SYSTEM_LINK_TARGET_DIR).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, ConfigValue(MIKTEX_SYSTEM_LINK_TARGET_DIR)).GetString();
     }
     else
     {
-      string s = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, MIKTEX_USER_LINK_TARGET_DIR).GetString();
+      string s = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, ConfigValue(MIKTEX_USER_LINK_TARGET_DIR)).GetString();
       auto p = Utils::ExpandTilde(s);
       if (p.first)
       {
@@ -163,14 +162,14 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     {
 #if defined(MIKTEX_UNIX)
       // FIXME: hard-coded sub-directory
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, (PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / "miktex").ToString()).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / "miktex").ToString())).GetString();
 #else
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, (GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString()).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
 #endif
     }
     else
     {
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLOGDIRECTORY, (GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString()).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
     }
     break;
   case SpecialPath::CommonInstallRoot:
@@ -398,6 +397,11 @@ vector<string> SessionImpl::MakeMakePkCommandLine(const string& fontName, int dp
 
   vector<string> args{ fileName.GetFileNameWithoutExtension().ToString() };
 
+  if (IsAdminMode())
+  {
+    args.push_back("--miktex-admin");
+  }
+
   switch (enableInstaller)
   {
   case TriState::False:
@@ -446,7 +450,7 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo& info)
   {
     haveResult = TriState::False;
     string userInfoFile;
-    if (!TryGetConfigValue("", MIKTEX_REGVAL_USERINFO_FILE, userInfoFile))
+    if (!TryGetConfigValue(MIKTEX_CONFIG_SECTION_GENERAL, MIKTEX_CONFIG_VALUE_USERINFO_FILE, userInfoFile))
     {
       return false;
     }

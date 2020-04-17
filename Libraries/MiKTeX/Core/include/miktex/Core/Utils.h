@@ -194,9 +194,6 @@ public:
   static MIKTEXCORECEEAPI(void) PrintException(const MiKTeXException& e);
 
 public:
-  static MIKTEXCORECEEAPI(bool) ReadUntilDelim(std::string& str, int delim, FILE* stream);
-
-public:
   static MIKTEXCORECEEAPI(bool) ReadLine(std::string& str, FILE* stream, bool keepLineEnding);
 
 public:

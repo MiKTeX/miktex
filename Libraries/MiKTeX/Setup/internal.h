@@ -48,14 +48,14 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 #include <miktex/Core/StreamReader>
 #include <miktex/Core/StreamWriter>
 #include <miktex/Core/Urls>
 
 #if defined(MIKTEX_WINDOWS)
-#  include "miktex/Core/win/winAutoResource.h"
-#  include "miktex/Core/win/WindowsVersion.h"
+#  include "miktex/Core/win/Registry"
+#  include "miktex/Core/win/winAutoResource"
+#  include "miktex/Core/win/WindowsVersion"
 #endif
 
 #include <miktex/Extractor/Extractor>

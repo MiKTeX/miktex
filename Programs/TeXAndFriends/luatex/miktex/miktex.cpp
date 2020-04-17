@@ -22,7 +22,6 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 #include <miktex/KPSE/Emulation>
 
 #include <string>
@@ -78,11 +77,11 @@ int miktex_open_format_file(const char* fileName_, FILE** ppFile, int renew)
   if (!renew)
   {
     time_t modificationTime = File::GetLastWriteTime(path);
-    time_t lastAdminMaintenance = session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetTimeT();
+    time_t lastAdminMaintenance = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetTimeT();
     renew = lastAdminMaintenance > modificationTime;
     if (!renew && !session->IsAdminMode())
     {
-      time_t lastUserMaintenance = session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetTimeT();
+      time_t lastUserMaintenance = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetTimeT();
       renew = lastUserMaintenance > modificationTime;
     }
     if (renew)

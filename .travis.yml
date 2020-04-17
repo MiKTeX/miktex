@@ -6,7 +6,6 @@ env:
 
 addons:
   homebrew:
-    update: true
     packages:
       - ghostscript
       - md5sha1sum
@@ -37,13 +36,13 @@ matrix:
       env:
       - MIKTEX_LINUX_DIST=fedora
       - MIKTEX_LINUX_DIST_VERSION=30
-      script: ./travis-ci/docker/script.sh
-      after_failure: ./travis-ci/docker/after_failure.sh
+      script: ./build/ci/travis/docker/script.sh
+      after_failure: ./build/ci/travis/docker/after_failure.sh
     - os: osx
-      osx_image: xcode11.3
-      before_script: ./travis-ci/osx/before_script.sh
-      script: ./travis-ci/osx/script.sh
-      after_failure: ./travis-ci/osx/after_failure.sh
+      osx_image: xcode11.4
+      before_script: ./build/ci/travis/osx/before_script.sh
+      script: ./build/ci/travis/osx/script.sh
+      after_failure: ./build/ci/travis/osx/after_failure.sh
     - os: linux
       dist: trusty
       services: docker
@@ -51,8 +50,8 @@ matrix:
       - MIKTEX_LINUX_DIST=debian
       - MIKTEX_LINUX_DIST_VERSION=10
       - MIKTEX_LINUX_DIST_CODE_NAME=buster
-      script: ./travis-ci/docker/script.sh
-      after_failure: ./travis-ci/docker/after_failure.sh
+      script: ./build/ci/travis/docker/script.sh
+      after_failure: ./build/ci/travis/docker/after_failure.sh
     - os: linux
       dist: trusty
       services: docker
@@ -60,8 +59,8 @@ matrix:
       - MIKTEX_LINUX_DIST=debian
       - MIKTEX_LINUX_DIST_VERSION=9
       - MIKTEX_LINUX_DIST_CODE_NAME=stretch
-      script: ./travis-ci/docker/script.sh
-      after_failure: ./travis-ci/docker/after_failure.sh
+      script: ./build/ci/travis/docker/script.sh
+      after_failure: ./build/ci/travis/docker/after_failure.sh
     - os: linux
       dist: trusty
       services: docker
@@ -69,8 +68,8 @@ matrix:
       - MIKTEX_LINUX_DIST=ubuntu
       - MIKTEX_LINUX_DIST_VERSION=18.04
       - MIKTEX_LINUX_DIST_CODE_NAME=bionic
-      script: ./travis-ci/docker/script.sh
-      after_failure: ./travis-ci/docker/after_failure.sh
+      script: ./build/ci/travis/docker/script.sh
+      after_failure: ./build/ci/travis/docker/after_failure.sh
     - os: linux
       dist: trusty
       services: docker
@@ -78,24 +77,24 @@ matrix:
       - MIKTEX_LINUX_DIST=ubuntu
       - MIKTEX_LINUX_DIST_VERSION=16.04
       - MIKTEX_LINUX_DIST_CODE_NAME=xenial
-      script: ./travis-ci/docker/script.sh
-      after_failure: ./travis-ci/docker/after_failure.sh
+      script: ./build/ci/travis/docker/script.sh
+      after_failure: ./build/ci/travis/docker/after_failure.sh
     - os: linux
       dist: trusty
       services: docker
       env:
       - MIKTEX_LINUX_DIST=fedora
       - MIKTEX_LINUX_DIST_VERSION=28
-      script: ./travis-ci/docker/script.sh
-      after_failure: ./travis-ci/docker/after_failure.sh
+      script: ./build/ci/travis/docker/script.sh
+      after_failure: ./build/ci/travis/docker/after_failure.sh
     - os: linux
       dist: trusty
       services: docker
       env:
       - MIKTEX_LINUX_DIST=opensuse
       - MIKTEX_LINUX_DIST_VERSION=15
-      script: ./travis-ci/docker/script.sh
-      after_failure: ./travis-ci/docker/after_failure.sh
+      script: ./build/ci/travis/docker/script.sh
+      after_failure: ./build/ci/travis/docker/after_failure.sh
 
 notifications:
   email: false

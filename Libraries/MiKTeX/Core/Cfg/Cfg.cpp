@@ -1,6 +1,6 @@
 /* cfg.cpp: configuration files
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,9 +23,9 @@
 
 #include <fstream>
 
-#include <miktex/Core/Cfg.h>
+#include <miktex/Core/Cfg>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/FileStream>
-#include <miktex/Core/Registry.h>
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 #include <miktex/Util/Tokenizer>
@@ -265,8 +265,8 @@ inline bool operator<(const CfgKey& lhs, const CfgKey& rhs)
 static const char* const knownSearchPathValues[] = {
   "path",
   "extensions",
-  MIKTEX_REGVAL_COMMON_ROOTS,
-  MIKTEX_REGVAL_USER_ROOTS,
+  MIKTEX_CONFIG_VALUE_COMMON_ROOTS,
+  MIKTEX_CONFIG_VALUE_USER_ROOTS,
 };
 
 bool IsSearchPathValue(const string& valueName)

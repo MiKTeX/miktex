@@ -26,9 +26,9 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Environment>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 #include <miktex/Core/RootDirectoryInfo>
 
 #include "internal.h"
@@ -44,6 +44,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 // index of the hidden MPM root
@@ -446,7 +447,7 @@ void SessionImpl::ReregisterRootDirectories(const string& roots, bool other)
   RegisterRootDirectoriesOptionSet options;
   options += RegisterRootDirectoriesOption::Review;
 #if defined(MIKTEX_WINDOWS)
-  if (IsMiKTeXPortable() || GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, USE_WINDOWS_REGISTRY ? false : true).GetBool())
+  if (IsMiKTeXPortable() || GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, USE_WINDOWS_REGISTRY ? false : true).GetBool())
   {
     options += RegisterRootDirectoriesOption::NoRegistry;
   }
@@ -561,6 +562,27 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
 
   if (!options[RegisterRootDirectoriesOption::Temporary])
   {
+#if 1
+    if (IsAdminMode())
+    {
+      if (newStartupConfig.otherUserRoots != partialStartupConfig.otherUserRoots)
+      {
+        newStartupConfig.otherUserRoots = "";
+      }
+      if (newStartupConfig.userConfigRoot != partialStartupConfig.userConfigRoot)
+      {
+        newStartupConfig.userConfigRoot = "";
+      }
+      if (newStartupConfig.userDataRoot != partialStartupConfig.userDataRoot)
+      {
+        newStartupConfig.userDataRoot = "";
+      }
+      if (newStartupConfig.userInstallRoot != partialStartupConfig.userInstallRoot)
+      {
+        newStartupConfig.userInstallRoot = "";
+      }
+    }
+#endif
     SaveStartupConfig(newStartupConfig, options);
   }
 }

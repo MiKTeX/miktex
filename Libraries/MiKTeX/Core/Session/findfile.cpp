@@ -1,6 +1,6 @@
 /* findfile.cpp: finding files
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,8 +24,8 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 
 #include "internal.h"
 
@@ -326,7 +326,7 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
         FindFileInternal(fileName, vec, all, true, false, result);
       }
     }
-    else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && findFileCallback != nullptr && GetConfigValue(MIKTEX_REGKEY_TEXMF, MIKTEX_REGVAL_RENEW_FORMATS_ON_UPDATE, true).GetBool())
+    else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && findFileCallback != nullptr && GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_RENEW_FORMATS_ON_UPDATE).GetBool())
     {
       PathName pathPackagesIniC(GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
       bool renew = IsNewer(pathPackagesIniC, result[0]);
@@ -395,7 +395,7 @@ bool SessionImpl::MakePkFileName(PathName& pkFileName, const string& fontName, i
 {
   string nameTemplate;
 
-  if (!GetSessionValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_PK_FN_TEMPLATE, nameTemplate))
+  if (!GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_PK_FN_TEMPLATE, nameTemplate, nullptr))
   {
     nameTemplate = DEFAULT_PK_NAME_TEMPLATE;
   }
@@ -456,7 +456,7 @@ bool SessionImpl::FindPkFile(const string& fontName, const string& mfMode, int d
 
   string searchPathTemplate;
 
-  if (!GetSessionValue(MIKTEX_REGKEY_CORE, "PKPath", searchPathTemplate))
+  if (!GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, "PKPath", searchPathTemplate, nullptr))
   {
     searchPathTemplate = DEFAULT_PK_SEARCH_PATH;
   }

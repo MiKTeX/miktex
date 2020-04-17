@@ -1,6 +1,6 @@
 /* DviView.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -1045,7 +1045,7 @@ void DviView::Zoom(bool zoomIn)
     return;
   }
   double f = static_cast<double>(oldShrink) / newShrink;
-  YapLog(T_("Yap zoom: %d/%d=%f"), oldShrink, newShrink, f);
+  YapLog(fmt::format(T_("Yap zoom: {0}/{1}={2:.2f}"), oldShrink, newShrink, f));
   CPoint oldScrollPosition = GetScrollPosition();
   pDoc->Shrink(d);
   g_pYapConfig->displayShrinkFactor = newShrink;

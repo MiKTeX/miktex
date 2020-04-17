@@ -435,7 +435,7 @@ void Converter::Expect(const char* waitingFor, string* pLine)
   size_t l = strlen(waitingFor);
   while (!found)
   {
-    if (!Utils::ReadUntilDelim(*pLine, '\n', pFileGsf.Get()))
+    if (!Utils::ReadLine(*pLine, pFileGsf.Get(), true))
     {
       Error(T_("Premature end of file."));
     }

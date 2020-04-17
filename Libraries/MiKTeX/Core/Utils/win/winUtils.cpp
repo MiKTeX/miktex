@@ -1,6 +1,6 @@
 /* winUtil.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -40,6 +40,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 MIKTEXSTATICFUNC(void) GetAlternate(const char* lpszPath, char* lpszAlternate)
@@ -1187,13 +1188,13 @@ bool Utils::CheckPath(bool repair)
   {
     if (!systemPathOkay && !repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Something is wrong with the system PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", WU_(systemPath));
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Something is wrong with the system PATH:"));
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, WU_(systemPath));
     }
     else if (!systemPathOkay && repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new system PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", repairedSystemPath);
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new system PATH:"));
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedSystemPath);
       systemPath = UW_(repairedSystemPath);
       winRegistry::SetRegistryValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType);
       systemPathOkay = true;
@@ -1209,8 +1210,8 @@ bool Utils::CheckPath(bool repair)
       systemPathOkay = !FixProgramSearchPath(WU_(userPath), commonBinDir, true, repairedUserPath, userPathCompetition);
       if (!systemPathOkay && repair)
       {
-        SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
-        SessionImpl::GetSession()->trace_error->WriteLine("core", repairedUserPath);
+        SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
+        SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
         userPath = UW_(repairedUserPath);
         winRegistry::SetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
         systemPathOkay = true;
@@ -1223,8 +1224,8 @@ bool Utils::CheckPath(bool repair)
     userPathOkay = !Directory::Exists(userBinDir) || !FixProgramSearchPath(WU_(userPath), userBinDir, true, repairedUserPath, userPathCompetition);
     if (!userPathOkay && repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", repairedUserPath);
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
       userPath = UW_(repairedUserPath);
       winRegistry::SetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
       userPathOkay = true;

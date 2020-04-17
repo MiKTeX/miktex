@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/TeXMFMemoryHandlerImpl.h:       -*- C++ -*-
 
-   Copyright (C) 2017-2018 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,8 @@
 
 #if !defined(FEFFF218B53147ED8CDE64F68A13D234)
 #define FEFFF218B53147ED8CDE64F68A13D234
+
+#include <miktex/Core/ConfigNames>
 
 #include <miktex/TeXAndFriends/config.h>
 
@@ -59,10 +61,10 @@ protected:
   int GetConfigValue(const std::string& valueName, int defaultValue) const
   {
     std::shared_ptr<MiKTeX::Core::Session> session = texmfapp.GetSession();
-    int value = session->GetConfigValue("", valueName, -1).GetInt();
+    int value = session->GetConfigValue(MIKTEX_CONFIG_SECTION_NONE, valueName, MiKTeX::Core::ConfigValue(-1)).GetInt();
     if (value < 0)
     {
-      value = session->GetConfigValue(texmfapp.GetProgramName(), valueName, defaultValue).GetInt();
+      value = session->GetConfigValue(texmfapp.GetProgramName(), valueName, MiKTeX::Core::ConfigValue(defaultValue)).GetInt();
     }
     return value;
   }
@@ -80,7 +82,7 @@ protected:
     {
       result = it->second;
     }
-    if (trace_mem->IsEnabled("libtexmf"))
+    if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
       trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), result);
     }
@@ -104,7 +106,7 @@ protected:
     {
       MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Bad parameter value."), "parameterName", parameterName);
     }
-    if (trace_mem->IsEnabled("libtexmf"))
+    if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
       trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), result);
     }
@@ -276,12 +278,12 @@ public:
       // one extra element because Pascal arrays are 1-based
       amount = (numElem + 1) * elemSize;
     }
-    if (trace_mem->IsEnabled("libtexmf"))
+    if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
       trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate %s: p == %p, elementSize == %u, nElements == %u, bytes == %u"), arrayName.empty() ? "array" : arrayName.c_str(), ptr, (unsigned)elemSize, (unsigned)numElem, (unsigned)amount);
     }
     ptr = MiKTeX::Debug::Realloc(ptr, amount, sourceLocation);
-    if (trace_mem->IsEnabled("libtexmf"))
+    if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
       trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate: return %p"), ptr);
     }

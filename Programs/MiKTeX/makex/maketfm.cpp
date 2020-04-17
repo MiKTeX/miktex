@@ -1,6 +1,6 @@
 /* maketfm.cpp:
 
-   Copyright (C) 1998-2019 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is part of MiKTeX MakeTFM.
 
@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include <miktex/Core/Registry>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/TemporaryDirectory>
 
 #include "MakeUtility.h"
@@ -99,7 +99,7 @@ void MakeTfm::CreateDestinationDirectory()
   }
 
   // get destination path template
-  string templ1 = session->GetConfigValue(MIKTEX_REGKEY_MAKETFM, MIKTEX_REGVAL_DESTDIR, "%R/fonts/tfm/%s/%t").GetString();
+  string templ1 = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKETFM, MIKTEX_CONFIG_VALUE_DESTDIR).GetString();
 
   string templ2;
   for (const char* lpsz = templ1.c_str(); *lpsz != 0; ++lpsz)

@@ -1,22 +1,29 @@
-/* console-version.h: MiKTeX Console version            -*- C++ -*-
+/* miktex/Helpers.h:                                    -*- C++ -*-
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
    by the Free Software Foundation; either version 2, or (at your
    option) any later version.
-   
+
    This file is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this file; if not, write to the Free Software
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#define MIKTEX_COMP_J2000_VERSION 7412
+#pragma once
 
-#include <miktex/Version>
+#if !defined(C71F5FF9EC5948E7B2A003BFB017CEE8)
+#define C71F5FF9EC5948E7B2A003BFB017CEE8
+
+#define MIKTEX_UNIQUE__(x, y) x##y
+#define MIKTEX_UNIQUE_(x, y) MIKTEX_UNIQUE__(x, y)
+#define MIKTEX_UNIQUE(x) MIKTEX_UNIQUE_(x, __COUNTER__)
+
+#endif

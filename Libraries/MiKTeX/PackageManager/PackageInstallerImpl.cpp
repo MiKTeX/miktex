@@ -26,10 +26,10 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/FileStream>
-#include <miktex/Core/Registry>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/TemporaryFile>
 #include <miktex/Extractor/Extractor>
@@ -45,6 +45,7 @@
 
 #include "internal.h"
 #include "PackageInstallerImpl.h"
+#include "PackageIteratorImpl.h"
 #include "TpmParser.h"
 
 using namespace std;
@@ -450,13 +451,13 @@ int CompareSerieses(const string& ver1, const string& ver2)
   }
 }
 
-void PackageInstallerImpl::FindUpdates()
+void PackageInstallerImpl::FindUpdatesNoLock()
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "checking for updates");
 
-  trace_mpm->WriteLine(TRACE_FACILITY, T_("searching for updateable packages"));
+  trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, T_("searching for updateable packages"));
 
-  UpdateDb({});
+  UpdateDbNoLock({});
 
   LoadRepositoryManifest(false);
 
@@ -490,7 +491,7 @@ void PackageInstallerImpl::FindUpdates()
     {
       if (isEssential)
       {
-        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: new essential package"), packageId));
+        trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format(T_("{0}: new essential package"), packageId));
         updateInfo.action = UpdateInfo::ForceUpdate;
         updates.push_back(updateInfo);
       }
@@ -508,7 +509,7 @@ void PackageInstallerImpl::FindUpdates()
       {
         MIKTEX_UNEXPECTED();
       }
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: double installed"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("{0}: double installed"), packageId));
       updateInfo.action = UpdateInfo::ForceRemove;
       updates.push_back(updateInfo);
       continue;
@@ -520,7 +521,7 @@ void PackageInstallerImpl::FindUpdates()
       && package.isRemovable)
     {
       // the package has been tampered with
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package is broken"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("{0}: package is broken"), packageId));
       updateInfo.timePackaged = static_cast<time_t>(-1);
       updateInfo.action = UpdateInfo::Repair;
       updates.push_back(updateInfo);
@@ -565,7 +566,7 @@ void PackageInstallerImpl::FindUpdates()
 
     if (!package.isRemovable)
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: no permission to update package"), packageId));
+      trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("{0}: no permission to update package"), packageId));
       updateInfo.action = UpdateInfo::KeepAdmin;
     }
     else
@@ -587,12 +588,12 @@ void PackageInstallerImpl::FindUpdates()
     updates.push_back(updateInfo);
   }
 
-  shared_ptr<PackageIterator> iter(packageManager->CreateIterator());
+  auto iter = make_unique<PackageIteratorImpl>(packageManager, true);
   iter->AddFilter({ PackageFilter::Obsolete });
   PackageInfo package;
   while (iter->GetNext(package))
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: package is obsolete"), package.id));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format(T_("{0}: package is obsolete"), package.id));
     UpdateInfo updateInfo;
     updateInfo.packageId = package.id;
     updateInfo.timePackaged = package.timePackaged;
@@ -608,9 +609,9 @@ void PackageInstallerImpl::FindUpdates()
   }
 
   session->SetConfigValue(
-    MIKTEX_REGKEY_PACKAGE_MANAGER,
-    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
-    std::to_string(time(nullptr)));
+    MIKTEX_CONFIG_SECTION_MPM,
+    session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK,
+    ConfigValue(std::to_string(time(nullptr))));
 }
 
 void PackageInstallerImpl::FindUpdatesAsync()
@@ -656,10 +657,10 @@ void PackageInstallerImpl::FindUpdatesThread()
 #endif
 }
 
-void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
+void PackageInstallerImpl::FindUpgradesNoLock(PackageLevel packageLevel)
 {
-  trace_mpm->WriteLine(TRACE_FACILITY, T_("searching for upgrades"));
-  UpdateDb({});
+  trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, T_("searching for upgrades"));
+  UpdateDbNoLock({});
   LoadRepositoryManifest(false);
   upgrades.clear();
   for (string packageId = repositoryManifest.FirstPackage(); !packageId.empty(); packageId = repositoryManifest.NextPackage())
@@ -806,7 +807,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
 
 void PackageInstallerImpl::RemovePackage(const string& packageId, Cfg& packageManifests)
 {
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("going to remove {0}"), Q_(packageId)));
+  trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format(T_("going to remove {0}"), Q_(packageId)));
 
   // notify client
   Notify(Notification::RemovePackageStart);
@@ -1057,7 +1058,7 @@ void PackageInstallerImpl::UpdateFndb(const unordered_set<PathName>& installedFi
 
 void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageManifests)
 {
-  trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("installing package {0}"), Q_(packageId)));
+  trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format(T_("installing package {0}"), Q_(packageId)));
 
   // search the package table
   PackageInfo package = packageDataStore->GetPackage(packageId);
@@ -1396,7 +1397,7 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& pa
     }
     else
     {
-      trace_error->WriteLine(TRACE_FACILITY, fmt::format(T_("registration/unregistration of {0} did not succeed; hr={1}"), Q_(path), hr));
+      trace_error->WriteLine(TRACE_FACILITY, TraceLevel::Error, fmt::format(T_("registration/unregistration of {0} did not succeed; hr={1}"), Q_(path), hr));
     }
   }
 #else
@@ -1430,7 +1431,7 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& pa
     }
     else
     {
-      trace_error->WriteLine(TRACE_FACILITY, fmt::format(T_("{0} {1} did not succeed (exit code: {2})"), regExe, cmdLine, exitCode));
+      trace_error->WriteLine(TRACE_FACILITY, TraceLevel::Error, fmt::format(T_("{0} {1} did not succeed (exit code: {2})"), regExe, cmdLine, exitCode));
     }
   }
 #endif
@@ -1695,129 +1696,133 @@ void PackageInstallerImpl::InstallRemove(Role role)
     ReportLine(fmt::format(T_("package repository: {0}"), Q_(repository)));
   }
 
-  // make sure that mpm.fndb exists
-  if (!File::Exists(session->GetMpmDatabasePathName()))
+  MPM_LOCK_BEGIN(this->packageManager)
   {
-    packageManager->CreateMpmFndb();
-  }
-
-  // collect all packages, if no packages were specified by the caller
-  if (upgrade)
-  {
-    LoadRepositoryManifest(true);
-
-    string packageId = repositoryManifest.FirstPackage();
-    if (packageId.empty())
+    // make sure that mpm.fndb exists
+    if (!File::Exists(session->GetMpmDatabasePathName()))
     {
-      MIKTEX_FATAL_ERROR(T_("No packages on server."));
+      packageManager->CreateMpmFndb();
     }
-    do
+
+    // collect all packages, if no packages were specified by the caller
+    if (upgrade)
     {
-      // search repository manifest
-      PackageLevel lvl = repositoryManifest.GetPackageLevel(packageId);
-      if (lvl > taskPackageLevel)
-      {
-        // not found or not required
-        continue;
-      }
+      LoadRepositoryManifest(true);
 
-#if IGNORE_OTHER_SYSTEMS
-      // check target system
-      string targetSystem = repositoryManifest.GetPackageTargetSystem(packageId);
-      if (!(targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG))
+      string packageId = repositoryManifest.FirstPackage();
+      if (packageId.empty())
       {
-        continue;
+        MIKTEX_FATAL_ERROR(T_("No packages on server."));
       }
-#endif
-
-      if (repositoryType == RepositoryType::Local || repositoryType == RepositoryType::Remote)
+      do
       {
-        // ignore pure containers
-        if (IsPureContainer(packageId))
+        // search repository manifest
+        PackageLevel lvl = repositoryManifest.GetPackageLevel(packageId);
+        if (lvl > taskPackageLevel)
         {
+          // not found or not required
           continue;
         }
 
-        // check to see whether the archive file exists
-        ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
-        PathName pathLocalArchiveFile = repository / packageId;
-        pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
-        if (!File::Exists(pathLocalArchiveFile))
+#if IGNORE_OTHER_SYSTEMS
+        // check target system
+        string targetSystem = repositoryManifest.GetPackageTargetSystem(packageId);
+        if (!(targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG))
         {
-          MIKTEX_FATAL_ERROR_2(FatalError(ERROR_MISSING_PACKAGE), "package", packageId, "archiveFile", pathLocalArchiveFile.ToString());
+          continue;
+        }
+#endif
+
+        if (repositoryType == RepositoryType::Local || repositoryType == RepositoryType::Remote)
+        {
+          // ignore pure containers
+          if (IsPureContainer(packageId))
+          {
+            continue;
+          }
+
+          // check to see whether the archive file exists
+          ArchiveFileType aft = repositoryManifest.GetArchiveFileType(packageId);
+          PathName pathLocalArchiveFile = repository / packageId;
+          pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+          if (!File::Exists(pathLocalArchiveFile))
+          {
+            MIKTEX_FATAL_ERROR_2(FatalError(ERROR_MISSING_PACKAGE), "package", packageId, "archiveFile", pathLocalArchiveFile.ToString());
+          }
+
+          // check to see if the archive file is valid
+          CheckArchiveFile(packageId, pathLocalArchiveFile, true);
         }
 
-        // check to see if the archive file is valid
-        CheckArchiveFile(packageId, pathLocalArchiveFile, true);
-      }
+        // collect the package
+        toBeInstalled.push_back(packageId);
+      } while (!(packageId = repositoryManifest.NextPackage()).empty());
+    }
+    else if (!toBeInstalled.empty())
+    {
+      // we need mpm.ini, if packages are to be installed
+      LoadRepositoryManifest(false);
+    }
 
-      // collect the package
-      toBeInstalled.push_back(packageId);
-    } while (!(packageId = repositoryManifest.NextPackage()).empty());
+    // check dependencies
+    set<string> tmp;
+    for (const string& p : toBeInstalled)
+    {
+      CheckDependencies(tmp, p, true, 0);
+    }
+    toBeInstalled.assign(tmp.begin(), tmp.end());
+
+    // calculate total size and more
+    CalculateExpenditure();
+
+    RegisterComponents(false, toBeInstalled, toBeRemoved);
+
+    unique_ptr<Cfg> packageManifests = Cfg::Create();
+    PathName packageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+    if (File::Exists(packageManifestsIni))
+    {
+      packageManifests->Read(packageManifestsIni);
+    }
+
+    // install packages
+    for (const string& p : toBeInstalled)
+    {
+      InstallPackage(p, *packageManifests);
+    }
+
+    // remove packages
+    for (const string& p : toBeRemoved)
+    {
+      RemovePackage(p, *packageManifests);
+    }
+
+    if (role == Role::Updater)
+    {
+      session->SetConfigValue(
+        MIKTEX_CONFIG_SECTION_MPM,
+        session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE,
+        ConfigValue(std::to_string(time(nullptr))));
+    }
+
+    // check dependencies (install missing required packages)
+    tmp.clear();
+    for (const string& p : toBeInstalled)
+    {
+      CheckDependencies(tmp, p, false, 0);
+    }
+    for (const string& p : tmp)
+    {
+      InstallPackage(p, *packageManifests);
+    }
+
+    if (File::Exists(packageManifestsIni))
+    {
+      packageManifests->Write(packageManifestsIni);
+    }
+
+    packageManifests = nullptr;
   }
-  else if (!toBeInstalled.empty())
-  {
-    // we need mpm.ini, if packages are to be installed
-    LoadRepositoryManifest(false);
-  }
-
-  // check dependencies
-  set<string> tmp;
-  for (const string& p : toBeInstalled)
-  {
-    CheckDependencies(tmp, p, true, 0);
-  }
-  toBeInstalled.assign(tmp.begin(), tmp.end());
-
-  // calculate total size and more
-  CalculateExpenditure();
-
-  RegisterComponents(false, toBeInstalled, toBeRemoved);
-
-  unique_ptr<Cfg> packageManifests = Cfg::Create();
-  PathName packageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
-  if (File::Exists(packageManifestsIni))
-  {
-    packageManifests->Read(packageManifestsIni);
-  }
-
-  // install packages
-  for (const string& p : toBeInstalled)
-  {
-    InstallPackage(p, *packageManifests);
-  }
-
-  // remove packages
-  for (const string& p : toBeRemoved)
-  {
-    RemovePackage(p, *packageManifests);
-  }
-
-  if (role == Role::Updater)
-  {
-    session->SetConfigValue(
-      MIKTEX_REGKEY_PACKAGE_MANAGER,
-      session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE : MIKTEX_REGVAL_LAST_USER_UPDATE,
-      std::to_string(time(nullptr)));
-  }
-
-  // check dependencies (install missing required packages)
-  tmp.clear();
-  for (const string& p : toBeInstalled)
-  {
-    CheckDependencies(tmp, p, false, 0);
-  }
-  for (const string& p : tmp)
-  {
-    InstallPackage(p, *packageManifests);
-  }
-
-  if (File::Exists(packageManifestsIni))
-  {
-    packageManifests->Write(packageManifestsIni);
-  }
-
-  packageManifests = nullptr;
+  MPM_LOCK_END();
 
   if (enablePostProcessing)
   {
@@ -2170,7 +2175,7 @@ void PackageInstallerImpl::HandleObsoletePackageManifests(Cfg& existingManifests
   packageDataStore->SaveVarData();
 }
 
-void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
+void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "update package database");
 
@@ -2344,9 +2349,9 @@ void PackageInstallerImpl::UpdateDb(UpdateDbOptionSet options)
   if (!options[UpdateDbOption::FromCache])
   {
     session->SetConfigValue(
-      MIKTEX_REGKEY_PACKAGE_MANAGER,
-      session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_DB : MIKTEX_REGVAL_LAST_USER_UPDATE_DB,
-      std::to_string(time(nullptr)));
+      MIKTEX_CONFIG_SECTION_MPM,
+      session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_DB : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_DB,
+      ConfigValue(std::to_string(time(nullptr))));
   }
 }
 
@@ -2468,7 +2473,7 @@ bool PackageInstallerImpl::UseLocalServer()
   }
 #if defined(MIKTEX_WINDOWS)
   bool elevationRequired = !session->RunningAsAdministrator();
-  bool forceLocalServer = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_FORCE_LOCAL_SERVER, false).GetBool();
+  bool forceLocalServer = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_FORCE_LOCAL_SERVER).GetBool();
   return elevationRequired || forceLocalServer;
 #else
   return false;
@@ -2482,12 +2487,12 @@ bool PackageInstallerImpl::UseLocalServer()
 HRESULT PackageInstallerImpl::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
   using namespace MiKTeXPackageManagerLib;
-  if (trace_mpm->IsEnabled(TRACE_FACILITY))
+  if (trace_mpm->IsEnabled(TRACE_FACILITY, MiKTeX::Trace::TraceLevel::Trace))
   {
     WCHAR szRiid[100];
     if (StringFromGUID2(riid, szRiid, 100) > 0)
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("QI {0}", StringUtil::WideCharToUTF8(szRiid)));
+      trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Trace, fmt::format("QI {0}", StringUtil::WideCharToUTF8(szRiid)));
     }
   }
   if (riid == __uuidof(IUnknown))

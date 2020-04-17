@@ -47,7 +47,6 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/Setup/SetupService>
 #include <miktex/Trace/Trace>
@@ -68,6 +67,7 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 static log4cxx::LoggerPtr logger;
+static bool isLog4cxxConfigured = false;
 
 static Application* instance = nullptr;
 
@@ -130,8 +130,6 @@ public:
 public:
   shared_ptr<Session> session;
 public:
-  bool isLog4cxxConfigured = false;
-public:
   string commandLine;
 };
 
@@ -154,7 +152,6 @@ Application::~Application() noexcept
     {
       Finalize();
     }
-    FlushPendingTraceMessages();
   }
   catch (const exception&)
   {
@@ -274,12 +271,12 @@ void Application::ConfigureLogging()
     Utils::SetEnvironmentString("MIKTEX_LOG_DIR", logDir.ToString());
     Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
-    pimpl->isLog4cxxConfigured = true;
   }
   else
   {
     log4cxx::BasicConfigurator::configure();
   }
+  isLog4cxxConfigured = true;
   logger = log4cxx::Logger::getLogger(myName);
 }
 
@@ -290,8 +287,8 @@ inline bool IsNewer(const PathName& path1, const PathName& path2)
 
 void Application::AutoMaintenance()
 {
-  time_t lastAdminMaintenance = pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetTimeT();
-  time_t lastUserMaintenance = pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetTimeT();
+  time_t lastAdminMaintenance = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetTimeT();
+  time_t lastUserMaintenance = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetTimeT();
   bool isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !pimpl->session->IsMiKTeXPortable();
   if (isSetupMode)
   {
@@ -329,7 +326,7 @@ void Application::AutoMaintenance()
   bool mustUpdateDb = false;
   if (!pimpl->session->IsAdminMode())
   {
-    time_t lastAdminUpdateDb = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LAST_ADMIN_UPDATE_DB, "0").GetTimeT();
+    time_t lastAdminUpdateDb = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_DB, ConfigValue("0")).GetTimeT();
     PathName userPackageManifestsIni = pimpl->session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
     mustUpdateDb = File::Exists(userPackageManifestsIni) && lastAdminUpdateDb > File::GetLastWriteTime(userPackageManifestsIni);
   }
@@ -431,7 +428,7 @@ void Application::AutoDiagnose()
 
   for (const Setup::Issue& issue : issues)
   {
-    if (pimpl->isLog4cxxConfigured)
+    if (isLog4cxxConfigured)
     {
       if (issue.severity == Setup::IssueSeverity::Critical || issue.severity == Setup::IssueSeverity::Major)
       {
@@ -463,13 +460,24 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   pimpl->session = Session::Create(initInfo);
   pimpl->session->SetFindFileCallback(this);
   ConfigureLogging();
+  auto thisProcess = Process::GetCurrentProcess();
+  auto parentProcess = thisProcess->get_Parent();
+  string invokerName;
+  if (parentProcess != nullptr)
+  {
+    invokerName = parentProcess->get_ProcessName();
+  }
+  if (invokerName.empty())
+  {
+    invokerName = "unknown process";
+  }
   if (pimpl->commandLine.empty())
   {
     // TODO
   }
   else
   {
-    LOG4CXX_INFO(logger, "starting with command line: " << pimpl->commandLine);
+    LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << pimpl->commandLine);
   }
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
@@ -529,17 +537,19 @@ void Application::Finalize2(int exitCode)
 {
   if (logger != nullptr)
   {
-    LOG4CXX_INFO(logger, "finishing with exit code " << exitCode);
+    auto thisProcess = Process::GetCurrentProcess();
+    LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") finishes with exit code " << exitCode);
   }
   Finalize();
 }
-  
+
 void Application::Finalize()
 {
   if (pimpl->enableDiagnose == TriState::True)
   {
     AutoDiagnose();
   }
+  FlushPendingTraceMessages();
   if (pimpl->installer != nullptr)
   {
     pimpl->installer->Dispose();
@@ -558,15 +568,16 @@ void Application::Finalize()
   }
   logger = nullptr;
   pimpl->initialized = false;
+  instance = nullptr;
 }
 
 void Application::ReportLine(const string& str)
 {
+  MIKTEX_ASSERT(logger != nullptr);
   LOG4CXX_INFO(logger, "mpm: " << str);
   if (!GetQuietFlag())
   {
-    fputs(str.c_str(), stdout);
-    putc('\n', stdout);
+    cout << str << endl;
   }
 }
 
@@ -790,7 +801,7 @@ TriState Application::GetEnableInstaller() const
 
 void Application::Trace(const TraceCallback::TraceMessage& traceMessage)
 {
-  if (!pimpl->isLog4cxxConfigured)
+  if (!isLog4cxxConfigured)
   {
     if (pimpl->pendingTraceMessages.size() > 100)
     {
@@ -814,21 +825,35 @@ void Application::FlushPendingTraceMessages()
 
 void Application::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
 {
-  if (pimpl->isLog4cxxConfigured)
+  if (isLog4cxxConfigured)
   {
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.") + Utils::GetExeName() + "." + traceMessage.facility);
-    if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
+    switch (traceMessage.level)
     {
+    case TraceLevel::Fatal:
+      LOG4CXX_FATAL(logger, traceMessage.message);
+      break;
+    case TraceLevel::Error:
       LOG4CXX_ERROR(logger, traceMessage.message);
-    }
-    else
-    {
+      break;
+    case TraceLevel::Warning:
+      LOG4CXX_WARN(logger, traceMessage.message);
+      break;
+    case TraceLevel::Info:
+      LOG4CXX_INFO(logger, traceMessage.message);
+      break;
+    case TraceLevel::Trace:
       LOG4CXX_TRACE(logger, traceMessage.message);
+      break;
+    case TraceLevel::Debug:
+    default:
+      LOG4CXX_DEBUG(logger, traceMessage.message);
+      break;
     }
   }
   else
   {
-    cerr << traceMessage.message << endl;
+    cerr << traceMessage << endl;
   }
 }
 
@@ -855,10 +880,11 @@ void Application::Sorry(const string& name, const string& description, const str
         << "\n"
         << T_("Remedy:") << "\n"
         << "\n"
-        << "  " << remedy << endl;
+        << "  " << remedy
+        << endl;
     }
   }
-  if (instance != nullptr && instance->pimpl->isLog4cxxConfigured)
+  if (isLog4cxxConfigured)
   {
     log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
     if (appender != nullptr)
@@ -867,14 +893,16 @@ void Application::Sorry(const string& name, const string& description, const str
         << "\n"
         << "The log file hopefully contains the information to get MiKTeX going again:" << "\n"
         << "\n"
-        << "  " << PathName(appender->getFile()) << endl;
+        << "  " << PathName(appender->getFile())
+        << endl;
     }
   }
   if (!url.empty())
   {
     cerr
       << "\n"
-      << T_("For more information, visit:") << " " << url << endl;
+      << T_("For more information, visit:") << " " << url
+      << endl;
   }
 }
 
@@ -903,7 +931,8 @@ void Application::Sorry(const string& name, const exception& ex)
   else
   {
     cerr
-      << "ERROR: " << ex.what() << "\n";
+      << "ERROR: " << ex.what()
+      << endl;
   }
   Sorry(name);
 }
@@ -968,7 +997,7 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
     }
   }
 
-  string templ = pimpl->session->GetConfigValue("", MIKTEX_REGVAL_EDITOR, defaultEditor).GetString();
+  string templ = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_GENERAL, MIKTEX_CONFIG_VALUE_EDITOR, ConfigValue(defaultEditor)).GetString();
 
   const char* lpszCommandLineTemplate = templ.c_str();
 
@@ -1065,7 +1094,7 @@ shared_ptr<Session> Application::GetSession() const
 
 void Application::LogInfo(const std::string& message) const
 {
-  if (pimpl->isLog4cxxConfigured)
+  if (logger != nullptr)
   {
     LOG4CXX_INFO(logger, message);
   }
@@ -1073,7 +1102,7 @@ void Application::LogInfo(const std::string& message) const
 
 void Application::LogWarn(const std::string& message) const
 {
-  if (pimpl->isLog4cxxConfigured)
+  if (logger != nullptr)
   {
     LOG4CXX_WARN(logger, message);
   }
@@ -1081,7 +1110,7 @@ void Application::LogWarn(const std::string& message) const
 
 void Application::LogError(const std::string& message) const
 {
-  if (pimpl->isLog4cxxConfigured)
+  if (logger != nullptr)
   {
     LOG4CXX_ERROR(logger, message);
   }

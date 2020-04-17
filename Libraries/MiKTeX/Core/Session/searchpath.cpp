@@ -1,6 +1,6 @@
 /* searchpath.cpp: managing search paths
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -33,6 +33,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathName>& paths)
@@ -164,15 +165,15 @@ MIKTEXINTERNALFUNC(string) MakeSearchPath(const vector<PathName>& vec)
 
 void SessionImpl::TraceSearchVector(const char* lpszKey, const vector<PathName>& vec)
 {
-  if (!trace_filesearch->IsEnabled("core"))
+  if (!trace_filesearch->IsEnabled("core", TraceLevel::Trace))
   {
     return;
   }
-  trace_filesearch->WriteFormattedLine("core", T_("search vector %s:"), lpszKey);
+  trace_filesearch->WriteLine("core", TraceLevel::Trace, fmt::format(T_("search vector {0}:"), lpszKey));
   unsigned nr = 0;
   for (vector<PathName>::const_iterator it = vec.begin(); it != vec.end(); ++it, ++nr)
   {
-    trace_filesearch->WriteFormattedLine("core", T_("  %2u: %s"), nr, it->GetData());
+    trace_filesearch->WriteLine("core", TraceLevel::Trace, fmt::format(T_("  {0}: {1}"), nr, *it));
   }
 }
 

@@ -31,7 +31,6 @@
 #include <miktex/Core/FileStream>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
@@ -50,6 +49,7 @@ namespace {
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 #if 0
@@ -69,7 +69,7 @@ struct ConfigMapping
 namespace {
   const ConfigMapping configMappings[] = {
     {
-      MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_REPOSITORY, MIKTEX_ENV_REPOSITORY,
+      MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_REPOSITORY, MIKTEX_ENV_REPOSITORY,
     },
   };
 }
@@ -133,7 +133,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
   }
 
 #if USE_WINDOWS_REGISTRY
-  if (winRegistry::TryGetRegistryValue(scope, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
+  if (winRegistry::TryGetRegistryValue(scope, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
   {
     // don't check for existence; it's a fatal error (detected later)
     // if the registry value is incorrect
@@ -277,7 +277,7 @@ MIKTEXSTATICFUNC(void) AppendToEnvVarName(string& name, const string& part)
   }
 }
 
-bool SessionImpl::GetSessionValue(const string& sectionName, const string& valueName, string& value)
+bool SessionImpl::GetSessionValue(const string& sectionName, const string& valueName, string& value, HasNamedValues* callback)
 {
   bool haveValue = false;
 
@@ -484,20 +484,20 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   // expand the value
   if (haveValue)
   {
-    string expandedValue = Expand(value, nullptr);
+    string expandedValue = Expand(value, callback);
     value = expandedValue;
   }
 #endif
 
-  if (trace_values->IsEnabled("core"))
+  if (trace_values->IsEnabled("core", TraceLevel::Trace))
   {
     if (!sectionName.empty())
     {
-      trace_values->WriteLine("core", fmt::format("[{}]{} => {}", sectionName, valueName, haveValue ? value : "null"));
+      trace_values->WriteLine("core", TraceLevel::Trace, fmt::format("[{}]{} => {}", sectionName, valueName, haveValue ? value : "null"));
     }
     else
     {
-      trace_values->WriteLine("core", fmt::format("{} => {}", valueName, haveValue ? value : "null"));
+      trace_values->WriteLine("core", TraceLevel::Trace, fmt::format("{} => {}", valueName, haveValue ? value : "null"));
     }
   }
 
@@ -520,6 +520,8 @@ std::string ConfigValue::GetString() const
     return std::string(1, this->c);
   case Type::StringArray:
     return StringUtil::Flatten(this->sa, PathName::PathNameDelimiter);
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to string."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to string."), "type", std::to_string(static_cast<int>(this->type)));
   }
@@ -539,6 +541,8 @@ int ConfigValue::GetInt() const
     return (int)this->t;
   case Type::Char:
     return (int)this->c;
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to integer."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to integer."), "type", std::to_string(static_cast<int>(this->type)));
   }
@@ -552,6 +556,8 @@ std::time_t ConfigValue::GetTimeT() const
     return std::stoll(this->s);
   case Type::Int:
     return (std::time_t)this->i;
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to time_t."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to time_t."), "type", std::to_string(static_cast<int>(this->type)));
   }
@@ -631,6 +637,8 @@ bool ConfigValue::GetBool() const
     {
       MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{c}' to boolean."), "c", string(1, this->c));
     }
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to boolean."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to boolean."), "type", std::to_string(static_cast<int>(this->type)));
   }
@@ -715,6 +723,8 @@ TriState ConfigValue::GetTriState() const
     {
       MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{c}' to tri-state."), "c", string(1, this->c));
     }
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to tri-state."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to tri-state."), "type", std::to_string(static_cast<int>(this->type)));
   }
@@ -742,6 +752,8 @@ char ConfigValue::GetChar() const
     return this->t == TriState::Undetermined ? '?' : this->t == TriState::False ? 'f' : 't';
   case Type::Char:
     return this->c;
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to character."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to character."), "type", std::to_string(static_cast<int>(this->type)));
   }
@@ -755,39 +767,42 @@ vector<string> ConfigValue::GetStringArray() const
     return StringUtil::Split(this->s, PathName::PathNameDelimiter);
   case Type::StringArray:
     return this->sa;
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to string array."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to string array."), "type", std::to_string(static_cast<int>(this->type)));
   }
 }
 
-bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string& valueName, string& value)
+bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string& valueName, HasNamedValues* callback, string& value)
 {
-  return GetSessionValue(sectionName, valueName, value);
+  return GetSessionValue(sectionName, valueName, value, callback);
 }
 
-ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& defaultValue)
+ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& defaultValue, HasNamedValues* callback)
 {
   string value;
-  if (GetSessionValue(sectionName, valueName, value))
+  if (GetSessionValue(sectionName, valueName, value, callback))
   {
-    return value;
+    return ConfigValue(value);
   }
   else if (defaultValue.GetType() != ConfigValue::Type::None)
   {
-    return Expand(defaultValue.GetString(), nullptr);
+    return ConfigValue(Expand(defaultValue.GetString(), callback));
   }
   else
   {
+    trace_config->WriteLine("core", TraceLevel::Warning, fmt::format(T_("undefined configuration value: [{0}]{1}"), sectionName, valueName));
     return ConfigValue();
   }
 }
 
-ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName)
+ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, HasNamedValues* callback)
 {
   string value;
-  if (GetSessionValue(sectionName, valueName, value))
+  if (GetSessionValue(sectionName, valueName, value, callback))
   {
-    return value;
+    return ConfigValue(value);
   }
   else
   {
@@ -813,11 +828,11 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
 #if defined(MIKTEX_WINDOWS)
   if (!haveConfigFile
     && !IsMiKTeXPortable()
-    && !GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, USE_WINDOWS_REGISTRY ? false : true).GetBool())
+    && !GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, ConfigValue(USE_WINDOWS_REGISTRY ? false : true)).GetBool())
   {
     winRegistry::SetRegistryValue(IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, sectionName, valueName, value.GetString());
     string newValue;
-    if (GetSessionValue(sectionName, valueName, newValue))
+    if (GetSessionValue(sectionName, valueName, newValue, nullptr))
     {
       if (newValue != value.GetString())
       {
@@ -847,7 +862,7 @@ void SessionImpl::SetAdminMode(bool adminMode, bool force)
   {
     MIKTEX_FATAL_ERROR(T_("Administrator mode cannot be enabled (makes no sense) because this is not a shared MiKTeX setup."));
   }
-  trace_config->WriteLine("core", fmt::format(T_("turning {0} administrator mode"), (adminMode ? "on" : "off")));
+  trace_config->WriteLine("core", TraceLevel::Info, fmt::format(T_("turning {0} administrator mode"), (adminMode ? "on" : "off")));
   // reinitialize
   fileTypes.clear();
   UnloadFilenameDatabase();
@@ -869,11 +884,11 @@ bool SessionImpl::IsSharedSetup()
 {
   if (isSharedSetup == TriState::Undetermined)
   {
-    isSharedSetup = GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_SHARED_SETUP, TriState::Undetermined).GetTriState();
+    isSharedSetup = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_SHARED_SETUP, ConfigValue(TriState::Undetermined)).GetTriState();
     if (isSharedSetup == TriState::Undetermined)
     {
       string value;
-      isSharedSetup = TryGetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, value) ? TriState::True : TriState::Undetermined;
+      isSharedSetup = TryGetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, value) ? TriState::True : TriState::Undetermined;
       if (isSharedSetup == TriState::Undetermined)
       {
 #if defined(MIKTEX_WINDOWS)
@@ -1140,7 +1155,7 @@ std::string SessionImpl::ExpandValues(const string& toBeExpanded, HasNamedValues
         }
         if (!haveValue)
         {
-          haveValue = TryGetConfigValue("", valueName, value);
+          haveValue = TryGetConfigValue(MIKTEX_CONFIG_SECTION_NONE, valueName, value);
         }
         if (haveValue)
         {

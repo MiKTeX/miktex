@@ -169,7 +169,7 @@ void TeXMFApp::OnTeXMFStartJob()
     }
   }
   session->PushBackAppName(appName);
-  pimpl->parseFirstLine = session->GetConfigValue("", MIKTEX_REGVAL_PARSE_FIRST_LINE, AmITeX()).GetBool();
+  pimpl->parseFirstLine = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_PARSE_FIRST_LINE, ConfigValue(AmITeX())).GetBool();
   pimpl->showFileLineErrorMessages = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CSTYLEERRORS).GetBool();
   pimpl->clockStart = clock();
 }
@@ -693,11 +693,11 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void
   if (!renew)
   {
     time_t modificationTime = File::GetLastWriteTime(path);
-    time_t lastAdminMaintenance = session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetTimeT();
+    time_t lastAdminMaintenance = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetTimeT();
     renew = lastAdminMaintenance > modificationTime;
     if (!renew && !session->IsAdminMode())
     {
-      time_t lastUserMaintenance = session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetTimeT();
+      time_t lastUserMaintenance = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetTimeT();
       renew = lastUserMaintenance > modificationTime;
     }
     if (renew)

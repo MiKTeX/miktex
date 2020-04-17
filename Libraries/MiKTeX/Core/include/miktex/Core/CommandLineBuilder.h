@@ -1,6 +1,6 @@
 /* miktex/Core/CommandLineBuilder.h:                    -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -137,6 +137,9 @@ public:
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::vector<std::string>& arguments);
+
+public:
+  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(int argc, const char* const* argv);
 
 public:
   MIKTEXCORETHISAPI(void) SetOptionConvention(OptionConvention optionConvention);

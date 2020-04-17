@@ -50,6 +50,7 @@
 #include "mpm-version.h"
 
 #include <miktex/Core/Cfg>
+#include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
@@ -95,12 +96,9 @@ const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
 
-vector<string> DEFAULT_TRACE_STREAMS = {
-  MIKTEX_TRACE_CORE,
-  MIKTEX_TRACE_CURL,
-  MIKTEX_TRACE_ERROR,
-  MIKTEX_TRACE_FNDB,
-  MIKTEX_TRACE_MPM
+vector<string> DEFAULT_TRACE_OPTIONS = {
+  TraceStream::MakeOption("", "", TraceLevel::Info),
+  TraceStream::MakeOption(MIKTEX_TRACE_MPM, "", TraceLevel::Trace),
 };
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("mpmcli"));
@@ -348,14 +346,27 @@ private:
   void TraceInternal(const TraceCallback::TraceMessage& traceMessage)
   {
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.mpmcli.") + traceMessage.facility);
-
-    if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
+    switch (traceMessage.level)
     {
+    case TraceLevel::Fatal:
+      LOG4CXX_FATAL(logger, traceMessage.message);
+      break;
+    case TraceLevel::Error:
       LOG4CXX_ERROR(logger, traceMessage.message);
-    }
-    else
-    {
+      break;
+    case TraceLevel::Warning:
+      LOG4CXX_WARN(logger, traceMessage.message);
+      break;
+    case TraceLevel::Info:
+      LOG4CXX_INFO(logger, traceMessage.message);
+      break;
+    case TraceLevel::Trace:
       LOG4CXX_TRACE(logger, traceMessage.message);
+      break;
+    case TraceLevel::Debug:
+    default:
+      LOG4CXX_DEBUG(logger, traceMessage.message);
+      break;
     }
   }
 
@@ -1547,7 +1558,7 @@ void Application::Main(int argc, const char** argv)
     case OPT_TRACE:
       if (optArg.empty())
       {
-        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
+        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_OPTIONS, ','));
       }
       else
       {
@@ -1839,7 +1850,7 @@ void Application::Main(int argc, const char** argv)
   {
     cout
       << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 2005-2019 Christian Schenk" << endl
+      << "Copyright (C) 2005-2020 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
@@ -1877,7 +1888,19 @@ void Application::Main(int argc, const char** argv)
     Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
     isLog4cxxConfigured = true;
-    LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("mpmcli", MIKTEX_COMPONENT_VERSION_STR));
+    auto thisProcess = Process::GetCurrentProcess();
+    auto parentProcess = thisProcess->get_Parent();
+    string invokerName;
+    if (parentProcess != nullptr)
+    {
+      invokerName = parentProcess->get_ProcessName();
+    }
+    if (invokerName.empty())
+    {
+      invokerName = "unknown process";
+    }
+    LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString("mpmcli", MIKTEX_COMPONENT_VERSION_STR));
+    LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(argc, argv));
   }
 
   if (session->IsAdminMode())
@@ -2154,6 +2177,10 @@ int MAIN(int argc, MAINCHAR* argv[])
 #if defined(MIKTEX_WINDOWS)
   CoUninitialize();
 #endif
-  logger = nullptr;
+  if (logger != nullptr)
+  {
+    LOG4CXX_INFO(logger, "this process (" << Process::GetCurrentProcess()->GetSystemId() << ") finishes with exit code " << retCode);
+    logger = nullptr;
+  }
   return retCode;
 }

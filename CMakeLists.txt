@@ -57,8 +57,10 @@ endforeach()
 ###############################################################################
 ## the name of the game
 
-project(miktex)
 set(MIKTEX_PRODUCT_NAME "MiKTeX")
+string(TOLOWER ${MIKTEX_PRODUCT_NAME} MIKTEX_PRODUCT_TAG)
+
+project(${MIKTEX_PRODUCT_TAG})
 
 ###############################################################################
 ## global C/C++ options
@@ -754,6 +756,13 @@ if(NOT MIKTEX_FULL_VERSION_STR)
     FORCE
   )
 endif()
+
+if(MIKTEX_RELEASE_STATE EQUAL 1)
+  set(MIKTEX_DEFAULT_PACKAGE_STREAM "next")
+else()
+  set(MIKTEX_DEFAULT_PACKAGE_STREAM "stable")
+endif()
+
 
 ###############################################################################
 ## Endianess
