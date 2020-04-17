@@ -37,7 +37,7 @@ if(APPLE)
     CACHE STRING
     "The earliest version of MacOS X that MiKTeX will run on."
   )
-  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-no_weak_imports")
+  #set(CMAKE_EXE_LINKER_FLAGS "-Wl,-no_weak_imports")
 endif()
 
 ###############################################################################
