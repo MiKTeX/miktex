@@ -3,7 +3,7 @@
 set -e
 set -v
 
-mkdir "${TRAVIS_BUILD_DIR}/build"
+mkdir -p "${TRAVIS_BUILD_DIR}/build"
 cd "${TRAVIS_BUILD_DIR}/build"
 
 if [ "${TRAVIS_BRANCH}" = "next" ]; then
