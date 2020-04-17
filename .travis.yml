@@ -6,7 +6,6 @@ env:
 
 addons:
   homebrew:
-    update: true
     packages:
       - ghostscript
       - md5sha1sum
