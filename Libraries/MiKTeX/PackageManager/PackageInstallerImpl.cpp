@@ -2182,6 +2182,8 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "update package database");
 
+  packageDataStore->Load();
+
   if (!options[UpdateDbOption::FromCache])
   {
     NeedRepository();
