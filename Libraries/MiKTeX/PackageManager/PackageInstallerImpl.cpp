@@ -1701,6 +1701,8 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
   MPM_LOCK_BEGIN(this->packageManager)
   {
+    packageDataStore->Load();
+
     // make sure that mpm.fndb exists
     if (!File::Exists(session->GetMpmDatabasePathName()))
     {
