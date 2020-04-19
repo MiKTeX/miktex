@@ -88,7 +88,7 @@ void PackageDataStore::Clear()
 
 tuple<bool, PackageInfo> PackageDataStore::TryGetPackage(const string& packageId)
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   auto it = packageTable.find(packageId);
   if (it == packageTable.end())
   {
@@ -127,13 +127,13 @@ void PackageDataStore::SetReleaseState(const string& packageId, RepositoryReleas
 
 PackageDataStore::iterator PackageDataStore::begin()
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   return iterator(packageTable.begin());
 }
 
 PackageDataStore::iterator PackageDataStore::end()
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   return iterator(packageTable.end());
 }
 
@@ -171,7 +171,7 @@ void PackageDataStore::IncrementFileRefCounts(const string& packageId)
 
 unsigned long PackageDataStore::GetFileRefCount(const PathName& path)
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   InstalledFileInfoTable::const_iterator it = installedFileInfoTable.find(path.ToString());
   if (it == installedFileInfoTable.end())
   {
@@ -182,7 +182,7 @@ unsigned long PackageDataStore::GetFileRefCount(const PathName& path)
 
 unsigned long PackageDataStore::DecrementFileRefCount(const PathName& path)
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   InstalledFileInfoTable::iterator it = installedFileInfoTable.find(path.ToString());
   if (it == installedFileInfoTable.end() || it->second.refCount == 0)
   {
@@ -225,12 +225,12 @@ void PackageDataStore::NeedPackageManifestsIni()
   }
 }
 
-void PackageDataStore::Load()
+PackageDataStore& PackageDataStore::Load()
 {
   if (loadedAllPackageManifests)
   {
     // we do this once
-    return;
+    return *this;
   }
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "loading all package manifests");
   NeedPackageManifestsIni();
@@ -251,6 +251,7 @@ void PackageDataStore::Load()
   }
   Load(*cfg);
   loadedAllPackageManifests = true;
+  return *this;
 }
 
 void PackageDataStore::Load(Cfg& cfg)
@@ -387,7 +388,7 @@ void PackageDataStore::LoadVarData()
 
 PackageInfo& PackageDataStore::operator[](const string& packageId)
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   auto it = packageTable.find(packageId);
   if (it == packageTable.end())
   {

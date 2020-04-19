@@ -181,6 +181,14 @@ void PackageManagerImpl::UnloadDatabase()
 
 bool PackageManagerImpl::TryGetPackageInfo(const string& packageId, PackageInfo& packageInfo)
 {
+  if (!packageDataStore.LoadedAllPackageManifests())
+  {
+    MPM_LOCK_BEGIN(this)
+    {
+      packageDataStore.Load();
+    }
+    MPM_LOCK_END();
+  }
   bool knownPackage;
   tie(knownPackage, packageInfo) = packageDataStore.TryGetPackage(packageId);
   return knownPackage;
@@ -188,8 +196,16 @@ bool PackageManagerImpl::TryGetPackageInfo(const string& packageId, PackageInfo&
 
 PackageInfo PackageManagerImpl::GetPackageInfo(const string& packageId)
 {
+  if (!packageDataStore.LoadedAllPackageManifests())
+  {
+    MPM_LOCK_BEGIN(this)
+    {
+      packageDataStore.Load();
+    }
+    MPM_LOCK_END();
+  }
   return packageDataStore.GetPackage(packageId);
-}
+  }
 
 bool PackageManager::TryGetRemotePackageRepository(string& url, RepositoryReleaseState& repositoryReleaseState)
 {
@@ -476,7 +492,7 @@ bool PackageManagerImpl::OnProgress(unsigned level, const PathName& directory)
   return true;
 }
 
-void PackageManagerImpl::CreateMpmFndb()
+void PackageManagerImpl::CreateMpmFndbNoLock()
 {
   // collect the file names
   for (const PackageInfo& pi : packageDataStore)
@@ -1097,9 +1113,9 @@ bool PackageManagerImpl::TryCollectFileDigests(const PathName& prefix, const vec
   return true;
 }
 
-bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
+bool PackageManagerImpl::TryVerifyInstalledPackageNoLock(const string& packageId)
 {
-  PackageInfo packageInfo = GetPackageInfo(packageId);
+  PackageInfo packageInfo = packageDataStore.GetPackage(packageId);
 
   PathName prefix;
 
@@ -1145,17 +1161,17 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
   return ok;
 }
 
-string PackageManagerImpl::GetContainerPath(const string& packageId, bool useDisplayNames)
+string PackageManagerImpl::GetContainerPathNoLock(const string& packageId, bool useDisplayNames)
 {
   string path;
-  PackageInfo packageInfo = GetPackageInfo(packageId);
+  PackageInfo packageInfo = packageDataStore.GetPackage(packageId);
   for (const string& reqby : packageInfo.requiredBy)
   {
-    PackageInfo packageInfo2 = GetPackageInfo(reqby);
+    PackageInfo packageInfo2 = packageDataStore.GetPackage(reqby);
     if (packageInfo2.IsPureContainer())
     {
       // RECUSION
-      path = GetContainerPath(reqby, useDisplayNames);
+      path = GetContainerPathNoLock(reqby, useDisplayNames);
       path += PathName::DirectoryDelimiter;
       if (useDisplayNames)
       {

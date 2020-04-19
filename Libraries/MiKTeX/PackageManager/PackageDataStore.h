@@ -66,6 +66,15 @@ public:
 public:
   void LoadAllPackageManifests(const MiKTeX::Core::PathName& path);
 
+public:
+  PackageDataStore& Load();
+
+public:
+  bool LoadedAllPackageManifests() const
+  {
+    return loadedAllPackageManifests;
+  }
+
   /// Save mutable package data.
 public:
   void SaveVarData();
@@ -200,9 +209,6 @@ public:
 public:
   std::size_t GetNumberOfInstalledPackages(bool userScope);
   
-private:
-  void Load();
-
 private:
   void Load(MiKTeX::Core::Cfg& cfg);
 

@@ -455,6 +455,8 @@ void PackageInstallerImpl::FindUpdatesNoLock()
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "checking for updates");
 
+  packageDataStore->Load();
+
   trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, T_("searching for updateable packages"));
 
   UpdateDbNoLock({});
@@ -517,7 +519,7 @@ void PackageInstallerImpl::FindUpdatesNoLock()
 
     // check the integrity of installed MiKTeX packages
     if (IsMiKTeXPackage(packageId)
-      && !packageManager->TryVerifyInstalledPackage(packageId)
+      && !packageManager->TryVerifyInstalledPackageNoLock(packageId)
       && package.isRemovable)
     {
       // the package has been tampered with
@@ -660,6 +662,7 @@ void PackageInstallerImpl::FindUpdatesThread()
 void PackageInstallerImpl::FindUpgradesNoLock(PackageLevel packageLevel)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, T_("searching for upgrades"));
+  packageDataStore->Load();
   UpdateDbNoLock({});
   LoadRepositoryManifest(false);
   upgrades.clear();
@@ -1701,7 +1704,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
     // make sure that mpm.fndb exists
     if (!File::Exists(session->GetMpmDatabasePathName()))
     {
-      packageManager->CreateMpmFndb();
+      packageManager->CreateMpmFndbNoLock();
     }
 
     // collect all packages, if no packages were specified by the caller
@@ -2339,12 +2342,13 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
   // install mpm.ini
   InstallRepositoryManifest(options[UpdateDbOption::FromCache]);
 
-  // force a reload of the database
+  // reload of the database
   repositoryManifest.Clear();
   packageManager->ClearAll();
+  packageDataStore->Load();
 
   // create the MPM file name database
-  packageManager->CreateMpmFndb();
+  packageManager->CreateMpmFndbNoLock();
 
   if (!options[UpdateDbOption::FromCache])
   {

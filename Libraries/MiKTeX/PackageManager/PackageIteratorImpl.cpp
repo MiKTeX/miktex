@@ -48,6 +48,7 @@ PackageIteratorImpl::PackageIteratorImpl(shared_ptr<PackageManagerImpl> packageM
 
 void PackageIteratorImpl::Init()
 {
+  packageManager->GetPackageDataStore()->Load();
   for (const auto& p : *packageManager->GetPackageDataStore())
   {
     snapshot.push_back(p);
