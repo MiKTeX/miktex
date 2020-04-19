@@ -73,7 +73,7 @@ private:
   void PrintSearchPath(const char* lpszSearchPath);
 
 public:
-  void Run(int argc, const char** argv);
+  int Run(int argc, const char** argv);
 
 private:
   bool mustExist = false;
@@ -231,7 +231,7 @@ void FindTeXMF::PrintSearchPath(const char* lpszSearchPath)
   cout << endl;
 }
 
-void FindTeXMF::Run(int argc, const char** argv)
+int FindTeXMF::Run(int argc, const char** argv)
 {
   session = GetSession();
 
@@ -333,13 +333,15 @@ void FindTeXMF::Run(int argc, const char** argv)
   {
     if (!needArg)
     {
-      return;
+      return EXIT_SUCCESS;
     }
     else
     {
       FatalError(T_("Missing argument. Try 'findtexmf --help'."));
     }
   }
+
+  int exitCode = EXIT_SUCCESS;
 
   for (const string& fileName : leftovers)
   {
@@ -372,7 +374,13 @@ void FindTeXMF::Run(int argc, const char** argv)
 #endif
       }
     }
+    else
+    {
+      exitCode = EXIT_FAILURE;
+    }
   }
+
+  return exitCode;
 }
 
 #if defined(_UNICODE)
@@ -406,9 +414,9 @@ int MAIN(int argc, MAINCHAR** argv)
     }
     newargv.push_back(nullptr);
     app.Init(newargv);
-    app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
-    app.Finalize2(0);
-    return 0;
+    int exitCode = app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
+    app.Finalize2(exitCode);
+    return exitCode;
   }
   catch (const MiKTeXException& ex)
   {
