@@ -71,6 +71,7 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 
@@ -103,10 +104,11 @@ void SetupServiceCallbackImpl::ReportLine(const string& str)
 #endif
 }
 
-MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage, bool dontFindIssues) :
+MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage, bool dontFindIssues, TraceCallback* traceCallback) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
+  packageManager = PackageManager::Create(PackageManager::InitInfo(traceCallback));
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetString()));
   isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !session->IsMiKTeXPortable();

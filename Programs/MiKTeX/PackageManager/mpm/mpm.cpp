@@ -1912,7 +1912,7 @@ void Application::Main(int argc, const char** argv)
     Verbose(T_("Operating on the private (per-user) MiKTeX setup"));
   }
 
-  packageManager = PackageManager::Create();
+  packageManager = PackageManager::Create(PackageManager::InitInfo(this));
 
   if (changeProxy)
   {

@@ -345,7 +345,7 @@ void Application::AutoMaintenance()
       LOG4CXX_INFO(logger, "refreshing user's package database from cache");
       if (pimpl->packageManager == nullptr)
       {
-        pimpl->packageManager = PackageManager::Create();
+        pimpl->packageManager = PackageManager::Create(PackageManager::InitInfo(this));
       }
       if (pimpl->installer == nullptr)
       {
@@ -628,7 +628,7 @@ bool Application::InstallPackage(const string& packageId, const PathName& trigge
   }
   if (pimpl->packageManager == nullptr)
   {
-    pimpl->packageManager = PackageManager::Create();
+    pimpl->packageManager = PackageManager::Create(PackageManager::InitInfo(this));
   }
   if (pimpl->enableInstaller == TriState::Undetermined)
   {

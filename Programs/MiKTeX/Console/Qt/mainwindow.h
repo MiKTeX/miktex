@@ -70,7 +70,7 @@ public:
   };
 
 public:
-  explicit MainWindow(QWidget* parent = nullptr, Pages startPage = Pages::Overview, bool dontFindIssues = false);
+  explicit MainWindow(QWidget* parent = nullptr, Pages startPage = Pages::Overview, bool dontFindIssues = false, MiKTeX::Trace::TraceCallback* traceCallback = nullptr);
 
 public:
   ~MainWindow() override;
@@ -642,7 +642,7 @@ private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager = MiKTeX::Packages::PackageManager::Create();
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 };
 
 class PackageInstallerCallbackImpl :
