@@ -447,7 +447,7 @@ void SessionImpl::ReregisterRootDirectories(const string& roots, bool other)
   RegisterRootDirectoriesOptionSet options;
   options += RegisterRootDirectoriesOption::Review;
 #if defined(MIKTEX_WINDOWS)
-  if (IsMiKTeXPortable() || GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, USE_WINDOWS_REGISTRY ? false : true).GetBool())
+  if (IsMiKTeXPortable() || GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, ConfigValue(USE_WINDOWS_REGISTRY ? false : true)).GetBool())
   {
     options += RegisterRootDirectoriesOption::NoRegistry;
   }
