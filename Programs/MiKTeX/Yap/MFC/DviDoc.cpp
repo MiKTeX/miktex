@@ -81,17 +81,18 @@ BOOL DviDoc::OnOpenDocument(LPCTSTR lpszPathName)
     MIKTEX_ASSERT(pDvi == nullptr);
     MIKTEX_ASSERT(pDviSave == nullptr);
     MIKTEX_ASSERT(!isPrintContext);
+    YapInfo(fmt::format("loading document: {0}", TU_(lpszPathName)));
     CreateDocument(TU_(lpszPathName));
     return TRUE;
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
     return FALSE;
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
     return FALSE;
   }
 }
@@ -326,7 +327,7 @@ void DviDoc::OnIdle()
     DviFileStatus newStatus = GetDviFileStatus();
     if (newStatus == DVIFILE_MODIFIED)
     {
-      YapLog(T_("document has been modified"));
+      YapInfo(T_("document has been modified"));
       POSITION posView = GetFirstViewPosition();
       while (posView != nullptr)
       {
@@ -361,7 +362,7 @@ DviDoc::DviFileStatus DviDoc::GetDviFileStatus()
       modificationTime = File::GetLastWriteTime(PathName(GetPathName()));
       if (timeMod != modificationTime)
       {
-        YapLog(fmt::format(T_("{0} has been modified"), Q_(TU_(GetPathName()))));
+        YapInfo(fmt::format(T_("{0} has been modified"), Q_(TU_(GetPathName()))));
         modificationTime = timeMod;
         fileStatus = DVIFILE_MODIFIED;
       }

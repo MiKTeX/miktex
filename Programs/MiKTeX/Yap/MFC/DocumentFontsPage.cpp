@@ -87,12 +87,12 @@ BOOL DocumentFontsPage::OnInitDialog()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 
   return ret;
@@ -123,11 +123,11 @@ void DocumentFontsPage::OnDoubleClick(NMHDR* pNMHDR, LRESULT* pResult)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }

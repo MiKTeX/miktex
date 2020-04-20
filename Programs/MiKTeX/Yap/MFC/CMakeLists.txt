@@ -176,6 +176,12 @@ else()
   target_link_libraries(${MIKTEX_PROG_NAME_YAP} ${fmt_dll_name})
 endif()
 
+if(USE_SYSTEM_LOG4CXX)
+  target_link_libraries(${MIKTEX_PROG_NAME_YAP} MiKTeX::Imported::LOG4CXX)
+else()
+  target_link_libraries(${MIKTEX_PROG_NAME_YAP} ${log4cxx_dll_name})
+endif()
+
 install(TARGETS ${MIKTEX_PROG_NAME_YAP} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(screenshots_dir ${CMAKE_CURRENT_SOURCE_DIR}/../Screenshots)

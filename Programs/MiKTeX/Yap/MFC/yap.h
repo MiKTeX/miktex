@@ -408,7 +408,8 @@ public:
 };
 
 class YapApplication :
-  public CWinApp
+  public CWinApp,
+  public MiKTeX::Trace::TraceCallback
 {
 protected:
   DECLARE_MESSAGE_MAP();
@@ -451,6 +452,25 @@ private:
 
 private:
   bool GotoHyperLabel(const char* lpszLabel);
+
+private:
+  std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
+
+public:
+  void MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override;
+
+private:
+  void FlushPendingTraceMessages()
+  {
+    for (const TraceCallback::TraceMessage& msg : pendingTraceMessages)
+    {
+      TraceInternal(msg);
+    }
+    pendingTraceMessages.clear();
+  }
+
+private:
+  void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
 
 protected:
   bool tracing = false;
@@ -511,9 +531,13 @@ void StartEditor(const char* lpszFileName, const char* lpszDocDir, int line);
 
 void UpdateAllDviViews(bool reread = false);
 
-void YapLog(const std::string& line);
+void YapInfo(const std::string& line);
 
-void TraceError(const std::string& line);
+void YapError(const std::string& line);
+
+void ShowError(CWnd* parent, const MiKTeX::Core::MiKTeXException& e);
+
+void ShowError(CWnd* parent, const std::exception& e);
 
 enum {
   WM_DVIPROGRESS = WM_APP + 1, WM_MAKEFONTS

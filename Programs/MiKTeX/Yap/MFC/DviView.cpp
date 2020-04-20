@@ -195,11 +195,11 @@ void DviView::OnActivateView(BOOL activate, CView* pActivateView, CView* pDeacti
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   CScrollView::OnActivateView(activate, pActivateView, pDeactiveView);
 }
@@ -217,12 +217,12 @@ void DviView::OnInitialUpdate()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 }
 
@@ -278,12 +278,12 @@ void DviView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -317,11 +317,11 @@ BOOL DviView::OnScroll(UINT scrollCode, UINT pos, BOOL doScroll)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   return CScrollView::OnScroll(scrollCode, pos, doScroll);
@@ -542,11 +542,11 @@ void DviView::OnNextPage()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -579,11 +579,11 @@ void DviView::OnUpdateNextPage(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
@@ -633,11 +633,11 @@ void DviView::OnPrevPage()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -660,11 +660,11 @@ void DviView::OnUpdatePrevPage(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
@@ -678,11 +678,11 @@ void DviView::OnPageDown()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -703,11 +703,11 @@ void DviView::OnDocumentDown()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -722,11 +722,11 @@ void DviView::OnPageUp()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -747,11 +747,11 @@ void DviView::OnDocumentUp()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -810,11 +810,11 @@ void DviView::OnPageLeft()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -829,11 +829,11 @@ void DviView::OnPageRight()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -852,11 +852,11 @@ void DviView::OnLastPage()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -874,11 +874,11 @@ void DviView::OnUpdateLastPage(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
@@ -897,11 +897,11 @@ void DviView::OnFirstPage()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -919,11 +919,11 @@ void DviView::OnUpdateFirstPage(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
@@ -963,11 +963,11 @@ void DviView::OnGotoPage()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -985,11 +985,11 @@ void DviView::OnUpdateGotoPage(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
@@ -1019,11 +1019,11 @@ void DviView::OnEnd()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -1045,7 +1045,7 @@ void DviView::Zoom(bool zoomIn)
     return;
   }
   double f = static_cast<double>(oldShrink) / newShrink;
-  YapLog(fmt::format(T_("Yap zoom: {0}/{1}={2:.2f}"), oldShrink, newShrink, f));
+  YapInfo(fmt::format(T_("Yap zoom: {0}/{1}={2:.2f}"), oldShrink, newShrink, f));
   CPoint oldScrollPosition = GetScrollPosition();
   pDoc->Shrink(d);
   g_pYapConfig->displayShrinkFactor = newShrink;
@@ -1073,11 +1073,11 @@ void DviView::OnZoomIn()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -1095,11 +1095,11 @@ void DviView::OnUpdateZoomIn(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
@@ -1112,11 +1112,11 @@ void DviView::OnZoomOut()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -1134,11 +1134,11 @@ void DviView::OnUpdateZoomOut(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
@@ -1234,11 +1234,11 @@ void DviView::OnLButtonDown(UINT flags, CPoint point)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   CScrollView::OnLButtonDown(flags, point);
@@ -1284,11 +1284,11 @@ void DviView::OnLButtonUp(UINT flags, CPoint point)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   CScrollView::OnLButtonUp(flags, point);
@@ -1370,11 +1370,11 @@ void DviView::OnMouseMove(UINT flags, CPoint point)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   CScrollView::OnMouseMove(flags, point);
@@ -1430,11 +1430,11 @@ BOOL DviView::OnSetCursor(CWnd* pWnd, UINT hitTest, UINT message)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   return FALSE;
@@ -1482,11 +1482,11 @@ void DviView::OnContextMenu(CWnd* pWnd, CPoint point)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -1561,11 +1561,11 @@ void DviView::OnChar(UINT ch, UINT repeatCount, UINT flags)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -1720,11 +1720,11 @@ void DviView::OnViewRefresh()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -1834,11 +1834,11 @@ void DviView::OnFileDocumentProperties()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -1856,11 +1856,11 @@ void DviView::OnUpdateFileDocumentProperties(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
@@ -1882,11 +1882,11 @@ LRESULT DviView::OnMakeFonts(WPARAM wParam, LPARAM lParam)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   return 0;
 }
@@ -1923,12 +1923,12 @@ void DviView::OnLighterText()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -1943,12 +1943,12 @@ void DviView::OnUpdateLighterText(CCmdUI* pCmdUI)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -1964,12 +1964,12 @@ void DviView::OnDarkerText()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -1985,12 +1985,12 @@ void DviView::OnUpdateDarkerText(CCmdUI* pCmdUI)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -2021,12 +2021,12 @@ void DviView::OnDviPageModePk()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -2050,12 +2050,12 @@ void DviView::OnDviPageModeDvips()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 

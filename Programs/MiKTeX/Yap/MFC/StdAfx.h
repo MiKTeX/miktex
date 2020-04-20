@@ -61,6 +61,10 @@
 #include <vector>
 #include <string>
 
+#include <log4cxx/logger.h>
+#include <log4cxx/rollingfileappender.h>
+#include <log4cxx/xml/domconfigurator.h>
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 

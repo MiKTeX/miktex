@@ -1,6 +1,6 @@
 /* source.cpp: source specials
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -91,11 +91,11 @@ void DviView::OnPageEditor()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -113,11 +113,11 @@ void DviView::OnUpdatePageEditor(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
@@ -134,11 +134,11 @@ void DviView::OnToolsSourcespecials()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -156,11 +156,11 @@ void DviView::OnUpdateToolsSourcespecials(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
