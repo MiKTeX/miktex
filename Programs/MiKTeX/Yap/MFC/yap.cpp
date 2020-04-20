@@ -390,8 +390,6 @@ BOOL YapApplication::InitInstance()
       LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << TU_(m_lpCmdLine));
     }
 
-    YapInfo(fmt::format(T_("Yap arguments: {0}"), TU_(m_lpCmdLine)));
-
     // return, if another application instance was found
     if (cmdInfo.singleInstance && ActivateFirstInstance(cmdInfo))
     {
