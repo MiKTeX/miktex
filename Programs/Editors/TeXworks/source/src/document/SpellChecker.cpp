@@ -18,6 +18,12 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+#if defined(MIKTEX)
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+#include <miktex/Core/AutoResource>
+#include <miktex/miktex-texworks.hpp>
+#endif
 #include "document/SpellChecker.h"
 #include "TWUtils.h" // for TWUtils::getLibraryPath
 
@@ -89,6 +95,9 @@ SpellChecker::Dictionary * SpellChecker::getDictionary(const QString& language)
 		QFileInfo affFile(dicDir, language + QLatin1String(".aff"));
 		QFileInfo dicFile(dicDir, language + QLatin1String(".dic"));
 		if (affFile.isReadable() && dicFile.isReadable()) {
+#if defined(MIKTEX)
+                  MIKTEX_INFO(fmt::format("loading dictionary: {0}", language.toUtf8().data()));
+#endif
 #if defined(MIKTEX_WINDOWS)
                   Hunhandle* h = Hunspell_create(affFile.canonicalFilePath().toUtf8().data(), dicFile.canonicalFilePath().toUtf8().data());
 #else
@@ -99,6 +108,26 @@ SpellChecker::Dictionary * SpellChecker::getDictionary(const QString& language)
 			return dictionaries->value(language);
 		}
 	}
+#if defined(MIKTEX)
+  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+  MIKTEX_AUTO(session->UnloadFilenameDatabase());
+  for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
+  {
+    MiKTeX::Core::PathName dicPath = session->GetRootDirectoryPath(r) / MIKTEX_PATH_HUNSPELL_DICT_DIR;
+    const QString dictPath = QString::fromStdWString(dicPath.ToWideCharString());
+    QFileInfo affFile(dictPath + "/" + language + ".aff");
+    QFileInfo dicFile(dictPath + "/" + language + ".dic");
+    if (affFile.isReadable() && dicFile.isReadable())
+    {
+#if defined(MIKTEX)
+      MIKTEX_INFO(fmt::format("loading dictionary: {0}", language.toUtf8().data()));
+#endif
+      Hunhandle* h = Hunspell_create(affFile.canonicalFilePath().toUtf8().data(), dicFile.canonicalFilePath().toUtf8().data());
+      dictionaries->insert(language, new Dictionary(language, h));
+      return dictionaries->value(language);
+    }
+  }
+#endif
 	return nullptr;
 }
 

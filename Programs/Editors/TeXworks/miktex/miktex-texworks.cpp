@@ -49,7 +49,7 @@ static log4cxx::LoggerPtr synctexLogger(log4cxx::Logger::getLogger("synctex"));
 Wrapper* Wrapper::instance;
 
 Wrapper::Wrapper() :
-  traceStream(TraceStream::Open("texworks"))
+  traceStream(TraceStream::Open("texworks", this))
 {
   if (instance != nullptr)
   {
@@ -105,10 +105,7 @@ int Wrapper::Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[])
       }
     }
     int exitCode = Main(argc, argv);
-    if (exitCode != 0)
-    {
-      LOG4CXX_INFO(logger, "exit code: " << exitCode);
-    }
+    LOG4CXX_INFO(logger, "exit code: " << exitCode);
     return exitCode;
   }
   catch (const MiKTeXException& e)

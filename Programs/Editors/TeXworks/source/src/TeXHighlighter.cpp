@@ -19,6 +19,11 @@
 	see <http://www.tug.org/texworks/>.
 */
 
+#if defined(MIKTEX)
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+#include <miktex/miktex-texworks.hpp>
+#endif
 #include <QTextCursor>
 
 #include "TeXHighlighter.h"
@@ -146,6 +151,9 @@ void TeXHighlighter::setActiveIndex(int index)
 void TeXHighlighter::setSpellChecker(Tw::Document::SpellChecker::Dictionary * dictionary)
 {
 	if (_dictionary != dictionary) {
+#if defined(MIKTEX)
+          MIKTEX_INFO(fmt::format("setting spell checker: {0}", dictionary->getLanguage().toUtf8().data()));
+#endif
 		_dictionary = dictionary;
 		QTimer::singleShot(1, this, SLOT(rehighlight()));
 	}

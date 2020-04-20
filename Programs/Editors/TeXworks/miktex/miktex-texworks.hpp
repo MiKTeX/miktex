@@ -23,6 +23,13 @@
 #include <miktex/Trace/TraceStream>
 #include <miktex/Trace/TraceCallback>
 
+#define MIKTEX_FATAL(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Fatal, s)
+#define MIKTEX_ERROR(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Error, s)
+#define MIKTEX_WARNING(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Warning, s)
+#define MIKTEX_INFO(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Info, s)
+#define MIKTEX_TRACE(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Trace, s)
+#define MIKTEX_DEBUG(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Debug, s)
+
 namespace MiKTeX { namespace TeXworks {
 
 class Wrapper :

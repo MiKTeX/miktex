@@ -19,6 +19,11 @@
 	see <http://www.tug.org/texworks/>.
 */
 
+#if defined(MIKTEX)
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+#include <miktex/miktex-texworks.hpp>
+#endif
 #include "TeXDocumentWindow.h"
 #include "TeXHighlighter.h"
 #include "TeXDocks.h"
@@ -1044,6 +1049,9 @@ QString TeXDocumentWindow::readFile(const QFileInfo & fileInfo,
 
 void TeXDocumentWindow::loadFile(const QFileInfo & fileInfo, bool asTemplate, bool inBackground, bool reload, QTextCodec * forceCodec)
 {
+#if defined(MIKTEX)
+  MIKTEX_INFO(fmt::format("loading: {0}", fileInfo.canonicalFilePath().toUtf8().data()));
+#endif
 	QString fileContents = readFile(fileInfo, &codec, &lineEndings, forceCodec);
 	showLineEndingSetting();
 	showEncodingSetting();
