@@ -870,7 +870,7 @@ unique_ptr<Process> DviPageImpl::StartDvips()
     arguments.push_back("-T" + std::to_string(width) + "bp" + ',' + std::to_string(height) + "bp");
   }
   arguments.push_back("-MiKTeX:nolandscape");
-  if (session->GetConfigValue("Dvips", "Pedantic", false).GetBool())
+  if (session->GetConfigValue("Dvips", "Pedantic", ConfigValue(false)).GetBool())
   {
     arguments.push_back("-MiKTeX:pedantic");
   }
