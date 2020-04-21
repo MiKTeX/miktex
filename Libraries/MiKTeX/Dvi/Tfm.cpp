@@ -1,6 +1,6 @@
 /* Tfm.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -30,8 +30,8 @@
 
 Tfm::Tfm(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, const char* area, const char* fontName, const char* fileName, double tfmConv, double conv) :
   DviFont(dviImpl, checkSum, scaledSize, designSize, area, fontName, fileName, tfmConv, conv),
-  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
-  trace_tfm(TraceStream::Open(MIKTEX_TRACE_DVITFM))
+  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR, dviImpl->GetTraceCallback())),
+  trace_tfm(TraceStream::Open(MIKTEX_TRACE_DVITFM, dviImpl->GetTraceCallback()))
 
 {
   trace_tfm->WriteFormattedLine ("libdvi", T_("creating TFM object '%s'"), dviInfo.name.c_str());

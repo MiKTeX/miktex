@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -136,6 +136,12 @@ target_link_libraries(${dvi_dll_name}
   PUBLIC
     ${dib_dll_name}
 )
+
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${dvi_dll_name} PRIVATE MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${dvi_dll_name} PRIVATE ${fmt_dll_name})
+endif()
 
 set(dviscan_sources dviscan.cpp)
 

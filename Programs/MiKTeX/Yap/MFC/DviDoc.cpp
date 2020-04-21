@@ -157,7 +157,8 @@ void DviDoc::CreateDocument(const char* lpszPathName)
     IsPrintContext() ? DviPageMode::Dvips : dviPageMode,
     pSession->GetPaperSizeInfo(dvipsPaperName),
     landscape,
-    this);
+    this,
+    &theApp);
   pDvi->Scan();
   fileStatus = DVIFILE_LOADED;
 }

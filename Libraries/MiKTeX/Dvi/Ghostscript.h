@@ -1,6 +1,6 @@
 /* Ghostscript.h:                                       -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -46,7 +46,7 @@ public:
   void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> chunk) override;
 
 public:
-  Ghostscript();
+  Ghostscript(TraceCallback *traceCallback);
 
 private:
   void Start();

@@ -1,6 +1,6 @@
 /* VFont.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -30,8 +30,8 @@ VFont::VFont(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, con
   mag(mag),
   metafontMode(metafontMode),
   baseDpi(baseDpi),
-  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
-  trace_vfont(TraceStream::Open(MIKTEX_TRACE_DVIVFONT))
+  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR, dviImpl->GetTraceCallback())),
+  trace_vfont(TraceStream::Open(MIKTEX_TRACE_DVIVFONT, dviImpl->GetTraceCallback()))
 {
   dviInfo.isVirtualFont = true;
 }

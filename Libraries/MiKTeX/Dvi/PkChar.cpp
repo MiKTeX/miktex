@@ -1,6 +1,6 @@
 /* PkChar.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -56,8 +56,8 @@ int PkChar::GetLower3()
 
 PkChar::PkChar(DviFont* pFont) :
   DviChar(pFont),
-  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
-  trace_pkchar(TraceStream::Open(MIKTEX_TRACE_DVIPKCHAR))
+  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR, pFont->GetTraceCallback())),
+  trace_pkchar(TraceStream::Open(MIKTEX_TRACE_DVIPKCHAR, pFont->GetTraceCallback()))
 {
 }
 

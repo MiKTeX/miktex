@@ -1,6 +1,6 @@
 /* PkFont.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -33,8 +33,8 @@ PkFont::PkFont(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, c
   mag(mag),
   metafontMode(metafontMode),
   baseDpi(baseDpi),
-  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
-  trace_pkfont(TraceStream::Open(MIKTEX_TRACE_DVIPKFONT))
+  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR, dviImpl->GetTraceCallback())),
+  trace_pkfont(TraceStream::Open(MIKTEX_TRACE_DVIPKFONT, dviImpl->GetTraceCallback()))
 {
   trace_pkfont->WriteFormattedLine("libdvi", T_("creating pk font object '%s'"), dviInfo.name.c_str());
   for (int i = 0; i < 30; ++i)

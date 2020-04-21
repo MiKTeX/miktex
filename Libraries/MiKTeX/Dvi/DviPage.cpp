@@ -1,6 +1,6 @@
 /* DviPage.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -113,9 +113,8 @@ DviPageImpl::DviPageImpl(DviImpl* dviImpl, int pageIdx, DviPageMode pageMode, lo
   pageIdx(pageIdx),
   pageMode(pageMode),
   readPosition(readPosition),
-  tracePage(TraceStream::Open(MIKTEX_TRACE_DVIPAGE)),
-  traceBitmap(TraceStream::Open(MIKTEX_TRACE_DVIBITMAP))
-
+  tracePage(TraceStream::Open(MIKTEX_TRACE_DVIPAGE, dviImpl->GetTraceCallback())),
+  traceBitmap(TraceStream::Open(MIKTEX_TRACE_DVIBITMAP, dviImpl->GetTraceCallback()))
 {
   if (pageMode != DviPageMode::Dvips)
   {
@@ -600,6 +599,16 @@ DviImpl* DviPageImpl::GetDviObject()
   return dviImpl;
 }
 
+TraceCallback* DviPageImpl::GetTraceCallback() const
+{
+  return dviImpl->GetTraceCallback();
+}
+
+void DviPageImpl::Error(const string& line)
+{
+  dviImpl->DviError(line);
+}
+
 int DviPageImpl::GetReg(int idx)
 {
   MIKTEX_ASSERT(idx >= 0 && idx < 10);
@@ -957,7 +966,7 @@ int DviPageImpl::GetNumberOfGraphicsInclusions(int shrinkFactor)
 
 void DviPageImpl::DoPostScriptSpecials(int shrinkFactor)
 {
-  Ghostscript gs;
+  Ghostscript gs(dviImpl->GetTraceCallback());
 
   for (size_t idx = 0; idx < dviSpecials.size(); ++idx)
   {

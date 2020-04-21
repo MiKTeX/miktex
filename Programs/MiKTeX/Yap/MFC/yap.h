@@ -23,20 +23,6 @@
 #include "resource.h"
 #include "SplashWindow.h"
 
-#define YAP_TRACE_FLAGS_LVL_1                   \
-  MIKTEX_TRACE_ERROR ","                        \
-  MIKTEX_TRACE_PROCESS ","                      \
-  MIKTEX_TRACE_YAP
-
-#define YAP_TRACE_FLAGS_LVL_2                   \
-  YAP_TRACE_FLAGS_LVL_1 ","                     \
-  MIKTEX_TRACE_DVIFILE ","                      \
-  MIKTEX_TRACE_DVIPKFONT
-
-#define YAP_TRACE_FLAGS_LVL_3                   \
-  YAP_TRACE_FLAGS_LVL_2 ","                     \
-  MIKTEX_TRACE_DVIGC
-
 #define SIXTEENBITGDI 0
 
 #define USEMYSCROLLVIEW SIXTEENBITGDI
@@ -404,7 +390,7 @@ public:
   bool singleInstance = false;
 
 public:
-  string traceFlags;
+  string traceOptions;
 };
 
 class YapApplication :
@@ -476,7 +462,7 @@ protected:
   bool tracing = false;
 
 public:
-  string traceFlags;
+  std::vector<std::string> traceOptions;
 
 private:
   shared_ptr<Session> session;
@@ -490,6 +476,8 @@ public:
 public:
   unique_ptr<TraceStream> trace_error;
 };
+
+extern YapApplication theApp;
 
 template<class VALTYPE> class AutoRestore
 {

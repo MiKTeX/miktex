@@ -77,9 +77,9 @@ namespace {
       nullptr
     },
     {
-      "trace", 0, POPT_ARG_STRING, nullptr, OPT_TRACE,
-      T_("Turns tracing on."),
-      T_("TRACEFLAGS")
+      "trace", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_TRACE,
+      T_("Turn on tracing.  TRACEOPTIONS, if specified, is a comma-separated list of trace options (see the MiKTeX manual)."),
+      T_("TRACEOPTIONS")
     },
     {
       "unregister", 0, POPT_ARG_NONE, nullptr, OPT_UNREGISTER,
@@ -93,6 +93,14 @@ namespace {
 namespace {
   bool registering = false;
   bool unregistering = false;
+  vector<string> defaultTraceOptions = {
+    TraceStream::MakeOption(MIKTEX_TRACE_ERROR, "", TraceLevel::Trace),
+    TraceStream::MakeOption(MIKTEX_TRACE_PROCESS, "", TraceLevel::Trace),
+    TraceStream::MakeOption(MIKTEX_TRACE_YAP, "", TraceLevel::Trace),
+    TraceStream::MakeOption(MIKTEX_TRACE_DVIFILE, "", TraceLevel::Trace),
+    TraceStream::MakeOption(MIKTEX_TRACE_DVIPKFONT, "", TraceLevel::Trace),
+    TraceStream::MakeOption(MIKTEX_TRACE_DVIGC, "", TraceLevel::Trace)
+  };
 }
 
 void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
@@ -116,6 +124,7 @@ void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
 
   while ((option = popt.GetNextOpt()) >= 0)
   {
+    string optArg = popt.GetOptArg();
     switch (option)
     {
 
@@ -160,7 +169,14 @@ void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
       break;
 
     case OPT_TRACE:
-      cmdInfo.traceFlags = popt.GetOptArg();
+      if (optArg.empty())
+      {
+        cmdInfo.traceOptions = StringUtil::Flatten(defaultTraceOptions, ',');
+      }
+      else
+      {
+        cmdInfo.traceOptions = optArg;
+      }
       break;
 
     case OPT_UNREGISTER:
@@ -358,11 +374,11 @@ BOOL YapApplication::InitInstance()
     ParseYapCommandLine(TU_(m_lpCmdLine), cmdInfo);
 
     // set trace flags
-    if (!cmdInfo.traceFlags.empty())
+    if (!cmdInfo.traceOptions.empty())
     {
       tracing = true;
-      traceFlags = cmdInfo.traceFlags;
-      TraceStream::SetOptions(cmdInfo.traceFlags);
+      traceOptions = StringUtil::Split(cmdInfo.traceOptions, ',');
+      TraceStream::SetOptions(traceOptions);
     }
 
     PathName xmlFileName;
@@ -1127,12 +1143,12 @@ void YapApplication::OnViewTrace()
     tracing = !tracing;
     if (tracing)
     {
-      if (!traceFlags.empty())
+      if (traceOptions.empty())
       {
-        traceFlags = YAP_TRACE_FLAGS_LVL_3;
+        traceOptions = defaultTraceOptions;
       }
     }
-    TraceStream::SetOptions(tracing ? traceFlags : "");
+    TraceStream::SetOptions(tracing ? traceOptions : vector<string>{});
   }
   catch (const MiKTeXException& e)
   {

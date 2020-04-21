@@ -1,6 +1,6 @@
 /* dvi.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -66,25 +66,29 @@ int DviImpl::RulePixels(int x)
   }
 }
 
-DviImpl::DviImpl(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, DviPageMode pageMode, const PaperSizeInfo & paperSizeInfo, bool landscape) :
+DviImpl::DviImpl(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, DviPageMode pageMode, const PaperSizeInfo & paperSizeInfo, bool landscape, IDviCallback* dviCallback, TraceCallback* traceCallback) :
   currentColor(rgbDefaultColor),
   dviAccess(dviAccess),
   dviFileName(fileName),
   landscape(landscape),
-  trace_color(TraceStream::Open(MIKTEX_TRACE_DVICOLOR)),
-  trace_dvifile(TraceStream::Open(MIKTEX_TRACE_DVIFILE)),
-  trace_dvipage(TraceStream::Open(MIKTEX_TRACE_DVIPAGE)),
-  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
-  trace_gc(TraceStream::Open(MIKTEX_TRACE_DVIGC)),
-  trace_hypertex(TraceStream::Open(MIKTEX_TRACE_DVIHYPERTEX)),
-  trace_search(TraceStream::Open(MIKTEX_TRACE_DVISEARCH)),
-  metafontMode(metafontMode), callback(0),
+  metafontMode(metafontMode),
+  dviCallback(dviCallback),
+  traceCallback(traceCallback),
   pageMode(pageMode),
   paperSizeInfo(paperSizeInfo),
   resolution(resolution),
   defaultShrinkFactor(shrinkFactor)
 {
+  trace_color = TraceStream::Open(MIKTEX_TRACE_DVICOLOR, traceCallback);
+  trace_dvifile = TraceStream::Open(MIKTEX_TRACE_DVIFILE, traceCallback);
+  trace_dvipage = TraceStream::Open(MIKTEX_TRACE_DVIPAGE, traceCallback);
+  trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR, traceCallback);
+  trace_gc = TraceStream::Open(MIKTEX_TRACE_DVIGC, traceCallback);
+  trace_hypertex = TraceStream::Open(MIKTEX_TRACE_DVIHYPERTEX, traceCallback);
+  trace_search = TraceStream::Open(MIKTEX_TRACE_DVISEARCH, traceCallback);
+
   fqDviFileName = dviFileName;
+
   fqDviFileName.MakeAbsolute();
 
   dviInfo.lastWriteTime = 0;
@@ -1148,7 +1152,7 @@ change_font:
   }
 }
 
-Dvi* Dvi::Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, IDviCallback* callback)
+Dvi* Dvi::Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, IDviCallback* dviCallback, TraceCallback* traceCallback)
 {
   shared_ptr<Session> session = Session::Get();
   PaperSizeInfo defaultPaperSizeInfo;
@@ -1156,13 +1160,12 @@ Dvi* Dvi::Create(const char* fileName, const char* metafontMode, int resolution,
   {
     MIKTEX_UNEXPECTED();
   }
-  return Create(fileName, metafontMode, resolution, shrinkFactor, dviAccess, DEFAULT_PAGE_MODE, defaultPaperSizeInfo, false, callback);
+  return Create(fileName, metafontMode, resolution, shrinkFactor, dviAccess, DEFAULT_PAGE_MODE, defaultPaperSizeInfo, false, dviCallback, traceCallback);
 }
 
-Dvi* Dvi::Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, DviPageMode pageMode, const PaperSizeInfo & paperSizeInfo, bool landscape, IDviCallback* callback)
+Dvi* Dvi::Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, DviPageMode pageMode, const PaperSizeInfo & paperSizeInfo, bool landscape, IDviCallback* dviCallback, TraceCallback* traceCallback)
 {
-  DviImpl* dviImpl = new DviImpl(fileName, metafontMode, resolution, shrinkFactor, dviAccess, pageMode, paperSizeInfo, landscape);
-  dviImpl->callback = callback;
+  DviImpl* dviImpl = new DviImpl(fileName, metafontMode, resolution, shrinkFactor, dviAccess, pageMode, paperSizeInfo, landscape, dviCallback, traceCallback);
   return dviImpl;
 }
 
@@ -1350,9 +1353,9 @@ void DviImpl::Progress(DviNotification nf, const char* format, ...)
     progressStatus = StringUtil::FormatStringVA(format, args);
   }
 
-  if (callback != nullptr)
+  if (dviCallback != nullptr)
   {
-    callback->OnProgress(nf);
+    dviCallback->OnProgress(nf);
   }
 }
 
