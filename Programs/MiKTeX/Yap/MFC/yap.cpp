@@ -136,7 +136,7 @@ void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
     case OPT_FIND_SRC_SPECIAL:
     {
       char* lpszFileName = nullptr;
-      cmdInfo.sourceLineNum = strtol(popt.GetOptArg().c_str(), &lpszFileName, 10);
+      cmdInfo.sourceLineNum = strtol(optArg.c_str(), &lpszFileName, 10);
       if (lpszFileName != nullptr)
       {
         while (*lpszFileName == ' ')
@@ -152,7 +152,7 @@ void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
     }
 
     case OPT_GOTO_HYPER_LABEL:
-      cmdInfo.hyperLabel = popt.GetOptArg();
+      cmdInfo.hyperLabel = optArg;
       break;
 
     case OPT_PRINT:
