@@ -180,12 +180,9 @@ BEGIN_TEST_FUNCTION(7);
   }
   TESTX(MiKTeX::Core::Directory::Create(longPath));
   TEST(MiKTeX::Core::Directory::Exists(longPath));
-  TESTX(MiKTeX::Core::Directory::SetCurrent(longPath));
-  MiKTeX::Core::PathName file = "file.txt";
+  MiKTeX::Core::PathName file = longPath / "file.txt";
   Touch(file.GetData());
   TEST(MiKTeX::Core::File::Exists(file));
-  TESTX(file.MakeAbsolute());
-  TESTX(MiKTeX::Core::Directory::SetCurrent(cd));
   TESTX(MiKTeX::Core::File::Delete(file));
   TEST(!MiKTeX::Core::File::Exists(file));
   TESTX(MiKTeX::Core::Directory::Delete(dir, true));
