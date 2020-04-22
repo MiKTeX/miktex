@@ -53,6 +53,8 @@ enum class ConvertPathNameOption
 #if defined(MIKTEX_WINDOWS)
   /// Replaces 8.3 with the long path equivalent.
   ToLongPathName,
+  /// Prefix with \\?\ to create an extended-length path name.
+  ToExtendedLengthPathName,
 #endif
   /// Makes the path name relative to the current directory.
   MakeRelative,
@@ -363,6 +365,15 @@ public:
   }
 #endif
 
+#if defined(MIKTEX_WINDOWS)
+  PathName ToExtendedLengthPathName() const
+  {
+    PathName result = *this;
+    result.Convert({ ConvertPathNameOption::ToExtendedLengthPathName });
+    return result;
+  }
+#endif
+
 public:
   std::wstring ToWideCharString() const
   {
@@ -373,7 +384,7 @@ public:
 public:
   std::wstring ToNativeString() const
   {
-    return ToWideCharString();
+    return ToExtendedLengthPathName().ToWideCharString();
   }
 #else
 public:

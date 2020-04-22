@@ -1,6 +1,6 @@
 /* winMemoryMappedFile.cpp: memory mapped files
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -72,7 +72,7 @@ void* winMemoryMappedFile::Open(const PathName& path_, bool readWrite)
   }
 
   // try to open an existing file mapping
-  hMapping = OpenFileMappingW(readWrite ? FILE_MAP_WRITE : FILE_MAP_READ, FALSE, PathName(name).ToWideCharString().c_str());
+  hMapping = OpenFileMappingW(readWrite ? FILE_MAP_WRITE : FILE_MAP_READ, FALSE, PathName(name).ToExtendedLengthPathName().ToWideCharString().c_str());
 
   if (hMapping != nullptr)
   {

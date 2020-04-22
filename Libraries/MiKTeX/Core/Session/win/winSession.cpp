@@ -801,7 +801,7 @@ bool SessionImpl::ShowManualPageAndWait(HWND hWnd, unsigned long topic)
   {
     return false;
   }
-  HWND hwnd = HtmlHelpW(hWnd, pathHelpFile.ToWideCharString().c_str(), HH_HELP_CONTEXT, topic);
+  HWND hwnd = HtmlHelpW(hWnd, pathHelpFile.ToExtendedLengthPathName().ToWideCharString().c_str(), HH_HELP_CONTEXT, topic);
   if (hwnd == nullptr)
   {
     return false;
@@ -821,7 +821,7 @@ bool SessionImpl::IsFileAlreadyOpen(const PathName& fileName)
 {
   unsigned long error = NO_ERROR;
 
-  HANDLE hFile = CreateFileW(fileName.ToWideCharString().c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  HANDLE hFile = CreateFileW(fileName.ToExtendedLengthPathName().ToWideCharString().c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (hFile == INVALID_HANDLE_VALUE)
   {

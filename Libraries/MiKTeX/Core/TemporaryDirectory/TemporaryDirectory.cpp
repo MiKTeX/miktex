@@ -1,6 +1,6 @@
 /* TemporaryDirectory.cpp:
 
-   Copyright (C) 2016-2018 Christian Schenk
+   Copyright (C) 2016-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -118,7 +118,7 @@ private:
   static bool NameExists(const PathName& name)
   {
 #if defined(MIKTEX_WINDOWS)
-    unsigned long attributes = GetFileAttributesW(name.ToWideCharString().c_str());
+    unsigned long attributes = GetFileAttributesW(name.ToExtendedLengthPathName().ToWideCharString().c_str());
     return attributes != INVALID_FILE_ATTRIBUTES;
 #else
     struct stat statbuf;

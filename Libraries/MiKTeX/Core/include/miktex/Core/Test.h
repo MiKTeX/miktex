@@ -358,7 +358,7 @@ protected:
   {
     FILE* pFile;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-    if (fopen_s(&pFile, lpszPath, "wb") != 0)
+    if (_wfopen_s(&pFile, MiKTeX::Core::PathName(lpszPath).ToExtendedLengthPathName().ToWideCharString().c_str(), L"wb") != 0)
     {
       pFile = nullptr;
     }

@@ -1,6 +1,6 @@
 /* winDirectoryLister.cpp: directory lister
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -122,7 +122,7 @@ bool winDirectoryLister::GetNext(DirectoryEntry2& direntry2)
         pathPattern /= pattern.c_str();
       }
       handle = FindFirstFileExW(
-        UW_(pathPattern.GetData()),
+        pathPattern.ToExtendedLengthPathName().ToWideCharString().c_str(),
         WindowsVersion::IsWindows7OrGreater() ? FindExInfoBasic : FindExInfoStandard,
         &ffdat,
         (options & (int)Options::DirectoriesOnly) != 0 ? FindExSearchLimitToDirectories : FindExSearchNameMatch,

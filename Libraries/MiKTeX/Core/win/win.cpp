@@ -155,7 +155,7 @@ MIKTEXSTATICFUNC(unsigned int) GetMediaType(const char* path)
   {
     return DRIVE_UNKNOWN;
   }
-  return GetDriveTypeW(pathRootName.ToWideCharString().c_str());
+  return GetDriveTypeW(pathRootName.ToExtendedLengthPathName().ToWideCharString().c_str());
 }
 
 MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char* path)
@@ -210,7 +210,7 @@ MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char* path)
   sa.lpSecurityDescriptor = pSD;
   sa.bInheritHandle = FALSE;
 
-  if (!CreateDirectoryW(PathName(path).ToWideCharString().c_str(), &sa))
+  if (!CreateDirectoryW(PathName(path).ToExtendedLengthPathName().ToWideCharString().c_str(), &sa))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path);
   }
@@ -260,12 +260,12 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
   {
     CreateDirectoryForEveryone(path.GetData());
   }
-  else if (!CreateDirectoryW(path.ToWideCharString().c_str(), nullptr))
+  else if (!CreateDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path.ToString());
   }
 #else
-  if (!CreateDirectoryW(path.ToWideCharString().c_str(), nullptr))
+  if (!CreateDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path.ToString());
   }

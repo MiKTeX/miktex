@@ -48,7 +48,7 @@ MIKTEXSTATICFUNC(void) GetAlternate(const char* lpszPath, char* lpszAlternate)
   MIKTEX_ASSERT_STRING(lpszPath);
   MIKTEX_ASSERT_PATH_BUFFER(lpszAlternate);
   WIN32_FIND_DATAW finddata;
-  HANDLE hnd = FindFirstFileW(PathName(lpszPath).ToWideCharString().c_str(), &finddata);
+  HANDLE hnd = FindFirstFileW(PathName(lpszPath).ToExtendedLengthPathName().ToWideCharString().c_str(), &finddata);
   if (hnd == INVALID_HANDLE_VALUE)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("FindFirstFileW", "path", lpszPath);
@@ -1294,7 +1294,7 @@ bool Utils::SupportsHardLinks(const PathName& path)
   DWORD fileSystemFlags;
   wchar_t fileSystemName[_MAX_PATH];
   PathName root = path.GetMountPoint();
-  if (GetVolumeInformationW(root.ToWideCharString().c_str(), nullptr, 0, nullptr, nullptr, &fileSystemFlags, fileSystemName, _MAX_PATH) == 0)
+  if (GetVolumeInformationW(root.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr, 0, nullptr, nullptr, &fileSystemFlags, fileSystemName, _MAX_PATH) == 0)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("GetVolumeInformationW", "root", root.ToString());
   }
@@ -1305,5 +1305,75 @@ bool Utils::SupportsHardLinks(const PathName& path)
   else
   {
     return _wcsicmp(fileSystemName, L"NTFS") == 0;
+  }
+}
+
+// inspired CMake's SystemTools::ConvertToWindowsExtendedPath (Source/kwsys/SystemTools.cxx)
+void Utils::ConvertToLengthExtendedPathName(PathName& path)
+{
+  PathName absPath = path;
+  absPath.MakeAbsolute();
+  if (IsAlpha(absPath[0])
+    && PathName::IsVolumeDelimiter(absPath[1])
+    && PathName::IsDirectoryDelimiter(absPath[2]))
+  {
+    // C:\Foo\bar\FooBar.txt
+    path = "\\\\?\\"s + absPath.ToString();
+  }
+  else if (PathName::IsDirectoryDelimiter(absPath[0]) && PathName::IsDirectoryDelimiter(absPath[1]))
+  {
+    if (absPath[2] == '?' && PathName::IsDirectoryDelimiter(absPath[3]))
+    {
+      if (absPath[4] == 'U' && absPath[5] == 'N' && absPath[6] == 'C' && PathName::IsDirectoryDelimiter(absPath[7]))
+      {
+        // \\?\UNC\Foo\bar\FooBar.txt
+        path = absPath;
+      }
+      else if (IsAlpha(absPath[4]) && PathName::IsDirectoryDelimiter(absPath[5]))
+      {
+        // \\?\C:\Foo\bar\FooBar.txt
+        path = absPath;
+      }
+      else if (absPath.GetLength() > 4)
+      {
+        // \\?\Foo\bar\FooBar.txt
+        path = absPath;
+      }
+      else
+      {
+        /* \\?\ */
+        MIKTEX_UNEXPECTED();
+      }
+    }
+    else if (absPath[2] == '.' && PathName::IsDirectoryDelimiter(absPath[3]))
+    {
+      if (IsAlpha(absPath[4]) && PathName::IsVolumeDelimiter(absPath[5]))
+      {
+        // \\.\C:\Foo\bar\FooBar.txt
+        path = "\\\\?\\"s + &absPath[4];
+      }
+      else if (absPath.GetLength() > 4)
+      {
+        // \.\Foo\bar\ (device name is left unchanged
+        path = absPath;
+      }
+      else
+      {
+        MIKTEX_UNEXPECTED();
+      }
+    }
+    else if (absPath.GetLength() > 2)
+    {
+      // \\Foo\bar\FooBar.txt
+      path = "\\\\?\\UNC\\"s + &absPath[2];
+    }
+    else
+    {
+      MIKTEX_UNEXPECTED();
+    }
+  }
+  else
+  {
+    MIKTEX_UNEXPECTED();
   }
 }

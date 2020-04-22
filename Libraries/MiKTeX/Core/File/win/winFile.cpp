@@ -1,6 +1,6 @@
 /* File.cpp: file operations
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -61,7 +61,7 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
   {
     UNIMPLEMENTED();
   }
-  unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
+  unsigned long attributes = GetFileAttributesW(path.ToExtendedLengthPathName().ToWideCharString().c_str());
   bool exists = attributes != INVALID_FILE_ATTRIBUTES;
   if (exists)
   {
@@ -120,7 +120,7 @@ FileAttributeSet File::GetAttributes(const PathName& path)
 
 unsigned long File::GetNativeAttributes(const PathName& path)
 {
-  unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
+  unsigned long attributes = GetFileAttributesW(path.ToExtendedLengthPathName().ToWideCharString().c_str());
 
   if (attributes == INVALID_FILE_ATTRIBUTES)
   {
@@ -171,7 +171,7 @@ void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttribu
     session->trace_files->WriteFormattedLine("core", T_("setting new attributes (%x) on %s"), static_cast<int>(nativeAttributes), Q_(path));
   }
 
-  if (!SetFileAttributesW(path.ToWideCharString().c_str(), static_cast<DWORD>(nativeAttributes)))
+  if (!SetFileAttributesW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), static_cast<DWORD>(nativeAttributes)))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_3("SetFileAttributesW",
       T_("MiKTeX cannot set attributes for file or directory '{path}'."),
@@ -182,7 +182,7 @@ void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttribu
 
 size_t File::GetSize(const PathName& path)
 {
-  HANDLE h = CreateFileW(path.ToWideCharString().c_str(), FILE_READ_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  HANDLE h = CreateFileW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), FILE_READ_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (h == INVALID_HANDLE_VALUE)
   {
@@ -293,7 +293,7 @@ void File::SetTimes(const PathName& path, time_t creationTime, time_t lastAccess
 void File::GetTimes(const PathName& path, time_t& creationTime, time_t& lastAccessTime, time_t& lastWriteTime)
 {
   WIN32_FIND_DATAW findData;
-  HANDLE findHandle = FindFirstFileW(path.ToWideCharString().c_str(), &findData);
+  HANDLE findHandle = FindFirstFileW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), &findData);
   if (findHandle == INVALID_HANDLE_VALUE)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("FindFirstFileW", "path", path.ToString());
@@ -314,7 +314,7 @@ void File::Delete(const PathName& path)
   {
     session->trace_files->WriteFormattedLine("core", T_("deleting %s"), Q_(path));
   }
-  if (!DeleteFileW(path.ToWideCharString().c_str()))
+  if (!DeleteFileW(path.ToExtendedLengthPathName().ToWideCharString().c_str()))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_3("DeleteFileW",
       T_("MiKTeX could not remove the file '{path}'."),
@@ -334,7 +334,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   {
     flags |= MOVEFILE_REPLACE_EXISTING;
   }
-  if (!MoveFileExW(source.ToWideCharString().c_str(), dest.ToWideCharString().c_str(), flags))
+  if (!MoveFileExW(source.ToExtendedLengthPathName().ToWideCharString().c_str(), dest.ToExtendedLengthPathName().ToWideCharString().c_str(), flags))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_3("MoveFileExW",
       T_("MiKTeX could not rename the file '{existing}'."),
@@ -373,7 +373,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
       SetNativeAttributes(dest, destAttributes2);
     }
   }
-  if (!CopyFileW(source.ToWideCharString().c_str(), dest.ToWideCharString().c_str(), options[FileCopyOption::ReplaceExisting] ? FALSE : TRUE))
+  if (!CopyFileW(source.ToExtendedLengthPathName().ToWideCharString().c_str(), dest.ToExtendedLengthPathName().ToWideCharString().c_str(), options[FileCopyOption::ReplaceExisting] ? FALSE : TRUE))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CopyFileW", "existing", source.ToString(), "path", dest.ToString());
   }
@@ -407,7 +407,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   {
     UNIMPLEMENTED();
   }
-  else if (CreateHardLinkW(newName.ToWideCharString().c_str(), oldName.ToWideCharString().c_str(), nullptr) == 0)
+  else if (CreateHardLinkW(newName.ToExtendedLengthPathName().ToWideCharString().c_str(), oldName.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr) == 0)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateHardLinkW", "path", newName.ToString(), "existing", oldName.ToString());
   }
@@ -543,7 +543,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
     }
   }
 
-  int fd = _wopen(path.ToWideCharString().c_str(), flags, ((flags & O_CREAT) == 0) ? 0 : S_IREAD | S_IWRITE);
+  int fd = _wopen(path.ToExtendedLengthPathName().ToWideCharString().c_str(), flags, ((flags & O_CREAT) == 0) ? 0 : S_IREAD | S_IWRITE);
   if (fd < 0)
   {
     if (errno == EINVAL && ::GetLastError() == ERROR_USER_MAPPED_FILE)

@@ -131,7 +131,7 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
 
 #if defined(MIKTEX_WINDOWS)
   bool toLongPathName = options[ConvertPathNameOption::ToLongPathName];
-  MIKTEX_ASSERT(!(removeBlanks && toLongPathName));
+  bool toExtendedLengthPathName = options[ConvertPathNameOption::ToExtendedLengthPathName];
 #endif
 
   if (makeFQ)
@@ -154,6 +154,11 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
       MIKTEX_FATAL_WINDOWS_ERROR_2("GetLongPathNameW", "path", this->ToString());
     }
     *this = longPathName;
+  }
+
+  if (toExtendedLengthPathName)
+  {
+    Utils::ConvertToLengthExtendedPathName(*this);
   }
 #endif
 

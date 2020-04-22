@@ -1,6 +1,6 @@
 /* winDirectory.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -60,7 +60,7 @@ static unsigned long GetFileAttributes_harmlessErrors[] = {
 bool Directory::Exists(const PathName& path)
 {
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
+  unsigned long attributes = GetFileAttributesW(path.ToExtendedLengthPathName().ToWideCharString().c_str());
   if (attributes != INVALID_FILE_ATTRIBUTES)
   {
     if ((attributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
@@ -107,7 +107,7 @@ void Directory::Delete(const PathName& path)
   {
     session->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
   }
-  if (!RemoveDirectoryW(UW_(path.GetData())))
+  if (!RemoveDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str()))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("RemoveDirectoryW", "path", path.ToString());
   }
@@ -115,7 +115,7 @@ void Directory::Delete(const PathName& path)
 
 void Directory::SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
-  HANDLE h = CreateFileW(path.ToWideCharString().c_str(), FILE_WRITE_ATTRIBUTES, 0, nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
+  HANDLE h = CreateFileW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), FILE_WRITE_ATTRIBUTES, 0, nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
   if (h == INVALID_HANDLE_VALUE)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", path.ToString());

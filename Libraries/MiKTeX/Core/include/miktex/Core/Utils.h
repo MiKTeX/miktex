@@ -224,6 +224,11 @@ public:
 public:
   static MIKTEXCORECEEAPI(void) CanonicalizePathName(PathName& path);
 
+#if defined(MIKTEX_WINDOWS)
+public:
+  static MIKTEXCORECEEAPI(void) ConvertToLengthExtendedPathName(PathName& path);
+#endif
+
 public:
   static MIKTEXCORECEEAPI(bool) GetPathNamePrefix(const PathName& path, const PathName& suffix, PathName& prefix);
 
