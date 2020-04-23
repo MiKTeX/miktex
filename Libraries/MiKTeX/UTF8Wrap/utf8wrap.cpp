@@ -1,6 +1,6 @@
 /* utf8wrap.cpp:
 
-   Copyright (C) 2011-2019 Christian Schenk
+   Copyright (C) 2011-2020 Christian Schenk
 
    This file is part of the MiKTeX UTF8Wrap Library.
 
@@ -28,7 +28,11 @@
 #include <fcntl.h>
 #include "internal.h"
 
+#include <miktex/Util/StringUtil>
+
 using namespace std;
+
+using namespace MiKTeX::Util;
 
 class utf8wraperror :
   public std::exception
@@ -54,34 +58,32 @@ private:
 
 MIKTEXSTATICFUNC(unique_ptr<wchar_t[]>) UTF8ToWideChar(const char* utf8String, const char* function)
 {
-  int len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, utf8String, -1, nullptr, 0);
-  if (len <= 0)
-  {    
-    throw utf8wraperror(function, utf8String);
+  try
+  {
+    wstring w = StringUtil::UTF8ToWideChar(utf8String);
+    unique_ptr<wchar_t[]> buf(new wchar_t[w.length() + 1]);
+    StringUtil::CopyString(buf.get(), w.length() + 1, w.c_str());
+    return buf;
   }
-  unique_ptr<wchar_t[]> buf(new wchar_t[len]);
-  len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, utf8String, -1, buf.get(), len);
-  if (len <= 0)
+  catch (const exception&)
   {
     throw utf8wraperror(function, utf8String);
   }
-  return buf;
 }
 
 MIKTEXSTATICFUNC(unique_ptr<char[]>) WideCharToUTF8(const wchar_t* wideCharString, const char* function)
 {
-  int len = WideCharToMultiByte(CP_UTF8, 0, wideCharString, -1, nullptr, 0, nullptr, nullptr);
-  if (len <= 0)
+  try
+  {
+    string utf8 = StringUtil::WideCharToUTF8(wideCharString);
+    unique_ptr<char[]> buf(new char[utf8.length() + 1]);
+    StringUtil::CopyString(buf.get(), utf8.length() + 1, utf8.c_str());
+    return buf;
+  }
+  catch (const exception&)
   {
     throw utf8wraperror(function, wideCharString);
   }
-  unique_ptr<char[]> buf(new char[len]);
-  len = WideCharToMultiByte(CP_UTF8, 0, wideCharString, -1, buf.get(), len, nullptr, nullptr);
-  if (len <= 0)
-  {
-    throw utf8wraperror(function, wideCharString);
-  }
-  return buf;
 };
 
 #define UW_(x) UTF8ToWideChar(x, __func__).get()

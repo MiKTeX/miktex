@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2011-2017 Christian Schenk
+## Copyright (C) 2011-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -31,6 +31,11 @@ target_compile_definitions(${utf8wrap_lib_name}
 target_include_directories(${utf8wrap_lib_name}
   PUBLIC
     ${public_include_directories}
+)
+
+target_link_libraries(${utf8wrap_lib_name}
+  PRIVATE
+    ${util_lib_name}
 )
 
 set(utf8wrap_sources

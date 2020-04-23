@@ -1323,8 +1323,11 @@ bool Utils::SupportsHardLinks(const PathName& path)
 // inspired CMake's SystemTools::ConvertToWindowsExtendedPath (Source/kwsys/SystemTools.cxx)
 void Utils::ConvertToLengthExtendedPathName(PathName& path)
 {
-  PathName absPath = path;
-  absPath.MakeAbsolute();
+  if (path == "NUL")
+  {
+    return;
+  }
+  PathName absPath = path.ToDos();
   if (IsAlpha(absPath[0])
     && PathName::IsVolumeDelimiter(absPath[1])
     && PathName::IsDirectoryDelimiter(absPath[2]))
@@ -1354,7 +1357,7 @@ void Utils::ConvertToLengthExtendedPathName(PathName& path)
       else
       {
         /* \\?\ */
-        MIKTEX_UNEXPECTED();
+        //MIKTEX_UNEXPECTED();
       }
     }
     else if (absPath[2] == '.' && PathName::IsDirectoryDelimiter(absPath[3]))
@@ -1371,7 +1374,7 @@ void Utils::ConvertToLengthExtendedPathName(PathName& path)
       }
       else
       {
-        MIKTEX_UNEXPECTED();
+        //MIKTEX_UNEXPECTED();
       }
     }
     else if (absPath.GetLength() > 2)
@@ -1381,11 +1384,11 @@ void Utils::ConvertToLengthExtendedPathName(PathName& path)
     }
     else
     {
-      MIKTEX_UNEXPECTED();
+      //MIKTEX_UNEXPECTED();
     }
   }
   else
   {
-    MIKTEX_UNEXPECTED();
+    //MIKTEX_UNEXPECTED();
   }
 }
