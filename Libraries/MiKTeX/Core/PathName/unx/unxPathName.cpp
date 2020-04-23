@@ -1,6 +1,6 @@
 /* unxPathName.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -36,9 +36,16 @@ using namespace MiKTeX::Util;
 
 PathName& PathName::SetToCurrentDirectory()
 {
-  if (getcwd(GetData(), GetCapacity()) == 0)
+  while (getcwd(GetData(), GetCapacity()) == nullptr)
   {
-    MIKTEX_FATAL_CRT_ERROR("getcwd");
+    if (errno == ERANGE)
+    {
+      Reserve(GetCapacity() * 2);
+    }
+    else
+    {
+      MIKTEX_FATAL_CRT_ERROR("getcwd");
+    }
   }
   return *this;
 }

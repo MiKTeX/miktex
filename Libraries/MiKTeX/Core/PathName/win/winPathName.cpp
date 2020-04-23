@@ -1,6 +1,6 @@
 /* winPathName.cpp: path name utilities
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/PathName>
 
 #include "internal.h"
@@ -33,11 +34,12 @@ using namespace MiKTeX::Core;
 
 PathName& PathName::SetToCurrentDirectory()
 {
-  wchar_t buf[_MAX_PATH];
-  if (_wgetcwd(buf, _MAX_PATH) == 0)
+  wchar_t* buf = _wgetcwd(nullptr, BufferSizes::MaxPath);
+  if (buf == nullptr)
   {
     MIKTEX_FATAL_CRT_ERROR("_wgetcwd");
   }
+  MIKTEX_AUTO(free(buf); buf = nullptr);
   *this = buf;
   return *this;
 }
