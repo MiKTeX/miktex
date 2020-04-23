@@ -174,7 +174,8 @@ BEGIN_TEST_FUNCTION(7);
   cd.SetToCurrentDirectory();
   MiKTeX::Core::PathName dir = cd /"long-path-parent-directory";
   MiKTeX::Core::PathName longPath(dir);
-  for (int n = 0; n < 100; ++n)
+  const int minLength = 900;
+  for (int n = 0; longPath.GetLength() < minLength; ++n)
   {
     longPath /= "abcdefghij-"s + std::to_string(n);
   }
