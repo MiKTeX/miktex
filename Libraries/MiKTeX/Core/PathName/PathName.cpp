@@ -143,17 +143,28 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
 #if defined(MIKTEX_WINDOWS)
   if (toLongPathName)
   {
-    wchar_t longPathName[_MAX_PATH];
-    DWORD len = GetLongPathNameW(this->ToWideCharString().c_str(), longPathName, _MAX_PATH);
-    if (len >= _MAX_PATH)
+    CharBuffer<wchar_t, BufferSizes::MaxPath> longPathName;
+    bool done = false;
+    int rounds = 0;
+    do
     {
-      BUF_TOO_SMALL();
-    }
-    if (len == 0)
-    {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("GetLongPathNameW", "path", this->ToString());
-    }
-    *this = longPathName;
+      DWORD n = GetLongPathNameW(this->ToExtendedLengthPathName().ToWideCharString().c_str(), longPathName.GetData(), longPathName.GetCapacity());
+      if (n == 0)
+      {
+        MIKTEX_FATAL_WINDOWS_ERROR_2("GetLongPathNameW", "path", this->ToString());
+      }
+      done = n < longPathName.GetCapacity();
+      if (!done)
+      {
+        if (rounds > 0)
+        {
+          BUF_TOO_SMALL();
+        }
+        longPathName.Reserve(n);
+      }
+      rounds++;
+    } while (!done);
+    *this = longPathName.GetData();
   }
 
   if (toExtendedLengthPathName)

@@ -1155,17 +1155,29 @@ bool Utils::CheckPath(bool repair)
 
 void Utils::CanonicalizePathName(PathName& path)
 {
-  wchar_t szFullPath[BufferSizes::MaxPath];
-  DWORD n = GetFullPathNameW(path.ToWideCharString().c_str(), BufferSizes::MaxPath, szFullPath, nullptr);
-  if (n == 0)
+  CharBuffer<wchar_t, BufferSizes::MaxPath> fullPath;
+  bool done = false;
+  int rounds = 0;
+  do
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("GetFullPathNameW", "path", path.ToString());
+    DWORD n = GetFullPathNameW(path.ToWideCharString().c_str(), fullPath.GetCapacity(), fullPath.GetData(), nullptr);
+    if (n == 0)
+    {
+      MIKTEX_FATAL_WINDOWS_ERROR_2("GetFullPathNameW", "path", path.ToString());
+    }
+    done = n < fullPath.GetCapacity();
+    if (!done)
+    {
+      if (rounds > 0)
+      {
+        BUF_TOO_SMALL();
+      }
+      fullPath.Reserve(n);
+    }
+    rounds++;
   }
-  if (n >= BufferSizes::MaxPath)
-  {
-    BUF_TOO_SMALL();
-  }
-  path = szFullPath;
+  while (!done);
+  path = fullPath.GetData();
 }
 
 void Utils::RegisterShellFileAssoc(const string& extension, const string& progId, bool takeOwnership)
@@ -1294,7 +1306,7 @@ bool Utils::SupportsHardLinks(const PathName& path)
   DWORD fileSystemFlags;
   wchar_t fileSystemName[_MAX_PATH];
   PathName root = path.GetMountPoint();
-  if (GetVolumeInformationW(root.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr, 0, nullptr, nullptr, &fileSystemFlags, fileSystemName, _MAX_PATH) == 0)
+  if (GetVolumeInformationW(root.ToWideCharString().c_str(), nullptr, 0, nullptr, nullptr, &fileSystemFlags, fileSystemName, _MAX_PATH) == 0)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("GetVolumeInformationW", "root", root.ToString());
   }

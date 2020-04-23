@@ -71,13 +71,29 @@ void winProcess::Create()
   }
   else
   {
-    wchar_t* lpszFilePart = nullptr;
-    wchar_t szFileName[_MAX_PATH];
-    if (SearchPathW(nullptr, UW_(startinfo.FileName), L".exe", _MAX_PATH, szFileName, &lpszFilePart) == 0)
+    CharBuffer<wchar_t, BufferSizes::MaxPath> foundFileName;
+    bool done = false;
+    int rounds = 0;
+    do
     {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("SearchPath", "fileName", startinfo.FileName);
-    }
-    fileName = szFileName;
+      wchar_t* lpszFilePart = nullptr;
+      DWORD n = SearchPathW(nullptr, UW_(startinfo.FileName), L".exe", foundFileName.GetCapacity(), foundFileName.GetData(), &lpszFilePart);
+      if (n == 0)
+      {
+        MIKTEX_FATAL_WINDOWS_ERROR_2("SearchPath", "fileName", startinfo.FileName);
+      }
+      done = n < foundFileName.GetCapacity();
+      if (!done)
+      {
+        if (rounds > 0)
+        {
+          BUF_TOO_SMALL();
+        }
+        foundFileName.Reserve(n);
+      }
+      rounds++;
+    } while (!done);
+    fileName = foundFileName.GetData();
   }
 
   CommandLineBuilder commandLine;
