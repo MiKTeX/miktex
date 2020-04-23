@@ -168,12 +168,11 @@ BEGIN_TEST_FUNCTION(6);
 END_TEST_FUNCTION();
 #endif
 
-#if defined(MIKTEX_WINDOWS)
 BEGIN_TEST_FUNCTION(7);
 {
   MiKTeX::Core::PathName dir;
   dir.SetToCurrentDirectory();
-  dir /= "d";
+  dir /= "long-path-parent-directory";
   MiKTeX::Core::PathName longPath(dir);
   for (int n = 0; n < 100; ++n)
   {
@@ -181,15 +180,15 @@ BEGIN_TEST_FUNCTION(7);
   }
   TESTX(MiKTeX::Core::Directory::Create(longPath));
   TEST(MiKTeX::Core::Directory::Exists(longPath));
-  MiKTeX::Core::PathName file = longPath;
-  file /= "file.txt";
+  MiKTeX::Core::PathName file = longPath / "file.txt";
   Touch(file.GetData());
   TEST(MiKTeX::Core::File::Exists(file));
   TESTX(MiKTeX::Core::File::Delete(file));
+  TEST(!MiKTeX::Core::File::Exists(file));
   TESTX(MiKTeX::Core::Directory::Delete(dir, true));
+  TEST(!MiKTeX::Core::Directory::Exists(dir));
 }
 END_TEST_FUNCTION();
-#endif
 
 BEGIN_TEST_PROGRAM();
 {
@@ -201,9 +200,7 @@ BEGIN_TEST_PROGRAM();
 #if defined(MIKTEX_WINDOWS)
   CALL_TEST_FUNCTION(6);
 #endif
-#if defined(MIKTEX_WINDOWS)
-  //skip CALL_TEST_FUNCTION(7);
-#endif
+  CALL_TEST_FUNCTION(7);
 }
 END_TEST_PROGRAM();
 
