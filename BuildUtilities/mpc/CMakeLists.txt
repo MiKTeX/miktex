@@ -26,7 +26,7 @@ set(mpc_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mpc_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     mpc.rc
   )
 endif()

@@ -54,7 +54,7 @@ list(APPEND autosp_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND autosp_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     autosp.rc
   )
 endif()
@@ -82,7 +82,7 @@ list(APPEND rebar_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND rebar_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     rebar.rc
   )
 endif()
@@ -110,7 +110,7 @@ list(APPEND tex2aspc_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND tex2aspc_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     tex2aspc.rc
   )
 endif()

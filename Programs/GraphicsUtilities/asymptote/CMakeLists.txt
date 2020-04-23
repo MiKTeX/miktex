@@ -357,7 +357,7 @@ set_source_files_properties(source/glew.c
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND asy_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/asy.rc
   )
 endif()

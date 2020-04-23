@@ -59,7 +59,7 @@ list(APPEND bibsort_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND bibsort_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/bibsort.rc
   )
 endif()

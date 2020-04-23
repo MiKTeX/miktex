@@ -33,7 +33,7 @@ set(epstopdf_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND epstopdf_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     epstopdf.rc
   )
 endif()

@@ -64,7 +64,7 @@ set(pk2bm_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND pk2bm_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     pk2bm.rc
   )
 endif()
@@ -151,7 +151,7 @@ set(ps2pk_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND ps2pk_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ps2pk.rc
   )
 endif()

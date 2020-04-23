@@ -38,7 +38,7 @@ set(mtprint_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mtprint_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     mtprint.rc
   )
 endif()

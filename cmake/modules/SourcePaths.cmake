@@ -182,7 +182,7 @@ set(MIKTEX_MANUAL_STYLES        "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_CSS_DIR}/mikte
 set(MIKTEX_XML_CATALOG_FILE     "${CMAKE_BINARY_DIR}/BuildUtilities/docbook/catalog")
 
 # resources
-set(MIKTEX_COMPATIBILITY_MANIFEST       "${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest")
+set(MIKTEX_COMMON_MANIFEST              "${CMAKE_SOURCE_DIR}/Resources/Manifests/common.manifest")
 set(MIKTEX_CONSOLE_ICNS                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.icns")
 set(MIKTEX_CONSOLE_ICON                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.ico")
 set(MIKTEX_COPYING_CONDITIONS_MD        "${CMAKE_SOURCE_DIR}/COPYING.md")

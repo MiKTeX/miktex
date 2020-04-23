@@ -69,7 +69,7 @@ set(initexmf_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND initexmf_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     initexmf.rc
   )
 endif()

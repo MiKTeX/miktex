@@ -46,7 +46,7 @@ set(yap_mfc_sources
   ${CMAKE_CURRENT_BINARY_DIR}/res/yap.manifest
   ${CMAKE_CURRENT_BINARY_DIR}/yap.rc
   ${CMAKE_CURRENT_BINARY_DIR}/yaphelp.h
-  ${MIKTEX_COMPATIBILITY_MANIFEST}
+  ${MIKTEX_COMMON_MANIFEST}
   ${MIKTEX_DPIAWARE_MANIFEST}
   AddChangeEditorDialog.cpp
   AddChangeEditorDialog.h

@@ -39,7 +39,7 @@ set(utf8wrap_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND utf8wrap_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 

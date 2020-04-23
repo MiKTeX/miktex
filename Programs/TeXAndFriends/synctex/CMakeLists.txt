@@ -61,7 +61,7 @@ list(APPEND synctex_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND synctex_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/synctex.rc
   )
 endif()

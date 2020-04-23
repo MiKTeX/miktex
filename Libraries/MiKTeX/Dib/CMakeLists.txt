@@ -79,7 +79,7 @@ set(chunkdib_sources chunkdib.cpp)
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND chunkdib_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 

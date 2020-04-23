@@ -43,7 +43,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
   list(APPEND findtexmf_sources
     ${CMAKE_CURRENT_BINARY_DIR}/findtexmf.rc
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 

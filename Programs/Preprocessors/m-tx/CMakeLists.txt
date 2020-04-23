@@ -68,7 +68,7 @@ list(APPEND prepmx_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND prepmx_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     prepmx.rc
   )
 endif()

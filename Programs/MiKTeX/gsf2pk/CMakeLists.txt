@@ -33,7 +33,7 @@ set(gsf2pk_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND gsf2pk_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     gsf2pk.rc
   )
 endif()

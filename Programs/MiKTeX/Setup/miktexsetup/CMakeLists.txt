@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2014-2018 Christian Schenk
+## Copyright (C) 2014-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -33,7 +33,7 @@ set(miktexsetup_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND miktexsetup_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ${CMAKE_CURRENT_SOURCE_DIR}/miktexsetup.rc
   )
 endif()

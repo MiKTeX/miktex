@@ -228,7 +228,7 @@ list(APPEND dvipdfm_x_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvipdfm_x_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/dvipdfm-x.rc
   )
 endif()
@@ -269,7 +269,7 @@ set(dvipdft_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvipdft_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     dvipdft.rc
   )
 endif()

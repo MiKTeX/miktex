@@ -105,11 +105,11 @@ generate_export_header(${lua53_target_library}
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND lua_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     lua.rc
   )
   list(APPEND luac_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     luac.rc
   )
 endif()

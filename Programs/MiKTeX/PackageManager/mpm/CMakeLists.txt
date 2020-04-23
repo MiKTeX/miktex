@@ -49,7 +49,7 @@ endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mpm_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     mpm.rc
   )
 endif()

@@ -26,7 +26,7 @@ set(cfg_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND cfg_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     cfg.rc
   )
 endif()

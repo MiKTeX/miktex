@@ -37,7 +37,7 @@ set(makebitcounts_sources makebitcounts.cpp)
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND makebitcounts_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
   
@@ -147,7 +147,7 @@ set(dviscan_sources dviscan.cpp)
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dviscan_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 

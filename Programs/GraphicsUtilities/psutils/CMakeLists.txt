@@ -67,7 +67,7 @@ set(executables
 
 foreach(x ${executables})
   add_executable(${MIKTEX_PREFIX}${x}
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ${MIKTEX_LIBRARY_WRAPPER}
     source/${x}.c
   )

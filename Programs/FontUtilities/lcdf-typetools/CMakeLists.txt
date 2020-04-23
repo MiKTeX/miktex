@@ -215,7 +215,7 @@ set(cfftot1_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND cfftot1_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     cfftot1.rc
   )
 endif()
@@ -252,7 +252,7 @@ set(mmafm_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mmafm_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     mmafm.rc
   )
 endif()
@@ -295,7 +295,7 @@ set(mmpfb_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mmpfb_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     mmpfb.rc
   )
 endif()
@@ -332,7 +332,7 @@ set(otfinfo_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND otfinfo_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     otfinfo.rc
   )
 endif()
@@ -387,7 +387,7 @@ set(otftotfm_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND otftotfm_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     otftotfm.rc
   )
 endif()
@@ -425,7 +425,7 @@ set(t1dotlessj_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND t1dotlessj_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     t1dotlessj.rc
   )
 endif()
@@ -464,7 +464,7 @@ set(t1lint_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND t1lint_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     t1lint.rc
   )
 endif()
@@ -501,7 +501,7 @@ set(t1rawafm_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND t1rawafm_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     t1rawafm.rc
   )
 endif()
@@ -540,7 +540,7 @@ set(t1reencode_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND t1reencode_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     t1reencode.rc
   )
 endif()
@@ -577,7 +577,7 @@ set(t1testpage_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND t1testpage_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     t1testpage.rc
   )
 endif()
@@ -614,7 +614,7 @@ set(ttftotype42_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND ttftotype42_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ttftotype42.rc
   )
 endif()

@@ -61,7 +61,7 @@ set(fc-case_sources source/fc-case/fc-case.c)
 
 if (MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-case_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 
@@ -365,7 +365,7 @@ set_source_files_properties(
 
 if (MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-lang_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 
@@ -612,7 +612,7 @@ set_source_files_properties(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-cache_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     fc-cache.rc
   )
 endif()
@@ -654,7 +654,7 @@ set_source_files_properties(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-cat_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     fc-cat.rc
   )
 endif()
@@ -690,7 +690,7 @@ set(fc-conflist_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-conflist_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     fc-conflist.rc
   )
 endif()
@@ -726,7 +726,7 @@ set(fc-list_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-list_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     fc-list.rc
   )
 endif()
@@ -762,7 +762,7 @@ set(fc-match_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-match_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     fc-match.rc
   )
 endif()
@@ -798,7 +798,7 @@ set(fc-pattern_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-pattern_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     fc-pattern.rc
   )
 endif()
@@ -834,7 +834,7 @@ set(fc-query_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-query_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     fc-query.rc
   )
 endif()
@@ -870,7 +870,7 @@ set(fc-scan_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-scan_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     fc-scan.rc
   )
 endif()
@@ -906,7 +906,7 @@ set(fc-validate_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-validate_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     fc-validate.rc
   )
 endif()

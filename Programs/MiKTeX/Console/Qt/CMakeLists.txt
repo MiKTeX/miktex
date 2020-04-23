@@ -56,7 +56,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
   list(APPEND console_sources
     ${CMAKE_CURRENT_BINARY_DIR}/console.rc
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 

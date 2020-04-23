@@ -36,7 +36,7 @@ set(mkocp_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mkocp_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     mkocp.rc
   )
 endif()
@@ -60,7 +60,7 @@ set(outocp_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND outocp_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     outocp.rc
   )
 endif()
@@ -124,7 +124,7 @@ add_custom_command(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND otp2ocp_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     otp2ocp.rc
   )
 endif()

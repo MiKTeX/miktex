@@ -56,7 +56,7 @@ configure_file(
 set(setup_mfc_sources
   ${CMAKE_CURRENT_BINARY_DIR}/Setup.rc
   ${CMAKE_CURRENT_BINARY_DIR}/res/Setup.manifest
-  ${MIKTEX_COMPATIBILITY_MANIFEST}
+  ${MIKTEX_COMMON_MANIFEST}
   ${MIKTEX_DPIAWARE_MANIFEST}
   ConnectionSettingsDialog.cpp
   ConnectionSettingsDialog.h

@@ -165,7 +165,7 @@ endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND texworks_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     texworks.rc
   )
 endif()
