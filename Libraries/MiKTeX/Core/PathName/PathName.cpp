@@ -1,6 +1,6 @@
 /* PathName.cpp: path name utilities
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -130,7 +130,6 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
   bool makeFQ = options[ConvertPathNameOption::MakeAbsolute];
 
 #if defined(MIKTEX_WINDOWS)
-  bool removeBlanks = options[ConvertPathNameOption::RemoveBlanks];
   bool toLongPathName = options[ConvertPathNameOption::ToLongPathName];
   MIKTEX_ASSERT(!(removeBlanks && toLongPathName));
 #endif
@@ -142,10 +141,6 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
   }
 
 #if defined(MIKTEX_WINDOWS)
-  if (removeBlanks)
-  {
-    Utils::RemoveBlanksFromPathName(*this);
-  }
   if (toLongPathName)
   {
     wchar_t longPathName[_MAX_PATH];

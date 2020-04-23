@@ -172,18 +172,10 @@ public:
   static MIKTEXCORECEEAPI(bool) SupportsHardLinks(const PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(void) MakeTeXPathName(PathName& path);
-
-public:
   static MIKTEXCORECEEAPI(void) SetEnvironmentString(const std::string& valueName, const std::string& value);
 
 public:
   static MIKTEXCORECEEAPI(void) RemoveEnvironmentString(const std::string& valueName);
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  static MIKTEXCORECEEAPI(void) RemoveBlanksFromPathName(PathName& path);
-#endif
 
 public:
   static MIKTEXCORECEEAPI(void) PrintException(const std::exception& e);

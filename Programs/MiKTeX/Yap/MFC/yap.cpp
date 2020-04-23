@@ -1078,9 +1078,6 @@ CDocument* YapApplication::OpenDocumentFile(LPCTSTR lpszFileName)
   try
   {
     PathName pathShort(lpszFileName);
-#if defined(REMOVE_BLANKS_FROM_DOCUMENT_FILENAMES)
-    Utils::RemoveBlanksFromPathName(pathShort);
-#endif
     return CWinApp::OpenDocumentFile(UT_(pathShort.GetData()));
   }
   catch (const MiKTeXException& e)

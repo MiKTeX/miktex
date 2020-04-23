@@ -206,8 +206,6 @@ void DviView::PrintPostScript(const char* lpszDviFileName, const char* lpszPrint
     MIKTEX_UNEXPECTED();
   }
 
-  Utils::RemoveBlanksFromPathName(mtprint);
-
   // make command-line
   vector<string> args{ "mtprint" };
   args.push_back("--printer="s + lpszPrinterName);

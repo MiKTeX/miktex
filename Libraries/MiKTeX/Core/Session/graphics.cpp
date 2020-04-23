@@ -52,9 +52,6 @@ bool SessionImpl::ConvertToBitmapFile(const PathName& sourceFileName, PathName& 
   }
 
   destFileName.SetToTempFile();
-#if defined(MIKTEX_WINDOWS)
-  Utils::RemoveBlanksFromPathName(destFileName);
-#endif
 
   string commandLine;
 

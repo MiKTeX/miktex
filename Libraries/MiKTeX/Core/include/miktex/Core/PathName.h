@@ -1,6 +1,6 @@
 /* miktex/Core/PathName.h:                              -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -51,8 +51,6 @@ enum class ConvertPathNameOption
   /// Replaces small letters with their capital letter counterpart.
   MakeUpper,
 #if defined(MIKTEX_WINDOWS)
-  /// Removes blanks from the path name.
-  RemoveBlanks,
   ToLongPathName,
 #endif
   /// Makes the path name relative to the current directory.

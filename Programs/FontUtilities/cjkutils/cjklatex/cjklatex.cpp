@@ -1,7 +1,7 @@
 /* cjklatex.cpp: call latex after preprocessing of the .tex file by
    the cjk conversion tool
 
-   Written in the years 2004-2017 by Christian Schenk.
+   Written in the years 2004-2020 by Christian Schenk.
 
    This file is based on public domain work (cjklatex.c, 2001) by
    Fabrice Popineau.
@@ -206,9 +206,6 @@ void CJKLaTeXApp::RunConverter(const PathName& inputFile, const PathName& interm
   {
     Error(T_("Converter %s not found."), converterProgram.c_str());
   }
-#if defined(MIKTEX_WINDOWS)
-  Utils::RemoveBlanksFromPathName(converter);
-#endif
   CommandLineBuilder cmdLine;
   cmdLine.AppendArgument(converter);
   cmdLine.AppendStdinRedirection(inputFile);

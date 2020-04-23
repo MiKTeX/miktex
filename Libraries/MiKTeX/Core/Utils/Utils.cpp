@@ -261,19 +261,6 @@ bool Utils::IsSafeFileName(const PathName& path)
   return true;
 }
 
-void Utils::MakeTeXPathName(PathName& path)
-{
-#if defined(MIKTEX_WINDOWS)
-  path.Convert({ ConvertPathNameOption::RemoveBlanks, ConvertPathNameOption::ToUnix });
-#else
-  #  warning Unimplemented : Utils::MakeTeXPathName()
-    if (StrChr(path.GetData(), ' ') != 0)
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Path name contains the space character."), "path", path.ToString());
-    }
-#endif
-}
-
 bool Utils::IsParentDirectoryOf(const PathName& parentDir, const PathName& fileName)
 {
   size_t len1 = parentDir.GetLength();
