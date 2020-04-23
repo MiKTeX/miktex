@@ -51,6 +51,7 @@ enum class ConvertPathNameOption
   /// Replaces small letters with their capital letter counterpart.
   MakeUpper,
 #if defined(MIKTEX_WINDOWS)
+  /// Replaces 8.3 with the long path equivalent.
   ToLongPathName,
 #endif
   /// Makes the path name relative to the current directory.
