@@ -72,7 +72,7 @@ void* winMemoryMappedFile::Open(const PathName& path_, bool readWrite)
   }
 
   // try to open an existing file mapping
-  hMapping = OpenFileMappingW(readWrite ? FILE_MAP_WRITE : FILE_MAP_READ, FALSE, PathName(name).ToExtendedLengthPathName().ToWideCharString().c_str());
+  hMapping = OpenFileMappingW(readWrite ? FILE_MAP_WRITE : FILE_MAP_READ, FALSE, PathName(name).ToWideCharString().c_str());
 
   if (hMapping != nullptr)
   {
