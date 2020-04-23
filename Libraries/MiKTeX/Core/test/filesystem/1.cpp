@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -168,6 +168,29 @@ BEGIN_TEST_FUNCTION(6);
 END_TEST_FUNCTION();
 #endif
 
+#if defined(MIKTEX_WINDOWS)
+BEGIN_TEST_FUNCTION(7);
+{
+  MiKTeX::Core::PathName dir;
+  dir.SetToCurrentDirectory();
+  dir /= "d";
+  MiKTeX::Core::PathName longPath(dir);
+  for (int n = 0; n < 100; ++n)
+  {
+    longPath /= "abcdefghij-"s + std::to_string(n);
+  }
+  TESTX(MiKTeX::Core::Directory::Create(longPath));
+  TEST(MiKTeX::Core::Directory::Exists(longPath));
+  MiKTeX::Core::PathName file = longPath;
+  file /= "file.txt";
+  Touch(file.GetData());
+  TEST(MiKTeX::Core::File::Exists(file));
+  TESTX(MiKTeX::Core::File::Delete(file));
+  TESTX(MiKTeX::Core::Directory::Delete(dir, true));
+}
+END_TEST_FUNCTION();
+#endif
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -177,6 +200,9 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(5);
 #if defined(MIKTEX_WINDOWS)
   CALL_TEST_FUNCTION(6);
+#endif
+#if defined(MIKTEX_WINDOWS)
+  //skip CALL_TEST_FUNCTION(7);
 #endif
 }
 END_TEST_PROGRAM();
