@@ -136,16 +136,15 @@ public:
     }
   }
 
-#if defined(MIKTEX_WINDOWS)
   static bool IsAbsolutePath(const std::string& path)
   {
     if (path.empty())
     {
       return false;
     }
-    // "\xyz\foo.txt", "\\server\xyz\foo.txt"
     else if (IsDirectoryDelimiter(path[0]))
     {
+      // "/xyz/foo.txt", also "//server/xyz/foo.txt"
       return true;
     }
 #if defined(MIKTEX_WINDOWS)
@@ -161,7 +160,6 @@ public:
       return false;
     }
   }
-#endif
 
 public:
   static char ToUnix(char ch)
