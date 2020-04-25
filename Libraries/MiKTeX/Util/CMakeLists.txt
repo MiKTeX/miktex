@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -36,6 +36,8 @@ set(public_include_directories
 set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/CharBuffer
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/CharBuffer.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/PathNameUtil
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/PathNameUtil.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/StringUtil
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/StringUtil.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/Tokenizer
@@ -51,6 +53,7 @@ configure_file(
 
 set(util_sources
   ${CMAKE_CURRENT_BINARY_DIR}/util-version.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/PathNameUtil.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/StringUtil.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Tokenizer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
@@ -59,6 +62,7 @@ set(util_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND util_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/win/winPathNameUtil.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win/winStringUtil.cpp
   )
 endif()

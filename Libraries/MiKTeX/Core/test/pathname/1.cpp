@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -259,6 +259,21 @@ BEGIN_TEST_FUNCTION(13);
 }
 END_TEST_FUNCTION();
 
+#if defined(MIKTEX_WINDOWS)
+BEGIN_TEST_FUNCTION(14);
+{
+  TEST(MiKTeX::Core::PathName("C:/Foo/bar/FooBar.txt").ToExtendedLengthPathName() == "\\\\?\\C:\\Foo\\bar\\FooBar.txt");
+  PathName longPathRel("rel");
+  for (int n = 0; n < 100; ++n)
+  {
+    longPathRel /= "abcdefghij-"s + std::to_string(n);
+  }
+  TEST(MiKTeX::Core::Utils::IsAbsolutePath(longPathRel.ToExtendedLengthPathName()));
+  TEST(MiKTeX::Core::PathName("nul").ToExtendedLengthPathName() == "\\\\.\\nul");
+}
+END_TEST_FUNCTION();
+#endif
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -274,6 +289,9 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(11);
   CALL_TEST_FUNCTION(12);
   CALL_TEST_FUNCTION(13);
+#if defined(MIKTEX_WINDOWS)
+  CALL_TEST_FUNCTION(14);
+#endif
 }
 END_TEST_PROGRAM();
 

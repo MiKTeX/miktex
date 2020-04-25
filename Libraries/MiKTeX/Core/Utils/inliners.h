@@ -83,13 +83,6 @@ inline wchar_t ToUpper(wchar_t ch)
   return ch;
 }
 
-#if defined(MIKTEX_WINDOWS)
-inline bool IsDriveLetter(char ch)
-{
-  return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
-}
-#endif
-
 inline bool IsAlpha(char ch)
 {
   return CTYPE_FACET.is(std::ctype<char>::alpha, ch);

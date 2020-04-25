@@ -91,7 +91,7 @@ PathNameParser& PathNameParser::operator++()
     }
   }
 #if defined(MIKTEX_WINDOWS)
-  else if (pimpl->state == PathNameParserState::Start && IsDriveLetter(pimpl->path[0]) && pimpl->path[1] == ':')
+  else if (pimpl->state == PathNameParserState::Start && PathNameUtil::IsDriveLetter(pimpl->path[0]) && pimpl->path[1] == ':')
   {
     pimpl->state = PathNameParserState::Root;
     pimpl->current = pimpl->path[0];

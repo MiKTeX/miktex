@@ -191,23 +191,7 @@ const char* Utils::GetRelativizedPath(const char* lpszPath, const char* lpszRoot
 
 bool Utils::IsAbsolutePath(const PathName& path)
 {
-  // "\xyz\foo.txt", "\\server\xyz\foo.txt"
-  if (IsDirectoryDelimiter(path[0]))
-  {
-    return true;
-  }
-#if defined(MIKTEX_WINDOWS)
-  else if (IsDriveLetter(path[0]) // "C:\xyz\foo.txt"
-    && path[1] == ':'
-    && IsDirectoryDelimiter(path[2]))
-  {
-    return true;
-  }
-#endif
-  else
-  {
-    return false;
-  }
+  return PathNameUtil::IsAbsolutePath(path.ToString());
 }
 
 static vector<string> forbiddenFileNames = {
@@ -410,7 +394,7 @@ MIKTEXINTERNALFUNC(PathName) GetFullPath(const char* lpszPath)
   if (!Utils::IsAbsolutePath(lpszPath))
   {
 #if defined(MIKTEX_WINDOWS)
-    if (IsDriveLetter(lpszPath[0]) && lpszPath[1] == ':' && lpszPath[2] == 0)
+    if (PathNameUtil::IsDriveLetter(lpszPath[0]) && lpszPath[1] == ':' && lpszPath[2] == 0)
     {
       path = lpszPath;
       path += PathName::DirectoryDelimiter;

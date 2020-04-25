@@ -31,6 +31,7 @@
 #include <vector>
 
 #include <miktex/Util/CharBuffer>
+#include <miktex/Util/PathNameUtil>
 
 #include "BufferSizes.h"
 #include "Debug.h"
@@ -91,55 +92,47 @@ public:
   PathName& operator=(const PathName& other) = default;
 
 public:
-  PathName(PathName&& other) = default;
+  PathName(PathName&& other) noexcept = default;
 
 public:
-  PathName& operator=(PathName&& other) = default;
+  PathName& operator=(PathName&& other) noexcept = default;
 
 public:
   ~PathName() = default;
 
 public:
-  static constexpr char DosDirectoryDelimiter{ '\\' };
+  static constexpr char DosDirectoryDelimiter = MiKTeX::Util::PathNameUtil::DosDirectoryDelimiter;
 
 public:
-  static constexpr char UnixDirectoryDelimiter{ '/' };
+  static constexpr char UnixDirectoryDelimiter = MiKTeX::Util::PathNameUtil::UnixDirectoryDelimiter;
 
 public:
-  static constexpr char DosPathNameDelimiter{ ';' };
+  static constexpr char DosPathNameDelimiter = MiKTeX::Util::PathNameUtil::DosPathNameDelimiter;
 
 public:
-  static constexpr char UnixPathNameDelimiter{ ':' };
+  static constexpr char UnixPathNameDelimiter = MiKTeX::Util::PathNameUtil::UnixPathNameDelimiter;
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static constexpr char AltDirectoryDelimiter{ UnixDirectoryDelimiter };
+  static constexpr char AltDirectoryDelimiter = MiKTeX::Util::PathNameUtil::AltDirectoryDelimiter;
 #endif
 
 public:
-#if defined(MIKTEX_WINDOWS)
-  static constexpr char DirectoryDelimiter{ DosDirectoryDelimiter };
-#elif defined(MIKTEX_UNIX)
-  static constexpr char DirectoryDelimiter{ UnixDirectoryDelimiter };
-#endif
+  static constexpr char DirectoryDelimiter = MiKTeX::Util::PathNameUtil::DirectoryDelimiter;
 
 public:
-#if defined(MIKTEX_WINDOWS)
-  static constexpr char PathNameDelimiter{ DosPathNameDelimiter };
-#elif defined(MIKTEX_UNIX)
-  static constexpr char PathNameDelimiter{ UnixPathNameDelimiter };
-#endif
+  static constexpr char PathNameDelimiter = MiKTeX::Util::PathNameUtil::PathNameDelimiter;
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static constexpr char VolumeDelimiter{ ':' };
+  static constexpr char VolumeDelimiter = MiKTeX::Util::PathNameUtil::VolumeDelimiter;
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
   static bool IsVolumeDelimiter(int ch)
   {
-    return ch == VolumeDelimiter;
+    return MiKTeX::Util::PathNameUtil::IsVolumeDelimiter(ch);
   }
 #endif
 
@@ -149,15 +142,7 @@ public:
   /// @return Returns true if the character is a directory delimiter.
   static bool IsDirectoryDelimiter(int ch)
   {
-    if (ch == DirectoryDelimiter)
-    {
-      return true;
-    }
-#if defined(MIKTEX_WINDOWS)
-    return ch == AltDirectoryDelimiter;
-#else
-    return false;
-#endif
+    return MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(ch);
   }
 
   /// Copies a character string into a new PathName object.
@@ -614,14 +599,7 @@ public:
 public:
   bool IsExplicitlyRelative() const
   {
-    if ((*this)[0] == '.')
-    {
-      return IsDirectoryDelimiter((*this)[1] || ((*this)[1] == '.' && IsDirectoryDelimiter((*this)[2])));
-    }
-    else
-    {
-      return false;
-    }
+    return MiKTeX::Util::PathNameUtil::IsExplicitlyRelative(ToString());
   }
 
 public:

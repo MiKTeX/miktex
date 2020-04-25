@@ -162,6 +162,12 @@ public:
 public:
   static MIKTEXUTILCEEAPI(std::string) WideCharToUTF8(const wchar_t* wideChars);
 
+public:
+  static std::string WideCharToUTF8(const std::wstring& wstr)
+  {
+    return WideCharToUTF8(wstr.c_str());
+  }
+
 #if defined(MIKTEX_WINDOWS)
 public:
   static MIKTEXUTILCEEAPI(std::string) AnsiToUTF8(const char* ansi);

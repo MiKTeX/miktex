@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include "internal.h"
 
+#include <miktex/Util/PathNameUtil>
 #include <miktex/Util/StringUtil>
 
 using namespace std;
@@ -40,12 +41,12 @@ class utf8wraperror :
 public:
   utf8wraperror(const char* function, const char* utf8)
   {
-    sprintf_s(errorMessage, "UTF-8 conversion failed; func=%s, utf8=\"%s\", error=%d", function, utf8, (int)::GetLastError());
+    sprintf_s(errorMessage, "UTF-8 conversion failed; func=%s, utf8=\"%s\"", function, utf8);
   }
 public:
   utf8wraperror(const char* function, const wchar_t* wch)
   {
-    sprintf_s(errorMessage, "UTF-8 conversion failed; func=%s, LPCWCH=\"%S\", error=%d", function, wch, (int)::GetLastError());
+    sprintf_s(errorMessage, "UTF-8 conversion failed; func=%s, LPCWCH=\"%S\"", function, wch);
   }
 public:
   const char* what() const override
@@ -56,13 +57,29 @@ private:
   char errorMessage[2048];
 };
 
+MIKTEXSTATICFUNC(unique_ptr<wchar_t[]>) UTF8ToLengthExtendedPath(const char* utf8String, const char* function)
+{
+  try
+  {
+    wstring wch = PathNameUtil::ToLengthExtendedPathName(utf8String);
+    unique_ptr<wchar_t[]> buf(new wchar_t[wch.length() + 1]);
+    StringUtil::CopyString(buf.get(), wch.length() + 1, wch.c_str());
+    return buf;
+  }
+  catch (const exception&)
+  {
+    throw utf8wraperror(function, utf8String);
+  }
+}
+
+
 MIKTEXSTATICFUNC(unique_ptr<wchar_t[]>) UTF8ToWideChar(const char* utf8String, const char* function)
 {
   try
   {
-    wstring w = StringUtil::UTF8ToWideChar(utf8String);
-    unique_ptr<wchar_t[]> buf(new wchar_t[w.length() + 1]);
-    StringUtil::CopyString(buf.get(), w.length() + 1, w.c_str());
+    wstring wch = StringUtil::UTF8ToWideChar(utf8String);
+    unique_ptr<wchar_t[]> buf(new wchar_t[wch.length() + 1]);
+    StringUtil::CopyString(buf.get(), wch.length() + 1, wch.c_str());
     return buf;
   }
   catch (const exception&)
@@ -86,12 +103,13 @@ MIKTEXSTATICFUNC(unique_ptr<char[]>) WideCharToUTF8(const wchar_t* wideCharStrin
   }
 };
 
+#define EXPATH_(x) UTF8ToLengthExtendedPath(x, __func__).get()
 #define UW_(x) UTF8ToWideChar(x, __func__).get()
 #define WU_(x) WideCharToUTF8(x, __func__).get()
 
 MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8_fopen(const char* path, const char* mode)
 {
-  return _wfopen(UW_(path), UW_(mode));
+  return _wfopen(EXPATH_(path), UW_(mode));
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__open(const char* path, int flags, ...)
@@ -104,47 +122,47 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__open(const char* path, int flags, ...)
     pmode = va_arg(ap, int);
     va_end(ap);
   }
-  return _wopen(UW_(path), flags, pmode);
+  return _wopen(EXPATH_(path), flags, pmode);
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__stat64i32(const char* path, struct _stat64i32* statBuf)
 {
-  return _wstat(UW_(path), statBuf);
+  return _wstat(EXPATH_(path), statBuf);
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__unlink(const char* path)
 {
-  return _wunlink(UW_(path));
+  return _wunlink(EXPATH_(path));
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_remove(const char* path)
 {
-  return _wremove(UW_(path));
+  return _wremove(EXPATH_(path));
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__access(const char* path, int mode)
 {
-  return _waccess(UW_(path), mode);
+  return _waccess(EXPATH_(path), mode);
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__chmod(const char* path, int mode)
 {
-  return _wchmod(UW_(path), mode);
+  return _wchmod(EXPATH_(path), mode);
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__mkdir(const char* path)
 {
-  return _wmkdir(UW_(path));
+  return _wmkdir(EXPATH_(path));
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__rmdir(const char* path)
 {
-  return _wrmdir(UW_(path));
+  return _wrmdir(EXPATH_(path));
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__chdir(const char* path)
 {
-  return _wchdir(UW_(path));
+  return _wchdir(EXPATH_(path));
 }
 
 MIKTEXUTF8WRAPCEEAPI(char*) miktex_utf8__getcwd(char* path, size_t maxSize)
@@ -183,12 +201,12 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putenv(const char* envString)
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__utime64(const char* path, struct __utimbuf64* timeBuf)
 {
-  return _wutime64(UW_(path), timeBuf);
+  return _wutime64(EXPATH_(path), timeBuf);
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_rename(const char* oldName, const char* newName)
 {
-  return _wrename(UW_(oldName), UW_(newName));
+  return _wrename(EXPATH_(oldName), EXPATH_(newName));
 }
 
 MIKTEXUTF8WRAPCEEAPI(intptr_t) miktex_utf8__spawnvp(int mode, const char* path, const char* const* argv)
@@ -206,17 +224,17 @@ MIKTEXUTF8WRAPCEEAPI(intptr_t) miktex_utf8__spawnvp(int mode, const char* path, 
     wargv.push_back(wideArguments[idx].c_str());
   }
   wargv.push_back(nullptr);
-  return _wspawnvp(mode, UW_(path), &wargv[0]);
+  return _wspawnvp(mode, EXPATH_(path), &wargv[0]);
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_system(const char* command)
 {
-  return _wsystem(command == nullptr ? nullptr : UW_(command));
+  return _wsystem(command == nullptr ? nullptr : EXPATH_(command));
 }
 
 MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8__popen(const char* command, const char* mode)
 {
-  return _wpopen(UW_(command), UW_(mode));
+  return _wpopen(EXPATH_(command), UW_(mode));
 }
 
 MIKTEXSTATICFUNC(HANDLE) GetConsoleHandle(FILE* file)

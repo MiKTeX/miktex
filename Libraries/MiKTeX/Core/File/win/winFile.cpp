@@ -61,7 +61,12 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
   {
     UNIMPLEMENTED();
   }
-  unsigned long attributes = GetFileAttributesW(path.ToExtendedLengthPathName().ToWideCharString().c_str());
+  PathName extPath = path.ToExtendedLengthPathName();
+  if (extPath == "\\\\.\\nul")
+  {
+    return true;
+  }
+  unsigned long attributes = GetFileAttributesW(extPath.ToWideCharString().c_str());
   bool exists = attributes != INVALID_FILE_ATTRIBUTES;
   if (exists)
   {

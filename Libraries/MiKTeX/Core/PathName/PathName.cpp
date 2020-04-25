@@ -169,7 +169,7 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
 
   if (toExtendedLengthPathName)
   {
-    Utils::ConvertToLengthExtendedPathName(*this);
+    *this = PathNameUtil::ToLengthExtendedPathName(ToString());
   }
 #endif
 
@@ -178,19 +178,16 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
     Utils::CanonicalizePathName(*this);
   }
 
-  if (toUnix || toDos)
+  if (toUnix)
   {
-    for (char* lpsz = GetData(); *lpsz != 0; ++lpsz)
-    {
-      if (toUnix && *lpsz == PathName::DosDirectoryDelimiter)
-      {
-        *lpsz = PathName::UnixDirectoryDelimiter;
-      }
-      else if (toDos && *lpsz == PathName::UnixDirectoryDelimiter)
-      {
-        *lpsz = PathName::DosDirectoryDelimiter;
-      }
-    }
+    string s = this->ToString();
+    PathNameUtil::ConvertToUnix(s);
+    *this = s;
+  } else if (toDos)
+  {
+    string s = this->ToString();
+    PathNameUtil::ConvertToDos(s);
+    *this = s;
   }
 
   if (toUpper || toLower)

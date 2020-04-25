@@ -49,7 +49,7 @@ public:
   }
 
 public:
-  CharBuffer(CharBuffer&& other)
+  CharBuffer(CharBuffer&& other) noexcept
   {
     if (other.buffer == other.smallBuffer)
     {
@@ -74,7 +74,7 @@ public:
   }
 
 public:
-  CharBuffer& operator=(CharBuffer&& other)
+  CharBuffer& operator=(CharBuffer&& other) noexcept
   {
     if (this != &other)
     {
