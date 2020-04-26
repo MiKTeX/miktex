@@ -43,6 +43,10 @@ using namespace MiKTeX::Util;
 // inspired CMake's SystemTools::ConvertToWindowsExtendedPath (Source/kwsys/SystemTools.cxx)
 wstring PathNameUtil::ToLengthExtendedPathName(const string& path)
 {
+  if (path.empty())
+  {
+    return L"\\\\?\\"s;
+  }
   wstring wpath = StringUtil::UTF8ToWideChar(path);
   DWORD len = GetFullPathNameW(wpath.c_str(), 0, nullptr, nullptr);
   if (len == 0)
