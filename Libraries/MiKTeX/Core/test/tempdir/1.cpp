@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -77,8 +77,9 @@ BEGIN_TEST_FUNCTION(2);
   {
     TEST(File::Exists(tmpDir->GetPathName() / (string("abrakadabra") + std::to_string(i))));
   }
+  PathName tmpDirPath = tmpDir->GetPathName();
   tmpDir->Delete();
-  TEST(!Directory::Exists(tmpDir->GetPathName()));
+  TEST(!Directory::Exists(tmpDirPath));
 }
 END_TEST_FUNCTION();
 
