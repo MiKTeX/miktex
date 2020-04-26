@@ -224,7 +224,7 @@ MIKTEXUTF8WRAPCEEAPI(intptr_t) miktex_utf8__spawnvp(int mode, const char* path, 
     wargv.push_back(wideArguments[idx].c_str());
   }
   wargv.push_back(nullptr);
-  return _wspawnvp(mode, EXPATH_(path), &wargv[0]);
+  return _wspawnvp(mode, UW_(path), &wargv[0]);
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_system(const char* command)
