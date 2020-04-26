@@ -29,8 +29,8 @@
 #include "InputReader.hpp"
 #include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -42,7 +42,7 @@ using namespace std;
 unique_ptr<CMap> CMapReader::read (const string &fname) {
 	if (const char *path = FileFinder::instance().lookup(fname, "cmap", false)) {
 #if defined(MIKTEX_WINDOWS)
-                ifstream ifs(UW_(path));
+                ifstream ifs(EXPATH_(path));
 #else
 		ifstream ifs(path);
 #endif

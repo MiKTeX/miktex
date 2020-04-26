@@ -33,8 +33,8 @@
 #include "Subfont.hpp"
 #include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -52,7 +52,7 @@ FontMap& FontMap::instance() {
  *  @return true if file could be opened */
 bool FontMap::read (const string &fname, FontMap::Mode mode) {
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(fname));
+        ifstream ifs(EXPATH_(fname));
 #else
 	ifstream ifs(fname);
 #endif

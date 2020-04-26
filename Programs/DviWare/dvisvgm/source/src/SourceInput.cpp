@@ -27,7 +27,8 @@
 #include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #define WU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
 #endif
 
@@ -85,7 +86,7 @@ bool TemporaryFile::create () {
 #endif
 	std::replace(_path.begin(), _path.end(), '/', '\\');
 #if defined(MIKTEX_WINDOWS)
-        if (GetTempFileNameW(UW_(_path), L"stdin", 0, fname))
+        if (GetTempFileNameW(EXPATH_(_path).c_str(), L"stdin", 0, fname))
         {
           _fd = _wopen(fname, _O_CREAT | _O_WRONLY | _O_BINARY, _S_IWRITE);
           _path = WU_(fname);
@@ -129,7 +130,7 @@ istream& SourceInput::getInputStream (bool showMessages) {
 	if (!_ifs.is_open()) {
 		if (!_fname.empty())
 #if defined(MIKTEX_WINDOWS)
-                        _ifs.open(UW_(_fname), ios::binary);
+                        _ifs.open(EXPATH_(_fname), ios::binary);
 #else
 			_ifs.open(_fname, ios::binary);
 #endif
@@ -150,7 +151,7 @@ istream& SourceInput::getInputStream (bool showMessages) {
 					throw MessageException("failed to write data to temporary file");
 			}
 #if defined(MIKTEX_WINDOWS)
-                        _ifs.open(UW_(_tmpfile.path()), ios::binary);
+                        _ifs.open(EXPATH_(_tmpfile.path()), ios::binary);
 #else
 			_ifs.open(_tmpfile.path(), ios::binary);
 #endif

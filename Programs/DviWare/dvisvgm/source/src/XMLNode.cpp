@@ -28,8 +28,8 @@
 #include "XMLNode.hpp"
 #include "XMLString.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -377,7 +377,7 @@ ostream& XMLElement::write (ostream &os) const {
 				os << attrib.value.substr(0, pos+7);
 				string fname = attrib.value.substr(pos+7);
 #if defined(MIKTEX_WINDOWS)
-				ifstream ifs(UW_(fname), ios::binary);
+				ifstream ifs(EXPATH_(fname), ios::binary);
 #else
 				ifstream ifs(fname, ios::binary);
 #endif

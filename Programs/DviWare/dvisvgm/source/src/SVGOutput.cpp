@@ -31,8 +31,8 @@
 #include "utility.hpp"
 #include "ZLibOutputStream.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -70,7 +70,7 @@ ostream& SVGOutput::getPageStream (int page, int numPages, const HashTriple &has
 		_osptr = util::make_unique<ZLibOutputFileStream>(path.absolute(), ZLIB_GZIP, _zipLevel);
 	else
 #if defined(MIKTEX_WINDOWS)
-                _osptr = util::make_unique<ofstream>(UW_(path.absolute()));
+                _osptr = util::make_unique<ofstream>(EXPATH_(path.absolute()));
 #else
 		_osptr = util::make_unique<ofstream>(path.absolute());
 #endif

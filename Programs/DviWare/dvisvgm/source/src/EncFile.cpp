@@ -26,8 +26,8 @@
 #include "FileFinder.hpp"
 #include "Message.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -52,7 +52,7 @@ const char* EncFile::path () const {
 void EncFile::read () {
 	if (const char *p = path()) {
 #if defined(MIKTEX_WINDOWS)
-                ifstream ifs(UW_(p));
+                ifstream ifs(EXPATH_(p));
 #else
 		ifstream ifs(p);
 #endif

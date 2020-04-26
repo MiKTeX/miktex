@@ -40,8 +40,8 @@
 #include "TriangularPatch.hpp"
 #include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -104,7 +104,7 @@ void PsSpecialHandler::initgraphics () {
 void PsSpecialHandler::processHeaderFile (const char *name) {
 	if (const char *path = FileFinder::instance().lookup(name, false)) {
 #if defined(MIKTEX_WINDOWS)
-                ifstream ifs(UW_(path));
+                ifstream ifs(EXPATH_(path));
 #else
 		ifstream ifs(path);
 #endif
@@ -282,7 +282,7 @@ bool PsSpecialHandler::process (const string &prefix, istream &is, SpecialAction
 		if (in.check(" plotfile ")) { // ps: plotfile fname
 			string fname = in.getString();
 #if defined(MIKTEX_WINDOWS)
-                        ifstream ifs(UW_(fname));
+                        ifstream ifs(EXPATH_(fname));
 #else
 			ifstream ifs(fname);
 #endif
@@ -777,7 +777,7 @@ void PsSpecialHandler::image (std::vector<double> &p) {
 	string suffix = (BITMAP_FORMAT.substr(0, 3) == "png" ? ".png" : ".jpg");
 	string fname = image_base_path(*_actions)+to_string(imgID)+suffix;
 #if defined(MIKTEX_WINDOWS)
-	ifstream ifs(UW_(fname), ios::binary);
+	ifstream ifs(EXPATH_(fname), ios::binary);
 #else
 	ifstream ifs(fname, ios::binary);
 #endif

@@ -20,8 +20,8 @@
 
 #include "DLLoader.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -41,7 +41,7 @@ bool DLLoader::loadLibrary (const string &dlname) {
 	if (!dlname.empty()) {
 #ifdef _WIN32
 #if defined(MIKTEX)
-                _handle = LoadLibraryW(UW_(dlname));
+                _handle = LoadLibraryW(EXPATH_(dlname).c_str());
 #else
 		_handle = LoadLibrary(dlname.c_str());
 #endif

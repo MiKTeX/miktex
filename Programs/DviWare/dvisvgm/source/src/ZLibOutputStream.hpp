@@ -27,8 +27,8 @@
 #include <zlib.h>
 #include "MessageException.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 #ifdef _WIN32
@@ -167,7 +167,7 @@ class ZLibOutputFileStream : public ZLibOutputStream {
 	public:
 		ZLibOutputFileStream (const std::string &fname, ZLibCompressionFormat format, int zipLevel)
 #if defined(MIKTEX_WINDOWS)
-                        : _ofs(UW_(fname), std::ios::binary)
+                        : _ofs(EXPATH_(fname), std::ios::binary)
 #else
 			: _ofs(fname, std::ios::binary)
 #endif

@@ -27,8 +27,8 @@
 #include "Message.hpp"
 #include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -143,7 +143,7 @@ struct SFDActions : Glyph::IterationActions {
  *  https://fontforge.github.io/sfdformat.html */
 static void writeSFD (const string &sfdname, const PhysicalFont &font, const set<int> &charcodes, GFGlyphTracer::Callback *cb) {
 #if defined(MIKTEX_WINDOWS)
-        ofstream sfd(UW_(sfdname));
+        ofstream sfd(EXPATH_(sfdname));
 #else
 	ofstream sfd(sfdname);
 #endif
@@ -267,7 +267,7 @@ bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes,
 	if (const FontFormatInfo *info = fontFormatInfo(format)) {
 		string filename = createFontFile(format, charcodes, cb);
 #if defined(MIKTEX_WINDOWS)
-                ifstream ifs(UW_(filename), ios::binary);
+                ifstream ifs(EXPATH_(filename), ios::binary);
 #else
 		ifstream ifs(filename, ios::binary);
 #endif

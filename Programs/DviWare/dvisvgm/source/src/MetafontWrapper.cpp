@@ -28,8 +28,8 @@
 #include "Process.hpp"
 #include "XMLString.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -117,7 +117,7 @@ int MetafontWrapper::getResolution (const string &mfMessage) const {
 	// couldn't read resolution from stdout, try to get it from log file
 	if (res == 0) {
 #if defined(MIKTEX_WINDOWS)
-                ifstream ifs(UW_(_dir + _fontname + ".log"));
+                ifstream ifs(EXPATH_(_dir + _fontname + ".log"));
 #else
 		ifstream ifs(_dir+_fontname+".log");
 #endif
@@ -151,8 +151,8 @@ int MetafontWrapper::getResolution (const string &mfMessage) const {
  *  @return true on success */
 bool MetafontWrapper::make (const string &mode, double mag) {
 #if defined(MIKTEX_WINDOWS)
-        ifstream tfm(UW_(_dir+_fontname+".tfm"));
-        ifstream gf(UW_(_dir+_fontname+".gf"));
+        ifstream tfm(EXPATH_(_dir+_fontname+".tfm"));
+        ifstream gf(EXPATH_(_dir+_fontname+".gf"));
 #else
 	ifstream tfm(_dir+_fontname+".tfm");
 	ifstream gf(_dir+_fontname+".gf");
@@ -165,8 +165,8 @@ bool MetafontWrapper::make (const string &mode, double mag) {
 
 bool MetafontWrapper::success () const {
 #if defined(MIKTEX_WINDOWS)
-        ifstream tfm(UW_(_dir+_fontname+".tfm"));
-        ifstream gf(UW_(_dir+_fontname+".gf"));
+        ifstream tfm(EXPATH_(_dir+_fontname+".tfm"));
+        ifstream gf(EXPATH_(_dir+_fontname+".gf"));
 #else
 	ifstream tfm(_dir+_fontname+".tfm");
 	ifstream gf(_dir+_fontname+".gf");

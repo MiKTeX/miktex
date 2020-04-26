@@ -26,8 +26,8 @@
 #include <iterator>
 #include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -194,7 +194,7 @@ int util::ilog10 (int n) {
  *  @param[in] fname name/path of the file */
 string util::read_file_contents (const string &fname) {
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(fname), ios::binary);
+        ifstream ifs(EXPATH_(fname), ios::binary);
 #else
 	ifstream ifs(fname, ios::binary);
 #endif
@@ -208,7 +208,7 @@ string util::read_file_contents (const string &fname) {
  *  @param[in] end iterator pointing to the first byte after the byte sequence to write */
 void util::write_file_contents (const string &fname, string::iterator start, string::iterator end) {
 #if defined(MIKTEX_WINDOWS)
-        ofstream ofs(UW_(fname), ios::binary);
+        ofstream ofs(EXPATH_(fname), ios::binary);
 #else
 	ofstream ofs(fname, ios::binary);
 #endif

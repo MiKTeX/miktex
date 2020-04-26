@@ -31,8 +31,8 @@
 	#include <unistd.h>
 #endif
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 #include <cstdlib>
@@ -196,7 +196,7 @@ bool Subprocess::run (const string &cmd, string paramstr) {
 		string cmdline = cmd + " " + paramstr;
 		// put subprocess in separate process group to prevent its termination in case of CTRL-C
 #if defined(MIKTEX_WINDOWS)
-                success = CreateProcessW(nullptr, (LPWSTR)UW_(cmdline.c_str()), nullptr, nullptr, TRUE, CREATE_NEW_PROCESS_GROUP, nullptr, nullptr, &startupInfo, &processInfo);
+                success = CreateProcessW(nullptr, (LPWSTR)EXPATH_(cmdline).c_str(), nullptr, nullptr, TRUE, CREATE_NEW_PROCESS_GROUP, nullptr, nullptr, &startupInfo, &processInfo);
 #else
 		success = CreateProcess(NULL, (LPSTR)cmdline.c_str(), NULL, NULL, true, CREATE_NEW_PROCESS_GROUP, NULL, NULL, &startupInfo, &processInfo);
 #endif

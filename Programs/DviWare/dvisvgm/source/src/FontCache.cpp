@@ -30,8 +30,8 @@
 #include "StreamWriter.hpp"
 #include "XXHashFunction.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -84,7 +84,7 @@ bool FontCache::write (const string &fontname, const string &dir) const {
 		string pathstr = dir.empty() ? FileSystem::getcwd() : dir;
 		pathstr += "/" + fontname + ".fgd";
 #if defined(MIKTEX_WINDOWS)
-                ofstream ofs(UW_(pathstr), ios::binary);
+                ofstream ofs(EXPATH_(pathstr), ios::binary);
 #else
 		ofstream ofs(pathstr, ios::binary);
 #endif
@@ -200,7 +200,7 @@ bool FontCache::read (const string &fontname, const string &dir) {
 	ostringstream oss;
 	oss << dirstr << '/' << fontname << ".fgd";
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(oss.str()), ios::binary);
+        ifstream ifs(EXPATH_(oss.str()), ios::binary);
 #else
 	ifstream ifs(oss.str(), ios::binary);
 #endif
@@ -292,7 +292,7 @@ bool FontCache::fontinfo (const string &dirname, vector<FontInfo> &infos, vector
 				FontInfo info;
 				string path = dirname+"/"+(fname.substr(1));
 #if defined(MIKTEX_WINDOWS)
-                                ifstream ifs(UW_(path), ios::binary);
+                                ifstream ifs(EXPATH_(path), ios::binary);
 #else
 				ifstream ifs(path, ios::binary);
 #endif

@@ -60,10 +60,6 @@
 #endif
 #if defined(MIKTEX)
 #  include <miktex/Definitions>
-#  if defined(MIKTEX_WINDOWS)
-#   include <miktex/Util/CharBuffer>
-#   define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
-#  endif
 #endif
 
 using namespace std;

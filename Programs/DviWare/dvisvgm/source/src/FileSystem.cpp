@@ -36,8 +36,8 @@
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/File>
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 #endif
 
@@ -117,8 +117,8 @@ bool FileSystem::remove (const string &fname) {
  *  @return true on success */
 bool FileSystem::copy (const string &src, const string &dest, bool remove_src) {
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(src), ios::in | ios::binary);
-        ofstream ofs(UW_(dest), ios::out | ios::binary);
+        ifstream ifs(EXPATH_(src), ios::in | ios::binary);
+        ofstream ofs(EXPATH_(dest), ios::out | ios::binary);
 #else
 	ifstream ifs(src, ios::in|ios::binary);
 	ofstream ofs(dest, ios::out|ios::binary);
@@ -152,7 +152,7 @@ uint64_t FileSystem::filesize (const string &fname) {
 	// so we have to use this freaky code
 	WIN32_FILE_ATTRIBUTE_DATA attr;
 #if defined(MIKTEX)
-        GetFileAttributesExW(UW_(fname.c_str()), GetFileExInfoStandard, &attr);
+        GetFileAttributesExW(EXPATH_(fname).c_str(), GetFileExInfoStandard, &attr);
 #else
 	GetFileAttributesExA(fname.c_str(), GetFileExInfoStandard, &attr);
 #endif

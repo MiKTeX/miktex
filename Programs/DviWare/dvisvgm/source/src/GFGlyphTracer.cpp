@@ -20,8 +20,8 @@
 
 #include "GFGlyphTracer.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -35,7 +35,7 @@ GFGlyphTracer::GFGlyphTracer (string &fname, double upp, Callback *cb)
 	if (_callback)
 		_callback->setFont(fname);
 #if defined(MIKTEX_WINDOWS)
-        _ifs.open(UW_(fname), ios::binary);
+        _ifs.open(EXPATH_(fname), ios::binary);
 #else
 	_ifs.open(fname, ios::binary);
 #endif
@@ -49,7 +49,7 @@ void GFGlyphTracer::reset (string &fname, double upp) {
 		_ifs.close();
 	unitsPerPoint(upp);
 #if defined(MIKTEX_WINDOWS)
-        _ifs.open(UW_(fname), ios::binary);
+        _ifs.open(EXPATH_(fname), ios::binary);
 #else
 	_ifs.open(fname, ios::binary);
 #endif

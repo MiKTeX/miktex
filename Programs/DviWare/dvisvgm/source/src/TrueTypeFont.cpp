@@ -27,8 +27,8 @@
 #include "TrueTypeFont.hpp"
 #include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -132,7 +132,7 @@ void TrueTypeFont::writeWOFF (ostream &os) const {
 
 void TrueTypeFont::writeWOFF (const string &fname) const {
 #if defined(MIKTEX_WINDOWS)
-        ofstream ofs(UW_(fname), ios::binary);
+        ofstream ofs(EXPATH_(fname), ios::binary);
 #else
 	ofstream ofs(fname, ios::binary);
 #endif
@@ -160,7 +160,7 @@ bool TrueTypeFont::writeWOFF2 (ostream &os) const {
 
 bool TrueTypeFont::writeWOFF2 (const string &fname) const {
 #if defined(MIKTEX_WINDOWS)
-        ofstream ofs(UW_(fname), ios::binary);
+        ofstream ofs(EXPATH_(fname), ios::binary);
 #else
 	ofstream ofs(fname, ios::binary);
 #endif

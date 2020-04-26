@@ -29,8 +29,8 @@
 #include "utility.hpp"
 
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -47,7 +47,7 @@ static bool scan_line (const char *line, int lineno, vector<uint16_t> &mapping, 
 SubfontDefinition::SubfontDefinition (string name, const char *fpath) : _sfname(std::move(name)) {
 	// read all subfont IDs from the .sfd file but skip the mapping data
 #if defined(MIKTEX_WINDOWS)
-        ifstream is(UW_(fpath));
+        ifstream is(EXPATH_(fpath));
 #else
 	ifstream is(fpath);
 #endif
@@ -131,7 +131,7 @@ bool Subfont::read () {
 		return true;
 	if (const char *p = _sfd.path()) {
 #if defined(MIKTEX_WINDOWS)
-                ifstream is(UW_(p));
+                ifstream is(EXPATH_(p));
 #else
 		ifstream is(p);
 #endif

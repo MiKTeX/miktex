@@ -30,8 +30,8 @@
 #include "HashFunction.hpp"
 #include "VectorStream.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -524,7 +524,7 @@ const Font* DVIReader::defineFont (uint32_t fontnum, const string &name, uint32_
 			// read vf file, register its font and character definitions
 			fm.enterVF(vf);
 #if defined(MIKTEX_WINDOWS)
-                        ifstream ifs(UW_(vf->path()), ios::binary);
+                        ifstream ifs(EXPATH_(vf->path()), ios::binary);
 #else
 			ifstream ifs(vf->path(), ios::binary);
 #endif

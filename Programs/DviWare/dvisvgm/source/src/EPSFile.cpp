@@ -26,8 +26,8 @@
 #include "InputBuffer.hpp"
 #include "InputReader.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -62,7 +62,7 @@ static size_t getline (istream &is, char *line, size_t n) {
 
 
 #if defined(MIKTEX_WINDOWS)
-EPSFile::EPSFile(const string& fname) : _ifs(UW_(fname), ios::binary) {
+EPSFile::EPSFile(const string& fname) : _ifs(EXPATH_(fname), ios::binary) {
 #else
 EPSFile::EPSFile (const string &fname) : _ifs(fname, ios::binary) {
 #endif
