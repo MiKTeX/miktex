@@ -388,7 +388,7 @@ private:
   }
   
 public:
-  void Trace(const TraceCallback::TraceMessage& traceMessage) override
+  bool Trace(const TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
@@ -396,10 +396,11 @@ public:
       fprintf(stderr, "%s\n", traceMessage.message.c_str());
 #endif
       PushTraceMessage(traceMessage);
-      return;
+      return true;
     }
     FlushPendingTraceMessages();
     LogTraceMessage(traceMessage);
+    return true;
   }
 
 private:

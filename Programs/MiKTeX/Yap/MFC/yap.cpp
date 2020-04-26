@@ -250,7 +250,7 @@ namespace
   bool isLog4cxxConfigured = false;
 }
 
-void YapApplication::Trace(const TraceCallback::TraceMessage& traceMessage)
+bool YapApplication::Trace(const TraceCallback::TraceMessage& traceMessage)
 {
   if (!isLog4cxxConfigured)
   {
@@ -259,10 +259,11 @@ void YapApplication::Trace(const TraceCallback::TraceMessage& traceMessage)
       pendingTraceMessages.clear();
     }
     pendingTraceMessages.push_back(traceMessage);
-    return;
+    return true;
   }
   FlushPendingTraceMessages();
   TraceInternal(traceMessage);
+  return true;
 }
 
 void YapApplication::TraceInternal(const TraceCallback::TraceMessage& traceMessage)

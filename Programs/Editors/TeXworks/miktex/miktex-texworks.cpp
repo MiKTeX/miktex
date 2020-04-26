@@ -125,7 +125,7 @@ int Wrapper::Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[])
   }
 }
 
-void Wrapper::Trace(const TraceCallback::TraceMessage& traceMessage)
+bool Wrapper::Trace(const TraceCallback::TraceMessage& traceMessage)
 {
   if (isLog4cxxConfigured)
   {
@@ -135,6 +135,7 @@ void Wrapper::Trace(const TraceCallback::TraceMessage& traceMessage)
   {
     pendingTraceMessages.push_back(traceMessage);
   }
+  return true;
 }
 
 void Wrapper::FlushPendingTraceMessages()

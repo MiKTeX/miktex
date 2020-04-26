@@ -111,7 +111,7 @@ class TraceSink :
   public MiKTeX::Trace::TraceCallback
 {
 public:
-  void Trace(const TraceCallback::TraceMessage& traceMessage) override
+  bool Trace(const TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
@@ -120,10 +120,11 @@ public:
         pendingTraceMessages.clear();
       }
       pendingTraceMessages.push_back(traceMessage);
-      return;
+      return true;
     }
     FlushPendingTraceMessages();
     TraceInternal(traceMessage);
+    return true;
   }
 
 private:

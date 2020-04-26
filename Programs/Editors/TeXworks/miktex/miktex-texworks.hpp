@@ -63,7 +63,7 @@ private:
   std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
 
 public:
-  void MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override;
+  bool MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override;
 
 private:
   void FlushPendingTraceMessages();

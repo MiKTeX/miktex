@@ -195,7 +195,7 @@ public:
   ///
   /// @param traceMessage The trace message to log.
 public:
-  MIKTEXAPPTHISAPI(void) Trace(const TraceCallback::TraceMessage& traceMessage) override;
+  MIKTEXAPPTHISAPI(bool) Trace(const TraceCallback::TraceMessage& traceMessage) override;
 
   /// Enables or disables the auto-installer.
   /// @param tri The new state (on, off, inherit configuration default).

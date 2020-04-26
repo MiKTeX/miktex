@@ -61,7 +61,7 @@ public:
   };
 
 public:
-  virtual void MIKTEXTHISCALL Trace(const TraceMessage& traceMessage) = 0;
+  virtual bool MIKTEXTHISCALL Trace(const TraceMessage& traceMessage) = 0;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const TraceCallback::TraceMessage& traceMessage)

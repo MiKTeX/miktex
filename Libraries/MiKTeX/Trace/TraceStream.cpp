@@ -197,9 +197,10 @@ void TraceStreamImpl::Logger(const string& facility, TraceLevel level, const str
   }
   for (TraceCallback* callback : info->callbacks)
   {
-    callback->Trace(TraceCallback::TraceMessage(info->name, facility, level, message));
-    // TODO: if(callback->Trace)
-    break;
+    if (callback->Trace(TraceCallback::TraceMessage(info->name, facility, level, message)))
+    {
+      break;
+    }
   }
 }
 

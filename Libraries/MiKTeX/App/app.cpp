@@ -799,7 +799,7 @@ TriState Application::GetEnableInstaller() const
   return pimpl->enableInstaller;
 }
 
-void Application::Trace(const TraceCallback::TraceMessage& traceMessage)
+bool Application::Trace(const TraceCallback::TraceMessage& traceMessage)
 {
   if (!isLog4cxxConfigured)
   {
@@ -808,10 +808,11 @@ void Application::Trace(const TraceCallback::TraceMessage& traceMessage)
       pimpl->pendingTraceMessages.clear();
     }
     pimpl->pendingTraceMessages.push_back(traceMessage);
-    return;
+    return true;
   }
   FlushPendingTraceMessages();
   TraceInternal(traceMessage);
+  return true;
 }
 
 void Application::FlushPendingTraceMessages()

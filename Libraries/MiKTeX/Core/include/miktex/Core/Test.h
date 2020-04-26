@@ -116,7 +116,7 @@ private:
   std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
 
 public:
-  void MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override
+  bool MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
@@ -125,10 +125,11 @@ public:
         pendingTraceMessages.clear();
       }
       pendingTraceMessages.push_back(traceMessage);
-      return;
+      return true;
     }
     FlushPendingTraceMessages();
     TraceInternal(traceMessage);
+    return true;
   }
 
 private:
