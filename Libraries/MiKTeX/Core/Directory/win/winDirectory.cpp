@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Directory>
 #include <miktex/Core/win/winAutoResource>
 
@@ -67,13 +70,13 @@ bool Directory::Exists(const PathName& path)
     {
       if (session != nullptr)
       {
-        session->trace_access->WriteFormattedLine("core", T_("%s is not a directory"), Q_(path));
+        session->trace_access->WriteLine("core", fmt::format(T_("{0} is not a directory"), Q_(path)));
       }
       return false;
     }
     if (session != nullptr)
     {
-      session->trace_access->WriteFormattedLine("core", T_("accessing directory %s: OK"), Q_(path));
+      session->trace_access->WriteLine("core", fmt::format(T_("accessing directory {0}: OK"), Q_(path)));
     }
     return true;
   }
@@ -95,7 +98,7 @@ bool Directory::Exists(const PathName& path)
   }
   if (session != nullptr)
   {
-    session->trace_access->WriteFormattedLine("core", T_("accessing directory %s: NOK"), Q_(path));
+    session->trace_access->WriteLine("core", fmt::format(T_("accessing directory {0}: NOK"), Q_(path)));
   }
   return false;
 }
@@ -105,7 +108,7 @@ void Directory::Delete(const PathName& path)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("deleting directory {0}"), Q_(path)));
   }
   if (!RemoveDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str()))
   {

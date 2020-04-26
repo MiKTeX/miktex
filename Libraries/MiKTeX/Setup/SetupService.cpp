@@ -528,7 +528,7 @@ void SetupServiceImpl::Log(const string& s)
   {
     if (lpsz[0] == '\n' || (lpsz[0] == '\r' && lpsz[1] == '\n'))
     {
-      traceStream->WriteFormattedLine("setup", "%s", currentLine.c_str());
+      traceStream->WriteLine("setup", currentLine);
       if (logStream.is_open())
       {
         logStream << currentLine << "\n";
@@ -1886,7 +1886,7 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
     if (Utils::GetEnvironmentString("PATH", env))
     {
       int idx = 0;
-      for (const string& p : StringUtil::Split(env, PathName::PathNameDelimiter))
+      for (const string& p : StringUtil::Split(env, PathNameUtil::PathNameDelimiter))
       {
         s << "PATH" << idx++ << p << "\n";
       }

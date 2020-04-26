@@ -126,7 +126,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stdout to a stream");
+        session->trace_process->WriteLine("core", "redirecting stdout to a stream");
       }
 #endif
       int fd = _fileno(startinfo.StandardOutput);
@@ -149,7 +149,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stdout to a pipe");
+        session->trace_process->WriteLine("core", "redirecting stdout to a pipe");
       }
 #endif
       // create stdout pipe
@@ -171,7 +171,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stderr to a stream");
+        session->trace_process->WriteLine("core", "redirecting stderr to a stream");
       }
 #endif
       int fd = _fileno(startinfo.StandardError);
@@ -194,7 +194,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stderr to a pipe");
+        session->trace_process->WriteLine("core", "redirecting stderr to a pipe");
       }
 #endif
       // create child stderr pipe
@@ -215,7 +215,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "make child stderr = child stdout");
+        session->trace_process->WriteLine("core", "make child stderr = child stdout");
       }
 #endif
       // make child stderr = child stdout
@@ -232,7 +232,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stdin to a stream");
+        session->trace_process->WriteLine("core", "redirecting stdin to a stream");
       }
 #endif
       int fd = _fileno(startinfo.StandardInput);
@@ -255,7 +255,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stdin to a pipe");
+        session->trace_process->WriteLine("core", "redirecting stdin to a pipe");
       }
 #endif
       // create child stdin pipe

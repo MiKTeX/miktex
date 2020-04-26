@@ -1,6 +1,6 @@
 /* arctrl.cpp: Acrobat Reader (AR) Controller
 
-   Written in the years 2006-2018 by Christian Schenk.
+   Written in the years 2006-2020 by Christian Schenk.
 
    This file is based on public domain work by Fabrice Popineau.
 
@@ -22,7 +22,9 @@
 
 #include <iomanip>
 #include <iostream>
-#include <cstdarg>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "arctrl-version.h"
 
@@ -38,7 +40,6 @@
 #include <miktex/Util/CharBuffer>
 #include <miktex/Util/Tokenizer>
 #include <miktex/Wrappers/PoptWrapper>
-
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
@@ -103,7 +104,7 @@ private:
   void TerminateConversation();
 
 private:
-  void ExecuteDdeCommand(const char* lpszCommand, ...);
+  void ExecuteDdeCommand(const string& s);
 
 private:
   void DocOpen(const PathName& path);
@@ -401,21 +402,9 @@ void ArCtrl::TerminateConversation()
   }
 }
 
-void ArCtrl::ExecuteDdeCommand(const char* lpszCommand, ...)
+void ArCtrl::ExecuteDdeCommand(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, lpszCommand);
-  wstring data;
-  try
-  {
-    data = UW_(StringUtil::FormatStringVA(lpszCommand, arglist));
-  }
-  catch (...)
-  {
-    va_end(arglist);
-    throw;
-  }
-  va_end(arglist);
+  wstring data = UW_(s);
   HDDEDATA h = DdeClientTransaction(const_cast<BYTE *>(reinterpret_cast<const BYTE *>(data.c_str())), static_cast<DWORD>((data.length() + 1) * sizeof(data[0])), hConv, nullptr, 0, XTYP_EXECUTE, 5000, nullptr);
   if (h == nullptr)
   {
@@ -431,7 +420,7 @@ void ArCtrl::DocOpen(const PathName& path)
   }
   PathName fullPath(path);
   fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocOpen(\"%s\")]", fullPath.GetData());
+  ExecuteDdeCommand(fmt::format("[DocOpen(\"{0}\")]", fullPath));
 }
 
 void ArCtrl::DocClose(const PathName& path)
@@ -442,7 +431,7 @@ void ArCtrl::DocClose(const PathName& path)
   }
   PathName fullPath(path);
   fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocClose(\"%s\")]", fullPath.GetData());
+  ExecuteDdeCommand(fmt::format("[DocClose(\"{0}\")]", fullPath));
 }
 
 void ArCtrl::CloseAllDocs()
@@ -473,7 +462,7 @@ void ArCtrl::DocGoTo(const PathName& path, int pageNum)
   }
   PathName fullPath(path);
   fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocGoTo(\"%s\",%d)]", fullPath.GetData(), pageNum);
+  ExecuteDdeCommand(fmt::format("[DocGoTo(\"{0}\",{1})]", fullPath, pageNum));
 }
 
 void ArCtrl::DocGoToNameDest(const PathName& path, const string& nameDest)
@@ -484,7 +473,7 @@ void ArCtrl::DocGoToNameDest(const PathName& path, const string& nameDest)
   }
   PathName fullPath(path);
   fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocGoToNameDest(\"%s\",\"%s\")]", fullPath.GetData(), nameDest.c_str());
+  ExecuteDdeCommand(fmt::format("[DocGoToNameDest(\"{0}\",\"{1}\")]", fullPath, nameDest));
 }
 
 void ArCtrl::FileOpen(const PathName& path)
@@ -495,7 +484,7 @@ void ArCtrl::FileOpen(const PathName& path)
   }
   PathName fullPath(path);
   fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[FileOpen(\"%s\")]", fullPath.GetData());
+  ExecuteDdeCommand(fmt::format("[FileOpen(\"{0}\")]", fullPath));
 }
 
 bool ArCtrl::Execute(const string& commandLine)

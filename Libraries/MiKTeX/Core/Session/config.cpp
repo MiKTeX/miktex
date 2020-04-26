@@ -289,7 +289,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   }
 
   // iterate over application tags, e.g.: latex;tex;miktex
-  for (CsvList app(applicationNames, PathName::PathNameDelimiter); !haveValue && app; ++app)
+  for (CsvList app(applicationNames, PathNameUtil::PathNameDelimiter); !haveValue && app; ++app)
   {
     MIKTEX_ASSERT(!(*app).empty());
 
@@ -404,7 +404,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   }
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PROGNAME))
   {
-    CsvList progname(applicationNames, PathName::PathNameDelimiter);
+    CsvList progname(applicationNames, PathNameUtil::PathNameDelimiter);
     MIKTEX_ASSERT(progname && !(*progname).empty());
     value = *progname;
     haveValue = true;
@@ -423,7 +423,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 #endif
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_LOCALFONTDIRS))
   {
-    value = StringUtil::Flatten(SessionImpl::GetSession()->GetFontDirectories(), PathName::PathNameDelimiter);
+    value = StringUtil::Flatten(SessionImpl::GetSession()->GetFontDirectories(), PathNameUtil::PathNameDelimiter);
     haveValue = true;
   }
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PSFONTDIRS))
@@ -519,7 +519,7 @@ std::string ConfigValue::GetString() const
   case Type::Char:
     return std::string(1, this->c);
   case Type::StringArray:
-    return StringUtil::Flatten(this->sa, PathName::PathNameDelimiter);
+    return StringUtil::Flatten(this->sa, PathNameUtil::PathNameDelimiter);
   case Type::None:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to string."));
   default:
@@ -764,7 +764,7 @@ vector<string> ConfigValue::GetStringArray() const
   switch (type)
   {
   case Type::String:
-    return StringUtil::Split(this->s, PathName::PathNameDelimiter);
+    return StringUtil::Split(this->s, PathNameUtil::PathNameDelimiter);
   case Type::StringArray:
     return this->sa;
   case Type::None:

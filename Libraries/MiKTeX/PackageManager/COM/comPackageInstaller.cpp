@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Trace/Trace>
 
 #include "COM/com-internal.h"
@@ -138,12 +141,12 @@ STDMETHODIMP comPackageInstaller::Add(BSTR packageName, VARIANT_BOOL toBeInstall
     if (toBeInstalled)
     {
       packagesToBeInstalled.push_back(WU_(packageName));
-      trace_mpm->WriteFormattedLine("mpmsvc", T_("to be installed: %s"), packagesToBeInstalled.back().c_str());
+      trace_mpm->WriteLine("mpmsvc", fmt::format(T_("to be installed: {0}"), packagesToBeInstalled.back()));
     }
     else
     {
       packagesToBeRemoved.push_back(WU_(packageName));
-      trace_mpm->WriteFormattedLine("mpmsvc", T_("to be removed: %s"), packagesToBeRemoved.back().c_str());
+      trace_mpm->WriteLine("mpmsvc", fmt::format(T_("to be removed: {0}"), packagesToBeRemoved.back()));
     }
   }
   catch (const MiKTeXException& e)

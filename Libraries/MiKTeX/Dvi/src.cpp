@@ -1,6 +1,6 @@
 /* src.cpp: src specials
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -20,6 +20,9 @@
    USA.  */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "internal.h"
 
@@ -63,7 +66,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
 
   BEGIN_CRITICAL_SECTION(dviMutex)
   {
-    trace_search->WriteFormattedLine("libdvi", T_("searching src special %d %s"), line, fileName);
+    trace_search->WriteLine("libdvi", fmt::format(T_("searching src special {0} {1}"), line, fileName));
 
     SourceSpecial* pSourceSpecial1Best = nullptr;
     SourceSpecial* pSourceSpecial2Best = nullptr;
@@ -224,16 +227,16 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
 
     if (pSourceSpecial1Best == nullptr)
     {
-      trace_search->WriteFormattedLine("libdvi", T_("found src2 on page #%d"), pageIdx2);
-      trace_search->WriteFormattedLine("libdvi", "   src2 = [%d (%d,%d)]", pSourceSpecial2Best->GetLineNum(), pSourceSpecial2Best->GetX(), pSourceSpecial2Best->GetY());
+      trace_search->WriteLine("libdvi", fmt::format(T_("found src2 on page #{0}"), pageIdx2));
+      trace_search->WriteLine("libdvi", fmt::format("   src2 = [{0} ({1},{2})]", pSourceSpecial2Best->GetLineNum(), pSourceSpecial2Best->GetX(), pSourceSpecial2Best->GetY()));
       position.pageIdx = pageIdx2;
       position.x = pSourceSpecial2Best->GetX();
       position.y = pSourceSpecial2Best->GetY();
     }
     else if (pSourceSpecial2Best == nullptr)
     {
-      trace_search->WriteFormattedLine("libdvi", T_("found src1 on page #%d"), pageIdx1);
-      trace_search->WriteFormattedLine("libdvi", "   src1 = [%d (%d,%d)]", pSourceSpecial1Best->GetLineNum(), pSourceSpecial1Best->GetX(), pSourceSpecial1Best->GetY());
+      trace_search->WriteLine("libdvi", fmt::format(T_("found src1 on page #{0}"), pageIdx1));
+      trace_search->WriteLine("libdvi", fmt::format("   src1 = [{0} ({1},{2})]", pSourceSpecial1Best->GetLineNum(), pSourceSpecial1Best->GetX(), pSourceSpecial1Best->GetY()));
       position.pageIdx = pageIdx1;
       position.x = pSourceSpecial1Best->GetX();
       position.y = pSourceSpecial1Best->GetY();
@@ -241,9 +244,9 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
     else
     {
       position.pageIdx = pageIdx1;
-      trace_search->WriteFormattedLine("libdvi", T_("found src region on page #%d"), position.pageIdx);
-      trace_search->WriteFormattedLine("libdvi", "   src1 = [%d (%d,%d)]", pSourceSpecial1Best->GetLineNum(), pSourceSpecial1Best->GetX(), pSourceSpecial1Best->GetY());
-      trace_search->WriteFormattedLine("libdvi", "   src2 = [%d (%d,%d)]", pSourceSpecial2Best->GetLineNum(), pSourceSpecial2Best->GetX(), pSourceSpecial2Best->GetY());
+      trace_search->WriteLine("libdvi", fmt::format(T_("found src region on page #{0}"), position.pageIdx));
+      trace_search->WriteLine("libdvi", fmt::format("   src1 = [{0} ({1},{2})]", pSourceSpecial1Best->GetLineNum(), pSourceSpecial1Best->GetX(), pSourceSpecial1Best->GetY()));
+      trace_search->WriteLine("libdvi", fmt::format("   src2 = [{0} ({1},{2})]", pSourceSpecial2Best->GetLineNum(), pSourceSpecial2Best->GetX(), pSourceSpecial2Best->GetY()));
       position.x = pSourceSpecial1Best->GetX();
       if (pSourceSpecial2Best->GetLineNum() == pSourceSpecial1Best->GetLineNum())
       {
@@ -258,7 +261,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
             / (pSourceSpecial2Best->GetLineNum()
               - pSourceSpecial1Best->GetLineNum())));
       }
-      trace_search->WriteFormattedLine("libdvi", "   interpolated (x,y) = (%d,%d)", position.x, position.y);
+      trace_search->WriteLine("libdvi", fmt::format("   interpolated (x,y) = ({0},{1})", position.x, position.y));
     }
 
     return true;

@@ -1,6 +1,6 @@
 /* DibChunker.cpp:
 
-   Copyright (C) 2002-2018 Christian Schenk
+   Copyright (C) 2002-2020 Christian Schenk
 
    This file is part of the MiKTeX DibChunker Library.
 
@@ -22,6 +22,9 @@
 #include <Windows.h>
 
 #include <memory>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/AutoResource>
 #include <miktex/Core/Debug>
@@ -199,7 +202,7 @@ void DibChunkerImpl::ReadBitmapInfo()
     Read(p, n);
   }
   MIKTEX_ASSERT(bitmapFileHeader.bfOffBits == numBytesRead);
-  trace_dib->WriteFormattedLine("libdib", T_("chunking bitmap %ldx%ld, %u colors"), bitmapInfoHeader.biWidth, bitmapInfoHeader.biHeight, numColors);
+  trace_dib->WriteLine("libdib", fmt::format(T_("chunking bitmap %{0}x{1}, {2} colors"), bitmapInfoHeader.biWidth, bitmapInfoHeader.biHeight, numColors));
 }
 
 bool DibChunkerImpl::Crop1(unsigned long& left, unsigned long& right)
@@ -531,7 +534,7 @@ void DibChunkerImpl::EndChunk()
       memcpy(dest, src, bytesInChunk);
     }
   }
-  trace_dib->WriteFormattedLine("libdib", T_("shipping chunk: x=%ld, y=%ld, w=%ld, h=%ld, monochromized=%s"), chunk->GetX(), chunk->GetY(), bitmapinfoheader.biWidth, bitmapinfoheader.biHeight, (monochromize24 ? "true" : "false"));
+  trace_dib->WriteLine("libdib", fmt::format(T_("shipping chunk: x={0}, y={1}, w={2}, h={3}, monochromized=%s"), chunk->GetX(), chunk->GetY(), bitmapinfoheader.biWidth, bitmapinfoheader.biHeight, (monochromize24 ? "true" : "false")));
   inChunk = false;
   chunk->SetBitmapInfo(bitmapinfoheader, numColors, colors);
   callback->OnNewChunk(chunk);

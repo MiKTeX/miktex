@@ -23,6 +23,9 @@
 
 #include <fstream>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Cfg>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/FileStream>
@@ -124,7 +127,7 @@ public:
   {
     if (IsMultiValue())
     {
-      return StringUtil::Flatten(value, PathName::PathNameDelimiter);
+      return StringUtil::Flatten(value, PathNameUtil::PathNameDelimiter);
     }
     else
     {
@@ -145,7 +148,7 @@ public:
     }
     else
     {
-      return StringUtil::Split(value.front(), PathName::PathNameDelimiter);
+      return StringUtil::Split(value.front(), PathNameUtil::PathNameDelimiter);
     }
   }
 
@@ -322,10 +325,10 @@ void CfgKey::WriteValues(ostream& stream) const
         stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << val << "\n";
       }
     }
-    else if (IsSearchPathValue(v.name) && v.value.front().find_first_of(PathName::PathNameDelimiter) != string::npos)
+    else if (IsSearchPathValue(v.name) && v.value.front().find_first_of(PathNameUtil::PathNameDelimiter) != string::npos)
     {
       stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << "\n";
-      for (const string& root: StringUtil::Split(v.value.front(), PathName::PathNameDelimiter))
+      for (const string& root: StringUtil::Split(v.value.front(), PathNameUtil::PathNameDelimiter))
       {
         stream << (v.commentedOut ? COMMENT1 : "") << v.name << ";=" << root << "\n";
       }
@@ -896,7 +899,7 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, string&&
       {
         if (!itVal->second->value.front().empty())
         {
-          itVal->second->value.front() += PathName::PathNameDelimiter;
+          itVal->second->value.front() += PathNameUtil::PathNameDelimiter;
         }
         itVal->second->value.front() += std::move(value);
       }
@@ -949,7 +952,7 @@ void CfgImpl::PutValue(const string& keyName, const string& valueName, const str
 void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), "core", path.ToString());
-  traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.GetData());
+  traceStream->WriteLine("core", fmt::format(T_("parsing: {0}..."), path));
   AutoRestore<int> autoRestore1(lineno);
   AutoRestore<PathName> autoRestore(currentFile);
   std::ifstream reader = File::CreateInputStream(path);
@@ -963,7 +966,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
 
   if (mustBeSigned)
   {
-    traceStream->WriteFormattedLine("core", T_("signature required..."));
+    traceStream->WriteLine("core", T_("signature required..."));
   }
 
   bool wasEmpty = Empty();

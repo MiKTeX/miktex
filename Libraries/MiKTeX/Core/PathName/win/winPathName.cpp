@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/AutoResource>
 #include <miktex/Core/PathName>
 
@@ -31,6 +34,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 PathName& PathName::SetToCurrentDirectory()
 {
@@ -72,7 +76,7 @@ PathName& PathName::SetToTempFile(const PathName& directory)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(GetData()));
+    session->trace_tempfile->WriteLine("core", fmt::format(T_("created temporary file {0}"), Q_(GetData())));
   }
   return *this;
 }
@@ -105,9 +109,9 @@ PathName PathName::GetMountPoint() const
 PathName& PathName::AppendAltDirectoryDelimiter()
 {
   size_t l = GetLength();
-  if (l == 0 || !IsDirectoryDelimiter(CharBuffer::operator[](l - 1)))
+  if (l == 0 || !PathNameUtil::IsDirectoryDelimiter(CharBuffer::operator[](l - 1)))
   {
-    CharBuffer::Append(AltDirectoryDelimiter);
+    CharBuffer::Append(PathNameUtil::AltDirectoryDelimiter);
   }
   return *this;
 }

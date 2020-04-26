@@ -39,7 +39,6 @@
 #endif
 
 #include <ctime>
-#include <cstdarg>
 
 #include <algorithm>
 #include <codecvt>
@@ -133,9 +132,6 @@ public:
 
 public:
   void MIKTEXTHISCALL WriteLine(const std::string& facility, const std::string& text) override;
-
-public:
-  void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) override;
 
 public:
   TraceStreamImpl(shared_ptr<TraceStreamInfo> info, TraceCallback* callback) :
@@ -273,18 +269,6 @@ void TraceStreamImpl::WriteLine(const string& facility, TraceLevel level, const 
 void TraceStreamImpl::WriteLine(const string& facility, const string& text)
 {
   WriteLine(facility, TraceLevel::Trace, text);
-}
-
-void TraceStreamImpl::WriteFormattedLine(const string& facility, const char* format, ...)
-{
-  if (!IsEnabled(facility, TraceLevel::Trace))
-  {
-    return;
-  }
-  va_list marker;
-  va_start(marker, format);
-  Logger(facility, TraceLevel::Trace, StringUtil::FormatStringVA(format, marker));
-  va_end(marker);
 }
 
 unique_ptr<TraceStream> TraceStream::Open(const string& name, TraceLevel level, TraceCallback* callback)

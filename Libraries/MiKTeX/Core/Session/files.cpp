@@ -187,7 +187,7 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
 
 FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess access, bool text)
 {
-  trace_files->WriteFormattedLine("core", "OpenFile(\"%s\", %d, 0x%x, %d)", path.ToString().c_str(), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(text));
+  trace_files->WriteLine("core", fmt::format("OpenFile(\"{0}\", {1}, {2:x}, {3})", path, static_cast<int>(mode), static_cast<int>(access), text));
 
   FILE* pFile = nullptr;
 
@@ -215,7 +215,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
       trace_error->WriteLine("core", TraceLevel::Error, "setvbuf() failed for some reason");
     }
     RecordFileInfo(path, access);
-    trace_files->WriteFormattedLine("core", "  => %p", pFile);
+    trace_files->WriteLine("core", fmt::format("  => {0}", static_cast<void*>(pFile)));
     return pFile;
   }
   catch (const exception&)
@@ -299,7 +299,7 @@ pair<bool, Session::OpenFileInfo> SessionImpl::TryGetOpenFileInfo(FILE* file)
 void SessionImpl::CloseFile(FILE* pFile)
 {
   MIKTEX_ASSERT_BUFFER(pFile, sizeof(*pFile));
-  trace_files->WriteFormattedLine("core", "CloseFile(%p)", pFile);
+  trace_files->WriteLine("core", fmt::format("CloseFile({0})", static_cast<void*>(pFile)));
   map<const FILE*, OpenFileInfo>::iterator it = openFilesMap.find(pFile);
   bool isCommand = false;
   if (it != openFilesMap.end())

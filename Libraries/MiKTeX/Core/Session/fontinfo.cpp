@@ -1,6 +1,6 @@
 /* fontinfo.cpp: font information
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,9 @@
 #include "config.h"
 
 #include <fstream>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/PathNameParser>
@@ -83,7 +86,7 @@ MIKTEXSTATICFUNC(bool) SessionImpl::FindInTypefaceMap(const string& fontName, st
       continue;
     }
     typeface = *tok;
-    trace_fonts->WriteFormattedLine("core", T_("found %s in typeface.map"), Q_(typeface));
+    trace_fonts->WriteLine("core", fmt::format(T_("found {0} in typeface.map"), Q_(typeface)));
     return true;
   }
 
@@ -124,7 +127,7 @@ bool SessionImpl::FindInSupplierMap(const string& fontName, string& supplier, st
       continue;
     }
     supplier = *tok;
-    trace_fonts->WriteFormattedLine("core", T_("found %s in supplier.map"), Q_(supplier));
+    trace_fonts->WriteLine("core", fmt::format(T_("found {0} in supplier.map"), Q_(supplier)));
     found = true;
   }
 
@@ -171,7 +174,7 @@ bool SessionImpl::FindInSpecialMap(const string& fontName, string& supplier, str
       continue;
     }
     typeface = *tok;
-    trace_fonts->WriteFormattedLine("core", T_("found %s/%s in special.map"), Q_(supplier), Q_(typeface));
+    trace_fonts->WriteLine("core", fmt::format(T_("found {0}/{1} in special.map"), Q_(supplier), Q_(typeface)));
     return true;
   }
 

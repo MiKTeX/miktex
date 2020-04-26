@@ -176,12 +176,12 @@ const char* Utils::GetRelativizedPath(const char* lpszPath, const char* lpszRoot
 
   int ch = lpszRoot[rootLen - 1];
 
-  if (IsDirectoryDelimiter(ch))
+  if (PathNameUtil::IsDirectoryDelimiter(ch))
   {
     return lpszPath + rootLen;
   }
 
-  if (!IsDirectoryDelimiter(lpszPath[rootLen]))
+  if (!PathNameUtil::IsDirectoryDelimiter(lpszPath[rootLen]))
   {
     return nullptr;
   }
@@ -233,7 +233,7 @@ bool Utils::IsSafeFileName(const PathName& path)
   string forbiddenExtensions;
   if (!extension.empty() && ::GetEnvironmentString("PATHEXT", forbiddenExtensions))
   {
-    for (CsvList ext(forbiddenExtensions, PathName::PathNameDelimiter); ext; ++ext)
+    for (CsvList ext(forbiddenExtensions, PathNameUtil::PathNameDelimiter); ext; ++ext)
     {
       if (!(*ext).empty() && PathName::Compare(*ext, extension) == 0)
       {
@@ -263,13 +263,13 @@ bool Utils::IsParentDirectoryOf(const PathName& parentDir, const PathName& fileN
     return true;
   }
 #endif
-  return IsDirectoryDelimiter(fileName[len1]);
+  return PathNameUtil::IsDirectoryDelimiter(fileName[len1]);
 }
 
 bool Utils::GetUncRootFromPath(const PathName& path, PathName& uncRoot)
 {
-  // must start with "\\"
-  if (!(IsDirectoryDelimiter(path[0]) && IsDirectoryDelimiter(path[1])))
+  // must start with "\\" or "//"
+  if (!(PathNameUtil::IsDirectoryDelimiter(path[0]) && PathNameUtil::IsDirectoryDelimiter(path[1])))
   {
     return false;
   }
@@ -286,7 +286,7 @@ bool Utils::GetUncRootFromPath(const PathName& path, PathName& uncRoot)
   // skip server name
   while (*++lpsz != 0)
   {
-    if (IsDirectoryDelimiter(*lpsz))
+    if (PathNameUtil::IsDirectoryDelimiter(*lpsz))
     {
       break;
     }
@@ -300,18 +300,18 @@ bool Utils::GetUncRootFromPath(const PathName& path, PathName& uncRoot)
   // skip share name
   while (*++lpsz != 0)
   {
-    if (IsDirectoryDelimiter(*lpsz))
+    if (PathNameUtil::IsDirectoryDelimiter(*lpsz))
     {
       break;
     }
   }
 
-  if (!(*lpsz == 0 || IsDirectoryDelimiter(*lpsz)))
+  if (!(*lpsz == 0 || PathNameUtil::IsDirectoryDelimiter(*lpsz)))
   {
     return false;
   }
 
-  *lpsz++ = PathName::DirectoryDelimiter;
+  *lpsz++ = PathNameUtil::DirectoryDelimiter;
   *lpsz = 0;
 
 #if defined(MIKTEX_WINDOWS)
@@ -346,10 +346,10 @@ bool Utils::GetPathNamePrefix(const PathName& path, const PathName& suffix, Path
 MIKTEXINTERNALFUNC(void) RemoveDirectoryDelimiter(char* lpszPath)
 {
   size_t l = strlen(lpszPath);
-  if (l > 1 && IsDirectoryDelimiter(lpszPath[l - 1]))
+  if (l > 1 && PathNameUtil::IsDirectoryDelimiter(lpszPath[l - 1]))
   {
 #if defined(MIKTEX_WINDOWS)
-    if (lpszPath[l - 2] == PathName::VolumeDelimiter)
+    if (lpszPath[l - 2] == PathNameUtil::DosVolumeDelimiter)
     {
       return;
     }
@@ -363,7 +363,7 @@ MIKTEXINTERNALFUNC(const char*) GetFileNameExtension(const char* lpszPath)
   const char* lpszExtension = nullptr;
   for (const char* lpsz = lpszPath; *lpsz != 0; ++lpsz)
   {
-    if (IsDirectoryDelimiter(*lpsz))
+    if (PathNameUtil::IsDirectoryDelimiter(*lpsz))
     {
       lpszExtension = nullptr;
     }
@@ -379,7 +379,7 @@ MIKTEXINTERNALFUNC(bool) IsExplicitlyRelativePath(const char* lpszPath)
 {
   if (lpszPath[0] == '.')
   {
-    return IsDirectoryDelimiter(lpszPath[1]) || (lpszPath[1] == '.' && IsDirectoryDelimiter(lpszPath[2]));
+    return PathNameUtil::IsDirectoryDelimiter(lpszPath[1]) || (lpszPath[1] == '.' && PathNameUtil::IsDirectoryDelimiter(lpszPath[2]));
   }
   else
   {
@@ -394,10 +394,10 @@ MIKTEXINTERNALFUNC(PathName) GetFullPath(const char* lpszPath)
   if (!Utils::IsAbsolutePath(lpszPath))
   {
 #if defined(MIKTEX_WINDOWS)
-    if (PathNameUtil::IsDriveLetter(lpszPath[0]) && lpszPath[1] == ':' && lpszPath[2] == 0)
+    if (PathNameUtil::IsDosDriveLetter(lpszPath[0]) && PathNameUtil::IsDosVolumeDelimiter(lpszPath[1]) && lpszPath[2] == 0)
     {
       path = lpszPath;
-      path += PathName::DirectoryDelimiter;
+      path += PathNameUtil::DirectoryDelimiter;
       return path;
     }
 #endif
@@ -797,7 +797,7 @@ bool Utils::FindProgram(const std::string& programName, PathName& path)
   {
     return false;
   }
-  for (CsvList entry(envPath, PathName::PathNameDelimiter); entry; ++entry)
+  for (CsvList entry(envPath, PathNameUtil::PathNameDelimiter); entry; ++entry)
   {
     if ((*entry).empty())
     {
@@ -839,7 +839,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
 #if defined(MIKTEX_WINDOWS)
   binDir.ConvertToDos();
 #endif
-  for (CsvList entry(oldPath, PathName::PathNameDelimiter); entry; ++entry)
+  for (CsvList entry(oldPath, PathNameUtil::PathNameDelimiter); entry; ++entry)
   {
     if ((*entry).empty())
     {
@@ -893,7 +893,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
           // from this place
           if (!newPath.empty())
           {
-            newPath += PathName::PathNameDelimiter;
+            newPath += PathNameUtil::PathNameDelimiter;
           }
           newPath += binDir.GetData();
           found = true;
@@ -904,7 +904,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
     }
     if (!newPath.empty())
     {
-      newPath += PathName::PathNameDelimiter;
+      newPath += PathNameUtil::PathNameDelimiter;
     }
     newPath += *entry;
   }
@@ -913,7 +913,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
     // MiKTeX is not yet in the PATH
     if (!newPath.empty())
     {
-      newPath += PathName::PathNameDelimiter;
+      newPath += PathNameUtil::PathNameDelimiter;
     }
     newPath += binDir.GetData();
     modified = true;
@@ -992,7 +992,7 @@ time_t Utils::ToTimeT(const string& s)
 
 pair<bool, PathName> Utils::ExpandTilde(const string& s)
 {
-  if (s[0] == '~' && (s[1] == 0 || IsDirectoryDelimiter(s[1])))
+  if (s[0] == '~' && (s[1] == 0 || PathNameUtil::IsDirectoryDelimiter(s[1])))
   {
     PathName pathFQ = GetHomeDirectory();
     if (!Utils::IsAbsolutePath(pathFQ))
@@ -1000,7 +1000,7 @@ pair<bool, PathName> Utils::ExpandTilde(const string& s)
       TraceError(fmt::format(T_("cannot expand ~: {0} is not fully qualified"), Q_(pathFQ)));
       return make_pair(false , "");
     }
-    if (s[1] != 0 && IsDirectoryDelimiter(s[1]) && s[2] != 0)
+    if (s[1] != 0 && PathNameUtil::IsDirectoryDelimiter(s[1]) && s[2] != 0)
     {
       pathFQ /= &s[2];
     }

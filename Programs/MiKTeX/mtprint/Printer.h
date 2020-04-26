@@ -23,7 +23,7 @@
 class IPrinterCallback
 {
 public:
-  virtual void Report(const char * lpszFormat, ...) = 0;
+  virtual void Report(const std::string& msg) = 0;
 };
 
 class Printer

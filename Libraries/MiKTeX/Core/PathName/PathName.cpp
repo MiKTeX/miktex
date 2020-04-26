@@ -60,8 +60,8 @@ int PathName::Compare(const char* lpszPath1, const char* lpszPath2)
   {
     MIKTEX_ASSERT(!(*lpszPath1 == 0 && *lpszPath2 == 0));
     if (
-        (*lpszPath1 == 0 && IsDirectoryDelimiter(*lpszPath2) && *(lpszPath2 + 1) == 0)
-        || (*lpszPath2 == 0 && IsDirectoryDelimiter(*lpszPath1) && *(lpszPath1 + 1) == 0))
+        (*lpszPath1 == 0 && PathNameUtil::IsDirectoryDelimiter(*lpszPath2) && *(lpszPath2 + 1) == 0)
+        || (*lpszPath2 == 0 && PathNameUtil::IsDirectoryDelimiter(*lpszPath1) && *(lpszPath1 + 1) == 0))
     {
       return 0;
     }
@@ -260,7 +260,7 @@ void PathName::Split(const PathName& path, string& directory, string& fileNameWi
   // find the beginning of the name
   for (lpsz = path.GetData(); *lpsz != 0; ++lpsz)
   {
-    if (IsDirectoryDelimiter(*lpsz))
+    if (PathNameUtil::IsDirectoryDelimiter(*lpsz))
     {
       lpszName_ = lpsz + 1;
     }
@@ -331,9 +331,9 @@ PathName& PathName::SetExtension(const char* extension, bool override)
 PathName& PathName::AppendDirectoryDelimiter()
 {
   size_t l = GetLength();
-  if (l == 0 || !IsDirectoryDelimiter(Base::operator[](l - 1)))
+  if (l == 0 || !PathNameUtil::IsDirectoryDelimiter(Base::operator[](l - 1)))
   {
-    Base::Append(DirectoryDelimiter);
+    Base::Append(PathNameUtil::DirectoryDelimiter);
   }
   return *this;
 }
@@ -345,10 +345,10 @@ PathName& PathName::CutOffLastComponent(bool allowSelfCutting)
   bool noCut = true;
   for (size_t end = GetLength(); noCut && end > 0; --end)
   {
-    if (end > 0 && IsDirectoryDelimiter(Base::operator[](end - 1)))
+    if (end > 0 && PathNameUtil::IsDirectoryDelimiter(Base::operator[](end - 1)))
     {
 #if defined(MIKTEX_WINDOWS)
-      if (end > 1 && Base::operator[](end - 2) == PathName::VolumeDelimiter)
+      if (end > 1 && Base::operator[](end - 2) == PathNameUtil::DosVolumeDelimiter)
       {
         Base::operator[](end) = 0;
       }
@@ -360,7 +360,7 @@ PathName& PathName::CutOffLastComponent(bool allowSelfCutting)
         }
         else
         {
-          while (end > 0 && IsDirectoryDelimiter(Base::operator[](end - 1)))
+          while (end > 0 && PathNameUtil::IsDirectoryDelimiter(Base::operator[](end - 1)))
           {
             --end;
             Base::operator[](end) = 0;
@@ -393,9 +393,9 @@ size_t PathName::GetHash() const
   {
     char ch = *lpsz;
 #if defined(MIKTEX_WINDOWS)
-    if (ch == DirectoryDelimiter)
+    if (ch == PathNameUtil::DirectoryDelimiter)
     {
-      ch = AltDirectoryDelimiter;
+      ch = PathNameUtil::AltDirectoryDelimiter;
     }
     else if (static_cast<unsigned>(ch) >= 128)
     {

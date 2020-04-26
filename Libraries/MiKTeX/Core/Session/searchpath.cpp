@@ -41,7 +41,7 @@ void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathN
   if (toBeExpanded[0] == '%' && (toBeExpanded[1] == 'R' || toBeExpanded[1] == 'r'))
   {
     const char* suffix = toBeExpanded.c_str() + 2;
-    if (IsDirectoryDelimiter(*suffix))
+    if (PathNameUtil::IsDirectoryDelimiter(*suffix))
     {
       ++suffix;
     }
@@ -70,7 +70,7 @@ void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathN
 vector<PathName> SessionImpl::ExpandRootDirectories(const string& toBeExpanded)
 {
   vector<PathName> result;
-  for (const string& s : StringUtil::Split(toBeExpanded, PathName::PathNameDelimiter))
+  for (const string& s : StringUtil::Split(toBeExpanded, PathNameUtil::PathNameDelimiter))
   {
     ExpandRootDirectories(s, result);
   }
@@ -84,7 +84,7 @@ void SessionImpl::PushBackPath(vector<PathName>& vec, const PathName& path)
   for (const PathName& path : paths)
   {
     // expand '~'
-    if (path[0] == '~' && (path[1] == 0 || IsDirectoryDelimiter(path[1])))
+    if (path[0] == '~' && (path[1] == 0 || PathNameUtil::IsDirectoryDelimiter(path[1])))
     {
       auto p = Utils::ExpandTilde(path.ToString());
       if (p.first)
@@ -142,7 +142,7 @@ void SessionImpl::PushBackPath(vector<PathName>& vec, const PathName& path)
 vector<PathName> SessionImpl::SplitSearchPath(const string& searchPath)
 {
   vector<PathName> result;
-  for (const string& s : StringUtil::Split(searchPath, PathName::PathNameDelimiter))
+  for (const string& s : StringUtil::Split(searchPath, PathNameUtil::PathNameDelimiter))
   {
     PushBackPath(result, s);
   }
@@ -187,7 +187,7 @@ vector<PathName> SessionImpl::ConstructSearchVector(FileType fileType)
       string searchPath;
       if (Utils::GetEnvironmentString(env, searchPath))
       {
-        for (const string& s : StringUtil::Split(searchPath, PathName::PathNameDelimiter))
+        for (const string& s : StringUtil::Split(searchPath, PathNameUtil::PathNameDelimiter))
         {
           PushBackPath(fti->searchVec, s);
         }
@@ -262,7 +262,7 @@ void SessionImpl::ExpandPathPattern(const PathName& rootDirectory, const PathNam
     // (1) sub directory (2) smaller (possibly empty) path pattern
     string subDir(pathPattern.GetData(), lpszRecursionIndicator - pathPattern.GetData());
     const char* lpszSmallerPathPattern = lpszRecursionIndicator + RECURSION_INDICATOR_LENGTH;
-    for (; IsDirectoryDelimiter(*lpszSmallerPathPattern); ++lpszSmallerPathPattern)
+    for (; PathNameUtil::IsDirectoryDelimiter(*lpszSmallerPathPattern); ++lpszSmallerPathPattern)
     {
     };
     PathName directory(rootDirectory);

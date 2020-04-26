@@ -26,6 +26,9 @@
 #include <strsafe.h>
 #include <wininet.h>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Directory>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
@@ -730,7 +733,7 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_config->WriteFormattedLine("core", T_("setting env %s=%s"), valueName.c_str(), value.c_str());
+    session->trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
   }
 #if defined(_MSC_VER) || defined(__MINGW32__)
   if (_wputenv_s(UW_(valueName), UW_(value)) != 0)

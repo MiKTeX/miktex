@@ -1,6 +1,6 @@
 /* BitmapPrinter.cpp:
 
-   Copyright (C) 2003-2016 Christian Schenk
+   Copyright (C) 2003-2020 Christian Schenk
 
    This file is part of MTPrint.
 
@@ -20,11 +20,14 @@
 
 #include "StdAfx.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "internal.h"
 
 #include "Printer.h"
 
-Printer::Printer(const PRINTINFO & printInfo, bool printNothing) :
+Printer::Printer(const PRINTINFO& printInfo, bool printNothing) :
   printInfo(printInfo),
   dryRun(printNothing),
   trace_mtprint(TraceStream::Open(MIKTEX_TRACE_MTPRINT))
@@ -42,7 +45,7 @@ Printer::~Printer()
   }
 }
 
-DEVMODEW * Printer::GetDevMode(const char * lpszPrinterName)
+DEVMODEW* Printer::GetDevMode(const char* lpszPrinterName)
 {
   HANDLE hPrinter;
   wchar_t szPrinterName[_MAX_PATH];
@@ -57,7 +60,7 @@ DEVMODEW * Printer::GetDevMode(const char * lpszPrinterName)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("DocumentPropertiesW", "printerName", lpszPrinterName);
   }
-  DEVMODEW * pDevMode = reinterpret_cast<DEVMODEW*>(malloc(bytesNeeded));
+  DEVMODEW* pDevMode = reinterpret_cast<DEVMODEW*>(malloc(bytesNeeded));
   if (pDevMode == nullptr)
   {
     OUT_OF_MEMORY("malloc");
@@ -70,7 +73,7 @@ DEVMODEW * Printer::GetDevMode(const char * lpszPrinterName)
   return pDevMode;
 }
 
-PRINTER_INFO_2 * Printer::GetPrinterInfo(const char * lpszPrinterName, DEVMODE ** ppDevMode)
+PRINTER_INFO_2* Printer::GetPrinterInfo(const char* lpszPrinterName, DEVMODE ** ppDevMode)
 {
   HANDLE hPrinter;
   wchar_t szPrinterName[_MAX_PATH];
@@ -85,7 +88,7 @@ PRINTER_INFO_2 * Printer::GetPrinterInfo(const char * lpszPrinterName, DEVMODE *
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("GetPrinterW", "printerName", lpszPrinterName);
   }
-  PRINTER_INFO_2W * p2 = reinterpret_cast<PRINTER_INFO_2*>(malloc(bytesNeeded));
+  PRINTER_INFO_2W* p2 = reinterpret_cast<PRINTER_INFO_2*>(malloc(bytesNeeded));
   if (p2 == nullptr)
   {
     OUT_OF_MEMORY("malloc");
@@ -118,17 +121,17 @@ PRINTER_INFO_2 * Printer::GetPrinterInfo(const char * lpszPrinterName, DEVMODE *
   return p2;
 }
 
-HDC Printer::CreateDC(const char * lpszPrinterName)
+HDC Printer::CreateDC(const char* lpszPrinterName)
 {
-  DEVMODEW * pDevMode = 0;
-  PRINTER_INFO_2W * p2 = GetPrinterInfo(lpszPrinterName, &pDevMode);
+  DEVMODEW* pDevMode = 0;
+  PRINTER_INFO_2W* p2 = GetPrinterInfo(lpszPrinterName, &pDevMode);
   AutoMemoryPointer autoFree1(p2);
   AutoMemoryPointer autoFree2(pDevMode);
   size_t size = pDevMode->dmSize + pDevMode->dmDriverExtra;
-  DEVMODE * pDevMode2 = reinterpret_cast<DEVMODE*>(_alloca(size));
+  DEVMODE* pDevMode2 = reinterpret_cast<DEVMODE*>(_alloca(size));
   memcpy(pDevMode2, p2->pDevMode, size);
 #if 0
-  trace_mtprint->WriteFormattedLine("mtprint", "CreateDC(\"%s\", \"%s\")", p2->pDriverName, p2->pPrinterName);
+  trace_mtprint->WriteLine("mtprint", fmt::format("CreateDC(\"{0}\", \"{1}\")", p2->pDriverName, p2->pPrinterName));
 #endif
   HDC hdc = ::CreateDCW(p2->pDriverName, p2->pPrinterName, nullptr, pDevMode2);
   if (hdc == 0)
@@ -143,7 +146,7 @@ void Printer::CreateDC()
   hdcPrinter = CreateDC(printInfo.printerName.c_str());
 }
 
-void Printer::GetPrinterCaps(const char * lpszPrinterName, unsigned & resolution)
+void Printer::GetPrinterCaps(const char* lpszPrinterName, unsigned& resolution)
 {
   HDC hdc = CreateDC(lpszPrinterName);
   resolution = static_cast<unsigned>(GetDeviceCaps(hdc, LOGPIXELSX));
@@ -188,7 +191,7 @@ void Printer::EndJob()
 void Printer::StartPage()
 {
   currentPageNum += 1;
-  trace_mtprint->WriteFormattedLine("mtprint", "starting page %u", currentPageNum);
+  trace_mtprint->WriteLine("mtprint", fmt::format("starting page {0}", currentPageNum));
   if (!dryRun)
   {
     if (::StartPage(hdcPrinter) <= 0)
@@ -199,7 +202,7 @@ void Printer::StartPage()
   pageStarted = true;
   if (printInfo.pCallback != nullptr)
   {
-    printInfo.pCallback->Report("[%u", currentPageNum);
+    printInfo.pCallback->Report(fmt::format("[{0}", currentPageNum));
   }
 }
 

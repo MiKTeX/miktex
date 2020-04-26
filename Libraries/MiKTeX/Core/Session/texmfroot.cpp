@@ -162,7 +162,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     }
 
     // UserRoots
-    for (const string& root : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
+    for (const string& root : StringUtil::Split(startupConfig.userRoots, PathNameUtil::PathNameDelimiter))
     {
       if (!root.empty())
       {
@@ -190,7 +190,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   }
 
   // CommonRoots
-  for (const string& root : StringUtil::Split(startupConfig.commonRoots, PathName::PathNameDelimiter))
+  for (const string& root : StringUtil::Split(startupConfig.commonRoots, PathNameUtil::PathNameDelimiter))
   {
     if (!root.empty())
     {
@@ -207,7 +207,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   if (!IsAdminMode())
   {
     // OtherUserRoots
-    for (const string& root : StringUtil::Split(startupConfig.otherUserRoots, PathName::PathNameDelimiter))
+    for (const string& root : StringUtil::Split(startupConfig.otherUserRoots, PathNameUtil::PathNameDelimiter))
     {
       if (!root.empty())
       {
@@ -217,7 +217,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   }
 
   // OtherCommonRoots
-  for (const string& root : StringUtil::Split(startupConfig.otherCommonRoots, PathName::PathNameDelimiter))
+  for (const string& root : StringUtil::Split(startupConfig.otherCommonRoots, PathNameUtil::PathNameDelimiter))
   {
     if (!root.empty())
     {
@@ -471,7 +471,7 @@ void SessionImpl::RegisterRootDirectory(const PathName& path, bool other)
     }
   }
   toBeRegistered.push_back(path.ToString());
-  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), other);
+  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathNameUtil::PathNameDelimiter), other);
 }
 
 void SessionImpl::UnregisterRootDirectory(const PathName& path, bool other)
@@ -502,7 +502,7 @@ void SessionImpl::UnregisterRootDirectory(const PathName& path, bool other)
   {
     MIKTEX_UNEXPECTED();
   }
-  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), other);
+  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathNameUtil::PathNameDelimiter), other);
 }
 
 void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupConfig, RegisterRootDirectoriesOptionSet options)
@@ -632,7 +632,7 @@ void SessionImpl::MoveRootDirectory(unsigned r, int dir)
       toBeRegistered.push_back(root.path.ToString());
     }
   }
-  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), false);
+  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathNameUtil::PathNameDelimiter), false);
 }
 
 void SessionImpl::MoveRootDirectoryUp(unsigned r)
@@ -789,7 +789,7 @@ PathName SessionImpl::GetMpmRootPath()
 PathName SessionImpl::GetRelativeFilenameDatabasePathName(unsigned r)
 {
   string fndbFileName = MIKTEX_PATH_FNDB_DIR;
-  fndbFileName += PathName::DirectoryDelimiter;
+  fndbFileName += PathNameUtil::DirectoryDelimiter;
   PathName root(rootDirectories[r].get_Path());
   root.TransformForComparison();
   MD5Builder md5Builder;
@@ -883,7 +883,7 @@ unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
   {
     PathName pathRoot = GetRootDirectoryPath(idx);
     size_t rootlen = pathRoot.GetLength();
-    if (PathName::Compare(pathRoot, path, rootlen) == 0 && (pathRoot.EndsWithDirectoryDelimiter() || path[rootlen] == 0 || IsDirectoryDelimiter(path[rootlen])))
+    if (PathName::Compare(pathRoot, path, rootlen) == 0 && (pathRoot.EndsWithDirectoryDelimiter() || path[rootlen] == 0 || PathNameUtil::IsDirectoryDelimiter(path[rootlen])))
     {
       if (rootDirectoryIndex == INVALID_ROOT_INDEX)
       {
@@ -966,10 +966,10 @@ bool SessionImpl::IsTEXMFFile(const PathName& path, PathName& relPath, unsigned&
   {
     PathName pathRoot = GetRootDirectoryPath(r);
     size_t cchRoot = pathRoot.GetLength();
-    if (PathName::Compare(pathRoot, path, cchRoot) == 0 && (path[cchRoot] == 0 || IsDirectoryDelimiter(path[cchRoot])))
+    if (PathName::Compare(pathRoot, path, cchRoot) == 0 && (path[cchRoot] == 0 || PathNameUtil::IsDirectoryDelimiter(path[cchRoot])))
     {
       const char* lpsz = &path[cchRoot];
-      if (IsDirectoryDelimiter(*lpsz))
+      if (PathNameUtil::IsDirectoryDelimiter(*lpsz))
       {
         ++lpsz;
       }
@@ -987,12 +987,12 @@ unsigned SessionImpl::SplitTEXMFPath(const PathName& path, PathName& root, PathN
   {
     PathName rootDir = GetRootDirectoryPath(r);
     size_t rootDirLen = rootDir.GetLength();
-    if (PathName::Compare(rootDir, path, rootDirLen) == 0 && (path[rootDirLen] == 0 || IsDirectoryDelimiter(path[rootDirLen])))
+    if (PathName::Compare(rootDir, path, rootDirLen) == 0 && (path[rootDirLen] == 0 || PathNameUtil::IsDirectoryDelimiter(path[rootDirLen])))
     {
       root = rootDir;
       root[rootDirLen] = 0;
       const char* lpsz = &path[0] + rootDirLen;
-      if (IsDirectoryDelimiter(*lpsz))
+      if (PathNameUtil::IsDirectoryDelimiter(*lpsz))
       {
         ++lpsz;
       }
@@ -1018,7 +1018,7 @@ bool SessionImpl::IsManagedRoot(unsigned root)
 bool SessionImpl::IsMpmFile(const char* lpszPath)
 {
   return (PathName::Compare(MPM_ROOT_PATH, lpszPath, static_cast<unsigned long>(MPM_ROOT_PATH_LEN)) == 0
-    && (lpszPath[MPM_ROOT_PATH_LEN] == 0 || IsDirectoryDelimiter(lpszPath[MPM_ROOT_PATH_LEN])));
+    && (lpszPath[MPM_ROOT_PATH_LEN] == 0 || PathNameUtil::IsDirectoryDelimiter(lpszPath[MPM_ROOT_PATH_LEN])));
 }
 
 bool Utils::IsMiKTeXDirectRoot(const PathName& root)

@@ -804,7 +804,7 @@ bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(string& path)
   commonBinDir /= MIKTEX_PATH_BIN_DIR;
   commonBinDir.AppendDirectoryDelimiter();
   binDirectories.push_back(commonBinDir);
-  for (const string& entry : StringUtil::Split(path, PathName::PathNameDelimiter))
+  for (const string& entry : StringUtil::Split(path, PathNameUtil::PathNameDelimiter))
   {
     PathName dir(entry);
     dir.AppendDirectoryDelimiter();
@@ -819,7 +819,7 @@ bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(string& path)
   }
   if (removed)
   {
-    path = StringUtil::Flatten(newPath, PathName::PathNameDelimiter);
+    path = StringUtil::Flatten(newPath, PathNameUtil::PathNameDelimiter);
   }
   return removed;
 }

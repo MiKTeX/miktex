@@ -71,16 +71,16 @@ string PathNameParser::operator*() const
 
 PathNameParser& PathNameParser::operator++()
 {
-  if (pimpl->state == PathNameParserState::Start && IsDirectoryDelimiter(pimpl->path[0]))
+  if (pimpl->state == PathNameParserState::Start && PathNameUtil::IsDirectoryDelimiter(pimpl->path[0]))
   {
     pimpl->current = pimpl->path[0];
     ++pimpl->pos;
-    if (IsDirectoryDelimiter(pimpl->path[1]))
+    if (PathNameUtil::IsDirectoryDelimiter(pimpl->path[1]))
     {
       pimpl->state = PathNameParserState::Root;
       pimpl->current += pimpl->path[1];
       ++pimpl->pos;
-      for (; pimpl->path[pimpl->pos] != 0 && !IsDirectoryDelimiter(pimpl->path[pimpl->pos]); ++pimpl->pos)
+      for (; pimpl->path[pimpl->pos] != 0 && !PathNameUtil::IsDirectoryDelimiter(pimpl->path[pimpl->pos]); ++pimpl->pos)
       {
         pimpl->current += pimpl->path[pimpl->pos];
       }
@@ -91,7 +91,7 @@ PathNameParser& PathNameParser::operator++()
     }
   }
 #if defined(MIKTEX_WINDOWS)
-  else if (pimpl->state == PathNameParserState::Start && PathNameUtil::IsDriveLetter(pimpl->path[0]) && pimpl->path[1] == ':')
+  else if (pimpl->state == PathNameParserState::Start && PathNameUtil::IsDosDriveLetter(pimpl->path[0]) && PathNameUtil::IsDosVolumeDelimiter(pimpl->path[1]))
   {
     pimpl->state = PathNameParserState::Root;
     pimpl->current = pimpl->path[0];
@@ -102,17 +102,17 @@ PathNameParser& PathNameParser::operator++()
 #endif
   else if (pimpl->state == PathNameParserState::Root)
   {
-    MIKTEX_ASSERT(IsDirectoryDelimiter(pimpl->path[pimpl->pos]));
+    MIKTEX_ASSERT(PathNameUtil::IsDirectoryDelimiter(pimpl->path[pimpl->pos]));
     pimpl->current = pimpl->path[pimpl->pos];
     pimpl->state = PathNameParserState::Path;
   }
   else
   {
-    for (; pimpl->path[pimpl->pos] != 0 && PathName::IsDirectoryDelimiter(pimpl->path[pimpl->pos]); ++pimpl->pos)
+    for (; pimpl->path[pimpl->pos] != 0 && PathNameUtil::IsDirectoryDelimiter(pimpl->path[pimpl->pos]); ++pimpl->pos)
     {
     }
     pimpl->current = "";
-    for (; pimpl->path[pimpl->pos] != 0 && !PathName::IsDirectoryDelimiter(pimpl->path[pimpl->pos]); ++pimpl->pos)
+    for (; pimpl->path[pimpl->pos] != 0 && !PathNameUtil::IsDirectoryDelimiter(pimpl->path[pimpl->pos]); ++pimpl->pos)
     {
       pimpl->current += pimpl->path[pimpl->pos];
     }

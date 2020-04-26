@@ -1,6 +1,6 @@
 /* FileNameDatabase.cpp: file name database
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -39,6 +39,7 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Utils>
 #include <miktex/Trace/Trace>
+#include <miktex/Util/PathNameUtil>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
@@ -99,11 +100,11 @@ MIKTEXSTATICFUNC(bool) Match(const char* pathPattern, const char* path)
       continue;
     }
     MIKTEX_ASSERT(RECURSION_INDICATOR_LENGTH == 2);
-    MIKTEX_ASSERT(IsDirectoryDelimiter(RECURSION_INDICATOR[0]));
-    MIKTEX_ASSERT(IsDirectoryDelimiter(RECURSION_INDICATOR[1]));
-    if (*pathPattern == RECURSION_INDICATOR[1] && IsDirectoryDelimiter(lastch))
+    MIKTEX_ASSERT(PathNameUtil::IsDirectoryDelimiter(RECURSION_INDICATOR[0]));
+    MIKTEX_ASSERT(PathNameUtil::IsDirectoryDelimiter(RECURSION_INDICATOR[1]));
+    if (*pathPattern == RECURSION_INDICATOR[1] && PathNameUtil::IsDirectoryDelimiter(lastch))
     {
-      for (; IsDirectoryDelimiter(*pathPattern); ++pathPattern)
+      for (; PathNameUtil::IsDirectoryDelimiter(*pathPattern); ++pathPattern)
       {
       };
       if (*pathPattern == 0)
@@ -112,7 +113,7 @@ MIKTEXSTATICFUNC(bool) Match(const char* pathPattern, const char* path)
       }
       for (; *path != 0; ++path)
       {
-        if (IsDirectoryDelimiter(lastch))
+        if (PathNameUtil::IsDirectoryDelimiter(lastch))
         {
           // RECURSION
           if (Match(pathPattern, path))
@@ -211,7 +212,7 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
     std::tie(fileName, directory) = SplitPath(rec.path);
     if (InsertRecord(Record(fileName, directory, rec.fileNameInfo)))
     {
-      string s = fmt::format("+{0}{1}{2}{1}{3}\n", fileName, char(PathName::PathNameDelimiter), directory, rec.fileNameInfo);
+      string s = fmt::format("+{0}{1}{2}{1}{3}\n", fileName, char(PathNameUtil::PathNameDelimiter), directory, rec.fileNameInfo);
       fputs(s.c_str(), writer.GetFile());
       changeFileRecordCount++;
       changeFileSize += s.length();
@@ -245,7 +246,7 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
     string directory;
     std::tie(fileName, directory) = SplitPath(path);
     EraseRecord(Record(fileName, directory, ""));
-    string s = fmt::format("-{}{}{}\n", fileName, char(PathName::PathNameDelimiter), directory);
+    string s = fmt::format("-{}{}{}\n", fileName, char(PathNameUtil::PathNameDelimiter), directory);
     fputs(s.c_str(), writer.GetFile());
     changeFileRecordCount++;
     changeFileSize += s.length();
@@ -449,7 +450,7 @@ void FileNameDatabase::ApplyChangeFile()
     changeFileRecordCount++;
     changeFileSize += line.length() + sizeof('\n');
     string op = line.substr(0, 1);
-    vector<string> data = StringUtil::Split(line.substr(1), PathName::PathNameDelimiter);
+    vector<string> data = StringUtil::Split(line.substr(1), PathNameUtil::PathNameDelimiter);
     if (data.size() < 2)
     {
       FNDB_DAMAGED_2(T_("FNDB change file has been tampered with."), "path", changeFile.ToString());

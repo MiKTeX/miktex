@@ -27,12 +27,14 @@
 
 #include <iostream>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/TeXAndFriends/TeXApp>
 #include <miktex/TeXAndFriends/WebAppInputLine>
-#include <miktex/Util/StringUtil>
 #include <miktex/Version>
 
 #include <string>
@@ -44,7 +46,6 @@ using namespace std;
 using namespace MiKTeX;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::TeXAndFriends;
-using namespace MiKTeX::Util;
 
 namespace {
   PathName outputDirectory;
@@ -295,7 +296,7 @@ void miktex_usagehelp(const char** lines, const char* bugEmail)
   }
   else
   {
-    cout << StringUtil::FormatString("Email bug reports to %s.", bugEmail) << "\n";
+    cout << fmt::format("Email bug reports to {0}.", bugEmail) << "\n";
   }
   cout.flush();
   throw 0;

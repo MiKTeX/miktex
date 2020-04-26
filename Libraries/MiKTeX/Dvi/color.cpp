@@ -1,6 +1,6 @@
 /* color.cpp: color specials
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -20,6 +20,9 @@
    USA.  */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "internal.h"
 
@@ -377,7 +380,7 @@ bool DviImpl::ParseColorSpec(const char* colorSpec, unsigned long& rgb)
         || frac2 < 0.0 || frac2 > 1.0
         || frac3 < 0.0 || frac3 > 1.0)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("invalid color triple: %s"), colorSpec);
+        trace_error->WriteLine("libdvi", fmt::format(T_("invalid color triple: {0}"), colorSpec));
         return false;
       }
       if (isRgb)
@@ -403,7 +406,7 @@ bool DviImpl::ParseColorSpec(const char* colorSpec, unsigned long& rgb)
       if (sscanf_s(colorSpec, "%f", &frac1) != 1
         || frac1 < 0.0 || frac1 > 1.0)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("invalid gray value: %s"), colorSpec);
+        trace_error->WriteLine("libdvi", fmt::format(T_("invalid gray value: {0}"), colorSpec));
         return false;
       }
       CmykColor cmykcolor;
@@ -423,7 +426,7 @@ bool DviImpl::ParseColorSpec(const char* colorSpec, unsigned long& rgb)
         || frac4 < 0.0 || frac4 > 1.0)
 
       {
-        trace_error->WriteFormattedLine("libdvi", T_("invalid cmyk quadrupel: %s"), colorSpec);
+        trace_error->WriteLine("libdvi", fmt::format(T_("invalid cmyk quadrupel: {0}"), colorSpec));
         return false;
       }
       CmykColor cmykcolor;
@@ -438,7 +441,7 @@ bool DviImpl::ParseColorSpec(const char* colorSpec, unsigned long& rgb)
   {
     if (!isalpha(*colorSpec))
     {
-      trace_error->WriteFormattedLine("libdvi", T_("invalid color name: %s"), colorSpec);
+      trace_error->WriteLine("libdvi", fmt::format(T_("invalid color name: {0}"), colorSpec));
       return false;
     }
     string name;
@@ -449,7 +452,7 @@ bool DviImpl::ParseColorSpec(const char* colorSpec, unsigned long& rgb)
     CmykColor cmykcolor;
     if (!LookupColorName(name.c_str(), cmykcolor))
     {
-      trace_error->WriteFormattedLine("libdvi", T_("unknown color name: %s"), name.c_str());
+      trace_error->WriteLine("libdvi", fmt::format(T_("unknown color name: {0}"), name));
       return false;
     }
     rgb = cmykcolor;
@@ -505,7 +508,7 @@ bool DviImpl::SetCurrentColor(const char* colorSpec)
 
 void DviImpl::PushColor(unsigned long rgb)
 {
-  trace_color->WriteFormattedLine("libdvi", T_("push color %x"), rgb);
+  trace_color->WriteLine("libdvi", fmt::format(T_("push color {0x}"), rgb));
   colorStack.push(currentColor);
   currentColor = rgb;
 }
@@ -519,12 +522,12 @@ void DviImpl::PopColor()
   }
   currentColor = colorStack.top();
   colorStack.pop();
-  trace_color->WriteFormattedLine("libdvi", T_("pop color; currentcolor now %x"), currentColor);
+  trace_color->WriteLine("libdvi", fmt::format(T_("pop color; currentcolor now {0:x}"), currentColor));
 }
 
 void DviImpl::ResetCurrentColor()
 {
-  trace_color->WriteFormattedLine("libdvi", T_("reset color stack"));
+  trace_color->WriteLine("libdvi", T_("reset color stack"));
   while (!colorStack.empty())
   {
     colorStack.pop();

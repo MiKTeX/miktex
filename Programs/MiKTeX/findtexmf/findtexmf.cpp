@@ -202,7 +202,7 @@ void FindTeXMF::ListFileTypes()
     {
       continue;
     }
-    cout << "  " << fti.fileTypeString << " (" << StringUtil::Flatten(fti.fileNameExtensions, PathName::PathNameDelimiter) << ")" << endl;
+    cout << "  " << fti.fileTypeString << " (" << StringUtil::Flatten(fti.fileNameExtensions, PathNameUtil::PathNameDelimiter) << ")" << endl;
   }
 }
 
@@ -211,7 +211,7 @@ void FindTeXMF::PrintSearchPath(const char* lpszSearchPath)
   bool first = true;
   PathName mpmRootPath = session->GetMpmRootPath();
   size_t mpmRootPathLen = mpmRootPath.GetLength();
-  for (const string& path : StringUtil::Split(lpszSearchPath, PathName::PathNameDelimiter))
+  for (const string& path : StringUtil::Split(lpszSearchPath, PathNameUtil::PathNameDelimiter))
   {
     if ((PathName::Compare(path, mpmRootPath, mpmRootPathLen) == 0)
       && (path.length() == mpmRootPathLen || IsDirectoryDelimiter(path[mpmRootPathLen])))

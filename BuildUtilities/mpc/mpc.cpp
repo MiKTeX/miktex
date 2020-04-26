@@ -2054,7 +2054,7 @@ void PackageCreator::Run(int argc, const char** argv)
       break;
     case OPT_STAGING_ROOTS:
     {
-      for (const string& dir : StringUtil::Split(optArg, PathName::PathNameDelimiter))
+      for (const string& dir : StringUtil::Split(optArg, PathNameUtil::PathNameDelimiter))
       {
         stagingRoots.push_back(dir);
       }

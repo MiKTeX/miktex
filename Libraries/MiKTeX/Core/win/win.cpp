@@ -143,13 +143,13 @@ MIKTEXINTERNALFUNC(void) TraceWindowsError(const char* windowsFunction, unsigned
 MIKTEXSTATICFUNC(unsigned int) GetMediaType(const char* path)
 {
   PathName pathRootName;
-  if (IsAlpha(path[0])
-    && PathName::IsVolumeDelimiter(path[1])
-    && PathName::IsDirectoryDelimiter(path[2]))
+  if (PathNameUtil::IsDosDriveLetter(path[0])
+    && PathNameUtil::IsDosVolumeDelimiter(path[1])
+    && PathNameUtil::IsDirectoryDelimiter(path[2]))
   {
     pathRootName += path[0];
-    pathRootName += PathName::VolumeDelimiter;
-    pathRootName += PathName::DirectoryDelimiter;
+    pathRootName += PathNameUtil::DosVolumeDelimiter;
+    pathRootName += PathNameUtil::DirectoryDelimiter;
   }
   else if (!Utils::GetUncRootFromPath(path, pathRootName))
   {
@@ -249,7 +249,7 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
 
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("creating directory %s"), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("creating directory {0}"), Q_(path)));
   }
 
 #if SET_SECURITY

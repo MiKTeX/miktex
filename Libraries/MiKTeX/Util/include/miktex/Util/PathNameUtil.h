@@ -62,6 +62,9 @@ public:
 public:
   static constexpr char UnixPathNameDelimiter{ ':' };
 
+public:
+  static constexpr char DosVolumeDelimiter{ ':' };
+
 #if defined(MIKTEX_WINDOWS)
 public:
   static constexpr char AltDirectoryDelimiter{ UnixDirectoryDelimiter };
@@ -83,24 +86,20 @@ public:
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static constexpr char VolumeDelimiter{ ':' };
+  static constexpr char VolumeDelimiter{ DosVolumeDelimiter };
 #endif
 
-#if defined(MIKTEX_WINDOWS)
 public:
-  static bool IsDriveLetter(int ch)
+  static bool IsDosDriveLetter(int ch)
   {
     return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
   }
-#endif
 
-#if defined(MIKTEX_WINDOWS)
 public:
-  static bool IsVolumeDelimiter(int ch)
+  static bool IsDosVolumeDelimiter(int ch)
   {
-    return ch == VolumeDelimiter;
+    return ch == DosVolumeDelimiter;
   }
-#endif
 
 public:
   /// Tests if a character is a directory delimiter.
@@ -148,8 +147,8 @@ public:
       return true;
     }
 #if defined(MIKTEX_WINDOWS)
-    else if (path.length() > 2 && PathNameUtil::IsDriveLetter(path[0]) // "C:\xyz\foo.txt"
-      && IsVolumeDelimiter(path[1])
+    else if (path.length() > 2 && PathNameUtil::IsDosDriveLetter(path[0]) // "C:\xyz\foo.txt"
+      && IsDosVolumeDelimiter(path[1])
       && IsDirectoryDelimiter(path[2]))
     {
       return true;

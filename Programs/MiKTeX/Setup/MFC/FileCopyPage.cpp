@@ -360,13 +360,13 @@ LRESULT FileCopyPage::OnReport(WPARAM wParam, LPARAM lParam)
 
 bool FileCopyPage::OnProcessOutput(const void* output, size_t n)
 {
-  Report(true, "%.*s", n, reinterpret_cast<const char*>(output));
+  Report(true, string(reinterpret_cast<const char*>(output), n));
   return !(sheet->GetErrorFlag() || sheet->GetCancelFlag());
 }
 
 void FileCopyPage::ReportLine(const string& str)
 {
-  Report(true, "%s\n", str.c_str());
+  Report(true, fmt::format("{0}\n", str));
 }
 
 bool FileCopyPage::OnRetryableError(const string& message)
@@ -509,13 +509,8 @@ UINT FileCopyPage::WorkerThread(void* fileCopyPage)
   return 0;
 }
 
-void FileCopyPage::Report(bool writeLog, const char* lpszFmt, ...)
+void FileCopyPage::Report(bool writeLog, const string& str)
 {
-  MIKTEX_ASSERT(lpszFmt != nullptr);
-  va_list args;
-  va_start(args, lpszFmt);
-  string str(StringUtil::FormatStringVA(lpszFmt, args));
-  va_end(args);
   int len = str.length();
   CSingleLock singlelock(&criticalSectionMonitor, TRUE);
   string lines;
@@ -569,12 +564,12 @@ void FileCopyPage::EnableControl(UINT controlId, bool enable)
 
 void FileCopyPage::ReportError(const MiKTeXException& e)
 {
-  Report(false, T_("\nError: %s\n"), e.GetErrorMessage().c_str());
+  Report(false, fmt::format(T_("\nError: {0}\n"), e.GetErrorMessage()));
   sheet->ReportError(e);
 }
 
 void FileCopyPage::ReportError(const exception& e)
 {
-  Report(false, T_("\nError: %s\n"), e.what());
+  Report(false, fmt::format(T_("\nError: {0}\n"), e.what()));
   sheet->ReportError(e);
 }

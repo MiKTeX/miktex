@@ -1,6 +1,6 @@
 /* uncompress.cpp: uncompressing files
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/BZip2Stream>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/GzipStream>
@@ -36,7 +39,7 @@ using namespace MiKTeX::Core;
 
 void Utils::UncompressFile(const PathName& pathIn, PathName& pathOut)
 {
-  SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("uncompressing %s..."), Q_(pathIn));
+  SessionImpl::GetSession()->trace_process->WriteLine("core", fmt::format(T_("uncompressing {0}..."), Q_(pathIn)));
   if (!File::Exists(pathIn))
   {
     MIKTEX_FATAL_ERROR_2(T_("The file could not be found."), "path", pathIn.ToString());

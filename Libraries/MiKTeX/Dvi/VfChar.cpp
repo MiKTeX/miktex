@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "internal.h"
 
 class DviFont;
@@ -73,14 +76,14 @@ void VfChar::Read(InputStream& inputstream, int size, double conv)
   }
 
   trace_vfchar->WriteLine("libdvi", T_("going to read vf character packet"));
-  trace_vfchar->WriteFormattedLine("libdvi", "pl: %d", packetSize);
-  trace_vfchar->WriteFormattedLine("libdvi", "cc: %d", charCode);
-  trace_vfchar->WriteFormattedLine("libdvi", "tfm: %d", tfm);
+  trace_vfchar->WriteLine("libdvi", fmt::format("pl: {0}", packetSize));
+  trace_vfchar->WriteLine("libdvi", fmt::format("cc: {0}", charCode));
+  trace_vfchar->WriteLine("libdvi", fmt::format("tfm: {0}", tfm));
 
   tfm = ScaleFix(tfm, dviFont->GetScaledAt());
   cx = static_cast<int>(tfm * conv + 0.5);
 
-  trace_vfchar->WriteFormattedLine("libdvi", "dx: %d", cx);
+  trace_vfchar->WriteLine("libdvi", fmt::format("dx: {0}", cx));
 
   if (packetSize <= sizeof(smallPacket))
   {

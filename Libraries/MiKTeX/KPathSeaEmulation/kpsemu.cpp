@@ -164,7 +164,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_glyph(kpathsea kpseInstance, const c
 
 MIKTEXSTATICFUNC(const char**) ToStringList(const std::string& str)
 {
-  vector<std::string> vec = StringUtil::Split(str, PathName::PathNameDelimiter);
+  vector<std::string> vec = StringUtil::Split(str, PathNameUtil::PathNameDelimiter);
   const char** result = XTALLOC(vec.size() + 1, const char*);
   size_t idx = 0;
   for (const std::string& s : vec)
@@ -398,7 +398,7 @@ MIKTEXKPSCEEAPI(const char*) miktex_xbasename(const char* fileName)
   while (s != fileName)
   {
     --s;
-    if (IsDirectoryDelimiter(*s) || *s == ':')
+    if (PathNameUtil::IsDirectoryDelimiter(*s) || *s == ':')
     {
       return s + 1;
     }
@@ -635,7 +635,7 @@ MIKTEXKPSCEEAPI(char*) miktex_find_suffix(const char* path)
   const char* ext = nullptr;
   for (; *path != 0; ++path)
   {
-    if (IsDirectoryDelimiter(*path))
+    if (PathNameUtil::IsDirectoryDelimiter(*path))
     {
       ext = nullptr;
     }
@@ -681,15 +681,15 @@ MIKTEXSTATICFUNC(std::string) HideMpmRoot(const std::string& searchPath)
   PathName mpmRootPath = session->GetMpmRootPath();
   size_t mpmRootPathLen = mpmRootPath.GetLength();
   std::string result;
-  for (const std::string& path : StringUtil::Split(searchPath, PathName::PathNameDelimiter))
+  for (const std::string& path : StringUtil::Split(searchPath, PathNameUtil::PathNameDelimiter))
   {
-    if ((PathName::Compare(path, mpmRootPath, mpmRootPathLen) == 0) && (path.length() == mpmRootPathLen || IsDirectoryDelimiter(path[mpmRootPathLen])))
+    if ((PathName::Compare(path, mpmRootPath, mpmRootPathLen) == 0) && (path.length() == mpmRootPathLen || PathNameUtil::IsDirectoryDelimiter(path[mpmRootPathLen])))
     {
       continue;
     }
     if (!result.empty())
     {
-      result += PathName::PathNameDelimiter;
+      result += PathNameUtil::PathNameDelimiter;
     }
     result += path;
   }
@@ -705,13 +705,13 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
   if (varName == "OPENTYPEFONTS")
   {
     FileTypeInfo fti = session->GetFileTypeInfo(FileType::OTF);
-    varValue = StringUtil::Flatten(fti.searchPath, PathName::PathNameDelimiter);
+    varValue = StringUtil::Flatten(fti.searchPath, PathNameUtil::PathNameDelimiter);
     result = true;
   }
   else if (varName == "TTFONTS")
   {
     FileTypeInfo fti = session->GetFileTypeInfo(FileType::TTF);
-    varValue = StringUtil::Flatten(fti.searchPath, PathName::PathNameDelimiter);
+    varValue = StringUtil::Flatten(fti.searchPath, PathNameUtil::PathNameDelimiter);
     result = true;
   }
   else if (varName == "SELFAUTOLOC")
@@ -1082,10 +1082,10 @@ MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea kpseInstance, 
     FileType ft = ToFileType(format);
     FileTypeInfo fti = session->GetFileTypeInfo(ft);
     VarExpand expander;
-    std::string searchPath = HideMpmRoot(session->Expand(StringUtil::Flatten(fti.searchPath, PathName::PathNameDelimiter), { ExpandOption::Values, ExpandOption::Braces }, &expander));
+    std::string searchPath = HideMpmRoot(session->Expand(StringUtil::Flatten(fti.searchPath, PathNameUtil::PathNameDelimiter), { ExpandOption::Values, ExpandOption::Braces }, &expander));
     formatInfo.path = ToUnix(xstrdup(searchPath.c_str()));
     formatInfo.type = xstrdup(fti.fileTypeString.c_str());
-    formatInfo.suffix = ToStringList(StringUtil::Flatten(fti.fileNameExtensions, PathName::PathNameDelimiter));
+    formatInfo.suffix = ToStringList(StringUtil::Flatten(fti.fileNameExtensions, PathNameUtil::PathNameDelimiter));
   }
   return formatInfo.path;
 }
@@ -1127,7 +1127,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
       std::string val;
       if (VarValue(lpszVars[idx], val))
       {
-        stream.WriteFormattedLine("%s=%s", lpszVars[idx], val.c_str());
+        stream.WriteLine(fmt::format("{0}={1}", lpszVars[idx], val));
       }
     }
     PathName texmfDefaults(session->GetSpecialPath(SpecialPath::DistRoot));
@@ -1140,9 +1140,9 @@ MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
     lpszValueName != 0;
       lpszValueName = pCfg->NextValue(szValueName, BufferSizes::MaxCfgName))
     {
-      stream.WriteFormattedLine("%s=%s", lpszValueName, pCfg->GetValue(0, lpszValueName).c_str());
+      stream.WriteLIne(fmt::format("{0}={1}", lpszValueName, pCfg->GetValue(0, lpszValueName)));
     }
-    stream.WriteFormattedLine("TEXFONTMAPS=%s", ".;$TEXMF/fonts/map/{$progname,pdftex,dvips,}//");
+    stream.WriteLine(fmt::format("TEXFONTMAPS={0}", ".;$TEXMF/fonts/map/{$progname,pdftex,dvips,}//"));
     stream.Close();
     if (!Fndb::FileExists(texmfcnf))
     {
@@ -1159,7 +1159,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
     std::string val;
     if (VarValue("TEXMFVAR", val))
     {
-      stream.WriteFormattedLine("  TEXMFCACHE=\"%s\"", val.c_str());
+      stream.WriteLine(fmt::format("  TEXMFCACHE=\"{0}\"", val));
     }
     stream.WriteLine("}");
     stream.Close();

@@ -19,6 +19,9 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Paths>
@@ -84,8 +87,8 @@ TeXMFApp::~TeXMFApp() noexcept
 STATICFUNC(void) TraceExecutionTime(TraceStream* trace_time, clock_t clockStart)
 {
   clock_t clockSinceStart = clock() - clockStart;
-  trace_time->WriteFormattedLine("libtexmf", T_("gross execution time: %u ms"), static_cast<unsigned>(clockSinceStart));
-  cerr << StringUtil::FormatString(T_("gross execution time: %u ms\n"), static_cast<unsigned>(clockSinceStart)) << endl;
+  trace_time->WriteLine("libtexmf", fmt::format(T_("gross execution time: {0} ms"), clockSinceStart));
+  cerr << fmt::format(T_("gross execution time: {0} ms\n"), clockSinceStart) << endl;
 #if defined(MIKTEX_WINDOWS)
   HINSTANCE hinstKernel;
   hinstKernel = LoadLibraryW(L"kernel32.dll");
@@ -113,9 +116,9 @@ STATICFUNC(void) TraceExecutionTime(TraceStream* trace_time, clock_t clockStart)
   tKernel64.HighPart = ftKernel.dwHighDateTime;
   tUser = static_cast<DWORD>(tUser64.QuadPart / 10000);
   tKernel = static_cast<DWORD>(tKernel64.QuadPart / 10000);
-  trace_time->WriteFormattedLine("libtexmf", T_("user mode: %u ms, kernel mode: %u ms, total: %u"), static_cast<unsigned>(tUser), static_cast<unsigned>(tKernel), static_cast<unsigned>(tUser + tKernel));
+  trace_time->WriteLine("libtexmf", fmt::format(T_("user mode: {0} ms, kernel mode: {1} ms, total: {2}"), tUser, tKernel, tUser + tKernel));
   cerr
-    << StringUtil::FormatString(T_("user mode: %u ms, kernel mode: %u ms, total: %u"), static_cast<unsigned>(tUser), static_cast<unsigned>(tKernel), static_cast<unsigned>(tUser + tKernel))
+    << fmt::format(T_("user mode: {0} ms, kernel mode: {1} ms, total: {2}"), tUser, tKernel, tUser + tKernel)
     << endl;
 #endif // MIKTEX_WINDOWS
 }

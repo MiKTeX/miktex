@@ -53,10 +53,6 @@ public:
 public:
   virtual void MIKTEXTHISCALL WriteLine(const std::string& facility, const std::string& text) = 0;
 
-  // DEPRECATED
-public:
-  virtual void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) = 0;
-
 public:
   static MIKTEXTRACECEEAPI(std::unique_ptr<TraceStream>) Open(const std::string& name, TraceLevel level, TraceCallback* callback);
 

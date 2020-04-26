@@ -33,7 +33,7 @@ protected:
   virtual void Write(const void* data, unsigned n) = 0;
 
 protected:
-  virtual void Execute(const char* format, ...) = 0;
+  virtual void Execute(const std::string& s) = 0;
 
 protected:
   PostScript(TraceCallback* traceCallback);

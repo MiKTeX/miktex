@@ -124,12 +124,6 @@ public:
   }
 
 public:
-  static MIKTEXUTILCEEAPI(std::string) FormatStringVA(const char* format, va_list arglist);
-
-public:
-  static MIKTEXUTILCEEAPI(std::string) FormatString(const char* format, ...);
-
-public:
   static MIKTEXUTILCEEAPI(std::string) FormatString2(const std::string& message, const std::unordered_map<std::string, std::string>& args);
 
 public:

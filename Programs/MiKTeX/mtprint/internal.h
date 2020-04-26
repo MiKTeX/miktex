@@ -1,6 +1,6 @@
 /* internal.h:                                          -*- C++ -*-
 
-   Copyright (C) 2003-2016 Christian Schenk
+   Copyright (C) 2003-2020 Christian Schenk
 
    This file is part of MTPrint.
 
@@ -30,17 +30,3 @@
 #  define WU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
 #  define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
-
-#define VA_START(arglist, lpszFormat   )        \
-va_start(arglist, lpszFormat);                  \
-try                                             \
-{
-
-#define VA_END(arglist)                         \
-}                                               \
-catch(...)                                      \
-{                                               \
-  va_end(arglist);                              \
-  throw;                                        \
-}                                               \
-va_end(arglist);

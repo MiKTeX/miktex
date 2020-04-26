@@ -19,8 +19,10 @@
 #include <string>
 #include <vector>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <climits>
-#include <cstdarg>
 #include <cstdio>
 
 #include <getopt.h>
@@ -91,10 +93,10 @@ class CJKLaTeXApp :
   public Application
 {
 private:
-  void Error(const char* lpszFormat, ...);
+  void Error(const std::string& msg);
 
 private:
-  void PrintOnly(const char* lpszFormat, ...);
+  void PrintOnly(const std::string& msg);
 
 private:
   const char* GetConverterProgram(const char* lpszName);
@@ -141,7 +143,7 @@ void CJKLaTeXApp::ShowVersion()
   cout << Utils::MakeProgramVersionString(Utils::GetExeName(), MIKTEX_COMPONENT_VERSION_STR)
     << T_("\n\
 Written by Fabrice Popineau in 2001.  Further developed by\n\
-Christian Schenk in the years 2004-2017.\n\
+Christian Schenk in the years 2004-2020.\n\
 \n\
 To the extent possible under law, the author(s) have dedicated all\n\
 copyright and related and neighboring rights to this program to the\n\
@@ -176,44 +178,36 @@ Options:\n\
 << endl;
 }
 
-void CJKLaTeXApp::Error(const char* lpszFormat, ...)
+void CJKLaTeXApp::Error(const string& msg)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  cerr << Utils::GetExeName() << ": "
-    << StringUtil::FormatStringVA(lpszFormat, arglist)
-    << endl;
-  va_end(arglist);
+  cerr << Utils::GetExeName() << ": " << msg << endl;
   throw 1;
 }
 
-void CJKLaTeXApp::PrintOnly(const char* lpszFormat, ...)
+void CJKLaTeXApp::PrintOnly(const string& msg)
 {
   if (!printOnly)
   {
     return;
   }
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
-  va_end(arglist);
-}
+  cout << msg << endl;
+ }
 
 void CJKLaTeXApp::RunConverter(const PathName& inputFile, const PathName& intermediateFile)
 {
   PathName converter;
   if (!session->FindFile(converterProgram, FileType::EXE, converter))
   {
-    Error(T_("Converter %s not found."), converterProgram.c_str());
+    Error(fmt::format(T_("Converter {0} not found."), converterProgram));
   }
   CommandLineBuilder cmdLine;
   cmdLine.AppendArgument(converter);
   cmdLine.AppendStdinRedirection(inputFile);
   cmdLine.AppendStdoutRedirection(intermediateFile);
-  PrintOnly("%s", cmdLine.ToString().c_str());
+  PrintOnly(cmdLine.ToString());
   if (!printOnly && !Process::ExecuteSystemCommand(cmdLine.ToString()))
   {
-    Error(T_("Converter %s failed on %s."), converterProgram.c_str(), Q_(inputFile));
+    Error(fmt::format(T_("Converter {0} failed on {1}."), converterProgram, Q_(inputFile)));
   }
 }
 
@@ -222,11 +216,11 @@ void CJKLaTeXApp::RunEngine(const PathName& inputFile)
   PathName engineExe;
   if (!session->FindFile(engine, FileType::EXE, engineExe))
   {
-    Error(T_("Engine %s not found."), engine.c_str());
+    Error(fmt::format(T_("Engine {0} not found."), engine));
   }
   vector<string> arguments{ engineExe.GetFileNameWithoutExtension().ToString() };
   arguments.push_back(inputFile.ToString());
-  PrintOnly("%s", CommandLineBuilder(arguments).ToString().c_str());
+  PrintOnly(CommandLineBuilder(arguments).ToString());
   if (!printOnly)
   {
     Process::Run(engineExe, arguments);
@@ -295,7 +289,7 @@ void CJKLaTeXApp::ProcessOptions(int argc, char** argv)
       const char* lpszConverterProgram = GetConverterProgram(optarg);
       if (lpszConverterProgram == nullptr)
       {
-        Error(T_("The converter %s is unknown."), optarg);
+        Error(fmt::format(T_("The converter {0} is unknown."), optarg));
       }
       converterProgram = lpszConverterProgram;
       break;

@@ -100,51 +100,6 @@ public:
 public:
   ~PathName() = default;
 
-public:
-  static constexpr char DosDirectoryDelimiter = MiKTeX::Util::PathNameUtil::DosDirectoryDelimiter;
-
-public:
-  static constexpr char UnixDirectoryDelimiter = MiKTeX::Util::PathNameUtil::UnixDirectoryDelimiter;
-
-public:
-  static constexpr char DosPathNameDelimiter = MiKTeX::Util::PathNameUtil::DosPathNameDelimiter;
-
-public:
-  static constexpr char UnixPathNameDelimiter = MiKTeX::Util::PathNameUtil::UnixPathNameDelimiter;
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  static constexpr char AltDirectoryDelimiter = MiKTeX::Util::PathNameUtil::AltDirectoryDelimiter;
-#endif
-
-public:
-  static constexpr char DirectoryDelimiter = MiKTeX::Util::PathNameUtil::DirectoryDelimiter;
-
-public:
-  static constexpr char PathNameDelimiter = MiKTeX::Util::PathNameUtil::PathNameDelimiter;
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  static constexpr char VolumeDelimiter = MiKTeX::Util::PathNameUtil::VolumeDelimiter;
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  static bool IsVolumeDelimiter(int ch)
-  {
-    return MiKTeX::Util::PathNameUtil::IsVolumeDelimiter(ch);
-  }
-#endif
-
-public:
-  /// Tests if a character is a directory delimiter.
-  /// @param ch The character to test.
-  /// @return Returns true if the character is a directory delimiter.
-  static bool IsDirectoryDelimiter(int ch)
-  {
-    return MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(ch);
-  }
-
   /// Copies a character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
@@ -400,7 +355,7 @@ public:
 #if defined(MIKTEX_WINDOWS)
     for (const char* lpsz = GetData(); *lpsz != 0; ++lpsz)
     {
-      if (*lpsz == DosDirectoryDelimiter || (*lpsz >= 'A' && *lpsz <= 'Z'))
+      if (*lpsz == MiKTeX::Util::PathNameUtil::DosDirectoryDelimiter || (*lpsz >= 'A' && *lpsz <= 'Z'))
       {
         return false;
       }
@@ -512,7 +467,7 @@ public:
   bool EndsWithDirectoryDelimiter() const
   {
     std::size_t l = GetLength();
-    return l > 0 && (IsDirectoryDelimiter(Base::operator[](l - 1)));
+    return l > 0 && (MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(Base::operator[](l - 1)));
   }
 
   /// Appends a character string to this path name.
@@ -523,7 +478,7 @@ public:
 public:
   PathName& Append(const char* lpsz, bool appendDirectoryDelimiter)
   {
-    if (appendDirectoryDelimiter && !Empty() && !IsDirectoryDelimiter(lpsz[0]))
+    if (appendDirectoryDelimiter && !Empty() && !MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(lpsz[0]))
     {
       AppendDirectoryDelimiter();
     }
@@ -707,11 +662,6 @@ inline PathName operator/(const PathName& lhs, const PathName& rhs)
 inline std::ostream& operator<<(std::ostream& os, const PathName& path)
 {
   return os << path.ToDisplayString();
-}
-
-inline bool IsDirectoryDelimiter(int ch)
-{
-  return PathName::IsDirectoryDelimiter(ch);
 }
 
 MIKTEX_CORE_END_NAMESPACE;

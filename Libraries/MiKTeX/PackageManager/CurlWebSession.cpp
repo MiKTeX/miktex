@@ -116,7 +116,7 @@ void CurlWebSession::Initialize()
 {
   curlVersionInfo = curl_version_info(CURLVERSION_NOW);
 
-  trace_curl->WriteFormattedLine(TRACE_FACILITY, T_("initializing cURL library version %s"), curlVersionInfo->version);
+  trace_curl->WriteLine(TRACE_FACILITY, fmt::format(T_("initializing cURL library version {0}"), curlVersionInfo->version));
 
   pCurlm = curl_multi_init();
 
@@ -410,7 +410,7 @@ void CurlWebSession::ReadInformationals()
     ExpectOK(curl_easy_getinfo(curlMsg->easy_handle, CURLINFO_EFFECTIVE_URL, &effectiveUrl), nullptr);
     if (effectiveUrl != nullptr)
     {
-      trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("effective URL: %s"), effectiveUrl);
+      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("effective URL: {0}"), effectiveUrl));
     }
     ExpectOK(curlMsg->data.result, effectiveUrl);
     long responseCode;
@@ -426,7 +426,7 @@ void CurlWebSession::ReadInformationals()
       r = curl_easy_getinfo(curlMsg->easy_handle, CURLINFO_HTTP_CODE, &responseCode);
     }
     ExpectOK(r, effectiveUrl);
-    trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("response code: %ld"), responseCode);
+    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("response code: {0}"), responseCode));
     if (responseCode >= 300 && responseCode <= 399)
     {
 #if ALLOW_REDIRECTS

@@ -1,6 +1,6 @@
 /* BitmapPrinter.cpp:
 
-   Copyright (C) 2003-2016 Christian Schenk
+   Copyright (C) 2003-2020 Christian Schenk
 
    This file is part of MTPrint.
 
@@ -19,6 +19,9 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
 #include "StdAfx.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "internal.h"
 
@@ -78,8 +81,8 @@ void BitmapPrinter::OnNewChunk(shared_ptr<DibChunk> pChunk)
     }
     offsetX = ::GetDeviceCaps(GetDC(), PHYSICALOFFSETX);
     offsetY = ::GetDeviceCaps(GetDC(), PHYSICALOFFSETY);
-    trace_mtprint->WriteFormattedLine(T_("mtprint"), T_("PHYSICALOFFSETX: %d"), offsetX);
-    trace_mtprint->WriteFormattedLine(T_("mtprint"), T_("PHYSICALOFFSETY: %d"), offsetY);
+    trace_mtprint->WriteLine(T_("mtprint"), fmt::format(T_("PHYSICALOFFSETX: {0}"), offsetX));
+    trace_mtprint->WriteLine(T_("mtprint"), fmt::format(T_("PHYSICALOFFSETY: {0}"), offsetY));
   }
   if (!PageStarted())
   {

@@ -23,6 +23,9 @@
 
 #include <thread>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <fcntl.h>
 #include <sys/file.h>
 #include <sys/stat.h>
@@ -76,13 +79,13 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
     {
       if (session != nullptr)
       {
-        session->trace_access->WriteFormattedLine("core", T_("%s is a directory"), Q_(path));
+        session->trace_access->WriteLine("core", fmt::format(T_("{0} is a directory"), Q_(path)));
       }
       return false;
     }
     if (session != nullptr)
     {
-      session->trace_access->WriteFormattedLine("core", T_("accessing file %s: OK"), Q_(path));
+      session->trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: OK"), Q_(path)));
     }
     return true;
   }
@@ -93,7 +96,7 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
   }
   if (session != nullptr)
   {
-    session->trace_access->WriteFormattedLine("core", T_("accessing file %s: NOK"), Q_(path));
+    session->trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: NOK"), Q_(path)));
   }
   return false;
 }
@@ -161,7 +164,7 @@ void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttribu
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("setting new attributes (%x) on %s"), static_cast<int>(nativeAttributes), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("setting new attributes ({0:x}) on {1}"), nativeAttributes, Q_(path)));
   }
   if (chmod(path.GetData(), static_cast<mode_t>(nativeAttributes)) != 0)
   {
@@ -254,7 +257,7 @@ void File::Delete(const PathName& path)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("deleting %s"), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("deleting {0}"), Q_(path)));
   }
   if (remove(path.GetData()) != 0)
   {
@@ -267,7 +270,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("renaming %s to %s"), Q_(source), Q_(dest));
+    session->trace_files->WriteLine("core", fmt::format(T_("renaming {0} to {1}"), Q_(source), Q_(dest)));
   }
   struct stat sourceStat;
   if (stat(source.GetData(), &sourceStat) != 0)
@@ -335,7 +338,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession(); 
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("copying %s to %s"), Q_(source), Q_(dest));
+    session->trace_files->WriteLine("core", fmt::format(T_("copying {0} to {1}"), Q_(source), Q_(dest)));
   }
   struct stat sourceStat;
   if (options[FileCopyOption::PreserveAttributes])
@@ -414,7 +417,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("creating %s link from %s to %s"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard",  Q_(newName), Q_(oldName));
+    session->trace_files->WriteLine("core", fmt::format(T_("creating {0} link from {1} to {2}"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard",  Q_(newName), Q_(oldName)));
   }
   if (options[CreateLinkOption::Symbolic])
   {
@@ -480,7 +483,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
 
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d %d %d)"), Q_(path), (int)mode, (int)access, (int)isTextFile);
+    session->trace_files->WriteLine("core", fmt::format(T_("opening file {0} ({1} {2} {3})"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(isTextFile)));
   }
 
   int flags = 0;

@@ -23,6 +23,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Quoter>
 
 #include "internal.h"
@@ -370,7 +373,7 @@ void DviImpl::Scan()
   // reset this object
   FreeContents(false);
 
-  trace_dvifile->WriteFormattedLine("libdvi", T_("going to scan %s"), Q_(dviFileName));
+  trace_dvifile->WriteLine("libdvi", fmt::format(T_("going to scan {0}"), Q_(dviFileName)));
 
   // prepare reading the Dvi file
   dviInfo.lastWriteTime = File::GetLastWriteTime(dviFileName);
@@ -385,7 +388,7 @@ void DviImpl::Scan()
   numerator = inputStream.ReadSignedQuad();
   denominator = inputStream.ReadSignedQuad();
 
-  trace_dvifile->WriteFormattedLine("libdvi", "numerator/denominator: %d/%d", static_cast<int>(numerator), static_cast<int>(denominator));
+  trace_dvifile->WriteLine("libdvi", fmt::format("numerator/denominator: {0}/{1}", numerator, denominator));
 
   if (numerator <= 0 || denominator <= 0)
   {
@@ -394,13 +397,13 @@ void DviImpl::Scan()
 
   // get desired magnification
   mag = inputStream.ReadSignedQuad();
-  trace_dvifile->WriteFormattedLine("libdvi", "mag: %d", static_cast<int>(mag));
+  trace_dvifile->WriteLine("libdvi", fmt::format("mag: {0}", mag));
 
   tfmConv = (((25400000.0 / numerator) * (denominator / 473628672)) / 16.0);
 
   conv = ((static_cast<double>(numerator) * static_cast<double>(mag) * static_cast<double>(resolution)) / (static_cast<double>(denominator) * 254000000.0));
 
-  trace_dvifile->WriteFormattedLine("libdvi", "conv: %g", static_cast<double>(conv));
+  trace_dvifile->WriteLine("libdvi", fmt::format("conv: {0}", conv));
 
   // read the introductory comment
   int len = inputStream.ReadByte();
@@ -409,7 +412,7 @@ void DviImpl::Scan()
   tmp[len] = 0;
   dviInfo.comment = tmp;
 
-  trace_dvifile->WriteFormattedLine("libdvi", "comment: %s", dviInfo.comment.c_str());
+  trace_dvifile->WriteLine("libdvi", fmt::format("comment: {0}", dviInfo.comment));
 
   // find the postamble, working back from the end
   int k;
@@ -447,12 +450,12 @@ void DviImpl::Scan()
   inputStream.ReadSignedQuad(); // postamble_mag
   maxV = inputStream.ReadSignedQuad();
   maxH = inputStream.ReadSignedQuad();
-  trace_dvifile->WriteFormattedLine("libdvi", "maxv: %d", static_cast<int>(maxV));
-  trace_dvifile->WriteFormattedLine("libdvi", "maxh: %d", static_cast<int>(maxH));
+  trace_dvifile->WriteLine("libdvi", fmt::format("maxv: {0}", maxV));
+  trace_dvifile->WriteLine("libdvi", fmt::format("maxh: {0}", maxH));
   int maxs = inputStream.ReadPair();
   dviInfo.nPages = inputStream.ReadPair();
-  trace_dvifile->WriteFormattedLine("libdvi", "maxs: %d", static_cast<int>(maxs));
-  trace_dvifile->WriteFormattedLine("libdvi", "dviInfo.nPages: %d", static_cast<int>(dviInfo.nPages));
+  trace_dvifile->WriteLine("libdvi", fmt::format("maxs: {0}", maxs));
+  trace_dvifile->WriteLine("libdvi", fmt::format("dviInfo.nPages: {0}", dviInfo.nPages));
 
   // process the font definitions of the postamble
   do
@@ -525,7 +528,7 @@ void DviImpl::Scan()
 
 void DviImpl::DefineFont(InputStream & inputStream, int fontNum)
 {
-  trace_dvifile->WriteFormattedLine("libdvi", T_("going to define font %d"), static_cast<int>(fontNum));
+  trace_dvifile->WriteLine("libdvi", fmt::format(T_("going to define font {0}"), fontNum));
 
   int checkSum = inputStream.ReadSignedQuad();
   int scaledSize = inputStream.ReadSignedQuad();
@@ -544,18 +547,18 @@ void DviImpl::DefineFont(InputStream & inputStream, int fontNum)
   inputStream.Read(fontName, fontNameLen);
   fontName[fontNameLen] = 0;
 
-  trace_dvifile->WriteFormattedLine("libdvi", "areaName: %s", areaName);
-  trace_dvifile->WriteFormattedLine("libdvi", "fontname: %s", fontName);
-  trace_dvifile->WriteFormattedLine("libdvi", "checkSum: %#o", checkSum);
-  trace_dvifile->WriteFormattedLine("libdvi", "scaledSize: %d", scaledSize);
-  trace_dvifile->WriteFormattedLine("libdvi", "designSize: %d", designSize);
+  trace_dvifile->WriteLine("libdvi", fmt::format("areaName: {0}", areaName));
+  trace_dvifile->WriteLine("libdvi", fmt::format("fontname: {0}", fontName));
+  trace_dvifile->WriteLine("libdvi", fmt::format("checkSum: {0:o}", checkSum));
+  trace_dvifile->WriteLine("libdvi", fmt::format("scaledSize: {0}", scaledSize));
+  trace_dvifile->WriteLine("libdvi", fmt::format("designSize: {0}", designSize));
 
   DviFont* dviFont;
   PathName fileName;
   if (session->FindFile(fontName, FileType::VF, fileName)
     || session->FindFile(fontName, FileType::OVF, fileName))
   {
-    trace_dvifile->WriteFormattedLine("libdvi", T_("found VF file %s"), Q_(fileName));
+    trace_dvifile->WriteLine("libdvi", fmt::format(T_("found VF file {0}"), Q_(fileName)));
     dviFont = new VFont(this, checkSum, scaledSize, designSize, areaName, fontName, fileName.GetData(), tfmConv, conv, mag, metafontMode.c_str(), resolution);
   }
   else if (pageMode == DviPageMode::Dvips)
@@ -650,17 +653,17 @@ void DviImpl::DoPage(int pageIdx)
 
   AutoUnlockPage autoUnlockPage(&page);
 
-  Progress(DviNotification::BeginLoadPage, T_("loading page #%d..."), pageIdx);
+  Progress(DviNotification::BeginLoadPage, fmt::format(T_("loading page #{0}..."), pageIdx));
 
   bool background = pageLoaderThread.joinable() && this_thread::get_id() == pageLoaderThread.get_id();
 
   if (background)
   {
-    trace_dvipage->WriteFormattedLine("libdvi", T_("doing page #%d (background)"), pageIdx);
+    trace_dvipage->WriteLine("libdvi", fmt::format(T_("doing page #{0} (background)"), pageIdx));
   }
   else
   {
-    trace_dvipage->WriteFormattedLine("libdvi", T_("doing page #%d"), pageIdx);
+    trace_dvipage->WriteLine("libdvi", fmt::format(T_("doing page #{0}"), pageIdx));
   }
 
   try
@@ -1245,7 +1248,7 @@ DviPage* DviImpl::GetPage(int pageIdx)
         && (!garbageCollectorThread.joinable() || this_thread::get_id() != garbageCollectorThread.get_id())
         && currentPageIdx != pageIdx)
       {
-        trace_dvifile->WriteFormattedLine("libdvi", T_("getting page #%d"), static_cast<int>(pageIdx));
+        trace_dvifile->WriteLine("libdvi", fmt::format(T_("getting page #{0}"), static_cast<int>(pageIdx)));
         if (pageIdx < currentPageIdx)
         {
           direction = -1;
@@ -1337,7 +1340,7 @@ DviPage* DviImpl::GetLoadedPage(int pageIdx)
   END_CRITICAL_SECTION();
 }
 
-void DviImpl::Progress(DviNotification nf, const char* format, ...)
+void DviImpl::Progress(DviNotification nf, const string& msg)
 {
   if ((pageLoaderThread.joinable() && this_thread::get_id() == pageLoaderThread.get_id())
     || (garbageCollectorThread.joinable() && this_thread::get_id() == garbageCollectorThread.get_id()))
@@ -1345,12 +1348,9 @@ void DviImpl::Progress(DviNotification nf, const char* format, ...)
     return;
   }
 
-  if (format != nullptr)
   {
     lock_guard<mutex> lockGuard(statusTextMutex);
-    va_list args;
-    va_start(args, format);
-    progressStatus = StringUtil::FormatStringVA(format, args);
+    progressStatus = msg;
   }
 
   if (dviCallback != nullptr)
@@ -1606,7 +1606,7 @@ void DviImpl::GarbageCollector()
         {
           MIKTEX_FATAL_WINDOWS_ERROR("SetThreadPriority");
         }
-        trace_gc->WriteFormattedLine("libdvi", T_("gc priority: %d"), static_cast<int>(priority));
+        trace_gc->WriteLine("libdvi", fmt::format(T_("gc priority: {0}"), static_cast<int>(priority)));
       }
       if (biggestPageIdx < 0)
       {
@@ -1625,7 +1625,7 @@ void DviImpl::GarbageCollector()
         }
         dviPage->Lock();
         AutoUnlockPage autoUnlockPage(dviPage);
-        trace_gc->WriteFormattedLine("libdvi", T_("freeing page #%d (%u bytes)"), biggestPageIdx, dviPage->GetSize());
+        trace_gc->WriteLine("libdvi", fmt::format(T_("freeing page #{0} ({1} bytes)"), biggestPageIdx, dviPage->GetSize()));
         dviPage->FreeContents(false, false);
       }
       END_CRITICAL_SECTION();

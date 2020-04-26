@@ -1,6 +1,6 @@
 /* tdsutil.cpp: MiKTeX TDS Utility
 
-   Copyright (C) 2016-2018 Christian Schenk
+   Copyright (C) 2016-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,10 +21,11 @@
 #  include <config.h>
 #endif
 
-#include <cstdarg>
-
 #include <iostream>
 #include <unordered_set>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/App/Application>
 
@@ -51,10 +52,10 @@ class TdsUtility :
   public Application
 {
 public:
-  void Run(int argc, const char ** argv);
+  void Run(int argc, const char** argv);
 
 private:
-  MIKTEXNORETURN void Error(const char * lpszFormat, ...);
+  MIKTEXNORETURN void Error(const string& msg);
 
 private:
   bool verbose = false;
@@ -134,12 +135,9 @@ struct poptOption TdsUtility::aoption[] = {
   POPT_TABLEEND
 };
 
-MIKTEXNORETURN void TdsUtility::Error(const char * lpszFormat, ...)
+MIKTEXNORETURN void TdsUtility::Error(const string& msg)
 {
-  va_list arglist;
-  VA_START(arglist, lpszFormat);
-  cerr << "tdsutil: " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
-  VA_END(arglist);
+  cerr << "tdsutil: " << msg << endl;
   throw 1;
 }
 
@@ -178,7 +176,7 @@ void TdsUtility::Run(int argc, const char ** argv)
     case OPT_VERSION:
       cout
         << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2016-2017 Christian Schenk" << endl
+        << "Copyright (C) 2016-2020 Christian Schenk" << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return;
@@ -193,14 +191,14 @@ void TdsUtility::Run(int argc, const char ** argv)
 
   if (leftovers.empty())
   {
-    Error("Nothing to do?\nTry '%s --help' for more information.", argv[0]);
+    Error(fmt::format("Nothing to do?\nTry '{0} --help' for more information.", argv[0]));
   }
 
   if (leftovers[0] == "install")
   {
     if (leftovers.size() != 2)
     {
-      Error("Usage: %s install <package>", argv[0]);
+      Error(fmt::format("Usage: {0} install <package>", argv[0]));
     }
     string package = leftovers[1];
     if (source.Empty())
@@ -230,7 +228,7 @@ void TdsUtility::Run(int argc, const char ** argv)
   }
   else
   {
-    Error("Unknown command: %s", leftovers[0].c_str());
+    Error(fmt::format("Unknown command: {0}", leftovers[0]));
   }
 
   Finalize();

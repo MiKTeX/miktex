@@ -23,6 +23,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Paths>
 
@@ -34,7 +37,7 @@ Tfm::Tfm(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, const c
   trace_tfm(TraceStream::Open(MIKTEX_TRACE_DVITFM, dviImpl->GetTraceCallback()))
 
 {
-  trace_tfm->WriteFormattedLine ("libdvi", T_("creating TFM object '%s'"), dviInfo.name.c_str());
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("creating TFM object '{0}'"), dviInfo.name));
   dviInfo.isVirtualFont = false;
 }
 
@@ -69,7 +72,7 @@ DviChar* Tfm::operator[](unsigned long idx)
   DviChar* dviChar = dviChars[idx];
   if (dviChar == nullptr)
   {
-    trace_tfm->WriteFormattedLine("libdvi", T_("%s: nil character at %u"), dviInfo.name.c_str(), idx);
+    trace_tfm->WriteLine("libdvi", fmt::format(T_("{0}: nil character at %u"), dviInfo.name, idx));
     dviChar = new DviChar(this);
     dviChars[idx] = dviChar;
   }
@@ -83,7 +86,7 @@ void Tfm::Read()
     return;
   }
 
-  trace_tfm->WriteFormattedLine("libdvi", T_("going to load TFM file %s"), dviInfo.name.c_str());
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("going to load TFM file {0}"), dviInfo.name));
 
   PathName fileName;
 
@@ -103,7 +106,7 @@ void Tfm::Read()
     {
       dviInfo.transcript += "\r\n";
       dviInfo.transcript += T_("Loading 'cmr10' instead.\r\n");
-      trace_error->WriteFormattedLine("libdvi", T_("'%s' not loadable - loading 'cmr10' instead!"), dviInfo.name.c_str());
+      trace_error->WriteLine("libdvi", fmt::format(T_("'{0}' not loadable - loading 'cmr10' instead!"), dviInfo.name));
       if (!(session->FindTfmFile("cmr10", fileName, false) || (Make("cmr10") && session->FindTfmFile("cmr10", fileName, false))))
       {
         dviInfo.transcript += T_("'cmr10' not loadable either!");
@@ -115,7 +118,7 @@ void Tfm::Read()
 
   dviInfo.fileName = fileName.ToString();
 
-  trace_tfm->WriteFormattedLine("libdvi", T_("opening TFM file %s"), fileName.GetData());
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("opening TFM file {0}"), fileName));
 
   InputStream inputStream(fileName.GetData());
 
@@ -138,34 +141,34 @@ void Tfm::Read()
   long ne = inputStream.ReadSignedPair();
   long np = inputStream.ReadSignedPair();
 
-  trace_tfm->WriteFormattedLine("libdvi", T_("header size: %ld"), lh);
-  trace_tfm->WriteFormattedLine("libdvi", T_("smallest character code: %ld"), bc);
-  trace_tfm->WriteFormattedLine("libdvi", T_("largest character code: %ld"), ec);
-  trace_tfm->WriteFormattedLine("libdvi", T_("width table size: %ld"), nw);
-  trace_tfm->WriteFormattedLine("libdvi", T_("height table size: %ld"), nh);
-  trace_tfm->WriteFormattedLine("libdvi", T_("depth table size: %ld"), nd);
-  trace_tfm->WriteFormattedLine("libdvi", T_("italic correction table size: %ld"), ni);
-  trace_tfm->WriteFormattedLine("libdvi", T_("lig/kern table size: %ld"), nl);
-  trace_tfm->WriteFormattedLine("libdvi", T_("kern table size: %ld"), nk);
-  trace_tfm->WriteFormattedLine("libdvi", T_("extensible character table size: %ld"), ne);
-  trace_tfm->WriteFormattedLine("libdvi", T_("font parameter size: %ld"), np);
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("header size: %{0}"), lh));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("smallest character code: {0}"), bc));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("largest character code: {0}"), ec));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("width table size: {0}"), nw));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("height table size: {0}"), nh));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("depth table size: {0}"), nd));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("italic correction table size: {0}"), ni));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("lig/kern table size: {0}"), nl));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("kern table size: {0}"), nk));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("extensible character table size: {0}"), ne));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("font parameter size: {0}"), np));
 
   int my_checkSum = inputStream.ReadSignedQuad();
 
-  trace_tfm->WriteFormattedLine("libdvi", "checkSum: 0%lo", my_checkSum);
+  trace_tfm->WriteLine("libdvi", fmt::format("checkSum: {0:o}", my_checkSum));
 
   int my_designSize = inputStream.ReadSignedQuad();
 
-  trace_tfm->WriteFormattedLine("libdvi", "designSize: %ld", my_designSize);
+  trace_tfm->WriteLine("libdvi", fmt::format("designSize: {0}", my_designSize));
 
   if (my_checkSum != checkSum)
   {
-    trace_error->WriteFormattedLine("libdvi", T_("%s: checkSum mismatch"), dviInfo.name.c_str());
+    trace_error->WriteLine("libdvi", fmt::format(T_("{0}: checkSum mismatch"), dviInfo.name));
   }
 
   if (my_designSize * tfmConv != designSize)
   {
-    trace_error->WriteFormattedLine("libdvi", T_("%s: designSize mismatch"), dviInfo.name.c_str());
+    trace_error->WriteLine("libdvi", fmt::format(T_("{0}: designSize mismatch"), dviInfo.name));
   }
 
   inputStream.SkipBytes((lh - 2) * 4);
@@ -248,7 +251,7 @@ bool Tfm::Make(const string& name)
   args.push_back(baseName.ToString());
   dviInfo.transcript += CommandLineBuilder(args).ToString();
   dviInfo.transcript += "\r\n";
-  dviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
+  dviImpl->Progress(DviNotification::BeginLoadFont, fmt::format("{0}...", dviInfo.name));
   ProcessOutput<4096> maketfmOutput;
   int exitCode;
   bool done = Process::Run(makeTFM, args, &maketfmOutput, &exitCode, nullptr) && exitCode == 0;

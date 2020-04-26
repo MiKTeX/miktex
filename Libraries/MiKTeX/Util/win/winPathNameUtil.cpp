@@ -60,8 +60,8 @@ wstring PathNameUtil::ToLengthExtendedPathName(const string& path)
   {
     throw UtilException("GetFullPathNameW failed");
   }
-  if (IsDriveLetter(absPath[0])
-    && IsVolumeDelimiter(absPath[1])
+  if (IsDosDriveLetter(absPath[0])
+    && IsDosVolumeDelimiter(absPath[1])
     && IsDirectoryDelimiter(absPath[2]))
   {
     // C:\Foo\bar\FooBar.txt
@@ -76,7 +76,7 @@ wstring PathNameUtil::ToLengthExtendedPathName(const string& path)
         // \\?\UNC\Foo\bar\FooBar.txt
         return absPath.ToString();
       }
-      else if (PathNameUtil::IsDriveLetter(absPath[4]) && PathNameUtil::IsDirectoryDelimiter(absPath[5]))
+      else if (PathNameUtil::IsDosDriveLetter(absPath[4]) && PathNameUtil::IsDirectoryDelimiter(absPath[5]))
       {
         // \\?\C:\Foo\bar\FooBar.txt
         return absPath.ToString();
@@ -89,7 +89,7 @@ wstring PathNameUtil::ToLengthExtendedPathName(const string& path)
     }
     else if (absPath[2] == '.' && PathNameUtil::IsDirectoryDelimiter(absPath[3]))
     {
-      if (PathNameUtil::IsDriveLetter(absPath[4]) && PathNameUtil::IsVolumeDelimiter(absPath[5]))
+      if (PathNameUtil::IsDosDriveLetter(absPath[4]) && PathNameUtil::IsDosVolumeDelimiter(absPath[5]))
       {
         // \\.\C:\Foo\bar\FooBar.txt
         return L"\\\\?\\"s + wstring(&absPath[4]);

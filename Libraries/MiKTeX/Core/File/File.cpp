@@ -1,6 +1,6 @@
 /* File.cpp: file operations
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -22,6 +22,9 @@
 #include "config.h"
 
 #include <random>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
@@ -85,7 +88,7 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
     }
     if (session != nullptr)
     {
-      session->trace_files->WriteFormattedLine("core", T_("file %s is in use"), Q_(path));
+      session->trace_files->WriteLine("core", fmt::format(T_("file {0} is in use"), Q_(path)));
     }
     done = false;
 #else

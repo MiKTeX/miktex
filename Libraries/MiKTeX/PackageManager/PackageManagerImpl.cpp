@@ -1172,7 +1172,7 @@ string PackageManagerImpl::GetContainerPathNoLock(const string& packageId, bool 
     {
       // RECUSION
       path = GetContainerPathNoLock(reqby, useDisplayNames);
-      path += PathName::DirectoryDelimiter;
+      path += PathNameUtil::DirectoryDelimiter;
       if (useDisplayNames)
       {
         path += packageInfo2.displayName;

@@ -1012,7 +1012,7 @@ private:
   void CheckCondition();
 
 public:
-  void Progress(DviNotification nf, const char* format, ...);
+  void Progress(DviNotification nf, const std::string& msg);
 
 public:
   int PixelShrink(int shrinkFactor, int pxl)

@@ -1,6 +1,6 @@
 /* chunkdib.cpp: test driver for the DibChunker interfaces
 
-   Copyright (C) 2002-2017 Christian Schenk
+   Copyright (C) 2002-2020 Christian Schenk
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public License
@@ -22,12 +22,14 @@
 
 #include <iostream>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/App/Application>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
 #include <miktex/Core/FileStream>
 #include <miktex/Graphics/DibChunker>
-#include <miktex/Util/StringUtil>
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
@@ -37,13 +39,15 @@ using namespace std;
 
 #define T_(x) MIKTEXTEXT(x)
 
-class ChunkDib : public Application, public IDibChunkerCallback
+class ChunkDib :
+  public Application,
+  public IDibChunkerCallback
 {
 public:
-  virtual size_t MIKTEXTHISCALL Read(void* data, size_t size);
+  size_t MIKTEXTHISCALL Read(void* data, size_t size) override;
 
 public:
-  virtual void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> chunk);
+  void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> chunk) override;
 
 public:
   void Run(int argc, const char** argv);
@@ -69,7 +73,7 @@ size_t MIKTEXTHISCALL ChunkDib::Read(void* data, size_t size)
 void MIKTEXTHISCALL ChunkDib::OnNewChunk(shared_ptr<DibChunk> chunk)
 {
   nChunks += 1;
-  PathName fileName = StringUtil::FormatString("%s-%u-%u.bmp", prefix.c_str(), nBitmaps, nChunks);
+  PathName fileName = fmt::format("{0}-{1}-{2}.bmp", prefix, nBitmaps, nChunks);
   FileStream bitmapFile(File::Open(fileName, FileMode::Create, FileAccess::Write, false));
   const BITMAPINFO* pBitmapInfo = chunk->GetBitmapInfo();
   unsigned long nBytesPerLine = (((pBitmapInfo->bmiHeader.biWidth * pBitmapInfo->bmiHeader.biBitCount) + 31) & ~31) >> 3;
@@ -85,7 +89,7 @@ void MIKTEXTHISCALL ChunkDib::OnNewChunk(shared_ptr<DibChunk> chunk)
   bitmapFile.Write(chunk->GetColors(), nColors * sizeof(RGBQUAD));
   bitmapFile.Write(chunk->GetBits(), nBytesPerLine * pBitmapInfo->bmiHeader.biHeight);
   bitmapFile.Close();
-  cout << StringUtil::FormatString(T_("chunk %s written"), fileName.GetData()) << endl;
+  cout << fmt::format(T_("chunk {0} written"), fileName) << endl;
 }
 
 void ChunkDib::Run(int argc, const char** argv)

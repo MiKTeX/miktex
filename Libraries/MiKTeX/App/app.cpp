@@ -30,6 +30,9 @@
 #include <memory>
 #include <set>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/logger.h>
 #include <log4cxx/rollingfileappender.h>
@@ -867,12 +870,12 @@ void Application::Sorry(const string& name, const string& description, const str
   cerr << endl;
   if (description.empty())
   {
-    cerr << StringUtil::FormatString(T_("Sorry, but %s did not succeed."), Q_(name)) << endl;
+    cerr << fmt::format(T_("Sorry, but {0} did not succeed."), Q_(name)) << endl;
   }
   else
   {
     cerr
-      << StringUtil::FormatString(T_("Sorry, but %s did not succeed for the following reason:"), Q_(name)) << "\n"
+      << fmt::format(T_("Sorry, but {0} did not succeed for the following reason:"), Q_(name)) << "\n"
       << "\n"
       << "  " << description << endl;
     if (!remedy.empty())

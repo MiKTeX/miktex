@@ -75,7 +75,7 @@ BEGIN_TEST_FUNCTION(2);
   TEST(!pSession->FindFile("./test.tex", "%R/tex//", path));
   Touch("./test.tex");
   TEST(pSession->FindFile("./test.tex", "%R/tex//", path));
-  TEST(pSession->FindFile("./test.tex", StringUtil::Flatten({ ".", "%R/tex//" }, PathName::PathNameDelimiter), path));
+  TEST(pSession->FindFile("./test.tex", StringUtil::Flatten({ ".", "%R/tex//" }, PathNameUtil::PathNameDelimiter), path));
   path.MakeAbsolute();
   PathName path2;
   path2.SetToCurrentDirectory();
@@ -85,7 +85,7 @@ BEGIN_TEST_FUNCTION(2);
   TEST(pSession->FindFile("test.tex", "%R/tex//base", path));
   TEST(pSession->FindFile("base/test.tex", "%R/tex//", path));
   vector<PathName> paths;
-  TEST(pSession->FindFile("xyz.txt", StringUtil::Flatten({ "%R/ab//", "%R/jk//" }, PathName::PathNameDelimiter), paths));
+  TEST(pSession->FindFile("xyz.txt", StringUtil::Flatten({ "%R/ab//", "%R/jk//" }, PathNameUtil::PathNameDelimiter), paths));
   TEST(paths.size() == 2);
 }
 END_TEST_FUNCTION();
@@ -93,7 +93,7 @@ END_TEST_FUNCTION();
 BEGIN_TEST_FUNCTION(3);
 {
   vector<PathName> paths;
-  TEST(pSession->FindFile("xyz.txt", StringUtil::Flatten({ "%R/ab//", "%R/jk//" }, PathName::PathNameDelimiter), paths));
+  TEST(pSession->FindFile("xyz.txt", StringUtil::Flatten({ "%R/ab//", "%R/jk//" }, PathNameUtil::PathNameDelimiter), paths));
   TEST(!paths.empty());
   for (const PathName& p : paths)
   {

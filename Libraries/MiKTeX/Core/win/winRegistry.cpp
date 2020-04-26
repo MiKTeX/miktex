@@ -192,7 +192,7 @@ bool winRegistry::TryDeleteRegistryValue(HKEY hkeyParent, const string& path, co
 
 void winRegistry::SetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, const BYTE* value, size_t valueSize, DWORD valueType)
 {
-  SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", "RegCreateKeyExW (%p, \"%s\")", reinterpret_cast<void*>(hkeyParent), WU_(path));
+  SessionImpl::GetSession()->trace_config->WriteLine("core", fmt::format("RegCreateKeyExW({0}, \"{1}\")", reinterpret_cast<void*>(hkeyParent), WU_(path)));
   HKEY hkey;
   DWORD disp;
   long result = RegCreateKeyExW(hkeyParent, path.c_str(), 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hkey, &disp);

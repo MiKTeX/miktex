@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "internal.h"
 
 #define twopwr(n) (((int) 1) << (n))
@@ -160,12 +163,12 @@ void PkChar::Read(InputStream& inputstream, int flag)
   if (packetSize == 0)
   {
 #if 0
-    trace_error->WriteFormattedLine("libdvi", T_("%d: no glyph!"), charCode);
+    trace_error->WriteLine("libdvi", fmt::format(T_("{0}: no glyph!"), charCode));
 #endif
   }
   else
   {
-    trace_pkchar->WriteFormattedLine("libdvi", T_("going to read character %d"), charCode);
+    trace_pkchar->WriteLine("libdvi", fmt::format(T_("going to read character {0}"), charCode));
     packedRaster = new BYTE[packetSize];
     inputstream.Read(packedRaster, packetSize);
   }

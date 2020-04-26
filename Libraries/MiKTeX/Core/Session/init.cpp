@@ -59,7 +59,7 @@ weak_ptr<SessionImpl> SessionImpl::theSession;
 void Absolutize(string& paths, const PathName& relativeFrom)
 {
   vector<string> result;
-  for (const string& path : StringUtil::Split(paths, PathName::PathNameDelimiter))
+  for (const string& path : StringUtil::Split(paths, PathNameUtil::PathNameDelimiter))
   {
     if (Utils::IsAbsolutePath(path))
     {
@@ -83,14 +83,14 @@ void Absolutize(string& paths, const PathName& relativeFrom)
 #endif
     }
   }
-  paths = StringUtil::Flatten(result, PathName::PathNameDelimiter);
+  paths = StringUtil::Flatten(result, PathNameUtil::PathNameDelimiter);
 }
 
 void Relativize(string& paths, const PathName& relativeFrom)
 {
 #if MIKTEX_WINDOWS
   vector<string> result;
-  for (const string& path : StringUtil::Split(paths, PathName::PathNameDelimiter))
+  for (const string& path : StringUtil::Split(paths, PathNameUtil::PathNameDelimiter))
   {
     wchar_t szRelPath[MAX_PATH];
     if (PathRelativePathToW(szRelPath, relativeFrom.ToWideCharString().c_str(), FILE_ATTRIBUTE_DIRECTORY, UW_(path), FILE_ATTRIBUTE_DIRECTORY))
@@ -102,7 +102,7 @@ void Relativize(string& paths, const PathName& relativeFrom)
       result.push_back(path);
     }
   }
-  paths = StringUtil::Flatten(result, PathName::PathNameDelimiter);
+  paths = StringUtil::Flatten(result, PathNameUtil::PathNameDelimiter);
 #else
   UNIMPLEMENTED();
 #endif
@@ -246,7 +246,7 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
   string miktexCwd;
   if (Utils::GetEnvironmentString(MIKTEX_ENV_CWD_LIST, miktexCwd))
   {
-    for (const string& cwd : StringUtil::Split(miktexCwd, PathName::PathNameDelimiter))
+    for (const string& cwd : StringUtil::Split(miktexCwd, PathNameUtil::PathNameDelimiter))
     {
       AddInputDirectory(cwd, true);
     }
@@ -898,12 +898,12 @@ void SessionImpl::SetEnvironmentVariables()
   MIKTEX_ASSERT(!gsDirectories.Empty());
 
 #if defined(MIKTEX_WINDOWS)
-  Utils::SetEnvironmentString("MIKTEX_GS_LIB", StringUtil::Flatten(gsDirectories, PathName::PathNameDelimiter));
+  Utils::SetEnvironmentString("MIKTEX_GS_LIB", StringUtil::Flatten(gsDirectories, PathNameUtil::PathNameDelimiter));
 #else
   string origGsLib;
   if (Utils::GetEnvironmentString("GS_LIB", origGsLib))
   {
-    vector<string> origGsLibDirectories = StringUtil::Split(origGsLib, PathName::PathNameDelimiter);
+    vector<string> origGsLibDirectories = StringUtil::Split(origGsLib, PathNameUtil::PathNameDelimiter);
     for (const string& d1 : origGsLibDirectories)
     {
       auto it = find_if(gsDirectories.begin(), gsDirectories.end(), [d1](const string& d2) { return PathName::Compare(d1, d2) == 0; });
@@ -913,7 +913,7 @@ void SessionImpl::SetEnvironmentVariables()
       }
     }
   }
-  Utils::SetEnvironmentString("GS_LIB", StringUtil::Flatten(gsDirectories, PathName::PathNameDelimiter));
+  Utils::SetEnvironmentString("GS_LIB", StringUtil::Flatten(gsDirectories, PathNameUtil::PathNameDelimiter));
 #endif
 
   PathName path = GetTempDirectory();

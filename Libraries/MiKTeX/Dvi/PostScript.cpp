@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Quoter>
 
 #include "internal.h"
@@ -60,7 +63,7 @@ void PostScript::ExecuteBatch(const char* fileName)
   pathUnx.Convert({ ConvertPathNameOption::ToUnix, ConvertPathNameOption::MakeAbsolute });
   command += pathUnx.GetData();
   command += ") run\n";
-  Execute("%s", command.c_str());
+  Execute(command);
 }
 
 bool AllowShellCommand(const char* lpszCommand)
@@ -113,9 +116,9 @@ void PostScript::ExecuteEncapsulatedPostScript(const char* fileName)
     length += epsfheader.length[1] * 256;
     length += epsfheader.length[2] * 256 * 256;
     length += epsfheader.length[3] * 256 * 256 * 256;
-    tracePS->WriteFormattedLine("libdvi", T_("EPS has a binary header"));
-    tracePS->WriteFormattedLine("libdvi", T_("start: %u"), static_cast<unsigned>(start));
-    tracePS->WriteFormattedLine("libdvi", T_("length: %u"), static_cast<unsigned>(length));
+    tracePS->WriteLine("libdvi", T_("EPS has a binary header"));
+    tracePS->WriteLine("libdvi", fmt::format(T_("start: {0}"), start));
+    tracePS->WriteLine("libdvi", fmt::format(T_("length: {0}"), length));
   }
 
   epsStream.Seek(start, SeekOrigin::Begin);
@@ -183,7 +186,7 @@ void PostScript::SendHeader(const char* headerName)
   {
     MIKTEX_FATAL_ERROR_2(T_("Cannot find PostScript header file."), "path", headerName);
   }
-  tracePS->WriteFormattedLine("libdvi", T_("Sending %s..."), Q_(fileName));
+  tracePS->WriteLine("libdvi", fmt::format(T_("Sending {0}..."), Q_(fileName)));
   ExecuteBatch(fileName.GetData());
 }
 
@@ -206,7 +209,7 @@ void PostScript::DoDefinitions()
   Execute("\nTeXDict begin @defspecial\n");
   for (vector<string>::iterator it = definitions.begin(); it != definitions.end(); ++it)
   {
-    Execute("%s\n", it->c_str());
+    Execute(fmt::format("{0}\n", *it));
   }
   Execute("\n@fedspecial end\n");
 }
@@ -219,73 +222,73 @@ void PostScript::DoSpecial(PsfileSpecial* psFileSpecial)
     MIKTEX_FATAL_ERROR_2(T_("Cannot find file."), "path", psFileSpecial->GetFileName());
   }
 
-  Execute("%d %d a\n", psFileSpecial->GetX() - dviImpl->GetResolution(), psFileSpecial->GetY() - dviImpl->GetResolution());
+  Execute(fmt::format("{0} {1} a\n", psFileSpecial->GetX() - dviImpl->GetResolution(), psFileSpecial->GetY() - dviImpl->GetResolution()));
 
   Execute("@beginspecial\n");
 
   if (psFileSpecial->HasHsize())
   {
-    Execute("%d @hsize\n", psFileSpecial->GetHsize());
+    Execute(fmt::format("{0} @hsize\n", psFileSpecial->GetHsize()));
   }
 
   if (psFileSpecial->HasVsize())
   {
-    Execute("%d @vsize\n", psFileSpecial->GetVsize());
+    Execute(fmt::format("{0} @vsize\n", psFileSpecial->GetVsize()));
   }
 
   if (psFileSpecial->HasHoffset())
   {
-    Execute("%d @hoffset\n", psFileSpecial->GetHoffset());
+    Execute(fmt::format("{0} @hoffset\n", psFileSpecial->GetHoffset()));
   }
 
   if (psFileSpecial->HasVoffset())
   {
-    Execute("%d @voffset\n", psFileSpecial->GetVoffset());
+    Execute(fmt::format("{0} @voffset\n", psFileSpecial->GetVoffset()));
   }
 
   if (psFileSpecial->HasHscale())
   {
-    Execute("%d @hscale\n", psFileSpecial->GetHscale());
+    Execute(fmt::format("{0} @hscale\n", psFileSpecial->GetHscale()));
   }
 
   if (psFileSpecial->HasVscale())
   {
-    Execute("%d @vscale\n", psFileSpecial->GetVscale());
+    Execute(fmt::format("{0} @vscale\n", psFileSpecial->GetVscale()));
   }
 
   if (psFileSpecial->HasAngle())
   {
-    Execute("%d @angle\n", psFileSpecial->GetAngke());
+    Execute(fmt::format("{0} @angle\n", psFileSpecial->GetAngke()));
   }
 
   if (psFileSpecial->HasLlx())
   {
-    Execute("%d @llx\n", psFileSpecial->GetLlx());
+    Execute(fmt::format("{0} @llx\n", psFileSpecial->GetLlx()));
   }
 
   if (psFileSpecial->HasLly())
   {
-    Execute("%d @lly\n", psFileSpecial->GetLly());
+    Execute(fmt::format("{0} @lly\n", psFileSpecial->GetLly()));
   }
 
   if (psFileSpecial->HasUrx())
   {
-    Execute("%d @urx\n", psFileSpecial->GetUrx());
+    Execute(fmt::format("{0} @urx\n", psFileSpecial->GetUrx()));
   }
 
   if (psFileSpecial->HasUry())
   {
-    Execute("%d @ury\n", psFileSpecial->GetUry());
+    Execute(fmt::format("{0} @ury\n", psFileSpecial->GetUry()));
   }
 
   if (psFileSpecial->HasRwi())
   {
-    Execute("%d @rwi\n", psFileSpecial->GetRwi());
+    Execute(fmt::format("{0} @rwi\n", psFileSpecial->GetRwi()));
   }
 
   if (psFileSpecial->HasRhi())
   {
-    Execute("%d @rhi\n", psFileSpecial->GetRhi());
+    Execute(fmt::format("{0} @rhi\n", psFileSpecial->GetRhi()));
   }
 
   if (psFileSpecial->HasClipFlag())
@@ -323,7 +326,7 @@ void PostScript::AddHeader(const char* fileName)
 
 void PostScript::DoSpecial(DvipsSpecial* dvipsSpecial)
 {
-  Execute("%d %d a\n", dvipsSpecial->GetX() - dviImpl->GetResolution(), dvipsSpecial->GetY() - dviImpl->GetResolution());
+  Execute(fmt::format("{0} {1} a\n", dvipsSpecial->GetX() - dviImpl->GetResolution(), dvipsSpecial->GetY() - dviImpl->GetResolution()));
   if (dvipsSpecial->GetProtection())
   {
     Execute("@beginspecial\n");
@@ -331,7 +334,7 @@ void PostScript::DoSpecial(DvipsSpecial* dvipsSpecial)
   }
   if (dvipsSpecial->GetString())
   {
-    Execute("%s\n", dvipsSpecial->GetString());
+    Execute(fmt::format("{0}\n", dvipsSpecial->GetString()));
   }
   else if (dvipsSpecial->GetFileName())
   {
@@ -377,7 +380,7 @@ void PostScript::Open(DviImpl* dviImpl, int shrinkFactor)
   Initialize();
   DoProlog();
   Execute("TeXDict begin\n");
-  Execute("%d %d %d %d %d (test.dvi) @start\n", width, height, dviImpl->GetMagnification(), dviImpl->GetResolution(), dviImpl->GetResolution());
+  Execute(fmt::format("{0} {1} {2} {3} {4} (test.dvi) @start\n", width, height, dviImpl->GetMagnification(), dviImpl->GetResolution(), dviImpl->GetResolution()));
 
   openFlag = true;
 }
@@ -447,7 +450,7 @@ bool PostScript::FindGraphicsFile(const char* fileName, PathName& result)
     }
     else if (!AllowShellCommand(fileName + 1))
     {
-      tracePS->WriteFormattedLine("libdvi", T_("Ignoring shell command %s"), Q_(fileName + 1));
+      tracePS->WriteLine("libdvi", fmt::format(T_("Ignoring shell command {0}"), Q_(fileName + 1)));
       return false;
     }
     else

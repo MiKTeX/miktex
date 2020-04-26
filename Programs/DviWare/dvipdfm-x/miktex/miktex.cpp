@@ -1,6 +1,6 @@
 /* dvipdfmx-/miktex/miktex.cpp:
 
-   Copyright (C) 2016-2018 Christian Schenk
+   Copyright (C) 2016-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -38,19 +38,62 @@ extern "C"
   void read_config_file(const char* config);
 }
 
+string FormatStringVA(const char* format, va_list arglist)
+{
+  CharBuffer<char> autoBuffer;
+  int n;
+#if defined(_MSC_VER)
+  n = _vscprintf(format, arglist);
+  if (n < 0)
+  {
+    return "";
+  }
+  autoBuffer.Reserve(static_cast<size_t>(n) + 1);
+  n = vsprintf_s(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
+  if (n < 0)
+  {
+    return "";
+  }
+  else if (static_cast<size_t>(n) >= autoBuffer.GetCapacity())
+  {
+    return "";
+  }
+#else
+  n = vsnprintf(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
+  if (n < 0)
+  {
+    return "";
+  }
+  else if (static_cast<size_t>(n) >= autoBuffer.GetCapacity())
+  {
+    autoBuffer.Reserve(static_cast<size_t>(n) + 1);
+    n = vsnprintf(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
+    if (n < 0)
+    {
+      return "";
+    }
+    else if (static_cast<size_t>(n) >= autoBuffer.GetCapacity())
+    {
+      return "";
+    }
+  }
+#endif
+  return autoBuffer.GetData();
+}
+
 extern "C" void miktex_log_error_va(const char* format, va_list args)
 {
-  Application::GetApplication()->LogError(StringUtil::FormatStringVA(format, args));
+  Application::GetApplication()->LogError(FormatStringVA(format, args));
 }
 
 extern "C" void miktex_log_info_va(const char* format, va_list args)
 {
-  Application::GetApplication()->LogInfo(StringUtil::FormatStringVA(format, args));
+  Application::GetApplication()->LogInfo(FormatStringVA(format, args));
 }
 
 extern "C" void miktex_log_warn_va(const char* format, va_list args)
 {
-  Application::GetApplication()->LogWarn(StringUtil::FormatStringVA(format, args));
+  Application::GetApplication()->LogWarn(FormatStringVA(format, args));
 }
 
 extern "C" void miktex_read_config_files()

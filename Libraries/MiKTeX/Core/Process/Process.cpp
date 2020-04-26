@@ -136,7 +136,7 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
     }
     if (session != nullptr)
     {
-      session->trace_process->WriteFormattedLine("core", "read %u bytes from the pipe", static_cast<unsigned>(total));
+      session->trace_process->WriteLine("core", fmt::format("read {0} bytes from the pipe", total));
     }
   }
 

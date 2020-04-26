@@ -278,7 +278,7 @@ void CheckStartupConfig(StartupConfig& startupConfig)
 {
 #if 1
   string commonRoots;
-  for (const string& tok : StringUtil::Split(startupConfig.commonRoots, PathName::PathNameDelimiter))
+  for (const string& tok : StringUtil::Split(startupConfig.commonRoots, PathNameUtil::PathNameDelimiter))
   {
     PathName path(tok);
     if (path.Empty())
@@ -311,21 +311,21 @@ void CheckStartupConfig(StartupConfig& startupConfig)
     }
     if (!commonRoots.empty())
     {
-      commonRoots += PathName::PathNameDelimiter;
+      commonRoots += PathNameUtil::PathNameDelimiter;
     }
     commonRoots += path.ToString();
   }
   startupConfig.commonRoots = commonRoots;
 
   string userRoots;
-  for (const string& tok : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
+  for (const string& tok : StringUtil::Split(startupConfig.userRoots, PathNameUtil::PathNameDelimiter))
   {
     PathName path(tok);
     if (path.Empty())
     {
       continue;
     }
-    if (StringUtil::Contains(startupConfig.commonRoots.c_str(), path.GetData(), string(1, PathName::PathNameDelimiter).c_str(), true))
+    if (StringUtil::Contains(startupConfig.commonRoots.c_str(), path.GetData(), string(1, PathNameUtil::PathNameDelimiter).c_str(), true))
     {
       MIKTEX_FATAL_ERROR_2(T_("Improper options: --user-roots value collides with --common-roots value."), "path", path.ToString());
     }
@@ -355,7 +355,7 @@ void CheckStartupConfig(StartupConfig& startupConfig)
     }
     if (!userRoots.empty())
     {
-      userRoots += PathName::PathNameDelimiter;
+      userRoots += PathNameUtil::PathNameDelimiter;
     }
     userRoots += path.ToString();
   }

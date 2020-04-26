@@ -199,16 +199,16 @@ void MakeMf::CreateDestinationDirectory()
 {
   string templ;
   templ = "%R";
-  templ += PathName::DirectoryDelimiter;
+  templ += PathNameUtil::DirectoryDelimiter;
   templ += T_("fonts");
-  templ += PathName::DirectoryDelimiter;
+  templ += PathNameUtil::DirectoryDelimiter;
   templ += T_("source");
   if (!supplier.empty())
   {
-    templ += PathName::DirectoryDelimiter;
+    templ += PathNameUtil::DirectoryDelimiter;
     templ += supplier;
   }
-  templ += PathName::DirectoryDelimiter;
+  templ += PathNameUtil::DirectoryDelimiter;
   templ += typeface;
   destinationDirectory = CreateDirectoryFromTemplate(templ);
 }

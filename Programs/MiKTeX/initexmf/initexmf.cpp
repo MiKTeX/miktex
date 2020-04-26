@@ -2057,7 +2057,7 @@ string kpsewhich_expand_path(const string& varname)
   return result;
 }
 
-string Concat(const initializer_list<string>& searchPaths, char separator = PathName::PathNameDelimiter)
+string Concat(const initializer_list<string>& searchPaths, char separator = PathNameUtil::PathNameDelimiter)
 {
   string result;
   for (const string& s : searchPaths)
@@ -2108,7 +2108,7 @@ void IniTeXMFApp::RegisterOtherRoots()
   for (const OtherTeX& other : otherTeXDists)
   {
     const string& roots = (session->IsAdminMode() ? other.startupConfig.commonRoots : other.startupConfig.userRoots);
-    for (const string& r : StringUtil::Split(roots, PathName::PathNameDelimiter))
+    for (const string& r : StringUtil::Split(roots, PathNameUtil::PathNameDelimiter))
     {
       otherRoots.push_back(r);
     }

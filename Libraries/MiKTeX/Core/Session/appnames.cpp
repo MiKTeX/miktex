@@ -34,16 +34,16 @@ inline void AppendTag(string& str, const string& tag)
 {
   if (!str.empty())
   {
-    str += PathName::PathNameDelimiter;
+    str += PathNameUtil::PathNameDelimiter;
   }
   str += tag;
 }
 
 void SessionImpl::PushAppName(const string& name)
 {
-  MIKTEX_ASSERT(name.find(PathName::PathNameDelimiter) == string::npos);
+  MIKTEX_ASSERT(name.find(PathNameUtil::PathNameDelimiter) == string::npos);
   string newApplicationNames = name;
-  for (const string& tag : StringUtil::Split(applicationNames, PathName::PathNameDelimiter))
+  for (const string& tag : StringUtil::Split(applicationNames, PathNameUtil::PathNameDelimiter))
   {
     // stop at the miktex application tag; this is always the last tag
     if (Utils::EqualsIgnoreCase(tag, "miktex"))
@@ -68,10 +68,10 @@ void SessionImpl::PushAppName(const string& name)
 
 void SessionImpl::PushBackAppName(const string& name)
 {
-  MIKTEX_ASSERT(name.find(PathName::PathNameDelimiter) == string::npos);
+  MIKTEX_ASSERT(name.find(PathNameUtil::PathNameDelimiter) == string::npos);
   fileTypes.clear();
   string newApplicationNames;
-  for (const string& tag : StringUtil::Split(applicationNames, PathName::PathNameDelimiter))
+  for (const string& tag : StringUtil::Split(applicationNames, PathNameUtil::PathNameDelimiter))
   {
     // stop at the miktex application tag; this is always the last tag
     if (Utils::EqualsIgnoreCase(tag, "miktex"))

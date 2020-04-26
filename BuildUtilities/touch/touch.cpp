@@ -1,6 +1,6 @@
 /* touch.cpp:
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2020 Christian Schenk
 
    This file is part of miktex-touch.
 
@@ -18,7 +18,6 @@
    along with miktex-touch; if not, write to the Free Software Foundation, 59
    Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 
@@ -64,12 +63,9 @@ const struct poptOption aoption[] = {
   POPT_TABLEEND
 };
 
-void FatalError(const char* lpszFormat, ...)
+void FatalError(const string& msg)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  cerr << Utils::GetExeName() << ": " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
-  va_end(arglist);
+  cerr << Utils::GetExeName() << ": " << msg << endl;
   throw 1;
 }
 
@@ -88,9 +84,9 @@ void Main(int argc, const char** argv)
       break;
     case OPT_VERSION:
       cout
-        << Utils::MakeProgramVersionString(Utils::GetExeName().c_str(), VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0))
-        << "Copyright (C) 2008-2018 Christian Schenk" << endl
-        << "This is free software; see the source for copying conditions.  There is NO" << endl
+        << Utils::MakeProgramVersionString(Utils::GetExeName().c_str(), VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << "\n"
+        << "Copyright (C) 2008-2020 Christian Schenk" << "\n"
+        << "This is free software; see the source for copying conditions.  There is NO" << "\n"
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return;
     }
@@ -100,7 +96,7 @@ void Main(int argc, const char** argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    FatalError("%s", msg.c_str());
+    FatalError(msg);
   }
   vector<string> leftovers = popt.GetLeftovers();
   if (leftovers.empty())

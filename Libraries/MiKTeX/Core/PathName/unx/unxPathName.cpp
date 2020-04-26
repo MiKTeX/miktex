@@ -23,6 +23,9 @@
 
 #include <unistd.h>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/PathName>
 
 #include "internal.h"
@@ -88,7 +91,7 @@ PathName& PathName::SetToTempFile()
   close(fd);
   if (session != nullptr)
   {
-    session->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(GetData()));
+    session->trace_tempfile->WriteLine("core", fmt::format(T_("created temporary file {0}"), Q_(GetData())));
   }
   return *this;
 }

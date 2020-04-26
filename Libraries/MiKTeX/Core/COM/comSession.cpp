@@ -89,7 +89,7 @@ STDMETHODIMP comSession::RegisterRootDirectories(BSTR rootDirectories)
   try
   {
     CreateSession();
-    for (const auto& root : StringUtil::Split(WU_(rootDirectories), PathName::PathNameDelimiter))
+    for (const auto& root : StringUtil::Split(WU_(rootDirectories), PathNameUtil::PathNameDelimiter))
     {
       session->RegisterRootDirectory(root, false);
     }

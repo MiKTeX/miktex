@@ -459,7 +459,7 @@ void unxProcess::WaitForExit()
   if (this->pid > 0)
   {
     auto session = SessionImpl::GetSession();
-    session->trace_process->WriteFormattedLine("core", "waiting for process %d", static_cast<int>(this->pid));
+    session->trace_process->WriteLine("core", fmt::format("waiting for process {0}", this->pid));
     pid_t pid = this->pid;
     this->pid = -1;
     while (waitpid(pid, &status, 0) <= 0)
@@ -471,19 +471,19 @@ void unxProcess::WaitForExit()
     }
     if (WIFEXITED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", "process %d exited with status %d", static_cast<int>(pid), WEXITSTATUS(status));
+      session->trace_process->WriteLine("core", fmt::format("process {0} exited with status {1}", pid, WEXITSTATUS(status));
     }
     else if (WIFSIGNALED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", "process %d terminated due to signal %d", static_cast<int>(pid), WTERMSIG(status));
+      session->trace_process->WriteLine("core", fmt::format("process {0} terminated due to signal {1}", pid, WTERMSIG(status));
     }
     else if (WIFSTOPPED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", "process %d stopped due to signal %d", static_cast<int>(pid), WSTOPSIG(status));
+      session->trace_process->WriteLine("core", fmt::format("process {0} stopped due to signal {1}", pid, WSTOPSIG(status));
     }
     else if (WIFCONTINUED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", "process %d continued");
+      session->trace_process->WriteLine("core", fmt::format("process {0} continued", pid));
     }
   }
 }

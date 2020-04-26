@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Paths>
 
 #include "internal.h"
@@ -155,7 +158,7 @@ DviPageImpl::DviPageImpl(DviImpl* dviImpl, int pageIdx, DviPageMode pageMode, lo
     }
   }
 
-  tracePage->WriteFormattedLine("libdvi", T_("created page object '%s'"), pageName.c_str());
+  tracePage->WriteLine("libdvi", fmt::format(T_("created page object '{0}'"), pageName));
 
   lastVisited = time(nullptr) + 60 * 60;
 }
@@ -378,7 +381,7 @@ void DviPageImpl::MakeDviBitmap(int shrinkFactor, DviBitmap& bitmap, vector<DviI
 
   bitmaps.reserve(1000 / shrinkFactor);
 
-  traceBitmap->WriteFormattedLine("libdvi", T_("bitmap %d; bounding box: %d,%d,%d,%d"), bitmaps.size(), bitmap.x, bitmap.y, bitmap.width, bitmap.height);
+  traceBitmap->WriteLine("libdvi", fmt::format(T_("bitmap {0}; bounding box: {1},{2},{3},{4}"), bitmaps.size(), bitmap.x, bitmap.y, bitmap.width, bitmap.height));
 
   int bytesPerLine = dviImpl->GetBytesPerLine(shrinkFactor, bitmap.width);
   MIKTEX_ASSERT(bytesPerLine > 0);
@@ -685,7 +688,7 @@ void DviPageImpl::Unlock()
   {
     if (nLocks == 0 && autoClean)
     {
-      tracePage->WriteFormattedLine("libdvi", T_("auto-cleaning page '%s'"), pageName.c_str());
+      tracePage->WriteLine("libdvi", fmt::format(T_("auto-cleaning page '{0}'"), pageName));
       FreeContents(false, false);
     }
   }
@@ -824,7 +827,7 @@ void DviPageImpl::OnNewChunk(shared_ptr<DibChunk> chunk)
 
   const BITMAPINFO* bitmapInfo = chunk->GetBitmapInfo();
 
-  traceBitmap->WriteFormattedLine("libdvi", T_("new DIB chunk %d; bounding box: %d,%d,%d,%d"), dibChunks.size(), chunk->GetX(), chunk->GetY(), bitmapInfo->bmiHeader.biWidth, bitmapInfo->bmiHeader.biHeight);
+  traceBitmap->WriteLine("libdvi", fmt::format(T_("new DIB chunk {0}; bounding box: {1},{2},{3},{4}"), dibChunks.size(), chunk->GetX(), chunk->GetY(), bitmapInfo->bmiHeader.biWidth, bitmapInfo->bmiHeader.biHeight));
 
   size += chunk->GetSize();
   totalSize += chunk->GetSize();

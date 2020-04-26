@@ -173,7 +173,7 @@ void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttribu
 
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("setting new attributes (%x) on %s"), static_cast<int>(nativeAttributes), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("setting new attributes ({0:x}) on {1}"), nativeAttributes, Q_(path)));
   }
 
   if (!SetFileAttributesW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), static_cast<DWORD>(nativeAttributes)))
@@ -317,7 +317,7 @@ void File::Delete(const PathName& path)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("deleting %s"), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("deleting {0}"), Q_(path)));
   }
   if (!DeleteFileW(path.ToExtendedLengthPathName().ToWideCharString().c_str()))
   {
@@ -332,7 +332,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("renaming %s to %s"), Q_(source), Q_(dest));
+    session->trace_files->WriteLine("core", fmt::format(T_("renaming {0} to {1}"), Q_(source), Q_(dest)));
   }
   DWORD flags = MOVEFILE_COPY_ALLOWED | MOVEFILE_WRITE_THROUGH;
   if (options[FileMoveOption::ReplaceExisting])
@@ -365,7 +365,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("copying %s to %s"), Q_(source), Q_(dest));
+    session->trace_files->WriteLine("core", fmt::format(T_("copying {0} to {1}"), Q_(source), Q_(dest)));
   }
   if (options[FileCopyOption::ReplaceExisting] && File::Exists(dest))
   {
@@ -406,7 +406,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("creating %s link from %s to %s"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard", Q_(newName), Q_(oldName));
+    session->trace_files->WriteLine("core", fmt::format(T_("creating {0} link from {1} to {2}"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard", Q_(newName), Q_(oldName)));
   }
   if (options[CreateLinkOption::Symbolic])
   {
@@ -449,7 +449,7 @@ size_t File::SetMaxOpen(size_t newMax)
     shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
     if (session != nullptr)
     {
-      session->trace_files->WriteFormattedLine("core", T_("increasing maximum number of simultaneously open files (oldmax=%d, newmax=%d)"), (int)oldMax, (int)newMax);
+      session->trace_files->WriteLine("core", fmt::format(T_("increasing maximum number of simultaneously open files (oldmax={0}, newmax={1})"), oldMax, newMax));
     }
     if (_setmaxstdio(static_cast<int>(newMax)) < 0)
     {
@@ -464,7 +464,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d)"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(isTextFile));
+    session->trace_files->WriteLine("core", fmt::format(T_("opening file {0} ({1} 0x{2:x} {3})"), Q_(path), static_cast<int>(mode), static_cast<int>(access), isTextFile));
   }
 
   int flags = 0;

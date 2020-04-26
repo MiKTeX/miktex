@@ -43,6 +43,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 void SessionImpl::MyCoInitialize()
 {
@@ -658,7 +659,7 @@ bool SessionImpl::GetPsFontDirs(string& psFontDirs)
     {
       if (!this->psFontDirs.empty())
       {
-        this->psFontDirs += PathName::PathNameDelimiter;
+        this->psFontDirs += PathNameUtil::PathNameDelimiter;
       }
       this->psFontDirs += path.GetData();
     }
@@ -666,7 +667,7 @@ bool SessionImpl::GetPsFontDirs(string& psFontDirs)
     {
       if (!this->psFontDirs.empty())
       {
-        this->psFontDirs += PathName::PathNameDelimiter;
+        this->psFontDirs += PathNameUtil::PathNameDelimiter;
       }
       this->psFontDirs += path.GetData();
     }
@@ -692,7 +693,7 @@ bool SessionImpl::GetTTFDirs(string& ttfDirs)
     {
       if (!this->ttfDirs.empty())
       {
-        this->ttfDirs += PathName::PathNameDelimiter;;
+        this->ttfDirs += PathNameUtil::PathNameDelimiter;;
       }
       this->ttfDirs += path.GetData();
     }
@@ -718,7 +719,7 @@ bool SessionImpl::GetOTFDirs(string& otfDirs)
     {
       if (!this->otfDirs.empty())
       {
-        this->otfDirs += PathName::PathNameDelimiter;
+        this->otfDirs += PathNameUtil::PathNameDelimiter;
       }
       this->otfDirs += path.GetData();
     }

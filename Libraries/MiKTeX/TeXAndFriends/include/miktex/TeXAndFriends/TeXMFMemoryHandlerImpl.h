@@ -84,7 +84,7 @@ protected:
     }
     if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
-      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), result);
+      trace_mem->WriteLine("libtexmf", fmt::format(MIKTEXTEXT("Parameter {0}: {1}"), parameterName, result));
     }
     return result;
   }
@@ -108,7 +108,7 @@ protected:
     }
     if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
-      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), result);
+      trace_mem->WriteLine("libtexmf", fmt::format(MIKTEXTEXT("Parameter {0}: {1}"), parameterName, result));
     }
     return result;
   }
@@ -280,12 +280,12 @@ public:
     }
     if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
-      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate %s: p == %p, elementSize == %u, nElements == %u, bytes == %u"), arrayName.empty() ? "array" : arrayName.c_str(), ptr, (unsigned)elemSize, (unsigned)numElem, (unsigned)amount);
+      trace_mem->WriteLine("libtexmf", fmt::format(MIKTEXTEXT("Reallocate {0}: p == {1}, elementSize == {2}, nElements == {3}, bytes == {4}"), arrayName.empty() ? "array"s : arrayName, ptr, elemSize, numElem, amount);
     }
     ptr = MiKTeX::Debug::Realloc(ptr, amount, sourceLocation);
     if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
-      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate: return %p"), ptr);
+      trace_mem->WriteLine("libtexmf", fmt::format(MIKTEXTEXT("Reallocate: return {0}"), ptr));
     }
     return ptr;
   }

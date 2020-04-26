@@ -20,6 +20,9 @@
 
 #include "StdAfx.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "internal.h"
 
 #include "BitmapPrinter.h"
@@ -79,7 +82,7 @@ private:
   };
 
 public:
-  virtual void Report(const char* lpszFormat, ...);
+  void Report(const std::string& msg) override;
 
 public:
   void Run(int argc, const char** argv);
@@ -321,16 +324,13 @@ const struct poptOption PrintUtility::aoption[] = {
   POPT_TABLEEND
 };
 
-void PrintUtility::Report(const char* lpszFormat, ...)
+void PrintUtility::Report(const string& msg)
 {
   if (!verbose)
   {
     return;
   }
-  va_list argList;
-  VA_START(argList, lpszFormat);
-  cout << StringUtil::FormatStringVA(lpszFormat, argList);
-  VA_END(argList);
+  cout << msg;
 }
 
 bool PrintUtility::GetPaperSizeInfo(short paperSize, PAPERSIZEINFO& paperSizeInfo)
@@ -475,7 +475,7 @@ void PrintUtility::Spool(const char* lpszFileName, PrintMethod printMethod, cons
   // get printer resolution and paper size
   unsigned resolution;
   Printer::GetPrinterCaps(printerName.c_str(), resolution);
-  trace_mtprint->WriteFormattedLine("mtprint", "resolution: %u", resolution);
+  trace_mtprint->WriteLine("mtprint", fmt::format("resolution: {0}", resolution));
   DEVMODEW* pdm = Printer::GetDevMode(printerName.c_str());
   short paperSize = pdm->dmPaperSize;
   free(pdm);
@@ -514,7 +514,7 @@ void PrintUtility::ShowVersion()
 {
   cout
     << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, MIKTEX_COMPONENT_VERSION_STR) << endl
-    << "Copyright (C) 2003-2017 Christian Schenk" << endl
+    << "Copyright (C) 2003-2020 Christian Schenk" << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }

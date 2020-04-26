@@ -570,7 +570,7 @@ void MainWindow::StartTerminal()
     bool haveOldPath = Utils::GetEnvironmentString("PATH", oldPath);
     if (haveOldPath)
     {
-      newPath += PathName::PathNameDelimiter;
+      newPath += PathNameUtil::PathNameDelimiter;
       newPath += oldPath;
     }
     Utils::SetEnvironmentString("PATH", newPath);

@@ -1,6 +1,6 @@
 /* Recipe.cpp:                                          -*- C++ -*-
 
-   Copyright (C) 2016-2018 Christian Schenk
+   Copyright (C) 2016-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -24,6 +24,9 @@
 #include <iostream>
 #include <unordered_set>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
@@ -39,7 +42,6 @@
 #include "TDS.h"
 
 using namespace MiKTeX::Core;
-using namespace MiKTeX::Util;
 using namespace std;
 
 class ProcessOutputTrash :
@@ -301,7 +303,7 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     if (File::Exists(existingName))
     {
       Verbose("copying '" + argv[1] + "' to '" + argv[2] + "'");
-      PrintOnly(StringUtil::FormatString("copy %s %s", Q_(PrettyPath(existingName, actionDir)), Q_(PrettyPath(newName, actionDir))));
+      PrintOnly(fmt::format("copy {0} {1}", Q_(PrettyPath(existingName, actionDir)), Q_(PrettyPath(newName, actionDir))));
       File::Copy(existingName, newName);
     }
   }
@@ -316,13 +318,13 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     if (File::Exists(oldName))
     {
       Verbose("moving file '" + argv[1] + "' to '" + argv[2] + "'");
-      PrintOnly(StringUtil::FormatString("move %s %s", Q_(PrettyPath(oldName, actionDir)), Q_(PrettyPath(newName, actionDir))));
+      PrintOnly(fmt::format("move {0} {1}", Q_(PrettyPath(oldName, actionDir)), Q_(PrettyPath(newName, actionDir))));
       File::Move(oldName, newName);
     }
     else if (Directory::Exists(oldName))
     {
       Verbose("moving directory '" + argv[1] + "' to '" + argv[2] + "'");
-      PrintOnly(StringUtil::FormatString("move %s %s", Q_(PrettyPath(oldName, actionDir)), Q_(PrettyPath(newName, actionDir))));
+      PrintOnly(fmt::format("move {0} {1}", Q_(PrettyPath(oldName, actionDir)), Q_(PrettyPath(newName, actionDir))));
       Directory::Move(oldName, newName);
     }
   }
@@ -336,13 +338,13 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     if (File::Exists(name))
     {
       Verbose("removing file '" + argv[1] + "'");
-      PrintOnly(StringUtil::FormatString("remove %s", Q_(PrettyPath(name, actionDir))));
+      PrintOnly(fmt::format("remove {0}", Q_(PrettyPath(name, actionDir))));
       File::Delete(name);
     }
     else if (Directory::Exists(name))
     {
       Verbose("removing directory '" + argv[1] + "'");
-      PrintOnly(StringUtil::FormatString("remove %s", Q_(PrettyPath(name, actionDir))));
+      PrintOnly(fmt::format("remove {0}", Q_(PrettyPath(name, actionDir))));
       Directory::Delete(name, true);
     }
   }
@@ -557,7 +559,7 @@ void Recipe::Install(const vector<string>& patterns, const PathName& tdsDir)
     for (const PathName& file : files)
     {
       PathName toPath(destPath / file.GetFileName());
-      if (PrintOnly(StringUtil::FormatString("install <SRCDIR>/%s <DSTDIR>/%s", Q_(PrettyPath(file, workDir)), Q_(PrettyPath(toPath, destDir)))))
+      if (PrintOnly(fmt::format("install <SRCDIR>/{0} <DSTDIR>/{1}", Q_(PrettyPath(file, workDir)), Q_(PrettyPath(toPath, destDir)))))
       {
         if (Directory::Exists(file))
         {

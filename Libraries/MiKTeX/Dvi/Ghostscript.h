@@ -37,7 +37,7 @@ public:
   void Write(const void* data, unsigned n) override;
 
 public:
-  void Execute(const char* format, ...) override;
+  void Execute(const std::string& s) override;
 
 public:
   size_t MIKTEXTHISCALL Read(void* data, size_t size) override;
