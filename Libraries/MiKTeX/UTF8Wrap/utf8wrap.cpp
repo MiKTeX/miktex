@@ -229,12 +229,12 @@ MIKTEXUTF8WRAPCEEAPI(intptr_t) miktex_utf8__spawnvp(int mode, const char* path, 
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_system(const char* command)
 {
-  return _wsystem(command == nullptr ? nullptr : EXPATH_(command));
+  return _wsystem(command == nullptr ? nullptr : UW_(command));
 }
 
 MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8__popen(const char* command, const char* mode)
 {
-  return _wpopen(EXPATH_(command), UW_(mode));
+  return _wpopen(UW_(command), UW_(mode));
 }
 
 MIKTEXSTATICFUNC(HANDLE) GetConsoleHandle(FILE* file)
