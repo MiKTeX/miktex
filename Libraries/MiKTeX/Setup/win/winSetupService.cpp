@@ -58,7 +58,7 @@ PathName SetupService::GetDefaultUserInstallDir()
 PathName SetupService::GetDefaultPortableRoot()
 {
   // TODO
-  return "C:/miktex-portable";
+  return PathName("C:/miktex-portable");
 }
 
 winSetupServiceImpl::winSetupServiceImpl()
@@ -416,7 +416,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
   if (ld.lpszFolder != nullptr)
   {
-    PathName pathSubFolder(pathFolder, ld.lpszFolder);
+    PathName pathSubFolder(pathFolder, PathName(ld.lpszFolder));
     if (!ld.isObsolete)
     {
       Directory::Create(pathSubFolder);
@@ -647,7 +647,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const cha
 void winSetupServiceImpl::RegisterUninstaller()
 {
   // make uninstall command line
-  PathName miktexConsole = GetInstallRoot() / MIKTEX_PATH_BIN_DIR / (options.IsCommonSetup ? MIKTEX_CONSOLE_ADMIN_EXE : MIKTEX_CONSOLE_EXE);
+  PathName miktexConsole = GetInstallRoot() / PathName(MIKTEX_PATH_BIN_DIR) / PathName(options.IsCommonSetup ? MIKTEX_CONSOLE_ADMIN_EXE : MIKTEX_CONSOLE_EXE);
   string commandLine = Q_(miktexConsole);
   if (options.IsCommonSetup)
   {
@@ -828,45 +828,45 @@ void winSetupServiceImpl::RemoveRegistryKeys()
 {
   shared_ptr<Session> session = Session::Get();
 
-  if (session->IsAdminMode() && Exists(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_SERIES))
+  if (session->IsAdminMode() && Exists(HKEY_LOCAL_MACHINE, PathName(MIKTEX_REGPATH_SERIES)))
   {
-    RemoveRegistryKey(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_SERIES);
+    RemoveRegistryKey(HKEY_LOCAL_MACHINE, PathName(MIKTEX_REGPATH_SERIES));
   }
 
-  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES))
+  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, PathName(MIKTEX_REGPATH_SERIES)))
   {
-    RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_SERIES);
-  }
-
-  if (session->IsAdminMode()
-    && Exists(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_PRODUCT)
-    && IsEmpty(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_PRODUCT))
-  {
-    RemoveRegistryKey(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_PRODUCT);
+    RemoveRegistryKey(HKEY_CURRENT_USER, PathName(MIKTEX_REGPATH_SERIES));
   }
 
   if (session->IsAdminMode()
-    && Exists(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_COMPANY)
-    && IsEmpty(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_COMPANY))
+    && Exists(HKEY_LOCAL_MACHINE, PathName(MIKTEX_REGPATH_PRODUCT))
+    && IsEmpty(HKEY_LOCAL_MACHINE, PathName(MIKTEX_REGPATH_PRODUCT)))
   {
-    RemoveRegistryKey(HKEY_LOCAL_MACHINE, MIKTEX_REGPATH_COMPANY);
+    RemoveRegistryKey(HKEY_LOCAL_MACHINE, PathName(MIKTEX_REGPATH_PRODUCT));
   }
 
-  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT)
-    && IsEmpty(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT))
+  if (session->IsAdminMode()
+    && Exists(HKEY_LOCAL_MACHINE, PathName(MIKTEX_REGPATH_COMPANY))
+    && IsEmpty(HKEY_LOCAL_MACHINE, PathName(MIKTEX_REGPATH_COMPANY)))
   {
-    RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_PRODUCT);
+    RemoveRegistryKey(HKEY_LOCAL_MACHINE, PathName(MIKTEX_REGPATH_COMPANY));
   }
 
-  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY)
-    && IsEmpty(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY))
+  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, PathName(MIKTEX_REGPATH_PRODUCT))
+    && IsEmpty(HKEY_CURRENT_USER, PathName(MIKTEX_REGPATH_PRODUCT)))
   {
-    RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_REGPATH_COMPANY);
+    RemoveRegistryKey(HKEY_CURRENT_USER, PathName(MIKTEX_REGPATH_PRODUCT));
   }
 
-  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT))
+  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, PathName(MIKTEX_REGPATH_COMPANY))
+    && IsEmpty(HKEY_CURRENT_USER, PathName(MIKTEX_REGPATH_COMPANY)))
   {
-    RemoveRegistryKey(HKEY_CURRENT_USER, MIKTEX_GPL_GHOSTSCRIPT);
+    RemoveRegistryKey(HKEY_CURRENT_USER, PathName(MIKTEX_REGPATH_COMPANY));
+  }
+
+  if (!session->IsAdminMode() && Exists(HKEY_CURRENT_USER, PathName(MIKTEX_GPL_GHOSTSCRIPT)))
+  {
+    RemoveRegistryKey(HKEY_CURRENT_USER, PathName(MIKTEX_GPL_GHOSTSCRIPT));
   }
 }
 
@@ -888,7 +888,7 @@ void winSetupServiceImpl::RemoveRegistryKey(HKEY hkeyRoot, const PathName& subKe
 
   while ((result = RegEnumKeyExW(hkeySub.Get(), 0, szName, &size, nullptr, nullptr, nullptr, &fileTime)) == ERROR_SUCCESS)
   {
-    RemoveRegistryKey(hkeyRoot, PathName(subKey, szName));
+    RemoveRegistryKey(hkeyRoot, PathName(subKey, PathName(szName)));
     size = BufferSizes::MaxPath;
   }
 

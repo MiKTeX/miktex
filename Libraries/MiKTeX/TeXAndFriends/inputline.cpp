@@ -329,7 +329,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
       MIKTEX_UNEXPECTED();
     }
     LogInfo("executing output pipe: " + toBeExecuted);
-    file = session->OpenFile(toBeExecuted, FileMode::Command, FileAccess::Write, false);
+    file = session->OpenFile(PathName(toBeExecuted), FileMode::Command, FileAccess::Write, false);
   }
   else
   {
@@ -341,19 +341,19 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
       lpszPath = unmangled.GetData();
     }
 #endif
-    bool isAuxFile = !IsOutputFile(lpszPath);
+    bool isAuxFile = !IsOutputFile(PathName(lpszPath));
     PathName path;
     if (isAuxFile && !pimpl->auxDirectory.Empty())
     {
-      path = pimpl->auxDirectory / lpszPath;
+      path = pimpl->auxDirectory / PathName(lpszPath);
       lpszPath = path.GetData();
     }
     else if (!pimpl->outputDirectory.Empty())
     {
-      path = pimpl->outputDirectory / lpszPath;
+      path = pimpl->outputDirectory / PathName(lpszPath);
       lpszPath = path.GetData();
     }
-    file = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, false);
+    file = session->TryOpenFile(PathName(lpszPath), FileMode::Create, FileAccess::Write, false);
     if (file != nullptr)
     {
       outPath = lpszPath;
@@ -422,7 +422,7 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
       MIKTEX_UNEXPECTED();
     }
     LogInfo("executing input pipe: " + toBeExecuted);
-    *ppFile = session->OpenFile(toBeExecuted, FileMode::Command, FileAccess::Read, false);
+    *ppFile = session->OpenFile(PathName(toBeExecuted), FileMode::Command, FileAccess::Read, false);
     pimpl->foundFile.Clear();
     pimpl->foundFileFq.Clear();
   }
@@ -459,23 +459,23 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
       {
         CommandLineBuilder cmd("zcat");
         cmd.AppendArgument(pimpl->foundFile);
-        *ppFile = session->OpenFile(cmd.ToString(), FileMode::Command, FileAccess::Read, false);
+        *ppFile = session->OpenFile(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read, false);
       }
       else if (pimpl->foundFile.HasExtension(".bz2"))
       {
         CommandLineBuilder cmd("bzcat");
         cmd.AppendArgument(pimpl->foundFile);
-        *ppFile = session->OpenFile(cmd.ToString(), FileMode::Command, FileAccess::Read, false);
+        *ppFile = session->OpenFile(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read, false);
       }
       else if (pimpl->foundFile.HasExtension(".xz") || pimpl->foundFile.HasExtension(".lzma"))
       {
         CommandLineBuilder cmd("xzcat");
         cmd.AppendArgument(pimpl->foundFile);
-        *ppFile = session->OpenFile(cmd.ToString(), FileMode::Command, FileAccess::Read, false);
+        *ppFile = session->OpenFile(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read, false);
       }
       else
       {
-        *ppFile = session->OpenFile(pimpl->foundFile.GetData(), FileMode::Open, FileAccess::Read, false);
+        *ppFile = session->OpenFile(pimpl->foundFile, FileMode::Open, FileAccess::Read, false);
       }
     }
 #if defined(MIKTEX_WINDOWS)

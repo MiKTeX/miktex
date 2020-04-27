@@ -472,7 +472,7 @@ int TeXApp::MakeSrcSpecial(int sourceFileName, int line) const
 
 bool TeXApp::IsNewSource(int sourceFileName, int line) const
 {
-  return pimpl->lastSourceFilename != GetTeXString(sourceFileName) || pimpl->lastLineNum != line;
+  return pimpl->lastSourceFilename != PathName(GetTeXString(sourceFileName)) || pimpl->lastLineNum != line;
 }
 
 void TeXApp::RememberSourceInfo(int sourceFileName, int line) const

@@ -263,7 +263,7 @@ void Main(int argc, const char ** argv)
   for (const string& fileName : leftovers)
   {
     unique_ptr<Cfg> pCfg(Cfg::Create());
-    pCfg->Read(fileName);
+    pCfg->Read(PathName(fileName));
     if (task == TASK::ComputeDigest)
     {
       PrintDigest(pCfg->GetDigest());
@@ -275,7 +275,7 @@ void Main(int argc, const char ** argv)
     else if (task == TASK::Sign)
     {
       PrivateKeyProvider privateKeyProvider(privateKeyFile);
-      pCfg->Write(fileName, "", &privateKeyProvider);
+      pCfg->Write(PathName(fileName), "", &privateKeyProvider);
     }
     else if (task == TASK::SetValue)
     {
@@ -283,7 +283,7 @@ void Main(int argc, const char ** argv)
       {
         pCfg->PutValue("", nv.first, nv.second);
       }
-      pCfg->Write(fileName, "");
+      pCfg->Write(PathName(fileName), "");
     }
   }
 }

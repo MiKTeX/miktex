@@ -1,6 +1,6 @@
 /* miktex/Core/PathNameParser.h:                        -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -54,10 +54,10 @@ public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~PathNameParser() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL PathNameParser(const PathName& path);
+  explicit MIKTEXCOREEXPORT MIKTEXTHISCALL PathNameParser(const PathName& path);
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL operator bool() const;
+  explicit MIKTEXCOREEXPORT MIKTEXTHISCALL operator bool() const;
 
 public:
   MIKTEXCORETHISAPI(std::string) operator*() const;

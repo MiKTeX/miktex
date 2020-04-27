@@ -467,7 +467,7 @@ void PrintUtility::StartGhostscript(const GSOPTS& gsOpts, unsigned resolution, s
   trace_mtprint->WriteLine("mtprint", CommandLineBuilder(args).ToString());
 
   // start Ghostscript
-  Process::Start(gsPath.GetData(), args, pfileGsIn, nullptr, ppfileGsOut, nullptr, nullptr);
+  Process::Start(gsPath, args, pfileGsIn, nullptr, ppfileGsOut, nullptr, nullptr);
 }
 
 void PrintUtility::Spool(const char* lpszFileName, PrintMethod printMethod, const DVIPSOPTS& dvipsOpts, const GSOPTS& gsOpts, const string& printerName)
@@ -513,7 +513,7 @@ void PrintUtility::Spool(const char* lpszFileName, PrintMethod printMethod, cons
 void PrintUtility::ShowVersion()
 {
   cout
-    << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, MIKTEX_COMPONENT_VERSION_STR) << endl
+    << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
     << "Copyright (C) 2003-2020 Christian Schenk" << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;

@@ -115,7 +115,7 @@ bool msdos=false;
 string HOME="HOME";
 #if defined(MIKTEX)
 string docdir;
-const char pathSeparator = MiKTeX::Core::PathNameUtil::PathNameDelimiter;
+const char pathSeparator = MiKTeX::Util::PathNameUtil::PathNameDelimiter;
 #else
 string docdir=ASYMPTOTE_DOCDIR;
 const char pathSeparator=':';

@@ -455,7 +455,7 @@ BOOL InverseSearchOptionsPage::OnApply()
 {
   try
   {
-    PathName pathEditorsIni(session->GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_EDITORS_INI);
+    PathName pathEditorsIni(session->GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_EDITORS_INI));
     if (mustWrite)
     {
       unique_ptr<Cfg> pCfg(Cfg::Create());

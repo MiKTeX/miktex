@@ -213,7 +213,7 @@ void FindTeXMF::PrintSearchPath(const char* lpszSearchPath)
   size_t mpmRootPathLen = mpmRootPath.GetLength();
   for (const string& path : StringUtil::Split(lpszSearchPath, PathNameUtil::PathNameDelimiter))
   {
-    if ((PathName::Compare(path, mpmRootPath, mpmRootPathLen) == 0)
+    if ((PathName::Compare(PathName(path), mpmRootPath, mpmRootPathLen) == 0)
       && (path.length() == mpmRootPathLen || PathNameUtil::IsDirectoryDelimiter(path[mpmRootPathLen])))
     {
       continue;
@@ -265,7 +265,7 @@ int FindTeXMF::Run(int argc, const char** argv)
 
     case OPT_FILE_TYPE:
 
-      fileType = session->DeriveFileType(optArg);
+      fileType = session->DeriveFileType(PathName(optArg));
       if (fileType == FileType::None)
       {
         FatalError(fmt::format(T_("Unknown file type: {0}."), optArg));
@@ -286,7 +286,7 @@ int FindTeXMF::Run(int argc, const char** argv)
     case OPT_SHOW_PATH:
 
     {
-      FileType filetype = session->DeriveFileType(optArg);
+      FileType filetype = session->DeriveFileType(PathName(optArg));
       if (filetype == FileType::None)
       {
         FatalError(fmt::format(T_("Unknown file type: {0}."), optArg));
@@ -349,7 +349,7 @@ int FindTeXMF::Run(int argc, const char** argv)
     FileType filetype = fileType;
     if (filetype == FileType::None)
     {
-      filetype = session->DeriveFileType(fileName);
+      filetype = session->DeriveFileType(PathName(fileName));
       if (filetype == FileType::None)
       {
         filetype = FileType::TEX;

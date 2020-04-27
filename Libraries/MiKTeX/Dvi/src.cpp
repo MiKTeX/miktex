@@ -133,7 +133,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
         const char* name = pSourceSpecial->GetFileName();
 
         // try exact match
-        bool nameMatch = (MyPathNameCompare(name, fileName) == 0);
+        bool nameMatch = (MyPathNameCompare(PathName(name), PathName(fileName)) == 0);
 
         // try fully qualified file names
         if (!nameMatch)
@@ -165,7 +165,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
           {
             lpszRelName = Utils::GetRelativizedPath(name, documentLocation.GetData());
           }
-          nameMatch = lpszRelName != nullptr && MyPathNameCompare(lpszRelName, lpszRelFileName) == 0;
+          nameMatch = lpszRelName != nullptr && MyPathNameCompare(PathName(lpszRelName), PathName(lpszRelFileName)) == 0;
         }
 
         if (!nameMatch)
@@ -337,7 +337,7 @@ bool DviImpl::GetSource(const DviPosition& pos, PathName& fileName, int* pLineNu
     {
       pSourceSpecial = pSourceSpecial1;
     }
-    else if (MyPathNameCompare(pSourceSpecial1->GetFileName(), pSourceSpecial2->GetFileName()) != 0)
+    else if (MyPathNameCompare(PathName(pSourceSpecial1->GetFileName()), PathName(pSourceSpecial2->GetFileName())) != 0)
     {
       if (cursorOffset - src1Offset < src2Offset - cursorOffset)
       {

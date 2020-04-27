@@ -170,7 +170,7 @@ extern "C" void miktex_close_cache_file(int fd, const char* directory)
   try
   {
     time_t dirCreationTime, dirAccessTime, dirWriteTime;
-    File::GetTimes(directory, dirCreationTime, dirAccessTime, dirWriteTime);
+    File::GetTimes(PathName(directory), dirCreationTime, dirAccessTime, dirWriteTime);
     time_t cache_mtime = time(nullptr);
     static set<time_t> modificationTimes;
     if (dirWriteTime != static_cast<time_t>(-1) && cache_mtime < dirWriteTime)
@@ -223,7 +223,7 @@ extern "C" int miktex_file_delete(const char* path)
 {
   try
   {
-    File::Delete(path, { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
+    File::Delete(PathName(path), { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
     return 1;
   }
   catch (const MiKTeXException& e)

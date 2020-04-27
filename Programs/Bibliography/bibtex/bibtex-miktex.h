@@ -276,7 +276,7 @@ public:
     {
       return false;
     }
-    FILE* file = session->OpenFile(path.GetData(), MiKTeX::Core::FileMode::Open, MiKTeX::Core::FileAccess::Read, true);
+    FILE* file = session->OpenFile(path, MiKTeX::Core::FileMode::Open, MiKTeX::Core::FileAccess::Read, true);
     f.Attach(file, true);
 #ifdef PASCAL_TEXT_IO
     get(f);

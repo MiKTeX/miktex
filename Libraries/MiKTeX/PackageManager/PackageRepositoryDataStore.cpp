@@ -47,8 +47,8 @@ PackageRepositoryDataStore::PackageRepositoryDataStore(std::shared_ptr<WebSessio
 {
   MIKTEX_ASSERT(webSession != nullptr);
   comboCfg.Load(
-    session->IsAdminMode() ? "" : session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI,
-    session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI);
+    session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserConfigRoot) / PathName(MIKTEX_PATH_REPOSITORIES_INI),
+    session->GetSpecialPath(SpecialPath::CommonConfigRoot) / PathName(MIKTEX_PATH_REPOSITORIES_INI));
 }
 
 void PackageRepositoryDataStore::Download()
@@ -136,12 +136,12 @@ RepositoryType PackageRepositoryDataStore::DetermineRepositoryType(const string&
     MIKTEX_UNEXPECTED();
   }
 
-  if (PackageManager::IsLocalPackageRepository(repository))
+  if (PackageManager::IsLocalPackageRepository(PathName(repository)))
   {
     return RepositoryType::Local;
   }
 
-  if (Utils::IsMiKTeXDirectRoot(repository))
+  if (Utils::IsMiKTeXDirectRoot(PathName(repository)))
   {
     return RepositoryType::MiKTeXDirect;
   }

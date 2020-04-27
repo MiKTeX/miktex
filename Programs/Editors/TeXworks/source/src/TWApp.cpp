@@ -851,7 +851,7 @@ void TWApp::setDefaultPaths()
 #if defined(MIKTEX)
           {
             auto session = MiKTeX::Core::Session::Get();
-            MiKTeX::Core::PathName d = session->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot) / MIKTEX_PATH_BIN_DIR;
+            MiKTeX::Core::PathName d = session->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot) / MiKTeX::Core::PathName(MIKTEX_PATH_BIN_DIR);
             QString dir = QString::fromUtf8(d.GetData());
             if (!binaryPaths->contains(dir))
             {

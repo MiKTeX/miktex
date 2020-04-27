@@ -107,7 +107,7 @@ void PackageManagerImpl::Lock(chrono::milliseconds timeout)
 {
   if (lockFile == nullptr)
   {
-    lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANAGER_LOCK);
+    lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANAGER_LOCK));
   }
   if (!lockFile->TryLock(timeout))
   {
@@ -157,7 +157,7 @@ void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
     unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
     extractor->Extract(absPath, tempDir->GetPathName());
 
-    packageManifestsPath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;
+    packageManifestsPath = tempDir->GetPathName() / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
   }
   else
   {
@@ -375,11 +375,11 @@ void PackageManager::SetDefaultPackageRepository(const RepositoryInfo& repositor
   {
   case RepositoryType::MiKTeXDirect:
     repositoryTypeStr = "direct";
-    SetMiKTeXDirectRoot(repository.url);
+    SetMiKTeXDirectRoot(PathName(repository.url));
     break;
   case RepositoryType::Local:
     repositoryTypeStr = "local";
-    SetLocalPackageRepository(repository.url);
+    SetLocalPackageRepository(PathName(repository.url));
     break;
   case RepositoryType::Remote:
     repositoryTypeStr = "remote";
@@ -425,13 +425,15 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string& prefixedFileName, const s
 {
   shared_ptr<Session> session = Session::Get();
 
-  string fileName;
+  string unprefixed;
 
   // ignore non-texmf files
-  if (!PackageManager::StripTeXMFPrefix(prefixedFileName, fileName))
+  if (!PackageManager::StripTeXMFPrefix(prefixedFileName, unprefixed))
   {
     return;
   }
+
+  PathName fileName(unprefixed);
 
   PathNameParser pathtok(fileName);
 
@@ -442,7 +444,7 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string& prefixedFileName, const s
 
   // initialize root path: "//MiKTeX/[MPM]"
   PathName path = session->GetMpmRootPath();
-  //  path += CURRENT_DIRECTORY;
+  // path += CURRENT_DIRECTORY;
 
   // s1: current path name component
   string s1 = *pathtok;
@@ -526,8 +528,8 @@ bool PackageManager::IsLocalPackageRepository(const PathName& path)
   }
 
   // local mirror of remote package repository?
-  PathName file1 = PathName(path, MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
-  PathName file2 = PathName(path, MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
+  PathName file1 = PathName(path, PathName(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME));
+  PathName file2 = PathName(path, PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME));
   if (File::Exists(file1) && File::Exists(file2))
   {
     return true;
@@ -953,7 +955,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
 #if defined(MIKTEX_UNIX)
         path.ConvertToUnix();
 #endif
-        if (texmfPrefix.empty() || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+        if (texmfPrefix.empty() || (PathName::Compare(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
         {
           packageInfo.runFiles.push_back(path.ToString());
         }
@@ -971,7 +973,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
 #if defined(MIKTEX_UNIX)
         path.ConvertToUnix();
 #endif
-        if (texmfPrefix.empty() || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+        if (texmfPrefix.empty() || (PathName::Compare(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
         {
           packageInfo.docFiles.push_back(path.ToString());
         }
@@ -989,7 +991,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
 #if defined(MIKTEX_UNIX)
         path.ConvertToUnix();
 #endif
-        if (texmfPrefix.empty() || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+        if (texmfPrefix.empty() || (PathName::Compare(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
         {
           packageInfo.sourceFiles.push_back(path.ToString());
         }

@@ -364,7 +364,7 @@ MIKTEXSTATICFUNC(FILE*) FOpen(const char* fileName, const char* modeString)
   FileAccess access(FileAccess::Read);
   bool isTextFile;
   TranslateModeString(modeString, mode, access, isTextFile);
-  return session->OpenFile(fileName, mode, access, isTextFile);
+  return session->OpenFile(PathName(fileName), mode, access, isTextFile);
 }
 
 MIKTEXKPSCEEAPI(FILE*) miktex_kpathsea_open_file(kpathsea kpseInstance, const char* fileName, kpse_file_format_type format)
@@ -683,7 +683,7 @@ MIKTEXSTATICFUNC(std::string) HideMpmRoot(const std::string& searchPath)
   std::string result;
   for (const std::string& path : StringUtil::Split(searchPath, PathNameUtil::PathNameDelimiter))
   {
-    if ((PathName::Compare(path, mpmRootPath, mpmRootPathLen) == 0) && (path.length() == mpmRootPathLen || PathNameUtil::IsDirectoryDelimiter(path[mpmRootPathLen])))
+    if ((PathName::Compare(PathName(path), mpmRootPath, mpmRootPathLen) == 0) && (path.length() == mpmRootPathLen || PathNameUtil::IsDirectoryDelimiter(path[mpmRootPathLen])))
     {
       continue;
     }
@@ -889,7 +889,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpseInstance, const char*
 
 MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const char* fileName, int silent)
 {
-  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool() || Utils::IsSafeFileName(fileName)
+  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool() || Utils::IsSafeFileName(PathName(fileName))
     ? 1
     : 0;
   if (ret == 0 && silent == 0)
@@ -902,7 +902,7 @@ MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const cha
 
 MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const char* fileName, int silent)
 {
-  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool() || Utils::IsSafeFileName(fileName)
+  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool() || Utils::IsSafeFileName(PathName(fileName))
     ? 1
     : 0;
   if (ret == 0 && silent == 0)
@@ -994,7 +994,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_expand(kpathsea kpseInstance, const 
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_readable_file(kpathsea kpseInstance, const char* fileName)
 {
-  if (File::Exists(fileName))
+  if (File::Exists(PathName(fileName)))
   {
     return const_cast<char*>(fileName);
   }

@@ -165,7 +165,7 @@ void TdsUtility::Run(int argc, const char ** argv)
       printOnly = true;
       break;
     case OPT_RECIPE:
-      optionRecipeFiles.push_back(optArg);
+      optionRecipeFiles.push_back(PathName(optArg));
       break;
     case OPT_SOURCE:
       source = optArg;

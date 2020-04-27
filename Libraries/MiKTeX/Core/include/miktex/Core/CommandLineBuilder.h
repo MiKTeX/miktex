@@ -60,10 +60,10 @@ public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Argv() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::string& commandLine);
+  explicit MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::string& commandLine);
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::vector<std::string>& arguments);
+  explicit MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::vector<std::string>& arguments);
 
 public:
   MIKTEXCORETHISAPI(void) Append(const std::string& arguments);
@@ -127,7 +127,7 @@ public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CommandLineBuilder() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string& argument);
+  explicit MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string& argument);
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string& argument1, const std::string& argument2);
@@ -136,7 +136,7 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string& argument1, const std::string& argument2, const std::string& argument3);
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::vector<std::string>& arguments);
+  explicit MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::vector<std::string>& arguments);
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(int argc, const char* const* argv);

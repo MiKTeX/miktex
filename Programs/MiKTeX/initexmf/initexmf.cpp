@@ -735,7 +735,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   {
     invokerName = "unknown process";
   }
-  LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR));
+  LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
   LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(argc, argv));
   FlushPendingTraceMessages();
   if (session->IsAdminMode())
@@ -747,8 +747,8 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     Verbose(T_("Operating on the private (per-user) MiKTeX setup"));
   }
   PathName myName = PathName(argv[0]).GetFileNameWithoutExtension();
-  isMktexlsrMode = myName == "mktexlsr" || myName == "texhash";
-  isTexlinksMode = myName == "texlinks";
+  isMktexlsrMode = myName == PathName("mktexlsr") || myName == PathName("texhash");
+  isTexlinksMode = myName == PathName("texlinks");
   session->SetFindFileCallback(this);
 }
 
@@ -1202,9 +1202,9 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
 #if defined(MIKTEX_UNIX)
     fileExistsOptions += FileExistsOption::SymbolicLink;
 #endif
-    if (File::Exists(linkName, fileExistsOptions))
+    if (File::Exists(PathName(linkName), fileExistsOptions))
     {
-      if (!isRemoveRequested && (!allowOverwrite || (linkType == LinkType::Copy && File::Equals(fileLink.target, linkName))))
+      if (!isRemoveRequested && (!allowOverwrite || (linkType == LinkType::Copy && File::Equals(PathName(fileLink.target), PathName(linkName)))))
       {
         continue;
       }
@@ -1231,7 +1231,7 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
       PrintOnly(fmt::format("rm {}", Q_(linkName)));
       if (!printOnly)
       {
-        File::Delete(linkName, { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
+        File::Delete(PathName(linkName), { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
       }
     }
     if (isRemoveRequested)
@@ -1256,7 +1256,7 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
         PrintOnly(fmt::format("ln -s {} {}", Q_(linkName), Q_(target)));
         if (!printOnly)
         {
-          File::CreateLink(target, linkName, { CreateLinkOption::UpdateFndb, CreateLinkOption::Symbolic });
+          File::CreateLink(PathName(target), PathName(linkName), { CreateLinkOption::UpdateFndb, CreateLinkOption::Symbolic });
         }
         break;
       }
@@ -1264,14 +1264,14 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
       PrintOnly(fmt::format("ln {} {}", Q_(fileLink.target), Q_(linkName)));
       if (!printOnly)
       {
-        File::CreateLink(fileLink.target, linkName, { CreateLinkOption::UpdateFndb });
+        File::CreateLink(PathName(fileLink.target), PathName(linkName), { CreateLinkOption::UpdateFndb });
       }
       break;
     case LinkType::Copy:
       PrintOnly(fmt::format("cp {} {}", Q_(fileLink.target), Q_(linkName)));
       if (!printOnly)
       {
-        File::Copy(fileLink.target, linkName, { FileCopyOption::UpdateFndb });
+        File::Copy(PathName(fileLink.target), PathName(linkName), { FileCopyOption::UpdateFndb });
       }
       break;
     default:
@@ -1596,7 +1596,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       }
       else
       {
-        targetPath = pathBinDir / fileLink.target;
+        targetPath = pathBinDir / PathName(fileLink.target);
       }
       string extension = targetPath.GetExtension();
       if (File::Exists(targetPath))
@@ -1604,7 +1604,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
         vector<string> linkNames;
         for (const string& linkName : fileLink.linkNames)
         {
-          PathName linkPath = linkTargetDirectory / linkName;
+          PathName linkPath = linkTargetDirectory / PathName(linkName);
           if (linkPath == targetPath)
           {
             continue;
@@ -1639,7 +1639,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
         Warning(fmt::format(T_("The {0} executable could not be found."), engine));
         continue;
       }
-      PathName exePath(linkTargetDirectory, formatInfo.name);
+      PathName exePath(linkTargetDirectory, PathName(formatInfo.name));
       if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
       {
         exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
@@ -1679,7 +1679,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
         {
           continue;
         }
-        PathName pathExe(linkTargetDirectory, name);
+        PathName pathExe(linkTargetDirectory, PathName(name));
         if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
         {
           pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
@@ -1765,13 +1765,13 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
     return;
   }
 
-  PathName languageDatPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
+  PathName languageDatPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_LANGUAGE_DAT);
   ofstream languageDat = File::CreateOutputStream(languageDatPath);
 
-  PathName languageDatLuaPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT_LUA;
+  PathName languageDatLuaPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_LANGUAGE_DAT_LUA);
   ofstream languageDatLua = File::CreateOutputStream(languageDatLuaPath);
 
-  PathName languageDefPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_LANGUAGE_DEF;
+  PathName languageDefPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_LANGUAGE_DEF);
   ofstream languageDef = File::CreateOutputStream(languageDefPath);
 
   languageDatLua << "return {" << "\n";
@@ -1895,7 +1895,7 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
   {
     PathName fileName(relPath);
     fileName.RemoveDirectorySpec();
-    if (fileName == relPath)
+    if (fileName == PathName(relPath))
     {
       configFile /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
     }
@@ -1928,7 +1928,7 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
       FatalError(T_("Environment variable EDITOR is not defined."));
 #endif
     }
-    Process::Start(editor, vector<string>{ editor, configFile.ToString() });
+    Process::Start(PathName(editor), vector<string>{ editor, configFile.ToString() });
   }
 }
 
@@ -2110,7 +2110,7 @@ void IniTeXMFApp::RegisterOtherRoots()
     const string& roots = (session->IsAdminMode() ? other.startupConfig.commonRoots : other.startupConfig.userRoots);
     for (const string& r : StringUtil::Split(roots, PathNameUtil::PathNameDelimiter))
     {
-      otherRoots.push_back(r);
+      otherRoots.push_back(PathName(r));
     }
   }
   if (otherRoots.empty())
@@ -2404,7 +2404,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
     case OPT_REGISTER_ROOT:
 
-      registerRoots.push_back(optArg);
+      registerRoots.push_back(PathName(optArg));
       break;
 
     case OPT_REMOVE_FILE:
@@ -2458,7 +2458,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
     case OPT_UNREGISTER_ROOT:
 
-      unregisterRoots.push_back(optArg);
+      unregisterRoots.push_back(PathName(optArg));
       break;
 
     case OPT_UNREGISTER_SHELL_FILE_TYPES:
@@ -2504,9 +2504,9 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   if (optVersion)
   {
     cout
-      << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR) << endl
+      << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
       << endl
-      << "Copyright (C) 1996-2019 Christian Schenk" << endl
+      << "Copyright (C) 1996-2020 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
@@ -2514,13 +2514,13 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   if (!logFile.empty())
   {
-    auto mode = File::Exists(logFile) ? ios_base::app : ios_base::out;
-    logStream = File::CreateOutputStream(logFile, mode);
+    auto mode = File::Exists(PathName(logFile)) ? ios_base::app : ios_base::out;
+    logStream = File::CreateOutputStream(PathName(logFile), mode);
   }
 
   if (optPortable)
   {
-    CreatePortableSetup(portableRoot);
+    CreatePortableSetup(PathName(portableRoot));
   }
 
   if (!startupConfig.userRoots.empty()
@@ -2601,9 +2601,9 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     PrintOnly(fmt::format("fndbadd {}", Q_(fileName)));
     if (!printOnly)
     {
-      if (!Fndb::FileExists(fileName))
+      if (!Fndb::FileExists(PathName(fileName)))
       {
-        records.push_back({ fileName });
+        records.push_back({ PathName(fileName) });
       }
       else
       {
@@ -2623,9 +2623,9 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     PrintOnly(fmt::format("fndbremove {}", Q_(fileName)));
     if (!printOnly)
     {
-      if (Fndb::FileExists(fileName))
+      if (Fndb::FileExists(PathName(fileName)))
       {
-        paths.push_back(fileName);
+        paths.push_back(PathName(fileName));
       }
       else
       {
@@ -2707,7 +2707,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     {
       for (const string& r : updateRoots)
       {
-        UpdateFilenameDatabase(r);
+        UpdateFilenameDatabase(PathName(r));
       }
     }
   }

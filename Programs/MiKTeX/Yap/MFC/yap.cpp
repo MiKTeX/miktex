@@ -206,7 +206,7 @@ void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
     {
       // we have a file name argument; append .dvi to the file
       // name, if necessary
-      PathName pathFileName = arg;
+      PathName pathFileName(arg);
       if (!pathFileName.HasExtension(".dvi"))
       {
         pathFileName.Append(".dvi", false);

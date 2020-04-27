@@ -1,6 +1,6 @@
 /* xetex-miktex.h:                                      -*- C++ -*-
    
-   Copyright (C) 2007-2018 Christian Schenk
+   Copyright (C) 2007-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -220,7 +220,7 @@ public:
 public:
   MiKTeX::Core::PathName GetMemoryDumpFileName() const override
   {
-    return "xetex.fmt";
+    return MiKTeX::Core::PathName("xetex.fmt");
   }
 
 public:

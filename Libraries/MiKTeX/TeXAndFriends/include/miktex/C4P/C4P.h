@@ -649,7 +649,7 @@ template<class T> inline bool c4pfopen(T& f, const char* lpszName, const char* l
   bool reading = (lpszMode[0] == 'r');
   bool text = (lpszMode[1] == 0);
   return f.Open(
-    lpszName,
+    MiKTeX::Core::PathName(lpszName),
     (reading ? MiKTeX::Core::FileMode::Open : MiKTeX::Core::FileMode::Create),
     (reading ? MiKTeX::Core::FileAccess::Read : MiKTeX::Core::FileAccess::Write),
     text,

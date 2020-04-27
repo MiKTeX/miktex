@@ -1,6 +1,6 @@
 /* miktex/Util/Tokenizer.h:                             -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -58,7 +58,7 @@ public:
   MIKTEXUTILTHISAPI(void) SetDelimiters(const std::string& delims);
 
 public:
-  MIKTEXUTILEXPORT MIKTEXTHISCALL operator bool() const;
+  explicit MIKTEXUTILEXPORT MIKTEXTHISCALL operator bool() const;
 
 public:
   MIKTEXUTILTHISAPI(std::string) operator*() const;

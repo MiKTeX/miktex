@@ -273,7 +273,7 @@ bool WebApp::ProcessOption(int opt, const string& optArg)
     EnableInstaller(TriState::True);
     break;
   case OPT_INCLUDE_DIRECTORY:
-    if (Directory::Exists(optArg))
+    if (Directory::Exists(PathName(optArg)))
     {
       PathName path(optArg);
       path.MakeAbsolute();

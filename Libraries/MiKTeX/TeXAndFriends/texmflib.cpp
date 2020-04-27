@@ -1,6 +1,6 @@
 /* texmflib.cpp: TeX'n'Friends helpers
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -259,7 +259,7 @@ STATICFUNC(bool) OpenAlphaFile(void* p, const char* lpszFileName, FileType fileT
   {
     return false;
   }
-  FILE* pfile = session->TryOpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false);
+  FILE* pfile = session->TryOpenFile(path, FileMode::Open, FileAccess::Read, false);
   if (pfile == nullptr)
   {
     return false;

@@ -154,7 +154,7 @@ void CopyFiles(const vector<string>& fileNames, const PathName& destDir)
 {
   for (const string& fileName : fileNames)
   {
-    File::Copy(fileName, PathName(destDir, fileName));
+    File::Copy(PathName(fileName), PathName(destDir, PathName(fileName)));
   }
 }
 
@@ -759,21 +759,21 @@ void Driver::Initialize(McdApp* app, Options* options, const char* fileName)
   tempDirectory = TemporaryDirectory::Create();
 
   // create scratch directory
-  workingDirectory = tempDirectory->GetPathName() / "_src";
+  workingDirectory = tempDirectory->GetPathName() / PathName("_src");
   Directory::Create(workingDirectory);
   workingDirectory.ConvertToUnix();
   app->MyTrace(fmt::format(T_("working directory: {}"), Q_(workingDirectory)));
 
 #if defined(WITH_TEXINFO)
   // create extra directory
-  extraDirectory = tempDirectory->GetPathName() / "_xtr";
+  extraDirectory = tempDirectory->GetPathName() / PathName("_xtr");
   Directory::Create(extraDirectory);
   extraDirectory.ConvertToUnix();
   app->MyTrace(fmt::format(T_("extra directory: {}"), Q_(extraDirectory)));
 #endif
 
   // create aux directory
-  auxDirectory = tempDirectory->GetPathName() / "_aux";
+  auxDirectory = tempDirectory->GetPathName() / PathName("_aux");
   Directory::Create(auxDirectory);
   auxDirectory.ConvertToUnix();
   app->MyTrace(fmt::format(T_("aux directory: {}"), Q_(auxDirectory)));
@@ -788,7 +788,7 @@ void Driver::Initialize(McdApp* app, Options* options, const char* fileName)
   }
 
   // make fully qualified path to the given input file
-  if (PathNameUtil::IsAbsolutePath(givenFileName))
+  if (givenFileName.IsAbsolute())
   {
     pathInputFile = givenFileName;
   }
@@ -988,7 +988,7 @@ void Driver::SetIncludeDirectories()
   }
   for (const string& dir : options->includeDirectories)
   {
-    session->AddInputDirectory(dir, true);
+    session->AddInputDirectory(PathName(dir), true);
   }
 }
 
@@ -1067,7 +1067,7 @@ bool Driver::Check_texinfo_tex()
 
   unique_ptr<TemporaryDirectory> tmpdir = TemporaryDirectory::Create();
 
-  PathName fileName = tmpdir->GetPathName() / "txiversion.tex";
+  PathName fileName = tmpdir->GetPathName() / PathName("txiversion.tex");
   StreamWriter writer(fileName);
   writer.WriteLine("\\input texinfo.tex @bye");
   writer.Close();
@@ -1567,12 +1567,12 @@ bool Driver::Ready()
   // a difference.
   for (const string& aux : auxFiles)
   {
-    PathName auxFile(auxDirectory, aux);
+    PathName auxFile(auxDirectory, PathName(aux));
     app->Verbose(fmt::format(T_("comparing xref file {}..."), Q_(aux)));
     // We only need to keep comparing until we find one that
     // differs, because we'll have to run texindex & tex again no
     // matter how many more there might be.
-    if (!File::Equals(aux, auxFile))
+    if (!File::Equals(PathName(aux), auxFile))
     {
       app->Verbose(fmt::format(T_("xref file {} differed..."), Q_(aux)));
       return false;
@@ -1627,7 +1627,7 @@ void Driver::GetAuxFiles(const PathName& baseName, const char* extension, vector
     // If the file is not suitable to be an index or xref
     // file, don't process it.  The file can't be if its
     // first character is not a backslash or single quote.
-    FileStream stream(File::Open(entry.name, FileMode::Open, FileAccess::Read));
+    FileStream stream(File::Open(PathName(entry.name), FileMode::Open, FileAccess::Read));
     char buf[1];
     if (stream.Read(buf, 1) == 1 && (buf[0] == '\\' || buf[0] == '\''))
     {
@@ -1720,7 +1720,7 @@ void Driver::RunViewer()
     args.insert(args.end(), options->viewerOptions.begin(), options->viewerOptions.end());
     args.push_back(pathDest.ToString());
     app->Verbose(fmt::format(T_("running {}..."), CommandLineBuilder(args).ToString()));
-    Process::Start(szExecutable, args, nullptr, nullptr, nullptr, nullptr, options->startDirectory.GetData());
+    Process::Start(PathName(szExecutable), args, nullptr, nullptr, nullptr, nullptr, options->startDirectory.GetData());
   }
 }
 
@@ -2071,7 +2071,7 @@ void McdApp::Run(int argc, const char** argv)
       }
       else
       {
-        path = options.startDirectory / optArg;
+        path = options.startDirectory / PathName(optArg);
       }
       path.ConvertToUnix();
       options.includeDirectories.push_back(path.GetData());
@@ -2209,7 +2209,7 @@ void McdApp::Run(int argc, const char** argv)
     // See if the file exists.  If it doesn't we're in trouble since, // even though the user may be able to reenter a valid filename at
     // the tex prompt (assuming they're attending the terminal), this
     // script won't be able to find the right xref files and so forth.
-    if (!File::Exists(fileName))
+    if (!File::Exists(PathName(fileName)))
     {
       FatalError(T_("The input file could not be found."));
     }

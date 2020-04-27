@@ -191,7 +191,7 @@ void TeXMFApp::OnTeXMFFinishJob()
       fileName = pimpl->jobName;
     }
     shared_ptr<Session> session = GetSession();
-    session->SetRecorderPath(PathName(GetOutputDirectory(), fileName).AppendExtension(".fls"));
+    session->SetRecorderPath(PathName(GetOutputDirectory(), PathName(fileName)).AppendExtension(".fls"));
   }
   if (pimpl->timeStatistics)
   {
@@ -357,7 +357,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
 
   case OPT_AUX_DIRECTORY:
   {
-    PathName auxDirectory = optArg;
+    PathName auxDirectory(optArg);
     auxDirectory.MakeAbsolute();
     SetAuxDirectory(auxDirectory);
     if (!Directory::Exists(auxDirectory))
@@ -467,7 +467,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
       time_t creationTime;
       time_t lastAccessTime;
       time_t lastWriteTime;
-      File::GetTimes(optArg, creationTime, lastAccessTime, lastWriteTime);
+      File::GetTimes(PathName(optArg), creationTime, lastAccessTime, lastWriteTime);
       jobTime = lastWriteTime;
     }
     SetStartUpTime(jobTime, false);
@@ -497,7 +497,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
 
   case OPT_OUTPUT_DIRECTORY:
   {
-    PathName outputDirectory = optArg;
+    PathName outputDirectory(optArg);
     outputDirectory.MakeAbsolute();
     SetOutputDirectory(outputDirectory);
     if (!Directory::Exists(outputDirectory))
@@ -558,7 +558,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
     break;
 
   case OPT_TCX:
-    SetTcxFileName(optArg);
+    SetTcxFileName(PathName(optArg));
     break;
 
   case OPT_UNDUMP:
@@ -711,7 +711,7 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void
   }
 #endif
 
-  FileStream stream(session->OpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false));
+  FileStream stream(session->OpenFile(path, FileMode::Open, FileAccess::Read, false));
 
   if (pBuf != nullptr)
   {
@@ -750,7 +750,7 @@ void TeXMFApp::ProcessCommandLineOptions()
     && GetArgV()[1][0] != '\\'
     && (pimpl->memoryDumpFileName.empty() || GetTcxFileName().Empty()))
   {
-    CheckFirstLine(GetArgV()[1]);
+    CheckFirstLine(PathName(GetArgV()[1]));
   }
 }
 

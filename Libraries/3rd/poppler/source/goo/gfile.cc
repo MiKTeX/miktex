@@ -728,7 +728,7 @@ GDirEntry::GDirEntry(char *dirPath, char *nameA, GBool doStat) {
 #else
 #ifdef _WIN32
 #if defined(MIKTEX)
-    dir = MiKTeX::Core::Directory::Exists(fullPath->getCString());
+    dir = MiKTeX::Core::Directory::Exists(MiKTeX::Core::PathName(fullPath->getCString()));
 #else
     fa = GetFileAttributesA(fullPath->getCString());
     dir = (fa != 0xFFFFFFFF && (fa & FILE_ATTRIBUTE_DIRECTORY));

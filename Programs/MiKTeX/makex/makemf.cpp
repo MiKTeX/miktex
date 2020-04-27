@@ -231,7 +231,7 @@ void MakeMf::Run(int argc, const char** argv)
   // derive driver name from the TeX font name (e.g., "ecbi3583" =>
   // "ecbi"
   string driverName;
-  session->SplitFontPath(texFontname, nullptr, nullptr, nullptr, &driverName, nullptr);
+  session->SplitFontPath(PathName(texFontname), nullptr, nullptr, nullptr, &driverName, nullptr);
 
   // find the driver file
   {
@@ -290,7 +290,7 @@ void MakeMf::Run(int argc, const char** argv)
   if (!(toStdout || printOnly))
   {
     // make fully qualified destination file name
-    pathDest = destinationDirectory / texFontname;
+    pathDest = destinationDirectory / PathName(texFontname);
     pathDest.AppendExtension(".mf");
     Verbose(fmt::format(T_("Writing on {0}..."), Q_(pathDest)));
     filestream = File::CreateOutputStream(pathDest);

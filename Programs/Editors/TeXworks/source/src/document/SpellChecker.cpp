@@ -60,7 +60,7 @@ QHash<QString, QString> * SpellChecker::getDictionaryList(const bool forceReload
           std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
           for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
           {
-            MiKTeX::Core::PathName dicPath = session->GetRootDirectoryPath(r) / MIKTEX_PATH_HUNSPELL_DICT_DIR;
+            MiKTeX::Core::PathName dicPath = session->GetRootDirectoryPath(r) / MiKTeX::Core::PathName(MIKTEX_PATH_HUNSPELL_DICT_DIR);
             QDir dicDir(QString::fromUtf8(dicPath.GetData()));
             for(const auto& dicFileInfo : dicDir.entryInfoList({ QStringLiteral("*.dic") }, QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase))
             {
@@ -113,7 +113,7 @@ SpellChecker::Dictionary * SpellChecker::getDictionary(const QString& language)
   MIKTEX_AUTO(session->UnloadFilenameDatabase());
   for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
   {
-    MiKTeX::Core::PathName dicPath = session->GetRootDirectoryPath(r) / MIKTEX_PATH_HUNSPELL_DICT_DIR;
+    MiKTeX::Core::PathName dicPath = session->GetRootDirectoryPath(r) / MiKTeX::Core::PathName(MIKTEX_PATH_HUNSPELL_DICT_DIR);
     const QString dictPath = QString::fromStdWString(dicPath.ToWideCharString());
     QFileInfo affFile(dictPath + "/" + language + ".aff");
     QFileInfo dicFile(dictPath + "/" + language + ".dic");

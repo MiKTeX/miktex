@@ -1473,7 +1473,7 @@ void ReadNames(const PathName& path, vector<string>& list)
       if (name[0] == '@')
       {
         // RECURSION
-        ReadNames(&name[1], list);
+        ReadNames(PathName(&name[1]), list);
       }
       else
       {
@@ -1488,7 +1488,7 @@ void ParseList(const string& s, vector<string>& list)
 {
   if (s.length() > 0 && s[0] == '@')
   {
-    ReadNames(&s[1], list);
+    ReadNames(PathName(&s[1]), list);
   }
   else
   {
@@ -1617,7 +1617,7 @@ void Application::Main(int argc, const char** argv)
       // TODO
       Warn(T_("Option --install-some is deprecated"));
 #endif
-      ReadNames(optArg, toBeInstalled);
+      ReadNames(PathName(optArg), toBeInstalled);
       break;
     case OPT_LIST:
       optList = true;
@@ -1806,7 +1806,7 @@ void Application::Main(int argc, const char** argv)
         Error(T_("Already updating all packages."));
       }
       optUpdate = true;
-      ReadNames(optArg, updates);
+      ReadNames(PathName(optArg), updates);
       break;
     case OPT_UPGRADE:
       optUpgrade = true;
@@ -1900,7 +1900,7 @@ void Application::Main(int argc, const char** argv)
     {
       invokerName = "unknown process";
     }
-    LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString("mpmcli", MIKTEX_COMPONENT_VERSION_STR));
+    LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString("mpmcli", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(argc, argv));
   }
 

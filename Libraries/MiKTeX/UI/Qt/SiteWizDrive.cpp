@@ -1,6 +1,6 @@
 /* SiteWizDrive.cpp:
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2020 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -132,7 +132,7 @@ void SiteWizDrive::FindMiKTeXCDs(vector<SiteWizDrive::Location>& locations)
       continue;
     }
 
-    if (!Utils::IsMiKTeXDirectRoot(szDrive))
+    if (!Utils::IsMiKTeXDirectRoot(PathName(szDrive)))
     {
       continue;
     }

@@ -256,12 +256,12 @@ int main(int argc, char* argv[])
     PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
     name += MIKTEX_EXE_FILE_SUFFIX;
 #if defined(MIKTEX_WINDOWS)
-    if (name == MIKTEX_TASKBAR_ICON_EXE)
+    if (name == PathName(MIKTEX_TASKBAR_ICON_EXE))
     {
       optHide = true;
       optMkmaps = true;
     }
-    else if (name == MIKTEX_UPDATE_EXE || name == MIKTEX_UPDATE_ADMIN_EXE)
+    else if (name == PathName(MIKTEX_UPDATE_EXE) || name == PathName(MIKTEX_UPDATE_ADMIN_EXE))
     {
       startPage = MainWindow::Pages::Updates;
     }
@@ -368,12 +368,12 @@ int main(int argc, char* argv[])
       log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
       isLog4cxxConfigured = true;
       traceSink.FlushPendingTraceMessages();
-      LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR));
+      LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX Console", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     }
     if (optVersion)
     {
       cout
-        << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR) << endl
+        << Utils::MakeProgramVersionString("MiKTeX Console", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
         << "Copyright (C) 2018-2020 Christian Schenk" << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;

@@ -171,7 +171,7 @@ void MiKTeXHelp::Init(const Session::InitInfo& initInfo, vector<char*>& args)
 
 void MiKTeXHelp::ShowVersion()
 {
-  cout << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR) << endl
+  cout << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
     << "Copyright (C) 2004-2020 Christian Schenk" << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
@@ -237,7 +237,7 @@ void MiKTeXHelp::FindDocFilesByPackage(const string& packageName, vector<string>
     while (it != vec.end())
     {
       PathName name = PathName(*it).GetFileNameWithoutExtension();
-      if (PathName::Compare(name, packageName) == 0)
+      if (PathName::Compare(name, PathName(packageName)) == 0)
       {
         files.push_back(*it);
         it = vec.erase(it);
@@ -308,11 +308,11 @@ void MiKTeXHelp::ViewFile(const PathName& fileName)
       viewer = StringUtil::WideCharToUTF8(szExecutable);
       if (printOnly)
       {
-        cout << Q_(szExecutable) << ' ' << Q_(fileName) << endl;
+        cout << Q_(PathName(szExecutable)) << ' ' << Q_(fileName) << endl;
       }
       else
       {
-        Process::Start(szExecutable, { PathName(szExecutable).GetFileNameWithoutExtension().ToString(), fileName.ToString() });
+        Process::Start(PathName(szExecutable), { PathName(szExecutable).GetFileNameWithoutExtension().ToString(), fileName.ToString() });
       }
       return;
     }
@@ -530,11 +530,11 @@ void MiKTeXHelp::Run(int argc, const char** argv)
     {
       if (filesByPackage.size() > 0)
       {
-        ViewFile(filesByPackage[0]);
+        ViewFile(PathName(filesByPackage[0]));
       }
       else
       {
-        ViewFile(filesByName[0]);
+        ViewFile(PathName(filesByName[0]));
       }
     }
     else

@@ -142,7 +142,7 @@ void DviDoc::EndDviPrinting()
 void DviDoc::CreateDocument(const char* lpszPathName)
 {
   fileStatus = DVIFILE_NOT_LOADED;
-  modificationTime = File::GetLastWriteTime(lpszPathName);
+  modificationTime = File::GetLastWriteTime(PathName(lpszPathName));
   MIKTEXMFMODE mfmode;
   if (!pSession->GetMETAFONTMode(GetMetafontMode(), mfmode))
   {
@@ -302,7 +302,7 @@ DviDoc* DviDoc::GetActiveDocument()
 
 PathName DviDoc::GetDocDir()
 {
-  PathName result = GetPathName();
+  PathName result(GetPathName());
   result.RemoveFileSpec();
   return result;
 }

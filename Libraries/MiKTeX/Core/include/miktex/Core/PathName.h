@@ -98,12 +98,12 @@ public:
   PathName& operator=(PathName&& other) noexcept = default;
 
 public:
-  ~PathName() = default;
+  virtual ~PathName() noexcept = default;
 
   /// Copies a character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
-  /*explicit*/ PathName(const char* path) :
+  explicit PathName(const char* path) :
     Base(path)
   {
   }
@@ -111,7 +111,7 @@ public:
   /// Copies a wide character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
-  /*explicit*/ PathName(const wchar_t* path) :
+  explicit PathName(const wchar_t* path) :
     Base(path)
   {
   }
@@ -119,7 +119,7 @@ public:
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  /*explicit*/ PathName(const std::string& path) :
+  explicit PathName(const std::string& path) :
     Base(path)
   {
   }
@@ -127,7 +127,7 @@ public:
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  /*explicit*/ PathName(const std::wstring& path) :
+  explicit PathName(const std::wstring& path) :
     Base(path)
   {
   }

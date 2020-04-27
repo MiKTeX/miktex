@@ -61,7 +61,7 @@ typedef AutoResource<HMETAFILE, DeleteMetaFile_> AutoDeleteMetaFile;
 
 InputStream::InputStream(const char* fileName) :
   fileName(fileName),
-  stream(File::Open(fileName, FileMode::Open, FileAccess::Read, false))
+  stream(File::Open(PathName(fileName), FileMode::Open, FileAccess::Read, false))
 {
 }
 

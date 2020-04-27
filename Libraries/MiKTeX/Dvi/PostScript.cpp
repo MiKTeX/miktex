@@ -95,7 +95,7 @@ void PostScript::ExecuteEncapsulatedPostScript(const char* fileName)
   unsigned length = 0;
 
 
-  epsStream.Attach(File::Open(fileName, FileMode::Open, FileAccess::Read, false));
+  epsStream.Attach(File::Open(PathName(fileName), FileMode::Open, FileAccess::Read, false));
   struct
   {
     unsigned char magic[4];
@@ -155,7 +155,7 @@ FILE* PostScript::ConvertToEPS(const char* fileName)
   FILE* pFileIn;
   try
   {
-    pFileIn = File::Open(fileName, FileMode::Open, FileAccess::Read, false);
+    pFileIn = File::Open(PathName(fileName), FileMode::Open, FileAccess::Read, false);
   }
   catch (const exception&)
   {
@@ -163,10 +163,9 @@ FILE* PostScript::ConvertToEPS(const char* fileName)
     fclose(filePipeWrite);
     throw;
   }
-  thread converterThread(&PostScript::ConvertToEPSThread, this, fileName, pFileIn, filePipeWrite);
   try
   {
-    thread converterThread(&PostScript::ConvertToEPSThread, this, fileName, pFileIn, filePipeWrite);
+    thread converterThread(&PostScript::ConvertToEPSThread, this, PathName(fileName), pFileIn, filePipeWrite);
     converterThread.detach();
   }
   catch (const exception&)
@@ -469,15 +468,15 @@ bool PostScript::FindGraphicsFile(const char* fileName, PathName& result)
       if (!done)
       {
         // FIXME:hard-coded string
-        File::Delete(szTempFileName);
+        File::Delete(PathName(szTempFileName));
         MIKTEX_FATAL_ERROR_2(T_("Execution of an embedded shell command failed for some reason."), "command", command);
       }
-      dviImpl->RememberTempFile(fileName + 1, szTempFileName);
+      dviImpl->RememberTempFile(fileName + 1, PathName(szTempFileName));
       result = szTempFileName;
       return true;
     }
   }
-  else if (IsZFileName(fileName))
+  else if (IsZFileName(PathName(fileName)))
   {
     if (dviImpl->TryGetTempFile(fileName, result))
     {

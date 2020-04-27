@@ -55,11 +55,11 @@ Directory::~Directory () {
 bool Directory::open (string dirname) {
 	_dirname = dirname;
 #if defined(MIKTEX)
-        if (!MiKTeX::Core::Directory::Exists(dirname))
+        if (!MiKTeX::Core::Directory::Exists(MiKTeX::Core::PathName(dirname)))
         {
           return false;
         }
-        directoryLister = MiKTeX::Core::DirectoryLister::Open(dirname);
+        directoryLister = MiKTeX::Core::DirectoryLister::Open(MiKTeX::Core::PathName(dirname));
         return true;
 #else
 #ifdef _WIN32

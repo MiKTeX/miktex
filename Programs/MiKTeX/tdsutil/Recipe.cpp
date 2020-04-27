@@ -60,7 +60,7 @@ void CollectPathNames(vector<PathName>& pathNames, const PathName& dir, const st
   DirectoryEntry2 entry;
   while (lister->GetNext(entry))
   {
-    pathNames.push_back(dir / entry.name);
+    pathNames.push_back(dir / PathName(entry.name));
   }
 }
 
@@ -73,11 +73,11 @@ void GetSnapshot(unordered_set<PathName>& pathNames, const PathName& dir, const 
   {
     if (entry.isDirectory)
     {
-      subDirectories.push_back(dir / entry.name);
+      subDirectories.push_back(dir / PathName(entry.name));
     }
     else
     {
-      pathNames.insert(dir / entry.name);
+      pathNames.insert(dir / PathName(entry.name));
     }
   }
   for (const PathName& subDir : subDirectories)
@@ -275,7 +275,7 @@ void Recipe::WriteFiles()
     {
       MIKTEX_FATAL_ERROR(T_("missing lines"));
     }
-    StreamWriter writer(workDir / fileName);
+    StreamWriter writer(workDir / PathName(fileName));
     for (const string& line : lines)
     {
       writer.WriteLine(line);
@@ -298,8 +298,8 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName existingName = PathName(actionDir) / argv[1];
-    PathName newName = PathName(actionDir) / argv[2];
+    PathName existingName = PathName(actionDir) / PathName(argv[1]);
+    PathName newName = PathName(actionDir) / PathName(argv[2]);
     if (File::Exists(existingName))
     {
       Verbose("copying '" + argv[1] + "' to '" + argv[2] + "'");
@@ -313,8 +313,8 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName oldName = PathName(actionDir) / argv[1];
-    PathName newName = PathName(actionDir) / argv[2];
+    PathName oldName = PathName(actionDir) / PathName(argv[1]);
+    PathName newName = PathName(actionDir) / PathName(argv[2]);
     if (File::Exists(oldName))
     {
       Verbose("moving file '" + argv[1] + "' to '" + argv[2] + "'");
@@ -334,7 +334,7 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName name = PathName(actionDir) / argv[1];
+    PathName name = PathName(actionDir) / PathName(argv[1]);
     if (File::Exists(name))
     {
       Verbose("removing file '" + argv[1] + "'");
@@ -354,7 +354,7 @@ void Recipe::DoAction(const string& action, const PathName& actionDir)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName name = PathName(actionDir) / argv[1];
+    PathName name = PathName(actionDir) / PathName(argv[1]);
     if (!File::Exists(name))
     {
       MIKTEX_FATAL_ERROR(T_("cannot run unpack action because the file does not exist"));
@@ -393,21 +393,21 @@ void Recipe::Unpack(const PathName& path)
     MIKTEX_FATAL_ERROR(T_("no archive file type"));
   }
   string command;
-  PathName extension = fileName.substr(extPos);
+  PathName extension(fileName.substr(extPos));
   string relPath = Utils::GetRelativizedPath(path.GetData(), workDir.GetData());
-  if (extension == ".zip")
+  if (extension == PathName(".zip"))
   {
     command = string("unzip") + " " + relPath;
   }
-  else if (extension == ".tar.gz")
+  else if (extension == PathName(".tar.gz"))
   {
     command = string("tar") + " -xzf " + relPath;
   }
-  else if (extension == ".tar.bz2")
+  else if (extension == PathName(".tar.bz2"))
   {
     command = string("tar") + " -xjf " + relPath;
   }
-  else if (extension == ".tar.lzma" || extension == ".tar.xz")
+  else if (extension == PathName(".tar.lzma") || extension == PathName(".tar.xz"))
   {
     command = string("tar") + " -xJf " + relPath;
   }
@@ -529,7 +529,7 @@ void Recipe::InstallFileSets()
     {
       MIKTEX_FATAL_ERROR(T_("missing file patterns"));
     }
-    Install(patterns, session->Expand(tdsdir, this));
+    Install(patterns, PathName(session->Expand(tdsdir, this)));
   }
 }
 

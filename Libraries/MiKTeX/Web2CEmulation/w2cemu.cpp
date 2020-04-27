@@ -96,7 +96,7 @@ static FILE* TryFOpen(const char* path, const char* modeString)
   FileAccess access(FileAccess::Read);
   bool isTextFile;
   TranslateModeString(modeString, mode, access, isTextFile);
-  return session->TryOpenFile(path, mode, access, isTextFile);
+  return session->TryOpenFile(PathName(path), mode, access, isTextFile);
 }
 
 int Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* modeString)
@@ -118,7 +118,7 @@ int Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* mo
   }
   if (*ppfile != nullptr)
   {
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(path);
+    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(PathName(path));
   }
   MIKTEX_FREE(path);
   return *ppfile == nullptr ? 0 : 1;
@@ -131,7 +131,7 @@ void Web2C::RecordFileName(const char* path, FileAccess access)
   {
     session->StartFileInfoRecorder();
   }
-  session->RecordFileInfo(path, access);
+  session->RecordFileInfo(PathName(path), access);
 }
 
 void miktex_web2c_record_file_name(const char* path, int reading)
@@ -142,7 +142,7 @@ void miktex_web2c_record_file_name(const char* path, int reading)
 void Web2C::ChangeRecorderFileName(const char* fileName)
 {
   shared_ptr<Session> session = Session::Get();
-  PathName path(GetOutputDirectory(), fileName);
+  PathName path(GetOutputDirectory(), PathName(fileName));
   path.AppendExtension(".fls");
   session->SetRecorderPath(path);
 }
@@ -179,7 +179,7 @@ void Web2C::SetOutputDirectory(const PathName& path)
 
 void miktex_web2c_set_output_directory(const char* path)
 {
-  Web2C::SetOutputDirectory(path);
+  Web2C::SetOutputDirectory(PathName(path));
 }
 
 PathName Web2C::GetOutputDirectory()

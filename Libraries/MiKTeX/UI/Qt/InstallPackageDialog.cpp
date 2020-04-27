@@ -1,6 +1,6 @@
 /* InstallPackageDialog.cpp:
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2020 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -75,7 +75,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
       leInstallationSource->setText(T_("<Random package repository>"));
     }
     PathName commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
-    PathName userInstallRoot = session->IsAdminMode() ? "" : session->GetSpecialPath(SpecialPath::UserInstallRoot);
+    PathName userInstallRoot = session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserInstallRoot);
     bool enableCommonInstall = session->IsSharedSetup() && (session->IsAdminMode() || session->IsUserAnAdministrator());
     enableCommonInstall = enableCommonInstall && Directory::Exists(commonInstallRoot);
     if (enableCommonInstall)

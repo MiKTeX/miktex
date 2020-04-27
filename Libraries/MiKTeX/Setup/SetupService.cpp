@@ -58,7 +58,7 @@ SETUPSTATICFUNC(int) ComparePaths(const PathName& path1, const PathName& path2, 
     && (GetShortPathNameW(path1.ToWideCharString().c_str(), szShortPath1, BufferSizes::MaxPath) > 0)
     && (GetShortPathNameW(path2.ToWideCharString().c_str(), szShortPath2, BufferSizes::MaxPath) > 0))
   {
-    return PathName::Compare(szShortPath1, szShortPath2);
+    return PathName::Compare(PathName(szShortPath1), PathName(szShortPath2));
   }
 #endif
   return PathName::Compare(path1, path2);
@@ -234,7 +234,7 @@ PackageLevel SetupService::SearchLocalRepository(PathName& localRepository, Pack
   }
 
   // try ..\tm\packages
-  localRepository = session->GetMyLocation(false) / ".." / "tm" / "packages";
+  localRepository = session->GetMyLocation(false) / PathName("..") / PathName("tm") / PathName("packages");
   localRepository.MakeAbsolute();
   packageLevel_ = SetupService::TestLocalRepository(localRepository, requestedPackageLevel);
   if (packageLevel_ != PackageLevel::None)
@@ -259,7 +259,7 @@ PackageLevel SetupService::SearchLocalRepository(PathName& localRepository, Pack
 
 PackageLevel SetupService::TestLocalRepository(const PathName& pathRepository, PackageLevel requestedPackageLevel)
 {
-  PathName pathInfoFile(pathRepository, DOWNLOAD_INFO_FILE);
+  PathName pathInfoFile(pathRepository, PathName(DOWNLOAD_INFO_FILE));
   if (!File::Exists(pathInfoFile))
   {
     return PackageLevel::None;
@@ -303,9 +303,9 @@ bool SetupService::IsMiKTeXDirect(PathName& root)
 {
   // check ..\texmf\miktex\config\miktexstartup.ini
   shared_ptr<Session> session = Session::Get();
-  root = session->GetMyLocation(false) / "..";
+  root = session->GetMyLocation(false) / PathName("..");
   root.MakeAbsolute();
-  PathName pathStartupConfig = root / "texmf" / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+  PathName pathStartupConfig = root / PathName("texmf") / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
   if (!File::Exists(pathStartupConfig))
   {
     return false;
@@ -337,7 +337,7 @@ unique_ptr<TemporaryDirectory> SetupService::ExtractFiles()
   // TODO: get path of running executable
   UNIMPLEMENTED();
 #endif
-  FileStream myImage(File::Open(szPath, FileMode::Open, FileAccess::Read, false));
+  FileStream myImage(File::Open(PathName(szPath), FileMode::Open, FileAccess::Read, false));
   char magic[16];
   while (myImage.Read(magic, 16) == 16)
   {
@@ -392,7 +392,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
   // we must have an intermediate log file
   if (!logStream.is_open())
   {
-    return "";
+    return PathName();
   }
 
   // close the intermediate log file
@@ -401,7 +401,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
   if (cancel)
   {
     File::Delete(intermediateLogFile);
-    return "";
+    return PathName();
   }
 
   // determine the final log directory
@@ -416,7 +416,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
     {
       if (Directory::Exists(GetInstallRoot()))
       {
-        pathLogDir = GetInstallRoot() / MIKTEX_PATH_MIKTEX_CONFIG_DIR;
+        pathLogDir = GetInstallRoot() / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR);
       }
       else
       {
@@ -438,7 +438,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
     {
       // remove the intermediate log file
       File::Delete(intermediateLogFile);
-      return "";
+      return PathName();
     }
   }
 
@@ -503,13 +503,13 @@ void SetupServiceImpl::LogHeader()
   if (options.Task != SetupTask::Download)
   {
     Log(fmt::format("UserRoots: {}\n", options.Config.userRoots.empty() ? T_("<none specified>") : options.Config.userRoots));
-    Log(fmt::format("UserData: {}\n", options.Config.userDataRoot.Empty() ? T_("<none specified>") : options.Config.userDataRoot));
-    Log(fmt::format("UserConfig: {}\n", options.Config.userConfigRoot.Empty() ? T_("<none specified>") : options.Config.userConfigRoot));
+    Log(fmt::format("UserData: {}\n", options.Config.userDataRoot.Empty() ? T_("<none specified>") : options.Config.userDataRoot.ToString()));
+    Log(fmt::format("UserConfig: {}\n", options.Config.userConfigRoot.Empty() ? T_("<none specified>") : options.Config.userConfigRoot.ToString()));
     Log(fmt::format("CommonRoots: {}\n", options.Config.commonRoots.empty() ? T_("<none specified>") : options.Config.commonRoots));
-    Log(fmt::format("CommonData: {}\n", options.Config.commonDataRoot.Empty() ? T_("<none specified>") : options.Config.commonDataRoot));
-    Log(fmt::format("CommonConfig: {}\n", options.Config.commonConfigRoot.Empty() ? T_("<none specified>") : options.Config.commonConfigRoot));
+    Log(fmt::format("CommonData: {}\n", options.Config.commonDataRoot.Empty() ? T_("<none specified>") : options.Config.commonDataRoot.ToString()));
+    Log(fmt::format("CommonConfig: {}\n", options.Config.commonConfigRoot.Empty() ? T_("<none specified>") : options.Config.commonConfigRoot.ToString()));
     PathName installRoot = GetInstallRoot();
-    Log(fmt::format("Installation: {}\n", installRoot.Empty() ? T_("<none specified>") : installRoot));
+    Log(fmt::format("Installation: {}\n", installRoot.Empty() ? T_("<none specified>") : installRoot.ToString()));
   }
 }
 
@@ -566,9 +566,9 @@ PathName SetupServiceImpl::GetULogFileName()
   }
   else
   {
-    directory = GetInstallRoot() / MIKTEX_PATH_MIKTEX_CONFIG_DIR;
+    directory = GetInstallRoot() / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR);
   }
-  return directory / MIKTEX_UNINSTALL_LOG;
+  return directory / PathName(MIKTEX_UNINSTALL_LOG);
 }
 
 void SetupServiceImpl::ULogClose()
@@ -805,10 +805,10 @@ void SetupServiceImpl::DoTheDownload()
 
   // copy the license file
   PathName licenseFile;
-  if (FindFile(LICENSE_FILE, licenseFile))
+  if (FindFile(PathName(LICENSE_FILE), licenseFile))
   {
-    PathName licenseFileDest(options.LocalPackageRepository, LICENSE_FILE);
-    if (ComparePaths(licenseFile.GetData(), licenseFileDest.GetData(), true) != 0)
+    PathName licenseFileDest(options.LocalPackageRepository, PathName(LICENSE_FILE));
+    if (ComparePaths(licenseFile, licenseFileDest, true) != 0)
     {
       File::Copy(licenseFile, licenseFileDest);
     }
@@ -822,9 +822,9 @@ void SetupServiceImpl::DoTheDownload()
     MIKTEX_FATAL_WINDOWS_ERROR("GetModuleFileNameW");
   }
   PathName pathDest(options.LocalPackageRepository, PathName(szSetupPath).GetFileName());
-  if (ComparePaths(WU_(szSetupPath), pathDest, true) != 0)
+  if (ComparePaths(PathName(szSetupPath), pathDest, true) != 0)
   {
-    File::Copy(WU_(szSetupPath), pathDest);
+    File::Copy(PathName(szSetupPath), pathDest);
   }
 #else
   // TODO: copy setup program
@@ -881,7 +881,7 @@ void SetupServiceImpl::DoTheInstallation()
   StartupConfig startupConfig;
   if (options.IsPortable)
   {
-    startupConfig.commonInstallRoot = options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
+    startupConfig.commonInstallRoot = options.PortableRoot / PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR);
     startupConfig.userInstallRoot = startupConfig.commonInstallRoot;
   }
   else if (options.IsCommonSetup)
@@ -908,12 +908,12 @@ void SetupServiceImpl::DoTheInstallation()
   if (options.Task == SetupTask::InstallFromCD)
   {
     isArchive = false;
-    pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+    pathDB = options.MiKTeXDirectRoot / PathName("texmf") / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
   }
   else
   {
     isArchive = true;
-    pathDB = options.LocalPackageRepository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
+    pathDB = options.LocalPackageRepository / PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
   }
   ReportLine(T_("Loading package database..."));
   packageManager->LoadDatabase(pathDB, isArchive);
@@ -1052,7 +1052,7 @@ void SetupServiceImpl::DoCleanUp()
   shared_ptr<Session> session = Session::Get();
 
 #if defined(MIKTEX_WINDOWS)
-  logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
+  logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_UNINST_LOG));
 #endif
 
   if (options.CleanupOptions[CleanupOption::Links])
@@ -1458,7 +1458,7 @@ PathName SetupServiceImpl::GetInstallRoot() const
 {
   if (options.IsPortable)
   {
-    return options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
+    return options.PortableRoot / PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR);
   }
   else if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
   {
@@ -1480,7 +1480,7 @@ PathName SetupServiceImpl::GetBinDir() const
   }
   else
   {
-    return GetInstallRoot() / MIKTEX_PATH_BIN_DIR;
+    return GetInstallRoot() / PathName(MIKTEX_PATH_BIN_DIR);
   }
 }
 
@@ -1489,7 +1489,7 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   shared_ptr<Session> session = Session::Get();
 
   // make absolute exe path name
-  PathName exePath = GetBinDir() / MIKTEX_INITEXMF_EXE;
+  PathName exePath = GetBinDir() / PathName(MIKTEX_INITEXMF_EXE);
 
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
@@ -1537,7 +1537,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
 {
   shared_ptr<Session> session = Session::Get();
   // make absolute exe path name
-  PathName exePath = GetBinDir() / MIKTEX_MPM_EXE;
+  PathName exePath = GetBinDir() / PathName(MIKTEX_MPM_EXE);
 
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
@@ -1560,7 +1560,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
 
 void SetupServiceImpl::CreateInfoFile()
 {
-  StreamWriter stream(PathName(options.LocalPackageRepository, DOWNLOAD_INFO_FILE));
+  StreamWriter stream(PathName(options.LocalPackageRepository, PathName(DOWNLOAD_INFO_FILE)));
   const char* lpszPackageSet;
   switch (options.PackageLevel)
   {
@@ -1597,7 +1597,7 @@ void SetupServiceImpl::CreateInfoFile()
   RepositoryInfo repositoryInfo;
   if (packageManager->TryGetRepositoryInfo(options.RemotePackageRepository, repositoryInfo))
   {
-    StreamWriter stream(PathName(options.LocalPackageRepository, "pr.ini"));
+    StreamWriter stream(PathName(options.LocalPackageRepository, PathName("pr.ini")));
     stream.WriteLine("[repository]");
     stream.WriteLine(fmt::format("date={}", repositoryInfo.timeDate));
     stream.WriteLine(fmt::format("version={}", repositoryInfo.version));
@@ -1777,7 +1777,7 @@ void SetupServiceImpl::CollectFiles(vector<PathName>& vec, const PathName& dir, 
     }
     else
     {
-      PathName path(dir, entry.name);
+      PathName path(dir, PathName(entry.name));
       if (path.HasExtension(lpszExt))
       {
         vec.push_back(path);
@@ -1788,7 +1788,7 @@ void SetupServiceImpl::CollectFiles(vector<PathName>& vec, const PathName& dir, 
   for (const string& s : subDirs)
   {
     // RECURSION
-    CollectFiles(vec, PathName(dir, s), lpszExt);
+    CollectFiles(vec, PathName(dir, PathName(s)), lpszExt);
   }
 }
 
@@ -2090,7 +2090,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     }
     pkgIter->Dispose();
   }
-  PathName issuesJson = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_ISSUES_JSON;
+  PathName issuesJson = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_ISSUES_JSON);
   Directory::Create(issuesJson.GetDirectoryName());
   File::CreateOutputStream(issuesJson) << json(result);
   session->SetConfigValue(
@@ -2104,7 +2104,7 @@ vector<Issue> SetupService::GetIssues()
 {
   vector<Setup::Issue> issues;
   shared_ptr<Session> session = Session::Get();
-  PathName issuesJson = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_ISSUES_JSON;
+  PathName issuesJson = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_ISSUES_JSON);
   if (File::Exists(issuesJson))
   {
     try

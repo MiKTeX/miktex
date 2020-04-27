@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebAppInputLine.h:              -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -145,7 +145,7 @@ public:
   MiKTeX::Core::PathName GetNameOfFile() const
   {
     IInputOutput* inputOutput = GetInputOutput();
-    return inputOutput->nameoffile();
+    return MiKTeX::Core::PathName(inputOutput->nameoffile());
   }
 
 public:

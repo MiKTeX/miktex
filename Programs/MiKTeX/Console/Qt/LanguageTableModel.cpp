@@ -144,7 +144,7 @@ vector<string> LanguageTableModel::WhichPackage(const string& texInputfile)
   directoryPattern /= "tex//";
   vector<Fndb::Record> records;
   vector<string> result;
-  if (Fndb::Search(texInputfile, directoryPattern.ToString(), false, records))
+  if (Fndb::Search(PathName(texInputfile), directoryPattern.ToString(), false, records))
   {
     for (const auto& r : records)
     {

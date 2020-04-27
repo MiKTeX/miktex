@@ -56,7 +56,7 @@
 
 inline bool HasPrefix(const std::string& s1, const std::string& s2)
 {
-  return MiKTeX::Core::PathName::Compare(s1, s2, s2.length()) == 0;
+  return MiKTeX::Core::PathName::Compare(MiKTeX::Core::PathName(s1), MiKTeX::Core::PathName(s2), s2.length()) == 0;
 }
 
 class ProcessOutputTrash :
@@ -267,7 +267,7 @@ protected:
       return true;
     }
     Verbose(T_("METAFONT failed for some reason"));
-    MiKTeX::Core::PathName pathLogFile = workingDirectory / name;
+    MiKTeX::Core::PathName pathLogFile = workingDirectory / MiKTeX::Core::PathName(name);
     pathLogFile.AppendExtension(".log");
     bool noError = true;
     size_t nStrangePaths = 0;

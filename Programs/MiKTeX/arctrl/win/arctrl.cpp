@@ -292,7 +292,7 @@ void ArCtrl::StartAR()
   {
     FatalError(T_("The PDF viewer could not be located."));
   }
-  unique_ptr<Process> pProcess(Process::Start(ProcessStartInfo(szExecutable)));
+  unique_ptr<Process> pProcess(Process::Start(ProcessStartInfo(PathName(szExecutable))));
   ARstarted = true;
 #if 0
   // <todo>
@@ -503,7 +503,7 @@ bool ArCtrl::Execute(const string& commandLine)
       cerr << T_("Error: missing file name argument.") << endl;
       return true;
     }
-    DocOpen(*tok);
+    DocOpen(PathName(*tok));
   }
   else if (Utils::EqualsIgnoreCase(command, "close"))
   {
@@ -512,7 +512,7 @@ bool ArCtrl::Execute(const string& commandLine)
       cerr << T_("Error: missing file name argument.") << endl;
       return true;
     }
-    DocClose(*tok);
+    DocClose(PathName(*tok));
   }
   else if (Utils::EqualsIgnoreCase(command, "closeall"))
   {
@@ -537,7 +537,7 @@ bool ArCtrl::Execute(const string& commandLine)
       cerr << T_("Error: missing page number argument.") << endl;
       return true;
     }
-    DocGoTo(fileName, std::stoi(*tok) - 1);
+    DocGoTo(PathName(fileName), std::stoi(*tok) - 1);
   }
   else if (Utils::EqualsIgnoreCase(command, "gotoname"))
   {
@@ -553,7 +553,7 @@ bool ArCtrl::Execute(const string& commandLine)
       cerr << T_("Error: missing name dest argument.") << endl;
       return true;
     }
-    DocGoToNameDest(fileName, *tok);
+    DocGoToNameDest(PathName(fileName), *tok);
   }
   else if (Utils::EqualsIgnoreCase(command, "show"))
   {

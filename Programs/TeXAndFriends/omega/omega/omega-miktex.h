@@ -1,6 +1,6 @@
 /* omega-miktex.h:                                      -*- C++ -*-
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -214,7 +214,7 @@ public:
 public:
   MiKTeX::Core::PathName GetMemoryDumpFileName() const override
   {
-    return "omega.fmt";
+    return MiKTeX::Core::PathName("omega.fmt");
   }
 
 public:
@@ -255,7 +255,7 @@ public:
     {
       return false;
     }
-    FILE* file = session->TryOpenFile(fileName.GetData(), MiKTeX::Core::FileMode::Open, MiKTeX::Core::FileAccess::Read, false);
+    FILE* file = session->TryOpenFile(fileName, MiKTeX::Core::FileMode::Open, MiKTeX::Core::FileAccess::Read, false);
     if (file == nullptr)
     {
       return false;

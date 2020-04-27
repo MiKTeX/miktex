@@ -237,13 +237,13 @@ PackageDataStore& PackageDataStore::Load()
   unique_ptr<Cfg> cfg = Cfg::Create();
   if (!session->IsAdminMode())
   {
-    PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+    PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
     if (File::Exists(userPath))
     {
       cfg->Read(userPath);
     }
   }
-  PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+  PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
   if ((session->IsAdminMode() || session->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize() != session->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize()) && File::Exists(commonPath))
   {
     cfg->SetOptions({ Cfg::Option::NoOverwriteKeys });
@@ -381,8 +381,8 @@ void PackageDataStore::LoadVarData()
   if (!comboCfg.Loaded())
   {
     comboCfg.Load(
-      session->IsAdminMode() ? "" : session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGES_INI,
-      session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGES_INI);
+      session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserInstallRoot) / PathName(MIKTEX_PATH_PACKAGES_INI),
+      session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_PACKAGES_INI));
   }
 }
 

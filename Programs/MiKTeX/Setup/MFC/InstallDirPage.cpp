@@ -120,7 +120,7 @@ BOOL InstallDirPage::OnKillActive()
       }
       if (ret)
       {
-        SetupApp::Instance->SetInstallationDirectory(installDir.GetString());
+        SetupApp::Instance->SetInstallationDirectory(PathName(installDir.GetString()));
       }
   }
     catch (const MiKTeXException& e)

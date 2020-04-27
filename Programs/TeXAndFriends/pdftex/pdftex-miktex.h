@@ -300,7 +300,7 @@ public:
 public:
   MiKTeX::Core::PathName GetMemoryDumpFileName() const override
   {
-    return "pdftex.fmt";
+    return MiKTeX::Core::PathName("pdftex.fmt");
   }
 
 public:

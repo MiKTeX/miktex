@@ -590,7 +590,7 @@ bool FindFile(const PathName& fileName, PathName& result)
 bool ReadSetupWizIni(SetupCommandLineInfo& cmdinfo)
 {
   PathName fileName;
-  if (!FindFile("setupwiz.opt", fileName))
+  if (!FindFile(PathName("setupwiz.opt"), fileName))
   {
     return false;
   }
@@ -929,7 +929,7 @@ BOOL SetupApp::InitInstance()
 
     if (SetupApp::Instance->CheckUpdatesOnExit)
     {
-      PathName miktexConsole(GetInstallationDirectory() / MIKTEX_PATH_BIN_DIR / MIKTEX_CONSOLE_EXE);
+      PathName miktexConsole(GetInstallationDirectory() / PathName(MIKTEX_PATH_BIN_DIR) / PathName(MIKTEX_CONSOLE_EXE));
       vector<string> args{ "--hide", "--check-updates" };
       if (options.IsCommonSetup)
       {
@@ -949,7 +949,7 @@ BOOL SetupApp::InitInstance()
       INT_PTR r = reinterpret_cast<INT_PTR>(ShellExecuteW(nullptr, L"open", pathLogFile.ToWideCharString().c_str(), nullptr, nullptr, SW_SHOWNORMAL));
       if (r <= 32)
       {
-        Process::Start("notepad.exe", { "notepad", pathLogFile.ToString() });
+        Process::Start(PathName("notepad.exe"), { "notepad", pathLogFile.ToString() });
       }
     }
     traceStream.reset();
@@ -1004,7 +1004,7 @@ BOOL SetupApp::InitInstance()
       SHELLEXECUTEINFOW sei = SHELLEXECUTEINFOW();
       sei.cbSize = sizeof(sei);
       sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
-      CharBuffer<wchar_t> file((sfxDir->GetPathName() / "miktex-setup-wizard" MIKTEX_EXE_FILE_SUFFIX).GetData());
+      CharBuffer<wchar_t> file((sfxDir->GetPathName() / PathName("miktex-setup-wizard" MIKTEX_EXE_FILE_SUFFIX)).GetData());
       sei.lpFile = file.GetData();
       CharBuffer<wchar_t> parameters(CommandLineBuilder(args).ToString());
       sei.lpParameters = parameters.GetData();
@@ -1077,7 +1077,7 @@ void DDV_Path(CDataExchange* pDX, const CString& str)
     return;
   }
   CString str2;
-  if (isalpha(str[0]) && str[1] == ':' && IsDirectoryDelimiter(str[2]))
+  if (PathNameUtil::IsDosDriveLetter(str[0]) && PathNameUtil::IsDosVolumeDelimiter(str[1]) && PathNameUtil::IsDirectoryDelimiter(str[2]))
   {
     CString driveRoot = str.Left(3);
     if (!Directory::Exists(PathName(driveRoot)))
@@ -1093,7 +1093,7 @@ void DDV_Path(CDataExchange* pDX, const CString& str)
   else
   {
     PathName uncRoot;
-    if (!Utils::GetUncRootFromPath(TU_(str), uncRoot))
+    if (!Utils::GetUncRootFromPath(PathName(TU_(str)), uncRoot))
     {
       CString message;
       message.Format(T_(_T("The specified path is invalid because it is not fully qualified.")));

@@ -92,7 +92,7 @@ int miktex_open_format_file(const char* fileName_, FILE** ppFile, int renew)
   }
 #endif
 
-  *ppFile = session->OpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false);
+  *ppFile = session->OpenFile(path, FileMode::Open, FileAccess::Read, false);
 
   session->PushAppName(dumpName);
 
@@ -158,7 +158,7 @@ const char* miktex_get_aux_directory()
 
 void miktex_invoke_editor(const char* filename, int lineno)
 {
-  Application::GetApplication()->InvokeEditor(filename, lineno, FileType::TEX, PathName());
+  Application::GetApplication()->InvokeEditor(PathName(filename), lineno, FileType::TEX, PathName());
 }
 
 void miktex_show_library_versions()
@@ -168,7 +168,7 @@ void miktex_show_library_versions()
 
 void miktex_add_include_directory(const char* path)
 {
-  if (Directory::Exists(path))
+  if (Directory::Exists(PathName(path)))
   {
     PathName includeDirectory(path);
     includeDirectory.MakeAbsolute();

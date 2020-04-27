@@ -1,6 +1,6 @@
 /* unxemu.cpp:
 
-   Copyright (C) 2007-2018 Christian Schenk
+   Copyright (C) 2007-2020 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -41,7 +41,7 @@ struct DIR_
   PathName path;
   DIR_(const char* path) :
     path(path),
-    directoryLister(DirectoryLister::Open(path))
+    directoryLister(DirectoryLister::Open(PathName(path)))
   {
   }
 };
@@ -53,7 +53,7 @@ struct WDIR_
   PathName path;
   WDIR_(const wchar_t* path) :
     path(path),
-    directoryLister(DirectoryLister::Open(path))
+    directoryLister(DirectoryLister::Open(PathName(path)))
   {
   }
 };
@@ -77,7 +77,7 @@ MIKTEXUNXCEEAPI(int) wclosedir(WDIR* dir)
 MIKTEXUNXCEEAPI(DIR*) opendir(const char* path)
 {
   C_FUNC_BEGIN();
-  if (!Directory::Exists(path))
+  if (!Directory::Exists(PathName(path)))
   {
     errno = ENOENT;
     return nullptr;
@@ -89,7 +89,7 @@ MIKTEXUNXCEEAPI(DIR*) opendir(const char* path)
 MIKTEXUNXCEEAPI(WDIR*) wopendir(const wchar_t* path)
 {
   C_FUNC_BEGIN();
-  if (!Directory::Exists(path))
+  if (!Directory::Exists(PathName(path)))
   {
     errno = ENOENT;
     return nullptr;

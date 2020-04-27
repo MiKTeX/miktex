@@ -79,22 +79,22 @@ enum class Feature
 
 template<class FileType> inline bool miktexopentfmfile(FileType& f, const char* fileName)
 {
-  return OpenTFMFile(&f, fileName);
+  return OpenTFMFile(&f, MiKTeX::Core::PathName(fileName));
 }
 
 template<class FileType> inline bool miktexopenvffile(FileType& f, const char* fileName)
 {
-  return OpenVFFile(&f, fileName);
+  return OpenVFFile(&f, MiKTeX::Core::PathName(fileName));
 }
 
 template<class FileType> inline int miktexopenxfmfile(FileType& f, const char* fileName)
 {
-  return OpenXFMFile(&f, fileName);
+  return OpenXFMFile(&f, MiKTeX::Core::PathName(fileName));
 }
 
 template<class FileType> inline bool miktexopenxvffile(FileType& f, const char* fileName)
 {
-  return OpenXVFFile(&f, fileName);
+  return OpenXVFFile(&f, MiKTeX::Core::PathName(fileName));
 }
 
 template<class FileType> inline void miktexprintmiktexbanner(FileType& f)
@@ -127,7 +127,7 @@ public:
   static WebApp* GetWebApp()
   {
     MIKTEX_ASSERT(dynamic_cast<WebApp*>(Application::GetApplication()) != nullptr);
-    return (WebApp*)Application::GetApplication();
+    return reinterpret_cast<WebApp*>(Application::GetApplication());
   }
 
 public:

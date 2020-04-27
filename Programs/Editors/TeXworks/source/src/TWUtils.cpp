@@ -111,8 +111,8 @@ const QString TWUtils::getLibraryPath(const QString& subdir, const bool updateOn
                 {
                   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
                   MiKTeX::Core::PathName dir =session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot) /
-                  TEXWORKS_NAME /
-                  (std::to_string(VER_MAJOR) + "." + std::to_string(VER_MINOR));
+		    MiKTeX::Core::PathName(TEXWORKS_NAME) /
+		    MiKTeX::Core::PathName(std::to_string(VER_MAJOR) + "." + std::to_string(VER_MINOR));
                   libRootPath = QString::fromUtf8(dir.GetData());
                 }
 #else
@@ -301,7 +301,7 @@ void TWUtils::insertHelpMenuItems(QMenu* helpMenu)
         // TODO: code review
         QDir helpDir;
         std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
-        MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DistRoot) / "doc/texworks/help";
+        MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DistRoot) / MiKTeX::Core::PathName("doc/texworks/help");
         if (MiKTeX::Core::Directory::Exists(path))
         {
           helpDir = QString::fromUtf8(path.GetData());

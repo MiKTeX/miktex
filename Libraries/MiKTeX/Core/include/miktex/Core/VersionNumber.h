@@ -1,6 +1,6 @@
 /* miktex/Core/VersionNumber.h:                         -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -50,7 +50,7 @@ public:
   VersionNumber& operator=(VersionNumber&& other) = default;
 
 public:
-  ~VersionNumber() = default;
+  virtual ~VersionNumber() = default;
 
   /// Initializes an instance of the struct.
   /// @param n1 The first part of the version number.
@@ -78,7 +78,7 @@ public:
   /// Initializes an instance of the struct.
   /// @param versionString The version number as a string.
 public:
-  VersionNumber(const std::string& versionString)
+  explicit VersionNumber(const std::string& versionString)
   {
     *this = Parse(versionString);
   }
@@ -86,7 +86,7 @@ public:
   /// Initializes an instance of the struct.
   /// @param versionString The version number as a string.
 public:
-  VersionNumber(const char * versionString)
+  explicit VersionNumber(const char* versionString)
   {
     *this = Parse(versionString);
   }

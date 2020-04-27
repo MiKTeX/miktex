@@ -1313,7 +1313,7 @@ void Converter::WritePkFile(const char* pkFile)
 {
   Verbose(fmt::format(T_("Writing Pk file {0}..."), Q_(pkFile)));
 
-  pFilePk.Reset(File::Open(pkFile, FileMode::Create, FileAccess::Write, false));
+  pFilePk.Reset(File::Open(PathName(pkFile), FileMode::Create, FileAccess::Write, false));
 
   const int PK_PRE = 247;
   const int PK_ID = 89;

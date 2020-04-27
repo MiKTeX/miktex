@@ -1654,7 +1654,7 @@ bool CheckRoot(const PathName& root)
 {
   for (const string& dir : tdsDirs)
   {
-    if (Directory::Exists(root / dir))
+    if (Directory::Exists(root / PathName(dir)))
     {
       return true;
     }
@@ -1671,7 +1671,7 @@ void MainWindow::AddRootDirectory()
     {
       return;
     }
-    PathName root = directory.toUtf8().constData();
+    PathName root(directory.toUtf8().constData());
     if (!CheckRoot(root))
     {
       if (QMessageBox::question(this, tr("MiKTeX Console"), tr("This does not look like a <a href=\"https://miktex.org/kb/tds\">TDS-compliant</a> root directory. Are you sure you want to add it?"))
@@ -2381,7 +2381,7 @@ void MainWindow::on_pushButtonShowLogDirectory_clicked()
 
 PathName MainWindow::GetReportFileName()
 {
-  return session->GetSpecialPath(SpecialPath::LogDirectory) / "miktex-report.txt";
+  return session->GetSpecialPath(SpecialPath::LogDirectory) / PathName("miktex-report.txt");
 }
 
 void MainWindow::CreateReport()
@@ -2713,7 +2713,7 @@ void MainWindow::Uninstall()
 
 void MainWindow::ReadSettings()
 {
-  PathName consoleIni = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini";
+  PathName consoleIni = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName("console.ini");
   if (!File::Exists(consoleIni))
   {
     return;
@@ -2732,7 +2732,7 @@ void MainWindow::WriteSettings()
 {
   unique_ptr<Cfg> settings = Cfg::Create();
   settings->PutValue("MainWindow", "geometry", saveGeometry().toHex().constData());
-  settings->Write(session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini");
+  settings->Write(session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName("console.ini"));
 }
 
 void MainWindow::Restart()

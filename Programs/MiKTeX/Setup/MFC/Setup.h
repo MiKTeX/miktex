@@ -1,6 +1,6 @@
 /* Setup.h:                                             -*- C++ -*-
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2020 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -102,7 +102,7 @@ public:
     SetupOptions options = Service->GetOptions();
     if (options.IsPortable)
     {
-      return options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
+      return options.PortableRoot / PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR);
     }
     else
     {

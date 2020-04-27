@@ -374,7 +374,7 @@ void MakeFmt::ParsePdfConfigFile(const PathName& cfgFile, PdfConfigValues& value
 void MakeFmt::InstallPdftexConfigTeX() const
 {
   PdfConfigValues pdfConfigValues = ParsePdfConfigFiles();
-  session->ConfigureFile(MIKTEX_PATH_PDFTEXCONFIG_TEX, &pdfConfigValues);
+  session->ConfigureFile(PathName(MIKTEX_PATH_PDFTEXCONFIG_TEX), &pdfConfigValues);
 }
 
 void MakeFmt::Run(int argc, const char** argv)
@@ -395,7 +395,7 @@ void MakeFmt::Run(int argc, const char** argv)
   }
 
   // pretend to be the engine / format
-  if (!(destinationName == GetEngineName()))
+  if (!(destinationName == PathName(GetEngineName())))
   {
     session->PushAppName(GetEngineName());
   }
@@ -403,7 +403,7 @@ void MakeFmt::Run(int argc, const char** argv)
 
   // find the TeX input file
   PathName inputFile;
-  FindInputFile(name, inputFile);
+  FindInputFile(PathName(name), inputFile);
 
   // create destination directory
   CreateDestinationDirectory();
@@ -426,7 +426,7 @@ void MakeFmt::Run(int argc, const char** argv)
   arguments.push_back("--initialize");
   arguments.push_back("--interaction="s + "nonstopmode");
   arguments.push_back("--halt-on-error");
-  if (destinationName != GetEngineName())
+  if (destinationName != PathName(GetEngineName()))
   {
     arguments.push_back("--alias=" + destinationName.ToString());
   }
