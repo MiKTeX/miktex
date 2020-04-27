@@ -107,7 +107,7 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
   })
   {
     PathName prefix;
-    if (Utils::GetPathNamePrefix(bindir, subdir, prefix))
+    if (Utils::GetPathNamePrefix(bindir, PathName(subdir), prefix))
     {
       return prefix;
     }
@@ -154,7 +154,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
     PathName prefix;
     if (Utils::GetPathNamePrefix(myloc, internalBindir, prefix))
     {
-      path = prefix / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+      path = prefix / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
       if (File::Exists(path))
       {
         return true;
@@ -165,14 +165,14 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
     RemoveDirectoryDelimiter(bindir.GetData());
     if (Utils::GetPathNamePrefix(myloc, bindir, prefix))
     {
-      path = prefix / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+      path = prefix / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
       if (File::Exists(path))
       {
         return true;
       }
     }
     // try /var/lib/miktex-texmf/miktex/config/miktexstartup.ini
-    path = defaultStartupConfig.commonConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+    path = defaultStartupConfig.commonConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
     if (File::Exists(path))
     {
       return true;
@@ -191,7 +191,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
   if (scope == ConfigurationScope::User)
   {
     // try $HOME/.miktex/miktex/config/miktexstartup.ini
-    path = defaultStartupConfig.userConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+    path = defaultStartupConfig.userConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
     if (File::Exists(path))
     {
       return true;
@@ -217,14 +217,14 @@ pair<bool, PathName> SessionImpl::TryGetBinDirectory(bool canonicalized)
   auto distRoot = TryGetDistRootDirectory();
   if (distRoot.first)
   {
-    return make_pair<bool, PathName>(true, distRoot.second / MIKTEX_PATH_BIN_DIR);
+    return make_pair<bool, PathName>(true, distRoot.second / PathName(MIKTEX_PATH_BIN_DIR));
   }
   string env;
   if (!Utils::GetEnvironmentString(MIKTEX_ENV_BIN_DIR, env))
   {
     return make_pair<bool, PathName>(true, PathName());
   }
-  return make_pair<bool, PathName>(true, env);
+  return make_pair<bool, PathName>(true, PathName(env));
 #elif defined(MIKTEX_MACOS_BUNDLE)
   return make_pair<bool, PathName>(true, GetMyPrefix(canonicalized) / MIKTEX_BINARY_DESTINATION_DIR);
 #else
@@ -244,7 +244,7 @@ PathName SessionImpl::GetBinDirectory(bool canonicalized)
 
 void SessionImpl::ReadAllConfigFiles(const string& baseName, Cfg& cfg)
 {
-  PathName fileName = MIKTEX_PATH_MIKTEX_CONFIG_DIR / baseName;
+  PathName fileName = PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName(baseName);
   fileName.AppendExtension(".ini");
   vector<PathName> configFiles;
   if (!FindFile(fileName.ToString(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { FindFileOption::All }, configFiles))
@@ -979,8 +979,8 @@ void SessionImpl::ConfigureFile(const PathName& pathIn, const PathName& pathOut,
     attr -= FileAttribute::ReadOnly;
     File::SetAttributes(pathOut, attr);
   }
-  FileStream streamIn(OpenFile(pathIn.GetData(), FileMode::Open, FileAccess::Read, false));
-  FileStream streamOut(OpenFile(pathOut.GetData(), FileMode::Create, FileAccess::Write, false));
+  FileStream streamIn(OpenFile(pathIn, FileMode::Open, FileAccess::Read, false));
+  FileStream streamOut(OpenFile(pathOut, FileMode::Create, FileAccess::Write, false));
   char chr;
   bool readingName = false;
   string name;
@@ -1220,7 +1220,7 @@ tuple<Session::ExamineCommandLineResult, string, string> SessionImpl::ExamineCom
   }
   PathName argv0(argv[0]);
   vector<string> allowedCommands = GetAllowedShellCommands();
-  ExamineCommandLineResult examineResult = std::find_if(allowedCommands.begin(), allowedCommands.end(), [argv0](const string& cmd) { return argv0 == cmd; }) != allowedCommands.end()
+  ExamineCommandLineResult examineResult = std::find_if(allowedCommands.begin(), allowedCommands.end(), [argv0](const string& cmd) { return argv0 == PathName(cmd); }) != allowedCommands.end()
     ? ExamineCommandLineResult::ProbablySafe
     : ExamineCommandLineResult::MaybeSafe;
   MIKTEX_ASSERT(argv0.ToString().find_first_of(" \t") == string::npos);

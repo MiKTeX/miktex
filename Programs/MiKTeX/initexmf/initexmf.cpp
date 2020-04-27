@@ -1590,7 +1590,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
     for (const FileLink& fileLink : links)
     {
       PathName targetPath;
-      if (Utils::IsAbsolutePath(fileLink.target))
+      if (PathNameUtil::IsAbsolutePath(fileLink.target))
       {
         targetPath = fileLink.target;
       }

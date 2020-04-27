@@ -268,7 +268,7 @@ BEGIN_TEST_FUNCTION(14);
   {
     longPathRel /= "abcdefghij-"s + std::to_string(n);
   }
-  TEST(MiKTeX::Core::Utils::IsAbsolutePath(longPathRel.ToExtendedLengthPathName()));
+  TEST(MiKTeX::Core::PathNameUtil::IsAbsolutePath(longPathRel.ToExtendedLengthPathName()));
   TEST(MiKTeX::Core::PathName("nul").ToExtendedLengthPathName() == "\\\\.\\nul");
 }
 END_TEST_FUNCTION();

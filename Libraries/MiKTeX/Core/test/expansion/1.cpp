@@ -132,7 +132,7 @@ BEGIN_TEST_FUNCTION(2);
 #if 0 // todo: kpathsea (right-to-left) expansion
   TEST(pSession->Expand("x{A,B}{1,2}y", ExpandOption::Braces, nullptr) == "xA1y;xB1y;xA2y;xB2y");
 #endif
-  TEST(Utils::IsAbsolutePath(fut7.get()));
+  TEST(PathNameUtil::IsAbsolutePath(fut7.get()));
 }
 END_TEST_FUNCTION();
 

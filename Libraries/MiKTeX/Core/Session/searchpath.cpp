@@ -55,7 +55,7 @@ void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathN
     }
     if (toBeExpanded[1] == 'R')
     {
-      PathName path = MPM_ROOT_PATH;
+      PathName path(MPM_ROOT_PATH);
       path.AppendDirectoryDelimiter();
       path.Append(suffix, false);
       paths.push_back(path);
@@ -63,7 +63,7 @@ void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathN
   }
   else
   {
-    paths.push_back(toBeExpanded);
+    paths.push_back(PathName(toBeExpanded));
   }
 }
 
@@ -98,7 +98,7 @@ void SessionImpl::PushBackPath(vector<PathName>& vec, const PathName& path)
     }
 
     // fully qualified path?
-    if (Utils::IsAbsolutePath(path))
+    if (path.IsAbsolute())
     {
       if (find(vec.begin(), vec.end(), path) == vec.end())
       {
@@ -111,14 +111,14 @@ void SessionImpl::PushBackPath(vector<PathName>& vec, const PathName& path)
     PathName pathFQ;
     for (unsigned idx = 0; GetWorkingDirectory(idx, pathFQ); ++idx)
     {
-      if (!Utils::IsAbsolutePath(pathFQ))
+      if (!pathFQ.IsAbsolute())
       {
         TraceError(fmt::format(T_("{0} is not fully qualified"), Q_(pathFQ)));
         continue;
       }
-      if (PathName::Compare(path, CURRENT_DIRECTORY) != 0)
+      if (PathName::Compare(path, PathName(CURRENT_DIRECTORY)) != 0)
       {
-        pathFQ /= path.GetData();
+        pathFQ /= path;
       }
       else
       {
@@ -144,7 +144,7 @@ vector<PathName> SessionImpl::SplitSearchPath(const string& searchPath)
   vector<PathName> result;
   for (const string& s : StringUtil::Split(searchPath, PathNameUtil::PathNameDelimiter))
   {
-    PushBackPath(result, s);
+    PushBackPath(result, PathName(s));
   }
   return result;
 }
@@ -189,13 +189,13 @@ vector<PathName> SessionImpl::ConstructSearchVector(FileType fileType)
       {
         for (const string& s : StringUtil::Split(searchPath, PathNameUtil::PathNameDelimiter))
         {
-          PushBackPath(fti->searchVec, s);
+          PushBackPath(fti->searchVec, PathName(s));
         }
       }
     }
     for (const string& s : fti->searchPath)
     {
-      PushBackPath(fti->searchVec, s);
+      PushBackPath(fti->searchVec, PathName(s));
     }
     TraceSearchVector(fti->fileTypeString.c_str(), fti->searchVec);
   }
@@ -270,7 +270,7 @@ void SessionImpl::ExpandPathPattern(const PathName& rootDirectory, const PathNam
     // check to see whether the sub directory exists
     if (!IsMpmFile(directory.GetData()) && Directory::Exists(directory))
     {
-      DirectoryWalk(directory, lpszSmallerPathPattern, paths);
+      DirectoryWalk(directory, PathName(lpszSmallerPathPattern), paths);
     }
   }
 }
@@ -287,7 +287,7 @@ vector<PathName> SessionImpl::ExpandPathPatterns(const string& toBeExpanded)
     if (it2 == expandedPathPatterns.end())
     {
       vector<PathName> paths2;
-      ExpandPathPattern("", pattern, paths2);
+      ExpandPathPattern(PathName(), pattern, paths2);
       expandedPathPatterns[comparablePathPattern.GetData()] = paths2;
       paths.insert(paths.end(), paths2.begin(), paths2.end());
     }
@@ -327,7 +327,7 @@ inline void Combine(vector<PathName>& paths, const vector<PathName>& toBeAppende
 inline void Combine(vector<PathName>& paths, const string& path)
 {
   vector<PathName> toBeAppended;
-  toBeAppended.push_back(path);
+  toBeAppended.push_back(PathName(path));
   Combine(paths, toBeAppended);
 }
 

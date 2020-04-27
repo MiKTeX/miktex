@@ -173,7 +173,7 @@ void SessionImpl::WriteLanguagesIni()
       cfgLanguages->PutValue(it->key, "attributes", "");
     }
   }
-  PathName pathLocalLanguagesIni(GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_LANGUAGES_INI);
+  PathName pathLocalLanguagesIni(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_LANGUAGES_INI));
   Directory::Create(PathName(pathLocalLanguagesIni).RemoveFileSpec());
   cfgLanguages->Write(pathLocalLanguagesIni);
   if (!Fndb::FileExists(pathLocalLanguagesIni))

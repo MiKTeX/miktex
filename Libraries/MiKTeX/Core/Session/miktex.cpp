@@ -52,7 +52,7 @@ using namespace MiKTeX::Util;
 
 MIKTEXSTATICFUNC(bool) IsGoodTempDirectory(const char* lpszPath)
 {
-  return Utils::IsAbsolutePath(lpszPath) && Directory::Exists(lpszPath);
+  return PathNameUtil::IsAbsolutePath(lpszPath) && Directory::Exists(PathName(lpszPath));
 }
 
 PathName SessionImpl::GetTempDirectory()
@@ -62,7 +62,7 @@ PathName SessionImpl::GetTempDirectory()
     string tempDirectory;
     if (GetSessionValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TEMPDIR, tempDirectory, nullptr) && IsGoodTempDirectory(tempDirectory.c_str()))
     {
-      return tempDirectory;
+      return PathName(tempDirectory);
     }
   }
 
@@ -129,7 +129,7 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
   case SpecialPath::InternalBinDirectory:
 #if defined(MIKTEX_WINDOWS)
     // FIXME: hard-coded sub-directory
-    path = GetSpecialPath(SpecialPath::BinDirectory) / "internal";
+    path = GetSpecialPath(SpecialPath::BinDirectory) / PathName("internal");
 #else
     path = GetMyPrefix(true) / MIKTEX_INTERNAL_BINARY_DESTINATION_DIR;
 #endif
@@ -162,14 +162,14 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     {
 #if defined(MIKTEX_UNIX)
       // FIXME: hard-coded sub-directory
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / "miktex").ToString())).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((PathName(MIKTEX_SYSTEM_VAR_LOG_DIR) / PathName("miktex")).ToString())).GetString();
 #else
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / PathName(MIKTEX_PATH_MIKTEX_LOG_DIR)).ToString())).GetString();
 #endif
     }
     else
     {
-      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR).ToString())).GetString();
+      path = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLOGDIRECTORY, ConfigValue((GetSpecialPath(SpecialPath::DataRoot) / PathName(MIKTEX_PATH_MIKTEX_LOG_DIR)).ToString())).GetString();
     }
     break;
   case SpecialPath::CommonInstallRoot:
@@ -454,12 +454,12 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo& info)
     {
       return false;
     }
-    if (!File::Exists(userInfoFile))
+    if (!File::Exists(PathName(userInfoFile)))
     {
       return false;
     }
     unique_ptr<Cfg> cfg = Cfg::Create();
-    cfg->Read(userInfoFile, true);
+    cfg->Read(PathName(userInfoFile), true);
     if (!cfg->TryGetValueAsString("user", "id", result.userid))
     {
       result.userid = "";
@@ -681,7 +681,7 @@ void SessionImpl::SetCWDEnv()
 
 void SessionImpl::AddInputDirectory(const PathName& path, bool atEnd)
 {
-  if (!Utils::IsAbsolutePath(path))
+  if (!path.IsAbsolute())
   {
     INVALID_ARGUMENT("path", path.ToString());
   }

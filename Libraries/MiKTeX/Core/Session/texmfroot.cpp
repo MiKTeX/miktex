@@ -84,7 +84,7 @@ static PathName ExpandEnvironmentVariables(const PathName& toBeExpanded)
       expansion += lpsz[0];
     }
   }
-  return expansion;
+  return PathName(expansion);
 }
 
 unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryInfo::Purpose purpose, ConfigurationScope scope, bool other, bool review)
@@ -166,7 +166,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     {
       if (!root.empty())
       {
-        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::User, false, review);
+        RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::User, false, review);
       }
     }
 
@@ -194,7 +194,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   {
     if (!root.empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, false, review);
+      RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, false, review);
     }
   }
 
@@ -211,7 +211,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     {
       if (!root.empty())
       {
-        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::User, true, review);
+        RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::User, true, review);
       }
     }
   }
@@ -221,7 +221,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   {
     if (!root.empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, true, review);
+      RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, true, review);
     }
   }
 
@@ -261,7 +261,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     commonInstallRootIndex = commonConfigRootIndex;
   }
 
-  RegisterRootDirectory(MPM_ROOT_PATH, RootDirectoryInfo::Purpose::Generic, IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, false, false);
+  RegisterRootDirectory(PathName(MPM_ROOT_PATH), RootDirectoryInfo::Purpose::Generic, IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, false, false);
 
   if (!IsAdminMode())
   {
@@ -764,12 +764,12 @@ vector<PathName> SessionImpl::GetFilenameDatabasePathNames(unsigned r)
     {
       MIKTEX_UNEXPECTED();
     }
-    path = rootDirectories[GetInstallRoot()].get_Path() / MIKTEX_PATH_MPM_FNDB;
+    path = rootDirectories[GetInstallRoot()].get_Path() / PathName(MIKTEX_PATH_MPM_FNDB);
   }
   else
   {
     // ROOT\miktex\conig\texmf.fndb
-    path = rootDirectories[r].get_Path() / MIKTEX_PATH_TEXMF_FNDB;
+    path = rootDirectories[r].get_Path() / PathName(MIKTEX_PATH_TEXMF_FNDB);
   }
   result.push_back(path);
 
@@ -783,7 +783,7 @@ PathName SessionImpl::GetMpmDatabasePathName()
 
 PathName SessionImpl::GetMpmRootPath()
 {
-  return MPM_ROOT_PATH;
+  return PathName(MPM_ROOT_PATH);
 }
 
 PathName SessionImpl::GetRelativeFilenameDatabasePathName(unsigned r)
@@ -797,7 +797,7 @@ PathName SessionImpl::GetRelativeFilenameDatabasePathName(unsigned r)
   md5Builder.Final();
   fndbFileName += md5Builder.GetMD5().ToString();
   fndbFileName += MIKTEX_FNDB_FILE_SUFFIX;
-  return fndbFileName;
+  return PathName(fndbFileName);
 }
 
 shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r)
@@ -851,7 +851,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r)
 
 shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char* path)
 {
-  unsigned root = TryDeriveTEXMFRoot(path);
+  unsigned root = TryDeriveTEXMFRoot(PathName(path));
   if (root == INVALID_ROOT_INDEX)
   {
     return nullptr;
@@ -861,7 +861,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char* path)
 
 unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
 {
-  if (!Utils::IsAbsolutePath(path))
+  if (!path.IsAbsolute())
   {
 #if FIND_FILE_PREFER_RELATIVE_PATH_NAMES
     return INVALID_ROOT_INDEX;

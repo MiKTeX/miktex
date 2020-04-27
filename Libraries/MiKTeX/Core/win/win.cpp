@@ -151,7 +151,7 @@ MIKTEXSTATICFUNC(unsigned int) GetMediaType(const char* path)
     pathRootName += PathNameUtil::DosVolumeDelimiter;
     pathRootName += PathNameUtil::DirectoryDelimiter;
   }
-  else if (!Utils::GetUncRootFromPath(path, pathRootName))
+  else if (!Utils::GetUncRootFromPath(PathName(path), pathRootName))
   {
     return DRIVE_UNKNOWN;
   }
@@ -219,7 +219,7 @@ MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char* path)
 
 MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
 {
-  if (!Utils::IsAbsolutePath(path))
+  if (!path.IsAbsolute())
   {
     PathName absolutePath(path);
     absolutePath.MakeAbsolute();

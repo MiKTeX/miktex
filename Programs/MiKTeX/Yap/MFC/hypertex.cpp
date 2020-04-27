@@ -281,7 +281,7 @@ void DviView::GotoLocation(const DviView::location& loc)
 
 bool DviView::FindDviFile(const char* lpszFileName, PathName& result)
 {
-  if (Utils::IsAbsolutePath(lpszFileName))
+  if (PathNameUtil::IsAbsolutePath(lpszFileName))
   {
     result = lpszFileName;
   }

@@ -1,6 +1,6 @@
 /* api.cpp: C API
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -49,7 +49,7 @@ MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char* lpszPathIn, char* lpsz
 {
   C_FUNC_BEGIN();
   PathName temp;
-  Utils::UncompressFile(lpszPathIn, temp);
+  Utils::UncompressFile(PathName(lpszPathIn), temp);
   StringUtil::CopyString(lpszPathOut, BufferSizes::MaxPath, temp.GetData());
   C_FUNC_END();
 }
@@ -325,6 +325,6 @@ MIKTEXCORECEEAPI(void) miktex_start_process(const char* lpszFileName, const char
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING(commandLine);
-  Process::Start(lpszFileName, Argv(commandLine).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
+  Process::Start(PathName(lpszFileName), Argv(commandLine).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
   C_FUNC_END();
 }

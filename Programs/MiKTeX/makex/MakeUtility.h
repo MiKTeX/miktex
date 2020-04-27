@@ -313,7 +313,7 @@ protected:
     const char* lpszTemplate = templ.c_str();
     if (lpszTemplate[0] == '%'
         && lpszTemplate[1] == 'R'
-        && MiKTeX::Core::IsDirectoryDelimiter(lpszTemplate[2]))
+        && MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(lpszTemplate[2]))
     {
       path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot);
       path /= lpszTemplate + 3;

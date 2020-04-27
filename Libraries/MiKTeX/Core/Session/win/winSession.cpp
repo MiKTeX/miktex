@@ -265,12 +265,12 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     if (!commonPrefix.Empty())
     {
       PathName portableRoot;
-      bool isLegacy = !Utils::GetPathNamePrefix(commonPrefix, MIKTEX_PORTABLE_REL_INSTALL_DIR, portableRoot);
+      bool isLegacy = !Utils::GetPathNamePrefix(commonPrefix, PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR), portableRoot);
       ret.commonInstallRoot = commonPrefix;
       if (!isLegacy)
       {
-        ret.commonConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
-        ret.commonDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
+        ret.commonConfigRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_CONFIG_DIR);
+        ret.commonDataRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_DATA_DIR);
       }
       else
       {
@@ -281,12 +281,12 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     if (!userPrefix.Empty())
     {
       PathName portableRoot;
-      bool isLegacy = !Utils::GetPathNamePrefix(userPrefix, MIKTEX_PORTABLE_REL_INSTALL_DIR, portableRoot);
+      bool isLegacy = !Utils::GetPathNamePrefix(userPrefix, PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR), portableRoot);
       ret.userInstallRoot = userPrefix;
       if (!isLegacy)
       {
-        ret.userConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
-        ret.userDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
+        ret.userConfigRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_CONFIG_DIR);
+        ret.userDataRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_DATA_DIR);
       }
       else
       {
@@ -298,19 +298,19 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     {
       PathName myloc(GetMyLocation(false));
       PathName prefix;
-      if (Utils::GetPathNamePrefix(myloc, MIKTEX_PATH_INTERNAL_BIN_DIR, prefix)
-        || Utils::GetPathNamePrefix(myloc, MIKTEX_PATH_BIN_DIR, prefix)
-        || Utils::GetPathNamePrefix(myloc, MIKTEX_PATH_MIKTEX_TEMP_DIR, prefix))
+      if (Utils::GetPathNamePrefix(myloc, PathName(MIKTEX_PATH_INTERNAL_BIN_DIR), prefix)
+        || Utils::GetPathNamePrefix(myloc, PathName(MIKTEX_PATH_BIN_DIR), prefix)
+        || Utils::GetPathNamePrefix(myloc, PathName(MIKTEX_PATH_MIKTEX_TEMP_DIR), prefix))
       {
         PathName portableRoot;
-        bool isLegacy = !Utils::GetPathNamePrefix(prefix, MIKTEX_PORTABLE_REL_INSTALL_DIR, portableRoot);
+        bool isLegacy = !Utils::GetPathNamePrefix(prefix, PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR), portableRoot);
         if (commonPrefix.Empty())
         {
           ret.commonInstallRoot = prefix;
           if (!isLegacy)
           {
-            ret.commonConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
-            ret.commonDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
+            ret.commonConfigRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_CONFIG_DIR);
+            ret.commonDataRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_DATA_DIR);
           }
           else
           {
@@ -323,8 +323,8 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
           ret.userInstallRoot = prefix;
           if (!isLegacy)
           {
-            ret.userConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
-            ret.userDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
+            ret.userConfigRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_CONFIG_DIR);
+            ret.userDataRoot = portableRoot / PathName(MIKTEX_PORTABLE_REL_DATA_DIR);
           }
           else
           {
@@ -343,7 +343,7 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       product = "MiKTeXDirect";
       PathName myloc(GetMyLocation(false));
       PathName prefix;
-      if (!Utils::GetPathNamePrefix(myloc, MIKTEX_PATH_BIN_DIR, prefix))
+      if (!Utils::GetPathNamePrefix(myloc, PathName(MIKTEX_PATH_BIN_DIR), prefix))
       {
         MIKTEX_UNEXPECTED();
       }
@@ -565,11 +565,11 @@ bool SessionImpl::GetAcrobatFontDir(PathName& path)
     PathName fontDir;
 
     // try Acrobat Reader 3.0
-    fontDir = dir / "FONTS";
+    fontDir = dir / PathName("FONTS");
     if (!Directory::Exists(fontDir))
     {
       // try Acrobat Reader 4.0
-      fontDir = dir / ".." / "Resource" / "Font";
+      fontDir = dir / PathName("..") / PathName("Resource") / PathName("Font");
       if (!Directory::Exists(fontDir))
       {
         return false;
@@ -637,7 +637,7 @@ MIKTEXSTATICFUNC(bool) GetPsFontDirectory(PathName& path)
     MIKTEX_FATAL_WINDOWS_ERROR("GetWindowsDirectoryW");
   }
 
-  PathName path_ = PathName(szWinDir) / "psfonts";
+  PathName path_ = PathName(szWinDir) / PathName("psfonts");
 
   if (!Directory::Exists(path_))
   {

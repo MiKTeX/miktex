@@ -64,7 +64,7 @@ public:
     for (size_t maxrounds = 10; maxrounds > 0; --maxrounds)
     {
       string fileName = "mik" + std::to_string(dist(gen));
-      path = parent / fileName;
+      path = parent / PathName(fileName);
       if (!NameExists(path))
       {
         Directory::Create(path);

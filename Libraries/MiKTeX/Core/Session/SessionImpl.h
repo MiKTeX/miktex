@@ -867,7 +867,7 @@ private:
 private:
   MiKTeX::Core::StartupConfig DefaultConfig()
   {
-    return DefaultConfig(initStartupConfig.config, "", "");
+    return DefaultConfig(initStartupConfig.config, MiKTeX::Core::PathName(), MiKTeX::Core::PathName());
   }
 
 private:

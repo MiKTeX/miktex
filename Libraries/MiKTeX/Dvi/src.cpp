@@ -85,7 +85,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
     // absolute file name
     PathName fqFileName;
 
-    if (Utils::IsAbsolutePath(fileName))
+    if (PathNameUtil::IsAbsolutePath(fileName))
     {
       lpszRelFileName = Utils::GetRelativizedPath(fileName, documentLocation.GetData());
       fqFileName = fileName;
@@ -139,7 +139,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
         if (!nameMatch)
         {
           PathName fqName;
-          if (Utils::IsAbsolutePath(name))
+          if (PathNameUtil::IsAbsolutePath(name))
           {
             fqName = name;
             fqName.MakeAbsolute();
@@ -157,7 +157,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
         if (!nameMatch && lpszRelFileName != nullptr)
         {
           const char* lpszRelName;
-          if (!Utils::IsAbsolutePath(name))
+          if (!PathNameUtil::IsAbsolutePath(name))
           {
             lpszRelName = name;
           }

@@ -62,7 +62,7 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
     UNIMPLEMENTED();
   }
   PathName extPath = path.ToExtendedLengthPathName();
-  if (extPath == "\\\\.\\nul")
+  if (extPath == PathName("\\\\.\\nul"))
   {
     return true;
   }

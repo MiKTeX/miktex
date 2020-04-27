@@ -89,7 +89,7 @@ bool MiKTeXException::Save(const string& path) const noexcept
 bool MiKTeXException::Load(const string& path, MiKTeXException& ex)
 {
   unique_ptr<Cfg> cfg = Cfg::Create();
-  cfg->Read(path);
+  cfg->Read(PathName(path));
   bool result = false;
   for (const auto& key : *cfg)
   {
@@ -210,7 +210,7 @@ bool MiKTeXException::Save() const noexcept
 bool MiKTeXException::Load(MiKTeXException& ex)
 {
   string path;
-  if (GetLastMiKTeXExceptionPath(path) && File::Exists(path))
+  if (GetLastMiKTeXExceptionPath(path) && File::Exists(PathName(path)))
   {
     return Load(path, ex);
   }

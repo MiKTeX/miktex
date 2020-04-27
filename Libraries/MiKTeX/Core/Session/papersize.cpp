@@ -480,7 +480,7 @@ bool SessionImpl::TryCreateFromTemplate(const PathName& path)
 
 void SessionImpl::WriteDvipsPaperSizes()
 {
-  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_CONFIG_PS);
+  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_CONFIG_PS));
 
   if (!File::Exists(configFile))
   {
@@ -530,7 +530,7 @@ void SessionImpl::WriteDvipdfmxPaperSize()
 
   DvipsPaperSizeInfo paperSizeInfo = dvipsPaperSizes[0];
 
-  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_DVIPDFMX_CONFIG);
+  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_DVIPDFMX_CONFIG));
 
   if (!File::Exists(configFile))
   {
@@ -574,7 +574,7 @@ void SessionImpl::WritePdfTeXPaperSize()
 
   DvipsPaperSizeInfo paperSizeInfo = dvipsPaperSizes[0];
 
-  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_PDFTEX_CFG);
+  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_PDFTEX_CFG));
 
   if (!File::Exists(configFile))
   {

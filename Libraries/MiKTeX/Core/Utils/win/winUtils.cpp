@@ -92,7 +92,7 @@ PathName Utils::GetFolderPath(int nFolder, int nFallbackFolder, bool getCurrentP
   {
     MIKTEX_FATAL_ERROR_2(T_("A required file system path could not be retrieved."), "nfolder", std::to_string(nFolder), "hr", std::to_string(hr));
   }
-  return szPath;
+  return PathName(szPath);
 }
 
 string GetOperatingSystem(const OSVERSIONINFOEXW& osvi, const SYSTEM_INFO& si)
@@ -1083,7 +1083,7 @@ bool Utils::CheckPath(bool repair)
     }
   }
 
-  PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_BIN_DIR;
+  PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_BIN_DIR);
 
   string repairedSystemPath;
   bool systemPathCompetition;
@@ -1126,7 +1126,7 @@ bool Utils::CheckPath(bool repair)
         repaired = true;
       }
     }
-    PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_BIN_DIR;
+    PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot) / PathName(MIKTEX_PATH_BIN_DIR);
     string repairedUserPath;
     bool userPathCompetition;
     userPathOkay = !Directory::Exists(userBinDir) || !FixProgramSearchPath(WU_(userPath), userBinDir, true, repairedUserPath, userPathCompetition);

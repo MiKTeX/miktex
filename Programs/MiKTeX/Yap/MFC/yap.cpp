@@ -960,7 +960,7 @@ void StartEditor(const char* lpszFileName, const char* lpszDocDir, int line)
 
   // find the source file
   PathName path;
-  if (Utils::IsAbsolutePath(lpszFileName) || lpszDocDir == nullptr)
+  if (PathNameUtil::IsAbsolutePath(lpszFileName) || lpszDocDir == nullptr)
   {
     path = lpszFileName;
   }

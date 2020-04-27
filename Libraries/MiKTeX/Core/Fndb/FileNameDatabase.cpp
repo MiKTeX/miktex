@@ -138,7 +138,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
   trace_fndb->WriteLine("core", fmt::format(T_("fndb search: rootDirectory={0}, relativePath={1}, pathpattern={2}"), Q_(rootDirectory), Q_(relativePath), Q_(pathPattern)));
 
   MIKTEX_ASSERT(result.size() == 0);
-  MIKTEX_ASSERT(!Utils::IsAbsolutePath(relativePath));
+  MIKTEX_ASSERT(!PathNameUtil::IsAbsolutePath(relativePath));
   MIKTEX_ASSERT(!IsExplicitlyRelativePath(relativePath.GetData()));
 
   PathName dir = relativePath.GetDirectoryName();
@@ -167,7 +167,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
   }
 
   // path pattern must be relative to root directory
-  if (Utils::IsAbsolutePath(pathPattern))
+  if (PathName(pathPattern).IsAbsolute())
   {
     const char* lpsz = Utils::GetRelativizedPath(pathPattern.c_str(), rootDirectory.GetData());
     if (lpsz == nullptr)
@@ -292,7 +292,7 @@ tuple<string, string> FileNameDatabase::SplitPath(const PathName& path_) const
   PathName path = path_;
 
   // make sure that the path is relative to the texmf root directory
-  if (Utils::IsAbsolutePath(path))
+  if (path.IsAbsolute())
   {
     const char* lpsz = Utils::GetRelativizedPath(path.GetData(), rootDirectory.GetData());
     if (lpsz == nullptr)

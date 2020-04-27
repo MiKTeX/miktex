@@ -194,12 +194,12 @@ unsigned long PackageDataStore::DecrementFileRefCount(const PathName& path)
 
 void PackageDataStore::NeedPackageManifestsIni()
 {
-  PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+  PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
   if (File::Exists(existingPackageManifestsIni))
   {
     return;
   }
-  PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
   if (Directory::Exists(tpmDir))
   {
     trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format("starting migration: {} -> {}", tpmDir, existingPackageManifestsIni));

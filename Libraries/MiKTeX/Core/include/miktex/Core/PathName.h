@@ -103,7 +103,7 @@ public:
   /// Copies a character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
-  PathName(const char* path) :
+  /*explicit*/ PathName(const char* path) :
     Base(path)
   {
   }
@@ -111,7 +111,7 @@ public:
   /// Copies a wide character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
-  PathName(const wchar_t* path) :
+  /*explicit*/ PathName(const wchar_t* path) :
     Base(path)
   {
   }
@@ -119,7 +119,7 @@ public:
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  PathName(const std::string& path) :
+  /*explicit*/ PathName(const std::string& path) :
     Base(path)
   {
   }
@@ -127,13 +127,13 @@ public:
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  PathName(const std::wstring& path) :
+  /*explicit*/ PathName(const std::wstring& path) :
     Base(path)
   {
   }
 
 public:
-  PathName(int n) = delete;
+  PathName(size_t n) = delete;
 
   /// Combines path name components into a new PathName object.
   /// @param component1 The first component (absolute directory path).
@@ -165,7 +165,21 @@ public:
   }
 
 public:
+  PathName& operator=(const wchar_t* path)
+  {
+    Base::operator= (path);
+    return *this;
+  }
+
+public:
   PathName& operator=(const std::string& path)
+  {
+    Base::operator= (path);
+    return *this;
+  }
+
+public:
+  PathName& operator=(const std::wstring& path)
   {
     Base::operator= (path);
     return *this;
@@ -189,7 +203,7 @@ public:
     std::string fileNameWithoutExtension;
     std::string extension;
     Split(*this, directoryName, fileNameWithoutExtension, extension);
-    return directoryName;
+    return PathName(directoryName);
   }
 
 public:
@@ -199,7 +213,7 @@ public:
     std::string fileNameWithoutExtension;
     std::string extension;
     Split(*this, directoryName, fileNameWithoutExtension, extension);
-    return fileNameWithoutExtension + extension;
+    return PathName(fileNameWithoutExtension + extension);
   }
 
 public:
@@ -209,7 +223,7 @@ public:
     std::string fileNameWithoutExtension;
     std::string extension;
     Split(*this, directoryName, fileNameWithoutExtension, extension);
-    return fileNameWithoutExtension;
+    return PathName(fileNameWithoutExtension);
   }
 
   /// Removes the file name component from this path name.
@@ -347,6 +361,12 @@ public:
 #else
     return *this;
 #endif
+  }
+
+public:
+  bool IsAbsolute() const
+  {
+    return MiKTeX::Util::PathNameUtil::IsAbsolutePath(ToString());
   }
 
 public:

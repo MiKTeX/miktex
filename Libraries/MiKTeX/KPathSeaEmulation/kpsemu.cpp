@@ -916,7 +916,7 @@ MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const ch
 MIKTEXKPSCEEAPI(boolean) miktex_kpathsea_absolute_p(kpathsea kpseInstance, const char* fileName, boolean relativeOk)
 {
   MIKTEX_ASSERT(relativeOk == 0);
-  return Utils::IsAbsolutePath(fileName);
+  return PathNameUtil::IsAbsolutePath(fileName);
 }
 
 MIKTEXKPSCEEAPI(void) miktex_str_list_add(str_list_type* stringLIst, char* s)

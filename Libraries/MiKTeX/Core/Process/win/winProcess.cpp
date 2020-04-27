@@ -65,7 +65,7 @@ void winProcess::Create()
 
   PathName fileName;
 
-  if (Utils::IsAbsolutePath(startinfo.FileName))
+  if (PathNameUtil::IsAbsolutePath(startinfo.FileName))
   {
     fileName = startinfo.FileName;
   }
@@ -511,7 +511,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
     string path;
     if (Utils::GetEnvironmentString("COMSPEC", path))
     {
-      if (!Utils::IsAbsolutePath(path))
+      if (!PathNameUtil::IsAbsolutePath(path))
       {
         wchar_t* lpsz = nullptr;
         if (SearchPathW(nullptr, PathName(path).ToWideCharString().c_str(), nullptr, ARRAY_SIZE(szCmd), szCmd, &lpsz) == 0)
@@ -519,7 +519,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
           szCmd[0] = 0;
         }
       }
-      else if (File::Exists(path))
+      else if (File::Exists(PathName(path)))
       {
         StringUtil::CopyString(szCmd, ARRAY_SIZE(szCmd), PathName(path).ToWideCharString().c_str());
       }
@@ -532,7 +532,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
     }
   }
 
-  return szCmd;
+  return PathName(szCmd);
 }
 
 MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
@@ -547,13 +547,13 @@ MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
 bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* workingDirectory)
 {
   vector<string> arguments = Wrap(commandLine);
-  return Process::Run(arguments[0], arguments, callback, exitCode, workingDirectory);
+  return Process::Run(PathName(arguments[0]), arguments, callback, exitCode, workingDirectory);
 }
 
 void Process::StartSystemCommand(const string& commandLine)
 {
   vector<string> arguments = Wrap(commandLine);
-  Process::Start(arguments[0], arguments);
+  Process::Start(PathName(arguments[0]), arguments);
 }
 
 winProcess::winProcess()

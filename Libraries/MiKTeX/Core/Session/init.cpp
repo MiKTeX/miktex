@@ -61,15 +61,15 @@ void Absolutize(string& paths, const PathName& relativeFrom)
   vector<string> result;
   for (const string& path : StringUtil::Split(paths, PathNameUtil::PathNameDelimiter))
   {
-    if (Utils::IsAbsolutePath(path))
+    if (PathNameUtil::IsAbsolutePath(path))
     {
       result.push_back(path);
     }
     else
     {
 #if MIKTEX_WINDOWS
-      MIKTEX_ASSERT(Utils::IsAbsolutePath(relativeFrom));
-      PathName absPath(relativeFrom / path);
+      MIKTEX_ASSERT(PathNameUtil::IsAbsolutePath(relativeFrom));
+      PathName absPath(relativeFrom / PathName(path));
       PathName absPath2;
       MIKTEX_ASSERT(absPath2.GetCapacity() >= MAX_PATH);
       // FIXME: use wchar_t API
@@ -248,7 +248,7 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
   {
     for (const string& cwd : StringUtil::Split(miktexCwd, PathNameUtil::PathNameDelimiter))
     {
-      AddInputDirectory(cwd, true);
+      AddInputDirectory(PathName(cwd), true);
     }
   }
 
@@ -308,7 +308,7 @@ void SessionImpl::InitializeStartupConfig()
   {
     PathName dir(commonStartupConfigFile);
     dir.RemoveFileSpec();
-    Utils::GetPathNamePrefix(dir, MIKTEX_PATH_MIKTEX_CONFIG_DIR, commonPrefix);
+    Utils::GetPathNamePrefix(dir, PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR), commonPrefix);
   }
 
   PathName userStartupConfigFile;
@@ -321,7 +321,7 @@ void SessionImpl::InitializeStartupConfig()
   {
     PathName dir(userStartupConfigFile);
     dir.RemoveFileSpec();
-    Utils::GetPathNamePrefix(dir, MIKTEX_PATH_MIKTEX_CONFIG_DIR, userPrefix);
+    Utils::GetPathNamePrefix(dir, PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR), userPrefix);
   }
 
   // read common startup config file
@@ -575,23 +575,23 @@ void SessionImpl::RecordMaintenance()
 
 PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfiguration config)
 {
-  StartupConfig defaultConfig = DefaultConfig(config, "", "");
+  StartupConfig defaultConfig = DefaultConfig(config, PathName(), PathName());
   if (scope == ConfigurationScope::User)
   {
     string str;
     if (Utils::GetEnvironmentString(MIKTEX_ENV_USER_STARTUP_FILE, str))
     {
-      return str;
+      return PathName(str);
     }
 #if USE_WINDOWS_REGISTRY
     else if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
     {
-      return str;
+      return PathName(str);
     }
 #endif
     else
     {
-      return defaultConfig.userConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+      return defaultConfig.userConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
     }
   }
   else
@@ -599,12 +599,12 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
     string str;
     if (Utils::GetEnvironmentString(MIKTEX_ENV_COMMON_STARTUP_FILE, str))
     {
-      return str;
+      return PathName(str);
     }
 #if USE_WINDOWS_REGISTRY
     else if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
     {
-      return str;
+      return PathName(str);
     }
 #endif
     else
@@ -621,7 +621,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
       {
         MIKTEX_UNEXPECTED();
       }
-      return prefix / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+      return prefix / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
 #else
       // TODO: /etc/miktex/miktexstartup.ini
       return defaultConfig.commonConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
@@ -647,7 +647,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  StartupConfig defaultConfig = DefaultConfig(startupConfig.config, "", "");
+  StartupConfig defaultConfig = DefaultConfig(startupConfig.config, PathName(), PathName());
 
   PathName userStartupConfigFile = GetStartupConfigFile(ConfigurationScope::User, startupConfig.config);  
   PathName commonStartupConfigFile = GetStartupConfigFile(ConfigurationScope::Common, startupConfig.config);
@@ -869,27 +869,27 @@ void SessionImpl::SetEnvironmentVariables()
 #endif
 
   vector<string> gsDirectories;
-  PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / "ghostscript" / "base";
+  PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName("ghostscript") / PathName("base");
   if (Directory::Exists(gsDir))
   {
     gsDirectories.push_back(gsDir.ToString());
   }
   if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
   {
-    gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / "ghostscript" / "base";
+    gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / PathName("ghostscript") / PathName("base");
     if (Directory::Exists(gsDir))
     {
       gsDirectories.push_back(gsDir.ToString());
     }
   }
-  gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / "fonts";
+  gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName("fonts");
   if (Directory::Exists(gsDir))
   {
     gsDirectories.push_back(gsDir.ToString());
   }
   if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
   {
-    gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / "fonts";
+    gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / PathName("fonts");
     if (Directory::Exists(gsDir))
     {
       gsDirectories.push_back(gsDir.ToString());

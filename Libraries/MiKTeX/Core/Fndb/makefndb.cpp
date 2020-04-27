@@ -250,7 +250,7 @@ void FndbManager::AlignMem(size_t align)
 
 void FndbManager::GetIgnorableFiles(const PathName& dirPath, vector<string>& filesToBeIgnored)
 {
-  PathName ignoreFile(dirPath, FN_MIKTEXIGNORE);
+  PathName ignoreFile(dirPath, PathName(FN_MIKTEXIGNORE));
   if (!File::Exists(ignoreFile))
   {
     return;
@@ -276,7 +276,7 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
   unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dirPath);
   DirectoryEntry entry;
   vector<DirectoryEntry> toBeDeleted;
-  PathName directory = Utils::GetRelativizedPath(dirPath.GetData(), rootPath.GetData());
+  PathName directory(Utils::GetRelativizedPath(dirPath.GetData(), rootPath.GetData()));
   directory = directory.ToUnix();
   while (lister->GetNext(entry))
   {
@@ -307,7 +307,7 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
   {
     try
     {
-      PathName path(dirPath, e.name);
+      PathName path(dirPath, PathName(e.name));
       if (e.isDirectory)
       {
         Directory::Delete(path, true);
@@ -338,7 +338,7 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
   PathName path(parentPath, folderName);
   path.MakeAbsolute();
 
-  PathName directory = Utils::GetRelativizedPath(path.GetData(), rootPath.GetData());
+  PathName directory(Utils::GetRelativizedPath(path.GetData(), rootPath.GetData()));
   directory = directory.ToUnix();
 
   if (callback != nullptr)
@@ -380,7 +380,7 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
   for (const string& s : subDirectoryNames)
   {
     // RECURSION
-    CollectFiles(pathFolder, s, fileNames);
+    CollectFiles(pathFolder, PathName(s), fileNames);
     ++i;
   }
   --currentLevel;
@@ -405,7 +405,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     currentLevel = 0;
     this->callback = callback;
     vector<FILENAMEINFO> fileNames;
-    CollectFiles(rootPath, CURRENT_DIRECTORY, fileNames);
+    CollectFiles(rootPath, PathName(CURRENT_DIRECTORY), fileNames);
     numFiles = fileNames.size();
     AlignMem();
     fndb.foTable = ReserveMem(fileNames.size() * sizeof(FileNameDatabaseRecord));

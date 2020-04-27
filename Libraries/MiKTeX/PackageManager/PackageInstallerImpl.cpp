@@ -392,12 +392,12 @@ void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
   else if (repositoryType == RepositoryType::MiKTeXDirect)
   {
     size_t size;
-    MyCopyFile(repository / MIKTEXDIRECT_PREFIX_DIR / MIKTEX_PATH_MPM_INI, cacheDirectory / MIKTEX_MPM_INI_FILENAME, size);
+    MyCopyFile(repository / PathName(MIKTEXDIRECT_PREFIX_DIR) / PathName(MIKTEX_PATH_MPM_INI), cacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME), size);
   }
   else if (repositoryType == RepositoryType::MiKTeXInstallation)
   {
     size_t size;
-    MyCopyFile(repository / MIKTEX_PATH_MPM_INI, cacheDirectory / MIKTEX_MPM_INI_FILENAME, size);
+    MyCopyFile(repository / PathName(MIKTEX_PATH_MPM_INI), cacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME), size);
   }
   else
   {
@@ -405,7 +405,7 @@ void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
   }
 
   size_t size;
-  MyCopyFile(cacheDirectory / MIKTEX_MPM_INI_FILENAME, session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_MPM_INI, size);
+  MyCopyFile(cacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME), session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_MPM_INI), size);
 }
 
 void PackageInstallerImpl::LoadRepositoryManifest(bool download)
@@ -413,7 +413,7 @@ void PackageInstallerImpl::LoadRepositoryManifest(bool download)
   repositoryManifest.Clear();
 
   // path to mpm.ini
-  PathName pathMpmIni(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_MPM_INI);
+  PathName pathMpmIni(session->GetSpecialPath(SpecialPath::InstallRoot), PathName(MIKTEX_PATH_MPM_INI));
 
   // install (if necessary)
   time_t ONE_DAY_IN_SECONDS = 86400;
@@ -755,12 +755,12 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
 
     bool done = false;
 
-    unsigned long refCount = packageDataStore->GetFileRefCount(f);
+    unsigned long refCount = packageDataStore->GetFileRefCount(PathName(f));
 
     // decrement the file reference counter
     if (refCount > 0)
     {
-      refCount = packageDataStore->DecrementFileRefCount(f);
+      refCount = packageDataStore->DecrementFileRefCount(PathName(f));
     }
 
     // make an absolute path name
@@ -939,13 +939,13 @@ void PackageInstallerImpl::CopyFiles(const PathName& pathSourceRoot, const vecto
     }
 
     // make sure the source file exists
-    PathName pathSource(pathSourceRoot, fileName);
+    PathName pathSource(pathSourceRoot, PathName(fileName));
     if (!File::Exists(pathSource))
     {
       MIKTEX_FATAL_ERROR_2(FatalError(ERROR_SOURCE_FILE_NOT_FOUND), "file", pathSource.ToString());
     }
 
-    PathName pathDest(session->GetSpecialPath(SpecialPath::InstallRoot), fileName);
+    PathName pathDest(session->GetSpecialPath(SpecialPath::InstallRoot), PathName(fileName));
 
     PathName pathDestFolder(pathDest);
     pathDestFolder.RemoveFileSpec();
@@ -1108,7 +1108,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
     else
     {
       MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-      pathArchiveFile = repository / packageId;
+      pathArchiveFile = PathName(repository) / PathName(packageId);
       pathArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
     }
 
@@ -1162,7 +1162,7 @@ void PackageInstallerImpl::InstallPackage(const string& packageId, Cfg& packageM
   }
 
   // parse the new package manifest file
-  PathName pathPackageFile = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR / packageId;
+  PathName pathPackageFile = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR) / PathName(packageId);
   pathPackageFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
   unique_ptr<TpmParser> tpmparser = TpmParser::Create();
   tpmparser->Parse(pathPackageFile);

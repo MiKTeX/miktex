@@ -788,7 +788,7 @@ void Driver::Initialize(McdApp* app, Options* options, const char* fileName)
   }
 
   // make fully qualified path to the given input file
-  if (Utils::IsAbsolutePath(givenFileName))
+  if (PathNameUtil::IsAbsolutePath(givenFileName))
   {
     pathInputFile = givenFileName;
   }
@@ -2065,7 +2065,7 @@ void McdApp::Run(int argc, const char** argv)
     case OPT_INCLUDE:
     {
       PathName path;
-      if (Utils::IsAbsolutePath(optArg))
+      if (PathNameUtil::IsAbsolutePath(optArg))
       {
         path = optArg;
       }

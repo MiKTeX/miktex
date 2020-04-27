@@ -1729,7 +1729,7 @@ vector<DviFontInfo> DviImpl::GetFontTable()
 
 bool DviImpl::FindGraphicsFile(const char* fileName, PathName & result)
 {
-  if (Utils::IsAbsolutePath(fileName))
+  if (PathNameUtil::IsAbsolutePath(fileName))
   {
     result = fileName;
     return File::Exists(result);

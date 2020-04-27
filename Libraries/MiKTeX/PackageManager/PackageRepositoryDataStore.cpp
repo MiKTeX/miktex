@@ -27,6 +27,8 @@
 
 #include <miktex/PackageManager/PackageManager>
 
+#include <miktex/Util/PathNameUtil>
+
 #include "internal.h"
 #include "PackageRepositoryDataStore.h"
 #include "RemoteService.h"
@@ -36,6 +38,7 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
+using namespace MiKTeX::Util;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
@@ -128,7 +131,7 @@ RepositoryType PackageRepositoryDataStore::DetermineRepositoryType(const string&
     return RepositoryType::Remote;
   }
 
-  if (!Utils::IsAbsolutePath(repository))
+  if (!PathNameUtil::IsAbsolutePath(repository))
   {
     MIKTEX_UNEXPECTED();
   }

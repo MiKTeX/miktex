@@ -97,7 +97,7 @@ bool Utils::IsUTF8(const char* lpsz, bool allowPureAscii)
 MIKTEXINTERNALFUNC(const char*) GetShortSourceFile(const char* lpszSourceFile)
 {
   const char* lpszShortSourceFile = 0;
-  if (Utils::IsAbsolutePath(lpszSourceFile))
+  if (PathNameUtil::IsAbsolutePath(lpszSourceFile))
   {
     lpszShortSourceFile = Utils::GetRelativizedPath(lpszSourceFile, MIKTEX_SOURCE_DIR);
     if (lpszShortSourceFile == nullptr)
@@ -141,8 +141,8 @@ const char* Utils::GetRelativizedPath(const char* lpszPath, const char* lpszRoot
   MIKTEX_ASSERT_STRING(lpszPath);
   MIKTEX_ASSERT_STRING(lpszRoot);
 
-  MIKTEX_ASSERT(Utils::IsAbsolutePath(lpszPath));
-  MIKTEX_ASSERT(Utils::IsAbsolutePath(lpszRoot));
+  MIKTEX_ASSERT(PathNameUtil::IsAbsolutePath(lpszPath));
+  MIKTEX_ASSERT(PathNameUtil::IsAbsolutePath(lpszRoot));
 
   PathName pathNorm(lpszPath);
   pathNorm.TransformForComparison();
@@ -189,11 +189,6 @@ const char* Utils::GetRelativizedPath(const char* lpszPath, const char* lpszRoot
   return lpszPath + rootLen + 1;
 }
 
-bool Utils::IsAbsolutePath(const PathName& path)
-{
-  return PathNameUtil::IsAbsolutePath(path.ToString());
-}
-
 static vector<string> forbiddenFileNames = {
 #if defined(MIKTEX_WINDOWS)
   "desktop.ini",
@@ -207,7 +202,7 @@ static vector<string> allowedFileNames = {
 
 bool Utils::IsSafeFileName(const PathName& path)
 {
-  if (IsAbsolutePath(path))
+  if (path.IsAbsolute())
   {
     return false;
   }
@@ -215,7 +210,7 @@ bool Utils::IsSafeFileName(const PathName& path)
   for (PathNameParser comp(path); comp; ++comp)
   {
     fileName = *comp;
-    if (fileName.GetLength() > 1 && fileName[0] == '.' && std::find(allowedFileNames.begin(), allowedFileNames.end(), fileName) == allowedFileNames.end())
+    if (fileName.GetLength() > 1 && fileName[0] == '.' && std::find(allowedFileNames.begin(), allowedFileNames.end(), fileName.ToString()) == allowedFileNames.end())
     {
       return false;
     }    
@@ -223,7 +218,7 @@ bool Utils::IsSafeFileName(const PathName& path)
   MIKTEX_ASSERT(!fileName.Empty());
   for (const string& forbidden : forbiddenFileNames)
   {
-    if (PathName::Compare(forbidden, fileName) == 0)
+    if (PathName::Compare(PathName(forbidden), fileName) == 0)
     {
       return false;
     }
@@ -323,7 +318,7 @@ bool Utils::GetUncRootFromPath(const PathName& path, PathName& uncRoot)
 
 bool Utils::GetPathNamePrefix(const PathName& path, const PathName& suffix, PathName& prefix)
 {
-  MIKTEX_ASSERT(!Utils::IsAbsolutePath(suffix));
+  MIKTEX_ASSERT(!PathNameUtil::IsAbsolutePath(suffix));
 
   PathName path_(path);
   PathName suffix_(suffix);
@@ -391,7 +386,7 @@ MIKTEXINTERNALFUNC(PathName) GetFullPath(const char* lpszPath)
 {
   PathName path;
 
-  if (!Utils::IsAbsolutePath(lpszPath))
+  if (!PathNameUtil::IsAbsolutePath(lpszPath))
   {
 #if defined(MIKTEX_WINDOWS)
     if (PathNameUtil::IsDosDriveLetter(lpszPath[0]) && PathNameUtil::IsDosVolumeDelimiter(lpszPath[1]) && lpszPath[2] == 0)
@@ -404,15 +399,16 @@ MIKTEXINTERNALFUNC(PathName) GetFullPath(const char* lpszPath)
     path.SetToCurrentDirectory();
   }
 
-  for (PathNameParser parser(lpszPath); parser; ++parser)
+  PathName fixme(lpszPath);
+  for (PathNameParser parser(fixme); parser; ++parser)
   {
-    if (PathName::Compare(*parser, PARENT_DIRECTORY) == 0)
+    if (PathName::Compare(PathName(*parser), PathName(PARENT_DIRECTORY)) == 0)
     {
       path.CutOffLastComponent();
     }
-    else if (PathName::Compare(*parser, CURRENT_DIRECTORY) != 0)
+    else if (PathName::Compare(PathName(*parser), PathName(CURRENT_DIRECTORY)) != 0)
     {
-      path.AppendComponent((*parser).c_str());
+      path /= *parser;
     }
   }
 
@@ -803,7 +799,7 @@ bool Utils::FindProgram(const std::string& programName, PathName& path)
     {
       continue;
     }
-    PathName cand = *entry;
+    PathName cand(*entry);
     cand /= programName;
 #if defined(MIKTEX_WINDOWS)
     if (!cand.HasExtension())
@@ -995,10 +991,10 @@ pair<bool, PathName> Utils::ExpandTilde(const string& s)
   if (s[0] == '~' && (s[1] == 0 || PathNameUtil::IsDirectoryDelimiter(s[1])))
   {
     PathName pathFQ = GetHomeDirectory();
-    if (!Utils::IsAbsolutePath(pathFQ))
+    if (!pathFQ.IsAbsolute())
     {
       TraceError(fmt::format(T_("cannot expand ~: {0} is not fully qualified"), Q_(pathFQ)));
-      return make_pair(false , "");
+      return make_pair(false , PathName());
     }
     if (s[1] != 0 && PathNameUtil::IsDirectoryDelimiter(s[1]) && s[2] != 0)
     {
@@ -1008,6 +1004,6 @@ pair<bool, PathName> Utils::ExpandTilde(const string& s)
   }
   else
   {
-    return make_pair(false, "");
+    return make_pair(false, PathName());
   }
 }

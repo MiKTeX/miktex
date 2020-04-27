@@ -163,7 +163,7 @@ void SessionImpl::RegisterFileType(FileType fileType)
     string str;
     if (Utils::GetEnvironmentString(MIKTEX_ENV_BIN_DIR, str))
     {
-      PathName binDir = str;
+      PathName binDir(str);
       binDir.Canonicalize();
       if (std::find(searchPath.begin(), searchPath.end(), binDir.ToString()) == searchPath.end())
       {
@@ -263,14 +263,14 @@ FileType SessionImpl::DeriveFileType(const PathName& fileName)
     const InternalFileTypeInfo& fti = fileTypes[idx];
     if (extension.Empty())
     {
-      if (fti.fileTypeString == fileName)
+      if (PathName(fti.fileTypeString) == fileName)
       {
         return fti.fileType;
       }
     }
     else
     {
-      if (std::find_if(fti.fileNameExtensions.begin(), fti.fileNameExtensions.end(), [extension](const string& ext) { return extension == ext; }) != fti.fileNameExtensions.end())
+      if (std::find_if(fti.fileNameExtensions.begin(), fti.fileNameExtensions.end(), [extension](const string& ext) { return extension == PathName(ext); }) != fti.fileNameExtensions.end())
       {
         return fti.fileType;
       }

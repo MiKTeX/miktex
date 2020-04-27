@@ -103,7 +103,7 @@ PathName PathName::GetMountPoint() const
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("GetVolumePathNameW", "path", this->ToString());
   }
-  return szDir;
+  return PathName(szDir);
 }
 
 PathName& PathName::AppendAltDirectoryDelimiter()

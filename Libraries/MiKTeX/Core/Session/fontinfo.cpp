@@ -202,7 +202,7 @@ void SessionImpl::SplitFontPath(const PathName& fontPath, string* fontType, stri
     {
       *typeface = "";
     }
-    if (Utils::IsAbsolutePath(fontPath))
+    if (fontPath.IsAbsolute())
     {
       PathName root;
       PathName pathRel;
@@ -335,7 +335,7 @@ bool SessionImpl::GetFontInfo(const string& fontName, string& supplier, string& 
   if (genSize != nullptr)
   {
     string pointSize;
-    SplitFontPath(fontName, nullptr, nullptr, nullptr, nullptr, &pointSize);
+    SplitFontPath(PathName(fontName), nullptr, nullptr, nullptr, nullptr, &pointSize);
     size_t l = pointSize.length();
     if (l == 0)
     {

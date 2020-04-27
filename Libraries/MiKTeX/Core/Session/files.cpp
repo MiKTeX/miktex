@@ -241,17 +241,17 @@ FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access,
   if (verb == "zcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(GzipStream::Create(argv[1], true));
+    return OpenFileOnStream(GzipStream::Create(PathName(argv[1]), true));
   }
   else if (verb == "bzcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(BZip2Stream::Create(argv[1], true));
+    return OpenFileOnStream(BZip2Stream::Create(PathName(argv[1]), true));
   }
   else if (verb == "xzcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(LzmaStream::Create(argv[1], true));
+    return OpenFileOnStream(LzmaStream::Create(PathName(argv[1]), true));
   }
   else
   {
@@ -387,7 +387,7 @@ void SessionImpl::WritePackageHistory()
   {
     return;
   }
-  ofstream stream = File::CreateOutputStream(packageHistoryFile, ios_base::app);
+  ofstream stream = File::CreateOutputStream(PathName(packageHistoryFile), ios_base::app);
   for (vector<FileInfoRecord>::const_iterator it = fileInfoRecords.begin(); it != fileInfoRecords.end(); ++it)
   {
     if (!it->packageName.empty())

@@ -160,9 +160,6 @@ public:
   static MIKTEXCORECEEAPI(bool) GetUncRootFromPath(const PathName& path, PathName& uncRoot);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsAbsolutePath(const PathName& path);
-
-public:
   static MIKTEXCORECEEAPI(bool) IsSafeFileName(const PathName& path);
 
 public:
