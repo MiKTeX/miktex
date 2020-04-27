@@ -471,15 +471,15 @@ void unxProcess::WaitForExit()
     }
     if (WIFEXITED(status) != 0)
     {
-      session->trace_process->WriteLine("core", fmt::format("process {0} exited with status {1}", pid, WEXITSTATUS(status));
+      session->trace_process->WriteLine("core", fmt::format("process {0} exited with status {1}", pid, WEXITSTATUS(status)));
     }
     else if (WIFSIGNALED(status) != 0)
     {
-      session->trace_process->WriteLine("core", fmt::format("process {0} terminated due to signal {1}", pid, WTERMSIG(status));
+      session->trace_process->WriteLine("core", fmt::format("process {0} terminated due to signal {1}", pid, WTERMSIG(status)));
     }
     else if (WIFSTOPPED(status) != 0)
     {
-      session->trace_process->WriteLine("core", fmt::format("process {0} stopped due to signal {1}", pid, WSTOPSIG(status));
+      session->trace_process->WriteLine("core", fmt::format("process {0} stopped due to signal {1}", pid, WSTOPSIG(status)));
     }
     else if (WIFCONTINUED(status) != 0)
     {
