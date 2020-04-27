@@ -62,7 +62,7 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
     {
       MIKTEX_FATAL_ERROR(T_("No invocation name has been set."));
     }
-    if (Utils::IsAbsolutePath(invocationName.c_str()))
+    if (PathName(invocationName).IsAbsolute())
     {
       myProgramFile = invocationName;
     }
