@@ -214,7 +214,7 @@ void FindTeXMF::PrintSearchPath(const char* lpszSearchPath)
   for (const string& path : StringUtil::Split(lpszSearchPath, PathNameUtil::PathNameDelimiter))
   {
     if ((PathName::Compare(path, mpmRootPath, mpmRootPathLen) == 0)
-      && (path.length() == mpmRootPathLen || IsDirectoryDelimiter(path[mpmRootPathLen])))
+      && (path.length() == mpmRootPathLen || PathNameUtil::IsDirectoryDelimiter(path[mpmRootPathLen])))
     {
       continue;
     }
