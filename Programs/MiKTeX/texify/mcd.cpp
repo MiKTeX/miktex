@@ -1270,7 +1270,7 @@ void Driver::RunBibTeX()
 
       PathName subDir;
 
-      if (strchr(subAuxNameNoExt.GetData(), PathName::UnixDirectoryDelimiter) != 0)
+      if (strchr(subAuxNameNoExt.GetData(), PathNameUtil::UnixDirectoryDelimiter) != 0)
       {
         // we have \@input{SubDir/SubAuxNameNoExt.aux}
         if (options->clean)
