@@ -58,7 +58,7 @@ MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char* lpszPath)
 
 MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName& path, mode_t mode)
 {
-  if (!Utils::IsAbsolutePath(path.GetData()))
+  if (!path.IsAbsolute())
   {
     PathName absPath(path);
     absPath.MakeAbsolute();
