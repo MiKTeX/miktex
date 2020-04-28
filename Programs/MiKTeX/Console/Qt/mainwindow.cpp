@@ -1825,7 +1825,7 @@ void MainWindow::ChangeLinkTargetDirectory()
       return;
     }
     QThread* thread = new QThread;
-    ChangeLinkTargetDirectoryWorker* worker = new ChangeLinkTargetDirectoryWorker(directory.toUtf8().constData());
+    ChangeLinkTargetDirectoryWorker* worker = new ChangeLinkTargetDirectoryWorker(PathName(directory.toUtf8().constData()));
     backgroundWorkers++;
     ui->labelBackgroundTask->setText(tr("Changing link target directory..."));
     worker->moveToThread(thread);

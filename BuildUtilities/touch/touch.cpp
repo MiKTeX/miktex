@@ -105,13 +105,13 @@ void Main(int argc, const char** argv)
   }
   for (const string& fileName : leftovers)
   {
-    if (Directory::Exists(fileName))
+    if (Directory::Exists(PathName(fileName)))
     {
-      Directory::SetTimes(fileName, timeStamp, timeStamp, timeStamp);
+      Directory::SetTimes(PathName(fileName), timeStamp, timeStamp, timeStamp);
     }
     else
     {
-      File::SetTimes(fileName, timeStamp, timeStamp, timeStamp);
+      File::SetTimes(PathName(fileName), timeStamp, timeStamp, timeStamp);
     }
   }
 }

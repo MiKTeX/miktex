@@ -45,19 +45,19 @@ BEGIN_TEST_FUNCTION(1);
   TEST(!MiKTeX::Core::File::Exists(PathName("xxx.zzz")));
   Touch("xxx.zzz");
 #if defined(MIKTEX_UNIX)
-  LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes("xxx.zzz"));
+  LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes(PathName("xxx.zzz")));
 #endif
   TEST(MiKTeX::Core::File::Exists(PathName("xxx.zzz")));
   TESTX(MiKTeX::Core::File::SetAttributes(PathName("xxx.zzz"), { MiKTeX::Core::FileAttribute::ReadOnly }));
 #if defined(MIKTEX_UNIX)
-  LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes("xxx.zzz"));
+  LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes(PathName("xxx.zzz")));
 #endif
   MiKTeX::Core::FileAttributeSet attributes = MiKTeX::Core::File::GetAttributes(PathName("xxx.zzz"));
   TEST(attributes[MiKTeX::Core::FileAttribute::ReadOnly]);
   attributes -= MiKTeX::Core::FileAttribute::ReadOnly;
   TESTX(MiKTeX::Core::File::SetAttributes(PathName("xxx.zzz"), attributes));
 #if defined(MIKTEX_UNIX)
-  LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes("xxx.zzz"));
+  LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes(PathName("xxx.zzz")));
 #endif
   attributes = MiKTeX::Core::File::GetAttributes(PathName("xxx.zzz"));
   TEST(!attributes[MiKTeX::Core::FileAttribute::ReadOnly]);

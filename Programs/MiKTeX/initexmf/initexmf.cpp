@@ -1209,14 +1209,14 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
         continue;
       }
 #if defined(MIKTEX_UNIX)
-      if (File::IsSymbolicLink(linkName))
+      if (File::IsSymbolicLink(PathName(linkName)))
       {
-        PathName linkTarget = File::ReadSymbolicLink(linkName);
+        PathName linkTarget = File::ReadSymbolicLink(PathName(linkName));
 	string linkTargetFileName = linkTarget.GetFileName().ToString();
-        bool isMiKTeXSymlinked = linkTargetFileName.find(MIKTEX_PREFIX) == 0 || linkTargetFileName == PathName(fileLink.target).GetFileName();
+        bool isMiKTeXSymlinked = linkTargetFileName.find(MIKTEX_PREFIX) == 0 || PathName(linkTargetFileName) == PathName(fileLink.target).GetFileName();
         if (!isMiKTeXSymlinked)
         {
-          if (File::Exists(linkTarget))
+          if (File::Exists(PathName(linkTarget)))
           {
             LOG4CXX_WARN(logger, Q_(linkName) << " already symlinked to " << Q_(linkTarget));
             continue;
@@ -2022,7 +2022,7 @@ void IniTeXMFApp::Bootstrap()
   }
   if (!neededPackages.empty())
   {
-    PathName bootstrappingDir = session->GetSpecialPath(SpecialPath::DistRoot) / MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR;
+    PathName bootstrappingDir = session->GetSpecialPath(SpecialPath::DistRoot) / PathName(MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR);
     if (Directory::Exists(bootstrappingDir))
     {
       PushTraceMessage("running MIKTEX_HOOK_BOOTSTRAPPING");

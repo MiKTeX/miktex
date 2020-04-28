@@ -1230,7 +1230,7 @@ void MakeFontMapApp::CreateFontconfigLocalfontsConf()
   if (optAdminMode)
   {
     PathName confd(MIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR);
-    File::CreateLink(configFile, confd / "09-miktex.conf", { CreateLinkOption::ReplaceExisting, CreateLinkOption::Symbolic });
+    File::CreateLink(configFile, confd / PathName("09-miktex.conf"), { CreateLinkOption::ReplaceExisting, CreateLinkOption::Symbolic });
   }
 #endif
 #if !defined(USE_SYSTEM_FONTCONFIG)

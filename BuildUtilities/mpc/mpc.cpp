@@ -372,7 +372,7 @@ private:
 
 private:
   // default MiKTeX major/minor version
-  VersionNumber majorMinorVersion = MIKTEX_MAJOR_MINOR_STR;
+  VersionNumber majorMinorVersion = VersionNumber(MIKTEX_MAJOR_MINOR_STR);
 
 private:
   string releaseState = "stable";
@@ -501,7 +501,7 @@ PathName PackageCreator::FindLzma()
 
 ArchiveFileType PackageCreator::GetDbArchiveFileType()
 {
-  if (majorMinorVersion < "2.7")
+  if (majorMinorVersion < VersionNumber("2.7"))
   {
     return ArchiveFileType::TarBzip2;
   }
@@ -2034,8 +2034,8 @@ void PackageCreator::Run(int argc, const char** argv)
       optDisassemblePackage = true;
       break;
     case OPT_MIKTEX_MAJOR_MINOR:
-      majorMinorVersion = optArg;
-      if (majorMinorVersion.CompareTo(MIKTEX_MAJOR_MINOR_STR) > 0)
+      majorMinorVersion = VersionNumber(optArg);
+      if (majorMinorVersion.CompareTo(VersionNumber(MIKTEX_MAJOR_MINOR_STR)) > 0)
       {
         FatalError(T_("Unsupported MiKTeX major/minor version."));
       }
@@ -2099,7 +2099,7 @@ void PackageCreator::Run(int argc, const char** argv)
   {
     cout
       << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 1996-2018 Christian Schenk" << endl
+      << "Copyright (C) 1996-2020 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
   }
