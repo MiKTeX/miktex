@@ -615,7 +615,9 @@ unique_ptr<Process> unxProcess::get_Parent()
 string unxProcess::get_ProcessName()
 {
 #if defined(__linux__)
-  string path = "/proc/" + std::to_string(pid) + "/comm";
+  PathName path("/proc");
+  path /= std::to_string(pid);
+  path /= "comm";
   if (!File::Exists(path))
   {
     // process does not exist anymore
@@ -692,7 +694,9 @@ ProcessInfo unxProcess::GetProcessInfo()
   ProcessInfo processInfo;
   processInfo.name = get_ProcessName();
 #if defined(__linux__)
-  string path = "/proc/" + std::to_string(pid) + "/stat";
+  PathName path("/proc");
+  path /= std::to_string(pid);
+  path /= "stat";
   if (!File::Exists(path))
   {
     // process does not exist anymore
