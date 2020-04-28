@@ -573,13 +573,13 @@ MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
 void Process::StartSystemCommand(const string& commandLine)
 {
   vector<string> arguments = Wrap(commandLine);
-  Process::Start(arguments[0], arguments);
+  Process::Start(PathName(arguments[0]), arguments);
 }
 
 bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* directory)
 {
   vector<string> arguments = Wrap(commandLine);
-  return Process::Run(arguments[0], arguments, callback, exitCode, directory);
+  return Process::Run(PathName(arguments[0]), arguments, callback, exitCode, directory);
 }
 
 unique_ptr<Process> Process::GetCurrentProcess()
