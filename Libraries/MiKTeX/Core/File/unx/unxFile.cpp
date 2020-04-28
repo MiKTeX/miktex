@@ -376,7 +376,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
         MIKTEX_FATAL_CRT_ERROR_2("chown", "path", dest.ToString());
       }
 #endif
-      SetTimes(dest.GetData(), sourceStat.st_ctime, sourceStat.st_atime, sourceStat.st_mtime);
+      SetTimes(dest, sourceStat.st_ctime, sourceStat.st_atime, sourceStat.st_mtime);
     }
   }
   catch (const MiKTeXException&)
