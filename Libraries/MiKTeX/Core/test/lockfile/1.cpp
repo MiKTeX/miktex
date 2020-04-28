@@ -44,21 +44,21 @@ BEGIN_TEST_SCRIPT("lockfile-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create("lockfile-1");
+  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(PathName("lockfile-1"));
   TEST(lockFile->TryLock(0s));
   {
-    unique_ptr<MiKTeX::Core::LockFile> lockFile2 = LockFile::Create("lockfile-1");
+    unique_ptr<MiKTeX::Core::LockFile> lockFile2 = LockFile::Create(PathName("lockfile-1"));
     lockFile->Unlock();
     TEST(lockFile2->TryLock(0s));
-    TEST(File::Exists("lockfile-1"));
+    TEST(File::Exists(PathName("lockfile-1")));
   }
-  TEST(!File::Exists("lockfile-1"));
+  TEST(!File::Exists(PathName("lockfile-1")));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
-  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create("lockfile-1-1");
+  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(PathName("lockfile-1-1"));
   PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_lockfile_test1-1" MIKTEX_EXE_FILE_SUFFIX;
   TESTX(Process::Start(pathExe));
@@ -70,7 +70,7 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(3);
 {
-  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create("lockfile-1-2");
+  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(PathName("lockfile-1-2"));
   PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_lockfile_test1-2" MIKTEX_EXE_FILE_SUFFIX;
   TESTX(Process::Start(pathExe));
@@ -86,12 +86,12 @@ BEGIN_TEST_FUNCTION(4);
   pathExe /= "core_lockfile_test1-3" MIKTEX_EXE_FILE_SUFFIX;
   TESTX(Process::Start(pathExe));
   this_thread::sleep_for(2s);
-  TEST(File::Exists("sharedfile-1"));
-  FileStream reader(File::Open("sharedfile-1", FileMode::Open, FileAccess::Read));
+  TEST(File::Exists(PathName("sharedfile-1")));
+  FileStream reader(File::Open(PathName("sharedfile-1"), FileMode::Open, FileAccess::Read));
   TEST(!File::TryLock(reader.GetFile(), File::LockType::Shared, 0ms));
   TEST(File::TryLock(reader.GetFile(), File::LockType::Shared, 30s));
   reader.Close();
-  TESTX(File::Delete("sharedfile-1"));
+  TESTX(File::Delete(PathName("sharedfile-1")));
 }
 END_TEST_FUNCTION();
 

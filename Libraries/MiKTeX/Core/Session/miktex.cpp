@@ -131,7 +131,7 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     // FIXME: hard-coded sub-directory
     path = GetSpecialPath(SpecialPath::BinDirectory) / PathName("internal");
 #else
-    path = GetMyPrefix(true) / MIKTEX_INTERNAL_BINARY_DESTINATION_DIR;
+    path = GetMyPrefix(true) / PathName(MIKTEX_INTERNAL_BINARY_DESTINATION_DIR);
 #endif
     break;
   case SpecialPath::LinkTargetDirectory:

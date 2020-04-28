@@ -1,6 +1,6 @@
 /* unxSession.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -151,10 +151,10 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       destdir /= splittedPrefix[i];
     }
     MIKTEX_ASSERT(MIKTEX_SYSTEM_VAR_LIB_DIR[0] == '/');
-    ret.commonConfigRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_LIB_DIR + 1) / MIKTEX_PREFIX "texmf";
+    ret.commonConfigRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_LIB_DIR + 1) / PathName(MIKTEX_PREFIX "texmf");
     MIKTEX_ASSERT(MIKTEX_SYSTEM_VAR_CACHE_DIR[0] == '/');
-    ret.commonDataRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_CACHE_DIR + 1) / MIKTEX_PREFIX "texmf";
-    ret.commonInstallRoot = destdir / "usr/local" / MIKTEX_INSTALL_DIR;
+    ret.commonDataRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_CACHE_DIR + 1) / PathName(MIKTEX_PREFIX "texmf");
+    ret.commonInstallRoot = destdir / PathName("usr/local") / PathName(MIKTEX_INSTALL_DIR);
   }
 #endif
   if (ret.commonConfigRoot.Empty())
@@ -170,9 +170,9 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     PathName system_miktex_texmfs(prefix);
 #endif
     system_miktex_texmfs /= "texmfs";
-    ret.commonConfigRoot = system_miktex_texmfs / "config";
-    ret.commonDataRoot = system_miktex_texmfs / "data";
-    ret.commonInstallRoot = system_miktex_texmfs / "install";
+    ret.commonConfigRoot = system_miktex_texmfs / PathName("config");
+    ret.commonDataRoot = system_miktex_texmfs / PathName("data");
+    ret.commonInstallRoot = system_miktex_texmfs / PathName("install");
   }
   return ret;
 }

@@ -37,11 +37,13 @@ BEGIN_TEST_FUNCTION(1);
 {
   try
   {
-    File::Delete("file.does.not.exist");
+    File::Delete(PathName("file.does.not.exist"));
   }
   catch (const MiKTeXException& ex)
-  {    
+  {
+    return;
   }
+  MIKTEX_UNEXPECTED();
 }
 END_TEST_FUNCTION();
 

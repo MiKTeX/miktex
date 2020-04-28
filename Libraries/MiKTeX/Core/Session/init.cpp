@@ -624,7 +624,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
       return prefix / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
 #else
       // TODO: /etc/miktex/miktexstartup.ini
-      return defaultConfig.commonConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+      return defaultConfig.commonConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
 #endif
     }
   }

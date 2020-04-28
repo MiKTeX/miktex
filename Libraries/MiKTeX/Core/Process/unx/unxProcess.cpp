@@ -321,7 +321,7 @@ void unxProcess::Create()
       }
       if (!startinfo.WorkingDirectory.empty())
       {
-        Directory::SetCurrent(startinfo.WorkingDirectory);
+        Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
       }
       if (startinfo.Daemonize)
       {
@@ -555,9 +555,9 @@ string ConfStr(int name)
 MIKTEXSTATICFUNC(PathName) FindSystemShell()
 {
 #if defined(HAVE_CONFSTR) && defined(_CS_SHELL)
-  return ConfStr(_CS_SHELL);
+  return PathName(ConfStr(_CS_SHELL));
 #else
-  return "/bin/sh";
+  return PathName("/bin/sh");
 #endif
 }
 

@@ -1,6 +1,6 @@
 /* 1.cpp.in:                                            -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -39,8 +39,8 @@ BEGIN_TEST_SCRIPT("compression-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  FileStream outFile(File::Open("@CMAKE_CURRENT_BINARY_DIR@/test1-1.txt", FileMode::Create, FileAccess::Write, false));
-  unique_ptr<LzmaStream> lzmaStream = LzmaStream::Create("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.lzma", true);
+  FileStream outFile(File::Open(PathName("@CMAKE_CURRENT_BINARY_DIR@/test1-1.txt"), FileMode::Create, FileAccess::Write, false));
+  unique_ptr<LzmaStream> lzmaStream = LzmaStream::Create(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.lzma"), true);
   unsigned char buf[30000];
   size_t n;
   while ((n = lzmaStream->Read(buf, 30000)) > 0)
@@ -48,14 +48,14 @@ BEGIN_TEST_FUNCTION(1);
     outFile.Write(buf, n);
   }
   outFile.Close();
-  TEST(MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.good") == MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_BINARY_DIR@/test1-1.txt"));
+  TEST(MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.good")) == MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_BINARY_DIR@/test1-1.txt")));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
-  FileStream outFile(File::Open("@CMAKE_CURRENT_BINARY_DIR@/test1-2.txt", FileMode::Create, FileAccess::Write, false));
-  unique_ptr<LzmaStream> lzmaStream = LzmaStream::Create("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.xz", true);
+  FileStream outFile(File::Open(PathName("@CMAKE_CURRENT_BINARY_DIR@/test1-2.txt"), FileMode::Create, FileAccess::Write, false));
+  unique_ptr<LzmaStream> lzmaStream = LzmaStream::Create(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.xz"), true);
   unsigned char buf[1024];
   size_t n;
   while ((n = lzmaStream->Read(buf, 1024)) > 0)
@@ -63,14 +63,14 @@ BEGIN_TEST_FUNCTION(2);
     outFile.Write(buf, n);
   }
   outFile.Close();
-  TEST(MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.good") == MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_BINARY_DIR@/test1-2.txt"));
+  TEST(MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.good")) == MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_BINARY_DIR@/test1-2.txt")));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(3);
 {
-  FileStream outFile(File::Open("@CMAKE_CURRENT_BINARY_DIR@/test1-3.txt", FileMode::Create, FileAccess::Write, false));
-  unique_ptr<BZip2Stream> bz2Stream = BZip2Stream::Create("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.bz2", true);
+  FileStream outFile(File::Open(PathName("@CMAKE_CURRENT_BINARY_DIR@/test1-3.txt"), FileMode::Create, FileAccess::Write, false));
+  unique_ptr<BZip2Stream> bz2Stream = BZip2Stream::Create(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.bz2"), true);
   unsigned char buf[1024];
   size_t n;
   while ((n = bz2Stream->Read(buf, 1024)) > 0)
@@ -78,14 +78,14 @@ BEGIN_TEST_FUNCTION(3);
     outFile.Write(buf, n);
   }
   outFile.Close();
-  TEST(MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.good") == MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_BINARY_DIR@/test1-3.txt"));
+  TEST(MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.good")) == MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_BINARY_DIR@/test1-3.txt")));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(4);
 {
-  FileStream outFile(File::Open("@CMAKE_CURRENT_BINARY_DIR@/test1-4.txt", FileMode::Create, FileAccess::Write, false));
-  unique_ptr<GzipStream> gzStream = GzipStream::Create("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.gz", true);
+  FileStream outFile(File::Open(PathName("@CMAKE_CURRENT_BINARY_DIR@/test1-4.txt"), FileMode::Create, FileAccess::Write, false));
+  unique_ptr<GzipStream> gzStream = GzipStream::Create(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.gz"), true);
   unsigned char buf[1024];
   size_t n;
   while ((n = gzStream->Read(buf, 1024)) > 0)
@@ -93,25 +93,25 @@ BEGIN_TEST_FUNCTION(4);
     outFile.Write(buf, n);
   }
   outFile.Close();
-  TEST(MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.good") == MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_BINARY_DIR@/test1-4.txt"));
+  TEST(MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.good")) == MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_BINARY_DIR@/test1-4.txt")));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(5);
 {
-  File::Copy("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.lzma", "@CMAKE_CURRENT_BINARY_DIR@/abrakadabra.txt.lzma");
-  unique_ptr<LzmaStream> lzmaStream = LzmaStream::Create("@CMAKE_CURRENT_BINARY_DIR@/abrakadabra.txt.lzma", true);
+  File::Copy(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.lzma"), PathName("@CMAKE_CURRENT_BINARY_DIR@/abrakadabra.txt.lzma"));
+  unique_ptr<LzmaStream> lzmaStream = LzmaStream::Create(PathName("@CMAKE_CURRENT_BINARY_DIR@/abrakadabra.txt.lzma"), true);
   lzmaStream = nullptr;
-  TESTX(File::Delete("@CMAKE_CURRENT_BINARY_DIR@/abrakadabra.txt.lzma"));
+  TESTX(File::Delete(PathName("@CMAKE_CURRENT_BINARY_DIR@/abrakadabra.txt.lzma")));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(6);
 {
-  FileStream outFile(File::Open("@CMAKE_CURRENT_BINARY_DIR@/test1-6.txt", FileMode::Create, FileAccess::Write, false));
+  FileStream outFile(File::Open(PathName("@CMAKE_CURRENT_BINARY_DIR@/test1-6.txt"), FileMode::Create, FileAccess::Write, false));
   CommandLineBuilder cmd("zcat");
-  cmd.AppendArgument("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.gz");
-  FileStream inFile(pSession->OpenFile(cmd.ToString(), FileMode::Command, FileAccess::Read, false));
+  cmd.AppendArgument(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.gz"));
+  FileStream inFile(pSession->OpenFile(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read, false));
   unsigned char buf[1024];
   size_t n;
   while ((n = inFile.Read(buf, 1024)) > 0)
@@ -120,14 +120,14 @@ BEGIN_TEST_FUNCTION(6);
   }
   inFile.Close();
   outFile.Close();
-  TEST(MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.good") == MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_BINARY_DIR@/test1-6.txt"));
+  TEST(MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_SOURCE_DIR@/test1.txt.good")) == MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_BINARY_DIR@/test1-6.txt")));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(7);
 {
-  FileStream outFile(File::Open("@CMAKE_CURRENT_BINARY_DIR@/largefile.bin", FileMode::Create, FileAccess::Write, false));
-  unique_ptr<BZip2Stream> bz2Stream = BZip2Stream::Create("@CMAKE_CURRENT_SOURCE_DIR@/largefile.bin.bz2", true);
+  FileStream outFile(File::Open(PathName("@CMAKE_CURRENT_BINARY_DIR@/largefile.bin"), FileMode::Create, FileAccess::Write, false));
+  unique_ptr<BZip2Stream> bz2Stream = BZip2Stream::Create(PathName("@CMAKE_CURRENT_SOURCE_DIR@/largefile.bin.bz2"), true);
   unsigned char buf[1024];
   size_t n;
   while ((n = bz2Stream->Read(buf, 1024)) > 0)
@@ -135,8 +135,8 @@ BEGIN_TEST_FUNCTION(7);
     outFile.Write(buf, n);
   }
   outFile.Close();
-  TEST(MiKTeX::Core::MD5::Parse("939a078b5bc066873f4e48a0e841a819") == MiKTeX::Core::MD5::FromFile("@CMAKE_CURRENT_BINARY_DIR@/largefile.bin"));
-  TESTX(File::Delete("@CMAKE_CURRENT_BINARY_DIR@/largefile.bin"));
+  TEST(MiKTeX::Core::MD5::Parse("939a078b5bc066873f4e48a0e841a819") == MiKTeX::Core::MD5::FromFile(PathName("@CMAKE_CURRENT_BINARY_DIR@/largefile.bin")));
+  TESTX(File::Delete(PathName("@CMAKE_CURRENT_BINARY_DIR@/largefile.bin")));
 }
 END_TEST_FUNCTION();
 

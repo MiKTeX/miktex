@@ -37,22 +37,22 @@ BEGIN_TEST_FUNCTION(1);
   TEST(PathName::Compare("//aBc/[e]/ghi.jkl", "//aBc/[e]/qwe.rty", 10) == 0);
   TEST(PathName::Compare("/abc/def/ghi.jkl", "/abc/def/qwe.rty", 10) != 0);
   PathName path("/abc/def/ghi.jkl");
-  TEST(PathName::Compare(path.GetDirectoryName(), "/abc/def") == 0);
-  TEST(PathName::Compare(path.GetDirectoryName(), "/abc/def/") == 0);
-  TEST(PathName::Compare(path.GetFileName(), "ghi.jkl") == 0);
-  TEST(PathName::Compare(path.GetFileNameWithoutExtension(), "ghi") == 0);
+  TEST(PathName::Compare(path.GetDirectoryName(), PathName("/abc/def")) == 0);
+  TEST(PathName::Compare(path.GetDirectoryName(), PathName("/abc/def/")) == 0);
+  TEST(PathName::Compare(path.GetFileName(), PathName("ghi.jkl")) == 0);
+  TEST(PathName::Compare(path.GetFileNameWithoutExtension(), PathName("ghi")) == 0);
   TEST(PathName::Compare(path.GetExtension(), ".jkl") == 0);
   TEST(PathName::Compare(path.GetExtension(), "jkl") != 0);
   PathName path2 = path;
   path2.RemoveDirectorySpec();
-  TEST(path2 == "ghi.jkl");
+  TEST(path2 == PathName("ghi.jkl"));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
 #if defined(MIKTEX_WINDOWS)
-  PathNameParser component("C:/abc/def/ghi.jkl");
+  PathNameParser component(PathName("C:/abc/def/ghi.jkl"));
   TEST(PathName::Compare(*component, "C:") == 0);
   ++component;
   TEST(PathName::Compare(*component, "/") == 0);
@@ -65,7 +65,7 @@ BEGIN_TEST_FUNCTION(2);
   ++component;
   TEST(!component);
 #endif
-  PathNameParser component2("/abc/def/ghi.jkl");
+  PathNameParser component2(PathName("/abc/def/ghi.jkl"));
   TEST(PathName::Compare(*component2, "/") == 0);
   ++component2;
   TEST(PathName::Compare(*component2, "abc") == 0);
@@ -80,7 +80,7 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(3);
 {
-  PathNameParser component("//abc/def/ghi.jkl");
+  PathNameParser component(PathName("//abc/def/ghi.jkl"));
   TEST(PathName::Compare(*component, "//abc") == 0);
   ++component;
   TEST(PathName::Compare(*component, "/") == 0);
@@ -95,7 +95,7 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(4);
 {
-  PathNameParser component("/abc///def/ghi.jkl");
+  PathNameParser component(PathName("/abc///def/ghi.jkl"));
   TEST(PathName::Compare(*component, "/") == 0);
   ++component;
   TEST(PathName::Compare(*component, "abc") == 0);
@@ -130,7 +130,7 @@ BEGIN_TEST_FUNCTION(5);
   path2.SetToCurrentDirectory();
   path2 /= "abc/ghi.jkl";
 
-  TEST(PathName::Compare(path.GetData(), path2) == 0);
+  TEST(PathName::Compare(path, path2) == 0);
 }
 END_TEST_FUNCTION();
 
@@ -138,16 +138,16 @@ BEGIN_TEST_FUNCTION(6);
 {
 #if defined(MIKTEX_WINDOWS)
   PathName path("C:/abc/def/ghi.jkl/");
-  TEST(path.CutOffLastComponent() == "C:/abc/def");
-  TEST(path.CutOffLastComponent() == "C:/abc");
-  TEST(path.CutOffLastComponent() == "C:/");
-  TEST(path.CutOffLastComponent() == "C:/");
+  TEST(path.CutOffLastComponent() == PathName("C:/abc/def"));
+  TEST(path.CutOffLastComponent() == PathName("C:/abc"));
+  TEST(path.CutOffLastComponent() == PathName("C:/"));
+  TEST(path.CutOffLastComponent() == PathName("C:/"));
 #endif
   PathName path2("/abc/def/ghi.jkl/");
-  TEST(path2.CutOffLastComponent() == "/abc/def");
-  TEST(path2.CutOffLastComponent() == "/abc");
-  TEST(path2.CutOffLastComponent() == "/");
-  TEST(path2.CutOffLastComponent() == "/");
+  TEST(path2.CutOffLastComponent() == PathName("/abc/def"));
+  TEST(path2.CutOffLastComponent() == PathName("/abc"));
+  TEST(path2.CutOffLastComponent() == PathName("/"));
+  TEST(path2.CutOffLastComponent() == PathName("/"));
 }
 END_TEST_FUNCTION();
 
@@ -158,7 +158,7 @@ BEGIN_TEST_FUNCTION(7)
   TEST(PathName::Compare(path, path2) == 0);
   TEST(PathName::Compare(path.GetExtension(), ".stu") == 0);
   TEST(path.HasExtension(".stu"));
-  TEST(PathName::Compare(path.GetFileNameWithoutExtension(), "mno.pqr") == 0);
+  TEST(PathName::Compare(path.GetFileNameWithoutExtension(), PathName("mno.pqr")) == 0);
   TEST(PathName::Compare(path.GetExtension(), ".stu") == 0);
   path.SetExtension(".vwx");
   TEST(path.HasExtension(".vwx"));
@@ -173,7 +173,7 @@ BEGIN_TEST_FUNCTION(8);
   path2 /= u8"xxx\U0000263Axxx";
   TEST(path1 == path2);
 #if defined(MIKTEX_WINDOWS)
-  path1 /= L"yyy\U000000C3yyy";
+  path1 /= PathName(L"yyy\U000000C3yyy");
   path2 /= u8"yyy\U000000E3yyy";
   TEST(path1 == path2);
 #endif
@@ -197,13 +197,13 @@ BEGIN_TEST_FUNCTION(10);
   TEST(path.HasExtension(".jkl"));
   TEST(path.HasExtension("jkl"));
   path.AppendExtension(".jkl");
-  TEST(PathName::Compare(path, "/abc/def/ghi.jkl") == 0);
+  TEST(PathName::Compare(path, PathName("/abc/def/ghi.jkl")) == 0);
   path.SetExtension(nullptr);
-  TEST(PathName::Compare(path, "/abc/def/ghi") == 0);
+  TEST(PathName::Compare(path, PathName("/abc/def/ghi")) == 0);
   path.AppendExtension(".jkl");
-  TEST(PathName::Compare(path, "/abc/def/ghi.jkl") == 0);
+  TEST(PathName::Compare(path, PathName("/abc/def/ghi.jkl")) == 0);
   path.AppendExtension(".mno");
-  TEST(PathName::Compare(path, "/abc/def/ghi.jkl.mno") == 0);
+  TEST(PathName::Compare(path, PathName("/abc/def/ghi.jkl.mno")) == 0);
 }
 END_TEST_FUNCTION();
 
@@ -226,7 +226,7 @@ BEGIN_TEST_FUNCTION(12);
 {
   vector<string> vec;
 #if defined(MIKTEX_WINDOWS)
-  vec = PathName::Split("C:/abc/def/ghi.jkl");
+  vec = PathName::Split(PathName("C:/abc/def/ghi.jkl"));
   TEST(vec.size() == 5);
   TEST(PathName::Compare(vec[0], "C:") == 0);
   TEST(PathName::Compare(vec[1], "/") == 0);
@@ -234,14 +234,14 @@ BEGIN_TEST_FUNCTION(12);
   TEST(PathName::Compare(vec[3], "def") == 0);
   TEST(PathName::Compare(vec[4], "ghi.jkl") == 0);
 #endif
-  vec = PathName::Split("//server/abc/def/ghi.jkl");
+  vec = PathName::Split(PathName("//server/abc/def/ghi.jkl"));
   TEST(vec.size() == 5);
   TEST(PathName::Compare(vec[0], "//server") == 0);
   TEST(PathName::Compare(vec[1], "/") == 0);
   TEST(PathName::Compare(vec[2], "abc") == 0);
   TEST(PathName::Compare(vec[3], "def") == 0);
   TEST(PathName::Compare(vec[4], "ghi.jkl") == 0);
-  vec = PathName::Split("/abc/def/ghi.jkl");
+  vec = PathName::Split(PathName("/abc/def/ghi.jkl"));
   TEST(vec.size() == 4);
   TEST(PathName::Compare(vec[0], "/") == 0);
   TEST(PathName::Compare(vec[1], "abc") == 0);
@@ -253,23 +253,23 @@ END_TEST_FUNCTION();
 BEGIN_TEST_FUNCTION(13);
 {
   PathName prefix;
-  TEST(Utils::GetPathNamePrefix("/abc/def/ghi/jkl", "ghi/jkl", prefix));
-  TEST(prefix == "/abc/def");
-  TEST(!Utils::GetPathNamePrefix("/abc/def/ghi/jkl", "ghi/jkl/foo.bar", prefix));
+  TEST(Utils::GetPathNamePrefix(PathName("/abc/def/ghi/jkl"), PathName("ghi/jkl"), prefix));
+  TEST(prefix == PathName("/abc/def"));
+  TEST(!Utils::GetPathNamePrefix(PathName("/abc/def/ghi/jkl"), PathName("ghi/jkl/foo.bar"), prefix));
 }
 END_TEST_FUNCTION();
 
 #if defined(MIKTEX_WINDOWS)
 BEGIN_TEST_FUNCTION(14);
 {
-  TEST(MiKTeX::Core::PathName("C:/Foo/bar/FooBar.txt").ToExtendedLengthPathName() == "\\\\?\\C:\\Foo\\bar\\FooBar.txt");
+  TEST(MiKTeX::Core::PathName("C:/Foo/bar/FooBar.txt").ToExtendedLengthPathName() == PathName("\\\\?\\C:\\Foo\\bar\\FooBar.txt"));
   PathName longPathRel("rel");
   for (int n = 0; n < 100; ++n)
   {
     longPathRel /= "abcdefghij-"s + std::to_string(n);
   }
-  TEST(MiKTeX::Core::PathNameUtil::IsAbsolutePath(longPathRel.ToExtendedLengthPathName()));
-  TEST(MiKTeX::Core::PathName("nul").ToExtendedLengthPathName() == "\\\\.\\nul");
+  TEST(MiKTeX::Util::PathNameUtil::IsAbsolutePath(longPathRel.ToExtendedLengthPathName().ToString()));
+  TEST(MiKTeX::Core::PathName("nul").ToExtendedLengthPathName() == PathName("\\\\.\\nul"));
 }
 END_TEST_FUNCTION();
 #endif

@@ -1,6 +1,6 @@
 /* 2.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -42,8 +42,8 @@ BEGIN_TEST_FUNCTION(1);
   int exitCode;
   TEST(Process::ExecuteSystemCommand(commandLine, &exitCode));
   TEST(exitCode == 0);
-  TEST(File::Exists("a.txt"));
-  TESTX(File::Delete("a.txt"));
+  TEST(File::Exists(PathName("a.txt")));
+  TESTX(File::Delete(PathName("a.txt")));
 }
 END_TEST_FUNCTION();
 

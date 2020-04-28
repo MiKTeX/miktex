@@ -1,6 +1,6 @@
 /* 1-1.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -41,7 +41,7 @@ BEGIN_TEST_SCRIPT("lockfile-1-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create("lockfile-1-1");
+  unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(PathName("lockfile-1-1"));
   TEST(lockFile->TryLock(0s));
   this_thread::sleep_for(10s);
 }

@@ -180,7 +180,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
 #if defined(MIKTEX_UNIX) && !defined(MIKTEX_MACOS_BUNDLE)
     // try /usr/share/miktex-texmf/miktex/config/miktexstartup.ini
     prefix = GetMyPrefix(true);
-    path = prefix / MIKTEX_INSTALL_DIR / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+    path = prefix / PathName(MIKTEX_INSTALL_DIR) / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
     if (File::Exists(path))
     {
       return true;
@@ -226,7 +226,7 @@ pair<bool, PathName> SessionImpl::TryGetBinDirectory(bool canonicalized)
   }
   return make_pair<bool, PathName>(true, PathName(env));
 #elif defined(MIKTEX_MACOS_BUNDLE)
-  return make_pair<bool, PathName>(true, GetMyPrefix(canonicalized) / MIKTEX_BINARY_DESTINATION_DIR);
+  return make_pair<bool, PathName>(true, GetMyPrefix(canonicalized) / PathName(MIKTEX_BINARY_DESTINATION_DIR));
 #else
   return make_pair<bool, PathName>(true, GetMyLocation(canonicalized));
 #endif
@@ -896,9 +896,9 @@ bool SessionImpl::IsSharedSetup()
 #else
         PathName myLoc = GetMyLocation(true);
 #if defined(MIKTEX_MACOS_BUNDLE)
-        isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc) || Utils::IsParentDirectoryOf("/Applications", myLoc) ? TriState::True : TriState::False;
+        isSharedSetup = Utils::IsParentDirectoryOf(PathName("/usr"), myLoc) || Utils::IsParentDirectoryOf(PathName("/Applications"), myLoc) ? TriState::True : TriState::False;
 #else
-        isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc) || Utils::IsParentDirectoryOf("/opt", myLoc) ? TriState::True : TriState::False;
+        isSharedSetup = Utils::IsParentDirectoryOf(PathName("/usr"), myLoc) || Utils::IsParentDirectoryOf(PathName("/opt"), myLoc) ? TriState::True : TriState::False;
 #endif
 #endif
       }

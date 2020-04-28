@@ -1,6 +1,6 @@
 /* filetypes.cpp: MiKTeX file type registry
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -182,13 +182,13 @@ void SessionImpl::RegisterFileType(FileType fileType)
     }
 #if defined(MIKTEX_UNIX)
 #if !defined(MIKTEX_MACOS_BUNDLE)
-    PathName myPrefixBin = GetMyPrefix(false) / MIKTEX_BINARY_DESTINATION_DIR;
+    PathName myPrefixBin = GetMyPrefix(false) / PathName(MIKTEX_BINARY_DESTINATION_DIR);
     if (std::find(searchPath.begin(), searchPath.end(), myPrefixBin.ToString()) == searchPath.end())
     {
       searchPath.push_back(myPrefixBin.ToString());
     }
 #endif
-    PathName myPrefixBinCanon = GetMyPrefix(true) / MIKTEX_BINARY_DESTINATION_DIR;
+    PathName myPrefixBinCanon = GetMyPrefix(true) / PathName(MIKTEX_BINARY_DESTINATION_DIR);
     if (std::find(searchPath.begin(), searchPath.end(), myPrefixBinCanon.ToString()) == searchPath.end())
     {
       searchPath.push_back(myPrefixBinCanon.ToString());

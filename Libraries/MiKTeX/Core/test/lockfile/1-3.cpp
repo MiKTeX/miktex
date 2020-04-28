@@ -1,6 +1,6 @@
 /* 1-1.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -42,7 +42,7 @@ BEGIN_TEST_SCRIPT("lockfile-1-3");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  FileStream writer(File::Open("sharedfile-1", FileMode::Create, FileAccess::Write));
+  FileStream writer(File::Open(PathName("sharedfile-1"), FileMode::Create, FileAccess::Write));
   TEST(File::TryLock(writer.GetFile(), File::LockType::Exclusive, 0ms));
   writer.Write("01234", 5);
   this_thread::sleep_for(5s);

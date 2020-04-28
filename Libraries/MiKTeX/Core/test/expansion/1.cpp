@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -34,6 +34,7 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
+using namespace MiKTeX::Util;
 using namespace std;
 
 class VarExpand : public MiKTeX::Core::HasNamedValues

@@ -42,37 +42,37 @@ BEGIN_TEST_SCRIPT("filesystem-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  TEST(!MiKTeX::Core::File::Exists("xxx.zzz"));
+  TEST(!MiKTeX::Core::File::Exists(PathName("xxx.zzz")));
   Touch("xxx.zzz");
 #if defined(MIKTEX_UNIX)
   LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes("xxx.zzz"));
 #endif
-  TEST(MiKTeX::Core::File::Exists("xxx.zzz"));
-  TESTX(MiKTeX::Core::File::SetAttributes("xxx.zzz", { MiKTeX::Core::FileAttribute::ReadOnly }));
+  TEST(MiKTeX::Core::File::Exists(PathName("xxx.zzz")));
+  TESTX(MiKTeX::Core::File::SetAttributes(PathName("xxx.zzz"), { MiKTeX::Core::FileAttribute::ReadOnly }));
 #if defined(MIKTEX_UNIX)
   LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes("xxx.zzz"));
 #endif
-  MiKTeX::Core::FileAttributeSet attributes = MiKTeX::Core::File::GetAttributes("xxx.zzz");
+  MiKTeX::Core::FileAttributeSet attributes = MiKTeX::Core::File::GetAttributes(PathName("xxx.zzz"));
   TEST(attributes[MiKTeX::Core::FileAttribute::ReadOnly]);
   attributes -= MiKTeX::Core::FileAttribute::ReadOnly;
-  TESTX(MiKTeX::Core::File::SetAttributes("xxx.zzz", attributes));
+  TESTX(MiKTeX::Core::File::SetAttributes(PathName("xxx.zzz"), attributes));
 #if defined(MIKTEX_UNIX)
   LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes("xxx.zzz"));
 #endif
-  attributes = MiKTeX::Core::File::GetAttributes("xxx.zzz");
+  attributes = MiKTeX::Core::File::GetAttributes(PathName("xxx.zzz"));
   TEST(!attributes[MiKTeX::Core::FileAttribute::ReadOnly]);
-  TESTX(MiKTeX::Core::File::Move("xxx.zzz", "zzz.xxx"));
-  TESTX(MiKTeX::Core::File::Delete("zzz.xxx"));
+  TESTX(MiKTeX::Core::File::Move(PathName("xxx.zzz"), PathName("zzz.xxx")));
+  TESTX(MiKTeX::Core::File::Delete(PathName("zzz.xxx")));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
-  FILE* stream = MiKTeX::Core::File::Open("abc.def", MiKTeX::Core::FileMode::Create, MiKTeX::Core::FileAccess::Write, true);
+  FILE* stream = MiKTeX::Core::File::Open(PathName("abc.def"), MiKTeX::Core::FileMode::Create, MiKTeX::Core::FileAccess::Write, true);
   TEST(stream != nullptr);
   fprintf(stream, "hello, world!\n");
   fclose(stream);
-  TESTX(MiKTeX::Core::File::Delete("abc.def"));
+  TESTX(MiKTeX::Core::File::Delete(PathName("abc.def")));
 }
 END_TEST_FUNCTION();
 
@@ -108,30 +108,30 @@ END_TEST_FUNCTION();
 BEGIN_TEST_FUNCTION(4);
 {
   Touch("abrakadabra.txt");
-  MiKTeX::Core::File::Move("abrakadabra.txt", "abrakadabra.txt.tmp");
-  TEST(!MiKTeX::Core::File::Exists("abrakadabra.txt"));
-  MiKTeX::Core::File::Delete("abrakadabra.txt.tmp");
+  MiKTeX::Core::File::Move(PathName("abrakadabra.txt"), PathName("abrakadabra.txt.tmp"));
+  TEST(!MiKTeX::Core::File::Exists(PathName("abrakadabra.txt")));
+  MiKTeX::Core::File::Delete(PathName("abrakadabra.txt.tmp"));
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(5);
 {
-  TEST(Utils::IsSafeFileName("sample.tex"));
-  TEST(Utils::IsSafeFileName("./sample.tex"));
-  TEST(Utils::IsSafeFileName(".tex"));
-  TEST(Utils::IsSafeFileName("sub/dir/sample.tex"));
-  TEST(Utils::IsSafeFileName("sub/dir/.tex"));
-  TEST(!Utils::IsSafeFileName(".bashrc"));
-  TEST(!Utils::IsSafeFileName("sub/dir/.bashrc"));
-  TEST(!Utils::IsSafeFileName("/fully/qualified/dir/sample.tex"));
-  TEST(!Utils::IsSafeFileName("/fully/qualified/dir/.bashrc"));
-  TEST(!Utils::IsSafeFileName("../sample.tex"));
-  TEST(!Utils::IsSafeFileName("../.bashrc"));
-  TEST(!Utils::IsSafeFileName("sub/dir/../../../sample.tex"));
-  TEST(!Utils::IsSafeFileName("sub/dir/../../../.bashrc"));
+  TEST(Utils::IsSafeFileName(PathName("sample.tex")));
+  TEST(Utils::IsSafeFileName(PathName("./sample.tex")));
+  TEST(Utils::IsSafeFileName(PathName(".tex")));
+  TEST(Utils::IsSafeFileName(PathName("sub/dir/sample.tex")));
+  TEST(Utils::IsSafeFileName(PathName("sub/dir/.tex")));
+  TEST(!Utils::IsSafeFileName(PathName(".bashrc")));
+  TEST(!Utils::IsSafeFileName(PathName("sub/dir/.bashrc")));
+  TEST(!Utils::IsSafeFileName(PathName("/fully/qualified/dir/sample.tex")));
+  TEST(!Utils::IsSafeFileName(PathName("/fully/qualified/dir/.bashrc")));
+  TEST(!Utils::IsSafeFileName(PathName("../sample.tex")));
+  TEST(!Utils::IsSafeFileName(PathName("../.bashrc")));
+  TEST(!Utils::IsSafeFileName(PathName("sub/dir/../../../sample.tex")));
+  TEST(!Utils::IsSafeFileName(PathName("sub/dir/../../../.bashrc")));
 #if 0
   // TODO
-  TEST(Utils::IsSafeFileName("sub/dir/../../sample.tex"));
+  TEST(Utils::IsSafeFileName(PathName("sub/dir/../../sample.tex")));
 #endif
 }
 END_TEST_FUNCTION();
@@ -164,7 +164,7 @@ BEGIN_TEST_FUNCTION(6);
   MiKTeX::Core::File::Delete(myself);
   TESTX(MiKTeX::Core::File::Move(clone, myself));
   TEST(MiKTeX::Core::File::Exists(myself));
-  TEST(MiKTeX::Core::File::Exists(".\\nul.x"));
+  TEST(MiKTeX::Core::File::Exists(PathName(".\\nul.x")));
 }
 END_TEST_FUNCTION();
 #endif
@@ -173,16 +173,16 @@ BEGIN_TEST_FUNCTION(7);
 {
   MiKTeX::Core::PathName cd;
   cd.SetToCurrentDirectory();
-  MiKTeX::Core::PathName dir = cd / "long-path-parent-directory";
+  MiKTeX::Core::PathName dir = cd / PathName("long-path-parent-directory");
   MiKTeX::Core::PathName longPath(dir);
   const int minLength = 900;
   for (int n = 0; longPath.GetLength() < minLength; ++n)
   {
-    longPath /= "abcdefghij-"s + std::to_string(n);
+    longPath /= PathName("abcdefghij-"s + std::to_string(n));
   }
   TESTX(MiKTeX::Core::Directory::Create(longPath));
   TEST(MiKTeX::Core::Directory::Exists(longPath));
-  MiKTeX::Core::PathName file = longPath / "file.txt";
+  MiKTeX::Core::PathName file = longPath / PathName("file.txt");
   Touch(file.GetData());
   TEST(MiKTeX::Core::File::Exists(file));
   TESTX(MiKTeX::Core::File::Delete(file));

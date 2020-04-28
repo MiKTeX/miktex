@@ -379,7 +379,7 @@ pair<bool, PathName> SessionImpl::TryGetDistRootDirectory()
   }
   return make_pair(false, PathName());
 #else
-  return make_pair(true, GetMyPrefix(true) / MIKTEX_DIST_DIR);
+  return make_pair(true, GetMyPrefix(true) / PathName(MIKTEX_DIST_DIR));
 #endif
 }
 
