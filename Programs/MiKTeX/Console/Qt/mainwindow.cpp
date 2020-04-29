@@ -581,7 +581,7 @@ void MainWindow::StartTerminal()
       cmd = "cmd.exe";
     }
 #elif defined(MIKTEX_MACOS_BUNDLE)
-    cmd = session->GetMyLocation(true) / ".." / "Resources" / "Terminal";
+    cmd = session->GetMyLocation(true) / PathName("..") / PathName("Resources") / PathName("Terminal");
 #else
     const static string terminals[] = { "konsole", "gnome-terminal", "xterm" };
     for (const string& term : terminals)
@@ -671,7 +671,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
     MIKTEX_FATAL_WINDOWS_ERROR("ShellExecuteExW");
   }
 #elif defined(MIKTEX_MACOS_BUNDLE)
-  PathName console = session->GetMyLocation(true) / ".." / "Resources" / MIKTEX_CONSOLE_ADMIN_EXE;
+  PathName console = session->GetMyLocation(true) / PathName("..") / PathName("Resources") / PathName(MIKTEX_CONSOLE_ADMIN_EXE);
   vector<string> consoleArgs{ MIKTEX_CONSOLE_ADMIN_EXE };
   consoleArgs.insert(consoleArgs.end(), args.begin(), args.end());
   Process::Start(console, consoleArgs);
