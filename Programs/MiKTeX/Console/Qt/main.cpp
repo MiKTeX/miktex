@@ -198,7 +198,7 @@ PathName GetExecutablePath()
   {
     MIKTEX_UNEXPECTED();
   }
-  return resolved;
+  return PathName(resolved);
 }
 
 PathName GetExecutableDir()
@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
   bool optVersion = false;
   QString displayName = "MiKTeX Console";
 #if defined(MIKTEX_MACOS_BUNDLE)
-  PathName plugIns = GetExecutableDir() / ".." / "PlugIns";
+  PathName plugIns = GetExecutableDir() / PathName("..") / PathName("PlugIns");
   plugIns.MakeAbsolute();
   QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
 #endif
