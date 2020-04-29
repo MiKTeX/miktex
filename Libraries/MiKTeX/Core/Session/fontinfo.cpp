@@ -415,7 +415,7 @@ vector<string> SessionImpl::GetFontDirectories()
     // https://support.apple.com/en-us/HT201722
     for (const string& dir : { "/Library/Fonts/"s, "/System/Library/Fonts/"s })
     {
-      if (Directory::Exists(dir))
+      if (Directory::Exists(PathName(dir)))
       {
         systemFontDirs.push_back(dir);
       }
