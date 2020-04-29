@@ -1449,7 +1449,7 @@ void Application::RestartWindowed()
   // locate miktex-console
   PathName miktexConsole;
 #if defined(MIKTEX_MACOS_BUNDLE)
-  miktexConsole = session->GetSpecialPath(SpecialPath::MacOsDirectory) / MIKTEX_MACOS_BUNDLE_NAME;
+  miktexConsole = session->GetSpecialPath(SpecialPath::MacOsDirectory) / PathName(MIKTEX_MACOS_BUNDLE_NAME);
 #else
   if (!session->FindFile(miktexConsoleName, FileType::EXE, miktexConsole))
   {
