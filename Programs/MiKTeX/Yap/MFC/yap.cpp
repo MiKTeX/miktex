@@ -403,7 +403,7 @@ BOOL YapApplication::InitInstance()
       {
         invokerName = "unknown process";
       }
-      LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString("Yap", MIKTEX_COMPONENT_VERSION_STR));
+      LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString("Yap", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
       LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << TU_(m_lpCmdLine));
     }
 
