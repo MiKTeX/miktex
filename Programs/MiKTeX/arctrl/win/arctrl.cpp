@@ -256,7 +256,7 @@ ArCtrl::~ArCtrl()
 void ArCtrl::ShowVersion()
 {
   cout
-    << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR)
+    << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR))
     << endl
     << T_("Written by Christian Schenk in 2006.") << endl
     << T_("Based on public domain work by Fabrice Popineau.") << endl
