@@ -71,17 +71,9 @@ PathName& PathName::SetToTempDirectory()
   return *this;
 }
 
-PathName& PathName::SetToTempFile()
+PathName& PathName::SetToTempFile(const PathName& directory)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    *this = SessionImpl::GetSession()->GetTempDirectory();
-  }
-  else
-  {
-    SetToTempDirectory();
-  }    
+  *this = directory;
   AppendComponent("mikXXXXXX");
   int fd = mkstemp(GetData());
   if (fd < 0)
@@ -89,6 +81,7 @@ PathName& PathName::SetToTempFile()
     MIKTEX_FATAL_CRT_ERROR("mkstemp");
   }
   close(fd);
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
     session->trace_tempfile->WriteLine("core", fmt::format(T_("created temporary file {0}"), Q_(GetData())));

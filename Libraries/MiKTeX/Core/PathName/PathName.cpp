@@ -433,3 +433,18 @@ PathName& PathName::SetToLockDirectory()
   *this = GetHomeDirectory();
   return *this;
 }
+
+PathName& PathName::SetToTempFile()
+{
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  PathName tmpDir;
+  if (session != nullptr)
+  {
+    tmpDir = session->GetTempDirectory();
+  }
+  else
+  {
+    tmpDir.SetToTempDirectory();
+  }
+  return SetToTempFile(tmpDir);
+}

@@ -33,6 +33,7 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Paths>
+#include <miktex/Core/TemporaryFile>
 
 #include <miktex/Trace/Trace>
 
@@ -443,40 +444,26 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     }
     // </fixme>
     
+    PathName tmpFndbPath(fndbPath);
+    tmpFndbPath.AppendExtension(".tmp");
+    unique_ptr<TemporaryFile> tmpFndbFile = TemporaryFile::Create(tmpFndbPath);
     FileStream streamFndb;
-#if defined(MIKTEX_WINDOWS)
-    chrono::time_point<chrono::high_resolution_clock> tryUntil = chrono::high_resolution_clock::now() + chrono::seconds(10);
-    do
-    {
-      try
-      {
-        streamFndb.Attach(File::Open(fndbPath, FileMode::Create, FileAccess::Write, false));
-      }
-      catch (const SharingViolationException&)
-      {
-        if (chrono::high_resolution_clock::now() > tryUntil)
-        {
-          throw;
-        }
-        this_thread::sleep_for(chrono::milliseconds(200));
-      }
-    } while (streamFndb.GetFile() == nullptr);
-#else
-    streamFndb.Attach(File::Open(fndbPath, FileMode::Create, FileAccess::Write, false));
-#endif
-    if (!File::TryLock(streamFndb.GetFile(), File::LockType::Exclusive, 10s))
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", fndbPath.ToString());
-    }
+    streamFndb.Attach(File::Open(tmpFndbPath, FileMode::Create, FileAccess::Write, false));
     streamFndb.Write(reinterpret_cast<const char*>(GetMemPointer()), GetMemTop());
+    streamFndb.Close();
+    if (File::Exists(fndbPath))
+    {
+      File::Delete(fndbPath, { FileDeleteOption::TryHard });
+    }
+    File::Move(tmpFndbPath, fndbPath);
+    tmpFndbFile->Keep();
+
     PathName changeFile = fndbPath;
     changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
     if (File::Exists(changeFile))
     {
       File::Delete(changeFile);
     }
-    File::Unlock(streamFndb.GetFile());
-    streamFndb.Close();
     trace_fndb->WriteLine("core", T_("fndb creation completed"));
     SessionImpl::GetSession()->RecordMaintenance();
     return true;

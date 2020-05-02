@@ -81,21 +81,6 @@ PathName& PathName::SetToTempFile(const PathName& directory)
   return *this;
 }
 
-PathName& PathName::SetToTempFile()
-{
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  PathName tmpDir;
-  if (session != nullptr)
-  {
-    tmpDir = session->GetTempDirectory();
-  }
-  else
-  {
-    tmpDir.SetToTempDirectory();
-  }
-  return SetToTempFile(tmpDir);
-}
-
 PathName PathName::GetMountPoint() const
 {
   wchar_t szDir[BufferSizes::MaxPath];
