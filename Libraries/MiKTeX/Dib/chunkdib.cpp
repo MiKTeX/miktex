@@ -73,7 +73,7 @@ size_t MIKTEXTHISCALL ChunkDib::Read(void* data, size_t size)
 void MIKTEXTHISCALL ChunkDib::OnNewChunk(shared_ptr<DibChunk> chunk)
 {
   nChunks += 1;
-  PathName fileName = fmt::format("{0}-{1}-{2}.bmp", prefix, nBitmaps, nChunks);
+  PathName fileName(fmt::format("{0}-{1}-{2}.bmp", prefix, nBitmaps, nChunks));
   FileStream bitmapFile(File::Open(fileName, FileMode::Create, FileAccess::Write, false));
   const BITMAPINFO* pBitmapInfo = chunk->GetBitmapInfo();
   unsigned long nBytesPerLine = (((pBitmapInfo->bmiHeader.biWidth * pBitmapInfo->bmiHeader.biBitCount) + 31) & ~31) >> 3;
@@ -98,7 +98,7 @@ void ChunkDib::Run(int argc, const char** argv)
   unique_ptr<DibChunker> chunker(DibChunker::Create());
   if (argc > 1)
   {
-    PathName fileName = argv[1];
+    PathName fileName(argv[1]);
     prefix = fileName.GetFileNameWithoutExtension().ToString();
     chunkSize = static_cast<unsigned long>(File::GetSize(argv[1])) / 5;
     stream.Attach(File::Open(fileName, FileMode::Open, FileAccess::Read, false));
