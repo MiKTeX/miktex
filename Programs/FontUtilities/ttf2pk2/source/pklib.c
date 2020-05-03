@@ -64,6 +64,9 @@
 #define PK_POST (char)245
 #define PK_NOP  (char)246
 
+#if defined(MIKTEX)
+extern
+#endif
 int dpi;
 
 FILE *pk_file;
