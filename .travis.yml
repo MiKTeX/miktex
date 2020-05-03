@@ -35,7 +35,7 @@ matrix:
       services: docker
       env:
       - MIKTEX_LINUX_DIST=fedora
-      - MIKTEX_LINUX_DIST_VERSION=30
+      - MIKTEX_LINUX_DIST_VERSION=32
       script: ./build/ci/travis/docker/script.sh
       after_failure: ./build/ci/travis/docker/after_failure.sh
     - os: osx
