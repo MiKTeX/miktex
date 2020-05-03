@@ -100,7 +100,7 @@ void ChunkDib::Run(int argc, const char** argv)
   {
     PathName fileName(argv[1]);
     prefix = fileName.GetFileNameWithoutExtension().ToString();
-    chunkSize = static_cast<unsigned long>(File::GetSize(argv[1])) / 5;
+    chunkSize = static_cast<unsigned long>(File::GetSize(PathName(argv[1]))) / 5;
     stream.Attach(File::Open(fileName, FileMode::Open, FileAccess::Read, false));
   }
   else
