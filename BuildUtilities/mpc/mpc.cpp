@@ -82,6 +82,41 @@ enum class ArchiveFileType
   TarLzma
 };
 
+class PrivateKeyProvider :
+  public IPrivateKeyProvider
+{
+public:
+  PathName MIKTEXTHISCALL GetPrivateKeyFile() override
+  {
+    return privateKeyFile;
+  }
+
+public:
+  bool GetPassphrase(std::string& passphrase) override
+  {
+    passphrase = string(reinterpret_cast<const char*>(&this->passphrase[0]), passphrase.size());
+    return true;
+  }
+
+public:
+  void SetPrivateKeyFile(const PathName& privateKeyFile)
+  {
+    this->privateKeyFile = privateKeyFile;
+  }
+
+public:
+  void SetPassphrase(const vector<uint8_t>& passphrase)
+  {
+    this->passphrase = passphrase;
+  }
+
+private:
+  PathName privateKeyFile;
+
+private:
+  vector<uint8_t> passphrase;
+};
+
 class RestoreCurrentDirectory
 {
 public:
@@ -123,6 +158,8 @@ enum Option
   OPT_DISASSEMBLE_PACKAGE,
   OPT_MIKTEX_MAJOR_MINOR,
   OPT_PACKAGE_LIST,
+  OPT_PASSPHRASE_FILE,
+  OPT_PRIVATE_KEY_FILE,
   OPT_RELEASE_STATE,
   OPT_REPOSITORY,
   OPT_STAGING_DIR,
@@ -390,6 +427,9 @@ private:
 private:
   // command-line options
   static const struct poptOption options[];
+
+private:
+  PrivateKeyProvider privateKeyProvider;
 };
 
 const struct poptOption PackageCreator::options[] = {
@@ -417,6 +457,16 @@ const struct poptOption PackageCreator::options[] = {
 
   {
     "package-list", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_PACKAGE_LIST, T_("Specify the package list file."), T_("FILE")
+  },
+
+  {
+    "passphrase-file", 0, POPT_ARG_STRING, nullptr, OPT_PASSPHRASE_FILE,
+    T_("The file containing the passphrase for the private key."), T_("FILE"),
+  },
+
+  {
+    "private-key-file", 0, POPT_ARG_STRING, nullptr, OPT_PRIVATE_KEY_FILE,
+    T_("The private key file used for signing."), T_("FILE"),
   },
 
   {
@@ -1101,7 +1151,14 @@ void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& pac
     }
     PackageManager::PutPackageManifest(*cfg, p.second, timePackaged);
   }
-  cfg->Write(path);
+  if (privateKeyProvider.GetPrivateKeyFile().Empty())
+  {
+    cfg->Write(path);
+  }
+  else
+  {
+    cfg->Write(path, "", &privateKeyProvider);
+  }
 }
 
 bool PackageCreator::OnProcessOutput(const void* output, size_t n)
@@ -1208,7 +1265,14 @@ void PackageCreator::CreateRepositoryInformationFile(const PathName& repository,
   {
     File::Delete(path);
   }
-  cfg->Write(path);
+  if (privateKeyProvider.GetPrivateKeyFile().Empty())
+  {
+    cfg->Write(path);
+  }
+  else
+  {
+    cfg->Write(path, "", &privateKeyProvider);
+  }
   MD5Builder lstDigest;
   unique_ptr<DirectoryLister> lister = DirectoryLister::Open(repository);
   DirectoryEntry2 dirEntry;
@@ -1229,7 +1293,14 @@ void PackageCreator::CreateRepositoryInformationFile(const PathName& repository,
     lstDigest.Update(s.c_str(), s.length());
   }
   cfg->PutValue("repository", "lstdigest", lstDigest.Final().ToString());
-  cfg->Write(path);
+  if (privateKeyProvider.GetPrivateKeyFile().Empty())
+  {
+    cfg->Write(path);
+  }
+  else
+  {
+    cfg->Write(path, "", &privateKeyProvider);
+  }
 }
 
 void PackageCreator::CreateFileListFile(const map<string, MpcPackageInfo>& packageTable, const PathName& repository)
@@ -2043,6 +2114,12 @@ void PackageCreator::Run(int argc, const char** argv)
     case OPT_PACKAGE_LIST:
       ReadList(PathName(optArg), packageList);
       break;
+    case OPT_PASSPHRASE_FILE:
+      privateKeyProvider.SetPassphrase(File::ReadAllBytes(PathName(optArg)));
+      break;
+    case OPT_PRIVATE_KEY_FILE:
+      privateKeyProvider.SetPrivateKeyFile(PathName(optArg));
+      break;
     case OPT_RELEASE_STATE:
       releaseState = optArg;
       break;
@@ -2176,7 +2253,14 @@ void PackageCreator::Run(int argc, const char** argv)
       PathName iniFile(texmfParent);
       iniFile /= texmfPrefix;
       iniFile /= MIKTEX_PATH_MPM_INI;
-      repositoryManifest->Write(iniFile);
+      if (privateKeyProvider.GetPrivateKeyFile().Empty())
+      {
+        repositoryManifest->Write(iniFile);
+      }
+      else
+      {
+        repositoryManifest->Write(iniFile, "", &privateKeyProvider);
+      }
     }
     else if (optUpdateRepository)
     {
