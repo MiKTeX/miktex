@@ -160,6 +160,34 @@ public:
     }
   }
 
+  static bool IsFullyQualifiedPath(const std::string& path)
+  {
+#if defined(MIKTEX_WINDOWS)
+    if (path.length() < 3)
+    {
+      return false;
+    }
+    else if (IsDirectoryDelimiter(path[0]) && IsDirectoryDelimiter(path[1]))
+    {
+      // \\server\xyz\foo.txt
+      return true;
+    }
+    else if (PathNameUtil::IsDosDriveLetter(path[0])
+      && IsDosVolumeDelimiter(path[1])
+      && IsDirectoryDelimiter(path[2]))
+    {
+      // C:\xyz\foo.txt
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+#else
+    return IsAbsolutePath(path);
+#endif
+  }
+
 public:
   static char ToUnix(char ch)
   {

@@ -179,7 +179,18 @@ void miktex_add_include_directory(const char* path)
   }
 }
 
-int miktex_is_absolute_path(const char* path)
+int miktex_is_fully_qualified_path(const char* path)
 {
-  return PathNameUtil::IsAbsolutePath(path);
+  return PathNameUtil::IsFullyQualifiedPath(path);
+}
+
+void miktex_convert_to_unix(char* path)
+{
+  for (char* ch = path; *ch != 0; ++ch)
+  {
+    if (*ch == '\\')
+    {
+      *ch = '/';
+    }
+  }
 }

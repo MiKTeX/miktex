@@ -383,10 +383,12 @@ static int recorderoption = 0;
 
 static void parse_options(int ac, char **av)
 {
+#if !defined(MIKTEX)
 #ifdef WIN32
     /*tex We save |argc| and |argv|. */
     int sargc = argc;
     char **sargv = argv;
+#endif
 #endif
      /*tex The `getopt' return code. */
     int g;
@@ -607,7 +609,14 @@ static void parse_options(int ac, char **av)
         }
     } else if (argv[optind] && argv[optind][0] == '&') {
         dump_name = xstrdup(argv[optind] + 1);
+#if defined(MIKTEX_WINDOWS)
+    } else if (argv[optind] && (argv[optind][0] != '\\' || miktex_is_fully_qualified_path(argv[optind]))) {
+#else
     } else if (argv[optind] && argv[optind][0] != '\\') {
+#endif
+#if defined(MIKTEX_WINDOWS)
+      miktex_convert_to_unix(argv[optind]);
+#endif
         if (argv[optind][0] == '*') {
             input_name = xstrdup(argv[optind] + 1);
         } else {
@@ -630,6 +639,7 @@ static void parse_options(int ac, char **av)
                 input_name = firstfile;
             }
         }
+#if !defined(MIKTEX)
 #ifdef WIN32
     } else if (sargc > 1 && sargv[sargc-1] && sargv[sargc-1][0] != '-' &&
                sargv[sargc-1][0] != '\\') {
@@ -645,6 +655,7 @@ static void parse_options(int ac, char **av)
         if (safer_option)      /* --safer implies --nosocket */
             nosocket_option = 1;
         return;
+#endif
 #endif
     }
     /*tex |--safer| implies |--nosocket| */

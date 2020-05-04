@@ -614,21 +614,9 @@ main (int ac, string *av)
     setmode(fileno(stdin), _O_BINARY);
 #  endif
 
-#if defined(MIKTEX_WINDOWS)
-    if (ac > 1 && miktex_is_absolute_path(av[ac - 1]))
-    {
-      for (char* lpsz = av[ac - 1]; *lpsz != 0; ++lpsz)
-      {
-        if (*lpsz == '\\')
-        {
-          *lpsz = '/';
-        }
-      }
-    }
-    lua_initialize(ac, av);
-#else
     lua_initialize(ac, av);
 
+#if !defined(MIKTEX)
 #  ifdef WIN32
     if (ac > 1) {
         char *pp;

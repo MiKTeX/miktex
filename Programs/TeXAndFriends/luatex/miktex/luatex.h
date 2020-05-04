@@ -24,10 +24,11 @@ extern "C" {
 #endif
 
 void miktex_add_include_directory(const char* path);
+void miktex_convert_to_unix(char* path);
 void miktex_enable_installer(int onOff);
 const char* miktex_get_aux_directory();
 void miktex_invoke_editor(const char* filename, int lineno);
-int miktex_is_absolute_path(const char* path);
+int miktex_is_fully_qualified_path(const char* path);
 int miktex_is_output_file(const char* path);
 int miktex_open_format_file(const char* fileName, FILE** ppFile, int renew);
 char* miktex_program_basename(const char* argv0);
