@@ -82,7 +82,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
+          <enum>Qt::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>MiKTeX configuration overview</string>
@@ -110,7 +110,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
+          <enum>Qt::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>Check and modify MiKTeX configuration settings</string>
@@ -138,7 +138,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
+          <enum>Qt::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>Check for MiKTeX updates</string>
@@ -166,7 +166,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
+          <enum>Qt::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>MiKTeX package management</string>
@@ -194,7 +194,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
+          <enum>Qt::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>Diagnose</string>
@@ -222,7 +222,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
+          <enum>Qt::TabFocus</enum>
          </property>
          <property name="statusTip">
           <string>Cleanup</string>
