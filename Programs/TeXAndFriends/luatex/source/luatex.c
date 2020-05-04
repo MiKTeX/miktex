@@ -615,12 +615,13 @@ main (int ac, string *av)
 #  endif
 
 #if defined(MIKTEX_WINDOWS)
-    if (ac > 1) {
-      char* pp;
-      if ((strlen(av[ac - 1]) > 2) && isalpha(av[ac - 1][0]) && (av[ac - 1][1] == ':') && (av[ac - 1][2] == '\\' || av[ac - 1][2] == '/')) {
-        for (pp = av[ac - 1] + 2; *pp; pp++) {
-          if (*pp == '\\')
-            *pp = '/';
+    if (ac > 1 && miktex_is_absolute_path(av[ac - 1]))
+    {
+      for (char* lpsz = av[ac - 1]; *lpsz != 0; ++lpsz)
+      {
+        if (*lpsz == '\\')
+        {
+          *lpsz = '/';
         }
       }
     }

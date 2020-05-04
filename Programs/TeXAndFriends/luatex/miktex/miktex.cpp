@@ -23,6 +23,7 @@
 #include <miktex/Core/FileType>
 #include <miktex/Core/Paths>
 #include <miktex/KPSE/Emulation>
+#include <miktex/Util/PathNameUtil>
 
 #include <string>
 
@@ -34,6 +35,7 @@
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
 void miktex_enable_installer(int onOff)
@@ -175,4 +177,9 @@ void miktex_add_include_directory(const char* path)
     shared_ptr<Session> session = Session::Get();
     session->AddInputDirectory(includeDirectory, true);
   }
+}
+
+int miktex_is_absolute_path(const char* path)
+{
+  return PathNameUtil::IsAbsolutePath(path);
 }
