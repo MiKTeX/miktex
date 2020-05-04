@@ -148,8 +148,14 @@ void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
 
   PathName packageManifestsPath;
 
+  bool mustBeSigned = false;
+
   if (isArchive)
   {
+#if defined(WITH_PACKAGE_DB_SIGNING)
+    mustBeSigned = true;
+#endif
+
     // create temporary directory
     tempDir = TemporaryDirectory::Create();
 
@@ -161,12 +167,13 @@ void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
   }
   else
   {
+    mustBeSigned = false;
     packageManifestsPath = absPath;
   }
 
   // load "package-manifests.ini"
   packageDataStore.Clear();
-  packageDataStore.LoadAllPackageManifests(packageManifestsPath);
+  packageDataStore.LoadAllPackageManifests(packageManifestsPath, mustBeSigned);
 }
 
 void PackageManagerImpl::ClearAll()

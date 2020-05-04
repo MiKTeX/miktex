@@ -422,6 +422,12 @@ option(
 )
 
 option(
+  WITH_PACKAGE_DB_SIGNING
+  "MiKTeX package database files must be signed."
+  FALSE
+)
+
+option(
   WITH_LIBRESSL_CRYPTO
   "Use the LibreSSL crypto library supplied with MiKTeX."
   ${WIN32}

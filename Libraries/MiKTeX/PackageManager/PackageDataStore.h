@@ -64,7 +64,7 @@ public:
   ///
   /// @param path Path to the INI file.
 public:
-  void LoadAllPackageManifests(const MiKTeX::Core::PathName& path);
+  void LoadAllPackageManifests(const MiKTeX::Core::PathName& path, bool mustBeSigned);
 
 public:
   PackageDataStore& Load();

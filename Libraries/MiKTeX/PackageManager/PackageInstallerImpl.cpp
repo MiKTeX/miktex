@@ -2285,7 +2285,12 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
 
   // load cached package-manifests.ini
   unique_ptr<Cfg> newManifests = Cfg::Create();
-  newManifests->Read(cacheDirectory / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME));
+#if defined(WITH_PACKAGE_DB_SIGNING)
+  bool mustBeSigned = true;
+#else
+  bool mustBeSigned = false;
+#endif
+  newManifests->Read(cacheDirectory / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME), mustBeSigned);
 
   // load existing package-manifests.ini
   unique_ptr<Cfg> existingManifests = Cfg::Create();

@@ -1,6 +1,6 @@
 /* RepositoryManifest.h:                                -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -59,7 +59,12 @@ public:
 public:
   void Load(const MiKTeX::Core::PathName& path)
   {
-    cfg->Read(path);
+#if defined(WITH_PACKAGE_DB_SIGNING)
+    bool mustBeSigned = true;
+#else
+    bool mustBeSigned = false;
+#endif
+    cfg->Read(path, mustBeSigned);
   }
 
 private:

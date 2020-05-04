@@ -1,6 +1,6 @@
 /* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -20,6 +20,7 @@
    USA. */
 
 #cmakedefine HAVE_ATLBASE_H 1
+#cmakedefine WITH_PACKAGE_DB_SIGNING 1
 
 #if defined(MIKTEX_MPM_SHARED)
 #  define MIKTEXMPMEXPORT MIKTEXDLLEXPORT

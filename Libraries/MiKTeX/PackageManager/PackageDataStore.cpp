@@ -55,7 +55,7 @@ PackageDataStore::PackageDataStore() :
 {
 }
 
-void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsPath)
+void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsPath, bool mustBeSigned)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("loading all package manifests ({0})"), Q_(packageManifestsPath)));
 
@@ -66,7 +66,7 @@ void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsP
   }
 
   unique_ptr<Cfg> cfg = Cfg::Create();
-  cfg->Read(packageManifestsPath);
+  cfg->Read(packageManifestsPath, mustBeSigned);
 
   Load(*cfg);
 
