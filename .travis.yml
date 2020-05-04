@@ -66,8 +66,8 @@ matrix:
       services: docker
       env:
       - MIKTEX_LINUX_DIST=ubuntu
-      - MIKTEX_LINUX_DIST_VERSION=18.04
-      - MIKTEX_LINUX_DIST_CODE_NAME=bionic
+      - MIKTEX_LINUX_DIST_VERSION=20.04
+      - MIKTEX_LINUX_DIST_CODE_NAME=focal
       script: ./build/ci/travis/docker/script.sh
       after_failure: ./build/ci/travis/docker/after_failure.sh
     - os: linux
