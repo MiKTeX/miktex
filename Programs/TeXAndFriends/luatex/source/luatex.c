@@ -614,29 +614,36 @@ main (int ac, string *av)
     setmode(fileno(stdin), _O_BINARY);
 #  endif
 
+#if defined(MIKTEX_WINDOWS)
+    if (ac > 1) {
+      char* pp;
+      if ((strlen(av[ac - 1]) > 2) && isalpha(av[ac - 1][0]) && (av[ac - 1][1] == ':') && (av[ac - 1][2] == '\\' || av[ac - 1][2] == '/')) {
+        for (pp = av[ac - 1] + 2; *pp; pp++) {
+          if (*pp == '\\')
+            *pp = '/';
+        }
+      }
+    }
+    lua_initialize(ac, av);
+#else
     lua_initialize(ac, av);
 
 #  ifdef WIN32
     if (ac > 1) {
         char *pp;
-#if defined(MIKTEX_WINDOWS)
-        if ((strlen(av[ac - 1]) > 2) && isalpha(av[ac - 1][0]) && (av[ac - 1][1] == ':') && (av[ac - 1][2] == '\\' || av[ac - 1][2] == '/')) {
-#else
         if ((strlen(av[ac-1]) > 2) && isalpha(av[ac-1][0]) && (av[ac-1][1] == ':') && (av[ac-1][2] == '\\')) {
-#endif
             for (pp=av[ac-1]+2; *pp; pp++) {
-#if !defined(MIKTEX)
             if (IS_KANJI(pp)) {
                 pp++;
                 continue;
             }
-#endif
             if (*pp == '\\')
                 *pp = '/';
             }
         }
     }
 #  endif
+#endif
 
     /*
         Call the real main program.
