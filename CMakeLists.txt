@@ -424,7 +424,7 @@ option(
 option(
   WITH_PACKAGE_DB_SIGNING
   "MiKTeX package database files must be signed."
-  FALSE
+  TRUE
 )
 
 option(
