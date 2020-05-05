@@ -1,5 +1,20 @@
 # MiKTeX Change Log
 
+## 2.9.7420 - 2020-05-10
+
+### Ubuntu 20.04 & Fedora 32
+
+MiKTeX is now available for Ubuntu 20.04 and Fedora 32.  See [this
+howto](https://miktex.org/howto/install-miktex-unx) for more info.
+
+### Fixed issues
+
+* [486](https://github.com/MiKTeX/miktex/issues/486): Luatex cannot find input file when using texify on windows
+* [510](https://github.com/MiKTeX/miktex/issues/510): Long file name support
+* [520](https://github.com/MiKTeX/miktex/issues/520): Make MiKTeX Console usable for keyboard only users
+* [521](https://github.com/MiKTeX/miktex/issues/521): Cannot install on Fedora 32
+* [528](https://github.com/MiKTeX/miktex/issues/528): Ubuntu 20.04 Repositories
+
 ## 2.9.7400 - 2020-04-26
 
 ### Fixed issues
