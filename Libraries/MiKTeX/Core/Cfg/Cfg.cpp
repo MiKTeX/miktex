@@ -52,24 +52,25 @@ constexpr const char* COMMENT2 = ";;";
 constexpr const char* COMMENT3 = ";;;";
 constexpr const char* COMMENT4 = ";;;;";
 
-MIKTEXSTATICFUNC(string&) Trim(string& str)
+MIKTEXSTATICFUNC(string) Trim(const string& str)
 {
+  string result = str;
   constexpr const char* WHITESPACE = " \t\r\n";
-  size_t pos = str.find_last_not_of(WHITESPACE);
+  size_t pos = result.find_last_not_of(WHITESPACE);
   if (pos != string::npos)
   {
-    str.erase(pos + 1);
+    result.erase(pos + 1);
   }
-  pos = str.find_first_not_of(WHITESPACE);
+  pos = result.find_first_not_of(WHITESPACE);
   if (pos == string::npos)
   {
-    str.erase();
+    result.erase();
   }
   else if (pos != 0)
   {
-    str.erase(0, pos);
+    result.erase(0, pos);
   }
-  return str;
+  return result;
 }
 
 Cfg::Value::~Value() noexcept
@@ -322,7 +323,7 @@ void CfgKey::WriteValues(ostream& stream) const
     {
       for (const string& val : v.value)
       {
-        stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << val << "\n";
+        stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << Trim(val) << "\n";
       }
     }
     else if (IsSearchPathValue(v.name) && v.value.front().find_first_of(PathNameUtil::PathNameDelimiter) != string::npos)
@@ -330,12 +331,12 @@ void CfgKey::WriteValues(ostream& stream) const
       stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << "\n";
       for (const string& root: StringUtil::Split(v.value.front(), PathNameUtil::PathNameDelimiter))
       {
-        stream << (v.commentedOut ? COMMENT1 : "") << v.name << ";=" << root << "\n";
+        stream << (v.commentedOut ? COMMENT1 : "") << v.name << ";=" << Trim(root) << "\n";
       }
     }
     else
     {
-      stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << v.value.front() << "\n";
+      stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << Trim(v.value.front()) << "\n";
     }
   }
 }
@@ -788,7 +789,7 @@ void CfgImpl::Walk(WalkCallback* callback) const
         {
           callback->addData(val.lookupName);
           callback->addData("=");
-          callback->addData(v);
+          callback->addData(Trim(v));
           callback->addData("\n");
         }
       }
@@ -796,7 +797,7 @@ void CfgImpl::Walk(WalkCallback* callback) const
       {
         callback->addData(val.lookupName);
         callback->addData("=");
-        callback->addData(val.value.front());
+        callback->addData(Trim(val.value.front()));
         callback->addData("\n");
       }
     }
@@ -983,7 +984,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
   for (string line; std::getline(reader, line); )
   {
     ++lineno;
-    Trim(line);
+    line = Trim(line);
     if (line.empty())
     {
       documentation = "";
@@ -1155,7 +1156,7 @@ bool CfgImpl::ParseValueDefinition(const string& line, string& valueName, string
   }
 
   value = line.substr(posEqual + 1);
-  Trim(value);
+  value = Trim(value);
 
   if (line[posEqual - 1] == '+')
   {
@@ -1169,7 +1170,7 @@ bool CfgImpl::ParseValueDefinition(const string& line, string& valueName, string
   }
 
   valueName = line.substr(0, posEqual);
-  Trim(valueName);
+  valueName = Trim(valueName);
 
   return true;
 }
