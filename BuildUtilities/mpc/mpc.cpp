@@ -92,9 +92,9 @@ public:
   }
 
 public:
-  bool GetPassphrase(std::string& passphrase) override
+  bool GetPassphrase(string& passphrase) override
   {
-    passphrase = string(reinterpret_cast<const char*>(&this->passphrase[0]), passphrase.size());
+    passphrase = string(reinterpret_cast<const char*>(&this->passphrase[0]), this->passphrase.size());
     return true;
   }
 
