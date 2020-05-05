@@ -191,6 +191,7 @@ void CurlWebSession::Initialize()
     proxyPort += ":";
     proxyPort += std::to_string(proxySettings.port);
     SetOption(CURLOPT_PROXY, proxyPort.c_str());
+    SetOption(CURLOPT_PROXYAUTH, CURLAUTH_ANY);
     if (proxySettings.authenticationRequired)
     {
       if (proxySettings.user.find(':') != string::npos)

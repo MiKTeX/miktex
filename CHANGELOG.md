@@ -11,6 +11,7 @@ howto](https://miktex.org/howto/install-miktex-unx) for more info.
 
 * [486](https://github.com/MiKTeX/miktex/issues/486): Luatex cannot find input file when using texify on windows
 * [510](https://github.com/MiKTeX/miktex/issues/510): Long file name support
+* [514](https://github.com/MiKTeX/miktex/issues/514): Kerberos Proxy support
 * [520](https://github.com/MiKTeX/miktex/issues/520): Make MiKTeX Console usable for keyboard only users
 * [521](https://github.com/MiKTeX/miktex/issues/521): Cannot install on Fedora 32
 * [528](https://github.com/MiKTeX/miktex/issues/528): Ubuntu 20.04 Repositories
