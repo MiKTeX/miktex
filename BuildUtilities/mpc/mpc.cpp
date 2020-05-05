@@ -1435,7 +1435,14 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
 
   // create temporary mpm.ini
   unique_ptr<TemporaryFile> tempIni = TemporaryFile::Create(PathName(repository, PathName(MIKTEX_MPM_INI_FILENAME)));
-  repositoryManifest.Write(tempIni->GetPathName());
+  if (privateKeyProvider.GetPrivateKeyFile().Empty())
+  {
+    repositoryManifest.Write(tempIni->GetPathName());
+  }
+  else
+  {
+    repositoryManifest.Write(tempIni->GetPathName(), "", &privateKeyProvider);
+  }
 
   // create repository manifest archive
   PathName dbPath1 = GetRepositoryManifestArchiveFileName();
@@ -1468,7 +1475,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   PathName dbPath3 = GetPackageManifestsArchiveFileName();
   RunArchiver(GetDbArchiveFileType(), dbPath3, "package-manifests.ini");
 
-  // delete temporary mpm.ini
+  // delete temporary package-manifests.ini
   tempIni = nullptr;
 
   CreateFileListFile(packageTable, repository);
