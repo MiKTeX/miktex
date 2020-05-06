@@ -19,6 +19,9 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/ConfigNames>
 #include <miktex/Util/Tokenizer>
 
@@ -368,40 +371,50 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
   shared_ptr<Session> session = GetSession();
   Session::ExamineCommandLineResult examineResult;
   string examinedCommand;
-  string toBeExecuted;
-  tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
+  string safeCommandLine;
+  tie(examineResult, examinedCommand, safeCommandLine) = session->ExamineCommandLine(command);
   if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
   {
-    LogError("command line syntax error: " + command);
+    LogError(fmt::format("syntax error: {0}", command));
     return Write18Result::QuotationError;
   }
   if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
   {
-    LogError("command is unsafe: " + command);
+    LogError(fmt::format("command is unsafe: {0}", command));
     return Write18Result::Disallowed;
   }
+  string toBeExecuted;
   switch (GetShellCommandMode())
   {
   case ShellCommandMode::Unrestricted:
     toBeExecuted = command;
     break;
   case ShellCommandMode::Forbidden:
-    LogError("command not executed: " + command);
-    MIKTEX_UNEXPECTED();
+    LogError(fmt::format("command not executed: {0}", command));
+    return  Write18Result::Disallowed;
   case ShellCommandMode::Query:
     // TODO
   case ShellCommandMode::Restricted:
     if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
     {
-      LogError("command not allowed: " + command);
+      LogError(fmt::format("command not allowed: {0}", command));
       return Write18Result::Disallowed;
     }
+    toBeExecuted = safeCommandLine;
     break;
   default:
     MIKTEX_UNEXPECTED();
   }
-  LogInfo("executing write18 shell command: " + toBeExecuted);
+  if (examineResult == Session::ExamineCommandLineResult::ProbablySafe)
+  {
+    LogInfo(fmt::format("executing restricted write18 shell command: {0}", toBeExecuted));
+  }
+  else
+  {
+    LogWarn(fmt::format("executing unrestricted write18 shell command: {0}", toBeExecuted));
+  }
   Process::ExecuteSystemCommand(toBeExecuted, &exitCode);
+  LogInfo(fmt::format("write18 exit code: {0}", exitCode));
   return examineResult == Session::ExamineCommandLineResult::ProbablySafe ? Write18Result::ExecutedAllowed : Write18Result::Executed;
 }
 

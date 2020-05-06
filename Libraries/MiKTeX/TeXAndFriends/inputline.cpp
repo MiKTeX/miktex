@@ -19,6 +19,9 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/ConfigNames>
 
 #include "internal.h"
@@ -296,39 +299,48 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
     string command = lpszPath + 1;
     Session::ExamineCommandLineResult examineResult;
     string examinedCommand;
-    string toBeExecuted;
-    tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
+    string safeCommandLine;
+    tie(examineResult, examinedCommand, safeCommandLine) = session->ExamineCommandLine(command);
     if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
     {
-      LogError("command line syntax error: " + command);
+      LogError(fmt::format("syntax error: {0}", command));
       return false;
     }
     if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
     {
-      LogError("command is unsafe: " + command);
+      LogError(fmt::format("command is unsafe: {0}", command));
       return false;
     }
+    string toBeExecuted;
     switch (pimpl->shellCommandMode)
     {
     case ShellCommandMode::Unrestricted:
       toBeExecuted = command;
       break;
     case ShellCommandMode::Forbidden:
-      LogError("command not executed: " + command);
+      LogError(fmt::format("command not executed: {0}", command));
       return false;
     case ShellCommandMode::Query:
       // TODO
     case ShellCommandMode::Restricted:
       if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
       {
-        LogError("command not allowed: " + command);
+        LogError(fmt::format("command not allowed: {0}", command));
         return false;
       }
+      toBeExecuted = safeCommandLine;
       break;
     default:
       MIKTEX_UNEXPECTED();
     }
-    LogInfo("executing output pipe: " + toBeExecuted);
+    if (examineResult == Session::ExamineCommandLineResult::ProbablySafe)
+    {
+      LogInfo(fmt::format("executing restricted output pipe: {0}", toBeExecuted));
+    }
+    else
+    {
+      LogWarn(fmt::format("executing unrestricted output pipe: {0}", toBeExecuted));
+    }
     file = session->OpenFile(PathName(toBeExecuted), FileMode::Command, FileAccess::Write, false);
   }
   else
