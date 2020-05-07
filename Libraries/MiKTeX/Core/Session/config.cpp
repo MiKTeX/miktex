@@ -1214,7 +1214,7 @@ vector<string> SessionImpl::GetAllowedShellCommands()
 tuple<Session::ExamineCommandLineResult, string, string> SessionImpl::ExamineCommandLine(const string& commandLine)
 {
   Argv argv(commandLine);
-  if (argv.GetArgc() == 0 || string(argv[0]).find_first_of(" \t") != string::npos)
+  if (argv.GetArgc() == 0)
   {
     return make_tuple(ExamineCommandLineResult::SyntaxError, "", "");
   }
@@ -1223,7 +1223,6 @@ tuple<Session::ExamineCommandLineResult, string, string> SessionImpl::ExamineCom
   ExamineCommandLineResult examineResult = std::find_if(allowedCommands.begin(), allowedCommands.end(), [argv0](const string& cmd) { return argv0 == PathName(cmd); }) != allowedCommands.end()
     ? ExamineCommandLineResult::ProbablySafe
     : ExamineCommandLineResult::MaybeSafe;
-  MIKTEX_ASSERT(argv0.ToString().find_first_of(" \t") == string::npos);
   string toBeExecuted = argv[0];
 #if defined(MIKTEX_WINDOWS)
   const char quoteChar = '"';
