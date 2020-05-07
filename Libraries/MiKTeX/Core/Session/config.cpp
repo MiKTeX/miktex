@@ -1218,23 +1218,29 @@ tuple<Session::ExamineCommandLineResult, string, string> SessionImpl::ExamineCom
   {
     return make_tuple(ExamineCommandLineResult::SyntaxError, "", "");
   }
-  PathName argv0(argv[0]);
-  vector<string> allowedCommands = GetAllowedShellCommands();
-  ExamineCommandLineResult examineResult = std::find_if(allowedCommands.begin(), allowedCommands.end(), [argv0](const string& cmd) { return argv0 == PathName(cmd); }) != allowedCommands.end()
-    ? ExamineCommandLineResult::ProbablySafe
-    : ExamineCommandLineResult::MaybeSafe;
-  string toBeExecuted = argv[0];
-#if defined(MIKTEX_WINDOWS)
-  const char quoteChar = '"';
-#else
-  const char quoteChar = '\'';
-#endif
-  for (int idx = 1; idx < argv.GetArgc(); ++idx)
+  ExamineCommandLineResult examineResult = ExamineCommandLineResult::MaybeSafe;
+  if (string(argv[0]).find_first_of("\"' \t") == string::npos)
   {
-    toBeExecuted += ' ';
-    toBeExecuted += quoteChar;
-    toBeExecuted += argv[idx];
-    toBeExecuted += quoteChar;
+    PathName argv0(argv[0]);
+    vector<string> allowedCommands = GetAllowedShellCommands();
+    examineResult = std::find_if(allowedCommands.begin(), allowedCommands.end(), [argv0](const string& cmd) { return argv0 == PathName(cmd); }) != allowedCommands.end()
+      ? ExamineCommandLineResult::ProbablySafe
+      : ExamineCommandLineResult::MaybeSafe;
   }
-  return make_tuple(examineResult, argv[0], toBeExecuted);
+  string safeCommandLine;
+  if (examineResult == ExamineCommandLineResult::ProbablySafe)
+  {
+#if defined(MIKTEX_WINDOWS)
+    const char quoteChar = '"';
+#else
+    const char quoteChar = '\'';
+#endif
+    MIKTEX_ASSERT(string(argv[0]).find_first_of("\"' \t") == string::npos);
+    safeCommandLine = argv[0];
+    for (int idx = 1; idx < argv.GetArgc(); ++idx)
+    {
+      safeCommandLine += fmt::format(" {0}{1}{0}", quoteChar, argv[idx]);
+    }
+  }
+  return make_tuple(examineResult, argv[0], safeCommandLine);
 }
