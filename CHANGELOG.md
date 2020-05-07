@@ -2,6 +2,23 @@
 
 ## 2.9.7420 - 2020-05-10
 
+### Breaking changes
+
+#### Package database signing
+
+In the past, package database signing was optional. As of MiKTeX
+2.9.7420, it is required that MiKTeX package database files are
+provided with a valid signature.
+
+Reason: In order to support custom remote package repositories (see
+[Allow local http
+mirrors](https://github.com/MiKTeX/miktex/issues/519)), it must be
+ensured that the conntents of the custom package repository is
+unmodified.
+
+Impact: Users will receive an error message if they visit an outdated
+package repository.
+
 ### Ubuntu 20.04 & Fedora 32
 
 MiKTeX is now available for Ubuntu 20.04 and Fedora 32.  See [this
