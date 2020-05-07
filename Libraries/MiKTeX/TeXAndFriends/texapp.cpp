@@ -387,6 +387,13 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
   switch (GetShellCommandMode())
   {
   case ShellCommandMode::Unrestricted:
+    if (examineResult != Session::ExamineCommandLineResult::ProbablySafe &&
+      session->RunningAsAdministrator() &&
+      !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
+    {
+      LogError(fmt::format("not allowed with elevated privileges: {0}", command));
+      return Write18Result::Disallowed;
+    }
     toBeExecuted = command;
     break;
   case ShellCommandMode::Forbidden:

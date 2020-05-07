@@ -315,6 +315,13 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
     switch (pimpl->shellCommandMode)
     {
     case ShellCommandMode::Unrestricted:
+      if (examineResult != Session::ExamineCommandLineResult::ProbablySafe &&
+        session->RunningAsAdministrator() &&
+        !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
+      {
+        LogError(fmt::format("not allowed with elevated privileges: {0}", command));
+        return false;
+      }
       toBeExecuted = command;
       break;
     case ShellCommandMode::Forbidden:

@@ -4,6 +4,37 @@
 
 ### Breaking changes
 
+#### Unrestricted shell escapes and elevated privileges
+
+In the past, it was possible to run unrestricted shell escapes with
+elevated privileges.  As of MiKTeX 2.9.7420, unrestricted shell
+escapes are not allowed anymore if the program is running with
+elevated privileges.
+
+Reason: Running unrestricted shell escapes is not safe. Especially
+when running with elevated privileges.
+
+Impact: The following use case is broken:
+
+```
+sudo pdflatex --shell-escape file.tex
+```
+
+where the file contains:
+
+```
+\documentclass{minimal}
+\usepackage{shellesc}
+\begin{document}
+\ShellEscape{echo hello, world! > hello.txt}
+\input{hello.txt}
+\end{document}
+```
+
+For more information, visit the issue page on GitHub:
+
+* [533](https://github.com/MiKTeX/miktex/issues/533): Unrestricted shell escapes and elevated privileges
+
 #### Package database signing
 
 In the past, package database signing was optional. As of MiKTeX
@@ -32,6 +63,7 @@ howto](https://miktex.org/howto/install-miktex-unx) for more info.
 * [520](https://github.com/MiKTeX/miktex/issues/520): Make MiKTeX Console usable for keyboard only users
 * [521](https://github.com/MiKTeX/miktex/issues/521): Cannot install on Fedora 32
 * [528](https://github.com/MiKTeX/miktex/issues/528): Ubuntu 20.04 Repositories
+* [532](https://github.com/MiKTeX/miktex/issues/532): Calling external commands with quotes in path via shell on Windows
 
 ## 2.9.7400 - 2020-04-26
 
