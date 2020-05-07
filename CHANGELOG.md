@@ -17,7 +17,7 @@ ensured that the conntents of the custom package repository is
 unmodified.
 
 Impact: Users will receive an error message if they visit an outdated
-package repository.
+(no signature) or modified (tampered database) package repository.
 
 ### Ubuntu 20.04 & Fedora 32
 
