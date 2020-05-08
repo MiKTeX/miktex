@@ -503,6 +503,18 @@ static void parse_options(int ac, char **av)
                 output_comment[255] = 0;
             }
 #if defined(MIKTEX)
+        } else if (ARGUMENT_IS("enable-write18") || ARGUMENT_IS("shell-escape")) {
+          shellenabledp = 1;
+          if (miktex_allow_unrestricted_shell_escape())
+          {
+            restrictedshell = 0;
+          }
+          else
+          {
+            restrictedshell = 1;
+          }
+#endif
+#if defined(MIKTEX)
         } else if (ARGUMENT_IS("restrict-write18") || ARGUMENT_IS("shell-restricted")) {
 #else
         } else if (ARGUMENT_IS("shell-restricted")) {

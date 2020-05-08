@@ -269,14 +269,12 @@ void init_shell_escape(void)
 
 #  if 0
 #  ifdef WIN32
-#if !defined(MIKTEX)
 static int char_needs_quote(int c)
 {
     /* special characters of cmd.exe */
     return (c == '&' || c == '|' || c == '%' || c == '<' ||
             c == '>' || c == ';' || c == ',' || c == '(' || c == ')');
 }
-#endif
 #  endif
 #  endif
 
@@ -299,6 +297,9 @@ static int Isspace(char c)
 
 int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
 {
+#if defined(MIKTEX)
+  return miktex_shell_cmd_is_allowed(cmd, safecmd, cmdname);
+#else
     char **p;
     char *buf;
     char *c, *d;
@@ -418,10 +419,8 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
                         return -1;
 #  if 0
 #  ifdef WIN32
-#if !defined(MIKTEX)
                     if (char_needs_quote(*s))
                         *d++ = '^';
-#endif
 #  endif
 #  endif
                     *d++ = *s++;
@@ -445,10 +444,8 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
                 *d++ = QUOTE;
 #  if 0
 #  ifdef WIN32
-#if !defined(MIKTEX)
                 if (char_needs_quote(*s))
                     *d++ = '^';
-#endif
 #  endif
 #  endif
                 *d++ = *s++;
@@ -466,10 +463,8 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
                 */
 #  if 0
 #  ifdef WIN32
-#if !defined(MIKTEX)
                 if (char_needs_quote(*s))
                     *d++ = '^';
-#endif
 #  endif
 #  endif
                 *d++ = *s++;
@@ -483,8 +478,6 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
         }
         *d = '\0';
 #ifdef WIN32
-#if defined(MIKTEX)
-#else
         {
           char *p, *q, *r;
           p = *safecmd;
@@ -522,9 +515,9 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
           }
         }
 #endif
-#endif
     }
     return allow;
+#endif
 }
 
 #endif

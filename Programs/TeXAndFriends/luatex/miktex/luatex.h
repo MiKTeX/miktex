@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 void miktex_add_include_directory(const char* path);
+int miktex_allow_unrestricted_shell_escape();
 void miktex_convert_to_unix(char* path);
 void miktex_enable_installer(int onOff);
 const char* miktex_get_aux_directory();
@@ -33,6 +34,7 @@ int miktex_is_output_file(const char* path);
 int miktex_open_format_file(const char* fileName, FILE** ppFile, int renew);
 char* miktex_program_basename(const char* argv0);
 void miktex_set_aux_directory(const char* path);
+int miktex_shell_cmd_is_allowed(const char* commandLine, char** safeCommandLineRet, char** examinedCommandRet);
 void miktex_show_library_versions();
 
 #if defined(__cplusplus)

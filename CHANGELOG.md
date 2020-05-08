@@ -4,14 +4,14 @@
 
 ### Breaking changes
 
-#### Unrestricted shell escapes and elevated privileges
+#### Unrestricted shell escape commands and elevated privileges
 
-In the past, it was possible to run unrestricted shell escapes with
-elevated privileges.  As of MiKTeX 2.9.7420, unrestricted shell
-escapes are not allowed anymore if the program is running with
-elevated privileges.
+In the past, it was possible to run unrestricted shell escape commands
+with elevated privileges.  As of MiKTeX 2.9.7420, unrestricted shell
+escape commands are not allowed anymore, if the program is running
+with elevated privileges.
 
-Reason: Running unrestricted shell escapes is not safe. Especially
+Reason: Running unrestricted shell escape commands is not safe. Especially
 when running with elevated privileges.
 
 Impact: The following use case is broken:
@@ -20,7 +20,7 @@ Impact: The following use case is broken:
 sudo pdflatex --shell-escape file.tex
 ```
 
-where the file contains:
+where `file.tex` contains:
 
 ```
 \documentclass{minimal}
@@ -31,9 +31,9 @@ where the file contains:
 \end{document}
 ```
 
-For more information, visit the issue page on GitHub:
+For more information and discussion, visit the issue page at GitHub:
 
-* [533](https://github.com/MiKTeX/miktex/issues/533): Unrestricted shell escapes and elevated privileges
+* [533](https://github.com/MiKTeX/miktex/issues/533): Unrestricted shell escape commands and elevated privileges
 
 #### Package database signing
 

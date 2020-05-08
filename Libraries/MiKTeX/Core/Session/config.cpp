@@ -1198,7 +1198,15 @@ ShellCommandMode SessionImpl::GetShellCommandMode()
   }
   else if (shellCommandMode == "Unrestricted")
   {
-    return ShellCommandMode::Unrestricted;
+    if (RunningAsAdministrator() &&
+      !GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
+    {
+      return ShellCommandMode::Restricted;
+    }
+    else
+    {
+      return ShellCommandMode::Unrestricted;
+    }
   }
   else
   {

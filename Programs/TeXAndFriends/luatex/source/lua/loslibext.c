@@ -458,7 +458,11 @@ static int os_exec(lua_State * L)
      * that os.exec() checks only the command name.
      */
     if (restrictedshell == 0) {
+#if defined(MIKTEX)
+      allow = miktex_allow_unrestricted_shell_escape();
+#else
         allow = 1;
+#endif
     } else {
         const char *theruncmd = runcmd;
         allow = shell_cmd_is_allowed(theruncmd, &safecmd, &cmdname);
@@ -540,7 +544,11 @@ static int os_spawn(lua_State * L)
      * that os.exec() checks only the command name.
      */
     if (restrictedshell == 0) {
+#if defined(MIKTEX)
+      allow = miktex_allow_unrestricted_shell_escape();
+#else
         allow = 1;
+#endif
     } else {
         const char *theruncmd = runcmd;
         allow = shell_cmd_is_allowed(theruncmd, &safecmd, &cmdname);
@@ -1010,7 +1018,11 @@ static int os_execute(lua_State * L)
     }
     /* If restrictedshell == 0, any command is allowed. */
     if (restrictedshell == 0)
+#if defined(MIKTEX)
+      allow = miktex_allow_unrestricted_shell_escape();
+#else
         allow = 1;
+#endif
     else
         allow = shell_cmd_is_allowed(cmd, &safecmd, &cmdname);
 

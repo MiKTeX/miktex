@@ -194,3 +194,31 @@ void miktex_convert_to_unix(char* path)
     }
   }
 }
+
+int miktex_shell_cmd_is_allowed(const char* commandLine, char** safeCommandLineRet, char** examinedCommandRet)
+{
+  shared_ptr<Session> session = Application::GetApplication()->GetSession();
+  Session::ExamineCommandLineResult examineResult;
+  std::string examinedCommand;
+  std::string safeCommandLine;
+  tie(examineResult, examinedCommand, safeCommandLine) = session->ExamineCommandLine(commandLine);
+  *safeCommandLineRet = xstrdup(safeCommandLine.c_str());
+  *examinedCommandRet = xstrdup(examinedCommand.c_str());
+  switch (examineResult)
+  {
+  case Session::ExamineCommandLineResult::SyntaxError:
+    return -1;
+  case Session::ExamineCommandLineResult::ProbablySafe:
+    return 2;
+  default:
+    return 0;
+  }
+}
+
+int miktex_allow_unrestricted_shell_escape()
+{
+  shared_ptr<Session> session = Application::GetApplication()->GetSession();
+  bool okay = !session->RunningAsAdministrator() ||
+    session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool();
+  return okay ? 1 : 0;
+}

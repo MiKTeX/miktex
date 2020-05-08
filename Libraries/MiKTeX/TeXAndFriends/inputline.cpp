@@ -315,9 +315,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
     switch (pimpl->shellCommandMode)
     {
     case ShellCommandMode::Unrestricted:
-      if (examineResult != Session::ExamineCommandLineResult::ProbablySafe &&
-        session->RunningAsAdministrator() &&
-        !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
+      if (session->RunningAsAdministrator() && !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
       {
         LogError(fmt::format("not allowed with elevated privileges: {0}", command));
         return false;
@@ -612,6 +610,7 @@ void WebAppInputLine::EnableShellCommands(ShellCommandMode mode)
   {
     return;
   }
+  auto session = GetSession();
   switch (mode)
   {
   case ShellCommandMode::Forbidden:
@@ -621,6 +620,11 @@ void WebAppInputLine::EnableShellCommands(ShellCommandMode mode)
     LogInfo("allowing known shell commands");
     break;
   case ShellCommandMode::Unrestricted:
+    if (session->RunningAsAdministrator() && !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
+    {
+      LogError("unrestricted shell commands not allowed when running with elevated privileges");
+      return;
+    }
     LogInfo("allowing all shell commands");
     break;
   default:
