@@ -27,6 +27,7 @@ void miktex_add_include_directory(const char* path);
 int miktex_allow_unrestricted_shell_escape();
 void miktex_convert_to_unix(char* path);
 void miktex_enable_installer(int onOff);
+int miktex_exec(const char* fileName, char* const* argv, char* const* env);
 const char* miktex_get_aux_directory();
 void miktex_invoke_editor(const char* filename, int lineno);
 int miktex_is_fully_qualified_path(const char* path);
@@ -36,6 +37,8 @@ char* miktex_program_basename(const char* argv0);
 void miktex_set_aux_directory(const char* path);
 int miktex_shell_cmd_is_allowed(const char* commandLine, char** safeCommandLineRet, char** examinedCommandRet);
 void miktex_show_library_versions();
+int miktex_spawn(const char* fileName, char* const* argv, char* const* env);
+char** miktex_split_command(const char* commandLine, char** argv0);
 int miktex_system(const char* commandLine);
 
 #if defined(__cplusplus)

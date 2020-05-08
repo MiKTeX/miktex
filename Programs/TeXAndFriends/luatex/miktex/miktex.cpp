@@ -18,6 +18,7 @@
    USA.  */
 
 #include <miktex/App/Application>
+#include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileType>
@@ -226,13 +227,75 @@ int miktex_allow_unrestricted_shell_escape()
 
 int miktex_system(const char* commandLine)
 {
-  int exitCode;
-  if (Process::ExecuteSystemCommand(commandLine, &exitCode))
+  try
   {
-    return exitCode;
+    int exitCode;
+    if (Process::ExecuteSystemCommand(commandLine, &exitCode))
+    {
+      return exitCode;
+    }
+    else
+    {
+      return -1;
+    }
   }
-  else
+  catch (const MiKTeXException&)
   {
     return -1;
   }
+}
+
+int miktex_spawn(const char* fileName, char* const* argv, char* const* env)
+{
+  vector<std::string> arguments;
+  for (; *argv != nullptr; ++argv)
+  {
+    arguments.push_back(*argv);
+  }
+  try
+  {
+    MIKTEX_EXPECT(env == nullptr);
+    Process::Start(PathName(fileName), arguments);
+    return 0;
+  }
+  catch (const MiKTeXException&)
+  {
+    errno = ENOENT;
+    return -1;
+  }
+}
+
+int miktex_exec(const char* fileName, char* const* argv, char* const* env)
+{
+  vector<std::string> arguments;
+  for (; *argv != nullptr; ++argv)
+  {
+    arguments.push_back(*argv);
+  }
+  try
+  {
+    MIKTEX_EXPECT(env == nullptr);
+    Process::Overlay(PathName(fileName), arguments);
+    errno = ENOEXEC;
+    return -1;
+  }
+  catch (const MiKTeXException&)
+  {
+    errno = ENOEXEC;
+    return -1;
+  }
+}
+
+char** miktex_split_command(const char* commandLine, char** argv0)
+{
+  Argv argv(commandLine);
+  MIKTEX_EXPECT(argv0 != nullptr);
+  *argv0 = xstrdup(argv[0]);
+  char** result = reinterpret_cast<char**>(xmalloc(sizeof(char*) * (argv.GetArgc() + 1)));
+  for (int idx = 0; idx < argv.GetArgc(); ++idx)
+  {
+    result[idx] = xstrdup(argv[idx]);
+  }
+  result[argv.GetArgc()] = nullptr;
+  return result;
 }

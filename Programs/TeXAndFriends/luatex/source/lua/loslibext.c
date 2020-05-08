@@ -125,7 +125,7 @@
    for the patch and the persistence in tracking this down.
 */
 
-#ifdef _WIN32
+#if !defined(MIKTEX) && defined(_WIN32)
 #  include <process.h>
 #  define spawn_command(a,b,c) c ? \
   _spawnvpe(_P_WAIT,(const char *)a,(const char* const*)b,(const char* const*)c) : \
@@ -143,6 +143,9 @@
 
 static int exec_command(const char *file, char *const *av, char *const *envp)
 {
+#if defined(MIKTEX)
+  return miktex_exec(file, av, envp);
+#else
     char *path;
     const char *searchpath, *esp;
     size_t prefixlen, filelen, totallen;
@@ -203,6 +206,7 @@ static int exec_command(const char *file, char *const *av, char *const *envp)
     } while (esp);
 
     return -1;
+#endif
 }
 
 /*
@@ -224,6 +228,7 @@ static int exec_command(const char *file, char *const *av, char *const *envp)
    range in the 8-bit section.
 */
 
+#if !defined(MIKTEX)
 #  define INVALID_RET_E2BIG   143
 #  define INVALID_RET_ENOENT  144
 #  define INVALID_RET_ENOEXEC 145
@@ -231,9 +236,13 @@ static int exec_command(const char *file, char *const *av, char *const *envp)
 #  define INVALID_RET_ETXTBSY 147
 #  define INVALID_RET_UNKNOWN 148
 #  define INVALID_RET_INTR    149
+#endif
 
 static int spawn_command(const char *file, char *const *av, char *const *envp)
 {
+#if defined(MIKTEX)
+  return miktex_spawn(file, av, envp);
+#else
     pid_t pid, wait_pid;
     int status;
     pid = fork();
@@ -277,10 +286,12 @@ static int spawn_command(const char *file, char *const *av, char *const *envp)
         }
     }
     return 0;
+#endif
 }
 
 #endif
 
+#if !defined(MIKTEX)
 #ifdef _WIN32
 static char *get_command_name(char *maincmd)
 {
@@ -302,9 +313,13 @@ static char *get_command_name(char *maincmd)
     return cmdname;
 }
 #endif
+#endif
 
 static char **do_split_command(const char *maincmd, char **runcmd)
 {
+#if defined(MIKTEX)
+  return miktex_split_command(maincmd, runcmd);
+#else
     char **cmdline = NULL;
 #ifdef _WIN32
     /* On WIN32 don't split anything, because
@@ -371,6 +386,7 @@ static char **do_split_command(const char *maincmd, char **runcmd)
     *runcmd = cmdline[0];
 #endif
     return cmdline;
+#endif
 }
 
 static char **do_flatten_command(lua_State * L, char **runcmd)
@@ -413,7 +429,11 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
     lua_rawgeti(L, -1, 0);
     if (lua_isnil(L, -1) || (s = lua_tostring(L, -1)) == NULL) {
 #ifdef _WIN32
+#if defined(MIKTEX)
+      *runcmd = cmdline[0];
+#else
         *runcmd = get_command_name(cmdline[0]);
+#endif
 #else
         *runcmd = cmdline[0];
 #endif
@@ -469,7 +489,7 @@ static int os_exec(lua_State * L)
     }
 
     if (allow > 0 && cmdline != NULL && runcmd != NULL) {
-#if defined(_WIN32) && DONT_REALLY_EXIT
+#if !defined(MIKTEX) && defined(_WIN32) && DONT_REALLY_EXIT
         if (allow == 2)
             exec_command(safecmd, cmdline, envblock);
         else
@@ -568,6 +588,7 @@ static int os_spawn(lua_State * L)
         } else if (i == -1) {
             /* this branch covers WIN32 as well as fork() and waitpid() errors */
             do_error_return(strerror(errno), errno);
+#if !defined(MIKTEX)
 #ifndef _WIN32
         } else if (i == INVALID_RET_E2BIG) {
             do_error_return(strerror(E2BIG), i);
@@ -583,6 +604,7 @@ static int os_spawn(lua_State * L)
             do_error_return("execution failed", i);
         } else if (i == INVALID_RET_INTR) {
             do_error_return("execution interrupted", i);
+#endif
 #endif
         } else {
             lua_pushinteger(L, i);
