@@ -803,7 +803,7 @@ ProcessInfo unxProcess::GetProcessInfo()
 
 void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
 {
-  MIKTEX_EXPECT(!fileName.empty());
+  MIKTEX_EXPECT(!fileName.Empty());
 
   Argv argv(arguments.empty() ? vector<string>{ PathName(fileName).GetFileNameWithoutExtension().ToString() } : arguments);
 
@@ -819,7 +819,7 @@ void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
     }
   }
 
-  execv(fileName.c_str(), const_cast<char*const*>(argv.GetArgv()));
+  execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
 
   MIKTEX_UNEXPECTED();
 }
