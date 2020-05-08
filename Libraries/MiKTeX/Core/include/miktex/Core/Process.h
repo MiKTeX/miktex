@@ -399,6 +399,9 @@ public:
   {
     Start(fileName, arguments, nullptr, nullptr, nullptr, nullptr, nullptr);
   }
+
+public:
+  static void Overlay(const PathName& fileName, const std::vector<std::string>& arguments);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

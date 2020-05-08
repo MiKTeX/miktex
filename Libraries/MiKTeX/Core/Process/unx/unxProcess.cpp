@@ -799,3 +799,27 @@ ProcessInfo unxProcess::GetProcessInfo()
 #endif
   return processInfo;
 }
+
+
+void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
+{
+  MIKTEX_EXPECT(!fileName.empty());
+
+  Argv argv(arguments.empty() ? vector<string>{ PathName(fileName).GetFileNameWithoutExtension().ToString() } : arguments);
+
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->UnloadFilenameDatabase();
+    session->SetEnvironmentVariables();
+    session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: {0}", fileName));
+    for (int idx = 0; argv[idx] != nullptr; ++idx)
+    {
+      session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));
+    }
+  }
+
+  execv(fileName.c_str(), const_cast<char*const*>(argv.GetArgv()));
+
+  MIKTEX_UNEXPECTED();
+}

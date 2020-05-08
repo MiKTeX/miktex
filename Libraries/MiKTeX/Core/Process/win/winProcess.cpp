@@ -697,3 +697,10 @@ ProcessInfo winProcess::GetProcessInfo()
   processInfo.status = ProcessStatus::Runnable;
   return processInfo;
 }
+
+void Process::Overlay(const PathName& fileName, const std::vector<std::string>& arguments)
+{
+  int exitCode;
+  Process::Run(fileName, arguments, nullptr, &exitCode, nullptr);
+  throw exitCode;
+}
