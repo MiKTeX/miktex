@@ -401,7 +401,7 @@ public:
   }
 
 public:
-  static void Overlay(const PathName& fileName, const std::vector<std::string>& arguments);
+  static MIKTEXCORECEEAPI(void) Overlay(const PathName& fileName, const std::vector<std::string>& arguments);
 };
 
 MIKTEX_CORE_END_NAMESPACE;
