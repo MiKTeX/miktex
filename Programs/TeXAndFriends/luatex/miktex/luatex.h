@@ -36,6 +36,7 @@ char* miktex_program_basename(const char* argv0);
 void miktex_set_aux_directory(const char* path);
 int miktex_shell_cmd_is_allowed(const char* commandLine, char** safeCommandLineRet, char** examinedCommandRet);
 void miktex_show_library_versions();
+int miktex_system(const char* commandLine);
 
 #if defined(__cplusplus)
 }

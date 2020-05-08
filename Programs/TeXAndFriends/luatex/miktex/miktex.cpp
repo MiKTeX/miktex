@@ -22,6 +22,7 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Paths>
+#include <miktex/Core/Process>
 #include <miktex/KPSE/Emulation>
 #include <miktex/Util/PathNameUtil>
 
@@ -221,4 +222,17 @@ int miktex_allow_unrestricted_shell_escape()
   bool okay = !session->RunningAsAdministrator() ||
     session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool();
   return okay ? 1 : 0;
+}
+
+int miktex_system(const char* commandLine)
+{
+  int exitCode;
+  if (Process::ExecuteSystemCommand(commandLine, &exitCode))
+  {
+    return exitCode;
+  }
+  else
+  {
+    return -1;
+  }
 }

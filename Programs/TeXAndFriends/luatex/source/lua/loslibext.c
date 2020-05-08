@@ -1027,9 +1027,17 @@ static int os_execute(lua_State * L)
         allow = shell_cmd_is_allowed(cmd, &safecmd, &cmdname);
 
     if (allow == 1) {
+#if defined(MIKTEX)
+      lua_pushinteger(L, miktex_system(cmd));
+#else
         lua_pushinteger(L, system(cmd));
+#endif
     } else if (allow == 2) {
+#if defined(MIKTEX)
+      lua_pushinteger(L, miktex_system(safecmd));
+#else
         lua_pushinteger(L, system(safecmd));
+#endif
     } else {
         lua_pushnil(L);
         ret = 2;
