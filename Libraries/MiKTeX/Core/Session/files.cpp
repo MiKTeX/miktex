@@ -65,19 +65,19 @@ MIKTEXSTATICFUNC(int) Close(int fd)
 #endif
 }
 
-MIKTEXSTATICFUNC(FILE*) POpen(const char* lpszCommand, const char* lpszMode)
+MIKTEXSTATICFUNC(FILE*) POpen(const char* command, const char* mode)
 {
-  FILE* pFile;
+  FILE* file;
 #if defined(_MSC_VER) || defined(__MINGW32__)
-  pFile = _popen(lpszCommand, lpszMode);
+  file = _popen(command, mode);
 #else
-  pFile = popen(lpszCommand, lpszMode);
+  file = popen(command, mode);
 #endif
-  if (pFile == nullptr)
+  if (file == nullptr)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("popen", "command", lpszCommand, "mode", lpszMode);
+    MIKTEX_FATAL_CRT_ERROR_2("popen", "command", command, "mode", mode);
   }
-  return pFile;
+  return file;
 }
 
 MIKTEXSTATICFUNC(int) PClose(FILE* pFile)
