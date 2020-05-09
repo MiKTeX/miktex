@@ -308,23 +308,27 @@ char** miktex_split_command(const char* commandLine, char** argv0)
   return result;
 }
 
-FILE* miktex_open_pipe(const char* cmdLine, const char* mode)
+FILE* miktex_open_pipe(const char* commandLineArg, const char* mode)
 {
   MIKTEX_EXPECT(shellenabledp);
+  std::string commandLine = commandLineArg;
+#if defined(MIKTEX_WINDOWS)
+  std::replace(commandLine.begin(), commandLine.end(), '\'', '"');
+#endif
   Application* app = Application::GetApplication();
   shared_ptr<Session> session = app->GetSession();
   Session::ExamineCommandLineResult examineResult;
   std::string examinedCommand;
   std::string safeCommandLine;
-  tie(examineResult, examinedCommand, safeCommandLine) = session->ExamineCommandLine(cmdLine);
+  tie(examineResult, examinedCommand, safeCommandLine) = session->ExamineCommandLine(commandLine);
   if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
   {
-    app->LogError(fmt::format("syntax error: {0}", cmdLine));
+    app->LogError(fmt::format("syntax error: {0}", commandLineArg));
     return false;
   }
   if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
   {
-    app->LogError(fmt::format("command is unsafe: {0}", cmdLine));
+    app->LogError(fmt::format("command is unsafe: {0}", commandLineArg));
     return nullptr;
   }
   std::string toBeExecuted;
@@ -332,7 +336,7 @@ FILE* miktex_open_pipe(const char* cmdLine, const char* mode)
   {
     if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
     {
-      app->LogError(fmt::format("command not allowed: {0}", cmdLine));
+      app->LogError(fmt::format("command not allowed: {0}", commandLineArg));
       return nullptr;
     }
     toBeExecuted = safeCommandLine;
@@ -342,10 +346,10 @@ FILE* miktex_open_pipe(const char* cmdLine, const char* mode)
   {
     if (session->RunningAsAdministrator() && !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
     {
-      app->LogError(fmt::format("not allowed with elevated privileges: {0}", cmdLine));
+      app->LogError(fmt::format("not allowed with elevated privileges: {0}", commandLineArg));
       return nullptr;
     }
-    toBeExecuted = cmdLine;
+    toBeExecuted = commandLine;
   }
   if (examineResult == Session::ExamineCommandLineResult::ProbablySafe)
   {
