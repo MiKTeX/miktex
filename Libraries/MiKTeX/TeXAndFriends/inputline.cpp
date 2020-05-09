@@ -407,6 +407,9 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
   if (pimpl->enablePipes && lpszFileName[0] == '|')
   {
     string command = lpszFileName + 1;
+#if defined(MIKTEX_WINDOWS)
+    std::replace(command.begin(), command.end(), '\'', '"');
+#endif
     Session::ExamineCommandLineResult examineResult;
     string examinedCommand;
     string toBeExecuted;
