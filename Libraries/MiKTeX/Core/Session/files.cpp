@@ -227,36 +227,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
 
 FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access, FileMode& mode)
 {
-  Argv argv(command);
-  int argc = argv.GetArgc();
-  if (argc == 0)
-  {
-    MIKTEX_FATAL_ERROR_2(T_("Invalid command."), "command", command);
-  }
-  string verb = argv[0];
-  if (verb.length() > 1 && verb[0] == '"' && verb[verb.length() - 1] == verb[0])
-  {
-    verb = verb.substr(1, verb.length() - 2);
-  }
-  if (verb == "zcat" && argc == 2 && access == FileAccess::Read)
-  {
-    mode = FileMode::Open;
-    return OpenFileOnStream(GzipStream::Create(PathName(argv[1]), true));
-  }
-  else if (verb == "bzcat" && argc == 2 && access == FileAccess::Read)
-  {
-    mode = FileMode::Open;
-    return OpenFileOnStream(BZip2Stream::Create(PathName(argv[1]), true));
-  }
-  else if (verb == "xzcat" && argc == 2 && access == FileAccess::Read)
-  {
-    mode = FileMode::Open;
-    return OpenFileOnStream(LzmaStream::Create(PathName(argv[1]), true));
-  }
-  else
-  {
-    return POpen(command.c_str(), access == FileAccess::Read ? "r" : "w");
-  }
+  return POpen(command.c_str(), access == FileAccess::Read ? "r" : "w");
 }
 
 MIKTEXSTATICFUNC(void) ReaderThread(unique_ptr<Stream> inStream, unique_ptr<Stream> outStream)
