@@ -373,7 +373,14 @@ FILE* miktex_emulate__runpopen(const char* commandLineArg, const char* mode)
   {
     MIKTEX_UNEXPECTED();
   }
-  return session->OpenFile(PathName(toBeExecuted), FileMode::Command, access, false);
+  try
+  {
+    return session->OpenFile(PathName(toBeExecuted), FileMode::Command, access, true);
+  }
+  catch (const MiKTeXException&)
+  {
+    return nullptr;
+  }
 }
 
 int miktex_is_pipe(FILE* file)
@@ -382,4 +389,23 @@ int miktex_is_pipe(FILE* file)
   shared_ptr<Session> session = app->GetSession();
   auto openFileInfo = session->TryGetOpenFileInfo(file);
   return openFileInfo.first && openFileInfo.second.mode == FileMode::Command ? 1 : 0;
+}
+
+void miktex_emulate__close_file_or_pipe(FILE* file)
+{
+  if (file == nullptr)
+  {
+    return;
+  }
+  Application* app = Application::GetApplication();
+  shared_ptr<Session> session = app->GetSession();
+  auto openFileInfo = session->TryGetOpenFileInfo(file);
+  if (openFileInfo.first)
+  {
+    session->CloseFile(file);
+  }
+  else
+  {
+    fclose(file);
+  }
 }

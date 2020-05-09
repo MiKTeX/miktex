@@ -1495,8 +1495,10 @@ boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt, const_string fopen
                 break;
             }
         }
+#endif
         if (*f_ptr)
             setvbuf(*f_ptr, (char *) NULL, _IONBF, 0);
+#if !defined(MIKTEX)
 #ifdef WIN32
         Poptr = *f_ptr;
 #endif
@@ -1559,7 +1561,9 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
 
 void close_file_or_pipe(FILE * f)
 {
-#if !defined(MIKTEX)
+#if defined(MIKTEX)
+  miktex_emulate__close_file_or_pipe(f);
+#else
     int i;
     if (shellenabledp) {
         for (i = 0; i <= 15; i++) {
@@ -1576,6 +1580,6 @@ void close_file_or_pipe(FILE * f)
             }
         }
     }
-#endif
     close_file(f);
+#endif
 }
