@@ -107,7 +107,9 @@
 
 /* set this to one for spawn instead of exec on windows */
 
+#if !defined(MIKTEX)
 #define DONT_REALLY_EXIT 1
+#endif
 
 /* Note: under WIN32, |environ| is nothing but a copy of the actual
    environment as it was during program startup. That variable
@@ -138,8 +140,10 @@
        _execvp((const char *)a,(const char* const*)b)
 #  endif
 #else
+#if !defined(MIKTEX)
 #  include <unistd.h>
 #  define DEFAULT_PATH    "/bin:/usr/bin:."
+#endif
 
 static int exec_command(const char *file, char *const *av, char *const *envp)
 {
