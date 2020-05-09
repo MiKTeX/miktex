@@ -69,7 +69,7 @@ MIKTEXSTATICFUNC(FILE*) POpen(const char* command, const char* mode)
 {
   FILE* file;
 #if defined(_MSC_VER) || defined(__MINGW32__)
-  file = _popen(command, mode);
+  file = _wpopen(UW_(command), UW_(mode));
 #else
   file = popen(command, mode);
 #endif
