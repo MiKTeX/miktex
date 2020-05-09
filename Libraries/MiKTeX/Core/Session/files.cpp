@@ -29,7 +29,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#if defined(_MSC_VER)
 #  include <io.h>
 #endif
 
@@ -68,7 +68,7 @@ MIKTEXSTATICFUNC(int) Close(int fd)
 MIKTEXSTATICFUNC(FILE*) POpen(const char* command, const char* mode)
 {
   FILE* file;
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#if defined(_MSC_VER)
   file = _wpopen(UW_(command), UW_(mode));
 #else
   file = popen(command, mode);
@@ -80,13 +80,13 @@ MIKTEXSTATICFUNC(FILE*) POpen(const char* command, const char* mode)
   return file;
 }
 
-MIKTEXSTATICFUNC(int) PClose(FILE* pFile)
+MIKTEXSTATICFUNC(int) PClose(FILE* file)
 {
   int exitCode;
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  exitCode = _pclose(pFile);
+#if defined(_MSC_VER)
+  exitCode = _pclose(file);
 #else
-  exitCode = pclose(pFile);
+  exitCode = pclose(file);
 #endif
   if (exitCode < 0)
   {
@@ -99,7 +99,7 @@ static array<unique_ptr<FileStream>, 2> CreatePipe(size_t pipeSize)
 {
   int handles[2];
   int p;
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#if defined(_MSC_VER)
   p = _pipe(handles, static_cast<unsigned>(pipeSize), _O_BINARY);
 #else
   UNUSED_ALWAYS(pipeSize);
@@ -189,38 +189,45 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
 {
   trace_files->WriteLine("core", fmt::format("OpenFile(\"{0}\", {1}, {2:x}, {3})", path, static_cast<int>(mode), static_cast<int>(access), text));
 
-  FILE* pFile = nullptr;
+  FILE* file = nullptr;
 
   if (mode == FileMode::Command)
   {
     MIKTEX_ASSERT(access == FileAccess::Read || access == FileAccess::Write);
     MIKTEX_ASSERT(!text);
-    pFile = InitiateProcessPipe(path.ToString(), access, mode);
+    file = InitiateProcessPipe(path.ToString(), access, mode);
   }
   else
   {
-    pFile = File::Open(path, mode, access, text);
+    file = File::Open(path, mode, access, text);
   }
 
   try
   {
     OpenFileInfo info;
-    info.file = pFile;
+    info.file = file;
     info.fileName = path.ToString();
     info.mode = mode;
     info.access = access;
-    openFilesMap.insert(pair<FILE*, OpenFileInfo>(pFile, info));
-    if (setvbuf(pFile, 0, _IOFBF, 1024 * 4) != 0)
+    openFilesMap.insert(pair<FILE*, OpenFileInfo>(file, info));
+    if (setvbuf(file, 0, _IOFBF, 1024 * 4) != 0)
     {
       trace_error->WriteLine("core", TraceLevel::Error, "setvbuf() failed for some reason");
     }
     RecordFileInfo(path, access);
-    trace_files->WriteLine("core", fmt::format("  => {0}", static_cast<void*>(pFile)));
-    return pFile;
+    trace_files->WriteLine("core", fmt::format("  => {0}", static_cast<void*>(file)));
+    return file;
   }
   catch (const exception&)
   {
-    fclose(pFile);
+    if (mode == FileMode::Command)
+    {
+      PClose(file);
+    }
+    else
+    {
+      fclose(file);
+    }
     throw;
   }
 }
@@ -267,11 +274,11 @@ pair<bool, Session::OpenFileInfo> SessionImpl::TryGetOpenFileInfo(FILE* file)
   }
 }
 
-void SessionImpl::CloseFile(FILE* pFile)
+void SessionImpl::CloseFile(FILE* file)
 {
-  MIKTEX_ASSERT_BUFFER(pFile, sizeof(*pFile));
-  trace_files->WriteLine("core", fmt::format("CloseFile({0})", static_cast<void*>(pFile)));
-  map<const FILE*, OpenFileInfo>::iterator it = openFilesMap.find(pFile);
+  MIKTEX_ASSERT_BUFFER(file, sizeof(*file));
+  trace_files->WriteLine("core", fmt::format("CloseFile({0})", static_cast<void*>(file)));
+  map<const FILE*, OpenFileInfo>::iterator it = openFilesMap.find(file);
   bool isCommand = false;
   if (it != openFilesMap.end())
   {
@@ -280,18 +287,18 @@ void SessionImpl::CloseFile(FILE* pFile)
   }
   if (isCommand)
   {
-    PClose(pFile);
+    PClose(file);
   }
-  else if (fclose(pFile) != 0)
+  else if (fclose(file) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR("fclose");
   }
 }
 
-bool SessionImpl::IsOutputFile(const FILE* pFile)
+bool SessionImpl::IsOutputFile(const FILE* file)
 {
-  MIKTEX_ASSERT(pFile != nullptr);
-  map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.find(pFile);
+  MIKTEX_ASSERT(file != nullptr);
+  map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.find(file);
   if (it == openFilesMap.end())
   {
     return false;
