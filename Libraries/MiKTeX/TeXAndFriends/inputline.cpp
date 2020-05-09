@@ -297,6 +297,9 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
   if (pimpl->enablePipes && lpszPath[0] == '|')
   {
     string command = lpszPath + 1;
+#if defined(MIKTEX_WINDOWS)
+    std::replace(command.begin(), command.end(), '\'', '"');
+#endif
     Session::ExamineCommandLineResult examineResult;
     string examinedCommand;
     string safeCommandLine;
