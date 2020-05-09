@@ -298,7 +298,7 @@ static int Isspace(char c)
 int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
 {
 #if defined(MIKTEX)
-  return miktex_shell_cmd_is_allowed(cmd, safecmd, cmdname);
+  return miktex_emulate__shell_cmd_is_allowed(cmd, safecmd, cmdname);
 #else
     char **p;
     char *buf;

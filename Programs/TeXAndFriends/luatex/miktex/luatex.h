@@ -26,21 +26,21 @@ extern "C" {
 void miktex_add_include_directory(const char* path);
 int miktex_allow_unrestricted_shell_escape();
 void miktex_convert_to_unix(char* path);
+char** miktex_emulate__do_split_command(const char* commandLine, char** argv0);
+int miktex_emulate__exec_command(const char* fileName, char* const* argv, char* const* env);
+FILE* miktex_emulate__runpopen(const char* commandLine, const char* mode);
+int miktex_emulate__shell_cmd_is_allowed(const char* commandLine, char** safeCommandLineRet, char** examinedCommandRet);
+int miktex_emulate__spawn_command(const char* fileName, char* const* argv, char* const* env);
 void miktex_enable_installer(int onOff);
-int miktex_exec(const char* fileName, char* const* argv, char* const* env);
 const char* miktex_get_aux_directory();
 void miktex_invoke_editor(const char* filename, int lineno);
 int miktex_is_fully_qualified_path(const char* path);
 int miktex_is_output_file(const char* path);
 int miktex_is_pipe(FILE* file);
 int miktex_open_format_file(const char* fileName, FILE** ppFile, int renew);
-FILE* miktex_open_pipe(const char* commandLine, const char* mode);
 char* miktex_program_basename(const char* argv0);
 void miktex_set_aux_directory(const char* path);
-int miktex_shell_cmd_is_allowed(const char* commandLine, char** safeCommandLineRet, char** examinedCommandRet);
 void miktex_show_library_versions();
-int miktex_spawn(const char* fileName, char* const* argv, char* const* env);
-char** miktex_split_command(const char* commandLine, char** argv0);
 int miktex_system(const char* commandLine);
 
 #if defined(__cplusplus)

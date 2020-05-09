@@ -148,7 +148,7 @@
 static int exec_command(const char *file, char *const *av, char *const *envp)
 {
 #if defined(MIKTEX)
-  return miktex_exec(file, av, envp);
+  return miktex_emulate__exec_command(file, av, envp);
 #else
     char *path;
     const char *searchpath, *esp;
@@ -245,7 +245,7 @@ static int exec_command(const char *file, char *const *av, char *const *envp)
 static int spawn_command(const char *file, char *const *av, char *const *envp)
 {
 #if defined(MIKTEX)
-  return miktex_spawn(file, av, envp);
+  return miktex_emulate__spawn_command(file, av, envp);
 #else
     pid_t pid, wait_pid;
     int status;
@@ -322,7 +322,7 @@ static char *get_command_name(char *maincmd)
 static char **do_split_command(const char *maincmd, char **runcmd)
 {
 #if defined(MIKTEX)
-  return miktex_split_command(maincmd, runcmd);
+  return miktex_emulate__do_split_command(maincmd, runcmd);
 #else
     char **cmdline = NULL;
 #ifdef _WIN32

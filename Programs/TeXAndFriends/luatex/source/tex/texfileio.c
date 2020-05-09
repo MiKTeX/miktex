@@ -1408,7 +1408,7 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
 static FILE *runpopen(char *cmd, const char *mode)
 {
 #if defined(MIKTEX)
-  return miktex_open_pipe(cmd, mode);
+  return miktex_emulate__runpopen(cmd, mode);
 #else
     FILE *f = NULL;
     char *safecmd = NULL;

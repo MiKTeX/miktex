@@ -205,7 +205,7 @@ void miktex_convert_to_unix(char* path)
   }
 }
 
-int miktex_shell_cmd_is_allowed(const char* commandLine, char** safeCommandLineRet, char** examinedCommandRet)
+int miktex_emulate__shell_cmd_is_allowed(const char* commandLine, char** safeCommandLineRet, char** examinedCommandRet)
 {
   shared_ptr<Session> session = Application::GetApplication()->GetSession();
   Session::ExamineCommandLineResult examineResult;
@@ -253,7 +253,7 @@ int miktex_system(const char* commandLine)
   }
 }
 
-int miktex_spawn(const char* fileName, char* const* argv, char* const* env)
+int miktex_emulate__spawn_command(const char* fileName, char* const* argv, char* const* env)
 {
   vector<std::string> arguments;
   for (; *argv != nullptr; ++argv)
@@ -273,7 +273,7 @@ int miktex_spawn(const char* fileName, char* const* argv, char* const* env)
   }
 }
 
-int miktex_exec(const char* fileName, char* const* argv, char* const* env)
+int miktex_emulate__exec_command(const char* fileName, char* const* argv, char* const* env)
 {
   vector<std::string> arguments;
   for (; *argv != nullptr; ++argv)
@@ -294,7 +294,7 @@ int miktex_exec(const char* fileName, char* const* argv, char* const* env)
   }
 }
 
-char** miktex_split_command(const char* commandLine, char** argv0)
+char** miktex_emulate__do_split_command(const char* commandLine, char** argv0)
 {
   Argv argv(commandLine);
   MIKTEX_EXPECT(argv0 != nullptr);
@@ -308,7 +308,7 @@ char** miktex_split_command(const char* commandLine, char** argv0)
   return result;
 }
 
-FILE* miktex_open_pipe(const char* commandLineArg, const char* mode)
+FILE* miktex_emulate__runpopen(const char* commandLineArg, const char* mode)
 {
   MIKTEX_EXPECT(shellenabledp);
   std::string commandLine = commandLineArg;
