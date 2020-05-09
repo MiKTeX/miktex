@@ -352,14 +352,6 @@ FILE* miktex_emulate__runpopen(const char* commandLineArg, const char* mode)
     }
     toBeExecuted = commandLine;
   }
-  if (examineResult == Session::ExamineCommandLineResult::ProbablySafe)
-  {
-    app->LogInfo(fmt::format("executing restricted output pipe: {0}", toBeExecuted));
-  }
-  else
-  {
-    app->LogWarn(fmt::format("executing unrestricted output pipe: {0}", toBeExecuted));
-  }
   FileAccess access;
   if (mode == "w"s)
   {
@@ -372,6 +364,14 @@ FILE* miktex_emulate__runpopen(const char* commandLineArg, const char* mode)
   else
   {
     MIKTEX_UNEXPECTED();
+  }
+  if (examineResult == Session::ExamineCommandLineResult::ProbablySafe)
+  {
+    app->LogInfo(fmt::format("executing restricted {0} pipe: {1}", access == FileAccess::Read ? "input"s : "output"s, toBeExecuted));
+  }
+  else
+  {
+    app->LogWarn(fmt::format("executing unrestricted {0} pipe: {1}", access == FileAccess::Read ? "input"s : "output"s, toBeExecuted));
   }
   try
   {

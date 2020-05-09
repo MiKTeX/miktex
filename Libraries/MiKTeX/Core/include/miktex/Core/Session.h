@@ -1207,7 +1207,13 @@ public:
   /// Closes a file.
   /// @param file The pointer to the `FILE` object.
 public:
+  virtual void MIKTEXTHISCALL CloseFile(FILE* file, int& exitCode) = 0;
+
+  /// Closes a file.
+  /// @param file The pointer to the `FILE` object.
+public:
   virtual void MIKTEXTHISCALL CloseFile(FILE* file) = 0;
+
 
   /// Tests whether a file has been opened for output.
   /// @param file The pointer to the `FILE` object.

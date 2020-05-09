@@ -262,7 +262,14 @@ public:
   std::pair<bool, OpenFileInfo> TryGetOpenFileInfo(FILE* file) override;
 
 public:
-  void CloseFile(FILE* file) override;
+  void CloseFile(FILE* file, int& exitCode) override;
+
+public:
+  void CloseFile(FILE* file) override
+  {
+    int exitCode;
+    CloseFile(file, exitCode);
+  }
 
 public:
   bool IsOutputFile(const FILE* file) override;
@@ -923,6 +930,9 @@ private:
 
 private:
   FILE* InitiateProcessPipe(const std::string& command, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileMode& mode);
+
+private:
+  int CloseProcessPipe(FILE* file);
 
 private:
   FILE* OpenFileOnStream(std::unique_ptr<MiKTeX::Core::Stream> stream);

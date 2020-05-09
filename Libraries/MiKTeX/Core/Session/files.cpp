@@ -65,36 +65,6 @@ MIKTEXSTATICFUNC(int) Close(int fd)
 #endif
 }
 
-MIKTEXSTATICFUNC(FILE*) POpen(const char* command, const char* mode)
-{
-  FILE* file;
-#if defined(_MSC_VER)
-  file = _wpopen(UW_(command), UW_(mode));
-#else
-  file = popen(command, mode);
-#endif
-  if (file == nullptr)
-  {
-    MIKTEX_FATAL_CRT_ERROR_2("popen", "command", command, "mode", mode);
-  }
-  return file;
-}
-
-MIKTEXSTATICFUNC(int) PClose(FILE* file)
-{
-  int exitCode;
-#if defined(_MSC_VER)
-  exitCode = _pclose(file);
-#else
-  exitCode = pclose(file);
-#endif
-  if (exitCode < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("pclose");
-  }
-  return exitCode;
-}
-
 static array<unique_ptr<FileStream>, 2> CreatePipe(size_t pipeSize)
 {
   int handles[2];
@@ -195,6 +165,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
   {
     MIKTEX_ASSERT(access == FileAccess::Read || access == FileAccess::Write);
     MIKTEX_ASSERT(!text);
+    trace_process->WriteLine("core", TraceLevel::Info, fmt::format("starting {0} pipe: {1}", access == FileAccess::Read ? "input"s : "output"s, path));
     file = InitiateProcessPipe(path.ToString(), access, mode);
   }
   else
@@ -222,7 +193,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
   {
     if (mode == FileMode::Command)
     {
-      PClose(file);
+      CloseProcessPipe(file);
     }
     else
     {
@@ -234,7 +205,34 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
 
 FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access, FileMode& mode)
 {
-  return POpen(command.c_str(), access == FileAccess::Read ? "r" : "w");
+  string popenMode = access == FileAccess::Read ? "r"s : "w"s;
+  
+  FILE* file;
+#if defined(_MSC_VER)
+  file = _wpopen(UW_(command), UW_(popenMode));
+#else
+  file = popen(command.c_str(), popenMode.c_str());
+#endif
+  if (file == nullptr)
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("popen", "command", command, "mode", popenMode);
+  }
+  return file;
+}
+
+int SessionImpl::CloseProcessPipe(FILE* file)
+{
+  int exitCode;
+#if defined(_MSC_VER)
+  exitCode = _pclose(file);
+#else
+  exitCode = pclose(file);
+#endif
+  if (exitCode < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("pclose");
+  }
+  return exitCode;
 }
 
 MIKTEXSTATICFUNC(void) ReaderThread(unique_ptr<Stream> inStream, unique_ptr<Stream> outStream)
@@ -274,20 +272,26 @@ pair<bool, Session::OpenFileInfo> SessionImpl::TryGetOpenFileInfo(FILE* file)
   }
 }
 
-void SessionImpl::CloseFile(FILE* file)
+void SessionImpl::CloseFile(FILE* file, int& exitCode)
 {
   MIKTEX_ASSERT_BUFFER(file, sizeof(*file));
   trace_files->WriteLine("core", fmt::format("CloseFile({0})", static_cast<void*>(file)));
   map<const FILE*, OpenFileInfo>::iterator it = openFilesMap.find(file);
   bool isCommand = false;
+  string command;
   if (it != openFilesMap.end())
   {
     isCommand = (it->second.mode == FileMode::Command);
+    command = it->second.fileName;
     openFilesMap.erase(it);
   }
   if (isCommand)
   {
-    PClose(file);
+    exitCode = CloseProcessPipe(file);
+    if (exitCode != 0)
+    {
+      trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} returned with exit code {1}", Q_(command), exitCode));
+    }
   }
   else if (fclose(file) != 0)
   {
