@@ -324,7 +324,7 @@ FILE* miktex_open_pipe(const char* commandLineArg, const char* mode)
   if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
   {
     app->LogError(fmt::format("syntax error: {0}", commandLineArg));
-    return false;
+    return nullptr;
   }
   if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
   {
