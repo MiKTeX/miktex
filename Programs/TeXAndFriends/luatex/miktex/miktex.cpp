@@ -17,6 +17,11 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
+#include <string>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/App/Application>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/ConfigNames>
@@ -26,8 +31,6 @@
 #include <miktex/Core/Process>
 #include <miktex/KPSE/Emulation>
 #include <miktex/Util/PathNameUtil>
-
-#include <string>
 
 #include "luatex.h"
 
@@ -316,12 +319,12 @@ FILE* miktex_open_pipe(const char* cmdLine, const char* mode)
   tie(examineResult, examinedCommand, safeCommandLine) = session->ExamineCommandLine(cmdLine);
   if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
   {
-    //app->->LogError(fmt::format("syntax error: {0}", cmdLine));
+    app->LogError(fmt::format("syntax error: {0}", cmdLine));
     return false;
   }
   if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
   {
-    //app->LogError(fmt::format("command is unsafe: {0}", cmdLine));
+    app->LogError(fmt::format("command is unsafe: {0}", cmdLine));
     return nullptr;
   }
   std::string toBeExecuted;
@@ -329,7 +332,7 @@ FILE* miktex_open_pipe(const char* cmdLine, const char* mode)
   {
     if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
     {
-      //app->->LogError(fmt::format("command not allowed: {0}", cmdLine));
+      app->LogError(fmt::format("command not allowed: {0}", cmdLine));
       return nullptr;
     }
     toBeExecuted = safeCommandLine;
@@ -339,18 +342,18 @@ FILE* miktex_open_pipe(const char* cmdLine, const char* mode)
   {
     if (session->RunningAsAdministrator() && !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
     {
-      //app->LogError(fmt::format("not allowed with elevated privileges: {0}", cmdLine));
+      app->LogError(fmt::format("not allowed with elevated privileges: {0}", cmdLine));
       return nullptr;
     }
     toBeExecuted = cmdLine;
   }
   if (examineResult == Session::ExamineCommandLineResult::ProbablySafe)
   {
-    //app->->LogInfo(fmt::format("executing restricted output pipe: {0}", toBeExecuted));
+    app->LogInfo(fmt::format("executing restricted output pipe: {0}", toBeExecuted));
   }
   else
   {
-    //app->->LogWarn(fmt::format("executing unrestricted output pipe: {0}", toBeExecuted));
+    app->LogWarn(fmt::format("executing unrestricted output pipe: {0}", toBeExecuted));
   }
   FileAccess access;
   if (mode == "w"s)

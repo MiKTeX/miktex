@@ -1,6 +1,6 @@
 ## miktex.cmake
 ##
-## Copyright (C) 2010-2019 Christian Schenk
+## Copyright (C) 2010-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -32,3 +32,9 @@ target_link_libraries(luatex-miktex-objects
     ${core_dll_name}
     ${kpsemu_dll_name}
 )
+
+if(USE_SYSTEM_FMT)
+  target_link_libraries(luatex-miktex-objects PRIVATE MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(luatex-miktex-objects PRIVATE ${fmt_dll_name})
+endif()
