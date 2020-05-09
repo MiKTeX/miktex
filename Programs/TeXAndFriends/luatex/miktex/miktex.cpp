@@ -40,6 +40,11 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
+extern "C" {
+  int shellenabledp;
+  int restrictedshell;
+}
+
 void miktex_enable_installer(int onOff)
 {
   Application::GetApplication()->EnableInstaller(onOff ? TriState::True : TriState::False);
@@ -298,4 +303,75 @@ char** miktex_split_command(const char* commandLine, char** argv0)
   }
   result[argv.GetArgc()] = nullptr;
   return result;
+}
+
+FILE* miktex_open_pipe(const char* cmdLine, const char* mode)
+{
+  MIKTEX_EXPECT(shellenabledp);
+  Application* app = Application::GetApplication();
+  shared_ptr<Session> session = app->GetSession();
+  Session::ExamineCommandLineResult examineResult;
+  std::string examinedCommand;
+  std::string safeCommandLine;
+  tie(examineResult, examinedCommand, safeCommandLine) = session->ExamineCommandLine(cmdLine);
+  if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
+  {
+    //app->->LogError(fmt::format("syntax error: {0}", cmdLine));
+    return false;
+  }
+  if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
+  {
+    //app->LogError(fmt::format("command is unsafe: {0}", cmdLine));
+    return nullptr;
+  }
+  std::string toBeExecuted;
+  if (restrictedshell)
+  {
+    if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
+    {
+      //app->->LogError(fmt::format("command not allowed: {0}", cmdLine));
+      return nullptr;
+    }
+    toBeExecuted = safeCommandLine;
+
+  }
+  else
+  {
+    if (session->RunningAsAdministrator() && !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
+    {
+      //app->LogError(fmt::format("not allowed with elevated privileges: {0}", cmdLine));
+      return nullptr;
+    }
+    toBeExecuted = cmdLine;
+  }
+  if (examineResult == Session::ExamineCommandLineResult::ProbablySafe)
+  {
+    //app->->LogInfo(fmt::format("executing restricted output pipe: {0}", toBeExecuted));
+  }
+  else
+  {
+    //app->->LogWarn(fmt::format("executing unrestricted output pipe: {0}", toBeExecuted));
+  }
+  FileAccess access;
+  if (mode == "w"s)
+  {
+    access = FileAccess::Write;
+  }
+  else if (mode == "r"s)
+  {
+    access = FileAccess::Read;
+  }
+  else
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  return session->OpenFile(PathName(toBeExecuted), FileMode::Command, access, false);
+}
+
+int miktex_is_pipe(FILE* file)
+{
+  Application* app = Application::GetApplication();
+  shared_ptr<Session> session = app->GetSession();
+  auto openFileInfo = session->TryGetOpenFileInfo(file);
+  return openFileInfo.first && openFileInfo.second.mode == FileMode::Command ? 1 : 0;
 }

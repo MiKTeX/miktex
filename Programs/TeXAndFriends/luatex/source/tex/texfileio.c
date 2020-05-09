@@ -1407,6 +1407,9 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
 
 static FILE *runpopen(char *cmd, const char *mode)
 {
+#if defined(MIKTEX)
+  return miktex_open_pipe(cmd, mode);
+#else
     FILE *f = NULL;
     char *safecmd = NULL;
     char *cmdname = NULL;
@@ -1442,6 +1445,7 @@ static FILE *runpopen(char *cmd, const char *mode)
     if (cmdname)
         free(cmdname);
     return f;
+#endif
 }
 
 /*tex
@@ -1451,11 +1455,13 @@ static FILE *runpopen(char *cmd, const char *mode)
 
 */
 
+#if !defined(MIKTEX)
 #define NUM_PIPES 16
 static FILE *pipes[NUM_PIPES];
 
 #ifdef WIN32
 FILE *Poptr;
+#endif
 #endif
 
 boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt, const_string fopen_mode, boolean must_exist)
@@ -1477,9 +1483,12 @@ boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt, const_string fopen
         if (fullnameoffile)
             free(fullnameoffile);
         fullnameoffile = xstrdup(fname);
+#if !defined(MIKTEX)
         recorder_record_input(fname + 1);
+#endif
         *f_ptr = runpopen(fname + 1, "r");
         free(fname);
+#if !defined(MIKTEX)
         for (i = 0; i < NUM_PIPES; i++) {
             if (pipes[i] == NULL) {
                 pipes[i] = *f_ptr;
@@ -1490,6 +1499,7 @@ boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt, const_string fopen
             setvbuf(*f_ptr, (char *) NULL, _IONBF, 0);
 #ifdef WIN32
         Poptr = *f_ptr;
+#endif
 #endif
         return *f_ptr != NULL;
     }
@@ -1527,8 +1537,11 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
         } else {
             *f_ptr = runpopen(fname + 1, "w");
         }
+#if !defined(MIKTEX)
         recorder_record_output(fname + 1);
+#endif
         free(fname);
+#if !defined(MIKTEX)
         for (i = 0; i < NUM_PIPES; i++) {
             if (pipes[i] == NULL) {
                 pipes[i] = *f_ptr;
@@ -1537,6 +1550,7 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
         }
         if (*f_ptr)
             setvbuf(*f_ptr, (char *) NULL, _IONBF, 0);
+#endif
         return *f_ptr != NULL;
     }
     return luatex_open_output(f_ptr, fn, fopen_mode);
@@ -1545,6 +1559,7 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
 
 void close_file_or_pipe(FILE * f)
 {
+#if !defined(MIKTEX)
     int i;
     if (shellenabledp) {
         for (i = 0; i <= 15; i++) {
@@ -1561,5 +1576,6 @@ void close_file_or_pipe(FILE * f)
             }
         }
     }
+#endif
     close_file(f);
 }

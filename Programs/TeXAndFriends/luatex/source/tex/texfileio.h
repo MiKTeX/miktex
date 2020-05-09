@@ -139,9 +139,11 @@ extern void zwclose(FILE *);
 extern boolean openinnameok(const_string);
 extern boolean openoutnameok(const_string);
 
+#if !defined(MIKTEX)
 #  ifdef WIN32
 extern FILE *Poptr;
 #  endif
+#endif
 
 extern boolean open_in_or_pipe(FILE **, char *, int, const_string fopen_mode,
                                boolean must_exist);

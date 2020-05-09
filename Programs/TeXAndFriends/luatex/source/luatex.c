@@ -895,7 +895,11 @@ boolean input_line(FILE * f)
     int i = EOF;
 
 #ifdef WIN32
+#if defined(MIKTEX)
+    if (!miktex_is_pipe(f) && fileno(f) != fileno(stdin)) {
+#else
     if (f != Poptr && fileno (f) != fileno (stdin)) {
+#endif
         long position = ftell (f);
         if (position == 0L) {
             /* Detect and skip Byte order marks.  */
