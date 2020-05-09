@@ -44,8 +44,9 @@ using namespace MiKTeX::Util;
 using namespace std;
 
 extern "C" {
-  int shellenabledp;
-  int restrictedshell;
+  extern int lua_only;
+  extern int restrictedshell;
+  extern int shellenabledp;
 }
 
 void miktex_enable_installer(int onOff)
@@ -228,7 +229,7 @@ int miktex_emulate__shell_cmd_is_allowed(const char* commandLine, char** safeCom
 int miktex_allow_unrestricted_shell_escape()
 {
   shared_ptr<Session> session = Application::GetApplication()->GetSession();
-  bool okay = !session->RunningAsAdministrator() ||
+  bool okay = lua_only || !session->RunningAsAdministrator() ||
     session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool();
   return okay ? 1 : 0;
 }
