@@ -49,39 +49,33 @@ extern "C" {
   extern int shellenabledp;
 }
 
-void miktex_enable_installer(int onOff)
+void miktex_enable_installer(int enable)
 {
-  Application::GetApplication()->EnableInstaller(onOff ? TriState::True : TriState::False);
+  Application::GetApplication()->EnableInstaller(enable ? TriState::True : TriState::False);
 }
 
-int miktex_open_format_file(const char* fileName_, FILE** ppFile, int renew)
+int miktex_open_format_file(const char* fileNameArg, FILE** ppFile, int renew)
 {
-  MIKTEX_ASSERT_STRING(fileName_);
+  MIKTEX_ASSERT_STRING(fileNameArg);
   MIKTEX_ASSERT(ppFile != nullptr);
 
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = Application::GetApplication()->GetSession();
 
-  PathName fileName(fileName_);
-
+  PathName fileName(fileNameArg);
   if (!fileName.HasExtension())
   {
     fileName.SetExtension(".fmt");
   }
 
-  PathName path;
-
-  std::string dumpName = fileName.GetFileNameWithoutExtension().ToString();
-
   Session::FindFileOptionSet findFileOptions;
-
   findFileOptions += Session::FindFileOption::Create;
-
   if (renew)
   {
     findFileOptions += Session::FindFileOption::Renew;
   }
 
-  if (!session->FindFile(fileName.ToString(), FileType::FMT, findFileOptions, path))
+  PathName found;
+  if (!session->FindFile(fileName.ToString(), FileType::FMT, findFileOptions, found))
   {
     MIKTEX_FATAL_ERROR_2(T_("The memory dump file could not be found."), "fileName", fileName.ToString());
   }
@@ -89,7 +83,7 @@ int miktex_open_format_file(const char* fileName_, FILE** ppFile, int renew)
 #if 1
   if (!renew)
   {
-    time_t modificationTime = File::GetLastWriteTime(path);
+    time_t modificationTime = File::GetLastWriteTime(found);
     time_t lastAdminMaintenance = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetTimeT();
     renew = lastAdminMaintenance > modificationTime;
     if (!renew && !session->IsAdminMode())
@@ -100,40 +94,29 @@ int miktex_open_format_file(const char* fileName_, FILE** ppFile, int renew)
     if (renew)
     {
       // RECURSION
-      return miktex_open_format_file(fileName_, ppFile, true);
+      return miktex_open_format_file(fileNameArg, ppFile, true);
     }
   }
 #endif
 
-  *ppFile = session->OpenFile(path, FileMode::Open, FileAccess::Read, false);
+  *ppFile = session->OpenFile(found, FileMode::Open, FileAccess::Read, false);
 
+  std::string dumpName = fileName.GetFileNameWithoutExtension().ToString();
   session->PushAppName(dumpName);
 
   return true;
 }
 
-char* miktex_program_basename(const char* lpszArgv0)
+int miktex_is_output_file(const char* pathArg)
 {
-  PathName argv0(lpszArgv0);
-  std::string baseName = argv0.GetFileNameWithoutExtension().ToString();
-  size_t prefixLen = strlen(MIKTEX_PREFIX);
-  if (baseName.compare(0, prefixLen, MIKTEX_PREFIX) == 0)
+  PathName path(pathArg);
+  if (path.HasExtension(".gz"))
   {
-    baseName = baseName.substr(prefixLen);
+    path.SetExtension(nullptr);
   }
-  return xstrdup(baseName.c_str());
-}
-
-int miktex_is_output_file(const char* path)
-{
-  PathName path_(path);
-  if (path_.HasExtension(".gz"))
-  {
-    path_.SetExtension(nullptr);
-  }
-  return path_.HasExtension(".dvi")
-    || path_.HasExtension(".pdf")
-    || path_.HasExtension(".synctex");
+  return path.HasExtension(".dvi")
+    || path.HasExtension(".pdf")
+    || path.HasExtension(".synctex");
 }
 
 PathName auxDirectory;
@@ -142,7 +125,7 @@ void miktex_set_aux_directory(const char* path)
 {
   auxDirectory = path;
   auxDirectory.MakeAbsolute();
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = Application::GetApplication()->GetSession();
   if (!Directory::Exists(auxDirectory))
   {
     if (session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CREATEAUXDIRECTORY).GetString() == "t")
@@ -185,7 +168,7 @@ void miktex_add_include_directory(const char* path)
   {
     PathName includeDirectory(path);
     includeDirectory.MakeAbsolute();
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = Application::GetApplication()->GetSession();
     session->AddInputDirectory(includeDirectory, true);
   }
 }
@@ -285,22 +268,22 @@ int miktex_emulate__exec_command(const char* fileName, char* const* argv, char* 
   {
     MIKTEX_EXPECT(env == nullptr);
     Process::Overlay(PathName(fileName), arguments);
-    errno = ENOEXEC;
+    errno = ENOENT;
     return -1;
   }
   catch (const MiKTeXException&)
   {
-    errno = ENOEXEC;
+    errno = ENOENT;
     return -1;
   }
 }
 
-char** miktex_emulate__do_split_command(const char* commandLine, char** argv0)
+char** miktex_emulate__do_split_command(const char* commandLine, char** argv0Ret)
 {
   Argv argv(commandLine);
-  MIKTEX_EXPECT(argv0 != nullptr);
-  *argv0 = xstrdup(argv[0]);
-  char** result = reinterpret_cast<char**>(xmalloc(sizeof(char*) * (argv.GetArgc() + 1)));
+  MIKTEX_EXPECT(argv0Ret != nullptr);
+  *argv0Ret = xstrdup(argv[0]);
+  char** result = reinterpret_cast<char**>(xmalloc(sizeof(char*) * (static_cast<size_t>(argv.GetArgc()) + 1)));
   for (int idx = 0; idx < argv.GetArgc(); ++idx)
   {
     result[idx] = xstrdup(argv[idx]);
@@ -341,7 +324,6 @@ FILE* miktex_emulate__runpopen(const char* commandLineArg, const char* mode)
       return nullptr;
     }
     toBeExecuted = safeCommandLine;
-
   }
   else
   {
@@ -367,11 +349,11 @@ FILE* miktex_emulate__runpopen(const char* commandLineArg, const char* mode)
   }
   if (examineResult == Session::ExamineCommandLineResult::ProbablySafe)
   {
-    app->LogInfo(fmt::format("executing restricted {0} pipe: {1}", access == FileAccess::Read ? "input"s : "output"s, toBeExecuted));
+    app->LogInfo(fmt::format("initiating restricted {0} pipe stream: {1}", access == FileAccess::Read ? "input"s : "output"s, toBeExecuted));
   }
   else
   {
-    app->LogWarn(fmt::format("executing unrestricted {0} pipe: {1}", access == FileAccess::Read ? "input"s : "output"s, toBeExecuted));
+    app->LogWarn(fmt::format("initiating unrestricted {0} pipe stream: {1}", access == FileAccess::Read ? "input"s : "output"s, toBeExecuted));
   }
   try
   {

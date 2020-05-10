@@ -620,10 +620,20 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_name(kpathsea kpseInstance, co
   Utils::SetEnvironmentString("progname", programName_);
 }
 
-MIKTEXKPSCEEAPI(char*) miktex_kpathsea_program_basename(const char* argv0_)
+MIKTEXKPSCEEAPI(char*) miktex_kpse_program_basename(const char* argv0)
 {
-  PathName argv0(argv0_);
-  return xstrdup(argv0.GetFileNameWithoutExtension().GetData());
+  PathName fileName(argv0);
+#if defined(MIKTEX_WINDOWS)
+  std::string baseName = fileName.GetFileNameWithoutExtension().ToString();
+#else
+  std::string baseName = fileName.GetFileName().ToString();
+#endif
+  size_t prefixLen = strlen(MIKTEX_PREFIX);
+  if (baseName.compare(0, prefixLen, MIKTEX_PREFIX) == 0)
+  {
+    baseName = baseName.substr(prefixLen);
+  }
+  return xstrdup(baseName.c_str());
 }
 
 MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_enabled(kpathsea kpseInstance, kpse_file_format_type fmt, boolean value, kpse_src_type level)

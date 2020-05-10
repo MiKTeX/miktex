@@ -1,7 +1,7 @@
 /* miktex/KPSE/Emulation.h:                             -*- C++ -*-
 
    Copyright 1993, 1995, 1996, 2005, 2008, 2009, 2010 Karl Berry
-   Copyright (C) 2000-2019 Christian Schenk
+   Copyright (C) 2000-2020 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -269,8 +269,8 @@ typedef const char* const_string;
 #  define HAVE_BOOLEAN 1
 #  if defined(_WIN32)
   // FIXME:  boolean is a MIDL base type (see <rpcndr.h>)
-  typedef int miktex_kpse_boolean;
-#  define boolean miktex_kpse_boolean
+  typedef int miktex_kpathsea_emulation__boolean;
+#  define boolean miktex_kpathsea_emulation__boolean
 #  else
   typedef int boolean;
 #  endif
@@ -365,7 +365,7 @@ typedef enum
   kpse_src_cmdline
 } kpse_src_type;
 
-typedef struct kpathsea_instance * kpathsea;
+typedef struct kpathsea_instance* kpathsea;
 
 typedef struct kpathsea_instance
 {
@@ -1006,7 +1006,7 @@ MIKTEX_END_EXTERN_C_BLOCK;
   miktex_kpathsea_set_program_name(kpse, argv0, progname)
 
 #define kpse_program_basename(argv0) \
-  miktex_kpathsea_program_basename(argv0)
+  miktex_kpse_program_basename(argv0)
 
 #if defined(KPSE_COMPAT_API)
 
@@ -1088,8 +1088,6 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_expand(kpathsea kpseInstance, const 
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_search(kpathsea kpseInstance, const char* path, const char* fileName, boolean mustExist);
 
-MIKTEXKPSCEEAPI(char*) miktex_kpathsea_program_basename(const char* argv0);
-
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_readable_file(kpathsea kpseInstance, const char* fileName);
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_selfdir(kpathsea kpseInstance, const char* argv0);
@@ -1103,6 +1101,8 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_var_expand(kpathsea kpseInstance, const c
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_var_value(kpathsea kpseInstance, const char* varName);
 
 MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpseInstance, const char* varName, const char* value);
+
+MIKTEXKPSCEEAPI(char*) miktex_kpse_program_basename(const char* argv0);
 
 #if WITH_CONTEXT_SUPPORT
 MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf();

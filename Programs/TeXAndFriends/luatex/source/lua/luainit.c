@@ -736,19 +736,11 @@ static void init_kpse(void)
                 user_progname = remove_suffix (input_name);
             }
             if (!user_progname) {
-#if defined(MIKTEX)
-                user_progname = miktex_program_basename(argv[0]);
-#else
                 user_progname = kpse_program_basename(argv[0]);
-#endif
             }
         } else {
             if (!dump_name) {
-#if defined(MIKTEX)
-                dump_name = miktex_program_basename(argv[0]);
-#else
                 dump_name = kpse_program_basename(argv[0]);
-#endif
             }
             user_progname = dump_name;
         }
@@ -1083,11 +1075,7 @@ void lua_initialize(int ac, char **av)
     banner = xmalloc(len);
     sprintf(banner, fmt, luatex_version_string);
     luatex_banner = banner;
-#if defined(MIKTEX)
-    kpse_invocation_name = miktex_program_basename(argv[0]);
-#else
     kpse_invocation_name = kpse_program_basename(argv[0]);
-#endif
     /*tex be `luac' */
     if (argc >1) {
 #ifdef LuajitTeX
