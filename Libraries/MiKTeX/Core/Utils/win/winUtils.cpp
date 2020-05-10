@@ -46,27 +46,6 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
-MIKTEXSTATICFUNC(void) GetAlternate(const char* lpszPath, char* lpszAlternate)
-{
-  MIKTEX_ASSERT_STRING(lpszPath);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszAlternate);
-  WIN32_FIND_DATAW finddata;
-  HANDLE hnd = FindFirstFileW(PathName(lpszPath).ToExtendedLengthPathName().ToWideCharString().c_str(), &finddata);
-  if (hnd == INVALID_HANDLE_VALUE)
-  {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("FindFirstFileW", "path", lpszPath);
-  }
-  if (!FindClose(hnd))
-  {
-    MIKTEX_FATAL_WINDOWS_ERROR("FindClose");
-  }
-  if (finddata.cAlternateFileName[0] == 0)
-  {
-    MIKTEX_FATAL_ERROR_2(T_("No alternate file name found."), "path", lpszPath);
-  }
-  StringUtil::CopyString(lpszAlternate, BufferSizes::MaxPath, finddata.cAlternateFileName);
-}
-
 PathName Utils::GetFolderPath(int nFolder, int nFallbackFolder, bool getCurrentPath)
 {
   DWORD flags = getCurrentPath ? SHGFP_TYPE_CURRENT : SHGFP_TYPE_DEFAULT;
