@@ -68,7 +68,7 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
     }
     else if (invocationName.length() > 3 && (invocationName.substr(0, 2) == "./" || invocationName.substr(0, 3) == "../"))
     {
-      myProgramFile = GetFullPath(invocationName.c_str());
+      myProgramFile = GetFullyQualifiedPath(invocationName.c_str());
     }
     else if (!Utils::FindProgram(invocationName, myProgramFile))
     {
