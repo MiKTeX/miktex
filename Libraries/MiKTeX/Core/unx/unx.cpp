@@ -61,7 +61,7 @@ MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName& path, mode_t 
   if (!path.IsAbsolute())
   {
     PathName absPath(path);
-    absPath.MakeAbsolute();
+    absPath.MakeFullyQualified();
     // RECURSION
     CreateDirectoryPathWithMode(absPath, mode);
   }
