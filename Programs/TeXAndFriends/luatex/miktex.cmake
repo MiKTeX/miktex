@@ -34,7 +34,7 @@ target_link_libraries(luatex-miktex-objects
 )
 
 if(USE_SYSTEM_FMT)
-  target_link_libraries(luatex-miktex-objects PRIVATE MiKTeX::Imported::FMT)
+  target_link_libraries(luatex-miktex-objects PUBLIC MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(luatex-miktex-objects PRIVATE ${fmt_dll_name})
+  target_link_libraries(luatex-miktex-objects PUBLIC ${fmt_dll_name})
 endif()
