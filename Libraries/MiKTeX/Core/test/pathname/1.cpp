@@ -26,6 +26,10 @@
 #include <miktex/Core/PathName>
 #include <miktex/Core/PathNameParser>
 
+#if defined(MIKTEX_WINDOWS)
+#include <direct.h>
+#endif
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
 using namespace std;
@@ -120,7 +124,12 @@ BEGIN_TEST_FUNCTION(5);
 
   path = "/abc/def/../ghi.jkl";
   path.MakeFullyQualified();
+#if defined(MIKTEX_WINDOWS)
+  char currentDriveLetter = _getdrive() + 'A' - 1;
+  TEST(PathName::Compare(path.ToString(), string(1, currentDriveLetter) + ":/abc/ghi.jkl"s) == 0);
+#else
   TEST(PathName::Compare(path.GetData(), "/abc/ghi.jkl") == 0);
+#endif
 
   PathName path2;
 

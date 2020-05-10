@@ -219,12 +219,12 @@ MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char* path)
 
 MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
 {
-  if (!path.IsAbsolute())
+  if (!path.IsFullyQUalified())
   {
-    PathName absolutePath(path);
-    absolutePath.MakeFullyQualified();
+    PathName fqPath(path);
+    fqPath.MakeFullyQualified();
     // RECURSION
-    CreateDirectoryPath(absolutePath);
+    CreateDirectoryPath(fqPath);
   }
 
   // do nothing, if the directory already exists

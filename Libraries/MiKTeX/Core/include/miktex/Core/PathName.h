@@ -134,7 +134,7 @@ public:
   PathName(size_t n) = delete;
 
   /// Combines path name components into a new PathName object.
-  /// @param component1 The first component (absolute directory path).
+  /// @param component1 The first component (fully qualified directory path).
   /// @param component2 The second component (relative file name path).
 public:
   PathName(const char* component1, const char* component2) :
@@ -147,7 +147,7 @@ public:
   }
 
   /// Combines path name components into a new PathName object.
-  /// @param component1 The first component (absolute directory path).
+  /// @param component1 The first component (fully qualified directory path).
   /// @param component2 The second component (relative file name path).
 public:
   PathName(const PathName& component1, const PathName& component2) :
@@ -350,6 +350,12 @@ public:
 #else
     return *this;
 #endif
+  }
+
+public:
+  bool IsFullyQUalified() const
+  {
+    return MiKTeX::Util::PathNameUtil::IsFullyQualifiedPath(ToString());
   }
 
 public:

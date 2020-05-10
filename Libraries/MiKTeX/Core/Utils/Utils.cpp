@@ -27,6 +27,10 @@
 #include <fmt/ostream.h>
 #include <fmt/time.h>
 
+#if defined(MIKTEX_WINDOWS)
+#include <direct.h>
+#endif
+
 #include <miktex/GitInfo>
 
 #include <miktex/Core/CsvList>
@@ -386,7 +390,7 @@ MIKTEXINTERNALFUNC(PathName) GetFullyQualifiedPath(const char* lpszPath)
 {
   PathName path;
 
-  if (!PathNameUtil::IsAbsolutePath(lpszPath))
+  if (!PathNameUtil::IsFullyQualifiedPath(lpszPath))
   {
 #if defined(MIKTEX_WINDOWS)
     if (PathNameUtil::IsDosDriveLetter(lpszPath[0]) && PathNameUtil::IsDosVolumeDelimiter(lpszPath[1]) && lpszPath[2] == 0)
@@ -395,8 +399,26 @@ MIKTEXINTERNALFUNC(PathName) GetFullyQualifiedPath(const char* lpszPath)
       path += PathNameUtil::DirectoryDelimiter;
       return path;
     }
-#endif
+    if (PathNameUtil::IsDirectoryDelimiter(lpszPath[0]))
+    {
+      MIKTEX_ASSERT(!PathNameUtil::IsDirectoryDelimiter(lpszPath[1]));
+      int currentDrive = _getdrive();
+      if (currentDrive == 0)
+      {
+        // TODO
+        MIKTEX_UNEXPECTED();
+      }
+      MIKTEX_EXPECT(currentDrive >= 1 && currentDrive <= 26);
+      char currentDriveLetter = 'A' + currentDrive - 1;
+      path = fmt::format("{0}{1}", currentDriveLetter, PathNameUtil::DosVolumeDelimiter);
+    }
+    else
+    {
+      path.SetToCurrentDirectory();
+    }
+#else
     path.SetToCurrentDirectory();
+#endif
   }
 
   PathName fixme(lpszPath);
