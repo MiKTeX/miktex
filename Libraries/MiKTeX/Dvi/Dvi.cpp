@@ -92,7 +92,7 @@ DviImpl::DviImpl(const char* fileName, const char* metafontMode, int resolution,
 
   fqDviFileName = dviFileName;
 
-  fqDviFileName.MakeAbsolute();
+  fqDviFileName.MakeFullyQualified();
 
   dviInfo.lastWriteTime = 0;
   fontMap = new FontMap;

@@ -60,7 +60,7 @@ void PostScript::ExecuteBatch(const char* fileName)
   command.reserve(BufferSizes::MaxPath + 10);
   command = '(';
   PathName pathUnx(fileName);
-  pathUnx.Convert({ ConvertPathNameOption::ToUnix, ConvertPathNameOption::MakeAbsolute });
+  pathUnx.Convert({ ConvertPathNameOption::ToUnix, ConvertPathNameOption::MakeFullyQualified });
   command += pathUnx.GetData();
   command += ") run\n";
   Execute(command);

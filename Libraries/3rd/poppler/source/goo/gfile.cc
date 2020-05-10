@@ -150,7 +150,7 @@ GooString *appendToPath(GooString *path, const char *fileName) {
   tmp->append(fileName);
 #if defined(MIKTEX)
   MiKTeX::Core::PathName absPath (tmp->getCString());
-  absPath.MakeAbsolute ();
+  absPath.MakeFullyQualified ();
   delete tmp;
   path->clear();
   path->append(absPath.GetData());

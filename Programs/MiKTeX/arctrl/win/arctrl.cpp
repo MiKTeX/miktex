@@ -419,7 +419,7 @@ void ArCtrl::DocOpen(const PathName& path)
     FatalError(T_("The specified file could not be found."));
   }
   PathName fullPath(path);
-  fullPath.MakeAbsolute();
+  fullPath.MakeFullyQualified();
   ExecuteDdeCommand(fmt::format("[DocOpen(\"{0}\")]", fullPath));
 }
 
@@ -430,7 +430,7 @@ void ArCtrl::DocClose(const PathName& path)
     FatalError(T_("The specified file could not be found."));
   }
   PathName fullPath(path);
-  fullPath.MakeAbsolute();
+  fullPath.MakeFullyQualified();
   ExecuteDdeCommand(fmt::format("[DocClose(\"{0}\")]", fullPath));
 }
 
@@ -461,7 +461,7 @@ void ArCtrl::DocGoTo(const PathName& path, int pageNum)
     FatalError(T_("The specified file could not be found."));
   }
   PathName fullPath(path);
-  fullPath.MakeAbsolute();
+  fullPath.MakeFullyQualified();
   ExecuteDdeCommand(fmt::format("[DocGoTo(\"{0}\",{1})]", fullPath, pageNum));
 }
 
@@ -472,7 +472,7 @@ void ArCtrl::DocGoToNameDest(const PathName& path, const string& nameDest)
     FatalError(T_("The specified file could not be found."));
   }
   PathName fullPath(path);
-  fullPath.MakeAbsolute();
+  fullPath.MakeFullyQualified();
   ExecuteDdeCommand(fmt::format("[DocGoToNameDest(\"{0}\",\"{1}\")]", fullPath, nameDest));
 }
 
@@ -483,7 +483,7 @@ void ArCtrl::FileOpen(const PathName& path)
     FatalError(T_("The specified file could not be found."));
   }
   PathName fullPath(path);
-  fullPath.MakeAbsolute();
+  fullPath.MakeFullyQualified();
   ExecuteDdeCommand(fmt::format("[FileOpen(\"{0}\")]", fullPath));
 }
 

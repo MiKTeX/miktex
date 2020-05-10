@@ -222,7 +222,7 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
   if (!path.IsAbsolute())
   {
     PathName absolutePath(path);
-    absolutePath.MakeAbsolute();
+    absolutePath.MakeFullyQualified();
     // RECURSION
     CreateDirectoryPath(absolutePath);
   }

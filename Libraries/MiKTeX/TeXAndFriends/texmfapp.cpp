@@ -358,7 +358,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
   case OPT_AUX_DIRECTORY:
   {
     PathName auxDirectory(optArg);
-    auxDirectory.MakeAbsolute();
+    auxDirectory.MakeFullyQualified();
     SetAuxDirectory(auxDirectory);
     if (!Directory::Exists(auxDirectory))
     {
@@ -498,7 +498,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
   case OPT_OUTPUT_DIRECTORY:
   {
     PathName outputDirectory(optArg);
-    outputDirectory.MakeAbsolute();
+    outputDirectory.MakeFullyQualified();
     SetOutputDirectory(outputDirectory);
     if (!Directory::Exists(outputDirectory))
     {

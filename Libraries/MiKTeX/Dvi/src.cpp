@@ -89,14 +89,14 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
     {
       lpszRelFileName = Utils::GetRelativizedPath(fileName, documentLocation.GetData());
       fqFileName = fileName;
-      fqFileName.MakeAbsolute();
+      fqFileName.MakeFullyQualified();
     }
     else
     {
       lpszRelFileName = fileName;
       fqFileName = documentLocation;
       fqFileName /= fileName;
-      fqFileName.MakeAbsolute();
+      fqFileName.MakeFullyQualified();
     }
 
     //
@@ -142,13 +142,13 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
           if (PathNameUtil::IsAbsolutePath(name))
           {
             fqName = name;
-            fqName.MakeAbsolute();
+            fqName.MakeFullyQualified();
           }
           else
           {
             fqName = documentLocation;
             fqName /= name;
-            fqName.MakeAbsolute();
+            fqName.MakeFullyQualified();
           }
           nameMatch = (MyPathNameCompare(fqName, fqFileName) == 0);
         }

@@ -31,7 +31,7 @@ BEGIN_TEST_SCRIPT("process-5-1");
 BEGIN_TEST_FUNCTION(1);
 {
   PathName file(vecArgs[0]);
-  file.MakeAbsolute();
+  file.MakeFullyQualified();
   pSession->ScheduleSystemCommand("echo hello>" + file.ToString());
 }
 END_TEST_FUNCTION();

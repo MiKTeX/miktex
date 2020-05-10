@@ -124,7 +124,7 @@ PathName auxDirectory;
 void miktex_set_aux_directory(const char* path)
 {
   auxDirectory = path;
-  auxDirectory.MakeAbsolute();
+  auxDirectory.MakeFullyQualified();
   shared_ptr<Session> session = Application::GetApplication()->GetSession();
   if (!Directory::Exists(auxDirectory))
   {
@@ -167,7 +167,7 @@ void miktex_add_include_directory(const char* path)
   if (Directory::Exists(PathName(path)))
   {
     PathName includeDirectory(path);
-    includeDirectory.MakeAbsolute();
+    includeDirectory.MakeFullyQualified();
     shared_ptr<Session> session = Application::GetApplication()->GetSession();
     session->AddInputDirectory(includeDirectory, true);
   }

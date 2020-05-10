@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
   QString displayName = "MiKTeX Console";
 #if defined(MIKTEX_MACOS_BUNDLE)
   PathName plugIns = GetExecutableDir() / PathName("..") / PathName("PlugIns");
-  plugIns.MakeAbsolute();
+  plugIns.MakeFullyQualified();
   QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
 #endif
 #if QT_VERSION >= 0x050600

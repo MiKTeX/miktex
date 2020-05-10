@@ -142,7 +142,7 @@ unique_ptr<PackageIterator> PackageManagerImpl::CreateIterator()
 void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
 {
   PathName absPath(path);
-  absPath.MakeAbsolute();
+  absPath.MakeFullyQualified();
 
   unique_ptr<TemporaryDirectory> tempDir;
 

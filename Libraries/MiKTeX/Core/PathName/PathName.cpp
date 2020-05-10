@@ -127,7 +127,7 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
   MIKTEX_ASSERT(!(toUpper && toLower));
 
   MIKTEX_ASSERT(!options[ConvertPathNameOption::MakeRelative]);
-  bool makeFQ = options[ConvertPathNameOption::MakeAbsolute];
+  bool makeFQ = options[ConvertPathNameOption::MakeFullyQualified];
 
 #if defined(MIKTEX_WINDOWS)
   bool toExtendedLengthPathName = options[ConvertPathNameOption::ToExtendedLengthPathName];
@@ -135,7 +135,7 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
 
   if (makeFQ)
   {
-    PathName temp = GetFullPath(GetData());
+    PathName temp = GetFullyQualifiedPath(GetData());
     *this = temp;
   }
 

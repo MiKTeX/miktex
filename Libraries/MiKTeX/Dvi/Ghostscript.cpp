@@ -100,7 +100,7 @@ void Ghostscript::Start()
   startinfo.RedirectStandardInput = true;
   startinfo.RedirectStandardOutput = true;
   startinfo.RedirectStandardError = true;
-  startinfo.WorkingDirectory = dviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();
+  startinfo.WorkingDirectory = dviImpl->GetDviFileName().MakeFullyQualified().RemoveFileSpec().ToString();
 
   process = Process::Start(startinfo);
 

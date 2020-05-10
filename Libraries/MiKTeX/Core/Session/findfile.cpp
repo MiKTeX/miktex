@@ -141,7 +141,7 @@ bool SessionImpl::FindFileInternal(const string& fileName, const vector<PathName
     for (unsigned idx = 0; (!found || all) && GetWorkingDirectory(idx, pathWD); ++idx)
     {
       PathName path = pathWD / PathName(fileName);
-      path.MakeAbsolute();
+      path.MakeFullyQualified();
       if (CheckCandidate(path, nullptr))
       {
         found = true;

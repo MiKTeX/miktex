@@ -1005,7 +1005,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
           FATAL_CFG_ERROR(T_("missing file name argument"));
         }
         PathName path2(path);
-        path2.MakeAbsolute();
+        path2.MakeFullyQualified();
         path2.RemoveFileSpec();
         path2 /= *tok;
         Read(path2, keyName, level + 1, false, PathName());

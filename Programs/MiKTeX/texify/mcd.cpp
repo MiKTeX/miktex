@@ -738,7 +738,7 @@ void Driver::Initialize(McdApp* app, Options* options, const char* fileName)
   // because in clean mode we are in tmp, in which case a relative
   // path has no meaning.
   originalInputFile = givenFileName;
-  originalInputFile.MakeAbsolute();
+  originalInputFile.MakeFullyQualified();
   originalInputFile.ConvertToUnix();
 
   app->MyTrace(fmt::format(T_("input file: {}"), Q_(originalInputFile)));
@@ -1279,7 +1279,7 @@ void Driver::RunBibTeX()
         }
         subDir = subAuxNameNoExt;
         subDir.RemoveFileSpec();
-        subDir.MakeAbsolute();
+        subDir.MakeFullyQualified();
         subAuxNameNoExt.RemoveDirectorySpec();
       }
 

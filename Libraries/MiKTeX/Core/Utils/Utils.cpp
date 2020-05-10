@@ -382,7 +382,7 @@ MIKTEXINTERNALFUNC(bool) IsExplicitlyRelativePath(const char* lpszPath)
   }
 }
 
-MIKTEXINTERNALFUNC(PathName) GetFullPath(const char* lpszPath)
+MIKTEXINTERNALFUNC(PathName) GetFullyQualifiedPath(const char* lpszPath)
 {
   PathName path;
 

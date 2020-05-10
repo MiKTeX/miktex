@@ -699,7 +699,7 @@ bool YapApplication::ActivateFirstInstance(const YapCommandLineInfo& cmdInfo)
 
   // open the DVI document via DDE
   PathName path(cmdInfo.m_strFileName);
-  path.MakeAbsolute();
+  path.MakeFullyQualified();
 
   CStringA ddeCommand;
   ddeCommand.Format("[open(\"%s\")]", path.GetData());

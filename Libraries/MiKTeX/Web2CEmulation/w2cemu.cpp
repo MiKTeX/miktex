@@ -156,7 +156,7 @@ void Web2C::SetOutputDirectory(const PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
   outputDirectory = path;
-  outputDirectory.MakeAbsolute();
+  outputDirectory.MakeFullyQualified();
   if (!Directory::Exists(outputDirectory))
   {
     if (session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CREATEOUTPUTDIRECTORY).GetString() == "t")

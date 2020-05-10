@@ -158,7 +158,7 @@ std::ifstream File::CreateInputStream(const PathName& path, std::ios_base::openm
 std::ofstream File::CreateOutputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions)
 {
   PathName dir(path);
-  dir.MakeAbsolute();
+  dir.MakeFullyQualified();
   dir.RemoveFileSpec();
   if (!Directory::Exists(dir))
   {

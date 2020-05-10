@@ -76,7 +76,7 @@ BEGIN_TEST_FUNCTION(2);
   Touch("./test.tex");
   TEST(pSession->FindFile("./test.tex", "%R/tex//", path));
   TEST(pSession->FindFile("./test.tex", StringUtil::Flatten({ ".", "%R/tex//" }, PathNameUtil::PathNameDelimiter), path));
-  path.MakeAbsolute();
+  path.MakeFullyQualified();
   PathName path2;
   path2.SetToCurrentDirectory();
   path2 /= "test.tex";

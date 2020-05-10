@@ -578,7 +578,7 @@ bool SessionImpl::GetAcrobatFontDir(PathName& path)
 
     RemoveDirectoryDelimiter(fontDir.GetData());
 
-    acrobatFontDir = GetFullPath(fontDir.GetData());
+    acrobatFontDir = GetFullyQualifiedPath(fontDir.GetData());
   }
 
   if (acrobatFontDir.GetLength() == 0)
@@ -615,7 +615,7 @@ bool SessionImpl::GetATMFontDir(PathName& path)
 
     RemoveDirectoryDelimiter(fontDir.GetData());
 
-    atmFontDir = GetFullPath(fontDir.GetData());
+    atmFontDir = GetFullyQualifiedPath(fontDir.GetData());
   }
 
   if (atmFontDir.GetLength() == 0)

@@ -466,7 +466,7 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
     }
 
     pimpl->foundFileFq = pimpl->foundFile;
-    pimpl->foundFileFq.MakeAbsolute();
+    pimpl->foundFileFq.MakeFullyQualified();
 
 #if 1 // 2015-01-15
     if (pimpl->foundFile[0] == '.' && PathNameUtil::IsDirectoryDelimiter(pimpl->foundFile[1]))

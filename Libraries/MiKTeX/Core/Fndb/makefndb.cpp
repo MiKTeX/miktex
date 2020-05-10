@@ -337,7 +337,7 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
   bool done = false;
 
   PathName path(parentPath, folderName);
-  path.MakeAbsolute();
+  path.MakeFullyQualified();
 
   PathName directory(Utils::GetRelativizedPath(path.GetData(), rootPath.GetData()));
   directory = directory.ToUnix();

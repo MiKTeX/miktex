@@ -882,7 +882,7 @@ unique_ptr<Process> DviPageImpl::StartDvips()
   arguments.push_back(dviImpl->GetDviFileName().ToString());
 
   PathName dir(dviImpl->GetDviFileName());
-  dir.MakeAbsolute();
+  dir.MakeFullyQualified();
   dir.RemoveFileSpec();
 
   ProcessStartInfo processStartInfo;
@@ -938,7 +938,7 @@ unique_ptr<Process> DviPageImpl::StartGhostscript(int shrinkFactor)
   processStartInfo.StandardInput = dvipsOut.GetFile();
   processStartInfo.RedirectStandardError = true;
   processStartInfo.RedirectStandardOutput = true;
-  processStartInfo.WorkingDirectory = dviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();
+  processStartInfo.WorkingDirectory = dviImpl->GetDviFileName().MakeFullyQualified().RemoveFileSpec().ToString();
 
   unique_ptr<Process> pGhostscript(Process::Start(processStartInfo));
 

@@ -84,7 +84,7 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
 #endif
 #if defined(MIKTEX_MACOS_BUNDLE)
   PathName plugIns = GetExecutableDir() / PathName("..") / PathName("PlugIns");
-  plugIns.MakeAbsolute();
+  plugIns.MakeFullyQualified();
   QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
 #endif
   static int argc = 1;

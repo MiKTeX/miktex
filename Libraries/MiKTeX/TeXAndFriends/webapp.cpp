@@ -276,7 +276,7 @@ bool WebApp::ProcessOption(int opt, const string& optArg)
     if (Directory::Exists(PathName(optArg)))
     {
       PathName path(optArg);
-      path.MakeAbsolute();
+      path.MakeFullyQualified();
       session->AddInputDirectory(path, true);
     }
     break;

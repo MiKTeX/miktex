@@ -235,7 +235,7 @@ PackageLevel SetupService::SearchLocalRepository(PathName& localRepository, Pack
 
   // try ..\tm\packages
   localRepository = session->GetMyLocation(false) / PathName("..") / PathName("tm") / PathName("packages");
-  localRepository.MakeAbsolute();
+  localRepository.MakeFullyQualified();
   packageLevel_ = SetupService::TestLocalRepository(localRepository, requestedPackageLevel);
   if (packageLevel_ != PackageLevel::None)
   {
@@ -304,7 +304,7 @@ bool SetupService::IsMiKTeXDirect(PathName& root)
   // check ..\texmf\miktex\config\miktexstartup.ini
   shared_ptr<Session> session = Session::Get();
   root = session->GetMyLocation(false) / PathName("..");
-  root.MakeAbsolute();
+  root.MakeFullyQualified();
   PathName pathStartupConfig = root / PathName("texmf") / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
   if (!File::Exists(pathStartupConfig))
   {
@@ -591,7 +591,7 @@ void SetupServiceImpl::ULogAddFile(const PathName& path)
     section = Files;
   }
   PathName absolutePath(path);
-  absolutePath.MakeAbsolute();
+  absolutePath.MakeFullyQualified();
 #if defined(MIKTEX_WINDOWS)
   absolutePath.ConvertToDos();
 #endif

@@ -204,7 +204,7 @@ bool FileIsOnROMedia(const char* path);
 
 bool GetCrtErrorMessage(int functionResult, std::string& errorMessage);
 
-MiKTeX::Core::PathName GetFullPath(const char* path);
+MiKTeX::Core::PathName GetFullyQualifiedPath(const char* path);
 
 MiKTeX::Core::PathName GetHomeDirectory();
 

@@ -341,7 +341,7 @@ void CJKLaTeXApp::Run(int argc, char** argv)
   for (int i = optind; i != argc; ++i)
   {
     PathName pathInputFile(argv[i]);
-    pathInputFile.MakeAbsolute();
+    pathInputFile.MakeFullyQualified();
     PathName pathIntermediateFile(pathInputFile);
     pathIntermediateFile.AppendExtension(".cjk");
     RunConverter(pathInputFile, pathIntermediateFile);

@@ -57,8 +57,8 @@ enum class ConvertPathNameOption
 #endif
   /// Makes the path name relative to the current directory.
   MakeRelative,
-  /// Makes the path name absolute.
-  MakeAbsolute,
+  /// Makes the path name fully qualified.
+  MakeFullyQualified,
   /// Resolve symbolic links.
   Canonicalize,
 };
@@ -381,12 +381,12 @@ public:
     return Convert({ ConvertPathNameOption::Canonicalize });
   }
 
-  /// Converts this path name into an absolute path name.
+  /// Converts this path name into a fully qualified path name.
   /// @return Returns a reference to this object.
 public:
-  PathName& MakeAbsolute()
+  PathName& MakeFullyQualified()
   {
-    return Convert({ ConvertPathNameOption::MakeAbsolute });
+    return Convert({ ConvertPathNameOption::MakeFullyQualified });
   }
 
 public:

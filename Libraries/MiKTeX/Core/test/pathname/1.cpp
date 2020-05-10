@@ -114,18 +114,18 @@ BEGIN_TEST_FUNCTION(5);
 
 #if defined(MIKTEX_WINDOWS)
   path = "C:/abc/def/../ghi.jkl";
-  path.MakeAbsolute();
+  path.MakeFullyQualified();
   TEST(PathName::Compare(path.GetData(), "C:/abc/ghi.jkl") == 0);
 #endif
 
   path = "/abc/def/../ghi.jkl";
-  path.MakeAbsolute();
+  path.MakeFullyQualified();
   TEST(PathName::Compare(path.GetData(), "/abc/ghi.jkl") == 0);
 
   PathName path2;
 
   path = "abc/./def/../ghi.jkl";
-  path.MakeAbsolute();
+  path.MakeFullyQualified();
 
   path2.SetToCurrentDirectory();
   path2 /= "abc/ghi.jkl";
