@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.7420 - 2020-05-10
+## 2.9.7420 - 2020-05-13
 
 ### Breaking changes
 
@@ -58,6 +58,7 @@ howto](https://miktex.org/howto/install-miktex-unx) for more info.
 ### Fixed issues
 
 * [486](https://github.com/MiKTeX/miktex/issues/486): Luatex cannot find input file when using texify on windows
+* [491](https://github.com/MiKTeX/miktex/issues/491): Empty file error when trying to complete the setup on a Mac
 * [510](https://github.com/MiKTeX/miktex/issues/510): Long file name support
 * [514](https://github.com/MiKTeX/miktex/issues/514): Kerberos Proxy support
 * [520](https://github.com/MiKTeX/miktex/issues/520): Make MiKTeX Console usable for keyboard only users
