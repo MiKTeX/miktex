@@ -199,7 +199,7 @@ The return value will be the directory of the executable, e.g.: \.{c:/TeX/bin}
 
 static char *ex_selfdir(char *argv0)
 {
-#if defined(WIN32) && !defined(MIKTEX)
+#if !defined(MIKTEX) && defined(WIN32)
 #if defined(__MINGW32__)
     char path[PATH_MAX], *fp;
     /*tex SearchPath() always gives back an absolute directory */
