@@ -871,7 +871,7 @@ void TeXMFApp::InitializeBuffer() const
       else
 #endif
 #if defined(MIKTEX_WINDOWS)
-        fileName = Q_(path/*.ToLongPathName()*/.ToUnix());
+        fileName = Q_(path.ToUnix());
 #else
         fileName = Q_(path);
 #endif

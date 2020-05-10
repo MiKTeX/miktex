@@ -52,8 +52,6 @@ enum class ConvertPathNameOption
   /// Replaces small letters with their capital letter counterpart.
   MakeUpper,
 #if defined(MIKTEX_WINDOWS)
-  /// Replaces 8.3 with the long path equivalent.
-  ToLongPathName,
   /// Prefix with \\?\ to create an extended-length path name.
   ToExtendedLengthPathName,
 #endif
@@ -309,15 +307,6 @@ public:
     result.Convert({ ConvertPathNameOption::ToDos });
     return result;
   }
-
-#if defined(MIKTEX_WINDOWS)
-  PathName ToLongPathName() const
-  {
-    PathName result = *this;
-    result.Convert({ ConvertPathNameOption::ToLongPathName });
-    return result;
-  }
-#endif
 
 #if defined(MIKTEX_WINDOWS)
   PathName ToExtendedLengthPathName() const
