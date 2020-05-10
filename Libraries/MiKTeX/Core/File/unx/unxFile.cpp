@@ -278,7 +278,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
     MIKTEX_FATAL_CRT_ERROR_2("stat", "path", source.ToString());
   }
   PathName destDir(dest);
-  destDir.MakeAbsolute();
+  destDir.MakeFullyQualified();
   destDir.RemoveFileSpec();
   struct stat destStat;
   if (stat(destDir.GetData(), &destStat) != 0)
@@ -536,7 +536,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   if (mode == FileMode::Create || mode == FileMode::CreateNew || mode == FileMode::Append)
   {
     PathName dir(path);
-    dir.MakeAbsolute();
+    dir.MakeFullyQualified();
     dir.RemoveFileSpec();
     if (!Directory::Exists(dir))
     {
