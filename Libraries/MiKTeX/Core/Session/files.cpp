@@ -205,19 +205,48 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
 
 FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access, FileMode& mode)
 {
-  string popenMode = access == FileAccess::Read ? "r"s : "w"s;
-  
-  FILE* file;
-#if defined(_MSC_VER)
-  file = _wpopen(UW_(command), UW_(popenMode));
-#else
-  file = popen(command.c_str(), popenMode.c_str());
-#endif
-  if (file == nullptr)
+  Argv argv(command);
+  int argc = argv.GetArgc();
+  if (argc == 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("popen", "command", command, "mode", popenMode);
+    MIKTEX_FATAL_ERROR_2(T_("Invalid command."), "command", command);
   }
-  return file;
+  string verb = argv[0];
+  if (verb.length() > 1 && verb[0] == '"' && verb[verb.length() - 1] == verb[0])
+  {
+    verb = verb.substr(1, verb.length() - 2);
+  }
+  if (verb == "zcat" && argc == 2 && access == FileAccess::Read)
+  {
+    mode = FileMode::Open;
+    return OpenFileOnStream(GzipStream::Create(PathName(argv[1]), true));
+  }
+  else if (verb == "bzcat" && argc == 2 && access == FileAccess::Read)
+  {
+    mode = FileMode::Open;
+    return OpenFileOnStream(BZip2Stream::Create(PathName(argv[1]), true));
+  }
+  else if (verb == "xzcat" && argc == 2 && access == FileAccess::Read)
+  {
+    mode = FileMode::Open;
+    return OpenFileOnStream(LzmaStream::Create(PathName(argv[1]), true));
+  }
+  else
+  {
+    mode = FileMode::Command;
+    string popenMode = access == FileAccess::Read ? "r"s : "w"s;
+    FILE* file;
+#if defined(_MSC_VER)
+    file = _wpopen(UW_(command), UW_(popenMode));
+#else
+    file = popen(command.c_str(), popenMode.c_str());
+#endif
+    if (file == nullptr)
+    {
+      MIKTEX_FATAL_CRT_ERROR_2("popen", "command", command, "mode", popenMode);
+    }
+    return file;
+  }
 }
 
 int SessionImpl::CloseProcessPipe(FILE* file)
