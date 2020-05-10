@@ -861,7 +861,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char* path)
 
 unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
 {
-  if (!path.IsAbsolute())
+  if (!path.IsFullyQUalified())
   {
 #if FIND_FILE_PREFER_RELATIVE_PATH_NAMES
     return INVALID_ROOT_INDEX;
