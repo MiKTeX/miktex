@@ -55,8 +55,6 @@ enum class ConvertPathNameOption
   /// Prefix with \\?\ to create an extended-length path name.
   ToExtendedLengthPathName,
 #endif
-  /// Makes the path name relative to the current directory.
-  MakeRelative,
   /// Makes the path name fully qualified.
   MakeFullyQualified,
   /// Resolve symbolic links.

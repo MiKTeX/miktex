@@ -114,8 +114,6 @@ int PathName::Compare(const char* lpszPath1, const char* lpszPath2, size_t count
   return 0;
 }
 
-// TODO: code review
-// TODO: performance
 PathName& PathName::Convert(ConvertPathNameOptions options)
 {
   bool toUnix = options[ConvertPathNameOption::ToUnix];
@@ -126,7 +124,6 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
   bool toLower = options[ConvertPathNameOption::MakeLower];
   MIKTEX_ASSERT(!(toUpper && toLower));
 
-  MIKTEX_ASSERT(!options[ConvertPathNameOption::MakeRelative]);
   bool makeFQ = options[ConvertPathNameOption::MakeFullyQualified];
 
 #if defined(MIKTEX_WINDOWS)
@@ -135,8 +132,7 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
 
   if (makeFQ)
   {
-    PathName temp = GetFullyQualifiedPath(GetData());
-    *this = temp;
+    *this = GetFullyQualifiedPath(GetData());
   }
 
 #if defined(MIKTEX_WINDOWS)
