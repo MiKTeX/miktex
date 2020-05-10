@@ -21,8 +21,15 @@ Impact: Users will receive an error message if they visit an outdated
 
 ### Unrestricted shell escape commands and elevated privileges
 
-Reason: Running unrestricted shell escape commands is not safe. Especially
-when running with elevated:
+As of MiKTeX 2.9.7420, it is possible to prevent the execution of
+unrestricted shell escape commands when a program is running with
+elevated privileges:
+
+```
+initexmf --verbose --set-config-value [Core]AllowUnrestrictedSuperUser=f
+```
+
+This prevents the following use case:
 
 ```
 sudo pdflatex --shell-escape file.tex
@@ -34,17 +41,9 @@ where `file.tex` contains:
 \documentclass{minimal}
 \usepackage{shellesc}
 \begin{document}
-\ShellEscape{echo hello, world! > /etc/passwd}
+\ShellEscape{echo hello, world! > hello.txt}
 \input{hello.txt}
 \end{document}
-```
-
-As of MiKTeX 2.9.7420 it is possible to prevent the execution of
-unrestricted shell escape commands when a program runs with elevated
-privileges:
-
-```
-initexmf --verbose --set-config-value [Core]AllowUnrestrictedSuperUser=f
 ```
 
 For more information and discussion, visit the issue page at GitHub:
