@@ -4,37 +4,6 @@
 
 ### Breaking changes
 
-#### Unrestricted shell escape commands and elevated privileges
-
-In the past, it was possible to run unrestricted shell escape commands
-with elevated privileges.  As of MiKTeX 2.9.7420, unrestricted shell
-escape commands are not allowed anymore, if the program is running
-with elevated privileges.
-
-Reason: Running unrestricted shell escape commands is not safe. Especially
-when running with elevated privileges.
-
-Impact: The following use case is broken:
-
-```
-sudo pdflatex --shell-escape file.tex
-```
-
-where `file.tex` contains:
-
-```
-\documentclass{minimal}
-\usepackage{shellesc}
-\begin{document}
-\ShellEscape{echo hello, world! > hello.txt}
-\input{hello.txt}
-\end{document}
-```
-
-For more information and discussion, visit the issue page at GitHub:
-
-* [533](https://github.com/MiKTeX/miktex/issues/533): Unrestricted shell escape commands and elevated privileges
-
 #### Package database signing
 
 In the past, package database signing was optional. As of MiKTeX
@@ -49,6 +18,38 @@ unmodified.
 
 Impact: Users will receive an error message if they visit an outdated
 (no signature) or modified (tampered database) package repository.
+
+### Unrestricted shell escape commands and elevated privileges
+
+Reason: Running unrestricted shell escape commands is not safe. Especially
+when running with elevated:
+
+```
+sudo pdflatex --shell-escape file.tex
+```
+
+where `file.tex` contains:
+
+```
+\documentclass{minimal}
+\usepackage{shellesc}
+\begin{document}
+\ShellEscape{echo hello, world! > /etc/passwd}
+\input{hello.txt}
+\end{document}
+```
+
+As of MiKTeX 2.9.7420 it is possible to prevent the execution of
+unrestricted shell escape commands when a program runs with elevated
+privileges:
+
+```
+initexmf --verbose --set-config-value [Core]AllowUnrestrictedSuperUser=f
+```
+
+For more information and discussion, visit the issue page at GitHub:
+
+* [533](https://github.com/MiKTeX/miktex/issues/533): Unrestricted shell escape commands and elevated privileges
 
 ### Ubuntu 20.04 & Fedora 32
 

@@ -46,7 +46,7 @@
 
 	;; Do we allow unrestricted shell command execution when running
 	;; with elevated privileges.
-	${MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER} = false
+	${MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER} = true
 
 	;; Do we allow TeX \input or \openin on file names starting
 	;; with `.' (e.g., .rhosts) or outside the current tree (e.g.,
