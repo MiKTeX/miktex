@@ -388,7 +388,7 @@ void SessionImpl::CheckOpenFiles()
 {
   for (map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.begin(); it != openFilesMap.end(); ++it)
   {
-    trace_error->WriteLine("core", TraceLevel::Error, fmt::format("still open: {0}", Q_(it->second.fileName)));
+    trace_error->WriteLine("core", TraceLevel::Warning, fmt::format("still open: {0}", Q_(it->second.fileName)));
   }
 }
 
