@@ -805,21 +805,16 @@ PathName TeXMFApp::GetDefaultMemoryDumpFileName() const
   return name;
 }
 
-bool IsFileNameArgument(const char* lpszArg)
+bool IsFileNameArgument(const char* arg)
 {
-  for (size_t l = 0; lpszArg[l] != 0; ++l)
+  for (size_t l = 0; arg[l] != 0; ++l)
   {
-    if (l >= BufferSizes::MaxPath)
-    {
-      return false;
-    }
-    char ch = lpszArg[l];
+    char ch = arg[l];
     if (ch == '<'
       || ch == '>'
       || ch == '"'
       || ch == '|'
-      || ch == '*'
-      || ch == '?')
+      || ch == '*')
     {
       return false;
     }
