@@ -60,9 +60,9 @@ public:
 public:
   virtual C4P::C4P_signed32 bufsize() = 0;
 public:
-  virtual char* nameoffile() = 0;
+  virtual char*& nameoffile() = 0;
 public:
-  virtual C4P::C4P_signed16& namelength() = 0;
+  virtual C4P::C4P_signed32& namelength() = 0;
 public:
   virtual char* buffer() = 0;
 public:
@@ -149,7 +149,7 @@ public:
   }
 
 public:
-  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) const
+  virtual void SetNameOfFile(const MiKTeX::Core::PathName& fileName) const
   {
     IInputOutput* inputOutput = GetInputOutput();
     MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());

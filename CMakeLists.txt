@@ -502,7 +502,7 @@ option(
 option(
   WITH_OMEGA
   "Build Omega 1.15."
-  TRUE
+  FALSE
 )
 
 option(

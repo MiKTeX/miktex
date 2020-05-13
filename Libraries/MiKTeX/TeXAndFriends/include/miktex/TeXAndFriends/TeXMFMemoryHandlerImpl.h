@@ -278,15 +278,8 @@ public:
       // one extra element because Pascal arrays are 1-based
       amount = (numElem + 1) * elemSize;
     }
-    if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
-    {
-      // TODO: trace_mem->WriteLine("libtexmf", fmt::format(MIKTEXTEXT("Reallocate {0}: p == {1}, elementSize == {2}, nElements == {3}, bytes == {4}"), arrayName.empty() ? "array"s : arrayName, ptr, elemSize, numElem, amount));
-    }
+    trace_mem->WriteLine("libtexmf", "reallocate " + arrayName + ": ptr == " + std::string(ptr == nullptr ? "nullptr" : "...") + ", elementSize == " + std::to_string(elemSize) + ", nElements == " + std::to_string(numElem));
     ptr = MiKTeX::Debug::Realloc(ptr, amount, sourceLocation);
-    if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
-    {
-      // TODO: trace_mem->WriteLine("libtexmf", fmt::format(MIKTEXTEXT("Reallocate: return {0}"), ptr));
-    }
     return ptr;
   }
 };

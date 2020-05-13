@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/TeXMemoryHandlerImpl.h:         -*- C++ -*-
 
-   Copyright (C) 2017-2018 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -78,8 +78,6 @@ public:
     this->AllocateArray("trier", this->program.trier, this->program.triesize + 1);
     this->AllocateArray("trietaken", this->program.trietaken, this->program.triesize);
 
-    this->AllocateArray("nameoffile", this->program.nameoffile, MiKTeX::Core::BufferSizes::MaxPath + 1);
-
 #if !(defined(WITH_OMEGA) && defined(MIKTEX_OMEGA))
     this->program.hyphsize = this->GetCheckedParameter("hyph_size", this->program.infhyphsize, this->program.suphyphsize, userParams, texapp::texapp::hyph_size());
     this->program.fontmax = this->GetParameter("font_max", userParams, texapp::texapp::font_max());
@@ -152,8 +150,6 @@ public:
     this->FreeArray("trier", this->program.trier);
     this->FreeArray("trietaken", this->program.trietaken);
 
-    this->FreeArray("nameoffile", this->program.nameoffile);
-
 #if !(defined(WITH_OMEGA) && defined(MIKTEX_OMEGA))
     this->FreeArray("hyphword", this->program.hyphword);
     this->FreeArray("hyphlist", this->program.hyphlist);
@@ -209,8 +205,6 @@ public:
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.trieo);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.trier);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.trietaken);
-
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.nameoffile);
 
 #if !(defined(WITH_OMEGA) && defined(MIKTEX_OMEGA))
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.hyphword);

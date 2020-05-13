@@ -234,8 +234,7 @@ versions of the program.
 @x
 @!file_name_size=40; {file names shouldn't be longer than this}
 @y
-@!file_name_size=259; {file names shouldn't be longer than this}
-@!file_name_size_plus_one=260; {two more for start and end}
+@!file_name_size=9999999; {file names shouldn't be longer than this}
 @z
 
 % _____________________________________________________________________________
@@ -1353,6 +1352,13 @@ if must_quote then print_char("""");
 @z
 
 @x
+begin k:=0;
+@y
+begin k:=0;
+name_of_file := miktex_reallocate(name_of_file, length(a) + length(n) + length(e) + 1);
+@z
+
+@x
 for k:=name_length+1 to file_name_size do name_of_file[k]:=' ';
 @y
 name_of_file[ name_length + 1 ]:= chr(0); {\MiKTeX: 0-terminate the file name}
@@ -1388,10 +1394,10 @@ length will be set in the main program.
 TEX_format_default:='TeXformats:plain.fmt';
 @y
 @!format_default_length: integer;
-@!TEX_format_default:packed array[1..file_name_size_plus_one] of char;
+@!TEX_format_default:packed array[1..260] of char; {FIXME}
 
 @ @<Set init...@>=
-miktex_get_default_dump_file_name (TEX_format_default);
+miktex_get_default_dump_file_name(TEX_format_default);
 format_default_length:=c4pstrlen(TEX_format_default);
 @z
 
@@ -1410,6 +1416,13 @@ do_nothing;
 %
 % [29.523]
 % _____________________________________________________________________________
+
+@x
+for j:=1 to n do append_to_name(xord[TEX_format_default[j]]);
+@y
+name_of_file := miktex_reallocate(name_of_file, n + (b - a + 1) + format_ext_length + 1);
+for j:=1 to n do append_to_name(xord[TEX_format_default[j]]);
+@z
 
 @x
 for k:=name_length+1 to file_name_size do name_of_file[k]:=' ';

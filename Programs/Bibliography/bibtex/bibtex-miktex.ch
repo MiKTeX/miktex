@@ -254,8 +254,7 @@ end;
 @x
 @d file_name_size=40    {file names shouldn't be longer than this}
 @y
-@d file_name_size=259   {file names shouldn't be longer than this}
-@d file_name_size_plus_one=260 {one more for the string terminator}
+@d file_name_size=9999999   {file names shouldn't be longer than this}
 @z
 
 @x
@@ -330,19 +329,6 @@ for i:=first_text_char to last_text_char do xord[chr(i)]:=invalid_code;
 for i:=1 to @'176 do xord[xchr[i]]:=i;
 @y
 miktex_initialize_char_tables;
-@z
-
-% _____________________________________________________________________________
-%
-% [4.37]
-% _____________________________________________________________________________
-
-@x
-@!name_of_file:packed array[1..file_name_size] of char;
-                         {on some systems this is a \&{record} variable}
-@y
-@!name_of_file:packed array[1..file_name_size_plus_one] of char;
-                         {on some systems this is a \&{record} variable}
 @z
 
 % _____________________________________________________________________________
@@ -513,13 +499,98 @@ miktex_bibtex_realloc('str_pool', str_pool, pool_size);
 
 % _____________________________________________________________________________
 %
+% [5.58]
+% _____________________________________________________________________________
+
+@x
+if (length(file_name) > file_name_size) then
+    begin
+    print ('File=');
+    print_pool_str (file_name);
+    print_ln (',');
+    file_nm_size_overflow;
+    end;
+@y
+miktex_bibtex_realloc('name_of_file', name_of_file, length(file_name) + 1);
+@z
+
+@x
+name_length := length(file_name);
+@y
+name_length := length(file_name);
+name_of_file[name_length + 1] := chr(0);
+@z
+
+% _____________________________________________________________________________
+%
+% [5.59]
+% _____________________________________________________________________________
+
+@x
+procedure file_nm_size_overflow;
+begin
+overflow('file name size ',file_name_size);
+end;
+@y
+@z
+
+% _____________________________________________________________________________
+%
 % [5.60]
 % _____________________________________________________________________________
 
 @x
-    name_of_file[name_ptr] := ' ';
+if (name_length + length(ext) > file_name_size) then
+    begin
+    print ('File=',name_of_file,', extension=');
+    print_pool_str (ext); print_ln (',');
+    file_nm_size_overflow;
+    end;
 @y
-    name_of_file[name_ptr] := chr(0);
+@z
+
+@x
+name_ptr := name_length+1;
+while (name_ptr <= file_name_size) do   {pad with blanks}
+    begin
+    name_of_file[name_ptr] := ' ';
+    incr(name_ptr);
+    end;
+@y
+name_of_file[name_length + 1] := chr(0);
+@z
+
+% _____________________________________________________________________________
+%
+% [5.61]
+% _____________________________________________________________________________
+
+@x
+procedure add_area(@!area:str_number);
+var p_ptr: pool_pointer;        {running index}
+begin
+if (name_length + length(area) > file_name_size) then
+    begin
+    print ('File=');
+    print_pool_str (area); print (name_of_file,',');
+    file_nm_size_overflow;
+    end;
+name_ptr := name_length;
+while (name_ptr > 0) do         {shift up name}
+    begin
+    name_of_file[name_ptr+length(area)] := name_of_file[name_ptr];
+    decr(name_ptr);
+    end;
+name_ptr := 1;
+p_ptr := str_start[area];
+while (p_ptr < str_start[area+1]) do
+    begin
+    name_of_file[name_ptr] := chr (str_pool[p_ptr]);
+    incr(name_ptr); incr(p_ptr);
+    end;
+name_length := name_length + length(area);
+end;
+@y
 @z
 
 % _____________________________________________________________________________
@@ -614,21 +685,73 @@ if (str_num>0) then             {it's an already encountered string}
 % _____________________________________________________________________________
 
 @x
+This procedure consists of a loop that reads and processes a (nonnull)
+\.{.aux} file name.  It's this module and the next two that must be
+changed on those systems using command-line arguments.  Note: The
+|term_out| and |term_in| files are system dependent.
+
+@<Procedures and functions for the reading and processing of input files@>=
+procedure get_the_top_level_aux_file_name;
+label aux_found,@!aux_not_found;
+var @<Variables for possible command-line processing@>@/
+begin
 check_cmnd_line := false;                       {many systems will change this}
+loop
+    begin
+    if (check_cmnd_line) then
+        @<Process a possible command line@>
+      else
+        begin
+        write (term_out,'Please type input file name (no extension)--');
+        if (eoln(term_in)) then                 {so the first |read| works}
+            read_ln (term_in);
+        aux_name_length := 0;
+        while (not eoln(term_in)) do
+            begin
+            if (aux_name_length = file_name_size) then
+                begin
+                while (not eoln(term_in)) do    {discard the rest of the line}
+                    get(term_in);
+                sam_you_made_the_file_name_too_long;
+                end;
+            incr(aux_name_length);
+            name_of_file[aux_name_length] := term_in^;
+            get(term_in);
+            end;
+        end;
+    @<Handle this \.{.aux} name@>;
+aux_not_found:
+    check_cmnd_line := false;
+    end;
+aux_found:                      {now we're ready to read the \.{.aux} file}
+end;
 @y
-check_cmnd_line := true;
-if (c4p_argc <> 2) then begin
-  write_ln(term_out, 'Need exactly one file argument');
+@<Procedures and functions for the reading and processing of input files@>=
+procedure get_the_top_level_aux_file_name;
+label aux_found,@!aux_not_found;
+begin
+  @<Process a possible command line@>
+  {Leave room for the \.., the extension, the junk byte at the
+   beginning, and the null byte at the end.}
+  miktex_bibtex_realloc('name_of_file', name_of_file, c4p_strlen(c4p_argv[1]) + 5);
+  c4p_strcpy(name_of_file, c4p_strlen(c4p_argv[1]) + 5, c4p_argv[1]);
+  aux_name_length := c4p_strlen(name_of_file);
+  @<Handle this \.{.aux} name@>;
+aux_not_found:
   goto_exit_program;
+aux_found:                      {now we're ready to read the \.{.aux} file}
 end;
 @z
 
+% _____________________________________________________________________________
+%
+% [8.101]
+% _____________________________________________________________________________
+
 @x
-aux_not_found:
-    check_cmnd_line := false;
+@<Variables for possible command-line processing@>=
+@!check_cmnd_line : boolean;    {|true| if we're to check the command line}
 @y
-aux_not_found:
-  goto_exit_program;
 @z
 
 % _____________________________________________________________________________
@@ -637,10 +760,16 @@ aux_not_found:
 % _____________________________________________________________________________
 
 @x
+@<Process a possible command line@>=
+begin
 do_nothing;             {the ``default system'' doesn't use the command line}
+end
 @y
-c4p_strcpy(name_of_file, file_name_size, c4p_argv[1]);
-aux_name_length := c4p_strlen(name_of_file);
+@<Process a possible command line@>=
+if (c4p_argc <> 2) then begin
+  write_ln(term_out, 'Need exactly one file argument');
+  goto_exit_program;
+end;
 @z
 
 % _____________________________________________________________________________
@@ -807,6 +936,18 @@ begin
 end;
 @z
 
+@x
+if (not a_open_in(cur_bib_file)) then
+    begin
+    add_area (s_bib_area);
+    if (not a_open_in(cur_bib_file)) then
+        open_bibdata_aux_err ('I couldn''t open database file ');
+    end;
+@y
+if (not a_open_in(cur_bib_file)) then
+    open_bibdata_aux_err ('I couldn''t open database file ');
+@z
+
 % _____________________________________________________________________________
 %
 % [9.127]
@@ -814,8 +955,24 @@ end;
 
 @x
 if (not a_open_in(bst_file)) then
+    begin
+    add_area (s_bst_area);
+    if (not a_open_in(bst_file)) then
+        begin
+        print ('I couldn''t open style file ');
+        print_bst_name;@/
+        bst_str := 0;                           {mark as unused again}
+        aux_err_return;
+        end;
+    end;
 @y
 if (not miktex_open_bst_file(bst_file)) then
+    begin
+        print ('I couldn''t open style file ');
+        print_bst_name;@/
+        bst_str := 0;                           {mark as unused again}
+        aux_err_return;
+    end;
 @z
 
 @x
@@ -901,9 +1058,14 @@ if (last_cite = max_cites) then begin
 % _____________________________________________________________________________
 
 @x
+while (name_ptr <= file_name_size) do   {pad with blanks}
+    begin
     name_of_file[name_ptr] := ' ';
+    incr(name_ptr);
+    end;
+if (not a_open_in(cur_aux_file)) then
 @y
-    name_of_file[name_ptr] := chr(0);
+name_of_file[name_ptr] := chr(0);
 @z
 
 @x
