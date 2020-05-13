@@ -149,7 +149,7 @@ public:
   }
 
 public:
-  virtual void SetNameOfFile(const MiKTeX::Core::PathName& fileName) const
+  virtual void SetNameOfFile(const MiKTeX::Core::PathName& fileName)
   {
     IInputOutput* inputOutput = GetInputOutput();
     MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());

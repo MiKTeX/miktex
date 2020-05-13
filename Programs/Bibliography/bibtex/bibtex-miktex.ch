@@ -781,7 +781,6 @@ end;
 add_extension (s_aux_extension);        {this also sets |name_length|}
 aux_ptr := 0;                           {initialize the \.{.aux} file stack}
 if (not a_open_in(cur_aux_file)) then
-    sam_you_made_the_file_name_wrong;
 @y
 if (not miktex_has_extension(name_of_file, '.aux')) then
   add_extension(s_aux_extension)        {this also sets |name_length|}
@@ -789,7 +788,6 @@ else
   aux_name_length := aux_name_length - 4; {set to length without \.{.aux}}
 aux_ptr := 0;                           {initialize the \.{.aux} file stack}
 if (not c4p_try_fopen(cur_aux_file, name_of_file, c4p_rb_mode)) then
-    sam_you_made_the_file_name_wrong;
 @z
 
 % _____________________________________________________________________________

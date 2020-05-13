@@ -1,6 +1,6 @@
 %% mf-miktex.ch: WEB change file for METAFONT
 %% 
-%% Copyright (C) 1991-2018 Christian Schenk
+%% Copyright (C) 1991-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -227,8 +227,7 @@ versions of the program.
 @x
 @!file_name_size=40; {file names shouldn't be longer than this}
 @y
-@!file_name_size=259; {file names shouldn't be longer than this}
-@!file_name_size_plus_one=260; {one more}
+@!file_name_size=9999999; {file names shouldn't be longer than this}
 @z
 
 @x
@@ -358,29 +357,6 @@ for i:=@'200 to @'377 do xord[xchr[i]]:=i;
 for i:=0 to @'176 do xord[xchr[i]]:=i;
 @y
 miktex_initialize_char_tables;
-@z
-
-% _____________________________________________________________________________
-%
-% [3.25]
-% _____________________________________________________________________________
-
-@x
-|name_of_file|.
-@^system dependencies@>
-@y
-|name_of_file|.
-@^system dependencies@>
-
-\MiKTeX: reserve an extra char slot for the nul char.
-@z
-
-@x
-@!name_of_file:packed array[1..file_name_size] of char;@;@/
-  {on some systems this may be a \&{record} variable}
-@y
-@!name_of_file:packed array[1..file_name_size_plus_one] of char;@;@/
-  {on some systems this may be a \&{record} variable}
 @z
 
 % _____________________________________________________________________________
@@ -1426,9 +1402,16 @@ if must_quote then slow_print("""");
 @z
 
 @x
+for j:=str_start[a] to str_start[a+1]-1 do append_to_name(so(str_pool[j]));
+@y
+name_of_file := miktex_reallocate(name_of_file, length(a) + length(n) + length(e) + 1);
+for j:=str_start[a] to str_start[a+1]-1 do append_to_name(so(str_pool[j]));
+@z
+
+@x
 for k:=name_length+1 to file_name_size do name_of_file[k]:=' ';
 @y
-name_of_file[ name_length + 1 ]:= chr(0); {\MiKTeX: 0-terminate the file name}
+name_of_file[name_length + 1]:= chr(0); {\MiKTeX: 0-terminate the file name}
 @z
 
 % _____________________________________________________________________________
@@ -1447,7 +1430,7 @@ name_of_file[ name_length + 1 ]:= chr(0); {\MiKTeX: 0-terminate the file name}
 @!MF_base_default:packed array[1..base_default_length] of char;
 @y
 @!base_default_length: integer;
-@!MF_base_default:packed array[1..file_name_size_plus_one] of char;
+@!MF_base_default:packed array[1..260] of char; {FIXME}
 @z
 
 % _____________________________________________________________________________
@@ -1479,9 +1462,16 @@ do_nothing;
 % _____________________________________________________________________________
 
 @x
+for j:=1 to n do append_to_name(xord[MF_base_default[j]]);
+@y
+name_of_file := miktex_reallocate(name_of_file, n + (b - a + 1) + base_ext_length + 1);
+for j:=1 to n do append_to_name(xord[MF_base_default[j]]);
+@z
+
+@x
 for k:=name_length+1 to file_name_size do name_of_file[k]:=' ';
 @y
-name_of_file[ name_length + 1 ]:= chr(0); {\MiKTeX: 0-terminate the file name}
+name_of_file[name_length + 1]:= chr(0); {\MiKTeX: 0-terminate the file name}
 @z
 
 % _____________________________________________________________________________

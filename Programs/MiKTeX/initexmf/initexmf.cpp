@@ -1450,7 +1450,6 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_MPOST_EXE, { "dvitomp", "mpost" } },
   { MIKTEX_ODVICOPY_EXE, { "odvicopy" } },
   { MIKTEX_OFM2OPL_EXE, { "ofm2opl" } },
-  { MIKTEX_OMEGA_EXE, { "omega" } },
   { MIKTEX_OPL2OFM_EXE, { "opl2ofm" } },
   { MIKTEX_OTP2OCP_EXE, { "otp2ocp" } },
   { MIKTEX_OUTOCP_EXE, { "outocp" } },
@@ -1555,6 +1554,9 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PREFIX "t1reencode" MIKTEX_EXE_FILE_SUFFIX, { "t1reencode" } },
   { MIKTEX_PREFIX "t1testpage" MIKTEX_EXE_FILE_SUFFIX, { "t1testpage" } },
   { MIKTEX_PREFIX "ttftotype42" MIKTEX_EXE_FILE_SUFFIX, { "ttftotype42" } },
+#endif
+#if defined(WITH_OMEGA)
+  { MIKTEX_OMEGA_EXE, { "omega" } },
 #endif
 #if defined(MIKTEX_WINDOWS)
   { MIKTEX_PREFIX "zip" MIKTEX_EXE_FILE_SUFFIX, {"zip"} },

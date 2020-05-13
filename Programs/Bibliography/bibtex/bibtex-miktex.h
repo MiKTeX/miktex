@@ -262,6 +262,15 @@ public:
   }
 
 public:
+  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) override
+  {
+    MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
+    Reallocate(inputOutput->nameoffile(), fileName.GetLength() + 1);
+    MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
+    inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
+  }
+
+public:
   template<class T> bool OpenBstFile(T& f) const
   {
     const char* fileName = GetInputOutput()->nameoffile();

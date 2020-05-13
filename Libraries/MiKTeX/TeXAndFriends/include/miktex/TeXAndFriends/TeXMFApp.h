@@ -170,6 +170,16 @@ protected:
   }
 
 public:
+  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) override
+  {
+    IInputOutput* inputOutput = GetInputOutput();
+    ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();
+    inputOutput->nameoffile() = reinterpret_cast<char*>(texmfMemoryHandler->ReallocateArray("nameoffile", inputOutput->nameoffile(), sizeof(inputOutput->nameoffile()[0]), fileName.GetLength() + 1, MIKTEX_SOURCE_LOCATION()));
+    MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
+    inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
+  }
+
+public:
   virtual void OnTeXMFInitialize() const
   {
     signal(SIGINT, OnKeybordInterrupt);

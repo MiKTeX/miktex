@@ -52,7 +52,9 @@ enum class Engine
   pdfTeX,
   XeTeX,
   LuaHBTeX,
+#if defined(WITH_OMEGA)
   Omega,
+#endif
 };
 
 class PdfConfigValues :
@@ -133,10 +135,12 @@ private:
     {
       this->engine = Engine::LuaHBTeX;
     }
+#if defined(WITH_OMEGA)
     else if (Utils::EqualsIgnoreCase(engine, "omega"))
     {
       this->engine = Engine::Omega;
     }
+#endif
     else
     {
       FatalError(fmt::format(T_("Unknown engine: {0}"), engine));
@@ -164,8 +168,10 @@ public:
       return "xetex";
     case Engine::LuaHBTeX:
       return "luahbtex";
+#if defined(WITH_OMEGA)
     case Engine::Omega:
       return "omega";
+#endif
     }
     MIKTEX_UNEXPECTED();
   }
@@ -185,8 +191,10 @@ private:
       return MIKTEX_XETEX_EXE;
     case Engine::LuaHBTeX:
       return MIKTEX_LUAHBTEX_EXE;
+#if defined(WITH_OMEGA)
     case Engine::Omega:
       return MIKTEX_OMEGA_EXE;
+#endif
     }
     MIKTEX_UNEXPECTED();
   }

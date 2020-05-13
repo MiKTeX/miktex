@@ -1361,7 +1361,7 @@ name_of_file := miktex_reallocate(name_of_file, length(a) + length(n) + length(e
 @x
 for k:=name_length+1 to file_name_size do name_of_file[k]:=' ';
 @y
-name_of_file[ name_length + 1 ]:= chr(0); {\MiKTeX: 0-terminate the file name}
+name_of_file[name_length + 1]:= chr(0); {\MiKTeX: 0-terminate the file name}
 @z
 
 % _____________________________________________________________________________
@@ -1427,7 +1427,7 @@ for j:=1 to n do append_to_name(xord[TEX_format_default[j]]);
 @x
 for k:=name_length+1 to file_name_size do name_of_file[k]:=' ';
 @y
-name_of_file[ name_length + 1 ]:= chr(0); {\MiKTeX: 0-terminate the file name}
+name_of_file[name_length + 1]:= chr(0); {\MiKTeX: 0-terminate the file name}
 @z
 
 % _____________________________________________________________________________

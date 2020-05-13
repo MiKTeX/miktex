@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/omega/">
+    <TPM:Name>Omegaware win32</TPM:Name>
+    <TPM:Title>Omegaware, Windows x86</TPM:Title>
+    <TPM:License type="gpl"/>
+    <TPM:Version>1.15</TPM:Version>
+    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes the Omegaware executables.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}odvicopy.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}ofm2opl.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}opl2ofm.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}ovf2ovp.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}ovp2ovf.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}mkocp.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}otp2ocp.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}outocp.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

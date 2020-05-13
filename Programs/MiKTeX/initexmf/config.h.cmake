@@ -1,6 +1,6 @@
 /* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 2017-2019 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is part of IniTeXMF.
 
@@ -23,6 +23,7 @@
 #cmakedefine WITH_KPSEWHICH 1
 #cmakedefine WITH_MKTEXLSR 1
 #cmakedefine WITH_RUNGS 1
+#cmakedefine WITH_OMEGA 1
 #cmakedefine WITH_TEXDOC 1
 #cmakedefine WITH_TEXHASH 1
 #cmakedefine WITH_TEXLINKS 1

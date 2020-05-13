@@ -4,6 +4,10 @@
 
 ### Breaking changes
 
+#### Removal of Omega 1.15
+
+Omega 1.15 is obsolete and has now been removed from the distribution.
+
 #### Package database signing
 
 In the past, package database signing was optional. As of MiKTeX
