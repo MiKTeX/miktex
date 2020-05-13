@@ -72,7 +72,7 @@ DviChar* Tfm::operator[](unsigned long idx)
   DviChar* dviChar = dviChars[idx];
   if (dviChar == nullptr)
   {
-    trace_tfm->WriteLine("libdvi", fmt::format(T_("{0}: nil character at %u"), dviInfo.name, idx));
+    trace_tfm->WriteLine("libdvi", fmt::format(T_("{0}: nil character at {1}"), dviInfo.name, idx));
     dviChar = new DviChar(this);
     dviChars[idx] = dviChar;
   }
@@ -141,7 +141,7 @@ void Tfm::Read()
   long ne = inputStream.ReadSignedPair();
   long np = inputStream.ReadSignedPair();
 
-  trace_tfm->WriteLine("libdvi", fmt::format(T_("header size: %{0}"), lh));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("header size: {0}"), lh));
   trace_tfm->WriteLine("libdvi", fmt::format(T_("smallest character code: {0}"), bc));
   trace_tfm->WriteLine("libdvi", fmt::format(T_("largest character code: {0}"), ec));
   trace_tfm->WriteLine("libdvi", fmt::format(T_("width table size: {0}"), nw));

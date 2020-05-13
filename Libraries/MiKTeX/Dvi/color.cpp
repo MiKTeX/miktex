@@ -508,7 +508,7 @@ bool DviImpl::SetCurrentColor(const char* colorSpec)
 
 void DviImpl::PushColor(unsigned long rgb)
 {
-  trace_color->WriteLine("libdvi", fmt::format(T_("push color {0x}"), rgb));
+  trace_color->WriteLine("libdvi", fmt::format(T_("push color {0:x}"), rgb));
   colorStack.push(currentColor);
   currentColor = rgb;
 }
