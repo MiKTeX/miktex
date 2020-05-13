@@ -62,6 +62,8 @@ namespace xetex {
 
 extern XETEXPROGCLASS XETEXPROG;
 
+extern XETEXPROGCLASS::utf8code* nameoffile;
+
 class MemoryHandlerImpl :
   public MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<XETEXPROGCLASS>
 {
@@ -204,17 +206,12 @@ public:
   void AllocateMemory() override
   {
     ETeXApp::AllocateMemory();
-    // special case: Web2C likes to add 1 to the nameoffile base address
-    extern XETEXPROGCLASS::utf8code* nameoffile;
-    nameoffile = &XETEXPROG.nameoffile[-1];
   }
 
 public:
   void FreeMemory() override
   {
     ETeXApp::FreeMemory();
-    extern XETEXPROGCLASS::utf8code* nameoffile;
-    nameoffile = nullptr;
   }
 
 public:
@@ -239,6 +236,18 @@ public:
   std::string TheNameOfTheGame() const override
   {
     return "XeTeX";
+  }
+
+public:
+  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) override
+  {
+    MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
+    MiKTeX::TeXAndFriends::ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();
+    inputOutput->nameoffile() = reinterpret_cast<char*>(texmfMemoryHandler->ReallocateArray("nameoffile", inputOutput->nameoffile(), sizeof(inputOutput->nameoffile()[0]), fileName.GetLength() + 1, MIKTEX_SOURCE_LOCATION()));
+    MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
+    inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
+    // special case: Web2C likes to add 1 to the nameoffile base address
+    nameoffile = reinterpret_cast<C4P::C4P_unsigned8*>(&(inputOutput->nameoffile()[-1]));
   }
 
 public:
@@ -298,8 +307,6 @@ extern XETEXPROGCLASS::strnumber& texmflogname;
 extern C4P::C4P_integer& totalpages;
 extern char*& xdvbuffer;
 extern XETEXPROGCLASS::memoryword*& zmem;
-
-extern XETEXPROGCLASS::utf8code* nameoffile;
 
 inline void badutf8warning()
 {
@@ -616,4 +623,12 @@ template<typename T> auto dfield(const T& t)
 inline bool insertsrcspecialauto()
 {
   return MiKTeX::TeXAndFriends::miktexinsertsrcspecialauto();
+}
+
+inline void miktexreallocatenameoffile(size_t n)
+{
+
+  XETEXPROG.nameoffile = reinterpret_cast<C4P::C4P_unsigned8*>(XETEXAPP.GetTeXMFMemoryHandler()->ReallocateArray("name_of_file", XETEXPROG.nameoffile, sizeof(*XETEXPROG.nameoffile), n, MIKTEX_SOURCE_LOCATION()));
+  // special case: Web2C likes to add 1 to the nameoffile base address
+  nameoffile = &XETEXPROG.nameoffile[-1];
 }

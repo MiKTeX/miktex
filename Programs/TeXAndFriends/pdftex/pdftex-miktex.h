@@ -19,9 +19,6 @@
 
 #pragma once
 
-#if !defined(B9AE601D55FC414A8D93C81CF3517D1A)
-#define B9AE601D55FC414A8D93C81CF3517D1A
-
 #include "pdftex-miktex-config.h"
 
 #if defined(MIKTEX_WINDOWS)
@@ -55,6 +52,8 @@ namespace pdftex {
 #endif
 
 extern PDFTEXPROGCLASS PDFTEXPROG;
+
+extern char* nameoffile;
 
 class MemoryHandlerImpl :
   public MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>
@@ -284,17 +283,12 @@ public:
   void AllocateMemory() override
   {
     ETeXApp::AllocateMemory();
-    // special case: Web2C likes to add 1 to the nameoffile base address
-    extern char* nameoffile;
-    nameoffile = &PDFTEXPROG.nameoffile[-1];
   }
 
 public:
   void FreeMemory() override
   {
     ETeXApp::FreeMemory();
-    extern char* nameoffile;
-    nameoffile = nullptr;
   }
 
 public:
@@ -319,6 +313,18 @@ public:
   std::string TheNameOfTheGame() const override
   {
     return "pdfTeX";
+  }
+
+public:
+  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) override
+  {
+    MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
+    MiKTeX::TeXAndFriends::ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();
+    inputOutput->nameoffile() = reinterpret_cast<char*>(texmfMemoryHandler->ReallocateArray("nameoffile", inputOutput->nameoffile(), sizeof(inputOutput->nameoffile()[0]), fileName.GetLength() + 1, MIKTEX_SOURCE_LOCATION()));
+    MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
+    inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
+    // special case: Web2C likes to add 1 to the nameoffile base address
+    nameoffile = &(inputOutput->nameoffile()[-1]);
   }
 
 public:
@@ -416,8 +422,6 @@ extern PDFTEXPROGCLASS::internalfontnumber*& vfifnts;
 extern C4P::C4P_integer*& vfpacketbase;
 extern C4P::C4P_integer& vfpacketlength;
 extern PDFTEXPROGCLASS::memoryword*& zmem;
-
-extern char* nameoffile;
 
 #if WITH_SYNCTEX
 extern C4P::C4P_integer& synctexoption;
@@ -652,4 +656,10 @@ inline char* gettexstring(PDFTEXPROGCLASS::strnumber stringNumber)
   return xstrdup(PDFTEXAPP.GetTeXString(stringNumber).c_str());
 }
 
-#endif
+inline void miktexreallocatenameoffile(size_t n)
+{
+
+  PDFTEXPROG.nameoffile = reinterpret_cast<char*>(PDFTEXAPP.GetTeXMFMemoryHandler()->ReallocateArray("name_of_file", PDFTEXPROG.nameoffile, sizeof(*PDFTEXPROG.nameoffile), n, MIKTEX_SOURCE_LOCATION()));
+  // special case: Web2C likes to add 1 to the nameoffile base address
+  nameoffile = &PDFTEXPROG.nameoffile[-1];
+}

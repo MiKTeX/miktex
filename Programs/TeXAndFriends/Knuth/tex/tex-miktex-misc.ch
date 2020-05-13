@@ -1355,7 +1355,7 @@ if must_quote then print_char("""");
 begin k:=0;
 @y
 begin k:=0;
-name_of_file := miktex_reallocate(name_of_file, length(a) + length(n) + length(e) + 1);
+miktex_reallocate_name_of_file(length(a) + length(n) + length(e) + 1);
 @z
 
 @x
@@ -1420,7 +1420,7 @@ do_nothing;
 @x
 for j:=1 to n do append_to_name(xord[TEX_format_default[j]]);
 @y
-name_of_file := miktex_reallocate(name_of_file, n + (b - a + 1) + format_ext_length + 1);
+miktex_reallocate_name_of_file(n + (b - a + 1) + format_ext_length + 1);
 for j:=1 to n do append_to_name(xord[TEX_format_default[j]]);
 @z
 
