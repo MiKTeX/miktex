@@ -1248,7 +1248,7 @@ DviPage* DviImpl::GetPage(int pageIdx)
         && (!garbageCollectorThread.joinable() || this_thread::get_id() != garbageCollectorThread.get_id())
         && currentPageIdx != pageIdx)
       {
-        trace_dvifile->WriteLine("libdvi", fmt::format(T_("getting page #{0}"), static_cast<int>(pageIdx)));
+        trace_dvifile->WriteLine("libdvi", fmt::format(T_("getting page #{0}"), pageIdx));
         if (pageIdx < currentPageIdx)
         {
           direction = -1;
@@ -1606,7 +1606,7 @@ void DviImpl::GarbageCollector()
         {
           MIKTEX_FATAL_WINDOWS_ERROR("SetThreadPriority");
         }
-        trace_gc->WriteLine("libdvi", fmt::format(T_("gc priority: {0}"), static_cast<int>(priority)));
+        trace_gc->WriteLine("libdvi", fmt::format(T_("gc priority: {0}"), priority));
       }
       if (biggestPageIdx < 0)
       {
