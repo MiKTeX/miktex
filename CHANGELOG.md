@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.7420 - 2020-05-13
+## 2.9.7420 - 2020-05-17
 
 ### Breaking changes
 
