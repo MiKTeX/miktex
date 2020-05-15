@@ -271,6 +271,29 @@ public:
   }
 
 public:
+  template<class T> bool OpenBibFile(T& f) const
+  {
+    const char* fileName = GetInputOutput()->nameoffile();
+    MIKTEX_ASSERT_STRING(fileName);
+    MiKTeX::Core::PathName bibFileName(fileName);
+    if (!bibFileName.HasExtension())
+    {
+      bibFileName.SetExtension(".bib");
+    }
+    MiKTeX::Core::PathName path;
+    if (!session->FindFile(bibFileName.ToString(), MiKTeX::Core::FileType::BIB, path))
+    {
+      return false;
+    }
+    FILE* file = session->OpenFile(path, MiKTeX::Core::FileMode::Open, MiKTeX::Core::FileAccess::Read, true);
+    f.Attach(file, true);
+#ifdef PASCAL_TEXT_IO
+    get(f);
+#endif
+    return true;
+  }
+
+public:
   template<class T> bool OpenBstFile(T& f) const
   {
     const char* fileName = GetInputOutput()->nameoffile();
@@ -314,6 +337,11 @@ template<class T> inline void miktexbibtexrealloc(const char* varName, T*& p, si
 template<class T> inline void miktexbibtexfree(T*& p)
 {
   BIBTEXAPP.Free(p);
+}
+
+template<class T> inline bool miktexopenbibfile(T& f)
+{
+  return BIBTEXAPP.OpenBibFile(f);
 }
 
 template<class T> inline bool miktexopenbstfile(T& f)

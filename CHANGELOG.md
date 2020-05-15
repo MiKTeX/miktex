@@ -83,6 +83,7 @@ howto](https://miktex.org/howto/install-miktex-unx) for more info.
 * [521](https://github.com/MiKTeX/miktex/issues/521): Cannot install on Fedora 32
 * [528](https://github.com/MiKTeX/miktex/issues/528): Ubuntu 20.04 Repositories
 * [532](https://github.com/MiKTeX/miktex/issues/532): Calling external commands with quotes in path via shell on Windows
+* [541](https://github.com/MiKTeX/miktex/issues/541): Change BibTeX "I couldn't open database file" message to include double extension
 
 ## 2.9.7400 - 2020-04-26
 

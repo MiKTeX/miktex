@@ -935,6 +935,7 @@ end;
 @z
 
 @x
+add_extension (s_bib_extension);
 if (not a_open_in(cur_bib_file)) then
     begin
     add_area (s_bib_area);
@@ -942,7 +943,7 @@ if (not a_open_in(cur_bib_file)) then
         open_bibdata_aux_err ('I couldn''t open database file ');
     end;
 @y
-if (not a_open_in(cur_bib_file)) then
+if (not miktex_open_bib_file(cur_bib_file)) then
     open_bibdata_aux_err ('I couldn''t open database file ');
 @z
 
