@@ -8,6 +8,20 @@
 
 Omega 1.15 is obsolete and has now been removed from the distribution.
 
+#### Windows 8.3 file names
+
+In the past, it was possible to specify Windows 8.3 file names (aka
+short file names) when invoking a TeX engine. As of 2.9.7440, this is
+not supported anymore.
+
+Impact: The following use case is broken:
+
+```
+pdflatex abraka~1.tex
+```
+
+where `abraka~1.tex` is the 8.3 variant of the long file name `abrakadabra.tex`.
+
 #### Package database signing
 
 In the past, package database signing was optional. As of MiKTeX
