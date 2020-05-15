@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.7420 - 2020-05-17
+## 2.9.7440 - 2020-05-17
 
 ### Breaking changes
 
@@ -11,7 +11,7 @@ Omega 1.15 is obsolete and has now been removed from the distribution.
 #### Package database signing
 
 In the past, package database signing was optional. As of MiKTeX
-2.9.7420, it is required that MiKTeX package database files are
+2.9.7440, it is required that MiKTeX package database files are
 provided with a valid signature.
 
 Reason: In order to support custom remote package repositories (see
@@ -25,7 +25,7 @@ Impact: Users will receive an error message if they visit an outdated
 
 ### Unrestricted shell escape commands and elevated privileges
 
-As of MiKTeX 2.9.7420, it is possible to prevent the execution of
+As of MiKTeX 2.9.7440, it is possible to prevent the execution of
 unrestricted shell escape commands when a program is running with
 elevated privileges:
 
