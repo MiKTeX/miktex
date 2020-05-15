@@ -39,7 +39,7 @@ matrix:
       script: ./build/ci/travis/docker/script.sh
       after_failure: ./build/ci/travis/docker/after_failure.sh
     - os: osx
-      osx_image: xcode11.4
+      osx_image: xcode11.5
       before_script: ./build/ci/travis/osx/before_script.sh
       script: ./build/ci/travis/osx/script.sh
       after_failure: ./build/ci/travis/osx/after_failure.sh
