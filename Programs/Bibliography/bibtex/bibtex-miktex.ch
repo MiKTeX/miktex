@@ -943,7 +943,7 @@ if (not a_open_in(cur_bib_file)) then
         open_bibdata_aux_err ('I couldn''t open database file ');
     end;
 @y
-if (not miktex_open_bib_file(cur_bib_file)) then
+if (not a_open_in(cur_bib_file)) then
     open_bibdata_aux_err ('I couldn''t open database file ');
 @z
 
@@ -953,6 +953,7 @@ if (not miktex_open_bib_file(cur_bib_file)) then
 % _____________________________________________________________________________
 
 @x
+add_extension (s_bst_extension);
 if (not a_open_in(bst_file)) then
     begin
     add_area (s_bst_area);
