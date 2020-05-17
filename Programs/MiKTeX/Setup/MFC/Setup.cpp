@@ -751,7 +751,7 @@ void SetupGlobalVars(const SetupCommandLineInfo& cmdinfo)
   if (options.RemotePackageRepository.empty())
   {
     string str;
-    if (SetupApp::Instance->packageManager->TryGetRemotePackageRepository(str))
+    if (SetupApp::Instance->packageManager->TryGetRemotePackageRepository(str) && !str.empty())
     {
       options.RemotePackageRepository = str;
     }
