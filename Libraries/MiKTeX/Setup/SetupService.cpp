@@ -727,7 +727,7 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
   }
   if ((options.RemotePackageRepository.empty() && options.Task == SetupTask::Download) || options.Task == SetupTask::InstallFromRemoteRepository)
   {
-    if (!packageManager->TryGetRemotePackageRepository(options.RemotePackageRepository) && allowRemoteCalls)
+    if ((!packageManager->TryGetRemotePackageRepository(options.RemotePackageRepository) || options.RemotePackageRepository.empty()) && allowRemoteCalls)
     {
       options.RemotePackageRepository = packageManager->PickRepositoryUrl();
     }
