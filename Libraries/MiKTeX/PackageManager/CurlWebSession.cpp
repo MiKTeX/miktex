@@ -208,6 +208,11 @@ void CurlWebSession::Initialize()
       userPassword += proxySettings.password;
       SetOption(CURLOPT_PROXYUSERPWD, userPassword.c_str());
     }
+    else
+    {
+        SetOption(CURLOPT_PROXYUSERNAME, "");
+        SetOption(CURLOPT_PROXYPASSWORD, "");
+    }
   }
 }
 
