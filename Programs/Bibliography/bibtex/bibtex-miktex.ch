@@ -1066,6 +1066,7 @@ while (name_ptr <= file_name_size) do   {pad with blanks}
 if (not a_open_in(cur_aux_file)) then
 @y
 name_of_file[name_ptr] := chr(0);
+if (not a_open_in(cur_aux_file)) then
 @z
 
 @x
