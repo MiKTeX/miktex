@@ -100,7 +100,7 @@ public:
 public:
   bool isMETAFONTProgram;
 public:
-  bool verbose;
+  bool verbose = true;
 };
 
 WebApp::WebApp() :
