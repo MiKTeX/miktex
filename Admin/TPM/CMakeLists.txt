@@ -127,11 +127,6 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-zlib-bin.tpm.in
     windows-x86/miktex-zzip-bin.tpm.in
   )
-  if(WITH_OMEGA)
-    list(APPEND target_system_tpms
-      windows-x86/miktex-omega-bin.tpm.in
-    )
-  endif()
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms
       windows-x86/miktex-context-bin.tpm.in
@@ -225,11 +220,6 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-zlib-bin-x64.tpm.in
     windows-x64/miktex-zzip-bin-x64.tpm.in
   )
-  if(WITH_OMEGA)
-    list(APPEND target_system_tpms
-      windows-x64/miktex-omega-bin-x64.tpm.in
-    )
-  endif()
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms
       windows-x64/miktex-context-bin-x64.tpm.in

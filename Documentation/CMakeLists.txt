@@ -193,12 +193,6 @@ set(manual_listings
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/texmfapp.defaults
 )
 
-if(WITH_OMEGA)
-  list(APPEND manual_listings
-    ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/omega.defaults
-  )
-endif()
-
 add_custom_command(
   OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/filetypes

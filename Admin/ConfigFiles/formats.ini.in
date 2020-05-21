@@ -96,13 +96,6 @@
 	input = jadetex.ini
 	preloaded = latex
 
-[lambda]
-
-	attributes = exclude
-	compiler = omega
-	description = Lambda
-	input = lambda.ini
-
 [latex-dev]
 
 	arguments = -tcx=cp227.tcx
@@ -183,13 +176,6 @@
 	compiler = pdftex
 	description = MPtoPDF
 	input = mptopdf.tex
-
-[omega]
-
-	attributes = exclude
-	compiler = omega
-	description = Omega
-	input = omega.ini
 
 [pdfetex]
 

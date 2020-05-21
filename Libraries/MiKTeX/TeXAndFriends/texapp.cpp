@@ -191,16 +191,6 @@ void TeXApp::AddOptions()
       "N");
   }
 
-#if WITH_OMEGA
-  if (AmI("omega"))
-  {
-    AddOption(T_("trie-op-size\0Set trie_op_size to N."),
-      FIRST_OPTION_VAL + pimpl->optBase + OPT_TRIE_OP_SIZE,
-      POPT_ARG_STRING,
-      "N");
-  }
-#endif
-
 #if EXPERT_SRC_SPECIALS
   AddOption((T_("src-specials\0Insert source specials in certain places of the DVI file.  WHERE is a comma-separated value list of: cr display hbox math par parend vbox.")),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_SRC_SPECIALS,

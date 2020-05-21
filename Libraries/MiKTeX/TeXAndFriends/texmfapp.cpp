@@ -137,9 +137,6 @@ void TeXMFApp::Init(vector<char*>& args)
   pimpl->interactionMode = -1;
   pimpl->isInitProgram = false;
   pimpl->isUnicodeApp = AmI("xetex");
-#if defined(WITH_OMEGA)
-  pimpl->isUnicodeApp = pimpl->isUnicodeApp || AmI("omega");
-#endif
   pimpl->parseFirstLine = false;
   pimpl->recordFileNames = false;
   pimpl->setJobTime = false;
@@ -439,12 +436,6 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
     {
       pimpl->jobName = optArg;
     }
-#if defined(WITH_OMEGA)
-    else if (AmI("omega"))
-    {
-      pimpl->jobName = MangleNameOfFile(optArg.c_str()).GetData();
-    }
-#endif
     else
     {
       pimpl->jobName = Q_(optArg);
@@ -858,13 +849,6 @@ void TeXMFApp::InitializeBuffer() const
     }
     if (fileNameArgIdx >= 0)
     {
-#if defined(WITH_OMEGA)
-      if (AmI("omega"))
-      {
-        fileName = WebAppInputLine::MangleNameOfFile(c4pargv[fileNameArgIdx]);
-      }
-      else
-#endif
 #if defined(MIKTEX_WINDOWS)
         fileName = Q_(path.ToUnix());
 #else
@@ -877,9 +861,6 @@ void TeXMFApp::InitializeBuffer() const
   C4P_signed32& last = inout->last();
   last = 1;
   char32_t* buffer32 = AmI("xetex") ? inout->buffer32() : nullptr;
-#if defined(WITH_OMEGA)
-  char16_t* buffer16 = AmI("omega") ? inout->buffer16() : nullptr;
-#endif
   char*buffer = !IsUnicodeApp() ? inout->buffer() : nullptr;
   for (int idx = 1; idx < c4pargc; ++idx)
   {
@@ -889,12 +870,6 @@ void TeXMFApp::InitializeBuffer() const
       {
         buffer32[last++] = U' ';
       }
-#if defined(WITH_OMEGA)
-      else if (AmI("omega"))
-      {
-        buffer16[last++] = u' ';
-      }
-#endif
       else
       {
         buffer[last++] = ' ';
@@ -916,15 +891,6 @@ void TeXMFApp::InitializeBuffer() const
         buffer32[last++] = ch;
       }
     }
-#if defined(WITH_OMEGA)
-    else if (AmI("omega"))
-    {
-      for (const char16_t& ch : StringUtil::UTF8ToUTF16(lpszOptArg))
-      {
-        buffer16[last++] = ch;
-      }
-    }
-#endif
     else
     {
       for (const char* lpsz = lpszOptArg; *lpsz != 0; ++lpsz)

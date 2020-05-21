@@ -107,17 +107,6 @@ public:
   }
 
 public:
-  char16_t* buffer16() override
-  {
-#if defined(MIKTEX_OMEGA)
-    MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(char16_t));
-    return (char16_t*)program.buffer;
-#else
-    MIKTEX_UNEXPECTED();
-#endif
-  }
-
-public:
   char32_t* buffer32() override
   {
 #if defined(MIKTEX_XETEX)

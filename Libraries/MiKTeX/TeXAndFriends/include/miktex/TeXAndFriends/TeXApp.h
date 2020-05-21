@@ -251,11 +251,7 @@ template<class FileType> inline bool miktexopendvifile(FileType& f)
   bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), false, outPath);
   if (done)
   {
-#if defined(MIKTEX_OMEGA)
-    TeXApp::GetTeXApp()->SetNameOfFile(TeXApp::GetTeXApp()->MangleNameOfFile(outPath.GetData()));
-#else
     TeXApp::GetTeXApp()->SetNameOfFile(outPath);
-#endif
   }
   return done;
 }
@@ -266,11 +262,7 @@ template<class FileType> inline bool miktexopenpdffile(FileType& f)
   bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), false, outPath);
   if (done)
   {
-#if defined(MIKTEX_OMEGA)
-    TeXApp::GetTeXApp()->SetNameOfFile(TeXApp::GetTeXApp()->MangleNameOfFile(outPath.GetData()));
-#else
     TeXApp::GetTeXApp()->SetNameOfFile(outPath);
-#endif
   }
   return done;
 }

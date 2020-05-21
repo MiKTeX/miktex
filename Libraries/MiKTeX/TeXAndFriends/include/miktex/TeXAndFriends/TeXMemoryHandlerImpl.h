@@ -56,15 +56,9 @@ public:
     this->program.maxinopen = this->GetCheckedParameter("max_in_open", this->program.infmaxinopen, this->program.supmaxinopen, userParams, texapp::texapp::max_in_open());
     this->program.nestsize = this->GetCheckedParameter("nest_size", this->program.infnestsize, this->program.supnestsize, userParams, texapp::texapp::nest_size());
     this->program.savesize = this->GetCheckedParameter("save_size", this->program.infsavesize, this->program.supsavesize, userParams, texapp::texapp::save_size());
-#if defined(WITH_OMEGA) && defined(MIKTEX_OMEGA)
-    this->program.triesize = this->GetParameter("trie_size", userParams, texapp::texapp::trie_size());
-#else
     this->program.triesize = this->GetCheckedParameter("trie_size", this->program.inftriesize, this->program.suptriesize, userParams, texapp::texapp::trie_size());
-#endif
 
-#if !(defined(WITH_OMEGA) && defined(MIKTEX_OMEGA))
     this->program.hashextra = this->GetParameter("hash_extra", userParams, texapp::texapp::hash_extra());
-#endif
 
     this->AllocateArray("sourcefilenamestack", this->program.sourcefilenamestack, this->program.maxinopen);
     this->AllocateArray("linestack", this->program.linestack, this->program.maxinopen);
@@ -78,7 +72,6 @@ public:
     this->AllocateArray("trier", this->program.trier, this->program.triesize + 1);
     this->AllocateArray("trietaken", this->program.trietaken, this->program.triesize);
 
-#if !(defined(WITH_OMEGA) && defined(MIKTEX_OMEGA))
     this->program.hyphsize = this->GetCheckedParameter("hyph_size", this->program.infhyphsize, this->program.suphyphsize, userParams, texapp::texapp::hyph_size());
     this->program.fontmax = this->GetParameter("font_max", userParams, texapp::texapp::font_max());
     this->program.fontmemsize = this->GetCheckedParameter("font_mem_size", this->program.inffontmemsize, this->program.supfontmemsize, userParams, texapp::texapp::font_mem_size());
@@ -124,11 +117,10 @@ public:
       this->program.zeqtb = nullptr;
     }
 
-    if (this->texmfapp.IsInitProgram() || !this->texmfapp.AmITeX() || this->texmfapp.AmI("omega"))
+    if (this->texmfapp.IsInitProgram() || !this->texmfapp.AmITeX())
     {
       this->AllocateArray("fontinfo", this->program.fontinfo, this->program.fontmemsize);
     }
-#endif
   }
 
 public:
@@ -150,7 +142,6 @@ public:
     this->FreeArray("trier", this->program.trier);
     this->FreeArray("trietaken", this->program.trietaken);
 
-#if !(defined(WITH_OMEGA) && defined(MIKTEX_OMEGA))
     this->FreeArray("hyphword", this->program.hyphword);
     this->FreeArray("hyphlist", this->program.hyphlist);
     this->FreeArray("hyphlink", this->program.hyphlink);
@@ -184,7 +175,6 @@ public:
     this->FreeArray("parambase", this->program.parambase);
     this->FreeArray("skewchar", this->program.skewchar);
     this->FreeArray("widthbase", this->program.widthbase);
-#endif
   }
 
 public:
@@ -206,7 +196,6 @@ public:
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.trier);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.trietaken);
 
-#if !(defined(WITH_OMEGA) && defined(MIKTEX_OMEGA))
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.hyphword);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.hyphlist);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.hyphlink);
@@ -240,7 +229,6 @@ public:
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.parambase);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.skewchar);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.widthbase);
-#endif
   }
 };
 

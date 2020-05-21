@@ -66,8 +66,6 @@ public:
 public:
   virtual char* buffer() = 0;
 public:
-  virtual char16_t* buffer16() = 0;
-public:
   virtual char32_t* buffer32() = 0;
 public:
   virtual C4P::C4P_signed32& maxbufstack() = 0;
@@ -195,16 +193,6 @@ protected:
 protected:
   MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetLastInputFileName() const;
 
-#if defined(WITH_OMEGA)
-public:
-  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) MangleNameOfFile(const char* fileName);
-#endif
-
-#if defined(WITH_OMEGA)
-public:
-  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) UnmangleNameOfFile(const char* fileName);
-#endif
-
 public:
   MIKTEXMFTHISAPI(void) SetInputOutput(IInputOutput* inputOutput);
 
@@ -231,11 +219,7 @@ template<class FileType> inline bool miktexopeninputfile(FileType& f)
   bool done = WebAppInputLine::GetWebAppInputLine()->OpenInputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
   if (done)
   {
-#if defined(MIKTEX_OMEGA)
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq().GetData()));
-#else
     WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq());
-#endif
   }
   return done;
 }
@@ -253,11 +237,7 @@ template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_
   bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), isTextFile_deprecated, outPath);
   if (done)
   {
-#if defined(MIKTEX_OMEGA)
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(outPath.GetData()));
-#else
     WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath);
-#endif
   }
   return done;
 }

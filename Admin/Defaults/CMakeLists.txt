@@ -29,10 +29,6 @@ set(all_defaults_cmake
   texmfapp.defaults.in
 )
 
-if(WITH_OMEGA)
-  list(APPEND all_defaults_cmake omega.defaults.in)
-endif()
-
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/include/miktex)
 
 foreach(d ${all_defaults_cmake})

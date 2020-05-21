@@ -7,7 +7,6 @@
 <!ENTITY mfdefaults SYSTEM "mf.defaults">
 <!ENTITY miktexconfigini SYSTEM "miktex-config.ini">
 <!ENTITY mpostdefaults SYSTEM "mpost.defaults">
-<!--<!ENTITY omegadefaults SYSTEM "omega.defaults">-->
 <!ENTITY pdftexdefaults SYSTEM "pdftex.defaults">
 <!ENTITY texappdefaults SYSTEM "texapp.defaults">
 <!ENTITY texmfappdefaults SYSTEM "texmfapp.defaults">
@@ -52,14 +51,6 @@ values which are described in this chapter.</para>
 <programlisting>&texappdefaults;</programlisting>
 
 </section>
-
-<!--<section id="omegadefaults">
-
-<title>&Omega;</title>
-
-<programlisting>&omegadefaults;</programlisting>
-
-</section>-->
 
 <section id="pdftexdefaults">
 

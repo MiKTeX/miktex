@@ -140,7 +140,7 @@ public:
 #endif
     program.halferrorline = GetCheckedParameter("half_error_line", program.infhalferrorline, program.suphalferrorline, userParams, texmfapp::texmfapp::half_error_line());
 #if defined(HAVE_MAIN_MEMORY)
-#  if defined(MIKTEX_METAFONT) || defined(MIKTEX_TEX) || defined(MIKTEX_PDFTEX) || defined(MIKTEX_XETEX) || defined(MIKTEX_OMEGA)
+#  if defined(MIKTEX_METAFONT) || defined(MIKTEX_TEX) || defined(MIKTEX_PDFTEX) || defined(MIKTEX_XETEX)
     const int infmainmemory = 3000;
     const int supmainmemory = 256000000;
 #  else
@@ -225,9 +225,7 @@ public:
 #endif
     }
 
-#if !defined(MIKTEX_OMEGA)
     AllocateArray("strstart", program.strstart, program.maxstrings);
-#endif
   }
 
 public:
@@ -243,9 +241,7 @@ public:
 #else
     FreeArray("mem", program.mem);
 #endif
-#if !defined(MIKTEX_OMEGA)
     FreeArray("strstart", program.strstart);
-#endif
   }
 
 public:
@@ -260,9 +256,7 @@ public:
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.paramstack);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.strpool);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trickbuf);
-#if !defined(MIKTEX_OMEGA)
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.strstart);
-#endif
   }
 
 public:

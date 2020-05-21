@@ -1555,9 +1555,6 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PREFIX "t1testpage" MIKTEX_EXE_FILE_SUFFIX, { "t1testpage" } },
   { MIKTEX_PREFIX "ttftotype42" MIKTEX_EXE_FILE_SUFFIX, { "ttftotype42" } },
 #endif
-#if defined(WITH_OMEGA)
-  { MIKTEX_OMEGA_EXE, { "omega" } },
-#endif
 #if defined(MIKTEX_WINDOWS)
   { MIKTEX_PREFIX "zip" MIKTEX_EXE_FILE_SUFFIX, {"zip"} },
 #endif

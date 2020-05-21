@@ -23,7 +23,6 @@
 #cmakedefine WITH_KPSEWHICH 1
 #cmakedefine WITH_MKTEXLSR 1
 #cmakedefine WITH_RUNGS 1
-#cmakedefine WITH_OMEGA 1
 #cmakedefine WITH_TEXDOC 1
 #cmakedefine WITH_TEXHASH 1
 #cmakedefine WITH_TEXLINKS 1

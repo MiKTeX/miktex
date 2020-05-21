@@ -500,12 +500,6 @@ option(
 )
 
 option(
-  WITH_OMEGA
-  "Build Omega 1.15."
-  FALSE
-)
-
-option(
   WITH_TPMS
   "Build package manifest files."
   ${WIN32}
@@ -2061,10 +2055,6 @@ endif()
 
 if(WITH_TPMS)
   add_subdirectory(${MIKTEX_REL_TPM_DIR})
-endif()
-
-if(WITH_OMEGA)
-  add_subdirectory(${MIKTEX_REL_OMEGA_DIR})
 endif()
 
 if(WITH_UI_QT)

@@ -159,81 +159,6 @@ bool WebAppInputLine::ProcessOption(int opt, const string& optArg)
   return WebApp::ProcessOption(opt, optArg);
 }
 
-#if defined(WITH_OMEGA)
-PathName WebAppInputLine::MangleNameOfFile(const char* lpszFrom)
-{
-  PathName ret;
-  char* lpszTo = ret.GetData();
-  MIKTEX_ASSERT_STRING(lpszFrom);
-  size_t len = StrLen(lpszFrom);
-  if (len >= ret.GetCapacity())
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  size_t idx;
-  for (idx = 0; idx < len; ++idx)
-  {
-    if (lpszFrom[idx] == ' ')
-    {
-      lpszTo[idx] = '*';
-    }
-    else if (lpszFrom[idx] == '~')
-    {
-      lpszTo[idx] = '?';
-    }
-    else if (lpszFrom[idx] == '\\')
-    {
-      lpszTo[idx] = '/';
-    }
-    else
-    {
-      lpszTo[idx] = lpszFrom[idx];
-    }
-  }
-  lpszTo[idx] = 0;
-  return ret;
-}
-#endif
-
-#if defined(WITH_OMEGA)
-template<typename CharType> static PathName UnmangleNameOfFile_(const CharType* lpszFrom)
-{
-  PathName ret;
-  char* lpszTo = ret.GetData();
-  MIKTEX_ASSERT_STRING(lpszFrom);
-  size_t len = StrLen(lpszFrom);
-  if (len >= ret.GetCapacity())
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  size_t idx;
-  for (idx = 0; idx < len; ++idx)
-  {
-    if (lpszFrom[idx] == '*')
-    {
-      lpszTo[idx] = ' ';
-    }
-    else if (lpszFrom[idx] == '?')
-    {
-      lpszTo[idx] = '~';
-    }
-    else
-    {
-      lpszTo[idx] = lpszFrom[idx];
-    }
-  }
-  lpszTo[idx] = 0;
-  return ret;
-}
-#endif
-
-#if defined(WITH_OMEGA)
-PathName WebAppInputLine::UnmangleNameOfFile(const char* lpszFrom)
-{
-  return UnmangleNameOfFile_(lpszFrom);
-}
-#endif
-
 static bool IsOutputFile(const PathName& path)
 {
   PathName path_(path);
@@ -353,14 +278,6 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
   }
   else
   {
-#if defined(WITH_OMEGA)
-    PathName unmangled;
-    if (AmI("omega"))
-    {
-      unmangled = UnmangleNameOfFile(lpszPath);
-      lpszPath = unmangled.GetData();
-    }
-#endif
     bool isAuxFile = !IsOutputFile(PathName(lpszPath));
     PathName path;
     if (isAuxFile && !pimpl->auxDirectory.Empty())
@@ -451,15 +368,6 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
   }
   else
   {
-#if defined(WITH_OMEGA)
-    PathName unmangled;
-    if (AmI("omega"))
-    {
-      unmangled = UnmangleNameOfFile(lpszFileName);
-      lpszFileName = unmangled.GetData();
-    }
-#endif
-
     if (!session->FindFile(lpszFileName, GetInputFileType(), pimpl->foundFile))
     {
       return false;
@@ -718,26 +626,9 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
   C4P_signed32& last = inputOutput->last();
   C4P_signed32 bufsize = inputOutput->bufsize();
 
-  const char* xord = nullptr;
-#if defined(WITH_OMEGA)
-  if (!AmI("omega"))
-#endif
-  {
-    xord = GetCharacterConverter()->xord();
-  }
+  const char* xord = GetCharacterConverter()->xord();
 
-  char *buffer = nullptr;
-#if defined(WITH_OMEGA)
-  char16_t* buffer16 = nullptr;
-  if (AmI("omega"))
-  {
-    buffer16 = inputOutput->buffer16();
-  }
-  else
-#endif
-  {
-    buffer = inputOutput->buffer();
-  }
+  char *buffer = inputOutput->buffer();
 
   last = first;
 
@@ -770,16 +661,7 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     return true;
   }
 
-#if defined(WITH_OMEGA)
-  if (AmI("omega"))
-  {
-    buffer16[last] = ch;
-  }
-  else
-#endif
-  {
-    buffer[last] = xord[ch & 0xff];
-  }
+  buffer[last] = xord[ch & 0xff];
   last += 1;
 
   while ((ch = GetCharacter(f)) != EOF)
@@ -788,9 +670,6 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     {
       BufferSizeExceeded();
       bufsize = inputOutput->bufsize();
-#if defined(WITH_OMEGA)
-      if (!AmI("omega"))
-#endif
       buffer = inputOutput->buffer();
     }
     if (ch == '\r')
@@ -810,16 +689,7 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     {
       break;
     }
-#if defined(WITH_OMEGA)
-    if (AmI("omega"))
-    {
-      buffer16[last] = ch;
-    }
-    else
-#endif
-    {
-      buffer[last] = xord[ch & 0xff];
-    }
+    buffer[last] = xord[ch & 0xff];
     last += 1;
   }
 
@@ -833,21 +703,9 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     }
   }
 
-#if defined(WITH_OMEGA)
-  if (AmI("omega"))
+  while (last > first && (buffer[last - 1] == ' ' || buffer[last - 1] == '\r'))
   {
-    while (last > first && (buffer16[last - 1] == u' ' || buffer16[last - 1] == u'\r'))
-    {
-      last -= 1;
-    }
-  }
-  else
-#endif
-  {
-    while (last > first && (buffer[last - 1] == ' ' || buffer[last - 1] == '\r'))
-    {
-      last -= 1;
-    }
+    last -= 1;
   }
 
   return true;
