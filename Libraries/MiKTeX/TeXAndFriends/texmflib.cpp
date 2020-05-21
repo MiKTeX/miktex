@@ -22,10 +22,30 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/StreamReader>
 
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMFEXPORT
+#endif
+#define B8C7815676699B4EA2DE96F0BD727276
+#include "miktex/TeXAndFriends/TeXMFApp.h"
+
 #include "internal.h"
 
+using namespace std;
+
+using namespace MiKTeX::Core;
+
 typedef C4P_FILE_STRUCT(unsigned char) bytefile;
-typedef C4P_text alphafile;
+typedef C4P::C4P_text alphafile;
 
 STATICFUNC(bool) OpenFontFile(bytefile* file, const string& fontName, FileType filetype, const char* generator)
 {

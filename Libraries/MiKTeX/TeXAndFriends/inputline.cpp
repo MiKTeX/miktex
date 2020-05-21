@@ -23,8 +23,31 @@
 #include <fmt/ostream.h>
 
 #include <miktex/Core/ConfigNames>
+#include <miktex/Core/CommandLineBuilder>
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMFEXPORT
+#endif
+#define B8C7815676699B4EA2DE96F0BD727276
+#include "miktex/TeXAndFriends/WebAppInputLine.h"
 
 #include "internal.h"
+
+using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
+using namespace MiKTeX::TeXAndFriends;
 
 struct Bom
 {
@@ -607,7 +630,7 @@ inline int GetCharacter(FILE* file)
   return ch;
 }
 
-bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
+bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const
 {
   f.AssertValid();
 
@@ -622,9 +645,9 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
 
   IInputOutput* inputOutput = GetInputOutput();
 
-  const C4P_signed32 first = inputOutput->first();
-  C4P_signed32& last = inputOutput->last();
-  C4P_signed32 bufsize = inputOutput->bufsize();
+  const C4P::C4P_signed32 first = inputOutput->first();
+  C4P::C4P_signed32& last = inputOutput->last();
+  C4P::C4P_signed32 bufsize = inputOutput->bufsize();
 
   const char* xord = GetCharacterConverter()->xord();
 

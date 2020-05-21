@@ -22,6 +22,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Paths>
@@ -29,9 +30,33 @@
 
 #include <miktex/Trace/Trace>
 
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMFEXPORT
+#endif
+#define B8C7815676699B4EA2DE96F0BD727276
+#include "miktex/TeXAndFriends/TeXMFApp.h"
+
 #include "internal.h"
 
 #include "miktex/texmfapp.defaults.h"
+
+using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::TeXAndFriends;
+using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
+using namespace MiKTeX::Wrappers;
 
 class TeXMFApp::impl
 {
@@ -461,7 +486,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
       File::GetTimes(PathName(optArg), creationTime, lastAccessTime, lastWriteTime);
       jobTime = lastWriteTime;
     }
-    SetStartUpTime(jobTime, false);
+    C4P::SetStartUpTime(jobTime, false);
     pimpl->setJobTime = true;
   }
   break;
@@ -589,8 +614,8 @@ bool inParseFirstLine = false;
 
 void TeXMFApp::CheckFirstLine(const PathName& fileName)
 {
-  AutoRestore<bool> autoRestoreInParseFirstLine(inParseFirstLine);
   inParseFirstLine = true;
+  MIKTEX_AUTO(inParseFirstLine = false);
 
   PathName path;
 
@@ -735,13 +760,13 @@ void TeXMFApp::ProcessCommandLineOptions()
   }
 
   if (pimpl->parseFirstLine
-    && GetArgC() > 1
-    && GetArgV()[1][0] != '&'
-    && GetArgV()[1][0] != '*' // <fixme/>
-    && GetArgV()[1][0] != '\\'
+    && C4P::GetArgC() > 1
+    && C4P::GetArgV()[1][0] != '&'
+    && C4P::GetArgV()[1][0] != '*' // <fixme/>
+    && C4P::GetArgV()[1][0] != '\\'
     && (pimpl->memoryDumpFileName.empty() || GetTcxFileName().Empty()))
   {
-    CheckFirstLine(PathName(GetArgV()[1]));
+    CheckFirstLine(PathName(C4P::GetArgV()[1]));
   }
 }
 
@@ -858,7 +883,7 @@ void TeXMFApp::InitializeBuffer() const
   }
 
   //MIKTEX_ASSERT(inout->first() == 1);
-  C4P_signed32& last = inout->last();
+  C4P::C4P_signed32& last = inout->last();
   last = 1;
   char32_t* buffer32 = AmI("xetex") ? inout->buffer32() : nullptr;
   char*buffer = !IsUnicodeApp() ? inout->buffer() : nullptr;
@@ -901,7 +926,7 @@ void TeXMFApp::InitializeBuffer() const
   }
 
   // clear the command-line
-  MakeCommandLine(vector<string>());
+  C4P::MakeCommandLine(vector<string>());
 }
 
 void TeXMFApp::TouchJobOutputFile(FILE* file) const
@@ -910,7 +935,7 @@ void TeXMFApp::TouchJobOutputFile(FILE* file) const
   shared_ptr<Session> session = GetSession();
   if (pimpl->setJobTime && session->IsOutputFile(file))
   {
-    time_t time = GetStartUpTime();
+    time_t time = C4P::GetStartUpTime();
     File::SetTimes(file, time, time, time);
   }
 }
@@ -1012,7 +1037,7 @@ int TeXMFApp::MakeTeXString(const char* lpsz) const
     CheckPoolPointer(stringHandler->poolptr(), len);
     memcpy(stringHandler->strpool() + stringHandler->poolptr(), lpsz, len * sizeof(char));
   }
-  stringHandler->poolptr() += static_cast<C4P_signed32>(len);
+  stringHandler->poolptr() += static_cast<C4P::C4P_signed32>(len);
   return stringHandler->makestring();
 }
 

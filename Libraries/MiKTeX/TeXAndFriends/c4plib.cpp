@@ -1,6 +1,6 @@
 /* c4plib.cpp: C4P runtime routines
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -19,7 +19,19 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
 #include "internal.h"
+
+using namespace std;
+
+using namespace MiKTeX::Core;
 
 #define C4P_BEGIN_NAMESPACE namespace C4P {
 #define C4P_END_NAMESPACE }
@@ -36,6 +48,16 @@ C4PCEEAPI(void) DiscardLine(C4P_text& textfile)
     ;
   }
   MIKTEX_API_END("DiscardLine");
+}
+
+inline int GetC(FILE* stream)
+{
+  int ch = getc(stream);
+  if (ch == EOF && ferror(stream) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("getc");
+  }
+  return ch;
 }
 
 C4PCEEAPI(char) GetChar(C4P_text& textfile)
