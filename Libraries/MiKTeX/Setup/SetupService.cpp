@@ -1825,7 +1825,8 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   {
     auto p = Utils::CheckPath();
     s << "Date: " << fmt::format("{:%F %T}", *localtime(&now)) << "\n"
-      << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n";
+      << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
+      << "Configuration: " << (session->IsMiKTeXPortable() ? "Portable" : "Regular") << "\n";
     if (Utils::HaveGetGitInfo())
     {
       s << "GitInfo: " << Utils::GetGitInfo() << "\n";
