@@ -1455,6 +1455,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_OUTOCP_EXE, { "outocp" } },
   { MIKTEX_OVF2OVP_EXE, { "ovf2ovp" } },
   { MIKTEX_OVP2OVF_EXE, { "ovp2ovf" } },
+  { MIKTEX_PREFIX "patgen", { "patgen"} },
   { MIKTEX_PDFTEX_EXE, { "pdftex", MIKTEX_LATEX_EXE, MIKTEX_PDFLATEX_EXE } },
   { MIKTEX_PDFTOSRC_EXE, { "pdftosrc" } },
   { MIKTEX_PK2BM_EXE, { "pk2bm" } },
