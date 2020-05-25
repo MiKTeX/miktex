@@ -100,6 +100,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-mthelp-bin.tpm.in
     windows-x86/miktex-mtprint-bin.tpm.in
     windows-x86/miktex-omegaware-bin.tpm.in
+    windows-x86/miktex-patgen-bin.tpm.in
     windows-x86/miktex-pdftex-bin.tpm.in
     windows-x86/miktex-pixman-bin.tpm.in
     windows-x86/miktex-pmx-bin.tpm.in
@@ -193,6 +194,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-mthelp-bin-x64.tpm.in
     windows-x64/miktex-mtprint-bin-x64.tpm.in
     windows-x64/miktex-omegaware-bin-x64.tpm.in
+    windows-x64/miktex-patgen-bin-x64.tpm.in
     windows-x64/miktex-pdftex-bin-x64.tpm.in
     windows-x64/miktex-pixman-bin-x64.tpm.in
     windows-x64/miktex-pmx-bin-x64.tpm.in

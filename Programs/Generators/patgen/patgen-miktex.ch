@@ -39,6 +39,35 @@
 @d jump_out==c4p_throw(end_of_PATGEN) {terminates \.{PATGEN}}
 @z
 
+@x
+@d error(#)==begin print_ln(#); jump_out; end
+@y
+@d error(#)==begin write_ln(c4p_error_output, #); jump_out; end
+@z
+
+% _____________________________________________________________________________
+%
+% [3.27]
+% _____________________________________________________________________________
+
+@x
+@!trie_size=55000; {space for pattern trie}
+@!triec_size=26000; {space for pattern count trie, must be less than
+ |trie_size| and greater than the number of occurrences of any pattern in
+ the dictionary}
+@y
+@!trie_size=10000000; {space for pattern trie}
+@!triec_size=5000000; {space for pattern count trie, must be less than
+ |trie_size| and greater than the number of occurrences of any pattern in
+ the dictionary}
+@z
+
+@x
+@!max_buf_len=80; {maximum length of input lines, must be at least |max_len|}
+@y
+@!max_buf_len=3000; {maximum length of input lines, must be at least |max_len|}
+@z
+
 % _____________________________________________________________________________
 %
 % [6.51] Input and output
@@ -46,8 +75,44 @@
 
 @x
 @d close_out(#)==close(#) {close an output file}
+@d close_in(#)==do_nothing {close an input file}
 @y
 @d close_out(#)==c4p_fclose(#) {close an output file}
+@d close_in(#)==c4p_fclose(#) {close an input file}
+@z
+
+ _____________________________________________________________________________
+%
+% [6.54]
+% _____________________________________________________________________________
+
+@x
+reset(translate);
+@y
+c4p_fopen(translate, c4p_argv[4], c4p_r_mode, true);
+@z
+
+% _____________________________________________________________________________
+%
+% [7.67]
+% _____________________________________________________________________________
+
+@x
+@p procedure collect_count_trie;
+@y
+@p procedure collect_count_trie;
+var miktex_r: real;
+@z
+
+@x
+  if good_pat_count>0 then
+  print_ln(', efficiency = ',
+    good_count/(good_pat_count+bad_count/bad_eff):1:2)
+@y
+  if good_pat_count>0 then begin
+    miktex_r := good_count / (good_pat_count + bad_count / bad_eff);
+    print_ln(', efficiency = ', miktex_r:1:2)
+  end
 @z
 
 % _____________________________________________________________________________
@@ -67,6 +132,12 @@
 % _____________________________________________________________________________
 
 @x
+  reset(dictionary);@/
+@y
+  c4p_fopen(dictionary, c4p_argv[1], c4p_w_mode, true);
+@z
+
+@x
     begin filnam:='pattmp. ';
 @y
     begin c4p_strcpy(filnam, 9, 'pattmp. ');
@@ -80,6 +151,17 @@
 
 % _____________________________________________________________________________
 %
+% [9.90] Reading patterns
+% _____________________________________________________________________________
+
+@x
+reset(patterns);
+@y
+c4p_fopen(patterns, c4p_argv[2], c4p_r_mode, true);
+@z
+
+% _____________________________________________________________________________
+%
 % [10.94] The main program
 % _____________________________________________________________________________
 
@@ -89,7 +171,15 @@
 @p begin
 miktex_process_command_line_options;
 c4p_begin_try_block(end_of_PATGEN);
+if (c4pargc <> 5) then
+ error('Usage: patgen dictionary patterns output translate');
 initialize;
+@z
+
+@x
+rewrite(patout);
+@y
+c4p_fopen(patout, c4p_argv[3], c4p_w_mode, true);
 @z
 
 @x

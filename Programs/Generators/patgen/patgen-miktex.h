@@ -39,7 +39,7 @@ class PATGENAPPCLASS :
 public:
   std::string GetUsage() const override
   {
-    return MIKTEXTEXT("FILE");
+    return MIKTEXTEXT("[OPTION...] DICTIONARY PATTERNS OUTPUT TRANSLATE");
   }
 
 // TODO
