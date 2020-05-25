@@ -1,6 +1,6 @@
 /* miktex/C4P/C4P.h:                                    -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -663,7 +663,7 @@ template<class T> inline bool c4ptryfopen(T& f, const char* lpszName, const char
 
 template<class T> inline void c4pfclose(T& f)
 {
-  f.close();
+  f.Close();
 }
 
 inline void c4pexit(int n)
