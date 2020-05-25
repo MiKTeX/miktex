@@ -47,6 +47,19 @@
 
 % _____________________________________________________________________________
 %
+% [2.12] The character set
+% _____________________________________________________________________________
+
+@x
+@!text_char=char; {the data type of characters in text files}
+@!ASCII_code=0..last_ASCII_code; {internal representation of input characters}
+@y
+@!ASCII_code=0..last_ASCII_code; {internal representation of input characters}
+@!text_char=ASCII_code; {the data type of characters in text files}
+@z
+
+% _____________________________________________________________________________
+%
 % [3.27]
 % _____________________________________________________________________________
 
