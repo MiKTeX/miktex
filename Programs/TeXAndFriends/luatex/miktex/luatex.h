@@ -42,6 +42,9 @@ int miktex_open_format_file(const char* fileName, FILE** ppFile, int renew);
 void miktex_set_aux_directory(const char* path);
 void miktex_show_library_versions();
 int miktex_system(const char* commandLine);
+#if defined(MIKTEX_WINDOWS)
+char* miktex_wchar_to_utf8(const wchar_t* w);
+#endif
 
 #if defined(__cplusplus)
 }

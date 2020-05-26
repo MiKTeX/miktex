@@ -391,3 +391,10 @@ void miktex_emulate__close_file_or_pipe(FILE* file)
     fclose(file);
   }
 }
+
+#if defined(MIKTEX_WINDOWS)
+char* miktex_wchar_to_utf8(const wchar_t* w)
+{
+  return xstrdup(StringUtil::WideCharToUTF8(w).c_str());
+}
+#endif
