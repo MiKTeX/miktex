@@ -51,11 +51,11 @@
 % _____________________________________________________________________________
 
 @x
-@!text_char=char; {the data type of characters in text files}
-@!ASCII_code=0..last_ASCII_code; {internal representation of input characters}
+@d first_text_char=0 {ordinal number of the smallest element of |text_char|}
+@d last_text_char=255 {ordinal number of the largest element of |text_char|}
 @y
-@!ASCII_code=0..last_ASCII_code; {internal representation of input characters}
-@!text_char=ASCII_code; {the data type of characters in text files}
+@d first_text_char=-128 {ordinal number of the smallest element of |text_char|}
+@d last_text_char=127 {ordinal number of the largest element of |text_char|}
 @z
 
 % _____________________________________________________________________________
@@ -91,7 +91,7 @@
 @d close_in(#)==do_nothing {close an input file}
 @y
 @d close_out(#)==c4p_fclose(#) {close an output file}
-@d close_in(#)==c4p_fclose(#) {close an input file}
+@d close_in(#)==do_nothing {close an input file}
 @z
 
  _____________________________________________________________________________
@@ -102,7 +102,7 @@
 @x
 reset(translate);
 @y
-c4p_fopen(translate, c4p_argv[4], c4p_r_mode, true);
+c4p_fopen(translate, c4p_argv[4], c4p_r_mode, true); reset(translate);
 @z
 
 % _____________________________________________________________________________
@@ -145,9 +145,16 @@ var miktex_r: real;
 % _____________________________________________________________________________
 
 @x
+begin  good_count:=0; bad_count:=0; miss_count:=0;
+@y
+var miktex_r1, miktex_r2, miktex_r3 : real;
+begin  good_count:=0; bad_count:=0; miss_count:=0;
+@z
+
+@x
   reset(dictionary);@/
 @y
-  c4p_fopen(dictionary, c4p_argv[1], c4p_w_mode, true);
+  c4p_fopen(dictionary, c4p_argv[1], c4p_r_mode, true); reset(dictionary);
 @z
 
 @x
@@ -159,7 +166,21 @@ var miktex_r: real;
 @x
     rewrite(pattmp,filnam);
 @y
-    c4p_fopen(pattmp, filnam, c4p_w_mode, true);
+    c4p_fopen(pattmp, filnam, c4p_w_mode, true); rewrite(pattmp);
+@z
+
+@x
+  if (good_count+miss_count)>0 then
+    print_ln((100*good_count/(good_count+miss_count)):1:2,' %, ',
+      (100*bad_count/(good_count+miss_count)):1:2,' %, ',
+      (100*miss_count/(good_count+miss_count)):1:2,' %');
+@y
+  if (good_count+miss_count)>0 then begin
+    miktex_r1 := (100*good_count/(good_count+miss_count));
+    miktex_r2 := (100*bad_count/(good_count+miss_count));
+    miktex_r3 := (100*miss_count/(good_count+miss_count));
+    print_ln(miktex_r1:1:2,' %, ', miktex_r2:1:2,' %, ', miktex_r3:1:2,' %')
+  end;
 @z
 
 % _____________________________________________________________________________
@@ -170,7 +191,7 @@ var miktex_r: real;
 @x
 reset(patterns);
 @y
-c4p_fopen(patterns, c4p_argv[2], c4p_r_mode, true);
+c4p_fopen(patterns, c4p_argv[2], c4p_r_mode, true); reset(patterns);
 @z
 
 % _____________________________________________________________________________
@@ -192,7 +213,7 @@ initialize;
 @x
 rewrite(patout);
 @y
-c4p_fopen(patout, c4p_argv[3], c4p_w_mode, true);
+c4p_fopen(patout, c4p_argv[3], c4p_w_mode, true); rewrite(patout);
 @z
 
 @x
