@@ -539,7 +539,13 @@ string Utils::GetMiKTeXVersionString()
 
 string Utils::GetMiKTeXBannerString()
 {
-  return MIKTEX_BANNER_STR;
+  string banner = MIKTEX_BANNER_STR;
+  auto session = SessionImpl::TryGetSession();
+  if (session != nullptr && session->IsMiKTeXPortable())
+  {
+    banner += " Portable";
+  }
+  return banner;
 }
 
 GitInfo Utils::GetGitInfo()
@@ -573,7 +579,13 @@ string Utils::MakeProgramVersionString(const string& programName, const VersionN
     str += ' ';
     str += programVersionNumber.ToString();
   }
-  str += " (" MIKTEX_BANNER_STR ")";
+  str += " (" MIKTEX_BANNER_STR;
+  auto session = SessionImpl::TryGetSession();
+  if (session != nullptr && session->IsMiKTeXPortable())
+  {
+    str += " Portable";
+  }
+  str += ")";
   return str;
 }
 

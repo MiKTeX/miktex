@@ -1,6 +1,6 @@
 /* miktex/C4P/C4P.h:                                    -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -135,6 +135,9 @@ public:
   {
     return file;
   }
+
+protected:
+  MiKTeX::Core::PathName path;
 };
 
 template<class T> struct BufferedFile :
@@ -171,7 +174,7 @@ protected:
 public:
   const ElementType& bufref() const
   {
-    MIKTEX_ASSERT(IsPascalFileIO());
+    MIKTEX_EXPECT(IsPascalFileIO());
     return currentElement;
   }
 
@@ -213,14 +216,14 @@ public:
     {
       if (ferror(file) != 0)
       {
-        MIKTEX_FATAL_CRT_ERROR("getc");
+        MIKTEX_FATAL_CRT_ERROR_2("getc", "path", path.ToString());
       }
       return true;
     }
 
     if (ungetc(lookAhead, file) != lookAhead)
     {
-      MIKTEX_FATAL_CRT_ERROR("ungetc");
+      MIKTEX_FATAL_CRT_ERROR_2("ungetc", "path", path.ToString());
     }
 
     return false;
@@ -233,15 +236,16 @@ protected:
     MIKTEX_ASSERT_BUFFER(buf, n);
     if (feof(*this) != 0)
     {
-      MIKTEX_FATAL_ERROR(MIKTEXTEXT("Read operation failed."));
+      MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Read operation failed: end of file reached"), "path", path.ToString(), "n", std::to_string(n));
     }
-    if (fread(buf, sizeof(ElementType), n, *this) != n)
-    {
-      MIKTEX_FATAL_ERROR(MIKTEXTEXT("Read operation failed."));
-    }
+    size_t read = fread(buf, sizeof(ElementType), n, *this);
     if (ferror(*this) != 0)
     {
-      MIKTEX_FATAL_CRT_ERROR("ferror");
+      MIKTEX_FATAL_CRT_ERROR_2("ferror", "path", path.ToString());
+    }
+    if (read != n)
+    {
+      MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Read operation failed."), "path", path.ToString(), "read", std::to_string(read), "n", std::to_string(n));
     }
   }
 
@@ -284,7 +288,7 @@ public:
     MIKTEX_ASSERT(IsPascalFileIO());
     if (fwrite(&currentElement, sizeof(ElementType), 1, *this) != 1 || ferror(*this) != 0)
     {
-      MIKTEX_FATAL_CRT_ERROR("fwrite");
+      MIKTEX_FATAL_CRT_ERROR_2("fwrite", "path", path.ToString());
     }
   }
 
@@ -294,7 +298,7 @@ public:
     AssertValid();
     if (fseek(*this, offset, origin) != 0)
     {
-      MIKTEX_FATAL_CRT_ERROR("fseek");
+      MIKTEX_FATAL_CRT_ERROR_2("fseek", "path", path.ToString(), "offset", std::to_string(offset), "origin", std::to_string(origin));
     }
     if (IsPascalFileIO() && !(origin == SEEK_END && offset == 0))
     {
@@ -663,7 +667,7 @@ template<class T> inline bool c4ptryfopen(T& f, const char* lpszName, const char
 
 template<class T> inline void c4pfclose(T& f)
 {
-  f.close();
+  f.Close();
 }
 
 inline void c4pexit(int n)

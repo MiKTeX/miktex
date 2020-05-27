@@ -488,6 +488,11 @@ void Application::Init(const Session::InitInfo& initInfoArg)
     pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
   }
   pimpl->mpmAutoAdmin = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState();
+  if (pimpl->mpmAutoAdmin == TriState::True && !pimpl->session->IsSharedSetup())
+  {
+    LogWarn(T_("ignoring AutoAdmin=t because this is not a shared setup"));
+    pimpl->mpmAutoAdmin = TriState::False;
+  }
   InstallSignalHandler(SIGINT);
   InstallSignalHandler(SIGTERM);
   if (pimpl->enableMaintenance == TriState::Undetermined)
@@ -949,8 +954,8 @@ MIKTEXNORETURN void Application::FatalError(const string& s)
   }
   Sorry(Utils::GetExeName(), s);
   throw 1;
-}
 
+}
 void Application::Warning(const string& s)
 {
   LogWarn(s);

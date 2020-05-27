@@ -1480,7 +1480,7 @@ void MainWindow::on_radioAutoInstallYes_clicked()
 {
   LOG4CXX_INFO(logger, "setting AutoInstall: yes");
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::True)));
-  ui->chkAllUsers->setEnabled(true);
+  ui->chkAllUsers->setEnabled(session->IsSharedSetup());
 }
 
 void MainWindow::on_radioAutoInstallNo_clicked()

@@ -1,6 +1,6 @@
-/* console-version.h: MiKTeX Console version            -*- C++ -*-
+/* patgen-version.h: version number
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -15,7 +15,13 @@
    You should have received a copy of the GNU General Public License
    along with this file; if not, write to the Free Software
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+   USA.  */
 
 #define MIKTEX_COMP_J2000_VERSION 7450
+
+#define MIKTEX_COMP_ORIG_VERSION_STR "2.4"
+
+#define MIKTEX_COMP_COPYRIGHT_STR ""
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 ""
+
 #include <miktex/Version>

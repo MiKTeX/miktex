@@ -163,3 +163,5 @@ if(INSTALL_MIKTEX_HEADERS)
       ${MIKTEX_HEADER_DESTINATION_DIR}/miktex/TeXAndFriends
   )
 endif()
+
+add_subdirectory(test)

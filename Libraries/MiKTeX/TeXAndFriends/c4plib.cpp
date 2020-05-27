@@ -78,20 +78,35 @@ C4PCEEAPI(C4P_integer) GetInteger(C4P_text& textfile)
 {
   MIKTEX_API_BEGIN("GetInteger");
   textfile.AssertValid();
-  int ch = GetChar(textfile);
-  int sign = (ch == '-' ? -1 : 1);
-  C4P_integer result = 0;
-  if (ch == '+' || ch == '-')
+  while (!textfile.Eof())
   {
-    ch = GetChar(textfile);
+    int ch;
+    do
+    {
+      ch = GetChar(textfile);
+    } while (!textfile.Eof() && !isdigit(ch) && ch != '-' && ch != '+');
+    int sign = (ch == '-' ? -1 : 1);
+    if ((ch == '+' || ch == '-') && !textfile.Eof())
+    {
+      ch = GetChar(textfile);
+    }
+    if (isdigit(ch))
+    {
+      C4P_integer result = 0;
+      while (isdigit(ch))
+      {
+        result *= 10;
+        result += (ch - '0');
+        if (textfile.Eof())
+        {
+          break;
+        }
+        ch = GetChar(textfile);
+      }
+      return result * sign;
+    }
   }
-  while (isdigit(ch))
-  {
-    result *= 10;
-    result += (ch - '0');
-    ch = GetChar(textfile);
-  }
-  return result * sign;
+  return 0;
   MIKTEX_API_END("GetInteger");
 }
 
@@ -105,6 +120,7 @@ C4PCEEAPI(C4P_real) GetReal(C4P_text& /*textfile*/)
 bool FileRoot::Open(const PathName& path, FileMode mode, FileAccess access, bool text, bool mustExist)
 {
   MIKTEX_API_BEGIN("FileRoot::open");
+  this->path = path;
   FILE* file;
   shared_ptr<Session> session = Session::Get();
   if (mustExist)

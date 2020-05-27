@@ -1,0 +1,14 @@
+@* Test C4P webapp.
+
+dummy
+
+@p program TestWebApp;
+procedure run;
+  var num1, num2: integer;
+  begin
+    read(num1, num2);
+    write_ln(num1, ' ', num2);
+  end;
+begin
+  run;
+end.

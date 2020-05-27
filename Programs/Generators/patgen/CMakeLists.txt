@@ -1,6 +1,6 @@
-## version.cmake:
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016-2020 Christian Schenk
+## Copyright (C) 2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,5 +17,11 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_COMP_J2000_VERSION 7450)
-set(MIKTEX_COMP_INTERFACE_VERSION 4)
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_GENERATORS_FOLDER}/PATGEN")
+
+include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+create_web_app(PATGEN)

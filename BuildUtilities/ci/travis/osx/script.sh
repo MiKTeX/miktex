@@ -20,6 +20,6 @@ make
 CTEST_OUTPUT_ON_FAILURE=1 make test
 
 if [ "$skip_tests" = "false" ]; then
-    . "${TRAVIS_BUILD_DIR}/build/ci/travis/osx/_install.sh"
-    . "${TRAVIS_BUILD_DIR}/build/ci/travis/osx/_test.sh"
+    . "${TRAVIS_BUILD_DIR}/BuildUtilities/ci/travis/osx/_install.sh"
+    . "${TRAVIS_BUILD_DIR}/BuildUtilities/ci/travis/osx/_test.sh"
 fi
