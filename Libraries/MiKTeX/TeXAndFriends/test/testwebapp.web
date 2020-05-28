@@ -6,8 +6,10 @@ dummy
 procedure run;
   var num1, num2: integer;
   begin
-    read(num1, num2);
-    write_ln(num1, ' ', num2);
+    repeat
+      read(num1, num2);
+      write_ln(num1, ' ', num2);
+    until num1 = 0 and num2 = 0;
   end;
 begin
   run;

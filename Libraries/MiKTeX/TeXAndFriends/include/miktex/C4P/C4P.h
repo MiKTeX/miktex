@@ -70,6 +70,14 @@ typedef MIKTEX_UINT64 C4P_unsigned64;
 typedef int C4P_integer;
 typedef MIKTEX_INT64 C4P_longinteger;
 
+#if defined(C4P_REAL_IS_DOUBLE)
+typedef double C4P_real;
+#else
+typedef float C4P_real;
+#endif
+
+typedef double C4P_longreal;
+
 // assert (sizeof(bool) == 1)
 typedef bool C4P_boolean;
 
@@ -309,15 +317,24 @@ public:
 
 #define C4P_FILE_STRUCT(Bt) C4P::BufferedFile<Bt>
 
-typedef C4P_FILE_STRUCT(char) C4P_text;
+struct C4P_text :
+  BufferedFile<char>
+{
+public:
+  C4PTHISAPI(bool) IsTerminal();
 
-#if defined(C4P_REAL_IS_DOUBLE)
-typedef double C4P_real;
-#else
-typedef float C4P_real;
-#endif
+public:
+  C4PTHISAPI(void) DiscardLine();
 
-typedef double C4P_longreal;
+public:
+  C4PTHISAPI(char) GetChar();
+
+public:
+  C4PTHISAPI(int) GetInteger();
+
+public:
+  C4PTHISAPI(C4P_real) GetReal();
+};
 
 C4PCEEAPI(int) GetArgC();
 
@@ -414,14 +431,6 @@ private:
 
 const C4P_integer maxint = INT_MAX;
 
-C4PCEEAPI(void) DiscardLine(C4P_text& textfile);
-
-C4PCEEAPI(char) GetChar(C4P_text& textfile);
-
-C4PCEEAPI(int) GetInteger(C4P_text& textfile);
-
-C4PCEEAPI(C4P_real) GetReal(C4P_text& textfile);
-
 #define C4P_READ_BEGIN() {
 #define C4P_READLN_BEGIN() C4P_READ_BEGIN()
 
@@ -439,28 +448,28 @@ template<class Vt, class Ft> inline void c4p_read_v(Vt& v, Ft& f)
 template<class Vt, class Ft> inline void c4p_read_c(Vt& v, Ft& f)
 {
   f.AssertValid();
-  v = GetChar(f);
+  v = f.GetChar();
 }
 
 template<class Vt, class Ft> inline void c4p_read_i(Vt& v, Ft& f)
 {
   f.AssertValid();
-  v = GetInteger(f);
+  v = f.GetInteger();
 }
 
 template<class Vt, class Ft> inline void c4p_read_r(Vt& v, Ft& f)
 {
   f.AssertValid();
-  v = GetReal(f);
+  v = f.GetReal();
 }
 
 #define C4P_READ_END(f) }
-#define C4P_READLN_END(f) C4P::DiscardLine(f); }
+#define C4P_READLN_END(f) f.DiscardLine(); }
 
 inline void c4p_readln()
 {
   input.AssertValid();
-  DiscardLine(input);
+  input.DiscardLine();
 }
 
 #define C4P_WRITE_BEGIN() {
@@ -568,7 +577,7 @@ template<class T> inline void c4pmget(T& f, typename T::ElementType* buf, std::s
 template<class T> inline char c4pgetc(T& f)
 {
   f.AssertValid();
-  return GetChar(f);
+  return f.GetChar();
 }
 
 template<class T> inline void c4pputc(T& f)

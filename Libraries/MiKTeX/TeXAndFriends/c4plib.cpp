@@ -19,6 +19,12 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#if defined(MIKTEX_WINDPWS)
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #if defined(MIKTEX_TEXMF_SHARED)
 #  define C4PEXPORT MIKTEXDLLEXPORT
 #else
@@ -38,57 +44,80 @@ using namespace MiKTeX::Core;
 
 C4P_BEGIN_NAMESPACE;
 
-C4PCEEAPI(void) DiscardLine(C4P_text& textfile)
+void C4P_text::DiscardLine()
 {
-  MIKTEX_API_BEGIN("DiscardLine");
-  textfile.AssertValid();
+  MIKTEX_API_BEGIN("C4P_text::DiscardLine");
+  AssertValid();
   // FIXME: OS X
-  while (!feof(textfile) && GetChar(textfile) != '\n')
+  while (!feof(file) && GetChar() != '\n')
   {
     ;
   }
-  MIKTEX_API_END("DiscardLine");
+  MIKTEX_API_END("C4P_text::DiscardLine");
 }
 
-inline int GetC(FILE* stream)
+inline bool C4P_text::IsTerminal()
 {
-  int ch = getc(stream);
-  if (ch == EOF && ferror(stream) != 0)
+  int fd = fileno(file);
+  if (fd < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR("getc");
+    MIKTEX_FATAL_CRT_ERROR_2("fileno", "path", path.ToString());
+  }
+#if defined(MIKTEX_WINDOWS)
+  int x = _isatty(fd);
+#else
+  int x = isatty(fd);
+#endif
+#if 0
+  if (errno != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("isatty", "path", path.ToString());
+  }
+#endif
+  return x != 0;
+}
+
+char C4P_text::GetChar()
+{
+  MIKTEX_API_BEGIN("C4P_text::GetChar");
+  AssertValid();
+  if (!IsPascalFileIO())
+  {
+    PascalFileIO(true);
+    bufref() = GetC(file);
+  }
+  char ch = bufref();
+  if (ch == '\n' && IsTerminal())
+  {
+    PascalFileIO(false);
+  }
+  else
+  {
+    int ch2 = GetC(file);
+    if (ch2 != EOF)
+    {
+      bufref() = static_cast<char>(ch2);
+    }
   }
   return ch;
+  MIKTEX_API_END("C4P_text::GetChar");
 }
 
-C4PCEEAPI(char) GetChar(C4P_text& textfile)
+C4P_integer C4P_text::GetInteger()
 {
-  MIKTEX_API_BEGIN("GetChar");
-  textfile.AssertValid();
-  char ch = *textfile;
-  int ch2 = GetC(textfile);
-  if (ch2 != EOF)
-  {
-    *textfile = static_cast<char>(ch2);
-  }
-  return ch;
-  MIKTEX_API_END("GetChar");
-}
-
-C4PCEEAPI(C4P_integer) GetInteger(C4P_text& textfile)
-{
-  MIKTEX_API_BEGIN("GetInteger");
-  textfile.AssertValid();
-  while (!textfile.Eof())
+  MIKTEX_API_BEGIN("C4P_textGetInteger");
+  AssertValid();
+  while (!Eof())
   {
     int ch;
     do
     {
-      ch = GetChar(textfile);
-    } while (!textfile.Eof() && !isdigit(ch) && ch != '-' && ch != '+');
+      ch = GetChar();
+    } while (!Eof() && !isdigit(ch) && ch != '-' && ch != '+');
     int sign = (ch == '-' ? -1 : 1);
-    if ((ch == '+' || ch == '-') && !textfile.Eof())
+    if ((ch == '+' || ch == '-') && !Eof())
     {
-      ch = GetChar(textfile);
+      ch = GetChar();
     }
     if (isdigit(ch))
     {
@@ -97,24 +126,24 @@ C4PCEEAPI(C4P_integer) GetInteger(C4P_text& textfile)
       {
         result *= 10;
         result += (ch - '0');
-        if (textfile.Eof())
+        if (Eof())
         {
           break;
         }
-        ch = GetChar(textfile);
+        ch = GetChar();
       }
       return result * sign;
     }
   }
   return 0;
-  MIKTEX_API_END("GetInteger");
+  MIKTEX_API_END("C4P_text::GetInteger");
 }
 
-C4PCEEAPI(C4P_real) GetReal(C4P_text& /*textfile*/)
+C4P_real C4P_text::GetReal()
 {
-  MIKTEX_API_BEGIN("GetReal");
-  MIKTEX_UNEXPECTED();
-  MIKTEX_API_END("GetReal");
+  MIKTEX_API_BEGIN("C4P_text::GetReal");
+  MIKTEX_UNIMPLEMENTED();
+  MIKTEX_API_END("C4P_text::GetReal");
 }
 
 bool FileRoot::Open(const PathName& path, FileMode mode, FileAccess access, bool text, bool mustExist)

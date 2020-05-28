@@ -30,4 +30,17 @@
 
 #define T_(x) MIKTEXTEXT(x)
 
+#define MIKTEX_UNIMPLEMENTED(x) MIKTEX_UNEXPECTED(x)
+
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
+
+inline int GetC(FILE* file)
+{
+  MIKTEX_ASSERT(file != nullptr);
+  int ch = getc(file);
+  if (ch == EOF && ferror(file) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("getc");
+  }
+  return ch;
+}
