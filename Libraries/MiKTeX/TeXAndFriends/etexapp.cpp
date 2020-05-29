@@ -40,7 +40,7 @@
 using namespace std;
 
 using namespace MiKTeX::TeXAndFriends;
-\
+
 class ETeXApp::impl
 {
 public:
