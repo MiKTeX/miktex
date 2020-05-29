@@ -194,12 +194,12 @@ STATICFUNC(bool) ProcessTCXFile(const char* lpszFileName, unsigned char* pChr, u
       printable = strtol(start, &end, 0);
       if (start == end)
       {
-	// not specified; by default printable
-	printable = 1;
+        // not specified; by default printable
+        printable = 1;
       }
       else if (printable < 0 || printable > 1)
       {
-	MIKTEX_FATAL_ERROR_2(T_("Invalid tcx file."), "tcxPath", tcxPath.ToString());
+        MIKTEX_FATAL_ERROR_2(T_("Invalid tcx file."), "tcxPath", tcxPath.ToString());
       }
     }
 
@@ -240,18 +240,18 @@ bool MIKTEXCEECALL MiKTeX::TeXAndFriends::InitializeCharTables(unsigned long fla
     {
       if ((flags & ICT_TCX) != 0)
       {
-	pxprn[idx] = 1;
+        pxprn[idx] = 1;
       }
       else
       {
-	if (idx >= ' ' && idx <= '~')
-	{
-	  pxprn[idx] = 1;
-	}
-	else
-	{
-	  pxprn[idx] = 0;
-	}
+        if (idx >= ' ' && idx <= '~')
+        {
+          pxprn[idx] = 1;
+        }
+        else
+        {
+          pxprn[idx] = 0;
+        }
       }
     }
   }
