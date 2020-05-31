@@ -780,7 +780,13 @@ static int lua_kpathsea_init_prog(lua_State * L)
 
 static int lua_kpse_version(lua_State * L)
 {
+#if defined(MIKTEX)
+    char miktexBanner[200];
+    miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0]));
+    lua_pushstring(L, miktexBanner);
+#else
     lua_pushstring(L, kpathsea_version_string);
+#endif
     return 1;
 }
 

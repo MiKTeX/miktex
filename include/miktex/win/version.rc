@@ -1,6 +1,6 @@
 /* miktex/Core/win/version.rc: generic MiKTeX version resource  -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -29,10 +29,10 @@
 
 #define VER_PRODUCTNAME_STR MIKTEX_PRODUCTNAME_STR
 
-#define VER_PRODUCTVERSION_STR MIKTEX_FULL_VERSION_STR
+#define VER_PRODUCTVERSION_STR MIKTEX_VERSION_STR
 
 #define VER_PRODUCTVERSION \
-  MIKTEX_MAJOR_VERSION,MIKTEX_MINOR_VERSION,MIKTEX_J2000_VERSION,0
+  MIKTEX_MAJOR_VERSION,MIKTEX_MINOR_VERSION,MIKTEX_PATCH_VERSION,0
 
 #if !defined(VER_FILEVERSION)
 #  define VER_FILEVERSION \

@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include "makepk-version.h"
+
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Util/Tokenizer>

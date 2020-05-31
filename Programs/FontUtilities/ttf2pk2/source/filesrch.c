@@ -53,7 +53,14 @@ TeX_search_init(char *exec_name,
 const char *
 TeX_search_version(void)
 {
+#if defined(MIKTEX)
+  // FIXME: not thread safe
+  static char miktexBanner[200];
+  miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0]));
+  return miktexBanner;
+#else
   return kpathsea_version_string;
+#endif
 }
 
 

@@ -18,7 +18,7 @@
   License along with this program. If not, see
   <http://www.gnu.org/licenses/>.
 
-  Copyright (C) 2002-2015, 2019 Jan-Åke Larsson
+  Copyright (C) 2002-2015, 2019 Jan-ï¿½ke Larsson
 
 ************************************************************************/
 
@@ -493,7 +493,15 @@ bool DecodeArgs(int argc, char ** argv)
         if (strcmp(p, "ersion")==0) {
           puts(PACKAGE_STRING);
 #ifdef HAVE_LIBKPATHSEA
-	  puts (KPSEVERSION);
+#if defined(MIKTEX)
+		  {
+			  char miktexBanner[200];
+			  miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0]));
+			  puts(miktexBanner);
+		  }
+#else
+		  puts(KPSEVERSION);
+#endif
 #endif
 #ifdef HAVE_FT2
 	  printf("Compiled with Freetype %d.%d.%d\n",

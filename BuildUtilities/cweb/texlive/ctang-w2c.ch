@@ -77,7 +77,11 @@ int main (int ac, char **av)
   if (show_banner) printf(banner); /* print a ``banner line'' */
 @y
   if (show_banner) {
+#if defined(MIKTEX)
+    printf("%s\n", banner); /* print a ``banner line'' */
+#else
     printf("%s%s\n", banner, versionstring); /* print a ``banner line'' */
+#endif
   }
 @z
 

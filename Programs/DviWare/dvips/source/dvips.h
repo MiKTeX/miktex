@@ -26,6 +26,7 @@
 #endif
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
+#include <miktex/Core/Utils>
 #include <sys/stat.h>
 #include <limits.h>
 #include <miktex/KPSE/Emulation>

@@ -398,3 +398,18 @@ char* miktex_wchar_to_utf8(const wchar_t* w)
   return xstrdup(StringUtil::WideCharToUTF8(w).c_str());
 }
 #endif
+
+inline std::string GetBanner(const char* name, const char* version)
+{
+  return fmt::format("This is {0}, Version {1} ({2})", name, version, Utils::GetMiKTeXBannerString());
+}
+
+char* miktex_banner(const char* name, const char* version)
+{
+  return xstrdup(GetBanner(name, version).c_str());
+}
+
+void miktex_print_banner(FILE* file, const char* name, const char* version)
+{
+  fputs(GetBanner(name, version).c_str(), file);
+}

@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include "maketfm-version.h"
+
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/TemporaryDirectory>
 

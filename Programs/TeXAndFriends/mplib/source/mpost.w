@@ -41,6 +41,7 @@ have our customary command-line interface.
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
+#  include <miktex/api.h>
 #  include <miktex/mpost.h>
 #endif
 #include <w2c/config.h>
@@ -1060,10 +1061,14 @@ static struct option dvitomp_options[]
 @<Show help...@>=
 {
 char *s = mp_metapost_version();
+#if defined(MIKTEX)
+miktex_print_banner(stdout, dvitomp_only ? "dvitomp" : "MetaPost", s);
+#else
 if (dvitomp_only)
   fprintf(stdout, "This is dvitomp %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
 else
   fprintf(stdout, "This is MetaPost %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
+#endif
 mpost_xfree(s);
 fprintf(stdout,
 "\n"
@@ -1142,10 +1147,14 @@ fprintf(stdout,
 @<Show short help...@>=
 {
 char *s = mp_metapost_version();
+#if defined(MIKTEX)
+  miktex_print_banner(stdout, dvitomp_only ? "dvitomp" : "MetaPost", s);
+#else
 if (dvitomp_only)
   fprintf(stdout, "This is dvitomp %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
 else
   fprintf(stdout, "This is MetaPost %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
+#endif
 mpost_xfree(s);
 fprintf(stdout,
 "\n"
@@ -1169,10 +1178,14 @@ fprintf(stdout,
 @<Show version...@>=
 {
   char *s = mp_metapost_version();
+#if defined(MIKTEX)
+  miktex_print_banner(stdout, dvitomp_only ? "dvitomp" : "MetaPost", s);
+#else
 if (dvitomp_only)
   fprintf(stdout, "dvitomp (MetaPost) %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
 else
   fprintf(stdout, "MetaPost %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
+#endif
 fprintf(stdout, 
 "The MetaPost source code in the public domain.\n"
 "MetaPost also uses code available under the\n"
@@ -1257,22 +1270,40 @@ static int setup_var (int def, const char *var_name, boolean nokpse) {
 
 @ @<Set up the banner line@>=
 {
+#if defined(MIKTEX)
+  char miktexBanner[100];  
+#endif
   char * mpversion = mp_metapost_version () ;
   const char * banner = "This is MetaPost, version ";
   const char * kpsebanner_start = " (";
   const char * kpsebanner_stop = ")";
   mpost_xfree(options->banner);
+#if defined(MIKTEX)
+  miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0]));
+#endif
   options->banner = mpost_xmalloc(strlen(banner)+
                             strlen(mpversion)+
+#if !defined(MIKTEX)
                             strlen(WEB2CVERSION)+
+#endif
                             strlen(kpsebanner_start)+
+#if defined(MIKTEX)
+                            strlen(miktexBanner)+
+#else
                             strlen(kpathsea_version_string)+
+#endif
                             strlen(kpsebanner_stop)+1);
   strcpy (options->banner, banner);
   strcat (options->banner, mpversion);
+#if !defined(MIKTEX)
   strcat (options->banner, WEB2CVERSION);
+#endif
   strcat (options->banner, kpsebanner_start);
+#if defined(MIKTEX)
+  strcat(options->banner, miktexBanner);
+#else
   strcat (options->banner, kpathsea_version_string);
+#endif
   strcat (options->banner, kpsebanner_stop);
   mpost_xfree(mpversion);
 }

@@ -137,6 +137,15 @@ MIKTEXCORECEEAPI(void) miktex_core_fatal_error(const char* lpszMiktexFunction, c
   C_FUNC_END();
 }
 
+MIKTEXCORECEEAPI(int) miktex_get_miktex_banner(char* buf, size_t bufSize)
+{
+  C_FUNC_BEGIN();
+  string banner = Utils::GetMiKTeXBannerString();
+  StringUtil::CopyString(buf, bufSize, banner.c_str());
+  return 1;
+  C_FUNC_END();
+}
+
 MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char* lpszVersion, size_t bufSize)
 {
   C_FUNC_BEGIN();

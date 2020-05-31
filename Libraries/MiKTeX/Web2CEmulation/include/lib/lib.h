@@ -1,6 +1,6 @@
 /* lib/lib.h:                                           -*- C++ -*-
 
-   Copyright (C) 2013-2019 Christian Schenk
+   Copyright (C) 2013-2020 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -138,7 +138,6 @@ static inline integer zround(double r)
 
 #define recorder_enabled miktex_web2c_recorder_enabled
 #define fullnameoffile miktex_web2c_fullnameoffile
-#define versionstring miktex_web2c_version_string
 
 /// @}
 

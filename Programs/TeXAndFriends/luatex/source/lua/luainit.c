@@ -1056,8 +1056,10 @@ static void mk_suffixlist(void)
 void lua_initialize(int ac, char **av)
 {
     char *given_file = NULL;
+#if !defined(MIKTEX)
     char *banner;
     size_t len;
+#endif
     int starttime;
     int utc;
     static char LC_CTYPE_C[] = "LC_CTYPE=C";
@@ -1068,13 +1070,19 @@ void lua_initialize(int ac, char **av)
     char *env_locale = NULL;
     char *tmp = NULL;
     /*tex Save to pass along to topenin. */
+#if !defined(MIKTEX)
     const char *fmt = "This is " MyName ", Version %s" WEB2CVERSION;
+#endif
     argc = ac;
     argv = av;
+#if defined(MIKTEX)
+    luatex_banner = miktex_banner(MyName, luatex_version_string);
+#else
     len = strlen(fmt) + strlen(luatex_version_string) ;
     banner = xmalloc(len);
     sprintf(banner, fmt, luatex_version_string);
     luatex_banner = banner;
+#endif
     kpse_invocation_name = kpse_program_basename(argv[0]);
     /*tex be `luac' */
     if (argc >1) {
