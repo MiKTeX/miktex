@@ -44,7 +44,7 @@ have our customary command-line interface.
 #    include <miktex/utf8wrap.h>
 #    include <miktex/mpost.h>
 #  endif
-#  include <miktex/c/api.h>
+#  include <miktex/Core/c/api.h>
 #endif
 #include <w2c/config.h>
 #include <stdio.h>
