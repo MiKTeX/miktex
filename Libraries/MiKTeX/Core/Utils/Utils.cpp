@@ -541,7 +541,7 @@ string Utils::GetMiKTeXBannerString()
 {
   string banner = fmt::format("{0} {1}", MIKTEX_PRODUCTNAME_STR, GetMiKTeXVersionString());
 #if defined(MIKTEX_WINDOWS_32)
-  banner += " 32-bit"
+  banner += " 32-bit";
 #endif
   auto session = SessionImpl::TryGetSession();
   if (session != nullptr && session->IsMiKTeXPortable())
