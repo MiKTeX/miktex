@@ -38,11 +38,13 @@ have our customary command-line interface.
 @d false 0
  
 @c
-#if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
-#  include <miktex/api.h>
-#  include <miktex/mpost.h>
+#if defined(MIKTEX)
+#  if defined(MIKTEX_WINDOWS)
+#    define MIKTEX_UTF8_WRAP_ALL 1
+#    include <miktex/utf8wrap.h>
+#    include <miktex/mpost.h>
+#  endif
+#  include <miktex/c/api.h>
 #endif
 #include <w2c/config.h>
 #include <stdio.h>
