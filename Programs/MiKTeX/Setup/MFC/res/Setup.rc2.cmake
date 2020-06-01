@@ -1,6 +1,6 @@
 /* Setup.rc2:                                           -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -24,7 +24,7 @@
 IDR_LICENSE LICENSE "${MIKTEX_COPYING_CONDITIONS_RTF}"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION MIKTEX_MAJOR_VERSION,MIKTEX_MINOR_VERSION,MIKTEX_COMP_J2000_VERSION,0
+ FILEVERSION MIKTEX_COMP_MAJOR_VERSION,MIKTEX_COMP_MINOR_VERSION,MIKTEX_COMP_PATCH_VERSION,0
  PRODUCTVERSION MIKTEX_MAJOR_VERSION,MIKTEX_MINOR_VERSION,MIKTEX_PATCH_VERSION,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
