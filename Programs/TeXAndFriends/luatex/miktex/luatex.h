@@ -26,6 +26,9 @@ extern "C" {
 void miktex_add_include_directory(const char* path);
 int miktex_allow_unrestricted_shell_escape();
 void miktex_convert_to_unix(char* path);
+#if defined(MIKTEX_WINDOWS)
+void miktex_copy_wchar_to_utf8(char* dest, size_t destSize, const wchar_t* source);
+#endif
 void miktex_emulate__close_file_or_pipe(FILE* file);
 char** miktex_emulate__do_split_command(const char* commandLine, char** argv0);
 int miktex_emulate__exec_command(const char* fileName, char* const* argv, char* const* env);

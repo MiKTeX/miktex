@@ -398,3 +398,10 @@ char* miktex_wchar_to_utf8(const wchar_t* w)
   return xstrdup(StringUtil::WideCharToUTF8(w).c_str());
 }
 #endif
+
+#if defined(MIKTEX_WINDOWS)
+void miktex_copy_wchar_to_utf8(char* dest, size_t destSize, const wchar_t* source)
+{
+  StringUtil::CopyString(dest, destSize, source);
+}
+#endif
