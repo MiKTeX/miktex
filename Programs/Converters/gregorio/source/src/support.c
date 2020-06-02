@@ -122,8 +122,17 @@ void gregorio_support_init(const char *const program USED_FOR_KPSE,
 void gregorio_print_version(const char *copyright)
 {
 #ifdef USE_KPSE
+#if defined(MIKTEX)
+    {
+        char miktexBanner[200];
+        miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0]));
+        printf("Gregorio %s (%s).\n%s\n", GREGORIO_VERSION,
+               miktexBanner, copyright);
+    }
+#else
     printf("Gregorio %s (%s).\n%s\n", GREGORIO_VERSION,
             kpathsea_version_string, copyright);
+#endif
 #else
     printf("Gregorio %s.\n%s\n", GREGORIO_VERSION,
             copyright);

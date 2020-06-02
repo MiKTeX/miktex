@@ -28,6 +28,7 @@
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileStream>
+#include <miktex/Core/VersionNumber>
 
 #if defined(MIKTEX_TEXMF_SHARED)
 #  define C4PEXPORT MIKTEXDLLEXPORT
@@ -386,7 +387,7 @@ string WebApp::TheNameOfTheGame() const
 
 void WebApp::ShowProgramVersion() const
 {
-  cout << "MiKTeX" << '-' << TheNameOfTheGame() << ' ' << pimpl->version << " (" << Utils::GetMiKTeXBannerString() << ')' << endl
+  cout << "MiKTeX" << '-' << TheNameOfTheGame() << ' ' << VersionNumber(pimpl->version).ToString() << " (" << Utils::GetMiKTeXBannerString() << ')' << endl
     << pimpl->copyright << endl;
   if (!pimpl->trademarks.empty())
   {

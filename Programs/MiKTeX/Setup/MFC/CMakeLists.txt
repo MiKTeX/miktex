@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -39,7 +39,7 @@ configure_file(
 )
 
 configure_file(
-  res/Setup.rc2.cmake
+  res/Setup.rc2.in
   ${CMAKE_CURRENT_BINARY_DIR}/res/Setup.rc2
 )
 

@@ -429,28 +429,6 @@ void PackageInstallerImpl::LoadRepositoryManifest(bool download)
   ReportLine(fmt::format(T_("package repository digest: {0}"), repositoryManifest.GetDigest()));
 }
 
-int CompareSerieses(const string& ver1, const string& ver2)
-{
-  if (ver1.empty() || ver2.empty())
-  {
-    return 0;
-  }
-  VersionNumber verNum1;
-  VersionNumber verNum2;
-  if (VersionNumber::TryParse(ver1, verNum1) && VersionNumber::TryParse(ver2, verNum2))
-  {
-    verNum1.n3 = 0;
-    verNum1.n4 = 0;
-    verNum2.n3 = 0;
-    verNum2.n4 = 0;
-    return verNum1.CompareTo(verNum2);
-  }
-  else
-  {
-    return -1;
-  }
-}
-
 void PackageInstallerImpl::FindUpdatesNoLock()
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "checking for updates");
@@ -530,7 +508,7 @@ void PackageInstallerImpl::FindUpdatesNoLock()
       continue;
     }
 
-    // compare digests, version numbers and time stamps
+    // compare digests
     MD5 md5 = repositoryManifest.GetPackageDigest(packageId);
     if (md5 == package.digest)
     {

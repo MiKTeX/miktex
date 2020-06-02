@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include "makebase-version.h"
+
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/TemporaryDirectory>
 

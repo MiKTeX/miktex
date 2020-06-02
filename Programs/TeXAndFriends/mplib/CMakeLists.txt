@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2019 Christian Schenk
+## Copyright (C) 2010-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -604,6 +604,12 @@ target_link_libraries(${MIKTEX_PREFIX}mpost
   ${metapost_dll_name}
   ${w2cemu_dll_name}
 )
+
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${MIKTEX_PREFIX}mpost MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${MIKTEX_PREFIX}mpost ${fmt_dll_name})
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${MIKTEX_PREFIX}mpost

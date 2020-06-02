@@ -19,11 +19,13 @@
 
 #include "source/src/TWVersion.h"
 
-#define MIKTEX_COMP_J2000_VERSION 7420
+#define MIKTEX_COMP_MAJOR_VERSION 2
+#define MIKTEX_COMP_MINOR_VERSION 10
+#define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_ORIG_VERSION_STR TEXWORKS_VERSION
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2007-2020 Jonathan Kew, Stefan Loeffler, Charlie Sharpsteen"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2007-2020 Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "ï¿½ 2007-2020 Jonathan Kew, Stefan Lï¿½ffler, Charlie Sharpsteen"
 
 #include <miktex/Version>

@@ -1563,7 +1563,11 @@ static void
 version(FILE *f)
 {
   fputs ("afm2tfm(k) (dvips(k) 2020.1) 8.4\n", f);
+#if defined(MIKTEX)
+  fprintf(f, "%s\n", MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str());
+#else
   fprintf (f, "%s\n", kpathsea_version_string);
+#endif
   fputs ("Copyright 2020 Radical Eye Software.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\

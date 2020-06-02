@@ -22,8 +22,12 @@ set(MIKTEX_MAJOR_VERSION        2)
 ## minor version number
 set(MIKTEX_MINOR_VERSION        9)
 
-## milestone; measured in: days since January 1, 2000
-set(MIKTEX_J2000_VERSION        7470)
+## patch version number; measured in: days since January 1, 2000
+## TODO: derive from MIKTEX_YYYY_MM_DD_VERSION
+set(MIKTEX_PATCH_VERSION        7470)
+
+## milestone; date-based
+set(MIKTEX_YYYY_MM_DD_VERSION   "2020-06-14")
 
 ## the version of the binary package
 set(MIKTEX_PACKAGE_REVISION

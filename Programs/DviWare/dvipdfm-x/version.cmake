@@ -17,9 +17,11 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_COMP_ORIG_VERSION_STR "20200315")
+set(MIKTEX_COMP_MAJOR_VERSION 2)
+set(MIKTEX_COMP_MINOR_VERSION 10)
+set(MIKTEX_COMP_PATCH_VERSION 0)
 
-set(MIKTEX_COMP_J2000_VERSION 7422)
+set(MIKTEX_COMP_ORIG_VERSION_STR "20200315")
 
 set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1998,1999 Mark Wicks, Copyright (C) 2002-2020 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team")
 set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1998,1999 Mark Wicks, @ 2002-2020 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team")

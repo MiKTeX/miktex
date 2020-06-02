@@ -1,6 +1,6 @@
 /* w2cemu-version.h: version number                     -*- C++ -*-
 
-   Copyright (C) 2010-2018 Christian Schenk
+   Copyright (C) 2010-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,6 +17,10 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION ${MIKTEX_COMP_J2000_VERSION}
+#define MIKTEX_COMP_MAJOR_VERSION ${MIKTEX_COMP_MAJOR_VERSION}
+#define MIKTEX_COMP_MINOR_VERSION ${MIKTEX_COMP_MINOR_VERSION}
+#define MIKTEX_COMP_PATCH_VERSION ${MIKTEX_COMP_PATCH_VERSION}
+#define MIKTEX_COMP_INTERFACE_VERSION ${MIKTEX_COMP_INTERFACE_VERSION}
+#define MIKTEX_COMP_DESCRIPTION "${MIKTEX_COMP_DESCRIPTION}"
 
 #include <miktex/Version>

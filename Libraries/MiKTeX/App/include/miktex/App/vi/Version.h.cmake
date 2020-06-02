@@ -1,6 +1,6 @@
 /* miktex/App/vi/Version.h: app library version         -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -118,7 +118,7 @@ public:
 public:
   static MiKTeX::Core::VersionNumber GetVersion()
   {
-    return MiKTeX::Core::VersionNumber(GetInterfaceVersion(), ${MIKTEX_COMP_J2000_VERSION}, 0, 0);
+    return MiKTeX::Core::VersionNumber(${MIKTEX_COMP_MAJOR_VERSION}, ${MIKTEX_COMP_MINOR_VERSION}, ${MIKTEX_COMP_PATCH_VERSION}, 0);
   }
 };
 

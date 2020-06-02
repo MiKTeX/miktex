@@ -62,8 +62,6 @@ namespace {
   std::string kpse_mode;
 }
 
-MIKTEXKPSDATA(const char*) miktex_kpathsea_version_string = KPSEVERSION;
-
 MIKTEXKPSDATA(const char*) miktex_kpathsea_bug_address = T_("Visit miktex.org for bug reports.");
 
 #if defined(KPSE_COMPAT_API)

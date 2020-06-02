@@ -83,7 +83,7 @@
 <!ENTITY miktexpdflatex "<command>${MIKTEX_PREFIX}pdflatex</command>">
 <!ENTITY miktexpdftex "<command>${MIKTEX_PREFIX}pdftex</command>">
 <!ENTITY miktexprefix "<filename>${MIKTEX_PREFIX}</filename>">
-<!ENTITY miktexrev "${MIKTEX_FULL_VERSION_STR}">
+<!ENTITY miktexrev "${MIKTEX_VERSION_STR}">
 <!ENTITY miktexsetup "<command>${MIKTEX_PROG_NAME_SETUP}</command>">
 <!ENTITY miktextex "<command>${MIKTEX_PREFIX}tex</command>">
 <!ENTITY miktexxetex "<command>${MIKTEX_PREFIX}xetex</command>">

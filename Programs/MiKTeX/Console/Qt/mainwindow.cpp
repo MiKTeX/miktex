@@ -57,6 +57,7 @@
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamWriter>
 #include <miktex/Core/TemporaryFile>
+#include <miktex/Core/VersionNumber>
 #include <miktex/Setup/SetupService>
 #include <miktex/UI/Qt/ErrorDialog>
 #include <miktex/UI/Qt/PackageInfoDialog>
@@ -616,7 +617,7 @@ void MainWindow::AboutDialog()
 {
   QString message;
   message = tr("<p>MiKTeX Console ");
-  message += MIKTEX_COMPONENT_VERSION_STR;
+  message += QString::fromUtf8(VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString().c_str());
   message += "</p>";
   message += tr("<p>MiKTeX Console is free software. You are welcome to redistribute it under certain conditions.</p>");
   message += tr("<p>MiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.</p>");

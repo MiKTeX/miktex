@@ -405,3 +405,18 @@ void miktex_copy_wchar_to_utf8(char* dest, size_t destSize, const wchar_t* sourc
   StringUtil::CopyString(dest, destSize, source);
 }
 #endif
+
+inline std::string GetBanner(const char* name, const char* version)
+{
+  return fmt::format("This is {0}, Version {1} ({2})", name, version, Utils::GetMiKTeXBannerString());
+}
+
+char* miktex_banner(const char* name, const char* version)
+{
+  return xstrdup(GetBanner(name, version).c_str());
+}
+
+void miktex_print_banner(FILE* file, const char* name, const char* version)
+{
+  fputs(GetBanner(name, version).c_str(), file);
+}

@@ -478,18 +478,17 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
 
 bool WebAppInputLine::OpenInputFile(C4P::FileRoot& f, const PathName& fileName)
 {
-  FILE* pFile = nullptr;
+  FILE* file = nullptr;
 
-  if (!OpenInputFile(&pFile, fileName))
+  if (!OpenInputFile(&file, fileName))
   {
     return false;
   }
 
-  f.Attach(pFile, true);
+  f.Attach(file, true);
 
 #if defined(PASCAL_TEXT_IO)
-  not_implemented();
-  get(f);
+  MIKTEX_UNIMPLEMENTED();
 #endif
 
   pimpl->lastInputFileName = fileName;
@@ -616,20 +615,6 @@ void WebAppInputLine::BufferSizeExceeded() const
   }
 }
 
-inline int GetCharacter(FILE* file)
-{
-  MIKTEX_ASSERT(file != nullptr);
-  int ch = getc(file);
-  if (ch == EOF)
-  {
-    if (ferror(file) != 0)
-    {
-      MIKTEX_FATAL_CRT_ERROR("getc");
-    }
-  }
-  return ch;
-}
-
 bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const
 {
   f.AssertValid();
@@ -639,9 +624,7 @@ bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLi
     MIKTEX_UNEXPECTED();
   }
 
-#if defined(PASCAL_TEXT_IO)
-  MIKTEX_UNEXPECTED();
-#endif
+  MIKTEX_EXPECT(!f.IsPascalFileIO());
 
   IInputOutput* inputOutput = GetInputOutput();
 
@@ -660,14 +643,14 @@ bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLi
     return false;
   }
 
-  int ch = GetCharacter(f);
+  int ch = GetC(f);
   if (ch == EOF)
   {
     return false;
   }
   if (ch == '\r')
   {
-    ch = GetCharacter(f);
+    ch = GetC(f);
     if (ch == EOF)
     {
       return false;
@@ -687,7 +670,7 @@ bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLi
   buffer[last] = xord[ch & 0xff];
   last += 1;
 
-  while ((ch = GetCharacter(f)) != EOF)
+  while ((ch = GetC(f)) != EOF)
   {
     if (last >= bufsize)
     {
@@ -697,7 +680,7 @@ bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLi
     }
     if (ch == '\r')
     {
-      ch = GetCharacter(f);
+      ch = GetC(f);
       if (ch == EOF)
       {
         break;

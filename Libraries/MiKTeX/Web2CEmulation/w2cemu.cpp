@@ -313,6 +313,5 @@ int Web2C::RunSystemCommand(const char* cmd)
   return (int)TeXApp::GetTeXApp()->Write18(cmd, exitCode);
 }
 
-const char* miktex_web2c_version_string = WEB2CVERSION;
 boolean miktex_web2c_recorder_enabled = 0;
 char* miktex_web2c_fullnameoffile = nullptr;

@@ -17,6 +17,8 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 7420
+#define MIKTEX_COMP_MAJOR_VERSION 2
+#define MIKTEX_COMP_MINOR_VERSION 10
+#define MIKTEX_COMP_PATCH_VERSION 0
 
 #include <miktex/Version>

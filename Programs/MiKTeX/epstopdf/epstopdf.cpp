@@ -879,7 +879,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
       break;
     case OPT_VERSION:
       cout
-        << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
+        << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
         << "Copyright (C) 2000-2020 Christian Schenk" << endl
         << "Copyright (C) 1998-2001 by Sebastian Rahtz et al." << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl

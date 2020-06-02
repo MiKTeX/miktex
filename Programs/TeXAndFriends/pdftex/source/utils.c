@@ -309,11 +309,18 @@ void setjobid(int year, int month, int day, int time)
 
     name_string = xstrdup(makecstring(jobname));
     format_string = xstrdup(makecstring(formatident));
+#if defined(MIKTEX)
+    slen = SMALL_BUF_SIZE +
+        strlen(name_string) +
+        strlen(format_string) +
+        strlen(ptexbanner);
+#else
     slen = SMALL_BUF_SIZE +
         strlen(name_string) +
         strlen(format_string) +
         strlen(ptexbanner) +
         strlen(versionstring) + strlen(kpathsea_version_string);
+#endif
     s = xtalloc(slen, char);
 #if defined(MIKTEX)
     i = snprintf(s, slen,
@@ -345,9 +352,13 @@ void makepdftexbanner(void)
     if (pdftexbanner_init)
         return;
 
+#if defined(MIKTEX)
+    slen = SMALL_BUF_SIZE;
+#else
     slen = SMALL_BUF_SIZE +
         strlen(ptexbanner) +
         strlen(versionstring) + strlen(kpathsea_version_string);
+#endif
     s = xtalloc(slen, char);
 #if defined(MIKTEX)
     i = snprintf(s, slen, "%s", ptexbanner);
