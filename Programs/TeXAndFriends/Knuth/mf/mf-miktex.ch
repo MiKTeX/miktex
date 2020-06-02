@@ -1575,6 +1575,12 @@ var @!k:0..sup_buf_size; {index into |buffer|}
 @!l:0..sup_buf_size; {end of first input line}
 @z
 
+@x
+if job_name=0 then job_name:="mfput";
+if job_name=0 then job_name:=miktex_get_job_name("mfput");
+@y
+@z
+
 % _____________________________________________________________________________
 %
 % [38.790]
@@ -1630,7 +1636,7 @@ full_source_filename_stack[in_open]:=miktex_make_full_name_string;
 @x
   begin job_name:=cur_name; open_log_file;
 @y
-  begin job_name:=miktex_get_job_name; open_log_file;
+  begin job_name:=miktex_get_job_name(cur_name); open_log_file;
 @z
 
 @x
@@ -2017,7 +2023,6 @@ function make_fraction(@!p,@!q:integer):fraction; forward;@t\2@>@/
 function miktex_c_style_error_messages_p : boolean; forward;@t\2@>@/
 function miktex_enable_eightbit_chars_p : boolean; forward;@t\2@>@/
 function miktex_get_interaction : integer; forward;@t\2@>@/
-function miktex_get_job_name : str_number; forward;@t\2@>@/
 function miktex_get_quiet_flag : boolean; forward;@t\2@>@/
 function miktex_halt_on_error_p : boolean; forward;@t\2@>@/
 function miktex_have_tcx_file_name : boolean; forward;@t\2@>@/

@@ -1041,22 +1041,9 @@ int TeXMFApp::MakeTeXString(const char* lpsz) const
   return stringHandler->makestring();
 }
 
-int TeXMFApp::GetJobName() const
+int TeXMFApp::GetJobName(int defaultJobName) const
 {
-  if (pimpl->jobName.empty())
-  {
-    PathName name = GetLastInputFileName().GetFileNameWithoutExtension();
-    if (AmI("xetex"))
-    {
-      pimpl->jobName = name.ToString();
-    }
-    else
-    {
-      pimpl->jobName = Quoter<char>(name).GetData();
-    }
-  }
-  // FIXME: conserve strpool space
-  return MakeTeXString(pimpl->jobName.c_str());
+  return pimpl->jobName.empty() ? defaultJobName : MakeTeXString(pimpl->jobName.c_str());
 }
 
 int TeXMFApp::GetTeXStringStart(int stringNumber) const

@@ -224,7 +224,7 @@ public:
   MIKTEXMFTHISAPI(int) GetInteraction() const;
 
 public:
-  MIKTEXMFTHISAPI(int) GetJobName() const;
+  MIKTEXMFTHISAPI(int) GetJobName(int defaultJobName) const;
 
 public:
   MIKTEXMFTHISAPI(bool) HaltOnErrorP() const;
@@ -400,9 +400,9 @@ inline int miktexgetinteraction()
   return TeXMFApp::GetTeXMFApp()->GetInteraction();
 }
 
-inline int miktexgetjobname()
+inline int miktexgetjobname(int defaultJobName)
 {
-  return TeXMFApp::GetTeXMFApp()->GetJobName();
+  return TeXMFApp::GetTeXMFApp()->GetJobName(defaultJobName);
 }
 
 inline bool miktexhaltonerrorp()
