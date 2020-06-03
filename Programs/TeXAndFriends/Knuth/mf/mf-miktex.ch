@@ -1577,8 +1577,8 @@ var @!k:0..sup_buf_size; {index into |buffer|}
 
 @x
 if job_name=0 then job_name:="mfput";
-if job_name=0 then job_name:=miktex_get_job_name("mfput");
 @y
+if job_name=0 then job_name:=miktex_get_job_name("mfput");
 @z
 
 % _____________________________________________________________________________
