@@ -1041,11 +1041,17 @@ int TeXMFApp::MakeTeXString(const char* lpsz) const
   return stringHandler->makestring();
 }
 
-int TeXMFApp::GetJobName(int currentFileName) const
+int TeXMFApp::GetJobName(int fallbackJobName) const
 {
   if (pimpl->jobName.empty())
   {
-    PathName name = PathName(GetTeXString(currentFileName)).GetFileNameWithoutExtension();
+    if (GetLastInputFileName().Empty())
+    {
+      pimpl->jobName = GetTeXString(fallbackJobName);
+      MIKTEX_EXPECT(pimpl->jobName.find(' ') == string::npos);
+      return fallbackJobName;
+    }
+    PathName name = GetLastInputFileName().GetFileNameWithoutExtension();
     if (AmI("xetex"))
     {
       pimpl->jobName = name.ToString();
