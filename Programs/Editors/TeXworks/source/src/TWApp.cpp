@@ -1363,7 +1363,7 @@ void TWApp::aboutMiKTeX()
 {
   QIcon oldIcon = windowIcon();
   setWindowIcon(QIcon(QStringLiteral(":/MiKTeX/miktex32x32.png")));
-  QString aboutText = tr("<p>MiKTeX %1 is a modern TeX distribution.</p>").arg(QStringLiteral(MIKTEX_MAJOR_MINOR_STR));
+  QString aboutText = tr("<p>MiKTeX is a modern TeX distribution.</p>");
   aboutText += tr("<p>Please visit the <a href=\"https://miktex.org/\">MiKTeX Project Page</a>.</p>");
   QMessageBox::about(nullptr, tr("About MiKTeX"), aboutText);
   setWindowIcon(oldIcon);
