@@ -42,7 +42,7 @@ configure_file(
 )
 
 configure_file(
-  w2cemu-version.h.cmake
+  w2cemu-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/w2cemu-version.h
 )
 

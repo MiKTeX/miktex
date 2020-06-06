@@ -44,7 +44,7 @@ configure_file(
 )
 
 configure_file(
-  mpm-version.h.cmake
+  mpm-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/mpm-version.h
 )
 

@@ -41,7 +41,7 @@ set(public_headers
 )  
 
 configure_file(
-  mikuiqt-version.h.cmake
+  mikuiqt-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/mikuiqt-version.h
 )
 

@@ -55,7 +55,7 @@ foreach(inc ${unx_includes})
 endforeach()
 
 configure_file(
-  unxemu-version.h.cmake
+  unxemu-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/unxemu-version.h
 )
 

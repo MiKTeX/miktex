@@ -40,7 +40,7 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 configure_file(
-  metapost-version.h.cmake
+  metapost-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
 )
 

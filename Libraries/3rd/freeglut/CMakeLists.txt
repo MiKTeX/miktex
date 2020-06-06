@@ -124,7 +124,7 @@ list(APPEND freeglut_sources
 )
 
 configure_file(
-  freeglut-version.h.cmake
+  freeglut-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/freeglut-version.h
 )
 

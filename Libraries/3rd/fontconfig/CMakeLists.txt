@@ -418,7 +418,7 @@ set_property(TARGET gen-fclang-header PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 ## lib
 
 configure_file(
-  fontconfig-version.h.cmake
+  fontconfig-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/fontconfig-version.h
 )
 

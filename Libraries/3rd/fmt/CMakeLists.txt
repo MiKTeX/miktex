@@ -44,7 +44,7 @@ set(fmt_sources
 )
 
 configure_file(
-  fmt-version.h.cmake
+  fmt-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/fmt-version.h
 )
 

@@ -112,7 +112,7 @@ set(public_headers
 )
 
 configure_file(
-  texmf-version.h.cmake
+  texmf-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/texmf-version.h
 )
 

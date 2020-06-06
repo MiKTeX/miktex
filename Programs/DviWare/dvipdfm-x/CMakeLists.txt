@@ -27,7 +27,7 @@ configure_file(
 )
 
 configure_file(
-  dvipdfm-x-version.h.cmake
+  dvipdfm-x-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/dvipdfm-x-version.h
 )
 

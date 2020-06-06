@@ -68,7 +68,7 @@ configure_file(
 )
 
 configure_file(
-  core-version.h.cmake
+  core-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/core-version.h
 )
 

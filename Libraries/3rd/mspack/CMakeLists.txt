@@ -40,7 +40,7 @@ configure_file(
 )
 
 configure_file(
-  mspack-version.h.cmake
+  mspack-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/mspack-version.h
 )
 

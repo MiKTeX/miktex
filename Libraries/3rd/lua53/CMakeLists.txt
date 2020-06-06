@@ -44,7 +44,7 @@ if(MIKTEX_UNIX_ALIKE)
 endif()
 
 configure_file(
-  liblua-version.h.cmake
+  liblua-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/liblua-version.h
 )
 

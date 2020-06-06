@@ -46,7 +46,7 @@ set(public_headers
 )
 
 configure_file(
-  trace-version.h.cmake
+  trace-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/trace-version.h
 )
 

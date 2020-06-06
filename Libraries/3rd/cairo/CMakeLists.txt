@@ -110,7 +110,7 @@ include_directories(BEFORE
 )
 
 configure_file(
-  miktex-cairo-version.h.cmake
+  miktex-cairo-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/miktex-cairo-version.h
 )
 

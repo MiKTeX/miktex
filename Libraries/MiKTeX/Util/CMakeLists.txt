@@ -47,7 +47,7 @@ set(public_headers
 )
 
 configure_file(
-  util-version.h.cmake
+  util-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/util-version.h
 )
 

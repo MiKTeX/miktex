@@ -54,7 +54,7 @@ set(public_headers
 )
 
 configure_file(
-  app-version.h.cmake
+  app-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/app-version.h
 )
 
