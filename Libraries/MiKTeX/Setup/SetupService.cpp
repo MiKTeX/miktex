@@ -19,13 +19,13 @@
 
 #include "config.h"
 
+#include "setup-version.h"
+
 #include "internal.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "win/winSetupService.h"
 #endif
-
-#include "setup-version.h"
 
 using namespace std;
 using namespace std::string_literals;
@@ -483,9 +483,7 @@ void SetupServiceImpl::LogHeader()
   Log(fmt::format(T_("Time: {0:%H:%M:%S}\n"), *pTm));
   Log(fmt::format(T_("OS version: {0}\n"), Utils::GetOSVersionString()));
   shared_ptr<Session> session = Session::Get();
-#if defined(MIKTEX_WINDOWS)
   Log(fmt::format("SystemAdmin: {}\n", session->RunningAsAdministrator()));
-#endif
   if (options.Task != SetupTask::Download)
   {
     Log(fmt::format("SharedSetup: {}\n", options.IsCommonSetup));
@@ -744,7 +742,7 @@ void SetupServiceImpl::Initialize()
   }
   initialized = true;
 
-  ReportLine("initializing setup service...");
+  ReportLine(fmt::format("this is {0}", Utils::MakeProgramVersionString(MIKTEX_COMP_NAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR))));
 
   packageInstaller = packageManager->CreateInstaller({ nullptr, true, false });
   cancelled = false;
