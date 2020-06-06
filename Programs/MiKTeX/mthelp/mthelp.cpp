@@ -321,6 +321,19 @@ void MiKTeXHelp::ViewFile(const PathName& fileName)
       FatalError(T_("The viewer could not be started."));
     }
   }
+#elif defined(MIKTEX_MACOS_BUNDLE)
+  if (viewer.empty())
+  {
+    if (printOnly)
+    {
+      cout << "open " << Q_(fileName) << endl;
+    }
+    else
+    {
+      Process::ExecuteSystemCommand(fmt::format("open {0}", Q_(fileName)));
+    }
+    return;
+  }
 #else
   if (viewer.empty())
   {
