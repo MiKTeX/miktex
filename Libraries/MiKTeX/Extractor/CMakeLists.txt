@@ -50,7 +50,7 @@ configure_file(
 )
 
 configure_file(
-  include/miktex/Extractor/vi/Version.h.cmake
+  include/miktex/Extractor/vi/Version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Extractor/vi/Version.h
 )
 

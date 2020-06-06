@@ -64,7 +64,7 @@ configure_file(
 )
 
 configure_file(
-  include/miktex/App/vi/Version.h.cmake
+  include/miktex/App/vi/Version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/vi/Version.h
 )
 
