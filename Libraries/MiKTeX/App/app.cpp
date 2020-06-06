@@ -446,8 +446,7 @@ void Application::AutoDiagnose()
         LOG4CXX_ERROR(logger, issue);
       }
     }
-    if (issue.severity == Setup::IssueSeverity::Critical
-      || issue.severity == Setup::IssueSeverity::Major && !GetQuietFlag())
+    if ((issue.severity == Setup::IssueSeverity::Critical || issue.severity == Setup::IssueSeverity::Major) && !GetQuietFlag())
     {
       cerr << Utils::GetExeName() << ": " << issue << "\n";
     }
