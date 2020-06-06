@@ -26,6 +26,6 @@
 #define MIKTEX_COMP_ORIG_VERSION_STR TEXWORKS_VERSION
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2007-2020 Jonathan Kew, Stefan Loeffler, Charlie Sharpsteen"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "� 2007-2020 Jonathan Kew, Stefan L�ffler, Charlie Sharpsteen"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "\xA9 2007-2020 Jonathan Kew, Stefan L\xF6ffler, Charlie Sharpsteen"
 
 #include <miktex/Version>
