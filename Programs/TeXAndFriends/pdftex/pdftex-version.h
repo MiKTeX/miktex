@@ -19,8 +19,8 @@
 
 #include "pdftex_version.h"
 
-#define MIKTEX_COMP_MAJOR_VERSION 2
-#define MIKTEX_COMP_MINOR_VERSION 10
+#define MIKTEX_COMP_MAJOR_VERSION 4
+#define MIKTEX_COMP_MINOR_VERSION 0
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 
@@ -31,8 +31,8 @@ Copyright (C) 1982 D. E. Knuth, \
 (C) 1996-2020 Han The Thanh"
 
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 "\
-© 1982 D. E. Knuth, \
-© 1996-2020 Han The Thanh"
+ï¿½ 1982 D. E. Knuth, \
+ï¿½ 1996-2020 Han The Thanh"
 
 #define MIKTEX_COMP_TM_STR "\
 TeX is a trademark of the American Mathematical Society."

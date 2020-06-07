@@ -17,13 +17,13 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_MAJOR_VERSION 2
-#define MIKTEX_COMP_MINOR_VERSION 10
+#define MIKTEX_COMP_MAJOR_VERSION 4
+#define MIKTEX_COMP_MINOR_VERSION 0
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "2018-07-03-10:36"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2009-2018 TeX Users Group, Copyright (C) 1996-2009 Eitan M. Gurari"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2009-2018 TeX Users Group, © 1996-2009 Eitan M. Gurari"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "ï¿½ 2009-2018 TeX Users Group, ï¿½ 1996-2009 Eitan M. Gurari"
 
 #include <miktex/Version>
