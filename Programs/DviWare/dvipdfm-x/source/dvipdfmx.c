@@ -173,11 +173,15 @@ set_default_pdf_filename(void)
 static void
 show_version (void)
 {
+#if defined(MIKTEX)
+  {
+    char miktexBanner[200];
+    miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0]));
+    printf ("This is %s Version %s (%s) by the DVIPDFMx project team,\n", my_name, VERSION, miktexBanner);
+  }
+#else
   printf ("This is %s Version " VERSION " by the DVIPDFMx project team,\n",
                    my_name);
-#if defined(MIKTEX)
-  printf("modified for TeX Live and MiKTeX,\n");
-#else
   printf ("modified for TeX Live,\n");
 #endif
   if (*my_name == 'x')
