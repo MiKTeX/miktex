@@ -36,6 +36,12 @@ set(MIKTEX_PACKAGE_REVISION
   "The MiKTeX package revision."
 )
 
+## internal major version
+set(MIKTEX_INTERNAL_MAJOR_VERSION 2)
+
+## internal minor version
+set(MIKTEX_INTERNAL_MINOR_VERSION 9)
+
 if(MIKTEX_LINUX)
   set(MIKTEX_LINUX_DIST
     "ubuntu"

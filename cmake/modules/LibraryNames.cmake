@@ -23,15 +23,12 @@
 ##    NAME is the component name
 ##    MN is the MiKTeX major/minor version (as an integer)
 ##    REV is the DLL revision (relative to the current major/minor version)
-
-set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT})
-
 if(MIKTEX_RELEASE_STATE EQUAL 0)
-  set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT})
+  set(miktex_dll_prefix MiKTeX${MIKTEX_INTERNAL_MAJOR_MINOR_INT})
 elseif(MIKTEX_RELEASE_STATE EQUAL 1)
-  set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT}-next)
+  set(miktex_dll_prefix MiKTeX${MIKTEX_INTERNAL_MAJOR_MINOR_INT}-next)
 elseif(MIKTEX_RELEASE_STATE EQUAL 4)
-  set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT}-debug)
+  set(miktex_dll_prefix MiKTeX${MIKTEX_INTERNAL_MAJOR_MINOR_INT}-debug)
 endif()
 
 macro(define_library _name)
