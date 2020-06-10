@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -23,8 +23,8 @@ add_definitions(
   -D_WINDLL
 )
 
-set(mpmidl_h MiKTeX${MIKTEX_MAJOR_MINOR_INT}-packagemanageridl.h)
-set(mpm_idl MiKTeX${MIKTEX_MAJOR_MINOR_INT}-packagemanager.idl)
+set(mpmidl_h MiKTeX${MIKTEX_INTERNAL_MAJOR_MINOR_INT}-packagemanageridl.h)
+set(mpm_idl MiKTeX${MIKTEX_INTERNAL_MAJOR_MINOR_INT}-packagemanager.idl)
 
 configure_file(
   ${mpm_source_dir}/COM/mpm.idl.in

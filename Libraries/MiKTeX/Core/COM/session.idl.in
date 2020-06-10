@@ -1,6 +1,6 @@
 /* session.idl:                                         -*- IDL -*-
 
-   Copyright (C) 2006-2019 Christian Schenk
+   Copyright (C) 2006-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,7 +35,7 @@ typedef [uuid(A889D812-7E98-4E73-A453-30C9B69A32B1)] struct MiKTeXSetupInfo
   /// @brief MiKTeX version number.
   BSTR version;
   /// @brief MiKTeX major/minor version number.
-  /// The MiKTeX major/minor version number denoted as an integer (e.g., @MIKTEX_MAJOR_MINOR_INT@).
+  /// The MiKTeX major/minor version number denoted as an integer (e.g., @MIKTEX_INTERNAL_MAJOR_MINOR_INT@).
   LONG series;
   /// @brief MiKTeX bin directory.
   BSTR binDirectory;

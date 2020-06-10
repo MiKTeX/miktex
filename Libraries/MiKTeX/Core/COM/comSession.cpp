@@ -181,7 +181,7 @@ STDMETHODIMP comSession::GetMiKTeXSetupInfo(MiKTeXSetupInfo* setupInfo)
   try
   {
     CreateSession();
-    _bstr_t version = UW_(Utils::GetMiKTeXVersionString());
+    _bstr_t version = UW_(MIKTEX_INTERNAL_MAJOR_MINOR_STR);
     _bstr_t binDirectory = UW_(session->GetSpecialPath(SpecialPath::BinDirectory).ToWideCharString());
     _bstr_t installRoot = UW_(session->GetSpecialPath(SpecialPath::InstallRoot).ToWideCharString());
     _bstr_t commonConfigRoot;
@@ -191,7 +191,7 @@ STDMETHODIMP comSession::GetMiKTeXSetupInfo(MiKTeXSetupInfo* setupInfo)
     _bstr_t userConfigRoot = UW_(session->GetSpecialPath(SpecialPath::UserConfigRoot).ToWideCharString());
     _bstr_t userDataRoot = UW_(session->GetSpecialPath(SpecialPath::UserDataRoot).ToWideCharString());
     setupInfo->sharedSetup = TriState::Undetermined == TriState::True ? VARIANT_TRUE : VARIANT_FALSE;
-    setupInfo->series = MIKTEX_MAJOR_MINOR_INT;
+    setupInfo->series = MIKTEX_INTERNAL_MAJOR_MINOR_INT;
     setupInfo->numRoots = session->GetNumberOfTEXMFRoots();
     setupInfo->version = version.Detach();
     setupInfo->binDirectory = binDirectory.Detach();
