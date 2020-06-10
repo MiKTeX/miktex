@@ -1007,7 +1007,7 @@ END
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "Yap"
-    IDR_DVITYPE             "\nDVI\n\nDVI Files (*.dvi)\n.dvi\nMiKTeX.dvi.@MIKTEX_MAJOR_MINOR_STR@\nDVI File"
+    IDR_DVITYPE             "\nDVI\n\nDVI Files (*.dvi)\n.dvi\nMiKTeX.dvi.@MIKTEX_COM_MAJOR_MINOR_STR@\nDVI File"
 END
 
 STRINGTABLE

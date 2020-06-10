@@ -16,18 +16,35 @@
 ## along with this file; if not, write to the Free Software Foundation,
 ## 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-## major version number
-set(MIKTEX_MAJOR_VERSION        2)
+## date based version
+set(MIKTEX_YEAR_VERSION 2020)
+set(MIKTEX_MONTH_VERSION 6)
+set(MIKTEX_DAY_VERSION 14)
+set(MIKTEX_INTERNAL_J2000_VERSION 7470)
 
-## minor version number
-set(MIKTEX_MINOR_VERSION        9)
+set(MIKTEX_DAY_VERSION_IS_PATCH_VERSION FALSE)
 
-## patch version number; measured in: days since January 1, 2000
-## TODO: derive from MIKTEX_YYYY_MM_DD_VERSION
-set(MIKTEX_PATCH_VERSION        7470)
+## internal major/minor/patch version
+math(EXPR
+  MIKTEX_INTERNAL_MAJOR_VERSION
+  "${MIKTEX_YEAR_VERSION} - 2000"
+)
+set(MIKTEX_INTERNAL_MINOR_VERSION ${MIKTEX_MONTH_VERSION})
+if(MIKTEX_DAY_VERSION_IS_PATCH_VERSION)
+  set(MIKTEX_INTERNAL_PATCH_VERSION ${MIKTEX_DAY_VERSION})
+else()
+  set(MIKTEX_INTERNAL_PATCH_VERSION 0)
+endif()
 
-## milestone; date-based
-set(MIKTEX_YYYY_MM_DD_VERSION   "2020-06-14")
+## date based release version number
+math(EXPR
+  MIKTEX_YYYYMMDD_VERSION
+  "${MIKTEX_YEAR_VERSION} * 1000 + (${MIKTEX_MONTH_VERSION} * 100) + ${MIKTEX_DAY_VERSION}"
+)
+string(SUBSTRING ${MIKTEX_YYYYMMDD_VERSION} 0 4 yyyy)
+string(SUBSTRING ${MIKTEX_YYYYMMDD_VERSION} 4 2 mm)
+string(SUBSTRING ${MIKTEX_YYYYMMDD_VERSION} 6 4 dd)
+set(MIKTEX_DATE_VERSION "${yyyy}-${mm}-${dd}")
 
 ## the version of the binary package
 set(MIKTEX_PACKAGE_REVISION
@@ -36,11 +53,19 @@ set(MIKTEX_PACKAGE_REVISION
   "The MiKTeX package revision."
 )
 
-## internal major version
-set(MIKTEX_INTERNAL_MAJOR_VERSION 2)
+## major/minor version for configuration files
+set(MIKTEX_CONFIG_MAJOR_VERSION 2)
+set(MIKTEX_CONFIG_MINOR_VERSION 9)
 
-## internal minor version
-set(MIKTEX_INTERNAL_MINOR_VERSION 9)
+## major/minor version for package manager files
+set(MIKTEX_PACKAGES_MAJOR_VERSION 2)
+set(MIKTEX_PACKAGES_MINOR_VERSION 9)
+
+if(MIKTEX_WINDOWS)
+  ## major/minor version for Windows related COMponents files and directories
+  set(MIKTEX_COM_MAJOR_VERSION 2)
+  set(MIKTEX_COM_MINOR_VERSION 9)
+endif()
 
 if(MIKTEX_LINUX)
   set(MIKTEX_LINUX_DIST

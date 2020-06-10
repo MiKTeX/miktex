@@ -675,21 +675,26 @@ add_custom_target(gen-git-info
     -P ${CMAKE_CURRENT_SOURCE_DIR}/gen-git-info.cmake
 )
 
-set(MIKTEX_MAJOR_MINOR_STR
-  "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}"
-)
-
-set(MIKTEX_MAJOR_MINOR_ID_STR
-  "${MIKTEX_MAJOR_VERSION}_${MIKTEX_MINOR_VERSION}"
-)
-
 set(MIKTEX_INTERNAL_MAJOR_MINOR_STR
   "${MIKTEX_INTERNAL_MAJOR_VERSION}.${MIKTEX_INTERNAL_MINOR_VERSION}"
 )
 
-set(MIKTEX_INTERNAL_MAJOR_MINOR_ID_STR
-  "${MIKTEX_INTERNAL_MAJOR_VERSION}_${MIKTEX_INTERNAL_MINOR_VERSION}"
+set(MIKTEX_CONFIG_MAJOR_MINOR_STR
+  "${MIKTEX_CONFIG_MAJOR_VERSION}.${MIKTEX_CONFIG_MINOR_VERSION}"
 )
+
+set(MIKTEX_PACKAGES_MAJOR_MINOR_STR
+  "${MIKTEX_PACKAGES_MAJOR_VERSION}.${MIKTEX_PACKAGES_MINOR_VERSION}"
+)
+
+if(MIKTEX_WINDOWS)
+  set(MIKTEX_COM_MAJOR_MINOR_STR
+    "${MIKTEX_COM_MAJOR_VERSION}.${MIKTEX_COM_MINOR_VERSION}"
+  )
+  set(MIKTEX_COM_MAJOR_MINOR_ID_STR
+    "${MIKTEX_COM_MAJOR_VERSION}_${MIKTEX_COM_MINOR_VERSION}"
+  )
+endif()
 
 math(
   EXPR
@@ -698,52 +703,45 @@ math(
 )
 
 if(MIKTEX_RELEASE_STATE EQUAL 0)
-  set(MIKTEX_VERSION_STR
-    "${MIKTEX_YYYY_MM_DD_VERSION}"
-    CACHE STRING
-    "The MiKTeX version string."
-    FORCE
-  )
-  set(MIKTEX_VERSION_TAG_STR
-    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_PATCH_VERSION}"
-    CACHE STRING
-    "The MiKTeX version tag string."
-    FORCE
-  )
+  set(default_miktex_display_version_str "${MIKTEX_DATE_VERSION}")
+  set(default_miktex_version_str "${MIKTEX_DATE_VERSION}")
+  set(default_miktex_version_tag_str "${MIKTEX_YYYYMMDD_VERSION}")
 elseif(MIKTEX_RELEASE_STATE EQUAL 1)
-  set(MIKTEX_VERSION_STR
-    "${MIKTEX_YYYY_MM_DD_VERSION} NEXT"
-    CACHE STRING
-    "The MiKTeX version string."
-    FORCE
-  )
-  set(MIKTEX_VERSION_TAG_STR
-    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_PATCH_VERSION}-next"
-    CACHE STRING
-    "The MiKTeX version tag string."
-    FORCE
-  )
+  set(default_miktex_display_version_str "${MIKTEX_DATE_VERSION}-next")
+  set(default_miktex_version_str "${MIKTEX_DATE_VERSION} NEXT")
+  set(default_miktex_version_tag_str "${MIKTEX_YYYYMMDD_VERSION}-next")
 elseif(MIKTEX_RELEASE_STATE EQUAL 4)
-  set(MIKTEX_VERSION_STR
-    "${MIKTEX_YYYY_MM_DD_VERSION} debug"
-    CACHE STRING
-    "The MiKTeX version string."
-    FORCE
-  )
-  set(MIKTEX_VERSION_TAG_STR
-    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_PATCH_VERSION}-debug"
-    CACHE STRING
-    "The MiKTeX version tag string."
-    FORCE
-  )
+  set(default_miktex_display_version_str "${MIKTEX_DATE_VERSION}-debug")
+  set(default_miktex_version_str "${MIKTEX_DATE_VERSION} debug")
+  set(default_miktex_version_tag_str "${MIKTEX_YYYYMMDD_VERSION}-debug")
 endif()
+
+set(MIKTEX_DISPLAY_VERSION_STR
+  "${default_miktex_display_version_str}"
+  CACHE STRING
+  "The MiKTeX version presented to the user."
+  FORCE
+)
+
+set(MIKTEX_VERSION_STR
+  "${default_miktex_version_str}"
+  CACHE STRING
+  "The MiKTeX version."
+  FORCE
+)
+
+set(MIKTEX_VERSION_TAG_STR
+  "${default_miktex_version_tag_str}"
+  CACHE STRING
+  "The MiKTeX version tag string."
+  FORCE
+)
 
 if(MIKTEX_RELEASE_STATE EQUAL 1)
   set(MIKTEX_DEFAULT_PACKAGE_STREAM "next")
 else()
   set(MIKTEX_DEFAULT_PACKAGE_STREAM "stable")
 endif()
-
 
 ###############################################################################
 ## Endianess
@@ -846,7 +844,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${outdir}")
 
 if(WITH_BOOTSTRAPPING)
   list(APPEND MIKTEX_BOOTSTRAPPING_PACKAGES
-    miktex-config-${MIKTEX_INTERNAL_MAJOR_MINOR_STR}
+    miktex-config-${MIKTEX_CONFIG_MAJOR_MINOR_STR}
     miktex-dvips
     miktex-fontconfig
     miktex-misc
@@ -2122,10 +2120,10 @@ if(WITH_BOOTSTRAPPING)
     )
   endif()
   list(APPEND bootstrapping_files
-    miktex-zzdb1-${MIKTEX_INTERNAL_MAJOR_MINOR_STR}.tar.lzma
+    miktex-zzdb1-${MIKTEX_CONFIG_MAJOR_MINOR_STR}.tar.lzma
   )
   list(APPEND bootstrapping_files
-    miktex-zzdb3-${MIKTEX_INTERNAL_MAJOR_MINOR_STR}.tar.lzma
+    miktex-zzdb3-${MIKTEX_CONFIG_MAJOR_MINOR_STR}.tar.lzma
   )
   foreach(p ${MIKTEX_BOOTSTRAPPING_PACKAGES})
     list(APPEND bootstrapping_files
@@ -2208,9 +2206,9 @@ set(CPACK_RESOURCE_FILE_LICENSE
   "${CMAKE_BINARY_DIR}/COPYING.txt"
 )
 
-set(CPACK_PACKAGE_VERSION_MAJOR ${MIKTEX_MAJOR_VERSION})
-set(CPACK_PACKAGE_VERSION_MINOR ${MIKTEX_MINOR_VERSION})
-set(CPACK_PACKAGE_VERSION_PATCH ${MIKTEX_PATCH_VERSION})
+set(CPACK_PACKAGE_VERSION_MAJOR ${MIKTEX_INTERNAL_MAJOR_VERSION})
+set(CPACK_PACKAGE_VERSION_MINOR ${MIKTEX_INTERNAL_MINOR_VERSION})
+set(CPACK_PACKAGE_VERSION_PATCH ${MIKTEX_INTERNAL_PATCH_VERSION})
 string(REPLACE "-" "" CPACK_PACKAGE_VERSION "${MIKTEX_VERSION_STR}")
 
 set(CPACK_PACKAGE_FILE_NAME

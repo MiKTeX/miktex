@@ -4,7 +4,7 @@
     name="MiKTeXOrg.MiKTeX.YapMFC"
     processorArchitecture="@MIKTEX_MANIFEST_PROCESSOR_ARCHITECTURE@"
     type="win32"
-    version="@MIKTEX_MAJOR_VERSION@.@MIKTEX_MINOR_VERSION@.@MIKTEX_PATCH_VERSION@.0"
+    version="@MIKTEX_INTERNAL_MAJOR_VERSION@.@MIKTEX_INTERNAL_MINOR_VERSION@.@MIKTEX_INTERNAL_PATCH_VERSION@.0"
     />
   <description>Yap (MFC)</description>
   <dependency>

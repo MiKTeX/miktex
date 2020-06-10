@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -51,7 +51,7 @@ target_link_libraries(${popt_dll_name}
 
 set_target_properties(${popt_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
+    VERSION "${MIKTEX_INTERNAL_MAJOR_MINOR_STR}"
     SOVERSION "1"
 )
 

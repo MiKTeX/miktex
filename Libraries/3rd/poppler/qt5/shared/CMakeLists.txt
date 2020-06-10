@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2017 Christian Schenk
+## Copyright (C) 2009-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -76,7 +76,7 @@ set_property(TARGET ${poppler_qt_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLD
 
 set_target_properties(${poppler_qt_dll_name}
   PROPERTIES
-   VERSION "${MIKTEX_MAJOR_MINOR_STR}"
+   VERSION "${MIKTEX_INTERNAL_MAJOR_MINOR_STR}"
    SOVERSION 1
 )
 

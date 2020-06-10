@@ -1,6 +1,6 @@
 /* mpm.idl:                                             -*- IDL -*-
 
-   Copyright (C) 2006-2019 Christian Schenk
+   Copyright (C) 2006-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -332,9 +332,9 @@ interface IPackageIterator2 :
 [
   uuid(@guid_MiKTeX_Package_Manager_TLB_CURVER@),
   version(1.0),
-  helpstring("MiKTeX @MIKTEX_MAJOR_MINOR_STR@ Package Manager")
+  helpstring("MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Package Manager")
 ]
-library MiKTeXPackageManager@MIKTEX_MAJOR_MINOR_ID_STR@
+library MiKTeXPackageManager@MIKTEX_COM_MAJOR_MINOR_ID_STR@
 {
   importlib("stdole2.tlb");
 
@@ -345,9 +345,9 @@ library MiKTeXPackageManager@MIKTEX_MAJOR_MINOR_ID_STR@
   /// interface.
   [
     uuid(@guid_MiKTeX_Package_Manager_CURVER@),
-    helpstring("MiKTeX @MIKTEX_MAJOR_MINOR_STR@ Package Manager")
+    helpstring("MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Package Manager")
   ]
-  coclass PackageManager@MIKTEX_MAJOR_MINOR_ID_STR@
+  coclass PackageManager@MIKTEX_COM_MAJOR_MINOR_ID_STR@
   {
     interface IPackageManager;
     interface IPackageManager2;

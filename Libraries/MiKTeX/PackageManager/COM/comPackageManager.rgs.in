@@ -7,20 +7,20 @@ HKCR
 			val AccessPermission = b '%ACCESS_SD%'
 		}
 	}
-	MiKTeX.PackageManager.@MIKTEX_MAJOR_MINOR_STR@ = s 'MiKTeX @MIKTEX_MAJOR_MINOR_STR@ Package Manager'
+	MiKTeX.PackageManager.@MIKTEX_COM_MAJOR_MINOR_STR@ = s 'MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Package Manager'
 	{
 		CLSID = s '{@guid_MiKTeX_Package_Manager_CURVER@}'
 	}
 	MiKTeX.PackageManager = s 'MiKTeX Package Manager'
 	{
 		CLSID = s '{@guid_MiKTeX_Package_Manager_CURVER@}'
-		CurVer = s 'MiKTeX.PackageManager.@MIKTEX_MAJOR_MINOR_STR@'
+		CurVer = s 'MiKTeX.PackageManager.@MIKTEX_COM_MAJOR_MINOR_STR@'
 	}
 	NoRemove CLSID
 	{
-		ForceRemove {@guid_MiKTeX_Package_Manager_CURVER@} = s 'MiKTeX @MIKTEX_MAJOR_MINOR_STR@ Package Manager'
+		ForceRemove {@guid_MiKTeX_Package_Manager_CURVER@} = s 'MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Package Manager'
 		{
-			ProgID = s 'MiKTeX.PackageManager.@MIKTEX_MAJOR_MINOR_STR@'
+			ProgID = s 'MiKTeX.PackageManager.@MIKTEX_COM_MAJOR_MINOR_STR@'
 			VersionIndependentProgID = s 'MiKTeX.PackageManager'
 			ForceRemove 'Programmable'
 			InprocServer32 = s '%MODULE%'

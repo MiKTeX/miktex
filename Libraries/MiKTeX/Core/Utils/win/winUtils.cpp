@@ -1191,7 +1191,7 @@ void Utils::RegisterShellFileAssoc(const string& extension, const string& progId
   {
     if (haveOtherProgId)
     {
-      winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "MiKTeX." MIKTEX_MAJOR_MINOR_STR ".backup", otherProgId);
+      winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "MiKTeX." MIKTEX_COM_MAJOR_MINOR_STR ".backup", otherProgId);
     }
     winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "", progId);
   }
@@ -1209,13 +1209,13 @@ void Utils::UnregisterShellFileAssoc(const string& extension, const string& prog
     return;
   }
   string backupProgId;
-  bool haveBackupProgId = winRegistry::TryGetRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_MAJOR_MINOR_STR ".backup", backupProgId);
+  bool haveBackupProgId = winRegistry::TryGetRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_COM_MAJOR_MINOR_STR ".backup", backupProgId);
   if (haveBackupProgId || StringCompare(existingProgId.c_str(), progId.c_str(), true) != 0)
   {
     if (haveBackupProgId)
     {
       winRegistry::SetRegistryValue(hkeyRoot, regPath.GetData(), "", backupProgId.c_str());
-      winRegistry::TryDeleteRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_MAJOR_MINOR_STR ".backup");
+      winRegistry::TryDeleteRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_COM_MAJOR_MINOR_STR ".backup");
     }
     PathName openWithProgIds(regPath);
     openWithProgIds /= "OpenWithProgIds";
@@ -1280,7 +1280,7 @@ void Utils::RegisterShellVerb(const string& progId, const string& verb, const st
 
 string Utils::MakeProgId(const string& progId)
 {
-  return string("MiKTeX") + "." + progId + "." + MIKTEX_MAJOR_MINOR_STR;
+  return string("MiKTeX") + "." + progId + "." + MIKTEX_COM_MAJOR_MINOR_STR;
 }
 
 bool Utils::SupportsHardLinks(const PathName& path)

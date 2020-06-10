@@ -32,11 +32,11 @@
 #  define MIKTEX_REGPATH_PRODUCT                \
   "Software\\MiKTeX.org\\MiKTeX"
 #  define MIKTEX_REGPATH_SERIES                         \
-  "Software\\MiKTeX.org\\MiKTeX\\" MIKTEX_MAJOR_MINOR_STR
+  "Software\\MiKTeX.org\\MiKTeX\\" MIKTEX_COM_MAJOR_MINOR_STR
 #  define MIKTEX_REGPATH_PRODUCT_MIKTEXDIRECT   \
   "Software\\MiKTeX.org\\MiKTeXDirect"
 #  define MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT    \
-  "Software\\MiKTeX.org\\MiKTeXDirect\\"  MIKTEX_MAJOR_MINOR_STR
+  "Software\\MiKTeX.org\\MiKTeXDirect\\"  MIKTEX_COM_MAJOR_MINOR_STR
 #endif
 
 #define MIKTEX_GPL_GHOSTSCRIPT                  \
