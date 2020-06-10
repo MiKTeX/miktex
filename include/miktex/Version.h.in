@@ -71,7 +71,9 @@
 #define MIKTEX_BUILD_SPECIAL_STR ""
 #endif
 
+#if defined(MIKTEX_COM_MAJOR_MINOR_ID_STR)
 #define MAKE_CURVER_ID(prefix) prefix ## @MIKTEX_COM_MAJOR_MINOR_ID_STR@
+#endif
 
 #if !defined(stringify_)
 #define stringify__(x) #x
