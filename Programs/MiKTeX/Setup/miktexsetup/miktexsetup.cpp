@@ -262,7 +262,7 @@ const struct poptOption Application::aoption[] = {
 
   {
     "print-version-number", 0, POPT_ARG_NONE, nullptr, OPT_PRINT_VERSION_NUMBER,
-    T_("Print the MiKTeX version and exit."),
+    T_("Print the program version number and exit."),
     nullptr
   },
 
@@ -729,7 +729,7 @@ void Application::Main(int argc, const char** argv)
 
   if (optPrintVersionNumber)
   {
-    cout << MIKTEX_VERSION_STR << endl;
+    cout << VersionNumber(MIKTEX_COMPONENT_VERSION_STR) << endl;
     return;
   }
 

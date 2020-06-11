@@ -39,7 +39,7 @@ set_property(TARGET ${libressl_crypto_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT
 
 set_target_properties(${libressl_crypto_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_INTERNAL_MAJOR_MINOR_STR}"
+    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
     SOVERSION "1"
 )
 

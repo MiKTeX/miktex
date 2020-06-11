@@ -35,7 +35,7 @@ set_property(TARGET ${log4cxx_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}
 
 set_target_properties(${log4cxx_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_INTERNAL_MAJOR_MINOR_STR}"
+    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
     SOVERSION "1"
 )
 

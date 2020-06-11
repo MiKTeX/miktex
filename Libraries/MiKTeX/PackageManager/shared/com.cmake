@@ -23,8 +23,8 @@ add_definitions(
   -D_WINDLL
 )
 
-set(mpmidl_h MiKTeX${MIKTEX_INTERNAL_MAJOR_MINOR_INT}-packagemanageridl.h)
-set(mpm_idl MiKTeX${MIKTEX_INTERNAL_MAJOR_MINOR_INT}-packagemanager.idl)
+set(mpmidl_h MiKTeX${MIKTEX_MAJOR_MINOR_INT}-packagemanageridl.h)
+set(mpm_idl MiKTeX${MIKTEX_MAJOR_MINOR_INT}-packagemanager.idl)
 
 configure_file(
   ${mpm_source_dir}/COM/mpm.idl.in

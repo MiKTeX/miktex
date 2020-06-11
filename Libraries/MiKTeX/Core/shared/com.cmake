@@ -23,8 +23,8 @@ add_definitions(
   -D_WINDLL
 )
 
-set(sessionidl_h MiKTeX${MIKTEX_INTERNAL_MAJOR_MINOR_INT}-sessionidl.h)
-set(session_idl MiKTeX${MIKTEX_INTERNAL_MAJOR_MINOR_INT}-session.idl)
+set(sessionidl_h MiKTeX${MIKTEX_MAJOR_MINOR_INT}-sessionidl.h)
+set(session_idl MiKTeX${MIKTEX_MAJOR_MINOR_INT}-session.idl)
 
 configure_file(
   ${core_source_dir}/COM/session.idl.in

@@ -27,22 +27,19 @@
 #include <miktex/First.h>
 #include <miktex/Definitions.h>
 
-#define MIKTEX_INTERNAL_MAJOR_VERSION @MIKTEX_INTERNAL_MAJOR_VERSION@
-#define MIKTEX_INTERNAL_MINOR_VERSION @MIKTEX_INTERNAL_MINOR_VERSION@
-#define MIKTEX_INTERNAL_PATCH_VERSION @MIKTEX_INTERNAL_PATCH_VERSION@
+#define MIKTEX_MAJOR_VERSION @MIKTEX_MAJOR_VERSION@
+#define MIKTEX_MINOR_VERSION @MIKTEX_MINOR_VERSION@
+#define MIKTEX_PATCH_VERSION @MIKTEX_PATCH_VERSION@
 
-#define MIKTEX_YEAR_VERSION @MIKTEX_YEAR_VERSION@
+#define MIKTEX_MAJOR_MINOR_INT @MIKTEX_MAJOR_MINOR_INT@
 
 #define MIKTEX_RELEASE_STATE @MIKTEX_RELEASE_STATE@
-
-#define MIKTEX_INTERNAL_MAJOR_MINOR_INT @MIKTEX_INTERNAL_MAJOR_VERSION@ * 100 + @MIKTEX_INTERNAL_MINOR_VERSION@
-
-#define MIKTEX_INTERNAL_MAJOR_MINOR_STR "@MIKTEX_INTERNAL_MAJOR_VERSION@.@MIKTEX_INTERNAL_MINOR_VERSION@"
 
 #define MIKTEX_PRODUCTNAME_STR "@MIKTEX_PRODUCT_NAME@"
 
 #define MIKTEX_COMP_COMPANY_STR "MiKTeX.org"
 
+#define MIKTEX_DISPLAY_VERSION_STR "@MIKTEX_DISPLAY_VERSION_STR@"
 #define MIKTEX_VERSION_STR "@MIKTEX_VERSION_STR@"
 
 #if !defined(MIKTEX_COMP_COPYRIGHT_STR)
@@ -89,23 +86,23 @@
 #  endif
 #  if !defined(MIKTEX_COMPONENT_VERSION_STR)
 #    if defined(MIKTEX_COMP_ORIG_VERSION_STR)
-#      define MIKTEX_COMPONENT_VERSION_STR                              \
+#      define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
          stringify_(MIKTEX_COMP_MAJOR_VERSION) "." stringify_(MIKTEX_COMP_MINOR_VERSION) "." stringify_(MIKTEX_COMP_PATCH_VERSION)   \
          " (" MIKTEX_COMP_ORIG_VERSION_STR ")"
 #    else
-#      define MIKTEX_COMPONENT_VERSION_STR                              \
+#      define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
          stringify_(MIKTEX_COMP_MAJOR_VERSION) "." stringify_(MIKTEX_COMP_MINOR_VERSION) "." stringify_(MIKTEX_COMP_PATCH_VERSION)
 #    endif
 #  endif
 #elif defined(MIKTEX_COMP_J2000_VERSION)
 #  if !defined(MIKTEX_COMPONENT_VERSION_STR)
 #    if defined(MIKTEX_COMP_ORIG_VERSION_STR)
-#      define MIKTEX_COMPONENT_VERSION_STR                              \
-         "@MIKTEX_INTERNAL_MAJOR_MINOR_STR@" "." stringify_(MIKTEX_COMP_J2000_VERSION)    \
+#      define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
+         "@MIKTEX_LEGACY_MAJOR_MINOR_STR@" "." stringify_(MIKTEX_COMP_J2000_VERSION)                                                 \
          " (" MIKTEX_COMP_ORIG_VERSION_STR ")"
 #    else
-#      define MIKTEX_COMPONENT_VERSION_STR                              \
-         "@MIKTEX_INTERNAL_MAJOR_MINOR_STR@" "." stringify_(MIKTEX_COMP_J2000_VERSION)
+#      define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
+         "@MIKTEX_LEGACY_MAJOR_MINOR_STR@" "." stringify_(MIKTEX_COMP_J2000_VERSION)
 #    endif
 #  endif
 #endif
