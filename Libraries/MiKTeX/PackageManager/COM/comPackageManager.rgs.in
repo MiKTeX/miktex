@@ -7,7 +7,7 @@ HKCR
 			val AccessPermission = b '%ACCESS_SD%'
 		}
 	}
-	MiKTeX.PackageManager.@MIKTEX_COM_MAJOR_MINOR_STR@ = s 'MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Package Manager'
+	MiKTeX.PackageManager.@MIKTEX_COM_MAJOR_MINOR_STR@ = s 'MiKTeX @MIKTEX_LEGACY_MAJOR_MINOR_STR@ Package Manager'
 	{
 		CLSID = s '{@guid_MiKTeX_Package_Manager_CURVER@}'
 	}
@@ -18,7 +18,7 @@ HKCR
 	}
 	NoRemove CLSID
 	{
-		ForceRemove {@guid_MiKTeX_Package_Manager_CURVER@} = s 'MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Package Manager'
+		ForceRemove {@guid_MiKTeX_Package_Manager_CURVER@} = s 'MiKTeX @MIKTEX_LEGACY_MAJOR_MINOR_STR@ Package Manager'
 		{
 			ProgID = s 'MiKTeX.PackageManager.@MIKTEX_COM_MAJOR_MINOR_STR@'
 			VersionIndependentProgID = s 'MiKTeX.PackageManager'

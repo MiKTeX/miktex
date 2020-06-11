@@ -332,7 +332,7 @@ interface IPackageIterator2 :
 [
   uuid(@guid_MiKTeX_Package_Manager_TLB_CURVER@),
   version(1.0),
-  helpstring("MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Package Manager")
+  helpstring("MiKTeX @MIKTEX_LEGACY_MAJOR_MINOR_STR@ Package Manager")
 ]
 library MiKTeXPackageManager@MIKTEX_COM_MAJOR_MINOR_ID_STR@
 {
@@ -345,7 +345,7 @@ library MiKTeXPackageManager@MIKTEX_COM_MAJOR_MINOR_ID_STR@
   /// interface.
   [
     uuid(@guid_MiKTeX_Package_Manager_CURVER@),
-    helpstring("MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Package Manager")
+    helpstring("MiKTeX @MIKTEX_LEGACY_MAJOR_MINOR_STR@ Package Manager")
   ]
   coclass PackageManager@MIKTEX_COM_MAJOR_MINOR_ID_STR@
   {

@@ -33,7 +33,7 @@ using namespace MiKTeX::Util;
 PathName SetupService::GetDefaultCommonInstallDir()
 {
   PathName path = Utils::GetFolderPath(CSIDL_PROGRAM_FILES, CSIDL_PROGRAM_FILES, true);
-  path /= MIKTEX_PRODUCTNAME_STR " " MIKTEX_COM_MAJOR_MINOR_STR;
+  path /= MIKTEX_PRODUCTNAME_STR " " MIKTEX_LEGACY_MAJOR_MINOR_STR;
   return path;
 }
 
@@ -51,7 +51,7 @@ PathName SetupService::GetDefaultUserInstallDir()
     path = Utils::GetFolderPath(CSIDL_LOCAL_APPDATA, CSIDL_LOCAL_APPDATA, true);
     path /= "PrograMS";
   }
-  path /= MIKTEX_PRODUCTNAME_STR " " MIKTEX_COM_MAJOR_MINOR_STR;
+  path /= MIKTEX_PRODUCTNAME_STR " " MIKTEX_LEGACY_MAJOR_MINOR_STR;
   return path;
 }
 
@@ -69,7 +69,7 @@ winSetupServiceImpl::winSetupServiceImpl()
   }
   if (options.FolderName.Empty())
   {
-    options.FolderName = MIKTEX_PRODUCTNAME_STR " " MIKTEX_COM_MAJOR_MINOR_STR;
+    options.FolderName = MIKTEX_PRODUCTNAME_STR " " MIKTEX_LEGACY_MAJOR_MINOR_STR;
   }
 }
 

@@ -181,7 +181,7 @@ STDMETHODIMP comSession::GetMiKTeXSetupInfo(MiKTeXSetupInfo* setupInfo)
   try
   {
     CreateSession();
-    _bstr_t version = UW_(MIKTEX_COM_MAJOR_MINOR_STR);
+    _bstr_t version = UW_(MIKTEX_LEGACY_MAJOR_MINOR_STR);
     _bstr_t binDirectory = UW_(session->GetSpecialPath(SpecialPath::BinDirectory).ToWideCharString());
     _bstr_t installRoot = UW_(session->GetSpecialPath(SpecialPath::InstallRoot).ToWideCharString());
     _bstr_t commonConfigRoot;

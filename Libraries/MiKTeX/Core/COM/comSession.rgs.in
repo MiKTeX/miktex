@@ -7,7 +7,7 @@ HKCR
 			val AccessPermission = b '%ACCESS_SD%'
 		}
 	}
-	MiKTeX.Session.@MIKTEX_COM_MAJOR_MINOR_STR@ = s 'MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Session'
+	MiKTeX.Session.@MIKTEX_COM_MAJOR_MINOR_STR@ = s 'MiKTeX @MIKTEX_LEGACY_MAJOR_MINOR_STR@ Session'
 	{
 		CLSID = s '{@guid_MiKTeX_Session_CURVER@}'
 	}
@@ -18,7 +18,7 @@ HKCR
 	}
 	NoRemove CLSID
 	{
-		ForceRemove {@guid_MiKTeX_Session_CURVER@} = s 'MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Session'
+		ForceRemove {@guid_MiKTeX_Session_CURVER@} = s 'MiKTeX @MIKTEX_LEGACY_MAJOR_MINOR_STR@ Session'
 		{
 			ProgID = s 'MiKTeX.Session.@MIKTEX_COM_MAJOR_MINOR_STR@'
 			VersionIndependentProgID = s 'MiKTeX.Session'

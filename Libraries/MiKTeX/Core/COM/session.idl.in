@@ -145,7 +145,7 @@ interface ISession2 :
 [
   uuid(@guid_MiKTeX_Session_TLB_CURVER@),
   version(1.0),
-  helpstring("MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Session")
+  helpstring("MiKTeX @MIKTEX_LEGACY_MAJOR_MINOR_STR@ Session")
 ]
 library MiKTeXSession@MIKTEX_COM_MAJOR_MINOR_ID_STR@
 {
@@ -160,7 +160,7 @@ library MiKTeXSession@MIKTEX_COM_MAJOR_MINOR_ID_STR@
   /// interfaces.
   [
     uuid(@guid_MiKTeX_Session_CURVER@),
-    helpstring("MiKTeX @MIKTEX_COM_MAJOR_MINOR_STR@ Session")
+    helpstring("MiKTeX @MIKTEX_LEGACY_MAJOR_MINOR_STR@ Session")
   ]
   coclass MiKTeXSession@MIKTEX_COM_MAJOR_MINOR_ID_STR@
   {

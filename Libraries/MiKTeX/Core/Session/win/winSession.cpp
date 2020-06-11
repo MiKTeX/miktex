@@ -356,7 +356,7 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       if (SHGetFolderPathW(nullptr, CSIDL_PROGRAM_FILES, nullptr, SHGFP_TYPE_CURRENT, szProgramFiles) == S_OK)
       {
         ret.commonInstallRoot = szProgramFiles;
-        ret.commonInstallRoot /= "MiKTeX" " " MIKTEX_COM_MAJOR_MINOR_STR;
+        ret.commonInstallRoot /= "MiKTeX" " " MIKTEX_LEGACY_MAJOR_MINOR_STR;
       }
     }
     wchar_t szPath[MAX_PATH];
@@ -364,7 +364,7 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     {
       ret.commonDataRoot = szPath;
       ret.commonDataRoot /= product;
-      ret.commonDataRoot /= MIKTEX_COM_MAJOR_MINOR_STR;
+      ret.commonDataRoot /= MIKTEX_LEGACY_MAJOR_MINOR_STR;
     }
     ret.commonConfigRoot = ret.commonDataRoot;
     if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, szPath) == S_OK
@@ -372,13 +372,13 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     {
       ret.userDataRoot = szPath;
       ret.userDataRoot /= product;
-      ret.userDataRoot /= MIKTEX_COM_MAJOR_MINOR_STR;
+      ret.userDataRoot /= MIKTEX_LEGACY_MAJOR_MINOR_STR;
     }
     if (SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, szPath) == S_OK)
     {
       ret.userConfigRoot = szPath;
       ret.userConfigRoot /= product;
-      ret.userConfigRoot /= MIKTEX_COM_MAJOR_MINOR_STR;
+      ret.userConfigRoot /= MIKTEX_LEGACY_MAJOR_MINOR_STR;
     }
     ret.userInstallRoot = ret.userConfigRoot;
   }
