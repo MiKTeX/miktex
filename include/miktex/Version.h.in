@@ -17,12 +17,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#if defined(_MSC_VER)
 #pragma once
-#endif
-
-#if !defined(MIKTEX_VERSION_H)
-#define MIKTEX_VERSION_H
 
 #include <miktex/First.h>
 #include <miktex/Definitions.h>
@@ -108,6 +103,4 @@
          "@MIKTEX_LEGACY_MAJOR_MINOR_STR@" "." stringify_(MIKTEX_COMP_J2000_VERSION)
 #    endif
 #  endif
-#endif
-
 #endif
