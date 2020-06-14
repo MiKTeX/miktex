@@ -172,7 +172,8 @@ enum Option
   OPT_PACKAGE_SET,
   OPT_PORTABLE,
   OPT_PRINT_INFO_ONLY,
-  OPT_PRINT_VERSION_NUMBER,
+  OPT_PRINT_PROGRAM_VERSION,
+  OPT_PRINT_MIKTEX_VERSION,
 #if defined(MIKTEX_WINDOWS)
   OPT_PROGRAM_FOLDER,
 #endif
@@ -261,10 +262,25 @@ const struct poptOption Application::aoption[] = {
   },
 
   {
-    "print-version-number", 0, POPT_ARG_NONE, nullptr, OPT_PRINT_VERSION_NUMBER,
+    "print-program-version", 0, POPT_ARG_NONE, nullptr, OPT_PRINT_PROGRAM_VERSION,
     T_("Print the program version number and exit."),
     nullptr
   },
+
+  {
+    "print-miktex-version", 0, POPT_ARG_NONE, nullptr, OPT_PRINT_MIKTEX_VERSION,
+    T_("Print the MiKTeX version number and exit."),
+    nullptr
+  },
+
+#if 1
+  // DEPRECATED
+  {
+    "print-version-number", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PRINT_PROGRAM_VERSION,
+    T_("Print the program version number and exit."),
+    nullptr
+  },
+#endif
 
 #if defined(MIKTEX_WINDOWS)
   {
@@ -552,7 +568,8 @@ void Application::Main(int argc, const char** argv)
   bool optListRepositories = false;
   bool optPortable = false;
   bool optPrintInfoOnly = false;
-  bool optPrintVersionNumber = false;
+  bool optPrintMiKTeXVersion = false;
+  bool optPrintProgramVersion = false;
   bool optVersion = false;
   PackageLevel optPackageLevel = PackageLevel::None;
   string optLocalPackageRepository;
@@ -644,8 +661,11 @@ void Application::Main(int argc, const char** argv)
     case OPT_PRINT_INFO_ONLY:
       optPrintInfoOnly = true;
       break;
-    case OPT_PRINT_VERSION_NUMBER:
-      optPrintVersionNumber = true;
+    case OPT_PRINT_MIKTEX_VERSION:
+      optPrintMiKTeXVersion = true;
+      break;
+    case OPT_PRINT_PROGRAM_VERSION:
+      optPrintProgramVersion = true;
       break;
 #if defined(MIKTEX_WINDOWS)
     case OPT_PROGRAM_FOLDER:
@@ -727,7 +747,13 @@ void Application::Main(int argc, const char** argv)
     return;
   }
 
-  if (optPrintVersionNumber)
+  if (optPrintMiKTeXVersion)
+  {
+    cout << MIKTEX_VERSION_STR << endl;
+    return;
+  }
+
+  if (optPrintProgramVersion)
   {
     cout << VersionNumber(MIKTEX_COMPONENT_VERSION_STR) << endl;
     return;
