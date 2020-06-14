@@ -708,10 +708,6 @@ set(MIKTEX_MAJOR_MINOR_PATCH_STR
   "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}.${MIKTEX_PATCH_VERSION}"
 )
 
-set(MIKTEX_CONFIG_MAJOR_MINOR_STR
-  "${MIKTEX_CONFIG_MAJOR_VERSION}.${MIKTEX_CONFIG_MINOR_VERSION}"
-)
-
 set(MIKTEX_PACKAGES_MAJOR_MINOR_STR
   "${MIKTEX_PACKAGES_MAJOR_VERSION}.${MIKTEX_PACKAGES_MINOR_VERSION}"
 )
@@ -883,7 +879,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${outdir}")
 
 if(WITH_BOOTSTRAPPING)
   list(APPEND MIKTEX_BOOTSTRAPPING_PACKAGES
-    miktex-config-${MIKTEX_CONFIG_MAJOR_MINOR_STR}
+    miktex-config-${MIKTEX_LEGACY_MAJOR_MINOR_STR}
     miktex-dvips
     miktex-fontconfig
     miktex-misc
@@ -2159,10 +2155,10 @@ if(WITH_BOOTSTRAPPING)
     )
   endif()
   list(APPEND bootstrapping_files
-    miktex-zzdb1-${MIKTEX_CONFIG_MAJOR_MINOR_STR}.tar.lzma
+    miktex-zzdb1-${MIKTEX_PACKAGES_MAJOR_MINOR_STR}.tar.lzma
   )
   list(APPEND bootstrapping_files
-    miktex-zzdb3-${MIKTEX_CONFIG_MAJOR_MINOR_STR}.tar.lzma
+    miktex-zzdb3-${MIKTEX_PACKAGES_MAJOR_MINOR_STR}.tar.lzma
   )
   foreach(p ${MIKTEX_BOOTSTRAPPING_PACKAGES})
     list(APPEND bootstrapping_files

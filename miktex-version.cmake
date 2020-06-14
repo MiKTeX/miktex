@@ -35,11 +35,7 @@ else()
   set(MIKTEX_PATCH_VERSION 0)
 endif()
 
-## major/minor version for configuration files
-set(MIKTEX_CONFIG_MAJOR_VERSION 2)
-set(MIKTEX_CONFIG_MINOR_VERSION 9)
-
-## major/minor version for package manager files
+## major/minor version for package database files
 set(MIKTEX_PACKAGES_MAJOR_VERSION 2)
 set(MIKTEX_PACKAGES_MINOR_VERSION 9)
 
@@ -49,7 +45,7 @@ if(WIN32 AND NOT UNIX)
   set(MIKTEX_COM_MINOR_VERSION 9)
 endif()
 
-## the version of the binary package
+## the version of the MiKTeX binary package
 set(MIKTEX_PACKAGE_REVISION
   1
   CACHE STRING
