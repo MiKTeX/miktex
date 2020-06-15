@@ -454,7 +454,7 @@ const struct poptOption PackageCreator::options[] = {
 
   {
     // TODO: "miktex-major-minor"
-    "miktex-series", 0, POPT_ARG_STRING, 0, OPT_MIKTEX_MAJOR_MINOR, T_("Specify the MiKTeX major/minor version (one of: 2.9)."), T_("MAJOR.MINOR")
+    "miktex-series", 0, POPT_ARG_STRING, 0, OPT_MIKTEX_MAJOR_MINOR, T_("Specify the MiKTeX major/minor version."), T_("MAJOR.MINOR")
   },
 
   {

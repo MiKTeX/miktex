@@ -907,6 +907,11 @@ bool SessionImpl::IsSharedSetup()
   return isSharedSetup == TriState::True;
 }
 
+VersionNumber SessionImpl::GetSetupVersionNumber()
+{
+  return initStartupConfig.setupVersion;
+}
+
 void SessionImpl::ConfigureFile(const PathName& pathRel, HasNamedValues* callback)
 {
   PathName pathOut(GetSpecialPath(SpecialPath::ConfigRoot));

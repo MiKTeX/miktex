@@ -694,6 +694,12 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
       options.Config.commonInstallRoot = "";
 #endif
     }
+#if defined(MIKTEX_WINDOWS)
+    if (options.FolderName.Empty())
+    {
+      options.FolderName = MIKTEX_PRODUCTNAME_STR;
+    }
+#endif
   }
   if (options.Task == SetupTask::Download || options.Task == SetupTask::InstallFromLocalRepository)
   {
@@ -1821,9 +1827,11 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   time_t now = time(nullptr);
   if (options[ReportOption::General])
   {
+    VersionNumber setupVersion = session->GetSetupVersionNumber();
     auto p = Utils::CheckPath();
-    s << "Date: " << fmt::format("{:%F %T}", *localtime(&now)) << "\n"
-      << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
+    s << "ReportDate: " << fmt::format("{:%F %T}", *localtime(&now)) << "\n"
+      << "CurrentVersion: " << Utils::GetMiKTeXVersionString() << "\n"
+      << "SetupVersion: " << (setupVersion == VersionNumber() ? MIKTEX_LEGACY_MAJOR_MINOR_STR : setupVersion.ToString()) << "\n"
       << "Configuration: " << (session->IsMiKTeXPortable() ? "Portable" : "Regular") << "\n";
     if (Utils::HaveGetGitInfo())
     {

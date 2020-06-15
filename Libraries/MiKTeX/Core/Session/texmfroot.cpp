@@ -136,7 +136,7 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
   return idx;
 }
 
-void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, bool review)
+void SessionImpl::InitializeRootDirectories(const VersionedStartupConfig& startupConfig, bool review)
 {
   rootDirectories.clear();
 
@@ -515,8 +515,18 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
   // clear the search path cache
   ClearSearchVectors();
 
-  StartupConfig newStartupConfig = partialStartupConfig;
+  VersionedStartupConfig newStartupConfig = partialStartupConfig;
   newStartupConfig.config = initStartupConfig.config;
+
+  bool isSetup = !newStartupConfig.commonInstallRoot.Empty() || !newStartupConfig.userInstallRoot.Empty();
+  if (isSetup)
+  {
+    newStartupConfig.setupVersion = VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0);
+  }
+  else
+  {
+    newStartupConfig.setupVersion = initStartupConfig.setupVersion;
+  }
 
   if (newStartupConfig.commonInstallRoot.Empty() && commonInstallRootIndex != INVALID_ROOT_INDEX)
   {

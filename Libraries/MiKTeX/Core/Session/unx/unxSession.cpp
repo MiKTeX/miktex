@@ -102,9 +102,9 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
  * CommonInstall: /usr/local/share/miktex-texmf   (DEB,RPM,TGZ)
  *             or /opt/miktex/texmfs/install      (self-contained)
  */
-StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName& commonPrefixArg, const PathName& userPrefixArg)
+VersionedStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, VersionNumber setupVersion, const PathName& commonPrefixArg, const PathName& userPrefixArg)
 {
-  StartupConfig ret;
+  VersionedStartupConfig ret;
   if (config == MiKTeXConfiguration::None)
   {
     config = MiKTeXConfiguration::Regular;

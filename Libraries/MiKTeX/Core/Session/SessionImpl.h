@@ -121,6 +121,25 @@ public:
   std::vector<std::string> definition;
 };
 
+struct VersionedStartupConfig :
+  public MiKTeX::Core::StartupConfig
+{
+public:
+  VersionedStartupConfig()
+  {
+  }
+
+public:
+  VersionedStartupConfig(const MiKTeX::Core::StartupConfig& parent) :
+    StartupConfig(parent)
+  {
+  }
+  
+  /// MiKTeX setup version.
+public:
+  MiKTeX::Core::VersionNumber setupVersion;
+};
+
 class SessionImpl : public MiKTeX::Core::Session
 {
 public:
@@ -451,6 +470,9 @@ public:
 
 public:
   bool IsSharedSetup() override;
+
+public:
+  MiKTeX::Core::VersionNumber GetSetupVersionNumber() override;
 
 public:
   bool GetPaperSizeInfo(int idx, MiKTeX::Core::PaperSizeInfo& paperSize) override;
@@ -847,47 +869,47 @@ private:
   bool FindStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::PathName& path);
 
 private:
-  MiKTeX::Core::StartupConfig ReadStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::PathName& path);
+  VersionedStartupConfig ReadStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::PathName& path);
 
 private:
-  MiKTeX::Core::PathName GetStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::MiKTeXConfiguration config);
+  MiKTeX::Core::PathName GetStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::MiKTeXConfiguration config, MiKTeX::Core::VersionNumber version);
 
 private:
-  void WriteStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::StartupConfig& startupConfig);
+  void WriteStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const VersionedStartupConfig& startupConfig);
 
 private:
-  MiKTeX::Core::StartupConfig ReadEnvironment(MiKTeX::Core::ConfigurationScope scope);
+  VersionedStartupConfig ReadEnvironment(MiKTeX::Core::ConfigurationScope scope);
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  MiKTeX::Core::StartupConfig ReadRegistry(MiKTeX::Core::ConfigurationScope scope);
+  VersionedStartupConfig ReadRegistry(MiKTeX::Core::ConfigurationScope scope);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  void WriteRegistry(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::StartupConfig& startupConfig);
+  void WriteRegistry(MiKTeX::Core::ConfigurationScope scope, const VersionedStartupConfig& startupConfig);
 #endif
 
 private:
-  MiKTeX::Core::StartupConfig DefaultConfig(MiKTeX::Core::MiKTeXConfiguration config, const MiKTeX::Core::PathName& commonPrefix, const MiKTeX::Core::PathName& userPrefix);
+  VersionedStartupConfig DefaultConfig(MiKTeX::Core::MiKTeXConfiguration config, MiKTeX::Core::VersionNumber setupVersion, const MiKTeX::Core::PathName& commonPrefix, const MiKTeX::Core::PathName& userPrefix);
 
 private:
-  MiKTeX::Core::StartupConfig DefaultConfig()
+  VersionedStartupConfig DefaultConfig()
   {
-    return DefaultConfig(initStartupConfig.config, MiKTeX::Core::PathName(), MiKTeX::Core::PathName());
+    return DefaultConfig(initStartupConfig.config, initStartupConfig.setupVersion, MiKTeX::Core::PathName(), MiKTeX::Core::PathName());
   }
 
 private:
   void InitializeStartupConfig();
 
 private:
-  void MergeStartupConfig(MiKTeX::Core::StartupConfig& startupConfig, const MiKTeX::Core::StartupConfig& defaults);
+  void MergeStartupConfig(VersionedStartupConfig& startupConfig, const VersionedStartupConfig& defaults);
 
 private:
-  void InitializeRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig, bool review);
+  void InitializeRootDirectories(const VersionedStartupConfig& startupConfig, bool review);
 
 private:
-  void SaveStartupConfig(const MiKTeX::Core::StartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options);
+  void SaveStartupConfig(const VersionedStartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options);
 
 private:
   bool IsTeXMFReadOnly(unsigned r);
@@ -1040,7 +1062,7 @@ private:
   std::vector<LanguageInfo_> languages;
 
 private:
-  MiKTeX::Core::StartupConfig initStartupConfig;
+  VersionedStartupConfig initStartupConfig;
 
 private:
   MiKTeX::Core::Session::InitInfo initInfo;

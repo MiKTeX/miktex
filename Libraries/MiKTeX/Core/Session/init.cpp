@@ -356,14 +356,14 @@ void SessionImpl::InitializeStartupConfig()
 #endif
 
   // merge in the default settings
-  MergeStartupConfig(initStartupConfig, DefaultConfig(initStartupConfig.config, commonPrefix, userPrefix));
+  MergeStartupConfig(initStartupConfig, DefaultConfig(initStartupConfig.config, initStartupConfig.setupVersion, commonPrefix, userPrefix));
 }
 
-StartupConfig SessionImpl::ReadEnvironment(ConfigurationScope scope)
+VersionedStartupConfig SessionImpl::ReadEnvironment(ConfigurationScope scope)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  StartupConfig ret;
+  VersionedStartupConfig ret;
 
   string str;
 
@@ -417,15 +417,20 @@ StartupConfig SessionImpl::ReadEnvironment(ConfigurationScope scope)
   return ret;
 }
 
-StartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const PathName& path)
+VersionedStartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const PathName& path)
 {
-  StartupConfig ret;
+  VersionedStartupConfig ret;
 
   unique_ptr<Cfg> cfg(Cfg::Create());
 
   cfg->Read(path);
 
   string str;
+
+  if (cfg->TryGetValueAsString(MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, str))
+  {
+    ret.setupVersion = VersionNumber::Parse(str);
+  }
 
   if (cfg->TryGetValueAsString("Auto", "Config", str))
   {
@@ -515,7 +520,7 @@ StartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const
   return ret;
 }
 
-void SessionImpl::SaveStartupConfig(const MiKTeX::Core::StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
+void SessionImpl::SaveStartupConfig(const VersionedStartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
 {
 #if defined(MIKTEX_WINDOWS)
   bool noRegistry = options[RegisterRootDirectoriesOption::NoRegistry];
@@ -573,9 +578,9 @@ void SessionImpl::RecordMaintenance()
   }
 }
 
-PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfiguration config)
+PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfiguration config, VersionNumber version)
 {
-  StartupConfig defaultConfig = DefaultConfig(config, PathName(), PathName());
+  StartupConfig defaultConfig = DefaultConfig(config, version, PathName(), PathName());
   if (scope == ConfigurationScope::User)
   {
     string str;
@@ -643,14 +648,14 @@ void PutPathValue(Cfg* cfg, const string& valueName, const string& pathValue, co
   }
 }
 
-void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const StartupConfig& startupConfig)
+void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const VersionedStartupConfig& startupConfig)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  StartupConfig defaultConfig = DefaultConfig(startupConfig.config, PathName(), PathName());
+  VersionedStartupConfig defaultConfig = DefaultConfig(startupConfig.config, startupConfig.setupVersion, PathName(), PathName());
 
-  PathName userStartupConfigFile = GetStartupConfigFile(ConfigurationScope::User, startupConfig.config);  
-  PathName commonStartupConfigFile = GetStartupConfigFile(ConfigurationScope::Common, startupConfig.config);
+  PathName userStartupConfigFile = GetStartupConfigFile(ConfigurationScope::User, startupConfig.config, startupConfig.setupVersion);
+  PathName commonStartupConfigFile = GetStartupConfigFile(ConfigurationScope::Common, startupConfig.config, startupConfig.setupVersion);
   bool allInOne = userStartupConfigFile == commonStartupConfigFile;
 
   unique_ptr<Cfg> cfg(Cfg::Create());
@@ -667,6 +672,11 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
       relativeFrom = commonStartupConfigFile;
       relativeFrom.RemoveFileSpec();
     }
+  }
+
+  if (!(startupConfig.setupVersion == VersionNumber()))
+  {
+    cfg->PutValue(MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, startupConfig.setupVersion.ToString());
   }
 
   if (scope == ConfigurationScope::Common || allInOne)
@@ -700,8 +710,12 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
   cfg->Write(scope == ConfigurationScope::Common ? commonStartupConfigFile : userStartupConfigFile, T_("MiKTeX startup information"));
 }
 
-void SessionImpl::MergeStartupConfig(StartupConfig& startupConfig, const StartupConfig& defaults)
+void SessionImpl::MergeStartupConfig(VersionedStartupConfig& startupConfig, const VersionedStartupConfig& defaults)
 {
+  if (startupConfig.setupVersion == VersionNumber())
+  {
+    startupConfig.setupVersion = defaults.setupVersion;
+  }
   if (startupConfig.config == MiKTeXConfiguration::None)
   {
     startupConfig.config = defaults.config;

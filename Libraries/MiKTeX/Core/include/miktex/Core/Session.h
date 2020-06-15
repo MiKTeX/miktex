@@ -49,6 +49,7 @@
 #include "Process.h"
 #include "RootDirectoryInfo.h"
 #include "TriState.h"
+#include "VersionNumber.h"
 
 /// @namespace MiKTeX::Core
 /// @brief The core namespace.
@@ -1563,6 +1564,11 @@ public:
   /// @return Returns `true`, if this is a system-wide installation.
 public:
   virtual bool MIKTEXTHISCALL IsSharedSetup() = 0;
+
+public:
+  /// Get the version number of the initial setup.
+  /// @return Returns the version number of the initial setup.
+  virtual VersionNumber MIKTEXTHISCALL GetSetupVersionNumber() = 0;
 
   /// Gets the next paper size.
   /// @param idx Index of the next entry in the paper size table.

@@ -33,7 +33,7 @@ using namespace MiKTeX::Util;
 PathName SetupService::GetDefaultCommonInstallDir()
 {
   PathName path = Utils::GetFolderPath(CSIDL_PROGRAM_FILES, CSIDL_PROGRAM_FILES, true);
-  path /= MIKTEX_PRODUCTNAME_STR " " MIKTEX_LEGACY_MAJOR_MINOR_STR;
+  path /= MIKTEX_PRODUCTNAME_STR;
   return path;
 }
 
@@ -51,7 +51,7 @@ PathName SetupService::GetDefaultUserInstallDir()
     path = Utils::GetFolderPath(CSIDL_LOCAL_APPDATA, CSIDL_LOCAL_APPDATA, true);
     path /= "PrograMS";
   }
-  path /= MIKTEX_PRODUCTNAME_STR " " MIKTEX_LEGACY_MAJOR_MINOR_STR;
+  path /= MIKTEX_PRODUCTNAME_STR;
   return path;
 }
 
@@ -66,10 +66,6 @@ winSetupServiceImpl::winSetupServiceImpl()
   if (FAILED(CoInitialize(nullptr)))
   {
     MIKTEX_FATAL_ERROR(T_("COM could not be initialized"));
-  }
-  if (options.FolderName.Empty())
-  {
-    options.FolderName = MIKTEX_PRODUCTNAME_STR " " MIKTEX_LEGACY_MAJOR_MINOR_STR;
   }
 }
 
@@ -100,7 +96,25 @@ void winSetupServiceImpl::ULogAddRegValue(HKEY hkey, const string& valueName, co
 PathName winSetupServiceImpl::CreateProgramFolder()
 {
   int cidl = (options.IsCommonSetup ? CSIDL_COMMON_PROGRAMS : CSIDL_PROGRAMS);
-  PathName path = Utils::GetFolderPath(cidl, cidl, true) / options.FolderName;
+  PathName programFolder = Utils::GetFolderPath(cidl, cidl, true);
+  PathName folderName;
+  if (options.Task == SetupTask::FinishUpdate)
+  {
+    for (const string& folderName : { string(MIKTEX_PRODUCTNAME_STR), string(MIKTEX_PRODUCTNAME_STR " " MIKTEX_LEGACY_MAJOR_MINOR_STR) })
+    {
+      PathName path = programFolder / PathName(folderName);
+      if (Directory::Exists(path))
+      {
+        return path;
+      }
+    }
+    folderName = MIKTEX_PRODUCTNAME_STR;
+  }
+  else
+  {
+    folderName = options.FolderName;
+  }
+  PathName path = programFolder / folderName;
   Directory::Create(path);
   return path;
 }

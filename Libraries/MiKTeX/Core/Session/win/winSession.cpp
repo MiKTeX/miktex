@@ -235,21 +235,22 @@ PathName SessionImpl::GetDllPathName(bool canonicalized)
 #endif
 
 /*
- * UserConfig:    %USERPROFILE%\AppData\Roaming\MiKTeX\2.9
- * UserData:      %USERPROFILE%\AppData\Local\MiKTeX\2.9
- * UserInstall:   %USERPROFILE%\AppData\Local\Programs\MiKTeX\2.9
- * CommonConfig:  C:\ProgramData\MiKTeX\2.9
- * CommonData:    C:\ProgramData\MiKTeX\2.9
- * CommonInstall: C:\Program Files\MiKTeX 2.9
+ * UserConfig:    %USERPROFILE%\AppData\Roaming\MiKTeX
+ * UserData:      %USERPROFILE%\AppData\Local\MiKTeX
+ * UserInstall:   %USERPROFILE%\AppData\Local\Programs\MiKTeX
+ * CommonConfig:  C:\ProgramData\MiKTeX
+ * CommonData:    C:\ProgramData\MiKTeX
+ * CommonInstall: C:\Program Files\MiKTeX
  */
-StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName& commonPrefixArg, const PathName& userPrefixArg)
+VersionedStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, VersionNumber setupVersion, const PathName& commonPrefixArg, const PathName& userPrefixArg)
 {
-  StartupConfig ret;
+  VersionedStartupConfig ret;
   if (config == MiKTeXConfiguration::None)
   {
     config = MiKTeXConfiguration::Regular;
   }
   ret.config = config;
+  ret.setupVersion = setupVersion;
   if (config == MiKTeXConfiguration::Portable)
   {
     PathName commonPrefix(commonPrefixArg);
@@ -338,6 +339,7 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
   else
   {
     string product;
+    bool isLegacy = version < VersionNumber("20.6");
     if (config == MiKTeXConfiguration::Direct)
     {
       product = "MiKTeXDirect";
@@ -356,7 +358,11 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       if (SHGetFolderPathW(nullptr, CSIDL_PROGRAM_FILES, nullptr, SHGFP_TYPE_CURRENT, szProgramFiles) == S_OK)
       {
         ret.commonInstallRoot = szProgramFiles;
-        ret.commonInstallRoot /= "MiKTeX" " " MIKTEX_LEGACY_MAJOR_MINOR_STR;
+        ret.commonInstallRoot /= product;
+        if (isLegacy)
+        {
+          ret.commonInstallRoot += " " MIKTEX_LEGACY_MAJOR_MINOR_STR;
+        }
       }
     }
     wchar_t szPath[MAX_PATH];
@@ -364,7 +370,10 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     {
       ret.commonDataRoot = szPath;
       ret.commonDataRoot /= product;
-      ret.commonDataRoot /= MIKTEX_LEGACY_MAJOR_MINOR_STR;
+      if (isLegacy)
+      {
+        ret.commonDataRoot /= MIKTEX_LEGACY_MAJOR_MINOR_STR;
+      }
     }
     ret.commonConfigRoot = ret.commonDataRoot;
     if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, szPath) == S_OK
@@ -372,29 +381,39 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     {
       ret.userDataRoot = szPath;
       ret.userDataRoot /= product;
-      ret.userDataRoot /= MIKTEX_LEGACY_MAJOR_MINOR_STR;
+      if (isLegacy)
+      {
+        ret.userDataRoot /= MIKTEX_LEGACY_MAJOR_MINOR_STR;
+      }
     }
     if (SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, szPath) == S_OK)
     {
       ret.userConfigRoot = szPath;
       ret.userConfigRoot /= product;
-      ret.userConfigRoot /= MIKTEX_LEGACY_MAJOR_MINOR_STR;
+      if (isLegacy)
+      {
+        ret.userConfigRoot /= MIKTEX_LEGACY_MAJOR_MINOR_STR;
+      }
     }
     ret.userInstallRoot = ret.userConfigRoot;
   }
   return ret;
 }
 
-StartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
+VersionedStartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  StartupConfig ret;
+  VersionedStartupConfig ret;
 
   string str;
 
   if (scope == ConfigurationScope::Common)
   {
+    if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, str))
+    {
+      ret.setupVersion = VersionNumber::Parse(str);
+    }
     if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_ROOTS, str))
     {
       ret.commonRoots = str;
@@ -418,6 +437,10 @@ StartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
   }
   else if (scope == ConfigurationScope::User)
   {
+    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, str))
+    {
+      ret.setupVersion = VersionNumber::Parse(str);
+    }
     if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS, str))
     {
       ret.userRoots = str;
@@ -443,15 +466,16 @@ StartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
   return ret;
 }
 
-void SessionImpl::WriteRegistry(ConfigurationScope scope, const StartupConfig& startupConfig)
+void SessionImpl::WriteRegistry(ConfigurationScope scope, const VersionedStartupConfig& startupConfig)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  StartupConfig defaultConfig = DefaultConfig();
+  VersionedStartupConfig defaultConfig = DefaultConfig(startupConfig.config, startupConfig.setupVersion, PathName(), PathName());
 
   // remove registry values
   if (scope == ConfigurationScope::Common)
   {
+    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION);
     winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_ROOTS);
     winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_INSTALL);
     winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_DATA);
@@ -467,6 +491,7 @@ void SessionImpl::WriteRegistry(ConfigurationScope scope, const StartupConfig& s
   }
   else if (scope == ConfigurationScope::User)
   {
+    winRegistry::TryDeleteRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION);
     winRegistry::TryDeleteRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS);
     winRegistry::TryDeleteRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL);
     winRegistry::TryDeleteRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA);
@@ -476,6 +501,10 @@ void SessionImpl::WriteRegistry(ConfigurationScope scope, const StartupConfig& s
 
   if (scope == ConfigurationScope::Common)
   {
+    if (!(startupConfig.setupVersion == VersionNumber))
+    {
+      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_SECTION_SETUP, startupConfig.setupVersion.ToString());
+    }
     if (!startupConfig.commonRoots.empty() && startupConfig.commonRoots != defaultConfig.commonRoots)
     {
       winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_ROOTS, startupConfig.commonRoots);
@@ -521,6 +550,10 @@ void SessionImpl::WriteRegistry(ConfigurationScope scope, const StartupConfig& s
   }
   else if (scope == ConfigurationScope::User)
   {
+    if (!(startupConfig.setupVersion == VersionNumber))
+    {
+      winRegistry::SetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, startupConfig.setupVersion.ToString());
+    }
     if (!startupConfig.userRoots.empty() && startupConfig.userRoots != defaultConfig.userRoots)
     {
       winRegistry::SetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots);
