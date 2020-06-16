@@ -707,6 +707,11 @@ typedef struct
 #define kpathsea_all_path_search(kpse, path, name) \
   miktex_kpathsea_all_path_search(kpse, path, name)
 
+#if defined(KPSE_COMPAT_API)
+#define kpse_path_search(path, name, must_exist) \
+  kpathsea_path_search(kpse_def, path, name, must_exist)
+#endif
+
 /// @}
 
 /* _________________________________________________________________________

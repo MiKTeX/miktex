@@ -141,6 +141,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
   set(target_system_tpms_no_version
     windows-x86/miktex-patgen-bin.tpm.in
     windows-x86/miktex-tdsutil-bin.tpm.in
+    windows-x86/miktex-upmendex-bin.tpm.in
   )
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms
@@ -237,6 +238,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
   set(target_system_tpms_no_version
     windows-x64/miktex-patgen-bin-x64.tpm.in
     windows-x64/miktex-tdsutil-bin-x64.tpm.in
+    windows-x64/miktex-upmendex-bin-x64.tpm.in
   )
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms
