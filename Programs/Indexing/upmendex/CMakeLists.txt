@@ -38,7 +38,7 @@ configure_file(
 
 if(MIKTEX_NATIVE_WINDOWS)
   configure_file(
-    upmendex.rc.cmake
+    upmendex.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/upmendix.rc
   )
 endif()
