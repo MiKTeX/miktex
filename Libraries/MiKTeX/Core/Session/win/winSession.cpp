@@ -339,7 +339,7 @@ VersionedStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ve
   else
   {
     string product;
-    bool isLegacy = version < VersionNumber("20.6");
+    bool isLegacy = setupVersion < VersionNumber("20.6");
     if (config == MiKTeXConfiguration::Direct)
     {
       product = "MiKTeXDirect";
@@ -501,7 +501,7 @@ void SessionImpl::WriteRegistry(ConfigurationScope scope, const VersionedStartup
 
   if (scope == ConfigurationScope::Common)
   {
-    if (!(startupConfig.setupVersion == VersionNumber))
+    if (!(startupConfig.setupVersion == VersionNumber()))
     {
       winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_SECTION_SETUP, startupConfig.setupVersion.ToString());
     }
@@ -550,7 +550,7 @@ void SessionImpl::WriteRegistry(ConfigurationScope scope, const VersionedStartup
   }
   else if (scope == ConfigurationScope::User)
   {
-    if (!(startupConfig.setupVersion == VersionNumber))
+    if (!(startupConfig.setupVersion == VersionNumber()))
     {
       winRegistry::SetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, startupConfig.setupVersion.ToString());
     }
