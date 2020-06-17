@@ -23,7 +23,7 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "3.14159265"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1982 by D. E. Knuth; all rights are reserved."
-#define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society."
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1982 D. E. Knuth; all rights are reserved."
+#define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society"
 
 #include <miktex/Version>

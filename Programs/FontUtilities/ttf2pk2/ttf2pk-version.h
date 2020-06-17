@@ -21,6 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "2.0"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1997-1999, 2000, 2002 by Frederic Loyer and Werner Lemberg. © 2009-2013 by Peter Breitenlohner"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1997-1999, 2000, 2002 Frederic Loyer and Werner Lemberg, © 2009-2013 Peter Breitenlohner"
 
 #include <miktex/Version>

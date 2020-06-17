@@ -21,6 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "3.71"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1991-1995 Niel Kempson; © 1995 Alejandro Aguilar-Sierra"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1991-1995 Niel Kempson © 1995 Alejandro Aguilar-Sierra"
 
 #include <miktex/Version>

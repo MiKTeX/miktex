@@ -20,6 +20,6 @@
 #define MIKTEX_COMP_J2000_VERSION 6868
 #define MIKTEX_COMP_ORIG_VERSION_STR "9c"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1991-2016, Thomas G. Lane, Guido Vollbeding"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1991-2016 Thomas G. Lane, Guido Vollbeding"
 
 #include <miktex/Version>

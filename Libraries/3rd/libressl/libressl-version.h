@@ -21,6 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "2.8.2"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1998-2001 The OpenSSL Project."
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1998-2001 The OpenSSL Project"
 
 #include <miktex/Version>

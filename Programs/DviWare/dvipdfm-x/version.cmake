@@ -23,4 +23,4 @@ set(MIKTEX_COMP_PATCH_VERSION 0)
 
 set(MIKTEX_COMP_ORIG_VERSION_STR "20200315")
 
-set(MIKTEX_COMP_COPYRIGHT_STR "© 1998,1999 Mark Wicks, © 2002-2020 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team")
+set(MIKTEX_COMP_COPYRIGHT_STR "© 1998,1999 Mark Wicks, © 2002-2020 Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team")
