@@ -489,11 +489,7 @@ template<class Vt, class Ft> inline void c4p_write_v(Vt v, Ft& f)
 template<class Vt, class Ft> inline void c4p_write_c(Vt v, Ft& f)
 {
   f.AssertValid();
-  int ch = putc(v, f);
-  if (ch == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("putc");
-  }
+  WriteChar(v, f);
 }
 
 template<class Vt, class Ft> inline void c4p_write_c1(Vt v, Ft& f)
@@ -740,6 +736,8 @@ template<int handle> inline void c4p_proc_exit()
 
 #define C4P_PROC_ENTRY(handle) c4p_proc_entry<handle>();
 #define C4P_PROC_EXIT(handle) C4P_LABEL_PROC_EXIT: c4p_proc_exit<handle>();
+
+C4PCEEAPI(void) WriteChar(int ch, FILE* file);
 
 C4PCEEAPI(void) SetStartUpTime(time_t time, bool useUtc);
 

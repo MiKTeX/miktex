@@ -20,6 +20,7 @@
    02111-1307, USA. */
 
 #if defined(MIKTEX_WINDOWS)
+#include <Windows.h>
 #include <io.h>
 #else
 #include <unistd.h>
@@ -189,6 +190,31 @@ C4PCEEAPI(C4P_integer) Round(double r)
     return static_cast<C4P_integer>(r - 0.5);
   }
   MIKTEX_API_END("Round");
+}
+
+C4PCEEAPI(void) WriteChar(int ch, FILE* file)
+{
+#if defined(MIKTEX_WINDOWS)
+  if (static_cast<unsigned char>(ch) > 127 )
+  {
+    int fd = fileno(file);
+    if (fd < 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR("fileno");
+    }
+    int fdStdOut = (stdout != nullptr ? fileno(stdout) : -1);
+    int fdStdErr = (stderr != nullptr ? fileno(stderr) : -1);
+    if ((fd == fdStdOut || fd == fdStdErr) && isatty(fd) != 0 && GetConsoleOutputCP() != 65001)
+    {
+      ch = '?';
+    }
+  }
+#endif
+  ch = putc(ch, file);
+  if (ch == EOF)
+  {
+    MIKTEX_FATAL_CRT_ERROR("putc");
+  }
 }
 
 C4P_END_NAMESPACE;
