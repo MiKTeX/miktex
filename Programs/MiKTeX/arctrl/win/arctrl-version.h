@@ -22,6 +22,5 @@
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_COPYRIGHT_STR ""
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 ""
 
 #include <miktex/Version>

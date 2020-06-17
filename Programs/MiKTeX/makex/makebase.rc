@@ -1,6 +1,6 @@
-/* makebase.rc:                                         -*- C++ -*-
+/* makebase.rc:
 
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is part of MiKTeX MakeBase.
 
@@ -18,6 +18,8 @@
    along with MiKTeX MakeBase; if not, write to the Free Software
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
+
+#pragma code_page(65001)
 
 #include "makebase-version.h"
 
