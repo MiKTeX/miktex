@@ -1,6 +1,6 @@
 /* expat-version.h: version number                      -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,7 +20,6 @@
 #define MIKTEX_COMP_J2000_VERSION 6852
 #define MIKTEX_COMP_ORIG_VERSION_STR "2.2.6"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (c) 1998-2000 Thai Open Source Software Center Ltd, (c) 2001-2016 Expat maintainers"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1998-2000 Thai Open Source Software Center Ltd, © 2001-2016 Expat maintainers"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1998-2000 Thai Open Source Software Center Ltd, Â© 2001-2016 Expat maintainers"
 
 #include <miktex/Version>

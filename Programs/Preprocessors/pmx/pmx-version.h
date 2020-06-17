@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "2.9.4"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) Don Simmons"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© Don Simmons"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© Don Simmons"
 
 #include <miktex/Version>

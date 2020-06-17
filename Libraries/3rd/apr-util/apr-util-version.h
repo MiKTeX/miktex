@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.6.1"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2000-2015 The Apache Software Foundation or its licensors, as applicable."
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2000-2015 The Apache Software Foundation or its licensors, as applicable."
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2000-2015 The Apache Software Foundation or its licensors, as applicable."
 
 #include <miktex/Version>

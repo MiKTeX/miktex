@@ -1,6 +1,6 @@
 /* bibtex-x-version.h: version number                   -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "3.71"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1991-1995 Niel Kempson; Copyright (C) 1995 Alejandro Aguilar-Sierra"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1991-1995 Niel Kempson; Copyright © 1995 Alejandro Aguilar-Sierra"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1991-1995 Niel Kempson; Â© 1995 Alejandro Aguilar-Sierra"
 
 #include <miktex/Version>

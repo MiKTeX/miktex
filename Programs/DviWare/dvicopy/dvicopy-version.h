@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.6"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1990-2014 Peter Breitenlohner"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1990-2014 Peter Breitenlohner"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1990-2014 Peter Breitenlohner"
 
 #include <miktex/Version>

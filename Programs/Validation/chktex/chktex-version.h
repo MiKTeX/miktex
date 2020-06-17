@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.7.6"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 1995-96 Jens T. Berger Thielemann"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1995-96 Jens T. Berger Thielemann"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1995-96 Jens T. Berger Thielemann"
 
 #include <miktex/Version>

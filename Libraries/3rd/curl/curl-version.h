@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "7.61.1"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1998 - 2018, Daniel Stenberg, et al."
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1998 - 2018, Daniel Stenberg, et al."
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1998 - 2018, Daniel Stenberg, et al."
 
 #include <miktex/Version>

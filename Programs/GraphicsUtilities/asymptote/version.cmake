@@ -23,4 +23,4 @@ set(MIKTEX_COMP_PATCH_VERSION 0)
 
 set(MIKTEX_COMP_ORIG_VERSION_STR "2.65")
 
-set(MIKTEX_COMP_COPYRIGHT_STR "(C) 2004 Andy Hammerlindl, John C. Bowman, Tom Prince")
+set(MIKTEX_COMP_COPYRIGHT_STR "© 2004 Andy Hammerlindl, John C. Bowman, Tom Prince")

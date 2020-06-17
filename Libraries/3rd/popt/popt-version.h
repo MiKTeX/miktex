@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.16"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1998-2002 Red Hat, Inc."
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1998-2002 Red Hat, Inc."
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1998-2002 Red Hat, Inc."
 
 #include <miktex/Version>
