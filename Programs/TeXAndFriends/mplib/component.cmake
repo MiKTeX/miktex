@@ -23,5 +23,4 @@ set(MIKTEX_COMP_DESCRIPTION "MetaPost - a graphics-language processor based on D
 
 set(MIKTEX_COMP_COMPANY_STR "")
 set(MIKTEX_COMP_COPYRIGHT_STR "Public domain")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "Public domain")
 set(MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society. METAFONT is a trademark of Addison-Wesley Publishing Company. PostScript is a trademark of Adobe Systems Incorporated.")

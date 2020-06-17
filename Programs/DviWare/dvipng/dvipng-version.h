@@ -1,4 +1,4 @@
-/* dvipng-version.h: version number                     -*- C++ -*-
+/* dvipng-version.h:
 
    Copyright (C) 2004-2020 Christian Schenk
 
@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.17"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2002-2020 Jan-Ake Larsson"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2002-2020 Jan-Åke Larsson"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2002-2020 Jan-Ã…ke Larsson"
 
 #include <miktex/Version>

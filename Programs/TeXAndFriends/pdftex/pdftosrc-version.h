@@ -23,7 +23,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "3.01"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1996-2018 Han The Thanh"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "� 1996-2018 Han The Thanh"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1996-2018 Hàn Thế Thành"
 
 #include <miktex/Version>

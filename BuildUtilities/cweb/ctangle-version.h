@@ -22,6 +22,5 @@
 #define MIKTEX_COMP_ORIG_VERSION_STR "3.64"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1987,1990,1993,2000 Silvio Levy and Donald E. Knuth"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1987,1990,1993,2000 Silvio Levy and Donald E. Knuth"
 
 #include <miktex/Version>

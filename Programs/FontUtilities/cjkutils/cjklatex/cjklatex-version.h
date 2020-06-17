@@ -20,6 +20,5 @@
 #define MIKTEX_COMP_J2000_VERSION 7422
 
 #define MIKTEX_COMP_COPYRIGHT_STR ""
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 ""
 
 #include <miktex/Version>

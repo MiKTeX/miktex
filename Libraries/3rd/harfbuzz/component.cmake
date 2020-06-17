@@ -23,4 +23,3 @@ set(MIKTEX_COMP_DESCRIPTION "HarfBuzz - an OpenType text shaping engine")
 
 set(MIKTEX_COMP_COMPANY_STR "")
 set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2015 Mozilla Foundation (C) 2015 Google, Inc.")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "\\xA9 2015 Mozilla Foundation \\xA9 2015 Google, Inc.")

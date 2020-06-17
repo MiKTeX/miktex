@@ -1,6 +1,6 @@
 ## version.cmake:
 ##
-## Copyright (C) 2017-2019 Christian Schenk
+## Copyright (C) 2017-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -21,5 +21,4 @@ set(MIKTEX_COMP_ORIG_VERSION_STR "1.5")
 
 set(MIKTEX_COMP_J2000_VERSION 7207)
 
-set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2008-2017 Jerome Laurens")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "� 2008-2017 Jerome Laurens")
+set(MIKTEX_COMP_COPYRIGHT_STR "© 2008-2017 Jérôme Laurens")

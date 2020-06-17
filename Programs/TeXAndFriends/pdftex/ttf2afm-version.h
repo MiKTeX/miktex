@@ -1,4 +1,4 @@
-/* ttf2afm-version.h: version number                    -*- C++ -*-
+/* ttf2afm-version.h:
 
    Copyright (C) 1996-2020 Christian Schenk
 
@@ -23,7 +23,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.02"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1996-2014 Han The Thanh"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "� 1996-2014 Han The Thanh"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1996-2014 Hàn Thế Thành"
 
 #include <miktex/Version>

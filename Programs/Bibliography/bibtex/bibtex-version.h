@@ -24,6 +24,5 @@
 #define MIKTEX_COMP_ORIG_VERSION_STR "0.99d"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1985, 1988, 2010 Oren Patashnik; all rights reserved."
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "� 1985, 1988, 2010 Oren Patashnik; all rights reserved."
 
 #include <miktex/Version>

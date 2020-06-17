@@ -24,6 +24,5 @@
 #define MIKTEX_COMP_ORIG_VERSION_STR "2.4"
 
 #define MIKTEX_COMP_COPYRIGHT_STR ""
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 ""
 
 #include <miktex/Version>

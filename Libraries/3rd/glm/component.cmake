@@ -22,5 +22,4 @@ include(version.cmake)
 set(MIKTEX_COMP_DESCRIPTION "glm - mathematics library for graphics software")
 
 set(MIKTEX_COMP_COMPANY_STR "")
-set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (c) 2005 G-Truc Creationw")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "Copyright © 2005 - G-Truc Creation")
+set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (c) 2005 G-Truc Creation")
