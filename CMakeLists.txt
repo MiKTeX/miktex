@@ -784,6 +784,8 @@ else()
   set(MIKTEX_DEFAULT_PACKAGE_STREAM "stable")
 endif()
 
+set(MIKTEX_LEGACY_MAJOR_MINOR_STR "${MIKTEX_LEGACY_MAJOR_VERSION}.${MIKTEX_LEGACY_MINOR_VERSION}")
+
 ###############################################################################
 ## Endianess
 

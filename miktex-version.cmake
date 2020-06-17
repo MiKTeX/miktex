@@ -35,6 +35,11 @@ else()
   set(MIKTEX_PATCH_VERSION 0)
 endif()
 
+
+## old (pre Jun 2020) version
+set(MIKTEX_LEGACY_MAJOR_VERSION 2)
+set(MIKTEX_LEGACY_MINOR_VERSION 9)
+
 ## major/minor version for package database files
 set(MIKTEX_PACKAGES_MAJOR_VERSION 2)
 set(MIKTEX_PACKAGES_MINOR_VERSION 9)
@@ -51,6 +56,3 @@ set(MIKTEX_PACKAGE_REVISION
   CACHE STRING
   "The MiKTeX package revision."
 )
-
-## old (pre Jun 2020) version
-set(MIKTEX_LEGACY_MAJOR_MINOR_STR "2.9")
