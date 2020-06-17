@@ -47,12 +47,12 @@
 #  endif
 #endif
 
-#if !defined(VER_LEGALCOPYRIGHT_STR) && defined(MIKTEX_COMP_COPYRIGHT_STR_1252)
-#  define VER_LEGALCOPYRIGHT_STR MIKTEX_COMP_COPYRIGHT_STR_1252
+#if !defined(VER_LEGALCOPYRIGHT_STR) && defined(MIKTEX_COMP_COPYRIGHT_STR)
+#  define VER_LEGALCOPYRIGHT_STR MIKTEX_COMP_COPYRIGHT_STR
 #endif
 
-#if !defined(VER_LEGALTRADEMARKS_STR) && defined(MIKTEX_COMP_TM_STR_1252)
-#  define VER_LEGALTRADEMARKS_STR MIKTEX_COMP_TM_STR_1252
+#if !defined(VER_LEGALTRADEMARKS_STR) && defined(MIKTEX_COMP_TM_STR)
+#  define VER_LEGALTRADEMARKS_STR MIKTEX_COMP_TM_STR
 #endif
 
 #if !defined(VER_COMPANYNAME_STR)
@@ -106,7 +106,7 @@ FILESUBTYPE             VER_FILESUBTYPE
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
-    BLOCK "040904E4"
+    BLOCK "040904B0"
     BEGIN
 #if defined(VER_COMMENT_STR)
         VALUE "Comment",                VER_COMMENT_STR
@@ -129,7 +129,7 @@ BEGIN
   END
   BLOCK "VarFileInfo"
   BEGIN
-        VALUE "Translation",            0x409, 1252
+        VALUE "Translation",            0x409, 1200
   END
 END
 
