@@ -285,7 +285,7 @@ STATICFUNC(bool) OpenAlphaFile(void* p, const char* lpszFileName, FileType fileT
     return false;
   }
   reinterpret_cast<alphafile*>(p)->Attach(pfile, true);
-  get(*reinterpret_cast<alphafile*>(p));
+  reinterpret_cast<alphafile*>(p)->Read();
   return true;
 }
 

@@ -40,6 +40,8 @@
 #include <string>
 #include <vector>
 
+#include <miktex/App/Application>
+
 #include <miktex/Core/File>
 #include <miktex/Core/IntegerTypes>
 #include <miktex/Core/Session>
@@ -333,49 +335,549 @@ public:
   C4PTHISAPI(C4P_real) GetReal();
 };
 
-C4PCEEAPI(int) GetArgC();
+#define c4pargc GetArgC()
+#define c4pargv GetArgV()
 
-C4PCEEAPI(const char**) GetArgV();
+#define c4ppline GetCmdLine()
+#define c4pplen strlen(GetCmdLine())
 
-C4PCEEAPI(const char*) GetCmdLine();
+#define input (*(GetStdFilePtr(0)))
+#define output (*(GetStdFilePtr(1)))
+#define c4perroroutput (*(GetStdFilePtr(2)))
 
-C4PCEEAPI(C4P_text*) GetStdFilePtr(unsigned idx);
-
-#define c4pargc C4P::GetArgC()
-#define c4pargv C4P::GetArgV()
-
-#define c4ppline C4P::GetCmdLine()
-#define c4pplen strlen(C4P::GetCmdLine())
-
-#define input (*(C4P::GetStdFilePtr(0)))
-#define output (*(C4P::GetStdFilePtr(1)))
-#define c4perroroutput (*(C4P::GetStdFilePtr(2)))
-
-class C4PTYPEAPI(Program)
+class C4PTYPEAPI(ProgramBase)
 {
 public:
-  C4PEXPORT MIKTEXTHISCALL Program();
+  C4PEXPORT MIKTEXTHISCALL ProgramBase();
 
 public:
-  Program(const Program& other) = delete;
+  ProgramBase(const ProgramBase& other) = delete;
 
 public:
-  Program& operator=(const Program& other) = delete;
+  ProgramBase& operator=(const ProgramBase& other) = delete;
 
 public:
-  Program(Program&& other) = delete;
+  ProgramBase(ProgramBase&& other) = delete;
 
 public:
-  Program& operator=(Program&& other) = delete;
+  ProgramBase& operator=(ProgramBase&& other) = delete;
 
 public:
-  virtual C4PEXPORT MIKTEXTHISCALL ~Program() noexcept;
+  virtual C4PEXPORT MIKTEXTHISCALL ~ProgramBase() noexcept;
 
 protected:
   C4PTHISAPI(void) Initialize(const char* programName, int argc, char* argv[]);
 
 protected:
   C4PTHISAPI(void) Finish();
+
+public:
+  C4PTHISAPI(void) SetParent(MiKTeX::App::Application* parent);
+
+public:
+  C4PTHISAPI(int) MakeCommandLine(const std::vector<std::string>& args);
+
+protected:
+  C4PTHISAPI(const char*) GetCmdLine();
+
+public:
+  C4PTHISAPI(int) GetArgC();
+
+public:
+  C4PTHISAPI(const char**) GetArgV();
+
+protected:
+  C4PTHISAPI(unsigned) GetYear();
+
+protected:
+  C4PTHISAPI(unsigned) GetMonth();
+
+protected:
+  C4PTHISAPI(unsigned) GetDay();
+
+protected:
+  C4PTHISAPI(unsigned) GetHour();
+
+protected:
+  C4PTHISAPI(unsigned) GetMinute();
+
+protected:
+  C4PTHISAPI(unsigned) GetSecond();
+
+public:
+  C4PTHISAPI(void) SetStartUpTime(time_t time, bool useUtc);
+
+public:
+  C4PTHISAPI(time_t) GetStartUpTime();
+
+protected:
+  C4PTHISAPI(C4P_text*) GetStdFilePtr(unsigned idx);
+
+protected:
+  template<class Ft>
+  void c4p_write_f(Ft&, Ft&)
+  {
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_write_v(Vt v, Ft& f)
+  {
+    f.AssertValid();
+    *f = v;
+    put(f);
+  }
+
+private:
+  C4PTHISAPI(void) WriteChar(int ch, FILE* file);
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_write_c(Vt v, Ft& f)
+  {
+    f.AssertValid();
+    WriteChar(v, f);
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_write_c1(Vt v, Ft& f)
+  {
+    return c4p_write_c(v, f);
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_write_i(Vt v, Ft& f)
+  {
+    f.AssertValid();
+    if (fprintf(f, "%ld", static_cast<long>(v)) < 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR("fprintf");
+    }
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_write_i1(Vt v, int w1, Ft& f)
+  {
+    f.AssertValid();
+    if (fprintf(f, "%*ld", static_cast<int>(w1), static_cast<long>(v)) < 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR("fprintf");
+    }
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_write_i2(Vt v, int w1, int w2, Ft& f)
+  {
+    f.AssertValid();
+    if (fprintf(f, "%*.*ld", static_cast<int>(w1), static_cast<int>(w2), static_cast<long>(v)) < 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR("fprintf");
+    }
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_write_r(Vt v, Ft& f)
+  {
+    f.AssertValid();
+    if (fprintf(f, "%f", static_cast<float>(v)) < 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR("fprintf");
+    }
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_write_r2(Vt v, int w1, int w2, Ft& f)
+  {
+    f.AssertValid();
+    if (fprintf(f, "%*.*f", static_cast<int>(w1), static_cast<int>(w2), static_cast<float>(v)) < 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR("fprintf");
+    }
+  }
+
+protected:
+  template <class Vt, class Ft>
+  void c4p_write_s(Vt v, Ft& f)
+  {
+    f.AssertValid();
+    if (fputs(v, f) == EOF)
+    {
+      MIKTEX_FATAL_CRT_ERROR("fputs");
+    }
+  }
+
+protected:
+  template<class Ft>
+  void c4p_read_f(Ft&, Ft&)
+  {
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_read_v(Vt& v, Ft& f)
+  {
+    f.AssertValid();
+    v = *f;
+    get(f);
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_read_c(Vt& v, Ft& f)
+  {
+    f.AssertValid();
+    v = f.GetChar();
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_read_i(Vt& v, Ft& f)
+  {
+    f.AssertValid();
+    v = f.GetInteger();
+  }
+
+protected:
+  template<class Vt, class Ft>
+  void c4p_read_r(Vt& v, Ft& f)
+  {
+    f.AssertValid();
+    v = f.GetReal();
+  }
+
+protected:
+  const C4P_integer maxint = INT_MAX;
+
+protected:
+  void c4p_readln()
+  {
+    input.AssertValid();
+    input.DiscardLine();
+  }
+
+protected:
+  void c4p_writeln()
+  {
+    output.AssertValid();
+    if (putc('\n', output) == EOF)
+    {
+      MIKTEX_FATAL_CRT_ERROR("putc");
+    }
+  }
+
+protected:
+  template<class T>
+  void c4pmget(T& f, typename T::ElementType* buf, std::size_t n)
+  {
+    f.AssertValid();
+    f.Read(buf, n);
+  }
+
+protected:
+  template<class T>
+  char c4pgetc(T& f)
+  {
+    f.AssertValid();
+    return f.GetChar();
+  }
+
+protected:
+  template<class T>
+  void c4pputc(T& f)
+  {
+    f.AssertValid();
+    if (putc(*f, f) == EOF)
+    {
+      MIKTEX_FATAL_CRT_ERROR("putc");
+    }
+  }
+
+protected:
+  template<class T>
+  void c4p_break(T& f)
+  {
+    f.AssertValid();
+    if (fflush(f) == EOF)
+    {
+      MIKTEX_FATAL_CRT_ERROR("flush");
+    }
+  }
+
+protected:
+  template<class Ft>
+  void c4pfseek(Ft& f, int offs, int orig)
+  {
+    f.AssertValid();
+    f.Seek(offs, orig);
+  }
+
+protected:
+  template<class Ft>
+  long c4pftell(Ft& f)
+  {
+    f.AssertValid();
+    long n = ftell(f);
+    if (n < 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR("ftell");
+    }
+    return n;
+  }
+
+protected:
+  template<class Ft>
+  void c4pbufwrite(Ft& f, const void* buf, std::size_t buf_size)
+  {
+    f.AssertValid();
+    //MIKTEX_ASSERT_BUFFER (buf, buf_size);
+    if (fwrite(buf, buf_size, 1, f) != 1)
+    {
+      MIKTEX_FATAL_CRT_ERROR("fwrite");
+    }
+  }
+
+protected:
+  void c4pmemcpy(void* pdst, std::size_t size, const void* psrc, std::size_t count)
+  {
+    MIKTEX_ASSERT(size >= count);
+    MIKTEX_ASSERT_BUFFER(pdst, size);
+    //MIKTEX_ASSERT_BUFFER (psrc, count);
+  #if defined(_MSC_VER) && (_MSC_VER > 1400)
+    memcpy_s(pdst, size, psrc, count);
+  #else
+    memcpy(pdst, psrc, count);
+  #endif
+  }
+
+protected:
+  void c4pstrcpy(char* dst, std::size_t size, const char* src)
+  {
+    MiKTeX::Util::StringUtil::CopyString(dst, size, src);
+  }
+
+protected:
+  std::size_t c4pstrlen(const char* lpsz)
+  {
+    MIKTEX_ASSERT_STRING(lpsz);
+    return MiKTeX::Util::StrLen(lpsz);
+  }
+
+protected:
+  template<class T>
+  bool c4pfopen(T& f, const char* lpszName, const char* lpszMode, bool mustExist)
+  {
+    MIKTEX_ASSERT_STRING(lpszName);
+    MIKTEX_ASSERT_STRING(lpszMode);
+    MIKTEX_ASSERT
+      (MiKTeX::Core::Utils::Equals(lpszMode, "r")
+        || MiKTeX::Core::Utils::Equals(lpszMode, "rb")
+        || MiKTeX::Core::Utils::Equals(lpszMode, "w")
+        || MiKTeX::Core::Utils::Equals(lpszMode, "wb"));
+    bool reading = (lpszMode[0] == 'r');
+    bool text = (lpszMode[1] == 0);
+    return f.Open(
+      MiKTeX::Core::PathName(lpszName),
+      (reading ? MiKTeX::Core::FileMode::Open : MiKTeX::Core::FileMode::Create),
+      (reading ? MiKTeX::Core::FileAccess::Read : MiKTeX::Core::FileAccess::Write),
+      text,
+      mustExist);
+  }
+
+protected:
+  template<class T>
+  bool c4ptryfopen(T& f, const char* lpszName, const char* lpszMode)
+  {
+    return c4pfopen(f, lpszName, lpszMode, false);
+  }
+
+protected:
+  template<class T>
+  void c4pfclose(T& f)
+  {
+    f.Close();
+  }
+
+protected:
+  void c4pexit(int n)
+  {
+    throw n;
+  }
+
+protected:
+  template<class T>
+  T* c4pptr(T& obj)
+  {
+    return &obj;
+  };
+
+protected:
+  template<class T>
+  void c4pincr(T& lvalue)
+  {
+    ++lvalue;
+  }
+
+protected:
+  template<class T> void c4pdecr(T& lvalue)
+  {
+    --lvalue;
+  }
+
+protected:
+  double c4p_abs(double x)
+  {
+    return ::fabs(x);
+  }
+
+protected:
+  int c4p_abs(int x)
+  {
+    return ::abs(x);
+  }
+
+protected:
+  double arctan(double x)
+  {
+    return atan(x);
+  }
+
+protected:
+  template<class T>
+  int chr(T i)
+  {
+    return i;
+  }
+
+protected:
+  template<class T>
+  C4P_boolean eof(T& f)
+  {
+  #if 0
+    return feof(f) != 0;
+  #else
+    return f.Eof();
+  #endif
+  }
+
+protected:
+  template<class T>
+  C4P_boolean eoln(T& f)
+  {
+    return *f == '\n';
+  };
+
+protected:
+  template<class T>
+  void get(T& f)
+  {
+    f.Read();
+  }
+
+protected:
+#if 1 // optimization?
+  template<>
+  void get<BufferedFile<C4P_unsigned8>>(BufferedFile<C4P_unsigned8>& f)
+  {
+    *f = getc(f);
+    if (static_cast<int>(*f) == EOF)
+    {
+      MIKTEX_FATAL_CRT_ERROR("getc");
+    }
+  }
+#endif
+
+protected:
+  double ln(double x)
+  {
+    return log(x);
+  }
+
+protected:
+#if defined(odd)
+#  undef odd
+#endif
+  template<class T>
+  C4P_boolean odd(T i)
+  {
+    return (i & 1) != 0 ? true : false;
+  }
+
+protected:
+  template<class T>
+  int ord(T x)
+  {
+    return x;
+  }
+
+protected:
+  template<class T>
+  T pred(T x)
+  {
+    return x - 1;
+  }
+
+protected:
+  template<class T>
+  void put(T& f)
+  {
+    f.Write();
+  }
+
+protected:
+  template<class T>
+  void reset(T& f)
+  {
+    f.Reset();
+  }
+
+protected:
+  template<class T>
+  void rewrite(T& f)
+  {
+    f.Rewrite();
+  }
+
+protected:
+  double sqr(double x)
+  {
+    return sqrt(x);
+  }
+
+protected:
+  template<class T>
+  T succ(T x)
+  {
+    return x + 1;
+  }
+
+protected:
+  template<int handle>
+  void c4p_proc_entry()
+  {
+  }
+
+protected:
+  template<int handle>
+  void c4p_proc_exit()
+  {
+  }
+
+protected:
+  const int c4pcur = SEEK_CUR;
+  const int c4pend = SEEK_END;
+  const int c4pset = SEEK_SET;
+
+protected:
+  const char* const c4prmode = "r";
+  const char* const c4pwmode = "w";
+  const char* const c4prbmode = "rb";
+  const char* const c4pwbmode = "wb";
 
 private:
   class impl;
@@ -426,421 +928,33 @@ private:
   }                                             \
 }
 
-const C4P_integer maxint = INT_MAX;
-
 #define C4P_READ_BEGIN() {
 #define C4P_READLN_BEGIN() C4P_READ_BEGIN()
-
-template<class Ft> inline void c4p_read_f(Ft &, Ft &)
-{
-}
-
-template<class Vt, class Ft> inline void c4p_read_v(Vt& v, Ft& f)
-{
-  f.AssertValid();
-  v = *f;
-  get(f);
-}
-
-template<class Vt, class Ft> inline void c4p_read_c(Vt& v, Ft& f)
-{
-  f.AssertValid();
-  v = f.GetChar();
-}
-
-template<class Vt, class Ft> inline void c4p_read_i(Vt& v, Ft& f)
-{
-  f.AssertValid();
-  v = f.GetInteger();
-}
-
-template<class Vt, class Ft> inline void c4p_read_r(Vt& v, Ft& f)
-{
-  f.AssertValid();
-  v = f.GetReal();
-}
 
 #define C4P_READ_END(f) }
 #define C4P_READLN_END(f) f.DiscardLine(); }
 
-inline void c4p_readln()
-{
-  input.AssertValid();
-  input.DiscardLine();
-}
-
 #define C4P_WRITE_BEGIN() {
 #define C4P_WRITELN_BEGIN() C4P_WRITE_BEGIN()
-
-template<class Ft> inline void c4p_write_f(Ft&, Ft&)
-{
-}
-
-template<class Vt, class Ft> inline void c4p_write_v(Vt v, Ft& f)
-{
-  f.AssertValid();
-  *f = v;
-  put(f);
-}
-
-template<class Vt, class Ft> inline void c4p_write_c(Vt v, Ft& f)
-{
-  f.AssertValid();
-  WriteChar(v, f);
-}
-
-template<class Vt, class Ft> inline void c4p_write_c1(Vt v, Ft& f)
-{
-  return c4p_write_c(v, f);
-}
-
-template<class Vt, class Ft> inline void c4p_write_i(Vt v, Ft& f)
-{
-  f.AssertValid();
-  if (fprintf(f, "%ld", static_cast<long>(v)) < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fprintf");
-  }
-}
-
-template<class Vt, class Ft> inline void c4p_write_i1(Vt v, int w1, Ft& f)
-{
-  f.AssertValid();
-  if (fprintf(f, "%*ld", static_cast<int>(w1), static_cast<long>(v)) < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fprintf");
-  }
-
-}
-
-template<class Vt, class Ft> inline void c4p_write_i2(Vt v, int w1, int w2, Ft& f)
-{
-  f.AssertValid();
-  if (fprintf(f, "%*.*ld", static_cast<int>(w1), static_cast<int>(w2), static_cast<long>(v)) < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fprintf");
-  }
-}
-
-template<class Vt, class Ft> inline void c4p_write_r(Vt v, Ft& f)
-{
-  f.AssertValid();
-  if (fprintf(f, "%f", static_cast<float>(v)) < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fprintf");
-  }
-}
-
-template<class Vt, class Ft> inline void c4p_write_r2(Vt v, int w1, int w2, Ft& f)
-{
-  f.AssertValid();
-  if (fprintf(f, "%*.*f", static_cast<int>(w1), static_cast<int>(w2), static_cast<float>(v)) < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fprintf");
-  }
-}
-
-template<class Vt, class Ft> inline void c4p_write_s(Vt v, Ft& f)
-{
-  f.AssertValid();
-  if (fputs(v, f) == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fputs");
-  }
-}
 
 #define C4P_WRITE_END(f) }
 #define C4P_WRITELN_END(f) putc('\n', f); }
 
-inline void c4p_writeln()
-{
-  output.AssertValid();
-  if (putc('\n', output) == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("putc");
-  }
-}
-
-template<class T> inline void c4pmget(T& f, typename T::ElementType* buf, std::size_t n)
-{
-  f.AssertValid();
-  f.Read(buf, n);
-}
-
-template<class T> inline char c4pgetc(T& f)
-{
-  f.AssertValid();
-  return f.GetChar();
-}
-
-template<class T> inline void c4pputc(T& f)
-{
-  f.AssertValid();
-  if (putc(*f, f) == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("putc");
-  }
-}
-
-template<class T> inline void c4p_break(T& f)
-{
-  f.AssertValid();
-  if (fflush(f) == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("flush");
-  }
-}
-
-template<class Ft> inline void c4pfseek(Ft& f, int offs, int orig)
-{
-  f.AssertValid();
-  f.Seek(offs, orig);
-}
-
-template<class Ft> inline long c4pftell(Ft& f)
-{
-  f.AssertValid();
-  long n = ftell(f);
-  if (n < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("ftell");
-  }
-  return n;
-}
-
-template<class Ft> inline void c4pbufwrite(Ft& f, const void* buf, std::size_t buf_size)
-{
-  f.AssertValid();
-  //MIKTEX_ASSERT_BUFFER (buf, buf_size);
-  if (fwrite(buf, buf_size, 1, f) != 1)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fwrite");
-  }
-}
-
-#define c4parrcpy(dst, src) c4pmemcpy(dst, sizeof(dst), src, sizeof(dst))
-
-inline void c4pmemcpy(void* pdst, std::size_t size, const void* psrc, std::size_t count)
-{
-  MIKTEX_ASSERT(size >= count);
-  MIKTEX_ASSERT_BUFFER(pdst, size);
-  //MIKTEX_ASSERT_BUFFER (psrc, count);
-#if defined(_MSC_VER) && (_MSC_VER > 1400)
-  memcpy_s(pdst, size, psrc, count);
-#else
-  memcpy(pdst, psrc, count);
-#endif
-}
-
-inline void c4pstrcpy(char* dst, std::size_t size, const char* src)
-{
-  MiKTeX::Util::StringUtil::CopyString(dst, size, src);
-}
-
-inline std::size_t c4pstrlen(const char* lpsz)
-{
-  MIKTEX_ASSERT_STRING(lpsz);
-  return MiKTeX::Util::StrLen(lpsz);
-}
-
-template<class T> inline bool c4pfopen(T& f, const char* lpszName, const char* lpszMode, bool mustExist)
-{
-  MIKTEX_ASSERT_STRING(lpszName);
-  MIKTEX_ASSERT_STRING(lpszMode);
-  MIKTEX_ASSERT
-    (MiKTeX::Core::Utils::Equals(lpszMode, "r")
-      || MiKTeX::Core::Utils::Equals(lpszMode, "rb")
-      || MiKTeX::Core::Utils::Equals(lpszMode, "w")
-      || MiKTeX::Core::Utils::Equals(lpszMode, "wb"));
-  bool reading = (lpszMode[0] == 'r');
-  bool text = (lpszMode[1] == 0);
-  return f.Open(
-    MiKTeX::Core::PathName(lpszName),
-    (reading ? MiKTeX::Core::FileMode::Open : MiKTeX::Core::FileMode::Create),
-    (reading ? MiKTeX::Core::FileAccess::Read : MiKTeX::Core::FileAccess::Write),
-    text,
-    mustExist);
-}
-
-template<class T> inline bool c4ptryfopen(T& f, const char* lpszName, const char* lpszMode)
-{
-  return c4pfopen(f, lpszName, lpszMode, false);
-}
-
-template<class T> inline void c4pfclose(T& f)
-{
-  f.Close();
-}
-
-inline void c4pexit(int n)
-{
-  throw n;
-}
-
 #define c4preturn() goto C4P_LABEL_PROC_EXIT
 #define c4pbreakloop() break
 
-template<class T> T* c4pptr(T& obj)
-{
-  return &obj;
-};
+#define c4parrcpy(dst, src) c4pmemcpy(dst, sizeof(dst), src, sizeof(dst))
 
-template<class T> inline void c4pincr(T& lvalue)
-{
-  ++lvalue;
-}
-
-template<class T> inline void c4pdecr(T& lvalue)
-{
-  --lvalue;
-}
-
-const int c4pcur = SEEK_CUR;
-const int c4pend = SEEK_END;
-const int c4pset = SEEK_SET;
-
-const char* const c4prmode = "r";
-const char* const c4pwmode = "w";
-const char* const c4prbmode = "rb";
-const char* const c4pwbmode = "wb";
-
-C4PCEEAPI(unsigned) GetYear();
-
-C4PCEEAPI(unsigned) GetMonth();
-
-C4PCEEAPI(unsigned) GetDay();
-
-C4PCEEAPI(unsigned) GetHour();
-
-C4PCEEAPI(unsigned) GetMinute();
-
-C4PCEEAPI(unsigned) GetSecond();
-
-#define c4pyear C4P::GetYear()
-#define c4pmonth C4P::GetMonth()
-#define c4pday C4P::GetDay()
-#define c4phour C4P::GetHour()
-#define c4pminute C4P::GetMinute()
-#define c4psecond C4P::GetSecond()
-
-template<int handle> inline void c4p_proc_entry()
-{
-}
-
-template<int handle> inline void c4p_proc_exit()
-{
-}
+#define c4pyear GetYear()
+#define c4pmonth GetMonth()
+#define c4pday GetDay()
+#define c4phour GetHour()
+#define c4pminute GetMinute()
+#define c4psecond GetSecond()
 
 #define C4P_PROC_ENTRY(handle) c4p_proc_entry<handle>();
 #define C4P_PROC_EXIT(handle) C4P_LABEL_PROC_EXIT: c4p_proc_exit<handle>();
 
-C4PCEEAPI(void) WriteChar(int ch, FILE* file);
-
-C4PCEEAPI(void) SetStartUpTime(time_t time, bool useUtc);
-
-C4PCEEAPI(time_t) GetStartUpTime();
-
-C4PCEEAPI(int) MakeCommandLine(const std::vector<std::string>& args);
-
 C4PCEEAPI(C4P_integer) Round(double r);
-
-inline double c4p_abs(double x)
-{
-  return ::fabs(x);
-}
-
-inline int c4p_abs(int x)
-{
-  return ::abs(x);
-}
-
-inline double arctan(double x)
-{
-  return atan(x);
-}
-
-template<class T> inline int chr(T i)
-{
-  return i;
-}
-
-template<class T> inline C4P_boolean eof(T& f)
-{
-#if 0
-  return feof(f) != 0;
-#else
-  return f.Eof();
-#endif
-}
-
-template<class T> inline C4P_boolean eoln(T& f)
-{
-  return *f == '\n';
-};
-
-template<class T> inline void get(T& f)
-{
-  f.Read();
-}
-
-#if 1 // optimization?
-template<> inline void get<BufferedFile<C4P_unsigned8>>(BufferedFile<C4P_unsigned8>& f)
-{
-  *f = getc(f);
-  if (static_cast<int>(*f) == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("getc");
-  }
-}
-#endif
-
-inline double ln(double x)
-{
-  return log(x);
-}
-
-#if defined(odd)
-#  undef odd
-#endif
-
-template<class T> inline C4P_boolean odd(T i)
-{
-  return (i & 1) != 0 ? true : false;
-}
-
-template<class T> inline int ord(T x)
-{
-  return x;
-}
-
-template<class T> inline T pred(T x)
-{
-  return x - 1;
-}
-
-template<class T> inline void put(T& f)
-{
-  f.Write();
-}
-
-template<class T> inline void reset(T& f)
-{
-  f.Reset();
-}
-
-template<class T> inline void rewrite(T& f)
-{
-  f.Rewrite();
-}
-
-inline double sqr(double x)
-{
-  return sqrt(x);
-}
-
-template<class T> inline T succ(T x)
-{
-  return x + 1;
-}
 
 C4P_END_NAMESPACE;

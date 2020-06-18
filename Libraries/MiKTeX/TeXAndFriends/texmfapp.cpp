@@ -486,7 +486,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
       File::GetTimes(PathName(optArg), creationTime, lastAccessTime, lastWriteTime);
       jobTime = lastWriteTime;
     }
-    C4P::SetStartUpTime(jobTime, false);
+    GetProgram()->SetStartUpTime(jobTime, false);
     pimpl->setJobTime = true;
   }
   break;
@@ -760,13 +760,13 @@ void TeXMFApp::ProcessCommandLineOptions()
   }
 
   if (pimpl->parseFirstLine
-    && C4P::GetArgC() > 1
-    && C4P::GetArgV()[1][0] != '&'
-    && C4P::GetArgV()[1][0] != '*' // <fixme/>
-    && C4P::GetArgV()[1][0] != '\\'
+    && GetProgram()->GetArgC() > 1
+    && GetProgram()->GetArgV()[1][0] != '&'
+    && GetProgram()->GetArgV()[1][0] != '*' // <fixme/>
+    && GetProgram()->GetArgV()[1][0] != '\\'
     && (pimpl->memoryDumpFileName.empty() || GetTcxFileName().Empty()))
   {
-    CheckFirstLine(PathName(C4P::GetArgV()[1]));
+    CheckFirstLine(PathName(GetProgram()->GetArgV()[1]));
   }
 }
 
@@ -847,6 +847,9 @@ void TeXMFApp::InitializeBuffer() const
 
   shared_ptr<Session> session = Session::Get();
 
+  auto argc = GetProgram()->GetArgC();
+  auto argv = GetProgram()->GetArgV();
+
   if (AmITeX())
   {
     /* test command-line for one of:
@@ -856,19 +859,19 @@ void TeXMFApp::InitializeBuffer() const
     (d) initex &FORMAT FILENAME \dump
     */
     PathName path;
-    if (c4pargc == 2 && IsFileNameArgument(c4pargv[1]) && session->FindFile(c4pargv[1], GetInputFileType(), path))
+    if (argc == 2 && IsFileNameArgument(argv[1]) && session->FindFile(argv[1], GetInputFileType(), path))
     {
       fileNameArgIdx = 1;
     }
-    else if (c4pargc == 3 && c4pargv[1][0] == '&' && IsFileNameArgument(c4pargv[2]) && session->FindFile(c4pargv[2], GetInputFileType(), path))
+    else if (argc == 3 && argv[1][0] == '&' && IsFileNameArgument(argv[2]) && session->FindFile(argv[2], GetInputFileType(), path))
     {
       fileNameArgIdx = 2;
     }
-    else if (c4pargc == 3 && strcmp(c4pargv[2], "\\dump") == 0 && IsFileNameArgument(c4pargv[1]) && session->FindFile(c4pargv[1], GetInputFileType(), path))
+    else if (argc == 3 && strcmp(argv[2], "\\dump") == 0 && IsFileNameArgument(argv[1]) && session->FindFile(argv[1], GetInputFileType(), path))
     {
       fileNameArgIdx = 1;
     }
-    else if (c4pargc == 4 && c4pargv[1][0] == '&' && strcmp(c4pargv[3], "\\dump") == 0 && IsFileNameArgument(c4pargv[2]) && session->FindFile(c4pargv[2], GetInputFileType(), path))
+    else if (argc == 4 && argv[1][0] == '&' && strcmp(argv[3], "\\dump") == 0 && IsFileNameArgument(argv[2]) && session->FindFile(argv[2], GetInputFileType(), path))
     {
       fileNameArgIdx = 2;
     }
@@ -887,7 +890,7 @@ void TeXMFApp::InitializeBuffer() const
   last = 1;
   char32_t* buffer32 = AmI("xetex") ? inout->buffer32() : nullptr;
   char*buffer = !IsUnicodeApp() ? inout->buffer() : nullptr;
-  for (int idx = 1; idx < c4pargc; ++idx)
+  for (int idx = 1; idx < argc; ++idx)
   {
     if (idx > 1)
     {
@@ -907,7 +910,7 @@ void TeXMFApp::InitializeBuffer() const
     }
     else
     {
-      lpszOptArg = c4pargv[idx];
+      lpszOptArg = argv[idx];
     }
     if (AmI("xetex"))
     {
@@ -926,7 +929,7 @@ void TeXMFApp::InitializeBuffer() const
   }
 
   // clear the command-line
-  C4P::MakeCommandLine(vector<string>());
+  GetProgram()->MakeCommandLine(vector<string>());
 }
 
 void TeXMFApp::TouchJobOutputFile(FILE* file) const
@@ -935,7 +938,7 @@ void TeXMFApp::TouchJobOutputFile(FILE* file) const
   shared_ptr<Session> session = GetSession();
   if (pimpl->setJobTime && session->IsOutputFile(file))
   {
-    time_t time = C4P::GetStartUpTime();
+    time_t time = GetProgram()->GetStartUpTime();
     File::SetTimes(file, time, time, time);
   }
 }

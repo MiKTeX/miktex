@@ -102,6 +102,8 @@ public:
 public:
   PathName packageListFileName;
 public:
+  C4P::ProgramBase* program;
+public:
   string programName;
 public:
   PathName tcxFileName;
@@ -344,8 +346,8 @@ inline bool operator< (const poptOption& opt1, const poptOption& opt2)
 
 void WebApp::ProcessCommandLineOptions()
 {
-  int argc = C4P::GetArgC();
-  const char** argv = C4P::GetArgV();
+  int argc = GetProgram()->GetArgC();
+  const char** argv = GetProgram()->GetArgV();
 
   if (pimpl->options.empty())
   {
@@ -377,7 +379,7 @@ void WebApp::ProcessCommandLineOptions()
     MIKTEX_FATAL_ERROR_2(T_("The command line options could not be processed."), "optionError", pimpl->popt.Strerror(opt));
   }
 
-  C4P::MakeCommandLine(pimpl->popt.GetLeftovers());
+  GetProgram()->MakeCommandLine(pimpl->popt.GetLeftovers());
 }
 
 string WebApp::TheNameOfTheGame() const
@@ -397,8 +399,9 @@ void WebApp::ShowProgramVersion() const
   ShowLibraryVersions();
 }
 
-void WebApp::SetProgramInfo(const string& programName, const string& version, const string& copyright, const string& trademarks)
+void WebApp::SetProgram(C4P::ProgramBase* program, const string& programName, const string& version, const string& copyright, const string& trademarks)
 {
+  pimpl->program = program;
   pimpl->programName = programName;
   pimpl->version = version;
   pimpl->copyright = copyright;
@@ -511,4 +514,9 @@ bool WebApp::AmIMETAFONT() const
 bool WebApp::GetVerboseFlag() const
 {
   return pimpl->verbose;
+}
+
+C4P::ProgramBase* WebApp::GetProgram() const
+{
+  return pimpl->program;
 }

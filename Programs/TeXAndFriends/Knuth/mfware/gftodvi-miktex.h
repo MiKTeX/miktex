@@ -1,6 +1,6 @@
 /* gftodvi-miktex.h:                                    -*- C++ -*-
 
-   Copyright (C) 1991-2018 Christian Schenk
+   Copyright (C) 1991-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -106,8 +106,8 @@ public:
   void ProcessCommandLineOptions() override
   {
     WebApp::ProcessCommandLineOptions();
-    int argc = C4P::GetArgC();
-    const char** argv = C4P::GetArgV();
+    int argc = GetProgram()->GetArgC();
+    const char** argv = GetProgram()->GetArgV();
     if (argc > 1)
     {
       inputFile = argv[1];

@@ -19,6 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <miktex/App/Application>
+
 #if defined(MIKTEX_TEXMF_SHARED)
 #  define C4PEXPORT MIKTEXDLLEXPORT
 #else
@@ -31,13 +33,14 @@
 
 using namespace std;
 
+using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 
 using namespace C4P;
 
-struct ProgramData
+struct Runtime
 {
-  ~ProgramData()
+  ~Runtime()
   {
     ClearCommandLine();
   }
@@ -60,80 +63,44 @@ struct ProgramData
   string programName;
 };
 
-namespace {
-  ProgramData programData;
-}
-
-C4PCEEAPI(int) C4P::MakeCommandLine(const vector<string>& args)
-{
-  MIKTEX_API_BEGIN("C4P::MakeCommandLine");
-  programData.ClearCommandLine();
-  programData.argumentVector.push_back(strdup(Utils::GetExeName().c_str()));
-  for (const string& arg : args)
-  {
-    programData.argumentVector.push_back(strdup(arg.c_str()));
-    programData.commandLine += ' ';
-    programData.commandLine += arg;
-  }
-  return 0;
-  MIKTEX_API_END("C4P::MakeCommandLine");
-}
-
-C4PCEEAPI(void) C4P::SetStartUpTime(time_t time, bool useUtc)
-{
-  MIKTEX_API_BEGIN("C4P::SetStartUpTime");
-  programData.startUpTime = time;
-  programData.startUpTimeUseUtc = useUtc;
-#if defined(_MSC_VER) && (_MSC_VER) >= 1400
-  if (_localtime64_s(&programData.startUpTimeStructLocal, &programData.startUpTime) != 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("_localtime_s");
-  }
-  if (_gmtime64_s(&programData.startUpTimeStructUtc, &programData.startUpTime) != 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("_gmtime64_s");
-  }
-#else
-  struct tm* localTm = localtime(&programData.startUpTime);
-  if (localTm == nullptr)
-  {
-    MIKTEX_FATAL_CRT_ERROR("localtime");
-  }
-  programData.startUpTimeStructLocal = *localTm;
-  struct tm* utcTm = gmtime(&programData.startUpTime);
-  if (utcTm == nullptr)
-  {
-    MIKTEX_FATAL_CRT_ERROR("gmtime");
-  }
-  programData.startUpTimeStructUtc = *utcTm;
-#endif
-  MIKTEX_API_END("C4P::SetStartUpTime");
-}
-
-C4PCEEAPI(time_t) C4P::GetStartUpTime()
-{
-  MIKTEX_API_BEGIN("C4P::GetStartUpTime");
-  return programData.startUpTime;
-  MIKTEX_API_END("C4P::GetStartUpTime");
-}
-
-class C4P::Program::impl
+class C4P::ProgramBase::impl
 {
 public:
   bool isRunning = false;
+public:
+  Application* parent = nullptr;
+#if defined(MIKTEX_WINDOWS)
+public:
+  bool utf8ConsoleIssue = false;
+#endif
+public:
+  Runtime runtime;
 };
 
-C4P::Program::Program() :
+C4P::ProgramBase::ProgramBase() :
   pimpl(make_unique<impl>())
 {
 }
 
-void C4P::Program::Initialize(const char* programName, int argc, char* argv[])
+C4P::ProgramBase::~ProgramBase() noexcept
 {
-  MIKTEX_API_BEGIN("C4P::StartUp");
+  try
+  {
+    if (pimpl->isRunning)
+    {
+      this->Finish();
+    }
+  }
+  catch (const std::exception&)
+  {
+  }
+}
+
+void C4P::ProgramBase::Initialize(const char* programName, int argc, char* argv[])
+{
   MIKTEX_ASSERT_STRING(programName);
-  programData.programName = programName;
-  if (programData.startUpTime == static_cast<time_t>(-1))
+  pimpl->runtime.programName = programName;
+  if (pimpl->runtime.startUpTime == static_cast<time_t>(-1))
   {
     string sde;
     string fsd;
@@ -157,109 +124,159 @@ void C4P::Program::Initialize(const char* programName, int argc, char* argv[])
     args.push_back(argv[idx]);
   }
   MakeCommandLine(args);
-  programData.standardTextFiles[0].Attach(stdin, false);
-  programData.standardTextFiles[1].Attach(stdout, false);
-  programData.standardTextFiles[2].Attach(stderr, false);
+  pimpl->runtime.standardTextFiles[0].Attach(stdin, false);
+  pimpl->runtime.standardTextFiles[1].Attach(stdout, false);
+  pimpl->runtime.standardTextFiles[2].Attach(stderr, false);
   *input = '\n';
   *output = '\0';
   *c4perroroutput = '\0';
   pimpl->isRunning = true;
-  MIKTEX_API_END("C4P::StartUp");
 }
 
-C4P::Program::~Program() noexcept
+C4PTHISAPI(void) C4P::ProgramBase::Finish()
 {
-  try
+#if defined(MIKTEX_WINDOWS)
+  if (pimpl->utf8ConsoleIssue)
   {
-    if (pimpl->isRunning)
+    pimpl->parent->Warning("some characters could not be written to the console window; run 'chcp 65001' to fix this");
+    pimpl->utf8ConsoleIssue = false;
+  }
+#endif
+  pimpl->runtime.ClearCommandLine();
+  pimpl->runtime.programName = "";
+}
+
+C4PTHISAPI(void) C4P::ProgramBase::SetParent(Application* parent)
+{
+  pimpl->parent = parent;
+}
+
+void C4P::ProgramBase::SetStartUpTime(time_t time, bool useUtc)
+{
+  pimpl->runtime.startUpTime = time;
+  pimpl->runtime.startUpTimeUseUtc = useUtc;
+#if defined(_MSC_VER) && (_MSC_VER) >= 1400
+  if (_localtime64_s(&pimpl->runtime.startUpTimeStructLocal, &pimpl->runtime.startUpTime) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("_localtime_s");
+  }
+  if (_gmtime64_s(&pimpl->runtime.startUpTimeStructUtc, &pimpl->runtime.startUpTime) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("_gmtime64_s");
+  }
+#else
+  struct tm* localTm = localtime(&pimpl->runtime.startUpTime);
+  if (localTm == nullptr)
+  {
+    MIKTEX_FATAL_CRT_ERROR("localtime");
+  }
+  pimpl->runtime.startUpTimeStructLocal = *localTm;
+  struct tm* utcTm = gmtime(&pimpl->runtime.startUpTime);
+  if (utcTm == nullptr)
+  {
+    MIKTEX_FATAL_CRT_ERROR("gmtime");
+  }
+  pimpl->runtime.startUpTimeStructUtc = *utcTm;
+#endif
+}
+
+time_t C4P::ProgramBase::GetStartUpTime()
+{
+  return pimpl->runtime.startUpTime;
+}
+
+int C4P::ProgramBase::MakeCommandLine(const vector<string>& args)
+{
+  pimpl->runtime.ClearCommandLine();
+  pimpl->runtime.argumentVector.push_back(strdup(Utils::GetExeName().c_str()));
+  for (const string& arg : args)
+  {
+    pimpl->runtime.argumentVector.push_back(strdup(arg.c_str()));
+    pimpl->runtime.commandLine += ' ';
+    pimpl->runtime.commandLine += arg;
+  }
+  return 0;
+}
+
+const char* C4P::ProgramBase::GetCmdLine()
+{
+  return pimpl->runtime.commandLine.c_str();
+}
+
+int C4P::ProgramBase::GetArgC()
+{
+  return static_cast<int>(pimpl->runtime.argumentVector.size());
+}
+
+const char** C4P::ProgramBase::GetArgV()
+{
+  return const_cast<const char**>(&pimpl->runtime.argumentVector[0]);
+}
+
+unsigned C4P::ProgramBase::GetYear()
+{
+  const tm& tmData = pimpl->runtime.startUpTimeUseUtc ? pimpl->runtime.startUpTimeStructUtc : pimpl->runtime.startUpTimeStructLocal;
+  return tmData.tm_year + 1900;
+}
+
+unsigned C4P::ProgramBase::GetMonth()
+{
+  const tm& tmData = pimpl->runtime.startUpTimeUseUtc ? pimpl->runtime.startUpTimeStructUtc : pimpl->runtime.startUpTimeStructLocal;
+  return tmData.tm_mon + 1;
+}
+
+unsigned C4P::ProgramBase::GetDay()
+{
+  const tm& tmData = pimpl->runtime.startUpTimeUseUtc ? pimpl->runtime.startUpTimeStructUtc : pimpl->runtime.startUpTimeStructLocal;
+  return tmData.tm_mday;
+}
+
+unsigned C4P::ProgramBase::GetHour()
+{
+  const tm& tmData = pimpl->runtime.startUpTimeUseUtc ? pimpl->runtime.startUpTimeStructUtc : pimpl->runtime.startUpTimeStructLocal;
+  return tmData.tm_hour;
+}
+
+unsigned C4P::ProgramBase::GetMinute()
+{
+  const tm& tmData = pimpl->runtime.startUpTimeUseUtc ? pimpl->runtime.startUpTimeStructUtc : pimpl->runtime.startUpTimeStructLocal;
+  return tmData.tm_min;
+}
+
+unsigned C4P::ProgramBase::GetSecond()
+{
+  const tm& tmData = pimpl->runtime.startUpTimeUseUtc ? pimpl->runtime.startUpTimeStructUtc : pimpl->runtime.startUpTimeStructLocal;
+  return tmData.tm_sec;
+}
+
+C4P::C4P_text* C4P::ProgramBase::GetStdFilePtr(unsigned idx)
+{
+  MIKTEX_EXPECT(idx < sizeof(pimpl->runtime.standardTextFiles) / sizeof(pimpl->runtime.standardTextFiles[0]));
+  return &pimpl->runtime.standardTextFiles[idx];
+}
+
+void C4P::ProgramBase::WriteChar(int ch, FILE* file)
+{
+#if defined(MIKTEX_WINDOWS)
+  if (static_cast<unsigned char>(ch) > 127 )
+  {
+    int fd = fileno(file);
+    if (fd < 0)
     {
-      this->Finish();
+      MIKTEX_FATAL_CRT_ERROR("fileno");
+    }
+    int fdStdOut = (stdout != nullptr ? fileno(stdout) : -1);
+    int fdStdErr = (stderr != nullptr ? fileno(stderr) : -1);
+    if ((fd == fdStdOut || fd == fdStdErr) && isatty(fd) != 0 && GetConsoleOutputCP() != 65001)
+    {
+      pimpl->utf8ConsoleIssue = true;
+      ch = '?';
     }
   }
-  catch (const std::exception&)
+#endif
+  ch = putc(ch, file);
+  if (ch == EOF)
   {
+    MIKTEX_FATAL_CRT_ERROR("putc");
   }
-}
-
-C4PTHISAPI(void) C4P::Program::Finish()
-{
-  programData.ClearCommandLine();
-  programData.programName = "";
-}
-
-C4PCEEAPI(unsigned) C4P::GetYear()
-{
-  MIKTEX_API_BEGIN("C4P::GetYear");
-  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
-  return tmData.tm_year + 1900;
-  MIKTEX_API_END("C4P::GetYear");
-}
-
-C4PCEEAPI(unsigned) C4P::GetMonth()
-{
-  MIKTEX_API_BEGIN("C4P::GetMonth");
-  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
-  return tmData.tm_mon + 1;
-  MIKTEX_API_END("C4P::GetMonth");
-}
-
-C4PCEEAPI(unsigned) C4P::GetDay()
-{
-  MIKTEX_API_BEGIN("C4P::GetDay");
-  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
-  return tmData.tm_mday;
-  MIKTEX_API_END("C4P::GetDay");
-}
-
-C4PCEEAPI(unsigned) C4P::GetHour()
-{
-  MIKTEX_API_BEGIN("C4P::GetHour");
-  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
-  return tmData.tm_hour;
-  MIKTEX_API_END("C4P::GetHour");
-}
-
-C4PCEEAPI(unsigned) C4P::GetMinute()
-{
-  MIKTEX_API_BEGIN("C4P::GetMinute");
-  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
-  return tmData.tm_min;
-  MIKTEX_API_END("C4P::GetMinute");
-}
-
-C4PCEEAPI(unsigned) C4P::GetSecond()
-{
-  MIKTEX_API_BEGIN("C4P::GetSecond");
-  const tm& tmData = programData.startUpTimeUseUtc ? programData.startUpTimeStructUtc : programData.startUpTimeStructLocal;
-  return tmData.tm_sec;
-  MIKTEX_API_END("C4P::GetSecond");
-}
-
-C4PCEEAPI(C4P::C4P_text *) C4P::GetStdFilePtr(unsigned idx)
-{
-  MIKTEX_API_BEGIN("C4P::GetStdFilePtr");
-  MIKTEX_ASSERT(idx < sizeof(programData.standardTextFiles) / sizeof(programData.standardTextFiles[0]));
-  return &programData.standardTextFiles[idx];
-  MIKTEX_API_END("C4P::GetStdFilePtr");
-}
-
-C4PCEEAPI(int) C4P::GetArgC()
-{
-  MIKTEX_API_BEGIN("C4P::GetArgC");
-  return static_cast<int>(programData.argumentVector.size());
-  MIKTEX_API_END("C4P::GetArgC");
-}
-
-C4PCEEAPI(const char**) C4P::GetArgV()
-{
-  MIKTEX_API_BEGIN("C4P::GetArgV");
-  return const_cast<const char**>(&programData.argumentVector[0]);
-  MIKTEX_API_END("C4P::GetArgV");
-}
-
-C4PCEEAPI(const char*) C4P::GetCmdLine()
-{
-  MIKTEX_API_BEGIN("C4P::GetCmdLine");
-  return programData.commandLine.c_str();
-  MIKTEX_API_END("C4P::GetCmdLine");
 }

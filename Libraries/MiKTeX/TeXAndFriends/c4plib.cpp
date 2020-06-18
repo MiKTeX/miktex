@@ -47,14 +47,12 @@ C4P_BEGIN_NAMESPACE;
 
 void C4P_text::DiscardLine()
 {
-  MIKTEX_API_BEGIN("C4P_text::DiscardLine");
   AssertValid();
   // FIXME: OS X
   while (!feof(file) && GetChar() != '\n')
   {
     ;
   }
-  MIKTEX_API_END("C4P_text::DiscardLine");
 }
 
 inline bool C4P_text::IsTerminal()
@@ -80,7 +78,6 @@ inline bool C4P_text::IsTerminal()
 
 char C4P_text::GetChar()
 {
-  MIKTEX_API_BEGIN("C4P_text::GetChar");
   AssertValid();
   if (!IsPascalFileIO())
   {
@@ -101,12 +98,10 @@ char C4P_text::GetChar()
     }
   }
   return ch;
-  MIKTEX_API_END("C4P_text::GetChar");
 }
 
 C4P_integer C4P_text::GetInteger()
 {
-  MIKTEX_API_BEGIN("C4P_textGetInteger");
   AssertValid();
   while (!Eof())
   {
@@ -137,19 +132,15 @@ C4P_integer C4P_text::GetInteger()
     }
   }
   return 0;
-  MIKTEX_API_END("C4P_text::GetInteger");
 }
 
 C4P_real C4P_text::GetReal()
 {
-  MIKTEX_API_BEGIN("C4P_text::GetReal");
   MIKTEX_UNIMPLEMENTED();
-  MIKTEX_API_END("C4P_text::GetReal");
 }
 
 bool FileRoot::Open(const PathName& path, FileMode mode, FileAccess access, bool text, bool mustExist)
 {
-  MIKTEX_API_BEGIN("FileRoot::open");
   this->path = path;
   FILE* file;
   shared_ptr<Session> session = Session::Get();
@@ -167,12 +158,10 @@ bool FileRoot::Open(const PathName& path, FileMode mode, FileAccess access, bool
   }
   Attach(file, true);
   return true;
-  MIKTEX_API_END("FileRoot::open");
 }
 
 C4PCEEAPI(C4P_integer) Round(double r)
 {
-  MIKTEX_API_BEGIN("Round");
   if (r > INT_MAX)
   {
     return INT_MAX;
@@ -188,32 +177,6 @@ C4PCEEAPI(C4P_integer) Round(double r)
   else
   {
     return static_cast<C4P_integer>(r - 0.5);
-  }
-  MIKTEX_API_END("Round");
-}
-
-C4PCEEAPI(void) WriteChar(int ch, FILE* file)
-{
-#if defined(MIKTEX_WINDOWS)
-  if (static_cast<unsigned char>(ch) > 127 )
-  {
-    int fd = fileno(file);
-    if (fd < 0)
-    {
-      MIKTEX_FATAL_CRT_ERROR("fileno");
-    }
-    int fdStdOut = (stdout != nullptr ? fileno(stdout) : -1);
-    int fdStdErr = (stderr != nullptr ? fileno(stderr) : -1);
-    if ((fd == fdStdOut || fd == fdStdErr) && isatty(fd) != 0 && GetConsoleOutputCP() != 65001)
-    {
-      ch = '?';
-    }
-  }
-#endif
-  ch = putc(ch, file);
-  if (ch == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("putc");
   }
 }
 

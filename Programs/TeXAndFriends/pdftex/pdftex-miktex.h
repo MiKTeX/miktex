@@ -617,7 +617,7 @@ template<typename FileType> int getbyte(FileType& f)
   unsigned char ret = *f;
   if (!feof(f))
   {
-    get(f);
+    f.Read();
   }
   return ret & 0xff;
 }
