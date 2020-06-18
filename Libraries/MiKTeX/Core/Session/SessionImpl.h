@@ -635,6 +635,9 @@ private:
 private:
   int RunScript(const std::string& scriptEngine, const std::string& scriptEngineArgument, int argc, const char** argv);
 
+private:
+  void Reset(MiKTeX::Core::VersionNumber setupVersion);
+
 public:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_access;
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_config;

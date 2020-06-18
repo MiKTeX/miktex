@@ -863,14 +863,34 @@ void SessionImpl::StartFinishScript(int delay)
   tmpdir->Keep();
 }
 
-void SessionImpl::Reset()
+VersionNumber SessionImpl::GetSetupVersionNumber()
+{
+  return initStartupConfig.setupVersion;
+}
+
+void SessionImpl::SetSetupVersionNumber(VersionNumber setupVersion)
+{
+  if (setupVersion == initStartupConfig.setupVersion)
+  {
+    return;
+  }
+  Reset(setupVersion);
+}
+
+void SessionImpl::Reset(VersionNumber setupVersion)
 {
   vector<string> onFinishScript = move(this->onFinishScript);
   InitInfo initInfo = this->initInfo;
   this->~SessionImpl();
   new (this) SessionImpl();
+  initStartupConfig.setupVersion = setupVersion;
   Initialize(initInfo);
   this->onFinishScript = move(onFinishScript);
+}
+
+void SessionImpl::Reset()
+{
+  Reset(initStartupConfig.setupVersion);
 }
 
 void SessionImpl::SetEnvironmentVariables()
