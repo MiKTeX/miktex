@@ -123,8 +123,12 @@ public:
   bool isRunning = false;
 };
 
-C4P::Program::Program(const char* programName, int argc, char* argv[]) :
+C4P::Program::Program() :
   pimpl(make_unique<impl>())
+{
+}
+
+void C4P::Program::Initialize(const char* programName, int argc, char* argv[])
 {
   MIKTEX_API_BEGIN("C4P::StartUp");
   MIKTEX_ASSERT_STRING(programName);
@@ -169,7 +173,7 @@ C4P::Program::~Program() noexcept
   {
     if (pimpl->isRunning)
     {
-      Finish();
+      this->Finish();
     }
   }
   catch (const std::exception&)

@@ -108,7 +108,7 @@ void open_header_file()
     }
     if (base_class_name.empty())
     {
-      cppout.out_s("class " + class_name + " {\n");
+      cppout.out_s("class " + class_name + " : public C4P::Program {\n");
     }
     else
     {

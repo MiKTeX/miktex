@@ -24,9 +24,6 @@
 
 #pragma once
 
-#if !defined(D8041ED6B5CDA942BA2AEEA8E29FD1D9)
-#define D8041ED6B5CDA942BA2AEEA8E29FD1D9
-
 #include <miktex/C4P/config.h>
 
 #include <cctype>
@@ -354,10 +351,10 @@ C4PCEEAPI(C4P_text*) GetStdFilePtr(unsigned idx);
 #define output (*(C4P::GetStdFilePtr(1)))
 #define c4perroroutput (*(C4P::GetStdFilePtr(2)))
 
-class Program
+class C4PTYPEAPI(Program)
 {
 public:
-  Program() = delete;
+  C4PEXPORT MIKTEXTHISCALL Program();
 
 public:
   Program(const Program& other) = delete;
@@ -374,10 +371,10 @@ public:
 public:
   virtual C4PEXPORT MIKTEXTHISCALL ~Program() noexcept;
 
-public:
-  C4PEXPORT MIKTEXTHISCALL Program(const char* programName, int argc, char* argv[]);
+protected:
+  C4PTHISAPI(void) Initialize(const char* programName, int argc, char* argv[]);
 
-public:
+protected:
   C4PTHISAPI(void) Finish();
 
 private:
@@ -385,21 +382,21 @@ private:
   std::unique_ptr<impl> pimpl;
 };
 
-#define C4P_BEGIN_PROGRAM(programName, argc, argv)      \
-  {                                                     \
-    int c4p_retcode = 0;                                \
-    try                                                 \
-    {                                                   \
-      C4P::Program c4p_program(programName, argc, argv);
+#define C4P_BEGIN_PROGRAM(programName, argc, argv)                                 \
+  {                                                                                \
+    int c4p_retcode = 0;                                                           \
+    try                                                                            \
+    {                                                                              \
+      this->Initialize(programName, argc, argv);
 
-#define C4P_END_PROGRAM()                       \
-      c4p_program.Finish();                     \
-    }                                           \
-    catch (int retcode)                         \
-    {                                           \
-      c4p_retcode = retcode;                    \
-    }                                           \
-    return c4p_retcode;                         \
+#define C4P_END_PROGRAM()                                                          \
+      this->Finish();                                                              \
+    }                                                                              \
+    catch(int retcode)                                                             \
+    {                                                                              \
+      c4p_retcode = retcode;                                                       \
+    }                                                                              \
+    return c4p_retcode;                                                            \
 }
 
 #define c4pbegintryblock(n)                     \
@@ -847,5 +844,3 @@ template<class T> inline T succ(T x)
 }
 
 C4P_END_NAMESPACE;
-
-#endif
