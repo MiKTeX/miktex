@@ -1710,7 +1710,7 @@ bool SetupServiceImpl::OnProgress(MiKTeX::Packages::Notification nf)
   return true;
 }
 
-wstring& SetupServiceImpl::Expand(const char* source, wstring& dest)
+wstring& SetupServiceImpl::Expand(const string& source, wstring& dest)
 {
   dest = StringUtil::UTF8ToWideChar(source);
   wstring::size_type pos;

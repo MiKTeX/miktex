@@ -1,6 +1,6 @@
 /* winSetupService.h: internal definitions              -*- C++ -*-
 
-   Copyright (C) 2014-2018 Christian Schenk
+   Copyright (C) 2014-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,21 +17,23 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
+#pragma once
+
 BEGIN_INTERNAL_NAMESPACE;
 
 struct ShellLinkData
 {
   bool isUrl;
   bool isObsolete;
-  const char* lpszFolder;
-  const char* lpszName;
-  const char* lpszPathName;
+  std::string folder;
+  std::string name;
+  std::string pathName;
   unsigned long flags;
-  const char* lpszDescription;
-  const char* lpszArgs;
-  const char* lpszIconPath;
+  std::string description;
+  std::string args;
+  std::string iconPath;
   int iconIndex;
-  const char* lpszWorkingDir;
+  std::string workingDir;
   int showCmd;
   WORD hotKey;
 };
@@ -76,10 +78,10 @@ private:
   bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(std::string& path);
 
 private:
-  void AddUninstallerRegValue(HKEY hkey, const char* valueName, const char* value);
+  void AddUninstallerRegValue(HKEY hkey, const std::string& valueName, const std::string& value);
 
 private:
-  void AddUninstallerRegValue(HKEY hkey, const char* valueName, DWORD value);
+  void AddUninstallerRegValue(HKEY hkey, const std::string& valueName, DWORD value);
 
 private:
   MiKTeX::Core::PathName CreateProgramFolder();
@@ -88,7 +90,7 @@ private:
   void CreateShellLink(const MiKTeX::Core::PathName& pathFolder, const ShellLinkData& ld);
 
 private:
-  void CreateInternetShortcut(const MiKTeX::Core::PathName& path, const char* url);
+  void CreateInternetShortcut(const MiKTeX::Core::PathName& path, const std::string& url);
 };
 
 END_INTERNAL_NAMESPACE;

@@ -43,7 +43,7 @@ PathName SetupService::GetDefaultUserInstallDir()
   PWSTR pwstr;
   if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_UserProgramFiles, KF_FLAG_CREATE, nullptr, &pwstr)))
   {
-    AutoCoTaskMem xxx(pwstr);
+    MIKTEX_AUTO(CoTaskMemFree(pwstr));
     path = pwstr;
   }
   if (path.Empty())
@@ -90,7 +90,7 @@ void winSetupServiceImpl::ULogAddRegValue(HKEY hkey, const string& valueName, co
     uninstStream << "[hkcu]" << "\n";
     section = HKCU;
   }
-  uninstStream << fmt::format("{};{}", valueName, value) << endl;
+  uninstStream << fmt::format("{0};{1}", valueName, value) << endl;
 }
 
 PathName winSetupServiceImpl::CreateProgramFolder()
@@ -119,19 +119,16 @@ PathName winSetupServiceImpl::CreateProgramFolder()
   return path;
 }
 
-#define LD_USEDESC 0x00000001
-#define LD_USEARGS 0x00000002
-#define LD_USEICON 0x00000004
-#define LD_USEWORKDIR 0x00000008
-#define LD_USEHOTKEY 0x00000010
-#define LD_USESHOWCMD 0x00000020
-#define LD_IFCOMMON 0x00000040
+constexpr auto LD_USEDESC = 0x00000001;
+constexpr auto LD_USEARGS = 0x00000002;
+constexpr auto LD_USEICON = 0x00000004;
+constexpr auto LD_USEWORKDIR = 0x00000008;
+constexpr auto LD_USEHOTKEY = 0x00000010;
+constexpr auto LD_USESHOWCMD = 0x00000020;
+constexpr auto LD_IFCOMMON = 0x00000040;
 
-#define EXEPATH(name) \
- "%MIKTEX_INSTALL%\\" MIKTEX_PATH_BIN_DIR "\\" name
-
-#define DOCPATH(name) \
- "%MIKTEX_INSTALL%\\" MIKTEX_PATH_MIKTEX_DOC_DIR "\\" name
+#define EXEPATH(name) fmt::format("%MIKTEX_INSTALL%\\{0}\\{1}", MIKTEX_PATH_BIN_DIR, name)
+#define DOCPATH(name) fmt::format("%MIKTEX_INSTALL%\\{0}\\{1}", MIKTEX_PATH_MIKTEX_DOC_DIR, name)
 
 BEGIN_ANONYMOUS_NAMESPACE;
 
@@ -141,15 +138,15 @@ const ShellLinkData shellLinks[] = {
   {
     false,
     false,
-    nullptr,
+    "",
     "MiKTeX Console",
     EXEPATH(MIKTEX_CONSOLE_EXE),
     LD_USESHOWCMD | LD_USEDESC,
-    "The MiKTeX Console helps you to manage the MiKTeX configuration.",
-    nullptr,
-    nullptr,
+    T_("The MiKTeX Console helps you to manage the MiKTeX configuration."),
+    "",
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -158,15 +155,15 @@ const ShellLinkData shellLinks[] = {
   {
     false,
     false,
-    nullptr,
+    "",
     "TeXworks",
     EXEPATH(MIKTEX_TEXWORKS_EXE),
     LD_USESHOWCMD | LD_USEDESC,
-    "TeXworks is a simple TeX front-end program.",
-    nullptr,
-    nullptr,
+    T_("TeXworks is a simple TeX front-end program."),
+    "",
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -175,15 +172,15 @@ const ShellLinkData shellLinks[] = {
   {
     false,
     true,
-    nullptr,
+    "",
     "DVI Previewer (Yap)",
     EXEPATH(MIKTEX_YAP_EXE),
     LD_USESHOWCMD,
-    nullptr,
-    nullptr,
-    nullptr,
+    "",
+    "",
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -196,11 +193,11 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX Settings",
     EXEPATH(MIKTEX_CONSOLE_EXE),
     LD_USESHOWCMD | LD_USEARGS,
-    nullptr,
+    "",
     "--start-page settings",
-    nullptr,
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -213,11 +210,11 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX Update",
     EXEPATH(MIKTEX_CONSOLE_EXE),
     LD_USESHOWCMD | LD_USEARGS,
-    nullptr,
+    "",
     "--start-page updates",
-    nullptr,
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -230,11 +227,11 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX Package Manager",
     EXEPATH(MIKTEX_CONSOLE_EXE),
     LD_USESHOWCMD | LD_USEARGS,
-    nullptr,
+    "",
     "--start-page packages",
-    nullptr,
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -247,11 +244,11 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX Settings (Admin)",
     EXEPATH(MIKTEX_CONSOLE_ADMIN_EXE),
     LD_IFCOMMON | LD_USESHOWCMD | LD_USEARGS,
-    nullptr,
+    "",
     "--admin --start-page settings",
-    nullptr,
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -264,11 +261,11 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX Update (Admin)",
     EXEPATH(MIKTEX_CONSOLE_ADMIN_EXE),
     LD_IFCOMMON | LD_USESHOWCMD | LD_USEARGS,
-    nullptr,
+    "",
     "--admin --start-page updates",
-    nullptr,
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -281,11 +278,11 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX Package Manager (Admin)",
     EXEPATH(MIKTEX_CONSOLE_ADMIN_EXE),
     LD_IFCOMMON | LD_USESHOWCMD | LD_USEARGS,
-    nullptr,
+    "",
     "--admin --start-page packages",
-    nullptr,
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -299,11 +296,11 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX Manual",
     DOCPATH(MIKTEX_MAIN_HELP_FILE),
     LD_USESHOWCMD,
-    nullptr,
-    nullptr,
-    nullptr,
+    "",
+    "",
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -318,11 +315,11 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX FAQ",
     DOCPATH(MIKTEX_FAQ_HELP_FILE),
     LD_USESHOWCMD,
-    nullptr,
-    nullptr,
-    nullptr,
+    "",
+    "",
+    "",
     0,
-    nullptr,
+    "",
     SW_SHOWNORMAL,
     0,
   },
@@ -337,11 +334,11 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX Project Page",
     MIKTEX_URL_WWW,
     0,
-    nullptr,
-    nullptr,
-    nullptr,
+    "",
+    "",
+    "",
     0,
-    nullptr,
+    "",
     0,
     0,
   },
@@ -356,11 +353,11 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX Support",
     MIKTEX_URL_WWW_SUPPORT,
     0,
-    nullptr,
-    nullptr,
-    nullptr,
+    "",
+    "",
+    "",
     0,
-    nullptr,
+    "",
     0,
     0,
   },
@@ -375,11 +372,11 @@ const ShellLinkData shellLinks[] = {
     "Give back",
     MIKTEX_URL_WWW_GIVE_BACK,
     0,
-    nullptr,
-    nullptr,
-    nullptr,
+    "",
+    "",
+    "",
     0,
-    nullptr,
+    "",
     0,
     0,
   },
@@ -394,11 +391,11 @@ const ShellLinkData shellLinks[] = {
     "Known Issues",
     MIKTEX_URL_WWW_KNOWN_ISSUES,
     0,
-    nullptr,
-    nullptr,
-    nullptr,
+    "",
+    "",
+    "",
     0,
-    nullptr,
+    "",
     0,
     0,
   },
@@ -418,7 +415,7 @@ void winSetupServiceImpl::CreateProgramIcons()
 
 void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const ShellLinkData& ld)
 {
-  bool dontCreate = ld.lpszPathName == nullptr;
+  bool dontCreate = ld.pathName.empty();
 
   if ((ld.flags & LD_IFCOMMON) != 0 && !options.IsCommonSetup)
   {
@@ -428,9 +425,9 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
   PathName pathLink;
 
-  if (ld.lpszFolder != nullptr)
+  if (!ld.folder.empty())
   {
-    PathName pathSubFolder(pathFolder, PathName(ld.lpszFolder));
+    PathName pathSubFolder(pathFolder, PathName(ld.folder));
     if (!ld.isObsolete)
     {
       Directory::Create(pathSubFolder);
@@ -442,7 +439,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
     pathLink = pathFolder;
   }
 
-  pathLink /= ld.lpszName;
+  pathLink /= ld.name;
   pathLink.AppendExtension(ld.isUrl ? ".url" : ".lnk");
 
   if (File::Exists(pathLink))
@@ -479,7 +476,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
   if (ld.isUrl)
   {
-    CreateInternetShortcut(pathLink, ld.lpszPathName);
+    CreateInternetShortcut(pathLink, ld.pathName);
   }
   else
   {
@@ -497,7 +494,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     wstring str;
 
-    hr = psl->SetPath(Expand(ld.lpszPathName, str).c_str());
+    hr = psl->SetPath(Expand(ld.pathName, str).c_str());
 
     if (FAILED(hr))
     {
@@ -507,7 +504,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if ((ld.flags & LD_USEARGS) != 0)
     {
-      hr = psl->SetArguments(Expand(ld.lpszArgs, str).c_str());
+      hr = psl->SetArguments(Expand(ld.args, str).c_str());
       if (FAILED(hr))
       {
         Log(fmt::format(T_("IShellLinkW::SetArguments() failed ({0:#08X})\n"), hr));
@@ -517,7 +514,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if ((ld.flags & LD_USEDESC) != 0)
     {
-      hr = psl->SetDescription(UW_(ld.lpszDescription));
+      hr = psl->SetDescription(UW_(ld.description));
       if (FAILED(hr))
       {
         Log(fmt::format(T_("IShellLinkW::SetDescription() failed ({0:#08X})\n"), hr));
@@ -527,7 +524,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if ((ld.flags & LD_USEICON) != 0)
     {
-      hr = psl->SetIconLocation(Expand(ld.lpszIconPath, str).c_str(), ld.iconIndex);
+      hr = psl->SetIconLocation(Expand(ld.iconPath, str).c_str(), ld.iconIndex);
       if (FAILED(hr))
       {
         Log(fmt::format(T_("IShellLinkW::SetIconLocation() failed ({0:#08X})\n"), hr));
@@ -537,7 +534,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if ((ld.flags & LD_USEWORKDIR) != 0)
     {
-      hr = psl->SetWorkingDirectory(Expand(ld.lpszWorkingDir, str).c_str());
+      hr = psl->SetWorkingDirectory(Expand(ld.workingDir, str).c_str());
       if (FAILED(hr))
       {
         Log(fmt::format(T_("IShellLinkW::SetWorkingDirectory() failed ({0:#08X})\n"), hr));
@@ -587,7 +584,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
   ULogAddFile(pathLink);
 }
 
-void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const char* lpszUrl)
+void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const string& url)
 {
   _COM_SMARTPTR_TYPEDEF(IUniformResourceLocatorW, IID_IUniformResourceLocatorW);
 
@@ -601,7 +598,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const cha
     MIKTEX_UNEXPECTED();
   }
 
-  hr = pURL->SetURL(UW_(lpszUrl), 0);
+  hr = pURL->SetURL(UW_(url), 0);
 
   if (FAILED(hr))
   {
@@ -628,35 +625,26 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const cha
   }
 }
 
-#define UNINST_HELP_LINK "https://miktex.org/support"
-#define UNINST_PUBLISHER MIKTEX_COMP_COMPANY_STR
-#define UNINST_DISPLAY_VERSION MIKTEX_VERSION_STR
-#define UNINST_DISPLAY_STRING \
-  (options.Task == SetupTask::PrepareMiKTeXDirect \
-   ? UNINST_DISPLAY_NAME_MIKTEXDIRECT \
+constexpr auto UNINST_HELP_LINK = "https://miktex.org/support";
+constexpr auto UNINST_PUBLISHER = MIKTEX_COMP_COMPANY_STR;
+constexpr auto UNINST_DISPLAY_VERSION = MIKTEX_DISPLAY_VERSION_STR;
+#define UNINST_DISPLAY_STRING                       \
+  (options.Task == SetupTask::PrepareMiKTeXDirect   \
+   ? UNINST_DISPLAY_NAME_MIKTEXDIRECT               \
    : UNINST_DISPLAY_NAME)
-#define UNINST_ABOUT_URL "https://miktex.org/about"
-#define UNINST_UPDATE_URL "https://miktex.org"
-#define UNINST_COMMENT T_("Uninstall MiKTeX")
-#define UNINST_README MIKTEX_URL_WWW_KNOWN_ISSUES
+constexpr auto UNINST_ABOUT_URL = "https://miktex.org/about";
+constexpr auto UNINST_UPDATE_URL = "https://miktex.org";
+constexpr auto UNINST_COMMENTS = T_("MiKTeX is a scalable TeX distribution for Windows, Linux and macOS.");
+constexpr auto UNINST_README = UNINST_HELP_LINK;
 
-#define UNINST_DISPLAY_NAME \
-  MIKTEX_PRODUCTNAME_STR " " MIKTEX_VERSION_STR
+constexpr auto UNINST_DISPLAY_NAME = MIKTEX_PRODUCTNAME_STR;
+constexpr auto UNINST_DISPLAY_NAME_MIKTEXDIRECT = "MiKTeXDirect" " " MIKTEX_DISPLAY_VERSION_STR;
 
-#define UNINST_DISPLAY_NAME_MIKTEXDIRECT \
-  "MiKTeXDirect" " " MIKTEX_VERSION_STR
+constexpr auto REGSTR_PATH_UNINSTALL_U = "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
 
-#define REGSTR_PATH_UNINSTALL_A "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall"
+#define UNINST_REG_PATH fmt::format("{0}\\{1}", REGSTR_PATH_UNINSTALL_U, options.Task == SetupTask::PrepareMiKTeXDirect ? UNINST_DISPLAY_NAME_MIKTEXDIRECT : UNINST_DISPLAY_NAME)
 
-#define UNINST_REG_PATH \
-    (options.Task == SetupTask::PrepareMiKTeXDirect \
-     ? REGSTR_PATH_UNINSTALL_A "\\" UNINST_DISPLAY_NAME_MIKTEXDIRECT \
-     : REGSTR_PATH_UNINSTALL_A "\\" UNINST_DISPLAY_NAME)
-
-#define UNINST_HKEY_ROOT \
-  (options.IsCommonSetup \
-   ? HKEY_LOCAL_MACHINE \
-   : HKEY_CURRENT_USER)
+#define UNINST_HKEY_ROOT (options.IsCommonSetup ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER)
 
 void winSetupServiceImpl::RegisterUninstaller()
 {
@@ -685,40 +673,40 @@ void winSetupServiceImpl::RegisterUninstaller()
 
   // set values
   PathName installRoot(GetInstallRoot());
-  AddUninstallerRegValue(hkey, "Comment", UNINST_COMMENT);
-  AddUninstallerRegValue(hkey, "DisplayIcon", iconPath.GetData());
+  AddUninstallerRegValue(hkey, "Comments", UNINST_COMMENTS);
+  AddUninstallerRegValue(hkey, "DisplayIcon", iconPath.ToString());
   AddUninstallerRegValue(hkey, "DisplayName", UNINST_DISPLAY_STRING);
   AddUninstallerRegValue(hkey, "DisplayVersion", UNINST_DISPLAY_VERSION);
   AddUninstallerRegValue(hkey, "HelpLink", UNINST_HELP_LINK);
-  AddUninstallerRegValue(hkey, "InstallLocation", installRoot.GetData());
+  AddUninstallerRegValue(hkey, "InstallLocation", installRoot.ToString());
   AddUninstallerRegValue(hkey, "NoModify", 1);
   AddUninstallerRegValue(hkey, "NoRepair", 1);
   AddUninstallerRegValue(hkey, "Publisher", UNINST_PUBLISHER);
   AddUninstallerRegValue(hkey, "Readme", UNINST_README);
-  AddUninstallerRegValue(hkey, "UninstallString", commandLine.c_str());
+  AddUninstallerRegValue(hkey, "UninstallString", commandLine);
   AddUninstallerRegValue(hkey, "UrlInfoAbout", UNINST_ABOUT_URL);
   AddUninstallerRegValue(hkey, "UrlUpdateInfo", UNINST_UPDATE_URL);
 }
 
-void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const char* lpszValueName, const char* lpszValue)
+void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const string& valueName, const string& value)
 {
-  wstring value(UW_(lpszValue));
-  LONG result = RegSetValueExW(hkey, UW_(lpszValueName), 0, REG_SZ, reinterpret_cast<const BYTE*>(value.c_str()), static_cast<DWORD>((value.length() + 1) * sizeof(wchar_t)));
+  wstring wideValue = UW_(value);
+  LONG result = RegSetValueExW(hkey, UW_(valueName), 0, REG_SZ, reinterpret_cast<const BYTE*>(wideValue.c_str()), static_cast<DWORD>((wideValue.length() + 1) * sizeof(wchar_t)));
   if (result != ERROR_SUCCESS)
   {
     MIKTEX_FATAL_WINDOWS_RESULT("RegSetValueExW", result);
   }
-  ULogAddRegValue(UNINST_HKEY_ROOT, UNINST_REG_PATH, lpszValueName);
+  ULogAddRegValue(UNINST_HKEY_ROOT, UNINST_REG_PATH, value);
 }
 
-void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const char* lpszValueName, DWORD value)
+void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const string& valueName, DWORD value)
 {
-  LONG result = RegSetValueExW(hkey, UW_(lpszValueName), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), static_cast<DWORD>(sizeof(value)));
+  LONG result = RegSetValueExW(hkey, UW_(valueName), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), static_cast<DWORD>(sizeof(value)));
   if (result != ERROR_SUCCESS)
   {
     MIKTEX_FATAL_WINDOWS_RESULT("RegSetValueExW", result);
   }
-  ULogAddRegValue(UNINST_HKEY_ROOT, UNINST_REG_PATH, lpszValueName);
+  ULogAddRegValue(UNINST_HKEY_ROOT, UNINST_REG_PATH, valueName);
 }
 
 void winSetupServiceImpl::UnregisterShellFileTypes()
@@ -739,19 +727,18 @@ void winSetupServiceImpl::UnregisterShellFileTypes()
 
 void winSetupServiceImpl::UnregisterPath(bool shared)
 {
-#define REGSTR_KEY_ENVIRONMENT_COMMON \
-   REGSTR_PATH_CURRENTCONTROLSET_A "\\Control\\Session Manager\\Environment"
-#define REGSTR_KEY_ENVIRONMENT_USER "Environment"
+  constexpr auto REGSTR_PATH_CURRENTCONTROLSET_U = "System\\CurrentControlSet";
+  constexpr auto REGSTR_KEY_ENVIRONMENT_USER = "Environment";
+
+#define REGSTR_KEY_ENVIRONMENT_COMMON fmt::format("{0}\\Control\\Session Manager\\Environment", REGSTR_PATH_CURRENTCONTROLSET_U)
 
   HKEY hkey;
-
-#define REGSTR_PATH_CURRENTCONTROLSET_A "System\\CurrentControlSet"
 
   string subkey(shared
     ? REGSTR_KEY_ENVIRONMENT_COMMON
     : REGSTR_KEY_ENVIRONMENT_USER);
 
-  LONG result = RegOpenKeyExW((shared ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER), UW_(subkey.c_str()), 0, KEY_QUERY_VALUE | KEY_SET_VALUE, &hkey);
+  LONG result = RegOpenKeyExW((shared ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER), UW_(subkey), 0, KEY_QUERY_VALUE | KEY_SET_VALUE, &hkey);
 
   if (result != ERROR_SUCCESS)
   {
