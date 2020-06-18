@@ -912,6 +912,12 @@ VersionNumber SessionImpl::GetSetupVersionNumber()
   return initStartupConfig.setupVersion;
 }
 
+void SessionImpl::SetSetupVersionNumber(VersionNumber setupVersion)
+{
+  initStartupConfig.setupVersion = setupVersion;
+  // TODO: reset session
+}
+
 void SessionImpl::ConfigureFile(const PathName& pathRel, HasNamedValues* callback)
 {
   PathName pathOut(GetSpecialPath(SpecialPath::ConfigRoot));

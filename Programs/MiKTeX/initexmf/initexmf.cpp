@@ -459,6 +459,9 @@ private:
   }
 
 private:
+  string principal;
+
+private:
   bool csv = false;
 
 private:
@@ -674,7 +677,7 @@ IniTeXMFApp::~IniTeXMFApp()
 void IniTeXMFApp::Init(int argc, const char* argv[])
 {
   bool adminMode = false;
-  bool setupWizardRunning = false;
+  bool isSetup = false;
   for (const char** opt = &argv[1]; *opt != nullptr; ++opt)
   {
     if ("--admin"s == *opt || "-admin"s == *opt)
@@ -683,7 +686,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     }
     else if ("--principal=setup"s == *opt || "-principal=setup"s == *opt)
     {
-      setupWizardRunning = true;
+      isSetup = true;
     }
   }
   Session::InitInfo initInfo(argv[0]);
@@ -695,7 +698,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   packageManager = PackageManager::Create(PackageManager::InitInfo(this));
   if (adminMode)
   {
-    if (!setupWizardRunning && !session->IsSharedSetup())
+    if (!isSetup && !session->IsSharedSetup())
     {
       FatalError(T_("Option --admin only makes sense for a shared MiKTeX setup."));
     }
@@ -703,7 +706,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     {
       Warning(T_("Option --admin may require administrator privileges"));
     }
-    session->SetAdminMode(true, setupWizardRunning);
+    session->SetAdminMode(true, isSetup);
   }
   if (session->RunningAsAdministrator() && !session->IsAdminMode())
   {
@@ -2376,6 +2379,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       break;
 
     case OPT_PRINCIPAL:
+      principal = optArg;
       break;
 
     case OPT_PRINT_ONLY:
@@ -2522,6 +2526,11 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   if (optPortable)
   {
     CreatePortableSetup(PathName(portableRoot));
+  }
+
+  if (principal == "setup")
+  {
+    session->SetSetupVersionNumber(VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0));
   }
 
   if (!startupConfig.userRoots.empty()

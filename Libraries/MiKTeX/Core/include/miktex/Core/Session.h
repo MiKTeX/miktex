@@ -1570,6 +1570,11 @@ public:
   /// @return Returns the version number of the initial setup.
   virtual VersionNumber MIKTEXTHISCALL GetSetupVersionNumber() = 0;
 
+public:
+  /// Set the version number of the initial setup.
+  /// @param The version number of the initial setup.
+  virtual void MIKTEXTHISCALL SetSetupVersionNumber(VersionNumber setupVersion) = 0;
+
   /// Gets the next paper size.
   /// @param idx Index of the next entry in the paper size table.
   /// @param[out] The paper size.

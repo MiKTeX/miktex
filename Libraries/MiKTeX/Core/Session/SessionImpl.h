@@ -475,6 +475,9 @@ public:
   MiKTeX::Core::VersionNumber GetSetupVersionNumber() override;
 
 public:
+  void SetSetupVersionNumber(MiKTeX::Core::VersionNumber setupVersion) override;
+
+public:
   bool GetPaperSizeInfo(int idx, MiKTeX::Core::PaperSizeInfo& paperSize) override;
 
 public:

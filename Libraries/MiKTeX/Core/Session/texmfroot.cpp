@@ -517,16 +517,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
 
   VersionedStartupConfig newStartupConfig = partialStartupConfig;
   newStartupConfig.config = initStartupConfig.config;
-
-  bool isSetup = !newStartupConfig.commonInstallRoot.Empty() || !newStartupConfig.userInstallRoot.Empty();
-  if (isSetup)
-  {
-    newStartupConfig.setupVersion = VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0);
-  }
-  else
-  {
-    newStartupConfig.setupVersion = initStartupConfig.setupVersion;
-  }
+  newStartupConfig.setupVersion = initStartupConfig.setupVersion;
 
   if (newStartupConfig.commonInstallRoot.Empty() && commonInstallRootIndex != INVALID_ROOT_INDEX)
   {
