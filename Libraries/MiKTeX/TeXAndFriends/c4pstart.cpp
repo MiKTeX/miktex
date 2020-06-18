@@ -19,6 +19,11 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#if defined(MIKTEX_WINDOWS)
+#include <Windows.h>
+#include <io.h>
+#endif
+
 #include <miktex/App/Application>
 
 #if defined(MIKTEX_TEXMF_SHARED)
@@ -267,7 +272,7 @@ void C4P::ProgramBase::WriteChar(int ch, FILE* file)
     }
     int fdStdOut = (stdout != nullptr ? fileno(stdout) : -1);
     int fdStdErr = (stderr != nullptr ? fileno(stderr) : -1);
-    if ((fd == fdStdOut || fd == fdStdErr) && isatty(fd) != 0 && GetConsoleOutputCP() != 65001)
+    if ((fd == fdStdOut || fd == fdStdErr) && _isatty(fd) != 0 && GetConsoleOutputCP() != 65001)
     {
       pimpl->utf8ConsoleIssue = true;
       ch = '?';
