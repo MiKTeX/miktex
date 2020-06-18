@@ -503,7 +503,7 @@ void SessionImpl::WriteRegistry(ConfigurationScope scope, const VersionedStartup
   {
     if (!(startupConfig.setupVersion == VersionNumber()))
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_SECTION_SETUP, startupConfig.setupVersion.ToString());
+      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, startupConfig.setupVersion.ToString());
     }
     if (!startupConfig.commonRoots.empty() && startupConfig.commonRoots != defaultConfig.commonRoots)
     {

@@ -558,7 +558,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
     newStartupConfig.userConfigRoot = GetRootDirectoryPath(userConfigRootIndex);
   }
 
-  MergeStartupConfig(newStartupConfig, DefaultConfig());
+  MergeStartupConfig(newStartupConfig, DefaultConfig(newStartupConfig.config, newStartupConfig.setupVersion, PathName(), PathName()));
 
   try
   {
