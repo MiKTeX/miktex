@@ -635,16 +635,16 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
   }
 }
 
-void PutPathValue(Cfg* cfg, const string& valueName, const string& pathValue, const PathName& relativeFrom, bool allowEmpty)
+void PutPathValue(Cfg* cfg, const string& valueName, const string& pathValue, const string& defaultValue, const PathName& relativeFrom, bool allowEmpty, const string& documentation)
 {
-  if (!pathValue.empty() || allowEmpty)
+  if ((!pathValue.empty() && pathValue != defaultValue) || allowEmpty)
   {
     string val = pathValue;
     if (!relativeFrom.Empty())
     {
       Relativize(val, relativeFrom);
     };
-    cfg->PutValue("Paths", valueName, val, T_("other user TEXMF root directories"), pathValue.empty());
+    cfg->PutValue("Paths", valueName, val, documentation, pathValue.empty() || pathValue == defaultValue);
   }
 }
 
@@ -681,30 +681,30 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Version
 
   if (scope == ConfigurationScope::Common || allInOne)
   {
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_ROOTS, startupConfig.commonRoots, relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS, startupConfig.otherCommonRoots, relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_INSTALL, startupConfig.commonInstallRoot.ToString(), relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_DATA, startupConfig.commonDataRoot.ToString(), relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_CONFIG, startupConfig.commonConfigRoot.ToString(), relativeFrom, allInOne);
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_ROOTS, startupConfig.commonRoots, defaultConfig.commonRoots, relativeFrom, allInOne, T_("common root directories"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS, startupConfig.otherCommonRoots, defaultConfig.otherCommonRoots, relativeFrom, allInOne, T_("other common root directories"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_INSTALL, startupConfig.commonInstallRoot.ToString(), defaultConfig.commonInstallRoot.ToString(), relativeFrom, allInOne, T_("common installation root directoriy"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_DATA, startupConfig.commonDataRoot.ToString(), defaultConfig.commonDataRoot.ToString(), relativeFrom, allInOne, T_("common data root directory"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_CONFIG, startupConfig.commonConfigRoot.ToString(), defaultConfig.commonConfigRoot.ToString(), relativeFrom, allInOne, T_("common configuration root directory"));
 #if 1
     if (!allInOne)
     {
-      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots, relativeFrom, allInOne);
-      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots, relativeFrom, allInOne);
-      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString(), relativeFrom, allInOne);
-      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString(), relativeFrom, allInOne);
-      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString(), relativeFrom, allInOne);
+      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots, defaultConfig.userRoots, relativeFrom, allInOne, T_("user root directories"));
+      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots, defaultConfig.otherUserRoots, relativeFrom, allInOne, T_("other user root directories"));
+      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString(), defaultConfig.userInstallRoot.ToString(), relativeFrom, allInOne, T_("user installation root directoriy"));
+      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString(), defaultConfig.userDataRoot.ToString(), relativeFrom, allInOne, T_("user data root directory"));
+      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString(), defaultConfig.userConfigRoot.ToString(), relativeFrom, allInOne,  T_("user configuration root directory"));
     }
 #endif
   }
 
   if (scope == ConfigurationScope::User || allInOne)
   {
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots, relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots, relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString(), relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString(), relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString(), relativeFrom, allInOne);
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots, defaultConfig.userRoots, relativeFrom, allInOne, T_("user root directories"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots, defaultConfig.otherUserRoots, relativeFrom, allInOne, T_("other user root directories"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString(), defaultConfig.userInstallRoot.ToString(), relativeFrom, allInOne, T_("user installation root directoriy"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString(), defaultConfig.userDataRoot.ToString(), relativeFrom, allInOne, T_("user data root directory"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString(), defaultConfig.userConfigRoot.ToString(), relativeFrom, allInOne,  T_("user configuration root directory"));
   }
 
   cfg->Write(scope == ConfigurationScope::Common ? commonStartupConfigFile : userStartupConfigFile, T_("MiKTeX startup information"));
@@ -875,6 +875,7 @@ void SessionImpl::SetSetupVersionNumber(VersionNumber setupVersion)
     return;
   }
   Reset(setupVersion);
+  RegisterRootDirectories(StartupConfig(), {});
 }
 
 void SessionImpl::Reset(VersionNumber setupVersion)
