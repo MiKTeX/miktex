@@ -220,7 +220,7 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
     Utils::GetEnvironmentString(MIKTEX_ENV_TRACE, traceOptions);
   }
 #if defined(MIKTEX_WINDOWS)
-  if (traceOptions.empty() && (!initInfo.GetOptions()[InitOption::NoConfigFiles]))
+  if (traceOptions.empty() && (!initInfo.GetOptions()[InitOption::SettingUp]))
   {
     if (!winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TRACE, traceOptions))
     {

@@ -828,7 +828,7 @@ BOOL SetupApp::InitInstance()
     startupConfig.commonDataRoot = scratchRoot->GetPathName();
     startupConfig.commonConfigRoot = scratchRoot->GetPathName();
     startupConfig.commonInstallRoot = scratchRoot->GetPathName();
-    Session::InitInfo initInfo("setup", { Session::InitOption::NoConfigFiles, Session::InitOption::NoFixPath });
+    Session::InitInfo initInfo("setup", { Session::InitOption::SettingUp, Session::InitOption::NoFixPath });
     initInfo.SetStartupConfig(startupConfig);
     shared_ptr<Session> session = Session::Create(initInfo);
 

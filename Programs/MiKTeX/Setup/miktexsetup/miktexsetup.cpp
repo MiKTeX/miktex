@@ -760,7 +760,7 @@ void Application::Main(int argc, const char** argv)
   }
 
   //initInfo.AddOption(Session::InitOption::NoFixPath);
-  initInfo.AddOption(Session::InitOption::NoConfigFiles);
+  initInfo.AddOption(Session::InitOption::SettingUp);
 
   session = Session::Create(initInfo);
 

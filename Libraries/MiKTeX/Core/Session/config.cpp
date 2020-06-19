@@ -117,7 +117,7 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
 
 bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path)
 {
-  if (initInfo.GetOptions()[InitOption::NoConfigFiles])
+  if (initInfo.GetOptions()[InitOption::SettingUp])
   {
     return false;
   }
@@ -298,7 +298,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
     Cfg* cfg = nullptr;
 
     // read configuration files
-    if (!initInfo.GetOptions()[InitOption::NoConfigFiles])
+    if (!initInfo.GetOptions()[InitOption::SettingUp])
     {
       ConfigurationSettings::iterator it = configurationSettings.find(lookupKeyName);
       if (it != configurationSettings.end())

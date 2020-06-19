@@ -744,8 +744,8 @@ public:
   /// Initialization options.
   enum class InitOption
   {
-    /// No config files will be loaded.
-    NoConfigFiles,
+    /// We are setting up MiKTeX.
+    SettingUp,
     /// Don't fix `PATH`.
     NoFixPath,
 #if defined(MIKTEX_WINDOWS)
