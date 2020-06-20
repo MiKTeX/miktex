@@ -412,7 +412,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
   }
   else
   {
-    if (options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository)
+    if (options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository || options.Task == SetupTask::FinishSetup)
     {
       if (Directory::Exists(GetInstallRoot()))
       {
@@ -1498,8 +1498,9 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
   allArgs.insert(allArgs.end(), args.begin(), args.end());
-  if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository || options.Task == SetupTask::PrepareMiKTeXDirect)
+  if (options.Task == SetupTask::FinishSetup)
   {
+    // TODO: why is this necessary?
     allArgs.push_back("--principal=setup");
   }
   if (options.IsCommonSetup && session->IsAdminMode())
@@ -1827,11 +1828,12 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   time_t now = time(nullptr);
   if (options[ReportOption::General])
   {
-    VersionNumber setupVersion = session->GetSetupVersionNumber();
+    SetupConfig setupConfig = session->GetSetupConfig();
     auto p = Utils::CheckPath();
-    s << "ReportDate: " << fmt::format("{:%F %T}", *localtime(&now)) << "\n"
+    s << "ReportDate: " << FormatTimestamp(now) << "\n"
       << "CurrentVersion: " << Utils::GetMiKTeXVersionString() << "\n"
-      << "SetupVersion: " << (setupVersion == VersionNumber() ? MIKTEX_LEGACY_MAJOR_MINOR_STR : setupVersion.ToString()) << "\n"
+      << "SetupDate: " << FormatTimestamp(setupConfig.setupDate) << "\n"
+      << "SetupVersion: " << (setupConfig.setupVersion == VersionNumber() ? MIKTEX_LEGACY_MAJOR_MINOR_STR : setupConfig.setupVersion.ToString()) << "\n"
       << "Configuration: " << (session->IsMiKTeXPortable() ? "Portable" : "Regular") << "\n";
     if (Utils::HaveGetGitInfo())
     {

@@ -60,7 +60,7 @@ public:
     }
     random_device rd;
     mt19937 gen(rd());
-    uniform_int_distribution<> dist(1,99999);
+    uniform_int_distribution<> dist(1, 99999);
     for (size_t maxrounds = 10; maxrounds > 0; --maxrounds)
     {
       string fileName = "mik" + std::to_string(dist(gen));

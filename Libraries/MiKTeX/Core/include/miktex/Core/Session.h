@@ -197,6 +197,14 @@ inline std::ostream& operator<<(std::ostream& os, const StartupConfig& startupCo
   return os;
 }
 
+struct SetupConfig
+{
+public:
+  std::time_t setupDate;
+public:
+  VersionNumber setupVersion;
+};
+
 /// Special path names.
 enum class SpecialPath
 {
@@ -1566,14 +1574,9 @@ public:
   virtual bool MIKTEXTHISCALL IsSharedSetup() = 0;
 
 public:
-  /// Get the version number of the initial setup.
-  /// @return Returns the version number of the initial setup.
-  virtual VersionNumber MIKTEXTHISCALL GetSetupVersionNumber() = 0;
-
-public:
-  /// Set the version number of the initial setup.
-  /// @param The version number of the initial setup.
-  virtual void MIKTEXTHISCALL SetSetupVersionNumber(VersionNumber setupVersion) = 0;
+  /// Get the setup configuration.
+  /// @return Returns the setup configuration.
+  virtual SetupConfig MIKTEXTHISCALL GetSetupConfig() = 0;
 
   /// Gets the next paper size.
   /// @param idx Index of the next entry in the paper size table.

@@ -2129,7 +2129,8 @@ void IniTeXMFApp::RegisterOtherRoots()
 void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 {
   unique_ptr<Cfg> config(Cfg::Create());
-  config->PutValue("Auto", "Config", "Portable");
+  config->PutValue(MIKTEX_CONFIG_SECTION_AUTO, MIKTEX_CONFIG_VALUE_CONFIG, "Portable");
+  config->PutValue(MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0).ToString());
   PathName configDir(portableRoot);
   configDir /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
   Directory::Create(configDir);
@@ -2142,6 +2143,7 @@ void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
   {
     Directory::Create(tempDir);
   }
+  session->Reset();
 }
 
 void IniTeXMFApp::WriteReport()
@@ -2528,12 +2530,11 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     CreatePortableSetup(PathName(portableRoot));
   }
 
-  if (principal == "setup")
-  {
-    session->SetSetupVersionNumber(VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0));
-  }
+  auto setupConfig = session->GetSetupConfig();
+  bool isVirgin = !IsValidTimeT(setupConfig.setupDate) && setupConfig.setupVersion == VersionNumber();
 
-  if (!startupConfig.userRoots.empty()
+  if (isVirgin
+    || !startupConfig.userRoots.empty()
     || !startupConfig.userDataRoot.Empty()
     || !startupConfig.userConfigRoot.Empty()
     || !startupConfig.userInstallRoot.Empty()

@@ -472,10 +472,7 @@ public:
   bool IsSharedSetup() override;
 
 public:
-  MiKTeX::Core::VersionNumber GetSetupVersionNumber() override;
-
-public:
-  void SetSetupVersionNumber(MiKTeX::Core::VersionNumber setupVersion) override;
+  MiKTeX::Core::SetupConfig GetSetupConfig() override;
 
 public:
   bool GetPaperSizeInfo(int idx, MiKTeX::Core::PaperSizeInfo& paperSize) override;
@@ -634,9 +631,6 @@ private:
 
 private:
   int RunScript(const std::string& scriptEngine, const std::string& scriptEngineArgument, int argc, const char** argv);
-
-private:
-  void Reset(MiKTeX::Core::VersionNumber setupVersion);
 
 public:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_access;

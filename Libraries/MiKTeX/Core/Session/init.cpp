@@ -36,6 +36,7 @@
 
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
+#include <miktex/Core/DirectoryLister>
 #include <miktex/Core/Environment>
 #include <miktex/Core/Paths>
 #include <miktex/Core/TemporaryDirectory>
@@ -289,71 +290,80 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 
 void SessionImpl::InitializeStartupConfig()
 {
+  bool isSettingUp = initInfo.GetOptions()[InitOption::SettingUp];
+
+  if (isSettingUp)
+  {
+    initStartupConfig.setupVersion = VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0);
+  }
+
   // evaluate init info
   MergeStartupConfig(initStartupConfig, initInfo.GetStartupConfig());
 
-  // read common environment variables
-  MergeStartupConfig(initStartupConfig, ReadEnvironment(ConfigurationScope::Common));
-
-  // read user environment variables
-  MergeStartupConfig(initStartupConfig, ReadEnvironment(ConfigurationScope::User));
-
-  PathName commonStartupConfigFile;
-
-  bool haveCommonStartupConfigFile = FindStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile);
-
   PathName commonPrefix;
-
-  if (haveCommonStartupConfigFile)
-  {
-    PathName dir(commonStartupConfigFile);
-    dir.RemoveFileSpec();
-    Utils::GetPathNamePrefix(dir, PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR), commonPrefix);
-  }
-
-  PathName userStartupConfigFile;
-
-  bool haveUserStartupConfigFile = FindStartupConfigFile(ConfigurationScope::User, userStartupConfigFile);
-
   PathName userPrefix;
 
-  if (haveUserStartupConfigFile)
+  if (!isSettingUp)
   {
-    PathName dir(userStartupConfigFile);
-    dir.RemoveFileSpec();
-    Utils::GetPathNamePrefix(dir, PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR), userPrefix);
-  }
+    // read common environment variables
+    MergeStartupConfig(initStartupConfig, ReadEnvironment(ConfigurationScope::Common));
 
-  // read common startup config file
-  if (haveCommonStartupConfigFile)
-  {
-    MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile));
-    if (!IsAdminMode())
-    {
-      MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, commonStartupConfigFile));
-    }
-  }
+    // read user environment variables
+    MergeStartupConfig(initStartupConfig, ReadEnvironment(ConfigurationScope::User));
 
-  // read user startup config file
-  if (haveUserStartupConfigFile)
-  {
-    MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, userStartupConfigFile));
-  }
+    PathName commonStartupConfigFile;
 
-#if USE_WINDOWS_REGISTRY
-  if (initStartupConfig.config != MiKTeXConfiguration::Portable)
-  {
-    // read the registry, if we don't have a startup config file
-    if (!haveCommonStartupConfigFile)
+    bool haveCommonStartupConfigFile = FindStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile);
+
+    if (haveCommonStartupConfigFile)
     {
-      MergeStartupConfig(initStartupConfig, ReadRegistry(ConfigurationScope::Common));
+      PathName dir(commonStartupConfigFile);
+      dir.RemoveFileSpec();
+      Utils::GetPathNamePrefix(dir, PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR), commonPrefix);
     }
-    if (!haveUserStartupConfigFile)
+
+    PathName userStartupConfigFile;
+
+    bool haveUserStartupConfigFile = FindStartupConfigFile(ConfigurationScope::User, userStartupConfigFile);
+
+    if (haveUserStartupConfigFile)
     {
-      MergeStartupConfig(initStartupConfig, ReadRegistry(ConfigurationScope::User));
+      PathName dir(userStartupConfigFile);
+      dir.RemoveFileSpec();
+      Utils::GetPathNamePrefix(dir, PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR), userPrefix);
     }
+
+    // read common startup config file
+    if (haveCommonStartupConfigFile)
+    {
+      MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile));
+      if (!IsAdminMode())
+      {
+        MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, commonStartupConfigFile));
+      }
+    }
+
+    // read user startup config file
+    if (haveUserStartupConfigFile)
+    {
+      MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, userStartupConfigFile));
+    }
+
+  #if USE_WINDOWS_REGISTRY
+    if (initStartupConfig.config != MiKTeXConfiguration::Portable)
+    {
+      // read the registry, if we don't have a startup config file
+      if (!haveCommonStartupConfigFile)
+      {
+        MergeStartupConfig(initStartupConfig, ReadRegistry(ConfigurationScope::Common));
+      }
+      if (!haveUserStartupConfigFile)
+      {
+        MergeStartupConfig(initStartupConfig, ReadRegistry(ConfigurationScope::User));
+      }
+    }
+  #endif
   }
-#endif
 
   // merge in the default settings
   MergeStartupConfig(initStartupConfig, DefaultConfig(initStartupConfig.config, initStartupConfig.setupVersion, commonPrefix, userPrefix));
@@ -863,35 +873,46 @@ void SessionImpl::StartFinishScript(int delay)
   tmpdir->Keep();
 }
 
-VersionNumber SessionImpl::GetSetupVersionNumber()
+SetupConfig SessionImpl::GetSetupConfig()
 {
-  return initStartupConfig.setupVersion;
-}
-
-void SessionImpl::SetSetupVersionNumber(VersionNumber setupVersion)
-{
-  if (setupVersion == initStartupConfig.setupVersion)
+  SetupConfig ret;
+  ret.setupVersion = initStartupConfig.setupVersion;
+  PathName configDir = GetSpecialPath(IsAdminMode() || IsSharedSetup() ? SpecialPath::CommonInstallRoot : SpecialPath::UserInstallRoot);
+  configDir /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
+  //                                                012345678901234567890123456789
+  auto lister = DirectoryLister::Open(configDir, R"(setup-????-??-??-??-??.log)", (int)DirectoryLister::Options::FilesOnly);
+  DirectoryEntry dirEntry;
+  if (lister->GetNext(dirEntry))
   {
-    return;
+    struct tm setupDate;
+    setupDate.tm_year = std::stoi(dirEntry.name.substr(6, 4)) - 1900;
+    setupDate.tm_mon = std::stoi(dirEntry.name.substr(11, 2)) - 1;
+    setupDate.tm_mday = std::stoi(dirEntry.name.substr(14, 2));
+    setupDate.tm_hour = std::stoi(dirEntry.name.substr(17, 2));
+    setupDate.tm_min = std::stoi(dirEntry.name.substr(20, 2));
+    ret.setupDate = mktime(&setupDate);
+    return ret;
   }
-  Reset(setupVersion);
-  RegisterRootDirectories(StartupConfig(), {});
+  for (const auto& name : { "miktexstartup.ini" })
+  {
+    PathName file = configDir / PathName(name);
+    if (File::Exists(file))
+    {
+      ret.setupDate = File::GetLastWriteTime(file);
+      return ret;
+    }
+  }
+  return ret;
 }
 
-void SessionImpl::Reset(VersionNumber setupVersion)
+void SessionImpl::Reset()
 {
   vector<string> onFinishScript = move(this->onFinishScript);
   InitInfo initInfo = this->initInfo;
   this->~SessionImpl();
   new (this) SessionImpl();
-  initStartupConfig.setupVersion = setupVersion;
   Initialize(initInfo);
   this->onFinishScript = move(onFinishScript);
-}
-
-void SessionImpl::Reset()
-{
-  Reset(initStartupConfig.setupVersion);
 }
 
 void SessionImpl::SetEnvironmentVariables()

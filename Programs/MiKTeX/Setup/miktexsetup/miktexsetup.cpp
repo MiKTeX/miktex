@@ -40,6 +40,7 @@
 #endif
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "miktexsetup-version.h"
 
@@ -759,8 +760,72 @@ void Application::Main(int argc, const char** argv)
     return;
   }
 
-  //initInfo.AddOption(Session::InitOption::NoFixPath);
-  initInfo.AddOption(Session::InitOption::SettingUp);
+  vector<string> leftovers = popt.GetLeftovers();
+
+  if (leftovers.empty() && !optListRepositories)
+  {
+    Error(fmt::format(T_("Nothing to do?\nTry '{0} --help' for more information."), argv[0]));
+  }
+
+  if (leftovers.size() > 1)
+  {
+    Error(T_("Too many arguments."));
+  }
+
+  SetupTask task;
+  CleanupOptionSet cleanupOptions;
+
+  if (leftovers.size() > 1)
+    {
+    if (leftovers[0] == "download")
+    {
+      task = SetupTask::Download;
+    }
+    else if (leftovers[0] == "install")
+    {
+      task = SetupTask::InstallFromLocalRepository;
+    }
+    else if (leftovers[0] == "finish")
+    {
+      task = SetupTask::FinishSetup;
+    }
+    else if (leftovers[0] == "factoryreset")
+    {
+      task = SetupTask::CleanUp;
+      cleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
+    }
+    else if (leftovers[0] == "uninstall")
+    {
+      task = SetupTask::CleanUp;
+      cleanupOptions = { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
+    }
+    else
+    {
+      Error(fmt::format(T_("Unknown/unsupported setup task: {0}"), leftovers[0]));
+    }
+  }
+
+  unique_ptr<TemporaryDirectory> sandbox;
+
+  if (task == SetupTask::Download || task == SetupTask::InstallFromLocalRepository)
+  {
+    sandbox  = TemporaryDirectory::Create();
+    StartupConfig startupConfig;
+    startupConfig.userInstallRoot = sandbox->GetPathName();
+    startupConfig.userDataRoot = sandbox->GetPathName();
+    startupConfig.userConfigRoot = sandbox->GetPathName();
+    startupConfig.commonDataRoot = sandbox->GetPathName();
+    startupConfig.commonConfigRoot = sandbox->GetPathName();
+    startupConfig.commonInstallRoot = sandbox->GetPathName();
+    initInfo.SetStartupConfig(startupConfig);
+  }
+
+  if (task == SetupTask::Download || task == SetupTask::InstallFromLocalRepository)
+  {
+    initInfo.AddOption(Session::InitOption::SettingUp);
+  }
+
+  initInfo.AddOption(Session::InitOption::NoFixPath);
 
   session = Session::Create(initInfo);
 
@@ -775,47 +840,10 @@ void Application::Main(int argc, const char** argv)
     return;
   }
 
-  vector<string> leftovers = popt.GetLeftovers();
-
-  if (leftovers.empty())
-  {
-    Error(fmt::format(T_("Nothing to do?\nTry '{0} --help' for more information."), argv[0]));
-  }
-
-  if (leftovers.size() > 1)
-  {
-    Error(T_("Too many arguments."));
-  }
-
   setupService = SetupService::Create();
   SetupOptions setupOptions = setupService->GetOptions();
-
-  if (leftovers[0] == "download")
-  {
-    setupOptions.Task = SetupTask::Download;
-  }
-  else if (leftovers[0] == "install")
-  {
-    setupOptions.Task = SetupTask::InstallFromLocalRepository;
-  }
-  else if (leftovers[0] == "finish")
-  {
-    setupOptions.Task = SetupTask::FinishSetup;
-  }
-  else if (leftovers[0] == "factoryreset")
-  {
-    setupOptions.Task = SetupTask::CleanUp;
-    setupOptions.CleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
-  }
-  else if (leftovers[0] == "uninstall")
-  {
-    setupOptions.Task = SetupTask::CleanUp;
-    setupOptions.CleanupOptions = { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
-  }
-  else
-  {
-    Error(fmt::format(T_("Unknown/unsupported setup task: {0}"), leftovers[0]));
-  }
+  setupOptions.Task = task;
+  setupOptions.CleanupOptions = cleanupOptions;
 
   if (optShared)
   {
@@ -923,11 +951,17 @@ void Application::Main(int argc, const char** argv)
   }
   else
   {
+    setupService->OpenLog();
     if (setupOptions.IsCommonSetup && !session->IsAdminMode())
     {
       session->SetAdminMode(true, true);
     }
     setupService->Run();
+    PathName logFile = setupService->CloseLog(!interrupted);
+    if (!logFile.Empty())
+    {
+      Verbose(fmt::format("Transcript written on {0}.", logFile));
+    }
   }
 
   setupService = nullptr;
