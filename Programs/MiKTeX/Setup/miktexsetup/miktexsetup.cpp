@@ -588,7 +588,11 @@ void Application::Main(int argc, const char** argv)
   string optPortableRoot;
 
   PoptWrapper popt(argc, argv, aoption);
+#if defined(MIKTEX_SETUP_STANDALONE)
   popt.SetOtherOptionHelp("download|install|finish|factoryreset|uninstall");
+#else
+  popt.SetOtherOptionHelp("download|finish|factoryreset|uninstall");
+#endif
 
   int option;
 
@@ -776,15 +780,17 @@ void Application::Main(int argc, const char** argv)
   CleanupOptionSet cleanupOptions;
 
   if (leftovers.size() > 1)
-    {
+  {
     if (leftovers[0] == "download")
     {
       task = SetupTask::Download;
     }
+#if defined(MIKTEX_SETUP_STANDALONE)
     else if (leftovers[0] == "install")
     {
       task = SetupTask::InstallFromLocalRepository;
     }
+#endif
     else if (leftovers[0] == "finish")
     {
       task = SetupTask::FinishSetup;

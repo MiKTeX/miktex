@@ -1498,9 +1498,9 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
   allArgs.insert(allArgs.end(), args.begin(), args.end());
+  // TODO: also if SetupTask::Install...
   if (options.Task == SetupTask::FinishSetup)
   {
-    // TODO: why is this necessary?
     allArgs.push_back("--principal=setup");
   }
   if (options.IsCommonSetup && session->IsAdminMode())

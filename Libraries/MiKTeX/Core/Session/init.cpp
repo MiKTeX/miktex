@@ -879,27 +879,30 @@ SetupConfig SessionImpl::GetSetupConfig()
   ret.setupVersion = initStartupConfig.setupVersion;
   PathName configDir = GetSpecialPath(IsAdminMode() || IsSharedSetup() ? SpecialPath::CommonInstallRoot : SpecialPath::UserInstallRoot);
   configDir /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
-  //                                                012345678901234567890123456789
-  auto lister = DirectoryLister::Open(configDir, R"(setup-????-??-??-??-??.log)", (int)DirectoryLister::Options::FilesOnly);
-  DirectoryEntry dirEntry;
-  if (lister->GetNext(dirEntry))
+  if (Directory::Exists(configDir))
   {
-    struct tm setupDate;
-    setupDate.tm_year = std::stoi(dirEntry.name.substr(6, 4)) - 1900;
-    setupDate.tm_mon = std::stoi(dirEntry.name.substr(11, 2)) - 1;
-    setupDate.tm_mday = std::stoi(dirEntry.name.substr(14, 2));
-    setupDate.tm_hour = std::stoi(dirEntry.name.substr(17, 2));
-    setupDate.tm_min = std::stoi(dirEntry.name.substr(20, 2));
-    ret.setupDate = mktime(&setupDate);
-    return ret;
-  }
-  for (const auto& name : { "miktexstartup.ini" })
-  {
-    PathName file = configDir / PathName(name);
-    if (File::Exists(file))
+    //                                                012345678901234567890123456789
+    auto lister = DirectoryLister::Open(configDir, R"(setup-????-??-??-??-??.log)", (int)DirectoryLister::Options::FilesOnly);
+    DirectoryEntry dirEntry;
+    if (lister->GetNext(dirEntry))
     {
-      ret.setupDate = File::GetLastWriteTime(file);
+      struct tm setupDate;
+      setupDate.tm_year = std::stoi(dirEntry.name.substr(6, 4)) - 1900;
+      setupDate.tm_mon = std::stoi(dirEntry.name.substr(11, 2)) - 1;
+      setupDate.tm_mday = std::stoi(dirEntry.name.substr(14, 2));
+      setupDate.tm_hour = std::stoi(dirEntry.name.substr(17, 2));
+      setupDate.tm_min = std::stoi(dirEntry.name.substr(20, 2));
+      ret.setupDate = mktime(&setupDate);
       return ret;
+    }
+    for (const auto& name : { "miktexstartup.ini" })
+    {
+      PathName file = configDir / PathName(name);
+      if (File::Exists(file))
+      {
+        ret.setupDate = File::GetLastWriteTime(file);
+        return ret;
+      }
     }
   }
   return ret;

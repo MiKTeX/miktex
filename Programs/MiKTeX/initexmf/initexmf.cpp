@@ -462,9 +462,6 @@ private:
   string principal;
 
 private:
-  bool csv = false;
-
-private:
   bool recursive = false;
 
 private:
@@ -547,7 +544,6 @@ enum Option
   OPT_ADD_FILE,                 // <experimental/>
   OPT_CLEAN,                    // <experimental/>
   OPT_CREATE_CONFIG_FILE,       // <experimental/>
-  OPT_CSV,                      // <experimental/>
   OPT_FIND_OTHER_TEX,           // <experimental/>
   OPT_LIST_FORMATS,             // <experimental/>
   OPT_MODIFY_PATH,              // <experimental/>
@@ -677,7 +673,7 @@ IniTeXMFApp::~IniTeXMFApp()
 void IniTeXMFApp::Init(int argc, const char* argv[])
 {
   bool adminMode = false;
-  bool isSetup = false;
+  bool forceAdminMode = false;
   for (const char** opt = &argv[1]; *opt != nullptr; ++opt)
   {
     if ("--admin"s == *opt || "-admin"s == *opt)
@@ -686,7 +682,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     }
     else if ("--principal=setup"s == *opt || "-principal=setup"s == *opt)
     {
-      isSetup = true;
+      forceAdminMode = true;
     }
   }
   Session::InitInfo initInfo(argv[0]);
@@ -698,7 +694,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   packageManager = PackageManager::Create(PackageManager::InitInfo(this));
   if (adminMode)
   {
-    if (!isSetup && !session->IsSharedSetup())
+    if (!forceAdminMode && !session->IsSharedSetup())
     {
       FatalError(T_("Option --admin only makes sense for a shared MiKTeX setup."));
     }
@@ -706,7 +702,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     {
       Warning(T_("Option --admin may require administrator privileges"));
     }
-    session->SetAdminMode(true, isSetup);
+    session->SetAdminMode(true, forceAdminMode);
   }
   if (session->RunningAsAdministrator() && !session->IsAdminMode())
   {
@@ -2232,9 +2228,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       createConfigFiles.push_back(optArg);
       break;
 
-    case OPT_CSV:
-      csv = true;
-      break;
 
     case OPT_DEFAULT_PAPER_SIZE:
 
