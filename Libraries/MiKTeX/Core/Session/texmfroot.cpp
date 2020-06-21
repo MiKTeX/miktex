@@ -519,7 +519,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
   startupConfig.config = initStartupConfig.config;
   startupConfig.setupVersion = initStartupConfig.setupVersion;
   auto setupConfig = GetSetupConfig();
-  bool isNew = !IsValidTimeT(setupConfig.setupDate) && setupConfig.setupVersion == VersionNumber();
+  bool isNew = !IsValidTimeT(setupConfig.setupDate);
   if (isNew)
   {
     trace_config->WriteLine("core", T_("this seems to be a new installation"));

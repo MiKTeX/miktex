@@ -2512,7 +2512,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   }
 
   auto setupConfig = session->GetSetupConfig();
-  bool isNew = !IsValidTimeT(setupConfig.setupDate) && setupConfig.setupVersion == VersionNumber();
+  bool isNew = !IsValidTimeT(setupConfig.setupDate);
 
   if (isNew)
   {

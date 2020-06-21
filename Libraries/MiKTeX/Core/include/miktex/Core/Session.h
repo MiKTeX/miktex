@@ -760,7 +760,7 @@ public:
     /// Initialize the COM library.
     InitializeCOM,
 #endif
-    /// start in administrator mode.
+    /// Start in administrator mode.
     AdminMode,
   };
 

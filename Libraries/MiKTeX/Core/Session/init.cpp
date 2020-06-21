@@ -887,7 +887,7 @@ SetupConfig SessionImpl::GetSetupConfig()
     DirectoryEntry dirEntry;
     if (lister->GetNext(dirEntry))
     {
-      struct tm setupDate;
+      struct tm setupDate = tm();
       setupDate.tm_year = std::stoi(dirEntry.name.substr(6, 4)) - 1900;
       setupDate.tm_mon = std::stoi(dirEntry.name.substr(11, 2)) - 1;
       setupDate.tm_mday = std::stoi(dirEntry.name.substr(14, 2));
