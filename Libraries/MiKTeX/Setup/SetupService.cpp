@@ -189,7 +189,7 @@ unique_ptr<SetupService> SetupService::Create()
 
 unique_ptr<TemporaryDirectory> SetupService::CreateSandbox(StartupConfig& startupConfig)
 {
-  unique_ptr<TemporaryDirectory> sandbox;
+  unique_ptr<TemporaryDirectory> sandbox = TemporaryDirectory::Create();
   startupConfig.userInstallRoot = sandbox->GetPathName();
   startupConfig.userDataRoot = sandbox->GetPathName();
   startupConfig.userConfigRoot = sandbox->GetPathName();
