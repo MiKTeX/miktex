@@ -590,7 +590,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
       }
       if (startupConfig.userInstallRoot != partialStartupConfig.userInstallRoot)
       {
-        newStartupConfig.userInstallRoot = "";
+        startupConfig.userInstallRoot = "";
       }
     }
 #endif
