@@ -243,11 +243,7 @@ private:
   void RemoveFndb();
 
 private:
-#if defined(MIKTEX_WINDOWS)
-  void SetTeXMFRootDirectories(bool noRegistry);
-#else
-  void SetTeXMFRootDirectories();
-#endif
+  void SetTeXMFRootDirectories(RegisterRootDirectoriesOptionSet options);
 
 private:
   void RunProcess(const PathName& fileName, const vector<string>& arguments)
@@ -1005,11 +1001,7 @@ void IniTeXMFApp::RemoveFndb()
   }
 }
 
-void IniTeXMFApp::SetTeXMFRootDirectories(
-#if defined(MIKTEX_WINDOWS)
-  bool noRegistry
-#endif
-  )
+void IniTeXMFApp::SetTeXMFRootDirectories(RegisterRootDirectoriesOptionSet options)
 {
   Verbose(T_("Registering root directories..."));
   PrintOnly(fmt::format("regroots ur={} ud={} uc={} ui={} cr={} cd={} cc={} ci={}",
@@ -1017,14 +1009,7 @@ void IniTeXMFApp::SetTeXMFRootDirectories(
     Q_(startupConfig.commonRoots), Q_(startupConfig.commonDataRoot), Q_(startupConfig.commonConfigRoot), Q_(startupConfig.commonInstallRoot)));
   if (!printOnly)
   {
-    RegisterRootDirectoriesOptionSet options;
     options += RegisterRootDirectoriesOption::Review;
-#if defined(MIKTEX_WINDOWS)
-    if (noRegistry)
-    {
-      options += RegisterRootDirectoriesOption::NoRegistry;
-    }
-#endif
     session->RegisterRootDirectories(startupConfig, options);
   }
 }
@@ -2536,11 +2521,14 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     || !startupConfig.commonConfigRoot.Empty()
     || !startupConfig.commonInstallRoot.Empty())
   {
+    RegisterRootDirectoriesOptionSet options;
 #if defined(MIKTEX_WINDOWS)
-    SetTeXMFRootDirectories(optNoRegistry);
-#else
-    SetTeXMFRootDirectories();
+    if (optNoRegistry)
+    {
+      options += RegisterRootDirectoriesOption::NoRegistry;
+    }
 #endif
+    SetTeXMFRootDirectories(options);
   }
 
   if (!defaultPaperSize.empty())

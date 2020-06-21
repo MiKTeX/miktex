@@ -815,14 +815,8 @@ void Application::Main(int argc, const char** argv)
 
   if (task == SetupTask::Download || task == SetupTask::InstallFromLocalRepository)
   {
-    sandbox  = TemporaryDirectory::Create();
     StartupConfig startupConfig;
-    startupConfig.userInstallRoot = sandbox->GetPathName();
-    startupConfig.userDataRoot = sandbox->GetPathName();
-    startupConfig.userConfigRoot = sandbox->GetPathName();
-    startupConfig.commonDataRoot = sandbox->GetPathName();
-    startupConfig.commonConfigRoot = sandbox->GetPathName();
-    startupConfig.commonInstallRoot = sandbox->GetPathName();
+    sandbox  = SetupService::CreateSandbox(startupConfig);
     initInfo.SetStartupConfig(startupConfig);
   }
 

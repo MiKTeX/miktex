@@ -520,6 +520,10 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
   newStartupConfig.setupVersion = initStartupConfig.setupVersion;
   auto setupConfig = GetSetupConfig();
   bool isVirgin = !IsValidTimeT(setupConfig.setupDate) && setupConfig.setupVersion == VersionNumber();
+  if (isVirgin)
+  {
+    trace_config->WriteLine("core", T_("this is a virgin MiKTeX installation"));
+  }
   if (newStartupConfig.setupVersion == VersionNumber() && isVirgin)
   {
     newStartupConfig.setupVersion = VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0);

@@ -187,6 +187,23 @@ unique_ptr<SetupService> SetupService::Create()
 #endif
 }
 
+unique_ptr<TemporaryDirectory> SetupService::CreateSandbox(StartupConfig& startupConfig)
+{
+  unique_ptr<TemporaryDirectory> sandbox;
+  startupConfig.userInstallRoot = sandbox->GetPathName();
+  startupConfig.userDataRoot = sandbox->GetPathName();
+  startupConfig.userConfigRoot = sandbox->GetPathName();
+  startupConfig.commonDataRoot = sandbox->GetPathName();
+  startupConfig.commonConfigRoot = sandbox->GetPathName();
+  startupConfig.commonInstallRoot = sandbox->GetPathName();
+  unique_ptr<Cfg> config(Cfg::Create());
+#if defined(MIKTEX_WINDOWS)
+  config->PutValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, "t");
+#endif
+  config->Write(sandbox->GetPathName() / PathName(MIKTEX_PATH_MIKTEX_INI));
+  return sandbox;
+}
+
 PathName SetupService::GetDefaultLocalRepository()
 {
   PathName ret;

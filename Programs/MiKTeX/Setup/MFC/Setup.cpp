@@ -811,16 +811,10 @@ BOOL SetupApp::InitInstance()
   try
   {
     // create a sandbox
-    unique_ptr<TemporaryDirectory> sandbox = TemporaryDirectory::Create();
+    StartupConfig startupConfig;
+    unique_ptr<TemporaryDirectory> sandbox = SetupService::CreateSandbox(startupConfig);
 
     // create a MiKTeX session
-    StartupConfig startupConfig;
-    startupConfig.userInstallRoot = sandbox->GetPathName();
-    startupConfig.userDataRoot = sandbox->GetPathName();
-    startupConfig.userConfigRoot = sandbox->GetPathName();
-    startupConfig.commonDataRoot = sandbox->GetPathName();
-    startupConfig.commonConfigRoot = sandbox->GetPathName();
-    startupConfig.commonInstallRoot = sandbox->GetPathName();
     Session::InitInfo initInfo("setup", { Session::InitOption::SettingUp, Session::InitOption::NoFixPath });
     initInfo.SetStartupConfig(startupConfig);
     shared_ptr<Session> session = Session::Create(initInfo);

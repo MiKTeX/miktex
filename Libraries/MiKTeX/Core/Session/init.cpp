@@ -532,6 +532,7 @@ VersionedStartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope sco
 
 void SessionImpl::SaveStartupConfig(const VersionedStartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
 {
+  trace_core->WriteLine("core", TraceLevel::Info, fmt::format(T_("saving startup configuration; setupVersion={0}"), startupConfig.setupVersion));
 #if defined(MIKTEX_WINDOWS)
   bool noRegistry = options[RegisterRootDirectoriesOption::NoRegistry];
 #else
