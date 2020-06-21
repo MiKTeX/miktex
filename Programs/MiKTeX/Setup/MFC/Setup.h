@@ -39,8 +39,8 @@
 #define UW_(x) MiKTeX::Util::StringUtil::UTF8ToWideChar(x).c_str()
 #define WU_(x) MiKTeX::Util::StringUtil::WideCharToUTF8(x).c_str()
 
-#define DBGLOC() OutputDebugStringA(fmt::format("{0}:{1}", __FILE__, __LINE__);
-#define DBGLOC2(s) OutputDebugStringA(fmt::format("{0}:{1} {2}", __FILE__, __LINE__, s);
+#define DBGLOC() OutputDebugStringA(fmt::format("{0}:{1}", __FILE__, __LINE__).c_str())
+#define DBGLOC2(s) OutputDebugStringA(fmt::format("{0}:{1} {2}", __FILE__, __LINE__, s).c_str())
 
 class SetupApp :
   public CWinApp
