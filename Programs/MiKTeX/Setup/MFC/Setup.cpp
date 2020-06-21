@@ -794,32 +794,38 @@ BOOL SetupApp::InitInstance()
   initCtrls.dwSize = sizeof(initCtrls);
   initCtrls.dwICC = ICC_WIN95_CLASSES;
 
+  DBGLOC();
   if (!InitCommonControlsEx(&initCtrls))
   {
     AfxMessageBox(T_(_T("The application could not be initialized (1).")), MB_ICONSTOP | MB_OK);
     return FALSE;
   }
 
+  DBGLOC();
   if (FAILED(CoInitialize(nullptr)))
   {
     AfxMessageBox(T_(_T("The application could not be initialized (2).")), MB_ICONSTOP | MB_OK);
     return FALSE;
   }
 
+  DBGLOC();
   AfxInitRichEdit2();
 
   try
   {
     // create a sandbox
+    DBGLOC2("creating sandbox");
     StartupConfig startupConfig;
     unique_ptr<TemporaryDirectory> sandbox = SetupService::CreateSandbox(startupConfig);
 
     // create a MiKTeX session
+    DBGLOC2("creating session");
     Session::InitInfo initInfo("setup", { Session::InitOption::SettingUp, Session::InitOption::NoFixPath });
     initInfo.SetStartupConfig(startupConfig);
     shared_ptr<Session> session = Session::Create(initInfo);
 
     // create package manager
+    DBGLOC2("creating package manager");
     packageManager = PackageManager::Create();
 
     // create setup service
