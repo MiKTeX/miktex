@@ -199,7 +199,7 @@ unique_ptr<TemporaryDirectory> SetupService::CreateSandbox(StartupConfig& startu
 #if defined(MIKTEX_WINDOWS)
   PathName configDir = sandbox->GetPathName() / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR);
   Directory::Create(configDir);
-  PathName configFile = configDir / PathName(MIKTEX_PATH_MIKTEX_INI);
+  PathName configFile = configDir / PathName(MIKTEX_INI_FILE);
   ofstream s(configFile.ToString());
   s << fmt::format("[{0}]", MIKTEX_CONFIG_SECTION_CORE) << "\n"
     << fmt::format("{0}=t", MIKTEX_CONFIG_VALUE_NO_REGISTRY) << "\n";
