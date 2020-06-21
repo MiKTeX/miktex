@@ -196,11 +196,15 @@ unique_ptr<TemporaryDirectory> SetupService::CreateSandbox(StartupConfig& startu
   startupConfig.commonDataRoot = sandbox->GetPathName();
   startupConfig.commonConfigRoot = sandbox->GetPathName();
   startupConfig.commonInstallRoot = sandbox->GetPathName();
-  unique_ptr<Cfg> config(Cfg::Create());
 #if defined(MIKTEX_WINDOWS)
-  config->PutValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, "t");
+  PathName configDir = sandbox->GetPathName() / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR);
+  Directory::Create(configDir);
+  PathName configFile = configDir / PathName(MIKTEX_PATH_MIKTEX_INI);
+  ofstream s(configFile.ToString());
+  s << fmt::format("[{0}]", MIKTEX_CONFIG_SECTION_CORE) << "\n"
+    << fmt::format("{0}=t", MIKTEX_CONFIG_VALUE_NO_REGISTRY) << "\n";
+  s.close();
 #endif
-  config->Write(sandbox->GetPathName() / PathName(MIKTEX_PATH_MIKTEX_INI));
   return sandbox;
 }
 
