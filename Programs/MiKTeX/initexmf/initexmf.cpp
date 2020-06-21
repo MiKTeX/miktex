@@ -670,6 +670,10 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
 {
   bool adminMode = false;
   bool forceAdminMode = false;
+  Session::InitOptionSet options;
+#if defined(MIKTEX_WINDOWS)
+  options += Session::InitOption::InitializeCOM;
+#endif
   for (const char** opt = &argv[1]; *opt != nullptr; ++opt)
   {
     if ("--admin"s == *opt || "-admin"s == *opt)
@@ -678,13 +682,12 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     }
     else if ("--principal=setup"s == *opt || "-principal=setup"s == *opt)
     {
+      options += Session::InitOption::SettingUp;
       forceAdminMode = true;
     }
   }
   Session::InitInfo initInfo(argv[0]);
-#if defined(MIKTEX_WINDOWS)
-  initInfo.SetOptions({ Session::InitOption::InitializeCOM });
-#endif
+  initInfo.SetOptions(options);
   initInfo.SetTraceCallback(this);
   session = Session::Create(initInfo);
   packageManager = PackageManager::Create(PackageManager::InitInfo(this));
@@ -2509,9 +2512,14 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   }
 
   auto setupConfig = session->GetSetupConfig();
-  bool isVirgin = !IsValidTimeT(setupConfig.setupDate) && setupConfig.setupVersion == VersionNumber();
+  bool isNew = !IsValidTimeT(setupConfig.setupDate) && setupConfig.setupVersion == VersionNumber();
 
-  if (isVirgin
+  if (isNew)
+  {
+    Verbose("this seems to be a new installation");
+  }
+
+  if (isNew
     || !startupConfig.userRoots.empty()
     || !startupConfig.userDataRoot.Empty()
     || !startupConfig.userConfigRoot.Empty()

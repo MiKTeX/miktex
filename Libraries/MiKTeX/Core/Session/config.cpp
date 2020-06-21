@@ -117,11 +117,6 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
 
 bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path)
 {
-  if (initInfo.GetOptions()[InitOption::SettingUp])
-  {
-    return false;
-  }
-
   string str;
 
   if (Utils::GetEnvironmentString(scope == ConfigurationScope::Common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, str))
@@ -298,19 +293,16 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
     Cfg* cfg = nullptr;
 
     // read configuration files
-    if (!initInfo.GetOptions()[InitOption::SettingUp])
+    ConfigurationSettings::iterator it = configurationSettings.find(lookupKeyName);
+    if (it != configurationSettings.end())
     {
-      ConfigurationSettings::iterator it = configurationSettings.find(lookupKeyName);
-      if (it != configurationSettings.end())
-      {
-        cfg = it->second.get();
-      }
-      else
-      {
-        pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(lookupKeyName, Cfg::Create()));
-        cfg = p.first->second.get();
-        ReadAllConfigFiles(lookupKeyName, *cfg);
-      }
+      cfg = it->second.get();
+    }
+    else
+    {
+      pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(lookupKeyName, Cfg::Create()));
+      cfg = p.first->second.get();
+      ReadAllConfigFiles(lookupKeyName, *cfg);
     }
 
     // section name defaults to application name
