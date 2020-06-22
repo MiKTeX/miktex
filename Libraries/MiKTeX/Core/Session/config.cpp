@@ -117,6 +117,8 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
 
 bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path)
 {
+  MIKTEX_EXPECT(!initInfo.GetOptions()[InitOption::SettingUp]);
+
   string str;
 
   if (Utils::GetEnvironmentString(scope == ConfigurationScope::Common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, str))

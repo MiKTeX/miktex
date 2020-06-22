@@ -893,7 +893,12 @@ SetupConfig SessionImpl::GetSetupConfig()
       setupDate.tm_mday = std::stoi(dirEntry.name.substr(14, 2));
       setupDate.tm_hour = std::stoi(dirEntry.name.substr(17, 2));
       setupDate.tm_min = std::stoi(dirEntry.name.substr(20, 2));
+      setupDate.tm_isdst = -1;
       ret.setupDate = mktime(&setupDate);
+      if (ret.setupDate == static_cast<time_t>(-1))
+      {
+        // TODO
+      }
       return ret;
     }
     for (const auto& name : { "miktexstartup.ini" })
