@@ -53,6 +53,7 @@
 #include <miktex/Setup/SetupService>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
+#include <miktex/Util/DateUtil>
 #include <miktex/Util/StringUtil>
 #include <miktex/Util/Tokenizer>
 #include <miktex/Wrappers/PoptWrapper>
@@ -2512,7 +2513,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   }
 
   auto setupConfig = session->GetSetupConfig();
-  bool isNew = !IsValidTimeT(setupConfig.setupDate);
+  bool isNew = !DateUtil::IsDefined(setupConfig.setupDate);
 
   if (isNew)
   {

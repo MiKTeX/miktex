@@ -39,6 +39,7 @@
 #include <vector>
 
 #include <miktex/Trace/TraceCallback>
+#include <miktex/Util/DateUtil>
 
 #include "Exceptions.h"
 #include "File.h"
@@ -56,7 +57,7 @@
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
 /// An invalid TEXMF root index.
-const unsigned INVALID_ROOT_INDEX = static_cast<unsigned>(-1);
+constexpr unsigned INVALID_ROOT_INDEX = static_cast<unsigned>(-1);
 
 /// MiKTeX configurations.
 enum class MiKTeXConfiguration
@@ -200,7 +201,7 @@ inline std::ostream& operator<<(std::ostream& os, const StartupConfig& startupCo
 struct SetupConfig
 {
 public:
-  std::time_t setupDate;
+  std::time_t setupDate = MiKTeX::Util::DateUtil::UNDEFINED_TIME_T_VALUE;
 public:
   VersionNumber setupVersion;
 };
@@ -330,10 +331,10 @@ struct MiKTeXUserInfo
   std::string email;
   int role = 0;
   int level = 0;
-  time_t expirationDate = static_cast<time_t>(-1);
+  std::time_t expirationDate = MiKTeX::Util::DateUtil::UNDEFINED_TIME_T_VALUE;
   bool IsMember () const
   {
-    return level >= Individual && (expirationDate == static_cast<time_t>(-1) || expirationDate >= time(nullptr));
+    return level >= Individual && (!MiKTeX::Util::DateUtil::IsDefined(expirationDate) || expirationDate >= std::time(nullptr));
   }
   bool IsDeveloper () const { return IsMember() && (role & Developer) != 0; }
   bool IsContributor () const { return IsMember() && (role & Contributor) != 0; }

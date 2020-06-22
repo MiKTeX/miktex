@@ -30,6 +30,7 @@
 #include <miktex/Core/Environment>
 #include <miktex/Core/Paths>
 #include <miktex/Core/RootDirectoryInfo>
+#include <miktex/Util/DateUtil>
 
 #include "internal.h"
 
@@ -519,7 +520,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
   startupConfig.config = initStartupConfig.config;
   startupConfig.setupVersion = initStartupConfig.setupVersion;
   auto setupConfig = GetSetupConfig();
-  bool isNew = !IsValidTimeT(setupConfig.setupDate);
+  bool isNew = !DateUtil::IsDefined(setupConfig.setupDate);
   if (isNew)
   {
     trace_config->WriteLine("core", T_("this seems to be a new installation"));
