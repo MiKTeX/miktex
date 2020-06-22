@@ -410,54 +410,54 @@ VersionedStartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
 
   if (scope == ConfigurationScope::Common)
   {
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, str))
     {
       ret.setupVersion = VersionNumber::Parse(str);
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_ROOTS, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_ROOTS, str))
     {
       ret.commonRoots = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS, str))
     {
       ret.otherCommonRoots = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_INSTALL, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_INSTALL, str))
     {
       ret.commonInstallRoot = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_DATA, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_DATA, str))
     {
       ret.commonDataRoot = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_CONFIG, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_CONFIG, str))
     {
       ret.commonConfigRoot = str;
     }
   }
   else if (scope == ConfigurationScope::User)
   {
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, str))
     {
       ret.setupVersion = VersionNumber::Parse(str);
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS, str))
     {
       ret.userRoots = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, str))
     {
       ret.otherUserRoots = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL, str))
     {
       ret.userInstallRoot = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA, str))
     {
       ret.userDataRoot = str;
     }
-    if (winRegistry::TryGetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_CONFIG, str))
+    if (winRegistry::TryGetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_CONFIG, str))
     {
       ret.userConfigRoot = str;
     }
@@ -475,76 +475,76 @@ void SessionImpl::WriteRegistry(ConfigurationScope scope, const VersionedStartup
   // remove registry values
   if (scope == ConfigurationScope::Common)
   {
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_ROOTS);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_INSTALL);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_DATA);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_CONFIG);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_ROOTS);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_INSTALL);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_DATA);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_CONFIG);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS);
 #if 1
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_CONFIG);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_CONFIG);
+    winRegistry::TryDeleteValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS);
 #endif
   }
   else if (scope == ConfigurationScope::User)
   {
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_CONFIG);
-    winRegistry::TryDeleteRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS);
+    winRegistry::TryDeleteValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION);
+    winRegistry::TryDeleteValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS);
+    winRegistry::TryDeleteValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL);
+    winRegistry::TryDeleteValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA);
+    winRegistry::TryDeleteValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_CONFIG);
+    winRegistry::TryDeleteValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS);
   }
 
   if (scope == ConfigurationScope::Common)
   {
     if (!(startupConfig.setupVersion == VersionNumber()))
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, startupConfig.setupVersion.ToString());
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, startupConfig.setupVersion.ToString());
     }
     if (!startupConfig.commonRoots.empty() && startupConfig.commonRoots != defaultConfig.commonRoots)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_ROOTS, startupConfig.commonRoots);
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_ROOTS, startupConfig.commonRoots);
     }
     if (!startupConfig.otherCommonRoots.empty() && startupConfig.otherCommonRoots != defaultConfig.otherCommonRoots)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS, startupConfig.otherCommonRoots);
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS, startupConfig.otherCommonRoots);
     }
     if (!startupConfig.commonInstallRoot.Empty() && startupConfig.commonInstallRoot != defaultConfig.commonInstallRoot)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_INSTALL, startupConfig.commonInstallRoot.ToString());
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_INSTALL, startupConfig.commonInstallRoot.ToString());
     }
     if (!startupConfig.commonDataRoot.Empty() && startupConfig.commonDataRoot != defaultConfig.commonDataRoot)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_DATA, startupConfig.commonDataRoot.ToString());
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_DATA, startupConfig.commonDataRoot.ToString());
     }
     if (!startupConfig.commonConfigRoot.Empty() && startupConfig.commonConfigRoot != defaultConfig.commonConfigRoot)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_CONFIG, startupConfig.commonConfigRoot.ToString());
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMON_CONFIG, startupConfig.commonConfigRoot.ToString());
     }
 #if 1
     if (!startupConfig.userRoots.empty() && startupConfig.userRoots != defaultConfig.userRoots)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots);
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots);
     }
     if (!startupConfig.otherUserRoots.empty() && startupConfig.otherUserRoots != defaultConfig.otherUserRoots)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots);
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots);
     }
     if (!startupConfig.userInstallRoot.Empty() && startupConfig.userInstallRoot != defaultConfig.userInstallRoot)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString());
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString());
     }
     if (!startupConfig.userDataRoot.Empty() && startupConfig.userDataRoot != defaultConfig.userDataRoot)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString());
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString());
     }
     if (!startupConfig.userConfigRoot.Empty() && startupConfig.userConfigRoot != defaultConfig.userConfigRoot)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString());
+      winRegistry::SetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString());
     }
 #endif
   }
@@ -552,27 +552,27 @@ void SessionImpl::WriteRegistry(ConfigurationScope scope, const VersionedStartup
   {
     if (!(startupConfig.setupVersion == VersionNumber()))
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, startupConfig.setupVersion.ToString());
+      winRegistry::SetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, startupConfig.setupVersion.ToString());
     }
     if (!startupConfig.userRoots.empty() && startupConfig.userRoots != defaultConfig.userRoots)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots);
+      winRegistry::SetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots);
     }
     if (!startupConfig.otherUserRoots.empty() && startupConfig.otherUserRoots != defaultConfig.otherUserRoots)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots);
+      winRegistry::SetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots);
     }
     if (!startupConfig.userInstallRoot.Empty() && startupConfig.userInstallRoot != defaultConfig.userInstallRoot)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString());
+      winRegistry::SetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString());
     }
     if (!startupConfig.userDataRoot.Empty() && startupConfig.userDataRoot != defaultConfig.userDataRoot)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString());
+      winRegistry::SetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString());
     }
     if (!startupConfig.userConfigRoot.Empty() && startupConfig.userConfigRoot != defaultConfig.userConfigRoot)
     {
-      winRegistry::SetRegistryValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString());
+      winRegistry::SetValue(ConfigurationScope::None, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString());
     }
   }
 }
@@ -587,7 +587,7 @@ bool SessionImpl::GetAcrobatFontDir(PathName& path)
 
     wstring pathExe;
 
-    if (!winRegistry::TryGetRegistryValue(HKEY_LOCAL_MACHINE, ACRORD32, L"", pathExe))
+    if (!winRegistry::TryGetValue(HKEY_LOCAL_MACHINE, ACRORD32, L"", pathExe))
     {
       return false;
     }
@@ -634,7 +634,7 @@ bool SessionImpl::GetATMFontDir(PathName& path)
 
     wstring pfbDir;
 
-    if (!winRegistry::TryGetRegistryValue(HKEY_LOCAL_MACHINE, ATMSETUP, L"PFB_DIR", pfbDir))
+    if (!winRegistry::TryGetValue(HKEY_LOCAL_MACHINE, ATMSETUP, L"PFB_DIR", pfbDir))
     {
       return false;
     }

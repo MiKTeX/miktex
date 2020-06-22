@@ -223,7 +223,7 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 #if defined(MIKTEX_WINDOWS)
   if (traceOptions.empty() && (!initInfo.GetOptions()[InitOption::SettingUp]))
   {
-    if (!winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TRACE, traceOptions))
+    if (!winRegistry::TryGetValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TRACE, traceOptions))
     {
       traceOptions = "";
     }
@@ -600,7 +600,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
       return PathName(str);
     }
 #if USE_WINDOWS_REGISTRY
-    else if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
+    else if (winRegistry::TryGetValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
     {
       return PathName(str);
     }
@@ -618,7 +618,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
       return PathName(str);
     }
 #if USE_WINDOWS_REGISTRY
-    else if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
+    else if (winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
     {
       return PathName(str);
     }
