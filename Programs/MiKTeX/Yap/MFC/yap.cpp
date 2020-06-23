@@ -578,7 +578,7 @@ void AboutDialog::DoDataExchange(CDataExchange* pDX)
     CString str;
     str.Format(T_(_T("Yet Another Previewer %s")), static_cast<LPTSTR>(UT_((MIKTEX_COMPONENT_VERSION_STR))));
     str += _T("\r\n");
-    str += _T(MIKTEX_COMP_COPYRIGHT_STR);
+    str += UT_(MIKTEX_COMP_COPYRIGHT_STR);
     GetDlgItem(IDC_THE_NAME_OF_THE_GAME)->SetWindowText(str);
   }
 }

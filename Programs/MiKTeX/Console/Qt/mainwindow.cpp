@@ -619,6 +619,7 @@ void MainWindow::AboutDialog()
   message = tr("<p>MiKTeX Console ");
   message += QString::fromUtf8(VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString().c_str());
   message += "</p>";
+  message += "<p>" + QString::fromUtf8(MIKTEX_COMP_COPYRIGHT_STR) + "</p>";
   message += tr("<p>MiKTeX Console is free software. You are welcome to redistribute it under certain conditions.</p>");
   message += tr("<p>MiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.</p>");
   message += tr("<p>You can support the project by giving back: <a href=\"https://miktex.org/giveback\">https://miktex.org/giveback</a><br>Thank you!</p>");

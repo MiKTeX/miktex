@@ -560,9 +560,9 @@ void McdApp::Version()
 {
   cout
     << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << "\n"
-    << "Copyright (C) 1998-2020 Christian Schenk" << "\n"
-    << "Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001," << "\n"
-    << "2002, 2003, 2004, 2005 Free Software Foundation, Inc." << "\n"
+    << "\n"
+    << MIKTEX_COMP_COPYRIGHT_STR
+    << "\n"
     << "This is free software; see the source for copying conditions.  There is NO" << "\n"
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << "\n";
 }

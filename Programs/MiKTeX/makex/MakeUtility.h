@@ -337,7 +337,9 @@ protected:
   {
     OUT__
       << MiKTeX::Core::Utils::MakeProgramVersionString(MiKTeX::Core::Utils::GetExeName(), MiKTeX::Core::VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << "\n"
-      << "Copyright (C) 1998-2020 Christian Schenk" << "\n"
+      << "\n"
+      << MIKTEX_COMP_COPYRIGHT_STR << "\n"
+      << "\n"
       << "This is free software; see the source for copying conditions.  There is NO" << "\n"
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << "\n";
   }
