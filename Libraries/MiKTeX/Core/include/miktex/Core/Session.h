@@ -204,6 +204,8 @@ public:
   std::time_t setupDate = MiKTeX::Util::DateUtil::UNDEFINED_TIME_T_VALUE;
 public:
   VersionNumber setupVersion;
+public:
+  bool isNew = false;
 };
 
 /// Special path names.

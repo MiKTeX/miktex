@@ -2512,15 +2512,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     CreatePortableSetup(PathName(portableRoot));
   }
 
-  auto setupConfig = session->GetSetupConfig();
-  bool isNew = !DateUtil::IsDefined(setupConfig.setupDate);
-
-  if (isNew)
-  {
-    Verbose("this seems to be a new installation");
-  }
-
-  if (isNew
+  if (principal == "setup"
     || !startupConfig.userRoots.empty()
     || !startupConfig.userDataRoot.Empty()
     || !startupConfig.userConfigRoot.Empty()

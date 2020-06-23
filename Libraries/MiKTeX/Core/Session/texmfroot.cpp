@@ -520,12 +520,11 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
   startupConfig.config = initStartupConfig.config;
   startupConfig.setupVersion = initStartupConfig.setupVersion;
   auto setupConfig = GetSetupConfig();
-  bool isNew = !DateUtil::IsDefined(setupConfig.setupDate);
-  if (isNew)
+  if (setupConfig.isNew)
   {
     trace_config->WriteLine("core", T_("this seems to be a new installation"));
   }
-  if (startupConfig.setupVersion == VersionNumber() && isNew)
+  if (startupConfig.setupVersion == VersionNumber() && setupConfig.isNew)
   {
     startupConfig.setupVersion = VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0);
   }

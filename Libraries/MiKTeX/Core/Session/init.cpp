@@ -524,8 +524,11 @@ VersionedStartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope sco
 
   cfg = nullptr;
 
+#if 0
   // inherit to child processes
+  // TODO: why?
   Utils::SetEnvironmentString(scope == ConfigurationScope::Common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, path.ToString());
+#endif
 
   return ret;
 }
@@ -878,6 +881,7 @@ SetupConfig SessionImpl::GetSetupConfig()
 {
   SetupConfig ret;
   ret.setupVersion = initStartupConfig.setupVersion;
+  ret.isNew = false;
   PathName configDir = GetSpecialPath(IsAdminMode() || IsSharedSetup() ? SpecialPath::CommonInstallRoot : SpecialPath::UserInstallRoot);
   configDir /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
   if (Directory::Exists(configDir))
@@ -911,6 +915,9 @@ SetupConfig SessionImpl::GetSetupConfig()
       }
     }
   }
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetString()));
+  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetString()));
+  ret.isNew = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !IsMiKTeXPortable();
   return ret;
 }
 

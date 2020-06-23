@@ -779,7 +779,7 @@ void Application::Main(int argc, const char** argv)
   SetupTask task;
   CleanupOptionSet cleanupOptions;
 
-  if (leftovers.size() > 1)
+  if (!leftovers.empty())
   {
     if (leftovers[0] == "download")
     {
@@ -941,6 +941,9 @@ void Application::Main(int argc, const char** argv)
     setupOptions.PackageLevel = optPackageLevel;
   }
 
+  setupOptions.Banner = THE_NAME_OF_THE_GAME;
+  setupOptions.Version = VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString();
+
   setupService->SetOptions(setupOptions);
 
   setupService->SetCallback(this);
@@ -957,7 +960,7 @@ void Application::Main(int argc, const char** argv)
       session->SetAdminMode(true, true);
     }
     setupService->Run();
-    PathName logFile = setupService->CloseLog(!interrupted);
+    PathName logFile = setupService->CloseLog(interrupted);
     if (!logFile.Empty())
     {
       Verbose(fmt::format("Transcript written on {0}.", logFile));

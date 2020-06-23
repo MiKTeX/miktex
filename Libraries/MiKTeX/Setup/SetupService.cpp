@@ -497,7 +497,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
 
 void SetupServiceImpl::LogHeader()
 {
-  Log(fmt::format(T_("{0} {0} Report\n\n"), options.Banner, options.Version));
+  Log(fmt::format(T_("{0} {1} Report\n\n"), options.Banner, options.Version));
   time_t t = time(nullptr);
   struct tm* pTm = localtime(&t);
   Log(fmt::format(T_("Date: {0:%A, %B %d, %Y}\n"), *pTm));
@@ -1329,10 +1329,14 @@ void SetupServiceImpl::ConfigureMiKTeX()
 
   vector<string> args;
 
+  if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository || options.Task == SetupTask::PrepareMiKTeXDirect)
+  {
+    args.push_back("--principal=setup");
+  }
+
   if (options.Task != SetupTask::PrepareMiKTeXDirect)
   {
     // define roots & remove old fndbs
-    args.clear();
     if (options.IsPortable)
     {
       args.push_back("--portable=" + GetInstallRoot().ToString());
@@ -1519,10 +1523,6 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
   allArgs.insert(allArgs.end(), args.begin(), args.end());
-  if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository || options.Task == SetupTask::PrepareMiKTeXDirect)
-  {
-    allArgs.push_back("--principal=setup");
-  }
   if (options.IsCommonSetup && session->IsAdminMode())
   {
     allArgs.push_back("--admin");

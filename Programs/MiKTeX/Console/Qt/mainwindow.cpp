@@ -761,9 +761,13 @@ bool FinishSetupWorker::Run()
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::FinishSetup;
     options.IsCommonSetup = session->IsAdminMode();
+    options.Banner = "MiKTeX Console";
+    options.Version = VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString();
     options = service->SetOptions(options);
     service->SetCallback(this);
+    service->OpenLog();
     service->Run();
+    service->CloseLog(false);
     result = true;
   }
   catch (const MiKTeXException& e)
