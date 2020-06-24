@@ -669,6 +669,13 @@ IniTeXMFApp::~IniTeXMFApp()
 
 void IniTeXMFApp::Init(int argc, const char* argv[])
 {
+#if defined(MIKTEX_WINDOWS)
+  UINT activeOutputCodePage = GetConsoleOutputCP();
+  if (activeOutputCodePage != CP_UTF8)
+  {
+    SetConsoleOutputCP(CP_UTF8);
+  }
+#endif
   bool adminMode = false;
   bool forceAdminMode = false;
   Session::InitOptionSet options;
@@ -736,6 +743,12 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   }
   LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
   LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(argc, argv));
+#if defined(MIKTEX_WINDOWS)
+  if (activeOutputCodePage != CP_UTF8)
+  {
+    LOG4CXX_DEBUG(logger, fmt::format("changed console output code page from {0} to {1}", activeOutputCodePage, GetConsoleOutputCP()));
+  }
+#endif
   FlushPendingTraceMessages();
   if (session->IsAdminMode())
   {

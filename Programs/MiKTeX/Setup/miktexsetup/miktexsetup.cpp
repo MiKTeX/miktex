@@ -551,6 +551,14 @@ void Application::PrintInfo()
 
 void Application::Main(int argc, const char** argv)
 {
+#if defined(MIKTEX_WINDOWS)
+  UINT activeOutputCodePage = GetConsoleOutputCP();
+  if (activeOutputCodePage != CP_UTF8)
+  {
+    SetConsoleOutputCP(CP_UTF8);
+  }
+#endif
+
   programName = PathName(argv[0]).GetFileName().ToString();
 
   Session::InitInfo initInfo;
