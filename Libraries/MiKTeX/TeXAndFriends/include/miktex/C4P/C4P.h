@@ -780,7 +780,7 @@ protected:
   }
 
 protected:
-#if 1 // optimization?
+#if 0 // optimization?
   template<>
   void get<BufferedFile<C4P_unsigned8>>(BufferedFile<C4P_unsigned8>& f)
   {
