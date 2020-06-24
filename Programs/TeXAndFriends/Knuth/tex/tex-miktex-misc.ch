@@ -1639,6 +1639,12 @@ if (e=".tex") or (e="") then show_context;
 @!l:0..sup_buf_size; {end of first input line}
 @z
 
+@x
+if job_name=0 then job_name:="texput";
+@y
+if job_name=0 then job_name:=miktex_get_job_name("texput");
+@z
+
 % _____________________________________________________________________________
 %
 % [29.536]
@@ -1701,7 +1707,7 @@ if job_name=0 then
   begin job_name:=cur_name; open_log_file;
 @y
 if job_name=0 then
-  begin job_name:=miktex_get_job_name; open_log_file;
+  begin job_name:=miktex_get_job_name(cur_name); open_log_file;
 @z
 
 @x
@@ -2619,7 +2625,6 @@ end;
 function miktex_c_style_error_messages_p : boolean; forward;@t\2@>@/
 function miktex_enable_eightbit_chars_p : boolean; forward;@t\2@>@/
 function miktex_get_interaction : integer; forward;@t\2@>@/
-function miktex_get_job_name : str_number; forward;@t\2@>@/
 function miktex_halt_on_error_p : boolean; forward;@t\2@>@/
 function miktex_is_init_program : boolean; forward;@t\2@>@/
 function miktex_make_full_name_string : str_number; forward;@t\2@>@/

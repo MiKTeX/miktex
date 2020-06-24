@@ -542,7 +542,11 @@ void print_banner(const char *v)
 {
     int callback_id = callback_defined(start_run_callback);
     if (callback_id == 0) {
+#if defined(MIKTEX)
+        miktex_print_banner(term_out, MyName, v);
+#else
         fprintf(term_out, "This is " MyName ", Version %s%s ", v, WEB2CVERSION);
+#endif
         if (format_ident > 0)
             print(format_ident);
         print_ln();
@@ -572,7 +576,11 @@ void log_banner(const char *v)
     unsigned month = (unsigned) month_par;
     if (month > 12)
         month = 0;
+#if defined(MIKTEX)
+    miktex_print_banner(log_file, MyName, v);
+#else
     fprintf(log_file, "This is " MyName ", Version %s%s ", v, WEB2CVERSION);
+#endif
     print(format_ident);
     print_char(' ');
     print_char(' ');

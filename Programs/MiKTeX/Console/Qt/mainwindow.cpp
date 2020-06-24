@@ -57,6 +57,7 @@
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamWriter>
 #include <miktex/Core/TemporaryFile>
+#include <miktex/Core/VersionNumber>
 #include <miktex/Setup/SetupService>
 #include <miktex/UI/Qt/ErrorDialog>
 #include <miktex/UI/Qt/PackageInfoDialog>
@@ -616,8 +617,9 @@ void MainWindow::AboutDialog()
 {
   QString message;
   message = tr("<p>MiKTeX Console ");
-  message += MIKTEX_COMPONENT_VERSION_STR;
+  message += QString::fromUtf8(VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString().c_str());
   message += "</p>";
+  message += "<p>" + QString::fromUtf8(MIKTEX_COMP_COPYRIGHT_STR) + "</p>";
   message += tr("<p>MiKTeX Console is free software. You are welcome to redistribute it under certain conditions.</p>");
   message += tr("<p>MiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.</p>");
   message += tr("<p>You can support the project by giving back: <a href=\"https://miktex.org/giveback\">https://miktex.org/giveback</a><br>Thank you!</p>");
@@ -760,9 +762,13 @@ bool FinishSetupWorker::Run()
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::FinishSetup;
     options.IsCommonSetup = session->IsAdminMode();
+    options.Banner = "MiKTeX Console";
+    options.Version = VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString();
     options = service->SetOptions(options);
     service->SetCallback(this);
+    service->OpenLog();
     service->Run();
+    service->CloseLog(false);
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -1480,7 +1486,7 @@ void MainWindow::on_radioAutoInstallYes_clicked()
 {
   LOG4CXX_INFO(logger, "setting AutoInstall: yes");
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::True)));
-  ui->chkAllUsers->setEnabled(true);
+  ui->chkAllUsers->setEnabled(session->IsSharedSetup());
 }
 
 void MainWindow::on_radioAutoInstallNo_clicked()

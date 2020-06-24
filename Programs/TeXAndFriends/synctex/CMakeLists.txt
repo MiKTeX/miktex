@@ -22,7 +22,7 @@ include(component.cmake)
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/SyncTeX")
 
 configure_file(
-  synctex-version.h.cmake
+  synctex-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/synctex-version.h
 )
 

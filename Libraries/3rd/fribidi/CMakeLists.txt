@@ -85,7 +85,7 @@ foreach(hdr ${public_headers})
 endforeach()
 
 configure_file(
-  fribidi-version.h.cmake
+  fribidi-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/fribidi-version.h
 )
 

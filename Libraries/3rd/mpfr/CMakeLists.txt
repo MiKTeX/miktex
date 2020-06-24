@@ -44,7 +44,7 @@ configure_file(
 )
 
 configure_file(
-  mpfr-version.h.cmake
+  mpfr-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/mpfr-version.h
 )
 

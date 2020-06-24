@@ -68,12 +68,12 @@ configure_file(
 )
 
 configure_file(
-  core-version.h.cmake
+  core-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/core-version.h
 )
 
 configure_file(
-  include/miktex/Core/vi/Version.h.cmake
+  include/miktex/Core/vi/Version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/vi/Version.h
 )
 

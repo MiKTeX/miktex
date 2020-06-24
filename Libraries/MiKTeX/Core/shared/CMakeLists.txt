@@ -66,10 +66,10 @@ set_source_files_properties(
     GENERATED TRUE
 )
 
-set_shared_library_version(
+set_shared_library_version_properties(
   ${core_dll_name}
+  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
   ${MIKTEX_COMP_INTERFACE_VERSION}
-  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_compile_definitions(${core_dll_name}

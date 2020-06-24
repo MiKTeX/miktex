@@ -34,7 +34,7 @@ set(glm_sources
 )
 
 configure_file(
-  glm-version.h.cmake
+  glm-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/glm-version.h
 )
 

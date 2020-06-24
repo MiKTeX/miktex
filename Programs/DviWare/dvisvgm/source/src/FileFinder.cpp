@@ -86,10 +86,14 @@ std::string FileFinder::version () const {
 #ifdef MIKTEX_COM
 	return _miktex->getVersion();
 #else
+#if defined(MIKTEX)
+	return MiKTeX::Core::Utils::GetMiKTeXBannerString();
+#else
 	if (const char *v = strrchr(KPSEVERSION, ' '))
 		return (std::string(KPSEVERSION).substr(0, 9) == "kpathsea ") ? v+1 : KPSEVERSION;
 	if (strlen(KPSEVERSION) > 0)
 		return KPSEVERSION;
+#endif
 #endif
 	return "unknown";
 }

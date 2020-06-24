@@ -34,7 +34,6 @@ texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/frlatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/frtex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/ftex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/jadetex.ini
-texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lambda.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex-dev.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex209.ini
@@ -47,7 +46,6 @@ texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/luatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/mllatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/mltex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/olatex.ini
-texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/omega.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfamstex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfcslatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfcsplain.ini

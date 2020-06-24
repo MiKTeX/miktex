@@ -1,6 +1,6 @@
 /* miktex/Core/c/api.h: MiKTeX core C API               -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -60,9 +60,11 @@ MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char * lpszFontName, char * lps
 
 MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char * lpszFontName, char * lpszPath);
 
-MIKTEXCORECEEAPI(unsigned) miktex_get_number_of_texmf_roots();
+MIKTEXCORECEEAPI(int) miktex_get_miktex_banner(char* buf, size_t bufSize);
 
 MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char * lpszVersion, size_t maxsize);
+
+MIKTEXCORECEEAPI(unsigned) miktex_get_number_of_texmf_roots();
 
 MIKTEXCORECEEAPI(char *) miktex_get_root_directory(unsigned r, char * lpszPath);
 

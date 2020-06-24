@@ -411,6 +411,9 @@ public:
   static MIKTEXSETUPCEEAPI(std::unique_ptr<SetupService>) Create();
 
 public:
+  static MIKTEXSETUPCEEAPI(std::unique_ptr<MiKTeX::Core::TemporaryDirectory>) CreateSandbox(MiKTeX::Core::StartupConfig& startupConfig);
+
+public:
   static MIKTEXSETUPCEEAPI(MiKTeX::Packages::PackageLevel) TestLocalRepository(const MiKTeX::Core::PathName& pathRepository, MiKTeX::Packages::PackageLevel requestedPackageLevel);
 
 public:

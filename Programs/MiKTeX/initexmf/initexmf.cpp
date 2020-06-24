@@ -53,6 +53,7 @@
 #include <miktex/Setup/SetupService>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
+#include <miktex/Util/DateUtil>
 #include <miktex/Util/StringUtil>
 #include <miktex/Util/Tokenizer>
 #include <miktex/Wrappers/PoptWrapper>
@@ -243,11 +244,7 @@ private:
   void RemoveFndb();
 
 private:
-#if defined(MIKTEX_WINDOWS)
-  void SetTeXMFRootDirectories(bool noRegistry);
-#else
-  void SetTeXMFRootDirectories();
-#endif
+  void SetTeXMFRootDirectories(RegisterRootDirectoriesOptionSet options);
 
 private:
   void RunProcess(const PathName& fileName, const vector<string>& arguments)
@@ -459,7 +456,7 @@ private:
   }
 
 private:
-  bool csv = false;
+  string principal;
 
 private:
   bool recursive = false;
@@ -544,7 +541,6 @@ enum Option
   OPT_ADD_FILE,                 // <experimental/>
   OPT_CLEAN,                    // <experimental/>
   OPT_CREATE_CONFIG_FILE,       // <experimental/>
-  OPT_CSV,                      // <experimental/>
   OPT_FIND_OTHER_TEX,           // <experimental/>
   OPT_LIST_FORMATS,             // <experimental/>
   OPT_MODIFY_PATH,              // <experimental/>
@@ -674,7 +670,11 @@ IniTeXMFApp::~IniTeXMFApp()
 void IniTeXMFApp::Init(int argc, const char* argv[])
 {
   bool adminMode = false;
-  bool setupWizardRunning = false;
+  bool forceAdminMode = false;
+  Session::InitOptionSet options;
+#if defined(MIKTEX_WINDOWS)
+  options += Session::InitOption::InitializeCOM;
+#endif
   for (const char** opt = &argv[1]; *opt != nullptr; ++opt)
   {
     if ("--admin"s == *opt || "-admin"s == *opt)
@@ -683,19 +683,18 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     }
     else if ("--principal=setup"s == *opt || "-principal=setup"s == *opt)
     {
-      setupWizardRunning = true;
+      options += Session::InitOption::SettingUp;
+      forceAdminMode = true;
     }
   }
   Session::InitInfo initInfo(argv[0]);
-#if defined(MIKTEX_WINDOWS)
-  initInfo.SetOptions({ Session::InitOption::InitializeCOM });
-#endif
+  initInfo.SetOptions(options);
   initInfo.SetTraceCallback(this);
   session = Session::Create(initInfo);
   packageManager = PackageManager::Create(PackageManager::InitInfo(this));
   if (adminMode)
   {
-    if (!setupWizardRunning && !session->IsSharedSetup())
+    if (!forceAdminMode && !session->IsSharedSetup())
     {
       FatalError(T_("Option --admin only makes sense for a shared MiKTeX setup."));
     }
@@ -703,7 +702,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     {
       Warning(T_("Option --admin may require administrator privileges"));
     }
-    session->SetAdminMode(true, setupWizardRunning);
+    session->SetAdminMode(true, forceAdminMode);
   }
   if (session->RunningAsAdministrator() && !session->IsAdminMode())
   {
@@ -1006,11 +1005,7 @@ void IniTeXMFApp::RemoveFndb()
   }
 }
 
-void IniTeXMFApp::SetTeXMFRootDirectories(
-#if defined(MIKTEX_WINDOWS)
-  bool noRegistry
-#endif
-  )
+void IniTeXMFApp::SetTeXMFRootDirectories(RegisterRootDirectoriesOptionSet options)
 {
   Verbose(T_("Registering root directories..."));
   PrintOnly(fmt::format("regroots ur={} ud={} uc={} ui={} cr={} cd={} cc={} ci={}",
@@ -1018,14 +1013,7 @@ void IniTeXMFApp::SetTeXMFRootDirectories(
     Q_(startupConfig.commonRoots), Q_(startupConfig.commonDataRoot), Q_(startupConfig.commonConfigRoot), Q_(startupConfig.commonInstallRoot)));
   if (!printOnly)
   {
-    RegisterRootDirectoriesOptionSet options;
     options += RegisterRootDirectoriesOption::Review;
-#if defined(MIKTEX_WINDOWS)
-    if (noRegistry)
-    {
-      options += RegisterRootDirectoriesOption::NoRegistry;
-    }
-#endif
     session->RegisterRootDirectories(startupConfig, options);
   }
 }
@@ -1455,6 +1443,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_OUTOCP_EXE, { "outocp" } },
   { MIKTEX_OVF2OVP_EXE, { "ovf2ovp" } },
   { MIKTEX_OVP2OVF_EXE, { "ovp2ovf" } },
+  { MIKTEX_PREFIX "patgen" MIKTEX_EXE_FILE_SUFFIX, { "patgen"} },
   { MIKTEX_PDFTEX_EXE, { "pdftex", MIKTEX_LATEX_EXE, MIKTEX_PDFLATEX_EXE } },
   { MIKTEX_PDFTOSRC_EXE, { "pdftosrc" } },
   { MIKTEX_PK2BM_EXE, { "pk2bm" } },
@@ -1484,6 +1473,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_TTF2AFM_EXE, { "ttf2afm" } },
   { MIKTEX_TTF2PK_EXE, { "ttf2pk" } },
   { MIKTEX_TTF2TFM_EXE, { "ttf2tfm" } },
+  { MIKTEX_PREFIX "upmendex" MIKTEX_EXE_FILE_SUFFIX, { "upmendex"} },
   { MIKTEX_VFTOVP_EXE, { "vftovp" } },
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
@@ -1554,9 +1544,6 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PREFIX "t1reencode" MIKTEX_EXE_FILE_SUFFIX, { "t1reencode" } },
   { MIKTEX_PREFIX "t1testpage" MIKTEX_EXE_FILE_SUFFIX, { "t1testpage" } },
   { MIKTEX_PREFIX "ttftotype42" MIKTEX_EXE_FILE_SUFFIX, { "ttftotype42" } },
-#endif
-#if defined(WITH_OMEGA)
-  { MIKTEX_OMEGA_EXE, { "omega" } },
 #endif
 #if defined(MIKTEX_WINDOWS)
   { MIKTEX_PREFIX "zip" MIKTEX_EXE_FILE_SUFFIX, {"zip"} },
@@ -2127,7 +2114,8 @@ void IniTeXMFApp::RegisterOtherRoots()
 void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 {
   unique_ptr<Cfg> config(Cfg::Create());
-  config->PutValue("Auto", "Config", "Portable");
+  config->PutValue(MIKTEX_CONFIG_SECTION_AUTO, MIKTEX_CONFIG_VALUE_CONFIG, "Portable");
+  config->PutValue(MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0).ToString());
   PathName configDir(portableRoot);
   configDir /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
   Directory::Create(configDir);
@@ -2140,6 +2128,7 @@ void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
   {
     Directory::Create(tempDir);
   }
+  session->Reset();
 }
 
 void IniTeXMFApp::WriteReport()
@@ -2228,9 +2217,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       createConfigFiles.push_back(optArg);
       break;
 
-    case OPT_CSV:
-      csv = true;
-      break;
 
     case OPT_DEFAULT_PAPER_SIZE:
 
@@ -2377,6 +2363,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       break;
 
     case OPT_PRINCIPAL:
+      principal = optArg;
       break;
 
     case OPT_PRINT_ONLY:
@@ -2508,7 +2495,8 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     cout
       << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
       << endl
-      << "Copyright (C) 1996-2020 Christian Schenk" << endl
+      << MIKTEX_COMP_COPYRIGHT_STR << endl
+      << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
@@ -2525,7 +2513,8 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     CreatePortableSetup(PathName(portableRoot));
   }
 
-  if (!startupConfig.userRoots.empty()
+  if (principal == "setup"
+    || !startupConfig.userRoots.empty()
     || !startupConfig.userDataRoot.Empty()
     || !startupConfig.userConfigRoot.Empty()
     || !startupConfig.userInstallRoot.Empty()
@@ -2534,11 +2523,14 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     || !startupConfig.commonConfigRoot.Empty()
     || !startupConfig.commonInstallRoot.Empty())
   {
+    RegisterRootDirectoriesOptionSet options;
 #if defined(MIKTEX_WINDOWS)
-    SetTeXMFRootDirectories(optNoRegistry);
-#else
-    SetTeXMFRootDirectories();
+    if (optNoRegistry)
+    {
+      options += RegisterRootDirectoriesOption::NoRegistry;
+    }
 #endif
+    SetTeXMFRootDirectories(options);
   }
 
   if (!defaultPaperSize.empty())

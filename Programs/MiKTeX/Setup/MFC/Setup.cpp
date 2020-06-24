@@ -810,29 +810,19 @@ BOOL SetupApp::InitInstance()
 
   try
   {
-    // create a scratch root directory
-    PathName tempDirectory;
-    tempDirectory.SetToTempDirectory();
-    tempDirectory /= "miktex-setup";
-    if (!Directory::Exists(tempDirectory))
-    {
-      Directory::Create(tempDirectory);
-    }
-    unique_ptr<TemporaryDirectory> scratchRoot = TemporaryDirectory::Create(tempDirectory);
+    // create a sandbox
+    DBGLOC2("creating sandbox");
+    StartupConfig startupConfig;
+    unique_ptr<TemporaryDirectory> sandbox = SetupService::CreateSandbox(startupConfig);
 
     // create a MiKTeX session
-    StartupConfig startupConfig;
-    startupConfig.userInstallRoot = scratchRoot->GetPathName();
-    startupConfig.userDataRoot = scratchRoot->GetPathName();
-    startupConfig.userConfigRoot = scratchRoot->GetPathName();
-    startupConfig.commonDataRoot = scratchRoot->GetPathName();
-    startupConfig.commonConfigRoot = scratchRoot->GetPathName();
-    startupConfig.commonInstallRoot = scratchRoot->GetPathName();
-    Session::InitInfo initInfo("setup", { Session::InitOption::NoConfigFiles, Session::InitOption::NoFixPath });
+    DBGLOC2("creating session");
+    Session::InitInfo initInfo("setup", { Session::InitOption::SettingUp, Session::InitOption::NoFixPath });
     initInfo.SetStartupConfig(startupConfig);
     shared_ptr<Session> session = Session::Create(initInfo);
 
     // create package manager
+    DBGLOC2("creating package manager");
     packageManager = PackageManager::Create();
 
     // create setup service
@@ -958,7 +948,7 @@ BOOL SetupApp::InitInstance()
     options = Service->GetOptions();
     Service = nullptr;
     session->UnloadFilenameDatabase();
-    scratchRoot = nullptr;
+    sandbox = nullptr;
     if (dlgRet == IDRETRY && sfxDir != nullptr)
     {
       string packageLevel;

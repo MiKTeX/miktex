@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.6.37"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (c) 1998-2018 Glenn Randers-Pehrson"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "Copyright © 1998-2018 Glenn Randers-Pehrson"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1998-2018 Glenn Randers-Pehrson"
 
 #include <miktex/Version>

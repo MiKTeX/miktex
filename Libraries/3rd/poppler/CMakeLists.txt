@@ -70,7 +70,7 @@ set(HAVE_UNISTD_H TRUE)
 add_definitions(-DHAVE_CONFIG_H=1)
 
 configure_file(
-  poppler-version.h.cmake
+  poppler-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/poppler-version.h
 )
 

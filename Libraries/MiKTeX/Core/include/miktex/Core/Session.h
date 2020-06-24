@@ -39,6 +39,7 @@
 #include <vector>
 
 #include <miktex/Trace/TraceCallback>
+#include <miktex/Util/DateUtil>
 
 #include "Exceptions.h"
 #include "File.h"
@@ -49,13 +50,14 @@
 #include "Process.h"
 #include "RootDirectoryInfo.h"
 #include "TriState.h"
+#include "VersionNumber.h"
 
 /// @namespace MiKTeX::Core
 /// @brief The core namespace.
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
 /// An invalid TEXMF root index.
-const unsigned INVALID_ROOT_INDEX = static_cast<unsigned>(-1);
+constexpr unsigned INVALID_ROOT_INDEX = static_cast<unsigned>(-1);
 
 /// MiKTeX configurations.
 enum class MiKTeXConfiguration
@@ -196,6 +198,16 @@ inline std::ostream& operator<<(std::ostream& os, const StartupConfig& startupCo
   return os;
 }
 
+struct SetupConfig
+{
+public:
+  std::time_t setupDate = MiKTeX::Util::DateUtil::UNDEFINED_TIME_T_VALUE;
+public:
+  VersionNumber setupVersion;
+public:
+  bool isNew = false;
+};
+
 /// Special path names.
 enum class SpecialPath
 {
@@ -321,10 +333,10 @@ struct MiKTeXUserInfo
   std::string email;
   int role = 0;
   int level = 0;
-  time_t expirationDate = static_cast<time_t>(-1);
+  std::time_t expirationDate = MiKTeX::Util::DateUtil::UNDEFINED_TIME_T_VALUE;
   bool IsMember () const
   {
-    return level >= Individual && (expirationDate == static_cast<time_t>(-1) || expirationDate >= time(nullptr));
+    return level >= Individual && (!MiKTeX::Util::DateUtil::IsDefined(expirationDate) || expirationDate >= std::time(nullptr));
   }
   bool IsDeveloper () const { return IsMember() && (role & Developer) != 0; }
   bool IsContributor () const { return IsMember() && (role & Contributor) != 0; }
@@ -743,15 +755,15 @@ public:
   /// Initialization options.
   enum class InitOption
   {
-    /// No config files will be loaded.
-    NoConfigFiles,
+    /// We are setting up MiKTeX.
+    SettingUp,
     /// Don't fix `PATH`.
     NoFixPath,
 #if defined(MIKTEX_WINDOWS)
     /// Initialize the COM library.
     InitializeCOM,
 #endif
-    /// start in administrator mode.
+    /// Start in administrator mode.
     AdminMode,
   };
 
@@ -1563,6 +1575,11 @@ public:
   /// @return Returns `true`, if this is a system-wide installation.
 public:
   virtual bool MIKTEXTHISCALL IsSharedSetup() = 0;
+
+public:
+  /// Get the setup configuration.
+  /// @return Returns the setup configuration.
+  virtual SetupConfig MIKTEXTHISCALL GetSetupConfig() = 0;
 
   /// Gets the next paper size.
   /// @param idx Index of the next entry in the paper size table.

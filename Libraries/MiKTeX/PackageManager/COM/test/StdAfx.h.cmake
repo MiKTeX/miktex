@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -25,4 +25,4 @@
 
 #import "@mpm_tlb_name@.tlb"
 
-using namespace MiKTeXPackageManager@MIKTEX_MAJOR_MINOR_ID_STR@;
+using namespace MiKTeXPackageManager@MIKTEX_COM_MAJOR_MINOR_ID_STR@;

@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "2019-01-08"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 2015-2019 R. D. Tennent School of Computing, Queen's University"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2015-2019 R. D. Tennent School of Computing, Queen's University"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2015-2019 R. D. Tennent School of Computing, Queen's University"
 
 #include <miktex/Version>

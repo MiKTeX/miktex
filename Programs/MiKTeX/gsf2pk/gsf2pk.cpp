@@ -1439,9 +1439,10 @@ void Converter::Main(int argc, const char** argv)
       break;
     case OPT_VERSION:
       cout
-        << Utils::MakeProgramVersionString("gsf2pk", VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2004-2020 Christian Schenk" << endl
-        << "Copyright (C) 1993-2000 Paul Vojta" << endl
+        << Utils::MakeProgramVersionString("gsf2pk", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+	<< endl
+        << MIKTEX_COMP_COPYRIGHT_STR << endl
+	<< endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return;

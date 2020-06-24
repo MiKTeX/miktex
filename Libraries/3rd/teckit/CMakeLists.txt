@@ -31,7 +31,7 @@ set(public_include_directories
 )
 
 configure_file(
-  teckit-version.h.cmake
+  teckit-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/teckit-version.h
 )
 

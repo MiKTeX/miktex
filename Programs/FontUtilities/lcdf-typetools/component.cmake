@@ -21,5 +21,4 @@ include(version.cmake)
 
 set(MIKTEX_COMP_DESCRIPTION "LCDF Typetools - a bundle of outline font manipulation tools")
 
-set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1997-2019 Eddie Kohler")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "Copyright © 1997-2019 Eddie Kohler")
+set(MIKTEX_COMP_COPYRIGHT_STR "Â© 1997-2019 Eddie Kohler")

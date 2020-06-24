@@ -480,7 +480,11 @@ section_text[0]= ' ';
 common_init();
 
 if(show_banner){
+#if defined(MIKTEX)
+printf("%s\n",banner);
+#else
 printf("%s%s\n",banner,versionstring);
+#endif
 }
 
 phase_one();

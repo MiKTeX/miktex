@@ -21,5 +21,4 @@ include(version.cmake)
 
 set(MIKTEX_COMP_DESCRIPTION "Lua scripting language library")
 
-set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1994-2017 Lua.org, PUC-Rio")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "Copyright © 1994-2017 Lua.org, PUC-Rio")
+set(MIKTEX_COMP_COPYRIGHT_STR "Â© 1994-2017 Lua.org, PUC-Rio")

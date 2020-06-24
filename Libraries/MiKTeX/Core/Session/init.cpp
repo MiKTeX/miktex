@@ -36,6 +36,7 @@
 
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
+#include <miktex/Core/DirectoryLister>
 #include <miktex/Core/Environment>
 #include <miktex/Core/Paths>
 #include <miktex/Core/TemporaryDirectory>
@@ -220,9 +221,9 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
     Utils::GetEnvironmentString(MIKTEX_ENV_TRACE, traceOptions);
   }
 #if defined(MIKTEX_WINDOWS)
-  if (traceOptions.empty() && (!initInfo.GetOptions()[InitOption::NoConfigFiles]))
+  if (traceOptions.empty() && (!initInfo.GetOptions()[InitOption::SettingUp]))
   {
-    if (!winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TRACE, traceOptions))
+    if (!winRegistry::TryGetValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_TRACE, traceOptions))
     {
       traceOptions = "";
     }
@@ -289,81 +290,90 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 
 void SessionImpl::InitializeStartupConfig()
 {
+  bool isSettingUp = initInfo.GetOptions()[InitOption::SettingUp];
+
+  if (isSettingUp)
+  {
+    initStartupConfig.setupVersion = VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0);
+  }
+
   // evaluate init info
   MergeStartupConfig(initStartupConfig, initInfo.GetStartupConfig());
 
-  // read common environment variables
-  MergeStartupConfig(initStartupConfig, ReadEnvironment(ConfigurationScope::Common));
-
-  // read user environment variables
-  MergeStartupConfig(initStartupConfig, ReadEnvironment(ConfigurationScope::User));
-
-  PathName commonStartupConfigFile;
-
-  bool haveCommonStartupConfigFile = FindStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile);
-
   PathName commonPrefix;
-
-  if (haveCommonStartupConfigFile)
-  {
-    PathName dir(commonStartupConfigFile);
-    dir.RemoveFileSpec();
-    Utils::GetPathNamePrefix(dir, PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR), commonPrefix);
-  }
-
-  PathName userStartupConfigFile;
-
-  bool haveUserStartupConfigFile = FindStartupConfigFile(ConfigurationScope::User, userStartupConfigFile);
-
   PathName userPrefix;
 
-  if (haveUserStartupConfigFile)
+  if (!isSettingUp)
   {
-    PathName dir(userStartupConfigFile);
-    dir.RemoveFileSpec();
-    Utils::GetPathNamePrefix(dir, PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR), userPrefix);
-  }
+    // read common environment variables
+    MergeStartupConfig(initStartupConfig, ReadEnvironment(ConfigurationScope::Common));
 
-  // read common startup config file
-  if (haveCommonStartupConfigFile)
-  {
-    MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile));
-    if (!IsAdminMode())
-    {
-      MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, commonStartupConfigFile));
-    }
-  }
+    // read user environment variables
+    MergeStartupConfig(initStartupConfig, ReadEnvironment(ConfigurationScope::User));
 
-  // read user startup config file
-  if (haveUserStartupConfigFile)
-  {
-    MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, userStartupConfigFile));
-  }
+    PathName commonStartupConfigFile;
 
-#if USE_WINDOWS_REGISTRY
-  if (initStartupConfig.config != MiKTeXConfiguration::Portable)
-  {
-    // read the registry, if we don't have a startup config file
-    if (!haveCommonStartupConfigFile)
+    bool haveCommonStartupConfigFile = FindStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile);
+
+    if (haveCommonStartupConfigFile)
     {
-      MergeStartupConfig(initStartupConfig, ReadRegistry(ConfigurationScope::Common));
+      PathName dir(commonStartupConfigFile);
+      dir.RemoveFileSpec();
+      Utils::GetPathNamePrefix(dir, PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR), commonPrefix);
     }
-    if (!haveUserStartupConfigFile)
+
+    PathName userStartupConfigFile;
+
+    bool haveUserStartupConfigFile = FindStartupConfigFile(ConfigurationScope::User, userStartupConfigFile);
+
+    if (haveUserStartupConfigFile)
     {
-      MergeStartupConfig(initStartupConfig, ReadRegistry(ConfigurationScope::User));
+      PathName dir(userStartupConfigFile);
+      dir.RemoveFileSpec();
+      Utils::GetPathNamePrefix(dir, PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR), userPrefix);
     }
+
+    // read common startup config file
+    if (haveCommonStartupConfigFile)
+    {
+      MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::Common, commonStartupConfigFile));
+      if (!IsAdminMode())
+      {
+        MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, commonStartupConfigFile));
+      }
+    }
+
+    // read user startup config file
+    if (haveUserStartupConfigFile)
+    {
+      MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, userStartupConfigFile));
+    }
+
+  #if USE_WINDOWS_REGISTRY
+    if (initStartupConfig.config != MiKTeXConfiguration::Portable)
+    {
+      // read the registry, if we don't have a startup config file
+      if (!haveCommonStartupConfigFile)
+      {
+        MergeStartupConfig(initStartupConfig, ReadRegistry(ConfigurationScope::Common));
+      }
+      if (!haveUserStartupConfigFile)
+      {
+        MergeStartupConfig(initStartupConfig, ReadRegistry(ConfigurationScope::User));
+      }
+    }
+  #endif
   }
-#endif
 
   // merge in the default settings
-  MergeStartupConfig(initStartupConfig, DefaultConfig(initStartupConfig.config, commonPrefix, userPrefix));
+  MergeStartupConfig(initStartupConfig, DefaultConfig(initStartupConfig.config, initStartupConfig.setupVersion, commonPrefix, userPrefix));
 }
 
-StartupConfig SessionImpl::ReadEnvironment(ConfigurationScope scope)
+VersionedStartupConfig SessionImpl::ReadEnvironment(ConfigurationScope scope)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  StartupConfig ret;
+  VersionedStartupConfig ret;
 
   string str;
 
@@ -417,15 +427,20 @@ StartupConfig SessionImpl::ReadEnvironment(ConfigurationScope scope)
   return ret;
 }
 
-StartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const PathName& path)
+VersionedStartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const PathName& path)
 {
-  StartupConfig ret;
+  VersionedStartupConfig ret;
 
   unique_ptr<Cfg> cfg(Cfg::Create());
 
   cfg->Read(path);
 
   string str;
+
+  if (cfg->TryGetValueAsString(MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, str))
+  {
+    ret.setupVersion = VersionNumber::Parse(str);
+  }
 
   if (cfg->TryGetValueAsString("Auto", "Config", str))
   {
@@ -509,14 +524,18 @@ StartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const
 
   cfg = nullptr;
 
+#if 0
   // inherit to child processes
+  // TODO: why?
   Utils::SetEnvironmentString(scope == ConfigurationScope::Common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, path.ToString());
+#endif
 
   return ret;
 }
 
-void SessionImpl::SaveStartupConfig(const MiKTeX::Core::StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
+void SessionImpl::SaveStartupConfig(const VersionedStartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
 {
+  trace_core->WriteLine("core", TraceLevel::Info, fmt::format(T_("saving startup configuration; setupVersion={0}"), startupConfig.setupVersion));
 #if defined(MIKTEX_WINDOWS)
   bool noRegistry = options[RegisterRootDirectoriesOption::NoRegistry];
 #else
@@ -573,9 +592,9 @@ void SessionImpl::RecordMaintenance()
   }
 }
 
-PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfiguration config)
+PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfiguration config, VersionNumber version)
 {
-  StartupConfig defaultConfig = DefaultConfig(config, PathName(), PathName());
+  StartupConfig defaultConfig = DefaultConfig(config, version, PathName(), PathName());
   if (scope == ConfigurationScope::User)
   {
     string str;
@@ -584,7 +603,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
       return PathName(str);
     }
 #if USE_WINDOWS_REGISTRY
-    else if (winRegistry::TryGetRegistryValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
+    else if (winRegistry::TryGetValue(ConfigurationScope::User, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
     {
       return PathName(str);
     }
@@ -602,7 +621,7 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
       return PathName(str);
     }
 #if USE_WINDOWS_REGISTRY
-    else if (winRegistry::TryGetRegistryValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
+    else if (winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
     {
       return PathName(str);
     }
@@ -630,27 +649,27 @@ PathName SessionImpl::GetStartupConfigFile(ConfigurationScope scope, MiKTeXConfi
   }
 }
 
-void PutPathValue(Cfg* cfg, const string& valueName, const string& pathValue, const PathName& relativeFrom, bool allowEmpty)
+void PutPathValue(Cfg* cfg, const string& valueName, const string& pathValue, const string& defaultValue, const PathName& relativeFrom, bool allowEmpty, const string& documentation)
 {
-  if (!pathValue.empty() || allowEmpty)
+  if ((!pathValue.empty() && pathValue != defaultValue) || allowEmpty)
   {
     string val = pathValue;
     if (!relativeFrom.Empty())
     {
       Relativize(val, relativeFrom);
     };
-    cfg->PutValue("Paths", valueName, val, T_("other user TEXMF root directories"), pathValue.empty());
+    cfg->PutValue("Paths", valueName, val, documentation, pathValue.empty() || pathValue == defaultValue);
   }
 }
 
-void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const StartupConfig& startupConfig)
+void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const VersionedStartupConfig& startupConfig)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  StartupConfig defaultConfig = DefaultConfig(startupConfig.config, PathName(), PathName());
+  VersionedStartupConfig defaultConfig = DefaultConfig(startupConfig.config, startupConfig.setupVersion, PathName(), PathName());
 
-  PathName userStartupConfigFile = GetStartupConfigFile(ConfigurationScope::User, startupConfig.config);  
-  PathName commonStartupConfigFile = GetStartupConfigFile(ConfigurationScope::Common, startupConfig.config);
+  PathName userStartupConfigFile = GetStartupConfigFile(ConfigurationScope::User, startupConfig.config, startupConfig.setupVersion);
+  PathName commonStartupConfigFile = GetStartupConfigFile(ConfigurationScope::Common, startupConfig.config, startupConfig.setupVersion);
   bool allInOne = userStartupConfigFile == commonStartupConfigFile;
 
   unique_ptr<Cfg> cfg(Cfg::Create());
@@ -669,39 +688,48 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Startup
     }
   }
 
+  if (!(startupConfig.setupVersion == VersionNumber()))
+  {
+    cfg->PutValue(MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, startupConfig.setupVersion.ToString());
+  }
+
   if (scope == ConfigurationScope::Common || allInOne)
   {
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_ROOTS, startupConfig.commonRoots, relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS, startupConfig.otherCommonRoots, relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_INSTALL, startupConfig.commonInstallRoot.ToString(), relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_DATA, startupConfig.commonDataRoot.ToString(), relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_CONFIG, startupConfig.commonConfigRoot.ToString(), relativeFrom, allInOne);
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_ROOTS, startupConfig.commonRoots, defaultConfig.commonRoots, relativeFrom, allInOne, T_("common root directories"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_COMMON_ROOTS, startupConfig.otherCommonRoots, defaultConfig.otherCommonRoots, relativeFrom, allInOne, T_("other common root directories"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_INSTALL, startupConfig.commonInstallRoot.ToString(), defaultConfig.commonInstallRoot.ToString(), relativeFrom, allInOne, T_("common installation root directoriy"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_DATA, startupConfig.commonDataRoot.ToString(), defaultConfig.commonDataRoot.ToString(), relativeFrom, allInOne, T_("common data root directory"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_COMMON_CONFIG, startupConfig.commonConfigRoot.ToString(), defaultConfig.commonConfigRoot.ToString(), relativeFrom, allInOne, T_("common configuration root directory"));
 #if 1
     if (!allInOne)
     {
-      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots, relativeFrom, allInOne);
-      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots, relativeFrom, allInOne);
-      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString(), relativeFrom, allInOne);
-      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString(), relativeFrom, allInOne);
-      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString(), relativeFrom, allInOne);
+      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots, defaultConfig.userRoots, relativeFrom, allInOne, T_("user root directories"));
+      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots, defaultConfig.otherUserRoots, relativeFrom, allInOne, T_("other user root directories"));
+      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString(), defaultConfig.userInstallRoot.ToString(), relativeFrom, allInOne, T_("user installation root directoriy"));
+      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString(), defaultConfig.userDataRoot.ToString(), relativeFrom, allInOne, T_("user data root directory"));
+      PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString(), defaultConfig.userConfigRoot.ToString(), relativeFrom, allInOne,  T_("user configuration root directory"));
     }
 #endif
   }
 
   if (scope == ConfigurationScope::User || allInOne)
   {
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots, relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots, relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString(), relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString(), relativeFrom, allInOne);
-    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString(), relativeFrom, allInOne);
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_ROOTS, startupConfig.userRoots, defaultConfig.userRoots, relativeFrom, allInOne, T_("user root directories"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_OTHER_USER_ROOTS, startupConfig.otherUserRoots, defaultConfig.otherUserRoots, relativeFrom, allInOne, T_("other user root directories"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_INSTALL, startupConfig.userInstallRoot.ToString(), defaultConfig.userInstallRoot.ToString(), relativeFrom, allInOne, T_("user installation root directoriy"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_DATA, startupConfig.userDataRoot.ToString(), defaultConfig.userDataRoot.ToString(), relativeFrom, allInOne, T_("user data root directory"));
+    PutPathValue(cfg.get(), MIKTEX_CONFIG_VALUE_USER_CONFIG, startupConfig.userConfigRoot.ToString(), defaultConfig.userConfigRoot.ToString(), relativeFrom, allInOne,  T_("user configuration root directory"));
   }
 
   cfg->Write(scope == ConfigurationScope::Common ? commonStartupConfigFile : userStartupConfigFile, T_("MiKTeX startup information"));
 }
 
-void SessionImpl::MergeStartupConfig(StartupConfig& startupConfig, const StartupConfig& defaults)
+void SessionImpl::MergeStartupConfig(VersionedStartupConfig& startupConfig, const VersionedStartupConfig& defaults)
 {
+  if (startupConfig.setupVersion == VersionNumber())
+  {
+    startupConfig.setupVersion = defaults.setupVersion;
+  }
   if (startupConfig.config == MiKTeXConfiguration::None)
   {
     startupConfig.config = defaults.config;
@@ -847,6 +875,50 @@ void SessionImpl::StartFinishScript(int delay)
   Process::StartSystemCommand(script.ToString());
 #endif
   tmpdir->Keep();
+}
+
+SetupConfig SessionImpl::GetSetupConfig()
+{
+  SetupConfig ret;
+  ret.setupVersion = initStartupConfig.setupVersion;
+  ret.isNew = false;
+  PathName configDir = GetSpecialPath(IsAdminMode() || IsSharedSetup() ? SpecialPath::CommonInstallRoot : SpecialPath::UserInstallRoot);
+  configDir /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
+  if (Directory::Exists(configDir))
+  {
+    //                                                012345678901234567890123456789
+    auto lister = DirectoryLister::Open(configDir, R"(setup-????-??-??-??-??.log)", (int)DirectoryLister::Options::FilesOnly);
+    DirectoryEntry dirEntry;
+    if (lister->GetNext(dirEntry))
+    {
+      struct tm setupDate = tm();
+      setupDate.tm_year = std::stoi(dirEntry.name.substr(6, 4)) - 1900;
+      setupDate.tm_mon = std::stoi(dirEntry.name.substr(11, 2)) - 1;
+      setupDate.tm_mday = std::stoi(dirEntry.name.substr(14, 2));
+      setupDate.tm_hour = std::stoi(dirEntry.name.substr(17, 2));
+      setupDate.tm_min = std::stoi(dirEntry.name.substr(20, 2));
+      setupDate.tm_isdst = -1;
+      ret.setupDate = mktime(&setupDate);
+      if (ret.setupDate == static_cast<time_t>(-1))
+      {
+        // TODO
+      }
+      return ret;
+    }
+    for (const auto& name : { "miktexstartup.ini" })
+    {
+      PathName file = configDir / PathName(name);
+      if (File::Exists(file))
+      {
+        ret.setupDate = File::GetLastWriteTime(file);
+        return ret;
+      }
+    }
+  }
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetString()));
+  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetString()));
+  ret.isNew = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !IsMiKTeXPortable();
+  return ret;
 }
 
 void SessionImpl::Reset()

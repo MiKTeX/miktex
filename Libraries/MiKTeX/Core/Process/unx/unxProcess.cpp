@@ -313,11 +313,6 @@ void unxProcess::Create()
       if (session != nullptr)
       {
         session->SetEnvironmentVariables();
-        session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: {0}", startinfo.FileName));
-        for (int idx = 0; argv[idx] != nullptr; ++idx)
-        {
-          session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));
-        }
       }
       if (!startinfo.WorkingDirectory.empty())
       {
@@ -329,6 +324,19 @@ void unxProcess::Create()
         {
           MIKTEX_FATAL_CRT_ERROR("setsid");
         }
+      }
+      if (session != nullptr)
+      {
+        string args;
+        for (int idx = 0; argv[idx] != nullptr; ++idx)
+        {
+          args += fmt::format("\"{0}\"", argv[idx]);
+          if (argv[idx + 1] != nullptr)
+          {
+            args += ", ";
+          }
+        }
+        session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", startinfo.FileName, args));
       }
       execv(startinfo.FileName.c_str(), const_cast<char*const*>(argv.GetArgv()));
       perror("execv failed");

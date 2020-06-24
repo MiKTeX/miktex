@@ -19,13 +19,13 @@
 
 #include "config.h"
 
+#include "setup-version.h"
+
 #include "internal.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "win/winSetupService.h"
 #endif
-
-#include "setup-version.h"
 
 using namespace std;
 using namespace std::string_literals;
@@ -185,6 +185,27 @@ unique_ptr<SetupService> SetupService::Create()
 #else
   return make_unique<SetupServiceImpl>();
 #endif
+}
+
+unique_ptr<TemporaryDirectory> SetupService::CreateSandbox(StartupConfig& startupConfig)
+{
+  unique_ptr<TemporaryDirectory> sandbox = TemporaryDirectory::Create();
+  startupConfig.userInstallRoot = sandbox->GetPathName();
+  startupConfig.userDataRoot = sandbox->GetPathName();
+  startupConfig.userConfigRoot = sandbox->GetPathName();
+  startupConfig.commonDataRoot = sandbox->GetPathName();
+  startupConfig.commonConfigRoot = sandbox->GetPathName();
+  startupConfig.commonInstallRoot = sandbox->GetPathName();
+#if defined(MIKTEX_WINDOWS)
+  PathName configDir = sandbox->GetPathName() / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR);
+  Directory::Create(configDir);
+  PathName configFile = configDir / PathName(MIKTEX_INI_FILE);
+  ofstream s(configFile.ToString());
+  s << fmt::format("[{0}]", MIKTEX_CONFIG_SECTION_CORE) << "\n"
+    << fmt::format("{0}=t", MIKTEX_CONFIG_VALUE_NO_REGISTRY) << "\n";
+  s.close();
+#endif
+  return sandbox;
 }
 
 PathName SetupService::GetDefaultLocalRepository()
@@ -412,7 +433,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
   }
   else
   {
-    if (options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository)
+    if (options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository || options.Task == SetupTask::FinishSetup)
     {
       if (Directory::Exists(GetInstallRoot()))
       {
@@ -476,16 +497,14 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
 
 void SetupServiceImpl::LogHeader()
 {
-  Log(fmt::format(T_("{0} {0} Report\n\n"), options.Banner, options.Version));
+  Log(fmt::format(T_("{0} {1} Report\n\n"), options.Banner, options.Version));
   time_t t = time(nullptr);
   struct tm* pTm = localtime(&t);
   Log(fmt::format(T_("Date: {0:%A, %B %d, %Y}\n"), *pTm));
   Log(fmt::format(T_("Time: {0:%H:%M:%S}\n"), *pTm));
   Log(fmt::format(T_("OS version: {0}\n"), Utils::GetOSVersionString()));
   shared_ptr<Session> session = Session::Get();
-#if defined(MIKTEX_WINDOWS)
   Log(fmt::format("SystemAdmin: {}\n", session->RunningAsAdministrator()));
-#endif
   if (options.Task != SetupTask::Download)
   {
     Log(fmt::format("SharedSetup: {}\n", options.IsCommonSetup));
@@ -696,6 +715,12 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
       options.Config.commonInstallRoot = "";
 #endif
     }
+#if defined(MIKTEX_WINDOWS)
+    if (options.FolderName.Empty())
+    {
+      options.FolderName = MIKTEX_PRODUCTNAME_STR;
+    }
+#endif
   }
   if (options.Task == SetupTask::Download || options.Task == SetupTask::InstallFromLocalRepository)
   {
@@ -744,7 +769,7 @@ void SetupServiceImpl::Initialize()
   }
   initialized = true;
 
-  ReportLine("initializing setup service...");
+  ReportLine(fmt::format("this is {0}", Utils::MakeProgramVersionString(MIKTEX_COMP_NAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR))));
 
   packageInstaller = packageManager->CreateInstaller({ nullptr, true, false });
   cancelled = false;
@@ -1304,10 +1329,14 @@ void SetupServiceImpl::ConfigureMiKTeX()
 
   vector<string> args;
 
+  if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository || options.Task == SetupTask::PrepareMiKTeXDirect)
+  {
+    args.push_back("--principal=setup");
+  }
+
   if (options.Task != SetupTask::PrepareMiKTeXDirect)
   {
     // define roots & remove old fndbs
-    args.clear();
     if (options.IsPortable)
     {
       args.push_back("--portable=" + GetInstallRoot().ToString());
@@ -1494,10 +1523,6 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
   allArgs.insert(allArgs.end(), args.begin(), args.end());
-  if (options.Task == SetupTask::FinishSetup)
-  {
-    allArgs.push_back("--principal=setup");
-  }
   if (options.IsCommonSetup && session->IsAdminMode())
   {
     allArgs.push_back("--admin");
@@ -1706,7 +1731,7 @@ bool SetupServiceImpl::OnProgress(MiKTeX::Packages::Notification nf)
   return true;
 }
 
-wstring& SetupServiceImpl::Expand(const char* source, wstring& dest)
+wstring& SetupServiceImpl::Expand(const string& source, wstring& dest)
 {
   dest = StringUtil::UTF8ToWideChar(source);
   wstring::size_type pos;
@@ -1823,9 +1848,13 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   time_t now = time(nullptr);
   if (options[ReportOption::General])
   {
+    SetupConfig setupConfig = session->GetSetupConfig();
     auto p = Utils::CheckPath();
-    s << "Date: " << fmt::format("{:%F %T}", *localtime(&now)) << "\n"
-      << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n";
+    s << "ReportDate: " << FormatTimestamp(now) << "\n"
+      << "CurrentVersion: " << Utils::GetMiKTeXVersionString() << "\n"
+      << "SetupDate: " << FormatTimestamp(setupConfig.setupDate) << "\n"
+      << "SetupVersion: " << (setupConfig.setupVersion == VersionNumber() ? MIKTEX_LEGACY_MAJOR_MINOR_STR : setupConfig.setupVersion.ToString()) << "\n"
+      << "Configuration: " << (session->IsMiKTeXPortable() ? "Portable" : "Regular") << "\n";
     if (Utils::HaveGetGitInfo())
     {
       s << "GitInfo: " << Utils::GetGitInfo() << "\n";

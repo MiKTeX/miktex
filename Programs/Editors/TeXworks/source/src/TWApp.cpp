@@ -310,10 +310,14 @@ void TWApp::about()
 	QString aboutText = tr("<p>%1 is a simple environment for editing, typesetting, and previewing TeX documents.</p>").arg(QString::fromLatin1(TEXWORKS_NAME));
 	aboutText += QLatin1String("<small>");
 	aboutText += QLatin1String("<p>&#xA9; 2007-2020  Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen");
+#if defined(MIKTEX)
+	aboutText += tr("<br>Version %1 (%2) [r.%3, %4]").arg(QString::fromLatin1(TEXWORKS_VERSION), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()), TWUtils::gitCommitHash(), TWUtils::gitCommitDate().toLocalTime().toString(Qt::SystemLocaleShortDate));
+#else
 	if (TWUtils::isGitInfoAvailable())
 		aboutText += tr("<br>Version %1 (%2) [r.%3, %4]").arg(QString::fromLatin1(TEXWORKS_VERSION), QString::fromLatin1(TW_BUILD_ID_STR), TWUtils::gitCommitHash(), TWUtils::gitCommitDate().toLocalTime().toString(Qt::SystemLocaleShortDate));
 	else
 		aboutText += tr("<br>Version %1 (%2)").arg(QString::fromLatin1(TEXWORKS_VERSION), QString::fromLatin1(TW_BUILD_ID_STR));
+#endif
 	aboutText += tr("<p>Distributed under the <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU General Public License</a>, version 2 or (at your option) any later version.");
 	aboutText += tr("<p><a href=\"http://www.qt.io/\">Qt application framework</a> v%1 by The Qt Company.").arg(QString::fromLatin1(qVersion()));
 	aboutText += tr("<br><a href=\"http://poppler.freedesktop.org/\">Poppler</a> PDF rendering library by Kristian H&#xF8;gsberg, Albert Astals Cid and others.");
@@ -531,7 +535,8 @@ void TWApp::writeToMailingList()
 	QString body(QLatin1String("Thank you for taking the time to write an email to the TeXworks mailing list. Please read the instructions below carefully as following them will greatly facilitate the communication.\n\nInstructions:\n-) Please write your message in English (it's in your own best interest; otherwise, many people will not be able to understand it and therefore will not answer).\n\n-) Please type something meaningful in the subject line.\n\n-) If you are having a problem, please describe it step-by-step in detail.\n\n-) After reading, please delete these instructions (up to the \"configuration info\" below which we may need to find the source of problems).\n\n\n\n----- configuration info -----\n"));
 
 #if defined(MIKTEX)
-        body += QStringLiteral("TeXworks version : " TEXWORKS_VERSION " (" TW_BUILD_ID_STR ")\n");
+	body += QStringLiteral("TeXworks version : " TEXWORKS_VERSION "r.") + TWUtils::gitCommitHash() + QChar::fromLatin1('\n');
+	body += QStringLiteral("MiKTeX version   : ") + QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()) + QChar::fromLatin1('\n');
 #else
 	body += QLatin1String("TeXworks version : " TEXWORKS_VERSION "r.") + TWUtils::gitCommitHash() + QLatin1String(" (" TW_BUILD_ID_STR ")\n");
 #endif
@@ -1358,7 +1363,7 @@ void TWApp::aboutMiKTeX()
 {
   QIcon oldIcon = windowIcon();
   setWindowIcon(QIcon(QStringLiteral(":/MiKTeX/miktex32x32.png")));
-  QString aboutText = tr("<p>MiKTeX %1 is a modern TeX distribution.</p>").arg(QStringLiteral(MIKTEX_MAJOR_MINOR_STR));
+  QString aboutText = tr("<p>MiKTeX is a modern TeX distribution.</p>");
   aboutText += tr("<p>Please visit the <a href=\"https://miktex.org/\">MiKTeX Project Page</a>.</p>");
   QMessageBox::about(nullptr, tr("About MiKTeX"), aboutText);
   setWindowIcon(oldIcon);

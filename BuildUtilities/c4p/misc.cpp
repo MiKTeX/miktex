@@ -88,6 +88,9 @@ void open_header_file()
   cppout.out_s("#include \"c4p_pre.h\"\n");
   cppout.out_s("#endif\n");
   cppout.out_s("#include <miktex/C4P/C4P>\n");
+  cppout.out_s("#ifdef HAVE_C4P_POST_H\n");
+  cppout.out_s("#include \"c4p_post.h\"\n");
+  cppout.out_s("#endif\n");
   cppout.out_s("#ifdef __cplusplus\nusing namespace C4P;\n#endif\n");
   cppout.out_s("#ifndef C4PEXTERN\n#define C4PEXTERN\n#endif\n");
   if (!def_filename.empty())
@@ -108,7 +111,7 @@ void open_header_file()
     }
     if (base_class_name.empty())
     {
-      cppout.out_s("class " + class_name + " {\n");
+      cppout.out_s("class " + class_name + " : public C4P::ProgramBase {\n");
     }
     else
     {

@@ -391,3 +391,32 @@ void miktex_emulate__close_file_or_pipe(FILE* file)
     fclose(file);
   }
 }
+
+#if defined(MIKTEX_WINDOWS)
+char* miktex_wchar_to_utf8(const wchar_t* w)
+{
+  return xstrdup(StringUtil::WideCharToUTF8(w).c_str());
+}
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+void miktex_copy_wchar_to_utf8(char* dest, size_t destSize, const wchar_t* source)
+{
+  StringUtil::CopyString(dest, destSize, source);
+}
+#endif
+
+inline std::string GetBanner(const char* name, const char* version)
+{
+  return fmt::format("This is {0}, Version {1} ({2})", name, version, Utils::GetMiKTeXBannerString());
+}
+
+char* miktex_banner(const char* name, const char* version)
+{
+  return xstrdup(GetBanner(name, version).c_str());
+}
+
+void miktex_print_banner(FILE* file, const char* name, const char* version)
+{
+  fputs(GetBanner(name, version).c_str(), file);
+}

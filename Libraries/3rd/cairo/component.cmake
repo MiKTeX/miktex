@@ -1,6 +1,6 @@
 ## component.cmake:
 ##
-## Copyright (C) 2017 Christian Schenk
+## Copyright (C) 2017-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,5 +22,4 @@ include(version.cmake)
 set(MIKTEX_COMP_DESCRIPTION "Cairo - multi-platform 2D graphics library")
 
 set(MIKTEX_COMP_COMPANY_STR "")
-set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2002-2014 University of Southern California et al.")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2002-2014 University of Southern California et al.")
+set(MIKTEX_COMP_COPYRIGHT_STR "Â© 2002-2014 University of Southern California et al.")

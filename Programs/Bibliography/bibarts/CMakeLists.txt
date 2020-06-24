@@ -22,7 +22,7 @@ include(component.cmake)
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_CONVERTERS_FOLDER}/bibarts")
 
 configure_file(
-  bibsort-version.h.cmake
+  bibsort-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/bibsort-version.h
 )
 

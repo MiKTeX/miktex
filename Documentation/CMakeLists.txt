@@ -31,9 +31,9 @@ if(MIKTEX_UNIX_ALIKE)
   set(USERINSTALL "~/.miktex/texmfs/install")
   set(EXESUFFIX "")
 else()
-  set(COMMONINSTALL "C:\\Program Files\\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
-  set(USERDATA "&#37;LOCALAPPDATA&#37;\\MiKTeX\\${MIKTEX_MAJOR_MINOR_STR}")
-  set(USERINSTALL "&#37;LOCALAPPDATA&#37;\\Programs\\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
+  set(COMMONINSTALL "C:\\Program Files\\MiKTeX ${MIKTEX_LEGACY_MAJOR_MINOR_STR}")
+  set(USERDATA "&#37;LOCALAPPDATA&#37;\\MiKTeX\\${MIKTEX_LEGACY_MAJOR_MINOR_STR}")
+  set(USERINSTALL "&#37;LOCALAPPDATA&#37;\\Programs\\MiKTeX ${MIKTEX_LEGACY_MAJOR_MINOR_STR}")
   set(EXESUFFIX ".exe")
 endif()
 
@@ -192,12 +192,6 @@ set(manual_listings
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/texapp.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/texmfapp.defaults
 )
-
-if(WITH_OMEGA)
-  list(APPEND manual_listings
-    ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/omega.defaults
-  )
-endif()
 
 add_custom_command(
   OUTPUT

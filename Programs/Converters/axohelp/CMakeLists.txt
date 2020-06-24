@@ -22,7 +22,7 @@ include(component.cmake)
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_CONVERTERS_FOLDER}/axohelp")
 
 configure_file(
-  axohelp-version.h.cmake
+  axohelp-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/axohelp-version.h
 )
 

@@ -23,23 +23,16 @@
 
 #include <miktex/Version>
 
-#if !defined(A5D53972CA7CCD40B4DB3ABBC0D957AF)
-#define A5D53972CA7CCD40B4DB3ABBC0D957AF
-
-#if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_REGPATH_COMPANY                \
+#define MIKTEX_REGPATH_COMPANY                                           \
   "Software\\MiKTeX.org"
-#  define MIKTEX_REGPATH_PRODUCT                \
+#define MIKTEX_REGPATH_PRODUCT                                           \
   "Software\\MiKTeX.org\\MiKTeX"
-#  define MIKTEX_REGPATH_SERIES                         \
-  "Software\\MiKTeX.org\\MiKTeX\\" MIKTEX_MAJOR_MINOR_STR
-#  define MIKTEX_REGPATH_PRODUCT_MIKTEXDIRECT   \
+#define MIKTEX_REGPATH_SERIES                                            \
+  "Software\\MiKTeX.org\\MiKTeX\\" MIKTEX_LEGACY_MAJOR_MINOR_STR
+#define MIKTEX_REGPATH_PRODUCT_MIKTEXDIRECT                              \
   "Software\\MiKTeX.org\\MiKTeXDirect"
-#  define MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT    \
-  "Software\\MiKTeX.org\\MiKTeXDirect\\"  MIKTEX_MAJOR_MINOR_STR
-#endif
+#define MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT                          \
+  "Software\\MiKTeX.org\\MiKTeXDirect\\"  MIKTEX_LEGACY_MAJOR_MINOR_STR
 
-#define MIKTEX_GPL_GHOSTSCRIPT                  \
+#define MIKTEX_GPL_GHOSTSCRIPT                                           \
   "Software\\MiKTeX GPL Ghostscript"
-
-#endif

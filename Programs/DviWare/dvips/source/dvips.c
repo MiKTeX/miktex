@@ -774,7 +774,13 @@ main(int argc, char **argv)
             if (strlen (argv[i] + 1) == 8 &&
                 strcmp (argv[i] + 1, "-version") == 0) {
                puts (BANNER);
+#if defined(MIKTEX)
+               {
+                  puts(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str());
+               }
+#else
                puts (kpathsea_version_string);
+#endif
                puts ("Copyright 2020 Radical Eye Software.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\

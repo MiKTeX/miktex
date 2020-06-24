@@ -262,6 +262,11 @@ void TraceWindowsError(const char* windowsFunction, unsigned long functionResult
 
 const char* GetShortSourceFile(const char* sourceFileName);
 
+inline bool IsValidTimeT(std::time_t time)
+{
+  return time != static_cast<std::time_t>(0) && time != static_cast<std::time_t>(-1);
+}
+
 inline void DbgView(const std::string& s)
 {
 #if defined(_WIN32)

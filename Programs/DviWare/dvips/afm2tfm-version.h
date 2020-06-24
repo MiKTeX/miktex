@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "8.4"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 2020 Radical Eye Software"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2020 Radical Eye Software"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2020 Radical Eye Software"
 
 #include <miktex/Version>

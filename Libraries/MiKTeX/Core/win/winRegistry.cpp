@@ -47,7 +47,7 @@ HKEY ToHkey(ConfigurationScope scope)
   return scope == ConfigurationScope::User ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
 }
 
-bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, vector<BYTE>& value, DWORD& valueType)
+bool winRegistry::TryGetValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, vector<BYTE>& value, DWORD& valueType)
 {
   HKEY hkey;
   long result = RegOpenKeyExW(hkeyParent, path.c_str(), 0, KEY_READ, &hkey);
@@ -80,10 +80,10 @@ bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, cons
   return result == ERROR_SUCCESS;
 }
 
-bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, wstring& value, DWORD& valueType)
+bool winRegistry::TryGetValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, wstring& value, DWORD& valueType)
 {
   vector<BYTE> valueBytes;
-  if (!TryGetRegistryValue(hkeyParent, path, valueName, valueBytes, valueType))
+  if (!TryGetValue(hkeyParent, path, valueName, valueBytes, valueType))
   {
     return false;
   }
@@ -103,10 +103,10 @@ bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, cons
   }
 }
 
-bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, wstring& value)
+bool winRegistry::TryGetValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, wstring& value)
 {
   DWORD valueType;
-  if (!TryGetRegistryValue(hkeyParent, path, valueName, value, valueType))
+  if (!TryGetValue(hkeyParent, path, valueName, value, valueType))
   {
     return false;
   }
@@ -130,10 +130,10 @@ bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const wstring& path, cons
   return true;
 }
 
-bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const string& path, const string& valueName, string& value)
+bool winRegistry::TryGetValue(HKEY hkeyParent, const string& path, const string& valueName, string& value)
 {
   wstring wideValue;
-  bool result = TryGetRegistryValue(hkeyParent, UW_(path), UW_(valueName), wideValue);
+  bool result = TryGetValue(hkeyParent, UW_(path), UW_(valueName), wideValue);
   if (result)
   {
     value = WU_(wideValue);
@@ -141,7 +141,7 @@ bool winRegistry::TryGetRegistryValue(HKEY hkeyParent, const string& path, const
   return result;
 }
 
-bool winRegistry::TryDeleteRegistryKey(HKEY hkeyParent, const wstring& path)
+bool winRegistry::TryDeleteKey(HKEY hkeyParent, const wstring& path)
 {
   long result = SHDeleteKeyW(hkeyParent, path.c_str());
   if (result != ERROR_SUCCESS)
@@ -155,12 +155,12 @@ bool winRegistry::TryDeleteRegistryKey(HKEY hkeyParent, const wstring& path)
   return true;
 }
 
-bool winRegistry::TryDeleteRegistryKey(HKEY hkeyParent, const string& path)
+bool winRegistry::TryDeleteKey(HKEY hkeyParent, const string& path)
 {
-  return TryDeleteRegistryKey(hkeyParent, UW_(path));
+  return TryDeleteKey(hkeyParent, UW_(path));
 }
 
-bool winRegistry::TryDeleteRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName)
+bool winRegistry::TryDeleteValue(HKEY hkeyParent, const wstring& path, const wstring& valueName)
 {
   HKEY hkey;
   long result = RegOpenKeyExW(hkeyParent, path.c_str(), 0, KEY_ALL_ACCESS, &hkey);
@@ -185,12 +185,12 @@ bool winRegistry::TryDeleteRegistryValue(HKEY hkeyParent, const wstring& path, c
   return true;
 }
 
-bool winRegistry::TryDeleteRegistryValue(HKEY hkeyParent, const string& path, const string& valueName)
+bool winRegistry::TryDeleteValue(HKEY hkeyParent, const string& path, const string& valueName)
 {
-  return TryDeleteRegistryValue(hkeyParent, UW_(path), UW_(valueName));
+  return TryDeleteValue(hkeyParent, UW_(path), UW_(valueName));
 }
 
-void winRegistry::SetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, const BYTE* value, size_t valueSize, DWORD valueType)
+void winRegistry::SetValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, const BYTE* value, size_t valueSize, DWORD valueType)
 {
   SessionImpl::GetSession()->trace_config->WriteLine("core", fmt::format("RegCreateKeyExW({0}, \"{1}\")", reinterpret_cast<void*>(hkeyParent), WU_(path)));
   HKEY hkey;
@@ -208,39 +208,39 @@ void winRegistry::SetRegistryValue(HKEY hkeyParent, const wstring& path, const w
   }
 }
 
-void winRegistry::SetRegistryValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, const wstring& value, DWORD valueType)
+void winRegistry::SetValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, const wstring& value, DWORD valueType)
 {
-  SetRegistryValue(hkeyParent, path, valueName, reinterpret_cast<const BYTE *>(value.c_str()), sizeof(value[0]) * (value.length() + 1), valueType);
+  SetValue(hkeyParent, path, valueName, reinterpret_cast<const BYTE *>(value.c_str()), sizeof(value[0]) * (value.length() + 1), valueType);
 }
 
-void winRegistry::SetRegistryValue(HKEY hkeyParent, const string& path, const string& valueName, const string& value)
+void winRegistry::SetValue(HKEY hkeyParent, const string& path, const string& valueName, const string& value)
 {
-  SetRegistryValue(hkeyParent, UW_(path), UW_(valueName), UW_(value), REG_SZ);
+  SetValue(hkeyParent, UW_(path), UW_(valueName), UW_(value), REG_SZ);
 }
 
-bool winRegistry::TryGetRegistryValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, wstring& value)
+bool winRegistry::TryGetValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, wstring& value)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   if (scope == ConfigurationScope::None)
   {
     // RECURSION
-    if (!session->IsAdminMode() && TryGetRegistryValue(ConfigurationScope::User, keyName, valueName, value))
+    if (!session->IsAdminMode() && TryGetValue(ConfigurationScope::User, keyName, valueName, value))
     {
       return true;
     }
     // RECURSION
-    return TryGetRegistryValue(ConfigurationScope::Common, keyName, valueName, value);
+    return TryGetValue(ConfigurationScope::Common, keyName, valueName, value);
   }
   else
   {
-    return TryGetRegistryValue(ToHkey(scope), MakeRegistryPath(keyName), valueName, value);
+    return TryGetValue(ToHkey(scope), MakeRegistryPath(keyName), valueName, value);
   }
 }
 
-bool winRegistry::TryGetRegistryValue(ConfigurationScope scope, const string& keyName, const string& valueName, string& value)
+bool winRegistry::TryGetValue(ConfigurationScope scope, const string& keyName, const string& valueName, string& value)
 {
   wstring wideValue;
-  bool result = TryGetRegistryValue(scope, UW_(keyName), UW_(valueName), wideValue);
+  bool result = TryGetValue(scope, UW_(keyName), UW_(valueName), wideValue);
   if (result)
   {
     value = WU_(wideValue);
@@ -248,10 +248,10 @@ bool winRegistry::TryGetRegistryValue(ConfigurationScope scope, const string& ke
   return result;
 }
 
-bool winRegistry::TryGetRegistryValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, PathName& path)
+bool winRegistry::TryGetValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, PathName& path)
 {
   wstring value;
-  if (!TryGetRegistryValue(scope, keyName, valueName, value))
+  if (!TryGetValue(scope, keyName, valueName, value))
   {
     return false;
   }
@@ -259,50 +259,50 @@ bool winRegistry::TryGetRegistryValue(ConfigurationScope scope, const wstring& k
   return true;
 }
 
-bool winRegistry::TryGetRegistryValue(ConfigurationScope scope, const string& keyName, const string& valueName, PathName& path)
+bool winRegistry::TryGetValue(ConfigurationScope scope, const string& keyName, const string& valueName, PathName& path)
 {
-  return TryGetRegistryValue(scope, UW_(keyName), UW_(valueName), path);
+  return TryGetValue(scope, UW_(keyName), UW_(valueName), path);
 }
 
-bool winRegistry::TryDeleteRegistryValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName)
+bool winRegistry::TryDeleteValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   if (scope == ConfigurationScope::None)
   {
     // RECURSION
-    return TryDeleteRegistryValue(session->IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, keyName, valueName);
+    return TryDeleteValue(session->IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, keyName, valueName);
   }
   else
   {
-    return TryDeleteRegistryValue(ToHkey(scope), MakeRegistryPath(keyName), valueName);
+    return TryDeleteValue(ToHkey(scope), MakeRegistryPath(keyName), valueName);
   }
 }
 
-bool winRegistry::TryDeleteRegistryValue(ConfigurationScope scope, const string& keyName, const string& valueName)
+bool winRegistry::TryDeleteValue(ConfigurationScope scope, const string& keyName, const string& valueName)
 {
-  return TryDeleteRegistryValue(scope, UW_(keyName), UW_(valueName));
+  return TryDeleteValue(scope, UW_(keyName), UW_(valueName));
 }
 
-void winRegistry::SetRegistryValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, const wstring& value)
+void winRegistry::SetValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, const wstring& value)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   if (scope == ConfigurationScope::None)
   {
     // RECURSION
-    SetRegistryValue(session->IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, keyName, valueName, value);
+    SetValue(session->IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, keyName, valueName, value);
   }
   else
   {
-    SetRegistryValue(ToHkey(scope), MakeRegistryPath(keyName), valueName, value);
+    SetValue(ToHkey(scope), MakeRegistryPath(keyName), valueName, value);
     wstring value2;
-    if (scope == ConfigurationScope::Common && TryGetRegistryValue(ConfigurationScope::User, keyName, valueName, value2))
+    if (scope == ConfigurationScope::Common && TryGetValue(ConfigurationScope::User, keyName, valueName, value2))
     {
-      TryDeleteRegistryValue(ConfigurationScope::User, keyName, valueName);
+      TryDeleteValue(ConfigurationScope::User, keyName, valueName);
     }
   }
 }
 
-void winRegistry::SetRegistryValue(ConfigurationScope scope, const string& keyName, const string& valueName, const string& value)
+void winRegistry::SetValue(ConfigurationScope scope, const string& keyName, const string& valueName, const string& value)
 {
-  SetRegistryValue(scope, UW_(keyName), UW_(valueName), UW_(value));
+  SetValue(scope, UW_(keyName), UW_(valueName), UW_(value));
 }

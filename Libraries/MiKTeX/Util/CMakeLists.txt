@@ -36,6 +36,8 @@ set(public_include_directories
 set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/CharBuffer
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/CharBuffer.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/DateUtil
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/DateUtil.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/PathNameUtil
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/PathNameUtil.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/StringUtil
@@ -47,7 +49,7 @@ set(public_headers
 )
 
 configure_file(
-  util-version.h.cmake
+  util-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/util-version.h
 )
 

@@ -1,6 +1,6 @@
 /* miktex/Core/Help.h:                                  -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,7 +35,7 @@
 #define MIKTEXHELP_INITEXMF 108
 #define MIKTEXHELP_MF 109
 #define MIKTEXHELP_MPOST 110
-#define MIKTEXHELP_OMEGA 111
+/*unused 111*/
 #define MIKTEXHELP_PDFTEX 112
 #define MIKTEXHELP_TEXIFY 113
 #define MIKTEXHELP_MPMCON 114

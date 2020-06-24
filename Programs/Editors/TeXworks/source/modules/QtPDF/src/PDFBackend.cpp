@@ -15,6 +15,9 @@
 #include <PDFBackend.h>
 #include <QPainter>
 #include <QApplication>
+#if defined(MIKTEX)
+#include <QPainterPath>
+#endif
 
 namespace QtPDF {
 

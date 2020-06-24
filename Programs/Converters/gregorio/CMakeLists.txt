@@ -35,7 +35,7 @@ configure_file(
 )
 
 configure_file(
-  gregorio-version.h.cmake
+  gregorio-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/gregorio-version.h
 )
 

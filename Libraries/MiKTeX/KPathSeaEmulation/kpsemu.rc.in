@@ -1,6 +1,6 @@
-/* kpsemu.rc: version number                            -*- C++ -*-
+/* kpsemu.rc:
 
-   Copyright (C) 2000-2018 Christian Schenk
+   Copyright (C) 2000-2020 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -18,6 +18,8 @@
    License along with the MiKTeX KPSEMU Library; if not, write to the
    Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
    USA.  */
+
+#pragma code_page(65001)
 
 #include "kpsemu-version.h"
 

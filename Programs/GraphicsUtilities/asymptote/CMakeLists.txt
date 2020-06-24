@@ -77,7 +77,7 @@ configure_file(
 )
 
 configure_file(
-  asy-version.h.cmake
+  asy-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/asy-version.h
 )
 

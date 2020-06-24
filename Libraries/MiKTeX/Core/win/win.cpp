@@ -95,7 +95,7 @@ extern "C" __declspec(dllexport) HRESULT CALLBACK DllGetVersion(DLLVERSIONINFO* 
     return E_INVALIDARG;
   }
   unsigned a[4] = {
-    MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0
+    MIKTEX_COMP_MAJOR_VERSION, MIKTEX_COMP_MINOR_VERSION, MIKTEX_COMP_PATCH_VERSION, 0
   };
   versionInfo->dwMajorVersion = a[0];
   versionInfo->dwMinorVersion = a[1];

@@ -1,6 +1,6 @@
 ## component.cmake:
 ##
-## Copyright (C) 2017 Christian Schenk
+## Copyright (C) 2017-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,5 +22,4 @@ include(version.cmake)
 set(MIKTEX_COMP_DESCRIPTION "HarfBuzz - an OpenType text shaping engine")
 
 set(MIKTEX_COMP_COMPANY_STR "")
-set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2015 Mozilla Foundation (C) 2015 Google, Inc.")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "Copyright © 2015 Mozilla Foundation © 2015 Google, Inc.")
+set(MIKTEX_COMP_COPYRIGHT_STR "Â© 2015 Mozilla Foundation, Â© 2015 Google, Inc.")

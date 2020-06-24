@@ -344,7 +344,7 @@ protected:
   void RunMpm(const std::vector<std::string>& args);
 
 protected:
-  std::wstring& Expand(const char* source, std::wstring& dest);
+  std::wstring& Expand(const std::string& source, std::wstring& dest);
 
 protected:
   bool FindFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::PathName& result);

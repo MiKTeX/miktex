@@ -528,7 +528,15 @@ help_formats (kpathsea kpse, string *argv)
   /* Have to set this for init_format to work.  */
   kpathsea_set_program_name (kpse, argv[0], progname);
 
+#if defined(MIKTEX)
+  {
+    char miktexBanner[200];
+    miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0]));
+    puts(miktexBanner);
+  }
+#else
   puts (kpathsea_version_string); 
+#endif
   puts ("\nRecognized Kpathsea format names and their (abbreviations) and suffixes:");
   for (f = 0; f < kpse_last_format; f++) {
     const_string *ext;
@@ -728,7 +736,15 @@ read_command_line (kpathsea kpse, int argc, string *argv)
       var_to_value = optarg;
 
     } else if (ARGUMENT_IS ("version")) {
+#if defined(MIKTEX)
+  {
+    char miktexBanner[200];
+    miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0]));
+    puts(miktexBanner);
+  }
+#else
       puts (kpathsea_version_string);
+#endif
       puts ("Copyright 2018 Karl Berry & Olaf Weber.\n\
 License LGPLv2.1+: GNU Lesser GPL version 2.1 or later <https://gnu.org/licenses/lgpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\

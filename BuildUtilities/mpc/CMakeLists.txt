@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -19,7 +19,18 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}")
 
+include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+configure_file(
+  config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
 set(mpc_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   mpc-version.h
   mpc.cpp
 )

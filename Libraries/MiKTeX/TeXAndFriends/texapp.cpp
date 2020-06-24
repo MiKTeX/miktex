@@ -25,7 +25,29 @@
 #include <miktex/Core/ConfigNames>
 #include <miktex/Util/Tokenizer>
 
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMFEXPORT
+#endif
+#define B8C7815676699B4EA2DE96F0BD727276
+#include "miktex/TeXAndFriends/TeXApp.h"
+
 #include "internal.h"
+
+using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::TeXAndFriends;
+using namespace MiKTeX::Util;
 
 #define EXPERT_SRC_SPECIALS 0
 
@@ -190,16 +212,6 @@ void TeXApp::AddOptions()
       POPT_ARG_STRING,
       "N");
   }
-
-#if WITH_OMEGA
-  if (AmI("omega"))
-  {
-    AddOption(T_("trie-op-size\0Set trie_op_size to N."),
-      FIRST_OPTION_VAL + pimpl->optBase + OPT_TRIE_OP_SIZE,
-      POPT_ARG_STRING,
-      "N");
-  }
-#endif
 
 #if EXPERT_SRC_SPECIALS
   AddOption((T_("src-specials\0Insert source specials in certain places of the DVI file.  WHERE is a comma-separated value list of: cr display hbox math par parend vbox.")),

@@ -38,7 +38,7 @@ configure_file(
 )
 
 configure_file(
-  gd-version.h.cmake
+  gd-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/gd-version.h
 )
 

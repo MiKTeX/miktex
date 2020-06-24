@@ -286,9 +286,9 @@ are expanded at run-time (delayed expansion).</para>
   --verbose ^
   --local-package-repository=C:\miktex-repository ^
   --shared ^
-  --user-config="&lt;APPDATA&gt;\MiKTeX\2.9" ^
-  --user-data="&lt;LOCALAPPDATA&gt;\MiKTeX\2.9" ^
-  --user-install=&lt;APPDATA&gt;\MiKTeX\2.9" ^
+  --user-config="&lt;APPDATA&gt;\MiKTeX" ^
+  --user-data="&lt;LOCALAPPDATA&gt;\MiKTeX" ^
+  --user-install=&lt;APPDATA&gt;\MiKTeX" ^
   --print-info-only
   install</userinput>
 setup task: install from local package repository
@@ -297,11 +297,11 @@ package level: complete
 install for all users?: yes
 use registry?: yes
 modify path?: yes
-common install root: "C:\Program Files (x86)\MiKTeX 2.9"
-user install root: &lt;APPDATA&gt;\MiKTeX\2.9
-user config root: &lt;LOCALAPPDATA&gt;\MiKTeX\2.9
-user data root: &lt;APPDATA&gt;\MiKTeX\2.9
-program folder name: "MiKTeX 2.9"</screen>
+common install root: "C:\Program Files (x86)\MiKTeX"
+user install root: &lt;APPDATA&gt;\MiKTeX
+user config root: &lt;LOCALAPPDATA&gt;\MiKTeX
+user data root: &lt;APPDATA&gt;\MiKTeX
+program folder name: "MiKTeX"</screen>
 
 </refsect2>
 

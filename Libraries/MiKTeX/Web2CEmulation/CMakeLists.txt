@@ -42,7 +42,7 @@ configure_file(
 )
 
 configure_file(
-  w2cemu-version.h.cmake
+  w2cemu-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/w2cemu-version.h
 )
 
@@ -73,10 +73,10 @@ if(NOT LINK_EVERYTHING_STATICALLY)
 
   set_property(TARGET ${w2cemu_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-  set_shared_library_version(
+  set_shared_library_version_properties(
     ${w2cemu_dll_name}
+    ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
     ${MIKTEX_COMP_INTERFACE_VERSION}
-    ${MIKTEX_COMP_J2000_VERSION}
   )
 
   target_include_directories(${w2cemu_dll_name}

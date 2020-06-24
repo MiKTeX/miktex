@@ -1,6 +1,6 @@
 /* makemf.cpp:
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is part of MiKTeX MakeMF.
 
@@ -22,6 +22,8 @@
 /* Some algorithms are borrowed from the web2c mktex* shell scripts. */
 
 #include "config.h"
+
+#include "makemf-version.h"
 
 #include <miktex/Core/Fndb>
 

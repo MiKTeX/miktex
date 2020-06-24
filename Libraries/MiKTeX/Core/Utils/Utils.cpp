@@ -534,12 +534,21 @@ void Utils::RegisterMiKTeXUser()
 
 string Utils::GetMiKTeXVersionString()
 {
-  return MIKTEX_FULL_VERSION_STR;
+  return MIKTEX_DISPLAY_VERSION_STR;
 }
 
 string Utils::GetMiKTeXBannerString()
 {
-  return MIKTEX_BANNER_STR;
+  string banner = fmt::format("{0} {1}", MIKTEX_PRODUCTNAME_STR, GetMiKTeXVersionString());
+#if defined(MIKTEX_WINDOWS_32)
+  banner += " 32-bit";
+#endif
+  auto session = SessionImpl::TryGetSession();
+  if (session != nullptr && session->IsMiKTeXPortable())
+  {
+    banner += " Portable";
+  }
+  return banner;
 }
 
 GitInfo Utils::GetGitInfo()
@@ -567,14 +576,7 @@ string GitInfo::ToString() const
 
 string Utils::MakeProgramVersionString(const string& programName, const VersionNumber& programVersionNumber)
 {
-  string str = programName;
-  if (string(MIKTEX_BANNER_STR).find(programVersionNumber.ToString()) == string::npos)
-  {
-    str += ' ';
-    str += programVersionNumber.ToString();
-  }
-  str += " (" MIKTEX_BANNER_STR ")";
-  return str;
+  return fmt::format("{0} {1} ({2})", programName, programVersionNumber, GetMiKTeXBannerString());
 }
 
 bool Utils::GetEnvironmentString(const string& name, string& str)

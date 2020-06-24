@@ -30,6 +30,7 @@
 #include <miktex/Core/Environment>
 #include <miktex/Core/Paths>
 #include <miktex/Core/RootDirectoryInfo>
+#include <miktex/Util/DateUtil>
 
 #include "internal.h"
 
@@ -136,7 +137,7 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
   return idx;
 }
 
-void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, bool review)
+void SessionImpl::InitializeRootDirectories(const VersionedStartupConfig& startupConfig, bool review)
 {
   rootDirectories.clear();
 
@@ -515,44 +516,54 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
   // clear the search path cache
   ClearSearchVectors();
 
-  StartupConfig newStartupConfig = partialStartupConfig;
-  newStartupConfig.config = initStartupConfig.config;
-
-  if (newStartupConfig.commonInstallRoot.Empty() && commonInstallRootIndex != INVALID_ROOT_INDEX)
+  VersionedStartupConfig startupConfig = partialStartupConfig;
+  startupConfig.config = initStartupConfig.config;
+  startupConfig.setupVersion = initStartupConfig.setupVersion;
+  auto setupConfig = GetSetupConfig();
+  if (setupConfig.isNew)
   {
-    newStartupConfig.commonInstallRoot = GetRootDirectoryPath(commonInstallRootIndex);
+    trace_config->WriteLine("core", T_("this seems to be a new installation"));
+  }
+  if (startupConfig.setupVersion == VersionNumber() && setupConfig.isNew)
+  {
+    startupConfig.setupVersion = VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0);
   }
 
-  if (newStartupConfig.commonDataRoot.Empty() && commonDataRootIndex != INVALID_ROOT_INDEX)
+  if (startupConfig.commonInstallRoot.Empty() && commonInstallRootIndex != INVALID_ROOT_INDEX)
   {
-    newStartupConfig.commonDataRoot = GetRootDirectoryPath(commonDataRootIndex);
+    startupConfig.commonInstallRoot = GetRootDirectoryPath(commonInstallRootIndex);
   }
 
-  if (newStartupConfig.commonConfigRoot.Empty() && commonConfigRootIndex != INVALID_ROOT_INDEX)
+  if (startupConfig.commonDataRoot.Empty() && commonDataRootIndex != INVALID_ROOT_INDEX)
   {
-    newStartupConfig.commonConfigRoot = GetRootDirectoryPath(commonConfigRootIndex);
+    startupConfig.commonDataRoot = GetRootDirectoryPath(commonDataRootIndex);
   }
 
-  if (newStartupConfig.userInstallRoot.Empty() && userInstallRootIndex != INVALID_ROOT_INDEX)
+  if (startupConfig.commonConfigRoot.Empty() && commonConfigRootIndex != INVALID_ROOT_INDEX)
   {
-    newStartupConfig.userInstallRoot = GetRootDirectoryPath(userInstallRootIndex);
+    startupConfig.commonConfigRoot = GetRootDirectoryPath(commonConfigRootIndex);
   }
 
-  if (newStartupConfig.userDataRoot.Empty() && userDataRootIndex != INVALID_ROOT_INDEX)
+  if (startupConfig.userInstallRoot.Empty() && userInstallRootIndex != INVALID_ROOT_INDEX)
   {
-    newStartupConfig.userDataRoot = GetRootDirectoryPath(userDataRootIndex);
+    startupConfig.userInstallRoot = GetRootDirectoryPath(userInstallRootIndex);
   }
 
-  if (newStartupConfig.userConfigRoot.Empty() && userConfigRootIndex != INVALID_ROOT_INDEX)
+  if (startupConfig.userDataRoot.Empty() && userDataRootIndex != INVALID_ROOT_INDEX)
   {
-    newStartupConfig.userConfigRoot = GetRootDirectoryPath(userConfigRootIndex);
+    startupConfig.userDataRoot = GetRootDirectoryPath(userDataRootIndex);
   }
 
-  MergeStartupConfig(newStartupConfig, DefaultConfig());
+  if (startupConfig.userConfigRoot.Empty() && userConfigRootIndex != INVALID_ROOT_INDEX)
+  {
+    startupConfig.userConfigRoot = GetRootDirectoryPath(userConfigRootIndex);
+  }
+
+  MergeStartupConfig(startupConfig, DefaultConfig(startupConfig.config, startupConfig.setupVersion, PathName(), PathName()));
 
   try
   {
-    InitializeRootDirectories(newStartupConfig, options[RegisterRootDirectoriesOption::Review]);
+    InitializeRootDirectories(startupConfig, options[RegisterRootDirectoriesOption::Review]);
   }
   catch (const MiKTeXException&)
   {
@@ -565,25 +576,25 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
 #if 1
     if (IsAdminMode())
     {
-      if (newStartupConfig.otherUserRoots != partialStartupConfig.otherUserRoots)
+      if (startupConfig.otherUserRoots != partialStartupConfig.otherUserRoots)
       {
-        newStartupConfig.otherUserRoots = "";
+        startupConfig.otherUserRoots = "";
       }
-      if (newStartupConfig.userConfigRoot != partialStartupConfig.userConfigRoot)
+      if (startupConfig.userConfigRoot != partialStartupConfig.userConfigRoot)
       {
-        newStartupConfig.userConfigRoot = "";
+        startupConfig.userConfigRoot = "";
       }
-      if (newStartupConfig.userDataRoot != partialStartupConfig.userDataRoot)
+      if (startupConfig.userDataRoot != partialStartupConfig.userDataRoot)
       {
-        newStartupConfig.userDataRoot = "";
+        startupConfig.userDataRoot = "";
       }
-      if (newStartupConfig.userInstallRoot != partialStartupConfig.userInstallRoot)
+      if (startupConfig.userInstallRoot != partialStartupConfig.userInstallRoot)
       {
-        newStartupConfig.userInstallRoot = "";
+        startupConfig.userInstallRoot = "";
       }
     }
 #endif
-    SaveStartupConfig(newStartupConfig, options);
+    SaveStartupConfig(startupConfig, options);
   }
 }
 

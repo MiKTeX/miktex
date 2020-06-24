@@ -110,10 +110,10 @@ set(MIKTEX_REL_MTHELP_DIR               "Programs/MiKTeX/mthelp")
 set(MIKTEX_REL_MTPRINT_DIR              "Programs/MiKTeX/mtprint")
 set(MIKTEX_REL_NLOHMANN_JSON_DIR        "Libraries/3rd/nlohmann-json")
 set(MIKTEX_REL_OPENGL_REGISTRY_DIR      "Libraries/3rd/opengl-registry")
-set(MIKTEX_REL_OMEGA_DIR                "Programs/TeXAndFriends/omega/omega")
 set(MIKTEX_REL_OMEGAWARE_DIR            "Programs/TeXAndFriends/omega/omegaware")
 set(MIKTEX_REL_OTPS_DIR                 "Programs/TeXAndFriends/omega/otps")
 set(MIKTEX_REL_PADOUT_DIR               "BuildUtilities/padout")
+set(MIKTEX_REL_PATGEN_DIR               "Programs/Generators/patgen")
 set(MIKTEX_REL_PDFTEX_DIR               "Programs/TeXAndFriends/pdftex")
 set(MIKTEX_REL_PIXMAN_DIR               "Libraries/3rd/pixman")
 set(MIKTEX_REL_PNG_DIR                  "Libraries/3rd/libpng")
@@ -147,6 +147,7 @@ set(MIKTEX_REL_TTF2PK2_DIR              "Programs/FontUtilities/ttf2pk2")
 set(MIKTEX_REL_UI_DIR                   "Libraries/MiKTeX/UI")
 set(MIKTEX_REL_UI_QT_DIR                "Libraries/MiKTeX/UI/Qt")
 set(MIKTEX_REL_UNXEMU_DIR               "Libraries/MiKTeX/UnxEmulation")
+set(MIKTEX_REL_UPMENDEX_DIR             "Programs/Indexing/upmendex")
 set(MIKTEX_REL_URIPARSER_DIR            "Libraries/3rd/uriparser")
 set(MIKTEX_REL_UTF8WRAP_DIR             "Libraries/MiKTeX/UTF8Wrap")
 set(MIKTEX_REL_UTIL_DIR                 "Libraries/MiKTeX/Util")
@@ -165,7 +166,6 @@ set(MIKTEX_REL_XSL_DIR                  "${MIKTEX_REL_DOC_DIR}/Styles")
 
 # engine defaults
 set(MIKTEX_METAFONT_DEFAULTS    "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mf.defaults")
-set(MIKTEX_OMEGA_DEFAULTS       "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/omega.defaults")
 set(MIKTEX_PDFTEX_DEFAULTS      "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/pdftex.defaults")
 
 # source files
@@ -198,7 +198,6 @@ set(MIKTEX_WIZARD_WATERMARK_BITMAP      "${CMAKE_SOURCE_DIR}/Resources/Graphics/
 
 # sed scripts
 set(MIKTEX_DYN_ETEX_SCRIPT      "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/dyn.sed")
-set(MIKTEX_DYN_OMEGA_SCRIPT     "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_OMEGA_DIR}/dyn.sed")
 set(MIKTEX_DYN_TEX_SCRIPT       "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/dyn.sed")
 
 # change files
@@ -252,6 +251,7 @@ set(MIKTEX_IDE_CONVERTERS_FOLDER                "${MIKTEX_IDE_PROGRAMS_FOLDER}/C
 set(MIKTEX_IDE_DVIWARE_FOLDER                   "${MIKTEX_IDE_PROGRAMS_FOLDER}/DVI Ware")
 set(MIKTEX_IDE_EDITORS_FOLDER                   "${MIKTEX_IDE_PROGRAMS_FOLDER}/Editors")
 set(MIKTEX_IDE_FONT_UTILITIES_FOLDER            "${MIKTEX_IDE_PROGRAMS_FOLDER}/Font Utilities")
+set(MIKTEX_IDE_GENERATORS_FOLDER                "${MIKTEX_IDE_PROGRAMS_FOLDER}/Generators")
 set(MIKTEX_IDE_GRAPHICS_UTILITIES_FOLDER        "${MIKTEX_IDE_PROGRAMS_FOLDER}/Graphics Utilities")
 set(MIKTEX_IDE_INDEXING_FOLDER                  "${MIKTEX_IDE_PROGRAMS_FOLDER}/Indexing")
 set(MIKTEX_IDE_KNUTH_FOLDER                     "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/Knuth")

@@ -1,6 +1,6 @@
-/* core.rc: MiKTeX Core resource file                   -*- C++ -*-
+/* core.rc: MiKTeX Core Windows resource file
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -18,6 +18,8 @@
    along with the MiKTeX Core Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
+
+#pragma code_page(65001)
 
 #if defined(RC_INVOKED) && defined(REPORT_EVENTS)
 #include "MiKTeXEvents.rc"

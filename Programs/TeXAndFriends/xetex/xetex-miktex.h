@@ -483,14 +483,6 @@ inline int otpartglyph(const voidpointer a, int i)
   return otpartglyph((GlyphAssembly*)a, i);
 }
 
-inline void c4p_break(unicodefile& f)
-{
-  if (fflush(f->f) == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fflush");
-  }
-}
-
 inline bool inputln(unicodefile& f, C4P::C4P_boolean bypassEndOfLine = true)
 {
   bypassEndOfLine;

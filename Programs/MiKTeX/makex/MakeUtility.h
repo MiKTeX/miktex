@@ -43,8 +43,6 @@
 
 #include <miktex/Util/StringUtil>
 
-#include "makefmt-version.h"
-
 #define OUT__ (stdoutStderr ? std::cerr : std::cout)
 
 #define T_(x) MIKTEXTEXT(x)
@@ -338,8 +336,10 @@ protected:
   void ShowVersion()
   {
     OUT__
-      << MiKTeX::Core::Utils::MakeProgramVersionString(MiKTeX::Core::Utils::GetExeName(), MiKTeX::Core::VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << "\n"
-      << "Copyright (C) 1998-2020 Christian Schenk" << "\n"
+      << MiKTeX::Core::Utils::MakeProgramVersionString(MiKTeX::Core::Utils::GetExeName(), MiKTeX::Core::VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << "\n"
+      << "\n"
+      << MIKTEX_COMP_COPYRIGHT_STR << "\n"
+      << "\n"
       << "This is free software; see the source for copying conditions.  There is NO" << "\n"
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << "\n";
   }

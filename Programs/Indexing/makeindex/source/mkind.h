@@ -32,6 +32,7 @@
 #    include <miktex/utf8wrap.h>
 #    include <miktex/unxemu.h>
 #  endif
+#  include <miktex/Core/c/api.h>
 #else
 #include <c-auto.h>
 #endif
@@ -358,21 +359,30 @@ If any array overflows, please report to tex-k@tug.org.
 
 /*====================================================================*/
 
+#if !defined(MIKTEX)
 #if USE_KPATHSEA
-#if defined(MIKTEX)
-#define VERSION       "version 2.15 [" MIKTEX_BANNER_STR "] (kpathsea + Thai support)"
-#else
 #define VERSION       "version 2.15 [TeX Live " TEX_LIVE_VERSION "] (kpathsea + Thai support)"
-#endif
 #else
 #define VERSION       "version 2.15 [20-Nov-2007] (with Thai support)"
 #endif
+#endif
 
+#if defined(MIKTEX)
+#define PUT_VERSION                                                                             \
+    {                                                                                           \
+        char miktexBanner[200];                                                                 \
+        miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0])); \
+        MESSAGE1("This is %s, ", pgm_fn);                                                       \
+        MESSAGE1("version 2.15 [%s].\n", miktexBanner);                                         \
+        need_version = FALSE;                                                                   \
+    }
+#else
 #define PUT_VERSION { \
     MESSAGE1("This is %s, ", pgm_fn); \
     MESSAGE1("%s.\n", VERSION); \
     need_version = FALSE; \
 }
+#endif
 
 #ifdef HAVE_SETLOCALE
 #define USAGE \

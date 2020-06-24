@@ -115,20 +115,6 @@ MIKTEX_END_EXTERN_C_BLOCK;
 
 /* _________________________________________________________________________
  *
- * confdefs.h
- *
- */
-
-/// @name confdefs.h
-/// Stuff from `confdefs.h`.
-/// @{
-
-#define KPSEVERSION MIKTEX_BANNER_STR
-
-/// @}
-
-/* _________________________________________________________________________
- *
  * paths.h
  *
  */
@@ -721,6 +707,11 @@ typedef struct
 #define kpathsea_all_path_search(kpse, path, name) \
   miktex_kpathsea_all_path_search(kpse, path, name)
 
+#if defined(KPSE_COMPAT_API)
+#define kpse_path_search(path, name, must_exist) \
+  kpathsea_path_search(kpse_def, path, name, must_exist)
+#endif
+
 /// @}
 
 /* _________________________________________________________________________
@@ -874,8 +865,6 @@ typedef struct
 /// @name version.h
 /// Stuff from `version.h`.
 /// @{
-
-#define kpathsea_version_string miktex_kpathsea_version_string
 
 #define kpathsea_bug_address miktex_kpathsea_bug_address
 
@@ -1141,8 +1130,6 @@ MIKTEXKPSCEEAPI(off_t) miktex_xftello(FILE* file, const char* fileName);
 MIKTEXKPSCEEAPI(MIKTEX_INT64) miktex_xftello64(FILE* file, const char* fileName);
 
 MIKTEXKPSCEEAPI(char*) miktex_xgetcwd();
-
-extern MIKTEXKPSDATA(const char*) miktex_kpathsea_version_string;
 
 #if defined(KPSE_COMPAT_API)
 

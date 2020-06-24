@@ -21,6 +21,8 @@
 #  include <config.h>
 #endif
 
+#include "tdsutil-version.h"
+
 #include <iostream>
 #include <unordered_set>
 
@@ -37,8 +39,6 @@
 #include "internal.h"
 
 #include "Recipe.h"
-
-#include "tdsutil-version.h"
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
@@ -175,8 +175,10 @@ void TdsUtility::Run(int argc, const char ** argv)
       break;
     case OPT_VERSION:
       cout
-        << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2016-2020 Christian Schenk" << endl
+        << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+	<< endl
+        << MIKTEX_COMP_COPYRIGHT_STR << endl
+	<< endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return;

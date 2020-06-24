@@ -1,6 +1,6 @@
-/* gsf2pk.rc: version number                            -*- C++ -*-
+/* gsf2pk.rc:
 
-   Copyright (C) 2004-2016 Christian Schenk
+   Copyright (C) 2004-2020 Christian Schenk
 
    This file is part of Gsf2pk.
 
@@ -17,6 +17,8 @@
    You should have received a copy of the GNU General Public License
    along with Gsf2pk; if not, write to the Free Software Foundation,
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
+
+#pragma code_page(65001)
 
 #include "gsf2pk-version.h"
 

@@ -20,6 +20,8 @@
 
 #define SUPPORT_LEGACY_EXTERNALNAME
 
+#include "config.h"
+
 #include <cstdio>
 
 #include <algorithm>
@@ -409,7 +411,7 @@ private:
 
 private:
   // default MiKTeX major/minor version
-  VersionNumber majorMinorVersion = VersionNumber(MIKTEX_MAJOR_MINOR_STR);
+  VersionNumber majorMinorVersion = VersionNumber(MIKTEX_PACKAGES_MAJOR_MINOR_STR);
 
 private:
   string releaseState = "stable";
@@ -452,7 +454,7 @@ const struct poptOption PackageCreator::options[] = {
 
   {
     // TODO: "miktex-major-minor"
-    "miktex-series", 0, POPT_ARG_STRING, 0, OPT_MIKTEX_MAJOR_MINOR, T_("Specify the MiKTeX major/minor version (one of: 2.9)."), T_("MAJOR.MINOR")
+    "miktex-series", 0, POPT_ARG_STRING, 0, OPT_MIKTEX_MAJOR_MINOR, T_("Specify the MiKTeX major/minor version."), T_("MAJOR.MINOR")
   },
 
   {
@@ -2113,7 +2115,7 @@ void PackageCreator::Run(int argc, const char** argv)
       break;
     case OPT_MIKTEX_MAJOR_MINOR:
       majorMinorVersion = VersionNumber(optArg);
-      if (majorMinorVersion.CompareTo(VersionNumber(MIKTEX_MAJOR_MINOR_STR)) > 0)
+      if (majorMinorVersion.CompareTo(VersionNumber(MIKTEX_PACKAGES_MAJOR_MINOR_STR)) > 0)
       {
         FatalError(T_("Unsupported MiKTeX major/minor version."));
       }

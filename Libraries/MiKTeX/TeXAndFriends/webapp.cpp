@@ -19,16 +19,42 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <iostream>
 #include <set>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileStream>
+#include <miktex/Core/VersionNumber>
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMFEXPORT
+#endif
+#define B8C7815676699B4EA2DE96F0BD727276
+#include "miktex/TeXAndFriends/WebApp.h"
 
 #include "internal.h"
 #include "texmf-version.h"
+
+using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::TeXAndFriends;
+using namespace MiKTeX::Util;
+using namespace MiKTeX::Wrappers;
 
 class WebApp::impl
 {
@@ -75,6 +101,8 @@ public:
   string copyright;
 public:
   PathName packageListFileName;
+public:
+  C4P::ProgramBase* program;
 public:
   string programName;
 public:
@@ -318,8 +346,8 @@ inline bool operator< (const poptOption& opt1, const poptOption& opt2)
 
 void WebApp::ProcessCommandLineOptions()
 {
-  int argc = C4P::GetArgC();
-  const char** argv = C4P::GetArgV();
+  int argc = GetProgram()->GetArgC();
+  const char** argv = GetProgram()->GetArgV();
 
   if (pimpl->options.empty())
   {
@@ -351,7 +379,7 @@ void WebApp::ProcessCommandLineOptions()
     MIKTEX_FATAL_ERROR_2(T_("The command line options could not be processed."), "optionError", pimpl->popt.Strerror(opt));
   }
 
-  C4P::MakeCommandLine(pimpl->popt.GetLeftovers());
+  GetProgram()->MakeCommandLine(pimpl->popt.GetLeftovers());
 }
 
 string WebApp::TheNameOfTheGame() const
@@ -361,7 +389,7 @@ string WebApp::TheNameOfTheGame() const
 
 void WebApp::ShowProgramVersion() const
 {
-  cout << "MiKTeX" << '-' << TheNameOfTheGame() << ' ' << pimpl->version << " (" << Utils::GetMiKTeXBannerString() << ')' << endl
+  cout << "MiKTeX" << '-' << TheNameOfTheGame() << ' ' << VersionNumber(pimpl->version).ToString() << " (" << Utils::GetMiKTeXBannerString() << ')' << endl
     << pimpl->copyright << endl;
   if (!pimpl->trademarks.empty())
   {
@@ -371,8 +399,9 @@ void WebApp::ShowProgramVersion() const
   ShowLibraryVersions();
 }
 
-void WebApp::SetProgramInfo(const string& programName, const string& version, const string& copyright, const string& trademarks)
+void WebApp::SetProgram(C4P::ProgramBase* program, const string& programName, const string& version, const string& copyright, const string& trademarks)
 {
+  pimpl->program = program;
   pimpl->programName = programName;
   pimpl->version = version;
   pimpl->copyright = copyright;
@@ -485,4 +514,9 @@ bool WebApp::AmIMETAFONT() const
 bool WebApp::GetVerboseFlag() const
 {
   return pimpl->verbose;
+}
+
+C4P::ProgramBase* WebApp::GetProgram() const
+{
+  return pimpl->program;
 }

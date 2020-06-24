@@ -21,8 +21,7 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.15"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (c) 1994-1997 John Plaice and Yannis Haralambous"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1994-1997 John Plaice and Yannis Haralambous"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1994-1997 John Plaice and Yannis Haralambous"
 #define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society."
 
 

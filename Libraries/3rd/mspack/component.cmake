@@ -21,5 +21,4 @@ include(version.cmake)
 
 set(MIKTEX_COMP_DESCRIPTION "libmspack - a library which provides compressors and decompressors")
 
-set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2003-2004 Stuart Caie")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2003-2004 Stuart Caie")
+set(MIKTEX_COMP_COPYRIGHT_STR "Â© 2003-2004 Stuart Caie")

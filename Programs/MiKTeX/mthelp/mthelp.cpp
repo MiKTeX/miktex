@@ -172,9 +172,11 @@ void MiKTeXHelp::Init(const Session::InitInfo& initInfo, vector<char*>& args)
 void MiKTeXHelp::ShowVersion()
 {
   cout << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
-    << "Copyright (C) 2004-2020 Christian Schenk" << endl
-    << "This is free software; see the source for copying conditions.  There is NO" << endl
-    << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
+       << endl
+       << MIKTEX_COMP_COPYRIGHT_STR << endl
+       << endl
+       << "This is free software; see the source for copying conditions.  There is NO" << endl
+       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
 
 void MiKTeXHelp::Warning(const string& msg)
@@ -320,6 +322,19 @@ void MiKTeXHelp::ViewFile(const PathName& fileName)
     {
       FatalError(T_("The viewer could not be started."));
     }
+  }
+#elif defined(MIKTEX_MACOS_BUNDLE)
+  if (viewer.empty())
+  {
+    if (printOnly)
+    {
+      cout << "open " << Q_(fileName) << endl;
+    }
+    else
+    {
+      Process::ExecuteSystemCommand(fmt::format("open {0}", Q_(fileName)));
+    }
+    return;
   }
 #else
   if (viewer.empty())

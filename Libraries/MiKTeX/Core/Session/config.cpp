@@ -117,11 +117,6 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
 
 bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path)
 {
-  if (initInfo.GetOptions()[InitOption::NoConfigFiles])
-  {
-    return false;
-  }
-
   string str;
 
   if (Utils::GetEnvironmentString(scope == ConfigurationScope::Common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, str))
@@ -133,7 +128,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
   }
 
 #if USE_WINDOWS_REGISTRY
-  if (winRegistry::TryGetRegistryValue(scope, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
+  if (winRegistry::TryGetValue(scope, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
   {
     // don't check for existence; it's a fatal error (detected later)
     // if the registry value is incorrect
@@ -298,19 +293,16 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
     Cfg* cfg = nullptr;
 
     // read configuration files
-    if (!initInfo.GetOptions()[InitOption::NoConfigFiles])
+    ConfigurationSettings::iterator it = configurationSettings.find(lookupKeyName);
+    if (it != configurationSettings.end())
     {
-      ConfigurationSettings::iterator it = configurationSettings.find(lookupKeyName);
-      if (it != configurationSettings.end())
-      {
-        cfg = it->second.get();
-      }
-      else
-      {
-        pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(lookupKeyName, Cfg::Create()));
-        cfg = p.first->second.get();
-        ReadAllConfigFiles(lookupKeyName, *cfg);
-      }
+      cfg = it->second.get();
+    }
+    else
+    {
+      pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(lookupKeyName, Cfg::Create()));
+      cfg = p.first->second.get();
+      ReadAllConfigFiles(lookupKeyName, *cfg);
     }
 
     // section name defaults to application name
@@ -337,7 +329,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 
 #if defined(MIKTEX_WINDOWS)
     // try registry value
-    if (!IsMiKTeXPortable() && winRegistry::TryGetRegistryValue(ConfigurationScope::None, defaultSectionName, valueName, value))
+    if (!IsMiKTeXPortable() && winRegistry::TryGetValue(ConfigurationScope::None, defaultSectionName, valueName, value))
     {
       haveValue = true;
       break;
@@ -390,7 +382,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 
 #if defined(MIKTEX_WINDOWS)
   // try registry value
-  if (!haveValue && !IsMiKTeXPortable() && !sectionName.empty() && winRegistry::TryGetRegistryValue(ConfigurationScope::None, sectionName, valueName, value))
+  if (!haveValue && !IsMiKTeXPortable() && !sectionName.empty() && winRegistry::TryGetValue(ConfigurationScope::None, sectionName, valueName, value))
   {
     haveValue = true;
   }
@@ -830,7 +822,7 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
     && !IsMiKTeXPortable()
     && !GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, ConfigValue(USE_WINDOWS_REGISTRY ? false : true)).GetBool())
   {
-    winRegistry::SetRegistryValue(IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, sectionName, valueName, value.GetString());
+    winRegistry::SetValue(IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, sectionName, valueName, value.GetString());
     string newValue;
     if (GetSessionValue(sectionName, valueName, newValue, nullptr))
     {

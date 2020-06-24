@@ -158,14 +158,6 @@ RepositoryType PackageRepositoryDataStore::DetermineRepositoryType(const string&
 
 RepositoryInfo PackageRepositoryDataStore::VerifyPackageRepository(const string& url)
 {
-#if defined(_DEBUG)
-  if (url == "http://ctan.miktex.org/systems/win32/miktex/tm/packages/")
-  {
-    RepositoryInfo repositoryInfo;
-    repositoryInfo.delay = 0;
-    return repositoryInfo;
-  }
-#endif
   for (const RepositoryInfo& repository : repositories)
   {
     if (repository.url == url)

@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "6.3.1/dev"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright 2018 Karl Berry & Olaf Weber"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2018 Karl Berry & Olaf Weber"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2018 Karl Berry & Olaf Weber"
 
 #include <miktex/Version>

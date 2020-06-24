@@ -1044,7 +1044,7 @@ bool Utils::CheckPath(bool repair)
   wstring systemPath;
   DWORD systemPathType;
 
-  if (!winRegistry::TryGetRegistryValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType))
+  if (!winRegistry::TryGetValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType))
   {
     systemPath = L"";
     systemPathType = REG_SZ;
@@ -1055,7 +1055,7 @@ bool Utils::CheckPath(bool repair)
 
   if (!session->IsAdminMode())
   {
-    if (!winRegistry::TryGetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType))
+    if (!winRegistry::TryGetValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType))
     {
       userPath = L"";
       userPathType = REG_SZ;
@@ -1083,7 +1083,7 @@ bool Utils::CheckPath(bool repair)
       SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new system PATH:"));
       SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedSystemPath);
       systemPath = UW_(repairedSystemPath);
-      winRegistry::SetRegistryValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType);
+      winRegistry::SetValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType);
       systemPathOkay = true;
       repaired = true;
     }
@@ -1100,7 +1100,7 @@ bool Utils::CheckPath(bool repair)
         SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
         SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
         userPath = UW_(repairedUserPath);
-        winRegistry::SetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
+        winRegistry::SetValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
         systemPathOkay = true;
         repaired = true;
       }
@@ -1114,7 +1114,7 @@ bool Utils::CheckPath(bool repair)
       SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
       SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
       userPath = UW_(repairedUserPath);
-      winRegistry::SetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
+      winRegistry::SetValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
       userPathOkay = true;
       repaired = true;
     }
@@ -1171,12 +1171,12 @@ void Utils::RegisterShellFileAssoc(const string& extension, const string& progId
   bool haveOtherProgId = false;
   if (!session->IsAdminMode())
   {
-    haveOtherProgId = winRegistry::TryGetRegistryValue(HKEY_CURRENT_USER, regPath.GetData(), "", otherProgId);
+    haveOtherProgId = winRegistry::TryGetValue(HKEY_CURRENT_USER, regPath.GetData(), "", otherProgId);
     haveOtherProgId = haveOtherProgId && StringCompare(progId.c_str(), otherProgId.c_str(), true) != 0;
   }
   if (!haveOtherProgId)
   {
-    haveOtherProgId = winRegistry::TryGetRegistryValue(HKEY_LOCAL_MACHINE, regPath.GetData(), "", otherProgId);
+    haveOtherProgId = winRegistry::TryGetValue(HKEY_LOCAL_MACHINE, regPath.GetData(), "", otherProgId);
     haveOtherProgId = haveOtherProgId && StringCompare(progId.c_str(), otherProgId.c_str(), true) != 0;
   }
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
@@ -1184,16 +1184,16 @@ void Utils::RegisterShellFileAssoc(const string& extension, const string& progId
   openWithProgIds /= "OpenWithProgIds";
   if (haveOtherProgId)
   {
-    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.ToString(), otherProgId, "");
-    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.ToString(), progId, "");
+    winRegistry::SetValue(hkeyRoot, openWithProgIds.ToString(), otherProgId, "");
+    winRegistry::SetValue(hkeyRoot, openWithProgIds.ToString(), progId, "");
   }
   if (!haveOtherProgId || takeOwnership)
   {
     if (haveOtherProgId)
     {
-      winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "MiKTeX." MIKTEX_MAJOR_MINOR_STR ".backup", otherProgId);
+      winRegistry::SetValue(hkeyRoot, regPath.ToString(), "MiKTeX." MIKTEX_COM_MAJOR_MINOR_STR ".backup", otherProgId);
     }
-    winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "", progId);
+    winRegistry::SetValue(hkeyRoot, regPath.ToString(), "", progId);
   }
 }
 
@@ -1204,26 +1204,26 @@ void Utils::UnregisterShellFileAssoc(const string& extension, const string& prog
   PathName regPath("Software\\Classes");
   regPath /= extension;
   string existingProgId;
-  if (!winRegistry::TryGetRegistryValue(hkeyRoot, regPath.ToString(), "", existingProgId))
+  if (!winRegistry::TryGetValue(hkeyRoot, regPath.ToString(), "", existingProgId))
   {
     return;
   }
   string backupProgId;
-  bool haveBackupProgId = winRegistry::TryGetRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_MAJOR_MINOR_STR ".backup", backupProgId);
+  bool haveBackupProgId = winRegistry::TryGetValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_COM_MAJOR_MINOR_STR ".backup", backupProgId);
   if (haveBackupProgId || StringCompare(existingProgId.c_str(), progId.c_str(), true) != 0)
   {
     if (haveBackupProgId)
     {
-      winRegistry::SetRegistryValue(hkeyRoot, regPath.GetData(), "", backupProgId.c_str());
-      winRegistry::TryDeleteRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_MAJOR_MINOR_STR ".backup");
+      winRegistry::SetValue(hkeyRoot, regPath.GetData(), "", backupProgId.c_str());
+      winRegistry::TryDeleteValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_COM_MAJOR_MINOR_STR ".backup");
     }
     PathName openWithProgIds(regPath);
     openWithProgIds /= "OpenWithProgIds";
-    winRegistry::TryDeleteRegistryValue(hkeyRoot, openWithProgIds.ToString(), progId);
+    winRegistry::TryDeleteValue(hkeyRoot, openWithProgIds.ToString(), progId);
   }
   else
   {
-    winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.ToString());
+    winRegistry::TryDeleteKey(hkeyRoot, regPath.ToString());
   }
 }
 
@@ -1235,13 +1235,13 @@ void Utils::RegisterShellFileType(const string& progId, const string& userFriend
   regPath /= progId;
   if (!userFriendlyName.empty())
   {
-    winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "", userFriendlyName);
+    winRegistry::SetValue(hkeyRoot, regPath.ToString(), "", userFriendlyName);
   }
   if (!iconPath.empty())
   {
     PathName defaultIcon(regPath);
     defaultIcon /= "DefaultIcon";
-    winRegistry::SetRegistryValue(hkeyRoot, defaultIcon.GetData(), "", iconPath);
+    winRegistry::SetValue(hkeyRoot, defaultIcon.GetData(), "", iconPath);
   }
 }
 
@@ -1251,7 +1251,7 @@ void Utils::UnregisterShellFileType(const string& progId)
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= progId;
-  winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.ToString());
+  winRegistry::TryDeleteKey(hkeyRoot, regPath.ToString());
 }
 
 void Utils::RegisterShellVerb(const string& progId, const string& verb, const string& command, const string& ddeExec)
@@ -1266,7 +1266,7 @@ void Utils::RegisterShellVerb(const string& progId, const string& verb, const st
     path /= "shell";
     path /= verb;
     path /= "command";
-    winRegistry::SetRegistryValue(hkeyRoot, path.ToString(), "", command);
+    winRegistry::SetValue(hkeyRoot, path.ToString(), "", command);
   }
   if (!ddeExec.empty())
   {
@@ -1274,13 +1274,13 @@ void Utils::RegisterShellVerb(const string& progId, const string& verb, const st
     path /= "shell";
     path /= verb;
     path /= "ddeexec";
-    winRegistry::SetRegistryValue(hkeyRoot, path.ToString(), "", ddeExec);
+    winRegistry::SetValue(hkeyRoot, path.ToString(), "", ddeExec);
   }
 }
 
 string Utils::MakeProgId(const string& progId)
 {
-  return string("MiKTeX") + "." + progId + "." + MIKTEX_MAJOR_MINOR_STR;
+  return string("MiKTeX") + "." + progId + "." + MIKTEX_COM_MAJOR_MINOR_STR;
 }
 
 bool Utils::SupportsHardLinks(const PathName& path)

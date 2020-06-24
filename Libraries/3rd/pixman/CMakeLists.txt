@@ -87,7 +87,7 @@ set(pixman_sources
 )
 
 configure_file(
-  miktex-pixman-version.h.cmake
+  miktex-pixman-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/miktex-pixman-version.h
 )
 

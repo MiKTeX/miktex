@@ -1,4 +1,4 @@
-/* xetex-version.h: version number                      -*- C++ -*-
+/* xetex-version.h:
 
    Copyright (C) 1996-2020 Christian Schenk
 
@@ -19,12 +19,13 @@
 
 #include "xetex_version.h"
 
-#define MIKTEX_COMP_J2000_VERSION 7439
+#define MIKTEX_COMP_MAJOR_VERSION 4
+#define MIKTEX_COMP_MINOR_VERSION 0
+#define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_ORIG_VERSION_STR XETEX_VERSION
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 1994-2008 by SIL International, (C) 2009-2012 by Jonathan Kew, (C) 2010-2012 by Han The Thanh, (C) 2012-2013 by Khaled Hosny"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1994-2008 by SIL International, © 2009-2012 by Jonathan Kew, © 2010-2012 by Han The Thanh, © 2012-2013 by Khaled Hosny"
-#define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society."
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1994-2008 SIL International, Â© 2009-2012 Jonathan Kew, Â© 2010-2012 HÃ n Tháº¿ ThÃ nh, Â© 2012-2013 Khaled Hosny"
+#define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society"
 
 #include <miktex/Version>

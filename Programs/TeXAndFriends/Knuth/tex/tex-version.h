@@ -1,4 +1,4 @@
-/* tex-version.h: version number                        -*- C++ -*-
+/* tex-version.h:
 
    Copyright (C) 1991-2020 Christian Schenk
 
@@ -17,12 +17,13 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 7439
+#define MIKTEX_COMP_MAJOR_VERSION 4
+#define MIKTEX_COMP_MINOR_VERSION 0
+#define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "3.14159265"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1982 by D. E. Knuth; all rights are reserved."
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1982 by D. E. Knuth; all rights are reserved."
-#define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society."
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1982 D. E. Knuth; all rights are reserved."
+#define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society"
 
 #include <miktex/Version>

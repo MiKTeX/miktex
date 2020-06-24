@@ -665,8 +665,12 @@ static void find_env(lua_State * L)
 {
     char *envitem, *envitem_orig;
     char *envkey;
+#if defined(MIKTEX_WINDOWS)
+    wchar_t** envpointer = _wenviron;
+#else
     char **envpointer;
     envpointer = environ;
+#endif
     lua_getglobal(L, "os");
     if (envpointer != NULL && lua_istable(L, -1)) {
         luaL_checkstack(L, 2, "out of stack space");
@@ -675,7 +679,11 @@ static void find_env(lua_State * L)
         while (*envpointer) {
             /* TODO: perhaps a memory leak here  */
             luaL_checkstack(L, 2, "out of stack space");
+#if defined(MIKTEX_WINDOWS)
+            envitem = miktex_wchar_to_utf8(*envpointer);
+#else
             envitem = xstrdup(*envpointer);
+#endif
             envitem_orig = envitem;
             envkey = envitem;
             while (*envitem != '=') {
@@ -810,12 +818,24 @@ static int uname(struct utsname *uts)
     sprintf(uts->version, "%ld.%02ld",
             osver.dwMajorVersion, osver.dwMinorVersion);
 
+#if defined(MIKTEX_WINDOWS)
+    {
+      size_t versionLength = strlen(uts->version);
+      if (osver.szCSDVersion[0] != L'\0' && (versionLength + 1 + wcslen(osver.szCSDVersion) + 1) < sizeof(uts->version))
+      {
+        strcpy(uts->version + versionLength, " ");
+        versionLength += 1;
+        miktex_copy_wchar_to_utf8(uts->version + versionLength, sizeof(uts->version) - versionLength, osver.szCSDVersion);
+      }
+    }
+#else
     if (osver.szCSDVersion[0] != '\0' &&
         (strlen(osver.szCSDVersion) + strlen(uts->version) + 1) <
         sizeof(uts->version)) {
         strcat(uts->version, " ");
         strcat(uts->version, osver.szCSDVersion);
     }
+#endif
 
     sprintf(uts->release, "build %ld", osver.dwBuildNumber & 0xFFFF);
 
@@ -861,8 +881,23 @@ static int uname(struct utsname *uts)
         break;
     }
 
+#if defined(MIKTEX_WINDOWS)
+    {
+      wchar_t nodeName[sizeof(uts->nodename)];
+      sLength = sizeof(uts->nodename);
+      if (GetComputerNameW(nodeName, &sLength) > 0)
+      {
+        miktex_copy_wchar_to_utf8(uts->nodename, sizeof(uts->nodename), nodeName);
+      }
+      else
+      {
+        strcpy_s(uts->nodename, sizeof(uts->nodename), "???");
+      }
+    }
+#else
     sLength = sizeof(uts->nodename) - 1;
     GetComputerName(uts->nodename, &sLength);
+#endif
     return 0;
 }
 #endif
