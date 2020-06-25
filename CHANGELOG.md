@@ -1,5 +1,28 @@
 # MiKTeX Change Log
 
+## 20.6 - 2020-06-28
+
+### New release versioning scheme
+
+The MiKTeX project has switched to date-based versionining scheme for releases.
+
+See this issue for more info: [https://github.com/MiKTeX/miktex/issues/554](https://github.com/MiKTeX/miktex/issues/554)
+
+### New programs
+
+- patgen 1.0.6
+- upmendex 0.54
+
+### Fixed issues
+
+- [41](https://github.com/MiKTeX/miktex/issues/41): Error running miktex on Win 10 ver. 1709
+- [534](https://github.com/MiKTeX/miktex/issues/534): include patgen in repo
+- [538](https://github.com/MiKTeX/miktex/issues/538): MACOS, mthelp calls firefox instead of open
+- [552](https://github.com/MiKTeX/miktex/issues/552): LuaLaTex fails on special characters in the windows user account path
+- [554](https://github.com/MiKTeX/miktex/issues/554): MiKTeX release versioning
+- [556](https://github.com/MiKTeX/miktex/issues/556): -jobname cli option broken on latex, pdflatex, xelatex, still working on lualatex
+- [561](https://github.com/MiKTeX/miktex/issues/561): include upmendex in repository
+
 ## 2.9.7440 - 2020-05-17
 
 ### Breaking changes
@@ -31,7 +54,7 @@ provided with a valid signature.
 Reason: In order to support custom remote package repositories (see
 [Allow local http
 mirrors](https://github.com/MiKTeX/miktex/issues/519)), it must be
-ensured that the conntents of the custom package repository is
+ensured that the contents of the custom package repository is
 unmodified.
 
 Impact: Users will receive an error message if they visit an outdated
