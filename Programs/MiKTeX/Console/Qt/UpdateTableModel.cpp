@@ -121,8 +121,9 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
       case PackageInstaller::UpdateInfo::Update:
         return tr("optional");
       case PackageInstaller::UpdateInfo::ForceUpdate:
-      case PackageInstaller::UpdateInfo::ForceRemove:
         return tr("required");
+      case PackageInstaller::UpdateInfo::ForceRemove:
+        return tr("required: either obsolete or installed by admin");
       case PackageInstaller::UpdateInfo::Repair:
         return tr("to be repaired");
       case PackageInstaller::UpdateInfo::ReleaseStateChange:
