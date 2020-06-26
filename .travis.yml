@@ -29,7 +29,7 @@ addons:
       - xz
 
 matrix:
-  allow_failure:
+  allow_failures:
     - os: osx
       osx_image: xcode12
       before_script: ./BuildUtilities/ci/travis/osx/before_script.sh
