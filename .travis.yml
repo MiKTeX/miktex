@@ -28,7 +28,7 @@ addons:
       - uriparser
       - xz
 
-matrix:
+jobs:
   allow_failures:
     - os: osx
       osx_image: xcode12
@@ -36,6 +36,11 @@ matrix:
       script: ./BuildUtilities/ci/travis/osx/script.sh
       after_failure: ./BuildUtilities/ci/travis/osx/after_failure.sh
   include:
+    - os: osx
+      osx_image: xcode12
+      before_script: ./BuildUtilities/ci/travis/osx/before_script.sh
+      script: ./BuildUtilities/ci/travis/osx/script.sh
+      after_failure: ./BuildUtilities/ci/travis/osx/after_failure.sh
     - os: linux
       dist: trusty
       services: docker
