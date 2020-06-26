@@ -4,7 +4,7 @@
 
 ### New release versioning scheme
 
-The MiKTeX project has switched to a date-based versionining scheme for releases.
+The MiKTeX project has switched to a date-based versioning scheme for releases.
 
 See this issue for more info: [https://github.com/MiKTeX/miktex/issues/554](https://github.com/MiKTeX/miktex/issues/554)
 

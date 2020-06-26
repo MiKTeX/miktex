@@ -633,6 +633,9 @@ private:
   }
 
 private:
+  void Exit();
+
+private:
   void Restart();
 
 private slots:

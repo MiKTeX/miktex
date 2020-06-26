@@ -598,7 +598,11 @@ static void parse_options(int ac, char **av)
                  "etex      : Peter Breitenlohner, Phil Taylor and friends\n"
                  "omega     : John Plaice and Yannis Haralambous\n"
                  "aleph     : Giuseppe Bilotta\n"
+#if defined(MIKTEX)
+                 "pdftex    : Hàn Thế Thành and friends\n"
+#else
                  "pdftex    : Han The Thanh and friends\n"
+#endif
                  "kpathsea  : Karl Berry, Olaf Weber and others\n"
                  "lua       : Roberto Ierusalimschy, Waldemar Celes and Luiz Henrique de Figueiredo\n"
                  "metapost  : John Hobby, Taco Hoekwater, Luigi Scarso, Hans Hagen and friends\n"

@@ -29,6 +29,12 @@ addons:
       - xz
 
 matrix:
+  allow_failures:
+    - os: osx
+      osx_image: xcode12
+      before_script: ./BuildUtilities/ci/travis/osx/before_script.sh
+      script: ./BuildUtilities/ci/travis/osx/script.sh
+      after_failure: ./BuildUtilities/ci/travis/osx/after_failure.sh
   include:
     - os: linux
       dist: trusty
@@ -38,11 +44,6 @@ matrix:
       - MIKTEX_LINUX_DIST_VERSION=32
       script: ./BuildUtilities/ci/travis/docker/script.sh
       after_failure: ./BuildUtilities/ci/travis/docker/after_failure.sh
-    - os: osx
-      osx_image: xcode11.5
-      before_script: ./BuildUtilities/ci/travis/osx/before_script.sh
-      script: ./BuildUtilities/ci/travis/osx/script.sh
-      after_failure: ./BuildUtilities/ci/travis/osx/after_failure.sh
     - os: linux
       dist: trusty
       services: docker

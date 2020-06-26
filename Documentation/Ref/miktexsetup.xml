@@ -50,8 +50,8 @@
 
 <title>Description</title>
 
-<para>The &MiKTeXSetupUtility; is used to download, install and
-uninstall &MiKTeX;. This utility is the command line counterpart of
+<para>The &MiKTeXSetupUtility; is used to download, set up and
+remove &MiKTeX;. This utility is the command line counterpart of
 the &MiKTeXSetupWizard;. It is suitable for unattended setup tasks.
 <indexterm>
 <primary>unattended setup</primary>
@@ -64,10 +64,12 @@ repository. It is possible to run the task on a regular basis in order
 to maintain an up-to-date package repository.</para>
 
 <para>The <userinput>install</userinput> task installs &MiKTeX; from
-the local package repository.</para>
+a local package repository.
+This task is only available in the standalone variant and only on Windows.</para>
 
 <para>The <userinput>uninstall</userinput> task removes
-&MiKTeX;.</para>
+&MiKTeX;.
+This task is only available in the standalone variant and only on Windows.</para>
 
 </refsect1>
 
@@ -176,7 +178,7 @@ possible repositories.</para></listitem>
 </varlistentry>
 
 <varlistentry>
-<term><option>--shared</option></term>
+<term><option>--shared=yes</option></term>
 <listitem><para>Run the task for all users. This option
 requires administrator privileges.</para></listitem>
 </varlistentry>
@@ -189,7 +191,7 @@ requires administrator privileges.</para></listitem>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
 
 <varlistentry>
-<term><option>--use-registry</option></term>
+<term><option>--use-registry=yes</option></term>
 <listitem><para>Write configuration
 settings into the &Windows; registry.</para>
 </listitem>
@@ -285,7 +287,7 @@ are expanded at run-time (delayed expansion).</para>
 <screen><prompt>&prompt;</prompt><userinput>miktexsetup ^
   --verbose ^
   --local-package-repository=C:\miktex-repository ^
-  --shared ^
+  --shared=yes ^
   --user-config="&lt;APPDATA&gt;\MiKTeX" ^
   --user-data="&lt;LOCALAPPDATA&gt;\MiKTeX" ^
   --user-install=&lt;APPDATA&gt;\MiKTeX" ^
@@ -310,10 +312,10 @@ program folder name: "MiKTeX"</screen>
 <title>Uninstalling</title>
 
 <para>&MiKTeX; can be removed by selecting the
-<userinput>uninstall</userinput> task. <option>--shared</option>
+<userinput>uninstall</userinput> task. <option>--shared=yes</option>
 should be specified, if &MiKTeX; is installed for all users.</para>
 
-<screen><prompt>&prompt;</prompt><userinput>miktexsetup --verbose --shared uninstall</userinput></screen>
+<screen><prompt>&prompt;</prompt><userinput>miktexsetup --verbose --shared=yes uninstall</userinput></screen>
 
 </refsect2>
 

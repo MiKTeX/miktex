@@ -8,7 +8,7 @@ In short: MiKTeX is a modern C/C++ implementation of TeX & Friends for Windows, 
 
 MiKTeX is also a scalable TeX distribution (["Just enough TeX"](https://miktex.org/kb/just-enough-tex)):
 
-- you have the option to start with MiKTeX executables and some configuratio files
+- you have the option to start with MiKTeX executables and some configuration files
 - in the course of authoring your documents, only necessary LaTeX packages, fonts etc.
   will be downloaded and installed
 

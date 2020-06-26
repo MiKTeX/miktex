@@ -305,7 +305,7 @@ const struct poptOption Application::aoption[] = {
 
   {
     "shared", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_SHARED,
-    T_("Install MiKTeX for all users (--shared=yes) or for the current user (--shared=no)."),
+    T_("Operate in admin mode (--shared=yes) or in user mode (--shared=no)."),
     "yes|no",
   },
 
@@ -594,12 +594,17 @@ void Application::Main(int argc, const char** argv)
   string optUserLinkTargetDirectory;
   string optUserRoots;
   string optPortableRoot;
+  bool isUninstall = false;
 
   PoptWrapper popt(argc, argv, aoption);
+#if defined(MIKTEX_WINDOWS)
 #if defined(MIKTEX_SETUP_STANDALONE)
-  popt.SetOtherOptionHelp("download|install|finish|factoryreset|uninstall");
+  popt.SetOtherOptionHelp("download|install");
 #else
-  popt.SetOtherOptionHelp("download|finish|factoryreset|uninstall");
+  popt.SetOtherOptionHelp("cleanup|download|uninstall");
+#endif
+#else
+  popt.SetOtherOptionHelp("cleanup|download|finish");
 #endif
 
   int option;
@@ -695,7 +700,7 @@ void Application::Main(int argc, const char** argv)
     case OPT_SHARED:
       if (optPortable)
       {
-        Error(T_("--portable conficts with --shared."));
+        Error(T_("--portable conflicts with --shared."));
       }
       optShared = (optArg.empty() || Utils::EqualsIgnoreCase("yes", optArg));
       break;
@@ -795,27 +800,32 @@ void Application::Main(int argc, const char** argv)
     {
       task = SetupTask::Download;
     }
-#if defined(MIKTEX_SETUP_STANDALONE)
-    else if (leftovers[0] == "install")
+#if defined(MIKTEX_WINDOWS) && defined(MIKTEX_SETUP_STANDALONE)
+    if (leftovers[0] == "install")
     {
       task = SetupTask::InstallFromLocalRepository;
     }
 #endif
-    else if (leftovers[0] == "finish")
+#if !defined(MIKTEX_WINDOWS)
+    if (leftovers[0] == "finish")
     {
       task = SetupTask::FinishSetup;
     }
-    else if (leftovers[0] == "factoryreset")
+#endif
+#if !defined(MIKTEX_SETUP_STANDALONE)
+    if (leftovers[0] == "cleanup" || leftovers[0] == "factoryreset")
     {
       task = SetupTask::CleanUp;
-      cleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
     }
+#endif
+#if defined(MIKTEX_WINDOWS) && !defined(MIKTEX_SETUP_STANDALONE)
     else if (leftovers[0] == "uninstall")
     {
       task = SetupTask::CleanUp;
-      cleanupOptions = { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
+      isUninstall == true;
     }
-    else
+#endif
+    if (task == SetupTask::None)
     {
       Error(fmt::format(T_("Unknown/unsupported setup task: {0}"), leftovers[0]));
     }
@@ -848,6 +858,22 @@ void Application::Main(int argc, const char** argv)
   {
     ListRepositories();
     return;
+  }
+
+  if (task == SetupTask::CleanUp)
+  {
+      if (isUninstall)
+      {
+        cleanupOptions += { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
+      }
+      else if (!session->IsSharedSetup() || session->IsAdminMode())
+      {
+        cleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
+      }
+      else
+      {
+        cleanupOptions = { CleanupOption::FileTypes, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
+      }
   }
 
   setupService = SetupService::Create();

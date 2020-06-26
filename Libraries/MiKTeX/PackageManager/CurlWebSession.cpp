@@ -75,7 +75,7 @@ CurlWebSession::CurlWebSession(IProgressNotify_* callback) :
 string BuildUserAgentString()
 {
   ostringstream str;
-  str << MPM_AGENT;
+  str << GetMpmAgent();
 #if defined(MIKTEX_WINDOWS)
   str << " (Windows NT " << WindowsVersion::GetMajorMinorString();
 #  if defined(MIKTEX_WINDOWS_64)

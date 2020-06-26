@@ -1502,6 +1502,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_MPM_EXE, { MIKTEX_MPM_EXE } },
   { MIKTEX_TEXIFY_EXE, { MIKTEX_TEXIFY_EXE } },
   { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "mthelp" MIKTEX_EXE_FILE_SUFFIX } },
+  { "miktexsetup" MIKTEX_EXE_FILE_SUFFIX, { "miktexsetup" MIKTEX_EXE_FILE_SUFFIX } },
 #endif
 #if defined(WITH_MKTEXLSR)
   { MIKTEX_INITEXMF_EXE, { "mktexlsr" }, LinkType::Copy },
@@ -1579,7 +1580,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
   PathName linkTargetDirectory = session->GetSpecialPath(SpecialPath::LinkTargetDirectory);
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
 
-  Verbose(fmt::format(T_("Creating links in target directory {0}..."), linkTargetDirectory));
+  Verbose(fmt::format(T_("Collecting linked executables in target directory {0}..."), Q_(linkTargetDirectory)));
 
   if (linkCategories[LinkCategory::MiKTeX])
   {
@@ -2583,6 +2584,16 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   if (optMakeLanguageDat)
   {
     MakeLanguageDat(optForce);
+  }
+
+  if (optMakeLinks && session->IsSharedSetup() && !session->IsAdminMode())
+  {
+      FatalError(T_("Option --mklinks requires admin mode (--admin)."));
+  }
+
+  if (optRemoveLinks && session->IsSharedSetup() && !session->IsAdminMode())
+  {
+      FatalError(T_("Option --rmlinks requires admin mode (--admin)."));
   }
 
   if (optMakeLinks || optRemoveLinks)

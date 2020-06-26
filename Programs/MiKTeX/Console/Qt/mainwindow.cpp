@@ -1355,7 +1355,7 @@ void MainWindow::Update()
     worker->deleteLater();
     if (restart)
     {
-      Restart();
+      Exit();
     }
   });
   (void)connect(worker, &UpdateWorker::OnUpdateProgress, this, [this]() {
@@ -2699,6 +2699,8 @@ void MainWindow::Uninstall()
       backgroundWorkers--;
       session->UnloadFilenameDatabase();
       worker->deleteLater();
+      saveSettingsOnClose = false;
+      isCleaningUp = true;
       this->close();
     });
     (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
@@ -2739,6 +2741,13 @@ void MainWindow::WriteSettings()
   unique_ptr<Cfg> settings = Cfg::Create();
   settings->PutValue("MainWindow", "geometry", saveGeometry().toHex().constData());
   settings->Write(session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName("console.ini"));
+}
+
+void MainWindow::Exit()
+{
+  LOG4CXX_INFO(logger, "MiKTeX Console needs to be closed");
+  QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be close."));
+  this->close();
 }
 
 void MainWindow::Restart()

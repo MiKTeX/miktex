@@ -301,7 +301,7 @@ void RestRemoteService::SayHello()
   {
     form["userid"] = userinfo.userid;
   }
-  form["apikey"] = MPM_AGENT;
+  form["apikey"] = GetMpmAgent();
   form["apisecret"] = "abrakadabra";
   unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("hello", {}), form));
   char buf[1024];

@@ -29,6 +29,7 @@
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
+#include <miktex/Core/VersionNumber>
 
 #include "text.h"
 
@@ -50,7 +51,10 @@
 /// @brief Package manager internals.
 MPM_INTERNAL_BEGIN_NAMESPACE;
 
-constexpr const char* MPM_AGENT = "MPM/" MIKTEX_COMPONENT_VERSION_STR;
+inline std::string GetMpmAgent()
+{
+  return "MPM/" + MiKTeX::Core::VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString();
+}
 
 // the trailing slash should not be removed
 constexpr const char* TEXMF_PREFIX_DIRECTORY = "texmf" MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
