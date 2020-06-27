@@ -2127,6 +2127,7 @@ void IniTeXMFApp::RegisterOtherRoots()
 
 void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 {
+  Verbose(T_("Creating portable setup..."));
   unique_ptr<Cfg> config(Cfg::Create());
   config->PutValue(MIKTEX_CONFIG_SECTION_AUTO, MIKTEX_CONFIG_VALUE_CONFIG, "Portable");
   config->PutValue(MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0).ToString());
@@ -2527,7 +2528,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     CreatePortableSetup(PathName(portableRoot));
   }
 
-  if (principal == "setup"
+  if ((principal == "setup" && !optPortable)
     || !startupConfig.userRoots.empty()
     || !startupConfig.userDataRoot.Empty()
     || !startupConfig.userConfigRoot.Empty()
