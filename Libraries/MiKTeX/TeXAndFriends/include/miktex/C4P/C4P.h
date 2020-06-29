@@ -237,7 +237,7 @@ public:
   }
 
 protected:
-  void ReadInternal(ElementType* buf, std::size_t n)
+  std::size_t ReadInternal(ElementType* buf, std::size_t n)
   {
     AssertValid();
     MIKTEX_ASSERT_BUFFER(buf, n);
@@ -252,14 +252,19 @@ protected:
     }
     if (read != n)
     {
-      MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Read operation failed."), "path", path.ToString(), "read", std::to_string(read), "n", std::to_string(n));
+      MIKTEX_EXPECT(feof(*this));
     }
+    return read;
   }
 
 public:
   void Read(ElementType* buf, std::size_t n)
   {
-    ReadInternal(buf, n);
+    std::size_t read = ReadInternal(buf, n);
+    if (read != n)
+    {
+      MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Read operation failed."), "path", path.ToString(), "read", std::to_string(read), "n", std::to_string(n));
+    }
     if (IsPascalFileIO())
     {
       currentElement = buf[n - 1];
