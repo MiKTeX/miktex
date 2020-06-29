@@ -624,7 +624,10 @@ bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLi
     MIKTEX_UNEXPECTED();
   }
 
-  MIKTEX_EXPECT(!f.IsPascalFileIO());
+  if (!f.IsPascalFileIO())
+  {
+    // this seems to be console input after TeX's ** prompt
+  }
 
   IInputOutput* inputOutput = GetInputOutput();
 
