@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 20.6.29 - 2020-06-29
+
+This is a bugfix release:
+
+- [568](https://github.com/MiKTeX/miktex/issues/568): pdflatex fails after recent update
+
 ## 20.6 - 2020-06-28
 
 ### New release versioning scheme
