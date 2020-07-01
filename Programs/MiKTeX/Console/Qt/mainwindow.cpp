@@ -2746,7 +2746,7 @@ void MainWindow::WriteSettings()
 void MainWindow::Exit()
 {
   LOG4CXX_INFO(logger, "MiKTeX Console needs to be closed");
-  QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be close."));
+  QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be closed."));
   this->close();
 }
 
