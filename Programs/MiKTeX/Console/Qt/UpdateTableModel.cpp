@@ -123,7 +123,14 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
       case PackageInstaller::UpdateInfo::ForceUpdate:
         return tr("required");
       case PackageInstaller::UpdateInfo::ForceRemove:
-        return tr("required: either obsolete or installed by admin");
+        if (session->IsSharedSetup() && !session->IsAdminMode())
+        {
+          return tr("competing installations (all users vs. private)");
+        }
+        else
+        {
+          return tr("removed from repository");
+        }
       case PackageInstaller::UpdateInfo::Repair:
         return tr("to be repaired");
       case PackageInstaller::UpdateInfo::ReleaseStateChange:
