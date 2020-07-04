@@ -1,6 +1,6 @@
-/* screen.cpp: METAFONT online displays
+/* screen.cpp: METAFONT screen display
 
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
    Copyright (C) 1998 Wolfgang Kleinschmidt
 
    This file is free software; you can redistribute it and/or modify
@@ -20,9 +20,8 @@
 
 #include <mutex>
 
-#if defined(_MSC_VER)
-#include <conio.h>
-#endif
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "mf-miktex.h"
 
@@ -30,20 +29,22 @@
 
 using namespace std;
 
+constexpr wchar_t* WINDOW_CLASS = L"MF_Screen";
+
 namespace {
-  DWORD g_dwThreadID;
-  HANDLE g_hEvtReady;
-  HANDLE g_hThread;
-  HDC g_hdc;
-  HINSTANCE g_hinstance;
-  HWND g_hwnd;
+  DWORD threadId;
+  HANDLE threadHandle;
+  HANDLE readyEvent;
+  HDC deviceContext;
+  HINSTANCE instance;
+  HWND window;
   mutex screenMutex;
-  POINT g_pt;
+  POINT screenSize;
 }
 
-LRESULT CALLBACK ScreenWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK ScreenWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  static HBITMAP hbitmap;       // <fixme/>
+  static HBITMAP bitmap;       // <fixme/>
 
   switch (uMsg)
   {
@@ -51,27 +52,27 @@ LRESULT CALLBACK ScreenWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
   case WM_CREATE:
   {
     lock_guard<mutex> lockGuard(screenMutex);
-    HDC hPaintDC = GetDC(hwnd);
-    g_hdc = CreateCompatibleDC(hPaintDC);
-    if (g_hdc == nullptr)
+    HDC hPaintDC = GetDC(hWnd);
+    deviceContext = CreateCompatibleDC(hPaintDC);
+    if (deviceContext == nullptr)
     {
-      SetEvent(g_hEvtReady);
+      SetEvent(readyEvent);
       PostQuitMessage(1);
     }
-    hbitmap = CreateCompatibleBitmap(hPaintDC, g_pt.x, g_pt.y);
-    if (hbitmap == nullptr)
+    bitmap = CreateCompatibleBitmap(hPaintDC, screenSize.x, screenSize.y);
+    if (bitmap == nullptr)
     {
-      DeleteObject(g_hdc);
-      g_hdc = nullptr;
-      SetEvent(g_hEvtReady);
+      DeleteObject(deviceContext);
+      deviceContext = nullptr;
+      SetEvent(readyEvent);
       PostQuitMessage(1);
     }
-    ReleaseDC(hwnd, hPaintDC);
+    ReleaseDC(hWnd, hPaintDC);
     hPaintDC = nullptr;
-    SelectObject(g_hdc, hbitmap);
-    SelectObject(g_hdc, GetStockObject(LTGRAY_BRUSH));
-    SelectObject(g_hdc, GetStockObject(NULL_PEN));
-    Rectangle(g_hdc, 0, 0, g_pt.x, g_pt.y);
+    SelectObject(deviceContext, bitmap);
+    SelectObject(deviceContext, GetStockObject(LTGRAY_BRUSH));
+    SelectObject(deviceContext, GetStockObject(NULL_PEN));
+    Rectangle(deviceContext, 0, 0, screenSize.x, screenSize.y);
     return 0;
     break;
   }
@@ -79,10 +80,10 @@ LRESULT CALLBACK ScreenWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
   case WM_DESTROY:
   {
     lock_guard<mutex> lockGuard(screenMutex);
-    DeleteObject(hbitmap);
-    hbitmap = nullptr;
-    DeleteDC(g_hdc);
-    g_hdc = nullptr;
+    DeleteObject(bitmap);
+    bitmap = nullptr;
+    DeleteDC(deviceContext);
+    deviceContext = nullptr;
     PostQuitMessage(0);
     return 0;
     break;
@@ -92,42 +93,42 @@ LRESULT CALLBACK ScreenWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
   {
     lock_guard<mutex> lockGuard(screenMutex);
     PAINTSTRUCT ps;
-    HDC hPaintDC = BeginPaint(hwnd, &ps);
-    BitBlt(hPaintDC, 0, 0, g_pt.x, g_pt.y, g_hdc, 0, 0, SRCCOPY);
-    EndPaint(hwnd, &ps);
+    HDC hPaintDC = BeginPaint(hWnd, &ps);
+    BitBlt(hPaintDC, 0, 0, screenSize.x, screenSize.y, deviceContext, 0, 0, SRCCOPY);
+    EndPaint(hWnd, &ps);
     return 0;
     break;
   }
 
   default:
-    return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+    return DefWindowProcW(hWnd, uMsg, wParam, lParam);
   }
 }
 
 DWORD WINAPI ScreenThreadFunc(LPVOID lpv)
 {
   LPPOINT ppt = reinterpret_cast<LPPOINT>(lpv);
-  wchar_t szWindowName[100];
-  swprintf_s(szWindowName, 100, L"METAFONT Screen (%d x %d)", ppt->x, ppt->y);
-  g_hwnd = CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, L"MF_Screen", szWindowName, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, g_hinstance, nullptr);
-  if (g_hwnd == nullptr)
+  wstring windowName = fmt::format(L"METAFONT Screen ({0} x {1})", ppt->x, ppt->y);
+  window = CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, WINDOW_CLASS, windowName.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, instance, nullptr);
+  if (window == nullptr)
   {
-    SetEvent(g_hEvtReady);
+    SetEvent(readyEvent);
     PostQuitMessage(1);
+    return 0;
   }
-  ShowWindow(g_hwnd, SW_SHOWNOACTIVATE);
-  SetEvent(g_hEvtReady);
+  ShowWindow(window, SW_SHOWNOACTIVATE);
+  SetEvent(readyEvent);
   MSG msg;
-  while (GetMessageW(&msg, g_hwnd, 0, 0))
+  while (GetMessageW(&msg, window, 0, 0))
   {
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
   }
-  UnregisterClassW(L"MF_Screen", g_hinstance);
+  UnregisterClassW(WINDOW_CLASS, instance);
   return 0;
 }
 
-C4P_boolean miktexinitscreen(int w, int h)
+C4P_boolean miktexinitscreen(int screenWidth, int screenHeight)
 {
 #if defined(MIKTEX_TRAPMF)
   return true;
@@ -138,40 +139,39 @@ C4P_boolean miktexinitscreen(int w, int h)
     return false;
   }
 
-  WNDCLASSW wc;
-  ZeroMemory(&wc, sizeof(wc));
+  WNDCLASSW wc = { 0 };
   wc.style = CS_NOCLOSE;
   wc.lpfnWndProc = ScreenWindowProc;
-  wc.hInstance = g_hinstance;
-  wc.hIcon = LoadIconW(g_hinstance, MAKEINTRESOURCEW(IDR_MFSCREEN));
+  wc.hInstance = instance;
+  wc.hIcon = LoadIconW(instance, MAKEINTRESOURCEW(IDR_MFSCREEN));
   wc.hCursor = LoadCursorW(nullptr, MAKEINTRESOURCEW(32512)); // IDC_ARROW
   wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_BTNFACE + 1);
-  wc.lpszClassName = L"MF_Screen";
+  wc.lpszClassName = WINDOW_CLASS;
   RegisterClassW(&wc);
 
-  g_pt.x = w;
-  g_pt.y = h;
+  screenSize.x = screenWidth;
+  screenSize.y = screenHeight;
 
-  g_hEvtReady = CreateEventW(nullptr, FALSE, FALSE, nullptr);
-  if (g_hEvtReady == nullptr)
+  readyEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
+  if (readyEvent == nullptr)
   {
     return false;
   }
 
-  g_hThread = CreateThread(nullptr, 0, ScreenThreadFunc, &g_pt, 0, &g_dwThreadID);
-  if (g_hThread == nullptr)
+  threadHandle = CreateThread(nullptr, 0, ScreenThreadFunc, &screenSize, 0, &threadId);
+  if (threadHandle == nullptr)
   {
     return false;
   }
 
-  WaitForSingleObject(g_hEvtReady, INFINITE);
+  WaitForSingleObject(readyEvent, INFINITE);
 
-  if (g_hwnd == nullptr)
+  if (window == nullptr)
   {
     return false;
   }
 
-  if (g_hdc == nullptr)
+  if (deviceContext == nullptr)
   {
     return false;
   }
@@ -179,17 +179,17 @@ C4P_boolean miktexinitscreen(int w, int h)
   return true;
 }
 
-void miktexblankrectangle(MFPROGCLASS::screencol left_col, MFPROGCLASS::screencol right_col, MFPROGCLASS::screenrow top_row, MFPROGCLASS::screenrow bot_row)
+void miktexblankrectangle(MFPROGCLASS::screencol leftColumn, MFPROGCLASS::screencol rightColumn, MFPROGCLASS::screenrow topRow, MFPROGCLASS::screenrow bottomRow)
 {
 #if defined(MIKTEX_TRAPMF)
   return;
 #endif
   lock_guard<mutex> lockGuard(screenMutex);
-  HGDIOBJ hgdiobj1 = SelectObject(g_hdc, GetStockObject(WHITE_BRUSH));
-  HGDIOBJ hgdiobj2 = SelectObject(g_hdc, GetStockObject(NULL_PEN));
-  Rectangle(g_hdc, left_col, top_row, right_col, bot_row);
-  SelectObject(g_hdc, hgdiobj1);
-  SelectObject(g_hdc, hgdiobj2);
+  HGDIOBJ hgdiobj1 = SelectObject(deviceContext, GetStockObject(WHITE_BRUSH));
+  HGDIOBJ hgdiobj2 = SelectObject(deviceContext, GetStockObject(NULL_PEN));
+  Rectangle(deviceContext, leftColumn, topRow, rightColumn, bottomRow);
+  SelectObject(deviceContext, hgdiobj1);
+  SelectObject(deviceContext, hgdiobj2);
 }
 
 void miktexupdatescreen()
@@ -199,39 +199,39 @@ void miktexupdatescreen()
 #endif
   lock_guard<mutex> lockGuard(screenMutex);
   // ShowWindow (g_hwnd, SW_SHOWNORMAL);
-  InvalidateRect(g_hwnd, nullptr, FALSE);
+  InvalidateRect(window, nullptr, FALSE);
 }
 
-void miktexpaintrow(MFPROGCLASS::screenrow r, MFPROGCLASS::pixelcolor b, MFPROGCLASS::transspec a, MFPROGCLASS::screencol n)
+void miktexpaintrow(MFPROGCLASS::screenrow row, MFPROGCLASS::pixelcolor startColor, MFPROGCLASS::transspec blackWhiteTransitions, MFPROGCLASS::screencol numColumns)
 {
 #if defined(MIKTEX_TRAPMF)
   return;
 #endif
   lock_guard<mutex> lockGuard(screenMutex);
-  HGDIOBJ hgdiobj = SelectObject(g_hdc, GetStockObject(BLACK_PEN));
-  METAFONTProgram::screencol k = n;
-  MoveToEx(g_hdc, a[k], r, nullptr);
+  HGDIOBJ hgdiobj = SelectObject(deviceContext, GetStockObject(BLACK_PEN));
+  METAFONTProgram::screencol k = numColumns;
+  MoveToEx(deviceContext, blackWhiteTransitions[k], row, nullptr);
   do
   {
     --k;
-    if (b)
+    if (startColor)
     {
-      LineTo(g_hdc, a[k] - 1, r);
+      LineTo(deviceContext, blackWhiteTransitions[k] - 1, row);
     }
     else
     {
-      MoveToEx(g_hdc, a[k], r, nullptr);
+      MoveToEx(deviceContext, blackWhiteTransitions[k], row, nullptr);
     }
-    b = !b;
+    startColor = !startColor;
   } while (k);
-  SelectObject(g_hdc, hgdiobj);
+  SelectObject(deviceContext, hgdiobj);
 }
 
-int APIENTRY DllMain(HINSTANCE hinstance, DWORD reason, LPVOID ignore2)
+int APIENTRY DllMain(HINSTANCE hInstance, DWORD reason, LPVOID ignore2)
 {
   if (reason == DLL_PROCESS_ATTACH)
   {
-    g_hinstance = hinstance;
+    instance = hInstance;
   }
   return 1;
 }

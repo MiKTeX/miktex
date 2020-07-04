@@ -1,4 +1,4 @@
-/* mf-version.h: version number                         -*- C++ -*-
+/* mf-version.h: version number
 
    Copyright (C) 1996-2020 Christian Schenk
 
@@ -17,7 +17,10 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 7439
+#define MIKTEX_COMP_MAJOR_VERSION 4
+#define MIKTEX_COMP_MINOR_VERSION 0
+#define MIKTEX_COMP_PATCH_VERSION 0
+
 #define MIKTEX_COMP_ORIG_VERSION_STR "2.718281"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "© 1984 D. E. Knuth"
