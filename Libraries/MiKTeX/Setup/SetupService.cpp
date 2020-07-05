@@ -219,10 +219,14 @@ PathName SetupService::GetDefaultLocalRepository()
   }
   else
   {
-    // default is current users Desktop\MiKTeX Download Files"
 #if defined(MIKTEX_WINDOWS)
-    ret = Utils::GetFolderPath(CSIDL_DESKTOPDIRECTORY, CSIDL_DESKTOPDIRECTORY, true);
-    ret /= "MiKTeX Download Files";
+    // default is current users download folder
+    wchar_t* downloadFolder = nullptr;
+    HRESULT hr = SHGetKnownFolderPath(FOLDERID_Downloads, KF_FLAG_CREATE, nullptr, &downloadFolder);
+    MIKTEX_EXPECT(SUCCEEDED(hr));
+    MIKTEX_AUTO(CoTaskMemFree(downloadFolder));
+    ret = downloadFolder;
+    ret /= MIKTEX_PRODUCTNAME_STR;
 #else
     // TODO
     MIKTEX_UNEXPECTED();
