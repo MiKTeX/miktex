@@ -222,7 +222,7 @@ PathName SetupService::GetDefaultLocalRepository()
 #if defined(MIKTEX_WINDOWS)
     // default is current users download folder
     wchar_t* downloadFolder = nullptr;
-    HRESULT hr = SHGetKnownFolderPath(FOLDERID_Downloads, KF_FLAG_CREATE, nullptr, &downloadFolder);
+    HRESULT hr = SHGetKnownFolderPath(FOLDERID_Downloads, 0, nullptr, &downloadFolder);
     MIKTEX_EXPECT(SUCCEEDED(hr));
     MIKTEX_AUTO(CoTaskMemFree(downloadFolder));
     ret = downloadFolder;
