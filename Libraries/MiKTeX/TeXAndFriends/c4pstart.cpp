@@ -24,6 +24,9 @@
 #include <io.h>
 #endif
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/App/Application>
 
 #if defined(MIKTEX_TEXMF_SHARED)
@@ -78,6 +81,8 @@ public:
 public:
   bool utf8ConsoleIssue = false;
 #endif
+public:
+  bool terminalIssue = false;
 public:
   Runtime runtime;
 };
@@ -147,6 +152,11 @@ C4PTHISAPI(void) C4P::ProgramBase::Finish()
     pimpl->utf8ConsoleIssue = false;
   }
 #endif
+  if (pimpl->terminalIssue)
+  {
+    pimpl->parent->Warning("some characters could not be written to the terminal window");
+    pimpl->terminalIssue = false;
+  }
   pimpl->runtime.ClearCommandLine();
   pimpl->runtime.programName = "";
 }
@@ -262,26 +272,42 @@ C4P::C4P_text* C4P::ProgramBase::GetStdFilePtr(unsigned idx)
 
 void C4P::ProgramBase::WriteChar(int ch, FILE* file)
 {
-#if defined(MIKTEX_WINDOWS)
-  if (static_cast<unsigned char>(ch) > 127 )
+  constexpr char FAILCHAR = '?';
+  int fd = fileno(file);
+  if (fd < 0)
   {
-    int fd = fileno(file);
-    if (fd < 0)
-    {
-      MIKTEX_FATAL_CRT_ERROR("fileno");
-    }
-    int fdStdOut = (stdout != nullptr ? fileno(stdout) : -1);
-    int fdStdErr = (stderr != nullptr ? fileno(stderr) : -1);
-    if ((fd == fdStdOut || fd == fdStdErr) && _isatty(fd) != 0 && GetConsoleOutputCP() != 65001)
-    {
-      pimpl->utf8ConsoleIssue = true;
-      ch = '?';
-    }
+    MIKTEX_FATAL_CRT_ERROR("fileno");
+  }
+  int fdStdOut = (stdout != nullptr ? fileno(stdout) : -1);
+  int fdStdErr = (stderr != nullptr ? fileno(stderr) : -1);
+  bool isTerminal = (fd == fdStdOut || fd == fdStdErr);
+#if defined(MIKTEX_WINDOWS)
+  isTerminal = isTerminal && _isatty(fd);
+#else
+  isTerminal = isTerminal && isatty(fd);
+#endif
+#if defined(MIKTEX_WINDOWS)
+  if (static_cast<unsigned char>(ch) > 127 && isTerminal && GetConsoleOutputCP() != 65001)
+  {
+    pimpl->utf8ConsoleIssue = true;
+    ch = FAILCHAR;
   }
 #endif
-  ch = putc(ch, file);
-  if (ch == EOF)
+  if (putc(ch, file) == EOF)
   {
-    MIKTEX_FATAL_CRT_ERROR("putc");
+    int errCode = errno;
+    if (!isTerminal)
+    {
+      MIKTEX_FATAL_CRT_ERROR("putc");
+    }
+    else
+    {
+      pimpl->parent->LogWarn(fmt::format("could not write &#{0} to the terminal: errno {1}: {2}", ch, errCode, strerror(errCode)));
+      pimpl->terminalIssue = true;
+      if (ch != FAILCHAR)
+      {
+        putc(FAILCHAR, file);
+      }
+    }
   }
 }
