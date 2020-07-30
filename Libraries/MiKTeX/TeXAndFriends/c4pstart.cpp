@@ -24,6 +24,10 @@
 #include <io.h>
 #endif
 
+#if defined(MIKTEX_UNIX)
+#include <unistd.h>
+#endif
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
