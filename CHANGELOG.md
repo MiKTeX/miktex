@@ -4,6 +4,7 @@
 
 ### Fixed issues
 
+- [576](https://github.com/MiKTeX/miktex/issues/576): Net Installer Crashing
 - [581](https://github.com/MiKTeX/miktex/issues/581): pdflatex fails with "invalid argument in putc"
 - [584](https://github.com/MiKTeX/miktex/issues/584): upon rebuilding all formats: invalid value definition in mltex.ini
 
