@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 20.7 - 2020-08-02
+## 20.7 - 2020-08-03
 
 ### Fixed issues
 
