@@ -1,5 +1,12 @@
 # MiKTeX Change Log
 
+## 20.7 - 2020-08-02
+
+### Fixed issues
+
+- [581](https://github.com/MiKTeX/miktex/issues/581): pdflatex fails with "invalid argument in putc"
+- [584](https://github.com/MiKTeX/miktex/issues/584): upon rebuilding all formats: invalid value definition in mltex.ini
+
 ## 20.6.29 - 2020-06-29
 
 This followup release to fix some regressions:
