@@ -1,4 +1,5 @@
 .vscode/
 build/
+build2/
 nmake/
 vs2019/
