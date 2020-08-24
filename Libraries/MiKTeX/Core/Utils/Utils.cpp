@@ -885,7 +885,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
       }
       found = true;
     }
-    else if (checkCompetition)
+    else if (Directory::Exists(dir) && checkCompetition)
     {
       PathName otherPdfTeX(dir);
       otherPdfTeX /= "pdftex" MIKTEX_EXE_FILE_SUFFIX;

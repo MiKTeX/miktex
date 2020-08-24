@@ -52,6 +52,7 @@ static std::unordered_map<DWORD, bool> expectedErrors = {
   { ERROR_BAD_NET_NAME, false }, // 67
   { ERROR_INVALID_NAME, false }, // 123
   { ERROR_BAD_PATHNAME, false }, // 161
+  { ERROR_CANT_ACCESS_FILE, false }, // 1920
 };
 
 bool File::Exists(const PathName& path, FileExistsOptionSet options)
