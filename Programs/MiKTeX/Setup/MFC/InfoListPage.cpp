@@ -1,6 +1,6 @@
 /* InfoListPage.cpp:
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2020 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -42,6 +42,7 @@ BOOL InfoListPage::OnInitDialog()
 
 BOOL InfoListPage::OnSetActive()
 {
+  noDdv = false;
   BOOL ret = CPropertyPage::OnSetActive();
 
   if (ret)
@@ -79,7 +80,7 @@ void InfoListPage::DoDataExchange(CDataExchange* dx)
 BOOL InfoListPage::OnKillActive()
 {
   BOOL ret = CPropertyPage::OnKillActive();
-  if (ret)
+  if (ret && !noDdv)
   {
     try
     {
@@ -112,6 +113,7 @@ LRESULT InfoListPage::OnWizardNext()
 
 LRESULT InfoListPage::OnWizardBack()
 {
+  noDdv = true;
   return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(sheet->PopPage()));
 }
 

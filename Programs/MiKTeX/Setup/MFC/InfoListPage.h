@@ -1,6 +1,6 @@
 /* InfoListPage.h:                                      -*- C++ -*-
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2020 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -59,6 +59,9 @@ private:
 
 private:
   CString oldNextText;
+
+private:
+  bool noDdv;
 
 private:
   class SetupWizard* sheet = nullptr;
