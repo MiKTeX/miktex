@@ -1,5 +1,5 @@
-/*   $Id: dvips.h 50001 2019-02-11 18:22:31Z karl $
- *   Copyright 1986-2019 Tomas Rokicki.
+/*   $Id: dvips.h 53427 2020-01-16 22:02:50Z karl $
+ *   Copyright 1986-2020 Tomas Rokicki.
  *   This is dvips, a freely redistributable PostScript driver
  *   for dvi files. You may freely use, modify and/or distribute this
  *   program or any portion thereof.
@@ -15,7 +15,7 @@
 #define CD_IDX(i)  ((i>=MAX_2BYTES_CODE ? MAX_2BYTES_CODE : i))
 
 #define BANNER \
-"This is dvips(k) 5.999 Copyright 2019 Radical Eye Software"
+"This is dvips(k) 2020.1 Copyright 2020 Radical Eye Software"
 #define BANNER2 "(www.radicaleye.com)"
 #if defined(MIKTEX)
 #if defined(MIKTEX_WINDOWS)
@@ -26,6 +26,7 @@
 #endif
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
+#include <miktex/Core/Utils>
 #include <sys/stat.h>
 #include <limits.h>
 #include <miktex/KPSE/Emulation>
@@ -200,6 +201,7 @@ typedef struct tfd {
    quarterword psflag;
    quarterword codewidth;
    integer maxchars;
+   integer llx, lly, urx, ury ;
    char *name, *area;
    struct resfont *resfont;
    struct tft *localfonts;

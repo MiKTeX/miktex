@@ -52,7 +52,7 @@ add_custom_command(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND tex2xindy_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     tex2xindy.rc
   )
 endif()

@@ -1,6 +1,6 @@
 /* tangle-miktex.h:                                     -*- C++ -*-
 
-   Copyright (C) 1991-2018 Christian Schenk
+   Copyright (C) 1991-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -70,7 +70,7 @@ public:
   void ProcessCommandLineOptions() override
   {
     WebApp::ProcessCommandLineOptions();
-    if (C4P::GetArgC() != 5)
+    if (GetProgram()->GetArgC() != 5)
     {
       BadUsage();
     }

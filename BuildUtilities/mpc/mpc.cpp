@@ -1,6 +1,6 @@
 /* mpc.cpp: creating MiKTeX packages
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MPC.
 
@@ -19,6 +19,8 @@
    Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
 #define SUPPORT_LEGACY_EXTERNALNAME
+
+#include "config.h"
 
 #include <cstdio>
 
@@ -82,6 +84,41 @@ enum class ArchiveFileType
   TarLzma
 };
 
+class PrivateKeyProvider :
+  public IPrivateKeyProvider
+{
+public:
+  PathName MIKTEXTHISCALL GetPrivateKeyFile() override
+  {
+    return privateKeyFile;
+  }
+
+public:
+  bool GetPassphrase(string& passphrase) override
+  {
+    passphrase = string(reinterpret_cast<const char*>(&this->passphrase[0]), this->passphrase.size());
+    return true;
+  }
+
+public:
+  void SetPrivateKeyFile(const PathName& privateKeyFile)
+  {
+    this->privateKeyFile = privateKeyFile;
+  }
+
+public:
+  void SetPassphrase(const vector<uint8_t>& passphrase)
+  {
+    this->passphrase = passphrase;
+  }
+
+private:
+  PathName privateKeyFile;
+
+private:
+  vector<uint8_t> passphrase;
+};
+
 class RestoreCurrentDirectory
 {
 public:
@@ -123,6 +160,8 @@ enum Option
   OPT_DISASSEMBLE_PACKAGE,
   OPT_MIKTEX_MAJOR_MINOR,
   OPT_PACKAGE_LIST,
+  OPT_PASSPHRASE_FILE,
+  OPT_PRIVATE_KEY_FILE,
   OPT_RELEASE_STATE,
   OPT_REPOSITORY,
   OPT_STAGING_DIR,
@@ -372,7 +411,7 @@ private:
 
 private:
   // default MiKTeX major/minor version
-  VersionNumber majorMinorVersion = MIKTEX_MAJOR_MINOR_STR;
+  VersionNumber majorMinorVersion = VersionNumber(MIKTEX_PACKAGES_MAJOR_MINOR_STR);
 
 private:
   string releaseState = "stable";
@@ -390,6 +429,9 @@ private:
 private:
   // command-line options
   static const struct poptOption options[];
+
+private:
+  PrivateKeyProvider privateKeyProvider;
 };
 
 const struct poptOption PackageCreator::options[] = {
@@ -412,11 +454,21 @@ const struct poptOption PackageCreator::options[] = {
 
   {
     // TODO: "miktex-major-minor"
-    "miktex-series", 0, POPT_ARG_STRING, 0, OPT_MIKTEX_MAJOR_MINOR, T_("Specify the MiKTeX major/minor version (one of: 2.9)."), T_("MAJOR.MINOR")
+    "miktex-series", 0, POPT_ARG_STRING, 0, OPT_MIKTEX_MAJOR_MINOR, T_("Specify the MiKTeX major/minor version."), T_("MAJOR.MINOR")
   },
 
   {
     "package-list", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_PACKAGE_LIST, T_("Specify the package list file."), T_("FILE")
+  },
+
+  {
+    "passphrase-file", 0, POPT_ARG_STRING, nullptr, OPT_PASSPHRASE_FILE,
+    T_("The file containing the passphrase for the private key."), T_("FILE"),
+  },
+
+  {
+    "private-key-file", 0, POPT_ARG_STRING, nullptr, OPT_PRIVATE_KEY_FILE,
+    T_("The private key file used for signing."), T_("FILE"),
   },
 
   {
@@ -501,7 +553,7 @@ PathName PackageCreator::FindLzma()
 
 ArchiveFileType PackageCreator::GetDbArchiveFileType()
 {
-  if (majorMinorVersion < "2.7")
+  if (majorMinorVersion < VersionNumber("2.7"))
   {
     return ArchiveFileType::TarBzip2;
   }
@@ -624,10 +676,10 @@ void PackageCreator::MD5WildCopy(const PathName& sourceTemplate, const PathName&
     }
 
     // path to source file
-    PathName sourcePath(sourceDir, direntry.name);
+    PathName sourcePath(sourceDir, PathName(direntry.name));
 
     // path to destination file
-    PathName destPath(destDir, direntry.name);
+    PathName destPath(destDir, PathName(direntry.name));
 
     // copy file and calculate its digest
     MD5 digest = MD5CopyFile(sourcePath, destPath);
@@ -654,21 +706,21 @@ void PackageCreator::MD5WildCopy(const PathName& sourceTemplate, const PathName&
   }
 }
 
-void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* sourceSubDir, const PathName& destDir, const char* destSupDir, FileDigestTable& fileDigests)
+void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* sourceSubDir, const PathName& destDir, const char* destSubDir, FileDigestTable& fileDigests)
 {
   // path to source root directory
-  PathName sourceRootDir(sourceDir, sourceSubDir);
+  PathName sourceRootDir(sourceDir, PathName(sourceSubDir));
 
   // path to destination root directory
-  PathName destRootDir(destDir, destSupDir);
+  PathName destRootDir(destDir, PathName(destSubDir));
 
   for (const string& fileName : files)
   {
     // source template
-    PathName sourceTemplate(sourceRootDir, fileName);
+    PathName sourceTemplate(sourceRootDir, PathName(fileName));
 
     // path to destination directory
-    PathName destDir(destRootDir, fileName);
+    PathName destDir(destRootDir, PathName(fileName));
     destDir.RemoveFileSpec();
 
     // copy file
@@ -678,7 +730,7 @@ void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& s
 
 void PackageCreator::WriteDescriptionFile(const string& description, const PathName& stagingDir)
 {
-  ofstream stream = File::CreateOutputStream(stagingDir / "Description");
+  ofstream stream = File::CreateOutputStream(stagingDir / PathName("Description"));
   stream << description;
   stream.close();
 }
@@ -688,7 +740,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
   ofstream stream;
 
   // write package.ini
-  stream = File::CreateOutputStream(stagingDir / "package.ini");
+  stream = File::CreateOutputStream(stagingDir / PathName("package.ini"));
   stream
     << "id=" << packageInfo.id << "\n"
     << "name=" << packageInfo.displayName << "\n"
@@ -709,7 +761,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
   stream.close();
 
   // write md5sums.txt
-  stream = File::CreateOutputStream(stagingDir / "md5sums.txt");
+  stream = File::CreateOutputStream(stagingDir / PathName("md5sums.txt"));
   for (const pair<string, MD5>& p : fileDigests)
   {
     stream << p.second << " " << PathName(p.first).ToUnix() << "\n";
@@ -729,13 +781,13 @@ void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathNa
 
   // path to package manifest directory, e.g.:
   // /miktex/texmf/tpm/packages/
-  PathName packageManifestDirectory = destDir / texmfPrefix / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  PathName packageManifestDirectory = destDir / PathName(texmfPrefix) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
 
   // create package manifest directory
   Directory::Create(packageManifestDirectory);
 
   // create the package manifest file...
-  PackageManager::WritePackageManifestFile(PathName(packageManifestDirectory, packageinfo.id).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), packageinfo, programStartTime);
+  PackageManager::WritePackageManifestFile(PathName(packageManifestDirectory, PathName(packageinfo.id)).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), packageinfo, programStartTime);
 
   // copy files and calculate digests
   FileDigestTable fileDigests;
@@ -942,7 +994,7 @@ void PackageCreator::CollectFiles(const PathName& rootDir, const PathName& subDi
 
 void PackageCreator::CollectSubTree(const PathName& path, const char* subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles)
 {
-  PathName sourceDir(path, subDir);
+  PathName sourceDir(path, PathName(subDir));
   CollectFiles(sourceDir, PathName(), runFiles, sizeRunFiles, docFiles, sizeDocFiles, sourceFiles, sizeSourceFiles);
 }
 
@@ -979,10 +1031,10 @@ void PackageCreator::CollectPackages(const PathName& stagingRoot, map<string, Mp
     }
 
     // path to staging directory
-    PathName stagingDir(stagingRoot, dirEntry.name);
+    PathName stagingDir(stagingRoot, PathName(dirEntry.name));
 
     // check to see if package.ini exists
-    if (!File::Exists(PathName(stagingDir, "package.ini")))
+    if (!File::Exists(PathName(stagingDir, PathName("package.ini"))))
     {
       continue;
     }
@@ -1059,7 +1111,7 @@ void PackageCreator::WritePackageManifestFiles(const map<string, MpcPackageInfo>
     }
 
     // path to package manifest file
-    PathName packageManifestFile(destDir, p.second.id);
+    PathName packageManifestFile(destDir, PathName(p.second.id));
     packageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 
     // remove existing package manifest file
@@ -1101,7 +1153,14 @@ void PackageCreator::DumpPackageManifests(const map<string, MpcPackageInfo>& pac
     }
     PackageManager::PutPackageManifest(*cfg, p.second, timePackaged);
   }
-  cfg->Write(path);
+  if (privateKeyProvider.GetPrivateKeyFile().Empty())
+  {
+    cfg->Write(path);
+  }
+  else
+  {
+    cfg->Write(path, "", &privateKeyProvider);
+  }
 }
 
 bool PackageCreator::OnProcessOutput(const void* output, size_t n)
@@ -1208,7 +1267,14 @@ void PackageCreator::CreateRepositoryInformationFile(const PathName& repository,
   {
     File::Delete(path);
   }
-  cfg->Write(path);
+  if (privateKeyProvider.GetPrivateKeyFile().Empty())
+  {
+    cfg->Write(path);
+  }
+  else
+  {
+    cfg->Write(path, "", &privateKeyProvider);
+  }
   MD5Builder lstDigest;
   unique_ptr<DirectoryLister> lister = DirectoryLister::Open(repository);
   DirectoryEntry2 dirEntry;
@@ -1229,7 +1295,14 @@ void PackageCreator::CreateRepositoryInformationFile(const PathName& repository,
     lstDigest.Update(s.c_str(), s.length());
   }
   cfg->PutValue("repository", "lstdigest", lstDigest.Final().ToString());
-  cfg->Write(path);
+  if (privateKeyProvider.GetPrivateKeyFile().Empty())
+  {
+    cfg->Write(path);
+  }
+  else
+  {
+    cfg->Write(path, "", &privateKeyProvider);
+  }
 }
 
 void PackageCreator::CreateFileListFile(const map<string, MpcPackageInfo>& packageTable, const PathName& repository)
@@ -1330,7 +1403,7 @@ void PackageCreator::CleanUp(const PathName& repository)
   for (const string& fileName : toBeDeleted)
   {
     Verbose(fmt::format("Removing {0}...", Q_(fileName)));
-    File::Delete(fileName);
+    File::Delete(PathName(fileName));
   }
 }
 
@@ -1363,8 +1436,15 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   }
 
   // create temporary mpm.ini
-  unique_ptr<TemporaryFile> tempIni = TemporaryFile::Create(PathName(repository, MIKTEX_MPM_INI_FILENAME));
-  repositoryManifest.Write(tempIni->GetPathName());
+  unique_ptr<TemporaryFile> tempIni = TemporaryFile::Create(PathName(repository, PathName(MIKTEX_MPM_INI_FILENAME)));
+  if (privateKeyProvider.GetPrivateKeyFile().Empty())
+  {
+    repositoryManifest.Write(tempIni->GetPathName());
+  }
+  else
+  {
+    repositoryManifest.Write(tempIni->GetPathName(), "", &privateKeyProvider);
+  }
 
   // create repository manifest archive
   PathName dbPath1 = GetRepositoryManifestArchiveFileName();
@@ -1374,7 +1454,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   tempIni = nullptr;
 
   // create temporary package manifest directory
-  unique_ptr<TemporaryDirectory> tempDir = TemporaryDirectory::Create(PathName(repository, texmfPrefix));
+  unique_ptr<TemporaryDirectory> tempDir = TemporaryDirectory::Create(PathName(repository, PathName(texmfPrefix)));
   PathName packageManifestDir = tempDir->GetPathName();
   packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
   Directory::Create(packageManifestDir);
@@ -1390,14 +1470,14 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTab
   tempDir = nullptr;
 
   // create temporary package-manifests.ini
-  tempIni = TemporaryFile::Create(PathName(repository, "package-manifests.ini"));
+  tempIni = TemporaryFile::Create(PathName(repository, PathName("package-manifests.ini")));
   DumpPackageManifests(packageTable, tempIni->GetPathName(), repositoryManifest);
 
   // create package-manifests.ini archive
   PathName dbPath3 = GetPackageManifestsArchiveFileName();
   RunArchiver(GetDbArchiveFileType(), dbPath3, "package-manifests.ini");
 
-  // delete temporary mpm.ini
+  // delete temporary package-manifests.ini
   tempIni = nullptr;
 
   CreateFileListFile(packageTable, repository);
@@ -1501,7 +1581,7 @@ bool PackageCreator::HavePackageArchiveFile(const PathName& repository, const st
   archiveFileType = ArchiveFileType::None;
 
   // check to see whether a cabinet file exists
-  archiveFile2 = repository / packageId;
+  archiveFile2 = repository / PathName(packageId);
   archiveFile2.AppendExtension(MIKTEX_CABINET_FILE_SUFFIX);
   if (File::Exists(archiveFile2))
   {
@@ -1510,7 +1590,7 @@ bool PackageCreator::HavePackageArchiveFile(const PathName& repository, const st
   }
 
   // check to see whether a .tar.bz2 file exists
-  archiveFile2 = repository / packageId;
+  archiveFile2 = repository / PathName(packageId);
   archiveFile2.AppendExtension(MIKTEX_TARBZIP2_FILE_SUFFIX);
   if (File::Exists(archiveFile2))
   {
@@ -1519,7 +1599,7 @@ bool PackageCreator::HavePackageArchiveFile(const PathName& repository, const st
   }
 
   // check to see whether a .tar.lzma file exists
-  archiveFile2 = repository / packageId;
+  archiveFile2 = repository / PathName(packageId);
   archiveFile2.AppendExtension(MIKTEX_TARLZMA_FILE_SUFFIX);
   if (File::Exists(archiveFile2))
   {
@@ -1617,7 +1697,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
 
     // path to package manifest file, e.g.:
     // /mypackages/a0poster/Files/texmf/tpm/packages/a0poster.tpm
-    PathName packageManifestFile(packageManifestDir, packageInfo.id);
+    PathName packageManifestFile(packageManifestDir, PathName(packageInfo.id));
     packageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 
 #if 1
@@ -1642,11 +1722,11 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
     string command;
 
     // path to .tar file
-    PathName tarFile(repository, packageInfo.id);
+    PathName tarFile(repository, PathName(packageInfo.id));
     tarFile.AppendExtension(MIKTEX_TAR_FILE_SUFFIX);
 
     // path to compressed .tar file
-    archiveFile = repository / packageInfo.id;
+    archiveFile = repository / PathName(packageInfo.id);
     archiveFile.AppendExtension(PackageCreator::GetFileNameExtension(archiveFileType));
 
 #if defined(MIKTEX_WINDOWS)
@@ -1663,9 +1743,9 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
     command += " --files-from=/dev/null";
 #endif
     ExecuteSystemCommand(command.c_str());
-    if (Directory::Exists("Files"))
+    if (Directory::Exists(PathName("Files")))
     {
-      RestoreCurrentDirectory restoreCurrentDirectory("Files");
+      RestoreCurrentDirectory restoreCurrentDirectory(PathName("Files"));
       command = "tar --force-local -rf ";
       command += tarFile.ToString();
       command += " ";
@@ -1715,7 +1795,7 @@ unique_ptr<Cfg> PackageCreator::LoadRepositoryManifest(const PathName& repositor
   unique_ptr<TemporaryFile> tempFile = TemporaryFile::Create();
 
   // extract mpm.ini:
-  ExtractFile(pathRepositoryManifestArchive, GetDbArchiveFileType(), MIKTEX_MPM_INI_FILENAME, tempFile->GetPathName());
+  ExtractFile(pathRepositoryManifestArchive, GetDbArchiveFileType(), PathName(MIKTEX_MPM_INI_FILENAME), tempFile->GetPathName());
 
   // parse mpm.ini
   unique_ptr<Cfg> repositoryManifest(Cfg::Create());
@@ -1748,7 +1828,7 @@ map<string, MpcPackageInfo> PackageCreator::LoadPackageManifests(const PathName&
   Extract(pathTpmArchive, GetDbArchiveFileType(), tempDir->GetPathName());
 
   // parse all package manifest files
-  PathName directory = tempDir->GetPathName() / texmfPrefix / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  PathName directory = tempDir->GetPathName() / PathName(texmfPrefix) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
   unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
   DirectoryEntry direntry;
   while (pLister->GetNext(direntry))
@@ -1859,7 +1939,7 @@ void PackageCreator::ReadList(const PathName& path, map<string, PackageSpec>& ma
     }
     if (ch == '@')
     {
-      ReadList(lpsz, mapPackageList);
+      ReadList(PathName(lpsz), mapPackageList);
       continue;
     }
     if (ch != 'S' && ch != 'M' && ch != 'L' && ch != 'T' && ch != '-')
@@ -1867,8 +1947,15 @@ void PackageCreator::ReadList(const PathName& path, map<string, PackageSpec>& ma
       continue;
     }
     Tokenizer tok(lpsz, ";");
+    string packageId = *tok;
+    auto it = mapPackageList.find(packageId);
+    if (it != mapPackageList.end())
+    {
+      Warning(fmt::format(T_("ignoring '{0} {1}': already marked as '{2}'"), ch, Q_(packageId), it->second.level));
+      continue;
+    }
     PackageSpec pkgspec;
-    pkgspec.id = *tok;
+    pkgspec.id = packageId;
     pkgspec.level = ch;
     ArchiveFileType archiveFileType = defaultArchiveFileType;
     ++tok;
@@ -1979,7 +2066,7 @@ void PackageCreator::DisassemblePackage(const PathName& packageManifestFile, con
   packageManifestDir /= texmfPrefix;
   packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
   Directory::Create(packageManifestDir);
-  PackageManager::WritePackageManifestFile(PathName(packageManifestDir, packageInfo.id).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), mpcPackageInfo, 0);
+  PackageManager::WritePackageManifestFile(PathName(packageManifestDir, PathName(packageInfo.id)).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), mpcPackageInfo, 0);
 }
 
 void PackageCreator::Run(int argc, const char** argv)
@@ -2027,14 +2114,20 @@ void PackageCreator::Run(int argc, const char** argv)
       optDisassemblePackage = true;
       break;
     case OPT_MIKTEX_MAJOR_MINOR:
-      majorMinorVersion = optArg;
-      if (majorMinorVersion.CompareTo(MIKTEX_MAJOR_MINOR_STR) > 0)
+      majorMinorVersion = VersionNumber(optArg);
+      if (majorMinorVersion.CompareTo(VersionNumber(MIKTEX_PACKAGES_MAJOR_MINOR_STR)) > 0)
       {
         FatalError(T_("Unsupported MiKTeX major/minor version."));
       }
       break;
     case OPT_PACKAGE_LIST:
-      ReadList(optArg, packageList);
+      ReadList(PathName(optArg), packageList);
+      break;
+    case OPT_PASSPHRASE_FILE:
+      privateKeyProvider.SetPassphrase(File::ReadAllBytes(PathName(optArg)));
+      break;
+    case OPT_PRIVATE_KEY_FILE:
+      privateKeyProvider.SetPrivateKeyFile(PathName(optArg));
       break;
     case OPT_RELEASE_STATE:
       releaseState = optArg;
@@ -2047,7 +2140,7 @@ void PackageCreator::Run(int argc, const char** argv)
       break;
     case OPT_STAGING_ROOTS:
     {
-      for (const string& dir : StringUtil::Split(optArg, PathName::PathNameDelimiter))
+      for (const string& dir : StringUtil::Split(optArg, PathNameUtil::PathNameDelimiter))
       {
         stagingRoots.push_back(dir);
       }
@@ -2092,7 +2185,7 @@ void PackageCreator::Run(int argc, const char** argv)
   {
     cout
       << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 1996-2018 Christian Schenk" << endl
+      << "Copyright (C) 1996-2020 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
   }
@@ -2144,7 +2237,7 @@ void PackageCreator::Run(int argc, const char** argv)
     map<string, MpcPackageInfo> packageTable;
     for (const string& r : stagingRoots)
     {
-      CollectPackages(r, packageTable);
+      CollectPackages(PathName(r), packageTable);
     }
 
     if (packageTable.empty())
@@ -2169,7 +2262,14 @@ void PackageCreator::Run(int argc, const char** argv)
       PathName iniFile(texmfParent);
       iniFile /= texmfPrefix;
       iniFile /= MIKTEX_PATH_MPM_INI;
-      repositoryManifest->Write(iniFile);
+      if (privateKeyProvider.GetPrivateKeyFile().Empty())
+      {
+        repositoryManifest->Write(iniFile);
+      }
+      else
+      {
+        repositoryManifest->Write(iniFile, "", &privateKeyProvider);
+      }
     }
     else if (optUpdateRepository)
     {
@@ -2204,7 +2304,7 @@ void PackageCreator::Run(int argc, const char** argv)
         auto outlineFonts = packageTable.find("_miktex-fonts-type1");
         auto isOutlineFont = [](const string& s)
         {
-          return Utils::IsParentDirectoryOf("texmf/fonts/type1", s) || Utils::IsParentDirectoryOf("texmf/fonts/truetype", s);
+          return Utils::IsParentDirectoryOf(PathName("texmf/fonts/type1"), PathName(s)) || Utils::IsParentDirectoryOf(PathName("texmf/fonts/truetype"), PathName(s));
         };
         for (auto& pkg : packageTable)
         {

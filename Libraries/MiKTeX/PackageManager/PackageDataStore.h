@@ -1,6 +1,6 @@
 /* PackageDataStore.h:                                  -*- C++ -*-
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -64,7 +64,16 @@ public:
   ///
   /// @param path Path to the INI file.
 public:
-  void LoadAllPackageManifests(const MiKTeX::Core::PathName& path);
+  void LoadAllPackageManifests(const MiKTeX::Core::PathName& path, bool mustBeSigned);
+
+public:
+  PackageDataStore& Load();
+
+public:
+  bool LoadedAllPackageManifests() const
+  {
+    return loadedAllPackageManifests;
+  }
 
   /// Save mutable package data.
 public:
@@ -200,9 +209,6 @@ public:
 public:
   std::size_t GetNumberOfInstalledPackages(bool userScope);
   
-private:
-  void Load();
-
 private:
   void Load(MiKTeX::Core::Cfg& cfg);
 

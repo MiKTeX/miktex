@@ -335,13 +335,13 @@ extern integer imagecolordepth(integer);
 extern integer getimagegroupref(integer);
 extern void setimagegroupref(integer,integer);
 extern integer readimage(strnumber, integer, strnumber, integer, integer,
-                         integer, integer);
+                         integer, integer, integer);
 extern void deleteimage(integer);
 extern void img_free(void);
 extern void updateimageprocset(integer);
 extern void writeimage(integer);
 extern void dumpimagemeta(void);
-extern void undumpimagemeta(integer, integer);
+extern void undumpimagemeta(integer, integer, integer);
 
 /* writejbig2.c */
 extern void flushjbig2page0objects(void);

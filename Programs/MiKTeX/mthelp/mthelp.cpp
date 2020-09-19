@@ -1,6 +1,6 @@
 /* mthelp.cpp:
 
-   Copyright (C) 2004-2018 Christian Schenk
+   Copyright (C) 2004-2020 Christian Schenk
 
    This file is a part of MTHelp.
 
@@ -30,19 +30,16 @@
 
 #include <miktex/App/Application>
 #include <miktex/Core/BufferSizes>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamWriter>
 #include <miktex/PackageManager/PackageManager>
-#include <miktex/Util/Tokenizer>
 #include <miktex/Wrappers/PoptWrapper>
-
-#include <cstdarg>
 
 #include <iomanip>
 #include <iostream>
@@ -62,36 +59,10 @@ using namespace std;
 
 #include "template.html.h"
 
-#define VA_START(arglist, lpszFormat   )        \
-va_start(arglist, lpszFormat);                  \
-try                                             \
-{
-
-#define VA_END(arglist)                         \
-}                                               \
-catch(...)                                      \
-{                                               \
-  va_end(arglist);                              \
-  throw;                                        \
-}                                               \
-va_end(arglist);
-
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 const char* const TheNameOfTheGame = T_("MiKTeX Help Utility");
-
-#if defined(MIKTEX_WINDOWS)
-#define PATH_DELIMITER_STRING ";"
-#else
-#define PATH_DELIMITER_STRING ":"
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-const char* const DEFAULT_DOC_EXTENSIONS = ".chm;.html;.dvi;.pdf;.ps;.txt";
-#else
-const char* const DEFAULT_DOC_EXTENSIONS = ".html:.pdf:.dvi:.ps:.txt";
-#endif
 
 class MiKTeXHelp :
   public Application
@@ -106,7 +77,7 @@ private:
   void ShowVersion();
 
 private:
-  void Warning(const char* lpszFormat, ...);
+  void Warning(const string& msg);
 
 private:
   bool SkipPrefix(const string& str, const char* lpszPrefix, string& result);
@@ -200,22 +171,21 @@ void MiKTeXHelp::Init(const Session::InitInfo& initInfo, vector<char*>& args)
 
 void MiKTeXHelp::ShowVersion()
 {
-  cout << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR) << endl
-    << "Copyright (C) 2004-2017 Christian Schenk" << endl
-    << "This is free software; see the source for copying conditions.  There is NO" << endl
-    << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
+  cout << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+       << endl
+       << MIKTEX_COMP_COPYRIGHT_STR << endl
+       << endl
+       << "This is free software; see the source for copying conditions.  There is NO" << endl
+       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
 
-void MiKTeXHelp::Warning(const char* lpszFormat, ...)
+void MiKTeXHelp::Warning(const string& msg)
 {
   if (quiet)
   {
     return;
   }
-  va_list arglist;
-  VA_START(arglist, lpszFormat);
-  cerr << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
-  VA_END(arglist);
+  cerr << msg << endl;
 }
 
 bool MiKTeXHelp::SkipPrefix(const string& str, const char* lpszPrefix, string& result)
@@ -261,15 +231,15 @@ void MiKTeXHelp::FindDocFilesByPackage(const string& packageName, vector<string>
 {
   map<string, vector<string>> filesByExtension;
   FindDocFilesByPackage(packageName, filesByExtension);
-  string extensions = session->GetConfigValue("", MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
-  for (Tokenizer ext(extensions, PATH_DELIMITER_STRING); ext; ++ext)
+  vector<string> extensions = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE_FILETYPES + ".TeX system documentation"s, MIKTEX_CONFIG_VALUE_EXTENSIONS).GetStringArray();
+  for (const string& ext : extensions)
   {
-    vector<string>& vec = filesByExtension[*ext];
+    vector<string>& vec = filesByExtension[ext];
     vector<string>::iterator it = vec.begin();
     while (it != vec.end())
     {
       PathName name = PathName(*it).GetFileNameWithoutExtension();
-      if (PathName::Compare(name, packageName) == 0)
+      if (PathName::Compare(name, PathName(packageName)) == 0)
       {
         files.push_back(*it);
         it = vec.erase(it);
@@ -280,24 +250,24 @@ void MiKTeXHelp::FindDocFilesByPackage(const string& packageName, vector<string>
       }
     }
   }
-  for (Tokenizer ext(extensions, PATH_DELIMITER_STRING); ext; ++ext)
+  for (const string& ext : extensions)
   {
-    vector<string>& vec = filesByExtension[*ext];
+    vector<string>& vec = filesByExtension[ext];
     files.insert(files.end(), vec.begin(), vec.end());
   }
 }
 
 void MiKTeXHelp::FindDocFilesByName(const string& name, vector<string>& files)
 {
-  string extensions = session->GetConfigValue("", MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
+  vector<string> extensions = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE_FILETYPES + ".TeX system documentation"s, MIKTEX_CONFIG_VALUE_EXTENSIONS).GetStringArray();
   string searchSpec = MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM;
   searchSpec += MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
   searchSpec += MIKTEX_PATH_DOC_DIR;
   searchSpec += MIKTEX_PATH_RECURSION_INDICATOR;
-  for (Tokenizer ext(extensions, PATH_DELIMITER_STRING); ext; ++ext)
+  for (const string& ext : extensions)
   {
     PathName fileName(name);
-    fileName.AppendExtension(*ext);
+    fileName.AppendExtension(ext);
     PathName path;
     if (session->FindFile(fileName.GetData(), searchSpec, path))
     {
@@ -340,11 +310,11 @@ void MiKTeXHelp::ViewFile(const PathName& fileName)
       viewer = StringUtil::WideCharToUTF8(szExecutable);
       if (printOnly)
       {
-        cout << Q_(szExecutable) << ' ' << Q_(fileName) << endl;
+        cout << Q_(PathName(szExecutable)) << ' ' << Q_(fileName) << endl;
       }
       else
       {
-        Process::Start(szExecutable, { PathName(szExecutable).GetFileNameWithoutExtension().ToString(), fileName.ToString() });
+        Process::Start(PathName(szExecutable), { PathName(szExecutable).GetFileNameWithoutExtension().ToString(), fileName.ToString() });
       }
       return;
     }
@@ -352,6 +322,19 @@ void MiKTeXHelp::ViewFile(const PathName& fileName)
     {
       FatalError(T_("The viewer could not be started."));
     }
+  }
+#elif defined(MIKTEX_MACOS_BUNDLE)
+  if (viewer.empty())
+  {
+    if (printOnly)
+    {
+      cout << "open " << Q_(fileName) << endl;
+    }
+    else
+    {
+      Process::ExecuteSystemCommand(fmt::format("open {0}", Q_(fileName)));
+    }
+    return;
   }
 #else
   if (viewer.empty())
@@ -550,7 +533,7 @@ void MiKTeXHelp::Run(int argc, const char** argv)
     FindDocFilesByName(name.c_str(), filesByName);
     if (filesByPackage.size() + filesByName.size() == 0)
     {
-      Warning(T_("Documentation for %s could not be found."), Q_(name));
+      Warning(fmt::format(T_("Documentation for {0} could not be found."), Q_(name)));
       continue;
     }
     if (optListOnly)
@@ -562,18 +545,18 @@ void MiKTeXHelp::Run(int argc, const char** argv)
     {
       if (filesByPackage.size() > 0)
       {
-        ViewFile(filesByPackage[0]);
+        ViewFile(PathName(filesByPackage[0]));
       }
       else
       {
-        ViewFile(filesByName[0]);
+        ViewFile(PathName(filesByName[0]));
       }
     }
     else
     {
       if (filesByPackage.size() == 0)
       {
-        Warning(T_("Documentation for package %s could not be found."), Q_(name));
+        Warning(fmt::format(T_("Documentation for package {0} could not be found."), Q_(name)));
         continue;
       }
       CreateHtmlAndView(name.c_str(), filesByPackage);

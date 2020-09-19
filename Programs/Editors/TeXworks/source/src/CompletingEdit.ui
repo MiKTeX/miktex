@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CompletingEdit</class>
+ <widget class="QWidget" name="CompletingEdit">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>100</width>
+    <height>30</height>
+   </rect>
+  </property>
+  <action name="actionNext_Completion">
+   <property name="text">
+    <string>Next Completion</string>
+   </property>
+   <property name="shortcut">
+    <string extracomment="This is a keyboard shortcut. Please leave it untranslated unless this particular key combination is typically inaccessible or used with a different meaning in your language.">Tab</string>
+   </property>
+  </action>
+  <action name="actionPrevious_Completion">
+   <property name="text">
+    <string>Previous Completion</string>
+   </property>
+   <property name="shortcut">
+    <string extracomment="This is a keyboard shortcut. Please leave it untranslated unless this particular key combination is typically inaccessible or used with a different meaning in your language.">Shift+Backtab</string>
+   </property>
+  </action>
+  <action name="actionNext_Completion_Placeholder">
+   <property name="text">
+    <string>Next Completion Placeholder</string>
+   </property>
+   <property name="shortcut">
+    <string extracomment="This is a keyboard shortcut. Please leave it untranslated unless this particular key combination is typically inaccessible or used with a different meaning in your language.">Ctrl+Tab</string>
+   </property>
+  </action>
+  <action name="actionPrevious_Completion_Placeholder">
+   <property name="text">
+    <string>Previous Completion Placeholder</string>
+   </property>
+   <property name="shortcut">
+    <string extracomment="This is a keyboard shortcut. Please leave it untranslated unless this particular key combination is typically inaccessible or used with a different meaning in your language.">Ctrl+Shift+Backtab</string>
+   </property>
+  </action>
+  <action name="actionJump_To_PDF">
+   <property name="text">
+    <string>Jump to PDF</string>
+   </property>
+   <property name="shortcut">
+    <string extracomment="This is a keyboard shortcut. Please leave it untranslated unless this particular key combination is typically inaccessible or used with a different meaning in your language.">Ctrl+Shift+J</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

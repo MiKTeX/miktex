@@ -2,7 +2,7 @@
 ** BgColorSpecialHandler.cpp                                            **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -54,7 +54,7 @@ void BgColorSpecialHandler::dviBeginPage (unsigned pageno, SpecialActions &actio
 	if (_pageColors.empty())
 		return;
 	// find number of page with bg color change not lower than the current one
-	vector<PageColor>::iterator it = lower_bound(_pageColors.begin(), _pageColors.end(), PageColor(pageno, Color::BLACK));
+	auto it = lower_bound(_pageColors.begin(), _pageColors.end(), PageColor(pageno, Color::BLACK));
 	if (it != _pageColors.end() && it->first == pageno)
 		actions.setBgColor(it->second);
 	else if (it != _pageColors.begin())

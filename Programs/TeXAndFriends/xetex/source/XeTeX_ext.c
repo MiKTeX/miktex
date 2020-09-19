@@ -41,7 +41,10 @@ authorization from the copyright holders.
 #endif
 #include <w2c/config.h>
 
+#ifndef POPPLER_VERSION
 #include <poppler-config.h>
+#endif
+
 #include <png.h>
 #include <zlib.h>
 #include <graphite2/Font.h>
@@ -2741,7 +2744,7 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
     processStartInfo.RedirectStandardInput = true;
     dvipdfmxProcess = MiKTeX::Core::Process::Start(processStartInfo);
     dviFile.Attach(dvipdfmxProcess->get_StandardInput(), true);
-    MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath.GetData());
+    MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath);
     return 1;
   }
 }

@@ -1,6 +1,6 @@
 /* tex2xindy-version.h: version number                  -*- C++ -*-
 
-   Copyright (C) 2015-2018 Christian Schenk
+   Copyright (C) 2015-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,8 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.24"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 1996,1997 Roger Kehr, (C) 2006 Joachim Schrod"
-
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1996,1997 Roger Kehr, © 2006 Joachim Schrod"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1996,1997 Roger Kehr, Â© 2006 Joachim Schrod"
 
 #include <miktex/Version>

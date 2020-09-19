@@ -373,7 +373,7 @@ with the present \TeX\ table sizes, etc.
 } while (0)
 
 #if defined(MIKTEX)
-boolean load_fmt_file(const char* fmtname, boolean silent)
+boolean load_fmt_file(const char* fmtname, int silent)
 #else
 boolean load_fmt_file(const char *fmtname)
 #endif

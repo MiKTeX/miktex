@@ -1,6 +1,6 @@
 /* SessionImpl.h: Session impl class                    -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -121,6 +121,25 @@ public:
   std::vector<std::string> definition;
 };
 
+struct VersionedStartupConfig :
+  public MiKTeX::Core::StartupConfig
+{
+public:
+  VersionedStartupConfig()
+  {
+  }
+
+public:
+  VersionedStartupConfig(const MiKTeX::Core::StartupConfig& parent) :
+    StartupConfig(parent)
+  {
+  }
+  
+  /// MiKTeX setup version.
+public:
+  MiKTeX::Core::VersionNumber setupVersion;
+};
+
 class SessionImpl : public MiKTeX::Core::Session
 {
 public:
@@ -223,13 +242,31 @@ public:
   bool DetermineMETAFONTMode(unsigned dpi, MiKTeX::Core::MIKTEXMFMODE& mode) override;
 
 public:
-  bool TryGetConfigValue(const std::string& sectionName, const std::string& valueName, std::string& value) override;
+  bool TryGetConfigValue(const std::string& sectionName, const std::string& valueName, MiKTeX::Core::HasNamedValues* callback, std::string& value) override;
 
 public:
-  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue) override;
+  bool TryGetConfigValue(const std::string& sectionName, const std::string& valueName, std::string& value) override
+  {
+    return TryGetConfigValue(sectionName, valueName, nullptr, value);
+  }
 
 public:
-  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName) override;
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue, MiKTeX::Core::HasNamedValues* callback) override;
+
+public:
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue) override
+  {
+    return GetConfigValue(sectionName, valueName, defaultValue, nullptr);
+  }
+
+public:
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, MiKTeX::Core::HasNamedValues* callback) override;
+
+public:
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName) override
+  {
+    return GetConfigValue(sectionName, valueName, nullptr);
+  }
 
 public:
   void SetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& value) override;
@@ -244,7 +281,14 @@ public:
   std::pair<bool, OpenFileInfo> TryGetOpenFileInfo(FILE* file) override;
 
 public:
-  void CloseFile(FILE* file) override;
+  void CloseFile(FILE* file, int& exitCode) override;
+
+public:
+  void CloseFile(FILE* file) override
+  {
+    int exitCode;
+    CloseFile(file, exitCode);
+  }
 
 public:
   bool IsOutputFile(const FILE* file) override;
@@ -426,6 +470,9 @@ public:
 
 public:
   bool IsSharedSetup() override;
+
+public:
+  MiKTeX::Core::SetupConfig GetSetupConfig() override;
 
 public:
   bool GetPaperSizeInfo(int idx, MiKTeX::Core::PaperSizeInfo& paperSize) override;
@@ -753,7 +800,7 @@ private:
   bool CheckCandidate(MiKTeX::Core::PathName& path, const char* fileInfo);
 
 private:
-  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value);
+  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value, MiKTeX::Core::HasNamedValues* callback);
 
 private:
   void ReadAllConfigFiles(const std::string& baseName, MiKTeX::Core::Cfg& cfg);
@@ -822,47 +869,47 @@ private:
   bool FindStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::PathName& path);
 
 private:
-  MiKTeX::Core::StartupConfig ReadStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::PathName& path);
+  VersionedStartupConfig ReadStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::PathName& path);
 
 private:
-  MiKTeX::Core::PathName GetStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::MiKTeXConfiguration config);
+  MiKTeX::Core::PathName GetStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::MiKTeXConfiguration config, MiKTeX::Core::VersionNumber version);
 
 private:
-  void WriteStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::StartupConfig& startupConfig);
+  void WriteStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const VersionedStartupConfig& startupConfig);
 
 private:
-  MiKTeX::Core::StartupConfig ReadEnvironment(MiKTeX::Core::ConfigurationScope scope);
+  VersionedStartupConfig ReadEnvironment(MiKTeX::Core::ConfigurationScope scope);
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  MiKTeX::Core::StartupConfig ReadRegistry(MiKTeX::Core::ConfigurationScope scope);
+  VersionedStartupConfig ReadRegistry(MiKTeX::Core::ConfigurationScope scope);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  void WriteRegistry(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Core::StartupConfig& startupConfig);
+  void WriteRegistry(MiKTeX::Core::ConfigurationScope scope, const VersionedStartupConfig& startupConfig);
 #endif
 
 private:
-  MiKTeX::Core::StartupConfig DefaultConfig(MiKTeX::Core::MiKTeXConfiguration config, const MiKTeX::Core::PathName& commonPrefix, const MiKTeX::Core::PathName& userPrefix);
+  VersionedStartupConfig DefaultConfig(MiKTeX::Core::MiKTeXConfiguration config, MiKTeX::Core::VersionNumber setupVersion, const MiKTeX::Core::PathName& commonPrefix, const MiKTeX::Core::PathName& userPrefix);
 
 private:
-  MiKTeX::Core::StartupConfig DefaultConfig()
+  VersionedStartupConfig DefaultConfig()
   {
-    return DefaultConfig(initStartupConfig.config, "", "");
+    return DefaultConfig(initStartupConfig.config, initStartupConfig.setupVersion, MiKTeX::Core::PathName(), MiKTeX::Core::PathName());
   }
 
 private:
   void InitializeStartupConfig();
 
 private:
-  void MergeStartupConfig(MiKTeX::Core::StartupConfig& startupConfig, const MiKTeX::Core::StartupConfig& defaults);
+  void MergeStartupConfig(VersionedStartupConfig& startupConfig, const VersionedStartupConfig& defaults);
 
 private:
-  void InitializeRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig, bool review);
+  void InitializeRootDirectories(const VersionedStartupConfig& startupConfig, bool review);
 
 private:
-  void SaveStartupConfig(const MiKTeX::Core::StartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options);
+  void SaveStartupConfig(const VersionedStartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options);
 
 private:
   bool IsTeXMFReadOnly(unsigned r);
@@ -905,6 +952,9 @@ private:
 
 private:
   FILE* InitiateProcessPipe(const std::string& command, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileMode& mode);
+
+private:
+  int CloseProcessPipe(FILE* file);
 
 private:
   FILE* OpenFileOnStream(std::unique_ptr<MiKTeX::Core::Stream> stream);
@@ -1012,7 +1062,7 @@ private:
   std::vector<LanguageInfo_> languages;
 
 private:
-  MiKTeX::Core::StartupConfig initStartupConfig;
+  VersionedStartupConfig initStartupConfig;
 
 private:
   MiKTeX::Core::Session::InitInfo initInfo;

@@ -1,6 +1,6 @@
 /* makefmt.cpp: make TeX format files
 
-   Copyright (C) 1998-2019 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is part of MiKTeX MakeFMT.
 
@@ -21,7 +21,9 @@
 
 #include "config.h"
 
-#include <miktex/Core/Registry>
+#include "makefmt-version.h"
+
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Util/Tokenizer>
 
@@ -52,7 +54,6 @@ enum class Engine
   pdfTeX,
   XeTeX,
   LuaHBTeX,
-  Omega,
 };
 
 class PdfConfigValues :
@@ -133,10 +134,6 @@ private:
     {
       this->engine = Engine::LuaHBTeX;
     }
-    else if (Utils::EqualsIgnoreCase(engine, "omega"))
-    {
-      this->engine = Engine::Omega;
-    }
     else
     {
       FatalError(fmt::format(T_("Unknown engine: {0}"), engine));
@@ -149,7 +146,7 @@ private:
     engineOptions.push_back(option);
   }
 
-private:
+public:
   const char* GetEngineName()
   {
     switch (engine)
@@ -164,8 +161,6 @@ private:
       return "xetex";
     case Engine::LuaHBTeX:
       return "luahbtex";
-    case Engine::Omega:
-      return "omega";
     }
     MIKTEX_UNEXPECTED();
   }
@@ -185,8 +180,6 @@ private:
       return MIKTEX_XETEX_EXE;
     case Engine::LuaHBTeX:
       return MIKTEX_LUAHBTEX_EXE;
-    case Engine::Omega:
-      return MIKTEX_OMEGA_EXE;
     }
     MIKTEX_UNEXPECTED();
   }
@@ -277,18 +270,46 @@ namespace {
   };
 }
 
-#define DEFAULT_DESTDIR                         \
-  MIKTEX_PATH_TEXMF_PLACEHOLDER                 \
-  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
-  MIKTEX_PATH_FMT_DIR
+class CreateDestinationDirectoryCallback : public HasNamedValues
+{
+public:
+  bool TryGetValue(const string& valueName, string& value)
+  {
+    if (valueName == "engine")
+    {
+      value = parent->GetEngineName();
+    }
+    else
+    {
+      return false;
+    }
+    return true;
+  }
+public:
+  string GetValue(const string& valueName)
+  {
+    string value;
+    if (!TryGetValue(valueName, value))
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    return value;
+  }
+public:
+  CreateDestinationDirectoryCallback() = delete;
+public:
+  CreateDestinationDirectoryCallback(MakeFmt* parent) :
+    parent(parent)
+  {
+  }
+private:
+  MakeFmt* parent;
+};
 
 void MakeFmt::CreateDestinationDirectory()
 {
-  PathName defDestDir;
-  defDestDir = MIKTEX_PATH_TEXMF_PLACEHOLDER;
-  defDestDir /= MIKTEX_PATH_FMT_DIR;
-  defDestDir /= GetEngineName();
-  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEFMT, MIKTEX_REGVAL_DESTDIR, defDestDir.GetData()).GetString());
+  CreateDestinationDirectoryCallback callback(this);
+  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKEFMT, MIKTEX_CONFIG_VALUE_DESTDIR, &callback).GetString());
 }
 
 void MakeFmt::FindInputFile(const PathName& inputName, PathName& inputFile)
@@ -346,7 +367,7 @@ void MakeFmt::ParsePdfConfigFile(const PathName& cfgFile, PdfConfigValues& value
 void MakeFmt::InstallPdftexConfigTeX() const
 {
   PdfConfigValues pdfConfigValues = ParsePdfConfigFiles();
-  session->ConfigureFile(MIKTEX_PATH_PDFTEXCONFIG_TEX, &pdfConfigValues);
+  session->ConfigureFile(PathName(MIKTEX_PATH_PDFTEXCONFIG_TEX), &pdfConfigValues);
 }
 
 void MakeFmt::Run(int argc, const char** argv)
@@ -367,7 +388,7 @@ void MakeFmt::Run(int argc, const char** argv)
   }
 
   // pretend to be the engine / format
-  if (!(destinationName == GetEngineName()))
+  if (!(destinationName == PathName(GetEngineName())))
   {
     session->PushAppName(GetEngineName());
   }
@@ -375,7 +396,7 @@ void MakeFmt::Run(int argc, const char** argv)
 
   // find the TeX input file
   PathName inputFile;
-  FindInputFile(name, inputFile);
+  FindInputFile(PathName(name), inputFile);
 
   // create destination directory
   CreateDestinationDirectory();
@@ -398,7 +419,7 @@ void MakeFmt::Run(int argc, const char** argv)
   arguments.push_back("--initialize");
   arguments.push_back("--interaction="s + "nonstopmode");
   arguments.push_back("--halt-on-error");
-  if (destinationName != GetEngineName())
+  if (destinationName != PathName(GetEngineName()))
   {
     arguments.push_back("--alias=" + destinationName.ToString());
   }

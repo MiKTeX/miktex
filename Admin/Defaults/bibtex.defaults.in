@@ -1,0 +1,11 @@
+;; Maximum size of a str_entry_var.
+ent_str_size = 500
+
+;; Maximum size of a str_global_var.
+glob_str_size = 200000
+
+;; Initial maximum number of strings, including pre-defined.
+max_strings = 200000
+
+;; Minimum number of cross-refs required for automatic cite_list inclusion.
+min_crossrefs = 2

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2013  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -35,12 +35,11 @@ class HardWrapDialog : public QDialog, private Ui::HardWrapDialog
 	Q_OBJECT
 
 public:
-	HardWrapDialog(QWidget *parent);
-
-	virtual ~HardWrapDialog() { }
+	explicit HardWrapDialog(QWidget * parent);
+	~HardWrapDialog() override = default;
 
 	unsigned int lineWidth() const { // returns 0 for current window size, or char count
-	    return radio_fixedLineLength->isChecked() ? spinbox_charCount->value() : 0;
+		return radio_fixedLineLength->isChecked() ? static_cast<unsigned int>(spinbox_charCount->value()) : 0;
 	}
 
 	bool rewrap() const { // whether to re-wrap paragraphs (fill lines)

@@ -1,6 +1,6 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -93,6 +93,12 @@ set_source_files_properties(
   PROPERTIES
     GENERATED TRUE
 )
+
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${mf_target_name} PRIVATE MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${mf_target_name} PRIVATE ${fmt_dll_name})
+endif()
 
 if(WITH_TRAPMF)
   include(trapmf.cmake)

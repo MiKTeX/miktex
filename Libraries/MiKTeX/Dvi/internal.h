@@ -1,6 +1,6 @@
 /* internal.h: internal DVI definitions                 -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -22,6 +22,9 @@
 #include <atomic>
 #include <mutex>
 #include <stack>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/FileStream>
 #include <miktex/Core/TemporaryFile>
@@ -673,6 +676,12 @@ public:
   DviImpl* GetDviObject();
 
 public:
+  TraceCallback* GetTraceCallback() const;
+
+public:
+  void Error(const std::string& line);
+
+public:
   void Freeze(bool force = false);
 
 public:
@@ -988,7 +997,7 @@ public:
   void MIKTEXTHISCALL Scan() override;
 
 private:
-  DviImpl(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const PaperSizeInfo& paperSizeInfo, bool landscape);
+  DviImpl(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const PaperSizeInfo& paperSizeInfo, bool landscape, IDviCallback* dviCallback, TraceCallback* traceCallback);
 
 private:
   MIKTEXTHISCALL ~DviImpl() override;
@@ -1003,7 +1012,7 @@ private:
   void CheckCondition();
 
 public:
-  void Progress(DviNotification nf, const char* format, ...);
+  void Progress(DviNotification nf, const std::string& msg);
 
 public:
   int PixelShrink(int shrinkFactor, int pxl)
@@ -1338,7 +1347,22 @@ private:
   string progressStatus;
 
 private:
-  IDviCallback* callback = nullptr;
+  IDviCallback* dviCallback = nullptr;
+
+private:
+  TraceCallback* traceCallback = nullptr;
+
+public:
+  TraceCallback* GetTraceCallback() const
+  {
+    return traceCallback;
+  }
+
+public:
+  void DviError(const std::string& line)
+  {
+    trace_error->WriteLine("libdvi", MiKTeX::Trace::TraceLevel::Error, line);
+  }
 
 private:
   mutex statusTextMutex;
@@ -1386,25 +1410,13 @@ private:
 class MIKTEXNOVTABLE SpecialRoot
 {
 public:
-  SpecialRoot() :
-    trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR))
+  SpecialRoot()    
   {
   }
 
 public:
   virtual ~SpecialRoot()
   {
-    try
-    {
-      if (trace_error != nullptr)
-      {
-        trace_error->Close();
-        trace_error = nullptr;
-      }
-    }
-    catch (const exception&)
-    {
-    }
   }
 
 protected:
@@ -1424,9 +1436,6 @@ protected:
 
 protected:
   DviSpecialType specialType = DviSpecialType::Unknown;
-
-protected:
-  unique_ptr<TraceStream> trace_error;
 };
 
 template<class T> class DviSpecialObject

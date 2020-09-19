@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016-2018 Christian Schenk
+## Copyright (C) 2016-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -41,7 +41,7 @@ set(tdsutil_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND tdsutil_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     tdsutil.rc
   )
 endif()
@@ -55,5 +55,11 @@ target_link_libraries(${MIKTEX_PROG_NAME_TDSUTIL}
   ${core_dll_name}
   miktex-popt-wrapper
 )
+
+if (USE_SYSTEM_FMT)
+  target_link_libraries(${MIKTEX_PROG_NAME_TDSUTIL} MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${MIKTEX_PROG_NAME_TDSUTIL} ${fmt_dll_name})
+endif()
 
 install(TARGETS ${MIKTEX_PROG_NAME_TDSUTIL} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

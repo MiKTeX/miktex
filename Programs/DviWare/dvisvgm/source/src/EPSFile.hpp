@@ -2,7 +2,7 @@
 ** EPSFile.hpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -28,7 +28,7 @@
 
 class EPSFile {
 	public:
-		EPSFile (const std::string &fname);
+		explicit EPSFile (const std::string &fname);
 		std::istream& istream () const;
 		bool hasValidHeader () const {return _headerValid;}
 		BoundingBox bbox () const;

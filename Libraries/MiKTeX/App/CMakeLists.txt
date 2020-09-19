@@ -54,7 +54,7 @@ set(public_headers
 )
 
 configure_file(
-  app-version.h.cmake
+  app-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/app-version.h
 )
 
@@ -64,7 +64,7 @@ configure_file(
 )
 
 configure_file(
-  include/miktex/App/vi/Version.h.cmake
+  include/miktex/App/vi/Version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/vi/Version.h
 )
 

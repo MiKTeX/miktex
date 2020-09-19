@@ -72,7 +72,7 @@ configure_file(
 )
 
 configure_file(
-  gmp-version.h.cmake
+  gmp-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/gmp-version.h
 )
 

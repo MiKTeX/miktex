@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2007-2017 Christian Schenk
+## Copyright (C) 2007-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -39,7 +39,7 @@ set(test_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND test_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 
@@ -62,6 +62,7 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+add_subdirectory(exceptions)
 add_subdirectory(strings)
 add_subdirectory(cfg)
 add_subdirectory(pathname)

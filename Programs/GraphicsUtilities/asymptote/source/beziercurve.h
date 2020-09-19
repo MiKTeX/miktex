@@ -19,61 +19,53 @@ extern const double Fuzz2;
 
 struct BezierCurve
 {
-  static std::vector<GLfloat> buffer;
-  static std::vector<GLuint> indices;
-  GLuint nvertices;
+  vertexBuffer data;
   double res,res2;
-  triple Min,Max;
+  bool Onscreen;
   
-  BezierCurve() : nvertices(0) {}
-  
-  void init(double res, const triple& Min, const triple& Max);
+  void init(double res);
     
-// Store the vertex v in the buffer.
-  GLuint vertex(const triple &v) {
-    buffer.push_back(v.getx());
-    buffer.push_back(v.gety());
-    buffer.push_back(v.getz());
-    return nvertices++;
-  }
-  
-// Approximate bounds by bounding box of control polyhedron.
+  // Approximate bounds by bounding box of control polyhedron.
   bool offscreen(size_t n, const triple *v) {
-    double x,y,z;
-    double X,Y,Z;
-    
-    boundstriples(x,y,z,X,Y,Z,n,v);
-    return
-      X < Min.getx() || x > Max.getx() ||
-      Y < Min.gety() || y > Max.gety() ||
-      Z < Min.getz() || z > Max.getz();
+    if(bbox2(n,v).offscreen()) {
+      Onscreen=false;
+      return true;
+    }
+    return false;
   }
-  
-  void clear() {
-    nvertices=0;
-    buffer.clear();
-    indices.clear();
-  }
-  
-  ~BezierCurve() {
-    clear();
-  }
-  
-  void render(const triple *p, GLuint I0, GLuint I1);
+
   void render(const triple *p, bool straight);
+  void render(const triple *p, GLuint I0, GLuint I1);
   
-  void queue(const triple *g, bool straight, double ratio,
-              const triple& Min, const triple& Max) {
-    init(pixel*ratio,Min,Max);
+  void append() {
+    material1Data.append(data);
+  }
+  
+  void queue(const triple *g, bool straight, double ratio) {
+    data.clear();
+    Onscreen=true;
+    init(pixel*ratio);
     render(g,straight);
   }
   
-  void draw();
-  void draw(const triple *g, bool straight, double ratio,
-            const triple& Min, const triple& Max) {
-    queue(g,straight,ratio,Min,Max);
-    draw();
+};
+
+struct Pixel
+{
+  vertexBuffer data;
+  
+  void append() {
+    material0Data.append0(data);
   }
+  
+  void queue(const triple& p, double width) {
+    data.clear();
+    MaterialIndex=materialIndex;
+    data.indices.push_back(data.vertex0(p,width));
+    append();
+  }
+  
+  void draw();
 };
 
 #endif

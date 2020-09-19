@@ -49,7 +49,7 @@ public:
   }
 
 public:
-  CharBuffer(CharBuffer&& other)
+  CharBuffer(CharBuffer&& other) noexcept
   {
     if (other.buffer == other.smallBuffer)
     {
@@ -74,7 +74,7 @@ public:
   }
 
 public:
-  CharBuffer& operator=(CharBuffer&& other)
+  CharBuffer& operator=(CharBuffer&& other) noexcept
   {
     if (this != &other)
     {
@@ -109,37 +109,37 @@ public:
   }
 
 public:
-  CharBuffer(const char* lpsz)
+  explicit CharBuffer(const char* lpsz)
   {
     Set(lpsz);
   }
 
 public:
-  CharBuffer(const char16_t* lpsz)
+  explicit CharBuffer(const char16_t* lpsz)
   {
     Set(lpsz);
   }
 
 public:
-  CharBuffer(const wchar_t* lpsz)
+  explicit CharBuffer(const wchar_t* lpsz)
   {
     Set(lpsz);
   }
 
 public:
-  CharBuffer(const std::basic_string<char>& other)
+  explicit CharBuffer(const std::basic_string<char>& other)
   {
     Set(other);
   }
 
 public:
-  CharBuffer(const std::basic_string<char16_t>& other)
+  explicit CharBuffer(const std::basic_string<char16_t>& other)
   {
     Set(other);
   }
 
 public:
-  CharBuffer(const std::basic_string<wchar_t>& other)
+  explicit CharBuffer(const std::basic_string<wchar_t>& other)
   {
     Set(other);
   }

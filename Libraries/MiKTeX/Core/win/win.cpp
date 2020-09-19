@@ -1,6 +1,6 @@
 /* win.cpp: Windows specials
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,6 +25,10 @@
 #include <AclAPI.h>
 #include <ShlObj.h>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+
 // FIXME: must come first
 #include "core-version.h"
 
@@ -41,6 +45,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 MIKTEXINTERNALFUNC(bool) GetSystemFontDirectory(PathName& path)
@@ -90,7 +95,7 @@ extern "C" __declspec(dllexport) HRESULT CALLBACK DllGetVersion(DLLVERSIONINFO* 
     return E_INVALIDARG;
   }
   unsigned a[4] = {
-    MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0
+    MIKTEX_COMP_MAJOR_VERSION, MIKTEX_COMP_MINOR_VERSION, MIKTEX_COMP_PATCH_VERSION, 0
   };
   versionInfo->dwMajorVersion = a[0];
   versionInfo->dwMinorVersion = a[1];
@@ -125,32 +130,32 @@ MIKTEXINTERNALFUNC(void) TraceWindowsError(const char* windowsFunction, unsigned
   {
     return;
   }
-  pSession->trace_error->WriteLine("core", errorMessage.c_str());
-  pSession->trace_error->WriteFormattedLine("core", "Function: %s", windowsFunction);
-  pSession->trace_error->WriteFormattedLine("core", "Result: %u", static_cast<unsigned>(functionResult));
+  pSession->trace_error->WriteLine("core", TraceLevel::Error, errorMessage);
+  pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Function: {0}", windowsFunction));
+  pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Result: {0}", functionResult));
   if (info != nullptr)
   {
-    pSession->trace_error->WriteFormattedLine("core", "Data: %s", info);
+    pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Data: {0}", info));
   }
-  pSession->trace_error->WriteFormattedLine("core", "Source: %s:%d", GetShortSourceFile(sourceFile), sourceLine);
+  pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Source: {0}:{1}", GetShortSourceFile(sourceFile), sourceLine));
 }
 
 MIKTEXSTATICFUNC(unsigned int) GetMediaType(const char* path)
 {
   PathName pathRootName;
-  if (IsAlpha(path[0])
-    && PathName::IsVolumeDelimiter(path[1])
-    && PathName::IsDirectoryDelimiter(path[2]))
+  if (PathNameUtil::IsDosDriveLetter(path[0])
+    && PathNameUtil::IsDosVolumeDelimiter(path[1])
+    && PathNameUtil::IsDirectoryDelimiter(path[2]))
   {
     pathRootName += path[0];
-    pathRootName += PathName::VolumeDelimiter;
-    pathRootName += PathName::DirectoryDelimiter;
+    pathRootName += PathNameUtil::DosVolumeDelimiter;
+    pathRootName += PathNameUtil::DirectoryDelimiter;
   }
-  else if (!Utils::GetUncRootFromPath(path, pathRootName))
+  else if (!Utils::GetUncRootFromPath(PathName(path), pathRootName))
   {
     return DRIVE_UNKNOWN;
   }
-  return GetDriveTypeW(pathRootName.ToWideCharString().c_str());
+  return GetDriveTypeW(pathRootName.ToExtendedLengthPathName().ToWideCharString().c_str());
 }
 
 MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char* path)
@@ -205,7 +210,7 @@ MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char* path)
   sa.lpSecurityDescriptor = pSD;
   sa.bInheritHandle = FALSE;
 
-  if (!CreateDirectoryW(PathName(path).ToWideCharString().c_str(), &sa))
+  if (!CreateDirectoryW(PathName(path).ToExtendedLengthPathName().ToWideCharString().c_str(), &sa))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path);
   }
@@ -214,12 +219,12 @@ MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char* path)
 
 MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
 {
-  if (!Utils::IsAbsolutePath(path))
+  if (!path.IsFullyQUalified())
   {
-    PathName absolutePath(path);
-    absolutePath.MakeAbsolute();
+    PathName fqPath(path);
+    fqPath.MakeFullyQualified();
     // RECURSION
-    CreateDirectoryPath(absolutePath);
+    CreateDirectoryPath(fqPath);
   }
 
   // do nothing, if the directory already exists
@@ -244,7 +249,7 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
 
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("creating directory %s"), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("creating directory {0}"), Q_(path)));
   }
 
 #if SET_SECURITY
@@ -255,12 +260,12 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
   {
     CreateDirectoryForEveryone(path.GetData());
   }
-  else if (!CreateDirectoryW(path.ToWideCharString().c_str(), nullptr))
+  else if (!CreateDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path.ToString());
   }
 #else
-  if (!CreateDirectoryW(path.ToWideCharString().c_str(), nullptr))
+  if (!CreateDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path.ToString());
   }

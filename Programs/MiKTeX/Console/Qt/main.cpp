@@ -1,6 +1,6 @@
 /* main.cpp:
 
-   Copyright (C) 2017-2019 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -71,7 +71,7 @@ namespace {
   struct poptOption const aoption[] = {
     {
       "admin", 0, POPT_ARG_NONE, nullptr, OPT_ADMIN,
-      "Run in administrator mode.", nullptr
+      "Run in MiKTeX administrator mode.", nullptr
     },
     {
       "check-updates", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CHECK_UPDATES,
@@ -111,7 +111,7 @@ class TraceSink :
   public MiKTeX::Trace::TraceCallback
 {
 public:
-  void Trace(const TraceCallback::TraceMessage& traceMessage) override
+  bool Trace(const TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
@@ -120,10 +120,11 @@ public:
         pendingTraceMessages.clear();
       }
       pendingTraceMessages.push_back(traceMessage);
-      return;
+      return true;
     }
     FlushPendingTraceMessages();
     TraceInternal(traceMessage);
+    return true;
   }
 
 private:
@@ -145,13 +146,27 @@ private:
     if (isLog4cxxConfigured)
     {
       log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.") + "miktex-console" + "." + traceMessage.facility);
-      if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
+      switch (traceMessage.level)
       {
+      case TraceLevel::Fatal:
+        LOG4CXX_FATAL(logger, traceMessage.message);
+        break;
+      case TraceLevel::Error:
         LOG4CXX_ERROR(logger, traceMessage.message);
-      }
-      else
-      {
+        break;
+      case TraceLevel::Warning:
+        LOG4CXX_WARN(logger, traceMessage.message);
+        break;
+      case TraceLevel::Info:
+        LOG4CXX_INFO(logger, traceMessage.message);
+        break;
+      case TraceLevel::Trace:
         LOG4CXX_TRACE(logger, traceMessage.message);
+        break;
+      case TraceLevel::Debug:
+      default:
+        LOG4CXX_DEBUG(logger, traceMessage.message);
+        break;
       }
     }
     else
@@ -159,7 +174,7 @@ private:
 #if defined(MIKTEX_WINDOWS)
       OutputDebugStringW(StringUtil::UTF8ToWideChar(traceMessage.message).c_str());
 #else
-      fprintf(stderr, "%s\n", traceMessage.message.c_str());
+      cerr << traceMessage << endl;
 #endif
     }
   }
@@ -183,7 +198,7 @@ PathName GetExecutablePath()
   {
     MIKTEX_UNEXPECTED();
   }
-  return resolved;
+  return PathName(resolved);
 }
 
 PathName GetExecutableDir()
@@ -203,8 +218,8 @@ int main(int argc, char* argv[])
   bool optVersion = false;
   QString displayName = "MiKTeX Console";
 #if defined(MIKTEX_MACOS_BUNDLE)
-  PathName plugIns = GetExecutableDir() / ".." / "PlugIns";
-  plugIns.MakeAbsolute();
+  PathName plugIns = GetExecutableDir() / PathName("..") / PathName("PlugIns");
+  plugIns.MakeFullyQualified();
   QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
 #endif
 #if QT_VERSION >= 0x050600
@@ -241,12 +256,12 @@ int main(int argc, char* argv[])
     PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
     name += MIKTEX_EXE_FILE_SUFFIX;
 #if defined(MIKTEX_WINDOWS)
-    if (name == MIKTEX_TASKBAR_ICON_EXE)
+    if (name == PathName(MIKTEX_TASKBAR_ICON_EXE))
     {
       optHide = true;
       optMkmaps = true;
     }
-    else if (name == MIKTEX_UPDATE_EXE || name == MIKTEX_UPDATE_ADMIN_EXE)
+    else if (name == PathName(MIKTEX_UPDATE_EXE) || name == PathName(MIKTEX_UPDATE_ADMIN_EXE))
     {
       startPage = MainWindow::Pages::Updates;
     }
@@ -353,20 +368,22 @@ int main(int argc, char* argv[])
       log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
       isLog4cxxConfigured = true;
       traceSink.FlushPendingTraceMessages();
-      LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR));
+      LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX Console", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     }
     if (optVersion)
     {
       cout
-        << Utils::MakeProgramVersionString("MiKTeX Console", MIKTEX_COMPONENT_VERSION_STR) << endl
-        << "Copyright (C) 2018-2019 Christian Schenk" << endl
+        << Utils::MakeProgramVersionString("MiKTeX Console", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+	<< endl
+        << MIKTEX_COMP_COPYRIGHT_STR << endl
+	<< endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return 0;
     }
     bool fastExit = false;
     {
-      MainWindow mainWindow(nullptr, startPage);
+      MainWindow mainWindow(nullptr, startPage, optFinishSetup || optCheckUpdates, &traceSink);
       if (optHide)
       {
         mainWindow.hide();

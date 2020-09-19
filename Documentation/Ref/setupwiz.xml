@@ -255,9 +255,9 @@ directories are specified by using environment variables (&lt;VARNAME&gt;) which
   --local-package-repository=\\server\miktex\repository ^
   --package-set=complete ^
   --shared ^
-  --user-config=^&lt;APPDATA^&gt;\MiKTeX\2.9 ^
-  --user-data=^&lt;LOCALAPPDATA^&gt;\MiKTeX\2.9 ^
-  --user-install=^&lt;APPDATA^&gt;\MiKTeX\2.9</userinput></screen>
+  --user-config=^&lt;APPDATA^&gt;\MiKTeX ^
+  --user-data=^&lt;LOCALAPPDATA^&gt;\MiKTeX ^
+  --user-install=^&lt;APPDATA^&gt;\MiKTeX</userinput></screen>
 
 </refsect1>
 

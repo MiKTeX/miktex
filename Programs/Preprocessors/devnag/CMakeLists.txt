@@ -45,7 +45,7 @@ set(devnag_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND devnag_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     devnag.rc
   )
 endif()

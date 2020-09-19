@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2013-2019 Christian Schenk
+   Copyright (C) 2013-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -48,14 +48,14 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 #include <miktex/Core/StreamReader>
 #include <miktex/Core/StreamWriter>
 #include <miktex/Core/Urls>
 
 #if defined(MIKTEX_WINDOWS)
-#  include "miktex/Core/win/winAutoResource.h"
-#  include "miktex/Core/win/WindowsVersion.h"
+#  include "miktex/Core/win/Registry"
+#  include "miktex/Core/win/winAutoResource"
+#  include "miktex/Core/win/WindowsVersion"
 #endif
 
 #include <miktex/Extractor/Extractor>
@@ -71,6 +71,8 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <fmt/time.h>
+
+#include <nlohmann/json.hpp>
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
@@ -342,7 +344,7 @@ protected:
   void RunMpm(const std::vector<std::string>& args);
 
 protected:
-  std::wstring& Expand(const char* source, std::wstring& dest);
+  std::wstring& Expand(const std::string& source, std::wstring& dest);
 
 protected:
   bool FindFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::PathName& result);

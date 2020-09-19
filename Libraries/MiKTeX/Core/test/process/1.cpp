@@ -42,8 +42,8 @@ BEGIN_TEST_FUNCTION(1);
   int exitCode;
   TEST(Process::Run(pathExe, { pathExe.ToString(), "1-1.txt" }, nullptr, &exitCode, nullptr));
   TEST(exitCode == 0);
-  TEST(File::Exists("1-1.txt"));
-  TESTX(File::Delete("1-1.txt"));
+  TEST(File::Exists(PathName("1-1.txt")));
+  TESTX(File::Delete(PathName("1-1.txt")));
 }
 END_TEST_FUNCTION();
 

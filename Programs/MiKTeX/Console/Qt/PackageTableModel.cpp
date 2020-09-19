@@ -1,6 +1,6 @@
 /* PackageTableModel.cpp:
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -24,6 +24,8 @@
 #include <QColor>
 #include <QDateTime>
 #include <QLocale>
+
+#include <miktex/Core/AutoResource>
 
 #include "PackageTableModel.h"
 
@@ -147,7 +149,8 @@ QVariant PackageTableModel::headerData(int section, Qt::Orientation orientation,
 void PackageTableModel::Reload()
 {
   beginResetModel();
-  packages.clear();
+  MIKTEX_AUTO(endResetModel());
+  packages.clear();  
   packageManager->UnloadDatabase();
   unique_ptr<PackageIterator> iter(packageManager->CreateIterator());
   PackageInfo packageInfo;
@@ -161,7 +164,6 @@ void PackageTableModel::Reload()
     }
   }
   iter->Dispose();
-  endResetModel();
 }
 
 bool PackageTableModel::TryGetPackageInfo(const QModelIndex& index, PackageInfo& packageInfo) const

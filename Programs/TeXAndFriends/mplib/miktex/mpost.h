@@ -23,6 +23,7 @@
 extern "C" {
 #endif
 
+void miktex_print_banner(FILE* file, const char* name, const char* version);
 void miktex_show_library_versions();
 
 #if defined(__cplusplus)

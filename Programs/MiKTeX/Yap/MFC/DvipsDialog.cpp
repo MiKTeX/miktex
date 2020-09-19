@@ -115,12 +115,12 @@ BOOL DvipsDialog::OnInitDialog()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   return ret;

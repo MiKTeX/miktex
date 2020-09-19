@@ -1,6 +1,6 @@
 /* mikuiqt.cpp:
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2020 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -58,7 +58,7 @@ PathName GetExecutablePath()
   {
     MIKTEX_UNEXPECTED();
   }
-  return resolved;
+  return PathName(resolved);
 }
 
 PathName GetExecutableDir()
@@ -83,8 +83,8 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
   bool useGUI = true;
 #endif
 #if defined(MIKTEX_MACOS_BUNDLE)
-  PathName plugIns = GetExecutableDir() / ".." / "PlugIns";
-  plugIns.MakeAbsolute();
+  PathName plugIns = GetExecutableDir() / PathName("..") / PathName("PlugIns");
+  plugIns.MakeFullyQualified();
   QCoreApplication::addLibraryPath(QString::fromUtf8(plugIns.GetData()));
 #endif
   static int argc = 1;
@@ -142,14 +142,14 @@ MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessag
       }
       if (dialogCode == QDialog::Accepted && autoAdmin != dlg.GetAdminMode())
       {
-        session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, dlg.GetAdminMode());
+        session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, ConfigValue(dlg.GetAdminMode()));
       }
       if (!dlg.GetAlwaysAsk())
       {
         ret |= DONTASKAGAIN;
         if (dialogCode == QDialog::Accepted)
         {
-          session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, "1");
+          session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue("1"));
         }
       }
     }

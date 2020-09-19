@@ -23,4 +23,3 @@ set(MIKTEX_COMP_DESCRIPTION "Pixman - library for pixel manipulation")
 
 set(MIKTEX_COMP_COMPANY_STR "")
 set(MIKTEX_COMP_COPYRIGHT_STR "")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "")

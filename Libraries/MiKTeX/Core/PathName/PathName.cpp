@@ -1,6 +1,6 @@
 /* PathName.cpp: path name utilities
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -60,8 +60,8 @@ int PathName::Compare(const char* lpszPath1, const char* lpszPath2)
   {
     MIKTEX_ASSERT(!(*lpszPath1 == 0 && *lpszPath2 == 0));
     if (
-        (*lpszPath1 == 0 && IsDirectoryDelimiter(*lpszPath2) && *(lpszPath2 + 1) == 0)
-        || (*lpszPath2 == 0 && IsDirectoryDelimiter(*lpszPath1) && *(lpszPath1 + 1) == 0))
+        (*lpszPath1 == 0 && PathNameUtil::IsDirectoryDelimiter(*lpszPath2) && *(lpszPath2 + 1) == 0)
+        || (*lpszPath2 == 0 && PathNameUtil::IsDirectoryDelimiter(*lpszPath1) && *(lpszPath1 + 1) == 0))
     {
       return 0;
     }
@@ -114,8 +114,6 @@ int PathName::Compare(const char* lpszPath1, const char* lpszPath2, size_t count
   return 0;
 }
 
-// TODO: code review
-// TODO: performance
 PathName& PathName::Convert(ConvertPathNameOptions options)
 {
   bool toUnix = options[ConvertPathNameOption::ToUnix];
@@ -126,39 +124,21 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
   bool toLower = options[ConvertPathNameOption::MakeLower];
   MIKTEX_ASSERT(!(toUpper && toLower));
 
-  MIKTEX_ASSERT(!options[ConvertPathNameOption::MakeRelative]);
-  bool makeFQ = options[ConvertPathNameOption::MakeAbsolute];
+  bool makeFQ = options[ConvertPathNameOption::MakeFullyQualified];
 
 #if defined(MIKTEX_WINDOWS)
-  bool removeBlanks = options[ConvertPathNameOption::RemoveBlanks];
-  bool toLongPathName = options[ConvertPathNameOption::ToLongPathName];
-  MIKTEX_ASSERT(!(removeBlanks && toLongPathName));
+  bool toExtendedLengthPathName = options[ConvertPathNameOption::ToExtendedLengthPathName];
 #endif
 
   if (makeFQ)
   {
-    PathName temp = GetFullPath(GetData());
-    *this = temp;
+    *this = GetFullyQualifiedPath(GetData());
   }
 
 #if defined(MIKTEX_WINDOWS)
-  if (removeBlanks)
+  if (toExtendedLengthPathName)
   {
-    Utils::RemoveBlanksFromPathName(*this);
-  }
-  if (toLongPathName)
-  {
-    wchar_t longPathName[_MAX_PATH];
-    DWORD len = GetLongPathNameW(this->ToWideCharString().c_str(), longPathName, _MAX_PATH);
-    if (len >= _MAX_PATH)
-    {
-      BUF_TOO_SMALL();
-    }
-    if (len == 0)
-    {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("GetLongPathNameW", "path", this->ToString());
-    }
-    *this = longPathName;
+    *this = PathNameUtil::ToLengthExtendedPathName(ToString());
   }
 #endif
 
@@ -167,19 +147,16 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
     Utils::CanonicalizePathName(*this);
   }
 
-  if (toUnix || toDos)
+  if (toUnix)
   {
-    for (char* lpsz = GetData(); *lpsz != 0; ++lpsz)
-    {
-      if (toUnix && *lpsz == PathName::DosDirectoryDelimiter)
-      {
-        *lpsz = PathName::UnixDirectoryDelimiter;
-      }
-      else if (toDos && *lpsz == PathName::UnixDirectoryDelimiter)
-      {
-        *lpsz = PathName::DosDirectoryDelimiter;
-      }
-    }
+    string s = this->ToString();
+    PathNameUtil::ConvertToUnix(s);
+    *this = s;
+  } else if (toDos)
+  {
+    string s = this->ToString();
+    PathNameUtil::ConvertToDos(s);
+    *this = s;
   }
 
   if (toUpper || toLower)
@@ -252,7 +229,7 @@ void PathName::Split(const PathName& path, string& directory, string& fileNameWi
   // find the beginning of the name
   for (lpsz = path.GetData(); *lpsz != 0; ++lpsz)
   {
-    if (IsDirectoryDelimiter(*lpsz))
+    if (PathNameUtil::IsDirectoryDelimiter(*lpsz))
     {
       lpszName_ = lpsz + 1;
     }
@@ -323,9 +300,9 @@ PathName& PathName::SetExtension(const char* extension, bool override)
 PathName& PathName::AppendDirectoryDelimiter()
 {
   size_t l = GetLength();
-  if (l == 0 || !IsDirectoryDelimiter(Base::operator[](l - 1)))
+  if (l == 0 || !PathNameUtil::IsDirectoryDelimiter(Base::operator[](l - 1)))
   {
-    Base::Append(DirectoryDelimiter);
+    Base::Append(PathNameUtil::DirectoryDelimiter);
   }
   return *this;
 }
@@ -337,10 +314,10 @@ PathName& PathName::CutOffLastComponent(bool allowSelfCutting)
   bool noCut = true;
   for (size_t end = GetLength(); noCut && end > 0; --end)
   {
-    if (end > 0 && IsDirectoryDelimiter(Base::operator[](end - 1)))
+    if (end > 0 && PathNameUtil::IsDirectoryDelimiter(Base::operator[](end - 1)))
     {
 #if defined(MIKTEX_WINDOWS)
-      if (end > 1 && Base::operator[](end - 2) == PathName::VolumeDelimiter)
+      if (end > 1 && Base::operator[](end - 2) == PathNameUtil::DosVolumeDelimiter)
       {
         Base::operator[](end) = 0;
       }
@@ -352,7 +329,7 @@ PathName& PathName::CutOffLastComponent(bool allowSelfCutting)
         }
         else
         {
-          while (end > 0 && IsDirectoryDelimiter(Base::operator[](end - 1)))
+          while (end > 0 && PathNameUtil::IsDirectoryDelimiter(Base::operator[](end - 1)))
           {
             --end;
             Base::operator[](end) = 0;
@@ -385,9 +362,9 @@ size_t PathName::GetHash() const
   {
     char ch = *lpsz;
 #if defined(MIKTEX_WINDOWS)
-    if (ch == DirectoryDelimiter)
+    if (ch == PathNameUtil::DirectoryDelimiter)
     {
-      ch = AltDirectoryDelimiter;
+      ch = PathNameUtil::AltDirectoryDelimiter;
     }
     else if (static_cast<unsigned>(ch) >= 128)
     {
@@ -424,4 +401,19 @@ PathName& PathName::SetToLockDirectory()
 {
   *this = GetHomeDirectory();
   return *this;
+}
+
+PathName& PathName::SetToTempFile()
+{
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  PathName tmpDir;
+  if (session != nullptr)
+  {
+    tmpDir = session->GetTempDirectory();
+  }
+  else
+  {
+    tmpDir.SetToTempDirectory();
+  }
+  return SetToTempFile(tmpDir);
 }

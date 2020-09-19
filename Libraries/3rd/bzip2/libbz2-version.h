@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.0.6"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1996-2010 Julian R Seward"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1996-2010 Julian R Seward"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1996-2010 Julian R Seward"
 
 #include <miktex/Version>

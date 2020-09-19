@@ -1,6 +1,6 @@
 /* arctrl.cpp: Acrobat Reader (AR) Controller
 
-   Written in the years 2006-2018 by Christian Schenk.
+   Written in the years 2006-2020 by Christian Schenk.
 
    This file is based on public domain work by Fabrice Popineau.
 
@@ -22,7 +22,9 @@
 
 #include <iomanip>
 #include <iostream>
-#include <cstdarg>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "arctrl-version.h"
 
@@ -38,7 +40,6 @@
 #include <miktex/Util/CharBuffer>
 #include <miktex/Util/Tokenizer>
 #include <miktex/Wrappers/PoptWrapper>
-
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
@@ -103,7 +104,7 @@ private:
   void TerminateConversation();
 
 private:
-  void ExecuteDdeCommand(const char* lpszCommand, ...);
+  void ExecuteDdeCommand(const string& s);
 
 private:
   void DocOpen(const PathName& path);
@@ -255,7 +256,7 @@ ArCtrl::~ArCtrl()
 void ArCtrl::ShowVersion()
 {
   cout
-    << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR)
+    << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR))
     << endl
     << T_("Written by Christian Schenk in 2006.") << endl
     << T_("Based on public domain work by Fabrice Popineau.") << endl
@@ -291,7 +292,7 @@ void ArCtrl::StartAR()
   {
     FatalError(T_("The PDF viewer could not be located."));
   }
-  unique_ptr<Process> pProcess(Process::Start(ProcessStartInfo(szExecutable)));
+  unique_ptr<Process> pProcess(Process::Start(ProcessStartInfo(PathName(szExecutable))));
   ARstarted = true;
 #if 0
   // <todo>
@@ -401,21 +402,9 @@ void ArCtrl::TerminateConversation()
   }
 }
 
-void ArCtrl::ExecuteDdeCommand(const char* lpszCommand, ...)
+void ArCtrl::ExecuteDdeCommand(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, lpszCommand);
-  wstring data;
-  try
-  {
-    data = UW_(StringUtil::FormatStringVA(lpszCommand, arglist));
-  }
-  catch (...)
-  {
-    va_end(arglist);
-    throw;
-  }
-  va_end(arglist);
+  wstring data = UW_(s);
   HDDEDATA h = DdeClientTransaction(const_cast<BYTE *>(reinterpret_cast<const BYTE *>(data.c_str())), static_cast<DWORD>((data.length() + 1) * sizeof(data[0])), hConv, nullptr, 0, XTYP_EXECUTE, 5000, nullptr);
   if (h == nullptr)
   {
@@ -430,8 +419,8 @@ void ArCtrl::DocOpen(const PathName& path)
     FatalError(T_("The specified file could not be found."));
   }
   PathName fullPath(path);
-  fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocOpen(\"%s\")]", fullPath.GetData());
+  fullPath.MakeFullyQualified();
+  ExecuteDdeCommand(fmt::format("[DocOpen(\"{0}\")]", fullPath));
 }
 
 void ArCtrl::DocClose(const PathName& path)
@@ -441,8 +430,8 @@ void ArCtrl::DocClose(const PathName& path)
     FatalError(T_("The specified file could not be found."));
   }
   PathName fullPath(path);
-  fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocClose(\"%s\")]", fullPath.GetData());
+  fullPath.MakeFullyQualified();
+  ExecuteDdeCommand(fmt::format("[DocClose(\"{0}\")]", fullPath));
 }
 
 void ArCtrl::CloseAllDocs()
@@ -472,8 +461,8 @@ void ArCtrl::DocGoTo(const PathName& path, int pageNum)
     FatalError(T_("The specified file could not be found."));
   }
   PathName fullPath(path);
-  fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocGoTo(\"%s\",%d)]", fullPath.GetData(), pageNum);
+  fullPath.MakeFullyQualified();
+  ExecuteDdeCommand(fmt::format("[DocGoTo(\"{0}\",{1})]", fullPath, pageNum));
 }
 
 void ArCtrl::DocGoToNameDest(const PathName& path, const string& nameDest)
@@ -483,8 +472,8 @@ void ArCtrl::DocGoToNameDest(const PathName& path, const string& nameDest)
     FatalError(T_("The specified file could not be found."));
   }
   PathName fullPath(path);
-  fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocGoToNameDest(\"%s\",\"%s\")]", fullPath.GetData(), nameDest.c_str());
+  fullPath.MakeFullyQualified();
+  ExecuteDdeCommand(fmt::format("[DocGoToNameDest(\"{0}\",\"{1}\")]", fullPath, nameDest));
 }
 
 void ArCtrl::FileOpen(const PathName& path)
@@ -494,8 +483,8 @@ void ArCtrl::FileOpen(const PathName& path)
     FatalError(T_("The specified file could not be found."));
   }
   PathName fullPath(path);
-  fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[FileOpen(\"%s\")]", fullPath.GetData());
+  fullPath.MakeFullyQualified();
+  ExecuteDdeCommand(fmt::format("[FileOpen(\"{0}\")]", fullPath));
 }
 
 bool ArCtrl::Execute(const string& commandLine)
@@ -514,7 +503,7 @@ bool ArCtrl::Execute(const string& commandLine)
       cerr << T_("Error: missing file name argument.") << endl;
       return true;
     }
-    DocOpen(*tok);
+    DocOpen(PathName(*tok));
   }
   else if (Utils::EqualsIgnoreCase(command, "close"))
   {
@@ -523,7 +512,7 @@ bool ArCtrl::Execute(const string& commandLine)
       cerr << T_("Error: missing file name argument.") << endl;
       return true;
     }
-    DocClose(*tok);
+    DocClose(PathName(*tok));
   }
   else if (Utils::EqualsIgnoreCase(command, "closeall"))
   {
@@ -548,7 +537,7 @@ bool ArCtrl::Execute(const string& commandLine)
       cerr << T_("Error: missing page number argument.") << endl;
       return true;
     }
-    DocGoTo(fileName, std::stoi(*tok) - 1);
+    DocGoTo(PathName(fileName), std::stoi(*tok) - 1);
   }
   else if (Utils::EqualsIgnoreCase(command, "gotoname"))
   {
@@ -564,7 +553,7 @@ bool ArCtrl::Execute(const string& commandLine)
       cerr << T_("Error: missing name dest argument.") << endl;
       return true;
     }
-    DocGoToNameDest(fileName, *tok);
+    DocGoToNameDest(PathName(fileName), *tok);
   }
   else if (Utils::EqualsIgnoreCase(command, "show"))
   {

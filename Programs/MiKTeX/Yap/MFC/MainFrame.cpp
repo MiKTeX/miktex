@@ -1,6 +1,6 @@
 /* MainFrame.cpp: main frame window
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -139,13 +139,13 @@ int MainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
     return -1;
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
     return -1;
   }
 }
@@ -196,12 +196,12 @@ void MainFrame::OnViewOptions()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -255,12 +255,12 @@ void MainFrame::OnUpdatePageMofN(CCmdUI* pCmdUI)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -331,12 +331,12 @@ void MainFrame::OnUpdateSource(CCmdUI* pCmdUI)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -411,12 +411,12 @@ void MainFrame::OnUpdatePoint(CCmdUI* pCmdUI)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -475,12 +475,12 @@ void MainFrame::OnUpdateEffectivePageMode(CCmdUI* pCmdUI)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -536,12 +536,12 @@ void MainFrame::OnContinuousSingle()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -567,12 +567,12 @@ void MainFrame::OnContinuousDouble()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -598,12 +598,12 @@ void MainFrame::OnSinglePage()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -623,12 +623,12 @@ void MainFrame::OnDoublePage()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -724,12 +724,12 @@ void MainFrame::OnViewFullScreen()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 

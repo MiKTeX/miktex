@@ -1,6 +1,6 @@
 /* winUtil.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,6 +26,9 @@
 #include <strsafe.h>
 #include <wininet.h>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Directory>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
@@ -40,28 +43,8 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-
-MIKTEXSTATICFUNC(void) GetAlternate(const char* lpszPath, char* lpszAlternate)
-{
-  MIKTEX_ASSERT_STRING(lpszPath);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszAlternate);
-  WIN32_FIND_DATAW finddata;
-  HANDLE hnd = FindFirstFileW(PathName(lpszPath).ToWideCharString().c_str(), &finddata);
-  if (hnd == INVALID_HANDLE_VALUE)
-  {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("FindFirstFileW", "path", lpszPath);
-  }
-  if (!FindClose(hnd))
-  {
-    MIKTEX_FATAL_WINDOWS_ERROR("FindClose");
-  }
-  if (finddata.cAlternateFileName[0] == 0)
-  {
-    MIKTEX_FATAL_ERROR_2(T_("No alternate file name found."), "path", lpszPath);
-  }
-  StringUtil::CopyString(lpszAlternate, BufferSizes::MaxPath, finddata.cAlternateFileName);
-}
 
 PathName Utils::GetFolderPath(int nFolder, int nFallbackFolder, bool getCurrentPath)
 {
@@ -88,102 +71,7 @@ PathName Utils::GetFolderPath(int nFolder, int nFallbackFolder, bool getCurrentP
   {
     MIKTEX_FATAL_ERROR_2(T_("A required file system path could not be retrieved."), "nfolder", std::to_string(nFolder), "hr", std::to_string(hr));
   }
-  return szPath;
-}
-
-void Utils::RemoveBlanksFromPathName(PathName& path)
-{
-  // make a working copy
-  PathName temp(path);
-
-  // points to the null char
-  char* lpszEnd = temp.GetData() + temp.GetLength();
-
-  // back iterator
-  char* lpsz = lpszEnd;
-
-  // points to the last '/' found (if any)
-  char* lpszSlash = nullptr;
-
-  // true, if lpsz points to a char sequence that includes a blank
-  // char
-  bool containsBlanks = false;
-
-  // find the last slash
-  while (lpsz != temp.GetData())
-  {
-    --lpsz;
-    if (IsDirectoryDelimiter(*lpsz) && lpsz + 1 != lpszEnd)
-    {
-      lpszSlash = lpsz;
-      break;
-    }
-    if (*lpsz == ' ')
-    {
-      containsBlanks = true;
-    }
-  }
-
-  // done, if we're at the beginning of the path and if there is no
-  // blank
-  if (!containsBlanks && lpsz == temp.GetData())
-  {
-    return;
-  }
-
-  // lpszSlash points to the last '/'
-  MIKTEX_ASSERT(lpszSlash == nullptr || IsDirectoryDelimiter(*lpszSlash));
-
-  // buffer for file name w/o blanks
-  char szAlternate[BufferSizes::MaxPath];
-
-  if (containsBlanks)
-  {
-    // get short file name (8.3 w/o blanks)
-    GetAlternate(temp.GetData(), szAlternate);
-  }
-  else
-  {
-    // no blanks found in original file name, i.e., keep the
-    // original file name
-    StringUtil::CopyString(szAlternate, BufferSizes::MaxPath, (lpsz == lpszSlash ? lpsz + 1 : lpsz));
-  }
-
-  // the new file name doesn't contain a space
-  MIKTEX_ASSERT(StrChr(szAlternate, ' ') == nullptr);
-
-  if (lpszSlash == temp.GetData()   // "/foo.bar"
-    || (lpszSlash == temp.GetData() + 1 // "//foo.bar"
-      && PathName::IsDirectoryDelimiter(temp[0]))
-    || (lpszSlash == temp.GetData() + 2   // "C:/foo.bar"
-      && IsAlpha(temp[0])
-      && PathName::IsVolumeDelimiter(temp[1])))
-  {
-    // we have reached the beginning of the path; separate original
-    // file name from path; then combine path with new file name
-    lpszSlash[1] = 0;
-    path = temp;
-    path /= szAlternate;
-  }
-  else if (lpszSlash != nullptr)
-  {
-    // separate file name from path
-    *lpszSlash = 0;
-    // still have to remove blanks from path
-    // <recursivecall>
-    RemoveBlanksFromPathName(temp);
-    // </recursivecall>
-    // path now hasn't any blanks; combine path with new file name
-    MIKTEX_ASSERT(StrChr(temp.GetData(), ' ') == nullptr);
-    path = temp;
-    path /= szAlternate;
-  }
-  else
-  {
-    // original path was something like 'foo bar'; simply turn back
-    // the new version (something like 'FOOBAR~1')
-    path = szAlternate;
-  }
+  return PathName(szPath);
 }
 
 string GetOperatingSystem(const OSVERSIONINFOEXW& osvi, const SYSTEM_INFO& si)
@@ -824,7 +712,7 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_config->WriteFormattedLine("core", T_("setting env %s=%s"), valueName.c_str(), value.c_str());
+    session->trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
   }
 #if defined(_MSC_VER) || defined(__MINGW32__)
   if (_wputenv_s(UW_(valueName), UW_(value)) != 0)
@@ -1156,7 +1044,7 @@ bool Utils::CheckPath(bool repair)
   wstring systemPath;
   DWORD systemPathType;
 
-  if (!winRegistry::TryGetRegistryValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType))
+  if (!winRegistry::TryGetValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType))
   {
     systemPath = L"";
     systemPathType = REG_SZ;
@@ -1167,14 +1055,14 @@ bool Utils::CheckPath(bool repair)
 
   if (!session->IsAdminMode())
   {
-    if (!winRegistry::TryGetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType))
+    if (!winRegistry::TryGetValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType))
     {
       userPath = L"";
       userPathType = REG_SZ;
     }
   }
 
-  PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_BIN_DIR;
+  PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_BIN_DIR);
 
   string repairedSystemPath;
   bool systemPathCompetition;
@@ -1187,15 +1075,15 @@ bool Utils::CheckPath(bool repair)
   {
     if (!systemPathOkay && !repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Something is wrong with the system PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", WU_(systemPath));
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Something is wrong with the system PATH:"));
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, WU_(systemPath));
     }
     else if (!systemPathOkay && repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new system PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", repairedSystemPath);
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new system PATH:"));
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedSystemPath);
       systemPath = UW_(repairedSystemPath);
-      winRegistry::SetRegistryValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType);
+      winRegistry::SetValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType);
       systemPathOkay = true;
       repaired = true;
     }
@@ -1209,24 +1097,24 @@ bool Utils::CheckPath(bool repair)
       systemPathOkay = !FixProgramSearchPath(WU_(userPath), commonBinDir, true, repairedUserPath, userPathCompetition);
       if (!systemPathOkay && repair)
       {
-        SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
-        SessionImpl::GetSession()->trace_error->WriteLine("core", repairedUserPath);
+        SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
+        SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
         userPath = UW_(repairedUserPath);
-        winRegistry::SetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
+        winRegistry::SetValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
         systemPathOkay = true;
         repaired = true;
       }
     }
-    PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_BIN_DIR;
+    PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot) / PathName(MIKTEX_PATH_BIN_DIR);
     string repairedUserPath;
     bool userPathCompetition;
     userPathOkay = !Directory::Exists(userBinDir) || !FixProgramSearchPath(WU_(userPath), userBinDir, true, repairedUserPath, userPathCompetition);
     if (!userPathOkay && repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", repairedUserPath);
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
+      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
       userPath = UW_(repairedUserPath);
-      winRegistry::SetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
+      winRegistry::SetValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
       userPathOkay = true;
       repaired = true;
     }
@@ -1249,17 +1137,29 @@ bool Utils::CheckPath(bool repair)
 
 void Utils::CanonicalizePathName(PathName& path)
 {
-  wchar_t szFullPath[BufferSizes::MaxPath];
-  DWORD n = GetFullPathNameW(path.ToWideCharString().c_str(), BufferSizes::MaxPath, szFullPath, nullptr);
-  if (n == 0)
+  CharBuffer<wchar_t, BufferSizes::MaxPath> fullPath;
+  bool done = false;
+  int rounds = 0;
+  do
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("GetFullPathNameW", "path", path.ToString());
+    DWORD n = GetFullPathNameW(path.ToWideCharString().c_str(), fullPath.GetCapacity(), fullPath.GetData(), nullptr);
+    if (n == 0)
+    {
+      MIKTEX_FATAL_WINDOWS_ERROR_2("GetFullPathNameW", "path", path.ToString());
+    }
+    done = n < fullPath.GetCapacity();
+    if (!done)
+    {
+      if (rounds > 0)
+      {
+        BUF_TOO_SMALL();
+      }
+      fullPath.Reserve(n);
+    }
+    rounds++;
   }
-  if (n >= BufferSizes::MaxPath)
-  {
-    BUF_TOO_SMALL();
-  }
-  path = szFullPath;
+  while (!done);
+  path = fullPath.GetData();
 }
 
 void Utils::RegisterShellFileAssoc(const string& extension, const string& progId, bool takeOwnership)
@@ -1271,12 +1171,12 @@ void Utils::RegisterShellFileAssoc(const string& extension, const string& progId
   bool haveOtherProgId = false;
   if (!session->IsAdminMode())
   {
-    haveOtherProgId = winRegistry::TryGetRegistryValue(HKEY_CURRENT_USER, regPath.GetData(), "", otherProgId);
+    haveOtherProgId = winRegistry::TryGetValue(HKEY_CURRENT_USER, regPath.GetData(), "", otherProgId);
     haveOtherProgId = haveOtherProgId && StringCompare(progId.c_str(), otherProgId.c_str(), true) != 0;
   }
   if (!haveOtherProgId)
   {
-    haveOtherProgId = winRegistry::TryGetRegistryValue(HKEY_LOCAL_MACHINE, regPath.GetData(), "", otherProgId);
+    haveOtherProgId = winRegistry::TryGetValue(HKEY_LOCAL_MACHINE, regPath.GetData(), "", otherProgId);
     haveOtherProgId = haveOtherProgId && StringCompare(progId.c_str(), otherProgId.c_str(), true) != 0;
   }
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
@@ -1284,16 +1184,16 @@ void Utils::RegisterShellFileAssoc(const string& extension, const string& progId
   openWithProgIds /= "OpenWithProgIds";
   if (haveOtherProgId)
   {
-    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.ToString(), otherProgId, "");
-    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.ToString(), progId, "");
+    winRegistry::SetValue(hkeyRoot, openWithProgIds.ToString(), otherProgId, "");
+    winRegistry::SetValue(hkeyRoot, openWithProgIds.ToString(), progId, "");
   }
   if (!haveOtherProgId || takeOwnership)
   {
     if (haveOtherProgId)
     {
-      winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "MiKTeX." MIKTEX_MAJOR_MINOR_STR ".backup", otherProgId);
+      winRegistry::SetValue(hkeyRoot, regPath.ToString(), "MiKTeX." MIKTEX_COM_MAJOR_MINOR_STR ".backup", otherProgId);
     }
-    winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "", progId);
+    winRegistry::SetValue(hkeyRoot, regPath.ToString(), "", progId);
   }
 }
 
@@ -1304,26 +1204,26 @@ void Utils::UnregisterShellFileAssoc(const string& extension, const string& prog
   PathName regPath("Software\\Classes");
   regPath /= extension;
   string existingProgId;
-  if (!winRegistry::TryGetRegistryValue(hkeyRoot, regPath.ToString(), "", existingProgId))
+  if (!winRegistry::TryGetValue(hkeyRoot, regPath.ToString(), "", existingProgId))
   {
     return;
   }
   string backupProgId;
-  bool haveBackupProgId = winRegistry::TryGetRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_MAJOR_MINOR_STR ".backup", backupProgId);
+  bool haveBackupProgId = winRegistry::TryGetValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_COM_MAJOR_MINOR_STR ".backup", backupProgId);
   if (haveBackupProgId || StringCompare(existingProgId.c_str(), progId.c_str(), true) != 0)
   {
     if (haveBackupProgId)
     {
-      winRegistry::SetRegistryValue(hkeyRoot, regPath.GetData(), "", backupProgId.c_str());
-      winRegistry::TryDeleteRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_MAJOR_MINOR_STR ".backup");
+      winRegistry::SetValue(hkeyRoot, regPath.GetData(), "", backupProgId.c_str());
+      winRegistry::TryDeleteValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_COM_MAJOR_MINOR_STR ".backup");
     }
     PathName openWithProgIds(regPath);
     openWithProgIds /= "OpenWithProgIds";
-    winRegistry::TryDeleteRegistryValue(hkeyRoot, openWithProgIds.ToString(), progId);
+    winRegistry::TryDeleteValue(hkeyRoot, openWithProgIds.ToString(), progId);
   }
   else
   {
-    winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.ToString());
+    winRegistry::TryDeleteKey(hkeyRoot, regPath.ToString());
   }
 }
 
@@ -1335,13 +1235,13 @@ void Utils::RegisterShellFileType(const string& progId, const string& userFriend
   regPath /= progId;
   if (!userFriendlyName.empty())
   {
-    winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "", userFriendlyName);
+    winRegistry::SetValue(hkeyRoot, regPath.ToString(), "", userFriendlyName);
   }
   if (!iconPath.empty())
   {
     PathName defaultIcon(regPath);
     defaultIcon /= "DefaultIcon";
-    winRegistry::SetRegistryValue(hkeyRoot, defaultIcon.GetData(), "", iconPath);
+    winRegistry::SetValue(hkeyRoot, defaultIcon.GetData(), "", iconPath);
   }
 }
 
@@ -1351,7 +1251,7 @@ void Utils::UnregisterShellFileType(const string& progId)
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= progId;
-  winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.ToString());
+  winRegistry::TryDeleteKey(hkeyRoot, regPath.ToString());
 }
 
 void Utils::RegisterShellVerb(const string& progId, const string& verb, const string& command, const string& ddeExec)
@@ -1366,7 +1266,7 @@ void Utils::RegisterShellVerb(const string& progId, const string& verb, const st
     path /= "shell";
     path /= verb;
     path /= "command";
-    winRegistry::SetRegistryValue(hkeyRoot, path.ToString(), "", command);
+    winRegistry::SetValue(hkeyRoot, path.ToString(), "", command);
   }
   if (!ddeExec.empty())
   {
@@ -1374,13 +1274,13 @@ void Utils::RegisterShellVerb(const string& progId, const string& verb, const st
     path /= "shell";
     path /= verb;
     path /= "ddeexec";
-    winRegistry::SetRegistryValue(hkeyRoot, path.ToString(), "", ddeExec);
+    winRegistry::SetValue(hkeyRoot, path.ToString(), "", ddeExec);
   }
 }
 
 string Utils::MakeProgId(const string& progId)
 {
-  return string("MiKTeX") + "." + progId + "." + MIKTEX_MAJOR_MINOR_STR;
+  return string("MiKTeX") + "." + progId + "." + MIKTEX_COM_MAJOR_MINOR_STR;
 }
 
 bool Utils::SupportsHardLinks(const PathName& path)

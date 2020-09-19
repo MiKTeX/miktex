@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2017 Peter Selinger.
+/* Copyright (C) 2001-2019 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -108,7 +108,7 @@ static inline potrace_bitmap_t *bm_new(int w, int h) {
     return NULL;
   }
   if (size == 0) {
-    size = 1; /* make sure calloc() doesn't return NULL */
+    size = BM_WORDSIZE; /* make sure calloc() doesn't return NULL */
   } 
 
   bm = (potrace_bitmap_t *) malloc(sizeof(potrace_bitmap_t));
@@ -203,7 +203,7 @@ static inline int bm_resize(potrace_bitmap_t *bm, int h) {
     goto error;
   }
   if (newsize == 0) {
-    newsize = 1; /* make sure realloc() doesn't return NULL */
+    newsize = BM_WORDSIZE; /* make sure realloc() doesn't return NULL */
   }
   
   newmap = (potrace_word *)realloc(bm->map, newsize);

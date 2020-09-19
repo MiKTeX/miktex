@@ -69,7 +69,7 @@ set_source_files_properties(${makeindex_c_sources}
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND makeindex_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     makeindex.rc
   )
 endif()

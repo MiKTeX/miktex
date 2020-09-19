@@ -1,6 +1,6 @@
 /* md5walk.cpp: calculate the MD5 of a file tree
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MD5Walk.
 
@@ -220,7 +220,7 @@ void DirectoryWalk(TASK task, const PathName& path, const string& stripPrefix, F
         case List:
         {
           launch launchPolicy = optAsync ? launch::async : launch::deferred;
-          mapFnToMD5[Utils::GetRelativizedPath(path2.GetData(), stripPrefix.c_str())] = async(launchPolicy, [](const PathName& path2) { return MD5::FromFile(path2.GetData()); }, path2);
+          mapFnToMD5[Utils::GetRelativizedPath(path2.GetData(), stripPrefix.c_str())] = async(launchPolicy, [](const PathName& path2) { return MD5::FromFile(path2); }, path2);
           break;
         }
         case FindDuplicates:
@@ -256,7 +256,7 @@ void PrintDuplicates(const set<string>& setstr)
   {
     return;
   }
-  Verbose(fmt::format(T_("found {} identical files (size: {}):\n"), setstr.size(), File::GetSize(*setstr.begin())));
+  Verbose(fmt::format(T_("found {} identical files (size: {}):\n"), setstr.size(), File::GetSize(PathName(*setstr.begin()))));
   for (const string& s : setstr)
   {
     cout << "  " << s << endl;
@@ -273,7 +273,7 @@ void FindDuplicateFiles(const set<string>& setstr)
   MD5ToFileName mapMd5sumToFn;
   for (const string& s : setstr)
   {
-    mapMd5sumToFn.insert(make_pair(MD5::FromFile(s), s));
+    mapMd5sumToFn.insert(make_pair(MD5::FromFile(PathName(s)), s));
   }
   MD5 md5Last;
   set<string> setstrFiles;
@@ -337,7 +337,7 @@ void Main(int argc, const char** argv)
     case OPT_VERSION:
       cout
         << Utils::MakeProgramVersionString(Utils::GetExeName(), VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2005-2018 Christian Schenk" << endl
+        << "Copyright (C) 2005-2020 Christian Schenk" << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return;
@@ -383,10 +383,10 @@ void Main(int argc, const char** argv)
     {
       Verbose(fmt::format(T_("Checking the data integrity of \"{}\"...\n"), dir));
     }
-    DirectoryWalk(task, dir, dir, mapFnToMD5, mapSizeToFn);
+    DirectoryWalk(task, PathName(dir), dir, mapFnToMD5, mapSizeToFn);
     if (task == Check && !haveMD5File)
     {
-      PathName md5File = dir;
+      PathName md5File(dir);
       md5File /= MD5WALK_FILE;
       if (File::Exists(md5File))
       {

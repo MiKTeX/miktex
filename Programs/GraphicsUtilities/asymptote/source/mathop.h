@@ -178,11 +178,7 @@ inline void Negate<Int>(vm::stack *s)
 
 inline double pow(double x, double y)
 {
-#ifndef HAVE_POW
-  return exp(y*log(x));
-#else
   return ::pow(x,y);
-#endif
 }
 
 template<class T>

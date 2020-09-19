@@ -49,7 +49,7 @@ set(t4ht_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND t4ht_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     t4ht.rc
   )
 endif()
@@ -80,7 +80,7 @@ set(tex4ht_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND tex4ht_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     tex4ht.rc
   )
 endif()

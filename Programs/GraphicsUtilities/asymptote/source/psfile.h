@@ -150,7 +150,7 @@ public:
   
   void prologue(const bbox& box);
   void epilogue();
-  void header();
+  void header(bool eps);
 
   void close();
   
@@ -162,9 +162,9 @@ public:
     *out << newl;
   }
   
-  bool Transparency() {
-    return transparency;
-  }
+//  bool Transparency() {
+//    return transparency;
+//  }
   
   void write(pair z) {
     *out << " " << z.getx() << " " << z.gety();

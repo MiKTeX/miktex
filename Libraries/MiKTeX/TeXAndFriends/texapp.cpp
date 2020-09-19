@@ -1,6 +1,6 @@
 /* texapp.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -19,9 +19,35 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#include <miktex/Core/ConfigNames>
 #include <miktex/Util/Tokenizer>
 
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMFEXPORT
+#endif
+#define B8C7815676699B4EA2DE96F0BD727276
+#include "miktex/TeXAndFriends/TeXApp.h"
+
 #include "internal.h"
+
+using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::TeXAndFriends;
+using namespace MiKTeX::Util;
 
 #define EXPERT_SRC_SPECIALS 0
 
@@ -73,7 +99,7 @@ void TeXApp::OnTeXMFStartJob()
   shared_ptr<Session> session = GetSession();
   ShellCommandMode shellCommandMode = session->GetShellCommandMode();
   EnableShellCommands(shellCommandMode);
-  EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, shellCommandMode == ShellCommandMode::Restricted || shellCommandMode == ShellCommandMode::Unrestricted).GetBool());
+  EnablePipes(shellCommandMode == ShellCommandMode::Restricted || shellCommandMode == ShellCommandMode::Unrestricted);
 }
 
 void TeXApp::Finalize()
@@ -186,16 +212,6 @@ void TeXApp::AddOptions()
       POPT_ARG_STRING,
       "N");
   }
-
-#if WITH_OMEGA
-  if (AmI("omega"))
-  {
-    AddOption(T_("trie-op-size\0Set trie_op_size to N."),
-      FIRST_OPTION_VAL + pimpl->optBase + OPT_TRIE_OP_SIZE,
-      POPT_ARG_STRING,
-      "N");
-  }
-#endif
 
 #if EXPERT_SRC_SPECIALS
   AddOption((T_("src-specials\0Insert source specials in certain places of the DVI file.  WHERE is a comma-separated value list of: cr display hbox math par parend vbox.")),
@@ -367,40 +383,58 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
   shared_ptr<Session> session = GetSession();
   Session::ExamineCommandLineResult examineResult;
   string examinedCommand;
-  string toBeExecuted;
-  tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
+  string safeCommandLine;
+  tie(examineResult, examinedCommand, safeCommandLine) = session->ExamineCommandLine(command);
   if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
   {
-    LogError("command line syntax error: " + command);
+    LogError(fmt::format("syntax error: {0}", command));
     return Write18Result::QuotationError;
   }
   if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
   {
-    LogError("command is unsafe: " + command);
+    LogError(fmt::format("command is unsafe: {0}", command));
     return Write18Result::Disallowed;
   }
+  string toBeExecuted;
   switch (GetShellCommandMode())
   {
   case ShellCommandMode::Unrestricted:
+    if (session->RunningAsAdministrator() && !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
+    {
+      LogError(fmt::format("not allowed with elevated privileges: {0}", command));
+      return Write18Result::Disallowed;
+    }
     toBeExecuted = command;
     break;
   case ShellCommandMode::Forbidden:
-    LogError("command not executed: " + command);
-    MIKTEX_UNEXPECTED();
+    LogError(fmt::format("command not executed: {0}", command));
+    return  Write18Result::Disallowed;
   case ShellCommandMode::Query:
     // TODO
   case ShellCommandMode::Restricted:
     if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
     {
-      LogError("command not allowed: " + command);
+      LogError(fmt::format("command not allowed: {0}", command));
       return Write18Result::Disallowed;
     }
+    toBeExecuted = safeCommandLine;
     break;
   default:
     MIKTEX_UNEXPECTED();
   }
-  LogInfo("executing write18 shell command: " + toBeExecuted);
+  if (examineResult == Session::ExamineCommandLineResult::ProbablySafe)
+  {
+    LogInfo(fmt::format("executing restricted write18 shell command: {0}", toBeExecuted));
+  }
+  else
+  {
+    LogWarn(fmt::format("executing unrestricted write18 shell command: {0}", toBeExecuted));
+  }
+#if defined(MIKTEX_WINDOWS)
+  std::replace(toBeExecuted.begin(), toBeExecuted.end(), '\'', '"');
+#endif
   Process::ExecuteSystemCommand(toBeExecuted, &exitCode);
+  LogInfo(fmt::format("write18 exit code: {0}", exitCode));
   return examineResult == Session::ExamineCommandLineResult::ProbablySafe ? Write18Result::ExecutedAllowed : Write18Result::Executed;
 }
 
@@ -471,7 +505,7 @@ int TeXApp::MakeSrcSpecial(int sourceFileName, int line) const
 
 bool TeXApp::IsNewSource(int sourceFileName, int line) const
 {
-  return pimpl->lastSourceFilename != GetTeXString(sourceFileName) || pimpl->lastLineNum != line;
+  return pimpl->lastSourceFilename != PathName(GetTeXString(sourceFileName)) || pimpl->lastLineNum != line;
 }
 
 void TeXApp::RememberSourceInfo(int sourceFileName, int line) const

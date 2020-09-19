@@ -1,6 +1,6 @@
-/* winRegistry.h: Windows registry operations           -*- C++ -*-
+/* winRegistry.h: Windows Registry operations
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -31,67 +31,67 @@ CORE_INTERNAL_BEGIN_NAMESPACE;
 class winRegistry
 {
 public:
-  static bool TryGetRegistryValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, std::vector<BYTE>& value, DWORD& valueType);
+  static bool TryGetValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, std::vector<BYTE>& value, DWORD& valueType);
 
 public:
-  static bool TryGetRegistryValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, std::wstring& value, DWORD& valueType);
+  static bool TryGetValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, std::wstring& value, DWORD& valueType);
 
 public:
-  static bool TryGetRegistryValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, std::wstring& value);
+  static bool TryGetValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, std::wstring& value);
 
 public:
-  static bool TryGetRegistryValue(HKEY hkeyParent, const std::string& path, const std::string& valueName, std::string& value);
+  static bool TryGetValue(HKEY hkeyParent, const std::string& path, const std::string& valueName, std::string& value);
 
 public:
-  static bool TryDeleteRegistryValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName);
+  static bool TryDeleteValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName);
 
 public:
-  static bool TryDeleteRegistryValue(HKEY hkeyParent, const std::string& path, const std::string& valueName);
+  static bool TryDeleteValue(HKEY hkeyParent, const std::string& path, const std::string& valueName);
 
 public:
-  static bool TryDeleteRegistryKey(HKEY hkeyParent, const std::wstring& path);
+  static bool TryDeleteKey(HKEY hkeyParent, const std::wstring& path);
 
 public:
-  static bool TryDeleteRegistryKey(HKEY hkeyParent, const std::string& path);
+  static bool TryDeleteKey(HKEY hkeyParent, const std::string& path);
 
 public:
-  static void SetRegistryValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, const BYTE* value, size_t valueSize, DWORD valueType);
+  static void SetValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, const BYTE* value, size_t valueSize, DWORD valueType);
 
 public:
-  static void SetRegistryValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, const std::wstring& value, DWORD valueType);
+  static void SetValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, const std::wstring& value, DWORD valueType);
 
 public:
-  static void SetRegistryValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, const std::wstring& value)
+  static void SetValue(HKEY hkeyParent, const std::wstring& path, const std::wstring& valueName, const std::wstring& value)
   {
-    SetRegistryValue(hkeyParent, path, valueName, value, REG_SZ);
+    SetValue(hkeyParent, path, valueName, value, REG_SZ);
   }
 
 public:
-  static void SetRegistryValue(HKEY hkeyParent, const std::string& path, const std::string& valueName, const std::string& value);
+  static void SetValue(HKEY hkeyParent, const std::string& path, const std::string& valueName, const std::string& value);
 
 public:
-  static bool TryGetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, std::wstring& value);
+  static bool TryGetValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, std::wstring& value);
 
 public:
-  static bool TryGetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, std::string& value);
+  static bool TryGetValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, std::string& value);
 
 public:
-  static bool TryGetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, MiKTeX::Core::PathName& path);
+  static bool TryGetValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, MiKTeX::Core::PathName& path);
 
 public:
-  static bool TryGetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, MiKTeX::Core::PathName& path);
+  static bool TryGetValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, MiKTeX::Core::PathName& path);
 
 public:
-  static bool TryDeleteRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName);
+  static bool TryDeleteValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName);
 
 public:
-  static bool TryDeleteRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName);
+  static bool TryDeleteValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName);
 
 public:
-  static void SetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, const std::wstring& value);
+  static void SetValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, const std::wstring& value);
 
 public:
-  static void SetRegistryValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, const std::string& value);
+  static void SetValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, const std::string& value);
 };
 
 CORE_INTERNAL_END_NAMESPACE;

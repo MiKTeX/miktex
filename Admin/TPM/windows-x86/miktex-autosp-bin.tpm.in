@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/autosp/">
     <TPM:Name>autosp/rebar win32</TPM:Name>
     <TPM:Title>autosp and rebar, Windows x86</TPM:Title>
-    <TPM:Copyright owner="D. Tennent School of Computing, Queen's University" year="2014-2017"/>
+    <TPM:Copyright owner="D. Tennent School of Computing, Queen's University" year="2014-2020"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>2018-02-23</TPM:Version>
+    <TPM:Version>2020-03-11</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
@@ -29,6 +29,7 @@
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}autosp.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}rebar.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}tex2aspc.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

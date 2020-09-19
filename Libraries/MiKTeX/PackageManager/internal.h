@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -29,6 +29,7 @@
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
+#include <miktex/Core/VersionNumber>
 
 #include "text.h"
 
@@ -50,7 +51,10 @@
 /// @brief Package manager internals.
 MPM_INTERNAL_BEGIN_NAMESPACE;
 
-constexpr const char* MPM_AGENT = "MPM/" MIKTEX_COMPONENT_VERSION_STR;
+inline std::string GetMpmAgent()
+{
+  return "MPM/" + MiKTeX::Core::VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString();
+}
 
 // the trailing slash should not be removed
 constexpr const char* TEXMF_PREFIX_DIRECTORY = "texmf" MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
@@ -103,6 +107,11 @@ inline int StrCmp(const char* lpsz1, const char* lpsz2)
 inline int StrCmp(const wchar_t* lpsz1, const wchar_t* lpsz2)
 {
   return wcscmp(lpsz1, lpsz2);
+}
+
+inline bool IsNewer(const MiKTeX::Core::PathName& path1, const MiKTeX::Core::PathName& path2)
+{
+  return MiKTeX::Core::File::Exists(path1) && MiKTeX::Core::File::Exists(path2) && MiKTeX::Core::File::GetLastWriteTime(path1) > MiKTeX::Core::File::GetLastWriteTime(path2);
 }
 
 bool IsUrl(const std::string& url);

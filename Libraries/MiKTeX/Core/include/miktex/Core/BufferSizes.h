@@ -34,7 +34,7 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 struct BufferSizes
 {
 public:
-  /// Maximum length of a path name (including the terminating null-byte).
+  /// Initial capacity of a path name (including the terminating null-byte).
   static const std::size_t MaxPath = 260;
   /// Maximum length of a package key (including the terminating
   /// null-byte).

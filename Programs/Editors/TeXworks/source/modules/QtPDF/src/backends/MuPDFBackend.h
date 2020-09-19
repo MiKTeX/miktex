@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2019  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -55,25 +55,25 @@ protected:
 
   // The following two methods are not thread-safe because they don't acquire a
   // read lock. This is to enable methods that have a write lock to use them.
-  bool _isValid() const { return (_mupdf_data != NULL); }
+  bool _isValid() const { return (_mupdf_data != nullptr); }
   bool _isLocked() const { return (_isValid() && _permissionLevel == PermissionLevel_Locked); }
 
 public:
   Document(QString fileName);
-  ~Document();
+  ~Document() override;
 
-  bool isValid() const { QReadLocker docLocker(_docLock.data()); return _isValid(); }
-  bool isLocked() const { QReadLocker docLocker(_docLock.data()); return _isLocked(); }
+  bool isValid() const override { QReadLocker docLocker(_docLock.data()); return _isValid(); }
+  bool isLocked() const override { QReadLocker docLocker(_docLock.data()); return _isLocked(); }
 
-  bool unlock(const QString password);
-  void reload();
+  bool unlock(const QString password) override;
+  void reload() override;
 
-  QWeakPointer<Backend::Page> page(int at);
-  QWeakPointer<Backend::Page> page(int at) const;
-  PDFDestination resolveDestination(const PDFDestination & namedDestination) const;
+  QWeakPointer<Backend::Page> page(int at) override;
+  QWeakPointer<Backend::Page> page(int at) const override;
+  PDFDestination resolveDestination(const PDFDestination & namedDestination) const override;
 
-  PDFToC toc() const;
-  QList<PDFFontInfo> fonts() const;
+  PDFToC toc() const override;
+  QList<PDFFontInfo> fonts() const override;
 
 private:
   enum PermissionLevel { PermissionLevel_Locked, PermissionLevel_User, PermissionLevel_Owner };
@@ -111,18 +111,18 @@ protected:
   Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock);
 
 public:
-  ~Page();
+  ~Page() override;
 
-  QSizeF pageSizeF() const;
+  QSizeF pageSizeF() const override;
 
-  QImage renderToImage(double xres, double yres, QRect render_box = QRect(), bool cache = false) const;
+  QImage renderToImage(double xres, double yres, QRect render_box = QRect(), bool cache = false) const override;
 
-  QList< QSharedPointer<Annotation::Link> > loadLinks();
-  QList< QSharedPointer<Annotation::AbstractAnnotation> > loadAnnotations();
+  QList< QSharedPointer<Annotation::Link> > loadLinks() override;
+  QList< QSharedPointer<Annotation::AbstractAnnotation> > loadAnnotations() override;
 
-  QList<SearchResult> search(QString searchText, SearchFlags flags);
-  virtual QList<Backend::Page::Box> boxes();
-  virtual QString selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes = NULL, QMap<int, QRectF> * charBoxes = NULL);
+  QList<SearchResult> search(const QString & searchText, const SearchFlags & flags) override;
+  QList<Backend::Page::Box> boxes() override;
+  QString selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes = nullptr, QMap<int, QRectF> * charBoxes = nullptr, const bool onlyFullyEnclosed = false) override;
 };
 
 } // namespace MuPDF
@@ -134,15 +134,15 @@ class MuPDFBackend : public BackendInterface
   Q_OBJECT
   Q_INTERFACES(QtPDF::BackendInterface)
 public:
-  MuPDFBackend() { }
-  virtual ~MuPDFBackend() { }
+  MuPDFBackend() = default;
+  ~MuPDFBackend() override = default;
 
-  virtual QSharedPointer<Backend::Document> newDocument(const QString & fileName) {
+  QSharedPointer<Backend::Document> newDocument(const QString & fileName) override {
     return QSharedPointer<Backend::Document>(new Backend::MuPDF::Document(fileName));
   }
 
-  virtual QString name() const { return QString::fromAscii("mupdf"); }
-  virtual bool canHandleFile(const QString & fileName) { return QFileInfo(fileName).suffix() == QString::fromAscii("pdf"); }
+  QString name() const override { return QString::fromAscii("mupdf"); }
+  bool canHandleFile(const QString & fileName) override { return QFileInfo(fileName).suffix() == QString::fromAscii("pdf"); }
 };
 
 } // namespace QtPDF

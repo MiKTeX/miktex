@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -34,9 +34,9 @@
 #include <miktex/Core/Session>
 
 #if MIKTEX_UNIX
-#  define NO_REGISTRY 1
+#  define USE_WINDOWS_REGISTRY 0
 #else
-#  define NO_REGISTRY 0
+#  define USE_WINDOWS_REGISTRY 1
 #endif
 
 #define FIND_FILE_PREFER_RELATIVE_PATH_NAMES 1
@@ -204,7 +204,7 @@ bool FileIsOnROMedia(const char* path);
 
 bool GetCrtErrorMessage(int functionResult, std::string& errorMessage);
 
-MiKTeX::Core::PathName GetFullPath(const char* path);
+MiKTeX::Core::PathName GetFullyQualifiedPath(const char* path);
 
 MiKTeX::Core::PathName GetHomeDirectory();
 
@@ -261,6 +261,11 @@ void TraceWindowsError(const char* windowsFunction, unsigned long functionResult
 #endif
 
 const char* GetShortSourceFile(const char* sourceFileName);
+
+inline bool IsValidTimeT(std::time_t time)
+{
+  return time != static_cast<std::time_t>(0) && time != static_cast<std::time_t>(-1);
+}
 
 inline void DbgView(const std::string& s)
 {

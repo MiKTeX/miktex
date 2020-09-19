@@ -2,7 +2,7 @@
 ** Process.hpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -25,11 +25,11 @@
 
 class Process {
 	public:
-		Process (const std::string &cmd, const std::string &paramstr);
+		Process (std::string cmd, std::string paramstr);
 		Process (const Process &orig) =delete;
 		Process (Process &&orig) =delete;
-		bool run (std::string *out=0);
-		bool run (const std::string &dir, std::string *out=0);
+		bool run (std::string *out=nullptr);
+		bool run (const std::string &dir, std::string *out=nullptr);
 
 	private:
 		std::string _cmd;

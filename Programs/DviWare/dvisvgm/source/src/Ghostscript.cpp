@@ -2,7 +2,7 @@
 ** Ghostscript.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -66,7 +66,7 @@ static string get_path_from_registry () {
 					if (major_version >= 7) {
 						char dll_path[512];  // path to Ghostscript DLL stored in the registry
 						DWORD length = 512;
-						if (RegGetValueA(hkey, subkey, "GS_DLL", RRF_RT_REG_SZ, 0, dll_path, &length) == ERROR_SUCCESS) {
+						if (RegGetValueA(hkey, subkey, "GS_DLL", RRF_RT_REG_SZ, nullptr, dll_path, &length) == ERROR_SUCCESS) {
 							RegCloseKey(hkey);
 							return dll_path;
 						}
@@ -144,6 +144,9 @@ static string get_libgs (const string &fname) {
 		dlname = "libgs." + to_string(i) + ".dylib";
 		if (loader.loadLibrary(dlname))
 			return dlname;
+		dlname = "libgs.dylib." + to_string(i);
+		if (loader.loadLibrary(dlname))
+			return dlname;
 #endif
 	}
 #endif
@@ -160,7 +163,6 @@ Ghostscript::Ghostscript ()
 	: DLLoader(get_libgs(LIBGS_NAME))
 #endif
 {
-	_inst = 0;
 }
 
 
@@ -173,7 +175,6 @@ Ghostscript::Ghostscript (int argc, const char **argv, void *caller)
 	: DLLoader(get_libgs(LIBGS_NAME))
 #endif
 {
-	_inst = 0;
 	init(argc, argv, caller);
 }
 
@@ -191,12 +192,12 @@ bool Ghostscript::init (int argc, const char **argv, void *caller) {
 	if (!_inst) {
 		int status = new_instance(&_inst, caller);
 		if (status < 0)
-			_inst = 0;
+			_inst = nullptr;
 		else {
 			init_with_args(argc, const_cast<char**>(argv));
 		}
 	}
-	return _inst != 0;
+	return _inst != nullptr;
 }
 
 
@@ -257,7 +258,7 @@ int Ghostscript::new_instance (void **psinst, void *caller) {
 #else
 	if (auto fn = LOAD_SYMBOL(gsapi_new_instance))
 		return fn(psinst, caller);
-	*psinst = 0;
+	*psinst = nullptr;
 	return 0;
 #endif
 }

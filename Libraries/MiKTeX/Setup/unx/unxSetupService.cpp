@@ -1,6 +1,6 @@
 /* unxSetupService.cpp:
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -25,17 +25,17 @@ using namespace MiKTeX::Setup;
 PathName SetupService::GetDefaultCommonInstallDir()
 {
   // TODO
-  return "/usr/local/miktex";
+  return PathName("/usr/local/miktex");
 }
 
 PathName SetupService::GetDefaultUserInstallDir()
 {
   // TODO
-  return "~/miktex";
+  return PathName("~/miktex");
 }
 
 PathName SetupService::GetDefaultPortableRoot()
 {
   // TODO
-  return "~/miktex-portable";
+  return PathName("~/miktex-portable");
 }

@@ -1,6 +1,6 @@
 /* unxDirectory.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -20,6 +20,9 @@
    02111-1307, USA. */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -58,7 +61,7 @@ bool Directory::Exists(const PathName& path)
     {
       if (session != nullptr)
       {
-        session->trace_access->WriteFormattedLine("core", T_("%s is not a directory"), Q_(path));
+        session->trace_access->WriteLine("core", fmt::format(T_("{0} is not a directory"), Q_(path)));
       }
       return false;
     }
@@ -77,7 +80,7 @@ void Directory::Delete(const PathName& path)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("deleting directory {0}"), Q_(path)));
   }
   if (rmdir(path.GetData()) != 0)
   {

@@ -2,7 +2,7 @@
 ** PreScanDVIReader.hpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -25,8 +25,7 @@
 
 struct DVIActions;
 
-class PreScanDVIReader : public BasicDVIReader
-{
+class PreScanDVIReader : public BasicDVIReader {
 	public:
 		PreScanDVIReader (std::istream &is, DVIActions *actions);
 		unsigned currentPageNumber () const override {return _currentPageNumber;}
@@ -37,7 +36,7 @@ class PreScanDVIReader : public BasicDVIReader
 
 	private:
 		DVIActions *_actions;
-		unsigned _currentPageNumber;
+		unsigned _currentPageNumber=0;
 };
 
 #endif

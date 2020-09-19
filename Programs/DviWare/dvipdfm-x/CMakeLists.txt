@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,7 +27,7 @@ configure_file(
 )
 
 configure_file(
-  dvipdfm-x-version.h.cmake
+  dvipdfm-x-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/dvipdfm-x-version.h
 )
 
@@ -120,6 +120,7 @@ set(dvipdfm_x_sources
   source/mfileio.h
   source/mpost.c
   source/mpost.h
+  source/mt19937ar.c
   source/numbers.c
   source/numbers.h
   source/otl_opt.c
@@ -227,7 +228,7 @@ list(APPEND dvipdfm_x_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvipdfm_x_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/dvipdfm-x.rc
   )
 endif()
@@ -268,7 +269,7 @@ set(dvipdft_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvipdft_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     dvipdft.rc
   )
 endif()

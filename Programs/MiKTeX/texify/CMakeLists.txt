@@ -43,7 +43,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
   list(APPEND mcd_sources
     ${CMAKE_CURRENT_BINARY_DIR}/mcd.rc
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 

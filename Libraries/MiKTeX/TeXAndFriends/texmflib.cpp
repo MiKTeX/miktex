@@ -1,6 +1,6 @@
 /* texmflib.cpp: TeX'n'Friends helpers
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -22,10 +22,30 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/StreamReader>
 
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMFEXPORT
+#endif
+#define B8C7815676699B4EA2DE96F0BD727276
+#include "miktex/TeXAndFriends/TeXMFApp.h"
+
 #include "internal.h"
 
+using namespace std;
+
+using namespace MiKTeX::Core;
+
 typedef C4P_FILE_STRUCT(unsigned char) bytefile;
-typedef C4P_text alphafile;
+typedef C4P::C4P_text alphafile;
 
 STATICFUNC(bool) OpenFontFile(bytefile* file, const string& fontName, FileType filetype, const char* generator)
 {
@@ -174,12 +194,12 @@ STATICFUNC(bool) ProcessTCXFile(const char* lpszFileName, unsigned char* pChr, u
       printable = strtol(start, &end, 0);
       if (start == end)
       {
-	// not specified; by default printable
-	printable = 1;
+        // not specified; by default printable
+        printable = 1;
       }
       else if (printable < 0 || printable > 1)
       {
-	MIKTEX_FATAL_ERROR_2(T_("Invalid tcx file."), "tcxPath", tcxPath.ToString());
+        MIKTEX_FATAL_ERROR_2(T_("Invalid tcx file."), "tcxPath", tcxPath.ToString());
       }
     }
 
@@ -220,18 +240,18 @@ bool MIKTEXCEECALL MiKTeX::TeXAndFriends::InitializeCharTables(unsigned long fla
     {
       if ((flags & ICT_TCX) != 0)
       {
-	pxprn[idx] = 1;
+        pxprn[idx] = 1;
       }
       else
       {
-	if (idx >= ' ' && idx <= '~')
-	{
-	  pxprn[idx] = 1;
-	}
-	else
-	{
-	  pxprn[idx] = 0;
-	}
+        if (idx >= ' ' && idx <= '~')
+        {
+          pxprn[idx] = 1;
+        }
+        else
+        {
+          pxprn[idx] = 0;
+        }
       }
     }
   }
@@ -259,13 +279,13 @@ STATICFUNC(bool) OpenAlphaFile(void* p, const char* lpszFileName, FileType fileT
   {
     return false;
   }
-  FILE* pfile = session->TryOpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false);
+  FILE* pfile = session->TryOpenFile(path, FileMode::Open, FileAccess::Read, false);
   if (pfile == nullptr)
   {
     return false;
   }
   reinterpret_cast<alphafile*>(p)->Attach(pfile, true);
-  get(*reinterpret_cast<alphafile*>(p));
+  reinterpret_cast<alphafile*>(p)->Read();
   return true;
 }
 

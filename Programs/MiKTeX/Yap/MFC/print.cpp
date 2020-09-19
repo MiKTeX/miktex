@@ -1,6 +1,6 @@
 /* print.cpp: DVI printing
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -63,13 +63,13 @@ BOOL DviView::OnPreparePrinting(CPrintInfo* pInfo)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
     return FALSE;
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
     return FALSE;
   }
 }
@@ -86,12 +86,12 @@ void DviView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -108,12 +108,12 @@ void DviView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -165,12 +165,12 @@ void DviView::OnFileDvips()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -188,11 +188,11 @@ void DviView::OnUpdateFileDvips(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }
@@ -205,8 +205,6 @@ void DviView::PrintPostScript(const char* lpszDviFileName, const char* lpszPrint
   {
     MIKTEX_UNEXPECTED();
   }
-
-  Utils::RemoveBlanksFromPathName(mtprint);
 
   // make command-line
   vector<string> args{ "mtprint" };
@@ -268,12 +266,12 @@ void DviView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -291,11 +289,11 @@ void DviView::OnUpdateFilePrint(CCmdUI* pCmdUI)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   pCmdUI->Enable(enable);
 }

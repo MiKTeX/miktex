@@ -1,6 +1,6 @@
 /* makebase.cpp:
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is part of MiKTeX MakeBase.
 
@@ -21,7 +21,9 @@
 
 #include "config.h"
 
-#include <miktex/Core/Registry>
+#include "makebase-version.h"
+
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/TemporaryDirectory>
 
 #include "MakeUtility.h"
@@ -109,7 +111,7 @@ namespace
 
 void MakeBase::CreateDestinationDirectory()
 {
-  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEBASE, MIKTEX_REGVAL_DESTDIR, "%R/" MIKTEX_PATH_BASE_DIR).GetString());
+  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKEBASE, MIKTEX_CONFIG_VALUE_DESTDIR).GetString());
 }
 
 void MakeBase::Run(int argc, const char** argv)

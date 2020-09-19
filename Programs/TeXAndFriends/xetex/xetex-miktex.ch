@@ -1,6 +1,6 @@
 %% xetex-miktex.ch:
 %% 
-%% Copyright (C) 2007-2017 Christian Schenk
+%% Copyright (C) 2007-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -48,6 +48,17 @@
 @d t_open_in==term_in:=i@&nput
 @y
 @d t_open_in==miktex_open_in
+@z
+
+% _____________________________________________________________________________
+%
+% [3.34]
+% _____________________________________________________________________________
+
+@x
+@d clear_terminal == break(term_in) {clear the terminal input buffer}
+@y
+@d clear_terminal == flush_unicodefile(term_in) {clear the terminal input buffer}
 @z
 
 % _____________________________________________________________________________
@@ -211,6 +222,12 @@ if (max_font_max<min_quarterword)or(max_font_max>max_quarterword) then bad:=15;
 @x
 name_of_file:= xmalloc_array (UTF8_code, (length(a)+length(n)+length(e))*3+1);
 @y
+@z
+
+@x
+miktex_reallocate_name_of_file(length(a) + length(n) + length(e) + 1);
+@y
+miktex_reallocate_name_of_file((length(a) + length(n) + length(e)) * 3 + 1);
 @z
 
 % _____________________________________________________________________________

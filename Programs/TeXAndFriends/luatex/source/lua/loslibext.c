@@ -107,7 +107,9 @@
 
 /* set this to one for spawn instead of exec on windows */
 
+#if !defined(MIKTEX)
 #define DONT_REALLY_EXIT 1
+#endif
 
 /* Note: under WIN32, |environ| is nothing but a copy of the actual
    environment as it was during program startup. That variable
@@ -125,7 +127,7 @@
    for the patch and the persistence in tracking this down.
 */
 
-#ifdef _WIN32
+#if !defined(MIKTEX) && defined(_WIN32)
 #  include <process.h>
 #  define spawn_command(a,b,c) c ? \
   _spawnvpe(_P_WAIT,(const char *)a,(const char* const*)b,(const char* const*)c) : \
@@ -138,11 +140,16 @@
        _execvp((const char *)a,(const char* const*)b)
 #  endif
 #else
+#if !defined(MIKTEX)
 #  include <unistd.h>
 #  define DEFAULT_PATH    "/bin:/usr/bin:."
+#endif
 
 static int exec_command(const char *file, char *const *av, char *const *envp)
 {
+#if defined(MIKTEX)
+  return miktex_emulate__exec_command(file, av, envp);
+#else
     char *path;
     const char *searchpath, *esp;
     size_t prefixlen, filelen, totallen;
@@ -203,6 +210,7 @@ static int exec_command(const char *file, char *const *av, char *const *envp)
     } while (esp);
 
     return -1;
+#endif
 }
 
 /*
@@ -224,6 +232,7 @@ static int exec_command(const char *file, char *const *av, char *const *envp)
    range in the 8-bit section.
 */
 
+#if !defined(MIKTEX)
 #  define INVALID_RET_E2BIG   143
 #  define INVALID_RET_ENOENT  144
 #  define INVALID_RET_ENOEXEC 145
@@ -231,9 +240,13 @@ static int exec_command(const char *file, char *const *av, char *const *envp)
 #  define INVALID_RET_ETXTBSY 147
 #  define INVALID_RET_UNKNOWN 148
 #  define INVALID_RET_INTR    149
+#endif
 
 static int spawn_command(const char *file, char *const *av, char *const *envp)
 {
+#if defined(MIKTEX)
+  return miktex_emulate__spawn_command(file, av, envp);
+#else
     pid_t pid, wait_pid;
     int status;
     pid = fork();
@@ -277,10 +290,12 @@ static int spawn_command(const char *file, char *const *av, char *const *envp)
         }
     }
     return 0;
+#endif
 }
 
 #endif
 
+#if !defined(MIKTEX)
 #ifdef _WIN32
 static char *get_command_name(char *maincmd)
 {
@@ -302,9 +317,13 @@ static char *get_command_name(char *maincmd)
     return cmdname;
 }
 #endif
+#endif
 
 static char **do_split_command(const char *maincmd, char **runcmd)
 {
+#if defined(MIKTEX)
+  return miktex_emulate__do_split_command(maincmd, runcmd);
+#else
     char **cmdline = NULL;
 #ifdef _WIN32
     /* On WIN32 don't split anything, because
@@ -371,6 +390,7 @@ static char **do_split_command(const char *maincmd, char **runcmd)
     *runcmd = cmdline[0];
 #endif
     return cmdline;
+#endif
 }
 
 static char **do_flatten_command(lua_State * L, char **runcmd)
@@ -413,7 +433,11 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
     lua_rawgeti(L, -1, 0);
     if (lua_isnil(L, -1) || (s = lua_tostring(L, -1)) == NULL) {
 #ifdef _WIN32
+#if defined(MIKTEX)
+      *runcmd = cmdline[0];
+#else
         *runcmd = get_command_name(cmdline[0]);
+#endif
 #else
         *runcmd = cmdline[0];
 #endif
@@ -458,14 +482,18 @@ static int os_exec(lua_State * L)
      * that os.exec() checks only the command name.
      */
     if (restrictedshell == 0) {
+#if defined(MIKTEX)
+      allow = miktex_allow_unrestricted_shell_escape();
+#else
         allow = 1;
+#endif
     } else {
         const char *theruncmd = runcmd;
         allow = shell_cmd_is_allowed(theruncmd, &safecmd, &cmdname);
     }
 
     if (allow > 0 && cmdline != NULL && runcmd != NULL) {
-#if defined(_WIN32) && DONT_REALLY_EXIT
+#if !defined(MIKTEX) && defined(_WIN32) && DONT_REALLY_EXIT
         if (allow == 2)
             exec_command(safecmd, cmdline, envblock);
         else
@@ -540,7 +568,11 @@ static int os_spawn(lua_State * L)
      * that os.exec() checks only the command name.
      */
     if (restrictedshell == 0) {
+#if defined(MIKTEX)
+      allow = miktex_allow_unrestricted_shell_escape();
+#else
         allow = 1;
+#endif
     } else {
         const char *theruncmd = runcmd;
         allow = shell_cmd_is_allowed(theruncmd, &safecmd, &cmdname);
@@ -560,6 +592,7 @@ static int os_spawn(lua_State * L)
         } else if (i == -1) {
             /* this branch covers WIN32 as well as fork() and waitpid() errors */
             do_error_return(strerror(errno), errno);
+#if !defined(MIKTEX)
 #ifndef _WIN32
         } else if (i == INVALID_RET_E2BIG) {
             do_error_return(strerror(E2BIG), i);
@@ -575,6 +608,7 @@ static int os_spawn(lua_State * L)
             do_error_return("execution failed", i);
         } else if (i == INVALID_RET_INTR) {
             do_error_return("execution interrupted", i);
+#endif
 #endif
         } else {
             lua_pushinteger(L, i);
@@ -631,8 +665,12 @@ static void find_env(lua_State * L)
 {
     char *envitem, *envitem_orig;
     char *envkey;
+#if defined(MIKTEX_WINDOWS)
+    wchar_t** envpointer = _wenviron;
+#else
     char **envpointer;
     envpointer = environ;
+#endif
     lua_getglobal(L, "os");
     if (envpointer != NULL && lua_istable(L, -1)) {
         luaL_checkstack(L, 2, "out of stack space");
@@ -641,7 +679,11 @@ static void find_env(lua_State * L)
         while (*envpointer) {
             /* TODO: perhaps a memory leak here  */
             luaL_checkstack(L, 2, "out of stack space");
+#if defined(MIKTEX_WINDOWS)
+            envitem = miktex_wchar_to_utf8(*envpointer);
+#else
             envitem = xstrdup(*envpointer);
+#endif
             envitem_orig = envitem;
             envkey = envitem;
             while (*envitem != '=') {
@@ -776,12 +818,24 @@ static int uname(struct utsname *uts)
     sprintf(uts->version, "%ld.%02ld",
             osver.dwMajorVersion, osver.dwMinorVersion);
 
+#if defined(MIKTEX_WINDOWS)
+    {
+      size_t versionLength = strlen(uts->version);
+      if (osver.szCSDVersion[0] != L'\0' && (versionLength + 1 + wcslen(osver.szCSDVersion) + 1) < sizeof(uts->version))
+      {
+        strcpy(uts->version + versionLength, " ");
+        versionLength += 1;
+        miktex_copy_wchar_to_utf8(uts->version + versionLength, sizeof(uts->version) - versionLength, osver.szCSDVersion);
+      }
+    }
+#else
     if (osver.szCSDVersion[0] != '\0' &&
         (strlen(osver.szCSDVersion) + strlen(uts->version) + 1) <
         sizeof(uts->version)) {
         strcat(uts->version, " ");
         strcat(uts->version, osver.szCSDVersion);
     }
+#endif
 
     sprintf(uts->release, "build %ld", osver.dwBuildNumber & 0xFFFF);
 
@@ -827,8 +881,23 @@ static int uname(struct utsname *uts)
         break;
     }
 
+#if defined(MIKTEX_WINDOWS)
+    {
+      wchar_t nodeName[sizeof(uts->nodename)];
+      sLength = sizeof(uts->nodename);
+      if (GetComputerNameW(nodeName, &sLength) > 0)
+      {
+        miktex_copy_wchar_to_utf8(uts->nodename, sizeof(uts->nodename), nodeName);
+      }
+      else
+      {
+        strcpy_s(uts->nodename, sizeof(uts->nodename), "???");
+      }
+    }
+#else
     sLength = sizeof(uts->nodename) - 1;
     GetComputerName(uts->nodename, &sLength);
+#endif
     return 0;
 }
 #endif
@@ -1010,14 +1079,26 @@ static int os_execute(lua_State * L)
     }
     /* If restrictedshell == 0, any command is allowed. */
     if (restrictedshell == 0)
+#if defined(MIKTEX)
+      allow = miktex_allow_unrestricted_shell_escape();
+#else
         allow = 1;
+#endif
     else
         allow = shell_cmd_is_allowed(cmd, &safecmd, &cmdname);
 
     if (allow == 1) {
+#if defined(MIKTEX)
+      lua_pushinteger(L, miktex_system(cmd));
+#else
         lua_pushinteger(L, system(cmd));
+#endif
     } else if (allow == 2) {
+#if defined(MIKTEX)
+      lua_pushinteger(L, miktex_system(safecmd));
+#else
         lua_pushinteger(L, system(safecmd));
+#endif
     } else {
         lua_pushnil(L);
         ret = 2;

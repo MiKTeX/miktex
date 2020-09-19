@@ -74,7 +74,7 @@ set(pdftosrc_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND pdftosrc_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     pdftosrc.rc
   )
 endif()
@@ -128,7 +128,7 @@ set_source_files_properties(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND ttf2afm_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ttf2afm.rc
   )
 endif()

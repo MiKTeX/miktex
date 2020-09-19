@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2013-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2013-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,16 +38,14 @@ bool TWSystemCmd::waitForStarted(int msecs /* = 30000 */)
 {
 	if (finished)
 		return finishedSuccessfully;
-	else
-		return QProcess::waitForStarted(msecs);
+	return QProcess::waitForStarted(msecs);
 }
 
 bool TWSystemCmd::waitForFinished(int msecs /* = 30000 */)
 {
 	if (finished)
 		return finishedSuccessfully;
-	else
-		return QProcess::waitForFinished(msecs);
+	return QProcess::waitForFinished(msecs);
 }
 
 void TWSystemCmd::processError(QProcess::ProcessError error)
@@ -67,7 +65,7 @@ void TWSystemCmd::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
 		if (exitStatus == QProcess::NormalExit) {
 			if (bytesAvailable() > 0) {
 				QByteArray ba = readAllStandardOutput();
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
                                 result += QString::fromUtf8(ba.constData());
 #else
 				result += QString::fromLocal8Bit(ba.constData());
@@ -87,7 +85,7 @@ void TWSystemCmd::processOutput()
 	if (wantOutput && bytesAvailable() > 0) {
 		QByteArray ba = readAllStandardOutput();
 #if defined(MIKTEX_WINDOWS)
-		result += QString::fromUtf8(ba.constData());
+                result += QString::fromUtf8(ba.constData());
 #else
 		result += QString::fromLocal8Bit(ba.constData());
 #endif

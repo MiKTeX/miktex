@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2017-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2017-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,9 +27,9 @@ BibTeXFile::Entry::Type BibTeXFile::Entry::type() const
 {
 	if (_type.toLower() == QString::fromLatin1("comment"))
 		return COMMENT;
-	else if (_type.toLower() == QString::fromLatin1("preamble"))
+	if (_type.toLower() == QString::fromLatin1("preamble"))
 		return PREAMBLE;
-	else if (_type.toLower() == QString::fromLatin1("string"))
+	if (_type.toLower() == QString::fromLatin1("string"))
 		return STRING;
 	return NORMAL;
 }
@@ -81,18 +81,12 @@ void BibTeXFile::Entry::updateCache()
 	_cache.valid = true;
 }
 
-BibTeXFile::BibTeXFile()
-{
-
-}
-
 bool BibTeXFile::load(const QString & filename)
 {
 	QFile file(filename);
 	QByteArray content;
 	QTextCodec * codec = QTextCodec::codecForName("utf-8");
 	int curPos = 0;
-	int start;
 
 	_entries.clear();
 
@@ -137,7 +131,7 @@ template <class S, class C> int findBlock(const S & content, int from, const C &
 		else if (content[i] == startDelim) ++open;
 	}
 	if (open == 0) return i - 1;
-	else return -1;
+	return -1;
 }
 
 inline int findBlock(const QByteArray & content, int from, char startDelim = '{', char endDelim = '}', char escapeChar = 0)
@@ -153,7 +147,6 @@ inline int findBlock(const QString & content, int from, const QChar & startDelim
 // static
 int BibTeXFile::readEntry(Entry & e, const QByteArray & content, int curPos, const QTextCodec * codec)
 {
-	QList<QString> delims;
 	curPos = content.indexOf('@', curPos);
 	if (curPos < 0)
 		return -1;
@@ -213,7 +206,7 @@ void BibTeXFile::parseEntry(Entry & e, const QString & block)
 
 		for (i = start; i < block.size(); ++i) {
 			if (block[i] == QChar::fromLatin1(',')) break;
-			else if (block[i] == QChar::fromLatin1('{')) {
+			if (block[i] == QChar::fromLatin1('{')) {
 				startDelim = QChar::fromLatin1('{');
 				endDelim = QChar::fromLatin1('}');
 			}
@@ -228,11 +221,11 @@ void BibTeXFile::parseEntry(Entry & e, const QString & block)
 
 			int end = findBlock(block, i, startDelim, endDelim);
 			if (end < 0) {
-				val += block.mid(i);
+				val += block.midRef(i);
 				i = block.size();
 			}
 			else {
-				val += block.mid(i, end - i + 1);
+				val += block.midRef(i, end - i + 1);
 				i = end;
 			}
 		}
@@ -245,7 +238,7 @@ unsigned int BibTeXFile::numEntries() const
 {
 	// Only count "normal" entries
 	unsigned int retVal = 0;
-	for (unsigned int i = 0; i < _entries.size(); ++i) {
+	for (int i = 0; i < _entries.size(); ++i) {
 		if (_entries[i].type() == Entry::NORMAL) ++retVal;
 	}
 	return retVal;
@@ -254,12 +247,12 @@ unsigned int BibTeXFile::numEntries() const
 const BibTeXFile::Entry & BibTeXFile::entry(const unsigned int idx) const
 {
 	unsigned int j = 0;
-	for (unsigned int i = 0; i < _entries.size(); ++i) {
+	for (int i = 0; i < _entries.size(); ++i) {
 		if (_entries[i].type() != Entry::NORMAL) continue;
 		if (j == idx) return _entries[i];
 		++j;
 	}
 	// We should never get here
-	static BibTeXFile::Entry e(NULL);
+	static BibTeXFile::Entry e(nullptr);
 	return e;
 }

@@ -1,6 +1,6 @@
-/* utf8wrap.rc: version number                          -*- C++ -*-
+/* utf8wrap.rc:
 
-   Copyright (C) 2011-2018 Christian Schenk
+   Copyright (C) 2011-2020 Christian Schenk
 
    This file is part of the MiKTeX UTF8Wrap Library.
 
@@ -18,6 +18,8 @@
    License along with the MiKTeX UTF8Wrap Library; if not, write to the
    Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
    USA.  */
+
+#pragma code_page(65001)
 
 #include "utf8wrap-version.h"
 

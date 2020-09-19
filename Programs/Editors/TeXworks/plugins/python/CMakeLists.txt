@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2010-2015 Christian Schenk
+## Copyright (C) 2010-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,8 +18,10 @@
 ## USA.
 
 set(twpythonplugin_sources
-  ${projdir}/source/plugins-src/TWPythonPlugin/TWPythonPlugin.cpp
-  ${projdir}/source/plugins-src/TWPythonPlugin/TWPythonPlugin.h
+  ${projdir}/source/plugins-src/TWPythonPlugin/PythonScript.cpp
+  ${projdir}/source/plugins-src/TWPythonPlugin/PythonScript.h
+  ${projdir}/source/plugins-src/TWPythonPlugin/PythonScriptInterface.cpp
+  ${projdir}/source/plugins-src/TWPythonPlugin/PythonScriptInterface.h
 )
 
 add_library(twpythonplugin-static STATIC

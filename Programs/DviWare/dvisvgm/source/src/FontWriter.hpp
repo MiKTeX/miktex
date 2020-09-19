@@ -2,7 +2,7 @@
 ** FontWriter.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -36,9 +36,9 @@ class FontWriter {
 		static bool AUTOHINT_FONTS;
 
 	public:
-		FontWriter (const PhysicalFont &font);
-		std::string createFontFile (FontFormat format, const std::set<int> &charcodes, GFGlyphTracer::Callback *cb=0) const;
-		bool writeCSSFontFace (FontFormat format, const std::set<int> &charcodes, std::ostream &os, GFGlyphTracer::Callback *cb=0) const;
+		explicit FontWriter (const PhysicalFont &font);
+		std::string createFontFile (FontFormat format, const std::set<int> &charcodes, GFGlyphTracer::Callback *cb=nullptr) const;
+		bool writeCSSFontFace (FontFormat format, const std::set<int> &charcodes, std::ostream &os, GFGlyphTracer::Callback *cb=nullptr) const;
 		static FontFormat toFontFormat (std::string formatstr);
 		static std::vector<std::string> supportedFormats ();
 
@@ -59,7 +59,7 @@ class FontWriter {
 
 
 struct FontWriterException : MessageException {
-	FontWriterException (const std::string &msg) : MessageException(msg) {}
+	explicit FontWriterException (const std::string &msg) : MessageException(msg) {}
 };
 
 #endif

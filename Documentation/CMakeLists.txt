@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -31,9 +31,9 @@ if(MIKTEX_UNIX_ALIKE)
   set(USERINSTALL "~/.miktex/texmfs/install")
   set(EXESUFFIX "")
 else()
-  set(COMMONINSTALL "C:\\Program Files\\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
-  set(USERDATA "&#37;LOCALAPPDATA&#37;\\MiKTeX\\${MIKTEX_MAJOR_MINOR_STR}")
-  set(USERINSTALL "&#37;LOCALAPPDATA&#37;\\Programs\\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
+  set(COMMONINSTALL "C:\\Program Files\\MiKTeX ${MIKTEX_LEGACY_MAJOR_MINOR_STR}")
+  set(USERDATA "&#37;LOCALAPPDATA&#37;\\MiKTeX\\${MIKTEX_LEGACY_MAJOR_MINOR_STR}")
+  set(USERINSTALL "&#37;LOCALAPPDATA&#37;\\Programs\\MiKTeX ${MIKTEX_LEGACY_MAJOR_MINOR_STR}")
   set(EXESUFFIX ".exe")
 endif()
 
@@ -184,10 +184,10 @@ set(manual_xml_files
 set(manual_listings
   ${CMAKE_CURRENT_BINARY_DIR}/filetypes
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_CONFIG_DIR}/miktex-config.ini
+  ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/bibtex.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mf.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mfapp.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mpost.defaults
-  ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/omega.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/pdftex.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/texapp.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/texmfapp.defaults

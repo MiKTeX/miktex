@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/StringHandlerImpl.h:            -*- C++ -*-
 
-   Copyright (C) 2017-2018 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -66,11 +66,7 @@ public:
 public:
   C4P::C4P_signed32* strstart() override
   {
-#if defined(MIKTEX_OMEGA)
-    MIKTEX_UNEXPECTED();
-#else
     return program.strstart;
-#endif
   }
 public:
   C4P::C4P_signed32& poolsize() override

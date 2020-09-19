@@ -1,6 +1,6 @@
 /* miktex/Core/test.h: test framework                   -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -116,7 +116,7 @@ private:
   std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
 
 public:
-  void MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override
+  bool MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
@@ -125,10 +125,11 @@ public:
         pendingTraceMessages.clear();
       }
       pendingTraceMessages.push_back(traceMessage);
-      return;
+      return true;
     }
     FlushPendingTraceMessages();
     TraceInternal(traceMessage);
+    return true;
   }
 
 private:
@@ -145,17 +146,29 @@ private:
   void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage)
   {
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(std::string("trace.test.") + traceMessage.facility);
-
-    if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
+    switch (traceMessage.level)
     {
+    case MiKTeX::Trace::TraceLevel::Fatal:
+      LOG4CXX_FATAL(logger, traceMessage.message);
+      break;
+    case MiKTeX::Trace::TraceLevel::Error:
       LOG4CXX_ERROR(logger, traceMessage.message);
-    }
-    else
-    {
+      break;
+    case MiKTeX::Trace::TraceLevel::Warning:
+      LOG4CXX_WARN(logger, traceMessage.message);
+      break;
+    case MiKTeX::Trace::TraceLevel::Info:
+      LOG4CXX_INFO(logger, traceMessage.message);
+      break;
+    case MiKTeX::Trace::TraceLevel::Trace:
       LOG4CXX_TRACE(logger, traceMessage.message);
+      break;
+    case MiKTeX::Trace::TraceLevel::Debug:
+    default:
+      LOG4CXX_DEBUG(logger, traceMessage.message);
+      break;
     }
   }
-
 
 public:
   virtual ~TestScript()
@@ -250,7 +263,7 @@ public:
       LOG4CXX_INFO(logger, "starting tests");
       if (!traceFlags.empty())
       {
-        MiKTeX::Trace::TraceStream::SetTraceFlags(traceFlags);
+        MiKTeX::Trace::TraceStream::SetOptions(traceFlags);
       }
       Run();
       pSession = nullptr;
@@ -330,7 +343,7 @@ protected:
 protected:
   bool RunTestCommand(const char* lpszProgramName)
   {
-  std::string commandLine = MiKTeX::Core::PathName(pSession->GetMyLocation(false), lpszProgramName).ToString();
+  std::string commandLine = MiKTeX::Core::PathName(pSession->GetMyLocation(false), MiKTeX::Core::PathName(lpszProgramName)).ToString();
     for (std::vector<std::string>::const_iterator it = argv.begin(); it != argv.end(); ++it)
     {
       if (it != argv.begin())
@@ -346,7 +359,7 @@ protected:
   {
     FILE* pFile;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-    if (fopen_s(&pFile, lpszPath, "wb") != 0)
+    if (_wfopen_s(&pFile, MiKTeX::Core::PathName(lpszPath).ToExtendedLengthPathName().ToWideCharString().c_str(), L"wb") != 0)
     {
       pFile = nullptr;
     }

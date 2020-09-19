@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -33,10 +33,10 @@ add_library(${app_dll_name} SHARED ${${app_dll_name}_sources})
 
 set_property(TARGET ${app_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_shared_library_version(
+set_shared_library_version_properties(
   ${app_dll_name}
+  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
   ${MIKTEX_COMP_INTERFACE_VERSION}
-  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_compile_definitions(${app_dll_name}
@@ -49,6 +49,12 @@ target_include_directories(${app_dll_name}
     ${public_include_directories}
 )
 
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${app_dll_name} PRIVATE MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${app_dll_name} PRIVATE ${fmt_dll_name})
+endif()
+
 if(USE_SYSTEM_LOG4CXX)
   target_link_libraries(${app_dll_name} PRIVATE MiKTeX::Imported::LOG4CXX)
 else()
@@ -59,6 +65,7 @@ target_link_libraries(${app_dll_name}
   PUBLIC
     ${core_dll_name}
     ${mpm_dll_name}
+    ${setup_dll_name}
 )
 
 if(WITH_UI_QT)

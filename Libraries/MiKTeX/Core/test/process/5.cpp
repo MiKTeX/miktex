@@ -1,6 +1,6 @@
 /* 5.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -40,12 +40,12 @@ BEGIN_TEST_FUNCTION(1);
   PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_process_test5-1" MIKTEX_EXE_FILE_SUFFIX;
   int exitCode;
-  TEST(!File::Exists("5-1.txt"));
+  TEST(!File::Exists(PathName("5-1.txt")));
   TEST(Process::Run(pathExe, { pathExe.ToString(), "5-1.txt" }, nullptr, &exitCode, nullptr));
   TEST(exitCode == 0);
   std::this_thread::sleep_for(11s);
-  TEST(File::Exists("5-1.txt"));
-  TESTX(File::Delete("5-1.txt"));
+  TEST(File::Exists(PathName("5-1.txt")));
+  TESTX(File::Delete(PathName("5-1.txt")));
 }
 END_TEST_FUNCTION();
 

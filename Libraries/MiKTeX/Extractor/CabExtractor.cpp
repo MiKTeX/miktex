@@ -1,6 +1,6 @@
 /* CabExtractor.cpp:
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -77,7 +77,7 @@ struct mspack_file* CabExtractor::Open(struct mspack_system* self, const char* f
     }
     try
     {
-      myFile->stdioFile = File::Open(fileName, fileMode, fileAccess, false);
+      myFile->stdioFile = File::Open(PathName(fileName), fileMode, fileAccess, false);
     }
     catch (const exception&)
     {
@@ -354,7 +354,7 @@ void CabExtractor::Extract(const PathName& cabinetPath, const PathName& destDir,
 #endif
 
       // skip directory prefix
-      if (PathName::Compare(prefix, dest, prefixLen) == 0)
+      if (PathName::Compare(PathName(prefix), dest, prefixLen) == 0)
       {
         PathName tmp(dest);
         dest = tmp.GetData() + prefixLen;

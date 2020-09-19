@@ -1,6 +1,6 @@
 /* PkFont.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -23,6 +23,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Paths>
 
@@ -33,10 +36,10 @@ PkFont::PkFont(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, c
   mag(mag),
   metafontMode(metafontMode),
   baseDpi(baseDpi),
-  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
-  trace_pkfont(TraceStream::Open(MIKTEX_TRACE_DVIPKFONT))
+  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR, dviImpl->GetTraceCallback())),
+  trace_pkfont(TraceStream::Open(MIKTEX_TRACE_DVIPKFONT, dviImpl->GetTraceCallback()))
 {
-  trace_pkfont->WriteFormattedLine("libdvi", T_("creating pk font object '%s'"), dviInfo.name.c_str());
+  trace_pkfont->WriteLine("libdvi", fmt::format(T_("creating pk font object '{0}'"), dviInfo.name));
   for (int i = 0; i < 30; ++i)
   {
     existSizes[i] = 0;
@@ -163,7 +166,7 @@ void PkFont::Read()
     return;
   }
 
-  trace_pkfont->WriteFormattedLine("libdvi", T_("going to load pk font %s"), dviInfo.name.c_str());
+  trace_pkfont->WriteLine("libdvi", fmt::format(T_("going to load pk font {0}"), dviInfo.name));
 
   int dpi =
     static_cast<int>((static_cast<double>(mag)
@@ -193,7 +196,7 @@ void PkFont::Read()
     {
       dviInfo.transcript += "\r\n";
       dviInfo.transcript += T_("Loading 'cmr10' instead.\r\n");
-      trace_error->WriteFormattedLine("libdvi", T_("'%s' not loadable - loading 'cmr10' instead!"), dviInfo.name.c_str());
+      trace_error->WriteLine("libdvi", fmt::format(T_("'{0}' not loadable - loading 'cmr10' instead!"), dviInfo.name));
       if (!(session->FindPkFile("cmr10", metafontMode, dpi, fileName)
         || (Make("cmr10", dpi, baseDpi, metafontMode)
           && session->FindPkFile("cmr10", metafontMode, dpi, fileName))))
@@ -207,7 +210,7 @@ void PkFont::Read()
 
   dviInfo.fileName = fileName.ToString();
 
-  trace_pkfont->WriteFormattedLine("libdvi", T_("opening pk file %s"), fileName.GetData());
+  trace_pkfont->WriteLine("libdvi", fmt::format(T_("opening pk file {0}"), fileName));
 
   InputStream inputstream(fileName.GetData());
   int b;
@@ -270,19 +273,19 @@ void PkFont::Read()
       int my_checkSum = inputstream.ReadSignedQuad();
       hppp = inputstream.ReadSignedQuad();
       vppp = inputstream.ReadSignedQuad();
-      trace_pkfont->WriteFormattedLine("libdvi", "comment: %s", dviInfo.comment.c_str());
-      trace_pkfont->WriteFormattedLine("libdvi", "designSize: %d", my_designSize);
-      trace_pkfont->WriteFormattedLine("libdvi", "checkSum: 0%o", my_checkSum);
-      trace_pkfont->WriteFormattedLine("libdvi", "hppp: %d", hppp);
-      trace_pkfont->WriteFormattedLine("libdvi", "vppp: %d", vppp);
+      trace_pkfont->WriteLine("libdvi", fmt::format("comment: {0}", dviInfo.comment));
+      trace_pkfont->WriteLine("libdvi", fmt::format("designSize: {0}", my_designSize));
+      trace_pkfont->WriteLine("libdvi", fmt::format("checkSum: {0:o}", my_checkSum));
+      trace_pkfont->WriteLine("libdvi", fmt::format("hppp: {0}", hppp));
+      trace_pkfont->WriteLine("libdvi", fmt::format("vppp: {0}", vppp));
 
       if (my_designSize * tfmConv != designSize)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("%s: designSize mismatch"), dviInfo.name.c_str());
+        trace_error->WriteLine("libdvi", fmt::format(T_("{0}: designSize mismatch"), dviInfo.name));
       }
       if (my_checkSum != checkSum)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("%s: checkSum mismatch"), dviInfo.name.c_str());
+        trace_error->WriteLine("libdvi", fmt::format(T_("{0}: checkSum mismatch"), dviInfo.name));
       }
     }
     break;
@@ -308,7 +311,7 @@ bool PkFont::Make(const string& name, int dpi, int baseDpi, const string& metafo
   vector<string> args = session->MakeMakePkCommandLine(name, dpi, baseDpi, metafontMode, pathMakePk, TriState::Undetermined);
   dviInfo.transcript += CommandLineBuilder(args).ToString();
   dviInfo.transcript += "\r\n";
-  dviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
+  dviImpl->Progress(DviNotification::BeginLoadFont, fmt::format("{0}...", dviInfo.name));
   ProcessOutput<4096> makepkOutput;
   int exitCode;
   bool b = Process::Run(pathMakePk, args, &makepkOutput, &exitCode, nullptr) && exitCode == 0;
@@ -327,7 +330,7 @@ PkChar* PkFont::operator[] (unsigned long idx)
   PkChar* pkChar = pkChars[idx];
   if (pkChar == nullptr)
   {
-    trace_pkfont->WriteFormattedLine("libdvi", T_("%s: nil character at %u"), dviInfo.name.c_str(), idx);
+    trace_pkfont->WriteLine("libdvi", fmt::format(T_("{0}: nil character at {1}"), dviInfo.name, idx));
     pkChar = new PkChar(this);
     pkChars[idx] = pkChar;
   }
@@ -341,7 +344,7 @@ void PkFont::ReadTFM()
     return;
   }
 
-  trace_pkfont->WriteFormattedLine("libdvi", T_("going to load TFM file %s"), dviInfo.name.c_str());
+  trace_pkfont->WriteLine("libdvi", fmt::format(T_("going to load TFM file {0}"), dviInfo.name));
 
   PathName fileName;
 
@@ -361,7 +364,7 @@ void PkFont::ReadTFM()
     {
       dviInfo.transcript += "\r\n";
       dviInfo.transcript += T_("Loading 'cmr10' instead.\r\n");
-      trace_error->WriteFormattedLine("libdvi", T_("'%s' not loadable - loading 'cmr10' instead!"), dviInfo.name.c_str());
+      trace_error->WriteLine("libdvi", fmt::format(T_("'{0}' not loadable - loading 'cmr10' instead!"), dviInfo.name));
       if (!(session->FindTfmFile("cmr10", fileName, false)
         || (MakeTFM("cmr10")
           && session->FindTfmFile("cmr10", fileName, false))))
@@ -389,7 +392,7 @@ bool PkFont::MakeTFM(const string& name)
   args.push_back(baseName.ToString());
   dviInfo.transcript += CommandLineBuilder(args).ToString();
   dviInfo.transcript += "\r\n";
-  dviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
+  dviImpl->Progress(DviNotification::BeginLoadFont, fmt::format("{0}...", dviInfo.name));
   ProcessOutput<4096> maketfmOutput;
   int exitCode;
   bool done = Process::Run(makeTFM, args, &maketfmOutput, &exitCode, nullptr) && exitCode == 0;

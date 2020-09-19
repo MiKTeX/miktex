@@ -44,7 +44,7 @@ static int font_read_tfm(lua_State * L)
             if (strlen(cnom)) {
                 internal_font_number f = get_fontid();
                 if (read_tfm_info(f, cnom, s)) {
-                    int k = font_to_lua(L, f);
+                    int k = font_to_lua(L, f, 0);
                     delete_font(f);
                     return k;
                 } else {
@@ -118,7 +118,7 @@ static int tex_each_font_next(lua_State * L)
         return 1;
     } else {
         lua_pushinteger(L, i);
-        if (!font_to_lua(L, i))
+        if (!font_to_lua(L, i, 1))
             lua_pushnil(L);
         return 2;
     }
@@ -251,7 +251,16 @@ static int nextfontid(lua_State * L)
 static int getfont(lua_State * L)
 {
     int i = luaL_checkinteger(L, -1);
-    if (i && is_valid_font(i) && font_to_lua(L, i))
+    if (i && is_valid_font(i) && font_to_lua(L, i, 1))
+        return 1;
+    lua_pushnil(L);
+    return 1;
+}
+
+static int getcopy(lua_State * L)
+{
+    int i = luaL_checkinteger(L, -1);
+    if (i && is_valid_font(i) && font_to_lua(L, i, 0))
         return 1;
     lua_pushnil(L);
     return 1;
@@ -293,6 +302,7 @@ static const struct luaL_Reg fontlib[] = {
     {"max", tex_max_font},
     {"each", tex_each_font},
     {"getfont", getfont},
+    {"getcopy", getcopy},
     {"getparameters", getparameters},
     {"setfont", setfont},
     {"addcharacters", addcharacters},

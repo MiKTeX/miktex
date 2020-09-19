@@ -170,7 +170,7 @@ versions of the program.
 @!font_mem_size=20000; {number of words of |font_info| for all fonts}
 @y
 @!inf_font_mem_size=20000;
-@!sup_font_mem_size=4000000;
+@!sup_font_mem_size=147483647;
 @z
 
 @x
@@ -234,8 +234,7 @@ versions of the program.
 @x
 @!file_name_size=40; {file names shouldn't be longer than this}
 @y
-@!file_name_size=259; {file names shouldn't be longer than this}
-@!file_name_size_plus_one=260; {two more for start and end}
+@!file_name_size=9999999; {file names shouldn't be longer than this}
 @z
 
 % _____________________________________________________________________________
@@ -1353,9 +1352,16 @@ if must_quote then print_char("""");
 @z
 
 @x
+begin k:=0;
+@y
+begin k:=0;
+miktex_reallocate_name_of_file(length(a) + length(n) + length(e) + 1);
+@z
+
+@x
 for k:=name_length+1 to file_name_size do name_of_file[k]:=' ';
 @y
-name_of_file[ name_length + 1 ]:= chr(0); {\MiKTeX: 0-terminate the file name}
+name_of_file[name_length + 1]:= chr(0); {\MiKTeX: 0-terminate the file name}
 @z
 
 % _____________________________________________________________________________
@@ -1388,10 +1394,10 @@ length will be set in the main program.
 TEX_format_default:='TeXformats:plain.fmt';
 @y
 @!format_default_length: integer;
-@!TEX_format_default:packed array[1..file_name_size_plus_one] of char;
+@!TEX_format_default:packed array[1..260] of char; {FIXME}
 
 @ @<Set init...@>=
-miktex_get_default_dump_file_name (TEX_format_default);
+miktex_get_default_dump_file_name(TEX_format_default);
 format_default_length:=c4pstrlen(TEX_format_default);
 @z
 
@@ -1412,9 +1418,16 @@ do_nothing;
 % _____________________________________________________________________________
 
 @x
+for j:=1 to n do append_to_name(xord[TEX_format_default[j]]);
+@y
+miktex_reallocate_name_of_file(n + (b - a + 1) + format_ext_length + 1);
+for j:=1 to n do append_to_name(xord[TEX_format_default[j]]);
+@z
+
+@x
 for k:=name_length+1 to file_name_size do name_of_file[k]:=' ';
 @y
-name_of_file[ name_length + 1 ]:= chr(0); {\MiKTeX: 0-terminate the file name}
+name_of_file[name_length + 1]:= chr(0); {\MiKTeX: 0-terminate the file name}
 @z
 
 % _____________________________________________________________________________
@@ -1498,6 +1511,27 @@ begin if (pool_ptr+name_length>pool_size)or(str_ptr=max_strings)or
 % _____________________________________________________________________________
 
 @x
+@p procedure scan_file_name;
+label done;
+@y
+@p procedure scan_file_name;
+label done;
+var
+  @!save_warning_index: pointer;
+begin
+  save_warning_index := warning_index;
+  warning_index := cur_cs; {store |cur_cs| here to remember until later}
+  @<Get the next non-blank non-relax non-call...@>; {here the program expands
+    tokens and removes spaces and \.{\\relax}es from the input. The \.{\\relax}
+    removal follows LuaTeX''s implementation, but I wonder if for compatibility
+    the relax should be left there...}
+  back_input; {return the last token to be read by either code path}
+  if cur_cmd=left_brace then
+    scan_file_name_braced
+  else
+@z
+
+@x
   if not more_name(cur_chr) then goto done;
 @y
   {If |cur_chr| is a space and we're not scanning a token list, check
@@ -1505,6 +1539,63 @@ begin if (pool_ptr+name_length>pool_size)or(str_ptr=max_strings)or
    spurious spaces to file names in some cases.}
   if (cur_chr=" ") and (state<>token_list) and (loc>limit) then goto done;
   if not more_name(cur_chr) then goto done;
+@z
+
+@x
+done: end_name; name_in_progress:=false;
+end;
+@y
+  end;
+done: end_name; name_in_progress:=false;
+warning_index := save_warning_index; {restore |warning_index|}
+end;
+
+@ When |scan_file_name| starts it looks for a |left_brace|
+(skipping \.{\\relax}es, as other \.{\\toks}-like primitives).
+If a |left_brace| is found, then the procedure scans a file
+name contained in a balanced token list, expanding tokens as
+it goes. When the scanner finds the balanced token list, it
+is converted into a string and fed character-by-character to
+|more_name| to do its job the same as in the ``normal'' file
+name scanning.
+
+@p procedure scan_file_name_braced;
+var
+  @!save_scanner_status: small_number; {|scanner_status| upon entry}
+  @!save_def_ref: pointer; {|def_ref| upon entry, important if inside `\.{\\message}}
+  @!save_cur_cs: pointer;
+  @!s: str_number; {temp string}
+  @!p: pointer; {temp pointer}
+  @!i: integer; {loop tally}
+  @!save_stop_at_space: boolean; {this should be in tex.ch}
+  @!dummy: boolean;
+    {Initialising}
+begin save_scanner_status := scanner_status; {|scan_toks| sets |scanner_status| to |absorbing|}
+  save_def_ref := def_ref; {|scan_toks| uses |def_ref| to point to the token list just read}
+  save_cur_cs := cur_cs; {we set |cur_cs| back a few tokens to use in runaway errors}
+    {Scanning a token list}
+  cur_cs := warning_index; {for possible runaway error}
+  {mimick |call_func| from pdfTeX}
+  if scan_toks(false, true) <> 0 then do_nothing; {actually do the scanning}
+  {s := tokens_to_string(def_ref);}
+  old_setting := selector; selector:=new_string;
+  show_token_list(link(def_ref),null,pool_size-pool_ptr);
+  selector := old_setting;
+  s := make_string;
+  {turns the token list read in a string to input}
+    {Restoring some variables}
+  delete_token_ref(def_ref); {remove the token list from memory}
+  def_ref := save_def_ref; {and restore |def_ref|}
+  cur_cs := save_cur_cs; {restore |cur_cs|}
+  scanner_status := save_scanner_status; {restore |scanner_status|}
+    {Passing the read string to the input machinery}
+  save_stop_at_space := stop_at_space; {save |stop_at_space|}
+  stop_at_space := false; {set |stop_at_space| to false to allow spaces in file names}
+  begin_name;
+  for i:=str_start[s] to str_start[s+1]-1 do
+    dummy := more_name(str_pool[i]); {add each read character to the current file name}
+  stop_at_space := save_stop_at_space; {restore |stop_at_space|}
+end;
 @z
 
 % _____________________________________________________________________________
@@ -1546,6 +1637,12 @@ if (e=".tex") or (e="") then show_context;
 @y
 @!k:0..sup_buf_size; {index into |months| and |buffer|}
 @!l:0..sup_buf_size; {end of first input line}
+@z
+
+@x
+if job_name=0 then job_name:="texput";
+@y
+if job_name=0 then job_name:=miktex_get_job_name("texput");
 @z
 
 % _____________________________________________________________________________
@@ -1610,7 +1707,7 @@ if job_name=0 then
   begin job_name:=cur_name; open_log_file;
 @y
 if job_name=0 then
-  begin job_name:=miktex_get_job_name; open_log_file;
+  begin job_name:=miktex_get_job_name(cur_name); open_log_file;
 @z
 
 @x
@@ -2528,7 +2625,6 @@ end;
 function miktex_c_style_error_messages_p : boolean; forward;@t\2@>@/
 function miktex_enable_eightbit_chars_p : boolean; forward;@t\2@>@/
 function miktex_get_interaction : integer; forward;@t\2@>@/
-function miktex_get_job_name : str_number; forward;@t\2@>@/
 function miktex_halt_on_error_p : boolean; forward;@t\2@>@/
 function miktex_is_init_program : boolean; forward;@t\2@>@/
 function miktex_make_full_name_string : str_number; forward;@t\2@>@/

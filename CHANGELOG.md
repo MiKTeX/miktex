@@ -1,5 +1,230 @@
 # MiKTeX Change Log
 
+## 20.7 - 2020-08-03
+
+### Fixed issues
+
+- [576](https://github.com/MiKTeX/miktex/issues/576): Net Installer Crashing
+- [581](https://github.com/MiKTeX/miktex/issues/581): pdflatex fails with "invalid argument in putc"
+- [584](https://github.com/MiKTeX/miktex/issues/584): upon rebuilding all formats: invalid value definition in mltex.ini
+
+## 20.6.29 - 2020-06-29
+
+This followup release to fix some regressions:
+
+- [568](https://github.com/MiKTeX/miktex/issues/568): pdflatex fails after recent update
+- [569](https://github.com/MiKTeX/miktex/issues/569): \show crashes MiKTeX
+
+## 20.6 - 2020-06-28
+
+### New release versioning scheme
+
+The MiKTeX project has switched to a date-based versioning scheme for releases.
+
+See this issue for more info: [https://github.com/MiKTeX/miktex/issues/554](https://github.com/MiKTeX/miktex/issues/554)
+
+### New programs
+
+- patgen 1.0.6
+- upmendex 0.54
+
+### Fixed issues
+
+- [41](https://github.com/MiKTeX/miktex/issues/41): Error running miktex on Win 10 ver. 1709
+- [534](https://github.com/MiKTeX/miktex/issues/534): include patgen in repo
+- [538](https://github.com/MiKTeX/miktex/issues/538): MACOS, mthelp calls firefox instead of open
+- [552](https://github.com/MiKTeX/miktex/issues/552): LuaLaTex fails on special characters in the windows user account path
+- [554](https://github.com/MiKTeX/miktex/issues/554): MiKTeX release versioning
+- [556](https://github.com/MiKTeX/miktex/issues/556): -jobname cli option broken on latex, pdflatex, xelatex, still working on lualatex
+- [561](https://github.com/MiKTeX/miktex/issues/561): include upmendex in repository
+
+## 2.9.7440 - 2020-05-17
+
+### Breaking changes
+
+#### Removal of Omega 1.15
+
+Omega 1.15 is obsolete and has now been removed from the distribution.
+
+#### Windows 8.3 file names
+
+In the past, it was possible to specify Windows 8.3 file names (aka
+short file names) when invoking a TeX engine. As of 2.9.7440, this is
+not supported anymore.
+
+Impact: The following use case is broken:
+
+```
+pdflatex abraka~1.tex
+```
+
+where `abraka~1.tex` is the 8.3 variant of the long file name `abrakadabra.tex`.
+
+#### Package database signing
+
+In the past, package database signing was optional. As of MiKTeX
+2.9.7440, it is required that MiKTeX package database files are
+provided with a valid signature.
+
+Reason: In order to support custom remote package repositories (see
+[Allow local http
+mirrors](https://github.com/MiKTeX/miktex/issues/519)), it must be
+ensured that the contents of the custom package repository is
+unmodified.
+
+Impact: Users will receive an error message if they visit an outdated
+(no signature) or modified (tampered database) package repository.
+
+### Unrestricted shell escape commands and elevated privileges
+
+As of MiKTeX 2.9.7440, it is possible to prevent the execution of
+unrestricted shell escape commands when a program is running with
+elevated privileges:
+
+```
+initexmf --verbose --set-config-value [Core]AllowUnrestrictedSuperUser=f
+```
+
+This prevents the following use case:
+
+```
+sudo pdflatex --shell-escape file.tex
+```
+
+where `file.tex` contains:
+
+```
+\documentclass{minimal}
+\usepackage{shellesc}
+\begin{document}
+\ShellEscape{echo hello, world! > hello.txt}
+\input{hello.txt}
+\end{document}
+```
+
+For more information and discussion, visit the issue page at GitHub:
+
+* [533](https://github.com/MiKTeX/miktex/issues/533): Unrestricted shell escape commands and elevated privileges
+
+### Ubuntu 20.04 & Fedora 32
+
+MiKTeX is now available for Ubuntu 20.04 and Fedora 32.  See [this
+howto](https://miktex.org/howto/install-miktex-unx) for more info.
+
+### Fixed issues
+
+* [486](https://github.com/MiKTeX/miktex/issues/486): Luatex cannot find input file when using texify on windows
+* [491](https://github.com/MiKTeX/miktex/issues/491): Empty file error when trying to complete the setup on a Mac
+* [510](https://github.com/MiKTeX/miktex/issues/510): Long file name support
+* [514](https://github.com/MiKTeX/miktex/issues/514): Kerberos Proxy support
+* [520](https://github.com/MiKTeX/miktex/issues/520): Make MiKTeX Console usable for keyboard only users
+* [521](https://github.com/MiKTeX/miktex/issues/521): Cannot install on Fedora 32
+* [528](https://github.com/MiKTeX/miktex/issues/528): Ubuntu 20.04 Repositories
+* [532](https://github.com/MiKTeX/miktex/issues/532): Calling external commands with quotes in path via shell on Windows
+* [541](https://github.com/MiKTeX/miktex/issues/541): Change BibTeX "I couldn't open database file" message to include double extension
+
+## 2.9.7400 - 2020-04-26
+
+### Fixed issues
+
+* [312](https://github.com/MiKTeX/miktex/issues/312): MiKTeX Setup Wizard ignores --user-install in Windows 10
+* [429](https://github.com/MiKTeX/miktex/issues/429): Suggested feature: epstopdf - alert on missing font packages
+
+### Upgraded programs
+
+* asymptote 2.65
+* texworks 0.6.5
+
+## 2.9.7350 - 2020-03-22
+
+### lualatex: switching engine from LuaTeX to LuaHBTeX
+
+`lualatex` now uses LuaHBTeX as the underlying engine.
+
+### Upgraded programs
+
+* asymptote 2.64
+* autosp 2020-03-11
+* dvipdfmx 20200315
+* dvisvgm 2.9.1
+* texworks 0.6.4
+
+### Fixed issues
+
+* [445](https://github.com/MiKTeX/miktex/issues/445): Autoinstall packages on the fly (without asking): give option to install for all users
+* [475](https://github.com/MiKTeX/miktex/issues/475): BibTeX single_fn_space = 100 is too small; could we have 1000, please?
+* [486](https://github.com/MiKTeX/miktex/issues/486): Luatex cannot find input file when using texify on windows
+
+## 2.9.7300 - 2020-02-17
+
+### Group-delimited \input argument
+
+MiKTeX adopted the forthcoming TL 2020 \input enhancement which allows
+you to specify file with spaces in the name:
+
+```
+\input{my stuff}
+\input{"my stuff"}
+```
+
+To quote Karl Berry:
+
+> For TL 2020, I think we're going to be able to extend
+> \input so that it can take a grouped argument (\input{...}), and thus
+> allow any character in the name -- except that " characters will still
+> be eliminated, at LaTeX's request.  This won't affect the standard
+> space/token-delimited use of \input in any way.
+
+### CentOS 8
+
+MiKTeX is now available for CentOS 8. Quick installation instructions:
+
+```
+sudo rpm --import "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xD6BC243565B2087BC3F897C9277A7293F59E4889"
+sudo curl -L -o /etc/yum.repos.d/miktex.repo https://miktex.org/download/centos/8/miktex.repo
+sudo dnf update
+sudo dnf install miktex
+```
+
+Please read this [HOWTO](https://miktex.org/howto/install-miktex-unx),
+if this is the first time you install MiKTeX for Linux.
+
+### LCDF Typetools
+
+The MiKTeX distribution now includes [LCDF Typetools](https://ctan.org/pkg/lcdf-typetools),
+a bundle of outline font manipulation tools.
+
+### Upgraded programs
+
+* asymptote 2.62
+* autosp 2020-02-06
+* dvipdfmx 20200116
+* dvipng 1.17
+* dvips 2020.1
+* dvisvgm 2.8.2
+* LuaTeX 1.12.0
+* pdftex 1.40.21
+* pmxab 2.9.4
+
+### Upgraded libraries
+
+* libpng 1.6.37
+
+### Fixed issues
+
+* [419](https://github.com/MiKTeX/miktex/issues/419): Admin mode required but not accessible
+* [420](https://github.com/MiKTeX/miktex/issues/420): miktexsetup fails -- how to advance?
+* [422](https://github.com/MiKTeX/miktex/issues/422): Increase font_mem_size upper limit
+* [428](https://github.com/MiKTeX/miktex/issues/428): GSF2PK failed on postscript font
+* [435](https://github.com/MiKTeX/miktex/issues/435): language patterns in the format can not be changed manually
+* [436](https://github.com/MiKTeX/miktex/issues/436): Problems with the oberdiek package
+* [438](https://github.com/MiKTeX/miktex/issues/438): Create "fc-cache.exe" as alias
+* [441](https://github.com/MiKTeX/miktex/issues/441): Cannot build new format
+* [448](https://github.com/MiKTeX/miktex/issues/448): miktex-makepk fails if the transcript file does not exist
+* [451](https://github.com/MiKTeX/miktex/issues/451): Clicking Close button vs pressing Esc key upon finished package installation
+* [459](https://github.com/MiKTeX/miktex/issues/459): dvipng 1.16 with pk fonts error on Win32
+* [471](https://github.com/MiKTeX/miktex/issues/471): BibTeX max_glob_strs = 10 or 20 much too small; could we have 100, please?
+
 ## 2.9.7250 - 2019-11-12
 
 ### New programs

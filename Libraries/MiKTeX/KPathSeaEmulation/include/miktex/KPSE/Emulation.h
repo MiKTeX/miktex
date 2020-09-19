@@ -1,7 +1,7 @@
 /* miktex/KPSE/Emulation.h:                             -*- C++ -*-
 
    Copyright 1993, 1995, 1996, 2005, 2008, 2009, 2010 Karl Berry
-   Copyright (C) 2000-2019 Christian Schenk
+   Copyright (C) 2000-2020 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -115,20 +115,6 @@ MIKTEX_END_EXTERN_C_BLOCK;
 
 /* _________________________________________________________________________
  *
- * confdefs.h
- *
- */
-
-/// @name confdefs.h
-/// Stuff from `confdefs.h`.
-/// @{
-
-#define KPSEVERSION MIKTEX_BANNER_STR
-
-/// @}
-
-/* _________________________________________________________________________
- *
  * paths.h
  *
  */
@@ -222,6 +208,14 @@ MIKTEX_END_EXTERN_C_BLOCK;
 #define IS_DIR_SEP_CH(ch) ((ch) == '/')
 
 #if defined(MIKTEX_WINDOWS)
+#  define ENV_SEP ';'
+#  define ENV_SEP_STRING ";"
+#else
+#  define ENV_SEP ':'
+#  define ENV_SEP_STRING ":"
+#endif
+
+#if defined(MIKTEX_WINDOWS)
 #  define IS_ENV_SEP(ch) ((ch) == ';')
 #else
 #  define IS_ENV_SEP(ch) ((ch) == ':')
@@ -261,8 +255,8 @@ typedef const char* const_string;
 #  define HAVE_BOOLEAN 1
 #  if defined(_WIN32)
   // FIXME:  boolean is a MIDL base type (see <rpcndr.h>)
-  typedef int miktex_kpse_boolean;
-#  define boolean miktex_kpse_boolean
+  typedef int miktex_kpathsea_emulation__boolean;
+#  define boolean miktex_kpathsea_emulation__boolean
 #  else
   typedef int boolean;
 #  endif
@@ -357,7 +351,7 @@ typedef enum
   kpse_src_cmdline
 } kpse_src_type;
 
-typedef struct kpathsea_instance * kpathsea;
+typedef struct kpathsea_instance* kpathsea;
 
 typedef struct kpathsea_instance
 {
@@ -713,6 +707,11 @@ typedef struct
 #define kpathsea_all_path_search(kpse, path, name) \
   miktex_kpathsea_all_path_search(kpse, path, name)
 
+#if defined(KPSE_COMPAT_API)
+#define kpse_path_search(path, name, must_exist) \
+  kpathsea_path_search(kpse_def, path, name, must_exist)
+#endif
+
 /// @}
 
 /* _________________________________________________________________________
@@ -867,8 +866,6 @@ typedef struct
 /// Stuff from `version.h`.
 /// @{
 
-#define kpathsea_version_string miktex_kpathsea_version_string
-
 #define kpathsea_bug_address miktex_kpathsea_bug_address
 
 /// @}
@@ -998,7 +995,7 @@ MIKTEX_END_EXTERN_C_BLOCK;
   miktex_kpathsea_set_program_name(kpse, argv0, progname)
 
 #define kpse_program_basename(argv0) \
-  miktex_kpathsea_program_basename(argv0)
+  miktex_kpse_program_basename(argv0)
 
 #if defined(KPSE_COMPAT_API)
 
@@ -1080,8 +1077,6 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_expand(kpathsea kpseInstance, const 
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_search(kpathsea kpseInstance, const char* path, const char* fileName, boolean mustExist);
 
-MIKTEXKPSCEEAPI(char*) miktex_kpathsea_program_basename(const char* argv0);
-
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_readable_file(kpathsea kpseInstance, const char* fileName);
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_selfdir(kpathsea kpseInstance, const char* argv0);
@@ -1095,6 +1090,8 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_var_expand(kpathsea kpseInstance, const c
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_var_value(kpathsea kpseInstance, const char* varName);
 
 MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpseInstance, const char* varName, const char* value);
+
+MIKTEXKPSCEEAPI(char*) miktex_kpse_program_basename(const char* argv0);
 
 #if WITH_CONTEXT_SUPPORT
 MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf();
@@ -1133,8 +1130,6 @@ MIKTEXKPSCEEAPI(off_t) miktex_xftello(FILE* file, const char* fileName);
 MIKTEXKPSCEEAPI(MIKTEX_INT64) miktex_xftello64(FILE* file, const char* fileName);
 
 MIKTEXKPSCEEAPI(char*) miktex_xgetcwd();
-
-extern MIKTEXKPSDATA(const char*) miktex_kpathsea_version_string;
 
 #if defined(KPSE_COMPAT_API)
 

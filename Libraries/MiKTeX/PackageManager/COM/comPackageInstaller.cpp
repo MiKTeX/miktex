@@ -1,6 +1,6 @@
 /* comPackageInstaller.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -20,6 +20,9 @@
    02111-1307, USA. */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Trace/Trace>
 
@@ -93,7 +96,7 @@ void comPackageInstaller::ReportLine(const string& str)
   {
     return;
   }
-  HRESULT hr = installerCallback->ReportLine(_bstr_t(StringUtil::UTF8ToWideChar(str).c_str()));
+  HRESULT hr = installerCallback->ReportLine(_bstr_t(StringUtil::UTF8ToWideChar("mpmsvc: "s + str).c_str()));
   if (FAILED(hr))
   {
     // FIXME
@@ -138,12 +141,12 @@ STDMETHODIMP comPackageInstaller::Add(BSTR packageName, VARIANT_BOOL toBeInstall
     if (toBeInstalled)
     {
       packagesToBeInstalled.push_back(WU_(packageName));
-      trace_mpm->WriteFormattedLine("mpmsvc", T_("to be installed: %s"), packagesToBeInstalled.back().c_str());
+      trace_mpm->WriteLine("mpmsvc", fmt::format(T_("to be installed: {0}"), packagesToBeInstalled.back()));
     }
     else
     {
       packagesToBeRemoved.push_back(WU_(packageName));
-      trace_mpm->WriteFormattedLine("mpmsvc", T_("to be removed: %s"), packagesToBeRemoved.back().c_str());
+      trace_mpm->WriteLine("mpmsvc", fmt::format(T_("to be removed: {0}"), packagesToBeRemoved.back()));
     }
   }
   catch (const MiKTeXException& e)
@@ -239,7 +242,7 @@ STDMETHODIMP comPackageInstaller::UpdateDb()
       }
       packageInstaller = packageManager->CreateInstaller();
     }
-    packageInstaller->UpdateDb();
+    packageInstaller->UpdateDb({});
   }
   catch (const MiKTeXException& e)
   {

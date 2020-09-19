@@ -1,0 +1,14 @@
+#!/bin/zsh
+
+if [ -z $1 ]; then
+    echo "Usage: codesign_executable /path/to/executable"
+    exit 1
+fi
+
+entitlements_file="@CMAKE_SOURCE_DIR@/BuildUtilities/sign/mac/entitlements/$(basename $1).plist"
+
+if [ -f "$entitlements_file" ]; then
+    codesign --verbose --force --options runtime --entitlements "$entitlements_file" --sign "@MIKTEX_CODESIGN_IDENTITY@" "$1"
+else
+    codesign --verbose --force --options runtime --sign "@MIKTEX_CODESIGN_IDENTITY@" "$1"
+fi

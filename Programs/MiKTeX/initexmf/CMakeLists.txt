@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -32,9 +32,19 @@ add_definitions(
   -DHAVE_CONFIG_H=1
 )
 
+add_definitions(
+  -DWITH_LCDF_TYPETOOLS=1
+)
+
 if(NOT USE_SYSTEM_POPPLER)
   add_definitions(
     -DWITH_POPPLER_UTILS=1
+  )
+endif()
+
+if(NOT USE_SYSTEM_FONTCONFIG)
+  add_definitions(
+    -DWITH_FONTCONFIG_UTILS=1
   )
 endif()
 
@@ -59,7 +69,7 @@ set(initexmf_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND initexmf_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     initexmf.rc
   )
 endif()

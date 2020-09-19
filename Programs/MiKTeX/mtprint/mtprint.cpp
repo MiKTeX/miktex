@@ -1,6 +1,6 @@
 /* mtprint.cpp: MiKTeX Print Utility
 
-   Copyright (C) 2003-2018 Christian Schenk
+   Copyright (C) 2003-2020 Christian Schenk
 
    This file is part of MiKTeX Print Utility.
 
@@ -20,6 +20,9 @@
 
 #include "StdAfx.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "internal.h"
 
 #include "BitmapPrinter.h"
@@ -29,8 +32,8 @@
 #endif
 
 vector<string> DEFAULT_TRACE_STREAMS = {
-  MIKTEX_TRACE_ERROR,
-  MIKTEX_TRACE_MTPRINT
+  TraceStream::MakeOption("", "", TraceLevel::Info),
+  TraceStream::MakeOption(MIKTEX_TRACE_MTPRINT, "", TraceLevel::Trace),
 };
 
 struct PAPERSIZEINFO
@@ -79,7 +82,7 @@ private:
   };
 
 public:
-  virtual void Report(const char* lpszFormat, ...);
+  void Report(const std::string& msg) override;
 
 public:
   void Run(int argc, const char** argv);
@@ -321,16 +324,13 @@ const struct poptOption PrintUtility::aoption[] = {
   POPT_TABLEEND
 };
 
-void PrintUtility::Report(const char* lpszFormat, ...)
+void PrintUtility::Report(const string& msg)
 {
   if (!verbose)
   {
     return;
   }
-  va_list argList;
-  VA_START(argList, lpszFormat);
-  cout << StringUtil::FormatStringVA(lpszFormat, argList);
-  VA_END(argList);
+  cout << msg;
 }
 
 bool PrintUtility::GetPaperSizeInfo(short paperSize, PAPERSIZEINFO& paperSizeInfo)
@@ -467,7 +467,7 @@ void PrintUtility::StartGhostscript(const GSOPTS& gsOpts, unsigned resolution, s
   trace_mtprint->WriteLine("mtprint", CommandLineBuilder(args).ToString());
 
   // start Ghostscript
-  Process::Start(gsPath.GetData(), args, pfileGsIn, nullptr, ppfileGsOut, nullptr, nullptr);
+  Process::Start(gsPath, args, pfileGsIn, nullptr, ppfileGsOut, nullptr, nullptr);
 }
 
 void PrintUtility::Spool(const char* lpszFileName, PrintMethod printMethod, const DVIPSOPTS& dvipsOpts, const GSOPTS& gsOpts, const string& printerName)
@@ -475,7 +475,7 @@ void PrintUtility::Spool(const char* lpszFileName, PrintMethod printMethod, cons
   // get printer resolution and paper size
   unsigned resolution;
   Printer::GetPrinterCaps(printerName.c_str(), resolution);
-  trace_mtprint->WriteFormattedLine("mtprint", "resolution: %u", resolution);
+  trace_mtprint->WriteLine("mtprint", fmt::format("resolution: {0}", resolution));
   DEVMODEW* pdm = Printer::GetDevMode(printerName.c_str());
   short paperSize = pdm->dmPaperSize;
   free(pdm);
@@ -513,8 +513,10 @@ void PrintUtility::Spool(const char* lpszFileName, PrintMethod printMethod, cons
 void PrintUtility::ShowVersion()
 {
   cout
-    << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, MIKTEX_COMPONENT_VERSION_STR) << endl
-    << "Copyright (C) 2003-2017 Christian Schenk" << endl
+    << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+    << endl
+    << MIKTEX_COMP_COPYRIGHT_STR << endl
+    << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
@@ -611,7 +613,7 @@ void PrintUtility::Run(int argc, const char** argv)
     dvipsOpts.runAsFilter = true;
   }
 
-  TraceStream::SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
+  TraceStream::SetOptions(DEFAULT_TRACE_STREAMS);
 
   for (const string& fileName : leftovers)
   {

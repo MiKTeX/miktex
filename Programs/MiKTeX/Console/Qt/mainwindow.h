@@ -1,6 +1,6 @@
 /* mainwindow.h:                                        -*- C++ -*-
 
-   Copyright (C) 2017-2019 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -70,7 +70,7 @@ public:
   };
 
 public:
-  explicit MainWindow(QWidget* parent = nullptr, Pages startPage = Pages::Overview);
+  explicit MainWindow(QWidget* parent = nullptr, Pages startPage = Pages::Overview, bool dontFindIssues = false, MiKTeX::Trace::TraceCallback* traceCallback = nullptr);
 
 public:
   ~MainWindow() override;
@@ -96,6 +96,9 @@ private:
     CriticalError(MiKTeX::Core::MiKTeXException(e.what()));
   }
 
+private slots:
+  void ShowMajorIssue();
+
 private:
   RepositoryTableModel* repositoryModel = nullptr;
 
@@ -103,18 +106,24 @@ private:
   void UpdateUi();
 
 private:
-  bool haveIssues = false;
+  bool checkedIssues = false;
 
 private:
   std::vector<MiKTeX::Setup::Issue> issues;
 
 private:
+  void FindIssues()
+  {
+    issues = isSetupMode || dontFindIssues ? std::vector<MiKTeX::Setup::Issue>() : MiKTeX::Setup::SetupService::FindIssues(true, false);
+    checkedIssues = true;
+  }
+
+private:
   std::pair<bool, MiKTeX::Setup::Issue> CheckIssue(MiKTeX::Setup::IssueType issueType)
   {
-    if (!haveIssues)
+    if (!checkedIssues)
     {
-      issues = MiKTeX::Setup::SetupService::FindIssues(true, false);
-      haveIssues = true;
+      FindIssues();
     }
     for (const auto& iss : issues)
     {
@@ -262,6 +271,9 @@ private slots:
 private:
   bool isSetupMode = false;
 
+private:
+  bool dontFindIssues = false;
+
 public slots:
   void FinishSetup();
 
@@ -359,6 +371,9 @@ private slots:
 
 private slots:
   void on_radioAutoInstallNo_clicked();
+
+private slots:
+  void on_chkAllUsers_clicked();
 
 private:
   void UpdateUiPaper();
@@ -618,6 +633,9 @@ private:
   }
 
 private:
+  void Exit();
+
+private:
   void Restart();
 
 private slots:
@@ -627,7 +645,7 @@ private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager = MiKTeX::Packages::PackageManager::Create();
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 };
 
 class PackageInstallerCallbackImpl :

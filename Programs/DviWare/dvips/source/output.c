@@ -880,6 +880,17 @@ cmdout(const char *s)
    lastspecial = 0;
 }
 
+void psnameout(const char *s) {
+   // we lead with a special, so we don't need the space.
+   lastspecial = 1 ;
+   cmdout(s) ;
+}
+
+void pslineout(const char *s) {
+   fputs(s, bitfile) ;
+   fprintf(bitfile, "\n");
+   linepos = 0;
+}
 
 static void
 chrcmd(char c)
@@ -1474,6 +1485,25 @@ initprinter(sectiontype *sect)
       tell_needed_fonts();
       paperspec(finpapsiz->specdat, 1);
       fprintf(bitfile, "%%%%EndComments\n");
+/*
+ *   If we encode Type 3 fonts with an encoding vector, this can cause
+ *   Distiller's autoorientation to get confused.  We remedy this by
+ *   emitting underdocumented ViewingOrientation comments right after
+ *   EndComments.  Known defect: if a user "flips" the landscape to be
+ *   180 degrees using one of the \special{} commands available, the
+ *   document will be rendered in the viewer upside down.  (But only
+ *   with bitmap font encoding enabled and bitmapped fonts actually used.)
+ *   --tgr, 29 February 2020.
+ */
+      if (encodetype3 && bitmapfontseen) {
+         fprintf(bitfile, "%%%%BeginDefaults\n") ;
+         if (landscape) {
+            fprintf(bitfile, "%%%%ViewingOrientation: 0 -1 1 0\n") ;
+         } else {
+            fprintf(bitfile, "%%%%ViewingOrientation: 1 0 0 1\n") ;
+         }
+         fprintf(bitfile, "%%%%EndDefaults\n") ;
+      }
    }
    {
       int i, len;

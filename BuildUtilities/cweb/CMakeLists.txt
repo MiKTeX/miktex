@@ -46,7 +46,7 @@ set_source_files_properties(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND initctangle_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ctangle.rc
   )
 endif()
@@ -91,7 +91,7 @@ set_source_files_properties(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND ctangle_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ctangle.rc
   )
 endif()
@@ -165,7 +165,7 @@ set_source_files_properties(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND cweave_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     cweave.rc
   )
 endif()

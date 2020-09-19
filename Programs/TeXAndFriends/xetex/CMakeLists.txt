@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2018 Christian Schenk
+## Copyright (C) 2008-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -33,6 +33,7 @@ include_directories(
   
 add_definitions(
   -DHAVE_C4P_PRE_H
+  -DHAVE_C4P_POST_H
   -DLE_USE_CMEMORY
   -DSYNCTEX_ENGINE_H="synctex-xetex.h"
   -DTeX
@@ -43,6 +44,7 @@ add_definitions(
 
 set(C4P_FLAGS
   --auto-exit=10
+  --base-class=XeTeXProgramBase
   --chars-are-unsigned
   --declare-c-type=realpoint
   --declare-c-type=realrect

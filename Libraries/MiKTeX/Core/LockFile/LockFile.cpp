@@ -83,7 +83,9 @@ public:
 public:
   void MIKTEXTHISCALL Unlock() override;
 private:
-  bool IsGarbage();
+  tuple<int, string> ReadLockFile();
+private:
+  tuple<bool, int, string> CheckLockFile();
 private:
   PathName path;
 private:
@@ -117,9 +119,11 @@ bool LockFileImpl::TryLock(chrono::milliseconds timeout)
     {
       try
       {
-        unique_ptr<FILE, decltype(&fclose)> file(File::Open(path, FileMode::CreateNew, FileAccess::Write), fclose);
-        fputs(fmt::format("{}\n", Process::GetCurrentProcess()->GetSystemId()).c_str(), file.get());
-        fputs(fmt::format("{}\n", Process::GetCurrentProcess()->get_ProcessName()).c_str(), file.get());
+        ofstream os = File::CreateOutputStream(path);
+        os
+          << Process::GetCurrentProcess()->GetSystemId() << "\n"
+          << Process::GetCurrentProcess()->get_ProcessName() << "\n";
+        os.close();
         trace_lockfile->WriteLine("core", fmt::format(T_("lock file {0} successfully created"), Q_(path)));
         locked = true;
       }
@@ -132,9 +136,13 @@ bool LockFileImpl::TryLock(chrono::milliseconds timeout)
     }
     if (!locked)
     {
-      if (IsGarbage())
+      bool isGarbage;
+      int pid;
+      string processName;
+      tie(isGarbage, pid, processName) = CheckLockFile();
+      if (isGarbage)
       {
-        trace_lockfile->WriteLine("core", fmt::format(T_("removing garbage lock file {0}"), Q_(path)));
+        trace_lockfile->WriteLine("core", TraceLevel::Warning, fmt::format(T_("removing lock file {0} created by {1} ({2})"), Q_(path), processName, pid));
         try
         {
           File::Delete(path);
@@ -168,53 +176,66 @@ void MIKTEXTHISCALL LockFileImpl::Unlock()
   File::Delete(path);
 }
 
-bool LockFileImpl::IsGarbage()
+tuple<int, string> LockFileImpl::ReadLockFile()
 {
   string pid;
   string processName;
+  StreamReader reader(path);
+  reader.ReadLine(pid);
+  reader.ReadLine(processName);
+  reader.Close();
+  return make_tuple(std::stoi(pid), processName);
+}
+
+tuple<bool, int, string> LockFileImpl::CheckLockFile()
+{
+  int pid;
+  string processName;
   try
   {
-    StreamReader reader(path);
-    reader.ReadLine(pid);
-    reader.ReadLine(processName);
+    tie(pid, processName) = ReadLockFile();
   }
   catch (const UnauthorizedAccessException&)
   {
     trace_lockfile->WriteLine("core", fmt::format(T_("permission denied: {0}"), Q_(path)));
-    return false;
+    return make_tuple(false, pid, processName);
   }
   catch (const IOException&)
   {
     trace_lockfile->WriteLine("core", fmt::format(T_("could not read lock file {0}"), Q_(path)));
-    return false;
+    return make_tuple(false, pid, processName);
   }
-  if (pid == "-1")
+  if (pid == -1)
   {
     // permanently locked
-    return false;
+    return make_tuple(false, pid, processName);
+  }
+  if (pid == Process::GetCurrentProcess()->GetSystemId())
+  {
+    MIKTEX_UNEXPECTED();
   }
   try
   {
-    unique_ptr<Process> p = Process::GetProcess(std::stoi(pid));
+    unique_ptr<Process> p = Process::GetProcess(pid);
     if (p == nullptr)
     {
       trace_lockfile->WriteLine("core", fmt::format(T_("owner of lock file {0} does not exist"), Q_(path)));
-      return true;
+      return make_tuple(true, pid, processName);
     }
     if (p->get_ProcessName() != processName)
     {
-      trace_lockfile->WriteLine("core", fmt::format(T_("owner ({0}) of lock file {1} does not exist"), processName, Q_(path)));
-      return true;
+      trace_lockfile->WriteLine("core", fmt::format(T_("owner process {0} ({1}) of lock file {2} does not exist"), processName, pid, Q_(path)));
+      return make_tuple(true, pid, processName);
     }
     if (p->GetProcessInfo().status == ProcessStatus::Zombie)
     {
-      trace_lockfile->WriteLine("core", fmt::format(T_("owner ({0}) of lock file {1} is a zombie"), processName, Q_(path)));
-      return true;
+      trace_lockfile->WriteLine("core", fmt::format(T_("owner process {0} ({1}) of lock file {2} is a zombie"), processName, pid, Q_(path)));
+      return make_tuple(true, pid, processName);
     }
   }
   catch (const UnauthorizedAccessException&)
   {
     trace_lockfile->WriteLine("core", fmt::format(T_("permission denied: process {0} ({1})"), processName, pid));
   }
-  return false;
+  return make_tuple(false, pid, processName);
 }

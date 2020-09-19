@@ -1,12 +1,32 @@
+/*
+	This is part of TeXworks, an environment for working with TeX documents
+	Copyright (C) 2016-2020  Stefan Löffler
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+	For links to further information, or to contact the authors,
+	see <http://www.tug.org/texworks/>.
+*/
 #include "ScreenCalibrationWidget.h"
 #include <QPainter>
 #include <QStyle>
 #include <QApplication>
 
-ScreenCalibrationWidget::ScreenCalibrationWidget(QWidget *parent) : QWidget(parent), _contextMenuActionGroup(this)
+ScreenCalibrationWidget::ScreenCalibrationWidget(QWidget * parent)
+	: QWidget(parent)
+	, _contextMenuActionGroup(this)
 {
-	_isDragging = false;
-
 	_sbDPI = new QDoubleSpinBox(this);
 	_sbDPI->setRange(0, 9999);
 	_sbDPI->setValue(physicalDpiX());
@@ -19,12 +39,8 @@ ScreenCalibrationWidget::ScreenCalibrationWidget(QWidget *parent) : QWidget(pare
 	setToolTip(tr("Drag the ruler or change the value to match real world lengths.\nCommon paper sizes are marked as well (you may need to resize the dialog window to see them).\nUse the context menu to change the units."));
 
 	switch(locale().measurementSystem()) {
-#if QT_VERSION < 0x050000
-		case QLocale::ImperialSystem:
-#else
 		case QLocale::ImperialUSSystem:
 		case QLocale::ImperialUKSystem:
-#endif
 			_curUnit = 1;
 			break;
 		default:
@@ -37,14 +53,14 @@ ScreenCalibrationWidget::ScreenCalibrationWidget(QWidget *parent) : QWidget(pare
 
 void ScreenCalibrationWidget::recalculateSizes()
 {
-	_majorTickHeight = 1.2 * fontMetrics().lineSpacing();
-	_mediumTickHeight = 0.5 * _majorTickHeight;
-	_minorTickHeight = 0.25 * _majorTickHeight;
-	_paperTickHeight = 2.2 * fontMetrics().lineSpacing();
+	_majorTickHeight = qRound(1.2 * fontMetrics().lineSpacing());
+	_mediumTickHeight = qRound(0.5 * _majorTickHeight);
+	_minorTickHeight = qRound(0.25 * _majorTickHeight);
+	_paperTickHeight = qRound(2.2 * fontMetrics().lineSpacing());
 	_hSpace = style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing);
 	if (_hSpace < 0)
 		_hSpace = style()->layoutSpacing(QSizePolicy::SpinBox, QSizePolicy::DefaultType, Qt::Horizontal);
-	setMinimumHeight(_paperTickHeight + 0.2 * fontMetrics().lineSpacing());
+	setMinimumHeight(static_cast<int>(_paperTickHeight) + qRound(0.2 * fontMetrics().lineSpacing()));
 }
 
 void ScreenCalibrationWidget::retranslate()
@@ -60,11 +76,7 @@ void ScreenCalibrationWidget::retranslate()
 
 	_units.clear();
 	//: this refers to the length unit of centimeters
-#if defined(MIKTEX)
-        _units.append({ tr("cm"), (float)0.393701 });
-#else
-	_units.append({tr("cm"), 0.393701});
-#endif
+	_units.append({tr("cm"), 0.393701f});
 	//: this refers to the length unit of inches
 	_units.append({tr("in"), 1});
 
@@ -88,8 +100,21 @@ void ScreenCalibrationWidget::repositionSpinBox()
 {
 	Q_ASSERT(_sbDPI);
 
+	// Find the layout direction (search recursively through the widget
+	// hierarchy)
+	Qt::LayoutDirection layoutDirection{Qt::LayoutDirectionAuto};
+	QWidget * w = this;
+	while (layoutDirection == Qt::LayoutDirectionAuto && w) {
+		layoutDirection = w->layoutDirection();
+		w = w->parentWidget();
+	}
+	// If none of the widgets had a specific layout direction, fall back to the
+	// QApplication value
+	if (layoutDirection == Qt::LayoutDirectionAuto)
+		layoutDirection = QApplication::layoutDirection();
+
 	_sbDPI->ensurePolished();
-	switch (layoutDirection()) {
+	switch (layoutDirection) {
 		case Qt::LeftToRight:
 			// Ensure the spin box is positioned on the left side and at the top
 			_sbDPI->move(0, 0);
@@ -100,8 +125,9 @@ void ScreenCalibrationWidget::repositionSpinBox()
 			_sbDPI->move(width() - _sbDPI->width(), 0);
 			_rulerRect = QRect(QPoint(0, 0), QPoint(width() - _sbDPI->width() - _hSpace - 2, height() - 2));
 			break;
-		// FIXME: Qt::LayoutDirectionAuto: go up the widget hierarchy until we
-		// find a valid layout direction, or use QApplication's layout direction
+		case Qt::LayoutDirectionAuto:
+			// This should not happen as we resolved the layout direction above
+			break;
 	}
 }
 
@@ -127,11 +153,12 @@ void ScreenCalibrationWidget::setUnit(const int unitIdx)
 
 void ScreenCalibrationWidget::paintEvent(QPaintEvent * event)
 {
+	Q_UNUSED(event)
 	Q_ASSERT(_sbDPI);
-	float x;
+	double x;
 
 	double dpi = _sbDPI->value(); // dots per inch
-	double dpu = dpi * _units[_curUnit].unitsPerInch; // dots per unit
+	double dpu = dpi * static_cast<double>(_units[_curUnit].unitsPerInch); // dots per unit
 	int majorTick, minorTick;
 
 	int y = _rulerRect.top();
@@ -145,17 +172,17 @@ void ScreenCalibrationWidget::paintEvent(QPaintEvent * event)
 
 	// Print unit label
 	x = _rulerRect.left() + 2;
-	painter.drawText(x, y + _paperTickHeight, _units[_curUnit].label);
+	painter.drawText(QPointF(x, y + _paperTickHeight), _units[_curUnit].label);
 
 	// Draw tick marks
 	for (majorTick = 0; majorTick * dpu < _rulerRect.width(); ++majorTick) {
 		x = majorTick * dpu + _rulerRect.left();
-		painter.drawLine(x, y, x, y + _majorTickHeight);
+		painter.drawLine(QPointF(x, y), QPointF(x, y + _majorTickHeight));
 
-		painter.drawText(x + 2, y + _majorTickHeight, QString::number(majorTick));
+		painter.drawText(QPointF(x + 2, y + _majorTickHeight), QString::number(majorTick));
 
 		for (minorTick = 1; minorTick < 10 && x + minorTick * dpu / 10. < _rulerRect.right(); ++minorTick) {
-			painter.drawLine(x + minorTick * dpu / 10., y, x + minorTick * dpu / 10., y + (minorTick == 5 ? _mediumTickHeight : _minorTickHeight));
+			painter.drawLine(QPointF(x + minorTick * dpu / 10., y), QPointF(x + minorTick * dpu / 10., y + (minorTick == 5 ? _mediumTickHeight : _minorTickHeight)));
 		}
 	}
 
@@ -165,12 +192,12 @@ void ScreenCalibrationWidget::paintEvent(QPaintEvent * event)
 			continue;
 		x = ps.size.width() * dpi + _rulerRect.left();
 		painter.setPen(ps.col);
-		painter.drawLine(x, y, x, y + _paperTickHeight);
+		painter.drawLine(QPointF(x, y), QPointF(x, y + _paperTickHeight));
 		if (ps.alignment.testFlag(Qt::AlignRight))
 			x -= 2 + painter.fontMetrics().width(ps.name);
 		else
 			x += 2;
-		painter.drawText(x, y + _paperTickHeight, ps.name);
+		painter.drawText(QPointF(x, y + _paperTickHeight), ps.name);
 	}
 }
 

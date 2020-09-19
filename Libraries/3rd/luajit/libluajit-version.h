@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "2.1.0-beta1"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2005-2015 Mike Pall. All rights reserved."
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "Copyright © 2005-2015 Mike Pall. All rights reserved."
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2005-2015 Mike Pall. All rights reserved."
 
 #include <miktex/Version>

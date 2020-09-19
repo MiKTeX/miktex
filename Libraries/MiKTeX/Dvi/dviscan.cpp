@@ -1,6 +1,6 @@
 /* dviscan.cpp: test driver for the DVI interfaces
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public License
@@ -124,7 +124,7 @@ void DviScanner::Run(int argc, const char** argv)
 
   for (const string& dviFileName : leftovers)
   {
-    unique_ptr<Dvi> dvi(Dvi::Create(dviFileName.c_str(), metafontMode.c_str(), dpi, 5, DviAccess::Sequential, pageMode, session->GetPaperSizeInfo("A4size"), false, 0));
+    unique_ptr<Dvi> dvi(Dvi::Create(dviFileName.c_str(), metafontMode.c_str(), dpi, 5, DviAccess::Sequential, pageMode, session->GetPaperSizeInfo("A4size"), false, nullptr, nullptr));
     dvi->Scan();
     for (int i = 0; i < dvi->GetNumberOfPages(); ++i)
     {

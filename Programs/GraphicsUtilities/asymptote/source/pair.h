@@ -16,11 +16,26 @@
 
 #include <cassert>
 #include <cmath>
+#include <iostream>
+#include <fstream>
 
 #include "common.h"
 #include "angle.h"
 
 namespace camp {
+
+class jsofstream : public std::ofstream {
+public:
+  jsofstream() {}
+  jsofstream(const string& name) : std::ofstream(name.c_str()) {}
+  void open(const string& name) {std::ofstream::open(name.c_str());}
+  
+  template<class T>
+  jsofstream& operator << (const T& x) {
+    (std::ofstream&)(*this) << x;
+  return *this;
+  }
+};
 
 class pair : public gc {
   double x;
@@ -132,14 +147,14 @@ public:
     return z.length();
   }
 
-  double angle() const
+  double angle(bool warn=true) const
   {
-    return camp::angle(x,y);
+    return camp::angle(x,y,warn);
   }
   
-  friend double angle(const pair& z)
+  friend double angle(const pair& z, bool warn=true)
   {
-    return z.angle();
+    return z.angle(warn);
   }
   
   friend pair unit(const pair& z)
@@ -192,7 +207,10 @@ public:
     if(paren) s >> c;
     s >> z.x >> std::ws;
     if(!s.eof() && s.peek() == ',') s >> c >> z.y;
-    else z.y=0.0;
+    else {
+      if(paren && !s.eof()) s >> z.y;
+      else z.y=0.0;
+    }
     if(paren) {
       s >> std::ws;
       if(s.peek() == ')') s >> c;
@@ -204,6 +222,12 @@ public:
   friend ostream& operator << (ostream& out, const pair& z)
   {
     out << "(" << z.x << "," << z.y << ")";
+    return out;
+  }
+  
+  friend jsofstream& operator << (jsofstream& out, const pair& z)
+  {
+    out << "[" << z.x << "," << z.y << "]";
     return out;
   }
   

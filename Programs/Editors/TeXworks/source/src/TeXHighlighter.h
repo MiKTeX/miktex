@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2017  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,18 +22,23 @@
 #ifndef TEX_HIGHLIGHTER_H
 #define TEX_HIGHLIGHTER_H
 
+#include "document/SpellChecker.h"
+
 #include <QSyntaxHighlighter>
 
+#include <QTextDocument>
 #include <QTextLayout>
 #include <QTextCharFormat>
-
+#include <QRegularExpression>
 #include <QTimer>
 
-#include <hunspell.h>
+namespace Tw {
+namespace Document {
 
-class QTextDocument;
-class QTextCodec;
 class TeXDocument;
+
+} // namespace Document
+} // namespace Tw
 
 // This class implements a non-blocking syntax highlighter that is a rewrite/
 // replacement of QSyntaxHighlighter. It queues all highlight requests and
@@ -45,8 +50,8 @@ class NonblockingSyntaxHighlighter : public QObject
 	Q_OBJECT
 
 public:
-	NonblockingSyntaxHighlighter(QTextDocument * parent) : _processingPending(false), _parent(NULL), MAX_TIME_MSECS(5), IDLE_DELAY_TIME(40) { setDocument(parent); }
-	virtual ~NonblockingSyntaxHighlighter() { setDocument(NULL); }
+	NonblockingSyntaxHighlighter(QTextDocument * parent) : QObject(parent), _processingPending(false), _parent(nullptr), MAX_TIME_MSECS(5), IDLE_DELAY_TIME(40) { setDocument(parent); }
+	~NonblockingSyntaxHighlighter() override { setDocument(nullptr); }
 
 	QTextDocument * document() const { return _parent; }
 	void setDocument(QTextDocument * doc);
@@ -77,7 +82,7 @@ private slots:
 	void maybeRehighlightText(int position, int charsRemoved, int charsAdded);
 	void process();
 	void processWhenIdle();
-	void unlinkFromDocument() { setDocument(NULL); }
+	void unlinkFromDocument() { setDocument(nullptr); }
 
 private:
 	bool _processingPending;
@@ -100,10 +105,11 @@ class TeXHighlighter : public NonblockingSyntaxHighlighter
 	Q_OBJECT
 
 public:
-	TeXHighlighter(QTextDocument *parent, TeXDocument *texDocument = NULL);
+	explicit TeXHighlighter(Tw::Document::TeXDocument * parent);
 	void setActiveIndex(int index);
 
-	void setSpellChecker(Hunhandle *h, QTextCodec *codec);
+	void setSpellChecker(Tw::Document::SpellChecker::Dictionary * dictionary);
+	Tw::Document::SpellChecker::Dictionary * getSpellChecker() const { return _dictionary; }
 
 	QString getSyntaxMode() const {
 		return (highlightIndex >= 0 && highlightIndex < syntaxOptions().size())
@@ -113,7 +119,7 @@ public:
 	static QStringList syntaxOptions();
 
 protected:
-	void highlightBlock(const QString &text);
+	void highlightBlock(const QString &text) override;
 
 	void spellCheckRange(const QString &text, int index, int limit, const QTextCharFormat &spellFormat);
 
@@ -121,7 +127,7 @@ private:
 	static void loadPatterns();
 
 	struct HighlightingRule {
-		QRegExp pattern;
+		QRegularExpression pattern;
 		QTextCharFormat format;
 		QTextCharFormat	spellFormat;
 		bool spellCheck;
@@ -136,20 +142,17 @@ private:
 	QTextCharFormat spellFormat;
 
 	struct TagPattern {
-		QRegExp pattern;
+		QRegularExpression pattern;
 		unsigned int level;
 	};
 	static QList<TagPattern> *tagPatterns;
 
-	TeXDocument	*texDoc;
-
 	int highlightIndex;
 	bool isTagging;
 
-	Hunhandle	*pHunspell;
-	QTextCodec	*spellingCodec;
+	Tw::Document::SpellChecker::Dictionary * _dictionary;
 
-	QTextDocument * textDoc;
+	Tw::Document::TeXDocument * texDoc;
 };
 
 #endif

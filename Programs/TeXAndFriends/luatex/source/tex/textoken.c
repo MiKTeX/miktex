@@ -76,7 +76,7 @@ unsigned fix_mem_max;
 
 /*tex how much memory is in use */
 
-int var_used, dyn_used;
+int dyn_used;
 
 /*tex head of the list of available one-word nodes */
 

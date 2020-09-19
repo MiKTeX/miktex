@@ -336,7 +336,9 @@ double bound(triple z0, triple c0, triple c1, triple z1,
   b=m(b,m(f(z0),f(z1)));
   if(m(-1.0,1.0)*(b-ratiobound(z0,c0,c1,z1,m,f)) >= -fuzz || depth == 0)
     return b;
+  
   --depth;
+  fuzz *= 2;
 
   triple m0=0.5*(z0+c0);
   triple m1=0.5*(c0+c1);
@@ -352,7 +354,7 @@ double bound(triple z0, triple c0, triple c1, triple z1,
 
 pair path3::ratio(double (*m)(double, double)) const
 {
-  double fuzz=sqrtFuzz*(max()-min()).length();
+  double fuzz=Fuzz*(max()-min()).length();
   checkEmpty3(n);
   
   triple v=point((Int) 0);
@@ -387,7 +389,19 @@ static double ds(double t)
   return sqrt(dx*dx+dy*dy+dz*dz);
 }
 
-// Calculates arclength of a cubic using adaptive simpson integration.
+// Calculates arclength of a cubic Bezier curve using adaptive Simpson
+// integration.
+double arcLength(const triple& z0, const triple& c0, const triple& c1,
+                 const triple& z1)
+{
+  double integral;
+  derivative(a,b,c,z0,c0,c1,z1);
+  
+  if(!simpson(integral,ds,0.0,1.0,DBL_EPSILON,1.0))
+    reportError("nesting capacity exceeded in computing arclength");
+  return integral;
+}
+
 double path3::cubiclength(Int i, double goal) const
 {
   const triple& z0=point(i);
@@ -397,14 +411,9 @@ double path3::cubiclength(Int i, double goal) const
     L=(z1-z0).length();
     return (goal < 0 || goal >= L) ? L : -goal/L;
   }
-  const triple& c0=postcontrol(i);
-  const triple& c1=precontrol(i+1);
   
-  double integral;
-  derivative(a,b,c,z0,c0,c1,z1);
+  double integral=arcLength(z0,postcontrol(i),precontrol(i+1),z1);
   
-  if(!simpson(integral,ds,0.0,1.0,DBL_EPSILON,1.0))
-    reportError("nesting capacity exceeded in computing arclength");
   L=3.0*integral;
   if(goal < 0 || goal >= L) return L;
   
@@ -505,10 +514,10 @@ void intersections(std::vector<double>& T, const path3& g, const triple& v,
     size_t m=r.size();
     for(size_t j=0 ; j < m; ++j) {
       double t=r[j];
-      if(t >= -Fuzz && t <= 1.0+Fuzz) {
+      if(t >= -Fuzz2 && t <= 1.0+Fuzz2) {
         double s=i+t;
         if((g.point(s)-v).abs2() <= fuzz2) {
-          if(cycles && s >= n-Fuzz) s=0;
+          if(cycles && s >= n-Fuzz2) s=0;
           T.push_back(s);
         }
       }
@@ -578,8 +587,7 @@ bool intersections(double &s, double &t, std::vector<double>& S,
 {
   if(errorstream::interrupt) throw interrupted();
   
-  double fuzz2=max(fuzzFactor*fuzz,Fuzz);
-  fuzz2=fuzz2*fuzz2;
+  double fuzz2=max(fuzzFactor*fuzz*fuzz,Fuzz2);
   
   Int lp=p.length();
   if(lp == 0 && exact) {
@@ -611,6 +619,8 @@ bool intersections(double &s, double &t, std::vector<double>& S,
     // Overlapping bounding boxes
 
     --depth;
+//    fuzz *= 2;
+
     if((maxp-minp).length()+(maxq-minq).length() <= fuzz || depth == 0) {
       if(single) {
         s=0.5;
@@ -626,6 +636,8 @@ bool intersections(double &s, double &t, std::vector<double>& S,
     double pscale,poffset;
     
     std::vector<double> S1,T1;
+    
+//    fuzz2=max(fuzzFactor*fuzz*fuzz,Fuzz2);
     
     if(lp <= 1) {
       if(lp == 1) p.halve(p1,p2);
@@ -815,7 +827,9 @@ double bound(double *P, double (*m)(double, double), double b,
   b=m(b,cornerbound(P,m));
   if(m(-1.0,1.0)*(b-controlbound(P,m)) >= -fuzz || depth == 0)
     return b;
+  
   --depth;
+  fuzz *= 2;
 
   Split<double> c0(P[0],P[1],P[2],P[3]);
   Split<double> c1(P[4],P[5],P[6],P[7]);
@@ -894,8 +908,10 @@ double bound(triple *P, double (*m)(double, double),
   b=m(b,cornerbound(P,m,f));
   if(m(-1.0,1.0)*(b-ratiobound(P,m,f,16)) >= -fuzz || depth == 0)
     return b;
-  --depth;
 
+  --depth;
+  fuzz *= 2;
+  
   Split<triple> c0(P[0],P[1],P[2],P[3]);
   Split<triple> c1(P[4],P[5],P[6],P[7]);
   Split<triple> c2(P[8],P[9],P[10],P[11]);
@@ -1038,7 +1054,9 @@ double boundtri(double *P, double (*m)(double, double), double b,
   b=m(b,cornerboundtri(P,m));
   if(m(-1.0,1.0)*(b-controlboundtri(P,m)) >= -fuzz || depth == 0)
     return b;
+  
   --depth;
+  fuzz *= 2;
 
   Splittri<double> s(P);
   
@@ -1065,7 +1083,9 @@ double boundtri(triple *P, double (*m)(double, double),
   b=m(b,cornerboundtri(P,m,f));
   if(m(-1.0,1.0)*(b-ratiobound(P,m,f,10)) >= -fuzz || depth == 0)
     return b;
+  
   --depth;
+  fuzz *= 2;
 
   Splittri<triple> s(P);
   
@@ -1178,6 +1198,8 @@ bool intersections(double& U, double& V, const triple& v, triple *P,
      v.getz()+fuzz >= z) { // Overlapping bounding boxes
     
     --depth;
+//    fuzz *= 2;
+
     if(abs2(X-x,Y-y,Z-z) <= fuzz*fuzz || depth == 0) {
       U=0.5;
       V=0.5;
@@ -1243,6 +1265,8 @@ bool intersections(std::vector<double>& T, std::vector<double>& U,
 {
   if(errorstream::interrupt) throw interrupted();
   
+  double fuzz2=max(fuzzFactor*fuzz*fuzz,Fuzz2);
+  
   triple pmin=p.min();
   triple pmax=p.max();
   
@@ -1271,6 +1295,7 @@ bool intersections(std::vector<double>& T, std::vector<double>& U,
      pmax.getz()+fuzz >= z) { // Overlapping bounding boxes
     
     --depth;
+//    fuzz *= 2;
 
     if(((pmax-pmin).length()+sqrt(abs2(X-x,Y-y,Z-z)) <= fuzz) || depth == 0) {
       T.push_back(0.5);
@@ -1287,9 +1312,6 @@ bool intersections(std::vector<double>& T, std::vector<double>& U,
     std::vector<double> T1,U1,V1;
     double tscale,toffset;
 
-    double fuzz2=max(fuzzFactor*fuzz,Fuzz);
-    fuzz2=fuzz2*fuzz2;
-  
     if(lp <= 1) {
       if(lp == 1) p.halve(p0,p1);
       if(lp == 0 || p0 == p || p1 == p) {

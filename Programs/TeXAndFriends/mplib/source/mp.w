@@ -742,6 +742,7 @@ int max_print_line;     /* width of longest text lines output; should be at leas
 void *userdata; /* this allows the calling application to setup local */
 char *banner;   /* the banner that is printed to the screen and log */
 int ini_version;
+int utf8_mode;
 
 @ @<Dealloc variables@>=
 xfree (mp->banner);
@@ -761,6 +762,7 @@ mp->max_print_line = 100;
 set_lower_limited_value (mp->max_print_line, opt->max_print_line, 79);
 mp->halt_on_error = (opt->halt_on_error ? true : false);
 mp->ini_version = (opt->ini_version ? true : false);
+mp->utf8_mode = (opt->utf8_mode ? true : false);
 
 @ In case somebody has inadvertently made bad settings of the ``constants,''
 \MP\ checks them using a global variable called |bad|.
@@ -1665,7 +1667,7 @@ The user might want to write unprintable characters.
 
 @<Basic printing...@>=
 void mp_print_char (MP mp, ASCII_code k) {                               /* prints a single character */
-  if (mp->selector < pseudo || mp->selector >= write_file) {
+  if (mp->utf8_mode || mp->selector < pseudo || mp->selector >= write_file) {
     mp_print_visible_char (mp, k);
   } else if (@<Character |k| cannot be printed@>) {
     mp_print (mp, "^^");
@@ -2958,14 +2960,11 @@ void *mp_xmalloc (MP mp, size_t nmem, size_t size) {
 }
 
 @ @<Internal library declarations@>=
-int mp_snprintf_res ;
-/* Some compilers (i.e. gcc 8.2.0 ) complained with the old */
-/* #define mp_snprintf (void)snprintf                       */
-/* about truncation. For the moment we store the result.    */
+/* Avoid warning on format truncation */
 #if defined(MIKTEX) && defined(_MSC_VER)
-#  define mp_snprintf mp_snprintf_res=_snprintf
+#define mp_snprintf(...) (_snprintf(__VA_ARGS__) < 0 ? abort() : (void)0)
 #else
-#  define mp_snprintf mp_snprintf_res=snprintf
+#define mp_snprintf(...) (snprintf(__VA_ARGS__) < 0 ? abort() : (void)0)
 #endif
 
 @* Dynamic memory allocation.
@@ -3276,6 +3275,7 @@ mp_begin_group, /* beginning of a group (\&{begingroup}) */
 mp_nullary, /* an operator without arguments (e.g., \&{normaldeviate}) */
 mp_unary, /* an operator with one argument (e.g., \&{sqrt}) */
 mp_str_op, /* convert a suffix to a string (\&{str}) */
+mp_void_op, /* convert a suffix to a boolean (\&{void}) */
 mp_cycle, /* close a cyclic path (\&{cycle}) */
 mp_primary_binary, /* binary operation taking `\&{of}' (e.g., \&{point}) */
 mp_capsule_token, /* a value that has been put into a token list */
@@ -4532,8 +4532,9 @@ for (k = 0; k < ' '; k++)
   mp->char_class[k] = invalid_class;
 mp->char_class['\t'] = space_class;
 mp->char_class['\f'] = space_class;
-for (k = 127; k <= 255; k++)
-  mp->char_class[k] = invalid_class;
+for (i=127;i<=255;i++) {
+   mp->char_class[i] = mp->utf8_mode ? letter_class : invalid_class;
+}
 
 @* The hash table.
 
@@ -5036,6 +5037,8 @@ mp_primitive (mp, "step", mp_step_token, 0);
 @:step_}{\&{step} primitive@>;
 mp_primitive (mp, "str", mp_str_op, 0);
 @:str_}{\&{str} primitive@>;
+mp_primitive (mp, "void", mp_void_op, 0);
+@:void_}{\&{void} primitive@>;
 mp_primitive (mp, "tension", mp_tension, 0);
 @:tension_}{\&{tension} primitive@>;
 mp_primitive (mp, "to", mp_to_token, 0);
@@ -5167,6 +5170,9 @@ mp_print (mp, "step");
 break;
 case mp_str_op:
 mp_print (mp, "str");
+break;
+case mp_void_op:
+mp_print (mp, "void");
 break;
 case mp_tension:
 mp_print (mp, "tension");
@@ -15845,7 +15851,7 @@ CONTINUE:
               number_to_scaled (stack_min (y_packet (mp->xy))) - number_to_scaled (stack_max (v_packet (mp->uv)))) {
             if (number_to_scaled (mp->cur_t) >= number_to_scaled (mp->max_t)) {
               if ( number_equal(mp->max_t, x_two_t) || number_greater(mp->max_t,x_two_t_low_precision)) {   /* we've done 17+2 bisections */
-                number_divide_int(mp->cur_t,1<<2);number_divide_int(mp->cur_tt,1<<2); /* restore values due bit precision */ 
+                number_divide_int(mp->cur_t,1<<2);number_divide_int(mp->cur_tt,1<<2); /* restore values due bit precision */
                 set_number_from_scaled (mp->cur_t, ((number_to_scaled (mp->cur_t) + 1)/2));
                 set_number_from_scaled (mp->cur_tt, ((number_to_scaled (mp->cur_tt) + 1)/2));
                 return;
@@ -20111,7 +20117,7 @@ line and preceded by a space or at the beginning of a line.
             txt[size] = '\0';
             ptr = txt;
         } else {
-            /* strip trailing whitespace, we have a |'\0'| so we are off by one */ 
+            /* strip trailing whitespace, we have a |'\0'| so we are off by one */
             /* |while ((size > 1) && (mp->char_class[(ASCII_code) txt[size-2]] == space_class| $\vbv\vbv$ |txt[size-2] == '\n')) | */
             while ((size > 1) && (mp->char_class[(ASCII_code) txt[size-1]] == space_class || txt[size-1] == '\n')) {
                 decr(size);
@@ -23759,6 +23765,25 @@ RESTART:
     mp->selector = mp->old_setting;
     mp->cur_exp.type = mp_string_type;
     goto DONE;
+    break;
+  case mp_void_op:
+  {
+    /* Convert a suffix to a boolean */
+    mp_value new_expr;
+    memset(&new_expr,0,sizeof(mp_value));
+    new_number(new_expr.data.n);
+    mp_get_x_next (mp);
+    mp_scan_suffix (mp);
+    if (cur_exp_node() == NULL) {
+        set_number_from_boolean (new_expr.data.n, mp_true_code);
+    } else {
+        set_number_from_boolean (new_expr.data.n, mp_false_code);
+    }
+    mp_flush_cur_exp (mp, new_expr);
+    cur_exp_node() = NULL; /* !! do not replace with |set_cur_exp_node()| !! */
+    mp->cur_exp.type = mp_boolean_type;
+    goto DONE;
+  }
     break;
   case mp_internal_quantity:
     /* Scan an internal numeric quantity */

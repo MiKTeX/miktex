@@ -1,6 +1,6 @@
 /* mcd.cpp: MiKTeX compiler driver
 
-   Copyright (C) 1998-2019 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001,
    2002, 2003, 2004, 2005 Free Software Foundation, Inc.
@@ -33,13 +33,14 @@
 #endif
 
 #include <cctype>
-#include <cstdarg>
 #include <cstdlib>
 
 #include <algorithm>
 #include <iostream>
 #include <memory>
 #include <vector>
+
+#include "mcd-version.h"
 
 #include <miktex/App/Application>
 #include <miktex/Core/BufferSizes>
@@ -69,8 +70,6 @@
 
 #include <regex.h>
 
-#include "mcd-version.h"
-
 using namespace std;
 using namespace std::string_literals;
 
@@ -99,12 +98,13 @@ using namespace MiKTeX::Wrappers;
    example changes in bibstyle do not correctly trigger a re-bibtex
    yet.
 
-   Ultimately, the behavior should probably be included into bibtex, however in this way, an "orthodox" latex distribution is
+   Ultimately, the behavior should probably be included into bibtex,
+   however in this way, an "orthodox" latex distribution is
    maintained... */
 
 #define SF464378__CHAPTERBIB
 
-//#define WITH_TEXINFO
+#define WITH_TEXINFO
 
 #define PROGRAM_NAME "texify"
 
@@ -115,24 +115,9 @@ using namespace MiKTeX::Wrappers;
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-#define VA_START(arglist, lpszFormat   )        \
-va_start(arglist, lpszFormat);                  \
-try                                             \
-{
-
-#define VA_END(arglist)                         \
-}                                               \
-catch(...)                                      \
-{                                               \
-  va_end(arglist);                              \
-  throw;                                        \
-}                                               \
-va_end(arglist);
-
-vector<string> DEFAULT_TRACE_STREAMS = {
-  MIKTEX_TRACE_ERROR,
-  MIKTEX_TRACE_PROCESS,
-  PROGRAM_NAME
+vector<string> DEFAULT_TRACE_OPTIONS = {
+  TraceStream::MakeOption("", "", TraceLevel::Info),
+  TraceStream::MakeOption(PROGRAM_NAME, "", TraceLevel::Trace),
 };
 
 class ProcessOutputTrash :
@@ -169,7 +154,7 @@ void CopyFiles(const vector<string>& fileNames, const PathName& destDir)
 {
   for (const string& fileName : fileNames)
   {
-    File::Copy(fileName, PathName(destDir, fileName));
+    File::Copy(PathName(fileName), PathName(destDir, PathName(fileName)));
   }
 }
 
@@ -539,10 +524,10 @@ public:
   void Run(int argc, const char** argv);
 
 public:
-  void MyTrace(const char* format, ...);
+  void MyTrace(const string& s);
 
 public:
-  void Verbose(const char* format, ...);
+  void Verbose(const string& s);
 
 private:
   void Version();
@@ -557,13 +542,8 @@ private:
   vector<string> forbiddenTexOptions;
 };
 
-void McdApp::Verbose(const char* format, ...)
+void McdApp::Verbose(const string& s)
 {
-  va_list arglist;
-  string s;
-  VA_START(arglist, format);
-  s = StringUtil::FormatStringVA(format, arglist);
-  VA_END(arglist);
   traceStream->WriteLine(PROGRAM_NAME, s);
   if (options.verbose)
   {
@@ -571,21 +551,18 @@ void McdApp::Verbose(const char* format, ...)
   }
 }
 
-void McdApp::MyTrace(const char* format, ...)
+void McdApp::MyTrace(const string& s)
 {
-  va_list arglist;
-  va_start(arglist, format);
-  traceStream->WriteLine(PROGRAM_NAME, StringUtil::FormatStringVA(format, arglist));
-  va_end(arglist);
+  traceStream->WriteLine(PROGRAM_NAME, s);
 }
 
 void McdApp::Version()
 {
   cout
-    << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << "\n"
-    << "Copyright (C) 1998-2019 Christian Schenk" << "\n"
-    << "Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001," << "\n"
-    << "2002, 2003, 2004, 2005 Free Software Foundation, Inc." << "\n"
+    << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << "\n"
+    << "\n"
+    << MIKTEX_COMP_COPYRIGHT_STR
+    << "\n"
     << "This is free software; see the source for copying conditions.  There is NO" << "\n"
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << "\n";
 }
@@ -761,10 +738,10 @@ void Driver::Initialize(McdApp* app, Options* options, const char* fileName)
   // because in clean mode we are in tmp, in which case a relative
   // path has no meaning.
   originalInputFile = givenFileName;
-  originalInputFile.MakeAbsolute();
+  originalInputFile.MakeFullyQualified();
   originalInputFile.ConvertToUnix();
 
-  app->MyTrace(T_("input file: %s"), Q_(originalInputFile));
+  app->MyTrace(fmt::format(T_("input file: {}"), Q_(originalInputFile)));
 
   if (options->jobName.empty())
   {
@@ -782,24 +759,24 @@ void Driver::Initialize(McdApp* app, Options* options, const char* fileName)
   tempDirectory = TemporaryDirectory::Create();
 
   // create scratch directory
-  workingDirectory = tempDirectory->GetPathName() / "_src";
+  workingDirectory = tempDirectory->GetPathName() / PathName("_src");
   Directory::Create(workingDirectory);
   workingDirectory.ConvertToUnix();
-  app->MyTrace(T_("working directory: %s"), Q_(workingDirectory));
+  app->MyTrace(fmt::format(T_("working directory: {}"), Q_(workingDirectory)));
 
 #if defined(WITH_TEXINFO)
   // create extra directory
-  extraDirectory = tempDirectory->GetPathName() / "_xtr";
+  extraDirectory = tempDirectory->GetPathName() / PathName("_xtr");
   Directory::Create(extraDirectory);
   extraDirectory.ConvertToUnix();
-  app->MyTrace(T_("extra directory: %s"), Q_(extraDirectory));
+  app->MyTrace(fmt::format(T_("extra directory: {}"), Q_(extraDirectory)));
 #endif
 
   // create aux directory
-  auxDirectory = tempDirectory->GetPathName() / "_aux";
+  auxDirectory = tempDirectory->GetPathName() / PathName("_aux");
   Directory::Create(auxDirectory);
   auxDirectory.ConvertToUnix();
-  app->MyTrace(T_("aux directory: %s"), Q_(auxDirectory));
+  app->MyTrace(fmt::format(T_("aux directory: {}"), Q_(auxDirectory)));
 
   // If the user explicitly specified the language, use that.
   // Otherwise, if the first line is \input texinfo, assume it's
@@ -811,7 +788,7 @@ void Driver::Initialize(McdApp* app, Options* options, const char* fileName)
   }
 
   // make fully qualified path to the given input file
-  if (Utils::IsAbsolutePath(givenFileName))
+  if (givenFileName.IsAbsolute())
   {
     pathInputFile = givenFileName;
   }
@@ -1011,7 +988,7 @@ void Driver::SetIncludeDirectories()
   }
   for (const string& dir : options->includeDirectories)
   {
-    session->AddInputDirectory(dir, true);
+    session->AddInputDirectory(PathName(dir), true);
   }
 }
 
@@ -1090,7 +1067,7 @@ bool Driver::Check_texinfo_tex()
 
   unique_ptr<TemporaryDirectory> tmpdir = TemporaryDirectory::Create();
 
-  PathName fileName = tmpdir->GetPathName() / "txiversion.tex";
+  PathName fileName = tmpdir->GetPathName() / PathName("txiversion.tex");
   StreamWriter writer(fileName);
   writer.WriteLine("\\input texinfo.tex @bye");
   writer.Close();
@@ -1121,7 +1098,7 @@ bool Driver::Check_texinfo_tex()
       version += processOutput.GetOutput()[regMatch[3].rm_so + 1];
       version += processOutput.GetOutput()[regMatch[4].rm_so + 0];
       version += processOutput.GetOutput()[regMatch[4].rm_so + 1];
-      app->Verbose(T_("texinfo.tex preloaded as %s, version is %s..."), txiformat.c_str(), version.c_str());
+      app->Verbose(fmt::format(T_("texinfo.tex preloaded as {}, version is {}..."), txiformat, version));
       newer = std::stoi(txiprereq) <= std::stoi(version);
     }
   }
@@ -1162,7 +1139,7 @@ void Driver::ExpandMacros()
 
   PathName path(workingDirectory, inputName);
 
-  app->Verbose(T_("macro-expanding %s to %s..."), Q_(givenFileName), Q_(path));
+  app->Verbose(fmt::format(T_("macro-expanding {} to {}..."), Q_(givenFileName), Q_(path)));
 
   TexinfoPreprocess(originalInputFile, pathTmpFile1);
 
@@ -1182,7 +1159,7 @@ void Driver::ExpandMacros()
   {
     // If makeinfo failed (or was not even run), use the original
     // file as input.
-    app->Verbose(T_("reverting to %s..."), Q_(givenFileName));
+    app->Verbose(fmt::format(T_("reverting to {}..."), Q_(givenFileName)));
   }
 #endif
 }
@@ -1202,7 +1179,7 @@ void Driver::InsertCommands()
     return;
   }
   string extra = FlattenStringVector(options->texinfoCommands, '\n');
-  app->Verbose(T_("inserting extra commands: %s"), extra.c_str());
+  app->Verbose(fmt::format(T_("inserting extra commands: {}"), extra));
   PathName path(extraDirectory, inputName);
   StreamWriter writer(path);
   bool inserted = false;
@@ -1293,7 +1270,7 @@ void Driver::RunBibTeX()
 
       PathName subDir;
 
-      if (strchr(subAuxNameNoExt.GetData(), PathName::UnixDirectoryDelimiter) != 0)
+      if (strchr(subAuxNameNoExt.GetData(), PathNameUtil::UnixDirectoryDelimiter) != 0)
       {
         // we have \@input{SubDir/SubAuxNameNoExt.aux}
         if (options->clean)
@@ -1302,7 +1279,7 @@ void Driver::RunBibTeX()
         }
         subDir = subAuxNameNoExt;
         subDir.RemoveFileSpec();
-        subDir.MakeAbsolute();
+        subDir.MakeFullyQualified();
         subAuxNameNoExt.RemoveDirectorySpec();
       }
 
@@ -1310,7 +1287,7 @@ void Driver::RunBibTeX()
 
       args.push_back(subAuxNameNoExt.ToString());
 
-      app->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
+      app->Verbose(fmt::format(T_("running {}..."), CommandLineBuilder(args).ToString()));
 
       exitCode = 0;
 
@@ -1339,7 +1316,7 @@ void Driver::RunBibTeX()
 
   args.push_back(jobName.ToString());
 
-  app->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
+  app->Verbose(fmt::format(T_("running {}..."), CommandLineBuilder(args).ToString()));
 
   ProcessOutputTrash trash;
 
@@ -1387,7 +1364,7 @@ void Driver::RunIndexGenerator(const vector<string>& idxFiles)
 
   int exitCode = 0;
 
-  app->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
+  app->Verbose(fmt::format(T_("running {}..."), CommandLineBuilder(args).ToString()));
 
   Process::Run(pathExe, args, (options->quiet ? &trash : nullptr), &exitCode, nullptr);
 
@@ -1529,7 +1506,7 @@ void Driver::RunTeX()
 #endif
   args.push_back(pathInputFile.ToString());
 
-  app->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
+  app->Verbose(fmt::format(T_("running {}..."), CommandLineBuilder(args).ToString()));
 
   int exitCode = 0;
   Process::Run(pathExe, args, nullptr, &exitCode, nullptr);
@@ -1590,14 +1567,14 @@ bool Driver::Ready()
   // a difference.
   for (const string& aux : auxFiles)
   {
-    PathName auxFile(auxDirectory, aux);
-    app->Verbose(T_("comparing xref file %s..."), Q_(aux));
+    PathName auxFile(auxDirectory, PathName(aux));
+    app->Verbose(fmt::format(T_("comparing xref file {}..."), Q_(aux)));
     // We only need to keep comparing until we find one that
     // differs, because we'll have to run texindex & tex again no
     // matter how many more there might be.
-    if (!File::Equals(aux, auxFile))
+    if (!File::Equals(PathName(aux), auxFile))
     {
-      app->Verbose(T_("xref file %s differed..."), Q_(aux));
+      app->Verbose(fmt::format(T_("xref file {} differed..."), Q_(aux)));
       return false;
     }
   }
@@ -1608,7 +1585,7 @@ bool Driver::Ready()
 void Driver::InstallOutputFile()
 {
   const char* ext = options->outputType == OutputType::PDF ? ".pdf" : ".dvi";
-  app->Verbose(T_("copying %s file from %s to %s..."), ext, Q_(workingDirectory), Q_(options->startDirectory));
+  app->Verbose(fmt::format(T_("copying {} file from {} to {}..."), ext, Q_(workingDirectory), Q_(options->startDirectory)));
   PathName pathSource(workingDirectory, jobName);
   pathSource.AppendExtension(ext);
   PathName pathDest(options->startDirectory, jobName);
@@ -1633,7 +1610,7 @@ void Driver::GetAuxFiles(const PathName& baseName, const char* extension, vector
   PathName curDir;
   curDir.SetToCurrentDirectory();
 
-  app->MyTrace(T_("collecting %s in %s..."), Q_(pattern), Q_(curDir));
+  app->MyTrace(fmt::format(T_("collecting {} in {}..."), Q_(pattern), Q_(curDir)));
 
   unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(curDir, pattern.GetData());
 
@@ -1650,7 +1627,7 @@ void Driver::GetAuxFiles(const PathName& baseName, const char* extension, vector
     // If the file is not suitable to be an index or xref
     // file, don't process it.  The file can't be if its
     // first character is not a backslash or single quote.
-    FileStream stream(File::Open(entry.name, FileMode::Open, FileAccess::Read));
+    FileStream stream(File::Open(PathName(entry.name), FileMode::Open, FileAccess::Read));
     char buf[1];
     if (stream.Read(buf, 1) == 1 && (buf[0] == '\\' || buf[0] == '\''))
     {
@@ -1718,7 +1695,7 @@ void Driver::RunViewer()
 
   if (options->viewerOptions.empty())
   {
-    app->Verbose(T_("opening %s..."), Q_(pathDest));
+    app->Verbose(fmt::format(T_("opening {}..."), Q_(pathDest)));
 #if defined(MIKTEX_WINDOWS)
     if (ShellExecuteW(nullptr, L"open", pathDest.ToWideCharString().c_str(), 0, options->startDirectory.ToWideCharString().c_str(), SW_SHOW) <= reinterpret_cast<HINSTANCE>(32))
     {
@@ -1742,8 +1719,8 @@ void Driver::RunViewer()
     vector<string> args{ PathName(szExecutable).GetFileNameWithoutExtension().ToString() };
     args.insert(args.end(), options->viewerOptions.begin(), options->viewerOptions.end());
     args.push_back(pathDest.ToString());
-    app->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
-    Process::Start(szExecutable, args, nullptr, nullptr, nullptr, nullptr, options->startDirectory.GetData());
+    app->Verbose(fmt::format(T_("running {}..."), CommandLineBuilder(args).ToString()));
+    Process::Start(PathName(szExecutable), args, nullptr, nullptr, nullptr, nullptr, options->startDirectory.GetData());
   }
 }
 
@@ -1759,7 +1736,7 @@ void Driver::Run()
   // directory.
   if (options->clean)
   {
-    app->Verbose("cd %s", Q_(workingDirectory));
+    app->Verbose(fmt::format("cd {}", Q_(workingDirectory)));
     Directory::SetCurrent(workingDirectory);
   }
 
@@ -1770,7 +1747,7 @@ void Driver::Run()
     GetAuxFiles(previousAuxFiles, &idxFiles);
     if (!previousAuxFiles.empty())
     {
-      app->Verbose(T_("backing up xref files: %s"), FlattenStringVector(previousAuxFiles, ' ').c_str());
+      app->Verbose(fmt::format(T_("backing up xref files: {}"), FlattenStringVector(previousAuxFiles, ' ')));
       CopyFiles(previousAuxFiles, auxDirectory);
     }
     RunBibTeX();
@@ -2074,7 +2051,7 @@ void McdApp::Run(int argc, const char** argv)
       options.clean = true;
       break;
     case OPT_DEBUG:
-      options.traceStreams = StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ',');
+      options.traceStreams = StringUtil::Flatten(DEFAULT_TRACE_OPTIONS, ',');
       break;
     case OPT_ENGINE:
       if (!options.SetEngine(optArg))
@@ -2088,13 +2065,13 @@ void McdApp::Run(int argc, const char** argv)
     case OPT_INCLUDE:
     {
       PathName path;
-      if (Utils::IsAbsolutePath(optArg))
+      if (PathNameUtil::IsAbsolutePath(optArg))
       {
         path = optArg;
       }
       else
       {
-        path = options.startDirectory / optArg;
+        path = options.startDirectory / PathName(optArg);
       }
       path.ConvertToUnix();
       options.includeDirectories.push_back(path.GetData());
@@ -2193,7 +2170,7 @@ void McdApp::Run(int argc, const char** argv)
     case OPT_TRACE:
       if (optArg.empty())
       {
-        options.traceStreams = StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ',');
+        options.traceStreams = StringUtil::Flatten(DEFAULT_TRACE_OPTIONS, ',');
       }
       else
       {
@@ -2227,12 +2204,12 @@ void McdApp::Run(int argc, const char** argv)
 
   for (const string& fileName : leftovers)
   {
-    Verbose(T_("processing %s..."), Q_(fileName));
+    Verbose(fmt::format(T_("processing {}..."), Q_(fileName)));
 
     // See if the file exists.  If it doesn't we're in trouble since, // even though the user may be able to reenter a valid filename at
     // the tex prompt (assuming they're attending the terminal), this
     // script won't be able to find the right xref files and so forth.
-    if (!File::Exists(fileName))
+    if (!File::Exists(PathName(fileName)))
     {
       FatalError(T_("The input file could not be found."));
     }
@@ -2242,7 +2219,7 @@ void McdApp::Run(int argc, const char** argv)
     driver.Run();
   }
 
-  Finalize();
+  Finalize2(0);
 }
 
 #if defined(_UNICODE)
@@ -2275,7 +2252,6 @@ int MAIN(int argc, MAINCHAR* argv[])
     }
     newargv.push_back(nullptr);
     app.Run(argc, &newargv[0]);
-    app.Finalize2(0);
     return 0;
   }
 

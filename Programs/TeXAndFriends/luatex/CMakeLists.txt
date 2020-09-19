@@ -109,7 +109,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     )
   list(APPEND luatex_sources
     ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 
@@ -141,7 +141,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     )
   list(APPEND luahbtex_sources
     ${CMAKE_CURRENT_BINARY_DIR}/luahbtex.rc
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 

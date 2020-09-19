@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013  Stefan Löffler
+ * Copyright (C) 2013-2019  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,26 +13,12 @@
  */
 #include <PDFTransitions.h>
 
-// DEBUG
-#include <QDebug>
-#include <QPixmap>
-// DEBUG
-
 #include <cstdlib>
 #include <ctime>
 
 namespace QtPDF {
 
 namespace Transition {
-
-AbstractTransition::AbstractTransition() :
-  _duration(1),
-  _direction(0),
-  _motion(Motion_Inward),
-  _started(false),
-  _finished(false)
-{
-}
 
 void AbstractTransition::start(const QImage & imgStart, const QImage & imgEnd)
 {
@@ -66,20 +52,20 @@ void AbstractTransition::setImages(const QImage & imgStart, const QImage & imgEn
   }
 }
 
-float AbstractTransition::getFracTime()
+double AbstractTransition::getFracTime()
 {
-  float t;
+  double t;
   if (!_started)
-    return 0.0f;
+    return 0.0;
   if (_finished)
-    return 1.0f;
-  t = _timer.elapsed() / 1000.0f / _duration;
-  if (t >= 1.0f)
+    return 1.0;
+  t = static_cast<double>(_timer.elapsed()) / 1000.0 / _duration;
+  if (t >= 1.0)
     _finished = true;
-  if (t < 0.0f)
-    t = 0.0f;
-  else if (t > 1.0f)
-    t = 1.0f;
+  if (t < 0.0)
+    t = 0.0;
+  else if (t > 1.0)
+    t = 1.0;
   return t;
 }
 
@@ -104,7 +90,7 @@ AbstractTransition * AbstractTransition::newTransition(const Type type)
   case Type_Fade:
     break;
   }
-  return NULL;
+  return nullptr;
 }
 
 void AbstractInPlaceTransition::start(const QImage & imgStart, const QImage & imgEnd)
@@ -132,29 +118,23 @@ QImage AbstractInPlaceTransition::getImage()
   // map: 0 -> -_spread, 1 -> 1+_spread
   // this ensures that even with a contrast spread, 0 corresponds to img1, and
   // 1 corresponds to img2
-  float t = (1 + 2 * _spread) * getFracTime() - _spread;
+  double t = (1 + 2 * _spread) * getFracTime() - _spread;
   int i, j;
   
   // Contrast mapping. Every pixel <= c1 corresponds entirely to img1, every
   // pixel >= c2 corresponds entirely to img2, and everything in-between is
   // interpolated linearly
-  int c1 = (int)(255 * (t - _spread));
-  int c2 = (int)(255 * (t + _spread));
+  int c1 = static_cast<int>(255 * (t - _spread));
+  int c2 = static_cast<int>(255 * (t + _spread));
   float f;
 
   // NOTE: Using bits() instead of scanLine() here led to some unpredictable
   // crashes on Linux/Ubuntu when using zoom (probably due to some data
   // alignment issues).
   for (j = 0; j < _mask.height(); ++j) {
-#if QT_VERSION >= 0x040700
     const uchar * img1 = _imgStart.constScanLine(j);
     const uchar * img2 = _imgEnd.constScanLine(j);
     const uchar * mask = _mask.constScanLine(j);
-#else
-    const uchar * img1 = _imgStart.scanLine(j);
-    const uchar * img2 = _imgEnd.scanLine(j);
-    const uchar * mask = _mask.scanLine(j);
-#endif
     uchar * img = retVal.scanLine(j);
     for (i = 0; i < _mask.width(); ++i) {
       if (mask[i] <= c1)
@@ -164,11 +144,11 @@ QImage AbstractInPlaceTransition::getImage()
       else
         // c1 != c2 is guaranteed here; if c1 == c2, then c2 <= mask[i] <= c1
         // reduces to c1 <= mask[i] <= c1 and always holds.
-        f = ((float)(c2 - mask[i])) / (c2 - c1);
-      img[4 * i + 0] = (int)(img1[4 * i + 0] * (1.0f - f) + img2[4 * i + 0] * f);
-      img[4 * i + 1] = (int)(img1[4 * i + 1] * (1.0f - f) + img2[4 * i + 1] * f);
-      img[4 * i + 2] = (int)(img1[4 * i + 2] * (1.0f - f) + img2[4 * i + 2] * f);
-      img[4 * i + 3] = (int)(img1[4 * i + 3] * (1.0f - f) + img2[4 * i + 3] * f);
+        f = static_cast<float>(c2 - mask[i]) / static_cast<float>(c2 - c1);
+      img[4 * i + 0] = static_cast<uchar>(img1[4 * i + 0] * (1.0f - f) + img2[4 * i + 0] * f);
+      img[4 * i + 1] = static_cast<uchar>(img1[4 * i + 1] * (1.0f - f) + img2[4 * i + 1] * f);
+      img[4 * i + 2] = static_cast<uchar>(img1[4 * i + 2] * (1.0f - f) + img2[4 * i + 2] * f);
+      img[4 * i + 3] = static_cast<uchar>(img1[4 * i + 3] * (1.0f - f) + img2[4 * i + 3] * f);
     }
   }
   
@@ -194,21 +174,21 @@ void Split::initMask()
       for (j = 0; j < _mask.height() / 2; ++j) {
         uchar * data = _mask.scanLine(j);
         for (i = 0; i < _mask.width(); ++i)
-          data[i] = (2 * 255 * j) / (_mask.height() - 2);
+          data[i] = static_cast<uchar>((2 * 255 * j) / (_mask.height() - 2));
       }
       for (; j < _mask.height(); ++j) {
         uchar * data = _mask.scanLine(j);
         for (i = 0; i < _mask.width(); ++i)
-          data[i] = (2 * 255 * (_mask.height() - 1 - j)) / (_mask.height() - 2);
+          data[i] = static_cast<uchar>((2 * 255 * (_mask.height() - 1 - j)) / (_mask.height() - 2));
       }
     }
     else if (_direction == 90) {
       for (j = 0; j < _mask.height(); ++j) {
         uchar * data = _mask.scanLine(j);
         for (i = 0; i < _mask.width() / 2; ++i)
-          data[i] = (2 * 255 * i) / (_mask.width() - 2);
+          data[i] = static_cast<uchar>((2 * 255 * i) / (_mask.width() - 2));
         for (; i < _mask.width(); ++i)
-          data[i] = (2 * 255 * (_mask.width() - 1 - i)) / (_mask.width() - 2);
+          data[i] = static_cast<uchar>((2 * 255 * (_mask.width() - 1 - i)) / (_mask.width() - 2));
       }
     }
     break;
@@ -217,21 +197,21 @@ void Split::initMask()
       for (j = 0; j < _mask.height() / 2; ++j) {
         uchar * data = _mask.scanLine(j);
         for (i = 0; i < _mask.width(); ++i)
-          data[i] = (2 * 255 * (_mask.height() / 2 - 1 - j)) / (_mask.height() - 2);
+          data[i] = static_cast<uchar>((2 * 255 * (_mask.height() / 2 - 1 - j)) / (_mask.height() - 2));
       }
       for (; j < _mask.height(); ++j) {
         uchar * data = _mask.scanLine(j);
         for (i = 0; i < _mask.width(); ++i)
-          data[i] = (2 * 255 * (j - _mask.height() / 2)) / (_mask.height() - 2);
+          data[i] = static_cast<uchar>((2 * 255 * (j - _mask.height() / 2)) / (_mask.height() - 2));
       }
     }
     else if (_direction == 90) {
       for (j = 0; j < _mask.height(); ++j) {
         uchar * data = _mask.scanLine(j);
         for (i = 0; i < _mask.width() / 2; ++i)
-          data[i] = (2 * 255 * (_mask.width() / 2 - 1 - i)) / (_mask.width() - 2);
+          data[i] = static_cast<uchar>((2 * 255 * (_mask.width() / 2 - 1 - i)) / (_mask.width() - 2));
         for (; i < _mask.width(); ++i)
-          data[i] = (2 * 255 * (i - _mask.width() / 2)) / (_mask.width() - 2);
+          data[i] = static_cast<uchar>((2 * 255 * (i - _mask.width() / 2)) / (_mask.width() - 2));
       }
     }
     break;
@@ -246,7 +226,7 @@ void Blinds::initMask()
     for (j = 0; j < _mask.height(); ++j) {
       uchar * data = _mask.scanLine(j);
       for (i = 0; i < _mask.width(); ++i) {
-        data[i] = (255 * _numBlinds * j / (_mask.height() - 1)) % 256;
+        data[i] = static_cast<uchar>((255 * static_cast<int>(_numBlinds) * j / (_mask.height() - 1)) % 256);
       }
     }
   }
@@ -254,7 +234,7 @@ void Blinds::initMask()
     for (j = 0; j < _mask.height(); ++j) {
       uchar * data = _mask.scanLine(j);
       for (i = 0; i < _mask.width(); ++i) {
-        data[i] = (255 * _numBlinds * i / (_mask.width()) - 1) % 256;
+        data[i] = static_cast<uchar>((255 * static_cast<int>(_numBlinds) * i / (_mask.width()) - 1) % 256);
       }
     }
   }
@@ -280,7 +260,7 @@ void Box::initMask()
         x = _mask.width() * _mask.height() - _mask.height() * i - _mask.width() * j;
         y = _mask.height() * i - _mask.width() * j;
         d = qAbs(x) + qAbs(y);
-        data[i] = 255 * (max - d) / max;
+        data[i] = static_cast<uchar>(255 * (max - d) / max);
       }
     }
     break;
@@ -291,7 +271,7 @@ void Box::initMask()
         x = _mask.width() * _mask.height() - _mask.height() * i - _mask.width() * j;
         y = _mask.height() * i - _mask.width() * j;
         d = qAbs(x) + qAbs(y);
-        data[i] = 255 * d / max;
+        data[i] = static_cast<uchar>(255 * d / max);
       }
     }
     break;
@@ -307,7 +287,7 @@ void Wipe::initMask()
     for (j = 0; j < _mask.height(); ++j) {
       uchar * data = _mask.scanLine(j);
       for (i = 0; i < _mask.width(); ++i) {
-        data[i] = 255 * i / (_mask.width() - 1);
+        data[i] = static_cast<uchar>(255 * i / (_mask.width() - 1));
       }
     }
   }
@@ -315,7 +295,7 @@ void Wipe::initMask()
     for (j = 0; j < _mask.height(); ++j) {
       uchar * data = _mask.scanLine(j);
       for (i = 0; i < _mask.width(); ++i) {
-        data[i] = 255 - 255 * i / (_mask.width() - 1);
+        data[i] = static_cast<uchar>(255 - 255 * i / (_mask.width() - 1));
       }
     }
   }
@@ -323,7 +303,7 @@ void Wipe::initMask()
     for (j = 0; j < _mask.height(); ++j) {
       uchar * data = _mask.scanLine(j);
       for (i = 0; i < _mask.width(); ++i) {
-        data[i] = 255 * j / (_mask.height() - 1);
+        data[i] = static_cast<uchar>(255 * j / (_mask.height() - 1));
       }
     }
   }
@@ -331,7 +311,7 @@ void Wipe::initMask()
     for (j = 0; j < _mask.height(); ++j) {
       uchar * data = _mask.scanLine(j);
       for (i = 0; i < _mask.width(); ++i) {
-        data[i] = 255 - 255 * j / (_mask.height() - 1);
+        data[i] = static_cast<uchar>(255 - 255 * j / (_mask.height() - 1));
       }
     }
   }
@@ -342,11 +322,11 @@ void Dissolve::initMask()
   _mask = QImage(_imgStart.size(), QImage::Format_Indexed8);
   int i, j;
   
-  srand(time(NULL));
+  srand(static_cast<unsigned int>(time(nullptr)));
   for (j = 0; j < _mask.height(); ++j) {
     uchar * data = _mask.scanLine(j);
     for (i = 0; i < _mask.width(); ++i) {
-      data[i] = rand() % 256;
+      data[i] = static_cast<uchar>(rand() % 256);
     }
   }
 }
@@ -355,15 +335,15 @@ void Glitter::initMask()
 {
   _mask = QImage(_imgStart.size(), QImage::Format_Indexed8);
   int i, j;
-  int randomRange = (int)(255 * _spread);
-  
-  srand(time(NULL));
+  int randomRange = static_cast<int>(255 * _spread);
+
+  srand(static_cast<unsigned int>(time(nullptr)));
   
   if (_direction == 0) {
     for (j = 0; j < _mask.height(); ++j) {
       uchar * data = _mask.scanLine(j);
       for (i = 0; i < _mask.width(); ++i) {
-        data[i] = rand() % randomRange + i * (256 - randomRange) / (_mask.width() - 1);
+        data[i] = static_cast<uchar>(rand() % randomRange + i * (256 - randomRange) / (_mask.width() - 1));
       }
     }
   }
@@ -371,7 +351,7 @@ void Glitter::initMask()
     for (j = 0; j < _mask.height(); ++j) {
       uchar * data = _mask.scanLine(j);
       for (i = 0; i < _mask.width(); ++i) {
-        data[i] = rand() % randomRange + j * (256 - randomRange) / (_mask.height() - 1);
+        data[i] = static_cast<uchar>(rand() % randomRange + j * (256 - randomRange) / (_mask.height() - 1));
       }
     }
   }
@@ -379,7 +359,7 @@ void Glitter::initMask()
     for (j = 0; j < _mask.height(); ++j) {
       uchar * data = _mask.scanLine(j);
       for (i = 0; i < _mask.width(); ++i) {
-        data[i] = rand() % randomRange + (i + j) * (256 - randomRange) / (_mask.width() + _mask.height() - 2);
+        data[i] = static_cast<uchar>(rand() % randomRange + (i + j) * (256 - randomRange) / (_mask.width() + _mask.height() - 2));
       }
     }
   }
@@ -388,23 +368,16 @@ void Glitter::initMask()
 void Fly::start(const QImage & imgStart, const QImage & imgEnd)
 {
   int i, j;
-  const QRgb * img1, * img2;
-  uchar * mask;
-  
+
   setImages(imgStart, imgEnd);
-  
+
   // Using QImage::Format_Mono would be more efficient, but would complicate the
   // code (introducing lots of bit operations and alignment checks)
   _mask = QImage(_imgStart.size(), QImage::Format_Indexed8);
   for (j = 0; j < _mask.height(); ++j) {
-#if QT_VERSION >= 0x040700
-    img1 = (const QRgb*)(_imgStart.constScanLine(j));
-    img2 = (const QRgb*)(_imgEnd.constScanLine(j));
-#else
-    img1 = (const QRgb*)(_imgStart.scanLine(j));
-    img2 = (const QRgb*)(_imgEnd.scanLine(j));
-#endif
-    mask = _mask.scanLine(j);
+    const QRgb * img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j));
+    const QRgb * img2 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j));
+    uchar * mask = _mask.scanLine(j);
     for (i = 0; i < _mask.width(); ++i)
       mask[i] = (img1[i] == img2[i] ? 0 : 255);
   }
@@ -430,18 +403,12 @@ QImage Fly::getImage()
   switch (_motion) {
   case Motion_Inward:
     if (_direction == 0) {
-      offset = (int)(getFracTime() * _imgEnd.width());
+      offset = static_cast<int>(getFracTime() * static_cast<float>(_imgEnd.width()));
       for (j = 0; j < _imgEnd.height(); ++j) {
-#if QT_VERSION >= 0x040700
-        img1 = (const QRgb*)(_imgStart.constScanLine(j));
-        img2 = (const QRgb*)(_imgEnd.constScanLine(j));
+        img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j));
+        img2 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j));
         mask = _mask.constScanLine(j);
-#else
-        img1 = (const QRgb*)(_imgStart.scanLine(j));
-        img2 = (const QRgb*)(_imgEnd.scanLine(j));
-        mask = _mask.scanLine(j);
-#endif
-        img = (QRgb*)(retVal.scanLine(j));
+        img = reinterpret_cast<QRgb*>(retVal.scanLine(j));
         for (i = 0; i < offset; ++i)
           img[i] = (mask[i + _imgEnd.width() - offset] == 0 ? img1[i] : img2[i + _imgEnd.width() - offset]);
         for (; i < _imgEnd.width(); ++i)
@@ -449,28 +416,18 @@ QImage Fly::getImage()
       }
     }
     else if (_direction == 270) {
-      offset = (int)(getFracTime() * _imgEnd.height());
+      offset = static_cast<int>(getFracTime() * static_cast<float>(_imgEnd.height()));
       for (j = 0; j < _imgEnd.height(); ++j) {
-        img = (QRgb*)(retVal.scanLine(j));
+        img = reinterpret_cast<QRgb*>(retVal.scanLine(j));
         if (j < offset) {
-#if QT_VERSION >= 0x040700
-          img1 = (const QRgb*)(_imgStart.constScanLine(j));
-          img2 = (const QRgb*)(_imgEnd.constScanLine(j + _imgEnd.height() - offset));
+          img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j));
+          img2 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j + _imgEnd.height() - offset));
           mask = _mask.constScanLine(j + _imgEnd.height() - offset);
-#else
-          img1 = (const QRgb*)(_imgStart.scanLine(j));
-          img2 = (const QRgb*)(_imgEnd.scanLine(j + _imgEnd.height() - offset));
-          mask = _mask.scanLine(j + _imgEnd.height() - offset);
-#endif
           for (i = 0; i < _imgEnd.width(); ++i)
             img[i] = (mask[i] == 0 ? img1[i] : img2[i] );
         }
         else {
-#if QT_VERSION >= 0x040700
-          img1 = (const QRgb*)(_imgStart.constScanLine(j));
-#else
-          img1 = (const QRgb*)(_imgStart.scanLine(j));
-#endif
+          img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j));
           for (i = 0; i < _imgEnd.width(); ++i)
             img[i] = img1[i];
         }
@@ -479,18 +436,12 @@ QImage Fly::getImage()
     break;
   case Motion_Outward:
     if (_direction == 0) {
-      offset = (int)(getFracTime() * _imgEnd.width());
+      offset = static_cast<int>(getFracTime() * static_cast<float>(_imgEnd.width()));
       for (j = 0; j < _imgEnd.height(); ++j) {
-#if QT_VERSION >= 0x040700
-        img1 = (const QRgb*)(_imgStart.constScanLine(j));
-        img2 = (const QRgb*)(_imgEnd.constScanLine(j));
+        img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j));
+        img2 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j));
         mask = _mask.constScanLine(j);
-#else
-        img1 = (const QRgb*)(_imgStart.scanLine(j));
-        img2 = (const QRgb*)(_imgEnd.scanLine(j));
-        mask = _mask.scanLine(j);
-#endif
-        img = (QRgb*)(retVal.scanLine(j));
+        img = reinterpret_cast<QRgb*>(retVal.scanLine(j));
         for (i = 0; i < offset; ++i)
           img[i] = img2[i];
         for (; i < _imgEnd.width(); ++i)
@@ -498,28 +449,18 @@ QImage Fly::getImage()
       }
     }
     else if (_direction == 270) {
-      offset = (int)(getFracTime() * _imgEnd.height());
+      offset = static_cast<int>(getFracTime() * static_cast<float>(_imgEnd.height()));
       for (j = 0; j < _imgEnd.height(); ++j) {
-        img = (QRgb*)(retVal.scanLine(j));
+        img = reinterpret_cast<QRgb*>(retVal.scanLine(j));
         if (j < offset) {
-#if QT_VERSION >= 0x040700
-          img2 = (const QRgb*)(_imgEnd.constScanLine(j));
-#else
-          img2 = (const QRgb*)(_imgEnd.scanLine(j));
-#endif
+          img2 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j));
           for (i = 0; i < _imgEnd.width(); ++i)
             img[i] = img2[i];
         }
         else {
-#if QT_VERSION >= 0x040700
-          img1 = (const QRgb*)(_imgStart.constScanLine(j - offset));
-          img2 = (const QRgb*)(_imgEnd.constScanLine(j));
+          img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j - offset));
+          img2 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j));
           mask = _mask.constScanLine(j - offset);
-#else
-          img1 = (const QRgb*)(_imgStart.scanLine(j - offset));
-          img2 = (const QRgb*)(_imgEnd.scanLine(j));
-          mask = _mask.scanLine(j - offset);
-#endif
           for (i = 0; i < _imgEnd.width(); ++i)
             img[i] = (mask[i] == 0 ? img2[i] : img1[i] );
         }
@@ -541,19 +482,13 @@ QImage Push::getImage()
   int i, j;
   int edge;
   const QRgb * img1, * img2;
-  QRgb * img;
   
   if (_direction == 0) {
-    edge = (int)(getFracTime() * _imgEnd.width());
+    edge = static_cast<int>(getFracTime() * static_cast<float>(_imgEnd.width()));
     for (j = 0; j < _imgEnd.height(); ++j) {
-#if QT_VERSION >= 0x040700
-      img1 = (const QRgb*)(_imgStart.constScanLine(j));
-      img2 = (const QRgb*)(_imgEnd.constScanLine(j));
-#else
-      img1 = (const QRgb*)(_imgStart.scanLine(j));
-      img2 = (const QRgb*)(_imgEnd.scanLine(j));
-#endif
-      img = (QRgb*)(retVal.scanLine(j));
+      img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j));
+      img2 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j));
+      QRgb * img = reinterpret_cast<QRgb*>(retVal.scanLine(j));
       for (i = 0; i < edge; ++i)
         img[i] = img2[i + _imgEnd.width() - edge];
       for (; i < _imgEnd.width(); ++i)
@@ -561,20 +496,13 @@ QImage Push::getImage()
     }
   }
   else if (_direction == 270) {
-    edge = (int)(getFracTime() * _imgEnd.height());
+    edge = static_cast<int>(getFracTime() * static_cast<float>(_imgEnd.height()));
     for (j = 0; j < _imgEnd.height(); ++j) {
-#if QT_VERSION >= 0x040700
       if (j < edge)
-        img1 = (const QRgb*)(_imgEnd.constScanLine(j + _imgEnd.height() - edge));
+        img1 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j + _imgEnd.height() - edge));
       else
-        img1 = (const QRgb*)(_imgStart.constScanLine(j - edge));
-#else
-      if (j < edge)
-        img1 = (const QRgb*)(_imgEnd.scanLine(j + _imgEnd.height() - edge));
-      else
-        img1 = (const QRgb*)(_imgStart.scanLine(j - edge));
-#endif
-      QRgb * img = (QRgb*)(retVal.scanLine(j));
+        img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j - edge));
+      QRgb * img = reinterpret_cast<QRgb*>(retVal.scanLine(j));
 
       for (i = 0; i < retVal.width(); ++i)
         img[i] = img1[i];
@@ -593,19 +521,13 @@ QImage Cover::getImage()
   int i, j;
   int edge;
   const QRgb * img1, * img2;
-  QRgb * img;
   
   if (_direction == 0) {
-    edge = (int)(getFracTime() * _imgEnd.width());
+    edge = static_cast<int>(getFracTime() * static_cast<float>(_imgEnd.width()));
     for (j = 0; j < _imgEnd.height(); ++j) {
-#if QT_VERSION >= 0x040700
-      img1 = (const QRgb*)(_imgStart.constScanLine(j));
-      img2 = (const QRgb*)(_imgEnd.constScanLine(j));
-#else
-      img1 = (const QRgb*)(_imgStart.scanLine(j));
-      img2 = (const QRgb*)(_imgEnd.scanLine(j));
-#endif
-      img = (QRgb*)(retVal.scanLine(j));
+      img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j));
+      img2 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j));
+      QRgb * img = reinterpret_cast<QRgb*>(retVal.scanLine(j));
       for (i = 0; i < edge; ++i)
         img[i] = img2[i + _imgEnd.width() - edge];
       for (; i < _imgEnd.width(); ++i)
@@ -613,20 +535,13 @@ QImage Cover::getImage()
     }
   }
   else if (_direction == 270) {
-    edge = (int)(getFracTime() * _imgEnd.height());
+    edge = static_cast<int>(getFracTime() * static_cast<float>(_imgEnd.height()));
     for (j = 0; j < _imgEnd.height(); ++j) {
-#if QT_VERSION >= 0x040700
       if (j < edge)
-        img1 = (const QRgb*)(_imgEnd.constScanLine(j + _imgEnd.height() - edge));
+        img1 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j + _imgEnd.height() - edge));
       else
-        img1 = (const QRgb*)(_imgStart.constScanLine(j));
-#else
-      if (j < edge)
-        img1 = (const QRgb*)(_imgEnd.scanLine(j + _imgEnd.height() - edge));
-      else
-        img1 = (const QRgb*)(_imgStart.scanLine(j - edge));
-#endif
-      QRgb * img = (QRgb*)(retVal.scanLine(j));
+        img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j));
+      QRgb * img = reinterpret_cast<QRgb*>(retVal.scanLine(j));
 
       for (i = 0; i < retVal.width(); ++i)
         img[i] = img1[i];
@@ -645,19 +560,13 @@ QImage Uncover::getImage()
   int i, j;
   int edge;
   const QRgb * img1, * img2;
-  QRgb * img;
   
   if (_direction == 0) {
-    edge = (int)(getFracTime() * _imgEnd.width());
+    edge = static_cast<int>(getFracTime() * static_cast<float>(_imgEnd.width()));
     for (j = 0; j < _imgEnd.height(); ++j) {
-#if QT_VERSION >= 0x040700
-      img1 = (const QRgb*)(_imgStart.constScanLine(j));
-      img2 = (const QRgb*)(_imgEnd.constScanLine(j));
-#else
-      img1 = (const QRgb*)(_imgStart.scanLine(j));
-      img2 = (const QRgb*)(_imgEnd.scanLine(j));
-#endif
-      img = (QRgb*)(retVal.scanLine(j));
+      img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j));
+      img2 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j));
+      QRgb * img = reinterpret_cast<QRgb*>(retVal.scanLine(j));
       for (i = 0; i < edge; ++i)
         img[i] = img2[i];
       for (; i < _imgEnd.width(); ++i)
@@ -665,20 +574,13 @@ QImage Uncover::getImage()
     }
   }
   else if (_direction == 270) {
-    edge = (int)(getFracTime() * _imgEnd.height());
+    edge = static_cast<int>(getFracTime() * static_cast<float>(_imgEnd.height()));
     for (j = 0; j < _imgEnd.height(); ++j) {
-#if QT_VERSION >= 0x040700
       if (j < edge)
-        img1 = (const QRgb*)(_imgEnd.constScanLine(j));
+        img1 = reinterpret_cast<const QRgb*>(_imgEnd.constScanLine(j));
       else
-        img1 = (const QRgb*)(_imgStart.constScanLine(j - edge));
-#else
-      if (j < edge)
-        img1 = (const QRgb*)(_imgEnd.scanLine(j + _imgEnd.height() - edge));
-      else
-        img1 = (const QRgb*)(_imgStart.scanLine(j - edge));
-#endif
-      QRgb * img = (QRgb*)(retVal.scanLine(j));
+        img1 = reinterpret_cast<const QRgb*>(_imgStart.constScanLine(j - edge));
+      QRgb * img = reinterpret_cast<QRgb*>(retVal.scanLine(j));
 
       for (i = 0; i < retVal.width(); ++i)
         img[i] = img1[i];
@@ -695,19 +597,14 @@ QImage Fade::getImage()
 
   QImage retVal = QImage(_imgEnd.size(), QImage::Format_ARGB32);
   int i;
-  int f = (int)(255 * getFracTime());
+  int f = static_cast<int>(255 * getFracTime());
 
-#if QT_VERSION >= 0x040700
   const uchar * img1 = _imgStart.constBits();
   const uchar * img2 = _imgEnd.constBits();
-#else
-  const uchar * img1 = _imgStart.bits();
-  const uchar * img2 = _imgEnd.bits();
-#endif
   uchar * img = retVal.bits();
 
   for (i = 0; i < retVal.byteCount(); ++i) {
-    img[i] = ((255 - f) * img1[i] + f * img2[i]) / 255;
+    img[i] = static_cast<uchar>(((255 - f) * img1[i] + f * img2[i]) / 255);
   }
   return retVal;
 }

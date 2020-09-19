@@ -1,6 +1,6 @@
-/* dib.rc: version number                               -*- C++ -*-
+/* dib.rc:
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2020 Christian Schenk
 
    This file is part of the MiKTeX DibChunker Library.
 
@@ -19,6 +19,8 @@
    License along with the MiKTeX DibChunker Library; if not, write to
    the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA
    02139, USA.  */
+
+#pragma code_page(65001)
 
 #include "dib-version.h"
 

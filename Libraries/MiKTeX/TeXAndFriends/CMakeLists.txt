@@ -112,7 +112,7 @@ set(public_headers
 )
 
 configure_file(
-  texmf-version.h.cmake
+  texmf-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/texmf-version.h
 )
 
@@ -163,3 +163,5 @@ if(INSTALL_MIKTEX_HEADERS)
       ${MIKTEX_HEADER_DESTINATION_DIR}/miktex/TeXAndFriends
   )
 endif()
+
+add_subdirectory(test)

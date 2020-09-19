@@ -264,6 +264,7 @@ inline static int run_put_next(lua_State * L)
                             token_link(t) = x;
                         }
                         t = x;
+                        lua_pop(L, 1);
                     }
                     lua_pop(L, 1);
                 }
@@ -1164,6 +1165,9 @@ static int set_macro(lua_State * L)
         if (n == 1)
             return 0;
         ct = (int) lua_tointeger(L, 1);
+        if (!valid_catcode_table(ct)) {
+            ct = cat_code_table_par;
+        }
         name = lua_tolstring(L, 2, &lname);
         if (n > 2)
             str = lua_tolstring(L, 3, &lstr);
@@ -1224,10 +1228,14 @@ static int set_macro(lua_State * L)
                         str += _s ;
                         break ;
                     } else {
+                        if (_lname == 0) {
+                            _lname = _lname + _s ;
+                            str += _s ;
+                        }
                         break ;
                     }
                 }
-                if (_s > 0) {
+                if (_lname > 0) {
                     /* we have a potential \cs */
                     _cs = string_lookup(_name, _lname);
                     if (_cs == undefined_control_sequence) {

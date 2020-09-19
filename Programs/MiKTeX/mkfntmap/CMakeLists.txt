@@ -50,7 +50,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
   list(APPEND mkfntmap_sources
     ${CMAKE_CURRENT_BINARY_DIR}/mkfntmap.rc
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 

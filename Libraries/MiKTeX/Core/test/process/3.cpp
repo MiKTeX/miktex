@@ -39,7 +39,7 @@ BEGIN_TEST_SCRIPT("process-3");
 BEGIN_TEST_FUNCTION(1);
 {
   TEST(Process::ExecuteSystemCommand("echo 0123456789x> a.txt"));
-  FILE* inFile = File::Open("a.txt", FileMode::Open, FileAccess::Read, false);
+  FILE* inFile = File::Open(PathName("a.txt"), FileMode::Open, FileAccess::Read, false);
   TEST(inFile != nullptr);
   PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_process_test3-1" MIKTEX_EXE_FILE_SUFFIX;
@@ -61,7 +61,7 @@ BEGIN_TEST_FUNCTION(1);
 #endif
 #if !defined(MIKTEX_WINDOWS)
   // this may fail on Windows
-  TESTX(File::Delete("a.txt"));
+  TESTX(File::Delete(PathName("a.txt")));
 #endif
 }
 END_TEST_FUNCTION();
@@ -70,11 +70,11 @@ END_TEST_FUNCTION();
 BEGIN_TEST_FUNCTION(2);
 {
   TEST(Process::ExecuteSystemCommand("echo 0123456789x> a.txt"));
-  FILE* inFile = File::Open("a.txt", FileMode::Open, FileAccess::Read, false);
+  FILE* inFile = File::Open(PathName("a.txt"), FileMode::Open, FileAccess::Read, false);
   TEST(inFile != nullptr);
   PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_process_test3-1" MIKTEX_EXE_FILE_SUFFIX;
-  FILE* childOut = File::Open("b.txt", FileMode::Create, FileAccess::Write, false);
+  FILE* childOut = File::Open(PathName("b.txt"), FileMode::Create, FileAccess::Write, false);
   TEST(childOut != nullptr);
   ProcessStartInfo psi(pathExe);
   psi.StandardInput = inFile;
@@ -83,11 +83,11 @@ BEGIN_TEST_FUNCTION(2);
   TEST(process->WaitForExit(2000));
   fclose(inFile);
   fclose(childOut);
-  vector<unsigned char> vec1(File::ReadAllBytes("a.txt"));
-  vector<unsigned char> vec2(File::ReadAllBytes("b.txt"));
+  vector<unsigned char> vec1(File::ReadAllBytes(PathName("a.txt")));
+  vector<unsigned char> vec2(File::ReadAllBytes(PathName("b.txt")));
   TEST(vec1 == vec2);
-  TESTX(File::Delete("a.txt"));
-  TESTX(File::Delete("b.txt"));
+  TESTX(File::Delete(PathName("a.txt")));
+  TESTX(File::Delete(PathName("b.txt")));
 }
 END_TEST_FUNCTION();
 #endif

@@ -780,7 +780,13 @@ static int lua_kpathsea_init_prog(lua_State * L)
 
 static int lua_kpse_version(lua_State * L)
 {
+#if defined(MIKTEX)
+    char miktexBanner[200];
+    miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0]));
+    lua_pushstring(L, miktexBanner);
+#else
     lua_pushstring(L, kpathsea_version_string);
+#endif
     return 1;
 }
 
@@ -855,8 +861,21 @@ static int lua_check_permissions(lua_State *L)
         lua_pushboolean(L,0);
         lua_pushliteral(L,"all command execution is disabled");
     } else if (restrictedshell == 0) {
+#if defined(MIKTEX)
+      if (miktex_allow_unrestricted_shell_escape())
+      {
+        lua_pushboolean(L, 1);
+        lua_pushstring(L, filename);
+      }
+      else
+      {
+        lua_pushboolean(L, 0);
+        lua_pushliteral(L, "unrestricted shell commands not allowed when running with elevated privileges");
+      }
+#else
         lua_pushboolean(L,1);
         lua_pushstring(L,filename);
+#endif
     } else {
         char *safecmd = NULL;
         char *cmdname = NULL;

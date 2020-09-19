@@ -2,7 +2,7 @@
 ** FontStyle.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -22,11 +22,11 @@
 #define FONTSTYLE
 
 struct FontStyle {
-	FontStyle () : bold(0), extend(1), slant(0) {}
+	FontStyle () =default;
 	FontStyle (float b, float e, float s) : bold(b), extend(e), slant(s) {}
-	double bold;   ///< stroke width in pt used to draw the glyph outlines
-	double extend; ///< factor to strech/shrink the glyphs horizontally
-	double slant;  ///< horizontal slanting/skewing value (= tan(phi))
+	double bold=0;   ///< stroke width in pt used to draw the glyph outlines
+	double extend=1; ///< factor to strech/shrink the glyphs horizontally
+	double slant=0;  ///< horizontal slanting/skewing value (= tan(phi))
 };
 
 #endif

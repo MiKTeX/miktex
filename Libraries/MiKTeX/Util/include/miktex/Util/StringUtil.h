@@ -124,12 +124,6 @@ public:
   }
 
 public:
-  static MIKTEXUTILCEEAPI(std::string) FormatStringVA(const char* format, va_list arglist);
-
-public:
-  static MIKTEXUTILCEEAPI(std::string) FormatString(const char* format, ...);
-
-public:
   static MIKTEXUTILCEEAPI(std::string) FormatString2(const std::string& message, const std::unordered_map<std::string, std::string>& args);
 
 public:
@@ -161,6 +155,12 @@ public:
 
 public:
   static MIKTEXUTILCEEAPI(std::string) WideCharToUTF8(const wchar_t* wideChars);
+
+public:
+  static std::string WideCharToUTF8(const std::wstring& wstr)
+  {
+    return WideCharToUTF8(wstr.c_str());
+  }
 
 #if defined(MIKTEX_WINDOWS)
 public:

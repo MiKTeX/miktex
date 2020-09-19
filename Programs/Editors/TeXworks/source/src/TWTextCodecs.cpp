@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2012  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2012-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -54,30 +54,29 @@ QList<QByteArray> MacCentralEurRomanCodec::aliases() const
 
 QByteArray MacCentralEurRomanCodec::convertFromUnicode(const QChar * input, int length, ConverterState * state) const
 {
-	const char replacement = (state && state->flags & ConvertInvalidToNull) ? 0 : '?';
+	const uchar replacement = (state && state->flags & ConvertInvalidToNull) ? 0 : '?';
 	QByteArray r(length, Qt::Uninitialized);
-	char *d = r.data();
+	uchar * d = reinterpret_cast<uchar*>(r.data());
 	int invalid = 0;
 	int i, j;
 
 	for (i = 0; i < length; ++i) {
-		uchar c;
+		uchar c = replacement;
 		ushort uc = input[i].unicode();
 		if (uc < 0x0080)
-			c = (unsigned char)uc;
+			c = static_cast<uchar>(uc);
 		else {
 			for (j = 0; j < 128; ++j) {
 				if (MacCentralEurRomanCodes[j] == uc) {
-					c = j + 0x80;
+					c = static_cast<uchar>(j + 0x80);
 					break;
 				}
 			}
 			if (j >= 128) {
 				c = replacement;
-				++invalid;
 			}
 		}
-		d[i] = (char)c;
+		d[i] = c;
 	}
 	if (state) {
 		state->remainingChars = 0;
@@ -89,7 +88,7 @@ QByteArray MacCentralEurRomanCodec::convertFromUnicode(const QChar * input, int 
 QString MacCentralEurRomanCodec::convertToUnicode(const char * chars, int len, ConverterState * state) const
 {
 	Q_UNUSED(state)
-	if (chars == 0)
+	if (!chars)
 		return QString();
 
 	QString str = QString::fromLatin1(chars, len);

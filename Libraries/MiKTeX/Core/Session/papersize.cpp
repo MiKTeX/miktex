@@ -1,6 +1,6 @@
 /* papersize.cpp: paper size info
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -22,6 +22,9 @@
 #include "config.h"
 
 #include <fstream>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/Paths>
@@ -428,15 +431,6 @@ public:
     writer << "\n";
   }
 
-public:
-  void WriteFormattedLine(const char* lpszFormat, ...)
-  {
-    va_list marker;
-    va_start(marker, lpszFormat);
-    WriteLine(StringUtil::FormatStringVA(lpszFormat, marker));
-    va_end(marker);
-  }
-
 private:
   PathName path;
 
@@ -486,7 +480,7 @@ bool SessionImpl::TryCreateFromTemplate(const PathName& path)
 
 void SessionImpl::WriteDvipsPaperSizes()
 {
-  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_CONFIG_PS);
+  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_CONFIG_PS));
 
   if (!File::Exists(configFile))
   {
@@ -536,7 +530,7 @@ void SessionImpl::WriteDvipdfmxPaperSize()
 
   DvipsPaperSizeInfo paperSizeInfo = dvipsPaperSizes[0];
 
-  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_DVIPDFMX_CONFIG);
+  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_DVIPDFMX_CONFIG));
 
   if (!File::Exists(configFile))
   {
@@ -567,7 +561,7 @@ void SessionImpl::WriteDvipdfmxPaperSize()
   }
   else
   {
-    editor.WriteFormattedLine("p %dbp,%dbp", paperSizeInfo.width, paperSizeInfo.height);
+    editor.WriteLine(fmt::format("p {0}bp,{1}bp", paperSizeInfo.width, paperSizeInfo.height));
   }
 }
 
@@ -580,7 +574,7 @@ void SessionImpl::WritePdfTeXPaperSize()
 
   DvipsPaperSizeInfo paperSizeInfo = dvipsPaperSizes[0];
 
-  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_PDFTEX_CFG);
+  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_PDFTEX_CFG));
 
   if (!File::Exists(configFile))
   {
@@ -613,7 +607,7 @@ void SessionImpl::WritePdfTeXPaperSize()
   }
   else
   {
-    editor.WriteFormattedLine("page_width %d true bp", paperSizeInfo.width);
-    editor.WriteFormattedLine("page_height %d true bp", paperSizeInfo.height);
+    editor.WriteLine(fmt::format("page_width {0} true bp", paperSizeInfo.width));
+    editor.WriteLine(fmt::format("page_height {0} true bp", paperSizeInfo.height));
   }
 }

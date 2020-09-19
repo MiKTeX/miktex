@@ -1,6 +1,6 @@
 /* mkfntmap.cpp:
 
-   Copyright (C) 2002-2018 Christian Schenk
+   Copyright (C) 2002-2020 Christian Schenk
 
    This file is part of MkFntMap.
 
@@ -338,8 +338,10 @@ map<string, string> MakeFontMapApp::psADOBE;
 void MakeFontMapApp::ShowVersion()
 {
   cout
-    << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-    << "Copyright (C) 2002-2018 Christian Schenk" << endl
+    << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+    << endl
+    << MIKTEX_COMP_COPYRIGHT_STR << endl
+    << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
@@ -888,7 +890,7 @@ PathName MakeFontMapApp::CreateOutputDir(const string& relPath)
   }
   else
   {
-    path = session->GetSpecialPath(SpecialPath::DataRoot) / relPath;
+    path = session->GetSpecialPath(SpecialPath::DataRoot) / PathName(relPath);
   }
   if (!Directory::Exists(path))
   {
@@ -1120,17 +1122,17 @@ void MakeFontMapApp::CopyFiles()
 
   PathName pathSrc;
 
-  pathSrc = dvipsOutputDir / (dvipsPreferOutline ? "psfonts_t1" : "psfonts_pk");
+  pathSrc = dvipsOutputDir / PathName(dvipsPreferOutline ? "psfonts_t1" : "psfonts_pk");
   pathSrc.AppendExtension(".map");
-  CopyFile(pathSrc, PathName(dvipsOutputDir, "psfonts.map"));
+  CopyFile(pathSrc, PathName(dvipsOutputDir, PathName("psfonts.map")));
 
-  pathSrc = dvipdfmxOutputDir / (dvipdfmDownloadBase14 ? "dvipdfm_dl14" : "dvipdfm_ndl14");
+  pathSrc = dvipdfmxOutputDir / PathName(dvipdfmDownloadBase14 ? "dvipdfm_dl14" : "dvipdfm_ndl14");
   pathSrc.AppendExtension(".map");
-  CopyFile(pathSrc, PathName(dvipdfmxOutputDir, "dvipdfm.map"));
+  CopyFile(pathSrc, PathName(dvipdfmxOutputDir, PathName("dvipdfm.map")));
 
-  pathSrc = pdftexOutputDir / (pdftexDownloadBase14 ? "pdftex_dl14" : "pdftex_ndl14");
+  pathSrc = pdftexOutputDir / PathName(pdftexDownloadBase14 ? "pdftex_dl14" : "pdftex_ndl14");
   pathSrc.AppendExtension(".map");
-  CopyFile(pathSrc, PathName(pdftexOutputDir, "pdftex.map"));
+  CopyFile(pathSrc, PathName(pdftexOutputDir, PathName("pdftex.map")));
 }
 
 static const char* const topDirs[] = {
@@ -1142,7 +1144,7 @@ static const char* const topDirs[] = {
 void MakeFontMapApp::BuildFontconfigCache()
 {
 #if !defined(USE_SYSTEM_FONTCONFIG)
-  session->ConfigureFile(MIKTEX_PATH_FONTCONFIG_CONFIG_FILE);
+  session->ConfigureFile(PathName(MIKTEX_PATH_FONTCONFIG_CONFIG_FILE));
 #endif
   CreateFontconfigLocalfontsConf();
   PathName fcCacheExe;
@@ -1176,6 +1178,7 @@ void MakeFontMapApp::BuildFontconfigCache()
   }
 #if !defined(USE_SYSTEM_FONTCONFIG)
   arguments.push_back("--miktex-disable-maintenance");
+  arguments.push_back("--miktex-disable-diagnose");
 #endif
   LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(arguments).ToString());
   Process::Run(fcCacheExe, arguments, this);
@@ -1229,7 +1232,7 @@ void MakeFontMapApp::CreateFontconfigLocalfontsConf()
   if (optAdminMode)
   {
     PathName confd(MIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR);
-    File::CreateLink(configFile, confd / "09-miktex.conf", { CreateLinkOption::ReplaceExisting, CreateLinkOption::Symbolic });
+    File::CreateLink(configFile, confd / PathName("09-miktex.conf"), { CreateLinkOption::ReplaceExisting, CreateLinkOption::Symbolic });
   }
 #endif
 #if !defined(USE_SYSTEM_FONTCONFIG)
@@ -1279,19 +1282,19 @@ void MakeFontMapApp::Run()
 
   set<FontMapEntry> tmp2(CatMaps(mapFiles));
 
-  WriteDvipsMapFile("ps2pk.map", transLW35_ps2pk35, tmp1, tmp2);
+  WriteDvipsMapFile(PathName("ps2pk.map"), transLW35_ps2pk35, tmp1, tmp2);
 
   set<FontMapEntry> empty;
 
-  WriteDvipsMapFile("download35.map", transLW35_ps2pk35, empty, empty);
+  WriteDvipsMapFile(PathName("download35.map"), transLW35_ps2pk35, empty, empty);
 
-  WriteDvipsMapFile("builtin35.map", transLW35_dvips35, empty, empty);
+  WriteDvipsMapFile(PathName("builtin35.map"), transLW35_dvips35, empty, empty);
 
   set<FontMapEntry> transLW35_dftdvips(TranslateLW35(dvipsDownloadBase35 ? ps2pk35 : dvips35));
 
-  WriteDvipsMapFile("psfonts_t1.map", transLW35_dftdvips, tmp1, tmp2);
+  WriteDvipsMapFile(PathName("psfonts_t1.map"), transLW35_dftdvips, tmp1, tmp2);
 
-  WriteDvipsMapFile("psfonts_pk.map", transLW35_dftdvips, empty, tmp2);
+  WriteDvipsMapFile(PathName("psfonts_pk.map"), transLW35_dftdvips, empty, tmp2);
 
   set<FontMapEntry> tmp3 = transLW35_pdftex35;
   tmp3.insert(tmp1.begin(), tmp1.end());
@@ -1341,11 +1344,11 @@ void MakeFontMapApp::Run()
     }
   }
 
-  WritePdfTeXMapFile("pdftex_ndl14.map", tmp3, empty, empty);
-  WritePdfTeXMapFile("pdftex_dl14.map", tmp7, empty, empty);
+  WritePdfTeXMapFile(PathName("pdftex_ndl14.map"), tmp3, empty, empty);
+  WritePdfTeXMapFile(PathName("pdftex_dl14.map"), tmp7, empty, empty);
 
-  WriteDvipdfmMapFile("dvipdfm_dl14.map", tmp7, empty, empty);
-  WriteDvipdfmMapFile("dvipdfm_ndl14.map", tmp6, empty, empty);
+  WriteDvipdfmMapFile(PathName("dvipdfm_dl14.map"), tmp7, empty, empty);
+  WriteDvipdfmMapFile(PathName("dvipdfm_ndl14.map"), tmp6, empty, empty);
 
   CopyFiles();
 

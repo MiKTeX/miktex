@@ -1,6 +1,6 @@
 /* DviPage.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -20,6 +20,9 @@
    USA.  */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/Paths>
 
@@ -113,9 +116,8 @@ DviPageImpl::DviPageImpl(DviImpl* dviImpl, int pageIdx, DviPageMode pageMode, lo
   pageIdx(pageIdx),
   pageMode(pageMode),
   readPosition(readPosition),
-  tracePage(TraceStream::Open(MIKTEX_TRACE_DVIPAGE)),
-  traceBitmap(TraceStream::Open(MIKTEX_TRACE_DVIBITMAP))
-
+  tracePage(TraceStream::Open(MIKTEX_TRACE_DVIPAGE, dviImpl->GetTraceCallback())),
+  traceBitmap(TraceStream::Open(MIKTEX_TRACE_DVIBITMAP, dviImpl->GetTraceCallback()))
 {
   if (pageMode != DviPageMode::Dvips)
   {
@@ -156,7 +158,7 @@ DviPageImpl::DviPageImpl(DviImpl* dviImpl, int pageIdx, DviPageMode pageMode, lo
     }
   }
 
-  tracePage->WriteFormattedLine("libdvi", T_("created page object '%s'"), pageName.c_str());
+  tracePage->WriteLine("libdvi", fmt::format(T_("created page object '{0}'"), pageName));
 
   lastVisited = time(nullptr) + 60 * 60;
 }
@@ -379,7 +381,7 @@ void DviPageImpl::MakeDviBitmap(int shrinkFactor, DviBitmap& bitmap, vector<DviI
 
   bitmaps.reserve(1000 / shrinkFactor);
 
-  traceBitmap->WriteFormattedLine("libdvi", T_("bitmap %d; bounding box: %d,%d,%d,%d"), bitmaps.size(), bitmap.x, bitmap.y, bitmap.width, bitmap.height);
+  traceBitmap->WriteLine("libdvi", fmt::format(T_("bitmap {0}; bounding box: {1},{2},{3},{4}"), bitmaps.size(), bitmap.x, bitmap.y, bitmap.width, bitmap.height));
 
   int bytesPerLine = dviImpl->GetBytesPerLine(shrinkFactor, bitmap.width);
   MIKTEX_ASSERT(bytesPerLine > 0);
@@ -600,6 +602,16 @@ DviImpl* DviPageImpl::GetDviObject()
   return dviImpl;
 }
 
+TraceCallback* DviPageImpl::GetTraceCallback() const
+{
+  return dviImpl->GetTraceCallback();
+}
+
+void DviPageImpl::Error(const string& line)
+{
+  dviImpl->DviError(line);
+}
+
 int DviPageImpl::GetReg(int idx)
 {
   MIKTEX_ASSERT(idx >= 0 && idx < 10);
@@ -676,7 +688,7 @@ void DviPageImpl::Unlock()
   {
     if (nLocks == 0 && autoClean)
     {
-      tracePage->WriteFormattedLine("libdvi", T_("auto-cleaning page '%s'"), pageName.c_str());
+      tracePage->WriteLine("libdvi", fmt::format(T_("auto-cleaning page '{0}'"), pageName));
       FreeContents(false, false);
     }
   }
@@ -815,7 +827,7 @@ void DviPageImpl::OnNewChunk(shared_ptr<DibChunk> chunk)
 
   const BITMAPINFO* bitmapInfo = chunk->GetBitmapInfo();
 
-  traceBitmap->WriteFormattedLine("libdvi", T_("new DIB chunk %d; bounding box: %d,%d,%d,%d"), dibChunks.size(), chunk->GetX(), chunk->GetY(), bitmapInfo->bmiHeader.biWidth, bitmapInfo->bmiHeader.biHeight);
+  traceBitmap->WriteLine("libdvi", fmt::format(T_("new DIB chunk {0}; bounding box: {1},{2},{3},{4}"), dibChunks.size(), chunk->GetX(), chunk->GetY(), bitmapInfo->bmiHeader.biWidth, bitmapInfo->bmiHeader.biHeight));
 
   size += chunk->GetSize();
   totalSize += chunk->GetSize();
@@ -861,7 +873,7 @@ unique_ptr<Process> DviPageImpl::StartDvips()
     arguments.push_back("-T" + std::to_string(width) + "bp" + ',' + std::to_string(height) + "bp");
   }
   arguments.push_back("-MiKTeX:nolandscape");
-  if (session->GetConfigValue("Dvips", "Pedantic", false).GetBool())
+  if (session->GetConfigValue("Dvips", "Pedantic", ConfigValue(false)).GetBool())
   {
     arguments.push_back("-MiKTeX:pedantic");
   }
@@ -870,7 +882,7 @@ unique_ptr<Process> DviPageImpl::StartDvips()
   arguments.push_back(dviImpl->GetDviFileName().ToString());
 
   PathName dir(dviImpl->GetDviFileName());
-  dir.MakeAbsolute();
+  dir.MakeFullyQualified();
   dir.RemoveFileSpec();
 
   ProcessStartInfo processStartInfo;
@@ -926,7 +938,7 @@ unique_ptr<Process> DviPageImpl::StartGhostscript(int shrinkFactor)
   processStartInfo.StandardInput = dvipsOut.GetFile();
   processStartInfo.RedirectStandardError = true;
   processStartInfo.RedirectStandardOutput = true;
-  processStartInfo.WorkingDirectory = dviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();
+  processStartInfo.WorkingDirectory = dviImpl->GetDviFileName().MakeFullyQualified().RemoveFileSpec().ToString();
 
   unique_ptr<Process> pGhostscript(Process::Start(processStartInfo));
 
@@ -957,7 +969,7 @@ int DviPageImpl::GetNumberOfGraphicsInclusions(int shrinkFactor)
 
 void DviPageImpl::DoPostScriptSpecials(int shrinkFactor)
 {
-  Ghostscript gs;
+  Ghostscript gs(dviImpl->GetTraceCallback());
 
   for (size_t idx = 0; idx < dviSpecials.size(); ++idx)
   {

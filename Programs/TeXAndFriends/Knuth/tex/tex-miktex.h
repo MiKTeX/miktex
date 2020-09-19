@@ -1,6 +1,6 @@
 /* tex-miktex.h:                                        -*- C++ -*-
 
-   Copyright (C) 1991-2018 Christian Schenk
+   Copyright (C) 1991-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -89,7 +89,7 @@ public:
 public:
   MiKTeX::Core::PathName GetMemoryDumpFileName() const override
   {
-    return "tex.fmt";
+    return MiKTeX::Core::PathName("tex.fmt");
   }
 
 public:
@@ -122,4 +122,12 @@ int miktexloadpoolstrings(int size);
 inline int loadpoolstrings(int size)
 {
   return miktexloadpoolstrings(size);
+}
+
+extern TEXAPPCLASS TEXAPP;
+
+inline void miktexreallocatenameoffile(size_t n)
+{
+  
+  TEXPROG.nameoffile = reinterpret_cast<char*>(TEXAPP.GetTeXMFMemoryHandler()->ReallocateArray("name_of_file", TEXPROG.nameoffile, sizeof(*TEXPROG.nameoffile), n, MIKTEX_SOURCE_LOCATION()));
 }

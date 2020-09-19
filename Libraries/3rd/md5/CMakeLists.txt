@@ -46,7 +46,7 @@ if(INSTALL_MIKTEX_HEADERS)
 endif()
 
 configure_file(
-  md5-version.h.cmake
+  md5-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/md5-version.h
 )
 

@@ -1,6 +1,6 @@
 /* StringUtil.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -181,66 +181,6 @@ bool StringUtil::Contains(const char* list, const char* element, const char* del
     }
   }
   return false;
-}
-
-string StringUtil::FormatStringVA(const char* format, va_list arglist)
-{
-  CharBuffer<char> autoBuffer;
-  int n;
-#if defined(_MSC_VER)
-  n = _vscprintf(format, arglist);
-  if (n < 0)
-  {
-    FATAL_ERROR();
-  }
-  autoBuffer.Reserve(static_cast<size_t>(n) + 1);
-  n = vsprintf_s(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
-  if (n < 0)
-  {
-    FATAL_ERROR();
-  }
-  else if (static_cast<size_t>(n) >= autoBuffer.GetCapacity())
-  {
-    FATAL_ERROR();
-  }
-#else
-  n = vsnprintf(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
-  if (n < 0)
-  {
-    FATAL_ERROR();
-  }
-  else if (static_cast<size_t>(n) >= autoBuffer.GetCapacity())
-  {
-    autoBuffer.Reserve(static_cast<size_t>(n) + 1);
-    n = vsnprintf(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
-    if (n < 0)
-    {
-      FATAL_ERROR();
-    }
-    else if (static_cast<size_t>(n) >= autoBuffer.GetCapacity())
-    {
-      FATAL_ERROR();
-    }
-  }
-#endif
-  return autoBuffer.GetData();
-}
-
-string StringUtil::FormatString(const char* format, ...)
-{
-  va_list arglist;
-  va_start(arglist, format);
-  string str;
-  try
-  {
-    str = FormatStringVA(format, arglist);
-  }
-  catch (...)
-  {
-    va_end(arglist);
-    throw;
-  }
-  return str;
 }
 
 string StringUtil::FormatString2(const string& message, const unordered_map<string, string>& args)

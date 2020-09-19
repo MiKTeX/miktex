@@ -1,6 +1,6 @@
 /* winMemoryMappedFile.cpp: memory mapped files
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,7 +21,11 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Trace/Trace>
+#include <miktex/Util/PathNameUtil>
 
 #include "internal.h"
 
@@ -30,6 +34,7 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
 using namespace std;
 
 MemoryMappedFile* MemoryMappedFile::Create()
@@ -64,7 +69,7 @@ void* winMemoryMappedFile::Open(const PathName& path_, bool readWrite)
   name.reserve(BufferSizes::MaxPath);
   for (size_t i = 0; path[i] != 0; ++i)
   {
-    if (IsDirectoryDelimiter(path[i]) || path[i] == ':')
+    if (PathNameUtil::IsDirectoryDelimiter(path[i]) || path[i] == ':')
     {
       continue;
     }
@@ -76,7 +81,7 @@ void* winMemoryMappedFile::Open(const PathName& path_, bool readWrite)
 
   if (hMapping != nullptr)
   {
-    traceStream->WriteFormattedLine("core", T_("using existing file mapping object %s"), Q_(name));
+    traceStream->WriteLine("core", fmt::format(T_("using existing file mapping object {0}"), Q_(name)));
 
     // map existing file view into memory
     ptr = MapViewOfFile(hMapping, (readWrite ? FILE_MAP_WRITE : FILE_MAP_READ), 0, 0, 0);
@@ -111,7 +116,7 @@ void* winMemoryMappedFile::Open(const PathName& path_, bool readWrite)
       MIKTEX_FATAL_WINDOWS_RESULT_2("OpenFileMappingW", lastError, "path", name);
     }
 
-    traceStream->WriteFormattedLine("core", T_("creating new file mapping object %s"), Q_(name));
+    traceStream->WriteLine("core", fmt::format(T_("creating new file mapping object {0}"), Q_(name)));
 
     // create a new file mapping
     OpenFile();
@@ -144,7 +149,7 @@ void winMemoryMappedFile::OpenFile()
     desiredAccess |= GENERIC_WRITE;
   }
 
-  traceStream->WriteFormattedLine("core", T_("opening memory-mapped file %s for %s"), Q_(path), (readWrite ? T_("reading/writing") : T_("reading")));
+  traceStream->WriteLine("core", fmt::format(T_("opening memory-mapped file {0} for {1}"), Q_(path), (readWrite ? T_("reading/writing") : T_("reading"))));
 
   hFile = CreateFileW(UW_(path.GetData()), desiredAccess, shareMode, nullptr, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, nullptr);
 
@@ -206,7 +211,7 @@ void winMemoryMappedFile::CloseFile()
   }
   HANDLE hFile = this->hFile;
   this->hFile = INVALID_HANDLE_VALUE;
-  traceStream->WriteFormattedLine("core", T_("closing memory-mapped file %s"), Q_(path));
+  traceStream->WriteLine("core", fmt::format(T_("closing memory-mapped file {0}"), Q_(path)));
   try
   {
     File::Unlock(hFile);

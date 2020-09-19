@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -68,12 +68,12 @@ configure_file(
 )
 
 configure_file(
-  core-version.h.cmake
+  core-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/core-version.h
 )
 
 configure_file(
-  include/miktex/Core/vi/Version.h.cmake
+  include/miktex/Core/vi/Version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/vi/Version.h
 )
 
@@ -112,7 +112,6 @@ set(headers_no_ext
   miktex/Core/Paths
   miktex/Core/Process
   miktex/Core/Quoter
-  miktex/Core/Registry
   miktex/Core/RootDirectoryInfo
   miktex/Core/Session
   miktex/Core/Stream
@@ -138,6 +137,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND headers_no_ext
     miktex/Core/win/DllProc
     miktex/Core/win/HResult
+    miktex/Core/win/Registry
     miktex/Core/win/WindowsVersion
     miktex/Core/win/winAutoResource
   )
@@ -200,7 +200,6 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/PathNameParser.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Process.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Quoter.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Registry.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/RootDirectoryInfo.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Session.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Stream.h
@@ -238,6 +237,8 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/DllProc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/HResult
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/HResult.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/Registry
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/Registry.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/WindowsVersion
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/WindowsVersion.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/winAutoResource
@@ -613,6 +614,8 @@ add_custom_target(gen-core-sources DEPENDS
 )
 
 set_property(TARGET gen-core-sources PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
+
+list(APPEND core_sources ${MIKTEX_GITINFO_H})
 
 if(INSTALL_MIKTEX_HEADERS)
   install(

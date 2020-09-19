@@ -2,7 +2,7 @@
 ** GFReader.cpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -37,16 +37,6 @@ struct GFCommand {
 /** Converts a scaled value to double */
 static inline double scaled2double (int32_t scaled) {
 	return double(scaled)/(1 << 16);
-}
-
-
-GFReader::GFReader (istream &is) : _in(is), _insideCharDef(false), _penDown(false)
-{
-	_minX = _maxX = _minY = _maxY = _x = _y = 0;
-	_currentChar = 0;
-	_designSize = 0;
-	_hppp = _vppp = 0;
-	_checksum = 0;
 }
 
 
@@ -106,11 +96,8 @@ int GFReader::executeCommand () {
 		cmdPaint0(opcode);
 	else if (opcode >= 74 && opcode <= 238)
 		cmdNewRow(opcode-74);
-	else if (opcode >= 250) {
-		ostringstream oss;
-		oss << "undefined GF command (opcode " << opcode << ")";
-		throw GFException(oss.str());
-	}
+	else if (opcode >= 250)
+		throw GFException("undefined GF command (opcode " + std::to_string(opcode) + ")");
 	else {
 		int offset = opcode <= 73 ? 64 : 239-(73-64+1);
 		const GFCommand &cmd = commands[opcode-offset];

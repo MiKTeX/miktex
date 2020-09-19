@@ -1,6 +1,6 @@
 /* w2c/c-auto.h: Web2C emulation                        -*- C++ -*-
 
-   Copyright (C) 2010-2018 Christian Schenk
+   Copyright (C) 2010-2020 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -34,7 +34,5 @@
 #cmakedefine HAVE_SYS_STAT_H 1
 #cmakedefine HAVE_SYS_WAIT_H 1
 #cmakedefine HAVE_UNISTD_H 1
-
-#define WEB2CVERSION " (" MIKTEX_BANNER_STR ")"
 
 #endif

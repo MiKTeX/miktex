@@ -1,6 +1,6 @@
 /* PostScript.h:                                        -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -33,10 +33,10 @@ protected:
   virtual void Write(const void* data, unsigned n) = 0;
 
 protected:
-  virtual void Execute(const char* format, ...) = 0;
+  virtual void Execute(const std::string& s) = 0;
 
 protected:
-  PostScript();
+  PostScript(TraceCallback* traceCallback);
 
 public:
   shared_ptr<GraphicsInclusion> GetGraphicsInclusion(int idx)

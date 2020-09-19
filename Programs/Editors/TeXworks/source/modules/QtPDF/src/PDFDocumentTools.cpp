@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2018  Stefan Löffler
+ * Copyright (C) 2013-2019  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,12 +21,12 @@ namespace DocumentTool {
 // ========================
 //
 void AbstractTool::arm() {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
   if (_parent->viewport())
     _parent->viewport()->setCursor(_cursor);
 }
 void AbstractTool::disarm() {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
   if (_parent->viewport())
     _parent->viewport()->unsetCursor();
 }
@@ -74,7 +74,7 @@ ZoomIn::ZoomIn(PDFDocumentView * parent)
 
 void ZoomIn::mousePressEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
   
   if (!event)
     return;
@@ -85,7 +85,7 @@ void ZoomIn::mousePressEvent(QMouseEvent * event)
 
 void ZoomIn::mouseReleaseEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
 
   if (!event || !_started)
     return;
@@ -118,7 +118,7 @@ void ZoomOut::mousePressEvent(QMouseEvent * event)
 
 void ZoomOut::mouseReleaseEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
 
   if (!event || !_started)
     return;
@@ -144,19 +144,19 @@ MagnifyingGlass::MagnifyingGlass(PDFDocumentView * parent) :
 
 void MagnifyingGlass::setMagnifierShape(const MagnifierShape shape)
 {
-  Q_ASSERT(_magnifier != NULL);
+  Q_ASSERT(_magnifier != nullptr);
   _magnifier->setShape(shape);
 }
 
 void MagnifyingGlass::setMagnifierSize(const int size)
 {
-  Q_ASSERT(_magnifier != NULL);
+  Q_ASSERT(_magnifier != nullptr);
   _magnifier->setSize(size);
 }
 
 void MagnifyingGlass::mousePressEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_magnifier != NULL);
+  Q_ASSERT(_magnifier != nullptr);
   if (!event)
     return;
   _started = (event->buttons() == Qt::LeftButton && event->button() == Qt::LeftButton);
@@ -176,8 +176,8 @@ void MagnifyingGlass::mousePressEvent(QMouseEvent * event)
 
 void MagnifyingGlass::mouseMoveEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_magnifier != NULL);
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_magnifier != nullptr);
+  Q_ASSERT(_parent != nullptr);
 
   if (!event || !_started)
     return;
@@ -193,7 +193,7 @@ void MagnifyingGlass::mouseMoveEvent(QMouseEvent * event)
 
 void MagnifyingGlass::mouseReleaseEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_magnifier != NULL);
+  Q_ASSERT(_magnifier != nullptr);
 
   if (!event || !_started)
     return;
@@ -203,8 +203,9 @@ void MagnifyingGlass::mouseReleaseEvent(QMouseEvent * event)
 
 void MagnifyingGlass::paintEvent(QPaintEvent * event)
 {
-  Q_ASSERT(_magnifier != NULL);
-  Q_ASSERT(_parent != NULL);
+  Q_UNUSED(event)
+  Q_ASSERT(_magnifier != nullptr);
+  Q_ASSERT(_parent != nullptr);
 
   if (!_started)
     return;
@@ -219,7 +220,7 @@ void MagnifyingGlass::paintEvent(QPaintEvent * event)
 
 void MagnifyingGlass::hide()
 {
-  Q_ASSERT(_magnifier != NULL);
+  Q_ASSERT(_magnifier != nullptr);
 
   _magnifier->hide();
   _started = false;
@@ -244,8 +245,8 @@ MarqueeZoom::MarqueeZoom(PDFDocumentView * parent) :
 
 void MarqueeZoom::mousePressEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
-  Q_ASSERT(_rubberBand != NULL);
+  Q_ASSERT(_parent != nullptr);
+  Q_ASSERT(_rubberBand != nullptr);
   
   if (!event)
     return;
@@ -259,7 +260,7 @@ void MarqueeZoom::mousePressEvent(QMouseEvent * event)
 
 void MarqueeZoom::mouseMoveEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_rubberBand != NULL);
+  Q_ASSERT(_rubberBand != nullptr);
 
   QPoint o = _startPos, p = event->pos();
 
@@ -279,7 +280,7 @@ void MarqueeZoom::mouseMoveEvent(QMouseEvent * event)
 
 void MarqueeZoom::mouseReleaseEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
 
   if (!event || !_started)
     return;
@@ -306,7 +307,7 @@ Move::Move(PDFDocumentView * parent) :
 
 void Move::mousePressEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
   
   if (!event)
     return;
@@ -320,7 +321,7 @@ void Move::mousePressEvent(QMouseEvent * event)
 
 void Move::mouseMoveEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
 
   if (!_started || !event)
     return;
@@ -336,7 +337,7 @@ void Move::mouseMoveEvent(QMouseEvent * event)
 
 void Move::mouseReleaseEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
 
   if (!event || !_started)
     return;
@@ -352,7 +353,7 @@ void Move::mouseReleaseEvent(QMouseEvent * event)
 //
 void ContextClick::mousePressEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
   
   if (!event)
     return;
@@ -361,7 +362,7 @@ void ContextClick::mousePressEvent(QMouseEvent * event)
 
 void ContextClick::mouseReleaseEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
 
   if (!event || !_started)
     return;
@@ -370,10 +371,10 @@ void ContextClick::mouseReleaseEvent(QMouseEvent * event)
   if (event->buttons() == Qt::NoButton && event->button() == Qt::LeftButton) {
     QPointF pos(_parent->mapToScene(event->pos()));
 
-    PDFPageGraphicsItem * pageItem = NULL;
+    PDFPageGraphicsItem * pageItem = nullptr;
     foreach(QGraphicsItem * item, _parent->scene()->items(pos, Qt::IntersectsItemBoundingRect, Qt::AscendingOrder)) {
       if (item && item->type() == PDFPageGraphicsItem::Type) {
-        pageItem = static_cast<PDFPageGraphicsItem*>(item);
+        pageItem = dynamic_cast<PDFPageGraphicsItem*>(item);
         break;
       }
     }
@@ -412,19 +413,20 @@ void MeasureLineGrip::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void MeasureLineGrip::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+  Q_UNUSED(event)
   // mousePressEvent must be implemented to receive mouseMoveEvent messages
 }
 
 void MeasureLineGrip::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-  Q_ASSERT(event != NULL);
+  Q_ASSERT(event != nullptr);
   mouseMove(event->scenePos(), event->modifiers());
 }
 
 void MeasureLineGrip::mouseMove(const QPointF scenePos, const Qt::KeyboardModifiers modifiers)
 {
-  MeasureLine * ml = static_cast<MeasureLine*>(parentItem());
-  Q_ASSERT(ml != NULL);
+  MeasureLine * ml = dynamic_cast<MeasureLine*>(parentItem());
+  Q_ASSERT(ml != nullptr);
   
   switch(_pt) {
   case 1:
@@ -461,7 +463,7 @@ void MeasureLineGrip::mouseMove(const QPointF scenePos, const Qt::KeyboardModifi
 // MeasureLine
 // ===========================
 //
-MeasureLine::MeasureLine(QGraphicsView * primaryView, QGraphicsItem * parent /* = NULL */) :
+MeasureLine::MeasureLine(QGraphicsView * primaryView, QGraphicsItem * parent /* = nullptr */) :
   QGraphicsLineItem(parent),
   _primaryView(primaryView)
 {
@@ -490,7 +492,7 @@ void MeasureLine::setLine(QLineF line)
 
 void MeasureLine::updateMeasurement()
 {
-  Q_ASSERT(_measureBox != NULL);
+  Q_ASSERT(_measureBox != nullptr);
 
   // Note: we use LaTeX units here, i.e., 1 pt = 1/72.27 in (as opposed to the
   // pdf unit 1 pt = 1/72 in, which in this context is called 1 bp); see
@@ -499,10 +501,10 @@ void MeasureLine::updateMeasurement()
   // NOTE: The view internally uses coordinates scaled by DPI/72 (owing to the
   // PDF convention of 1 in = 72 pt). We have to undo that scaling here to get
   // physical units.
-  float dx = line().dx() / QApplication::desktop()->physicalDpiX();
-  float dy = line().dy() / QApplication::desktop()->physicalDpiY();
+  qreal dx = line().dx() / QApplication::desktop()->physicalDpiX();
+  qreal dy = line().dy() / QApplication::desktop()->physicalDpiY();
   // length: Length of the measurement line in pt (i.e., 1/72.27 inch)
-  float length = 72.27 * qSqrt(dx * dx + dy * dy);
+  qreal length = 72.27 * qSqrt(dx * dx + dy * dy);
   
   int idx = _measureBox->currentIndex();
   _measureBox->clear();
@@ -525,16 +527,16 @@ void MeasureLine::updateMeasurement()
 
 void MeasureLine::updateMeasureBoxPos()
 {
-  const float ALMOST_ZERO = 1e-4;
-  Q_ASSERT(_primaryView != NULL);
-  Q_ASSERT(_measureBoxProxy != NULL);
-  Q_ASSERT(_measureBox != NULL);
+  const qreal ALMOST_ZERO = 1e-4;
+  Q_ASSERT(_primaryView != nullptr);
+  Q_ASSERT(_measureBoxProxy != nullptr);
+  Q_ASSERT(_measureBox != nullptr);
   
   QPointF center = line().pointAt(0.5);
   // scaling of a unit square
-  float scaling = _primaryView->mapToScene(0, 0, 1, 1).boundingRect().width();
+  qreal scaling = _primaryView->mapToScene(0, 0, 1, 1).boundingRect().width();
   // spacing of 2 pixels (mapped to scene coordinates)
-  float spacing = 2 * scaling;
+  qreal spacing = 2 * scaling;
   QPointF offset;
   
   // Get the size of the measurement box in scene coordinates
@@ -569,11 +571,13 @@ void MeasureLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 void MeasureLine::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
+  Q_UNUSED(event)
   setCursor(Qt::SizeAllCursor);
 }
 
 void MeasureLine::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
+  Q_UNUSED(event)
   unsetCursor();
 }
 
@@ -596,14 +600,14 @@ void MeasureLine::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 //
 Measure::Measure(PDFDocumentView * parent) :
   AbstractTool(parent),
-  _measureLine(NULL),
+  _measureLine(nullptr),
   _started(false)
 {
 }
 
 void Measure::mousePressEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
   if (event && _parent->scene()) {
     _started = (event->buttons() == Qt::LeftButton && event->button() == Qt::LeftButton);
     if (!_started)
@@ -624,8 +628,8 @@ void Measure::mousePressEvent(QMouseEvent * event)
 void Measure::mouseMoveEvent(QMouseEvent *event)
 {
   if (_started) {
-    Q_ASSERT(_measureLine != NULL);
-    Q_ASSERT(_measureLine->_grip2 != NULL);
+    Q_ASSERT(_measureLine != nullptr);
+    Q_ASSERT(_measureLine->_grip2 != nullptr);
     _measureLine->_grip2->mouseMove(_parent->mapToScene(event->pos()), event->modifiers());
     if ((event->pos() - _startPos).manhattanLength() > QApplication::startDragDistance() && !_measureLine->isVisible())
       _measureLine->show();
@@ -634,6 +638,7 @@ void Measure::mouseMoveEvent(QMouseEvent *event)
 
 void Measure::mouseReleaseEvent(QMouseEvent * event)
 {
+  Q_UNUSED(event)
   _started = false;
 }
 
@@ -681,9 +686,9 @@ inline double distanceFromRect(const QPointF & pt, const QRectF & rect) {
 Select::Select(PDFDocumentView * parent) :
   AbstractTool(parent),
   _cursorOverBox(false),
-  _highlightPath(NULL),
+  _highlightPath(nullptr),
   _mouseMode(MouseMode_None),
-  _rubberBand(NULL),
+  _rubberBand(nullptr),
   _pageNum(-1),
   _startBox(0),
   _startSubbox(0)
@@ -699,10 +704,8 @@ Select::Select(PDFDocumentView * parent) :
 
 Select::~Select()
 {
-  if (_highlightPath)
-    delete _highlightPath;
-  if (_rubberBand)
-    delete _rubberBand;
+  delete _highlightPath;
+  delete _rubberBand;
 }
 
 void Select::disarm()
@@ -713,7 +716,7 @@ void Select::disarm()
 
 void Select::mousePressEvent(QMouseEvent * event)
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
   
   // We only handle the left mouse button
   if (event->buttons() != Qt::LeftButton) {
@@ -721,8 +724,8 @@ void Select::mousePressEvent(QMouseEvent * event)
     return;
   }
   
-  PDFDocumentScene * scene = static_cast<PDFDocumentScene*>(_parent->scene());
-  Q_ASSERT(scene != NULL);
+  PDFDocumentScene * scene = dynamic_cast<PDFDocumentScene*>(_parent->scene());
+  Q_ASSERT(scene != nullptr);
 
   // get the number of the page the mouse is currently over; if the mouse is
   // not over any page (e.g., it's between pages), there's nothing left to do
@@ -731,14 +734,14 @@ void Select::mousePressEvent(QMouseEvent * event)
   if (pageNum < 0)
     return;
 
-  PDFPageGraphicsItem * pageGraphicsItem = static_cast<PDFPageGraphicsItem*>(scene->pageAt(pageNum));
-  Q_ASSERT(pageGraphicsItem != NULL);
+  PDFPageGraphicsItem * pageGraphicsItem = dynamic_cast<PDFPageGraphicsItem*>(scene->pageAt(pageNum));
+  Q_ASSERT(pageGraphicsItem != nullptr);
   
   // Create the highlight path to visualize selections in the scene
   // Note: it will be parented to the page it belongs to later on
   // FIXME: Maybe use PDFDocumentView::addHighlightPath here instead?
   if (!_highlightPath) {
-    _highlightPath = new QGraphicsPathItem(NULL);
+    _highlightPath = new QGraphicsPathItem(nullptr);
     _highlightPath->setBrush(QBrush(_highlightColor));
     _highlightPath->setPen(QPen(Qt::transparent));
   }
@@ -777,9 +780,9 @@ void Select::mousePressEvent(QMouseEvent * event)
 
 void Select::mouseMoveEvent(QMouseEvent *event)
 {
-  Q_ASSERT(_parent != NULL);
-  PDFDocumentScene * scene = static_cast<PDFDocumentScene*>(_parent->scene());
-  Q_ASSERT(scene != NULL);
+  Q_ASSERT(_parent != nullptr);
+  PDFDocumentScene * scene = dynamic_cast<PDFDocumentScene*>(_parent->scene());
+  Q_ASSERT(scene != nullptr);
   Q_ASSERT(!scene->document().isNull());
 
   // Check if the mouse cursor is over a page. If not, we bail out and keep the
@@ -795,8 +798,8 @@ void Select::mouseMoveEvent(QMouseEvent *event)
   if (_mouseMode == MouseMode_None && pageNum != _pageNum)
     resetBoxes(pageNum);
   
-  PDFPageGraphicsItem * pageGraphicsItem = static_cast<PDFPageGraphicsItem*>(scene->pageAt(pageNum));
-  Q_ASSERT(pageGraphicsItem != NULL);
+  PDFPageGraphicsItem * pageGraphicsItem = dynamic_cast<PDFPageGraphicsItem*>(scene->pageAt(pageNum));
+  Q_ASSERT(pageGraphicsItem != nullptr);
 
   QTransform toView = pageGraphicsItem->pointScale();
 
@@ -823,7 +826,7 @@ void Select::mouseMoveEvent(QMouseEvent *event)
   }
   case MouseMode_MarqueeSelect:
   {
-    if (!_highlightPath || _boxes.size() == 0)
+    if (!_highlightPath || _boxes.empty())
       break;
     if (_rubberBand)
       _rubberBand->setGeometry(QRect(_parent->mapFromScene(_startPos), event->pos()));
@@ -855,12 +858,12 @@ void Select::mouseMoveEvent(QMouseEvent *event)
   }
   case MouseMode_TextSelect:
   {
-    if (!_highlightPath || _boxes.size() == 0)
+    if (!_highlightPath || _boxes.empty())
       break;
     
     // Find the box (and subbox therein) that is closest to the current mouse
     // position
-    int i, j, endBox, endSubbox;
+    int i, j, endBox = 0, endSubbox;
     double minDist = -1;
     for (i = 0; i < _boxes.size(); ++i) {
       double dist = distanceFromRect(curPdfCoords, _boxes[i].boundingBox);
@@ -901,7 +904,7 @@ void Select::mouseMoveEvent(QMouseEvent *event)
     for (i = startBox; i <= endBox; ++i) {
       // Iterate over subboxes in the case that not the whole box might be
       // selected
-      if ((i == startBox || i == endBox) && _boxes[i].subBoxes.size() > 0) {
+      if ((i == startBox || i == endBox) && !_boxes[i].subBoxes.empty()) {
         for (j = 0; j < _boxes[i].subBoxes.size(); ++j) {
           if ((i == startBox && j < startSubbox) || (i == endBox && j > endSubbox))
             continue;
@@ -934,14 +937,14 @@ void Select::mouseReleaseEvent(QMouseEvent * event)
 
 void Select::keyPressEvent(QKeyEvent *event)
 {
-  Q_ASSERT(event != NULL);
+  Q_ASSERT(event != nullptr);
 
   if (event->matches(QKeySequence::Copy) && _highlightPath) {
     // We only handle "copy" (Ctrl+C) here
     if (!_highlightPath->path().isEmpty()) {
-      Q_ASSERT(_parent != NULL);
-      PDFDocumentScene * scene = static_cast<PDFDocumentScene*>(_parent->scene());
-      Q_ASSERT(scene != NULL);
+      Q_ASSERT(_parent != nullptr);
+      PDFDocumentScene * scene = dynamic_cast<PDFDocumentScene*>(_parent->scene());
+      Q_ASSERT(scene != nullptr);
       QSharedPointer<Backend::Document> doc(scene->document().toStrongRef());
       if (!doc)
         return;
@@ -952,8 +955,8 @@ void Select::keyPressEvent(QKeyEvent *event)
         if (page.isNull())
           return;
       
-        PDFPageGraphicsItem * pageGraphicsItem = static_cast<PDFPageGraphicsItem*>(scene->pageAt(_pageNum));
-        Q_ASSERT(pageGraphicsItem != NULL);
+        PDFPageGraphicsItem * pageGraphicsItem = dynamic_cast<PDFPageGraphicsItem*>(scene->pageAt(_pageNum));
+        Q_ASSERT(pageGraphicsItem != nullptr);
       
         QTransform fromView = pageGraphicsItem->pointScale().inverted();
         // Get the selected text
@@ -961,12 +964,12 @@ void Select::keyPressEvent(QKeyEvent *event)
         // more importantly, it keeps the original character bounding boxes.
         // toFillPolygons(), for example, alters (removes) overlapping regions
         // to ensure filling works properly. We don't need that here.
-        QString textToCopy = page->selectedText(_highlightPath->path().toSubpathPolygons(fromView), NULL, NULL, true);
+        QString textToCopy = page->selectedText(_highlightPath->path().toSubpathPolygons(fromView), nullptr, nullptr, true);
         // If the text is empty (e.g., there is no valid selection or the backend
         // doesn't (properly) support selectedText()) we don't overwrite the
         // clipboard
         if (!textToCopy.isEmpty()) {
-          Q_ASSERT(QApplication::clipboard() != NULL);
+          Q_ASSERT(QApplication::clipboard() != nullptr);
           QApplication::clipboard()->setText(textToCopy);
         }
       }
@@ -995,9 +998,9 @@ void Select::resetBoxes(const int pageNum /* = -1 */)
   _displayBoxes.clear();
 #endif
   
-  Q_ASSERT(_parent != NULL);
-  PDFDocumentScene * scene = static_cast<PDFDocumentScene*>(_parent->scene());
-  Q_ASSERT(scene != NULL);
+  Q_ASSERT(_parent != nullptr);
+  PDFDocumentScene * scene = dynamic_cast<PDFDocumentScene*>(_parent->scene());
+  Q_ASSERT(scene != nullptr);
   QSharedPointer<Backend::Document> doc(scene->document().toStrongRef());
   if (!doc)
     return;
@@ -1006,8 +1009,8 @@ void Select::resetBoxes(const int pageNum /* = -1 */)
   if (page.isNull())
     return;
 
-  PDFPageGraphicsItem * pageGraphicsItem = static_cast<PDFPageGraphicsItem*>(scene->pageAt(pageNum));
-  Q_ASSERT(pageGraphicsItem != NULL);
+  PDFPageGraphicsItem * pageGraphicsItem = dynamic_cast<PDFPageGraphicsItem*>(scene->pageAt(pageNum));
+  Q_ASSERT(pageGraphicsItem != nullptr);
   
   _boxes = page->boxes();
 #ifdef DEBUG
@@ -1033,7 +1036,7 @@ void Select::resetBoxes(const int pageNum /* = -1 */)
 
 void Select::pageDestroyed()
 {
-  _highlightPath = NULL;
+  _highlightPath = nullptr;
 #ifdef DEBUG
   _displayBoxes.clear();
 #endif
@@ -1042,12 +1045,12 @@ void Select::pageDestroyed()
 
 QString Select::selectedText() const
 {
-  Q_ASSERT(_parent != NULL);
+  Q_ASSERT(_parent != nullptr);
   if (!_highlightPath || _highlightPath->path().isEmpty())
     return QString();
 
-  PDFDocumentScene * scene = static_cast<PDFDocumentScene*>(_parent->scene());
-  Q_ASSERT(scene != NULL);
+  PDFDocumentScene * scene = dynamic_cast<PDFDocumentScene*>(_parent->scene());
+  Q_ASSERT(scene != nullptr);
   QSharedPointer<Backend::Document> doc(scene->document().toStrongRef());
   if (!doc)
     return QString();
@@ -1055,8 +1058,8 @@ QString Select::selectedText() const
   if (page.isNull())
     return QString();
 
-  PDFPageGraphicsItem * pageGraphicsItem = static_cast<PDFPageGraphicsItem*>(scene->pageAt(_pageNum));
-  Q_ASSERT(pageGraphicsItem != NULL);
+  PDFPageGraphicsItem * pageGraphicsItem = dynamic_cast<PDFPageGraphicsItem*>(scene->pageAt(_pageNum));
+  Q_ASSERT(pageGraphicsItem != nullptr);
 
   QTransform fromView = pageGraphicsItem->pointScale().inverted();
   // Get the selected text
@@ -1064,7 +1067,7 @@ QString Select::selectedText() const
   // more importantly, it keeps the original character bounding boxes.
   // toFillPolygons(), for example, alters (removes) overlapping regions
   // to ensure filling works properly. We don't need that here.
-  return page->selectedText(_highlightPath->path().toSubpathPolygons(fromView), NULL, NULL, true);
+  return page->selectedText(_highlightPath->path().toSubpathPolygons(fromView), nullptr, nullptr, true);
 }
 
 void Select::setHighlightColor(const QColor & color)

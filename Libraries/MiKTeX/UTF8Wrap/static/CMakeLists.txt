@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2011-2017 Christian Schenk
+## Copyright (C) 2011-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -33,13 +33,18 @@ target_include_directories(${utf8wrap_lib_name}
     ${public_include_directories}
 )
 
+target_link_libraries(${utf8wrap_lib_name}
+  PRIVATE
+    ${util_lib_name}
+)
+
 set(utf8wrap_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/utf8wrap.cpp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND utf8wrap_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 

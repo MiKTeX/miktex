@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2012  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2012-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@
 #include <QStyle>
 #include <QTabBar>
 
-ClosableTabWidget::ClosableTabWidget(QWidget * parent /* = NULL */)
+ClosableTabWidget::ClosableTabWidget(QWidget * parent /* = nullptr */)
  : QTabWidget(parent)
 {
 	_closeButton = new QToolButton(this);
-	Q_ASSERT(_closeButton != NULL);
+	Q_ASSERT(_closeButton);
 	_closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
 	_closeButton->setCursor(Qt::ArrowCursor);
 //	_closeButton->setStyleSheet(QString::fromUtf8("QToolButton { border: none; padding: 0px; }"));
@@ -41,12 +41,12 @@ void ClosableTabWidget::resizeEvent(QResizeEvent * e)
 	QTabWidget::resizeEvent(e);
 
 	// Position the close button on the right
-	Q_ASSERT(_closeButton != NULL);
+	Q_ASSERT(_closeButton);
 	QSize b = _closeButton->sizeHint();
 	_closeButton->move(rect().right() - b.width(), 0);
 
 	// Ensure that the tab bar is small enough not to overlap the close button
-	Q_ASSERT(tabBar() != NULL);
+	Q_ASSERT(tabBar());
 	tabBar()->setMaximumWidth(rect().right() - b.width());
 }
 

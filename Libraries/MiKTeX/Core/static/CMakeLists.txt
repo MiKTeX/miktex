@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ##
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,6 +27,14 @@ add_dependencies(${core_lib_name} gen-core-sources)
 
 set_source_files_properties(
   ${generated_core_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
+
+add_dependencies(${core_lib_name} gen-git-info)
+
+set_source_files_properties(
+  ${MIKTEX_GITINFO_H}
   PROPERTIES
     GENERATED TRUE
 )

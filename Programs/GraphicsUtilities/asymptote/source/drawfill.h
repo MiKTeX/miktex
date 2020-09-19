@@ -21,8 +21,9 @@ public:
     reportError("non-cyclic path cannot be filled");
   }
   
-  drawFill(const vm::array& src, bool stroke, pen pentype)
-    : drawSuperPathPenBase(src,pentype), stroke(stroke) {
+  drawFill(const vm::array& src, bool stroke, pen pentype,
+           const string& key="") : 
+    drawElement(key), drawSuperPathPenBase(src,pentype), stroke(stroke) {
     if(!stroke && !cyclic()) noncyclic();
   }
 
@@ -51,8 +52,9 @@ public:
   
 class drawShade : public drawFill {
 public:
-  drawShade(const vm::array& src, bool stroke, pen pentype)
-    : drawFill(src,stroke,pentype) {}
+  drawShade(const vm::array& src, bool stroke, pen pentype,
+            const string& key="")
+    : drawFill(src,stroke,pentype,key) {}
 
   void bounds(bbox& b, iopipestream& iopipe, boxvector& vbox,
               bboxlist& bboxstack) {
@@ -85,9 +87,10 @@ protected:
   vm::array pens;
   const transform T;
 public:  
-  drawLatticeShade(const vm::array& src, bool stroke, pen pentype,
-                   const vm::array& pens, const camp::transform& T=identity)
-    : drawShade(src,stroke,pentype), pens(pens), T(T) {}
+  drawLatticeShade(const vm::array& src, bool stroke,
+                   pen pentype, const vm::array& pens,
+                   const camp::transform& T=identity, const string& key="")
+    : drawShade(src,stroke,pentype,key), pens(pens), T(T) {}
   
   void palette(psfile *out) {
     out->gsave();
@@ -121,10 +124,11 @@ protected:
   bool extendb;
   ColorSpace colorspace;
 public:  
-  drawAxialShade(const vm::array& src, bool stroke, pen pentype,
-                 pair a, bool extenda, pen penb, pair b, bool extendb) 
-    : drawShade(src,stroke,pentype), a(a), extenda(extenda), penb(penb),
-      b(b), extendb(extendb) {}
+  drawAxialShade(const vm::array& src, bool stroke,
+                 pen pentype, pair a, bool extenda, pen penb, pair b,
+                 bool extendb, const string& key="") 
+    : drawShade(src,stroke,pentype,key), a(a), extenda(extenda),
+      penb(penb), b(b), extendb(extendb) {}
   
   bool svgpng() {return false;}
   
@@ -148,9 +152,9 @@ protected:
 public:
   drawRadialShade(const vm::array& src, bool stroke,
                   pen pentype, pair a, double ra, bool extenda, pen penb,
-                  pair b, double rb, bool extendb)
-    : drawAxialShade(src,stroke,pentype,a,extenda,penb,b,extendb),
-      ra(ra), rb(rb) {}
+                  pair b, double rb, bool extendb, const string& key="")
+    : drawAxialShade(src,stroke,pentype,a,extenda,penb,b,
+                     extendb,key), ra(ra), rb(rb) {}
   
   bool svgpng() {return ra > 0.0;}
   
@@ -169,11 +173,12 @@ class drawGouraudShade : public drawShade {
 protected:
   vm::array pens,vertices,edges;
 public:  
-  drawGouraudShade(const vm::array& src, bool stroke, pen pentype,
-                   const vm::array& pens, const vm::array& vertices,
-                   const vm::array& edges)
-    : drawShade(src,stroke,pentype), pens(pens), vertices(vertices),
-      edges(edges) {}
+  drawGouraudShade(const vm::array& src, bool stroke,
+                   pen pentype, const vm::array& pens,
+                   const vm::array& vertices, const vm::array& edges,
+                   const string& key="")
+    : drawElement(key), drawShade(src,stroke,pentype,key), pens(pens),
+      vertices(vertices), edges(edges) {}
   
   bool svgpng() {return !settings::getSetting<bool>("svgemulation");}
   
@@ -198,8 +203,10 @@ protected:
 public:  
   drawTensorShade(const vm::array& src, bool stroke,
                   pen pentype, const vm::array& pens,
-                  const vm::array& boundaries, const vm::array& z)
-    : drawShade(src,stroke,pentype), pens(pens), boundaries(boundaries), z(z) {}
+                  const vm::array& boundaries, const vm::array& z,
+                  const string& key="") : 
+    drawShade(src,stroke,pentype,key), pens(pens), boundaries(boundaries),
+    z(z) {}
   
   bool svgpng() {
     return pens.size() > 1 || !settings::getSetting<bool>("svgemulation");
@@ -224,9 +231,9 @@ class drawFunctionShade : public drawFill {
 protected:  
   string shader;
 public:
-  drawFunctionShade(const vm::array& src, bool stroke, pen pentype,
-                    const string& shader)
-    : drawFill(src,stroke,pentype), shader(shader) {
+  drawFunctionShade(const vm::array& src, bool stroke,
+                    pen pentype, const string& shader, const string& key="")
+    : drawFill(src,stroke,pentype,key), shader(shader) {
     string texengine=settings::getSetting<string>("tex");
     if(!settings::pdf(texengine))
       reportError("functionshade is not implemented for the '"+texengine+

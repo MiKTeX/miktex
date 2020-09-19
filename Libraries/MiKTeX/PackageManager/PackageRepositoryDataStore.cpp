@@ -1,6 +1,6 @@
 /* PackageRepositoryDataStore.cpp
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -22,10 +22,12 @@
 #include "config.h"
 
 #include <miktex/Core/Cfg>
-#include <miktex/Core/Registry>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Uri>
 
 #include <miktex/PackageManager/PackageManager>
+
+#include <miktex/Util/PathNameUtil>
 
 #include "internal.h"
 #include "PackageRepositoryDataStore.h"
@@ -36,6 +38,7 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
+using namespace MiKTeX::Util;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
@@ -44,8 +47,8 @@ PackageRepositoryDataStore::PackageRepositoryDataStore(std::shared_ptr<WebSessio
 {
   MIKTEX_ASSERT(webSession != nullptr);
   comboCfg.Load(
-    session->IsAdminMode() ? "" : session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI,
-    session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_REPOSITORIES_INI);
+    session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserConfigRoot) / PathName(MIKTEX_PATH_REPOSITORIES_INI),
+    session->GetSpecialPath(SpecialPath::CommonConfigRoot) / PathName(MIKTEX_PATH_REPOSITORIES_INI));
 }
 
 void PackageRepositoryDataStore::Download()
@@ -63,13 +66,11 @@ void PackageRepositoryDataStore::Download()
   }
 }
 
-const char* DEFAULT_REMOTE_SERVICE = "https://api2.miktex.org/";
-
 string PackageRepositoryDataStore::GetRemoteServiceBaseUrl()
 {
   if (remoteServiceBaseUrl.empty())
   {
-    remoteServiceBaseUrl = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_SERVICE, DEFAULT_REMOTE_SERVICE).GetString();
+    remoteServiceBaseUrl = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_SERVICE).GetString();
   }
   return remoteServiceBaseUrl;
 }
@@ -130,17 +131,17 @@ RepositoryType PackageRepositoryDataStore::DetermineRepositoryType(const string&
     return RepositoryType::Remote;
   }
 
-  if (!Utils::IsAbsolutePath(repository))
+  if (!PathNameUtil::IsAbsolutePath(repository))
   {
     MIKTEX_UNEXPECTED();
   }
 
-  if (PackageManager::IsLocalPackageRepository(repository))
+  if (PackageManager::IsLocalPackageRepository(PathName(repository)))
   {
     return RepositoryType::Local;
   }
 
-  if (Utils::IsMiKTeXDirectRoot(repository))
+  if (Utils::IsMiKTeXDirectRoot(PathName(repository)))
   {
     return RepositoryType::MiKTeXDirect;
   }
@@ -157,14 +158,6 @@ RepositoryType PackageRepositoryDataStore::DetermineRepositoryType(const string&
 
 RepositoryInfo PackageRepositoryDataStore::VerifyPackageRepository(const string& url)
 {
-#if defined(_DEBUG)
-  if (url == "http://ctan.miktex.org/systems/win32/miktex/tm/packages/")
-  {
-    RepositoryInfo repositoryInfo;
-    repositoryInfo.delay = 0;
-    return repositoryInfo;
-  }
-#endif
   for (const RepositoryInfo& repository : repositories)
   {
     if (repository.url == url)

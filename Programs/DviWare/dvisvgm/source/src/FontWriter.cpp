@@ -2,7 +2,7 @@
 ** FontWriter.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,6 +26,10 @@
 #include "FontWriter.hpp"
 #include "Message.hpp"
 #include "utility.hpp"
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
+#endif
 
 using namespace std;
 
@@ -42,21 +46,19 @@ const array<FontWriter::FontFormatInfo, 4> FontWriter::_formatInfos {{
 /** Returns the corresponding FontFormat for a given format name (e.g. "svg", "woff" etc.). */
 FontWriter::FontFormat FontWriter::toFontFormat (string formatstr) {
 	formatstr = util::tolower(formatstr);
-	for (const FontFormatInfo &info : _formatInfos) {
-		if (formatstr == info.formatstr_short)
-			return info.format;
-	}
-	return FontFormat::UNKNOWN;
+	auto it = find_if(_formatInfos.begin(), _formatInfos.end(), [&](const FontFormatInfo &info) {
+		return info.formatstr_short == formatstr;
+	});
+	return it != _formatInfos.end() ? it->format : FontFormat::UNKNOWN;
 }
 
 
 /** Returns the corresponding FontFormatInfo for a given FontFormat. */
 const FontWriter::FontFormatInfo* FontWriter::fontFormatInfo (FontFormat format) {
-	for (const FontFormatInfo &info : _formatInfos) {
-		if (format == info.format)
-			return &info;
-	}
-	return nullptr;
+	auto it = find_if(_formatInfos.begin(), _formatInfos.end(), [&](const FontFormatInfo &info) {
+		return info.format == format;
+	});
+	return it != _formatInfos.end() ? &(*it) : nullptr;
 }
 
 
@@ -100,33 +102,38 @@ FontWriter::FontWriter (const PhysicalFont &font) : _font(font) {
 }
 
 
-struct SFDActions : Glyph::Actions {
-	SFDActions (ostream &os) : _os(os) {}
-	void draw (char cmd, const Glyph::Point *points, int n) override {
-		if (cmd == 'Q') {
-			// convert quadratic Bézier curve to cubic one
-			DPair p0(_currentPoint.x(), _currentPoint.y());
-			DPair p1(points[0].x(), points[0].y());
-			DPair p2(points[1].x(), points[1].y());
-			Bezier bezier(p0, p1, p2);
-			for (int i=1; i < 4; i++)
-				_os << lround(bezier.point(i).x()) << ' ' << lround(bezier.point(i).y()) << ' ';
-			_os << 'c';
-		}
-		else {
-			for (int i=0; i < n; i++)
-				_os << points[i].x() << ' ' << points[i].y() << ' ';
-			switch (cmd) {
-				case 'M': _os << 'm'; _startPoint = points[0]; break;
-				case 'L': _os << 'l'; break;
-				case 'C': _os << 'c'; break;
-				case 'Z': _os << _startPoint.x() << ' ' << _startPoint.y() << " l"; _currentPoint = _startPoint; break;
-			}
-		}
-		if (n > 0)
-			_currentPoint = points[n-1];
-		_os << " 0\n";
+struct SFDActions : Glyph::IterationActions {
+	explicit SFDActions (ostream &os) : _os(os) {}
+
+	using Point = Glyph::Point;
+	void moveto (const Point &p) override {write('m', p);}
+	void lineto (const Point &p) override {write('l', p);}
+	void cubicto (const Point &p1, const Point &p2, const Point &p3) override {write('c', p1, p2, p3);	}
+	void closepath () override {write('m', startPoint());}
+
+	void quadto (const Point &p1, const Point &p2) override {
+		// convert quadratic Bézier curve to cubic one
+		DPair pt0(currentPoint().x(), currentPoint().y());
+		DPair pt1(p1.x(), p1.y());
+		DPair pt2(p2.x(), p2.y());
+		Bezier b(pt0, pt1, pt2);
+		write('c', round(b.point(0)), round(b.point(1)), round(b.point(2)), round(b.point(3)));
 	}
+
+	template <typename ...Args>
+	void write (char cmd, const Args& ...args) {
+		writeParams(args...);
+		_os << cmd << " 0\n";
+	}
+
+	static void writeParams () {}
+
+	template <typename Pt, typename ...Args>
+	void writeParams (const Pt &p, const Args& ...args) const {
+		_os << p.x() << ' ' << p.y() << ' ';
+		writeParams(args...);
+	}
+
 	ostream &_os;
    Glyph::Point _startPoint, _currentPoint;
 };
@@ -135,7 +142,11 @@ struct SFDActions : Glyph::Actions {
 /** Creates a Spline Font Database (SFD) file describing the font and its glyphs.
  *  https://fontforge.github.io/sfdformat.html */
 static void writeSFD (const string &sfdname, const PhysicalFont &font, const set<int> &charcodes, GFGlyphTracer::Callback *cb) {
+#if defined(MIKTEX_WINDOWS)
+        ofstream sfd(EXPATH_(sfdname));
+#else
 	ofstream sfd(sfdname);
+#endif
 	if (!sfd)
 		throw FontWriterException("failed writing SFD file "+sfdname);
 
@@ -145,7 +156,7 @@ static void writeSFD (const string &sfdname, const PhysicalFont &font, const set
 
 	// ensure that the sum of the SFD's Ascent and Descent values equals the font's units per EM
 	double yext = font.ascent()+font.descent();
-	double scale = double(font.unitsPerEm())/(yext != 0 ? yext : fabs(font.ascent()));
+	double scale = double(font.unitsPerEm())/(yext != 0 ? yext : abs(font.ascent()));
 	sfd <<
 		"Ascent: " << font.ascent()*scale << "\n"
 		"Descent: " << font.descent()*scale << "\n"
@@ -255,12 +266,16 @@ string FontWriter::createFontFile (FontFormat format, const set<int> &charcodes,
 bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes, ostream &os, GFGlyphTracer::Callback *cb) const {
 	if (const FontFormatInfo *info = fontFormatInfo(format)) {
 		string filename = createFontFile(format, charcodes, cb);
+#if defined(MIKTEX_WINDOWS)
+                ifstream ifs(EXPATH_(filename), ios::binary);
+#else
 		ifstream ifs(filename, ios::binary);
+#endif
 		if (ifs) {
 			os << "@font-face{"
 				<< "font-family:" << _font.name() << ';'
 				<< "src:url(data:" << info->mimetype << ";base64,";
-			util::base64_copy(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os));
+			util::base64_copy(ifs, os);
 			os << ") format('" << info->formatstr_long << "');}\n";
 			ifs.close();
 			if (!PhysicalFont::KEEP_TEMP_FILES)

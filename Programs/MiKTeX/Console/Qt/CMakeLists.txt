@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2017-2018 Christian Schenk
+## Copyright (C) 2017-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -56,7 +56,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
   list(APPEND console_sources
     ${CMAKE_CURRENT_BINARY_DIR}/console.rc
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 
@@ -152,7 +152,7 @@ if(MIKTEX_MACOS_BUNDLE)
       OUTPUT_NAME ${MIKTEX_MACOS_BUNDLE_NAME}
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist.in"
       MACOSX_BUNDLE_BUNDLE_NAME ${MIKTEX_MACOS_BUNDLE_NAME}
-      MACOSX_BUNDLE_SHORT_VERSION_STRING "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}.${MIKTEX_J2000_VERSION}"
+      MACOSX_BUNDLE_SHORT_VERSION_STRING "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}.${MIKTEX_PATCH_VERSION}"
       MACOSX_BUNDLE_GUI_IDENTIFIER "org.miktex.console"
   )
 endif()
@@ -216,7 +216,26 @@ if(MIKTEX_MACOS_BUNDLE)
 endif()
 
 if(MIKTEX_MACOS_BUNDLE AND WITH_CODE_SIGNING)
+  configure_file(
+    ${CMAKE_SOURCE_DIR}/BuildUtilities/sign/mac/codesign_executable.in
+    ${CMAKE_BINARY_DIR}/BuildUtilities/sign/mac/tmp/codesign_executable
+    @ONLY
+  )
+  configure_file(
+    ${CMAKE_SOURCE_DIR}/BuildUtilities/sign/mac/codesign_miktex.in
+    ${CMAKE_BINARY_DIR}/BuildUtilities/sign/mac/tmp/codesign_miktex
+    @ONLY
+  )
+  file(
+    COPY
+      ${CMAKE_BINARY_DIR}/BuildUtilities/sign/mac/tmp/codesign_executable
+      ${CMAKE_BINARY_DIR}/BuildUtilities/sign/mac/tmp/codesign_miktex
+    DESTINATION
+      ${CMAKE_BINARY_DIR}/BuildUtilities/sign/mac
+    FILE_PERMISSIONS
+      OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+  )
   install(CODE
-    "execute_process(COMMAND \"${CMAKE_SOURCE_DIR}/BuildUtilities/sign/mac/codesign_miktex\" \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_NAME}.app\")"
+    "execute_process(COMMAND \"${CMAKE_BINARY_DIR}/BuildUtilities/sign/mac/codesign_miktex\" \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_NAME}.app\")"
   )
 endif()

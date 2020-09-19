@@ -41,6 +41,12 @@ extern "C" int fseeko(FILE *, off_t, int);
 extern "C" off_t ftello(FILE *);
 #endif  
 
+#ifdef __APPLE__
+#include <rpc/xdr.h>
+extern bool_t xdr_long(XDR *__xdrs, long *__lp);
+extern bool_t xdr_u_long(XDR *__xdrs, u_long *__ulp);
+#endif
+
 #ifdef _POSIX_SOURCE
 #undef _POSIX_SOURCE
 #include <rpc/rpc.h>

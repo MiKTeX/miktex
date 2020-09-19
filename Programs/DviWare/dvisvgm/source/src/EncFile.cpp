@@ -2,7 +2,7 @@
 ** EncFile.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,8 +26,8 @@
 #include "FileFinder.hpp"
 #include "Message.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -36,7 +36,7 @@ static string read_entry (InputReader &in);
 static bool valid_name_char (int c);
 
 
-EncFile::EncFile (const string &encname) : _encname(encname)
+EncFile::EncFile (string encname) : _encname(std::move(encname))
 {
 	read();
 }
@@ -52,7 +52,7 @@ const char* EncFile::path () const {
 void EncFile::read () {
 	if (const char *p = path()) {
 #if defined(MIKTEX_WINDOWS)
-                ifstream ifs(UW_(p));
+                ifstream ifs(EXPATH_(p));
 #else
 		ifstream ifs(p);
 #endif
@@ -109,7 +109,7 @@ static string read_entry (InputReader &in) {
 	while (!in.eof() && ((in.peek() == '/' && accept_slashes) || valid_name_char(in.peek()))) {
 		if (in.peek() != '/')
 			accept_slashes = false;
-		entry += in.get();
+		entry += char(in.get());
 	}
 	if (entry.length() > 1) {
 		// strip leading slashes
@@ -135,6 +135,6 @@ static bool valid_name_char (int c) {
  * @return character name assigned to character code c*/
 const char* EncFile::charName (uint32_t c) const {
 	if (c < _table.size())
-		return !_table[c].empty() ? _table[c].c_str() : 0;
-	return 0;
+		return !_table[c].empty() ? _table[c].c_str() : nullptr;
+	return nullptr;
 }

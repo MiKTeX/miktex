@@ -1,6 +1,6 @@
 /* SourceSpecialsDialog.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -152,12 +152,12 @@ BOOL SourceSpecialsDialog::OnInitDialog()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 
   return ret;
@@ -199,12 +199,12 @@ void SourceSpecialsDialog::OnGoto()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -246,12 +246,12 @@ void SourceSpecialsDialog::OnEditSource()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -264,11 +264,11 @@ void SourceSpecialsDialog::OnClose()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -293,10 +293,10 @@ void SourceSpecialsDialog::OnDblclkSourceSpecials(NMHDR* pNMHDR, LRESULT* pResul
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }

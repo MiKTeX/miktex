@@ -6,6 +6,13 @@
 
 #include "drawpath3.h"
 #include "drawsurface.h"
+#include "material.h"
+
+#ifdef HAVE_LIBGLM
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#endif
 
 namespace camp {
 
@@ -23,7 +30,7 @@ bool drawPath3::write(prcfile *out, unsigned int *, double, groupsmap&)
     for(Int i=0; i <= n; ++i)
       controls[i]=g.point(i);
     
-    out->addLine(n+1,controls,color);
+    out->addLine(n+1,controls,diffuse);
   } else {
     int m=3*n+1;
     triple *controls=new(UseGC) triple[m];
@@ -37,85 +44,84 @@ bool drawPath3::write(prcfile *out, unsigned int *, double, groupsmap&)
     }
     controls[++k]=g.precontrol(n);
     controls[++k]=g.point(n);
-    out->addBezierCurve(m,controls,color);
+    out->addBezierCurve(m,controls,diffuse);
   }
   
   return true;
 }
 
-void drawPath3::render(GLUnurbs *nurb, double size2,
-                       const triple& b, const triple& B,
-                       double perspective, bool lighton, bool transparent)
+bool drawPath3::write(jsfile *out)
+{
+#ifdef HAVE_LIBGLM
+  Int n=g.length();
+  if(n == 0 || invisible)
+    return true;
+
+  if(billboard) {
+    meshinit();
+    drawElement::centerIndex=centerIndex;
+  } else drawElement::centerIndex=0;
+  
+  setcolors(false,diffuse,emissive,specular,shininess,metallic,fresnel0,out);
+  
+  for(Int i=0; i < n; ++i) {
+    if(g.straight(i)) {
+      out->addCurve(g.point(i),g.point(i+1),Min,Max);
+    } else
+      out->addCurve(g.point(i),g.postcontrol(i),
+                    g.precontrol(i+1),g.point(i+1),Min,Max);
+  }
+#endif  
+  return true;
+}
+
+void drawPath3::render(double size2, const triple& b, const triple& B,
+                       double perspective, bool remesh)
 {
 #ifdef HAVE_GL
   Int n=g.length();
-  if(n == 0 || invisible || ((color.A < 1.0) ^ transparent))
-    return;
+  if(n == 0 || invisible) return;
 
-  const bool billboard=interaction == BILLBOARD &&
-    !settings::getSetting<bool>("offscreen");
-  triple m,M;
-  
-  double f,F,s;
-  if(perspective) {
-    f=Min.getz()*perspective;
-    F=Max.getz()*perspective;
-    m=triple(min(f*b.getx(),F*b.getx()),min(f*b.gety(),F*b.gety()),b.getz());
-    M=triple(max(f*B.getx(),F*B.getx()),max(f*B.gety(),F*B.gety()),B.getz());
-    s=max(f,F);
-  } else {
-    m=b;
-    M=B;
-    s=1.0;
-  }
-  
-  const pair size3(s*(B.getx()-b.getx()),s*(B.gety()-b.gety()));
-  
-  double t[16]; // current transform
-  glGetDoublev(GL_MODELVIEW_MATRIX,t);
-// Like Fortran, OpenGL uses transposed (column-major) format!
-  run::transpose(t,4);
-  run::inverse(t,4);
-  bbox3 box(m,M);
-  box.transform(t);
-  m=box.Min();
-  M=box.Max();
+  setcolors(false,diffuse,emissive,specular,shininess,metallic,fresnel0);
 
-  if(!billboard && (Max.getx() < m.getx() || Min.getx() > M.getx() ||
-                    Max.gety() < m.gety() || Min.gety() > M.gety() ||
-                    Max.getz() < m.getz() || Min.getz() > M.getz()))
-    return;
+  setMaterial(material1Data,drawMaterial1);
   
-  drawBezierPatch::S.draw();
-  
-  GLfloat Diffuse[]={0.0,0.0,0.0,(GLfloat) color.A};
-  glMaterialfv(GL_FRONT,GL_DIFFUSE,Diffuse);
-  static GLfloat Black[]={0.0,0.0,0.0,1.0};
-  glMaterialfv(GL_FRONT,GL_AMBIENT,Black);
-  GLfloat Emissive[]={(GLfloat) color.R,(GLfloat) color.G,(GLfloat) color.B,
-		      (GLfloat) color.A};
-  glMaterialfv(GL_FRONT,GL_EMISSION,Emissive);
-  glMaterialfv(GL_FRONT,GL_SPECULAR,Black);
-  glMaterialf(GL_FRONT,GL_SHININESS,128.0);
-  
-  
-  
-  if(billboard) {
-    for(Int i=0; i < n; ++i) {
-      triple controls[]={BB.transform(g.point(i)),BB.transform(g.postcontrol(i)),
-                         BB.transform(g.precontrol(i+1)),
-                         BB.transform(g.point(i+1))};
-      R.queue(controls,straight,size3.length()/size2,m,M);
-    }
-  } else {
+  bool offscreen;
+  if(gl::exporting)
+    offscreen=false;
+  else if(billboard) {
+    drawElement::centerIndex=centerIndex;
     BB.init(center);
-    for(Int i=0; i < n; ++i) {
-      triple controls[]={g.point(i),g.postcontrol(i),g.precontrol(i+1),
-                         g.point(i+1)};
-      R.queue(controls,straight,size3.length()/size2,m,M);
-    }
+    offscreen=bbox2(Min,Max,BB).offscreen();
+  } else
+    offscreen=bbox2(Min,Max).offscreen();
+  
+  if(offscreen) { // Fully offscreen
+    R.Onscreen=false;
+    R.data.clear();
+    return;
   }
-  R.draw();
+
+  for(Int i=0; i < n; ++i) {
+    triple controls[]={g.point(i),g.postcontrol(i),g.precontrol(i+1),
+                       g.point(i+1)};
+    triple *Controls;
+    triple Controls0[4];
+    if(billboard) {
+      Controls=Controls0;
+      for(size_t i=0; i < 4; i++) {
+        Controls[i]=BB.transform(controls[i]);
+      }
+    } else
+      Controls=controls;
+
+    double s=perspective ? Min.getz()*perspective : 1.0; // Move to glrender
+  
+    const pair size3(s*(B.getx()-b.getx()),s*(B.gety()-b.gety()));
+  
+    R.queue(controls,g.straight(i),size3.length()/size2);
+  }
+  
 #endif
 }
 
@@ -214,41 +220,63 @@ void drawNurbsPath3::displacement()
 #endif  
 }
 
-void drawNurbsPath3::render(GLUnurbs *nurb, double, const triple&,
-                            const triple&, double, bool lighton,
-                            bool transparent)
+void drawNurbsPath3::render(double, const triple&, const triple&,
+                            double, bool remesh)
 {
 #ifdef HAVE_GL
-  if(invisible || ((color.A < 1.0) ^ transparent))
-    return;
+  if(invisible) return;
   
-  GLfloat Diffuse[]={0.0,0.0,0.0,(GLfloat) color.A};
-  glMaterialfv(GL_FRONT,GL_DIFFUSE,Diffuse);
-  
-  static GLfloat Black[]={0.0,0.0,0.0,1.0};
-  glMaterialfv(GL_FRONT,GL_AMBIENT,Black);
-    
-  GLfloat Emissive[]={(GLfloat) color.R,(GLfloat) color.G,(GLfloat) color.B,
-		      (GLfloat) color.A};
-  glMaterialfv(GL_FRONT,GL_EMISSION,Emissive);
-    
-  glMaterialfv(GL_FRONT,GL_SPECULAR,Black);
-  
-  glMaterialf(GL_FRONT,GL_SHININESS,128.0);
-  
-  if(weights)
-    gluNurbsCallback(nurb,GLU_NURBS_VERTEX,(_GLUfuncptr) glVertex4fv);
-  else gluNurbsCallback(nurb,GLU_NURBS_VERTEX,(_GLUfuncptr) glVertex3fv);
-
-  gluBeginCurve(nurb);
-  int order=degree+1;
-  gluNurbsCurve(nurb,order+n,Knots,weights ? 4 : 3,Controls,order,
-                weights ? GL_MAP1_VERTEX_4 : GL_MAP1_VERTEX_3);
-  gluEndCurve(nurb);
-  
-  if(weights)
-    gluNurbsCallback(nurb,GLU_NURBS_VERTEX,(_GLUfuncptr) glVertex3fv);
+// TODO: implement NURBS renderer
 #endif
 }
 
+bool drawPixel::write(prcfile *out, unsigned int *, double, groupsmap&)
+{
+  if(invisible)
+    return true;
+
+  out->addPoint(v,color,width);
+  
+  return true;
+}
+  
+bool drawPixel::write(jsfile *out)
+{
+#ifdef HAVE_LIBGLM
+  if(invisible)
+    return true;
+
+  RGBAColour Black(0.0,0.0,0.0,color.A);
+  setcolors(false,color,color,Black,1.0,0.0,0.04,out);
+  
+  out->addPixel(v,width,Min,Max);
+#endif  
+  return true;
+}
+
+void drawPixel::render(double size2, const triple& b, const triple& B,
+                       double perspective, bool remesh) 
+{
+#ifdef HAVE_GL
+  if(invisible) return;
+  
+  RGBAColour Black(0.0,0.0,0.0,color.A);
+  setcolors(false,color,color,Black,1.0,0.0,0.04);
+
+  setMaterial(material0Data,drawMaterial0);
+
+  if(!gl::exporting && bbox2(Min,Max).offscreen()) { // Fully offscreen
+    R.data.clear();
+    return;
+  }
+
+  R.queue(v,width);
+#endif
+}
+
+drawElement *drawPixel::transformed(const double* t)
+{
+  return new drawPixel(t*v,p,width,KEY);
+}
+  
 } //namespace camp

@@ -2,7 +2,7 @@
 ** Calculator.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -71,6 +71,7 @@ double Calculator::term (istream &is, bool skip) { // term:
 	for (;;)
 		switch (lookAhead(is)) {
 			case '*': left *= prim(is, true); break;  // prim '*' prim => $1 * $3
+			case '(': left *= prim(is, false); break; // prim '*' prim => $1 * $3
 			case '/': {                               // prim '/' prim => $1 / $3
 				double denom = prim(is, true);
 				if (denom == 0)

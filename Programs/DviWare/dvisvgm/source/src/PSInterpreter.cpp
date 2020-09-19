@@ -2,7 +2,7 @@
 ** PSInterpreter.cpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -27,11 +27,13 @@
 #include <sstream>
 #include <unordered_map>
 #include "FileFinder.hpp"
+#include "FileSystem.hpp"
 #include "InputReader.hpp"
 #include "Message.hpp"
 #include "PSFilter.hpp"
 #include "PSInterpreter.hpp"
 #include "SignalHandler.hpp"
+#include "utility.hpp"
 
 using namespace std;
 
@@ -54,8 +56,15 @@ void PSInterpreter::init () {
 			"-dWRITESYSTEMDICT", // leave systemdict writable as some operators must be replaced
 			"-dNOPROMPT"
 		};
-		if (int gsrev = _gs.revision())
+		if (int gsrev = _gs.revision()) {
 			gsargs.emplace_back(gsrev == 922 ? "-dREALLYDELAYBIND" : "-dDELAYBIND");
+			// As of GS 9.50, -dSAFER is active by default which leads to warnings
+			// in conjunction with -dDELAYBIND and -dWRITESYSTEMDICT.
+			// Thus, -dDELAYSAFER (or -dNOSAFER) must be added.
+			// https://www.ghostscript.com/doc/9.50/Use.htm#Safer
+			if (gsrev >= 950)
+				gsargs.emplace_back("-dDELAYSAFER");
+		}
 		_gs.init(gsargs.size(), gsargs.data(), this);
 		_gs.set_stdio(input, output, error);
 		_initialized = true;
@@ -114,7 +123,7 @@ bool PSInterpreter::execute (const char *str, size_t len, bool flush) {
 
 	if (_filter && _filter->active()) {
 		PSFilter *filter = _filter;
-		_filter = 0;             // prevent recursion when filter calls execute()
+		_filter = nullptr;       // prevent recursion when filter calls execute()
 		filter->execute(str, len);
 		if (filter->active())    // filter still active after execution?
 			_filter = filter;
@@ -192,7 +201,7 @@ int GSDLLCALL PSInterpreter::input (void *inst, char *buf, int len) {
  *  @param[in] len number of characters in buf
  *  @return number of processed characters (equals 'len') */
 int GSDLLCALL PSInterpreter::output (void *inst, const char *buf, int len) {
-	PSInterpreter *self = static_cast<PSInterpreter*>(inst);
+	auto self = static_cast<PSInterpreter*>(inst);
 	if (self && self->_actions) {
 		const size_t MAXLEN = 512;    // maximal line length (longer lines are of no interest)
 		const char *end = buf+len-1;  // last position of buf
@@ -207,7 +216,7 @@ int GSDLLCALL PSInterpreter::output (void *inst, const char *buf, int len) {
 			vector<char> &linebuf = self->_linebuf;  // just a shorter name...
 			if ((*last == '\n' || !self->active()) || self->_inError) {
 				if (linelength + linebuf.size() > 1) {  // prefix "dvi." plus final newline
-					SplittedCharInputBuffer ib(linebuf.empty() ? 0 : &linebuf[0], linebuf.size(), first, linelength);
+					SplittedCharInputBuffer ib(linebuf.empty() ? nullptr : &linebuf[0], linebuf.size(), first, linelength);
 					BufferInputReader in(ib);
 					if (self->_inError)
 						self->_errorMessage += string(first, linelength);
@@ -216,7 +225,7 @@ int GSDLLCALL PSInterpreter::output (void *inst, const char *buf, int len) {
 						if (in.check("Unrecoverable error: ")) {
 							self->_errorMessage.clear();
 							while (!in.eof())
-								self->_errorMessage += in.get();
+								self->_errorMessage += char(in.get());
 							self->_inError = true;
 						}
 						else if (in.check("dvi."))
@@ -261,6 +270,7 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"grestore",       { 0, &PSActions::grestore}},
 		{"grestoreall",    { 0, &PSActions::grestoreall}},
 		{"gsave",          { 0, &PSActions::gsave}},
+		{"image",          { 3, &PSActions::image}},
 		{"initclip",       { 0, &PSActions::initclip}},
 		{"lineto",         { 2, &PSActions::lineto}},
 		{"makepattern",    {-1, &PSActions::makepattern}},
@@ -273,6 +283,7 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"save",           { 1, &PSActions::save}},
 		{"scale",          { 2, &PSActions::scale}},
 		{"setblendmode",   { 1, &PSActions::setblendmode}},
+		{"setcolorspace",  { 1, &PSActions::setcolorspace}},
 		{"setcmykcolor",   { 4, &PSActions::setcmykcolor}},
 		{"setdash",        {-1, &PSActions::setdash}},
 		{"setgray",        { 1, &PSActions::setgray}},
@@ -282,6 +293,7 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"setlinewidth",   { 1, &PSActions::setlinewidth}},
 		{"setmatrix",      { 6, &PSActions::setmatrix}},
 		{"setmiterlimit",  { 1, &PSActions::setmiterlimit}},
+		{"setnulldevice",  { 1, &PSActions::setnulldevice}},
 		{"setopacityalpha",{ 1, &PSActions::setopacityalpha}},
 		{"setshapealpha",  { 1, &PSActions::setshapealpha}},
 		{"setpagedevice",  { 0, &PSActions::setpagedevice}},
@@ -347,7 +359,7 @@ int GSDLLCALL PSInterpreter::error (void *inst, const char *buf, int len) {
 /** Returns the total number of pages of a PDF file.
  *  @param[in] fname name/path of the PDF file */
 int PSInterpreter::pdfPageCount (const string &fname) {
-	executeRaw("\n("+fname+")@pdfpagecount ", 1);
+	executeRaw("\n("+FileSystem::ensureForwardSlashes(fname)+")@pdfpagecount ", 1);
 	if (!_rawData.empty()) {
 		size_t index;
 		int ret = stoi(_rawData[0], &index, 10);
@@ -365,10 +377,84 @@ int PSInterpreter::pdfPageCount (const string &fname) {
  *  @return the bounding box of the given page */
 BoundingBox PSInterpreter::pdfPageBox (const string &fname, int pageno) {
 	BoundingBox pagebox;
-	executeRaw("\n"+to_string(pageno)+"("+fname+")@pdfpagebox ", 4);
+	executeRaw("\n"+to_string(pageno)+"("+FileSystem::ensureForwardSlashes(fname)+")@pdfpagebox ", 4);
 	if (_rawData.size() < 4)
 		pagebox.invalidate();
 	else
 		pagebox = BoundingBox(stod(_rawData[0]), stod(_rawData[1]), stod(_rawData[2]), stod(_rawData[3]));
 	return pagebox;
+}
+
+
+vector<PSDeviceInfo> PSInterpreter::getImageDeviceInfos () {
+	vector<PSDeviceInfo> infos {
+		{"none", "no processing of bitmap images"},
+		{"jpeg", "color JPEG format"},
+		{"jpeggray", "grayscale JPEG format"},
+		{"png", "grayscale or 24-bit color PNG format"},
+		{"pnggray", "grayscale PNG format"},
+		{"pngmono", "black-and-white PNG format"},
+		{"pngmonod", "dithered black-and-white PNG format"},
+		{"png16", "4-bit color PNG format"},
+		{"png256", "8-bit color PNG format"},
+		{"png16m", "24-bit color PNG format"},
+	};
+	return infos;
+}
+
+
+void PSInterpreter::listImageDeviceInfos (ostream &os) {
+	for (const PSDeviceInfo &info : getImageDeviceInfos())
+		os << setw(8) << left << info.name << " | " << info.description << '\n';
+}
+
+
+/** Returns true if a given PS device name is known. The function deosn't
+ *  check whether the device is actually available.
+ *  @param[in] deviceStr device specifier of the form <device name>[:<param>] */
+bool PSInterpreter::imageDeviceKnown (string deviceStr) {
+	if (deviceStr.empty() || !isalpha(deviceStr[0]))
+		return false;
+	deviceStr = deviceStr.substr(0, deviceStr.find(':'));  // strip optional argument
+	auto infos = getImageDeviceInfos();
+	auto it = find_if(infos.begin(), infos.end(), [&](PSDeviceInfo &info) {
+		return info.name == deviceStr;
+	});
+	return it != infos.end();
+}
+
+
+/** Sets the output device used to create bitmap images.
+ *  @param[in] deviceStr device specifier of the form <device name>[:<param>]
+ *  @return true on success, false if device is not supported */
+bool PSInterpreter::setImageDevice (const string &deviceStr) {
+	auto params = util::split(deviceStr, ":");
+	string name = util::tolower(params[0]);
+	if (!imageDeviceKnown(name))
+		return false;
+	if (name != "jpeg" && name != "png" && name != "none") {
+		// check if image device is supported by Ghostscript
+		executeRaw("devicedict/"+name+" known{1}{0}ifelse\n", 1);
+		if (_rawData.empty() || _rawData[0] != "1")
+			throw PSException("output device '"+name+"' is not available");
+	}
+	string ps = "/@imgdevice("+name+")store ";
+	try {
+		if (params.size() > 1) {
+			// set JPEG quality level if given
+			if (name.substr(0, 4) == "jpeg") {
+				int quality = max(0, min(stoi(params[1]), 100));
+				ps += "/JPEGQ "+to_string(quality)+" def ";
+			}
+			else if (name == "pngmonod") {
+				int minFeatureSize = max(0, min(stoi(params[1]), 4));
+				ps += "/MinFeatureSize "+to_string(minFeatureSize)+" def ";
+			}
+		}
+	}
+	catch (...) {
+		throw PSException("invalid device option '"+params[1]+"' (integer expected)");
+	}
+	execute(ps);
+	return true;
 }

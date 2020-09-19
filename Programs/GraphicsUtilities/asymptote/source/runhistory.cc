@@ -127,10 +127,6 @@ extern string emptystring;
 
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBCURSES)
 
-void init_readline(bool tabcompletion) 
-{
-  rl_bind_key('\t',tabcompletion ? rl_complete : rl_insert);
-}
 #endif
 
 void cleanup()
@@ -165,13 +161,13 @@ void cleanup()
 #endif
 namespace run {
 // Return the last n lines of the history named name.
-#line 109 "runhistory.in"
+#line 105 "runhistory.in"
 // stringarray* history(string name, Int n=1);
 void gen_runhistory0(stack *Stack)
 {
   Int n=vm::pop<Int>(Stack,1);
   string name=vm::pop<string>(Stack);
-#line 110 "runhistory.in"
+#line 106 "runhistory.in"
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBCURSES)
   bool newhistory=historyMap.find(name) == historyMap.end();
   
@@ -203,12 +199,12 @@ void gen_runhistory0(stack *Stack)
 }
 
 // Return the last n lines of the interactive history.
-#line 142 "runhistory.in"
+#line 138 "runhistory.in"
 // stringarray* history(Int n=0);
 void gen_runhistory1(stack *Stack)
 {
   Int n=vm::pop<Int>(Stack,0);
-#line 143 "runhistory.in"
+#line 139 "runhistory.in"
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBCURSES)
   {Stack->push<stringarray*>(get_history(n)); return;}
 #else
@@ -219,18 +215,18 @@ void gen_runhistory1(stack *Stack)
 
 // Prompt for a string using prompt, the GNU readline library, and a
 // local history named name.
-#line 154 "runhistory.in"
+#line 150 "runhistory.in"
 // string readline(string prompt=emptystring, string name=emptystring,                bool tabcompletion=false);
 void gen_runhistory2(stack *Stack)
 {
   bool tabcompletion=vm::pop<bool>(Stack,false);
   string name=vm::pop<string>(Stack,emptystring);
   string prompt=vm::pop<string>(Stack,emptystring);
-#line 156 "runhistory.in"
+#line 152 "runhistory.in"
   if(!(isatty(STDIN_FILENO) || getSetting<Int>("inpipe") >= 0))
     {Stack->push<string>(emptystring); return;}
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBCURSES)
-  init_readline(tabcompletion);
+  interact::init_readline(tabcompletion);
   
   store_history(&history_save);
   bool newhistory=historyMap.find(name) == historyMap.end();
@@ -268,14 +264,14 @@ void gen_runhistory2(stack *Stack)
 
 // Save a string in a local history named name.
 // If store=true, store the local history in the file historyfilename(name).
-#line 198 "runhistory.in"
+#line 194 "runhistory.in"
 // void saveline(string name, string value, bool store=true);
 void gen_runhistory3(stack *Stack)
 {
   bool store=vm::pop<bool>(Stack,true);
   string value=vm::pop<string>(Stack);
   string name=vm::pop<string>(Stack);
-#line 199 "runhistory.in"
+#line 195 "runhistory.in"
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBCURSES)
   store_history(&history_save);
   bool newhistory=historyMap.find(name) == historyMap.end();
@@ -308,13 +304,13 @@ namespace trans {
 
 void gen_runhistory_venv(venv &ve)
 {
-#line 108 "runhistory.in"
+#line 104 "runhistory.in"
   addFunc(ve, run::gen_runhistory0, stringArray(), SYM(history), formal(primString() , SYM(name), false, false), formal(primInt(), SYM(n), true, false));
-#line 141 "runhistory.in"
+#line 137 "runhistory.in"
   addFunc(ve, run::gen_runhistory1, stringArray(), SYM(history), formal(primInt(), SYM(n), true, false));
-#line 152 "runhistory.in"
+#line 148 "runhistory.in"
   addFunc(ve, run::gen_runhistory2, primString() , SYM(readline), formal(primString() , SYM(prompt), true, false), formal(primString() , SYM(name), true, false), formal(primBoolean(), SYM(tabcompletion), true, false));
-#line 196 "runhistory.in"
+#line 192 "runhistory.in"
   addFunc(ve, run::gen_runhistory3, primVoid(), SYM(saveline), formal(primString() , SYM(name), false, false), formal(primString() , SYM(value), false, false), formal(primBoolean(), SYM(store), true, false));
 }
 

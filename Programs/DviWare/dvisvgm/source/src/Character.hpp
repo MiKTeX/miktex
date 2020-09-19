@@ -2,7 +2,7 @@
 ** Character.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -22,11 +22,10 @@
 #define CHARACTER_HPP
 
 
-class Character
-{
+class Character {
 	public:
 		enum Type {CHRCODE, INDEX, NAME};
-		Character (const char *name) : _type(NAME), _name(name) {}
+		explicit Character (const char *name) : _type(NAME), _name(name) {}
 		Character (Type type, uint32_t val) : _type(type), _number(val) {}
 		Character (Type type, const Character &c) : _type(type), _number(c.type() != NAME ? c._number : 0) {}
 		Type type () const {return _type;}

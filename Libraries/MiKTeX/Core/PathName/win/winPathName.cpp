@@ -1,6 +1,6 @@
 /* winPathName.cpp: path name utilities
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,6 +21,10 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/PathName>
 
 #include "internal.h"
@@ -30,14 +34,16 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 PathName& PathName::SetToCurrentDirectory()
 {
-  wchar_t buf[_MAX_PATH];
-  if (_wgetcwd(buf, _MAX_PATH) == 0)
+  wchar_t* buf = _wgetcwd(nullptr, BufferSizes::MaxPath);
+  if (buf == nullptr)
   {
     MIKTEX_FATAL_CRT_ERROR("_wgetcwd");
   }
+  MIKTEX_AUTO(free(buf); buf = nullptr);
   *this = buf;
   return *this;
 }
@@ -70,24 +76,9 @@ PathName& PathName::SetToTempFile(const PathName& directory)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(GetData()));
+    session->trace_tempfile->WriteLine("core", fmt::format(T_("created temporary file {0}"), Q_(GetData())));
   }
   return *this;
-}
-
-PathName& PathName::SetToTempFile()
-{
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  PathName tmpDir;
-  if (session != nullptr)
-  {
-    tmpDir = session->GetTempDirectory();
-  }
-  else
-  {
-    tmpDir.SetToTempDirectory();
-  }
-  return SetToTempFile(tmpDir);
 }
 
 PathName PathName::GetMountPoint() const
@@ -97,15 +88,15 @@ PathName PathName::GetMountPoint() const
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("GetVolumePathNameW", "path", this->ToString());
   }
-  return szDir;
+  return PathName(szDir);
 }
 
 PathName& PathName::AppendAltDirectoryDelimiter()
 {
   size_t l = GetLength();
-  if (l == 0 || !IsDirectoryDelimiter(CharBuffer::operator[](l - 1)))
+  if (l == 0 || !PathNameUtil::IsDirectoryDelimiter(CharBuffer::operator[](l - 1)))
   {
-    CharBuffer::Append(AltDirectoryDelimiter);
+    CharBuffer::Append(PathNameUtil::AltDirectoryDelimiter);
   }
   return *this;
 }

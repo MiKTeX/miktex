@@ -1,6 +1,6 @@
 /* config.cpp: MiKTeX configuration settings
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -31,7 +31,6 @@
 #include <miktex/Core/FileStream>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
@@ -50,6 +49,7 @@ namespace {
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 #if 0
@@ -69,7 +69,7 @@ struct ConfigMapping
 namespace {
   const ConfigMapping configMappings[] = {
     {
-      MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_REPOSITORY, MIKTEX_ENV_REPOSITORY,
+      MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_REPOSITORY, MIKTEX_ENV_REPOSITORY,
     },
   };
 }
@@ -107,7 +107,7 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
   })
   {
     PathName prefix;
-    if (Utils::GetPathNamePrefix(bindir, subdir, prefix))
+    if (Utils::GetPathNamePrefix(bindir, PathName(subdir), prefix))
     {
       return prefix;
     }
@@ -117,11 +117,6 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
 
 bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path)
 {
-  if (initInfo.GetOptions()[InitOption::NoConfigFiles])
-  {
-    return false;
-  }
-
   string str;
 
   if (Utils::GetEnvironmentString(scope == ConfigurationScope::Common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, str))
@@ -132,8 +127,8 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
     return true;
   }
 
-#if !NO_REGISTRY
-  if (winRegistry::TryGetRegistryValue(scope, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
+#if USE_WINDOWS_REGISTRY
+  if (winRegistry::TryGetValue(scope, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_STARTUP_FILE, str))
   {
     // don't check for existence; it's a fatal error (detected later)
     // if the registry value is incorrect
@@ -154,7 +149,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
     PathName prefix;
     if (Utils::GetPathNamePrefix(myloc, internalBindir, prefix))
     {
-      path = prefix / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+      path = prefix / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
       if (File::Exists(path))
       {
         return true;
@@ -165,14 +160,14 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
     RemoveDirectoryDelimiter(bindir.GetData());
     if (Utils::GetPathNamePrefix(myloc, bindir, prefix))
     {
-      path = prefix / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+      path = prefix / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
       if (File::Exists(path))
       {
         return true;
       }
     }
     // try /var/lib/miktex-texmf/miktex/config/miktexstartup.ini
-    path = defaultStartupConfig.commonConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+    path = defaultStartupConfig.commonConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
     if (File::Exists(path))
     {
       return true;
@@ -180,7 +175,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
 #if defined(MIKTEX_UNIX) && !defined(MIKTEX_MACOS_BUNDLE)
     // try /usr/share/miktex-texmf/miktex/config/miktexstartup.ini
     prefix = GetMyPrefix(true);
-    path = prefix / MIKTEX_INSTALL_DIR / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+    path = prefix / PathName(MIKTEX_INSTALL_DIR) / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
     if (File::Exists(path))
     {
       return true;
@@ -191,7 +186,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
   if (scope == ConfigurationScope::User)
   {
     // try $HOME/.miktex/miktex/config/miktexstartup.ini
-    path = defaultStartupConfig.userConfigRoot / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+    path = defaultStartupConfig.userConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
     if (File::Exists(path))
     {
       return true;
@@ -217,16 +212,16 @@ pair<bool, PathName> SessionImpl::TryGetBinDirectory(bool canonicalized)
   auto distRoot = TryGetDistRootDirectory();
   if (distRoot.first)
   {
-    return make_pair<bool, PathName>(true, distRoot.second / MIKTEX_PATH_BIN_DIR);
+    return make_pair<bool, PathName>(true, distRoot.second / PathName(MIKTEX_PATH_BIN_DIR));
   }
   string env;
   if (!Utils::GetEnvironmentString(MIKTEX_ENV_BIN_DIR, env))
   {
     return make_pair<bool, PathName>(true, PathName());
   }
-  return make_pair<bool, PathName>(true, env);
+  return make_pair<bool, PathName>(true, PathName(env));
 #elif defined(MIKTEX_MACOS_BUNDLE)
-  return make_pair<bool, PathName>(true, GetMyPrefix(canonicalized) / MIKTEX_BINARY_DESTINATION_DIR);
+  return make_pair<bool, PathName>(true, GetMyPrefix(canonicalized) / PathName(MIKTEX_BINARY_DESTINATION_DIR));
 #else
   return make_pair<bool, PathName>(true, GetMyLocation(canonicalized));
 #endif
@@ -244,7 +239,7 @@ PathName SessionImpl::GetBinDirectory(bool canonicalized)
 
 void SessionImpl::ReadAllConfigFiles(const string& baseName, Cfg& cfg)
 {
-  PathName fileName = MIKTEX_PATH_MIKTEX_CONFIG_DIR / baseName;
+  PathName fileName = PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName(baseName);
   fileName.AppendExtension(".ini");
   vector<PathName> configFiles;
   if (!FindFile(fileName.ToString(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { FindFileOption::All }, configFiles))
@@ -277,7 +272,7 @@ MIKTEXSTATICFUNC(void) AppendToEnvVarName(string& name, const string& part)
   }
 }
 
-bool SessionImpl::GetSessionValue(const string& sectionName, const string& valueName, string& value)
+bool SessionImpl::GetSessionValue(const string& sectionName, const string& valueName, string& value, HasNamedValues* callback)
 {
   bool haveValue = false;
 
@@ -289,7 +284,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   }
 
   // iterate over application tags, e.g.: latex;tex;miktex
-  for (CsvList app(applicationNames, PathName::PathNameDelimiter); !haveValue && app; ++app)
+  for (CsvList app(applicationNames, PathNameUtil::PathNameDelimiter); !haveValue && app; ++app)
   {
     MIKTEX_ASSERT(!(*app).empty());
 
@@ -298,19 +293,16 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
     Cfg* cfg = nullptr;
 
     // read configuration files
-    if (!initInfo.GetOptions()[InitOption::NoConfigFiles])
+    ConfigurationSettings::iterator it = configurationSettings.find(lookupKeyName);
+    if (it != configurationSettings.end())
     {
-      ConfigurationSettings::iterator it = configurationSettings.find(lookupKeyName);
-      if (it != configurationSettings.end())
-      {
-        cfg = it->second.get();
-      }
-      else
-      {
-        pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(lookupKeyName, Cfg::Create()));
-        cfg = p.first->second.get();
-        ReadAllConfigFiles(lookupKeyName, *cfg);
-      }
+      cfg = it->second.get();
+    }
+    else
+    {
+      pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(lookupKeyName, Cfg::Create()));
+      cfg = p.first->second.get();
+      ReadAllConfigFiles(lookupKeyName, *cfg);
     }
 
     // section name defaults to application name
@@ -337,7 +329,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 
 #if defined(MIKTEX_WINDOWS)
     // try registry value
-    if (!IsMiKTeXPortable() && winRegistry::TryGetRegistryValue(ConfigurationScope::None, defaultSectionName, valueName, value))
+    if (!IsMiKTeXPortable() && winRegistry::TryGetValue(ConfigurationScope::None, defaultSectionName, valueName, value))
     {
       haveValue = true;
       break;
@@ -390,7 +382,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 
 #if defined(MIKTEX_WINDOWS)
   // try registry value
-  if (!haveValue && !IsMiKTeXPortable() && !sectionName.empty() && winRegistry::TryGetRegistryValue(ConfigurationScope::None, sectionName, valueName, value))
+  if (!haveValue && !IsMiKTeXPortable() && !sectionName.empty() && winRegistry::TryGetValue(ConfigurationScope::None, sectionName, valueName, value))
   {
     haveValue = true;
   }
@@ -404,7 +396,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   }
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PROGNAME))
   {
-    CsvList progname(applicationNames, PathName::PathNameDelimiter);
+    CsvList progname(applicationNames, PathNameUtil::PathNameDelimiter);
     MIKTEX_ASSERT(progname && !(*progname).empty());
     value = *progname;
     haveValue = true;
@@ -423,7 +415,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 #endif
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_LOCALFONTDIRS))
   {
-    value = StringUtil::Flatten(SessionImpl::GetSession()->GetFontDirectories(), PathName::PathNameDelimiter);
+    value = StringUtil::Flatten(SessionImpl::GetSession()->GetFontDirectories(), PathNameUtil::PathNameDelimiter);
     haveValue = true;
   }
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PSFONTDIRS))
@@ -484,20 +476,20 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   // expand the value
   if (haveValue)
   {
-    string expandedValue = Expand(value, nullptr);
+    string expandedValue = Expand(value, callback);
     value = expandedValue;
   }
 #endif
 
-  if (trace_values->IsEnabled("core"))
+  if (trace_values->IsEnabled("core", TraceLevel::Trace))
   {
     if (!sectionName.empty())
     {
-      trace_values->WriteLine("core", fmt::format("[{}]{} => {}", sectionName, valueName, haveValue ? value : "null"));
+      trace_values->WriteLine("core", TraceLevel::Trace, fmt::format("[{}]{} => {}", sectionName, valueName, haveValue ? value : "null"));
     }
     else
     {
-      trace_values->WriteLine("core", fmt::format("{} => {}", valueName, haveValue ? value : "null"));
+      trace_values->WriteLine("core", TraceLevel::Trace, fmt::format("{} => {}", valueName, haveValue ? value : "null"));
     }
   }
 
@@ -519,7 +511,9 @@ std::string ConfigValue::GetString() const
   case Type::Char:
     return std::string(1, this->c);
   case Type::StringArray:
-    return StringUtil::Flatten(this->sa, PathName::PathNameDelimiter);
+    return StringUtil::Flatten(this->sa, PathNameUtil::PathNameDelimiter);
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to string."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to string."), "type", std::to_string(static_cast<int>(this->type)));
   }
@@ -539,8 +533,25 @@ int ConfigValue::GetInt() const
     return (int)this->t;
   case Type::Char:
     return (int)this->c;
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to integer."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to integer."), "type", std::to_string(static_cast<int>(this->type)));
+  }
+}
+
+std::time_t ConfigValue::GetTimeT() const
+{
+  switch (type)
+  {
+  case Type::String:
+    return std::stoll(this->s);
+  case Type::Int:
+    return (std::time_t)this->i;
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to time_t."));
+  default:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to time_t."), "type", std::to_string(static_cast<int>(this->type)));
   }
 }
 
@@ -618,6 +629,8 @@ bool ConfigValue::GetBool() const
     {
       MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{c}' to boolean."), "c", string(1, this->c));
     }
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to boolean."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to boolean."), "type", std::to_string(static_cast<int>(this->type)));
   }
@@ -702,6 +715,8 @@ TriState ConfigValue::GetTriState() const
     {
       MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{c}' to tri-state."), "c", string(1, this->c));
     }
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to tri-state."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to tri-state."), "type", std::to_string(static_cast<int>(this->type)));
   }
@@ -729,6 +744,8 @@ char ConfigValue::GetChar() const
     return this->t == TriState::Undetermined ? '?' : this->t == TriState::False ? 'f' : 't';
   case Type::Char:
     return this->c;
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to character."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to character."), "type", std::to_string(static_cast<int>(this->type)));
   }
@@ -739,42 +756,45 @@ vector<string> ConfigValue::GetStringArray() const
   switch (type)
   {
   case Type::String:
-    return StringUtil::Split(this->s, PathName::PathNameDelimiter);
+    return StringUtil::Split(this->s, PathNameUtil::PathNameDelimiter);
   case Type::StringArray:
     return this->sa;
+  case Type::None:
+    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to string array."));
   default:
     MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to string array."), "type", std::to_string(static_cast<int>(this->type)));
   }
 }
 
-bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string& valueName, string& value)
+bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string& valueName, HasNamedValues* callback, string& value)
 {
-  return GetSessionValue(sectionName, valueName, value);
+  return GetSessionValue(sectionName, valueName, value, callback);
 }
 
-ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& defaultValue)
+ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& defaultValue, HasNamedValues* callback)
 {
   string value;
-  if (GetSessionValue(sectionName, valueName, value))
+  if (GetSessionValue(sectionName, valueName, value, callback))
   {
-    return value;
+    return ConfigValue(value);
   }
   else if (defaultValue.GetType() != ConfigValue::Type::None)
   {
-    return Expand(defaultValue.GetString(), nullptr);
+    return ConfigValue(Expand(defaultValue.GetString(), callback));
   }
   else
   {
+    trace_config->WriteLine("core", TraceLevel::Warning, fmt::format(T_("undefined configuration value: [{0}]{1}"), sectionName, valueName));
     return ConfigValue();
   }
 }
 
-ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName)
+ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, HasNamedValues* callback)
 {
   string value;
-  if (GetSessionValue(sectionName, valueName, value))
+  if (GetSessionValue(sectionName, valueName, value, callback))
   {
-    return value;
+    return ConfigValue(value);
   }
   else
   {
@@ -800,11 +820,11 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
 #if defined(MIKTEX_WINDOWS)
   if (!haveConfigFile
     && !IsMiKTeXPortable()
-    && !GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
+    && !GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, ConfigValue(USE_WINDOWS_REGISTRY ? false : true)).GetBool())
   {
-    winRegistry::SetRegistryValue(IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, sectionName, valueName, value.GetString());
+    winRegistry::SetValue(IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, sectionName, valueName, value.GetString());
     string newValue;
-    if (GetSessionValue(sectionName, valueName, newValue))
+    if (GetSessionValue(sectionName, valueName, newValue, nullptr))
     {
       if (newValue != value.GetString())
       {
@@ -834,7 +854,7 @@ void SessionImpl::SetAdminMode(bool adminMode, bool force)
   {
     MIKTEX_FATAL_ERROR(T_("Administrator mode cannot be enabled (makes no sense) because this is not a shared MiKTeX setup."));
   }
-  trace_config->WriteLine("core", fmt::format(T_("turning {0} administrator mode"), (adminMode ? "on" : "off")));
+  trace_config->WriteLine("core", TraceLevel::Info, fmt::format(T_("turning {0} administrator mode"), (adminMode ? "on" : "off")));
   // reinitialize
   fileTypes.clear();
   UnloadFilenameDatabase();
@@ -856,11 +876,11 @@ bool SessionImpl::IsSharedSetup()
 {
   if (isSharedSetup == TriState::Undetermined)
   {
-    isSharedSetup = GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_SHARED_SETUP, TriState::Undetermined).GetTriState();
+    isSharedSetup = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_SHARED_SETUP, ConfigValue(TriState::Undetermined)).GetTriState();
     if (isSharedSetup == TriState::Undetermined)
     {
       string value;
-      isSharedSetup = TryGetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, value) ? TriState::True : TriState::Undetermined;
+      isSharedSetup = TryGetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, value) ? TriState::True : TriState::Undetermined;
       if (isSharedSetup == TriState::Undetermined)
       {
 #if defined(MIKTEX_WINDOWS)
@@ -868,9 +888,9 @@ bool SessionImpl::IsSharedSetup()
 #else
         PathName myLoc = GetMyLocation(true);
 #if defined(MIKTEX_MACOS_BUNDLE)
-        isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc) || Utils::IsParentDirectoryOf("/Applications", myLoc) ? TriState::True : TriState::False;
+        isSharedSetup = Utils::IsParentDirectoryOf(PathName("/usr"), myLoc) || Utils::IsParentDirectoryOf(PathName("/Applications"), myLoc) ? TriState::True : TriState::False;
 #else
-        isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc) || Utils::IsParentDirectoryOf("/opt", myLoc) ? TriState::True : TriState::False;
+        isSharedSetup = Utils::IsParentDirectoryOf(PathName("/usr"), myLoc) || Utils::IsParentDirectoryOf(PathName("/opt"), myLoc) ? TriState::True : TriState::False;
 #endif
 #endif
       }
@@ -951,8 +971,8 @@ void SessionImpl::ConfigureFile(const PathName& pathIn, const PathName& pathOut,
     attr -= FileAttribute::ReadOnly;
     File::SetAttributes(pathOut, attr);
   }
-  FileStream streamIn(OpenFile(pathIn.GetData(), FileMode::Open, FileAccess::Read, false));
-  FileStream streamOut(OpenFile(pathOut.GetData(), FileMode::Create, FileAccess::Write, false));
+  FileStream streamIn(OpenFile(pathIn, FileMode::Open, FileAccess::Read, false));
+  FileStream streamOut(OpenFile(pathOut, FileMode::Create, FileAccess::Write, false));
   char chr;
   bool readingName = false;
   string name;
@@ -1010,8 +1030,7 @@ class DefaultCallback :
   public HasNamedValues
 {
 public:
-  DefaultCallback(SessionImpl* session) :
-    session(session)
+  DefaultCallback(SessionImpl* session)
   {
   }
 public:
@@ -1033,12 +1052,10 @@ public:
     }
   }
 public:
-  string GetValue(const string& valueName)
+  string GetValue(const string& valueName) override
   {
     UNIMPLEMENTED();
   }
-private:
-  SessionImpl* session;
 };
 
 std::string SessionImpl::Expand(const string& toBeExpanded)
@@ -1130,7 +1147,7 @@ std::string SessionImpl::ExpandValues(const string& toBeExpanded, HasNamedValues
         }
         if (!haveValue)
         {
-          haveValue = TryGetConfigValue("", valueName, value);
+          haveValue = TryGetConfigValue(MIKTEX_CONFIG_SECTION_NONE, valueName, value);
         }
         if (haveValue)
         {
@@ -1173,7 +1190,15 @@ ShellCommandMode SessionImpl::GetShellCommandMode()
   }
   else if (shellCommandMode == "Unrestricted")
   {
-    return ShellCommandMode::Unrestricted;
+    if (RunningAsAdministrator() &&
+      !GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
+    {
+      return ShellCommandMode::Restricted;
+    }
+    else
+    {
+      return ShellCommandMode::Unrestricted;
+    }
   }
   else
   {
@@ -1189,28 +1214,33 @@ vector<string> SessionImpl::GetAllowedShellCommands()
 tuple<Session::ExamineCommandLineResult, string, string> SessionImpl::ExamineCommandLine(const string& commandLine)
 {
   Argv argv(commandLine);
-  if (argv.GetArgc() == 0 || string(argv[0]).find_first_of(" \t") != string::npos)
+  if (argv.GetArgc() == 0)
   {
     return make_tuple(ExamineCommandLineResult::SyntaxError, "", "");
   }
-  PathName argv0(argv[0]);
-  vector<string> allowedCommands = GetAllowedShellCommands();
-  ExamineCommandLineResult examineResult = std::find_if(allowedCommands.begin(), allowedCommands.end(), [argv0](const string& cmd) { return argv0 == cmd; }) != allowedCommands.end()
-    ? ExamineCommandLineResult::ProbablySafe
-    : ExamineCommandLineResult::MaybeSafe;
-  MIKTEX_ASSERT(argv0.ToString().find_first_of(" \t") == string::npos);
-  string toBeExecuted = argv[0];
-#if defined(MIKTEX_WINDOWS)
-  const char quoteChar = '"';
-#else
-  const char quoteChar = '\'';
-#endif
-  for (int idx = 1; idx < argv.GetArgc(); ++idx)
+  ExamineCommandLineResult examineResult = ExamineCommandLineResult::MaybeSafe;
+  if (string(argv[0]).find_first_of("\"' \t") == string::npos)
   {
-    toBeExecuted += ' ';
-    toBeExecuted += quoteChar;
-    toBeExecuted += argv[idx];
-    toBeExecuted += quoteChar;
+    PathName argv0(argv[0]);
+    vector<string> allowedCommands = GetAllowedShellCommands();
+    examineResult = std::find_if(allowedCommands.begin(), allowedCommands.end(), [argv0](const string& cmd) { return argv0 == PathName(cmd); }) != allowedCommands.end()
+      ? ExamineCommandLineResult::ProbablySafe
+      : ExamineCommandLineResult::MaybeSafe;
   }
-  return make_tuple(examineResult, argv[0], toBeExecuted);
+  string safeCommandLine;
+  if (examineResult == ExamineCommandLineResult::ProbablySafe)
+  {
+#if defined(MIKTEX_WINDOWS)
+    const char quoteChar = '"';
+#else
+    const char quoteChar = '\'';
+#endif
+    MIKTEX_ASSERT(string(argv[0]).find_first_of("\"' \t") == string::npos);
+    safeCommandLine = argv[0];
+    for (int idx = 1; idx < argv.GetArgc(); ++idx)
+    {
+      safeCommandLine += fmt::format(" {0}{1}{0}", quoteChar, argv[idx]);
+    }
+  }
+  return make_tuple(examineResult, argv[0], safeCommandLine);
 }

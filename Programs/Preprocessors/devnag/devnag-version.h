@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "2.17"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 1991-2016  University of Groningen, The Netherlands"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1991-2016  University of Groningen, The Netherlands"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 1991-2016  University of Groningen, The Netherlands"
 
 #include <miktex/Version>

@@ -1,6 +1,6 @@
 /* unxSession.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -62,13 +62,13 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
     {
       MIKTEX_FATAL_ERROR(T_("No invocation name has been set."));
     }
-    if (Utils::IsAbsolutePath(invocationName.c_str()))
+    if (PathName(invocationName).IsAbsolute())
     {
       myProgramFile = invocationName;
     }
     else if (invocationName.length() > 3 && (invocationName.substr(0, 2) == "./" || invocationName.substr(0, 3) == "../"))
     {
-      myProgramFile = GetFullPath(invocationName.c_str());
+      myProgramFile = GetFullyQualifiedPath(invocationName.c_str());
     }
     else if (!Utils::FindProgram(invocationName, myProgramFile))
     {
@@ -102,9 +102,9 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
  * CommonInstall: /usr/local/share/miktex-texmf   (DEB,RPM,TGZ)
  *             or /opt/miktex/texmfs/install      (self-contained)
  */
-StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName& commonPrefixArg, const PathName& userPrefixArg)
+VersionedStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, VersionNumber setupVersion, const PathName& commonPrefixArg, const PathName& userPrefixArg)
 {
-  StartupConfig ret;
+  VersionedStartupConfig ret;
   if (config == MiKTeXConfiguration::None)
   {
     config = MiKTeXConfiguration::Regular;
@@ -151,10 +151,10 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       destdir /= splittedPrefix[i];
     }
     MIKTEX_ASSERT(MIKTEX_SYSTEM_VAR_LIB_DIR[0] == '/');
-    ret.commonConfigRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_LIB_DIR + 1) / MIKTEX_PREFIX "texmf";
+    ret.commonConfigRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_LIB_DIR + 1) / PathName(MIKTEX_PREFIX "texmf");
     MIKTEX_ASSERT(MIKTEX_SYSTEM_VAR_CACHE_DIR[0] == '/');
-    ret.commonDataRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_CACHE_DIR + 1) / MIKTEX_PREFIX "texmf";
-    ret.commonInstallRoot = destdir / "usr/local" / MIKTEX_INSTALL_DIR;
+    ret.commonDataRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_CACHE_DIR + 1) / PathName(MIKTEX_PREFIX "texmf");
+    ret.commonInstallRoot = destdir / PathName("usr/local") / PathName(MIKTEX_INSTALL_DIR);
   }
 #endif
   if (ret.commonConfigRoot.Empty())
@@ -170,9 +170,9 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     PathName system_miktex_texmfs(prefix);
 #endif
     system_miktex_texmfs /= "texmfs";
-    ret.commonConfigRoot = system_miktex_texmfs / "config";
-    ret.commonDataRoot = system_miktex_texmfs / "data";
-    ret.commonInstallRoot = system_miktex_texmfs / "install";
+    ret.commonConfigRoot = system_miktex_texmfs / PathName("config");
+    ret.commonDataRoot = system_miktex_texmfs / PathName("data");
+    ret.commonInstallRoot = system_miktex_texmfs / PathName("install");
   }
   return ret;
 }

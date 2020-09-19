@@ -51,7 +51,7 @@ foreach(t ${executables})
   set(${t}_sources ${t}.cpp)
   if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND ${t}_sources
-      ${MIKTEX_COMPATIBILITY_MANIFEST}
+      ${MIKTEX_COMMON_MANIFEST}
     )
   endif()
   add_executable(${MIKTEX_PREFIX}${t} ${${t}_sources})
@@ -67,7 +67,7 @@ foreach(t ${internal_executables})
   set(${t}_sources ${t}.cpp)
   if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND ${t}_sources
-      ${MIKTEX_COMPATIBILITY_MANIFEST}
+      ${MIKTEX_COMMON_MANIFEST}
     )
   endif()
   add_executable(${t} ${${t}_sources})

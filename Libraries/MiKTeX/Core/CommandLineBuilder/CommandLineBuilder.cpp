@@ -1,6 +1,6 @@
 /* CommandLine.cpp: command-line builder
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -187,6 +187,12 @@ CommandLineBuilder::CommandLineBuilder(const vector<string>& arguments) :
   CommandLineBuilder()
 {
   AppendArguments(arguments);
+}
+
+CommandLineBuilder::CommandLineBuilder(int argc, const char* const* argv) :
+  CommandLineBuilder()
+{
+  AppendArguments(argc, argv);
 }
 
 void CommandLineBuilder::SetOptionConvention(OptionConvention optionConvention)

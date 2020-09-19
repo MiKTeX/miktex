@@ -31,6 +31,8 @@ pen& defaultpen() {
 }
 }
 
+unsigned int count=0;
+
 namespace run {
 void cleanup();
 void exitFunction(vm::stack *Stack);
@@ -306,9 +308,11 @@ public:
     block *tree=getTree();
     if (tree) {
       for(mem::list<runnable *>::iterator r=tree->stms.begin();
-          r != tree->stms.end(); ++r)
+          r != tree->stms.end(); ++r) {
+        processData().fileName=(*r)->getPos().filename();
         if(!em.errors() || getSetting<bool>("debug"))
           runRunnable(*r,e,s,tm);
+      }
     }
   }
 
@@ -361,8 +365,7 @@ public:
   ifile(const string& filename)
     : itree(filename),
       filename(filename),
-      outname((string) (filename == "-" ? settings::outname() :
-                        stripDir(stripExt(string(filename), suffix)))) {}
+      outname(stripDir(stripExt(string(filename == "-" ? settings::outname() : filename), suffix))) {}
   
   block *buildTree() {
     return !filename.empty() ? parser::parseFile(filename,"Loading") : 0;
@@ -562,7 +565,8 @@ string endCommentOrString(const string line) {
 
 bool isSlashed(const string line) {
   // NOTE: This doesn't fully handle escaped slashed in a string literal.
-  return line[line.size()-1]=='\\';
+  unsigned n=line.size();
+  return n > 0 ? line[line.size()-1] == '\\' : false;
 }
 string deslash(const string line) {
   return isSlashed(line) ? line.substr(0,line.size()-1) : line;
@@ -749,7 +753,9 @@ class iprompt : public icore {
   // line and is being continued (either because of a backslash or the parser
   // detecting it in multiline mode).
   string getline(bool continuation) {
-    string prompt=getSetting<string>(continuation ? "prompt2" : "prompt");
+    string prompt;
+    if(!getSetting<bool>("xasy"))
+      prompt=getSetting<string>(continuation ? "prompt2" : "prompt");
     string line=interact::simpleline(prompt);
 
     if (continuation)
@@ -775,15 +781,33 @@ class iprompt : public icore {
     }
   }
 
+  // Continue taking input until a termination command is received from xasy.
+  block *parseXasyLine(string line) {
+    
+#ifdef __MSDOS__  
+    const string EOT="\x04\r\n";
+#else    
+    const string EOT="\x04\n";
+#endif
+    string s;
+    while((s=getline(true)) != EOT)
+      line += s;
+    return parser::parseString(line, "-", true);
+  }
+
   void runLine(coenv &e, istack &s, string line) {
     try {
-      if (getSetting<bool>("multiline")) {
+      if(getSetting<bool>("multiline")) {
         block *code=parseExtendableLine(line);
         
         icode i(code);
         i.run(e,s,TRANS_INTERACTIVE);
-      }
-      else {
+      } else if(getSetting<bool>("xasy")) {
+        block *code=parseXasyLine(line);
+        
+        icode i(code);
+        i.run(e,s,TRANS_INTERACTIVE);
+      } else {
         // Add a semi-colon to the end of the line if one is not there.  Do this
         // to the history as well, so the transcript can be run as regular asy
         // code.  This also makes the history work correctly if the multiline
@@ -836,7 +860,6 @@ public:
     while (running) {
       // Read a line from the prompt.
       string line=getline(false);
-
       // Check if it is a special command.
       if (handleCommand(e,s,line))
         continue;

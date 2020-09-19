@@ -2,7 +2,7 @@
 ** SourceInput.hpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -43,7 +43,7 @@ class TemporaryFile {
 
 class SourceInput {
 	public:
-		SourceInput (const std::string &fname) : _fname(fname) {}
+		explicit SourceInput (const std::string &fname) : _fname(fname) {}
 		std::istream& getInputStream (bool showMessages=false);
 		std::string getFileName () const;
 		std::string getMessageFileName () const;

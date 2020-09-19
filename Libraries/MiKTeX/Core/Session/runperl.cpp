@@ -68,7 +68,7 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
   PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
 
   PathName engine;
-  PathName scriptEngineWithExeSuffix = scriptEngine;
+  PathName scriptEngineWithExeSuffix(scriptEngine);
 #if defined(MIKTEX_WINDOWS)
   scriptEngineWithExeSuffix.SetExtension(MIKTEX_EXE_FILE_SUFFIX, false);
 #endif

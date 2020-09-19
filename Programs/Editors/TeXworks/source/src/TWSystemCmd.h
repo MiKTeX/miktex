@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2013  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,8 +30,8 @@ class TWSystemCmd : public QProcess {
 	Q_OBJECT
 	
 public:
-	TWSystemCmd(QObject* parent, const bool isOutputWanted = true, const bool runInBackground = false);
-	virtual ~TWSystemCmd() { }
+	explicit TWSystemCmd(QObject * parent, const bool isOutputWanted = true, const bool runInBackground = false);
+	~TWSystemCmd() override = default;
 	
 	QString getResult() { return result; }
 	

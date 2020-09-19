@@ -1,6 +1,6 @@
 /* miktexsetup.cpp:
 
-   Copyright (C) 2014-2019 Christian Schenk
+   Copyright (C) 2014-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -40,6 +40,7 @@
 #endif
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "miktexsetup-version.h"
 
@@ -56,6 +57,7 @@
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
@@ -69,14 +71,9 @@ const string THE_NAME_OF_THE_GAME = T_("MiKTeX Setup Utility (Standalone)");
 const string THE_NAME_OF_THE_GAME = T_("MiKTeX Setup Utility");
 #endif
 
-vector<string> DEFAULT_TRACE_STREAMS = {
-  MIKTEX_TRACE_CONFIG,
-  MIKTEX_TRACE_CURL,
-  MIKTEX_TRACE_ERROR,
-  MIKTEX_TRACE_EXTRACTOR,
-  MIKTEX_TRACE_MPM,
-  MIKTEX_TRACE_PROCESS,
-  MIKTEX_TRACE_SETUP
+vector<string> DEFAULT_TRACE_OPTIONS = {
+  TraceStream::MakeOption("", "", TraceLevel::Info),
+  TraceStream::MakeOption(MIKTEX_TRACE_SETUP, "", TraceLevel::Trace),
 };
 
 class Application :
@@ -176,7 +173,8 @@ enum Option
   OPT_PACKAGE_SET,
   OPT_PORTABLE,
   OPT_PRINT_INFO_ONLY,
-  OPT_PRINT_VERSION_NUMBER,
+  OPT_PRINT_PROGRAM_VERSION,
+  OPT_PRINT_MIKTEX_VERSION,
 #if defined(MIKTEX_WINDOWS)
   OPT_PROGRAM_FOLDER,
 #endif
@@ -265,10 +263,25 @@ const struct poptOption Application::aoption[] = {
   },
 
   {
-    "print-version-number", 0, POPT_ARG_NONE, nullptr, OPT_PRINT_VERSION_NUMBER,
+    "print-program-version", 0, POPT_ARG_NONE, nullptr, OPT_PRINT_PROGRAM_VERSION,
     T_("Print the program version number and exit."),
     nullptr
   },
+
+  {
+    "print-miktex-version", 0, POPT_ARG_NONE, nullptr, OPT_PRINT_MIKTEX_VERSION,
+    T_("Print the MiKTeX version number and exit."),
+    nullptr
+  },
+
+#if 1
+  // DEPRECATED
+  {
+    "print-version-number", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PRINT_PROGRAM_VERSION,
+    T_("Print the program version number and exit."),
+    nullptr
+  },
+#endif
 
 #if defined(MIKTEX_WINDOWS)
   {
@@ -292,7 +305,7 @@ const struct poptOption Application::aoption[] = {
 
   {
     "shared", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_SHARED,
-    T_("Install MiKTeX for all users (--shared=yes) or for the current user (--shared=no)."),
+    T_("Operate in admin mode (--shared=yes) or in user mode (--shared=no)."),
     "yes|no",
   },
 
@@ -538,6 +551,14 @@ void Application::PrintInfo()
 
 void Application::Main(int argc, const char** argv)
 {
+#if defined(MIKTEX_WINDOWS)
+  UINT activeOutputCodePage = GetConsoleOutputCP();
+  if (activeOutputCodePage != CP_UTF8)
+  {
+    SetConsoleOutputCP(CP_UTF8);
+  }
+#endif
+
   programName = PathName(argv[0]).GetFileName().ToString();
 
   Session::InitInfo initInfo;
@@ -556,7 +577,8 @@ void Application::Main(int argc, const char** argv)
   bool optListRepositories = false;
   bool optPortable = false;
   bool optPrintInfoOnly = false;
-  bool optPrintVersionNumber = false;
+  bool optPrintMiKTeXVersion = false;
+  bool optPrintProgramVersion = false;
   bool optVersion = false;
   PackageLevel optPackageLevel = PackageLevel::None;
   string optLocalPackageRepository;
@@ -572,9 +594,18 @@ void Application::Main(int argc, const char** argv)
   string optUserLinkTargetDirectory;
   string optUserRoots;
   string optPortableRoot;
+  bool isUninstall = false;
 
   PoptWrapper popt(argc, argv, aoption);
-  popt.SetOtherOptionHelp("download|install|finish|factoryreset|uninstall");
+#if defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_SETUP_STANDALONE)
+  popt.SetOtherOptionHelp("download|install");
+#else
+  popt.SetOtherOptionHelp("cleanup|download|uninstall");
+#endif
+#else
+  popt.SetOtherOptionHelp("cleanup|download|finish");
+#endif
 
   int option;
 
@@ -648,8 +679,11 @@ void Application::Main(int argc, const char** argv)
     case OPT_PRINT_INFO_ONLY:
       optPrintInfoOnly = true;
       break;
-    case OPT_PRINT_VERSION_NUMBER:
-      optPrintVersionNumber = true;
+    case OPT_PRINT_MIKTEX_VERSION:
+      optPrintMiKTeXVersion = true;
+      break;
+    case OPT_PRINT_PROGRAM_VERSION:
+      optPrintProgramVersion = true;
       break;
 #if defined(MIKTEX_WINDOWS)
     case OPT_PROGRAM_FOLDER:
@@ -666,14 +700,14 @@ void Application::Main(int argc, const char** argv)
     case OPT_SHARED:
       if (optPortable)
       {
-        Error(T_("--portable conficts with --shared."));
+        Error(T_("--portable conflicts with --shared."));
       }
       optShared = (optArg.empty() || Utils::EqualsIgnoreCase("yes", optArg));
       break;
     case OPT_TRACE:
       if (optArg.empty())
       {
-        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
+        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_OPTIONS, ','));
       }
       else
       {
@@ -724,20 +758,94 @@ void Application::Main(int argc, const char** argv)
   if (optVersion)
   {
     cout
-      << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 2014-2019 Christian Schenk" << endl
+      << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+      << endl
+      << MIKTEX_COMP_COPYRIGHT_STR << endl
+      << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
   }
 
-  if (optPrintVersionNumber)
+  if (optPrintMiKTeXVersion)
   {
-    cout << VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0) << endl;
+    cout << MIKTEX_VERSION_STR << endl;
     return;
   }
 
-  //initInfo.AddOption(Session::InitOption::NoFixPath);
+  if (optPrintProgramVersion)
+  {
+    cout << VersionNumber(MIKTEX_COMPONENT_VERSION_STR) << endl;
+    return;
+  }
+
+  vector<string> leftovers = popt.GetLeftovers();
+
+  if (leftovers.empty() && !optListRepositories)
+  {
+    Error(fmt::format(T_("Nothing to do?\nTry '{0} --help' for more information."), argv[0]));
+  }
+
+  if (leftovers.size() > 1)
+  {
+    Error(T_("Too many arguments."));
+  }
+
+  SetupTask task;
+  CleanupOptionSet cleanupOptions;
+
+  if (!leftovers.empty())
+  {
+    if (leftovers[0] == "download")
+    {
+      task = SetupTask::Download;
+    }
+#if defined(MIKTEX_WINDOWS) && defined(MIKTEX_SETUP_STANDALONE)
+    if (leftovers[0] == "install")
+    {
+      task = SetupTask::InstallFromLocalRepository;
+    }
+#endif
+#if !defined(MIKTEX_WINDOWS)
+    if (leftovers[0] == "finish")
+    {
+      task = SetupTask::FinishSetup;
+    }
+#endif
+#if !defined(MIKTEX_SETUP_STANDALONE)
+    if (leftovers[0] == "cleanup" || leftovers[0] == "factoryreset")
+    {
+      task = SetupTask::CleanUp;
+    }
+#endif
+#if defined(MIKTEX_WINDOWS) && !defined(MIKTEX_SETUP_STANDALONE)
+    else if (leftovers[0] == "uninstall")
+    {
+      task = SetupTask::CleanUp;
+      isUninstall == true;
+    }
+#endif
+    if (task == SetupTask::None)
+    {
+      Error(fmt::format(T_("Unknown/unsupported setup task: {0}"), leftovers[0]));
+    }
+  }
+
+  unique_ptr<TemporaryDirectory> sandbox;
+
+  if (task == SetupTask::Download || task == SetupTask::InstallFromLocalRepository)
+  {
+    StartupConfig startupConfig;
+    sandbox  = SetupService::CreateSandbox(startupConfig);
+    initInfo.SetStartupConfig(startupConfig);
+  }
+
+  if (task == SetupTask::Download || task == SetupTask::InstallFromLocalRepository)
+  {
+    initInfo.AddOption(Session::InitOption::SettingUp);
+  }
+
+  initInfo.AddOption(Session::InitOption::NoFixPath);
 
   session = Session::Create(initInfo);
 
@@ -752,47 +860,26 @@ void Application::Main(int argc, const char** argv)
     return;
   }
 
-  vector<string> leftovers = popt.GetLeftovers();
-
-  if (leftovers.empty())
+  if (task == SetupTask::CleanUp)
   {
-    Error(fmt::format(T_("Nothing to do?\nTry '{0} --help' for more information."), argv[0]));
-  }
-
-  if (leftovers.size() > 1)
-  {
-    Error(T_("Too many arguments."));
+      if (isUninstall)
+      {
+        cleanupOptions += { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
+      }
+      else if (!session->IsSharedSetup() || session->IsAdminMode())
+      {
+        cleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
+      }
+      else
+      {
+        cleanupOptions = { CleanupOption::FileTypes, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
+      }
   }
 
   setupService = SetupService::Create();
   SetupOptions setupOptions = setupService->GetOptions();
-
-  if (leftovers[0] == "download")
-  {
-    setupOptions.Task = SetupTask::Download;
-  }
-  else if (leftovers[0] == "install")
-  {
-    setupOptions.Task = SetupTask::InstallFromLocalRepository;
-  }
-  else if (leftovers[0] == "finish")
-  {
-    setupOptions.Task = SetupTask::FinishSetup;
-  }
-  else if (leftovers[0] == "factoryreset")
-  {
-    setupOptions.Task = SetupTask::CleanUp;
-    setupOptions.CleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
-  }
-  else if (leftovers[0] == "uninstall")
-  {
-    setupOptions.Task = SetupTask::CleanUp;
-    setupOptions.CleanupOptions = { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
-  }
-  else
-  {
-    Error(fmt::format(T_("Unknown/unsupported setup task: {0}"), leftovers[0]));
-  }
+  setupOptions.Task = task;
+  setupOptions.CleanupOptions = cleanupOptions;
 
   if (optShared)
   {
@@ -890,6 +977,9 @@ void Application::Main(int argc, const char** argv)
     setupOptions.PackageLevel = optPackageLevel;
   }
 
+  setupOptions.Banner = THE_NAME_OF_THE_GAME;
+  setupOptions.Version = VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString();
+
   setupService->SetOptions(setupOptions);
 
   setupService->SetCallback(this);
@@ -900,11 +990,17 @@ void Application::Main(int argc, const char** argv)
   }
   else
   {
+    setupService->OpenLog();
     if (setupOptions.IsCommonSetup && !session->IsAdminMode())
     {
       session->SetAdminMode(true, true);
     }
     setupService->Run();
+    PathName logFile = setupService->CloseLog(interrupted);
+    if (!logFile.Empty())
+    {
+      Verbose(fmt::format("Transcript written on {0}.", logFile));
+    }
   }
 
   setupService = nullptr;

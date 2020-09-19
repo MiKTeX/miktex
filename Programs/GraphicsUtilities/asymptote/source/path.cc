@@ -18,11 +18,11 @@
 
 namespace camp {
 
-const double Fuzz=1000.0*DBL_EPSILON;
-const double BigFuzz=10.0*Fuzz;
-const double Fuzz2=Fuzz*Fuzz;
-const double sqrtFuzz=sqrt(Fuzz);
-const double fuzzFactor=10.0;
+const double Fuzz2=1000.0*DBL_EPSILON;
+const double Fuzz=sqrt(Fuzz2);
+const double Fuzz4=Fuzz2*Fuzz2;
+const double BigFuzz=10.0*Fuzz2;
+const double fuzzFactor=100.0;
 
 const double third=1.0/3.0;
 
@@ -49,8 +49,8 @@ inline pair sqrt1pxm1(pair x)
 quadraticroots::quadraticroots(double a, double b, double c)
 {
   // Remove roots at numerical infinity.
-  if(fabs(a) <= Fuzz*(fabs(b)+fabs(c)*Fuzz)) {
-    if(fabs(b) > Fuzz*fabs(c)) {
+  if(fabs(a) <= Fuzz2*fabs(b)+Fuzz4*fabs(c)) {
+    if(fabs(b) > Fuzz2*fabs(c)) {
       distinct=quadraticroots::ONE;
       roots=1;
       t1=-c/b;
@@ -65,7 +65,7 @@ quadraticroots::quadraticroots(double a, double b, double c)
   } else {
     double factor=0.5*b/a;
     double denom=b*factor;
-    if(fabs(denom) <= Fuzz*fabs(c)) {
+    if(fabs(denom) <= Fuzz2*fabs(c)) {
       double x=-c/a;
       if(x >= 0.0) {
         distinct=quadraticroots::TWO;
@@ -160,7 +160,7 @@ cubicroots::cubicroots(double a, double b, double c, double d)
   static const double fiftyfourth=1.0/54.0;
   
   // Remove roots at numerical infinity.
-  if(fabs(a) <= Fuzz*(fabs(b)+fabs(c)*Fuzz+fabs(d)*Fuzz2)) {
+  if(fabs(a) <= Fuzz2*(fabs(b)+fabs(c)*Fuzz2+fabs(d)*Fuzz4)) {
     quadraticroots q(b,c,d);
     roots=q.roots;
     if(q.roots >= 1) t1=q.t1;
@@ -169,7 +169,7 @@ cubicroots::cubicroots(double a, double b, double c, double d)
   }
   
   // Detect roots at numerical zero.
-  if(fabs(d) <= Fuzz*(fabs(c)+fabs(b)*Fuzz+fabs(a)*Fuzz2)) {
+  if(fabs(d) <= Fuzz2*(fabs(c)+fabs(b)*Fuzz2+fabs(a)*Fuzz4)) {
     quadraticroots q(a,b,c);
     roots=q.roots+1;
     t1=0;
@@ -184,11 +184,11 @@ cubicroots::cubicroots(double a, double b, double c, double d)
   
   double b2=b*b;
   double Q=3.0*c-b2;
-  if(fabs(Q) < Fuzz*(3.0*fabs(c)+fabs(b2)))
+  if(fabs(Q) < Fuzz2*(3.0*fabs(c)+fabs(b2)))
     Q=0.0;
   
   double R=(3.0*Q+b2)*b-27.0*d;
-  if(fabs(R) < Fuzz*((3.0*fabs(Q)+fabs(b2))*fabs(b)+27.0*fabs(d)))
+  if(fabs(R) < Fuzz2*((3.0*fabs(Q)+fabs(b2))*fabs(b)+27.0*fabs(d)))
     R=0.0;
   
   Q *= ninth;
@@ -600,7 +600,19 @@ static double ds(double t)
   return sqrt(dx*dx+dy*dy);
 }
 
-// Calculates arclength of a cubic using adaptive simpson integration.
+// Calculates arclength of a cubic Bezier curve using adaptive Simpson
+// integration.
+double arcLength(const pair& z0, const pair& c0, const pair& c1,
+                 const pair& z1)
+{
+  double integral;
+  derivative(a,b,c,z0,c0,c1,z1);
+  
+  if(!simpson(integral,ds,0.0,1.0,DBL_EPSILON,1.0))
+    reportError("nesting capacity exceeded in computing arclength");
+  return integral;
+}
+
 double path::cubiclength(Int i, double goal) const
 {
   const pair& z0=point(i);
@@ -611,14 +623,8 @@ double path::cubiclength(Int i, double goal) const
     return (goal < 0 || goal >= L) ? L : -goal/L;
   }
   
-  const pair& c0=postcontrol(i);
-  const pair& c1=precontrol(i+1);
-  
-  double integral;
-  derivative(a,b,c,z0,c0,c1,z1);
-  
-  if(!simpson(integral,ds,0.0,1.0,DBL_EPSILON,1.0))
-    reportError("nesting capacity exceeded in computing arclength");
+  double integral=arcLength(z0,postcontrol(i),precontrol(i+1),z1);
+
   L=3.0*integral;
   if(goal < 0 || goal >= L) return L;
   
@@ -797,10 +803,10 @@ void intersections(std::vector<double>& T, const path& g, const pair& z,
     size_t m=r.size();
     for(size_t j=0 ; j < m; ++j) {
       double t=r[j];
-      if(t >= -Fuzz && t <= 1.0+Fuzz) {
+      if(t >= -Fuzz2 && t <= 1.0+Fuzz2) {
         double s=i+t;
         if((g.point(s)-z).abs2() <= fuzz2) {
-          if(cycles && s >= n-Fuzz) s=0;
+          if(cycles && s >= n-Fuzz2) s=0;
           T.push_back(s);
         }
       }
@@ -846,7 +852,7 @@ void lineintersections(std::vector<double>& T, const path& g,
     double d=dy*z0.getx()-dx*z0.gety()+det;
     std::vector<double> r;
     if(max(max(max(a*a,b*b),c*c),d*d) >
-       Fuzz2*max(max(max(z0.abs2(),z1.abs2()),c0.abs2()),c1.abs2()))
+       Fuzz4*max(max(max(z0.abs2(),z1.abs2()),c0.abs2()),c1.abs2()))
       roots(r,a,b,c,d);
     else r.push_back(0.0);
     if(endpoints) {
@@ -859,9 +865,9 @@ void lineintersections(std::vector<double>& T, const path& g,
     size_t m=r.size();
     for(size_t j=0 ; j < m; ++j) {
       double t=r[j];
-      if(t >= -Fuzz && t <= 1.0+Fuzz) {
+      if(t >= -Fuzz2 && t <= 1.0+Fuzz2) {
         double s=i+t;
-        if(cycles && s >= n-Fuzz) s=0;
+        if(cycles && s >= n-Fuzz2) s=0;
         T.push_back(s);
       }
     }
@@ -891,7 +897,7 @@ void intersections(std::vector<double>& S, std::vector<double>& T,
     for(size_t i=0; i < n; ++i) {
       double s=S1[i];
       double t=dot(g.point(s)-p,factor);
-      if(t >= -Fuzz && t <= 1.0+Fuzz) {
+      if(t >= -Fuzz2 && t <= 1.0+Fuzz2) {
         S.push_back(s);
         T.push_back(t);
       }
@@ -953,8 +959,7 @@ void add(double& s, double& t, std::vector<double>& S, std::vector<double>& T,
 void intersections(std::vector<double>& S, path& g,
                    const pair& p, const pair& q, double fuzz)
 {       
-  double fuzz2=max(fuzzFactor*fuzz,Fuzz);
-  fuzz2=fuzz2*fuzz2;
+  double fuzz2=max(fuzzFactor*fuzz*fuzz,Fuzz2);
   std::vector<double> S1;
   lineintersections(S1,g,p,q,fuzz);
   size_t n=S1.size();
@@ -968,8 +973,7 @@ bool intersections(double &s, double &t, std::vector<double>& S,
 {
   if(errorstream::interrupt) throw interrupted();
   
-  double fuzz2=max(fuzzFactor*fuzz,Fuzz);
-  fuzz2=fuzz2*fuzz2;
+  double fuzz2=max(fuzzFactor*fuzz*fuzz,Fuzz2);
   
   Int lp=p.length();
   if(((lp == 1 && p.straight(0)) || lp == 0) && exact) {
@@ -999,6 +1003,9 @@ bool intersections(double &s, double &t, std::vector<double>& S,
     // Overlapping bounding boxes
 
     --depth;
+//    fuzz *= 2;
+//    fuzz2=max(fuzzFactor*fuzz*fuzz,Fuzz2);
+
     if((maxp-minp).length()+(maxq-minq).length() <= fuzz || depth == 0) {
       if(single) {
         s=0.5;
@@ -1240,6 +1247,7 @@ bool checkcurve(const pair& z0, const pair& c0, const pair& c1,
 {
   if(depth == 0) return true;
   --depth;
+
   if(insidebbox(z0,c0,c1,z1,z)) {
     const pair m0=0.5*(z0+c0);
     const pair m1=0.5*(c0+c1);

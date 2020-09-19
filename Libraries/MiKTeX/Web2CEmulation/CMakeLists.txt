@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2019 Christian Schenk
+## Copyright (C) 2010-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -42,7 +42,7 @@ configure_file(
 )
 
 configure_file(
-  w2cemu-version.h.cmake
+  w2cemu-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/w2cemu-version.h
 )
 
@@ -73,10 +73,10 @@ if(NOT LINK_EVERYTHING_STATICALLY)
 
   set_property(TARGET ${w2cemu_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-  set_shared_library_version(
+  set_shared_library_version_properties(
     ${w2cemu_dll_name}
+    ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
     ${MIKTEX_COMP_INTERFACE_VERSION}
-    ${MIKTEX_COMP_J2000_VERSION}
   )
 
   target_include_directories(${w2cemu_dll_name}
@@ -97,6 +97,12 @@ if(NOT LINK_EVERYTHING_STATICALLY)
       INTERFACE
         ${unxemu_dll_name}
     )
+  endif()
+
+  if(USE_SYSTEM_FMT)
+    target_link_libraries(${w2cemu_dll_name} PRIVATE MiKTeX::Imported::FMT)
+  else()
+    target_link_libraries(${w2cemu_dll_name} PRIVATE ${fmt_dll_name})
   endif()
 
   install(TARGETS ${w2cemu_dll_name}

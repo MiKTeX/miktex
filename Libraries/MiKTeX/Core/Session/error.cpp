@@ -1,6 +1,6 @@
 /* error.cpp: error handling
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "internal.h"
 
 #include "Session/SessionImpl.h"
@@ -28,6 +31,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 MIKTEXINTERNALFUNC(void) TraceError(const string& msg)
@@ -35,7 +39,7 @@ MIKTEXINTERNALFUNC(void) TraceError(const string& msg)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_error->WriteLine("core", msg);
+    session->trace_error->WriteLine("core", TraceLevel::Error, msg);
   }
 }
 
@@ -56,9 +60,9 @@ void Session::FatalMiKTeXError(const string& message, const string& description,
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr && session->trace_error != nullptr)
   {
-    session->trace_error->WriteLine("core", message.c_str());
-    session->trace_error->WriteFormattedLine("core", "Data: %s", info.ToString().c_str());
-    session->trace_error->WriteFormattedLine("core", "Source: %s:%d", sourceLocation.fileName.c_str(), sourceLocation.lineNo);
+    session->trace_error->WriteLine("core", TraceLevel::Fatal, message);
+    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format("Data: {0}", info));
+    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format("Source: {0}:{1}", sourceLocation.fileName, sourceLocation.lineNo));
   }
   if (session != nullptr)
   {
@@ -103,18 +107,15 @@ void Session::FatalCrtError(const string& functionName, int errorCode, const MiK
     errorMessage += ": " + infoString;
   }
   string programInvocationName;
-  if (SessionImpl::TryGetSession() != nullptr)
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
   {
-    SessionImpl::GetSession()->trace_error->WriteFormattedLine(
-      "core",
-      T_("%s\nFunction: %s\nResult: %u\nData: %s\nSource: %s:%d"),
-      errorMessage.c_str(),
-      functionName.c_str(),
-      errorCode,
-      infoString.empty() ? "<no data>" : infoString.c_str(),
-      sourceLocation.fileName.c_str(),
-      sourceLocation.lineNo);
-    programInvocationName = SessionImpl::GetSession()->initInfo.GetProgramInvocationName();
+    session->trace_error->WriteLine("core", TraceLevel::Fatal, errorMessage);
+    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Function: {0}"), functionName));
+    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Result: {0}"), errorCode));
+    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Data: {0}"), infoString.empty() ? "<no data>" : infoString));
+    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Source: {0}"), sourceLocation));
+    programInvocationName = session->initInfo.GetProgramInvocationName();
   }
 #if 1
   string env;

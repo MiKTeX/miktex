@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2019  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -106,10 +106,10 @@ PDFDestination toPDFDestination(pdf_xref * xref, fz_obj * dest)
     if (!fz_is_name(fz_array_get(dest, 1)))
       return PDFDestination();
     QString type = QString::fromAscii(fz_to_name(fz_array_get(dest, 1)));
-    float left, top, bottom, right, zoom;
 
     // /XYZ left top zoom 
     if (type == QString::fromUtf8("XYZ")) {
+      float left, top, zoom;
       if (fz_array_len(dest) != 5)
         return PDFDestination();
       obj = fz_array_get(dest, 2);
@@ -145,6 +145,7 @@ PDFDestination toPDFDestination(pdf_xref * xref, fz_obj * dest)
     }
     // /FitH top
     else if (type == QString::fromUtf8("FitH")) {
+      float top;
       if (fz_array_len(dest) != 3)
         return PDFDestination();
       obj = fz_array_get(dest, 2);
@@ -159,6 +160,7 @@ PDFDestination toPDFDestination(pdf_xref * xref, fz_obj * dest)
     }
     // /FitV left
     else if (type == QString::fromUtf8("FitV")) {
+      float left;
       if (fz_array_len(dest) != 3)
         return PDFDestination();
       obj = fz_array_get(dest, 2);
@@ -173,6 +175,7 @@ PDFDestination toPDFDestination(pdf_xref * xref, fz_obj * dest)
     }
     // /FitR left bottom right top
     if (type == QString::fromUtf8("FitR")) {
+      float left, top, bottom, right, zoom;
       if (fz_array_len(dest) != 6)
         return PDFDestination();
       obj = fz_array_get(dest, 2);
@@ -215,6 +218,7 @@ PDFDestination toPDFDestination(pdf_xref * xref, fz_obj * dest)
     }
     // /FitBH top
     else if (type == QString::fromUtf8("FitBH")) {
+      float top;
       if (fz_array_len(dest) != 3)
         return PDFDestination();
       obj = fz_array_get(dest, 2);
@@ -229,6 +233,7 @@ PDFDestination toPDFDestination(pdf_xref * xref, fz_obj * dest)
     }
     // /FitBV left
     else if (type == QString::fromUtf8("FitBV")) {
+      float left;
       if (fz_array_len(dest) != 3)
         return PDFDestination();
       obj = fz_array_get(dest, 2);
@@ -306,7 +311,7 @@ Annotation::Popup * toPDFPopupAnnotation(Annotation::Markup * parent, fz_obj * s
   static char keyOpen[] = "Open";
 
   if (!fz_is_dict(src))
-    return NULL;
+    return Q_NULLPTR;
 
   Annotation::Popup * retVal = new Annotation::Popup();
 
@@ -357,7 +362,7 @@ QMutex * MuPDFLocaleResetter::_lock = new QMutex(QMutex::Recursive);
 class MuPDFLocaleResetter
 {
 public:
-  MuPDFLocaleResetter() { }
+  MuPDFLocaleResetter() = default;
 };
 #endif // defined(HAVE_LOCALE_H)
 
@@ -679,13 +684,13 @@ QList<PDFFontInfo> Document::fonts() const
             fi.setSource(PDFFontInfo::Source_Embedded);
           }
           else {
-            fz_obj * ff = fz_dict_gets(desc, fontfile2Key);
+            ff = fz_dict_gets(desc, fontfile2Key);
             if (fz_is_dict(ff)) {
               fi.setFontProgramType(PDFFontInfo::ProgramType_TrueType);
               fi.setSource(PDFFontInfo::Source_Embedded);
             }
             else {
-              fz_obj * ff = fz_dict_gets(desc, fontfile3Key);
+              ff = fz_dict_gets(desc, fontfile3Key);
               if (fz_is_dict(ff)) {
                 QString ffSubtype = QString::fromUtf8(fz_to_name(fz_dict_gets(ff, subtypeKey)));
                 if (ffSubtype == QString::fromUtf8("Type1C"))
@@ -1092,7 +1097,7 @@ QList< QSharedPointer<Annotation::AbstractAnnotation> > Page::loadAnnotations()
   return _annotations;
 }
 
-QList<SearchResult> Page::search(QString searchText, SearchFlags flags)
+QList<SearchResult> Page::search(const QString & searchText, const SearchFlags & flags)
 {
   QList<SearchResult> results;
   fz_text_span * page_text, * span;
@@ -1156,7 +1161,8 @@ QList<SearchResult> Page::search(QString searchText, SearchFlags flags)
           ++spanStart;
         span = span->next;
       }
-      result.bbox |= toRectF(span->text[i + j - spanStart].bbox);
+      if (span)
+        result.bbox |= toRectF(span->text[i + j - spanStart].bbox);
     }
 
     if (flags & ::QtPDF::Backend::Search_Backwards)
@@ -1320,7 +1326,7 @@ inline bool polygonContains(const QPolygonF & poly, const QRectF & rect)
   return (qAbs(r.width() * r.height() - rect.width() * rect.height()) < 1e-6);
 }
 
-QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes /* = NULL */, QMap<int, QRectF> * charBoxes /* = NULL */)
+QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes /* = NULL */, QMap<int, QRectF> * charBoxes /* = NULL */, const bool onlyFullyEnclosed)
 {
   // FIXME: Implement wordBoxes and charBoxes
   QReadLocker pageLocker(_pageLock);

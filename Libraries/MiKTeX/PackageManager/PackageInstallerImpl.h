@@ -1,6 +1,6 @@
 /* PackageInstallerImpl.h:                              -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -84,13 +84,33 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL UpdateDb() override;
+  void MIKTEXTHISCALL UpdateDb(UpdateDbOptionSet options) override
+  {
+    MPM_LOCK_BEGIN(this->packageManager)
+    {
+      UpdateDbNoLock(options);
+    }
+    MPM_LOCK_END();
+  }
+
+private:
+  void UpdateDbNoLock(UpdateDbOptionSet options);
 
 public:
   void MIKTEXTHISCALL UpdateDbAsync() override;
 
 public:
-  void MIKTEXTHISCALL FindUpdates() override;
+  void MIKTEXTHISCALL FindUpdates() override
+  {
+    MPM_LOCK_BEGIN(this->packageManager)
+    {
+      FindUpdatesNoLock();
+    }
+    MPM_LOCK_END();
+  }
+
+private:
+  void FindUpdatesNoLock();
 
 public:
   void MIKTEXTHISCALL FindUpdatesAsync() override;
@@ -102,7 +122,13 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL FindUpgrades(PackageLevel packageLevel) override;
+  void MIKTEXTHISCALL FindUpgrades(PackageLevel packageLevel) override
+  {
+    FindUpgradesNoLock(packageLevel);
+  }
+
+private:
+  void FindUpgradesNoLock(PackageLevel packageLevel);
 
 public:
   void MIKTEXTHISCALL FindUpgradesAsync(PackageLevel packageLevel) override;
@@ -240,7 +266,7 @@ private:
   RepositoryManifest repositoryManifest;
 
 private:
-  void InstallRepositoryManifest();
+  void InstallRepositoryManifest(bool fromCache);
 
 private:
   void LoadRepositoryManifest(bool download);
@@ -300,9 +326,6 @@ private:
 
 private:
   bool enablePostProcessing = true;
-
-private:
-  bool unattended = false;
 
 private:
   ProgressInfo progressInfo;

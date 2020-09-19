@@ -21,5 +21,4 @@ include(version.cmake)
 
 set(MIKTEX_COMP_DESCRIPTION "MD5 message-digest algorithm library")
 
-set(MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved.")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved.")
+set(MIKTEX_COMP_COPYRIGHT_STR "Â© 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved.")

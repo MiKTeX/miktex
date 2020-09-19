@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,10 +21,13 @@
 
 #include "PrefsDialog.h"
 #include "DefaultPrefs.h"
+#include "Settings.h"
 #include "TWApp.h"
-#include "PDFDocument.h"
+#include "PDFDocumentWindow.h"
 #include "TeXHighlighter.h"
 #include "CompletingEdit.h"
+#include "TWUtils.h"
+#include "document/SpellChecker.h"
 
 #include <QFontDatabase>
 #include <QTextCodec>
@@ -38,6 +41,8 @@
 
 PrefsDialog::PrefsDialog(QWidget *parent)
 	: QDialog(parent)
+	, pathsChanged(false)
+	, toolsChanged(false)
 {
 	init();
 }
@@ -74,7 +79,7 @@ void PrefsDialog::changedTabPanel(int index)
 	page->clearFocus();
 	switch (index) {
 		case 0: // General
-			if (page->focusWidget() != NULL)
+			if (page->focusWidget())
 				page->focusWidget()->clearFocus();
 			break;
 		case 1: // Editor
@@ -89,7 +94,7 @@ void PrefsDialog::changedTabPanel(int index)
 			binPathList->setFocus();
 			break;
 		case 4: // Script
-			if (page->focusWidget() != NULL)
+			if (page->focusWidget())
 				page->focusWidget()->clearFocus();
 			break;
 	}
@@ -314,6 +319,7 @@ void PrefsDialog::restoreDefaults()
 				fontSize->setValue(font.pointSize());
 			}
 			tabWidth->setValue(kDefault_TabWidth);
+			lineSpacing->setValue(kDefault_LineSpacing);
 			lineNumbers->setChecked(kDefault_LineNumbers);
 			wrapLines->setChecked(kDefault_WrapLines);
 			syntaxColoring->setCurrentIndex(kDefault_SyntaxColoring);
@@ -323,6 +329,7 @@ void PrefsDialog::restoreDefaults()
 			encoding->setCurrentIndex(encoding->findText(QString::fromLatin1("UTF-8")));
 			highlightCurrentLine->setChecked(kDefault_HighlightCurrentLine);
 			autocompleteEnabled->setChecked(kDefault_AutocompleteEnabled);
+			autoFollowFocusEnabled->setChecked(kDefault_AutoFollowFocusEnabled);
 			break;
 	
 		case 2:
@@ -448,7 +455,7 @@ static bool dictPairLessThan(const DictPair& d1, const DictPair& d2)
 
 QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 {
-	PrefsDialog dlg(NULL);
+	PrefsDialog dlg(nullptr);
 	
 	QStringList nameList;
 	foreach (QTextCodec *codec, *TWUtils::findCodecs())
@@ -465,11 +472,11 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	dlg.smartQuotes->addItems(quotesModes);
 
 	QList< DictPair > dictList;
-	foreach (const QString& dictKey, TWUtils::getDictionaryList()->uniqueKeys()) {
+	foreach (const QString& dictKey, Tw::Document::SpellChecker::getDictionaryList()->uniqueKeys()) {
 		QString dict, label;
 		QLocale loc;
 
-		foreach (dict, TWUtils::getDictionaryList()->values(dictKey)) {
+		foreach (dict, Tw::Document::SpellChecker::getDictionaryList()->values(dictKey)) {
 			loc = QLocale(dict);
 			if (loc.language() != QLocale::C) break;
 		}
@@ -479,9 +486,9 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		else {
 			QLocale::Country country = loc.country();
 			if (country != QLocale::AnyCountry)
-				label = QString::fromLatin1("%1 - %2 (%3)").arg(QLocale::languageToString(loc.language())).arg(QLocale::countryToString(country)).arg(dict);
+				label = QString::fromLatin1("%1 - %2 (%3)").arg(QLocale::languageToString(loc.language()), QLocale::countryToString(country), dict);
 			else
-				label = QString::fromLatin1("%1 (%2)").arg(QLocale::languageToString(loc.language())).arg(dict);
+				label = QString::fromLatin1("%1 (%2)").arg(QLocale::languageToString(loc.language()), dict);
 		}
 
 		dictList << qMakePair(label, dict);
@@ -490,7 +497,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	foreach (const DictPair& dict, dictList)
 		dlg.language->addItem(dict.first, dict.second);
 		
-	QSETTINGS_OBJECT(settings);
+	Tw::Settings settings;
 	// initialize controls based on the current settings
 	
 	// General
@@ -528,6 +535,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	int oldLocaleIndex = oldLocale.isEmpty() ? kSystemLocaleIndex : kEnglishLocaleIndex;
 	QStringList *trList = TWUtils::getTranslationList();
 	QStringList::ConstIterator iter;
+	QList< DictPair > displayList;
 	for (iter = trList->constBegin(); iter != trList->constEnd(); ++iter) {
 		QLocale loc(*iter);
 		QLocale::Language	language = loc.language();
@@ -543,8 +551,13 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 					locName += tr(" (%1)").arg(QLocale::countryToString(country));
 			}
 		}
-		dlg.localePopup->addItem(locName);
-		if (*iter == oldLocale)
+		displayList << qMakePair(locName, *iter);
+	}
+	qSort(displayList.begin(), displayList.end(), dictPairLessThan);
+
+	Q_FOREACH(DictPair p, displayList) {
+		dlg.localePopup->addItem(p.first, p.second);
+		if (p.second == oldLocale)
 			oldLocaleIndex = dlg.localePopup->count() - 1;
 	}
 	dlg.localePopup->setCurrentIndex(oldLocaleIndex);
@@ -562,6 +575,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	dlg.lineNumbers->setChecked(settings.value(QString::fromLatin1("lineNumbers"), kDefault_LineNumbers).toBool());
 	dlg.wrapLines->setChecked(settings.value(QString::fromLatin1("wrapLines"), kDefault_WrapLines).toBool());
 	dlg.tabWidth->setValue(settings.value(QString::fromLatin1("tabWidth"), kDefault_TabWidth).toInt());
+	dlg.lineSpacing->setValue(settings.value(QStringLiteral("lineSpacing"), kDefault_LineSpacing).toInt());
 	QFontDatabase fdb;
 	dlg.editorFont->addItems(fdb.families());
 	QString fontString = settings.value(QString::fromLatin1("font")).toString();
@@ -573,6 +587,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	dlg.encoding->setCurrentIndex(nameList.indexOf(QString::fromUtf8(TWApp::instance()->getDefaultCodec()->name().constData())));
 	dlg.highlightCurrentLine->setChecked(settings.value(QString::fromLatin1("highlightCurrentLine"), kDefault_HighlightCurrentLine).toBool());
 	dlg.autocompleteEnabled->setChecked(settings.value(QString::fromLatin1("autocompleteEnabled"), kDefault_AutocompleteEnabled).toBool());
+	dlg.autoFollowFocusEnabled->setChecked(settings.value(QStringLiteral("autoFollowFocusEnabled"), kDefault_AutoFollowFocusEnabled).toBool());
 
 	QString defDict = settings.value(QString::fromLatin1("language"), QString::fromLatin1("None")).toString();
 	int i = dlg.language->findData(defDict);
@@ -649,9 +664,6 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	if (TWApp::instance()->getScriptManager()->languages().size() <= 1)
 		dlg.enableScriptingPlugins->setEnabled(false);
 	dlg.scriptDebugger->setChecked(settings.value(QString::fromLatin1("scriptDebugger"), kDefault_ScriptDebugger).toBool());
-#if QT_VERSION < 0x040500
-	dlg.scriptDebugger->setEnabled(false);
-#endif
 	
 	// Decide which tab to select initially
 	if (sCurrentTab == -1) {
@@ -667,7 +679,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 	
 	dlg.show();
 
-	DialogCode	result = (DialogCode)dlg.exec();
+	DialogCode result = static_cast<DialogCode>(dlg.exec());
 
 	if (result == Accepted) {
 		sCurrentTab = dlg.tabWidget->currentIndex();
@@ -684,7 +696,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			settings.setValue(QString::fromLatin1("toolBarShowText"), showText);
 			foreach (QWidget *widget, qApp->topLevelWidgets()) {
 				QMainWindow *theWindow = qobject_cast<QMainWindow*>(widget);
-				if (theWindow != NULL)
+				if (theWindow)
 					TWUtils::applyToolbarOptions(theWindow, iconSize, showText);
 			}
 		}
@@ -709,7 +721,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 					break;
 				default:
 					{
-						QString locale = trList->at(dlg.localePopup->currentIndex() - kFirstTranslationIndex);
+						QString locale = dlg.localePopup->itemData(dlg.localePopup->currentIndex()).toString();
 						TWApp::instance()->applyTranslation(locale);
 						settings.setValue(QString::fromLatin1("locale"), locale);
 					}
@@ -724,6 +736,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		settings.setValue(QString::fromLatin1("lineNumbers"), dlg.lineNumbers->isChecked());
 		settings.setValue(QString::fromLatin1("wrapLines"), dlg.wrapLines->isChecked());
 		settings.setValue(QString::fromLatin1("tabWidth"), dlg.tabWidth->value());
+		settings.setValue(QStringLiteral("lineSpacing"), dlg.lineSpacing->value());
 		font = QFont(dlg.editorFont->currentText());
 		font.setPointSize(dlg.fontSize->value());
 		settings.setValue(QString::fromLatin1("font"), font.toString());
@@ -744,6 +757,8 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		bool autocompleteEnabled = dlg.autocompleteEnabled->isChecked();
 		settings.setValue(QString::fromLatin1("autocompleteEnabled"), autocompleteEnabled);
 		CompletingEdit::setAutocompleteEnabled(autocompleteEnabled);
+
+		settings.setValue(QStringLiteral("autoFollowFocusEnabled"), dlg.autoFollowFocusEnabled->isChecked());
 
 		// Since the tab width can't be set by any other means, forcibly update
 		// all windows now
@@ -780,8 +795,8 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		if (resolution != oldResolution) {
 			settings.setValue(QString::fromLatin1("previewResolution"), resolution);
 			foreach (QWidget *widget, qApp->topLevelWidgets()) {
-				PDFDocument *thePdfDoc = qobject_cast<PDFDocument*>(widget);
-				if (thePdfDoc != NULL)
+				PDFDocumentWindow *thePdfDoc = qobject_cast<PDFDocumentWindow*>(widget);
+				if (thePdfDoc)
 					thePdfDoc->setResolution(resolution);
 			}
 		}
@@ -804,8 +819,8 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 		settings.setValue(QString::fromLatin1("circularMagnifier"), circular);
 		if (oldMagSize != magSize || oldCircular != circular) {
 			foreach (QWidget *widget, qApp->topLevelWidgets()) {
-				PDFDocument *thePdfDoc = qobject_cast<PDFDocument*>(widget);
-				if (thePdfDoc != NULL)
+				PDFDocumentWindow *thePdfDoc = qobject_cast<PDFDocumentWindow*>(widget);
+				if (thePdfDoc)
 					thePdfDoc->resetMagnifier();
 			}
 		}
@@ -937,9 +952,9 @@ QDialog::DialogCode ToolConfig::doToolConfig(QWidget *parent, Engine &engine)
 	
 	dlg.show();
 
-	DialogCode	result = (DialogCode)dlg.exec();
+	DialogCode result = static_cast<DialogCode>(dlg.exec());
 	if (result == Accepted) {
-		dlg.arguments->setCurrentItem(NULL); // ensure editing is terminated
+		dlg.arguments->setCurrentItem(nullptr); // ensure editing is terminated
 		engine.setName(dlg.toolName->text());
 		engine.setProgram(dlg.program->text());
 		QStringList args;

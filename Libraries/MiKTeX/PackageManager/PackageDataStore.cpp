@@ -1,6 +1,6 @@
 /* PackageDataStore.cpp
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -36,6 +36,7 @@
 #include "internal.h"
 
 #include "PackageDataStore.h"
+#include "PackageManagerImpl.h"
 #include "TpmParser.h"
 
 using namespace std;
@@ -54,18 +55,18 @@ PackageDataStore::PackageDataStore() :
 {
 }
 
-void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsPath)
+void PackageDataStore::LoadAllPackageManifests(const PathName& packageManifestsPath, bool mustBeSigned)
 {
   trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("loading all package manifests ({0})"), Q_(packageManifestsPath)));
 
   if (!File::Exists(packageManifestsPath))
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("file {0} does not exist"), Q_(packageManifestsPath)));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("file {0} does not exist"), Q_(packageManifestsPath)));
     return;
   }
 
   unique_ptr<Cfg> cfg = Cfg::Create();
-  cfg->Read(packageManifestsPath);
+  cfg->Read(packageManifestsPath, mustBeSigned);
 
   Load(*cfg);
 
@@ -87,7 +88,7 @@ void PackageDataStore::Clear()
 
 tuple<bool, PackageInfo> PackageDataStore::TryGetPackage(const string& packageId)
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   auto it = packageTable.find(packageId);
   if (it == packageTable.end())
   {
@@ -126,13 +127,13 @@ void PackageDataStore::SetReleaseState(const string& packageId, RepositoryReleas
 
 PackageDataStore::iterator PackageDataStore::begin()
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   return iterator(packageTable.begin());
 }
 
 PackageDataStore::iterator PackageDataStore::end()
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   return iterator(packageTable.end());
 }
 
@@ -170,7 +171,7 @@ void PackageDataStore::IncrementFileRefCounts(const string& packageId)
 
 unsigned long PackageDataStore::GetFileRefCount(const PathName& path)
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   InstalledFileInfoTable::const_iterator it = installedFileInfoTable.find(path.ToString());
   if (it == installedFileInfoTable.end())
   {
@@ -181,7 +182,7 @@ unsigned long PackageDataStore::GetFileRefCount(const PathName& path)
 
 unsigned long PackageDataStore::DecrementFileRefCount(const PathName& path)
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   InstalledFileInfoTable::iterator it = installedFileInfoTable.find(path.ToString());
   if (it == installedFileInfoTable.end() || it->second.refCount == 0)
   {
@@ -193,15 +194,15 @@ unsigned long PackageDataStore::DecrementFileRefCount(const PathName& path)
 
 void PackageDataStore::NeedPackageManifestsIni()
 {
-  PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+  PathName existingPackageManifestsIni = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
   if (File::Exists(existingPackageManifestsIni))
   {
     return;
   }
-  PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+  PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
   if (Directory::Exists(tpmDir))
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("starting migration: {} -> {}", tpmDir, existingPackageManifestsIni));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format("starting migration: {} -> {}", tpmDir, existingPackageManifestsIni));
     unique_ptr<Cfg> cfgExisting = Cfg::Create();
     unique_ptr<DirectoryLister> lister = DirectoryLister::Open(tpmDir);
     DirectoryEntry direntry;
@@ -220,29 +221,29 @@ void PackageDataStore::NeedPackageManifestsIni()
       count++;
     }
     cfgExisting->Write(existingPackageManifestsIni);
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format("successfully migrated {} package manifest files", count));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format("successfully migrated {} package manifest files", count));
   }
 }
 
-void PackageDataStore::Load()
+PackageDataStore& PackageDataStore::Load()
 {
   if (loadedAllPackageManifests)
   {
     // we do this once
-    return;
+    return *this;
   }
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(trace_stopwatch.get(), TRACE_FACILITY, "loading all package manifests");
   NeedPackageManifestsIni();
   unique_ptr<Cfg> cfg = Cfg::Create();
   if (!session->IsAdminMode())
   {
-    PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+    PathName userPath = session->GetSpecialPath(SpecialPath::UserInstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
     if (File::Exists(userPath))
     {
       cfg->Read(userPath);
     }
   }
-  PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+  PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
   if ((session->IsAdminMode() || session->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize() != session->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize()) && File::Exists(commonPath))
   {
     cfg->SetOptions({ Cfg::Option::NoOverwriteKeys });
@@ -250,6 +251,7 @@ void PackageDataStore::Load()
   }
   Load(*cfg);
   loadedAllPackageManifests = true;
+  return *this;
 }
 
 void PackageDataStore::Load(Cfg& cfg)
@@ -269,7 +271,6 @@ void PackageDataStore::Load(Cfg& cfg)
     string targetSystems = packageInfo.targetSystem;
     if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ignoring {1} package"), packageInfo.id, targetSystems));
       continue;
     }
 #endif
@@ -302,7 +303,7 @@ void PackageDataStore::Load(Cfg& cfg)
       PackageDefinitionTable::iterator it3 = packageTable.find(req);
       if (it3 == packageTable.end())
       {
-        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.id));
+        trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.id));
       }
       else
       {
@@ -380,14 +381,14 @@ void PackageDataStore::LoadVarData()
   if (!comboCfg.Loaded())
   {
     comboCfg.Load(
-      session->IsAdminMode() ? "" : session->GetSpecialPath(SpecialPath::UserInstallRoot) / MIKTEX_PATH_PACKAGES_INI,
-      session->GetSpecialPath(SpecialPath::CommonInstallRoot) / MIKTEX_PATH_PACKAGES_INI);
+      session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserInstallRoot) / PathName(MIKTEX_PATH_PACKAGES_INI),
+      session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_PACKAGES_INI));
   }
 }
 
 PackageInfo& PackageDataStore::operator[](const string& packageId)
 {
-  Load();
+  MIKTEX_EXPECT(loadedAllPackageManifests);
   auto it = packageTable.find(packageId);
   if (it == packageTable.end())
   {
@@ -491,7 +492,7 @@ void PackageDataStore::IncrementFileRefCounts(const vector<string>& files)
 #if POLLUTE_THE_DEBUG_STREAM
     if (installedFileInfoTable[file].refCount >= 2)
     {
-      trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: ref count > 1"), Q_(file)));
+      trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Debug, fmt::format(T_("{0}: ref count > 1"), Q_(file)));
     }
 #endif
   }

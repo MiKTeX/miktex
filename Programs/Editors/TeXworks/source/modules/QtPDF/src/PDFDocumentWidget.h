@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2018  Stefan Löffler
+ * Copyright (C) 2013-2019  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,8 +22,8 @@ class PDFDocumentWidget : public PDFDocumentView
 {
 	Q_OBJECT
 public:
-  PDFDocumentWidget(QWidget * parent = NULL, const double dpi = -1);
-  virtual ~PDFDocumentWidget();
+  PDFDocumentWidget(QWidget * parent = nullptr, const double dpi = -1);
+  ~PDFDocumentWidget() override;
 
   bool load(const QString & filename);
 

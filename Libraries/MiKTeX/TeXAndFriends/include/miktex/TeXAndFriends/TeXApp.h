@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/TeXApp.h:                       -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -251,11 +251,7 @@ template<class FileType> inline bool miktexopendvifile(FileType& f)
   bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), false, outPath);
   if (done)
   {
-#if defined(MIKTEX_OMEGA)
-    TeXApp::GetTeXApp()->SetNameOfFile(TeXApp::GetTeXApp()->MangleNameOfFile(outPath.GetData()));
-#else
     TeXApp::GetTeXApp()->SetNameOfFile(outPath);
-#endif
   }
   return done;
 }
@@ -266,11 +262,7 @@ template<class FileType> inline bool miktexopenpdffile(FileType& f)
   bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), false, outPath);
   if (done)
   {
-#if defined(MIKTEX_OMEGA)
-    TeXApp::GetTeXApp()->SetNameOfFile(TeXApp::GetTeXApp()->MangleNameOfFile(outPath.GetData()));
-#else
     TeXApp::GetTeXApp()->SetNameOfFile(outPath);
-#endif
   }
   return done;
 }

@@ -398,6 +398,31 @@ static int face_ot_color_has_png(lua_State *L) {
   return 1;
 }
 
+static int face_ot_color_has_svg(lua_State *L) {
+  Face *f = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
+
+  lua_pushboolean(L, hb_ot_color_has_svg(*f));
+  return 1;
+}
+
+static int face_ot_color_glyph_get_svg(lua_State *L) {
+  Face *f = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
+  hb_codepoint_t gid = (hb_codepoint_t) luaL_checkinteger(L, 2);
+  hb_blob_t* blob = hb_ot_color_glyph_reference_svg(*f, gid);
+
+  if (hb_blob_get_length(blob) != 0) {
+    Blob *b = (Blob *)lua_newuserdata(L, sizeof(*b));
+    luaL_getmetatable(L, "harfbuzz.Blob");
+    lua_setmetatable(L, -2);
+
+    *b = blob;
+  } else {
+    lua_pushnil(L);
+  }
+
+  return 1;
+}
+
 static int face_destroy(lua_State *L) {
   Face *f = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
 
@@ -419,6 +444,8 @@ static const struct luaL_Reg face_methods[] = {
   { "ot_color_has_layers", face_ot_color_has_layers },
   { "ot_color_glyph_get_layers", face_ot_color_glyph_get_layers },
   { "ot_color_has_png", face_ot_color_has_png },
+  { "ot_color_has_svg", face_ot_color_has_svg },
+  { "ot_color_glyph_get_svg", face_ot_color_glyph_get_svg },
   { "ot_layout_get_script_tags", face_ot_layout_get_script_tags },
   { "ot_layout_get_language_tags", face_ot_layout_get_language_tags },
   { "ot_layout_get_feature_tags", face_ot_layout_get_feature_tags },

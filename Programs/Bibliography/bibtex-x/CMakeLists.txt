@@ -81,7 +81,7 @@ set(bibtex8_sources ${common_sources})
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND bibtex8_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     bibtex8.rc
   )
 endif()
@@ -111,7 +111,7 @@ set(bibtexu_sources ${common_sources})
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND bibtexu_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     bibtexu.rc
   )
 endif()

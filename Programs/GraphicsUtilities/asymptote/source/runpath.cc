@@ -347,33 +347,45 @@ void gen_runpath23(stack *Stack)
 }
 
 #line 172 "runpath.in"
-// real arctime(path p, real L);
+// real arclength(pair z0, pair c0, pair c1, pair z1);
 void gen_runpath24(stack *Stack)
 {
-  real L=vm::pop<real>(Stack);
-  path p=vm::pop<path>(Stack);
+  pair z1=vm::pop<pair>(Stack);
+  pair c1=vm::pop<pair>(Stack);
+  pair c0=vm::pop<pair>(Stack);
+  pair z0=vm::pop<pair>(Stack);
 #line 173 "runpath.in"
-  {Stack->push<real>(p.arctime(L)); return;}
+  {Stack->push<real>(arcLength(z0,c0,c1,z1)); return;}
 }
 
 #line 177 "runpath.in"
-// real dirtime(path p, pair z);
+// real arctime(path p, real L);
 void gen_runpath25(stack *Stack)
 {
-  pair z=vm::pop<pair>(Stack);
+  real L=vm::pop<real>(Stack);
   path p=vm::pop<path>(Stack);
 #line 178 "runpath.in"
-  {Stack->push<real>(p.directiontime(z)); return;}
+  {Stack->push<real>(p.arctime(L)); return;}
 }
 
 #line 182 "runpath.in"
-// realarray* intersect(path p, path q, real fuzz=-1);
+// real dirtime(path p, pair z);
 void gen_runpath26(stack *Stack)
+{
+  pair z=vm::pop<pair>(Stack);
+  path p=vm::pop<path>(Stack);
+#line 183 "runpath.in"
+  {Stack->push<real>(p.directiontime(z)); return;}
+}
+
+#line 187 "runpath.in"
+// realarray* intersect(path p, path q, real fuzz=-1);
+void gen_runpath27(stack *Stack)
 {
   real fuzz=vm::pop<real>(Stack,-1);
   path q=vm::pop<path>(Stack);
   path p=vm::pop<path>(Stack);
-#line 183 "runpath.in"
+#line 188 "runpath.in"
   bool exact=fuzz <= 0.0;
   if(fuzz < 0)
     fuzz=BigFuzz*::max(::max(length(p.max()),length(p.min())),
@@ -389,14 +401,14 @@ void gen_runpath26(stack *Stack)
   {Stack->push<realarray*>(new array(0)); return;}
 }
 
-#line 199 "runpath.in"
+#line 204 "runpath.in"
 // realarray2* intersections(path p, path q, real fuzz=-1);
-void gen_runpath27(stack *Stack)
+void gen_runpath28(stack *Stack)
 {
   real fuzz=vm::pop<real>(Stack,-1);
   path q=vm::pop<path>(Stack);
   path p=vm::pop<path>(Stack);
-#line 200 "runpath.in"
+#line 205 "runpath.in"
   bool exact=fuzz <= 0.0;
   if(fuzz < 0.0)
     fuzz=BigFuzz*::max(::max(length(p.max()),length(p.min())),
@@ -426,15 +438,15 @@ void gen_runpath27(stack *Stack)
   {Stack->push<realarray2*>(V); return;}
 }
 
-#line 230 "runpath.in"
+#line 235 "runpath.in"
 // realarray* intersections(path p, explicit pair a, explicit pair b, real fuzz=-1);
-void gen_runpath28(stack *Stack)
+void gen_runpath29(stack *Stack)
 {
   real fuzz=vm::pop<real>(Stack,-1);
   pair b=vm::pop<pair>(Stack);
   pair a=vm::pop<pair>(Stack);
   path p=vm::pop<path>(Stack);
-#line 231 "runpath.in"
+#line 236 "runpath.in"
   if(fuzz < 0)
     fuzz=BigFuzz*::max(::max(length(p.max()),length(p.min())),
                        ::max(length(a),length(b)));
@@ -450,15 +462,15 @@ void gen_runpath28(stack *Stack)
 
 // Return the intersection point of the extensions of the line segments 
 // PQ and pq.
-#line 247 "runpath.in"
+#line 252 "runpath.in"
 // pair extension(pair P, pair Q, pair p, pair q);
-void gen_runpath29(stack *Stack)
+void gen_runpath30(stack *Stack)
 {
   pair q=vm::pop<pair>(Stack);
   pair p=vm::pop<pair>(Stack);
   pair Q=vm::pop<pair>(Stack);
   pair P=vm::pop<pair>(Stack);
-#line 248 "runpath.in"
+#line 253 "runpath.in"
   pair ac=P-Q;
   pair bd=q-p;
   real det=ac.getx()*bd.gety()-ac.gety()*bd.getx();
@@ -466,49 +478,49 @@ void gen_runpath29(stack *Stack)
   {Stack->push<pair>(P+((p.getx()-P.getx())*bd.gety()-(p.gety()-P.gety())*bd.getx())*ac/det); return;}
 }
 
-#line 256 "runpath.in"
+#line 261 "runpath.in"
 // Int size(path p);
-void gen_runpath30(stack *Stack)
+void gen_runpath31(stack *Stack)
 {
   path p=vm::pop<path>(Stack);
-#line 257 "runpath.in"
+#line 262 "runpath.in"
   {Stack->push<Int>(p.size()); return;}
 }
 
-#line 261 "runpath.in"
+#line 266 "runpath.in"
 // path &(path p, path q);
-void gen_runpath31(stack *Stack)
+void gen_runpath32(stack *Stack)
 {
   path q=vm::pop<path>(Stack);
   path p=vm::pop<path>(Stack);
-#line 262 "runpath.in"
+#line 267 "runpath.in"
   {Stack->push<path>(camp::concat(p,q)); return;}
 }
 
-#line 266 "runpath.in"
-// pair min(explicit path p);
-void gen_runpath32(stack *Stack)
-{
-  path p=vm::pop<path>(Stack);
-#line 267 "runpath.in"
-  {Stack->push<pair>(p.min()); return;}
-}
-
 #line 271 "runpath.in"
-// pair max(explicit path p);
+// pair min(explicit path p);
 void gen_runpath33(stack *Stack)
 {
   path p=vm::pop<path>(Stack);
 #line 272 "runpath.in"
-  {Stack->push<pair>(p.max()); return;}
+  {Stack->push<pair>(p.min()); return;}
 }
 
 #line 276 "runpath.in"
-// Int size(patharray *p);
+// pair max(explicit path p);
 void gen_runpath34(stack *Stack)
 {
+  path p=vm::pop<path>(Stack);
+#line 277 "runpath.in"
+  {Stack->push<pair>(p.max()); return;}
+}
+
+#line 281 "runpath.in"
+// Int size(patharray *p);
+void gen_runpath35(stack *Stack)
+{
   patharray * p=vm::pop<patharray *>(Stack);
-#line 277 "runpath.in" 
+#line 282 "runpath.in" 
   size_t size=checkArray(p);
   Int count=0;
   for (size_t i = 0; i < size; i++)
@@ -516,12 +528,12 @@ void gen_runpath34(stack *Stack)
   {Stack->push<Int>(count); return;}
 }
 
-#line 285 "runpath.in"
+#line 290 "runpath.in"
 // pair min(patharray *p);
-void gen_runpath35(stack *Stack)
+void gen_runpath36(stack *Stack)
 {
   patharray * p=vm::pop<patharray *>(Stack);
-#line 286 "runpath.in" 
+#line 291 "runpath.in" 
   size_t size=checkArray(p);
 
   if(size == 0)
@@ -544,12 +556,12 @@ void gen_runpath35(stack *Stack)
   {Stack->push<pair>(pair(minx, miny)); return;}
 }
 
-#line 309 "runpath.in"
+#line 314 "runpath.in"
 // pair max(patharray *p);
-void gen_runpath36(stack *Stack)
+void gen_runpath37(stack *Stack)
 {
   patharray * p=vm::pop<patharray *>(Stack);
-#line 310 "runpath.in" 
+#line 315 "runpath.in" 
   size_t size=checkArray(p);
 
   if(size == 0)
@@ -572,13 +584,13 @@ void gen_runpath36(stack *Stack)
   {Stack->push<pair>(pair(maxx, maxy)); return;}
 }
 
-#line 333 "runpath.in"
+#line 338 "runpath.in"
 // pair minAfterTransform(transform t, patharray *p);
-void gen_runpath37(stack *Stack)
+void gen_runpath38(stack *Stack)
 {
   patharray * p=vm::pop<patharray *>(Stack);
   transform t=vm::pop<transform>(Stack);
-#line 334 "runpath.in" 
+#line 339 "runpath.in" 
   size_t size=checkArray(p);
 
   if(size == 0)
@@ -601,13 +613,13 @@ void gen_runpath37(stack *Stack)
   {Stack->push<pair>(pair(minx, miny)); return;}
 }
 
-#line 357 "runpath.in"
+#line 362 "runpath.in"
 // pair maxAfterTransform(transform t, patharray *p);
-void gen_runpath38(stack *Stack)
+void gen_runpath39(stack *Stack)
 {
   patharray * p=vm::pop<patharray *>(Stack);
   transform t=vm::pop<transform>(Stack);
-#line 358 "runpath.in" 
+#line 363 "runpath.in" 
   size_t size=checkArray(p);
 
   if(size == 0)
@@ -630,12 +642,12 @@ void gen_runpath38(stack *Stack)
   {Stack->push<pair>(pair(maxx, maxy)); return;}
 }
 
-#line 381 "runpath.in"
+#line 386 "runpath.in"
 // realarray* mintimes(path p);
-void gen_runpath39(stack *Stack)
+void gen_runpath40(stack *Stack)
 {
   path p=vm::pop<path>(Stack);
-#line 382 "runpath.in"
+#line 387 "runpath.in"
   array *V=new array(2);
   pair z=p.mintimes();
   (*V)[0]=z.getx();
@@ -643,12 +655,12 @@ void gen_runpath39(stack *Stack)
   {Stack->push<realarray*>(V); return;}
 }
 
-#line 390 "runpath.in"
+#line 395 "runpath.in"
 // realarray* maxtimes(path p);
-void gen_runpath40(stack *Stack)
+void gen_runpath41(stack *Stack)
 {
   path p=vm::pop<path>(Stack);
-#line 391 "runpath.in"
+#line 396 "runpath.in"
   array *V=new array(2);
   pair z=p.maxtimes();
   (*V)[0]=z.getx();
@@ -656,47 +668,47 @@ void gen_runpath40(stack *Stack)
   {Stack->push<realarray*>(V); return;}
 }
 
-#line 399 "runpath.in"
+#line 404 "runpath.in"
 // real relativedistance(real theta, real phi, real t, bool atleast);
-void gen_runpath41(stack *Stack)
+void gen_runpath42(stack *Stack)
 {
   bool atleast=vm::pop<bool>(Stack);
   real t=vm::pop<real>(Stack);
   real phi=vm::pop<real>(Stack);
   real theta=vm::pop<real>(Stack);
-#line 400 "runpath.in"
+#line 405 "runpath.in"
   {Stack->push<real>(camp::velocity(theta,phi,tension(t,atleast))); return;}
 }
 
-#line 404 "runpath.in"
+#line 409 "runpath.in"
 // Int windingnumber(patharray *p, pair z);
-void gen_runpath42(stack *Stack)
+void gen_runpath43(stack *Stack)
 {
   pair z=vm::pop<pair>(Stack);
   patharray * p=vm::pop<patharray *>(Stack);
-#line 405 "runpath.in"
+#line 410 "runpath.in"
   {Stack->push<Int>(windingnumber(p,z)); return;}
 }
 
-#line 409 "runpath.in"
-// bool inside(explicit patharray *g, pair z, pen fillrule=CURRENTPEN);
-void gen_runpath43(stack *Stack)
-{
-  pen fillrule=vm::pop<pen>(Stack,CURRENTPEN);
-  pair z=vm::pop<pair>(Stack);
-  patharray * g=vm::pop<patharray *>(Stack);
-#line 410 "runpath.in"
-  {Stack->push<bool>(fillrule.inside(windingnumber(g,z))); return;}
-}
-
 #line 414 "runpath.in"
-// bool inside(path g, pair z, pen fillrule=CURRENTPEN);
+// bool inside(explicit patharray *g, pair z, pen fillrule=CURRENTPEN);
 void gen_runpath44(stack *Stack)
 {
   pen fillrule=vm::pop<pen>(Stack,CURRENTPEN);
   pair z=vm::pop<pair>(Stack);
-  path g=vm::pop<path>(Stack);
+  patharray * g=vm::pop<patharray *>(Stack);
 #line 415 "runpath.in"
+  {Stack->push<bool>(fillrule.inside(windingnumber(g,z))); return;}
+}
+
+#line 419 "runpath.in"
+// bool inside(path g, pair z, pen fillrule=CURRENTPEN);
+void gen_runpath45(stack *Stack)
+{
+  pen fillrule=vm::pop<pen>(Stack,CURRENTPEN);
+  pair z=vm::pop<pair>(Stack);
+  path g=vm::pop<path>(Stack);
+#line 420 "runpath.in"
   {Stack->push<bool>(fillrule.inside(g.windingnumber(z))); return;}
 }
 
@@ -709,14 +721,14 @@ void gen_runpath44(stack *Stack)
 // |b.x b.y 1|
 // |c.x c.y 1|
 // 
-#line 428 "runpath.in"
+#line 433 "runpath.in"
 // real orient(pair a, pair b, pair c);
-void gen_runpath45(stack *Stack)
+void gen_runpath46(stack *Stack)
 {
   pair c=vm::pop<pair>(Stack);
   pair b=vm::pop<pair>(Stack);
   pair a=vm::pop<pair>(Stack);
-#line 429 "runpath.in"
+#line 434 "runpath.in"
   {Stack->push<real>(orient2d(a,b,c)); return;}
 }
 
@@ -728,15 +740,15 @@ void gen_runpath45(stack *Stack)
 // |b.x b.y b.x^2+b.y^2 1|
 // |c.x c.y c.x^2+c.y^2 1|
 // |d.x d.y d.x^2+d.y^2 1|
-#line 441 "runpath.in"
+#line 446 "runpath.in"
 // real incircle(pair a, pair b, pair c, pair d);
-void gen_runpath46(stack *Stack)
+void gen_runpath47(stack *Stack)
 {
   pair d=vm::pop<pair>(Stack);
   pair c=vm::pop<pair>(Stack);
   pair b=vm::pop<pair>(Stack);
   pair a=vm::pop<pair>(Stack);
-#line 442 "runpath.in"
+#line 447 "runpath.in"
   {Stack->push<real>(incircle(a.getx(),a.gety(),b.getx(),b.gety(),c.getx(),c.gety(),
                   d.getx(),d.gety())); return;}
 }
@@ -796,51 +808,53 @@ void gen_runpath_venv(venv &ve)
 #line 167 "runpath.in"
   addFunc(ve, run::gen_runpath23, primReal(), SYM(arclength), formal(primPath(), SYM(p), false, false));
 #line 172 "runpath.in"
-  addFunc(ve, run::gen_runpath24, primReal(), SYM(arctime), formal(primPath(), SYM(p), false, false), formal(primReal(), SYM(l), false, false));
+  addFunc(ve, run::gen_runpath24, primReal(), SYM(arclength), formal(primPair(), SYM(z0), false, false), formal(primPair(), SYM(c0), false, false), formal(primPair(), SYM(c1), false, false), formal(primPair(), SYM(z1), false, false));
 #line 177 "runpath.in"
-  addFunc(ve, run::gen_runpath25, primReal(), SYM(dirtime), formal(primPath(), SYM(p), false, false), formal(primPair(), SYM(z), false, false));
+  addFunc(ve, run::gen_runpath25, primReal(), SYM(arctime), formal(primPath(), SYM(p), false, false), formal(primReal(), SYM(l), false, false));
 #line 182 "runpath.in"
-  addFunc(ve, run::gen_runpath26, realArray(), SYM(intersect), formal(primPath(), SYM(p), false, false), formal(primPath(), SYM(q), false, false), formal(primReal(), SYM(fuzz), true, false));
-#line 199 "runpath.in"
-  addFunc(ve, run::gen_runpath27, realArray2(), SYM(intersections), formal(primPath(), SYM(p), false, false), formal(primPath(), SYM(q), false, false), formal(primReal(), SYM(fuzz), true, false));
-#line 230 "runpath.in"
-  addFunc(ve, run::gen_runpath28, realArray(), SYM(intersections), formal(primPath(), SYM(p), false, false), formal(primPair(), SYM(a), false, true), formal(primPair(), SYM(b), false, true), formal(primReal(), SYM(fuzz), true, false));
-#line 245 "runpath.in"
-  addFunc(ve, run::gen_runpath29, primPair(), SYM(extension), formal(primPair(), SYM(p), false, false), formal(primPair(), SYM(q), false, false), formal(primPair(), SYM(p), false, false), formal(primPair(), SYM(q), false, false));
-#line 256 "runpath.in"
-  addFunc(ve, run::gen_runpath30, primInt(), SYM(size), formal(primPath(), SYM(p), false, false));
+  addFunc(ve, run::gen_runpath26, primReal(), SYM(dirtime), formal(primPath(), SYM(p), false, false), formal(primPair(), SYM(z), false, false));
+#line 187 "runpath.in"
+  addFunc(ve, run::gen_runpath27, realArray(), SYM(intersect), formal(primPath(), SYM(p), false, false), formal(primPath(), SYM(q), false, false), formal(primReal(), SYM(fuzz), true, false));
+#line 204 "runpath.in"
+  addFunc(ve, run::gen_runpath28, realArray2(), SYM(intersections), formal(primPath(), SYM(p), false, false), formal(primPath(), SYM(q), false, false), formal(primReal(), SYM(fuzz), true, false));
+#line 235 "runpath.in"
+  addFunc(ve, run::gen_runpath29, realArray(), SYM(intersections), formal(primPath(), SYM(p), false, false), formal(primPair(), SYM(a), false, true), formal(primPair(), SYM(b), false, true), formal(primReal(), SYM(fuzz), true, false));
+#line 250 "runpath.in"
+  addFunc(ve, run::gen_runpath30, primPair(), SYM(extension), formal(primPair(), SYM(p), false, false), formal(primPair(), SYM(q), false, false), formal(primPair(), SYM(p), false, false), formal(primPair(), SYM(q), false, false));
 #line 261 "runpath.in"
-  addFunc(ve, run::gen_runpath31, primPath(), SYM_AMPERSAND, formal(primPath(), SYM(p), false, false), formal(primPath(), SYM(q), false, false));
+  addFunc(ve, run::gen_runpath31, primInt(), SYM(size), formal(primPath(), SYM(p), false, false));
 #line 266 "runpath.in"
-  addFunc(ve, run::gen_runpath32, primPair(), SYM(min), formal(primPath(), SYM(p), false, true));
+  addFunc(ve, run::gen_runpath32, primPath(), SYM_AMPERSAND, formal(primPath(), SYM(p), false, false), formal(primPath(), SYM(q), false, false));
 #line 271 "runpath.in"
-  addFunc(ve, run::gen_runpath33, primPair(), SYM(max), formal(primPath(), SYM(p), false, true));
+  addFunc(ve, run::gen_runpath33, primPair(), SYM(min), formal(primPath(), SYM(p), false, true));
 #line 276 "runpath.in"
-  addFunc(ve, run::gen_runpath34, primInt(), SYM(size), formal(pathArray()  , SYM(p), false, false));
-#line 285 "runpath.in"
-  addFunc(ve, run::gen_runpath35, primPair(), SYM(min), formal(pathArray()  , SYM(p), false, false));
-#line 309 "runpath.in"
-  addFunc(ve, run::gen_runpath36, primPair(), SYM(max), formal(pathArray()  , SYM(p), false, false));
-#line 333 "runpath.in"
-  addFunc(ve, run::gen_runpath37, primPair(), SYM(minAfterTransform), formal(primTransform(), SYM(t), false, false), formal(pathArray()  , SYM(p), false, false));
-#line 357 "runpath.in"
-  addFunc(ve, run::gen_runpath38, primPair(), SYM(maxAfterTransform), formal(primTransform(), SYM(t), false, false), formal(pathArray()  , SYM(p), false, false));
-#line 381 "runpath.in"
-  addFunc(ve, run::gen_runpath39, realArray(), SYM(mintimes), formal(primPath(), SYM(p), false, false));
-#line 390 "runpath.in"
-  addFunc(ve, run::gen_runpath40, realArray(), SYM(maxtimes), formal(primPath(), SYM(p), false, false));
-#line 399 "runpath.in"
-  addFunc(ve, run::gen_runpath41, primReal(), SYM(relativedistance), formal(primReal(), SYM(theta), false, false), formal(primReal(), SYM(phi), false, false), formal(primReal(), SYM(t), false, false), formal(primBoolean(), SYM(atleast), false, false));
+  addFunc(ve, run::gen_runpath34, primPair(), SYM(max), formal(primPath(), SYM(p), false, true));
+#line 281 "runpath.in"
+  addFunc(ve, run::gen_runpath35, primInt(), SYM(size), formal(pathArray()  , SYM(p), false, false));
+#line 290 "runpath.in"
+  addFunc(ve, run::gen_runpath36, primPair(), SYM(min), formal(pathArray()  , SYM(p), false, false));
+#line 314 "runpath.in"
+  addFunc(ve, run::gen_runpath37, primPair(), SYM(max), formal(pathArray()  , SYM(p), false, false));
+#line 338 "runpath.in"
+  addFunc(ve, run::gen_runpath38, primPair(), SYM(minAfterTransform), formal(primTransform(), SYM(t), false, false), formal(pathArray()  , SYM(p), false, false));
+#line 362 "runpath.in"
+  addFunc(ve, run::gen_runpath39, primPair(), SYM(maxAfterTransform), formal(primTransform(), SYM(t), false, false), formal(pathArray()  , SYM(p), false, false));
+#line 386 "runpath.in"
+  addFunc(ve, run::gen_runpath40, realArray(), SYM(mintimes), formal(primPath(), SYM(p), false, false));
+#line 395 "runpath.in"
+  addFunc(ve, run::gen_runpath41, realArray(), SYM(maxtimes), formal(primPath(), SYM(p), false, false));
 #line 404 "runpath.in"
-  addFunc(ve, run::gen_runpath42, primInt(), SYM(windingnumber), formal(pathArray()  , SYM(p), false, false), formal(primPair(), SYM(z), false, false));
+  addFunc(ve, run::gen_runpath42, primReal(), SYM(relativedistance), formal(primReal(), SYM(theta), false, false), formal(primReal(), SYM(phi), false, false), formal(primReal(), SYM(t), false, false), formal(primBoolean(), SYM(atleast), false, false));
 #line 409 "runpath.in"
-  addFunc(ve, run::gen_runpath43, primBoolean(), SYM(inside), formal(pathArray()  , SYM(g), false, true), formal(primPair(), SYM(z), false, false), formal(primPen(), SYM(fillrule), true, false));
+  addFunc(ve, run::gen_runpath43, primInt(), SYM(windingnumber), formal(pathArray()  , SYM(p), false, false), formal(primPair(), SYM(z), false, false));
 #line 414 "runpath.in"
-  addFunc(ve, run::gen_runpath44, primBoolean(), SYM(inside), formal(primPath(), SYM(g), false, false), formal(primPair(), SYM(z), false, false), formal(primPen(), SYM(fillrule), true, false));
+  addFunc(ve, run::gen_runpath44, primBoolean(), SYM(inside), formal(pathArray()  , SYM(g), false, true), formal(primPair(), SYM(z), false, false), formal(primPen(), SYM(fillrule), true, false));
 #line 419 "runpath.in"
-  addFunc(ve, run::gen_runpath45, primReal(), SYM(orient), formal(primPair(), SYM(a), false, false), formal(primPair(), SYM(b), false, false), formal(primPair(), SYM(c), false, false));
-#line 433 "runpath.in"
-  addFunc(ve, run::gen_runpath46, primReal(), SYM(incircle), formal(primPair(), SYM(a), false, false), formal(primPair(), SYM(b), false, false), formal(primPair(), SYM(c), false, false), formal(primPair(), SYM(d), false, false));
+  addFunc(ve, run::gen_runpath45, primBoolean(), SYM(inside), formal(primPath(), SYM(g), false, false), formal(primPair(), SYM(z), false, false), formal(primPen(), SYM(fillrule), true, false));
+#line 424 "runpath.in"
+  addFunc(ve, run::gen_runpath46, primReal(), SYM(orient), formal(primPair(), SYM(a), false, false), formal(primPair(), SYM(b), false, false), formal(primPair(), SYM(c), false, false));
+#line 438 "runpath.in"
+  addFunc(ve, run::gen_runpath47, primReal(), SYM(incircle), formal(primPair(), SYM(a), false, false), formal(primPair(), SYM(b), false, false), formal(primPair(), SYM(c), false, false), formal(primPair(), SYM(d), false, false));
 }
 
 } // namespace trans

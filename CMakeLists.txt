@@ -1,6 +1,6 @@
 ## CMakeLists.txt: top-level CMake file for building MiKTeX
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -33,11 +33,11 @@ set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
 
 if(APPLE)
   set(CMAKE_OSX_DEPLOYMENT_TARGET
-    "10.11"
+    "10.12"
     CACHE STRING
     "The earliest version of MacOS X that MiKTeX will run on."
   )
-  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-no_weak_imports")
+  #set(CMAKE_EXE_LINKER_FLAGS "-Wl,-no_weak_imports")
 endif()
 
 ###############################################################################
@@ -57,8 +57,21 @@ endforeach()
 ###############################################################################
 ## the name of the game
 
-project(miktex)
 set(MIKTEX_PRODUCT_NAME "MiKTeX")
+string(TOLOWER ${MIKTEX_PRODUCT_NAME} MIKTEX_PRODUCT_TAG)
+
+include(miktex-version.cmake)
+include(miktex-local-version.cmake OPTIONAL)
+
+if(MIKTEX_PATCH_VERSION EQUAL 0)
+  set(miktex_project_version ${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION})
+else()
+  set(miktex_project_version ${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}.${MIKTEX_PATCH_VERSION})
+endif()
+
+project(${MIKTEX_PRODUCT_TAG}
+  VERSION ${miktex_project_version}
+)
 
 ###############################################################################
 ## global C/C++ options
@@ -420,6 +433,12 @@ option(
 )
 
 option(
+  WITH_PACKAGE_DB_SIGNING
+  "MiKTeX package database files must be signed."
+  TRUE
+)
+
+option(
   WITH_LIBRESSL_CRYPTO
   "Use the LibreSSL crypto library supplied with MiKTeX."
   ${WIN32}
@@ -489,12 +508,6 @@ option(
   WITH_CONTEXT_SUPPORT
   "Enable ConTeXt support."
   FALSE
-)
-
-option(
-  WITH_OMEGA
-  "Build Omega 1.15."
-  TRUE
 )
 
 option(
@@ -598,72 +611,120 @@ else()
   set(MIKTEX_DEV_NULL "/dev/null")
 endif()
 
-###############################################################################
-## get today into cache
-
-if(NOT MIKTEX_CACHED_YEAR)
-  string(TIMESTAMP year_ "%Y")
-  string(TIMESTAMP month_ "%m")
-  string(TIMESTAMP mday_ "%d")
-  set(MIKTEX_CACHED_YEAR
-    ${year_}
-    CACHE STRING
-    "The current year."
-    FORCE
-  )
-  set(MIKTEX_CACHED_MONTH
-    ${month_}
-    CACHE STRING
-    "The current month."
-    FORCE
-  )
-  set(MIKTEX_CACHED_MDAY
-    ${mday_}
-    CACHE STRING
-    "The day of month."
-    FORCE
-  )
+if(MIKTEX_MACOS_BUNDLE)
+  set(MIKTEX_CODESIGN_IDENTITY "Developer ID")
 endif()
-
-if(MIKTEX_CACHED_MONTH EQUAL 1)
-  set(MIKTEX_CACHED_MONTH_NAME "January")
-elseif(MIKTEX_CACHED_MONTH EQUAL 2)
-  set(MIKTEX_CACHED_MONTH_NAME "February")
-elseif(MIKTEX_CACHED_MONTH EQUAL 3)
-  set(MIKTEX_CACHED_MONTH_NAME "March")
-elseif(MIKTEX_CACHED_MONTH EQUAL 4)
-  set(MIKTEX_CACHED_MONTH_NAME "April")
-elseif(MIKTEX_CACHED_MONTH EQUAL 5)
-  set(MIKTEX_CACHED_MONTH_NAME "May")
-elseif(MIKTEX_CACHED_MONTH EQUAL 6)
-  set(MIKTEX_CACHED_MONTH_NAME "June")
-elseif(MIKTEX_CACHED_MONTH EQUAL 7)
-  set(MIKTEX_CACHED_MONTH_NAME "July")
-elseif(MIKTEX_CACHED_MONTH EQUAL 8)
-  set(MIKTEX_CACHED_MONTH_NAME "August")
-elseif(MIKTEX_CACHED_MONTH EQUAL 9)
-  set(MIKTEX_CACHED_MONTH_NAME "September")
-elseif(MIKTEX_CACHED_MONTH EQUAL 10)
-  set(MIKTEX_CACHED_MONTH_NAME "October")
-elseif(MIKTEX_CACHED_MONTH EQUAL 11)
-  set(MIKTEX_CACHED_MONTH_NAME "November")
-elseif(MIKTEX_CACHED_MONTH EQUAL 12)
-  set(MIKTEX_CACHED_MONTH_NAME "December")
-endif()  
 
 ###############################################################################
 ## version information
 
-include(miktex-version.cmake)
-include(miktex-local-version.cmake OPTIONAL)
+string(TIMESTAMP MIKTEX_DATETIME_STR UTC)
+
+if(MIKTEX_MONTH_VERSION EQUAL 1)
+  set(MIKTEX_MONTH_NAME_VERSION "January")
+elseif(MIKTEX_MONTH_VERSION EQUAL 2)
+  set(MIKTEX_MONTH_NAME_VERSION "February")
+elseif(MIKTEX_MONTH_VERSION EQUAL 3)
+  set(MIKTEX_MONTH_NAME_VERSION "March")
+elseif(MIKTEX_MONTH_VERSION EQUAL 4)
+  set(MIKTEX_MONTH_NAME_VERSION "April")
+elseif(MIKTEX_MONTH_VERSION EQUAL 5)
+  set(MIKTEX_MONTH_NAME_VERSION "May")
+elseif(MIKTEX_MONTH_VERSION EQUAL 6)
+  set(MIKTEX_MONTH_NAME_VERSION "June")
+elseif(MIKTEX_MONTH_VERSION EQUAL 7)
+  set(MIKTEX_MONTH_NAME_VERSION "July")
+elseif(MIKTEX_MONTH_VERSION EQUAL 8)
+  set(MIKTEX_MONTH_NAME_VERSION "August")
+elseif(MIKTEX_MONTH_VERSION EQUAL 9)
+  set(MIKTEX_MONTH_NAME_VERSION "September")
+elseif(MIKTEX_MONTH_VERSION EQUAL 10)
+  set(MIKTEX_MONTH_NAME_VERSION "October")
+elseif(MIKTEX_MONTH_VERSION EQUAL 11)
+  set(MIKTEX_MONTH_NAME_VERSION "November")
+elseif(MIKTEX_MONTH_VERSION EQUAL 12)
+  set(MIKTEX_MONTH_NAME_VERSION "December")
+endif()  
+
+if(MIKTEX_LINUX)
+  set(MIKTEX_LINUX_DIST
+    "ubuntu"
+    CACHE STRING
+    "The Linux distribution (ubuntu, debian, fedora, ...)."
+  )
+  set(MIKTEX_LINUX_DIST_VERSION
+    "16.04"
+    CACHE STRING
+    "The Linux distribution version (16.04, 9, 28, ...)."
+  )
+  set(MIKTEX_LINUX_DIST_CODE_NAME
+    "xenial"
+    CACHE STRING
+    "The Linux distribution code name (xenial, stretch, ...)."
+  )
+endif()
+
+## the release state; one of:
+##   0 (stable)
+##   1 (next)
+##   4 (debug)
+set(MIKTEX_RELEASE_STATE
+  0
+  CACHE STRING
+  "The MiKTeX release state."
+)
+
+## sanity check
+if(MIKTEX_RELEASE_STATE EQUAL 0)
+elseif(MIKTEX_RELEASE_STATE EQUAL 1)
+elseif(MIKTEX_RELEASE_STATE EQUAL 4)
+else()
+  message("${MIKTEX_RELEASE_STATE} is an unknown release state.")
+  message("Falling back to release state 4 (debug).")
+  set(MIKTEX_RELEASE_STATE
+      4
+      CACHE STRING
+      "MiKTeX release state; one of 0 (stable), 1 (next), 4 (debug)."
+      FORCE)
+endif()
+
+find_package(Git)
+
+add_custom_target(gen-git-info
+  COMMAND ${CMAKE_COMMAND}
+    -D GIT_FOUND=${Git_FOUND}
+    -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+    -D SOURCE_DIR=${CMAKE_SOURCE_DIR}
+    -D GITINFO_H_IN=${CMAKE_SOURCE_DIR}/include/miktex/GitInfo.h.in
+    -D GITINFO_H=${CMAKE_BINARY_DIR}/include/miktex/GitInfo.h
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/gen-git-info.cmake
+)
 
 set(MIKTEX_MAJOR_MINOR_STR
   "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}"
 )
 
-set(MIKTEX_MAJOR_MINOR_ID_STR
-  "${MIKTEX_MAJOR_VERSION}_${MIKTEX_MINOR_VERSION}"
+set(MIKTEX_MAJOR_MINOR_PATCH_STR
+  "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}.${MIKTEX_PATCH_VERSION}"
 )
+
+set(MIKTEX_PACKAGES_MAJOR_MINOR_STR
+  "${MIKTEX_PACKAGES_MAJOR_VERSION}.${MIKTEX_PACKAGES_MINOR_VERSION}"
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  set(MIKTEX_COM_MAJOR_MINOR_STR
+    "${MIKTEX_COM_MAJOR_VERSION}.${MIKTEX_COM_MINOR_VERSION}"
+  )
+  set(MIKTEX_COM_MAJOR_MINOR_ID_STR
+    "${MIKTEX_COM_MAJOR_VERSION}_${MIKTEX_COM_MINOR_VERSION}"
+  )
+  math(
+    EXPR
+    MIKTEX_COM_MAJOR_MINOR_INT
+    "(100 * ${MIKTEX_COM_MAJOR_VERSION}) + ${MIKTEX_COM_MINOR_VERSION}"
+  )
+endif()
 
 math(
   EXPR
@@ -671,73 +732,59 @@ math(
   "(100 * ${MIKTEX_MAJOR_VERSION}) + ${MIKTEX_MINOR_VERSION}"
 )
 
+math(
+  EXPR
+  MIKTEX_MAJOR_MINOR_PATCH_INT
+  "(10000 * ${MIKTEX_MAJOR_VERSION}) + (100 * ${MIKTEX_MINOR_VERSION}) + ${MIKTEX_PATCH_VERSION}"
+)
+
 if(MIKTEX_RELEASE_STATE EQUAL 0)
-  set(MIKTEX_VERSION_STR
-    "${MIKTEX_MAJOR_MINOR_STR}"
-    CACHE STRING
-    "The MiKTeX version string."
-    FORCE
-  )
-  set(MIKTEX_FULL_VERSION_STR
-    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION}"
-    CACHE STRING
-    "The full MiKTeX version string."
-    FORCE
-  )
-  set(MIKTEX_VERSION_TAG_STR
-    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION}"
-    CACHE STRING
-    "The MiKTeX version tag string."
-    FORCE
-  )
+  if(MIKTEX_PATCH_VERSION EQUAL 0)
+    set(default_miktex_display_version_str "${MIKTEX_MAJOR_MINOR_STR}")
+    set(default_miktex_version_str "${MIKTEX_MAJOR_MINOR_STR}")
+  else()
+    set(default_miktex_display_version_str "${MIKTEX_MAJOR_MINOR_PATCH_STR}")
+    set(default_miktex_version_str "${MIKTEX_MAJOR_MINOR_PATCH_STR}")
+  endif()
 elseif(MIKTEX_RELEASE_STATE EQUAL 1)
-  set(MIKTEX_VERSION_STR
-    "${MIKTEX_MAJOR_MINOR_STR} NEXT"
-    CACHE STRING
-    "The MiKTeX version string."
-    FORCE
-  )
-  set(MIKTEX_FULL_VERSION_STR
-    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION} NEXT"
-    CACHE STRING
-    "The full MiKTeX version string."
-    FORCE
-  )
-  set(MIKTEX_VERSION_TAG_STR
-    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION}-next"
-    CACHE STRING
-    "The MiKTeX version tag string."
-    FORCE
-  )
+  if(MIKTEX_PATCH_VERSION EQUAL 0)
+    set(default_miktex_display_version_str "${MIKTEX_MAJOR_MINOR_STR} NEXT")
+    set(default_miktex_version_str "${MIKTEX_MAJOR_MINOR_STR}-next")
+  else()
+    set(default_miktex_display_version_str "${MIKTEX_MAJOR_MINOR_PATCH_STR} NEXT")
+    set(default_miktex_version_str "${MIKTEX_MAJOR_MINOR_PATCH_STR}-next")
+  endif()
 elseif(MIKTEX_RELEASE_STATE EQUAL 4)
-  set(MIKTEX_VERSION_STR
-    "${MIKTEX_MAJOR_MINOR_STR} debug"
-    CACHE STRING
-    "The MiKTeX version string."
-    FORCE
-  )
-  set(MIKTEX_FULL_VERSION_STR
-    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION} debug"
-    CACHE STRING
-    "The full MiKTeX version string."
-    FORCE
-  )
-  set(MIKTEX_VERSION_TAG_STR
-    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION}-debug"
-    CACHE STRING
-    "The MiKTeX version tag string."
-    FORCE
-  )
+  if(MIKTEX_PATCH_VERSION EQUAL 0)
+    set(default_miktex_display_version_str "${MIKTEX_MAJOR_MINOR_STR} debug")
+    set(default_miktex_version_str "${MIKTEX_MAJOR_MINOR_STR}-debug")
+  else()
+    set(default_miktex_display_version_str "${MIKTEX_MAJOR_MINOR_PATCH_STR} debug")
+    set(default_miktex_version_str "${MIKTEX_MAJOR_MINOR_PATCH_STR}-debug")
+  endif()
 endif()
 
-if(NOT MIKTEX_FULL_VERSION_STR)
-  set(MIKTEX_FULL_VERSION_STR
-    "${MIKTEX_VERSION_STR}"
-    CACHE STRING
-    "The full MiKTeX version string."
-    FORCE
-  )
+set(MIKTEX_DISPLAY_VERSION_STR
+  "${default_miktex_display_version_str}"
+  CACHE STRING
+  "The MiKTeX version presented to the user."
+  FORCE
+)
+
+set(MIKTEX_VERSION_STR
+  "${default_miktex_version_str}"
+  CACHE STRING
+  "The MiKTeX version."
+  FORCE
+)
+
+if(MIKTEX_RELEASE_STATE EQUAL 1)
+  set(MIKTEX_DEFAULT_PACKAGE_STREAM "next")
+else()
+  set(MIKTEX_DEFAULT_PACKAGE_STREAM "stable")
 endif()
+
+set(MIKTEX_LEGACY_MAJOR_MINOR_STR "${MIKTEX_LEGACY_MAJOR_VERSION}.${MIKTEX_LEGACY_MINOR_VERSION}")
 
 ###############################################################################
 ## Endianess
@@ -840,7 +887,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${outdir}")
 
 if(WITH_BOOTSTRAPPING)
   list(APPEND MIKTEX_BOOTSTRAPPING_PACKAGES
-    miktex-config-${MIKTEX_MAJOR_MINOR_STR}
+    miktex-config-${MIKTEX_LEGACY_MAJOR_MINOR_STR}
     miktex-dvips
     miktex-fontconfig
     miktex-misc
@@ -955,6 +1002,11 @@ if(WITH_UI_QT)
   if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND required_qt5_components
       WinExtras
+    )
+  endif()
+  if(MIKTEX_UNIX_ALIKE AND NOT MIKTEX_MACOS_BUNDLE)
+    list(APPEND required_qt5_components
+      DBus
     )
   endif()
   find_package(Qt5 REQUIRED ${required_qt5_components})
@@ -1098,6 +1150,8 @@ else()
   check_function_exists(alloca HAVE_ALLOCA)
 endif()
 
+check_symbol_exists(ntohl arpa/inet.h NEED_ARPA_INET_H)
+
 check_function_exists(_mktemp_s HAVE__MKTEMP_S)
 check_function_exists(access HAVE_ACCESS)
 check_function_exists(arc4random_buf HAVE_ARC4RANDOM_BUF)
@@ -1106,6 +1160,7 @@ check_function_exists(chmod HAVE_CHMOD)
 check_function_exists(chown HAVE_CHOWN)
 check_function_exists(closedir HAVE_CLOSEDIR)
 check_function_exists(confstr HAVE_CONFSTR)
+check_function_exists(ctime HAVE_CTIME)
 check_function_exists(finite HAVE_FINITE)
 check_function_exists(fork HAVE_FORK)
 check_function_exists(fseeko64 HAVE_FSEEKO64)
@@ -1152,6 +1207,7 @@ check_function_exists(sched_yield HAVE_SCHED_YIELD)
 check_function_exists(setenv HAVE_SETENV)
 check_function_exists(setreuid HAVE_SETREUID)
 check_function_exists(setuid HAVE_SETUID)
+check_function_exists(sigaction HAVE_SIGACTION)
 check_function_exists(spawnvp HAVE_SPAWNVP)
 check_function_exists(stat HAVE_STAT)
 check_function_exists(statvfs HAVE_STATVFS)
@@ -1170,6 +1226,7 @@ check_function_exists(unlink HAVE_UNLINK)
 check_function_exists(utime HAVE_UTIME)
 check_function_exists(vfork HAVE_VFORK)
 check_function_exists(vprintf HAVE_VPRINTF)
+check_function_exists(waitpid HAVE_WAITPID)
 
 if(WITH_UI_MFC)
   set(HAVE_AFXWIN_H "YES")
@@ -1180,6 +1237,9 @@ if(WITH_COM)
 endif()
 
 check_include_files(alloca.h HAVE_ALLOCA_H)
+check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
+check_include_files(assert.h HAVE_ASSERT_H)
+check_include_files(byteorder.h HAVE_BYTEORDER_H)
 check_include_files(dirent.h HAVE_DIRENT_H)
 check_include_files(errno.h HAVE_ERRNO_H)
 check_include_files(fcntl.h HAVE_FCNTL_H)
@@ -1192,6 +1252,7 @@ check_include_files(limits.h HAVE_LIMITS_H)
 check_include_files(mcheck.h HAVE_MCHECK_H)
 check_include_files(memory.h HAVE_MEMORY_H)
 check_include_files(ndir.h HAVE_NDIR_H)
+check_include_files(netinet/in.h HAVE_NETINET_IN_H)
 check_include_files(stat.h HAVE_STAT_H)
 check_include_files(stdbool.h HAVE_STDBOOL_H)
 check_include_files(stdarg.h HAVE_STDARG_H)
@@ -1591,6 +1652,22 @@ if(WITH_GC)
   add_subdirectory(${MIKTEX_REL_GC_DIR})
 endif()
 
+if(USE_SYSTEM_GLM)
+  get_filename_component(suffix ${GLM_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::GLM SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::GLM STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::GLM
+    PROPERTIES
+      IMPORTED_LOCATION "${GLM_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${GLM_INCLUDE_DIRS}"
+  )
+else()
+  add_subdirectory(${MIKTEX_REL_GLM_DIR})
+endif()
+
 if(USE_SYSTEM_JPEG)
   get_filename_component(suffix ${JPEG_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
@@ -1941,6 +2018,7 @@ add_subdirectory(${MIKTEX_REL_INIPOOL_DIR})
 add_subdirectory(${MIKTEX_REL_INITEXMF_DIR})
 add_subdirectory(${MIKTEX_REL_KPSEMU_DIR})
 add_subdirectory(${MIKTEX_REL_KPSEWHICH_DIR})
+add_subdirectory(${MIKTEX_REL_LCDF_TYPETOOLS_DIR})
 add_subdirectory(${MIKTEX_REL_LACHECK_DIR})
 add_subdirectory(${MIKTEX_REL_LUATEX_DIR})
 add_subdirectory(${MIKTEX_REL_LUA53_DIR})
@@ -1958,9 +2036,11 @@ add_subdirectory(${MIKTEX_REL_MPM_DIR})
 add_subdirectory(${MIKTEX_REL_MP_DIR})
 add_subdirectory(${MIKTEX_REL_MTHELP_DIR})
 add_subdirectory(${MIKTEX_REL_NLOHMANN_JSON_DIR})
+add_subdirectory(${MIKTEX_REL_OMEGAWARE_DIR})
 add_subdirectory(${MIKTEX_REL_OPENGL_REGISTRY_DIR})
 add_subdirectory(${MIKTEX_REL_OTPS_DIR})
 add_subdirectory(${MIKTEX_REL_PADOUT_DIR})
+add_subdirectory(${MIKTEX_REL_PATGEN_DIR})
 add_subdirectory(${MIKTEX_REL_PDFTEX_DIR})
 add_subdirectory(${MIKTEX_REL_PMX_DIR})
 add_subdirectory(${MIKTEX_REL_POPT_WRAPPER_DIR})
@@ -1981,6 +2061,7 @@ add_subdirectory(${MIKTEX_REL_TIE_DIR})
 add_subdirectory(${MIKTEX_REL_TOUCH_DIR})
 add_subdirectory(${MIKTEX_REL_TRACE_DIR})
 add_subdirectory(${MIKTEX_REL_TTF2PK2_DIR})
+add_subdirectory(${MIKTEX_REL_UPMENDEX_DIR})
 add_subdirectory(${MIKTEX_REL_UTIL_DIR})
 add_subdirectory(${MIKTEX_REL_W2CEMU_DIR})
 add_subdirectory(${MIKTEX_REL_WEB2C_DIR})
@@ -1998,11 +2079,6 @@ endif()
 
 if(WITH_TPMS)
   add_subdirectory(${MIKTEX_REL_TPM_DIR})
-endif()
-
-if(WITH_OMEGA)
-  add_subdirectory(${MIKTEX_REL_OMEGAWARE_DIR})
-  add_subdirectory(${MIKTEX_REL_OMEGA_DIR})
 endif()
 
 if(WITH_UI_QT)
@@ -2069,8 +2145,13 @@ endif()
 ## bootstrapping
 
 if(WITH_BOOTSTRAPPING)
+  if(DEFINED ENV{MIKTEX_REPOSITORY})
+    set(default_repository $ENV{MIKTEX_REPOSITORY})
+  else()
+    set(default_repository "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/")
+  endif()
   set(MIKTEX_DEFAULT_REPOSITORY
-    "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/"
+    ${default_repository}
     CACHE STRING "MiKTeX package repository"
   )
   if(MIKTEX_RELEASE_STATE EQUAL 1)
@@ -2083,10 +2164,10 @@ if(WITH_BOOTSTRAPPING)
     )
   endif()
   list(APPEND bootstrapping_files
-    miktex-zzdb1-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
+    miktex-zzdb1-${MIKTEX_PACKAGES_MAJOR_MINOR_STR}.tar.lzma
   )
   list(APPEND bootstrapping_files
-    miktex-zzdb3-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
+    miktex-zzdb3-${MIKTEX_PACKAGES_MAJOR_MINOR_STR}.tar.lzma
   )
   foreach(p ${MIKTEX_BOOTSTRAPPING_PACKAGES})
     list(APPEND bootstrapping_files
@@ -2169,20 +2250,11 @@ set(CPACK_RESOURCE_FILE_LICENSE
   "${CMAKE_BINARY_DIR}/COPYING.txt"
 )
 
-set(CPACK_PACKAGE_VERSION_MAJOR ${MIKTEX_MAJOR_VERSION})
-set(CPACK_PACKAGE_VERSION_MINOR ${MIKTEX_MINOR_VERSION})
-set(CPACK_PACKAGE_VERSION_PATCH ${MIKTEX_J2000_VERSION})
-string(REPLACE "-" "_" CPACK_PACKAGE_VERSION "${MIKTEX_VERSION_TAG_STR}")
-
 set(CPACK_PACKAGE_FILE_NAME
-  "miktex-${CPACK_PACKAGE_VERSION}-${MIKTEX_PACKAGE_REVISION}-${MIKTEX_TARGET_SYSTEM_TAG}"
+  "miktex-${MIKTEX_VERSION_STR}-${MIKTEX_TARGET_SYSTEM_TAG}"
 )
 
 set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
-
-set(CPACK_DEBIAN_PACKAGE_VERSION
-  "${MIKTEX_VERSION_TAG_STR}"
-)
 
 set(CPACK_DEBIAN_PACKAGE_RELEASE "${MIKTEX_LINUX_DIST_CODE_NAME}${MIKTEX_PACKAGE_REVISION}")
 
@@ -2246,7 +2318,9 @@ set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
 
 set(CPACK_RPM_PACKAGE_RELEASE ${MIKTEX_PACKAGE_REVISION})
 
-if(MIKTEX_LINUX_DIST STREQUAL "fedora")
+if(MIKTEX_LINUX_DIST STREQUAL "centos")
+  set(CPACK_RPM_PACKAGE_RELEASE_DIST ".el${MIKTEX_LINUX_DIST_VERSION}")
+elseif(MIKTEX_LINUX_DIST STREQUAL "fedora")
   set(CPACK_RPM_PACKAGE_RELEASE_DIST ".fc${MIKTEX_LINUX_DIST_VERSION}")
 elseif(MIKTEX_LINUX_DIST STREQUAL "opensuse")
   if(MIKTEX_LINUX_DIST_VERSION MATCHES "([0-9]+)\\.([0-9]+)")
@@ -2286,6 +2360,15 @@ set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE
   "${CMAKE_BINARY_DIR}/Packaging/rpm/pre-uninstall.sh"
 )
 
+set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
+  "/usr/libexec"
+  "/usr/share/applications"
+  "/usr/share/man"
+  "/usr/share/man/man1"
+  "/usr/share/man/man5"
+  "/usr/share/pixmaps"
+)
+
 set(CPACK_STRIP_SYMBOLS TRUE)
 
 include(CPack)
@@ -2295,7 +2378,7 @@ if(MIKTEX_MACOS_BUNDLE AND WITH_CODE_SIGNING)
     COMMAND
       "${CMAKE_CPACK_COMMAND}" --config "${CMAKE_BINARY_DIR}/CPackConfig.cmake"
     COMMAND
-      codesign -s "Developer ID" *.dmg
+      codesign -s "${MIKTEX_CODESIGN_IDENTITY}" *.dmg
   )
 endif()
 

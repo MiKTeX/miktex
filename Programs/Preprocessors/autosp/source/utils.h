@@ -61,6 +61,6 @@ extern size_t append (char *dst, char **offset, const char *src, size_t n);
 extern bool prefix (const char *cs, const char *ct); /* is string cs[] a prefix of ct[]?  */
 extern bool suffix (const char *cs, const char *ct); /* is string cs[] a suffix of ct[]?  */
 
-int lineno;
+extern int lineno;
 extern void error (const char msg[]);	/* abort with stderr message msg */
 extern void warning (const char msg[]); /* output warning message msg to stderr  */

@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017-2019 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -42,6 +42,7 @@
 
 #include "console-version.h"
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/CommandLineBuilder>
@@ -53,10 +54,10 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
-#include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamWriter>
 #include <miktex/Core/TemporaryFile>
+#include <miktex/Core/VersionNumber>
 #include <miktex/Setup/SetupService>
 #include <miktex/UI/Qt/ErrorDialog>
 #include <miktex/UI/Qt/PackageInfoDialog>
@@ -71,6 +72,7 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 
@@ -103,11 +105,17 @@ void SetupServiceCallbackImpl::ReportLine(const string& str)
 #endif
 }
 
-MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
+MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage, bool dontFindIssues, TraceCallback* traceCallback) :
   QMainWindow(parent),
-  ui(new Ui::MainWindow),
-  okayUserMode(CheckIssue(IssueType::UserUpdateCheckOverdue).first)
+  ui(new Ui::MainWindow)
 {
+  packageManager = PackageManager::Create(PackageManager::InitInfo(traceCallback));
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetString()));
+  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetString()));
+  isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !session->IsMiKTeXPortable();
+  this->dontFindIssues = isSetupMode || dontFindIssues;
+  okayUserMode = isSetupMode || CheckIssue(IssueType::UserUpdateCheckOverdue).first;
+
   if (IsUserModeBlocked())
   {
     startPage = Pages::Overview;
@@ -128,10 +136,6 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
   SetupUiPackages();
   SetupUiDiagnose();
   SetupUiCleanup();
-
-  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
-  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
-  isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0 && !session->IsMiKTeXPortable();
 
 #if defined(MIKTEX_WINDOWS)
   bool withTrayIcon = true; // session->IsMiKTeXPortable();
@@ -167,6 +171,46 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage) :
 
   UpdateUi();
   UpdateActions();
+  
+  if (!this->isSetupMode)
+  {
+    QTimer::singleShot(0, this, SLOT(ShowMajorIssue()));
+  }
+}
+
+void MainWindow::ShowMajorIssue()
+{
+  if (!checkedIssues)
+  {
+    FindIssues();
+  }
+  for (const Issue& issue : issues)
+  {
+    if (issue.severity == IssueSeverity::Critical || issue.severity == IssueSeverity::Major)
+    {
+      QString text = tr("A MiKTeX setup issue has been detected.");
+      text += "<p>" + QString::fromUtf8(issue.message.c_str()) + "</p>";
+      QString remedy = QString::fromUtf8(issue.remedy.c_str());
+      if (!remedy.isEmpty())
+      {
+        text += "<p>" + tr("Remedy:") + " " + remedy + "</p>";
+      }
+      QString url = QString::fromUtf8(issue.GetUrl().c_str());
+      if (!url.isEmpty())
+      {
+        text += "<p>" + tr("For more information, visit <a href='%1'>%2</a>").arg(url).arg(url) + "</p>";
+      }
+      if (this->isHidden())
+      {
+        ShowTrayMessage(TrayMessageContext::Error, text);
+      }
+      else
+      {
+        QMessageBox::critical(this, tr("MiKTeX Console"), text);
+      }
+      return;
+    }
+  }
 }
 
 MainWindow::~MainWindow()
@@ -278,7 +322,7 @@ void MainWindow::UpdateUi()
     ui->buttonOverview->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonSettings->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonUpdates->setEnabled(!isSetupMode && !IsUserModeBlocked());
-    ui->buttonPackages->setEnabled(!isSetupMode && !IsUserModeBlocked());
+    ui->buttonPackages->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     ui->buttonDiagnose->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonCleanup->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
@@ -287,9 +331,10 @@ void MainWindow::UpdateUi()
     {
       return;
     }
-    if (CheckIssue(IssueType::UserUpdateCheckOverdue).first)
+    auto issue = CheckIssue(IssueType::UserUpdateCheckOverdue);
+    if (issue.first)
     {
-      ui->labelLastUpdateCheck->setText(tr("It's a long time since you have checked for updates.\nPlease check for updates now."));
+      ui->labelLastUpdateCheck->setText(QString::fromUtf8(issue.second.message.c_str()));
       ui->groupCheckUpdates->setStyleSheet(GetAlertStyleSheet());
     }
     else
@@ -472,7 +517,18 @@ void MainWindow::SetCurrentPage(MainWindow::Pages p)
     ui->buttonPackages->setChecked(true);
     if (packageModel->rowCount() == 0)
     {
-      packageModel->Reload();
+      try
+      {
+        packageModel->Reload();
+      }
+      catch (const MiKTeXException& e)
+      {
+        CriticalError(e);
+      }
+      catch (const exception& e)
+      {
+        CriticalError(e);
+      }
     }
     break;
   case Pages::Diagnose:
@@ -515,7 +571,7 @@ void MainWindow::StartTerminal()
     bool haveOldPath = Utils::GetEnvironmentString("PATH", oldPath);
     if (haveOldPath)
     {
-      newPath += PathName::PathNameDelimiter;
+      newPath += PathNameUtil::PathNameDelimiter;
       newPath += oldPath;
     }
     Utils::SetEnvironmentString("PATH", newPath);
@@ -526,7 +582,7 @@ void MainWindow::StartTerminal()
       cmd = "cmd.exe";
     }
 #elif defined(MIKTEX_MACOS_BUNDLE)
-    cmd = session->GetMyLocation(true) / ".." / "Resources" / "Terminal";
+    cmd = session->GetMyLocation(true) / PathName("..") / PathName("Resources") / PathName("Terminal");
 #else
     const static string terminals[] = { "konsole", "gnome-terminal", "xterm" };
     for (const string& term : terminals)
@@ -561,8 +617,9 @@ void MainWindow::AboutDialog()
 {
   QString message;
   message = tr("<p>MiKTeX Console ");
-  message += MIKTEX_COMPONENT_VERSION_STR;
+  message += QString::fromUtf8(VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString().c_str());
   message += "</p>";
+  message += "<p>" + QString::fromUtf8(MIKTEX_COMP_COPYRIGHT_STR) + "</p>";
   message += tr("<p>MiKTeX Console is free software. You are welcome to redistribute it under certain conditions.</p>");
   message += tr("<p>MiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.</p>");
   message += tr("<p>You can support the project by giving back: <a href=\"https://miktex.org/giveback\">https://miktex.org/giveback</a><br>Thank you!</p>");
@@ -595,6 +652,7 @@ void MainWindow::RestartAdmin()
 
 void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 {
+  LOG4CXX_INFO(logger, "switching to MiKTeX admin mode");
   PathName me = session->GetMyProgramFile(true);
 #if defined(MIKTEX_WINDOWS)
   PathName meAdmin(me);
@@ -615,7 +673,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
     MIKTEX_FATAL_WINDOWS_ERROR("ShellExecuteExW");
   }
 #elif defined(MIKTEX_MACOS_BUNDLE)
-  PathName console = session->GetMyLocation(true) / ".." / "Resources" / MIKTEX_CONSOLE_ADMIN_EXE;
+  PathName console = session->GetMyLocation(true) / PathName("..") / PathName("Resources") / PathName(MIKTEX_CONSOLE_ADMIN_EXE);
   vector<string> consoleArgs{ MIKTEX_CONSOLE_ADMIN_EXE };
   consoleArgs.insert(consoleArgs.end(), args.begin(), args.end());
   Process::Start(console, consoleArgs);
@@ -704,9 +762,13 @@ bool FinishSetupWorker::Run()
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::FinishSetup;
     options.IsCommonSetup = session->IsAdminMode();
+    options.Banner = "MiKTeX Console";
+    options.Version = VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString();
     options = service->SetOptions(options);
     service->SetCallback(this);
+    service->OpenLog();
     service->Run();
+    service->CloseLog(false);
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -722,6 +784,7 @@ bool FinishSetupWorker::Run()
 
 void MainWindow::FinishSetup()
 {
+  LOG4CXX_INFO(logger, "finishing MiKTeX setup");
   try
   {
     ui->buttonAdminSetup->setEnabled(false);
@@ -782,11 +845,12 @@ void MainWindow::FinishSetup()
 #if defined(MIKTEX_WINDOWS)
 void MainWindow::on_buttonFixPath_clicked()
 {
+  LOG4CXX_INFO(logger, "fixing PATH");
   if (Utils::CheckPath(true))
   {
     QMessageBox::information(this, tr("MiKTeX Console"), tr("The PATH environment variable has been successfully modified."), QMessageBox::Ok);
     ui->groupPathIssue->hide();
-    issues.clear();
+    FindIssues();
   }
   else
   {
@@ -833,6 +897,7 @@ bool UpgradeWorker::Run()
 
 void MainWindow::on_buttonUpgrade_clicked()
 {
+  LOG4CXX_INFO(logger, "upgrading MiKTeX");
   ui->buttonUpgrade->setEnabled(false);
   QThread* thread = new QThread;
   UpgradeWorker* worker = new UpgradeWorker(packageManager);
@@ -1034,8 +1099,8 @@ void MainWindow::SetupUiUpdates()
   updateModel = new UpdateTableModel(packageManager, this);
   string lastUpdateCheck;
   if (session->TryGetConfigValue(
-    MIKTEX_REGKEY_PACKAGE_MANAGER,
-    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
+    MIKTEX_CONFIG_SECTION_MPM,
+    session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK,
     lastUpdateCheck))
   {
     ui->labelUpdateSummary->setText(tr("Last checked: %1").arg(QDateTime::fromTime_t(std::stoi(lastUpdateCheck)).date().toString()));
@@ -1154,7 +1219,7 @@ void MainWindow::CheckUpdates()
       updateModel->SetData(updates);
       ui->labelUpdateStatus->setText("");
       ui->labelCheckUpdatesStatus->setText("");
-      issues.clear();
+      FindIssues();
 #if !defined(QT_NO_SYSTEMTRAYICON)
       if (this->isHidden())
       {
@@ -1264,6 +1329,7 @@ void MainWindow::Update()
     bool restart = false;
     if (worker->GetResult())
     {
+      FindIssues();
       ui->labelUpdateStatus->setText(tr("Done"));
       for (const auto& u : updateModel->GetCheckedPackages())
       {
@@ -1289,7 +1355,7 @@ void MainWindow::Update()
     worker->deleteLater();
     if (restart)
     {
-      Restart();
+      Exit();
     }
   });
   (void)connect(worker, &UpdateWorker::OnUpdateProgress, this, [this]() {
@@ -1345,7 +1411,9 @@ void MainWindow::SetupUiPackageInstallation()
 
 void MainWindow::UpdateUiPackageInstallation()
 {
-  switch (session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState())
+  TriState autoInstall = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
+  TriState autoAdmin = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState();
+  switch (autoInstall)
   {
   case TriState::True:
     ui->radioAutoInstallYes->setChecked(true);
@@ -1357,6 +1425,7 @@ void MainWindow::UpdateUiPackageInstallation()
     ui->radioAutoInstallAsk->setChecked(true);
     break;
   }
+  ui->chkAllUsers->setChecked(autoAdmin == TriState::True);
   ui->comboRepository2->setEnabled(!IsBackgroundWorkerActive());
   ui->comboRepository2->blockSignals(true);
   ui->comboRepository2->setCurrentIndex(repositoryModel->GetDefaultIndex());
@@ -1364,6 +1433,7 @@ void MainWindow::UpdateUiPackageInstallation()
   ui->radioAutoInstallAsk->setEnabled(!IsBackgroundWorkerActive());
   ui->radioAutoInstallYes->setEnabled(!IsBackgroundWorkerActive());
   ui->radioAutoInstallNo->setEnabled(!IsBackgroundWorkerActive());
+  ui->chkAllUsers->setEnabled(!IsBackgroundWorkerActive() && autoInstall == TriState::True && session->IsSharedSetup());
 }
 
 void MainWindow::ChangeRepository()
@@ -1407,17 +1477,29 @@ void MainWindow::OnRepositorySelected(int index)
 
 void MainWindow::on_radioAutoInstallAsk_clicked()
 {
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::Undetermined);
+  LOG4CXX_INFO(logger, "setting AutoInstall: ask");
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::Undetermined)));
+  ui->chkAllUsers->setEnabled(false);
 }
 
 void MainWindow::on_radioAutoInstallYes_clicked()
 {
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::True);
+  LOG4CXX_INFO(logger, "setting AutoInstall: yes");
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::True)));
+  ui->chkAllUsers->setEnabled(session->IsSharedSetup());
 }
 
 void MainWindow::on_radioAutoInstallNo_clicked()
 {
-  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::False);
+  LOG4CXX_INFO(logger, "setting AutoInstall: no");
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, ConfigValue(static_cast<int>(TriState::False)));
+  ui->chkAllUsers->setEnabled(false);
+}
+
+void MainWindow::on_chkAllUsers_clicked()
+{
+  LOG4CXX_INFO(logger, "setting AutoAdmin: " << ui->chkAllUsers->isChecked());
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, ConfigValue(static_cast<int>(ui->chkAllUsers->isChecked() ? TriState::True : TriState::False)));
 }
 
 void MainWindow::UpdateUiPaper()
@@ -1578,7 +1660,7 @@ bool CheckRoot(const PathName& root)
 {
   for (const string& dir : tdsDirs)
   {
-    if (Directory::Exists(root / dir))
+    if (Directory::Exists(root / PathName(dir)))
     {
       return true;
     }
@@ -1595,7 +1677,7 @@ void MainWindow::AddRootDirectory()
     {
       return;
     }
-    PathName root = directory.toUtf8().constData();
+    PathName root(directory.toUtf8().constData());
     if (!CheckRoot(root))
     {
       if (QMessageBox::question(this, tr("MiKTeX Console"), tr("This does not look like a <a href=\"https://miktex.org/kb/tds\">TDS-compliant</a> root directory. Are you sure you want to add it?"))
@@ -1604,6 +1686,7 @@ void MainWindow::AddRootDirectory()
         return;
       }
     }
+    LOG4CXX_INFO(logger, "registering TEXMF root directory: " << Q_(root));
     session->RegisterRootDirectory(root, false);
     UpdateUi();
     UpdateActions();
@@ -1624,6 +1707,7 @@ void MainWindow::RemoveRootDirectory()
   {
     for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
     {
+      LOG4CXX_INFO(logger, "unregistering TEXMF root directory: " << Q_(rootDirectoryModel->data(index, Qt::DisplayRole).toString().toUtf8().constData()));
       rootDirectoryModel->Remove(index);
     }
     UpdateUi();
@@ -1645,6 +1729,7 @@ void MainWindow::MoveRootDirectoryUp()
   {
     for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
     {
+      LOG4CXX_INFO(logger, "moving TEXMF root directory up: " << Q_(rootDirectoryModel->data(index, Qt::DisplayRole).toString().toUtf8().constData()));
       rootDirectoryModel->MoveUp(index);
     }
     UpdateUi();
@@ -1666,6 +1751,7 @@ void MainWindow::MoveRootDirectoryDown()
   {
     for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
     {
+      LOG4CXX_INFO(logger, "moving TEXMF root directory down: " << Q_(rootDirectoryModel->data(index, Qt::DisplayRole).toString().toUtf8().constData()));
       rootDirectoryModel->MoveDown(index);
     }
     UpdateUi();
@@ -1712,11 +1798,11 @@ bool ChangeLinkTargetDirectoryWorker::Run()
     RunIniTeXMF({ "--remove-links" });
     if (session->IsSharedSetup())
     {
-      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, linkTargetDirectory.ToString());
+      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, ConfigValue(linkTargetDirectory.ToString()));
     }
     else
     {
-      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, linkTargetDirectory.ToString());
+      session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, ConfigValue(linkTargetDirectory.ToString()));
     }
     RunIniTeXMF({ "--mklinks" });
     result = true;
@@ -1745,7 +1831,7 @@ void MainWindow::ChangeLinkTargetDirectory()
       return;
     }
     QThread* thread = new QThread;
-    ChangeLinkTargetDirectoryWorker* worker = new ChangeLinkTargetDirectoryWorker(directory.toUtf8().constData());
+    ChangeLinkTargetDirectoryWorker* worker = new ChangeLinkTargetDirectoryWorker(PathName(directory.toUtf8().constData()));
     backgroundWorkers++;
     ui->labelBackgroundTask->setText(tr("Changing link target directory..."));
     worker->moveToThread(thread);
@@ -2180,12 +2266,9 @@ void MainWindow::InstallPackage()
     {
       return;
     }
-    int ret = UpdateDialog::DoModal(this, packageManager, toBeInstalled, toBeRemoved);
-    if (ret == QDialog::Accepted)
-    {
-      packageModel->Reload();
-      ui->treeViewPackages->update();
-    }
+    MIKTEX_AUTO(ui->treeViewPackages->update());
+    UpdateDialog::DoModal(this, packageManager, toBeInstalled, toBeRemoved);
+    packageModel->Reload();
   }
   catch (const MiKTeXException& e)
   {
@@ -2215,7 +2298,7 @@ bool UpdateDbWorker::Run()
     unique_ptr<PackageInstaller> installer = packageManager->CreateInstaller();
     installer->SetCallback(this);
     LOG4CXX_INFO(logger, "updating package database...");
-    installer->UpdateDb();
+    installer->UpdateDb({});
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -2243,7 +2326,18 @@ void MainWindow::UpdatePackageDatabase()
     {
       CriticalError(tr("Something went wrong while updating the package database."), worker->GetMiKTeXException());
     }
-    packageModel->Reload();
+    try
+    {
+      packageModel->Reload();
+    }
+    catch (const MiKTeXException& e)
+    {
+      CriticalError(e);
+    }
+    catch (const exception& e)
+    {
+      CriticalError(e);
+    }
     ui->treeViewPackages->update();
     backgroundWorkers--;
     UpdateUi();
@@ -2293,7 +2387,7 @@ void MainWindow::on_pushButtonShowLogDirectory_clicked()
 
 PathName MainWindow::GetReportFileName()
 {
-  return session->GetSpecialPath(SpecialPath::LogDirectory) / "miktex-report.txt";
+  return session->GetSpecialPath(SpecialPath::LogDirectory) / PathName("miktex-report.txt");
 }
 
 void MainWindow::CreateReport()
@@ -2605,6 +2699,8 @@ void MainWindow::Uninstall()
       backgroundWorkers--;
       session->UnloadFilenameDatabase();
       worker->deleteLater();
+      saveSettingsOnClose = false;
+      isCleaningUp = true;
       this->close();
     });
     (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
@@ -2625,7 +2721,7 @@ void MainWindow::Uninstall()
 
 void MainWindow::ReadSettings()
 {
-  PathName consoleIni = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini";
+  PathName consoleIni = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName("console.ini");
   if (!File::Exists(consoleIni))
   {
     return;
@@ -2644,14 +2740,26 @@ void MainWindow::WriteSettings()
 {
   unique_ptr<Cfg> settings = Cfg::Create();
   settings->PutValue("MainWindow", "geometry", saveGeometry().toHex().constData());
-  settings->Write(session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini");
+  settings->Write(session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR) / PathName("console.ini"));
+}
+
+void MainWindow::Exit()
+{
+  LOG4CXX_INFO(logger, "MiKTeX Console needs to be closed");
+  QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be closed."));
+  this->close();
 }
 
 void MainWindow::Restart()
 {
   LOG4CXX_INFO(logger, "MiKTeX Console needs to be restarted");
   QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be restarted."));
-  Process::Start(session->GetMyProgramFile(true));
+  vector<string> args{ MIKTEX_CONSOLE_EXE };
+  if (session->IsAdminMode())
+  {
+    args.push_back("--admin");
+  }
+  Process::Start(session->GetMyProgramFile(true), args);
   this->close();
 }
 

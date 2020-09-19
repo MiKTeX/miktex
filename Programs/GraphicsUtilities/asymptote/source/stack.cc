@@ -14,6 +14,7 @@
 #include "errormsg.h"
 #include "util.h"
 #include "runtime.h"
+#include "process.h"
 
 #include "profiler.h"
 
@@ -333,12 +334,17 @@ void stack::runWithOrWithoutClosure(lambda *l, vars_t vars, vars_t parent)
 
   /* start the new function */
   program::label ip = l->code->begin();
+  position& topPos=processData().topPos;
+  string& fileName=processData().fileName;
 
   try {
     for (;;) {
       const inst &i = *ip;
       curPos = i.pos;
       
+  if(curPos.filename() == fileName)
+    topPos=curPos;
+  
 #ifdef PROFILE
       prof.recordInstruction();
 #endif

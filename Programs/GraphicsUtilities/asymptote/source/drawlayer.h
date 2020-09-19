@@ -28,6 +28,7 @@ public:
   virtual ~drawNewPage() {}
 
   bool islabel() {return true;}
+  bool isnewpage() {return true;}
   
   bool write(texfile *out, const bbox&) {
     out->verbatimline(settings::latex(out->texengine) ? "\\newpage" : 

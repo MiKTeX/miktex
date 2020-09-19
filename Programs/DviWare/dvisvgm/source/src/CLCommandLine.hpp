@@ -2,7 +2,7 @@
 ** CLCommandLine.hpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -37,7 +37,7 @@ class CommandLine {
 		virtual ~CommandLine () =default;
 		void parse (int argc, char **argv);
 		void help (std::ostream &os, int mode=0) const;
-		void addFilename (std::string fname) {_files.emplace_back(fname);}
+		void addFilename (const std::string &fname) {_files.emplace_back(fname);}
 		bool singleDashGiven () const {return _singleDashParsed;}
 		const std::vector<std::string>& filenames () const {return _files;}
 
@@ -60,7 +60,7 @@ class CommandLine {
 
 
 struct CommandLineException : public MessageException {
-	CommandLineException (const std::string &msg) : MessageException(msg) {}
+	explicit CommandLineException (const std::string &msg) : MessageException(msg) {}
 };
 
 } // namespace CL

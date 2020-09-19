@@ -193,7 +193,7 @@ search(kpse_file_format_type format, const char *file, const char *mode)
 #if defined(MIKTEX)
       std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
       char* command = concat3("zcat \"", found_name, "\"");
-      ret = session->TryOpenFile(command, MiKTeX::Core::FileMode::Command, MiKTeX::Core::FileAccess::Read, false);
+      ret = session->TryOpenFile(MiKTeX::Core::PathName(command), MiKTeX::Core::FileMode::Command, MiKTeX::Core::FileAccess::Read, false);
       free(command);
       to_close = USE_MIKTEX_CLOSE_FILE;
 #else

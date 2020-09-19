@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2019 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -944,20 +944,20 @@ pdf_new_string (const void *str, unsigned length)
   pdf_obj    *result;
   pdf_string *data;
 
-  ASSERT(str);
-
   result = pdf_new_obj(PDF_STRING);
   data   = NEW(1, pdf_string);
   result->data = data;
   data->length = length;
 
-  if (length) {
+  if (str && length > 0) {
     data->string = NEW(length+1, unsigned char);
     memcpy(data->string, str, length);
     /* Shouldn't assume NULL terminated. */
     data->string[length] = '\0';
-  } else
+  } else {
     data->string = NULL;
+    data->length = 0;
+  }
 
   return result;
 }
@@ -2497,10 +2497,13 @@ filter_stream_decode_FlateDecode (const void *data, size_t len, struct decode_pa
   for (;;) {
     int status;
     status = inflate(&z, Z_NO_FLUSH);
-    if (status == Z_STREAM_END)
+    if (status == Z_STREAM_END) {
       break;
-    else if (status != Z_OK) {
-      WARN("inflate() failed. Broken PDF file?");
+    } else if (status == Z_DATA_ERROR && z.avail_in == 0) {
+      WARN("Ignoring zlib error: status=%d, message=\"%s\"", status, z.msg);
+      break;
+    } else if (status != Z_OK) {
+      WARN("inflate() failed (status=%d, message=\"%s\").", status, z.msg);
       inflateEnd(&z);
       pdf_release_obj(tmp);
       return NULL;

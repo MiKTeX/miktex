@@ -1,6 +1,6 @@
 /* winProcess.cpp: executing secondary processes
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,9 @@
 #include <Windows.h>
 #include <Tlhelp32.h>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <fcntl.h>
 
 #include <io.h>
@@ -40,6 +43,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 unique_ptr<Process> Process::Start(const ProcessStartInfo& startinfo)
@@ -61,19 +65,35 @@ void winProcess::Create()
 
   PathName fileName;
 
-  if (Utils::IsAbsolutePath(startinfo.FileName))
+  if (PathNameUtil::IsAbsolutePath(startinfo.FileName))
   {
     fileName = startinfo.FileName;
   }
   else
   {
-    wchar_t* lpszFilePart = nullptr;
-    wchar_t szFileName[_MAX_PATH];
-    if (SearchPathW(nullptr, UW_(startinfo.FileName), L".exe", _MAX_PATH, szFileName, &lpszFilePart) == 0)
+    CharBuffer<wchar_t, BufferSizes::MaxPath> foundFileName;
+    bool done = false;
+    int rounds = 0;
+    do
     {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("SearchPath", "fileName", startinfo.FileName);
-    }
-    fileName = szFileName;
+      wchar_t* lpszFilePart = nullptr;
+      DWORD n = SearchPathW(nullptr, UW_(startinfo.FileName), L".exe", foundFileName.GetCapacity(), foundFileName.GetData(), &lpszFilePart);
+      if (n == 0)
+      {
+        MIKTEX_FATAL_WINDOWS_ERROR_2("SearchPath", "fileName", startinfo.FileName);
+      }
+      done = n < foundFileName.GetCapacity();
+      if (!done)
+      {
+        if (rounds > 0)
+        {
+          BUF_TOO_SMALL();
+        }
+        foundFileName.Reserve(n);
+      }
+      rounds++;
+    } while (!done);
+    fileName = foundFileName.GetData();
   }
 
   CommandLineBuilder commandLine;
@@ -106,7 +126,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stdout to a stream");
+        session->trace_process->WriteLine("core", "redirecting stdout to a stream");
       }
 #endif
       int fd = _fileno(startinfo.StandardOutput);
@@ -129,7 +149,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stdout to a pipe");
+        session->trace_process->WriteLine("core", "redirecting stdout to a pipe");
       }
 #endif
       // create stdout pipe
@@ -151,7 +171,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stderr to a stream");
+        session->trace_process->WriteLine("core", "redirecting stderr to a stream");
       }
 #endif
       int fd = _fileno(startinfo.StandardError);
@@ -174,7 +194,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stderr to a pipe");
+        session->trace_process->WriteLine("core", "redirecting stderr to a pipe");
       }
 #endif
       // create child stderr pipe
@@ -195,7 +215,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "make child stderr = child stdout");
+        session->trace_process->WriteLine("core", "make child stderr = child stdout");
       }
 #endif
       // make child stderr = child stdout
@@ -212,7 +232,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stdin to a stream");
+        session->trace_process->WriteLine("core", "redirecting stdin to a stream");
       }
 #endif
       int fd = _fileno(startinfo.StandardInput);
@@ -235,7 +255,7 @@ void winProcess::Create()
 #if TRACEREDIR
       if (session != nullptr)
       {
-        session->trace_process->WriteFormattedLine("core", "redirecting stdin to a pipe");
+        session->trace_process->WriteLine("core", "redirecting stdin to a pipe");
       }
 #endif
       // create child stdin pipe
@@ -281,7 +301,7 @@ void winProcess::Create()
     // start child process
     if (session != nullptr)
     {
-      session->trace_process->WriteFormattedLine("core", "start process: %s", commandLine.ToString().c_str());
+      session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("start process: {0}", commandLine));
     }
 
     tmpFile = TemporaryFile::Create();
@@ -491,7 +511,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
     string path;
     if (Utils::GetEnvironmentString("COMSPEC", path))
     {
-      if (!Utils::IsAbsolutePath(path))
+      if (!PathNameUtil::IsAbsolutePath(path))
       {
         wchar_t* lpsz = nullptr;
         if (SearchPathW(nullptr, PathName(path).ToWideCharString().c_str(), nullptr, ARRAY_SIZE(szCmd), szCmd, &lpsz) == 0)
@@ -499,7 +519,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
           szCmd[0] = 0;
         }
       }
-      else if (File::Exists(path))
+      else if (File::Exists(PathName(path)))
       {
         StringUtil::CopyString(szCmd, ARRAY_SIZE(szCmd), PathName(path).ToWideCharString().c_str());
       }
@@ -512,7 +532,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
     }
   }
 
-  return szCmd;
+  return PathName(szCmd);
 }
 
 MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
@@ -527,13 +547,13 @@ MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
 bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* workingDirectory)
 {
   vector<string> arguments = Wrap(commandLine);
-  return Process::Run(arguments[0], arguments, callback, exitCode, workingDirectory);
+  return Process::Run(PathName(arguments[0]), arguments, callback, exitCode, workingDirectory);
 }
 
 void Process::StartSystemCommand(const string& commandLine)
 {
   vector<string> arguments = Wrap(commandLine);
-  Process::Start(arguments[0], arguments);
+  Process::Start(PathName(arguments[0]), arguments);
 }
 
 winProcess::winProcess()
@@ -676,4 +696,11 @@ ProcessInfo winProcess::GetProcessInfo()
   processInfo.parent = get_Parent()->GetSystemId();
   processInfo.status = ProcessStatus::Runnable;
   return processInfo;
+}
+
+void Process::Overlay(const PathName& fileName, const std::vector<std::string>& arguments)
+{
+  int exitCode;
+  Process::Run(fileName, arguments, nullptr, &exitCode, nullptr);
+  throw exitCode;
 }

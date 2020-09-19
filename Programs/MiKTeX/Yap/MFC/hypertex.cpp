@@ -187,11 +187,11 @@ void DviView::OnBack()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -212,11 +212,11 @@ void DviView::OnForward()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -281,7 +281,7 @@ void DviView::GotoLocation(const DviView::location& loc)
 
 bool DviView::FindDviFile(const char* lpszFileName, PathName& result)
 {
-  if (Utils::IsAbsolutePath(lpszFileName))
+  if (PathNameUtil::IsAbsolutePath(lpszFileName))
   {
     result = lpszFileName;
   }

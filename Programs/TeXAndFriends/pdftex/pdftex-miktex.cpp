@@ -1,6 +1,6 @@
 /* pdftex-miktex.cpp:
    
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -38,6 +38,7 @@ C4P::C4P_integer& fixedimagegamma = PDFTEXPROG.fixedimagegamma;
 C4P::C4P_boolean& fixedimagehicolor = PDFTEXPROG.fixedimagehicolor;
 C4P::C4P_integer& fixedinclusioncopyfont = PDFTEXPROG.fixedinclusioncopyfont;
 C4P::C4P_integer& fixedpdfdraftmode = PDFTEXPROG.fixedpdfdraftmode;
+C4P::C4P_integer& fixedpdfmajorversion = PDFTEXPROG.fixedpdfmajorversion;
 C4P::C4P_integer& fixedpdfminorversion = PDFTEXPROG.fixedpdfminorversion;
 C4P::C4P_integer& fixedpkresolution = PDFTEXPROG.fixedpkresolution;
 PDFTEXPROGCLASS::eightbits*& fontbc = PDFTEXPROG.fontbc;

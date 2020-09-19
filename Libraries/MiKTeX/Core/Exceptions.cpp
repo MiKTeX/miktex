@@ -1,6 +1,6 @@
 /* Exceptions.cpp: MiKTeX exceptions
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <fstream>
+#include <iostream>
 
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Environment>
@@ -88,7 +89,7 @@ bool MiKTeXException::Save(const string& path) const noexcept
 bool MiKTeXException::Load(const string& path, MiKTeXException& ex)
 {
   unique_ptr<Cfg> cfg = Cfg::Create();
-  cfg->Read(path);
+  cfg->Read(PathName(path));
   bool result = false;
   for (const auto& key : *cfg)
   {
@@ -185,6 +186,11 @@ bool MiKTeXException::Save() const noexcept
 {
   try
   {
+    string str;
+    if (Utils::GetEnvironmentString("MIKTEX_PRINT_EXCEPTIONS", str) && str == "cerr")
+    {
+      cerr << *this << endl;
+    }
     string path;
     if (GetLastMiKTeXExceptionPath(path))
     {
@@ -204,7 +210,7 @@ bool MiKTeXException::Save() const noexcept
 bool MiKTeXException::Load(MiKTeXException& ex)
 {
   string path;
-  if (GetLastMiKTeXExceptionPath(path) && File::Exists(path))
+  if (GetLastMiKTeXExceptionPath(path) && File::Exists(PathName(path)))
   {
     return Load(path, ex);
   }

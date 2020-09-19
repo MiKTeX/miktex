@@ -1,6 +1,6 @@
 /* VFont.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/Quoter>
 
 #include "internal.h"
@@ -30,8 +33,8 @@ VFont::VFont(DviImpl* dviImpl, int checkSum, int scaledSize, int designSize, con
   mag(mag),
   metafontMode(metafontMode),
   baseDpi(baseDpi),
-  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
-  trace_vfont(TraceStream::Open(MIKTEX_TRACE_DVIVFONT))
+  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR, dviImpl->GetTraceCallback())),
+  trace_vfont(TraceStream::Open(MIKTEX_TRACE_DVIVFONT, dviImpl->GetTraceCallback()))
 {
   dviInfo.isVirtualFont = true;
 }
@@ -88,7 +91,7 @@ void VFont::Read()
 
   InputStream stream(dviInfo.fileName.c_str());
 
-  trace_vfont->WriteFormattedLine("libdvi", T_("reading vf file %s"), Q_(dviInfo.fileName));
+  trace_vfont->WriteLine("libdvi", fmt::format(T_("reading vf file {0}"), Q_(dviInfo.fileName)));
 
   if (stream.ReadByte() != pre)
   {
@@ -119,18 +122,18 @@ void VFont::ReadPreamble(InputStream& inputStream)
   int my_checkSum = inputStream.ReadSignedQuad();
   int my_designSize = inputStream.ReadSignedQuad();
 
-  trace_vfont->WriteFormattedLine("libdvi", "comment: %s", dviInfo.comment.c_str());
-  trace_vfont->WriteFormattedLine("libdvi", "checkSum: 0%o", my_checkSum);
-  trace_vfont->WriteFormattedLine("libdvi", "designSize: %d", my_designSize);
+  trace_vfont->WriteLine("libdvi", fmt::format("comment: {0}", dviInfo.comment));
+  trace_vfont->WriteLine("libdvi", fmt::format("checkSum: {0}", my_checkSum));
+  trace_vfont->WriteLine("libdvi", fmt::format("designSize: {0}", my_designSize));
 
   if (my_designSize * tfmConv != designSize)
   {
-    trace_error->WriteFormattedLine("libdvi", T_("%s: designSize mismatch"), dviInfo.name.c_str());
+    trace_error->WriteLine("libdvi", fmt::format(T_("{0}: designSize mismatch"), dviInfo.name));
   }
 
   if (my_checkSum != checkSum)
   {
-    trace_error->WriteFormattedLine("libdvi", T_("%s: checkSum mismatch"), dviInfo.name.c_str());
+    trace_error->WriteLine("libdvi", fmt::format(T_("{0}: checkSum mismatch"), dviInfo.name));
   }
 }
 
@@ -177,7 +180,7 @@ void VFont::ReadFontDef(InputStream& inputStream, short fntDefX)
     break;
   }
 
-  trace_vfont->WriteFormattedLine("libdvi", T_("defining font %d"), fontNum);
+  trace_vfont->WriteLine("libdvi", fmt::format(T_("defining font {0}"), fontNum));
 
   int cs = inputStream.ReadSignedQuad();
   int ss = inputStream.ReadSignedQuad();
@@ -194,18 +197,18 @@ void VFont::ReadFontDef(InputStream& inputStream, short fntDefX)
   inputStream.Read(szName, fontNameSize);
   szName[fontNameSize] = 0;
 
-  trace_vfont->WriteFormattedLine("libdvi", "areaname: %s", szArea);
-  trace_vfont->WriteFormattedLine("libdvi", "fontname: %s", szName);
-  trace_vfont->WriteFormattedLine("libdvi", "checkSum: 0%o", cs);
-  trace_vfont->WriteFormattedLine("libdvi", "scaledSize: %d", ss);
-  trace_vfont->WriteFormattedLine("libdvi", "designSize: %d", ds);
+  trace_vfont->WriteLine("libdvi", fmt::format("areaname: {0}", szArea));
+  trace_vfont->WriteLine("libdvi", fmt::format("fontname: {0}", szName));
+  trace_vfont->WriteLine("libdvi", fmt::format("checkSum: {0}", cs));
+  trace_vfont->WriteLine("libdvi", fmt::format("scaledSize: {0}", ss));
+  trace_vfont->WriteLine("libdvi", fmt::format("designSize: {0}", ds));
 
   DviFont* pFont;
   PathName fileName;
   shared_ptr<Session> session = Session::Get();
   if (session->FindFile(szName, FileType::VF, fileName))
   {
-    trace_vfont->WriteFormattedLine("libdvi", T_("found vf file %s"), Q_(fileName));
+    trace_vfont->WriteLine("libdvi", fmt::format(T_("found vf file {0}"), Q_(fileName)));
     pFont = new VFont(dviImpl, cs, ScaleFix(ss, scaledAt), static_cast<int>(ds * tfmConv), szArea, szName, fileName.GetData(), tfmConv, conv, mag, metafontMode.c_str(), baseDpi);
   }
   else if (dviImpl->GetPageMode() != DviPageMode::Dvips)

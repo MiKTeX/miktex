@@ -1,6 +1,6 @@
 /* cfg.cpp:
 
-   Copyright (C) 2006-2018 Christian Schenk
+   Copyright (C) 2006-2020 Christian Schenk
 
    This file is part of cfg.
 
@@ -18,7 +18,6 @@
    along with cfg; if not, write to the Free Software Foundation, 59
    Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 
@@ -47,7 +46,7 @@ using namespace std;
 
 #define T_(x) MIKTEXTEXT(x)
 
-enum TASK { None, ComputeDigest, PrintClasses, SetValue, Sign };
+enum class TASK { None, ComputeDigest, PrintClasses, SetValue, Sign };
 
 enum Option
 {
@@ -89,18 +88,15 @@ const struct poptOption aoption[] = {
   POPT_TABLEEND
 };
 
-void FatalError(const char* lpszFormat, ...)
+void FatalError(const string& msg)
 {
-  va_list arglist;
-  va_start(arglist, lpszFormat);
-  cerr << Utils::GetExeName() << ": " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
-  va_end(arglist);
-  throw (1);
+  cerr << Utils::GetExeName() << ": " << msg << endl;
+  throw 1;
 }
 
 void PrintDigest(const MD5& md5)
 {
-  cout << md5.ToString() << endl;
+  cout << md5 << endl;
 }
 
 string ToStr(const string& s)
@@ -133,7 +129,7 @@ void DoPrintClasses(Cfg& cfg)
     {
       string value = val->AsString();
       char* endptr = nullptr;
-      strtol(value.c_str(), &endptr, 0);
+      auto ignored = strtol(value.c_str(), &endptr, 0);
       bool isNumber = endptr == nullptr || *endptr == 0;
       cout << "  public: static ";
       if (isNumber)
@@ -206,7 +202,7 @@ void Main(int argc, const char ** argv)
 
   popt.SetOtherOptionHelp(T_("[OPTION...] CFGFILE..."));
 
-  TASK task = ComputeDigest;
+  TASK task = TASK::ComputeDigest;
 
   PathName privateKeyFile;
   vector<pair<string, string>> values;
@@ -217,17 +213,17 @@ void Main(int argc, const char ** argv)
     switch (option)
     {
     case OPT_COMPUTE_DIGEST:
-      task = ComputeDigest;
+      task = TASK::ComputeDigest;
       break;
     case OPT_PRINT_CLASSES:
-      task = PrintClasses;
+      task = TASK::PrintClasses;
       break;
     case OPT_PRIVATE_KEY_FILE:
       privateKeyFile = optArg;
       break;
     case OPT_SET_VALUE:
     {
-      task = SetValue;
+      task = TASK::SetValue;
       size_t pos = optArg.find('=');
       if (pos == string::npos)
       {
@@ -237,13 +233,13 @@ void Main(int argc, const char ** argv)
       break;
     }
     case OPT_SIGN:
-      task = Sign;
+      task = TASK::Sign;
       break;
     case OPT_VERSION:
       cout
-        << Utils::MakeProgramVersionString(Utils::GetExeName(), VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << T_("Copyright (C) 2006-2018 Christian Schenk") << endl
-        << T_("This is free software; see the source for copying conditions.  There is NO") << endl
+        << Utils::MakeProgramVersionString(Utils::GetExeName(), VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << "\n"
+        << T_("Copyright (C) 2006-2020 Christian Schenk") << "\n"
+        << T_("This is free software; see the source for copying conditions.  There is NO") << "\n"
         << T_("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.") << endl;
       return;
     }
@@ -254,7 +250,7 @@ void Main(int argc, const char ** argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    FatalError("%s", msg.c_str());
+    FatalError(msg);
   }
 
   vector<string> leftovers = popt.GetLeftovers();
@@ -267,27 +263,27 @@ void Main(int argc, const char ** argv)
   for (const string& fileName : leftovers)
   {
     unique_ptr<Cfg> pCfg(Cfg::Create());
-    pCfg->Read(fileName);
-    if (task == ComputeDigest)
+    pCfg->Read(PathName(fileName));
+    if (task == TASK::ComputeDigest)
     {
       PrintDigest(pCfg->GetDigest());
     }
-    else if (task == PrintClasses)
+    else if (task == TASK::PrintClasses)
     {
       DoPrintClasses(*pCfg);
     }
-    else if (task == Sign)
+    else if (task == TASK::Sign)
     {
       PrivateKeyProvider privateKeyProvider(privateKeyFile);
-      pCfg->Write(fileName, "", &privateKeyProvider);
+      pCfg->Write(PathName(fileName), "", &privateKeyProvider);
     }
-    else if (task == SetValue)
+    else if (task == TASK::SetValue)
     {
       for (const pair<string, string>& nv : values)
       {
         pCfg->PutValue("", nv.first, nv.second);
       }
-      pCfg->Write(fileName, "");
+      pCfg->Write(PathName(fileName), "");
     }
   }
 }

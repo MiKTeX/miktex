@@ -150,7 +150,7 @@ GooString *appendToPath(GooString *path, const char *fileName) {
   tmp->append(fileName);
 #if defined(MIKTEX)
   MiKTeX::Core::PathName absPath (tmp->getCString());
-  absPath.MakeAbsolute ();
+  absPath.MakeFullyQualified ();
   delete tmp;
   path->clear();
   path->append(absPath.GetData());
@@ -728,7 +728,7 @@ GDirEntry::GDirEntry(char *dirPath, char *nameA, GBool doStat) {
 #else
 #ifdef _WIN32
 #if defined(MIKTEX)
-    dir = MiKTeX::Core::Directory::Exists(fullPath->getCString());
+    dir = MiKTeX::Core::Directory::Exists(MiKTeX::Core::PathName(fullPath->getCString()));
 #else
     fa = GetFileAttributesA(fullPath->getCString());
     dir = (fa != 0xFFFFFFFF && (fa & FILE_ATTRIBUTE_DIRECTORY));

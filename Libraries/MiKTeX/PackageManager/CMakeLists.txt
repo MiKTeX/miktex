@@ -44,12 +44,12 @@ configure_file(
 )
 
 configure_file(
-  mpm-version.h.cmake
+  mpm-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/mpm-version.h
 )
 
 configure_file(
-  include/miktex/PackageManager/vi/Version.h.cmake
+  include/miktex/PackageManager/vi/Version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/PackageManager/vi/Version.h
 )
 

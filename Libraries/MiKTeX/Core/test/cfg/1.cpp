@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -48,7 +48,7 @@ BEGIN_TEST_FUNCTION(1);
   TEST(cfg->TryGetValueAsStringVector("abc", "arr[]", arr));
   TEST(arr.size() == 2 && arr[0] == "abc" && arr[1] == "def");
   TESTX(cfg->PutValue("abc", "empty", ""));
-  TESTX(cfg->Write("test.ini"));
+  TESTX(cfg->Write(PathName("test.ini")));
 }
 END_TEST_FUNCTION();
 
@@ -56,7 +56,7 @@ BEGIN_TEST_FUNCTION(2);
 {
   shared_ptr<Cfg> cfg;
   TESTX(cfg = Cfg::Create());
-  TESTX(cfg->Read("test.ini"));
+  TESTX(cfg->Read(PathName("test.ini")));
   TEST(cfg->GetValue("abc", "xyz")->AsString() == "abrakadabra");
   TESTX(cfg->DeleteValue("abc", "xyz"));
   string value;
@@ -70,7 +70,7 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(3);
 {
-  StreamWriter writer("test2.ini");
+  StreamWriter writer(PathName("test2.ini"));
   writer.WriteLine("[sec1]");
   writer.WriteLine("arr1[]= abc ");
   writer.WriteLine("arr1[]=     ");
@@ -80,7 +80,7 @@ BEGIN_TEST_FUNCTION(3);
   writer.Close();
   shared_ptr<Cfg> cfg;
   TESTX(cfg = Cfg::Create());
-  TESTX(cfg->Read("test2.ini"));
+  TESTX(cfg->Read(PathName("test2.ini")));
   vector<string> arr1;
   TEST(cfg->TryGetValueAsStringVector("sec1", "arr1[]", arr1));
   TEST(arr1.size() == 2 && arr1[0] == "abc" && arr1[1] == "");
@@ -108,7 +108,7 @@ class PrivateKeyProvider : public IPrivateKeyProvider
 public:
   PathName MIKTEXTHISCALL GetPrivateKeyFile() override
   {
-    return MiKTeX::Core::PathName(TEST_SOURCE_DIR) / "cfg" / "test.pkcs8.pem";
+    return MiKTeX::Core::PathName(TEST_SOURCE_DIR) / PathName("cfg") / PathName("test.pkcs8.pem");
   }
 public:
   bool GetPassphrase(std::string & passphrase) override
@@ -122,9 +122,9 @@ BEGIN_TEST_FUNCTION(5);
 {
   shared_ptr<Cfg> cfg;
   TESTX(cfg = Cfg::Create());
-  TESTX(cfg->Read("test.ini"));
+  TESTX(cfg->Read(PathName("test.ini")));
   PrivateKeyProvider privKey;
-  TESTX(cfg->Write("sigtest2.ini", "signed with test key", &privKey));
+  TESTX(cfg->Write(PathName("sigtest2.ini"), "signed with test key", &privKey));
 }
 END_TEST_FUNCTION();
 
@@ -132,7 +132,7 @@ BEGIN_TEST_FUNCTION(6);
 {
   shared_ptr<Cfg> cfg;
   TESTX(cfg = Cfg::Create());
-  TESTX(cfg->Read("sigtest2.ini", MiKTeX::Core::PathName(TEST_SOURCE_DIR) / "cfg" / "test.pub.pem"));
+  TESTX(cfg->Read(PathName("sigtest2.ini"), PathName(TEST_SOURCE_DIR) / PathName("cfg") / PathName("test.pub.pem")));
 }
 END_TEST_FUNCTION();
 

@@ -2,7 +2,7 @@
 ** PDFToSVG.hpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -23,6 +23,10 @@
 
 #include <fstream>
 #include "ImageToSVG.hpp"
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
+#endif
 
 class PsSpecialHandler;
 
@@ -32,7 +36,7 @@ class PDFToSVG : public ImageToSVG {
 		bool isSinglePageFormat() const override {return false;}
 
 		/** Returns the total number of pages in the PDF file. */
-		int totalPageCount() override {
+		int totalPageCount() const override {
 			if (_totalPageCount < 0) {
 				_totalPageCount = psInterpreter().pdfPageCount(filename());
 				if (_totalPageCount < 1)
@@ -43,7 +47,11 @@ class PDFToSVG : public ImageToSVG {
 
 	protected:
 		bool imageIsValid () const override {
+#if defined(MIKTEX_WINDOWS)
+                        std::ifstream ifs(EXPATH_(filename()));
+#else
 			std::ifstream ifs(filename());
+#endif
 			if (ifs) {
 				char buf[16];
 				ifs.getline(buf, 16);
@@ -60,4 +68,3 @@ class PDFToSVG : public ImageToSVG {
 };
 
 #endif
-

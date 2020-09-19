@@ -1,6 +1,6 @@
 /* Setup.h:                                             -*- C++ -*-
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2020 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -38,6 +38,9 @@
 
 #define UW_(x) MiKTeX::Util::StringUtil::UTF8ToWideChar(x).c_str()
 #define WU_(x) MiKTeX::Util::StringUtil::WideCharToUTF8(x).c_str()
+
+#define DBGLOC() OutputDebugStringA(fmt::format("{0}:{1}", __FILE__, __LINE__).c_str())
+#define DBGLOC2(s) OutputDebugStringA(fmt::format("{0}:{1} {2}", __FILE__, __LINE__, s).c_str())
 
 class SetupApp :
   public CWinApp
@@ -102,7 +105,7 @@ public:
     SetupOptions options = Service->GetOptions();
     if (options.IsPortable)
     {
-      return options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
+      return options.PortableRoot / PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR);
     }
     else
     {

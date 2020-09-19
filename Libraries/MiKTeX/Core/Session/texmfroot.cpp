@@ -1,6 +1,6 @@
 /* texmfroot.cpp: managing TEXMF root directories
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,10 +26,11 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Environment>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
 #include <miktex/Core/RootDirectoryInfo>
+#include <miktex/Util/DateUtil>
 
 #include "internal.h"
 
@@ -44,6 +45,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 // index of the hidden MPM root
@@ -83,7 +85,7 @@ static PathName ExpandEnvironmentVariables(const PathName& toBeExpanded)
       expansion += lpsz[0];
     }
   }
-  return expansion;
+  return PathName(expansion);
 }
 
 unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryInfo::Purpose purpose, ConfigurationScope scope, bool other, bool review)
@@ -135,7 +137,7 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
   return idx;
 }
 
-void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, bool review)
+void SessionImpl::InitializeRootDirectories(const VersionedStartupConfig& startupConfig, bool review)
 {
   rootDirectories.clear();
 
@@ -161,11 +163,11 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     }
 
     // UserRoots
-    for (const string& root : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
+    for (const string& root : StringUtil::Split(startupConfig.userRoots, PathNameUtil::PathNameDelimiter))
     {
       if (!root.empty())
       {
-        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::User, false, review);
+        RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::User, false, review);
       }
     }
 
@@ -189,11 +191,11 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   }
 
   // CommonRoots
-  for (const string& root : StringUtil::Split(startupConfig.commonRoots, PathName::PathNameDelimiter))
+  for (const string& root : StringUtil::Split(startupConfig.commonRoots, PathNameUtil::PathNameDelimiter))
   {
     if (!root.empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, false, review);
+      RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, false, review);
     }
   }
 
@@ -206,21 +208,21 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
   if (!IsAdminMode())
   {
     // OtherUserRoots
-    for (const string& root : StringUtil::Split(startupConfig.otherUserRoots, PathName::PathNameDelimiter))
+    for (const string& root : StringUtil::Split(startupConfig.otherUserRoots, PathNameUtil::PathNameDelimiter))
     {
       if (!root.empty())
       {
-        RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::User, true, review);
+        RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::User, true, review);
       }
     }
   }
 
   // OtherCommonRoots
-  for (const string& root : StringUtil::Split(startupConfig.otherCommonRoots, PathName::PathNameDelimiter))
+  for (const string& root : StringUtil::Split(startupConfig.otherCommonRoots, PathNameUtil::PathNameDelimiter))
   {
     if (!root.empty())
     {
-      RegisterRootDirectory(root, RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, true, review);
+      RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, true, review);
     }
   }
 
@@ -260,7 +262,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig, 
     commonInstallRootIndex = commonConfigRootIndex;
   }
 
-  RegisterRootDirectory(MPM_ROOT_PATH, RootDirectoryInfo::Purpose::Generic, IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, false, false);
+  RegisterRootDirectory(PathName(MPM_ROOT_PATH), RootDirectoryInfo::Purpose::Generic, IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, false, false);
 
   if (!IsAdminMode())
   {
@@ -378,7 +380,7 @@ pair<bool, PathName> SessionImpl::TryGetDistRootDirectory()
   }
   return make_pair(false, PathName());
 #else
-  return make_pair(true, GetMyPrefix(true) / MIKTEX_DIST_DIR);
+  return make_pair(true, GetMyPrefix(true) / PathName(MIKTEX_DIST_DIR));
 #endif
 }
 
@@ -446,8 +448,7 @@ void SessionImpl::ReregisterRootDirectories(const string& roots, bool other)
   RegisterRootDirectoriesOptionSet options;
   options += RegisterRootDirectoriesOption::Review;
 #if defined(MIKTEX_WINDOWS)
-  // FIXME: should be: NO_REGISTRY ? false : true
-  if (IsMiKTeXPortable() || GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
+  if (IsMiKTeXPortable() || GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_NO_REGISTRY, ConfigValue(USE_WINDOWS_REGISTRY ? false : true)).GetBool())
   {
     options += RegisterRootDirectoriesOption::NoRegistry;
   }
@@ -461,7 +462,7 @@ void SessionImpl::RegisterRootDirectory(const PathName& path, bool other)
   for (size_t r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
-    bool skipit = other && !root.IsOther() || !other && root.IsOther();
+    bool skipit = (other && !root.IsOther()) || (!other && root.IsOther());
     skipit = skipit || (IsAdminMode() && !root.IsCommon());
     skipit = skipit || (!IsAdminMode() && root.IsCommon());
     skipit = skipit || root.IsManaged();
@@ -471,7 +472,7 @@ void SessionImpl::RegisterRootDirectory(const PathName& path, bool other)
     }
   }
   toBeRegistered.push_back(path.ToString());
-  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), other);
+  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathNameUtil::PathNameDelimiter), other);
 }
 
 void SessionImpl::UnregisterRootDirectory(const PathName& path, bool other)
@@ -481,7 +482,7 @@ void SessionImpl::UnregisterRootDirectory(const PathName& path, bool other)
   for (size_t r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
     const RootDirectoryInternals& root = rootDirectories[r];
-    bool skipit = other && !root.IsOther() || !other && root.IsOther();
+    bool skipit = (other && !root.IsOther()) || (!other && root.IsOther());
     skipit = skipit || (IsAdminMode() && !root.IsCommon());
     skipit = skipit || (!IsAdminMode() && root.IsCommon());
     skipit = skipit || root.IsManaged();
@@ -502,7 +503,7 @@ void SessionImpl::UnregisterRootDirectory(const PathName& path, bool other)
   {
     MIKTEX_UNEXPECTED();
   }
-  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), other);
+  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathNameUtil::PathNameDelimiter), other);
 }
 
 void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupConfig, RegisterRootDirectoriesOptionSet options)
@@ -515,44 +516,54 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
   // clear the search path cache
   ClearSearchVectors();
 
-  StartupConfig newStartupConfig = partialStartupConfig;
-  newStartupConfig.config = initStartupConfig.config;
-
-  if (newStartupConfig.commonInstallRoot.Empty() && commonInstallRootIndex != INVALID_ROOT_INDEX)
+  VersionedStartupConfig startupConfig = partialStartupConfig;
+  startupConfig.config = initStartupConfig.config;
+  startupConfig.setupVersion = initStartupConfig.setupVersion;
+  auto setupConfig = GetSetupConfig();
+  if (setupConfig.isNew)
   {
-    newStartupConfig.commonInstallRoot = GetRootDirectoryPath(commonInstallRootIndex);
+    trace_config->WriteLine("core", T_("this seems to be a new installation"));
+  }
+  if (startupConfig.setupVersion == VersionNumber() && setupConfig.isNew)
+  {
+    startupConfig.setupVersion = VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0);
   }
 
-  if (newStartupConfig.commonDataRoot.Empty() && commonDataRootIndex != INVALID_ROOT_INDEX)
+  if (startupConfig.commonInstallRoot.Empty() && commonInstallRootIndex != INVALID_ROOT_INDEX)
   {
-    newStartupConfig.commonDataRoot = GetRootDirectoryPath(commonDataRootIndex);
+    startupConfig.commonInstallRoot = GetRootDirectoryPath(commonInstallRootIndex);
   }
 
-  if (newStartupConfig.commonConfigRoot.Empty() && commonConfigRootIndex != INVALID_ROOT_INDEX)
+  if (startupConfig.commonDataRoot.Empty() && commonDataRootIndex != INVALID_ROOT_INDEX)
   {
-    newStartupConfig.commonConfigRoot = GetRootDirectoryPath(commonConfigRootIndex);
+    startupConfig.commonDataRoot = GetRootDirectoryPath(commonDataRootIndex);
   }
 
-  if (newStartupConfig.userInstallRoot.Empty() && userInstallRootIndex != INVALID_ROOT_INDEX)
+  if (startupConfig.commonConfigRoot.Empty() && commonConfigRootIndex != INVALID_ROOT_INDEX)
   {
-    newStartupConfig.userInstallRoot = GetRootDirectoryPath(userInstallRootIndex);
+    startupConfig.commonConfigRoot = GetRootDirectoryPath(commonConfigRootIndex);
   }
 
-  if (newStartupConfig.userDataRoot.Empty() && userDataRootIndex != INVALID_ROOT_INDEX)
+  if (startupConfig.userInstallRoot.Empty() && userInstallRootIndex != INVALID_ROOT_INDEX)
   {
-    newStartupConfig.userDataRoot = GetRootDirectoryPath(userDataRootIndex);
+    startupConfig.userInstallRoot = GetRootDirectoryPath(userInstallRootIndex);
   }
 
-  if (newStartupConfig.userConfigRoot.Empty() && userConfigRootIndex != INVALID_ROOT_INDEX)
+  if (startupConfig.userDataRoot.Empty() && userDataRootIndex != INVALID_ROOT_INDEX)
   {
-    newStartupConfig.userConfigRoot = GetRootDirectoryPath(userConfigRootIndex);
+    startupConfig.userDataRoot = GetRootDirectoryPath(userDataRootIndex);
   }
 
-  MergeStartupConfig(newStartupConfig, DefaultConfig());
+  if (startupConfig.userConfigRoot.Empty() && userConfigRootIndex != INVALID_ROOT_INDEX)
+  {
+    startupConfig.userConfigRoot = GetRootDirectoryPath(userConfigRootIndex);
+  }
+
+  MergeStartupConfig(startupConfig, DefaultConfig(startupConfig.config, startupConfig.setupVersion, PathName(), PathName()));
 
   try
   {
-    InitializeRootDirectories(newStartupConfig, options[RegisterRootDirectoriesOption::Review]);
+    InitializeRootDirectories(startupConfig, options[RegisterRootDirectoriesOption::Review]);
   }
   catch (const MiKTeXException&)
   {
@@ -562,7 +573,28 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
 
   if (!options[RegisterRootDirectoriesOption::Temporary])
   {
-    SaveStartupConfig(newStartupConfig, options);
+#if 1
+    if (IsAdminMode())
+    {
+      if (startupConfig.otherUserRoots != partialStartupConfig.otherUserRoots)
+      {
+        startupConfig.otherUserRoots = "";
+      }
+      if (startupConfig.userConfigRoot != partialStartupConfig.userConfigRoot)
+      {
+        startupConfig.userConfigRoot = "";
+      }
+      if (startupConfig.userDataRoot != partialStartupConfig.userDataRoot)
+      {
+        startupConfig.userDataRoot = "";
+      }
+      if (startupConfig.userInstallRoot != partialStartupConfig.userInstallRoot)
+      {
+        startupConfig.userInstallRoot = "";
+      }
+    }
+#endif
+    SaveStartupConfig(startupConfig, options);
   }
 }
 
@@ -611,7 +643,7 @@ void SessionImpl::MoveRootDirectory(unsigned r, int dir)
       toBeRegistered.push_back(root.path.ToString());
     }
   }
-  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), false);
+  ReregisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathNameUtil::PathNameDelimiter), false);
 }
 
 void SessionImpl::MoveRootDirectoryUp(unsigned r)
@@ -743,12 +775,12 @@ vector<PathName> SessionImpl::GetFilenameDatabasePathNames(unsigned r)
     {
       MIKTEX_UNEXPECTED();
     }
-    path = rootDirectories[GetInstallRoot()].get_Path() / MIKTEX_PATH_MPM_FNDB;
+    path = rootDirectories[GetInstallRoot()].get_Path() / PathName(MIKTEX_PATH_MPM_FNDB);
   }
   else
   {
     // ROOT\miktex\conig\texmf.fndb
-    path = rootDirectories[r].get_Path() / MIKTEX_PATH_TEXMF_FNDB;
+    path = rootDirectories[r].get_Path() / PathName(MIKTEX_PATH_TEXMF_FNDB);
   }
   result.push_back(path);
 
@@ -762,13 +794,13 @@ PathName SessionImpl::GetMpmDatabasePathName()
 
 PathName SessionImpl::GetMpmRootPath()
 {
-  return MPM_ROOT_PATH;
+  return PathName(MPM_ROOT_PATH);
 }
 
 PathName SessionImpl::GetRelativeFilenameDatabasePathName(unsigned r)
 {
   string fndbFileName = MIKTEX_PATH_FNDB_DIR;
-  fndbFileName += PathName::DirectoryDelimiter;
+  fndbFileName += PathNameUtil::DirectoryDelimiter;
   PathName root(rootDirectories[r].get_Path());
   root.TransformForComparison();
   MD5Builder md5Builder;
@@ -776,7 +808,7 @@ PathName SessionImpl::GetRelativeFilenameDatabasePathName(unsigned r)
   md5Builder.Final();
   fndbFileName += md5Builder.GetMD5().ToString();
   fndbFileName += MIKTEX_FNDB_FILE_SUFFIX;
-  return fndbFileName;
+  return PathName(fndbFileName);
 }
 
 shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r)
@@ -830,7 +862,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r)
 
 shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char* path)
 {
-  unsigned root = TryDeriveTEXMFRoot(path);
+  unsigned root = TryDeriveTEXMFRoot(PathName(path));
   if (root == INVALID_ROOT_INDEX)
   {
     return nullptr;
@@ -840,7 +872,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char* path)
 
 unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
 {
-  if (!Utils::IsAbsolutePath(path))
+  if (!path.IsFullyQUalified())
   {
 #if FIND_FILE_PREFER_RELATIVE_PATH_NAMES
     return INVALID_ROOT_INDEX;
@@ -862,7 +894,7 @@ unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
   {
     PathName pathRoot = GetRootDirectoryPath(idx);
     size_t rootlen = pathRoot.GetLength();
-    if (PathName::Compare(pathRoot, path, rootlen) == 0 && (pathRoot.EndsWithDirectoryDelimiter() || path[rootlen] == 0 || IsDirectoryDelimiter(path[rootlen])))
+    if (PathName::Compare(pathRoot, path, rootlen) == 0 && (pathRoot.EndsWithDirectoryDelimiter() || path[rootlen] == 0 || PathNameUtil::IsDirectoryDelimiter(path[rootlen])))
     {
       if (rootDirectoryIndex == INVALID_ROOT_INDEX)
       {
@@ -945,10 +977,10 @@ bool SessionImpl::IsTEXMFFile(const PathName& path, PathName& relPath, unsigned&
   {
     PathName pathRoot = GetRootDirectoryPath(r);
     size_t cchRoot = pathRoot.GetLength();
-    if (PathName::Compare(pathRoot, path, cchRoot) == 0 && (path[cchRoot] == 0 || IsDirectoryDelimiter(path[cchRoot])))
+    if (PathName::Compare(pathRoot, path, cchRoot) == 0 && (path[cchRoot] == 0 || PathNameUtil::IsDirectoryDelimiter(path[cchRoot])))
     {
       const char* lpsz = &path[cchRoot];
-      if (IsDirectoryDelimiter(*lpsz))
+      if (PathNameUtil::IsDirectoryDelimiter(*lpsz))
       {
         ++lpsz;
       }
@@ -966,12 +998,12 @@ unsigned SessionImpl::SplitTEXMFPath(const PathName& path, PathName& root, PathN
   {
     PathName rootDir = GetRootDirectoryPath(r);
     size_t rootDirLen = rootDir.GetLength();
-    if (PathName::Compare(rootDir, path, rootDirLen) == 0 && (path[rootDirLen] == 0 || IsDirectoryDelimiter(path[rootDirLen])))
+    if (PathName::Compare(rootDir, path, rootDirLen) == 0 && (path[rootDirLen] == 0 || PathNameUtil::IsDirectoryDelimiter(path[rootDirLen])))
     {
       root = rootDir;
       root[rootDirLen] = 0;
       const char* lpsz = &path[0] + rootDirLen;
-      if (IsDirectoryDelimiter(*lpsz))
+      if (PathNameUtil::IsDirectoryDelimiter(*lpsz))
       {
         ++lpsz;
       }
@@ -997,7 +1029,7 @@ bool SessionImpl::IsManagedRoot(unsigned root)
 bool SessionImpl::IsMpmFile(const char* lpszPath)
 {
   return (PathName::Compare(MPM_ROOT_PATH, lpszPath, static_cast<unsigned long>(MPM_ROOT_PATH_LEN)) == 0
-    && (lpszPath[MPM_ROOT_PATH_LEN] == 0 || IsDirectoryDelimiter(lpszPath[MPM_ROOT_PATH_LEN])));
+    && (lpszPath[MPM_ROOT_PATH_LEN] == 0 || PathNameUtil::IsDirectoryDelimiter(lpszPath[MPM_ROOT_PATH_LEN])));
 }
 
 bool Utils::IsMiKTeXDirectRoot(const PathName& root)

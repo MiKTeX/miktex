@@ -22,8 +22,10 @@ public:
     reportError("cannot clip to non-cyclic path");
   }
   
-  drawClipBegin(const vm::array& src, bool stroke, pen pentype, bool gsave=true)
-    : drawSuperPathPenBase(src,pentype), gsave(gsave), stroke(stroke) {
+  drawClipBegin(const vm::array& src, bool stroke, pen pentype,
+                bool gsave=true, const string& key="") :
+    drawElement(key), drawSuperPathPenBase(src,pentype), gsave(gsave),
+    stroke(stroke) {
     if(!stroke && !cyclic()) noncyclic();
   }
 
@@ -80,7 +82,7 @@ public:
   
   drawElement *transformed(const transform& t)
   {
-    return new drawClipBegin(transpath(t),stroke,transpen(t));
+    return new drawClipBegin(transpath(t),stroke,transpen(t),gsave,KEY);
   }
 
 };

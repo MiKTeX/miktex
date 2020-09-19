@@ -2,7 +2,7 @@
 ** EPSToSVG.hpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -30,7 +30,7 @@ class EPSToSVG : public ImageToSVG {
 	public:
 		EPSToSVG (const std::string &fname, SVGOutputBase &out) : ImageToSVG(fname, out) {}
 		bool isSinglePageFormat() const override {return true;}
-		int totalPageCount() override {return 1;}
+		int totalPageCount() const override {return 1;}
 
 	protected:
 		std::string imageFormat () const override {return "EPS";}

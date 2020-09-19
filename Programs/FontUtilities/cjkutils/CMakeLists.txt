@@ -35,7 +35,7 @@ set(bg5conv_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND bg5conv_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     bg5conv.rc
   )
 endif()
@@ -67,7 +67,7 @@ foreach(t cef5conv cefconv cefsconv)
   )
   if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND ${t}_sources
-      ${MIKTEX_COMPATIBILITY_MANIFEST}
+      ${MIKTEX_COMMON_MANIFEST}
       ${t}.rc
     )
   endif()
@@ -96,7 +96,7 @@ set(extconv_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
  list(APPEND extconv_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     extconv.rc
  )
 endif()
@@ -130,7 +130,7 @@ set(hbf2gf_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND hbf2gf_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     hbf2gf.rc
   )
 endif()
@@ -177,7 +177,7 @@ set(sjisconv_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND sjisconv_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     sjisconv.rc
   )
 endif()

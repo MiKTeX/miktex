@@ -1,6 +1,6 @@
 /* inputline.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -19,9 +19,35 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/ConfigNames>
+#include <miktex/Core/CommandLineBuilder>
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMFEXPORT
+#endif
+#define B8C7815676699B4EA2DE96F0BD727276
+#include "miktex/TeXAndFriends/WebAppInputLine.h"
 
 #include "internal.h"
+
+using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
+using namespace MiKTeX::TeXAndFriends;
 
 struct Bom
 {
@@ -156,81 +182,6 @@ bool WebAppInputLine::ProcessOption(int opt, const string& optArg)
   return WebApp::ProcessOption(opt, optArg);
 }
 
-#if defined(WITH_OMEGA)
-PathName WebAppInputLine::MangleNameOfFile(const char* lpszFrom)
-{
-  PathName ret;
-  char* lpszTo = ret.GetData();
-  MIKTEX_ASSERT_STRING(lpszFrom);
-  size_t len = StrLen(lpszFrom);
-  if (len >= ret.GetCapacity())
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  size_t idx;
-  for (idx = 0; idx < len; ++idx)
-  {
-    if (lpszFrom[idx] == ' ')
-    {
-      lpszTo[idx] = '*';
-    }
-    else if (lpszFrom[idx] == '~')
-    {
-      lpszTo[idx] = '?';
-    }
-    else if (lpszFrom[idx] == '\\')
-    {
-      lpszTo[idx] = '/';
-    }
-    else
-    {
-      lpszTo[idx] = lpszFrom[idx];
-    }
-  }
-  lpszTo[idx] = 0;
-  return ret;
-}
-#endif
-
-#if defined(WITH_OMEGA)
-template<typename CharType> static PathName UnmangleNameOfFile_(const CharType* lpszFrom)
-{
-  PathName ret;
-  char* lpszTo = ret.GetData();
-  MIKTEX_ASSERT_STRING(lpszFrom);
-  size_t len = StrLen(lpszFrom);
-  if (len >= ret.GetCapacity())
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  size_t idx;
-  for (idx = 0; idx < len; ++idx)
-  {
-    if (lpszFrom[idx] == '*')
-    {
-      lpszTo[idx] = ' ';
-    }
-    else if (lpszFrom[idx] == '?')
-    {
-      lpszTo[idx] = '~';
-    }
-    else
-    {
-      lpszTo[idx] = lpszFrom[idx];
-    }
-  }
-  lpszTo[idx] = 0;
-  return ret;
-}
-#endif
-
-#if defined(WITH_OMEGA)
-PathName WebAppInputLine::UnmangleNameOfFile(const char* lpszFrom)
-{
-  return UnmangleNameOfFile_(lpszFrom);
-}
-#endif
-
 static bool IsOutputFile(const PathName& path)
 {
   PathName path_(path);
@@ -294,66 +245,75 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
   if (pimpl->enablePipes && lpszPath[0] == '|')
   {
     string command = lpszPath + 1;
+#if defined(MIKTEX_WINDOWS)
+    std::replace(command.begin(), command.end(), '\'', '"');
+#endif
     Session::ExamineCommandLineResult examineResult;
     string examinedCommand;
-    string toBeExecuted;
-    tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
+    string safeCommandLine;
+    tie(examineResult, examinedCommand, safeCommandLine) = session->ExamineCommandLine(command);
     if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
     {
-      LogError("command line syntax error: " + command);
+      LogError(fmt::format("syntax error: {0}", command));
       return false;
     }
     if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
     {
-      LogError("command is unsafe: " + command);
+      LogError(fmt::format("command is unsafe: {0}", command));
       return false;
     }
+    string toBeExecuted;
     switch (pimpl->shellCommandMode)
     {
     case ShellCommandMode::Unrestricted:
+      if (session->RunningAsAdministrator() && !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
+      {
+        LogError(fmt::format("not allowed with elevated privileges: {0}", command));
+        return false;
+      }
       toBeExecuted = command;
       break;
     case ShellCommandMode::Forbidden:
-      LogError("command not executed: " + command);
+      LogError(fmt::format("command not executed: {0}", command));
       return false;
     case ShellCommandMode::Query:
       // TODO
     case ShellCommandMode::Restricted:
       if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
       {
-        LogError("command not allowed: " + command);
+        LogError(fmt::format("command not allowed: {0}", command));
         return false;
       }
+      toBeExecuted = safeCommandLine;
       break;
     default:
       MIKTEX_UNEXPECTED();
     }
-    LogInfo("executing output pipe: " + toBeExecuted);
-    file = session->OpenFile(toBeExecuted, FileMode::Command, FileAccess::Write, false);
+    if (examineResult == Session::ExamineCommandLineResult::ProbablySafe)
+    {
+      LogInfo(fmt::format("executing restricted output pipe: {0}", toBeExecuted));
+    }
+    else
+    {
+      LogWarn(fmt::format("executing unrestricted output pipe: {0}", toBeExecuted));
+    }
+    file = session->OpenFile(PathName(toBeExecuted), FileMode::Command, FileAccess::Write, false);
   }
   else
   {
-#if defined(WITH_OMEGA)
-    PathName unmangled;
-    if (AmI("omega"))
-    {
-      unmangled = UnmangleNameOfFile(lpszPath);
-      lpszPath = unmangled.GetData();
-    }
-#endif
-    bool isAuxFile = !IsOutputFile(lpszPath);
+    bool isAuxFile = !IsOutputFile(PathName(lpszPath));
     PathName path;
     if (isAuxFile && !pimpl->auxDirectory.Empty())
     {
-      path = pimpl->auxDirectory / lpszPath;
+      path = pimpl->auxDirectory / PathName(lpszPath);
       lpszPath = path.GetData();
     }
     else if (!pimpl->outputDirectory.Empty())
     {
-      path = pimpl->outputDirectory / lpszPath;
+      path = pimpl->outputDirectory / PathName(lpszPath);
       lpszPath = path.GetData();
     }
-    file = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, false);
+    file = session->TryOpenFile(PathName(lpszPath), FileMode::Create, FileAccess::Write, false);
     if (file != nullptr)
     {
       outPath = lpszPath;
@@ -387,6 +347,9 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
   if (pimpl->enablePipes && lpszFileName[0] == '|')
   {
     string command = lpszFileName + 1;
+#if defined(MIKTEX_WINDOWS)
+    std::replace(command.begin(), command.end(), '\'', '"');
+#endif
     Session::ExamineCommandLineResult examineResult;
     string examinedCommand;
     string toBeExecuted;
@@ -422,31 +385,22 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
       MIKTEX_UNEXPECTED();
     }
     LogInfo("executing input pipe: " + toBeExecuted);
-    *ppFile = session->OpenFile(toBeExecuted, FileMode::Command, FileAccess::Read, false);
+    *ppFile = session->OpenFile(PathName(toBeExecuted), FileMode::Command, FileAccess::Read, false);
     pimpl->foundFile.Clear();
     pimpl->foundFileFq.Clear();
   }
   else
   {
-#if defined(WITH_OMEGA)
-    PathName unmangled;
-    if (AmI("omega"))
-    {
-      unmangled = UnmangleNameOfFile(lpszFileName);
-      lpszFileName = unmangled.GetData();
-    }
-#endif
-
     if (!session->FindFile(lpszFileName, GetInputFileType(), pimpl->foundFile))
     {
       return false;
     }
 
     pimpl->foundFileFq = pimpl->foundFile;
-    pimpl->foundFileFq.MakeAbsolute();
+    pimpl->foundFileFq.MakeFullyQualified();
 
 #if 1 // 2015-01-15
-    if (pimpl->foundFile[0] == '.' && PathName::IsDirectoryDelimiter(pimpl->foundFile[1]))
+    if (pimpl->foundFile[0] == '.' && PathNameUtil::IsDirectoryDelimiter(pimpl->foundFile[1]))
     {
       PathName temp(pimpl->foundFile.GetData() + 2);
       pimpl->foundFile = temp;
@@ -459,23 +413,23 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
       {
         CommandLineBuilder cmd("zcat");
         cmd.AppendArgument(pimpl->foundFile);
-        *ppFile = session->OpenFile(cmd.ToString(), FileMode::Command, FileAccess::Read, false);
+        *ppFile = session->OpenFile(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read, false);
       }
       else if (pimpl->foundFile.HasExtension(".bz2"))
       {
         CommandLineBuilder cmd("bzcat");
         cmd.AppendArgument(pimpl->foundFile);
-        *ppFile = session->OpenFile(cmd.ToString(), FileMode::Command, FileAccess::Read, false);
+        *ppFile = session->OpenFile(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read, false);
       }
       else if (pimpl->foundFile.HasExtension(".xz") || pimpl->foundFile.HasExtension(".lzma"))
       {
         CommandLineBuilder cmd("xzcat");
         cmd.AppendArgument(pimpl->foundFile);
-        *ppFile = session->OpenFile(cmd.ToString(), FileMode::Command, FileAccess::Read, false);
+        *ppFile = session->OpenFile(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read, false);
       }
       else
       {
-        *ppFile = session->OpenFile(pimpl->foundFile.GetData(), FileMode::Open, FileAccess::Read, false);
+        *ppFile = session->OpenFile(pimpl->foundFile, FileMode::Open, FileAccess::Read, false);
       }
     }
 #if defined(MIKTEX_WINDOWS)
@@ -524,18 +478,17 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
 
 bool WebAppInputLine::OpenInputFile(C4P::FileRoot& f, const PathName& fileName)
 {
-  FILE* pFile = nullptr;
+  FILE* file = nullptr;
 
-  if (!OpenInputFile(&pFile, fileName))
+  if (!OpenInputFile(&file, fileName))
   {
     return false;
   }
 
-  f.Attach(pFile, true);
+  f.Attach(file, true);
 
 #if defined(PASCAL_TEXT_IO)
-  not_implemented();
-  get(f);
+  MIKTEX_UNIMPLEMENTED();
 #endif
 
   pimpl->lastInputFileName = fileName;
@@ -593,6 +546,7 @@ void WebAppInputLine::EnableShellCommands(ShellCommandMode mode)
   {
     return;
   }
+  auto session = GetSession();
   switch (mode)
   {
   case ShellCommandMode::Forbidden:
@@ -602,6 +556,11 @@ void WebAppInputLine::EnableShellCommands(ShellCommandMode mode)
     LogInfo("allowing known shell commands");
     break;
   case ShellCommandMode::Unrestricted:
+    if (session->RunningAsAdministrator() && !session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOW_UNRESTRICTED_SUPER_USER).GetBool())
+    {
+      LogError("unrestricted shell commands not allowed when running with elevated privileges");
+      return;
+    }
     LogInfo("allowing all shell commands");
     break;
   default:
@@ -656,21 +615,7 @@ void WebAppInputLine::BufferSizeExceeded() const
   }
 }
 
-inline int GetCharacter(FILE* file)
-{
-  MIKTEX_ASSERT(file != nullptr);
-  int ch = getc(file);
-  if (ch == EOF)
-  {
-    if (ferror(file) != 0)
-    {
-      MIKTEX_FATAL_CRT_ERROR("getc");
-    }
-  }
-  return ch;
-}
-
-bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
+bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const
 {
   f.AssertValid();
 
@@ -679,36 +624,20 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     MIKTEX_UNEXPECTED();
   }
 
-#if defined(PASCAL_TEXT_IO)
-  MIKTEX_UNEXPECTED();
-#endif
+  if (!f.IsPascalFileIO())
+  {
+    // this seems to be console input after TeX's ** prompt
+  }
 
   IInputOutput* inputOutput = GetInputOutput();
 
-  const C4P_signed32 first = inputOutput->first();
-  C4P_signed32& last = inputOutput->last();
-  const C4P_signed32 bufsize = inputOutput->bufsize();
+  const C4P::C4P_signed32 first = inputOutput->first();
+  C4P::C4P_signed32& last = inputOutput->last();
+  C4P::C4P_signed32 bufsize = inputOutput->bufsize();
 
-  const char* xord = nullptr;
-#if defined(WITH_OMEGA)
-  if (!AmI("omega"))
-#endif
-  {
-    xord = GetCharacterConverter()->xord();
-  }
+  const char* xord = GetCharacterConverter()->xord();
 
-  char *buffer = nullptr;
-#if defined(WITH_OMEGA)
-  char16_t* buffer16 = nullptr;
-  if (AmI("omega"))
-  {
-    buffer16 = inputOutput->buffer16();
-  }
-  else
-#endif
-  {
-    buffer = inputOutput->buffer();
-  }
+  char *buffer = inputOutput->buffer();
 
   last = first;
 
@@ -717,14 +646,14 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     return false;
   }
 
-  int ch = GetCharacter(f);
+  int ch = GetC(f);
   if (ch == EOF)
   {
     return false;
   }
   if (ch == '\r')
   {
-    ch = GetCharacter(f);
+    ch = GetC(f);
     if (ch == EOF)
     {
       return false;
@@ -741,23 +670,20 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     return true;
   }
 
-#if defined(WITH_OMEGA)
-  if (AmI("omega"))
-  {
-    buffer16[last] = ch;
-  }
-  else
-#endif
-  {
-    buffer[last] = xord[ch & 0xff];
-  }
+  buffer[last] = xord[ch & 0xff];
   last += 1;
 
-  while ((ch = GetCharacter(f)) != EOF && last < bufsize)
+  while ((ch = GetC(f)) != EOF)
   {
+    if (last >= bufsize)
+    {
+      BufferSizeExceeded();
+      bufsize = inputOutput->bufsize();
+      buffer = inputOutput->buffer();
+    }
     if (ch == '\r')
     {
-      ch = GetCharacter(f);
+      ch = GetC(f);
       if (ch == EOF)
       {
         break;
@@ -772,22 +698,8 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     {
       break;
     }
-#if defined(WITH_OMEGA)
-    if (AmI("omega"))
-    {
-      buffer16[last] = ch;
-    }
-    else
-#endif
-    {
-      buffer[last] = xord[ch & 0xff];
-    }
+    buffer[last] = xord[ch & 0xff];
     last += 1;
-  }
-
-  if (ch != '\n' && ch != EOF)
-  {
-    BufferSizeExceeded();
   }
 
   if (!AmI("bibtex") && last >= inputOutput->maxbufstack())
@@ -796,24 +708,13 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     if (inputOutput->maxbufstack() >= bufsize)
     {
       BufferSizeExceeded();
+      bufsize = inputOutput->bufsize();
     }
   }
 
-#if defined(WITH_OMEGA)
-  if (AmI("omega"))
+  while (last > first && (buffer[last - 1] == ' ' || buffer[last - 1] == '\r'))
   {
-    while (last > first && (buffer16[last - 1] == u' ' || buffer16[last - 1] == u'\r'))
-    {
-      last -= 1;
-    }
-  }
-  else
-#endif
-  {
-    while (last > first && (buffer[last - 1] == ' ' || buffer[last - 1] == '\r'))
-    {
-      last -= 1;
-    }
+    last -= 1;
   }
 
   return true;

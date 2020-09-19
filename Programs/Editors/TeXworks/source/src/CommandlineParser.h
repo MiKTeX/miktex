@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -41,10 +41,8 @@ public:
 		bool processed;
 	};
 
-	CommandlineParser() {
-		m_rawItems = QCoreApplication::arguments();
-		m_rawItems.removeFirst(); // First item is app name
-	}
+	// First item is app name
+	CommandlineParser() : m_rawItems(QCoreApplication::arguments().mid(1)) { }
 	
 	void registerSwitch(const QString longName, const QString description = QString(), const QString shortName = QString()) {
 		CommandlineItemSpec spec;
@@ -66,10 +64,10 @@ public:
 	
 	int getNextArgument(int index = -1, CommandlineGetItemFlags flags = GetFlag_Default) const;
 	int getPrevArgument(int index = -1, CommandlineGetItemFlags flags = GetFlag_Default) const;
-	int getNextOption(const QString longName = QString(), int index = -1, CommandlineGetItemFlags flags = GetFlag_Default) const;
-	int getPrevOption(const QString longName = QString(), int index = -1, CommandlineGetItemFlags flags = GetFlag_Default) const;
-	int getNextSwitch(const QString longName = QString(), int index = -1, CommandlineGetItemFlags flags = GetFlag_Default) const;
-	int getPrevSwitch(const QString longName = QString(), int index = -1, CommandlineGetItemFlags flags = GetFlag_Default) const;
+	int getNextOption(const QString & longName = QString(), int index = -1, CommandlineGetItemFlags flags = GetFlag_Default) const;
+	int getPrevOption(const QString & longName = QString(), int index = -1, CommandlineGetItemFlags flags = GetFlag_Default) const;
+	int getNextSwitch(const QString & longName = QString(), int index = -1, CommandlineGetItemFlags flags = GetFlag_Default) const;
+	int getPrevSwitch(const QString & longName = QString(), int index = -1, CommandlineGetItemFlags flags = GetFlag_Default) const;
 
 	CommandlineItem & at(int idx) {
 		return m_items[idx];

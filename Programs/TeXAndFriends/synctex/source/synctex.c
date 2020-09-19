@@ -994,9 +994,9 @@ void synctexterminate(boolean log_opened)
 		/* MSVC rename() requires that the new name is not the
 		   name of an existing file */
 #if defined(__cplusplus)
-		if(MiKTeX::Core::File::Exists(the_real_syncname))
+		if(MiKTeX::Core::File::Exists(MiKTeX::Core::PathName(the_real_syncname)))
 		  {
-		    MiKTeX::Core::File::Delete (the_real_syncname);
+		    MiKTeX::Core::File::Delete(MiKTeX::Core::PathName(the_real_syncname));
 		  }
 #else
 		if(_access(the_real_syncname, 0) == 0)

@@ -1,6 +1,6 @@
 /*****
  * glrender.cc
- * John Bowman and Orest Shardt
+ * John Bowman, Orest Shardt, and Supakorn "Jamie" Rassameemasmuang
  * Render 3D Bezier paths and surfaces.
  *****/
 
@@ -19,8 +19,25 @@
 #include <sys/time.h>
 
 #include "common.h"
+#include "locate.h"
+#include "seconds.h"
+#include "statistics.h"
+#include "bezierpatch.h"
+#include "beziercurve.h"
+
+#include "picture.h"
+#include "bbox3.h"
+#include "drawimage.h"
+#include "interact.h"
+
+namespace gl {
+#ifdef HAVE_PTHREAD
+pthread_t mainthread;
+#endif
+}
 
 #ifdef HAVE_GL
+#include "tr.h"
 
 #ifdef HAVE_LIBGLUT
 #ifdef __MSDOS__
@@ -35,21 +52,60 @@
 #define GLUT_BUILDING_LIB
 #endif // HAVE_LIBGLUT
 
-#include "picture.h"
-#include "arcball.h"
-#include "bbox3.h"
-#include "drawimage.h"
-#include "interact.h"
-#include "tr.h"
-
 #ifdef HAVE_LIBGLUT
 #ifdef FREEGLUT
 #include <GL/freeglut_ext.h>
 #endif
 #endif
 
+#include "shaders.h"
+
+#ifdef HAVE_LIBOPENIMAGEIO
+#include <OpenImageIO/imageio.h>
+#endif
+
+using settings::locateFile;
+using utils::seconds;
+
 namespace camp {
-billboard BB;
+Billboard BB;
+
+GLint pixelShader;
+GLint materialShader;
+GLint colorShader;
+GLint transparentShader;
+
+vertexBuffer material0Data(GL_POINTS);
+vertexBuffer material1Data(GL_LINES);
+vertexBuffer materialData;
+vertexBuffer colorData;
+vertexBuffer transparentData;
+vertexBuffer triangleData;
+
+const size_t Nbuffer=10000;
+const size_t nbuffer=1000;
+
+GLuint attributeBuffer;
+GLuint indicesBuffer; 
+}
+
+#endif /* HAVE_GL */
+
+#ifdef HAVE_LIBGLM
+using camp::Material;
+using camp::Maxmaterials;
+using camp::Nmaterials;
+using camp::nmaterials;
+using camp::MaterialMap;
+
+namespace camp {
+std::vector<Material> material;
+MaterialMap materialMap;
+size_t materialIndex;
+
+size_t Maxmaterials;
+size_t Nmaterials=1;
+size_t nmaterials=48;
 }
 
 namespace gl {
@@ -57,6 +113,7 @@ namespace gl {
 bool outlinemode=false;
 bool glthread=false;
 bool initialize=true;
+bool exporting=false;
 
 using camp::picture;
 using camp::drawRawImage;
@@ -70,33 +127,14 @@ using settings::getSetting;
 using settings::Setting;
 
 bool Iconify=false;
-bool Menu;
-bool Motion;
 bool ignorezoom;
 int Fitscreen;
 
 bool queueExport=false;
 bool readyAfterExport=false;
+bool remesh;
 
-#ifdef HAVE_LIBGLUT
-timeval lasttime;
-timeval lastframetime;
-int oldWidth,oldHeight;
-
-bool Xspin,Yspin,Zspin;
-bool Animate;
-bool Step;
-
-bool queueScreen=false;
-
-int x0,y0;
-string Action;
-int MenuButton;
-
-double lastangle;
-Arcball arcball;
-int window;
-#endif
+int Mode;
 
 double Aspect;
 bool View;
@@ -104,18 +142,14 @@ int Oldpid;
 string Prefix;
 const picture* Picture;
 string Format;
-int Width,Height;
 int fullWidth,fullHeight;
+int Width,Height;
 double oWidth,oHeight;
 int screenWidth,screenHeight;
 int maxWidth;
 int maxHeight;
 int maxTileWidth;
 int maxTileHeight;
-
-double T[16];
-
-int Mode;
 
 double Angle;
 bool orthographic;
@@ -128,29 +162,246 @@ double Xmin,Xmax;
 double Ymin,Ymax;
 
 pair Shift;
+pair Margin;
 double X,Y;
+int x0,y0;
 double cx,cy;
 double Xfactor,Yfactor;
+double ArcballFactor;
 
 static const double pi=acos(-1.0);
 static const double degrees=180.0/pi;
 static const double radians=1.0/degrees;
 
-double Background[4];
-size_t Nlights;
+double *Background;
+size_t Nlights=1; // Maximum number of lights compiled in shader
+size_t nlights; // Actual number of lights
+size_t nlights0;
 triple *Lights; 
 double *Diffuse;
-double *Ambient;
 double *Specular;
-bool ViewportLighting;
 bool antialias;
 
 double Zoom;
 double Zoom0;
 double lastzoom;
 
-GLfloat Rotate[16];  
-GLUnurbs *nurb=NULL;
+GLint lastshader=-1;
+
+using glm::dvec3;
+using glm::dmat3;
+using glm::mat3;
+using glm::mat4;
+using glm::dmat4;
+using glm::value_ptr;
+using glm::translate;
+
+mat3 normMat;
+dmat3 dnormMat;
+
+mat4 projViewMat;
+mat4 viewMat;
+
+dmat4 dprojMat;
+dmat4 dprojViewMat;
+dmat4 dviewMat;
+dmat4 drotateMat; 
+
+const double *dprojView;
+const double *dView;
+double BBT[9];
+
+GLuint ubo;
+
+unsigned int framecount;
+
+template<class T>
+inline T min(T a, T b)
+{
+  return (a < b) ? a : b;
+}
+
+template<class T>
+inline T max(T a, T b)
+{
+  return (a > b) ? a : b;
+}
+
+glm::vec4 vec4(triple v)
+{
+  return glm::vec4(v.getx(),v.gety(),v.getz(),0);
+}
+
+glm::vec4 vec4(double *v)
+{
+  return glm::vec4(v[0],v[1],v[2],v[3]);
+}
+
+void setDimensions(int Width, int Height, double X, double Y)
+{
+  double Aspect=((double) Width)/Height;
+  double xshift=(X/Width+Shift.getx()*Xfactor)*Zoom;
+  double yshift=(Y/Height+Shift.gety()*Yfactor)*Zoom;
+  double Zoominv=1.0/lastzoom;
+  if(orthographic) {
+    double xsize=Xmax-Xmin;
+    double ysize=Ymax-Ymin;
+    if(xsize < ysize*Aspect) {
+      double r=0.5*ysize*Aspect*Zoominv;
+      double X0=2.0*r*xshift;
+      double Y0=(Ymax-Ymin)*Zoominv*yshift;
+      xmin=-r-X0;
+      xmax=r-X0;
+      ymin=Ymin*Zoominv-Y0;
+      ymax=Ymax*Zoominv-Y0;
+    } else {
+      double r=0.5*xsize/(Aspect*Zoom);
+      double X0=(Xmax-Xmin)*Zoominv*xshift;
+      double Y0=2.0*r*yshift;
+      xmin=Xmin*Zoominv-X0;
+      xmax=Xmax*Zoominv-X0;
+      ymin=-r-Y0;
+      ymax=r-Y0;
+    }
+  } else {
+    double r=H*Zoominv;
+    double rAspect=r*Aspect;
+    double X0=2.0*rAspect*xshift;
+    double Y0=2.0*r*yshift;
+    xmin=-rAspect-X0;
+    xmax=rAspect-X0;
+    ymin=-r-Y0;
+    ymax=r-Y0;
+  }
+}
+
+void updateProjection()
+{
+  dprojViewMat=dprojMat*dviewMat;
+  projViewMat=mat4(dprojViewMat);
+  dprojView=value_ptr(dprojViewMat);
+}
+
+void frustum(GLdouble left, GLdouble right, GLdouble bottom,
+             GLdouble top, GLdouble nearVal, GLdouble farVal)
+{
+  dprojMat=glm::frustum(left,right,bottom,top,nearVal,farVal);
+  updateProjection();
+}
+
+void ortho(GLdouble left, GLdouble right, GLdouble bottom,
+           GLdouble top, GLdouble nearVal, GLdouble farVal)
+{
+  dprojMat=glm::ortho(left,right,bottom,top,nearVal,farVal);
+  updateProjection();
+}
+
+void setProjection()
+{
+  setDimensions(Width,Height,X,Y);
+  if(orthographic) ortho(xmin,xmax,ymin,ymax,-zmax,-zmin);
+  else frustum(xmin,xmax,ymin,ymax,-zmax,-zmin);
+}
+
+void updateModelViewData()
+{
+  // Like Fortran, OpenGL uses transposed (column-major) format!
+  dnormMat=dmat3(glm::inverse(dviewMat));
+  double *T=value_ptr(dnormMat);
+  for(size_t i=0; i < 9; ++i)
+    BBT[i]=T[i];
+  normMat=mat3(dnormMat);
+}
+
+bool Xspin,Yspin,Zspin;
+bool Animate;
+bool Step;
+
+#ifdef HAVE_GL
+void idle() 
+{
+  glutIdleFunc(NULL);
+  Xspin=Yspin=Zspin=Animate=Step=false;
+#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
+  MiKTeX::Aymptote::RequestHandler();
+#endif
+}
+#endif
+
+void home(bool webgl=false) 
+{
+  X=Y=cx=cy=0.0;
+#ifdef HAVE_GL  
+#ifdef HAVE_LIBGLUT
+  if(!webgl && !getSetting<bool>("offscreen"))
+    idle();
+#endif
+#endif
+  dviewMat=dmat4(1.0);
+  dView=value_ptr(dviewMat);
+  viewMat=mat4(dviewMat);
+  
+  drotateMat=dmat4(1.0); 
+  
+  updateModelViewData();
+
+  remesh=true;
+  lastzoom=Zoom=Zoom0;
+  setDimensions(Width,Height,0,0);
+  framecount=0;
+}
+
+#ifdef HAVE_GL
+
+double T[16];
+
+#ifdef HAVE_LIBGLUT
+timeval lasttime;
+timeval lastframetime;
+int oldWidth,oldHeight;
+
+bool queueScreen=false;
+
+string Action;
+
+double lastangle;
+int window;
+#endif
+
+using utils::statistics;
+statistics S;
+
+#ifdef HAVE_LIBOPENIMAGEIO
+GLuint envMapBuf;
+
+GLuint initHDR() {
+  GLuint tex;
+  glGenTextures(1, &tex);
+
+  auto imagein = OIIO::ImageInput::open(locateFile("res/studio006.hdr").c_str());
+  OIIO::ImageSpec const& imspec = imagein->spec();
+
+  // uses GL_TEXTURE1 for now.
+  glActiveTexture(GL_TEXTURE1);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glBindTexture(GL_TEXTURE_2D, tex);
+  std::vector<float> pixels(imspec.width*imspec.height*3);
+  imagein->read_image(pixels.data());
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imspec.width, imspec.height, 0, 
+    GL_RGB, GL_FLOAT, pixels.data());
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+  imagein->close();
+
+  glActiveTexture(GL_TEXTURE0);
+  return tex;
+}
+
+#endif 
+GLint shaderProg,shaderProgColor;
 
 void *glrenderWrapper(void *a);
 
@@ -160,7 +411,6 @@ unsigned char *osmesa_buffer;
 #endif
 
 #ifdef HAVE_PTHREAD
-pthread_t mainthread;
 
 pthread_cond_t initSignal=PTHREAD_COND_INITIALIZER;
 pthread_mutex_t initLock=PTHREAD_MUTEX_INITIALIZER;
@@ -203,120 +453,76 @@ void wait(std::condition_variable& cond, std::mutex& mutex)
 }
 #endif
 
-template<class T>
-inline T min(T a, T b)
+void initShaders()
 {
-  return (a < b) ? a : b;
-}
-
-template<class T>
-inline T max(T a, T b)
-{
-  return (a > b) ? a : b;
-}
-
-void lighting()
-{
-  for(size_t i=0; i < Nlights; ++i) {
-    GLenum index=GL_LIGHT0+i;
-    triple Lighti=Lights[i];
-    GLfloat position[]={(GLfloat) Lighti.getx(),(GLfloat) Lighti.gety(),
-			(GLfloat) Lighti.getz(),0.0};
-    glLightfv(index,GL_POSITION,position);
-  }
-}
-
-void initlighting() 
-{
-  glClearColor(Background[0],Background[1],Background[2],Background[3]);
-  glEnable(GL_LIGHTING);
-  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,getSetting<bool>("twosided"));
-    
-  for(size_t i=0; i < Nlights; ++i) {
-    GLenum index=GL_LIGHT0+i;
-    glEnable(index);
-    
-    size_t i4=4*i;
-    
-    GLfloat diffuse[]={(GLfloat) Diffuse[i4],(GLfloat) Diffuse[i4+1],
-		       (GLfloat) Diffuse[i4+2],(GLfloat) Diffuse[i4+3]};
-    glLightfv(index,GL_DIFFUSE,diffuse);
-    
-    GLfloat ambient[]={(GLfloat) Ambient[i4],(GLfloat) Ambient[i4+1],
-		       (GLfloat) Ambient[i4+2],(GLfloat) Ambient[i4+3]};
-    glLightfv(index,GL_AMBIENT,ambient);
-    
-    GLfloat specular[]={(GLfloat) Specular[i4],(GLfloat) Specular[i4+1],
-			(GLfloat) Specular[i4+2],(GLfloat) Specular[i4+3]};
-    glLightfv(index,GL_SPECULAR,specular);
-  }
+  Nlights=nlights == 0 ? 0 : max(Nlights,nlights);
+  Nmaterials=max(Nmaterials,nmaterials);
   
-  static size_t lastNlights=0;
-  for(size_t i=Nlights; i < lastNlights; ++i) {
-    GLenum index=GL_LIGHT0+i;
-    glDisable(index);
+  shaderProg=glCreateProgram();
+  string vs=locateFile("shaders/vertex.glsl");
+  string fs=locateFile("shaders/fragment.glsl");
+  if(vs.empty() || fs.empty()) {
+    cerr << "GLSL shaders not found." << endl;
+    exit(-1);
   }
-  lastNlights=Nlights;
-  
-  if(ViewportLighting)
-    lighting();
-}
 
-void setDimensions(int Width, int Height, double X, double Y)
-{
-  double Aspect=((double) Width)/Height;
-  double xshift=X/Width*lastzoom+Shift.getx()*Xfactor;
-  double yshift=Y/Height*lastzoom+Shift.gety()*Yfactor;
-  double Zoominv=1.0/lastzoom;
-  if(orthographic) {
-    double xsize=Xmax-Xmin;
-    double ysize=Ymax-Ymin;
-    if(xsize < ysize*Aspect) {
-      double r=0.5*ysize*Aspect*Zoominv;
-      double X0=2.0*r*xshift;
-      double Y0=(Ymax-Ymin)*Zoominv*yshift;
-      xmin=-r-X0;
-      xmax=r-X0;
-      ymin=Ymin*Zoominv-Y0;
-      ymax=Ymax*Zoominv-Y0;
-    } else {
-      double r=0.5*xsize/(Aspect*Zoom);
-      double X0=(Xmax-Xmin)*Zoominv*xshift;
-      double Y0=2.0*r*yshift;
-      xmin=Xmin*Zoominv-X0;
-      xmax=Xmax*Zoominv-X0;
-      ymin=-r-Y0;
-      ymax=r-Y0;
-    }
-  } else {
-    double r=H*Zoominv;
-    double rAspect=r*Aspect;
-    double X0=2.0*rAspect*xshift;
-    double Y0=2.0*r*yshift;
-    xmin=-rAspect-X0;
-    xmax=rAspect-X0;
-    ymin=-r-Y0;
-    ymax=r-Y0;
+  std::vector<std::string> shaderParams;
+
+#if HAVE_LIBOPENIMAGEIO
+  if (getSetting<bool>("envmap")) {
+    shaderParams.push_back("ENABLE_TEXTURE");
+    envMapBuf=initHDR();
   }
-}
-
-void setProjection()
-{
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  setDimensions(Width,Height,X,Y);
-  if(orthographic)
-    glOrtho(xmin,xmax,ymin,ymax,-zmax,-zmin);
-  else
-    glFrustum(xmin,xmax,ymin,ymax,-zmax,-zmin);
-  glMatrixMode(GL_MODELVIEW);
-#ifdef HAVE_LIBGLUT
-  double arcballRadius=getSetting<double>("arcballradius");
-  arcball.set_params(vec2(0.5*Width,0.5*Height),arcballRadius*Zoom);
 #endif
+
+  std::vector<ShaderfileModePair> shaders;
+  shaders.push_back(ShaderfileModePair(vs.c_str(),GL_VERTEX_SHADER));
+  shaders.push_back(ShaderfileModePair(fs.c_str(),GL_FRAGMENT_SHADER));
+  if(orthographic)
+    shaderParams.push_back("ORTHOGRAPHIC");
+    
+  shaderParams.push_back("WIDTH");
+  camp::pixelShader=compileAndLinkShader(shaders,Nlights,Nmaterials,
+                                         shaderParams);
+  shaderParams.pop_back();
+
+  shaderParams.push_back("NORMAL");
+  camp::materialShader=compileAndLinkShader(shaders,Nlights,Nmaterials,
+                                            shaderParams);
+  shaderParams.push_back("COLOR");
+  camp::colorShader=compileAndLinkShader(shaders,Nlights,Nmaterials,
+                                         shaderParams);
+  shaderParams.push_back("TRANSPARENT");
+  camp::transparentShader=compileAndLinkShader(shaders,Nlights,Nmaterials,
+                                               shaderParams);
 }
 
-void drawscene(double Width, double Height)
+void deleteShaders() 
+{
+  glDeleteProgram(camp::transparentShader);
+  glDeleteProgram(camp::colorShader);
+  glDeleteProgram(camp::materialShader);
+  glDeleteProgram(camp::pixelShader);
+}
+
+void setBuffers()
+{
+  glGenBuffers(1,&camp::attributeBuffer);
+  glGenBuffers(1,&camp::indicesBuffer);
+  glGenBuffers(1,&ubo);
+  
+  GLuint vao;
+  glGenVertexArrays(1,&vao);
+  glBindVertexArray(vao);
+
+  camp::material0Data.reserve0();
+  camp::materialData.reserve();
+  camp::colorData.Reserve();
+  camp::triangleData.Reserve();
+  camp::transparentData.Reserve();
+}
+
+void drawscene(int Width, int Height)
 {
 #if defined(MIKTEX) || defined(HAVE_PTHREAD)
   static bool first=true;
@@ -327,26 +533,27 @@ void drawscene(double Width, double Height)
   }
 #endif
 
+  if((nlights == 0 && Nlights > 0) || nlights > Nlights || 
+     nmaterials > Nmaterials) {
+    deleteShaders();
+    initShaders();
+    lastshader=-1;
+  }
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  if(!ViewportLighting) 
-    lighting();
-    
   triple m(xmin,ymin,zmin);
   triple M(xmax,ymax,zmax);
   double perspective=orthographic ? 0.0 : 1.0/zmax;
   
   double size2=hypot(Width,Height);
   
-  // Render opaque objects
-  Picture->render(nurb,size2,m,M,perspective,Nlights,false);
+  if(remesh)
+    camp::drawElement::center.clear();
   
-  // Enable transparency
-  glDepthMask(GL_FALSE);
+  Picture->render(size2,m,M,perspective,remesh);
   
-  // Render transparent objects
-  Picture->render(nurb,size2,m,M,perspective,Nlights,true);
-  glDepthMask(GL_TRUE);
+  if(!outlinemode) remesh=false;
 }
 
 // Return x divided by y rounded up to the nearest integer.
@@ -373,7 +580,8 @@ void Export()
              << fullHeight << " image" << " using tiles of size "
              << width << "x" << height << endl;
 
-      trTileSize(tr,width,height,0);
+      unsigned border=min(min(1,width/2),height/2);
+      trTileSize(tr,width,height,border);
       trImageSize(tr,fullWidth,fullHeight);
       trImageBuffer(tr,GL_RGB,GL_UNSIGNED_BYTE,data);
 
@@ -381,13 +589,17 @@ void Export()
       (orthographic ? trOrtho : trFrustum)(tr,xmin,xmax,ymin,ymax,-zmax,-zmin);
    
       size_t count=0;
+      exporting=true;
       do {
         trBeginTile(tr);
         drawscene(fullWidth,fullHeight);
         ++count;
       } while (trEndTile(tr));
+      exporting=false;
+
       if(settings::verbose > 1)
-        cout << count << " tile" << (count != 1 ? "s" : "") << " drawn" << endl;
+        cout << count << " tile" << (count != 1 ? "s" : "") << " drawn"
+             << endl;
       trDelete(tr);
 
       picture pic;
@@ -401,7 +613,7 @@ void Export()
                                            transform(0.0,0.0,w,0.0,0.0,h),
                                            antialias);
       pic.append(Image);
-      pic.shipout(NULL,Prefix,Format,0.0,false,View);
+      pic.shipout(NULL,Prefix,Format,false,View);
       delete Image;
       delete[] data;
     } 
@@ -422,33 +634,6 @@ void Export()
     endwait(readySignal,readyLock);
   }
 #endif
-}
-
-#ifdef HAVE_LIBGLUT
-void idle() 
-{
-  glutIdleFunc(NULL);
-  Xspin=Yspin=Zspin=Animate=Step=false;
-#if defined(MIKTEX) && !defined(HAVE_PTHREAD)
-  MiKTeX::Aymptote::RequestHandler();
-#endif
-}
-#endif
-
-void home() 
-{
-  X=Y=cx=cy=0.0;
-#ifdef HAVE_LIBGLUT
-  if(!getSetting<bool>("offscreen")) {
-    idle();
-    arcball.init();
-  }
-#endif
-  glLoadIdentity();
-  glGetFloatv(GL_MODELVIEW_MATRIX,Rotate);
-  lastzoom=Zoom=Zoom0;
-  setDimensions(Width,Height,0,0);
-  initlighting();
 }
 
 void nodisplay()
@@ -508,26 +693,23 @@ void quit()
   
 void mode() 
 {
+  remesh=true;
   switch(Mode) {
-    case 0:
-      for(size_t i=0; i < Nlights; ++i) 
-        glEnable(GL_LIGHT0+i);
+    case 0: // regular
       outlinemode=false;
+      nlights=nlights0;
+      lastshader=-1;
       glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-      gluNurbsProperty(nurb,GLU_DISPLAY_MODE,GLU_FILL);
       ++Mode;
       break;
-    case 1:
-      for(size_t i=0; i < Nlights; ++i) 
-        glDisable(GL_LIGHT0+i);
+    case 1: // outline
       outlinemode=true;
+      nlights=0;
       glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-      gluNurbsProperty(nurb,GLU_DISPLAY_MODE,GLU_OUTLINE_PATCH);
       ++Mode;
       break;
-    case 2:
+    case 2: // wireframe
       outlinemode=false;
-      gluNurbsProperty(nurb,GLU_DISPLAY_MODE,GLU_OUTLINE_POLYGON);
       Mode=0;
       break;
   }
@@ -678,8 +860,25 @@ void display()
     if(!Animate) screen();
     queueScreen=false;
   }
+
+  bool fps=settings::verbose > 2;  
   drawscene(Width,Height);
+  if(fps) {
+    if(framecount < 10) // Measure steady-state framerate
+      seconds();
+    else {
+      double s=seconds();
+      if(s > 0.0) {
+        double rate=1.0/s;
+        S.add(rate);
+        cout << "FPS=" << rate << "\t" << S.mean() << " +/- " << S.stdev() 
+             << endl;
+      }
+    }
+    ++framecount;
+  }
   glutSwapBuffers();
+
 #if defined(MIKTEX) || defined(HAVE_PTHREAD)
   if(glthread && Animate) {
     queueExport=false;
@@ -718,13 +917,19 @@ void update()
   glutDisplayFunc(display);
   Animate=getSetting<bool>("autoplay");
   glutShowWindow();
+  if(Zoom != lastzoom) remesh=true;
+
   lastzoom=Zoom;
-  glLoadIdentity();
   double cz=0.5*(zmin+zmax);
-  glTranslatef(cx,cy,cz);
-  glMultMatrixf(Rotate);
-  glTranslatef(0,0,-cz);
+  
+  dviewMat=translate(translate(dmat4(1.0),dvec3(cx,cy,cz))*drotateMat,
+                     dvec3(0,0,-cz));
+  dView=value_ptr(dviewMat);
+  viewMat=mat4(dviewMat);
+
   setProjection();
+  updateModelViewData();
+  
   glutPostRedisplay();
 }
 
@@ -746,7 +951,7 @@ void animate()
       togglefitscreen();
     }
     update();
-  }
+  } else idle();
 }
 
 void reshape(int width, int height)
@@ -767,81 +972,57 @@ void reshape(int width, int height)
     glutReshapeWindow(width,height);
  
   reshape0(width,height);
+  remesh=true;
 }
   
 void shift(int x, int y)
 {
-  if(x > 0 && y > 0) {
-    double Zoominv=1.0/Zoom;
-    X += (x-x0)*Zoominv;
-    Y += (y0-y)*Zoominv;
-    x0=x; y0=y;
-    update();
-  }
+  double Zoominv=1.0/Zoom;
+  X += (x-x0)*Zoominv;
+  Y += (y0-y)*Zoominv;
+  x0=x; y0=y;
+  update();
 }
   
 void pan(int x, int y)
 {
-  if(x > 0 && y > 0) {
-    if(orthographic) {
-      double Zoominv=1.0/Zoom;
-      X += (x-x0)*Zoominv;
-      Y += (y0-y)*Zoominv;
-    } else {
-      cx += (x-x0)*(xmax-xmin)/Width;
-      cy += (y0-y)*(ymax-ymin)/Height;
-    }
-    x0=x; y0=y;
-    update();
+  if(orthographic) {
+    double Zoominv=1.0/Zoom;
+    X += (x-x0)*Zoominv;
+    Y += (y0-y)*Zoominv;
+  } else {
+    cx += (x-x0)*(xmax-xmin)/Width;
+    cy += (y0-y)*(ymax-ymin)/Height;
   }
+  x0=x; y0=y;
+  update();
 }
   
 void capzoom() 
 {
   static double maxzoom=sqrt(DBL_MAX);
-  static double minzoom=1/maxzoom;
+  static double minzoom=1.0/maxzoom;
   if(Zoom <= minzoom) Zoom=minzoom;
   if(Zoom >= maxzoom) Zoom=maxzoom;
   
-}
-
-int menustatus=GLUT_MENU_NOT_IN_USE;
-
-void menuStatus(int status, int x, int y) 
-{
-  menustatus=status;
-}
-  
-void disableMenu() 
-{
-  Menu=false;
-  if(menustatus == GLUT_MENU_NOT_IN_USE)
-    glutDetachMenu(MenuButton);
+  if(Zoom != lastzoom) remesh=true;
+  lastzoom=Zoom;
 }
 
 void zoom(int x, int y)
 {
   if(ignorezoom) {ignorezoom=false; y0=y; return;}
-  if(x > 0 && y > 0) {
-    if(Menu) {
-      disableMenu();
+  double zoomFactor=getSetting<double>("zoomfactor");
+  if(zoomFactor > 0.0) {
+    double zoomStep=getSetting<double>("zoomstep");
+    const double limit=log(0.1*DBL_MAX)/log(zoomFactor);
+    double stepPower=zoomStep*(y0-y);
+    if(fabs(stepPower) < limit) {
+      Zoom *= pow(zoomFactor,stepPower);
+      capzoom();
       y0=y;
-      return;
-    }
-    Motion=true;
-    double zoomFactor=getSetting<double>("zoomfactor");
-    if(zoomFactor > 0.0) {
-      double zoomStep=getSetting<double>("zoomstep");
-      const double limit=log(0.1*DBL_MAX)/log(zoomFactor);
-      double s=zoomStep*(y0-y);
-      if(fabs(s) < limit) {
-        Zoom *= pow(zoomFactor,s);
-        capzoom();
-        lastzoom=Zoom;
-        y0=y;
-        setProjection();
-        glutPostRedisplay();
-      }
+      setProjection();
+      glutPostRedisplay();
     }
   }
 }
@@ -855,32 +1036,53 @@ void mousewheel(int wheel, int direction, int x, int y)
     else
       Zoom /= zoomFactor;
     capzoom();
-    lastzoom=Zoom;
     setProjection();
     glutPostRedisplay();
   }
 }
 
+struct arcball {
+  double angle;
+  triple axis;
+  
+  arcball(double x0, double y0, double x, double y) {
+    triple v0=norm(x0,y0);
+    triple v1=norm(x,y);
+    double Dot=dot(v0,v1);
+    if(Dot > 1.0) Dot=1.0;
+    else if(Dot < -1.0) Dot=-1.0;
+    angle=acos(Dot);
+    axis=unit(cross(v0,v1));
+  }
+  
+  triple norm(double x, double y) {
+    double norm=hypot(x,y);
+    if(norm > 1.0) {
+      double denom=1.0/norm;
+      x *= denom;
+      y *= denom;
+    }
+    return triple(x,y,sqrt(max(1.0-x*x-y*y,0.0)));
+  }
+};
+
+inline double glx(int x) {
+  return 2.0*x/Width-1.0;
+}
+
+inline double gly(int y) {
+  return 1.0-2.0*y/Height;
+}
+
 void rotate(int x, int y)
 {
-  if(x > 0 && y > 0) {
-    if(Menu) {
-      disableMenu();
-      arcball.mouse_down(x,Height-y);
-      return;
-    }
-    Motion=true;
-    arcball.mouse_motion(x,Height-y,0,
-                         Action == "rotateX", // X rotation only
-                         Action == "rotateY");  // Y rotation only
-
-    for(int i=0; i < 4; ++i) {
-      const vec4& roti=arcball.rot[i];
-      int i4=4*i;
-      for(int j=0; j < 4; ++j)
-        Rotate[i4+j]=roti[j];
-    }
-    
+  if(x != x0 || y != y0) {
+    arcball A(glx(x0),gly(y0),glx(x),gly(y));
+    triple v=A.axis;
+    drotateMat=glm::rotate<double>(2*A.angle/lastzoom*ArcballFactor,
+                                   glm::dvec3(v.getx(),v.gety(),v.getz()))*
+      drotateMat;
+    x0=x; y0=y;
     update();
   }
 }
@@ -890,56 +1092,49 @@ double Degrees(int x, int y)
   return atan2(0.5*Height-y-Y,x-0.5*Width-X)*degrees;
 }
 
-void updateArcball() 
-{
-  for(int i=0; i < 4; ++i) {
-    int i4=4*i;
-    vec4& roti=arcball.rot[i];
-    for(int j=0; j < 4; ++j)
-      roti[j]=Rotate[i4+j];
-  }
-  update();
-}
-
 void rotateX(double step) 
 {
-  glLoadIdentity();
-  glRotatef(step,1,0,0);
-  glMultMatrixf(Rotate);
-  glGetFloatv(GL_MODELVIEW_MATRIX,Rotate);
-  updateArcball();
+  dmat4 tmpRot(1.0);
+  tmpRot=glm::rotate(tmpRot,glm::radians(step),dvec3(1,0,0));
+  drotateMat=tmpRot*drotateMat;
+  update();
 }
 
 void rotateY(double step) 
 {
-  glLoadIdentity();
-  glRotatef(step,0,1,0);
-  glMultMatrixf(Rotate);
-  glGetFloatv(GL_MODELVIEW_MATRIX,Rotate);
-  updateArcball();
+  dmat4 tmpRot(1.0);
+  tmpRot=glm::rotate(tmpRot,glm::radians(step),dvec3(0,1,0));
+  drotateMat=tmpRot*drotateMat;
+  update();
 }
 
 void rotateZ(double step) 
 {
-  glLoadIdentity();
-  glRotatef(step,0,0,1);
-  glMultMatrixf(Rotate);
-  glGetFloatv(GL_MODELVIEW_MATRIX,Rotate);
-  updateArcball();
+  dmat4 tmpRot(1.0);
+  tmpRot=glm::rotate(tmpRot,glm::radians(step),dvec3(0,0,1));
+  drotateMat=tmpRot*drotateMat;
+  update();
+}
+
+void rotateX(int x, int y)
+{
+  double angle=Degrees(x,y);
+  rotateX(angle-lastangle);
+  lastangle=angle;
+}
+
+void rotateY(int x, int y)
+{
+  double angle=Degrees(x,y);
+  rotateY(angle-lastangle);
+  lastangle=angle;
 }
 
 void rotateZ(int x, int y)
 {
-  if(x > 0 && y > 0) {
-    if(Menu) {
-      disableMenu();
-      return;
-    }
-    Motion=true;
-    double angle=Degrees(x,y);
-    rotateZ(angle-lastangle);
-    lastangle=angle;
-  }
+  double angle=Degrees(x,y);
+  rotateZ(angle-lastangle);
+  lastangle=angle;
 }
 
 #ifndef GLUT_WHEEL_UP
@@ -1010,7 +1205,6 @@ string action(int button, int mod)
 
 void timeout(int)
 {
-  if(Menu) disableMenu();
 }
 
 void mouse(int button, int state, int x, int y)
@@ -1018,19 +1212,6 @@ void mouse(int button, int state, int x, int y)
   int mod=glutGetModifiers();
   string Action=action(button,mod);
 
-  if(!Menu) {
-    if(mod == 0 && state == GLUT_UP && !Motion && Action == "zoom/menu") {
-      MenuButton=button;
-      glutMotionFunc(NULL);
-      glutTimerFunc(getSetting<Int>("doubleclick"),timeout,0);
-      glutAttachMenu(button);
-      Menu=true;
-      return;
-    } else Motion=false;
-  }
-  
-  disableMenu();
-  
   if(Action == "zoomin") {
     glutMotionFunc(NULL);
     mousewheel(0,1,x,y);
@@ -1043,8 +1224,8 @@ void mouse(int button, int state, int x, int y)
   }     
   
   if(state == GLUT_DOWN) {
-    if(Action == "rotate" || Action == "rotateX" || Action == "rotateY") {
-      arcball.mouse_down(x,Height-y);
+    if(Action == "rotate") {
+      x0=x; y0=y;
       glutMotionFunc(rotate);
     } else if(Action == "shift") {
       x0=x; y0=y;
@@ -1055,13 +1236,18 @@ void mouse(int button, int state, int x, int y)
     } else if(Action == "zoom" || Action == "zoom/menu") {
       y0=y;
       glutMotionFunc(zoom);
+    } else if(Action == "rotateX") {
+      lastangle=Degrees(x,y);
+      glutMotionFunc(rotateX);
+    } else if(Action == "rotateY") {
+      lastangle=Degrees(x,y);
+      glutMotionFunc(rotateY);
     } else if(Action == "rotateZ") {
       lastangle=Degrees(x,y);
       glutMotionFunc(rotateZ);
     }
   } else {
-    arcball.mouse_up();
-    glutMotionFunc(NULL);
+     glutMotionFunc(NULL);
   }
 }
 
@@ -1139,11 +1325,6 @@ void spinz()
   }
 }
 
-void write(const char *text, const double *v)
-{
-  cout << text << "=(" << v[0] << "," << v[1] << "," << v[2] << ")";
-}
-
 void showCamera()
 {
   projection P=camera();
@@ -1157,7 +1338,7 @@ void showCamera()
   if(!orthographic)
     cout << "," << endl << "angle=" << P.angle;
   if(P.viewportshift != pair(0.0,0.0))
-    cout << "," << endl << "viewportshift=" << P.viewportshift;
+    cout << "," << endl << "viewportshift=" << P.viewportshift*Zoom;
   if(!orthographic)
     cout << "," << endl << "autoadjust=false";
   cout << ");" << endl;
@@ -1227,64 +1408,6 @@ void keyboard(unsigned char key, int x, int y)
   }
 }
  
-enum Menu {HOME,FITSCREEN,XSPIN,YSPIN,ZSPIN,STOP,MODE,EXPORT,CAMERA,
-           PLAY,STEP,REVERSE,QUIT};
-
-void menu(int choice)
-{
-  if(Menu) disableMenu();
-  ignorezoom=true;
-  Motion=true;
-  switch (choice) {
-    case HOME: // Home
-      home();
-      update();
-      break;
-    case FITSCREEN:
-      togglefitscreen();
-      break;
-    case XSPIN:
-      spinx();
-      break;
-    case YSPIN:
-      spiny();
-      break;
-    case ZSPIN:
-      spinz();
-      break;
-    case STOP:
-      idle();
-      break;
-    case MODE:
-      mode();
-      break;
-    case EXPORT:
-      queueExport=true;
-      break;
-    case CAMERA:
-      showCamera();
-      break;
-    case PLAY:
-      if(getSetting<bool>("reverse")) Animate=false;
-      Setting("reverse")=Step=false;
-      animate();
-      break;
-    case REVERSE:
-      if(!getSetting<bool>("reverse")) Animate=false;
-      Setting("reverse")=true;
-      Step=false;
-      animate();
-      break;
-    case STEP:
-      Step=true;
-      animate();
-      break;
-    case QUIT:
-      quit();
-      break;
-  }
-}
-
 void setosize()
 {
   oldWidth=(int) ceil(oWidth);
@@ -1318,6 +1441,8 @@ projection camera(bool user)
   camp::Triple vCamera,vUp,vTarget;
   
   double cz=0.5*(zmin+zmax);
+
+  double *Rotate=value_ptr(drotateMat);
 
   if(user) {
     for(int i=0; i < 3; ++i) {
@@ -1353,8 +1478,8 @@ projection camera(bool user)
   
   return projection(orthographic,vCamera,vUp,vTarget,Zoom,
                     2.0*atan(tan(0.5*Angle)/Zoom)/radians,
-                    pair(X/Width*lastzoom+Shift.getx(),
-                         Y/Height*lastzoom+Shift.gety()));
+                    pair(X/Width+Shift.getx(),
+                         Y/Height+Shift.gety()));
 }
 
 void init() 
@@ -1367,8 +1492,12 @@ void init()
   push_split(cmd,getSetting<string>("glOptions"));
   char **argv=args(cmd,true);
   int argc=cmd.size();
+
+#ifndef __APPLE__
+  glutInitContextProfile(GLUT_CORE_PROFILE);
+#endif  
+
   glutInit(&argc,argv);
-  
   screenWidth=glutGet(GLUT_SCREEN_WIDTH);
   screenHeight=glutGet(GLUT_SCREEN_HEIGHT);
 #endif
@@ -1414,20 +1543,17 @@ void init_osmesa()
 #endif // HAVE_LIBOSMESA
 }
 
+#endif /* HAVE_GL */
+
 // angle=0 means orthographic.
 void glrender(const string& prefix, const picture *pic, const string& format,
               double width, double height, double angle, double zoom,
-              const triple& m, const triple& M, const pair& shift, double *t,
-              double *background, size_t nlights, triple *lights,
-              double *diffuse, double *ambient, double *specular,
-              bool Viewportlighting, bool view, int oldpid)
+              const triple& m, const triple& M, const pair& shift,
+              const pair& margin, double *t,
+              double *background, size_t nlightsin, triple *lights,
+              double *diffuse, double *specular, bool view, int oldpid)
 {
-  bool offscreen=getSetting<bool>("offscreen");
   Iconify=getSetting<bool>("iconify");
-  
-#if defined(MIKTEX) || defined(HAVE_PTHREAD)
-  static bool initializedView=false;
-#endif  
 
   width=max(width,1.0);
   height=max(height,1.0);
@@ -1437,22 +1563,19 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   Prefix=prefix;
   Picture=pic;
   Format=format;
-  for(int i=0; i < 16; ++i)
-    T[i]=t[i];
-  for(int i=0; i < 4; ++i)
-    Background[i]=background[i];
   
-  Nlights=min(nlights,(size_t) GL_MAX_LIGHTS);
+  nlights0=nlights=nlightsin;
+  
   Lights=lights;
   Diffuse=diffuse;
-  Ambient=ambient;
   Specular=specular;
-  ViewportLighting=Viewportlighting;
   View=view;
   Angle=angle*radians;
   Zoom0=zoom;
   Oldpid=oldpid;
-  Shift=shift;
+  Shift=shift/zoom;
+  Margin=margin;
+  Background=background;
   
   Xmin=m.getx();
   Xmax=M.getx();
@@ -1463,9 +1586,7 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   
   orthographic=Angle == 0.0;
   H=orthographic ? 0.0 : -tan(0.5*Angle)*zmax;
-    
-  Menu=false;
-  Motion=true;
+  
   ignorezoom=false;
   Mode=0;
   Xfactor=Yfactor=1.0;
@@ -1476,7 +1597,15 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   if(maxTileWidth <= 0) maxTileWidth=1024;
   if(maxTileHeight <= 0) maxTileHeight=768;
 
-  if(offscreen) {
+  bool webgl=Format == "html";
+  
+#ifdef HAVE_GL  
+#if defined(MIKTEX) || defined(HAVE_PTHREAD)
+  static bool initializedView=false;
+#endif  
+  
+  bool offscreen=getSetting<bool>("offscreen");
+  if(offscreen && !webgl) {
     screenWidth=maxTileWidth;
     screenHeight=maxTileHeight;
 
@@ -1488,19 +1617,29 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   }
   
   if(glinitialize) {
-    glinitialize=false;
-    init();
+    if(!webgl) init();
     Fitscreen=1;
   }
+#endif
 
   static bool initialized=false;
-  if(!initialized || !interact::interactive) {
+
+  if(!(initialized && (interact::interactive || 
+                       getSetting<bool>("animating")))) {
     antialias=getSetting<Int>("antialias") > 1;
-    double expand=getSetting<double>("render");
-    if(expand < 0)
-      expand *= (Format.empty() || Format == "eps" || Format == "pdf") 
-        ? -2.0 : -1.0;
-    if(antialias) expand *= 2.0;
+    double expand;
+    if(webgl)
+      expand=1.0;
+    else {
+      expand=getSetting<double>("render");
+      if(expand < 0)
+        expand *= (Format.empty() || Format == "eps" || Format == "pdf")                 ? -2.0 : -1.0;
+      if(antialias) expand *= 2.0;
+    }
+  
+    oWidth=width;
+    oHeight=height;
+    Aspect=width/height;
   
     // Force a hard viewport limit to work around direct rendering bugs.
     // Alternatively, one can use -glOptions=-indirect (with a performance
@@ -1510,26 +1649,39 @@ void glrender(const string& prefix, const picture *pic, const string& format,
     maxHeight=(int) ceil(maxViewport.gety());
     if(maxWidth <= 0) maxWidth=max(maxHeight,2);
     if(maxHeight <= 0) maxHeight=max(maxWidth,2);
-    if(screenWidth <= 0) screenWidth=maxWidth;
-    else screenWidth=min(screenWidth,maxWidth);
-    if(screenHeight <= 0) screenHeight=maxHeight;
-    else screenHeight=min(screenHeight,maxHeight);
-  
-    oWidth=width;
-    oHeight=height;
-    Aspect=width/height;
-  
+    
     fullWidth=(int) ceil(expand*width);
     fullHeight=(int) ceil(expand*height);
   
-    Width=min(fullWidth,screenWidth);
-    Height=min(fullHeight,screenHeight);
+    if(webgl) {
+      Width=fullWidth;
+      Height=fullHeight;
+    } else {
+      if(screenWidth <= 0) screenWidth=maxWidth;
+      else screenWidth=min(screenWidth,maxWidth);
+      if(screenHeight <= 0) screenHeight=maxHeight;
+      else screenHeight=min(screenHeight,maxHeight);
+
+      Width=min(fullWidth,screenWidth);
+      Height=min(fullHeight,screenHeight);
   
-    if(Width > Height*Aspect) 
-      Width=min((int) (ceil(Height*Aspect)),screenWidth);
-    else 
-      Height=min((int) (ceil(Width/Aspect)),screenHeight);
+      if(Width > Height*Aspect) 
+        Width=min((int) (ceil(Height*Aspect)),screenWidth);
+      else 
+        Height=min((int) (ceil(Width/Aspect)),screenHeight);
+    }
   
+    home(webgl);
+    setProjection();
+    if(webgl) return;
+    
+    ArcballFactor=1+8.0*hypot(Margin.getx(),Margin.gety())/hypot(Width,Height);
+
+#ifdef HAVE_GL    
+    for(int i=0; i < 16; ++i)
+      T[i]=t[i];
+  
+    remesh=true;
     Aspect=((double) Width)/Height;
 
     if(maxTileWidth <= 0) maxTileWidth=screenWidth;
@@ -1538,20 +1690,24 @@ void glrender(const string& prefix, const picture *pic, const string& format,
     setosize();
 #endif
     
-    if(View && settings::verbose > 1) 
+    if(View && settings::verbose > 1)
       cout << "Rendering " << stripDir(prefix) << " as "
            << Width << "x" << Height << " image" << endl;
+#endif    
   }
 
+#ifdef HAVE_GL    
   bool havewindow=initialized && glthread && !offscreen;
   
 #ifdef HAVE_LIBGLUT    
   unsigned int displaymode=GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH;
-  
-  int buttons[]={GLUT_LEFT_BUTTON,GLUT_MIDDLE_BUTTON,GLUT_RIGHT_BUTTON};
-  string buttonnames[]={"left","middle","right"};
-  size_t nbuttons=sizeof(buttons)/sizeof(int);
 #endif  
+  
+#ifdef __APPLE__
+  displaymode |= GLUT_3_2_CORE_PROFILE;
+#endif  
+  
+  camp::clearMaterialBuffer();
   
 #if defined(MIKTEX) || defined(HAVE_PTHREAD)
   if(glthread && initializedView && !offscreen) {
@@ -1582,8 +1738,8 @@ void glrender(const string& prefix, const picture *pic, const string& format,
         displaymode |= GLUT_MULTISAMPLE;
       glutInitDisplayMode(displaymode);
 
-      ostringstream buf;
       int samples;
+
 #ifdef FREEGLUT
 #ifdef GLUT_INIT_MAJOR_VERSION
       while(true) {
@@ -1595,27 +1751,8 @@ void glrender(const string& prefix, const picture *pic, const string& format,
 #endif      
 #endif      
         string title=string(settings::PROGRAM)+": "+prefix;
-        string suffix;
-        for(size_t i=0; i < nbuttons; ++i) {
-          int button=buttons[i];
-          if(action(button,0) == "zoom/menu") {
-            suffix="Double click "+buttonnames[i]+" button for menu";
-            break;
-          }
-        }
-        if(suffix.empty()) {
-          for(size_t i=0; i < nbuttons; ++i) {
-            int button=buttons[i];
-            if(action(button,0) == "menu") {
-              suffix="Click "+buttonnames[i]+" button for menu";
-              break;
-            }
-          }
-        }
-      
-        title += " ["+suffix+"]";
-    
         window=glutCreateWindow(title.c_str());
+
         GLint samplebuf[1];
         glGetIntegerv(GL_SAMPLES,samplebuf);
         samples=samplebuf[0];
@@ -1649,10 +1786,26 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   }
 #endif // HAVE_LIBGLUT
   initialized=true;
-  
-  glMatrixMode(GL_MODELVIEW);
+
+  GLint val;
+  glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE,&val);
+  Maxmaterials=val/sizeof(Material);
+  if(nmaterials > Maxmaterials) nmaterials=Maxmaterials;
+
+  if(glinitialize) {
+    glinitialize=false;
+    int result = glewInit();
+
+    if (result != GLEW_OK) {
+      cerr << "GLEW initialization error." << endl;
+      exit(-1);
+    }
     
-  home();
+    initShaders();
+    setBuffers();
+  }
+  
+  glClearColor(Background[0],Background[1],Background[2],Background[3]);
     
 #ifdef HAVE_LIBGLUT
   if(!offscreen) {
@@ -1666,35 +1819,12 @@ void glrender(const string& prefix, const picture *pic, const string& format,
     }
   }
 #endif
-  
+
   glEnable(GL_BLEND);
   glEnable(GL_DEPTH_TEST);
-  glEnable(GL_MAP1_VERTEX_3);
-  glEnable(GL_MAP1_VERTEX_4);
-  glEnable(GL_MAP2_VERTEX_3);
-  glEnable(GL_MAP2_VERTEX_4);
-  glEnable(GL_MAP2_COLOR_4);
-  
+  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-  
-  if(nurb == NULL) {
-    nurb=gluNewNurbsRenderer();
-    if(nurb == NULL) 
-      outOfMemory();
-    gluNurbsProperty(nurb,GLU_SAMPLING_METHOD,GLU_PARAMETRIC_ERROR);
-    gluNurbsProperty(nurb,GLU_SAMPLING_TOLERANCE,0.5);
-    gluNurbsProperty(nurb,GLU_PARAMETRIC_TOLERANCE,1.0);
-    gluNurbsProperty(nurb,GLU_CULLING,GLU_TRUE);
-  
-    // The callback tessellation algorithm avoids artifacts at degenerate
-    // control points.
-    gluNurbsProperty(nurb,GLU_NURBS_MODE,GLU_NURBS_TESSELLATOR);
-    gluNurbsCallback(nurb,GLU_NURBS_BEGIN,(_GLUfuncptr) glBegin);
-    gluNurbsCallback(nurb,GLU_NURBS_VERTEX,(_GLUfuncptr) glVertex3fv);
-    gluNurbsCallback(nurb,GLU_NURBS_END,(_GLUfuncptr) glEnd);
-    gluNurbsCallback(nurb,GLU_NURBS_COLOR,(_GLUfuncptr) glColor4fv);
-  }
-  
   mode();
   
   if(View && !offscreen) {
@@ -1705,29 +1835,8 @@ void glrender(const string& prefix, const picture *pic, const string& format,
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
     glutMouseFunc(mouse);
-  
-    glutCreateMenu(menu);
-    glutAddMenuEntry("(h) Home",HOME);
-    glutAddMenuEntry("(f) Fitscreen",FITSCREEN);
-    glutAddMenuEntry("(x) X spin",XSPIN);
-    glutAddMenuEntry("(y) Y spin",YSPIN);
-    glutAddMenuEntry("(z) Z spin",ZSPIN);
-    glutAddMenuEntry("(s) Stop",STOP);
-    glutAddMenuEntry("(m) Mode",MODE);
-    glutAddMenuEntry("(e) Export",EXPORT);
-    glutAddMenuEntry("(c) Camera",CAMERA);
-    glutAddMenuEntry("(p) Play",PLAY);
-    glutAddMenuEntry("(r) Reverse",REVERSE);
-    glutAddMenuEntry("( ) Step",STEP);
-    glutAddMenuEntry("(q) Quit" ,QUIT);
-    glutMenuStatusFunc(menuStatus);
-  
-    for(size_t i=0; i < nbuttons; ++i) {
-      int button=buttons[i];
-      if(action(button,0) == "menu")
-        glutAttachMenu(button);
-    }
-    
+    glutDisplayFunc(display);
+
     glutMainLoop();
 #endif // HAVE_LIBGLUT
   } else {
@@ -1754,8 +1863,227 @@ void glrender(const string& prefix, const picture *pic, const string& format,
       quit();
     }
   }
+  
+#endif /* HAVE_GL */  
 }
 
 } // namespace gl
 
 #endif
+
+#ifdef HAVE_GL
+
+namespace camp {
+
+string getLightIndex(size_t const& index, string const& fieldName) {
+  ostringstream buf;
+  buf << "lights[" << index << "]." << fieldName;
+  return Strdup(buf.str());
+} 
+
+string getCenterIndex(size_t const& index) {
+  ostringstream buf;
+  buf << "Centers[" << index << "]";
+  return Strdup(buf.str());
+} 
+
+template<class T>
+void registerBuffer(const std::vector<T>& buffervector, GLuint bufferIndex,
+                    GLint type=GL_ARRAY_BUFFER) {
+  if(!buffervector.empty()) {
+    glBindBuffer(type,bufferIndex);
+    glBufferData(type,buffervector.size()*sizeof(T),
+                 buffervector.data(),GL_STATIC_DRAW);
+  }
+}
+
+void setUniforms(const vertexBuffer& data, GLint shader)
+{
+  bool normal=shader != pixelShader;
+    
+  if(shader != gl::lastshader) {
+    glUseProgram(shader);
+    gl::lastshader=shader;
+  
+    glUniform1i(glGetUniformLocation(shader,"nlights"),gl::nlights);
+  
+    for(size_t i=0; i < gl::nlights; ++i) {
+      triple Lighti=gl::Lights[i];
+      size_t i4=4*i;
+      glUniform3f(glGetUniformLocation(shader,
+                                       getLightIndex(i,"direction").c_str()),
+                  (GLfloat) Lighti.getx(),(GLfloat) Lighti.gety(),
+                  (GLfloat) Lighti.getz());
+
+      glUniform3f(glGetUniformLocation(shader,
+                                       getLightIndex(i,"color").c_str()),
+                  (GLfloat) gl::Diffuse[i4],(GLfloat) gl::Diffuse[i4+1],
+                  (GLfloat) gl::Diffuse[i4+2]);
+    }
+
+#if HAVE_LIBOPENIMAGEIO
+    // textures
+    if (settings::getSetting<bool>("envmap")) { 
+      glActiveTexture(GL_TEXTURE1);
+      glBindBuffer(GL_TEXTURE_2D, gl::envMapBuf);
+      glUniform1i(glGetUniformLocation(shader, "environmentMap"), 1);
+      glActiveTexture(GL_TEXTURE0);
+    }
+#endif
+  }
+  
+  GLuint binding=0;
+  GLint blockindex=glGetUniformBlockIndex(shader,"MaterialBuffer");
+  glUniformBlockBinding(shader,blockindex,binding);
+  registerBuffer(data.materials,gl::ubo,GL_UNIFORM_BUFFER);
+  glBindBufferBase(GL_UNIFORM_BUFFER,binding,gl::ubo);
+  
+  glUniformMatrix4fv(glGetUniformLocation(shader,"projViewMat"),1,GL_FALSE,
+                     value_ptr(gl::projViewMat));
+  
+  glUniformMatrix4fv(glGetUniformLocation(shader,"viewMat"),1,GL_FALSE,
+                     value_ptr(gl::viewMat));
+  if(normal)
+    glUniformMatrix3fv(glGetUniformLocation(shader,"normMat"),1,GL_FALSE,
+                       value_ptr(gl::normMat));
+}
+
+void drawBuffer(vertexBuffer& data, GLint shader)
+{
+  if(data.indices.empty()) return;
+  
+  bool normal=shader != pixelShader;
+  bool color=shader == colorShader || shader == transparentShader;
+  
+  const size_t size=sizeof(GLfloat);
+  const size_t intsize=sizeof(GLint);
+  const size_t bytestride=color ? sizeof(VertexData) :
+    (normal ? sizeof(vertexData) : sizeof(vertexData0));
+
+  if(color) registerBuffer(data.Vertices,attributeBuffer);
+  else if(normal) registerBuffer(data.vertices,attributeBuffer);
+  else registerBuffer(data.vertices0,attributeBuffer);
+  
+  registerBuffer(data.indices,indicesBuffer,GL_ELEMENT_ARRAY_BUFFER);
+  
+  glBindBuffer(GL_ARRAY_BUFFER,attributeBuffer);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,indicesBuffer);
+
+  camp::setUniforms(data,shader);
+
+  glVertexAttribPointer(positionAttrib,3,GL_FLOAT,GL_FALSE,bytestride,
+                        (void *) 0);
+  glEnableVertexAttribArray(positionAttrib);
+    
+  if(normal && gl::Nlights > 0) {
+    glVertexAttribPointer(normalAttrib,3,GL_FLOAT,GL_FALSE,bytestride,
+                          (void *) (3*size));
+    glEnableVertexAttribArray(normalAttrib);
+  } else if(!normal) {
+    glVertexAttribPointer(widthAttrib,1,GL_FLOAT,GL_FALSE,bytestride,
+                          (void *) (3*size));
+    glEnableVertexAttribArray(widthAttrib);
+  }
+    
+  glVertexAttribIPointer(materialAttrib,1,GL_INT,bytestride, 
+                         (void *) ((normal ? 6 : 4)*size));
+  glEnableVertexAttribArray(materialAttrib);
+
+  if(color) {
+    glVertexAttribPointer(colorAttrib,4,GL_UNSIGNED_BYTE,GL_TRUE,bytestride,
+                          (void *) (6*size+intsize));
+    glEnableVertexAttribArray(colorAttrib);
+  }
+  
+  glDrawElements(data.type,data.indices.size(),GL_UNSIGNED_INT,(void *) 0);
+
+  glDisableVertexAttribArray(positionAttrib);
+  if(normal && gl::Nlights > 0)
+    glDisableVertexAttribArray(normalAttrib);
+  if(!normal)
+   glDisableVertexAttribArray(widthAttrib);
+  glDisableVertexAttribArray(materialAttrib);
+  if(color)
+    glDisableVertexAttribArray(colorAttrib);
+  
+  glBindBuffer(GL_UNIFORM_BUFFER,0);
+  
+  glBindBuffer(GL_ARRAY_BUFFER,0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+}
+
+void drawMaterial0()
+{
+  drawBuffer(material0Data,pixelShader);
+  material0Data.clear();
+}
+
+void drawMaterial1()
+{
+  drawBuffer(material1Data,materialShader);
+  material1Data.clear();
+}
+
+void drawMaterial()
+{
+  drawBuffer(materialData,materialShader);
+  materialData.clear();
+}
+
+void drawColor()
+{
+  drawBuffer(colorData,colorShader);
+  colorData.clear();
+}
+
+void drawTriangle()
+{
+  drawBuffer(triangleData,transparentShader);
+  triangleData.clear();
+}
+
+void drawTransparent()
+{
+  sortTriangles();
+  glDepthMask(GL_FALSE); // Enable transparency
+  drawBuffer(transparentData,transparentShader);
+  glDepthMask(GL_TRUE); // Disable transparency
+  transparentData.clear();
+}
+
+void drawBuffers()
+{
+  drawMaterial0();
+  drawMaterial1();
+  drawMaterial();
+  drawColor();
+  drawTriangle();
+  drawTransparent();
+}
+
+void clearMaterialBuffer()
+{
+  material.clear();
+  material.reserve(nmaterials);
+  materialMap.clear();
+  materialIndex=0;
+}
+
+void setMaterial(vertexBuffer& data, draw_t *draw)
+{
+  if(materialIndex >= data.materialTable.size() ||
+     data.materialTable[materialIndex] == -1) {
+    if(data.materials.size() >= Maxmaterials)
+      (*draw)();
+    size_t size0=data.materialTable.size();
+    data.materialTable.resize(materialIndex+1);
+    for(size_t i=size0; i < materialIndex; ++i)
+      data.materialTable[i]=-1;
+    data.materialTable[materialIndex]=data.materials.size();
+    data.materials.push_back(material[materialIndex]);
+  }
+  materialIndex=data.materialTable[materialIndex];
+}
+
+}
+#endif /* HAVE_GL */

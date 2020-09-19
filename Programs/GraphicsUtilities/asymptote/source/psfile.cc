@@ -143,15 +143,18 @@ psfile::~psfile()
   close();
 }
   
-void psfile::header()
+void psfile::header(bool eps)
 {
   Int level=settings::getSetting<Int>("level");
-  *out << "%!PS-Adobe-" << level << ".0 EPSF-" << level << ".0" << newl;
+  *out << "%!PS-Adobe-" << level << ".0";
+  if(eps)
+    *out << " EPSF-" << level << ".0";
+  *out << newl;
 }
   
 void psfile::prologue(const bbox& box)
 {
-  header();
+  header(true);
   BoundingBox(box);
   *out << "%%Creator: " << settings::PROGRAM << " " << settings::VERSION
        << REVISION <<  newl;

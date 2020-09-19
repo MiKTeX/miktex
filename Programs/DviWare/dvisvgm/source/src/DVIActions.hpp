@@ -2,7 +2,7 @@
 ** DVIActions.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -40,7 +40,7 @@ struct DVIActions {
 	virtual void beginPage (unsigned pageno, const std::vector<int32_t> &c) {}
 	virtual void endPage (unsigned pageno) {}
 	virtual BoundingBox& bbox () =0;
-	virtual void progress (size_t current, size_t total, const char *id=0) {}
+	virtual void progress (size_t current, size_t total, const char *id=nullptr) {}
 };
 
 #endif

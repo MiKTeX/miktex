@@ -13,6 +13,8 @@
 
 using std::ofstream;
 using settings::getSetting;
+using settings::ps2tex;
+using settings::tex2ps;
 using vm::array;
 using vm::read;
 
@@ -44,7 +46,7 @@ texfile::~texfile()
   
 void texfile::miniprologue()
 {
-  texpreamble(*out,processData().TeXpreamble,false);
+  texpreamble(*out,processData().TeXpreamble,true);
   if(settings::latex(texengine)) {
     *out << "\\pagestyle{empty}" << newl
          << "\\textheight=2048pt" << newl
@@ -63,7 +65,7 @@ void texfile::prologue()
   if(inlinetex) {
     string prename=buildname(settings::outname(),"pre");
     std::ofstream *outpreamble=new std::ofstream(prename.c_str());
-    texpreamble(*outpreamble,processData().TeXpreamble,true,false);
+    texpreamble(*outpreamble,processData().TeXpreamble,false,false);
     outpreamble->close();
   }
   
@@ -102,15 +104,19 @@ void texfile::prologue()
     *out << "\\usepackage{everypage}%" << newl;
   
   if(settings::latex(texengine)) {
-    *out << "\\setlength{\\unitlength}{1pt}" << newl;
+    *out << "\\setlength{\\unitlength}{1pt}%" << newl;
     if(!inlinetex) {
       *out << "\\pagestyle{empty}" << newl
            << "\\textheight=" << height+18.0 << "bp" << newl
            << "\\textwidth=" << width+18.0 << "bp" << newl;
       if(settings::pdf(texengine))
-        *out << "\\oddsidemargin=-17.61pt" << newl
+        *out << "\\parindent=0pt" << newl
+             << "\\oddsidemargin=0pt" << newl
              << "\\evensidemargin=\\oddsidemargin" << newl
-             << "\\topmargin=-37.01pt" << newl;
+             << "\\headheight=0pt" << newl
+             << "\\headsep=0pt" << newl
+             << "\\topmargin=0pt" << newl
+             << "\\topskip=0pt" << newl;
       *out << "\\begin{document}" << newl;
     }
     latexfontencoding(*out);
@@ -149,24 +155,18 @@ void texfile::beginlayer(const string& psname, bool postscript)
         *out << "{\\catcode`\"=12%" << newl
              << "\\includegraphics";
         bool pdf=settings::pdf(texengine);
-        string quote;
         string name=stripExt(psname);
         if(inlinetex) {
           size_t pos=name.rfind("-");
           if(pos < string::npos) name="\\ASYprefix\\jobname"+name.substr(pos);
         } else {
           if(!pdf) name=psname;
-          if(stripDir(name) != name)
-            quote="\"";
         }
         
-        if(pdf) *out << "{" << quote << name << quote << ".pdf}%" << newl;
-        else {
+        if(!pdf)
           *out << "[bb=" << box.left << " " << box.bottom << " "
-               << box.right << " " << box.top << "]"
-               << "{" << quote << name << quote << "}%" << newl;
-        }
-        *out << "}%" << newl;
+               << box.right << " " << box.top << "]";
+        *out << "{" << name << "}%" << newl << "}%" << newl;
       }
       if(!inlinetex)
         *out << "\\kern " << (box.left-box.right)*ps2tex << "pt%" << newl;
@@ -199,19 +199,19 @@ void texfile::setlatexcolor(pen p)
                    p.black() != lastpen.black()))) {
     *out << "\\definecolor{ASYcolor}{cmyk}{" 
          << p.cyan() << "," << p.magenta() << "," << p.yellow() << "," 
-         << p.black() << "}\\color{ASYcolor}" << newl;
+         << p.black() << "}\\color{ASYcolor}%" << newl;
   } else if(p.rgb() && (!lastpen.rgb() ||
                         (p.red() != lastpen.red() ||
                          p.green() != lastpen.green() || 
                          p.blue() != lastpen.blue()))) {
     *out << "\\definecolor{ASYcolor}{rgb}{" 
          << p.red() << "," << p.green() << "," << p.blue()
-         << "}\\color{ASYcolor}" << newl;
+         << "}\\color{ASYcolor}%" << newl;
   } else if(p.grayscale() && (!lastpen.grayscale() || 
                               p.gray() != lastpen.gray())) {
     *out << "\\definecolor{ASYcolor}{gray}{" 
          << p.gray()
-         << "}\\color{ASYcolor}" << newl;
+         << "}\\color{ASYcolor}%" << newl;
   }
 }
   
@@ -349,10 +349,11 @@ void svgtexfile::endspecial()
   
 void svgtexfile::begintransform()
 {
+  bbox b=box;
+  b.left=-Hoffset;
+  b=svgbbox(b);
   *out << "<g transform='matrix(" << tex2ps << " 0 0 " << tex2ps <<" "
-       << (-Hoffset+1.99*settings::cm) << " " 
-       << (1.9*settings::cm+box.top) 
-       << ")'>" << nl;
+       << b.left << " " << b.top << ")'>" << nl;
 }
     
 void svgtexfile::endtransform()

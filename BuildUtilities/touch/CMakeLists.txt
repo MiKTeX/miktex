@@ -28,7 +28,7 @@ set(touch_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND touch_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     touch.rc
   )
 endif()

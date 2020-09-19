@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "2.8.1"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2006-2017 by David Turner, Robert Wilhelm, and Werner Lemberg"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2006-2017 by David Turner, Robert Wilhelm, and Werner Lemberg"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2006-2017 by David Turner, Robert Wilhelm, and Werner Lemberg"
 
 #include <miktex/Version>

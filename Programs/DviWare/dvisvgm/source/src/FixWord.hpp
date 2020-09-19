@@ -2,7 +2,7 @@
 ** FixWord.hpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -25,14 +25,14 @@
 
 class FixWord {
 	public:
-		FixWord () : _value(0) {}
+		FixWord () =default;
 		FixWord (int32_t fw) : _value(fw) {}
 		explicit operator double () const {return double(_value)/(1 << 20);}
 		bool operator < (FixWord fw) const {return _value < fw._value;}
 		bool operator == (FixWord fw) const {return _value == fw._value;}
 
 	private:
-		int32_t _value;
+		int32_t _value=0;
 };
 
 #endif

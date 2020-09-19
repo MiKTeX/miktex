@@ -1,6 +1,6 @@
 /* webapp.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -19,13 +19,42 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <iostream>
 #include <set>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileStream>
+#include <miktex/Core/VersionNumber>
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMFEXPORT
+#endif
+#define B8C7815676699B4EA2DE96F0BD727276
+#include "miktex/TeXAndFriends/WebApp.h"
 
 #include "internal.h"
 #include "texmf-version.h"
+
+using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::TeXAndFriends;
+using namespace MiKTeX::Util;
+using namespace MiKTeX::Wrappers;
 
 class WebApp::impl
 {
@@ -73,6 +102,8 @@ public:
 public:
   PathName packageListFileName;
 public:
+  C4P::ProgramBase* program;
+public:
   string programName;
 public:
   PathName tcxFileName;
@@ -96,6 +127,8 @@ public:
   bool isTeXProgram;
 public:
   bool isMETAFONTProgram;
+public:
+  bool verbose = true;
 };
 
 WebApp::WebApp() :
@@ -234,7 +267,7 @@ void WebApp::AddOptions()
   AddOption(T_("kpathsea-debug\0"), OPT_UNSUPPORTED, POPT_ARG_STRING);
   AddOption(T_("record-package-usages\0Enable the package usage recorder.  Output is written to FILE."), FIRST_OPTION_VAL + pimpl->optBase + OPT_RECORD_PACKAGE_USAGES, POPT_ARG_STRING, T_("FILE"));
   AddOption(T_("trace\0Turn tracing on.  OPTIONS must be a comma-separated list of trace options.   See the manual, for more information."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TRACE, POPT_ARG_STRING, T_("OPTIONS"));
-  AddOption("verbose\0", OPT_UNSUPPORTED);
+  AddOption(T_("verbose\0Turn on verbose mode."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERBOSE);
   AddOption(T_("version\0Print version information and exit."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERSION);
 #if defined(MIKTEX_WINDOWS)
   if (GetHelpId() > 0)
@@ -268,10 +301,10 @@ bool WebApp::ProcessOption(int opt, const string& optArg)
     EnableInstaller(TriState::True);
     break;
   case OPT_INCLUDE_DIRECTORY:
-    if (Directory::Exists(optArg))
+    if (Directory::Exists(PathName(optArg)))
     {
       PathName path(optArg);
-      path.MakeAbsolute();
+      path.MakeFullyQualified();
       session->AddInputDirectory(path, true);
     }
     break;
@@ -289,7 +322,10 @@ bool WebApp::ProcessOption(int opt, const string& optArg)
     pimpl->packageListFileName = optArg;
     break;
   case OPT_TRACE:
-    MiKTeX::Trace::TraceStream::SetTraceFlags(optArg);
+    MiKTeX::Trace::TraceStream::SetOptions(optArg);
+    break;
+  case OPT_VERBOSE:
+    pimpl->verbose = true;
     break;
   case OPT_VERSION:
     ShowProgramVersion();
@@ -310,8 +346,8 @@ inline bool operator< (const poptOption& opt1, const poptOption& opt2)
 
 void WebApp::ProcessCommandLineOptions()
 {
-  int argc = C4P::GetArgC();
-  const char** argv = C4P::GetArgV();
+  int argc = GetProgram()->GetArgC();
+  const char** argv = GetProgram()->GetArgV();
 
   if (pimpl->options.empty())
   {
@@ -343,7 +379,7 @@ void WebApp::ProcessCommandLineOptions()
     MIKTEX_FATAL_ERROR_2(T_("The command line options could not be processed."), "optionError", pimpl->popt.Strerror(opt));
   }
 
-  C4P::MakeCommandLine(pimpl->popt.GetLeftovers());
+  GetProgram()->MakeCommandLine(pimpl->popt.GetLeftovers());
 }
 
 string WebApp::TheNameOfTheGame() const
@@ -353,7 +389,7 @@ string WebApp::TheNameOfTheGame() const
 
 void WebApp::ShowProgramVersion() const
 {
-  cout << "MiKTeX" << '-' << TheNameOfTheGame() << ' ' << pimpl->version << " (" << Utils::GetMiKTeXBannerString() << ')' << endl
+  cout << "MiKTeX" << '-' << TheNameOfTheGame() << ' ' << VersionNumber(pimpl->version).ToString() << " (" << Utils::GetMiKTeXBannerString() << ')' << endl
     << pimpl->copyright << endl;
   if (!pimpl->trademarks.empty())
   {
@@ -363,12 +399,14 @@ void WebApp::ShowProgramVersion() const
   ShowLibraryVersions();
 }
 
-void WebApp::SetProgramInfo(const string& programName, const string& version, const string& copyright, const string& trademarks)
+void WebApp::SetProgram(C4P::ProgramBase* program, const string& programName, const string& version, const string& copyright, const string& trademarks)
 {
+  pimpl->program = program;
   pimpl->programName = programName;
   pimpl->version = version;
   pimpl->copyright = copyright;
   pimpl->trademarks = trademarks;
+  LogInfo(fmt::format(T_("this is MiKTeX-{0} {1} ({2})"), programName, version, Utils::GetMiKTeXBannerString()));
 }
 
 bool WebApp::IsFeatureEnabled(Feature f) const
@@ -471,4 +509,14 @@ bool WebApp::AmITeX() const
 bool WebApp::AmIMETAFONT() const
 {
   return pimpl->isMETAFONTProgram;
+}
+
+bool WebApp::GetVerboseFlag() const
+{
+  return pimpl->verbose;
+}
+
+C4P::ProgramBase* WebApp::GetProgram() const
+{
+  return pimpl->program;
 }

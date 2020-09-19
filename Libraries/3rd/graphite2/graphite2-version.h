@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.3.12"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2010 SIL International"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2010 SIL International"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2010 SIL International"
 
 #include <miktex/Version>

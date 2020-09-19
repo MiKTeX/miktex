@@ -1,6 +1,6 @@
 /* findtexmf.cpp: finding TeXMF related files
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of FindTeXMF.
 
@@ -73,7 +73,7 @@ private:
   void PrintSearchPath(const char* lpszSearchPath);
 
 public:
-  void Run(int argc, const char** argv);
+  int Run(int argc, const char** argv);
 
 private:
   bool mustExist = false;
@@ -187,8 +187,10 @@ const struct poptOption FindTeXMF::aoption[] =
 void FindTeXMF::ShowVersion()
 {
   cout
-    << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR) << endl
-    << "Copyright (C) 2001-2017 Christian Schenk" << endl
+    << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+    << endl
+    << MIKTEX_COMP_COPYRIGHT_STR << endl
+    << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
@@ -202,7 +204,7 @@ void FindTeXMF::ListFileTypes()
     {
       continue;
     }
-    cout << "  " << fti.fileTypeString << " (" << StringUtil::Flatten(fti.fileNameExtensions, PathName::PathNameDelimiter) << ")" << endl;
+    cout << "  " << fti.fileTypeString << " (" << StringUtil::Flatten(fti.fileNameExtensions, PathNameUtil::PathNameDelimiter) << ")" << endl;
   }
 }
 
@@ -211,10 +213,10 @@ void FindTeXMF::PrintSearchPath(const char* lpszSearchPath)
   bool first = true;
   PathName mpmRootPath = session->GetMpmRootPath();
   size_t mpmRootPathLen = mpmRootPath.GetLength();
-  for (const string& path : StringUtil::Split(lpszSearchPath, PathName::PathNameDelimiter))
+  for (const string& path : StringUtil::Split(lpszSearchPath, PathNameUtil::PathNameDelimiter))
   {
-    if ((PathName::Compare(path, mpmRootPath, mpmRootPathLen) == 0)
-      && (path.length() == mpmRootPathLen || IsDirectoryDelimiter(path[mpmRootPathLen])))
+    if ((PathName::Compare(PathName(path), mpmRootPath, mpmRootPathLen) == 0)
+      && (path.length() == mpmRootPathLen || PathNameUtil::IsDirectoryDelimiter(path[mpmRootPathLen])))
     {
       continue;
     }
@@ -231,7 +233,7 @@ void FindTeXMF::PrintSearchPath(const char* lpszSearchPath)
   cout << endl;
 }
 
-void FindTeXMF::Run(int argc, const char** argv)
+int FindTeXMF::Run(int argc, const char** argv)
 {
   session = GetSession();
 
@@ -265,7 +267,7 @@ void FindTeXMF::Run(int argc, const char** argv)
 
     case OPT_FILE_TYPE:
 
-      fileType = session->DeriveFileType(optArg);
+      fileType = session->DeriveFileType(PathName(optArg));
       if (fileType == FileType::None)
       {
         FatalError(fmt::format(T_("Unknown file type: {0}."), optArg));
@@ -286,7 +288,7 @@ void FindTeXMF::Run(int argc, const char** argv)
     case OPT_SHOW_PATH:
 
     {
-      FileType filetype = session->DeriveFileType(optArg);
+      FileType filetype = session->DeriveFileType(PathName(optArg));
       if (filetype == FileType::None)
       {
         FatalError(fmt::format(T_("Unknown file type: {0}."), optArg));
@@ -333,7 +335,7 @@ void FindTeXMF::Run(int argc, const char** argv)
   {
     if (!needArg)
     {
-      return;
+      return EXIT_SUCCESS;
     }
     else
     {
@@ -341,13 +343,15 @@ void FindTeXMF::Run(int argc, const char** argv)
     }
   }
 
+  int exitCode = EXIT_SUCCESS;
+
   for (const string& fileName : leftovers)
   {
     PathName path;
     FileType filetype = fileType;
     if (filetype == FileType::None)
     {
-      filetype = session->DeriveFileType(fileName);
+      filetype = session->DeriveFileType(PathName(fileName));
       if (filetype == FileType::None)
       {
         filetype = FileType::TEX;
@@ -372,7 +376,13 @@ void FindTeXMF::Run(int argc, const char** argv)
 #endif
       }
     }
+    else
+    {
+      exitCode = EXIT_FAILURE;
+    }
   }
+
+  return exitCode;
 }
 
 #if defined(_UNICODE)
@@ -406,23 +416,26 @@ int MAIN(int argc, MAINCHAR** argv)
     }
     newargv.push_back(nullptr);
     app.Init(newargv);
-    app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
-    app.Finalize2(0);
-    return 0;
+    int exitCode = app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
+    app.Finalize2(exitCode);
+    return exitCode;
   }
   catch (const MiKTeXException& ex)
   {
     Application::Sorry(TheNameOfTheGame, ex);
+    app.Finalize2(EXIT_FAILURE);
     ex.Save();
-    return 1;
+    return EXIT_FAILURE;
   }
   catch (const exception& ex)
   {
     Application::Sorry(TheNameOfTheGame, ex);
-    return 1;
+    app.Finalize2(EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
   catch (int exitCode)
   {
+    app.Finalize2(exitCode);
     return exitCode;
   }
 }

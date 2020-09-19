@@ -2,7 +2,7 @@
 ** Color.hpp                                                            **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -30,8 +30,7 @@
 #undef TRANSPARENT
 #endif
 
-class Color
-{
+class Color {
 	public:
 		static bool SUPPRESS_COLOR_NAMES;
 		static const Color BLACK;
@@ -41,12 +40,12 @@ class Color
 		enum class ColorSpace {GRAY, RGB, CMYK, LAB};
 
 	public:
-		Color () : _rgb(0) {}
-		Color (uint32_t rgb) : _rgb(rgb)         {}
-		Color (uint8_t r, uint8_t g, uint8_t b)  {setRGB(r,g,b);}
-		Color (double r, double g, double b)     {setRGB(r,g,b);}
-		Color (const std::valarray<double> &rgb) {setRGB(rgb);}
-		Color (const std::string &name);
+		Color () noexcept =default;
+		explicit Color (uint32_t rgb) noexcept : _rgb(rgb)         {}
+		Color (uint8_t r, uint8_t g, uint8_t b) noexcept  {setRGB(r,g,b);}
+		Color (double r, double g, double b) noexcept     {setRGB(r,g,b);}
+		explicit Color (const std::valarray<double> &rgb) noexcept {setRGB(rgb);}
+		explicit Color (const std::string &name);
 		explicit operator uint32_t () const            {return _rgb;}
 		bool operator == (const Color &c) const        {return _rgb == c._rgb;}
 		bool operator != (const Color &c) const        {return _rgb != c._rgb;}
@@ -91,7 +90,7 @@ class Color
 		static int numComponents (ColorSpace colorSpace);
 
 	private:
-		uint32_t _rgb;
+		uint32_t _rgb=0;
 };
 
 #endif

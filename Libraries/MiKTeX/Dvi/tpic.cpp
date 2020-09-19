@@ -1,6 +1,6 @@
 /* tpic.cpp: tpic specials
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -38,7 +38,7 @@ DviSpecialType TpicPolySpecialImpl::Parse()
   {
     if (sscanf_s(GetXXX(), "da %f", &polyLength) != 1)
     {
-      trace_error->WriteLine("libdvi", T_("bad da special"));
+      pDviPageImpl->Error(T_("bad da special"));
     }
     else
     {
@@ -49,7 +49,7 @@ DviSpecialType TpicPolySpecialImpl::Parse()
   {
     if (sscanf_s(GetXXX(), "dt %f", &polyLength) != 1)
     {
-      trace_error->WriteLine("libdvi", T_("bad dt special"));
+      pDviPageImpl->Error(T_("bad dt special"));
     }
     else
     {
@@ -81,7 +81,7 @@ DviSpecialType TpicArcSpecialImpl::Parse()
   hasOutline = (strncmp(GetXXX(), "ar", 2) == 0);
   if (sscanf_s(GetXXX() + 2, " %d %d %d %d %f %f", &cx, &cy, &m_rx, &m_ry, &m_s, &m_e) != 6)
   {
-    trace_error->WriteLine("libdvi", T_("bad ar special"));
+    pDviPageImpl->Error(T_("bad ar special"));
     return DviSpecialType::Unknown;
   }
   return DviSpecialType::Tpic;
